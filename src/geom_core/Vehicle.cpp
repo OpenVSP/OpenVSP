@@ -3374,7 +3374,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                     // This check is to ensure any triangles remaining from the positive bodies on the symmetry plane are removed.
                     // Absolute tolerance here, would be perhaps better as a fraction of the triangle's edge lengths.  Comparison
                     // based on triangle center location, so it should be reliable.
-                    MeshGeom::IgnoreYLessThan( mg->m_TMeshVec, -1e-5 );
+                    IgnoreYLessThan( mg->m_TMeshVec, -1e-5 );
 
                     // Purge ignored tris.
                     mg->FlattenTMeshVec();

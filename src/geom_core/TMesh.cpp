@@ -9520,3 +9520,523 @@ double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int 
     }
     return sliceW;
 }
+
+double CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm )
+{
+    Matrix4d mat;
+    mat.rotatealongX( norm );
+    mat.translatev( -cen );
+
+    int n = tm->m_NVec.size();
+    double maxx = -1.0;
+    for ( int i = 0; i < n; i++ )
+    {
+        vec3d pt = mat.xform( tm->m_NVec[i]->m_Pnt );
+
+        double ax = std::abs( pt.x() );
+        if ( ax > maxx )
+        {
+            maxx = ax;
+        }
+    }
+
+    return maxx;
+}
+
+void FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm )
+{
+    int n = tm->m_NVec.size();
+    vector < vec3d > pts;
+    pts.reserve( n );
+    for ( int i = 0; i < n; i++ )
+    {
+        pts.push_back( tm->m_NVec[i]->m_Pnt );
+    }
+
+    FitPlane( pts, cen, norm );
+}
+
+// Prioritize TMeshes by:
+// 1 Wing surface type.  Wings dominate all other types.
+// 2 Mass priority.  User can manually change priority.
+// 3 GeomID alphabetically.  Arbitrary, but repeatable within one file.
+// 4 Surface number.  Break ties repeatably from symmetry.
+static bool CutterTMeshCompare( TMesh* a, TMesh* b )
+{
+    if ( a->m_SurfType == vsp::WING_SURF && b->m_SurfType != vsp::WING_SURF )
+        return true;
+
+    if ( b->m_SurfType == vsp::WING_SURF && a->m_SurfType != vsp::WING_SURF )
+        return false;
+
+    if ( a->m_MassPrior > b->m_MassPrior )
+        return true;
+
+    if ( b->m_MassPrior > a->m_MassPrior )
+        return false;
+
+    if ( a->m_OriginGeomID < b->m_OriginGeomID )
+        return true;
+
+    if ( b->m_OriginGeomID < b->m_OriginGeomID )
+        return false;
+
+    return ( a->m_SurfNum < b->m_SurfNum );
+}
+
+TMesh* MakeCutter( TMesh *tm, const vec3d &norm )
+{
+    // Convert input TMesh into PGMesh to make isolating the boundary easier.
+    PGMulti pgmulti;
+    PGMesh *pgm = pgmulti.GetActiveMesh();
+
+    vector < PGNode* > nod( tm->m_NVec.size() );
+    for ( int i = 0; i < tm->m_NVec.size(); i++ )
+    {
+        tm->m_NVec[i]->m_ID = i;
+        PGPoint *pnt = pgmulti.AddPoint( tm->m_NVec[i]->m_Pnt );
+        nod[i] = pgm->AddNode( pnt );
+    }
+
+    for ( int i = 0; i < tm->m_TVec.size(); i++ )
+    {
+        TTri *t = tm->m_TVec[i];
+        pgm->AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
+                     t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
+                     t->m_Norm, t->m_iQuad, 0, t->m_jref, t->m_kref );
+    }
+
+    // Merge Nodes and Edges to make topologically correct.
+    pgm->MergeCoincidentNodes();
+
+    // Build vector of boundary edges.
+    vector < PGEdge* > boundary_edges;
+    list< PGEdge* >::iterator e;
+    for ( e = pgm->m_EdgeList.begin(); e != pgm->m_EdgeList.end(); ++e )
+    {
+        if ( ( *e )->m_FaceVec.size() < 2 )
+        {
+            boundary_edges.push_back( (*e) );
+        }
+    }
+
+    // Construct new TMesh cutter volume from surfaces.
+    TMesh *tm_cutter = new TMesh();
+
+    int numnode = pgm->m_NodeList.size();
+    tm_cutter->m_NVec.resize( numnode * 2 );
+
+    int inode = 0;
+    list< PGNode* >::iterator n;
+    for ( n = pgm->m_NodeList.begin() ; n != pgm->m_NodeList.end(); ++n )
+    {
+        ( *n )->m_Pt->m_ID = inode;
+
+        TNode *n1 = new TNode();
+        n1->m_Pnt = ( *n )->m_Pt->m_Pnt - 10 * norm;
+        n1->m_ID = inode;
+        tm_cutter->m_NVec[ inode ] = n1;
+
+        TNode *n2 = new TNode();
+        n2->m_Pnt = ( *n )->m_Pt->m_Pnt + 10 * norm;
+        n2->m_ID = inode + numnode;
+        tm_cutter->m_NVec[ inode + numnode ] = n2;
+
+        inode++;
+    }
+
+    list< PGFace* >::iterator f;
+    for ( f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodesAsTris( nodVec );
+
+        int npt = nodVec.size();
+        int ntri = npt / 3;
+
+        for ( int i = 0; i < ntri; i++ )
+        {
+            TTri *t = new TTri( tm_cutter );
+
+            t->m_N0 = tm_cutter->m_NVec[ nodVec[ i * 3 + 0 ]->m_Pt->m_ID ];
+            t->m_N1 = tm_cutter->m_NVec[ nodVec[ i * 3 + 1 ]->m_Pt->m_ID ];
+            t->m_N2 = tm_cutter->m_NVec[ nodVec[ i * 3 + 2 ]->m_Pt->m_ID ];
+
+            t->CompNorm();
+            tm_cutter->m_TVec.push_back( t );
+
+            t = new TTri( tm_cutter );
+
+            t->m_N0 = tm_cutter->m_NVec[ nodVec[ i * 3 + 0 ]->m_Pt->m_ID + numnode ];
+            t->m_N2 = tm_cutter->m_NVec[ nodVec[ i * 3 + 1 ]->m_Pt->m_ID + numnode ];
+            t->m_N1 = tm_cutter->m_NVec[ nodVec[ i * 3 + 2 ]->m_Pt->m_ID + numnode ];
+
+            t->CompNorm();
+            tm_cutter->m_TVec.push_back( t );
+        }
+    }
+
+    // Boundary faces are not guaranteed to be consistently oriented.  However,
+    // it doesn't matter for use as a cutting volume.
+    for ( int i = 0; i < boundary_edges.size(); i++ )
+    {
+        PGEdge* e = boundary_edges[i];
+
+        TTri *t = new TTri( tm_cutter );
+
+        t->m_N0 = tm_cutter->m_NVec[ e->m_N0->m_Pt->m_ID ];
+        t->m_N1 = tm_cutter->m_NVec[ e->m_N0->m_Pt->m_ID + numnode ];
+        t->m_N2 = tm_cutter->m_NVec[ e->m_N1->m_Pt->m_ID ];
+        t->CompNorm();
+        tm_cutter->m_TVec.push_back( t );
+
+        t = new TTri( tm_cutter );
+
+        t->m_N0 = tm_cutter->m_NVec[ e->m_N0->m_Pt->m_ID + numnode ];
+        t->m_N1 = tm_cutter->m_NVec[ e->m_N1->m_Pt->m_ID + numnode ];
+        t->m_N2 = tm_cutter->m_NVec[ e->m_N1->m_Pt->m_ID ];
+        t->CompNorm();
+        tm_cutter->m_TVec.push_back( t );
+    }
+
+    return tm_cutter;
+}
+
+void CutMesh( TMesh *target_tm, TMesh *cutter_tm )
+{
+    target_tm->LoadBndBox();
+
+    target_tm->Intersect( cutter_tm );
+    cutter_tm->RemoveIsectEdges();
+    target_tm->Split();
+
+    vector < TMesh* > cutter_tmvec;
+    cutter_tmvec.push_back( cutter_tm );
+    target_tm->DeterIntExt( cutter_tmvec );
+
+    vector < int > bTypes;
+    bTypes.push_back( vsp::CFD_NORMAL );
+    vector < bool > thicksurf;
+    thicksurf.push_back( true );
+
+    target_tm->SetIgnoreTriFlag( bTypes, thicksurf );
+}
+
+void TrimTMeshSequence( vector < TMesh* > tmvec )
+{
+    int nMesh = tmvec.size();
+
+    int npt = 0;
+    for ( int i = 0 ; i < nMesh; i++ )
+    {
+        npt += tmvec[ i ]->m_NVec.size();
+    }
+
+    vector < vec3d > pts;
+    pts.reserve( npt );
+    for ( int i = 0 ; i < nMesh; i++ )
+    {
+        for ( int j = 0; j < tmvec[ i ]->m_NVec.size(); j++ )
+        {
+            pts.push_back( tmvec[ i ]->m_NVec[ j ]->m_Pnt );
+        }
+    }
+
+    // Best fit plane to all points across all meshes.
+    vec3d cen, norm;
+    FitPlane( pts, cen, norm );
+
+    for ( int i = nMesh - 2 ; i >= 0; i-- ) // Iterate over cutters backwards.
+    {
+        TMesh *cutter_tm = MakeCutter( tmvec[i], norm );
+        cutter_tm->LoadBndBox();
+        for ( int j = i + 1 ; j < nMesh; j++ ) // Apply to all later meshes.
+        {
+            CutMesh( tmvec[j], cutter_tm );
+            tmvec[j]->FlattenInPlace();
+        }
+        delete cutter_tm;
+    }
+}
+
+void TrimCoplanarPatches( vector < TMesh* > &tmv )
+{
+    double tol = 1e-6;
+
+    int nMesh = tmv.size();
+    vector < int > root_coplanar( nMesh, -1 );
+
+    for ( int i = 0 ; i < nMesh - 1; i++ )
+    {
+        TMesh *tmi = tmv[ i ];
+
+        if ( tmi->m_FlatPatch )
+        {
+            vec3d cen, norm;
+            FitPlaneToMesh( tmi, cen, norm );
+
+            for ( int j = i + 1; j < nMesh; j++ )
+            {
+                TMesh *tmj = tmv[ j ];
+
+                if ( tmj->m_FlatPatch &&
+                     ( root_coplanar[j] == -1 ) &&
+                     !( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
+                        tmi->m_SurfNum == tmj->m_SurfNum &&
+                        tmi->m_PlateNum == tmj->m_PlateNum )
+                   )
+                {
+                    if ( CalcMeshDeviation( tmj, cen, norm ) < tol )
+                    {
+                        root_coplanar[i] = i;
+                        root_coplanar[j] = i;
+                    }
+                }
+            }
+        }
+    }
+
+    for ( int i = 0 ; i < nMesh - 1; i++ )
+    {
+        vector < TMesh* > tmgroup;
+        if ( root_coplanar[i] == i )
+        {
+            tmgroup.push_back( tmv[ i ] );
+            for ( int j = i + 1; j < nMesh; j++ )
+            {
+                if ( root_coplanar[j] == i )
+                {
+                    tmgroup.push_back( tmv[ j ] );
+                }
+            }
+        }
+
+        // Sort in order of priority.  First should cut all later etc.
+        std::sort( tmgroup.begin(), tmgroup.end(), CutterTMeshCompare );
+
+        TrimTMeshSequence( tmgroup );
+
+        for ( int j = 0; j < tmgroup.size(); j++ )
+        {
+            tmgroup[j]->m_InGroup.push_back( i );
+        }
+    }
+}
+
+// When Degen plate and camber surfaces are made into TMeshs, they can be split into patches if some areas
+// are planar.  This stitches those back together.
+void MergeCoplanarSplitPatches( vector < TMesh* > &tmv )
+{
+    for ( int i = 0 ; i < ( int )tmv.size() - 1; i++ )
+    {
+        TMesh *tmi = tmv[ i ];
+        if ( tmi->m_DeleteMeFlag == false )
+        {
+            for ( int j = i + 1 ; j < ( int )tmv.size(); j++ )
+            {
+                TMesh *tmj = tmv[ j ];
+                if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
+                     tmi->m_SurfNum == tmj->m_SurfNum &&
+                     tmi->m_PlateNum == tmj->m_PlateNum &&
+                     tmj->m_DeleteMeFlag == false )
+                {
+                    tmi->MergeTMeshes( tmj );
+                    tmj->m_DeleteMeFlag = true;
+                }
+            }
+        }
+    }
+
+    DeleteMarkedMeshes( tmv );
+}
+
+// TMeshes with coplanar patches (which have been trimmed) are stitched together here without
+// running Intersect on them.  This hopefully prevents sliver hell.  However, it runs the risk
+// of missing intersections if non-coplanar patches of these surfaces also intersect in a
+// non-coplanar way.
+void MergeCoplanarTrimGroups( vector < TMesh* > &tmv )
+{
+    vector < int > allGroups;
+    for ( int i = 0 ; i < ( int )tmv.size(); i++ )
+    {
+        TMesh *tmi = tmv[ i ];
+        allGroups.insert( allGroups.end(), tmi->m_InGroup.begin(), tmi->m_InGroup.end() );
+    }
+    std::sort( allGroups.begin(), allGroups.end() );
+    allGroups.erase( std::unique( allGroups.begin(), allGroups.end() ), allGroups.end() );
+
+    for ( int ig = 0 ; ig < ( int )allGroups.size(); ig++ )
+    {
+        int grp = allGroups[ig];
+
+        for ( int i = 0 ; i < ( int )tmv.size() - 1; i++ )
+        {
+            TMesh *tmi = tmv[ i ];
+            if ( tmi->m_DeleteMeFlag == false &&
+                 vector_contains_val( tmi->m_InGroup, grp ) )
+            {
+                for ( int j = i + 1; j < ( int ) tmv.size(); j++ )
+                {
+                    TMesh *tmj = tmv[ j ];
+
+                    if ( tmj->m_DeleteMeFlag == false &&
+                         vector_contains_val( tmj->m_InGroup, grp ) )
+                    {
+                        tmi->MergeTMeshes( tmj );
+                        tmj->m_DeleteMeFlag = true;
+                    }
+                }
+            }
+        }
+    }
+
+    DeleteMarkedMeshes( tmv );
+}
+
+// tmi->m_PlateNum == tmj->m_PlateNum &&
+void MergeDegenCruciformTMeshes( vector < TMesh* > &tmv )
+{
+    for ( int i = 0 ; i < ( int )tmv.size() - 1; i++ )
+    {
+        TMesh *tmi = tmv[ i ];
+        if ( tmi->m_DeleteMeFlag == false )
+        {
+            for ( int j = i + 1 ; j < ( int )tmv.size(); j++ )
+            {
+                TMesh *tmj = tmv[ j ];
+                if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
+                     tmi->m_ThickSurf == false && // Degen only
+                     tmj->m_ThickSurf == false &&
+                     tmi->m_SurfType == vsp::NORMAL_SURF && // bodies, not wings.
+                     tmj->m_SurfType == vsp::NORMAL_SURF &&
+                     tmi->m_CopyIndex == tmj->m_CopyIndex && // Same symmetry copy
+                     tmi->m_SurfNum == tmj->m_SurfNum && // Same surface number
+                     tmj->m_DeleteMeFlag == false )
+                {
+                    tmi->MergeTMeshes( tmj );
+                    tmj->m_DeleteMeFlag = true;
+                }
+            }
+        }
+    }
+
+    DeleteMarkedMeshes( tmv );
+}
+
+// Look for TMesh's that correspond to symmetrical copies of a Geom, where the points along the
+// center plane should be at Y==0, but are slightly off.
+void ForceSymmSmallYZero( vector < TMesh* > &tmv )
+{
+    for ( int i = 0 ; i < ( int )tmv.size() - 1; i++ )
+    {
+        TMesh *tmi = tmv[ i ];
+        Matrix4d mat;
+        BndBox bbi;
+        tmi->UpdateBBox( bbi, mat );
+        double ylimi = bbi.GetMax( 1 );
+        if ( bbi.GetCenter().y() > 0 )
+        {
+            ylimi = bbi.GetMin( 1 );
+        }
+
+        for ( int j = i + 1 ; j < ( int )tmv.size(); j++ )
+        {
+            TMesh *tmj = tmv[ j ];
+            if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
+                 tmi->m_PlateNum == tmj->m_PlateNum )
+            {
+                BndBox bbj;
+                tmj->UpdateBBox( bbj, mat );
+                double ylimj = bbj.GetMax( 1 );
+                if ( bbj.GetCenter().y() > 0 )
+                {
+                    ylimj = bbj.GetMin( 1 );
+                }
+
+                if ( std::abs( ylimj - ylimi ) < 1e-6 )
+                {
+                    tmi->ForceSmallYZero();
+                    tmj->ForceSmallYZero();
+                }
+            }
+        }
+    }
+}
+
+TMesh* AddHalfBox( const vector < TMesh* > &tmv, const string &id )
+{
+    BndBox box;
+    for ( int m = 0 ; m < ( int )tmv.size() ; m++ )
+    {
+        for ( int t = 0 ; t < ( int )tmv[m]->m_TVec.size() ; t++ )
+        {
+            box.Update( tmv[m]->m_TVec[t]->m_N0->m_Pnt );
+            box.Update( tmv[m]->m_TVec[t]->m_N1->m_Pnt );
+            box.Update( tmv[m]->m_TVec[t]->m_N2->m_Pnt );
+        }
+    }
+
+    vec3d bscale = vec3d( 2, 2, 2 );
+    box.Scale( bscale );
+
+    TMesh* tm = new TMesh();
+    tm->m_SurfCfdType = vsp::CFD_NEGATIVE;
+    tm->m_OriginGeomID = id;
+
+    double xmin = box.GetMin( 0 );
+    double xmax = box.GetMax( 0 );
+
+    double zmin = box.GetMin( 2 );
+    double zmax = box.GetMax( 2 );
+
+    double ymin = box.GetMin( 1 );
+
+    vec3d A = vec3d( xmin, 0, zmin );
+    vec3d B = vec3d( xmax, 0, zmin );
+    vec3d C = vec3d( xmin, 0, zmax );
+    vec3d D = vec3d( xmax, 0, zmax );
+    vec3d E = vec3d( xmin, ymin, zmin );
+    vec3d F = vec3d( xmax, ymin, zmin );
+    vec3d G = vec3d( xmin, ymin, zmax );
+    vec3d H = vec3d( xmax, ymin, zmax );
+
+    tm->AddTri( G, E, H, vec3d( 0, -1, 0 ), 1 );
+    tm->AddTri( H, E, F, vec3d( 0, -1, 0 ), 1 );
+
+    tm->AddTri( B, A, D, vec3d( 0, 1, 0 ), 2 );
+    tm->AddTri( D, A, C, vec3d( 0, 1, 0 ), 2 );
+
+    tm->AddTri( C, A, E, vec3d( -1, 0, 0 ), 3 );
+    tm->AddTri( G, C, E, vec3d( -1, 0, 0 ), 3 );
+
+    tm->AddTri( F, B, D, vec3d( 1, 0, 0 ), 4 );
+    tm->AddTri( F, D, H, vec3d( 1, 0, 0 ), 4 );
+
+    tm->AddTri( D, C, G, vec3d( 0, 0, 1 ), 5 );
+    tm->AddTri( H, D, G, vec3d( 0, 0, 1 ), 5 );
+
+    tm->AddTri( E, A, B, vec3d( 0, 0, -1 ), 6 );
+    tm->AddTri( E, B, F, vec3d( 0, 0, -1 ), 6 );
+
+    return tm;
+}
+
+void IgnoreYLessThan( vector < TMesh* > &tmv, const double &ytol )
+{
+    for ( int i = 0; i < tmv.size(); i++ )
+    {
+        tmv[i]->IgnoreYLessThan( ytol );
+    }
+}
+
+TMesh* GetMeshByID( const vector < TMesh* > &tmv, const string &id )
+{
+    for ( int i = 0; i < tmv.size(); i++ )
+    {
+        if ( tmv[i]->m_OriginGeomID == id )
+        {
+            return tmv[i];
+        }
+    }
+    return nullptr;
+}

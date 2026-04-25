@@ -168,27 +168,7 @@ public:
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
                              const vector <string> & Flow_vec, bool Symm = false );
 
-    static TMesh * MakeCutter( TMesh * tm, const vec3d &norm );
-
-    static void CutMesh( TMesh *target_tm, TMesh *cutter_tm );
-
-    static void TrimTMeshSequence( vector < TMesh* > tmvec );
-
-    static double CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm );
-
-    static void FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm );
-
-    static void TrimCoplanarPatches( vector < TMesh* > &tmv );
-
-    static void MergeCoplanarSplitPatches( vector < TMesh* > &tmv );
-
-    static void MergeCoplanarTrimGroups( vector < TMesh* > &tmv );
-
-    static void MergeDegenCruciformTMeshes( vector < TMesh* > &tmv );
-
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
-
-    static void ForceSymmSmallYZero( vector < TMesh* > &tmv );
 
     virtual void AddPointMass( TetraMassProp* pm )
     {
@@ -197,10 +177,6 @@ public:
     vector< TetraMassProp* > m_PointMassVec;
 
     virtual void WaterTightCheck( FILE* fid );
-    static TMesh* AddHalfBox( const vector < TMesh* > &tmv, const string &id );
-    static void IgnoreYLessThan( vector < TMesh* > &tmv, const double & ytol );
-
-    static TMesh* GetMeshByID( const vector < TMesh* > &tmv, const string & id );
 
     virtual void UpdateSurf()
     {

@@ -755,4 +755,18 @@ TMesh* MakeSlice( const vec3d & org, const vec3d & norm, const double & len );
 TMesh* MakeSlice( const int &swdir, const double & len );
 double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int swdir, vector < double > &slicevec, bool mpslice = true, bool tesselate = true, bool autoBounds = true, double start = 0, double end = 0, int slctype = vsp::CFD_STRUCTURE );
 
+double CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm );
+void FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm );
+TMesh* MakeCutter( TMesh *tm, const vec3d &norm );
+void CutMesh( TMesh *target_tm, TMesh *cutter_tm );
+void TrimTMeshSequence( vector < TMesh* > tmvec );
+void TrimCoplanarPatches( vector < TMesh* > &tmv );
+void MergeCoplanarSplitPatches( vector < TMesh* > &tmv );
+void MergeCoplanarTrimGroups( vector < TMesh* > &tmv );
+void MergeDegenCruciformTMeshes( vector < TMesh* > &tmv );
+void ForceSymmSmallYZero( vector < TMesh* > &tmv );
+TMesh* AddHalfBox( const vector < TMesh* > &tmv, const string &id );
+void IgnoreYLessThan( vector < TMesh* > &tmv, const double &ytol );
+TMesh* GetMeshByID( const vector < TMesh* > &tmv, const string &id );
+
 #endif
