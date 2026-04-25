@@ -2188,7 +2188,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     if ( !degen )
     {
         // Tag meshes before regular intersection
-        ::SubTagTris(( bool ) intSubsFlag, m_TMeshVec, sub_vec );
+        SubTagTris(( bool ) intSubsFlag, m_TMeshVec, sub_vec );
     }
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
@@ -2316,9 +2316,9 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
             tm->IgnoreAll();
             tm->m_DeleteMeFlag = true;
         }
-        ::DeleteMarkedMeshes( m_TMeshVec );
+        DeleteMarkedMeshes( m_TMeshVec );
 
-        ::RefreshTagMaps( m_TMeshVec );
+        RefreshTagMaps( m_TMeshVec );
     }
 
     PreIntersectTrim( degenGeom, intSubsFlag, info, res );
@@ -3044,7 +3044,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         }
     }
     // Tag meshes before regular intersection
-    ::SubTagTris( true, m_TMeshVec );
+    SubTagTris( true, m_TMeshVec );
 
     if ( ambcount > 0 )
     {
@@ -4564,7 +4564,7 @@ void MeshGeom::MergeCoplanarSplitPatches( vector < TMesh* > &tmv )
         }
     }
 
-    ::DeleteMarkedMeshes( tmv );
+    DeleteMarkedMeshes( tmv );
 }
 
 // TMeshes with coplanar patches (which have been trimmed) are stitched together here without
@@ -4608,7 +4608,7 @@ void MeshGeom::MergeCoplanarTrimGroups( vector < TMesh* > &tmv )
         }
     }
 
-    ::DeleteMarkedMeshes( tmv );
+    DeleteMarkedMeshes( tmv );
 }
 
 // tmi->m_PlateNum == tmj->m_PlateNum &&
@@ -4638,7 +4638,7 @@ void MeshGeom::MergeDegenCruciformTMeshes( vector < TMesh* > &tmv )
         }
     }
 
-    ::DeleteMarkedMeshes( tmv );
+    DeleteMarkedMeshes( tmv );
 }
 
 TMesh* MeshGeom::AddHalfBox( const vector < TMesh* > &tmv, const string &id )

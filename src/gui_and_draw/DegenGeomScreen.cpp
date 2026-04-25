@@ -271,7 +271,7 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                ::SubTagTris( true, mg->m_TMeshVec );
+                SubTagTris( true, mg->m_TMeshVec );
 
                 if ( vehiclePtr->m_DegenGeomMeshType() == vsp::NGON_MESH_TYPE )
                 {

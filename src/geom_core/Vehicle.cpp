@@ -2918,7 +2918,7 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, i
             if ( gPtr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
-                ::SubTagTris( subsFlag, mg->m_TMeshVec );
+                SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
@@ -3002,7 +3002,7 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
             if ( gPtr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
-                ::SubTagTris( subsFlag, mg->m_TMeshVec );
+                SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
@@ -3117,7 +3117,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                ::SubTagTris( subsFlag, mg->m_TMeshVec );
+                SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -3230,7 +3230,7 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                ::SubTagTris( subsFlag, mg->m_TMeshVec );
+                SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -3380,7 +3380,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                     mg->FlattenTMeshVec();
                 }
 
-                ::SubTagTris( subsFlag, mg->m_TMeshVec );
+                SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -3747,7 +3747,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                ::SubTagTris( subsFlag, mg->m_TMeshVec );
+                SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -3855,7 +3855,7 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                ::SubTagTris( subsFlag, mg->m_TMeshVec );
+                SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -6961,7 +6961,7 @@ string Vehicle::CreateDegenGeomMesh( int set )
         if ( geom_ptr )
         {
             MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-            ::SubTagTris( true, mg->m_TMeshVec );
+            SubTagTris( true, mg->m_TMeshVec );
 
             if ( m_DegenGeomMeshType() == vsp::NGON_MESH_TYPE )
             {
