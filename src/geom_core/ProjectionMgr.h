@@ -38,7 +38,7 @@ public:
 
     virtual void SetGeomIDs( const string &tid, const string &bid, const string &did );
 
-    virtual vec3d GetDirection( int dirtype, const string &dirid );
+    static vec3d GetDirection( int dirtype, const string &dirid );
 
     virtual void UpdateDirection();
     virtual vec3d GetDirection();
