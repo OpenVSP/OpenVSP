@@ -87,6 +87,7 @@ public:
     IntParm m_SecondarySet;
     IntParm m_SecondaryType; // Set or Geom
     string m_SecondaryGeomID;
+    string m_DirectionGeomID;
 
     Parm m_SecondaryZGround;
 
@@ -123,6 +124,15 @@ public:
     Parm m_Azimuth;
     Parm m_Elevation;
     Parm m_N2RefractionIndex;
+
+    // Projection
+    BoolParm m_TargetHullFlag;
+    BoolParm m_BoundaryEnableFlag;
+    BoolParm m_BoundaryHullFlag;
+    IntParm m_DirectionType;
+    Parm m_XComp;
+    Parm m_YComp;
+    Parm m_ZComp;
 
     IntParm m_GeometryAnalysisType;
 

@@ -77,6 +77,14 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_Elevation.Init( "Elevation", m_GroupName, this, 0.0, -90, 90 );
     m_N2RefractionIndex.Init( "N2RefractionIndex", m_GroupName, this, 1.0, 0.0, 100 );
 
+    m_TargetHullFlag.Init( "TargetHullFlag", m_GroupName, this, false, false, true );
+    m_BoundaryEnableFlag.Init( "BoundaryEnableFlag", m_GroupName, this, false, false, true );
+    m_BoundaryHullFlag.Init( "BoundaryHullFlag", m_GroupName, this, false, false, true );
+    m_DirectionType.Init( "DirectionType", m_GroupName, this, vsp::X_PROJ, vsp::X_PROJ, vsp::NUM_PROJ_DIR_OPTIONS - 1 );
+    m_XComp.Init( "XComp", m_GroupName, this, 0.0, -1.0, 1.0 );
+    m_YComp.Init( "YComp", m_GroupName, this, 0.0, -1.0, 1.0 );
+    m_ZComp.Init( "ZComp", m_GroupName, this, 0.0, -1.0, 1.0 );
+
     m_GeometryAnalysisType.Init( "IntererenceCheckType", m_GroupName, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", m_GroupName, this, 0.0, -1e12, 1e12 );
@@ -110,6 +118,23 @@ void GeometryAnalysisCase::Update()
     if ( m_SymmRotZ() )
     {
         m_RotZn = -m_RotZp();
+    }
+
+    if ( m_GeometryAnalysisType() == vsp::PROJ_AREA )
+    {
+        vec3d dir = ProjectionMgr.GetDirection( m_DirectionType(), m_DirectionGeomID );
+
+        switch ( m_DirectionType() )
+        {
+            case vsp::X_PROJ:
+            case vsp::Y_PROJ:
+            case vsp::Z_PROJ:
+            case vsp::GEOM_PROJ:
+                m_XComp = dir.x();
+                m_YComp = dir.y();
+                m_ZComp = dir.z();
+                break;
+        }
     }
 
     UpdateDrawObj_Live();
@@ -815,6 +840,7 @@ xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddStringNode( gcase_node, "PrimaryModeID", m_PrimaryModeID );
     XmlUtil::AddStringNode( gcase_node, "PrimaryGeomID", m_PrimaryGeomID );
     XmlUtil::AddStringNode( gcase_node, "SecondaryGeomID", m_SecondaryGeomID );
+    XmlUtil::AddStringNode( gcase_node, "DirectionGeomID", m_DirectionGeomID );
 
     //===== Cutout Subsurfaces ====//
     xmlNodePtr cutoutSS_list_node = xmlNewChild( gcase_node, NULL, ( const xmlChar * )"CutoutSS_List", NULL );
@@ -836,6 +862,7 @@ xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
     m_PrimaryModeID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryModeID", m_PrimaryModeID ) );
     m_PrimaryGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "PrimaryGeomID", m_PrimaryGeomID ) );
     m_SecondaryGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "SecondaryGeomID", m_SecondaryGeomID ) );
+    m_DirectionGeomID = ParmMgr.RemapID( XmlUtil::FindString( node, "DirectionGeomID", m_DirectionGeomID ) );
 
     //==== Cutout Subsurfaces ====//
     xmlNodePtr cutoutSS_list_node = XmlUtil::GetNode( node, "CutoutSS_List", 0 );

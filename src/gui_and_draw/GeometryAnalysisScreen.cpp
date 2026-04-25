@@ -120,6 +120,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_OptionsLayout.AddSubGroupLayout( m_VisibilityOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_MotionOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_LookAtVisibilityOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
+    m_OptionsLayout.AddSubGroupLayout( m_ProjectionOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
 
     m_PrimaryLayout.AddDividerBox( "Primary" );
 
@@ -362,6 +363,107 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_LookAtVisibilityOptionsLayout.AddButton( m_LookAlongButton, "Look From" );
 
+
+    int halfw = ( m_ProjectionOptionsLayout.GetW() - 5 ) / 2;
+
+    m_ProjectionOptionsLayout.AddSubGroupLayout( m_ProjectionSub1Layout, halfw, m_ProjectionOptionsLayout.GetRemainY() );
+    m_ProjectionOptionsLayout.AddX( halfw + 5 );
+    m_ProjectionOptionsLayout.AddSubGroupLayout( m_ProjectionDirectionLayout, halfw, m_ProjectionOptionsLayout.GetRemainY() );
+
+
+
+    m_ProjectionSub1Layout.SetFitWidthFlag( true );
+
+    m_ProjectionSub1Layout.AddYGap();
+    m_ProjectionSub1Layout.AddDividerBox( "Bounded Projection" );
+    m_ProjectionSub1Layout.AddButton( m_BoundaryEnableButton, "Use Secondary as Boundary" );
+
+
+    m_ProjectionSub1Layout.AddYGap();
+    m_ProjectionSub1Layout.AddDividerBox( "Convex Hull" );
+
+    m_ProjectionSub1Layout.AddButton( m_TargetHullButton, "Primary Convex Hull" );
+    m_ProjectionSub1Layout.AddButton( m_BoundaryHullButton, "Secondary Convex Hull" );
+
+
+    m_ProjectionDirectionLayout.SetFitWidthFlag( true );
+    m_ProjectionDirectionLayout.SetSameLineFlag( false );
+
+    m_ProjectionDirectionLayout.AddYGap();
+    m_ProjectionDirectionLayout.AddDividerBox(" Direction" );
+
+    int tw = 15;
+    // int bw = m_ProjectionDirectionLayout.GetButtonWidth();
+
+    m_ProjectionDirectionLayout.SetButtonWidth( bw );
+    m_ProjectionDirectionLayout.SetFitWidthFlag( false );
+    m_ProjectionDirectionLayout.AddButton( m_DirectionTypeVector, "Vector" );
+
+    m_ProjectionDirectionLayout.SetSameLineFlag( true );
+
+    m_ProjectionDirectionLayout.SetButtonWidth( tw );
+    m_ProjectionDirectionLayout.AddButton( m_DirectionTypeX, "" );
+    m_ProjectionDirectionLayout.SetFitWidthFlag( true );
+    m_ProjectionDirectionLayout.SetButtonWidth( bw - tw );
+    m_ProjectionDirectionLayout.AddSlider( m_XSlider, "X", 1, "%5.3f" );
+    m_ProjectionDirectionLayout.ForceNewLine();
+
+    m_ProjectionDirectionLayout.SetFitWidthFlag( false );
+    m_ProjectionDirectionLayout.SetButtonWidth( tw );
+    m_ProjectionDirectionLayout.AddButton( m_DirectionTypeY, "" );
+    m_ProjectionDirectionLayout.SetFitWidthFlag( true );
+    m_ProjectionDirectionLayout.SetButtonWidth( bw - tw );
+    m_ProjectionDirectionLayout.AddSlider( m_YSlider, "Y", 1, "%5.3f" );
+    m_ProjectionDirectionLayout.ForceNewLine();
+
+    m_ProjectionDirectionLayout.SetFitWidthFlag( false );
+    m_ProjectionDirectionLayout.SetButtonWidth( tw );
+    m_ProjectionDirectionLayout.AddButton( m_DirectionTypeZ, "" );
+    m_ProjectionDirectionLayout.SetFitWidthFlag( true );
+    m_ProjectionDirectionLayout.SetButtonWidth( bw - tw );
+    m_ProjectionDirectionLayout.AddSlider( m_ZSlider, "Z", 1, "%5.3f" );
+    m_ProjectionDirectionLayout.ForceNewLine();
+
+    m_ProjectionDirectionLayout.SetButtonWidth( bw );
+    m_ProjectionDirectionLayout.SetSameLineFlag( true );
+    m_ProjectionDirectionLayout.SetFitWidthFlag( false );
+
+    m_ProjectionDirectionLayout.AddButton( m_DirectionTypeGeom, "Geom" );
+    m_ProjectionDirectionLayout.SetFitWidthFlag( true );
+    m_DirectionGeom.AddExcludeType( MESH_GEOM_TYPE );
+    m_DirectionGeom.AddExcludeType( HUMAN_GEOM_TYPE );
+    m_DirectionGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_DirectionGeom.AddExcludeType( WIRE_FRAME_GEOM_TYPE );
+    m_DirectionGeom.AddExcludeType( BLANK_GEOM_TYPE );
+    m_DirectionGeom.AddExcludeType( HINGE_GEOM_TYPE );
+    m_ProjectionDirectionLayout.SetChoiceButtonWidth( 0 );
+    m_ProjectionDirectionLayout.AddGeomPicker( m_DirectionGeom, m_ProjectionDirectionLayout.GetButtonWidth() );
+    m_ProjectionDirectionLayout.SetFitWidthFlag( false );
+    m_ProjectionDirectionLayout.ForceNewLine();
+
+    m_DirectionTypeGroup.Init( this );
+    m_DirectionTypeGroup.AddButton( m_DirectionTypeX.GetFlButton() );
+    m_DirectionTypeGroup.AddButton( m_DirectionTypeY.GetFlButton() );
+    m_DirectionTypeGroup.AddButton( m_DirectionTypeZ.GetFlButton() );
+    m_DirectionTypeGroup.AddButton( m_DirectionTypeGeom.GetFlButton() );
+    m_DirectionTypeGroup.AddButton( m_DirectionTypeVector.GetFlButton() );
+
+    vector< int > dir_type_map;
+    dir_type_map.push_back( vsp::X_PROJ );
+    dir_type_map.push_back( vsp::Y_PROJ );
+    dir_type_map.push_back( vsp::Z_PROJ );
+    dir_type_map.push_back( vsp::GEOM_PROJ );
+    dir_type_map.push_back( vsp::VEC_PROJ );
+    m_DirectionTypeGroup.SetValMapVec( dir_type_map );
+
+
+
+
+
+
+
+
+
     m_GCaseLayout.AddYGap();
     m_GCaseLayout.AddDividerBox( "Analysis" );
 
@@ -518,6 +620,62 @@ bool GeometryAnalysisScreen::Update()
 
         m_ScreenMgr->LoadModeChoice( m_PrimaryModeChoice, m_ModeIDs, gcase->m_PrimaryModeID );
 
+
+
+        m_BoundaryEnableButton.Update( gcase->m_BoundaryEnableFlag.GetID() );
+
+        m_DirectionTypeGroup.Update( gcase->m_DirectionType.GetID() );
+
+        m_DirectionGeom.Update();
+
+        m_XSlider.Update( gcase->m_XComp.GetID() );
+        m_YSlider.Update( gcase->m_YComp.GetID() );
+        m_ZSlider.Update( gcase->m_ZComp.GetID() );
+
+        m_BoundaryHullButton.Update( gcase->m_BoundaryHullFlag.GetID() );
+
+        m_TargetHullButton.Update( gcase->m_TargetHullFlag.GetID() );
+
+
+        if ( gcase->m_GeometryAnalysisType() == vsp::PROJ_AREA &&
+            !gcase->m_BoundaryEnableFlag() )
+        {
+            m_BoundaryHullButton.Deactivate();
+        }
+        else
+        {
+            m_BoundaryHullButton.Activate();
+        }
+
+        switch ( gcase->m_DirectionType() )
+        {
+            case vsp::X_PROJ:
+            case vsp::Y_PROJ:
+            case vsp::Z_PROJ:
+                m_XSlider.Deactivate();
+                m_YSlider.Deactivate();
+                m_ZSlider.Deactivate();
+                m_DirectionGeom.Deactivate();
+                break;
+            case vsp::GEOM_PROJ:
+                m_XSlider.Deactivate();
+                m_YSlider.Deactivate();
+                m_ZSlider.Deactivate();
+                m_DirectionGeom.Activate();
+                break;
+            case vsp::VEC_PROJ:
+                m_XSlider.Activate();
+                m_YSlider.Activate();
+                m_ZSlider.Activate();
+                m_DirectionGeom.Deactivate();
+                break;
+        }
+
+
+
+
+
+
         // Handle single geom that require special types.
         m_PrimaryGeomPicker.ClearIncludeType();
         if ( gcase->m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
@@ -564,6 +722,14 @@ bool GeometryAnalysisScreen::Update()
             gcase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetSetValidGeom();
         }
 
+        if ( m_DirectionGeom.ValidGeom( gcase->m_DirectionGeomID ) )
+        {
+            m_DirectionGeom.SetGeomChoice( gcase->m_DirectionGeomID );
+        }
+        else
+        {
+            gcase->m_DirectionGeomID = m_DirectionGeom.GetSetValidGeom();
+        }
 
         if ( ModeMgr.GetNumModes() == 0 )
         {
@@ -680,7 +846,9 @@ bool GeometryAnalysisScreen::Update()
              gcase->m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS ||
              gcase->m_GeometryAnalysisType() == vsp::COMP_GEOM ||
              gcase->m_GeometryAnalysisType() == vsp::PLANAR_SLICE ||
-             gcase->m_GeometryAnalysisType() == vsp::MASS_PROP )
+             gcase->m_GeometryAnalysisType() == vsp::MASS_PROP ||
+           ( gcase->m_GeometryAnalysisType() == vsp::PROJ_AREA &&
+            !gcase->m_BoundaryEnableFlag() ) )
         {
             m_SecondaryLayout.GetGroup()->deactivate();
         }
@@ -769,6 +937,10 @@ bool GeometryAnalysisScreen::Update()
         else if ( gcase->m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS )
         {
             OptionsDisplayGroup( & m_LookAtVisibilityOptionsLayout );
+        }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::PROJ_AREA )
+        {
+            OptionsDisplayGroup( & m_ProjectionOptionsLayout );
         }
         else
         {
@@ -977,6 +1149,7 @@ void GeometryAnalysisScreen::OptionsDisplayGroup( GroupLayout* group )
     m_VisibilityOptionsLayout.Hide();
     m_MotionOptionsLayout.Hide();
     m_LookAtVisibilityOptionsLayout.Hide();
+    m_ProjectionOptionsLayout.Hide();
 
     m_OptionsCurrDisplayGroup = group;
 
@@ -1073,6 +1246,7 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
         {
             m_PrimaryGeomPicker.SetGeomChoice( gcase->m_PrimaryGeomID );
             m_SecondaryGeomPicker.SetGeomChoice( gcase->m_SecondaryGeomID );
+            m_DirectionGeom.SetGeomChoice( gcase->m_DirectionGeomID );
 
             ResultsViewer * rv = dynamic_cast < ResultsViewer* > ( m_ScreenMgr->GetScreen( vsp::VSP_RESULTS_VIEWER_SCREEN ) );
             if ( rv )
