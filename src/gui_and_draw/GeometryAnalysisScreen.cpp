@@ -71,6 +71,10 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GCaseLayout.AddX( 5 );
 
     m_GCaseLayout.AddChoice( m_GeometryAnalysisTypeChoice, "Type", m_GCaseLayout.GetW() * 0.5 );
+    m_GeometryAnalysisTypeChoice.AddItem( "Wetted Area and Volume", vsp::COMP_GEOM );
+    m_GeometryAnalysisTypeChoice.AddItem( "Planar Slice", vsp::PLANAR_SLICE );
+    m_GeometryAnalysisTypeChoice.AddItem( "Projected Area", vsp::PROJ_AREA );
+    m_GeometryAnalysisTypeChoice.AddItem( "Mass Properties", vsp::MASS_PROP );
     m_GeometryAnalysisTypeChoice.AddItem( "External", vsp::EXTERNAL_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.AddItem( "Self External", vsp::EXTERNAL_SELF_INTERFERENCE );
     m_GeometryAnalysisTypeChoice.AddItem( "Packaging", vsp::PACKAGING_INTERFERENCE );
@@ -673,7 +677,10 @@ bool GeometryAnalysisScreen::Update()
              gcase->m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
              gcase->m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
              gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS ||
-             gcase->m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS )
+             gcase->m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS ||
+             gcase->m_GeometryAnalysisType() == vsp::COMP_GEOM ||
+             gcase->m_GeometryAnalysisType() == vsp::PLANAR_SLICE ||
+             gcase->m_GeometryAnalysisType() == vsp::MASS_PROP )
         {
             m_SecondaryLayout.GetGroup()->deactivate();
         }
@@ -813,7 +820,11 @@ void GeometryAnalysisScreen::UpdateGeometryAnalysisBrowser()
         if ( gcases[i]->m_GeometryAnalysisType() != vsp::EXTERNAL_SELF_INTERFERENCE &&
              gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_CG_TIPBACK_ANALYSIS &&
              gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_TIPOVER_ANALYSIS )
+             gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_TIPOVER_ANALYSIS &&
+             gcases[i]->m_GeometryAnalysisType() != vsp::VISIBLE_AT_SURF_ANALYSIS &&
+             gcases[i]->m_GeometryAnalysisType() != vsp::COMP_GEOM &&
+             gcases[i]->m_GeometryAnalysisType() != vsp::PLANAR_SLICE &&
+             gcases[i]->m_GeometryAnalysisType() != vsp::MASS_PROP )
         {
             secondary = gcases[i]->GetSecondaryName();
         }

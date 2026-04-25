@@ -1928,6 +1928,22 @@ string GeometryAnalysisCase::Evaluate()
                 }
                 break;
             }
+            case vsp::COMP_GEOM:
+            {
+                break;
+            }
+            case vsp::PLANAR_SLICE:
+            {
+                break;
+            }
+            case vsp::PROJ_AREA:
+            {
+                break;
+            }
+            case vsp::MASS_PROP:
+            {
+                break;
+            }
         }
 
         // These are safe for empty vectors.

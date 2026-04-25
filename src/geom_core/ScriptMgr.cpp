@@ -1604,6 +1604,14 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "RISK_ANGLE", RISK_ANGLE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "COMP_GEOM", COMP_GEOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "PLANAR_SLICE", PLANAR_SLICE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "PROJ_AREA", PROJ_AREA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "MASS_PROP", MASS_PROP );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GEOMETRY_ANALYSIS_TYPE", "NUM_INTERFERENCE_TYPES", NUM_INTERFERENCE_TYPES );
     assert( r >= 0 );
 
