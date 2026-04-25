@@ -250,8 +250,8 @@ void GeomCoreTestSuite::CompareMeshes( Vehicle & veh, const string &mesh_a, cons
     if ( mesh_1 && mesh_2 )
     {
 
-        mesh_1->FlattenTMeshVec();
-        mesh_2->FlattenTMeshVec();
+        FlattenTMeshVec( mesh_1->m_TMeshVec );
+        FlattenTMeshVec( mesh_2->m_TMeshVec );
 
         TEST_ASSERT( mesh_1->m_TMeshVec.size() == mesh_2->m_TMeshVec.size() );
 

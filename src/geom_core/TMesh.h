@@ -24,15 +24,17 @@
 #include "BndBox.h"
 #include "XmlUtil.h"
 
-#include <vector>               //jrg windows?? 
+#include <vector>               //jrg windows??
 #include <algorithm>            //jrg windows??
 #include <string>
+#include <set>
 #include <unordered_map>
 #include <deque>
 #include <list>
 
 using std::vector;
 using std::string;
+using std::set;
 using std::unordered_map;
 using std::deque;
 using std::list;
@@ -707,6 +709,7 @@ vector< int > GetTMeshCopyIndex( vector<TMesh*> &tmv );
 vector< double > GetTMeshWmins( vector<TMesh*> &tmv );
 vector< double > GetTMeshUscale( vector<TMesh*> &tmv );
 vector< double > GetTMeshWscale( vector<TMesh*> &tmv );
+set< string > GetTMeshPtrIDs( const vector<TMesh*> &tmv );
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec = vector < string > () );
 void RefreshTagMaps( vector<TMesh*> &tmv );
 

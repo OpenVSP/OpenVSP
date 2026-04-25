@@ -7585,6 +7585,16 @@ vector< double > GetTMeshWscale( vector<TMesh*> &tmv )
     return wscale;
 }
 
+set< string > GetTMeshPtrIDs( const vector<TMesh*> &tmv )
+{
+    set< string > ids;
+    for ( size_t i = 0; i < tmv.size(); i++ )
+    {
+        ids.insert( tmv[i]->m_OriginGeomID );
+    }
+    return ids;
+}
+
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec )
 {
     // Clear out the current Subtag Maps

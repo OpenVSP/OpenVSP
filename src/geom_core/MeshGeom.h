@@ -34,8 +34,6 @@ private:
     vector< TTri* > m_IndexedTriVec;
     vector< TNode* > m_IndexedNodeVec;
 
-    vector< TMesh* > m_SliceVec;
-
 public:
 //  enum { SLICE_PLANAR, SLICE_AWAVE };
 
@@ -67,6 +65,7 @@ public:
     double m_TotalIyz;
 
     vector < TMesh* > m_TMeshVec;
+    vector < TMesh* > m_SliceVec;
     vector < vector < vec3d > > m_PolyVec;
     vector < deque < TEdge > > m_Wakes;
 
@@ -159,7 +158,6 @@ public:
     virtual void PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res );
 
     virtual void MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSlices, int idir = vsp::X_DIR, bool writefile = true );
-    virtual double MakeSlices( int numSlices, int swdir, vector < double > &slicevec, bool mpslice = true, bool tesselate = true, bool autoBounds = true, double start = 0, double end = 0, int slctype = vsp::CFD_STRUCTURE );
 
     virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start, double end, bool measureduct );
 
@@ -185,20 +183,7 @@ public:
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 );
 
     virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
-    virtual void FlattenTMeshVec();
-    virtual void FlattenSliceVec();
     virtual Matrix4d GetTotalTransMat() const;
-
-    virtual vector< string > GetTMeshNames();
-    virtual vector< string > GetTMeshIDs();
-    virtual vector< int > GetTMeshThicks();
-    virtual vector< int > GetTMeshTypes();
-    virtual vector< int > GetTMeshPlateNum();
-    virtual vector< int > GetTMeshCopyIndex();
-    virtual vector< double > GetTMeshWmins();
-    virtual vector< double > GetTMeshUscale();
-    virtual vector< double > GetTMeshWscale();
-    virtual set< string > GetTMeshPtrIDs();
 
 
     BoolParm m_ViewMeshFlag;

@@ -415,8 +415,8 @@ string WaveDragSingleton::WaveDragSlice( int set, int numSlices, int numRots, do
         // Execute slicing routine in MeshGeom
         mesh_ptr->WaveDragSlice( numSlices, MachAngle, numRots, SSFlow_vec, Symm );
 
-        mesh_ptr->FlattenTMeshVec();
-        mesh_ptr->FlattenSliceVec();
+        FlattenTMeshVec( mesh_ptr->m_TMeshVec );
+        FlattenTMeshVec( mesh_ptr->m_SliceVec );
         mesh_ptr->m_SurfDirty = true;
         mesh_ptr->Update();
     }

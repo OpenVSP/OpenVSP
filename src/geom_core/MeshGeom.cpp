@@ -2721,7 +2721,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     vector< double > loc_vec;
     bool mpslice = false; // Do counting for mass properties slicing.
     bool tesselate = false; // Sub-tessellate slice into smaller triangles.
-    MakeSlices( numSlices, vsp::X_DIR, loc_vec, mpslice, tesselate, autoBounds, start, end, slctype );
+    MakeSlices( m_SliceVec, m_BBox, numSlices, vsp::X_DIR, loc_vec, mpslice, tesselate, autoBounds, start, end, slctype );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
@@ -3376,7 +3376,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
 
     vector < double > slice_fill_vec;
 
-    double sliceW = MakeSlices( numSlices, idir, slice_fill_vec );
+    double sliceW = MakeSlices( m_SliceVec, m_BBox, numSlices, idir, slice_fill_vec );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size());
@@ -4065,11 +4065,6 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     }
 }
 
-double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec, bool mpslice, bool tesselate, bool autoBounds, double start, double end, int slctype )
-{
-    return ::MakeSlices( m_SliceVec, m_BBox, numSlices, swdir, slicevec, mpslice, tesselate, autoBounds, start, end, slctype );
-}
-
 //==== Check Current Geom For Problems ====//
 void MeshGeom::WaterTightCheck( FILE* fid )
 {
@@ -4195,16 +4190,6 @@ vector<TMesh*> MeshGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_r
     return retTMeshVec;
 }
 
-void MeshGeom::FlattenTMeshVec()
-{
-    ::FlattenTMeshVec( m_TMeshVec );
-}
-
-void MeshGeom::FlattenSliceVec()
-{
-    ::FlattenTMeshVec( m_SliceVec );
-}
-
 //==== Get Total Transformation Matrix from Original Points ====//
 Matrix4d MeshGeom::GetTotalTransMat() const
 {
@@ -4215,60 +4200,4 @@ Matrix4d MeshGeom::GetTotalTransMat() const
     return retMat;
 }
 
-//==== Get the Names of the TMeshes ====//
-vector< string > MeshGeom::GetTMeshNames()
-{
-    return ::GetTMeshNames( m_TMeshVec );
-}
-
-vector< string > MeshGeom::GetTMeshIDs()
-{
-    return ::GetTMeshIDs( m_TMeshVec );
-}
-
-vector< int > MeshGeom::GetTMeshThicks()
-{
-    return ::GetTMeshThicks( m_TMeshVec );
-}
-
-vector< int > MeshGeom::GetTMeshTypes()
-{
-    return ::GetTMeshTypes( m_TMeshVec );
-}
-
-vector< int > MeshGeom::GetTMeshPlateNum()
-{
-    return ::GetTMeshPlateNum( m_TMeshVec );
-}
-
-vector< int > MeshGeom::GetTMeshCopyIndex()
-{
-    return ::GetTMeshCopyIndex( m_TMeshVec );
-}
-
-vector< double > MeshGeom::GetTMeshWmins()
-{
-    return ::GetTMeshWmins( m_TMeshVec );
-}
-
-vector< double > MeshGeom::GetTMeshUscale()
-{
-    return ::GetTMeshUscale( m_TMeshVec );
-}
-
-vector< double > MeshGeom::GetTMeshWscale()
-{
-    return ::GetTMeshWscale( m_TMeshVec );
-}
-
-set < string > MeshGeom::GetTMeshPtrIDs()
-{
-    set < string > ids;
-    for ( size_t i = 0; i < m_TMeshVec.size(); i++ )
-    {
-        ids.insert( m_TMeshVec[i]->m_OriginGeomID );
-    }
-
-    return ids;
-}
 

@@ -3377,7 +3377,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                     IgnoreYLessThan( mg->m_TMeshVec, -1e-5 );
 
                     // Purge ignored tris.
-                    mg->FlattenTMeshVec();
+                    FlattenTMeshVec( mg->m_TMeshVec );
                 }
 
                 SubTagTris( subsFlag, mg->m_TMeshVec );
@@ -5987,7 +5987,7 @@ string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int 
         return string( "NONE" );
     }
     MeshGeom* mesh_ptr = ( MeshGeom* )geom;
-    mesh_ptr->FlattenTMeshVec();
+    FlattenTMeshVec( mesh_ptr->m_TMeshVec );
     mesh_ptr->m_SurfDirty = true;
     mesh_ptr->Update();
     return id;
@@ -6120,8 +6120,8 @@ string Vehicle::MassPropsAndFlatten( int set, int degen_set, int numSlices, int 
         return m_LastMassMeshID;
     }
     MeshGeom* mesh_ptr = ( MeshGeom* )geom;
-    mesh_ptr->FlattenTMeshVec();
-    mesh_ptr->FlattenSliceVec();
+    FlattenTMeshVec( mesh_ptr->m_TMeshVec );
+    FlattenTMeshVec( mesh_ptr->m_SliceVec );
     mesh_ptr->m_SurfDirty = true;
     mesh_ptr->Update();
     return m_LastMassMeshID;
@@ -6176,8 +6176,8 @@ string Vehicle::PSliceAndFlatten( int set, int numSlices, const vec3d &axis, boo
         return string( "NONE" );
     }
     MeshGeom* mesh_ptr = ( MeshGeom* )geom;
-    mesh_ptr->FlattenTMeshVec();
-    mesh_ptr->FlattenSliceVec();
+    FlattenTMeshVec( mesh_ptr->m_TMeshVec );
+    FlattenTMeshVec( mesh_ptr->m_SliceVec );
     mesh_ptr->m_SurfDirty = true;
     mesh_ptr->Update();
     return id;
