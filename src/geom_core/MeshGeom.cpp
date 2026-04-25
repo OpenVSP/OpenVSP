@@ -2039,25 +2039,6 @@ void MeshGeom::ApplyScale()
     m_LastScale = m_Scale();
 }
 
-void MeshGeom::DumpMeshes( const string & prefix )
-{
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        PGMulti pgmulti;
-        PGMesh *pgm = pgmulti.GetActiveMesh();
-        pgm->BuildFromTMesh( m_TMeshVec[ i ] );
-
-        char buf[255];
-        Matrix4d mat;
-        FILE *file_id = NULL;
-
-        snprintf( buf, sizeof( buf ), "%s_%d.vspgeom", prefix.c_str(), i );
-        file_id = fopen( buf, "w" );
-        pgm->WriteVSPGeom( file_id, mat );
-        fclose( file_id );
-    }
-}
-
 void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag, const vector < string > & sub_vec )
 {
     // Temporary variable -- likely pass up to top levels and make an option.
@@ -4087,28 +4068,6 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
 double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec, bool mpslice, bool tesselate, bool autoBounds, double start, double end, int slctype )
 {
     return ::MakeSlices( m_SliceVec, m_BBox, numSlices, swdir, slicevec, mpslice, tesselate, autoBounds, start, end, slctype );
-}
-
-//==== Create a Prism Made of Tetras - Extrude Tri +- len/2 ====//
-void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir  )
-{
-    vec3d p0 = tri->m_N0->m_Pnt;
-    vec3d p1 = tri->m_N1->m_Pnt;
-    vec3d p2 = tri->m_N2->m_Pnt;
-    p0.offset_i( len / 2.0, idir );
-    p1.offset_i( len / 2.0, idir );
-    p2.offset_i( len / 2.0, idir );
-
-    vec3d p3 = tri->m_N0->m_Pnt;
-    vec3d p4 = tri->m_N1->m_Pnt;
-    vec3d p5 = tri->m_N2->m_Pnt;
-    p3.offset_i( -len / 2.0, idir );
-    p4.offset_i( -len / 2.0, idir );
-    p5.offset_i( -len / 2.0, idir );
-
-    tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p0, p2, p1, p3 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p2, p3, p5, p1 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p5, p3, p4, p1 ) );
 }
 
 //==== Check Current Geom For Problems ====//

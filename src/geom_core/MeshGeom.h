@@ -151,7 +151,6 @@ public:
 
     virtual void Scale();
 
-    virtual void DumpMeshes( const string & prefix );
 
     //==== Intersection, Splitting and Trimming ====//
     virtual void IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag, const vector < string > & sub_vec = vector < string > () );
@@ -168,7 +167,6 @@ public:
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
                              const vector <string> & Flow_vec, bool Symm = false );
 
-    virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
 
     virtual void AddPointMass( TetraMassProp* pm )
     {

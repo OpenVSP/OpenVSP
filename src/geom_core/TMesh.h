@@ -769,4 +769,7 @@ TMesh* AddHalfBox( const vector < TMesh* > &tmv, const string &id );
 void IgnoreYLessThan( vector < TMesh* > &tmv, const double &ytol );
 TMesh* GetMeshByID( const vector < TMesh* > &tmv, const string &id );
 
+void DumpMeshes( const vector < TMesh* > &tmv, const string &prefix );
+void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
+
 #endif
