@@ -2918,7 +2918,7 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, i
             if ( gPtr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
-                mg->SubTagTris( subsFlag );
+                ::SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
@@ -3002,7 +3002,7 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
             if ( gPtr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
-                mg->SubTagTris( subsFlag );
+                ::SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
@@ -3117,7 +3117,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                mg->SubTagTris( subsFlag );
+                ::SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -3230,7 +3230,7 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                mg->SubTagTris( subsFlag );
+                ::SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -3374,13 +3374,13 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                     // This check is to ensure any triangles remaining from the positive bodies on the symmetry plane are removed.
                     // Absolute tolerance here, would be perhaps better as a fraction of the triangle's edge lengths.  Comparison
                     // based on triangle center location, so it should be reliable.
-                    mg->IgnoreYLessThan( -1e-5 );
+                    MeshGeom::IgnoreYLessThan( mg->m_TMeshVec, -1e-5 );
 
                     // Purge ignored tris.
                     mg->FlattenTMeshVec();
                 }
 
-                mg->SubTagTris( subsFlag );
+                ::SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -3747,7 +3747,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                mg->SubTagTris( subsFlag );
+                ::SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -3855,7 +3855,7 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
             if ( geom_ptr )
             {
                 MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-                mg->SubTagTris( subsFlag );
+                ::SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
@@ -6961,7 +6961,7 @@ string Vehicle::CreateDegenGeomMesh( int set )
         if ( geom_ptr )
         {
             MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
-            mg->SubTagTris( true );
+            ::SubTagTris( true, mg->m_TMeshVec );
 
             if ( m_DegenGeomMeshType() == vsp::NGON_MESH_TYPE )
             {

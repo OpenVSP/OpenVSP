@@ -168,27 +168,27 @@ public:
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
                              const vector <string> & Flow_vec, bool Symm = false );
 
-    virtual TMesh * MakeCutter( TMesh * tm, const vec3d &norm );
+    static TMesh * MakeCutter( TMesh * tm, const vec3d &norm );
 
-    virtual void CutMesh( TMesh *target_tm, TMesh *cutter_tm );
+    static void CutMesh( TMesh *target_tm, TMesh *cutter_tm );
 
-    virtual void TrimTMeshSequence( vector < TMesh* > tmvec );
+    static void TrimTMeshSequence( vector < TMesh* > tmvec );
 
-    virtual double CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm );
+    static double CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm );
 
-    virtual void FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm );
+    static void FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm );
 
-    virtual void TrimCoplanarPatches();
+    static void TrimCoplanarPatches( vector < TMesh* > &tmv );
 
-    virtual void MergeCoplanarSplitPatches();
+    static void MergeCoplanarSplitPatches( vector < TMesh* > &tmv );
 
-    virtual void MergeCoplanarTrimGroups();
+    static void MergeCoplanarTrimGroups( vector < TMesh* > &tmv );
 
-    virtual void MergeDegenCruciformTMeshes();
+    static void MergeDegenCruciformTMeshes( vector < TMesh* > &tmv );
 
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
 
-    virtual void ForceSymmSmallYZero();
+    static void ForceSymmSmallYZero( vector < TMesh* > &tmv );
 
     virtual void AddPointMass( TetraMassProp* pm )
     {
@@ -197,11 +197,10 @@ public:
     vector< TetraMassProp* > m_PointMassVec;
 
     virtual void WaterTightCheck( FILE* fid );
-    virtual void DeleteMarkedMeshes();
-    virtual TMesh* AddHalfBox( const string &id );
-    virtual void IgnoreYLessThan( const double & ytol );
+    static TMesh* AddHalfBox( const vector < TMesh* > &tmv, const string &id );
+    static void IgnoreYLessThan( vector < TMesh* > &tmv, const double & ytol );
 
-    virtual TMesh* GetMeshByID( const string & id );
+    static TMesh* GetMeshByID( const vector < TMesh* > &tmv, const string & id );
 
     virtual void UpdateSurf()
     {
@@ -227,8 +226,6 @@ public:
     virtual vector< double > GetTMeshWscale();
     virtual set< string > GetTMeshPtrIDs();
 
-    virtual void SubTagTris( bool tag_subs, const vector < string > & sub_vec = vector < string > () );
-    virtual void RefreshTagMaps();
 
     BoolParm m_ViewMeshFlag;
     BoolParm m_ViewSliceFlag;

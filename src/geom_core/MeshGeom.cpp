@@ -2070,7 +2070,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     // m_Scale = 1.0;
     ApplyScale();
 
-    TrimCoplanarPatches();
+    TrimCoplanarPatches( m_TMeshVec );
 
     Results* res = nullptr;
     if ( !degen )
@@ -2183,21 +2183,21 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     }
 
     // This needs to be before SubTagTris.
-    MergeCoplanarSplitPatches();
+    MergeCoplanarSplitPatches( m_TMeshVec );
 
     if ( !degen )
     {
         // Tag meshes before regular intersection
-        SubTagTris(( bool ) intSubsFlag, sub_vec );
+        ::SubTagTris(( bool ) intSubsFlag, m_TMeshVec, sub_vec );
     }
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
     MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
 
-    MergeDegenCruciformTMeshes();
+    MergeDegenCruciformTMeshes( m_TMeshVec );
 
-    MergeCoplanarTrimGroups();
+    MergeCoplanarTrimGroups( m_TMeshVec );
 
     // Clean up Coplanar trim groups.
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -2244,11 +2244,11 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         }
     }
 
-    ForceSymmSmallYZero();
+    ForceSymmSmallYZero( m_TMeshVec );
 
     if ( halfFlag )
     {
-        m_TMeshVec.push_back( AddHalfBox( "NEGATIVE_HALF" ) );
+        m_TMeshVec.push_back( AddHalfBox( m_TMeshVec, "NEGATIVE_HALF" ) );
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
@@ -2309,16 +2309,16 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
     if ( halfFlag )
     {
-        IgnoreYLessThan( 1e-5 );
-        TMesh *tm = GetMeshByID( "NEGATIVE_HALF" );
+        IgnoreYLessThan( m_TMeshVec, 1e-5 );
+        TMesh *tm = GetMeshByID( m_TMeshVec, "NEGATIVE_HALF" );
         if ( tm )
         {
             tm->IgnoreAll();
             tm->m_DeleteMeFlag = true;
         }
-        DeleteMarkedMeshes();
+        ::DeleteMarkedMeshes( m_TMeshVec );
 
-        RefreshTagMaps();
+        ::RefreshTagMaps( m_TMeshVec );
     }
 
     PreIntersectTrim( degenGeom, intSubsFlag, info, res );
@@ -3044,7 +3044,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         }
     }
     // Tag meshes before regular intersection
-    SubTagTris( true );
+    ::SubTagTris( true, m_TMeshVec );
 
     if ( ambcount > 0 )
     {
@@ -4113,11 +4113,11 @@ void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, doubl
 
 // Look for TMesh's that correspond to symmetrical copies of a Geom, where the points along the
 // center plane should be at Y==0, but are slightly off.
-void MeshGeom::ForceSymmSmallYZero()
+void MeshGeom::ForceSymmSmallYZero( vector < TMesh* > &tmv )
 {
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
+    for ( int i = 0 ; i < ( int )tmv.size() - 1; i++ )
     {
-        TMesh *tmi = m_TMeshVec[ i ];
+        TMesh *tmi = tmv[ i ];
         Matrix4d mat;
         BndBox bbi;
         tmi->UpdateBBox( bbi, mat );
@@ -4127,9 +4127,9 @@ void MeshGeom::ForceSymmSmallYZero()
             ylimi = bbi.GetMin( 1 );
         }
 
-        for ( int j = i + 1 ; j < ( int )m_TMeshVec.size(); j++ )
+        for ( int j = i + 1 ; j < ( int )tmv.size(); j++ )
         {
-            TMesh *tmj = m_TMeshVec[ j ];
+            TMesh *tmj = tmv[ j ];
             if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
                  tmi->m_PlateNum == tmj->m_PlateNum )
             {
@@ -4226,7 +4226,7 @@ void MeshGeom::WaterTightCheck( FILE* fid )
     m_TMeshVec.push_back( oneMesh );
 }
 
-double MeshGeom::CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm )
+double MeshGeom::CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm ) // static
 {
     Matrix4d mat;
     mat.rotatealongX( norm );
@@ -4248,7 +4248,7 @@ double MeshGeom::CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &no
     return maxx;
 }
 
-void MeshGeom::FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm )
+void MeshGeom::FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm ) // static
 {
     int n = tm->m_NVec.size();
     vector < vec3d > pts;
@@ -4289,7 +4289,7 @@ bool CutterTMeshCompare( TMesh* a, TMesh* b )
     return ( a->m_SurfNum < b->m_SurfNum );
 }
 
-TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
+TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm ) // static
 {
     // Convert input TMesh into PGMesh to make isolating the boundary easier.
     PGMulti pgmulti;
@@ -4409,7 +4409,7 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
     return tm_cutter;
 }
 
-void MeshGeom::CutMesh( TMesh *target_tm, TMesh *cutter_tm )
+void MeshGeom::CutMesh( TMesh *target_tm, TMesh *cutter_tm ) // static
 {
     // Make bounding boxes and other prep work.
     target_tm->LoadBndBox();
@@ -4433,7 +4433,7 @@ void MeshGeom::CutMesh( TMesh *target_tm, TMesh *cutter_tm )
     target_tm->SetIgnoreTriFlag( bTypes, thicksurf );
 }
 
-void MeshGeom::TrimTMeshSequence( vector < TMesh* > tmvec )
+void MeshGeom::TrimTMeshSequence( vector < TMesh* > tmvec ) // static
 {
     static int iprint = 0;
 
@@ -4474,16 +4474,16 @@ void MeshGeom::TrimTMeshSequence( vector < TMesh* > tmvec )
     }
 }
 
-void MeshGeom::TrimCoplanarPatches()
+void MeshGeom::TrimCoplanarPatches( vector < TMesh* > &tmv )
 {
     double tol = 1e-6;
 
-    int nMesh = m_TMeshVec.size();
+    int nMesh = tmv.size();
     vector < int > root_coplanar( nMesh, -1 );
 
     for ( int i = 0 ; i < nMesh - 1; i++ )
     {
-        TMesh *tmi = m_TMeshVec[ i ];
+        TMesh *tmi = tmv[ i ];
 
         if ( tmi->m_FlatPatch )
         {
@@ -4492,7 +4492,7 @@ void MeshGeom::TrimCoplanarPatches()
 
             for ( int j = i + 1; j < nMesh; j++ )
             {
-                TMesh *tmj = m_TMeshVec[ j ];
+                TMesh *tmj = tmv[ j ];
 
                 if ( tmj->m_FlatPatch &&
                      ( root_coplanar[j] == -1 ) &&
@@ -4516,12 +4516,12 @@ void MeshGeom::TrimCoplanarPatches()
         vector < TMesh* > tmgroup;
         if ( root_coplanar[i] == i )
         {
-            tmgroup.push_back( m_TMeshVec[ i ] );
+            tmgroup.push_back( tmv[ i ] );
             for ( int j = i + 1; j < nMesh; j++ )
             {
                 if ( root_coplanar[j] == i )
                 {
-                    tmgroup.push_back( m_TMeshVec[ j ] );
+                    tmgroup.push_back( tmv[ j ] );
                 }
             }
         }
@@ -4542,16 +4542,16 @@ void MeshGeom::TrimCoplanarPatches()
 
 // When Degen plate and camber surfaces are made into TMeshs, they can be split into patches if some areas
 // are planar.  This stitches those back together.
-void MeshGeom::MergeCoplanarSplitPatches()
+void MeshGeom::MergeCoplanarSplitPatches( vector < TMesh* > &tmv )
 {
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
+    for ( int i = 0 ; i < ( int )tmv.size() - 1; i++ )
     {
-        TMesh *tmi = m_TMeshVec[ i ];
+        TMesh *tmi = tmv[ i ];
         if ( tmi->m_DeleteMeFlag == false )
         {
-            for ( int j = i + 1 ; j < ( int )m_TMeshVec.size(); j++ )
+            for ( int j = i + 1 ; j < ( int )tmv.size(); j++ )
             {
-                TMesh *tmj = m_TMeshVec[ j ];
+                TMesh *tmj = tmv[ j ];
                 if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
                      tmi->m_SurfNum == tmj->m_SurfNum &&
                      tmi->m_PlateNum == tmj->m_PlateNum &&
@@ -4564,19 +4564,19 @@ void MeshGeom::MergeCoplanarSplitPatches()
         }
     }
 
-    DeleteMarkedMeshes();
+    ::DeleteMarkedMeshes( tmv );
 }
 
 // TMeshes with coplanar patches (which have been trimmed) are stitched together here without
 // running Intersect on them.  This hopefully prevents sliver hell.  However, it runs the risk
 // of missing intersections if non-coplanar patches of these surfaces also intersect in a
 // non-coplanar way.
-void MeshGeom::MergeCoplanarTrimGroups()
+void MeshGeom::MergeCoplanarTrimGroups( vector < TMesh* > &tmv )
 {
     vector < int > allGroups;
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size(); i++ )
+    for ( int i = 0 ; i < ( int )tmv.size(); i++ )
     {
-        TMesh *tmi = m_TMeshVec[ i ];
+        TMesh *tmi = tmv[ i ];
         allGroups.insert( allGroups.end(), tmi->m_InGroup.begin(), tmi->m_InGroup.end() );
     }
     std::sort( allGroups.begin(), allGroups.end() );
@@ -4587,15 +4587,15 @@ void MeshGeom::MergeCoplanarTrimGroups()
     {
         int grp = allGroups[ig];
 
-        for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
+        for ( int i = 0 ; i < ( int )tmv.size() - 1; i++ )
         {
-            TMesh *tmi = m_TMeshVec[ i ];
+            TMesh *tmi = tmv[ i ];
             if ( tmi->m_DeleteMeFlag == false &&
                  vector_contains_val( tmi->m_InGroup, grp ) )
             {
-                for ( int j = i + 1; j < ( int ) m_TMeshVec.size(); j++ )
+                for ( int j = i + 1; j < ( int ) tmv.size(); j++ )
                 {
-                    TMesh *tmj = m_TMeshVec[ j ];
+                    TMesh *tmj = tmv[ j ];
 
                     if ( tmj->m_DeleteMeFlag == false &&
                          vector_contains_val( tmj->m_InGroup, grp ) )
@@ -4608,20 +4608,20 @@ void MeshGeom::MergeCoplanarTrimGroups()
         }
     }
 
-    DeleteMarkedMeshes();
+    ::DeleteMarkedMeshes( tmv );
 }
 
 // tmi->m_PlateNum == tmj->m_PlateNum &&
-void MeshGeom::MergeDegenCruciformTMeshes()
+void MeshGeom::MergeDegenCruciformTMeshes( vector < TMesh* > &tmv )
 {
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() - 1; i++ )
+    for ( int i = 0 ; i < ( int )tmv.size() - 1; i++ )
     {
-        TMesh *tmi = m_TMeshVec[ i ];
+        TMesh *tmi = tmv[ i ];
         if ( tmi->m_DeleteMeFlag == false )
         {
-            for ( int j = i + 1 ; j < ( int )m_TMeshVec.size(); j++ )
+            for ( int j = i + 1 ; j < ( int )tmv.size(); j++ )
             {
-                TMesh *tmj = m_TMeshVec[ j ];
+                TMesh *tmj = tmv[ j ];
                 if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
                      tmi->m_ThickSurf == false && // Degen only
                      tmj->m_ThickSurf == false &&
@@ -4638,25 +4638,20 @@ void MeshGeom::MergeDegenCruciformTMeshes()
         }
     }
 
-    DeleteMarkedMeshes();
+    ::DeleteMarkedMeshes( tmv );
 }
 
-void MeshGeom::DeleteMarkedMeshes()
-{
-    ::DeleteMarkedMeshes( m_TMeshVec );
-}
-
-TMesh* MeshGeom::AddHalfBox( const string &id )
+TMesh* MeshGeom::AddHalfBox( const vector < TMesh* > &tmv, const string &id )
 {
     //==== Find Bound Box ====//
     BndBox box;
-    for ( int m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
+    for ( int m = 0 ; m < ( int )tmv.size() ; m++ )
     {
-        for ( int t = 0 ; t < ( int )m_TMeshVec[m]->m_TVec.size() ; t++ )
+        for ( int t = 0 ; t < ( int )tmv[m]->m_TVec.size() ; t++ )
         {
-            box.Update( m_TMeshVec[m]->m_TVec[t]->m_N0->m_Pnt );
-            box.Update( m_TMeshVec[m]->m_TVec[t]->m_N1->m_Pnt );
-            box.Update( m_TMeshVec[m]->m_TVec[t]->m_N2->m_Pnt );
+            box.Update( tmv[m]->m_TVec[t]->m_N0->m_Pnt );
+            box.Update( tmv[m]->m_TVec[t]->m_N1->m_Pnt );
+            box.Update( tmv[m]->m_TVec[t]->m_N2->m_Pnt );
         }
     }
 
@@ -4708,21 +4703,21 @@ TMesh* MeshGeom::AddHalfBox( const string &id )
     return tm;
 }
 
-void MeshGeom::IgnoreYLessThan( const double & ytol )
+void MeshGeom::IgnoreYLessThan( vector < TMesh* > &tmv, const double & ytol )
 {
-    for ( int i = 0; i < m_TMeshVec.size(); i++ )
+    for ( int i = 0; i < tmv.size(); i++ )
     {
-        m_TMeshVec[i]->IgnoreYLessThan( ytol );
+        tmv[i]->IgnoreYLessThan( ytol );
     }
 }
 
-TMesh* MeshGeom::GetMeshByID( const string & id )
+TMesh* MeshGeom::GetMeshByID( const vector < TMesh* > &tmv, const string & id )
 {
-    for ( int i = 0; i < m_TMeshVec.size(); i++ )
+    for ( int i = 0; i < tmv.size(); i++ )
     {
-        if ( m_TMeshVec[i]->m_OriginGeomID == id )
+        if ( tmv[i]->m_OriginGeomID == id )
         {
-            return m_TMeshVec[i];
+            return tmv[i];
         }
     }
     return nullptr;
@@ -4856,13 +4851,3 @@ set < string > MeshGeom::GetTMeshPtrIDs()
     return ids;
 }
 
-//==== Subtag All Triangles ====//
-void MeshGeom::SubTagTris( bool tag_subs, const vector < string > & sub_vec )
-{
-    ::SubTagTris( tag_subs, m_TMeshVec, sub_vec );
-}
-
-void MeshGeom::RefreshTagMaps()
-{
-    ::RefreshTagMaps( m_TMeshVec );
-}
