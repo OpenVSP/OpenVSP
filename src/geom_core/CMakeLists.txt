@@ -96,7 +96,9 @@ SVGUtil.cpp
 Texture.cpp
 TextureMgr.cpp
 TMesh.cpp
+TMeshIO.cpp
 TMeshSweptVolume.cpp
+TMeshUtil.cpp
 UserParmContainer.cpp
 VarPresetMgr.cpp
 Vehicle.cpp
