@@ -10091,3 +10091,544 @@ void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int
     tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p2, p3, p5, p1 ) );
     tetraVec.push_back( new TetraMassProp( tri->m_GeomID, tri->m_Density, p5, p3, p4, p1 ) );
 }
+
+//=============================================================================
+// Indexed Mesh API
+// These functions operate on a pre-built indexed representation of a mesh
+// (vector<TTri*> + vector<TNode*>).  They may eventually become part of a
+// dedicated IndexedTriMesh class.
+//=============================================================================
+
+void WriteStlByTag( FILE* file_id, int tag, const vector< TTri* > &trivec )
+{
+    for ( int i = 0 ; i < ( int )trivec.size() ; i++ )
+    {
+        TTri* ttri = trivec[i];
+        if ( SubSurfaceMgr.GetTag( ttri->m_Tags ) == tag )
+        {
+            vec3d p0 = ttri->m_N0->m_Pnt;
+            vec3d p1 = ttri->m_N1->m_Pnt;
+            vec3d p2 = ttri->m_N2->m_Pnt;
+            vec3d v10 = p1 - p0;
+            vec3d v20 = p2 - p1;
+            vec3d norm = cross( v10, v20 );
+            norm.normalize();
+
+            fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+            fprintf( file_id, "   outer loop\n" );
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
+            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+            fprintf( file_id, "   endloop\n" );
+            fprintf( file_id, " endfacet\n" );
+        }
+    }
+}
+
+void WriteNascartPnts( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm )
+{
+    vec3d v;
+    for ( int i = 0 ; i < ( int )nodvec.size() ; i++ )
+    {
+        TNode* tnode = nodvec[i];
+        if ( tnode )
+        {
+            v = xfm.xform( tnode->m_Pnt );
+            fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.z(), -v.y() );
+        }
+    }
+}
+
+void WriteCart3DPnts( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm )
+{
+    vec3d v;
+    for ( int i = 0 ; i < ( int )nodvec.size() ; i++ )
+    {
+        TNode* tnode = nodvec[i];
+        if ( tnode )
+        {
+            v = xfm.xform( tnode->m_Pnt );
+            fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+        }
+    }
+}
+
+void WriteOBJPnts( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm )
+{
+    vec3d v;
+    for ( int i = 0 ; i < ( int )nodvec.size() ; i++ )
+    {
+        TNode* tnode = nodvec[i];
+        if ( tnode )
+        {
+            v = xfm.xform( tnode->m_Pnt );
+            fprintf( fp, "v %16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+        }
+    }
+}
+
+void WriteVSPGeomPnts( FILE* file_id, const vector< TNode* > &nodvec, const Matrix4d &xfm )
+{
+    vec3d v;
+    for ( int i = 0 ; i < ( int )nodvec.size() ; i++ )
+    {
+        TNode* tnode = nodvec[i];
+        v = xfm.xform( tnode->m_Pnt );
+        fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+    }
+}
+
+int WriteGMshNodes( FILE* fp, int node_offset, const vector< TNode* > &nodvec, const Matrix4d &xfm )
+{
+    vec3d v;
+    for ( int i = 0 ; i < ( int )nodvec.size() ; i++ )
+    {
+        TNode* tnode = nodvec[i];
+        if ( tnode )
+        {
+            v = xfm.xform( tnode->m_Pnt );
+            fprintf( fp, "%d %16.10f %16.10f %16.10f\n", i + node_offset + 1, v.x(), v.y(), v.z() );
+        }
+    }
+    return node_offset + ( int )nodvec.size();
+}
+
+void WriteFacetNodes( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm )
+{
+    vec3d v;
+    for ( int i = 0; i < ( int )nodvec.size(); i++ )
+    {
+        TNode* tnode = nodvec[i];
+        v = xfm.xform( tnode->m_Pnt );
+        fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+    }
+}
+
+int WriteNascartTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if ( ttri )
+        {
+            fprintf( fp, "%d %d %d %d.0\n", ttri->m_N0->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off,
+                     ttri->m_N1->m_ID + 1 + off, SubSurfaceMgr.GetTag( ttri->m_Tags ) );
+        }
+    }
+    return off + ( int )nodvec.size();
+}
+
+int WriteCart3DTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if ( ttri )
+        {
+            fprintf( fp, "%d %d %d\n", ttri->m_N0->m_ID + 1 + off, ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
+        }
+    }
+    return off + ( int )nodvec.size();
+}
+
+int WriteOBJTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if ( ttri )
+        {
+            fprintf( fp, "f %d %d %d\n", ttri->m_N0->m_ID + 1 + off, ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
+        }
+    }
+    return off + ( int )nodvec.size();
+}
+
+int WriteVSPGeomTris( FILE* file_id, int offset, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        fprintf( file_id, "3 %d %d %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset );
+    }
+    return offset + ( int )nodvec.size();
+}
+
+int WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        fprintf( file_id, "%d 1 %d %d %d\n", tcount, ttri->m_N0->m_ID + 1 + noffset, ttri->m_N1->m_ID + 1 + noffset, ttri->m_N2->m_ID + 1 + noffset );
+        tcount++;
+    }
+    return noffset + ( int )nodvec.size();
+}
+
+int WriteGMshTris( FILE* fp, int node_offset, int tri_offset, const vector< TTri* > &trivec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if ( ttri )
+        {
+            fprintf( fp, "%d 2 0 %d %d %d\n", t + tri_offset + 1,
+                     ttri->m_N0->m_ID + 1 + node_offset, ttri->m_N2->m_ID + 1 + node_offset, ttri->m_N1->m_ID + 1 + node_offset );
+        }
+    }
+    return tri_offset + ( int )trivec.size();
+}
+
+void WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &part_count,
+                         const vector< TMesh* > &tmv, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+{
+    vector < string > geom_ID_vec;
+    geom_ID_vec.resize( tmv.size() );
+    for ( unsigned int i = 0; i < tmv.size(); i++ )
+    {
+        geom_ID_vec[i] = tmv[i]->m_OriginGeomID;
+    }
+
+    vector < int > tri_offset;
+    int materialID = 0;
+    vector < int > all_tag_vec = SubSurfaceMgr.GetAllTags();
+
+    for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
+    {
+        int tag_count = 0;
+        for ( unsigned int j = 0; j < trivec.size(); j++ )
+        {
+            if ( all_tag_vec[i] == SubSurfaceMgr.GetTag( trivec[j]->m_Tags ) )
+            {
+                tag_count++;
+            }
+        }
+        tri_offset.push_back( tag_count );
+    }
+
+    for ( int j = tri_offset.size() - 1; j >= 0; j-- )
+    {
+        if ( tri_offset[j] == 0 )
+        {
+            tri_offset.erase( tri_offset.begin() + j );
+            all_tag_vec.erase( all_tag_vec.begin() + j );
+            j--;
+        }
+    }
+
+    fprintf( fp, "%ld \n", tri_offset.size() );
+
+    for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
+    {
+        int curr_tag = all_tag_vec[i];
+        bool new_section = true;
+
+        for ( unsigned int j = 0; j < trivec.size(); j++ )
+        {
+            if ( curr_tag == SubSurfaceMgr.GetTag( trivec[j]->m_Tags ) )
+            {
+                if ( new_section )
+                {
+                    string name = SubSurfaceMgr.GetTagNames( trivec[j]->m_Tags );
+                    fprintf( fp, "%s\n", name.c_str() );
+                    fprintf( fp, "%d 3\n", tri_offset[i] );
+                    new_section = false;
+                }
+
+                TTri* ttri = trivec[j];
+                tri_count++;
+                fprintf( fp, "%d %d %d %d %u %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset,
+                         ttri->m_N2->m_ID + 1 + offset, materialID, i + 1 + part_count, tri_count );
+            }
+        }
+    }
+
+    part_count += tri_offset.size();
+    offset += ( int )nodvec.size();
+}
+
+int WriteNascartParts( FILE* fp, int off, const vector< TMesh* > &tmv )
+{
+    for ( int m = 0 ; m < ( int )tmv.size() ; m++ )
+    {
+        fprintf( fp, "%d.0  %s  0\n", off + m, tmv[m]->m_NameStr.c_str() );
+    }
+    return off + ( int )tmv.size();
+}
+
+int WriteCart3DParts( FILE* fp, const vector< TTri* > &trivec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        fprintf( fp, "%d \n", SubSurfaceMgr.GetTag( trivec[t]->m_Tags ) );
+    }
+    return 0;
+}
+
+int WriteVSPGeomParts( FILE* file_id, const vector< TTri* > &trivec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        int tag  = SubSurfaceMgr.GetTag( ttri->m_Tags );
+        int part = SubSurfaceMgr.GetPart( ttri->m_Tags );
+        double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
+        double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
+        fprintf( file_id, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
+                 ttri->m_N0->m_UWPnt.x() / uscale, ttri->m_N0->m_UWPnt.y() / wscale,
+                 ttri->m_N1->m_UWPnt.x() / uscale, ttri->m_N1->m_UWPnt.y() / wscale,
+                 ttri->m_N2->m_UWPnt.x() / uscale, ttri->m_N2->m_UWPnt.y() / wscale );
+    }
+    return 0;
+}
+
+int WriteVSPGeomAlternateParts( FILE* file_id, int &tcount, const vector< TTri* > &trivec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        int tag  = SubSurfaceMgr.GetTag( ttri->m_Tags );
+        int part = SubSurfaceMgr.GetPart( ttri->m_Tags );
+        double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
+        double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
+        fprintf( file_id, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", tcount, part, tag,
+                 ttri->m_N0->m_UWPnt.x() / uscale, ttri->m_N0->m_UWPnt.y() / wscale,
+                 ttri->m_N1->m_UWPnt.x() / uscale, ttri->m_N1->m_UWPnt.y() / wscale,
+                 ttri->m_N2->m_UWPnt.x() / uscale, ttri->m_N2->m_UWPnt.y() / wscale );
+        tcount++;
+    }
+    return 0;
+}
+
+int WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag, const vector< TTri* > &trivec )
+{
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri* ttri = trivec[t];
+        if ( SubSurfaceMgr.MatchPartAndTag( ttri->m_Tags, part, tag ) )
+        {
+            fprintf( file_id, "%d\n", t + tri_offset + 1 );
+        }
+    }
+    return tri_offset + ( int )trivec.size();
+}
+
+int CountVSPGeomPartTagTris( int part, int tag, const vector< TTri* > &trivec )
+{
+    int count = 0;
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        if ( SubSurfaceMgr.MatchPartAndTag( trivec[t]->m_Tags, part, tag ) )
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+void WriteVSPGeomParents( FILE* file_id, int &tcount, const vector< TTri* > &trivec )
+{
+    for ( int i = 0; i < ( int )trivec.size(); i++ )
+    {
+        fprintf( file_id, "%d %d\n", tcount, tcount );
+        tcount++;
+    }
+}
+
+// Wake edges are created such that N0.u < N1.u.
+// This comparator sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
+static bool OrderWakeEdges( const TEdge &a, const TEdge &b )
+{
+    if ( sgn( a.m_N0->m_Pnt.y() ) < sgn( b.m_N0->m_Pnt.y() ) ) return true;
+    if ( sgn( b.m_N0->m_Pnt.y() ) < sgn( a.m_N0->m_Pnt.y() ) ) return false;
+
+    if ( abs( a.m_N0->m_Pnt.y() ) < abs( b.m_N0->m_Pnt.y() ) ) return true;
+    if ( abs( b.m_N0->m_Pnt.y() ) < abs( a.m_N0->m_Pnt.y() ) ) return false;
+
+    if ( a.m_N0->m_UWPnt.x() < b.m_N0->m_UWPnt.x() ) return true;
+    if ( b.m_N0->m_UWPnt.x() < a.m_N0->m_UWPnt.x() ) return false;
+
+    if ( a.m_N1->m_UWPnt.x() < b.m_N1->m_UWPnt.x() ) return true;
+    if ( b.m_N1->m_UWPnt.x() < a.m_N1->m_UWPnt.x() ) return false;
+
+    if ( a.m_N0->m_Pnt.x() < b.m_N0->m_Pnt.x() ) return true;
+    if ( b.m_N0->m_Pnt.x() < a.m_N0->m_Pnt.x() ) return false;
+
+    if ( a.m_N0->m_Pnt.z() < b.m_N0->m_Pnt.z() ) return true;
+    if ( b.m_N0->m_Pnt.z() < a.m_N0->m_Pnt.z() ) return false;
+
+    if ( sgn( a.m_N1->m_Pnt.y() ) < sgn( b.m_N1->m_Pnt.y() ) ) return true;
+    if ( sgn( b.m_N1->m_Pnt.y() ) < sgn( a.m_N1->m_Pnt.y() ) ) return false;
+
+    if ( abs( a.m_N1->m_Pnt.y() ) < abs( b.m_N1->m_Pnt.y() ) ) return true;
+    if ( abs( b.m_N1->m_Pnt.y() ) < abs( a.m_N1->m_Pnt.y() ) ) return false;
+
+    if ( a.m_N1->m_Pnt.x() < b.m_N1->m_Pnt.x() ) return true;
+    if ( b.m_N1->m_Pnt.x() < a.m_N1->m_Pnt.x() ) return false;
+
+    if ( a.m_N1->m_Pnt.z() < b.m_N1->m_Pnt.z() ) return true;
+    if ( b.m_N1->m_Pnt.z() < a.m_N1->m_Pnt.z() ) return false;
+
+    return false;
+}
+
+static bool AboutEqualWakeNodes( TNode *a, TNode *b )
+{
+    if ( aboutequal( a->m_Pnt.y(), b->m_Pnt.y() )
+      && aboutequal( a->m_Pnt.x(), b->m_Pnt.x() )
+      && aboutequal( a->m_Pnt.z(), b->m_Pnt.z() )
+      && aboutequal( a->m_UWPnt.x(), b->m_UWPnt.x() )
+      && aboutequal( a->m_UWPnt.y(), b->m_UWPnt.y() ) ) return true;
+
+    return false;
+}
+
+static bool AboutEqualWakeEdges( const TEdge &a, const TEdge &b )
+{
+    if ( AboutEqualWakeNodes( a.m_N0, b.m_N0 )
+      && AboutEqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
+
+    return false;
+}
+
+void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wakes, vector< vector< vec3d > > &polyvec )
+{
+    vector < TEdge > wakeedges;
+
+    for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
+    {
+        TTri *ttri = trivec[t];
+        int we = ttri->WakeEdge();
+
+        if ( we > 0 )
+        {
+            TEdge e;
+            if ( we == 1 )
+            {
+                e = TEdge( ttri->m_N0, ttri->m_N1, ttri );
+            }
+            else if ( we == 2 )
+            {
+                e = TEdge( ttri->m_N1, ttri->m_N2, ttri );
+            }
+            else
+            {
+                e = TEdge( ttri->m_N2, ttri->m_N0, ttri );
+            }
+            e.SortNodesByU();
+            wakeedges.push_back( e );
+        }
+    }
+
+    sort( wakeedges.begin(), wakeedges.end(), OrderWakeEdges );
+
+    vector < TEdge >::iterator it;
+    it = unique( wakeedges.begin(), wakeedges.end(), AboutEqualWakeEdges );
+    wakeedges.resize( distance( wakeedges.begin(), it ) );
+
+    list < TEdge > wlist( wakeedges.begin(), wakeedges.end() );
+
+    wakes.clear();
+    int iwake = 0;
+
+    while ( !wlist.empty() )
+    {
+        list < TEdge >::iterator wit = wlist.begin();
+
+        iwake = wakes.size();
+        wakes.resize( iwake + 1 );
+        wakes[iwake].push_back( *wit );
+        wit = wlist.erase( wit );
+
+        while ( wit != wlist.end() )
+        {
+            if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            {
+                wakes[iwake].push_back( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            {
+                wakes[iwake].push_front( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N1 ) )
+            {
+                (*wit).SwapEdgeDirection();
+                wakes[iwake].push_back( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N0 ) )
+            {
+                (*wit).SwapEdgeDirection();
+                wakes[iwake].push_front( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            wit++;
+        }
+    }
+
+    int nwake = wakes.size();
+    polyvec.resize( nwake );
+
+    for ( iwake = 0; iwake < nwake; iwake++ )
+    {
+        int iwe;
+        int nwe = wakes[iwake].size();
+        polyvec[iwake].resize( nwe + 1 );
+
+        for ( iwe = 0; iwe < nwe; iwe++ )
+        {
+            polyvec[iwake][iwe] = wakes[iwake][iwe].m_N0->m_Pnt;
+        }
+        polyvec[iwake][iwe] = wakes[iwake][iwe - 1].m_N1->m_Pnt;
+    }
+}
+
+int WriteVSPGeomWakes( FILE* file_id, int offset, const vector< deque< TEdge > > &wakes, const vector< TNode* > &nodvec )
+{
+    int nwake = wakes.size();
+
+    for ( int iwake = 0; iwake < nwake; iwake++ )
+    {
+        int iprt = 0;
+        int iwe;
+        int nwe = wakes[iwake].size();
+
+        int part = 0;
+        if ( nwe > 1 )
+        {
+            TTri *t = wakes[iwake][0].GetParTri();
+            part = SubSurfaceMgr.GetPart( t->m_Tags );
+        }
+
+        fprintf( file_id, "%d %d ", nwe + 1, part );
+
+        for ( iwe = 0; iwe < nwe; iwe++ )
+        {
+            fprintf( file_id, "%d", wakes[iwake][iwe].m_N0->m_ID + 1 + offset );
+
+            if ( iprt < 9 )
+            {
+                fprintf( file_id, " " );
+                iprt++;
+            }
+            else
+            {
+                fprintf( file_id, "\n" );
+                iprt = 0;
+            }
+        }
+        fprintf( file_id, "%d\n", wakes[iwake][iwe - 1].m_N1->m_ID + 1 + offset );
+    }
+
+    return offset + ( int )nodvec.size();
+}

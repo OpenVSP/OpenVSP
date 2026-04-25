@@ -2958,7 +2958,7 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, i
                     MeshGeom* mg = ( MeshGeom* )geom_vec[j];            // Cast
                     mesh_id = geom_vec[j]->GetID(); // Set ID in case mesh already existed
 
-                    mg->WriteStl( file_id, tags[i] );
+                    WriteStlByTag( file_id, tags[i], mg->m_IndexedTriVec );
                 }
             }
             fprintf( file_id, "endsolid %d_%s\n", tags[i], tagname.c_str() );
@@ -3050,7 +3050,7 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
                 MeshGeom* mg = (MeshGeom*)geom_vec[i];
                 mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
 
-                mg->WriteFacetNodes( fid );
+                WriteFacetNodes( fid, mg->m_IndexedNodeVec, mg->GetTotalTransMat() );
             }
         }
 
@@ -3069,7 +3069,7 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
                  geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
                 MeshGeom* mg = (MeshGeom*)geom_vec[i];            // Cast
-                mg->WriteFacetTriParts( fid, offset, tri_count, part_count );
+                WriteFacetTriParts( fid, offset, tri_count, part_count, mg->m_TMeshVec, mg->m_IndexedTriVec, mg->m_IndexedNodeVec );
             }
         }
 
@@ -3162,7 +3162,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
             mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
 
-            mg->WriteCart3DPnts( file_id );
+            WriteCart3DPnts( file_id, mg->m_IndexedNodeVec, mg->GetTotalTransMat() );
         }
     }
 
@@ -3174,7 +3174,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE  )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            offset = mg->WriteCart3DTris( file_id, offset );
+            offset = WriteCart3DTris( file_id, offset, mg->m_IndexedTriVec, mg->m_IndexedNodeVec );
         }
     }
 
@@ -3184,7 +3184,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
                 geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            mg->WriteCart3DParts( file_id  );
+            WriteCart3DParts( file_id, mg->m_IndexedTriVec );
         }
     }
 
@@ -3273,7 +3273,7 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
             mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
 
-            mg->WriteOBJPnts( file_id );
+            WriteOBJPnts( file_id, mg->m_IndexedNodeVec, mg->GetTotalTransMat() );
         }
     }
 
@@ -3288,7 +3288,7 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
 
             fprintf( file_id, "g %s\n", geom_vec[i]->GetName().c_str() );
 
-            offset = mg->WriteOBJTris( file_id, offset );
+            offset = WriteOBJTris( file_id, offset, mg->m_IndexedTriVec, mg->m_IndexedNodeVec );
         }
     }
 
@@ -3449,7 +3449,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             {
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
                 mg->BuildIndexedMesh();
-                mg->IdentifyWakes();
+                IdentifyWakes( mg->m_IndexedTriVec, mg->m_Wakes, mg->m_PolyVec );
                 num_parts += mg->GetNumIndexedParts();
                 num_pnts += mg->GetNumIndexedPnts();
                 num_tris += mg->GetNumIndexedTris();
@@ -3470,7 +3470,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
                 mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
 
-                mg->WriteVSPGeomPnts( file_id );
+                WriteVSPGeomPnts( file_id, mg->m_IndexedNodeVec, mg->GetTotalTransMat() );
             }
         }
 
@@ -3484,7 +3484,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                  geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                offset = mg->WriteVSPGeomTris( file_id, offset );
+                offset = WriteVSPGeomTris( file_id, offset, mg->m_IndexedTriVec, mg->m_IndexedNodeVec );
             }
         }
 
@@ -3494,7 +3494,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                  geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                mg->WriteVSPGeomParts( file_id );
+                WriteVSPGeomParts( file_id, mg->m_IndexedTriVec );
             }
         }
 
@@ -3506,7 +3506,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                  geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                mg->WriteVSPGeomParents( file_id, tcount );
+                WriteVSPGeomParents( file_id, tcount, mg->m_IndexedTriVec );
             }
         }
 
@@ -3520,8 +3520,8 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                  geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                mg->IdentifyWakes();
-                offset = mg->WriteVSPGeomWakes( file_id, offset );
+                IdentifyWakes( mg->m_IndexedTriVec, mg->m_Wakes, mg->m_PolyVec );
+                offset = WriteVSPGeomWakes( file_id, offset, mg->m_Wakes, mg->m_IndexedNodeVec );
 
                 mg->m_SurfDirty = true;
                 mg->Update();
@@ -3537,7 +3537,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                  geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                offset = mg->WriteVSPGeomAlternateTris( file_id, offset, tcount );
+                offset = WriteVSPGeomAlternateTris( file_id, offset, tcount, mg->m_IndexedTriVec, mg->m_IndexedNodeVec );
             }
         }
 
@@ -3548,7 +3548,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                  geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
             {
                 MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                mg->WriteVSPGeomAlternateParts( file_id, tcount );
+                WriteVSPGeomAlternateParts( file_id, tcount, mg->m_IndexedTriVec );
             }
         }
         fclose( file_id );
@@ -3663,7 +3663,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                                          geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
                                     {
                                         MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                                        tagcount += mg->CountVSPGeomPartTagTris( part, tag );
+                                        tagcount += CountVSPGeomPartTagTris( part, tag, mg->m_IndexedTriVec );
                                     }
                                 }
                                 fprintf( fid, "%d\n\n", tagcount );
@@ -3675,7 +3675,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                                          geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
                                     {
                                         MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-                                        tri_offset = mg->WriteVSPGeomPartTagTris( fid, tri_offset, part, tag );
+                                        tri_offset = WriteVSPGeomPartTagTris( fid, tri_offset, part, tag, mg->m_IndexedTriVec );
                                     }
                                 }
 
@@ -3788,7 +3788,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
             mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
 
-            mg->WriteNascartPnts( file_id );
+            WriteNascartPnts( file_id, mg->m_IndexedNodeVec, mg->GetTotalTransMat() );
         }
     }
 
@@ -3799,7 +3799,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            offset = mg->WriteNascartTris( file_id, offset );
+            offset = WriteNascartTris( file_id, offset, mg->m_IndexedTriVec, mg->m_IndexedNodeVec );
         }
     }
 
@@ -3904,7 +3904,7 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
             mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
 
-            node_offset = mg->WriteGMshNodes( file_id, node_offset );
+            node_offset = WriteGMshNodes( file_id, node_offset, mg->m_IndexedNodeVec, mg->GetTotalTransMat() );
         }
     }
     fprintf( file_id, "$EndNodes\n" );
@@ -3918,7 +3918,7 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
-            tri_offset = mg->WriteGMshTris( file_id, node_offset_vec[i], tri_offset );
+            tri_offset = WriteGMshTris( file_id, node_offset_vec[i], tri_offset, mg->m_IndexedTriVec );
         }
     }
     fprintf( file_id, "$EndElements\n" );

@@ -31,9 +31,6 @@ class MeshGeom : public Geom
 private:
     int m_BigEndianFlag;
 
-    vector< TTri* > m_IndexedTriVec;
-    vector< TNode* > m_IndexedNodeVec;
-
 public:
 //  enum { SLICE_PLANAR, SLICE_AWAVE };
 
@@ -64,6 +61,9 @@ public:
     double m_TotalIxz;
     double m_TotalIyz;
 
+    vector< TTri* >  m_IndexedTriVec;
+    vector< TNode* > m_IndexedNodeVec;
+
     vector < TMesh* > m_TMeshVec;
     vector < TMesh* > m_SliceVec;
     vector < vector < vec3d > > m_PolyVec;
@@ -89,7 +89,6 @@ public:
     virtual float ReadBinFloat( FILE* fptr );
     virtual int   ReadBinInt  ( FILE* fptr );
     virtual void WriteStl( FILE* pov_file );
-    virtual void WriteStl( FILE* stl_file, int tag );
 
     static void BuildTriVec( const TMesh* mesh, vector< TTri* > &trivec );
     static void BuildTriVec( const vector < TMesh* > &meshvec, vector< TTri* > &trivec );
@@ -115,32 +114,6 @@ public:
     }
 
     virtual void WriteVSPGeom( const string file_name );
-    virtual void WriteNascartPnts( FILE* file_id );
-    virtual void WriteCart3DPnts( FILE* file_id );
-    virtual void WriteOBJPnts( FILE* file_id );
-    virtual void WriteVSPGeomPnts( FILE* file_id );
-    virtual int  WriteGMshNodes( FILE* file_id, int node_offset );
-    virtual void WriteFacetNodes( FILE* file_id );
-    virtual int  WriteNascartTris( FILE* file_id, int offset );
-    virtual int  WriteCart3DTris( FILE* file_id, int offset );
-    virtual int  WriteOBJTris( FILE* file_id, int offset );
-    virtual int  WriteVSPGeomTris( FILE* file_id, int offset );
-    virtual int  WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount );
-    virtual int  WriteGMshTris( FILE* file_id, int node_offset, int tri_offset );
-    virtual void WriteFacetTriParts( FILE* file_id, int &offset, int &tri_count, int &part_count );
-    virtual int  WriteNascartParts( FILE* file_id, int offset );
-    virtual int  WriteCart3DParts( FILE* file_id );
-    virtual int  WriteVSPGeomParts( FILE* file_id );
-    virtual int  WriteVSPGeomAlternateParts( FILE* file_id, int &tcount );
-
-    virtual int  WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag );
-    virtual int  CountVSPGeomPartTagTris( int part, int tag );
-
-    virtual void WriteVSPGeomParents( FILE* file_id, int &tcount );
-
-    virtual void IdentifyWakes();
-
-    virtual int  WriteVSPGeomWakes( FILE* file_id, int offset );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WriteX3D( xmlNodePtr node );
     virtual void CreateGeomResults( Results* res );

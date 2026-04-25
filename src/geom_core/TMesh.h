@@ -241,7 +241,7 @@ public:
     {
         m_ParTri = par_tri;
     }
-    virtual TTri* GetParTri()
+    virtual TTri* GetParTri() const
     {
         return m_ParTri;
     }
@@ -774,5 +774,42 @@ TMesh* GetMeshByID( const vector < TMesh* > &tmv, const string &id );
 
 void DumpMeshes( const vector < TMesh* > &tmv, const string &prefix );
 void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );
+
+//=============================================================================
+// Indexed Mesh API
+// These functions operate on a pre-built indexed representation of a mesh
+// (vector<TTri*> + vector<TNode*>).  They may eventually become part of a
+// dedicated IndexedTriMesh class.
+//=============================================================================
+
+void WriteStlByTag( FILE* file_id, int tag, const vector< TTri* > &trivec );
+
+void WriteNascartPnts( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm );
+void WriteCart3DPnts( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm );
+void WriteOBJPnts( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm );
+void WriteVSPGeomPnts( FILE* file_id, const vector< TNode* > &nodvec, const Matrix4d &xfm );
+int  WriteGMshNodes( FILE* fp, int node_offset, const vector< TNode* > &nodvec, const Matrix4d &xfm );
+void WriteFacetNodes( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm );
+
+int  WriteNascartTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
+int  WriteCart3DTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
+int  WriteOBJTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
+int  WriteVSPGeomTris( FILE* file_id, int offset, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
+int  WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
+int  WriteGMshTris( FILE* fp, int node_offset, int tri_offset, const vector< TTri* > &trivec );
+
+void WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &part_count,
+                         const vector< TMesh* > &tmv, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
+int  WriteNascartParts( FILE* fp, int off, const vector< TMesh* > &tmv );
+int  WriteCart3DParts( FILE* fp, const vector< TTri* > &trivec );
+int  WriteVSPGeomParts( FILE* file_id, const vector< TTri* > &trivec );
+int  WriteVSPGeomAlternateParts( FILE* file_id, int &tcount, const vector< TTri* > &trivec );
+
+int  WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag, const vector< TTri* > &trivec );
+int  CountVSPGeomPartTagTris( int part, int tag, const vector< TTri* > &trivec );
+void WriteVSPGeomParents( FILE* file_id, int &tcount, const vector< TTri* > &trivec );
+
+void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wakes, vector< vector< vec3d > > &polyvec );
+int  WriteVSPGeomWakes( FILE* file_id, int offset, const vector< deque< TEdge > > &wakes, const vector< TNode* > &nodvec );
 
 #endif
