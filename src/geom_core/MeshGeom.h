@@ -51,16 +51,6 @@ public:
     double m_TotalTheoVol;
     double m_TotalWetVol;
 
-    vec3d m_CenterOfGrav;
-
-    double m_TotalMass;
-    double m_TotalIxx;
-    double m_TotalIyy;
-    double m_TotalIzz;
-    double m_TotalIxy;
-    double m_TotalIxz;
-    double m_TotalIyz;
-
     vector < TMesh* > m_TMeshVec;
     vector < TMesh* > m_SliceVec;
     vector < vector < vec3d > > m_PolyVec;
@@ -113,7 +103,8 @@ public:
     virtual void PreIntersectTrim( vector< DegenGeom > &degenGeom, int intSubsFlag, MeshInfo &info, Results *res );
     virtual void PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res );
 
-    virtual void MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile );
+    virtual void MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile,
+                            double &totalMass, vec3d &centerOfGrav, vec3d &IxxIyyIzz, vec3d &IxyIxzIyz );
 
     virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start, double end, bool measureduct );
 

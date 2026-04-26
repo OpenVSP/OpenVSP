@@ -62,15 +62,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TotalTheoArea = m_TotalWetArea = 0.0;
     m_TotalTheoVol  = m_TotalWetVol  = 0.0;
 
-    m_CenterOfGrav = vec3d( 0, 0, 0 );
-    m_TotalMass = 0.0;
-    m_TotalIxx = 0.0;
-    m_TotalIyy = 0.0;
-    m_TotalIzz = 0.0;
-    m_TotalIxy = 0.0;
-    m_TotalIxz = 0.0;
-    m_TotalIyz = 0.0;
-
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 
@@ -2577,8 +2568,16 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 }
 
 //==== Call After BndBoxes Have Been Create But Before Intersect ====//
-void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile )
+void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile,
+                          double &totalMass, vec3d &centerOfGrav, vec3d &IxxIyyIzz, vec3d &IxyIxzIyz )
 {
+    double totalIxx;
+    double totalIyy;
+    double totalIzz;
+    double totalIxy;
+    double totalIxz;
+    double totalIyz;
+
     int i, j, s;
     bool deleteopen = false;
 
@@ -2911,7 +2910,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         totalVol = compsum( dv );
         dv.clear();
 
-        m_TotalMass = 0.0;
+        totalMass = 0.0;
         vector < double > dm( ntet + nshell );
         vec3d cg( 0, 0, 0 );
         vector < vec3d > dcg( ntet + nshell );
@@ -2933,20 +2932,20 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
             dcg[k] = triShellVec[ i ]->m_CG * triShellVec[ i ]->m_Mass;
             k++;
         }
-        m_TotalMass = compsum( dm );
+        totalMass = compsum( dm );
         dm.clear();
         cg = compsum( dcg );
         dcg.clear();
 
-        if ( m_TotalMass )
+        if ( totalMass )
         {
-            cg = cg * ( 1.0 / m_TotalMass );
+            cg = cg * ( 1.0 / totalMass );
         }
 
-        m_CenterOfGrav = cg;
+        centerOfGrav = cg;
 
-        m_TotalIxx = m_TotalIyy = m_TotalIzz = 0.0;
-        m_TotalIxy = m_TotalIxz = m_TotalIyz = 0.0;
+        totalIxx = totalIyy = totalIzz = 0.0;
+        totalIxy = totalIxz = totalIyz = 0.0;
         vector < double > dIxx( ntet + nshell );
         vector < double > dIyy( ntet + nshell );
         vector < double > dIzz( ntet + nshell );
@@ -2989,12 +2988,12 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
             dIyz[k] = trs->m_Iyz + trs->m_Mass * y * z;
             k++;
         }
-        m_TotalIxx = compsum( dIxx );
-        m_TotalIyy = compsum( dIyy );
-        m_TotalIzz = compsum( dIzz );
-        m_TotalIxy = compsum( dIxy );
-        m_TotalIxz = compsum( dIxz );
-        m_TotalIyz = compsum( dIyz );
+        totalIxx = compsum( dIxx );
+        totalIyy = compsum( dIyy );
+        totalIzz = compsum( dIzz );
+        totalIxy = compsum( dIxy );
+        totalIxz = compsum( dIxz );
+        totalIyz = compsum( dIyz );
 
         dIxx.clear();
         dIyy.clear();
@@ -3003,6 +3002,10 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         dIxz.clear();
         dIyz.clear();
     }
+
+    // Pack up inertias for output.
+    IxxIyyIzz = vec3d( totalIxx, totalIyy, totalIzz );
+    IxyIxzIyz = vec3d( totalIxy, totalIxz, totalIyz );
 
     vector < string > name_vec;
     vector < string > id_vec;
@@ -3236,14 +3239,14 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         res->Add( new NameValData( "Fill_Vol", vol_fill_vec, "Progressive filling volume." ) );
 
         //==== Totals ====//
-        res->Add( new NameValData( "Total_Mass", m_TotalMass, "Combined mass." ) );
-        res->Add( new NameValData( "Total_CG", m_CenterOfGrav, "Combined CG." ) );
-        res->Add( new NameValData( "Total_Ixx", m_TotalIxx, "Combined Ixx." ) );
-        res->Add( new NameValData( "Total_Iyy", m_TotalIyy, "Combined Iyy." ) );
-        res->Add( new NameValData( "Total_Izz", m_TotalIzz, "Combined Izz." ) );
-        res->Add( new NameValData( "Total_Ixy", m_TotalIxy, "Combined Ixy." ) );
-        res->Add( new NameValData( "Total_Ixz", m_TotalIxz, "Combined Ixz." ) );
-        res->Add( new NameValData( "Total_Iyz", m_TotalIyz, "Combined Iyz." ) );
+        res->Add( new NameValData( "Total_Mass", totalMass, "Combined mass." ) );
+        res->Add( new NameValData( "Total_CG", centerOfGrav, "Combined CG." ) );
+        res->Add( new NameValData( "Total_Ixx", totalIxx, "Combined Ixx." ) );
+        res->Add( new NameValData( "Total_Iyy", totalIyy, "Combined Iyy." ) );
+        res->Add( new NameValData( "Total_Izz", totalIzz, "Combined Izz." ) );
+        res->Add( new NameValData( "Total_Ixy", totalIxy, "Combined Ixy." ) );
+        res->Add( new NameValData( "Total_Ixz", totalIxz, "Combined Ixz." ) );
+        res->Add( new NameValData( "Total_Iyz", totalIyz, "Combined Iyz." ) );
         res->Add( new NameValData( "Total_Volume", totalVol, "Combined volume." ) );
     }
     else

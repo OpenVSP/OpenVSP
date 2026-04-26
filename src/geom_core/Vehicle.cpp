@@ -6031,12 +6031,7 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
     if ( mesh_ptr->m_TMeshVec.size() || mesh_ptr->m_PointMassVec.size() )
     {
         vector <DegenGeom> dg;
-        mesh_ptr->MassSlice( dg, false, numSlices, idir, writefile );
-        m_TotalMass = mesh_ptr->m_TotalMass;
-        m_IxxIyyIzz = vec3d( mesh_ptr->m_TotalIxx, mesh_ptr->m_TotalIyy, mesh_ptr->m_TotalIzz );
-        m_IxyIxzIyz = vec3d( mesh_ptr->m_TotalIxy, mesh_ptr->m_TotalIxz, mesh_ptr->m_TotalIyz );
-        m_CG = mesh_ptr->m_CenterOfGrav;
-
+        mesh_ptr->MassSlice( dg, false, numSlices, idir, writefile, m_TotalMass, m_CG, m_IxxIyyIzz, m_IxyIxzIyz );
     }
     else
     {
@@ -6742,7 +6737,9 @@ void Vehicle::CreateDegenGeom( int set, bool useMode, const string &modeID )
         MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
         if ( mesh_ptr != nullptr )
         {
-            mesh_ptr->MassSlice( m_DegenGeomVec, true, 25, vsp::X_DIR, false );
+            double totalMass;
+            vec3d centerOfGrav, IxxIyyIzz, IxyIxzIyz;
+            mesh_ptr->MassSlice( m_DegenGeomVec, true, 25, vsp::X_DIR, false, totalMass, centerOfGrav, IxxIyyIzz, IxyIxzIyz );
             DeleteGeom( id );
         }
     }
