@@ -666,6 +666,16 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, c
 
 Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir )
 {
+    //==== Create Results ====//
+    Results* res = ResultsMgr.CreateResults( "Projection", "Projected area results." );
+
+    Project( targetTMeshVec, dir, res );
+
+    return res;
+}
+
+void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir, Results* res )
+{
     Matrix4d mat;
     mat.rotatealongX( dir );
 
@@ -686,9 +696,6 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     vector < Clipper2Lib::Paths64 > utargetvec;
 
     Union( targetvec, utargetvec, targetids );
-
-    //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "Projection", "Projected area results." );
 
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -755,11 +762,19 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     {
         res->Add( new NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
     }
+}
+
+Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir )
+{
+    //==== Create Results ====//
+    Results* res = ResultsMgr.CreateResults( "Projection", "Projected area with bounding mesh results." );
+
+    Project( targetTMeshVec, boundaryTMeshVec, dir, res );
 
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir )
+void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, Results* res )
 {
     Matrix4d mat;
     mat.rotatealongX( dir );
@@ -784,9 +799,6 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     vector < Clipper2Lib::Paths64 > utargetvec;
 
     Union( targetvec, utargetvec, targetids );
-
-    //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "Projection", "Projected area with bounding mesh results." );
 
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -869,8 +881,6 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     {
         res->Add( new NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
     }
-
-    return res;
 }
 
 bool TMeshCompare( TMesh* a, TMesh* b )
