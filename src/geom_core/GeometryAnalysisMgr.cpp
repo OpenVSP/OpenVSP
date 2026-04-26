@@ -1965,6 +1965,96 @@ string GeometryAnalysisCase::Evaluate()
             }
             case vsp::PROJ_AREA:
             {
+                primary_tmv = GetPrimaryTMeshVec();
+
+                if ( !primary_tmv.empty() )
+                {
+                    Results *res = ResultsMgr.CreateResults( "Projected_Area", "Projected area calculation." );
+                    if ( res )
+                    {
+                        m_LastResult = res->GetID();
+
+                        vec3d dir = vec3d( m_XComp(), m_YComp(), m_ZComp() );
+                        vector < vector < vec3d > > solutionPolyVec3d;
+
+                        if ( m_BoundaryEnableFlag() )
+                        {
+                            secondary_tmv = GetSecondaryTMeshVec();
+
+                            if ( !secondary_tmv.empty() )
+                            {
+                                // Do bounded projected area calculations
+                                if ( m_TargetHullFlag() )
+                                {
+                                    TMesh *tm = MakeConvexHull( primary_tmv );
+                                    DeleteTMeshVec( primary_tmv );
+                                    primary_tmv.push_back( tm );
+                                }
+
+                                if ( m_BoundaryHullFlag() )
+                                {
+                                    TMesh *tm = MakeConvexHull( secondary_tmv );
+                                    DeleteTMeshVec( secondary_tmv );
+                                    secondary_tmv.push_back( tm );
+                                }
+
+                                ProjectionMgr.Project( primary_tmv, secondary_tmv, dir, res, m_TMeshVec, solutionPolyVec3d  );
+                            }
+                            else
+                            {
+                                MessageData errMsgData;
+                                errMsgData.m_String = "Error";
+                                errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                                char buf[255];
+                                snprintf( buf, sizeof( buf ), "Error:  Empty secondary mesh in %s.", m_Name.c_str() );
+                                errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                                MessageMgr::getInstance().SendAll( errMsgData );
+                            }
+                        }
+                        else
+                        {
+                            // Do unbounded projected area calculations
+
+                            if ( m_TargetHullFlag() )
+                            {
+                                TMesh *tm = MakeConvexHull( primary_tmv );
+                                DeleteTMeshVec( primary_tmv );
+                                primary_tmv.push_back( tm );
+                            }
+
+                            ProjectionMgr.Project( primary_tmv, dir, res, m_TMeshVec, solutionPolyVec3d  );
+                        }
+
+                        vector < double > avec = ResultsMgr.GetDoubleResults( m_LastResult, "Area", 0 );
+                        if ( avec.size() == 1 )
+                        {
+                            res->Add( new NameValData( "Result", avec[ 0 ], "Projected area result" ) );
+                        }
+
+                        // Convert solutionPolyVec3d from vector of VSP_LINE_STRIP to VSP_LINES
+                        for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
+                        {
+                            for ( int k = 0; k < solutionPolyVec3d[i].size() - 1; k++ )
+                            {
+                                m_PtsVec.push_back( solutionPolyVec3d[ i ][ k ] );
+                                m_PtsVec.push_back( solutionPolyVec3d[ i ][ k + 1 ] );
+                            }
+                        }
+
+                    }
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
             case vsp::MASS_PROP:
