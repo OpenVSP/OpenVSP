@@ -669,12 +669,29 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "Projection", "Projected area results." );
 
-    Project( targetTMeshVec, dir, res );
+    vector < TMesh* > solutionTMeshVec;
+    vector < vector < vec3d > > solutionPolyVec3d;
+    bool success = Project( targetTMeshVec, dir, res, solutionTMeshVec, solutionPolyVec3d );
+
+    if ( success )
+    {
+        string id = MakeMeshGeom( solutionTMeshVec, solutionPolyVec3d );
+
+        res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
+
+        // Clear pointers, they have been transferred to the MeshGeom.
+        // Do not delete TMeshs.
+        solutionTMeshVec.clear();
+    }
+    else
+    {
+        res->Add( new NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
+    }
 
     return res;
 }
 
-void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir, Results* res )
+bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir, Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d )
 {
     Matrix4d mat;
     mat.rotatealongX( dir );
@@ -725,7 +742,6 @@ void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const v
     {
         ClosePaths( solution );
 
-        vector < vector < vec3d > > solutionPolyVec3d;
         PathsToPolyVec( solution, solutionPolyVec3d );
 
         TransformPolyVec( solutionPolyVec3d, fromclipper );
@@ -738,7 +754,7 @@ void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const v
         vector < vector < vec2d > > solutionPolyVec2d;
         Poly3dToPoly2d( solutionPolyVec3d, solutionPolyVec2d );
 
-        vector < TMesh* > solutionTMeshVec = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole );
+        solutionTMeshVec = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole );
 
         mat.affineInverse();
         TransformPolyVec( solutionPolyVec3d, mat );
@@ -750,7 +766,23 @@ void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const v
 
         TransformMeshVec( solutionTMeshVec, mat );
 
-        string id = MakeMeshGeom( solutionTMeshVec, solutionPolyVec3d );
+        return true;
+    }
+    return false;
+}
+
+Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir )
+{
+    //==== Create Results ====//
+    Results* res = ResultsMgr.CreateResults( "Projection", "Projected area with bounding mesh results." );
+
+    vector < TMesh* > solutionTMeshVec;
+    vector < vector < vec3d > > solutionPolyVec3d;
+    bool success = Project( targetTMeshVec, boundaryTMeshVec, dir, res, solutionTMeshVec, solutionPolyVec3d );
+
+    if ( success )
+    {
+        string id =  MakeMeshGeom( solutionTMeshVec, solutionPolyVec3d );
 
         res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
 
@@ -762,19 +794,11 @@ void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const v
     {
         res->Add( new NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
     }
-}
-
-Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir )
-{
-    //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "Projection", "Projected area with bounding mesh results." );
-
-    Project( targetTMeshVec, boundaryTMeshVec, dir, res );
 
     return res;
 }
 
-void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, Results* res )
+bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d )
 {
     Matrix4d mat;
     mat.rotatealongX( dir );
@@ -844,7 +868,6 @@ void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
     {
         ClosePaths( solution );
 
-        vector < vector < vec3d > > solutionPolyVec3d;
         PathsToPolyVec( solution, solutionPolyVec3d );
 
         TransformPolyVec( solutionPolyVec3d, fromclipper );
@@ -857,7 +880,7 @@ void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
         vector < vector < vec2d > > solutionPolyVec2d;
         Poly3dToPoly2d( solutionPolyVec3d, solutionPolyVec2d );
 
-        vector < TMesh* > solutionTMeshVec = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole );
+        solutionTMeshVec = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole );
 
         mat.affineInverse();
         TransformPolyVec( solutionPolyVec3d, mat );
@@ -869,18 +892,9 @@ void ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
 
         TransformMeshVec( solutionTMeshVec, mat );
 
-        string id =  MakeMeshGeom( solutionTMeshVec, solutionPolyVec3d );
-
-        res->Add( new NameValData( "Mesh_GeomID", id, "GeomID of MeshGeom of the projected area." ) );
-
-        // Clear pointers, they have been transferred to the MeshGeom.
-        // Do not delete TMeshs.
-        solutionTMeshVec.clear();
+        return true;
     }
-    else
-    {
-        res->Add( new NameValData( "Mesh_GeomID", string( "" ), "Empty GeomID.  Projection had no solution." ) );
-    }
+    return false;
 }
 
 bool TMeshCompare( TMesh* a, TMesh* b )

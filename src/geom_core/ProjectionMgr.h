@@ -69,8 +69,8 @@ public:
     virtual Results* Project( const string &tgeom, bool thullflag, int bset, bool bhullflag, const vec3d & dir );
     virtual Results* Project( const string &tgeom, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir );
 
-    virtual void Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir, Results* res );
-    virtual void Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, Results* res );
+    virtual bool Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir, Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d );
+    virtual bool Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d );
 
     virtual string MakeMeshGeom( const vector < TMesh * > &tmv, const vector < vector < vec3d > > &solutionPolyVec3d );
 
