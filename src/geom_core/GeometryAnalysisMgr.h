@@ -130,9 +130,6 @@ public:
     BoolParm m_BoundaryEnableFlag;
     BoolParm m_BoundaryHullFlag;
     IntParm m_DirectionType;
-    Parm m_XComp;
-    Parm m_YComp;
-    Parm m_ZComp;
 
     IntParm m_GeometryAnalysisType;
 

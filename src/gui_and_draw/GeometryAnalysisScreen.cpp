@@ -628,9 +628,9 @@ bool GeometryAnalysisScreen::Update()
 
         m_DirectionGeom.Update();
 
-        m_XSlider.Update( gcase->m_XComp.GetID() );
-        m_YSlider.Update( gcase->m_YComp.GetID() );
-        m_ZSlider.Update( gcase->m_ZComp.GetID() );
+        m_XSlider.Update( gcase->m_DispX.GetID() );
+        m_YSlider.Update( gcase->m_DispY.GetID() );
+        m_ZSlider.Update( gcase->m_DispZ.GetID() );
 
         m_BoundaryHullButton.Update( gcase->m_BoundaryHullFlag.GetID() );
 

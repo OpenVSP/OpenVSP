@@ -81,9 +81,6 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_BoundaryEnableFlag.Init( "BoundaryEnableFlag", m_GroupName, this, false, false, true );
     m_BoundaryHullFlag.Init( "BoundaryHullFlag", m_GroupName, this, false, false, true );
     m_DirectionType.Init( "DirectionType", m_GroupName, this, vsp::X_PROJ, vsp::X_PROJ, vsp::NUM_PROJ_DIR_OPTIONS - 1 );
-    m_XComp.Init( "XComp", m_GroupName, this, 0.0, -1.0, 1.0 );
-    m_YComp.Init( "YComp", m_GroupName, this, 0.0, -1.0, 1.0 );
-    m_ZComp.Init( "ZComp", m_GroupName, this, 0.0, -1.0, 1.0 );
 
     m_GeometryAnalysisType.Init( "IntererenceCheckType", m_GroupName, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
@@ -130,9 +127,9 @@ void GeometryAnalysisCase::Update()
             case vsp::Y_PROJ:
             case vsp::Z_PROJ:
             case vsp::GEOM_PROJ:
-                m_XComp = dir.x();
-                m_YComp = dir.y();
-                m_ZComp = dir.z();
+                m_DispX = dir.x();
+                m_DispY = dir.y();
+                m_DispZ = dir.z();
                 break;
         }
     }
@@ -1974,7 +1971,7 @@ string GeometryAnalysisCase::Evaluate()
                     {
                         m_LastResult = res->GetID();
 
-                        vec3d dir = vec3d( m_XComp(), m_YComp(), m_ZComp() );
+                        vec3d dir = vec3d( m_DispX(), m_DispY(), m_DispZ() );
                         vector < vector < vec3d > > solutionPolyVec3d;
 
                         if ( m_BoundaryEnableFlag() )
