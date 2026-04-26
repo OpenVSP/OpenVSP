@@ -46,11 +46,6 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    double m_TotalTheoArea;
-    double m_TotalWetArea;
-    double m_TotalTheoVol;
-    double m_TotalWetVol;
-
     vector < TMesh* > m_TMeshVec;
     vector < TMesh* > m_SliceVec;
     vector < vector < vec3d > > m_PolyVec;
@@ -100,7 +95,6 @@ public:
     //==== Intersection, Splitting and Trimming ====//
     virtual void IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag, const vector < string > & sub_vec = vector < string > () );
 
-    virtual void PreIntersectTrim( vector< DegenGeom > &degenGeom, int intSubsFlag, MeshInfo &info, Results *res );
     virtual void PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res );
 
     virtual void MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile,

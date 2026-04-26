@@ -59,9 +59,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
         m_BigEndianFlag = 0;
     }
 
-    m_TotalTheoArea = m_TotalWetArea = 0.0;
-    m_TotalTheoVol  = m_TotalWetVol  = 0.0;
-
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 
@@ -1555,45 +1552,37 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         RefreshTagMaps( m_TMeshVec );
     }
 
-    PreIntersectTrim( degenGeom, intSubsFlag, info, res );
     PostIntersectTrim( degenGeom, degen, intSubsFlag, info, res );
-}
-
-void MeshGeom::PreIntersectTrim( vector< DegenGeom > &degenGeom, int intSubsFlag, MeshInfo &info, Results *res )
-{
-    int i, j;
-
-    //==== Compute Areas ====//
-    m_TotalTheoArea = 0.0;
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TotalTheoArea += m_TMeshVec[i]->ComputeTheoArea();
-    }
-
-    //==== Compute Theo Vols ====//
-    m_TotalTheoVol = 0;
-    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TotalTheoVol += m_TMeshVec[i]->ComputeTheoVol();
-    }
 }
 
 void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res )
 {
-    int i, j;
+    //==== Compute Areas ====//
+    double totalTheoArea = 0.0;
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        totalTheoArea += m_TMeshVec[i]->ComputeTheoArea();
+    }
+
+    //==== Compute Theo Vols ====//
+    double totalTheoVol = 0;
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        totalTheoVol += m_TMeshVec[i]->ComputeTheoVol();
+    }
 
     //==== Compute Areas ====//
-    m_TotalWetArea = 0.0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    double totalWetArea = 0.0;
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TotalWetArea  += m_TMeshVec[i]->ComputeWetArea();
+        totalWetArea  += m_TMeshVec[i]->ComputeWetArea();
     }
 
     //==== Compute Total Volume ====//
-    m_TotalWetVol = 0.0;
+    double totalWetVol = 0.0;
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TotalWetVol += m_TMeshVec[i]->ComputeTrimVol();
+        totalWetVol += m_TMeshVec[i]->ComputeTrimVol();
     }
 
     double guessTotalWetVol = 0;
@@ -1604,7 +1593,7 @@ void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, in
         guessTotalWetVol += m_TMeshVec[i]->m_GuessVol;
     }
 
-    double leftOver = m_TotalWetVol;
+    double leftOver = totalWetVol;
     int leftOverCnt = 20;
     while ( leftOverCnt > 0 )
     {
@@ -1629,9 +1618,9 @@ void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, in
             sumWetVol += m_TMeshVec[i]->m_WetVol;
         }
 
-        if ( sumWetVol < m_TotalWetVol )
+        if ( sumWetVol < totalWetVol )
         {
-            leftOver = m_TotalWetVol - sumWetVol;
+            leftOver = totalWetVol - sumWetVol;
         }
         else
         {
@@ -1815,10 +1804,10 @@ void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, in
         res->Add( new NameValData( "SubSurf_Theo_Area", ssTheoAreaVec, "Un-trimmed surface area for SubSurf." ) );
         res->Add( new NameValData( "SubSurf_Wet_Area", ssWetAreaVec, "Trimmed surface area for SubSurf." ) );
 
-        res->Add( new NameValData( "Total_Theo_Area", m_TotalTheoArea, "Sum of component surface areas." ) );
-        res->Add( new NameValData( "Total_Wet_Area", m_TotalWetArea, "Trimmed combined wetted surface area." ) );
-        res->Add( new NameValData( "Total_Theo_Vol", m_TotalTheoVol, "Sum of component volumes." ) );
-        res->Add( new NameValData( "Total_Wet_Vol", m_TotalWetVol, "Trimmed combined volume." ) );
+        res->Add( new NameValData( "Total_Theo_Area", totalTheoArea, "Sum of component surface areas." ) );
+        res->Add( new NameValData( "Total_Wet_Area", totalWetArea, "Trimmed combined wetted surface area." ) );
+        res->Add( new NameValData( "Total_Theo_Vol", totalTheoVol, "Sum of component volumes." ) );
+        res->Add( new NameValData( "Total_Wet_Vol", totalWetVol, "Trimmed combined volume." ) );
 
         res->Add( new NameValData( "Num_Degen_Tris_Removed", info.m_NumDegenerateTriDeleted, "Number of degenerate triangles removed during process." ) );
         res->Add( new NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted, "Number of open meshes removed at start of process." ) );
