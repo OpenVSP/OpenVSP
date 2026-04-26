@@ -37,15 +37,6 @@ public:
     MeshGeom( Vehicle* vehicle_ptr );
     ~MeshGeom();
 
-    //! MeshGeom's EncodeXml Implementation
-    /**
-       MeshGeom's EncodeXml Method does not write out each TTri's splitVec.
-       So make sure that FlattenTMeshVec has been called on MeshGeom
-       before calling EncodeXml.
-    */
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-
     vector < TMesh* > m_TMeshVec;
     vector < TMesh* > m_SliceVec;
     vector < vector < vec3d > > m_PolyVec;
@@ -55,8 +46,24 @@ public:
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
 
-    virtual void UpdateBBox();
-    virtual void UpdateDrawObj();
+    BoolParm m_ViewMeshFlag;
+    BoolParm m_ViewSliceFlag;
+    IntParm m_StartColorDegree;
+
+    // Debug Attributes
+
+    enum { DRAW_XYZ = 1, DRAW_UV = 2, DRAW_TAGS = 4, DRAW_BOTH = 3 };
+    IntParm m_DrawType;
+    BoolParm m_DrawSubSurfs;
+
+    //! MeshGeom's EncodeXml Implementation
+    /**
+       MeshGeom's EncodeXml Method does not write out each TTri's splitVec.
+       So make sure that FlattenTMeshVec has been called on MeshGeom
+       before calling EncodeXml.
+    */
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
@@ -115,29 +122,22 @@ public:
 
     virtual void WaterTightCheck( FILE* fid );
 
-    virtual void UpdateSurf()
-    {
-        m_ScaleMatrix.loadIdentity();
-        m_ScaleMatrix.scale( m_ScaleFromOrig() );
-    }
 
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 );
 
     virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
     virtual Matrix4d GetTotalTransMat() const;
 
-
-    BoolParm m_ViewMeshFlag;
-    BoolParm m_ViewSliceFlag;
-    IntParm m_StartColorDegree;
-
-    // Debug Attributes
-
-    enum { DRAW_XYZ = 1, DRAW_UV = 2, DRAW_TAGS = 4, DRAW_BOTH = 3 };
-    IntParm m_DrawType;
-    BoolParm m_DrawSubSurfs;
-
 protected:
+
+    virtual void UpdateSurf()
+    {
+        m_ScaleMatrix.loadIdentity();
+        m_ScaleMatrix.scale( m_ScaleFromOrig() );
+    }
+    virtual void UpdateBBox();
+    virtual void UpdateDrawObj();
+
     virtual void ApplyScale(); // this is for intersectTrim
     vector<TMesh*> m_SubSurfVec;
 
