@@ -470,10 +470,14 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GCaseLayout.SetSameLineFlag( true );
     m_GCaseLayout.SetFitWidthFlag( false );
 
-    m_GCaseLayout.SetButtonWidth( (( m_GCaseLayout.GetW() - 5 ) * 0.5 - 5) * 0.5 );
+    m_GCaseLayout.SetButtonWidth( ( m_GCaseLayout.GetW() - 3 * 5 ) / 5 );
 
     m_GCaseLayout.AddButton( m_Evaluate, "Evaluate" );
     m_GCaseLayout.AddX( 5 );
+
+    m_GCaseLayout.AddButton( m_MakeMeshGeom, "Make MeshGeom" );
+    m_GCaseLayout.AddX( 5 );
+
     m_GCaseLayout.AddButton( m_ApplyRotation, "Apply Rotation" );
     m_GCaseLayout.AddX( 5 );
     m_GCaseLayout.AddButton( m_ShowResultsViewer, "Show Results" );
@@ -956,6 +960,15 @@ bool GeometryAnalysisScreen::Update()
         else
         {
             m_ApplyRotation.Deactivate();
+        }
+
+        if ( gcase->m_TMeshVec.empty() && gcase->m_SliceTMeshVec.empty() )
+        {
+            m_MakeMeshGeom.Deactivate();
+        }
+        else
+        {
+            m_MakeMeshGeom.Activate();
         }
     }
     else
@@ -1474,6 +1487,13 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                     }
                 }
             }
+        }
+    }
+    else if ( gui_device == &m_MakeMeshGeom )
+    {
+        if ( gcase )
+        {
+            gcase->MakeMeshGeom();
         }
     }
     else if ( gui_device == &m_LookAlongButton )

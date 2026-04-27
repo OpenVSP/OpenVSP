@@ -77,6 +77,8 @@ public:
 
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    string MakeMeshGeom();
+
     string m_GroupName;
 
     IntParm m_PrimarySet;
@@ -137,6 +139,7 @@ public:
     Parm m_LastResultValue;
 
     vector< TMesh* > m_TMeshVec;
+    vector< TMesh* > m_SliceTMeshVec;
     vector < vec3d > m_PtsVec;
 
 

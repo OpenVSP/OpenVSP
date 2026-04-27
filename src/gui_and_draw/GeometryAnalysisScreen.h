@@ -192,6 +192,7 @@ protected:
     TriggerButton m_ShowResultsViewer;
 
     TriggerButton m_ApplyRotation;
+    TriggerButton m_MakeMeshGeom;
 
     Output m_ResultOutput;
 

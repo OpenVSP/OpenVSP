@@ -893,6 +893,7 @@ string GeometryAnalysisCase::Evaluate()
     m_LastResult.clear();
 
     DeleteTMeshVec( m_TMeshVec );
+    DeleteTMeshVec( m_SliceTMeshVec );
     m_PtsVec.clear();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
@@ -2343,6 +2344,32 @@ void GeometryAnalysisCase::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         m_SecondaryVizPointDO.m_Visible = false;
     }
+}
+
+string GeometryAnalysisCase::MakeMeshGeom()
+{
+    Vehicle* vehiclePtr = VehicleMgr.GetVehicle();
+
+    GeomType type = GeomType( MESH_GEOM_TYPE, "MESH", true );
+    string id = vehiclePtr->AddGeom( type );
+    Geom *geom_ptr = vehiclePtr->FindGeom( id );
+    if ( geom_ptr )
+    {
+        MeshGeom* mesh_geom = ( MeshGeom* )( geom_ptr );
+
+        // mesh_geom->m_PolyVec = solutionPolyVec3d;
+        mesh_geom->m_PolyVec.push_back( m_PtsVec );
+
+        mesh_geom->m_TMeshVec = CopyTMeshVec( m_TMeshVec );
+        mesh_geom->m_SliceVec = CopyTMeshVec( m_SliceTMeshVec );
+
+        mesh_geom->m_SurfDirty = true;
+        mesh_geom->Update();
+
+        vehiclePtr->SetActiveGeom( id );
+
+    }
+    return id;
 }
 
 //===============================================================================//
