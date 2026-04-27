@@ -108,7 +108,7 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_BoundaryHullFlag.Init( "BoundaryHullFlag", m_GroupName, this, false, false, true );
     m_DirectionType.Init( "DirectionType", m_GroupName, this, vsp::X_PROJ, vsp::X_PROJ, vsp::NUM_PROJ_DIR_OPTIONS - 1 );
 
-    m_GeometryAnalysisType.Init( "IntererenceCheckType", m_GroupName, this, vsp::EXTERNAL_INTERFERENCE, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
+    m_GeometryAnalysisType.Init( "IntererenceCheckType", m_GroupName, this, vsp::COMP_GEOM, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
 
     m_LastResultValue.Init( "LastResult", m_GroupName, this, 0.0, -1e12, 1e12 );
 }
