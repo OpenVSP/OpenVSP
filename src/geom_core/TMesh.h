@@ -820,4 +820,33 @@ void WriteVSPGeomParents( FILE* file_id, int &tcount, const vector< TTri* > &tri
 void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wakes, vector< vector< vec3d > > &polyvec );
 int  WriteVSPGeomWakes( FILE* file_id, int offset, const vector< deque< TEdge > > &wakes, const vector< TNode* > &nodvec );
 
+//=============================================================================
+// Mesh Analysis
+// Standalone versions of MeshGeom's IntersectTrim, AreaSlice, and MassSlice
+// that operate on caller-owned vectors.  MeshGeom's member functions are
+// thin wrappers that handle Geom/Vehicle-specific bookkeeping (scale Parms,
+// export filenames) and then delegate here.
+//=============================================================================
+
+class DegenGeom;
+class Results;
+
+void IntersectTrim( vector<TMesh*> &tmv, vector<TMesh*> &subSurfVec, BndBox &bbox,
+                    bool degen, int intSubsFlag, bool halfFlag, bool deleteopen,
+                    const vector<string> &sub_vec,
+                    Results *res, vector<DegenGeom> &degenGeom );
+
+void PostIntersectTrim( vector<TMesh*> &tmv, vector<DegenGeom> &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res );
+
+void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, BndBox &bbox,
+                int numSlices, vec3d norm_axis, bool autoBounds, double start, double end,
+                bool measureduct, Results *res );
+
+void MassSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, BndBox &bbox,
+                vector<DegenGeom> &degenGeom, bool degen, int numSlices, int idir,
+                double &totalMass, vec3d &centerOfGrav,
+                vec3d &IxxIyyIzz, vec3d &IxyIxzIyz,
+                const vector<TetraMassProp*> &pointMassVec,
+                Results *res );
+
 #endif
