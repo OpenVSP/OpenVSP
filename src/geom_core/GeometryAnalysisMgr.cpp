@@ -2359,7 +2359,16 @@ void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
         }
 
         AssignTMeshDO( m_TMeshVec[i], mat, color, i );
+    }
 
+    for ( int i = 0 ; i < ( int )m_SliceTMeshVec.size() ; i++ )
+    {
+        Material mat;
+        mat.SetMaterial( "Blue Default" );
+        mat.m_Diff[3] = 0.25; // Make translucent
+        vec3d color = DrawObj::Color( DrawObj::BLUE );
+
+        AssignTMeshDO( m_SliceTMeshVec[i], mat, color, m_TMeshVec.size() + i );
     }
 
     m_LineResultDO.m_GeomID = m_ID + "Line";
