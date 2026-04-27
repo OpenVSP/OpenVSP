@@ -33,9 +33,9 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 510, "Plan
     m_BorderLayout.AddSlider( m_NumSlicesInput, "Num Slice:", 100, "%6.0f" );
     m_BorderLayout.AddYGap();
 
-    m_AxisChoice.AddItem( "X-Axis" );
-    m_AxisChoice.AddItem( "Y-Axis" );
-    m_AxisChoice.AddItem( "Z-Axis" );
+    m_AxisChoice.AddItem( "X-Axis", vsp::X_DIR );
+    m_AxisChoice.AddItem( "Y-Axis", vsp::Y_DIR );
+    m_AxisChoice.AddItem( "Z-Axis", vsp::Z_DIR );
 
     m_BorderLayout.AddChoice( m_AxisChoice, "Normal Axis" );
     m_BorderLayout.AddYGap();
