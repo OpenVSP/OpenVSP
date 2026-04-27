@@ -2016,10 +2016,106 @@ string GeometryAnalysisCase::Evaluate()
             }
             case vsp::COMP_GEOM:
             {
+                primary_tmv = GetPrimaryTMeshVec();
+
+                if ( !primary_tmv.empty() )
+                {
+                    Results* res = ResultsMgr.CreateResults( "WetArea_Volume", "Calculate wetted area and volume of geometry." );
+                    if( res )
+                    {
+                        m_LastResult = res->GetID();
+
+                        // Dummy to hold output DegenGeom, not used since 'degen' is false
+                        vector< DegenGeom > dg;
+
+                        // Mesh BBox output for scaling.
+                        BndBox bbox;
+
+                        // Debugging subsurface mesh output.
+                        vector < TMesh* > subSurfVec;
+
+                        // SubSurface whitelist.  Empty to allow all.
+                        const vector < string > sub_vec;
+
+
+                        IntersectTrim( primary_tmv, subSurfVec, bbox,
+                                       /*degen*/ false, /* intSubsFlag */ m_UseSubSurfFlag(), /* halfFlag */ m_HalfMeshFlag(), /*deleteopen*/ false,
+                                       sub_vec, res, dg );
+
+
+                        vector < double > wetareavec = ResultsMgr.GetDoubleResults( m_LastResult, "Total_Wet_Area", 0 );
+                        if ( wetareavec.size() == 1 )
+                        {
+                            res->Add( new NameValData( "Result", wetareavec[ 0 ], "Wetted area result" ) );
+                        }
+
+                        m_TMeshVec = CopyTMeshVec( primary_tmv );
+
+                        // Delete subsurface debugging meshes
+                        DeleteTMeshVec(  subSurfVec );
+                    }
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
             case vsp::PLANAR_SLICE:
             {
+                primary_tmv = GetPrimaryTMeshVec();
+
+                if ( !primary_tmv.empty() )
+                {
+                    Results* res = ResultsMgr.CreateResults( "Planar_Slice", "Calculate planar slices and area distribution of geometry." );
+                    if( res )
+                    {
+                        m_LastResult = res->GetID();
+
+                        vector<TMesh*> slicevec;
+                        BndBox bbox;
+
+                        vec3d norm_axis;
+                        norm_axis[ m_SliceDir.Get() ] = 1;
+
+                        AreaSlice( primary_tmv, slicevec, bbox, m_NumSlices(), norm_axis, m_AutoBoundsFlag(), m_PlanarStartLocation(), m_PlanarEndLocation(), m_PlanarMeasureDuct(), res );
+
+                        m_TMeshVec = CopyTMeshVec( primary_tmv );
+                        FlattenTMeshVec( m_TMeshVec );
+
+                        m_SliceTMeshVec = slicevec;
+                        FlattenTMeshVec( m_SliceTMeshVec );
+
+                        vector < double > avec = ResultsMgr.GetDoubleResults( m_LastResult, "Slice_Area", 0 );
+                        double maxarea = 0;
+                        for ( int i = 0; i < avec.size(); i++ )
+                        {
+                            if ( avec[ i ] > maxarea )
+                            {
+                                maxarea = avec[ i ];
+                            }
+                        }
+                        res->Add( new NameValData( "Result", maxarea, "Planar slice result" ) );
+                    }
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
             case vsp::PROJ_AREA:
@@ -2118,6 +2214,48 @@ string GeometryAnalysisCase::Evaluate()
             }
             case vsp::MASS_PROP:
             {
+
+                primary_tmv = GetPrimaryTMeshVec();
+
+                if ( !primary_tmv.empty() )
+                {
+                    Results* res = ResultsMgr.CreateResults( "Mass_Properties", "Calculate mass properties of geometry." );
+                    if( res )
+                    {
+                        m_LastResult = res->GetID();
+
+                        vector<TMesh*> slicevec;
+                        BndBox bbox;
+                        vector<DegenGeom> dg;
+
+                        double totalMass;
+                        vec3d centerOfGrav;
+                        vec3d IxxIyyIzz;
+                        vec3d IxyIxzIyz;
+
+                        vector < TetraMassProp* > pointMassVec = GetPrimaryTetraMassPropVec();
+
+                        // This will clean up pointMassVec
+                        MassSlice( primary_tmv, slicevec, bbox, dg, /*degen*/ false, m_NumSlices(), m_SliceDir(), totalMass, centerOfGrav, IxxIyyIzz, IxyIxzIyz, pointMassVec, res );
+
+                        m_TMeshVec = CopyTMeshVec( primary_tmv );
+                        FlattenTMeshVec( m_TMeshVec );
+
+                        m_SliceTMeshVec = slicevec;
+                        FlattenTMeshVec( m_SliceTMeshVec );
+                    }
+                }
+                else
+                {
+                    MessageData errMsgData;
+                    errMsgData.m_String = "Error";
+                    errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+                    char buf[255];
+                    snprintf( buf, sizeof( buf ), "Error:  Empty primary mesh in %s.", m_Name.c_str() );
+                    errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                    MessageMgr::getInstance().SendAll( errMsgData );
+                }
                 break;
             }
         }
