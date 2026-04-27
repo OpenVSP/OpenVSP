@@ -120,7 +120,10 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_OptionsLayout.AddSubGroupLayout( m_VisibilityOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_MotionOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_LookAtVisibilityOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
+    m_OptionsLayout.AddSubGroupLayout( m_CompGeomLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
+    m_OptionsLayout.AddSubGroupLayout( m_PlanarSliceLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
     m_OptionsLayout.AddSubGroupLayout( m_ProjectionOptionsLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
+    m_OptionsLayout.AddSubGroupLayout( m_MassPropLayout, m_OptionsLayout.GetW(), m_OptionsLayout.GetRemainY() );
 
     m_PrimaryLayout.AddDividerBox( "Primary" );
 
@@ -364,6 +367,41 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_LookAtVisibilityOptionsLayout.AddButton( m_LookAlongButton, "Look From" );
 
 
+
+    m_CompGeomLayout.SetFitWidthFlag( false );
+    m_CompGeomLayout.SetSameLineFlag( true );
+    m_CompGeomLayout.AddButton( m_CompGeomHalfMesh, "Half Mesh" );
+    m_CompGeomLayout.AddX( 5 );
+    m_CompGeomLayout.AddButton( m_CompGeomSubsurfs, "Subsurfs" );
+    m_CompGeomLayout.ForceNewLine();
+    m_CompGeomLayout.AddYGap();
+
+
+    m_PlanarSliceLayout.AddSlider( m_PlanarNumSlicesSlider, "Num Slice:", 100, "%6.0f" );
+    m_PlanarSliceLayout.AddYGap();
+
+    m_PlanarDirChoice.AddItem( "X-Axis", vsp::X_DIR );
+    m_PlanarDirChoice.AddItem( "Y-Axis", vsp::Y_DIR );
+    m_PlanarDirChoice.AddItem( "Z-Axis", vsp::Z_DIR );
+
+    m_PlanarSliceLayout.AddChoice( m_PlanarDirChoice, "Normal Axis" );
+    m_PlanarSliceLayout.AddYGap();
+
+    m_PlanarSliceLayout.AddDividerBox( "Slicing Bounds" );
+
+    m_PlanarSliceLayout.AddButton( m_PlanarAutoButton, "Auto" );
+    m_PlanarSliceLayout.AddYGap();
+
+    m_PlanarSliceLayout.AddSlider( m_PlanarStartLocSlider, "Start Location", 10, "%6.3f" );
+
+    m_PlanarSliceLayout.AddSlider( m_PlanarEndLocSlider, "End Location", 10, "%6.3f" );
+    m_PlanarSliceLayout.AddYGap();
+
+    m_PlanarSliceLayout.AddDividerBox( "Alternate Mode" );
+
+    m_PlanarSliceLayout.AddButton( m_PlanarMeasureDuctButton, "Measure Duct" );
+    m_PlanarSliceLayout.AddYGap();
+
     int halfw = ( m_ProjectionOptionsLayout.GetW() - 5 ) / 2;
 
     m_ProjectionOptionsLayout.AddSubGroupLayout( m_ProjectionSub1Layout, halfw, m_ProjectionOptionsLayout.GetRemainY() );
@@ -457,11 +495,14 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_DirectionTypeGroup.SetValMapVec( dir_type_map );
 
 
+    m_MassPropLayout.AddSlider( m_MassNumSlicesSlider, "Num Slice:", 200, "%6.0f" );
+    m_MassPropLayout.AddYGap();
 
-
-
-
-
+    m_MassDirChoice.AddItem( "X", vsp::X_DIR );
+    m_MassDirChoice.AddItem( "Y", vsp::Y_DIR );
+    m_MassDirChoice.AddItem( "Z", vsp::Z_DIR );
+    m_MassPropLayout.AddChoice( m_MassDirChoice, "Slice Direction:" );
+    m_MassPropLayout.AddYGap();
 
 
     m_GCaseLayout.AddYGap();
@@ -625,7 +666,21 @@ bool GeometryAnalysisScreen::Update()
         m_ScreenMgr->LoadModeChoice( m_PrimaryModeChoice, m_ModeIDs, gcase->m_PrimaryModeID );
 
 
+        // Comp Geom
+        m_CompGeomHalfMesh.Update( gcase->m_HalfMeshFlag.GetID() );
+        m_CompGeomSubsurfs.Update( gcase->m_UseSubSurfFlag.GetID() );
 
+        // Planar Slice
+        m_PlanarDirChoice.Update( gcase->m_SliceDir.GetID() );
+
+        m_PlanarNumSlicesSlider.Update( gcase->m_NumSlices.GetID() );
+        m_PlanarStartLocSlider.Update( gcase->m_PlanarStartLocation.GetID() );
+        m_PlanarEndLocSlider.Update( gcase->m_PlanarEndLocation.GetID() );
+
+        m_PlanarAutoButton.Update( gcase->m_AutoBoundsFlag.GetID() );
+        m_PlanarMeasureDuctButton.Update( gcase->m_PlanarMeasureDuct.GetID() );
+
+        // Projected Area
         m_BoundaryEnableButton.Update( gcase->m_BoundaryEnableFlag.GetID() );
 
         m_DirectionTypeGroup.Update( gcase->m_DirectionType.GetID() );
@@ -676,8 +731,9 @@ bool GeometryAnalysisScreen::Update()
         }
 
 
-
-
+        // Mass Prop
+        m_MassNumSlicesSlider.Update( gcase->m_NumSlices.GetID() );
+        m_MassDirChoice.Update( gcase->m_SliceDir.GetID() );
 
 
         // Handle single geom that require special types.
@@ -1162,7 +1218,10 @@ void GeometryAnalysisScreen::OptionsDisplayGroup( GroupLayout* group )
     m_VisibilityOptionsLayout.Hide();
     m_MotionOptionsLayout.Hide();
     m_LookAtVisibilityOptionsLayout.Hide();
+    m_CompGeomLayout.Hide();
+    m_PlanarSliceLayout.Hide();
     m_ProjectionOptionsLayout.Hide();
+    m_MassPropLayout.Hide();
 
     m_OptionsCurrDisplayGroup = group;
 

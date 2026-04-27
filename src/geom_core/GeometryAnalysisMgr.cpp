@@ -77,6 +77,32 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_Elevation.Init( "Elevation", m_GroupName, this, 0.0, -90, 90 );
     m_N2RefractionIndex.Init( "N2RefractionIndex", m_GroupName, this, 1.0, 0.0, 100 );
 
+    // Wetted Area and Volume
+    m_HalfMeshFlag.Init( "HalfMeshFlag", m_GroupName, this, false, false, true );
+
+    m_UseSubSurfFlag.Init( "UseSubSurfFlag", m_GroupName, this, true, false, true );
+
+    // Area Slice and Mass Prop
+    m_NumSlices.Init( "NumSlices", m_GroupName, this, 10, 1, 100 );
+    m_NumSlices.SetDescript( "Number of slices used in computation" );
+
+    m_SliceDir.Init( "SliceDir", m_GroupName, this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_SliceDir.SetDescript( "Selects from X,Y,Z Axis for slicing" );
+
+    // Just Area Slice
+    m_AutoBoundsFlag.Init( "AutoBoundsFlag", m_GroupName, this, true, false, true );
+    m_AutoBoundsFlag.SetDescript( "Automatically sets Planar Start and End locations" );
+
+    m_PlanarStartLocation.Init( "PlanarStartLocation", m_GroupName, this, 0, -1e12, 1e12 );
+    m_PlanarStartLocation.SetDescript( "Planar Start Location" );
+
+    m_PlanarEndLocation.Init( "PlanarEndLocation", m_GroupName, this, 10, -1e12, 1e12 );
+    m_PlanarEndLocation.SetDescript( "Planar End Location" );
+
+    m_PlanarMeasureDuct.Init( "MeasureDuctFlag", m_GroupName, this, false, false, true );
+    m_PlanarMeasureDuct.SetDescript( "Flag to measure negative area inside positive areas" );
+
+    // Projected Area
     m_TargetHullFlag.Init( "TargetHullFlag", m_GroupName, this, false, false, true );
     m_BoundaryEnableFlag.Init( "BoundaryEnableFlag", m_GroupName, this, false, false, true );
     m_BoundaryHullFlag.Init( "BoundaryHullFlag", m_GroupName, this, false, false, true );

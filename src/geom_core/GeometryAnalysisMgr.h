@@ -127,6 +127,18 @@ public:
     Parm m_Elevation;
     Parm m_N2RefractionIndex;
 
+    // Wetted Area and Volume
+    BoolParm m_HalfMeshFlag;
+    BoolParm m_UseSubSurfFlag;
+
+    // Area Slice and Mass Prop
+    IntParm m_NumSlices;
+    IntParm m_SliceDir;
+    BoolParm m_AutoBoundsFlag;
+    Parm m_PlanarStartLocation;
+    Parm m_PlanarEndLocation;
+    BoolParm m_PlanarMeasureDuct;
+
     // Projection
     BoolParm m_TargetHullFlag;
     BoolParm m_BoundaryEnableFlag;

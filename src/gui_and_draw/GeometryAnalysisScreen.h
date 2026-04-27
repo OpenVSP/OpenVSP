@@ -67,10 +67,16 @@ protected:
     GroupLayout m_MotionOptionsLayout;
     GroupLayout m_LookAtVisibilityOptionsLayout;
 
+    GroupLayout m_CompGeomLayout;
+
+    GroupLayout m_PlanarSliceLayout;
+
     GroupLayout m_ProjectionOptionsLayout;
 
     GroupLayout m_ProjectionSub1Layout;
     GroupLayout m_ProjectionDirectionLayout;
+
+    GroupLayout m_MassPropLayout;
 
     ColResizeBrowser* m_GeometryAnalysisBrowser;
     int m_GeometryBrowserSelect;
@@ -164,6 +170,19 @@ protected:
     TriggerButton m_LookAlongButton;
 
 
+    // Comp Geom
+    ToggleButton m_CompGeomHalfMesh;
+    ToggleButton m_CompGeomSubsurfs;
+
+    // Planar Slice
+    Choice m_PlanarDirChoice;
+
+    SliderAdjRangeInput m_PlanarNumSlicesSlider;
+    SliderAdjRangeInput m_PlanarStartLocSlider;
+    SliderAdjRangeInput m_PlanarEndLocSlider;
+
+    ToggleButton m_PlanarAutoButton;
+    ToggleButton m_PlanarMeasureDuctButton;
 
     // Projection
     ToggleButton m_TargetHullButton;
@@ -185,7 +204,9 @@ protected:
 
     GeomPicker m_DirectionGeom;
 
-
+    // Mass Prop
+    SliderAdjRangeInput m_MassNumSlicesSlider;
+    Choice m_MassDirChoice;
 
 
     TriggerButton m_Evaluate;
