@@ -109,6 +109,9 @@ public:
     vector< TMesh* > CreateTMeshVec( const vector < string > &geom_vec );
     vector< TMesh* > CreateTMeshVec( const string &geomid );
 
+    vector< TetraMassProp* > CreateTetraMassPropVec( int set );
+    vector< TetraMassProp* > CreateTetraMassPropVec( const string &geomid );
+
     virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
 
     //==== Get All Geoms (Does NOT Return Collapsed Geoms if check_display_flag == true) ====//

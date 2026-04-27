@@ -1420,6 +1420,75 @@ vector< TMesh* > Vehicle::CreateTMeshVec( const string &geomid )
     return tmv;
 }
 
+vector< TetraMassProp* > Vehicle::CreateTetraMassPropVec( int set )
+{
+    vector< TetraMassProp* > pmv;
+    vector<string> geom_vec = GetGeomVec();
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        Geom* g_ptr = FindGeom( geom_vec[i] );
+        if ( g_ptr )
+        {
+            if ( g_ptr->GetSetFlag( set ) )
+            {
+                vector< TetraMassProp* > gpmv = CreateTetraMassPropVec( geom_vec[i] );
+                for ( int j = 0 ; j < ( int )gpmv.size() ; j++ )
+                {
+                    pmv.push_back( gpmv[j] );
+                }
+            }
+        }
+    }
+    return pmv;
+}
+
+vector< TetraMassProp* > Vehicle::CreateTetraMassPropVec( const string &geomid )
+{
+    vector< TetraMassProp* > pmv;
+
+    Geom* geom_ptr = FindGeom( geomid );
+    if ( geom_ptr )
+    {
+        if ( geom_ptr->m_PointMass() != 0.0 )
+        {
+            vector <Matrix4d> tmv = geom_ptr->GetTransMatVec();
+
+            for ( int j = 0; j < tmv.size(); j++ )
+            {
+                TetraMassProp *pm = new TetraMassProp(); // Deleted by mesh_ptr
+
+                pm->SetDistributedMass( geom_ptr->m_PointMass(),
+                                        vec3d( geom_ptr->m_CGx(), geom_ptr->m_CGy(), geom_ptr->m_CGz()),
+                                        geom_ptr->m_Ixx(), geom_ptr->m_Iyy(), geom_ptr->m_Izz(),
+                                        geom_ptr->m_Ixy(), geom_ptr->m_Ixz(), geom_ptr->m_Iyz(), tmv[ j ] );
+                pm->m_CompId = geom_ptr->GetID();
+                pm->m_Name = geom_ptr->GetName() + "_pm";
+
+                pmv.push_back( pm );
+            }
+
+        }
+
+        RoutingGeom *rg = dynamic_cast< RoutingGeom* >( geom_ptr );
+        if ( rg )
+        {
+            if ( rg->m_LinearDensity() != 0.0 )
+            {
+                vector < TetraMassProp* > rgm = rg->ComputeMassProp(); // Deleted by mesh_ptr
+
+                for ( int j = 0; j < rgm.size(); j++ )
+                {
+                    pmv.push_back( rgm[ j ] );
+                }
+            }
+        }
+
+    }
+
+    return pmv;
+}
+
 //==== Traverse Top Geoms And Get All Geoms - Check Display Flag if True ====//
 vector< string > Vehicle::GetGeomVec( bool check_display_flag )
 {
