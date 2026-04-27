@@ -333,6 +333,41 @@ vector< TMesh* > GeometryAnalysisCase::GetPrimaryTMeshVec()
     return tmv;
 }
 
+vector< TetraMassProp* > GeometryAnalysisCase::GetPrimaryTetraMassPropVec()
+{
+    vector< TetraMassProp* > pmv;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_PrimaryType() == vsp::SET_TARGET || m_PrimaryType() == vsp::MODE_TARGET )
+        {
+            int set = vsp::SET_NONE;
+
+            if ( m_PrimaryType() == vsp::SET_TARGET )
+            {
+                set = m_PrimarySet();
+            }
+            else
+            {
+                Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
+                if ( m )
+                {
+                    set = m->m_NormalSet();
+                }
+            }
+
+            pmv = veh->CreateTetraMassPropVec( set );
+        }
+        else if ( m_PrimaryType() == vsp::GEOM_TARGET )
+        {
+            pmv = veh->CreateTetraMassPropVec( m_PrimaryGeomID );
+        }
+    }
+
+    return pmv;
+}
+
 vector< TMesh* > GeometryAnalysisCase::GetSecondaryTMeshVec()
 {
     vector< TMesh* > tmv;
