@@ -6027,69 +6027,11 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
     }
 
     //==== Load Point Mass Properties From Blank Geom ====//
-    vector<string> geom_vec = GetGeomVec();
-
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
-    {
-        if ( geom_vec[i].compare( id ) != 0 )
-        {
-
-            Geom* geom_ptr = FindGeom( geom_vec[i] );
-            if ( geom_ptr )
-            {
-                if ( geom_ptr->GetSetFlag( set ) )
-                {
-                    if ( geom_ptr->m_PointMass() != 0.0 )
-                    {
-                        vector <Matrix4d> tmv = geom_ptr->GetTransMatVec();
-
-                        for ( int j = 0; j < tmv.size(); j++ )
-                        {
-                            TetraMassProp *pm = new TetraMassProp(); // Deleted by mesh_ptr
-
-                            pm->SetDistributedMass( geom_ptr->m_PointMass(),
-                                                    vec3d( geom_ptr->m_CGx(), geom_ptr->m_CGy(), geom_ptr->m_CGz()),
-                                                    geom_ptr->m_Ixx(), geom_ptr->m_Iyy(), geom_ptr->m_Izz(),
-                                                    geom_ptr->m_Ixy(), geom_ptr->m_Ixz(), geom_ptr->m_Iyz(), tmv[ j ] );
-                            pm->m_CompId = geom_ptr->GetID();
-                            pm->m_Name = geom_ptr->GetName() + "_pm";
-                            mesh_ptr->AddPointMass( pm );
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-
     // Add RoutingGeoms as point masses.
-    // Keep separate from above loop so RG lines in mass breakdown are all after PM lines.
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    vector< TetraMassProp* > mpv = CreateTetraMassPropVec( set );
+    for ( int i = 0; i < mpv.size(); i++ )
     {
-        if ( geom_vec[i].compare( id ) != 0 )
-        {
-
-            Geom* geom_ptr = FindGeom( geom_vec[i] );
-            if ( geom_ptr )
-            {
-                if ( geom_ptr->GetSetFlag( set ) )
-                {
-                    RoutingGeom *rg = dynamic_cast< RoutingGeom* >( geom_ptr );
-                    if ( rg )
-                    {
-                        if ( rg->m_LinearDensity() != 0.0 )
-                        {
-                            vector < TetraMassProp* > rgm = rg->ComputeMassProp(); // Deleted by mesh_ptr
-
-                            for ( int j = 0; j < rgm.size(); j++ )
-                            {
-                                mesh_ptr->AddPointMass( rgm[ j ] );
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        mesh_ptr->AddPointMass( mpv[i] );
     }
 
     if( hidegeom )
