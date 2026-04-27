@@ -15,6 +15,7 @@
 #include "Parm.h"
 #include "TMesh.h"
 #include "DrawObj.h"
+#include "MaterialMgr.h"
 
 class AuxiliaryGeom;
 
@@ -73,6 +74,7 @@ public:
     void ShowSecondary();
     void ShowOnlySecondary();
 
+    void AssignTMeshDO( TMesh *tm, const Material & mat, const vec3d & color, int indx );
     void UpdateDrawObj_PostAnalysis();
     void UpdateDrawObj_Live();
 

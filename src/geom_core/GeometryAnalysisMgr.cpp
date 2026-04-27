@@ -2293,65 +2293,73 @@ void GeometryAnalysisCase::ShowOnlySecondary()
     }
 }
 
-void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
+void GeometryAnalysisCase::AssignTMeshDO( TMesh *tm, const Material & mat, const vec3d & color, int indx )
 {
-    Material redmat;
-    redmat.SetMaterial( "Red Default" );
-    redmat.m_Diff[3] = 0.25; // Make translucent
+    unsigned int num_tris = tm->m_TVec.size();
 
-    vector < Material > matvec( m_TMeshVec.size(), redmat );
-    vector < vec3d > colorvec( m_TMeshVec.size(), DrawObj::Color( DrawObj::RED ) );
-
-    if ( m_TMeshVec.size() > 0 &&
-         ( m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS ||
-           m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS ) )
+    unsigned int pi = 0;
+    vector<TTri*>& tris = tm->m_TVec;
+    m_MeshResultDO_vec[indx].m_PntVec.resize( num_tris * 3 );
+    m_MeshResultDO_vec[indx].m_NormVec.resize( num_tris * 3 );
+    for ( int t = 0 ; t < ( int ) num_tris ; t++ )
     {
-        matvec[0].SetMaterialToDefault();
-        matvec[0].m_Diff[3] = 0.25; // Make translucent
-
-        colorvec[0] = DrawObj::Color( DrawObj::GRAY );
+        m_MeshResultDO_vec[indx].m_PntVec[pi] = tris[t]->m_N0->m_Pnt;
+        m_MeshResultDO_vec[indx].m_PntVec[pi + 1] = tris[t]->m_N1->m_Pnt;
+        m_MeshResultDO_vec[indx].m_PntVec[pi + 2] = tris[t]->m_N2->m_Pnt;
+        m_MeshResultDO_vec[indx].m_NormVec[pi] = tris[t]->m_Norm;
+        m_MeshResultDO_vec[indx].m_NormVec[pi + 1] = tris[t]->m_Norm;
+        m_MeshResultDO_vec[indx].m_NormVec[pi + 2] = tris[t]->m_Norm;
+        pi += 3;
     }
 
-    m_MeshResultDO_vec.resize( m_TMeshVec.size(), DrawObj() );
+    // Flag the DrawObjects as changed
+    m_MeshResultDO_vec[indx].m_GeomChanged = true;
+
+    for ( int j = 0; j < 4; j++ )
+    {
+        m_MeshResultDO_vec[indx].m_MaterialInfo.Ambient[j] = (float)mat.m_Ambi[j];
+        m_MeshResultDO_vec[indx].m_MaterialInfo.Diffuse[j] = (float)mat.m_Diff[j];
+        m_MeshResultDO_vec[indx].m_MaterialInfo.Specular[j] = (float)mat.m_Spec[j];
+        m_MeshResultDO_vec[indx].m_MaterialInfo.Emission[j] = (float)mat.m_Emis[j];
+    }
+    m_MeshResultDO_vec[indx].m_MaterialInfo.Shininess = (float)mat.m_Shininess;
+
+    m_MeshResultDO_vec[indx].m_LineColor = color;
+
+    char str[255];
+    snprintf( str, sizeof( str ),  "_%d", indx );
+    m_MeshResultDO_vec[indx].m_GeomID = m_ID + str;
+    m_MeshResultDO_vec[indx].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_MeshResultDO_vec[indx].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
+}
+
+void GeometryAnalysisCase::UpdateDrawObj_PostAnalysis()
+{
+    m_MeshResultDO_vec.resize( m_TMeshVec.size() + m_SliceTMeshVec.size(), DrawObj() );
 
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        unsigned int num_tris = m_TMeshVec[i]->m_TVec.size();
+        Material mat;
+        mat.SetMaterial( "Red Default" );
+        mat.m_Diff[3] = 0.25; // Make translucent
 
-        unsigned int pi = 0;
-        vector<TTri*>& tris = m_TMeshVec[i]->m_TVec;
-        m_MeshResultDO_vec[i].m_PntVec.resize( num_tris * 3 );
-        m_MeshResultDO_vec[i].m_NormVec.resize( num_tris * 3 );
-        for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+        vec3d color = DrawObj::Color( DrawObj::RED );
+
+        if ( ( i == 0 && m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS ) ||
+             m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS ||
+             m_GeometryAnalysisType() == vsp::COMP_GEOM ||
+             m_GeometryAnalysisType() == vsp::PLANAR_SLICE ||
+             m_GeometryAnalysisType() == vsp::PROJ_AREA ||
+             m_GeometryAnalysisType() == vsp::MASS_PROP )
         {
-            m_MeshResultDO_vec[i].m_PntVec[pi] = tris[t]->m_N0->m_Pnt;
-            m_MeshResultDO_vec[i].m_PntVec[pi + 1] = tris[t]->m_N1->m_Pnt;
-            m_MeshResultDO_vec[i].m_PntVec[pi + 2] = tris[t]->m_N2->m_Pnt;
-            m_MeshResultDO_vec[i].m_NormVec[pi] = tris[t]->m_Norm;
-            m_MeshResultDO_vec[i].m_NormVec[pi + 1] = tris[t]->m_Norm;
-            m_MeshResultDO_vec[i].m_NormVec[pi + 2] = tris[t]->m_Norm;
-            pi += 3;
+            mat.SetMaterialToDefault();
+            mat.m_Diff[3] = 0.25; // Make translucent
+
+            color = DrawObj::Color( DrawObj::GRAY );
         }
 
-        // Flag the DrawObjects as changed
-        m_MeshResultDO_vec[i].m_GeomChanged = true;
+        AssignTMeshDO( m_TMeshVec[i], mat, color, i );
 
-        for ( int j = 0; j < 4; j++ )
-        {
-            m_MeshResultDO_vec[i].m_MaterialInfo.Ambient[j] = (float)matvec[i].m_Ambi[j];
-            m_MeshResultDO_vec[i].m_MaterialInfo.Diffuse[j] = (float)matvec[i].m_Diff[j];
-            m_MeshResultDO_vec[i].m_MaterialInfo.Specular[j] = (float)matvec[i].m_Spec[j];
-            m_MeshResultDO_vec[i].m_MaterialInfo.Emission[j] = (float)matvec[i].m_Emis[j];
-        }
-        m_MeshResultDO_vec[i].m_MaterialInfo.Shininess = (float)matvec[i].m_Shininess;
-
-        m_MeshResultDO_vec[i].m_LineColor = colorvec[ i ];
-
-        char str[255];
-        snprintf( str, sizeof( str ),  "_%d", i );
-        m_MeshResultDO_vec[i].m_GeomID = m_ID + str;
-        m_MeshResultDO_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_MeshResultDO_vec[i].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
     }
 
     m_LineResultDO.m_GeomID = m_ID + "Line";
