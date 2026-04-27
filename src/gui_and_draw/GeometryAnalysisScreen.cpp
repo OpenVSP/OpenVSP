@@ -1430,44 +1430,47 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ApplyRotation )
     {
-        Geom* parent_geom = veh->FindGeom( gcase->m_SecondaryGeomID );
-        AuxiliaryGeom * aux = dynamic_cast< AuxiliaryGeom* > ( parent_geom );
-        if ( aux )
+        if ( gcase )
         {
-            if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
+            Geom* parent_geom = veh->FindGeom( gcase->m_SecondaryGeomID );
+            AuxiliaryGeom * aux = dynamic_cast< AuxiliaryGeom* > ( parent_geom );
+            if ( aux )
             {
-                vector < double > tipbogie = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "TipBogie", 0 );
-                if ( tipbogie.size() > 0 )
+                if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE )
                 {
-                    aux->m_BogieTheta.SetFromDevice( tipbogie[ 0 ] );
-                }
-
-                vector < double > tipwheel = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "TipWheel", 0 );
-                if ( tipwheel.size() > 0 )
-                {
-                    aux->m_WheelTheta.SetFromDevice( tipwheel[ 0 ] );
-                }
-            }
-            else if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE )
-            {
-                vector < double > roll = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "RollAngle", 0 );
-                if ( roll.size() > 0 )
-                {
-                    aux->m_RollTheta.SetFromDevice( roll[ 0 ] );
-                }
-            }
-            else if ( gcase->m_GeometryAnalysisType() == vsp::RISK_ANGLE )
-            {
-                vector < double > EntryExit = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "EntryExit", 0 );
-                if ( EntryExit.size() == 2 )
-                {
-                    if ( aux->m_ReleaseAngle() != EntryExit[ 0 ] )
+                    vector < double > tipbogie = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "TipBogie", 0 );
+                    if ( tipbogie.size() > 0 )
                     {
-                        aux->m_ReleaseAngle.SetFromDevice( EntryExit[ 0 ] );
+                        aux->m_BogieTheta.SetFromDevice( tipbogie[ 0 ] );
                     }
-                    else
+
+                    vector < double > tipwheel = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "TipWheel", 0 );
+                    if ( tipwheel.size() > 0 )
                     {
-                        aux->m_ReleaseAngle.SetFromDevice( EntryExit[ 1 ] );
+                        aux->m_WheelTheta.SetFromDevice( tipwheel[ 0 ] );
+                    }
+                }
+                else if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE )
+                {
+                    vector < double > roll = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "RollAngle", 0 );
+                    if ( roll.size() > 0 )
+                    {
+                        aux->m_RollTheta.SetFromDevice( roll[ 0 ] );
+                    }
+                }
+                else if ( gcase->m_GeometryAnalysisType() == vsp::RISK_ANGLE )
+                {
+                    vector < double > EntryExit = ResultsMgr.GetDoubleResults( gcase->m_LastResult, "EntryExit", 0 );
+                    if ( EntryExit.size() == 2 )
+                    {
+                        if ( aux->m_ReleaseAngle() != EntryExit[ 0 ] )
+                        {
+                            aux->m_ReleaseAngle.SetFromDevice( EntryExit[ 0 ] );
+                        }
+                        else
+                        {
+                            aux->m_ReleaseAngle.SetFromDevice( EntryExit[ 1 ] );
+                        }
                     }
                 }
             }
