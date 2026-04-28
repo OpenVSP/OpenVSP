@@ -367,17 +367,12 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_LookAtVisibilityOptionsLayout.AddButton( m_LookAlongButton, "Look From" );
 
 
-
-    m_CompGeomLayout.SetFitWidthFlag( false );
-    m_CompGeomLayout.SetSameLineFlag( true );
     m_CompGeomLayout.AddButton( m_CompGeomHalfMesh, "Half Mesh" );
-    m_CompGeomLayout.AddX( 5 );
     m_CompGeomLayout.AddButton( m_CompGeomSubsurfs, "Subsurfs" );
-    m_CompGeomLayout.ForceNewLine();
-    m_CompGeomLayout.AddYGap();
 
 
-    m_PlanarSliceLayout.AddSlider( m_PlanarNumSlicesSlider, "Num Slice:", 100, "%6.0f" );
+    m_PlanarSliceLayout.SetButtonWidth( m_PlanarSliceLayout.GetChoiceButtonWidth() );
+    m_PlanarSliceLayout.AddSlider( m_PlanarNumSlicesSlider, "Num Slice", 100, "%6.0f" );
     m_PlanarSliceLayout.AddYGap();
 
     m_PlanarDirChoice.AddItem( "X-Axis", vsp::X_DIR );
@@ -495,13 +490,14 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_DirectionTypeGroup.SetValMapVec( dir_type_map );
 
 
-    m_MassPropLayout.AddSlider( m_MassNumSlicesSlider, "Num Slice:", 200, "%6.0f" );
+    m_MassPropLayout.SetButtonWidth( m_MassPropLayout.GetChoiceButtonWidth() );
+    m_MassPropLayout.AddSlider( m_MassNumSlicesSlider, "Num Slice", 200, "%6.0f" );
     m_MassPropLayout.AddYGap();
 
     m_MassDirChoice.AddItem( "X", vsp::X_DIR );
     m_MassDirChoice.AddItem( "Y", vsp::Y_DIR );
     m_MassDirChoice.AddItem( "Z", vsp::Z_DIR );
-    m_MassPropLayout.AddChoice( m_MassDirChoice, "Slice Direction:" );
+    m_MassPropLayout.AddChoice( m_MassDirChoice, "Slice Direction" );
     m_MassPropLayout.AddYGap();
 
 
@@ -998,9 +994,21 @@ bool GeometryAnalysisScreen::Update()
         {
             OptionsDisplayGroup( & m_LookAtVisibilityOptionsLayout );
         }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::COMP_GEOM )
+        {
+            OptionsDisplayGroup( & m_CompGeomLayout );
+        }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::PLANAR_SLICE )
+        {
+            OptionsDisplayGroup( & m_PlanarSliceLayout );
+        }
         else if ( gcase->m_GeometryAnalysisType() == vsp::PROJ_AREA )
         {
             OptionsDisplayGroup( & m_ProjectionOptionsLayout );
+        }
+        else if ( gcase->m_GeometryAnalysisType() == vsp::MASS_PROP )
+        {
+            OptionsDisplayGroup( & m_MassPropLayout );
         }
         else
         {
