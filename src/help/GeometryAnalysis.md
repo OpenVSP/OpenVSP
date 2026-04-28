@@ -15,6 +15,10 @@ input.  These requirements are summarized in the following table.
 
 | Geometry Analysis Type                                        | Primary Geometry | Secondary Geometry                 |
 |:--------------------------------------------------------------|:-----------------|------------------------------------|
+| [Wetted Area and Volume](#wetted-area-and-volume)             | Any              | N/A                                |
+| [Planar Slice](#planar-slice)                                 | Any              | N/A                                |
+| [Projected Area](#projected-area)                             | Any              | Any                                |
+| [Mass Properties](#mass-properties)                           | Any              | N/A                                |
 | [External](#external)                                         | Any              | Any                                |
 | [Self External](#self-external)                               | Any              | N/A                                |
 | [Packaging](#packaging)                                       | Any              | Any                                |
@@ -30,6 +34,32 @@ input.  These requirements are summarized in the following table.
 | [Look At Visibility](#look-at-visibility)                     | Any              | N/A                                |
 | [Swept Volume](#swept-volume)                                 | Any              | Any or HingeGeom                   |
 | [Risk Angle](#risk-angle)                                     | Any              | Rotor Fragment or Thrown Blade     |
+
+
+## Wetted Area and Volume
+
+Calculate the wetted area and volume of the primary geometry using CompGeom to compute the trimmed OML -- this
+step allows the geometry set to include negative components.
+
+## Planar Slice
+
+Compute the cross sectional area distribution of the primary geometry.  Although the OML is not calculated, this
+computation does honor negative components.
+
+## Projected Area
+
+Compute the projected area of the primary geometry in a specified direction.  The bounded projected area can also
+be computed where the boundary is specified by the secondary geometry.  The convex hull of either the primary or
+secondary geometry can also be computed.
+
+## Mass Properties
+
+Compute the mass, center of mass, and inertias of the primary geometry.  The trimmed OML of the geometry contributes
+to the mass properties through a per-area density value assigned to each component.  The volume of each component
+contributes through a per-volume density value assigned to each component.  Where multiple components overlap, the
+density value for the highest priority component is used.  Per-length density values are used to calculate the
+mass property contribution of Routing Geoms.  Any object can also include specified mass properties that
+will be included.
 
 ## External
 
