@@ -263,6 +263,10 @@ void StructureMgrSingleton::CleanUnusedDefaultProperties()
             {
                 discard.push_back( m_FeaPropertyVec[i] );
             }
+            else
+            {
+                keep.push_back( m_FeaPropertyVec[i] );
+            }
         }
     }
 
