@@ -2654,8 +2654,15 @@ int Vehicle::ReadXMLFile( const string & file_name )
     doc = xmlReadFile( file_name.c_str(), nullptr, XML_PARSE_HUGE );
     if ( doc == nullptr )
     {
-        fprintf( stderr, "could not parse XML document\n" );
-        return 1;
+        fprintf( stderr, "could not parse XML document, trying again with more permissive parser\n" );
+
+        doc = xmlReadFile( file_name.c_str(), nullptr, XML_PARSE_HUGE | XML_PARSE_RECOVER );
+
+        if ( doc == nullptr )
+        {
+            fprintf( stderr, "could not parse XML document\n" );
+            return 1;
+        }
     }
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
@@ -2716,8 +2723,15 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
     doc = xmlReadFile( file_name.c_str(), nullptr, XML_PARSE_HUGE );
     if ( doc == nullptr )
     {
-        fprintf( stderr, "could not parse XML document\n" );
-        return 1;
+        fprintf( stderr, "could not parse XML document, trying again with more permissive parser\n" );
+
+        doc = xmlReadFile( file_name.c_str(), nullptr, XML_PARSE_HUGE | XML_PARSE_RECOVER );
+
+        if ( doc == nullptr )
+        {
+            fprintf( stderr, "could not parse XML document\n" );
+            return 1;
+        }
     }
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
