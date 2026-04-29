@@ -38,7 +38,10 @@ class ISegChain;
 // 1e-6 Causes OpenABF to crash when it is sent an empty set
 // 1e-6 Also caused CheckWaterTight() to merge non-coincident points, introducing bad tris.
 // 1e-12 Caused CheckWaterTight() to find a bunch of false positive non-watertight edges.
-#define PT_MERGE_TOL 1e-9
+// 1e-9 Compromise that still caused some issues.
+// Fixed problem of not using averaged points along intersections, so those points should now match to machine
+// precision and this tolerance should be able to be much smaller.
+#define PT_MERGE_TOL 1e-12
 
 //////////////////////////////////////////////////////////////////////
 class Surf
