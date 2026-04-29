@@ -1890,6 +1890,9 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             Node* n0 = nodeVec[segs_indexes[j].m_Index[0]];
             Node* n1 = nodeVec[segs_indexes[j].m_Index[1]];
 
+            n0->pnt = segs_indexes[j].m_P[0];
+            n1->pnt = segs_indexes[j].m_P[1];
+
             Edge *e = n0->FindEdge( n1 );
 
             if ( e )
@@ -1900,7 +1903,8 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
                 n1->fixed = true;
 
                 vec2d uw = segs_indexes[j].m_UWmid;
-                vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+                vec3d pnt = segs_indexes[j].m_Pmid;
+
                 Node* nsplit = AddNode( pnt, uw );
                 nsplit->fixed = true;
 

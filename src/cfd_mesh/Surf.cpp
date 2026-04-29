@@ -1012,6 +1012,11 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
             seg.m_Index[0] = chains[i]->m_TessVec[2 * j]->m_Index;
             seg.m_Index[1] = chains[i]->m_TessVec[2 * (j + 1)]->m_Index;
             seg.m_UWmid = chains[i]->m_TessVec[2 * j + 1]->GetPuw( this )->m_UW;
+
+            seg.m_P[0] = chains[i]->m_TessVec[2 * j]->m_Pnt;
+            seg.m_P[1] = chains[i]->m_TessVec[2 * (j + 1)]->m_Pnt;
+            seg.m_Pmid = chains[i]->m_TessVec[2 * j + 1]->m_Pnt;
+
             isegVec.push_back( seg );
         }
     }

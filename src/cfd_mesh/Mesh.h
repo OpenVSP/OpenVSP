@@ -38,6 +38,8 @@ class MeshSeg
 public:
     int m_Index[2];
     vec2d m_UWmid;
+    vec3d m_P[2];
+    vec3d m_Pmid;
 };
 
 //////////////////////////////////////////////////////////////////////
