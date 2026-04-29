@@ -34,6 +34,7 @@ ProcessUtil.cpp
 Quat.cpp
 SimpleFeatureTess.cpp
 SimpleTess.cpp
+StackTrace.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
@@ -58,6 +59,7 @@ ProcessUtil.h
 Quat.h
 SimpleFeatureTess.h
 SimpleTess.h
+StackTrace.h
 StlHelper.h
 StreamUtil.h
 StringUtil.h
@@ -75,3 +77,13 @@ XferSurf.h
 )
 
 target_link_libraries( util Eigen3::Eigen )
+
+IF( WIN32 )
+    # DbgHelp is a standard Windows SDK component; provides symbol + line info.
+    target_link_libraries( util dbghelp )
+ELSEIF( UNIX AND NOT APPLE )
+    # dl provides dladdr (used for per-frame module resolution on Linux).
+    target_link_libraries( util dl )
+ELSE()
+    # macOS: dladdr is in libSystem (always linked); atos is invoked at runtime.
+ENDIF()
