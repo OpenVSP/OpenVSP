@@ -2543,7 +2543,10 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
             {
                 string set_name = XmlUtil::FindStringProp( set_node, "SetName", def_str );
                 int set_index = XmlUtil::FindIntProp( set_node, "SetIndex", def_int );
-                m_SetAttrCollVec[set_index]->DecodeXml( set_node );
+                if ( set_index >= 0 )
+                {
+                    m_SetAttrCollVec[set_index]->DecodeXml( set_node );
+                }
             }
         }
     }
