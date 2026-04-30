@@ -1540,6 +1540,30 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
         }
 
+        if ( all_face_vec[i].CheckDegen() )
+        {
+            printf( "Degenerate face detected\n" );
+            printf( "face: %d nodes: %d %d %d ", i, all_face_vec[i].ind0, all_face_vec[i].ind1, all_face_vec[i].ind2 );
+
+            if ( all_face_vec[i].m_isQuad )
+            {
+                printf( "%d\n", all_face_vec[i].ind3 );
+            }
+            else
+            {
+                printf( "\n" );
+            }
+            pnt0.print( "p0 " );
+            pnt1.print( "p1 " );
+            pnt2.print( "p2 " );
+
+            if ( all_face_vec[i].m_isQuad )
+            {
+                const vec3d& pnt3 = node_vec[all_face_vec[i].ind3];
+                pnt3.print( "p3 " );
+            }
+            printf( "\n\n" );
+        }
 
         // Determine initial guess for uw near SimpTri center (uw points defining SimpTri can be from different surfaces after adjustments) 
         vec2d uw_guess;
