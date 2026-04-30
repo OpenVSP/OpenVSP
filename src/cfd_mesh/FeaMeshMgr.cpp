@@ -1478,7 +1478,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     pnCloud.AddPntNodes( all_pnt_vec );
 
     //==== Compute Tol ====//
-    double tol = 0.0001 * GetGridDensityPtr()->m_MinLen;
+    double tol = PT_MERGE_TOL;
 
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
