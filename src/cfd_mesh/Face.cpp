@@ -1226,3 +1226,18 @@ void Face::WriteSTL( FILE* file_id )
         fprintf( file_id, " endfacet\n" );
     }
 }
+
+bool SimpFace::CheckDegen()
+{
+    if ( ind0 == ind1 ||
+         ind0 == ind2 ||
+         ind0 == ind3 ||
+         ind1 == ind2 ||
+         ind1 == ind3 ||
+         ind2 == ind3 )
+    {
+        return true;
+    }
+
+    return false;
+}

@@ -248,6 +248,8 @@ public:
         ind0 = ind1 = ind2 = ind3 = -1;
         m_reason = -1;
     }
+    bool CheckDegen();
+
     int ind0;
     int ind1;
     int ind2;
