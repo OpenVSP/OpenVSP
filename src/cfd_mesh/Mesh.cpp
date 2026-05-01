@@ -1658,10 +1658,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     snprintf( str, sizeof( str ), "%sMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
 
-    if (fpmas )
+    if ( fpmas2 )
     {
         snprintf( str, sizeof( str ), "Mesh_UW%d.m", namecnt );
-        fprintf( fpmas, "run( '%s' );\n", str );
+        fprintf( fpmas2, "run( '%s' );\n", str );
     }
 
     fprintf( fp, "u = [" );
