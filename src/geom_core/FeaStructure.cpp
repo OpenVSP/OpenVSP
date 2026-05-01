@@ -2978,6 +2978,16 @@ PolySparPoint * FeaPolySpar::GetPt( int index )
     return nullptr;
 }
 
+vector < string > FeaPolySpar::GetAllPtIDVec()
+{
+    vector < string > ret( m_SparPointVec.size() );
+    for ( int i = 0; i < m_SparPointVec.size(); i++ )
+    {
+        ret[ i ] = m_SparPointVec[ i ]->GetID();
+    }
+    return ret;
+}
+
 //////////////////////////////////////////////////////
 //===================== FeaRib =====================//
 //////////////////////////////////////////////////////

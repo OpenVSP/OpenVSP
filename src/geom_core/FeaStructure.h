@@ -411,6 +411,7 @@ public:
 
     virtual PolySparPoint * GetPt( int index );
     virtual vector < PolySparPoint* > GetAllPt()      { return m_SparPointVec; };
+    virtual vector < string > GetAllPtIDVec();
 
 private:
 
