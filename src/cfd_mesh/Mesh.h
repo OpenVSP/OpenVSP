@@ -110,13 +110,13 @@ public:
 
     void InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr );
 
-private:
+    static vector< int > RandomizePointOrder( vector< vec2d > & uw, vector< MeshSeg > & segs );
+    static void RandomizeSegOrder( vector< MeshSeg > & segs );
+
     bool InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
                        vector< vector< int > > & connlist, vector< vec2d > & points_out );
     bool InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
                        vector< vector< int > > & connlist, vector< vec2d > & points_out );
-
-public:
 
     void ReadSTL( const char* file_name );
     void WriteSimpleSTL( const char* file_name );

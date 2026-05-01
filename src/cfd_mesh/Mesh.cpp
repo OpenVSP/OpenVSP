@@ -1549,7 +1549,7 @@ bool vec2dCompare( const vec2d &a, const vec2d &b )
     return a.x() < b.x();
 }
 
-vector< int > RandomizePointOrder( vector< vec2d > & uw, vector< MeshSeg > & segs )
+vector< int > Mesh::RandomizePointOrder( vector< vec2d > & uw, vector< MeshSeg > & segs )
 {
     int npt = (int)uw.size();
 
@@ -1580,7 +1580,7 @@ vector< int > RandomizePointOrder( vector< vec2d > & uw, vector< MeshSeg > & seg
     return perm;
 }
 
-void RandomizeSegOrder( vector< MeshSeg > & segs )
+void Mesh::RandomizeSegOrder( vector< MeshSeg > & segs )
 {
     shuffle( segs.begin(), segs.end(), mt19937{ random_device{}() } );
 }
