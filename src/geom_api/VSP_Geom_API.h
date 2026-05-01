@@ -325,7 +325,7 @@ extern void VSPRenew();
 
     \endcode
     \endPythonOnly
-    \param update_managers Flag to indicate if managers should be updated
+    \param update_managers bool Flag to indicate if managers should be updated
 */
 
 extern void Update( bool update_managers = true );
@@ -335,7 +335,7 @@ extern void Update( bool update_managers = true );
 */
 /*!
     Exit the program with a specific error code
-    \param [in] error_code Error code
+    \param [in] error_code int Error code
 */
 
 extern void VSPExit( int error_code );
@@ -385,7 +385,7 @@ extern int GetAndResetUpdateCount();
 
     \endcode
     \endPythonOnly
-    \return OpenVSP version string (i.e. "OpenVSP 3.17.1")
+    \return string OpenVSP version string (i.e. "OpenVSP 3.17.1")
 */
 
 extern std::string GetVSPVersion();
@@ -418,7 +418,7 @@ extern std::string GetVSPVersion();
 
     \endcode
     \endPythonOnly
-    \return OpenVSP major version number (i.e. 3 in 3.X.Y)
+    \return int OpenVSP major version number (i.e. 3 in 3.X.Y)
 */
 
 extern int GetVSPVersionMajor();
@@ -451,7 +451,7 @@ extern int GetVSPVersionMajor();
 
     \endcode
     \endPythonOnly
-    \return OpenVSP minor version number (i.e. X in 3.X.Y)
+    \return int OpenVSP minor version number (i.e. X in 3.X.Y)
 */
 
 extern int GetVSPVersionMinor();
@@ -484,7 +484,7 @@ extern int GetVSPVersionMinor();
 
     \endcode
     \endPythonOnly
-    \return OpenVSP change version number (i.e. Y in 3.X.Y)
+    \return int OpenVSP change version number (i.e. Y in 3.X.Y)
 */
 
 extern int GetVSPVersionChange();
@@ -511,7 +511,7 @@ extern int GetVSPVersionChange();
     \endcode
     \endPythonOnly
     \sa SetVSPAEROPath, CheckForVSPAERO, GetVSPAEROPath
-    \return Path to the OpenVSP executable
+    \return string Path to the OpenVSP executable
 */
 
 extern std::string GetVSPExePath();
@@ -543,8 +543,8 @@ extern std::string GetVSPExePath();
     \endcode
     \endPythonOnly
     \sa GetVSPExePath, CheckForVSPAERO, GetVSPAEROPath
-    \param [in] path Absolute path to directory containing VSPAERO executable
-    \return Flag that indicates whether or not the path was set correctly
+    \param [in] path string Absolute path to directory containing VSPAERO executable
+    \return bool Flag that indicates whether or not the path was set correctly
 */
 
 extern bool SetVSPAEROPath( const std::string & path );
@@ -572,7 +572,7 @@ extern bool SetVSPAEROPath( const std::string & path );
     \endcode
     \endPythonOnly
     \sa GetVSPExePath, CheckForVSPAERO, SetVSPAEROPath
-    \return Path OpenVSP will look for VSPAERO
+    \return string Path OpenVSP will look for VSPAERO
 */
 
 extern std::string GetVSPAEROPath();
@@ -604,8 +604,8 @@ extern std::string GetVSPAEROPath();
     \endcode
     \endPythonOnly
     \sa GetVSPExePath, GetVSPAEROPath, SetVSPAEROPath
-    \param [in] path Absolute path to check for VSPAERO executables
-    \return Flag that indicates if all VSPAERO executables are found or not
+    \param [in] path string Absolute path to check for VSPAERO executables
+    \return bool Flag that indicates if all VSPAERO executables are found or not
 */
 
 extern bool CheckForVSPAERO( const std::string & path );
@@ -636,8 +636,8 @@ extern bool CheckForVSPAERO( const std::string & path );
     \endcode
     \endPythonOnly
     \sa GetVSPExePath, CheckForVSPHelp, GetVSPHelpPath
-    \param [in] path Absolute path to directory containing OpenVSP help files
-    \return Flag that indicates whether or not the path was set correctly
+    \param [in] path string Absolute path to directory containing OpenVSP help files
+    \return bool Flag that indicates whether or not the path was set correctly
 */
 
 extern bool SetVSPHelpPath( const std::string & path );
@@ -664,7 +664,7 @@ extern bool SetVSPHelpPath( const std::string & path );
     \endcode
     \endPythonOnly
     \sa GetVSPExePath, CheckForVSPHelp, SetVSPHelpPath
-    \return Path OpenVSP will look for help files
+    \return string Path OpenVSP will look for help files
 */
 
 extern std::string GetVSPHelpPath();
@@ -694,8 +694,8 @@ extern std::string GetVSPHelpPath();
     \endcode
     \endPythonOnly
     \sa GetVSPExePath, GetVSPAEROPath, SetVSPHelpPath
-    \param [in] path Absolute path to check for VSPAERO executables
-    \return Flag that indicates if OpenVSP help files are found or not
+    \param [in] path string Absolute path to check for VSPAERO executables
+    \return bool Flag that indicates if OpenVSP help files are found or not
 */
 
 extern bool CheckForVSPHelp( const std::string & path );
@@ -761,7 +761,7 @@ extern void LimitedIntersectSurfaces( const vector < string > & geomvec, vector 
 
     \endcode
     \endPythonOnly
-    \param [in] file_name *.vsp3 file name
+    \param [in] file_name string *.vsp3 file name
 */
 
 extern void ReadVSPFile( const std::string & file_name );
@@ -822,8 +822,8 @@ extern void ReadVSPFile( const std::string & file_name );
 
     \endcode
     \endPythonOnly
-    \param [in] file_name *.vsp3 file name
-    \param [in] set Set index to write (i.e. SET_ALL)
+    \param [in] file_name string *.vsp3 file name
+    \param [in] set int Set index to write (i.e. SET_ALL)
 */
 
 extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
@@ -884,7 +884,7 @@ extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
 
     \endcode
     \endPythonOnly
-    \param [in] file_name File name
+    \param [in] file_name string File name
 */
 
 extern void SetVSP3FileName( const std::string & file_name );
@@ -931,7 +931,7 @@ extern void SetVSP3FileName( const std::string & file_name );
 
     \endcode
     \endPythonOnly
-    \return File name for the current OpenVSP project
+    \return string File name for the current OpenVSP project
 */
 
 extern std::string GetVSPFileName();
@@ -1005,14 +1005,14 @@ extern void InsertVSPFile( const std::string & file_name, const std::string & pa
     \endcode
     \endPythonOnly
     \sa EXPORT_TYPE
-    \param [in] file_name Export file name
-    \param [in] thick_set Set index to export (i.e. SET_ALL)
-    \param [in] file_type File type enum (i.e. EXPORT_IGES)
-    \param [in] subsFlag Flag to tag subsurfaces if MeshGeom is created
-    \param [in] thin_set Set index to export as degenerate geometry (i.e. SET_NONE)
+    \param [in] file_name string Export file name
+    \param [in] thick_set int Set index to export (i.e. SET_ALL)
+    \param [in] file_type int File type enum (i.e. EXPORT_IGES)
+    \param [in] subsFlag int Flag to tag subsurfaces if MeshGeom is created
+    \param [in] thin_set int Set index to export as degenerate geometry (i.e. SET_NONE)
     \param [in] useMode bool Flag determine if mode is used instead of sets
     \param [in] modeID string ID of Mode to use
-    \return Mesh Geom ID if the export generates a mesh
+    \return string Mesh Geom ID if the export generates a mesh
 */
 
 extern std::string ExportFile( const std::string & file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = vsp::SET_NONE, bool useMode = false, const string &modeID = "" );
@@ -1024,9 +1024,9 @@ extern std::string ExportFile( const std::string & file_name, int thick_set, int
     Import a file into OpenVSP. Many formats are available, such as NASCART, V2, and BEM). The imported Geom, mesh, or other object is inserted
     as a child of the specified parent. If no parent or an invalid parent is given, the import will be done at the top level.
     \sa IMPORT_TYPE
-    \param [in] file_name Import file name
-    \param [in] file_type File type enum (i.e. IMPORT_PTS)
-    \param [in] parent Parent Geom ID (ignored with empty string)
+    \param [in] file_name string Import file name
+    \param [in] file_type int File type enum (i.e. IMPORT_PTS)
+    \param [in] parent string Parent Geom ID (ignored with empty string)
 */
 
 extern std::string ImportFile( const std::string & file_name, int file_type, const std::string & parent );
@@ -1059,7 +1059,7 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     \endcode
     \endPythonOnly
     \sa EXPORT_TYPE, ExportFile
-    \param [in] prop_id Propeller Geom ID
+    \param [in] prop_id string Propeller Geom ID
 */
 
 extern void SetBEMPropID( const string & prop_id );
@@ -1072,7 +1072,7 @@ extern void SetBEMPropID( const string & prop_id );
 */
 /*!
     Read in and apply a design file (*.des) to the current OpenVSP project
-    \param [in] file_name *.des input file
+    \param [in] file_name string *.des input file
 */
 
 extern void ReadApplyDESFile( const std::string & file_name );
@@ -1082,7 +1082,7 @@ extern void ReadApplyDESFile( const std::string & file_name );
 */
 /*!
     Write all design variables to a design file (*.des)
-    \param [in] file_name *.des output file
+    \param [in] file_name string *.des output file
 */
 
 extern void WriteDESFile( const std::string & file_name );
@@ -1092,7 +1092,7 @@ extern void WriteDESFile( const std::string & file_name );
 */
 /*!
     Read in and apply a Cart3D XDDM file (*.xddm) to the current OpenVSP project
-    \param [in] file_name *.xddm input file
+    \param [in] file_name string *.xddm input file
 */
 
 extern void ReadApplyXDDMFile( const std::string & file_name );
@@ -1102,7 +1102,7 @@ extern void ReadApplyXDDMFile( const std::string & file_name );
 */
 /*!
     Write all design variables to a Cart3D XDDM file (*.xddm)
-    \param [in] file_name *.xddm output file
+    \param [in] file_name string *.xddm output file
 */
 
 extern void WriteXDDMFile( const std::string & file_name );
@@ -1124,7 +1124,7 @@ extern int GetNumDesignVars();
     Add a design variable
     \sa XDDM_QUANTITY_TYPE
     \param [in] parm_id string Parm ID
-    \param [in] type XDDM type enum (XDDM_VAR or XDDM_CONST)
+    \param [in] type int XDDM type enum (XDDM_VAR or XDDM_CONST)
 */
 
 extern void AddDesignVar( const std::string & parm_id, int type );
@@ -1143,8 +1143,8 @@ extern void DeleteAllDesignVars();
 */
 /*!
     Get the Parm ID of the specified design variable
-    \param [in] index Index of design variable
-    \return Parm ID
+    \param [in] index int Index of design variable
+    \return string Parm ID
 */
 
 extern std::string GetDesignVar( int index );
@@ -1155,8 +1155,8 @@ extern std::string GetDesignVar( int index );
 /*!
     Get the XDDM type of the specified design variable
     \sa XDDM_QUANTITY_TYPE
-    \param [in] index Index of design variable
-    \return XDDM type enum (XDDM_VAR or XDDM_CONST)
+    \param [in] index int Index of design variable
+    \return int XDDM type enum (XDDM_VAR or XDDM_CONST)
 */
 
 extern int GetDesignVarType( int index );
@@ -1188,8 +1188,8 @@ extern int GetDesignVarType( int index );
     \endcode
     \endPythonOnly
     \sa COMPUTATION_FILE_TYPE, SetFeaMeshFileName
-    \param [in] file_type File type enum (i.e. CFD_TRI_TYPE, COMP_GEOM_TXT_TYPE)
-    \param [in] file_name File name
+    \param [in] file_type int File type enum (i.e. CFD_TRI_TYPE, COMP_GEOM_TXT_TYPE)
+    \param [in] file_name string File name
 */
 
 extern void SetComputationFileName( int file_type, const std::string & file_name );
@@ -1229,10 +1229,10 @@ extern void SetComputationFileName( int file_type, const std::string & file_name
     \endcode
     \endPythonOnly
     \sa SetAnalysisInputDefaults, PrintAnalysisInputs, ExecAnalysis
-    \param [in] set Set index (i.e. SET_ALL)
-    \param [in] num_slices Number of slices
-    \param [in] idir Direction of slicing for integration
-    \return MeshGeom ID
+    \param [in] set int Set index (i.e. SET_ALL)
+    \param [in] num_slices int Number of slices
+    \param [in] idir int Direction of slicing for integration
+    \return string MeshGeom ID
 */
 
 extern std::string ComputeMassProps( int set, int num_slices, int idir );
@@ -1270,10 +1270,10 @@ extern std::string ComputeMassProps( int set, int num_slices, int idir );
     \endcode
     \endPythonOnly
     \sa SetAnalysisInputDefaults, PrintAnalysisInputs, ExecAnalysis, COMPUTATION_FILE_TYPE
-    \param [in] set Set index (i.e. SET_ALL)
-    \param [in] half_mesh Flag to ignore surfaces on the negative side of the XZ plane (e.g. symmetry)
-    \param [in] file_export_types CompGeom file type to export (supports XOR i.e. COMP_GEOM_CSV_TYPE & COMP_GEOM_TXT_TYPE )
-    \return MeshGeom ID
+    \param [in] set int Set index (i.e. SET_ALL)
+    \param [in] half_mesh bool Flag to ignore surfaces on the negative side of the XZ plane (e.g. symmetry)
+    \param [in] file_export_types int CompGeom file type to export (supports XOR i.e. COMP_GEOM_CSV_TYPE & COMP_GEOM_TXT_TYPE )
+    \return string MeshGeom ID
 */
 
 extern std::string ComputeCompGeom( int set, bool half_mesh, int file_export_types );
@@ -1315,14 +1315,14 @@ extern std::string ComputeCompGeom( int set, bool half_mesh, int file_export_typ
     \endcode
     \endPythonOnly
     \sa SetAnalysisInputDefaults, PrintAnalysisInputs, ExecAnalysis
-    \param [in] set Set index (i.e. SET_ALL)
-    \param [in] num_slices Number of slices
-    \param [in] norm Normal axis for all slices
-    \param [in] auto_bnd Flag to automatically set the start and end bound locations
-    \param [in] start_bnd Location of the first slice along the normal axis (default: 0.0)
-    \param [in] end_bnd Location of the last slice along the normal axis (default: 0.0)
-    \param [in] measureduct Flag to measure negative area inside positive area (default: false)
-    \return MeshGeom ID
+    \param [in] set int Set index (i.e. SET_ALL)
+    \param [in] num_slices int Number of slices
+    \param [in] norm vec3d Normal axis for all slices
+    \param [in] auto_bnd bool Flag to automatically set the start and end bound locations
+    \param [in] start_bnd double Location of the first slice along the normal axis (default: 0.0)
+    \param [in] end_bnd double Location of the last slice along the normal axis (default: 0.0)
+    \param [in] measureduct bool Flag to measure negative area inside positive area (default: false)
+    \return string MeshGeom ID
 */
 
 extern std::string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto_bnd,
@@ -1447,7 +1447,7 @@ extern void SetCFDMeshVal( int type, double val );
     \endPythonOnly
     \sa SetParmVal, SetParmValUpdate
     \param [in] geom_id string Geom ID
-    \param [in] flag True to activate, false to deactivate
+    \param [in] flag bool True to activate, false to deactivate
 */
 
 extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
@@ -1531,17 +1531,17 @@ extern void AddDefaultSources();
     \endcode
     \endPythonOnly
     \sa CFD_MESH_SOURCE_TYPE
-    \param [in] type CFD Mesh source type( i.e.BOX_SOURCE )
+    \param [in] type int CFD Mesh source type( i.e.BOX_SOURCE )
     \param [in] geom_id string Geom ID
-    \param [in] surf_index Main surface index
-    \param [in] l1 Source first edge length
-    \param [in] r1 Source first radius
-    \param [in] u1 Source first U location
-    \param [in] w1 Source first W location
-    \param [in] l2 Source second edge length
-    \param [in] r2 Source second radius
-    \param [in] u2 Source second U location
-    \param [in] w2 Source second W location
+    \param [in] surf_index int Main surface index
+    \param [in] l1 double Source first edge length
+    \param [in] r1 double Source first radius
+    \param [in] u1 double Source first U location
+    \param [in] w1 double Source first W location
+    \param [in] l2 double Source second edge length
+    \param [in] r2 double Source second radius
+    \param [in] u2 double Source second U location
+    \param [in] w2 double Source second W location
 */
 
 extern void AddCFDSource( int type, const std::string & geom_id, int surf_index,
@@ -1554,7 +1554,7 @@ extern void AddCFDSource( int type, const std::string & geom_id, int surf_index,
 */
 /*!
     Get ID of the current VSPAERO reference Geom
-    \return Reference Geom ID
+    \return string Reference Geom ID
 */
 
 extern string GetVSPAERORefWingID();
@@ -1613,7 +1613,7 @@ extern string GetVSPAERORefWingID();
 
     \endcode
     \endPythonOnly
-    \param [in] geom_id Reference Geom ID
+    \param [in] geom_id string Reference Geom ID
 */
 
 extern string SetVSPAERORefWingID( const std::string & geom_id );
@@ -1641,7 +1641,7 @@ extern string SetVSPAERORefWingID( const std::string & geom_id );
 
     \endcode
     \endPythonOnly
-    \return Number of analyses
+    \return int Number of analyses
 */
 
 extern int GetNumAnalysis();
@@ -1675,7 +1675,7 @@ extern int GetNumAnalysis();
 
     \endcode
     \endPythonOnly
-    \return Array of analysis names
+    \return vector<string> Array of analysis names
 */
 
 extern std::vector<std::string> ListAnalysis();
@@ -1713,8 +1713,8 @@ extern std::vector<std::string> ListAnalysis();
 
     \endcode
     \endPythonOnly
-    \param [in] analysis Analysis name
-    \return Array of input names
+    \param [in] analysis string Analysis name
+    \return vector<string> Array of input names
 */
 
 extern std::vector<std::string> GetAnalysisInputNames( const std::string & analysis );
@@ -1739,8 +1739,8 @@ extern std::vector<std::string> GetAnalysisInputNames( const std::string & analy
 
     \endcode
     \endPythonOnly
-    \param [in] analysis Analysis name
-    \return Documentation string
+    \param [in] analysis string Analysis name
+    \return string Documentation string
 */
 
 extern std::string GetAnalysisDoc( const std::string & analysis );
@@ -1756,9 +1756,9 @@ extern std::string GetAnalysisDoc( const std::string & analysis );
     \beginPythonOnly
 
     \endPythonOnly
-    \param [in] analysis Analysis name
-    \param [in] name Input name
-    \return Documentation string
+    \param [in] analysis string Analysis name
+    \param [in] name string Input name
+    \return string Documentation string
 */
 
 extern std::string GetAnalysisInputDoc( const std::string & analysis, const std::string & name );
@@ -1783,8 +1783,8 @@ extern std::string GetAnalysisInputDoc( const std::string & analysis, const std:
 
     \endcode
     \endPythonOnly
-    \param [in] analysis Analysis name
-    \return Result ID
+    \param [in] analysis string Analysis name
+    \return string Result ID
 */
 
 extern std::string ExecAnalysis( const std::string & analysis );
@@ -1795,9 +1795,9 @@ extern std::string ExecAnalysis( const std::string & analysis );
 */
 /*!
     Get the documentation string for the particular analysis and input
-    \param [in] analysis Analysis name
-    \param [in] name Input name
-    \return Documentation string
+    \param [in] analysis string Analysis name
+    \param [in] name string Input name
+    \return int Documentation string
 */
 
 extern int GetNumAnalysisInputData( const std::string & analysis, const std::string & name );
@@ -1832,8 +1832,8 @@ extern int GetNumAnalysisInputData( const std::string & analysis, const std::str
     \endcode
     \endPythonOnly
     \sa RES_DATA_TYPE
-    \param [in] analysis Analysis name
-    \param [in] name Input name
+    \param [in] analysis string Analysis name
+    \param [in] name string Input name
     \return int Data type enum (i.e. DOUBLE_DATA)
 */
 
@@ -2013,7 +2013,7 @@ extern const std::vector< vec3d > & GetVec3dAnalysisInput( const std::string & a
 
     \endcode
     \endPythonOnly
-    \param [in] analysis Analysis name
+    \param [in] analysis string Analysis name
 */
 
 extern void SetAnalysisInputDefaults( const std::string & analysis );
@@ -2377,7 +2377,7 @@ extern vector < string > GetAllGeometryAnalysesIDVec();
 
     \endcode
     \endPythonOnly
-    \return Tab-delimited summary of all Attributes in vehicle
+    \return string Tab-delimited summary of all Attributes in vehicle
 */
 
 extern string SummarizeAttributes();
@@ -2402,7 +2402,7 @@ extern string SummarizeAttributes();
 
     \endcode
     \endPythonOnly
-    \return Plain-text attribute tree of vehicle
+    \return string Plain-text attribute tree of vehicle
 */
 
 extern string SummarizeAttributesAsTree();
@@ -2432,7 +2432,7 @@ extern string SummarizeAttributesAsTree();
 
     \endcode
     \endPythonOnly
-    \return Vector of All Attribute IDs
+    \return vector <string> Vector of All Attribute IDs
 */
 
 extern vector < string > FindAllAttributes();
@@ -2464,7 +2464,7 @@ extern vector < string > FindAllAttributes();
 
     \endcode
     \endPythonOnly
-    \return Vector of string IDs of matching Attributes
+    \return vector <string> Vector of string IDs of matching Attributes
     \param [in] search_str string for filtering attributes in model
 */
 
@@ -2490,7 +2490,7 @@ extern vector < string > FindAttributesByName( const string & search_str );
 
     \endcode
     \endPythonOnly
-    \return Returns a StringID of the attribute indexed/searched by user, if found
+    \return string Returns a StringID of the attribute indexed/searched by user, if found
     \param [in] search_str string for filtering attributes in model
     \param [in] index int for indexing which of the vector of found attributes to select
 */
@@ -2520,8 +2520,8 @@ extern string FindAttributeByName( const string & search_str, int index );
 
     \endcode
     \endPythonOnly
-    \return Returns a StringID of the attribute indexed/searched by user, if found
-    \param [in] obj_id id of object to search within for attributes
+    \return string Returns a StringID of the attribute indexed/searched by user, if found
+    \param [in] obj_id string id of object to search within for attributes
     \param [in] search_str string for filtering attributes in object
     \param [in] index int for indexing which of the vector of found attributes to select
 */
@@ -2557,7 +2557,7 @@ extern string FindAttributeInCollection( const string & obj_id, const string & s
 
     \endcode
     \endPythonOnly
-    \return Array of result names
+    \return vector<string> Array of result names
     \param [in] collID string ID of an attribute collection
 */
 
@@ -2592,7 +2592,7 @@ extern vector< string > FindAttributeNamesInCollection(const string & collID );
 
     \endcode
     \endPythonOnly
-    \return Vector of attribute IDs in an attribute collection.
+    \return vector<string> Vector of attribute IDs in an attribute collection.
     \param [in] collID string ID of an attribute collection
 */
 
@@ -2624,7 +2624,7 @@ extern vector< string > FindAttributesInCollection(const string & collID );
 
     \endcode
     \endPythonOnly
-    \return Array of IDs of entities in OpenVSP that contain populated attribute collections
+    \return vector<string> Array of IDs of entities in OpenVSP that contain populated attribute collections
 */
 
 extern vector< string > FindAttributedObjects();
@@ -2656,7 +2656,7 @@ extern vector< string > FindAttributedObjects();
 
     \endcode
     \endPythonOnly
-    \return return string of object name
+    \return int return string of object name
     \param [in] attachID string ID of an OpenVSP object
 */
 
@@ -2688,7 +2688,7 @@ extern int GetObjectType(const string & attachID);
 
     \endcode
     \endPythonOnly
-    \return return string of object name
+    \return string return string of object name
     \param [in] attachID string ID of an OpenVSP object
 */
 
@@ -2721,7 +2721,7 @@ extern string GetObjectTypeName(const string & attachID);
 
     \endcode
     \endPythonOnly
-    \return return string of object name
+    \return string return string of object name
     \param [in] attachID string ID of an OpenVSP object
 */
 
@@ -2809,7 +2809,7 @@ extern string GetObjectParent( const string & id );
 
     \endcode
     \endPythonOnly
-    \return String ID of attribute collection associated with the attachID
+    \return string String ID of attribute collection associated with the attachID
     \param [in] attachID string ID of an OpenVSP object
 */
 
@@ -2835,7 +2835,7 @@ extern string GetChildCollection(const string & attachID );
 
     \endcode
     \endPythonOnly
-    \return String ID of attribute collection associated with the geom set
+    \return string String ID of attribute collection associated with the geom set
     \param [in] index int Geom set
 */
 
@@ -2912,7 +2912,7 @@ extern string GetAttributeName( const string & attrID );
 
     \endcode
     \endPythonOnly
-    \return String ID of attribute based on collectionID and name
+    \return string String ID of attribute based on collectionID and name
     \param [in] collID string ID of an attribute collection
     \param [in] attributeName string name of an attribute in that collection
     \param [in] index int index of attribute in collection
@@ -2944,7 +2944,7 @@ extern string GetAttributeID(const string & collID, const string & attributeName
 
     \endcode
     \endPythonOnly
-    \return Return string doc of attribute by its ID
+    \return string Return string doc of attribute by its ID
     \param [in] attrID string ID of attribute
 */
 
@@ -2985,7 +2985,7 @@ extern string GetAttributeDoc(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return Int type of attribute
+    \return int Int type of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3016,7 +3016,7 @@ extern int GetAttributeType( const string & attrID );
 
     \endcode
     \endPythonOnly
-    \return Type of attribute as string
+    \return string Type of attribute as string
     \param [in] attrID string ID of attribute
 */
 
@@ -3064,7 +3064,7 @@ extern string GetAttributeTypeName(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return Bool value of attribute
+    \return vector<int> Bool value of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3112,7 +3112,7 @@ extern vector< int > GetAttributeBoolVal(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return Int value of attribute
+    \return vector<int> Int value of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3159,7 +3159,7 @@ extern vector< int > GetAttributeIntVal(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return Double value of attribute
+    \return vector<double> Double value of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3206,7 +3206,7 @@ extern vector< double > GetAttributeDoubleVal(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return String value of attribute
+    \return vector<string> String value of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3266,7 +3266,7 @@ extern vector< string > GetAttributeStringVal(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return Parm value of attribute
+    \return vector<string> Parm value of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3328,7 +3328,7 @@ extern vector< string > GetAttributeParmID(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return Parm value of attribute
+    \return vector <double> Parm value of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3389,7 +3389,7 @@ extern vector < double > GetAttributeParmVal( const string &attrID );
 
     \endcode
     \endPythonOnly
-    \return Parm name of attribute
+    \return vector <string> Parm name of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3440,7 +3440,7 @@ extern vector < string > GetAttributeParmName( const string &attrID );
 
     \endcode
     \endPythonOnly
-    \return Vec3d value of attribute
+    \return vector<vec3d> Vec3d value of attribute
     \param [in] attrID string ID of attribute
 */
 
@@ -3496,7 +3496,7 @@ extern vector< vec3d > GetAttributeVec3dVal(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return Int Matrix value of attribute as vector < vector < int > >
+    \return vector<vector <int>> Int Matrix value of attribute as vector < vector < int > >
     \param [in] attrID string ID of attribute
 */
 
@@ -3546,7 +3546,7 @@ extern vector< vector < int > > GetAttributeIntMatrixVal(const string & attrID);
 
     \endcode
     \endPythonOnly
-    \return Double Matrix value of attribute as vector < vector < Double > >
+    \return vector<vector <double>> Double Matrix value of attribute as vector < vector < Double > >
     \param [in] attrID string ID of attribute
 */
 
@@ -3714,7 +3714,7 @@ extern void SetAttributeDoc( const string & attrID, const string & doc );
     \endcode
     \endPythonOnly
     \param [in] attrID string of attribute ID
-    \param [in] value boolean value for attribute
+    \param [in] value bool boolean value for attribute
 */
 
 extern void SetAttributeBool( const string & attrID, bool value );
@@ -4251,7 +4251,7 @@ extern void DeleteAttribute( const string & attrID );
     \endPythonOnly
     \param [in] collID string ID of attribute collection
     \param [in] attributeName string name of new attribute
-    \param [in] value boolean value of new attribute
+    \param [in] value bool boolean value of new attribute
 */
 
 extern string AddAttributeBool( const string & collID, const string & attributeName, bool value );
@@ -4302,7 +4302,7 @@ extern string AddAttributeBool( const string & collID, const string & attributeN
     \endPythonOnly
     \param [in] collID string ID of attribute collection
     \param [in] attributeName string name of new attribute
-    \param [in] value integer value of new attribute
+    \param [in] value int integer value of new attribute
 */
 
 extern string AddAttributeInt( const string & collID, const string & attributeName, int value );
@@ -4525,7 +4525,7 @@ extern string AddAttributeParm( const string &collID, const string &attributeNam
     \endPythonOnly
     \param [in] collID string ID of attribute collection
     \param [in] attributeName string name of new attribute
-    \param [in] value Vec3d value of new attribute
+    \param [in] value vector <vec3d> Vec3d value of new attribute
 */
 
 extern string AddAttributeVec3d( const string & collID, const string & attributeName, const vector < vec3d > & value );
@@ -4639,7 +4639,7 @@ extern string AddAttributeIntMatrix( const string & collID, const string & attri
     \endPythonOnly
     \param [in] collID string ID of attribute collection
     \param [in] attributeName string name of new attribute
-    \param [in] value Double matrix value of new attribute
+    \param [in] value vector <vector <double>> Double matrix value of new attribute
 */
 
 extern string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, const vector < vector < double > > & value );
@@ -4935,7 +4935,7 @@ extern vector < string > PasteAttribute( const string & coll_id );
 
     \endcode
     \endPythonOnly
-    \return Array of result names
+    \return vector<string> Array of result names
 */
 
 extern std::vector<std::string> GetAllResultsNames();
@@ -4970,8 +4970,8 @@ extern std::vector<std::string> GetAllResultsNames();
 
     \endcode
     \endPythonOnly
-    \param [in] results_id Result ID
-    \return Array of result names
+    \param [in] results_id string Result ID
+    \return vector<string> Array of result names
 */
 
 extern std::vector<std::string> GetAllDataNames( const std::string & results_id );
@@ -4998,8 +4998,8 @@ extern std::vector<std::string> GetAllDataNames( const std::string & results_id 
 
     \endcode
     \endPythonOnly
-    \param [in] name Input name
-    \return Number of results
+    \param [in] name string Input name
+    \return int Number of results
 */
 
 extern int GetNumResults( const std::string & name );
@@ -5040,8 +5040,8 @@ extern int GetNumResults( const std::string & name );
 
     \endcode
     \endPythonOnly
-    \param [in] results_id Result ID
-    \return Result name
+    \param [in] results_id string Result ID
+    \return string Result name
 */
 
 extern std::string GetResultsName(const std::string & results_id );
@@ -5082,8 +5082,8 @@ extern std::string GetResultsName(const std::string & results_id );
 
     \endcode
     \endPythonOnly
-    \param [in] results_id Result ID
-    \return Result documentation string
+    \param [in] results_id string Result ID
+    \return string Result documentation string
 */
 
 extern std::string GetResultsSetDoc( const std::string & results_id );
@@ -5116,9 +5116,9 @@ extern std::string GetResultsEntryDoc( const std::string & results_id, const std
 
     \endcode
     \endPythonOnly
-    \param [in] name Result name
-    \param [in] index Result index
-    \return Result ID
+    \param [in] name string Result name
+    \param [in] index int Result index
+    \return string Result ID
 */
 
 extern std::string FindResultsID( const std::string & name, int index = 0 );
@@ -5156,8 +5156,8 @@ extern std::string FindResultsID( const std::string & name, int index = 0 );
 
     \endcode
     \endPythonOnly
-    \param [in] name Result name
-    \return Result ID
+    \param [in] name string Result name
+    \return string Result ID
 */
 
 extern std::string FindLatestResultsID( const std::string & name );
@@ -5204,9 +5204,9 @@ extern std::string FindLatestResultsID( const std::string & name );
 
     \endcode
     \endPythonOnly
-    \param [in] results_id Result ID
-    \param [in] data_name Data name
-    \return Number of data values
+    \param [in] results_id string Result ID
+    \param [in] data_name string Data name
+    \return int Number of data values
 */
 
 extern int GetNumData( const std::string & results_id, const std::string & data_name );
@@ -5247,9 +5247,9 @@ extern int GetNumData( const std::string & results_id, const std::string & data_
     \endcode
     \endPythonOnly
     \sa RES_DATA_TYPE
-    \param [in] results_id Result ID
-    \param [in] data_name Data name
-    \return Data type enum (i.e. DOUBLE_DATA)
+    \param [in] results_id string Result ID
+    \param [in] data_name string Data name
+    \return int Data type enum (i.e. DOUBLE_DATA)
 */
 
 extern int GetResultsType( const std::string & results_id, const std::string & data_name );
@@ -5296,10 +5296,10 @@ extern int GetResultsType( const std::string & results_id, const std::string & d
 
     \endcode
     \endPythonOnly
-    \param [in] id Result ID
-    \param [in] name Data name
-    \param [in] index Data index
-    \return Array of data values
+    \param [in] id string Result ID
+    \param [in] name string Data name
+    \param [in] index int Data index
+    \return vector<int> Array of data values
 */
 
 extern const std::vector< int > & GetIntResults( const std::string & id, const std::string & name, int index = 0 );
@@ -5336,10 +5336,10 @@ extern const std::vector< int > & GetIntResults( const std::string & id, const s
 
     \endcode
     \endPythonOnly
-    \param [in] id Result ID
-    \param [in] name Data name
-    \param [in] index Data index
-    \return Array of data values
+    \param [in] id string Result ID
+    \param [in] name string Data name
+    \param [in] index int Data index
+    \return vector<double> Array of data values
 */
 
 extern const std::vector< double > & GetDoubleResults( const std::string & id, const std::string & name, int index = 0 );
@@ -5349,10 +5349,10 @@ extern const std::vector< double > & GetDoubleResults( const std::string & id, c
 */
 /*!
     Get all matrix (vector<vector<double>>) values for a particular result, name, and index
-    \param [in] id Result ID
-    \param [in] name Data name
-    \param [in] index Data index
-    \return 2D array of data values
+    \param [in] id string Result ID
+    \param [in] name string Data name
+    \param [in] index int Data index
+    \return vector<vector<double>> 2D array of data values
 */
 
 extern const std::vector< std::vector< double > > & GetDoubleMatResults( const std::string & id, const std:: string & name, int index = 0 );
@@ -5387,10 +5387,10 @@ extern const std::vector< std::vector< double > > & GetDoubleMatResults( const s
 
     \endcode
     \endPythonOnly
-    \param [in] id Result ID
-    \param [in] name Data name
-    \param [in] index Data index
-    \return Array of data values
+    \param [in] id string Result ID
+    \param [in] name string Data name
+    \param [in] index int Data index
+    \return vector<string> Array of data values
 */
 
 extern const std::vector<std::string> & GetStringResults( const std::string & id, const std::string & name, int index = 0 );
@@ -5445,10 +5445,10 @@ extern const std::vector<std::string> & GetStringResults( const std::string & id
 
     \endcode
     \endPythonOnly
-    \param [in] id Result ID
-    \param [in] name Data name
-    \param [in] index Data index
-    \return Array of data values
+    \param [in] id string Result ID
+    \param [in] name string Data name
+    \param [in] index int Data index
+    \return vector<vec3d> Array of data values
 */
 
 extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, const std::string & name, int index = 0 );
@@ -5490,8 +5490,8 @@ extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, con
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \param [in] name Result name
-    \return Result ID
+    \param [in] name string Result name
+    \return string Result ID
 */
 
 extern std::string CreateGeomResults( const std::string & geom_id, const std::string & name );
@@ -5572,7 +5572,7 @@ extern void DeleteAllResults();
 
     \endcode
     \endPythonOnly
-    \param [in] id Result ID
+    \param [in] id string Result ID
 */
 
 extern void DeleteResult( const std::string & id );
@@ -5607,8 +5607,8 @@ extern void DeleteResult( const std::string & id );
 
     \endcode
     \endPythonOnly
-    \param [in] id Rsult ID
-    \param [in] file_name CSV output file name
+    \param [in] id string Rsult ID
+    \param [in] file_name string CSV output file name
 */
 
 extern void WriteResultsCSVFile( const std::string & id, const std::string & file_name );
@@ -6157,7 +6157,7 @@ extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG, 
 
     \endcode
     \endPythonOnly
-    \param [in] vaxis True to show the axis, false to hide the axis
+    \param [in] vaxis bool True to show the axis, false to hide the axis
 */
 
 extern void SetViewAxis( bool vaxis );
@@ -6178,7 +6178,7 @@ extern void SetViewAxis( bool vaxis );
 
     \endcode
     \endPythonOnly
-    \param [in] brdr True to show the border frame, false to hide the border frame
+    \param [in] brdr bool True to show the border frame, false to hide the border frame
 */
 
 extern void SetShowBorders( bool brdr );
@@ -6205,7 +6205,7 @@ extern void SetShowBorders( bool brdr );
     \endPythonOnly
     \sa DRAW_TYPE
     \param [in] geom_id string Geom ID
-    \param [in] type Draw type enum (i.e. GEOM_DRAW_SHADE)
+    \param [in] type int Draw type enum (i.e. GEOM_DRAW_SHADE)
 */
 
 extern void SetGeomDrawType(const string &geom_id, int type);
@@ -6260,7 +6260,7 @@ extern void SetGeomWireColor( const string &geom_id, int r, int g, int b );
     \endPythonOnly
     \sa DISPLAY_TYPE
     \param [in] geom_id string Geom ID
-    \param [in] type Display type enum (i.e. DISPLAY_BEZIER)
+    \param [in] type int Display type enum (i.e. DISPLAY_BEZIER)
 */
 
 extern void SetGeomDisplayType(const string &geom_id, int type);
@@ -6369,9 +6369,9 @@ extern vector < string > GetMaterialNames();
 
     \endcode
     \endPythonOnly
-    \param [in] r Red 8-bit unsigned integer (range: 0-255)
-    \param [in] g Green 8-bit unsigned integer (range: 0-255)
-    \param [in] b Blue 8-bit unsigned integer (range: 0-255)
+    \param [in] r double Red 8-bit unsigned integer (range: 0-255)
+    \param [in] g double Green 8-bit unsigned integer (range: 0-255)
+    \param [in] b double Blue 8-bit unsigned integer (range: 0-255)
 */
 
 extern void SetBackground( double r, double g, double b );
@@ -6613,7 +6613,7 @@ extern void ShowScreen( int s );
 
     \endcode
     \endPythonOnly
-    \return Array of Geom type names
+    \return vector<string> Array of Geom type names
 */
 
 extern std::vector<std::string> GetGeomTypes();
@@ -6636,9 +6636,9 @@ extern std::vector<std::string> GetGeomTypes();
 
     \endcode
     \endPythonOnly
-    \param [in] type Geom type (i.e FUSELAGE, POD, etc.)
-    \param [in] parent Parent Geom ID
-    \return Geom ID
+    \param [in] type string Geom type (i.e FUSELAGE, POD, etc.)
+    \param [in] parent string Parent Geom ID
+    \return string Geom ID
 */
 
 extern std::string AddGeom( const std::string & type, const std::string & parent = std::string() );
@@ -6905,7 +6905,7 @@ extern std::vector<std::string> PasteGeomClipboard( const std::string & parent =
 
     \endcode
     \endPythonOnly
-    \return Array of all Geom IDs
+    \return vector<string> Array of all Geom IDs
 */
 
 extern std::vector<std::string> FindGeoms();
@@ -6945,8 +6945,8 @@ extern std::vector<std::string> FindGeoms();
     \endcode
     \endPythonOnly
     \sa FindGeom
-    \param [in] name Geom name
-    \return Array of Geom IDs
+    \param [in] name string Geom name
+    \return vector<string> Array of Geom IDs
 */
 
 extern std::vector<std::string> FindGeomsWithName( const std::string & name );
@@ -6990,9 +6990,9 @@ extern std::vector<std::string> FindGeomsWithName( const std::string & name );
     \endcode
     \endPythonOnly
     \sa FindGeomsWithName
-    \param [in] name Geom name
+    \param [in] name string Geom name
     \param [in] index
-    \return Geom ID with name at specified index
+    \return string Geom ID with name at specified index
 */
 
 extern std::string FindGeom( const std::string & name, int index );
@@ -7032,7 +7032,7 @@ extern std::string FindGeom( const std::string & name, int index );
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \param [in] name Geom name
+    \param [in] name string Geom name
 */
 
 extern void SetGeomName( const std::string & geom_id, const std::string & name );
@@ -7068,7 +7068,7 @@ extern void SetGeomName( const std::string & geom_id, const std::string & name )
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \return Geom name
+    \return string Geom name
 */
 
 extern std::string GetGeomName( const std::string & geom_id );
@@ -7104,7 +7104,7 @@ extern std::string GetGeomName( const std::string & geom_id );
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \return Array of Parm IDs
+    \return vector<string> Array of Parm IDs
 */
 
 extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
@@ -7136,7 +7136,7 @@ extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \return Geom type name
+    \return string Geom type name
 */
 
 extern std::string GetGeomTypeName( const std::string & geom_id );
@@ -7425,7 +7425,7 @@ extern int GetNumMainSurfs( const std::string & geom_id );
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \return Number of main surfaces
+    \return int Number of main surfaces
 */
 
 extern int GetTotalNumSurfs( const std::string& geom_id );
@@ -7458,8 +7458,8 @@ extern int GetTotalNumSurfs( const std::string& geom_id );
     \endPythonOnly
     \sa VSP_SURF_TYPE
     \param [in] geom_id string Geom ID
-    \param [in] main_surf_ind Main surface index
-    \return VSP surface type enum (i.e. DISK_SURF)
+    \param [in] main_surf_ind int Main surface index
+    \return int VSP surface type enum (i.e. DISK_SURF)
 */
 
 extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0 );
@@ -7492,8 +7492,8 @@ extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0
     \endPythonOnly
     \sa VSP_SURF_CFD_TYPE
     \param [in] geom_id string Geom ID
-    \param [in] main_surf_ind Main surface index
-    \return VSP surface CFD type enum (i.e. CFD_TRANSPARENT)
+    \param [in] main_surf_ind int Main surface index
+    \return int VSP surface CFD type enum (i.e. CFD_TRANSPARENT)
 */
 
 extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind = 0 );
@@ -7533,9 +7533,9 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
     \endPythonOnly
     \sa GetGeomBBoxMin
     \param [in] geom_id string Geom ID
-    \param [in] main_surf_ind Main surface index
-    \param [in] ref_frame_is_absolute Flag to specify absolute or body reference frame
-    \return Maximum coordinate of the bounding box
+    \param [in] main_surf_ind int Main surface index
+    \param [in] ref_frame_is_absolute bool Flag to specify absolute or body reference frame
+    \return vec3d Maximum coordinate of the bounding box
 */
 
 extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true );
@@ -7575,9 +7575,9 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
     \endPythonOnly
     \sa GetGeomBBoxMax
     \param [in] geom_id string Geom ID
-    \param [in] main_surf_ind Main surface index
-    \param [in] ref_frame_is_absolute Flag to specify absolute or body reference frame
-    \return Minimum coordinate of the bounding box
+    \param [in] main_surf_ind int Main surface index
+    \param [in] ref_frame_is_absolute bool Flag to specify absolute or body reference frame
+    \return vec3d Minimum coordinate of the bounding box
 */
 
 extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true );
@@ -7612,9 +7612,9 @@ extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, 
     \endPythonOnly
     \sa SUBSURF_TYPE
     \param [in] geom_id string Geom ID
-    \param [in] type Sub-surface type enum (i.e. SS_RECTANGLE)
-    \param [in] surfindex Main surface index (default: 0)
-    \return Sub-surface ID
+    \param [in] type int Sub-surface type enum (i.e. SS_RECTANGLE)
+    \param [in] surfindex int Main surface index (default: 0)
+    \return string Sub-surface ID
 */
 
 extern std::string AddSubSurf( const std::string & geom_id, int type, int surfindex = 0 );
@@ -7656,8 +7656,8 @@ extern std::string AddSubSurf( const std::string & geom_id, int type, int surfin
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \param [in] index Sub-surface index
-    \return Sub-surface ID
+    \param [in] index int Sub-surface index
+    \return string Sub-surface ID
 */
 
 extern std::string GetSubSurf( const std::string & geom_id, int index );
@@ -7903,7 +7903,7 @@ extern void SetSubSurfName( const std::string & sub_id, const std::string & name
     \endPythonOnly
     \param [in] geom_id string Geom ID
     \param [in] sub_id string Sub-surface ID
-    \return Sub-surface name
+    \return string Sub-surface name
 */
 
 extern std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id );
@@ -8056,7 +8056,7 @@ extern std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id );
 */
 /*!
     Get a vector of all sub-surface IDs for the entire model
-    \return Array of sub-surface IDs
+    \return vector<string> Array of sub-surface IDs
 */
 
 extern std::vector<std::string> GetAllSubSurfIDs();
@@ -8345,9 +8345,9 @@ extern void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::st
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
-    \param [in] init_skin Flag to initialize the FEA Structure by creating an FEA Skin from the parent Geom's OML at surfindex
-    \param [in] surfindex Main surface index for the FEA Structure
-    \return FEA Structure index
+    \param [in] init_skin bool Flag to initialize the FEA Structure by creating an FEA Skin from the parent Geom's OML at surfindex
+    \param [in] surfindex int Main surface index for the FEA Structure
+    \return int FEA Structure index
 */
 
 extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int surfindex = 0 );
@@ -8423,7 +8423,7 @@ extern void SetFeaMeshStructIndex( int struct_index );
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
+    \param [in] fea_struct_ind int FEA Structure index
 */
 
 extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
@@ -8457,8 +8457,8 @@ extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \return FEA Structure ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \return string FEA Structure ID
 */
 
 extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_ind );
@@ -8503,8 +8503,8 @@ extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_i
 
     \endcode
     \endPythonOnly
-    \param [in] struct_id FEA Structure ID
-    \return FEA Structure index
+    \param [in] struct_id string FEA Structure ID
+    \return int FEA Structure index
 */
 
 extern int GetFeaStructIndex( const std::string & struct_id );
@@ -8543,8 +8543,8 @@ extern int GetFeaStructIndex( const std::string & struct_id );
 
     \endcode
     \endPythonOnly
-    \param [in] struct_id FEA Structure ID
-    \return Parent Geom ID
+    \param [in] struct_id string FEA Structure ID
+    \return string Parent Geom ID
 */
 
 extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
@@ -8589,8 +8589,8 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
     \endPythonOnly
     \sa FindContainer, SetFeaStructName
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \return Name for the FEA Structure
+    \param [in] fea_struct_ind int FEA Structure index
+    \return string Name for the FEA Structure
 */
 
 extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct_ind );
@@ -8639,8 +8639,8 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
     \endPythonOnly
     \sa GetFeaStructName
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \param [in] name New name for the FEA Structure
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] name string New name for the FEA Structure
 */
 
 extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, const std::string & name );
@@ -8678,7 +8678,7 @@ extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, c
     \endcode
     \endPythonOnly
     \sa NumFeaStructures
-    \return Array of FEA Structure IDs
+    \return vector<string> Array of FEA Structure IDs
 */
 
 extern std::vector< std::string > GetFeaStructIDVec();
@@ -8718,8 +8718,8 @@ extern std::vector< std::string > GetFeaStructIDVec();
     \endcode
     \endPythonOnly
     \sa GetFeaPartName
-    \param [in] part_id FEA Part ID
-    \param [in] name New name for the FEA Part
+    \param [in] part_id string FEA Part ID
+    \param [in] name string New name for the FEA Part
 */
 
 extern void SetFeaPartName( const std::string & part_id, const std::string & name );
@@ -8764,9 +8764,9 @@ extern void SetFeaPartName( const std::string & part_id, const std::string & nam
     \endPythonOnly
     \sa FEA_PART_TYPE
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \param [in] type FEA Part type enum (i.e. FEA_RIB)
-    \return FEA Part ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] type int FEA Part type enum (i.e. FEA_RIB)
+    \return string FEA Part ID
 */
 
 extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, int type );
@@ -8814,8 +8814,8 @@ extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, 
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \param [in] part_id FEA Part ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] part_id string FEA Part ID
 */
 
 extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id );
@@ -8867,9 +8867,9 @@ extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, cons
 
     \endcode
     \endPythonOnly
-    \param [in] fea_struct_id FEA Structure ID
-    \param [in] fea_part_index FEA Part index
-    \return FEA Part ID
+    \param [in] fea_struct_id string FEA Structure ID
+    \param [in] fea_part_index int FEA Part index
+    \return string FEA Part ID
 */
 
 extern std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part_index );
@@ -8920,8 +8920,8 @@ extern std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part
     \endcode
     \endPythonOnly
     \sa SetFeaPartName
-    \param [in] part_id FEA Part ID
-    \return FEA Part name
+    \param [in] part_id string FEA Part ID
+    \return string FEA Part name
 */
 
 extern std::string GetFeaPartName( const std::string & part_id );
@@ -8966,8 +8966,8 @@ extern std::string GetFeaPartName( const std::string & part_id );
     \endcode
     \endPythonOnly
     \sa FEA_PART_TYPE
-    \param [in] part_id FEA Part ID
-    \return FEA Part type enum
+    \param [in] part_id string FEA Part ID
+    \return int FEA Part type enum
 */
 
 extern int GetFeaPartType( const std::string & part_id );
@@ -9013,8 +9013,8 @@ extern int GetFeaPartType( const std::string & part_id );
     \endcode
     \endPythonOnly
     \sa NumFeaParts
-    \param [in] fea_struct_id FEA Structure ID
-    \return Array of FEA Part IDs
+    \param [in] fea_struct_id string FEA Structure ID
+    \return vector<string> Array of FEA Part IDs
 */
 
 extern std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struct_id );
@@ -9060,8 +9060,8 @@ extern std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struc
     \endcode
     \endPythonOnly
     \sa NumFeaSubSurfs
-    \param [in] fea_struct_id FEA Structure ID
-    \return Array of FEA Part IDs
+    \param [in] fea_struct_id string FEA Structure ID
+    \return vector<string> Array of FEA Part IDs
 */
 
 extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_struct_id );
@@ -9131,8 +9131,8 @@ extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_st
     \endcode
     \endPythonOnly
     \sa FEA_RIB_NORMAL, GetFeaPartPerpendicularSparID
-    \param [in] part_id FEA Part ID (Rib or Rib Array Type)
-    \param [in] perpendicular_spar_id FEA Spar ID
+    \param [in] part_id string FEA Part ID (Rib or Rib Array Type)
+    \param [in] perpendicular_spar_id string FEA Spar ID
 */
 
 extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std::string& perpendicular_spar_id );
@@ -9201,8 +9201,8 @@ extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std
     \endcode
     \endPythonOnly
     \sa FEA_RIB_NORMAL, SetFeaPartPerpendicularSparID
-    \param [in] part_id FEA Part ID (Rib or Rib Array Type)
-    \return Perpendicular FEA Spar ID
+    \param [in] part_id string FEA Part ID (Rib or Rib Array Type)
+    \return string Perpendicular FEA Spar ID
 */
 
 extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
@@ -9242,8 +9242,8 @@ extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
 
     \endcode
     \endPythonOnly
-    \param [in] subsurf_id FEA SubSurface ID
-    \param [in] name New name for the FEA SubSurface
+    \param [in] subsurf_id string FEA SubSurface ID
+    \param [in] name string New name for the FEA SubSurface
 */
 
 extern void SetFeaSubSurfName( const std::string & subsurf_id, const std::string & name );
@@ -9292,8 +9292,8 @@ extern void SetFeaSubSurfName( const std::string & subsurf_id, const std::string
 
     \endcode
     \endPythonOnly
-    \param [in] subsurf_id FEA SubSurface ID
-    \return FEA SubSurf name
+    \param [in] subsurf_id string FEA SubSurface ID
+    \return string FEA SubSurf name
 */
 
 extern std::string GetFeaSubSurfName( const std::string & subsurf_id );
@@ -9338,9 +9338,9 @@ extern std::string GetFeaSubSurfName( const std::string & subsurf_id );
     \endPythonOnly
     \sa SUBSURF_TYPE
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \param [in] type FEA SubSurface type enum (i.e. SS_ELLIPSE)
-    \return FEA SubSurface ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] type int FEA SubSurface type enum (i.e. SS_ELLIPSE)
+    \return string FEA SubSurface ID
 */
 
 extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_ind, int type );
@@ -9388,8 +9388,8 @@ extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_in
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \param [in] ss_id FEA SubSurface ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] ss_id string FEA SubSurface ID
 */
 
 extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, const std::string & ss_id );
@@ -9445,8 +9445,8 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
 
     \endcode
     \endPythonOnly
-    \param [in] ss_id FEA SubSurface ID
-    \return FEA SubSurface Index
+    \param [in] ss_id string FEA SubSurface ID
+    \return int FEA SubSurface Index
 */
 
 extern int GetFeaSubSurfIndex( const string & ss_id );
@@ -9487,8 +9487,8 @@ extern int GetFeaSubSurfIndex( const string & ss_id );
     \endcode
     \endPythonOnly
     \sa AddFeaPolySparPt, InsertFeaPolySparPt, DelFeaPolySparPt, DelAllFeaPolySparPt
-    \param [in] pspar_id FEA Poly Spar part ID
-    \return Number of points in the Poly Spar
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \return int Number of points in the Poly Spar
 */
 
 extern int GetFeaPolySparNumPt( const string & pspar_id );
@@ -9531,8 +9531,8 @@ extern int GetFeaPolySparNumPt( const string & pspar_id );
     \endcode
     \endPythonOnly
     \sa InsertFeaPolySparPt, DelFeaPolySparPt, GetFeaPolySparNumPt
-    \param [in] pspar_id FEA Poly Spar part ID
-    \return ID of the newly added Poly Spar point
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \return string ID of the newly added Poly Spar point
 */
 
 extern string AddFeaPolySparPt( const string & pspar_id );
@@ -9576,9 +9576,9 @@ extern string AddFeaPolySparPt( const string & pspar_id );
     \endcode
     \endPythonOnly
     \sa AddFeaPolySparPt, DelFeaPolySparPt, GetFeaPolySparNumPt
-    \param [in] pspar_id FEA Poly Spar part ID
-    \param [in] index Index before which the new point is inserted
-    \return ID of the newly inserted Poly Spar point
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] index int Index before which the new point is inserted
+    \return string ID of the newly inserted Poly Spar point
 */
 
 extern string InsertFeaPolySparPt( const string & pspar_id, int index );
@@ -9628,8 +9628,8 @@ extern string InsertFeaPolySparPt( const string & pspar_id, int index );
     \endcode
     \endPythonOnly
     \sa DelAllFeaPolySparPt, AddFeaPolySparPt, GetFeaPolySparNumPt
-    \param [in] pspar_id FEA Poly Spar part ID
-    \param [in] index Index of the point to delete
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] index int Index of the point to delete
 */
 
 extern void DelFeaPolySparPt( const string & pspar_id, int index );
@@ -9677,7 +9677,7 @@ extern void DelFeaPolySparPt( const string & pspar_id, int index );
     \endcode
     \endPythonOnly
     \sa DelFeaPolySparPt, AddFeaPolySparPt, GetFeaPolySparNumPt
-    \param [in] pspar_id FEA Poly Spar part ID
+    \param [in] pspar_id string FEA Poly Spar part ID
 */
 
 extern void DelAllFeaPolySparPt( const string & pspar_id );
@@ -9725,10 +9725,10 @@ extern void DelAllFeaPolySparPt( const string & pspar_id );
     \endcode
     \endPythonOnly
     \sa REORDER_TYPE, AddFeaPolySparPt, GetFeaPolySparNumPt
-    \param [in] pspar_id FEA Poly Spar part ID
-    \param [in] index Index of the point to move
-    \param [in] reorder_type Reorder type enum (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
-    \return New index of the moved point
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] index int Index of the point to move
+    \param [in] reorder_type int Reorder type enum (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
+    \return int New index of the moved point
 */
 
 extern int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_type );
@@ -9772,9 +9772,9 @@ extern int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_ty
     \endcode
     \endPythonOnly
     \sa GetFeaPolySparPtName
-    \param [in] pspar_id FEA Poly Spar part ID
-    \param [in] index Index of the point
-    \param [in] name New name for the point
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] index int Index of the point
+    \param [in] name string New name for the point
 */
 
 extern void SetFeaPolySparPtName( const string & pspar_id, int index, const string & name );
@@ -9816,9 +9816,9 @@ extern void SetFeaPolySparPtName( const string & pspar_id, int index, const stri
     \endcode
     \endPythonOnly
     \sa SetFeaPolySparPtName
-    \param [in] pspar_id FEA Poly Spar part ID
-    \param [in] index Index of the point
-    \return Name of the point
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] index int Index of the point
+    \return string Name of the point
 */
 
 extern string GetFeaPolySparPtName( const string & pspar_id, int index );
@@ -9869,9 +9869,9 @@ extern string GetFeaPolySparPtName( const string & pspar_id, int index );
     \endcode
     \endPythonOnly
     \sa GetAllFeaPolySparPtIDVec, FindParm, SetParmVal
-    \param [in] pspar_id FEA Poly Spar part ID
-    \param [in] index Index of the point
-    \return ID of the Poly Spar point ParmContainer
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] index int Index of the point
+    \return string ID of the Poly Spar point ParmContainer
 */
 
 extern string GetFeaPolySparPtID( const string & pspar_id, int index );
@@ -9928,8 +9928,8 @@ extern string GetFeaPolySparPtID( const string & pspar_id, int index );
     \endcode
     \endPythonOnly
     \sa GetFeaPolySparPtID, FindParm, SetParmVal
-    \param [in] pspar_id FEA Poly Spar part ID
-    \return Vector of Poly Spar point ParmContainer IDs
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \return vector <string> Vector of Poly Spar point ParmContainer IDs
 */
 
 extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
@@ -9969,7 +9969,7 @@ extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
     \endcode
     \endPythonOnly
     \sa GetFeaStructIDVec
-    \return Total Number of FEA Structures
+    \return int Total Number of FEA Structures
 */
 
 extern int NumFeaStructures();
@@ -10020,8 +10020,8 @@ extern int NumFeaStructures();
     \endcode
     \endPythonOnly
     \sa GetFeaPartIDVec
-    \param [in] fea_struct_id FEA Structure ID
-    \return Number of FEA Parts
+    \param [in] fea_struct_id string FEA Structure ID
+    \return int Number of FEA Parts
 */
 
 extern int NumFeaParts( const std::string & fea_struct_id );
@@ -10071,8 +10071,8 @@ extern int NumFeaParts( const std::string & fea_struct_id );
     \endcode
     \endPythonOnly
     \sa GetFeaSubSurfIDVec
-    \param [in] fea_struct_id FEA Structure ID
-    \return Number of FEA SubSurfaces
+    \param [in] fea_struct_id string FEA Structure ID
+    \return int Number of FEA SubSurfaces
 */
 
 extern int NumFeaSubSurfs( const std::string & fea_struct_id );
@@ -10115,7 +10115,7 @@ extern int NumFeaSubSurfs( const std::string & fea_struct_id );
     \sa FEA_BC_TYPE
     \param [in] fea_struct_id string FEA Structure ID
     \param [in] type int FEA BC type enum ( i.e. FEA_BC_STRUCTURE )
-    \return FEA BC ID
+    \return string FEA BC ID
 */
 
 extern std::string AddFeaBC( const string & fea_struct_id, int type = -1 );
@@ -10207,7 +10207,7 @@ extern void DelFeaBC( const string & fea_struct_id, const std::string &bc_id );
     \endcode
     \endPythonOnly
     \param [in] fea_struct_id string FEA Structure ID
-    \return Array of FEA BC IDs
+    \return vector<string> Array of FEA BC IDs
 */
 
 extern std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id );
@@ -10253,7 +10253,7 @@ extern std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id );
     \endcode
     \endPythonOnly
     \param [in] fea_struct_id string FEA Structure ID
-    \return Number of FEA BCs
+    \return int Number of FEA BCs
 */
 
 extern int NumFeaBCs( const string & fea_struct_id );
@@ -10280,7 +10280,7 @@ extern int NumFeaBCs( const string & fea_struct_id );
 
     \endcode
     \endPythonOnly
-    \return FEA Material ID
+    \return string FEA Material ID
 */
 
 extern std::string AddFeaMaterial();
@@ -10309,8 +10309,8 @@ extern std::string AddFeaMaterial();
     \endcode
     \endPythonOnly
     \sa FEA_PART_ELEMENT_TYPE
-    \param [in] property_type FEA Property type enum (i.e. FEA_SHELL).
-    \return FEA Property ID
+    \param [in] property_type int FEA Property type enum (i.e. FEA_SHELL).
+    \return string FEA Property ID
 */
 
 extern std::string AddFeaProperty( int property_type = 0 );
@@ -10352,9 +10352,9 @@ extern std::string AddFeaProperty( int property_type = 0 );
     \endPythonOnly
     \sa CFD_CONTROL_TYPE
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \param [in] type FEA Mesh option type enum (i.e. CFD_MAX_EDGE_LEN)
-    \param [in] val Value the option is set to
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] type int FEA Mesh option type enum (i.e. CFD_MAX_EDGE_LEN)
+    \param [in] val double Value the option is set to
 */
 
 extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type, double val );
@@ -10404,9 +10404,9 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
-    \param [in] fea_struct_ind FEA Structure index
-    \param [in] file_type FEA output file type enum (i.e. FEA_EXPORT_TYPE)
-    \param [in] file_name Name for the output file
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] file_type int FEA output file type enum (i.e. FEA_EXPORT_TYPE)
+    \param [in] file_name string Name for the output file
 */
 
 extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type, const string & file_name );
@@ -10570,8 +10570,8 @@ extern void ComputeFeaMesh( const std::string & struct_id, int file_type );
 
     \endcode
     \endPythonOnly
-    \param [in] id XSec ID
-    \param [in] alias Xsec alias
+    \param [in] id string XSec ID
+    \param [in] alias string Xsec alias
 */
 
 extern void SetXSecAlias( const string & id, const string & alias );
@@ -10630,8 +10630,8 @@ extern void SetXSecAlias( const string & id, const string & alias );
 
     \endcode
     \endPythonOnly
-    \param [in] id XSec ID
-    \return Xsec alias
+    \param [in] id string XSec ID
+    \return string Xsec alias
 */
 
 extern string GetXSecAlias( const string & id );
@@ -10690,8 +10690,8 @@ extern string GetXSecAlias( const string & id );
 
     \endcode
     \endPythonOnly
-    \param [in] id XSec ID
-    \param [in] alias XsecCurve alias
+    \param [in] id string XSec ID
+    \param [in] alias string XsecCurve alias
 */
 
 extern void SetXSecCurveAlias( const string & id, const string & alias );
@@ -10750,7 +10750,7 @@ extern void SetXSecCurveAlias( const string & id, const string & alias );
 
     \endcode
     \endPythonOnly
-    \param [in] id XSec ID
+    \param [in] id string XSec ID
 */
 
 extern string GetXSecCurveAlias( const string & id );
@@ -10791,7 +10791,7 @@ extern string GetXSecCurveAlias( const string & id );
     \endPythonOnly
     \sa PasteXSec
     \param [in] geom_id string Geom ID
-    \param [in] index XSec index
+    \param [in] index int XSec index
 */
 
 extern void CutXSec( const std::string & geom_id, int index );
@@ -10828,7 +10828,7 @@ extern void CutXSec( const std::string & geom_id, int index );
     \endPythonOnly
     \sa PasteXSec
     \param [in] geom_id string Geom ID
-    \param [in] index XSec index
+    \param [in] index int XSec index
 */
 
 extern void CopyXSec( const std::string & geom_id, int index );
@@ -10865,7 +10865,7 @@ extern void CopyXSec( const std::string & geom_id, int index );
     \endPythonOnly
     \sa CutXSec, CopyXSec
     \param [in] geom_id string Geom ID
-    \param [in] index XSec index
+    \param [in] index int XSec index
 */
 
 extern void PasteXSec( const std::string & geom_id, int index );
@@ -10894,8 +10894,8 @@ extern void PasteXSec( const std::string & geom_id, int index );
     \endPythonOnly
     \sa XSEC_CRV_TYPE
     \param [in] geom_id string Geom ID
-    \param [in] index XSec index
-    \param [in] type XSec type enum (i.e. XS_GENERAL_FUSE)
+    \param [in] index int XSec index
+    \param [in] type int XSec type enum (i.e. XS_GENERAL_FUSE)
 */
 
 extern void InsertXSec( const std::string & geom_id, int index, int type );
@@ -10930,7 +10930,7 @@ extern void InsertXSec( const std::string & geom_id, int index, int type );
     \endPythonOnly
     \sa WING_DRIVERS, XSEC_DRIVERS
     \param [in] wing_id string Geom ID
-    \param [in] section_index Wing section index
+    \param [in] section_index int Wing section index
 */
 
 extern void SplitWingXSec( const string & wing_id, int section_index );
@@ -10977,10 +10977,10 @@ extern void SplitWingXSec( const string & wing_id, int section_index );
     \endPythonOnly
     \sa WING_DRIVERS, XSEC_DRIVERS
     \param [in] geom_id string Geom ID
-    \param [in] section_index Wing section index
-    \param [in] driver_0 First driver enum (i.e. SPAN_WSECT_DRIVER)
-    \param [in] driver_1 Second driver enum (i.e. ROOTC_WSECT_DRIVER)
-    \param [in] driver_2 Third driver enum (i.e. TIPC_WSECT_DRIVER)
+    \param [in] section_index int Wing section index
+    \param [in] driver_0 int First driver enum (i.e. SPAN_WSECT_DRIVER)
+    \param [in] driver_1 int Second driver enum (i.e. ROOTC_WSECT_DRIVER)
+    \param [in] driver_2 int Third driver enum (i.e. TIPC_WSECT_DRIVER)
     */
 
 extern void SetDriverGroup( const std::string & geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1 );
@@ -11012,8 +11012,8 @@ extern void SetDriverGroup( const std::string & geom_id, int section_index, int 
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \param [in] index XSecSurf index
-    \return XSecSurf ID
+    \param [in] index int XSecSurf index
+    \return string XSecSurf ID
 */
 
 extern std::string GetXSecSurf( const std::string & geom_id, int index );
@@ -11065,8 +11065,8 @@ extern std::string GetXSecSurf( const std::string & geom_id, int index );
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_surf_id XSecSurf ID
-    \return Number of XSecs
+    \param [in] xsec_surf_id string XSecSurf ID
+    \return int Number of XSecs
 */
 
 extern int GetNumXSec( const std::string & xsec_surf_id );
@@ -11101,9 +11101,9 @@ extern int GetNumXSec( const std::string & xsec_surf_id );
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_surf_id XSecSurf ID
-    \param [in] xsec_index Xsec index
-    \return Xsec ID
+    \param [in] xsec_surf_id string XSecSurf ID
+    \param [in] xsec_index int Xsec index
+    \return string Xsec ID
 */
 
 extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
@@ -11153,9 +11153,9 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
     \endcode
     \endPythonOnly
     \sa XSEC_CRV_TYPE
-    \param [in] xsec_surf_id XSecSurf ID
-    \param [in] xsec_index Xsec index
-    \param [in] type Xsec type enum (i.e. XS_ELLIPSE)
+    \param [in] xsec_surf_id string XSecSurf ID
+    \param [in] xsec_index int Xsec index
+    \param [in] type int Xsec type enum (i.e. XS_ELLIPSE)
 */
 
 extern void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, int type );
@@ -11165,8 +11165,8 @@ extern void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, i
 */
 /*!
     Set the global surface transform matrix for given XSecSurf
-    \param [in] xsec_surf_id XSecSurf ID
-    \param [in] mat Transformation matrix
+    \param [in] xsec_surf_id string XSecSurf ID
+    \param [in] mat Matrix4d Transformation matrix
 */
 
 extern void SetXSecSurfGlobalXForm( const std::string & xsec_surf_id, const Matrix4d & mat );
@@ -11176,8 +11176,8 @@ extern void SetXSecSurfGlobalXForm( const std::string & xsec_surf_id, const Matr
 */
 /*!
     Get the global surface transform matrix for given XSecSurf
-    \param [in] xsec_surf_id XSecSurf ID
-    \return Transformation matrix
+    \param [in] xsec_surf_id string XSecSurf ID
+    \return Matrix4d Transformation matrix
 */
 
 extern Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id );
@@ -11221,8 +11221,8 @@ extern Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id );
     \endcode
     \endPythonOnly
     \sa XSEC_CRV_TYPE
-    \param [in] xsec_id XSec ID
-    \return XSec type enum (i.e. XS_ELLIPSE)
+    \param [in] xsec_id string XSec ID
+    \return int XSec type enum (i.e. XS_ELLIPSE)
 */
 
 extern int GetXSecShape( const std::string& xsec_id );
@@ -11262,8 +11262,8 @@ extern int GetXSecShape( const std::string& xsec_id );
     \endcode
     \endPythonOnly
     \sa SetXSecWidth
-    \param [in] xsec_id XSec ID
-    \return Xsec width
+    \param [in] xsec_id string XSec ID
+    \return double Xsec width
 */
 
 extern double GetXSecWidth( const std::string& xsec_id );
@@ -11303,8 +11303,8 @@ extern double GetXSecWidth( const std::string& xsec_id );
     \endcode
     \endPythonOnly
     \sa SetXSecHeight
-    \param [in] xsec_id XSec ID
-    \return Xsec height
+    \param [in] xsec_id string XSec ID
+    \return double Xsec height
 */
 
 extern double GetXSecHeight( const std::string& xsec_id );
@@ -11345,9 +11345,9 @@ extern double GetXSecHeight( const std::string& xsec_id );
     \endcode
     \endPythonOnly
     \sa SetXSecWidth, SetXSecHeight
-    \param [in] xsec_id XSec ID
-    \param [in] w Xsec width
-    \param [in] h Xsec height
+    \param [in] xsec_id string XSec ID
+    \param [in] w double Xsec width
+    \param [in] h double Xsec height
 */
 
 extern void SetXSecWidthHeight( const std::string& xsec_id, double w, double h );
@@ -11387,8 +11387,8 @@ extern void SetXSecWidthHeight( const std::string& xsec_id, double w, double h )
     \endcode
     \endPythonOnly
     \sa GetXSecWidth
-    \param [in] xsec_id XSec ID
-    \param [in] w Xsec width
+    \param [in] xsec_id string XSec ID
+    \param [in] w double Xsec width
 */
 
 extern void SetXSecWidth( const std::string& xsec_id, double w );
@@ -11428,8 +11428,8 @@ extern void SetXSecWidth( const std::string& xsec_id, double w );
     \endcode
     \endPythonOnly
     \sa GetXSecHeight
-    \param [in] xsec_id XSec ID
-    \param [in] h Xsec height
+    \param [in] xsec_id string XSec ID
+    \param [in] h double Xsec height
 */
 
 extern void SetXSecHeight( const std::string& xsec_id, double h );
@@ -11468,8 +11468,8 @@ extern void SetXSecHeight( const std::string& xsec_id, double h );
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \return Array of Parm IDs
+    \param [in] xsec_id string XSec ID
+    \return vector<string> Array of Parm IDs
 */
 
 extern std::vector<std::string> GetXSecParmIDs( const std::string& xsec_id );
@@ -11512,9 +11512,9 @@ extern std::vector<std::string> GetXSecParmIDs( const std::string& xsec_id );
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] name Parm name
-    \return Parm ID
+    \param [in] xsec_id string XSec ID
+    \param [in] name string Parm name
+    \return string Parm ID
 */
 
 extern std::string GetXSecParm( const std::string& xsec_id, const std::string& name );
@@ -11554,9 +11554,9 @@ extern std::string GetXSecParm( const std::string& xsec_id, const std::string& n
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] file_name Fuselage XSec file name
-    \return Array of coordinate points read from the file and set to the XSec
+    \param [in] xsec_id string XSec ID
+    \param [in] file_name string Fuselage XSec file name
+    \return vector<vec3d> Array of coordinate points read from the file and set to the XSec
 */
 
 extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::string& file_name );
@@ -11883,12 +11883,12 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
     \endcode
     \endPythonOnly
     \sa XSEC_SIDES_TYPE
-    \param [in] xsec_id XSec ID
-    \param [in] side Side type enum (i.e. XSEC_BOTH_SIDES)
-    \param [in] top Top angle (degrees)
-    \param [in] right Right angle (degrees)
-    \param [in] bottom Bottom angle (degrees)
-    \param [in] left Left angle (degrees)
+    \param [in] xsec_id string XSec ID
+    \param [in] side int Side type enum (i.e. XSEC_BOTH_SIDES)
+    \param [in] top double Top angle (degrees)
+    \param [in] right double Right angle (degrees)
+    \param [in] bottom double Bottom angle (degrees)
+    \param [in] left double Left angle (degrees)
 */
 
 extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
@@ -11937,12 +11937,12 @@ extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, d
     \endcode
     \endPythonOnly
     \sa XSEC_SIDES_TYPE
-    \param [in] xsec_id XSec ID
-    \param [in] side Side type enum (i.e. XSEC_BOTH_SIDES)
-    \param [in] top Top strength
-    \param [in] right Right strength
-    \param [in] bottom Bottom strength
-    \param [in] left Left strength
+    \param [in] xsec_id string XSec ID
+    \param [in] side int Side type enum (i.e. XSEC_BOTH_SIDES)
+    \param [in] top double Top strength
+    \param [in] right double Right strength
+    \param [in] bottom double Bottom strength
+    \param [in] left double Left strength
 */
 
 extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
@@ -11991,12 +11991,12 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
     \endcode
     \endPythonOnly
     \sa XSEC_SIDES_TYPE
-    \param [in] xsec_id XSec ID
-    \param [in] side Side type enum (i.e. XSEC_BOTH_SIDES)
-    \param [in] top Top curvature
-    \param [in] right Right curvature
-    \param [in] bottom Bottom curvature
-    \param [in] left Left curvature
+    \param [in] xsec_id string XSec ID
+    \param [in] side int Side type enum (i.e. XSEC_BOTH_SIDES)
+    \param [in] top double Top curvature
+    \param [in] right double Right curvature
+    \param [in] bottom double Bottom curvature
+    \param [in] left double Left curvature
 */
 
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
@@ -12035,8 +12035,8 @@ extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top,
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] file_name Airfoil XSec file name
+    \param [in] xsec_id string XSec ID
+    \param [in] file_name string Airfoil XSec file name
 */
 
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
@@ -12092,8 +12092,8 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
+    \param [in] xsec_id string XSec ID
+    \param [in] up_pnt_vec vector<vec3d> Array of points defining the upper surface of the airfoil
 */
 
 extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< vec3d > & up_pnt_vec );
@@ -12149,8 +12149,8 @@ extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< 
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+    \param [in] xsec_id string XSec ID
+    \param [in] low_pnt_vec vector<vec3d> Array of points defining the lower surface of the airfoil
 */
 
 extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< vec3d > & low_pnt_vec );
@@ -12214,9 +12214,9 @@ extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< 
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
-    \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+    \param [in] xsec_id string XSec ID
+    \param [in] up_pnt_vec vector<vec3d> Array of points defining the upper surface of the airfoil
+    \param [in] low_pnt_vec vector<vec3d> Array of points defining the lower surface of the airfoil
 */
 
 extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d > & up_pnt_vec, const std::vector< vec3d > & low_pnt_vec );
@@ -12261,12 +12261,12 @@ extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d
 
     \endcode
     \endPythonOnly
-    \param [in] npts Number of points along the span to assess
-    \param [in] alpha Wing angle of attack (Radians)
-    \param [in] Vinf Freestream velocity
-    \param [in] span Hershey Bar full-span. Note, only half is used in the calculation
-    \param [in] full_span_flag Flag to apply symmetry to results
-    \return Theoretical coefficient of lift distribution array (size = 2*npts if full_span_flag = true)
+    \param [in] npts int Number of points along the span to assess
+    \param [in] alpha double Wing angle of attack (Radians)
+    \param [in] Vinf double Freestream velocity
+    \param [in] span double Hershey Bar full-span. Note, only half is used in the calculation
+    \param [in] full_span_flag bool Flag to apply symmetry to results
+    \return vector<vec3d> Theoretical coefficient of lift distribution array (size = 2*npts if full_span_flag = true)
 */
 
 extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
@@ -12311,12 +12311,12 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &
 
     \endcode
     \endPythonOnly
-    \param [in] npts Number of points along the span to assess
-    \param [in] alpha Wing angle of attack (Radians)
-    \param [in] Vinf Freestream velocity
-    \param [in] span Hershey Bar full-span. Note, only half is used in the calculation
-    \param [in] full_span_flag Flag to apply symmetry to results (default: false)
-    \return Theoretical coefficient of drag distribution array (size = 2*npts if full_span_flag = true)
+    \param [in] npts int Number of points along the span to assess
+    \param [in] alpha double Wing angle of attack (Radians)
+    \param [in] Vinf double Freestream velocity
+    \param [in] span double Hershey Bar full-span. Note, only half is used in the calculation
+    \param [in] full_span_flag bool Flag to apply symmetry to results (default: false)
+    \return vector<vec3d> Theoretical coefficient of drag distribution array (size = 2*npts if full_span_flag = true)
 */
 
 extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
@@ -12365,12 +12365,12 @@ extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &
 
     \endcode
     \endPythonOnly
-    \param [in] npts Number of points along the airfoil to return
-    \param [in] alpha Airfoil angle of attack (Radians)
-    \param [in] epsilon Airfoil thickness
-    \param [in] kappa Airfoil camber
-    \param [in] tau Airfoil trailing edge angle (Radians)
-    \return Array of points on the VKT airfoil (size = npts)
+    \param [in] npts int Number of points along the airfoil to return
+    \param [in] alpha double Airfoil angle of attack (Radians)
+    \param [in] epsilon double Airfoil thickness
+    \param [in] kappa double Airfoil camber
+    \param [in] tau double Airfoil trailing edge angle (Radians)
+    \return vector<vec3d> Array of points on the VKT airfoil (size = npts)
 */
 
 extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau );
@@ -12437,11 +12437,11 @@ extern std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const doubl
     Generate the surface coordinate points for a ellipsoid at specified center of input radius along each axis.
     Based on the MATLAB function ellipsoid (https://in.mathworks.com/help/matlab/ref/ellipsoid.html).
     \sa GetVKTAirfoilPnts
-    \param [in] center 3D location of the ellipsoid center
-    \param [in] abc_rad Radius along the A (X), B (Y), and C (Z) axes
-    \param [in] u_npts Number of points in the U direction
-    \param [in] w_npts Number of points in the W direction
-    \return Array of coordinates describing the ellipsoid surface
+    \param [in] center vec3d 3D location of the ellipsoid center
+    \param [in] abc_rad vec3d Radius along the A (X), B (Y), and C (Z) axes
+    \param [in] u_npts int Number of points in the U direction
+    \param [in] w_npts int Number of points in the W direction
+    \return vector<vec3d> Array of coordinates describing the ellipsoid surface
 */
 
 extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d &abc_rad, int u_npts = 20, int w_npts = 20 );
@@ -12452,7 +12452,7 @@ extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d
 /*!
     Get the points along the feature lines of a particular Geom
     \param [in] geom_id string Geom ID
-    \return Array of points along the Geom's feature lines
+    \return vector<vec3d> Array of points along the Geom's feature lines
 */
 
 extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
@@ -12675,7 +12675,7 @@ extern int GetUpperCSTDegree( const std::string& xsec_id );
 /*!
     Get the CST degree for the lower surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
     \sa SetLowerCST
-    \param [in] xsec_id XSec ID
+    \param [in] xsec_id string XSec ID
     \return int CST Degree for lower airfoil surface
 */
 
@@ -12713,7 +12713,7 @@ extern void SetLowerCST( const std::string& xsec_id, int deg, const std::vector<
 /*!
     Promote the CST for the upper airfoil surface. The XSec must be of type XS_CST_AIRFOIL
     \sa GetUpperCSTDegree
-    \param [in] xsec_id XSec ID
+    \param [in] xsec_id string XSec ID
 */
 
 extern void PromoteCSTUpper( const std::string& xsec_id );
@@ -12724,7 +12724,7 @@ extern void PromoteCSTUpper( const std::string& xsec_id );
 /*!
     Promote the CST for the lower airfoil surface. The XSec must be of type XS_CST_AIRFOIL
     \sa GetLowerCSTDegree
-    \param [in] xsec_id XSec ID
+    \param [in] xsec_id string XSec ID
 */
 
 extern void PromoteCSTLower( const std::string& xsec_id );
@@ -12735,7 +12735,7 @@ extern void PromoteCSTLower( const std::string& xsec_id );
 /*!
     Demote the CST for the upper airfoil surface. The XSec must be of type XS_CST_AIRFOIL
     \sa GetUpperCSTDegree
-    \param [in] xsec_id XSec ID
+    \param [in] xsec_id string XSec ID
 */
 
 extern void DemoteCSTUpper( const std::string& xsec_id );
@@ -12746,7 +12746,7 @@ extern void DemoteCSTUpper( const std::string& xsec_id );
 /*!
     Demote the CST for the lower airfoil surface. The XSec must be of type XS_CST_AIRFOIL
     \sa GetLowerCSTDegree
-    \param [in] xsec_id XSec ID
+    \param [in] xsec_id string XSec ID
 */
 
 extern void DemoteCSTLower( const std::string& xsec_id );
@@ -12756,9 +12756,9 @@ extern void DemoteCSTLower( const std::string& xsec_id );
 */
 /*!
     Fit a CST airfoil for an existing airfoil of type XS_FOUR_SERIES, XS_SIX_SERIES, XS_FOUR_DIGIT_MOD, XS_FIVE_DIGIT, XS_FIVE_DIGIT_MOD, XS_ONE_SIX_SERIES, or XS_FILE_AIRFOIL.
-    \param [in] xsec_surf_id XsecSurf ID
-    \param [in] xsec_index XSec index
-    \param [in] deg CST degree
+    \param [in] xsec_surf_id string XsecSurf ID
+    \param [in] xsec_index int XSec index
+    \param [in] deg int CST degree
 */
 
 extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg );
@@ -14604,7 +14604,7 @@ extern std::vector<vec3d> GetBORAirfoilLowerPnts( const std::string& bor_id );
 /*!
     Get the CST coefficients for the upper surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
     \sa SetUpperCST
-    \param [in] bor_id Body of revolution Geom ID
+    \param [in] bor_id string Body of revolution Geom ID
     \return vector<double> Vector of CST coefficients for the upper airfoil surface
 */
 
@@ -14653,8 +14653,8 @@ extern int GetBORLowerCSTDegree( const std::string& bor_id );
     Set the CST degree and coefficients for the upper surface of an airfoil of a BOR. The number of coefficients should be one more than the CST degree. The XSecCurve must be of type XS_CST_AIRFOIL
     \sa GetUpperCSTDegree, GetUpperCSTCoefs
     \param [in] bor_id string Body of revolution Geom ID
-    \param [in] deg CST degree of upper airfoil surface
-    \param [in] coefs Array of CST coefficients for the upper airfoil surface
+    \param [in] deg int CST degree of upper airfoil surface
+    \param [in] coefs vector<double> Array of CST coefficients for the upper airfoil surface
 */
 
 extern void SetBORUpperCST( const std::string& bor_id, int deg, const std::vector<double> &coefs );
@@ -14758,9 +14758,9 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
 
     \endcode
     \endPythonOnly
-    \param [in] file_name Airfoil (*.bz) output file name
+    \param [in] file_name string Airfoil (*.bz) output file name
     \param [in] geom_id string Geom ID
-    \param [in] foilsurf_u U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
+    \param [in] foilsurf_u double U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
 */
 
 extern void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
@@ -14794,9 +14794,9 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
     \endcode
     \endPythonOnly
     \sa GetAirfoilCoordinates
-    \param [in] file_name Airfoil (*.dat) output file name
+    \param [in] file_name string Airfoil (*.dat) output file name
     \param [in] geom_id string Geom ID
-    \param [in] foilsurf_u U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
+    \param [in] foilsurf_u double U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
 */
 
 extern void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
@@ -14808,7 +14808,7 @@ extern void WriteSeligAirfoil( const std::string & file_name, const std::string 
     Get the untwisted unit-length 2D coordinate points for the specified airfoil
     \sa WriteSeligAirfoil
     \param [in] geom_id string Geom ID
-    \param [in] foilsurf_u U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
+    \param [in] foilsurf_u double U location (range: 0 - 1) along the surface. The foil surface does not include root and tip caps (i.e. 2 section wing -> XSec0 @ u=0, XSec1 @ u=0.5, XSec2 @ u=1.0)
 */
 
 extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double &foilsurf_u );
@@ -14860,7 +14860,7 @@ extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id,
     \endcode
     \endPythonOnly
     \sa INIT_EDIT_XSEC_TYPE
-    \param [in] xsec_id XSec ID
+    \param [in] xsec_id string XSec ID
 */
 
 extern void EditXSecInitShape( const std::string & xsec_id );
@@ -14907,8 +14907,8 @@ extern void EditXSecInitShape( const std::string & xsec_id );
     \endcode
     \endPythonOnly
     \sa PCURV_TYPE
-    \param [in] xsec_id XSec ID
-    \param [in] newtype New curve type enum (i.e. CEDIT)
+    \param [in] xsec_id string XSec ID
+    \param [in] newtype int New curve type enum (i.e. CEDIT)
 */
 
 extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype );
@@ -14965,8 +14965,8 @@ extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype 
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \return Array of U parameter values
+    \param [in] xsec_id string XSec ID
+    \return vector <double> Array of U parameter values
 */
 
 extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
@@ -15015,9 +15015,9 @@ extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] non_dimensional True to get the points non-dimensionalized, False to get them scaled by m_Width and m_Height
-    \return Array of control points
+    \param [in] xsec_id string XSec ID
+    \param [in] non_dimensional bool True to get the points non-dimensionalized, False to get them scaled by m_Width and m_Height
+    \return vector <vec3d> Array of control points
 */
 
 extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, bool non_dimensional = true );
@@ -15123,10 +15123,10 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, bo
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] u_vec Array of U parameter values
-    \param [in] r_vec Array of R parameter values
-    \param [in] control_pts Nondimensionalized array of control points
+    \param [in] xsec_id string XSec ID
+    \param [in] u_vec vector <double> Array of U parameter values
+    \param [in] r_vec vector <double> Array of R parameter values
+    \param [in] control_pts vector <vec3d> Nondimensionalized array of control points
 */
 
 extern void SetEditXSecPnts( const std::string & xsec_id, const std::vector < double > &u_vec, const std::vector < vec3d > &control_pts, const std::vector < double > &r_vec );
@@ -15193,8 +15193,8 @@ extern void SetEditXSecPnts( const std::string & xsec_id, const std::vector < do
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] indx Control point index
+    \param [in] xsec_id string XSec ID
+    \param [in] indx int Control point index
 */
 
 extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
@@ -15259,9 +15259,9 @@ extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] u U value to split the curve at (0 - 1)
-    \return Index of the point added from the split
+    \param [in] xsec_id string XSec ID
+    \param [in] u double U value to split the curve at (0 - 1)
+    \return int Index of the point added from the split
 */
 
 extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
@@ -15341,9 +15341,9 @@ extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
 
     \endcode
     \endPythonOnly
-    \param [in] xsec_id XSec ID
-    \param [in] indx Control point index
-    \param [in] new_pnt Coordinate of the new point
+    \param [in] xsec_id string XSec ID
+    \param [in] indx int Control point index
+    \param [in] new_pnt vec3d Coordinate of the new point
 */
 
 extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d & new_pnt );
@@ -15395,7 +15395,7 @@ extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, cons
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \param [in] indx XSec index
+    \param [in] indx int XSec index
 */
 
 extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0 );
@@ -15452,8 +15452,8 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
     \endcode
     \endPythonOnly
     \sa SetEditXSecFixedUVec, ReparameterizeEditXSec
-    \param [in] xsec_id XSec ID
-    \return Array of bool values for each control point
+    \param [in] xsec_id string XSec ID
+    \return vector <bool> Array of bool values for each control point
 */
 
 extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
@@ -15510,8 +15510,8 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
     \endcode
     \endPythonOnly
     \sa GetEditXSecFixedUVec, ReparameterizeEditXSec
-    \param [in] xsec_id XSec ID
-    \param [in] fixed_u_vec Array of fixed U flags
+    \param [in] xsec_id string XSec ID
+    \param [in] fixed_u_vec vector <bool> Array of fixed U flags
 */
 
 extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool > fixed_u_vec );
@@ -15569,7 +15569,7 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
     \endcode
     \endPythonOnly
     \sa SetEditXSecFixedUVec, GetEditXSecFixedUVec
-    \param [in] xsec_id XSec ID
+    \param [in] xsec_id string XSec ID
 */
 
 extern void ReparameterizeEditXSec( const std::string & xsec_id );
@@ -15593,7 +15593,7 @@ extern void ReparameterizeEditXSec( const std::string & xsec_id );
 
     \endcode
     \endPythonOnly
-    \return Number of sets
+    \return int Number of sets
 */
 
 extern int GetNumSets();
@@ -15621,8 +15621,8 @@ extern int GetNumSets();
     \endcode
     \endPythonOnly
     \sa SET_TYPE
-    \param [in] index Set index
-    \param [in] name Set name
+    \param [in] index int Set index
+    \param [in] name string Set name
 */
 
 extern void SetSetName( int index, const std::string& name );
@@ -15650,8 +15650,8 @@ extern void SetSetName( int index, const std::string& name );
     \endcode
     \endPythonOnly
     \sa SET_TYPE
-    \param [in] index Set index
-    \return Set name
+    \param [in] index int Set index
+    \return string Set name
 */
 
 extern std::string GetSetName( int index );
@@ -15685,8 +15685,8 @@ extern std::string GetSetName( int index );
     \endcode
     \endPythonOnly
     \sa SET_TYPE
-    \param [in] index Set index
-    \return Array of Geom IDs
+    \param [in] index int Set index
+    \return vector<string> Array of Geom IDs
 */
 
 extern std::vector<std::string> GetGeomSetAtIndex( int index );
@@ -15719,7 +15719,7 @@ extern std::vector<std::string> GetGeomSetAtIndex( int index );
 
     \endcode
     \endPythonOnly
-    \param [in] name const string set name
+    \param [in] name string const string set name
     \return array<string> array of Geom IDs
 */
 
@@ -15747,8 +15747,8 @@ extern std::vector<std::string> GetGeomSet( const std::string & name );
 
     \endcode
     \endPythonOnly
-    \param [in] name Set name
-    \return Set index
+    \param [in] name string Set name
+    \return int Set index
 */
 
 extern int GetSetIndex( const std::string & name );
@@ -15782,8 +15782,8 @@ extern int GetSetIndex( const std::string & name );
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \param [in] set_index Set index
-    \return True if geom is in the set, false otherwise
+    \param [in] set_index int Set index
+    \return bool True if geom is in the set, false otherwise
 */
 
 extern bool GetSetFlag( const std::string & geom_id, int set_index );
@@ -15817,8 +15817,8 @@ extern bool GetSetFlag( const std::string & geom_id, int set_index );
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \param [in] set_index Set index
-    \param [in] flag Flag that indicates set membership
+    \param [in] set_index int Set index
+    \param [in] flag bool Flag that indicates set membership
 */
 
 extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
@@ -15863,8 +15863,8 @@ extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
 
     \endcode
     \endPythonOnly
-    \param [in] copyIndex Copy Index
-    \param [in] pasteIndex Paste Index
+    \param [in] copyIndex int Copy Index
+    \param [in] pasteIndex int Paste Index
 */
 
 extern void CopyPasteSet( int copyIndex, int pasteIndex );
@@ -15974,8 +15974,8 @@ extern bool GetScaleIndependentBBoxSet( int set, double & xmin_out, double & ymi
 
     \endcode
     \endPythonOnly
-    \param [in] set_index Set index
-    \param [in] scale Scale factor
+    \param [in] set_index int Set index
+    \param [in] scale double Scale factor
 */
 
 extern void ScaleSet( int set_index, double scale );
@@ -16008,10 +16008,10 @@ extern void ScaleSet( int set_index, double scale );
 
     \endcode
     \endPythonOnly
-    \param [in] set_index Set index
-    \param [in] x_rot_deg Rotation about the X axis (degrees)
-    \param [in] y_rot_deg Rotation about the Y axis (degrees)
-    \param [in] z_rot_deg Rotation about the Z axis (degrees)
+    \param [in] set_index int Set index
+    \param [in] x_rot_deg double Rotation about the X axis (degrees)
+    \param [in] y_rot_deg double Rotation about the Y axis (degrees)
+    \param [in] z_rot_deg double Rotation about the Z axis (degrees)
 */
 
 extern void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg );
@@ -16044,8 +16044,8 @@ extern void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double
 
     \endcode
     \endPythonOnly
-    \param [in] set_index Set index
-    \param [in] translation_vec Translation vector
+    \param [in] set_index int Set index
+    \param [in] translation_vec vec3d Translation vector
 */
 
 extern void TranslateSet( int set_index, const vec3d &translation_vec );
@@ -16079,13 +16079,13 @@ extern void TranslateSet( int set_index, const vec3d &translation_vec );
     \endcode
     \endPythonOnly
     \sa TranslateSet, RotateSet, ScaleSet
-    \param [in] set_index Set index
-    \param [in] translation_vec Translation vector
-    \param [in] x_rot_deg Rotation about the X axis (degrees)
-    \param [in] y_rot_deg Rotation about the Y axis (degrees)
-    \param [in] z_rot_deg Rotation about the Z axis (degrees)
-    \param [in] scale Scale factor
-    \param [in] scale_translations_flag Flag to apply the scale factor to translations
+    \param [in] set_index int Set index
+    \param [in] translation_vec vec3d Translation vector
+    \param [in] x_rot_deg double Rotation about the X axis (degrees)
+    \param [in] y_rot_deg double Rotation about the Y axis (degrees)
+    \param [in] z_rot_deg double Rotation about the Z axis (degrees)
+    \param [in] scale double Scale factor
+    \param [in] scale_translations_flag bool Flag to apply the scale factor to translations
 */
 
 extern void TransformSet( int set_index, const vec3d &translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag );
@@ -16118,8 +16118,8 @@ extern void TransformSet( int set_index, const vec3d &translation_vec, double x_
 
     \endcode
     \endPythonOnly
-    \param [in] id Parm ID
-    \return True if Parm ID is valid, false otherwise
+    \param [in] id string Parm ID
+    \return bool True if Parm ID is valid, false otherwise
 */
 
 extern bool ValidParm( const std::string & id );
@@ -16168,8 +16168,8 @@ extern bool ValidParm( const std::string & id );
     \endPythonOnly
     \sa SetParmValUpdate
     \param [in] parm_id string Parm ID
-    \param [in] val Parm value to set
-    \return Value that the Parm was set to
+    \param [in] val double Parm value to set
+    \return double Value that the Parm was set to
 */
 
 extern double SetParmVal( const std::string & parm_id, double val );
@@ -16256,10 +16256,10 @@ extern double SetParmVal( const std::string & geom_id, const std::string & name,
     \endPythonOnly
     \sa SetParmLowerLimit, SetParmUpperLimit
     \param [in] parm_id string Parm ID
-    \param [in] val Parm value to set
-    \param [in] lower_limit Parm lower limit
-    \param [in] upper_limit Parm upper limit
-    \return Value that the Parm was set to
+    \param [in] val double Parm value to set
+    \param [in] lower_limit double Parm lower limit
+    \param [in] upper_limit double Parm upper limit
+    \return double Value that the Parm was set to
 */
 
 extern double SetParmValLimits( const std::string & parm_id, double val, double lower_limit, double upper_limit );
@@ -16292,8 +16292,8 @@ extern double SetParmValLimits( const std::string & parm_id, double val, double 
     \endPythonOnly
     \sa SetParmVal
     \param [in] parm_id string Parm ID
-    \param [in] val Parm value to set
-    \return Value that the Parm was set to
+    \param [in] val double Parm value to set
+    \return double Value that the Parm was set to
 */
 
 extern double SetParmValUpdate( const std::string & parm_id, double val );
@@ -16377,7 +16377,7 @@ extern double SetParmValUpdate( const std::string & geom_id, const std::string &
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \return Parm value
+    \return double Parm value
 */
 
 extern double GetParmVal( const std::string & parm_id );
@@ -16629,7 +16629,7 @@ extern double GetParmUpperLimit( const std::string & parm_id );
     \endPythonOnly
     \sa SetParmValLimits
     \param [in] parm_id string Parm ID
-    \param [in] val Parm lower limit
+    \param [in] val double Parm lower limit
 */
 
 extern void SetParmLowerLimit( const std::string & parm_id, double val );
@@ -16661,7 +16661,7 @@ extern void SetParmLowerLimit( const std::string & parm_id, double val );
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \return Parm lower limit
+    \return double Parm lower limit
 */
 
 extern double GetParmLowerLimit( const std::string & parm_id );
@@ -16706,7 +16706,7 @@ extern double GetParmLowerLimit( const std::string & parm_id );
     \endPythonOnly
     \sa PARM_TYPE
     \param [in] parm_id string Parm ID
-    \return Parm data type enum (i.e. PARM_BOOL_TYPE)
+    \return int Parm data type enum (i.e. PARM_BOOL_TYPE)
 */
 
 extern int GetParmType( const std::string & parm_id );
@@ -16765,7 +16765,7 @@ extern int GetParmType( const std::string & parm_id );
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \return Parm name
+    \return string Parm name
 */
 
 extern std::string GetParmName( const std::string & parm_id );
@@ -16810,7 +16810,7 @@ extern std::string GetParmName( const std::string & parm_id );
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \return Parm group name
+    \return string Parm group name
 */
 
 extern std::string GetParmGroupName( const std::string & parm_id );
@@ -16855,7 +16855,7 @@ extern std::string GetParmGroupName( const std::string & parm_id );
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \return Parm display group name
+    \return string Parm display group name
 */
 
 extern std::string GetParmDisplayGroupName( const std::string & parm_id );
@@ -16903,7 +16903,7 @@ extern std::string GetParmDisplayGroupName( const std::string & parm_id );
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \return Parm Container ID
+    \return string Parm Container ID
 */
 
 extern std::string GetParmContainer( const std::string & parm_id );
@@ -16937,7 +16937,7 @@ extern std::string GetParmContainer( const std::string & parm_id );
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \param [in] desc Parm description
+    \param [in] desc string Parm description
 */
 
 extern void SetParmDescript( const std::string & parm_id, const std::string & desc );
@@ -16973,7 +16973,7 @@ extern void SetParmDescript( const std::string & parm_id, const std::string & de
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \return desc Parm description
+    \return string desc Parm description
 */
 
 extern std::string GetParmDescript( const std::string & parm_id );
@@ -17006,10 +17006,10 @@ extern std::string GetParmDescript( const std::string & parm_id );
 
     \endcode
     \endPythonOnly
-    \param [in] parm_container_id Parm Container ID
-    \param [in] parm_name Parm name
-    \param [in] group_name Parm group name
-    \return Parm ID
+    \param [in] parm_container_id string Parm Container ID
+    \param [in] parm_name string Parm name
+    \param [in] group_name string Parm group name
+    \return string Parm ID
 */
 
 extern std::string FindParm( const std::string & parm_container_id, const std::string& parm_name, const std::string& group_name );
@@ -17050,7 +17050,7 @@ extern std::string FindParm( const std::string & parm_container_id, const std::s
 
     \endcode
     \endPythonOnly
-    \return Array of Parm Container IDs
+    \return vector<string> Array of Parm Container IDs
 */
 
 extern std::vector<std::string> FindContainers();
@@ -17075,8 +17075,8 @@ extern std::vector<std::string> FindContainers();
 
     \endcode
     \endPythonOnly
-    \param [in] name Parm Container name
-    \return Array of Parm Container IDs
+    \param [in] name string Parm Container name
+    \return vector<string> Array of Parm Container IDs
 */
 
 extern std::vector<std::string> FindContainersWithName( const std::string & name );
@@ -17100,9 +17100,9 @@ extern std::vector<std::string> FindContainersWithName( const std::string & name
     \endcode
     \endPythonOnly
     \sa FindContainersWithName
-    \param [in] name Parm Container name
-    \param [in] index Parm Container index
-    \return Parm Container ID
+    \param [in] name string Parm Container name
+    \param [in] index int Parm Container index
+    \return string Parm Container ID
 */
 
 extern std::string FindContainer( const std::string & name, int index );
@@ -17127,8 +17127,8 @@ extern std::string FindContainer( const std::string & name, int index );
 
     \endcode
     \endPythonOnly
-    \param [in] parm_container_id Parm Container ID
-    \return Parm Container name
+    \param [in] parm_container_id string Parm Container ID
+    \return string Parm Container name
 */
 
 extern std::string GetContainerName( const std::string & parm_container_id );
@@ -17168,8 +17168,8 @@ extern std::string GetContainerName( const std::string & parm_container_id );
 
     \endcode
     \endPythonOnly
-    \param [in] parm_container_id Parm Container ID
-    \return Array of Parm group names
+    \param [in] parm_container_id string Parm Container ID
+    \return vector<string> Array of Parm group names
 */
 
 extern std::vector<std::string> FindContainerGroupNames( const std::string & parm_container_id );
@@ -17227,8 +17227,8 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
 
     \endcode
     \endPythonOnly
-    \param [in] parm_container_id Parm Container ID
-    \return Array of Parm IDs
+    \param [in] parm_container_id string Parm Container ID
+    \return vector<string> Array of Parm IDs
 */
 
 extern std::vector<std::string> FindContainerParmIDs( const std::string & parm_container_id );
@@ -17251,7 +17251,7 @@ extern std::vector<std::string> FindContainerParmIDs( const std::string & parm_c
 
     \endcode
     \endPythonOnly
-    \return Vehicle ID
+    \return string Vehicle ID
 */
 
 extern std::string GetVehicleID();
@@ -17276,7 +17276,7 @@ extern std::string GetVehicleID();
 
     \endcode
     \endPythonOnly
-    \return Number of user Parms
+    \return int Number of user Parms
 */
 
 extern int GetNumUserParms();
@@ -17299,7 +17299,7 @@ extern int GetNumUserParms();
 
     \endcode
     \endPythonOnly
-    \return Number of pre-defined user Parms
+    \return int Number of pre-defined user Parms
 */
 
 extern int GetNumPredefinedUserParms();
@@ -17337,7 +17337,7 @@ extern int GetNumPredefinedUserParms();
 
     \endcode
     \endPythonOnly
-    \return Array of user parameter ids
+    \return vector <string> Array of user parameter ids
 */
 
 extern std::vector < std::string > GetAllUserParms();
@@ -17358,7 +17358,7 @@ extern std::vector < std::string > GetAllUserParms();
 
     \endcode
     \endPythonOnly
-    \return User parm container ID
+    \return string User parm container ID
 */
 
 extern std::string GetUserParmContainer();
@@ -17388,10 +17388,10 @@ extern std::string GetUserParmContainer();
     \endcode
     \endPythonOnly
     \sa PARM_TYPE
-    \param [in] type Parm type enum (i.e. PARM_DOUBLE_TYPE)
-    \param [in] name Parm name
-    \param [in] group Parm group
-    \return Parm ID
+    \param [in] type int Parm type enum (i.e. PARM_DOUBLE_TYPE)
+    \param [in] name string Parm name
+    \param [in] group string Parm group
+    \return string Parm ID
   */
 
 extern string AddUserParm(int type, const string & name, const string & group );
@@ -17487,10 +17487,10 @@ extern void DeleteAllUserParm();
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
-    \param [in] set Collision set enum (i.e. SET_ALL)
+    \param [in] set int Collision set enum (i.e. SET_ALL)
     \param [in] useMode bool Flag determine if mode is used instead of sets
     \param [in] modeID string ID of Mode to use
-    \return Minimum clearance distance
+    \return double Minimum clearance distance
 */
 
 extern double ComputeMinClearanceDistance( const std::string & geom_id, int set  = SET_ALL, bool useMode = false, const string &modeID = string() );
@@ -17534,12 +17534,12 @@ extern double ComputeMinClearanceDistance( const std::string & geom_id, int set 
     \endcode
     \endPythonOnly
     \param [in] parm_id string Parm ID
-    \param [in] target_min_dist Target minimum clearance distance
-    \param [in] inc_flag Direction indication flag. If true, upper parm limit is used and direction is set to positive
-    \param [in] set Collision set enum (i.e. SET_ALL)
+    \param [in] target_min_dist double Target minimum clearance distance
+    \param [in] inc_flag bool Direction indication flag. If true, upper parm limit is used and direction is set to positive
+    \param [in] set int Collision set enum (i.e. SET_ALL)
     \param [in] useMode bool Flag determine if mode is used instead of sets
     \param [in] modeID string ID of Mode to use
-    \return Minimum clearance distance
+    \return double Minimum clearance distance
 */ // TODO: Validate inc_flag description
 
 extern double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL, bool useMode = false, const string &modeID = string() );
@@ -20561,10 +20561,10 @@ extern void RemoveAllGroupSettings( const string &mid );
     Set the parameters, values, and curve type of a propeller blade curve (P Curve)
     \sa PCURV_TYPE
     \param [in] geom_id string Parent Geom ID
-    \param [in] pcurveid P Curve index
-    \param [in] tvec Array of parameter values
-    \param [in] valvec Array of values
-    \param [in] newtype Curve type enum (i.e. CEDIT)
+    \param [in] pcurveid int P Curve index
+    \param [in] tvec vector <double> Array of parameter values
+    \param [in] valvec vector <double> Array of values
+    \param [in] newtype int Curve type enum (i.e. CEDIT)
 */
 
 extern void SetPCurve( const std::string & geom_id, const int & pcurveid, const std::vector < double > & tvec,
@@ -20577,8 +20577,8 @@ extern void SetPCurve( const std::string & geom_id, const int & pcurveid, const 
     Change the type of a propeller blade curve (P Curve)
     \sa PCURV_TYPE
     \param [in] geom_id string Parent Geom ID
-    \param [in] pcurveid P Curve index
-    \param [in] newtype Curve type enum (i.e. CEDIT)
+    \param [in] pcurveid int P Curve index
+    \param [in] newtype int Curve type enum (i.e. CEDIT)
 */
 
 extern void PCurveConvertTo( const std::string & geom_id, const int & pcurveid, const int & newtype );
@@ -20590,8 +20590,8 @@ extern void PCurveConvertTo( const std::string & geom_id, const int & pcurveid, 
     Get the type of a propeller blade curve (P Curve)
     \sa PCURV_TYPE
     \param [in] geom_id string Parent Geom ID
-    \param [in] pcurveid P Curve index
-    \return Curve type enum (i.e. CEDIT)
+    \param [in] pcurveid int P Curve index
+    \return int Curve type enum (i.e. CEDIT)
 */
 
 extern int PCurveGetType( const std::string & geom_id, const int & pcurveid );
@@ -20602,8 +20602,8 @@ extern int PCurveGetType( const std::string & geom_id, const int & pcurveid );
 /*!
     Get the parameters of a propeller blade curve (P Curve). Each parameter is a fraction of propeller radius.
     \param [in] geom_id string Parent Geom ID
-    \param [in] pcurveid P Curve index
-    \return Array of parameters
+    \param [in] pcurveid int P Curve index
+    \return vector <double> Array of parameters
 */
 
 extern std::vector < double > PCurveGetTVec( const std::string & geom_id, const int & pcurveid );
@@ -20614,8 +20614,8 @@ extern std::vector < double > PCurveGetTVec( const std::string & geom_id, const 
 /*!
     Get the values of a propeller blade curve (P Curve). What the values represent id dependent on the curve type (i.e. twist, chord, etc.).
     \param [in] geom_id string Parent Geom ID
-    \param [in] pcurveid P Curve index
-    \return Array of values
+    \param [in] pcurveid int P Curve index
+    \return vector <double> Array of values
 */
 
 extern std::vector < double > PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
@@ -20626,8 +20626,8 @@ extern std::vector < double > PCurveGetValVec( const std::string & geom_id, cons
 /*!
     Delete a propeller blade curve (P Curve) point
     \param [in] geom_id string Parent Geom ID
-    \param [in] pcurveid P Curve index
-    \param [in] indx Point index
+    \param [in] pcurveid int P Curve index
+    \param [in] indx int Point index
 */
 
 extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const int & indx );
@@ -20638,9 +20638,9 @@ extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, c
 /*!
     Split a propeller blade curve (P Curve) at the specified 1D parameter
     \param [in] geom_id string Parent Geom ID
-    \param [in] pcurveid P Curve index
-    \param [in] tsplit 1D parameter split location
-    \return Index of new control point
+    \param [in] pcurveid int P Curve index
+    \param [in] tsplit double 1D parameter split location
+    \return int Index of new control point
 */
 
 extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
@@ -20834,7 +20834,7 @@ extern void AutoGroupVSPAEROControlSurfaces();
     \endcode
     \endPythonOnly
     \sa AddSelectedToCSGroup
-    \return Index of the new VSPAERO control surface group
+    \return int Index of the new VSPAERO control surface group
 */
 
 extern int CreateVSPAEROControlSurfaceGroup();
@@ -20867,7 +20867,7 @@ extern int CreateVSPAEROControlSurfaceGroup();
 
     \endcode
     \endPythonOnly
-    \param [in] CSGroupIndex Index of the control surface group
+    \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
@@ -20904,7 +20904,7 @@ extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
     \endcode
     \endPythonOnly
-    \param [in] CSGroupIndex Index of the control surface group
+    \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
@@ -20956,8 +20956,8 @@ extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
     \endcode
     \endPythonOnly
-    \param [in] CSGroupIndex Index of the control surface group
-    \return Array of active control surface names
+    \param [in] CSGroupIndex int Index of the control surface group
+    \return vector <string> Array of active control surface names
 */
 
 extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
@@ -21003,7 +21003,7 @@ extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
 
     \endcode
     \endPythonOnly
-    \return Array of all control surface names
+    \return vector <string> Array of all control surface names
 */
 
 extern std::vector < std::string > GetCompleteCSNameVec();
@@ -21045,8 +21045,8 @@ extern std::vector < std::string > GetCompleteCSNameVec();
 
     \endcode
     \endPythonOnly
-    \param [in] CSGroupIndex Index of the control surface group
-    \return Array of active control surface names
+    \param [in] CSGroupIndex int Index of the control surface group
+    \return vector <string> Array of active control surface names
 */
 
 extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
@@ -21087,8 +21087,8 @@ extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
 
     \endcode
     \endPythonOnly
-    \param [in] name Name to set for the control surface group
-    \param [in] CSGroupIndex Index of the control surface group
+    \param [in] name string Name to set for the control surface group
+    \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex);
@@ -21129,7 +21129,7 @@ extern void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex);
 
     \endcode
     \endPythonOnly
-    \param [in] CSGroupIndex Index of the control surface group
+    \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
@@ -21184,8 +21184,8 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
     \endcode
     \endPythonOnly
     \sa GetAvailableCSNameVec
-    \param [in] selected Array of control surface indexes to add to the group. Note, the integer values are one based.
-    \param [in] CSGroupIndex Index of the control surface group
+    \param [in] selected vector <int> Array of control surface indexes to add to the group. Note, the integer values are one based.
+    \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex);
@@ -21249,8 +21249,8 @@ extern void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex
     \endcode
     \endPythonOnly
     \sa GetActiveCSNameVec
-    \param [in] selected Array of control surface indexes to remove from the group. Note, the integer values are one based.
-    \param [in] CSGroupIndex Index of the control surface group
+    \param [in] selected vector <int> Array of control surface indexes to remove from the group. Note, the integer values are one based.
+    \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern void RemoveSelectedFromCSGroup( const vector <int> &selected, int CSGroupIndex);
@@ -21307,7 +21307,7 @@ extern void RemoveSelectedFromCSGroup( const vector <int> &selected, int CSGroup
 
     \endcode
     \endPythonOnly
-    \return Number of control surface groups
+    \return int Number of control surface groups
 */
 
 extern int GetNumControlSurfaceGroups();
@@ -21358,8 +21358,8 @@ extern int GetNumControlSurfaceGroups();
     \endcode
     \endPythonOnly
     \sa PROP_MODE
-    \param [in] disk_index Actuator disk index for the current VSPAERO set
-    \return Actuator disk ID
+    \param [in] disk_index int Actuator disk index for the current VSPAERO set
+    \return string Actuator disk ID
 */
 
 extern std::string FindActuatorDisk( int disk_index );
@@ -21403,7 +21403,7 @@ extern std::string FindActuatorDisk( int disk_index );
     \endcode
     \endPythonOnly
     \sa PROP_MODE
-    \return Number of actuator disks in the current VSPAERO set
+    \return int Number of actuator disks in the current VSPAERO set
 */
 
 extern int GetNumActuatorDisks();
@@ -21450,8 +21450,8 @@ extern int GetNumActuatorDisks();
     \endcode
     \endPythonOnly
     \sa PROP_MODE
-    \param [in] group_index Unsteady group index for the current VSPAERO set
-    \return Unsteady group ID
+    \param [in] group_index int Unsteady group index for the current VSPAERO set
+    \return string Unsteady group ID
 */
 
 extern std::string FindUnsteadyGroup( int group_index );
@@ -21487,8 +21487,8 @@ extern std::string FindUnsteadyGroup( int group_index );
     \endcode
     \endPythonOnly
     \sa SetUnsteadyGroupName
-    \param [in] group_index Unsteady group index for the current VSPAERO set
-    \return Unsteady group name
+    \param [in] group_index int Unsteady group index for the current VSPAERO set
+    \return string Unsteady group name
 */
 
 extern std::string GetUnsteadyGroupName( int group_index );
@@ -21532,8 +21532,8 @@ extern std::string GetUnsteadyGroupName( int group_index );
     \endcode
     \endPythonOnly
     \sa GetUnsteadyGroupSurfIndexes
-    \param [in] group_index Unsteady group index for the current VSPAERO set
-    \return Array of component IDs
+    \param [in] group_index int Unsteady group index for the current VSPAERO set
+    \return vector <string> Array of component IDs
 */
 
 extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
@@ -21577,8 +21577,8 @@ extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
     \endcode
     \endPythonOnly
     \sa GetUnsteadyGroupCompIDs
-    \param [in] group_index Unsteady group index for the current VSPAERO set
-    \return Array of surface indexes
+    \param [in] group_index int Unsteady group index for the current VSPAERO set
+    \return vector <int> Array of surface indexes
 */
 
 extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
@@ -21631,7 +21631,7 @@ extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
     \endcode
     \endPythonOnly
     \sa PROP_MODE, GetNumUnsteadyRotorGroups
-    \return Number of unsteady groups in the current VSPAERO set
+    \return int Number of unsteady groups in the current VSPAERO set
 */
 
 extern int GetNumUnsteadyGroups();
@@ -21685,7 +21685,7 @@ extern int GetNumUnsteadyGroups();
     \endcode
     \endPythonOnly
     \sa PROP_MODE, GetNumUnsteadyGroups
-    \return Number of unsteady rotor groups in the current VSPAERO set
+    \return int Number of unsteady rotor groups in the current VSPAERO set
 */
 
 extern int GetNumUnsteadyRotorGroups();
@@ -21713,9 +21713,9 @@ extern int GetNumUnsteadyRotorGroups();
     \endcode
     \endPythonOnly
     \sa EXCRES_TYPE
-    \param [in] excresName Name of the Excressence
-    \param [in] excresType Excressence type enum (i.e. EXCRESCENCE_PERCENT_GEOM)
-    \param [in] excresVal Excressence value
+    \param [in] excresName string Name of the Excressence
+    \param [in] excresType int Excressence type enum (i.e. EXCRESCENCE_PERCENT_GEOM)
+    \param [in] excresVal double Excressence value
 */
 
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
@@ -21784,8 +21784,8 @@ extern void UpdateParasiteDrag();
     \endcode
     \endPythonOnly
     \sa ATMOS_TYPE
-    \param [in] file_name Output CSV file
-    \param [in] atmos_type Atmospheric model enum (i.e. ATMOS_TYPE_HERRINGTON_1966)
+    \param [in] file_name string Output CSV file
+    \param [in] atmos_type int Atmospheric model enum (i.e. ATMOS_TYPE_HERRINGTON_1966)
 */
 
 extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &atmos_type );
@@ -21820,13 +21820,13 @@ extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &at
     \endcode
     \endPythonOnly
     \sa ATMOS_TYPE
-    \param [in] alt Altitude
-    \param [in] delta_temp Deviation in temperature from the value specified in the atmospheric model
-    \param [in] atmos_type Atmospheric model enum (i.e. ATMOS_TYPE_HERRINGTON_1966)
-    \param [out] temp output Temperature
-    \param [out] pres output Pressure
-    \param [out] pres_ratio Output pressure ratio
-    \param [out] rho_ratio Output density ratio
+    \param [in] alt double Altitude
+    \param [in] delta_temp double Deviation in temperature from the value specified in the atmospheric model
+    \param [in] atmos_type int Atmospheric model enum (i.e. ATMOS_TYPE_HERRINGTON_1966)
+    \param [out] temp double output Temperature
+    \param [out] pres double output Pressure
+    \param [out] pres_ratio double Output pressure ratio
+    \param [out] rho_ratio double Output density ratio
 */
 
 extern void CalcAtmosphere( const double & alt, const double & delta_temp, const int & atmos_type,
@@ -21850,7 +21850,7 @@ extern void CalcAtmosphere( const double & alt, const double & delta_temp, const
 
     \endcode
     \endPythonOnly
-    \param [in] file_name Output CSV file
+    \param [in] file_name string Output CSV file
 */
 
 extern void WriteBodyFFCSVFile( const std::string & file_name );
@@ -21873,7 +21873,7 @@ extern void WriteBodyFFCSVFile( const std::string & file_name );
 
     \endcode
     \endPythonOnly
-    \param [in] file_name Output CSV file
+    \param [in] file_name string Output CSV file
 */
 
 extern void WriteWingFFCSVFile( const std::string & file_name );
@@ -21896,7 +21896,7 @@ extern void WriteWingFFCSVFile( const std::string & file_name );
 
     \endcode
     \endPythonOnly
-    \param [in] file_name Output CSV file
+    \param [in] file_name string Output CSV file
 */ // TODO: Improve description
 
 extern void WriteCfEqnCSVFile( const std::string & file_name );
@@ -21919,7 +21919,7 @@ extern void WriteCfEqnCSVFile( const std::string & file_name );
 
     \endcode
     \endPythonOnly
-    \param [in] file_name Output CSV file
+    \param [in] file_name string Output CSV file
 */ // TODO: Improve description
 
 extern void WritePartialCfMethodCSVFile( const std::string & file_name );
@@ -21964,9 +21964,9 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] u U (0 - 1) surface coordinate
-    \param [in] w W (0 - 1) surface coordinate
-    \return Normal vector3D coordinate point
+    \param [in] u double U (0 - 1) surface coordinate
+    \param [in] w double W (0 - 1) surface coordinate
+    \return vec3d Normal vector3D coordinate point
 */
 
 extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
@@ -22009,9 +22009,9 @@ extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const d
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] u U (0 - 1) surface coordinate
-    \param [in] w W (0 - 1) surface coordinate
-    \return Normal vector
+    \param [in] u double U (0 - 1) surface coordinate
+    \param [in] w double W (0 - 1) surface coordinate
+    \return vec3d Normal vector
 */
 
 extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
@@ -22054,9 +22054,9 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] u U (0 - 1) surface coordinate
-    \param [in] w W (0 - 1) surface coordinate
-    \return Tangent vector in U direction
+    \param [in] u double U (0 - 1) surface coordinate
+    \param [in] w double W (0 - 1) surface coordinate
+    \return vec3d Tangent vector in U direction
 */
 
 extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
@@ -22099,9 +22099,9 @@ extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const 
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] u U (0 - 1) surface coordinate
-    \param [in] w W (0 - 1) surface coordinate
-    \return Tangent vector in W direction
+    \param [in] u double U (0 - 1) surface coordinate
+    \param [in] w double W (0 - 1) surface coordinate
+    \return vec3d Tangent vector in W direction
 */
 
 extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
@@ -22424,10 +22424,10 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
     \param [in] iaxis int Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
-    \param [in] pt Input 3D coordinate point
-    \param [out] u_out Output closest U (0 - 1) surface coordinate
-    \param [out] w_out Output closest W (0 - 1) surface coordinate
-    \return Axis aligned distance between the 3D point and the projected point on the surface
+    \param [in] pt vec3d Input 3D coordinate point
+    \param [out] u_out double Output closest U (0 - 1) surface coordinate
+    \param [out] w_out double Output closest W (0 - 1) surface coordinate
+    \return double Axis aligned distance between the 3D point and the projected point on the surface
 */
 
 extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out);
@@ -22488,11 +22488,11 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     \sa AxisProjPnt01, AxisProjPnt01Guess, AxisProjVecPnt01, AxisProjVecPnt01Guess
     \param [in] geom_id string Parent Geom ID
     \param [in] iaxis int Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
-    \param [in] pt Input 3D coordinate point
-    \param [out] surf_indx_out Output main surface index from the parent Geom
-    \param [out] u_out Output closest U (0 - 1) surface coordinate
-    \param [out] w_out Output closest W (0 - 1) surface coordinate
-    \return Axis aligned distance between the 3D point and the projected point on the surface
+    \param [in] pt vec3d Input 3D coordinate point
+    \param [out] surf_indx_out int Output main surface index from the parent Geom
+    \param [out] u_out double Output closest U (0 - 1) surface coordinate
+    \param [out] w_out double Output closest W (0 - 1) surface coordinate
+    \return double Axis aligned distance between the 3D point and the projected point on the surface
 */
 
 extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out);
@@ -22562,12 +22562,12 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
     \param [in] iaxis int Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
-    \param [in] pt Input 3D coordinate point
-    \param [in] u0 Input U (0 - 1) surface coordinate guess
-    \param [in] w0 Input W (0 - 1) surface coordinate guess
-    \param [out] u_out Output closest U (0 - 1) surface coordinate
-    \param [out] w_out Output closest W (0 - 1) surface coordinate
-    \return Distance between the 3D point and the closest point of the surface
+    \param [in] pt vec3d Input 3D coordinate point
+    \param [in] u0 double Input U (0 - 1) surface coordinate guess
+    \param [in] w0 double Input W (0 - 1) surface coordinate guess
+    \param [out] u_out double Output closest U (0 - 1) surface coordinate
+    \param [out] w_out double Output closest W (0 - 1) surface coordinate
+    \return double Distance between the 3D point and the closest point of the surface
 */
 
 extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out);
@@ -22630,8 +22630,8 @@ extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_ind
     \sa VecInsideSurf
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] pt Input 3D coordinate point
-    \return Boolean true if the point is inside the surface, false otherwise.
+    \param [in] pt vec3d Input 3D coordinate point
+    \return bool Boolean true if the point is inside the surface, false otherwise.
 */
 
 extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const vec3d &pt );
@@ -22677,9 +22677,9 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] r R (0 - 1) volume coordinate
-    \param [in] s S (0 - 1) volume coordinate
-    \param [in] t T (0 - 1) volume coordinate
+    \param [in] r double R (0 - 1) volume coordinate
+    \param [in] s double S (0 - 1) volume coordinate
+    \param [in] t double T (0 - 1) volume coordinate
     \return vec3d coordinate point
 */
 
@@ -22853,12 +22853,12 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] r R (0 - 1) volume coordinate
-    \param [in] s S (0 - 1) volume coordinate
-    \param [in] t T (0 - 1) volume coordinate
-    \param [out] l_out L (0 - 1) linear volume coordinate
-    \param [out] m_out M (0 - 1) linear volume coordinate
-    \param [out] n_out N (0 - 1) linear volume coordinate
+    \param [in] r double R (0 - 1) volume coordinate
+    \param [in] s double S (0 - 1) volume coordinate
+    \param [in] t double T (0 - 1) volume coordinate
+    \param [out] l_out double L (0 - 1) linear volume coordinate
+    \param [out] m_out double M (0 - 1) linear volume coordinate
+    \param [out] n_out double N (0 - 1) linear volume coordinate
 */
 
 extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out );
@@ -22898,8 +22898,8 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] r R (0 - 1) volume coordinate
-    \param [out] l_out L (0 - 1) linear volume coordinate
+    \param [in] r double R (0 - 1) volume coordinate
+    \param [out] l_out double L (0 - 1) linear volume coordinate
 */
 
 extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l_out );
@@ -22943,12 +22943,12 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] l L (0 - 1) linear volume coordinate
-    \param [in] m M (0 - 1) linear volume coordinate
-    \param [in] n N (0 - 1) linear volume coordinate
-    \param [out] r_out R (0 - 1) volume coordinate
-    \param [out] s_out S (0 - 1) volume coordinate
-    \param [out] t_out T (0 - 1) volume coordinate
+    \param [in] l double L (0 - 1) linear volume coordinate
+    \param [in] m double M (0 - 1) linear volume coordinate
+    \param [in] n double N (0 - 1) linear volume coordinate
+    \param [out] r_out double R (0 - 1) volume coordinate
+    \param [out] s_out double S (0 - 1) volume coordinate
+    \param [out] t_out double T (0 - 1) volume coordinate
 */
 
 extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r_out, double &s_out, double &t_out );
@@ -22987,8 +22987,8 @@ extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, c
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
-    \param [in] l L (0 - 1) volume coordinate
-    \param [out] r_out R (0 - 1) linear volume coordinate
+    \param [in] l double L (0 - 1) volume coordinate
+    \param [out] r_out double R (0 - 1) linear volume coordinate
 */
 extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r_out );
 
@@ -23026,8 +23026,8 @@ extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
-    \param [in] u U (0 - 1) surface coordinate
-    \param [out] eta_out Eta (0 - 1) wing spanwise coordinate
+    \param [in] u double U (0 - 1) surface coordinate
+    \param [out] eta_out double Eta (0 - 1) wing spanwise coordinate
 */
 
 extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta_out );
@@ -23066,8 +23066,8 @@ extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
-    \param [in] eta Eta (0 - 1) wing spanwise coordinate
-    \param [out] u_out U (0 - 1) surface coordinate
+    \param [in] eta double Eta (0 - 1) wing spanwise coordinate
+    \param [out] u_out double U (0 - 1) surface coordinate
 */
 
 extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u_out );
@@ -23771,7 +23771,7 @@ extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_in
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
     \param [in] pts vector<vec3d> Input vector of 3D coordinate points
-    \return Boolean vector for each point.  True if it is inside the surface, false otherwise.
+    \return vector <bool> Boolean vector for each point.  True if it is inside the surface, false otherwise.
 */
 
 extern std::vector < bool > VecInsideSurf( const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts );
@@ -24453,7 +24453,7 @@ extern string AddProbe( const string & geomid, int surfindx, double u, double w,
 
     \endcode
     \endPythonOnly
-    \return [in] Array of Probe IDs
+    \return vector<string> Array of Probe IDs
 */
 
 extern std::vector < string > GetAllProbes();
@@ -24496,7 +24496,7 @@ extern std::vector < string > GetAllProbes();
 
     \endcode
     \endPythonOnly
-    \param [in] id Probe ID
+    \param [in] id string Probe ID
 */
 
 extern void DelProbe( const string &id );
@@ -24571,7 +24571,7 @@ extern void DeleteAllProbes();
 
     \endcode
     \endPythonOnly
-    \return Array of advanced link names
+    \return vector<string> Array of advanced link names
 */
 
 extern std::vector< std::string > GetAdvLinkNames();
@@ -24619,7 +24619,7 @@ extern std::vector< std::string > GetAdvLinkNames();
     \endcode
     \endPythonOnly
     \param [in] name string Name for advanced link
-    \return index for advanced link
+    \return int index for advanced link
 
 */
 
@@ -24686,7 +24686,7 @@ extern int GetLinkIndex( const string & name );
 
     \endcode
     \endPythonOnly
-    \param [in] index Index for advanced link
+    \param [in] index int Index for advanced link
 */
 
 extern void DelAdvLink( int index );
@@ -25077,7 +25077,7 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
     \endcode
     \endPythonOnly
     \param [in] index int Advanced link index
-    \return Array of advanced link input names
+    \return vector<string> Array of advanced link input names
 */
 
 extern std::vector< std::string > GetAdvLinkInputNames( int index );
@@ -25138,7 +25138,7 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
     \endcode
     \endPythonOnly
     \param [in] index int Advanced link index
-    \return Array of advanced link input Parm IDs
+    \return vector<string> Array of advanced link input Parm IDs
 */
 
 extern std::vector< std::string > GetAdvLinkInputParms( int index );
@@ -25199,7 +25199,7 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
     \endcode
     \endPythonOnly
     \param [in] index int Advanced link index
-    \return Array of advanced link output names
+    \return vector<string> Array of advanced link output names
 */
 
 extern std::vector< std::string > GetAdvLinkOutputNames( int index );
@@ -25260,7 +25260,7 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
     \endcode
     \endPythonOnly
     \param [in] index int Advanced link index
-    \return Array of advanced link output Parm IDs
+    \return vector<string> Array of advanced link output Parm IDs
 */
 
 extern std::vector< std::string > GetAdvLinkOutputParms( int index );
@@ -25326,7 +25326,7 @@ extern std::vector< std::string > GetAdvLinkOutputParms( int index );
     \endcode
     \endPythonOnly
     \param [in] index int Index for advanced link
-    \return Flag indicating whether parms are valid
+    \return bool Flag indicating whether parms are valid
 */
 
 extern bool ValidateAdvLinkParms( int index );
@@ -25430,7 +25430,7 @@ extern void SetAdvLinkCode( int index, const string & code );
     \endcode
     \endPythonOnly
     \param [in] index int Index for advanced link
-    \return String containing advanced link code
+    \return string String containing advanced link code
 */
 
 extern std::string GetAdvLinkCode( int index );
@@ -25551,7 +25551,7 @@ extern void SearchReplaceAdvLinkCode( int index, const string & from, const stri
     \endcode
     \endPythonOnly
     \param [in] index int Index for advanced link
-    \return Flag indicating whether advanced link build was successful
+    \return bool Flag indicating whether advanced link build was successful
 */
 
 extern bool BuildAdvLinkScript( int index );
