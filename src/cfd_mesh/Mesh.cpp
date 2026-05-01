@@ -1917,12 +1917,32 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 #endif
 
 
+#ifdef DEBUG_CFD_MESH
+    snprintf( str, sizeof( str ), "%sTriInput_%d.dat", MeshMgr->m_DebugDir.c_str(), namecnt );
+    fp = fopen( str, "w" );
+
+    fprintf( fp, "%d\n", uw_prime.size() );
+
+    for ( i = 0; i < (int)uw_prime.size(); i++ )
+    {
+        fprintf( fp, "%d %.19e %.19e\n", i, uw_prime[i].x(), uw_prime[i].y() );
+    }
+
+    fprintf( fp, "%d\n", segs_indexes.size() );
+
+    for ( i = 0; i < (int)segs_indexes.size(); i++ )
+    {
+        fprintf( fp, "%d %d %d\n", i, segs_indexes[i].m_Index[0], segs_indexes[i].m_Index[1] );
+    }
+    fclose( fp );
+#endif
+
+
     //==== Attempt Triangulation ====//
     vector< vector< int > > connlist;
     vector< vec2d > points_out;
 
     bool success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out );
-
     if ( !success )
     {
         int n = 0;
