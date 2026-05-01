@@ -9451,23 +9451,486 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
 
 extern int GetFeaSubSurfIndex( const string & ss_id );
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the number of points in an FEA Poly Spar. A newly created Poly Spar contains two points
+    (the inboard and outboard endpoints).
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    // A new Poly Spar starts with 2 points
+    if ( GetFeaPolySparNumPt( pspar_id ) != 2 )
+    {
+        Print( "Error: GetFeaPolySparNumPt" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    # A new Poly Spar starts with 2 points
+    if GetFeaPolySparNumPt( pspar_id ) != 2:
+        print( "Error: GetFeaPolySparNumPt" )
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaPolySparPt, InsertFeaPolySparPt, DelFeaPolySparPt, DelAllFeaPolySparPt
+    \param [in] pspar_id FEA Poly Spar part ID
+    \return Number of points in the Poly Spar
+*/
+
 extern int GetFeaPolySparNumPt( const string & pspar_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Add a point to the end of an FEA Poly Spar and return its ID. The new point is appended
+    after all existing points.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    string pt_id = AddFeaPolySparPt( pspar_id );
+
+    if ( GetFeaPolySparNumPt( pspar_id ) != 3 )
+    {
+        Print( "Error: AddFeaPolySparPt" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    pt_id = AddFeaPolySparPt( pspar_id )
+
+    if GetFeaPolySparNumPt( pspar_id ) != 3:
+        print( "Error: AddFeaPolySparPt" )
+
+    \endcode
+    \endPythonOnly
+    \sa InsertFeaPolySparPt, DelFeaPolySparPt, GetFeaPolySparNumPt
+    \param [in] pspar_id FEA Poly Spar part ID
+    \return ID of the newly added Poly Spar point
+*/
 
 extern string AddFeaPolySparPt( const string & pspar_id );
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Insert a point into an FEA Poly Spar before the given index and return its ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    // Insert a new intermediate point between the two default endpoints
+    string pt_id = InsertFeaPolySparPt( pspar_id, 1 );
+
+    if ( GetFeaPolySparNumPt( pspar_id ) != 3 )
+    {
+        Print( "Error: InsertFeaPolySparPt" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    # Insert a new intermediate point between the two default endpoints
+    pt_id = InsertFeaPolySparPt( pspar_id, 1 )
+
+    if GetFeaPolySparNumPt( pspar_id ) != 3:
+        print( "Error: InsertFeaPolySparPt" )
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaPolySparPt, DelFeaPolySparPt, GetFeaPolySparNumPt
+    \param [in] pspar_id FEA Poly Spar part ID
+    \param [in] index Index before which the new point is inserted
+    \return ID of the newly inserted Poly Spar point
+*/
+
 extern string InsertFeaPolySparPt( const string & pspar_id, int index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete the point at the given index from an FEA Poly Spar.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    AddFeaPolySparPt( pspar_id );
+    AddFeaPolySparPt( pspar_id );
+
+    // Delete the point at index 1 (leaving 3 points)
+    DelFeaPolySparPt( pspar_id, 2 );
+
+    if ( GetFeaPolySparNumPt( pspar_id ) != 3 )
+    {
+        Print( "Error: DelFeaPolySparPt" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    AddFeaPolySparPt( pspar_id )
+    AddFeaPolySparPt( pspar_id )
+
+    # Delete the point at index 2 (leaving 3 points)
+    DelFeaPolySparPt( pspar_id, 2 )
+
+    if GetFeaPolySparNumPt( pspar_id ) != 3:
+        print( "Error: DelFeaPolySparPt" )
+
+    \endcode
+    \endPythonOnly
+    \sa DelAllFeaPolySparPt, AddFeaPolySparPt, GetFeaPolySparNumPt
+    \param [in] pspar_id FEA Poly Spar part ID
+    \param [in] index Index of the point to delete
+*/
 
 extern void DelFeaPolySparPt( const string & pspar_id, int index );
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete all points from an FEA Poly Spar.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    AddFeaPolySparPt( pspar_id );
+    AddFeaPolySparPt( pspar_id );
+
+    DelAllFeaPolySparPt( pspar_id );
+
+    if ( GetFeaPolySparNumPt( pspar_id ) != 0 )
+    {
+        Print( "Error: DelAllFeaPolySparPt" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    AddFeaPolySparPt( pspar_id )
+    AddFeaPolySparPt( pspar_id )
+
+    DelAllFeaPolySparPt( pspar_id )
+
+    if GetFeaPolySparNumPt( pspar_id ) != 0:
+        print( "Error: DelAllFeaPolySparPt" )
+
+    \endcode
+    \endPythonOnly
+    \sa DelFeaPolySparPt, AddFeaPolySparPt, GetFeaPolySparNumPt
+    \param [in] pspar_id FEA Poly Spar part ID
+*/
+
 extern void DelAllFeaPolySparPt( const string & pspar_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Move a point within an FEA Poly Spar using a reorder type and return the new index of the moved point.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    AddFeaPolySparPt( pspar_id );
+
+    // Move point at index 2 up one position
+    int new_index = MoveFeaPolySparPt( pspar_id, 2, REORDER_MOVE_UP );
+
+    if ( new_index != 1 )
+    {
+        Print( "Error: MoveFeaPolySparPt" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    AddFeaPolySparPt( pspar_id )
+
+    # Move point at index 2 up one position
+    new_index = MoveFeaPolySparPt( pspar_id, 2, REORDER_MOVE_UP )
+
+    if new_index != 1:
+        print( "Error: MoveFeaPolySparPt" )
+
+    \endcode
+    \endPythonOnly
+    \sa REORDER_TYPE, AddFeaPolySparPt, GetFeaPolySparNumPt
+    \param [in] pspar_id FEA Poly Spar part ID
+    \param [in] index Index of the point to move
+    \param [in] reorder_type Reorder type enum (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
+    \return New index of the moved point
+*/
 
 extern int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_type );
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the name of a point in an FEA Poly Spar.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    SetFeaPolySparPtName( pspar_id, 0, "InboardPt" );
+    SetFeaPolySparPtName( pspar_id, 1, "OutboardPt" );
+
+    if ( GetFeaPolySparPtName( pspar_id, 0 ) != "InboardPt" )
+    {
+        Print( "Error: SetFeaPolySparPtName" );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    SetFeaPolySparPtName( pspar_id, 0, "InboardPt" )
+    SetFeaPolySparPtName( pspar_id, 1, "OutboardPt" )
+
+    if GetFeaPolySparPtName( pspar_id, 0 ) != "InboardPt":
+        print( "Error: SetFeaPolySparPtName" )
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaPolySparPtName
+    \param [in] pspar_id FEA Poly Spar part ID
+    \param [in] index Index of the point
+    \param [in] name New name for the point
+*/
+
 extern void SetFeaPolySparPtName( const string & pspar_id, int index, const string & name );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the name of a point in an FEA Poly Spar.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    SetFeaPolySparPtName( pspar_id, 0, "InboardPt" );
+
+    string name = GetFeaPolySparPtName( pspar_id, 0 );
+
+    Print( "Point 0 name: " + name );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    SetFeaPolySparPtName( pspar_id, 0, "InboardPt" )
+
+    name = GetFeaPolySparPtName( pspar_id, 0 )
+
+    print( "Point 0 name: " + name )
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaPolySparPtName
+    \param [in] pspar_id FEA Poly Spar part ID
+    \param [in] index Index of the point
+    \return Name of the point
+*/
 
 extern string GetFeaPolySparPtName( const string & pspar_id, int index );
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the ID of a point in an FEA Poly Spar. The returned ID is a ParmContainer ID that can
+    be used with FindParm to access the point's parameters such as Eta, U01, U0N, and XoC.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    string pt_id = GetFeaPolySparPtID( pspar_id, 0 );
+
+    // Set the spanwise location of the inboard point to eta = 0.1
+    SetParmVal( FindParm( pt_id, "Eta", "FeaPolySparPoint" ), 0.1 );
+
+    string pt_id_1 = GetFeaPolySparPtID( pspar_id, 1 );
+
+    // Set the spanwise location of the outboard point to eta = 0.9
+    SetParmVal( FindParm( pt_id_1, "Eta", "FeaPolySparPoint" ), 0.9 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    pt_id = GetFeaPolySparPtID( pspar_id, 0 )
+
+    # Set the spanwise location of the inboard point to eta = 0.1
+    SetParmVal( FindParm( pt_id, "Eta", "FeaPolySparPoint" ), 0.1 )
+
+    pt_id_1 = GetFeaPolySparPtID( pspar_id, 1 )
+
+    # Set the spanwise location of the outboard point to eta = 0.9
+    SetParmVal( FindParm( pt_id_1, "Eta", "FeaPolySparPoint" ), 0.9 )
+
+    \endcode
+    \endPythonOnly
+    \sa GetAllFeaPolySparPtIDVec, FindParm, SetParmVal
+    \param [in] pspar_id FEA Poly Spar part ID
+    \param [in] index Index of the point
+    \return ID of the Poly Spar point ParmContainer
+*/
+
 extern string GetFeaPolySparPtID( const string & pspar_id, int index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get a vector of IDs for all points in an FEA Poly Spar. Each ID is a ParmContainer ID that
+    can be used with FindParm to access the point's parameters such as Eta, U01, U0N, and XoC.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
+
+    AddFeaPolySparPt( pspar_id );
+
+    array < string > pt_ids = GetAllFeaPolySparPtIDVec( pspar_id );
+
+    if ( pt_ids.size() != 3 )
+    {
+        Print( "Error: GetAllFeaPolySparPtIDVec" );
+    }
+
+    // Set each point's spanwise eta location
+    SetParmVal( FindParm( pt_ids[0], "Eta", "FeaPolySparPoint" ), 0.1 );
+    SetParmVal( FindParm( pt_ids[1], "Eta", "FeaPolySparPoint" ), 0.5 );
+    SetParmVal( FindParm( pt_ids[2], "Eta", "FeaPolySparPoint" ), 0.9 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_ind = AddFeaStruct( wing_id )
+
+    pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
+
+    AddFeaPolySparPt( pspar_id )
+
+    pt_ids = GetAllFeaPolySparPtIDVec( pspar_id )
+
+    if len( pt_ids ) != 3:
+        print( "Error: GetAllFeaPolySparPtIDVec" )
+
+    # Set each point's spanwise eta location
+    SetParmVal( FindParm( pt_ids[0], "Eta", "FeaPolySparPoint" ), 0.1 )
+    SetParmVal( FindParm( pt_ids[1], "Eta", "FeaPolySparPoint" ), 0.5 )
+    SetParmVal( FindParm( pt_ids[2], "Eta", "FeaPolySparPoint" ), 0.9 )
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaPolySparPtID, FindParm, SetParmVal
+    \param [in] pspar_id FEA Poly Spar part ID
+    \return Vector of Poly Spar point ParmContainer IDs
+*/
 
 extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
 
@@ -9475,7 +9938,7 @@ extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
     \ingroup FEAMesh
 */
 /*!
-    Get the total number of FEA Subsurfaces in the vehicle
+    Get the total number of FEA Structures in the vehicle
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
