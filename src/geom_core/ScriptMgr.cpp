@@ -5411,6 +5411,45 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int GetFeaSubSurfIndex( const string & in ss_id )", asFUNCTION( vsp::GetFeaSubSurfIndex ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "int GetFeaPolySparNumPt( const string & in pspar_id )", asFUNCTION( vsp::GetFeaPolySparNumPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string AddFeaPolySparPt( const string & in pspar_id )", asFUNCTION( vsp::AddFeaPolySparPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string InsertFeaPolySparPt( const string & in pspar_id, int index )", asFUNCTION( vsp::InsertFeaPolySparPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void DelFeaPolySparPt( const string & in pspar_id, int index )", asFUNCTION( vsp::DelFeaPolySparPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void DelAllFeaPolySparPt( const string & in pspar_id )", asFUNCTION( vsp::DelAllFeaPolySparPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "int MoveFeaPolySparPt( const string & in pspar_id, int index, int reorder_type )", asFUNCTION( vsp::MoveFeaPolySparPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void SetFeaPolySparPtName( const string & in pspar_id, int index, const string & in name )", asFUNCTION( vsp::SetFeaPolySparPtName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string GetFeaPolySparPtName( const string & in pspar_id, int index )", asFUNCTION( vsp::GetFeaPolySparPtName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string GetFeaPolySparPtID( const string & in pspar_id, int index )", asFUNCTION( vsp::GetFeaPolySparPtID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllFeaPolySparPtIDVec( const string & in pspar_id )", asMETHOD( ScriptMgrSingleton, GetAllFeaPolySparPtIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "int NumFeaStructures()", asFUNCTION( vsp::NumFeaStructures ), asCALL_CDECL );
     assert( r >= 0 );
@@ -6506,6 +6545,12 @@ CScriptArray* ScriptMgrSingleton::GetFeaStructIDVec()
 CScriptArray* ScriptMgrSingleton::GetFeaSubSurfIDVec( const string & fea_struct_id )
 {
     m_ProxyStringArray = vsp::GetFeaSubSurfIDVec( fea_struct_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllFeaPolySparPtIDVec( const string & pspar_id )
+{
+    m_ProxyStringArray = vsp::GetAllFeaPolySparPtIDVec( pspar_id );
     return GetProxyStringArray();
 }
 

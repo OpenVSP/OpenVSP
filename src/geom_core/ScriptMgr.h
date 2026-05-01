@@ -293,6 +293,7 @@ private:
     static void DeleteExcrescence(int index);
 
     CScriptArray* GetFeaStructIDVec();
+    CScriptArray* GetAllFeaPolySparPtIDVec( const string & pspar_id );
     CScriptArray* GetFeaPartIDVec( const std::string & fea_struct_id );
     CScriptArray* GetFeaSubSurfIDVec( const std::string & fea_struct_id );
     CScriptArray* GetFeaBCIDVec( const string & fea_struct_id );

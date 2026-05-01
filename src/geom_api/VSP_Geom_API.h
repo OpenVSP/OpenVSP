@@ -9451,6 +9451,26 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
 
 extern int GetFeaSubSurfIndex( const string & ss_id );
 
+extern int GetFeaPolySparNumPt( const string & pspar_id );
+
+extern string AddFeaPolySparPt( const string & pspar_id );
+
+extern string InsertFeaPolySparPt( const string & pspar_id, int index );
+
+extern void DelFeaPolySparPt( const string & pspar_id, int index );
+
+extern void DelAllFeaPolySparPt( const string & pspar_id );
+
+extern int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_type );
+
+extern void SetFeaPolySparPtName( const string & pspar_id, int index, const string & name );
+
+extern string GetFeaPolySparPtName( const string & pspar_id, int index );
+
+extern string GetFeaPolySparPtID( const string & pspar_id, int index );
+
+extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
+
 /*!
     \ingroup FEAMesh
 */

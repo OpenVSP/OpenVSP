@@ -3618,6 +3618,275 @@ int GetFeaSubSurfIndex( const string & ss_id )
     return index;
 }
 
+int GetFeaPolySparNumPt( const string & pspar_id )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparNumPt::Can't Find FEA Part " + pspar_id );
+        return -1;
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparNumPt::Part is not a poly spar" + pspar_id );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return pspar->GetNumPt();
+}
+
+string AddFeaPolySparPt( const string & pspar_id )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        return string();
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPolySparPt::Part is not a poly spar" + pspar_id );
+        return string();
+    }
+
+    PolySparPoint *pt = pspar->AddPt();
+
+    ErrorMgr.NoError();
+    return pt->GetID();
+}
+
+string InsertFeaPolySparPt( const string & pspar_id, int index )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        return string();
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertFeaPolySparPt::Part is not a poly spar" + pspar_id );
+        return string();
+    }
+
+    if ( !pspar->ValidPtIndex( index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "InsertFeaPolySparPt::Point index out of range " + to_string( index )  );
+        return string();
+    }
+
+    PolySparPoint *pt = pspar->InsertPt( index );
+
+    ErrorMgr.NoError();
+    return pt->GetID();
+}
+
+void DelFeaPolySparPt( const string & pspar_id, int index )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        return;
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelFeaPolySparPt::Part is not a poly spar" + pspar_id );
+        return;
+    }
+
+    if ( !pspar->ValidPtIndex( index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelFeaPolySparPt::Point index out of range " + to_string( index )  );
+        return;
+    }
+
+    pspar->DelPt( index );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void DelAllFeaPolySparPt( const string & pspar_id )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        return;
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllFeaPolySparPt::Part is not a poly spar" + pspar_id );
+        return;
+    }
+
+    pspar->DelAllPt();
+
+    ErrorMgr.NoError();
+    return;
+}
+
+int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_type )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "MoveFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        return index;
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "MoveFeaPolySparPt::Part is not a poly spar " + pspar_id );
+        return index;
+    }
+
+    if ( !pspar->ValidPtIndex( index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "MoveFeaPolySparPt::Point index out of range " + to_string( index )  );
+        return index;
+    }
+
+    ErrorMgr.NoError();
+    return pspar->MovePt( index, reorder_type );
+}
+
+void SetFeaPolySparPtName( const string & pspar_id, int index, const string & name )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPolySparPtName::Can't Find FEA Part " + pspar_id );
+        return;
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPolySparPtName::Part is not a poly spar " + pspar_id );
+        return;
+    }
+
+    if ( !pspar->ValidPtIndex( index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetFeaPolySparPtName::Point index out of range " + to_string( index )  );
+        return;
+    }
+
+    PolySparPoint * pt = pspar->GetPt( index );
+
+    if ( pt )
+    {
+        pt->SetName( name );
+    }
+
+    ErrorMgr.NoError();
+    return;
+}
+
+string GetFeaPolySparPtName( const string & pspar_id, int index )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparPtName::Can't Find FEA Part " + pspar_id );
+        return string();
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparPtName::Part is not a poly spar " + pspar_id );
+        return string();
+    }
+
+    if ( !pspar->ValidPtIndex( index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFeaPolySparPtName::Point index out of range " + to_string( index )  );
+        return string();
+    }
+
+    PolySparPoint * pt = pspar->GetPt( index );
+
+    if ( pt )
+    {
+        ErrorMgr.NoError();
+        return pt->GetName();
+    }
+
+
+    return string();
+}
+
+string GetFeaPolySparPtID( const string & pspar_id, int index )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparPtID::Can't Find FEA Part " + pspar_id );
+        return string();
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparPtID::Part is not a poly spar " + pspar_id );
+        return string();
+    }
+
+    if ( !pspar->ValidPtIndex( index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFeaPolySparPtID::Point index out of range " + to_string( index )  );
+        return string();
+    }
+
+    PolySparPoint * pt = pspar->GetPt( index );
+
+    if ( pt )
+    {
+        ErrorMgr.NoError();
+        return pt->GetID();
+    }
+
+    return string();
+}
+
+vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id )
+{
+    vector < string > ret;
+    FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllFeaPolySparPtIDVec::Can't Find FEA Part " + pspar_id );
+        return ret;
+    }
+
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
+    if( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllFeaPolySparPtIDVec::Part is not a poly spar " + pspar_id );
+        return ret;
+    }
+
+    ret = pspar->GetAllPtIDVec();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
 int NumFeaStructures()
 {
     return StructureMgr.NumFeaStructures();
