@@ -1021,6 +1021,33 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
         }
     }
 
+    // Remove duplicate constraint segments — same pair of point indices in either order.
+    // Duplicates arise when two chains share a boundary and both contribute the same edge.
+    // Duplicates appear to be harmless, but removing them is cheap insurance.
+    {
+        set< pair< int, int > > seen;
+        vector< MeshSeg > unique;
+        unique.reserve( isegVec.size() );
+        for ( int i = 0; i < (int)isegVec.size(); i++ )
+        {
+            int a = isegVec[i].m_Index[0];
+            int b = isegVec[i].m_Index[1];
+            pair< int, int > key( min( a, b ), max( a, b ) );
+            if ( seen.insert( key ).second )
+            {
+                unique.push_back( isegVec[i] );
+            }
+        }
+#ifdef DEBUG_CFD_MESH
+        int ndelta = isegVec.size() - unique.size();
+        if ( ndelta != 0 )
+        {
+            printf( "%d duplicate constraint segments removed.\n", ndelta );
+        }
+#endif
+        isegVec.swap( unique );
+    }
+
     BuildDistMap();
 
     m_Mesh.InitMesh( uwPntVec, isegVec, MeshMgr );
