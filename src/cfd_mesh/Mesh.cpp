@@ -1923,6 +1923,54 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
     bool success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out );
 
+    if ( !success )
+    {
+        int n = 0;
+        while ( !success && n < 5 )
+        {
+#ifdef DEBUG_CFD_MESH
+            printf( "  Triangulation failed for surface %d %s %s, randomizing point order for %d time and trying again\n", namecnt, m_Surf->GetName().c_str(), m_Surf->GetGeomID().c_str(), n );
+#endif
+            RandomizePointOrder( uw_prime, segs_indexes );
+
+            connlist.clear();
+            points_out.clear();
+            success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out );
+            n++;
+        }
+
+#ifdef DEBUG_CFD_MESH
+        if ( success )
+        {
+            printf( "  Randomization Succeeded after %d tries\n\n", n );
+        }
+        else
+        {
+            printf ("  Randomization failed after %d tries\n", n );
+        }
+#endif
+    }
+    if ( !success )
+    {
+#ifdef DEBUG_CFD_MESH
+        printf( "  Triangulation failed for surface %d %s %s, falling back to DBA\n", namecnt, m_Surf->GetName().c_str(), m_Surf->GetGeomID().c_str() );
+#endif
+        connlist.clear();
+        points_out.clear();
+        success = InitMesh_DBA( uw_prime, segs_indexes, connlist, points_out );
+
+#ifdef DEBUG_CFD_MESH
+        if ( success )
+        {
+            printf( "  DBA Succeeded\n\n" );
+        }
+        else
+        {
+            printf( "  DBA Failed\n\n" );
+        }
+#endif
+    }
+
 #ifdef DEBUG_CFD_MESH
     if ( !success ) printf( "  Triangulation failed for surface %d\n", namecnt );
 #endif
