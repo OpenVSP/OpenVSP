@@ -2927,7 +2927,7 @@ PolySparPoint* FeaPolySpar::AddPt()
 
 PolySparPoint* FeaPolySpar::InsertPt( int index )
 {
-    if ( index >= 0 && index <= m_SparPointVec.size() )
+    if ( ValidPtIndex( index ) )
     {
         PolySparPoint *rpt = new PolySparPoint();
         rpt->SetParentContainer( m_ID );
@@ -2940,7 +2940,7 @@ PolySparPoint* FeaPolySpar::InsertPt( int index )
 
 void FeaPolySpar::DelPt( int index )
 {
-    if ( index >= 0 && index < m_SparPointVec.size() )
+    if ( ValidPtIndex( index ) )
     {
         PolySparPoint *spt = m_SparPointVec[ index ];
         m_SparPointVec.erase( m_SparPointVec.begin() + index );
@@ -2960,7 +2960,7 @@ void FeaPolySpar::DelAllPt()
 
 int FeaPolySpar::MovePt( int index, int reorder_type )
 {
-    if ( index >= 0 && index < m_SparPointVec.size() )
+    if ( ValidPtIndex( index ) )
     {
         int newindx = ReorderVectorIndex( m_SparPointVec, index, reorder_type );
 
@@ -2971,7 +2971,7 @@ int FeaPolySpar::MovePt( int index, int reorder_type )
 
 PolySparPoint * FeaPolySpar::GetPt( int index )
 {
-    if ( index >= 0 && index < m_SparPointVec.size() )
+    if ( ValidPtIndex( index ) )
     {
         return m_SparPointVec[ index ];
     }
@@ -2986,6 +2986,11 @@ vector < string > FeaPolySpar::GetAllPtIDVec()
         ret[ i ] = m_SparPointVec[ i ]->GetID();
     }
     return ret;
+}
+
+bool FeaPolySpar::ValidPtIndex( int index )
+{
+    return ( index >= 0 && index < m_SparPointVec.size() );
 }
 
 //////////////////////////////////////////////////////
