@@ -1,3 +1,101 @@
+# [OpenVSP 3.50.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.0)
+
+2026-05-01
+
+OpenVSP 3.50.0
+
+This release comes with a handful of small features and some nice bug fixes.
+It probably would have been 3.49.1, but the small features were a bunch of
+things I added to round out Geometry Analysis and Auxiliary Geom in support
+of the AIAA AVIATION paper I just finished (on Geometry Analysis).  So,
+I figured it was good to have a nice round number to point at.
+
+Geometry Analysis gained a few new tricks.  Perhaps most significantly,
+several of the legacy analysis tools are now available through the Geometry
+Analysis Manager.  This means that you can configure and interact with the
+analyses more easily - particularly for complex models.
+
+This applies to CompGeom (called Wetted Area and Volume), Planar Slice,
+Projected Area, and Mass Properties.  The old way isn't going away, but I would
+encourage you to use the new way going forward.  I think you'll like it.
+
+Geometry Analysis also gained an entirely new analysis capability -- Risk Angle
+calculates the geometric risk angle for a fragment thrown from rotating
+machinery according to FAA AC 20-128A.  This should be helpful for anyone
+doing safety analysis.
+
+Several Auxiliary Geoms were added.  The fragment types from AC 20-128A as well
+as the thrown blade description from AC 25.905-1 were added -- unsurprisingly,
+these work directly with the Risk Angle analysis.
+
+The pertinent tire and wheel failure modes from EASA AMC 25.734 were added.
+Thanks to the folks who helped me sort out the geometric definitions of some
+of those.
+
+Finally, the tire spray geometry from ESDU 83042a was added.  This ESDU uses
+empirical methods to predict the shape of the spray plume from landing gear.
+The new OpenVSP Auxiliary Geometry does not implement any of the ESDU methods.
+Instead, it simply creates a 3D representation of the spray envelope that is
+the output of the ESDU.  So if you want to check your gear / engine placement
+for water ingestion, get a copy of ESDU 83042a and go to town.
+
+Several missing holes in the API were filled.  First, the ability to create,
+list, and delete Geometry Analyses was added.  You could already execute
+them, but they had to be created in the GUI.  Second, the ability to create,
+list, delete, and generally work with points along a FEA Structure poly spar.
+Similarly, previously these operations could only be done through the API.
+
+I added routines to dump out a stack trace on demand.  This is a debugging
+feature that isn't hooked up to anything yet.  However, I wanted to go ahead
+and roll it out so I could see if it breaks anything on any platform.
+
+There are several fixes to issues that have been hitting users.
+
+As it turns out, intersection points in CFD/FEA mesh were being created
+separately on each surface (even though an average point was computed), leading
+to the need to search and merge points later.  This required a tolerance that
+has been problematic.  Too big and real features / elements get squashed.  Too
+small and CFD meshes aren't water tight and FEA elements don't connect.
+
+The average point is now correctly used everywhere, which means the point merge
+tolerance can be very much smaller and all those problems should be resolved.
+
+I figured out that Triangle will sometimes crash (and other times not) given
+identical geometric input -- but with points in a different order.  This was
+absolutely infuriating and led me to one of the ugliest hacks I've ever done.
+I am not proud, but it seems to be working better than it was before.
+
+CFDMesh won't crash if you're using symmetry plane or outer boundary.
+
+Un-used FEA Properties will no longer be deleted on startup.
+
+Fix crash when reading files written with 3.42.0 that had spaces in Set names.
+
+Some cleanups to the API documentation.
+
+Features:
+- Legacy analyses now available as Geometry Analyses
+    * CompGeom, Planar Slice, Projected Area, Mass Properties
+- Risk Angle Geometry Analysis
+- AC 20-128A Rotor fragment Aux Geom
+- AC 25.905-1 Thrown blade Aux Geom
+- ESDU 83042a Tire spray Aux Geom
+- AMC 25.734 Wheel and tire failure mode Aux Geom
+- Geometry Analysis API
+- FEA Poly Spar API
+
+Fixes:
+- Point gaps fixed along intersections in CFD / FEA Mesh
+- Tolerance that was collapsing features and elements fixed
+- Point order crash in Triangle worked around
+- CFDMesh crash with symmetry plane or outer boundary
+- Un-used FEA Properties no longer deleted
+- Don't crash when reading files from 3.42.0 with spaces in Set names
+
+
+---
+
+
 # [OpenVSP 3.49.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.49.0)
 
 2026-04-02
