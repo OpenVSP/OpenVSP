@@ -2767,3 +2767,14 @@ int GeometryAnalysisMgrSingleton::GetGeometryAnalysisIndex( const string &id ) c
 
     return -1;
 }
+
+vector < string > GeometryAnalysisMgrSingleton::GetAllGeometryAnalysesIDVec() const
+{
+    vector < string > ret( m_GeometryAnalysisVec.size() );
+
+    for ( int i = 0; i < (int)m_GeometryAnalysisVec.size(); i++ )
+    {
+        ret[i] = m_GeometryAnalysisVec[i]->GetID();
+    }
+    return ret;
+}

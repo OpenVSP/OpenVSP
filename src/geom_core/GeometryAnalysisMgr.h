@@ -203,6 +203,7 @@ public:
     int GetGeometryAnalysisIndex( const string &id ) const;
 
     vector < GeometryAnalysisCase* > GetAllGeometryAnalyses() const            { return m_GeometryAnalysisVec; };
+    vector < string > GetAllGeometryAnalysesIDVec() const;
 
 
 protected:
