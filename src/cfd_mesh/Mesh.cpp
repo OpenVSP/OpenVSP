@@ -15,6 +15,9 @@
 #include <triangle_api.h>
 #include "delabella.h"
 #include "SurfaceIntersectionMgr.h"
+#include <algorithm>
+#include <numeric>
+#include <random>
 
 bool LongEdgePairLengthCompare( const pair< Edge*, double >& a, const pair< Edge*, double >& b )
 {
@@ -1544,6 +1547,42 @@ bool vec2dCompare( const vec2d &a, const vec2d &b )
     if ( a.x() == b.x() )
         return a.y() < b.y();
     return a.x() < b.x();
+}
+
+vector< int > RandomizePointOrder( vector< vec2d > & uw, vector< MeshSeg > & segs )
+{
+    int npt = (int)uw.size();
+
+    // perm[new_idx] = old_idx
+    vector< int > perm( npt );
+    iota( perm.begin(), perm.end(), 0 );
+    shuffle( perm.begin(), perm.end(), mt19937{ random_device{}() } );
+
+    vector< int > inv_perm( npt );
+    for ( int i = 0; i < npt; i++ )
+    {
+        inv_perm[perm[i]] = i;
+    }
+
+    vector< vec2d > uw_shuffled( npt );
+    for ( int i = 0; i < npt; i++ )
+    {
+        uw_shuffled[i] = uw[perm[i]];
+    }
+    uw.swap( uw_shuffled );
+
+    for ( int j = 0; j < (int)segs.size(); j++ )
+    {
+        segs[j].m_Index[0] = inv_perm[segs[j].m_Index[0]];
+        segs[j].m_Index[1] = inv_perm[segs[j].m_Index[1]];
+    }
+
+    return perm;
+}
+
+void RandomizeSegOrder( vector< MeshSeg > & segs )
+{
+    shuffle( segs.begin(), segs.end(), mt19937{ random_device{}() } );
 }
 
 bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
