@@ -2236,6 +2236,124 @@ extern void PrintAnalysisInputs( const std::string & analysis_name );
 
 extern void PrintAnalysisDocs( const std::string & analysis_name );
 
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Add a new Geometry Analysis case to the Geometry Analysis Manager. The Geometry Analysis Manager
+    allows users to configure and execute geometric analysis tasks typical of the aircraft design process,
+    such as wetted area, projected area, mass properties, clearance, and visibility analyses.
+    \forcpponly
+    \code{.cpp}
+    //==== GeometryAnalysis: Add and configure a case ====//
+    string ga_id = AddGeometryAnalysis();
+    Print( "Added Geometry Analysis: ", false );
+    Print( ga_id );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ##==== GeometryAnalysis: Add and configure a case ====##
+    ga_id = AddGeometryAnalysis()
+    print( "Added Geometry Analysis: ", ga_id )
+    \endcode
+    \endPythonOnly
+    \sa DeleteGeometryAnalysis, DeleteAllGeometryAnalyses, GetAllGeometryAnalysesIDVec
+    \return string ID of the newly created Geometry Analysis case
+*/
+
+extern string AddGeometryAnalysis();
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Delete a specific Geometry Analysis case from the Geometry Analysis Manager.
+    \forcpponly
+    \code{.cpp}
+    //==== GeometryAnalysis: Delete a specific case ====//
+    string ga_id = AddGeometryAnalysis();
+    DeleteGeometryAnalysis( ga_id );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ##==== GeometryAnalysis: Delete a specific case ====##
+    ga_id = AddGeometryAnalysis()
+    DeleteGeometryAnalysis( ga_id )
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysis, DeleteAllGeometryAnalyses, GetAllGeometryAnalysesIDVec
+    \param [in] id string ID of the Geometry Analysis case to delete
+*/
+
+extern void DeleteGeometryAnalysis( const string &id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Delete all Geometry Analysis cases from the Geometry Analysis Manager.
+    \forcpponly
+    \code{.cpp}
+    //==== GeometryAnalysis: Delete all cases ====//
+    string ga_id_1 = AddGeometryAnalysis();
+    string ga_id_2 = AddGeometryAnalysis();
+    DeleteAllGeometryAnalyses();
+    array < string > @ga_ids = GetAllGeometryAnalysesIDVec();
+    Print( "Number of Geometry Analyses after delete: ", false );
+    Print( ga_ids.size() );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ##==== GeometryAnalysis: Delete all cases ====##
+    ga_id_1 = AddGeometryAnalysis()
+    ga_id_2 = AddGeometryAnalysis()
+    DeleteAllGeometryAnalyses()
+    ga_ids = GetAllGeometryAnalysesIDVec()
+    print( "Number of Geometry Analyses after delete: ", len( ga_ids ) )
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysis, DeleteGeometryAnalysis, GetAllGeometryAnalysesIDVec
+*/
+
+extern void DeleteAllGeometryAnalyses();
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get a vector of all Geometry Analysis case IDs in the Geometry Analysis Manager.
+    \forcpponly
+    \code{.cpp}
+    //==== GeometryAnalysis: List all cases ====//
+    string ga_id_1 = AddGeometryAnalysis();
+    string ga_id_2 = AddGeometryAnalysis();
+    array < string > @ga_ids = GetAllGeometryAnalysesIDVec();
+    for ( int i = 0; i < int( ga_ids.size() ); i++ )
+    {
+        Print( "Geometry Analysis ID: ", false );
+        Print( ga_ids[i] );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ##==== GeometryAnalysis: List all cases ====##
+    ga_id_1 = AddGeometryAnalysis()
+    ga_id_2 = AddGeometryAnalysis()
+    ga_ids = GetAllGeometryAnalysesIDVec()
+    for ga_id in ga_ids:
+        print( "Geometry Analysis ID: ", ga_id )
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysis, DeleteGeometryAnalysis, DeleteAllGeometryAnalyses
+    \return vector<string> Array of all Geometry Analysis case IDs
+*/
+
+extern vector < string > GetAllGeometryAnalysesIDVec();
+
 //======================== Attributes ================================//
 
 /*!

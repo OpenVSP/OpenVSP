@@ -25,6 +25,7 @@
 #include "CfdMeshMgr.h"
 #include "DesignVarMgr.h"
 #include "FeaMeshMgr.h"
+#include "GeometryAnalysisMgr.h"
 #include "LinkMgr.h"
 #include "main.h"
 #include "MeasureMgr.h"
@@ -1412,6 +1413,34 @@ void PrintAnalysisDocs( const string & analysis_name )
     }
 
     AnalysisMgr.PrintAnalysisDocs( analysis_name );
+}
+
+string AddGeometryAnalysis()
+{
+    string ga_id = GeometryAnalysisMgr.AddGeometryAnalysis();
+
+    ErrorMgr.NoError();
+    return ga_id;
+}
+
+void DeleteGeometryAnalysis( const string &id )
+{
+    GeometryAnalysisMgr.DeleteGeometryAnalysis( id );
+    ErrorMgr.NoError();
+}
+
+void DeleteAllGeometryAnalyses()
+{
+    GeometryAnalysisMgr.DeleteAllGeometryAnalyses();
+    ErrorMgr.NoError();
+}
+
+vector < string > GetAllGeometryAnalysesIDVec()
+{
+    vector < string > ret = GeometryAnalysisMgr.GetAllGeometryAnalysesIDVec();
+
+    ErrorMgr.NoError();
+    return ret;
 }
 
 //===================================================================//

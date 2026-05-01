@@ -3673,6 +3673,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "string AddGeometryAnalysis( )", asFUNCTION( vsp::AddGeometryAnalysis ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void DeleteGeometryAnalysis( const string & in id )", asFUNCTION( vsp::DeleteGeometryAnalysis ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void DeleteAllGeometryAnalyses()", asFUNCTION( vsp::DeleteAllGeometryAnalyses ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllGeometryAnalysesIDVec()", asMETHOD( ScriptMgrSingleton, GetAllGeometryAnalysesIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     //==== Results Functions ====//
 
     r = se->RegisterGlobalFunction( "int GetNumResults( const string & in name )", asFUNCTION( vsp::GetNumResults ), asCALL_CDECL );
@@ -5890,6 +5905,12 @@ CScriptArray* ScriptMgrSingleton::GetVec3dAnalysisInput( const string & analysis
 {
     m_ProxyVec3dArray = vsp::GetVec3dAnalysisInput( analysis, name, index );
     return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllGeometryAnalysesIDVec()
+{
+    m_ProxyStringArray = vsp::GetAllGeometryAnalysesIDVec();
+    return GetProxyStringArray();
 }
 
 CScriptArray* ScriptMgrSingleton::FindAllAttributes()
