@@ -8,7 +8,8 @@ if ( MSVC )
     add_compile_options( /Zc:__cplusplus )
 endif()
 
-INCLUDE_DIRECTORIES( 
+INCLUDE_DIRECTORIES(
+    ${DELABELLA_INCLUDE_DIR}
     ${NANOFLANN_INCLUDE_DIR}
     ${UTIL_INCLUDE_DIR}
     ${UTIL_API_INCLUDE_DIR}

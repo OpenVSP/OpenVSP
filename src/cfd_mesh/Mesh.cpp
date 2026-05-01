@@ -13,6 +13,7 @@
 #include "VspUtil.h"
 #include <triangle.h>
 #include <triangle_api.h>
+#include "delabella.h"
 #include "SurfaceIntersectionMgr.h"
 
 bool LongEdgePairLengthCompare( const pair< Edge*, double >& a, const pair< Edge*, double >& b )
@@ -1543,6 +1544,62 @@ bool vec2dCompare( const vec2d &a, const vec2d &b )
     if ( a.x() == b.x() )
         return a.y() < b.y();
     return a.x() < b.x();
+}
+
+bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
+                          vector< vector< int > > & connlist, vector< vec2d > & points_out )
+{
+    int npt  = uw_prime.size();
+    int nedg = segs_indexes.size();
+
+    dba_point* cloud  = new dba_point[npt];
+    dba_edge*  bounds = new dba_edge[nedg];
+
+    for ( int i = 0; i < npt; i++ )
+    {
+        cloud[i].x = uw_prime[i].x();
+        cloud[i].y = uw_prime[i].y();
+    }
+
+    for ( int i = 0; i < nedg; i++ )
+    {
+        bounds[i].a = segs_indexes[i].m_Index[0];
+        bounds[i].b = segs_indexes[i].m_Index[1];
+    }
+
+    IDelaBella2< double >* idb = IDelaBella2< double >::Create();
+
+    bool success = false;
+    int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
+
+    if ( verts > 0 )
+    {
+        idb->ConstrainEdges( nedg, &bounds->a, &bounds->b, sizeof( dba_edge ) );
+
+        int tris = idb->FloodFill( false, 0, 1 );
+
+        const IDelaBella2< double >::Simplex* dela = idb->GetFirstDelaunaySimplex();
+
+        connlist.resize( tris );
+        for ( int i = 0; i < tris; i++ )
+        {
+            connlist[i] = { dela->v[2]->i, dela->v[1]->i, dela->v[0]->i };
+            dela = dela->next;
+        }
+
+        points_out = uw_prime;
+        success = true;
+    }
+    else
+    {
+        printf( "DBA Error in InitMesh_DBA: %d\n", verts );
+    }
+
+    delete[] cloud;
+    delete[] bounds;
+    idb->Destroy();
+
+    return success;
 }
 
 bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,

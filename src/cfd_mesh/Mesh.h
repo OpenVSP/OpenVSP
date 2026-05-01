@@ -113,6 +113,9 @@ public:
 private:
     bool InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
                        vector< vector< int > > & connlist, vector< vec2d > & points_out );
+    bool InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
+                       vector< vector< int > > & connlist, vector< vec2d > & points_out );
+
 public:
 
     void ReadSTL( const char* file_name );
