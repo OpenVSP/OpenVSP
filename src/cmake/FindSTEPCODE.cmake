@@ -10,14 +10,16 @@ IF(NOT WIN32)
     ${STEPCODE_INSTALL_DIR}/lib/libstepdai-static.a
     ${STEPCODE_INSTALL_DIR}/lib/libsteputils-static.a )
 ELSE()
+    # Necessary for static libs in STEPCode
+    add_compile_definitions(SC_STATIC)
     set( STEPCODE_LIBRARIES
-    ${STEPCODE_INSTALL_DIR}/lib/express.lib
-    ${STEPCODE_INSTALL_DIR}/lib/libexppp.lib
-    ${STEPCODE_INSTALL_DIR}/lib/sdai_ap203.lib
-    ${STEPCODE_INSTALL_DIR}/lib/stepeditor.lib
-    ${STEPCODE_INSTALL_DIR}/lib/stepcore.lib
-    ${STEPCODE_INSTALL_DIR}/lib/stepdai.lib
-    ${STEPCODE_INSTALL_DIR}/lib/steputils.lib
+    ${STEPCODE_INSTALL_DIR}/lib/express-static.lib
+    ${STEPCODE_INSTALL_DIR}/lib/libexppp-static.lib
+    ${STEPCODE_INSTALL_DIR}/lib/sdai_ap203-static.lib
+    ${STEPCODE_INSTALL_DIR}/lib/stepeditor-static.lib
+    ${STEPCODE_INSTALL_DIR}/lib/stepcore-static.lib
+    ${STEPCODE_INSTALL_DIR}/lib/stepdai-static.lib
+    ${STEPCODE_INSTALL_DIR}/lib/steputils-static.lib
     # ${STEPCODE_INSTALL_DIR}/lib/libbase.lib removed in 0.8.2
     shlwapi.lib )
 ENDIF()
