@@ -1,3 +1,29 @@
+# [OpenVSP 3.50.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.1)
+
+2026-05-04
+
+OpenVSP 3.50.1
+
+Quick bugifx release to address a problem with area / volume calculations
+from CompGeom.
+
+When CompGeom was refactored to be available as a Geometry Analysis, the
+mesh scaling that is done was not un-done when the areas and volumes were
+calculated.
+
+Also drop Ubuntu 22.04 from builds.  The GitHub Actions Runner for this is
+broken and we expect 26.04 to be made available very soon.
+
+Build System:
+- Drop Ubuntu 22.04
+
+Fixes:
+- Fix CompGeom area and volume calculations
+
+
+---
+
+
 # [OpenVSP 3.50.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.0)
 
 2026-05-01
