@@ -3676,7 +3676,7 @@ void PostIntersectTrim( vector<TMesh*> &tmv, vector<DegenGeom> &degenGeom, bool 
     }
 }
 
-void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, BndBox &bbox,
+void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, const BndBox &bbox,
                 int numSlices, vec3d norm_axis, bool autoBounds, double start, double end,
                 bool measureduct, Results *res )
 {
@@ -3787,14 +3787,6 @@ void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, BndBox &bbox,
     {
         tmv[i]->LoadBndBox();
     }
-
-    //==== Update Bnd Box for  Combined ====//
-    BndBox b;
-    for ( i = 0 ; i < ( int )tmv.size() ; i++ )
-    {
-        b.Update( tmv[i]->m_TBox.m_Box );
-    }
-    bbox = b;
 
     int slctype = vsp::CFD_STRUCTURE;
     if ( measureduct )

@@ -838,7 +838,7 @@ void IntersectTrim( vector<TMesh*> &tmv, vector<TMesh*> &subSurfVec, BndBox &bbo
 
 void PostIntersectTrim( vector<TMesh*> &tmv, vector<DegenGeom> &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res );
 
-void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, BndBox &bbox,
+void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, const BndBox &bbox,
                 int numSlices, vec3d norm_axis, bool autoBounds, double start, double end,
                 bool measureduct, Results *res );
 
