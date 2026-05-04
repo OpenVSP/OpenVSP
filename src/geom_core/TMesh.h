@@ -834,7 +834,7 @@ class Results;
 void IntersectTrim( vector<TMesh*> &tmv, vector<TMesh*> &subSurfVec, BndBox &bbox,
                     bool degen, int intSubsFlag, bool halfFlag, bool deleteopen,
                     const vector<string> &sub_vec,
-                    Results *res, vector<DegenGeom> &degenGeom );
+                    Results *res, MeshInfo &info );
 
 void PostIntersectTrim( vector<TMesh*> &tmv, vector<DegenGeom> &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res );
 

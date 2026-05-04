@@ -1309,12 +1309,15 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     }
 
     ::IntersectTrim( m_TMeshVec, m_SubSurfVec, m_BBox, degen, intSubsFlag, halfFlag,
-                     deleteopen, sub_vec, res, degenGeom );
+                     deleteopen, sub_vec, res, info );
 
     //===== Reset Scale =====//
     m_Scale = 1;
     ApplyScale();
     UpdateBBox();
+
+    // PostIntersectTrim needs to be after re-scaling.  Otherwise, areas off by m_Scale.
+    PostIntersectTrim( m_TMeshVec, degenGeom, degen, intSubsFlag, info, res );
 
     if ( !degen )
     {

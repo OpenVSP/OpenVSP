@@ -2025,8 +2025,8 @@ string GeometryAnalysisCase::Evaluate()
                     {
                         m_LastResult = res->GetID();
 
-                        // Dummy to hold output DegenGeom, not used since 'degen' is false
-                        vector< DegenGeom > dg;
+                        // Hold MeshInfo for communication from IntersectTrim to PostIntersectTrim
+                        MeshInfo info;
 
                         // Mesh BBox output for scaling.
                         BndBox bbox;
@@ -2040,8 +2040,12 @@ string GeometryAnalysisCase::Evaluate()
 
                         IntersectTrim( primary_tmv, subSurfVec, bbox,
                                        /*degen*/ false, /* intSubsFlag */ m_UseSubSurfFlag(), /* halfFlag */ m_HalfMeshFlag(), /*deleteopen*/ false,
-                                       sub_vec, res, dg );
+                                       sub_vec, res, info );
 
+                        // Dummy to hold output DegenGeom, not used since 'degen' is false
+                        vector< DegenGeom > dg;
+
+                        PostIntersectTrim( primary_tmv, dg, /*degen*/ false, /* intSubsFlag */ m_UseSubSurfFlag(), info, res );
 
                         vector < double > wetareavec = ResultsMgr.GetDoubleResults( m_LastResult, "Total_Wet_Area", 0 );
                         if ( wetareavec.size() == 1 )

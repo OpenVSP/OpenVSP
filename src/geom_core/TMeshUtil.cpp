@@ -3185,7 +3185,7 @@ TMesh* GetMeshByID( const vector < TMesh* > &tmv, const string &id )
 void IntersectTrim( vector<TMesh*> &tmv, vector<TMesh*> &subSurfVec, BndBox &bbox,
                     bool degen, int intSubsFlag, bool halfFlag, bool deleteopen,
                     const vector<string> &sub_vec,
-                    Results *res, vector<DegenGeom> &degenGeom )
+                    Results *res, MeshInfo &info )
 {
     TrimCoplanarPatches( tmv );
 
@@ -3305,7 +3305,6 @@ void IntersectTrim( vector<TMesh*> &tmv, vector<TMesh*> &subSurfVec, BndBox &bbo
     }
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
-    MeshInfo info;
     MergeRemoveOpenMeshes( tmv, &info, deleteopen );
 
     MergeDegenCruciformTMeshes( tmv );
@@ -3412,7 +3411,6 @@ void IntersectTrim( vector<TMesh*> &tmv, vector<TMesh*> &subSurfVec, BndBox &bbo
         RefreshTagMaps( tmv );
     }
 
-    PostIntersectTrim( tmv, degenGeom, degen, intSubsFlag, info, res );
 }
 
 void PostIntersectTrim( vector<TMesh*> &tmv, vector<DegenGeom> &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res )
