@@ -569,6 +569,10 @@ public:
     {
         return m_BBox;
     }
+    virtual void SetBndBox( const BndBox & b )
+    {
+        m_BBox = b;
+    }
     virtual BndBox GetScaleIndependentBndBox() const
     {
         return m_ScaleIndependentBBox;
