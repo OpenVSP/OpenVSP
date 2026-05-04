@@ -160,6 +160,17 @@ void GeometryAnalysisCase::Update()
         }
     }
 
+    if ( m_AutoBoundsFlag() )
+    {
+        m_PlanarStartLocation.Deactivate();
+        m_PlanarEndLocation.Deactivate();
+    }
+    else
+    {
+        m_PlanarStartLocation.Activate();
+        m_PlanarEndLocation.Activate();
+    }
+
     UpdateDrawObj_Live();
 }
 
