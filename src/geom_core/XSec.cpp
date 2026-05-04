@@ -2032,13 +2032,6 @@ StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_ZRotate.SetDescript( "Rotation about z-axis of cross section" );
 
-    m_XCenterRot.Init( "m_XCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
-    m_XCenterRot.SetDescript( "X Center Of Rotation" );
-    m_YCenterRot.Init( "m_YCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
-    m_YCenterRot.SetDescript( "Y Center Of Rotation" );
-    m_ZCenterRot.Init( "m_ZCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
-    m_ZCenterRot.SetDescript( "Z Center Of Rotation" );
-
     m_Spin.Init( "Spin", m_GroupName, this, 0.0, -1.0, 1.0 );
     m_Spin.SetDescript( "Shift curve parameterization" );
 
@@ -2094,15 +2087,8 @@ void StackXSec::Update()
     m_Transform.rotateY( m_YRotate() );
     m_Transform.rotateZ( m_ZRotate() );
 
-    m_TransformedCurve.OffsetX( m_XCenterRot() );
-    m_TransformedCurve.OffsetY( m_YCenterRot() );
-    m_TransformedCurve.OffsetZ( m_ZCenterRot() );
-
     m_TransformedCurve.Transform( m_Transform );
 
-    m_TransformedCurve.OffsetX( -m_XCenterRot() );
-    m_TransformedCurve.OffsetY( -m_YCenterRot() );
-    m_TransformedCurve.OffsetZ( -m_ZCenterRot() );
 
     if( indx < xsecsurf->NumXSec() - 1 )
     {

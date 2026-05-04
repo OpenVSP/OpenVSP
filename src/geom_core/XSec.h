@@ -361,10 +361,6 @@ public:
     Parm m_YRotate;
     Parm m_ZRotate;
 
-    Parm m_XCenterRot;
-    Parm m_YCenterRot;
-    Parm m_ZCenterRot;
-
 protected:
 };
 
