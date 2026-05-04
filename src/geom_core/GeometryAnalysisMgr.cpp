@@ -427,6 +427,45 @@ vector< TMesh* > GeometryAnalysisCase::GetHingeSecondaryTMeshVec()
     return tmv;
 }
 
+BndBox GeometryAnalysisCase::GetPrimaryScaleIndependentBBox() const
+{
+    BndBox b;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        if ( m_PrimaryType() == vsp::SET_TARGET || m_PrimaryType() == vsp::MODE_TARGET )
+        {
+            int set = vsp::SET_NONE;
+
+            if ( m_PrimaryType() == vsp::SET_TARGET )
+            {
+                set = m_PrimarySet();
+            }
+            else
+            {
+                Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
+                if ( m )
+                {
+                    set = m->m_NormalSet();
+                }
+            }
+
+            veh->GetScaleIndependentBBoxSet( set, b );
+        }
+        else if ( m_PrimaryType() == vsp::GEOM_TARGET )
+        {
+            Geom* geom = veh->FindGeom( m_PrimaryGeomID );
+            if ( geom )
+            {
+                b.Update( veh->GetScaleIndependentBndBox() );
+            }
+        }
+    }
+
+    return b;
+}
+
 bool GeometryAnalysisCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
 {
     AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
