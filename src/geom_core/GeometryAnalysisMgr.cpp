@@ -2123,7 +2123,8 @@ string GeometryAnalysisCase::Evaluate()
                         m_LastResult = res->GetID();
 
                         vector<TMesh*> slicevec;
-                        BndBox bbox;
+
+                        BndBox bbox = GetPrimaryScaleIndependentBBox();
 
                         vec3d norm_axis;
                         norm_axis[ m_SliceDir.Get() ] = 1;
