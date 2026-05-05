@@ -355,11 +355,20 @@ public:
     Parm m_YDelta;
     Parm m_ZDelta;
 
+    IntParm m_XSAbsRelFlag;
+    Parm m_XAbs;
+    Parm m_YAbs;
+    Parm m_ZAbs;
+
     Parm m_Spin;
 
     Parm m_XRotate;
     Parm m_YRotate;
     Parm m_ZRotate;
+
+    Parm m_XRotateAbs;
+    Parm m_YRotateAbs;
+    Parm m_ZRotateAbs;
 
 protected:
 };

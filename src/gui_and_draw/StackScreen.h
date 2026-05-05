@@ -61,12 +61,16 @@ protected:
     SliderAdjRangeInput m_FwdClusterSlider;
     SliderAdjRangeInput m_AftClusterSlider;
 
-    SliderAdjRangeInput m_XSecXDeltaSlider;
-    SliderAdjRangeInput m_XSecYDeltaSlider;
-    SliderAdjRangeInput m_XSecZDeltaSlider;
-    SliderAdjRangeInput m_XSecXRotSlider;
-    SliderAdjRangeInput m_XSecYRotSlider;
-    SliderAdjRangeInput m_XSecZRotSlider;
+    ToggleButton m_XSecAbsoluteToggle;
+    ToggleButton m_XSecRelativeToggle;
+    ToggleRadioGroup m_XSecAbsRelToggle;
+
+    SliderAdjRange2Input m_XSecXDeltaSlider;
+    SliderAdjRange2Input m_XSecYDeltaSlider;
+    SliderAdjRange2Input m_XSecZDeltaSlider;
+    SliderAdjRange2Input m_XSecXRotSlider;
+    SliderAdjRange2Input m_XSecYRotSlider;
+    SliderAdjRange2Input m_XSecZRotSlider;
     SliderAdjRangeInput m_XSecSpinSlider;
 
 };

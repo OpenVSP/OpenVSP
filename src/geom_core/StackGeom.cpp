@@ -1183,6 +1183,14 @@ void StackGeom::EnforceOrder( StackXSec* xs, int indx, int policy )
         xs->m_XRotate.SetLowerUpperLimits( 0.0, 0.0 );
         xs->m_YRotate.SetLowerUpperLimits( 0.0, 0.0 );
         xs->m_ZRotate.SetLowerUpperLimits( 0.0, 0.0 );
+
+        xs->m_XAbs.SetLowerUpperLimits( 0.0, 0.0 );
+        xs->m_YAbs.SetLowerUpperLimits( 0.0, 0.0 );
+        xs->m_ZAbs.SetLowerUpperLimits( 0.0, 0.0 );
+
+        xs->m_XRotateAbs.SetLowerUpperLimits( 0.0, 0.0 );
+        xs->m_YRotateAbs.SetLowerUpperLimits( 0.0, 0.0 );
+        xs->m_ZRotateAbs.SetLowerUpperLimits( 0.0, 0.0 );
     }
     else
     {
@@ -1193,6 +1201,14 @@ void StackGeom::EnforceOrder( StackXSec* xs, int indx, int policy )
         xs->m_XRotate.SetLowerUpperLimits( -180.0, 180.0 );
         xs->m_YRotate.SetLowerUpperLimits( -180.0, 180.0 );
         xs->m_ZRotate.SetLowerUpperLimits( -180.0, 180.0 );
+
+        xs->m_XAbs.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+        xs->m_YAbs.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+        xs->m_ZAbs.SetLowerUpperLimits( -1.0e12, 1.0e12 );
+
+        xs->m_XRotateAbs.SetLowerUpperLimits( -180.0, 180.0 );
+        xs->m_YRotateAbs.SetLowerUpperLimits( -180.0, 180.0 );
+        xs->m_ZRotateAbs.SetLowerUpperLimits( -180.0, 180.0 );
     }
 
     if( policy == STACK_LOOP )

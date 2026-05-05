@@ -2025,12 +2025,28 @@ StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_ZDelta.Init( "ZDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_ZDelta.SetDescript( "Z distance of cross section from prior cross section" );
 
+    m_XSAbsRelFlag.Init( "XSAbsRelFlag", m_GroupName, this, vsp::REL, vsp::ABS, vsp::REL );
+
+    m_XAbs.Init( "XAbs", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
+    m_XAbs.SetDescript( "Absolute X position of cross section" );
+    m_YAbs.Init( "YAbs", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
+    m_YAbs.SetDescript( "Absolute Y position of cross section" );
+    m_ZAbs.Init( "ZAbs", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
+    m_ZAbs.SetDescript( "Absolute Z position of cross section" );
+
     m_XRotate.Init( "XRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_XRotate.SetDescript( "Rotation about x-axis of cross section" );
     m_YRotate.Init( "YRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_YRotate.SetDescript( "Rotation about y-axis of cross section" );
     m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_ZRotate.SetDescript( "Rotation about z-axis of cross section" );
+
+    m_XRotateAbs.Init( "XRotateAbs", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_XRotateAbs.SetDescript( "Absolute rotation about x-axis of cross section" );
+    m_YRotateAbs.Init( "YRotateAbs", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_YRotateAbs.SetDescript( "Absolute rotation about y-axis of cross section" );
+    m_ZRotateAbs.Init( "ZRotateAbs", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_ZRotateAbs.SetDescript( "Absolute rotation about z-axis of cross section" );
 
     m_Spin.Init( "Spin", m_GroupName, this, 0.0, -1.0, 1.0 );
     m_Spin.SetDescript( "Shift curve parameterization" );
@@ -2051,6 +2067,45 @@ void StackXSec::SetScale( double scale )
 //==== Update ====//
 void StackXSec::Update()
 {
+    // Deactivate non driving parms and Activate driving parms
+    if ( m_XSAbsRelFlag() ==  vsp::REL  )
+    {
+        m_XAbs.Deactivate();
+        m_YAbs.Deactivate();
+        m_ZAbs.Deactivate();
+
+        m_XDelta.Activate();
+        m_YDelta.Activate();
+        m_ZDelta.Activate();
+
+        m_XRotateAbs.Deactivate();
+        m_YRotateAbs.Deactivate();
+        m_ZRotateAbs.Deactivate();
+
+        m_XRotate.Activate();
+        m_YRotate.Activate();
+        m_ZRotate.Activate();
+    }
+    else
+    {
+        m_XDelta.Deactivate();
+        m_YDelta.Deactivate();
+        m_ZDelta.Deactivate();
+
+        m_XAbs.Activate();
+        m_YAbs.Activate();
+        m_ZAbs.Activate();
+
+        m_XRotate.Deactivate();
+        m_YRotate.Deactivate();
+        m_ZRotate.Deactivate();
+
+        m_XRotateAbs.Activate();
+        m_YRotateAbs.Activate();
+        m_ZRotateAbs.Activate();
+    }
+
+
     m_LateUpdateFlag = false;
 
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
@@ -2072,6 +2127,9 @@ void StackXSec::Update()
 
     m_Transform.loadIdentity();
 
+    if ( m_XSAbsRelFlag() ==  vsp::REL  )
+    {
+
     if( indx > 0 )
     {
         StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx - 1);
@@ -2088,6 +2146,50 @@ void StackXSec::Update()
     m_Transform.rotateZ( m_ZRotate() );
 
     m_TransformedCurve.Transform( m_Transform );
+
+        vec3d trans = m_Transform.getTranslation();
+        m_XAbs = trans.x();
+        m_YAbs = trans.y();
+        m_ZAbs = trans.z();
+
+        vec3d angles = m_Transform.getAngles();
+        m_XRotateAbs = angles.x();
+        m_YRotateAbs = angles.y();
+        m_ZRotateAbs = angles.z();
+    }
+    else
+    {
+        Matrix4d prevmat;
+        if( indx > 0 )
+        {
+            StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx - 1);
+            if( prevxs )
+            {
+                prevmat.matMult( prevxs->GetTransform()->data() );
+            }
+        }
+
+        m_Transform.translatef( m_XAbs(), m_YAbs(), m_ZAbs() );
+
+        m_Transform.rotateX( m_XRotateAbs() );
+        m_Transform.rotateY( m_YRotateAbs() );
+        m_Transform.rotateZ( m_ZRotateAbs() );
+
+        m_TransformedCurve.Transform( m_Transform );
+
+        prevmat.affineInverse();
+        prevmat.matMult( m_Transform.data() );
+
+        vec3d trans = prevmat.getTranslation();
+        m_XDelta = trans.x();
+        m_YDelta = trans.y();
+        m_ZDelta = trans.z();
+
+        vec3d angles = prevmat.getAngles();
+        m_XRotate = angles.x();
+        m_YRotate = angles.y();
+        m_ZRotate = angles.z();
+    }
 
 
     if( indx < xsecsurf->NumXSec() - 1 )
@@ -2111,15 +2213,26 @@ void StackXSec::CopyBasePos( XSec* xs )
     {
         StackXSec* sxs = ( StackXSec* ) xs;
 
+        m_XSAbsRelFlag = sxs->m_XSAbsRelFlag();
+
         m_Spin = sxs->m_Spin();
 
         m_XDelta = sxs->m_XDelta();
         m_YDelta = sxs->m_YDelta();
         m_ZDelta = sxs->m_ZDelta();
 
+        m_XAbs = sxs->m_XAbs();
+        m_YAbs = sxs->m_YAbs();
+        m_ZAbs = sxs->m_ZAbs();
+
         m_XRotate = sxs->m_XRotate();
         m_YRotate = sxs->m_YRotate();
         m_ZRotate = sxs->m_ZRotate();
+
+        m_XRotateAbs = sxs->m_XRotateAbs();
+        m_YRotateAbs = sxs->m_YRotateAbs();
+        m_ZRotateAbs = sxs->m_ZRotateAbs();
+
     }
 }
 

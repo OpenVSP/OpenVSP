@@ -100,7 +100,7 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800, "Stac
     // Xsec layout after index selector has been defined in base class
     m_XSecLayout.SetFitWidthFlag( false );
     m_XSecLayout.SetSameLineFlag( true );
-    m_XSecLayout.SetButtonWidth( ( m_XFormLayout.GetRemainX() - 30 ) / 4 );
+    m_XSecLayout.SetButtonWidth( ( m_XSecLayout.GetRemainX() - 30 ) / 4 );
     m_XSecLayout.AddButton( m_InsertXSec, "Insert" );
     m_XSecLayout.AddX( 10 );
     m_XSecLayout.AddButton( m_CutXSec, "Cut" );
@@ -114,19 +114,39 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800, "Stac
     m_XSecLayout.SetSameLineFlag( false );
 
     m_XSecLayout.AddYGap();
-    int tess_w = m_XSecLayout.GetButtonWidth();
+    m_XSecLayout.InitWidthHeightVals();
+    int bw = m_XSecLayout.GetButtonWidth() + 5;
+    m_XSecLayout.SetButtonWidth( bw );
+
     m_XSecLayout.AddSlider( m_SectUTessSlider, "Num U", 20, " %5.0f" );
-    m_XSecLayout.AddSlider( m_FwdClusterSlider, "Fwd. Cluster", 1, "%6.5f" );
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.AddSlider( m_FwdClusterSlider, "Fwd. Cluster", 1, "%6.5f", m_XSecLayout.GetW() * 0.5 );
     m_XSecLayout.AddSlider( m_AftClusterSlider, "Aft Cluster", 1, "%6.5f" );
+    m_XSecLayout.ForceNewLine();
     m_XSecLayout.AddYGap();
 
-    m_XSecLayout.SetButtonWidth( 50 );
+    m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.AddLabel( "Coord System:", m_XSecLayout.GetW() - 2 * m_XSecLayout.GetInputWidth() );
+    m_XSecLayout.SetButtonWidth( m_XSecLayout.GetInputWidth() );
+    m_XSecLayout.AddButton( m_XSecRelativeToggle, "Rel" );
+    m_XSecLayout.AddButton( m_XSecAbsoluteToggle, "Abs" );
+    m_XSecLayout.ForceNewLine();
+
+    m_XSecAbsRelToggle.Init( this );
+    m_XSecAbsRelToggle.AddButton( m_XSecAbsoluteToggle.GetFlButton() );
+    m_XSecAbsRelToggle.AddButton( m_XSecRelativeToggle.GetFlButton() );
+
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.SetSameLineFlag( false );
+    m_XSecLayout.SetButtonWidth( bw );
     m_XSecLayout.AddSlider( m_XSecXDeltaSlider, "Delta X", 10.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecYDeltaSlider, "Delta Y", 10.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecZDeltaSlider, "Delta Z", 10.0, "%6.5f" );
     m_XSecLayout.AddYGap();
 
-    m_XSecLayout.InitWidthHeightVals();
+
     m_XSecLayout.AddSlider( m_XSecXRotSlider, "Rot X", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecYRotSlider, "Rot Y", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecZRotSlider, "Rot Z", 90.0, "%6.5f" );
@@ -204,16 +224,45 @@ bool StackScreen::Update()
         m_SectUTessSlider.Update( xs->m_SectTessU.GetID() );
         m_FwdClusterSlider.Update( xs->m_FwdCluster.GetID() );
         m_AftClusterSlider.Update( xs->m_AftCluster.GetID() );
-        m_XSecXDeltaSlider.Update( xs->m_XDelta.GetID() );
-        m_XSecYDeltaSlider.Update( xs->m_YDelta.GetID() );
-        m_XSecZDeltaSlider.Update( xs->m_ZDelta.GetID() );
-        m_XSecXRotSlider.Update( xs->m_XRotate.GetID() );
-        m_XSecYRotSlider.Update( xs->m_YRotate.GetID() );
-        m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
+
+        // Activate these before Updating Rel/Abs (which also deactivates).
+        m_XSecAbsRelToggle.Activate();
+        m_SectUTessSlider.Activate();
+        m_FwdClusterSlider.Activate();
+        m_AftClusterSlider.Activate();
+        m_XSecXDeltaSlider.Activate();
+        m_XSecYDeltaSlider.Activate();
+        m_XSecZDeltaSlider.Activate();
+        m_XSecXRotSlider.Activate();
+        m_XSecYRotSlider.Activate();
+        m_XSecZRotSlider.Activate();
+        m_XSecSpinSlider.Activate();
+
+        m_XSecAbsRelToggle.Update( xs->m_XSAbsRelFlag.GetID() );
+        if ( xs->m_XSAbsRelFlag() ==  vsp::REL )
+        {
+            m_XSecXDeltaSlider.Update( 1, xs->m_XDelta.GetID(), xs->m_XAbs.GetID() );
+            m_XSecYDeltaSlider.Update( 1, xs->m_YDelta.GetID(), xs->m_YAbs.GetID() );
+            m_XSecZDeltaSlider.Update( 1, xs->m_ZDelta.GetID(), xs->m_ZAbs.GetID() );
+            m_XSecXRotSlider.Update( 1, xs->m_XRotate.GetID(), xs->m_XRotateAbs.GetID() );
+            m_XSecYRotSlider.Update( 1, xs->m_YRotate.GetID(), xs->m_YRotateAbs.GetID() );
+            m_XSecZRotSlider.Update( 1, xs->m_ZRotate.GetID(), xs->m_ZRotateAbs.GetID() );
+        }
+        else
+        {
+            m_XSecXDeltaSlider.Update( 2, xs->m_XDelta.GetID(), xs->m_XAbs.GetID() );
+            m_XSecYDeltaSlider.Update( 2, xs->m_YDelta.GetID(), xs->m_YAbs.GetID() );
+            m_XSecZDeltaSlider.Update( 2, xs->m_ZDelta.GetID(), xs->m_ZAbs.GetID() );
+            m_XSecXRotSlider.Update( 2, xs->m_XRotate.GetID(), xs->m_XRotateAbs.GetID() );
+            m_XSecYRotSlider.Update( 2, xs->m_YRotate.GetID(), xs->m_YRotateAbs.GetID() );
+            m_XSecZRotSlider.Update( 2, xs->m_ZRotate.GetID(), xs->m_ZRotateAbs.GetID() );
+        }
+
         m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
 
         if ( firstxs )
         {
+            m_XSecAbsRelToggle.Deactivate();
             m_SectUTessSlider.Deactivate();
             m_FwdClusterSlider.Deactivate();
             m_AftClusterSlider.Deactivate();
@@ -224,22 +273,10 @@ bool StackScreen::Update()
             m_XSecYRotSlider.Deactivate();
             m_XSecZRotSlider.Deactivate();
         }
-        else
-        {
-            m_SectUTessSlider.Activate();
-            m_FwdClusterSlider.Activate();
-            m_AftClusterSlider.Activate();
-            m_XSecXDeltaSlider.Activate();
-            m_XSecYDeltaSlider.Activate();
-            m_XSecZDeltaSlider.Activate();
-            m_XSecXRotSlider.Activate();
-            m_XSecYRotSlider.Activate();
-            m_XSecZRotSlider.Activate();
-            m_XSecSpinSlider.Activate();
-        }
 
         if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP)
         {
+            m_XSecAbsRelToggle.Deactivate();
             m_XSecXDeltaSlider.Deactivate();
             m_XSecYDeltaSlider.Deactivate();
             m_XSecZDeltaSlider.Deactivate();
