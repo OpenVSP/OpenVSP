@@ -1248,6 +1248,7 @@ void StackGeom::EnforceOrder( StackXSec* xs, int indx, int policy )
             if( firstxs )
             {
                 xs->m_Spin = firstxs->m_Spin();
+                xs->m_VAlign = firstxs->m_VAlign();
             }
         }
     }

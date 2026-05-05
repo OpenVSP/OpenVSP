@@ -2018,6 +2018,9 @@ StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_AftCluster.Init( "AftCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
     m_AftCluster.SetDescript( "Aft Tess Cluster Control" );
 
+    m_VAlign.Init( "VAlign", m_GroupName, this, 0.0, -10.0, 10.0 );
+    m_VAlign.SetDescript( "Vertical alignment of cross section" );
+
     m_XDelta.Init( "XDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_XDelta.SetDescript( "X distance of cross section from prior cross section" );
     m_YDelta.Init( "YDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
@@ -2117,6 +2120,11 @@ void StackXSec::Update()
     xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
 
     VspCurve baseCurve = GetUntransformedCurve();
+
+    // This is really a Z translation for the Stack, but it is applied before the
+    // BasicTransformation is applied.  Consequently, it is a y transformation
+    // (to the untransformed curve).
+    mat.translatef( 0, -m_VAlign() * 0.5 * m_XSCurve->GetHeight(), 0 );
 
     baseCurve.Transform( mat );
 
