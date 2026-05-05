@@ -2111,6 +2111,8 @@ void StackXSec::CopyBasePos( XSec* xs )
     {
         StackXSec* sxs = ( StackXSec* ) xs;
 
+        m_Spin = sxs->m_Spin();
+
         m_XDelta = sxs->m_XDelta();
         m_YDelta = sxs->m_YDelta();
         m_ZDelta = sxs->m_ZDelta();

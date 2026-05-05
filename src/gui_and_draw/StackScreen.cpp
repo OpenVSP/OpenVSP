@@ -223,7 +223,6 @@ bool StackScreen::Update()
             m_XSecXRotSlider.Deactivate();
             m_XSecYRotSlider.Deactivate();
             m_XSecZRotSlider.Deactivate();
-            m_XSecSpinSlider.Deactivate();
         }
         else
         {

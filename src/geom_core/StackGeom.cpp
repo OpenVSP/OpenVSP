@@ -1227,6 +1227,12 @@ void StackGeom::EnforceOrder( StackXSec* xs, int indx, int policy )
                 xs->m_YRotate.Set( angle.y() );
                 xs->m_ZRotate.Set( angle.z() );
             }
+
+            StackXSec* firstxs = (StackXSec*) m_XSecSurf.FindXSec( 0 );
+            if( firstxs )
+            {
+                xs->m_Spin = firstxs->m_Spin();
+            }
         }
     }
 }
