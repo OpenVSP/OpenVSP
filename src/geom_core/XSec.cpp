@@ -2130,22 +2130,22 @@ void StackXSec::Update()
     if ( m_XSAbsRelFlag() ==  vsp::REL  )
     {
 
-    if( indx > 0 )
-    {
-        StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx - 1);
-        if( prevxs )
+        if( indx > 0 )
         {
-            m_Transform.matMult( prevxs->GetTransform()->data() );
+            StackXSec* prevxs = (StackXSec*) xsecsurf->FindXSec( indx - 1);
+            if( prevxs )
+            {
+                m_Transform.matMult( prevxs->GetTransform()->data() );
+            }
         }
-    }
 
-    m_Transform.translatef( m_XDelta(), m_YDelta(), m_ZDelta() );
+        m_Transform.translatef( m_XDelta(), m_YDelta(), m_ZDelta() );
 
-    m_Transform.rotateX( m_XRotate() );
-    m_Transform.rotateY( m_YRotate() );
-    m_Transform.rotateZ( m_ZRotate() );
+        m_Transform.rotateX( m_XRotate() );
+        m_Transform.rotateY( m_YRotate() );
+        m_Transform.rotateZ( m_ZRotate() );
 
-    m_TransformedCurve.Transform( m_Transform );
+        m_TransformedCurve.Transform( m_Transform );
 
         vec3d trans = m_Transform.getTranslation();
         m_XAbs = trans.x();
