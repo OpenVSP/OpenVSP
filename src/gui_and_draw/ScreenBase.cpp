@@ -121,7 +121,7 @@ BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title, co
 {
     if ( h > MAX_WINDOW_PX_HEIGHT )
     {
-        printf( "Screen %s is too tall %d.\n", title.c_str(), h );
+        printf( "Screen %s is too tall.  Currently: %d.  Maximum: %d.\n", title.c_str(), h, MAX_WINDOW_PX_HEIGHT );
     }
 
     //==== Window ====//

@@ -518,7 +518,7 @@ void AttributeEditor::Init( GroupLayout * layout, Fl_Group* group, VspScreen *sc
     if ( browser_h < MIN_ATTR_EDITOR_PX_HEIGHT && group->active() )
     {
         string title = dynamic_cast< BasicScreen * >( screen )->GetTitle();
-        printf( "Screen %s attribute editor too short %d.\n", title.c_str(), browser_h );
+        printf( "Screen %s attribute editor too short.  Currently: %d.  Needs: %d.\n", title.c_str(), browser_h, MIN_ATTR_EDITOR_PX_HEIGHT );
     }
 }
 
