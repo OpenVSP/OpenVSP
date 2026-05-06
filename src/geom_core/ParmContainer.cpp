@@ -533,6 +533,8 @@ void ParmContainer::SwapIDs( ParmContainer *from )
     // Make a copy to iterate over because SwapID's implicitly modifies m_ParmVec.
     vector< string > parmvec = m_ParmVec;
 
+    vector< std::pair< string, string > > swap_matches;
+
     for ( int i = 0 ; i < ( int )parmvec.size() ; i++ )
     {
         Parm* pa = ParmMgr.FindParm( parmvec[i] );
@@ -541,8 +543,13 @@ void ParmContainer::SwapIDs( ParmContainer *from )
             Parm* pb = ParmMgr.FindParm( from->FindParm( pa->GetName(), pa->GetGroupName() ) );
             if ( pb )
             {
-                ParmMgr.SwapIDs( pa->GetID(), pb->GetID() );
+                swap_matches.push_back( std::pair < string, string > ( pa->GetID(), pb->GetID() ) );
             }
         }
+    }
+
+    for ( int i = 0 ; i < ( int )swap_matches.size() ; i++ )
+    {
+        ParmMgr.SwapIDs( swap_matches[i].first, swap_matches[i].second );
     }
 }
