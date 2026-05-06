@@ -1185,26 +1185,26 @@ void ISegChain::MergeInteriorIPnts()
 void ISegChain::BuildCurves( )
 {
     //==== A SCurve ====//
-    vector< vec3d > auw_pnts;
+    vector< vec3d > auw_pnts( m_ISegDeque.size() + 1 );
     Puw* uw = m_ISegDeque.front()->m_IPnt[0]->GetPuw( m_SurfA );
-    auw_pnts.push_back( vec3d( uw->m_UW[0], uw->m_UW[1], 0.0 ) );
+    auw_pnts[0] = vec3d( uw->m_UW[0], uw->m_UW[1], 0.0 );
     for ( int i = 0 ; i < ( int )m_ISegDeque.size() ; i++ )
     {
         uw = m_ISegDeque[i]->m_IPnt[1]->GetPuw( m_SurfA );
-        auw_pnts.push_back( vec3d( uw->m_UW[0], uw->m_UW[1], 0.0 ) );
+        auw_pnts[ i + 1 ] = vec3d( uw->m_UW[0], uw->m_UW[1], 0.0 );
     }
 
     m_ACurve.SetSurf( m_SurfA );
     m_ACurve.InterpolateLinear( auw_pnts );
 
     //==== B SCurve ====//
-    vector< vec3d > buw_pnts;
+    vector< vec3d > buw_pnts( m_ISegDeque.size() + 1 );
     uw = m_ISegDeque.front()->m_IPnt[0]->GetPuw( m_SurfB );
-    buw_pnts.push_back( vec3d( uw->m_UW[0], uw->m_UW[1], 0.0 ) );
+    buw_pnts[0] = vec3d( uw->m_UW[0], uw->m_UW[1], 0.0 );
     for ( int i = 0 ; i < ( int )m_ISegDeque.size() ; i++ )
     {
         uw = m_ISegDeque[i]->m_IPnt[1]->GetPuw( m_SurfB );
-        buw_pnts.push_back( vec3d( uw->m_UW[0], uw->m_UW[1], 0.0 ) );
+        buw_pnts[ i + 1 ] = vec3d( uw->m_UW[0], uw->m_UW[1], 0.0 );
     }
 
     m_BCurve.SetSurf( m_SurfB );

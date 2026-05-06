@@ -2055,7 +2055,9 @@ void WingGeom::UpdateSurf()
     m_FoilSurf.SkinC0( untransformed_crv_vec, false );
 
     vector < rib_data_type > ref_rib_vec;
+    ref_rib_vec.reserve( 6 * ( nxsec - 1 ) ); // Conservative estimate for all blended wing.
     vector < double > u_vec;
+    u_vec.reserve( 6 * ( nxsec - 1 ) ); // Conservative estimate
 
     assert( cte.number_segments() == nxsec - 1 );
     assert( cle.number_segments() == nxsec - 1 );
@@ -2488,6 +2490,9 @@ void WingGeom::UpdatePreTess()
     m_TipClusterVec.clear();
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
+    m_TessUVec.reserve( nxsec );
+    m_RootClusterVec.reserve( nxsec );
+    m_TipClusterVec.reserve( nxsec );
 
     //==== Load End Points for Each Section ====//
     for ( int i = 0 ; i < nxsec ; i++ )
@@ -2571,13 +2576,15 @@ double WingGeom::ComputeTotalSpan()
 //
 double WingGeom::UpdateEta()
 {
+    vector< WingSect* > ws_vec = GetWingSectVec();
+
     vector < double > run_span;
+    run_span.reserve( ws_vec.size() );
     vector < double > t;
+    t.reserve( ws_vec.size() );
 
     run_span.push_back( 0 );
     t.push_back( 0 );
-
-    vector< WingSect* > ws_vec = GetWingSectVec();
     for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
     {
         run_span.push_back( run_span.back() + ws_vec[i]->m_Span() );

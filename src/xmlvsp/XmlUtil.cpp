@@ -493,11 +493,12 @@ xmlNodePtr XmlUtil::AddVec3dNode( xmlNodePtr root, const char * name, const vec3
 xmlNodePtr XmlUtil::AddVectorVec3dNode( xmlNodePtr root, const char * name, const vector< vec3d > & vec )
 {
     vector< double > xyz_vec;
+    xyz_vec.reserve( 3 * vec.size() );
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
-        xyz_vec.push_back( vec[i].x() );
-        xyz_vec.push_back( vec[i].y() );
-        xyz_vec.push_back( vec[i].z() );
+        xyz_vec[ i * 3 + 0 ] = vec[i][0];
+        xyz_vec[ i * 3 + 1 ] = vec[i][1];
+        xyz_vec[ i * 3 + 2 ] = vec[i][2];
     }
 
     return AddVectorDoubleNode( root, name, xyz_vec );
@@ -599,10 +600,12 @@ vector< vec3d > XmlUtil::ExtractVectorVec3dNode( xmlNodePtr root, const char * n
     vector< vec3d > ret_vec;
 
     vector< double > xyz_vec = ExtractVectorDoubleNode( root, name );
+    int npt = xyz_vec.size() / 3;
+    ret_vec.resize( npt );
 
-    for ( int i = 0 ; i < ( int )xyz_vec.size() ; i += 3 )
+    for ( int i = 0 ; i < npt ; i ++ )
     {
-        ret_vec.push_back( vec3d( xyz_vec[i], xyz_vec[i + 1], xyz_vec[i + 2] ) );
+        ret_vec[i] = vec3d( xyz_vec[ i * 3 ], xyz_vec[ i * 3 + 1 ], xyz_vec[ i * 3 + 2 ] );
     }
 
     return ret_vec;
@@ -659,10 +662,12 @@ vector< vec3d > XmlUtil::GetVectorVec3dNode( xmlNodePtr node )
     vector< vec3d > ret_vec;
 
     vector< double > xyz_vec = GetVectorDoubleNode( node );
+    int npt = xyz_vec.size() / 3;
+    ret_vec.resize( npt );
 
-    for ( int i = 0 ; i < ( int )xyz_vec.size() ; i += 3 )
+    for ( int i = 0 ; i < npt ; i ++ )
     {
-        ret_vec.push_back( vec3d( xyz_vec[i], xyz_vec[i + 1], xyz_vec[i + 2] ) );
+        ret_vec[i] = vec3d( xyz_vec[ i * 3 ], xyz_vec[ i * 3 + 1 ], xyz_vec[ i * 3 + 2 ] );
     }
 
     return ret_vec;

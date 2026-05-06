@@ -733,18 +733,27 @@ void StackGeom::UpdatePreTess()
     m_AftClusterVec.clear();
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
+    m_TessUVec.resize( nxsec );
+    m_FwdClusterVec.resize( nxsec );
+    m_AftClusterVec.resize( nxsec );
 
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
-
-        if ( xs )
+        if ( i > 0 )
         {
-            if ( i > 0 )
+            StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
+
+            if ( xs )
             {
-                m_TessUVec.push_back( xs->m_SectTessU() );
-                m_FwdClusterVec.push_back( xs->m_FwdCluster() );
-                m_AftClusterVec.push_back( xs->m_AftCluster() );
+                m_TessUVec[ i - 1 ] = xs->m_SectTessU();
+                m_FwdClusterVec[ i - 1 ] = xs->m_FwdCluster();
+                m_AftClusterVec[ i - 1 ] = xs->m_AftCluster();
+            }
+            else
+            {
+                m_TessUVec[ i - 1 ] = 0;
+                m_FwdClusterVec[ i - 1 ] = 1;
+                m_AftClusterVec[ i - 1 ] = 1;
             }
         }
     }

@@ -123,7 +123,9 @@ void DegenGeom::calculate_section_prop( const vector < vec3d > &sect, double &le
     xcgshell = vec3d( 0, 0, 0 );
     xcgsolid = vec3d( 0, 0, 0 );
     Ishell.clear();
+    Ishell.resize( 3 );
     Isolid.clear();
+    Isolid.resize( 3 );
 
     int n = sect.size();
 
@@ -206,13 +208,13 @@ void DegenGeom::calculate_section_prop( const vector < vec3d > &sect, double &le
     I22solid = ( I22solid - ( xcgsolid.x() * xcgsolid.x() ) ) * area;
     I12solid = ( I12solid - ( xcgsolid.x() * xcgsolid.y() ) ) * area;
 
-    Ishell.push_back( I11shell );
-    Ishell.push_back( I22shell );
-    Ishell.push_back( I12shell );
+    Ishell[0] = I11shell;
+    Ishell[1] = I22shell;
+    Ishell[2] = I12shell;
 
-    Isolid.push_back( I11solid );
-    Isolid.push_back( I22solid );
-    Isolid.push_back( I12solid );
+    Isolid[0] = I11solid;
+    Isolid[1] = I22solid;
+    Isolid[2] = I12solid;
 }
 
 void DegenGeom::createDegenSurface( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, bool flipnormal )
@@ -527,10 +529,12 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
 
         // Reshape matrix to vector and store in degenStick
         vector < double > tmatvec, invtmatvec;
+        tmatvec.resize( 16 );
+        invtmatvec.resize( 16 );
         for ( int j = 0; j < 16; j++ )
         {
-            tmatvec.push_back( sect_trans.data()[j] );
-            invtmatvec.push_back( sect_inv_trans.data()[j] );
+            tmatvec[j] = sect_trans.data()[j];
+            invtmatvec[j] = sect_inv_trans.data()[j];
         }
         degenStick.transmat.push_back( tmatvec );
         degenStick.invtransmat.push_back( invtmatvec );

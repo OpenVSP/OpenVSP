@@ -155,13 +155,13 @@ void SCurve::BorderTesselate( )
     int ptsperseg = 5;
 
     int npt = ( ceil( span ) ) * ( ptsperseg - 1 ) + 1;
+    m_UWTess.resize( npt );
 
     for( int i = 0; i < npt ; i++ )
     {
         double frac = ( double )i / ( double )( npt - 1 );
 
-        vec3d uw = vec3d( ust + frac * du, wst + frac * dw, 0.0 );
-        m_UWTess.push_back( uw );
+        m_UWTess[i] = vec3d( ust + frac * du, wst + frac * dw, 0.0 );
     }
 }
 

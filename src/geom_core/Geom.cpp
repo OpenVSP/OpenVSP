@@ -6010,6 +6010,7 @@ void Geom::DelCurrSource()
     int id = GetCurrSourceID();
 
     vector< BaseSource* > tmpVec;
+    tmpVec.reserve( m_MainSourceVec.size() );
     for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
     {
         if ( i != id )
