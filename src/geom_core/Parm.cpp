@@ -153,16 +153,17 @@ string Parm::GetDisplayGroupName( const string & group_name, const string & grou
 
     if ( group_suffix >= 0 )
     {
-        char str[256];
-        snprintf( str, sizeof( str ), "_%d", group_suffix );
-        displayName.append( str );
+        // Split in two steps because
+        // displayName += '_' + std::to_string( group_suffix );
+        // must allocate a temporary.
+        displayName += '_';
+        displayName += std::to_string( group_suffix );
     }
 
     if ( !group_tag.empty() )
     {
-        char str[256];
-        snprintf( str, sizeof( str ), "_%s", group_tag.c_str() );
-        displayName.append( str );
+        displayName += '_';
+        displayName += group_tag;
     }
 
     return displayName;
@@ -170,7 +171,11 @@ string Parm::GetDisplayGroupName( const string & group_name, const string & grou
 
 string Parm::GetDisplayGroupName( bool include_alias )
 {
-    string group_alias = include_alias ? m_GroupAlias : string();
+    string group_alias;
+    if ( include_alias )
+    {
+        group_alias = m_GroupAlias;
+    }
     return GetDisplayGroupName( m_GroupName, group_alias, m_GroupDisplaySuffix );
 }
 
