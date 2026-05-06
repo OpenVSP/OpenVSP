@@ -92,6 +92,7 @@ template <class T>
 void vector_remove_val( vector< T > & vec, T const & val )
 {
     vector< T > new_vector;
+    new_vector.reserve( vec.size() );
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
         if ( val != vec[i] )
@@ -181,6 +182,7 @@ template <class T>
 void vector_find_val_multiple( const vector< T > & vec, T const & val, vector< int > & indvec )
 {
     indvec.clear();
+    indvec.reserve( vec.size() );
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
         if ( val == vec[i] )
@@ -195,6 +197,7 @@ bool vector_remove_consecutive_duplicates( vector< T > & vec )
 {
     bool condup = false;
     vector < int > dupindx;
+    dupindx.reserve( 2 * vec.size() );
 
     int n = vec.size();
     for ( int i = 0 ; i < n ; i++ )
@@ -317,6 +320,7 @@ int ReorderVectorIndex( vector < T > &vec, int index, int action )
 {
     int new_index = index;
     vector< T > new_vec;
+    new_vec.reserve( vec.size() );
     if ( action == vsp::REORDER_MOVE_TOP || action == vsp::REORDER_MOVE_BOTTOM )
     {
         if ( action == vsp::REORDER_MOVE_TOP )
