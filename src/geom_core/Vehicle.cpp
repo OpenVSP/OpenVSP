@@ -4394,6 +4394,8 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
         return;
     }
 
+    fea_struct->Update();
+
     int len = UNIT_FOOT;
     switch ( m_StructUnit() )
     {
@@ -4595,6 +4597,8 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
         printf( "ERROR WriteStructureIGESFile: No FEA Structure Found\n" );
         return;
     }
+
+    fea_struct->Update();
 
     string delim = StringUtil::get_delim( delimType );
 
