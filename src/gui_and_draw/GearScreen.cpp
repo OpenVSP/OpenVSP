@@ -149,7 +149,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 
     m_BogieLayout.AddDividerBox( "Configuration" );
 
-    m_BogieLayout.AddButton( m_SymmetricalButton, "Symmetrical" );
+    m_BogieLayout.AddButton( m_SymmetricalButton, "Symmetrical", m_BogieLayout.GetW() * 0.5 );
 
     m_BogieLayout.AddYGap();
     m_BogieLayout.AddSlider( m_NAcrossSlider, "Across", 10, "%6.0f" );
