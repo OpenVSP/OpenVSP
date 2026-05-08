@@ -983,7 +983,7 @@ double FindMaxMinDistance( const vector< TMesh* > & mesh_vec_1, const vector< TM
     return sqrt( max_dist );
 }
 
-void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double > &azvec, const vector < double > & elvec, const vector < vec3d > & cen_vec, const string & resid, const vector<string> & cutout_vec  )
+void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double > &azvec, const vector < double > & elvec, const vector < vec3d > & cen_vec, vector <TMesh *> &fov_vec, const string & resid, const vector<string> & cutout_vec )
 {
     bool intSubsFlag = !cutout_vec.empty();
     CSGMesh( primary_tmv, intSubsFlag, cutout_vec );
@@ -1001,12 +1001,21 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
 
     vector < vec3d > dir_vec;
     vector < double > dviz_vec, dmiss_vec;
+    vector < double > dfovviz_vec, dfovmiss_vec;
     vector < int > viz_vec;
     vector < vec3d > pts;
     double dviz_sum = 0;
     for ( int icen = 0; icen < ( int )cen_vec.size(); icen++ )
     {
         const vec3d &cen = cen_vec[ icen ];
+
+        TMesh *fov = nullptr;
+        if ( fov_vec[ icen ] )
+        {
+            fov = fov_vec[ icen ];
+            fov->LoadBndBox();
+        }
+
         for ( int i = 0; i < azvec.size(); ++i )
         {
             vec3d dir = -ToCartesian( vec3d( 1.0, -azvec[i] * M_PI / 180.0, -elvec[i] * M_PI / 180.0 ) );
@@ -1014,16 +1023,53 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
             vector < double > tParmVec;
             vector < TTri* > triVec;
 
+            int viz = 1; // Start with visible assumption.
+
+            double dfovviz = 0;
+            double dfovmiss = 0;
+
+            if ( fov )
+            {
+                fov->m_TBox.RayCast( cen, dir, tParmVec, triVec );
+
+                if ( !tParmVec.empty() ) // Ray is within field of view.
+                {
+                    // Visible, do not set viz.
+                    std::sort( tParmVec.begin(), tParmVec.end() );
+                    dfovviz = -tParmVec[0];
+                    dfovmiss = 0;
+
+                    pts.push_back( cen );
+                    pts.push_back( cen + dfovviz * dir );
+                }
+                else
+                {
+                    // Discrete view direction not within FOV
+                    viz = 0;
+
+                    vector < vec3d > distpts(2);
+                    dfovmiss = fov->MinDistanceRay( cen, dir, 1e12, distpts[0], distpts[1] );
+
+                    dfovviz = dist( cen, distpts[0] );
+
+                    pts.push_back( distpts[0] );
+                    pts.push_back( distpts[1] );
+                }
+
+                tParmVec.clear();
+                triVec.clear();
+            }
+
             for ( int j = 0; j < ( int )primary_tmv.size(); j++ )
             {
                 primary_tmv[j]->m_TBox.RayCast( cen, dir, tParmVec, triVec );
             }
 
-            int viz = 0;
             double dviz = 0;
             double dmiss = 1.0e12;
             if ( !tParmVec.empty() )
             {
+                viz = 0;
                 std::sort( tParmVec.begin(), tParmVec.end() );
                 dviz = tParmVec[0];
                 dmiss = 0;
@@ -1034,7 +1080,7 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
             }
             else
             {
-                viz = 1;
+                // Visible, do not set viz.
                 vector < vec3d > closest_distpts(2);
                 for ( int j = 0; j < ( int )primary_tmv.size(); j++ )
                 {
@@ -1058,6 +1104,8 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
             dir_vec.push_back( dir );
             dviz_vec.push_back( dviz );
             dmiss_vec.push_back( dmiss );
+            dfovviz_vec.push_back( dfovviz );
+            dfovmiss_vec.push_back( dfovmiss );
             viz_vec.push_back( viz );
         }
     }

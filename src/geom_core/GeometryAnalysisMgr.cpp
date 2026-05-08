@@ -1892,7 +1892,7 @@ string GeometryAnalysisCase::Evaluate()
                                         elvec.push_back( m_VizElevationVec[i]->Get() );
                                     }
 
-                                    DiscreteVisibility( primary_tmv, azvec, elvec, cen_vec, m_LastResult, m_CutoutVec );
+                                    DiscreteVisibility( primary_tmv, azvec, elvec, cen_vec, fov_vec, m_LastResult, m_CutoutVec );
                                 }
                             }
                             else
