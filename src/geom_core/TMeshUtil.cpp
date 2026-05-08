@@ -3790,6 +3790,8 @@ void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, const BndBox &bbo
     TransMat.initMat( tempMat );
 
     TransformMeshVec( tmv, TransMat );
+    BndBox tbbox = bbox;
+    tbbox.Transform( TransMat );
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
@@ -3845,7 +3847,7 @@ void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, const BndBox &bbo
     vector< double > loc_vec;
     bool mpslice = false; // Do counting for mass properties slicing.
     bool tesselate = false; // Sub-tessellate slice into smaller triangles.
-    MakeSlices( slicevec, bbox, numSlices, vsp::X_DIR, loc_vec, mpslice, tesselate, autoBounds, start, end, slctype );
+    MakeSlices( slicevec, tbbox, numSlices, vsp::X_DIR, loc_vec, mpslice, tesselate, autoBounds, start, end, slctype );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( tmv.size() );
