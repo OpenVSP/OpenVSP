@@ -66,6 +66,7 @@ protected:
 
     SliderAdjRangeInput m_WSlider;
     SliderAdjRangeInput m_HSlider;
+    SliderAdjRangeInput m_ARSlider;
     SliderAdjRangeInput m_ResolutionSlider;
 
     Choice m_HAlignChoice;

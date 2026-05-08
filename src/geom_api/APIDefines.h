@@ -1404,10 +1404,12 @@ enum ROUTE_PT_DELTA_TYPE { ROUTE_PT_DELTA_XYZ,	/*!< Routing point ofset in globa
 	\ingroup Enumerations
 */
 /*! Enum representing the possible ways to scale a 3D background image. */
-enum SCALE_TYPE { SCALE_WIDTH,	/*!< Scale image to match desired width */
-                  SCALE_HEIGHT,	/*!< Scale image to match desired height */
+enum SCALE_TYPE { SCALE_WIDTH,	/*!< Scale image to match desired width with 1:1 AR */
+                  SCALE_HEIGHT,	/*!< Scale image to match desired height with 1:1 AR */
                   SCALE_WIDTH_HEIGHT,	/*!< Scale image to match desired width and height */
                   SCALE_RESOLUTION,	/*!< Scale image to specified resolution */
+                  SCALE_WIDTH_AR,	/*!< Scale image to match desired width with specified AR */
+                  SCALE_HEIGHT_AR,	/*!< Scale image to match desired height with specified AR */
                   NUM_SCALE_TYPES,	/*!< Number of ways to scale 3D background image. */
 };
 

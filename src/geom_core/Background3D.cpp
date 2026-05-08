@@ -38,6 +38,7 @@ Background3D::Background3D() : ParmContainer()
 
     m_BackgroundWidth.Init( "W", "Background3D", this, 1.0, 0, 1.0e12 );
     m_BackgroundHeight.Init( "H", "Background3D", this, 1.0, 0, 1.0e12 );
+    m_BackgroundAR.Init( "AR", "Background3D", this, 1.0, 0.0, 1e12 );
     m_Resolution.Init( "Resolution", "Background3D", this, 1.0, 0, 1e12 );
     m_ResEqual.Init( "ResEqual", "Background3D", this, true, false, true );
 
@@ -139,6 +140,7 @@ void Background3D::Update()
 
     if ( m_ScaleType() == vsp::SCALE_WIDTH )
     {
+        m_BackgroundAR = 1;
         m_Resolution = ( 1.0 * m_ImageW() ) / m_BackgroundWidth();
         double h = ( 1.0 * m_ImageH() ) / m_Resolution();
         if ( isfinite( h ) )
@@ -148,6 +150,7 @@ void Background3D::Update()
     }
     else if ( m_ScaleType() == vsp::SCALE_HEIGHT )
     {
+        m_BackgroundAR = 1;
         m_Resolution = ( 1.0 * m_ImageH() ) / m_BackgroundHeight();
         double w = ( 1.0 * m_ImageW() ) / m_Resolution();
         if ( isfinite( w ) )
@@ -158,9 +161,13 @@ void Background3D::Update()
     else if ( m_ScaleType() == vsp::SCALE_WIDTH_HEIGHT )
     {
         m_Resolution = sqrt( ( 1.0 * m_ImageH() * m_ImageW()  ) / ( m_BackgroundHeight() * m_BackgroundWidth() ) );
+        double resW = ( 1.0 * m_ImageW() ) / m_BackgroundWidth();
+        double resH = ( 1.0 * m_ImageH() ) / m_BackgroundHeight();
+        m_BackgroundAR = resH / resW;
     }
-    else // vsp::SCALE_RESOLUTION
+    else if ( m_ScaleType() == vsp::SCALE_RESOLUTION )
     {
+        m_BackgroundAR = 1;
         double h = ( 1.0 * m_ImageH() ) / m_Resolution();
         if ( isfinite( h ) )
         {
@@ -171,6 +178,18 @@ void Background3D::Update()
         {
             m_BackgroundWidth = w;
         }
+    }
+    else if ( m_ScaleType() == vsp::SCALE_WIDTH_AR )
+    {
+        m_Resolution = ( 1.0 * m_ImageW() ) / m_BackgroundWidth();
+        double resH = m_Resolution() * m_BackgroundAR();
+        m_BackgroundHeight = ( 1.0 * m_ImageH() ) / resH;
+    }
+    else // vsp::SCALE_HEIGHT_AR
+    {
+        m_Resolution = ( 1.0 * m_ImageH() ) / m_BackgroundHeight();
+        double resW = m_Resolution() / m_BackgroundAR();
+        m_BackgroundWidth = ( 1.0 * m_ImageW() ) / resW;
     }
 
     Matrix4d destmat;

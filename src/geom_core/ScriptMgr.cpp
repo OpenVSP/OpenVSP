@@ -2245,6 +2245,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SCALE_TYPE", "SCALE_RESOLUTION", SCALE_RESOLUTION );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_TYPE", "SCALE_WIDTH_AR", SCALE_WIDTH_AR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SCALE_TYPE", "SCALE_HEIGHT_AR", SCALE_HEIGHT_AR );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "SCALE_TYPE", "NUM_SCALE_TYPES", NUM_SCALE_TYPES );
     assert( r >= 0 );
 

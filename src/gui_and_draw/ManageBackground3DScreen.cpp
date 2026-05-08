@@ -221,15 +221,18 @@ ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScr
     m_BorderLayout.AddDividerBox( "Scale" );
 
     m_BorderLayout.AddChoice( m_ImageScaleChoice, "Driver" );
-    m_ImageScaleChoice.AddItem( "Width", vsp::SCALE_WIDTH );
-    m_ImageScaleChoice.AddItem( "Height", vsp::SCALE_HEIGHT );
+    m_ImageScaleChoice.AddItem( "Width (1:1)", vsp::SCALE_WIDTH );
+    m_ImageScaleChoice.AddItem( "Height (1:1)", vsp::SCALE_HEIGHT );
     m_ImageScaleChoice.AddItem( "Width && Height", vsp::SCALE_WIDTH_HEIGHT );
+    m_ImageScaleChoice.AddItem( "Width && AR", vsp::SCALE_WIDTH_AR );
+    m_ImageScaleChoice.AddItem( "Height && AR", vsp::SCALE_HEIGHT_AR );
     m_ImageScaleChoice.AddItem( "Resolution", vsp::SCALE_RESOLUTION );
     m_ImageScaleChoice.UpdateItems();
 
     m_BorderLayout.AddSlider( m_WSlider, "Width", 1.0, "%5.4f" );
     m_BorderLayout.AddSlider( m_HSlider, "Height", 1.0, "%5.4f" );
-    m_BorderLayout.AddSlider( m_ResolutionSlider, "Res.", 1.0, "%5.4f" );
+    m_BorderLayout.AddSlider( m_ARSlider, "AR", 1.0, "%5.4f" );
+    m_BorderLayout.AddSlider( m_ResolutionSlider, "Res.", 1000.0, "%5.4f" );
 
     m_BorderLayout.AddYGap();
 
@@ -346,6 +349,7 @@ bool ManageBackground3DScreen::Update()
         m_ImageScaleChoice.Update( bg3D->m_ScaleType.GetID() );
         m_WSlider.Update( bg3D->m_BackgroundWidth.GetID() );
         m_HSlider.Update( bg3D->m_BackgroundHeight.GetID() );
+        m_ARSlider.Update( bg3D->m_BackgroundAR.GetID() );
         m_ResolutionSlider.Update( bg3D->m_Resolution.GetID() );
 
         m_DepthChoice.Update( bg3D->m_DepthPos.GetID() );
@@ -395,25 +399,40 @@ bool ManageBackground3DScreen::Update()
 
         m_WSlider.Activate();
         m_HSlider.Activate();
+        m_ARSlider.Activate();
         m_ResolutionSlider.Activate();
         if ( bg3D->m_ScaleType() == vsp::SCALE_WIDTH )
         {
             m_HSlider.Deactivate();
+            m_ARSlider.Deactivate();
             m_ResolutionSlider.Deactivate();
         }
         else if ( bg3D->m_ScaleType() == vsp::SCALE_HEIGHT )
         {
             m_WSlider.Deactivate();
+            m_ARSlider.Deactivate();
             m_ResolutionSlider.Deactivate();
         }
         else if ( bg3D->m_ScaleType() == vsp::SCALE_WIDTH_HEIGHT )
         {
+            m_ARSlider.Deactivate();
             m_ResolutionSlider.Deactivate();
         }
-        else // vsp::SCALE_RESOLUTION
+        else if ( bg3D->m_ScaleType() == vsp::SCALE_RESOLUTION )
         {
             m_WSlider.Deactivate();
             m_HSlider.Deactivate();
+            m_ARSlider.Deactivate();
+        }
+        else if ( bg3D->m_ScaleType() == vsp::SCALE_WIDTH_AR )
+        {
+            m_HSlider.Deactivate();
+            m_ResolutionSlider.Deactivate();
+        }
+        else // vsp::SCALE_HEIGHT_AR
+        {
+            m_WSlider.Deactivate();
+            m_ResolutionSlider.Deactivate();
         }
 
         if ( bg3D->m_VisAlign() )
