@@ -1078,6 +1078,8 @@ protected:
     Choice m_EngineGeomInChoice;
     Choice m_EngineGeomOutChoice;
 
+    ToggleButton m_EngineShowStationsToggle;
+
     ToggleRadioGroup m_EngineInFaceToggleGroup;
     ToggleButton m_EngineInFaceUToggle;
     ToggleButton m_EngineInFaceIndexToggle;

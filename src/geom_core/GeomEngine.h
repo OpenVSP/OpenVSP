@@ -45,6 +45,8 @@ public:
     Parm m_EngineOutFaceU;
     Parm m_EngineOutLipU;
 
+    BoolParm m_EngineShowStationsFlag;
+
     IntParm m_EngineInModeType;
     IntParm m_EngineOutModeType;
 

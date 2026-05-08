@@ -36,6 +36,8 @@ GeomEngine::GeomEngine( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_EngineOutFaceU.Init( "OutletFaceU", "EngineModel", this, 0, 0, 1.0 );
     m_EngineOutLipU.Init( "OutletLipU", "EngineModel", this, 0, 0, 1.0 );
 
+    m_EngineShowStationsFlag.Init( "EngineShowStationsFlag", "EngineModel", this, true, false, true );
+
     m_EngineInModeType.Init( "InletModeType", "EngineModel", this, ENGINE_MODE_TO_LIP, ENGINE_MODE_FLOWTHROUGH, ENGINE_MODE_NUM_TYPES - 1 );
     m_EngineOutModeType.Init( "OutletModeType", "EngineModel", this, ENGINE_MODE_TO_LIP, ENGINE_MODE_TO_LIP, ENGINE_MODE_NUM_TYPES - 1 );
 
@@ -735,7 +737,11 @@ void GeomEngine::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         if ( m_engine_spec[i] )
         {
-            m_EngineDrawObj_vec[i].m_Visible = ( m_EngineGeomIOType() != ENGINE_GEOM_NONE ) && m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN );
+            m_EngineDrawObj_vec[i].m_Visible =
+                ( m_EngineGeomIOType() != ENGINE_GEOM_NONE ) &&
+                  m_GuiDraw.GetDispFeatureFlag() &&
+                  m_EngineShowStationsFlag() &&
+                  GetSetFlag( vsp::SET_SHOWN );
             draw_obj_vec.push_back( &m_EngineDrawObj_vec[i] );
         }
     }
