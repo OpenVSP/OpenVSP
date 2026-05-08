@@ -369,6 +369,36 @@ void MainVSPScreen::SetFileLabel( const string &fname )
     m_FLTK_Window->copy_label( title.c_str() );
 }
 
+void MainVSPScreen::NewModel()
+{
+    switch( fl_choice("New will lose any changes.  Do you want to proceed (discarding changes) or save?", "Cancel", "Discard", "Save") )
+    {
+        case(0):  // Cancel
+            return;
+
+        case(1):  // Discard
+            break;
+
+        case(2):  // Save
+            string savefile = VehicleMgr.GetVehicle()->GetVSP3FileName();
+
+            if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
+            {
+                savefile = m_ScreenMgr->FileChooser( "Save VSP File", "*.vsp3", vsp::SAVE );
+            }
+
+            if ( savefile.compare( "" ) != 0 )
+            {
+                VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
+                VehicleMgr.GetVehicle()->WriteXMLFile( savefile, SET_ALL );
+            }
+    }
+
+    VehicleMgr.GetVehicle()->Renew();
+
+    m_GlWin->getGraphicEngine()->getDisplay()->setCOR( 0.0, 0.0, 0.0 );
+}
+
 void MainVSPScreen::ExitVSP()
 {
     switch( fl_choice("VSP is exiting. Save or discard your changes.", "Cancel", "Discard", "Save") )
@@ -403,9 +433,7 @@ void MainVSPScreen::ActionCB( void * data )
 
     if ( data == &m_NewMenuItem )
     {
-        VehicleMgr.GetVehicle()->Renew();
-
-        m_GlWin->getGraphicEngine()->getDisplay()->setCOR( 0.0, 0.0, 0.0 );
+        NewModel();
     }
     else if ( data == &m_OpenMenuItem )
     {

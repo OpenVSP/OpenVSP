@@ -81,6 +81,7 @@ protected:
 
     void SetFileLabel( const string &fname );
 
+    virtual void NewModel();
     virtual void ExitVSP();
 
     ActionMenuItem m_FileMenuItem;
