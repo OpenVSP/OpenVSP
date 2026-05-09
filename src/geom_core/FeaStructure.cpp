@@ -5745,7 +5745,7 @@ void FeaProperty::Update()
             m_CrossSecArea = b * h - bi * hi;
             m_Izz = ( b * h3 - bi * hi3 ) / 12.0;
             m_Iyy = ( b3 * h - bi3 * hi ) / 12.0;
-            m_Ixx = ( 2 * t2 * t2 * a2 * c2 ) / ( b * t2 + h * t1 - t22 - t12 );
+            m_Ixx = ( 2 * t2 * t1 * a2 * c2 ) / ( b * t2 + h * t1 - t22 - t12 );
             m_Izy = 0.0;
         }
     }
