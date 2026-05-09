@@ -5697,16 +5697,23 @@ void FeaProperty::Update()
         }
         else if ( m_CrossSectType() == vsp::FEA_XSEC_RECT )
         {
-            const double b = m_Dim1();
-            const double h = m_Dim2();
-            const double b3 = b * b * b;
-            const double h3 = h * h * h;
-            const double b4 = b3 * b;
-            const double h4 = h3 * h;
+            double b = m_Dim1();
+            double h = m_Dim2();
+            double b3 = b * b * b;
+            double h3 = h * h * h;
 
             m_CrossSecArea = b * h;
             m_Izz = b * h3 / 12.0;
             m_Iyy = b3 * h / 12.0;
+
+            b = std::max( m_Dim1(), m_Dim2() );
+            h = std::min( m_Dim1(), m_Dim2() );
+
+            b3 = b * b * b;
+            h3 = h * h * h;
+            const double b4 = b3 * b;
+            const double h4 = h3 * h;
+
             m_Ixx = b * h3 * ( ( 1.0 / 3.0 ) - 0.21 * ( h / b ) * ( 1.0 - ( h4 / ( 12.0 * b4 ) ) ) );
             m_Izy = 0.0;
         }
