@@ -1,3 +1,78 @@
+# [OpenVSP 3.50.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.2)
+
+2026-05-09
+
+OpenVSP 3.50.2
+
+Mostly fixes, but a few creature comforts that may quality as features if
+these issues were causing you irritation.
+
+More options when placing Stack XSec's.  There is now an 'Abs' mode for
+position/orientation of cross sections.  These are in the Stack's coordinate
+system (not the global coordinate system).  This should make it easier to
+build up bodies in certain circumstances.
+
+Stack XSec's also gained an option to change their vertical alignment.  Setting
+the VAlign Parm to -1 will cause the XSec origin to be at the bottom of the
+section (+1 at the top, and 0 at the center like it is now).  So, if you are
+designing a body with a flat bottom, set VAlign for those sections to -1 and
+you should have an easier time of it.
+
+The Planar Slice tool now ignores inlet/exhaust extensions when automatically
+setting the bounds for slicing.  It will also ignore landing gear ground
+planes and Aux Geoms intended to extend beyond the model.
+
+I noticed that changing XSec type was slower than I felt like it should be.
+I profiled it and made a few nice speedups, but it was still sluggish.  I then
+realized that the slowdown was caused in 3.41.0 by some changes I made to
+preserve ID's when changing XSec type.  I was able to make an algorithmic
+change to this routine and now it is back to full speed.
+
+File/New will now pop up a dialog to give you the opportunity to save or
+discard your changes.
+
+There is now an aspect ratio control for 3D background images.  If your images
+are not 1:1, this should make life easier.
+
+There is now an option to not show the colored dashed lines indicating the
+designated propulsion station locations.
+
+When doing a discrete View From visibility analysis, the FOV of any viewpoints
+is not taken into account.
+
+Several bug fixes that have hit users.  FEA Structures are now Update()'d
+when exporting STEP/IGES files via the API.  A bug setting up the slices for
+Planar Slice (introduced in 3.50) has been fixed.
+
+There was a mistake calculating the torsional stiffness constant for rectangle
+beam sections could actually cause an infinite loop and crashes.  While fixing
+it, I also noticed that the torsional stiffness for box sections with un-equal
+wall thickness had an error.
+
+Also, a build fix for shiny new GCC - thanks fernape.
+
+So, nothing too huge, but pretty good for a .2 release.  Everyone should update.
+
+Features:
+- Planar slice auto bounds now ignores components meant to extend beyond model
+- Absolute XSec positioning for Stacks
+- Vertical alignment of XSecs for Stacks
+- File/New now has confirmation dialog
+- Aspect ratio control for 3D Background images
+- Show/Hide engine definition station highlights
+- Discrete View From visibility analysis now honors limited FOV
+
+Fixes:
+- FEA Structure Update() when exporting STEP/IGES via API
+- Planar Slice limits fixed
+- Torsional constant for rectangle beam sections - causing infinite loop
+- Torsional constant for box beam sections
+- Build fix with new compilers / libc++
+
+
+---
+
+
 # [OpenVSP 3.50.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.1)
 
 2026-05-04
