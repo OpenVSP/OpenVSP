@@ -1458,6 +1458,13 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             gcase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
         }
     }
+    else if ( gui_device == & m_DirectionGeom )
+    {
+        if ( gcase )
+        {
+            gcase->m_DirectionGeomID = m_DirectionGeom.GetGeomChoice();
+        }
+    }
     else if ( gui_device == & m_ShowBoth )
     {
         if ( gcase )
