@@ -94,6 +94,9 @@ protected:
     virtual void UpdateBBox( vector < TMesh* > & tmv );
 
     virtual void MeshToPaths( const vector < TMesh* > & tmv, Clipper2Lib::Paths64 & pths );
+    virtual void PGMeshToPathsVec( PGMesh *pgm, vector < Clipper2Lib::Paths64 > & pths,
+                                   vector < double > & uminvec, vector < double > & umaxvec,
+                                   vector < double > & wminvec, vector < double > & wmaxvec );
 
     virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pths, vector < string > & ids, int keepdir1 = 1, int keepdir2 = 2 );
 

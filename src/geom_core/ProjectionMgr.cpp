@@ -1057,6 +1057,66 @@ void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, Clipper
     }
 }
 
+void ProjectionMgrSingleton::PGMeshToPathsVec( PGMesh *pgm, vector < Clipper2Lib::Paths64 > & pths,
+                                               vector < double > & uminvec, vector < double > & umaxvec,
+                                               vector < double > & wminvec, vector < double > & wmaxvec )
+{
+    const int nface = pgm->m_FaceList.size();
+    pths.resize( nface );
+
+    uminvec.resize( nface );
+    umaxvec.resize( nface );
+    wminvec.resize( nface );
+    wmaxvec.resize( nface );
+
+    unsigned int iface = 0;
+    list< PGFace* >::iterator f;
+    for ( f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodes( nodVec );
+        int tag = ( *f )->m_Tag;
+
+        if ( nodVec.size() > 0 )
+        {
+            // index to size-1 because first/last point is repeated.
+            int npt = nodVec.size() - 1;
+
+            pths[iface].resize( 1 );
+            pths[iface][0].resize( npt );
+
+            double umin = 100, umax = 0;
+            double wmin = 100, wmax = 0;
+            for ( int k = 0; k < npt; k++ )
+            {
+                vec3d p = nodVec[k]->m_Pt->m_Pnt;
+
+                vec2d uw;
+                nodVec[k]->GetUW( tag, uw );
+
+                umin = std::min( umin, uw.x() );
+                umax = std::max( umax, uw.x() );
+                wmin = std::min( wmin, uw.y() );
+                wmax = std::max( wmax, uw.y() );
+
+
+                pths[iface][0][k] = Clipper2Lib::Point64( (int64_t) p.y(), (int64_t) p.z() );
+            }
+            uminvec[iface] = umin;
+            umaxvec[iface] = umax;
+            wminvec[iface] = wmin;
+            wmaxvec[iface] = wmax;
+
+            if ( !Clipper2Lib::IsPositive( pths[iface][0] ) )
+            {
+                std::reverse( pths[iface][0].begin(), pths[iface][0].end() );
+            }
+
+            iface++;
+        }
+    }
+}
+
 void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pthvec, vector < string > & ids, int keepdir1, int keepdir2 )
 {
     pthvec.resize( tmv.size() );
