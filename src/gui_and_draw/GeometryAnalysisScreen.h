@@ -202,7 +202,7 @@ protected:
     SliderAdjRangeInput m_YSlider;
     SliderAdjRangeInput m_ZSlider;
 
-    GeomPicker m_DirectionGeom;
+    GeomPicker m_DirectionGeomPicker;
 
     // Mass Prop
     SliderAdjRangeInput m_MassNumSlicesSlider;

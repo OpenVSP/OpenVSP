@@ -463,14 +463,14 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_ProjectionDirectionLayout.AddButton( m_DirectionTypeGeom, "Geom" );
     m_ProjectionDirectionLayout.SetFitWidthFlag( true );
-    m_DirectionGeom.AddExcludeType( MESH_GEOM_TYPE );
-    m_DirectionGeom.AddExcludeType( HUMAN_GEOM_TYPE );
-    m_DirectionGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
-    m_DirectionGeom.AddExcludeType( WIRE_FRAME_GEOM_TYPE );
-    m_DirectionGeom.AddExcludeType( BLANK_GEOM_TYPE );
-    m_DirectionGeom.AddExcludeType( HINGE_GEOM_TYPE );
+    m_DirectionGeomPicker.AddExcludeType( MESH_GEOM_TYPE );
+    m_DirectionGeomPicker.AddExcludeType( HUMAN_GEOM_TYPE );
+    m_DirectionGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_DirectionGeomPicker.AddExcludeType( WIRE_FRAME_GEOM_TYPE );
+    m_DirectionGeomPicker.AddExcludeType( BLANK_GEOM_TYPE );
+    m_DirectionGeomPicker.AddExcludeType( HINGE_GEOM_TYPE );
     m_ProjectionDirectionLayout.SetChoiceButtonWidth( 0 );
-    m_ProjectionDirectionLayout.AddGeomPicker( m_DirectionGeom, m_ProjectionDirectionLayout.GetButtonWidth() );
+    m_ProjectionDirectionLayout.AddGeomPicker( m_DirectionGeomPicker, m_ProjectionDirectionLayout.GetButtonWidth() );
     m_ProjectionDirectionLayout.SetFitWidthFlag( false );
     m_ProjectionDirectionLayout.ForceNewLine();
 
@@ -681,7 +681,7 @@ bool GeometryAnalysisScreen::Update()
 
         m_DirectionTypeGroup.Update( gcase->m_DirectionType.GetID() );
 
-        m_DirectionGeom.Update();
+        m_DirectionGeomPicker.Update();
 
         m_XSlider.Update( gcase->m_DispX.GetID() );
         m_YSlider.Update( gcase->m_DispY.GetID() );
@@ -710,19 +710,19 @@ bool GeometryAnalysisScreen::Update()
                 m_XSlider.Deactivate();
                 m_YSlider.Deactivate();
                 m_ZSlider.Deactivate();
-                m_DirectionGeom.Deactivate();
+                m_DirectionGeomPicker.Deactivate();
                 break;
             case vsp::GEOM_PROJ:
                 m_XSlider.Deactivate();
                 m_YSlider.Deactivate();
                 m_ZSlider.Deactivate();
-                m_DirectionGeom.Activate();
+                m_DirectionGeomPicker.Activate();
                 break;
             case vsp::VEC_PROJ:
                 m_XSlider.Activate();
                 m_YSlider.Activate();
                 m_ZSlider.Activate();
-                m_DirectionGeom.Deactivate();
+                m_DirectionGeomPicker.Deactivate();
                 break;
         }
 
@@ -778,13 +778,13 @@ bool GeometryAnalysisScreen::Update()
             gcase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetSetValidGeom();
         }
 
-        if ( m_DirectionGeom.ValidGeom( gcase->m_DirectionGeomID ) )
+        if ( m_DirectionGeomPicker.ValidGeom( gcase->m_DirectionGeomID ) )
         {
-            m_DirectionGeom.SetGeomChoice( gcase->m_DirectionGeomID );
+            m_DirectionGeomPicker.SetGeomChoice( gcase->m_DirectionGeomID );
         }
         else
         {
-            gcase->m_DirectionGeomID = m_DirectionGeom.GetSetValidGeom();
+            gcase->m_DirectionGeomID = m_DirectionGeomPicker.GetSetValidGeom();
         }
 
         if ( ModeMgr.GetNumModes() == 0 )
@@ -1326,7 +1326,7 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
         {
             m_PrimaryGeomPicker.SetGeomChoice( gcase->m_PrimaryGeomID );
             m_SecondaryGeomPicker.SetGeomChoice( gcase->m_SecondaryGeomID );
-            m_DirectionGeom.SetGeomChoice( gcase->m_DirectionGeomID );
+            m_DirectionGeomPicker.SetGeomChoice( gcase->m_DirectionGeomID );
 
             ResultsViewer * rv = dynamic_cast < ResultsViewer* > ( m_ScreenMgr->GetScreen( vsp::VSP_RESULTS_VIEWER_SCREEN ) );
             if ( rv )
@@ -1458,11 +1458,11 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             gcase->m_SecondaryGeomID = m_SecondaryGeomPicker.GetGeomChoice();
         }
     }
-    else if ( gui_device == & m_DirectionGeom )
+    else if ( gui_device == & m_DirectionGeomPicker )
     {
         if ( gcase )
         {
-            gcase->m_DirectionGeomID = m_DirectionGeom.GetGeomChoice();
+            gcase->m_DirectionGeomID = m_DirectionGeomPicker.GetGeomChoice();
         }
     }
     else if ( gui_device == & m_ShowBoth )
