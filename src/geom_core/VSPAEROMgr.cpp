@@ -172,8 +172,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 
     // m_NumWakeNodes no longer must be a power of two.
     // m_NumWakeNodes.SetPowShift( 2, 0 ); // Must come before Init
-    m_NumWakeNodes.Init( "RootWakeNodes", groupname, this, 8, 0, 10e12 );
-    m_NumWakeNodes.SetDescript( "Number of Wake Nodes (f(n^2))" );
+    m_NumWakeNodes.Init( "RootWakeNodes", groupname, this, 8, 0, 1e12 );
+    m_NumWakeNodes.SetDescript( "Number of Wake Nodes" );
 
     // This sets all the filename members to the appropriate value (for example: empty strings if there is no vehicle)
     UpdateFilenames();
