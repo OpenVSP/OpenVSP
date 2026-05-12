@@ -4015,6 +4015,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 ); // TODO: Example
 
 
+    r = se->RegisterGlobalFunction( "void AddDesignVarLimits( const string & in parm_id, int type, double lowerlimit, double upperlimit )", asFUNCTION( vsp::AddDesignVarLimits ), asCALL_CDECL );
+    assert( r >= 0 ); // TODO: Example
+
+
     r = se->RegisterGlobalFunction( "void DeleteAllDesignVars()", asFUNCTION( vsp::DeleteAllDesignVars ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 

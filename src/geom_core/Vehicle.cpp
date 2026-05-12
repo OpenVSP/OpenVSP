@@ -189,6 +189,9 @@ Vehicle::Vehicle()
     m_SVGView4_rot.Init( "BottomRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
 
     m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", this, vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST );
+    // 1e12 is the largest observed Parm lower/upper limit in OpenVSP.  This needs to meet or exceed that limit.
+    m_WorkingDVMin.Init( "WorkingDVMin", "Design", this, 0, -1e12, 1e12 );
+    m_WorkingDVMax.Init( "WorkingDVMax", "Design", this, 0, -1e12, 1e12 );
 
     m_SurfIndx.Init( "SurfIndx", "FitModel", this, 0, 0, 1e6 );
     m_SurfIndx.SetDescript( "Surface index a target point is matched to" );

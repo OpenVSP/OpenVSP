@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "Design Variables" )
+DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 450, 463 + 40, "Design Variables" )
 {
     m_NVarLast = 0;
 
@@ -52,7 +52,16 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
     dv_val_map.push_back( vsp::XDDM_CONST );
     m_XDDMGroup.SetValMapVec( dv_val_map );
 
+    m_PickLayout.SetFitWidthFlag( true );
+    m_PickLayout.SetSameLineFlag( false );
+
+    m_PickLayout.AddSlider( m_LowerLimitSlider, "Min", 10, "%g" );
+    m_PickLayout.AddSlider( m_UpperLimitSlider, "Max", 10, "%g" );
+
     m_PickLayout.AddYGap();
+
+    m_PickLayout.SetFitWidthFlag( false );
+    m_PickLayout.SetSameLineFlag( true );
 
     m_PickLayout.SetButtonWidth( ( m_PickLayout.GetRemainX() ) / 2 );
     m_PickLayout.AddButton( m_AddVarButton, "Add Variable" );
@@ -69,10 +78,10 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int col_widths[] = { 86, 86, 86, 40, 0 }; // widths for each column
+    static int col_widths[] = { 86, 86, 86, 75, 75, 40, 0 }; // COMP_A, GROUP, PARM, MIN, MAX, V/C
 
     int browser_h = 200;
-    m_VarBrowser = m_PickLayout.AddColResizeBrowser( col_widths, 4, browser_h );
+    m_VarBrowser = m_PickLayout.AddColResizeBrowser( col_widths, 6, browser_h );
     m_VarBrowser->callback( staticScreenCB, this );
 
     m_PickLayout.AddYGap();
@@ -122,6 +131,17 @@ bool DesignVarScreen::Update()
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     m_XDDMGroup.Update( veh->m_WorkingXDDMType.GetID() );
 
+    m_LowerLimitSlider.Update( veh->m_WorkingDVMin.GetID() );
+    m_UpperLimitSlider.Update( veh->m_WorkingDVMax.GetID() );
+
+    DesignVar *dv = DesignVarMgr.GetCurrVar();
+
+    if ( dv )
+    {
+        dv->m_LowerLimit = veh->m_WorkingDVMin();
+        dv->m_UpperLimit = veh->m_WorkingDVMax();
+    }
+
     //==== Update Parm Browser ====//
     int h_pos = m_VarBrowser->hposition();
     int v_pos = m_VarBrowser->vposition();
@@ -129,7 +149,7 @@ bool DesignVarScreen::Update()
 
     m_VarBrowser->column_char( ':' );         // use : as the column character
 
-    snprintf( str, sizeof( str ),  "@b@.COMP_A:@b@.GROUP:@b@.PARM:@b@.V/C" );
+    snprintf( str, sizeof( str ),  "@b@.COMP_A:@b@.GROUP:@b@.PARM:@b@.MIN:@b@.MAX:@b@.V/C" );
     m_VarBrowser->add( str );
 
     int num_vars = DesignVarMgr.GetNumVars();
@@ -149,7 +169,7 @@ bool DesignVarScreen::Update()
         string c_name, g_name, p_name;
         ParmMgr.GetNames( dv->m_ParmID, c_name, g_name, p_name );
 
-        snprintf( str, sizeof( str ),  "%s:%s:%s:%c", c_name.c_str(), g_name.c_str(), p_name.c_str(), vtype );
+        snprintf( str, sizeof( str ),  "%s:%s:%s:%g:%g:%c", c_name.c_str(), g_name.c_str(), p_name.c_str(), dv->m_LowerLimit, dv->m_UpperLimit, vtype );
         m_VarBrowser->add( str );
     }
 
@@ -233,7 +253,7 @@ void DesignVarScreen::CallBack( Fl_Widget* w )
     if( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
     {
         string ParmID( Fl::event_text() );
-        DesignVarMgr.AddVar( ParmID, veh->m_WorkingXDDMType.Get() );
+        DesignVarMgr.AddVar( ParmID, veh->m_WorkingXDDMType.Get() ); // Set limits from Parm
         RebuildAdjustTab();
     }
     else if (  w == m_VarBrowser )
@@ -247,11 +267,15 @@ void DesignVarScreen::CallBack( Fl_Widget* w )
         {
             m_ParmPicker.SetParmChoice( dv->m_ParmID );
             veh->m_WorkingXDDMType = dv->m_XDDM_Type;
+            veh->m_WorkingDVMin = dv->m_LowerLimit;
+            veh->m_WorkingDVMax = dv->m_UpperLimit;
         }
         else
         {
             m_ParmPicker.SetParmChoice( string() );
             veh->m_WorkingXDDMType = vsp::XDDM_VAR;
+            veh->m_WorkingDVMin = 0;
+            veh->m_WorkingDVMax = 0;
         }
     }
 

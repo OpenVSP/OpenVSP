@@ -53,6 +53,9 @@ protected:
     ToggleButton m_XDDMConstButton;
     ToggleRadioGroup m_XDDMGroup;
 
+    SliderAdjRangeInput m_LowerLimitSlider;
+    SliderAdjRangeInput m_UpperLimitSlider;
+
     TriggerButton m_AddVarButton;
     TriggerButton m_DelVarButton;
 

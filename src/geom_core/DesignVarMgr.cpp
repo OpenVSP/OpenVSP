@@ -16,6 +16,8 @@ DesignVar:: DesignVar()
 {
     m_ParmID = "";
     m_XDDM_Type = vsp::XDDM_VAR;
+    m_LowerLimit = 0.0;
+    m_UpperLimit = 0.0;
 }
 
 bool DesignVarNameCompare( const DesignVar *dvA, const DesignVar *dvB )
@@ -86,7 +88,24 @@ bool DesignVarMgrSingleton::AddCurrVar()
     }
 
     Vehicle* veh = VehicleMgr.GetVehicle();
-    AddVar( m_WorkingParmID, veh->m_WorkingXDDMType.Get() );
+
+    // The limit sliders sit directly above the Add Variable button and are seeded from the
+    // parm when it is picked, so what they hold is what the user means.  Taking the parm's
+    // own limits here instead would throw away any narrowing that had been typed, with
+    // nothing to say it had happened.
+    double lowerlimit = veh->m_WorkingDVMin();
+    double upperlimit = veh->m_WorkingDVMax();
+
+    Parm *p = ParmMgr.FindParm( m_WorkingParmID );
+
+    // A zero width range means the sliders were never seeded -- fall back to the parm.
+    if ( p && lowerlimit == upperlimit )
+    {
+        lowerlimit = p->GetLowerLimit();
+        upperlimit = p->GetUpperLimit();
+    }
+
+    AddVar( m_WorkingParmID, veh->m_WorkingXDDMType.Get(), lowerlimit, upperlimit );
 
     return true;
 }
@@ -136,6 +155,38 @@ bool DesignVarMgrSingleton::AddVar( const string& parm_id, int xddmtype )
 
     dv->m_ParmID = parm_id;
     dv->m_XDDM_Type = xddmtype;
+    dv->m_LowerLimit = p->GetLowerLimit();
+    dv->m_UpperLimit = p->GetUpperLimit();
+
+    m_VarVec.push_back( dv );
+    SortVars();
+    m_CurrVarIndex = -1;
+
+    return true;
+}
+
+//==== Add New Variable ====//
+bool DesignVarMgrSingleton::AddVar( const string& parm_id, int xddmtype, double lowerlimit, double upperlimit )
+{
+    if ( CheckForDuplicateVar( parm_id ) )
+    {
+        return false;
+    }
+
+    //==== Check If ParmIDs Are Valid ====//
+    Parm* p = ParmMgr.FindParm( parm_id );
+
+    if ( p == nullptr )
+    {
+        return false;
+    }
+
+    DesignVar* dv = new DesignVar();
+
+    dv->m_ParmID = parm_id;
+    dv->m_XDDM_Type = xddmtype;
+    dv->m_LowerLimit = lowerlimit;
+    dv->m_UpperLimit = upperlimit;
 
     m_VarVec.push_back( dv );
     SortVars();
@@ -216,15 +267,36 @@ void DesignVarMgrSingleton::ResetWorkingVar()
     m_WorkingParmID = string();
     Vehicle* veh = VehicleMgr.GetVehicle();
     veh->m_WorkingXDDMType = vsp::XDDM_VAR;
+    veh->m_WorkingDVMin = 0;
+    veh->m_WorkingDVMax = 0;
 }
 
 void DesignVarMgrSingleton::SetWorkingParmID( string parm_id )
 {
-    if ( !ParmMgr.FindParm( parm_id ) )
+    Parm *p = ParmMgr.FindParm( parm_id );
+
+    if ( !p )
     {
         parm_id = string();
     }
+
+    bool changed = ( parm_id != m_WorkingParmID );
+
     m_WorkingParmID = parm_id;
+
+    // Seed the limit sliders from the parm the user just picked, so they start at its own
+    // bounds and can be narrowed from there.  Left alone they would show the last
+    // variable's numbers, or zero and zero in a fresh session, and AddCurrVar takes the
+    // new variable's limits from them.
+    if ( p && changed )
+    {
+        Vehicle* veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            veh->m_WorkingDVMin = p->GetLowerLimit();
+            veh->m_WorkingDVMax = p->GetUpperLimit();
+        }
+    }
 }
 
 void DesignVarMgrSingleton::WriteDesVarsDES( const string &newfile )
@@ -242,6 +314,20 @@ void DesignVarMgrSingleton::WriteDesVarsDES( const string &newfile )
         Parm *p = ParmMgr.FindParm( m_VarVec[i]->m_ParmID );
 
         fprintf( fp, "%s:%s:%s:%s: %g\n", m_VarVec[i]->m_ParmID.c_str(), c_name.c_str(), g_name.c_str(), p_name.c_str(), p->Get() );
+    }
+
+    fprintf( fp, "#\n" );
+    fprintf( fp, "#LIMITS\n" );
+    fprintf( fp, "#\n" );
+
+    for ( int i = 0 ; i < ( int )m_VarVec.size() ; i++ )
+    {
+        string c_name, g_name, p_name;
+        ParmMgr.GetNames( m_VarVec[i]->m_ParmID, c_name, g_name, p_name );
+
+        Parm *p = ParmMgr.FindParm( m_VarVec[i]->m_ParmID );
+
+        fprintf( fp, "%s:%s:%s:%s: %g %g\n", m_VarVec[i]->m_ParmID.c_str(), c_name.c_str(), g_name.c_str(), p_name.c_str(), m_VarVec[i]->m_LowerLimit, m_VarVec[i]->m_UpperLimit );
     }
 
     fclose( fp );
@@ -284,9 +370,46 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
             {
                 // Set with delayed updates.
                 p->Set( val );
-                AddVar( id, vsp::XDDM_VAR );
+                AddVar( id, vsp::XDDM_VAR, p->GetLowerLimit(), p->GetUpperLimit() );
             }
         }
+
+        // Read optional LIMITS section -- match lines by ParmID and apply lower/upper limits.
+        while ( fgets( temp, 255, fp ) != nullptr )
+        {
+            line = temp;
+
+            if ( line.empty() || line[0] == '#' )
+            {
+                continue;
+            }
+
+            unsigned int istart = 0;
+            unsigned int iend = line.find( ':', istart );
+            string id = line.substr( istart, iend - istart );
+
+            istart = iend + 1;
+            iend = line.find( ' ', istart );
+
+            istart = iend + 1;
+            iend = line.find( ' ', istart );
+            double lower = atof( line.substr( istart, iend - istart ).c_str() );
+
+            istart = iend + 1;
+            iend = line.length();
+            double upper = atof( line.substr( istart, iend - istart ).c_str() );
+
+            for ( int i = 0 ; i < (int)m_VarVec.size() ; i++ )
+            {
+                if ( m_VarVec[i]->m_ParmID == id )
+                {
+                    m_VarVec[i]->m_LowerLimit = lower;
+                    m_VarVec[i]->m_UpperLimit = upper;
+                    break;
+                }
+            }
+        }
+
         // Trigger update.
         VehicleMgr.GetVehicle()->Update();
     }
@@ -327,8 +450,8 @@ void DesignVarMgrSingleton::WriteDesVarsXDDM( const string &newfile )
 
         xmlSetProp( var_node, ( const xmlChar * )"ID", ( const xmlChar * )varname );
         XmlUtil::SetDoubleProp( var_node, "Value", p->Get() );
-        XmlUtil::SetDoubleProp( var_node, "Min", p->GetLowerLimit() );
-        XmlUtil::SetDoubleProp( var_node, "Max", p->GetUpperLimit() );
+        XmlUtil::SetDoubleProp( var_node, "Min", m_VarVec[i]->m_LowerLimit );
+        XmlUtil::SetDoubleProp( var_node, "Max", m_VarVec[i]->m_UpperLimit );
         xmlSetProp( var_node, ( const xmlChar * )"VSPID", ( const xmlChar * )m_VarVec[i]->m_ParmID.c_str() );
     }
 
@@ -392,19 +515,22 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
             if ( p )
             {
                 double val = XmlUtil::FindDoubleProp( var_node, "Value", p->Get() );
+                double lowerlimit = XmlUtil::FindDoubleProp( var_node, "Min", p->GetLowerLimit() );
+                double upperlimit = XmlUtil::FindDoubleProp( var_node, "Max", p->GetUpperLimit() );
 
                 // Set with delayed updates.
                 p->Set( val );
 
                 const xmlChar* varstr = ( xmlChar* ) "Variable";
 
+
                 if( !xmlStrcmp( var_node->name, varstr ) )
                 {
-                    AddVar( varid, vsp::XDDM_VAR );
+                    AddVar( varid, vsp::XDDM_VAR, lowerlimit, upperlimit );
                 }
                 else
                 {
-                    AddVar( varid, vsp::XDDM_CONST );
+                    AddVar( varid, vsp::XDDM_CONST, lowerlimit, upperlimit );
                 }
             }
         }

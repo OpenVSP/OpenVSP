@@ -545,6 +545,8 @@ public:
 
     // DesignVarMgr
     IntParm m_WorkingXDDMType;
+    Parm m_WorkingDVMin;
+    Parm m_WorkingDVMax;
 
     // FitModelMgr
     BoolParm m_SelectOneFlag;

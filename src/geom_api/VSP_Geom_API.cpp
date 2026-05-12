@@ -436,6 +436,12 @@ void AddDesignVar( const std::string & parm_id, int type )
     ErrorMgr.NoError();
 }
 
+void AddDesignVarLimits( const string & parm_id, int type, double lowerlimit, double upperlimit )
+{
+    DesignVarMgr.AddVar( parm_id, type, lowerlimit, upperlimit );
+    ErrorMgr.NoError();
+}
+
 void DeleteAllDesignVars()
 {
     DesignVarMgr.DelAllVars();

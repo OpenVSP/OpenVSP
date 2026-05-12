@@ -25,6 +25,8 @@ public:
 
     string m_ParmID;
     int m_XDDM_Type;
+    double m_LowerLimit;
+    double m_UpperLimit;
 };
 
 
@@ -47,6 +49,7 @@ public:
     bool CheckForDuplicateVar( const string & p );
 
     virtual bool AddVar( const string& parm_id, int xddmtype );
+    virtual bool AddVar( const string& parm_id, int xddmtype, double lowerlimit, double upperlimit );
 
     virtual void SetCurrVarIndex( int i )
     {

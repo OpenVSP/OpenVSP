@@ -2183,6 +2183,20 @@ extern void AddDesignVar( const std::string & parm_id, int type );
     \ingroup DesignFile
 */
 /*!
+    Add a design variable
+    \sa XDDM_QUANTITY_TYPE
+    \param [in] parm_id string Parm ID
+    \param [in] type int XDDM type enum (XDDM_VAR or XDDM_CONST)
+    \param [in] lowerlimit double Variable lower limit
+    \param [in] upperlimit double Variable upper limit
+*/
+
+extern void AddDesignVarLimits( const std::string & parm_id, int type, double lowerlimit, double upperlimit );
+
+/*!
+    \ingroup DesignFile
+*/
+/*!
     Delete all design variables
     \forcpponly
     \code{.cpp}
