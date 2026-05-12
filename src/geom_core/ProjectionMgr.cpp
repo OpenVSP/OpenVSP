@@ -845,6 +845,61 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
 
     AreaReport( res, "Comp_Areas", "Component projected areas.", utargetvec, scale );
 
+    if ( diskSegmentBreakdown )
+    {
+        Clipper2Lib::Paths64 utarget;
+        Union( utargetvec, utarget );
+
+        for ( int i = 0; i < boundaryTMeshVec.size(); i++ )
+        {
+            TMesh *btm = boundaryTMeshVec[i];
+
+            if ( btm->m_SurfType == vsp::DISK_SURF )
+            {
+                PGMulti pg_multi;
+                PGMesh* pgm = pg_multi.AddMesh();
+
+                pgm->BuildFromTMesh( btm );
+
+                pgm->MergeCoincidentNodes();
+
+                pgm->PolygonizeMesh();
+
+                vector < Clipper2Lib::Paths64 > boundaryvec;
+                vector < double > uminvec, umaxvec, wminvec, wmaxvec;
+                PGMeshToPathsVec( pgm, boundaryvec, uminvec, umaxvec, wminvec, wmaxvec );
+
+                vector < Clipper2Lib::Paths64 > solvec;
+                Intersect( boundaryvec, utarget, solvec );
+
+                AreaReport( res, "Seg_Areas", "Disk segment areas.", solvec, scale );
+                res->Add( new NameValData( "Seg_Umin", uminvec, "Segment U min." ) );
+                res->Add( new NameValData( "Seg_Umax", umaxvec, "Segment U max." ) );
+                res->Add( new NameValData( "Seg_Wmin", wminvec, "Segment W min." ) );
+                res->Add( new NameValData( "Seg_Wmax", wmaxvec, "Segment W max." ) );
+
+                int nseg = wminvec.size();
+                vector < double > thetamin( nseg ), thetamax( nseg );
+                for ( int j = 0; j < nseg; j++ )
+                {
+                    thetamin[j] = 360.0 * wminvec[j] / 4.0;
+                    thetamax[j] = 360.0 * wmaxvec[j] / 4.0;
+
+                    if ( thetamin[j] == 0 && thetamax[j] > 180.0 )
+                    {
+                        thetamin[j] = thetamax[j];
+                        thetamax[j] = 360.0;
+                    }
+                }
+
+                res->Add( new NameValData( "Seg_rmin/R", uminvec, "Segment r/R min." ) );
+                res->Add( new NameValData( "Seg_rmax/R", umaxvec, "Segment r/R max." ) );
+                res->Add( new NameValData( "Seg_thetamin", thetamin, "Segment theta min." ) );
+                res->Add( new NameValData( "Seg_thetamax", thetamax, "Segment theta max." ) );
+            }
+        }
+    }
+
     Clipper2Lib::Paths64 boundary;
     MeshToPaths( boundaryTMeshVec, boundary );
 
