@@ -1839,6 +1839,7 @@ void ProjectionAnalysis::SetDefaults()
 
     m_Inputs.Add( new NameValData( "TargetHullFlag", false, "Target Convex Hull flag." ) );
     m_Inputs.Add( new NameValData( "BoundaryHullFlag", false, "Boundary Convex Hull flag." ) );
+    m_Inputs.Add( new NameValData( "DiskSegmentBreakdown", false, "Disk segment breakdown flag." ) );
 
     m_Inputs.Add( new NameValData( "Direction", vec3d( 1.0, 0.0, 0.0 ), "Direction vector." ) );
 }
@@ -1925,6 +1926,13 @@ string ProjectionAnalysis::Execute()
         boundaryhullflag = nvd->GetBool( 0 );
     }
 
+    bool diskSegmentBreakdown = false;
+    nvd = m_Inputs.FindPtr( "DiskSegmentBreakdown", 0 );
+    if ( nvd )
+    {
+        diskSegmentBreakdown = nvd->GetBool( 0 );
+    }
+
     vec3d dir = vec3d( 1.0, 0.0, 0.0 );
     nvd = m_Inputs.FindPtr( "Direction", 0 );
     if ( nvd )
@@ -1965,21 +1973,21 @@ string ProjectionAnalysis::Execute()
         case vsp::SET_BOUNDARY:
             if ( targetType == vsp::SET_TARGET || targetType == vsp::MODE_TARGET )
             {
-                res = ProjectionMgr.Project( targetSet, targethullflag, boundarySet, boundaryhullflag, dir);
+                res = ProjectionMgr.Project( targetSet, targethullflag, boundarySet, boundaryhullflag, dir, diskSegmentBreakdown );
             }
             else
             {
-                res = ProjectionMgr.Project( targetGeomID, targethullflag, boundarySet, boundaryhullflag, dir);
+                res = ProjectionMgr.Project( targetGeomID, targethullflag, boundarySet, boundaryhullflag, dir, diskSegmentBreakdown );
             }
             break;
         case vsp::GEOM_BOUNDARY:
             if ( targetType == vsp::SET_TARGET || targetType == vsp::MODE_TARGET )
             {
-                res = ProjectionMgr.Project( targetSet, targethullflag, boundaryGeomID, boundaryhullflag, dir);
+                res = ProjectionMgr.Project( targetSet, targethullflag, boundaryGeomID, boundaryhullflag, dir, diskSegmentBreakdown );
             }
             else
             {
-                res = ProjectionMgr.Project( targetGeomID, targethullflag, boundaryGeomID, boundaryhullflag, dir);
+                res = ProjectionMgr.Project( targetGeomID, targethullflag, boundaryGeomID, boundaryhullflag, dir, diskSegmentBreakdown );
             }
             break;
     }

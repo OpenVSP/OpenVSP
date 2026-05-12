@@ -203,6 +203,7 @@ Vehicle::Vehicle()
     m_TargetHullFlag.Init( "TargetHullFlag", "Projection", this, false, false, true );
     m_BoundaryType.Init( "BoundaryType", "Projection", this, vsp::NO_BOUNDARY, vsp::NO_BOUNDARY, vsp::NUM_PROJ_BNDY_OPTIONS - 1 );
     m_BoundaryHullFlag.Init( "BoundaryHullFlag", "Projection", this, false, false, true );
+    m_DiskSegmentBreakdownFlag.Init( "DiskSegmentBreakdownFlag", "Projection", this, false, false, true );
     m_DirectionType.Init( "DirectionType", "Projection", this, vsp::X_PROJ, vsp::X_PROJ, vsp::NUM_PROJ_DIR_OPTIONS - 1 );
     m_XComp.Init( "XComp", "Projection", this, 0.0, -1.0, 1.0 );
     m_YComp.Init( "YComp", "Projection", this, 0.0, -1.0, 1.0 );

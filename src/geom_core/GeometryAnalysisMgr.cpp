@@ -106,6 +106,7 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_TargetHullFlag.Init( "TargetHullFlag", m_GroupName, this, false, false, true );
     m_BoundaryEnableFlag.Init( "BoundaryEnableFlag", m_GroupName, this, false, false, true );
     m_BoundaryHullFlag.Init( "BoundaryHullFlag", m_GroupName, this, false, false, true );
+    m_DiskSegmentBreakdownFlag.Init( "DiskSegmentBreakdownFlag", m_GroupName, this, false, false, true );
     m_DirectionType.Init( "DirectionType", m_GroupName, this, vsp::X_PROJ, vsp::X_PROJ, vsp::NUM_PROJ_DIR_OPTIONS - 1 );
 
     m_GeometryAnalysisType.Init( "IntererenceCheckType", m_GroupName, this, vsp::COMP_GEOM, vsp::EXTERNAL_INTERFERENCE, vsp::NUM_INTERFERENCE_TYPES - 1 );
@@ -2208,7 +2209,7 @@ string GeometryAnalysisCase::Evaluate()
                                     secondary_tmv.push_back( tm );
                                 }
 
-                                ProjectionMgr.Project( primary_tmv, secondary_tmv, dir, res, m_TMeshVec, solutionPolyVec3d  );
+                                ProjectionMgr.Project( primary_tmv, secondary_tmv, dir, m_DiskSegmentBreakdownFlag(), res, m_TMeshVec, solutionPolyVec3d );
                             }
                             else
                             {

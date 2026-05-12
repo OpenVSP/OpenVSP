@@ -518,6 +518,7 @@ public:
     BoolParm m_TargetHullFlag;
     IntParm m_BoundaryType;
     BoolParm m_BoundaryHullFlag;
+    BoolParm m_DiskSegmentBreakdownFlag;
     IntParm m_DirectionType;
     Parm m_XComp;
     Parm m_YComp;

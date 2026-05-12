@@ -62,15 +62,15 @@ public:
                                    vector< TMesh* > & result_tmv, bool poly_visible );
 
     virtual Results* Project( int tset, bool thullflag, const vec3d & dir );
-    virtual Results* Project( int tset, bool thullflag, int bset, bool bhullflag, const vec3d & dir );
-    virtual Results* Project( int tset, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir );
+    virtual Results* Project( int tset, bool thullflag, int bset, bool bhullflag, const vec3d & dir, bool diskSegmentBreakdown );
+    virtual Results* Project( int tset, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir, bool diskSegmentBreakdown );
 
     virtual Results* Project( const string &tgeom, bool thullflag, const vec3d & dir );
-    virtual Results* Project( const string &tgeom, bool thullflag, int bset, bool bhullflag, const vec3d & dir );
-    virtual Results* Project( const string &tgeom, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir );
+    virtual Results* Project( const string &tgeom, bool thullflag, int bset, bool bhullflag, const vec3d & dir, bool diskSegmentBreakdown );
+    virtual Results* Project( const string &tgeom, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir, bool diskSegmentBreakdown );
 
     virtual bool Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir, Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d );
-    virtual bool Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d );
+    virtual bool Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, bool diskSegmentBreakdown, Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d );
 
     virtual string MakeMeshGeom( const vector < TMesh * > &tmv, const vector < vector < vec3d > > &solutionPolyVec3d );
 
@@ -131,7 +131,7 @@ protected:
     virtual void AreaReport( Results* res, const string &resname, const string &doc, const vector < Clipper2Lib::Paths64 > & pthsvec, double scale );
 
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir );
-    virtual Results* Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir );
+    virtual Results* Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, bool diskSegmentBreakdown );
 
     virtual void Dump( vector < vector < vec3d > > & pthsvec, const string & fname );
     virtual void Dump( Clipper2Lib::Paths64 & pthsvec, const string & fname );

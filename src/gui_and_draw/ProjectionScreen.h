@@ -60,6 +60,7 @@ protected:
     ToggleButton m_BoundaryTypeGeom;
 
     ToggleButton m_BoundaryHullButton;
+    ToggleButton m_DiskSegmentBreakdownButton;
 
 
     ToggleRadioGroup m_DirectionTypeGroup;

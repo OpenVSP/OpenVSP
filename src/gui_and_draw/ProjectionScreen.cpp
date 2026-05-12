@@ -9,7 +9,7 @@
 #include "ProjectionScreen.h"
 #include "ModeMgr.h"
 
-ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 397+20+40, "Projected Area Analysis" )
+ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 397+20+40+20, "Projected Area Analysis" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -109,6 +109,9 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
 
     m_BorderLayout.SetFitWidthFlag( true );
     m_BorderLayout.AddButton( m_BoundaryHullButton, "Convex Hull" );
+    m_BorderLayout.ForceNewLine();
+
+    m_BorderLayout.AddButton( m_DiskSegmentBreakdownButton, "Disk Segment Breakdown" );
     m_BorderLayout.ForceNewLine();
 
     m_BorderLayout.AddYGap();
@@ -261,20 +264,27 @@ bool ProjectionScreen::Update()
 
     m_TargetHullButton.Update( vehiclePtr->m_TargetHullFlag.GetID() );
     m_BoundaryHullButton.Update( vehiclePtr->m_BoundaryHullFlag.GetID() );
+    m_DiskSegmentBreakdownButton.Update( vehiclePtr->m_DiskSegmentBreakdownFlag.GetID() );
 
     switch ( vehiclePtr->m_BoundaryType() )
     {
         case vsp::NO_BOUNDARY:
             m_BoundaryGeom.Deactivate();
             m_BoundarySet.Deactivate();
+            m_BoundaryHullButton.Deactivate();
+            m_DiskSegmentBreakdownButton.Deactivate();
             break;
         case vsp::SET_BOUNDARY:
             m_BoundaryGeom.Deactivate();
             m_BoundarySet.Activate();
+            m_BoundaryHullButton.Activate();
+            m_DiskSegmentBreakdownButton.Activate();
             break;
         case vsp::GEOM_BOUNDARY:
             m_BoundaryGeom.Activate();
             m_BoundarySet.Deactivate();
+            m_BoundaryHullButton.Activate();
+            m_DiskSegmentBreakdownButton.Activate();
             break;
     }
 

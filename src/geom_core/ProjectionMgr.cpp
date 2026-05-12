@@ -15,6 +15,7 @@
 #include "Vehicle.h"
 #include "MeshGeom.h"
 #include "ModeMgr.h"
+#include "PGMesh.h"
 
 #include "triangle.h"
 #include "triangle_api.h"
@@ -136,6 +137,7 @@ Results* ProjectionMgrSingleton::Project( )
 
     bool thullflag = veh->m_TargetHullFlag();
     bool bhullflag = veh->m_BoundaryHullFlag();
+    bool diskSegmentBreakdown = veh->m_DiskSegmentBreakdownFlag();
 
     if ( ttype == vsp::MODE_TARGET )
     {
@@ -164,21 +166,21 @@ Results* ProjectionMgrSingleton::Project( )
         case vsp::SET_BOUNDARY:
             if ( ttype == vsp::SET_TARGET || ttype == vsp::MODE_TARGET )
             {
-                return Project( tset, thullflag, m_BoundarySetIndex, bhullflag, dir);
+                return Project( tset, thullflag, m_BoundarySetIndex, bhullflag, dir, diskSegmentBreakdown );
             }
             else
             {
-                return Project( m_TargetGeomID, thullflag, m_BoundarySetIndex, bhullflag, dir);
+                return Project( m_TargetGeomID, thullflag, m_BoundarySetIndex, bhullflag, dir, diskSegmentBreakdown );
             }
             break;
         case vsp::GEOM_BOUNDARY:
             if ( ttype == vsp::SET_TARGET || ttype == vsp::MODE_TARGET )
             {
-                return Project( tset, thullflag, m_BoundaryGeomID, bhullflag, dir);
+                return Project( tset, thullflag, m_BoundaryGeomID, bhullflag, dir, diskSegmentBreakdown );
             }
             else
             {
-                return Project( m_TargetGeomID, thullflag, m_BoundaryGeomID, bhullflag, dir);
+                return Project( m_TargetGeomID, thullflag, m_BoundaryGeomID, bhullflag, dir, diskSegmentBreakdown );
             }
             break;
     }
@@ -535,7 +537,7 @@ Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const vec3d 
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, int bset, bool bhullflag, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, int bset, bool bhullflag, const vec3d & dir, bool diskSegmentBreakdown )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -556,14 +558,14 @@ Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, int bset, bo
         boundaryTMeshVec.push_back( tm );
     }
 
-    Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
+    Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir, diskSegmentBreakdown );
 
     DeleteTMeshVec( targetTMeshVec );
     DeleteTMeshVec( boundaryTMeshVec );
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir, bool diskSegmentBreakdown )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -584,7 +586,7 @@ Results* ProjectionMgrSingleton::Project( int tset, bool thullflag, const string
         boundaryTMeshVec.push_back( tm );
     }
 
-    Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
+    Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir, diskSegmentBreakdown );
 
     DeleteTMeshVec( targetTMeshVec );
     DeleteTMeshVec( boundaryTMeshVec );
@@ -609,7 +611,7 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, c
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, int bset, bool bhullflag, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, int bset, bool bhullflag, const vec3d & dir, bool diskSegmentBreakdown )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -630,14 +632,14 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, i
         boundaryTMeshVec.push_back( tm );
     }
 
-    Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
+    Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir, diskSegmentBreakdown );
 
     DeleteTMeshVec( targetTMeshVec );
     DeleteTMeshVec( boundaryTMeshVec );
     return res;
 }
 
-Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, const string &bgeom, bool bhullflag, const vec3d & dir, bool diskSegmentBreakdown )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -658,7 +660,7 @@ Results* ProjectionMgrSingleton::Project( const string &tgeom, bool thullflag, c
         boundaryTMeshVec.push_back( tm );
     }
 
-    Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir );
+    Results* res = Project( targetTMeshVec, boundaryTMeshVec, dir, diskSegmentBreakdown );
     DeleteTMeshVec( targetTMeshVec );
     DeleteTMeshVec( boundaryTMeshVec );
     return res;
@@ -771,14 +773,14 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, const v
     return false;
 }
 
-Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir )
+Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, bool diskSegmentBreakdown )
 {
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "Projection", "Projected area with bounding mesh results." );
 
     vector < TMesh* > solutionTMeshVec;
     vector < vector < vec3d > > solutionPolyVec3d;
-    bool success = Project( targetTMeshVec, boundaryTMeshVec, dir, res, solutionTMeshVec, solutionPolyVec3d );
+    bool success = Project( targetTMeshVec, boundaryTMeshVec, dir, diskSegmentBreakdown, res, solutionTMeshVec, solutionPolyVec3d );
 
     if ( success )
     {
@@ -798,7 +800,8 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     return res;
 }
 
-bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d )
+bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, bool diskSegmentBreakdown,
+                                      Results* res, vector < TMesh* > &solutionTMeshVec, vector < vector < vec3d > > &solutionPolyVec3d )
 {
     Matrix4d mat;
     mat.rotatealongX( dir );

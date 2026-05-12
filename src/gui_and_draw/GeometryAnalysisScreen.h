@@ -189,6 +189,7 @@ protected:
 
     ToggleButton m_BoundaryEnableButton;
     ToggleButton m_BoundaryHullButton;
+    ToggleButton m_DiskSegmentBreakdownButton;
 
     ToggleRadioGroup m_DirectionTypeGroup;
 

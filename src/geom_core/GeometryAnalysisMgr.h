@@ -148,6 +148,7 @@ public:
     BoolParm m_TargetHullFlag;
     BoolParm m_BoundaryEnableFlag;
     BoolParm m_BoundaryHullFlag;
+    BoolParm m_DiskSegmentBreakdownFlag;
     IntParm m_DirectionType;
 
     IntParm m_GeometryAnalysisType;

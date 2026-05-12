@@ -410,7 +410,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_ProjectionSub1Layout.AddYGap();
     m_ProjectionSub1Layout.AddDividerBox( "Bounded Projection" );
     m_ProjectionSub1Layout.AddButton( m_BoundaryEnableButton, "Use Secondary as Boundary" );
-
+    m_ProjectionSub1Layout.AddButton( m_DiskSegmentBreakdownButton, "Disk Segment Breakdown" );
 
     m_ProjectionSub1Layout.AddYGap();
     m_ProjectionSub1Layout.AddDividerBox( "Convex Hull" );
@@ -688,6 +688,7 @@ bool GeometryAnalysisScreen::Update()
         m_ZSlider.Update( gcase->m_DispZ.GetID() );
 
         m_BoundaryHullButton.Update( gcase->m_BoundaryHullFlag.GetID() );
+        m_DiskSegmentBreakdownButton.Update( gcase->m_DiskSegmentBreakdownFlag.GetID() );
 
         m_TargetHullButton.Update( gcase->m_TargetHullFlag.GetID() );
 
@@ -696,10 +697,12 @@ bool GeometryAnalysisScreen::Update()
             !gcase->m_BoundaryEnableFlag() )
         {
             m_BoundaryHullButton.Deactivate();
+            m_DiskSegmentBreakdownButton.Deactivate();
         }
         else
         {
             m_BoundaryHullButton.Activate();
+            m_DiskSegmentBreakdownButton.Activate();
         }
 
         switch ( gcase->m_DirectionType() )
