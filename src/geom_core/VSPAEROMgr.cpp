@@ -1724,7 +1724,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
     {
         if ( FileExist( m_PolarFile ) )
         {
-            ReadPolarFile( m_PolarFile, res_id_vec, m_ReCrefStart() );
+            ReadPolarFile( m_PolarFile, res_id_vec );
         }
         else
         {
@@ -2167,7 +2167,7 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 
         if ( stabilityType == vsp::STABILITY_OFF )
         {
-            ReadPolarFile( polarFileName, res_id_vector, recref ); // Must be after *.history file is read to generate results for multiple ReCref values
+            ReadPolarFile( polarFileName, res_id_vector ); // Must be after *.history file is read to generate results for multiple ReCref values
         }
 
         ReadLoadFile( loadFileName, res_id_vector );
@@ -2560,7 +2560,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
 Read .polar file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref ) const
+void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string> &res_id_vector ) const
 {
     FILE *fp = nullptr;
     bool read_success = false;

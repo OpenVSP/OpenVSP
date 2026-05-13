@@ -561,7 +561,7 @@ protected:
 
     // helper functions for VSPAERO files
     void ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref ) const;
-    void ReadPolarFile( const string &filename, vector <string> &res_id_vector, double recref ) const;
+    void ReadPolarFile( const string &filename, vector <string> &res_id_vector ) const;
     void ReadLoadFile( const string &filename, vector <string> &res_id_vector ) const;
     void ReadStabFile( const string &filename, vector <string> &res_id_vector, vsp::VSPAERO_STABILITY_TYPE stabilityType );
     static vector <string> ReadDelimLine( FILE * fp, char * delimiters );
