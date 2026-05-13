@@ -2698,7 +2698,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                         Ew.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                         StallFactor.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
-                        if ( ( abs( ( 1e6 * Re_1e6.back() ) - recref ) > tol ) && num_history_res > 0 )
+                        if ( ( abs( Re_1e6.back() - Re_1e6[0] ) > tol ) && num_history_res > 0 )
                         {
                             // Find history result with matching mach, beta, and alpha
                             for ( size_t i = 0; i < num_history_res; i++ )
