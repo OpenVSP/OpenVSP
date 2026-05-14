@@ -1559,6 +1559,15 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
         }
+        else
+        {
+            CurveEditScreen *ceditcreen = dynamic_cast < CurveEditScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
+
+            if ( ceditcreen )
+            {
+                ceditcreen->SetXSecCurve( nullptr );
+            }
+        }
     }
     else if ( gui_device == &m_ShowXSecButton )
     {
