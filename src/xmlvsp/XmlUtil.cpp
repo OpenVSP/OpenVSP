@@ -492,8 +492,7 @@ xmlNodePtr XmlUtil::AddVec3dNode( xmlNodePtr root, const char * name, const vec3
 //==== Create Node and Add Vector Of Vec3d ====//
 xmlNodePtr XmlUtil::AddVectorVec3dNode( xmlNodePtr root, const char * name, const vector< vec3d > & vec )
 {
-    vector< double > xyz_vec;
-    xyz_vec.reserve( 3 * vec.size() );
+    vector< double > xyz_vec( 3 * vec.size() );
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
         xyz_vec[ i * 3 + 0 ] = vec[i][0];
