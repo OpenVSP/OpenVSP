@@ -1,3 +1,29 @@
+# [OpenVSP 3.50.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.3)
+
+2026-05-15
+
+OpenVSP 3.50.3
+
+No features here, just a few bug fixes.  One of them critical.
+
+Some *.vsp3 files written with 3.50.2 will become corrupted and will cause
+OpenVSP (of any version) to crash when loading.  This has been fixed.
+
+OpenVSP would crash when you changed the XSec type away from a CEdit when
+the CEdit screen was still open.
+
+OpenVSP would sometimes create ghost results when reading a VSPAERO solution.
+
+Fixes:
+- Fix corrupt XML file output with vectors of vec3d's
+- Fix crash when changing XSec type when CEdit screen still open
+- Fix problem reading VSPAERO results that caused ghost results
+- Write full precision in files sent to VSPAERO
+
+
+---
+
+
 # [OpenVSP 3.50.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.2)
 
 2026-05-09
