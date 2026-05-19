@@ -109,9 +109,9 @@ void FuselageGeom::UpdatePreTess()
     m_AftClusterVec.clear();
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
-    m_TessUVec.resize( nxsec );
-    m_FwdClusterVec.resize( nxsec );
-    m_AftClusterVec.resize( nxsec );
+    m_TessUVec.resize( nxsec - 1 );
+    m_FwdClusterVec.resize( nxsec - 1 );
+    m_AftClusterVec.resize( nxsec - 1 );
 
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < nxsec ; i++ )
