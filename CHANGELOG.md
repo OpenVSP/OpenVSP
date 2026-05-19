@@ -1,3 +1,23 @@
+# [OpenVSP 3.50.4](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.4)
+
+2026-05-19
+
+OpenVSP 3.50.4
+
+Just one bug fix and a small thing to make bleeding edge compilers happy.
+
+A change I made in 3.50.2 broke tessellation on the back end of some Stacks
+and Fuselages.  Thanks Steven K. for reporting this and helping narrow it
+down.
+
+Fixes:
+- Tessellation failure for some Stack and Fuselage components
+- Build fix with new compilers / libc++
+
+
+---
+
+
 # [OpenVSP 3.50.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.3)
 
 2026-05-15
