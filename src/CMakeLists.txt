@@ -2,6 +2,27 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.24)
 
 PROJECT (VSP)
 
+option(VSP_INSTALL_TO_SYSTEM "Install directly to system directories" OFF)
+# Standard install paths (GNUInstallDirs provides CMAKE_INSTALL_DATADIR etc.)
+IF(VSP_INSTALL_TO_SYSTEM)
+    SET(DATA_SUBDIR "openvsp/")
+    IF(UNIX)
+        INCLUDE(GNUInstallDirs)
+    ELSE()
+        # Windows fallback - CPack handles this case
+        SET(CMAKE_INSTALL_DATADIR "share")
+        SET(CMAKE_INSTALL_BINDIR "bin")
+        SET(CMAKE_INSTALL_LIBDIR "lib")
+    ENDIF()
+ELSE()
+    SET(CMAKE_INSTALL_DATADIR ".")
+    SET(CMAKE_INSTALL_BINDIR ".")
+    SET(CMAKE_INSTALL_LIBDIR ".")
+    set(CMAKE_INSTALL_DOCDIR ".")
+    SET(DATA_SUBDIR "")
+ENDIF()
+
+
 # Use this to see the command that CMake is using to build code
 #SET(CMAKE_VERBOSE_MAKEFILE   ON  CACHE BOOL "" FORCE)
 
@@ -398,18 +419,17 @@ IF( APPLE )
 ENDIF( APPLE )
 
 INCLUDE( CPack )
-
-INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION airfoil )
-INSTALL( DIRECTORY ../examples/CCE/ DESTINATION CCE )
-INSTALL( DIRECTORY ../examples/CustomScripts/ DESTINATION CustomScripts )
-INSTALL( DIRECTORY ../examples/matlab/ DESTINATION matlab )
-INSTALL( DIRECTORY ../examples/scripts/ DESTINATION scripts )
-INSTALL( DIRECTORY ../examples/textures/ DESTINATION textures )
-INSTALL( DIRECTORY ../examples/vspaero_ex/ DESTINATION vspaero_ex )
-INSTALL( FILES ../LICENSE DESTINATION . )
-INSTALL( FILES ../README.md DESTINATION . )
-INSTALL( FILES ../CHANGELOG.md DESTINATION . )
-INSTALL( FILES ../vspIcon.png DESTINATION .)
+INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION ${CMAKE_INSTALL_DATADIR}/${DATA_SUBDIR}airfoil )
+INSTALL( DIRECTORY ../examples/CCE/ DESTINATION ${CMAKE_INSTALL_DATADIR}/${DATA_SUBDIR}CCE )
+INSTALL( DIRECTORY ../examples/CustomScripts/ DESTINATION ${CMAKE_INSTALL_DATADIR}/${DATA_SUBDIR}CustomScripts )
+INSTALL( DIRECTORY ../examples/matlab/ DESTINATION ${CMAKE_INSTALL_DATADIR}/${DATA_SUBDIR}matlab )
+INSTALL( DIRECTORY ../examples/scripts/ DESTINATION ${CMAKE_INSTALL_DATADIR}/${DATA_SUBDIR}scripts )
+INSTALL( DIRECTORY ../examples/textures/ DESTINATION ${CMAKE_INSTALL_DATADIR}/${DATA_SUBDIR}textures )
+INSTALL( DIRECTORY ../examples/vspaero_ex/ DESTINATION ${CMAKE_INSTALL_DATADIR}/${DATA_SUBDIR}vspaero_ex )
+INSTALL( FILES ../LICENSE DESTINATION ${CMAKE_INSTALL_DOCDIR} )
+INSTALL( FILES ../README.md DESTINATION ${CMAKE_INSTALL_DOCDIR} )
+INSTALL( FILES ../CHANGELOG.md DESTINATION ${CMAKE_INSTALL_DOCDIR} )
+INSTALL( FILES ../vspIcon.png DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # Potentially redundant, but needed if src is used as project root.
 INCLUDE( CTest )
