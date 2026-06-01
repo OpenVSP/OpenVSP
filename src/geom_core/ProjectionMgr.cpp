@@ -1679,12 +1679,20 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
 
     vector < vector < int > > connlist;
 
-    Triangulate_TRI( solutionPolyVec3d, connlist, addpts );
+    // Triangulate_TRI( solutionPolyVec3d, connlist, addpts );
+    //
+    // if ( connlist.empty() )
+    // {
+    //     printf( "Triangle failed in Triangulate, trying Delabella.\n" );
+    //     Triangulate_DBA( solutionPolyVec3d, connlist, addpts );
+    // }
+
+    Triangulate_DBA( solutionPolyVec3d, connlist, addpts );
 
     if ( connlist.empty() )
     {
-        printf( "Triangle failed in Triangulate, trying Delabella.\n" );
-        Triangulate_DBA( solutionPolyVec3d, connlist, addpts );
+        printf( "Delabella failed in Triangulate, trying Triangle.\n" );
+        Triangulate_TRI( solutionPolyVec3d, connlist, addpts );
     }
 
     int ntri = connlist.size();
