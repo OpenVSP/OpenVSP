@@ -123,6 +123,7 @@ protected:
 
     vector < TMesh * > Triangulate( const vector < vector < vec2d > > &solutionPolyVec2d, const vector < vector < vec3d > > &solutionPolyVec3d, const vector < bool > &isHole, bool addspherepoints = false, double r = 0.0 );
     virtual void Triangulate_TRI( const vector < vector < vec3d > > &solutionPolyVec3d, vector < vector < int > > &connlist, const vector < vec3d > & addpts );
+    bool Triangulate_DBA( const vector < vector < vec3d > > &solutionPolyVec3d, vector < vector < int > > &connlist, const vector < vec3d > &addpts );
 
     virtual bool PtInHole( const vec2d &p, const vector < vector < vec2d > > &polyvec2d, const vector < bool > &isHole );
 

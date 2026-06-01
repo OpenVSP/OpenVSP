@@ -20,6 +20,8 @@
 #include "triangle.h"
 #include "triangle_api.h"
 
+#include "delabella.h"
+
 #include "StlHelper.h"
 
 //==== Constructor ====//
@@ -1679,6 +1681,12 @@ vector < TMesh* > ProjectionMgrSingleton::Triangulate( const vector < vector < v
 
     Triangulate_TRI( solutionPolyVec3d, connlist, addpts );
 
+    if ( connlist.empty() )
+    {
+        printf( "Triangle failed in Triangulate, trying Delabella.\n" );
+        Triangulate_DBA( solutionPolyVec3d, connlist, addpts );
+    }
+
     int ntri = connlist.size();
 
     if ( ntri > 0 )
@@ -1879,6 +1887,93 @@ void ProjectionMgrSingleton::Triangulate_TRI( const vector < vector < vec3d > > 
     // cleanup
     triangle_context_destroy( ctx );
 
+}
+
+bool ProjectionMgrSingleton::Triangulate_DBA( const vector < vector < vec3d > > &solutionPolyVec3d, vector < vector < int > > &connlist, const vector < vec3d > &addpts )
+{
+    int nseg = 0;
+    for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
+    {
+        nseg += solutionPolyVec3d[i].size() - 1;
+    }
+
+    int nadd = addpts.size();
+    int npt = nseg + nadd;
+
+    dba_point* cloud = new dba_point[npt];
+    dba_edge* bounds = new dba_edge[nseg];
+
+    int ptcnt = 0;
+    int segcnt = 0;
+    for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
+    {
+        int firstseg = segcnt;
+        for ( int j = 0; j < ( int )solutionPolyVec3d[i].size() - 1; j++ )
+        {
+            vec3d pnt = solutionPolyVec3d[i][j];
+
+            cloud[ptcnt].x = pnt.y();
+            cloud[ptcnt].y = pnt.z();
+            ptcnt++;
+
+            bounds[segcnt].a = segcnt;
+            if ( j == ( int )solutionPolyVec3d[i].size() - 2 )
+            {
+                bounds[segcnt].b = firstseg;
+            }
+            else
+            {
+                bounds[segcnt].b = segcnt + 1;
+            }
+            segcnt++;
+        }
+    }
+
+    for ( int i = 0; i < nadd; i++ )
+    {
+        vec3d pnt = addpts[i];
+        cloud[ptcnt].x = pnt.y();
+        cloud[ptcnt].y = pnt.z();
+        ptcnt++;
+    }
+
+    IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
+
+    bool success = false;
+
+    int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
+
+    if ( verts > 0 )
+    {
+        idb->ConstrainEdges( nseg, &bounds->a, &bounds->b, sizeof( dba_edge ) );
+
+        int tris = idb->FloodFill( false, 0, 1 );
+
+        const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
+
+        connlist.clear();
+        connlist.resize( tris );
+
+        for ( int i = 0; i < tris; i++ )
+        {
+            connlist[i].push_back( dela->v[2]->i );
+            connlist[i].push_back( dela->v[1]->i );
+            connlist[i].push_back( dela->v[0]->i );
+            dela = dela->next;
+        }
+
+        success = true;
+    }
+    else
+    {
+        printf( "DBA Error in Triangulate_DBA: %d\n", verts );
+    }
+
+    delete[] cloud;
+    delete[] bounds;
+    idb->Destroy();
+
+    return success;
 }
 
 bool ProjectionMgrSingleton::PtInHole( const vec2d &p, const vector < vector < vec2d > > &polyvec2d, const vector < bool > &isHole )
