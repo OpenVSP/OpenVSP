@@ -548,6 +548,12 @@ double Vsp1DCurve::CompPnt( double u ) const
         return 0.0;
     }
 
+    if ( u < m_Curve.get_parameter_min() ||
+         u > m_Curve.get_parameter_max() )
+    {
+        return 0.0;
+    }
+
     oned_curve_point_type v( m_Curve.f( u ) );
 
     return v.x();

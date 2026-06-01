@@ -188,6 +188,16 @@ int VspSurf::GetNumSectW() const
     return m_Surface.number_v_patches();
 }
 
+bool VspSurf::Empty() const
+{
+    if ( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0)
+    {
+        // Empty surface.
+        return true;
+    }
+    return false;
+}
+
 double VspSurf::GetUMax() const
 {
   return m_Surface.get_umax();
@@ -3293,6 +3303,12 @@ double VspSurf::EvalUMapping( double u ) const
 
 void VspSurf::BuildLCurve()
 {
+    if ( Empty() )
+    {
+        m_Lmax = 0;
+        m_LCurve = Vsp1DCurve();
+        return;
+    }
     double umin, vmin, umax, vmax, dv;
     double vlow, vup;
 

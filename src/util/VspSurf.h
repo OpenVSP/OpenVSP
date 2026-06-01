@@ -298,6 +298,7 @@ public:
 
     int GetNumSectU() const;
     int GetNumSectW() const;
+    bool Empty() const;
 
     void Offset( const vec3d &offvec );
     void OffsetX( double x );
