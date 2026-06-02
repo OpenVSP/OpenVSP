@@ -1353,7 +1353,10 @@ string VSPAEROMgrSingleton::ComputeGeometry()
                 }
             }
 
-            veh->NoShowSet( vsp::SET_ALL );
+            if ( set != vsp::SET_SHOWN && degenset != vsp::SET_SHOWN )
+            {
+                veh->NoShowSet( vsp::SET_ALL );
+            }
 
             ngon_mesh_geom->SetSetFlag( vsp::SET_SHOWN, true );
             ngon_mesh_geom->SetSetFlag( vsp::SET_NOT_SHOWN, false );
