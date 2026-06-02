@@ -1365,7 +1365,8 @@ void VSP_GEOM::SanitizeThinMeshes(void)
        
     }
     
-    delete UsedTri;
+    delete [] UsedTri;
+    UsedTri = NULL;
              
     // Calculate total number of nodes and tris, including the wake
         
