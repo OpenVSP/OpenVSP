@@ -634,10 +634,6 @@ void PGEdge::ReplaceNode( const PGNode* curr_PGNode, PGNode* replace_PGNode )
     {
         m_N1 = replace_PGNode;
     }
-    else
-    {
-        assert( 0 );
-    }
 }
 
 void PGEdge::NodesForgetEdge() const
