@@ -363,7 +363,11 @@ VSPAEROMgrSingleton::~VSPAEROMgrSingleton()
 
     for ( int i = 0; i < m_UnsteadyGroupVec.size(); i++ )
     {
-        delete m_UnsteadyGroupVec[i];
+        if ( m_UnsteadyGroupVec[i] )
+        {
+            delete m_UnsteadyGroupVec[i];
+            m_UnsteadyGroupVec[i] = nullptr;
+        }
     }
     m_UnsteadyGroupVec.clear();
 }
@@ -4414,10 +4418,13 @@ void VSPAEROMgrSingleton::DeleteUnsteadyGroup( const vector <int> &ind_vec )
     {
         if ( vector_contains_val( ind_vec, i ) )
         {
-            if ( m_UnsteadyGroupVec[i] )
+            if ( m_UnsteadyGroupVec.size() > i )
             {
-                delete m_UnsteadyGroupVec[i];
-                m_UnsteadyGroupVec[i] = nullptr;
+                if ( m_UnsteadyGroupVec[i] )
+                {
+                    delete m_UnsteadyGroupVec[i];
+                    m_UnsteadyGroupVec[i] = nullptr;
+                }
             }
         }
         else
@@ -4477,7 +4484,11 @@ void VSPAEROMgrSingleton::ClearUnsteadyGroupVec()
 {
     for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
     {
-        delete m_UnsteadyGroupVec[i];
+        if ( m_UnsteadyGroupVec[i] )
+        {
+            delete m_UnsteadyGroupVec[i];
+            m_UnsteadyGroupVec[i] = nullptr;
+        }
     }
     m_UnsteadyGroupVec.clear();
 }
