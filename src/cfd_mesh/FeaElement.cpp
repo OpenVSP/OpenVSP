@@ -683,9 +683,10 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id ) const
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_PIPE )
         {
+            // OpenVSP stores R_outer (m_Dim1) and R_inner (m_Dim2). NASTRAN PBARL TUBE expects outside and inside radii.
             string format_string = "PBARL   ,%8d,%8d,        ,    TUBE,\n        ," + NasFmt( m_Dim1 ) + "," + NasFmt( m_Dim2 ) + "\n";
 
-            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, 2 * m_Dim2 );
+            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_I )
         {
@@ -741,6 +742,7 @@ void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const stri
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_PIPE )
         {
+            // OpenVSP stores R_outer (m_Dim1) and R_inner (m_Dim2). CalculiX PIPE expects outer radius and wall thickness.
             fprintf( fp, "*BEAM SECTION, SECTION=PIPE, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), matname.c_str() );
             fprintf( fp, "%f,%f\n", m_Dim1, ( m_Dim1 - m_Dim2 ) ); 
         }
