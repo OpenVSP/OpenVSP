@@ -1002,9 +1002,11 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
     vector < vec3d > dir_vec;
     vector < double > dviz_vec, dmiss_vec;
     vector < double > dfovviz_vec, dfovmiss_vec;
+    vector < double > badsum_vec;
     vector < int > viz_vec;
     vector < vec3d > pts;
-    double dviz_sum = 0;
+
+    double badsum_total = 0;
     for ( int icen = 0; icen < ( int )cen_vec.size(); icen++ )
     {
         const vec3d &cen = cen_vec[ icen ];
@@ -1027,6 +1029,7 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
 
             double dfovviz = 0;
             double dfovmiss = 0;
+            double badsum = 0;
 
             if ( fov )
             {
@@ -1049,6 +1052,7 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
 
                     vector < vec3d > distpts(2);
                     dfovmiss = fov->MinDistanceRay( cen, dir, 1e12, distpts[0], distpts[1] );
+                    badsum += dfovmiss;
 
                     dfovviz = dist( cen, distpts[0] );
 
@@ -1073,7 +1077,7 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
                 std::sort( tParmVec.begin(), tParmVec.end() );
                 dviz = tParmVec[0];
                 dmiss = 0;
-                dviz_sum += dviz;
+                badsum += dviz;
 
                 pts.push_back( cen );
                 pts.push_back( cen + dviz * dir );
@@ -1106,7 +1110,10 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
             dmiss_vec.push_back( dmiss );
             dfovviz_vec.push_back( dfovviz );
             dfovmiss_vec.push_back( dfovmiss );
+            badsum_vec.push_back( badsum );
             viz_vec.push_back( viz );
+
+            badsum_total += badsum;
         }
     }
 
@@ -1122,9 +1129,10 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
         res->Add( new NameValData( "DistMiss", dmiss_vec, "Miss distance of visibility." ) );
         res->Add( new NameValData( "DistFOVVisible", dfovviz_vec, "FOV visibility distance." ) );
         res->Add( new NameValData( "DistFOVMiss", dfovmiss_vec, "FOV miss distance of visibility." ) );
+        res->Add( new NameValData( "BadSum", badsum_vec, "Sum of badness." ) );
         res->Add( new NameValData( "Visible", viz_vec, "Visibility flag vector (0 occluded, 1 clear line of sight)." ) );
 
-        res->Add( new NameValData( "Result", dviz_sum, "Point visibility result" ) );
+        res->Add( new NameValData( "Result", badsum_total, "Point visibility result" ) );
     }
 
 }
