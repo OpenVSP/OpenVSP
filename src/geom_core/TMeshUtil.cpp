@@ -1120,6 +1120,8 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
         res->Add( new NameValData( "Dirs", dir_vec, "Directions of visibility check." ) );
         res->Add( new NameValData( "DistVisible", dviz_vec, "Visibility distance." ) );
         res->Add( new NameValData( "DistMiss", dmiss_vec, "Miss distance of visibility." ) );
+        res->Add( new NameValData( "DistFOVVisible", dfovviz_vec, "FOV visibility distance." ) );
+        res->Add( new NameValData( "DistFOVMiss", dfovmiss_vec, "FOV miss distance of visibility." ) );
         res->Add( new NameValData( "Visible", viz_vec, "Visibility flag vector (0 occluded, 1 clear line of sight)." ) );
 
         res->Add( new NameValData( "Result", dviz_sum, "Point visibility result" ) );
