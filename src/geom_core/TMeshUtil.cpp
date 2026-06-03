@@ -1040,7 +1040,7 @@ void DiscreteVisibility( vector < TMesh* > & primary_tmv, const vector < double 
                     dfovmiss = 0;
 
                     pts.push_back( cen );
-                    pts.push_back( cen + dfovviz * dir );
+                    pts.push_back( cen + tParmVec[0] * dir );
                 }
                 else
                 {
