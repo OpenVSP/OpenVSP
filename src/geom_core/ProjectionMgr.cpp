@@ -805,6 +805,8 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
 {
     Matrix4d mat;
     mat.rotatealongX( dir );
+    Matrix4d matinv = mat;
+    matinv.affineInverse();
 
     TransformMeshVec( targetTMeshVec, mat );
     TransformMeshVec( boundaryTMeshVec, mat );
@@ -940,15 +942,14 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
 
         solutionTMeshVec = Triangulate( solutionPolyVec2d, solutionPolyVec3d, isHole );
 
-        mat.affineInverse();
-        TransformPolyVec( solutionPolyVec3d, mat );
+        TransformPolyVec( solutionPolyVec3d, matinv );
 
         for ( int i = 0; i < solutionPolyVec3d.size(); i++ )
         {
             res->Add( new NameValData( "Path", solutionPolyVec3d[i], "Path outline of projection in three-dimensional space." ) );
         }
 
-        TransformMeshVec( solutionTMeshVec, mat );
+        TransformMeshVec( solutionTMeshVec, matinv );
 
         return true;
     }
