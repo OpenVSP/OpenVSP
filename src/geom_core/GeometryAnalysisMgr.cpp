@@ -1905,10 +1905,13 @@ string GeometryAnalysisCase::Evaluate()
                                 snprintf( buf, sizeof( buf ), "Error:  No discrete azimuth/elevations in %s.", m_Name.c_str() );
                                 errMsgData.m_StringVec.emplace_back( string( buf ) );
                             }
+
+                            DeleteTMeshVec( fov_vec );
                         }
                         else
                         {
                             m_LastResult = ProjectionMgr.PointVisibility( primary_tmv, cen_vec, fov_vec, m_TMeshVec, m_PolyVisibleFlag(), m_CutoutVec );
+                            // PointVisibility deletes fov_vec
                         }
 
                         m_PtsVec = ResultsMgr.GetVec3dResults( m_LastResult, "Pts", 0 );
