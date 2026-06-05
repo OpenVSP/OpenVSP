@@ -53,6 +53,8 @@ protected:
     GroupLayout m_GenLayout;
     GroupLayout m_BorderLayout;
     GroupLayout m_GCaseLayout;
+    GroupLayout m_ActionLayout;
+
     GroupLayout m_PrimaryLayout;
     GroupLayout m_SecondaryLayout;
     GroupLayout m_OptionsLayout;

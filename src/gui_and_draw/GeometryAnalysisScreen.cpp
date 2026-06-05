@@ -60,7 +60,11 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_BorderLayout.SetFitWidthFlag( true );
 
 
-    m_BorderLayout.AddSubGroupLayout( m_GCaseLayout, m_BorderLayout.GetW(), m_BorderLayout.GetRemainY() );
+    int caselayouty = m_BorderLayout.GetRemainY() - m_BorderLayout.GetStdHeight() - m_BorderLayout.GetGapHeight() - m_BorderLayout.GetDividerHeight();
+    m_BorderLayout.AddSubGroupLayout( m_GCaseLayout, m_BorderLayout.GetW(), caselayouty );
+    m_BorderLayout.AddY( caselayouty );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddSubGroupLayout( m_ActionLayout, m_BorderLayout.GetW(), m_BorderLayout.GetRemainY() );
 
     m_GCaseLayout.AddYGap();
     m_GCaseLayout.AddDividerBox( "Geometry Analysis" );
@@ -501,26 +505,26 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_MassPropLayout.AddYGap();
 
 
-    m_GCaseLayout.AddYGap();
-    m_GCaseLayout.AddDividerBox( "Analysis" );
 
-    m_GCaseLayout.SetSameLineFlag( true );
-    m_GCaseLayout.SetFitWidthFlag( false );
+    m_ActionLayout.AddDividerBox( "Analysis" );
 
-    m_GCaseLayout.SetButtonWidth( ( m_GCaseLayout.GetW() - 3 * 5 ) / 5 );
+    m_ActionLayout.SetSameLineFlag( true );
+    m_ActionLayout.SetFitWidthFlag( false );
 
-    m_GCaseLayout.AddButton( m_Evaluate, "Evaluate" );
-    m_GCaseLayout.AddX( 5 );
+    m_ActionLayout.SetButtonWidth( ( m_ActionLayout.GetW() - 3 * 5 ) / 5 );
 
-    m_GCaseLayout.AddButton( m_MakeMeshGeom, "Make MeshGeom" );
-    m_GCaseLayout.AddX( 5 );
+    m_ActionLayout.AddButton( m_Evaluate, "Evaluate" );
+    m_ActionLayout.AddX( 5 );
 
-    m_GCaseLayout.AddButton( m_ApplyRotation, "Apply Rotation" );
-    m_GCaseLayout.AddX( 5 );
-    m_GCaseLayout.AddButton( m_ShowResultsViewer, "Show Results" );
-    m_GCaseLayout.SetFitWidthFlag( true );
-    m_GCaseLayout.SetButtonWidth( 0 );
-    m_GCaseLayout.AddOutput( m_ResultOutput, "", "%6.5f", m_GCaseLayout.GetW() - m_GCaseLayout.GetRemainX() );
+    m_ActionLayout.AddButton( m_MakeMeshGeom, "Make MeshGeom" );
+    m_ActionLayout.AddX( 5 );
+
+    m_ActionLayout.AddButton( m_ApplyRotation, "Apply Rotation" );
+    m_ActionLayout.AddX( 5 );
+    m_ActionLayout.AddButton( m_ShowResultsViewer, "Show Results" );
+    m_ActionLayout.SetFitWidthFlag( true );
+    m_ActionLayout.SetButtonWidth( 0 );
+    m_ActionLayout.AddOutput( m_ResultOutput, "", "%6.5f", m_ActionLayout.GetW() - m_ActionLayout.GetRemainX() );
 
     m_GeometryBrowserSelect = -1;
 
@@ -559,7 +563,11 @@ bool GeometryAnalysisScreen::Update()
     {
         UpdateWindowSubSurfBrowser();
 
-        m_GCaseLayout.GetGroup()->activate();
+        m_Evaluate.Activate();
+        // m_ShowResultsViewer.Activate();
+        m_ApplyRotation.Activate();
+        m_MakeMeshGeom.Activate();
+        m_ResultOutput.Activate();
 
 
         m_GANameInput.Update( gcase->GetName() );
@@ -1040,7 +1048,12 @@ bool GeometryAnalysisScreen::Update()
     }
     else
     {
-        m_GCaseLayout.GetGroup()->deactivate();
+        m_Evaluate.Deactivate();
+        // m_ShowResultsViewer.Deactivate();
+        m_ApplyRotation.Deactivate();
+        m_MakeMeshGeom.Deactivate();
+        m_ResultOutput.Deactivate();
+
 
         m_GANameInput.Update( "" );
 
