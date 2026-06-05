@@ -1898,7 +1898,8 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
     res->Add( new NameValData( resname, asum/(scale*scale), doc ) );
 }
 
-void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const vector < Clipper2Lib::Paths64 > & pthsvec, double scale )
+NameValData *ProjectionMgrSingleton::AreaReport ( Results *res, const string &resname, const string &doc,
+                                                  const vector < Clipper2Lib::Paths64 > &pthsvec, double scale )
 {
     vector < double > areavec( pthsvec.size() );
 
@@ -1914,7 +1915,9 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
         areavec[i] = asum/(scale*scale);
     }
 
-    res->Add( new NameValData( resname, areavec, doc ) );
+    NameValData * nvd = new NameValData( resname, areavec, doc );
+    res->Add( nvd );
+    return nvd;
 }
 
 void ProjectionMgrSingleton::Dump( vector < vector < vec3d > > & pthsvec, const string & fname )

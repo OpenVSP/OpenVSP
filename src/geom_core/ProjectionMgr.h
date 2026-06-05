@@ -129,7 +129,8 @@ protected:
     virtual void MarkHoles( const Clipper2Lib::Paths64 & pths, vector < bool > &isHole );
     virtual void AreaReport( Results* res, const string &resname, const string &doc, const Clipper2Lib::Paths64 & pths, double scale, vector < bool > &isHole, bool holerpt = false );
 
-    virtual void AreaReport( Results* res, const string &resname, const string &doc, const vector < Clipper2Lib::Paths64 > & pthsvec, double scale );
+    virtual NameValData *AreaReport ( Results *res, const string &resname, const string &doc,
+                                      const vector < Clipper2Lib::Paths64 > &pthsvec, double scale );
 
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir );
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir, bool diskSegmentBreakdown );
