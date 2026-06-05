@@ -1,3 +1,72 @@
+# [OpenVSP 3.50.5](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.5)
+
+2026-06-05
+
+OpenVSP 3.50.5
+
+Just in time for AIAA AVIATION, a mostly bugfix release with a couple of small
+enhancements too.
+
+I'm giving a talk at the conference on the (relatively) new Geometry Analysis
+capability.  Come by if you're around.  Tue, Jun 09, La Jolla B, 3:50pm.
+
+If you're the kind of person who hasn't embraced using Sets when doing analysis
+in OpenVSP, you really should reconsider.  However for those of you who run
+VSPAERO with the Shown Set, we will now not no-show the geometry when you run
+VSPAERO.  This will allow you to re-run VSPAERO without having to Show the
+geometry.  It will also prevent problems with control surfaces, actuator disks,
+and other such things when the active geometry Set gets No-Shown in the middle
+of doing things.
+
+For everyone using the projected area calculation for rotor download
+calculations, there is now an option to break down the projected area by the
+segment, annulus, or sector of the disk that it corresponds to.  This is done
+at the wireframe resolution of the disk shown on screen.  This option is
+available through the legacy Projected Area GUI, but all the cool kids are
+using Projected Area through the Geometry Analysis GUI now.  It is available
+there too.
+
+The Results Viewer GUI was enhanced with buttons to export a result to CSV, to
+delete a result, and to delete all results.
+
+A small marker was added to the Prop Geom to indicate where zero degrees of
+rotation is measured from.  This is implemented as a feature line like the
+thrust direction vector and rotation direction circle.
+
+There are a handful of bug fixes - mostly things that were identified by users.
+Thanks for the help.
+
+The Discrete Visibility Results were improved and some memory leaks were
+plugged.  It also now defaults to DBA and falls back to Triangle -- hopefully
+this will be more robust.
+
+A few asserts were fixed up in the process of debugging some crashes and ill
+behavior.
+
+The Pipe type beam section outputs to NASTRAN files were fixed.
+
+Everyone should update.  See you in San Diego!
+
+
+Features:
+- Don't no-show geometry when running VSPAERO when using Shown Set
+- Disk Segment Breakdown for Projected Area calculations
+- Export to CSV in Results Viewer
+- Delete(all) in Results Viewer
+- Zero rotation direction marker added to Prop
+
+Fixes:
+- Fix and/or clean up some asserts triggered in Debug mode
+- Default to DBA, fallback to Triangle in ProjectionMgr
+- Add missing Discrete Visualization info to Results
+- Improve combined result in Discrete Visualization
+- Fix some Field of View memory leaks in visualization analysis
+- Fix writing pipe type beam sections to NASTRAN
+
+
+---
+
+
 # [OpenVSP 3.50.4](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.50.4)
 
 2026-05-19
