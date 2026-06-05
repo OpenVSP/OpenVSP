@@ -619,6 +619,7 @@ void PropGeom::UpdateDrawObj()
         vec3d cen( 0, 0, 0 );
         vec3d rotdir( -1, 0, 0 );
         vec3d thrustdir( -1, 0, 0 );
+        vec3d refdir( 0, 1, 0 );
 
         double rev = 1.0;
         if ( !m_FlipNormalVec[i * GetNumMainSurfs()] )
@@ -633,6 +634,7 @@ void PropGeom::UpdateDrawObj()
         cen = trans_mat.xform( cen );
         rotdir = trans_mat.xform( rotdir ) - cen;
         thrustdir = trans_mat.xform( thrustdir ) - cen;
+        refdir = trans_mat.xform( refdir ) - cen;
 
         Matrix4d mat;
         mat.loadIdentity();
@@ -653,6 +655,8 @@ void PropGeom::UpdateDrawObj()
             m_ArrowLinesDO.m_PntVec.push_back( ptend );
         }
 
+        m_ArrowLinesDO.m_PntVec.push_back( cen );
+        m_ArrowLinesDO.m_PntVec.push_back( cen + refdir * axlen );
         m_ArrowLinesDO.m_PntVec.push_back( cen );
         m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
         MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
