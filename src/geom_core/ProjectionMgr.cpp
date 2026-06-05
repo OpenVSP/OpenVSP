@@ -849,6 +849,12 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
 
     if ( diskSegmentBreakdown )
     {
+        // Normal BuildToFromClipper makes the fromclipper transformation translate the 2D plane to the max boundary of the
+        // bounding box.  This locates the projected plane at a good location for visualization.  We run this twice to also
+        // generate a transformation that will restore something to its original location.
+        Matrix4d toclipper_dummy, fromclipper_notrans;
+        BuildToFromClipper( toclipper_dummy, fromclipper_notrans, false );
+
         Clipper2Lib::Paths64 utarget;
         Union( utargetvec, utarget );
 
@@ -872,6 +878,10 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
                 vector < vec3d > cenvec;
                 PGMeshToPathsVec( pgm, boundaryvec, uminvec, umaxvec, wminvec, wmaxvec, cenvec );
 
+                // Transform segment centers back to world coordinates.
+                TransformPolyVec( cenvec, fromclipper_notrans ); // Note fromclipper_notrans here.
+                TransformPolyVec( cenvec, matinv );
+
                 vector < Clipper2Lib::Paths64 > solvec;
                 Intersect( boundaryvec, utarget, solvec );
 
@@ -887,6 +897,7 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
                 res->Add( new NameValData( "Seg_Umax", umaxvec, "Segment U max." ) );
                 res->Add( new NameValData( "Seg_Wmin", wminvec, "Segment W min." ) );
                 res->Add( new NameValData( "Seg_Wmax", wmaxvec, "Segment W max." ) );
+                res->Add( new NameValData( "Seg_Center", cenvec, "Segment Center." ) );
 
                 int nseg = wminvec.size();
                 vector < double > thetamin( nseg ), thetamax( nseg );
