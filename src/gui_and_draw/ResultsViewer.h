@@ -55,6 +55,7 @@ protected:
 
     Choice m_ResultsChoice;
 
+    TriggerButton m_ExportCSVButton;
     TriggerButton m_DeleteButton;
     TriggerButton m_DeleteAllButton;
 

@@ -30,6 +30,16 @@ ResultsViewer::ResultsViewer( ScreenMgr* mgr ) : BasicScreen( mgr, 800, 700, "Re
 
     m_BorderLayout.AddChoice( m_ResultsChoice, "Result" );
 
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetFitWidthFlag( false );
+
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 3.0 );
+
+    m_BorderLayout.AddButton( m_ExportCSVButton, "Export CSV" );
+    m_BorderLayout.AddButton( m_DeleteButton, "Delete" );
+    m_BorderLayout.AddButton( m_DeleteAllButton, "Delete All" );
+    m_BorderLayout.ForceNewLine();
+
     m_BorderLayout.SetSameLineFlag( false );
     m_BorderLayout.SetFitWidthFlag( true );
 
@@ -124,6 +134,17 @@ bool ResultsViewer::Update()
 
         Results *res = ResultsMgr.FindResultsPtr( resid );
 
+        if ( res )
+        {
+            m_ExportCSVButton.Activate();
+            m_DeleteButton.Activate();
+        }
+        else
+        {
+            m_ExportCSVButton.Deactivate();
+            m_DeleteButton.Deactivate();
+        }
+
         if ( res && m_DataBrowserSelect >= 0 && m_DataBrowserSelect < m_DataNameIndexVec.size() && m_DataNameIndexVec.size() > 0 )
         {
             pair < string, int > name_index = m_DataNameIndexVec[ m_DataBrowserSelect ];
@@ -185,6 +206,12 @@ bool ResultsViewer::Update()
             }
         }
     }
+    else
+    {
+        m_ExportCSVButton.Deactivate();
+        m_DeleteButton.Deactivate();
+    }
+
     return true;
 }
 
@@ -334,6 +361,38 @@ void ResultsViewer::GuiDeviceCallBack( GuiDevice* device )
         m_ResultsViewerSelect = sel;
         m_DataBrowserSelect = 0;
         m_DataBrowser->vposition( 0 );
+    }
+    else if ( device == &m_ExportCSVButton)
+    {
+        if ( m_ResultsViewerSelect >= 0 && m_ResultsViewerSelect < (int)m_ResIDvec.size() )
+        {
+            string resid = m_ResIDvec[ m_ResultsViewerSelect ];
+
+            Results *res = ResultsMgr.FindResultsPtr( resid );
+
+            if ( res )
+            {
+                string fileName = m_ScreenMgr->FileChooser( "Select CSV File", "*.csv", vsp::SAVE );
+                if ( !fileName.empty() )
+                {
+                    vector < string > resvec = { resid };
+                    ResultsMgr.WriteCSVFile( fileName, resvec );
+                }
+            }
+        }
+    }
+    else if ( device == & m_DeleteButton )
+    {
+        if ( m_ResultsViewerSelect >= 0 && m_ResultsViewerSelect < (int)m_ResIDvec.size() )
+        {
+            string resid = m_ResIDvec[ m_ResultsViewerSelect ];
+
+            ResultsMgr.DeleteResult( resid );
+        }
+    }
+    else if ( device == & m_DeleteAllButton )
+    {
+        ResultsMgr.DeleteAllResults();
     }
 
 
