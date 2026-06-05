@@ -1522,12 +1522,17 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         m_ScreenMgr->ShowScreen( vsp::VSP_RESULTS_VIEWER_SCREEN );
 
-        if ( gcase )
+        ResultsViewer * rv = dynamic_cast < ResultsViewer* > ( m_ScreenMgr->GetScreen( vsp::VSP_RESULTS_VIEWER_SCREEN ) );
+
+        if ( rv )
         {
-            ResultsViewer * rv = dynamic_cast < ResultsViewer* > ( m_ScreenMgr->GetScreen( vsp::VSP_RESULTS_VIEWER_SCREEN ) );
-            if ( rv )
+            if ( gcase )
             {
                 rv->SetSelectedResult( gcase->m_LastResult );
+            }
+            else
+            {
+                rv->SetLastResult();
             }
         }
     }

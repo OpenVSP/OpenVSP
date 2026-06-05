@@ -37,6 +37,7 @@ public:
     void DisplayGroup( GroupLayout* group );
 
     void SetSelectedResult( string rid );
+    void SetLastResult();
 
 protected:
 

@@ -367,3 +367,10 @@ void ResultsViewer::SetSelectedResult( string rid )
     UpdateResultsChoice();
     m_ResultsViewerSelect = vector_find_val( m_ResIDvec, rid );
 }
+
+void ResultsViewer::SetLastResult()
+{
+    // Make sure m_ResIDvec is up-to-date.
+    UpdateResultsChoice();
+    m_ResultsViewerSelect = m_ResIDvec.size() - 1;
+}
