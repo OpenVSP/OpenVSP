@@ -875,7 +875,14 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
                 vector < Clipper2Lib::Paths64 > solvec;
                 Intersect( boundaryvec, utarget, solvec );
 
-                AreaReport( res, "Seg_Areas", "Disk segment areas.", solvec, scale );
+                NameValData* area_ptr = AreaReport( res, "Seg_Areas", "Disk segment areas.", solvec, scale );
+
+                vector < double > areavec;
+                if ( area_ptr )
+                {
+                    areavec = area_ptr->GetDoubleData();
+                }
+
                 res->Add( new NameValData( "Seg_Umin", uminvec, "Segment U min." ) );
                 res->Add( new NameValData( "Seg_Umax", umaxvec, "Segment U max." ) );
                 res->Add( new NameValData( "Seg_Wmin", wminvec, "Segment W min." ) );
@@ -899,6 +906,67 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
                 res->Add( new NameValData( "Seg_rmax/R", umaxvec, "Segment r/R max." ) );
                 res->Add( new NameValData( "Seg_thetamin", thetamin, "Segment theta min." ) );
                 res->Add( new NameValData( "Seg_thetamax", thetamax, "Segment theta max." ) );
+
+                // Reduce to unique values.
+                vector < double > umins = uminvec;
+                vector < double > umaxs = umaxvec;
+                vector < double > wmins = wminvec;
+                vector < double > wmaxs = wmaxvec;
+
+                std::sort( umins.begin(), umins.end() );
+                umins.erase( std::unique( umins.begin(), umins.end() ), umins.end() );
+
+                std::sort( umaxs.begin(), umaxs.end() );
+                umaxs.erase( std::unique( umaxs.begin(), umaxs.end() ), umaxs.end() );
+
+                std::sort( wmins.begin(), wmins.end() );
+                wmins.erase( std::unique( wmins.begin(), wmins.end() ), wmins.end() );
+
+                std::sort( wmaxs.begin(), wmaxs.end() );
+                wmaxs.erase( std::unique( wmaxs.begin(), wmaxs.end() ), wmaxs.end() );
+
+                res->Add( new NameValData( "Ann_Umin", umins, "Annulus U min." ) );
+                res->Add( new NameValData( "Ann_Umax", umaxs, "Annulus U max." ) );
+                res->Add( new NameValData( "Sect_Wmin", wmins, "Sector W min." ) );
+                res->Add( new NameValData( "Sect_Wmax", wmaxs, "Sector W max." ) );
+
+                int nsector = wmaxs.size();
+                vector < double > thetamins( nsector ), thetamaxs( nsector );
+                for ( int j = 0; j < nsector; j++ )
+                {
+                    thetamins[j] = 360.0 * wmins[j] / 4.0;
+                    thetamaxs[j] = 360.0 * wmaxs[j] / 4.0;
+
+                    if ( thetamins[j] == 0 && thetamaxs[j] > 180.0 )
+                    {
+                        thetamins[j] = thetamaxs[j];
+                        thetamaxs[j] = 360.0;
+                    }
+                }
+
+                res->Add( new NameValData( "Ann_rmin/R", umins, "Annulus r/R min." ) );
+                res->Add( new NameValData( "Ann_rmax/R", umaxs, "Annulus r/R max." ) );
+                res->Add( new NameValData( "Sect_thetamin", thetamins, "Sector theta min." ) );
+                res->Add( new NameValData( "Sect_thetamax", thetamaxs, "Sector theta max." ) );
+
+                if ( areavec.size() == uminvec.size() )
+                {
+                    int nann = umaxs.size();
+                    vector < double > ann_area( nann, 0.0 );
+                    vector < double > sect_area( nsector, 0.0 );
+
+                    for ( int j = 0; j < nseg; j++ )
+                    {
+                        int iann = vector_find_val( umaxs, umaxvec[j] );
+                        ann_area[ iann ] += areavec[ j ];
+
+                        int isect = vector_find_val( wmaxs, wmaxvec[ j ] );
+                        sect_area[ isect ] += areavec[ j ];
+                    }
+
+                    res->Add( new NameValData( "Ann_Areas", ann_area, "Annulus areas." ) );
+                    res->Add( new NameValData( "Sect_Areas", sect_area, "Sector areas." ) );
+                }
             }
         }
     }
