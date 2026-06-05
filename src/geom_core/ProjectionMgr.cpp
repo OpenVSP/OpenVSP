@@ -869,7 +869,8 @@ bool ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vector 
 
                 vector < Clipper2Lib::Paths64 > boundaryvec;
                 vector < double > uminvec, umaxvec, wminvec, wmaxvec;
-                PGMeshToPathsVec( pgm, boundaryvec, uminvec, umaxvec, wminvec, wmaxvec );
+                vector < vec3d > cenvec;
+                PGMeshToPathsVec( pgm, boundaryvec, uminvec, umaxvec, wminvec, wmaxvec, cenvec );
 
                 vector < Clipper2Lib::Paths64 > solvec;
                 Intersect( boundaryvec, utarget, solvec );
@@ -1126,7 +1127,8 @@ void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, Clipper
 
 void ProjectionMgrSingleton::PGMeshToPathsVec( PGMesh *pgm, vector < Clipper2Lib::Paths64 > & pths,
                                                vector < double > & uminvec, vector < double > & umaxvec,
-                                               vector < double > & wminvec, vector < double > & wmaxvec )
+                                               vector < double > & wminvec, vector < double > & wmaxvec,
+                                               vector < vec3d > & cenvec )
 {
     const int nface = pgm->m_FaceList.size();
     pths.resize( nface );
@@ -1135,11 +1137,14 @@ void ProjectionMgrSingleton::PGMeshToPathsVec( PGMesh *pgm, vector < Clipper2Lib
     umaxvec.resize( nface );
     wminvec.resize( nface );
     wmaxvec.resize( nface );
+    cenvec.resize( nface );
 
     unsigned int iface = 0;
     list< PGFace* >::iterator f;
     for ( f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
     {
+        cenvec[iface] = ( *f )->ComputeCenter();
+
         vector < PGNode* > nodVec;
         ( *f )->GetNodes( nodVec );
         int tag = ( *f )->m_Tag;

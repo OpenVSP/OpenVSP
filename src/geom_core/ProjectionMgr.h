@@ -97,7 +97,7 @@ protected:
     virtual void MeshToPaths( const vector < TMesh* > & tmv, Clipper2Lib::Paths64 & pths );
     virtual void PGMeshToPathsVec( PGMesh *pgm, vector < Clipper2Lib::Paths64 > & pths,
                                    vector < double > & uminvec, vector < double > & umaxvec,
-                                   vector < double > & wminvec, vector < double > & wmaxvec );
+                                   vector < double > & wminvec, vector < double > & wmaxvec, vector<vec3d> &cenvec );
 
     virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pths, vector < string > & ids, int keepdir1 = 1, int keepdir2 = 2 );
 
