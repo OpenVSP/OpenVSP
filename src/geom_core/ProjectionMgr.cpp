@@ -1059,6 +1059,14 @@ void ProjectionMgrSingleton::PolyVecToCartesian( vector < vector < vec3d > > & p
     }
 }
 
+void ProjectionMgrSingleton::TransformPolyVec( vector < vec3d > & polyvec, const Matrix4d & mat )
+{
+    for ( int i = 0 ; i < ( int )polyvec.size() ; i++ )
+    {
+        polyvec[i] = mat.xform( polyvec[i] );
+    }
+}
+
 void ProjectionMgrSingleton::TransformPolyVec( vector < vector < vec3d > > & polyvec, const Matrix4d & mat )
 {
     for ( int i = 0 ; i < ( int )polyvec.size() ; i++ )
