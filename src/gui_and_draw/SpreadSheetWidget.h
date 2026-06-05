@@ -167,6 +167,7 @@ SpreadSheet<T>::SpreadSheet( int X, int Y, int W, int H, const char* L ) : Fl_Ta
     m_ChangeCallbackData = nullptr;
 
     m_UserColHeaderFlag = false;
+    m_UserRowHeaderFlag = false;
 
     m_Format = string( " %7.5f" );
 }
