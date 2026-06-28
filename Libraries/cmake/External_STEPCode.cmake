@@ -20,6 +20,19 @@ ENDIF()
 ExternalProject_Add( STEPCODE
 	URL ${CMAKE_CURRENT_SOURCE_DIR}/stepcode-28350d91294b.zip
 	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+	# The bundled STEPCode snapshot (28350d9, ~2016) predates the upstream fix
+	# for a NULL-pointer dereference in complex-entity matching (stepcode/stepcode
+	# commit 345bcd81 "Check before dereferencing...", released in v0.8.1).
+	# Without it, optimizing compilers (notably gcc, which enables
+	# -fdelete-null-pointer-checks) drop the guard in EntList::firstNot(), so the
+	# end-of-list step in the complex-entity match walk dereferences a NULL `this`
+	# and every STEP export segfaults in STEPutil::Geometric_Context before any
+	# geometry is written.  Overlay the fixed header (which is the bundled file
+	# plus the upstream 4-line guard) until the vendored STEPCode is updated.
+	PATCH_COMMAND
+		${CMAKE_COMMAND} -E copy_if_different
+		"${CMAKE_CURRENT_SOURCE_DIR}/stepcode_complexSupport.h"
+		"<SOURCE_DIR>/src/clstepcore/complexSupport.h"
 	CMAKE_ARGS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 		-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
 		-DCMAKE_CXX_FLAGS=${SC_CMAKE_CXX_FLAGS}
