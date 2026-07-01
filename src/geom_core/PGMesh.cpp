@@ -3373,6 +3373,24 @@ void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, const PGEdge *e, PGNode *n 
     }
 }
 
+void PGMesh::SplitLEGeom()
+{
+    // Make vector copy of list so faces can be removed from list without invalidating active list iterator.
+    vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
+
+    for ( int i = 0; i < fVec.size(); i++ )
+    {
+        PGFace *f = fVec[i];
+
+        PGEdge *e = NULL;
+        PGNode *n = f->FindDoubleBackNode( e );
+        if ( n )
+        {
+            SplitFaceFromDoubleBackNode( f, e, n );
+        }
+    }
+}
+
 // Do opposite of remove edge merge faces.
 void PGMesh::SplitFace( PGFace *f0, PGEdge *e )
 {

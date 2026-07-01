@@ -1683,7 +1683,7 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_r
         pgm->FindAllDoubleBackNodes();
         pgm->SealDoubleBackNodes();
 
-        new_geom->SplitLEGeom();
+        pgm->SplitLEGeom();
 
         if ( cullfracflag )
         {

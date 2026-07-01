@@ -388,6 +388,8 @@ public:
 
     void SplitFaceFromDoubleBackNode( PGFace *f, const PGEdge *e, PGNode *n );
 
+    void SplitLEGeom();
+
     void SplitFace( PGFace *f0, PGEdge *e );
 
     void MakeManifoldRegions();

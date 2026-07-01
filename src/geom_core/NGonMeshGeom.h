@@ -74,7 +74,6 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node ) override;
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node ) override;
 
-    virtual void SplitLEGeom();
     virtual void Triangulate();
     virtual void Report();
     virtual void ClearTris();

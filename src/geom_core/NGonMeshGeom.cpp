@@ -117,25 +117,6 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
     return ngon_node;
 }
 
-void NGonMeshGeom::SplitLEGeom()
-{
-    PGMesh *pgm = m_PGMulti.GetActiveMesh();
-    // Make vector copy of list so faces can be removed from list without invalidating active list iterator.
-    vector< PGFace* > fVec( pgm->m_FaceList.begin(), pgm->m_FaceList.end() );
-
-    for ( int i = 0; i < fVec.size(); i++ )
-    {
-        PGFace *f = fVec[i];
-
-        PGEdge *e = NULL;
-        PGNode *n = f->FindDoubleBackNode( e );
-        if ( n )
-        {
-            pgm->SplitFaceFromDoubleBackNode( f, e, n );
-        }
-    }
-}
-
 void NGonMeshGeom::Triangulate()
 {
     PGMesh *pgm = m_PGMulti.GetActiveMesh();
