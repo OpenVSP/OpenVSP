@@ -1596,6 +1596,28 @@ void PGFace::DumpMatlab() const
 
 }
 
+void PGFace::PrintUWNodes() const
+{
+    vector< PGNode* > nodVec;
+    GetNodes( nodVec );
+
+    for ( int i = 0; i + 1 < nodVec.size(); i++ )
+    {
+        if ( nodVec[i] )
+        {
+            vec2d uw;
+            nodVec[i]->GetUW( m_Tag, uw );
+            printf( "%d %g %g\n", i, uw.x(), uw.y() );
+        }
+        else
+        {
+            printf( "X\n" );
+        }
+    }
+    printf( "\n" );
+
+}
+
 void PGFace::Diagnostics() const
 {
     printf( "Face %d\n", m_ID );
@@ -3527,6 +3549,26 @@ void PGMesh::MakeRegions()
             (*f)->m_Region = reg;
             (*f)->WalkRegion();
         }
+    }
+}
+
+void PGMesh::PrintRegions()
+{
+    int nreg = m_Regions.size();
+
+    for ( int i = 0; i < nreg; i++ )
+    {
+        printf( "Region %d\n", i );
+        list< PGFace* >::iterator fit;
+        for ( fit = m_FaceList.begin() ; fit != m_FaceList.end(); ++fit )
+        {
+            if ( ( *fit )->m_Region == i )
+            {
+                ( *fit )->PrintUWNodes();
+                printf( "\n" );
+            }
+        }
+        printf( "\n\n" );
     }
 }
 

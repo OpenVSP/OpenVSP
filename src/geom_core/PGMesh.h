@@ -213,6 +213,7 @@ public:
     bool Check() const;
 
     void DumpMatlab() const;
+    void PrintUWNodes() const;
     void Diagnostics() const;
 
     bool Validate() const;
@@ -394,6 +395,7 @@ public:
 
     void MakeManifoldRegions();
     void MakeRegions();
+    void PrintRegions();
     void CullOrphanThinRegions( double tol );
 
     void CullMinorRegions();
