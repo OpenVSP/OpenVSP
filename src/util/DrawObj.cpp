@@ -264,6 +264,7 @@ DrawObj::DrawObj()
 
     m_Visible = true;
     m_VisibleDirFlag = false;
+    m_VisibleDirBothFlag = true;
     m_VisibleDir = vec3d( 0, 0, 0 );
     m_VisTol = 1.0;
 

@@ -532,6 +532,7 @@ public:
     bool m_Visible;
 
     bool m_VisibleDirFlag;
+    bool m_VisibleDirBothFlag;
     vec3d m_VisibleDir;
     double m_VisTol;
 

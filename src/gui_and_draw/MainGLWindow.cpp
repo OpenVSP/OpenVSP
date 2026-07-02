@@ -745,9 +745,19 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 {
                     if ( objects[i]->m_VisibleDirFlag )
                     {
-                        if ( acos( std::abs( dot( objects[ i ]->m_VisibleDir, v ) ) ) * ( 180.0 / M_PI ) > objects[ i ]->m_VisTol )
+                        if ( objects[i]->m_VisibleDirBothFlag )
                         {
-                            objects[ i ]->m_Visible = false;
+                            if ( acos( std::abs( dot( objects[ i ]->m_VisibleDir, v ) ) ) * ( 180.0 / M_PI ) > objects[ i ]->m_VisTol )
+                            {
+                                objects[ i ]->m_Visible = false;
+                            }
+                        }
+                        else
+                        {
+                            if ( acos( dot( objects[ i ]->m_VisibleDir, v ) ) * ( 180.0 / M_PI ) > objects[ i ]->m_VisTol )
+                            {
+                                objects[ i ]->m_Visible = false;
+                            }
                         }
                     }
                 }
