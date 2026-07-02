@@ -373,6 +373,11 @@ void FeaMeshMgrSingleton::TransferSubSurfData()
     {
         // Identify number of FeaSubSurfaces
         GetMeshPtr()->m_NumFeaSubSurfs = m_SimpleSubSurfaceVec.size();
+        GetMeshPtr()->m_FeaSubSurfNumChainsVec.resize( GetMeshPtr()->m_NumFeaSubSurfs );
+        for ( size_t i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
+        {
+            GetMeshPtr()->m_FeaSubSurfNumChainsVec[i] = 0;
+        }
         // Duplicate subsurface data in mesh data structure so it will be available
         // after mesh generation is complete.
         GetMeshPtr()->m_SimpleSubSurfaceVec = m_SimpleSubSurfaceVec;
@@ -1364,10 +1369,18 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             }
 
             int ichain = 0;
-            if ( FeaPartIndex >=0 )
+            if ( FeaPartIndex >= 0 )
             {
-                ichain = GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ];
-                GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ]++;
+                if ( ( *c )->m_SSIntersectIndex >= 0 )
+                {
+                    ichain = GetMeshPtr()->m_FeaSubSurfNumChainsVec[ ( *c )->m_SSIntersectIndex ];
+                    GetMeshPtr()->m_FeaSubSurfNumChainsVec[ ( *c )->m_SSIntersectIndex ]++;
+                }
+                else
+                {
+                    ichain = GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ];
+                    GetMeshPtr()->m_FeaPartNumChainsVec[ FeaPartIndex ]++;
+                }
             }
 
             int normsurfindx = vector_find_val( m_SurfVec, NormSurf );

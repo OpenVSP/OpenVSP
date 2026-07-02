@@ -124,6 +124,7 @@ void FeaMesh::Cleanup()
     m_FeaPartPropertyIndexVec.clear();
     m_FeaPartCapPropertyIndexVec.clear();
     m_FeaPartNumChainsVec.clear();
+    m_FeaSubSurfNumChainsVec.clear();
 
     m_NumEls = 0;
     m_NumTris = 0;
@@ -1515,7 +1516,7 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
             name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_ShellElements";
             WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
 
-            for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[ i ]; ichain++ )
+            for ( int ichain = 0; ichain < m_FeaSubSurfNumChainsVec[ i ]; ichain++ )
             {
 
                 beam_elem_id_vec.clear();
@@ -2015,7 +2016,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                 if ( m_SimpleSubSurfaceVec[i].m_CreateBeamElements )
                 {
-                    for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[i]; ichain++ )
+                    for ( int ichain = 0; ichain < m_FeaSubSurfNumChainsVec[i]; ichain++ )
                     {
 
                         fprintf( fp, "\n" );

@@ -161,6 +161,7 @@ public:
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
     vector < int > m_FeaPartNumChainsVec;
+    vector < int > m_FeaSubSurfNumChainsVec;
     vector < string > m_FeaPartPropertyIDVec;
     vector < string > m_FeaPartCapPropertyIDVec;
 
