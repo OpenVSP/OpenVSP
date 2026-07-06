@@ -1570,7 +1570,6 @@ string ParasiteDragFullAnalysis::Execute()
         {
             ParasiteDragMgr.m_ReqL.Set( nvd->GetDouble( 0 ) );
         }
-        nvd = m_Inputs.FindPtr( "Medium", 0 );
 
         // Reference Area
         int refFlagOrig = ParasiteDragMgr.m_RefFlag.Get();
@@ -2101,7 +2100,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         }
 
         int nrefOrig = VSPAEROMgr.m_NRef.Get();
-        nvd = m_Inputs.FindPtr( "Nref", 0 );
+        nvd = m_Inputs.FindPtr( "NRef", 0 );
         if ( nvd )
         {
             VSPAEROMgr.m_NRef.Set( nvd->GetInt( 0 ) );
@@ -2268,7 +2267,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         //Reference area, lengths
         m_Inputs.Add( new NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           , "Flag to control how reference quantities are set." ) );
         m_Inputs.Add( new NameValData( "MACFlag",           VSPAEROMgr.m_MACFlag.Get()           , "Flag to use MAC instead of Cave for cref." ) );
-        m_Inputs.Add( new NameValData( "ScurveFlag",        VSPAEROMgr.m_SCurveFlag.Get()        , "Flag to use Scurve instead of Stot for Sref." ) );
+        m_Inputs.Add( new NameValData( "SCurveFlag",        VSPAEROMgr.m_SCurveFlag.Get()        , "Flag to use Scurve instead of Stot for Sref." ) );
         m_Inputs.Add( new NameValData( "WingID",            VSPAEROMgr.m_RefGeomID               , "Reference wing GeomID." ) );
         m_Inputs.Add( new NameValData( "Sref",              VSPAEROMgr.m_Sref.Get()              , "Reference area." ) );
         m_Inputs.Add( new NameValData( "bref",              VSPAEROMgr.m_bref.Get()              , "Reference span." ) );
@@ -2278,7 +2277,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         //TODO add flag to identify if this is manual or computed
         m_Inputs.Add( new NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         , "Geometry set for center of gravity computation." ) );
         m_Inputs.Add( new NameValData( "CGDegenSet",        VSPAEROMgr.m_CGDegenSet.Get()        , "Geometry degen set for center of gravity computation." ) );
-        m_Inputs.Add( new NameValData( "UseCGModeFlag",     VSPAEROMgr.m_CGUseMode.Get()         , "Flag to control whether Modes are used instead of Sets for mass properties." ) );
+        m_Inputs.Add( new NameValData( "CGUseModeFlag",     VSPAEROMgr.m_CGUseMode.Get()         , "Flag to control whether Modes are used instead of Sets for mass properties." ) );
         m_Inputs.Add( new NameValData( "CGModeID",          VSPAEROMgr.m_CGModeID                , "ID for Mode to use for analysis." ) );
         m_Inputs.Add( new NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      , "Number of slices for CG computation." ) );
         m_Inputs.Add( new NameValData( "MassSliceDir",    VSPAEROMgr.m_MassSliceDir.Get()        , "Slicing direction for mass properties." ) );
