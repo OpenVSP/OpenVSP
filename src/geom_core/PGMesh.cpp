@@ -3626,6 +3626,14 @@ void PGMesh::Triangulate()
             int npt = nodVec.size();
             int ntri = npt / 3;
 
+            if ( ntri == 0 )
+            {
+                // Triangulation failed.  Keep the polygon face rather than
+                // removing it and leaving a hole in the mesh.
+                printf( "Triangulation failed for face %d.  Polygon retained.\n", fpoly->m_ID );
+                continue;
+            }
+
             for ( int i = 0; i < ntri; i++ )
             {
                 int inod = 3 * i;
