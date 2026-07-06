@@ -5126,7 +5126,7 @@ bool TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec
 
     ttri->m_N0->SetCoordInfo( TNode::HAS_XYZ );
     ttri->m_N1->SetCoordInfo( TNode::HAS_XYZ );
-    ttri->m_N1->SetCoordInfo( TNode::HAS_XYZ );
+    ttri->m_N2->SetCoordInfo( TNode::HAS_XYZ );
 
     m_TVec.push_back( ttri );
     m_NVec.push_back( ttri->m_N0 );
@@ -5248,7 +5248,7 @@ void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, c
 
     ttri->m_N0->SetCoordInfo( TNode::HAS_UW );
     ttri->m_N1->SetCoordInfo( TNode::HAS_UW );
-    ttri->m_N1->SetCoordInfo( TNode::HAS_UW );
+    ttri->m_N2->SetCoordInfo( TNode::HAS_UW );
     ttri->m_N0->SetXYZFlag( false );
     ttri->m_N1->SetXYZFlag( false );
     ttri->m_N2->SetXYZFlag( false );
@@ -6222,7 +6222,7 @@ void TMesh::FindEdge( TNode* node, TTri* tri0, TTri* tri1 )
         t1n0 = tri1->m_N0;
         t1n1 = tri1->m_N2;
     }
-    else if ( tri0->m_N2 == node )
+    else if ( tri1->m_N2 == node )
     {
         t1n0 = tri1->m_N0;
         t1n1 = tri1->m_N1;
@@ -6721,6 +6721,14 @@ void TMesh::SwapEdges( double ang )
             if ( edge->m_Tri1 )
             {
                 SwapEdge( edge );
+
+                // SwapEdge wires the new edge into the triangles' edge pointers.
+                // Give the mesh ownership so it is freed with the rest of m_EVec.
+                m_EVec.push_back( edge );
+            }
+            else
+            {
+                delete edge;
             }
         }
     }

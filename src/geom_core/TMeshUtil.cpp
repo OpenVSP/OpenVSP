@@ -2215,7 +2215,7 @@ double IntersectSplit( vector < TMesh * > &tmv, bool intSubsFlag, const vector <
                 tmv[i] = f_tmesh;
             }
 
-            sub_surf_meshes.clear();
+            DeleteTMeshVec( sub_surf_meshes );
         }
     }
     // Tag meshes before regular intersection
@@ -2280,6 +2280,12 @@ void NormalizeChain( vector < TEdge * > & chain )
             imin = iedge;
         }
     }
+
+    if ( imin < 0 ) // Empty chain or no minimum found.
+    {
+        return;
+    }
+
     std::rotate( chain.begin(), chain.begin() + imin, chain.end() );
 
     // Check to make sure that the first edge of the chain is oriented in increasing w order.
