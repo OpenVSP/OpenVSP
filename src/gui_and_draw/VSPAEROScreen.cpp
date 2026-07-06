@@ -929,7 +929,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     Fl_Group* experimental_group = AddSubGroup( experimental_tab, window_border_width );
     m_ExperimentalLayout.SetGroupAndScreen( experimental_group, this );
 
-    m_ExperimentalLayout.AddDividerBox( "VSPAERO Viewer Console" );
+    m_ExperimentalLayout.AddDividerBox( "Experimental Mesh Processing Options" );
 
     m_ExperimentalLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
 
