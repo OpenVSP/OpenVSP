@@ -839,6 +839,12 @@ bool ISegChain::AddBorderSplit( Puw* uw )
     int closest_index = -1;
     double closest_fract = 0.0;
     double closest_dist = 1.0e12;
+    double split_tol = tol;
+
+    if ( m_SurfA == m_SurfB )
+    {
+        split_tol = 1e-1;
+    }
 
     for ( int i = 0 ; i < ( int )m_ISegDeque.size() ; i++ )
     {
@@ -873,7 +879,7 @@ bool ISegChain::AddBorderSplit( Puw* uw )
         }
     }
 
-    if ( closest_dist < tol )
+    if ( closest_dist < split_tol )
     {
         ISegSplit* split = new ISegSplit;
         split->m_Surf  = surfPtr;

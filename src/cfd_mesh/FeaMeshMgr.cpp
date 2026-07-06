@@ -1949,9 +1949,17 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                     }
                                 }
                             }
-                            else if ( ( *c )->m_SurfA == ( *c )->m_SurfB && ( *c )->m_SurfA->GetSurfID() == fxpt.m_SurfInd[j][0] ) // Indicates SubSurface Edge
+                            else if ( ( *c )->m_SurfA == ( *c )->m_SurfB && ( *c )->m_SurfA == m_SurfVec[fxpt.m_SurfInd[j][0]] ) // Indicates SubSurface Edge
                             {
                                 double closest_dist = FLT_MAX;
+                                double ss_tol = tol;
+
+                                // Straight ISeg chords on curved constant-U/W subsurface lines can be far from
+                                // the true edge in 3D.  Use a looser tolerance on wing skins.
+                                if ( ( *c )->m_SurfA->GetCompID() >= 0 )
+                                {
+                                    ss_tol = 1e-1;
+                                }
 
                                 for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
                                 {
@@ -1967,7 +1975,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                     }
                                 }
 
-                                if ( closest_dist < tol )
+                                if ( closest_dist < ss_tol )
                                 {
                                     vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
                                     vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
