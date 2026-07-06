@@ -17,6 +17,7 @@
 #include "ProcessUtil.h"
 #include "StringUtil.h"
 
+#include <atomic>
 #include <vector>
 #include <string>
 using std::string;
@@ -552,14 +553,20 @@ public:
 
     bool m_StopBeforeRun;
 
-    ProcessUtil m_SolverProcess; 
+    // True from just before the GUI launches the solver thread until that thread
+    // completes.  While set, the solver thread owns this manager's state -- the
+    // GUI must not call Update() or otherwise mutate the manager, and the solver
+    // thread relies on the state prepared on the GUI thread at launch.
+    std::atomic< bool > m_SolverThreadActive;
+
+    ProcessUtil m_SolverProcess;
     ProcessUtil m_SlicerThread;
 
 protected:
     void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec ) const;
 
-    bool m_SolverProcessKill;
-    bool m_SlicerProcessKill;
+    std::atomic< bool > m_SolverProcessKill;
+    std::atomic< bool > m_SlicerProcessKill;
 
     // helper functions for VSPAERO files
     void ReadHistoryFile( const string &filename, vector <string> &res_id_vector, double recref ) const;

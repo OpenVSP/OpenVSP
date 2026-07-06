@@ -157,6 +157,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 
     m_SolverProcessKill = false;
     m_SlicerProcessKill = false;
+    m_SolverThreadActive = false;
 
     // Plot limits
     m_ConvergenceXMinIsManual.Init( "m_ConvergenceXMinIsManual", groupname, this, 0, 0, 1 );
@@ -1813,8 +1814,13 @@ Optional input of logFile allows outputting to a log file or the console
 */
 string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 {
-    Update(); // Force update to ensure correct number of unstead groups, actuator disks, etc when run though the API.
-    UpdateFilenames(); // Do we really need this? is also called by Update() moments before
+    // Force update to ensure correct number of unsteady groups, actuator disks, etc when run through the API.
+    // When running in the GUI's solver thread, the state was updated on the GUI thread just before launch and
+    // the GUI concurrently reads it -- it must not be mutated here.
+    if ( !m_SolverThreadActive )
+    {
+        Update();
+    }
 
     std::vector <string> res_id_vector;
 
@@ -3866,7 +3872,11 @@ string VSPAEROMgrSingleton::ComputeCpSlices( FILE * logFile )
 {
     string resID = string();
 
-    UpdateFilenames();
+    // Do not mutate manager state from the solver thread -- filenames were set on the GUI thread at launch.
+    if ( !m_SolverThreadActive )
+    {
+        UpdateFilenames();
+    }
 
     if ( !FileExist( m_AdbFile ) )
     {
@@ -3966,7 +3976,11 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
 
 void VSPAEROMgrSingleton::ComputeQuadTreeSlices( FILE * logFile )
 {
-    UpdateFilenames();
+    // Do not mutate manager state from the solver thread -- filenames were set on the GUI thread at launch.
+    if ( !m_SolverThreadActive )
+    {
+        UpdateFilenames();
+    }
 
     if ( !FileExist( m_AdbFile ) )
     {

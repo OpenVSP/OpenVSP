@@ -70,9 +70,6 @@ public:
     ProcessUtil *GetProcess( int id );
     Fl_Terminal *GetDisplay( int id );
 
-    // Solver thread kill flags (these must be public because they are accessed by the thread)
-    bool m_SolverThreadIsRunning;
-
     void UpdateCaseSetup();
     void UpdateRefWing();
     void UpdateReferenceQuantitiesDevices();

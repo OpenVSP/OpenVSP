@@ -125,18 +125,13 @@ bool AeroStructScreen::Update()
 
     m_DynPressSlider.Update( AeroStructMgr.m_DynPress.GetID() );
 
-    VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_VSPAERO_SCREEN ) );
-
-    if ( AeroScreen )
+    if ( veh->GetVSPAEROFound() && !VSPAEROMgr.m_SolverThreadActive )
     {
-        if ( veh->GetVSPAEROFound() && !AeroScreen->m_SolverThreadIsRunning )
-        {
-            m_ExecuteVSPAERO.Activate();
-        }
-        else
-        {
-            m_ExecuteVSPAERO.Deactivate();
-        }
+        m_ExecuteVSPAERO.Activate();
+    }
+    else
+    {
+        m_ExecuteVSPAERO.Deactivate();
     }
 
     if ( !AeroStructMgr.m_ADBFileFound )

@@ -946,9 +946,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     // Show the starting tab
     overview_tab->show();
-
-    // Flags to control Kill thread functionality
-    m_SolverThreadIsRunning = false;
 }
 
 VSPAEROScreen::~VSPAEROScreen()
@@ -961,7 +958,15 @@ bool VSPAEROScreen::Update()
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    VSPAEROMgr.Update();
+    // While the solver thread is active it owns VSPAEROMgr's state.  Updating the
+    // manager here would mutate that state (UpdateFilenames clears and rebuilds
+    // the file name strings) while the solver thread reads it -- a race that can
+    // crash.  The remainder of this method only reads manager state, which is
+    // safe because the solver thread does not mutate it while running.
+    if ( !VSPAEROMgr.m_SolverThreadActive )
+    {
+        VSPAEROMgr.Update();
+    }
 
     if (veh)
     {
@@ -1244,12 +1249,11 @@ void * solver_thread_fun( void *data )
         // Store local copy.
         bool stopbeforerun = vsmgr->m_StopBeforeRun;
 
-        vsscreen->m_SolverThreadIsRunning = true;
-
         // EXECUTE SOLVER
         vsmgr->ComputeSolver();
 
-        vsscreen->m_SolverThreadIsRunning = false;
+        // Return ownership of the manager's state to the GUI thread.
+        vsmgr->m_SolverThreadActive = false;
 
         if ( !stopbeforerun )
         {
@@ -1310,6 +1314,13 @@ void VSPAEROScreen::LaunchVSPAERO()
                     break;
                 }
             }
+
+            // Bring the manager fully up to date on the GUI thread, then hand
+            // ownership of its state to the solver thread.  The flag is set
+            // before the thread starts so there is no window where the GUI still
+            // believes it may mutate the manager.
+            VSPAEROMgr.Update();
+            VSPAEROMgr.m_SolverThreadActive = true;
 
             m_SolverProcess.StartThread( solver_thread_fun, ( void* ) &m_SolverPair );
         }
@@ -1738,7 +1749,7 @@ void VSPAEROScreen::UpdateRefWing()
 
     //    Update selected value
     string refGeomID = VSPAEROMgr.m_RefGeomID;
-    if ( refGeomID.empty() && !m_WingGeomVec.empty() )
+    if ( refGeomID.empty() && !m_WingGeomVec.empty() && !VSPAEROMgr.m_SolverThreadActive )
     {
         // Handle case default case.
         refGeomID = m_WingGeomVec[0];
@@ -1907,7 +1918,7 @@ void VSPAEROScreen::UpdateVSPAEROButtons()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     // Solver Button
-    if ( !veh->GetVSPAEROFound() || m_SolverThreadIsRunning)
+    if ( !veh->GetVSPAEROFound() || VSPAEROMgr.m_SolverThreadActive )
     {
         m_SolverButton.Deactivate();
     }
@@ -1916,7 +1927,7 @@ void VSPAEROScreen::UpdateVSPAEROButtons()
         m_SolverButton.Activate();
     }
     // Kill Solver Button
-    if (m_SolverThreadIsRunning)
+    if ( VSPAEROMgr.m_SolverThreadActive )
     {
         m_KillSolverButton.Activate();
     }
@@ -1936,7 +1947,7 @@ void VSPAEROScreen::UpdateVSPAEROButtons()
     }
 
     // Viewer Button
-    if ( !veh->GetVIEWERFound() || m_SolverThreadIsRunning || m_ViewerProcess.IsRunning() || !FileExist(VSPAEROMgr.m_AdbFile))
+    if ( !veh->GetVIEWERFound() || VSPAEROMgr.m_SolverThreadActive || m_ViewerProcess.IsRunning() || !FileExist(VSPAEROMgr.m_AdbFile))
     {
         m_ViewerButton.Deactivate();
     }
