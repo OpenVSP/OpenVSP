@@ -2016,6 +2016,12 @@ void PGMesh::Clear()
     list< PGNode* >::iterator n;
     for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
     {
+        // Points are owned by PGMulti and shared with other meshes -- they must
+        // not retain pointers to this mesh's deleted nodes.
+        if ( ( *n )->m_Pt )
+        {
+            ( *n )->m_Pt->RemoveConnectNode( *n );
+        }
         delete ( *n );
     }
 
