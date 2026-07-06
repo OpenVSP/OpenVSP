@@ -2837,7 +2837,7 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
                 m_back_b[j] = prot2;
             }
 
-            // Case (a): mesh vertex swept into T's plane — check PtInTri on original T.
+            // Case (a): mesh vertex swept into T's plane -- check PtInTri on original T.
             for ( int j = 0; j < 3; j++ )
             {
                 if ( angle_less( theta_m[j], curr_min_angle ) && PtInTri( v0, v1, v2, m_back[j] ) )
@@ -2855,7 +2855,7 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
                 }
             }
 
-            // Case (b): T vertex swept into mesh triangle's plane — check PtInTri on mesh triangle.
+            // Case (b): T vertex swept into mesh triangle's plane -- check PtInTri on mesh triangle.
             for ( int j = 0; j < 3; j++ )
             {
                 vec3d prot1, prot2;
