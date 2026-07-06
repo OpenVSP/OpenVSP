@@ -2183,6 +2183,12 @@ void PGMesh::RemoveEdgeMergeFaces( PGEdge* e, void ( * facemergeproperties ) ( P
             ev0.erase( ev0.begin() );
             ev1.erase( ev1.begin() );
 
+            // A face whose loop was only the shared edge can not be merged.
+            if ( ev0.empty() || ev1.empty() )
+            {
+                return;
+            }
+
             // Check orientation of edge loops
             PGEdge * e0back = ev0.back();
             PGEdge * e1start = ev1[0];
@@ -2250,6 +2256,12 @@ void PGMesh::RemoveEdgesMergeFaces( vector < PGEdge* > edges, void ( * facemerge
             // Remove all shared edges.
             vector_remove_vector( ev0, edges );
             vector_remove_vector( ev1, edges );
+
+            // A face whose loop was entirely shared edges can not be merged.
+            if ( ev0.empty() || ev1.empty() )
+            {
+                return;
+            }
 
             // Check orientation of edge loops
             PGEdge * e0back = ev0.back();
