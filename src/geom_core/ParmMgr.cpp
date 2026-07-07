@@ -93,11 +93,15 @@ void ParmMgrSingleton::RemoveParmContainer( ParmContainer* pc  )
     unordered_map< string, ParmContainer* >::iterator iter;
     iter = m_ParmContainerMap.find( pc->GetID() );
 
-    if ( iter !=  m_ParmContainerMap.end() )
+    AttributeMgr.DeregisterCollID( pc->GetAttrCollection()->GetID() );
+
+    // Only erase the map entry if it refers to this container -- matches the
+    // identity check in RemoveParm so a stale container with a duplicated ID can
+    // not remove the map entry of the live one.
+    if ( iter !=  m_ParmContainerMap.end() && iter->second == pc )
     {
         m_NumParmChanges++;
         m_ParmContainerMap.erase( iter );
-        AttributeMgr.DeregisterCollID( pc->GetAttrCollection()->GetID() );
     }
 
     m_DirtyFlag = true;
