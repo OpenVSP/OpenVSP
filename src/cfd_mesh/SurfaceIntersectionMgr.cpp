@@ -1491,15 +1491,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         SdaiSurface* surf = m_NURBSSurfVec[si].WriteSTEPSurf( &step, label, merge_pnts );
         geom_surf_label_map[label].push_back( surf );
 
-        int comp_id = -1;
-        for ( size_t j = 0; j < m_SurfVec.size(); j++ )
-        {
-            if ( m_SurfVec[j]->GetSurfID() == m_NURBSSurfVec[si].m_SurfID )
-            {
-                comp_id = m_SurfVec[j]->GetCompID();
-                break;
-            }
-        }
+        int comp_id = current_surf->GetCompID();
 
         for ( size_t j = 0; j < comp_id_group_vec.size(); j++ )
         {
