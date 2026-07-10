@@ -1319,14 +1319,24 @@ void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool
 
 Surf* SurfaceIntersectionSingleton::FindSurf( int surf_id )
 {
+    int indx = FindSurfIndx( surf_id );
+    if ( indx >= 0 )
+    {
+        return m_SurfVec[ indx ];
+    }
+    return nullptr;
+}
+
+int SurfaceIntersectionSingleton::FindSurfIndx( int surf_id )
+{
     for ( size_t i = 0; i < m_SurfVec.size(); i++ )
     {
         if ( m_SurfVec[i]->GetSurfID() == surf_id )
         {
-            return m_SurfVec[i];
+            return i;
         }
     }
-    return nullptr;
+    return -1;
 }
 
 void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int len_unit,

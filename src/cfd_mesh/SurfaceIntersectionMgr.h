@@ -252,6 +252,7 @@ public:
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
 
     virtual Surf* FindSurf( int surf_id ); // Find surface given surf ID
+    virtual int FindSurfIndx( int surf_id ); // Find surface given surf ID
 
     virtual void DeleteDuplicateSurfs();
     virtual void BuildGrid();
