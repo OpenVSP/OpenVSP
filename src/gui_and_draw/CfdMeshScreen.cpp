@@ -384,6 +384,7 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetSameLineFlag( true );
 
 
+    int sm_but_w = 40;
     int typebuttonw = 80;
     m_OutputTabLayout.SetButtonWidth(typebuttonw);
     m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - typebuttonw - 30 );
@@ -436,8 +437,22 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectVspgeomFile, "...");
     m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
+    m_OutputTabLayout.AddButton(m_PogsFile, "POGS");
 
+    m_OutputTabLayout.SetSliderWidth( 50 );
+    m_OutputTabLayout.AddCounter( m_PogsNRefCounter, "Num Ref." );
+
+    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 2 * typebuttonw - 30 - 50 );
+    m_OutputTabLayout.AddOutput(m_PogsOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton(m_SelectPogsFile, "...");
+    m_OutputTabLayout.ForceNewLine();
+
+
+    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - typebuttonw - 30 );
+
+    m_OutputTabLayout.AddYGap();
     m_OutputTabLayout.SetFitWidthFlag( true );
     m_OutputTabLayout.AddDividerBox("NASCART");
     m_OutputTabLayout.ForceNewLine();
@@ -1060,6 +1075,8 @@ void CfdMeshScreen::UpdateOutputTab()
     m_TkeyOutput.Update( StringUtil::truncateFileName( tkeyname, 40).c_str() );
     string vspgeomname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_VSPGEOM_FILE_NAME );
     m_VspgeomOutput.Update( StringUtil::truncateFileName( vspgeomname, 40 ).c_str() );
+    string pogsname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POGS_FILE_NAME );
+    m_PogsOutput.Update( StringUtil::truncateFileName( pogsname, 40 ).c_str() );
 
     //==== Update File Output Flags ====//
     m_StlFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->GetID() );
@@ -1073,6 +1090,17 @@ void CfdMeshScreen::UpdateOutputTab()
     m_KeyFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_KEY_FILE_NAME )->GetID() );
     m_TkeyFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME)->GetID() );
     m_VspgeomFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME )->GetID() );
+    m_PogsFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POGS_FILE_NAME )->GetID() );
+    m_PogsNRefCounter.Update( m_Vehicle->GetCfdSettingsPtr()->m_POGSNRef.GetID() );
+
+    if ( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POGS_FILE_NAME )->Get() )
+    {
+        m_PogsNRefCounter.Activate();
+    }
+    else
+    {
+        m_PogsNRefCounter.Deactivate();
+    }
 
 }
 
@@ -1548,6 +1576,14 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_VSPGEOM_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectPogsFile )
+    {
+        string newfile = m_ScreenMgr->FileChooser( "Select POGS .i.tri file.", "*.i.tri", vsp::SAVE );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_POGS_FILE_NAME );
         }
     }
 }

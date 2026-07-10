@@ -274,6 +274,7 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_ExportFileFlags[ vsp::CFD_TKEY_FILE_NAME ].Init( "TKEY_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_FACET_FILE_NAME ].Init( "FACET_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_VSPGEOM_FILE_NAME ].Init( "VSPGEOM_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_POGS_FILE_NAME ].Init( "POGS_Export", "ExportCFD", this, false, 0, 1 );
 
     InitCommonParms( false );
 
@@ -380,7 +381,7 @@ void CfdMeshSettings::ResetExportFileNames( const string& basename )
         base.erase( pos, base.length() - 1 );
     }
 
-    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".tkey", ".facet", ".vspgeom" };
+    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".tkey", ".facet", ".vspgeom", ".i.tri" };
 
     for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
     {

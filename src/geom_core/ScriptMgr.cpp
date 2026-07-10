@@ -766,6 +766,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_VSPGEOM_FILE_NAME", CFD_VSPGEOM_FILE_NAME );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_POGS_FILE_NAME", CFD_POGS_FILE_NAME );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_NUM_FILE_NAMES", CFD_NUM_FILE_NAMES );
     assert( r >= 0 );
 

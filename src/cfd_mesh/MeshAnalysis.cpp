@@ -63,6 +63,10 @@ void CfdMeshAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "OBJFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME ), "File name for OBJ file export." ) );
         m_Inputs.Add( new NameValData( "GMSHFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->Get(), "Flag to enable GMSH file export." ) );
         m_Inputs.Add( new NameValData( "GMSHFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME ), "File name for GMSH file export." ) );
+        m_Inputs.Add( new NameValData( "VSPGEOMFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME )->Get(), "Flag to enable VSPGEOM file export." ) );
+        m_Inputs.Add( new NameValData( "VSPGEOMFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_VSPGEOM_FILE_NAME ), "File name for VSPGEOM file export." ) );
+        m_Inputs.Add( new NameValData( "POGSFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POGS_FILE_NAME )->Get(), "Flag to enable POGS file export." ) );
+        m_Inputs.Add( new NameValData( "POGSFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POGS_FILE_NAME ), "File name for POGS file export." ) );
     }
     else
     {
@@ -192,6 +196,22 @@ string CfdMeshAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "GMSHFileName", 0 );
         if( nvd ) veh->GetCfdSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::CFD_GMSH_FILE_NAME );
 
+        bool vspgeomFileFlagOrig = veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME )->Get();
+        nvd = m_Inputs.FindPtr( "VSPGEOMFileFlag", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->SetFileExportFlag( vsp::CFD_VSPGEOM_FILE_NAME, nvd->GetInt( 0 ) );
+
+        string vspgeomFileNameOrig = veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_VSPGEOM_FILE_NAME );
+        nvd = m_Inputs.FindPtr( "VSPGEOMFileName", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::CFD_VSPGEOM_FILE_NAME );
+
+        bool pogsFileFlagOrig = veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POGS_FILE_NAME )->Get();
+        nvd = m_Inputs.FindPtr( "POGSFileFlag", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->SetFileExportFlag( vsp::CFD_POGS_FILE_NAME, nvd->GetInt( 0 ) );
+
+        string pogsFileNameOrig = veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POGS_FILE_NAME );
+        nvd = m_Inputs.FindPtr( "POGSFileName", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::CFD_POGS_FILE_NAME );
+
         // Execute analysis
         CfdMeshMgr.GenerateMesh();
 
@@ -232,6 +252,10 @@ string CfdMeshAnalysis::Execute()
         veh->GetCfdSettingsPtr()->SetExportFileName( objFileNameOrig, vsp::CFD_OBJ_FILE_NAME );
         veh->GetCfdSettingsPtr()->SetFileExportFlag( vsp::CFD_GMSH_FILE_NAME, gmshFileFlagOrig );
         veh->GetCfdSettingsPtr()->SetExportFileName( gmshFileNameOrig, vsp::CFD_GMSH_FILE_NAME );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( vsp::CFD_VSPGEOM_FILE_NAME, vspgeomFileFlagOrig );
+        veh->GetCfdSettingsPtr()->SetExportFileName( vspgeomFileNameOrig, vsp::CFD_VSPGEOM_FILE_NAME );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( vsp::CFD_POGS_FILE_NAME, pogsFileFlagOrig );
+        veh->GetCfdSettingsPtr()->SetExportFileName( pogsFileNameOrig, vsp::CFD_POGS_FILE_NAME );
 
     }
 

@@ -159,6 +159,8 @@ protected:
     ToggleButton m_KeyFile;
     ToggleButton m_TkeyFile;
     ToggleButton m_VspgeomFile;
+    ToggleButton m_PogsFile;
+    Counter m_PogsNRefCounter;
 
     TriggerButton m_SelectStlFile;
     TriggerButton m_SelectPolyFile;
@@ -170,6 +172,7 @@ protected:
     TriggerButton m_SelectKeyFile;
     TriggerButton m_SelectTkeyFile;
     TriggerButton m_SelectVspgeomFile;
+    TriggerButton m_SelectPogsFile;
 
     StringOutput m_StlOutput;
     StringOutput m_PolyOutput;
@@ -181,6 +184,7 @@ protected:
     StringOutput m_KeyOutput;
     StringOutput m_TkeyOutput;
     StringOutput m_VspgeomOutput;
+    StringOutput m_PogsOutput;
 
     //===== Sources Tab Items =====//
 

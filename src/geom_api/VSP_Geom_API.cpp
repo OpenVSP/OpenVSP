@@ -519,6 +519,8 @@ void SetComputationFileName( int file_type, const std::string & file_name )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TKEY_FILE_NAME );
     if ( file_type == CFD_VSPGEOM_TYPE )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_VSPGEOM_FILE_NAME );
+    if ( file_type == CFD_POGS_TYPE )
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_POGS_FILE_NAME );
 
     ErrorMgr.NoError();
 }
@@ -1070,6 +1072,8 @@ void ComputeCFDMesh( int set, int degenset, int file_export_types )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_TKEY_FILE_NAME, true );
     if ( file_export_types & CFD_VSPGEOM_TYPE )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_VSPGEOM_FILE_NAME, true );
+    if ( file_export_types & CFD_POGS_TYPE )
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_POGS_FILE_NAME, true );
 
     veh->GetCfdSettingsPtr()->m_SelectedSetIndex = set;
     veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex = degenset;

@@ -257,6 +257,7 @@ enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,	/*!< STL export type */
                             CFD_TKEY_FILE_NAME,	/*!< TKEY export type */
                             CFD_FACET_FILE_NAME,	/*!< FACET export type */
                             CFD_VSPGEOM_FILE_NAME,	/*!< VSPGEOM export type */
+                            CFD_POGS_FILE_NAME,	/*!< POGS export type */
                             CFD_NUM_FILE_NAMES,	/*!< Number of CFD Mesh export file types */
 };
 
@@ -375,6 +376,7 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,	/*!< No export file typ
                                 CFD_PLOT3D_TYPE_DEPRECATED     = 1<<22,	
                                 CFD_VSPGEOM_TYPE    = 1<<23,	
                                 VSPAERO_VSPGEOM_TYPE = 1<<24,	
+                                CFD_POGS_TYPE    = 1<<25,
 };
 
 /*!
