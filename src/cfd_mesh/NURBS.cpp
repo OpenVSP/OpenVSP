@@ -583,22 +583,9 @@ void NURBS_Surface::BuildNURBSLoopMap()
     m_NURBSLoopVec.insert( m_NURBSLoopVec.end(), external_loop_vec.begin(), external_loop_vec.end() );
 }
 
-void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label )
+void NURBS_Surface::MakeExtLoopVec( vector < NURBS_Loop > & ext_loop_vec, vector < NURBS_Loop > & cutout_vec )
 {
-    // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
-    for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
-    {
-        if ( m_NURBSCurveVec[i].m_SubSurfFlag || 
-             ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) ||
-             ( m_SurfType == vsp::CFD_TRANSPARENT && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NORMAL && m_NURBSCurveVec[i].m_SurfB_Type != vsp::CFD_NORMAL && !m_NURBSCurveVec[i].m_BorderFlag && !m_NURBSCurveVec[i].m_InternalFlag ) )
-        {
-            iges->MakeCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, label );
-        }
-    }
-
     // Identify if there are multiple external loops
-    vector < NURBS_Loop > ext_loop_vec, cutout_vec;
-
     for ( size_t i = 0; i < m_NURBSLoopVec.size(); i++ )
     {
         if ( m_NURBSLoopVec[i].m_IntersectLoopFlag )
@@ -625,6 +612,25 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
             ext_loop_vec.push_back( m_NURBSLoopVec[i] );
         }
     }
+}
+
+void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label )
+{
+    // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
+    for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
+    {
+        if ( m_NURBSCurveVec[i].m_SubSurfFlag || 
+             ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) ||
+             ( m_SurfType == vsp::CFD_TRANSPARENT && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NORMAL && m_NURBSCurveVec[i].m_SurfB_Type != vsp::CFD_NORMAL && !m_NURBSCurveVec[i].m_BorderFlag && !m_NURBSCurveVec[i].m_InternalFlag ) )
+        {
+            iges->MakeCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, label );
+        }
+    }
+
+    // Identify if there are multiple external loops
+    vector < NURBS_Loop > ext_loop_vec, cutout_vec;
+
+    MakeExtLoopVec( ext_loop_vec,  cutout_vec );
 
     if ( ext_loop_vec.size() == 1 )
     {

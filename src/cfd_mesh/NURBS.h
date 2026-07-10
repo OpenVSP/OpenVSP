@@ -165,6 +165,8 @@ public:
     // Write the NURBS surface to IGES
     DLL_IGES_ENTITY_128 WriteIGESSurf( IGESutil* iges, const string& label = "" );
 
+    void MakeExtLoopVec( vector < NURBS_Loop > & ext_loop_vec, vector < NURBS_Loop > & cutout_vec );
+
     // Write the NURBS loops for this NURBS surface to IGES, trimming the parent surface
     // in the process. 
     void WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label = "" );
