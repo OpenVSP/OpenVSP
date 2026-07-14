@@ -1085,6 +1085,18 @@ void CfdMeshMgrSingleton::ExportFiles()
     {
         SubSurfaceMgr.WriteTKeyFile(GetSettingsPtr()->GetExportFileName(vsp::CFD_TKEY_FILE_NAME));
     }
+
+    string pogs_fn;
+    if (  GetSettingsPtr()->GetExportFileFlag( vsp::CFD_POGS_FILE_NAME ) )
+    {
+        BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
+
+        BuildNURBSSurfMap();
+
+        pogs_fn = GetSettingsPtr()->GetExportFileName( vsp::CFD_POGS_FILE_NAME );
+        WritePOGS( pogs_fn );
+    }
+
 }
 
 void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
@@ -2613,6 +2625,572 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
             fclose( fp );
         }
     }
+}
+
+// Signed area of a NURBS loop in the parameter space of one of its parent surfaces.
+// A loop is stored as an ordered walk, but the direction of that walk is seeded by
+// whichever curve happened to start the chain, so it carries no orientation on its
+// own.  The sign of this area supplies the missing half: it says which way the walk
+// goes around the region the loop bounds.
+static double LoopSignedAreaUW( const NURBS_Loop &loop, int surf_id )
+{
+    vector < vec3d > uw_vec;
+
+    for ( int i = 0; i < ( int )loop.m_OrderedCurves.size(); i++ )
+    {
+        const NURBS_Curve &nurbs_curve = loop.m_OrderedCurves[i].first;
+
+        // The curve is stored in the parameter space of both its parents; take the
+        // copy belonging to the surface this loop lies on.
+        if ( nurbs_curve.m_SurfA_ID == surf_id )
+        {
+            uw_vec.insert( uw_vec.end(), nurbs_curve.m_UWPntVec_A.begin(), nurbs_curve.m_UWPntVec_A.end() );
+        }
+        else if ( nurbs_curve.m_SurfB_ID == surf_id )
+        {
+            uw_vec.insert( uw_vec.end(), nurbs_curve.m_UWPntVec_B.begin(), nurbs_curve.m_UWPntVec_B.end() );
+        }
+    }
+
+    double area = 0.0;
+
+    for ( int i = 0; i < ( int )uw_vec.size(); i++ )
+    {
+        const vec3d &p0 = uw_vec[i];
+        const vec3d &p1 = uw_vec[( i + 1 ) % uw_vec.size()];
+
+        area += p0.x() * p1.y() - p1.x() * p0.y();
+    }
+
+    return 0.5 * area;
+}
+
+// How much of a surface's parameter space the mesh actually covers.  Which of a face's
+// loops bounds it is decided against this.
+static double MeshAreaUW( Surf* srf )
+{
+    if ( !srf || !srf->GetMesh() )
+    {
+        return 0.0;
+    }
+
+    const vector < vec2d > &uw_vec = srf->GetMesh()->GetSimpUWPntVec();
+    const vector < SimpFace > &face_vec = srf->GetMesh()->GetSimpFaceVec();
+
+    double area = 0.0;
+
+    for ( int i = 0; i < ( int )face_vec.size(); i++ )
+    {
+        const SimpFace &f = face_vec[i];
+
+        int ind[4] = { f.ind0, f.ind1, f.ind2, f.ind3 };
+        int ntri = 1;
+        if ( f.m_isQuad )
+        {
+            ntri = 2;
+        }
+
+        for ( int t = 0; t < ntri; t++ )
+        {
+            const vec2d &p0 = uw_vec[ ind[0] ];
+            const vec2d &p1 = uw_vec[ ind[ t + 1 ] ];
+            const vec2d &p2 = uw_vec[ ind[ t + 2 ] ];
+
+            area += 0.5 * std::fabs( ( p1.x() - p0.x() ) * ( p2.y() - p0.y() ) -
+                                     ( p2.x() - p0.x() ) * ( p1.y() - p0.y() ) );
+        }
+    }
+
+    return area;
+}
+
+// Sense of every curve of a loop as that loop's face sees it, in the convention the
+// topology file wants: +1 when the face lies to the left of the curve walked in its
+// own direction, -1 when it lies to the right.
+//
+// Walking a loop so that the face is always on the left makes an outer boundary run
+// counter-clockwise and a hole run clockwise, so the area sign settles the direction
+// of the stored walk once the loop is known to be one or the other.  A surface whose
+// parametric normal points inward reverses the whole picture.
+static void AccumulateLoopSense( const NURBS_Loop &loop, int surf_id, bool cutout_flag, bool flip_flag,
+                                 std::map < int, std::map < int, int > > &curve_face_sense )
+{
+    double area = LoopSignedAreaUW( loop, surf_id );
+
+    if ( area == 0.0 )
+    {
+        return;
+    }
+
+    int loop_sense = 1;
+    if ( area < 0.0 )
+    {
+        loop_sense = -1;
+    }
+
+    if ( cutout_flag )
+    {
+        loop_sense = -loop_sense;
+    }
+
+    if ( flip_flag )
+    {
+        loop_sense = -loop_sense;
+    }
+
+    for ( int i = 0; i < ( int )loop.m_OrderedCurves.size(); i++ )
+    {
+        int sense = loop_sense;
+        if ( !loop.m_OrderedCurves[i].second )
+        {
+            sense = -sense;
+        }
+
+        curve_face_sense[ loop.m_OrderedCurves[i].first.m_CurveID ][ surf_id ] = sense;
+    }
+}
+
+// Face number and edge sense that one parent surface of a curve contributes to a
+// topology record.  Both come back zero when that surface never became a face.
+static void GetTopoEdgeFace( int surf_id, const std::map < int, int > &surf_id_face_num,
+                             const std::map < int, std::map < int, int > > &curve_face_sense,
+                             int curve_id, int &face_num, int &sense )
+{
+    face_num = 0;
+    sense = 0;
+
+    std::map < int, int >::const_iterator nit = surf_id_face_num.find( surf_id );
+    if ( nit == surf_id_face_num.end() )
+    {
+        return;
+    }
+
+    face_num = nit->second;
+
+    std::map < int, std::map < int, int > >::const_iterator cit = curve_face_sense.find( curve_id );
+    if ( cit == curve_face_sense.end() )
+    {
+        return;
+    }
+
+    std::map < int, int >::const_iterator sit = cit->second.find( surf_id );
+    if ( sit != cit->second.end() )
+    {
+        sense = sit->second;
+    }
+}
+
+// Report the face only when its sense is known.  A surface can touch a curve without
+// the curve bounding its trimmed region -- MakeExtLoopVec ignores some loops for
+// trimming -- and a face index paired with no sense would be worse than none.
+static void GetTopoEdgeFaceChecked( int surf_id, const std::map < int, int > &surf_id_face_num,
+                                    const std::map < int, std::map < int, int > > &curve_face_sense,
+                                    int curve_id, int &face_num, int &sense )
+{
+    GetTopoEdgeFace( surf_id, surf_id_face_num, curve_face_sense, curve_id, face_num, sense );
+
+    if ( sense == 0 )
+    {
+        face_num = 0;
+    }
+}
+
+void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
+{
+    string base = pogs_fn;
+
+    int pos = base.find( ".i.tri" );
+    if ( pos >= 0 )
+    {
+        base.erase( pos, base.length() - 1 );
+    }
+
+    string topo_fn = base;
+    topo_fn.append( ".topo" );
+
+    // ISYM says what symmetry the body has: 0 for a closed body, 1/2/3 for a half body
+    // on the +x/+y/+z side and the negatives for the other side, 11/12/13 for a full body
+    // that is symmetric about x/y/z = 0.  A half mesh keeps +y.
+    int isym = 0;
+    if ( GetCfdSettingsPtr()->m_HalfMeshFlag )
+    {
+        isym = 2;
+    }
+
+    // Used when comparing W parameter to TMAGIC
+    double tol = 1e-12;
+
+    //==== Find All Points and Tri Counts ====//
+    vector< vec3d > allPntVec;
+    vector< vec3d > wakeAllPntVec;
+    vector < vector < int > > allPntKey;
+    allPntKey.resize( m_SurfVec.size() );
+    vector < vector < int > > allWPntKey;
+    allWPntKey.resize( m_SurfVec.size() );
+    int k = 0;
+    int wk = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        allPntKey[i].resize( sPntVec.size() );
+        allWPntKey[i].resize( sPntVec.size() );
+        for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
+        {
+            if ( m_SurfVec[i]->GetWakeFlag() )
+            {
+                wakeAllPntVec.push_back( sPntVec[v] );
+                allWPntKey[i][v] = wk;
+                wk++;
+            }
+            else
+            {
+                allPntVec.push_back( sPntVec[v] );
+                allPntKey[i][v] = k;
+                k++;
+            }
+        }
+    }
+
+    //==== Build Map ====//
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
+
+    double tol2 = PT_MERGE_TOL;
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol2 );
+
+    // //==== Build Wake Map If Available ====//
+    // PntNodeCloud wakepnCloud;
+    // if ( wakeAllPntVec.size() )
+    // {
+    //     wakepnCloud.AddPntNodes( wakeAllPntVec );
+    //     IndexPntNodes( wakepnCloud, tol2 );
+    // }
+
+    //==== Assemble Normal Tris ====//
+    vector< SimpFace > allFaceVec;
+    int ntristrict = 0;
+    vector< int > allSurfIDVec;
+    vector< vector< vec2d > > allUWVec;
+    vector < pair < int, int > > wedges;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        if ( !m_SurfVec[i]->GetWakeFlag() )
+        {
+            vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+            vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+            vector< vec2d >& sUWVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
+            for ( int t = 0 ; t <  ( int )sFaceVec.size() ; t++ )
+            {
+                SimpFace sface;
+                sface.ind0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind0] ) + 1;
+                sface.ind1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind1] ) + 1;
+                sface.ind2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind2] ) + 1;
+
+                if( sFaceVec[t].m_isQuad )
+                {
+                    sface.m_isQuad = true;
+                    sface.ind3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind3] ) + 1;
+                    ntristrict++; // Bonus tri for split quad.
+                }
+
+                sface.m_Tags = sFaceVec[t].m_Tags;
+                sface.m_iSurf = i;
+                ntristrict++;
+                allFaceVec.push_back( sface );
+                allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
+
+                vector< vec2d > uwFace( 4 );
+                uwFace[0] = sUWVec[ sFaceVec[t].ind0 ];
+                uwFace[1] = sUWVec[ sFaceVec[t].ind1 ];
+                uwFace[2] = sUWVec[ sFaceVec[t].ind2 ];
+                if( sFaceVec[t].m_isQuad )
+                {
+                    uwFace[3] = sUWVec[ sFaceVec[t].ind3 ];
+                }
+                allUWVec.push_back( uwFace );
+
+            }
+
+        }
+    }
+
+
+    //==== Assemble All Used Points ====//
+    vector< vec3d > allUsedPntVec;
+    for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+    {
+        if ( pnCloud.UsedNode( i ) )
+        {
+            allUsedPntVec.push_back( allPntVec[i] );
+        }
+    }
+
+
+    //=====================================================================================//
+    //==== Write .i.tri File for POGS =====================================================//
+    //=====================================================================================//
+    if ( pogs_fn.length() != 0 )
+    {
+        FILE* fp = fopen( pogs_fn.c_str(), "w" );
+
+        if ( fp )
+        {
+            //==== Write Pnt Count and Tri Count ====//
+            fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ntristrict );
+
+            //==== Write Pnts ====//
+            for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
+            {
+                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
+            }
+
+            //==== Write Tris ====//
+            for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+            {
+                fprintf( fp, "%d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                if( allFaceVec[i].m_isQuad )
+                {
+                    fprintf( fp, "%d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                }
+            }
+
+            //==== Write Component ID ====//
+            for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+            {
+                fprintf( fp, "%d \n", allFaceVec[i].m_iSurf + 1 );
+                if( allFaceVec[i].m_isQuad )
+                {
+                    fprintf( fp, "%d \n", allFaceVec[i].m_iSurf + 1 );
+                }
+            }
+
+            fclose( fp );
+        }
+    }
+
+
+
+
+    int ncrv = m_NURBSCurveVec.size();
+    for ( int i = 0 ; i < ( int )ncrv ; i++ )
+    {
+        NURBS_Curve& nurbs_curve = m_NURBSCurveVec[i];
+
+        int surfA_indx = FindSurfIndx( nurbs_curve.m_SurfA_ID );
+        int surfB_indx = FindSurfIndx( nurbs_curve.m_SurfB_ID );
+
+        // Identify the SdaiB_spline_curve_with_knots. This must come before BuildNURBSSurfMap for STEP files, or the
+        // edge pointer will not be transferred between surfaces
+
+        // Don't write subsurface or structural entity intersections as STEP edges (surface splitting along these curve types not supported)
+        if ( !nurbs_curve.m_SubSurfFlag && nurbs_curve.m_SurfA_Type != vsp::CFD_STRUCTURE )
+        {
+            // nurbs_curve.WriteSTEPEdge( &step, to_string(i), merge_pnts ); // TODO: Improve STEP Edge Naming
+         }
+    }
+
+    int nsrf = m_NURBSSurfVec.size();
+
+    std::set < int > used_curve_set;
+
+    // Sense of each curve as seen by each face that walks it.  A curve is walked by at
+    // most two faces, and each of them reports independently whether it lies to the left
+    // or the right of the curve's own direction.
+    std::map < int, std::map < int, int > > curve_face_sense;
+
+    // A surface is a face of the topology only if it is part of the triangulation the
+    // topology describes, and the test for that is whether it carries any mesh.  The
+    // half mesh symmetry plane is the case that matters: it slices the geometry and is
+    // then discarded, so the mesh is left open along the cut and the plane is not a face
+    // of it.  The far field's symmetry boundary is meshed and is a face.  Wakes are kept
+    // out of the triangulation, so they are kept out here too.
+    vector < int > face_surf_vec;
+
+    // Face number of each surface that became a face, which is its position in the list
+    // NFACE counts.  A Surf ID cannot serve as the face number: IDs are handed out when
+    // surfaces are loaded, and by this point the far field has renumbered them, half mesh
+    // trimming and duplicate removal have deleted some, and BuildNURBSSurfMap has passed
+    // over any surface that ended up completely enclosed by another component or is an
+    // external negative surface.  So the IDs run past the end of the face list and have
+    // gaps in the middle.
+    std::map < int, int > surf_id_face_num;
+
+    for ( int i = 0 ; i < ( int )nsrf ; i++ )
+    {
+        Surf* srf = FindSurf( m_NURBSSurfVec[i].m_SurfID );
+
+        if ( !srf || srf->GetWakeFlag() || !srf->GetMesh() || srf->GetMesh()->GetSimpFaceVec().empty() )
+        {
+            continue;
+        }
+
+        surf_id_face_num[ m_NURBSSurfVec[i].m_SurfID ] = ( int )face_surf_vec.size() + 1;
+        face_surf_vec.push_back( i );
+    }
+
+    int nface = face_surf_vec.size();
+
+    for ( int iface = 0 ; iface < nface ; iface++ )
+    {
+        int i = face_surf_vec[iface];
+        NURBS_Surface& nurbs_surf = m_NURBSSurfVec[i];
+
+        Surf* current_surf = FindSurf( nurbs_surf.m_SurfID );
+        int surf_indx = FindSurfIndx( nurbs_surf.m_SurfID );
+
+        // Every surface knows which way it faces: the flag is set from the Geom the
+        // surface came from, or where the domain surfaces are built.
+        bool flip_flag = false;
+        if ( current_surf )
+        {
+            flip_flag = current_surf->GetFlipFlag();
+        }
+
+        vector < NURBS_Loop >& loop_vec = nurbs_surf.m_NURBSLoopVec;
+
+        // Identify if there are multiple external loops
+        vector < NURBS_Loop > ext_loop_vec, cutout_vec;
+
+        nurbs_surf.MakeExtLoopVec( ext_loop_vec,  cutout_vec );
+
+        // A chain that never closed does not bound anything, so it names no edge and fixes
+        // no orientation.  The IGES and STEP writers refuse these as incomplete loops; do
+        // the same here rather than write an edge with no sense.
+        //
+        // The loops that came back as external are the ones that name edges.  A cutout is
+        // not an edge in its own right -- the face on the other side of it names it -- but
+        // the face that owns the cutout still has a sense to report on it.
+        vector < const NURBS_Loop* > loop_ptr;
+        vector < bool > names_edges;
+
+        for ( int j = 0; j < ext_loop_vec.size(); j++ )
+        {
+            if ( ext_loop_vec[j].m_ClosedFlag )
+            {
+                loop_ptr.push_back( &ext_loop_vec[j] );
+                names_edges.push_back( true );
+            }
+        }
+
+        for ( int j = 0; j < cutout_vec.size(); j++ )
+        {
+            if ( cutout_vec[j].m_ClosedFlag )
+            {
+                loop_ptr.push_back( &cutout_vec[j] );
+                names_edges.push_back( false );
+            }
+        }
+
+        // Which way round a loop is walked depends on whether it bounds the face from
+        // outside or punches a hole in it, and the sense follows from that.  Whether a loop
+        // came back external does not settle it: where a half mesh cuts a body, the cut is
+        // a border curve of the body, so the footprint it traces on the symmetry plane is
+        // not made of intersection curves alone and does not read as a cutout -- though a
+        // hole is exactly what it is.
+        //
+        // What settles it is the mesh.  The boundary encloses everything meshed, so it is
+        // at least as big; a hole is smaller.  Of the loops big enough, the boundary is the
+        // tightest -- which is what keeps a surface trimmed back from its own border, as
+        // the symmetry plane is when a Geom stands in for the far field, from mistaking the
+        // border it no longer reaches for its boundary.
+        double mesh_area = MeshAreaUW( current_surf );
+
+        int iouter = -1;
+        double area_out = 0.0;
+
+        int ilargest = -1;
+        double area_largest = 0.0;
+
+        for ( int j = 0; j < ( int )loop_ptr.size(); j++ )
+        {
+            double area = std::fabs( LoopSignedAreaUW( *loop_ptr[j], nurbs_surf.m_SurfID ) );
+
+            if ( ilargest < 0 || area > area_largest )
+            {
+                area_largest = area;
+                ilargest = j;
+            }
+
+            // Both areas are measured off the same tessellation, so they agree closely
+            // where a loop is the boundary.  The slack is for the last bit of round-off.
+            if ( area >= 0.999 * mesh_area )
+            {
+                if ( iouter < 0 || area < area_out )
+                {
+                    area_out = area;
+                    iouter = j;
+                }
+            }
+        }
+
+        // Nothing meshed on this surface, or no loop big enough to hold what was.
+        if ( iouter < 0 )
+        {
+            iouter = ilargest;
+        }
+
+        for ( int j = 0; j < ( int )loop_ptr.size(); j++ )
+        {
+            if ( names_edges[j] )
+            {
+                const vector < pair < NURBS_Curve, bool > > &oc = loop_ptr[j]->m_OrderedCurves;
+
+                for ( int k = 0; k < ( int )oc.size(); k++ )
+                {
+                    used_curve_set.insert( oc[k].first.m_CurveID );
+                }
+            }
+
+            AccumulateLoopSense( *loop_ptr[j], nurbs_surf.m_SurfID, j != iouter, flip_flag, curve_face_sense );
+        }
+    }
+
+    FILE* topo_fp = fopen( topo_fn.c_str(), "w" );
+
+    if ( topo_fp )
+    {
+        fprintf( topo_fp, "%6d%6d%6d%23.12E   ISYM,NEDGE,NFACE,SCALE (Symmetry, # Non-degen. Edges & Faces)\n", isym, (int) used_curve_set.size(), nface, 1.0 );
+        int i = 0;
+        std::set < int >::iterator it;
+        for ( it = used_curve_set.begin(); it != used_curve_set.end(); it++ )
+        {
+            int icurve = (*it);
+            NURBS_Curve & nurbs_curve = m_NURBSCurveVec[ icurve ];
+
+            // Column 1 = edge index
+            // Column 2 = face index on one side of edge
+            // Column 3 = sense of edge relative to face (+1 if face is on left side of edge in the positive edge index direction, -1 of opposite)
+            // Column 4 = face index on the other side of edge, 0 if no face
+            // Column 5 = similar to column 3, 0 if no face
+            int faceA = 0, senseA = 0;
+            int faceB = 0, senseB = 0;
+
+            GetTopoEdgeFaceChecked( nurbs_curve.m_SurfA_ID, surf_id_face_num, curve_face_sense, icurve, faceA, senseA );
+
+            // A curve whose two parents are the same surface lies on an open boundary
+            // of that surface -- there is no face on the other side of it.
+            if ( nurbs_curve.m_SurfB_ID != nurbs_curve.m_SurfA_ID )
+            {
+                GetTopoEdgeFaceChecked( nurbs_curve.m_SurfB_ID, surf_id_face_num, curve_face_sense, icurve, faceB, senseB );
+            }
+
+            // A parent surface that never became a face leaves its half of the pair
+            // empty.  The face that does exist belongs in the first pair of columns.
+            if ( faceA == 0 )
+            {
+                std::swap( faceA, faceB );
+                std::swap( senseA, senseB );
+            }
+
+            fprintf( topo_fp, "%8d%8d%8d%8d%8d\n", i + 1, faceA, senseA, faceB, senseB );
+
+            i++;
+        }
+
+        fclose( topo_fp );
+    }
+
 }
 
 // How close the mesh came to the edge lengths it was asked for.

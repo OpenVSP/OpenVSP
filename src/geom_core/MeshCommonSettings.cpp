@@ -42,7 +42,7 @@ void MeshCommonSettings::InitCommonParms( bool curveFlagDefault )
 
     m_RelCurveTol.Init( "RelCurveTol", "Global", this, 0.005, 1e-5, 1.0 );
     m_RelCurveTol.SetDescript( "Relative tolerance on the adapted intersection curves of trimmed CAD "
-                               "files, as a fraction of a segment's length" );
+                               "and POGS files, as a fraction of a segment's length" );
 
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
     m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );

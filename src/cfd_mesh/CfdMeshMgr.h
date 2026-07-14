@@ -163,6 +163,7 @@ public:
     virtual void WriteTagFiles( string file_name, const vector< SimpFace > &allFaceVec, bool allowquads );
     virtual void WriteTagFile( FILE* file_id, int part, int tag, const vector< SimpFace > &allFaceVec, bool allowquads );
     virtual void WriteFacet( const string &facet_fn );
+    virtual void WritePOGS( const string &pogs_fn );
 
     void ExportFiles() override;
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );

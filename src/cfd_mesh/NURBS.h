@@ -90,6 +90,7 @@ public:
     // Label for the NURBS curve
     string m_Label;
 
+    int m_CurveID;
 protected:
 
     // Bounding box of curve. Used to identify relative tolerances

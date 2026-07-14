@@ -2112,6 +2112,7 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
 
     list< ISegChain* >::iterator i_seg;
 
+    int icurve = 0;
     for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
     {
         bool internal_flag = false, ss_flag = false, wake_flag = false;
@@ -2230,6 +2231,8 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
         nurbs_curve.m_SurfB_Type = ( *i_seg )->m_SurfB->GetSurfaceCfdType();
         nurbs_curve.m_SurfA_ID = ( *i_seg )->m_SurfA->GetSurfID();
         nurbs_curve.m_SurfB_ID = ( *i_seg )->m_SurfB->GetSurfID();
+        nurbs_curve.m_CurveID = icurve;
+        icurve++;
 
         nurbs_curve.InitNURBSCurve( ( *i_seg )->m_ACurve, ( *i_seg )->m_BCurve, GetSettingsPtr()->m_RelCurveTol );
 

@@ -303,6 +303,7 @@ public:
     int ind3;
     bool m_isQuad;
     vector<int> m_Tags;
+    int m_iSurf;
     int m_reason;
 
     // Filled in by CfdMeshMgrSingleton::Subtag, which already visits every face and already

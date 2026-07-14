@@ -35,7 +35,7 @@ void CfdMeshAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "MaxGap", veh->GetCfdGridDensityPtr()->m_MaxGap(), "Maximum sagitta of circle inscribed to local curvature." ) );
         m_Inputs.Add( new NameValData( "NCircSeg", veh->GetCfdGridDensityPtr()->m_NCircSeg(), "Number of segments to divide a circle inscribed to local curvature." ) );
         m_Inputs.Add( new NameValData( "GrowthRatio", veh->GetCfdGridDensityPtr()->m_GrowRatio(), "Maximum edge length growth ratio."  ) );
-        m_Inputs.Add( new NameValData( "RelCurveTol", veh->GetCfdSettingsPtr()->m_RelCurveTol(), "Tolerance used when constructing binary adapted curves." ) );
+        m_Inputs.Add( new NameValData( "RelCurveTol", veh->GetCfdSettingsPtr()->m_RelCurveTol(), "Relative tolerance on the intersection curves of POGS files, as a fraction of a segment's length." ) );
 
         m_Inputs.Add( new NameValData( "RigorLimit", veh->GetCfdGridDensityPtr()->m_RigorLimit(), "Flag to enable rigorous growth limiting across 3D space." ) );
         m_Inputs.Add( new NameValData( "IntersectSubSurfs", veh->GetCfdSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
