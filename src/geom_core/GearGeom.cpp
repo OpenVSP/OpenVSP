@@ -1895,7 +1895,7 @@ void Bogie::BackCalculateRetract()
         SimpleFeatureTess sample_pts;
         sample_pts.m_ptline.push_back( { vec3d(0, 0, 0), vec3d( 0, 1, 0) } );
         vector <SimpleFeatureTess> out;
-        TireToBogie( sample_pts, out, vsp::GEAR_CONFIGURATION_UP_AND_DOWN );
+        TireToBogie( sample_pts, out, 0, vsp::GEAR_CONFIGURATION_UP_AND_DOWN );
 
         vec3d a = out[0].m_ptline[0][0];
         vec3d b = out[0].m_ptline[0][1];
@@ -2661,7 +2661,7 @@ vec3d Bogie::GetFwdCenterContactPoint( int isymm, int suspensionmode, int tiremo
 
 void Bogie::AppendMainSurf( vector < VspSurf > &surfvec, int gear_config ) const
 {
-    TireToBogie( m_TireSurface, surfvec, gear_config );
+    TireToBogie( m_TireSurface, surfvec, ( int )surfvec.size(), gear_config );
 }
 
 bool Bogie::IsStowParentJoint()
@@ -2981,15 +2981,24 @@ void GearGeom::UpdateMainTessVec()
 
     if ( m_MainTessVec.size() != nmain || !m_GlobalScaleDirty )
     {
-        m_MainTessVec.clear();
-        m_MainFeatureTessVec.clear();
-        m_MainTessVec.reserve( nmain );
-        m_MainFeatureTessVec.reserve( nmain );
+        // Do not clear m_MainTessVec or m_MainFeatureTessVec here.  TireToBogie assigns into any existing
+        // elements, reusing their heap allocations from the previous update.  The vectors are trimmed to the
+        // final cursor positions below.
+        int itess = 0;
+        int ifeat = 0;
 
         if ( m_IncludeNominalGroundPlane() )
         {
-            m_MainTessVec.resize( 1 );
-            m_MainFeatureTessVec.resize( 1 );
+            if ( m_MainTessVec.size() < 1 )
+            {
+                m_MainTessVec.resize( 1 );
+            }
+            if ( m_MainFeatureTessVec.size() < 1 )
+            {
+                m_MainFeatureTessVec.resize( 1 );
+            }
+            itess = 1;
+            ifeat = 1;
         }
 
         int nbogies = m_Bogies.size();
@@ -3008,10 +3017,13 @@ void GearGeom::UpdateMainTessVec()
 
                 m_Bogies[i]->UpdateTess();
 
-                m_Bogies[i]->TireToBogie( m_Bogies[i]->m_TireTess, m_MainTessVec, m_GearConfigMode() );
-                m_Bogies[i]->TireToBogie( m_Bogies[i]->m_TireFeatureTess, m_MainFeatureTessVec, m_GearConfigMode() );
+                itess = m_Bogies[i]->TireToBogie( m_Bogies[i]->m_TireTess, m_MainTessVec, itess, m_GearConfigMode() );
+                ifeat = m_Bogies[i]->TireToBogie( m_Bogies[i]->m_TireFeatureTess, m_MainFeatureTessVec, ifeat, m_GearConfigMode() );
             }
         }
+
+        m_MainTessVec.resize( itess );
+        m_MainFeatureTessVec.resize( ifeat );
     }
 
     if ( m_IncludeNominalGroundPlane() )
@@ -3042,12 +3054,18 @@ void GearGeom::UpdateMainDegenGeomPreview()
 
     if ( m_MainDegenGeomPreviewVec.size() != nmain || !m_GlobalScaleDirty )
     {
-        m_MainDegenGeomPreviewVec.clear();
-        m_MainDegenGeomPreviewVec.reserve( nmain );
+        // Do not clear m_MainDegenGeomPreviewVec here.  TireToBogie assigns into any existing elements,
+        // reusing their heap allocations from the previous update.  The vector is trimmed to the final
+        // cursor position below.
+        int idegen = 0;
 
         if ( m_IncludeNominalGroundPlane() )
         {
-            m_MainDegenGeomPreviewVec.resize( 1 );
+            if ( m_MainDegenGeomPreviewVec.size() < 1 )
+            {
+                m_MainDegenGeomPreviewVec.resize( 1 );
+            }
+            idegen = 1;
         }
 
         int nbogies = m_Bogies.size();
@@ -3058,9 +3076,11 @@ void GearGeom::UpdateMainDegenGeomPreview()
                 DegenGeom degenGeom;
                 CreateDegenGeom( m_Bogies[i]->m_TireSurface, 0, degenGeom, true, 1 );
 
-                m_Bogies[i]->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_GearConfigMode() );
+                idegen = m_Bogies[i]->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, idegen, m_GearConfigMode() );
             }
         }
+
+        m_MainDegenGeomPreviewVec.resize( idegen );
     }
 
     if ( nmain >= 1 )

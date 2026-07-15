@@ -940,7 +940,7 @@ void AuxiliaryGeom::UpdateSurf()
                             }
                         }
 
-                        b1->TireToBogie( flail, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), 0.0, stow, ret, kretract );
+                        b1->TireToBogie( flail, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), 0.0, stow, ret, kretract );
 
                     }
 
@@ -1723,15 +1723,15 @@ void AuxiliaryGeom::AppendContact1Surfs( GearGeom * gear, double bogietheta )
 
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b1->TireToBogie( b1->m_GrownTireSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_GrownTireSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b1->TireToBogie( b1->m_ClearanceSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_ClearanceSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
             else
             {
-                b1->TireToBogie( b1->m_TireSurface, m_MainSurfVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_TireSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
         }
     }
@@ -1746,15 +1746,15 @@ void AuxiliaryGeom::AppendContact2Surfs( GearGeom * gear, double bogietheta )
         {
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b2->TireToBogie( b2->m_GrownTireSurface, m_MainSurfVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_GrownTireSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b2->TireToBogie( b2->m_ClearanceSurface, m_MainSurfVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_ClearanceSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
             else
             {
-                b2->TireToBogie( b2->m_TireSurface, m_MainSurfVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_TireSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
         }
     }
@@ -1769,15 +1769,15 @@ void AuxiliaryGeom::AppendContact3Surfs( GearGeom * gear, double bogietheta )
         {
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b3->TireToBogie( b3->m_GrownTireSurface, m_MainSurfVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_GrownTireSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b3->TireToBogie( b3->m_ClearanceSurface, m_MainSurfVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_ClearanceSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
             else
             {
-                b3->TireToBogie( b3->m_TireSurface, m_MainSurfVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_TireSurface, m_MainSurfVec, ( int )m_MainSurfVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
         }
     }
@@ -1813,18 +1813,18 @@ void AuxiliaryGeom::TessContact1( GearGeom * gear, double bogietheta )
 
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b1->TireToBogie( b1->m_GrownTireTess, m_MainTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
-                b1->TireToBogie( b1->m_GrownTireFeatureTess, m_MainFeatureTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_GrownTireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_GrownTireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b1->TireToBogie( b1->m_ClearanceTess, m_MainTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
-                b1->TireToBogie( b1->m_ClearanceFeatureTess, m_MainFeatureTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_ClearanceTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_ClearanceFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
             else
             {
-                b1->TireToBogie( b1->m_TireTess, m_MainTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
-                b1->TireToBogie( b1->m_TireFeatureTess, m_MainFeatureTessVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_TireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_TireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
         }
     }
@@ -1839,18 +1839,18 @@ void AuxiliaryGeom::TessContact2( GearGeom * gear, double bogietheta )
         {
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b2->TireToBogie( b2->m_GrownTireTess, m_MainTessVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
-                b2->TireToBogie( b2->m_GrownTireFeatureTess, m_MainFeatureTessVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_GrownTireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_GrownTireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b2->TireToBogie( b2->m_ClearanceTess, m_MainTessVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
-                b2->TireToBogie( b2->m_ClearanceFeatureTess, m_MainFeatureTessVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_ClearanceTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_ClearanceFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
             else
             {
-                b2->TireToBogie( b2->m_TireTess, m_MainTessVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
-                b2->TireToBogie( b2->m_TireFeatureTess, m_MainFeatureTessVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_TireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_TireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
         }
     }
@@ -1865,18 +1865,18 @@ void AuxiliaryGeom::TessContact3( GearGeom * gear, double bogietheta )
         {
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b3->TireToBogie( b3->m_GrownTireTess, m_MainTessVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
-                b3->TireToBogie( b3->m_GrownTireFeatureTess, m_MainFeatureTessVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_GrownTireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_GrownTireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b3->TireToBogie( b3->m_ClearanceTess, m_MainTessVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
-                b3->TireToBogie( b3->m_ClearanceFeatureTess, m_MainFeatureTessVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_ClearanceTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_ClearanceFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
             else
             {
-                b3->TireToBogie( b3->m_TireTess, m_MainTessVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
-                b3->TireToBogie( b3->m_TireFeatureTess, m_MainFeatureTessVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_TireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_TireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
         }
     }
@@ -1924,7 +1924,7 @@ void AuxiliaryGeom::DegenContact1( GearGeom * gear, double bogietheta )
                 CreateDegenGeom( b1->m_TireSurface, 0, degenGeom, true, 1 );
             }
 
-            b1->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+            b1->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, ( int )m_MainDegenGeomPreviewVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
         }
     }
 }
@@ -1950,7 +1950,7 @@ void AuxiliaryGeom::DegenContact2( GearGeom * gear, double bogietheta )
                 CreateDegenGeom( b2->m_TireSurface, 0, degenGeom, true, 1 );
             }
 
-            b2->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+            b2->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, ( int )m_MainDegenGeomPreviewVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
         }
     }
 }
@@ -1976,7 +1976,7 @@ void AuxiliaryGeom::DegenContact3( GearGeom * gear, double bogietheta )
                 CreateDegenGeom( b3->m_TireSurface, 0, degenGeom, true, 1 );
             }
 
-            b3->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+            b3->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, ( int )m_MainDegenGeomPreviewVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
         }
     }
 }

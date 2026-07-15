@@ -89,18 +89,24 @@ public:
         return m_MechParentID;
     }
 
-    // T must have methods .FlipNormal() and .Transform( Matrix4d )
+    // T must have methods .FlipNormal() and .Transform( Matrix4d ) and must be default constructible and
+    // copy assignable.  Copies of source are written to dest starting at index idest, growing dest only when
+    // needed.  Assigning into existing elements (rather than constructing new ones) reuses the heap
+    // allocations of a previously computed dest, which makes repeated updates much faster for types built on
+    // nested vectors (e.g. SimpleTess).  Returns the index one past the last element written -- callers that
+    // reuse dest across updates should trim it to the returned cursor when finished.
     template <typename T>
-    void TireToBogie( const T &source, vector<T> &dest, int isymm, int suspensionmode, double bogietheta, bool stow = false, bool ret = false, double kretract = 0.0 ) const
+    int TireToBogie( const T &source, vector<T> &dest, int idest, int isymm, int suspensionmode, double bogietheta, bool stow = false, bool ret = false, double kretract = 0.0 ) const
     {
-        int idest = dest.size();
-
         int na = m_NAcross();
         int nt = m_NTandem();
 
         int n = na * nt;
 
-        dest.resize( idest + n, source );
+        if ( ( int )dest.size() < idest + n )
+        {
+            dest.resize( idest + n );
+        }
 
         double s = m_Spacing();
         double p = m_Pitch();
@@ -156,6 +162,7 @@ public:
                 Matrix4d row = col;
                 row.translatef( j * p - cenTandem, 0, 0 );
 
+                dest[ idest ] = source;
                 dest[ idest ].Transform( row );
 
                 if ( isymm > 0 )
@@ -166,10 +173,12 @@ public:
                 idest++;
             }
         }
+
+        return idest;
     }
 
     template <typename T>
-    void TireToBogie( const T &source, vector<T> &dest, int gear_config ) const
+    int TireToBogie( const T &source, vector<T> &dest, int idest, int gear_config ) const
     {
         int nsymm = 1;
         if ( m_Symmetrical() )
@@ -189,7 +198,7 @@ public:
         {
             for ( int isymm = 0; isymm < nsymm; isymm++ )
             {
-                TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false );
+                idest = TireToBogie( source, dest, idest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false );
             }
         }
 
@@ -201,11 +210,11 @@ public:
             {
                 if ( m_RetMode() == vsp::GEAR_STOWED_POSITION )
                 {
-                    TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, true );
+                    idest = TireToBogie( source, dest, idest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, true );
                 }
                 else
                 {
-                    TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false, true, 1.0 );
+                    idest = TireToBogie( source, dest, idest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false, true, 1.0 );
                 }
             }
         }
@@ -217,10 +226,12 @@ public:
             {
                 for ( int isymm = 0; isymm < nsymm; isymm++ )
                 {
-                    TireToBogie( source, dest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false, true, m_MechKRetract() );
+                    idest = TireToBogie( source, dest, idest, isymm, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta, false, true, m_MechKRetract() );
                 }
             }
         }
+
+        return idest;
     }
 
     void AppendMainSurf( vector < VspSurf > &surfvec, int gear_config ) const;
