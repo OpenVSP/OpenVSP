@@ -33,10 +33,6 @@ SimpleSubSurface::SimpleSubSurface()
     m_FeaOrientationType = vsp::FEA_ORIENT_PART_U;
 }
 
-SimpleSubSurface::~SimpleSubSurface()
-{
-}
-
 void SimpleSubSurface::CopyFrom( SubSurface *ss, const vector < string > & prop_id_vec )
 {
     if ( ss )
@@ -237,3 +233,9 @@ bool SimpleSubSurface::Subtag( const vec3d & center )
         return false;
     }
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<SimpleSubSurface> relies on to avoid deep copies.
+static_assert( std::is_nothrow_move_constructible< SimpleSubSurface >::value, "SimpleSubSurface must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< SimpleSubSurface >::value, "SimpleSubSurface must be nothrow move assignable" );

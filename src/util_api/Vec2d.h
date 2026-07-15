@@ -37,13 +37,15 @@ public:
 
     vec2d();           // vec2d x or new vec2d
 
-    ~vec2d()  {}        // delete vec2d
+    // The copy constructor, copy assignment operator, and destructor are intentionally left implicit.
+    // This keeps vec2d trivially copyable, so vector<vec2d> copies can use the memmove fast path
+    // instead of calling an out-of-line function per element.
+#ifdef SWIG
+    vec2d( const vec2d& a ); // vec2d x = y -- implicit in C++, declared so SWIG wraps it for the bindings.
+#endif
 
     vec2d( double xx, double yy );
 
-    vec2d( const vec2d& a ); // vec2d x = y
-
-    vec2d& operator=( const vec2d& a ); // x = y
     vec2d& operator=( double a );      // x = 35.
 
     double& operator [] ( int i )

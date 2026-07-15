@@ -1847,3 +1847,9 @@ void DegenGeom::Transform( const Matrix4d & mat )
         mat.xformnormvec( degenPlates[i].nPlate );
     }
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<DegenGeom> relies on to avoid deep copies.
+static_assert( std::is_nothrow_move_constructible< DegenGeom >::value, "DegenGeom must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< DegenGeom >::value, "DegenGeom must be nothrow move assignable" );

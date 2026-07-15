@@ -234,7 +234,8 @@ class SimpleFeaProperty
         m_CrossSectType = vsp::FEA_XSEC_GENERAL;
         m_SimpleFeaMatIndex = 0;
     };
-    ~SimpleFeaProperty()    {};
+    // Destructor and copy/move operations are intentionally left implicit so vector<SimpleFeaProperty>
+    // can move elements instead of deep-copying them.
 
     void CopyFrom( FeaProperty* fea_prop, const vector < string > &mat_id_vec );
 
@@ -299,7 +300,8 @@ public:
         m_A2 = 0;
         m_A3 = 0;
     };
-    ~SimpleFeaMaterial()    {};
+    // Destructor and copy/move operations are intentionally left implicit so vector<SimpleFeaMaterial>
+    // can move elements instead of deep-copying them.
 
     void CopyFrom( FeaMaterial* fea_mat );
 

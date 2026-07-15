@@ -42,10 +42,11 @@ GeomType::GeomType( int id, const string& name, bool fixed_flag, const string& m
     m_DisplayName = display_name;
 }
 
-//==== Destructor ====//
-GeomType::~GeomType()
-{
-}
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<GeomType> relies on to avoid deep copies.
+static_assert( std::is_nothrow_move_constructible< GeomType >::value, "GeomType must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< GeomType >::value, "GeomType must be nothrow move assignable" );
 
 void GeomType::CopyFrom( const GeomType & t )
 {

@@ -33,7 +33,8 @@ class Vsp1DCurve
 public:
 
     Vsp1DCurve();
-    virtual ~Vsp1DCurve();
+    // Destructor and copy/move operations are intentionally left implicit so containers
+    // can move elements instead of deep-copying them.
 
     double GetUMin() const { return m_Curve.get_parameter_min(); };
     double GetUMax() const { return m_Curve.get_parameter_max(); };

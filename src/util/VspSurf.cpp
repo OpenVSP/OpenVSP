@@ -82,11 +82,6 @@ VspSurf::VspSurf()
     m_PlanarUWAspect = -1;
 }
 
-//===== Destructor  =====//
-VspSurf::~VspSurf()
-{
-}
-
 void VspSurf::CopyNonSurfaceData( const VspSurf & s )
 {
     m_FlipNormal = s.m_FlipNormal;
@@ -3410,3 +3405,12 @@ void VspSurf::BuildMCurve( const double &r, Vsp1DCurve &mcurve ) const
         mcurve.InterpolateLinear( m, s, false );
     }
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<VspSurf> relies on to avoid deep copies.
+// The Code-Eli piecewise surface member has user-declared copy operations that suppress its
+// implicit moves, so these cannot be upgraded to is_nothrow_move_* until Code-Eli follows the
+// rule-of-zero as well.
+static_assert( std::is_move_constructible< VspSurf >::value, "VspSurf must be move constructible" );
+static_assert( std::is_move_assignable< VspSurf >::value, "VspSurf must be move assignable" );

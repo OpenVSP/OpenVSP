@@ -47,7 +47,8 @@ public:
 
     Bezier_curve();
     Bezier_curve( const piecewise_curve_type &crv );
-    ~Bezier_curve();
+    // Destructor and copy/move operations are intentionally left implicit so vector<Bezier_curve>
+    // can move elements instead of deep-copying them.
 
     int  GetNumSections() const
     {

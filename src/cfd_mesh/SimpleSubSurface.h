@@ -18,7 +18,8 @@ class SimpleSubSurface
 {
 public:
     SimpleSubSurface();
-    virtual ~SimpleSubSurface();
+    // Destructor and copy/move operations are intentionally left implicit so vector<SimpleSubSurface>
+    // can move elements instead of deep-copying them.
 
     void CopyFrom( SubSurface *ss, const vector < string > & );
 

@@ -870,3 +870,11 @@ double SimpleFeaMaterial::GetShearModulus() const
 {
     return ( m_ElasticModulus / ( 2.0 * ( m_PoissonRatio + 1.0 ) ) );
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations these value types rely on to avoid deep copies.
+static_assert( std::is_nothrow_move_constructible< SimpleFeaProperty >::value, "SimpleFeaProperty must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< SimpleFeaProperty >::value, "SimpleFeaProperty must be nothrow move assignable" );
+static_assert( std::is_nothrow_move_constructible< SimpleFeaMaterial >::value, "SimpleFeaMaterial must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< SimpleFeaMaterial >::value, "SimpleFeaMaterial must be nothrow move assignable" );

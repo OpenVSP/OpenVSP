@@ -18,10 +18,6 @@ SimpleTess::SimpleTess()
     m_nvfeat = 0;
 }
 
-SimpleTess::~SimpleTess()
-{
-}
-
 void SimpleTess::Transform( const Matrix4d & mat )
 {
     // Transform points
@@ -172,3 +168,9 @@ void SimpleTess::CalcTexCoords( )
         }
     }
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<SimpleTess> relies on to avoid deep copies.
+static_assert( std::is_nothrow_move_constructible< SimpleTess >::value, "SimpleTess must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< SimpleTess >::value, "SimpleTess must be nothrow move assignable" );

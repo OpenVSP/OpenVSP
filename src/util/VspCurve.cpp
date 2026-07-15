@@ -54,11 +54,6 @@ VspCurve::VspCurve()
 {
 }
 
-//===== Destructor  =====//
-VspCurve::~VspCurve()
-{
-}
-
 //==== Copy From Input Curve =====//
 void VspCurve::Copy( const VspCurve & input_crv )
 {
@@ -2889,3 +2884,12 @@ void MatchParameterSplits( piecewise_curve_type &c1, piecewise_curve_type &c2 )
         c2.split( pmap[i] );
     }
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<VspCurve> relies on to avoid deep copies.
+// The Code-Eli piecewise curve member has user-declared copy operations that suppress its
+// implicit moves, so these cannot be upgraded to is_nothrow_move_* until Code-Eli follows the
+// rule-of-zero as well.
+static_assert( std::is_move_constructible< VspCurve >::value, "VspCurve must be move constructible" );
+static_assert( std::is_move_assignable< VspCurve >::value, "VspCurve must be move assignable" );

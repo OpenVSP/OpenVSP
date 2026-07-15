@@ -46,7 +46,8 @@ class VspCurve
 public:
 
     VspCurve();
-    virtual ~VspCurve();
+    // Destructor and copy/move operations are intentionally left implicit so vector<VspCurve>
+    // can move elements instead of deep-copying them.
 
     double GetUMin() const { return m_Curve.get_parameter_min(); };
     double GetUMax() const { return m_Curve.get_parameter_max(); };

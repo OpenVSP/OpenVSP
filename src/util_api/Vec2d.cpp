@@ -16,7 +16,10 @@
 #include <cmath>
 
 #include <cfloat>  //For DBL_EPSILON
+#include <type_traits>
 #include "Vec2d.h"
+
+static_assert( std::is_trivially_copyable< vec2d >::value, "vec2d must remain trivially copyable" );
 
 #include "predicates.h"
 
@@ -33,26 +36,6 @@ vec2d::vec2d( double xx, double yy )
 {
     v[0] = xx;
     v[1] = yy;
-}
-
-//******* vec2d x = y ******//
-vec2d::vec2d( const vec2d& a )
-{
-    v[0] = a.v[0];
-    v[1] = a.v[1];
-}
-
-//****** Equals:  x = y ******
-vec2d& vec2d::operator=( const vec2d& a )
-{
-    if ( this == &a )
-    {
-        return *this;
-    }
-
-    v[0] = a.v[0];
-    v[1] = a.v[1];
-    return *this;
 }
 
 //******* x = 35. ******//

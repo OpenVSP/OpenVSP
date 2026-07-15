@@ -15,10 +15,6 @@ SimpleFeatureTess::SimpleFeatureTess()
     m_FlipNormal = false;
 }
 
-SimpleFeatureTess::~SimpleFeatureTess()
-{
-}
-
 void SimpleFeatureTess::Transform( const Matrix4d & mat )
 {
     // Transform points
@@ -27,3 +23,9 @@ void SimpleFeatureTess::Transform( const Matrix4d & mat )
         mat.xformvec( m_ptline[i] );
     }
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<SimpleFeatureTess> relies on to avoid deep copies.
+static_assert( std::is_nothrow_move_constructible< SimpleFeatureTess >::value, "SimpleFeatureTess must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< SimpleFeatureTess >::value, "SimpleFeatureTess must be nothrow move assignable" );

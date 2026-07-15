@@ -35,11 +35,6 @@ Vsp1DCurve::Vsp1DCurve()
 {
 }
 
-//===== Destructor  =====//
-Vsp1DCurve::~Vsp1DCurve()
-{
-}
-
 //==== Copy From Input Curve =====//
 void Vsp1DCurve::Copy( const Vsp1DCurve & input_crv )
 {
@@ -1051,3 +1046,12 @@ double Vsp1DCurve::GetSegLastPoint( int i ) const
     p = c.get_control_point( c.degree() );
     return p[0];
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that containers rely on to avoid deep copies.
+// The Code-Eli piecewise curve member has user-declared copy operations that suppress its
+// implicit moves, so these cannot be upgraded to is_nothrow_move_* until Code-Eli follows the
+// rule-of-zero as well.
+static_assert( std::is_move_constructible< Vsp1DCurve >::value, "Vsp1DCurve must be move constructible" );
+static_assert( std::is_move_assignable< Vsp1DCurve >::value, "Vsp1DCurve must be move assignable" );

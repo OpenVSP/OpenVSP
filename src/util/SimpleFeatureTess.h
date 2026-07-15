@@ -12,7 +12,8 @@ class SimpleFeatureTess
 {
 public:
     SimpleFeatureTess();
-    virtual ~SimpleFeatureTess();
+    // Destructor and copy/move operations are intentionally left implicit so vector<SimpleFeatureTess>
+    // can move elements instead of deep-copying them.
 
     bool GetFlipNormal() const { return m_FlipNormal; }
     void FlipNormal() { m_FlipNormal = !m_FlipNormal; }

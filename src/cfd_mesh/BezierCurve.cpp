@@ -36,11 +36,6 @@ Bezier_curve::Bezier_curve( const piecewise_curve_type &crv )
     m_Curve = crv;
 }
 
-//===== Destructor  =====//
-Bezier_curve::~Bezier_curve()
-{
-}
-
 //===== Compute Point  =====//
 vec3d Bezier_curve::CompPnt( double u ) const
 {
@@ -415,3 +410,12 @@ void Bezier_curve::PromoteTo( int deg )
 {
     m_Curve.degree_promote_to( deg );
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<Bezier_curve> relies on to avoid deep copies.
+// The Code-Eli piecewise curve member has user-declared copy operations that suppress its
+// implicit moves, so these cannot be upgraded to is_nothrow_move_* until Code-Eli follows the
+// rule-of-zero as well.
+static_assert( std::is_move_constructible< Bezier_curve >::value, "Bezier_curve must be move constructible" );
+static_assert( std::is_move_assignable< Bezier_curve >::value, "Bezier_curve must be move assignable" );

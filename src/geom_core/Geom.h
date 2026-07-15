@@ -63,7 +63,8 @@ public:
 
     GeomType();
     GeomType( int id, const string& name, bool fixed_flag = false, const string& module_name = string(), const string& display_type = string() );
-    ~GeomType();
+    // Destructor and copy/move operations are intentionally left implicit so vector<GeomType>
+    // can move elements instead of deep-copying them.
 
     void CopyFrom( const GeomType & t );
 

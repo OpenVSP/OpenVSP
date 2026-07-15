@@ -272,10 +272,6 @@ DrawObj::DrawObj()
     m_ClipFlag = vector< bool >( 6, false );
 }
 
-DrawObj::~DrawObj()
-{
-}
-
 vec3d DrawObj::ColorWheel( double angle )
 {
     // Returns rgb for an angle in degrees on color wheel
@@ -791,3 +787,9 @@ int DrawObj::reasonColorMap( int reason )
             break;
     }
 }
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<DrawObj> relies on to avoid deep copies.
+static_assert( std::is_nothrow_move_constructible< DrawObj >::value, "DrawObj must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< DrawObj >::value, "DrawObj must be nothrow move assignable" );

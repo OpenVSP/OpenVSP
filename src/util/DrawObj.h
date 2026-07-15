@@ -32,10 +32,8 @@ public:
     * Constructor.
     */
     DrawObj();
-    /*
-    * Destructor.
-    */
-    virtual ~DrawObj();
+    // Destructor and copy/move operations are intentionally left implicit so vector<DrawObj>
+    // can move elements instead of deep-copying them.
 
     /*
     * Render Type Enum.

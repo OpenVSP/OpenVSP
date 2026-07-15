@@ -41,9 +41,8 @@ public:
         m_PlanarUWAspect = -1;
     };
 
-    ~XferSurf()
-    {
-    };
+    // Destructor and copy/move operations are intentionally left implicit so vector<XferSurf>
+    // can move elements instead of deep-copying them.
 
     bool m_FlipNormal;
 
@@ -65,5 +64,14 @@ public:
 
     piecewise_surface_type m_Surface;
 };
+
+#include <type_traits>
+// Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
+// suppress the implicit move operations that vector<XferSurf> relies on to avoid deep copies.
+// The Code-Eli piecewise surface member has user-declared copy operations that suppress its
+// implicit moves, so these cannot be upgraded to is_nothrow_move_* until Code-Eli follows the
+// rule-of-zero as well.
+static_assert( std::is_move_constructible< XferSurf >::value, "XferSurf must be move constructible" );
+static_assert( std::is_move_assignable< XferSurf >::value, "XferSurf must be move assignable" );
 
 #endif

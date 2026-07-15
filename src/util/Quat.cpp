@@ -1,7 +1,10 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <type_traits>
 
 #include "Quat.h"
+
+static_assert( std::is_trivially_copyable< quat >::value, "quat must remain trivially copyable" );
 
 // New quat with out any initial values //
 quat::quat()
@@ -25,28 +28,6 @@ quat::quat( const vec3d &axis, const double &angle )
     q[1] = axis.x() * sin( angle / 2 );
     q[2] = axis.y() * sin( angle / 2 );
     q[3] = axis.z() * sin( angle / 2 );
-}
-
-quat::quat( const quat& a )
-{
-    q[0] = a.q[0];
-    q[1] = a.q[1];
-    q[2] = a.q[2];
-    q[3] = a.q[3];
-}
-
-quat& quat::operator=( const quat& a )
-{
-    if ( this == &a )
-    {
-        return *this;
-    }
-
-    q[0] = a.q[0];
-    q[1] = a.q[1];
-    q[2] = a.q[2];
-    q[3] = a.q[3];
-    return *this;
 }
 
 // Quaternion Hamilton Product //

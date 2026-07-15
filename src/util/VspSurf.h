@@ -50,7 +50,8 @@ class VspSurf
 {
 public:
     VspSurf();
-    virtual ~VspSurf();
+    // Destructor and copy/move operations are intentionally left implicit so vector<VspSurf>
+    // can move elements instead of deep-copying them.
 
     void CopyNonSurfaceData( const VspSurf & s );
 

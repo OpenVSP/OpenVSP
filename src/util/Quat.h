@@ -18,10 +18,9 @@ public:
     double q[4];
 
     quat();  //new quaternion
-    ~quat() {} // delete quaternion
+    // The copy constructor, copy assignment operator, and destructor are intentionally left implicit.
+    // This keeps quat trivially copyable.
     quat( const double &w, const double &x, const double &y, const double &z );
-    quat( const quat& a );  // quat x = y
-    quat& operator=( const quat& a ); // x = y
 
     friend quat hamilton( const quat& a, const quat& b ); // c = hamilton(a,b)
 

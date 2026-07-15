@@ -149,7 +149,8 @@ public:
         cfdsurftype = vsp::CFD_NORMAL;
         degenDisk = DegenDisk();
     };
-    virtual ~DegenGeom() {};
+    // Destructor and copy/move operations are intentionally left implicit so vector<DegenGeom>
+    // can move elements instead of deep-copying them.
 
     DegenSurface getDegenSurf()
     {
