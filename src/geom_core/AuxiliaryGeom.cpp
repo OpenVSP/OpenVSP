@@ -1207,19 +1207,22 @@ void AuxiliaryGeom::UpdateMainTessVec()
          m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY &&
          m_AuxuliaryGeomMode() != AUX_GEOM_WHEEL_TIRE_FAILURE )
     {
-        int nmain = GetNumMainSurfs();
-
-        m_MainTessVec.clear();
-        m_MainFeatureTessVec.clear();
-
-        m_MainTessVec.reserve( nmain );
-        m_MainFeatureTessVec.reserve( nmain );
-
-        m_MainTessVec.resize( 1 );
-        m_MainFeatureTessVec.resize( 1 );
+        // Do not clear m_MainTessVec or m_MainFeatureTessVec here.  TireToBogie assigns into any existing
+        // elements, reusing their heap allocations from the previous update.  The vectors are trimmed to the
+        // final cursor position below.
+        if ( m_MainTessVec.size() < 1 )
+        {
+            m_MainTessVec.resize( 1 );
+        }
+        if ( m_MainFeatureTessVec.size() < 1 )
+        {
+            m_MainFeatureTessVec.resize( 1 );
+        }
 
         // Update primary main surf tess.
         UpdateTess( m_MainSurfVec[ 0 ], m_CapUMinSuccess[ m_MainSurfIndxVec[ 0 ] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[ 0 ] ], m_MainTessVec[ 0 ], m_MainFeatureTessVec[ 0 ] );
+
+        int itess = 1;
 
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
         GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
@@ -1228,27 +1231,28 @@ void AuxiliaryGeom::UpdateMainTessVec()
             if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
                  m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
             {
-                TessContact1( gear );
-                TessContact2( gear );
-                TessContact3( gear );
+                itess = TessContact1( gear, itess );
+                itess = TessContact2( gear, itess );
+                itess = TessContact3( gear, itess );
             }
             else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
             {
-                TessContact1( gear, m_BogieTheta() );
-                TessContact2( gear, m_BogieTheta() );
+                itess = TessContact1( gear, itess, m_BogieTheta() );
+                itess = TessContact2( gear, itess, m_BogieTheta() );
             }
             else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
             {
-                TessContact1( gear, m_BogieTheta() );
+                itess = TessContact1( gear, itess, m_BogieTheta() );
             }
             else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR )
             {
-                m_MainTessVec.clear();
-                m_MainFeatureTessVec.clear();
-
-                TessContact1( gear, m_BogieTheta() );
+                // The primary main surf tess is not used in this mode -- overwrite it.
+                itess = TessContact1( gear, 0, m_BogieTheta() );
             }
         }
+
+        m_MainTessVec.resize( itess );
+        m_MainFeatureTessVec.resize( itess );
     }
     else
     {
@@ -1262,14 +1266,18 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
          m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY &&
          m_AuxuliaryGeomMode() != AUX_GEOM_WHEEL_TIRE_FAILURE )
     {
-        int nmain = GetNumMainSurfs();
-
-        m_MainDegenGeomPreviewVec.clear();
-        m_MainDegenGeomPreviewVec.reserve( nmain );
-        m_MainDegenGeomPreviewVec.resize( 1 );
+        // Do not clear m_MainDegenGeomPreviewVec here.  TireToBogie assigns into any existing elements,
+        // reusing their heap allocations from the previous update.  The vector is trimmed to the final
+        // cursor position below.
+        if ( m_MainDegenGeomPreviewVec.size() < 1 )
+        {
+            m_MainDegenGeomPreviewVec.resize( 1 );
+        }
 
         // Update primary main surf tess.
         CreateDegenGeom( m_MainSurfVec[ 0 ], 0, m_MainDegenGeomPreviewVec[ 0 ], true, 1 );
+
+        int idegen = 1;
 
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
         GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
@@ -1278,26 +1286,27 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
             if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
                  m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
             {
-                DegenContact1( gear );
-                DegenContact2( gear );
-                DegenContact3( gear );
+                idegen = DegenContact1( gear, idegen );
+                idegen = DegenContact2( gear, idegen );
+                idegen = DegenContact3( gear, idegen );
             }
             else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
             {
-                DegenContact1( gear, m_BogieTheta() );
-                DegenContact2( gear, m_BogieTheta() );
+                idegen = DegenContact1( gear, idegen, m_BogieTheta() );
+                idegen = DegenContact2( gear, idegen, m_BogieTheta() );
             }
             else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
             {
-                DegenContact1( gear, m_BogieTheta() );
+                idegen = DegenContact1( gear, idegen, m_BogieTheta() );
             }
             else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR )
             {
-                m_MainDegenGeomPreviewVec.clear();
-
-                DegenContact1( gear, m_BogieTheta() );
+                // The primary main surf degen preview is not used in this mode -- overwrite it.
+                idegen = DegenContact1( gear, 0, m_BogieTheta() );
             }
         }
+
+        m_MainDegenGeomPreviewVec.resize( idegen );
     }
     else
     {
@@ -1783,7 +1792,7 @@ void AuxiliaryGeom::AppendContact3Surfs( GearGeom * gear, double bogietheta )
     }
 }
 
-void AuxiliaryGeom::TessContact1( GearGeom * gear, double bogietheta )
+int AuxiliaryGeom::TessContact1( GearGeom * gear, int itess, double bogietheta )
 {
     if ( gear )
     {
@@ -1811,78 +1820,87 @@ void AuxiliaryGeom::TessContact1( GearGeom * gear, double bogietheta )
                 kretract = m_ContactPt1_KRetract();
             }
 
+            int ifeat = itess;
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b1->TireToBogie( b1->m_GrownTireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
-                b1->TireToBogie( b1->m_GrownTireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                itess = b1->TireToBogie( b1->m_GrownTireTess, m_MainTessVec, itess, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_GrownTireFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b1->TireToBogie( b1->m_ClearanceTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
-                b1->TireToBogie( b1->m_ClearanceFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                itess = b1->TireToBogie( b1->m_ClearanceTess, m_MainTessVec, itess, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_ClearanceFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
             else
             {
-                b1->TireToBogie( b1->m_TireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
-                b1->TireToBogie( b1->m_TireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                itess = b1->TireToBogie( b1->m_TireTess, m_MainTessVec, itess, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+                b1->TireToBogie( b1->m_TireFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
             }
         }
     }
+
+    return itess;
 }
 
-void AuxiliaryGeom::TessContact2( GearGeom * gear, double bogietheta )
+int AuxiliaryGeom::TessContact2( GearGeom * gear, int itess, double bogietheta )
 {
     if ( gear )
     {
         Bogie *b2 = gear->GetBogie( m_ContactPt2_ID );
         if ( b2 )
         {
+            int ifeat = itess;
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b2->TireToBogie( b2->m_GrownTireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
-                b2->TireToBogie( b2->m_GrownTireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                itess = b2->TireToBogie( b2->m_GrownTireTess, m_MainTessVec, itess, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_GrownTireFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b2->TireToBogie( b2->m_ClearanceTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
-                b2->TireToBogie( b2->m_ClearanceFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                itess = b2->TireToBogie( b2->m_ClearanceTess, m_MainTessVec, itess, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_ClearanceFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
             else
             {
-                b2->TireToBogie( b2->m_TireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
-                b2->TireToBogie( b2->m_TireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                itess = b2->TireToBogie( b2->m_TireTess, m_MainTessVec, itess, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+                b2->TireToBogie( b2->m_TireFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
             }
         }
     }
+
+    return itess;
 }
 
-void AuxiliaryGeom::TessContact3( GearGeom * gear, double bogietheta )
+int AuxiliaryGeom::TessContact3( GearGeom * gear, int itess, double bogietheta )
 {
     if ( gear )
     {
         Bogie *b3 = gear->GetBogie( m_ContactPt3_ID );
         if ( b3 )
         {
+            int ifeat = itess;
             if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_GROWTH_CLEARANCE )
             {
-                b3->TireToBogie( b3->m_GrownTireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
-                b3->TireToBogie( b3->m_GrownTireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                itess = b3->TireToBogie( b3->m_GrownTireTess, m_MainTessVec, itess, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_GrownTireFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
             else if ( m_ContactPt1_ClearanceMode() == vsp::TIRE_CLEARANCE )
             {
-                b3->TireToBogie( b3->m_ClearanceTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
-                b3->TireToBogie( b3->m_ClearanceFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                itess = b3->TireToBogie( b3->m_ClearanceTess, m_MainTessVec, itess, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_ClearanceFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
             else
             {
-                b3->TireToBogie( b3->m_TireTess, m_MainTessVec, ( int )m_MainTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
-                b3->TireToBogie( b3->m_TireFeatureTess, m_MainFeatureTessVec, ( int )m_MainFeatureTessVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                itess = b3->TireToBogie( b3->m_TireTess, m_MainTessVec, itess, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+                b3->TireToBogie( b3->m_TireFeatureTess, m_MainFeatureTessVec, ifeat, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
             }
         }
     }
+
+    return itess;
 }
 
-void AuxiliaryGeom::DegenContact1( GearGeom * gear, double bogietheta )
+int AuxiliaryGeom::DegenContact1( GearGeom * gear, int idegen, double bogietheta )
 {
     if ( gear )
     {
@@ -1924,12 +1942,14 @@ void AuxiliaryGeom::DegenContact1( GearGeom * gear, double bogietheta )
                 CreateDegenGeom( b1->m_TireSurface, 0, degenGeom, true, 1 );
             }
 
-            b1->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, ( int )m_MainDegenGeomPreviewVec.size(), m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
+            idegen = b1->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, idegen, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), bogietheta, stow, ret, kretract );
         }
     }
+
+    return idegen;
 }
 
-void AuxiliaryGeom::DegenContact2( GearGeom * gear, double bogietheta )
+int AuxiliaryGeom::DegenContact2( GearGeom * gear, int idegen, double bogietheta )
 {
     if ( gear )
     {
@@ -1950,12 +1970,14 @@ void AuxiliaryGeom::DegenContact2( GearGeom * gear, double bogietheta )
                 CreateDegenGeom( b2->m_TireSurface, 0, degenGeom, true, 1 );
             }
 
-            b2->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, ( int )m_MainDegenGeomPreviewVec.size(), m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
+            idegen = b2->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, idegen, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), bogietheta );
         }
     }
+
+    return idegen;
 }
 
-void AuxiliaryGeom::DegenContact3( GearGeom * gear, double bogietheta )
+int AuxiliaryGeom::DegenContact3( GearGeom * gear, int idegen, double bogietheta )
 {
     if ( gear )
     {
@@ -1976,9 +1998,11 @@ void AuxiliaryGeom::DegenContact3( GearGeom * gear, double bogietheta )
                 CreateDegenGeom( b3->m_TireSurface, 0, degenGeom, true, 1 );
             }
 
-            b3->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, ( int )m_MainDegenGeomPreviewVec.size(), m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
+            idegen = b3->TireToBogie( degenGeom, m_MainDegenGeomPreviewVec, idegen, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), bogietheta );
         }
     }
+
+    return idegen;
 }
 
 void AuxiliaryGeom::UpdateBBox( )
