@@ -40,14 +40,6 @@ vec3d::vec3d( double xx, double yy, double zz )
     v[2] = zz;
 }
 
-//******* vec3d x = y ******//
-vec3d::vec3d( const vec3d& a )
-{
-    v[0] = a.v[0];
-    v[1] = a.v[1];
-    v[2] = a.v[2];
-}
-
 vec3d::vec3d( const threed_point_type &a )
 {
     v[0] = a.x();
@@ -74,20 +66,6 @@ vec3d::vec3d( const std::vector<double> &a )
     v[0] = a[0];
     v[1] = a[1];
     v[2] = a[2];
-}
-
-//****** Equals:  x = y ******
-vec3d& vec3d::operator=( const vec3d& a )
-{
-    if ( this == &a )
-    {
-        return *this;
-    }
-
-    v[0] = a.v[0];
-    v[1] = a.v[1];
-    v[2] = a.v[2];
-    return *this;
 }
 
 vec3d& vec3d::operator=( const vec2d& a )

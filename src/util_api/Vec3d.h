@@ -249,11 +249,14 @@ public:
 
     vec3d();           // vec3d x or new vec3d
 
-    ~vec3d()  {}        // delete vec3d
+    // The copy constructor, copy assignment operator, and destructor are intentionally left implicit.
+    // This keeps vec3d trivially copyable, so vector<vec3d> copies can use the memmove fast path
+    // instead of calling an out-of-line function per element.
+#ifdef SWIG
+    vec3d( const vec3d& a ); // vec3d x = y -- implicit in C++, declared so SWIG wraps it for the bindings.
+#endif
 
     vec3d( double xx, double yy, double zz );
-
-    vec3d( const vec3d& a ); // vec3d x = y
 
     vec3d( const threed_point_type &a );
 
@@ -261,7 +264,6 @@ public:
     vec3d( const float a[3] );
     vec3d( const std::vector<double> &a );
 
-    vec3d& operator=( const vec3d& a ); // x = y
     vec3d& operator=( const vec2d& a );
     vec3d& operator=( double a );      // x = 35.
     vec3d& operator=( const threed_point_type &a );
