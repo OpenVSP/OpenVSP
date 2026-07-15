@@ -414,8 +414,13 @@ void Bezier_curve::PromoteTo( int deg )
 #include <type_traits>
 // Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
 // suppress the implicit move operations that vector<Bezier_curve> relies on to avoid deep copies.
-// The Code-Eli piecewise curve member has user-declared copy operations that suppress its
-// implicit moves, so these cannot be upgraded to is_nothrow_move_* until Code-Eli follows the
-// rule-of-zero as well.
+// MSVC's std::map move operations are not noexcept (sentinel node allocation), so the
+// nothrow guarantee cannot hold for types holding Code-Eli piecewise members there --
+// vector reallocation copies these types on MSVC and moves them elsewhere.
+#if defined(_MSC_VER)
 static_assert( std::is_move_constructible< Bezier_curve >::value, "Bezier_curve must be move constructible" );
 static_assert( std::is_move_assignable< Bezier_curve >::value, "Bezier_curve must be move assignable" );
+#else
+static_assert( std::is_nothrow_move_constructible< Bezier_curve >::value, "Bezier_curve must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< Bezier_curve >::value, "Bezier_curve must be nothrow move assignable" );
+#endif

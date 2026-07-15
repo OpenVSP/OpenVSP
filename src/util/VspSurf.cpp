@@ -3409,8 +3409,13 @@ void VspSurf::BuildMCurve( const double &r, Vsp1DCurve &mcurve ) const
 #include <type_traits>
 // Guard the rule-of-zero cleanup: a user-declared destructor or copy operation would silently
 // suppress the implicit move operations that vector<VspSurf> relies on to avoid deep copies.
-// The Code-Eli piecewise surface member has user-declared copy operations that suppress its
-// implicit moves, so these cannot be upgraded to is_nothrow_move_* until Code-Eli follows the
-// rule-of-zero as well.
+// MSVC's std::map move operations are not noexcept (sentinel node allocation), so the
+// nothrow guarantee cannot hold for types holding Code-Eli piecewise members there --
+// vector reallocation copies these types on MSVC and moves them elsewhere.
+#if defined(_MSC_VER)
 static_assert( std::is_move_constructible< VspSurf >::value, "VspSurf must be move constructible" );
 static_assert( std::is_move_assignable< VspSurf >::value, "VspSurf must be move assignable" );
+#else
+static_assert( std::is_nothrow_move_constructible< VspSurf >::value, "VspSurf must be nothrow move constructible" );
+static_assert( std::is_nothrow_move_assignable< VspSurf >::value, "VspSurf must be nothrow move assignable" );
+#endif
