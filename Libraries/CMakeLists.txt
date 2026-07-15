@@ -10,6 +10,11 @@ SET( CMAKE_CXX_STANDARD 17 )
 
 INCLUDE( ExternalProject )
 
+# Eigen is out of order because some later libraries depend on it.
+IF( NOT VSP_USE_SYSTEM_EIGEN )
+	INCLUDE( External_Eigen )
+ENDIF()
+
 IF( NOT VSP_USE_SYSTEM_ANGELSCRIPT )
 	INCLUDE( External_AngelScript )
 ENDIF()
@@ -32,10 +37,6 @@ ENDIF()
 
 IF( NOT VSP_USE_SYSTEM_DELABELLA )
 	INCLUDE( External_delabella )
-ENDIF()
-
-IF( NOT VSP_USE_SYSTEM_EIGEN )
-	INCLUDE( External_Eigen )
 ENDIF()
 
 IF( NOT VSP_USE_SYSTEM_LIBIGES )

@@ -1,5 +1,13 @@
+if( NOT VSP_USE_SYSTEM_EIGEN )
+	set( CODEELI_DEPS EIGEN )
+	# Code-Eli's configure runs find_package( Eigen3 REQUIRED NO_MODULE ); point it at
+	# the superbuild Eigen install explicitly rather than relying on the package registry.
+	set( CODEELI_EIGEN_ARG -DEigen3_DIR:PATH=${EIGEN_INSTALL_DIR}/share/eigen3/cmake )
+endif()
+
 ExternalProject_Add( CODEELI
-	URL ${CMAKE_SOURCE_DIR}/Code-Eli-709ed73905b8.zip
+	DEPENDS ${CODEELI_DEPS}
+	URL ${CMAKE_SOURCE_DIR}/Code-Eli-ba1957d210fc.zip
 	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
 		-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -7,6 +15,7 @@ ExternalProject_Add( CODEELI
 		-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 		-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
 		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+		${CODEELI_EIGEN_ARG}
 	BUILD_COMMAND ""
 	INSTALL_COMMAND ""
 )
