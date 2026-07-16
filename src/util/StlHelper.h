@@ -27,6 +27,26 @@ double interpolate( const vector< double > & vals, double val, int interval );
 //==== Interpolate in Map ====//
 double interpolate( const std::map< double, int > & val_map, double key, bool * in_range = nullptr );
 
+//==== Assign Range Into Vector At Cursor =====//
+// Assign the elements of src into dest starting at index idest, growing dest only when needed.
+// Assigning into existing elements (rather than clearing and re-inserting) reuses their nested
+// heap allocations across repeated updates.  Returns the index one past the last element
+// written -- the caller trims dest to the final cursor when all ranges have been written.
+template <class T>
+int AssignRangeAt( vector < T > &dest, int idest, const vector < T > &src )
+{
+    int n = src.size();
+    if ( ( int )dest.size() < idest + n )
+    {
+        dest.resize( idest + n );
+    }
+    for ( int i = 0; i < n; i++ )
+    {
+        dest[ idest + i ] = src[ i ];
+    }
+    return idest + n;
+}
+
 //==== Check If Vector Contains Val =====//
 template <class T>
 bool vector_contains_val( const vector< T > & vec, T const & val )
