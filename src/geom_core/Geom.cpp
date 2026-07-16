@@ -3009,12 +3009,17 @@ void Geom::WriteProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox )
 
 void Geom::UpdateDrawObj()
 {
-    m_FeatureDrawObj_vec.clear();
-    m_WireShadeDrawObj_vec.clear();
-
     if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
     {
-        m_FeatureDrawObj_vec.resize(1);
+        // Do not clear m_FeatureDrawObj_vec or m_WireShadeDrawObj_vec here.  Assigning into the
+        // existing DrawObjs reuses the mesh heap allocations from the previous update, which
+        // profiling identified as a substantial cost.  The mesh vectors are trimmed to the
+        // final cursor positions below.
+        if ( m_FeatureDrawObj_vec.size() != 1 )
+        {
+            m_FeatureDrawObj_vec.clear();
+            m_FeatureDrawObj_vec.resize( 1 );
+        }
         m_FeatureDrawObj_vec[0].m_GeomChanged = true;
         m_FeatureDrawObj_vec[0].m_LineWidth = 1.0;
         m_FeatureDrawObj_vec[0].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
@@ -3022,7 +3027,15 @@ void Geom::UpdateDrawObj()
         m_FeatureDrawObj_vec[0].m_GeomID = m_ID + "Feature_0";
         m_FeatureDrawObj_vec[0].m_Type = DrawObj::VSP_LINES;
 
-        m_WireShadeDrawObj_vec.resize( 4 );
+        // clear() keeps the capacity of the flat point vector, so repeated updates do not
+        // reallocate it.
+        m_FeatureDrawObj_vec[0].m_PntVec.clear();
+
+        if ( m_WireShadeDrawObj_vec.size() != 4 )
+        {
+            m_WireShadeDrawObj_vec.clear();
+            m_WireShadeDrawObj_vec.resize( 4 );
+        }
         m_WireShadeDrawObj_vec[0].m_FlipNormals = false;
         m_WireShadeDrawObj_vec[1].m_FlipNormals = true;
         m_WireShadeDrawObj_vec[2].m_FlipNormals = false;
@@ -3049,6 +3062,10 @@ void Geom::UpdateDrawObj()
         }
         m_FeatureDrawObj_vec[0].m_PntVec.reserve( numfealineseg );
 
+        // Write cursor per DrawObj -- patches are assigned into existing mesh slots, reusing
+        // their nested allocations.  All four mesh vectors of a DrawObj advance in lockstep.
+        int imesh[4] = { 0, 0, 0, 0 };
+
         int nsurf = GetNumTotalSurfs();
         if ( m_TessVec.size() == nsurf && m_SurfVec.size() == nsurf && m_FeatureTessVec.size() == nsurf )
         {
@@ -3066,15 +3083,10 @@ void Geom::UpdateDrawObj()
                     iflip += 2;
                 }
 
-                m_WireShadeDrawObj_vec[iflip].m_PntMesh.insert( m_WireShadeDrawObj_vec[iflip].m_PntMesh.end(),
-                        m_TessVec[i].m_pnts.begin(), m_TessVec[i].m_pnts.end() );
-                m_WireShadeDrawObj_vec[iflip].m_NormMesh.insert( m_WireShadeDrawObj_vec[iflip].m_NormMesh.end(),
-                        m_TessVec[i].m_norms.begin(), m_TessVec[i].m_norms.end() );
-
-                m_WireShadeDrawObj_vec[iflip].m_uTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_uTexMesh.end(),
-                        m_TessVec[i].m_utex.begin(), m_TessVec[i].m_utex.end() );
-                m_WireShadeDrawObj_vec[iflip].m_vTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_vTexMesh.end(),
-                        m_TessVec[i].m_vtex.begin(), m_TessVec[i].m_vtex.end() );
+                AssignRangeAt( m_WireShadeDrawObj_vec[iflip].m_PntMesh, imesh[iflip], m_TessVec[i].m_pnts );
+                AssignRangeAt( m_WireShadeDrawObj_vec[iflip].m_NormMesh, imesh[iflip], m_TessVec[i].m_norms );
+                AssignRangeAt( m_WireShadeDrawObj_vec[iflip].m_uTexMesh, imesh[iflip], m_TessVec[i].m_utex );
+                imesh[iflip] = AssignRangeAt( m_WireShadeDrawObj_vec[iflip].m_vTexMesh, imesh[iflip], m_TessVec[i].m_vtex );
 
                 if( m_GuiDraw.GetDispFeatureFlag() )
                 {
@@ -3094,6 +3106,21 @@ void Geom::UpdateDrawObj()
                 }
             }
         }
+
+        // Trim any leftover patches from the previous update.  This also empties the meshes
+        // when the surface count check above fails.
+        for ( int k = 0; k < 4; k++ )
+        {
+            m_WireShadeDrawObj_vec[k].m_PntMesh.resize( imesh[k] );
+            m_WireShadeDrawObj_vec[k].m_NormMesh.resize( imesh[k] );
+            m_WireShadeDrawObj_vec[k].m_uTexMesh.resize( imesh[k] );
+            m_WireShadeDrawObj_vec[k].m_vTexMesh.resize( imesh[k] );
+        }
+    }
+    else
+    {
+        m_FeatureDrawObj_vec.clear();
+        m_WireShadeDrawObj_vec.clear();
     }
 
     //==== Bounding Box ====//
@@ -3112,10 +3139,14 @@ void Geom::UpdateDrawObj()
     }
 
     //=== Axis ===//
-    m_AxisDrawObj_vec.clear();
-    m_AxisDrawObj_vec.resize( 3 );
+    if ( m_AxisDrawObj_vec.size() != 3 )
+    {
+        m_AxisDrawObj_vec.clear();
+        m_AxisDrawObj_vec.resize( 3 );
+    }
     for ( int i = 0; i < 3; i++ )
     {
+        m_AxisDrawObj_vec[i].m_PntVec.clear();
         MakeDashedLine( m_AttachOrigin,  m_AttachAxis[i], 4, m_AxisDrawObj_vec[i].m_PntVec );
         vec3d c;
         c.v[i] = 1.0;
