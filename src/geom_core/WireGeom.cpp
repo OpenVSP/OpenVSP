@@ -458,38 +458,42 @@ void WireGeom::PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > 
 
 void WireGeom::UpdateDrawObj()
 {
-    m_WireShadeDrawObj_vec.clear();
-    m_WireShadeDrawObj_vec.resize( 1 );
+    // Keep the existing DrawObj alive across updates -- assigning the meshes in place reuses
+    // their heap allocations from the previous update.
+    if ( m_WireShadeDrawObj_vec.size() != 1 )
+    {
+        m_WireShadeDrawObj_vec.clear();
+        m_WireShadeDrawObj_vec.resize( 1 );
+    }
     m_WireShadeDrawObj_vec[0].m_FlipNormals = false;
     m_WireShadeDrawObj_vec[0].m_GeomChanged = true;
 
-    vector < vector < double > > dum;
-    dum.resize( m_XFormPts.size() );
-    if ( dum.size() > 0 )
-    {
-        for ( int i = 0; i < m_XFormPts.size(); i++ )
-        {
-            dum[i].resize( m_XFormPts[0].size() );
-        }
-    }
-
     m_WireShadeDrawObj_vec[0].m_PntMesh.resize( 1 );
-    m_WireShadeDrawObj_vec[0].m_PntMesh[0].insert( m_WireShadeDrawObj_vec[0].m_PntMesh[0].end(), m_XFormPts.begin(), m_XFormPts.end() );
+    m_WireShadeDrawObj_vec[0].m_PntMesh[0] = m_XFormPts;
     m_WireShadeDrawObj_vec[0].m_NormMesh.resize( 1 );
-    m_WireShadeDrawObj_vec[0].m_NormMesh[0].insert( m_WireShadeDrawObj_vec[0].m_NormMesh[0].end(), m_XFormNorm.begin(), m_XFormNorm.end() );
+    m_WireShadeDrawObj_vec[0].m_NormMesh[0] = m_XFormNorm;
+
+    // Dummy texture coordinates matching the point mesh shape.
     m_WireShadeDrawObj_vec[0].m_uTexMesh.resize( 1 );
-    m_WireShadeDrawObj_vec[0].m_uTexMesh[0].insert( m_WireShadeDrawObj_vec[0].m_uTexMesh[0].end(), dum.begin(), dum.end() );
-    m_WireShadeDrawObj_vec[0].m_vTexMesh.resize( 1 );
-    m_WireShadeDrawObj_vec[0].m_vTexMesh[0].insert( m_WireShadeDrawObj_vec[0].m_vTexMesh[0].end(), dum.begin(), dum.end() );
+    m_WireShadeDrawObj_vec[0].m_uTexMesh[0].resize( m_XFormPts.size() );
+    for ( int i = 0; i < m_XFormPts.size(); i++ )
+    {
+        m_WireShadeDrawObj_vec[0].m_uTexMesh[0][i].assign( m_XFormPts[0].size(), 0.0 );
+    }
+    m_WireShadeDrawObj_vec[0].m_vTexMesh = m_WireShadeDrawObj_vec[0].m_uTexMesh;
 
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
     m_HighlightDrawObj.m_GeomChanged = true;
 
     //=== Axis ===//
-    m_AxisDrawObj_vec.clear();
-    m_AxisDrawObj_vec.resize( 3 );
+    if ( m_AxisDrawObj_vec.size() != 3 )
+    {
+        m_AxisDrawObj_vec.clear();
+        m_AxisDrawObj_vec.resize( 3 );
+    }
     for ( int i = 0; i < 3; i++ )
     {
+        m_AxisDrawObj_vec[i].m_PntVec.clear();
         MakeDashedLine( m_AttachOrigin,  m_AttachAxis[i], 4, m_AxisDrawObj_vec[i].m_PntVec );
         vec3d c;
         c.v[i] = 1.0;
@@ -508,8 +512,13 @@ void WireGeom::UpdateDrawObj()
         {
             int jlim = floor( num_pnts * 0.5 );
 
-            m_FeatureDrawObj_vec.clear();
-            m_FeatureDrawObj_vec.resize( 2 );
+            if ( m_FeatureDrawObj_vec.size() != 2 )
+            {
+                m_FeatureDrawObj_vec.clear();
+                m_FeatureDrawObj_vec.resize( 2 );
+            }
+            m_FeatureDrawObj_vec[0].m_PntVec.clear();
+            m_FeatureDrawObj_vec[1].m_PntVec.clear();
 
             for ( int i = 0; i < ilim - 1; i++ )
             {
