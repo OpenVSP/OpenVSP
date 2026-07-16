@@ -3159,21 +3159,30 @@ void Geom::UpdateDrawObj()
 
 void Geom::UpdateDegenDrawObj()
 {
-    m_DegenSurfDrawObj_vec.clear();
-    m_DegenPlateDrawObj_vec.clear();
-    m_DegenCamberPlateDrawObj_vec.clear();
-    m_DegenSubSurfDrawObj_vec.clear();
-
     if ( m_GuiDraw.GetDisplayType() != DISPLAY_TYPE::DISPLAY_BEZIER )
     {
+        // Do not clear the degen DrawObj vectors here.  Writing into the existing DrawObjs
+        // through cursors reuses their point/normal heap allocations from the previous
+        // update.  The vectors are trimmed to the final cursor positions below.
+        int isurf = 0;
+        int iplate = 0;
+        int isub = 0;
 
         for ( int i = 0; i < (int)m_DegenGeomPreviewVec.size(); i++ )
         {
             //=== Degen Surface ===//
             DegenSurface degen_surf = m_DegenGeomPreviewVec[i].getDegenSurf();
 
-            DrawObj degen_surf_draw_obj;
+            if ( ( int )m_DegenSurfDrawObj_vec.size() < isurf + 1 )
+            {
+                m_DegenSurfDrawObj_vec.resize( isurf + 1 );
+            }
+            DrawObj &degen_surf_draw_obj = m_DegenSurfDrawObj_vec[ isurf ];
+            isurf++;
+
             degen_surf_draw_obj.m_GeomChanged = true;
+            degen_surf_draw_obj.m_PntVec.clear();
+            degen_surf_draw_obj.m_NormVec.clear();
 
             for ( int j = 0; j < degen_surf.x.size() - 1; j++ )
             {
@@ -3202,18 +3211,30 @@ void Geom::UpdateDegenDrawObj()
                 }
             }
 
-            m_DegenSurfDrawObj_vec.push_back( degen_surf_draw_obj );
-
             //=== Degen Plate and Cambered Plate ===//
             vector < DegenPlate > degen_plate_vec = m_DegenGeomPreviewVec[i].getDegenPlates();
 
             for ( int j = 0; j < degen_plate_vec.size(); j++ )
             {
-                DrawObj degen_plate_draw_obj;
-                DrawObj degen_camber_plate_draw_obj;
+                if ( ( int )m_DegenPlateDrawObj_vec.size() < iplate + 1 )
+                {
+                    m_DegenPlateDrawObj_vec.resize( iplate + 1 );
+                }
+                if ( ( int )m_DegenCamberPlateDrawObj_vec.size() < iplate + 1 )
+                {
+                    m_DegenCamberPlateDrawObj_vec.resize( iplate + 1 );
+                }
+                DrawObj &degen_plate_draw_obj = m_DegenPlateDrawObj_vec[ iplate ];
+                DrawObj &degen_camber_plate_draw_obj = m_DegenCamberPlateDrawObj_vec[ iplate ];
+                iplate++;
 
                 degen_plate_draw_obj.m_GeomChanged = true;
+                degen_plate_draw_obj.m_PntVec.clear();
+                degen_plate_draw_obj.m_NormVec.clear();
+
                 degen_camber_plate_draw_obj.m_GeomChanged = true;
+                degen_camber_plate_draw_obj.m_PntVec.clear();
+                degen_camber_plate_draw_obj.m_NormVec.clear();
 
                 for ( int k = 0; k < degen_plate_vec[j].x.size() - 1; k++ )
                 {
@@ -3305,8 +3326,6 @@ void Geom::UpdateDegenDrawObj()
                     }
                 }
 
-                m_DegenPlateDrawObj_vec.push_back( degen_plate_draw_obj );
-                m_DegenCamberPlateDrawObj_vec.push_back( degen_camber_plate_draw_obj );
             }
 
             //=== Degen SubSurface ===//
@@ -3314,8 +3333,15 @@ void Geom::UpdateDegenDrawObj()
 
             for ( int j = 0; j < degen_subsurf_vec.size(); j++ )
             {
-                DrawObj degen_subsurface_draw_obj;
+                if ( ( int )m_DegenSubSurfDrawObj_vec.size() < isub + 1 )
+                {
+                    m_DegenSubSurfDrawObj_vec.resize( isub + 1 );
+                }
+                DrawObj &degen_subsurface_draw_obj = m_DegenSubSurfDrawObj_vec[ isub ];
+                isub++;
+
                 degen_subsurface_draw_obj.m_GeomChanged = true;
+                degen_subsurface_draw_obj.m_PntVec.clear();
 
                 if ( degen_subsurf_vec[j].typeId == SS_LINE )
                 {
@@ -3470,9 +3496,20 @@ void Geom::UpdateDegenDrawObj()
                     }
                 }
 
-                m_DegenSubSurfDrawObj_vec.push_back( degen_subsurface_draw_obj );
             }
         }
+
+        m_DegenSurfDrawObj_vec.resize( isurf );
+        m_DegenPlateDrawObj_vec.resize( iplate );
+        m_DegenCamberPlateDrawObj_vec.resize( iplate );
+        m_DegenSubSurfDrawObj_vec.resize( isub );
+    }
+    else
+    {
+        m_DegenSurfDrawObj_vec.clear();
+        m_DegenPlateDrawObj_vec.clear();
+        m_DegenCamberPlateDrawObj_vec.clear();
+        m_DegenSubSurfDrawObj_vec.clear();
     }
 }
 
