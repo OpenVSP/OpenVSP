@@ -1817,11 +1817,7 @@ void Geom::Update( bool fullupdate )
 
     if ( m_SurfDirty )
     {
-        for ( int i = 0; i < m_MainSurfVec.size(); i++ )
-        {
-            m_MainSurfVec[i].InitUMapping();
-            m_MainSurfVec[i].BuildLCurve();
-        }
+        UpdateLCurve();
     }
 
     if ( m_SurfDirty )
@@ -2071,6 +2067,18 @@ void Geom::UpdateFeatureLines( )
     for ( int i = 0; i < m_MainSurfVec.size(); i++ )
     {
         m_MainSurfVec[i].BuildFeatureLines( m_ForceXSecFlag );
+    }
+}
+
+// Initialize the U mapping and arc length parameterization curve for each main surface.
+// Virtual so Geoms whose main surfaces are copies of a single source surface (e.g. landing
+// gear tires) can compute this data once on the source and let the copies inherit it.
+void Geom::UpdateLCurve()
+{
+    for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+    {
+        m_MainSurfVec[i].InitUMapping();
+        m_MainSurfVec[i].BuildLCurve();
     }
 }
 

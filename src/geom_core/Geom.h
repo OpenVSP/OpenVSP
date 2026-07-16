@@ -817,6 +817,7 @@ protected:
     void UpdateEndCaps();
     virtual void UpdateEngine()   {};
     virtual void UpdateFeatureLines();
+    virtual void UpdateLCurve();
     virtual void UpdateFlags();
     virtual void UpdateSymmAttach( int num_main );
     virtual void UpdateSymmAttach();
