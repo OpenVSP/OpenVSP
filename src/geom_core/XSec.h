@@ -47,7 +47,7 @@ public:
     virtual VspCurve& GetUntransformedCurve();
     virtual VspCurve& GetCurve();
 
-    virtual vector< vec3d > GetDrawLines( Matrix4d &transMat );
+    virtual void GetDrawLines( Matrix4d &transMat, vector< vec3d > &lines );
 
     virtual XSecCurve* GetXSecCurve()
     {

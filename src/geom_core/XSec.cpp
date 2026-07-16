@@ -152,15 +152,14 @@ VspCurve& XSec::GetUntransformedCurve()
     return m_XSCurve->GetCurve();
 }
 
-vector< vec3d > XSec::GetDrawLines( Matrix4d &transMat  )
+void XSec::GetDrawLines( Matrix4d &transMat, vector< vec3d > &lines )
 {
-    vector< vec3d > lines;
+    // Out-parameter form so repeated callers reuse the point vector's allocation.
+    lines.clear();
 
     VspCurve curve = GetCurve();
     curve.Transform( transMat );
     curve.TessAdapt( lines, 1e-2, 10 );
-
-    return lines;
 }
 
 void XSec::SetXSecCurve( XSecCurve* xs_crv )

@@ -6335,7 +6335,7 @@ void GeomXSec::UpdateDrawObj()
         XSec* xs = m_XSecSurf.FindXSec( i );
         if ( xs )
         {
-            m_XSecDrawObj_vec[i].m_PntVec = xs->GetDrawLines( relTrans );
+            xs->GetDrawLines( relTrans, m_XSecDrawObj_vec[i].m_PntVec );
         }
         else
         {
@@ -6356,7 +6356,7 @@ void GeomXSec::UpdateHighlightDrawObj()
     XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec() );
     if ( axs )
     {
-        m_HighlightXSecDrawObj.m_PntVec = axs->GetDrawLines( relTrans );
+        axs->GetDrawLines( relTrans, m_HighlightXSecDrawObj.m_PntVec );
     }
     else
     {
@@ -6412,7 +6412,7 @@ void GeomXSec::UpdateDrawObjUtil()
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( relTrans );
+        m_XSecSurf.FindXSec( i )->GetDrawLines( relTrans, m_XSecDrawObj_vec[i].m_PntVec );
         m_XSecDrawObj_vec[i].m_GeomChanged = true;
     }
 }
@@ -6426,7 +6426,7 @@ void GeomXSec::UpdateHighlightDrawObjUtil( int bbox_index )
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( m_AttachMatrix.data() );
 
-    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetDrawLines( relTrans );
+    m_XSecSurf.FindXSec( m_ActiveXSec() )->GetDrawLines( relTrans, m_HighlightXSecDrawObj.m_PntVec );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
 
     // make bounding box over current XSec if not first xsec in stack/fuse

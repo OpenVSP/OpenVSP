@@ -206,9 +206,9 @@ void PropXSec::CopyBasePos( XSec* xs )
     }
 }
 
-vector< vec3d > PropXSec::GetDrawLines( Matrix4d &transMat  )
+void PropXSec::GetDrawLines( Matrix4d &transMat, vector< vec3d > &lines )
 {
-    vector< vec3d > lines;
+    lines.clear();
 
     VspCurve curve = GetCurve();
 
@@ -223,8 +223,6 @@ vector< vec3d > PropXSec::GetDrawLines( Matrix4d &transMat  )
 
     curve.Transform( transMat );
     curve.TessAdapt( lines, 1e-2, 10 );
-
-    return lines;
 }
 
 //==========================================================================//
