@@ -806,11 +806,13 @@ void MeshGeom::UpdateDrawObj()
     }
     else if ( m_DrawType() == MeshGeom::DRAW_TAGS )
     {
+        // Clear the point/normal vectors in place rather than assigning fresh DrawObjs --
+        // this keeps their heap allocations for reuse by the push_back fill below.
         m_WireShadeDrawObj_vec.resize( num_uniq_tags );
-        DrawObj new_obj;
         for ( int i = 0; i < num_uniq_tags; i++ )
         {
-            m_WireShadeDrawObj_vec[i] = new_obj;
+            m_WireShadeDrawObj_vec[i].m_PntVec.clear();
+            m_WireShadeDrawObj_vec[i].m_NormVec.clear();
         }
     }
     else
