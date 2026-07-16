@@ -188,7 +188,10 @@ void SubSurface::UpdateDrawObjs()
         return;
     }
     Geom* geom = veh->FindGeom( m_CompID );
-    m_SubSurfHighlightDO.clear();
+    if ( !geom )
+    {
+        m_SubSurfHighlightDO.clear();
+    }
 
     m_SubSurfDO.m_PntVec.clear();
     m_SubSurfDO.m_GeomID = m_ID + string( "_ss_line" );
@@ -216,7 +219,13 @@ void SubSurface::UpdateDrawObjs()
 
         int ncopy = geom->GetNumSymmCopies();
 
-        m_SubSurfHighlightDO.resize( ncopy, DrawObj() );
+        // Resize only when the copy count changes -- reusing the existing DrawObjs preserves
+        // their point vector allocations from the previous update.
+        if ( ( int )m_SubSurfHighlightDO.size() != ncopy )
+        {
+            m_SubSurfHighlightDO.clear();
+            m_SubSurfHighlightDO.resize( ncopy );
+        }
         int num_pnts = CompNumDrawPnts( geom );
         int num_seg = m_LVec.size();
 
@@ -224,6 +233,7 @@ void SubSurface::UpdateDrawObjs()
 
         for ( int s = 0 ; s < ncopy ; s++ )
         {
+            m_SubSurfHighlightDO[s].m_PntVec.clear();
             m_SubSurfHighlightDO[s].m_PntVec.reserve( num_seg * 2 * std::abs( num_pnts ) );
             m_SubSurfHighlightDO[s].m_Type = DrawObj::VSP_LINES;
             m_SubSurfHighlightDO[s].m_LineWidth = 5.0;
