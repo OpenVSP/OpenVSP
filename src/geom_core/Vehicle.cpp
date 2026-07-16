@@ -5787,6 +5787,12 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
 
 void Vehicle::UpdateBBox()
 {
+    // Suppress ParmChanged recursion while the bounding box report-out parms are assigned
+    // below.  Without this, the first Parm::Set re-enters UpdateBBox before the stored
+    // boxes are refreshed, causing a redundant second update pass every time the box moves.
+    bool was_updating = m_UpdatingBBox;
+    m_UpdatingBBox = true;
+
     BndBox new_box, scale_independent_box;
     int ngeom;
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -5835,6 +5841,8 @@ void Vehicle::UpdateBBox()
             }
         }
     }
+
+    m_UpdatingBBox = was_updating;
 }
 
 bool Vehicle::GetVisibleBndBox( BndBox &b )
