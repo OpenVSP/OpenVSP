@@ -1201,6 +1201,46 @@ void AuxiliaryGeom::UpdateSurf()
 
 }
 
+void AuxiliaryGeom::UpdateFeatureLines()
+{
+    if ( m_ParentType == GEAR_GEOM_TYPE &&
+         m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY &&
+         m_AuxuliaryGeomMode() != AUX_GEOM_WHEEL_TIRE_FAILURE )
+    {
+        // Bogie-derived main surface copies inherit feature lines from the Bogie source
+        // surfaces (computed once in Bogie::Update).  Only the primary surface (ground
+        // plane / envelope) needs treatment; in single gear mode there is none.
+        if ( m_AuxuliaryGeomMode() != vsp::AUX_GEOM_SINGLE_GEAR && !m_MainSurfVec.empty() )
+        {
+            m_MainSurfVec[0].BuildFeatureLines( m_ForceXSecFlag );
+        }
+    }
+    else
+    {
+        Geom::UpdateFeatureLines();
+    }
+}
+
+void AuxiliaryGeom::UpdateLCurve()
+{
+    if ( m_ParentType == GEAR_GEOM_TYPE &&
+         m_AuxuliaryGeomMode() != vsp::AUX_GEOM_TIRE_SPRAY &&
+         m_AuxuliaryGeomMode() != AUX_GEOM_WHEEL_TIRE_FAILURE )
+    {
+        // Bogie-derived main surface copies inherit the U mapping and arc length curves
+        // from the Bogie source surfaces (computed once in Bogie::Update).
+        if ( m_AuxuliaryGeomMode() != vsp::AUX_GEOM_SINGLE_GEAR && !m_MainSurfVec.empty() )
+        {
+            m_MainSurfVec[0].InitUMapping();
+            m_MainSurfVec[0].BuildLCurve();
+        }
+    }
+    else
+    {
+        Geom::UpdateLCurve();
+    }
+}
+
 void AuxiliaryGeom::UpdateMainTessVec()
 {
     if ( m_ParentType == GEAR_GEOM_TYPE &&

@@ -155,6 +155,8 @@ protected:
     virtual void SetDirtyFlags( Parm* parm_ptr );
 
     virtual void UpdateSurf();
+    virtual void UpdateFeatureLines();
+    virtual void UpdateLCurve();
     virtual void UpdateMainTessVec();
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateCopyXFormParms();
