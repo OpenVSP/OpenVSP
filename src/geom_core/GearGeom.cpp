@@ -2090,6 +2090,13 @@ void Bogie::Update()
 
         m_TireSurface.BuildFeatureLines( false );
 
+        // Compute the U mapping and arc length parameterization here, once per tire.  These
+        // are parameter space quantities that are invariant under the rigid transformations
+        // applied by TireToBogie, so every main surface copy of this tire inherits valid
+        // data through the whole-surface copy and does not need to recompute it.
+        m_TireSurface.InitUMapping();
+        m_TireSurface.BuildLCurve();
+
         if ( m_TireMode() == vsp::TIRE_TRA ||
              m_TireMode() == vsp::TIRE_FAIR_FLANGE ||
              m_TireMode() == vsp::TIRE_FAIR_WHEEL )
@@ -2100,6 +2107,8 @@ void Bogie::Update()
             m_GrownTireSurface.FlipNormal();
 
             m_GrownTireSurface.BuildFeatureLines( false );
+            m_GrownTireSurface.InitUMapping();
+            m_GrownTireSurface.BuildLCurve();
 
             m_ClearanceSurface.CreateBodyRevolution( m_ClearanceProfile, true, 1 );
             m_ClearanceSurface.SetMagicVParm( false );
@@ -2107,6 +2116,8 @@ void Bogie::Update()
             m_ClearanceSurface.FlipNormal();
 
             m_ClearanceSurface.BuildFeatureLines( false );
+            m_ClearanceSurface.InitUMapping();
+            m_ClearanceSurface.BuildLCurve();
         }
         else
         {
