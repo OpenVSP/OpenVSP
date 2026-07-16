@@ -8,5 +8,4 @@
 -e pyPMARC
 pytest
 matplotlib
-pathlib
 sphinx
