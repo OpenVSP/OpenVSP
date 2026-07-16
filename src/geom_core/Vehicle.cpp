@@ -5820,24 +5820,39 @@ void Vehicle::UpdateBBox()
     {
         m_ScaleIndependentBBox = scale_independent_box;
 
-        m_ScaleIndependentBbXLen = scale_independent_box.GetMax( 0 ) - scale_independent_box.GetMin( 0 );
-        m_ScaleIndependentBbYLen = scale_independent_box.GetMax( 1 ) - scale_independent_box.GetMin( 1 );
-        m_ScaleIndependentBbZLen = scale_independent_box.GetMax( 2 ) - scale_independent_box.GetMin( 2 );
+        double xlen = scale_independent_box.GetMax( 0 ) - scale_independent_box.GetMin( 0 );
+        double ylen = scale_independent_box.GetMax( 1 ) - scale_independent_box.GetMin( 1 );
+        double zlen = scale_independent_box.GetMax( 2 ) - scale_independent_box.GetMin( 2 );
+
+        // Every scale-sensitive consumer (gear auto ground plane, auxiliary geom reference
+        // lengths, engine auto extension) depends only on the box size, which is invariant
+        // under pure translation.  Only re-update those Geoms when the size changes, so
+        // moving geometry around does not force a second full update pass.
+        bool size_changed = ( xlen != m_ScaleIndependentBbXLen() ) ||
+                            ( ylen != m_ScaleIndependentBbYLen() ) ||
+                            ( zlen != m_ScaleIndependentBbZLen() );
+
+        m_ScaleIndependentBbXLen = xlen;
+        m_ScaleIndependentBbYLen = ylen;
+        m_ScaleIndependentBbZLen = zlen;
 
         m_ScaleIndependentBbXMin = scale_independent_box.GetMin( 0 );
         m_ScaleIndependentBbYMin = scale_independent_box.GetMin( 1 );
         m_ScaleIndependentBbZMin = scale_independent_box.GetMin( 2 );
 
-        for ( int i = 0 ; i < ngeom ; i++ )
+        if ( size_changed )
         {
-            // If so, loop through all Geoms, asking if they are sensitive to overall model scale.
-            if ( geom_vec[i]->IsModelScaleSensitive() )
+            for ( int i = 0 ; i < ngeom ; i++ )
             {
-                // If yes, then set dirty surface flag & trigger update.
-                geom_vec[i]->SetDirtyFlag( GeomBase::SURF );
-                geom_vec[i]->SetDirtyFlag( GeomBase::GLOBAL_SCALE );
+                // If so, loop through all Geoms, asking if they are sensitive to overall model scale.
+                if ( geom_vec[i]->IsModelScaleSensitive() )
+                {
+                    // If yes, then set dirty surface flag & trigger update.
+                    geom_vec[i]->SetDirtyFlag( GeomBase::SURF );
+                    geom_vec[i]->SetDirtyFlag( GeomBase::GLOBAL_SCALE );
 
-                geom_vec[i]->Update();
+                    geom_vec[i]->Update();
+                }
             }
         }
     }
