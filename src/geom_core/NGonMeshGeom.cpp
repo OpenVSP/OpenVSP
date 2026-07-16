@@ -235,8 +235,18 @@ void NGonMeshGeom::UpdateDrawObj()
 
     unsigned int num_uniq_tags = m_PGMulti.GetNumTags();
 
-    m_WireShadeDrawObj_vec.clear();
-    m_WireShadeDrawObj_vec.resize( num_uniq_tags * 2 );
+    // Resize only when the tag count changes -- reusing the existing DrawObjs preserves
+    // their point/normal vector allocations from the previous update.
+    if ( m_WireShadeDrawObj_vec.size() != num_uniq_tags * 2 )
+    {
+        m_WireShadeDrawObj_vec.clear();
+        m_WireShadeDrawObj_vec.resize( num_uniq_tags * 2 );
+    }
+    for ( int i = 0; i < ( int )m_WireShadeDrawObj_vec.size(); i++ )
+    {
+        m_WireShadeDrawObj_vec[i].m_PntVec.clear();
+        m_WireShadeDrawObj_vec[i].m_NormVec.clear();
+    }
 
     unordered_map<int, DrawObj*> face_dobj_map;
     unordered_map<int, DrawObj*> outline_dobj_map;
@@ -405,6 +415,9 @@ void NGonMeshGeom::UpdateDrawObj()
         m_WakeNodeDrawObj_vec[ibpwake].m_GeomChanged = true;
 
         vec3d pt = trans.xform( pgm->m_BodyNodeWakeVec[ibpwake]->m_Pt->m_Pnt );
+        // Clear before push_back -- the DrawObj persists across updates, so without this the
+        // point vector accumulates one point per update.
+        m_WakeNodeDrawObj_vec[ibpwake].m_PntVec.clear();
         m_WakeNodeDrawObj_vec[ibpwake].m_PntVec.push_back( pt );
     }
 
