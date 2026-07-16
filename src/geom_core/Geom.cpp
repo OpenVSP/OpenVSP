@@ -3171,7 +3171,7 @@ void Geom::UpdateDegenDrawObj()
         for ( int i = 0; i < (int)m_DegenGeomPreviewVec.size(); i++ )
         {
             //=== Degen Surface ===//
-            DegenSurface degen_surf = m_DegenGeomPreviewVec[i].getDegenSurf();
+            const DegenSurface &degen_surf = m_DegenGeomPreviewVec[i].getDegenSurf();
 
             if ( ( int )m_DegenSurfDrawObj_vec.size() < isurf + 1 )
             {
@@ -3212,7 +3212,7 @@ void Geom::UpdateDegenDrawObj()
             }
 
             //=== Degen Plate and Cambered Plate ===//
-            vector < DegenPlate > degen_plate_vec = m_DegenGeomPreviewVec[i].getDegenPlates();
+            const vector < DegenPlate > &degen_plate_vec = m_DegenGeomPreviewVec[i].getDegenPlates();
 
             for ( int j = 0; j < degen_plate_vec.size(); j++ )
             {
@@ -3329,7 +3329,7 @@ void Geom::UpdateDegenDrawObj()
             }
 
             //=== Degen SubSurface ===//
-            vector < DegenSubSurf > degen_subsurf_vec = m_DegenGeomPreviewVec[i].getDegenSubSurfs();
+            const vector < DegenSubSurf > &degen_subsurf_vec = m_DegenGeomPreviewVec[i].getDegenSubSurfs();
 
             for ( int j = 0; j < degen_subsurf_vec.size(); j++ )
             {

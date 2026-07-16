@@ -152,15 +152,15 @@ public:
     // Destructor and copy/move operations are intentionally left implicit so vector<DegenGeom>
     // can move elements instead of deep-copying them.
 
-    DegenSurface getDegenSurf()
+    const DegenSurface & getDegenSurf() const
     {
         return degenSurface;
     }
-    vector < DegenPlate > getDegenPlates()
+    const vector < DegenPlate > & getDegenPlates() const
     {
         return degenPlates;
     }
-    vector < DegenSubSurf > getDegenSubSurfs()
+    const vector < DegenSubSurf > & getDegenSubSurfs() const
     {
         return degenSubSurfs;
     }
