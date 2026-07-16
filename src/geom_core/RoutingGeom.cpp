@@ -1211,16 +1211,22 @@ void RoutingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
 
     //=== Axis ===//
-    m_ActivePointAxisDrawObj_vec.clear();
     if ( m_ActivePointIndex >= 0 && m_ActivePointIndex < m_RoutingPointVec.size() )
     {
         RoutingPoint *rpt = m_RoutingPointVec[ m_ActivePointIndex ];
 
         if ( rpt && rpt->m_AttachAxis.size() == 3 )
         {
-            m_ActivePointAxisDrawObj_vec.resize( 3 );
+            // Resize only when the count changes -- reusing the DrawObjs preserves their
+            // point vector allocations.  Stale objects are never loaded when inactive.
+            if ( m_ActivePointAxisDrawObj_vec.size() != 3 )
+            {
+                m_ActivePointAxisDrawObj_vec.clear();
+                m_ActivePointAxisDrawObj_vec.resize( 3 );
+            }
             for ( int i = 0; i < 3; i++ )
             {
+                m_ActivePointAxisDrawObj_vec[i].m_PntVec.clear();
                 MakeDashedLine( rpt->m_AttachOrigin,  rpt->m_AttachAxis[i], 4, m_ActivePointAxisDrawObj_vec[i].m_PntVec );
                 vec3d c;
                 c.v[i] = 1.0;
