@@ -462,8 +462,15 @@ void HingeGeom::UpdateDrawObj()
     m_HighlightDrawObj.m_PointSize = 10.0;
     m_HighlightDrawObj.m_GeomChanged = true;
 
-    m_FeatureDrawObj_vec.clear();
-    m_FeatureDrawObj_vec.resize( 6 );
+    if ( m_FeatureDrawObj_vec.size() != 6 )
+    {
+        m_FeatureDrawObj_vec.clear();
+        m_FeatureDrawObj_vec.resize( 6 );
+    }
+    for ( int i = 0; i < 6; i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_PntVec.clear();
+    }
     for ( int i = 0; i < 3; i++ )
     {
         m_FeatureDrawObj_vec[i].m_PntVec.push_back(baseOrigin );
@@ -475,10 +482,14 @@ void HingeGeom::UpdateDrawObj()
     }
 
     //=== Attach Axis ===//
-    m_AxisDrawObj_vec.clear();
-    m_AxisDrawObj_vec.resize( 3 );
+    if ( m_AxisDrawObj_vec.size() != 3 )
+    {
+        m_AxisDrawObj_vec.clear();
+        m_AxisDrawObj_vec.resize( 3 );
+    }
     for ( int i = 0; i < 3; i++ )
     {
+        m_AxisDrawObj_vec[i].m_PntVec.clear();
         MakeDashedLine( m_AttachOrigin,  m_AttachAxis[i], 4, m_AxisDrawObj_vec[i].m_PntVec );
         vec3d c;
         c.v[i] = 1.0;
