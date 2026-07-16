@@ -58,8 +58,15 @@ void BlankGeom::UpdateDrawObj()
         axlen = veh->m_AxisLength();
     }
 
-    m_FeatureDrawObj_vec.clear();
-    m_FeatureDrawObj_vec.resize( 3 );
+    if ( m_FeatureDrawObj_vec.size() != 3 )
+    {
+        m_FeatureDrawObj_vec.clear();
+        m_FeatureDrawObj_vec.resize( 3 );
+    }
+    for ( int i = 0; i < 3; i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_PntVec.clear();
+    }
 
     for ( int i = 0; i < 3; i++ )
     {
@@ -99,10 +106,14 @@ void BlankGeom::UpdateDrawObj()
     }
 
     //=== Attach Axis ===//
-    m_AxisDrawObj_vec.clear();
-    m_AxisDrawObj_vec.resize( 3 );
+    if ( m_AxisDrawObj_vec.size() != 3 )
+    {
+        m_AxisDrawObj_vec.clear();
+        m_AxisDrawObj_vec.resize( 3 );
+    }
     for ( int i = 0; i < 3; i++ )
     {
+        m_AxisDrawObj_vec[i].m_PntVec.clear();
         MakeDashedLine( m_AttachOrigin,  m_AttachAxis[i], 4, m_AxisDrawObj_vec[i].m_PntVec );
         vec3d c;
         c.v[i] = 1.0;
