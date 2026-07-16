@@ -685,7 +685,10 @@ void GeomEngine::UpdateHighlightDrawObj()
 {
     GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveXSec.Get() );
 
-    m_EngineDrawObj_vec.clear();
+    if ( m_EngineGeomIOType() == ENGINE_GEOM_NONE )
+    {
+        m_EngineDrawObj_vec.clear();
+    }
 
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
@@ -703,10 +706,20 @@ void GeomEngine::UpdateHighlightDrawObj()
 
         double umax = m_OrigSurf.GetUMax();
 
-        m_EngineDrawObj_vec.resize( vsp::ENGINE_LOC_NUM );
+        // Resize only when the count changes; TessULine clears the point vector in place,
+        // so the existing allocations are reused.
+        if ( m_EngineDrawObj_vec.size() != vsp::ENGINE_LOC_NUM )
+        {
+            m_EngineDrawObj_vec.clear();
+            m_EngineDrawObj_vec.resize( vsp::ENGINE_LOC_NUM );
+        }
         for ( int i = 0; i < vsp::ENGINE_LOC_NUM; i++ )
         {
-            if ( m_engine_spec[i] )
+            if ( !m_engine_spec[i] )
+            {
+                m_EngineDrawObj_vec[i].m_PntVec.clear();
+            }
+            else
             {
                 char str[256];
                 snprintf( str, sizeof( str ), "_%d", i );
