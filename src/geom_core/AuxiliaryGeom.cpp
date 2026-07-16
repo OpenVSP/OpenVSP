@@ -1656,10 +1656,14 @@ void AuxiliaryGeom::UpdateDrawObj()
 
     //=== Axis ===//
     int n = m_BasisAxis.size();
-    m_BasisDrawObj_vec.clear();
-    m_BasisDrawObj_vec.resize( n );
+    if ( ( int )m_BasisDrawObj_vec.size() != n )
+    {
+        m_BasisDrawObj_vec.clear();
+        m_BasisDrawObj_vec.resize( n );
+    }
     for ( int i = 0; i < n; i++ )
     {
+        m_BasisDrawObj_vec[i].m_PntVec.clear();
         MakeDashedLine( m_BasisOrigin,  m_BasisAxis[i], 4, m_BasisDrawObj_vec[i].m_PntVec );
         vec3d c;
         c.v[i] = 1.0;
