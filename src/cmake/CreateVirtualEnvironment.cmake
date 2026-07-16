@@ -59,6 +59,22 @@ function(CreateVirtualEnvironment TARGET)
 
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
+    if (WIN32)
+        # Old Windows Pythons (3.7 and earlier) fail to create a venv when invoked through
+        # the versionless python3.exe alias that some installations (e.g. GitHub Actions
+        # setup-python) place beside python.exe.  The venv module records the invoking
+        # executable's name for the new environment but only installs the canonical
+        # launchers, so its ensurepip subprocess fails with FileNotFoundError [WinError 2].
+        # Prefer the canonical python.exe when it exists beside the one found.
+        get_filename_component(PYTHON3_NAME ${Python3_EXECUTABLE} NAME)
+        if (PYTHON3_NAME STREQUAL "python3.exe")
+            get_filename_component(PYTHON3_DIR ${Python3_EXECUTABLE} DIRECTORY)
+            if (EXISTS ${PYTHON3_DIR}/python.exe)
+                set(Python3_EXECUTABLE ${PYTHON3_DIR}/python.exe)
+            endif ()
+        endif ()
+    endif ()
+
     if (ARG_PREFIX)
         if (IS_ABSOLUTE ${ARG_PREFIX})
             set(VENV ${ARG_PREFIX}/${ARG_ENV_NAME})
