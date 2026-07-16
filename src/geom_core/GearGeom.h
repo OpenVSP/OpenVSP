@@ -645,6 +645,7 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateXForm();
     virtual void UpdateFeatureLines();
+    virtual void UpdateLCurve();
     virtual void UpdateMainTessVec();
     virtual void UpdateTessVec();
     virtual void UpdateMainDegenGeomPreview();

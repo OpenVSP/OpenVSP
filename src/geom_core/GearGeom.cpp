@@ -2986,6 +2986,17 @@ void GearGeom::UpdateFeatureLines()
     }
 }
 
+void GearGeom::UpdateLCurve()
+{
+    // Tire U mapping and arc length curves are computed once in Bogie::Update and carried
+    // into the main surface copies by TireToBogie.  Only the ground plane needs treatment.
+    if ( m_IncludeNominalGroundPlane() )
+    {
+        m_MainSurfVec[0].InitUMapping();
+        m_MainSurfVec[0].BuildLCurve();
+    }
+}
+
 void GearGeom::UpdateMainTessVec()
 {
     int nmain = GetNumMainSurfs();
