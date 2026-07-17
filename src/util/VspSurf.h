@@ -91,6 +91,12 @@ public:
     void SkinCX( const vector< VspCurve > &input_crv_vec, int cx, bool closed_flag );
 
     void SkinC0( const vector< VspCurve > &input_crv_vec, const vector<double> &param, bool closed_flag );
+
+    // As SkinCX/SkinC0, but solved with the uniform structure skinning creator.  See
+    // SkinRibsUniform for the applicability discussion.
+    void SkinCXUniform( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, const vector<double> &param, bool closed_flag );
+    void SkinC0Uniform( const vector< VspCurve > &input_crv_vec, const vector<double> &param, bool closed_flag );
+    void SkinC0Uniform( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void SkinC0( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );

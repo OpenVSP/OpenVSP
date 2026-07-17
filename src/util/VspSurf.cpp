@@ -1169,6 +1169,55 @@ void VspSurf::SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag 
     SkinCX( input_crv_vec, rib_data_type::C1, closed_flag );
 }
 
+void VspSurf::SkinCXUniform( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, const vector<double> &param, bool closed_flag )
+{
+    surface_index_type i, ncrv;
+
+    ncrv = input_crv_vec.size();
+
+    std::vector<rib_data_type> ribs( ncrv );
+
+    for( i = 0; i < ncrv; i++ )
+    {
+        ribs[i].set_f( input_crv_vec[i].GetCurve() );
+    }
+
+    for( i = 1; i < ncrv-1; i++ )
+    {
+        ribs[i].set_continuity( ( rib_data_type::connection_continuity ) cx[i] );
+    }
+
+    // create surface
+    SkinRibsUniform( ribs, degree, param, closed_flag );
+}
+
+void VspSurf::SkinC0Uniform( const vector< VspCurve > &input_crv_vec, const vector<double> &param, bool closed_flag )
+{
+    surface_index_type ncrv;
+
+    ncrv = input_crv_vec.size();
+
+    vector < int > cxv( ncrv, rib_data_type::C0 );
+    vector< int > degree( ncrv - 1, 0 );
+
+    SkinCXUniform( input_crv_vec, cxv, degree, param, closed_flag );
+}
+
+void VspSurf::SkinC0Uniform( const vector< VspCurve > &input_crv_vec, bool closed_flag )
+{
+    surface_index_type ncrv;
+
+    ncrv = input_crv_vec.size();
+
+    vector< double > param( ncrv );
+    for ( int i = 0; i < ncrv; i++ )
+    {
+        param[i] = 1.0 * i;
+    }
+
+    SkinC0Uniform( input_crv_vec, param, closed_flag );
+}
+
 //==== Interpolate A Set Of Points =====//
 void VspSurf::SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag )
 {
