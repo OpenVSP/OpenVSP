@@ -502,7 +502,7 @@ void AuxiliaryGeom::UpdateSurf()
                 end.scale( cce2model );
                 crv_vec[1].Transform( end );
 
-                m_MainSurfVec[0].SkinC0( crv_vec, false );
+                m_MainSurfVec[0].SkinC0Uniform( crv_vec, false );
 
                 // Swap UW because U tessellation will better obey patch boundaries and thereby resolve
                 // the shape of the envelope.
@@ -594,7 +594,7 @@ void AuxiliaryGeom::UpdateSurf()
 
 
                     m_MainSurfVec.resize( 1 );
-                    m_MainSurfVec[0].SkinC0( crv_vec, false );
+                    m_MainSurfVec[0].SkinC0Uniform( crv_vec, false );
                     m_MainSurfVec.push_back( m_MainSurfVec[0] );
 
                     vec3d pt = b1->GetFwdSideContactPoint( m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),  m_ContactPt1_TireMode(), 1 );
@@ -657,7 +657,7 @@ void AuxiliaryGeom::UpdateSurf()
                         crv_vec[2].InterpolateLinear( pts, ts, false );
 
                         VspSurf cen_spray;
-                        cen_spray.SkinC0( crv_vec, false );
+                        cen_spray.SkinC0Uniform( crv_vec, false );
 
                         for ( int igap = 0; igap < b1->m_NAcross() - 1; igap++ )
                         {
@@ -763,7 +763,7 @@ void AuxiliaryGeom::UpdateSurf()
                         vector < VspCurve > crv_vec = { c1, c2 };
 
                         VspSurf clear_fwd;
-                        clear_fwd.SkinC0( crv_vec, false );
+                        clear_fwd.SkinC0Uniform( crv_vec, false );
                         clear_fwd.SetMagicVParm( false );
                         clear_fwd.SetSurfCfdType( vsp::CFD_NEGATIVE );
 
@@ -802,7 +802,7 @@ void AuxiliaryGeom::UpdateSurf()
                         vector < VspCurve > crv2_vec = { c1, c2 };
 
                         VspSurf clear_aft;
-                        clear_aft.SkinC0( crv2_vec, false );
+                        clear_aft.SkinC0Uniform( crv2_vec, false );
                         clear_aft.SetMagicVParm( false );
                         clear_aft.FlipNormal();
                         clear_aft.SetSurfCfdType( vsp::CFD_NEGATIVE );
@@ -1187,7 +1187,7 @@ void AuxiliaryGeom::UpdateSurf()
 
         crv_vec[2].InterpolateLinear( pts, ts, false );
 
-        m_MainSurfVec[0].SkinC0( crv_vec, false );
+        m_MainSurfVec[0].SkinC0Uniform( crv_vec, false );
 
         Matrix4d T;
         T.rotateX( -flip * m_ReleaseAngle() );
