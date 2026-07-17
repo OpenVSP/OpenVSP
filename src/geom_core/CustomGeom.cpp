@@ -949,7 +949,7 @@ void CustomGeom::SkinXSecSurf( bool closed_flag )
 
         if ( xsec_vec.size() >= 2 )
         {
-            m_MainSurfVec[i].SkinRibs( rib_vec, false );
+            m_MainSurfVec[i].SkinRibsUniform( rib_vec, false );
             m_MainSurfVec[i].SetMagicVParm( false );
         }
     }
