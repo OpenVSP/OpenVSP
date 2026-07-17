@@ -191,7 +191,7 @@ void FuselageGeom::UpdateSurf()
         }
     }
 
-    m_MainSurfVec[0].SkinRibs( rib_vec, false );
+    m_MainSurfVec[0].SkinRibsUniform( rib_vec, false );
     m_MainSurfVec[0].SetMagicVParm( false );
 
     for ( int i = 0 ; i < nxsec ; i++ )
