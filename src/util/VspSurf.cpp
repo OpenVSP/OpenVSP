@@ -39,6 +39,7 @@ typedef piecewise_surface_type::rotation_matrix_type surface_rotation_matrix_typ
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 
 typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
+typedef eli::geom::surface::piecewise_uniform_skinning_surface_creator<double, 3, surface_tolerance_type> uniform_creator_type;
 typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
 typedef eli::geom::surface::piecewise_cubic_spline_skinning_surface_creator<double, 3, surface_tolerance_type> spline_creator_type;
 
@@ -918,6 +919,87 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag )
     nrib = ribs.size();
     vector< int > degree( nrib - 1, 0 );
     SkinRibs( ribs, degree, closed_flag );
+}
+
+void VspSurf::SkinRibsUniform( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
+{
+    uniform_creator_type gc;
+    surface_index_type nrib, i;
+
+    nrib = ribs.size();
+
+    std::vector<typename uniform_creator_type::index_type> max_degree( nrib - 1, 0 );
+
+    assert( degree.size() == nrib - 1 );
+    for( i = 0; i < nrib - 1; i++ )
+    {
+        max_degree[i] = degree[i];
+    }
+
+    // create surface
+    bool setcond = gc.set_conditions(ribs, max_degree, closed_flag);
+    assert( setcond );
+
+    if ( !setcond )
+    {
+        printf( "Failure in SkinRibsUniform set_conditions\n" );
+        return;
+    }
+
+    // set the delta u for each surface segment
+    gc.set_u0( param[0] );
+    for ( i = 0; i < gc.get_number_u_segments(); ++i )
+    {
+        gc.set_segment_du( param[i + 1] - param[i], i );
+    }
+
+    m_Surface.clear();
+    bool creat = gc.create( m_Surface );
+
+    if ( !creat )
+    {
+        printf( "Failure in SkinRibsUniform create\n" );
+        return;
+    }
+
+    ResetFlipNormal();
+    ResetUSkip();
+
+    //==== Store Skinning Data ====//
+    m_SkinType = SKIN_RIBS;
+    m_SkinRibVec = ribs;
+    m_SkinDegreeVec = degree;
+    m_SkinParmVec = param;
+    m_SkinClosedFlag = closed_flag;
+
+}
+
+void VspSurf::SkinRibsUniform( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< int > degree( nrib - 1, 0 );
+    SkinRibsUniform( ribs, degree, param, closed_flag );
+}
+
+void VspSurf::SkinRibsUniform( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< double > param( nrib );
+    for ( int i = 0; i < nrib; i++ )
+    {
+        param[i] = 1.0 * i;
+    }
+    SkinRibsUniform( ribs, degree, param, closed_flag );
+}
+
+void VspSurf::SkinRibsUniform( const vector<rib_data_type> &ribs, bool closed_flag )
+{
+    surface_index_type nrib;
+    nrib = ribs.size();
+    vector< int > degree( nrib - 1, 0 );
+    SkinRibsUniform( ribs, degree, closed_flag );
 }
 
 void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, const vector < int > &degree, bool closed_flag )

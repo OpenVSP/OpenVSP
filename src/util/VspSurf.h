@@ -30,6 +30,7 @@
 #include "eli/geom/surface/piecewise.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
+#include "eli/geom/surface/piecewise_uniform_skinning_surface_creator.hpp"
 #include "eli/geom/surface/piecewise_cubic_spline_skinning_surface_creator.hpp"
 
 typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
@@ -67,6 +68,16 @@ public:
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag );
+
+    // As SkinRibs, but solved with the uniform structure skinning creator -- valid when
+    // every control point strip shares one constraint structure, which holds for all ribs
+    // built through the current rib API.  Substantially faster; falls short only if ribs
+    // ever gain per-sector (top/bottom/left/right) constraint structure, which SkinRibs
+    // retains support for growing into.
+    void SkinRibsUniform( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag );
+    void SkinRibsUniform( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag );
+    void SkinRibsUniform( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
+    void SkinRibsUniform( const vector<rib_data_type> &ribs, bool closed_flag );
 
     void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, const vector < int > &degree, bool closed_flag );
     void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, bool closed_flag );
