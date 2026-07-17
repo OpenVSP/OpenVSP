@@ -648,7 +648,7 @@ void ConformalGeom::ReSkin( VspSurf & surf, vector< rib_data_type > & rib_vec )
     surf.GetSkinDegreeVec( degree_vec );
     vector< double > parm_vec;
     surf.GetSkinParmVec( parm_vec );
-    surf.SkinRibs( rib_vec, degree_vec, parm_vec, closed_flag );
+    surf.SkinRibsUniform( rib_vec, degree_vec, parm_vec, closed_flag );
 
     if ( m_WingParentFlag )
     {
