@@ -353,6 +353,15 @@ void AuxiliaryGeom::UpdateSurf()
             {
                 m_ContactPt3_ID = bogie_id_vec[0];
             }
+
+            if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
+                 m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND ||
+                 m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND ||
+                 m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
+            {
+                m_ContactPt1_GearMode = vsp::GEAR_CONFIGURATION_DOWN;
+                m_ContactPt1_KRetract = 0.0;
+            }
         }
 
         if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
