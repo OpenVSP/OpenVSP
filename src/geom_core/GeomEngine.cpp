@@ -288,7 +288,7 @@ void GeomEngine::Extend( VspSurf &surf, const double & u, bool extbefore )
     vector < double > extparam = { 0, 1.0 };
 
     VspSurf ext;
-    ext.SkinC0( extcrvs, extparam, false );
+    ext.SkinC0Uniform( extcrvs, extparam, false );
     ext.InitUMapping( -2 );
 
     VspSurf s;
