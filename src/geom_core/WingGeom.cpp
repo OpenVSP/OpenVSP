@@ -2202,7 +2202,7 @@ void WingGeom::UpdateSurf()
 
     u_vec.push_back( nxsec - 1 );
 
-    m_MainSurfVec[0].SkinRibs( ref_rib_vec, u_vec, false );
+    m_MainSurfVec[0].SkinRibsUniform( ref_rib_vec, u_vec, false );
 
     for ( int i = 0 ; i < nxsec ; i++ )
     {
