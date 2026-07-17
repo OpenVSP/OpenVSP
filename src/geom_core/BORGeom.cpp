@@ -88,7 +88,7 @@ void BORGeom::UpdateSurf()
     crv_vec[1] = crv_vec[0];
 
     m_FoilSurf = VspSurf();
-    m_FoilSurf.SkinC0( crv_vec, false );
+    m_FoilSurf.SkinC0Uniform( crv_vec, false );
 
     if ( m_Mode() == vsp::BOR_FLOWTHROUGH )
     {
