@@ -2052,7 +2052,7 @@ void WingGeom::UpdateSurf()
     crv_creator.create( cle );
 
     m_FoilSurf = VspSurf();
-    m_FoilSurf.SkinC0( untransformed_crv_vec, false );
+    m_FoilSurf.SkinC0Uniform( untransformed_crv_vec, false );
 
     vector < rib_data_type > ref_rib_vec;
     ref_rib_vec.reserve( 6 * ( nxsec - 1 ) ); // Conservative estimate for all blended wing.
