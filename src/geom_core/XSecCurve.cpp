@@ -5907,7 +5907,7 @@ void InterpXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
     crv_vec[1].ToBinaryCubic( true, 1e-6 );
 
     VspSurf srf;
-    srf.SkinC0( crv_vec, false );
+    srf.SkinC0Uniform( crv_vec, false );
 
     VspCurve BaseCurve;
     srf.GetUConstCurve( BaseCurve, frac );
