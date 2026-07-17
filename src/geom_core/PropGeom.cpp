@@ -1311,7 +1311,7 @@ void PropGeom::UpdateSurf()
         // These sections can be extracted (as u-const curves) and then
         // transformed to their final position before skinning.
         m_FoilSurf = VspSurf();
-        m_FoilSurf.SkinC0(crv_vec, m_UPseudo, false );
+        m_FoilSurf.SkinC0Uniform(crv_vec, m_UPseudo, false );
 
         m_MainSurfVec.reserve( m_Nblade() + 1 );
         m_MainSurfVec.resize( 1 );
