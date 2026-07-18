@@ -205,26 +205,25 @@ protected:
     static const int m_half_tris[NUM_MESH_TRI][3];
     static const int m_skel_indx[NUM_SKEL];
 
+    // The anthropometric model reconstructs geometry as Y = Ybar + Q * X, where X is
+    // the 6-element anthropometric input vector { stature, BMI, sit-fraction, age,
+    // BMI*age, 1 }.  Q = pcs * coeffs collapses the original two-stage PCA and is
+    // precomputed offline by src/geom_core/humanshape/reduce_geomdata.py.  See the
+    // generated MaleGeomDataReduced.h / FemaleGeomDataReduced.h for the derivation.
     static const REAL_T m_male_half_verts[NUM_MESH_VERT][3];
-    static const REAL_T m_male_half_pcs[NUM_MESH_VERT*3][200];
+    static const REAL_T m_male_half_Q[NUM_MESH_VERT*3][6];
 
     static const REAL_T m_male_skel_verts[NUM_SKEL_VERT][3];
-    static const REAL_T m_male_skel_pcs[NUM_SKEL_VERT*3][200];
-
-    static const REAL_T m_male_coeffs[200][6];
+    static const REAL_T m_male_skel_Q[NUM_SKEL_VERT*3][6];
 
     static const REAL_T m_female_half_verts[NUM_MESH_VERT][3];
-    static const REAL_T m_female_half_pcs[NUM_MESH_VERT*3][200];
+    static const REAL_T m_female_half_Q[NUM_MESH_VERT*3][6];
 
     static const REAL_T m_female_skel_verts[NUM_SKEL_VERT][3];
-    static const REAL_T m_female_skel_pcs[NUM_SKEL_VERT*3][200];
+    static const REAL_T m_female_skel_Q[NUM_SKEL_VERT*3][6];
 
-    static const REAL_T m_female_coeffs[200][6];
-
-    static void ComputeScore( const REAL_T C[200][6], const vector < double > &X, vector < double > &score );
-
-    static void ComputeResultsMesh( const REAL_T P[][200], const vector < double > &score, const REAL_T Ybar[][3], vector < vec3d > &Y );
-    static void ComputeResultsSkel( const REAL_T P[][200], const vector < double > &score, const REAL_T Ybar[][3], vector < vec3d > &Y );
+    static void ComputeResultsMesh( const REAL_T Q[][6], const vector < double > &X, const REAL_T Ybar[][3], vector < vec3d > &Y );
+    static void ComputeResultsSkel( const REAL_T Q[][6], const vector < double > &X, const REAL_T Ybar[][3], vector < vec3d > &Y );
 
     template < typename vertmat >
     static void ComputeAvePts( const vertmat &A, const vertmat &B, int n, vertmat &C );

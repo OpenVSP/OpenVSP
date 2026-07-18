@@ -17,8 +17,8 @@
 
 
 
-#include "MaleGeomData.h"
-#include "FemaleGeomData.h"
+#include "MaleGeomDataReduced.h"
+#include "FemaleGeomDataReduced.h"
 
 unordered_set < int > HumanGeom::m_VertCopySet;
 Pinocchio::Mesh HumanGeom::m_MasterMesh;
@@ -216,26 +216,11 @@ void HumanGeom::DebugDump()
 }
 
 
-void HumanGeom::ComputeScore( const REAL_T C[200][6], const vector < double > &X, vector < double > &score )
+// Y = Ybar + Q * X,  where Q = pcs * coeffs is precomputed offline (see
+// MaleGeomDataReduced.h).  X is the 6-element anthropometric input vector.
+void HumanGeom::ComputeResultsMesh( const REAL_T Q[][6], const vector < double > &X, const REAL_T Ybar[][3], vector < vec3d > &Y )
 {
-    const int m = 6;
-    const int n = 200;
-
-    for ( int i = 0; i < n; i++ )
-    {
-        score[i] = 0.0;
-
-        for ( int j = 0; j < m; j++ )
-        {
-            score[i] += C[i][j] * X[j];
-        }
-    }
-}
-
-// Y = Ybar + P * ( m_coeffs * X );
-void HumanGeom::ComputeResultsMesh( const REAL_T P[][200], const vector < double > &score, const REAL_T Ybar[][3], vector < vec3d > &Y )
-{
-    const int n = 200;
+    const int n = 6;
     int npt = NUM_MESH_VERT;
 
     for ( int i = 0; i < npt; i++ )
@@ -250,7 +235,7 @@ void HumanGeom::ComputeResultsMesh( const REAL_T P[][200], const vector < double
 
             for ( int j = 0; j < n; j++ )
             {
-                yadd[k] += P[l][j] * score[j];
+                yadd[k] += Q[l][j] * X[j];
             }
         }
         Y[i] += yadd;
@@ -258,10 +243,11 @@ void HumanGeom::ComputeResultsMesh( const REAL_T P[][200], const vector < double
     }
 }
 
-// Y = Ybar + P * ( m_coeffs * X );
-void HumanGeom::ComputeResultsSkel( const REAL_T P[][200], const vector < double > &score, const REAL_T Ybar[][3], vector < vec3d > &Y )
+// Y = Ybar + Q * X,  where Q = pcs * coeffs is precomputed offline (see
+// MaleGeomDataReduced.h).  X is the 6-element anthropometric input vector.
+void HumanGeom::ComputeResultsSkel( const REAL_T Q[][6], const vector < double > &X, const REAL_T Ybar[][3], vector < vec3d > &Y )
 {
-    const int n = 200;
+    const int n = 6;
     int npt = Y.size();
 
     for ( int i = 0; i < npt; i++ )
@@ -276,7 +262,7 @@ void HumanGeom::ComputeResultsSkel( const REAL_T P[][200], const vector < double
 
             for ( int j = 0; j < n; j++ )
             {
-                yadd[k] += P[l][j] * score[j];
+                yadd[k] += Q[l][j] * X[j];
             }
         }
         Y[i] += yadd;
@@ -546,7 +532,8 @@ void HumanGeom::UpdateSurf()
 {
     ValidateParms();
 
-    // Compute score vector used in anthropometric calculations
+    // Assemble the 6-element anthropometric input vector used to reconstruct the
+    // mesh and skeleton via Y = Ybar + Q * vars.
     double stamm = m_Stature() / Get_mm2UX();
 
     vector < double > vars(6);
@@ -557,27 +544,17 @@ void HumanGeom::UpdateSurf()
     vars[4] = m_BMI() * m_Age();
     vars[5] = 1.0;
 
-    vector < double > score( 200, 0.0 );
-
-    if ( m_GenderFlag() == vsp::MALE )
-    {
-        ComputeScore( m_male_coeffs, vars, score );
-    }
-    else
-    {
-        ComputeScore( m_female_coeffs, vars, score );
-    }
-
-    // Compute anthropometric skeleton.
+    // Compute anthropometric skeleton.  Geometry is Y = Ybar + Q * vars, where the
+    // precomputed Q folds the old coeffs and principal-component matrices together.
     vector < vec3d > sv( NUM_SKEL_VERT );
 
     if ( m_GenderFlag() == vsp::MALE )
     {
-        ComputeResultsSkel( m_male_skel_pcs, score, m_male_skel_verts, sv );
+        ComputeResultsSkel( m_male_skel_Q, vars, m_male_skel_verts, sv );
     }
     else
     {
-        ComputeResultsSkel( m_female_skel_pcs, score, m_female_skel_verts, sv );
+        ComputeResultsSkel( m_female_skel_Q, vars, m_female_skel_verts, sv );
     }
     CopyVertsToSkel( sv );
 
@@ -710,11 +687,11 @@ void HumanGeom::UpdateSurf()
     // Anthropometric calculation of base mesh
     if ( m_GenderFlag() == vsp::MALE )
     {
-        ComputeResultsMesh( m_male_half_pcs, score, m_male_half_verts, m_MainVerts );
+        ComputeResultsMesh( m_male_half_Q, vars, m_male_half_verts, m_MainVerts );
     }
     else
     {
-        ComputeResultsMesh( m_female_half_pcs, score, m_female_half_verts, m_MainVerts );
+        ComputeResultsMesh( m_female_half_Q, vars, m_female_half_verts, m_MainVerts );
     }
 
     Pinocchio::Mesh m_LocalMesh = m_MasterMesh;

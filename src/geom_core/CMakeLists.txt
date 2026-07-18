@@ -136,7 +136,7 @@ DegenGeom.h
 DesignVarMgr.h
 EllipsoidGeom.h
 FeaStructure.h
-FemaleGeomData.h
+FemaleGeomDataReduced.h
 FitModelMgr.h
 FuselageGeom.h
 GearGeom.h
@@ -154,7 +154,7 @@ LightMgr.h
 Link.h
 LinkMgr.h
 MainThreadIDMgr.h
-MaleGeomData.h
+MaleGeomDataReduced.h
 MaterialMgr.h
 Measure.h
 MeasureMgr.h
