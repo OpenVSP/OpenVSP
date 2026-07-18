@@ -34,7 +34,6 @@ static const int        MINOR_SEPARATION = 18;
 static const int        MAJOR_STEP = 5;
 static const int        LABEL_STEP = 10;
 static const int        LABEL_SIZE = CA_DEFAULT_LABEL_SIZE;
-static const Fl_Font    LABEL_FONT = FL_HELVETICA;
 
 
 static const int MAX_LABEL_FORMAT = 16;
@@ -450,12 +449,8 @@ int Ca_X_Axis::max_pos(){
 void Ca_X_Axis::draw(){
   if(min_==max_) return;
   int BD = 0;
-  Fl_Widget * W_ = this;
   if(canvas_){
     BD = canvas_->border();
-    W_ = canvas_;
-  }else if(widget_){
-    W_ = widget_;
   }
   int tick_index=-1;
   double tick_value;
@@ -780,12 +775,8 @@ int Ca_Y_Axis::max_pos(){
 void Ca_Y_Axis::draw(){
   if(min_==max_) return;
   int BD = 0;
-  Fl_Widget * W_ = this;
   if(canvas_){
     BD = canvas_->border();
-    W_ = canvas_;
-  }else if(widget_){
-    W_ = widget_;
   }
   int tick_index=-1;
   double tick_value;
@@ -1342,7 +1333,7 @@ void Ca_PolyLine::draw(){
   Ca_Point::draw();
   if(next) return;
   Ca_PolyLine * temp;
-  int c=color;
+  Fl_Color c=color;
   int style=line_style;
   int size=line_width;
   fl_color(c);
