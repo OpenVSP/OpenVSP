@@ -1329,7 +1329,7 @@ line_style(_line_style)
   canvas_->damage(CA_DAMAGE_ALL);
 };
 
-Ca_PolyLine::Ca_PolyLine(Ca_PolyLine *_previous, double _x, double _y):Ca_LinePoint(_previous,x,y){
+Ca_PolyLine::Ca_PolyLine(Ca_PolyLine *_previous, double _x, double _y):Ca_LinePoint(_previous,_x,_y){
   next=0;
   if(_previous){
     line_style=_previous->line_style;
