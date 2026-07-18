@@ -462,7 +462,7 @@ void Ca_X_Axis::draw(){
   int tick_order;//, tick_number;
   double _interval=0;
   const char * label_format=label_format_;
-  if(damage()|FL_DAMAGE_ALL)
+  if(damage()&FL_DAMAGE_ALL)
     draw_label();
   if (damage()&(FL_DAMAGE_ALL|CA_DAMAGE_ALL)){
     update();
