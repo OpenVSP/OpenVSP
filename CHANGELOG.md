@@ -1,3 +1,58 @@
+# [OpenVSP 3.51.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.51.1)
+
+2026-07-18
+
+OpenVSP 3.51.1
+
+Something unusual for OpenVSP -- a new version with no new features, no bug
+fixes, and hopefully no changes in behavior.  So why bother?
+
+I was working on presentations for the OpenVSP Workshop and I felt that some
+things were slower than I'd like them to be.  So, I decided to do some
+profiling.  I found that things were generally pretty reasonable, but there
+was lots of memory churn.  This is often where I get to -- because previously
+I didn't have a good strategy for improving these kinds of cases.
+
+So, I decided to point my friend Claude at the reports (don't do this unless
+you want to burn through a ton of tokens - ask me for more efficient ways if
+you go down this road.).  Claude had some strategies to try -- while certainly
+uglier code, they look to be maintainable and reasonable enough (the added
+complexity isn't too great).
+
+After that initial success, I pointed it at a few other things and found a few
+more wins.  Among these was a change to how HumanGeom is done that at least
+means that the vsp executable got a lot smaller and should take up less memory.
+I also sent after some compiler warnings in dependencies that have really been
+annoying me.
+
+In this work, I wasn't targeting one-and-done things (eg analysis).  Instead,
+I was mostly targeting frequently recurring tasks (things that happen when you
+move a slider).  So the improvement should come for real interactive geometry
+manipulation.
+
+So, if this was successful, everything should work the same -- only faster.
+
+I could really use your help.  Please pull this version down and try it out.
+If you find anything that behaves differently (other than speed) from 3.51.0,
+please report that to me.  If you have success with this version (faster, but
+no breaks), please report that too.
+
+Features:
+- AI assisted, profile guided optimization in several areas.
+- Refactor HumanGeom math to store less data and do less math.
+
+Build System:
+- Update Code-Eli with lots of changes
+- Update Pinocchio with compiler warning cleanups
+- Suppress some compiler warnings for sixseries
+- Clean up some warnings in Cartesian
+- Remove pathlib dependency in Python dev environment
+- Point CMake on Windows with old Python at python.exe instead of python3.exe
+
+
+---
+
+
 # [OpenVSP 3.51.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.51.0)
 
 2026-06-29
