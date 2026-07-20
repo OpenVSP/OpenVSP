@@ -1979,7 +1979,7 @@ void Geom::UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool 
     surf.SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
 }
 
-void Geom::UpdateEndCaps()
+void Geom::UpdateEndCaps( int ncap )
 {
     if ( m_CappingDone )
     {
@@ -1988,11 +1988,18 @@ void Geom::UpdateEndCaps()
     m_CappingDone = true;
 
     unsigned int nmain = m_MainSurfVec.size();
-    m_CapUMinSuccess.resize( nmain );
-    m_CapUMaxSuccess.resize( nmain );
+    if ( ncap < 0 || ncap > ( int )nmain )
+    {
+        ncap = nmain;
+    }
+    // Size the flags to the number of surfaces actually capped.  A caller that caps fewer than all
+    // main surfaces (e.g. a prop that caps one blade and then duplicates it) is responsible for
+    // extending these vectors to cover the copies.
+    m_CapUMinSuccess.resize( ncap );
+    m_CapUMaxSuccess.resize( ncap );
 
-    // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
-    for ( int i = 0; i < nmain; i++ )
+    // cycle through the first ncap vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
+    for ( int i = 0; i < ncap; i++ )
     {
         m_CapUMinSuccess[i] = false;
         m_CapUMaxSuccess[i] = false;
