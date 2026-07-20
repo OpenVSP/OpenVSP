@@ -1112,7 +1112,9 @@ void PropGeom::UpdateSurf()
         }
     }
 
-    m_MainSurfVec.clear();
+    // Do not clear m_MainSurfVec.  The blades below are duplicates of a single computed blade;
+    // assigning into the existing surfaces reuses their control-point storage across updates
+    // instead of freeing and rebuilding it.  Disk-only mode (no blades) is reset in the else.
 
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
@@ -1314,7 +1316,14 @@ void PropGeom::UpdateSurf()
         m_FoilSurf.SkinC0Uniform(crv_vec, m_UPseudo, false );
 
         m_MainSurfVec.reserve( m_Nblade() + 1 );
-        m_MainSurfVec.resize( 1 );
+
+        // Build blade 0 in a clean surface in slot 0, keeping any existing duplicate slots alive
+        // for reuse below.  Slot 0 is skinned from scratch regardless, so resetting it is free.
+        if ( m_MainSurfVec.empty() )
+        {
+            m_MainSurfVec.resize( 1 );
+        }
+        m_MainSurfVec[0] = VspSurf();
 
         m_MainSurfVec[0].SetMagicVParm( false );
         m_MainSurfVec[0].SkinCubicSpline(rib_vec, m_UPseudo, tdisc, false );
@@ -1337,16 +1346,27 @@ void PropGeom::UpdateSurf()
             m_MainSurfVec[0].FlipNormal();
         }
 
-        // UpdateEndCaps here so we only have to cap one blade.
-        UpdateEndCaps();
+        // Cap only blade 0 here so we only have to cap one blade; the copies inherit its caps.
+        UpdateEndCaps( 1 );
 
         m_BladeSurf = m_MainSurfVec[0];
 
-        m_MainSurfVec.resize( m_Nblade(), m_BladeSurf );
+        // Duplicate blade 0 into the remaining blade slots, assigning in place so the existing
+        // surface storage is reused rather than reallocated.
+        m_MainSurfVec.resize( m_Nblade() );
+        for ( int i = 1; i < m_Nblade(); i++ )
+        {
+            m_MainSurfVec[i] = m_BladeSurf;
+        }
 
-        // Duplicate capping variables
-        m_CapUMinSuccess.resize( m_Nblade(), m_CapUMinSuccess[0] );
-        m_CapUMaxSuccess.resize( m_Nblade(), m_CapUMaxSuccess[0] );
+        // Duplicate capping variables (all blades share blade 0's cap result).
+        m_CapUMinSuccess.resize( m_Nblade() );
+        m_CapUMaxSuccess.resize( m_Nblade() );
+        for ( int i = 1; i < m_Nblade(); i++ )
+        {
+            m_CapUMinSuccess[i] = m_CapUMinSuccess[0];
+            m_CapUMaxSuccess[i] = m_CapUMaxSuccess[0];
+        }
 
         m_MainBladeBBox.Reset();
         m_BladeSurf.GetBoundingBox( m_MainBladeBBox );
@@ -1375,6 +1395,11 @@ void PropGeom::UpdateSurf()
                 m_MainSurfVec[i].Transform( rot );
             }
         }
+    }
+    else
+    {
+        // Disk-only mode: no blades.  Reset so the disk becomes the sole main surface below.
+        m_MainSurfVec.resize( 0 );
     }
 
     // Build disk surface.
@@ -1430,11 +1455,10 @@ void PropGeom::UpdateMainTessVec()
     int nmain = GetNumMainSurfs();
     int nblade = m_Nblade();
 
-    m_MainTessVec.clear();
-    m_MainTessVec.reserve( nmain );
-
-    m_MainFeatureTessVec.clear();
-    m_MainFeatureTessVec.reserve( nmain );
+    // Do not clear m_MainTessVec / m_MainFeatureTessVec.  Resizing and assigning into the
+    // existing SimpleTess elements lets their nested point/normal/texture buffers be reused
+    // across updates instead of being freed and reallocated every time.  The blades are all
+    // copies of a single computed blade, and the disk (if any) is handled below.
 
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
@@ -1446,12 +1470,18 @@ void PropGeom::UpdateMainTessVec()
         // required information, CopyNonSurfaceData takes an everything-but-the-kitchen-sink approach.
         m_BladeSurf.CopyNonSurfaceData( m_MainSurfVec[ 0 ] );
 
-        SimpleTess bladeTess;
-        SimpleFeatureTess bladeFeatureTess;
-        UpdateTess( m_BladeSurf, m_CapUMinSuccess[ 0 ], m_CapUMaxSuccess[ 0 ], bladeTess, bladeFeatureTess );
+        // Tessellate the single blade into reusable scratch members, then copy it into each
+        // blade slot in place.  Resize to nmain (not nblade) so a trailing disk slot, if any,
+        // is retained for reuse below rather than destroyed and rebuilt.
+        UpdateTess( m_BladeSurf, m_CapUMinSuccess[ 0 ], m_CapUMaxSuccess[ 0 ], m_BladeTess, m_BladeFeatureTess );
 
-        m_MainTessVec.resize( nblade, bladeTess );
-        m_MainFeatureTessVec.resize( nblade, bladeFeatureTess );
+        m_MainTessVec.resize( nmain );
+        m_MainFeatureTessVec.resize( nmain );
+        for ( int i = 0; i < nblade; i++ )
+        {
+            m_MainTessVec[i] = m_BladeTess;
+            m_MainFeatureTessVec[i] = m_BladeFeatureTess;
+        }
 
         double rev = 1.0;
         if ( m_ReverseFlag() )
@@ -1499,8 +1529,6 @@ void PropGeom::UpdateMainTessVec()
 
 void PropGeom::UpdateMainDegenGeomPreview()
 {
-    m_MainDegenGeomPreviewVec.clear();
-
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
 
@@ -1509,7 +1537,13 @@ void PropGeom::UpdateMainDegenGeomPreview()
 
         int nblade = m_Nblade();
 
-        m_MainDegenGeomPreviewVec.resize( nblade, degenGeom );
+        // Reuse existing preview buffers: resize and assign into the existing elements rather
+        // than clearing and rebuilding.  The blades are all copies of the single computed blade.
+        m_MainDegenGeomPreviewVec.resize( nblade );
+        for ( int i = 0; i < nblade; i++ )
+        {
+            m_MainDegenGeomPreviewVec[i] = degenGeom;
+        }
 
         double rev = 1.0;
         if ( m_ReverseFlag() )
@@ -1541,6 +1575,11 @@ void PropGeom::UpdateMainDegenGeomPreview()
             }
         }
 
+    }
+    else
+    {
+        // Disk-only mode has no blade previews.
+        m_MainDegenGeomPreviewVec.clear();
     }
 }
 

@@ -270,6 +270,11 @@ protected:
     VspSurf m_FoilSurf;
     VspSurf m_BladeSurf;
 
+    // Tessellation of the single computed blade, kept across updates so the per-blade duplicate
+    // tessellations can be assigned into existing buffers rather than cleared and reallocated.
+    SimpleTess m_BladeTess;
+    SimpleFeatureTess m_BladeFeatureTess;
+
     bool m_ExportMainSurf;
 
     vector < double > m_UPseudo;
