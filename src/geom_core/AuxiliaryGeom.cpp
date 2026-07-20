@@ -602,9 +602,11 @@ void AuxiliaryGeom::UpdateSurf()
                     crv_vec[2].InterpolateLinear( pts, ts, false );
 
 
-                    m_MainSurfVec.resize( 1 );
+                    // Two side-spray surfaces: build [0], then assign it into [1] in place
+                    // (avoids push_back of an element that aliases the same vector).
+                    m_MainSurfVec.resize( 2 );
                     m_MainSurfVec[0].SkinC0Uniform( crv_vec, false );
-                    m_MainSurfVec.push_back( m_MainSurfVec[0] );
+                    m_MainSurfVec[1] = m_MainSurfVec[0];
 
                     vec3d pt = b1->GetFwdSideContactPoint( m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),  m_ContactPt1_TireMode(), 1 );
 
@@ -668,15 +670,20 @@ void AuxiliaryGeom::UpdateSurf()
                         VspSurf cen_spray;
                         cen_spray.SkinC0Uniform( crv_vec, false );
 
-                        for ( int igap = 0; igap < b1->m_NAcross() - 1; igap++ )
+                        // Append the center-spray surfaces by resizing once and assigning into
+                        // the new slots in place, rather than push_back per gap.
+                        int base = ( int )m_MainSurfVec.size();
+                        int ncen = b1->m_NAcross() - 1;
+                        m_MainSurfVec.resize( base + ncen );
+                        for ( int igap = 0; igap < ncen; igap++ )
                         {
                             vec3d pc = b1->GetFwdCenterContactPoint( m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),  m_ContactPt1_TireMode(), igap );
 
                             Matrix4d Mc;
                             Mc.translatev( pc );
 
-                            m_MainSurfVec.push_back( cen_spray );
-                            m_MainSurfVec.back().Transform( Mc );
+                            m_MainSurfVec[ base + igap ] = cen_spray;
+                            m_MainSurfVec[ base + igap ].Transform( Mc );
                         }
 
                     }
