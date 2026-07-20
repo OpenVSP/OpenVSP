@@ -660,18 +660,39 @@ void GeomEngine::UpdateEngine()
             }
         }
 
-        m_MainSurfVec.clear();
+        // Assign into the existing surfaces (resize + index) rather than clear + push_back, so
+        // the surface storage is reused across updates -- matching the m_MainSurfVec pattern
+        // used elsewhere.
+        int ns = 0;
         if ( usesurf )
         {
-            m_MainSurfVec.push_back( surf );
+            ns++;
         }
         if ( usesurf2 )
         {
-            m_MainSurfVec.push_back( surf2 );
+            ns++;
         }
         if ( usesurf3 )
         {
-            m_MainSurfVec.push_back( surf3 );
+            ns++;
+        }
+        m_MainSurfVec.resize( ns );
+
+        int isurf = 0;
+        if ( usesurf )
+        {
+            m_MainSurfVec[ isurf ] = surf;
+            isurf++;
+        }
+        if ( usesurf2 )
+        {
+            m_MainSurfVec[ isurf ] = surf2;
+            isurf++;
+        }
+        if ( usesurf3 )
+        {
+            m_MainSurfVec[ isurf ] = surf3;
+            isurf++;
         }
     }
 }
