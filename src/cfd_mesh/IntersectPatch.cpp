@@ -10,6 +10,7 @@
 #include "IntersectPatch.h"
 #include "Surf.h"
 #include "CfdMeshMgr.h"
+#include "SurfPatchPool.h"
 #include "tri_tri_intersect.h"
 
 #include "eli/geom/intersect/intersect_surface.hpp"
@@ -64,17 +65,18 @@ void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionS
             int m = bp1.degree_v();
             int d = bp1.GetSubDepth() + 1;
 
-            SurfPatch bps0( n, m, d );
-            SurfPatch bps1( n, m, d );
-            SurfPatch bps2( n, m, d );
-            SurfPatch bps3( n, m, d );
+            SurfPatchPool &pool = SurfPatchPool::instance();
+            SurfPatch *bps0, *bps1, *bps2, *bps3;
+            int mark = pool.acquire4( n, m, d, bps0, bps1, bps2, bps3 );
 
-            bp1.split_patch( bps0, bps1, bps2, bps3 );      // Split Patch1 and Keep Subdividing
+            bp1.split_patch( *bps0, *bps1, *bps2, *bps3 );  // Split Patch1 and Keep Subdividing
 
-            intersect( bps0, bp2, MeshMgr );
-            intersect( bps1, bp2, MeshMgr );
-            intersect( bps2, bp2, MeshMgr );
-            intersect( bps3, bp2, MeshMgr );
+            intersect( *bps0, bp2, MeshMgr );
+            intersect( *bps1, bp2, MeshMgr );
+            intersect( *bps2, bp2, MeshMgr );
+            intersect( *bps3, bp2, MeshMgr );
+
+            pool.release( mark );
         }
         else
         {
@@ -82,17 +84,18 @@ void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionS
             int m = bp2.degree_v();
             int d = bp2.GetSubDepth() + 1;
 
-            SurfPatch bps0( n, m, d );
-            SurfPatch bps1( n, m, d );
-            SurfPatch bps2( n, m, d );
-            SurfPatch bps3( n, m, d );
+            SurfPatchPool &pool = SurfPatchPool::instance();
+            SurfPatch *bps0, *bps1, *bps2, *bps3;
+            int mark = pool.acquire4( n, m, d, bps0, bps1, bps2, bps3 );
 
-            bp2.split_patch( bps0, bps1, bps2, bps3 );      // Split Patch2 and Keep Subdividing
+            bp2.split_patch( *bps0, *bps1, *bps2, *bps3 );  // Split Patch2 and Keep Subdividing
 
-            intersect( bp1, bps0, MeshMgr );
-            intersect( bp1, bps1, MeshMgr );
-            intersect( bp1, bps2, MeshMgr );
-            intersect( bp1, bps3, MeshMgr );
+            intersect( bp1, *bps0, MeshMgr );
+            intersect( bp1, *bps1, MeshMgr );
+            intersect( bp1, *bps2, MeshMgr );
+            intersect( bp1, *bps3, MeshMgr );
+
+            pool.release( mark );
         }
     }
 }

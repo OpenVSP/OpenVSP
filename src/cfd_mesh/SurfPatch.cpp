@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "SurfPatch.h"
+#include "SurfPatchPool.h"
 #include "Surf.h"
 #include "VspUtil.h"
 
@@ -63,25 +64,29 @@ void SurfPatch::split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, 
     int n = m_Patch.degree_u();
     int m = m_Patch.degree_v();
 
+    // Reuse the two intermediate half-split patches from the thread's pool (resize is a no-op when
+    // the degree is unchanged) instead of allocating them on every split.
+    SurfPatchPool &pool = SurfPatchPool::instance();
+    surface_patch_type &plo = pool.splitScratchLo();
+    surface_patch_type &phi = pool.splitScratchHi();
+    plo.resize( n, m );
+    phi.resize( n, m );
+
     if ( m >= n ) // Split v first.
     {
-        surface_patch_type pvlow( n, m );
-        surface_patch_type pvhi( n, m );
-        m_Patch.simple_split_v_half( pvlow, pvhi );
+        m_Patch.simple_split_v_half( plo, phi );
 
-        pvlow.simple_split_u_half( *( bp00.getPatch()), *( bp10.getPatch()));
+        plo.simple_split_u_half( *( bp00.getPatch()), *( bp10.getPatch()));
 
-        pvhi.simple_split_u_half( *( bp01.getPatch()), *( bp11.getPatch()));
+        phi.simple_split_u_half( *( bp01.getPatch()), *( bp11.getPatch()));
     }
     else
     {
-        surface_patch_type pulow( n, m );
-        surface_patch_type puhi( n, m );
-        m_Patch.simple_split_u_half( pulow, puhi );
+        m_Patch.simple_split_u_half( plo, phi );
 
-        pulow.simple_split_v_half( *( bp00.getPatch()), *( bp01.getPatch()));
+        plo.simple_split_v_half( *( bp00.getPatch()), *( bp01.getPatch()));
 
-        puhi.simple_split_v_half( *( bp10.getPatch()), *( bp11.getPatch()));
+        phi.simple_split_v_half( *( bp10.getPatch()), *( bp11.getPatch()));
     }
 
     bp00.u_min = u_min;
@@ -216,17 +221,18 @@ void SurfPatch::IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vec
     int m = degree_v();
     int d = GetSubDepth() + 1;
 
-    SurfPatch bps0( n, m, d );
-    SurfPatch bps1( n, m, d );
-    SurfPatch bps2( n, m, d );
-    SurfPatch bps3( n, m, d );
+    SurfPatchPool &pool = SurfPatchPool::instance();
+    SurfPatch *bps0, *bps1, *bps2, *bps3;
+    int mark = pool.acquire4( n, m, d, bps0, bps1, bps2, bps3 );
 
-    split_patch( bps0, bps1, bps2, bps3 );
+    split_patch( *bps0, *bps1, *bps2, *bps3 );
 
-    bps0.IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps1.IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps2.IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps3.IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps0->IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps1->IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps2->IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps3->IntersectLineSeg( p0, p1, line_box, t_vals );
+
+    pool.release( mark );
 }
 
 void SurfPatch::AddTVal( double t, vector< double > & t_vals ) const

@@ -129,6 +129,19 @@ public:
         return sub_depth;
     }
 
+    // Prepare a pooled/reused patch to serve as a fresh target of split_patch at recursion depth d.
+    // resize() sizes the control-point grid to degree (n,m) -- std::vector::resize is a no-op, so
+    // no reallocation, when the degree is unchanged -- and also invalidates the Bezier derivative
+    // cache, which matters because the planar test can leave a cached derivative behind that would
+    // otherwise be stale for the new geometry.  Reset the depth and planar-test cache.
+    void PrepareForReuse( int n, int m, int d )
+    {
+        m_Patch.resize( n, m );
+        sub_depth = d;
+        m_checkedplanar = false;
+        m_wasplanar = false;
+    }
+
     friend void intersect_quads( const SurfPatch&  bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
 
     vector < vec3d > GetPatchDrawLines() const;

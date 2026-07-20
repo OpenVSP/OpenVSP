@@ -47,6 +47,7 @@ Surf.cpp
 SurfaceIntersectionMgr.cpp
 SurfCore.cpp
 SurfPatch.cpp
+SurfPatchPool.cpp
 TwoDNN.cpp
 BezierCurve.h
 CfdMeshMgr.h
@@ -69,6 +70,7 @@ Surf.h
 SurfaceIntersectionMgr.h
 SurfCore.h
 SurfPatch.h
+SurfPatchPool.h
 TwoDNN.h
 )
 
