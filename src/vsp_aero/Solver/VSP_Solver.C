@@ -30020,13 +30020,19 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
              DeltaFzo = DeltaDrag * FreeStreamVelocity_[2] / Vinf_;
              
              CFox_ += DeltaFxo;
-             CFox_ += DeltaFyo;
-             CFoy_ += DeltaFzo;
+             CFoy_ += DeltaFyo;
+             CFoz_ += DeltaFzo;
              
              VSPGeom().ComponentGroupList(c).CFox() += DeltaFxo;
              VSPGeom().ComponentGroupList(c).CFoy() += DeltaFyo;
              VSPGeom().ComponentGroupList(c).CFoz() += DeltaFzo;
-             
+
+             if ( TimeAccurate_ ) {
+                 VSPGeom().ComponentGroupList(c).CFox(Time_) += DeltaFxo;
+                 VSPGeom().ComponentGroupList(c).CFoy(Time_) += DeltaFyo;
+                 VSPGeom().ComponentGroupList(c).CFoz(Time_) += DeltaFzo;
+             }
+
           }
           
        }  
