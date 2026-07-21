@@ -3002,7 +3002,18 @@ void VSP_SOLVER::Solve(int Case)
 
                             //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456
        fprintf(GroupFile_[c],"Force Coefficients for group %d --> %s \n\n",c,VSPGeom().ComponentGroupList(c).GroupName()); 
-       fprintf(GroupFile_[c],"      Time              Cx               Cy               Cz               Cxo              Cyo              Czo              Cxi              Cyi              Czi              Cmx              Cmy              Cmz             Cmxo            Cmyo              Cmzo             Cmxi             Cmyi             Cmzi              CL               CD               CS              CLo              CDo              CSo              CLi               CDi             CSi              Cwx              Cwy              Cwz              Cxiw             Cyiw             Cziw             CLw              CDw              CSw               CLiw            CDiw             CSiw\n");
+       
+       if ( VSPGeom().ComponentGroupList(c).GeometryIsDynamic() == FULL_DYNAMIC ) {
+
+          fprintf(GroupFile_[c],"      Time               X                Y                Z             Pitch            Roll             Yaw               Cx               Cy               Cz               Cxo              Cyo              Czo              Cxi              Cyi              Czi              Cmx              Cmy              Cmz             Cmxo            Cmyo              Cmzo             Cmxi             Cmyi             Cmzi              CL               CD               CS              CLo              CDo              CSo              CLi               CDi             CSi              Cwx              Cwy              Cwz              Cxiw             Cyiw             Cziw             CLw              CDw              CSw               CLiw            CDiw             CSiw\n");
+
+       }
+
+       else {
+
+          fprintf(GroupFile_[c],"      Time              Cx               Cy               Cz               Cxo              Cyo              Czo              Cxi              Cyi              Czi              Cmx              Cmy              Cmz             Cmxo            Cmyo              Cmzo             Cmxi             Cmyi             Cmzi              CL               CD               CS              CLo              CDo              CSo              CLi               CDi             CSi              Cwx              Cwy              Cwz              Cxiw             Cyiw             Cziw             CLw              CDw              CSw               CLiw            CDiw             CSiw\n");
+
+       }
                           
        // Create rotor file
        
@@ -35756,6 +35767,8 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
     double CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM;
     double J, Diameter, RPM, Time;
     double Omega, Radius, TipVelocity, Area, Vec[3];
+    double PosX, PosY, PosZ, Pitch, Roll, Yaw;
+    double Qx, Qy, Qz, Qw, SinPitch;
 
     // Loop over component groups, calculate rotor coefficients if any are
     // flagged as being rotors by the user.
@@ -35773,10 +35786,92 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
        if ( !TimeAccurate_ ) Time = CurrentWakeIteration_;
        
        if ( Group == 0 || c == Group ) {
-          
+
+          PosX = PosY = PosZ = 0.;
+          Pitch = Roll = Yaw = 0.;
+
+          if ( VSPGeom().ComponentGroupList(c).GeometryIsDynamic() == FULL_DYNAMIC ) {
+
+             PosX = VSPGeom().ComponentGroupList(c).Position(0);
+             PosY = VSPGeom().ComponentGroupList(c).Position(1);
+             PosZ = VSPGeom().ComponentGroupList(c).Position(2);
+
+             Qx = VSPGeom().ComponentGroupList(c).TotalQuat()(0);
+             Qy = VSPGeom().ComponentGroupList(c).TotalQuat()(1);
+             Qz = VSPGeom().ComponentGroupList(c).TotalQuat()(2);
+             Qw = VSPGeom().ComponentGroupList(c).TotalQuat()(3);
+
+             Roll = atan2(2.*(Qw*Qx + Qy*Qz), 1. - 2.*(Qx*Qx + Qy*Qy));
+
+             SinPitch = 2.*(Qw*Qy - Qz*Qx);
+             SinPitch = MAX(-1.,MIN(1.,SinPitch));
+             Pitch = asin(SinPitch);
+
+             Yaw = atan2(2.*(Qw*Qz + Qx*Qy), 1. - 2.*(Qy*Qy + Qz*Qz));
+
+             Pitch /= TORAD;
+             Roll  /= TORAD;
+             Yaw   /= TORAD;
+
+          }
           // Write out forces and moments
 
-          fprintf(GroupFile_[c],"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
+          if ( VSPGeom().ComponentGroupList(c).GeometryIsDynamic() == FULL_DYNAMIC ) {
+
+             fprintf(GroupFile_[c],"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
+
+                  Time,
+                  PosX,
+                  PosY,
+                  PosZ,
+                  Pitch,
+                  Roll,
+                  Yaw,
+                  VSPGeom().ComponentGroupList(c).CFix() + VSPGeom().ComponentGroupList(c).CFox(),
+                  VSPGeom().ComponentGroupList(c).CFiy() + VSPGeom().ComponentGroupList(c).CFoy(),
+                  VSPGeom().ComponentGroupList(c).CFiz() + VSPGeom().ComponentGroupList(c).CFoz(),
+                  VSPGeom().ComponentGroupList(c).CFox(),
+                  VSPGeom().ComponentGroupList(c).CFoy(),
+                  VSPGeom().ComponentGroupList(c).CFoz(),
+                  VSPGeom().ComponentGroupList(c).CFix(),
+                  VSPGeom().ComponentGroupList(c).CFiy(),
+                  VSPGeom().ComponentGroupList(c).CFiz(),                                    
+                  VSPGeom().ComponentGroupList(c).CMix() + VSPGeom().ComponentGroupList(c).CMox(),
+                  VSPGeom().ComponentGroupList(c).CMiy() + VSPGeom().ComponentGroupList(c).CMoy(),
+                  VSPGeom().ComponentGroupList(c).CMiz() + VSPGeom().ComponentGroupList(c).CMoz(),
+                  VSPGeom().ComponentGroupList(c).CMox(),
+                  VSPGeom().ComponentGroupList(c).CMoy(),
+                  VSPGeom().ComponentGroupList(c).CMoz(),
+                  VSPGeom().ComponentGroupList(c).CMix(),
+                  VSPGeom().ComponentGroupList(c).CMiy(),
+                  VSPGeom().ComponentGroupList(c).CMiz(),                                    
+                  VSPGeom().ComponentGroupList(c).CLi() + VSPGeom().ComponentGroupList(c).CLo(),
+                  VSPGeom().ComponentGroupList(c).CDi() + VSPGeom().ComponentGroupList(c).CDo(),
+                  VSPGeom().ComponentGroupList(c).CSi() + VSPGeom().ComponentGroupList(c).CSo(),
+                  VSPGeom().ComponentGroupList(c).CLo(),
+                  VSPGeom().ComponentGroupList(c).CDo(),   
+                  VSPGeom().ComponentGroupList(c).CSo(),                     
+                  VSPGeom().ComponentGroupList(c).CLi(),                  
+                  VSPGeom().ComponentGroupList(c).CDi(),
+                  VSPGeom().ComponentGroupList(c).CSi(),
+                  VSPGeom().ComponentGroupList(c).CFiwx() + VSPGeom().ComponentGroupList(c).CFox(),
+                  VSPGeom().ComponentGroupList(c).CFiwy() + VSPGeom().ComponentGroupList(c).CFoy(),
+                  VSPGeom().ComponentGroupList(c).CFiwz() + VSPGeom().ComponentGroupList(c).CFoz(),
+                  VSPGeom().ComponentGroupList(c).CFiwx(),
+                  VSPGeom().ComponentGroupList(c).CFiwy(),
+                  VSPGeom().ComponentGroupList(c).CFiwz(),                        
+                  VSPGeom().ComponentGroupList(c).CLiw() + VSPGeom().ComponentGroupList(c).CLo(),
+                  VSPGeom().ComponentGroupList(c).CDiw() + VSPGeom().ComponentGroupList(c).CDo(),
+                  VSPGeom().ComponentGroupList(c).CSiw() + VSPGeom().ComponentGroupList(c).CSo(),
+                  VSPGeom().ComponentGroupList(c).CLiw(),                  
+                  VSPGeom().ComponentGroupList(c).CDiw(),
+                  VSPGeom().ComponentGroupList(c).CSiw());    
+
+          }
+
+          else {
+
+             fprintf(GroupFile_[c],"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
 
                   Time,
                   VSPGeom().ComponentGroupList(c).CFix() + VSPGeom().ComponentGroupList(c).CFox(),
@@ -35817,7 +35912,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                   VSPGeom().ComponentGroupList(c).CSiw() + VSPGeom().ComponentGroupList(c).CSo(),
                   VSPGeom().ComponentGroupList(c).CLiw(),                  
                   VSPGeom().ComponentGroupList(c).CDiw(),
-                  VSPGeom().ComponentGroupList(c).CSiw());    
+                  VSPGeom().ComponentGroupList(c).CSiw());
+
+                 }
                               
           // Write out time averaged forces for time accurate solutions
 
@@ -35829,48 +35926,104 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
              fprintf(GroupFile_[c],"Time averaged forces and moments: \n");
              fprintf(GroupFile_[c],"\n");
 
-             fprintf(GroupFile_[c],"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
+             if ( VSPGeom().ComponentGroupList(c).GeometryIsDynamic() == FULL_DYNAMIC ) {
+                fprintf(GroupFile_[c],"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
 
-                     Time,
-                     VSPGeom().ComponentGroupList(c).CFix_avg() + VSPGeom().ComponentGroupList(c).CFox_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiy_avg() + VSPGeom().ComponentGroupList(c).CFoy_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiz_avg() + VSPGeom().ComponentGroupList(c).CFoz_avg(),
-                     VSPGeom().ComponentGroupList(c).CFox_avg(),
-                     VSPGeom().ComponentGroupList(c).CFoy_avg(),
-                     VSPGeom().ComponentGroupList(c).CFoz_avg(),
-                     VSPGeom().ComponentGroupList(c).CFix_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiy_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiz_avg(),                                    
-                     VSPGeom().ComponentGroupList(c).CMix_avg() + VSPGeom().ComponentGroupList(c).CMox_avg(),
-                     VSPGeom().ComponentGroupList(c).CMiy_avg() + VSPGeom().ComponentGroupList(c).CMoy_avg(),
-                     VSPGeom().ComponentGroupList(c).CMiz_avg() + VSPGeom().ComponentGroupList(c).CMoz_avg(),
-                     VSPGeom().ComponentGroupList(c).CMox_avg(),
-                     VSPGeom().ComponentGroupList(c).CMoy_avg(),
-                     VSPGeom().ComponentGroupList(c).CMoz_avg(),
-                     VSPGeom().ComponentGroupList(c).CMix_avg(),
-                     VSPGeom().ComponentGroupList(c).CMiy_avg(),
-                     VSPGeom().ComponentGroupList(c).CMiz_avg(),                                    
-                     VSPGeom().ComponentGroupList(c).CLo_avg() + VSPGeom().ComponentGroupList(c).CLi_avg(),
-                     VSPGeom().ComponentGroupList(c).CDo_avg() + VSPGeom().ComponentGroupList(c).CDi_avg(),
-                     VSPGeom().ComponentGroupList(c).CSo_avg() + VSPGeom().ComponentGroupList(c).CSi_avg(),                        
-                     VSPGeom().ComponentGroupList(c).CLo_avg(),
-                     VSPGeom().ComponentGroupList(c).CDo_avg(),   
-                     VSPGeom().ComponentGroupList(c).CSo_avg(),                           
-                     VSPGeom().ComponentGroupList(c).CLi_avg(),                  
-                     VSPGeom().ComponentGroupList(c).CDi_avg(),
-                     VSPGeom().ComponentGroupList(c).CSi_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiwx_avg() + VSPGeom().ComponentGroupList(c).CFox_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiwy_avg() + VSPGeom().ComponentGroupList(c).CFoy_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiwz_avg() + VSPGeom().ComponentGroupList(c).CFoz_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiwx_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiwy_avg(),
-                     VSPGeom().ComponentGroupList(c).CFiwz_avg(),                        
-                     VSPGeom().ComponentGroupList(c).CLiw_avg() + VSPGeom().ComponentGroupList(c).CLo_avg(),
-                     VSPGeom().ComponentGroupList(c).CDiw_avg() + VSPGeom().ComponentGroupList(c).CDo_avg(),
-                     VSPGeom().ComponentGroupList(c).CSiw_avg() + VSPGeom().ComponentGroupList(c).CSo_avg(),
-                     VSPGeom().ComponentGroupList(c).CLiw_avg(),                  
-                     VSPGeom().ComponentGroupList(c).CDiw_avg(),
-                     VSPGeom().ComponentGroupList(c).CSiw_avg());                            
+                  Time,
+                  PosX,
+                  PosY,
+                  PosZ,
+                  Pitch,
+                  Roll,
+                  Yaw,
+                  VSPGeom().ComponentGroupList(c).CFix_avg() + VSPGeom().ComponentGroupList(c).CFox_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiy_avg() + VSPGeom().ComponentGroupList(c).CFoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiz_avg() + VSPGeom().ComponentGroupList(c).CFoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CFox_avg(),
+                  VSPGeom().ComponentGroupList(c).CFoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CFix_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiz_avg(),                                    
+                  VSPGeom().ComponentGroupList(c).CMix_avg() + VSPGeom().ComponentGroupList(c).CMox_avg(),
+                  VSPGeom().ComponentGroupList(c).CMiy_avg() + VSPGeom().ComponentGroupList(c).CMoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CMiz_avg() + VSPGeom().ComponentGroupList(c).CMoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CMox_avg(),
+                  VSPGeom().ComponentGroupList(c).CMoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CMoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CMix_avg(),
+                  VSPGeom().ComponentGroupList(c).CMiy_avg(),
+                  VSPGeom().ComponentGroupList(c).CMiz_avg(),                                    
+                  VSPGeom().ComponentGroupList(c).CLo_avg() + VSPGeom().ComponentGroupList(c).CLi_avg(),
+                  VSPGeom().ComponentGroupList(c).CDo_avg() + VSPGeom().ComponentGroupList(c).CDi_avg(),
+                  VSPGeom().ComponentGroupList(c).CSo_avg() + VSPGeom().ComponentGroupList(c).CSi_avg(),                        
+                  VSPGeom().ComponentGroupList(c).CLo_avg(),
+                  VSPGeom().ComponentGroupList(c).CDo_avg(),   
+                  VSPGeom().ComponentGroupList(c).CSo_avg(),                           
+                  VSPGeom().ComponentGroupList(c).CLi_avg(),                  
+                  VSPGeom().ComponentGroupList(c).CDi_avg(),
+                  VSPGeom().ComponentGroupList(c).CSi_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwx_avg() + VSPGeom().ComponentGroupList(c).CFox_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwy_avg() + VSPGeom().ComponentGroupList(c).CFoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwz_avg() + VSPGeom().ComponentGroupList(c).CFoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwx_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwz_avg(),                        
+                  VSPGeom().ComponentGroupList(c).CLiw_avg() + VSPGeom().ComponentGroupList(c).CLo_avg(),
+                  VSPGeom().ComponentGroupList(c).CDiw_avg() + VSPGeom().ComponentGroupList(c).CDo_avg(),
+                  VSPGeom().ComponentGroupList(c).CSiw_avg() + VSPGeom().ComponentGroupList(c).CSo_avg(),
+                  VSPGeom().ComponentGroupList(c).CLiw_avg(),                  
+                  VSPGeom().ComponentGroupList(c).CDiw_avg(),
+                  VSPGeom().ComponentGroupList(c).CSiw_avg());
+
+             }
+
+             else {
+
+               fprintf(GroupFile_[c],"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
+
+                  Time,
+                  VSPGeom().ComponentGroupList(c).CFix_avg() + VSPGeom().ComponentGroupList(c).CFox_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiy_avg() + VSPGeom().ComponentGroupList(c).CFoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiz_avg() + VSPGeom().ComponentGroupList(c).CFoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CFox_avg(),
+                  VSPGeom().ComponentGroupList(c).CFoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CFix_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiz_avg(),                                    
+                  VSPGeom().ComponentGroupList(c).CMix_avg() + VSPGeom().ComponentGroupList(c).CMox_avg(),
+                  VSPGeom().ComponentGroupList(c).CMiy_avg() + VSPGeom().ComponentGroupList(c).CMoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CMiz_avg() + VSPGeom().ComponentGroupList(c).CMoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CMox_avg(),
+                  VSPGeom().ComponentGroupList(c).CMoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CMoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CMix_avg(),
+                  VSPGeom().ComponentGroupList(c).CMiy_avg(),
+                  VSPGeom().ComponentGroupList(c).CMiz_avg(),                                    
+                  VSPGeom().ComponentGroupList(c).CLo_avg() + VSPGeom().ComponentGroupList(c).CLi_avg(),
+                  VSPGeom().ComponentGroupList(c).CDo_avg() + VSPGeom().ComponentGroupList(c).CDi_avg(),
+                  VSPGeom().ComponentGroupList(c).CSo_avg() + VSPGeom().ComponentGroupList(c).CSi_avg(),                        
+                  VSPGeom().ComponentGroupList(c).CLo_avg(),
+                  VSPGeom().ComponentGroupList(c).CDo_avg(),   
+                  VSPGeom().ComponentGroupList(c).CSo_avg(),                           
+                  VSPGeom().ComponentGroupList(c).CLi_avg(),                  
+                  VSPGeom().ComponentGroupList(c).CDi_avg(),
+                  VSPGeom().ComponentGroupList(c).CSi_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwx_avg() + VSPGeom().ComponentGroupList(c).CFox_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwy_avg() + VSPGeom().ComponentGroupList(c).CFoy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwz_avg() + VSPGeom().ComponentGroupList(c).CFoz_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwx_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwy_avg(),
+                  VSPGeom().ComponentGroupList(c).CFiwz_avg(),                        
+                  VSPGeom().ComponentGroupList(c).CLiw_avg() + VSPGeom().ComponentGroupList(c).CLo_avg(),
+                  VSPGeom().ComponentGroupList(c).CDiw_avg() + VSPGeom().ComponentGroupList(c).CDo_avg(),
+                  VSPGeom().ComponentGroupList(c).CSiw_avg() + VSPGeom().ComponentGroupList(c).CSo_avg(),
+                  VSPGeom().ComponentGroupList(c).CLiw_avg(),                  
+                  VSPGeom().ComponentGroupList(c).CDiw_avg(),
+                  VSPGeom().ComponentGroupList(c).CSiw_avg());
+
+             }                            
                      
           }    
                                                         
