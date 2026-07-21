@@ -593,7 +593,18 @@ void VSP_SOLVER::WriteOutSteadyStateNoiseFiles(int Case)
 
                             //1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890    
        fprintf(GroupFile_[c],"Force Coefficients for group %d --> %s \n\n",c,ComponentGroupList_[c].GroupName()); 
-       fprintf(GroupFile_[c],"   Time        Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD         CS        CLo        CDo        CLi        CDi \n");
+       
+       if ( ComponentGroupList_[c].GeometryIsDynamic() == FULL_DYNAMIC ) {
+
+          fprintf(GroupFile_[c],"   Time          X          Y          Z        Pitch       Roll        Yaw         Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD         CS        CLo        CDo        CLi        CDi \n");
+
+       }
+
+       else {
+
+          fprintf(GroupFile_[c],"   Time        Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD         CS        CLo        CDo        CLi        CDi \n");
+
+       }
                           
        // Create rotor file
        
@@ -910,7 +921,18 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
 
                             //1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890  
        fprintf(GroupFile_[c],"Force Coefficients for group %d --> %s \n\n",c,ComponentGroupList_[c].GroupName()); 
-       fprintf(GroupFile_[c],"   Time        Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD        CLo        CDo        CLi        CDi \n");
+       
+       if ( ComponentGroupList_[c].GeometryIsDynamic() == FULL_DYNAMIC ) {
+
+          fprintf(GroupFile_[c],"   Time          X          Y          Z        Pitch       Roll        Yaw         Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD        CLo        CDo        CLi        CDi \n");
+
+       }
+
+       else {
+
+          fprintf(GroupFile_[c],"   Time        Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD        CLo        CDo        CLi        CDi \n");
+
+       }
                           
        // Create rotor file
        
