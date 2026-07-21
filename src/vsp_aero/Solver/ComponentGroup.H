@@ -47,6 +47,7 @@ private:
     double OVec_[3];
     double RVec_[3];
     double TVec_[3];
+    double Position_[3];
     
     double UserInputVelocity_[3];
     double UserInputAcceleration_[3];
@@ -580,6 +581,10 @@ public:
     /** Translation vector to be applied in transformations **/
 
     double TVec(int i) { return TVec_[i]; };
+    
+    /** Accumulated translation position of the group **/
+
+    double &Position(int i) { return Position_[i]; };
 
     /** Velocity of group **/
         
