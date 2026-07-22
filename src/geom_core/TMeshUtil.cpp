@@ -1366,11 +1366,10 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
 
     max_dist = primary_tm->MaxDistance( org, norm, max_dist, pts[0], pts[1] );
 
+    bool real_intersection = false;
+
     if ( primary_tm->CheckIntersect( org, norm ) )
     {
-        intersect_flag = true;
-        interference_flag = true;
-
         // Add origin to primary mesh bounding box.
         BndBox bb = primary_tm->m_TBox.m_Box;
         bb.Update( org );
@@ -1382,6 +1381,28 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
         result_tmv.push_back( primary_tm );
 
         MeshCutAbovePlane( result_tmv, threepts );
+
+        // A mesh exactly tangent to the cutting plane passes CheckIntersect() but the cut
+        // leaves every triangle ignored, so the flattened result would be empty and the
+        // result_tmv indexing below would read freed memory.  Detect that, undo the cut,
+        // discard the slice, and fall through to the non-intersecting branch.
+        bool empty_result = false;
+        for ( int i = 0 ; i < ( int )result_tmv.size() ; i++ )
+        {
+            if ( result_tmv[i]->CheckEmpty() )
+            {
+                empty_result = true;
+                break;
+            }
+        }
+
+        if ( !empty_result )
+        {
+            real_intersection = true;
+
+            intersect_flag = true;
+            interference_flag = true;
+
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
         int ifewer = 0;
@@ -1402,8 +1423,16 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
             vol += result_tmv[i]->ComputeTrimVol();
         }
         con_vol = vol / vref;
+        }
+        else
+        {
+            primary_tm->UndoMeshIntersect();
+            delete slice;
+            result_tmv.clear();
+        }
     }
-    else
+
+    if ( !real_intersection )
     {
         min_dist = primary_tm->MinDistance( org, norm, min_dist, pts[2], pts[3] );
         con_dist = min_dist;
@@ -1460,15 +1489,36 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
     bool primary_below_secondary = false;
     vector < vec3d > pts( 2 );
 
+    bool real_intersection = false;
+
     if ( primary_tm->CheckIntersect( secondary_tm ) )
     {
-        intersect_flag = true;
-        interference_flag = true;
-
         result_tmv.push_back( secondary_tm );
         result_tmv.push_back( primary_tm );
 
         MeshCCEIntersect( result_tmv );
+
+        // Exactly-tangent bodies pass CheckIntersect() but the boolean op leaves every
+        // triangle ignored, so the flattened result would be empty and the result_tmv
+        // indexing below would read freed memory.  Detect that, undo the in-place
+        // intersection, and fall through to the non-intersecting branch.
+        bool empty_result = false;
+        for ( int i = 0 ; i < ( int )result_tmv.size() ; i++ )
+        {
+            if ( result_tmv[i]->CheckEmpty() )
+            {
+                empty_result = true;
+                break;
+            }
+        }
+
+        if ( !empty_result )
+        {
+            real_intersection = true;
+
+            intersect_flag = true;
+            interference_flag = true;
+
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
         int ifewer = 0;
@@ -1489,8 +1539,16 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
             vol += result_tmv[i]->ComputeTrimVol();
         }
         con_vol = vol / vol_primary;
+        }
+        else
+        {
+            primary_tm->UndoMeshIntersect();
+            secondary_tm->UndoMeshIntersect();
+            result_tmv.clear();
+        }
     }
-    else
+
+    if ( !real_intersection )
     {
         min_dist = primary_tm->MinDistance( secondary_tm, min_dist, pts[0], pts[1] );
         con_dist = min_dist;
@@ -1579,14 +1637,36 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
 
     double vref = min( vol_primary, vol_secondary );
 
+    bool real_intersection = false;
+
     if ( primary_tm->CheckIntersect( secondary_tm ) )
     {
-        intersect_flag = true;
-        interference_flag = true;
-
         result_tmv.push_back( primary_tm );
         result_tmv.push_back( secondary_tm );
         MeshIntersect( result_tmv );
+
+        // CheckIntersect() is a coarse triangle-level touch test.  Exactly-tangent
+        // bodies pass it, but MeshIntersect() then ignores every triangle, so the
+        // flattened result would be empty and the result_tmv indexing below would read
+        // freed memory.  Detect that, undo the in-place intersection on both meshes,
+        // and fall through to the non-intersecting branch (the bodies merely touch).
+        bool empty_result = false;
+        for ( int i = 0 ; i < ( int )result_tmv.size() ; i++ )
+        {
+            if ( result_tmv[i]->CheckEmpty() )
+            {
+                empty_result = true;
+                break;
+            }
+        }
+
+        if ( !empty_result )
+        {
+            real_intersection = true;
+
+            intersect_flag = true;
+            interference_flag = true;
+
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
         int ifewer = 0;
@@ -1611,8 +1691,19 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
             vol += result_tmv[i]->ComputeTrimVol();
         }
         con_vol = vol / vref;
+        }
+        else
+        {
+            // Restore both meshes to their pre-intersection state, then let the
+            // non-intersecting branch below operate on the intact primary_tm /
+            // secondary_tm.
+            primary_tm->UndoMeshIntersect();
+            secondary_tm->UndoMeshIntersect();
+            result_tmv.clear();
+        }
     }
-    else
+
+    if ( !real_intersection )
     {
         min_dist = primary_tm->MinDistance( secondary_tm, min_dist, pts[0], pts[1] );
         con_dist = min_dist;
@@ -1723,16 +1814,37 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
 
     double vref = vol_secondary; // min( vol_primary, vol_secondary );
 
+    bool real_intersection = false;
+
     if ( primary_tm->CheckIntersect( secondary_tm ) )
     {
-        intersect_flag = true;
-        interference_flag = true;
-
         // Notice secondary first.
         result_tmv.push_back( secondary_tm );
         result_tmv.push_back( primary_tm );
 
         MeshSubtract( result_tmv ); // Secondary - Primary
+
+        // Exactly-tangent bodies pass CheckIntersect() but the boolean op leaves every
+        // triangle ignored, so the flattened result would be empty and the result_tmv
+        // indexing below would read freed memory.  Detect that, undo the in-place
+        // intersection, and fall through to the non-intersecting branch.
+        bool empty_result = false;
+        for ( int i = 0 ; i < ( int )result_tmv.size() ; i++ )
+        {
+            if ( result_tmv[i]->CheckEmpty() )
+            {
+                empty_result = true;
+                break;
+            }
+        }
+
+        if ( !empty_result )
+        {
+            real_intersection = true;
+
+            intersect_flag = true;
+            interference_flag = true;
+
         FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
         int ifewer = 0;
@@ -1754,8 +1866,20 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
             vol += result_tmv[i]->ComputeTheoVol();
         }
         con_vol = vol / vref;
+        }
+        else
+        {
+            // MeshSubtract flipped the primary's kept-tri normals; FlipNormals() restores
+            // them (a no-op here, since every tri is ignored).  Then undo the in-place
+            // intersection so the non-intersecting branch sees the original meshes.
+            primary_tm->FlipNormals();
+            primary_tm->UndoMeshIntersect();
+            secondary_tm->UndoMeshIntersect();
+            result_tmv.clear();
+        }
     }
-    else
+
+    if ( !real_intersection )
     {
         min_dist = primary_tm->MinDistance( secondary_tm, min_dist, pts[0], pts[1] );
         con_dist = min_dist;
