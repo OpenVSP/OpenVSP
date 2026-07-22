@@ -1403,26 +1403,26 @@ void PlaneInterferenceCheck( TMesh *primary_tm, const vec3d & org, const vec3d &
             intersect_flag = true;
             interference_flag = true;
 
-        FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
+            FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
-        int ifewer = 0;
-        if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
-        {
-            ifewer = 1;
-        }
-        result_tmv[ 0 ]->LoadBndBox();
-        result_tmv[ 1 ]->LoadBndBox();
+            int ifewer = 0;
+            if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
+            {
+                ifewer = 1;
+            }
+            result_tmv[ 0 ]->LoadBndBox();
+            result_tmv[ 1 ]->LoadBndBox();
 
-        maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[2], pts[3] );
+            maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[2], pts[3] );
 
-        min_dist = 0.0;
-        con_dist = 1.0;
+            min_dist = 0.0;
+            con_dist = 1.0;
 
-        for ( int i = 0; i < result_tmv.size(); i++ )
-        {
-            vol += result_tmv[i]->ComputeTrimVol();
-        }
-        con_vol = vol / vref;
+            for ( int i = 0; i < result_tmv.size(); i++ )
+            {
+                vol += result_tmv[i]->ComputeTrimVol();
+            }
+            con_vol = vol / vref;
         }
         else
         {
@@ -1519,26 +1519,26 @@ void CCEInterferenceCheck(  TMesh *primary_tm, TMesh *secondary_tm, const string
             intersect_flag = true;
             interference_flag = true;
 
-        FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
+            FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
-        int ifewer = 0;
-        if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
-        {
-            ifewer = 1;
-        }
-        result_tmv[ 0 ]->LoadBndBox();
-        result_tmv[ 1 ]->LoadBndBox();
+            int ifewer = 0;
+            if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
+            {
+                ifewer = 1;
+            }
+            result_tmv[ 0 ]->LoadBndBox();
+            result_tmv[ 1 ]->LoadBndBox();
 
-        maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
+            maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
 
-        min_dist = 0.0;
-        con_dist = 1.0;
+            min_dist = 0.0;
+            con_dist = 1.0;
 
-        for ( int i = 0; i < result_tmv.size(); i++ )
-        {
-            vol += result_tmv[i]->ComputeTrimVol();
-        }
-        con_vol = vol / vol_primary;
+            for ( int i = 0; i < result_tmv.size(); i++ )
+            {
+                vol += result_tmv[i]->ComputeTrimVol();
+            }
+            con_vol = vol / vol_primary;
         }
         else
         {
@@ -1667,30 +1667,30 @@ void ExteriorInterferenceCheck( TMesh *primary_tm, TMesh *secondary_tm, const st
             intersect_flag = true;
             interference_flag = true;
 
-        FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
+            FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
-        int ifewer = 0;
-        if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
-        {
-            ifewer = 1;
-        }
-        result_tmv[ 0 ]->LoadBndBox();
-        result_tmv[ 1 ]->LoadBndBox();
+            int ifewer = 0;
+            if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
+            {
+                ifewer = 1;
+            }
+            result_tmv[ 0 ]->LoadBndBox();
+            result_tmv[ 1 ]->LoadBndBox();
 
-        maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
+            maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
 
-        TMesh *result_tm = MergeTMeshVec( result_tmv );
-        DeleteTMeshVec( result_tmv );
-        result_tmv.push_back( result_tm );
+            TMesh *result_tm = MergeTMeshVec( result_tmv );
+            DeleteTMeshVec( result_tmv );
+            result_tmv.push_back( result_tm );
 
-        min_dist = 0.0;
-        con_dist = 1.0;
+            min_dist = 0.0;
+            con_dist = 1.0;
 
-        for ( int i = 0; i < result_tmv.size(); i++ )
-        {
-            vol += result_tmv[i]->ComputeTrimVol();
-        }
-        con_vol = vol / vref;
+            for ( int i = 0; i < result_tmv.size(); i++ )
+            {
+                vol += result_tmv[i]->ComputeTrimVol();
+            }
+            con_vol = vol / vref;
         }
         else
         {
@@ -1845,27 +1845,27 @@ string PackagingInterferenceCheck( vector< TMesh* > & primary_tmv, vector< TMesh
             intersect_flag = true;
             interference_flag = true;
 
-        FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
+            FlattenTMeshVec( result_tmv ); // Not required for volume calculations, do it for visualization and later use.
 
-        int ifewer = 0;
-        if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
-        {
-            ifewer = 1;
-        }
-        result_tmv[ 0 ]->LoadBndBox();
-        result_tmv[ 1 ]->LoadBndBox();
+            int ifewer = 0;
+            if ( result_tmv[ 0 ]->m_TVec.size() > result_tmv[ 1 ]->m_TVec.size() )
+            {
+                ifewer = 1;
+            }
+            result_tmv[ 0 ]->LoadBndBox();
+            result_tmv[ 1 ]->LoadBndBox();
 
-        maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
+            maximin = result_tmv[ ifewer ]->MaxMinDistancePt( result_tmv[ !ifewer ], maximin, pts[0], pts[1] );
 
-        min_dist = 0.0;
-        con_dist = 1.0;
+            min_dist = 0.0;
+            con_dist = 1.0;
 
-        for ( int i = 0; i < result_tmv.size(); i++ )
-        {
-            // vol += result_tmv[i]->ComputeTrimVol();
-            vol += result_tmv[i]->ComputeTheoVol();
-        }
-        con_vol = vol / vref;
+            for ( int i = 0; i < result_tmv.size(); i++ )
+            {
+                // vol += result_tmv[i]->ComputeTrimVol();
+                vol += result_tmv[i]->ComputeTheoVol();
+            }
+            con_vol = vol / vref;
         }
         else
         {
