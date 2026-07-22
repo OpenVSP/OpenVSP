@@ -3507,6 +3507,61 @@ void TMesh::CopyFlatten( TMesh* m )
     }
 }
 
+bool TMesh::CheckEmpty()
+{
+    // Mirror CopyFlatten()'s triangle selection: a tri contributes a kept triangle if
+    // it is not ignored -- or, when it was split, if any of its split tris is not
+    // ignored.  If nothing would be kept, the flattened mesh would be empty.  Return
+    // on the first kept tri so the common (non-empty) case is cheap.
+    for ( int i = 0 ; i < ( int )m_TVec.size() ; i++ )
+    {
+        TTri* orig_tri = m_TVec[i];
+
+        if ( orig_tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )orig_tri->m_SplitVec.size() ; s++ )
+            {
+                if ( !orig_tri->m_SplitVec[s]->m_IgnoreTriFlag )
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            if ( !orig_tri->m_IgnoreTriFlag )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void TMesh::UndoMeshIntersect()
+{
+    RemoveIsectEdges();   // Delete the intersection edges stored on each tri.
+    IgnoreNone();         // Clear m_IgnoreTriFlag on tris and their split tris.
+
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        // Delete the split tris created by the intersection so the original tri is used
+        // directly again.  m_GeomID / m_Density on the original are build-time data and
+        // are left untouched -- the intersection only copied them onto the split tris
+        // being deleted here.
+        for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+        {
+            delete tri->m_SplitVec[s];
+        }
+        tri->m_SplitVec.clear();
+
+        // Drop the inside/outside classification computed during the intersection.
+        tri->m_insideSurf.clear();
+    }
+}
+
 void TMesh::FlattenInPlace()
 {
     vector< TTri* > origTVec = m_TVec;

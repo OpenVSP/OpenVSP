@@ -466,6 +466,8 @@ public:
     void copyFewerNodes( TMesh* m );
     void CopyFlatten( TMesh* m );
     void FlattenInPlace();
+    bool CheckEmpty();          // True if CopyFlatten would produce no tris (every tri, or all of its split tris, is ignored).  Breaks out on the first kept tri.
+    void UndoMeshIntersect();   // Restore the mesh to its pre-MeshIntersect() state: clear isect edges, ignore flags, split tris, and inside-surf classification.
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual void DecodeXml( xmlNodePtr & node );
     virtual xmlNodePtr EncodeTriList( xmlNodePtr & node );
