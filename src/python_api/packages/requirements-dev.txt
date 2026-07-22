@@ -7,5 +7,6 @@
 -e AvlPy
 -e pyPMARC
 pytest
+numpy==1.26.4
 matplotlib
 pathlib
