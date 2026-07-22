@@ -713,6 +713,29 @@ void MainVSPScreen::ScreenGrab( const string & fname, int w, int h, bool transpa
 {
     if ( m_GlWin )
     {
+        // The screenshot is rendered with the on-screen viewport's projection, whose
+        // aspect ratio comes from the GL window's pixel dimensions (the screenshot path,
+        // Viewport::resizeViewport, deliberately does not update the camera).  So a
+        // requested w/h that does not match the screen aspect ratio squishes the image.
+        // Adjust the requested dimensions to the screen aspect ratio, keeping whichever
+        // of w/h yields the larger image, so the capture is undistorted.
+        int sw = m_GlWin->pixel_w();
+        int sh = m_GlWin->pixel_h();
+        if ( sw > 0 && sh > 0 )
+        {
+            double screen_ar = ( double )sw / ( double )sh;
+            if ( ( double )w / ( double )h < screen_ar )
+            {
+                // Requested box is narrower than the screen -- widen to match, keep h.
+                w = ( int )( h * screen_ar + 0.5 );
+            }
+            else
+            {
+                // Requested box is wider than the screen -- grow height to match, keep w.
+                h = ( int )( w / screen_ar + 0.5 );
+            }
+        }
+
         bool framebufferSupported = true;
         if ( !glewIsSupported( "GL_ARB_framebuffer_object" ) )
         {
