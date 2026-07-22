@@ -23,16 +23,16 @@ def test_InterferenceAnalysis():
     geom_id = vsp.FindGeom("BallA", 0)
 
     if openvsp_config.LOAD_GRAPHICS:
-        # vsp.ShowScreen(vsp.VSP_INTERFERENCE_SCREEN) # Does not work for some reason.  Hangs here.
+        vsp.ShowScreen(vsp.VSP_GEOMETRY_ANALYSIS_SCREEN)
         vsp.SetGeomDrawType(geom_id, vsp.GEOM_DRAW_SHADE)
         vsp.SetGeomDrawType(vsp.FindGeom("BallB", 0), vsp.GEOM_DRAW_SHADE)
 
-    vsp.SetAnalysisInputDefaults('InterferenceAnalysis')
+    vsp.SetAnalysisInputDefaults('GeometryAnalysis')
 
     caseid = vsp.FindContainer('External', 0)
     # caseid = vsp.FindContainer('A_In_B', 0)
 
-    vsp.SetStringAnalysisInput('InterferenceAnalysis', 'CaseID', [caseid])
+    vsp.SetStringAnalysisInput('GeometryAnalysis', 'CaseID', [caseid])
 
     xpos = np.linspace(0, 4, 21)
     ypos = [0, 0.5, 1, 1.5, 2, 2.5]
@@ -48,7 +48,7 @@ def test_InterferenceAnalysis():
             vsp.SetParmVal(geom_id, "X_Rel_Location", "XForm", x)
             vsp.SetParmVal(geom_id, "Y_Rel_Location", "XForm", y)
             vsp.Update()
-            res = vsp.ExecAnalysis('InterferenceAnalysis')
+            res = vsp.ExecAnalysis('GeometryAnalysis')
             con_val = vsp.GetDoubleResults(res, 'Con_Val')
             con[i] = con_val[0]
             if openvsp_config.LOAD_GRAPHICS:
