@@ -478,7 +478,13 @@ void APIHideScreenHandler( void * data )
         ScreenMgr * m_ScreenMgr = (ScreenMgr*) ss->m_ScrMgr;
         if ( m_ScreenMgr )
         {
+            std::unique_lock lk( m_ScreenMgr->m_TaskMutex );
+
             m_ScreenMgr->APIHideScreenImplementation( ss->m_ScreenIndx );
+
+            lk.unlock();
+
+            m_ScreenMgr->m_TaskCV.notify_one();
         }
 
         delete ss;
@@ -530,7 +536,13 @@ void APIShowScreenHandler( void * data )
         ScreenMgr * m_ScreenMgr = (ScreenMgr*) ss->m_ScrMgr;
         if ( m_ScreenMgr )
         {
+            std::unique_lock lk( m_ScreenMgr->m_TaskMutex );
+
             m_ScreenMgr->APIShowScreenImplementation( ss->m_ScreenIndx );
+
+            lk.unlock();
+
+            m_ScreenMgr->m_TaskCV.notify_one();
         }
 
         delete ss;
