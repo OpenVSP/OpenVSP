@@ -1447,6 +1447,28 @@ vector < string > GetAllGeometryAnalysesIDVec()
     return ret;
 }
 
+void SetActiveGeometryAnalysis( const string &id )
+{
+    // Reject an unknown ID without disturbing the current selection.  An empty string
+    // is allowed and clears the active case.
+    if ( id != "" && !GeometryAnalysisMgr.GetGeometryAnalysis( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetActiveGeometryAnalysis::Can't Find Geometry Analysis " + id );
+        return;
+    }
+
+    GeometryAnalysisMgr.SetActiveGeometryAnalysisID( id );
+    ErrorMgr.NoError();
+}
+
+string GetActiveGeometryAnalysis()
+{
+    string ret = GeometryAnalysisMgr.GetActiveGeometryAnalysisID();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
 //===================================================================//
 //===============       Attributes Functions         ===================//
 //===================================================================//

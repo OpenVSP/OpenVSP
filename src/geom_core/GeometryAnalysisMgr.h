@@ -210,9 +210,16 @@ public:
     vector < GeometryAnalysisCase* > GetAllGeometryAnalyses() const            { return m_GeometryAnalysisVec; };
     vector < string > GetAllGeometryAnalysesIDVec() const;
 
+    // Active case for visualization.  This is the source of truth; the GUI browser
+    // selection reflects it, and the API sets it without any GUI dependency.
+    void SetActiveGeometryAnalysisID( const string &id )    { m_ActiveGeometryAnalysisID = id; }
+    string GetActiveGeometryAnalysisID() const              { return m_ActiveGeometryAnalysisID; }
+
 
 protected:
     vector < GeometryAnalysisCase* > m_GeometryAnalysisVec;
+
+    string m_ActiveGeometryAnalysisID;
 
 };
 

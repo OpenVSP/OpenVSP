@@ -83,7 +83,6 @@ protected:
     GroupLayout m_AeroCenterLayout;
 
     ColResizeBrowser* m_GeometryAnalysisBrowser;
-    int m_GeometryBrowserSelect;
 
 
     TriggerButton m_AddGeometryAnalysis;

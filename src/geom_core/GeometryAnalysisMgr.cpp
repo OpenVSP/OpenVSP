@@ -2997,6 +2997,7 @@ void GeometryAnalysisMgrSingleton::Wype()
         delete m_GeometryAnalysisVec[i];
     }
     m_GeometryAnalysisVec.clear();
+    m_ActiveGeometryAnalysisID = "";
 }
 
 void GeometryAnalysisMgrSingleton::Update()
@@ -3056,6 +3057,11 @@ void GeometryAnalysisMgrSingleton::DeleteGeometryAnalysis( int indx )
 {
     if ( indx >= 0 && indx < m_GeometryAnalysisVec.size() )
     {
+        if ( m_GeometryAnalysisVec[ indx ]->GetID() == m_ActiveGeometryAnalysisID )
+        {
+            m_ActiveGeometryAnalysisID = "";
+        }
+
         delete m_GeometryAnalysisVec[ indx ];
 
         m_GeometryAnalysisVec.erase( m_GeometryAnalysisVec.begin() + indx );

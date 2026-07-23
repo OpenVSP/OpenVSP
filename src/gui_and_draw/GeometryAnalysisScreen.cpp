@@ -528,8 +528,6 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_ActionLayout.SetButtonWidth( 0 );
     m_ActionLayout.AddOutput( m_ResultOutput, "", "%6.5f", m_ActionLayout.GetW() - m_ActionLayout.GetRemainX() );
 
-    m_GeometryBrowserSelect = -1;
-
     m_CurrentAzElScrollIndex = -1;
 
     // Initialize to valid group
@@ -559,7 +557,7 @@ bool GeometryAnalysisScreen::Update()
 
     UpdateAzElScrollGroup();
 
-    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
 
     if ( gcase )
     {
@@ -1130,9 +1128,10 @@ void GeometryAnalysisScreen::UpdateGeometryAnalysisBrowser()
         snprintf( str, sizeof( str ),  "%s:%s:%s:%f: \n", gcases[i]->GetName().c_str(), gcases[i]->GetPrimaryName().c_str(), secondary.c_str(), gcases[i]->m_LastResultValue() );
         m_GeometryAnalysisBrowser->add( str );
     }
-    if ( m_GeometryBrowserSelect >= 0 && m_GeometryBrowserSelect < (int)gcases.size() )
+    int active_indx = GeometryAnalysisMgr.GetGeometryAnalysisIndex( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
+    if ( active_indx >= 0 && active_indx < (int)gcases.size() )
     {
-        m_GeometryAnalysisBrowser->select( m_GeometryBrowserSelect + 2 );
+        m_GeometryAnalysisBrowser->select( active_indx + 2 );
     }
 
     m_GeometryAnalysisBrowser->vposition( scroll_pos );
@@ -1150,7 +1149,7 @@ void GeometryAnalysisScreen::UpdateWindowSubSurfBrowser()
     int scroll_pos = m_SubSurfCutoutBrowser->vposition();
     m_SubSurfCutoutBrowser->clear();
 
-    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
     if ( gcase )
     {
         char str[512];
@@ -1182,7 +1181,7 @@ void GeometryAnalysisScreen::UpdateAzElScrollGroup()
 {
     int button_width = 60;
 
-    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
     if ( gcase )
     {
         if ( m_AzSliderVec.size() != gcase->m_VizAzimuthVec.size() )
@@ -1291,7 +1290,7 @@ void GeometryAnalysisScreen::OptionsDisplayGroup( GroupLayout* group )
 
 void GeometryAnalysisScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
 
     if ( gcase )
     {
@@ -1358,7 +1357,7 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
         // Apply popup rename to previously selected analysis case
         if ( m_GeometryAnalysisBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_ENTER )
         {
-            GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+            GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
             if ( gcase )
             {
                 string aname = m_GeometryAnalysisBrowser->GetPopupValue();
@@ -1368,9 +1367,19 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
 
         // Select new geom analysis case
         int sel = m_GeometryAnalysisBrowser->value();
-        m_GeometryBrowserSelect = sel - 2;
 
-        GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+        // Map the clicked browser line to a case and record it as the active case.
+        GeometryAnalysisCase* selcase = GeometryAnalysisMgr.GetGeometryAnalysis( sel - 2 );
+        if ( selcase )
+        {
+            GeometryAnalysisMgr.SetActiveGeometryAnalysisID( selcase->GetID() );
+        }
+        else
+        {
+            GeometryAnalysisMgr.SetActiveGeometryAnalysisID( "" );
+        }
+
+        GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
 
         if ( gcase )
         {
@@ -1390,16 +1399,16 @@ void GeometryAnalysisScreen::CallBack( Fl_Widget *w )
         // open popup input if double clicked
         if ( m_GeometryAnalysisBrowser->GetCBReason() == BROWSER_CALLBACK_POPUP_OPEN )
         {
-            GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+            GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
             if ( gcase )
             {
-                m_GeometryAnalysisBrowser->InsertPopupInput( gcase->GetName(), m_GeometryBrowserSelect + 2 );
+                m_GeometryAnalysisBrowser->InsertPopupInput( gcase->GetName(), GeometryAnalysisMgr.GetGeometryAnalysisIndex( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() ) + 2 );
             }
         }
     }
     else if ( w == m_SubSurfCutoutBrowser )
     {
-        GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+        GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
 
         if ( gcase )
         {
@@ -1441,19 +1450,32 @@ void GeometryAnalysisScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( m_GeometryBrowserSelect );
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
 
     if ( gui_device == &m_AddGeometryAnalysis )
     {
         string id = GeometryAnalysisMgr.AddGeometryAnalysis();
-        m_GeometryBrowserSelect = GeometryAnalysisMgr.GetGeometryAnalysisIndex( id );
+        GeometryAnalysisMgr.SetActiveGeometryAnalysisID( id );
     }
     else if ( gui_device == &m_DelGeometryAnalysis )
     {
-        GeometryAnalysisMgr.DeleteGeometryAnalysis( m_GeometryBrowserSelect );
-        if ( m_GeometryBrowserSelect > GeometryAnalysisMgr.GetAllGeometryAnalyses().size() -1 )
+        int del_indx = GeometryAnalysisMgr.GetGeometryAnalysisIndex( GeometryAnalysisMgr.GetActiveGeometryAnalysisID() );
+        GeometryAnalysisMgr.DeleteGeometryAnalysis( del_indx );
+
+        // Reselect the case that shifted into the deleted slot, clamped to the last.
+        int nleft = (int)GeometryAnalysisMgr.GetAllGeometryAnalyses().size();
+        if ( del_indx > nleft - 1 )
         {
-            m_GeometryBrowserSelect = GeometryAnalysisMgr.GetAllGeometryAnalyses().size() -1;
+            del_indx = nleft - 1;
+        }
+        GeometryAnalysisCase* newsel = GeometryAnalysisMgr.GetGeometryAnalysis( del_indx );
+        if ( newsel )
+        {
+            GeometryAnalysisMgr.SetActiveGeometryAnalysisID( newsel->GetID() );
+        }
+        else
+        {
+            GeometryAnalysisMgr.SetActiveGeometryAnalysisID( "" );
         }
     }
     else if ( gui_device == &m_DelAllGeometryAnalyses )

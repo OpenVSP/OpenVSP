@@ -2352,6 +2352,56 @@ extern void DeleteAllGeometryAnalyses();
 
 extern vector < string > GetAllGeometryAnalysesIDVec();
 
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Set the active Geometry Analysis case.  The active case is the one drawn in the
+    Geometry Analysis GUI (and captured by ScreenGrab).  Setting it does not require the
+    GUI to be present.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+    SetActiveGeometryAnalysis( ga_id );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+    SetActiveGeometryAnalysis( ga_id )
+    \endcode
+    \endPythonOnly
+    \sa GetActiveGeometryAnalysis, AddGeometryAnalysis
+    \param [in] id string Geometry Analysis case ID (empty string for none)
+*/
+
+extern void SetActiveGeometryAnalysis( const string &id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the ID of the active Geometry Analysis case.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+    SetActiveGeometryAnalysis( ga_id );
+    string active = GetActiveGeometryAnalysis();
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+    SetActiveGeometryAnalysis( ga_id )
+    active = GetActiveGeometryAnalysis()
+    \endcode
+    \endPythonOnly
+    \sa SetActiveGeometryAnalysis
+    \return string Active Geometry Analysis case ID (empty string if none)
+*/
+
+extern string GetActiveGeometryAnalysis();
+
 //======================== Attributes ================================//
 
 /*!
