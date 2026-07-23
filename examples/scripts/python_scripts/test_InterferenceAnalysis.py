@@ -34,6 +34,9 @@ def test_InterferenceAnalysis():
 
     vsp.SetStringAnalysisInput('GeometryAnalysis', 'CaseID', [caseid])
 
+    # Make this the active case so it is the one visualized / captured by ScreenGrab.
+    vsp.SetActiveGeometryAnalysis(caseid)
+
     xpos = np.linspace(0, 4, 21)
     ypos = [0, 0.5, 1, 1.5, 2, 2.5]
 
