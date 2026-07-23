@@ -37,33 +37,54 @@ def test_InterferenceAnalysis():
     xpos = np.linspace(0, 4, 21)
     ypos = [0, 0.5, 1, 1.5, 2, 2.5]
 
-    con = np.zeros(shape=len(xpos))
-
-    fig = plt.figure(1)
-    ax = fig.gca()
-    ax.plot(xpos, np.zeros(shape=len(xpos)), path_effects=[patheffects.withTickedStroke(spacing=7)])
+    con_all = []
+    con2_all = []
 
     for j, y in enumerate(ypos):
+        con = np.zeros(shape=len(xpos))
+        con2 = np.zeros(shape=len(xpos))
         for i, x in enumerate(xpos):
             vsp.SetParmVal(geom_id, "X_Rel_Location", "XForm", x)
             vsp.SetParmVal(geom_id, "Y_Rel_Location", "XForm", y)
             vsp.Update()
             res = vsp.ExecAnalysis('GeometryAnalysis')
             con_val = vsp.GetDoubleResults(res, 'Con_Val')
+            con_val2 = vsp.GetDoubleResults(res, 'Con_Val2')
             con[i] = con_val[0]
+            con2[i] = con_val2[0]
             if openvsp_config.LOAD_GRAPHICS:
                 png_path = 'test_Interference_' + str(i) + '_' + str(j) + '.png'
                 vsp.ScreenGrab(png_path, 1000, 1000, True, True)
 
-        ax.plot(xpos, con, label='Y = ' + str(y))
+        con_all.append(con)
+        con2_all.append(con2)
 
-    plt.title('Interference Sweep')
-    plt.xlabel('X')
-    plt.ylabel('Constraint Value')
-    plt.legend()
+    def make_figure(show_con, show_con2, filename):
+        fig = plt.figure()
+        ax = fig.gca()
+        ax.plot(xpos, np.zeros(shape=len(xpos)), path_effects=[patheffects.withTickedStroke(spacing=7)])
+        for j, y in enumerate(ypos):
+            color = None
+            if show_con:
+                line, = ax.plot(xpos, con_all[j], label='Y = ' + str(y))
+                color = line.get_color()
+            if show_con2:
+                if show_con:
+                    # Match con's color for this case; con2 dashed to distinguish.
+                    ax.plot(xpos, con2_all[j], color=color, linestyle='--')
+                else:
+                    ax.plot(xpos, con2_all[j], linestyle='--', label='Y = ' + str(y))
+        ax.set_title('Interference Sweep')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Constraint Value')
+        ax.set_ylim(-2, 3)
+        ax.legend()
+        fig.savefig(filename)
+        plt.close(fig)
 
-    plt.savefig('test_InterferenceAnalysis.png')
-    plt.close()
+    make_figure(True, False, 'test_InterferenceAnalysis_con.svg')
+    make_figure(False, True, 'test_InterferenceAnalysis_con2.svg')
+    make_figure(True, True, 'test_InterferenceAnalysis_both.svg')
 
     # Check for errors
     num_err = errorMgr.GetNumTotalErrors()
