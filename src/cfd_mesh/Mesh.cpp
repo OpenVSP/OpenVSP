@@ -346,9 +346,12 @@ int Mesh::Split( int num_iter )
         {
             if ( !( *e )->border )
             {
-                double rat = ( *e )->GetLength() / ( *e )->target_len;
-                if ( rat > 1.41 )
+                // Filter with a multiply (len > 1.41 * target_len) so the per-edge
+                // division is only paid for the few edges that are actually long.
+                double len = ( *e )->GetLength();
+                if ( len > 1.41 * ( *e )->target_len )
                 {
+                    double rat = len / ( *e )->target_len;
                     longEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
                 }
             }
