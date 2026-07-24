@@ -1083,6 +1083,7 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace )
     nptr->GetConnectFaces( faceVec );
 
     vector < vec3d > normals;
+    normals.reserve( faceVec.size() );
     for ( i = 0 ; i < ( int )faceVec.size() ; i++ )
     {
         if ( faceVec[i] != ignoreFace )
@@ -1095,6 +1096,7 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace )
     nptr->pnt = move_to;
 
     vector < vec3d > move_normals;
+    move_normals.reserve( normals.size() );
     for ( i = 0 ; i < ( int )faceVec.size() ; i++ )
     {
         if ( faceVec[i] != ignoreFace )

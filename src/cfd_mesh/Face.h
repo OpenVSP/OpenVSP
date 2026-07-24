@@ -37,12 +37,14 @@ public:
     Node()
     {
         fixed = m_DeleteMeFlag = false;
+        edgeVec.reserve( 6 );
     }
     Node( const vec3d& p, const vec2d& uw_in )
     {
         pnt = p;
         uw = uw_in;
         fixed = m_DeleteMeFlag = false;
+        edgeVec.reserve( 6 );
     }
     virtual ~Node();
 
