@@ -968,6 +968,62 @@ bool Mesh::ThreeEdgesThreeFaces( Edge* edge )
 }
 
 
+// Return the two edges of TRIANGLE face f other than skipedge (which must be one of f's
+// three edges).  eatn0 is the returned edge that touches node n0; eatn1 is the other.
+// This replaces two Face::FindEdge scans: the two wanted edges are identified by pointer
+// comparison against skipedge (no Edge dereference), then ordered with a single membership
+// test -- far fewer scattered Edge loads than matching endpoints in FindEdge.
+//
+// Triangle-only by construction: the "two other edges touching the apex" concept does not
+// apply to a quad (four edges, no single apex).  ValidCollapse, the only caller, is itself
+// tri-only (fa->OtherNodeTri crashes on a quad before we get here).  Still, if handed a quad
+// (e3 set) or an edge that is not one of f's, return nullptrs so the caller bails safely
+// rather than acting on a wrong edge.
+static void OtherTriEdges( Face* f, Edge* skipedge, Node* n0, Edge*& eatn0, Edge*& eatn1 )
+{
+    eatn0 = nullptr;
+    eatn1 = nullptr;
+
+    if ( f->e3 ) // quad -- not handled here
+    {
+        return;
+    }
+
+    Edge* o0;
+    Edge* o1;
+    if ( f->e0 == skipedge )
+    {
+        o0 = f->e1;
+        o1 = f->e2;
+    }
+    else if ( f->e1 == skipedge )
+    {
+        o0 = f->e0;
+        o1 = f->e2;
+    }
+    else if ( f->e2 == skipedge )
+    {
+        o0 = f->e0;
+        o1 = f->e1;
+    }
+    else // skipedge is not an edge of this face
+    {
+        return;
+    }
+
+    if ( o0 && ( o0->n0 == n0 || o0->n1 == n0 ) )
+    {
+        eatn0 = o0;
+        eatn1 = o1;
+    }
+    else
+    {
+        eatn0 = o1;
+        eatn1 = o0;
+    }
+}
+
+
 bool Mesh::ValidCollapse( Edge* edge )
 {
     if ( !edge )
@@ -1022,8 +1078,9 @@ bool Mesh::ValidCollapse( Edge* edge )
     }
 
     //==== Check 3 Faces in a Face Case =====//
-    Edge* e0a = fa->FindEdge( n0, na );
-    Edge* e1a = fa->FindEdge( n1, na );
+    Edge* e0a;
+    Edge* e1a;
+    OtherTriEdges( fa, edge, n0, e0a, e1a );
 
     if ( !e0a || !e1a )
     {
@@ -1044,8 +1101,9 @@ bool Mesh::ValidCollapse( Edge* edge )
         }
     }
 
-    Edge* e0b = fb->FindEdge( n0, nb );
-    Edge* e1b = fb->FindEdge( n1, nb );
+    Edge* e0b;
+    Edge* e1b;
+    OtherTriEdges( fb, edge, n0, e0b, e1b );
 
     if ( !e0b || !e1b )
     {
