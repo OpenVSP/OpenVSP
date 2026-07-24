@@ -954,17 +954,30 @@ bool Mesh::ThreeEdgesThreeFaces( Edge* edge )
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
 
-    vector< Face* > f;
-    n0->GetConnectFaces( f );
-    if ( f.size() == 3 && n0->edgeVec.size() == 3 )
+    // Test the O(1) edge valence before building the (deduplicated, heap-allocating)
+    // connected-face list.  Interior nodes have ~6 edges, so this skips GetConnectFaces
+    // entirely for all but the rare valence-3 nodes.
+    if ( n0->edgeVec.size() == 3 )
     {
-        return true;
+        vector< Face* > f;
+        n0->GetConnectFaces( f );
+        if ( f.size() == 3 )
+        {
+            return true;
+        }
     }
 
-    vector< Face* > fvec1;
-    n1->GetConnectFaces( fvec1 );
+    if ( n1->edgeVec.size() == 3 )
+    {
+        vector< Face* > fvec1;
+        n1->GetConnectFaces( fvec1 );
+        if ( fvec1.size() == 3 )
+        {
+            return true;
+        }
+    }
 
-    return fvec1.size() == 3 && n1->edgeVec.size() == 3;
+    return false;
 }
 
 
