@@ -64,6 +64,9 @@ void Node::GetConnectFaces( vector< Face* > & cfVec )
 {
 //jrg speed this up!!!!
     cfVec.clear();
+    // Distinct connected faces are bounded by the edge count: each incident face is
+    // shared by two of this node's edges, so there are at most edgeVec.size() of them.
+    cfVec.reserve( edgeVec.size() );
     for ( int i = 0 ; i < ( int )edgeVec.size() ; i++ )
     {
         if( edgeVec[i] )
