@@ -202,7 +202,12 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
     add_custom_target( copy_package
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/packages/
-        ${CMAKE_BINARY_DIR}/python_pseudo/ )
+        ${CMAKE_BINARY_DIR}/python_pseudo/
+        # Declare the copied requirements-dev.txt as a byproduct so ninja knows this target
+        # produces it.  Without this, the venv step's file-level DEPENDS on the copied file has
+        # no producing rule on a clean tree ("no known rule to make it"), and it also forces the
+        # full python_pseudo copy (the -e packages) to complete before the venv is built.
+        BYPRODUCTS ${CMAKE_BINARY_DIR}/python_pseudo/requirements-dev.txt )
     add_dependencies( pyvsp copy_package ) # Make pyvsp depend on copy_package.  Not sure this is required.
 
     # Copy _vsp library post build.
