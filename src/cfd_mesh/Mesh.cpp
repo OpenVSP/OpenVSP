@@ -10,6 +10,7 @@
 #define _USE_MATH_DEFINES
 #include "Mesh.h"
 #include "Surf.h"
+#include "PntNodeMerge.h"
 #include "VspUtil.h"
 #include <triangle.h>
 #include <triangle_api.h>
@@ -270,57 +271,45 @@ void Mesh::LoadSimpFaces()
 
 void Mesh::CondenseSimpFaces()
 {
-    //==== Map Coincedent Point ====//
-    vector< int > reMap;
-    reMap.reserve( simpFaceVec.size() * 4 );
-    unordered_map< int, vector< int > > indMap;
+    //==== Use nanoflann (via PntNodeMerge) to group coincident points ====//
+    // simpPntVec holds one copy of each face corner, so shared vertices appear as
+    // exact duplicates.  IndexPntNodes builds a kd-tree, assigns every duplicate the
+    // same representative, and numbers the representatives 0..m_NumUsedPts-1.
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( simpPntVec );
+    IndexPntNodes( pnCloud, PT_MERGE_TOL );
+
+    //==== Remap face indices to the merged (used) point indices ====//
     for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
     {
-        reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind0, indMap, simpPntVec ) );
-        reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind1, indMap, simpPntVec ) );
-        reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind2, indMap, simpPntVec ) );
+        simpFaceVec[i].ind0 = pnCloud.GetNodeUsedIndex( simpFaceVec[i].ind0 );
+        simpFaceVec[i].ind1 = pnCloud.GetNodeUsedIndex( simpFaceVec[i].ind1 );
+        simpFaceVec[i].ind2 = pnCloud.GetNodeUsedIndex( simpFaceVec[i].ind2 );
         if ( simpFaceVec[i].m_isQuad )
         {
-            reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind3, indMap, simpPntVec ) );
+            simpFaceVec[i].ind3 = pnCloud.GetNodeUsedIndex( simpFaceVec[i].ind3 );
         }
     }
 
     //==== Reduce Point and UW Vec ====//
+    // UsedNode( i ) is true only for the representative of each group.  Walking i in
+    // ascending order visits representatives in the same order IndexPntNodes numbered
+    // them, so the k'th kept point lands at used index k.
     vector< vec3d > rePntVec;
-    vector < vec2d > reUWVec;
-    for ( int i = 0 ; i < ( int )reMap.size() ; i++ )
+    vector< vec2d > reUWVec;
+    rePntVec.reserve( pnCloud.m_NumUsedPts );
+    reUWVec.reserve( pnCloud.m_NumUsedPts );
+    for ( int i = 0 ; i < ( int )simpPntVec.size() ; i++ )
     {
-        if ( i == reMap[i] )
+        if ( pnCloud.UsedNode( i ) )
         {
-            rePntVec.push_back( simpPntVec[reMap[i]] );
-            reUWVec.push_back( simpUWPntVec[reMap[i]] );
-            reMap[i] = rePntVec.size() - 1;
-        }
-        else
-        {
-            int im = reMap[i];
-            reMap[i] = reMap[ im ];
+            rePntVec.push_back( simpPntVec[i] );
+            reUWVec.push_back( simpUWPntVec[i] );
         }
     }
 
     simpPntVec = rePntVec;
     simpUWPntVec = reUWVec;
-    int iremap = 0;
-    for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
-    {
-        simpFaceVec[i].ind0 = reMap[ iremap ];
-        iremap++;
-        simpFaceVec[i].ind1 = reMap[ iremap ];
-        iremap++;
-        simpFaceVec[i].ind2 = reMap[ iremap ];
-        iremap++;
-
-        if ( simpFaceVec[i].m_isQuad )
-        {
-            simpFaceVec[i].ind3 = reMap[ iremap ];
-            iremap++;
-        }
-    }
 }
 
 void Mesh::StretchSimpPnts( double start_x, double end_x, double scale, double angle )
@@ -343,37 +332,6 @@ void Mesh::StretchSimpPnts( double start_x, double end_x, double scale, double a
     }
 
 }
-
-// TODO: Re-write with nanoflann
-int Mesh::CheckDupOrAdd( int ind, unordered_map< int, vector< int > > & indMap, const vector< vec3d > & pntVec )
-{
-    double tol = 1.0e-8;
-    int combind = ( int )( ( pntVec[ind].x() + pntVec[ind].y() + pntVec[ind].z() ) * 10000.0 );
-    unordered_map<int, vector<int> >::const_iterator iter;
-    iter = indMap.find( combind );
-    if ( iter == indMap.end() ) // Add Index
-    {
-        indMap[combind].push_back( ind );
-        return ind;
-    }
-    else
-    {
-        for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
-        {
-            int testind = iter->second[i];
-
-            if ( std::abs( pntVec[ind].x() - pntVec[testind].x() ) < tol  &&
-                    std::abs( pntVec[ind].y() - pntVec[testind].y() ) < tol  &&
-                    std::abs( pntVec[ind].z() - pntVec[testind].z() ) < tol  )
-            {
-                return testind;
-            }
-        }
-        indMap[combind].push_back( ind );
-    }
-    return ind;
-}
-
 
 int Mesh::Split( int num_iter )
 {
