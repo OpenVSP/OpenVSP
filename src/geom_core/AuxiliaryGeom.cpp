@@ -164,9 +164,8 @@ void AuxiliaryGeom::ComputeCenter()
 {
 }
 
-void AuxiliaryGeom::Scale()
+void AuxiliaryGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
 
     m_XSCurve->SetScale( currentScale );
 
@@ -176,7 +175,18 @@ void AuxiliaryGeom::Scale()
 
     m_CCEMainGearOffset *= currentScale;
 
-    m_LastScale = m_Scale();
+    // Rotor-failure geometry (dimensional radii and lengths).
+    m_DiskRadius *= currentScale;
+    m_BladeLength *= currentScale;
+    m_BladeRootRadius *= currentScale;
+    m_FragLength *= currentScale;
+    m_CGRadius *= currentScale;
+
+    // Gear-spray contact geometry (dimensional widths and lengths).
+    m_SprayTireContactWidth *= currentScale;
+    m_SprayTireContactHalfLength *= currentScale;
+    m_SprayCenterWidth *= currentScale;
+
 }
 
 void AuxiliaryGeom::AddDefaultSources( double base_len )
