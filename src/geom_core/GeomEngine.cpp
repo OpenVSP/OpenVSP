@@ -578,14 +578,11 @@ void GeomEngine::UpdateEngine()
                 }
                 else if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
-                    if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG )
-                    {
-                        surf.TrimU( infaceu, false );
-                    }
-                    else if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
                     {
                         usesurf = false;
                     }
+                    surf.TrimU( infaceu, false );
 
                     surf3.TrimU( infaceu, true );
                     surf3.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
