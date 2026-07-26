@@ -49,6 +49,9 @@ public:
     FeaStructure( const string& GeomID, int surf_index );
     virtual ~FeaStructure();
 
+    // Recurse into the FEA parts, scaling each part's dimensional Parms by currentScale.
+    void Scale( double currentScale );
+
     virtual void Update();
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
@@ -224,6 +227,11 @@ public:
 
     FeaPart( const string &geomID, const string &structID, int type );
     virtual ~FeaPart();
+
+    // Scale this part's dimensional Parms by currentScale.  The base scales the absolute center
+    // location shared by slice-type parts (spars, ribs); other part types override.  Relative /
+    // fractional locations are dimensionless and left alone.
+    virtual void Scale( double currentScale );
 
     virtual void Update();
     virtual void UpdateFlags();
@@ -481,6 +489,8 @@ public:
     FeaFixPoint( const string &geomID, const string &structID, const string &partID, int type = vsp::FEA_FIX_POINT );
     virtual ~FeaFixPoint()    {};
 
+    virtual void Scale( double currentScale );
+
     virtual void UpdateSurface();
     vector < vec3d > GetPntVec( const double & scale ); // Returns the FeaFixPoint 3D coordinate on each parent surface
     vec2d GetUW(); // Returns the FeaFixPoint UW coordinate on main parent surface
@@ -595,6 +605,8 @@ public:
     FeaDome( const string &geomID, const string &structID, int type = vsp::FEA_DOME );
     virtual ~FeaDome()    {};
 
+    virtual void Scale( double currentScale );
+
     virtual void UpdateSurface();
 
     void BuildDomeSurf();
@@ -627,6 +639,8 @@ public:
 
     FeaRibArray( const string &geomID, const string &structID, int type = vsp::FEA_RIB_ARRAY );
     virtual ~FeaRibArray();
+
+    virtual void Scale( double currentScale );
 
     virtual void UpdateSurface();
     void CalcNumRibs();
@@ -682,6 +696,8 @@ public:
 
     FeaSliceArray( const string &geomID, const string &structID, int type = vsp::FEA_SLICE_ARRAY );
     virtual ~FeaSliceArray()    {};
+
+    virtual void Scale( double currentScale );
 
     virtual void UpdateSurface();
     void CreateFeaSliceArray();

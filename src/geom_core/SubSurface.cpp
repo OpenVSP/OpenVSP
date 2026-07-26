@@ -1297,6 +1297,16 @@ SSXSecCurve::~SSXSecCurve()
 
 }
 
+void SSXSecCurve::Scale( double currentScale )
+{
+    // The sub-surface's cross-section curve carries this sub-surface's dimensional shape
+    // (width, height, ...); scaling it scales the sub-surface region.
+    if ( m_XSCurve )
+    {
+        m_XSCurve->SetScale( currentScale );
+    }
+}
+
 // Main Update Routine
 void SSXSecCurve::Update()
 {
@@ -1878,6 +1888,14 @@ SSControlSurf::SSControlSurf( const string& compID, int type ) : SubSurface( com
 SSControlSurf::~SSControlSurf()
 {
 
+}
+
+void SSControlSurf::Scale( double currentScale )
+{
+    // Absolute control-surface chord distances (authoritative when m_AbsRelFlag selects absolute
+    // lengths; the fractional m_StartLenFrac / m_EndLenFrac Parms are dimensionless and untouched).
+    m_StartLength.Set( m_StartLength() * currentScale );
+    m_EndLength.Set( m_EndLength() * currentScale );
 }
 
 //==== Update Method ===//

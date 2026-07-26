@@ -64,6 +64,12 @@ void BaseSource::AdjustRad( double val )
     m_Rad = m_Rad() * val;
 }
 
+void BaseSource::Scale( double currentScale )
+{
+    m_Len = m_Len() * currentScale;
+    m_Rad = m_Rad() * currentScale;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -189,6 +195,13 @@ void LineSource::AdjustRad( double val )
 {
     m_Rad = m_Rad() * val;
     m_Rad2 = m_Rad2() * val;
+}
+
+void LineSource::Scale( double currentScale )
+{
+    BaseSource::Scale( currentScale );   // scales m_Len, m_Rad (endpoint 1)
+    m_Len2 = m_Len2() * currentScale;
+    m_Rad2 = m_Rad2() * currentScale;
 }
 
 void LineSource::ReadV2File( xmlNodePtr &root )

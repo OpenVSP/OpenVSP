@@ -64,6 +64,17 @@ FeaStructure::~FeaStructure()
     m_FeaBCVec.clear();
 }
 
+void FeaStructure::Scale( double currentScale )
+{
+    for ( int i = 0; i < ( int )m_FeaPartVec.size(); i++ )
+    {
+        if ( m_FeaPartVec[i] )
+        {
+            m_FeaPartVec[i]->Scale( currentScale );
+        }
+    }
+}
+
 void FeaStructure::Update()
 {
     UpdateFeaParts();
@@ -1038,6 +1049,14 @@ FeaPart::FeaPart( const string &geomID, const string &structID, int type )
 FeaPart::~FeaPart()
 {
 
+}
+
+void FeaPart::Scale( double currentScale )
+{
+    // Absolute center location -- authoritative when the part is placed in absolute mode; the
+    // relative location Parm is a dimensionless fraction and is left alone.  Slice-type parts
+    // (spars, ribs, poly spars) are positioned by this; other part types override.
+    m_AbsCenterLocation.Set( m_AbsCenterLocation() * currentScale );
 }
 
 void FeaPart::Update()
@@ -3788,6 +3807,13 @@ FeaFixPoint::FeaFixPoint( const string &compID, const string &structID, const st
     m_CapFeaPropertyID = "";
 }
 
+void FeaFixPoint::Scale( double currentScale )
+{
+    m_AbsX.Set( m_AbsX() * currentScale );
+    m_AbsY.Set( m_AbsY() * currentScale );
+    m_AbsZ.Set( m_AbsZ() * currentScale );
+}
+
 void FeaFixPoint::UpdateSurface()
 {
     m_MainFeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
@@ -4608,6 +4634,16 @@ FeaDome::FeaDome( const string &geomID, const string &structID, int type ) : Fea
     m_FlipDirectionFlag.SetDescript( "Flag to Flip the Direction of the FeaDome" );
 }
 
+void FeaDome::Scale( double currentScale )
+{
+    m_Aradius.Set( m_Aradius() * currentScale );
+    m_Bradius.Set( m_Bradius() * currentScale );
+    m_Cradius.Set( m_Cradius() * currentScale );
+    m_XLoc.Set( m_XLoc() * currentScale );
+    m_YLoc.Set( m_YLoc() * currentScale );
+    m_ZLoc.Set( m_ZLoc() * currentScale );
+}
+
 void FeaDome::UpdateSurface()
 {
     BuildDomeSurf();
@@ -4860,6 +4896,13 @@ FeaRibArray::FeaRibArray( const string &geomID, const string &structID, int type
 FeaRibArray::~FeaRibArray()
 {
 
+}
+
+void FeaRibArray::Scale( double currentScale )
+{
+    m_RibAbsSpacing.Set( m_RibAbsSpacing() * currentScale );
+    m_AbsStartLocation.Set( m_AbsStartLocation() * currentScale );
+    m_AbsEndLocation.Set( m_AbsEndLocation() * currentScale );
 }
 
 void FeaRibArray::UpdateSurface()
@@ -5216,6 +5259,13 @@ FeaSliceArray::FeaSliceArray( const string &geomID, const string &structID, int 
     m_ZRot.SetDescript( "Rotation About Each Slice's Z Axis" );
 
     m_NumSlices = 0;
+}
+
+void FeaSliceArray::Scale( double currentScale )
+{
+    m_SliceAbsSpacing.Set( m_SliceAbsSpacing() * currentScale );
+    m_AbsStartLocation.Set( m_AbsStartLocation() * currentScale );
+    m_AbsEndLocation.Set( m_AbsEndLocation() * currentScale );
 }
 
 void FeaSliceArray::UpdateSurface()

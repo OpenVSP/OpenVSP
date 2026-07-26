@@ -76,6 +76,9 @@ public:
 
     virtual void ReadV2File( xmlNodePtr &root ) = 0;
 
+    // Scale this source's dimensional influence controls (length and radius) by currentScale.
+    virtual void Scale( double currentScale );
+
     Parm m_Len;
     Parm m_Rad;
 
@@ -122,6 +125,8 @@ public:
 
     Parm m_ULoc2;
     Parm m_WLoc2;
+
+    virtual void Scale( double currentScale );
 
     Parm m_Len2;
     Parm m_Rad2;

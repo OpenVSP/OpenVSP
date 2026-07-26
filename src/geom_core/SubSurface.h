@@ -153,6 +153,11 @@ public:
     virtual std::vector< TMesh* > CreateTMeshVec( const vector < double > &uvec, const vector < double > &vvec ) const; // Method to create a TMeshVector
     virtual void UpdateDrawObjs(); // Method to create lines to draw
     virtual void PrepareSplitVec();
+
+    // Scale this sub-surface's dimensional Parms by currentScale.  Most sub-surface types are
+    // defined in (non-dimensional) parametric u/w space and need nothing; the base is a no-op.
+    virtual void Scale( double currentScale ) {}
+
     virtual void SetDisplaySuffix( int num );
     // Save, Load
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
@@ -286,6 +291,8 @@ public:
 
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 
+    virtual void Scale( double currentScale );
+
     Parm m_CenterU;
     Parm m_CenterW;
 
@@ -328,6 +335,7 @@ public:
     virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
     virtual void PrepareSplitVec();
+    virtual void Scale( double currentScale );
 
     enum SS_CONTROL_SUBTYPE { UPPER_SURF, LOWER_SURF, BOTH_SURF };
 
