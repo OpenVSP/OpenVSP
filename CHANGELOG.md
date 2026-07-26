@@ -1,3 +1,69 @@
+# [OpenVSP 3.51.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.51.2)
+
+2026-07-26
+
+OpenVSP 3.51.2
+
+Like the last version -- not a whole lot here, but good things nonetheless.
+
+So far, it looks like the speedups from the previous version haven't broken
+anything.  I've also had more time to go back through and re-audit everything.
+It looks good.
+
+This version continues the speedup work.  It finishes the train of thought from
+the previous changes in a few spots that weren't quite finished before (mostly
+in PropGeom).  It extends the profiling and speedup work to CFDMesh (should
+also improve surface intersection and FEAMesh).  There is always a question of
+how much complexity do you take on for speed.  In my test case, the CFDMesh run
+went from ~21 seconds down to ~14, so overall it was certainly worthwhile.
+Of course, some changes have more impact than others.  Either way, I don't
+think there is any more juice to squeeze in CFDMesh.
+
+Unlike the last version, this one also includes a few bug fixes.  Of course,
+there are probably bugs that only I would ever run into -- but I ran into them,
+so they get fixed.
+
+The locking in APIHide/ShowScreenHandler wasn't working, so show/hideing a
+screen from the Facade API would not return control to Python.  Screenshots
+taken from the API implicitly assumed the 3D screen had 1:1 aspect ratio.
+Now that the default screen does not, the screenshots (taken from the API)
+looked wonky.
+
+There are some fixes for bugs that others might hit.  Some of the interference
+geometry analyses would crash if the two objects perfectly touched, but
+did not overlap.  Those cases work now.
+
+Using the 'Negative Only' setting for flowpath geometries could sometimes
+cause a crash.  Thanks Keenan.
+
+A stale dependency in pyPMARC was removed, it was apparently causing a crash
+in Visual Studio debugger somehow.  Thanks Artur Usbek.
+
+Bogie interaction routines were added to the API.  As was 'MakeMeshGeom'
+for appropriate Geometry Analyses.
+
+Some of the CFDMesh optimizations occured in Code-Eli, so that is updated
+here as well.
+
+Features:
+- More AI assisted profile guided optimization, mostly in CFDMesh
+- Bogie interaction routines added to API
+- MakeMeshGeom added to API
+
+Build System:
+- Update Code-Eli with some speedups
+
+Fixes:
+- Fix locking for APIShow/HideScreenHandler
+- Fix AR of API driven screenshots
+- Fix interference analysis crash with just-touching geometries
+- Negative only crash
+- Stale Python dependency in pyPMARC package
+
+
+---
+
+
 # [OpenVSP 3.51.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.51.1)
 
 2026-07-18
