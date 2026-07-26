@@ -1816,12 +1816,10 @@ void Geom::Update( bool fullupdate )
         UpdateEndCaps();
 
     if ( m_SurfDirty )
-    {
-        UpdateLCurve();
-    }
+        UpdateEngine();
 
     if ( m_SurfDirty )
-        UpdateEngine();
+        UpdateLCurve();
 
     if ( fullupdate )
     {
