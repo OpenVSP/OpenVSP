@@ -33,6 +33,7 @@
 #include "ParmMgr.h"
 #include "PropGeom.h"
 #include "RoutingGeom.h"
+#include "GearGeom.h"
 #include "StructureMgr.h"
 #include "SubSurfaceMgr.h"
 #include "SurfaceIntersectionMgr.h"
@@ -6457,6 +6458,138 @@ vector < vec3d > GetRoutingCurve( const string &routing_id, int symm_index )
 
     ErrorMgr.NoError();
     return ret_vec;
+}
+
+//===================================================================//
+//==================      GearGeom Functions       ==================//
+//===================================================================//
+
+string CreateAndAddBogie( const string &gear_id )
+{
+    string ret_id;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( gear_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CreateAndAddBogie::Can't Find Geom " + gear_id );
+        return ret_id;
+    }
+
+    GearGeom* gear_ptr = dynamic_cast< GearGeom* > ( geom_ptr );
+
+    if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreateAndAddBogie::Geom " + gear_id + " is not a GearGeom" );
+        return ret_id;
+    }
+
+    ret_id = gear_ptr->CreateAndAddBogie( 0 );
+
+    ErrorMgr.NoError();
+    return ret_id;
+}
+
+int GetNumBogies( const string &gear_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( gear_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumBogies::Can't Find Geom " + gear_id );
+        return -1;
+    }
+
+    GearGeom* gear_ptr = dynamic_cast< GearGeom* > ( geom_ptr );
+
+    if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetNumBogies::Geom " + gear_id + " is not a GearGeom" );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return ( int )gear_ptr->GetBogieVec().size();
+}
+
+vector < string > GetAllBogies( const string &gear_id )
+{
+    vector < string > ret_vec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( gear_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllBogies::Can't Find Geom " + gear_id );
+        return ret_vec;
+    }
+
+    GearGeom* gear_ptr = dynamic_cast< GearGeom* > ( geom_ptr );
+
+    if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllBogies::Geom " + gear_id + " is not a GearGeom" );
+        return ret_vec;
+    }
+
+    ret_vec = gear_ptr->GetAllBogies();
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+void DelBogie( const string &gear_id, const string &bogie_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( gear_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelBogie::Can't Find Geom " + gear_id );
+        return;
+    }
+
+    GearGeom* gear_ptr = dynamic_cast< GearGeom* > ( geom_ptr );
+
+    if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelBogie::Geom " + gear_id + " is not a GearGeom" );
+        return;
+    }
+
+    if ( !gear_ptr->GetBogie( bogie_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelBogie::Can't Find Bogie " + bogie_id );
+        return;
+    }
+
+    gear_ptr->DelBogie( bogie_id );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void DelAllBogies( const string &gear_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( gear_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllBogies::Can't Find Geom " + gear_id );
+        return;
+    }
+
+    GearGeom* gear_ptr = dynamic_cast< GearGeom* > ( geom_ptr );
+
+    if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelAllBogies::Geom " + gear_id + " is not a GearGeom" );
+        return;
+    }
+
+    gear_ptr->DelAllBogies();
+
+    ErrorMgr.NoError();
+    return;
 }
 
 //===================================================================//

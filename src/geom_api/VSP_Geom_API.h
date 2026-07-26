@@ -90,6 +90,10 @@
     \brief This group of functions provides file input and output interfacing through the API.
     \ref index "Click here to return to the main page"
 
+    \defgroup GearGeom GearGeom Functions
+    \brief This group of functions is available for interacting with the Bogie list of a GearGeom through the API.
+    \ref index "Click here to return to the main page"
+
     \defgroup Geom Geom Functions
     \brief This group of functions is available for adding, deleting, and modifying OpenVSP Geoms through the API.
     \ref index "Click here to return to the main page"
@@ -13332,6 +13336,169 @@ extern void SetBackground3DRelativePath( const string &id, const string &fname )
 */
 
 extern void SetBackground3DAbsolutePath( const string &id, const string &fname );
+
+
+//======================== GearGeom Functions ======================//
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Create a new Bogie and add it to the end of the Bogie list of the specified GearGeom.  A GearGeom's landing
+    gear is described by its list of Bogies.  Each Bogie is a ParmContainer, so once you have the returned Bogie
+    ID you can query and set its Parms with the normal Parm API functions.
+    \forcpponly
+    \code{.cpp}
+    string gear_id = AddGeom( "GEAR", "" );             // Add a landing gear Geom
+
+    string bogie_id = CreateAndAddBogie( gear_id );     // Create and add a Bogie
+
+    // Bogies are ParmContainers -- work with their Parms once you have the ID.
+    SetParmVal( bogie_id, "NumAcross", "Bogie", 2 );    // Two wheels across
+    SetParmVal( bogie_id, "NumTandem", "Bogie", 2 );    // Two wheels in tandem
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gear_id = AddGeom( "GEAR", "" )             # Add a landing gear Geom
+
+    bogie_id = CreateAndAddBogie( gear_id )     # Create and add a Bogie
+
+    # Bogies are ParmContainers -- work with their Parms once you have the ID.
+    SetParmVal( bogie_id, "NumAcross", "Bogie", 2 )    # Two wheels across
+    SetParmVal( bogie_id, "NumTandem", "Bogie", 2 )    # Two wheels in tandem
+    \endcode
+    \endPythonOnly
+    \sa GetAllBogies, GetNumBogies, DelBogie, DelAllBogies
+    \param [in] gear_id string GearGeom Geom ID
+    \return string ParmContainer ID for the newly added Bogie
+*/
+
+extern string CreateAndAddBogie( const string &gear_id );
+
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Get the number of Bogies in the specified GearGeom.
+    \forcpponly
+    \code{.cpp}
+    string gear_id = AddGeom( "GEAR", "" );
+
+    CreateAndAddBogie( gear_id );
+    CreateAndAddBogie( gear_id );
+
+    int num_bogie = GetNumBogies( gear_id );            // num_bogie == 2
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gear_id = AddGeom( "GEAR", "" )
+
+    CreateAndAddBogie( gear_id )
+    CreateAndAddBogie( gear_id )
+
+    num_bogie = GetNumBogies( gear_id )            # num_bogie == 2
+    \endcode
+    \endPythonOnly
+    \sa CreateAndAddBogie, GetAllBogies
+    \param [in] gear_id string GearGeom Geom ID
+    \return int Number of Bogies in the specified GearGeom
+*/
+
+extern int GetNumBogies( const string &gear_id );
+
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Get the ParmContainer IDs of all the Bogies in the specified GearGeom, in list order.
+    \forcpponly
+    \code{.cpp}
+    string gear_id = AddGeom( "GEAR", "" );
+
+    CreateAndAddBogie( gear_id );
+    CreateAndAddBogie( gear_id );
+
+    array<string> @bogie_ids = GetAllBogies( gear_id );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gear_id = AddGeom( "GEAR", "" )
+
+    CreateAndAddBogie( gear_id )
+    CreateAndAddBogie( gear_id )
+
+    bogie_ids = GetAllBogies( gear_id )
+    \endcode
+    \endPythonOnly
+    \sa CreateAndAddBogie, GetNumBogies, DelBogie
+    \param [in] gear_id string GearGeom Geom ID
+    \return vector\<string\> Vector of Bogie ParmContainer IDs
+*/
+
+extern vector < string > GetAllBogies( const string &gear_id );
+
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Delete the specified Bogie from the specified GearGeom.
+    \forcpponly
+    \code{.cpp}
+    string gear_id = AddGeom( "GEAR", "" );
+
+    string bogie_id = CreateAndAddBogie( gear_id );
+
+    DelBogie( gear_id, bogie_id );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gear_id = AddGeom( "GEAR", "" )
+
+    bogie_id = CreateAndAddBogie( gear_id )
+
+    DelBogie( gear_id, bogie_id )
+    \endcode
+    \endPythonOnly
+    \sa CreateAndAddBogie, DelAllBogies
+    \param [in] gear_id string GearGeom Geom ID
+    \param [in] bogie_id string Bogie ParmContainer ID
+*/
+
+extern void DelBogie( const string &gear_id, const string &bogie_id );
+
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Delete all Bogies from the specified GearGeom.
+    \forcpponly
+    \code{.cpp}
+    string gear_id = AddGeom( "GEAR", "" );
+
+    CreateAndAddBogie( gear_id );
+    CreateAndAddBogie( gear_id );
+
+    DelAllBogies( gear_id );                            // GetNumBogies( gear_id ) == 0
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gear_id = AddGeom( "GEAR", "" )
+
+    CreateAndAddBogie( gear_id )
+    CreateAndAddBogie( gear_id )
+
+    DelAllBogies( gear_id )                            # GetNumBogies( gear_id ) == 0
+    \endcode
+    \endPythonOnly
+    \sa CreateAndAddBogie, DelBogie
+    \param [in] gear_id string GearGeom Geom ID
+*/
+
+extern void DelAllBogies( const string &gear_id );
 
 
 //======================== RoutingGeom Functions ======================//
