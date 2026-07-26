@@ -2406,6 +2406,53 @@ extern void SetActiveGeometryAnalysis( const string &id );
 
 extern string GetActiveGeometryAnalysis();
 
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Create a MeshGeom from the results of the specified Geometry Analysis case and return the new Geom's ID.
+    The case must have been evaluated first (run the "GeometryAnalysis" analysis for the case) so that its
+    result meshes exist.  The resulting MeshGeom is added to the model and made the active Geom.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+    // ... configure the case's Parms (interference type, primary/secondary geoms or sets, ...) ...
+
+    // Evaluate the case through the Analysis framework so that its result meshes exist.
+    SetAnalysisInputDefaults( "GeometryAnalysis" );
+
+    array<string> case_input = { ga_id };
+    SetStringAnalysisInput( "GeometryAnalysis", "CaseID", case_input );
+
+    ExecAnalysis( "GeometryAnalysis" );
+
+    // Turn the case's result meshes into a MeshGeom.
+    string mesh_id = MakeMeshGeom( ga_id );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+    # ... configure the case's Parms (interference type, primary/secondary geoms or sets, ...) ...
+
+    # Evaluate the case through the Analysis framework so that its result meshes exist.
+    SetAnalysisInputDefaults( "GeometryAnalysis" )
+
+    SetStringAnalysisInput( "GeometryAnalysis", "CaseID", [ga_id] )
+
+    ExecAnalysis( "GeometryAnalysis" )
+
+    # Turn the case's result meshes into a MeshGeom.
+    mesh_id = MakeMeshGeom( ga_id )
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysis, SetActiveGeometryAnalysis
+    \param [in] ga_id string Geometry Analysis case ID
+    \return string Geom ID of the newly created MeshGeom
+*/
+
+extern string MakeMeshGeom( const string &ga_id );
+
 //======================== Attributes ================================//
 
 /*!

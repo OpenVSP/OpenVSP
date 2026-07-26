@@ -1470,6 +1470,21 @@ string GetActiveGeometryAnalysis()
     return ret;
 }
 
+string MakeMeshGeom( const string &ga_id )
+{
+    GeometryAnalysisCase *gcase = GeometryAnalysisMgr.GetGeometryAnalysis( ga_id );
+    if ( !gcase )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "MakeMeshGeom::Can't Find Geometry Analysis " + ga_id );
+        return string();
+    }
+
+    string mesh_id = gcase->MakeMeshGeom();
+
+    ErrorMgr.NoError();
+    return mesh_id;
+}
+
 //===================================================================//
 //===============       Attributes Functions         ===================//
 //===================================================================//
