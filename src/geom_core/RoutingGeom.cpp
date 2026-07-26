@@ -62,6 +62,23 @@ RoutingPoint::RoutingPoint()
     m_Placed = true;
 }
 
+void RoutingPoint::Scale( double currentScale )
+{
+    // L coordinate in length units (used when m_L01Flag selects the dimensional representation).
+    m_L0Len.Set( m_L0Len() * currentScale );
+
+    // Offset from the anchor point.  Both the absolute (parent-independent) and relative
+    // (parent-frame) representations are length offsets; whichever m_DeltaType selects is
+    // authoritative, and scaling both keeps them consistent.
+    m_DeltaX.Set( m_DeltaX() * currentScale );
+    m_DeltaY.Set( m_DeltaY() * currentScale );
+    m_DeltaZ.Set( m_DeltaZ() * currentScale );
+
+    m_DeltaXRel.Set( m_DeltaXRel() * currentScale );
+    m_DeltaYRel.Set( m_DeltaYRel() * currentScale );
+    m_DeltaZRel.Set( m_DeltaZRel() * currentScale );
+}
+
 void RoutingPoint::Update()
 {
     UpdateParms();
@@ -715,11 +732,15 @@ void RoutingGeom::ComputeCenter()
 {
 }
 
-void RoutingGeom::Scale()
+void RoutingGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
-
-    m_LastScale = m_Scale();
+    for ( int i = 0; i < ( int )m_RoutingPointVec.size(); i++ )
+    {
+        if ( m_RoutingPointVec[i] )
+        {
+            m_RoutingPointVec[i]->Scale( currentScale );
+        }
+    }
 }
 
 void RoutingGeom::AddDefaultSources( double base_len )

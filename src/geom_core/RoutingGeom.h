@@ -23,6 +23,10 @@ class RoutingPoint : public ParmContainer
 public:
     RoutingPoint();
 
+    // Scale this point's dimensional Parms (length-mode L coordinate and absolute/relative XYZ
+    // offsets) by currentScale.  Parametric coordinates (u, w, r01, ...) are dimensionless.
+    virtual void Scale( double currentScale );
+
     void Update();
     vec3d GetPt();
     string GetParentID() const { return m_ParentID; };
@@ -100,7 +104,7 @@ public:
 
     virtual void ComputeCenter();
 
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
 
     virtual void AddDefaultSources( double base_len = 1.0 );
 
