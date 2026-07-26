@@ -119,7 +119,7 @@ public:
         return 0;
     }
 
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
 
     virtual int GetNumMainMeshs() const
     {

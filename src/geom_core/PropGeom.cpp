@@ -2348,9 +2348,8 @@ void PropGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
 }
 
 //==== Scale ====//
-void PropGeom::Scale()
+void PropGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
     m_Diameter *= currentScale;
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
@@ -2361,7 +2360,6 @@ void PropGeom::Scale()
         }
     }
 
-    m_LastScale = m_Scale();
 }
 
 void PropGeom::AddDefaultSources( double base_len )

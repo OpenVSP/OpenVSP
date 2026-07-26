@@ -24,7 +24,7 @@ public:
     virtual ~BORGeom();
 
     virtual void ComputeCenter();
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
     virtual void AddDefaultSources( double base_len = 1.0 );
 
     virtual void OffsetXSecs( double off );

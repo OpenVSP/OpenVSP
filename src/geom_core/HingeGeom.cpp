@@ -92,9 +92,8 @@ HingeGeom::~HingeGeom()
 }
 
 //==== Scale ====//
-void HingeGeom::Scale()
+void HingeGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
 
     m_JointTranslate *= currentScale;
     m_JointTransMin *= currentScale;
@@ -108,7 +107,6 @@ void HingeGeom::Scale()
     m_PrimYOffRel *= currentScale;
     m_PrimZOffRel *= currentScale;
 
-    m_LastScale = m_Scale();
 }
 
 void HingeGeom::UpdateSurf()

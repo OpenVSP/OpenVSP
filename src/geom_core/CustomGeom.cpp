@@ -1089,7 +1089,7 @@ void CustomGeom::ComputeCenter()
 }
 
 //==== Optional Scale - If Script Does Not Exist Nothing Happens =====//
-void CustomGeom::Scale()
+void CustomGeom::ApplyScale( double currentScale )
 {
     if ( !m_InitGeomFlag )
     {
@@ -1098,12 +1098,8 @@ void CustomGeom::Scale()
 
     CustomGeomMgr.SetCurrCustomGeom( GetID() );
 
-    double curr_scale = m_Scale()/m_LastScale();
-
     //==== Call Script ====//
-    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Scale(double s)", true, curr_scale );
-
-    m_LastScale = m_Scale();
+    ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Scale(double s)", true, currentScale );
 }
 
 //==== Trigger Conformal XSec Offset =====//

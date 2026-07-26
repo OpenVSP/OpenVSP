@@ -62,7 +62,7 @@ public:
     bool IsClosed() const;
 
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
     virtual void AddDefaultSources( double base_len = 1.0 );
 
     IntParm m_OrderPolicy;

@@ -1078,9 +1078,8 @@ void StackGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const st
 }
 
 //==== Scale ====//
-void StackGeom::Scale()
+void StackGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
         XSec* xs = m_XSecSurf.FindXSec( i );
@@ -1095,7 +1094,6 @@ void StackGeom::Scale()
         m_ExtensionDistance.Set( m_ExtensionDistance() * currentScale );
     }
 
-    m_LastScale = m_Scale();
 }
 
 void StackGeom::AddDefaultSources( double base_len )

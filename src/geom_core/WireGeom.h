@@ -25,7 +25,7 @@ public:
     virtual void UpdateDrawObj() override;
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 
-    virtual void Scale() override;
+    virtual void ApplyScale( double currentScale ) override;
     // Put the main points where this Geom sits, and work out the normals there.  Called
     // whenever the placement or the shape changes, so moving the Geom moves what is drawn.
     virtual void UpdateXFormPts();

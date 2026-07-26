@@ -61,13 +61,11 @@ Matrix4d NGonMeshGeom::GetTotalTransMat() const
     return retMat;
 }
 
-void NGonMeshGeom::Scale()
+void NGonMeshGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
     m_ScaleFromOrig *= currentScale;
     m_ScaleMatrix.loadIdentity();
     m_ScaleMatrix.scale( m_ScaleFromOrig() );
-    m_LastScale = m_Scale();
 }
 
 void NGonMeshGeom::UpdateBBox()

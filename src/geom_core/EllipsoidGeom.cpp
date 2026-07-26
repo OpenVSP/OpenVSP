@@ -90,15 +90,13 @@ void EllipsoidGeom::ComputeCenter()
 }
 
 //==== Scale ====//
-void EllipsoidGeom::Scale()
+void EllipsoidGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
 
     m_Aradius *= currentScale;
     m_Bradius *= currentScale;
     m_Cradius *= currentScale;
 
-    m_LastScale = m_Scale();
 }
 
 void EllipsoidGeom::AddDefaultSources( double base_len )

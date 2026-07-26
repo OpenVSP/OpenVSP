@@ -30,7 +30,7 @@ public:
     virtual void UpdateDrawObj() override;
     virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec) override;
 
-    virtual void Scale() override;
+    virtual void ApplyScale( double currentScale ) override;
     virtual void UpdateBBox() override;
     virtual Matrix4d GetTotalTransMat()const ;
 

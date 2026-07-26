@@ -79,11 +79,9 @@ void PodGeom::ComputeCenter()
 }
 
 //==== Scale ====//
-void PodGeom::Scale()
+void PodGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
     m_Length *= currentScale;
-    m_LastScale = m_Scale();
 }
 
 void PodGeom::AddDefaultSources( double base_len )

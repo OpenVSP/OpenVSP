@@ -23,7 +23,7 @@ public:
     virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
     virtual string getFeedbackGroupName();
 
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
     virtual void UpdateBBox();
     virtual Matrix4d GetTotalTransMat()const ;
 

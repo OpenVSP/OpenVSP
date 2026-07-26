@@ -143,11 +143,9 @@ ConformalGeom::~ConformalGeom()
 
 }
 
-void ConformalGeom::Scale()
+void ConformalGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
     m_Offset *= currentScale;
-    m_LastScale = m_Scale();
 }
 
 xmlNodePtr ConformalGeom::EncodeXml( xmlNodePtr & node )

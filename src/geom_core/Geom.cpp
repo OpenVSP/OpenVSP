@@ -1423,6 +1423,49 @@ void GeomXForm::AcceptScale()
     m_LastScale = 1;
 }
 
+//==== Scale (template method) ====//
+// Compute the incremental scale factor, let the derived Geom scale its own dimensional Parms and
+// geom-specific nested containers (ApplyScale), then always recurse into the Geom-common
+// containers.  Only reached when the scale actually changed (see Geom::Update).
+void Geom::Scale()
+{
+    double currentScale = m_Scale() / m_LastScale();
+
+    ApplyScale( currentScale );
+    ScaleCommonSubComponents( currentScale );
+
+    m_LastScale = m_Scale();
+}
+
+// Scale the dimensional Parms of the containers that every Geom can carry: sub-surfaces, CFD mesh
+// sources, and FEA structures.  Each container knows which of its own Parms are dimensional.
+void Geom::ScaleCommonSubComponents( double currentScale )
+{
+    for ( int i = 0; i < ( int )m_SubSurfVec.size(); i++ )
+    {
+        if ( m_SubSurfVec[i] )
+        {
+            m_SubSurfVec[i]->Scale( currentScale );
+        }
+    }
+
+    for ( int i = 0; i < ( int )m_MainSourceVec.size(); i++ )
+    {
+        if ( m_MainSourceVec[i] )
+        {
+            m_MainSourceVec[i]->Scale( currentScale );
+        }
+    }
+
+    for ( int i = 0; i < ( int )m_FeaStructVec.size(); i++ )
+    {
+        if ( m_FeaStructVec[i] )
+        {
+            m_FeaStructVec[i]->Scale( currentScale );
+        }
+    }
+}
+
 bool GeomXForm::RigidAttachedToParent() const
 {
     if ( IsParentJoint() )

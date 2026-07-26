@@ -594,13 +594,11 @@ Matrix4d WireGeom::GetTotalTransMat() const
     return retMat;
 }
 
-void WireGeom::Scale()
+void WireGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
     m_ScaleFromOrig *= currentScale;
     m_ScaleMatrix.loadIdentity();
     m_ScaleMatrix.scale( m_ScaleFromOrig() );
-    m_LastScale = m_Scale();
 }
 
 

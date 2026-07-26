@@ -3201,9 +3201,8 @@ void GearGeom::ComputeCenter()
 }
 
 //==== Scale ====//
-void GearGeom::Scale()
+void GearGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
 
     for ( int i = 0; i < ( int )m_Bogies.size(); i++ )
     {
@@ -3232,7 +3231,6 @@ void GearGeom::Scale()
     m_ZCGMaxGlobal *= currentScale;
     m_ZCGNominalGlobal *= currentScale;
 
-    m_LastScale = m_Scale();
 }
 
 void GearGeom::AddDefaultSources( double base_len )

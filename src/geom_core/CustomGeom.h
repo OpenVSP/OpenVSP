@@ -220,7 +220,7 @@ public:
     virtual void ClearAllDefaultSources()                   { m_DefaultSourceVec.clear(); }
 
     virtual void ComputeCenter();
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
 
     //==== Offset XSecs For Conformal =====//
     virtual void OffsetXSecs( double off );

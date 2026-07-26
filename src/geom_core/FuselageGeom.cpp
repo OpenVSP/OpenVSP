@@ -436,9 +436,8 @@ void FuselageGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const
 }
 
 //==== Scale ====//
-void FuselageGeom::Scale()
+void FuselageGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
     m_Length *= currentScale;
     for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
     {
@@ -454,7 +453,6 @@ void FuselageGeom::Scale()
         m_ExtensionDistance.Set( m_ExtensionDistance() * currentScale );
     }
 
-    m_LastScale = m_Scale();
 }
 
 void FuselageGeom::AddDefaultSources( double base_len )

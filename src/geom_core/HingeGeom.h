@@ -18,7 +18,7 @@ public:
     HingeGeom( Vehicle* vehicle_ptr );
     virtual ~HingeGeom();
 
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
 
     virtual void UpdateXForm();
 

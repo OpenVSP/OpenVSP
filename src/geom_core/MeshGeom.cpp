@@ -1467,11 +1467,9 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_r
     return id;
 }
 
-void MeshGeom::Scale()
+void MeshGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
     m_ScaleFromOrig *= currentScale;
-    m_LastScale = m_Scale();
 }
 
 void MeshGeom::ApplyScale()
@@ -1483,7 +1481,6 @@ void MeshGeom::ApplyScale()
 
     ::ApplyScale( m_Scale() / m_LastScale(), m_TMeshVec );
 
-    m_LastScale = m_Scale();
 }
 
 void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag, const vector < string > & sub_vec )

@@ -96,7 +96,7 @@ public:
     virtual void CreatePtCloudGeom();
     virtual string CreateNGonMeshGeom( bool cullfracflag = false, double cullfrac = 0.03, int n_ref = 0, bool FindBodyWakes = false );
 
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
 
 
     //==== Intersection, Splitting and Trimming ====//

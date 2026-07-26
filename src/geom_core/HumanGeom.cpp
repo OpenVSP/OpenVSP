@@ -1261,10 +1261,8 @@ int HumanGeom::GetNumTotalMeshs() const
     return GetNumSymmCopies() * GetNumMainMeshs();
 }
 
-void HumanGeom::Scale()
+void HumanGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
-    m_LastScale = m_Scale();
 }
 
 void HumanGeom::ApplyScale()

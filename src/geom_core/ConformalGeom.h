@@ -30,7 +30,7 @@ public:
     ConformalGeom( Vehicle* vehicle_ptr );
     virtual ~ConformalGeom();
 
-    virtual void Scale();
+    virtual void ApplyScale( double currentScale );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );

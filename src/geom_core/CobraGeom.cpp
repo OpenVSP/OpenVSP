@@ -571,9 +571,8 @@ void CobraGeom::ComputeCenter()
 }
 
 //==== Scale ====//
-void CobraGeom::Scale()
+void CobraGeom::ApplyScale( double currentScale )
 {
-    double currentScale = m_Scale() / m_LastScale();
 
     m_XradN *= currentScale;
     m_YradN *= currentScale;
@@ -584,7 +583,6 @@ void CobraGeom::Scale()
     m_ZradAL *= currentScale;
     m_ZradAU *= currentScale;
 
-    m_LastScale = m_Scale();
 }
 
 void CobraGeom::AddDefaultSources( double base_len )
