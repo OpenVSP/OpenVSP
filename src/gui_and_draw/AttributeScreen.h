@@ -79,7 +79,7 @@ public:
         if ( matPtr->size() )
         {
             n_row = matPtr->size();
-            n_col = matPtr[0].size();
+            n_col = matPtr->at( 0 ).size();
         }
 
         // modify existing rows
