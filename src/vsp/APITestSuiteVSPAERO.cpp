@@ -341,12 +341,21 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     //With the name corrected the deflection produces a rolling moment of about
     //-6e-6 rather than the -0.00882 recorded here, even though the deflection
     //does reach the solver: the generated .vspaero file carries the group and
-    //the solver echoes "Control group deflection angle: 1.000000".  The
-    //reference is deliberately left at its historical value rather than being
-    //re-baselined to roughly zero, because accepting the new number would
-    //enshrine ailerons that generate no roll.  This assertion is expected to
-    //fail until someone decides whether the gain sign convention changed or
-    //control surface deflection regressed.
+    //the solver echoes "Control group deflection angle: 1.000000".
+    //
+    //This is a known bug in VSPAERO rather than anything wrong with the test.
+    //vspaero.C, in the loop that pushes group deflections onto the individual
+    //surfaces, assigns the angle instead of accumulating it:
+    //
+    //    ControlSurface(k).DeflectionAngle() = Direction(j) * Angle() * TORAD;
+    //
+    //so when several groups are passed only the last one survives, and this
+    //model carries an aileron group at one degree followed by rudder and
+    //elevator groups at zero.  The reference is deliberately left at its
+    //historical value rather than re-baselined to roughly zero, since
+    //accepting the new number would enshrine ailerons that generate no roll.
+    //This assertion should start passing again once the solver accumulates
+    //deflections.
     double current_cmx = -0.00882;
     string history_id = vsp::FindLatestResultsID( "VSPAERO_History" );
     vector < double > cmx = vsp::GetDoubleResults( history_id, "CMxtot" );
