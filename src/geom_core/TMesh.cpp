@@ -384,14 +384,25 @@ TriShellMassProp::TriShellMassProp( const string& id, double mass_area_in, const
 
     m_Mass = m_TriArea * m_MassArea;
 
+    // The second moments below are the exact integrals over a uniformly loaded
+    // triangle, taken about the triangle's own centroid.  For a 2-simplex the
+    // barycentric averages are <a*a> = 1/6 and <a*b> = 1/12, which give the 1/6
+    // and 1/12 factors used here.  These constants used to be 1/10 and 1/20,
+    // which are the corresponding values for a 3-simplex and belong to
+    // TetraMassProp above; carrying them over to a triangle understated every
+    // triangle's own inertia by a factor of 0.6.  The parallel axis terms
+    // dominate, so the error was small, but it did not shrink as the mesh was
+    // refined in the directions the user controls.  On the capped cylindrical
+    // shell in APITestSuiteMassProp it left Iyy and Izz about 1% low.
+
     vector < double > vx = { m_v0.x() * m_v0.x(), m_v1.x() * m_v1.x(), m_v2.x() * m_v2.x(), m_v0.x() * m_v1.x(), m_v0.x() * m_v2.x(), m_v1.x() * m_v2.x() };
-    double Ix = m_Mass / 10.0 * compsum( vx );
+    double Ix = m_Mass / 6.0 * compsum( vx );
 
     vector < double > vy = { m_v0.y() * m_v0.y(), m_v1.y() * m_v1.y(), m_v2.y() * m_v2.y(), m_v0.y() * m_v1.y(), m_v0.y() * m_v2.y(), m_v1.y() * m_v2.y() };
-    double Iy = m_Mass / 10.0 * compsum( vy );
+    double Iy = m_Mass / 6.0 * compsum( vy );
 
     vector < double > vz = {m_v0.z() * m_v0.z(), m_v1.z() * m_v1.z(), m_v2.z() * m_v2.z(), m_v0.z() * m_v1.z(), m_v0.z() * m_v2.z(), m_v1.z() * m_v2.z() };
-    double Iz = m_Mass / 10.0 * compsum( vz );
+    double Iz = m_Mass / 6.0 * compsum( vz );
 
     m_Ixx = Iy + Iz;
     m_Iyy = Ix + Iz;
@@ -399,15 +410,15 @@ TriShellMassProp::TriShellMassProp( const string& id, double mass_area_in, const
 
     vector < double > vxy1 = { m_v0.x() * m_v0.y(), m_v1.x() * m_v1.y(), m_v2.x() * m_v2.y() };
     vector < double > vxy2 = { m_v0.x() * m_v1.y(), m_v1.x() * m_v0.y(), m_v0.x() * m_v2.y(), m_v2.x() * m_v0.y(), m_v1.x() * m_v2.y(), m_v2.x() * m_v1.y() };
-    m_Ixy = m_Mass / 20.0 * ( 2.0 * compsum( vxy1 ) + compsum( vxy2 ) );
+    m_Ixy = m_Mass / 12.0 * ( 2.0 * compsum( vxy1 ) + compsum( vxy2 ) );
 
     vector < double > vyz1 = { m_v0.y() * m_v0.z(), m_v1.y() * m_v1.z(), m_v2.y() * m_v2.z() };
     vector < double > vyz2 = { m_v0.y() * m_v1.z(), m_v1.y() * m_v0.z(), m_v0.y() * m_v2.z(), m_v2.y() * m_v0.z(), m_v1.y() * m_v2.z(), m_v2.y() * m_v1.z() };
-    m_Iyz = m_Mass / 20.0 * ( 2.0 * compsum( vyz1 ) + compsum( vyz2 ) );
+    m_Iyz = m_Mass / 12.0 * ( 2.0 * compsum( vyz1 ) + compsum( vyz2 ) );
 
     vector < double > vxz1 = { m_v0.x() * m_v0.z(), m_v1.x() * m_v1.z(), m_v2.x() * m_v2.z() };
     vector < double > vxz2 = { m_v0.x() * m_v1.z(), m_v1.x() * m_v0.z(), m_v0.x() * m_v2.z(), m_v2.x() * m_v0.z(), m_v1.x() * m_v2.z(), m_v2.x() * m_v1.z() };
-    m_Ixz = m_Mass / 20.0 * ( 2.0 * compsum( vxz1 ) + compsum( vxz2 ) );
+    m_Ixz = m_Mass / 12.0 * ( 2.0 * compsum( vxz1 ) + compsum( vxz2 ) );
 
 
 }
