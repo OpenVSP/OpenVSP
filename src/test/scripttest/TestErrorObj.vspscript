@@ -1,0 +1,125 @@
+//==== Test ErrorObj value semantics ====//
+//
+// ErrorObj carries a std::string, so it is neither POD nor trivially
+// copyable.  It needs real construct, copy construct, destruct and assign
+// behaviours registered with AngelScript.  Registering it as POD instead
+// left a default constructed ErrorObj pointing at uninitialized memory and
+// leaked the string of every ErrorObj a script created.
+//
+// PopLastError() and GetLastError() both hand an ErrorObj back to the script
+// by value, so these paths are exercised by any script that checks for API
+// errors.
+
+int main()
+{
+    int failure = 0;
+
+    //==== A default constructed ErrorObj must report no error, not garbage ====//
+    ErrorObj blank;
+
+    if ( blank.GetErrorCode() != ERROR_CODE::VSP_OK )
+    {
+        Print( "FAIL default ErrorObj code " + blank.GetErrorCode() );
+        failure++;
+    }
+
+    if ( blank.GetErrorString() != "No Error" )
+    {
+        Print( "FAIL default ErrorObj string '" + blank.GetErrorString() + "'" );
+        failure++;
+    }
+
+    //==== Provoke a real error with a description long enough that the string
+    //==== has to live on the heap rather than inside the small string buffer.
+    SilenceErrors();
+    FindGeom( "THIS_GEOM_DOES_NOT_EXIST_AND_THE_MESSAGE_IS_DELIBERATELY_LONG", 0 );
+    PrintOnErrors();
+
+    if ( GetNumTotalErrors() < 1 )
+    {
+        Print( "FAIL expected an error to have been recorded" );
+        return failure + 1;
+    }
+
+    ErrorObj a = PopLastError();
+    string expect_str = a.GetErrorString();
+    int expect_code = a.GetErrorCode();
+
+    if ( expect_code == ERROR_CODE::VSP_OK )
+    {
+        Print( "FAIL popped error reports VSP_OK" );
+        failure++;
+    }
+
+    if ( expect_str.length() < 24 )
+    {
+        Print( "FAIL error string is too short to exercise a heap allocation, '" + expect_str + "'" );
+        failure++;
+    }
+
+    //==== Copy construction ====//
+    ErrorObj b = a;
+
+    if ( b.GetErrorString() != expect_str || b.GetErrorCode() != expect_code )
+    {
+        Print( "FAIL copy constructed ErrorObj '" + b.GetErrorString() + "'" );
+        failure++;
+    }
+
+    //==== Assignment onto an already constructed ErrorObj ====//
+    ErrorObj c;
+    c = a;
+
+    if ( c.GetErrorString() != expect_str || c.GetErrorCode() != expect_code )
+    {
+        Print( "FAIL assigned ErrorObj '" + c.GetErrorString() + "'" );
+        failure++;
+    }
+
+    //==== Copies must stay valid once the source has been overwritten ====//
+    a = blank;
+
+    if ( a.GetErrorString() != "No Error" )
+    {
+        Print( "FAIL reassigned source ErrorObj '" + a.GetErrorString() + "'" );
+        failure++;
+    }
+
+    if ( b.GetErrorString() != expect_str )
+    {
+        Print( "FAIL copy disturbed by source reassignment '" + b.GetErrorString() + "'" );
+        failure++;
+    }
+
+    if ( c.GetErrorString() != expect_str )
+    {
+        Print( "FAIL assignment disturbed by source reassignment '" + c.GetErrorString() + "'" );
+        failure++;
+    }
+
+    //==== Many temporaries, to give a leak somewhere to accumulate ====//
+    SilenceErrors();
+    FindGeom( "THIS_GEOM_DOES_NOT_EXIST_AND_THE_MESSAGE_IS_DELIBERATELY_LONG", 0 );
+    PrintOnErrors();
+
+    for ( int i = 0; i < 10000; i++ )
+    {
+        ErrorObj tmp = GetLastError();
+        if ( tmp.GetErrorString().length() < 1 )
+        {
+            Print( "FAIL GetLastError returned an empty string on iteration " + i );
+            failure++;
+            break;
+        }
+    }
+
+    //==== Drain the errors this test raised on purpose.  Unlike the other
+    //==== script tests these are expected, so they are not counted as
+    //==== failures, but the queue is emptied so nothing leaks out of here.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    return failure;
+}

@@ -12,3 +12,5 @@ ADD_TEST( NAME TestChordAdjust
 ADD_TEST( RoutingGeom ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestRoutingGeom.vspscript )
 
 ADD_TEST( Vec3d ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestVec3d.vspscript )
+
+ADD_TEST( ErrorObj ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestErrorObj.vspscript )

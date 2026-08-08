@@ -3297,12 +3297,50 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     assert( r );
 }
 
+//==== ErrorObj Constructors and Destructor ====//
+static void ErrorObjDefaultConstructor( vsp::ErrorObj *self )
+{
+    new( self ) vsp::ErrorObj();
+}
+static void ErrorObjCopyConstructor( const vsp::ErrorObj &other, vsp::ErrorObj *self )
+{
+    new( self ) vsp::ErrorObj( other );
+}
+static void ErrorObjDestructor( vsp::ErrorObj *self )
+{
+    self->~ErrorObj();
+}
+static vsp::ErrorObj & ErrorObjAssign( const vsp::ErrorObj &other, vsp::ErrorObj *self )
+{
+    *self = other;
+    return *self;
+}
+
 //==== Register API E Functions ====//
 void ScriptMgrSingleton::RegisterAPIErrorObj( asIScriptEngine* se )
 {
 
     //==== Register ErrorObj Object =====//
-    int r = se->RegisterObjectType( "ErrorObj", sizeof( vsp::ErrorObj ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CDA );
+    // ErrorObj holds a std::string, so it is neither POD nor trivially copyable.
+    // It was previously registered asOBJ_POD with no construct or destruct
+    // behaviour, which left 'ErrorObj e;' reading uninitialized memory as a
+    // std::string and leaked the string of every ErrorObj a script touched,
+    // because the destructor was never run.  asGetTypeTraits reports the real
+    // constructor, destructor, assignment and copy constructor flags, and the
+    // behaviours below give AngelScript something to call for each of them.
+    int r = se->RegisterObjectType( "ErrorObj", sizeof( vsp::ErrorObj ), asOBJ_VALUE | asGetTypeTraits< vsp::ErrorObj >() );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectBehaviour( "ErrorObj", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION( ErrorObjDefaultConstructor ), asCALL_CDECL_OBJLAST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectBehaviour( "ErrorObj", asBEHAVE_CONSTRUCT, "void f(const ErrorObj &in)", asFUNCTION( ErrorObjCopyConstructor ), asCALL_CDECL_OBJLAST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectBehaviour( "ErrorObj", asBEHAVE_DESTRUCT, "void f()", asFUNCTION( ErrorObjDestructor ), asCALL_CDECL_OBJLAST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "ErrorObj", "ErrorObj &opAssign(const ErrorObj &in)", asFUNCTION( ErrorObjAssign ), asCALL_CDECL_OBJLAST );
     assert( r >= 0 );
 
 
