@@ -60,6 +60,7 @@ Surf::Surf()
     m_WakeParentSurfID = -1;
     m_Mesh.SetSurfPtr( this );
     m_NumMap = 11;
+    m_WalkVisitID = 0;
     m_BaseTag = 1;
     m_MainSurfID = 0;
     m_SplitNum = 0;
@@ -193,6 +194,11 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
     {
         m_SrcMap[i].resize( nmapw );
     }
+
+    // Scratch stamps for WalkMap.  Zero is reserved as "never visited" so the
+    // first walk can use ID one without clearing.
+    m_WalkVisited.assign( ( size_t )nmapu * ( size_t )nmapw, 0 );
+    m_WalkVisitID = 0;
 
     bool limitFlag = false;
     if ( m_FarFlag )
@@ -348,6 +354,30 @@ void Surf::WalkMap( int istart, int jstart )
     static const int iadd[] = { -1, 1,  0, 0 };
     static const int jadd[] = {  0, 0, -1, 1 };
 
+    // A cell only ever needs to be looked at once per walk.  targetstr below is
+    // measured from the seed cell, which cannot improve itself, so it is fixed
+    // for the whole walk; m_str only ever decreases.  A cell that fails the
+    // comparison can therefore never pass it later in the same walk, and one
+    // that passes is written with its final value straight away.  Without this
+    // the four neighbours of every improved cell were pushed unconditionally,
+    // so cells were popped and re-measured many times over.  The overload that
+    // LimitTargetMap uses has always had this guard by way of m_maxvisited.
+    const size_t nmapw = m_SrcMap[0].size();
+    const size_t ncell = m_SrcMap.size() * nmapw;
+
+    if( m_WalkVisited.size() != ncell )
+    {
+        m_WalkVisited.assign( ncell, 0 );
+        m_WalkVisitID = 0;
+    }
+
+    m_WalkVisitID++;
+    if( m_WalkVisitID == 0 )    // Wrapped.  Zero means never visited, so start over.
+    {
+        m_WalkVisited.assign( ncell, 0 );
+        m_WalkVisitID = 1;
+    }
+
     vector < pair < int, int > > v;
 
     for( int i = 0; i < 4; i++ )
@@ -357,6 +387,7 @@ void Surf::WalkMap( int istart, int jstart )
 
         if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
         {
+            m_WalkVisited[ inext * nmapw + jnext ] = m_WalkVisitID;
             v.push_back( make_pair( inext, jnext ) );
         }
     }
@@ -393,7 +424,11 @@ void Surf::WalkMap( int istart, int jstart )
 
                 if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
                 {
-                    v.push_back( make_pair( inext, jnext ) );
+                    if( m_WalkVisited[ inext * nmapw + jnext ] != m_WalkVisitID )
+                    {
+                        m_WalkVisited[ inext * nmapw + jnext ] = m_WalkVisitID;
+                        v.push_back( make_pair( inext, jnext ) );
+                    }
                 }
             }
         }

@@ -74,6 +74,7 @@ public:
     void BuildTargetMap( vector< MapSource* > &sources, int sid );
     void WalkMap( int istart, int jstart, int kstart );
     void WalkMap( int istart, int jstart );
+
     void LimitTargetMap();
     void LimitTargetMap( const MSCloud &es_cloud, const MSTree &es_tree, double minmap );
     double InterpTargetMap( double u, double w, int &reason );
@@ -421,6 +422,12 @@ protected:
 
     int m_NumMap;
     vector< vector< MapSource > > m_SrcMap;
+
+    // Per-cell stamp used to visit each cell of m_SrcMap at most once during a
+    // single WalkMap( istart, jstart ).  Stamped with a counter rather than
+    // cleared so a walk costs nothing to set up.
+    vector< unsigned int > m_WalkVisited;
+    unsigned int m_WalkVisitID;
 
     void UtoIndexFrac( const double &u, int &indx, double &frac );
 
