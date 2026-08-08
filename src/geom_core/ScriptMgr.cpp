@@ -4079,6 +4079,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    // The API and the Python binding both call this PrintResultsDocs.  Register
+    // that name so the documentation examples agree across languages, and keep
+    // the original singular spelling as an alias so existing scripts still run.
+    r = se->RegisterGlobalFunction( "void PrintResultsDocs( const string & in id )", asFUNCTION( vsp::PrintResultsDocs ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void PrintResultsDoc( const string & in id )", asFUNCTION( vsp::PrintResultsDocs ), asCALL_CDECL );
     assert( r >= 0 );
 

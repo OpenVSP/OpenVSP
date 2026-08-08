@@ -11091,28 +11091,14 @@ void DelAdvLinkInput( int index, const string & var_name )
         return;
     }
 
-    // DeleteVar takes the index of the variable within the link.  The advanced
-    // link index used to be passed here instead, and var_name was ignored
-    // altogether, so this always removed the first input no matter which name
-    // was asked for.
-    vector < string > names = adv_link->GetInputNames();
-    int ivar = -1;
-    for ( int i = 0; i < ( int )names.size(); i++ )
-    {
-        if ( names[i] == var_name )
-        {
-            ivar = i;
-            break;
-        }
-    }
-
-    if ( ivar < 0 )
+    // This used to hand the advanced link's own index to the index based
+    // DeleteVar and ignore var_name entirely, so it removed whichever variable
+    // happened to sit at that index.
+    if ( !adv_link->DeleteVar( var_name, true ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "DelAdvLinkInput::Can't Find Input Variable " + var_name );
         return;
     }
-
-    adv_link->DeleteVar( ivar, true );
 
     ErrorMgr.NoError();
     return;
@@ -11128,26 +11114,12 @@ void DelAdvLinkOutput( int index, const string & var_name )
         return;
     }
 
-    // Same fix as DelAdvLinkInput above: look the variable up by name rather
-    // than deleting whatever sits at the advanced link's own index.
-    vector < string > names = adv_link->GetOutputNames();
-    int ivar = -1;
-    for ( int i = 0; i < ( int )names.size(); i++ )
-    {
-        if ( names[i] == var_name )
-        {
-            ivar = i;
-            break;
-        }
-    }
-
-    if ( ivar < 0 )
+    // Same fix as DelAdvLinkInput above.
+    if ( !adv_link->DeleteVar( var_name, false ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "DelAdvLinkOutput::Can't Find Output Variable " + var_name );
         return;
     }
-
-    adv_link->DeleteVar( ivar, false );
 
     ErrorMgr.NoError();
     return;

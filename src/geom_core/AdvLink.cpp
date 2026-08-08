@@ -195,6 +195,28 @@ void AdvLink::DeleteVar( int index, bool input_flag )
     }
 }
 
+//==== Delete a variable by name.  Returns false when there is no such
+//==== variable, which lets the caller report a useful error. ====//
+bool AdvLink::DeleteVar( const string & var_name, bool input_flag )
+{
+    vector< VarDef > *vars = &m_OutputVars;
+    if ( input_flag )
+    {
+        vars = &m_InputVars;
+    }
+
+    for ( int i = 0; i < ( int )vars->size(); i++ )
+    {
+        if ( ( *vars )[i].m_VarName == var_name )
+        {
+            DeleteVar( i, input_flag );
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void AdvLink::DeleteAllVars( bool input_flag )
 {
     if ( input_flag )

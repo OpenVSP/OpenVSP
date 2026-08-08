@@ -5766,7 +5766,7 @@ extern void PrintResults( const std::string &results_id );
     string rid = ExecAnalysis( analysis_name );
 
     // Get & Display Results Docs
-    PrintResultsDoc( rid );
+    PrintResultsDocs( rid );
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5921,6 +5921,7 @@ extern void EnableStopGUIMenuItem();
     \code{.cpp}
 
     EnableStopGUIMenuItem();
+    DisableStopGUIMenuItem();
     StartGUI();
 
     \endcode
