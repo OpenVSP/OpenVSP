@@ -280,7 +280,9 @@ extern void VSPCheckSetup();
 
     VSPRenew()
 
-    if  len(FindGeoms()) != 0 : print( "ERROR: VSPRenew" )
+    if  len(FindGeoms()) != 0 :
+        print( "ERROR: VSPRenew" )
+        assert False, "ERROR: VSPRenew"
 
     \endcode
     \endPythonOnly
@@ -1226,7 +1228,9 @@ extern void SetComputationFileName( int file_type, const std::string & file_name
 
     double_arr = GetDoubleResults( mass_res_id, "Total_Mass" )
 
-    if  len(double_arr) != 1 : print( "---> Error: API ComputeMassProps" )
+    if  len(double_arr) != 1 :
+        print( "---> Error: API ComputeMassProps" )
+        assert False, "---> Error: API ComputeMassProps"
 
     \endcode
     \endPythonOnly
@@ -1312,7 +1316,9 @@ extern std::string ComputeCompGeom( int set, bool half_mesh, int file_export_typ
 
     double_arr = GetDoubleResults( pslice_results, "Slice_Area" )
 
-    if  len(double_arr) != 6 : print( "---> Error: API ComputePlaneSlice" )
+    if  len(double_arr) != 6 :
+        print( "---> Error: API ComputePlaneSlice" )
+        assert False, "---> Error: API ComputePlaneSlice"
 
     \endcode
     \endPythonOnly
@@ -1692,6 +1698,11 @@ extern std::vector<std::string> ListAnalysis();
     string analysis_name = "VSPAEROComputeGeometry";
 
     array<string>@ in_names =  GetAnalysisInputNames( analysis_name );
+    if ( in_names.length() == 0 )
+    {
+        Print( "ERROR: GetAnalysisInputNames returned nothing" );
+        __failure++;
+    }
 
     Print("Analysis Inputs: ");
 
@@ -1706,6 +1717,7 @@ extern std::vector<std::string> ListAnalysis();
     analysis_name = "VSPAEROComputeGeometry"
 
     in_names =  GetAnalysisInputNames( analysis_name )
+    assert len( in_names ) > 0, "GetAnalysisInputNames returned nothing"
 
     print("Analysis Inputs: ")
 
@@ -1731,6 +1743,11 @@ extern std::vector<std::string> GetAnalysisInputNames( const std::string & analy
     string analysis_name = "VSPAEROComputeGeometry";
 
     string doc = GetAnalysisDoc( analysis_name );
+    if ( doc.length() == 0 )
+    {
+        Print( "ERROR: GetAnalysisDoc returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -1738,6 +1755,7 @@ extern std::vector<std::string> GetAnalysisInputNames( const std::string & analy
     analysis_name = "VSPAEROComputeGeometry"
 
     doc = GetAnalysisDoc( analysis_name )
+    assert len( doc ) > 0, "GetAnalysisDoc returned nothing"
 
     \endcode
     \endPythonOnly
@@ -1853,6 +1871,11 @@ extern int GetAnalysisInputType( const std::string & analysis, const std::string
 
     // Set to panel method
     array< int > thick_set = GetIntAnalysisInput( analysis_name, "GeomSet" );
+    if ( thick_set.length() == 0 )
+    {
+        Print( "ERROR: GetIntAnalysisInput returned nothing" );
+        __failure++;
+    }
     array< int > thin_set = GetIntAnalysisInput( analysis_name, "ThinGeomSet" );
 
     thick_set[0] = ( SET_TYPE::SET_NONE );
@@ -1870,6 +1893,7 @@ extern int GetAnalysisInputType( const std::string & analysis, const std::string
 
     # Set to panel method
     thick_set = GetIntAnalysisInput( analysis_name, "GeomSet" )
+    assert len( thick_set ) > 0, "GetIntAnalysisInput returned nothing"
     thin_set = GetIntAnalysisInput( analysis_name, "ThinGeomSet" )
 
     thick_set = [vsp.SET_NONE]
@@ -1897,6 +1921,11 @@ extern const std::vector< int > & GetIntAnalysisInput( const std::string & analy
     \forcpponly
     \code{.cpp}
     array<double> vinfFCinput = GetDoubleAnalysisInput( "ParasiteDrag", "Vinf" );
+    if ( vinfFCinput.length() == 0 )
+    {
+        Print( "ERROR: GetDoubleAnalysisInput returned nothing" );
+        __failure++;
+    }
 
     vinfFCinput[0] = 629;
 
@@ -1930,6 +1959,11 @@ extern const std::vector< double > & GetDoubleAnalysisInput( const std::string &
     \forcpponly
     \code{.cpp}
     array<string> fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" );
+    if ( fileNameInput.length() == 0 )
+    {
+        Print( "ERROR: GetStringAnalysisInput returned nothing" );
+        __failure++;
+    }
 
     fileNameInput[0] = "ParasiteDragExample";
 
@@ -1939,6 +1973,7 @@ extern const std::vector< double > & GetDoubleAnalysisInput( const std::string &
     \beginPythonOnly
     \code{.py}
     fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" )
+    assert len( fileNameInput ) > 0, "GetStringAnalysisInput returned nothing"
 
     fileNameInput = ["ParasiteDragExample"]
 
@@ -1964,6 +1999,11 @@ extern const std::vector<std::string> & GetStringAnalysisInput( const std::strin
     \code{.cpp}
     // PlanarSlice
     array<vec3d> norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" );
+    if ( norm.length() == 0 )
+    {
+        Print( "ERROR: GetVec3dAnalysisInput returned nothing" );
+        __failure++;
+    }
 
     norm[0].set_xyz( 0.23, 0.6, 0.15 );
 
@@ -1974,6 +2014,7 @@ extern const std::vector<std::string> & GetStringAnalysisInput( const std::strin
     \code{.py}
     # PlanarSlice
     norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" )
+    assert len( norm ) > 0, "GetVec3dAnalysisInput returned nothing"
 
     norm[0].set_xyz( 0.23, 0.6, 0.15 )
 
@@ -2339,6 +2380,11 @@ extern void DeleteAllGeometryAnalyses();
     string ga_id_1 = AddGeometryAnalysis();
     string ga_id_2 = AddGeometryAnalysis();
     array < string > @ga_ids = GetAllGeometryAnalysesIDVec();
+    if ( ga_ids.length() == 0 )
+    {
+        Print( "ERROR: GetAllGeometryAnalysesIDVec returned nothing" );
+        __failure++;
+    }
     for ( int i = 0; i < int( ga_ids.size() ); i++ )
     {
         Print( "Geometry Analysis ID: ", false );
@@ -2352,6 +2398,7 @@ extern void DeleteAllGeometryAnalyses();
     ga_id_1 = AddGeometryAnalysis()
     ga_id_2 = AddGeometryAnalysis()
     ga_ids = GetAllGeometryAnalysesIDVec()
+    assert len( ga_ids ) > 0, "GetAllGeometryAnalysesIDVec returned nothing"
     for ga_id in ga_ids:
         print( "Geometry Analysis ID: ", ga_id )
     \endcode
@@ -2397,6 +2444,11 @@ extern void SetActiveGeometryAnalysis( const string &id );
     string ga_id = AddGeometryAnalysis();
     SetActiveGeometryAnalysis( ga_id );
     string active = GetActiveGeometryAnalysis();
+    if ( active.length() == 0 )
+    {
+        Print( "ERROR: GetActiveGeometryAnalysis returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2404,6 +2456,7 @@ extern void SetActiveGeometryAnalysis( const string &id );
     ga_id = AddGeometryAnalysis()
     SetActiveGeometryAnalysis( ga_id )
     active = GetActiveGeometryAnalysis()
+    assert len( active ) > 0, "GetActiveGeometryAnalysis returned nothing"
     \endcode
     \endPythonOnly
     \sa SetActiveGeometryAnalysis
@@ -2779,6 +2832,11 @@ extern int GetObjectType(const string & attachID);
     for ( int i = 0; i < int( AttachIDs.size() ); ++i )
     {
         string ObjTypeName = GetObjectTypeName( AttachIDs[i] );
+        if ( ObjTypeName.length() == 0 )
+        {
+            Print( "ERROR: GetObjectTypeName returned nothing" );
+            __failure++;
+        }
         Print( ObjTypeName );
     }
 
@@ -2789,6 +2847,7 @@ extern int GetObjectType(const string & attachID);
     AttachIDs = FindAttributedObjects()
     for AttachID in AttachIDs:
         ObjTypeName = GetObjectTypeName( AttachID )
+        assert len( ObjTypeName ) > 0, "GetObjectTypeName returned nothing"
         print( ObjTypeName )
 
     \endcode
@@ -2811,6 +2870,11 @@ extern string GetObjectTypeName(const string & attachID);
     for ( int i = 0; i < int( AttachIDs.size() ); ++i )
     {
         string ObjName = GetObjectName( AttachIDs[i] );
+        if ( ObjName.length() == 0 )
+        {
+            Print( "ERROR: GetObjectName returned nothing" );
+            __failure++;
+        }
         Print( ObjName );
     }
 
@@ -2822,6 +2886,7 @@ extern string GetObjectTypeName(const string & attachID);
     AttachIDs = FindAttributedObjects()
     for AttachID in AttachIDs:
         ObjName = GetObjectName( AttachID )
+        assert len( ObjName ) > 0, "GetObjectName returned nothing"
         print( ObjName )
 
     \endcode
@@ -2850,6 +2915,11 @@ extern string GetObjectName(const string & attachID);
     string WingID = AddGeom( "WING" );
     string PodID = AddGeom( "POD", WingID );
     string ParentID = GetObjectParent( PodID );
+    if ( ParentID.length() == 0 )
+    {
+        Print( "ERROR: GetObjectParent returned nothing" );
+        __failure++;
+    }
 
     if ( ParentID == WingID )
     {
@@ -2872,6 +2942,7 @@ extern string GetObjectName(const string & attachID);
     WingID = AddGeom( "WING" )
     PodID = AddGeom( "POD", WingID )
     ParentID = GetObjectParent( PodID )
+    assert len( ParentID ) > 0, "GetObjectParent returned nothing"
 
     if ParentID == WingID:
         print( "Parent of Pod is Wing")
@@ -2901,6 +2972,11 @@ extern string GetObjectParent( const string & id );
     //==== Attributes: GetChildCollection =====//
     string VehID = GetVehicleID();
     string CollID = GetChildCollection( VehID );
+    if ( CollID.length() == 0 )
+    {
+        Print( "ERROR: GetChildCollection returned nothing" );
+        __failure++;
+    }
     Print( CollID );
     \endcode
     \endforcpponly
@@ -2909,6 +2985,7 @@ extern string GetObjectParent( const string & id );
     ##==== Attributes: GetChildCollection =====##
     VehID = GetVehicleID()
     CollID = GetChildCollection( VehID )
+    assert len( CollID ) > 0, "GetChildCollection returned nothing"
     print( CollID )
 
 
@@ -2929,6 +3006,11 @@ extern string GetChildCollection(const string & attachID );
     \code{.cpp}
     //==== Attributes: GetGeomSetCollection =====//
     string CollID = GetGeomSetCollection( 0 );
+    if ( CollID.length() == 0 )
+    {
+        Print( "ERROR: GetGeomSetCollection returned nothing" );
+        __failure++;
+    }
     Print( CollID );
     \endcode
     \endforcpponly
@@ -2936,6 +3018,7 @@ extern string GetChildCollection(const string & attachID );
     \code{.py}
     ##==== Attributes: GetGeomSetCollection =====##
     CollID = GetGeomSetCollection( 0 )
+    assert len( CollID ) > 0, "GetGeomSetCollection returned nothing"
     print( CollID )
 
     \endcode
@@ -2960,6 +3043,11 @@ extern string GetGeomSetCollection( const int & index );
     for ( int i = 0; i < int( AttrIDs.size() ); ++i )
     {
         string AttrName = GetAttributeName( AttrIDs[i] );
+        if ( AttrName.length() == 0 )
+        {
+            Print( "ERROR: GetAttributeName returned nothing" );
+            __failure++;
+        }
         Print( AttrName );
     }
 
@@ -2973,6 +3061,7 @@ extern string GetGeomSetCollection( const int & index );
 
     for AttrID in AttrIDs:
         AttrName = GetAttributeName( AttrID )
+        assert len( AttrName ) > 0, "GetAttributeName returned nothing"
         print( AttrName )
 
     \endcode
@@ -2998,6 +3087,11 @@ extern string GetAttributeName( const string & attrID );
     for ( int i = 0; i < int( AttrNames.size() ); ++i )
     {
         string AttrID = GetAttributeID( CollID, AttrNames[i], 0 );
+        if ( AttrID.length() == 0 )
+        {
+            Print( "ERROR: GetAttributeID returned nothing" );
+            __failure++;
+        }
         Print( AttrID );
     }
 
@@ -3012,6 +3106,7 @@ extern string GetAttributeName( const string & attrID );
     AttrNames = FindAttributeNamesInCollection( CollID )
     for AttrName in AttrNames:
         AttrID = GetAttributeID( CollID, AttrName, 0 )
+        assert len( AttrID ) > 0, "GetAttributeID returned nothing"
         print( AttrID )
 
 
@@ -3036,6 +3131,11 @@ extern string GetAttributeID(const string & collID, const string & attributeName
     array < string > @AttrIDs = FindAllAttributes();
     string AttrID = AttrIDs[0];
     string AttrDoc = GetAttributeDoc( AttrID );
+    if ( AttrDoc.length() == 0 )
+    {
+        Print( "ERROR: GetAttributeDoc returned nothing" );
+        __failure++;
+    }
     Print( AttrDoc );
 
     \endcode
@@ -3045,6 +3145,7 @@ extern string GetAttributeID(const string & collID, const string & attributeName
     ##==== Attributes: GetAttributeDoc =====##
     AttrID = FindAllAttributes()[0]
     AttrDoc = GetAttributeDoc(AttrID)
+    assert len( AttrDoc ) > 0, "GetAttributeDoc returned nothing"
     print( AttrDoc )
 
     \endcode
@@ -3109,6 +3210,11 @@ extern int GetAttributeType( const string & attrID );
     array < string > @AttrIDs = FindAllAttributes();
     string AttrID = AttrIDs[0];
     string AttrTypeName = GetAttributeTypeName( AttrID );
+    if ( AttrTypeName.length() == 0 )
+    {
+        Print( "ERROR: GetAttributeTypeName returned nothing" );
+        __failure++;
+    }
     Print( AttrTypeName );
 
     \endcode
@@ -3118,6 +3224,7 @@ extern int GetAttributeType( const string & attrID );
     ##==== Attributes: GetAttributeTypeName =====##
     AttrID = FindAllAttributes()[0]
     AttributeTypeName = GetAttributeTypeName( AttrID )
+    assert len( AttributeTypeName ) > 0, "GetAttributeTypeName returned nothing"
     print( AttributeTypeName )
 
 
@@ -3168,6 +3275,7 @@ extern string GetAttributeTypeName(const string & attrID);
         print( "Got matching Bool Value from Attribute" )
     else:
         print( "GetAttributeBoolVal error!" )
+        assert False, "GetAttributeBoolVal error!"
 
     \endcode
     \endPythonOnly
@@ -3216,6 +3324,7 @@ extern vector< int > GetAttributeBoolVal(const string & attrID);
         print( "Got matching Int Value from Attribute" )
     else:
         print( "GetAttributeIntVal error!" )
+        assert False, "GetAttributeIntVal error!"
 
     \endcode
     \endPythonOnly
@@ -3263,6 +3372,7 @@ extern vector< int > GetAttributeIntVal(const string & attrID);
         print( "Got matching Double Value from Attribute" )
     else:
         print( "GetAttributeDoubleVal error!" )
+        assert False, "GetAttributeDoubleVal error!"
 
     \endcode
     \endPythonOnly
@@ -3310,6 +3420,7 @@ extern vector< double > GetAttributeDoubleVal(const string & attrID);
         print( "Got matching String Value from Attribute" )
     else:
         print( "GetAttributeStringVal error!" )
+        assert False, "GetAttributeStringVal error!"
 
     \endcode
     \endPythonOnly
@@ -3370,6 +3481,7 @@ extern vector< string > GetAttributeStringVal(const string & attrID);
         print( "Got matching Parm ID from Attribute" )
     else:
         print( "GetAttributeParmID error!" )
+        assert False, "GetAttributeParmID error!"
 
     \endcode
     \endPythonOnly
@@ -3431,6 +3543,7 @@ extern vector< string > GetAttributeParmID(const string & attrID);
         print( "Got matching Parm Value from Attribute" )
     else:
         print( "GetAttributeParmVal error!" )
+        assert False, "GetAttributeParmVal error!"
 
 
     \endcode
@@ -3492,6 +3605,7 @@ extern vector < double > GetAttributeParmVal( const string &attrID );
         print( "Got matching Parm Name from Attribute" )
     else:
         print( "GetAttributeParmName error!" )
+        assert False, "GetAttributeParmName error!"
 
 
     \endcode
@@ -3544,6 +3658,7 @@ extern vector < string > GetAttributeParmName( const string &attrID );
         print( "Got matching Vec3d Value from Attribute" )
     else:
         print( "GetAttributeVec3dVal error!" )
+        assert False, "GetAttributeVec3dVal error!"
 
     \endcode
     \endPythonOnly
@@ -3599,6 +3714,7 @@ extern vector< vec3d > GetAttributeVec3dVal(const string & attrID);
         print( "Got matching IntMatrix Value from Attribute" )
     else:
         print( "GetAttributeIntMatrixVal error!" )
+        assert False, "GetAttributeIntMatrixVal error!"
 
 
     \endcode
@@ -3650,6 +3766,7 @@ extern vector< vector < int > > GetAttributeIntMatrixVal(const string & attrID);
         print( "Got matching Double Matrix Value from Attribute" )
     else:
         print( "GetAttributeDoubleMatrixVal error!" )
+        assert False, "GetAttributeDoubleMatrixVal error!"
 
     \endcode
     \endPythonOnly
@@ -3705,6 +3822,7 @@ extern vector< vector < double > > GetAttributeDoubleMatrixVal(const string & at
         print( "Got matching name from Attribute")
     else:
         print( "SetAttributeName error!" )
+        assert False, "SetAttributeName error!"
 
     \endcode
     \endPythonOnly
@@ -3761,6 +3879,7 @@ extern void SetAttributeName( const string & attrID, const string & name );
         print( "Got matching DocString from Attribute")
     else:
         print( "SetAttributeDoc error!" )
+        assert False, "SetAttributeDoc error!"
 
     \endcode
     \endPythonOnly
@@ -3817,6 +3936,7 @@ extern void SetAttributeDoc( const string & attrID, const string & doc );
         print( "Set matching Bool Value from Attribute" )
     else:
         print( "SetAttributeBoolVal error!" )
+        assert False, "SetAttributeBoolVal error!"
 
     \endcode
     \endPythonOnly
@@ -3872,6 +3992,7 @@ extern void SetAttributeBool( const string & attrID, bool value );
         print( "Set matching Int Value from Attribute" )
     else:
         print( "SetAttributeIntVal error!" )
+        assert False, "SetAttributeIntVal error!"
 
     \endcode
     \endPythonOnly
@@ -3930,6 +4051,7 @@ extern void SetAttributeInt( const string & attrID, int value );
         print( "Set matching Double Value from Attribute" )
     else:
         print( "SetAttributeDoubleVal error!" )
+        assert False, "SetAttributeDoubleVal error!"
 
     \endcode
     \endPythonOnly
@@ -3986,6 +4108,7 @@ extern void SetAttributeDouble( const string & attrID, double value );
         print( "Got matching String Value from Attribute" )
     else:
         print( "GetAttributeStringVal error!" )
+        assert False, "GetAttributeStringVal error!"
 
     \endcode
     \endPythonOnly
@@ -4052,6 +4175,7 @@ extern void SetAttributeString( const string & attrID, const string & value );
         print( "Set matching Parm ID from Attribute" )
     else:
         print( "SetAttributeParmID error!" )
+        assert False, "SetAttributeParmID error!"
 
     \endcode
     \endPythonOnly
@@ -4108,6 +4232,7 @@ extern void SetAttributeParmID( const string & attrID, const string & value );
         print( "Set matching Vec3d Value from Attribute" )
     else:
         print( "SetAttributeVec3dVal error!" )
+        assert False, "SetAttributeVec3dVal error!"
 
     \endcode
     \endPythonOnly
@@ -4167,6 +4292,7 @@ extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > & v
         print( "Set matching IntMatrix Value from Attribute" )
     else:
         print( "SetAttributeIntMatrixVal error!" )
+        assert False, "SetAttributeIntMatrixVal error!"
 
     \endcode
     \endPythonOnly
@@ -4226,6 +4352,7 @@ extern void SetAttributeIntMatrix( const string & attrID, const vector < vector 
         print( "Got matching Double Matrix Value from Attribute" )
     else:
         print( "GetAttributeDoubleMatrixVal error!" )
+        assert False, "GetAttributeDoubleMatrixVal error!"
 
     \endcode
     \endPythonOnly
@@ -4305,6 +4432,7 @@ extern void SetAttributeDoubleMatrix( const string & attrID, const vector< vecto
         print( "Attribute successfully deleted" )
     else:
         print( "DeleteAttribute error!" )
+        assert False, "DeleteAttribute error!"
 
     \endcode
     \endPythonOnly
@@ -4353,6 +4481,7 @@ extern void DeleteAttribute( const string & attrID );
         print( "Added Bool Attribute" )
     else:
         print( "AddAttributeBool error!" )
+        assert False, "AddAttributeBool error!"
 
     \endcode
     \endPythonOnly
@@ -4404,6 +4533,7 @@ extern string AddAttributeBool( const string & collID, const string & attributeN
         print( "Added Int Attribute" )
     else:
         print( "AddAttributeInt error!" )
+        assert False, "AddAttributeInt error!"
 
     \endcode
     \endPythonOnly
@@ -4457,6 +4587,7 @@ extern string AddAttributeInt( const string & collID, const string & attributeNa
         print( "Added Double Attribute" )
     else:
         print( "AddAttributeDouble error!" )
+        assert False, "AddAttributeDouble error!"
 
     \endcode
     \endPythonOnly
@@ -4509,6 +4640,7 @@ extern string AddAttributeDouble( const string & collID, const string & attribut
         print( "Added String Attribute" )
     else:
         print( "AddAttributeString error!" )
+        assert False, "AddAttributeString error!"
 
     \endcode
     \endPythonOnly
@@ -4571,6 +4703,7 @@ extern string AddAttributeString( const string & collID, const string & attribut
         print( "Added Parm Attribute" )
     else:
         print( "AddAttributeParm error!" )
+        assert False, "AddAttributeParm error!"
 
 
     \endcode
@@ -4627,6 +4760,7 @@ extern string AddAttributeParm( const string &collID, const string &attributeNam
         print( "Added Vec3d Attribute" )
     else:
         print( "AddAttributeVec3d error!" )
+        assert False, "AddAttributeVec3d error!"
 
     \endcode
     \endPythonOnly
@@ -4684,6 +4818,7 @@ extern string AddAttributeVec3d( const string & collID, const string & attribute
         print( "Added IntMatrix Attribute" )
     else:
         print( "AddAttributeIntMatrix error!" )
+        assert False, "AddAttributeIntMatrix error!"
 
     \endcode
     \endPythonOnly
@@ -4741,6 +4876,7 @@ extern string AddAttributeIntMatrix( const string & collID, const string & attri
         print( "Added DoubleMatrix Attribute" )
     else:
         print( "AddAttributeDoubleMatrix error!" )
+        assert False, "AddAttributeDoubleMatrix error!"
 
     \endcode
     \endPythonOnly
@@ -4789,6 +4925,7 @@ extern string AddAttributeDoubleMatrix( const string & collID, const string & at
         print( "Added Attribute Group" )
     else:
         print( "AddAttributeGroup error!" )
+        assert False, "AddAttributeGroup error!"
 
 
     \endcode
@@ -4842,6 +4979,7 @@ extern string AddAttributeGroup( const string & collID, const string & attribute
         print("Successfully copied Attribute")
     else:
         print("CopyAttribute Error!")
+        assert False, "CopyAttribute Error!"
     \endcode
     \endPythonOnly
     \param [in] attrID string ID of attribute to be copied
@@ -4913,6 +5051,7 @@ extern int CopyAttribute( const string & attrID );
         print("Successfully cut Attribute")
     else:
         print("CutAttribute Error!")
+        assert False, "CutAttribute Error!"
 
     \endcode
     \endPythonOnly
@@ -5000,6 +5139,7 @@ extern void CutAttribute( const string & attrID );
         print("Successfully pasted Attribute")
     else:
         print("PasteAttribute Error!")
+        assert False, "PasteAttribute Error!"
 
     \endcode
     \endPythonOnly
@@ -5020,6 +5160,11 @@ extern vector < string > PasteAttribute( const string & coll_id );
     WriteTestResults();
 
     array< string > @results_array = GetAllResultsNames();
+    if ( results_array.length() == 0 )
+    {
+        Print( "ERROR: GetAllResultsNames returned nothing" );
+        __failure++;
+    }
 
     for ( int i = 0; i < int( results_array.size() ); i++ )
     {
@@ -5034,6 +5179,7 @@ extern vector < string > PasteAttribute( const string & coll_id );
     WriteTestResults()
 
     results_array = GetAllResultsNames()
+    assert len( results_array ) > 0, "GetAllResultsNames returned nothing"
 
     for i in range(int( len(results_array) )):
 
@@ -5073,7 +5219,9 @@ extern std::vector<std::string> GetAllResultsNames();
 
     data_names = GetAllDataNames( res_id )
 
-    if  len(data_names) != 5 : print( "---> Error: API GetAllDataNames" )
+    if  len(data_names) != 5 :
+        print( "---> Error: API GetAllDataNames" )
+        assert False, "---> Error: API GetAllDataNames"
 
     \endcode
     \endPythonOnly
@@ -5101,7 +5249,9 @@ extern std::vector<std::string> GetAllDataNames( const std::string & results_id 
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    if ( GetNumResults( "Test_Results" ) != 2 ): print( "---> Error: API GetNumResults" )
+    if ( GetNumResults( "Test_Results" ) != 2 ):
+        print( "---> Error: API GetNumResults" )
+        assert False, "---> Error: API GetNumResults"
 
     \endcode
     \endPythonOnly
@@ -5219,7 +5369,9 @@ extern std::string GetResultsEntryDoc( const std::string & results_id, const std
 
     res_id = FindResultsID( "Test_Results" )
 
-    if  len(res_id) == 0 : print( "---> Error: API FindResultsID" )
+    if  len(res_id) == 0 :
+        print( "---> Error: API FindResultsID" )
+        assert False, "---> Error: API FindResultsID"
 
     \endcode
     \endPythonOnly
@@ -5299,15 +5451,21 @@ extern std::string FindLatestResultsID( const std::string & name );
 
     res_id = FindResultsID( "Test_Results" )
 
-    if ( GetNumData( res_id, "Test_Int" ) != 2 ): print( "---> Error: API GetNumData " )
+    if ( GetNumData( res_id, "Test_Int" ) != 2 ):
+        print( "---> Error: API GetNumData " )
+        assert False, "---> Error: API GetNumData"
 
     int_arr = GetIntResults( res_id, "Test_Int", 0 )
 
-    if  int_arr[0] != 1 : print( "---> Error: API GetIntResults" )
+    if  int_arr[0] != 1 :
+        print( "---> Error: API GetIntResults" )
+        assert False, "---> Error: API GetIntResults"
 
     int_arr = GetIntResults( res_id, "Test_Int", 1 )
 
-    if  int_arr[0] != 2 : print( "---> Error: API GetIntResults" )
+    if  int_arr[0] != 2 :
+        print( "---> Error: API GetIntResults" )
+        assert False, "---> Error: API GetIntResults"
 
     \endcode
     \endPythonOnly
@@ -5391,15 +5549,21 @@ extern int GetResultsType( const std::string & results_id, const std::string & d
 
     res_id = FindResultsID( "Test_Results" )
 
-    if ( GetNumData( res_id, "Test_Int" ) != 2 ): print( "---> Error: API GetNumData " )
+    if ( GetNumData( res_id, "Test_Int" ) != 2 ):
+        print( "---> Error: API GetNumData " )
+        assert False, "---> Error: API GetNumData"
 
     int_arr = GetIntResults( res_id, "Test_Int", 0 )
 
-    if  int_arr[0] != 1 : print( "---> Error: API GetIntResults" )
+    if  int_arr[0] != 1 :
+        print( "---> Error: API GetIntResults" )
+        assert False, "---> Error: API GetIntResults"
 
     int_arr = GetIntResults( res_id, "Test_Int", 1 )
 
-    if  int_arr[0] != 2 : print( "---> Error: API GetIntResults" )
+    if  int_arr[0] != 2 :
+        print( "---> Error: API GetIntResults" )
+        assert False, "---> Error: API GetIntResults"
 
     \endcode
     \endPythonOnly
@@ -5427,6 +5591,11 @@ extern const std::vector< int > & GetIntResults( const std::string & id, const s
     string comp_res_id = FindLatestResultsID( "Comp_Geom" );                    // Find Results ID
 
     array<double> @double_arr = GetDoubleResults( comp_res_id, "Wet_Area" );    // Extract Results
+    if ( double_arr.length() == 0 )
+    {
+        Print( "ERROR: GetDoubleResults returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5440,6 +5609,7 @@ extern const std::vector< int > & GetIntResults( const std::string & id, const s
     comp_res_id = FindLatestResultsID( "Comp_Geom" )                    # Find Results ID
 
     double_arr = GetDoubleResults( comp_res_id, "Wet_Area" )    # Extract Results
+    assert len( double_arr ) > 0, "GetDoubleResults returned nothing"
 
     \endcode
     \endPythonOnly
@@ -5490,7 +5660,9 @@ extern const std::vector< std::vector< double > > & GetDoubleMatResults( const s
 
     str_arr = GetStringResults( res_id, "Test_String" )
 
-    if ( str_arr[0] != "This Is A Test" ): print( "---> Error: API GetStringResults" )
+    if ( str_arr[0] != "This Is A Test" ):
+        print( "---> Error: API GetStringResults" )
+        assert False, "---> Error: API GetStringResults"
 
     \endcode
     \endPythonOnly
@@ -5518,6 +5690,11 @@ extern const std::vector<std::string> & GetStringResults( const std::string & id
     string res_id = FindLatestResultsID( "Test_Results" );
 
     array<vec3d> @vec3d_vec = GetVec3dResults( res_id, "Test_Vec3d" );
+    if ( vec3d_vec.length() == 0 )
+    {
+        Print( "ERROR: GetVec3dResults returned nothing" );
+        __failure++;
+    }
 
     Print( "X: ", false );
     Print( vec3d_vec[0].x(), false );
@@ -5540,6 +5717,7 @@ extern const std::vector<std::string> & GetStringResults( const std::string & id
     res_id = FindLatestResultsID( "Test_Results" )
 
     vec3d_vec = GetVec3dResults( res_id, "Test_Vec3d" )
+    assert len( vec3d_vec ) > 0, "GetVec3dResults returned nothing"
 
     print( "X: ", False )
     print( vec3d_vec[0].x(), False )
@@ -5592,7 +5770,9 @@ extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, con
 
     int_arr = GetIntResults( mesh_geom_res_id, "Num_Tris" )
 
-    if  int_arr[0] < 4 : print( "---> Error: API CreateGeomResults" )
+    if  int_arr[0] < 4 :
+        print( "---> Error: API CreateGeomResults" )
+        assert False, "---> Error: API CreateGeomResults"
 
     \endcode
     \endPythonOnly
@@ -5635,7 +5815,9 @@ extern std::string CreateGeomResults( const std::string & geom_id, const std::st
 
     DeleteAllResults()
 
-    if ( GetNumResults( "Comp_Mesh" ) != 0 ): print( "---> Error: API DeleteAllResults" )
+    if ( GetNumResults( "Comp_Mesh" ) != 0 ):
+        print( "---> Error: API DeleteAllResults" )
+        assert False, "---> Error: API DeleteAllResults"
 
     \endcode
     \endPythonOnly
@@ -5675,7 +5857,9 @@ extern void DeleteAllResults();
 
     DeleteResult( mesh_geom_res_id )
 
-    if ( GetNumResults( "Comp_Mesh" ) != 0 ): print( "---> Error: API DeleteResult" )
+    if ( GetNumResults( "Comp_Mesh" ) != 0 ):
+        print( "---> Error: API DeleteResult" )
+        assert False, "---> Error: API DeleteResult"
 
     \endcode
     \endPythonOnly
@@ -6440,6 +6624,11 @@ extern void AddMaterial( const string &name, const vec3d & ambient, const vec3d 
     \forcpponly
     \code{.cpp}
     array< string > @mat_array = GetMaterialNames();
+    if ( mat_array.length() == 0 )
+    {
+        Print( "ERROR: GetMaterialNames returned nothing" );
+        __failure++;
+    }
 
     for ( int i = 0; i < int( mat_array.size() ); i++ )
     {
@@ -6450,6 +6639,7 @@ extern void AddMaterial( const string &name, const vec3d & ambient, const vec3d 
     \beginPythonOnly
     \code{.py}
     mat_array = GetMaterialNames()
+    assert len( mat_array ) > 0, "GetMaterialNames returned nothing"
 
     for i in range(int( len(mat_array) )):
         print( mat_array[i] )
@@ -6717,7 +6907,9 @@ extern void ShowScreen( int s );
 
     type_array = GetGeomTypes()
 
-    if ( type_array[0] != "POD" ): print( "---> Error: API GetGeomTypes  " )
+    if ( type_array[0] != "POD" ):
+        print( "---> Error: API GetGeomTypes  " )
+        assert False, "---> Error: API GetGeomTypes"
 
     \endcode
     \endPythonOnly
@@ -6895,7 +7087,9 @@ extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
 
     geom_ids = FindGeoms()
 
-    if  len(geom_ids) != 2 : print( "---> Error: API Cut/Paste Geom  " )
+    if  len(geom_ids) != 2 :
+        print( "---> Error: API Cut/Paste Geom  " )
+        assert False, "---> Error: API Cut/Paste Geom"
 
     \endcode
     \endPythonOnly
@@ -6937,7 +7131,9 @@ extern void CutGeomToClipboard( const std::string & geom_id );
 
     geom_ids = FindGeoms()
 
-    if  len(geom_ids) != 3 : print( "---> Error: API Copy/Paste Geom  " )
+    if  len(geom_ids) != 3 :
+        print( "---> Error: API Copy/Paste Geom  " )
+        assert False, "---> Error: API Copy/Paste Geom"
 
     \endcode
     \endPythonOnly
@@ -6979,7 +7175,9 @@ extern void CopyGeomToClipboard( const std::string & geom_id );
 
     geom_ids = FindGeoms()
 
-    if  len(geom_ids) != 2 : print( "---> Error: API Cut/Paste Geom  " )
+    if  len(geom_ids) != 2 :
+        print( "---> Error: API Cut/Paste Geom  " )
+        assert False, "---> Error: API Cut/Paste Geom"
 
     \endcode
     \endPythonOnly
@@ -7015,7 +7213,9 @@ extern std::vector<std::string> PasteGeomClipboard( const std::string & parent =
     #==== There Should Be Two Geoms =====//
     geom_ids = FindGeoms()
 
-    if  len(geom_ids) != 2 : print( "---> Error: API FindGeoms " )
+    if  len(geom_ids) != 2 :
+        print( "---> Error: API FindGeoms " )
+        assert False, "---> Error: API FindGeoms"
 
     \endcode
     \endPythonOnly
@@ -7056,6 +7256,7 @@ extern std::vector<std::string> FindGeoms();
 
     if  len(geom_ids) != 1 :
         print( "---> Error: API FindGeomsWithName " )
+        assert False, "---> Error: API FindGeomsWithName"
 
     \endcode
     \endPythonOnly
@@ -7102,6 +7303,7 @@ extern std::vector<std::string> FindGeomsWithName( const std::string & name );
 
     if  geom_ids[0] != geom_id :
         print( "---> Error: API FindGeom & FindGeomsWithName" )
+        assert False, "---> Error: API FindGeom & FindGeomsWithName"
 
     \endcode
     \endPythonOnly
@@ -7145,6 +7347,7 @@ extern std::string FindGeom( const std::string & name, int index );
 
     if  len(geom_ids) != 1 :
         print( "---> Error: API FindGeomsWithName " )
+        assert False, "---> Error: API FindGeomsWithName"
 
     \endcode
     \endPythonOnly
@@ -7216,7 +7419,9 @@ extern std::string GetGeomName( const std::string & geom_id );
 
     parm_array = GetGeomParmIDs( pid )
 
-    if  len(parm_array) < 1 : print( "---> Error: API GetGeomParmIDs " )
+    if  len(parm_array) < 1 :
+        print( "---> Error: API GetGeomParmIDs " )
+        assert False, "---> Error: API GetGeomParmIDs"
 
     \endcode
     \endPythonOnly
@@ -7280,7 +7485,9 @@ extern std::string GetGeomTypeName( const std::string & geom_id );
 
     lenid = GetParm( pid, "Length", "Design" )
 
-    if  not ValidParm( lenid ) : print( "---> Error: API GetParm  " )
+    if  not ValidParm( lenid ) :
+        print( "---> Error: API GetParm  " )
+        assert False, "---> Error: API GetParm"
 
     \endcode
     \endPythonOnly
@@ -7337,6 +7544,7 @@ extern std::string GetParm( const std::string & geom_id, const std::string & nam
 
     if ( pod2_parent != "NONE" or pod3_parent != pod1 ):
         print( "SetGeomParent error!" )
+        assert False, "SetGeomParent error!"
 
     \endcode
     \endPythonOnly
@@ -7399,6 +7607,11 @@ extern std::string GetGeomParent( const std::string& geom_id );
     Print( "Children of Pod #1: " );
 
     array<string> children = GetGeomChildren( pod1 );
+    if ( children.length() == 0 )
+    {
+        Print( "ERROR: GetGeomChildren returned nothing" );
+        __failure++;
+    }
 
     for ( int i = 0; i < int( children.size() ); i++ )
     {
@@ -7419,6 +7632,7 @@ extern std::string GetGeomParent( const std::string& geom_id );
     print( "Children of Pod #1: " )
 
     children = GetGeomChildren( pod1 )
+    assert len( children ) > 0, "GetGeomChildren returned nothing"
 
     for i in range(int( len(children) )):
 
@@ -7455,7 +7669,9 @@ extern std::vector< std::string > GetGeomChildren( const std::string& geom_id );
 
     num_xsec_surfs = GetNumXSecSurfs( fuseid )
 
-    if  num_xsec_surfs != 1 : print( "---> Error: API GetNumXSecSurfs  " )
+    if  num_xsec_surfs != 1 :
+        print( "---> Error: API GetNumXSecSurfs  " )
+        assert False, "---> Error: API GetNumXSecSurfs"
 
     \endcode
     \endPythonOnly
@@ -7571,6 +7787,7 @@ extern int GetTotalNumSurfs( const std::string& geom_id );
 
     if  GetGeomVSPSurfType( wing_id ) != WING_SURF :
         print( "---> Error: API GetGeomVSPSurfType " )
+        assert False, "---> Error: API GetGeomVSPSurfType"
 
     \endcode
     \endPythonOnly
@@ -7606,6 +7823,7 @@ extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0
 
     if  GetGeomVSPSurfCfdType( wing_id ) != CFD_NORMAL :
         print( "---> Error: API GetGeomVSPSurfCfdType " )
+        assert False, "---> Error: API GetGeomVSPSurfCfdType"
 
     \endcode
     \endPythonOnly
@@ -8006,6 +8224,11 @@ extern void SetSubSurfName( const std::string & sub_id, const std::string & name
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     string rec_name = GetSubSurfName( wid, ss_rec_id );
+    if ( rec_name.length() == 0 )
+    {
+        Print( "ERROR: GetSubSurfName returned nothing" );
+        __failure++;
+    }
 
     string name_str = string("Current Name of SS_Rectangle: ") + rec_name + string("\n");
 
@@ -8019,6 +8242,7 @@ extern void SetSubSurfName( const std::string & sub_id, const std::string & name
     ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
     rec_name = GetSubSurfName( wid, ss_rec_id )
+    assert len( rec_name ) > 0, "GetSubSurfName returned nothing"
 
     name_str = "Current Name of SS_Rectangle: " + rec_name + "\n"
 
@@ -8045,6 +8269,11 @@ extern std::string GetSubSurfName( const std::string & geom_id, const std::strin
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     string rec_name = GetSubSurfName( wid, ss_rec_id );
+    if ( rec_name.length() == 0 )
+    {
+        Print( "ERROR: GetSubSurfName returned nothing" );
+        __failure++;
+    }
 
     string name_str = string("Current Name of SS_Rectangle: ") + rec_name + string("\n");
 
@@ -8058,6 +8287,7 @@ extern std::string GetSubSurfName( const std::string & geom_id, const std::strin
     ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
     rec_name = GetSubSurfName( wid, ss_rec_id )
+    assert len( rec_name ) > 0, "GetSubSurfName returned nothing"
 
     name_str = "Current Name of SS_Rectangle: " + rec_name + "\n"
 
@@ -8124,6 +8354,11 @@ extern int GetSubSurfIndex( const std::string & sub_id );
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     array<string> id_vec = GetSubSurfIDVec( wid );
+    if ( id_vec.length() == 0 )
+    {
+        Print( "ERROR: GetSubSurfIDVec returned nothing" );
+        __failure++;
+    }
 
     string id_type_str = string( "SubSurface IDs and Type Indexes -> ");
 
@@ -8151,6 +8386,7 @@ extern int GetSubSurfIndex( const std::string & sub_id );
     ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
     id_vec = GetSubSurfIDVec( wid )
+    assert len( id_vec ) > 0, "GetSubSurfIDVec returned nothing"
 
     id_type_str = "SubSurface IDs and Type Indexes -> "
 
@@ -8305,6 +8541,11 @@ extern int GetSubSurfType( const std::string & sub_id );
 
     // Get and list all Parm info for SS_Line
     array<string> parm_id_vec = GetSubSurfParmIDs( ss_line_id );
+    if ( parm_id_vec.length() == 0 )
+    {
+        Print( "ERROR: GetSubSurfParmIDs returned nothing" );
+        __failure++;
+    }
 
     for ( uint i = 0; i < uint(parm_id_vec.length()); i++ )
     {
@@ -8323,6 +8564,7 @@ extern int GetSubSurfType( const std::string & sub_id );
 
     # Get and list all Parm info for SS_Line
     parm_id_vec = GetSubSurfParmIDs( ss_line_id )
+    assert len( parm_id_vec ) > 0, "GetSubSurfParmIDs returned nothing"
 
     for i in range(len(parm_id_vec)):
 
@@ -8507,7 +8749,9 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
 
     SetFeaMeshStructIndex( struct_ind )
 
-    if  len(FindGeoms()) != 1 : print( "ERROR: SetFeaMeshStructIndex" )
+    if  len(FindGeoms()) != 1 :
+        print( "ERROR: SetFeaMeshStructIndex" )
+        assert False, "ERROR: SetFeaMeshStructIndex"
 
     \endcode
     \endPythonOnly
@@ -8567,6 +8811,11 @@ extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
     int struct_ind = AddFeaStruct( pod_id );
 
     string struct_id = GetFeaStructID( pod_id, struct_ind );
+    if ( struct_id.length() == 0 )
+    {
+        Print( "ERROR: GetFeaStructID returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8578,6 +8827,7 @@ extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
     struct_ind = AddFeaStruct( pod_id )
 
     struct_id = GetFeaStructID( pod_id, struct_ind )
+    assert len( struct_id ) > 0, "GetFeaStructID returned nothing"
 
     \endcode
     \endPythonOnly
@@ -8651,6 +8901,11 @@ extern int GetFeaStructIndex( const std::string & struct_id );
 
     //==== Get Parent Geom ID and Index ====//
     string parent_id = GetFeaStructParentGeomID( struct_id );
+    if ( parent_id.length() == 0 )
+    {
+        Print( "ERROR: GetFeaStructParentGeomID returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8665,6 +8920,7 @@ extern int GetFeaStructIndex( const std::string & struct_id );
 
     #==== Get Parent Geom ID and Index ====//
     parent_id = GetFeaStructParentGeomID( struct_id )
+    assert len( parent_id ) > 0, "GetFeaStructParentGeomID returned nothing"
 
     \endcode
     \endPythonOnly
@@ -8689,6 +8945,11 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
 
     //==== Get Structure Name ====//
     string parm_container_name = GetFeaStructName( pod_id, struct_ind );
+    if ( parm_container_name.length() == 0 )
+    {
+        Print( "ERROR: GetFeaStructName returned nothing" );
+        __failure++;
+    }
 
     string display_name = string("Current Structure Parm Container Name: ") + parm_container_name + string("\n");
 
@@ -8705,6 +8966,7 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
 
     #==== Get Structure Name ====//
     parm_container_name = GetFeaStructName( pod_id, struct_ind )
+    assert len( parm_container_name ) > 0, "GetFeaStructName returned nothing"
 
     display_name = "Current Structure Parm Container Name: " + parm_container_name + "\n"
 
@@ -8786,6 +9048,11 @@ extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, c
     int wing_struct_ind = AddFeaStruct( wing_id );
 
     array < string > struct_id_vec = GetFeaStructIDVec();
+    if ( struct_id_vec.length() == 0 )
+    {
+        Print( "ERROR: GetFeaStructIDVec returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8799,6 +9066,7 @@ extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, c
     wing_struct_ind = AddFeaStruct( wing_id )
 
     struct_id_vec = GetFeaStructIDVec()
+    assert len( struct_id_vec ) > 0, "GetFeaStructIDVec returned nothing"
 
     \endcode
     \endPythonOnly
@@ -8996,6 +9264,7 @@ extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, cons
     if  bulkhead_id != GetFeaPartID( struct_id, 1 ) : # These should be equivalent (index 0 is skin)
 
         print( "Error: GetFeaPartID" )
+        assert False, "Error: GetFeaPartID"
 
     \endcode
     \endPythonOnly
@@ -9049,6 +9318,7 @@ extern std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part
     if  name != GetFeaPartName( bulkhead_id ) : # These should be equivalent
 
         print( "Error: GetFeaPartName" )
+        assert False, "Error: GetFeaPartName"
 
     \endcode
     \endPythonOnly
@@ -9096,6 +9366,7 @@ extern std::string GetFeaPartName( const std::string & part_id );
     if  FEA_SLICE != GetFeaPartType( slice_id ) : # These should be equivalent
 
         print( "Error: GetFeaPartType" )
+        assert False, "Error: GetFeaPartType"
 
     \endcode
     \endPythonOnly
@@ -9126,6 +9397,11 @@ extern int GetFeaPartType( const std::string & part_id );
     string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME );
 
     array < string > part_id_vec = GetFeaPartIDVec( struct_id ); // Should include slice_id & dome_id
+    if ( part_id_vec.length() == 0 )
+    {
+        Print( "ERROR: GetFeaPartIDVec returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -9143,6 +9419,7 @@ extern int GetFeaPartType( const std::string & part_id );
     dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME )
 
     part_id_vec = GetFeaPartIDVec( struct_id ) # Should include slice_id & dome_id
+    assert len( part_id_vec ) > 0, "GetFeaPartIDVec returned nothing"
 
     \endcode
     \endPythonOnly
@@ -9173,6 +9450,11 @@ extern std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struc
     string rectangle_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE );
 
     array < string > part_id_vec = GetFeaSubSurfIDVec( struct_id ); // Should include line_array_id & rectangle_id
+    if ( part_id_vec.length() == 0 )
+    {
+        Print( "ERROR: GetFeaSubSurfIDVec returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -9190,6 +9472,7 @@ extern std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struc
     rectangle_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
 
     part_id_vec = GetFeaSubSurfIDVec( struct_id ) # Should include line_array_id & rectangle_id
+    assert len( part_id_vec ) > 0, "GetFeaSubSurfIDVec returned nothing"
 
     \endcode
     \endPythonOnly
@@ -9262,6 +9545,7 @@ extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_st
 
     if  spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) :
         print( "Error: SetFeaPartPerpendicularSparID" )
+        assert False, "Error: SetFeaPartPerpendicularSparID"
 
     \endcode
     \endPythonOnly
@@ -9333,6 +9617,7 @@ extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std
 
     if  spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) :
         print( "Error: GetFeaPartPerpendicularSparID" )
+        assert False, "Error: GetFeaPartPerpendicularSparID"
 
     \endcode
     \endPythonOnly
@@ -9426,6 +9711,7 @@ extern void SetFeaSubSurfName( const std::string & subsurf_id, const std::string
 
     if  name != GetFeaSubSurfName( line_array_id ) : # These should be equivalent
         print( "Error: GetFeaSubSurfName" )
+        assert False, "Error: GetFeaSubSurfName"
 
     \endcode
     \endPythonOnly
@@ -9586,6 +9872,7 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
     if  1 != GetFeaSubSurfIndex( rect_id ) : # These should be equivalent
 
         print( "Error: GetFeaSubSurfIndex" )
+        assert False, "Error: GetFeaSubSurfIndex"
 
     \endcode
     \endPythonOnly
@@ -9628,6 +9915,7 @@ extern int GetFeaSubSurfIndex( const string & ss_id );
     # A new Poly Spar starts with 2 points
     if GetFeaPolySparNumPt( pspar_id ) != 2:
         print( "Error: GetFeaPolySparNumPt" )
+        assert False, "Error: GetFeaPolySparNumPt"
 
     \endcode
     \endPythonOnly
@@ -9673,6 +9961,7 @@ extern int GetFeaPolySparNumPt( const string & pspar_id );
 
     if GetFeaPolySparNumPt( pspar_id ) != 3:
         print( "Error: AddFeaPolySparPt" )
+        assert False, "Error: AddFeaPolySparPt"
 
     \endcode
     \endPythonOnly
@@ -9719,6 +10008,7 @@ extern string AddFeaPolySparPt( const string & pspar_id );
 
     if GetFeaPolySparNumPt( pspar_id ) != 3:
         print( "Error: InsertFeaPolySparPt" )
+        assert False, "Error: InsertFeaPolySparPt"
 
     \endcode
     \endPythonOnly
@@ -9772,6 +10062,7 @@ extern string InsertFeaPolySparPt( const string & pspar_id, int index );
 
     if GetFeaPolySparNumPt( pspar_id ) != 3:
         print( "Error: DelFeaPolySparPt" )
+        assert False, "Error: DelFeaPolySparPt"
 
     \endcode
     \endPythonOnly
@@ -9822,6 +10113,7 @@ extern void DelFeaPolySparPt( const string & pspar_id, int index );
 
     if GetFeaPolySparNumPt( pspar_id ) != 0:
         print( "Error: DelAllFeaPolySparPt" )
+        assert False, "Error: DelAllFeaPolySparPt"
 
     \endcode
     \endPythonOnly
@@ -9871,6 +10163,7 @@ extern void DelAllFeaPolySparPt( const string & pspar_id );
 
     if new_index != 1:
         print( "Error: MoveFeaPolySparPt" )
+        assert False, "Error: MoveFeaPolySparPt"
 
     \endcode
     \endPythonOnly
@@ -9919,6 +10212,7 @@ extern int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_ty
 
     if GetFeaPolySparPtName( pspar_id, 0 ) != "InboardPt":
         print( "Error: SetFeaPolySparPtName" )
+        assert False, "Error: SetFeaPolySparPtName"
 
     \endcode
     \endPythonOnly
@@ -9946,6 +10240,11 @@ extern void SetFeaPolySparPtName( const string & pspar_id, int index, const stri
     SetFeaPolySparPtName( pspar_id, 0, "InboardPt" );
 
     string name = GetFeaPolySparPtName( pspar_id, 0 );
+    if ( name.length() == 0 )
+    {
+        Print( "ERROR: GetFeaPolySparPtName returned nothing" );
+        __failure++;
+    }
 
     Print( "Point 0 name: " + name );
     \endcode
@@ -9961,6 +10260,7 @@ extern void SetFeaPolySparPtName( const string & pspar_id, int index, const stri
     SetFeaPolySparPtName( pspar_id, 0, "InboardPt" )
 
     name = GetFeaPolySparPtName( pspar_id, 0 )
+    assert len( name ) > 0, "GetFeaPolySparPtName returned nothing"
 
     print( "Point 0 name: " + name )
 
@@ -9989,6 +10289,11 @@ extern string GetFeaPolySparPtName( const string & pspar_id, int index );
     string pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR );
 
     string pt_id = GetFeaPolySparPtID( pspar_id, 0 );
+    if ( pt_id.length() == 0 )
+    {
+        Print( "ERROR: GetFeaPolySparPtID returned nothing" );
+        __failure++;
+    }
 
     // Set the spanwise location of the inboard point to eta = 0.1
     SetParmVal( FindParm( pt_id, "Eta", "FeaPolySparPoint" ), 0.1 );
@@ -10008,6 +10313,7 @@ extern string GetFeaPolySparPtName( const string & pspar_id, int index );
     pspar_id = AddFeaPart( wing_id, struct_ind, FEA_POLY_SPAR )
 
     pt_id = GetFeaPolySparPtID( pspar_id, 0 )
+    assert len( pt_id ) > 0, "GetFeaPolySparPtID returned nothing"
 
     # Set the spanwise location of the inboard point to eta = 0.1
     SetParmVal( FindParm( pt_id, "Eta", "FeaPolySparPoint" ), 0.1 )
@@ -10071,6 +10377,7 @@ extern string GetFeaPolySparPtID( const string & pspar_id, int index );
 
     if len( pt_ids ) != 3:
         print( "Error: GetAllFeaPolySparPtIDVec" )
+        assert False, "Error: GetAllFeaPolySparPtIDVec"
 
     # Set each point's spanwise eta location
     SetParmVal( FindParm( pt_ids[0], "Eta", "FeaPolySparPoint" ), 0.1 )
@@ -10118,6 +10425,7 @@ extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
 
     if  NumFeaStructures() != 2 :
         print( "Error: NumFeaStructures" )
+        assert False, "Error: NumFeaStructures"
 
     \endcode
     \endPythonOnly
@@ -10170,6 +10478,7 @@ extern int NumFeaStructures();
     if  NumFeaParts( struct_id ) != 3 : # Includes FeaSkin
 
         print( "Error: NumFeaParts" )
+        assert False, "Error: NumFeaParts"
 
     \endcode
     \endPythonOnly
@@ -10222,6 +10531,7 @@ extern int NumFeaParts( const std::string & fea_struct_id );
 
     if  NumFeaSubSurfs( struct_id ) != 2 :
         print( "Error: NumFeaSubSurfs" )
+        assert False, "Error: NumFeaSubSurfs"
 
     \endcode
     \endPythonOnly
@@ -10345,6 +10655,11 @@ extern void DelFeaBC( const string & fea_struct_id, const std::string &bc_id );
     string bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE );
 
     array < string > bc_id_vec = GetFeaBCIDVec( struct_id );
+    if ( bc_id_vec.length() == 0 )
+    {
+        Print( "ERROR: GetFeaBCIDVec returned nothing" );
+        __failure++;
+    }
 
 
     \endcode
@@ -10363,6 +10678,7 @@ extern void DelFeaBC( const string & fea_struct_id, const std::string &bc_id );
     bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE )
 
     bc_id_vec = GetFeaBCIDVec( struct_id )
+    assert len( bc_id_vec ) > 0, "GetFeaBCIDVec returned nothing"
 
     \endcode
     \endPythonOnly
@@ -10739,6 +11055,7 @@ extern void ComputeFeaMesh( const std::string & struct_id, int file_type );
 
     if alias != get_alias:
         print("SetXSecAlias/GetXSecAlias error!")
+        assert False, "SetXSecAlias/GetXSecAlias error!"
 
     \endcode
     \endPythonOnly
@@ -10799,6 +11116,7 @@ extern void SetXSecAlias( const string & id, const string & alias );
 
     if alias != get_alias:
         print("SetXSecAlias/GetXSecAlias error!")
+        assert False, "SetXSecAlias/GetXSecAlias error!"
 
     \endcode
     \endPythonOnly
@@ -10859,6 +11177,7 @@ extern string GetXSecAlias( const string & id );
 
     if alias != get_alias:
         print("SetXSecCurveAlias/GetXSecCurveAlias error!")
+        assert False, "SetXSecCurveAlias/GetXSecCurveAlias error!"
 
     \endcode
     \endPythonOnly
@@ -10919,6 +11238,7 @@ extern void SetXSecCurveAlias( const string & id, const string & alias );
 
     if alias != get_alias:
         print("SetXSecCurveAlias/GetXSecCurveAlias error!")
+        assert False, "SetXSecCurveAlias/GetXSecCurveAlias error!"
 
     \endcode
     \endPythonOnly
@@ -11171,6 +11491,11 @@ extern void SetDriverGroup( const std::string & geom_id, int section_index, int 
 
     // Get First (and Only) XSec Surf
     string xsec_surf = GetXSecSurf( sid, 0 );
+    if ( xsec_surf.length() == 0 )
+    {
+        Print( "ERROR: GetXSecSurf returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11180,6 +11505,7 @@ extern void SetDriverGroup( const std::string & geom_id, int section_index, int 
 
     # Get First (and Only) XSec Surf
     xsec_surf = GetXSecSurf( sid, 0 )
+    assert len( xsec_surf ) > 0, "GetXSecSurf returned nothing"
 
     \endcode
     \endPythonOnly
@@ -11258,6 +11584,11 @@ extern int GetNumXSec( const std::string & xsec_surf_id );
 
     // Identify XSec 1
     string xsec_1 = GetXSec( xsec_surf, 1 );
+    if ( xsec_1.length() == 0 )
+    {
+        Print( "ERROR: GetXSec returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11270,6 +11601,7 @@ extern int GetNumXSec( const std::string & xsec_surf_id );
 
     # Identify XSec 1
     xsec_1 = GetXSec( xsec_surf, 1 )
+    assert len( xsec_1 ) > 0, "GetXSec returned nothing"
 
     \endcode
     \endPythonOnly
@@ -11322,6 +11654,7 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
 
     if  GetXSecShape( xsec_2 ) != XS_EDIT_CURVE :
         print( "Error: ChangeXSecShape" )
+        assert False, "Error: ChangeXSecShape"
 
     \endcode
     \endPythonOnly
@@ -11389,7 +11722,9 @@ extern Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id );
 
     xsec = GetXSec( xsec_surf, 1 )
 
-    if  GetXSecShape( xsec ) != XS_EDIT_CURVE : print( "ERROR: GetXSecShape" )
+    if  GetXSecShape( xsec ) != XS_EDIT_CURVE :
+        print( "ERROR: GetXSecShape" )
+        assert False, "ERROR: GetXSecShape"
 
     \endcode
     \endPythonOnly
@@ -11430,7 +11765,9 @@ extern int GetXSecShape( const std::string& xsec_id );
 
     SetXSecWidthHeight( xsec, 3.0, 6.0 )
 
-    if  abs( GetXSecWidth( xsec ) - 3.0 ) > 1e-6 : print( "---> Error: API Get/Set Width " )
+    if  abs( GetXSecWidth( xsec ) - 3.0 ) > 1e-6 :
+        print( "---> Error: API Get/Set Width " )
+        assert False, "---> Error: API Get/Set Width"
 
     \endcode
     \endPythonOnly
@@ -11471,7 +11808,9 @@ extern double GetXSecWidth( const std::string& xsec_id );
 
     SetXSecWidthHeight( xsec, 3.0, 6.0 )
 
-    if  abs( GetXSecHeight( xsec ) - 6.0 ) > 1e-6 : print( "---> Error: API Get/Set Width " )
+    if  abs( GetXSecHeight( xsec ) - 6.0 ) > 1e-6 :
+        print( "---> Error: API Get/Set Width " )
+        assert False, "---> Error: API Get/Set Width"
 
     \endcode
     \endPythonOnly
@@ -11637,7 +11976,9 @@ extern void SetXSecHeight( const std::string& xsec_id, double h );
 
     parm_array = GetXSecParmIDs( xsec )
 
-    if  len(parm_array) < 1 : print( "---> Error: API GetXSecParmIDs " )
+    if  len(parm_array) < 1 :
+        print( "---> Error: API GetXSecParmIDs " )
+        assert False, "---> Error: API GetXSecParmIDs"
 
     \endcode
     \endPythonOnly
@@ -11681,7 +12022,9 @@ extern std::vector<std::string> GetXSecParmIDs( const std::string& xsec_id );
 
     wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
-    if  not ValidParm( wid ) : print( "---> Error: API GetXSecParm " )
+    if  not ValidParm( wid ) :
+        print( "---> Error: API GetXSecParm " )
+        assert False, "---> Error: API GetXSecParm"
 
     \endcode
     \endPythonOnly
@@ -12412,6 +12755,11 @@ extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d
     int n_pts = 100;
 
     array<vec3d> cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), false );
+    if ( cl_dist_theo.length() == 0 )
+    {
+        Print( "ERROR: GetHersheyBarLiftDist returned nothing" );
+        __failure++;
+    }
 
     array<vec3d> cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), false );
     \endcode
@@ -12429,6 +12777,7 @@ extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d
     n_pts = 100
 
     cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), alpha_deg*pi/180, Vinf, ( 2 * halfAR ), False )
+    assert len( cl_dist_theo ) > 0, "GetHersheyBarLiftDist returned nothing"
 
     cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), alpha_deg*pi/180, Vinf, ( 2 * halfAR ), False )
 
@@ -12464,6 +12813,11 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &
     array<vec3d> cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), false );
 
     array<vec3d> cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), false );
+    if ( cd_dist_theo.length() == 0 )
+    {
+        Print( "ERROR: GetHersheyBarDragDist returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12481,6 +12835,7 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &
     cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), alpha_deg*pi/180, Vinf, ( 2 * halfAR ), False )
 
     cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), alpha_deg*pi/180, Vinf, ( 2 * halfAR ), False )
+    assert len( cd_dist_theo ) > 0, "GetHersheyBarDragDist returned nothing"
 
     \endcode
     \endPythonOnly
@@ -12514,6 +12869,11 @@ extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &
     const double tau = 10;
 
     array<vec3d> xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) );
+    if ( xyz_airfoil.length() == 0 )
+    {
+        Print( "ERROR: GetVKTAirfoilPnts returned nothing" );
+        __failure++;
+    }
 
     array<double> cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil );
     \endcode
@@ -12533,6 +12893,7 @@ extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &
     tau = 10
 
     xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) )
+    assert len( xyz_airfoil ) > 0, "GetVKTAirfoilPnts returned nothing"
 
     cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil )
 
@@ -12570,6 +12931,11 @@ extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alph
     array<vec3d> xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) );
 
     array<double> cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil );
+    if ( cp_dist.length() == 0 )
+    {
+        Print( "ERROR: GetVKTAirfoilCpDist returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12589,6 +12955,7 @@ extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alph
     xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) )
 
     cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil )
+    assert len( cp_dist ) > 0, "GetVKTAirfoilCpDist returned nothing"
 
     \endcode
     \endPythonOnly
@@ -12669,6 +13036,11 @@ extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
     vec3d V_vec = vec3d( ( V_inf * cos( Deg2Rad( alpha ) ) * cos( Deg2Rad( beta ) ) ), ( V_inf * sin( Deg2Rad( beta ) ) ), ( V_inf * sin( Deg2Rad( alpha ) ) * cos( Deg2Rad( beta ) ) ) );
 
     array < double > cp_dist = GetEllipsoidCpDist( x_slice_pnt_vec, abc_rad, V_vec );
+    if ( cp_dist.length() == 0 )
+    {
+        Print( "ERROR: GetEllipsoidCpDist returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12702,6 +13074,7 @@ extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
     V_vec = vec3d( ( V_inf * math.cos( alpha*pi/180 ) * math.cos( beta*pi/180 ) ), ( V_inf * math.sin( beta*pi/180 ) ), ( V_inf * math.sin( alpha*pi/180 ) * math.cos( beta*pi/180 ) ) )
 
     cp_dist = GetEllipsoidCpDist( x_slice_pnt_vec, abc_rad, V_vec )
+    assert len( cp_dist ) > 0, "GetEllipsoidCpDist returned nothing"
 
     \endcode
     \endPythonOnly
@@ -12735,6 +13108,11 @@ extern double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
 
     array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
+    if ( up_array.length() == 0 )
+    {
+        Print( "ERROR: GetAirfoilUpperPnts returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12751,6 +13129,7 @@ extern double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
     up_array = GetAirfoilUpperPnts( xsec )
+    assert len( up_array ) > 0, "GetAirfoilUpperPnts returned nothing"
 
     \endcode
     \endPythonOnly
@@ -12780,6 +13159,11 @@ extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
 
     array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
+    if ( low_array.length() == 0 )
+    {
+        Print( "ERROR: GetAirfoilLowerPnts returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12796,6 +13180,7 @@ extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
     low_array = GetAirfoilLowerPnts( xsec )
+    assert len( low_array ) > 0, "GetAirfoilLowerPnts returned nothing"
 
     \endcode
     \endPythonOnly
@@ -12969,6 +13354,7 @@ extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg 
 
     if GetNumBackground3Ds() != nbg + 1 :
         print( "ERROR: AddBackground3D" )
+        assert False, "ERROR: AddBackground3D"
 
     DelBackground3D( bg_id )
     \endcode
@@ -13009,6 +13395,7 @@ extern string AddBackground3D();
 
     if GetNumBackground3Ds() != nbg + 1 :
         print( "ERROR: AddBackground3D" )
+        assert False, "ERROR: AddBackground3D"
 
     DelBackground3D( bg_id )
     \endcode
@@ -13059,6 +13446,7 @@ extern int GetNumBackground3Ds();
 
     if GetNumBackground3Ds() != nbg + 3 :
         print( "ERROR: AddBackground3D" )
+        assert False, "ERROR: AddBackground3D"
 
     bg_array = GetAllBackground3Ds()
 
@@ -13175,6 +13563,7 @@ extern void HideAllBackground3Ds();
 
     if nbg != 0 :
         print( "ERROR: DelAllBackground3Ds" )
+        assert False, "ERROR: DelAllBackground3Ds"
 
     \endcode
     \endPythonOnly
@@ -13218,6 +13607,7 @@ extern void DelAllBackground3Ds();
 
     if GetNumBackground3Ds() != nbg -1 :
         print( "ERROR: DelBackground3D" )
+        assert False, "ERROR: DelBackground3D"
 
     \endcode
     \endPythonOnly
@@ -13240,6 +13630,11 @@ extern void DelBackground3D( const string &id );
     AddBackground3D();
 
     array< string > @bg_file_array = GetAllBackground3DRelativePaths();
+    if ( bg_file_array.length() == 0 )
+    {
+        Print( "ERROR: GetAllBackground3DRelativePaths returned nothing" );
+        __failure++;
+    }
 
     for( int n = 0; n < int( bg_file_array.length() ); n++ )
     {
@@ -13257,6 +13652,7 @@ extern void DelBackground3D( const string &id );
     AddBackground3D()
 
     bg_file_array = GetAllBackground3DRelativePaths()
+    assert len( bg_file_array ) > 0, "GetAllBackground3DRelativePaths returned nothing"
 
     for n in range( len( bg_file_array ) ):
         print( bg_file_array[n] )
@@ -13282,6 +13678,11 @@ extern vector < string > GetAllBackground3DRelativePaths();
     AddBackground3D();
 
     array< string > @bg_file_array = GetAllBackground3DAbsolutePaths();
+    if ( bg_file_array.length() == 0 )
+    {
+        Print( "ERROR: GetAllBackground3DAbsolutePaths returned nothing" );
+        __failure++;
+    }
 
     for( int n = 0; n < int( bg_file_array.length() ); n++ )
     {
@@ -13299,6 +13700,7 @@ extern vector < string > GetAllBackground3DRelativePaths();
     AddBackground3D()
 
     bg_file_array = GetAllBackground3DAbsolutePaths()
+    assert len( bg_file_array ) > 0, "GetAllBackground3DAbsolutePaths returned nothing"
 
     for n in range( len( bg_file_array ) ):
         print( bg_file_array[n] )
@@ -13324,6 +13726,11 @@ extern vector < string > GetAllBackground3DAbsolutePaths();
 
     SetBackground3DRelativePath( bg_id, "front.png" );
     string bg_file = GetBackground3DRelativePath( bg_id );
+    if ( bg_file.length() == 0 )
+    {
+        Print( "ERROR: GetBackground3DRelativePath returned nothing" );
+        __failure++;
+    }
 
     Print( bg_file );
 
@@ -13337,6 +13744,7 @@ extern vector < string > GetAllBackground3DAbsolutePaths();
 
     SetBackground3DRelativePath( bg_id, "front.png" )
     bg_file = GetBackground3DRelativePath( bg_id )
+    assert len( bg_file ) > 0, "GetBackground3DRelativePath returned nothing"
 
     print( bg_file )
 
@@ -13361,6 +13769,11 @@ extern string GetBackground3DRelativePath( const string &id );
 
     SetBackground3DAbsolutePath( bg_id, "/user/me/vsp_work/front.png" );
     string bg_file = GetBackground3DAbsolutePath( bg_id );
+    if ( bg_file.length() == 0 )
+    {
+        Print( "ERROR: GetBackground3DAbsolutePath returned nothing" );
+        __failure++;
+    }
 
     Print( bg_file );
 
@@ -13374,6 +13787,7 @@ extern string GetBackground3DRelativePath( const string &id );
 
     SetBackground3DAbsolutePath( bg_id, "/user/me/vsp_work/front.png" )
     bg_file = GetBackground3DAbsolutePath( bg_id )
+    assert len( bg_file ) > 0, "GetBackground3DAbsolutePath returned nothing"
 
     print( bg_file )
 
@@ -13550,6 +13964,11 @@ extern int GetNumBogies( const string &gear_id );
     CreateAndAddBogie( gear_id );
 
     array<string> @bogie_ids = GetAllBogies( gear_id );
+    if ( bogie_ids.length() == 0 )
+    {
+        Print( "ERROR: GetAllBogies returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13560,6 +13979,7 @@ extern int GetNumBogies( const string &gear_id );
     CreateAndAddBogie( gear_id )
 
     bogie_ids = GetAllBogies( gear_id )
+    assert len( bogie_ids ) > 0, "GetAllBogies returned nothing"
     \endcode
     \endPythonOnly
     \sa CreateAndAddBogie, GetNumBogies, DelBogie
@@ -14029,6 +14449,11 @@ extern int MoveRoutingPt( const string &routing_id, int index, int reorder_type 
     SetParmVal(u2, 1.0);
 
     string rid = GetRoutingPtID(routing_geom, 2);
+    if ( rid.length() == 0 )
+    {
+        Print( "ERROR: GetRoutingPtID returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14088,6 +14513,11 @@ extern string GetRoutingPtID( const string &routing_id, int index );
     SetParmVal(u2, 1.0);
 
     array<string> @rpts = GetAllRoutingPtIds(routing_geom);
+    if ( rpts.length() == 0 )
+    {
+        Print( "ERROR: GetAllRoutingPtIds returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14146,6 +14576,11 @@ extern vector < string > GetAllRoutingPtIds( const string &routing_id );
     SetParmVal(u2, 1.0);
 
     string gid = GetRoutingPtParentID(rpt1);
+    if ( gid.length() == 0 )
+    {
+        Print( "ERROR: GetRoutingPtParentID returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14386,6 +14821,11 @@ extern vec3d GetRoutingPtCoord( const string &routing_id, int index, int symm_in
 
     Update();
     array<vec3d> pvec = GetAllRoutingPtCoords(routing_geom, 0);
+    if ( pvec.length() == 0 )
+    {
+        Print( "ERROR: GetAllRoutingPtCoords returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14448,6 +14888,11 @@ extern vector < vec3d > GetAllRoutingPtCoords( const string &routing_id, int sym
 
     Update();
     array<vec3d> pvec = GetRoutingCurve(routing_geom, 0);
+    if ( pvec.length() == 0 )
+    {
+        Print( "ERROR: GetRoutingCurve returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14505,7 +14950,9 @@ extern vector < vec3d > GetRoutingCurve( const string &routing_id, int symm_inde
 
     ChangeBORXSecShape( bor_id, XS_ROUNDED_RECTANGLE )
 
-    if  GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE : print( "ERROR: ChangeBORXSecShape" )
+    if  GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE :
+        print( "ERROR: ChangeBORXSecShape" )
+        assert False, "ERROR: ChangeBORXSecShape"
 
     \endcode
     \endPythonOnly
@@ -14538,7 +14985,9 @@ extern void ChangeBORXSecShape( const string & bor_id, int type );
 
     ChangeBORXSecShape( bor_id, XS_ROUNDED_RECTANGLE )
 
-    if  GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE : print( "ERROR: GetBORXSecShape" )
+    if  GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE :
+        print( "ERROR: GetBORXSecShape" )
+        assert False, "ERROR: GetBORXSecShape"
 
     \endcode
     \endPythonOnly
@@ -14898,6 +15347,11 @@ extern void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
 
     array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+    if ( up_array.length() == 0 )
+    {
+        Print( "ERROR: GetBORAirfoilUpperPnts returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14910,6 +15364,7 @@ extern void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
     up_array = GetBORAirfoilUpperPnts( bor_id )
+    assert len( up_array ) > 0, "GetBORAirfoilUpperPnts returned nothing"
 
     \endcode
     \endPythonOnly
@@ -14935,6 +15390,11 @@ extern std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id );
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
 
     array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+    if ( low_array.length() == 0 )
+    {
+        Print( "ERROR: GetBORAirfoilLowerPnts returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14947,6 +15407,7 @@ extern std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id );
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
     low_array = GetBORAirfoilLowerPnts( bor_id )
+    assert len( low_array ) > 0, "GetBORAirfoilLowerPnts returned nothing"
 
     \endcode
     \endPythonOnly
@@ -15322,6 +15783,7 @@ extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype 
 
     if  u_vec[1] - 0.25 > 1e-6 :
         print( "Error: GetEditXSecUVec" )
+        assert False, "Error: GetEditXSecUVec"
 
     \endcode
     \endPythonOnly
@@ -15351,6 +15813,11 @@ extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
 
     // Get the control points for the default shape
     array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+    if ( xsec1_pts.length() == 0 )
+    {
+        Print( "ERROR: GetEditXSecCtrlVec returned nothing" );
+        __failure++;
+    }
 
     Print( "Normalized Bottom Point of XSecCurve: " + xsec1_pts[3].x() + ", " + xsec1_pts[3].y() + ", " + xsec1_pts[3].z() );
     \endcode
@@ -15370,6 +15837,7 @@ extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
 
     # Get the control points for the default shape
     xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
+    assert len( xsec1_pts ) > 0, "GetEditXSecCtrlVec returned nothing"
 
     print( f"Normalized Bottom Point of XSecCurve: {xsec1_pts[3].x()}, {xsec1_pts[3].y()}, {xsec1_pts[3].z()}" )
 
@@ -15481,6 +15949,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, bo
 
     if  dist( new_pnts[3], xsec2_pts[3] ) > 1e-6 :
         print( "Error: SetEditXSecPnts")
+        assert False, "Error: SetEditXSecPnts"
 
     \endcode
     \endPythonOnly
@@ -15552,6 +16021,7 @@ extern void SetEditXSecPnts( const std::string & xsec_id, const std::vector < do
 
     if  len(old_pnts) - len(new_pnts) != 3  :
         print( "Error: EditXSecDelPnt")
+        assert False, "Error: EditXSecDelPnt"
 
     \endcode
     \endPythonOnly
@@ -15619,6 +16089,7 @@ extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
 
     if  len(new_pnts) - len(old_pnts) != 3  :
         print( "Error: EditXSecSplit01")
+        assert False, "Error: EditXSecSplit01"
 
     \endcode
     \endPythonOnly
@@ -15702,6 +16173,7 @@ extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
 
     if  dist( new_pnt, new_pnts[move_pnt_ind] ) > 1e-6 :
         print( "Error: MoveEditXSecPnt" )
+        assert False, "Error: MoveEditXSecPnt"
 
     \endcode
     \endPythonOnly
@@ -15784,6 +16256,11 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
     string xsec_1 = GetXSec( xsec_surf, 1 );
 
     array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+    if ( fixed_u_vec.length() == 0 )
+    {
+        Print( "ERROR: GetEditXSecFixedUVec returned nothing" );
+        __failure++;
+    }
 
     fixed_u_vec[3] = true; // change a flag
 
@@ -15953,7 +16430,9 @@ extern void ReparameterizeEditXSec( const std::string & xsec_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    if  GetNumSets() <= 0 : print( "---> Error: API GetNumSets " )
+    if  GetNumSets() <= 0 :
+        print( "---> Error: API GetNumSets " )
+        assert False, "---> Error: API GetNumSets"
 
     \endcode
     \endPythonOnly
@@ -15980,6 +16459,7 @@ extern int GetNumSets();
 
     if GetSetName(3) != "SetFromScript":
         print("---> Error: API Get/Set Set Name")
+        assert False, "---> Error: API Get/Set Set Name"
 
 
     \endcode
@@ -16013,6 +16493,7 @@ extern void SetSetName( int index, const std::string& name );
 
     if GetSetName(3) != "SetFromScript":
         print("---> Error: API Get/Set Set Name")
+        assert False, "---> Error: API Get/Set Set Name"
 
     \endcode
     \endPythonOnly
@@ -16047,7 +16528,9 @@ extern std::string GetSetName( int index );
 
     geom_arr2 = GetGeomSet( "SetFromScript" )
 
-    if  len(geom_arr1) != len(geom_arr2) : print( "---> Error: API GetGeomSet " )
+    if  len(geom_arr1) != len(geom_arr2) :
+        print( "---> Error: API GetGeomSet " )
+        assert False, "---> Error: API GetGeomSet"
 
     \endcode
     \endPythonOnly
@@ -16082,7 +16565,9 @@ extern std::vector<std::string> GetGeomSetAtIndex( int index );
 
     geom_arr2 = GetGeomSet( "SetFromScript" )
 
-    if  len(geom_arr1) != len(geom_arr2) : print( "---> Error: API GetGeomSet " )
+    if  len(geom_arr1) != len(geom_arr2) :
+        print( "---> Error: API GetGeomSet " )
+        assert False, "---> Error: API GetGeomSet"
 
     \endcode
     \endPythonOnly
@@ -16110,6 +16595,7 @@ extern std::vector<std::string> GetGeomSet( const std::string & name );
 
     if GetSetIndex("SetFromScript") != 3:
         print("ERROR: GetSetIndex")
+        assert False, "ERROR: GetSetIndex"
 
 
     \endcode
@@ -16144,6 +16630,7 @@ extern int GetSetIndex( const std::string & name );
 
     if not GetSetFlag(fuseid, 3):
         print("---> Error: API Set/Get Set Flag")
+        assert False, "---> Error: API Set/Get Set Flag"
 
 
     \endcode
@@ -16179,6 +16666,7 @@ extern bool GetSetFlag( const std::string & geom_id, int set_index );
 
     if not GetSetFlag(fuseid, 3):
         print("---> Error: API Set/Get Set Flag")
+        assert False, "---> Error: API Set/Get Set Flag"
 
 
     \endcode
@@ -16226,7 +16714,9 @@ extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
     #get fuseid's state for set 4
     flag_value = GetSetFlag( fuseid, 4 )
 
-    if  flag_value != True: print( "---> Error: API CopyPasteSet " )
+    if  flag_value != True:
+        print( "---> Error: API CopyPasteSet " )
+        assert False, "---> Error: API CopyPasteSet"
 
     \endcode
     \endPythonOnly
@@ -16481,7 +16971,9 @@ extern void TransformSet( int set_index, const vec3d &translation_vec, double x_
 
     lenid = GetParm( pid, "Length", "Design" )
 
-    if  not ValidParm( lenid ) : print( "---> Error: API GetParm  " )
+    if  not ValidParm( lenid ) :
+        print( "---> Error: API GetParm  " )
+        assert False, "---> Error: API GetParm"
 
     \endcode
     \endPythonOnly
@@ -16529,7 +17021,9 @@ extern bool ValidParm( const std::string & id );
 
     SetParmVal( wid, 23.0 )
 
-    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : print( "---> Error: API Parm Val Set/Get " )
+    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 :
+        print( "---> Error: API Parm Val Set/Get " )
+        assert False, "---> Error: API Parm Val Set/Get"
 
     \endcode
     \endPythonOnly
@@ -16579,7 +17073,9 @@ extern double SetParmVal( const std::string & parm_id, double val );
 
     SetParmVal( wid, 23.0 )
 
-    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : print( "---> Error: API Parm Val Set/Get " )
+    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 :
+        print( "---> Error: API Parm Val Set/Get " )
+        assert False, "---> Error: API Parm Val Set/Get"
 
     \endcode
     \endPythonOnly
@@ -16739,7 +17235,9 @@ extern double SetParmValUpdate( const std::string & geom_id, const std::string &
 
     SetParmVal( wid, 23.0 )
 
-    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : print( "---> Error: API Parm Val Set/Get " )
+    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 :
+        print( "---> Error: API Parm Val Set/Get " )
+        assert False, "---> Error: API Parm Val Set/Get"
 
     \endcode
     \endPythonOnly
@@ -16787,7 +17285,9 @@ extern double GetParmVal( const std::string & parm_id );
 
     SetParmVal( wid, 23.0 )
 
-    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : print( "---> Error: API Parm Val Set/Get " )
+    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 :
+        print( "---> Error: API Parm Val Set/Get " )
+        assert False, "---> Error: API Parm Val Set/Get"
 
     \endcode
     \endPythonOnly
@@ -16905,7 +17405,9 @@ extern bool GetBoolParmVal( const std::string & parm_id );
 
     SetParmUpperLimit( wid, 13.0 )
 
-    if  abs( GetParmVal( wid ) - 13 ) > 1e-6 : print( "---> Error: API SetParmUpperLimit " )
+    if  abs( GetParmVal( wid ) - 13 ) > 1e-6 :
+        print( "---> Error: API SetParmUpperLimit " )
+        assert False, "---> Error: API SetParmUpperLimit"
 
     \endcode
     \endPythonOnly
@@ -16990,7 +17492,9 @@ extern double GetParmUpperLimit( const std::string & parm_id );
 
     SetParmLowerLimit( wid, 15.0 )
 
-    if  abs( GetParmVal( wid ) - 15 ) > 1e-6 : print( "---> Error: API SetParmLowerLimit " )
+    if  abs( GetParmVal( wid ) - 15 ) > 1e-6 :
+        print( "---> Error: API SetParmLowerLimit " )
+        assert False, "---> Error: API SetParmLowerLimit"
 
     \endcode
     \endPythonOnly
@@ -17067,7 +17571,9 @@ extern double GetParmLowerLimit( const std::string & parm_id );
 
     wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
-    if  GetParmType( wid ) != PARM_DOUBLE_TYPE : print( "---> Error: API GetParmType " )
+    if  GetParmType( wid ) != PARM_DOUBLE_TYPE :
+        print( "---> Error: API GetParmType " )
+        assert False, "---> Error: API GetParmType"
 
     \endcode
     \endPythonOnly
@@ -17102,6 +17608,11 @@ extern int GetParmType( const std::string & parm_id );
     for ( uint i = 0; i < uint(parm_ids.length()); i++ )
     {
         string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
+        if ( name_id.length() == 0 )
+        {
+            Print( "ERROR: GetParmName returned nothing" );
+            __failure++;
+        }
 
         Print( name_id );
     }
@@ -17126,6 +17637,7 @@ extern int GetParmType( const std::string & parm_id );
     for i in range(len(parm_ids)):
 
         name_id = GetParmName( parm_ids[i] ) + ": " + parm_ids[i] + "\n"
+        assert len( name_id ) > 0, "GetParmName returned nothing"
 
         print( name_id )
 
@@ -17154,6 +17666,11 @@ extern std::string GetParmName( const std::string & parm_id );
     for ( uint i = 0; i < uint(parm_ids.length()); i++ )
     {
         string group_str = GetParmGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
+        if ( group_str.length() == 0 )
+        {
+            Print( "ERROR: GetParmGroupName returned nothing" );
+            __failure++;
+        }
 
         Print( group_str );
     }
@@ -17171,6 +17688,7 @@ extern std::string GetParmName( const std::string & parm_id );
     for i in range(len(parm_ids)):
 
         group_str = GetParmGroupName( parm_ids[i] ) + ": " + parm_ids[i] + "\n"
+        assert len( group_str ) > 0, "GetParmGroupName returned nothing"
 
         print( group_str )
 
@@ -17199,6 +17717,11 @@ extern std::string GetParmGroupName( const std::string & parm_id );
     for ( uint i = 0; i < uint(parm_ids.length()); i++ )
     {
         string group_str = GetParmDisplayGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
+        if ( group_str.length() == 0 )
+        {
+            Print( "ERROR: GetParmDisplayGroupName returned nothing" );
+            __failure++;
+        }
 
         Print( group_str );
     }
@@ -17216,6 +17739,7 @@ extern std::string GetParmGroupName( const std::string & parm_id );
     for i in range(len(parm_ids)):
 
         group_str = GetParmDisplayGroupName( parm_ids[i] ) + ": " + parm_ids[i] + "\n"
+        assert len( group_str ) > 0, "GetParmDisplayGroupName returned nothing"
 
         print( group_str )
 
@@ -17265,7 +17789,9 @@ extern std::string GetParmDisplayGroupName( const std::string & parm_id );
 
     cid = GetParmContainer( wid )
 
-    if  len(cid) == 0 : print( "---> Error: API GetParmContainer " )
+    if  len(cid) == 0 :
+        print( "---> Error: API GetParmContainer " )
+        assert False, "---> Error: API GetParmContainer"
 
     \endcode
     \endPythonOnly
@@ -17323,6 +17849,11 @@ extern void SetParmDescript( const std::string & parm_id, const std::string & de
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
 
     string desc = GetParmDescript( length );
+    if ( desc.length() == 0 )
+    {
+        Print( "ERROR: GetParmDescript returned nothing" );
+        __failure++;
+    }
     Print( desc );
     \endcode
     \endforcpponly
@@ -17335,6 +17866,7 @@ extern void SetParmDescript( const std::string & parm_id, const std::string & de
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 )
 
     desc = GetParmDescript( length )
+    assert len( desc ) > 0, "GetParmDescript returned nothing"
     print( desc )
 
     \endcode
@@ -17490,7 +18022,9 @@ extern std::string FindContainer( const std::string & name, int index );
     \code{.py}
     veh_id = FindContainer( "Vehicle", 0 )
 
-    if  GetContainerName( veh_id) != "Vehicle":       print( "---> Error: API GetContainerName" )
+    if  GetContainerName( veh_id) != "Vehicle":
+        print( "---> Error: API GetContainerName" )
+        assert False, "---> Error: API GetContainerName"
 
     \endcode
     \endPythonOnly
@@ -17609,12 +18143,18 @@ extern std::vector<std::string> FindContainerParmIDs( const std::string & parm_c
     \code{.cpp}
     //===== Get Vehicle Parm Container ID ====//
     string veh_id = GetVehicleID();
+    if ( veh_id.length() == 0 )
+    {
+        Print( "ERROR: GetVehicleID returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     #===== Get Vehicle Parm Container ID ====//
     veh_id = GetVehicleID()
+    assert len( veh_id ) > 0, "GetVehicleID returned nothing"
 
     \endcode
     \endPythonOnly
@@ -17679,6 +18219,11 @@ extern int GetNumPredefinedUserParms();
     \forcpponly
     \code{.cpp}
     array<string> @id_arr = GetAllUserParms();
+    if ( id_arr.length() == 0 )
+    {
+        Print( "ERROR: GetAllUserParms returned nothing" );
+        __failure++;
+    }
 
     Print( "---> User Parm IDs: " );
 
@@ -17693,6 +18238,7 @@ extern int GetNumPredefinedUserParms();
     \beginPythonOnly
     \code{.py}
     id_arr = GetAllUserParms()
+    assert len( id_arr ) > 0, "GetAllUserParms returned nothing"
 
     print( "---> User Parm IDs: " )
 
@@ -17717,11 +18263,17 @@ extern std::vector < std::string > GetAllUserParms();
     \forcpponly
     \code{.cpp}
     string up_id = GetUserParmContainer();
+    if ( up_id.length() == 0 )
+    {
+        Print( "ERROR: GetUserParmContainer returned nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     up_id = GetUserParmContainer()
+    assert len( up_id ) > 0, "GetUserParmContainer returned nothing"
 
     \endcode
     \endPythonOnly
@@ -18273,6 +18825,11 @@ extern double GetVarPresetParmVal( const std::string &group_id, const std::strin
     string gid = AddVarPresetGroup( "Tess" );
 
     string name = GetGroupName( gid );
+    if ( name.length() == 0 )
+    {
+        Print( "ERROR: GetGroupName returned nothing" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -18284,6 +18841,7 @@ extern double GetVarPresetParmVal( const std::string &group_id, const std::strin
     gid = AddVarPresetGroup( "Tess" )
 
     name = GetGroupName( gid )
+    assert len( name ) > 0, "GetGroupName returned nothing"
 
     \endcode
     \endPythonOnly
@@ -18308,6 +18866,11 @@ extern std::string GetGroupName( const std::string &group_id );
     string sid = AddVarPresetSetting( gid, "Coarse" );
 
     string name = GetSettingName( sid );
+    if ( name.length() == 0 )
+    {
+        Print( "ERROR: GetSettingName returned nothing" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -18321,6 +18884,7 @@ extern std::string GetGroupName( const std::string &group_id );
     sid = AddVarPresetSetting( gid, "Coarse" )
 
     name = GetSettingName( sid )
+    assert len( name ) > 0, "GetSettingName returned nothing"
 
     \endcode
     \endPythonOnly
@@ -18419,6 +18983,11 @@ extern void SetSettingName( const std::string &setting_id, const std::string &se
     AddVarPresetParm( gid, p1 );
 
     array <string> group_ids = GetVarPresetGroups();
+    if ( group_ids.length() == 0 )
+    {
+        Print( "ERROR: GetVarPresetGroups returned nothing" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -18436,6 +19005,7 @@ extern void SetSettingName( const std::string &setting_id, const std::string &se
     AddVarPresetParm( gid, p1 )
 
     group_ids = GetVarPresetGroups()
+    assert len( group_ids ) > 0, "GetVarPresetGroups returned nothing"
 
     \endcode
     \endPythonOnly
@@ -18463,6 +19033,11 @@ extern std::vector< std::string > GetVarPresetGroups();
     AddVarPresetParm( gid, p1 );
 
     array <string> settingids = GetVarPresetSettings( gid );
+    if ( settingids.length() == 0 )
+    {
+        Print( "ERROR: GetVarPresetSettings returned nothing" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -18480,6 +19055,7 @@ extern std::vector< std::string > GetVarPresetGroups();
     AddVarPresetParm( gid, p1 )
 
     settingds = GetVarPresetSettings( gid )
+    assert len( settingds ) > 0, "GetVarPresetSettings returned nothing"
 
     \endcode
     \endPythonOnly
@@ -18508,6 +19084,11 @@ extern std::vector< std::string > GetVarPresetSettings( const std::string &group
     AddVarPresetParm( gid, p1 );
 
     array <string> parmids = GetVarPresetParmIDs( gid );
+    if ( parmids.length() == 0 )
+    {
+        Print( "ERROR: GetVarPresetParmIDs returned nothing" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -18525,6 +19106,7 @@ extern std::vector< std::string > GetVarPresetSettings( const std::string &group
     AddVarPresetParm( gid, p1 )
 
     parmids = GetVarPresetParmIDs( gid )
+    assert len( parmids ) > 0, "GetVarPresetParmIDs returned nothing"
 
     \endcode
     \endPythonOnly
@@ -18553,6 +19135,11 @@ extern std::vector< std::string > GetVarPresetParmIDs( const std::string &group_
     AddVarPresetParm( gid, p1 );
 
     array < double > parmval_vec = GetVarPresetParmVals( sid );
+    if ( parmval_vec.length() == 0 )
+    {
+        Print( "ERROR: GetVarPresetParmVals returned nothing" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -18570,6 +19157,7 @@ extern std::vector< std::string > GetVarPresetParmIDs( const std::string &group_
     AddVarPresetParm( gid, p1 )
 
     parmval_vec = GetVarPresetParmVals( sid )
+    assert len( parmval_vec ) > 0, "GetVarPresetParmVals returned nothing"
 
     \endcode
     \endPythonOnly
@@ -19121,6 +19709,11 @@ extern int GetNumModes();
     Update();
 
     array<string> modids = GetAllModes();
+    if ( modids.length() == 0 )
+    {
+        Print( "ERROR: GetAllModes returned nothing" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -19195,6 +19788,7 @@ extern int GetNumModes();
     Update()
 
     modids = GetAllModes();
+    assert len( modids ) > 0, "GetAllModes returned nothing"
 
     \endcode
     \endPythonOnly
@@ -21217,7 +21811,9 @@ extern void AutoGroupVSPAEROControlSurfaces();
 
     num_group = GetNumControlSurfaceGroups()
 
-    if  num_group != 1 : print( "Error: CreateVSPAEROControlSurfaceGroup" )
+    if  num_group != 1 :
+        print( "Error: CreateVSPAEROControlSurfaceGroup" )
+        assert False, "Error: CreateVSPAEROControlSurfaceGroup"
 
     \endcode
     \endPythonOnly
@@ -21313,6 +21909,11 @@ extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
     AddAllToVSPAEROControlSurfaceGroup( group_index );
 
     array<string> @cs_name_vec = GetActiveCSNameVec( group_index );
+    if ( cs_name_vec.length() == 0 )
+    {
+        Print( "ERROR: GetActiveCSNameVec returned nothing" );
+        __failure++;
+    }
 
     Print( "Active CS in Group Index #", false );
     Print( group_index );
@@ -21334,6 +21935,7 @@ extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
     AddAllToVSPAEROControlSurfaceGroup( group_index )
 
     cs_name_vec = GetActiveCSNameVec( group_index )
+    assert len( cs_name_vec ) > 0, "GetActiveCSNameVec returned nothing"
 
     print( "Active CS in Group Index #", False )
     print( group_index )
@@ -21364,6 +21966,11 @@ extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
     int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
 
     array<string> @cs_name_vec = GetCompleteCSNameVec();
+    if ( cs_name_vec.length() == 0 )
+    {
+        Print( "ERROR: GetCompleteCSNameVec returned nothing" );
+        __failure++;
+    }
 
     Print( "All Control Surfaces: ", false );
 
@@ -21382,6 +21989,7 @@ extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
     cs_name_vec = GetCompleteCSNameVec()
+    assert len( cs_name_vec ) > 0, "GetCompleteCSNameVec returned nothing"
 
     print( "All Control Surfaces: ", False )
 
@@ -21410,6 +22018,11 @@ extern std::vector < std::string > GetCompleteCSNameVec();
     int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
 
     array<string> @cs_name_vec = GetAvailableCSNameVec( group_index );
+    if ( cs_name_vec.length() == 0 )
+    {
+        Print( "ERROR: GetAvailableCSNameVec returned nothing" );
+        __failure++;
+    }
 
     array < int > cs_ind_vec(1);
     cs_ind_vec[0] = 1;
@@ -21426,6 +22039,7 @@ extern std::vector < std::string > GetCompleteCSNameVec();
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
     cs_name_vec = GetAvailableCSNameVec( group_index )
+    assert len( cs_name_vec ) > 0, "GetAvailableCSNameVec returned nothing"
 
     cs_ind_vec = [1]
 
@@ -21691,7 +22305,9 @@ extern void RemoveSelectedFromCSGroup( const vector <int> &selected, int CSGroup
 
     num_group = GetNumControlSurfaceGroups()
 
-    if  num_group != 2 : print( "Error: GetNumControlSurfaceGroups" )
+    if  num_group != 2 :
+        print( "Error: GetNumControlSurfaceGroups" )
+        assert False, "Error: GetNumControlSurfaceGroups"
 
     \endcode
     \endPythonOnly
@@ -21917,6 +22533,7 @@ extern std::string GetUnsteadyGroupName( int group_index );
 
     if  len(comp_ids) != 3 :
         print( "ERROR: GetUnsteadyGroupCompIDs" )
+        assert False, "ERROR: GetUnsteadyGroupCompIDs"
 
     \endcode
     \endPythonOnly
@@ -21963,6 +22580,7 @@ extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
 
     if  len(surf_indexes) != 3 :
         print( "ERROR: GetUnsteadyGroupSurfIndexes" )
+        assert False, "ERROR: GetUnsteadyGroupSurfIndexes"
 
     \endcode
     \endPythonOnly
@@ -24643,6 +25261,11 @@ extern string AddRuler( const string & startgeomid, int startsurfindx, double st
     string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
 
     array< string > @ruler_array = GetAllRulers();
+    if ( ruler_array.length() == 0 )
+    {
+        Print( "ERROR: GetAllRulers returned nothing" );
+        __failure++;
+    }
 
     Print("Two Rulers");
 
@@ -24667,6 +25290,7 @@ extern string AddRuler( const string & startgeomid, int startsurfindx, double st
     rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
 
     ruler_array = GetAllRulers()
+    assert len( ruler_array ) > 0, "GetAllRulers returned nothing"
 
     print("Two Rulers")
 
@@ -24833,6 +25457,11 @@ extern string AddProbe( const string & geomid, int surfindx, double u, double w,
     string probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" );
 
     array< string > @probe_array = GetAllProbes();
+    if ( probe_array.length() == 0 )
+    {
+        Print( "ERROR: GetAllProbes returned nothing" );
+        __failure++;
+    }
 
     Print( "One Probe: ", false );
 
@@ -24848,6 +25477,7 @@ extern string AddProbe( const string & geomid, int surfindx, double u, double w,
     probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
 
     probe_array = GetAllProbes()
+    assert len( probe_array ) > 0, "GetAllProbes returned nothing"
 
     print( "One Probe: ", False )
 
@@ -24894,7 +25524,9 @@ extern std::vector < string > GetAllProbes();
 
     probe_array = GetAllProbes()
 
-    if  len(probe_array) != 1 : print( "Error: DelProbe" )
+    if  len(probe_array) != 1 :
+        print( "Error: DelProbe" )
+        assert False, "Error: DelProbe"
 
     \endcode
     \endPythonOnly
@@ -24937,7 +25569,9 @@ extern void DelProbe( const string &id );
 
     probe_array = GetAllProbes()
 
-    if  len(probe_array) != 0 : print( "Error: DeleteAllProbes" )
+    if  len(probe_array) != 0 :
+        print( "Error: DeleteAllProbes" )
+        assert False, "Error: DeleteAllProbes"
 
     \endcode
     \endPythonOnly
@@ -24955,7 +25589,22 @@ extern void DeleteAllProbes();
     Get an array of all advanced link names
     \forcpponly
     \code{.cpp}
+    //==== Set up an advanced link so there is something to find ====//
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
     array< string > @link_array = GetAdvLinkNames();
+    if ( link_array.length() == 0 )
+    {
+        Print( "ERROR: GetAdvLinkNames returned nothing" );
+        __failure++;
+    }
 
     for( int n = 0 ; n < int( link_array.length() ) ; n++ )
     {
@@ -24965,7 +25614,18 @@ extern void DeleteAllProbes();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    #==== Set up an advanced link so there is something to find ====//
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+    AddAdvLinkInput( indx, length, "len" )
+    AddAdvLinkOutput( indx, x_pos, "x" )
+
     link_array = GetAdvLinkNames()
+    assert len( link_array ) > 0, "GetAdvLinkNames returned nothing"
 
     for n in range(len(link_array) ):
 
@@ -25445,6 +26105,11 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
     BuildAdvLinkScript( indx );
 
     array< string > @name_array = GetAdvLinkInputNames( indx );
+    if ( name_array.length() == 0 )
+    {
+        Print( "ERROR: GetAdvLinkInputNames returned nothing" );
+        __failure++;
+    }
 
     for( int n = 0 ; n < int( name_array.length() ) ; n++ )
     {
@@ -25470,6 +26135,7 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
     BuildAdvLinkScript( indx )
 
     name_array = GetAdvLinkInputNames( indx )
+    assert len( name_array ) > 0, "GetAdvLinkInputNames returned nothing"
 
     for n in range(len(name_array) ):
 
@@ -25506,6 +26172,11 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
     BuildAdvLinkScript( indx );
 
     array< string > @parm_array = GetAdvLinkInputParms( indx );
+    if ( parm_array.length() == 0 )
+    {
+        Print( "ERROR: GetAdvLinkInputParms returned nothing" );
+        __failure++;
+    }
 
     for( int n = 0 ; n < int( parm_array.length() ) ; n++ )
     {
@@ -25531,6 +26202,7 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
     BuildAdvLinkScript( indx )
 
     parm_array = GetAdvLinkInputParms( indx )
+    assert len( parm_array ) > 0, "GetAdvLinkInputParms returned nothing"
 
     for n in range( len(parm_array) ):
 
@@ -25567,6 +26239,11 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
     BuildAdvLinkScript( indx );
 
     array< string > @name_array = GetAdvLinkOutputNames( indx );
+    if ( name_array.length() == 0 )
+    {
+        Print( "ERROR: GetAdvLinkOutputNames returned nothing" );
+        __failure++;
+    }
 
     for( int n = 0 ; n < int( name_array.length() ) ; n++ )
     {
@@ -25592,6 +26269,7 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
     BuildAdvLinkScript( indx )
 
     name_array = GetAdvLinkOutputNames( indx )
+    assert len( name_array ) > 0, "GetAdvLinkOutputNames returned nothing"
 
     for n in range( len(name_array) ):
 
@@ -25628,6 +26306,11 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
     BuildAdvLinkScript( indx );
 
     array< string > @parm_array = GetAdvLinkOutputParms( indx );
+    if ( parm_array.length() == 0 )
+    {
+        Print( "ERROR: GetAdvLinkOutputParms returned nothing" );
+        __failure++;
+    }
 
     for( int n = 0 ; n < int( parm_array.length() ) ; n++ )
     {
@@ -25653,6 +26336,7 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
     BuildAdvLinkScript( indx )
 
     parm_array = GetAdvLinkOutputParms( indx )
+    assert len( parm_array ) > 0, "GetAdvLinkOutputParms returned nothing"
 
     for n in range( len(parm_array) ):
 
@@ -25803,6 +26487,11 @@ extern void SetAdvLinkCode( int index, const string & code );
     BuildAdvLinkScript( indx );
 
     string code = GetAdvLinkCode( indx );
+    if ( code.length() == 0 )
+    {
+        Print( "ERROR: GetAdvLinkCode returned nothing" );
+        __failure++;
+    }
 
     Print( code );
 
@@ -25825,6 +26514,7 @@ extern void SetAdvLinkCode( int index, const string & code );
     BuildAdvLinkScript( indx )
 
     code = GetAdvLinkCode( indx )
+    assert len( code ) > 0, "GetAdvLinkCode returned nothing"
 
     print( code )
 
