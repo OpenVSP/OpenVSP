@@ -2823,6 +2823,13 @@ static void Vec3dInitConstructor( double x, double y, double z, vec3d *self )
     new( self ) vec3d( x, y, z );
 }
 
+// Taking the address of the free operator== is ambiguous against the ones the
+// standard library declares, so wrap it.
+static bool Vec3dEquals( const vec3d &a, const vec3d &b )
+{
+    return a == b;
+}
+
 //==== Register Vec3d Object ====//
 void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
 {
@@ -2925,6 +2932,13 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
 
 
     r = se->RegisterObjectMethod( "vec3d", "vec3d opDiv(double b) const", asFUNCTIONPR( operator/, ( const vec3d&, double b ), vec3d ), asCALL_CDECL_OBJFIRST );
+    assert( r >= 0 );
+
+
+    // vec3d has had == and != in C++ all along but neither was exposed, so
+    // scripts could not compare two vec3d, and array<vec3d> could not be
+    // compared either since the array add-on needs the subtype to provide this.
+    r = se->RegisterObjectMethod( "vec3d", "bool opEquals(const vec3d &in) const", asFUNCTION( Vec3dEquals ), asCALL_CDECL_OBJFIRST );
     assert( r >= 0 );
 
 

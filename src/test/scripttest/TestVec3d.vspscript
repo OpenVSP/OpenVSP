@@ -53,6 +53,33 @@ int main()
     failure += check( "reflect_xz", vec3d( 1, 2, 3 ).reflect_xz(), 1, -2, 3 );
     failure += check( "reflect_yz", vec3d( 1, 2, 3 ).reflect_yz(), -1, 2, 3 );
 
+    //==== Equality, newly exposed to scripts ====//
+    if ( !( vec3d( 1, 2, 3 ) == vec3d( 1, 2, 3 ) ) )
+    {
+        Print( "FAIL vec3d opEquals says equal vectors differ" );
+        failure++;
+    }
+    if ( vec3d( 1, 2, 3 ) == vec3d( 1, 2, 3.5 ) )
+    {
+        Print( "FAIL vec3d opEquals says different vectors match" );
+        failure++;
+    }
+
+    //==== array<vec3d> comparison relies on that same operator ====//
+    array< vec3d > lhs = { vec3d( 1, 2, 3 ), vec3d( 4, 5, 6 ) };
+    array< vec3d > rhs = { vec3d( 1, 2, 3 ), vec3d( 4, 5, 6 ) };
+    array< vec3d > oth = { vec3d( 1, 2, 3 ), vec3d( 4, 5, 7 ) };
+    if ( !( lhs == rhs ) )
+    {
+        Print( "FAIL array<vec3d> comparison says equal arrays differ" );
+        failure++;
+    }
+    if ( lhs == oth )
+    {
+        Print( "FAIL array<vec3d> comparison says different arrays match" );
+        failure++;
+    }
+
     //==== Global functions returning vec3d by value ====//
     failure += check( "cross", cross( vec3d( 1, 0, 0 ), vec3d( 0, 1, 0 ) ), 0, 0, 1 );
     failure += check( "RotateArbAxis", RotateArbAxis( vec3d( 1, 0, 0 ), 0.5 * 3.14159265358979323846, vec3d( 0, 0, 1 ) ), 0, 1, 0 );

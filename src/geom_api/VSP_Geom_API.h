@@ -2079,6 +2079,12 @@ extern void SetAnalysisInputDefaults( const std::string & analysis );
     thin_set[0] = ( SET_TYPE::SET_ALL );
 
     SetIntAnalysisInput( analysis_name, "GeomSet", thick_set, 0);
+    if ( GetIntAnalysisInput( analysis_name, "GeomSet", 0 ) != thick_set )
+    {
+        Print( "ERROR: SetIntAnalysisInput did not take" );
+        __failure++;
+    }
+
     SetIntAnalysisInput( analysis_name, "ThinGeomSet", thin_set, 0);
 
     \endcode
@@ -2096,6 +2102,8 @@ extern void SetAnalysisInputDefaults( const std::string & analysis );
     thin_set = [vsp.SET_ALL]
 
     SetIntAnalysisInput( analysis_name, "GeomSet", thick_set )
+    assert GetIntAnalysisInput( analysis_name, "GeomSet" ) == thick_set, "SetIntAnalysisInput did not take"
+
     SetIntAnalysisInput( analysis_name, "ThinGeomSet", thin_set )
 
     \endcode
@@ -2126,6 +2134,12 @@ extern void SetIntAnalysisInput( const std::string & analysis, const std::string
     ycuts.push_back( 8.0 );
 
     SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 );
+    if ( GetDoubleAnalysisInput( analysis_name, "YSlicePosVec", 0 ) != ycuts )
+    {
+        Print( "ERROR: SetDoubleAnalysisInput did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2140,6 +2154,8 @@ extern void SetIntAnalysisInput( const std::string & analysis, const std::string
     ycuts.append( 8.0 )
 
     SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 )
+    assert GetDoubleAnalysisInput( analysis_name, "YSlicePosVec", 0 ) == ycuts, "SetDoubleAnalysisInput did not take"
+
 
     \endcode
     \endPythonOnly
@@ -2164,6 +2180,12 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
     fileNameInput[0] = "ParasiteDragExample";
 
     SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput );
+    if ( GetStringAnalysisInput( "ParasiteDrag", "FileName" ) != fileNameInput )
+    {
+        Print( "ERROR: SetStringAnalysisInput did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2173,6 +2195,8 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
     fileNameInput = ["ParasiteDragExample"]
 
     SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput )
+    assert GetStringAnalysisInput( "ParasiteDrag", "FileName" ) == fileNameInput, "SetStringAnalysisInput did not take"
+
 
     \endcode
     \endPythonOnly
@@ -2198,6 +2222,12 @@ extern void SetStringAnalysisInput( const std::string & analysis, const std::str
     norm[0].set_xyz( 0.23, 0.6, 0.15 );
 
     SetVec3dAnalysisInput( "PlanarSlice", "Norm", norm );
+    if ( GetVec3dAnalysisInput( "PlanarSlice", "Norm" ) != norm )
+    {
+        Print( "ERROR: SetVec3dAnalysisInput did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2208,6 +2238,8 @@ extern void SetStringAnalysisInput( const std::string & analysis, const std::str
     norm[0].set_xyz( 0.23, 0.6, 0.15 )
 
     SetVec3dAnalysisInput( "PlanarSlice", "Norm", norm )
+    assert GetVec3dAnalysisInput( "PlanarSlice", "Norm" ) == norm, "SetVec3dAnalysisInput did not take"
+
 
     \endcode
     \endPythonOnly
@@ -2420,12 +2452,20 @@ extern vector < string > GetAllGeometryAnalysesIDVec();
     \code{.cpp}
     string ga_id = AddGeometryAnalysis();
     SetActiveGeometryAnalysis( ga_id );
+    if ( GetActiveGeometryAnalysis() != ga_id )
+    {
+        Print( "ERROR: SetActiveGeometryAnalysis did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     ga_id = AddGeometryAnalysis()
     SetActiveGeometryAnalysis( ga_id )
+    assert GetActiveGeometryAnalysis() == ga_id, "SetActiveGeometryAnalysis did not take"
+
     \endcode
     \endPythonOnly
     \sa GetActiveGeometryAnalysis, AddGeometryAnalysis
@@ -8157,6 +8197,12 @@ extern void DeleteSubSurf( const std::string & sub_id );
     string new_name = string("New_SS_Rec_Name");
 
     SetSubSurfName( wid, ss_rec_id, new_name );
+    if ( GetSubSurfName( wid, ss_rec_id ) != new_name )
+    {
+        Print( "ERROR: SetSubSurfName did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8168,6 +8214,8 @@ extern void DeleteSubSurf( const std::string & sub_id );
     new_name = "New_SS_Rec_Name"
 
     SetSubSurfName( wid, ss_rec_id, new_name )
+    assert GetSubSurfName( wid, ss_rec_id ) == new_name, "SetSubSurfName did not take"
+
 
     \endcode
     \endPythonOnly
@@ -8192,6 +8240,12 @@ extern void SetSubSurfName(const std::string & geom_id, const std::string & sub_
     string new_name = string("New_SS_Rec_Name");
 
     SetSubSurfName( ss_rec_id, new_name );
+    if ( GetSubSurfName( ss_rec_id ) != new_name )
+    {
+        Print( "ERROR: SetSubSurfName did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8203,6 +8257,8 @@ extern void SetSubSurfName(const std::string & geom_id, const std::string & sub_
     new_name = "New_SS_Rec_Name"
 
     SetSubSurfName( ss_rec_id, new_name )
+    assert GetSubSurfName( ss_rec_id ) == new_name, "SetSubSurfName did not take"
+
 
     \endcode
     \endPythonOnly
@@ -8997,6 +9053,12 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
 
     //==== Change the Structure Name ====//
     SetFeaStructName( pod_id, struct_ind, "Example_Struct" );
+    if ( GetFeaStructName( pod_id, struct_ind ) != "Example_Struct" )
+    {
+        Print( "ERROR: SetFeaStructName did not take" );
+        __failure++;
+    }
+
 
     string parm_container_id = FindContainer( "Example_Struct", struct_ind );
 
@@ -9015,6 +9077,8 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
 
     #==== Change the Structure Name ====//
     SetFeaStructName( pod_id, struct_ind, "Example_Struct" )
+    assert GetFeaStructName( pod_id, struct_ind ) == "Example_Struct", "SetFeaStructName did not take"
+
 
     parm_container_id = FindContainer( "Example_Struct", struct_ind )
 
@@ -9093,6 +9157,12 @@ extern std::vector< std::string > GetFeaStructIDVec();
     string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
 
     SetFeaPartName( bulkhead_id, "Bulkhead" );
+    if ( GetFeaPartName( bulkhead_id ) != "Bulkhead" )
+    {
+        Print( "ERROR: SetFeaPartName did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -9107,6 +9177,8 @@ extern std::vector< std::string > GetFeaStructIDVec();
     bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
 
     SetFeaPartName( bulkhead_id, "Bulkhead" )
+    assert GetFeaPartName( bulkhead_id ) == "Bulkhead", "SetFeaPartName did not take"
+
 
     \endcode
     \endPythonOnly
@@ -9645,6 +9717,12 @@ extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
     string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
 
     SetFeaSubSurfName( line_array_id, "Stiffener_array" );
+    if ( GetFeaSubSurfName( line_array_id ) != "Stiffener_array" )
+    {
+        Print( "ERROR: SetFeaSubSurfName did not take" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -9660,6 +9738,8 @@ extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
     line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
 
     SetFeaSubSurfName( line_array_id, "Stiffener_array" )
+    assert GetFeaSubSurfName( line_array_id ) == "Stiffener_array", "SetFeaSubSurfName did not take"
+
 
     \endcode
     \endPythonOnly
@@ -11881,6 +11961,12 @@ extern void SetXSecWidthHeight( const std::string& xsec_id, double w, double h )
     string xsec_2 = GetXSec( xsec_surf, 2 );
 
     SetXSecWidth( xsec_2, 1.5 );
+    if ( !closeTo( GetXSecWidth( xsec_2 ), 1.5, 1e-9 ) )
+    {
+        Print( "ERROR: SetXSecWidth did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11895,6 +11981,8 @@ extern void SetXSecWidthHeight( const std::string& xsec_id, double w, double h )
     xsec_2 = GetXSec( xsec_surf, 2 )
 
     SetXSecWidth( xsec_2, 1.5 )
+    assert abs( GetXSecWidth( xsec_2 ) - 1.5 ) < 1e-9, "SetXSecWidth did not take"
+
 
     \endcode
     \endPythonOnly
@@ -11922,6 +12010,12 @@ extern void SetXSecWidth( const std::string& xsec_id, double w );
     string xsec_2 = GetXSec( xsec_surf, 2 );
 
     SetXSecHeight( xsec_2, 1.5 );
+    if ( !closeTo( GetXSecHeight( xsec_2 ), 1.5, 1e-9 ) )
+    {
+        Print( "ERROR: SetXSecHeight did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11936,6 +12030,8 @@ extern void SetXSecWidth( const std::string& xsec_id, double w );
     xsec_2 = GetXSec( xsec_surf, 2 )
 
     SetXSecHeight( xsec_2, 1.5 )
+    assert abs( GetXSecHeight( xsec_2 ) - 1.5 ) < 1e-9, "SetXSecHeight did not take"
+
 
     \endcode
     \endPythonOnly
@@ -13812,6 +13908,12 @@ extern string GetBackground3DAbsolutePath( const string &id );
     string bg_id = AddBackground3D();
 
     SetBackground3DRelativePath( bg_id, "front.png" );
+    if ( GetBackground3DRelativePath( bg_id ) != "front.png" )
+    {
+        Print( "ERROR: SetBackground3DRelativePath did not take" );
+        __failure++;
+    }
+
     string bg_file = GetBackground3DRelativePath( bg_id );
 
     Print( bg_file );
@@ -13825,6 +13927,8 @@ extern string GetBackground3DAbsolutePath( const string &id );
     bg_id = AddBackground3D()
 
     SetBackground3DRelativePath( bg_id, "front.png" )
+    assert GetBackground3DRelativePath( bg_id ) == "front.png", "SetBackground3DRelativePath did not take"
+
     bg_file = GetBackground3DRelativePath( bg_id )
 
     print( bg_file )
@@ -14639,6 +14743,12 @@ extern string GetRoutingPtParentID( const string & pt_id );
     SetParmVal(u2, 1.0);
 
     SetRoutingPtParentID(rpt1, pod1);
+    if ( GetRoutingPtParentID( rpt1 ) != pod1 )
+    {
+        Print( "ERROR: SetRoutingPtParentID did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17815,6 +17925,12 @@ extern std::string GetParmContainer( const std::string & parm_id );
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
 
     SetParmDescript( length, "Total Length of Geom" );
+    if ( GetParmDescript( length ) != "Total Length of Geom" )
+    {
+        Print( "ERROR: SetParmDescript did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17826,6 +17942,8 @@ extern std::string GetParmContainer( const std::string & parm_id );
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 )
 
     SetParmDescript( length, "Total Length of Geom" )
+    assert GetParmDescript( length ) == "Total Length of Geom", "SetParmDescript did not take"
+
 
     \endcode
     \endPythonOnly
@@ -18737,6 +18855,12 @@ extern void DeleteVarPresetParm( const std::string &group_id, const std::string 
     AddVarPresetParm( gid, p1 );
 
     SetVarPresetParmVal( gid, sid, p1, 51 );
+    if ( !closeTo( GetVarPresetParmVal( gid, sid, p1 ), 51, 1e-9 ) )
+    {
+        Print( "ERROR: SetVarPresetParmVal did not take" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -18754,6 +18878,8 @@ extern void DeleteVarPresetParm( const std::string &group_id, const std::string 
     AddVarPresetParm( gid, p1 )
 
     SetVarPresetParmVal( gid, sid, p1, 51 )
+    assert abs( GetVarPresetParmVal( gid, sid, p1 ) - 51 ) < 1e-9, "SetVarPresetParmVal did not take"
+
 
     \endcode
     \endPythonOnly
@@ -18907,6 +19033,12 @@ extern std::string GetSettingName( const std::string &setting_id );
     string gid = AddVarPresetGroup( "Tess" );
 
     SetGroupName( gid, "Resolution" );
+    if ( GetGroupName( gid ) != "Resolution" )
+    {
+        Print( "ERROR: SetGroupName did not take" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -18918,6 +19050,8 @@ extern std::string GetSettingName( const std::string &setting_id );
     gid = AddVarPresetGroup( "Tess" )
 
     SetGroupName( gid, "Resolution" )
+    assert GetGroupName( gid ) == "Resolution", "SetGroupName did not take"
+
 
     \endcode
     \endPythonOnly
@@ -18942,6 +19076,12 @@ extern void SetGroupName( const std::string &group_id, const std::string &group_
     string sid = AddVarPresetSetting( gid, "Coarse" );
 
     SetSettingName( sid, "Low" );
+    if ( GetSettingName( sid ) != "Low" )
+    {
+        Print( "ERROR: SetSettingName did not take" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -18955,6 +19095,8 @@ extern void SetGroupName( const std::string &group_id, const std::string &group_
     sid = AddVarPresetSetting( gid, "Coarse" )
 
     SetSettingName( sid, "Low" )
+    assert GetSettingName( sid ) == "Low", "SetSettingName did not take"
+
 
     \endcode
     \endPythonOnly
