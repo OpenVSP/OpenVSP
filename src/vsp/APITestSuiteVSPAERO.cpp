@@ -393,7 +393,14 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     if ( cmx.size() > 0 )
     {
         printf( "\tSymmetric CMxtot: computed %.3e\n", cmx[0] );
-        TEST_ASSERT_DELTA( cmx[0], 0.0, 1.0e-6 );
+
+        //The solver converges iteratively, so a symmetric case lands near zero
+        //rather than on it, and how near varies from run to run.  Observed at
+        //exactly zero in one run and -5.9e-6 in another, so a tolerance of 1e-6
+        //made this fail at random.  Judge it against the rolling moment an
+        //aileron deflection is meant to produce, roughly 0.0088, and call
+        //anything under a percent of that no roll at all.
+        TEST_ASSERT_DELTA( cmx[0], 0.0, 1.0e-4 );
     }
 
     // Final check for errors
