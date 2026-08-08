@@ -152,8 +152,20 @@ def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
                 script += "\n{\n"
                 script += "    VSPRenew();\n"
                 script += "    int __failure = 0;\n"
+                # Start from a clean error queue so this example is only judged
+                # on errors it raised itself.
+                script += "    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }\n"
                 script += f"    Print(\"//==== {function_name} ====//\");\n"
                 script += code_segment
+                # An example that leaves an API error behind has not worked,
+                # whether or not it bothered to check anything itself.  Nothing
+                # in the documentation raises an error on purpose.
+                script += "\n    while ( GetNumTotalErrors() > 0 )\n"
+                script += "    {\n"
+                script += "        ErrorObj err = PopLastError();\n"
+                script += "        Print( \"    API error: \" + err.GetErrorString() );\n"
+                script += "        __failure++;\n"
+                script += "    }\n"
                 script += "\n    return __failure;\n"
                 script += "}\n"
 
