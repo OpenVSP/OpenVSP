@@ -2828,7 +2828,15 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
 {
 
     //==== Register vec3d Object =====//
-    int r = se->RegisterObjectType( "vec3d", sizeof( vec3d ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA );
+    // The trait flags must describe vec3d exactly as the C++ compiler sees it -- they tell AngelScript
+    // which native calling convention to use.  vec3d is trivially copyable (it relies on the implicit
+    // copy constructor, copy assignment operator, and destructor), so ARM64 hands it back in the
+    // floating point registers d0-d2 rather than through a hidden return pointer.  AngelScript only
+    // knows to expect that when asOBJ_APP_CLASS_ALLFLOATS (all members are floating point) and
+    // asOBJ_APP_CLASS_ALIGN8 (those members are double, not float) are both set.  Without them every
+    // script level 'vec3d a = f();' picks up garbage.  asGetTypeTraits supplies the remaining flags so
+    // they track any future change to vec3d's copy semantics automatically.
+    int r = se->RegisterObjectType( "vec3d", sizeof( vec3d ), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits< vec3d >() | asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_ALIGN8 );
     assert( r >= 0 );
 
     //==== Register the vec3d Constructors  ====//

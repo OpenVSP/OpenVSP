@@ -1,0 +1,146 @@
+//==== Test vec3d value semantics across the AngelScript boundary ====//
+//
+// vec3d is a trivially copyable aggregate of three doubles, which on ARM64
+// makes it a homogeneous floating point aggregate returned in d0-d2 rather
+// than through a hidden return pointer.  AngelScript only marshals that
+// correctly when vec3d is registered with asOBJ_APP_CLASS_ALLFLOATS and
+// asOBJ_APP_CLASS_ALIGN8.  Without them every 'vec3d a = f();' in a script
+// silently picks up garbage, so this test concentrates on functions that
+// return vec3d by value.
+
+int check( const string & in name, const vec3d & in got, double ex, double ey, double ez )
+{
+    if ( !closeTo( got.x(), ex, 1e-9 ) || !closeTo( got.y(), ey, 1e-9 ) || !closeTo( got.z(), ez, 1e-9 ) )
+    {
+        Print( "FAIL " + name + " = " + got.x() + " " + got.y() + " " + got.z() +
+               "  expected " + ex + " " + ey + " " + ez );
+        return 1;
+    }
+    return 0;
+}
+
+int main()
+{
+    int failure = 0;
+
+    vec3d a( 1, 2, 3 );
+    vec3d b( 10, 20, 30 );
+
+    //==== Construction, copy and assignment ====//
+    vec3d cc( a );
+    vec3d ci = a;
+    vec3d as;
+    as = b;
+
+    failure += check( "copy constructor", cc, 1, 2, 3 );
+    failure += check( "copy initialize ", ci, 1, 2, 3 );
+    failure += check( "assignment      ", as, 10, 20, 30 );
+
+    //==== A copy must be independent of its source ====//
+    a.set_xyz( -1, -2, -3 );
+    failure += check( "copy independent", ci, 1, 2, 3 );
+    a.set_xyz( 1, 2, 3 );
+
+    //==== Operators returning vec3d by value ====//
+    failure += check( "opAdd  ", a + b, 11, 22, 33 );
+    failure += check( "opSub  ", b - a, 9, 18, 27 );
+    failure += check( "opMul  ", a * 2.0, 2, 4, 6 );
+    failure += check( "opDiv  ", b / 10.0, 1, 2, 3 );
+    failure += check( "opMul_r", a * b, 10, 40, 90 );
+
+    //==== Methods returning vec3d by value ====//
+    failure += check( "reflect_xy", vec3d( 1, 2, 3 ).reflect_xy(), 1, 2, -3 );
+    failure += check( "reflect_xz", vec3d( 1, 2, 3 ).reflect_xz(), 1, -2, 3 );
+    failure += check( "reflect_yz", vec3d( 1, 2, 3 ).reflect_yz(), -1, 2, 3 );
+
+    //==== Global functions returning vec3d by value ====//
+    failure += check( "cross", cross( vec3d( 1, 0, 0 ), vec3d( 0, 1, 0 ) ), 0, 0, 1 );
+    failure += check( "RotateArbAxis", RotateArbAxis( vec3d( 1, 0, 0 ), 0.5 * 3.14159265358979323846, vec3d( 0, 0, 1 ) ), 0, 1, 0 );
+
+    //==== Global functions returning double, for contrast ====//
+    if ( !closeTo( dot( a, b ), 140.0, 1e-9 ) ) failure++;
+    if ( !closeTo( dist( vec3d( 0, 0, 0 ), vec3d( 3, 4, 0 ) ), 5.0, 1e-9 ) ) failure++;
+    if ( !closeTo( vec3d( 3, 4, 0 ).mag(), 5.0, 1e-9 ) ) failure++;
+
+    //==== Matrix4d methods returning vec3d by value ====//
+    Matrix4d m;
+    m.loadIdentity();
+    m.translatef( 5, 6, 7 );
+    failure += check( "Matrix4d::xform", m.xform( a ), 6, 8, 10 );
+
+    Matrix4d r;
+    r.loadIdentity();
+    r.rotateZ( 30.0 );
+    failure += check( "Matrix4d::getAngles", r.getAngles(), 0, 0, 30 );
+
+    //==== API functions returning vec3d by value ====//
+    string wid = AddGeom( "WING" );
+    Update();
+
+    vec3d mx = GetGeomBBoxMax( wid );
+    vec3d mn = GetGeomBBoxMin( wid );
+    if ( mx.x() <= mn.x() || mx.y() <= mn.y() || mx.z() <= mn.z() )
+    {
+        Print( "FAIL wing bounding box is degenerate" );
+        failure++;
+    }
+
+    //==== ComputeXSecPnt and ComputeXSecTan also return vec3d by value.  A
+    //==== default fuselage cross section is symmetric top to bottom, so the
+    //==== quarter and three quarter points must mirror in z.  That is checked
+    //==== instead of hard coded coordinates so the test does not depend on the
+    //==== default fuselage dimensions.
+    string fid = AddGeom( "FUSELAGE" );
+    Update();
+    string fxsec = GetXSec( GetXSecSurf( fid, 0 ), 1 );
+
+    vec3d lo = ComputeXSecPnt( fxsec, 0.25 );
+    vec3d hi = ComputeXSecPnt( fxsec, 0.75 );
+
+    if ( !closeTo( lo.x(), hi.x(), 1e-9 ) || !closeTo( lo.y(), hi.y(), 1e-9 ) ||
+         !closeTo( lo.z(), -hi.z(), 1e-9 ) || closeTo( lo.z(), 0.0, 1e-9 ) )
+    {
+        Print( "FAIL ComputeXSecPnt symmetry, lo = " + lo.x() + " " + lo.y() + " " + lo.z() +
+               "  hi = " + hi.x() + " " + hi.y() + " " + hi.z() );
+        failure++;
+    }
+
+    vec3d tan = ComputeXSecTan( fxsec, 0.25 );
+    if ( tan.mag() <= 0.0 || tan.mag() > 1.0e6 )
+    {
+        Print( "FAIL ComputeXSecTan magnitude " + tan.mag() );
+        failure++;
+    }
+
+    //==== array<vec3d> round trip through the API ====//
+    array< vec3d > in_arr( 3 );
+    in_arr[0] = vec3d( 1, 2, 3 );
+    in_arr[1] = vec3d( 4, 5, 6 );
+    in_arr[2] = a + b;
+
+    string cid = GetChildCollection( GetVehicleID() );
+    string aid = AddAttributeVec3d( cid, "TestVec3dAttr", in_arr );
+    array< vec3d > @out_arr = GetAttributeVec3dVal( aid );
+
+    if ( out_arr.length() != 3 )
+    {
+        Print( "FAIL attribute array length " + out_arr.length() );
+        failure++;
+    }
+    else
+    {
+        failure += check( "attr round trip 0", out_arr[0], 1, 2, 3 );
+        failure += check( "attr round trip 1", out_arr[1], 4, 5, 6 );
+        failure += check( "attr round trip 2", out_arr[2], 11, 22, 33 );
+    }
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
+}
