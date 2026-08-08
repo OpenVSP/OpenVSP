@@ -1,5 +1,7 @@
-void main()
+int main()
 {
+    int failure = 0;
+
     string gid = AddGeom( "POD", "" );
     SetParmVal( gid, "Y_Rel_Location", "XForm", 2.0 );
     SetParmVal( gid, "Sym_Planar_Flag", "Sym", SYM_FLAG::SYM_XZ );
@@ -21,6 +23,11 @@ void main()
     array< string > @ruler_array = GetAllRulers();
 
     Print("Two Rulers");
+    if ( ruler_array.length() != 2 )
+    {
+        Print( "FAIL expected 2 rulers, found " + ruler_array.length() );
+        failure++;
+    }
     for( int n = 0 ; n < int( ruler_array.length() ) ; n++ )
     {
         Print( ruler_array[n] );
@@ -31,6 +38,11 @@ void main()
     ruler_array = GetAllRulers();
 
     Print("One Ruler");
+    if ( ruler_array.length() != 1 )
+    {
+        Print( "FAIL expected 1 ruler after DelRuler, found " + ruler_array.length() );
+        failure++;
+    }
     for( int n = 0 ; n < int( ruler_array.length() ) ; n++ )
     {
         Print( ruler_array[n] );
@@ -46,10 +58,25 @@ void main()
     d = GetParmVal( distid );
     Print( "Distance after update " + d );
 
+    // The ruler only resolves its endpoints during an update, so the distance
+    // reads zero until then.  Both the transition and the resulting value are
+    // worth pinning down.
+    if ( !closeTo( d, 4.978881, 1e-5 ) )
+    {
+        Print( "FAIL ruler distance " + d + ", expected 4.978881" );
+        failure++;
+    }
+
 // DelRuler( const string &id );
 // DeleteAllRulers();
 
     string pid = AddProbe( gid, 0, 0.5, 0.8, "Probe 1" );
+
+    if ( pid.length() == 0 )
+    {
+        Print( "FAIL AddProbe returned an empty id" );
+        failure++;
+    }
 
     SetParmVal( FindParm( pid, "Len", "Measure" ), 3.0 );
 
@@ -65,6 +92,8 @@ void main()
     {
         ErrorObj err = PopLastError();
         Print( err.GetErrorString() );
+        failure++;
     }
 
+    return failure;
 }

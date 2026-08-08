@@ -1,29 +1,59 @@
 
-void main()
+int main()
 {
+    int failure = 0;
+
     Print( string( "Begin Save and Load Test" ) );
     Print( string( "" ) );
-    TestSaveLoad();
+    failure += TestSaveLoad();
     Print( string( "End Save and Load Test" ) );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
 }
 
-void TestSaveLoad()
+int TestSaveLoad()
 {
+    int failure = 0;
+
     Print( string( "--> Generating Geometries and Testing Save and Load Code" ) );
     Print( string( "" ) );
 
+    double total_span = 30.0;
+    double le_cluster = 0.0;
+    double te_cluster = 2.0;
+    double fus_x = -9.0;
+    double fus_z = -1.0;
+
     //==== Add Wing Geom and set some parameters =====//
     string wing_id = AddGeom( "WING" );
-    SetParmVal(  wing_id, "TotalSpan", "WingGeom", 30.0 );
-    SetParmVal(  wing_id, "LECluster", "WingGeom", 0.0 );
-    SetParmVal(  wing_id, "TECluster", "WingGeom", 2.0 );
+    SetParmVal(  wing_id, "TotalSpan", "WingGeom", total_span );
+    SetParmVal(  wing_id, "LECluster", "WingGeom", le_cluster );
+    SetParmVal(  wing_id, "TECluster", "WingGeom", te_cluster );
     Update();
 
     //==== Add Fuselage Geom and set some parameters =====//
     string fus_id = AddGeom( "FUSELAGE" );
-    SetParmVal(  fus_id, "X_Rel_Location", "XForm", -9.0 );
-    SetParmVal(  fus_id, "Z_Rel_Location", "XForm", -1.0 );
+    SetParmVal(  fus_id, "X_Rel_Location", "XForm", fus_x );
+    SetParmVal(  fus_id, "Z_Rel_Location", "XForm", fus_z );
     Update();
+
+    //==== Record what the model actually holds before saving.  Parms clamp to
+    //==== their own limits, so LECluster comes back as 0.0001 rather than the
+    //==== 0.0 requested above.  The round trip is what is under test here, not
+    //==== the clamping, so compare against the stored values.
+    double saved_span = GetParmVal( wing_id, "TotalSpan", "WingGeom" );
+    double saved_le = GetParmVal( wing_id, "LECluster", "WingGeom" );
+    double saved_te = GetParmVal( wing_id, "TECluster", "WingGeom" );
+    double saved_fus_x = GetParmVal( fus_id, "X_Rel_Location", "XForm" );
+    double saved_fus_z = GetParmVal( fus_id, "Z_Rel_Location", "XForm" );
 
     //==== Save Vehicle to File ====//
     Print( string( "--->Saving VSP model\n" ) );
@@ -34,8 +64,54 @@ void TestSaveLoad()
     Print( string( "--->Resetting VSP model to blank slate\n" ) );
     ClearVSPModel();
 
+    if ( FindGeoms().length() != 0 )
+    {
+        Print( "FAIL ClearVSPModel left geoms behind" );
+        failure++;
+    }
+
     //==== Read Geometry From File ====//
     Print( string( "--->Reading model from: " ) + fname + string( "\n" ) );
     ReadVSPFile( fname );
 
+    //==== The point of the test is that everything written came back ====//
+    array< string > @geoms = FindGeoms();
+    if ( geoms.length() != 2 )
+    {
+        Print( "FAIL expected 2 geoms after reload, found " + geoms.length() );
+        return failure + 1;
+    }
+
+    string new_wing_id;
+    string new_fus_id;
+    for ( uint i = 0; i < geoms.length(); i++ )
+    {
+        if ( GetGeomTypeName( geoms[i] ) == "Wing" )
+        {
+            new_wing_id = geoms[i];
+        }
+        else if ( GetGeomTypeName( geoms[i] ) == "Fuselage" )
+        {
+            new_fus_id = geoms[i];
+        }
+    }
+
+    if ( new_wing_id.length() == 0 || new_fus_id.length() == 0 )
+    {
+        Print( "FAIL wing or fuselage missing after reload" );
+        return failure + 1;
+    }
+
+    if ( !closeTo( GetParmVal( new_wing_id, "TotalSpan", "WingGeom" ), saved_span, 1e-9 ) ) failure++;
+    if ( !closeTo( GetParmVal( new_wing_id, "LECluster", "WingGeom" ), saved_le, 1e-9 ) ) failure++;
+    if ( !closeTo( GetParmVal( new_wing_id, "TECluster", "WingGeom" ), saved_te, 1e-9 ) ) failure++;
+    if ( !closeTo( GetParmVal( new_fus_id, "X_Rel_Location", "XForm" ), saved_fus_x, 1e-9 ) ) failure++;
+    if ( !closeTo( GetParmVal( new_fus_id, "Z_Rel_Location", "XForm" ), saved_fus_z, 1e-9 ) ) failure++;
+
+    if ( failure > 0 )
+    {
+        Print( "FAIL parameters did not survive the save and load round trip" );
+    }
+
+    return failure;
 }

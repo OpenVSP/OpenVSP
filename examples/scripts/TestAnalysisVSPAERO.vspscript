@@ -1,45 +1,55 @@
-void main()
+int main()
 {
+    int failure = 0;
+
     Print( string( "Begin VSPAERO Test Analysis" ) );
     Print( string( "" ) );
 
-    TestAll();
+    failure += TestAll();
 
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
     {
         ErrorObj err = PopLastError();
         Print( err.GetErrorString() );
+        failure++;
     }
 
     Print( string( "End VSPAERO Test Analysis" ) );
+
+    return failure;
 }
 
-void TestAll()
+int TestAll()
 {
+    int failure = 0;
+
     //==== Generate Geometry ====//
-    GenerateGeom();
+    failure += GenerateGeom();
     ClearVSPModel();
 
-    //==== Vortex Lattice Method ====//
-    TestVSPAeroComputeGeom();
-    ClearVSPModel();
-
-    //==== Panel Method ====//
-    TestVSPAeroComputeGeomPanel();
+    //==== Compute Geometry ====//
+    // There used to be a second pass here running the panel method.  VSPAERO
+    // dropped the distinction between panel and vortex lattice, so that test
+    // became an exact duplicate of this one and has been removed.
+    failure += TestVSPAeroComputeGeom();
     ClearVSPModel();
 
     //==== Sharp Trailing Edge Test ====//
-    TestVSPAeroSharpTrailingEdge();
+    failure += TestVSPAeroSharpTrailingEdge();
     ClearVSPModel();
 
     //==== Blunt Trailing Edge Test ====//
-    TestVSPAeroBluntTrailingEdge();
+    failure += TestVSPAeroBluntTrailingEdge();
     ClearVSPModel();
+
+    return failure;
 }
 
-void GenerateGeom()
+int GenerateGeom()
 {
+    int failure = 0;
+
     //==== Create some test geometries ====//
     Print( string( "--> Generating Geometries" ) );
     Print( string( "" ) );
@@ -64,9 +74,13 @@ void GenerateGeom()
     WriteVSPFile( fname_vspaerotests, SET_ALL );
     Print( "COMPLETE\n" );
     Update();
+
+    return failure;
 }
-void TestVSPAeroComputeGeom()
+int TestVSPAeroComputeGeom()
 {
+    int failure = 0;
+
     Print( string( "-> Begin TestVSPAeroComputeGeom" ) );
     Print( string( "" ) );
 
@@ -100,44 +114,15 @@ void TestVSPAeroComputeGeom()
 
     // Get & Display Results
     PrintResults( rid );
+
+    return failure;
 }
 
-void TestVSPAeroComputeGeomPanel()
+
+int TestVSPAeroSharpTrailingEdge()
 {
-    Print( string( "-> Begin TestVSPAeroComputeGeomPanel" ) );
-    Print( string( "" ) );
+    int failure = 0;
 
-    //open the file created in GenerateGeom
-    string fname_vspaerotests = "TestVSPAero.vsp3";
-    ReadVSPFile( fname_vspaerotests );  // Sets VSP3 file name
-
-    //==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROComputeGeometry";
-    Print( analysis_name );
-
-    // Set defaults
-    SetAnalysisInputDefaults( analysis_name );
-
-    // Set to panel method
-    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
-    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::PANEL );
-    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
-
-    // list inputs, type, and current values
-    PrintAnalysisInputs( analysis_name );
-    Print( "" );
-
-    // Execute
-    Print( "\tExecuting..." );
-    string rid = ExecAnalysis( analysis_name );
-    Print( "COMPLETE" );
-
-    // Get & Display Results
-    PrintResults( rid );
-}
-
-void TestVSPAeroSharpTrailingEdge()
-{
     Print( string( "-> Begin TestVSPAeroSharpTrailingEdge" ) );
     Print( string( "" ) );
 
@@ -250,7 +235,7 @@ void TestVSPAeroSharpTrailingEdge()
     string history_res = FindLatestResultsID( "VSPAERO_History" );
     string load_res = FindLatestResultsID( "VSPAERO_Load" );
 
-    array<double> CL = GetDoubleResults( history_res, "CL", 0 );
+    array<double> CL = GetDoubleResults( history_res, "CLtot", 0 );
     array<double> cl = GetDoubleResults( load_res, "cl", 0 );
 
     Print( "CL at 0 angle of attack: ", false );
@@ -268,10 +253,14 @@ void TestVSPAeroSharpTrailingEdge()
     }
     Print( "" );
     Print( "" );
+
+    return failure;
 }
 
-void TestVSPAeroBluntTrailingEdge()
+int TestVSPAeroBluntTrailingEdge()
 {
+    int failure = 0;
+
     Print( string( "-> Begin TestVSPAeroBluntTrailingEdge" ) );
     Print( string( "" ) );
 
@@ -395,7 +384,7 @@ void TestVSPAeroBluntTrailingEdge()
     string history_res = FindLatestResultsID( "VSPAERO_History" );
     string load_res = FindLatestResultsID( "VSPAERO_Load" );
 
-    array<double> CL = GetDoubleResults( history_res, "CL", 0 );
+    array<double> CL = GetDoubleResults( history_res, "CLtot", 0 );
     array<double> cl = GetDoubleResults( load_res, "cl", 0 );
 
     Print( "CL at 0 angle of attack: ", false );
@@ -413,4 +402,6 @@ void TestVSPAeroBluntTrailingEdge()
     }
     Print( "" );
     Print( "" );
+
+    return failure;
 }

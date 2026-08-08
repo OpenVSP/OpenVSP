@@ -1,14 +1,62 @@
 
-void main()
+//==== Size of a file in bytes, or -1 if it can not be opened ====//
+int FileSize( const string & in fname )
 {
-    Print( string( "Begin Scripting Test" ) );
-    Print( string( "" ) );
-    TestDXF();
-    Print( string( "End Scripting Test" ) );
+    file f;
+    if ( f.open( fname, "r" ) < 0 )
+    {
+        return -1;
+    }
+    int sz = f.getSize();
+    f.close();
+    return sz;
 }
 
-void TestDXF()
+//==== Every exported file should exist and have content in it ====//
+int CheckExports( const array< string > & in fnames )
 {
+    int failure = 0;
+    for ( uint i = 0; i < fnames.length(); i++ )
+    {
+        int sz = FileSize( fnames[i] );
+        if ( sz <= 0 )
+        {
+            Print( "FAIL export " + fnames[i] + " missing or empty, size " + sz );
+            failure++;
+        }
+        else
+        {
+            Print( "   " + fnames[i] + " " + sz + " bytes" );
+        }
+    }
+    return failure;
+}
+
+
+int main()
+{
+    int failure = 0;
+
+    Print( string( "Begin Scripting Test" ) );
+    Print( string( "" ) );
+    failure += TestDXF();
+    Print( string( "End Scripting Test" ) );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
+}
+
+int TestDXF()
+{
+    int failure = 0;
+
     Print( string( "--> Generating Geometries and Testing DXF Code" ) );
     Print( string( "" ) );
 
@@ -116,4 +164,14 @@ void TestDXF()
     Print( string( "-> Open Each DXF File In A DXF Viewer To Verify" ) );
     Print( string( "" ) );
 
+
+    //==== Confirm each export actually landed on disk ====//
+    array< string > exports = { "TestDXF_3D.dxf",
+                              "TestDXF_2D_4View.dxf",
+                              "TestDXF_2D_1View.dxf",
+                              "TestDXF_2D_2HView.dxf",
+                              "TestDXF_2D_2VView.dxf" };
+    failure += CheckExports( exports );
+
+    return failure;
 }

@@ -1,5 +1,12 @@
-void main()
+int main()
 {
+    int failure = 0;
+
+    // Projecting a point back onto the surface it came from should land where it
+    // started, so the offsets printed below are the check.  Tolerance is loose
+    // enough for the projection solver but tight enough to catch a real break.
+    double proj_tol = 1e-6;
+
     // Add Pod Geom
     string geom_id = AddGeom( "POD", "" );
 
@@ -23,6 +30,11 @@ void main()
     Print( "3D Offset ", false);
 	Print( surf_pt - p_out );
 
+    if ( ( surf_pt - p_out ).mag() > proj_tol )
+    {
+        Print( "FAIL AxisProjPnt01 did not recover the original point" );
+        failure++;
+    }
 
     int surf_indx_out;
 
@@ -34,6 +46,16 @@ void main()
     Print( "3D Offset ", false);
 	Print( surf_pt - p_out );
 
+    if ( ( surf_pt - p_out ).mag() > proj_tol )
+    {
+        Print( "FAIL AxisProjPnt01I did not recover the original point" );
+        failure++;
+    }
+    if ( surf_indx_out != surf_indx )
+    {
+        Print( "FAIL AxisProjPnt01I returned surface " + surf_indx_out + ", expected " + surf_indx );
+        failure++;
+    }
 
     double u0 = u + 0.01234;
     double w0 = w - 0.05678;
@@ -46,6 +68,11 @@ void main()
     Print( "3D Offset ", false);
 	Print( surf_pt - p_out );
 
+    if ( ( surf_pt - p_out ).mag() > proj_tol )
+    {
+        Print( "FAIL AxisProjPnt01Guess did not recover the original point" );
+        failure++;
+    }
 
     Print( "Vector Tests" );
     int n = 5;
@@ -78,6 +105,10 @@ void main()
     // Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
     // the pod from the originally computed point.  I.e. there were multiple solutions and the original point
     // is not the closest intersection point.  We could offset those points in the +Y direction instead of -Y.
+    //
+    // Because a non-zero delta is legitimate here, this loop only checks that a
+    // result came back for every point.  The seeded variant below is the one
+    // that has to land on the original solution.
 
     Print( "AxisProjVecPnt01" );
     for( int i = 0 ; i < n ; i++ )
@@ -87,6 +118,12 @@ void main()
 	    Print( uvec[i] - uoutv[i], false );
 	    Print( "W delta ", false );
 	    Print( wvec[i] - woutv[i] );
+    }
+
+    if ( int( uoutv.length() ) != n || int( woutv.length() ) != n || int( doutv.length() ) != n )
+    {
+        Print( "FAIL AxisProjVecPnt01 returned " + uoutv.length() + " results, expected " + n );
+        failure++;
     }
 
 
@@ -112,4 +149,24 @@ void main()
 	    Print( "W delta ", false );
 	    Print( wvec[i] - woutv[i] );
     }
+
+    // Seeded from the original parameters, so these must converge back to them.
+    for( int i = 0 ; i < n ; i++ )
+    {
+        if ( !closeTo( uvec[i], uoutv[i], proj_tol ) || !closeTo( wvec[i], woutv[i], proj_tol ) )
+        {
+            Print( "FAIL AxisProjVecPnt01Guess point " + i + " did not converge to its seed" );
+            failure++;
+        }
+    }
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
 }

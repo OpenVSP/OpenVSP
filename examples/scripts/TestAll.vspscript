@@ -23,24 +23,30 @@ bool CloseVec3d( vec3d a, vec3d b, double tol )
 }
 
 double tol = 0.00001;
-void main()
+int main()
 {
+    int failure = 0;
+
     Print( string( "Begin Scripting Test" ) );
     int errcount = 0;
     errcount = TestErrorHandling();
 
-    TestVec3d();
-    TestMatrix();
-    TestProxy();
-    TestAPIScript();
-//    TestVarPreset();
+    failure += TestVec3d();
+    failure += TestMatrix();
+    failure += TestProxy();
+    failure += TestAPIScript();
+    failure += TestVarPreset();
 
     Print( string( "End Scripting Test" ) );
-    DumpErrorsAndExit( errcount );
+    failure += DumpErrorsAndExit( errcount );
+
+    return failure;
 }
 
-void TestVec3d()
+int TestVec3d()
 {
+    int failure = 0;
+
     Print( string( "--> Testing Vec3d" ) );
 
     //==== Test Vec3d ====//
@@ -49,35 +55,37 @@ void TestVec3d()
 
     //===== Test Copy ====//
     a = b;                                    // Copy Constructor
-    if ( !CloseVec3d( a, b, tol ) )                    { Print( " ---> Error: Vec3d Copy " ); }
+    if ( !CloseVec3d( a, b, tol ) )                    { Print( " ---> Error: Vec3d Copy " ); failure++; }
 
     //===== Test Assignment ====//
     a.set_xyz( 2.0, 4.0, 6.0 );
     b.set_x( 2.0 );    b.set_y( 4.0 );    b.set_z( 6.0 );
-    if ( !CloseVec3d( a, b, tol ) )                    { Print( "---> Error: Vec3d Assignment " ); }
+    if ( !CloseVec3d( a, b, tol ) )                    { Print( "---> Error: Vec3d Assignment " ); failure++; }
 
     //===== Test Rotate ====//
     a.set_xyz( 1.0, 0.0, 0.0 );
-    a.rotate_z( cos( 0.5 * PI ), sin( 0.5 * PI ) );
-    a.rotate_x( cos( 0.5 * PI ), sin( 0.5 * PI ) );
-    a.rotate_y( cos( 0.5 * PI ), sin( 0.5 * PI ) );
-    if ( !CloseVec3d( a, vec3d( -1, 0, 0 ), tol ) )        { Print( "---> Error: Vec3d Rotate " ); }
+    // rotate_x/y/z take the angle itself.  They used to be handed cos and sin
+    // of the angle, which no longer matches the registered signature.
+    a.rotate_z( 0.5 * PI );
+    a.rotate_x( 0.5 * PI );
+    a.rotate_y( 0.5 * PI );
+    if ( !CloseVec3d( a, vec3d( -1, 0, 0 ), tol ) )        { Print( "---> Error: Vec3d Rotate " ); failure++; }
 
     //===== Test Scale/Offset/Reflect ====//
     a.set_xyz( 2.0, 2.0, 2.0 );
     a.scale_x( 2.0 );        a.scale_y( 2.0 );        a.scale_z( 2.0 );
     a.offset_x( 10.0 );        a.offset_y( 10.0 );        a.offset_z( 10.0 );
-    if ( !CloseVec3d( a, vec3d( 14.0, 14.0, 14.0 ), tol ) )     { Print( "---> Error: Vec3d Scale/Offset " ); }
+    if ( !CloseVec3d( a, vec3d( 14.0, 14.0, 14.0 ), tol ) )     { Print( "---> Error: Vec3d Scale/Offset " ); failure++; }
 
     a.set_xyz( 1.0, 2.0, 3.0 );
     b = a.reflect_xy();
     a = b.reflect_xz();
     b = a.reflect_yz();
-    if ( !CloseVec3d( b, vec3d( -1.0, -2.0, -3.0 ), tol ) )     { Print( "---> Error: Vec3d Reflect " ); }
+    if ( !CloseVec3d( b, vec3d( -1.0, -2.0, -3.0 ), tol ) )     { Print( "---> Error: Vec3d Reflect " ); failure++; }
 
     //==== Test Mag ====//
     a.set_xyz( 1.0, 2.0, 3.0 );
-    if ( abs( a.mag() - sqrt( 14 ) ) > tol )                        { Print( "---> Error: Vec3d Mag " ); }
+    if ( abs( a.mag() - sqrt( 14 ) ) > tol )                        { Print( "---> Error: Vec3d Mag " ); failure++; }
 
     //===== Test Operators ====//
     a.set_xyz( 2.0, 3.0, 4.0 );
@@ -87,40 +95,44 @@ void TestVec3d()
     b = a * 2.0;
     c = b * a;
     a = c / 2.0;
-    if ( !CloseVec3d( a, vec3d( 4.0, 9.0, 16.0 ), tol ) )         { Print( "---> Error: Vec3d Operators " ); }
+    if ( !CloseVec3d( a, vec3d( 4.0, 9.0, 16.0 ), tol ) )         { Print( "---> Error: Vec3d Operators " ); failure++; }
 
     //==== Test Dist ====//
     a.set_xyz( 2.0, 2.0, 2.0 );
     b.set_xyz( 3.0, 4.0, 5.0 );
     double d = dist( a, b );
     double d2 = dist_squared( a, b );
-    if ( abs( d - sqrt( 14 ) ) > tol && abs( d2 - 14 ) > tol )    { Print( "---> Error: Vec3d Dist " ); }
+    if ( abs( d - sqrt( 14 ) ) > tol && abs( d2 - 14 ) > tol )    { Print( "---> Error: Vec3d Dist " ); failure++; }
 
     //==== Test Dot ====//
     a.set_xyz( 1.0, 2.0, 3.0 );
     b.set_xyz( 2.0, 3.0, 4.0 );
-    if ( abs( dot( a, b ) - 20 ) > tol )                            { Print( "---> Error: Vec3d Dot " ); }
+    if ( abs( dot( a, b ) - 20 ) > tol )                            { Print( "---> Error: Vec3d Dot " ); failure++; }
 
     //==== Test Cross ====//
     a.set_xyz( 4.0, 0.0, 0.0 );
     b.set_xyz( 0.0, 3.0, 0.0 );
     c = cross( a, b );
     c.normalize();
-    if ( !CloseVec3d( c, vec3d( 0.0, 0.0, 1.0 ), tol ) )         { Print( "---> Error: Vec3d Cross  " ); }
+    if ( !CloseVec3d( c, vec3d( 0.0, 0.0, 1.0 ), tol ) )         { Print( "---> Error: Vec3d Cross  " ); failure++; }
 
     //==== Test Angle/Rotate ====//
     a.set_xyz( 1.0, 1.0, 0.0 );
     b.set_xyz( 1.0, 0.0, 0.0 );
-    if ( abs( angle( a, b ) - PI / 4 ) > tol )                    { Print( "---> Error: Vec3d Angle " ); }
+    if ( abs( angle( a, b ) - PI / 4 ) > tol )                    { Print( "---> Error: Vec3d Angle " ); failure++; }
     c.set_xyz( 0.0, 0.0, 1.0 );
-    if ( abs( signed_angle( a, b, c ) - -PI / 4 ) > tol )            { Print( "---> Error: Vec3d SignedAngle " ); }
+    if ( abs( signed_angle( a, b, c ) - -PI / 4 ) > tol )            { Print( "---> Error: Vec3d SignedAngle " ); failure++; }
 
     c = RotateArbAxis( b, PI, a );
-    if ( !CloseVec3d( c, vec3d( 0.0, 1.0, 0.0 ), tol ) )         { Print( "---> Error: Vec3d RotateArbAxis  " ); }
+    if ( !CloseVec3d( c, vec3d( 0.0, 1.0, 0.0 ), tol ) )         { Print( "---> Error: Vec3d RotateArbAxis  " ); failure++; }
+
+    return failure;
 }
 
-void TestMatrix()
+int TestMatrix()
 {
+    int failure = 0;
+
     Print( string( "--> Testing Matrix4d" ) );
 
     //==== Test Matrix4d ====//
@@ -135,7 +147,7 @@ void TestMatrix()
     m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) );      // Radians
     vec3d b = m.xform( a );
     if ( !CloseVec3d( b, vec3d( 0.707107, -0.707107, 0.0 ), tol ) )
-    { Print( "---> Error: Matrix4d Rotate " ); }
+    { Print( "---> Error: Matrix4d Rotate " ); failure++; }
 
     m.loadXZRef();
     m.scale( 10.0 );
@@ -144,7 +156,7 @@ void TestMatrix()
     a = m.xform( b );
     m.loadYZRef();
     b = m.xform( a );
-    if ( !CloseVec3d( b, vec3d( -10, -20, -30 ), tol ) )    { Print( "---> Error: Matrix4d Reflect " ); }
+    if ( !CloseVec3d( b, vec3d( -10, -20, -30 ), tol ) )    { Print( "---> Error: Matrix4d Reflect " ); failure++; }
 
     m.loadIdentity();
     m.rotateY( 10.0 );
@@ -154,11 +166,15 @@ void TestMatrix()
     vec3d c = m.xform( a );
     m.affineInverse();
     b = m.xform( c );
-    if ( !CloseVec3d( a, b, tol ) )                        { Print( "---> Error: Matrix4d Affine " ); }
+    if ( !CloseVec3d( a, b, tol ) )                        { Print( "---> Error: Matrix4d Affine " ); failure++; }
+
+    return failure;
 }
 
-void TestProxy()
+int TestProxy()
 {
+    int failure = 0;
+
     Print( string( "--> Testing Proxy" ) );
 
     //==== Test Proxy Stuff =====//
@@ -179,6 +195,8 @@ void TestProxy()
     //SetVec3dArray( test_vec3d_array );
 
 //    TestProxy2();
+
+    return failure;
 }
 
 
@@ -205,7 +223,7 @@ int TestErrorHandling()
     return errcount;
 }
 
-void DumpErrorsAndExit( int errcount )
+int DumpErrorsAndExit( int errcount )
 {
     errcount += GetNumTotalErrors();
 
@@ -216,13 +234,15 @@ void DumpErrorsAndExit( int errcount )
         Print( err.GetErrorString() );
     }
 
-    // Return error count.  Test framework includes one error 'on purpose' to test
-    // the error system itself.
-//    VSPExit( errcount - 1 );
+    // TestErrorHandling raises one error on purpose to exercise the error
+    // system, so it does not count against the test.
+    return errcount - 1;
 }
 
-void TestAPIScript()
+int TestAPIScript()
 {
+    int failure = 0;
+
     Print( string( "--> Testing API Code" ) );
 
     string pod1 = AddGeom( "POD", "" );
@@ -235,11 +255,11 @@ void TestAPIScript()
 
     //==== There Should Be Two Geoms in the File =====//
     array< string > @geom_ids = FindGeoms();
-    if ( geom_ids.size() != 2 )                        { Print( "---> Error: API Read/Find  " ); }
+    if ( geom_ids.size() != 2 )                        { Print( "---> Error: API Read/Find  " ); failure++; }
 
     array< string > @type_array = GetGeomTypes();
-    if ( type_array.size() < 1 )                    { Print( "---> Error: API GetGeomTypes  " ); }
-    else if ( type_array[0] != "POD" )                { Print( "---> Error: API GetGeomTypes  " ); }
+    if ( type_array.size() < 1 )                    { Print( "---> Error: API GetGeomTypes  " ); failure++; }
+    else if ( type_array[0] != "POD" )                { Print( "---> Error: API GetGeomTypes  " ); failure++; }
 
     Print( string( "---> Test Cut/Paste" ) );
     string gid0 = AddGeom( "POD", "" );
@@ -250,8 +270,8 @@ void TestAPIScript()
 
     if ( geom_ids.size() != 1 )
     {
-        Print( "---> API Add/Cut/Paste Geom " );
-        return;
+        Print( "---> Error: API Add/Cut/Paste Geom " );
+        return failure + 1;
     }
 
     Print( string( "---> Test Copy/Paste" ) );
@@ -260,48 +280,48 @@ void TestAPIScript()
     CopyGeomToClipboard( gid1 );
     PasteGeomClipboard( geom_ids[0] );
     geom_ids = FindGeoms();
-    if ( geom_ids.size() != 5 )                { Print( "---> Error: API Copy/Paste Geom  " ); }
+    if ( geom_ids.size() != 5 )                { Print( "---> Error: API Copy/Paste Geom  " ); failure++; }
 
     string geom_name = GetGeomName( gid1 );
-    if ( geom_name != "ChildPod" )            { Print( "---> Error: API GetGeomName  " ); }
+    if ( geom_name != "ChildPod" )            { Print( "---> Error: API GetGeomName  " ); failure++; }
 
     Print( string( "---> Test Get Parm Arrays" ) );
     array< string > @parm_array = GetGeomParmIDs( gid1 );
-    if ( parm_array.size() < 1 )            { Print( "---> Error: API GetGeomParmIDs " ); }
+    if ( parm_array.size() < 1 )            { Print( "---> Error: API GetGeomParmIDs " ); failure++; }
 
     string lenid = GetParm( gid1, "Length", "Design" );
-    if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); }
+    if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); failure++; }
 
     Print( string( "---> Test Get Num XSec Surfs" ) );
     string fuseid = AddGeom( "FUSELAGE", "" );
     int num_xsec_surfs = GetNumXSecSurfs( fuseid );
-    if ( num_xsec_surfs != 1 )                { Print( "---> Error: API GetNumXSecSurfs  " ); }
+    if ( num_xsec_surfs != 1 )                { Print( "---> Error: API GetNumXSecSurfs  " ); failure++; }
 
     string xsec_surf = GetXSecSurf( fuseid, 0 );
 
-    if ( GetNumXSec( xsec_surf ) < 1 )                    { Print( "---> Error: API GetXSecSurf/GetNumXSec  " ); }
+    if ( GetNumXSec( xsec_surf ) < 1 )                    { Print( "---> Error: API GetXSecSurf/GetNumXSec  " ); failure++; }
 
     Print( string( "---> Test Get XSec" ) );
     string xsec = GetXSec( xsec_surf, 0 );
-    if ( xsec.size() == 0 )                    { Print( "---> Error: API GetXSec " ); }
+    if ( xsec.size() == 0 )                    { Print( "---> Error: API GetXSec " ); failure++; }
 
     Print( string( "---> Test Change XSec Shape" ) );
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE );
 
     xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
     if ( GetXSecShape( xsec ) != XS_ROUNDED_RECTANGLE )
-    { Print( "---> Error: API ChangeXSec/GetShape " ); }
+    { Print( "---> Error: API ChangeXSec/GetShape " ); failure++; }
 
     Print( string( "---> Test Change Set XSec W/H" ) );
     SetXSecWidthHeight( xsec, 3.0, 6.0 );
-    if ( abs( GetXSecWidth( xsec ) - 3.0 ) > tol )        { Print( "---> Error: API Get/Set Width " ); }
-    if ( abs( GetXSecHeight( xsec ) - 6.0 ) > tol )        { Print( "---> Error: API Get/Set Height " ); }
+    if ( abs( GetXSecWidth( xsec ) - 3.0 ) > tol )        { Print( "---> Error: API Get/Set Width " ); failure++; }
+    if ( abs( GetXSecHeight( xsec ) - 6.0 ) > tol )        { Print( "---> Error: API Get/Set Height " ); failure++; }
 
     parm_array = GetXSecParmIDs( xsec );
-    if ( parm_array.size() < 1 )                        { Print( "---> Error: API GetXSecParmIDs " ); }
+    if ( parm_array.size() < 1 )                        { Print( "---> Error: API GetXSecParmIDs " ); failure++; }
 
     string wid = GetXSecParm( xsec, "RoundedRect_Width" );
-    if ( !ValidParm( wid ) )                            { Print( "---> Error: API GetXSecParm " ); }
+    if ( !ValidParm( wid ) )                            { Print( "---> Error: API GetXSecParm " ); failure++; }
 
     Print( string( "---> Test Read Fuse File" ) );
     ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE );
@@ -316,7 +336,7 @@ void TestAPIScript()
     }
 
     double wh_ratio = GetXSecWidth( xsec ) / GetXSecHeight( xsec );
-    if ( ( abs( wh_ratio ) - 2.0 ) > tol )                { Print( "---> Error: API Read/Set XSecPnts " ); }
+    if ( ( abs( wh_ratio ) - 2.0 ) > tol )                { Print( "---> Error: API Read/Set XSecPnts " ); failure++; }
 
     Print( string( "---> Test Read Airfoil File" ) );
     ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
@@ -336,35 +356,35 @@ void TestAPIScript()
 
     //==== Sets ====//
     Print( string( "---> Test Sets" ) );
-    if ( GetNumSets() <= 0 )                            { Print( "---> Error: API GetNumSets " ); }
+    if ( GetNumSets() <= 0 )                            { Print( "---> Error: API GetNumSets " ); failure++; }
     SetSetName( 3, "SetFromScript" );
-    if ( GetSetName( 3 ) != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); }
+    if ( GetSetName( 3 ) != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); failure++; }
 
     array<string> @geom_arr1 = GetGeomSetAtIndex( 3 );
     array<string> @geom_arr2 = GetGeomSet( "SetFromScript" );
 
-    if ( geom_arr1.size() != geom_arr2.size() )            { Print( "---> Error: API GetGeomSet " ); }
+    if ( geom_arr1.size() != geom_arr2.size() )            { Print( "---> Error: API GetGeomSet " ); failure++; }
 
     SetSetFlag( fuseid, 3, true );
-    if ( !GetSetFlag( fuseid, 3 ) )                        { Print( "---> Error: API Set/Get Set Flag " ); }
+    if ( !GetSetFlag( fuseid, 3 ) )                        { Print( "---> Error: API Set/Get Set Flag " ); failure++; }
 
     //==== Parms ====//
     Print( string( "---> Test Parms" ) );
     SetParmVal( wid, 23.0 );
-    if ( abs( GetParmVal( wid ) - 23 ) > tol )                { Print( "---> Error: API Parm Val Set/Get " ); }
+    if ( abs( GetParmVal( wid ) - 23 ) > tol )                { Print( "---> Error: API Parm Val Set/Get " ); failure++; }
 
     SetParmUpperLimit( wid, 13.0 );
-    if ( abs( GetParmVal( wid ) - 13 ) > tol )                { Print( "---> Error: API SetParmUpperLimit " ); }
+    if ( abs( GetParmVal( wid ) - 13 ) > tol )                { Print( "---> Error: API SetParmUpperLimit " ); failure++; }
 
     SetParmUpperLimit( wid, 20.0 );
     SetParmLowerLimit( wid, 15.0 );
-    if ( abs( GetParmVal( wid ) - 15 ) > tol )                { Print( "---> Error: API SetParmLowerLimit " ); }
+    if ( abs( GetParmVal( wid ) - 15 ) > tol )                { Print( "---> Error: API SetParmLowerLimit " ); failure++; }
 
-    if ( GetParmType( wid ) != PARM_DOUBLE_TYPE )        { Print( "---> Error: API GetParmType " ); }
-    if ( GetParmName( wid ) != "RoundedRect_Width" )    { Print( "---> Error: API GetParmName " ); }
+    if ( GetParmType( wid ) != PARM_DOUBLE_TYPE )        { Print( "---> Error: API GetParmType " ); failure++; }
+    if ( GetParmName( wid ) != "RoundedRect_Width" )    { Print( "---> Error: API GetParmName " ); failure++; }
 
     string cid = GetParmContainer( wid );
-    if ( cid.size() == 0 )                                { Print( "---> Error: API GetParmContainer " ); }
+    if ( cid.size() == 0 )                                { Print( "---> Error: API GetParmContainer " ); failure++; }
 
     Update();
 
@@ -380,32 +400,32 @@ void TestAPIScript()
     for( int n = 0 ; n < int( res_names_vec.length() ) ; n++ )
         if ( res_names_vec[n] == "Test_Results" ) { found_name = true; }
 
-    if ( !found_name )                                        { Print( "---> Error: API GetAllResultsNames" ); }
+    if ( !found_name )                                        { Print( "---> Error: API GetAllResultsNames" ); failure++; }
 
 
-    if ( GetNumResults( "Test_Results" ) != 2 )                { Print( "---> Error: API GetNumResults" ); }
+    if ( GetNumResults( "Test_Results" ) != 2 )                { Print( "---> Error: API GetNumResults" ); failure++; }
     string res_id = FindResultsID( "Test_Results" );
-    if ( res_id.size() == 0 )                                { Print( "---> Error: API FindResultsID" ); }
+    if ( res_id.size() == 0 )                                { Print( "---> Error: API FindResultsID" ); failure++; }
 
     array< string > @data_names = GetAllDataNames( res_id );
-    if ( data_names.size() != 5 )                            { Print( "---> Error: API GetAllDataNames" ); }
+    if ( data_names.size() != 5 )                            { Print( "---> Error: API GetAllDataNames" ); failure++; }
 
-    if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
+    if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); failure++; }
     array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 );
-    if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); }
+    if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); failure++; }
     int_arr = GetIntResults( res_id, "Test_Int", 1 );
-    if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); }
+    if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); failure++; }
 
     array<string> @str_arr = GetStringResults( res_id, "Test_String" );
-    if ( str_arr[0] != "This Is A Test" )                    { Print( "---> Error: API GetStringResults" ); }
+    if ( str_arr[0] != "This Is A Test" )                    { Print( "---> Error: API GetStringResults" ); failure++; }
 
     array<double> @double_arr = GetDoubleResults( res_id, "Test_Double_Vec" );
-    if ( double_arr.size() != 5 )                            { Print( "---> Error: API GetDoubleResults" ); }
-    if ( abs( double_arr[4] - 4 ) > tol )                    { Print( "---> Error: API GetDoubleResults" ); }
+    if ( double_arr.size() != 5 )                            { Print( "---> Error: API GetDoubleResults" ); failure++; }
+    if ( abs( double_arr[4] - 4 ) > tol )                    { Print( "---> Error: API GetDoubleResults" ); failure++; }
 
     res_id = FindLatestResultsID( "Test_Results" );
     array<vec3d> @vec3d_vec = GetVec3dResults( res_id, "Test_Vec3d" );
-    if ( !CloseVec3d( vec3d_vec[0], vec3d( 1.0, 2.0, 4.0 ), tol ) )        { Print( "---> Error: API GetVec3dResults" ); }
+    if ( !CloseVec3d( vec3d_vec[0], vec3d( 1.0, 2.0, 4.0 ), tol ) )        { Print( "---> Error: API GetVec3dResults" ); failure++; }
 
     //==== Test Mass Props ====//
     Print( string( "---> Test Mass Properties" ) );
@@ -413,7 +433,7 @@ void TestAPIScript()
     string sliced_id = ComputeMassProps( 0, 4 );
     string mass_res_id = FindLatestResultsID( "Mass_Properties" );
     double_arr = GetDoubleResults( mass_res_id, "Total_Mass" );
-    if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeMassProps" ); }
+    if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeMassProps" ); failure++; }
     CutGeomToClipboard( mass_res_id );
 
     ClearVSPModel();
@@ -429,12 +449,12 @@ void TestAPIScript()
     string mesh_id = ComputeCompGeom( 0, false, 0 );
     string comp_res_id = FindLatestResultsID( "Comp_Geom" );
     double_arr = GetDoubleResults( comp_res_id, "Wet_Area" );
-    if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeCompGeom" ); }
+    if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeCompGeom" ); failure++; }
 
     //==== Test Comp Geom Mesh Results ====//
     string mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" );
     int_arr = GetIntResults( mesh_geom_res_id, "Num_Tris" );
-    if ( int_arr[0] < 4 )                                            { Print( "---> Error: API CreateGeomResults" ); }
+    if ( int_arr[0] < 4 )                                            { Print( "---> Error: API CreateGeomResults" ); failure++; }
     CutGeomToClipboard( mesh_id );
 
     //==== Test Geom Results ====//
@@ -473,11 +493,11 @@ void TestAPIScript()
     string slice_mesh_id = ComputePlaneSlice( 0, 6, vec3d( 0.0, 0.0, 1.0 ), true );
     string pslice_results = FindLatestResultsID( "Slice" );
     double_arr = GetDoubleResults( pslice_results, "Slice_Area" );
-    if ( double_arr.size() != 6 )                                    { Print( "---> Error: API ComputePlaneSlice" ); }
+    if ( double_arr.size() != 6 )                                    { Print( "---> Error: API ComputePlaneSlice" ); failure++; }
 
     string slice_geom_results = CreateGeomResults( slice_mesh_id, "Slice_Mesh" );
     int_arr = GetIntResults( slice_geom_results, "Num_Slices" );
-    if ( int_arr[0] != 4 )                                            { Print( "---> Error: API CreateGeomResults (Slice)" ); }
+    if ( int_arr[0] != 4 )                                            { Print( "---> Error: API CreateGeomResults (Slice)" ); failure++; }
 
     //===== Write File With Slice Triangles  ====//
     if( f.open( "slice_tris.stl", "w" ) >= 0 )
@@ -510,146 +530,149 @@ void TestAPIScript()
     ClearVSPModel();
 
     array<string> @ctr_arr = FindContainers();
-    if ( ctr_arr.size() != 28 )            { Print( "---> Error: API FindContainers " ); }
+    if ( ctr_arr.size() != 28 )            { Print( "---> Error: API FindContainers " ); failure++; }
 
     ctr_arr = FindContainersWithName( "UserParms" );
-    if ( ctr_arr.size() != 1 )            { Print( "---> Error: API FindContainersWithName " ); }
+    if ( ctr_arr.size() != 1 )            { Print( "---> Error: API FindContainersWithName " ); failure++; }
 
     string user_ctr = FindContainer( "UserParms", 0 );
-    if ( user_ctr.size() == 0 )                                { Print( "---> Error: API FindContainer" ); }
-    if ( res_id.size() == 0 )                                { Print( "---> Error: API FindContainer" ); }
+    if ( user_ctr.size() == 0 )                                { Print( "---> Error: API FindContainer" ); failure++; }
+    if ( res_id.size() == 0 )                                { Print( "---> Error: API FindContainer" ); failure++; }
 
-    if ( GetContainerName( user_ctr ) != "UserParms" )         { Print( "---> Error: API GetContainerName" ); }
+    if ( GetContainerName( user_ctr ) != "UserParms" )         { Print( "---> Error: API GetContainerName" ); failure++; }
 
     array<string> @grp_arr = FindContainerGroupNames( user_ctr );
-    if ( grp_arr.size() != 1 )                                { Print( "---> Error: API FindContainerGroupNames " ); }
-    if ( grp_arr[0] != "User_Group" )                         { Print( "---> Error: API FindContainerGroupNames" ); }
+    if ( grp_arr.size() != 1 )                                { Print( "---> Error: API FindContainerGroupNames " ); failure++; }
+    if ( grp_arr[0] != "User_Group" )                         { Print( "---> Error: API FindContainerGroupNames" ); failure++; }
 
     string uparm = FindParm( user_ctr, "User_0", "User_Group" );
-    if ( uparm.size() == 0 )                                { Print( "---> Error: API FindParm" ); }
+    if ( uparm.size() == 0 )                                { Print( "---> Error: API FindParm" ); failure++; }
 
     array<string> @uparm_arr  = FindContainerParmIDs( user_ctr );
-    if ( uparm_arr.size() == 0 )                            { Print( "---> Error: API FindContainerParmIDs" ); }
+    if ( uparm_arr.size() == 0 )                            { Print( "---> Error: API FindContainerParmIDs" ); failure++; }
 
     ClearVSPModel();
+
+    return failure;
 }
 
-void TestVarPreset()
+int TestVarPreset()
 {
+    int failure = 0;
+
     Print( string( "--> Testing Variable Presets" ) );
 
+    // The variable preset API is addressed by group and setting id now.  It used
+    // to be addressed by name, with a single implicit "current" group, which is
+    // why this test needed rewriting.
+
     string pod1 = AddGeom( "POD", "" );
+    SetGeomName( pod1, "PodGeom" );
+    Update();
 
     Print( string( "--> Testing Add Group/Setting" ) );
 
-    AddVarPresetGroup( "Tess" );
-    if ( GetVarPresetGroupNames().size() != 1 )                    { Print( "---> Error: API AddVarPresetGroup" ); }
+    string tess_group = AddVarPresetGroup( "Tess" );
+    if ( GetVarPresetGroups().size() != 1 )                 { Print( "---> Error: API AddVarPresetGroup" ); failure++; }
 
-    AddVarPresetSetting( "Coarse" );
-    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 1 )            { Print( "---> Error: API AddVarPresetSetting" ); }
+    string coarse = AddVarPresetSetting( tess_group, "Coarse" );
+    if ( GetVarPresetSettings( tess_group ).size() != 1 )   { Print( "---> Error: API AddVarPresetSetting" ); failure++; }
 
-    string p1 = FindParm( "PodGeom", "Shape", "Tess_U" );
-    string p2 = FindParm( "PodGeom", "Shape", "Tess_V" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
+    string p2 = FindParm( pod1, "Tess_W", "Shape" );
 
-    AddVarPresetParm( p1 );
-    AddVarPresetParm( p2 );
+    AddVarPresetParm( tess_group, p1 );
+    AddVarPresetParm( tess_group, p2 );
 
-    array <string> p_IDs = GetVarPresetParmIDs();
-    if ( p_IDs.size() != 2 )                                { Print( "---> Error: API AddVarPresetParm" ); }
+    array < string > @p_IDs = GetVarPresetParmIDs( tess_group );
+    if ( p_IDs.size() != 2 )                                { Print( "---> Error: API AddVarPresetParm" ); failure++; }
 
-    for( int i = 0; i < int( p_IDs.size() ); i++ )
+    //==== Store a value per parm in the Coarse setting ====//
+    SetVarPresetParmVal( tess_group, coarse, p1, 5 );
+    SetVarPresetParmVal( tess_group, coarse, p2, 5 );
+
+    if ( !closeTo( GetVarPresetParmVal( tess_group, coarse, p1 ), 5, 1e-9 ) ||
+         !closeTo( GetVarPresetParmVal( tess_group, coarse, p2 ), 5, 1e-9 ) )
     {
-        EditVarPresetParm( p_IDs[i], 5 );
+        Print( "---> Error: API SetVarPresetParmVal" );
+        failure++;
     }
 
-    array <double> p_vals = GetVarPresetParmVals();
-    for( int i = 0; i < int( p_vals.size() ); i++ )
+    //==== A second setting in the same group holds different values ====//
+    string fine = AddVarPresetSetting( tess_group, "Fine" );
+    if ( GetVarPresetSettings( tess_group ).size() != 2 )   { Print( "---> Error: API AddVarPresetSetting" ); failure++; }
+
+    SetVarPresetParmVal( tess_group, fine, p1, 25 );
+    SetVarPresetParmVal( tess_group, fine, p2, 25 );
+
+    array < double > @fine_vals = GetVarPresetParmVals( fine );
+    if ( fine_vals.size() != 2 )                            { Print( "---> Error: API GetVarPresetParmVals" ); failure++; }
+    for( int i = 0; i < int( fine_vals.size() ); i++ )
     {
-        if ( p_vals[i] != 5 )                                { Print ( "---> Error: API EditVarPresetParm" ); }
+        if ( !closeTo( fine_vals[i], 25, 1e-9 ) )           { Print( "---> Error: API SetVarPresetParmVal" ); failure++; }
     }
 
-    AddVarPresetSetting( "Fine" );
-    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 2 )            { Print ( "---> Error: API AddVarPresetSetting" ); }
-
-    for( int i = 0; i < int( p_vals.size() ); i++ )
+    //==== Applying a setting has to push the stored values onto the parms ====//
+    ApplyVarPresetSetting( tess_group, coarse );
+    Update();
+    if ( !closeTo( GetParmVal( p1 ), 5, 1e-9 ) || !closeTo( GetParmVal( p2 ), 5, 1e-9 ) )
     {
-        EditVarPresetParm( p_IDs[i], 25 );
+        Print( "---> Error: API ApplyVarPresetSetting did not apply Coarse" );
+        failure++;
     }
 
-    p_vals = GetVarPresetParmVals();
-    for( int i = 0; i < int( p_vals.size() ); i++ )
+    ApplyVarPresetSetting( tess_group, fine );
+    Update();
+    if ( !closeTo( GetParmVal( p1 ), 25, 1e-9 ) || !closeTo( GetParmVal( p2 ), 25, 1e-9 ) )
     {
-        if ( p_vals[i] != 25 )                                { Print ( "---> Error: API EditVarPresetParm" ); }
+        Print( "---> Error: API ApplyVarPresetSetting did not apply Fine" );
+        failure++;
     }
 
-    AddVarPresetGroup( "Config" );
-    if ( GetVarPresetGroupNames().size() != 2 )                    { Print ( "---> Error: API AddVarPresetGroup" ); }
+    //==== A second group is independent of the first ====//
+    string cfg_group = AddVarPresetGroup( "Config" );
+    if ( GetVarPresetGroups().size() != 2 )                 { Print( "---> Error: API AddVarPresetGroup" ); failure++; }
 
+    string dflt = AddVarPresetSetting( cfg_group, "Default" );
+    if ( GetVarPresetSettings( cfg_group ).size() != 1 )    { Print( "---> Error: API AddVarPresetSetting" ); failure++; }
 
-    AddVarPresetSetting( "Default" );
-    if ( GetVarPresetSettingNamesWName( "Default" ).size() != 1 )    { Print ( "---> Error: API AddVarPresetSetting" ); }
+    string p3 = FindParm( pod1, "Y_Rel_Rotation", "XForm" );
+    string p4 = FindParm( pod1, "Z_Rel_Rotation", "XForm" );
 
-    p1 = FindParm( "PodGeom", "XForm", "Y_Rel_Rotation" );
-    p2 = FindParm( "PodGeom", "XForm", "Z_Rel_Rotation" );
+    AddVarPresetParm( cfg_group, p3 );
+    AddVarPresetParm( cfg_group, p4 );
 
-    AddVarPresetParm( p1 );
-    AddVarPresetParm( p2 );
+    @p_IDs = GetVarPresetParmIDs( cfg_group );
+    if ( p_IDs.size() != 2 )                                { Print( "---> Error: API AddVarPresetParm" ); failure++; }
 
-    p_IDs = GetVarPresetParmIDs();
-    if ( p_IDs.size() != 2 )                                { Print( "---> Error: API AddVarPresetParm" ); }
+    string rotated = AddVarPresetSetting( cfg_group, "Rotated" );
+    SetVarPresetParmVal( cfg_group, rotated, p3, -45 );
+    SetVarPresetParmVal( cfg_group, rotated, p4, -45 );
 
-    AddVarPresetSetting( "Rotated" );
-    if ( GetVarPresetSettingNamesWName( "Config" ).size() != 2 )    { Print ( "---> Error: API AddVarPresetSetting" ); }
-
-    for( int i = 0; i < int( p_vals.size() ); i++ )
+    ApplyVarPresetSetting( cfg_group, rotated );
+    Update();
+    if ( !closeTo( GetParmVal( p3 ), -45, 1e-9 ) || !closeTo( GetParmVal( p4 ), -45, 1e-9 ) )
     {
-        EditVarPresetParm( p_IDs[i], -45 );
+        Print( "---> Error: API ApplyVarPresetSetting did not apply Rotated" );
+        failure++;
     }
 
-    p_vals = GetVarPresetParmVals();
-    for( int i = 0; i < int( p_vals.size() ); i++ )
-    {
-        if ( p_vals[i] != -45 )                                { Print ( "---> Error: API EditVarPresetParm" ); }
-    }
+    //==== Deleting a parm drops it from the group ====//
+    DeleteVarPresetParm( cfg_group, p4 );
+    @p_IDs = GetVarPresetParmIDs( cfg_group );
+    if ( p_IDs.size() != 1 )                                { Print( "---> Error: API DeleteVarPresetParm" ); failure++; }
 
-    string p3 = FindParm( "PodGeom", "XForm", "X_Rel_Rotation" );
+    //==== Deleting settings and groups drops them too ====//
+    DeleteVarPresetSetting( cfg_group, rotated );
+    if ( GetVarPresetSettings( cfg_group ).size() != 1 )    { Print( "---> Error: API DeleteVarPresetSetting" ); failure++; }
 
-    AddVarPresetParm( p3 );
-    p_IDs = GetVarPresetParmIDs();
-    if ( p_IDs.size() != 3 )                                    { Print ( "---> Error: API AddVarPresetParm" ); }
-    EditVarPresetParm( p_IDs[2] , -45 );
-    p_vals = GetVarPresetParmVals();
-    if ( p_vals[2] != -45 )                                    { Print ( "---> Error: API AddVarPresetParm" ); }
+    DeleteVarPresetGroup( cfg_group );
+    if ( GetVarPresetGroups().size() != 1 )                 { Print( "---> Error: API DeleteVarPresetGroup" ); failure++; }
 
-    SwitchVarPreset( "Config", "Default" );
-    p_vals = GetVarPresetParmVals();
-    if ( p_vals.size() != 3 )                                { Print ( "---> Error: API SwitchVarPreset" ); }
-    for( int i = 0; i < int( p_vals.size() ); i++ )
-    {
-        if ( p_vals[i] != 0 )                                    { Print ( "---> Error: Incorrect Parm Vals After SwitchVarPreset" ); }
-    }
-
-    DeleteVarPresetParm( p3 );
-    p_IDs = GetVarPresetParmIDs();
-    if ( p_IDs.size() != 2 )                                { Print ( "---> Error: DeleteVarPresetParm" ); }
-
-    SwitchVarPreset( "Config", "Rotated" );
-    p_IDs = GetVarPresetParmIDs();
-    if ( p_IDs.size() != 2 )                                { Print ( "---> Error: DeleteVarPresetParm" ); }
-
-    DeleteVarPresetSet( "Config", "Rotated" );
-    if ( GetVarPresetSettingNamesWName( "Config" ).size() != 1 )        { Print ( "---> Error: DeleteVarPresetSet" ); }
-
-    DeleteVarPresetSet( "Config", "Default" );
-    if ( GetVarPresetSettingNamesWName( "Config" ).size() != 1 )                    { Print ( "---> Error: DeleteVarPresetSet" ); }
-
-    DeleteVarPresetSet( "Tess", "Fine" );
-    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 1 )    { Print ( "---> Error: DeleteVarPresetSet" ); }
-
-    DeleteVarPresetSet( "Tess", "Coarse" );
-    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 0 )                    { Print ( "---> Error: DeleteVarPresetSet" ); }
-
+    DeleteVarPresetGroup( tess_group );
+    if ( GetVarPresetGroups().size() != 0 )                 { Print( "---> Error: API DeleteVarPresetGroup" ); failure++; }
 
     ClearVSPModel();
 
+    return failure;
 }

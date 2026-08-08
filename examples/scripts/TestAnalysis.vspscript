@@ -152,8 +152,10 @@ void PrintResultsExample( string results )
 }
 
 
-void main()
+int main()
 {
+    int failure = 0;
+
     string fid = AddGeom( "POD", "" );
     string wid = AddGeom( "WING", "" );
 
@@ -253,4 +255,14 @@ void main()
         Print( err.GetErrorString() );
     }
 
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
 }

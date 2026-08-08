@@ -1,14 +1,41 @@
 
-void main()
+//==== Size of a file in bytes, or -1 if it can not be opened ====//
+int FileSize( const string & in fname )
 {
-    Print( string( "Begin Facet Export Test" ) );
-    Print( string( "" ) );
-    TestFacet();
-    Print( string( "End Facet Export Test" ) );
+    file f;
+    if ( f.open( fname, "r" ) < 0 )
+    {
+        return -1;
+    }
+    int sz = f.getSize();
+    f.close();
+    return sz;
 }
 
-void TestFacet()
+int main()
 {
+    int failure = 0;
+
+    Print( string( "Begin Facet Export Test" ) );
+    Print( string( "" ) );
+    failure += TestFacet();
+    Print( string( "End Facet Export Test" ) );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
+}
+
+int TestFacet()
+{
+    int failure = 0;
+
     Print( string( "--> Generating Geometries" ) );
     //Print( string( "" ) );
 
@@ -25,7 +52,8 @@ void TestFacet()
     Update();
 
     //==== CFDMesh Method Facet Export =====//
-    SetComputationFileName( CFD_FACET_TYPE, "TestCFDMeshFacet.facet" );
+    string cfd_file = "TestCFDMeshFacet.facet";
+    SetComputationFileName( CFD_FACET_TYPE, cfd_file );
 
     Print( string( "---> Computing CFDMesh..." ), false );
 
@@ -34,10 +62,30 @@ void TestFacet()
     Print( string( "COMPLETE" ) );
 
     //==== MeshGeom Method Facet Export =====//
+    string mesh_file = "TestMeshGeomFacet.facet";
+
     Print( string( "---> Computing MeshGeom..." ), false );
 
-    ExportFile( "TestMeshGeomFacet.facet", SET_ALL, EXPORT_FACET );
+    ExportFile( mesh_file, SET_ALL, EXPORT_FACET );
 
     Print( string( "COMPLETE \n" ) );
 
+    //==== Both routes should have written a facet file with content in it ====//
+    int cfd_size = FileSize( cfd_file );
+    if ( cfd_size <= 0 )
+    {
+        Print( "FAIL CFDMesh facet export produced no file, size " + cfd_size );
+        failure++;
+    }
+
+    int mesh_size = FileSize( mesh_file );
+    if ( mesh_size <= 0 )
+    {
+        Print( "FAIL MeshGeom facet export produced no file, size " + mesh_size );
+        failure++;
+    }
+
+    Print( "   " + cfd_file + " " + cfd_size + " bytes, " + mesh_file + " " + mesh_size + " bytes" );
+
+    return failure;
 }

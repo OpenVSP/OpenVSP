@@ -1,31 +1,118 @@
-void main()
+//==== Compare a MassProp result against the analytical solution ====//
+//
+// Tolerances follow the C++ mass properties unit tests: half a percent on
+// mass, one percent on inertia.  Quantities that are analytically zero get an
+// absolute floor scaled by the mass, since a relative tolerance on zero is
+// meaningless.
+bool CloseRel( double got, double want, double frac, double floorval )
 {
+    double tol = abs( want ) * frac;
+    if ( tol < floorval )
+    {
+        tol = floorval;
+    }
+    return abs( got - want ) <= tol;
+}
+
+int CompareMassProps( const string & in rid, const string & in label,
+                      double Cx, double Cy, double Cz,
+                      double I_xx, double I_yy, double I_zz,
+                      double mass )
+{
+    int failure = 0;
+
+    array< vec3d > @cg = GetVec3dResults( rid, "Total_CG" );
+    array< double > @m = GetDoubleResults( rid, "Total_Mass" );
+    array< double > @ixx = GetDoubleResults( rid, "Total_Ixx" );
+    array< double > @iyy = GetDoubleResults( rid, "Total_Iyy" );
+    array< double > @izz = GetDoubleResults( rid, "Total_Izz" );
+
+    if ( cg.size() < 1 || m.size() < 1 || ixx.size() < 1 || iyy.size() < 1 || izz.size() < 1 )
+    {
+        Print( "---> Error: " + label + " mass properties results missing" );
+        return 1;
+    }
+
+    double cgfloor = 0.005 * mass;
+
+    if ( !CloseRel( m[0], mass, 0.005, 0.0 ) )
+    {
+        Print( "---> Error: " + label + " mass " + m[0] + ", expected " + mass );
+        failure++;
+    }
+    if ( !CloseRel( cg[0].x(), Cx, 0.001, cgfloor ) ||
+         !CloseRel( cg[0].y(), Cy, 0.001, cgfloor ) ||
+         !CloseRel( cg[0].z(), Cz, 0.001, cgfloor ) )
+    {
+        Print( "---> Error: " + label + " CG " + cg[0].x() + " " + cg[0].y() + " " + cg[0].z() +
+               ", expected " + Cx + " " + Cy + " " + Cz );
+        failure++;
+    }
+    if ( !CloseRel( ixx[0], I_xx, 0.01, 0.005 * mass ) )
+    {
+        Print( "---> Error: " + label + " Ixx " + ixx[0] + ", expected " + I_xx );
+        failure++;
+    }
+    if ( !CloseRel( iyy[0], I_yy, 0.01, 0.005 * mass ) )
+    {
+        Print( "---> Error: " + label + " Iyy " + iyy[0] + ", expected " + I_yy );
+        failure++;
+    }
+    if ( !CloseRel( izz[0], I_zz, 0.01, 0.005 * mass ) )
+    {
+        Print( "---> Error: " + label + " Izz " + izz[0] + ", expected " + I_zz );
+        failure++;
+    }
+
+    return failure;
+}
+
+int main()
+{
+    int failure = 0;
+
     Print( string( "Begin Mass Properties Test" ) );
     Print( string( "" ) );
-    TestAll();
+    failure += TestAll();
     Print( string( "End Mass Properties Test" ) );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
 }
 
-void TestAll()
+int TestAll()
 {
-    TestSolidCylinder();
+    int failure = 0;
+
+    failure += TestSolidCylinder();
     ClearVSPModel();
-    TestThickWallCylinder();
+    failure += TestThickWallCylinder();
     ClearVSPModel();
-    TestCylindricalShell();
+    failure += TestCylindricalShell();
     ClearVSPModel();
-    TestSphere();
+    failure += TestSphere();
     ClearVSPModel();
-    TestSolidCone();
+    failure += TestSolidCone();
     ClearVSPModel();
-    TestShellCone();
+    failure += TestShellCone();
     ClearVSPModel();
-    TestRectangularPrism();
+    failure += TestRectangularPrism();
     ClearVSPModel();
+
+    return failure;
 }
 
-void TestSolidCylinder()
+int TestSolidCylinder()
 {
+    int failure = 0;
+
     Print( string( "--> Generating Solid Cylinder Geometry" ) );
     Print( string( "" ) );
 
@@ -159,10 +246,16 @@ void TestSolidCylinder()
     Print( "Cylinder Volume: ", false );
     Print( volume, true );
     Print( "" );
+    //==== Compare the computed mass properties to the analytical solution ====//
+    failure += CompareMassProps( ridmp, "Solid Cylinder", Cx, Cy, Cz, I_xx, I_yy, I_zz, mass );
+
+    return failure;
 }
 
-void TestThickWallCylinder()
+int TestThickWallCylinder()
 {
+    int failure = 0;
+
     Print( string( "--> Generating Thick Wall Cylinder Geometry" ) );
     Print( string( "" ) );
 
@@ -316,10 +409,16 @@ void TestThickWallCylinder()
     Print( "Cylinder Volume: ", false );
     Print( volume, true );
     Print( "" );
+    //==== Compare the computed mass properties to the analytical solution ====//
+    failure += CompareMassProps( ridmp, "Thick Wall Cylinder", Cx, Cy, Cz, I_xx, I_yy, I_zz, mass );
+
+    return failure;
 }
 
-void TestCylindricalShell()
+int TestCylindricalShell()
 {
+    int failure = 0;
+
     Print( string( "--> Generating Cylindrical Shell Geometry" ) );
     Print( string( "" ) );
 
@@ -456,10 +555,16 @@ void TestCylindricalShell()
     Print( "Cylinder Surface Area: ", false );
     Print( SA, true );
     Print( "" );
+    //==== Compare the computed mass properties to the analytical solution ====//
+    failure += CompareMassProps( ridmp, "Cylindrical Shell", Cx, Cy, Cz, I_xx, I_yy, I_zz, mass );
+
+    return failure;
 }
 
-void TestSphere()
+int TestSphere()
 {
+    int failure = 0;
+
     Print( string( "--> Generating Sphere Geometry" ) );
     Print( string( "" ) );
 
@@ -597,10 +702,16 @@ void TestSphere()
     Print( "Sphere Volume: ", false );
     Print( volume, true );
     Print( "" );
+    //==== Compare the computed mass properties to the analytical solution ====//
+    failure += CompareMassProps( ridmp, "Sphere", Cx, Cy, Cz, I_xx, I_yy, I_zz, mass );
+
+    return failure;
 }
 
-void TestSolidCone()
+int TestSolidCone()
 {
+    int failure = 0;
+
     Print( string( "--> Generating Solid Cone Geometry" ) );
     Print( string( "" ) );
 
@@ -730,10 +841,16 @@ void TestSolidCone()
     Print( "Cone Volume: ", false );
     Print( volume, true );
     Print( "" );
+    //==== Compare the computed mass properties to the analytical solution ====//
+    failure += CompareMassProps( ridmp, "Solid Cone", Cx, Cy, Cz, I_xx, I_yy, I_zz, mass );
+
+    return failure;
 }
 
-void TestShellCone()
+int TestShellCone()
 {
+    int failure = 0;
+
     Print( string( "--> Generating Shell Cone Geometry" ) );
     Print( string( "" ) );
 
@@ -801,17 +918,24 @@ void TestShellCone()
 
     //==== Analytical Mass Properties ====//
     double pi = 3.14159265359;
-    double SA = pi * sqrt( pow( length, 2 ) + pow( radius, 2 ) );
+    // Lateral surface of a cone is pi * radius * slant.  The radius factor used
+    // to be missing here, which halved the reference mass and every inertia
+    // derived from it.
+    double SA = pi * radius * sqrt( pow( length, 2 ) + pow( radius, 2 ) );
     double mass = rho_A * SA;
     double I_xx = mass * pow( radius, 2 ) / 2;
     double I_xy = 0;
-    double I_yy = ( mass * pow( radius, 2 ) / 4 ) + ( mass * pow( length, 2 ) / 6 );
+    // About the centroid a conical surface has I = m ( r^2 / 4 + h^2 / 18 ).
+    // The second term used to read h^2 / 6.
+    double I_yy = ( mass * pow( radius, 2 ) / 4 ) + ( mass * pow( length, 2 ) / 18 );
     double I_yz = 0;
     double I_zz = I_yy;
     double I_xz = 0;
     double Cz = 0;
     double Cy = 0;
-    double Cx = 3 * length / 4;
+    // Centroid of a conical surface sits two thirds of the way from the apex.
+    // Three quarters is the centroid of a solid cone.
+    double Cx = 2 * length / 3;
 
     Update();
 
@@ -862,10 +986,16 @@ void TestShellCone()
     Print( "Cone Surface Area: ", false );
     Print( SA, true );
     Print( "" );
+    //==== Compare the computed mass properties to the analytical solution ====//
+    failure += CompareMassProps( ridmp, "Shell Cone", Cx, Cy, Cz, I_xx, I_yy, I_zz, mass );
+
+    return failure;
 }
 
-void TestRectangularPrism()
+int TestRectangularPrism()
 {
+    int failure = 0;
+
     Print( string( "--> Generating Rectangular Prism Geometry" ) );
     Print( string( "" ) );
 
@@ -1024,4 +1154,8 @@ void TestRectangularPrism()
     Print( "Rectangular Prism Volume: ", false );
     Print( volume, true );
     Print( "" );
+    //==== Compare the computed mass properties to the analytical solution ====//
+    failure += CompareMassProps( ridmp, "Rectangular Prism", Cx, Cy, Cz, I_xx, I_yy, I_zz, mass );
+
+    return failure;
 }
