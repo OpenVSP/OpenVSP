@@ -37,14 +37,31 @@ void APITestSuite::CreateGeometry()
     TEST_ASSERT( types.size() != 0 );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
+    //==== A conformal geom is a modifier rather than a standalone component.  It
+    //==== has to be given a parent that owns a surface for it to conform to, so
+    //==== the pod created on the first pass is held onto for that purpose.
+    string conformal_parent;
+
     printf( "\t[geom_id]\t[geom_name]\n" );
     for ( unsigned int i_geom_type = 0; i_geom_type < types.size(); i_geom_type++ )
     {
+        string parent_id;
+        if ( types[i_geom_type] == "CONFORMAL" )
+        {
+            TEST_ASSERT( !conformal_parent.empty() );
+            parent_id = conformal_parent;
+        }
+
         //==== Create geometry =====//
-        string geom_id = vsp::AddGeom( types[i_geom_type] );
+        string geom_id = vsp::AddGeom( types[i_geom_type], parent_id );
         printf( "\t%s", geom_id.c_str() );
-        TEST_ASSERT( geom_id.c_str() != nullptr );
+        TEST_ASSERT( geom_id != "NONE" );        //AddGeom returns the string NONE when it refuses to create the geom
         TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+        if ( types[i_geom_type] == "POD" )
+        {
+            conformal_parent = geom_id;
+        }
 
         //==== Set Name ====//
         string geom_name = string( "TestGeom_" ) + types[i_geom_type];
@@ -116,8 +133,13 @@ void APITestSuite::CopyPasteSetTest()
     //Test values for other tests
     const int test_set_index = 7;
     const string set_test_name = "TEST SET";
-    const int num_of_sets_in_test_index = 6;
     const bool test_bool_state = true;
+
+    //Every even numbered geom was flagged into the copy set above, and the paste
+    //set is a copy of it.  Deriving the expected membership from the number of
+    //geoms keeps this from going stale every time a geom type is added, which is
+    //what happened to the fixed count of six that used to be here.
+    const int num_geoms_in_set = ( ( int )geom_ids.size() + 1 ) / 2;
 
     //Test SetSetName / GetSetName
     vsp::SetSetName( test_set_index, set_test_name);
@@ -129,8 +151,8 @@ void APITestSuite::CopyPasteSetTest()
     vector <string> copy_test_sets = vsp::GetGeomSetAtIndex(copy_set_index);
     vector <string> paste_test_sets = vsp::GetGeomSetAtIndex(paste_set_index);
 
-    TEST_ASSERT((int)copy_test_sets.size() == num_of_sets_in_test_index);
-    TEST_ASSERT((int)paste_test_sets.size() == num_of_sets_in_test_index);
+    TEST_ASSERT((int)copy_test_sets.size() == num_geoms_in_set);
+    TEST_ASSERT((int)paste_test_sets.size() == num_geoms_in_set);
 
     //Test GetSetIndex
     TEST_ASSERT(vsp::GetSetIndex(set_test_name) == test_set_index);
