@@ -2982,7 +2982,15 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
     //==== Register Matrix4d Object =====//
 
 
-    int r = se->RegisterObjectType( "Matrix4d", sizeof( Matrix4d ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA );
+    // Matrix4d relies on the implicit copy constructor, copy assignment operator
+    // and destructor, so asOBJ_APP_CLASS_CA claimed an assignment operator that
+    // does not exist.  That flag happens to sit outside COMPLEX_MASK on every
+    // platform OpenVSP targets, so nothing was broken by it, but letting
+    // asGetTypeTraits report the flags keeps them honest if the copy semantics
+    // ever change.  Unlike vec3d this needs no ALLFLOATS or ALIGN8: at sixteen
+    // members Matrix4d is far past the four member limit for a homogeneous
+    // floating point aggregate, so it is always returned through memory.
+    int r = se->RegisterObjectType( "Matrix4d", sizeof( Matrix4d ), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits< Matrix4d >() );
     assert( r >= 0 );
 
     //===== Register the Matrix4d constructor =====//

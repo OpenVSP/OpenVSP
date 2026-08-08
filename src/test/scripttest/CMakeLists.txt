@@ -14,3 +14,5 @@ ADD_TEST( RoutingGeom ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestRoutingGeom.v
 ADD_TEST( Vec3d ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestVec3d.vspscript )
 
 ADD_TEST( ErrorObj ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestErrorObj.vspscript )
+
+ADD_TEST( Matrix4d ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestMatrix4d.vspscript )

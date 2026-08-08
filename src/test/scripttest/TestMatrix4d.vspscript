@@ -1,0 +1,105 @@
+//==== Test Matrix4d copy construction and assignment ====//
+//
+// Matrix4d is a POD value type with no copy constructor or opAssign of its
+// own, so 'Matrix4d b = a;' and 'c = a;' both rely on AngelScript's default
+// bitwise copy of the sixteen doubles.  These checks confirm that a copy
+// transforms points exactly like its source and, just as important, that it
+// is an independent snapshot rather than an alias.
+//
+// Matrix4d post multiplies, so the transform written last is applied to the
+// point first.  Building translatef(1,2,3) then rotateZ(90) rotates (1,0,0)
+// to (0,1,0) and then translates it to (1,3,3).
+
+int check( const string & in name, const vec3d & in got, double ex, double ey, double ez )
+{
+    if ( !closeTo( got.x(), ex, 1e-9 ) || !closeTo( got.y(), ey, 1e-9 ) || !closeTo( got.z(), ez, 1e-9 ) )
+    {
+        Print( "FAIL " + name + " = " + got.x() + " " + got.y() + " " + got.z() +
+               "  expected " + ex + " " + ey + " " + ez );
+        return 1;
+    }
+    return 0;
+}
+
+int main()
+{
+    int failure = 0;
+
+    vec3d p( 1.0, 0.0, 0.0 );
+
+    Matrix4d a;
+    a.loadIdentity();
+    a.translatef( 1.0, 2.0, 3.0 );
+    a.rotateZ( 90.0 );
+
+    failure += check( "source            ", a.xform( p ), 1.0, 3.0, 3.0 );
+
+    //==== Copy construction ====//
+    Matrix4d b = a;
+    failure += check( "copy construction ", b.xform( p ), 1.0, 3.0, 3.0 );
+
+    //==== Assignment onto an already constructed matrix ====//
+    Matrix4d c;
+    c.loadIdentity();
+    c = a;
+    failure += check( "assignment        ", c.xform( p ), 1.0, 3.0, 3.0 );
+
+    //==== Copies must be independent of the source ====//
+    a.loadIdentity();
+    failure += check( "source reset      ", a.xform( p ), 1.0, 0.0, 0.0 );
+    failure += check( "copy survives     ", b.xform( p ), 1.0, 3.0, 3.0 );
+    failure += check( "assigned survives ", c.xform( p ), 1.0, 3.0, 3.0 );
+
+    //==== Mutating one copy must not disturb its sibling.  translatef is used
+    //==== rather than scale because Matrix4d::scale only touches the diagonal
+    //==== and is a no op on a matrix that carries a rotation.
+    b.translatef( 0.0, 0.0, 10.0 );
+    failure += check( "sibling mutated   ", b.xform( p ), 1.0, 3.0, 13.0 );
+    failure += check( "sibling unaffected", c.xform( p ), 1.0, 3.0, 3.0 );
+
+    //==== A copy reports the same rotation angles as its source ====//
+    Matrix4d r;
+    r.loadIdentity();
+    r.rotateZ( 30.0 );
+    Matrix4d rcopy = r;
+
+    failure += check( "source angles     ", r.getAngles(), 0.0, 0.0, 30.0 );
+    failure += check( "copied angles     ", rcopy.getAngles(), 0.0, 0.0, 30.0 );
+
+    //==== Round trip through an inverse taken on a copy ====//
+    Matrix4d inv = c;
+    inv.affineInverse();
+    failure += check( "inverse round trip", inv.xform( c.xform( p ) ), 1.0, 0.0, 0.0 );
+
+    //==== Matrix4d crossing the API boundary by value in both directions.
+    //==== All sixteen doubles have to survive, so the result is checked with
+    //==== an inverse round trip as well as with individual points.
+    string gid = AddGeom( "FUSELAGE" );
+    Update();
+    string xsurf = GetXSecSurf( gid, 0 );
+
+    Matrix4d src;
+    src.loadIdentity();
+    src.translatef( 7.0, 8.0, 9.0 );
+    src.rotateZ( 90.0 );
+
+    SetXSecSurfGlobalXForm( xsurf, src );
+    Matrix4d got = GetXSecSurfGlobalXForm( xsurf );
+
+    failure += check( "api round trip o  ", got.xform( vec3d( 0, 0, 0 ) ), 7.0, 8.0, 9.0 );
+    failure += check( "api round trip x  ", got.xform( vec3d( 1, 0, 0 ) ), 7.0, 9.0, 9.0 );
+
+    Matrix4d gotinv = got;
+    gotinv.affineInverse();
+    failure += check( "api inverse       ", gotinv.xform( got.xform( vec3d( 2, 3, 4 ) ) ), 2.0, 3.0, 4.0 );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
+}
