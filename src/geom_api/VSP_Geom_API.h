@@ -2251,6 +2251,12 @@ extern void PrintAnalysisDocs( const std::string & analysis_name );
     string ga_id = AddGeometryAnalysis();
     Print( "Added Geometry Analysis: ", false );
     Print( ga_id );
+
+    if ( ga_id.length() == 0 || ga_id == "NONE" )
+    {
+        Print( "ERROR: AddGeometryAnalysis returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6729,6 +6735,12 @@ extern std::vector<std::string> GetGeomTypes();
     \code{.cpp}
     //==== Add Wing Geometry ====//
     string wing_id = AddGeom( "WING" );
+
+    if ( wing_id.length() == 0 || wing_id == "NONE" )
+    {
+        Print( "ERROR: AddGeom returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7704,6 +7716,12 @@ extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, 
     string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
 
     SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 );     // Change Location
+
+    if ( ss_line_id.length() == 0 || ss_line_id == "NONE" )
+    {
+        Print( "ERROR: AddSubSurf returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8850,6 +8868,12 @@ extern void SetFeaPartName( const std::string & part_id, const std::string & nam
     SetParmVal( FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), FEA_SHELL_AND_BEAM );
 
     SetParmVal( FindParm( bulkhead_id, "RelCenterLocation", "FeaPart" ), 0.15 );
+
+    if ( bulkhead_id.length() == 0 || bulkhead_id == "NONE" )
+    {
+        Print( "ERROR: AddFeaPart returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -9430,6 +9454,12 @@ extern std::string GetFeaSubSurfName( const std::string & subsurf_id );
     SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ); // Constant W
 
     SetParmVal( FindParm( line_array_id, "Spacing", "SS_LineArray" ), 0.25 );
+
+    if ( line_array_id.length() == 0 || line_array_id == "NONE" )
+    {
+        Print( "ERROR: AddFeaSubSurf returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -10220,6 +10250,11 @@ extern int NumFeaSubSurfs( const std::string & fea_struct_id );
     //==== Add BC ====//
     string bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE );
 
+    if ( bc_id.length() == 0 || bc_id == "NONE" )
+    {
+        Print( "ERROR: AddFeaBC returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -10394,6 +10429,12 @@ extern int NumFeaBCs( const string & fea_struct_id );
     string mat_id = AddFeaMaterial();
 
     SetParmVal( FindParm( mat_id, "MassDensity", "FeaMaterial" ), 0.016 );
+
+    if ( mat_id.length() == 0 || mat_id == "NONE" )
+    {
+        Print( "ERROR: AddFeaMaterial returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -10422,6 +10463,12 @@ extern std::string AddFeaMaterial();
     string prop_id = AddFeaProperty();
 
     SetParmVal( FindParm( prop_id, "Thickness", "FeaProperty" ), 0.01 );
+
+    if ( prop_id.length() == 0 || prop_id == "NONE" )
+    {
+        Print( "ERROR: AddFeaProperty returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13432,6 +13479,12 @@ extern void SetBackground3DAbsolutePath( const string &id, const string &fname )
     // Bogies are ParmContainers -- work with their Parms once you have the ID.
     SetParmVal( bogie_id, "NumAcross", "Bogie", 2 );    // Two wheels across
     SetParmVal( bogie_id, "NumTandem", "Bogie", 2 );    // Two wheels in tandem
+
+    if ( bogie_id.length() == 0 || bogie_id == "NONE" )
+    {
+        Print( "ERROR: CreateAndAddBogie returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13662,6 +13715,12 @@ extern int GetNumRoutingPts( const string &routing_id );
     string rpt2 = AddRoutingPt(routing_geom, pod1, 0);
     string u2 = GetParm( rpt2, "U", "RoutePt");
     SetParmVal(u2, 1.0);
+
+    if ( rpt0.length() == 0 || rpt0 == "NONE" )
+    {
+        Print( "ERROR: AddRoutingPt returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13725,6 +13784,12 @@ extern string AddRoutingPt( const string &routing_id, const string &geom_id, int
     string rptPre2 = InsertRoutingPt(routing_geom, 2, pod2, 0);
     string uPre2 = GetParm( rptPre2, "U", "RoutePt");
     SetParmVal(uPre2, 0.);
+
+    if ( rptPre2.length() == 0 || rptPre2 == "NONE" )
+    {
+        Print( "ERROR: InsertRoutingPt returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17677,6 +17742,12 @@ extern std::string GetUserParmContainer();
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
 
     SetParmDescript( length, "Length user parameter" );
+
+    if ( length.length() == 0 || length == "NONE" )
+    {
+        Print( "ERROR: AddUserParm returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17861,6 +17932,11 @@ extern double SnapParm( const std::string & parm_id, double target_min_dist, boo
 
     string gid = AddVarPresetGroup( "Tess" );
 
+    if ( gid.length() == 0 || gid == "NONE" )
+    {
+        Print( "ERROR: AddVarPresetGroup returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17891,6 +17967,11 @@ extern string AddVarPresetGroup( const std::string &group_name );
 
     string sid =AddVarPresetSetting( gid, "Coarse" );
 
+    if ( sid.length() == 0 || sid == "NONE" )
+    {
+        Print( "ERROR: AddVarPresetSetting returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -18719,6 +18800,11 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     ApplyModeSettings( mid2 );
     Update();
 
+    if ( mid1.length() == 0 || mid1 == "NONE" )
+    {
+        Print( "ERROR: CreateAndAddMode returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -24499,6 +24585,12 @@ extern void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::v
     string rid = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
 
     SetParmVal( FindParm( rid, "X_Offset", "Measure" ), 6.0 );
+
+    if ( rid.length() == 0 || rid == "NONE" )
+    {
+        Print( "ERROR: AddRuler returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -24697,6 +24789,12 @@ extern void DeleteAllRulers();
     string probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" );
 
     SetParmVal( FindParm( probe_id, "Len", "Measure" ), 3.0 );
+
+    if ( probe_id.length() == 0 || probe_id == "NONE" )
+    {
+        Print( "ERROR: AddProbe returned no id" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
