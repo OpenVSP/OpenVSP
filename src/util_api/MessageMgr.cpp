@@ -2,6 +2,7 @@
 // This file is released under the terms of the NASA Open Source Agreement (NOSA)
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
+#include <algorithm>
 #include <cassert>
 
 #include "MessageMgr.h"
@@ -24,6 +25,15 @@ MessageBase::MessageBase()
 //==== Message Base ====//
 MessageBase::~MessageBase()
 {
+    // A listener that is destroyed while still registered leaves a dangling
+    // pointer in the registry, and the next SendAll() makes a virtual call
+    // through it.  Unregistering here means a listener cannot outlive its
+    // registration no matter how it is destroyed.
+    //
+    // MessageMgr is safe to touch from here.  Every listener registers from its
+    // own constructor, so the MessageMgr instance finishes construction inside
+    // that of the first listener and is therefore destroyed after all of them.
+    MessageMgr::getInstance().UnRegister( this );
 }
 
 /** @brief Register this MessageBase listener.
@@ -67,11 +77,33 @@ void MessageMgr::Register( MessageBase* msg_base )
 
 /** @brief UnRegister MessageBase listener.
  *
+ * Removes only the listener asked for.  Other listeners that happen to share
+ * its name stay registered.  Every bucket is searched rather than only the one
+ * matching the current name, so a listener that was renamed after it
+ * registered is still removed.  Buckets left empty are dropped so that Send()
+ * does not have to consider them.
+ *
  * @param[in] msg_base Listener to unregister.
  */
 void MessageMgr::UnRegister( MessageBase* msg_base )
 {
-    m_MessageRegMap.erase( msg_base->GetName() );
+    unordered_map< string, deque< MessageBase* > >::iterator iter = m_MessageRegMap.begin();
+
+    while ( iter != m_MessageRegMap.end() )
+    {
+        deque< MessageBase* > & listeners = iter->second;
+
+        listeners.erase( std::remove( listeners.begin(), listeners.end(), msg_base ), listeners.end() );
+
+        if ( listeners.empty() )
+        {
+            iter = m_MessageRegMap.erase( iter );
+        }
+        else
+        {
+            ++iter;
+        }
+    }
 }
 
 /** @brief Send string message to designated receiver, from undesignated sender.

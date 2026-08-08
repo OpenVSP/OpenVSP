@@ -69,8 +69,15 @@ public:
     bool m_ValidFrom;
     size_t m_FromPtrID;
     MessageData m_Data;
+
+    //==== Counts every delivery to any MessageBaseTest.  Comparing this across
+    //==== a SendAll() shows exactly how many listeners the registry holds,
+    //==== which is how the tests confirm that a listener really was removed.
+    static int m_NumDeliveries;
+
     void MessageCallback( const MessageBase* from, const MessageData& data )
     {
+        m_NumDeliveries++;
         m_ValidFrom = false;
         if ( from )
         {

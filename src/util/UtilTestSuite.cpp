@@ -64,6 +64,8 @@ void UtilTestSuite::Vec2dUtilTest()
     TEST_ASSERT_DELTA( dist( proj, vec2d( 0.5, 0.5 ) ), 0.0, DBL_EPSILON );
 }
 
+int MessageBaseTest::m_NumDeliveries = 0;
+
 //==== Test MessageMgr ====//
 void UtilTestSuite::MessageMgrTest()
 {
@@ -122,6 +124,49 @@ void UtilTestSuite::MessageMgrTest()
     TEST_ASSERT( mbt1.m_Data.m_String.compare( "After_Removal" ) == 0 );
     TEST_ASSERT( mbt3A.m_Data.m_String.compare( "Sent_Message_All" ) == 0 );
     TEST_ASSERT( mbt4.m_Data.m_String.compare( "Sent_Message_All" ) == 0 );
+
+    //==== UnRegister Must Only Remove The Listener Asked For ====//
+    //==== mbt3 Shares The Name "Base3" With mbt3A And mbt3New   ====//
+    TEST_ASSERT( mbt3.m_Data.m_String.compare( "After_Removal" ) == 0 );
+
+    //==== A Listener That Goes Out Of Scope Must UnRegister Itself.  Without
+    //==== this the registry keeps a pointer into a dead stack frame and the
+    //==== next SendAll() calls a virtual function through it.  Counting
+    //==== deliveries proves the listener left the registry rather than merely
+    //==== surviving a call made through a dangling pointer.
+    MessageBaseTest::m_NumDeliveries = 0;
+    MessageMgr::getInstance().SendAll( "Before_Scope" );
+    int n_before = MessageBaseTest::m_NumDeliveries;
+
+    {
+        MessageBaseTest scoped;
+        scoped.Register( "Scoped" );
+
+        MessageBaseTest::m_NumDeliveries = 0;
+        MessageMgr::getInstance().SendAll( "During_Scope" );
+        TEST_ASSERT( scoped.m_Data.m_String.compare( "During_Scope" ) == 0 );
+        TEST_ASSERT( MessageBaseTest::m_NumDeliveries == n_before + 1 );
+    }
+
+    MessageBaseTest::m_NumDeliveries = 0;
+    MessageMgr::getInstance().SendAll( "After_Scope" );
+    TEST_ASSERT( MessageBaseTest::m_NumDeliveries == n_before );
+    TEST_ASSERT( mbt1.m_Data.m_String.compare( "After_Scope" ) == 0 );
+
+    //==== The same for a heap listener, which is the case the delete of
+    //==== mbt3New above was already relying on.
+    MessageBaseTest* heaped = new MessageBaseTest();
+    heaped->Register( "Heaped" );
+
+    MessageBaseTest::m_NumDeliveries = 0;
+    MessageMgr::getInstance().SendAll( "With_Heaped" );
+    TEST_ASSERT( MessageBaseTest::m_NumDeliveries == n_before + 1 );
+
+    delete heaped;
+
+    MessageBaseTest::m_NumDeliveries = 0;
+    MessageMgr::getInstance().SendAll( "Without_Heaped" );
+    TEST_ASSERT( MessageBaseTest::m_NumDeliveries == n_before );
 
     //==== Re-register and Send A String Message To Base4 ====//
     mbt4.Register();
