@@ -18,6 +18,13 @@
 //Default tolerance to use for tests.  Most calculations are done as doubles and choosing single precision FLT_MIN gives some allowance for precision stackup in calculations
 #define TEST_TOL FLT_MIN
 
+//A symmetric wing at zero incidence should generate no lift, but the solver
+//converges iteratively so the result is a small number rather than an exact
+//zero.  TEST_TOL is FLT_MIN, which no converged solution can meet, so these
+//comparisons need a tolerance sized to the solver rather than to the floating
+//point format.
+#define ZERO_LIFT_TOL 1.0e-6
+
 //=============================================================================//
 //========================== APITestSuiteVSPAERO ==============================//
 //=============================================================================//
@@ -321,12 +328,38 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
 
-    // Check for within 5% of v3.13 Rolling Moment
+    // Check rolling moment from the antisymmetric deflection.
     /// old cmx = -0.01010 // Version Checked VSP 3.11 | VSPAERO 3.1
-    double current_cmx = -0.00882; // Version Last Checked VSP 3.13 | VSPAERO 4.1
+    /// old cmx = -0.00882 // Version Checked VSP 3.13 | VSPAERO 4.1
+    //
+    //The history column used to be called CMx.  VSPAERO now reports the moment
+    //split into viscous, inviscid and total parts as CMxo, CMxi and CMxtot, so
+    //the old name found nothing and the test was indexing an empty vector.  The
+    //comparison below was therefore reading whatever that out of range access
+    //happened to return, and had not been checking anything for a long time.
+    //
+    //With the name corrected the deflection produces a rolling moment of about
+    //-6e-6 rather than the -0.00882 recorded here, even though the deflection
+    //does reach the solver: the generated .vspaero file carries the group and
+    //the solver echoes "Control group deflection angle: 1.000000".  The
+    //reference is deliberately left at its historical value rather than being
+    //re-baselined to roughly zero, because accepting the new number would
+    //enshrine ailerons that generate no roll.  This assertion is expected to
+    //fail until someone decides whether the gain sign convention changed or
+    //control surface deflection regressed.
+    double current_cmx = -0.00882;
     string history_id = vsp::FindLatestResultsID( "VSPAERO_History" );
-    double roll_mom_tol = std::abs( 0.05 * vsp::GetDoubleResults( history_id, "CMx" )[0] );
-    TEST_ASSERT_DELTA( vsp::GetDoubleResults( history_id, "CMx" )[0], current_cmx, roll_mom_tol );
+    vector < double > cmx = vsp::GetDoubleResults( history_id, "CMxtot" );
+    TEST_ASSERT( cmx.size() > 0 );
+    if ( cmx.size() > 0 )
+    {
+        //Tolerance is taken from the reference value rather than the computed
+        //one so that a result drifting toward zero cannot shrink its own
+        //acceptance window.
+        double roll_mom_tol = std::abs( 0.05 * current_cmx );
+        printf( "\tAntisymmetric CMxtot: expected %.6f, computed %.6f\n", current_cmx, cmx[0] );
+        TEST_ASSERT_DELTA( cmx[0], current_cmx, roll_mom_tol );
+    }
 
     /// ==== Test Symmetric Deflection ==== ///
     // Edit Control Surface Group Angle and Contained Control Surface Gains
@@ -344,9 +377,15 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
 
-    // Check for within 5% of v3.11 Rolling Moment
+    // A symmetric deflection should produce no rolling moment.
     history_id = vsp::FindLatestResultsID( "VSPAERO_History" );
-    TEST_ASSERT_DELTA( vsp::GetDoubleResults( history_id, "CMx" )[0], 0.0, TEST_TOL );
+    cmx = vsp::GetDoubleResults( history_id, "CMxtot" );
+    TEST_ASSERT( cmx.size() > 0 );
+    if ( cmx.size() > 0 )
+    {
+        printf( "\tSymmetric CMxtot: computed %.3e\n", cmx[0] );
+        TEST_ASSERT_DELTA( cmx[0], 0.0, 1.0e-6 );
+    }
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -1018,14 +1057,14 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     string history_res= vsp::FindLatestResultsID( "VSPAERO_History" );
     string load_res = vsp::FindLatestResultsID( "VSPAERO_Load" );
 
-    vector<double> CL = vsp::GetDoubleResults( history_res, "CL", 0 );
+    vector<double> CL = vsp::GetDoubleResults( history_res, "CLtot", 0 );
     vector<double> cl = vsp::GetDoubleResults( load_res, "cl", 0 );
 
     printf( "   CL: " );
     for ( unsigned int i = 0; i < CL.size(); i++ )
     {
-        TEST_ASSERT_DELTA( CL[i], 0.0, TEST_TOL );
-        printf( "%7.3f", CL[i] );
+        TEST_ASSERT_DELTA( CL[i], 0.0, ZERO_LIFT_TOL );
+        printf( "%12.3e", CL[i] );
     }
     printf( "\n" );
     printf( "   cl: " );
@@ -1186,14 +1225,14 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     string history_res = vsp::FindLatestResultsID( "VSPAERO_History" );
     string load_res = vsp::FindLatestResultsID( "VSPAERO_Load" );
 
-    vector<double> CL = vsp::GetDoubleResults( history_res, "CL", 0 );
+    vector<double> CL = vsp::GetDoubleResults( history_res, "CLtot", 0 );
     vector<double> cl = vsp::GetDoubleResults( load_res, "cl", 0 );
 
     printf( "   CL: " );
     for ( unsigned int i = 0; i < CL.size(); i++ )
     {
-        TEST_ASSERT_DELTA( CL[i], 0.0, TEST_TOL );
-        printf( "%7.3f", CL[i] );
+        TEST_ASSERT_DELTA( CL[i], 0.0, ZERO_LIFT_TOL );
+        printf( "%12.3e", CL[i] );
     }
     printf( "\n" );
     printf( "   cl: " );
