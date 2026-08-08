@@ -1066,25 +1066,42 @@ void APITestSuiteMassProp::TestShellCone()
     vsp::SetParmVal( xutess_id1, 20 );
 
     //==== Analytical Mass Properties ====//
+    //
+    //The lateral surface of a cone has its centroid two thirds of the way from
+    //the apex to the base.  Three quarters is the centroid of a solid cone.
+    //This model used to take the parallel axis shift from 3*length/4 while the
+    //length^2/18 term it is added to already assumes the 2*length/3 centroid,
+    //which left the reference Iyy about 4.9 low.  That error happened to cancel
+    //against TriShellMassProp integrating triangles with the constants for a
+    //tetrahedron, so this test passed for the wrong reason until that was
+    //fixed.  Everything below is now derived rather than pre-evaluated, so the
+    //centre of gravity and the parallel axis shifts stay consistent with each
+    //other if the dimensions change.
+    double slant = sqrt( pow( length, 2.0 ) + pow( radius, 2.0 ) );
     double diskSA = M_PI * pow( radius, 2.0 );
-    double shellSA = M_PI * radius * sqrt( pow( length, 2.0 ) + pow( radius, 2.0 ) );
+    double shellSA = M_PI * radius * slant;
     double SA = diskSA + shellSA;
     double diskMass = rho_A * diskSA;
     double shellMass = rho_A * shellSA;
-    double shellIxx = shellMass * pow( radius, 2 ) / 2;
-    double shellIyy = ( shellMass * pow( radius, 2 ) / 4 ) + ( shellMass * pow( length, 2 ) / 18 ) + shellMass * pow( ( 3 * length / 4 - 8.564 ), 2 );
-    double diskIxx = diskMass * pow( radius, 2 ) / 2;
-    double diskIyy = diskMass * pow( radius, 2 ) / 4 + diskMass * pow( 3.436, 2 );
     double mass = diskMass + shellMass;
+
+    double shellCx = 2.0 * length / 3.0;    // Centroid of the conical surface, measured from the apex
+    double diskCx = length;                 // The base disk closes the cone at its wide end
+
+    double Cz = 0;
+    double Cy = 0;
+    double Cx = ( shellMass * shellCx + diskMass * diskCx ) / mass;
+
+    double shellIxx = shellMass * pow( radius, 2 ) / 2;
+    double shellIyy = shellMass * ( pow( radius, 2 ) / 4 + pow( length, 2 ) / 18 ) + shellMass * pow( shellCx - Cx, 2 );
+    double diskIxx = diskMass * pow( radius, 2 ) / 2;
+    double diskIyy = diskMass * pow( radius, 2 ) / 4 + diskMass * pow( diskCx - Cx, 2 );
     double I_xx = shellIxx + diskIxx;
     double I_xy = 0;
     double I_yy = shellIyy + diskIyy;
     double I_yz = 0;
     double I_zz = I_yy;
     double I_xz = 0;
-    double Cz = 0;
-    double Cy = 0;
-    double Cx = ( 3 * length / 4 ) - 0.436;
 
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
