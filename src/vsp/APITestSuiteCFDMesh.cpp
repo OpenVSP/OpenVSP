@@ -110,7 +110,29 @@ void APITestSuiteCFDMesh::TestCFDHalfMesh()
 
     seconds half_mesh_test_results = after_half_mesh_test - before_half_mesh_test;
 
-    TEST_ASSERT( full_mesh_test_results > half_mesh_test_results );
+    //This used to assert that the full mesh took longer to build than the half
+    //mesh.  That was measured with whole second resolution, and on current
+    //hardware both meshes finish inside the same second, so the strictly
+    //greater comparison failed at random depending on where the second
+    //boundary landed.
+    //
+    //Comparing the two meshes says the same thing without depending on machine
+    //speed or load: half meshing the model should produce about half of the
+    //triangles.  Measured at 333065 bytes full against 167043 bytes half, and
+    //repeatable byte for byte between runs.  The band is kept wide so that this
+    //tracks the half mesh flag being honoured rather than the exact size of the
+    //model, while still catching a half mesh that came back empty.
+    int full_mesh_size = GetFileSize( "FullMeshTest.stl" );
+    int half_mesh_size = GetFileSize( "HalfMeshTest.stl" );
+
+    printf( "\tFull mesh %d bytes in %llds, half mesh %d bytes in %llds\n",
+            full_mesh_size, ( long long )full_mesh_test_results.count(),
+            half_mesh_size, ( long long )half_mesh_test_results.count() );
+
+    TEST_ASSERT( full_mesh_size > 0 );
+    TEST_ASSERT( half_mesh_size > 0 );
+    TEST_ASSERT( half_mesh_size < full_mesh_size );
+    TEST_ASSERT( half_mesh_size > full_mesh_size / 4 );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
