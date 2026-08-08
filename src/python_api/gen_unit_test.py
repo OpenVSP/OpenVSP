@@ -157,10 +157,21 @@ def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
                 script += "\n    return __failure;\n"
                 script += "}\n"
 
-                end_script += '    '
-                end_script += 'int_ret += '
-                end_script +=  function_name + "();"
-                end_script += '\n'
+                # Clear the example after using it.  It used to persist, so a
+                # function documented without a \code{.cpp} block was handed the
+                # previous function's example and the generated test exercised
+                # the wrong thing under the wrong name.
+                code_segment = ""
+
+                # Report which example failed rather than only how many.
+                end_script += f'    {{\n'
+                end_script += f'        int f = {function_name}();\n'
+                end_script += f'        if ( f > 0 )\n'
+                end_script += f'        {{\n'
+                end_script += f'            Print( "    FAILED: {function_name}" );\n'
+                end_script += f'        }}\n'
+                end_script += f'        int_ret += f;\n'
+                end_script += f'    }}\n'
     end_script += "    Print( \"\\n//==== ALL TEST SCRIPTS COMPLETED ====//\" );\n"
     end_script += "    if ( int_ret == 0 )\n"
     end_script += "    {\n"
@@ -171,7 +182,10 @@ def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
     end_script += "        string fail_message = \"    Number of failed scripts : \" + int_ret;\n"
     end_script += "        Print( fail_message );\n"
     end_script += "    }\n"
-    end_script += "    return 0; // success\n"
+    # Report the accumulated failures to the caller.  This used to return zero
+    # unconditionally, so the generated test could never fail no matter what the
+    # individual examples reported through __failure.
+    end_script += "    return int_ret;\n"
     end_script += "}\n"
     script += end_script
     with open(vspscript_unittest_filepath, 'w') as f:

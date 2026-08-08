@@ -300,6 +300,7 @@ private:
 
     //=== Register Measure Functions ===//
     CScriptArray* GetAllRulers();
+    CScriptArray* GetAllBogies( const string &gear_id );
     CScriptArray* GetAllProbes();
 
     //=== Register Advanced Link Functions ===//

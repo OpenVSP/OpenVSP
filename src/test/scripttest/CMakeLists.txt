@@ -40,6 +40,14 @@ ADD_TEST( NAME MassProperties COMMAND ${VSPSCRIPT} ${SCRIPT_DIR}TestMassProperti
 ADD_TEST( NAME All           COMMAND ${VSPSCRIPT} ${SCRIPT_DIR}TestAll.vspscript
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
 
+# gen_unit_test.py turns every \code{.cpp} block in VSP_Geom_API.h into a
+# routine in this script.  The Python half of the same generator is already run
+# by PySampleCodeTest; this is the AngelScript half, which was being generated
+# and then never run.
+ADD_TEST( NAME ScriptSampleCodeTest
+          COMMAND ${VSPSCRIPT} ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/tests/test_vsp_api.vspscript
+          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
+
 ADD_TEST( NAME TestChordAdjust
           COMMAND ${VSPSCRIPT} ${CMAKE_CURRENT_SOURCE_DIR}/TestChordAdjust/TestChordAdjust.vspscript
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestChordAdjust/ )

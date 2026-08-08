@@ -268,7 +268,7 @@ extern void VSPCheckSetup();
 
     VSPRenew();
 
-    if ( FindGeoms().size() != 0 ) { Print( "ERROR: VSPRenew" ); }
+    if ( FindGeoms().size() != 0 ) { Print( "ERROR: VSPRenew" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -1212,7 +1212,7 @@ extern void SetComputationFileName( int file_type, const std::string & file_name
 
     array<double> @double_arr = GetDoubleResults( mass_res_id, "Total_Mass" );
 
-    if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeMassProps" ); }
+    if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeMassProps" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -1297,7 +1297,7 @@ extern std::string ComputeCompGeom( int set, bool half_mesh, int file_export_typ
 
     array<double> @double_arr = GetDoubleResults( pslice_results, "Slice_Area" );
 
-    if ( double_arr.size() != 6 )                                    { Print( "---> Error: API ComputePlaneSlice" ); }
+    if ( double_arr.size() != 6 )                                    { Print( "---> Error: API ComputePlaneSlice" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -4125,7 +4125,7 @@ extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > & v
     array < array < int > > InitVal = {{0, 1},{-4, -1000}};
     string AttrID = AddAttributeIntMatrix( CollID, "TestIntMatrixAttr", InitVal );
 
-    array < array < int > > NewImatVal = [[1,5],[-8,0]];
+    array < array < int > > NewImatVal = {{1,5},{-8,0}};
     SetAttributeIntMatrix( AttrID, NewImatVal );
 
     array < array < int > > IntMatrixVal = GetAttributeIntMatrixVal( AttrID );
@@ -5055,7 +5055,7 @@ extern std::vector<std::string> GetAllResultsNames();
 
     array< string > @data_names = GetAllDataNames( res_id );
 
-    if ( data_names.size() != 5 )                            { Print( "---> Error: API GetAllDataNames" ); }
+    if ( data_names.size() != 5 )                            { Print( "---> Error: API GetAllDataNames" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5087,7 +5087,7 @@ extern std::vector<std::string> GetAllDataNames( const std::string & results_id 
     //==== Write Some Fake Test Results =====//
     WriteTestResults();
 
-    if ( GetNumResults( "Test_Results" ) != 2 )                { Print( "---> Error: API GetNumResults" ); }
+    if ( GetNumResults( "Test_Results" ) != 2 )                { Print( "---> Error: API GetNumResults" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5203,7 +5203,7 @@ extern std::string GetResultsEntryDoc( const std::string & results_id, const std
 
     string res_id = FindResultsID( "Test_Results" );
 
-    if ( res_id.size() == 0 )                                { Print( "---> Error: API FindResultsID" ); }
+    if ( res_id.size() == 0 )                                { Print( "---> Error: API FindResultsID" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5275,15 +5275,15 @@ extern std::string FindLatestResultsID( const std::string & name );
 
     string res_id = FindResultsID( "Test_Results" );
 
-    if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
+    if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); __failure++; }
 
     array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 );
 
-    if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); }
+    if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); __failure++; }
 
     int_arr = GetIntResults( res_id, "Test_Int", 1 );
 
-    if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); }
+    if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5367,15 +5367,15 @@ extern int GetResultsType( const std::string & results_id, const std::string & d
 
     string res_id = FindResultsID( "Test_Results" );
 
-    if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
+    if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); __failure++; }
 
     array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 );
 
-    if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); }
+    if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); __failure++; }
 
     int_arr = GetIntResults( res_id, "Test_Int", 1 );
 
-    if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); }
+    if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5472,7 +5472,7 @@ extern const std::vector< std::vector< double > > & GetDoubleMatResults( const s
 
     array<string> @str_arr = GetStringResults( res_id, "Test_String" );
 
-    if ( str_arr[0] != "This Is A Test" )                    { Print( "---> Error: API GetStringResults" ); }
+    if ( str_arr[0] != "This Is A Test" )                    { Print( "---> Error: API GetStringResults" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5571,7 +5571,7 @@ extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, con
 
     array<int> @int_arr = GetIntResults( mesh_geom_res_id, "Num_Tris" );
 
-    if ( int_arr[0] < 4 )                                            { Print( "---> Error: API CreateGeomResults" ); }
+    if ( int_arr[0] < 4 )                                            { Print( "---> Error: API CreateGeomResults" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5614,7 +5614,7 @@ extern std::string CreateGeomResults( const std::string & geom_id, const std::st
 
     DeleteAllResults();
 
-    if ( GetNumResults( "Comp_Mesh" ) != 0 )                { Print( "---> Error: API DeleteAllResults" ); }
+    if ( GetNumResults( "Comp_Mesh" ) != 0 )                { Print( "---> Error: API DeleteAllResults" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -5654,7 +5654,7 @@ extern void DeleteAllResults();
 
     DeleteResult( mesh_geom_res_id );
 
-    if ( GetNumResults( "Comp_Mesh" ) != 0 )                { Print( "---> Error: API DeleteResult" ); }
+    if ( GetNumResults( "Comp_Mesh" ) != 0 )                { Print( "---> Error: API DeleteResult" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6699,7 +6699,7 @@ extern void ShowScreen( int s );
 
     array< string > @type_array = GetGeomTypes();
 
-    if ( type_array[0] != "POD" )                { Print( "---> Error: API GetGeomTypes  " ); }
+    if ( type_array[0] != "POD" )                { Print( "---> Error: API GetGeomTypes  " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6867,7 +6867,7 @@ extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
 
     array< string > @geom_ids = FindGeoms();
 
-    if ( geom_ids.size() != 2 )                { Print( "---> Error: API Cut/Paste Geom  " ); }
+    if ( geom_ids.size() != 2 )                { Print( "---> Error: API Cut/Paste Geom  " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6909,7 +6909,7 @@ extern void CutGeomToClipboard( const std::string & geom_id );
 
     array< string > @geom_ids = FindGeoms();
 
-    if ( geom_ids.size() != 3 )                { Print( "---> Error: API Copy/Paste Geom  " ); }
+    if ( geom_ids.size() != 3 )                { Print( "---> Error: API Copy/Paste Geom  " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6951,7 +6951,7 @@ extern void CopyGeomToClipboard( const std::string & geom_id );
 
     array< string > @geom_ids = FindGeoms();
 
-    if ( geom_ids.size() != 2 )                { Print( "---> Error: API Cut/Paste Geom  " ); }
+    if ( geom_ids.size() != 2 )                { Print( "---> Error: API Cut/Paste Geom  " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6990,7 +6990,7 @@ extern std::vector<std::string> PasteGeomClipboard( const std::string & parent =
     //==== There Should Be Two Geoms =====//
     array< string > @geom_ids = FindGeoms();
 
-    if ( geom_ids.size() != 2 )                        { Print( "---> Error: API FindGeoms " ); }
+    if ( geom_ids.size() != 2 )                        { Print( "---> Error: API FindGeoms " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7028,6 +7028,7 @@ extern std::vector<std::string> FindGeoms();
     if ( geom_ids.size() != 1 )
     {
         Print( "---> Error: API FindGeomsWithName " );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -7071,6 +7072,7 @@ extern std::vector<std::string> FindGeomsWithName( const std::string & name );
     if ( geom_ids[0] != geom_id )
     {
         Print( "---> Error: API FindGeom & FindGeomsWithName" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -7115,6 +7117,7 @@ extern std::string FindGeom( const std::string & name, int index );
     if ( geom_ids.size() != 1 )
     {
         Print( "---> Error: API FindGeomsWithName " );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -7188,7 +7191,7 @@ extern std::string GetGeomName( const std::string & geom_id );
 
     array< string > @parm_array = GetGeomParmIDs( pid );
 
-    if ( parm_array.size() < 1 )            { Print( "---> Error: API GetGeomParmIDs " ); }
+    if ( parm_array.size() < 1 )            { Print( "---> Error: API GetGeomParmIDs " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7254,7 +7257,7 @@ extern std::string GetGeomTypeName( const std::string & geom_id );
 
     string lenid = GetParm( pid, "Length", "Design" );
 
-    if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); }
+    if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7429,7 +7432,7 @@ extern std::vector< std::string > GetGeomChildren( const std::string& geom_id );
 
     int num_xsec_surfs = GetNumXSecSurfs( fuseid );
 
-    if ( num_xsec_surfs != 1 )                { Print( "---> Error: API GetNumXSecSurfs  " ); }
+    if ( num_xsec_surfs != 1 )                { Print( "---> Error: API GetNumXSecSurfs  " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7544,6 +7547,7 @@ extern int GetTotalNumSurfs( const std::string& geom_id );
     if ( GetGeomVSPSurfType( wing_id ) != WING_SURF )
     {
         Print( "---> Error: API GetGeomVSPSurfType " );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -7578,6 +7582,7 @@ extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0
     if ( GetGeomVSPSurfCfdType( wing_id ) != CFD_NORMAL )
     {
         Print( "---> Error: API GetGeomVSPSurfCfdType " );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -8469,7 +8474,7 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
 
     SetFeaMeshStructIndex( struct_ind );
 
-    if ( FindGeoms().size() != 0 ) { Print( "ERROR: VSPRenew" ); }
+    if ( FindGeoms().size() != 1 ) { Print( "ERROR: SetFeaMeshStructIndex" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8483,7 +8488,7 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
 
     SetFeaMeshStructIndex( struct_ind )
 
-    if  len(FindGeoms()) != 0 : print( "ERROR: VSPRenew" )
+    if  len(FindGeoms()) != 1 : print( "ERROR: SetFeaMeshStructIndex" )
 
     \endcode
     \endPythonOnly
@@ -8944,6 +8949,7 @@ extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, cons
     if ( bulkhead_id != GetFeaPartID( struct_id, 1 ) ) // These should be equivalent (index 0 is skin)
     {
         Print( "Error: GetFeaPartID" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -8997,6 +9003,7 @@ extern std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part
     if ( name != GetFeaPartName( bulkhead_id ) ) // These should be equivalent
     {
         Print( "Error: GetFeaPartName" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9046,6 +9053,7 @@ extern std::string GetFeaPartName( const std::string & part_id );
     if ( FEA_SLICE != GetFeaPartType( slice_id ) ) // These should be equivalent
     {
         Print( "Error: GetFeaPartType" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9200,6 +9208,7 @@ extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_st
     if ( spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) )
     {
         Print( "Error: SetFeaPartPerpendicularSparID" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9270,6 +9279,7 @@ extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std
     if ( spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) )
     {
         Print( "Error: GetFeaPartPerpendicularSparID" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9371,6 +9381,7 @@ extern void SetFeaSubSurfName( const std::string & subsurf_id, const std::string
     if ( name != GetFeaSubSurfName( line_array_id ) ) // These should be equivalent
     {
         Print( "Error: GetFeaSubSurfName" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9520,6 +9531,7 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
     if ( 1 != GetFeaSubSurfIndex( rect_id ) ) // These should be equivalent
     {
         Print( "Error: GetFeaSubSurfIndex" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9570,6 +9582,7 @@ extern int GetFeaSubSurfIndex( const string & ss_id );
     if ( GetFeaPolySparNumPt( pspar_id ) != 2 )
     {
         Print( "Error: GetFeaPolySparNumPt" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9613,6 +9626,7 @@ extern int GetFeaPolySparNumPt( const string & pspar_id );
     if ( GetFeaPolySparNumPt( pspar_id ) != 3 )
     {
         Print( "Error: AddFeaPolySparPt" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9657,6 +9671,7 @@ extern string AddFeaPolySparPt( const string & pspar_id );
     if ( GetFeaPolySparNumPt( pspar_id ) != 3 )
     {
         Print( "Error: InsertFeaPolySparPt" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9706,6 +9721,7 @@ extern string InsertFeaPolySparPt( const string & pspar_id, int index );
     if ( GetFeaPolySparNumPt( pspar_id ) != 3 )
     {
         Print( "Error: DelFeaPolySparPt" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9756,6 +9772,7 @@ extern void DelFeaPolySparPt( const string & pspar_id, int index );
     if ( GetFeaPolySparNumPt( pspar_id ) != 0 )
     {
         Print( "Error: DelAllFeaPolySparPt" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9804,6 +9821,7 @@ extern void DelAllFeaPolySparPt( const string & pspar_id );
     if ( new_index != 1 )
     {
         Print( "Error: MoveFeaPolySparPt" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9853,6 +9871,7 @@ extern int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_ty
     if ( GetFeaPolySparPtName( pspar_id, 0 ) != "InboardPt" )
     {
         Print( "Error: SetFeaPolySparPtName" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -9998,6 +10017,7 @@ extern string GetFeaPolySparPtID( const string & pspar_id, int index );
     if ( pt_ids.size() != 3 )
     {
         Print( "Error: GetAllFeaPolySparPtIDVec" );
+        __failure++;
     }
 
     // Set each point's spanwise eta location
@@ -10052,6 +10072,7 @@ extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
     if ( NumFeaStructures() != 2 )
     {
         Print( "Error: NumFeaStructures" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -10097,6 +10118,7 @@ extern int NumFeaStructures();
     if ( NumFeaParts( struct_id ) != 3 ) // Includes FeaSkin
     {
         Print( "Error: NumFeaParts" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -10149,6 +10171,7 @@ extern int NumFeaParts( const std::string & fea_struct_id );
     if ( NumFeaSubSurfs( struct_id ) != 2 )
     {
         Print( "Error: NumFeaSubSurfs" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -11231,6 +11254,7 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
     if ( GetXSecShape( xsec_2 ) != XS_EDIT_CURVE )
     {
         Print( "Error: ChangeXSecShape" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -11302,7 +11326,7 @@ extern Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id );
 
     string xsec = GetXSec( xsec_surf, 1 );
 
-    if ( GetXSecShape( xsec ) != XS_EDIT_CURVE ) { Print( "ERROR: GetXSecShape" ); }
+    if ( GetXSecShape( xsec ) != XS_EDIT_CURVE ) { Print( "ERROR: GetXSecShape" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11344,7 +11368,7 @@ extern int GetXSecShape( const std::string& xsec_id );
 
     SetXSecWidthHeight( xsec, 3.0, 6.0 );
 
-    if ( abs( GetXSecWidth( xsec ) - 3.0 ) > 1e-6 )        { Print( "---> Error: API Get/Set Width " ); }
+    if ( abs( GetXSecWidth( xsec ) - 3.0 ) > 1e-6 )        { Print( "---> Error: API Get/Set Width " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11385,7 +11409,7 @@ extern double GetXSecWidth( const std::string& xsec_id );
 
     SetXSecWidthHeight( xsec, 3.0, 6.0 );
 
-    if ( abs( GetXSecHeight( xsec ) - 6.0 ) > 1e-6 )        { Print( "---> Error: API Get/Set Width " ); }
+    if ( abs( GetXSecHeight( xsec ) - 6.0 ) > 1e-6 )        { Print( "---> Error: API Get/Set Width " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11551,7 +11575,7 @@ extern void SetXSecHeight( const std::string& xsec_id, double h );
 
     array< string > @parm_array = GetXSecParmIDs( xsec );
 
-    if ( parm_array.size() < 1 )                        { Print( "---> Error: API GetXSecParmIDs " ); }
+    if ( parm_array.size() < 1 )                        { Print( "---> Error: API GetXSecParmIDs " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11593,7 +11617,7 @@ extern std::vector<std::string> GetXSecParmIDs( const std::string& xsec_id );
 
     string wid = GetXSecParm( xsec, "RoundedRect_Width" );
 
-    if ( !ValidParm( wid ) )                            { Print( "---> Error: API GetXSecParm " ); }
+    if ( !ValidParm( wid ) )                            { Print( "---> Error: API GetXSecParm " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12881,6 +12905,7 @@ extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg 
     if ( GetNumBackground3Ds() != nbg + 1 )
     {
         Print( "ERROR: AddBackground3D" );
+        __failure++;
     }
 
     DelBackground3D( bg_id );
@@ -12920,6 +12945,7 @@ extern string AddBackground3D();
     if ( GetNumBackground3Ds() != nbg + 1 )
     {
         Print( "ERROR: AddBackground3D" );
+        __failure++;
     }
 
     DelBackground3D( bg_id );
@@ -12961,6 +12987,7 @@ extern int GetNumBackground3Ds();
     if ( GetNumBackground3Ds() != nbg + 3 )
     {
         Print( "ERROR: AddBackground3D" );
+        __failure++;
     }
 
     array< string > @bg_array = GetAllBackground3Ds();
@@ -13083,6 +13110,7 @@ extern void HideAllBackground3Ds();
     if ( nbg != 0 )
     {
         Print( "ERROR: DelAllBackground3Ds" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -13125,6 +13153,7 @@ extern void DelAllBackground3Ds();
     if ( GetNumBackground3Ds() != nbg - 1 )
     {
         Print( "ERROR: DelBackground3D" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -14400,7 +14429,7 @@ extern vector < vec3d > GetRoutingCurve( const string &routing_id, int symm_inde
 
     ChangeBORXSecShape( bor_id, XS_ROUNDED_RECTANGLE );
 
-    if ( GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE ) { Print( "ERROR: ChangeBORXSecShape" ); }
+    if ( GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE ) { Print( "ERROR: ChangeBORXSecShape" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14433,7 +14462,7 @@ extern void ChangeBORXSecShape( const string & bor_id, int type );
 
     ChangeBORXSecShape( bor_id, XS_ROUNDED_RECTANGLE );
 
-    if ( GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE ) { Print( "ERROR: GetBORXSecShape" ); }
+    if ( GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE ) { Print( "ERROR: GetBORXSecShape" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15203,6 +15232,7 @@ extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype 
     if ( u_vec[1] - 0.25 > 1e-6 )
     {
         Print( "Error: GetEditXSecUVec" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -15344,6 +15374,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, bo
     if ( dist( new_pnts[3], xsec2_pts[3] ) > 1e-6 )
     {
         Print( "Error: SetEditXSecPnts");
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -15427,6 +15458,7 @@ extern void SetEditXSecPnts( const std::string & xsec_id, const std::vector < do
     if ( old_pnts.size() - new_pnts.size() != 3  )
     {
         Print( "Error: EditXSecDelPnt");
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -15493,6 +15525,7 @@ extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
     if ( new_pnts.size() - old_pnts.size() != 3  )
     {
         Print( "Error: EditXSecSplit01");
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -15568,6 +15601,7 @@ extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
     if ( dist( new_pnt, new_pnts[move_pnt_ind] ) > 1e-6 )
     {
         Print( "Error: MoveEditXSecPnt" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -15848,7 +15882,7 @@ extern void ReparameterizeEditXSec( const std::string & xsec_id );
     sets will be 10 for OpenVSP versions up to 3.17.1 and 20 for later versions.
     \forcpponly
     \code{.cpp}
-    if ( GetNumSets() <= 0 )                            { Print( "---> Error: API GetNumSets " ); }
+    if ( GetNumSets() <= 0 )                            { Print( "---> Error: API GetNumSets " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15871,7 +15905,7 @@ extern int GetNumSets();
     \code{.cpp}
     SetSetName( 3, "SetFromScript" );
 
-    if ( GetSetName( 3 ) != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); }
+    if ( GetSetName( 3 ) != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15901,7 +15935,10 @@ extern void SetSetName( int index, const std::string& name );
     SetSetName( 3, "SetFromScript" );
 
     if (GetSetName(3) != "SetFromScript" )
+    {
         Print("---> Error: API Get/Set Set Name");
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15933,7 +15970,7 @@ extern std::string GetSetName( int index );
 
     array<string> @geom_arr2 = GetGeomSet( "SetFromScript" );
 
-    if ( geom_arr1.size() != geom_arr2.size() )            { Print( "---> Error: API GetGeomSet " ); }
+    if ( geom_arr1.size() != geom_arr2.size() )            { Print( "---> Error: API GetGeomSet " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15968,7 +16005,7 @@ extern std::vector<std::string> GetGeomSetAtIndex( int index );
 
     array<string> @geom_arr2 = GetGeomSet( "SetFromScript" );
 
-    if ( geom_arr1.size() != geom_arr2.size() )            { Print( "---> Error: API GetGeomSet " ); }
+    if ( geom_arr1.size() != geom_arr2.size() )            { Print( "---> Error: API GetGeomSet " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15998,7 +16035,7 @@ extern std::vector<std::string> GetGeomSet( const std::string & name );
     \code{.cpp}
     SetSetName( 3, "SetFromScript" );
 
-    if ( GetSetIndex( "SetFromScript" ) != 3 ) { Print( "ERROR: GetSetIndex" ); }
+    if ( GetSetIndex( "SetFromScript" ) != 3 ) { Print( "ERROR: GetSetIndex" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16029,7 +16066,7 @@ extern int GetSetIndex( const std::string & name );
 
     SetSetFlag( fuseid, 3, true );
 
-    if ( !GetSetFlag( fuseid, 3 ) )                        { Print( "---> Error: API Set/Get Set Flag " ); }
+    if ( !GetSetFlag( fuseid, 3 ) )                        { Print( "---> Error: API Set/Get Set Flag " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16064,7 +16101,7 @@ extern bool GetSetFlag( const std::string & geom_id, int set_index );
 
     SetSetFlag( fuseid, 3, true );
 
-    if ( !GetSetFlag( fuseid, 3 ) )                        { Print( "---> Error: API Set/Get Set Flag " ); }
+    if ( !GetSetFlag( fuseid, 3 ) )                        { Print( "---> Error: API Set/Get Set Flag " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16106,7 +16143,7 @@ extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
     //get fuseid's state for set 4
     bool flag_value = GetSetFlag( fuseid, 4 );
 
-    if ( flag_value != true)                      { Print( "---> Error: API CopyPasteSet " ); }
+    if ( flag_value != true)                      { Print( "---> Error: API CopyPasteSet " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16368,7 +16405,7 @@ extern void TransformSet( int set_index, const vec3d &translation_vec, double x_
 
     string lenid = GetParm( pid, "Length", "Design" );
 
-    if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); }
+    if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16408,7 +16445,7 @@ extern bool ValidParm( const std::string & id );
 
     SetParmVal( wid, 23.0 );
 
-    if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); }
+    if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16458,7 +16495,7 @@ extern double SetParmVal( const std::string & parm_id, double val );
 
     SetParmVal( wid, 23.0 );
 
-    if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); }
+    if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16618,7 +16655,7 @@ extern double SetParmValUpdate( const std::string & geom_id, const std::string &
 
     SetParmVal( wid, 23.0 );
 
-    if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); }
+    if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16666,7 +16703,7 @@ extern double GetParmVal( const std::string & parm_id );
 
     SetParmVal( wid, 23.0 );
 
-    if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); }
+    if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16782,7 +16819,7 @@ extern bool GetBoolParmVal( const std::string & parm_id );
 
     SetParmUpperLimit( wid, 13.0 );
 
-    if ( abs( GetParmVal( wid ) - 13 ) > 1e-6 )                { Print( "---> Error: API SetParmUpperLimit " ); }
+    if ( abs( GetParmVal( wid ) - 13 ) > 1e-6 )                { Print( "---> Error: API SetParmUpperLimit " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16867,7 +16904,7 @@ extern double GetParmUpperLimit( const std::string & parm_id );
 
     SetParmLowerLimit( wid, 15.0 );
 
-    if ( abs( GetParmVal( wid ) - 15 ) > 1e-6 )                { Print( "---> Error: API SetParmLowerLimit " ); }
+    if ( abs( GetParmVal( wid ) - 15 ) > 1e-6 )                { Print( "---> Error: API SetParmLowerLimit " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16948,7 +16985,7 @@ extern double GetParmLowerLimit( const std::string & parm_id );
 
     string wid = GetXSecParm( xsec, "RoundedRect_Width" );
 
-    if ( GetParmType( wid ) != PARM_DOUBLE_TYPE )        { Print( "---> Error: API GetParmType " ); }
+    if ( GetParmType( wid ) != PARM_DOUBLE_TYPE )        { Print( "---> Error: API GetParmType " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17144,7 +17181,7 @@ extern std::string GetParmDisplayGroupName( const std::string & parm_id );
 
     string cid = GetParmContainer( wid );
 
-    if ( cid.size() == 0 )                                { Print( "---> Error: API GetParmContainer " ); }
+    if ( cid.size() == 0 )                                { Print( "---> Error: API GetParmContainer " ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17380,7 +17417,7 @@ extern std::string FindContainer( const std::string & name, int index );
     \code{.cpp}
     string veh_id = FindContainer( "Vehicle", 0 );
 
-    if ( GetContainerName( veh_id ) != "Vehicle" )         { Print( "---> Error: API GetContainerName" ); }
+    if ( GetContainerName( veh_id ) != "Vehicle" )         { Print( "---> Error: API GetContainerName" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -21080,7 +21117,7 @@ extern void AutoGroupVSPAEROControlSurfaces();
 
     int num_group = GetNumControlSurfaceGroups();
 
-    if ( num_group != 1 ) { Print( "Error: CreateVSPAEROControlSurfaceGroup" ); }
+    if ( num_group != 1 ) { Print( "Error: CreateVSPAEROControlSurfaceGroup" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -21544,7 +21581,7 @@ extern void RemoveSelectedFromCSGroup( const vector <int> &selected, int CSGroup
 
     int num_group = GetNumControlSurfaceGroups();
 
-    if ( num_group != 2 ) { Print( "Error: GetNumControlSurfaceGroups" ); }
+    if ( num_group != 2 ) { Print( "Error: GetNumControlSurfaceGroups" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -21776,6 +21813,7 @@ extern std::string GetUnsteadyGroupName( int group_index );
     if ( comp_ids.size() != 3 )
     {
         Print( "ERROR: GetUnsteadyGroupCompIDs" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -21821,6 +21859,7 @@ extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
     if ( surf_indexes.size() != 3 )
     {
         Print( "ERROR: GetUnsteadyGroupSurfIndexes" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -24740,7 +24779,7 @@ extern std::vector < string > GetAllProbes();
 
     array< string > @probe_array = GetAllProbes();
 
-    if ( probe_array.size() != 1 ) { Print( "Error: DelProbe" ); }
+    if ( probe_array.size() != 1 ) { Print( "Error: DelProbe" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -24783,7 +24822,7 @@ extern void DelProbe( const string &id );
 
     array< string > @probe_array = GetAllProbes();
 
-    if ( probe_array.size() != 0 ) { Print( "Error: DeleteAllProbes" ); }
+    if ( probe_array.size() != 0 ) { Print( "Error: DeleteAllProbes" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly

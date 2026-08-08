@@ -3747,6 +3747,38 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "void SetActiveGeometryAnalysis( const string & in id )", asFUNCTION( vsp::SetActiveGeometryAnalysis ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string GetActiveGeometryAnalysis()", asFUNCTION( vsp::GetActiveGeometryAnalysis ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string MakeMeshGeom( const string & in ga_id )", asFUNCTION( vsp::MakeMeshGeom ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string CreateAndAddBogie( const string & in gear_id )", asFUNCTION( vsp::CreateAndAddBogie ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "int GetNumBogies( const string & in gear_id )", asFUNCTION( vsp::GetNumBogies ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllBogies( const string & in gear_id )", asMETHOD( ScriptMgrSingleton, GetAllBogies ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void DelBogie( const string & in gear_id, const string & in bogie_id )", asFUNCTION( vsp::DelBogie ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void DelAllBogies( const string & in gear_id )", asFUNCTION( vsp::DelAllBogies ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "array<string>@+ GetAllGeometryAnalysesIDVec()", asMETHOD( ScriptMgrSingleton, GetAllGeometryAnalysesIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
@@ -6927,6 +6959,12 @@ CScriptArray* ScriptMgrSingleton::GetAllRulers()
 {
     m_ProxyStringArray = vsp::GetAllRulers();
     return GetProxyStringArray();}
+
+CScriptArray* ScriptMgrSingleton::GetAllBogies( const string &gear_id )
+{
+    m_ProxyStringArray = vsp::GetAllBogies( gear_id );
+    return GetProxyStringArray();
+}
 
 CScriptArray* ScriptMgrSingleton::GetAllProbes()
 {
