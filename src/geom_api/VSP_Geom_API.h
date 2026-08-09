@@ -18112,6 +18112,34 @@ extern int GetBORXSecShape( const string & bor_id );
     ChangeBORXSecShape( bor_id, XS_FILE_FUSE );
 
     array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" );
+
+    Update();
+
+    // The file holds a closed curve, and the section it produced is the one the
+    // body is now built on.
+    if ( vec_array.size() < 3 )
+    {
+        Print( "ERROR: ReadBORFileXSec returned too few points" );
+        __failure++;
+    }
+    else if ( dist( vec_array[0], vec_array[vec_array.size() - 1] ) > 1e-8 )
+    {
+        Print( "ERROR: ReadBORFileXSec returned an open curve" );
+        __failure++;
+    }
+
+    if ( GetBORXSecShape( bor_id ) != XS_FILE_FUSE )
+    {
+        Print( "ERROR: ReadBORFileXSec changed the section type" );
+        __failure++;
+    }
+
+    // The section curve closes on itself.
+    if ( dist( ComputeBORXSecPnt( bor_id, 0.0 ), ComputeBORXSecPnt( bor_id, 1.0 ) ) > 1e-6 )
+    {
+        Print( "ERROR: the BOR section does not close" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -18122,6 +18150,17 @@ extern int GetBORXSecShape( const string & bor_id );
     ChangeBORXSecShape( bor_id, XS_FILE_FUSE )
 
     vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
+
+    Update()
+
+    # The file holds a closed curve, and the section it produced is the one the
+    # body is now built on.
+    assert len( vec_array ) >= 3, "ReadBORFileXSec returned too few points"
+    assert dist( vec_array[0], vec_array[-1] ) < 1e-8, "ReadBORFileXSec returned an open curve"
+    assert GetBORXSecShape( bor_id ) == XS_FILE_FUSE, "ReadBORFileXSec changed the section type"
+
+    # The section curve closes on itself.
+    assert dist( ComputeBORXSecPnt( bor_id, 0.0 ), ComputeBORXSecPnt( bor_id, 1.0 ) ) < 1e-6, "the BOR section does not close"
 
     \endcode
     \endPythonOnly
@@ -18232,6 +18271,27 @@ extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pn
     double u_fract = 0.25;
 
     vec3d pnt = ComputeBORXSecPnt( bor_id, u_fract );
+
+    // The section is a closed curve, so the ends meet.
+    if ( dist( ComputeBORXSecPnt( bor_id, 0.0 ), ComputeBORXSecPnt( bor_id, 1.0 ) ) > 1e-6 )
+    {
+        Print( "ERROR: the BOR section does not close" );
+        __failure++;
+    }
+
+    // The section lies in a plane of constant Z.
+    if ( !closeTo( pnt.z(), ComputeBORXSecPnt( bor_id, 0.0 ).z(), 1e-9 ) )
+    {
+        Print( "ERROR: the BOR section is not planar" );
+        __failure++;
+    }
+
+    // Walking the curve has to move, not sit still.
+    if ( dist( pnt, ComputeBORXSecPnt( bor_id, u_fract + 0.25 ) ) < 1e-9 )
+    {
+        Print( "ERROR: ComputeBORXSecPnt does not advance along the curve" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -18243,6 +18303,15 @@ extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pn
     u_fract = 0.25
 
     pnt = ComputeBORXSecPnt( bor_id, u_fract )
+
+    # The section is a closed curve, so the ends meet.
+    assert dist( ComputeBORXSecPnt( bor_id, 0.0 ), ComputeBORXSecPnt( bor_id, 1.0 ) ) < 1e-6, "the BOR section does not close"
+
+    # The section lies in a plane of constant Z.
+    assert abs( pnt.z() - ComputeBORXSecPnt( bor_id, 0.0 ).z() ) < 1e-9, "the BOR section is not planar"
+
+    # Walking the curve has to move, not sit still.
+    assert dist( pnt, ComputeBORXSecPnt( bor_id, u_fract + 0.25 ) ) > 1e-9, "ComputeBORXSecPnt does not advance along the curve"
 
     \endcode
     \endPythonOnly
@@ -18266,6 +18335,30 @@ extern vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract );
     double u_fract = 0.25;
 
     vec3d tan = ComputeBORXSecTan( bor_id, u_fract );
+
+    // A tangent is a direction, so it has to have some length.
+    if ( tan.mag() < 1e-9 )
+    {
+        Print( "ERROR: ComputeBORXSecTan returned a degenerate tangent" );
+        __failure++;
+    }
+
+    // The tangent has to follow the curve, so stepping along the curve from the
+    // point has to line up with it.
+    double du = 1.0e-5;
+
+    vec3d fd = ComputeBORXSecPnt( bor_id, u_fract + du ) - ComputeBORXSecPnt( bor_id, u_fract );
+
+    if ( fd.mag() < 1e-12 )
+    {
+        Print( "ERROR: the BOR section does not advance" );
+        __failure++;
+    }
+    else if ( dot( fd, tan ) / ( fd.mag() * tan.mag() ) < 0.999 )
+    {
+        Print( "ERROR: ComputeBORXSecTan does not follow the curve" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -18276,6 +18369,24 @@ extern vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract );
     u_fract = 0.25
 
     tan = ComputeBORXSecTan( bor_id, u_fract )
+
+    # A tangent is a direction, so it has to have some length.
+    assert tan.mag() > 1e-9, "ComputeBORXSecTan returned a degenerate tangent"
+
+    # The tangent has to follow the curve, so stepping along the curve from the
+    # point has to line up with it.
+    du = 1.0e-5
+
+    p0 = ComputeBORXSecPnt( bor_id, u_fract )
+    p1 = ComputeBORXSecPnt( bor_id, u_fract + du )
+
+    fd = vec3d( p1.x() - p0.x(), p1.y() - p0.y(), p1.z() - p0.z() )
+
+    assert fd.mag() > 1e-12, "the BOR section does not advance"
+
+    align = ( fd.x() * tan.x() + fd.y() * tan.y() + fd.z() * tan.z() ) / ( fd.mag() * tan.mag() )
+
+    assert align > 0.999, "ComputeBORXSecTan does not follow the curve"
 
     \endcode
     \endPythonOnly
@@ -18299,6 +18410,48 @@ extern vec3d ComputeBORXSecTan( const std::string& bor_id, double fract );
     ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+    array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+
+    if ( up_array.size() == 0 || up_array.size() != low_array.size() )
+    {
+        Print( "ERROR: ReadBORFileAirfoil did not read matching surfaces" );
+        __failure++;
+    }
+    else
+    {
+        // The points run from the leading edge to the trailing edge on a unit
+        // chord, and a NACA 0012 is symmetric top to bottom.
+        if ( !closeTo( up_array[0].x(), 0.0, 1e-6 ) ||
+             !closeTo( up_array[up_array.size() - 1].x(), 1.0, 1e-6 ) )
+        {
+            Print( "ERROR: ReadBORFileAirfoil did not normalize the chord" );
+            __failure++;
+        }
+
+        double max_up = 0.0;
+
+        for ( int i = 0; i < int( up_array.size() ); i++ )
+        {
+            if ( !closeTo( low_array[i].y(), -up_array[i].y(), 1e-6 ) )
+            {
+                Print( "ERROR: ReadBORFileAirfoil did not read a symmetric section" );
+                __failure++;
+            }
+
+            if ( up_array[i].y() > max_up )
+            {
+                max_up = up_array[i].y();
+            }
+        }
+
+        if ( !closeTo( 2.0 * max_up, 0.12, 1e-3 ) )
+        {
+            Print( "ERROR: ReadBORFileAirfoil did not read a twelve percent section" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -18309,6 +18462,24 @@ extern vec3d ComputeBORXSecTan( const std::string& bor_id, double fract );
     ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL )
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
+
+    up_array = GetBORAirfoilUpperPnts( bor_id )
+    low_array = GetBORAirfoilLowerPnts( bor_id )
+
+    assert len( up_array ) > 0, "ReadBORFileAirfoil did not read matching surfaces"
+    assert len( up_array ) == len( low_array ), "ReadBORFileAirfoil did not read matching surfaces"
+
+    # The points run from the leading edge to the trailing edge on a unit chord,
+    # and a NACA 0012 is symmetric top to bottom.
+    assert abs( up_array[0].x() ) < 1e-6, "ReadBORFileAirfoil did not normalize the chord"
+    assert abs( up_array[-1].x() - 1.0 ) < 1e-6, "ReadBORFileAirfoil did not normalize the chord"
+
+    for i in range( len( up_array ) ):
+        assert abs( low_array[i].y() + up_array[i].y() ) < 1e-6, "ReadBORFileAirfoil did not read a symmetric section"
+
+    max_up = max( [ p.y() for p in up_array ] )
+
+    assert abs( 2.0 * max_up - 0.12 ) < 1e-3, "ReadBORFileAirfoil did not read a twelve percent section"
 
     \endcode
     \endPythonOnly
@@ -18340,6 +18511,40 @@ extern void ReadBORFileAirfoil( const std::string& bor_id, const std::string& fi
     }
 
     SetBORAirfoilUpperPnts( bor_id, up_array );
+
+    // The doubled upper surface has to come back doubled, and the lower surface
+    // has to be left alone.
+    array< vec3d > @check_array = GetBORAirfoilUpperPnts( bor_id );
+    array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+
+    if ( check_array.size() != up_array.size() )
+    {
+        Print( "ERROR: SetBORAirfoilUpperPnts point count" );
+        __failure++;
+    }
+    else
+    {
+        double max_up = 0.0;
+        double min_low = 0.0;
+
+        for ( int i = 0; i < int( up_array.size() ); i++ )
+        {
+            if ( dist( check_array[i], up_array[i] ) > 1e-6 )
+            {
+                Print( "ERROR: SetBORAirfoilUpperPnts did not store point " + i );
+                __failure++;
+            }
+
+            if ( check_array[i].y() > max_up ) { max_up = check_array[i].y(); }
+            if ( low_array[i].y() < min_low ) { min_low = low_array[i].y(); }
+        }
+
+        if ( !closeTo( max_up, -2.0 * min_low, 1e-6 ) )
+        {
+            Print( "ERROR: SetBORAirfoilUpperPnts did not leave the lower surface alone" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -18358,6 +18563,21 @@ extern void ReadBORFileAirfoil( const std::string& bor_id, const std::string& fi
         up_array[i].scale_y( 2.0 )
 
     SetBORAirfoilUpperPnts( bor_id, up_array )
+
+    # The doubled upper surface has to come back doubled, and the lower surface
+    # has to be left alone.
+    check_array = GetBORAirfoilUpperPnts( bor_id )
+    low_array = GetBORAirfoilLowerPnts( bor_id )
+
+    assert len( check_array ) == len( up_array ), "SetBORAirfoilUpperPnts point count"
+
+    for i in range( len( up_array ) ):
+        assert dist( check_array[i], up_array[i] ) < 1e-6, "SetBORAirfoilUpperPnts did not store point " + str( i )
+
+    max_up = max( [ p.y() for p in check_array ] )
+    min_low = min( [ p.y() for p in low_array ] )
+
+    assert abs( max_up + 2.0 * min_low ) < 1e-6, "SetBORAirfoilUpperPnts did not leave the lower surface alone"
 
     \endcode
     \endPythonOnly
@@ -18389,6 +18609,40 @@ extern void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector
     }
 
     SetBORAirfoilLowerPnts( bor_id, low_array );
+
+    // The halved lower surface has to come back halved, and the upper surface
+    // has to be left alone.
+    array< vec3d > @check_array = GetBORAirfoilLowerPnts( bor_id );
+    array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+
+    if ( check_array.size() != low_array.size() )
+    {
+        Print( "ERROR: SetBORAirfoilLowerPnts point count" );
+        __failure++;
+    }
+    else
+    {
+        double max_up = 0.0;
+        double min_low = 0.0;
+
+        for ( int i = 0; i < int( low_array.size() ); i++ )
+        {
+            if ( dist( check_array[i], low_array[i] ) > 1e-6 )
+            {
+                Print( "ERROR: SetBORAirfoilLowerPnts did not store point " + i );
+                __failure++;
+            }
+
+            if ( up_array[i].y() > max_up ) { max_up = up_array[i].y(); }
+            if ( check_array[i].y() < min_low ) { min_low = check_array[i].y(); }
+        }
+
+        if ( !closeTo( 0.5 * max_up, -min_low, 1e-6 ) )
+        {
+            Print( "ERROR: SetBORAirfoilLowerPnts did not leave the upper surface alone" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -18407,6 +18661,21 @@ extern void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector
         low_array[i].scale_y( 0.5 )
 
     SetBORAirfoilLowerPnts( bor_id, low_array )
+
+    # The halved lower surface has to come back halved, and the upper surface has
+    # to be left alone.
+    check_array = GetBORAirfoilLowerPnts( bor_id )
+    up_array = GetBORAirfoilUpperPnts( bor_id )
+
+    assert len( check_array ) == len( low_array ), "SetBORAirfoilLowerPnts point count"
+
+    for i in range( len( low_array ) ):
+        assert dist( check_array[i], low_array[i] ) < 1e-6, "SetBORAirfoilLowerPnts did not store point " + str( i )
+
+    max_up = max( [ p.y() for p in up_array ] )
+    min_low = min( [ p.y() for p in check_array ] )
+
+    assert abs( 0.5 * max_up + min_low ) < 1e-6, "SetBORAirfoilLowerPnts did not leave the upper surface alone"
 
     \endcode
     \endPythonOnly
@@ -18442,6 +18711,40 @@ extern void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector
     }
 
     SetBORAirfoilPnts( bor_id, up_array, low_array );
+
+    array< vec3d > @check_up = GetBORAirfoilUpperPnts( bor_id );
+    array< vec3d > @check_low = GetBORAirfoilLowerPnts( bor_id );
+
+    if ( check_up.size() != up_array.size() || check_low.size() != low_array.size() )
+    {
+        Print( "ERROR: SetBORAirfoilPnts point count" );
+        __failure++;
+    }
+    else
+    {
+        double max_up = 0.0;
+        double min_low = 0.0;
+
+        for ( int i = 0; i < int( up_array.size() ); i++ )
+        {
+            if ( dist( check_up[i], up_array[i] ) > 1e-6 || dist( check_low[i], low_array[i] ) > 1e-6 )
+            {
+                Print( "ERROR: SetBORAirfoilPnts did not store point " + i );
+                __failure++;
+            }
+
+            if ( check_up[i].y() > max_up ) { max_up = check_up[i].y(); }
+            if ( check_low[i].y() < min_low ) { min_low = check_low[i].y(); }
+        }
+
+        // The section started symmetric; doubling the top and halving the
+        // bottom leaves the top four times as deep as the bottom.
+        if ( !closeTo( max_up, -4.0 * min_low, 1e-6 ) )
+        {
+            Print( "ERROR: SetBORAirfoilPnts did not scale the two surfaces apart" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -18464,6 +18767,23 @@ extern void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector
         low_array[i].scale_y( 0.5 )
 
     SetBORAirfoilPnts( bor_id, up_array, low_array )
+
+    check_up = GetBORAirfoilUpperPnts( bor_id )
+    check_low = GetBORAirfoilLowerPnts( bor_id )
+
+    assert len( check_up ) == len( up_array ), "SetBORAirfoilPnts point count"
+    assert len( check_low ) == len( low_array ), "SetBORAirfoilPnts point count"
+
+    for i in range( len( up_array ) ):
+        assert dist( check_up[i], up_array[i] ) < 1e-6, "SetBORAirfoilPnts did not store point " + str( i )
+        assert dist( check_low[i], low_array[i] ) < 1e-6, "SetBORAirfoilPnts did not store point " + str( i )
+
+    # The section started symmetric; doubling the top and halving the bottom
+    # leaves the top four times as deep as the bottom.
+    max_up = max( [ p.y() for p in check_up ] )
+    min_low = min( [ p.y() for p in check_low ] )
+
+    assert abs( max_up + 4.0 * min_low ) < 1e-6, "SetBORAirfoilPnts did not scale the two surfaces apart"
 
     \endcode
     \endPythonOnly
