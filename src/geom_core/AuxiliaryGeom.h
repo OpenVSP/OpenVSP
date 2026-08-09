@@ -66,6 +66,10 @@ public:
     virtual void SetContactPt2ID( const std::string& id );
     virtual void SetContactPt3ID( const std::string& id );
 
+    virtual std::string GetContactPt1ID() const           { return m_ContactPt1_ID; }
+    virtual std::string GetContactPt2ID() const           { return m_ContactPt2_ID; }
+    virtual std::string GetContactPt3ID() const           { return m_ContactPt3_ID; }
+
     virtual bool GetCG( vec3d &cgnom, vector < vec3d > &cgbounds );
     virtual bool GetPtNormal( vec3d &pt, vec3d &normal ) const;
     virtual bool GetPtPivotAxis( vec3d &ptaxis, vec3d &axis );

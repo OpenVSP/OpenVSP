@@ -1430,6 +1430,30 @@ enum SET_TYPE { SET_NONE = -1,	/*!< None set */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum that identifies a StackGeom starting point.  Each preset builds a
+    different set of cross sections, most of them nacelle layouts. */
+enum STACK_PRESETS { STACK_PRESET_DEFAULT = 0,	/*!< Standard init type */
+                     STACK_PRESET_CYLINDER_ENDPTS = 1,	/*!< Cylinder with points as first/last XSec */
+                     STACK_PRESET_CYLINDER_ENDCAPS = 2,	/*!< Cylinder with end caps instead of points */
+                     STACK_PRESET_FLOWTHRU_OUTLIP_ORIG = 3,	/*!< Flowthru nacelle starting/ending with outlet lip */
+                     STACK_PRESET_FLOWTHRU_INLIP_ORIG = 4,	/*!< Flowthru nacelle starting/ending with inlet lip */
+                     STACK_PRESET_FLOWTHRU_MID_ORIG = 5,	/*!< Flowthru nacelle starting/ending with outlet face */
+                     STACK_PRESET_BOTHFACEFACE = 6,	/*!< Nacelle from the inlet face around the outside to the outlet face */
+                     STACK_PRESET_BOTHLIPFACE = 7,	/*!< Nacelle from the inlet lip around the outside to the outlet face */
+                     STACK_PRESET_BOTHFACELIP = 8,	/*!< Nacelle from the inlet face around the outside to the outlet lip */
+                     STACK_PRESET_BOTHLIPLIP = 9,	/*!< Nacelle from the inlet lip around the outside to the outlet lip */
+                     STACK_PRESET_OUTFACE = 10,	/*!< Nacelle with no inlet, around the outside to the outlet face */
+                     STACK_PRESET_OUTLIP = 11,	/*!< Nacelle with no inlet, around the outside to the outlet lip */
+                     STACK_PRESET_INFACE = 12,	/*!< Nacelle from the inlet face, then closed out with no outlet */
+                     STACK_PRESET_INLIP = 13,	/*!< Nacelle from the inlet lip, then closed out with no outlet */
+                     STACK_PRESET_FLOWPATH_BOTH = 14,	/*!< Nacelle flowpath only, from inlet to outlet */
+                     STACK_PRESET_FLOWPATH_IN = 15,	/*!< Nacelle flowpath only, inlet lip to face */
+                     STACK_PRESET_FLOWPATH_OUT = 16	/*!< Nacelle flowpath only, outlet face to lip */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that identifies the trimmed STEP export representation type. */
 enum STEP_REPRESENTATION { STEP_SHELL,	/*!< Manifold shell surface STEP file representation */
                            STEP_BREP	/*!< Manifold solid BREP STEP file representation */

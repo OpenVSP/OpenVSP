@@ -42,6 +42,10 @@
     \ref index "Click here to return to the main page"
 
 
+    \defgroup AuxiliaryGeom AuxiliaryGeom Functions
+    \brief This group of functions is available for interacting with an AuxiliaryGeom through the API.
+    \ref index "Click here to return to the main page"
+
     \defgroup Background3D Background3D Functions
     \brief This group of functions is used to work with 3D background images.
     \ref index "Click here to return to the main page"
@@ -160,6 +164,10 @@
 
     \defgroup SnapTo Snap-To Functions
     \brief This group of API functions provide the capabilities available in the Snap-To tool.
+    \ref index "Click here to return to the main page"
+
+    \defgroup StackGeom StackGeom Functions
+    \brief This group of functions is available for interacting with a StackGeom through the API.
     \ref index "Click here to return to the main page"
 
     \defgroup SubSurface Sub-Surface Functions
@@ -21053,6 +21061,229 @@ extern void DelBogie( const string &gear_id, const string &bogie_id );
 */
 
 extern void DelAllBogies( const string &gear_id );
+
+
+//====================== AuxiliaryGeom Functions ======================//
+/*!
+    \ingroup AuxiliaryGeom
+*/
+/*!
+    Assign the Bogie that serves as one of the contact points of an AuxiliaryGeom.  The ground plane
+    and clearance envelope AuxiliaryGeom modes rest the aircraft on one, two or three Bogies of the
+    parent GearGeom; this picks which Bogie plays each role.  Contact points beyond the ones the
+    current mode uses are ignored, but they are remembered.
+
+    Any Bogie assigned here must belong to the AuxiliaryGeom's parent GearGeom.  An unrecognized
+    Bogie is silently replaced by the GearGeom's first Bogie on the next update.
+    \forcpponly
+    \code{.cpp}
+    string gear_id = AddGeom( "GEAR", "" );
+
+    string nose_id = CreateAndAddBogie( gear_id );
+    string main_id = CreateAndAddBogie( gear_id );
+
+    SetParmVal( main_id, "Symmetrical", "Bogie", 1 );    // Left and right main gear
+
+    string aux_id = AddGeom( "AUXILIARY", gear_id );
+
+    SetParmVal( aux_id, "AuxiliaryGeomType", "Design", AUX_GEOM_THREE_PT_GROUND );
+
+    SetAuxiliaryGeomContactPtID( aux_id, 0, nose_id );
+    SetAuxiliaryGeomContactPtID( aux_id, 1, main_id );
+    SetAuxiliaryGeomContactPtID( aux_id, 2, main_id );
+
+    Update();
+
+    if ( GetAuxiliaryGeomContactPtID( aux_id, 0 ) != nose_id )
+    {
+        Print( "ERROR: SetAuxiliaryGeomContactPtID did not take" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gear_id = AddGeom( "GEAR", "" )
+
+    nose_id = CreateAndAddBogie( gear_id )
+    main_id = CreateAndAddBogie( gear_id )
+
+    SetParmVal( main_id, "Symmetrical", "Bogie", 1 )    # Left and right main gear
+
+    aux_id = AddGeom( "AUXILIARY", gear_id )
+
+    SetParmVal( aux_id, "AuxiliaryGeomType", "Design", AUX_GEOM_THREE_PT_GROUND )
+
+    SetAuxiliaryGeomContactPtID( aux_id, 0, nose_id )
+    SetAuxiliaryGeomContactPtID( aux_id, 1, main_id )
+    SetAuxiliaryGeomContactPtID( aux_id, 2, main_id )
+
+    Update()
+
+    assert GetAuxiliaryGeomContactPtID( aux_id, 0 ) == nose_id, "SetAuxiliaryGeomContactPtID did not take"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAuxiliaryGeomContactPtID, CreateAndAddBogie
+    \param [in] geom_id string AuxiliaryGeom Geom ID
+    \param [in] index int Contact point index [0, 2]
+    \param [in] bogie_id string Bogie ParmContainer ID
+*/
+
+extern void SetAuxiliaryGeomContactPtID( const string &geom_id, int index, const string &bogie_id );
+
+/*!
+    \ingroup AuxiliaryGeom
+*/
+/*!
+    Get the ID of the Bogie serving as one of the contact points of an AuxiliaryGeom.
+    \forcpponly
+    \code{.cpp}
+    string gear_id = AddGeom( "GEAR", "" );
+
+    string bogie_id = CreateAndAddBogie( gear_id );
+
+    string aux_id = AddGeom( "AUXILIARY", gear_id );
+
+    SetParmVal( aux_id, "AuxiliaryGeomType", "Design", AUX_GEOM_ONE_PT_GROUND );
+
+    Update();
+
+    // With only one Bogie to choose from, every contact point resolves to it.
+    if ( GetAuxiliaryGeomContactPtID( aux_id, 0 ) != bogie_id )
+    {
+        Print( "ERROR: GetAuxiliaryGeomContactPtID" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gear_id = AddGeom( "GEAR", "" )
+
+    bogie_id = CreateAndAddBogie( gear_id )
+
+    aux_id = AddGeom( "AUXILIARY", gear_id )
+
+    SetParmVal( aux_id, "AuxiliaryGeomType", "Design", AUX_GEOM_ONE_PT_GROUND )
+
+    Update()
+
+    # With only one Bogie to choose from, every contact point resolves to it.
+    assert GetAuxiliaryGeomContactPtID( aux_id, 0 ) == bogie_id, "GetAuxiliaryGeomContactPtID"
+
+    \endcode
+    \endPythonOnly
+    \sa SetAuxiliaryGeomContactPtID
+    \param [in] geom_id string AuxiliaryGeom Geom ID
+    \param [in] index int Contact point index [0, 2]
+    \return string Bogie ParmContainer ID, empty if no Bogie is assigned
+*/
+
+extern string GetAuxiliaryGeomContactPtID( const string &geom_id, int index );
+
+/*!
+    \ingroup AuxiliaryGeom
+*/
+/*!
+    Read a composite clearance envelope (*.cce) file into an AuxiliaryGeom.  The file holds the
+    envelope profile as a list of X and Z coordinate pairs, one pair per line, which the
+    AUX_GEOM_THREE_PT_CCE mode sweeps around the aircraft.
+    \forcpponly
+    \code{.cpp}
+    string gear_id = AddGeom( "GEAR", "" );
+
+    CreateAndAddBogie( gear_id );
+
+    string aux_id = AddGeom( "AUXILIARY", gear_id );
+
+    SetParmVal( aux_id, "AuxiliaryGeomType", "Design", AUX_GEOM_THREE_PT_CCE );
+
+    ReadAuxiliaryGeomCCEFile( aux_id, "CCE/SD-24L.cce" );
+
+    Update();
+
+    if ( GetNumTotalErrors() > 0 )
+    {
+        Print( "ERROR: ReadAuxiliaryGeomCCEFile" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gear_id = AddGeom( "GEAR", "" )
+
+    CreateAndAddBogie( gear_id )
+
+    aux_id = AddGeom( "AUXILIARY", gear_id )
+
+    SetParmVal( aux_id, "AuxiliaryGeomType", "Design", AUX_GEOM_THREE_PT_CCE )
+
+    ReadAuxiliaryGeomCCEFile( aux_id, "CCE/SD-24L.cce" )
+
+    Update()
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string AuxiliaryGeom Geom ID
+    \param [in] file_name string Name of the *.cce file to read
+*/
+
+extern void ReadAuxiliaryGeomCCEFile( const string &geom_id, const string &file_name );
+
+
+//======================== StackGeom Functions ========================//
+/*!
+    \ingroup StackGeom
+*/
+/*!
+    Replace every XSec of a StackGeom with a preset starting point.  Most of the presets lay out a
+    nacelle; which one you want depends on whether the model needs the inlet, the outlet, the
+    external surface, the internal flowpath, or some combination.  This discards the existing cross
+    sections, so it belongs right after the StackGeom is created.
+    \forcpponly
+    \code{.cpp}
+    string stack_id = AddGeom( "STACK", "" );
+
+    InitStackPreset( stack_id, STACK_PRESET_FLOWTHRU_MID_ORIG );
+
+    Update();
+
+    // Each preset lays down its own set of XSecs, replacing the default five.
+    string xsec_surf = GetXSecSurf( stack_id, 0 );
+
+    if ( GetNumXSec( xsec_surf ) != 7 )
+    {
+        Print( "ERROR: InitStackPreset did not rebuild the XSecs" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    stack_id = AddGeom( "STACK", "" )
+
+    InitStackPreset( stack_id, STACK_PRESET_FLOWTHRU_MID_ORIG )
+
+    Update()
+
+    # Each preset lays down its own set of XSecs, replacing the default five.
+    xsec_surf = GetXSecSurf( stack_id, 0 )
+
+    assert GetNumXSec( xsec_surf ) == 7, "InitStackPreset did not rebuild the XSecs"
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string StackGeom Geom ID
+    \param [in] preset int Preset enum (see STACK_PRESETS)
+*/
+
+extern void InitStackPreset( const string &geom_id, int preset );
 
 
 //======================== RoutingGeom Functions ======================//

@@ -34,7 +34,9 @@
 #include "ParmMgr.h"
 #include "PropGeom.h"
 #include "RoutingGeom.h"
+#include "AuxiliaryGeom.h"
 #include "GearGeom.h"
+#include "StackGeom.h"
 #include "StructureMgr.h"
 #include "SubSurfaceMgr.h"
 #include "SurfaceIntersectionMgr.h"
@@ -7490,6 +7492,147 @@ vector < vec3d > GetRoutingCurve( const string &routing_id, int symm_index )
 //===================================================================//
 //==================      GearGeom Functions       ==================//
 //===================================================================//
+
+//===================================================================//
+//===============       Auxiliary Geom Functions      ===============//
+//===================================================================//
+
+// Look up an AuxiliaryGeom, reporting through the named caller on failure.
+static AuxiliaryGeom* FindAuxiliaryGeom( const string &geom_id, const string &caller )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Geom " + geom_id );
+        return nullptr;
+    }
+
+    AuxiliaryGeom* aux_ptr = dynamic_cast< AuxiliaryGeom* > ( geom_ptr );
+
+    if ( !aux_ptr || geom_ptr->GetType().m_Type != AUXILIARY_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::Geom " + geom_id + " is not an AuxiliaryGeom" );
+        return nullptr;
+    }
+
+    return aux_ptr;
+}
+
+void SetAuxiliaryGeomContactPtID( const string &geom_id, int index, const string &bogie_id )
+{
+    AuxiliaryGeom* aux_ptr = FindAuxiliaryGeom( geom_id, "SetAuxiliaryGeomContactPtID" );
+    if ( !aux_ptr )
+    {
+        return;
+    }
+
+    if ( index < 0 || index > 2 )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetAuxiliaryGeomContactPtID::Index Out Of Range " + to_string( index ) );
+        return;
+    }
+
+    if ( index == 0 )
+    {
+        aux_ptr->SetContactPt1ID( bogie_id );
+    }
+    else if ( index == 1 )
+    {
+        aux_ptr->SetContactPt2ID( bogie_id );
+    }
+    else
+    {
+        aux_ptr->SetContactPt3ID( bogie_id );
+    }
+
+    ErrorMgr.NoError();
+}
+
+string GetAuxiliaryGeomContactPtID( const string &geom_id, int index )
+{
+    AuxiliaryGeom* aux_ptr = FindAuxiliaryGeom( geom_id, "GetAuxiliaryGeomContactPtID" );
+    if ( !aux_ptr )
+    {
+        return string();
+    }
+
+    if ( index < 0 || index > 2 )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAuxiliaryGeomContactPtID::Index Out Of Range " + to_string( index ) );
+        return string();
+    }
+
+    string ret_id;
+    if ( index == 0 )
+    {
+        ret_id = aux_ptr->GetContactPt1ID();
+    }
+    else if ( index == 1 )
+    {
+        ret_id = aux_ptr->GetContactPt2ID();
+    }
+    else
+    {
+        ret_id = aux_ptr->GetContactPt3ID();
+    }
+
+    ErrorMgr.NoError();
+    return ret_id;
+}
+
+void ReadAuxiliaryGeomCCEFile( const string &geom_id, const string &file_name )
+{
+    AuxiliaryGeom* aux_ptr = FindAuxiliaryGeom( geom_id, "ReadAuxiliaryGeomCCEFile" );
+    if ( !aux_ptr )
+    {
+        return;
+    }
+
+    if ( !aux_ptr->ReadCCEFile( file_name ) )
+    {
+        ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadAuxiliaryGeomCCEFile::Can't Read File " + file_name );
+        return;
+    }
+
+    aux_ptr->Update();
+
+    ErrorMgr.NoError();
+}
+
+//===================================================================//
+//=================       Stack Geom Functions      =================//
+//===================================================================//
+
+void InitStackPreset( const string &geom_id, int preset )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "InitStackPreset::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    StackGeom* stack_ptr = dynamic_cast< StackGeom* > ( geom_ptr );
+
+    if ( !stack_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "InitStackPreset::Geom " + geom_id + " is not a StackGeom" );
+        return;
+    }
+
+    if ( preset < STACK_PRESET_DEFAULT || preset > STACK_PRESET_FLOWPATH_OUT )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "InitStackPreset::Invalid Preset " + to_string( preset ) );
+        return;
+    }
+
+    stack_ptr->InitParms( preset );
+    stack_ptr->Update();
+
+    ErrorMgr.NoError();
+}
 
 string CreateAndAddBogie( const string &gear_id )
 {

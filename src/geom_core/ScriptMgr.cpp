@@ -2273,6 +2273,44 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "STACK_PRESETS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_DEFAULT", STACK_PRESET_DEFAULT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_CYLINDER_ENDPTS", STACK_PRESET_CYLINDER_ENDPTS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_CYLINDER_ENDCAPS", STACK_PRESET_CYLINDER_ENDCAPS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_FLOWTHRU_OUTLIP_ORIG", STACK_PRESET_FLOWTHRU_OUTLIP_ORIG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_FLOWTHRU_INLIP_ORIG", STACK_PRESET_FLOWTHRU_INLIP_ORIG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_FLOWTHRU_MID_ORIG", STACK_PRESET_FLOWTHRU_MID_ORIG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_BOTHFACEFACE", STACK_PRESET_BOTHFACEFACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_BOTHLIPFACE", STACK_PRESET_BOTHLIPFACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_BOTHFACELIP", STACK_PRESET_BOTHFACELIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_BOTHLIPLIP", STACK_PRESET_BOTHLIPLIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_OUTFACE", STACK_PRESET_OUTFACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_OUTLIP", STACK_PRESET_OUTLIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_INFACE", STACK_PRESET_INFACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_INLIP", STACK_PRESET_INLIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_FLOWPATH_BOTH", STACK_PRESET_FLOWPATH_BOTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_FLOWPATH_IN", STACK_PRESET_FLOWPATH_IN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_FLOWPATH_OUT", STACK_PRESET_FLOWPATH_OUT );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "STEP_REPRESENTATION" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "STEP_REPRESENTATION", "STEP_SHELL", STEP_SHELL );
@@ -3955,6 +3993,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     r = se->RegisterGlobalFunction( "void DelAllBogies( const string & in gear_id )", asFUNCTION( vsp::DelAllBogies ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetAuxiliaryGeomContactPtID( const string & in geom_id, int index, const string & in bogie_id )", asFUNCTION( vsp::SetAuxiliaryGeomContactPtID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetAuxiliaryGeomContactPtID( const string & in geom_id, int index )", asFUNCTION( vsp::GetAuxiliaryGeomContactPtID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ReadAuxiliaryGeomCCEFile( const string & in geom_id, const string & in file_name )", asFUNCTION( vsp::ReadAuxiliaryGeomCCEFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void InitStackPreset( const string & in geom_id, int preset )", asFUNCTION( vsp::InitStackPreset ), asCALL_CDECL );
     assert( r >= 0 );
 
 

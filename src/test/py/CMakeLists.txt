@@ -12,6 +12,8 @@ CONFIGURE_FILE( ${VSP_SOURCE_DIR}/../TestXSec.fxs
                 ${CMAKE_CURRENT_BINARY_DIR}/TestXSec.fxs COPYONLY )
 CONFIGURE_FILE( ${VSP_SOURCE_DIR}/../examples/airfoil/N0012_VSP.af
                 ${CMAKE_CURRENT_BINARY_DIR}/airfoil/N0012_VSP.af COPYONLY )
+CONFIGURE_FILE( ${VSP_SOURCE_DIR}/../examples/CCE/SD-24L.cce
+                ${CMAKE_CURRENT_BINARY_DIR}/CCE/SD-24L.cce COPYONLY )
 
 ADD_TEST( NAME PySampleCodeTest COMMAND ${PYTHON_VENV_EXE} -m unittest openvsp.tests.test_vsp_api
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
