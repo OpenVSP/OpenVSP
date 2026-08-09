@@ -151,7 +151,7 @@ vector < string > Mode::GetAllSettings() const
 
     for ( int i = 0; i < m_GroupSettingVec.size(); i++ )
     {
-        settings[i] = m_GroupSettingVec[i].first;
+        settings[i] = m_GroupSettingVec[i].second;
     }
     return settings;
 }

@@ -22230,6 +22230,36 @@ extern string AddVarPresetSetting( const std::string &group_id, const std::strin
     string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( gid, p1 );
+
+    // The Parm has to show up in the group's list, and only once.
+    array< string > @parm_ids = GetVarPresetParmIDs( gid );
+
+    if ( parm_ids.size() != 1 || parm_ids[0] != p1 )
+    {
+        Print( "ERROR: AddVarPresetParm did not add the Parm to the group" );
+        __failure++;
+    }
+
+    // Adding it again has to be rejected rather than duplicating it.
+    AddVarPresetParm( gid, p1 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: AddVarPresetParm accepted the same Parm twice" );
+        __failure++;
+    }
+
+    if ( GetVarPresetParmIDs( gid ).size() != 1 )
+    {
+        Print( "ERROR: AddVarPresetParm added the same Parm twice" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -22244,6 +22274,25 @@ extern string AddVarPresetSetting( const std::string &group_id, const std::strin
     p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( gid, p1 )
+
+    # The Parm has to show up in the group's list, and only once.
+    parm_ids = GetVarPresetParmIDs( gid )
+
+    assert len( parm_ids ) == 1, "AddVarPresetParm did not add the Parm to the group"
+    assert parm_ids[0] == p1, "AddVarPresetParm added the wrong Parm"
+
+    # Adding it again has to be rejected rather than duplicating it.  The error
+    # queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    AddVarPresetParm( gid, p1 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "AddVarPresetParm accepted the same Parm twice"
+    assert len( GetVarPresetParmIDs( gid ) ) == 1, "AddVarPresetParm added the same Parm twice"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -22492,6 +22541,29 @@ extern void SetVarPresetParmVal( const std::string &group_id, const std::string 
 
     double val = GetVarPresetParmVal( gid, sid, p1 );
 
+    // A Parm joins the group at its current value.
+    if ( !closeTo( val, GetParmVal( p1 ), 1e-9 ) )
+    {
+        Print( "ERROR: GetVarPresetParmVal does not match the Parm" );
+        __failure++;
+    }
+
+    // Storing a different value has to be what comes back, without disturbing
+    // the Parm itself.
+    SetVarPresetParmVal( gid, sid, p1, val + 3.0 );
+
+    if ( !closeTo( GetVarPresetParmVal( gid, sid, p1 ), val + 3.0, 1e-9 ) )
+    {
+        Print( "ERROR: GetVarPresetParmVal did not follow SetVarPresetParmVal" );
+        __failure++;
+    }
+
+    if ( !closeTo( GetParmVal( p1 ), val, 1e-9 ) )
+    {
+        Print( "ERROR: storing a preset value changed the Parm" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -22508,6 +22580,16 @@ extern void SetVarPresetParmVal( const std::string &group_id, const std::string 
     AddVarPresetParm( gid, p1 )
 
     val = GetVarPresetParmVal( gid, sid, p1 )
+
+    # A Parm joins the group at its current value.
+    assert abs( val - GetParmVal( p1 ) ) < 1e-9, "GetVarPresetParmVal does not match the Parm"
+
+    # Storing a different value has to be what comes back, without disturbing the
+    # Parm itself.
+    SetVarPresetParmVal( gid, sid, p1, val + 3.0 )
+
+    assert abs( GetVarPresetParmVal( gid, sid, p1 ) - ( val + 3.0 ) ) < 1e-9, "GetVarPresetParmVal did not follow SetVarPresetParmVal"
+    assert abs( GetParmVal( p1 ) - val ) < 1e-9, "storing a preset value changed the Parm"
 
     \endcode
     \endPythonOnly
@@ -22966,7 +23048,19 @@ extern void SetVarPresetParmVals( const std::string &setting_id, const std::vect
 
     AddVarPresetParm( gid, p1 );
 
+    // Move the Parm away from whatever the setting holds, then save.
+    SetParmVal( p1, GetParmVal( p1 ) + 4.0 );
+
+    Update();
+
     SaveVarPresetParmVals( gid, sid );
+
+    // The setting now holds the Parm's current value.
+    if ( !closeTo( GetVarPresetParmVal( gid, sid, p1 ), GetParmVal( p1 ), 1e-9 ) )
+    {
+        Print( "ERROR: SaveVarPresetParmVals did not capture the current value" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -22983,7 +23077,15 @@ extern void SetVarPresetParmVals( const std::string &setting_id, const std::vect
 
     AddVarPresetParm( gid, p1 )
 
+    # Move the Parm away from whatever the setting holds, then save.
+    SetParmVal( p1, GetParmVal( p1 ) + 4.0 )
+
+    Update()
+
     SaveVarPresetParmVals( gid, sid )
+
+    # The setting now holds the Parm's current value.
+    assert abs( GetVarPresetParmVal( gid, sid, p1 ) - GetParmVal( p1 ) ) < 1e-9, "SaveVarPresetParmVals did not capture the current value"
 
     \endcode
     \endPythonOnly
@@ -23011,9 +23113,25 @@ extern void SaveVarPresetParmVals( const std::string &group_id, const std::strin
 
     AddVarPresetParm( gid, p1 );
 
+    // Store a value in the setting, move the Parm somewhere else, then apply.
+    double target = GetParmVal( p1 ) + 5.0;
+
+    SetVarPresetParmVal( gid, sid, p1, target );
+
+    SetParmVal( p1, GetParmVal( p1 ) - 2.0 );
+
+    Update();
+
     ApplyVarPresetSetting( gid, sid );
 
     Update();
+
+    // Applying the setting drives the Parm to the stored value.
+    if ( !closeTo( GetParmVal( p1 ), target, 1e-9 ) )
+    {
+        Print( "ERROR: ApplyVarPresetSetting did not apply the stored value" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -23030,9 +23148,21 @@ extern void SaveVarPresetParmVals( const std::string &group_id, const std::strin
 
     AddVarPresetParm( gid, p1 )
 
+    # Store a value in the setting, move the Parm somewhere else, then apply.
+    target = GetParmVal( p1 ) + 5.0
+
+    SetVarPresetParmVal( gid, sid, p1, target )
+
+    SetParmVal( p1, GetParmVal( p1 ) - 2.0 )
+
+    Update()
+
     ApplyVarPresetSetting( gid, sid )
 
     Update()
+
+    # Applying the setting drives the Parm to the stored value.
+    assert abs( GetParmVal( p1 ) - target ) < 1e-9, "ApplyVarPresetSetting did not apply the stored value"
 
     \endcode
     \endPythonOnly
@@ -23083,8 +23213,8 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -23114,7 +23244,7 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -23160,8 +23290,8 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -23191,10 +23321,13 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
+
+    assert len( mid1 ) > 0 and mid1 != "NONE", "CreateAndAddMode returned no id"
+    assert mid1 != mid2, "CreateAndAddMode reused an ID"
 
     \endcode
     \endPythonOnly
@@ -23245,8 +23378,8 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -23276,7 +23409,7 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -23325,8 +23458,8 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -23356,7 +23489,7 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -23411,8 +23544,8 @@ extern int GetNumModes();
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -23442,7 +23575,7 @@ extern int GetNumModes();
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -23490,8 +23623,8 @@ extern int GetNumModes();
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -23521,7 +23654,7 @@ extern int GetNumModes();
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -23575,8 +23708,8 @@ extern vector < string > GetAllModes();
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -23606,7 +23739,7 @@ extern vector < string > GetAllModes();
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -23656,8 +23789,8 @@ extern vector < string > GetAllModes();
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -23687,7 +23820,7 @@ extern vector < string > GetAllModes();
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -23743,8 +23876,8 @@ extern void DelMode( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -23774,7 +23907,7 @@ extern void DelMode( const string &mid );
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -23823,8 +23956,8 @@ extern void DelMode( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -23854,7 +23987,7 @@ extern void DelMode( const string &mid );
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -23908,8 +24041,8 @@ extern void DelAllModes();
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -23939,10 +24072,51 @@ extern void DelAllModes();
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
+
+    // Each Mode carries the pairings it was given, in order.
+    array<string> gids = ModeGetAllGroups( mid1 );
+    array<string> sids = ModeGetAllSettings( mid1 );
+
+    if ( gids.size() != 2 || gids[0] != gid || gids[1] != gid2 ||
+         sids.size() != 2 || sids[0] != sid1 || sids[1] != sid4 )
+    {
+        Print( "ERROR: the Mode did not record the pairings it was given" );
+        __failure++;
+    }
+
+    if ( ModeGetAllGroups( mid2 ).size() != 2 )
+    {
+        Print( "ERROR: the second Mode did not record its pairings" );
+        __failure++;
+    }
+
+    // ThinAero carries the Fine tessellation and the LongThin design, so
+    // applying it has to drive all four Parms to those stored values.
+    if ( !closeTo( GetParmVal( p1 ), 35, 1e-9 ) || !closeTo( GetParmVal( p2 ), 21, 1e-9 ) )
+    {
+        Print( "ERROR: the tessellation group was not applied" );
+        __failure++;
+    }
+
+    if ( !closeTo( GetParmVal( p3 ), 20.0, 1e-9 ) || !closeTo( GetParmVal( p4 ), 35.0, 1e-9 ) )
+    {
+        Print( "ERROR: the design group was not applied" );
+        __failure++;
+    }
+
+    // The other Mode holds different values, so switching has to move them.
+    ApplyModeSettings( mid1 );
+    Update();
+
+    if ( !closeTo( GetParmVal( p1 ), 3, 1e-9 ) || !closeTo( GetParmVal( p3 ), 3.0, 1e-9 ) )
+    {
+        Print( "ERROR: switching Modes did not change the Parms" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -23980,8 +24154,8 @@ extern void DelAllModes();
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -24011,10 +24185,32 @@ extern void DelAllModes();
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
+
+    # Each Mode carries the pairings it was given, in order.
+    gids = ModeGetAllGroups( mid1 )
+    sids = ModeGetAllSettings( mid1 )
+
+    assert len( gids ) == 2 and gids[0] == gid and gids[1] == gid2, "the Mode did not record the pairings it was given"
+    assert len( sids ) == 2 and sids[0] == sid1 and sids[1] == sid4, "the Mode did not record the pairings it was given"
+    assert len( ModeGetAllGroups( mid2 ) ) == 2, "the second Mode did not record its pairings"
+
+    # ThinAero carries the Fine tessellation and the LongThin design, so applying
+    # it has to drive all four Parms to those stored values.
+    assert abs( GetParmVal( p1 ) - 35 ) < 1e-9, "the tessellation group was not applied"
+    assert abs( GetParmVal( p2 ) - 21 ) < 1e-9, "the tessellation group was not applied"
+    assert abs( GetParmVal( p3 ) - 20.0 ) < 1e-9, "the design group was not applied"
+    assert abs( GetParmVal( p4 ) - 35.0 ) < 1e-9, "the design group was not applied"
+
+    # The other Mode holds different values, so switching has to move them.
+    ApplyModeSettings( mid1 )
+    Update()
+
+    assert abs( GetParmVal( p1 ) - 3 ) < 1e-9, "switching Modes did not change the Parms"
+    assert abs( GetParmVal( p3 ) - 3.0 ) < 1e-9, "switching Modes did not change the Parms"
 
     \endcode
     \endPythonOnly
@@ -24062,8 +24258,8 @@ extern void ApplyModeSettings( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -24093,7 +24289,7 @@ extern void ApplyModeSettings( const string &mid );
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -24136,8 +24332,8 @@ extern void ApplyModeSettings( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -24167,7 +24363,7 @@ extern void ApplyModeSettings( const string &mid );
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -24220,8 +24416,8 @@ extern void ShowOnlyMode( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -24251,10 +24447,51 @@ extern void ShowOnlyMode( const string &mid );
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
+
+    // Each Mode carries the pairings it was given, in order.
+    array<string> gids = ModeGetAllGroups( mid1 );
+    array<string> sids = ModeGetAllSettings( mid1 );
+
+    if ( gids.size() != 2 || gids[0] != gid || gids[1] != gid2 ||
+         sids.size() != 2 || sids[0] != sid1 || sids[1] != sid4 )
+    {
+        Print( "ERROR: the Mode did not record the pairings it was given" );
+        __failure++;
+    }
+
+    if ( ModeGetAllGroups( mid2 ).size() != 2 )
+    {
+        Print( "ERROR: the second Mode did not record its pairings" );
+        __failure++;
+    }
+
+    // ThinAero carries the Fine tessellation and the LongThin design, so
+    // applying it has to drive all four Parms to those stored values.
+    if ( !closeTo( GetParmVal( p1 ), 35, 1e-9 ) || !closeTo( GetParmVal( p2 ), 21, 1e-9 ) )
+    {
+        Print( "ERROR: the tessellation group was not applied" );
+        __failure++;
+    }
+
+    if ( !closeTo( GetParmVal( p3 ), 20.0, 1e-9 ) || !closeTo( GetParmVal( p4 ), 35.0, 1e-9 ) )
+    {
+        Print( "ERROR: the design group was not applied" );
+        __failure++;
+    }
+
+    // The other Mode holds different values, so switching has to move them.
+    ApplyModeSettings( mid1 );
+    Update();
+
+    if ( !closeTo( GetParmVal( p1 ), 3, 1e-9 ) || !closeTo( GetParmVal( p3 ), 3.0, 1e-9 ) )
+    {
+        Print( "ERROR: switching Modes did not change the Parms" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -24292,8 +24529,8 @@ extern void ShowOnlyMode( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -24323,10 +24560,32 @@ extern void ShowOnlyMode( const string &mid );
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
+
+    # Each Mode carries the pairings it was given, in order.
+    gids = ModeGetAllGroups( mid1 )
+    sids = ModeGetAllSettings( mid1 )
+
+    assert len( gids ) == 2 and gids[0] == gid and gids[1] == gid2, "the Mode did not record the pairings it was given"
+    assert len( sids ) == 2 and sids[0] == sid1 and sids[1] == sid4, "the Mode did not record the pairings it was given"
+    assert len( ModeGetAllGroups( mid2 ) ) == 2, "the second Mode did not record its pairings"
+
+    # ThinAero carries the Fine tessellation and the LongThin design, so applying
+    # it has to drive all four Parms to those stored values.
+    assert abs( GetParmVal( p1 ) - 35 ) < 1e-9, "the tessellation group was not applied"
+    assert abs( GetParmVal( p2 ) - 21 ) < 1e-9, "the tessellation group was not applied"
+    assert abs( GetParmVal( p3 ) - 20.0 ) < 1e-9, "the design group was not applied"
+    assert abs( GetParmVal( p4 ) - 35.0 ) < 1e-9, "the design group was not applied"
+
+    # The other Mode holds different values, so switching has to move them.
+    ApplyModeSettings( mid1 )
+    Update()
+
+    assert abs( GetParmVal( p1 ) - 3 ) < 1e-9, "switching Modes did not change the Parms"
+    assert abs( GetParmVal( p3 ) - 3.0 ) < 1e-9, "switching Modes did not change the Parms"
 
     \endcode
     \endPythonOnly
@@ -24376,8 +24635,8 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -24407,7 +24666,7 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -24456,8 +24715,8 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -24487,7 +24746,7 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -24544,8 +24803,8 @@ extern string ModeGetGroup( const string &mid, int indx );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -24575,7 +24834,7 @@ extern string ModeGetGroup( const string &mid, int indx );
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -24624,8 +24883,8 @@ extern string ModeGetGroup( const string &mid, int indx );
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -24655,7 +24914,7 @@ extern string ModeGetGroup( const string &mid, int indx );
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -24712,8 +24971,8 @@ extern string ModeGetSetting( const string &mid, int indx );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -24743,7 +25002,7 @@ extern string ModeGetSetting( const string &mid, int indx );
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -24786,8 +25045,8 @@ extern string ModeGetSetting( const string &mid, int indx );
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -24817,7 +25076,7 @@ extern string ModeGetSetting( const string &mid, int indx );
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -24871,8 +25130,8 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -24902,7 +25161,7 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -24945,8 +25204,8 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -24976,7 +25235,7 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -25030,8 +25289,8 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -25061,7 +25320,7 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -25104,8 +25363,8 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -25135,7 +25394,7 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
@@ -25189,8 +25448,8 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     SetVarPresetParmVal( gid, sid1, p2, 5 );
 
     string sid2 = AddVarPresetSetting( gid, "Fine" );
-    SetVarPresetParmVal( gid, sid, p1, 35 );
-    SetVarPresetParmVal( gid, sid, p2, 21 );
+    SetVarPresetParmVal( gid, sid2, p1, 35 );
+    SetVarPresetParmVal( gid, sid2, p2, 21 );
 
 
     string gid2 = AddVarPresetGroup( "Design" );
@@ -25220,7 +25479,7 @@ extern void RemoveGroupSetting( const string &mid, int indx );
 
     string mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 );
     ModeAddGroupSetting( mid2, gid, sid2 );
-    ModeAddGroupSetting( mid1, gid2, sid5 );
+    ModeAddGroupSetting( mid2, gid2, sid5 );
 
     ApplyModeSettings( mid2 );
     Update();
@@ -25263,8 +25522,8 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     SetVarPresetParmVal( gid, sid1, p2, 5 )
 
     sid2 = AddVarPresetSetting( gid, "Fine" )
-    SetVarPresetParmVal( gid, sid, p1, 35 )
-    SetVarPresetParmVal( gid, sid, p2, 21 )
+    SetVarPresetParmVal( gid, sid2, p1, 35 )
+    SetVarPresetParmVal( gid, sid2, p2, 21 )
 
 
     gid2 = AddVarPresetGroup( "Design" )
@@ -25294,7 +25553,7 @@ extern void RemoveGroupSetting( const string &mid, int indx );
 
     mid2 = CreateAndAddMode( "ThinAero", SET_FIRST_USER, SET_FIRST_USER + 1 )
     ModeAddGroupSetting( mid2, gid, sid2 )
-    ModeAddGroupSetting( mid1, gid2, sid5 )
+    ModeAddGroupSetting( mid2, gid2, sid5 )
 
     ApplyModeSettings( mid2 )
     Update()
