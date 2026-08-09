@@ -14184,6 +14184,12 @@ extern void DelBogie( const string &gear_id, const string &bogie_id );
     CreateAndAddBogie( gear_id );
 
     DelAllBogies( gear_id );                            // GetNumBogies( gear_id ) == 0
+    if ( GetNumBogies( gear_id ) != 0 )
+    {
+        Print( "ERROR: DelAllBogies left something behind" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14194,6 +14200,8 @@ extern void DelBogie( const string &gear_id, const string &bogie_id );
     CreateAndAddBogie( gear_id )
 
     DelAllBogies( gear_id )                            # GetNumBogies( gear_id ) == 0
+    assert GetNumBogies( gear_id ) == 0, "DelAllBogies left something behind"
+
     \endcode
     \endPythonOnly
     \sa CreateAndAddBogie, DelBogie
@@ -14485,6 +14493,12 @@ extern void DelRoutingPt( const string &routing_id, int index );
     SetParmVal(u2, 1.0);
 
     DelAllRoutingPt( routing_geom );
+    if ( GetNumRoutingPts( routing_geom ) != 0 )
+    {
+        Print( "ERROR: DelAllRoutingPt left something behind" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14508,6 +14522,8 @@ extern void DelRoutingPt( const string &routing_id, int index );
     vsp.SetParmVal(u2, 1.0)
 
     vsp.DelAllRoutingPt( routing_geom )
+
+    assert vsp.GetNumRoutingPts( routing_geom ) == 0, "DelAllRoutingPt left something behind"
     \endcode
     \endPythonOnly
     \sa AddRoutingPt, DelRoutingPt
@@ -18559,15 +18575,48 @@ extern void DeleteUserParm( const std::string & id );
     \ingroup ParmContainer
 */
 /*!
-    Get the user parm container ID
+    Delete all user created Parms.  The predefined User_0 through User_15 Parms
+    belong to the vehicle and are not removed.
     \forcpponly
     \code{.cpp}
+    // A fresh model already carries the predefined user Parms, so record the
+    // starting count rather than expecting to end at zero.
+    int num_before = GetNumUserParms();
+
+    AddUserParm( PARM_DOUBLE_TYPE, "Param1", "Group1" );
+    AddUserParm( PARM_DOUBLE_TYPE, "Param2", "Group1" );
+
+    if ( GetNumUserParms() != num_before + 2 )
+    {
+        Print( "ERROR: AddUserParm" );
+        __failure++;
+    }
+
     DeleteAllUserParm();
+
+    if ( GetNumUserParms() != num_before )
+    {
+        Print( "ERROR: DeleteAllUserParm" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    # A fresh model already carries the predefined user Parms, so record the
+    # starting count rather than expecting to end at zero.
+    num_before = GetNumUserParms()
+
+    AddUserParm( PARM_DOUBLE_TYPE, "Param1", "Group1" )
+    AddUserParm( PARM_DOUBLE_TYPE, "Param2", "Group1" )
+
+    assert GetNumUserParms() == num_before + 2, "AddUserParm"
+
     DeleteAllUserParm()
+
+    assert GetNumUserParms() == num_before, "DeleteAllUserParm"
+
 
     \endcode
     \endPythonOnly
@@ -20257,6 +20306,12 @@ extern void DelMode( const string &mid );
     Update();
 
     DelAllModes();
+    if ( GetNumModes() != 0 )
+    {
+        Print( "ERROR: DelAllModes left something behind" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -20331,6 +20386,8 @@ extern void DelMode( const string &mid );
     Update()
 
     DelAllModes()
+    assert GetNumModes() == 0, "DelAllModes left something behind"
+
 
     \endcode
     \endPythonOnly
@@ -25678,6 +25735,12 @@ extern void DelRuler( const string &id );
     string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
 
     DeleteAllRulers();
+    if ( GetAllRulers().length() != 0 )
+    {
+        Print( "ERROR: DeleteAllRulers left something behind" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25695,6 +25758,8 @@ extern void DelRuler( const string &id );
     rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
 
     DeleteAllRulers()
+    assert len( GetAllRulers() ) == 0, "DeleteAllRulers left something behind"
+
 
     \endcode
     \endPythonOnly
