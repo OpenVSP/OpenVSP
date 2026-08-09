@@ -2529,6 +2529,75 @@ extern std::string GetCFDSourceName( const std::string & geom_id, int source_ind
     \return int CFD Mesh source type enum (i.e. POINT_SOURCE)
 */
 
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Set the name of a CFD Mesh source on the specified Geom
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
+
+    SetCFDSourceName( pid, 0, "ExampleSource" );
+
+    if ( GetCFDSourceName( pid, 0 ) != "ExampleSource" )
+    {
+        Print( "ERROR: SetCFDSourceName did not take" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    SetCFDSourceName( pid, GetNumCFDSources( pid ), "ExampleSource" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetCFDSourceName accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geom ====//
+    pid = AddGeom( "POD", "" )
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
+
+    SetCFDSourceName( pid, 0, "ExampleSource" )
+
+    assert GetCFDSourceName( pid, 0 ) == "ExampleSource", "SetCFDSourceName did not take"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetCFDSourceName( pid, GetNumCFDSources( pid ), "ExampleSource" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetCFDSourceName accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa GetCFDSourceName, GetNumCFDSources
+    \param [in] geom_id string Geom ID
+    \param [in] source_index int Source index
+    \param [in] name string Source name
+*/
+
+extern void SetCFDSourceName( const std::string & geom_id, int source_index, const std::string & name );
+
 extern int GetCFDSourceType( const std::string & geom_id, int source_index );
 
 /*!
@@ -11689,6 +11758,66 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
     \endPythonOnly
 */
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the index of the FEA Structure the FEA Mesh Manager is currently pointed at
+    \forcpponly
+    \code{.cpp}
+
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    int struct_ind_2 = AddFeaStruct( pod_id );
+
+    SetFeaMeshStructIndex( struct_ind_2 );
+
+    if ( GetFeaMeshStructIndex() != struct_ind_2 )
+    {
+        Print( "ERROR: GetFeaMeshStructIndex did not report the Structure that was set" );
+        __failure++;
+    }
+
+    SetFeaMeshStructIndex( struct_ind );
+
+    if ( GetFeaMeshStructIndex() != struct_ind )
+    {
+        Print( "ERROR: GetFeaMeshStructIndex did not follow a second set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    struct_ind_2 = AddFeaStruct( pod_id )
+
+    SetFeaMeshStructIndex( struct_ind_2 )
+
+    assert GetFeaMeshStructIndex() == struct_ind_2, "GetFeaMeshStructIndex did not report the Structure that was set"
+
+    SetFeaMeshStructIndex( struct_ind )
+
+    assert GetFeaMeshStructIndex() == struct_ind, "GetFeaMeshStructIndex did not follow a second set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaMeshStructIndex
+    \return int FEA Structure index
+*/
+
+extern int GetFeaMeshStructIndex();
+
 extern void SetFeaMeshStructIndex( int struct_index );
 
 /*!
@@ -16744,6 +16873,71 @@ extern void ResetXSecSkinParms( const std::string& xsec_id );
     \param [in] xsec_id string XSec ID
     \param [in] cx int Continuity level (0, 1, or 2)
 */
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the C-type continuity enforcement for a particular XSec
+    \forcpponly
+    \code{.cpp}
+    string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
+
+    string xsec_surf = GetXSecSurf( fid, 0 );           // Get First (and Only) XSec Surf
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    SetXSecContinuity( xsec, 1 );
+
+    if ( GetXSecContinuity( xsec ) != 1 )
+    {
+        Print( "ERROR: GetXSecContinuity did not report the level that was set" );
+        __failure++;
+    }
+
+    SetXSecContinuity( xsec, 0 );
+
+    if ( GetXSecContinuity( xsec ) != 0 )
+    {
+        Print( "ERROR: GetXSecContinuity did not follow a second set" );
+        __failure++;
+    }
+
+    // The level is the section's continuity Parm, so the two have to agree.
+    if ( !closeTo( GetParmVal( GetXSecParm( xsec, "ContinuityTop" ) ), GetXSecContinuity( xsec ), 1e-12 ) )
+    {
+        Print( "ERROR: the continuity level disagrees with its Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+
+    xsec_surf = GetXSecSurf( fid, 0 )           # Get First (and Only) XSec Surf
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    SetXSecContinuity( xsec, 1 )
+
+    assert GetXSecContinuity( xsec ) == 1, "GetXSecContinuity did not report the level that was set"
+
+    SetXSecContinuity( xsec, 0 )
+
+    assert GetXSecContinuity( xsec ) == 0, "GetXSecContinuity did not follow a second set"
+
+    # The level is the section's continuity Parm, so the two have to agree.
+    assert abs( GetParmVal( GetXSecParm( xsec, "ContinuityTop" ) ) - GetXSecContinuity( xsec ) ) < 1e-12, "the continuity level disagrees with its Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa SetXSecContinuity
+    \param [in] xsec_id string XSec ID
+    \return int Continuity level (0, 1, or 2)
+*/
+
+extern int GetXSecContinuity( const std::string& xsec_id );
 
 extern void SetXSecContinuity( const std::string& xsec_id, int cx );
 
@@ -24108,6 +24302,82 @@ extern std::string FindContainer( const std::string & name, int index );
     \return string Parm Container name
 */
 
+/*!
+    \ingroup ParmContainer
+*/
+/*!
+    Set the name of the specified Parm Container.  This is the general counterpart to
+    GetContainerName and works on any container reached by ID.  Containers that derive their
+    name from what they hold, such as an unsteady group, will overwrite it on their next update.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "POD" );
+
+    SetContainerName( pid, "ExampleContainerName" );
+
+    if ( GetContainerName( pid ) != "ExampleContainerName" )
+    {
+        Print( "ERROR: SetContainerName did not take" );
+        __failure++;
+    }
+
+    // A Geom's container name is its Geom name, so the two agree.
+    if ( GetGeomName( pid ) != "ExampleContainerName" )
+    {
+        Print( "ERROR: SetContainerName disagrees with GetGeomName" );
+        __failure++;
+    }
+
+    // A container that does not exist has to be rejected.
+    SetContainerName( "NOSUCHCONTAINER", "ExampleContainerName" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetContainerName accepted a bad container ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pid = AddGeom( "POD" )
+
+    SetContainerName( pid, "ExampleContainerName" )
+
+    assert GetContainerName( pid ) == "ExampleContainerName", "SetContainerName did not take"
+
+    # A Geom's container name is its Geom name, so the two agree.
+    assert GetGeomName( pid ) == "ExampleContainerName", "SetContainerName disagrees with GetGeomName"
+
+    # A container that does not exist has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetContainerName( "NOSUCHCONTAINER", "ExampleContainerName" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetContainerName accepted a bad container ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa GetContainerName, FindContainer
+    \param [in] parm_container_id string Parm Container ID
+    \param [in] name string Parm Container name
+*/
+
+extern void SetContainerName( const std::string & parm_container_id, const std::string & name );
+
 extern std::string GetContainerName( const std::string & parm_container_id );
 
 /*!
@@ -26771,6 +27041,117 @@ extern void DelAllModes();
     \endPythonOnly
     \param [in] mid string Mode ID of mode to apply
 */
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Get the name of a Mode.
+    \forcpponly
+    \code{.cpp}
+    string mid = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+
+    if ( GetModeName( mid ) != "FatWetAreas" )
+    {
+        Print( "ERROR: GetModeName did not report the name the Mode was created with" );
+        __failure++;
+    }
+
+    // A Mode that does not exist has to be rejected.
+    GetModeName( "NOSUCHMODE" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetModeName accepted a bad Mode ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    mid = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+
+    assert GetModeName( mid ) == "FatWetAreas", "GetModeName did not report the name the Mode was created with"
+
+    # A Mode that does not exist has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetModeName( "NOSUCHMODE" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetModeName accepted a bad Mode ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CreateAndAddMode, SetModeName
+    \param [in] mid string Mode ID
+    \return string Mode name
+*/
+
+extern string GetModeName( const string &mid );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Set the name of a Mode.
+    \forcpponly
+    \code{.cpp}
+    string mid = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE );
+
+    SetModeName( mid, "RenamedMode" );
+
+    if ( GetModeName( mid ) != "RenamedMode" )
+    {
+        Print( "ERROR: SetModeName did not take" );
+        __failure++;
+    }
+
+    // Renaming one Mode leaves the others alone.
+    string mid2 = CreateAndAddMode( "ThinAero", SET_ALL, SET_NONE );
+
+    SetModeName( mid, "RenamedAgain" );
+
+    if ( GetModeName( mid2 ) != "ThinAero" )
+    {
+        Print( "ERROR: renaming one Mode disturbed another" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    mid = CreateAndAddMode( "FatWetAreas", SET_ALL, SET_NONE )
+
+    SetModeName( mid, "RenamedMode" )
+
+    assert GetModeName( mid ) == "RenamedMode", "SetModeName did not take"
+
+    # Renaming one Mode leaves the others alone.
+    mid2 = CreateAndAddMode( "ThinAero", SET_ALL, SET_NONE )
+
+    SetModeName( mid, "RenamedAgain" )
+
+    assert GetModeName( mid2 ) == "ThinAero", "renaming one Mode disturbed another"
+
+    \endcode
+    \endPythonOnly
+    \sa CreateAndAddMode, GetModeName
+    \param [in] mid string Mode ID
+    \param [in] name string Mode name
+*/
+
+extern void SetModeName( const string &mid, const string &name );
 
 extern void ApplyModeSettings( const string &mid );
 
@@ -34293,6 +34674,153 @@ extern int GetLinkIndex( const string & name );
     \endPythonOnly
     \param [in] index int Index for advanced link
 */
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Get the name of an advanced link.
+    \forcpponly
+    \code{.cpp}
+    AddAdvLink( "ExampleLink" );
+
+    int indx = GetLinkIndex( "ExampleLink" );
+
+    if ( GetAdvLinkName( indx ) != "ExampleLink" )
+    {
+        Print( "ERROR: GetAdvLinkName did not report the name the link was created with" );
+        __failure++;
+    }
+
+    // The single name and the list of names agree.
+    array< string > @link_array = GetAdvLinkNames();
+
+    if ( link_array.size() != 1 || link_array[0] != GetAdvLinkName( indx ) )
+    {
+        Print( "ERROR: GetAdvLinkName disagrees with GetAdvLinkNames" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    GetAdvLinkName( 100 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetAdvLinkName accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddAdvLink( "ExampleLink" )
+
+    indx = GetLinkIndex( "ExampleLink" )
+
+    assert GetAdvLinkName( indx ) == "ExampleLink", "GetAdvLinkName did not report the name the link was created with"
+
+    # The single name and the list of names agree.
+    link_array = GetAdvLinkNames()
+
+    assert len( link_array ) == 1, "GetAdvLinkName disagrees with GetAdvLinkNames"
+    assert link_array[0] == GetAdvLinkName( indx ), "GetAdvLinkName disagrees with GetAdvLinkNames"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetAdvLinkName( 100 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetAdvLinkName accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddAdvLink, GetAdvLinkNames, SetAdvLinkName
+    \param [in] index int Advanced link index
+    \return string Advanced link name
+*/
+
+extern std::string GetAdvLinkName( int index );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Set the name of an advanced link.
+    \forcpponly
+    \code{.cpp}
+    AddAdvLink( "ExampleLink" );
+
+    int indx = GetLinkIndex( "ExampleLink" );
+
+    SetAdvLinkName( indx, "RenamedLink" );
+
+    if ( GetAdvLinkName( indx ) != "RenamedLink" )
+    {
+        Print( "ERROR: SetAdvLinkName did not take" );
+        __failure++;
+    }
+
+    // The link is now found under its new name and not its old one.
+    if ( GetLinkIndex( "RenamedLink" ) != indx )
+    {
+        Print( "ERROR: the renamed link cannot be found under its new name" );
+        __failure++;
+    }
+
+    if ( GetLinkIndex( "ExampleLink" ) >= 0 )
+    {
+        Print( "ERROR: the renamed link is still found under its old name" );
+        __failure++;
+    }
+
+    // Looking up the old name raised an error on purpose, so take it back off
+    // the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddAdvLink( "ExampleLink" )
+
+    indx = GetLinkIndex( "ExampleLink" )
+
+    SetAdvLinkName( indx, "RenamedLink" )
+
+    assert GetAdvLinkName( indx ) == "RenamedLink", "SetAdvLinkName did not take"
+
+    # The link is now found under its new name and not its old one.
+    assert GetLinkIndex( "RenamedLink" ) == indx, "the renamed link cannot be found under its new name"
+    assert GetLinkIndex( "ExampleLink" ) < 0, "the renamed link is still found under its old name"
+
+    # Looking up the old name raised an error on purpose, so take it back off
+    # the queue.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddAdvLink, GetAdvLinkName, GetLinkIndex
+    \param [in] index int Advanced link index
+    \param [in] name string Advanced link name
+*/
+
+extern void SetAdvLinkName( int index, const std::string & name );
 
 extern void DelAdvLink( int index );
 

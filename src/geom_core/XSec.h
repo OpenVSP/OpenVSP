@@ -282,6 +282,10 @@ public:
 
     virtual void Reset();
     virtual void SetContinuity( int cx );
+    virtual int GetContinuity() const
+    {
+        return m_TopCont();
+    }
     virtual void SetTanAngles( int side, double top, double right, double bottom, double left );
     virtual void SetTanSlews( int side, double top, double right, double bottom, double left );
     virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );

@@ -895,6 +895,27 @@ string GetCFDSourceName( const string & geom_id, int source_index )
     return source_vec[ source_index ]->GetName();
 }
 
+void SetCFDSourceName( const string & geom_id, int source_index, const string & name )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, "SetCFDSourceName" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    vector< BaseSource* > source_vec = geom_ptr->GetCfdMeshMainSourceVec();
+
+    if ( source_index < 0 || source_index >= ( int )source_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetCFDSourceName::Source Index " + to_string( source_index ) + " Out of Range" );
+        return;
+    }
+
+    source_vec[ source_index ]->SetName( name );
+
+    ErrorMgr.NoError();
+}
+
 int GetCFDSourceType( const string & geom_id, int source_index )
 {
     Geom* geom_ptr = FindGeomForSources( geom_id, "GetCFDSourceType" );
@@ -3490,6 +3511,20 @@ int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
     return ( geom_ptr->NumGeomFeaStructs() - 1 );
 }
 
+int GetFeaMeshStructIndex()
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructID() );
+
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaMeshStructIndex::No Structure Is Current" );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return StructureMgr.GetTotFeaStructIndex( feastruct );
+}
+
 void SetFeaMeshStructIndex( int struct_index )
 {
     FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_index );
@@ -5337,6 +5372,25 @@ void ResetXSecSkinParms( const string& xsec_id )
 }
 
 //==== Set Continuity At XSec ====//
+int GetXSecContinuity( const string& xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecContinuity::Can't Find XSec " + xsec_id );
+        return -1;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecContinuity::Can't Convert To Skin XSec " + xsec_id );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return skinxs->GetContinuity();
+}
+
 void SetXSecContinuity( const string& xsec_id, int cx )
 {
     XSec* xs = FindXSec( xsec_id );
@@ -9073,6 +9127,23 @@ string FindContainer( const string & name, int index )
     return id_vec[index];
 }
 
+void SetContainerName( const string & parm_container_id, const string & name )
+{
+    ParmContainer* pc = ParmMgr.FindParmContainer( parm_container_id );
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetContainerName::Can't Find Parm Container " + parm_container_id );
+        return;
+    }
+
+    // SetName is virtual, so a container that does more than store the string
+    // -- a Geom updating its attributes, for instance -- still does it.
+    pc->SetName( name );
+
+    ErrorMgr.NoError();
+}
+
 string GetContainerName( const string & parm_container_id )
 {
     string ret_name;
@@ -9596,6 +9667,35 @@ void DelAllModes()
 {
     ErrorMgr.NoError();
     ModeMgr.DelAllModes();
+}
+
+string GetModeName( const string &mid )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetModeName::Could not find mode." );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return mod->GetName();
+}
+
+void SetModeName( const string &mid, const string &name )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetModeName::Could not find mode." );
+        return;
+    }
+
+    mod->SetName( name );
+
+    ErrorMgr.NoError();
 }
 
 void ApplyModeSettings( const string &mid )
@@ -11591,6 +11691,35 @@ int GetLinkIndex( const string & name )
 
     ErrorMgr.NoError();
     return indx;
+}
+
+string GetAdvLinkName( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAdvLinkName::Invalid Advanced Link Index " + to_string( index ) );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return adv_link->GetName();
+}
+
+void SetAdvLinkName( int index, const string & name )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetAdvLinkName::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->SetName( name );
+
+    ErrorMgr.NoError();
 }
 
 void DelAdvLink( int index )
