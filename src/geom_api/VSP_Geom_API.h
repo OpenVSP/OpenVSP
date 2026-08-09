@@ -1453,6 +1453,25 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     SetBEMPropID( prop_id );
 
     ExportFile( "ExampleBEM.bem", SET_ALL, EXPORT_BEM );
+
+    // A BEM export of a Geom that is not a propeller has to be rejected.
+    string pod_id = AddGeom( "POD" );
+
+    SetBEMPropID( pod_id );
+
+    ExportFile( "ExampleBEM.bem", SET_ALL, EXPORT_BEM );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: BEM export accepted a Geom that is not a propeller" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -1463,6 +1482,22 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     SetBEMPropID( prop_id )
 
     ExportFile( "ExampleBEM.bem", SET_ALL, EXPORT_BEM )
+
+    # A BEM export of a Geom that is not a propeller has to be rejected.  The
+    # error queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    pod_id = AddGeom( "POD" )
+
+    SetBEMPropID( pod_id )
+
+    ExportFile( "ExampleBEM.bem", SET_ALL, EXPORT_BEM )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "BEM export accepted a Geom that is not a propeller"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -2174,6 +2209,27 @@ extern string GetVSPAERORefWingID();
     Print( "VSPAERO Reference Wing ID: ", false );
 
     Print( GetVSPAERORefWingID() );
+
+    if ( GetVSPAERORefWingID() != wing_id )
+    {
+        Print( "ERROR: SetVSPAERORefWingID did not take" );
+        __failure++;
+    }
+
+    // Naming a Geom that does not exist has to be rejected.
+    SetVSPAERORefWingID( "NOSUCHGEOM" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetVSPAERORefWingID accepted a bad Geom ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2199,6 +2255,20 @@ extern string GetVSPAERORefWingID();
 
     print( GetVSPAERORefWingID() )
 
+    assert GetVSPAERORefWingID() == wing_id, "SetVSPAERORefWingID did not take"
+
+    # Naming a Geom that does not exist has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetVSPAERORefWingID( "NOSUCHGEOM" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetVSPAERORefWingID accepted a bad Geom ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
     \endcode
     \endPythonOnly
     \param [in] geom_id string Reference Geom ID
@@ -2219,6 +2289,21 @@ extern string SetVSPAERORefWingID( const std::string & geom_id );
     int nanalysis = GetNumAnalysis();
 
     Print( "Number of registered analyses: " + nanalysis );
+
+    // The count has to match the list of names.
+    array< string > @analysis_array = ListAnalysis();
+
+    if ( nanalysis != int( analysis_array.size() ) )
+    {
+        Print( "ERROR: GetNumAnalysis disagrees with ListAnalysis" );
+        __failure++;
+    }
+
+    if ( nanalysis < 1 )
+    {
+        Print( "ERROR: no analyses registered" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2226,6 +2311,12 @@ extern string SetVSPAERORefWingID( const std::string & geom_id );
     nanalysis = GetNumAnalysis()
 
     print( f"Number of registered analyses: {nanalysis}" )
+
+    # The count has to match the list of names.
+    analysis_array = ListAnalysis()
+
+    assert nanalysis == len( analysis_array ), "GetNumAnalysis disagrees with ListAnalysis"
+    assert nanalysis >= 1, "no analyses registered"
 
     \endcode
     \endPythonOnly
@@ -2248,6 +2339,35 @@ extern int GetNumAnalysis();
     for ( int i = 0; i < int( analysis_array.size() ); i++ )
     {
         Print( "    " + analysis_array[i] );
+
+        if ( analysis_array[i].length() == 0 )
+        {
+            Print( "ERROR: ListAnalysis returned an unnamed analysis" );
+            __failure++;
+        }
+    }
+
+    if ( int( analysis_array.size() ) != GetNumAnalysis() )
+    {
+        Print( "ERROR: ListAnalysis disagrees with GetNumAnalysis" );
+        __failure++;
+    }
+
+    // The analyses the rest of these examples lean on have to be there.
+    bool found = false;
+
+    for ( int i = 0; i < int( analysis_array.size() ); i++ )
+    {
+        if ( analysis_array[i] == "VSPAEROComputeGeometry" )
+        {
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        Print( "ERROR: VSPAEROComputeGeometry is not registered" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -2260,6 +2380,13 @@ extern int GetNumAnalysis();
     for i in range(int( len(analysis_array) )):
 
         print( "    " + analysis_array[i] )
+
+        assert len( analysis_array[i] ) > 0, "ListAnalysis returned an unnamed analysis"
+
+    assert len( analysis_array ) == GetNumAnalysis(), "ListAnalysis disagrees with GetNumAnalysis"
+
+    # The analyses the rest of these examples lean on have to be there.
+    assert "VSPAEROComputeGeometry" in analysis_array, "VSPAEROComputeGeometry is not registered"
 
     \endcode
     \endPythonOnly
@@ -2421,9 +2548,35 @@ extern int GetNumAnalysisInputData( const std::string & analysis, const std::str
 
     array < string > @ inp_array = GetAnalysisInputNames( analysis );
 
+    if ( inp_array.size() == 0 )
+    {
+        Print( "ERROR: GetAnalysisInputNames returned nothing" );
+        __failure++;
+    }
+
     for ( int j = 0; j < int( inp_array.size() ); j++ )
     {
         int typ = GetAnalysisInputType( analysis, inp_array[j] );
+
+        // Every input the analysis lists has to report a real data type.
+        if ( typ == INVALID_TYPE )
+        {
+            Print( "ERROR: GetAnalysisInputType returned INVALID_TYPE for " + inp_array[j] );
+            __failure++;
+        }
+    }
+
+    // An input that does not exist has to report INVALID_TYPE.
+    if ( GetAnalysisInputType( analysis, "NoSuchInput" ) != INVALID_TYPE )
+    {
+        Print( "ERROR: GetAnalysisInputType accepted an unknown input" );
+        __failure++;
+    }
+
+    // That lookup failure was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
     }
     \endcode
     \endforcpponly
@@ -2433,9 +2586,23 @@ extern int GetNumAnalysisInputData( const std::string & analysis, const std::str
 
     inp_array = GetAnalysisInputNames( analysis )
 
+    assert len( inp_array ) > 0, "GetAnalysisInputNames returned nothing"
+
     for j in range(int( len(inp_array) )):
 
         typ = GetAnalysisInputType( analysis, inp_array[j] )
+
+        # Every input the analysis lists has to report a real data type.
+        assert typ != INVALID_TYPE, "GetAnalysisInputType returned INVALID_TYPE for " + inp_array[j]
+
+    # An input that does not exist has to report INVALID_TYPE.
+    assert GetAnalysisInputType( analysis, "NoSuchInput" ) == INVALID_TYPE, "GetAnalysisInputType accepted an unknown input"
+
+    # That lookup failure was raised deliberately, so take it back off the queue.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -2630,8 +2797,32 @@ extern const std::vector< vec3d > & GetVec3dAnalysisInput( const std::string & a
     //==== Analysis: VSPAero Compute Geometry ====//
     string analysis_name = "VSPAEROComputeGeometry";
 
-    // Set defaults
+    // Change an input away from its default...
+    array< int > geom_set = GetIntAnalysisInput( analysis_name, "GeomSet" );
+
+    array< int > new_set = geom_set;
+    new_set[0] = new_set[0] + 1;
+
+    SetIntAnalysisInput( analysis_name, "GeomSet", new_set );
+
+    array< int > check_set = GetIntAnalysisInput( analysis_name, "GeomSet" );
+
+    if ( check_set[0] != new_set[0] )
+    {
+        Print( "ERROR: SetIntAnalysisInput did not take" );
+        __failure++;
+    }
+
+    // ...and set defaults, which has to put it back.
     SetAnalysisInputDefaults( analysis_name );
+
+    check_set = GetIntAnalysisInput( analysis_name, "GeomSet" );
+
+    if ( check_set[0] != geom_set[0] )
+    {
+        Print( "ERROR: SetAnalysisInputDefaults did not restore the default" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2639,8 +2830,23 @@ extern const std::vector< vec3d > & GetVec3dAnalysisInput( const std::string & a
     #==== Analysis: VSPAero Compute Geometry ====//
     analysis_name = "VSPAEROComputeGeometry"
 
-    # Set defaults
+    # Change an input away from its default...
+    geom_set = GetIntAnalysisInput( analysis_name, "GeomSet" )
+
+    new_set = [ geom_set[0] + 1 ]
+
+    SetIntAnalysisInput( analysis_name, "GeomSet", new_set )
+
+    check_set = GetIntAnalysisInput( analysis_name, "GeomSet" )
+
+    assert check_set[0] == new_set[0], "SetIntAnalysisInput did not take"
+
+    # ...and set defaults, which has to put it back.
     SetAnalysisInputDefaults( analysis_name )
+
+    check_set = GetIntAnalysisInput( analysis_name, "GeomSet" )
+
+    assert check_set[0] == geom_set[0], "SetAnalysisInputDefaults did not restore the default"
 
     \endcode
     \endPythonOnly
@@ -2859,6 +3065,30 @@ extern void SetVec3dAnalysisInput( const std::string & analysis, const std::stri
 
     // list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );
+
+    // There has to be something to list.
+    array< string > @inp_array = GetAnalysisInputNames( analysis_name );
+
+    if ( inp_array.size() == 0 )
+    {
+        Print( "ERROR: the analysis reports no inputs to print" );
+        __failure++;
+    }
+
+    // Printing an analysis that does not exist has to be rejected.
+    PrintAnalysisInputs( "NoSuchAnalysis" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: PrintAnalysisInputs accepted an unknown analysis" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2868,6 +3098,23 @@ extern void SetVec3dAnalysisInput( const std::string & analysis, const std::stri
 
     # list inputs, type, and current values
     PrintAnalysisInputs( analysis_name )
+
+    # There has to be something to list.
+    inp_array = GetAnalysisInputNames( analysis_name )
+
+    assert len( inp_array ) > 0, "the analysis reports no inputs to print"
+
+    # Printing an analysis that does not exist has to be rejected.  The error
+    # queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    PrintAnalysisInputs( "NoSuchAnalysis" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "PrintAnalysisInputs accepted an unknown analysis"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -2888,6 +3135,28 @@ extern void PrintAnalysisInputs( const std::string & analysis_name );
 
     // list inputs, type, and documentation
     PrintAnalysisDocs( analysis_name );
+
+    // The analysis itself has to carry documentation to print.
+    if ( GetAnalysisDoc( analysis_name ).length() == 0 )
+    {
+        Print( "ERROR: the analysis carries no documentation" );
+        __failure++;
+    }
+
+    // Printing an analysis that does not exist has to be rejected.
+    PrintAnalysisDocs( "NoSuchAnalysis" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: PrintAnalysisDocs accepted an unknown analysis" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2897,6 +3166,21 @@ extern void PrintAnalysisInputs( const std::string & analysis_name );
 
     # list inputs, type, and documentation
     PrintAnalysisDocs( analysis_name )
+
+    # The analysis itself has to carry documentation to print.
+    assert len( GetAnalysisDoc( analysis_name ) ) > 0, "the analysis carries no documentation"
+
+    # Printing an analysis that does not exist has to be rejected.  The error
+    # queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    PrintAnalysisDocs( "NoSuchAnalysis" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "PrintAnalysisDocs accepted an unknown analysis"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -2948,14 +3232,33 @@ extern string AddGeometryAnalysis();
     \code{.cpp}
     //==== GeometryAnalysis: Delete a specific case ====//
     string ga_id = AddGeometryAnalysis();
+
+    if ( GetAllGeometryAnalysesIDVec().size() != 1 )
+    {
+        Print( "ERROR: AddGeometryAnalysis did not add a case" );
+        __failure++;
+    }
+
     DeleteGeometryAnalysis( ga_id );
+
+    if ( GetAllGeometryAnalysesIDVec().size() != 0 )
+    {
+        Print( "ERROR: DeleteGeometryAnalysis did not remove the case" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     ##==== GeometryAnalysis: Delete a specific case ====##
     ga_id = AddGeometryAnalysis()
+
+    assert len( GetAllGeometryAnalysesIDVec() ) == 1, "AddGeometryAnalysis did not add a case"
+
     DeleteGeometryAnalysis( ga_id )
+
+    assert len( GetAllGeometryAnalysesIDVec() ) == 0, "DeleteGeometryAnalysis did not remove the case"
+
     \endcode
     \endPythonOnly
     \sa AddGeometryAnalysis, DeleteAllGeometryAnalyses, GetAllGeometryAnalysesIDVec
@@ -2974,10 +3277,29 @@ extern void DeleteGeometryAnalysis( const string &id );
     //==== GeometryAnalysis: Delete all cases ====//
     string ga_id_1 = AddGeometryAnalysis();
     string ga_id_2 = AddGeometryAnalysis();
+
+    if ( ga_id_1 == ga_id_2 )
+    {
+        Print( "ERROR: AddGeometryAnalysis reused an ID" );
+        __failure++;
+    }
+
+    if ( GetAllGeometryAnalysesIDVec().size() != 2 )
+    {
+        Print( "ERROR: the two cases were not both added" );
+        __failure++;
+    }
+
     DeleteAllGeometryAnalyses();
     array < string > @ga_ids = GetAllGeometryAnalysesIDVec();
     Print( "Number of Geometry Analyses after delete: ", false );
     Print( ga_ids.size() );
+
+    if ( ga_ids.size() != 0 )
+    {
+        Print( "ERROR: DeleteAllGeometryAnalyses left cases behind" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2985,9 +3307,15 @@ extern void DeleteGeometryAnalysis( const string &id );
     ##==== GeometryAnalysis: Delete all cases ====##
     ga_id_1 = AddGeometryAnalysis()
     ga_id_2 = AddGeometryAnalysis()
+
+    assert ga_id_1 != ga_id_2, "AddGeometryAnalysis reused an ID"
+    assert len( GetAllGeometryAnalysesIDVec() ) == 2, "the two cases were not both added"
+
     DeleteAllGeometryAnalyses()
     ga_ids = GetAllGeometryAnalysesIDVec()
     print( "Number of Geometry Analyses after delete: ", len( ga_ids ) )
+
+    assert len( ga_ids ) == 0, "DeleteAllGeometryAnalyses left cases behind"
     \endcode
     \endPythonOnly
     \sa AddGeometryAnalysis, DeleteGeometryAnalysis, GetAllGeometryAnalysesIDVec
