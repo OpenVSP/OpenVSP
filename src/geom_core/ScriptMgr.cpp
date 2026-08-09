@@ -3247,6 +3247,42 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "void CopyAirfoil( const string & in geom_id, int index )", asFUNCTION( vsp::CopyAirfoil ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void PasteAirfoil( const string & in geom_id, int index )", asFUNCTION( vsp::PasteAirfoil ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ClearSkinning( const string & in geom_id, int index = -1 )", asFUNCTION( vsp::ClearSkinning ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ResetGeomScale( const string & in geom_id )", asFUNCTION( vsp::ResetGeomScale ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AcceptGeomScale( const string & in geom_id )", asFUNCTION( vsp::AcceptGeomScale ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetPtCloudPnts( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetPtCloudPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string CreatePtCloudGeom( const string & in geom_id )", asFUNCTION( vsp::CreatePtCloudGeom ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string CreateNGonMeshGeom( const string & in geom_id )", asFUNCTION( vsp::CreateNGonMeshGeom ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string CreateConvexHull( const string & in geom_id )", asFUNCTION( vsp::CreateConvexHull ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ShowSet( int set_index )", asFUNCTION( vsp::ShowSet ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void NoShowSet( int set_index )", asFUNCTION( vsp::NoShowSet ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ShowOnlySet( int set_index )", asFUNCTION( vsp::ShowOnlySet ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "string AddParmLink( const string & in parm_a_id, const string & in parm_b_id )", asFUNCTION( vsp::AddParmLink ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -6956,6 +6992,12 @@ void ScriptMgrSingleton::AddExcrescence( const std::string & excresName, int exc
 void ScriptMgrSingleton::DeleteExcrescence(int index)
 {
     vsp::DeleteExcrescence(index);
+}
+
+CScriptArray* ScriptMgrSingleton::GetPtCloudPnts( const string & geom_id )
+{
+    m_ProxyVec3dArray = vsp::GetPtCloudPnts( geom_id );
+    return GetProxyVec3dArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetFeaAssemblyIDVec()

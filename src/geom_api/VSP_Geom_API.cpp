@@ -46,6 +46,8 @@
 #include "VSPAEROMgr.h"
 #include "VspUtil.h"
 #include "WingGeom.h"
+#include "MeshGeom.h"
+#include "PtCloudGeom.h"
 #include "StlHelper.h"
 #include "ModeMgr.h"
 
@@ -12158,6 +12160,293 @@ bool CheckForVSPHelp( const std::string & path )
         return veh->CheckForHelp( path );
     }
     return false;
+}
+
+//==================== Geom Operation Functions ======================//
+
+//==== Look up a Geom by ID, reporting through the named caller. ====//
+Geom* FindGeomForOp( const string & geom_id, const string & caller )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Geom " + geom_id );
+        return nullptr;
+    }
+    return geom_ptr;
+}
+
+void CopyAirfoil( const string & geom_id, int index )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "CopyAirfoil" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    WingGeom* wg = dynamic_cast< WingGeom* >( geom_ptr );
+    if ( !wg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "CopyAirfoil::Geom " + geom_id + " is not a wing" );
+        return;
+    }
+
+    if ( index < 0 || index >= wg->NumXSec() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CopyAirfoil::Section Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
+    wg->CopyAirfoil( index );
+
+    ErrorMgr.NoError();
+}
+
+void PasteAirfoil( const string & geom_id, int index )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "PasteAirfoil" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    WingGeom* wg = dynamic_cast< WingGeom* >( geom_ptr );
+    if ( !wg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "PasteAirfoil::Geom " + geom_id + " is not a wing" );
+        return;
+    }
+
+    if ( index < 0 || index >= wg->NumXSec() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "PasteAirfoil::Section Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
+    wg->PasteAirfoil( index );
+    Update();
+
+    ErrorMgr.NoError();
+}
+
+void ClearSkinning( const string & geom_id, int index )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "ClearSkinning" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    GeomXSec* gxs = dynamic_cast< GeomXSec* >( geom_ptr );
+    if ( !gxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ClearSkinning::Geom " + geom_id + " does not carry skinning" );
+        return;
+    }
+
+    gxs->ClearSkinning( index );
+    Update();
+
+    ErrorMgr.NoError();
+}
+
+void ResetGeomScale( const string & geom_id )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "ResetGeomScale" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    geom_ptr->ResetScale();
+    Update();
+
+    ErrorMgr.NoError();
+}
+
+void AcceptGeomScale( const string & geom_id )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "AcceptGeomScale" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    geom_ptr->AcceptScale();
+    Update();
+
+    ErrorMgr.NoError();
+}
+
+vector < vec3d > GetPtCloudPnts( const string & geom_id )
+{
+    vector < vec3d > ret;
+
+    Geom* geom_ptr = FindGeomForOp( geom_id, "GetPtCloudPnts" );
+    if ( !geom_ptr )
+    {
+        return ret;
+    }
+
+    PtCloudGeom* pg = dynamic_cast< PtCloudGeom* >( geom_ptr );
+    if ( !pg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetPtCloudPnts::Geom " + geom_id + " is not a point cloud" );
+        return ret;
+    }
+
+    ErrorMgr.NoError();
+    return pg->m_Pts;
+}
+
+string CreatePtCloudGeom( const string & geom_id )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "CreatePtCloudGeom" );
+    if ( !geom_ptr )
+    {
+        return string();
+    }
+
+    MeshGeom* mg = dynamic_cast< MeshGeom* >( geom_ptr );
+    if ( !mg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreatePtCloudGeom::Geom " + geom_id + " is not a mesh" );
+        return string();
+    }
+
+    // MeshGeom adds the point cloud to the model without handing back its ID,
+    // so look for whatever arrived.
+    Vehicle* veh = GetVehicle();
+    vector < string > before = veh->GetGeomVec();
+
+    mg->CreatePtCloudGeom();
+    Update();
+
+    vector < string > after = veh->GetGeomVec();
+
+    for ( int i = 0; i < ( int )after.size(); i++ )
+    {
+        if ( !vector_contains_val( before, after[i] ) )
+        {
+            ErrorMgr.NoError();
+            return after[i];
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_PTR, "CreatePtCloudGeom::No Point Cloud Was Created" );
+    return string();
+}
+
+string CreateNGonMeshGeom( const string & geom_id )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "CreateNGonMeshGeom" );
+    if ( !geom_ptr )
+    {
+        return string();
+    }
+
+    MeshGeom* mg = dynamic_cast< MeshGeom* >( geom_ptr );
+    if ( !mg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreateNGonMeshGeom::Geom " + geom_id + " is not a mesh" );
+        return string();
+    }
+
+    string ret = mg->CreateNGonMeshGeom();
+    Update();
+
+    if ( ret.length() == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CreateNGonMeshGeom::No NGon Mesh Was Created" );
+        return ret;
+    }
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+string CreateConvexHull( const string & geom_id )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "CreateConvexHull" );
+    if ( !geom_ptr )
+    {
+        return string();
+    }
+
+    PtCloudGeom* pg = dynamic_cast< PtCloudGeom* >( geom_ptr );
+    if ( !pg )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreateConvexHull::Geom " + geom_id + " is not a point cloud" );
+        return string();
+    }
+
+    // The hull arrives as a new MeshGeom rather than replacing the cloud, and
+    // it is added without handing back its ID, so look for whatever arrived.
+    Vehicle* veh = GetVehicle();
+    vector < string > before = veh->GetGeomVec();
+
+    pg->CreateConvexHull();
+    Update();
+
+    vector < string > after = veh->GetGeomVec();
+
+    for ( int i = 0; i < ( int )after.size(); i++ )
+    {
+        if ( !vector_contains_val( before, after[i] ) )
+        {
+            ErrorMgr.NoError();
+            return after[i];
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_PTR, "CreateConvexHull::No Hull Was Created" );
+    return string();
+}
+
+void ShowSet( int set_index )
+{
+    Vehicle* veh = GetVehicle();
+
+    if ( set_index < 0 || set_index >= ( int )veh->GetSetNameVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ShowSet::Set Index " + to_string( set_index ) + " Out of Range" );
+        return;
+    }
+
+    veh->ShowSet( set_index );
+
+    ErrorMgr.NoError();
+}
+
+void NoShowSet( int set_index )
+{
+    Vehicle* veh = GetVehicle();
+
+    if ( set_index < 0 || set_index >= ( int )veh->GetSetNameVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "NoShowSet::Set Index " + to_string( set_index ) + " Out of Range" );
+        return;
+    }
+
+    veh->NoShowSet( set_index );
+
+    ErrorMgr.NoError();
+}
+
+void ShowOnlySet( int set_index )
+{
+    Vehicle* veh = GetVehicle();
+
+    if ( set_index < 0 || set_index >= ( int )veh->GetSetNameVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ShowOnlySet::Set Index " + to_string( set_index ) + " Out of Range" );
+        return;
+    }
+
+    veh->ShowOnlySet( set_index );
+
+    ErrorMgr.NoError();
 }
 
 //======================= Parm Link Functions ============================//

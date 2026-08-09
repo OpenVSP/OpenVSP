@@ -36762,6 +36762,767 @@ extern void DeleteAllProbes();
     \return string Parm Link ID
 */
 
+/*!
+    \ingroup Geom
+*/
+/*!
+    Copy the airfoil of a wing section to the airfoil clipboard.  This is a separate clipboard from
+    the one CopyXSec uses, so an airfoil can be moved without carrying the section geometry with it.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    // Give section 1 a distinctive airfoil.
+    string xsec_surf = GetXSecSurf( wid, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_SIX_SERIES );
+
+    Update();
+
+    CopyAirfoil( wid, 1 );
+
+    PasteAirfoil( wid, 0 );
+
+    // The airfoil travels; the section geometry does not.
+    if ( GetXSecShape( GetXSec( xsec_surf, 0 ) ) != XS_SIX_SERIES )
+    {
+        Print( "ERROR: the airfoil did not paste" );
+        __failure++;
+    }
+
+    // A Geom that is not a wing has to be rejected.
+    string pid = AddGeom( "POD" );
+
+    CopyAirfoil( pid, 0 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: CopyAirfoil accepted a Geom that is not a wing" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    # Give section 1 a distinctive airfoil.
+    xsec_surf = GetXSecSurf( wid, 0 )
+
+    ChangeXSecShape( xsec_surf, 1, XS_SIX_SERIES )
+
+    Update()
+
+    CopyAirfoil( wid, 1 )
+
+    PasteAirfoil( wid, 0 )
+
+    # The airfoil travels; the section geometry does not.
+    assert GetXSecShape( GetXSec( xsec_surf, 0 ) ) == XS_SIX_SERIES, "the airfoil did not paste"
+
+    # A Geom that is not a wing has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    pid = AddGeom( "POD" )
+
+    CopyAirfoil( pid, 0 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "CopyAirfoil accepted a Geom that is not a wing"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa PasteAirfoil, CopyXSec
+    \param [in] geom_id string Wing Geom ID
+    \param [in] index int Wing section index
+*/
+
+extern void CopyAirfoil( const std::string & geom_id, int index );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Paste the airfoil clipboard onto a wing section
+    \sa CopyAirfoil, PasteXSec
+    \param [in] geom_id string Wing Geom ID
+    \param [in] index int Wing section index
+*/
+
+extern void PasteAirfoil( const std::string & geom_id, int index );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Clear the skinning of one cross section, or of every cross section when the index is left at -1.
+    This is the Skinning tab's Clear and Clear All buttons.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 15.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TopLAngleSet" ) ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: the skinning was never set" );
+        __failure++;
+    }
+
+    ClearSkinning( sid, 1 );
+
+    Update();
+
+    // Clearing releases the section's skinning controls and puts symmetry back
+    // on; the angle itself becomes whatever the skin solves for.
+    if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TopLAngleSet" ) ), 0.0, 1e-12 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "AllSym" ) ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: ClearSkinning did not release the section" );
+        __failure++;
+    }
+
+    // A Geom with no cross sections has to be rejected.
+    string pid = AddGeom( "POD" );
+
+    ClearSkinning( pid );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: ClearSkinning accepted a Geom with no cross sections" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 15.0, -1.0e12, -1.0e12, -1.0e12 )
+
+    Update()
+
+    assert abs( GetParmVal( GetXSecParm( xsec, "TopLAngleSet" ) ) - 1.0 ) < 1e-12, "the skinning was never set"
+
+    ClearSkinning( sid, 1 )
+
+    Update()
+
+    # Clearing releases the section's skinning controls and puts symmetry back
+    # on; the angle itself becomes whatever the skin solves for.
+    assert abs( GetParmVal( GetXSecParm( xsec, "TopLAngleSet" ) ) ) < 1e-12, "ClearSkinning did not release the section"
+    assert abs( GetParmVal( GetXSecParm( xsec, "AllSym" ) ) - 1.0 ) < 1e-12, "ClearSkinning did not release the section"
+
+    # A Geom with no cross sections has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    pid = AddGeom( "POD" )
+
+    ClearSkinning( pid )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "ClearSkinning accepted a Geom with no cross sections"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa ResetXSecSkinParms
+    \param [in] geom_id string Geom ID
+    \param [in] index int Cross section index, or -1 for every section
+*/
+
+extern void ClearSkinning( const std::string & geom_id, int index = -1 );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Discard a Geom's pending scale and return it to its unscaled size.  This is the Scale tab's
+    Reset button.  Use AcceptGeomScale to keep the scaled size instead.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    vec3d before_max = GetGeomBBoxMax( pid, 0, false );
+
+    SetParmValUpdate( pid, "Scale", "XForm", 2.0 );
+
+    Update();
+
+    vec3d scaled_max = GetGeomBBoxMax( pid, 0, false );
+
+    if ( !closeTo( scaled_max.x(), 2.0 * before_max.x(), 1e-6 ) )
+    {
+        Print( "ERROR: the Geom was never scaled" );
+        __failure++;
+    }
+
+    ResetGeomScale( pid );
+
+    Update();
+
+    // The scale factor comes back to one and the Geom returns to its base size.
+    if ( !closeTo( GetParmVal( pid, "Scale", "XForm" ), 1.0, 1e-9 ) )
+    {
+        Print( "ERROR: ResetGeomScale did not reset the scale factor" );
+        __failure++;
+    }
+
+    vec3d after_max = GetGeomBBoxMax( pid, 0, false );
+
+    if ( !closeTo( after_max.x(), before_max.x(), 1e-6 ) )
+    {
+        Print( "ERROR: ResetGeomScale did not undo the scaling" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    before_max = GetGeomBBoxMax( pid, 0, False )
+
+    SetParmValUpdate( pid, "Scale", "XForm", 2.0 )
+
+    Update()
+
+    scaled_max = GetGeomBBoxMax( pid, 0, False )
+
+    assert abs( scaled_max.x() - 2.0 * before_max.x() ) < 1e-6, "the Geom was never scaled"
+
+    ResetGeomScale( pid )
+
+    Update()
+
+    # The scale factor comes back to one and the Geom returns to its base size.
+    assert abs( GetParmVal( pid, "Scale", "XForm" ) - 1.0 ) < 1e-9, "ResetGeomScale did not reset the scale factor"
+
+    after_max = GetGeomBBoxMax( pid, 0, False )
+
+    assert abs( after_max.x() - before_max.x() ) < 1e-6, "ResetGeomScale did not undo the scaling"
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Geom ID
+*/
+
+extern void ResetGeomScale( const std::string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Turn a MeshGeom into a Point Cloud Geom made of its mesh nodes.  This is the Mesh screen's
+    Convert to Point Cloud button.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH );
+
+    string cloud_id = CreatePtCloudGeom( mesh_id );
+
+    if ( cloud_id.length() == 0 || GetGeomTypeName( cloud_id ) != "PtCloud" )
+    {
+        Print( "ERROR: CreatePtCloudGeom did not make a point cloud" );
+        __failure++;
+    }
+
+    // A Geom that is not a mesh has to be rejected.
+    CreatePtCloudGeom( pid );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: CreatePtCloudGeom accepted a Geom that is not a mesh" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH )
+
+    cloud_id = CreatePtCloudGeom( mesh_id )
+
+    assert len( cloud_id ) > 0, "CreatePtCloudGeom did not make a point cloud"
+    assert GetGeomTypeName( cloud_id ) == "PtCloud", "CreatePtCloudGeom did not make a point cloud"
+
+    # A Geom that is not a mesh has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    CreatePtCloudGeom( pid )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "CreatePtCloudGeom accepted a Geom that is not a mesh"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CreateNGonMeshGeom, CreateConvexHull
+    \param [in] geom_id string MeshGeom ID
+    \return string Point Cloud Geom ID
+*/
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Keep a Geom's scaled size and reset the scale factor to one, folding the scaling into the
+    Geom's own dimensions.  This is the Scale tab's Accept button.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    vec3d before_max = GetGeomBBoxMax( pid, 0, false );
+
+    SetParmValUpdate( pid, "Scale", "XForm", 2.0 );
+
+    Update();
+
+    AcceptGeomScale( pid );
+
+    Update();
+
+    // The scale factor comes back to one but the size it produced is kept.
+    if ( !closeTo( GetParmVal( pid, "Scale", "XForm" ), 1.0, 1e-9 ) )
+    {
+        Print( "ERROR: AcceptGeomScale did not reset the scale factor" );
+        __failure++;
+    }
+
+    vec3d after_max = GetGeomBBoxMax( pid, 0, false );
+
+    if ( !closeTo( after_max.x(), 2.0 * before_max.x(), 1e-6 ) )
+    {
+        Print( "ERROR: AcceptGeomScale did not keep the scaled size" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    before_max = GetGeomBBoxMax( pid, 0, False )
+
+    SetParmValUpdate( pid, "Scale", "XForm", 2.0 )
+
+    Update()
+
+    AcceptGeomScale( pid )
+
+    Update()
+
+    # The scale factor comes back to one but the size it produced is kept.
+    assert abs( GetParmVal( pid, "Scale", "XForm" ) - 1.0 ) < 1e-9, "AcceptGeomScale did not reset the scale factor"
+
+    after_max = GetGeomBBoxMax( pid, 0, False )
+
+    assert abs( after_max.x() - 2.0 * before_max.x() ) < 1e-6, "AcceptGeomScale did not keep the scaled size"
+
+    \endcode
+    \endPythonOnly
+    \sa ResetGeomScale
+    \param [in] geom_id string Geom ID
+*/
+
+extern void AcceptGeomScale( const std::string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the points of a Point Cloud Geom
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH );
+
+    string cloud_id = CreatePtCloudGeom( mesh_id );
+
+    array< vec3d > @pnts = GetPtCloudPnts( cloud_id );
+
+    if ( pnts.size() == 0 )
+    {
+        Print( "ERROR: GetPtCloudPnts returned nothing" );
+        __failure++;
+    }
+
+    // A Geom that is not a point cloud has to be rejected.
+    GetPtCloudPnts( pid );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetPtCloudPnts accepted a Geom that is not a point cloud" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH )
+
+    cloud_id = CreatePtCloudGeom( mesh_id )
+
+    pnts = GetPtCloudPnts( cloud_id )
+
+    assert len( pnts ) > 0, "GetPtCloudPnts returned nothing"
+
+    # A Geom that is not a point cloud has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetPtCloudPnts( pid )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetPtCloudPnts accepted a Geom that is not a point cloud"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CreatePtCloudGeom, CreateConvexHull
+    \param [in] geom_id string Point Cloud Geom ID
+    \return vector\<vec3d\> Array of point cloud points
+*/
+
+extern std::vector < vec3d > GetPtCloudPnts( const std::string & geom_id );
+
+extern std::string CreatePtCloudGeom( const std::string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Turn a MeshGeom into an NGon Mesh Geom.  This is the Mesh screen's Convert to NGon Mesh button.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH );
+
+    string ngon_id = CreateNGonMeshGeom( mesh_id );
+
+    if ( ngon_id.length() == 0 || GetGeomTypeName( ngon_id ) != "NGonMesh" )
+    {
+        Print( "ERROR: CreateNGonMeshGeom did not make an NGon mesh" );
+        __failure++;
+    }
+
+    // A Geom that is not a mesh has to be rejected.
+    CreateNGonMeshGeom( pid );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: CreateNGonMeshGeom accepted a Geom that is not a mesh" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH )
+
+    ngon_id = CreateNGonMeshGeom( mesh_id )
+
+    assert len( ngon_id ) > 0, "CreateNGonMeshGeom did not make an NGon mesh"
+    assert GetGeomTypeName( ngon_id ) == "NGonMesh", "CreateNGonMeshGeom did not make an NGon mesh"
+
+    # A Geom that is not a mesh has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    CreateNGonMeshGeom( pid )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "CreateNGonMeshGeom accepted a Geom that is not a mesh"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CreatePtCloudGeom
+    \param [in] geom_id string MeshGeom ID
+    \return string NGon Mesh Geom ID
+*/
+
+extern std::string CreateNGonMeshGeom( const std::string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Build the convex hull of a Point Cloud Geom.  The hull arrives as a new MeshGeom; the point
+    cloud itself is left alone.  This is the Point Cloud screen's Convex Hull button.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH );
+
+    string cloud_id = CreatePtCloudGeom( mesh_id );
+
+    int num_pnts = GetPtCloudPnts( cloud_id ).size();
+
+    string hull_id = CreateConvexHull( cloud_id );
+
+    Update();
+
+    // The hull is a mesh of its own, and the cloud it came from is untouched.
+    if ( hull_id.length() == 0 || GetGeomTypeName( hull_id ) != "Mesh" )
+    {
+        Print( "ERROR: CreateConvexHull did not make a hull mesh" );
+        __failure++;
+    }
+
+    if ( int( GetPtCloudPnts( cloud_id ).size() ) != num_pnts )
+    {
+        Print( "ERROR: CreateConvexHull disturbed the point cloud" );
+        __failure++;
+    }
+
+    // A Geom that is not a point cloud has to be rejected.
+    CreateConvexHull( pid );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: CreateConvexHull accepted a Geom that is not a point cloud" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH )
+
+    cloud_id = CreatePtCloudGeom( mesh_id )
+
+    num_pnts = len( GetPtCloudPnts( cloud_id ) )
+
+    hull_id = CreateConvexHull( cloud_id )
+
+    Update()
+
+    # The hull is a mesh of its own, and the cloud it came from is untouched.
+    assert len( hull_id ) > 0, "CreateConvexHull did not make a hull mesh"
+    assert GetGeomTypeName( hull_id ) == "Mesh", "CreateConvexHull did not make a hull mesh"
+    assert len( GetPtCloudPnts( cloud_id ) ) == num_pnts, "CreateConvexHull disturbed the point cloud"
+
+    # A Geom that is not a point cloud has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    CreateConvexHull( pid )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "CreateConvexHull accepted a Geom that is not a point cloud"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CreatePtCloudGeom, GetPtCloudPnts
+    \param [in] geom_id string Point Cloud Geom ID
+    \return string MeshGeom ID of the hull
+*/
+
+extern std::string CreateConvexHull( const std::string & geom_id );
+
+/*!
+    \ingroup Sets
+*/
+/*!
+    Show every Geom in a set, leaving the rest of the model as it is.  This is the Geom browser's
+    Show Set button.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    SetSetFlag( pid, 3, true );
+
+    NoShowSet( 3 );
+
+    if ( GetSetFlag( pid, SET_SHOWN ) )
+    {
+        Print( "ERROR: NoShowSet did not hide the set" );
+        __failure++;
+    }
+
+    ShowSet( 3 );
+
+    if ( !GetSetFlag( pid, SET_SHOWN ) )
+    {
+        Print( "ERROR: ShowSet did not show the set" );
+        __failure++;
+    }
+
+    // A set index past the end has to be rejected.
+    ShowSet( GetNumSets() );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: ShowSet accepted a set index past the end" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    SetSetFlag( pid, 3, True )
+
+    NoShowSet( 3 )
+
+    assert not GetSetFlag( pid, SET_SHOWN ), "NoShowSet did not hide the set"
+
+    ShowSet( 3 )
+
+    assert GetSetFlag( pid, SET_SHOWN ), "ShowSet did not show the set"
+
+    # A set index past the end has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    ShowSet( GetNumSets() )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "ShowSet accepted a set index past the end"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa NoShowSet, ShowOnlySet
+    \param [in] set_index int Set index
+*/
+
+extern void ShowSet( int set_index );
+
+/*!
+    \ingroup Sets
+*/
+/*!
+    Hide every Geom in a set, leaving the rest of the model as it is.
+    \sa ShowSet, ShowOnlySet
+    \param [in] set_index int Set index
+*/
+
+extern void NoShowSet( int set_index );
+
+/*!
+    \ingroup Sets
+*/
+/*!
+    Show every Geom in a set and hide everything else.  This is the Geom browser's Show Only Set
+    button.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD" );
+
+    SetSetFlag( pod1, 3, true );
+
+    ShowOnlySet( 3 );
+
+    // The set is shown and everything outside it is hidden.
+    if ( !GetSetFlag( pod1, SET_SHOWN ) )
+    {
+        Print( "ERROR: ShowOnlySet did not show the set" );
+        __failure++;
+    }
+
+    if ( GetSetFlag( pod2, SET_SHOWN ) )
+    {
+        Print( "ERROR: ShowOnlySet did not hide the rest of the model" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD" )
+
+    SetSetFlag( pod1, 3, True )
+
+    ShowOnlySet( 3 )
+
+    # The set is shown and everything outside it is hidden.
+    assert GetSetFlag( pod1, SET_SHOWN ), "ShowOnlySet did not show the set"
+    assert not GetSetFlag( pod2, SET_SHOWN ), "ShowOnlySet did not hide the rest of the model"
+
+    \endcode
+    \endPythonOnly
+    \sa ShowSet, NoShowSet
+    \param [in] set_index int Set index
+*/
+
+extern void ShowOnlySet( int set_index );
+
 extern std::string AddParmLink( const std::string & parm_a_id, const std::string & parm_b_id );
 
 /*!
