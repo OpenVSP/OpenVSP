@@ -7856,6 +7856,23 @@ extern void SetShowBorders( bool brdr );
     string pid = AddGeom( "POD", "" );                             // Add Pod for testing
 
     SetGeomDrawType( pid, GEOM_DRAW_SHADE );                       // Make pod appear as shaded
+
+    // The draw type is display state rather than model state, so there is
+    // nothing to read back.  What has to hold is that a Geom which does not
+    // exist is rejected.
+    SetGeomDrawType( "NOSUCHGEOM", GEOM_DRAW_SHADE );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetGeomDrawType accepted a bad Geom ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7863,6 +7880,20 @@ extern void SetShowBorders( bool brdr );
     pid = AddGeom( "POD", "" )                             # Add Pod for testing
 
     SetGeomDrawType( pid, GEOM_DRAW_SHADE )                       # Make pod appear as shaded
+
+    # The draw type is display state rather than model state, so there is nothing
+    # to read back.  What has to hold is that a Geom which does not exist is
+    # rejected.  The error queue is reached through the error manager singleton
+    # in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetGeomDrawType( "NOSUCHGEOM", GEOM_DRAW_SHADE )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetGeomDrawType accepted a bad Geom ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -7883,6 +7914,23 @@ extern void SetGeomDrawType(const string &geom_id, int type);
     string pid = AddGeom( "POD", "" );
 
     SetGeomWireColor( pid, 0, 0, 255 );
+
+    // The colour is display state rather than model state, so there is nothing
+    // to read back.  What has to hold is that a Geom which does not exist is
+    // rejected.
+    SetGeomWireColor( "NOSUCHGEOM", 0, 0, 255 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetGeomWireColor accepted a bad Geom ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7890,6 +7938,20 @@ extern void SetGeomDrawType(const string &geom_id, int type);
     pid = AddGeom( "POD", "" )
 
     SetGeomWireColor( pid, 0, 0, 255 )
+
+    # The colour is display state rather than model state, so there is nothing to
+    # read back.  What has to hold is that a Geom which does not exist is
+    # rejected.  The error queue is reached through the error manager singleton
+    # in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetGeomWireColor( "NOSUCHGEOM", 0, 0, 255 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetGeomWireColor accepted a bad Geom ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -7911,6 +7973,23 @@ extern void SetGeomWireColor( const string &geom_id, int r, int g, int b );
     string pid = AddGeom( "POD" );                             // Add Pod for testing
 
     SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE );                       // Make pod appear as Bezier plate (Degen Geom)
+
+    // The display type is display state rather than model state, so there is
+    // nothing to read back.  What has to hold is that a Geom which does not
+    // exist is rejected.
+    SetGeomDisplayType( "NOSUCHGEOM", DISPLAY_DEGEN_PLATE );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetGeomDisplayType accepted a bad Geom ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7918,6 +7997,20 @@ extern void SetGeomWireColor( const string &geom_id, int r, int g, int b );
     pid = AddGeom( "POD" )                             # Add Pod for testing
 
     SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE )                       # Make pod appear as Bezier plate (Degen Geom)
+
+    # The display type is display state rather than model state, so there is
+    # nothing to read back.  What has to hold is that a Geom which does not exist
+    # is rejected.  The error queue is reached through the error manager
+    # singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetGeomDisplayType( "NOSUCHGEOM", DISPLAY_DEGEN_PLATE )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetGeomDisplayType accepted a bad Geom ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -7938,6 +8031,40 @@ extern void SetGeomDisplayType(const string &geom_id, int type);
     string pid = AddGeom( "POD" );
 
     SetGeomMaterialName( pid, "Ruby" );
+
+    // Ruby is one of the materials the library ships with.
+    array< string > @mat_names = GetMaterialNames();
+
+    bool found = false;
+
+    for ( int i = 0; i < int( mat_names.size() ); i++ )
+    {
+        if ( mat_names[i] == "Ruby" )
+        {
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        Print( "ERROR: Ruby is not in the material library" );
+        __failure++;
+    }
+
+    // A material that is not in the library has to be rejected.
+    SetGeomMaterialName( pid, "NoSuchMaterial" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetGeomMaterialName accepted an unknown material" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7945,6 +8072,22 @@ extern void SetGeomDisplayType(const string &geom_id, int type);
     pid = AddGeom( "POD" )
 
     SetGeomMaterialName( pid, "Ruby" )
+
+    # Ruby is one of the materials the library ships with.
+    assert "Ruby" in GetMaterialNames(), "Ruby is not in the material library"
+
+    # A material that is not in the library has to be rejected.  The error queue
+    # is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetGeomMaterialName( pid, "NoSuchMaterial" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetGeomMaterialName accepted an unknown material"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
     \endcode
     \endPythonOnly
     \param [in] geom_id string Geom ID
@@ -7965,6 +8108,40 @@ extern void SetGeomMaterialName( const string &geom_id, const string &name );
     AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 );
 
     SetGeomMaterialName( pid, "RedGlass" );
+
+    // The new material joins the library and can then be applied by name.
+    array< string > @mat_names = GetMaterialNames();
+
+    bool found = false;
+
+    for ( int i = 0; i < int( mat_names.size() ); i++ )
+    {
+        if ( mat_names[i] == "RedGlass" )
+        {
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        Print( "ERROR: AddMaterial did not add the material to the library" );
+        __failure++;
+    }
+
+    // Adding it again under the same name has to be rejected.
+    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: AddMaterial accepted a duplicate name" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7974,6 +8151,21 @@ extern void SetGeomMaterialName( const string &geom_id, const string &name );
     AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 )
 
     SetGeomMaterialName( pid, "RedGlass" )
+
+    # The new material joins the library and can then be applied by name.
+    assert "RedGlass" in GetMaterialNames(), "AddMaterial did not add the material to the library"
+
+    # Adding it again under the same name has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    AddMaterial( "RedGlass", vec3d( 44, 2, 2 ), vec3d( 156, 10, 10 ), vec3d( 185, 159, 159 ), vec3d( 44, 2, 2 ), 30, 0.4 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "AddMaterial accepted a duplicate name"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \param [in] name string Material name
