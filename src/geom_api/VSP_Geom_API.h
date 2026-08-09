@@ -13521,6 +13521,143 @@ extern int NumFeaBCs( const string & fea_struct_id );
     \return string FEA Material ID
 */
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the IDs of every FEA Material in the FEA Mesh material library, including the
+    built in materials as well as any added through AddFeaMaterial.
+    \forcpponly
+    \code{.cpp}
+    //==== The library starts out holding the built in materials ====//
+    int num_builtin = GetFeaMaterialIDVec().size();
+
+    if ( num_builtin < 1 )
+    {
+        Print( "ERROR: the FEA material library is empty" );
+        __failure++;
+    }
+
+    //==== Create FeaMaterial ====//
+    string mat_id = AddFeaMaterial();
+
+    array < string > @mat_ids = GetFeaMaterialIDVec();
+
+    if ( int( mat_ids.size() ) != num_builtin + 1 )
+    {
+        Print( "ERROR: GetFeaMaterialIDVec did not follow AddFeaMaterial" );
+        __failure++;
+    }
+
+    // The new material has to be in the list.
+    bool found = false;
+
+    for ( int i = 0; i < int( mat_ids.size() ); i++ )
+    {
+        if ( mat_ids[i] == mat_id )
+        {
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        Print( "ERROR: the material that was added is not in the list" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== The library starts out holding the built in materials ====//
+    num_builtin = len( GetFeaMaterialIDVec() )
+
+    assert num_builtin >= 1, "the FEA material library is empty"
+
+    #==== Create FeaMaterial ====//
+    mat_id = AddFeaMaterial()
+
+    mat_ids = GetFeaMaterialIDVec()
+
+    assert len( mat_ids ) == num_builtin + 1, "GetFeaMaterialIDVec did not follow AddFeaMaterial"
+    assert mat_id in mat_ids, "the material that was added is not in the list"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaMaterial, DeleteFeaMaterial
+    \return vector\<string\> Array of FEA Material IDs
+*/
+
+extern std::vector < std::string > GetFeaMaterialIDVec();
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete an FEA Material from the FEA Mesh material library. Only materials created with
+    AddFeaMaterial can be deleted; the built in materials belong to the library.
+    \forcpponly
+    \code{.cpp}
+    //==== Create FeaMaterial ====//
+    string mat_id = AddFeaMaterial();
+
+    int num_before = GetFeaMaterialIDVec().size();
+
+    DeleteFeaMaterial( mat_id );
+
+    if ( int( GetFeaMaterialIDVec().size() ) != num_before - 1 )
+    {
+        Print( "ERROR: DeleteFeaMaterial did not remove the material" );
+        __failure++;
+    }
+
+    // An ID that is not a material has to be rejected.
+    DeleteFeaMaterial( "NOSUCHMATERIAL" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteFeaMaterial accepted a bad ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Create FeaMaterial ====//
+    mat_id = AddFeaMaterial()
+
+    num_before = len( GetFeaMaterialIDVec() )
+
+    DeleteFeaMaterial( mat_id )
+
+    assert len( GetFeaMaterialIDVec() ) == num_before - 1, "DeleteFeaMaterial did not remove the material"
+
+    # An ID that is not a material has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteFeaMaterial( "NOSUCHMATERIAL" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteFeaMaterial accepted a bad ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaMaterial, GetFeaMaterialIDVec
+    \param [in] id string FEA Material ID
+*/
+
+extern void DeleteFeaMaterial( const std::string &id );
+
 extern std::string AddFeaMaterial();
 
 /*!
@@ -13556,6 +13693,136 @@ extern std::string AddFeaMaterial();
     \param [in] property_type int FEA Property type enum (i.e. FEA_SHELL).
     \return string FEA Property ID
 */
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the IDs of every FEA Property in the FEA Mesh property library, including the
+    built in properties as well as any added through AddFeaProperty.
+    \forcpponly
+    \code{.cpp}
+    //==== Properties are created as structures need them, so start from
+    //==== whatever the library already holds ====//
+    int num_before = GetFeaPropertyIDVec().size();
+
+    //==== Create FeaProperty ====//
+    string prop_id = AddFeaProperty();
+
+    array < string > @prop_ids = GetFeaPropertyIDVec();
+
+    if ( int( prop_ids.size() ) != num_before + 1 )
+    {
+        Print( "ERROR: GetFeaPropertyIDVec did not follow AddFeaProperty" );
+        __failure++;
+    }
+
+    // The new property has to be in the list.
+    bool found = false;
+
+    for ( int i = 0; i < int( prop_ids.size() ); i++ )
+    {
+        if ( prop_ids[i] == prop_id )
+        {
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        Print( "ERROR: the property that was added is not in the list" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Properties are created as structures need them, so start from
+    #==== whatever the library already holds ====//
+    num_before = len( GetFeaPropertyIDVec() )
+
+    #==== Create FeaProperty ====//
+    prop_id = AddFeaProperty()
+
+    prop_ids = GetFeaPropertyIDVec()
+
+    assert len( prop_ids ) == num_before + 1, "GetFeaPropertyIDVec did not follow AddFeaProperty"
+    assert prop_id in prop_ids, "the property that was added is not in the list"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaProperty, DeleteFeaProperty
+    \return vector\<string\> Array of FEA Property IDs
+*/
+
+extern std::vector < std::string > GetFeaPropertyIDVec();
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete an FEA Property from the FEA Mesh property library
+    \forcpponly
+    \code{.cpp}
+    //==== Create FeaProperty ====//
+    string prop_id = AddFeaProperty();
+
+    int num_before = GetFeaPropertyIDVec().size();
+
+    DeleteFeaProperty( prop_id );
+
+    if ( int( GetFeaPropertyIDVec().size() ) != num_before - 1 )
+    {
+        Print( "ERROR: DeleteFeaProperty did not remove the property" );
+        __failure++;
+    }
+
+    // An ID that is not a property has to be rejected.
+    DeleteFeaProperty( "NOSUCHPROPERTY" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteFeaProperty accepted a bad ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Create FeaProperty ====//
+    prop_id = AddFeaProperty()
+
+    num_before = len( GetFeaPropertyIDVec() )
+
+    DeleteFeaProperty( prop_id )
+
+    assert len( GetFeaPropertyIDVec() ) == num_before - 1, "DeleteFeaProperty did not remove the property"
+
+    # An ID that is not a property has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteFeaProperty( "NOSUCHPROPERTY" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteFeaProperty accepted a bad ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaProperty, GetFeaPropertyIDVec
+    \param [in] id string FEA Property ID
+*/
+
+extern void DeleteFeaProperty( const std::string &id );
 
 extern std::string AddFeaProperty( int property_type = 0 );
 

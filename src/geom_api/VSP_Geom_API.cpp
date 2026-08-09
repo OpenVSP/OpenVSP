@@ -4294,6 +4294,69 @@ int NumFeaBCs( const string & fea_struct_id )
 }
 
 /// Add an FeaMaterial, return FeaMaterial ID
+vector < string > GetFeaMaterialIDVec()
+{
+    vector < string > ret;
+
+    vector < FeaMaterial* > mat_vec = StructureMgr.GetFeaMaterialVec();
+
+    ret.reserve( mat_vec.size() );
+    for ( int i = 0; i < ( int )mat_vec.size(); i++ )
+    {
+        ret.push_back( mat_vec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+void DeleteFeaMaterial( const string &id )
+{
+    if ( !StructureMgr.GetFeaMaterial( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaMaterial::Invalid FeaMaterial ID " + id );
+        return;
+    }
+
+    // The built in materials belong to the library and are refused.
+    if ( !StructureMgr.DeleteFeaMaterial( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaMaterial::Can't Delete FeaMaterial " + id );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+vector < string > GetFeaPropertyIDVec()
+{
+    vector < string > ret;
+
+    vector < FeaProperty* > prop_vec = StructureMgr.GetFeaPropertyVec();
+
+    ret.reserve( prop_vec.size() );
+    for ( int i = 0; i < ( int )prop_vec.size(); i++ )
+    {
+        ret.push_back( prop_vec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+void DeleteFeaProperty( const string &id )
+{
+    if ( !StructureMgr.GetFeaProperty( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaProperty::Invalid FeaProperty ID " + id );
+        return;
+    }
+
+    StructureMgr.DeleteFeaProperty( id );
+
+    ErrorMgr.NoError();
+}
+
 string AddFeaMaterial()
 {
     FeaMaterial* feamat = nullptr;

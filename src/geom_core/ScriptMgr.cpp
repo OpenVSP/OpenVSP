@@ -5678,9 +5678,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaMaterialIDVec()", asMETHOD( ScriptMgrSingleton, GetFeaMaterialIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteFeaMaterial( const string & in id )", asFUNCTION( vsp::DeleteFeaMaterial ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "string AddFeaMaterial()", asFUNCTION( vsp::AddFeaMaterial ), asCALL_CDECL );
     assert( r >= 0 );
 
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaPropertyIDVec()", asMETHOD( ScriptMgrSingleton, GetFeaPropertyIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteFeaProperty( const string & in id )", asFUNCTION( vsp::DeleteFeaProperty ), asCALL_CDECL );
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string AddFeaProperty( int property_type = 0 )", asFUNCTION( vsp::AddFeaProperty ), asCALL_CDECL );
     assert( r >= 0 );
@@ -6719,6 +6731,18 @@ void ScriptMgrSingleton::AddExcrescence( const std::string & excresName, int exc
 void ScriptMgrSingleton::DeleteExcrescence(int index)
 {
     vsp::DeleteExcrescence(index);
+}
+
+CScriptArray* ScriptMgrSingleton::GetFeaMaterialIDVec()
+{
+    m_ProxyStringArray = vsp::GetFeaMaterialIDVec();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetFeaPropertyIDVec()
+{
+    m_ProxyStringArray = vsp::GetFeaPropertyIDVec();
+    return GetProxyStringArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetFeaStructIDVec()
