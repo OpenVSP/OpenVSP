@@ -7852,6 +7852,12 @@ extern int GetNumXSecSurfs( const std::string & geom_id );
 
     num_surf = GetNumMainSurfs( prop_id ); // Should be the same as the number of blades
 
+    if ( num_surf != GetIntParmVal( FindParm( prop_id, "NumBlade", "Design" ) ) )
+    {
+        Print( "ERROR: GetNumMainSurfs does not match the blade count" );
+        __failure++;
+    }
+
     Print( "Number of Propeller Surfaces: ", false );
 
     Print( num_surf );
@@ -7865,6 +7871,8 @@ extern int GetNumXSecSurfs( const std::string & geom_id );
     num_surf = 0
 
     num_surf = GetNumMainSurfs( prop_id ) # Should be the same as the number of blades
+
+    assert num_surf == GetIntParmVal( FindParm( prop_id, "NumBlade", "Design" ) ), "GetNumMainSurfs does not match the blade count"
 
     print( "Number of Propeller Surfaces: ", False )
 
@@ -7893,6 +7901,12 @@ extern int GetNumMainSurfs( const std::string & geom_id );
 
     num_surf = GetTotalNumSurfs( wing_id ); // Wings default with XZ symmetry on -> 2 surfaces
 
+    if ( num_surf != 2 )
+    {
+        Print( "ERROR: GetTotalNumSurfs, expected 2 for a symmetric wing" );
+        __failure++;
+    }
+
     Print( "Total Number of Wing Surfaces: ", false );
 
     Print( num_surf );
@@ -7906,6 +7920,8 @@ extern int GetNumMainSurfs( const std::string & geom_id );
     num_surf = 0
 
     num_surf = GetTotalNumSurfs( wing_id ) # Wings default with XZ symmetry on -> 2 surfaces
+
+    assert num_surf == 2, "GetTotalNumSurfs, expected 2 for a symmetric wing"
 
     print( "Total Number of Wing Surfaces: ", False )
 
@@ -8628,6 +8644,12 @@ extern std::vector<std::string> GetAllSubSurfIDs();
 
     int num_ss = GetNumSubSurf( wid );
 
+    if ( num_ss != 2 )
+    {
+        Print( "ERROR: GetNumSubSurf, two were added" );
+        __failure++;
+    }
+
     string num_str = string("Number of SubSurfaces: ") + num_ss + string("\n");
 
     Print( num_str );
@@ -8641,6 +8663,8 @@ extern std::vector<std::string> GetAllSubSurfIDs();
     ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
     num_ss = GetNumSubSurf( wid )
+
+    assert num_ss == 2, "GetNumSubSurf, two were added"
 
     num_str = "Number of SubSurfaces: {num_ss}"
 
@@ -14172,6 +14196,12 @@ extern string CreateAndAddBogie( const string &gear_id );
     CreateAndAddBogie( gear_id );
 
     int num_bogie = GetNumBogies( gear_id );            // num_bogie == 2
+
+    if ( num_bogie != 2 )
+    {
+        Print( "ERROR: GetNumBogies, two were added" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14182,6 +14212,8 @@ extern string CreateAndAddBogie( const string &gear_id );
     CreateAndAddBogie( gear_id )
 
     num_bogie = GetNumBogies( gear_id )            # num_bogie == 2
+
+    assert num_bogie == 2, "GetNumBogies, two were added"
     \endcode
     \endPythonOnly
     \sa CreateAndAddBogie, GetAllBogies
@@ -18569,11 +18601,19 @@ extern int GetNumUserParms();
     \code{.cpp}
     int n = GetNumPredefinedUserParms();
 
+    if ( n <= 0 )
+    {
+        Print( "ERROR: GetNumPredefinedUserParms" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     n = GetNumPredefinedUserParms()
+
+    assert n > 0, "GetNumPredefinedUserParms"
 
 
     \endcode
@@ -20021,6 +20061,12 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
 
     int nmod = GetNumModes();
 
+    if ( nmod != 2 )
+    {
+        Print( "ERROR: GetNumModes, two were created" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -20094,6 +20140,8 @@ extern string CreateAndAddMode( const string & name, int normal_set, int degen_s
     Update()
 
     nmod = GetNumModes()
+
+    assert nmod == 2, "GetNumModes, two were created"
 
     \endcode
     \endPythonOnly
