@@ -850,6 +850,94 @@ void AddCFDSource( int type, const string & geom_id, int surf_index,
 }
 
 /// Delete All CFD Sources
+//==== Look up a Geom by ID, reporting through the named caller. ====//
+Geom* FindGeomForSources( const string & geom_id, const string & caller )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Geom " + geom_id );
+        return nullptr;
+    }
+    return geom_ptr;
+}
+
+int GetNumCFDSources( const string & geom_id )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, "GetNumCFDSources" );
+    if ( !geom_ptr )
+    {
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return ( int )geom_ptr->GetCfdMeshMainSourceVec().size();
+}
+
+string GetCFDSourceName( const string & geom_id, int source_index )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, "GetCFDSourceName" );
+    if ( !geom_ptr )
+    {
+        return string();
+    }
+
+    vector< BaseSource* > source_vec = geom_ptr->GetCfdMeshMainSourceVec();
+
+    if ( source_index < 0 || source_index >= ( int )source_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetCFDSourceName::Source Index " + to_string( source_index ) + " Out of Range" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return source_vec[ source_index ]->GetName();
+}
+
+int GetCFDSourceType( const string & geom_id, int source_index )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, "GetCFDSourceType" );
+    if ( !geom_ptr )
+    {
+        return -1;
+    }
+
+    vector< BaseSource* > source_vec = geom_ptr->GetCfdMeshMainSourceVec();
+
+    if ( source_index < 0 || source_index >= ( int )source_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetCFDSourceType::Source Index " + to_string( source_index ) + " Out of Range" );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return source_vec[ source_index ]->GetType();
+}
+
+void DeleteCFDSource( const string & geom_id, int source_index )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, "DeleteCFDSource" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    if ( source_index < 0 || source_index >= ( int )geom_ptr->GetCfdMeshMainSourceVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteCFDSource::Source Index " + to_string( source_index ) + " Out of Range" );
+        return;
+    }
+
+    int prev_curr = geom_ptr->GetCurrSourceID();
+
+    geom_ptr->SetCurrSourceID( source_index );
+    geom_ptr->DelCurrSource();
+    geom_ptr->SetCurrSourceID( prev_curr );
+
+    ErrorMgr.NoError();
+}
+
 void DeleteAllCFDSources()
 {
     CfdMeshMgr.DeleteAllSources();

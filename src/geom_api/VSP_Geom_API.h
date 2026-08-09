@@ -2272,7 +2272,19 @@ extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
 
     AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
 
+    if ( GetNumCFDSources( pid ) != 1 )
+    {
+        Print( "ERROR: the source was not added" );
+        __failure++;
+    }
+
     DeleteAllCFDSources();
+
+    if ( GetNumCFDSources( pid ) != 0 )
+    {
+        Print( "ERROR: DeleteAllCFDSources left sources behind" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2282,11 +2294,323 @@ extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
 
     AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
 
+    assert GetNumCFDSources( pid ) == 1, "the source was not added"
+
     DeleteAllCFDSources()
+
+    assert GetNumCFDSources( pid ) == 0, "DeleteAllCFDSources left sources behind"
 
     \endcode
     \endPythonOnly
 */
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the number of CFD Mesh sources on the specified Geom
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    if ( GetNumCFDSources( pid ) != 0 )
+    {
+        Print( "ERROR: a new Geom starts with sources" );
+        __failure++;
+    }
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
+
+    if ( GetNumCFDSources( pid ) != 1 )
+    {
+        Print( "ERROR: GetNumCFDSources did not count the source that was added" );
+        __failure++;
+    }
+
+    AddDefaultSources(); // 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+
+    if ( GetNumCFDSources( pid ) != 4 )
+    {
+        Print( "ERROR: GetNumCFDSources did not count the default sources" );
+        __failure++;
+    }
+
+    DeleteAllCFDSources();
+
+    if ( GetNumCFDSources( pid ) != 0 )
+    {
+        Print( "ERROR: DeleteAllCFDSources left sources behind" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geom ====//
+    pid = AddGeom( "POD", "" )
+
+    assert GetNumCFDSources( pid ) == 0, "a new Geom starts with sources"
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
+
+    assert GetNumCFDSources( pid ) == 1, "GetNumCFDSources did not count the source that was added"
+
+    AddDefaultSources() # 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+
+    assert GetNumCFDSources( pid ) == 4, "GetNumCFDSources did not count the default sources"
+
+    DeleteAllCFDSources()
+
+    assert GetNumCFDSources( pid ) == 0, "DeleteAllCFDSources left sources behind"
+
+    \endcode
+    \endPythonOnly
+    \sa AddCFDSource, AddDefaultSources, DeleteCFDSource, DeleteAllCFDSources
+    \param [in] geom_id string Geom ID
+    \return int Number of CFD Mesh sources on the Geom
+*/
+
+extern int GetNumCFDSources( const std::string & geom_id );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the name of a CFD Mesh source on the specified Geom
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    AddDefaultSources(); // 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+
+    if ( GetCFDSourceName( pid, 0 ) != "Def_Fwd_PS" )
+    {
+        Print( "ERROR: GetCFDSourceName did not name the first default source" );
+        __failure++;
+    }
+
+    // Every source the Geom counts has to be nameable.
+    for ( int i = 0; i < GetNumCFDSources( pid ); i++ )
+    {
+        if ( GetCFDSourceName( pid, i ).length() == 0 )
+        {
+            Print( "ERROR: source " + i + " has no name" );
+            __failure++;
+        }
+    }
+
+    // An index past the end has to be rejected.
+    GetCFDSourceName( pid, GetNumCFDSources( pid ) );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetCFDSourceName accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geom ====//
+    pid = AddGeom( "POD", "" )
+
+    AddDefaultSources() # 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+
+    assert GetCFDSourceName( pid, 0 ) == "Def_Fwd_PS", "GetCFDSourceName did not name the first default source"
+
+    # Every source the Geom counts has to be nameable.
+    for i in range( GetNumCFDSources( pid ) ):
+        assert len( GetCFDSourceName( pid, i ) ) > 0, "source " + str( i ) + " has no name"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetCFDSourceName( pid, GetNumCFDSources( pid ) )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetCFDSourceName accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa GetNumCFDSources, GetCFDSourceType
+    \param [in] geom_id string Geom ID
+    \param [in] source_index int Source index
+    \return string Source name
+*/
+
+extern std::string GetCFDSourceName( const std::string & geom_id, int source_index );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the type of a CFD Mesh source on the specified Geom
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
+
+    if ( GetCFDSourceType( pid, 0 ) != POINT_SOURCE )
+    {
+        Print( "ERROR: GetCFDSourceType did not report the type that was added" );
+        __failure++;
+    }
+
+    // A source of a different type reports differently.
+    AddCFDSource( LINE_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5, 0.25, 2.0, 0.75, 0.75 );
+
+    if ( GetCFDSourceType( pid, 1 ) != LINE_SOURCE )
+    {
+        Print( "ERROR: GetCFDSourceType did not report the second source" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    GetCFDSourceType( pid, GetNumCFDSources( pid ) );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetCFDSourceType accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geom ====//
+    pid = AddGeom( "POD", "" )
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
+
+    assert GetCFDSourceType( pid, 0 ) == POINT_SOURCE, "GetCFDSourceType did not report the type that was added"
+
+    # A source of a different type reports differently.
+    AddCFDSource( LINE_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5, 0.25, 2.0, 0.75, 0.75 )
+
+    assert GetCFDSourceType( pid, 1 ) == LINE_SOURCE, "GetCFDSourceType did not report the second source"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetCFDSourceType( pid, GetNumCFDSources( pid ) )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetCFDSourceType accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CFD_MESH_SOURCE_TYPE, GetNumCFDSources, GetCFDSourceName
+    \param [in] geom_id string Geom ID
+    \param [in] source_index int Source index
+    \return int CFD Mesh source type enum (i.e. POINT_SOURCE)
+*/
+
+extern int GetCFDSourceType( const std::string & geom_id, int source_index );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Delete a single CFD Mesh source from the specified Geom
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geom ====//
+    string pid = AddGeom( "POD", "" );
+
+    AddDefaultSources(); // 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+
+    string second_name = GetCFDSourceName( pid, 1 );
+
+    DeleteCFDSource( pid, 0 );
+
+    // Only the named source goes, and the rest slide down.
+    if ( GetNumCFDSources( pid ) != 2 )
+    {
+        Print( "ERROR: DeleteCFDSource did not remove one source" );
+        __failure++;
+    }
+
+    if ( GetCFDSourceName( pid, 0 ) != second_name )
+    {
+        Print( "ERROR: DeleteCFDSource removed the wrong source" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    DeleteCFDSource( pid, GetNumCFDSources( pid ) );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteCFDSource accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geom ====//
+    pid = AddGeom( "POD", "" )
+
+    AddDefaultSources() # 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+
+    second_name = GetCFDSourceName( pid, 1 )
+
+    DeleteCFDSource( pid, 0 )
+
+    # Only the named source goes, and the rest slide down.
+    assert GetNumCFDSources( pid ) == 2, "DeleteCFDSource did not remove one source"
+    assert GetCFDSourceName( pid, 0 ) == second_name, "DeleteCFDSource removed the wrong source"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteCFDSource( pid, GetNumCFDSources( pid ) )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteCFDSource accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddCFDSource, AddDefaultSources, DeleteAllCFDSources, GetNumCFDSources
+    \param [in] geom_id string Geom ID
+    \param [in] source_index int Source index
+*/
+
+extern void DeleteCFDSource( const std::string & geom_id, int source_index );
 
 extern void DeleteAllCFDSources();
 
@@ -2301,6 +2625,32 @@ extern void DeleteAllCFDSources();
     string pid = AddGeom( "POD", "" );
 
     AddDefaultSources(); // 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+
+    // The three default sources arrive under the names in the comment.
+    if ( GetNumCFDSources( pid ) != 3 )
+    {
+        Print( "ERROR: AddDefaultSources did not add three sources" );
+        __failure++;
+    }
+    else
+    {
+        if ( GetCFDSourceName( pid, 0 ) != "Def_Fwd_PS" ||
+             GetCFDSourceName( pid, 1 ) != "Def_Aft_PS" ||
+             GetCFDSourceName( pid, 2 ) != "Def_Fwd_Aft_LS" )
+        {
+            Print( "ERROR: AddDefaultSources did not add the expected sources" );
+            __failure++;
+        }
+
+        // The first two are point sources and the third joins them with a line.
+        if ( GetCFDSourceType( pid, 0 ) != POINT_SOURCE ||
+             GetCFDSourceType( pid, 1 ) != POINT_SOURCE ||
+             GetCFDSourceType( pid, 2 ) != LINE_SOURCE )
+        {
+            Print( "ERROR: AddDefaultSources did not add the expected source types" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -2309,6 +2659,17 @@ extern void DeleteAllCFDSources();
     pid = AddGeom( "POD", "" )
 
     AddDefaultSources() # 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
+
+    # The three default sources arrive under the names in the comment.
+    assert GetNumCFDSources( pid ) == 3, "AddDefaultSources did not add three sources"
+    assert GetCFDSourceName( pid, 0 ) == "Def_Fwd_PS", "AddDefaultSources did not add the expected sources"
+    assert GetCFDSourceName( pid, 1 ) == "Def_Aft_PS", "AddDefaultSources did not add the expected sources"
+    assert GetCFDSourceName( pid, 2 ) == "Def_Fwd_Aft_LS", "AddDefaultSources did not add the expected sources"
+
+    # The first two are point sources and the third joins them with a line.
+    assert GetCFDSourceType( pid, 0 ) == POINT_SOURCE, "AddDefaultSources did not add the expected source types"
+    assert GetCFDSourceType( pid, 1 ) == POINT_SOURCE, "AddDefaultSources did not add the expected source types"
+    assert GetCFDSourceType( pid, 2 ) == LINE_SOURCE, "AddDefaultSources did not add the expected source types"
 
     \endcode
     \endPythonOnly
@@ -2328,8 +2689,14 @@ extern void AddDefaultSources();
 
     AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
 
-    // Sources cannot be read back through the API, but a source attached to a
-    // Geom that does not exist has to be rejected.
+    // The source lands on the Geom it was given, as the type it was given.
+    if ( GetNumCFDSources( pid ) != 1 || GetCFDSourceType( pid, 0 ) != POINT_SOURCE )
+    {
+        Print( "ERROR: AddCFDSource did not add a point source" );
+        __failure++;
+    }
+
+    // A source attached to a Geom that does not exist has to be rejected.
     AddCFDSource( POINT_SOURCE, "NOSUCHGEOM", 0, 0.25, 2.0, 0.5, 0.5 );
 
     if ( GetNumTotalErrors() == 0 )
@@ -2352,9 +2719,12 @@ extern void AddDefaultSources();
 
     AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
 
-    # Sources cannot be read back through the API, but a source attached to a
-    # Geom that does not exist has to be rejected.  The error queue is reached
-    # through the error manager singleton in Python.
+    # The source lands on the Geom it was given, as the type it was given.
+    assert GetNumCFDSources( pid ) == 1, "AddCFDSource did not add a point source"
+    assert GetCFDSourceType( pid, 0 ) == POINT_SOURCE, "AddCFDSource did not add a point source"
+
+    # A source attached to a Geom that does not exist has to be rejected.  The
+    # error queue is reached through the error manager singleton in Python.
     err_mgr = ErrorMgrSingleton.getInstance()
 
     AddCFDSource( POINT_SOURCE, "NOSUCHGEOM", 0, 0.25, 2.0, 0.5, 0.5 )
