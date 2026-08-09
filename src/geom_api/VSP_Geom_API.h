@@ -12884,6 +12884,12 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
     }
 
     SetAirfoilUpperPnts( xsec, up_array );
+
+    if ( GetAirfoilUpperPnts( xsec ).length() != up_array.length() )
+    {
+        Print( "ERROR: SetAirfoilUpperPnts point count" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12906,6 +12912,8 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
         up_array[i].scale_y( 2.0 )
 
     SetAirfoilUpperPnts( xsec, up_array )
+
+    assert len( GetAirfoilUpperPnts( xsec ) ) == len( up_array ), "SetAirfoilUpperPnts point count"
 
     \endcode
     \endPythonOnly
@@ -16725,6 +16733,12 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
 
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
 
+    if ( GetEditXSecFixedUVec( xsec_1 ).length() != fixed_u_vec.length() )
+    {
+        Print( "ERROR: SetEditXSecFixedUVec length" );
+        __failure++;
+    }
+
     ReparameterizeEditXSec( xsec_1 );
     \endcode
     \endforcpponly
@@ -16746,6 +16760,8 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
     fixed_u_vec[3] = True # change a flag
 
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec )
+
+    assert len( GetEditXSecFixedUVec( xsec_1 ) ) == len( fixed_u_vec ), "SetEditXSecFixedUVec length"
 
     ReparameterizeEditXSec( xsec_1 )
 
@@ -19808,6 +19824,12 @@ extern std::vector< double > GetVarPresetParmVals( const std::string &setting_id
 
     SetVarPresetParmVals( sid, vals );
 
+    if ( GetVarPresetParmVals( sid ) != vals )
+    {
+        Print( "ERROR: SetVarPresetParmVals did not take" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -19826,6 +19848,8 @@ extern std::vector< double > GetVarPresetParmVals( const std::string &setting_id
     vals = [ 45 ]
 
     SetVarPresetParmVals( sid, vals )
+
+    assert GetVarPresetParmVals( sid ) == vals, "SetVarPresetParmVals did not take"
 
     \endcode
     \endPythonOnly
@@ -22728,6 +22752,12 @@ extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
 
     SetVSPAEROControlGroupName( "Example_CS_Group", group_index );
 
+    if ( GetVSPAEROControlGroupName( group_index ) != "Example_CS_Group" )
+    {
+        Print( "ERROR: SetVSPAEROControlGroupName did not take" );
+        __failure++;
+    }
+
     Print( "CS Group name: ", false );
 
     Print( GetVSPAEROControlGroupName( group_index ) );
@@ -22742,6 +22772,8 @@ extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
     SetVSPAEROControlGroupName( "Example_CS_Group", group_index )
+
+    assert GetVSPAEROControlGroupName( group_index ) == "Example_CS_Group", "SetVSPAEROControlGroupName did not take"
 
     print( "CS Group name: ", False )
 
