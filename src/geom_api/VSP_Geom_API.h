@@ -17476,6 +17476,12 @@ extern double SetParmValLimits( const std::string & parm_id, double val, double 
     string parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" );
 
     SetParmValUpdate( parm_id, 5.0 );
+
+    if ( !closeTo( GetParmVal( parm_id ), 5.0, 1e-9 ) )
+    {
+        Print( "ERROR: SetParmValUpdate" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17486,6 +17492,8 @@ extern double SetParmValLimits( const std::string & parm_id, double val, double 
     parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" )
 
     SetParmValUpdate( parm_id, 5.0 )
+
+    assert abs( GetParmVal( parm_id ) - 5.0 ) < 1e-9, "SetParmValUpdate"
 
     \endcode
     \endPythonOnly
@@ -17510,6 +17518,12 @@ extern double SetParmValUpdate( const std::string & parm_id, double val );
     string parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" );
 
     SetParmValUpdate( parm_id, 5.0 );
+
+    if ( !closeTo( GetParmVal( parm_id ), 5.0, 1e-9 ) )
+    {
+        Print( "ERROR: SetParmValUpdate" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17520,6 +17534,8 @@ extern double SetParmValUpdate( const std::string & parm_id, double val );
     parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" )
 
     SetParmValUpdate( parm_id, 5.0 )
+
+    assert abs( GetParmVal( parm_id ) - 5.0 ) < 1e-9, "SetParmValUpdate"
 
     \endcode
     \endPythonOnly
@@ -17791,6 +17807,12 @@ extern void SetParmUpperLimit( const std::string & parm_id, double val );
     string num_blade_id = GetParm( prop_id, "NumBlade", "Design" );
 
     double max_blade = GetParmUpperLimit( num_blade_id );
+
+    if ( max_blade <= GetParmLowerLimit( num_blade_id ) || max_blade < GetParmVal( num_blade_id ) )
+    {
+        Print( "ERROR: GetParmUpperLimit" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -23757,6 +23779,14 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
 
     double d = ProjPnt01( geom_id, surf_indx, pnt, uout, wout );
 
+    // pnt sits one unit off the surface along its own normal, so the
+    // projection comes back to where it started at a distance of one.
+    if ( !closeTo( d, 1.0, 1e-6 ) || !closeTo( uout, u, 1e-6 ) || !closeTo( wout, w, 1e-6 ) )
+    {
+        Print( "ERROR: ProjPnt01" );
+        __failure++;
+    }
+
     Print( "Dist " + d + " u " + uout + " w " + wout );
     \endcode
     \endforcpponly
@@ -23779,6 +23809,11 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
     pnt.set_xyz( pnt.x() + norm.x(), pnt.y() + norm.y(), pnt.z() + norm.z() )
 
     d, uout, wout = ProjPnt01( geom_id, surf_indx, pnt )
+
+    # pnt sits one unit off the surface along its own normal, so the
+    # projection comes back to where it started at a distance of one.
+    assert abs( d - 1.0 ) < 1e-6, "ProjPnt01 distance"
+    assert abs( uout - u ) < 1e-6 and abs( wout - w ) < 1e-6, "ProjPnt01 u, w"
 
     print( f"Dist {d} u {uout} w {wout}" )
 
@@ -23826,6 +23861,14 @@ extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const 
 
     d = ProjPnt01I( geom_id, pnt, surf_indx_out, uout, wout );
 
+    // pnt sits one unit off the surface along its own normal, so the
+    // projection comes back to where it started at a distance of one.
+    if ( !closeTo( d, 1.0, 1e-6 ) || !closeTo( uout, u, 1e-6 ) || !closeTo( wout, w, 1e-6 ) )
+    {
+        Print( "ERROR: ProjPnt01I" );
+        __failure++;
+    }
+
     Print( "Dist " + d + " u " + uout + " w " + wout + " surf_index " + surf_indx_out );
     \endcode
     \endforcpponly
@@ -23851,6 +23894,11 @@ extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const 
     pnt.set_xyz( pnt.x() + norm.x(), pnt.y() + norm.y(), pnt.z() + norm.z() )
 
     d, surf_indx_out, uout, wout = ProjPnt01I( geom_id, pnt )
+
+    # pnt sits one unit off the surface along its own normal, so the
+    # projection comes back to where it started at a distance of one.
+    assert abs( d - 1.0 ) < 1e-6, "ProjPnt01I distance"
+    assert abs( uout - u ) < 1e-6 and abs( wout - w ) < 1e-6, "ProjPnt01I u, w"
 
     print( f"Dist {d} u {uout} w {wout} surf_index {surf_indx_out}" )
 
@@ -23897,6 +23945,14 @@ extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_
 
     d = ProjPnt01Guess( geom_id, surf_indx, pnt, u + 0.1, w + 0.1, uout, wout );
 
+    // pnt sits one unit off the surface along its own normal, so the
+    // projection comes back to where it started at a distance of one.
+    if ( !closeTo( d, 1.0, 1e-6 ) || !closeTo( uout, u, 1e-6 ) || !closeTo( wout, w, 1e-6 ) )
+    {
+        Print( "ERROR: ProjPnt01Guess" );
+        __failure++;
+    }
+
     Print( "Dist " + d + " u " + uout + " w " + wout );
     \endcode
     \endforcpponly
@@ -23921,6 +23977,11 @@ extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_
     pnt.set_xyz( pnt.x() + norm.x(), pnt.y() + norm.y(), pnt.z() + norm.z() )
 
     d, uout, wout = ProjPnt01Guess( geom_id, surf_indx, pnt, u + 0.1, w + 0.1 )
+
+    # pnt sits one unit off the surface along its own normal, so the
+    # projection comes back to where it started at a distance of one.
+    assert abs( d - 1.0 ) < 1e-6, "ProjPnt01Guess distance"
+    assert abs( uout - u ) < 1e-6 and abs( wout - w ) < 1e-6, "ProjPnt01Guess u, w"
 
     print( f"Dist {d} u {uout} w {wout}" )
 
@@ -23965,6 +24026,14 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
 
     double idist = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, u_out, w_out);
 
+    // pt is the surface point pushed off in -Y, so projecting back along Y
+    // has to land on the point it came from.
+    if ( ( surf_pt - CompPnt01( geom_id, surf_indx, u_out, w_out ) ).mag() > 1e-6 )
+    {
+        Print( "ERROR: AxisProjPnt01 did not recover the original point" );
+        __failure++;
+    }
+
     Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out );
     Print( "3D Offset ", false);
     \endcode
@@ -23985,6 +24054,11 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
     pt.offset_y( -5.0 )
 
     idist, u_out, w_out = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt )
+
+    # pt is the surface point pushed off in -Y, so projecting back along Y
+    # has to land on the point it came from.
+    p_out = CompPnt01( geom_id, surf_indx, u_out, w_out )
+    assert ( surf_pt - p_out ).mag() < 1e-6, "AxisProjPnt01 did not recover the original point"
 
     print( f"iDist {idist} u_out {u_out} w_out {w_out}" )
     print( "3D Offset ", False)
@@ -24029,6 +24103,14 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
 
     double idist = AxisProjPnt01I( geom_id, Y_DIR, pt, surf_indx_out, u_out, w_out);
 
+    // pt is the surface point pushed off in -Y, so projecting back along Y
+    // has to land on the point it came from.
+    if ( ( surf_pt - CompPnt01( geom_id, surf_indx, u_out, w_out ) ).mag() > 1e-6 )
+    {
+        Print( "ERROR: AxisProjPnt01I did not recover the original point" );
+        __failure++;
+    }
+
     Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
     Print( "3D Offset ", false);
     \endcode
@@ -24050,6 +24132,11 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
 
 
     idist, surf_indx_out, u_out, w_out = AxisProjPnt01I( geom_id, Y_DIR, pt )
+
+    # pt is the surface point pushed off in -Y, so projecting back along Y
+    # has to land on the point it came from.
+    p_out = CompPnt01( geom_id, surf_indx, u_out, w_out )
+    assert ( surf_pt - p_out ).mag() < 1e-6, "AxisProjPnt01I did not recover the original point"
 
     print( "iDist {idist} u_out {u_out} w_out {w_out} surf_index {surf_indx_out}" )
     print( "3D Offset ", False)
