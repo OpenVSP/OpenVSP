@@ -3443,6 +3443,24 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void WriteAdvLinkCodeFile( int index, const string & in file_name )", asFUNCTION( vsp::WriteAdvLinkCodeFile ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void ReorderAdvLinkInput( int index, const string & in var_name, int reorder_type )", asFUNCTION( vsp::ReorderAdvLinkInput ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ReorderAdvLinkOutput( int index, const string & in var_name, int reorder_type )", asFUNCTION( vsp::ReorderAdvLinkOutput ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ReorderGeom( const string & in geom_id, int reorder_type )", asFUNCTION( vsp::ReorderGeom ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ReorderSubSurf( const string & in geom_id, const string & in sub_id, int reorder_type )", asFUNCTION( vsp::ReorderSubSurf ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ReorderFeaPart( const string & in geom_id, int fea_struct_ind, const string & in part_id, int reorder_type )", asFUNCTION( vsp::ReorderFeaPart ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ReorderFeaLayer( const string & in material_id, const string & in layer_id, int reorder_type )", asFUNCTION( vsp::ReorderFeaLayer ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void ReadAdvLinkCodeFile( int index, const string & in file_name )", asFUNCTION( vsp::ReadAdvLinkCodeFile ), asCALL_CDECL );
     assert( r >= 0 );
 

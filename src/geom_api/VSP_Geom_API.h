@@ -10395,6 +10395,68 @@ extern void SetGeomParent( const std::string& geom_id, const std::string& parent
     \ingroup Geom
 */
 /*!
+    Move a Geom within the list of its siblings, the way the move buttons beside the Geom browser
+    do.  A Geom's position among its siblings sets the order it is written, exported and drawn in;
+    it does not change the Geom's parent or its geometry.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    // Both Pods sit at the top level, in the order they were added.
+    if ( FindGeoms()[0] != pod1 )
+    {
+        Print( "ERROR: the Geoms did not start in creation order" );
+        __failure++;
+    }
+
+    ReorderGeom( pod2, REORDER_MOVE_UP );
+
+    if ( FindGeoms()[0] != pod2 )
+    {
+        Print( "ERROR: ReorderGeom did not move the Geom" );
+        __failure++;
+    }
+
+    ReorderGeom( pod2, REORDER_MOVE_BOTTOM );
+
+    if ( FindGeoms()[0] != pod1 )
+    {
+        Print( "ERROR: ReorderGeom did not move the Geom back" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    # Both Pods sit at the top level, in the order they were added.
+    assert FindGeoms()[0] == pod1, "the Geoms did not start in creation order"
+
+    ReorderGeom( pod2, REORDER_MOVE_UP )
+
+    assert FindGeoms()[0] == pod2, "ReorderGeom did not move the Geom"
+
+    ReorderGeom( pod2, REORDER_MOVE_BOTTOM )
+
+    assert FindGeoms()[0] == pod1, "ReorderGeom did not move the Geom back"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeomParent
+    \param [in] geom_id string Geom ID
+    \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
+*/
+
+extern void ReorderGeom( const string & geom_id, int reorder_type );
+
+/*!
+    \ingroup Geom
+*/
+/*!
     Get the parent Geom ID for the input child Geom. "NONE" is returned if the Geom has no parent.
     \forcpponly
     \code{.cpp}
@@ -11121,6 +11183,59 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
 */
 
 extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_id );
+
+/*!
+    \ingroup SubSurface
+*/
+/*!
+    Move a sub-surface within its parent Geom's sub-surface list, the way the move buttons on the
+    Sub-Surface tab do.  Sub-surfaces are applied in list order, so where one sits decides which of
+    two overlapping sub-surfaces tags a given piece of the surface.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING", "" );
+
+    string ss_line = AddSubSurf( wing_id, SS_LINE );
+    string ss_rect = AddSubSurf( wing_id, SS_RECTANGLE );
+
+    if ( GetSubSurf( wing_id, 0 ) != ss_line )
+    {
+        Print( "ERROR: the sub-surfaces did not start in creation order" );
+        __failure++;
+    }
+
+    ReorderSubSurf( wing_id, ss_rect, REORDER_MOVE_TOP );
+
+    if ( GetSubSurf( wing_id, 0 ) != ss_rect )
+    {
+        Print( "ERROR: ReorderSubSurf did not move the sub-surface" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING", "" )
+
+    ss_line = AddSubSurf( wing_id, SS_LINE )
+    ss_rect = AddSubSurf( wing_id, SS_RECTANGLE )
+
+    assert GetSubSurf( wing_id, 0 ) == ss_line, "the sub-surfaces did not start in creation order"
+
+    ReorderSubSurf( wing_id, ss_rect, REORDER_MOVE_TOP )
+
+    assert GetSubSurf( wing_id, 0 ) == ss_rect, "ReorderSubSurf did not move the sub-surface"
+
+    \endcode
+    \endPythonOnly
+    \sa AddSubSurf, DeleteSubSurf
+    \param [in] geom_id string Geom ID
+    \param [in] sub_id string Sub-surface ID
+    \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
+*/
+
+extern void ReorderSubSurf( const string & geom_id, const string & sub_id, int reorder_type );
 
 /*!
     \ingroup SubSurface
@@ -12727,6 +12842,70 @@ extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, 
 */
 
 extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Move an FEA part within its structure's part list, the way the move buttons on the Structure
+    tab do.  Parts are meshed in list order, so where a part sits decides which of two intersecting
+    parts is trimmed by the other.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD", "" );
+
+    int struct_ind = AddFeaStruct( pod_id );
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    string bulkhead = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+    string skin = GetFeaPartID( struct_id, 0 );
+
+    ReorderFeaPart( pod_id, struct_ind, bulkhead, REORDER_MOVE_TOP );
+
+    if ( GetFeaPartID( struct_id, 0 ) != bulkhead )
+    {
+        Print( "ERROR: ReorderFeaPart did not move the part" );
+        __failure++;
+    }
+
+    ReorderFeaPart( pod_id, struct_ind, bulkhead, REORDER_MOVE_BOTTOM );
+
+    if ( GetFeaPartID( struct_id, 0 ) != skin )
+    {
+        Print( "ERROR: ReorderFeaPart did not move the part back" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD", "" )
+
+    struct_ind = AddFeaStruct( pod_id )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    bulkhead = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    skin = GetFeaPartID( struct_id, 0 )
+
+    ReorderFeaPart( pod_id, struct_ind, bulkhead, REORDER_MOVE_TOP )
+
+    assert GetFeaPartID( struct_id, 0 ) == bulkhead, "ReorderFeaPart did not move the part"
+
+    ReorderFeaPart( pod_id, struct_ind, bulkhead, REORDER_MOVE_BOTTOM )
+
+    assert GetFeaPartID( struct_id, 0 ) == skin, "ReorderFeaPart did not move the part back"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaPart, DeleteFeaPart, GetFeaPartIDVec
+    \param [in] geom_id string Geom ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] part_id string FEA Part ID
+    \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
+*/
+
+extern void ReorderFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id, int reorder_type );
 
 /*!
     \ingroup FEAMesh
@@ -15423,6 +15602,70 @@ extern std::string AddFeaLayer( const std::string & material_id );
 */
 
 extern void DeleteFeaLayer( const std::string & material_id, const std::string & layer_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Move a layer within an FEA laminate's stack, the way the move buttons on the material editor do.
+    A laminate's properties come from its layers in stacking order, so moving a layer changes the
+    material.
+    \forcpponly
+    \code{.cpp}
+    string mat_id = AddFeaMaterial();
+
+    SetParmVal( FindParm( mat_id, "FeaMaterialType", "FeaMaterial" ), FEA_LAMINATE );
+
+    Update();
+
+    string first = AddFeaLayer( mat_id );
+    string second = AddFeaLayer( mat_id );
+
+    array< string > @layer_ids = GetFeaLayerIDVec( mat_id );
+    int num_layers = layer_ids.size();
+
+    ReorderFeaLayer( mat_id, second, REORDER_MOVE_TOP );
+
+    array< string > @moved_ids = GetFeaLayerIDVec( mat_id );
+
+    if ( moved_ids.size() != num_layers || moved_ids[0] != second )
+    {
+        Print( "ERROR: ReorderFeaLayer did not move the layer" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    mat_id = AddFeaMaterial()
+
+    SetParmVal( FindParm( mat_id, "FeaMaterialType", "FeaMaterial" ), FEA_LAMINATE )
+
+    Update()
+
+    first = AddFeaLayer( mat_id )
+    second = AddFeaLayer( mat_id )
+
+    layer_ids = GetFeaLayerIDVec( mat_id )
+    num_layers = len( layer_ids )
+
+    ReorderFeaLayer( mat_id, second, REORDER_MOVE_TOP )
+
+    moved_ids = GetFeaLayerIDVec( mat_id )
+
+    assert len( moved_ids ) == num_layers, "ReorderFeaLayer did not move the layer"
+    assert moved_ids[0] == second, "ReorderFeaLayer did not move the layer"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaLayer, DeleteFeaLayer, GetFeaLayerIDVec
+    \param [in] material_id string FEA Material ID of a laminate
+    \param [in] layer_id string FEA Layer ID
+    \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
+*/
+
+extern void ReorderFeaLayer( const string & material_id, const string & layer_id, int reorder_type );
 
 /*!
     \ingroup FEAMesh
@@ -41559,6 +41802,121 @@ extern bool BuildAdvLinkScript( int index );
 */
 
 extern void WriteAdvLinkCodeFile( int index, const string & file_name );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Move an input variable within an advanced link's input list, the way the move buttons beside the
+    input browser do.  The order is presentation only; it does not affect what the link computes.
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+
+    AddAdvLinkInput( indx, FindParm( pod, "Length", "Design" ), "len" );
+    AddAdvLinkInput( indx, FindParm( pod, "FineRatio", "Design" ), "fine" );
+
+    ReorderAdvLinkInput( indx, "fine", REORDER_MOVE_UP );
+
+    array< string > @names = GetAdvLinkInputNames( indx );
+
+    if ( names[0] != "fine" || names[1] != "len" )
+    {
+        Print( "ERROR: ReorderAdvLinkInput did not move the variable" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+
+    AddAdvLinkInput( indx, FindParm( pod, "Length", "Design" ), "len" )
+    AddAdvLinkInput( indx, FindParm( pod, "FineRatio", "Design" ), "fine" )
+
+    ReorderAdvLinkInput( indx, "fine", REORDER_MOVE_UP )
+
+    names = GetAdvLinkInputNames( indx )
+
+    assert names[0] == "fine", "ReorderAdvLinkInput did not move the variable"
+    assert names[1] == "len", "ReorderAdvLinkInput did not move the variable"
+
+    \endcode
+    \endPythonOnly
+    \sa SortAdvLinkInputsVar, ReorderAdvLinkOutput
+    \param [in] index int Index for advanced link
+    \param [in] var_name string Input variable name
+    \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
+*/
+
+extern void ReorderAdvLinkInput( int index, const string & var_name, int reorder_type );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Move an output variable within an advanced link's output list, the way the move buttons beside
+    the output browser do.  The order is presentation only; it does not affect what the link
+    computes.
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+
+    AddAdvLinkOutput( indx, FindParm( pod, "X_Rel_Location", "XForm" ), "x" );
+    AddAdvLinkOutput( indx, FindParm( pod, "Y_Rel_Location", "XForm" ), "y" );
+
+    ReorderAdvLinkOutput( indx, "x", REORDER_MOVE_BOTTOM );
+
+    array< string > @names = GetAdvLinkOutputNames( indx );
+
+    if ( names[0] != "y" || names[1] != "x" )
+    {
+        Print( "ERROR: ReorderAdvLinkOutput did not move the variable" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+
+    AddAdvLinkOutput( indx, FindParm( pod, "X_Rel_Location", "XForm" ), "x" )
+    AddAdvLinkOutput( indx, FindParm( pod, "Y_Rel_Location", "XForm" ), "y" )
+
+    ReorderAdvLinkOutput( indx, "x", REORDER_MOVE_BOTTOM )
+
+    names = GetAdvLinkOutputNames( indx )
+
+    assert names[0] == "y", "ReorderAdvLinkOutput did not move the variable"
+    assert names[1] == "x", "ReorderAdvLinkOutput did not move the variable"
+
+    \endcode
+    \endPythonOnly
+    \sa SortAdvLinkOutputsVar, ReorderAdvLinkInput
+    \param [in] index int Index for advanced link
+    \param [in] var_name string Output variable name
+    \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
+*/
+
+extern void ReorderAdvLinkOutput( int index, const string & var_name, int reorder_type );
 
 /*!
     \ingroup AdvancedLink

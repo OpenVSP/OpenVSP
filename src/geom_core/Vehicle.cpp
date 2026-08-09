@@ -1792,15 +1792,20 @@ void Vehicle::ReorderActiveGeom( int action )
         return;
     }
 
-    const string& active_geom_id = active_geom_vec[0];
-    Geom* active_geom = FindGeom( active_geom_id );
-    if ( !active_geom )
+    ReorderGeom( active_geom_vec[0], action );
+}
+
+//==== Move a Geom Within Its List of Siblings ====//
+void Vehicle::ReorderGeom( const string &geom_id, int action )
+{
+    Geom* geom = FindGeom( geom_id );
+    if ( !geom )
     {
         return;
     }
 
     vector< string > id_vec;
-    string parent_id = active_geom->GetParentID();
+    string parent_id = geom->GetParentID();
     Geom* parent_geom = FindGeom( parent_id );
     if ( !parent_geom )
     {
@@ -1811,7 +1816,7 @@ void Vehicle::ReorderActiveGeom( int action )
         id_vec = parent_geom->GetChildIDVec();
     }
 
-    int index = vector_find_val( id_vec, active_geom_id );
+    int index = vector_find_val( id_vec, geom_id );
     ReorderVectorIndex( id_vec, index, action );
 
     if ( !parent_geom )
@@ -1823,7 +1828,6 @@ void Vehicle::ReorderActiveGeom( int action )
         parent_geom->SetChildIDVec( id_vec );
     }
     SetGeomMapDirtyFlag( true );
-
 }
 
 void Vehicle::ReparentActiveGeom( int action )

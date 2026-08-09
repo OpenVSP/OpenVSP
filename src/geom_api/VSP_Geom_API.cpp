@@ -3053,6 +3053,27 @@ string GetParm( const string & container_id, const string & name, const string &
 }
 
 // Set the parent of a Geom; new_parent_id can be either the Vehicle's ID or another Geom's ID
+void ReorderGeom( const string & geom_id, int reorder_type )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh->FindGeom( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReorderGeom::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( reorder_type < REORDER_MOVE_UP || reorder_type > REORDER_MOVE_BOTTOM )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ReorderGeom::Invalid Reorder Type " + to_string( reorder_type ) );
+        return;
+    }
+
+    veh->ReorderGeom( geom_id, reorder_type );
+    veh->Update();
+
+    ErrorMgr.NoError();
+}
+
 void SetGeomParent( const string& geom_id, const string& new_parent_id )
 {
     Vehicle* veh = GetVehicle();
@@ -3282,6 +3303,33 @@ std::vector<std::string> GetSubSurf( const string & geom_id, const string & name
     }
     ErrorMgr.NoError();
     return ID_vec;
+}
+
+void ReorderSubSurf( const string & geom_id, const string & sub_id, int reorder_type )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReorderSubSurf::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( !geom_ptr->GetSubSurf( sub_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ReorderSubSurf::Can't Find Sub Surface " + sub_id );
+        return;
+    }
+
+    if ( reorder_type < REORDER_MOVE_UP || reorder_type > REORDER_MOVE_BOTTOM )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ReorderSubSurf::Invalid Reorder Type " + to_string( reorder_type ) );
+        return;
+    }
+
+    geom_ptr->ReorderSubSurf( sub_id, reorder_type );
+
+    ErrorMgr.NoError();
 }
 
 void DeleteSubSurf( const string & geom_id, const string & sub_id )
@@ -3815,6 +3863,46 @@ string AddFeaPart( const string & geom_id, int fea_struct_ind, int type )
     feastruct->Update();
     ErrorMgr.NoError();
     return feapart->GetID();
+}
+
+void ReorderFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id, int reorder_type )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReorderFeaPart::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReorderFeaPart::Invalid FeaStructure Ptr at index " + to_string( ( long long ) fea_struct_ind ) );
+        return;
+    }
+
+    if ( reorder_type < REORDER_MOVE_UP || reorder_type > REORDER_MOVE_BOTTOM )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ReorderFeaPart::Invalid Reorder Type " + to_string( reorder_type ) );
+        return;
+    }
+
+    int index = feastruct->GetFeaPartIndex( part_id );
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReorderFeaPart::Can't Find FeaPart " + part_id );
+        return;
+    }
+
+    feastruct->ReorderFeaPart( index, reorder_type );
+
+    ErrorMgr.NoError();
 }
 
 void DeleteFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id )
@@ -12940,6 +13028,45 @@ FeaMaterial* FindFeaLaminate( const string & material_id, const string & caller 
     return mat;
 }
 
+void ReorderFeaLayer( const string & material_id, const string & layer_id, int reorder_type )
+{
+    FeaMaterial* mat = FindFeaLaminate( material_id, "ReorderFeaLayer" );
+    if ( !mat )
+    {
+        return;
+    }
+
+    if ( reorder_type < REORDER_MOVE_UP || reorder_type > REORDER_MOVE_BOTTOM )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ReorderFeaLayer::Invalid Reorder Type " + to_string( reorder_type ) );
+        return;
+    }
+
+    vector < FeaLayer* > lay_vec = mat->GetLayerVec();
+
+    int index = -1;
+    for ( int i = 0; i < ( int )lay_vec.size(); i++ )
+    {
+        if ( lay_vec[i]->GetID() == layer_id )
+        {
+            index = i;
+        }
+    }
+
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ReorderFeaLayer::Invalid FEA Layer ID " + layer_id );
+        return;
+    }
+
+    // ReorderCurrentLayer works off the material's current layer, so point it at
+    // the requested one first.
+    mat->SetCurrLayerIndex( index );
+    mat->ReorderCurrentLayer( reorder_type );
+
+    ErrorMgr.NoError();
+}
+
 string AddFeaLayer( const string & material_id )
 {
     FeaMaterial* mat = FindFeaLaminate( material_id, "AddFeaLayer" );
@@ -13591,6 +13718,86 @@ bool ValidateAdvLinkParms( int index )
         ErrorMgr.NoError();
     }
     return ret;
+}
+
+// Look up an advanced link input or output by variable name, reporting through the
+// named caller on failure.
+static int FindAdvLinkVarIndex( AdvLink* adv_link, bool input_flag, const string & var_name, const string & caller )
+{
+    vector < string > names;
+    if ( input_flag )
+    {
+        names = adv_link->GetInputNames();
+    }
+    else
+    {
+        names = adv_link->GetOutputNames();
+    }
+
+    for ( int i = 0; i < ( int )names.size(); i++ )
+    {
+        if ( names[i] == var_name )
+        {
+            return i;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_CANT_FIND_NAME, caller + "::Can't Find Variable " + var_name );
+    return -1;
+}
+
+void ReorderAdvLinkInput( int index, const string & var_name, int reorder_type )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ReorderAdvLinkInput::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    if ( reorder_type < REORDER_MOVE_UP || reorder_type > REORDER_MOVE_BOTTOM )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ReorderAdvLinkInput::Invalid Reorder Type " + to_string( reorder_type ) );
+        return;
+    }
+
+    int var_index = FindAdvLinkVarIndex( adv_link, true, var_name, "ReorderAdvLinkInput" );
+    if ( var_index < 0 )
+    {
+        return;
+    }
+
+    adv_link->ReorderInputVar( var_index, reorder_type );
+
+    ErrorMgr.NoError();
+}
+
+void ReorderAdvLinkOutput( int index, const string & var_name, int reorder_type )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ReorderAdvLinkOutput::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    if ( reorder_type < REORDER_MOVE_UP || reorder_type > REORDER_MOVE_BOTTOM )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ReorderAdvLinkOutput::Invalid Reorder Type " + to_string( reorder_type ) );
+        return;
+    }
+
+    int var_index = FindAdvLinkVarIndex( adv_link, false, var_name, "ReorderAdvLinkOutput" );
+    if ( var_index < 0 )
+    {
+        return;
+    }
+
+    adv_link->ReorderOutputVar( var_index, reorder_type );
+
+    ErrorMgr.NoError();
 }
 
 void WriteAdvLinkCodeFile( int index, const string & file_name )

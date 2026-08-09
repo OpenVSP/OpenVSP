@@ -134,6 +134,7 @@ public:
 
     bool IsGeomActive( const string & geom_id );
     void ReorderActiveGeom( int direction );
+    void ReorderGeom( const string &geom_id, int action );
     void ReparentActiveGeom( int direction );
 
     void CutActiveGeomVec();
