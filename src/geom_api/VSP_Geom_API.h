@@ -26279,6 +26279,21 @@ extern std::vector < std::string > GetCompleteCSNameVec();
     cs_ind_vec[0] = 1;
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ); // Add the first available control surface to the group
+
+    // One surface moved from available to active.
+    array < string > active_vec = GetActiveCSNameVec( group_index );
+
+    if ( active_vec.size() != 1 || active_vec[0] != cs_name_vec[0] )
+    {
+        Print( "ERROR: AddSelectedToCSGroup did not add the surface that was named" );
+        __failure++;
+    }
+
+    if ( GetAvailableCSNameVec( group_index ).size() != cs_name_vec.size() - 1 )
+    {
+        Print( "ERROR: the added surface is still available" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -26295,6 +26310,13 @@ extern std::vector < std::string > GetCompleteCSNameVec();
     cs_ind_vec = [1]
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ) # Add the first available control surface to the group
+
+    # One surface moved from available to active.
+    active_vec = GetActiveCSNameVec( group_index )
+
+    assert len( active_vec ) == 1, "AddSelectedToCSGroup did not add the surface that was named"
+    assert active_vec[0] == cs_name_vec[0], "AddSelectedToCSGroup added the wrong surface"
+    assert len( GetAvailableCSNameVec( group_index ) ) == len( cs_name_vec ) - 1, "the added surface is still available"
 
     \endcode
     \endPythonOnly
@@ -26383,6 +26405,8 @@ extern void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex);
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
     SetVSPAEROControlGroupName( "Example_CS_Group", group_index )
+
+    assert GetVSPAEROControlGroupName( group_index ) == "Example_CS_Group", "SetVSPAEROControlGroupName did not take"
 
     print( "CS Group name: ", False )
 
@@ -26482,7 +26506,28 @@ extern void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex
     array < int > remove_cs_ind_vec( 1 );
     remove_cs_ind_vec[0] = 1;
 
+    int num_active = int( GetActiveCSNameVec( group_index ).size() );
+
+    if ( num_active != int( cs_name_vec.size() ) )
+    {
+        Print( "ERROR: not everything was added to the group" );
+        __failure++;
+    }
+
     RemoveSelectedFromCSGroup( remove_cs_ind_vec, group_index ); // Remove the first control surface
+
+    // One surface moved back from active to available.
+    if ( int( GetActiveCSNameVec( group_index ).size() ) != num_active - 1 )
+    {
+        Print( "ERROR: RemoveSelectedFromCSGroup did not remove a surface" );
+        __failure++;
+    }
+
+    if ( GetAvailableCSNameVec( group_index ).size() != 1 )
+    {
+        Print( "ERROR: the removed surface did not become available again" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -26505,7 +26550,15 @@ extern void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex
 
     remove_cs_ind_vec = [1]
 
+    num_active = len( GetActiveCSNameVec( group_index ) )
+
+    assert num_active == len( cs_name_vec ), "not everything was added to the group"
+
     RemoveSelectedFromCSGroup( remove_cs_ind_vec, group_index ) # Remove the first control surface
+
+    # One surface moved back from active to available.
+    assert len( GetActiveCSNameVec( group_index ) ) == num_active - 1, "RemoveSelectedFromCSGroup did not remove a surface"
+    assert len( GetAvailableCSNameVec( group_index ) ) == 1, "the removed surface did not become available again"
 
     \endcode
     \endPythonOnly
@@ -26649,9 +26702,31 @@ extern std::string FindActuatorDisk( int disk_index );
 
     int num_disk = GetNumActuatorDisks(); // Should be 0
 
+    if ( num_disk != 0 )
+    {
+        Print( "ERROR: a bladed propeller counts as an actuator disk" );
+        __failure++;
+    }
+
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK );
 
     num_disk = GetNumActuatorDisks(); // Should be 1
+
+    if ( num_disk != 1 )
+    {
+        Print( "ERROR: GetNumActuatorDisks did not count the disk" );
+        __failure++;
+    }
+
+    // The disk has to be findable at every index it claims.
+    for ( int i = 0; i < num_disk; i++ )
+    {
+        if ( FindActuatorDisk( i ).length() == 0 )
+        {
+            Print( "ERROR: GetNumActuatorDisks counted a disk that cannot be found" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -26665,9 +26740,17 @@ extern std::string FindActuatorDisk( int disk_index );
 
     num_disk = GetNumActuatorDisks() # Should be 0
 
+    assert num_disk == 0, "a bladed propeller counts as an actuator disk"
+
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK )
 
     num_disk = GetNumActuatorDisks() # Should be 1
+
+    assert num_disk == 1, "GetNumActuatorDisks did not count the disk"
+
+    # The disk has to be findable at every index it claims.
+    for i in range( num_disk ):
+        assert len( FindActuatorDisk( i ) ) > 0, "GetNumActuatorDisks counted a disk that cannot be found"
 
     \endcode
     \endPythonOnly
@@ -26746,6 +26829,35 @@ extern std::string FindUnsteadyGroup( int group_index );
     Update();
 
     Print( GetUnsteadyGroupName( 0 ) );
+
+    // The pod and wing are fixed components, so they share the one fixed group.
+    if ( GetUnsteadyGroupName( 0 ) != "Fixed_Group" )
+    {
+        Print( "ERROR: GetUnsteadyGroupName did not name the fixed component group" );
+        __failure++;
+    }
+
+    // That group holds the pod and both wing surfaces.
+    if ( GetUnsteadyGroupCompIDs( 0 ).size() != 3 )
+    {
+        Print( "ERROR: the fixed group does not hold the components" );
+        __failure++;
+    }
+
+    // A group index past the end has to be rejected.
+    GetUnsteadyGroupName( GetNumUnsteadyGroups() );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetUnsteadyGroupName accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -26758,6 +26870,24 @@ extern std::string FindUnsteadyGroup( int group_index );
     Update()
 
     print( GetUnsteadyGroupName( 0 ) )
+
+    # The pod and wing are fixed components, so they share the one fixed group.
+    assert GetUnsteadyGroupName( 0 ) == "Fixed_Group", "GetUnsteadyGroupName did not name the fixed component group"
+
+    # That group holds the pod and both wing surfaces.
+    assert len( GetUnsteadyGroupCompIDs( 0 ) ) == 3, "the fixed group does not hold the components"
+
+    # A group index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetUnsteadyGroupName( GetNumUnsteadyGroups() )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetUnsteadyGroupName accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -26879,13 +27009,38 @@ extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
 
     int num_group = GetNumUnsteadyGroups(); // Should be 0
 
+    if ( num_group != 0 )
+    {
+        Print( "ERROR: an actuator disk counts as an unsteady group" );
+        __failure++;
+    }
+
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
 
     num_group = GetNumUnsteadyGroups(); // Should be 1
 
+    if ( num_group != 1 )
+    {
+        Print( "ERROR: the bladed propeller was not counted" );
+        __failure++;
+    }
+
     string wing_id = AddGeom( "WING" );
 
     num_group = GetNumUnsteadyGroups(); // Should be 2 (includes fixed component group)
+
+    if ( num_group != 2 )
+    {
+        Print( "ERROR: the fixed component group was not counted" );
+        __failure++;
+    }
+
+    // Only the propeller is a rotor group; the wing shares the fixed group.
+    if ( GetNumUnsteadyRotorGroups() != 1 )
+    {
+        Print( "ERROR: GetNumUnsteadyGroups disagrees with GetNumUnsteadyRotorGroups" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -26899,13 +27054,22 @@ extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
 
     num_group = GetNumUnsteadyGroups() # Should be 0
 
+    assert num_group == 0, "an actuator disk counts as an unsteady group"
+
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES )
 
     num_group = GetNumUnsteadyGroups() # Should be 1
 
+    assert num_group == 1, "the bladed propeller was not counted"
+
     wing_id = AddGeom( "WING" )
 
     num_group = GetNumUnsteadyGroups() # Should be 2 (includes fixed component group)
+
+    assert num_group == 2, "the fixed component group was not counted"
+
+    # Only the propeller is a rotor group; the wing shares the fixed group.
+    assert GetNumUnsteadyRotorGroups() == 1, "GetNumUnsteadyGroups disagrees with GetNumUnsteadyRotorGroups"
 
     \endcode
     \endPythonOnly
@@ -27013,6 +27177,22 @@ extern void AddExcrescence(const std::string & excresName, const int & excresTyp
     AddExcrescence( "Percentage Example", EXCRESCENCE_PERCENT_GEOM, 5 );
 
     DeleteExcrescence( 2 ); // Last Index
+
+    // Three were added and one was deleted, so index 2 no longer exists and
+    // asking for it again has to be rejected.
+    DeleteExcrescence( 2 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteExcrescence accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27024,6 +27204,19 @@ extern void AddExcrescence(const std::string & excresName, const int & excresTyp
     AddExcrescence( "Percentage Example", EXCRESCENCE_PERCENT_GEOM, 5 )
 
     DeleteExcrescence( 2 ) # Last Index
+
+    # Three were added and one was deleted, so index 2 no longer exists and
+    # asking for it again has to be rejected.  The error queue is reached through
+    # the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteExcrescence( 2 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteExcrescence accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly

@@ -9502,6 +9502,14 @@ void AddExcrescence(const std::string &excresName, const int & excresType, const
 
 void DeleteExcrescence(const int & index)
 {
+    // An index outside the table would be erased anyway, which is undefined
+    // behaviour rather than a diagnosable mistake.
+    if ( index < 0 || index >= ( int )ParasiteDragMgr.GetExcresVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteExcrescence::Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
     ParasiteDragMgr.DeleteExcrescence(index);
 
     ErrorMgr.NoError();

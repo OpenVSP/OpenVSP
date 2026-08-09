@@ -2343,6 +2343,11 @@ void ParasiteDragMgrSingleton::DeleteExcrescence()
 
 void ParasiteDragMgrSingleton::DeleteExcrescence( int index )
 {
+    if ( index < 0 || index >= ( int )m_ExcresRowVec.size() )
+    {
+        return;
+    }
+
     m_CurrentExcresIndex = index;
     DeleteExcrescence();
 }
