@@ -753,6 +753,10 @@ public:
     {
         m_WakeActiveFlag.Set( flag );
     }
+    virtual bool GetWakeActiveFlag() const
+    {
+        return m_WakeActiveFlag();
+    }
     virtual void AppendWakeData( vector < piecewise_curve_type >& curve_vec, vector < double >& wake_scale_vec, vector < double >& wake_angle_vec );
     virtual bool HasWingTypeSurfs();
 

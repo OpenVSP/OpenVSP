@@ -346,6 +346,19 @@ string ExportFile( const string & file_name, int thick_set, int file_type, int s
     return mesh_id;
 }
 
+string GetBEMPropID()
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBEMPropID::Failure Getting Vehicle Ptr" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return veh->m_BEMPropID;
+}
+
 void SetBEMPropID( const string & prop_id )
 {
     Vehicle* veh = GetVehicle();
@@ -455,6 +468,38 @@ int GetDesignVarType( int index )
 //===============      Computations               ===================//
 //===================================================================//
 /// Set Computation File Names
+string GetComputationFileName( int file_type )
+{
+    // The CFD Mesh outputs are kept by the CFD settings under their own
+    // enumeration; everything else lives in the Vehicle's own table.  Mirror
+    // the routing SetComputationFileName does.
+    if ( file_type == CFD_STL_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_STL_FILE_NAME );
+    if ( file_type == CFD_POLY_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_POLY_FILE_NAME );
+    if ( file_type == CFD_TRI_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_TRI_FILE_NAME );
+    if ( file_type == CFD_FACET_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_FACET_FILE_NAME );
+    if ( file_type == CFD_OBJ_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_OBJ_FILE_NAME );
+    if ( file_type == CFD_DAT_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_DAT_FILE_NAME );
+    if ( file_type == CFD_KEY_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_KEY_FILE_NAME );
+    if ( file_type == CFD_GMSH_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_GMSH_FILE_NAME );
+    if ( file_type == CFD_TKEY_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_TKEY_FILE_NAME );
+    if ( file_type == CFD_VSPGEOM_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_VSPGEOM_FILE_NAME );
+
+    string ret = GetVehicle()->getExportFileName( file_type );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
 void SetComputationFileName( int file_type, const string & file_name )
 {
     GetVehicle()->setExportFileName( file_type, file_name );
@@ -584,6 +629,68 @@ string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto
 }
 
 //==== Set a CFD Mesh Control Val =====//
+double GetCFDMeshVal( int type )
+{
+    double ret = 0.0;
+
+    if ( type == CFD_MIN_EDGE_LEN )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->m_MinLen();
+    else if ( type == CFD_MAX_EDGE_LEN )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->m_BaseLen();
+    else if ( type == CFD_MAX_GAP )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->m_MaxGap();
+    else if ( type == CFD_NUM_CIRCLE_SEGS )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->m_NCircSeg();
+    else if ( type == CFD_GROWTH_RATIO )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->m_GrowRatio();
+    else if ( type == CFD_LIMIT_GROWTH_FLAG )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->GetRigorLimit();
+    else if ( type == CFD_INTERSECT_SUBSURFACE_FLAG )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_IntersectSubSurfs();
+    else if ( type == CFD_HALF_MESH_FLAG )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_HalfMeshFlag();
+    else if ( type == CFD_FAR_FIELD_FLAG )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarMeshFlag();
+    else if ( type == CFD_FAR_MAX_EDGE_LEN )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->m_FarMaxLen();
+    else if ( type == CFD_FAR_MAX_GAP )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->m_FarMaxGap();
+    else if ( type == CFD_FAR_NUM_CIRCLE_SEGS )
+        ret = GetVehicle()->GetCfdGridDensityPtr()->m_FarNCircSeg();
+    else if ( type == CFD_FAR_SIZE_ABS_FLAG )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarAbsSizeFlag();
+    else if ( type == CFD_FAR_LENGTH )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarLength();
+    else if ( type == CFD_FAR_WIDTH )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarWidth();
+    else if ( type == CFD_FAR_HEIGHT )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarHeight();
+    else if ( type == CFD_FAR_X_SCALE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarXScale();
+    else if ( type == CFD_FAR_Y_SCALE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarYScale();
+    else if ( type == CFD_FAR_Z_SCALE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarZScale();
+    else if ( type == CFD_FAR_LOC_MAN_FLAG )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarManLocFlag();
+    else if ( type == CFD_FAR_LOC_X )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarXLocation();
+    else if ( type == CFD_FAR_LOC_Y )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation();
+    else if ( type == CFD_FAR_LOC_Z )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation();
+    else if ( type == CFD_SRF_XYZ_FLAG )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_XYZIntCurveFlag();
+    else
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "GetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
+        return ret;
+    }
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
 void SetCFDMeshVal( int type, double val )
 {
     if ( type == CFD_MIN_EDGE_LEN )
@@ -643,6 +750,20 @@ void SetCFDMeshVal( int type, double val )
     ErrorMgr.NoError();
 }
 /// Turn On/Off Wake For Component
+bool GetCFDWakeFlag( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetCFDWakeFlag::Can't Find Geom " + geom_id );
+        return false;
+    }
+
+    ErrorMgr.NoError();
+    return geom_ptr->GetWakeActiveFlag();
+}
+
 void SetCFDWakeFlag( const string & geom_id, bool flag )
 {
     Vehicle* veh = GetVehicle();
@@ -2205,6 +2326,69 @@ void SetGeomDisplayType(const string &geom_id, int type)
     ErrorMgr.NoError();
 }
 
+int GetGeomDrawType( const string &geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomDrawType::Can't Find Geom " + geom_id );
+        return GEOM_DRAW_WIRE;
+    }
+
+    ErrorMgr.NoError();
+    return geom_ptr->m_GuiDraw.GetDrawType();
+}
+
+int GetGeomDisplayType( const string &geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomDisplayType::Can't Find Geom " + geom_id );
+        return DISPLAY_BEZIER;
+    }
+
+    ErrorMgr.NoError();
+    return geom_ptr->m_GuiDraw.GetDisplayType();
+}
+
+vec3d GetGeomWireColor( const string &geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomWireColor::Can't Find Geom " + geom_id );
+        return vec3d();
+    }
+
+    ErrorMgr.NoError();
+    return geom_ptr->m_GuiDraw.GetWireColor();
+}
+
+string GetGeomMaterialName( const string &geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetGeomMaterialName::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    Material *mat = geom_ptr->GetMaterial();
+    if ( !mat )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomMaterialName::Geom " + geom_id + " has no material" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return mat->m_Name;
+}
+
 void SetGeomMaterialName( const string &geom_id, const string &name )
 {
     Vehicle* veh = GetVehicle();
@@ -3134,6 +3318,26 @@ void IntersectSubSurf( const std::string & sub_id )
 
     ss_intersect_ptr->Intersect();
     ErrorMgr.NoError();
+}
+
+std::string GetIntersectSubSurfGeomID( const std::string & sub_id )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetIntersectSubSurfGeomID::Can't Find SubSurface " + sub_id );
+        return string();
+    }
+
+    SSIntersect* ss_intersect_ptr = dynamic_cast< SSIntersect* >( ss_ptr );
+    if ( !ss_intersect_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetIntersectSubSurfGeomID::SubSurface " + sub_id + " is not SS_INTERSECT type" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return ss_intersect_ptr->m_IntersectID;
 }
 
 void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::string & geom_id )
@@ -4118,6 +4322,79 @@ string AddFeaProperty( int property_type )
 }
 
 //==== Set a FEA Mesh Control Val =====//
+//==== Look up the Structure a Geom ID and index name, reporting through the
+//==== named caller when it cannot be found. ====//
+FeaStructure* FindFeaStruct( const string & geom_id, int fea_struct_ind, const string & caller )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return nullptr;
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Geom " + geom_id );
+        return nullptr;
+    }
+
+    FeaStructure* feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Invalid FeaStructure Ptr at index " + to_string( ( long long )fea_struct_ind ) );
+        return nullptr;
+    }
+
+    return feastruct;
+}
+
+double GetFeaMeshVal( const string & geom_id, int fea_struct_ind, int type )
+{
+    double ret = 0.0;
+
+    FeaStructure* feastruct = FindFeaStruct( geom_id, fea_struct_ind, "GetFeaMeshVal" );
+    if ( !feastruct )
+    {
+        return ret;
+    }
+
+    if ( type == CFD_MIN_EDGE_LEN )
+        ret = feastruct->GetFeaGridDensityPtr()->m_MinLen();
+    else if ( type == CFD_MAX_EDGE_LEN )
+        ret = feastruct->GetFeaGridDensityPtr()->m_BaseLen();
+    else if ( type == CFD_MAX_GAP )
+        ret = feastruct->GetFeaGridDensityPtr()->m_MaxGap();
+    else if ( type == CFD_NUM_CIRCLE_SEGS )
+        ret = feastruct->GetFeaGridDensityPtr()->m_NCircSeg();
+    else if ( type == CFD_GROWTH_RATIO )
+        ret = feastruct->GetFeaGridDensityPtr()->m_GrowRatio();
+    else if ( type == CFD_LIMIT_GROWTH_FLAG )
+        ret = feastruct->GetFeaGridDensityPtr()->GetRigorLimit();
+    else if ( type == CFD_HALF_MESH_FLAG )
+        ret = feastruct->GetStructSettingsPtr()->m_HalfMeshFlag();
+    else
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "GetFeaMeshVal::Can't Find Type " + to_string( ( long long )type ) );
+        return ret;
+    }
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+string GetFeaMeshFileName( const string & geom_id, int fea_struct_ind, int file_type )
+{
+    FeaStructure* feastruct = FindFeaStruct( geom_id, fea_struct_ind, "GetFeaMeshFileName" );
+    if ( !feastruct )
+    {
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return feastruct->GetStructSettingsPtr()->GetExportFileName( file_type );
+}
+
 void SetFeaMeshVal( const string & geom_id, int fea_struct_ind, int type, double val )
 {
     Vehicle* veh = GetVehicle();
@@ -4388,6 +4665,64 @@ void SplitWingXSec( const string & wing_id, int section_index )
 
     wg->SplitWingSect( section_index );
     ErrorMgr.NoError();
+}
+
+vector < int > GetDriverGroup( const string & geom_id, int section_index )
+{
+    vector < int > choices;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDriverGroup::Can't Find Geom " + geom_id );
+        return choices;
+    }
+
+    if ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE )
+    {
+        WingGeom* wg = dynamic_cast<WingGeom*>( geom_ptr );
+        WingSect* ws = wg->GetWingSect( section_index );
+        if ( !ws )
+        {
+            ErrorMgr.AddError( VSP_INVALID_PTR, "GetDriverGroup::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
+            return choices;
+        }
+
+        ErrorMgr.NoError();
+        return ws->m_DriverGroup.GetChoices();
+    }
+
+    GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
+
+    XSecCurve* xsc = nullptr;
+    if ( gxs ) // Proceed as GeomXSec
+    {
+        XSec* xs = gxs->GetXSec( section_index );
+        if ( !xs )
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetDriverGroup::Invalid XSec Index " + to_string( ( long long )section_index ) );
+            return choices;
+        }
+        xsc = xs->GetXSecCurve();
+    }
+    else
+    {
+        BORGeom* bor = dynamic_cast < BORGeom* > ( geom_ptr );
+        if ( bor ) // Proceed as Body of Revolution
+        {
+            xsc = bor->GetXSecCurve();
+        }
+    }
+
+    if ( xsc ) // Succeeded in getting an XSecCurve
+    {
+        ErrorMgr.NoError();
+        return xsc->m_DriverGroup->GetChoices();
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_PTR, "GetDriverGroup::Invalid Geom Type " + geom_id );
+    return choices;
 }
 
 void SetDriverGroup( const string & geom_id, int section_index, int driver_0, int driver_1, int driver_2 )
@@ -4755,6 +5090,29 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
 }
 
 //==== Set XSec Pnts ====//
+vector< vec3d > GetXSecPnts( const string& xsec_id )
+{
+    vector< vec3d > pnt_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecPnts::Can't Find XSec " + xsec_id );
+        return pnt_vec;
+    }
+    if ( xs->GetXSecCurve()->GetType() != XS_FILE_FUSE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetXSecPnts::Wrong XSec Type" );
+        return pnt_vec;
+    }
+
+    FileXSec* file_xs = dynamic_cast<FileXSec*>( xs->GetXSecCurve() );
+    assert( file_xs );
+    pnt_vec = file_xs->GetUnityFilePnts();
+    ErrorMgr.NoError();
+    return pnt_vec;
+}
+
 void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec )
 {
     XSec* xs = FindXSec( xsec_id );
@@ -6704,6 +7062,46 @@ vector<vec3d> ReadBORFileXSec( const string& bor_id, const string& file_name )
 }
 
 //==== Set XSec Pnts ====//
+vector< vec3d > GetBORXSecPnts( const string& bor_id )
+{
+    vector< vec3d > pnt_vec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( bor_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecPnts::Can't Find Geom " + bor_id );
+        return pnt_vec;
+    }
+    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORXSecPnts::Geom " + bor_id + " is not a body of revolution" );
+        return pnt_vec;
+    }
+
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+
+    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+
+    if ( !xsc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecPnts::Can't Get XSecCurve" );
+        return pnt_vec;
+    }
+
+    if ( xsc->GetType() != XS_FILE_FUSE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORXSecPnts::Wrong XSec Type" );
+        return pnt_vec;
+    }
+
+    FileXSec* file_xs = dynamic_cast<FileXSec*>( xsc );
+    assert( file_xs );
+    pnt_vec = file_xs->GetUnityFilePnts();
+    ErrorMgr.NoError();
+    return pnt_vec;
+}
+
 void SetBORXSecPnts( const string& bor_id, vector< vec3d > & pnt_vec )
 {
     Vehicle* veh = GetVehicle();
@@ -9503,6 +9901,24 @@ void AddExcrescence(const std::string &excresName, const int & excresType, const
     ErrorMgr.NoError();
 }
 
+int GetNumExcrescences()
+{
+    int ret = ( int )ParasiteDragMgr.GetExcresVec().size();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+void DeleteAllExcrescences()
+{
+    while ( ParasiteDragMgr.GetExcresVec().size() > 0 )
+    {
+        ParasiteDragMgr.DeleteExcrescence( 0 );
+    }
+
+    ErrorMgr.NoError();
+}
+
 void DeleteExcrescence(const int & index)
 {
     // An index outside the table would be erased anyway, which is undefined
@@ -11089,6 +11505,38 @@ void AddAdvLinkOutput( int index, const string & parm_id, const string & var_nam
     }
 
     adv_link->AddVar( parm_id, var_name, false );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void DelAllAdvLinkInputs( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelAllAdvLinkInputs::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->DeleteAllVars( true );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void DelAllAdvLinkOutputs( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelAllAdvLinkOutputs::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->DeleteAllVars( false );
 
     ErrorMgr.NoError();
     return;

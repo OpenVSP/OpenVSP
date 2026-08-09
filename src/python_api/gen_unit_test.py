@@ -61,6 +61,7 @@ class TestOpenVSP(unittest.TestCase):
                         ':return' in curr_line or \
                         ':param' in curr_line or \
                         'See also:' in curr_line or \
+                        'Notes:' in curr_line or \
                         ('def' in curr_line and '):' in curr_line):
                         idx_python_end = idx - 1
                         check_for_python_flag = False

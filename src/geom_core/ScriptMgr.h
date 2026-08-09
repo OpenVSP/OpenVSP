@@ -160,8 +160,10 @@ private:
     void AddSelectedToCSGroup( CScriptArray* selected, int CSGroupIndex );
     void RemoveSelectedFromCSGroup( CScriptArray* selected, int CSGroupIndex );
     CScriptArray* GetUnsteadyGroupCompIDs( int group_index );
+    CScriptArray* GetDriverGroup( const string & geom_id, int section_index );
     CScriptArray* GetUnsteadyGroupSurfIndexes( int group_index );
     CScriptArray* GetXSecParmIDs( const string & xsec_id );
+    CScriptArray* GetXSecPnts( const string& xsec_id );
     CScriptArray* ReadFileXSec( const string& xsec_id, const string& file_name );
     CScriptArray* GetAirfoilUpperPnts( const string& xsec_id );
     CScriptArray* GetAirfoilLowerPnts( const string& xsec_id );
@@ -246,6 +248,7 @@ private:
     void SetAirfoilUpperPnts( const string& xsec_id, CScriptArray* up_pnt_arr );
     void SetAirfoilLowerPnts( const string& xsec_id, CScriptArray* low_pnt_arr );
     void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
+    CScriptArray* GetBORXSecPnts( const string& bor_id );
     void SetBORXSecPnts( const string& bor_id, CScriptArray* pnt_arr );
     void SetBORAirfoilUpperPnts( const string& bor_id, CScriptArray* up_pnt_arr );
     void SetBORAirfoilLowerPnts( const string& bor_id, CScriptArray* low_pnt_arr );

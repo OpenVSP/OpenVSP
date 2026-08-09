@@ -1505,6 +1505,42 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     \param [in] prop_id string Propeller Geom ID
 */
 
+/*!
+    \ingroup FileIO
+*/
+/*!
+    Get the ID of the propeller that will be exported to a BEM file.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Prop Geometry ====//
+    string prop_id = AddGeom( "PROP" );
+
+    SetBEMPropID( prop_id );
+
+    if ( GetBEMPropID() != prop_id )
+    {
+        Print( "ERROR: GetBEMPropID did not report the propeller that was set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Prop Geometry ====//
+    prop_id = AddGeom( "PROP" )
+
+    SetBEMPropID( prop_id )
+
+    assert GetBEMPropID() == prop_id, "GetBEMPropID did not report the propeller that was set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetBEMPropID, ExportFile
+    \return string Propeller Geom ID
+*/
+
+extern string GetBEMPropID();
+
 extern void SetBEMPropID( const string & prop_id );
 
 
@@ -1661,6 +1697,55 @@ extern int GetDesignVarType( int index );
     \param [in] file_type int File type enum (i.e. CFD_TRI_TYPE, COMP_GEOM_TXT_TYPE)
     \param [in] file_name string File name
 */
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the file name of a specified file type. Note, this function cannot be used to get FEA Mesh file names.
+    \forcpponly
+    \code{.cpp}
+    //==== Set File Name ====//
+    SetComputationFileName( DEGEN_GEOM_CSV_TYPE, "TestDegenScript.csv" );
+
+    if ( GetComputationFileName( DEGEN_GEOM_CSV_TYPE ) != "TestDegenScript.csv" )
+    {
+        Print( "ERROR: GetComputationFileName did not report the name that was set" );
+        __failure++;
+    }
+
+    // Each file type carries its own name.
+    SetComputationFileName( CFD_STL_TYPE, "TestCFDMesh.stl" );
+
+    if ( GetComputationFileName( CFD_STL_TYPE ) != "TestCFDMesh.stl" ||
+         GetComputationFileName( DEGEN_GEOM_CSV_TYPE ) != "TestDegenScript.csv" )
+    {
+        Print( "ERROR: setting one file name disturbed another" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Set File Name ====//
+    SetComputationFileName( DEGEN_GEOM_CSV_TYPE, "TestDegenScript.csv" )
+
+    assert GetComputationFileName( DEGEN_GEOM_CSV_TYPE ) == "TestDegenScript.csv", "GetComputationFileName did not report the name that was set"
+
+    # Each file type carries its own name.
+    SetComputationFileName( CFD_STL_TYPE, "TestCFDMesh.stl" )
+
+    assert GetComputationFileName( CFD_STL_TYPE ) == "TestCFDMesh.stl", "setting one file name disturbed another"
+    assert GetComputationFileName( DEGEN_GEOM_CSV_TYPE ) == "TestDegenScript.csv", "setting one file name disturbed another"
+
+    \endcode
+    \endPythonOnly
+    \sa COMPUTATION_FILE_TYPE, SetComputationFileName, GetFeaMeshFileName
+    \param [in] file_type int File type enum (i.e. CFD_TRI_TYPE, COMP_GEOM_TXT_TYPE)
+    \return string File name
+*/
+
+extern std::string GetComputationFileName( int file_type );
 
 extern void SetComputationFileName( int file_type, const std::string & file_name );
 
@@ -1986,6 +2071,78 @@ extern void ComputeCFDMesh( int set, int degenset, int file_export_types );
     \param [in] val double Value to set
 */
 
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the value of a specific CFD Mesh option
+    \forcpponly
+    \code{.cpp}
+    SetCFDMeshVal( CFD_MIN_EDGE_LEN, 1.0 );
+
+    if ( !closeTo( GetCFDMeshVal( CFD_MIN_EDGE_LEN ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: GetCFDMeshVal did not report the value that was set" );
+        __failure++;
+    }
+
+    // Flags read back as zero or one.
+    SetCFDMeshVal( CFD_HALF_MESH_FLAG, 1.0 );
+
+    if ( !closeTo( GetCFDMeshVal( CFD_HALF_MESH_FLAG ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: GetCFDMeshVal did not report the half mesh flag" );
+        __failure++;
+    }
+
+    // A control type that does not exist has to be rejected.
+    GetCFDMeshVal( -1 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetCFDMeshVal accepted an unknown control type" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    SetCFDMeshVal( CFD_MIN_EDGE_LEN, 1.0 )
+
+    assert abs( GetCFDMeshVal( CFD_MIN_EDGE_LEN ) - 1.0 ) < 1e-12, "GetCFDMeshVal did not report the value that was set"
+
+    # Flags read back as zero or one.
+    SetCFDMeshVal( CFD_HALF_MESH_FLAG, 1.0 )
+
+    assert abs( GetCFDMeshVal( CFD_HALF_MESH_FLAG ) - 1.0 ) < 1e-12, "GetCFDMeshVal did not report the half mesh flag"
+
+    # A control type that does not exist has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetCFDMeshVal( -1 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetCFDMeshVal accepted an unknown control type"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CFD_CONTROL_TYPE, SetCFDMeshVal
+    \param [in] type int CFD Mesh control type enum (i.e. CFD_GROWTH_RATIO)
+    \return double Value of the option
+*/
+
+extern double GetCFDMeshVal( int type );
+
 extern void SetCFDMeshVal( int type, double val );
 
 /*!
@@ -2043,6 +2200,63 @@ extern void SetCFDMeshVal( int type, double val );
     \param [in] geom_id string Geom ID
     \param [in] flag bool True to activate, false to deactivate
 */
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the CFD Mesh wake flag for a particular Geom
+    \forcpponly
+    \code{.cpp}
+    //==== Add Wing Geom ====//
+    string wid = AddGeom( "WING", "" );
+
+    // A new Geom starts with its wake off.
+    if ( GetCFDWakeFlag( wid ) )
+    {
+        Print( "ERROR: a new Geom starts with its wake on" );
+        __failure++;
+    }
+
+    SetCFDWakeFlag( wid, true );
+
+    if ( !GetCFDWakeFlag( wid ) )
+    {
+        Print( "ERROR: GetCFDWakeFlag did not follow SetCFDWakeFlag" );
+        __failure++;
+    }
+
+    // The flag is the Wake Parm, so the two have to agree.
+    if ( !closeTo( GetParmVal( wid, "Wake", "Shape" ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: the wake flag disagrees with its Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Wing Geom ====//
+    wid = AddGeom( "WING", "" )
+
+    # A new Geom starts with its wake off.
+    assert not GetCFDWakeFlag( wid ), "a new Geom starts with its wake on"
+
+    SetCFDWakeFlag( wid, True )
+
+    assert GetCFDWakeFlag( wid ), "GetCFDWakeFlag did not follow SetCFDWakeFlag"
+
+    # The flag is the Wake Parm, so the two have to agree.
+    assert abs( GetParmVal( wid, "Wake", "Shape" ) - 1.0 ) < 1e-12, "the wake flag disagrees with its Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa SetCFDWakeFlag
+    \param [in] geom_id string Geom ID
+    \return bool True if the wake is active
+*/
+
+extern bool GetCFDWakeFlag( const std::string & geom_id );
 
 extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
 
@@ -8094,6 +8308,217 @@ extern void SetGeomDisplayType(const string &geom_id, int type);
     \param [in] name string Material name
 */
 
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Get the draw type of the specified geometry
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+
+    SetGeomDrawType( pid, GEOM_DRAW_SHADE );
+
+    if ( GetGeomDrawType( pid ) != GEOM_DRAW_SHADE )
+    {
+        Print( "ERROR: GetGeomDrawType did not report the type that was set" );
+        __failure++;
+    }
+
+    SetGeomDrawType( pid, GEOM_DRAW_WIRE );
+
+    if ( GetGeomDrawType( pid ) != GEOM_DRAW_WIRE )
+    {
+        Print( "ERROR: GetGeomDrawType did not follow a second set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+
+    SetGeomDrawType( pid, GEOM_DRAW_SHADE )
+
+    assert GetGeomDrawType( pid ) == GEOM_DRAW_SHADE, "GetGeomDrawType did not report the type that was set"
+
+    SetGeomDrawType( pid, GEOM_DRAW_WIRE )
+
+    assert GetGeomDrawType( pid ) == GEOM_DRAW_WIRE, "GetGeomDrawType did not follow a second set"
+
+    \endcode
+    \endPythonOnly
+    \sa DRAW_TYPE, SetGeomDrawType
+    \param [in] geom_id string Geom ID
+    \return int Draw type enum (i.e. GEOM_DRAW_SHADE)
+*/
+
+extern int GetGeomDrawType( const string &geom_id );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Get the display type of the specified geometry
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE );
+
+    if ( GetGeomDisplayType( pid ) != DISPLAY_DEGEN_PLATE )
+    {
+        Print( "ERROR: GetGeomDisplayType did not report the type that was set" );
+        __failure++;
+    }
+
+    SetGeomDisplayType( pid, DISPLAY_BEZIER );
+
+    if ( GetGeomDisplayType( pid ) != DISPLAY_BEZIER )
+    {
+        Print( "ERROR: GetGeomDisplayType did not follow a second set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE )
+
+    assert GetGeomDisplayType( pid ) == DISPLAY_DEGEN_PLATE, "GetGeomDisplayType did not report the type that was set"
+
+    SetGeomDisplayType( pid, DISPLAY_BEZIER )
+
+    assert GetGeomDisplayType( pid ) == DISPLAY_BEZIER, "GetGeomDisplayType did not follow a second set"
+
+    \endcode
+    \endPythonOnly
+    \sa DISPLAY_TYPE, SetGeomDisplayType
+    \param [in] geom_id string Geom ID
+    \return int Display type enum (i.e. DISPLAY_BEZIER)
+*/
+
+extern int GetGeomDisplayType( const string &geom_id );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Get the wireframe color of the specified geometry.  The color components are returned in the
+    X, Y and Z members of the vector as red, green and blue over the range [0, 255].
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+
+    SetGeomWireColor( pid, 0, 0, 255 );
+
+    vec3d color = GetGeomWireColor( pid );
+
+    if ( !closeTo( color.x(), 0, 1e-9 ) || !closeTo( color.y(), 0, 1e-9 ) || !closeTo( color.z(), 255, 1e-9 ) )
+    {
+        Print( "ERROR: GetGeomWireColor did not report the color that was set" );
+        __failure++;
+    }
+
+    // Each Geom carries its own color.
+    string p2id = AddGeom( "POD", "" );
+
+    SetGeomWireColor( p2id, 255, 0, 0 );
+
+    if ( !closeTo( GetGeomWireColor( pid ).z(), 255, 1e-9 ) )
+    {
+        Print( "ERROR: setting one Geom's color disturbed another" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+
+    SetGeomWireColor( pid, 0, 0, 255 )
+
+    color = GetGeomWireColor( pid )
+
+    assert abs( color.x() ) < 1e-9, "GetGeomWireColor did not report the color that was set"
+    assert abs( color.y() ) < 1e-9, "GetGeomWireColor did not report the color that was set"
+    assert abs( color.z() - 255 ) < 1e-9, "GetGeomWireColor did not report the color that was set"
+
+    # Each Geom carries its own color.
+    p2id = AddGeom( "POD", "" )
+
+    SetGeomWireColor( p2id, 255, 0, 0 )
+
+    assert abs( GetGeomWireColor( pid ).z() - 255 ) < 1e-9, "setting one Geom's color disturbed another"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeomWireColor
+    \param [in] geom_id string Geom ID
+    \return vec3d Red, green and blue components of the wireframe color
+*/
+
+extern vec3d GetGeomWireColor( const string &geom_id );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Get the name of the visualization material applied to the specified geometry
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    SetGeomMaterialName( pid, "Ruby" );
+
+    if ( GetGeomMaterialName( pid ) != "Ruby" )
+    {
+        Print( "ERROR: GetGeomMaterialName did not report the material that was set" );
+        __failure++;
+    }
+
+    // The name that comes back has to be one the library knows.
+    array< string > @mat_names = GetMaterialNames();
+
+    bool found = false;
+
+    for ( int i = 0; i < int( mat_names.size() ); i++ )
+    {
+        if ( mat_names[i] == GetGeomMaterialName( pid ) )
+        {
+            found = true;
+        }
+    }
+
+    if ( !found )
+    {
+        Print( "ERROR: GetGeomMaterialName reported a material the library does not have" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    SetGeomMaterialName( pid, "Ruby" )
+
+    assert GetGeomMaterialName( pid ) == "Ruby", "GetGeomMaterialName did not report the material that was set"
+
+    # The name that comes back has to be one the library knows.
+    assert GetGeomMaterialName( pid ) in GetMaterialNames(), "GetGeomMaterialName reported a material the library does not have"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeomMaterialName, GetMaterialNames
+    \param [in] geom_id string Geom ID
+    \return string Material name
+*/
+
+extern string GetGeomMaterialName( const string &geom_id );
+
 extern void SetGeomMaterialName( const string &geom_id, const string &name );
 
 /*!
@@ -10709,6 +11134,82 @@ extern void IntersectSubSurf( const std::string & sub_id );
     \param [in] geom_id string Geom ID to intersect with parent to create subsurface
 */
 
+/*!
+    \ingroup SubSurface
+*/
+/*!
+    Get the Geom ID that an SS_INTERSECT type sub-surface intersects its parent with
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+    string p2id = AddGeom( "POD", "" );
+
+    string sub_id = AddSubSurf( pid, SS_INTERSECT );
+
+    Update();
+
+    SetIntersectSubSurfGeomID( sub_id, p2id );
+
+    if ( GetIntersectSubSurfGeomID( sub_id ) != p2id )
+    {
+        Print( "ERROR: GetIntersectSubSurfGeomID did not report the Geom that was set" );
+        __failure++;
+    }
+
+    // A sub-surface of the wrong type has to be rejected.
+    string line_id = AddSubSurf( pid, SS_LINE );
+
+    GetIntersectSubSurfGeomID( line_id );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetIntersectSubSurfGeomID accepted a sub-surface of the wrong type" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+    p2id = AddGeom( "POD", "" )
+
+    sub_id = AddSubSurf( pid, SS_INTERSECT )
+
+    Update()
+
+    SetIntersectSubSurfGeomID( sub_id, p2id )
+
+    assert GetIntersectSubSurfGeomID( sub_id ) == p2id, "GetIntersectSubSurfGeomID did not report the Geom that was set"
+
+    # A sub-surface of the wrong type has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    line_id = AddSubSurf( pid, SS_LINE )
+
+    GetIntersectSubSurfGeomID( line_id )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetIntersectSubSurfGeomID accepted a sub-surface of the wrong type"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa SetIntersectSubSurfGeomID, IntersectSubSurf
+    \param [in] sub_id string Sub-surface ID
+    \return string Geom ID the sub-surface intersects with
+*/
+
+extern std::string GetIntersectSubSurfGeomID( const std::string & sub_id );
+
 extern void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::string & geom_id );
 
 /*!
@@ -13123,6 +13624,96 @@ extern std::string AddFeaProperty( int property_type = 0 );
     \param [in] val double Value the option is set to
 */
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the value of a specific FEA Mesh option for the specified Structure
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
+
+    if ( !closeTo( GetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN ), 0.75, 1e-12 ) )
+    {
+        Print( "ERROR: GetFeaMeshVal did not report the value that was set" );
+        __failure++;
+    }
+
+    // Each Structure carries its own settings.
+    int struct_ind_2 = AddFeaStruct( pod_id );
+
+    SetFeaMeshVal( pod_id, struct_ind_2, CFD_MAX_EDGE_LEN, 0.25 );
+
+    if ( !closeTo( GetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN ), 0.75, 1e-12 ) )
+    {
+        Print( "ERROR: setting one Structure disturbed another" );
+        __failure++;
+    }
+
+    // A control type FEA Mesh does not use has to be rejected.
+    GetFeaMeshVal( pod_id, struct_ind, CFD_FAR_FIELD_FLAG );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetFeaMeshVal accepted a control type FEA Mesh does not use" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 )
+
+    assert abs( GetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN ) - 0.75 ) < 1e-12, "GetFeaMeshVal did not report the value that was set"
+
+    # Each Structure carries its own settings.
+    struct_ind_2 = AddFeaStruct( pod_id )
+
+    SetFeaMeshVal( pod_id, struct_ind_2, CFD_MAX_EDGE_LEN, 0.25 )
+
+    assert abs( GetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN ) - 0.75 ) < 1e-12, "setting one Structure disturbed another"
+
+    # A control type FEA Mesh does not use has to be rejected.  The error queue
+    # is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetFeaMeshVal( pod_id, struct_ind, CFD_FAR_FIELD_FLAG )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetFeaMeshVal accepted a control type FEA Mesh does not use"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CFD_CONTROL_TYPE, SetFeaMeshVal
+    \param [in] geom_id string Parent Geom ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] type int FEA Mesh option type enum (i.e. CFD_MAX_EDGE_LEN)
+    \return double Value of the option
+*/
+
+extern double GetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type );
+
 extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type, double val );
 
 /*!
@@ -13214,6 +13805,69 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
     \param [in] file_type int FEA output file type enum (i.e. FEA_EXPORT_TYPE)
     \param [in] file_name string Name for the output file
 */
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the name of a particular FEA Mesh output file for a specified Structure
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string export_name = "FEAMeshTest_calculix.dat";
+
+    SetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name );
+
+    if ( GetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME ) != export_name )
+    {
+        Print( "ERROR: GetFeaMeshFileName did not report the name that was set" );
+        __failure++;
+    }
+
+    // Each output type carries its own name.
+    SetFeaMeshFileName( pod_id, struct_ind, FEA_NASTRAN_FILE_NAME, "FEAMeshTest_nastran.dat" );
+
+    if ( GetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME ) != export_name )
+    {
+        Print( "ERROR: setting one output name disturbed another" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    #==== Add FeaStructure to Pod ====//
+    struct_ind = AddFeaStruct( pod_id )
+
+    export_name = "FEAMeshTest_calculix.dat"
+
+    SetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name )
+
+    assert GetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME ) == export_name, "GetFeaMeshFileName did not report the name that was set"
+
+    # Each output type carries its own name.
+    SetFeaMeshFileName( pod_id, struct_ind, FEA_NASTRAN_FILE_NAME, "FEAMeshTest_nastran.dat" )
+
+    assert GetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME ) == export_name, "setting one output name disturbed another"
+
+    \endcode
+    \endPythonOnly
+    \sa FEA_EXPORT_TYPE, SetFeaMeshFileName
+    \param [in] geom_id string Parent Geom ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] file_type int FEA output file type enum (i.e. FEA_EXPORT_TYPE)
+    \return string Name of the output file
+*/
+
+extern std::string GetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type );
 
 extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type, const string & file_name );
 
@@ -14119,6 +14773,93 @@ extern void SplitWingXSec( const string & wing_id, int section_index );
     \param [in] driver_2 int Third driver enum (i.e. TIPC_WSECT_DRIVER)
     */
 
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the driver group for a wing section or an XSec.  A wing section reports three drivers; an
+    XSecCurve reports the drivers of its own driver group.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Wing Geometry ====//
+    string wing_id = AddGeom( "WING", "" );
+
+    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+
+    Update();
+
+    array < int > drivers = GetDriverGroup( wing_id, 1 );
+
+    // The drivers come back in the order they were set.
+    if ( drivers.size() != 3 )
+    {
+        Print( "ERROR: GetDriverGroup did not report three wing drivers" );
+        __failure++;
+    }
+    else
+    {
+        if ( drivers[0] != AR_WSECT_DRIVER || drivers[1] != ROOTC_WSECT_DRIVER || drivers[2] != TIPC_WSECT_DRIVER )
+        {
+            Print( "ERROR: GetDriverGroup did not report the drivers that were set" );
+            __failure++;
+        }
+    }
+
+    // A section index past the end has to be rejected.
+    GetDriverGroup( wing_id, 100 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetDriverGroup accepted a section index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Wing Geometry ====//
+    wing_id = AddGeom( "WING", "" )
+
+    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER )
+
+    Update()
+
+    drivers = GetDriverGroup( wing_id, 1 )
+
+    # The drivers come back in the order they were set.
+    assert len( drivers ) == 3, "GetDriverGroup did not report three wing drivers"
+    assert drivers[0] == AR_WSECT_DRIVER, "GetDriverGroup did not report the drivers that were set"
+    assert drivers[1] == ROOTC_WSECT_DRIVER, "GetDriverGroup did not report the drivers that were set"
+    assert drivers[2] == TIPC_WSECT_DRIVER, "GetDriverGroup did not report the drivers that were set"
+
+    # A section index past the end has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetDriverGroup( wing_id, 100 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetDriverGroup accepted a section index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa WING_DRIVERS, XSEC_DRIVERS, SetDriverGroup
+    \param [in] geom_id string Geom ID
+    \param [in] section_index int Wing section or XSec index
+    \return vector\<int\> Array of driver enums
+*/
+
+extern std::vector < int > GetDriverGroup( const std::string & geom_id, int section_index );
+
 extern void SetDriverGroup( const std::string & geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1 );
 
 
@@ -14949,6 +15690,107 @@ extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::s
     \param [in] xsec_id string XSec ID
     \param [in] pnt_vec vector<vec3d> Vector of XSec coordinate points
 */
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the coordinate points for a specific XSec. The XSec must be of type XS_FILE_FUSE.  The points
+    are returned normalized to the section's width and height.
+    \forcpponly
+    \code{.cpp}
+    // Add Fuselage Geom
+    string fuseid = AddGeom( "FUSELAGE", "" );
+
+    string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+    ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE );
+
+    string xsec = GetXSec( xsec_surf, 2 );
+
+    array< vec3d > @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" );
+
+    // The points that were read are the points the section is carrying.
+    array< vec3d > @check_array = GetXSecPnts( xsec );
+
+    if ( check_array.size() == 0 )
+    {
+        Print( "ERROR: GetXSecPnts returned nothing" );
+        __failure++;
+    }
+    else
+    {
+        // The stored points are normalized, so they fit in the unit box.
+        for ( int i = 0; i < int( check_array.size() ); i++ )
+        {
+            if ( abs( check_array[i].x() ) > 0.5 + 1e-9 || abs( check_array[i].y() ) > 0.5 + 1e-9 )
+            {
+                Print( "ERROR: GetXSecPnts returned a point outside the unit box" );
+                __failure++;
+            }
+        }
+
+        // The curve closes on itself.
+        if ( dist( check_array[0], check_array[check_array.size() - 1] ) > 1e-8 )
+        {
+            Print( "ERROR: GetXSecPnts returned an open curve" );
+            __failure++;
+        }
+    }
+
+    // Setting points has to be what comes back.
+    SetXSecPnts( xsec, vec_array );
+
+    array< vec3d > @after_array = GetXSecPnts( xsec );
+
+    if ( after_array.size() != check_array.size() )
+    {
+        Print( "ERROR: GetXSecPnts did not follow SetXSecPnts" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Fuselage Geom
+    fuseid = AddGeom( "FUSELAGE", "" )
+
+    xsec_surf = GetXSecSurf( fuseid, 0 )
+
+    ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE )
+
+    xsec = GetXSec( xsec_surf, 2 )
+
+    vec_array = list( ReadFileXSec( xsec, "TestXSec.fxs" ) )
+
+    # The points that were read are the points the section is carrying.
+    check_array = GetXSecPnts( xsec )
+
+    assert len( check_array ) > 0, "GetXSecPnts returned nothing"
+
+    # The stored points are normalized, so they fit in the unit box.
+    for p in check_array:
+        assert abs( p.x() ) <= 0.5 + 1e-9, "GetXSecPnts returned a point outside the unit box"
+        assert abs( p.y() ) <= 0.5 + 1e-9, "GetXSecPnts returned a point outside the unit box"
+
+    # The curve closes on itself.
+    assert dist( check_array[0], check_array[-1] ) < 1e-8, "GetXSecPnts returned an open curve"
+
+    # Setting points has to be what comes back.
+    SetXSecPnts( xsec, vec_array )
+
+    after_array = GetXSecPnts( xsec )
+
+    assert len( after_array ) == len( check_array ), "GetXSecPnts did not follow SetXSecPnts"
+
+    \endcode
+    \endPythonOnly
+    \sa SetXSecPnts, ReadFileXSec
+    \param [in] xsec_id string XSec ID
+    \return vector<vec3d> Vector of XSec coordinate points
+*/
+
+extern std::vector< vec3d > GetXSecPnts( const std::string& xsec_id );
 
 extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_vec );
 
@@ -18671,6 +19513,81 @@ extern std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std:
     \param [in] bor_id string Body of revolution Geom ID
     \param [in] pnt_vec vector<vec3d> Vector of XSec coordinate points
 */
+
+/*!
+    \ingroup BOR
+*/
+/*!
+    Get the coordinate points for a specific BOR. The BOR XSecCurve must be of type XS_FILE_FUSE.  The
+    points are returned normalized to the section's width and height.
+    \forcpponly
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_FUSE );
+
+    array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" );
+
+    // The points that were read are the points the section is carrying.
+    array< vec3d > @check_array = GetBORXSecPnts( bor_id );
+
+    if ( check_array.size() == 0 )
+    {
+        Print( "ERROR: GetBORXSecPnts returned nothing" );
+        __failure++;
+    }
+    else
+    {
+        // The stored points are normalized, so they fit in the unit box, and the
+        // curve closes on itself.
+        for ( int i = 0; i < int( check_array.size() ); i++ )
+        {
+            if ( abs( check_array[i].x() ) > 0.5 + 1e-9 || abs( check_array[i].y() ) > 0.5 + 1e-9 )
+            {
+                Print( "ERROR: GetBORXSecPnts returned a point outside the unit box" );
+                __failure++;
+            }
+        }
+
+        if ( dist( check_array[0], check_array[check_array.size() - 1] ) > 1e-8 )
+        {
+            Print( "ERROR: GetBORXSecPnts returned an open curve" );
+            __failure++;
+        }
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Body of Recolution
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+
+    ChangeBORXSecShape( bor_id, XS_FILE_FUSE )
+
+    vec_array = list( ReadBORFileXSec( bor_id, "TestXSec.fxs" ) )
+
+    # The points that were read are the points the section is carrying.
+    check_array = GetBORXSecPnts( bor_id )
+
+    assert len( check_array ) > 0, "GetBORXSecPnts returned nothing"
+
+    # The stored points are normalized, so they fit in the unit box, and the
+    # curve closes on itself.
+    for p in check_array:
+        assert abs( p.x() ) <= 0.5 + 1e-9, "GetBORXSecPnts returned a point outside the unit box"
+        assert abs( p.y() ) <= 0.5 + 1e-9, "GetBORXSecPnts returned a point outside the unit box"
+
+    assert dist( check_array[0], check_array[-1] ) < 1e-8, "GetBORXSecPnts returned an open curve"
+
+    \endcode
+    \endPythonOnly
+    \sa SetBORXSecPnts, ReadBORFileXSec
+    \param [in] bor_id string Body of revolution Geom ID
+    \return vector<vec3d> Vector of XSec coordinate points
+*/
+
+extern std::vector< vec3d > GetBORXSecPnts( const std::string& bor_id );
 
 extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pnt_vec );
 
@@ -28045,7 +28962,9 @@ extern std::string FindUnsteadyGroup( int group_index );
     \ingroup VSPAERODiskAndProp
 */
 /*!
-    Get the name of the unsteady group at the specified index.
+    Get the name of the unsteady group at the specified index. The name is derived from the group
+    contents -- a rotor group takes the name of its propeller and every other group is the fixed
+    component group -- so there is no matching setter.
     \forcpponly
     \code{.cpp}
     // Add a pod and wing
@@ -28118,7 +29037,6 @@ extern std::string FindUnsteadyGroup( int group_index );
 
     \endcode
     \endPythonOnly
-    \sa SetUnsteadyGroupName
     \param [in] group_index int Unsteady group index for the current VSPAERO set
     \return string Unsteady group name
 */
@@ -28526,6 +29444,117 @@ extern void AddExcrescence(const std::string & excresName, const int & excresTyp
     \endPythonOnly
     \param [in] index int Index of the Excressence to delete
 */
+
+/*!
+    \ingroup ParasiteDrag
+*/
+/*!
+    Get the number of Excresences in the Parasite Drag Tool
+    \forcpponly
+    \code{.cpp}
+    if ( GetNumExcrescences() != 0 )
+    {
+        Print( "ERROR: a new model starts with excrescences" );
+        __failure++;
+    }
+
+    AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 );
+
+    AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 );
+
+    if ( GetNumExcrescences() != 2 )
+    {
+        Print( "ERROR: GetNumExcrescences did not count what was added" );
+        __failure++;
+    }
+
+    DeleteExcrescence( 1 );
+
+    if ( GetNumExcrescences() != 1 )
+    {
+        Print( "ERROR: GetNumExcrescences did not follow DeleteExcrescence" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    assert GetNumExcrescences() == 0, "a new model starts with excrescences"
+
+    AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 )
+
+    AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 )
+
+    assert GetNumExcrescences() == 2, "GetNumExcrescences did not count what was added"
+
+    DeleteExcrescence( 1 )
+
+    assert GetNumExcrescences() == 1, "GetNumExcrescences did not follow DeleteExcrescence"
+
+    \endcode
+    \endPythonOnly
+    \sa AddExcrescence, DeleteExcrescence, DeleteAllExcrescences
+    \return int Number of excrescences
+*/
+
+extern int GetNumExcrescences();
+
+/*!
+    \ingroup ParasiteDrag
+*/
+/*!
+    Delete all Excresences from the Parasite Drag Tool
+    \forcpponly
+    \code{.cpp}
+    AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 );
+
+    AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 );
+
+    AddExcrescence( "Percentage Example", EXCRESCENCE_PERCENT_GEOM, 5 );
+
+    DeleteAllExcrescences();
+
+    if ( GetNumExcrescences() != 0 )
+    {
+        Print( "ERROR: DeleteAllExcrescences left excrescences behind" );
+        __failure++;
+    }
+
+    // Clearing an empty table is not an error.
+    DeleteAllExcrescences();
+
+    if ( GetNumTotalErrors() != 0 )
+    {
+        Print( "ERROR: DeleteAllExcrescences complained about an empty table" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 )
+
+    AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 )
+
+    AddExcrescence( "Percentage Example", EXCRESCENCE_PERCENT_GEOM, 5 )
+
+    DeleteAllExcrescences()
+
+    assert GetNumExcrescences() == 0, "DeleteAllExcrescences left excrescences behind"
+
+    # Clearing an empty table is not an error.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteAllExcrescences()
+
+    assert err_mgr.GetNumTotalErrors() == 0, "DeleteAllExcrescences complained about an empty table"
+
+    \endcode
+    \endPythonOnly
+    \sa AddExcrescence, DeleteExcrescence, GetNumExcrescences
+*/
+
+extern void DeleteAllExcrescences();
 
 extern void DeleteExcrescence(const int & index);
 
@@ -33061,6 +34090,150 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
     \param [in] index int Advanced link index
     \param [in] var_name string Name for advanced link input variable to delete
 */
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Delete all input variables from an advanced link
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+    string y_pos = GetParm( pod, "Y_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkInput( indx, y_pos, "y" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    if ( GetAdvLinkInputNames( indx ).size() != 2 )
+    {
+        Print( "ERROR: the inputs were not both added" );
+        __failure++;
+    }
+
+    DelAllAdvLinkInputs( indx );
+
+    // Every input goes; the outputs are left alone.
+    if ( GetAdvLinkInputNames( indx ).size() != 0 )
+    {
+        Print( "ERROR: DelAllAdvLinkInputs left inputs behind" );
+        __failure++;
+    }
+
+    if ( GetAdvLinkOutputNames( indx ).size() != 1 )
+    {
+        Print( "ERROR: DelAllAdvLinkInputs removed an output" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    y_pos = GetParm( pod, "Y_Rel_Location", "XForm" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+    AddAdvLinkInput( indx, length, "len" )
+    AddAdvLinkInput( indx, y_pos, "y" )
+    AddAdvLinkOutput( indx, x_pos, "x" )
+
+    assert len( GetAdvLinkInputNames( indx ) ) == 2, "the inputs were not both added"
+
+    DelAllAdvLinkInputs( indx )
+
+    # Every input goes; the outputs are left alone.
+    assert len( GetAdvLinkInputNames( indx ) ) == 0, "DelAllAdvLinkInputs left inputs behind"
+    assert len( GetAdvLinkOutputNames( indx ) ) == 1, "DelAllAdvLinkInputs removed an output"
+
+    \endcode
+    \endPythonOnly
+    \sa AddAdvLinkInput, DelAdvLinkInput, DelAllAdvLinkOutputs
+    \param [in] index int Advanced link index
+*/
+
+extern void DelAllAdvLinkInputs( int index );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Delete all output variables from an advanced link
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+    string y_pos = GetParm( pod, "Y_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+    AddAdvLinkOutput( indx, y_pos, "y" );
+
+    if ( GetAdvLinkOutputNames( indx ).size() != 2 )
+    {
+        Print( "ERROR: the outputs were not both added" );
+        __failure++;
+    }
+
+    DelAllAdvLinkOutputs( indx );
+
+    // Every output goes; the inputs are left alone.
+    if ( GetAdvLinkOutputNames( indx ).size() != 0 )
+    {
+        Print( "ERROR: DelAllAdvLinkOutputs left outputs behind" );
+        __failure++;
+    }
+
+    if ( GetAdvLinkInputNames( indx ).size() != 1 )
+    {
+        Print( "ERROR: DelAllAdvLinkOutputs removed an input" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    y_pos = GetParm( pod, "Y_Rel_Location", "XForm" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+    AddAdvLinkInput( indx, length, "len" )
+    AddAdvLinkOutput( indx, x_pos, "x" )
+    AddAdvLinkOutput( indx, y_pos, "y" )
+
+    assert len( GetAdvLinkOutputNames( indx ) ) == 2, "the outputs were not both added"
+
+    DelAllAdvLinkOutputs( indx )
+
+    # Every output goes; the inputs are left alone.
+    assert len( GetAdvLinkOutputNames( indx ) ) == 0, "DelAllAdvLinkOutputs left outputs behind"
+    assert len( GetAdvLinkInputNames( indx ) ) == 1, "DelAllAdvLinkOutputs removed an input"
+
+    \endcode
+    \endPythonOnly
+    \sa AddAdvLinkOutput, DelAdvLinkOutput, DelAllAdvLinkInputs
+    \param [in] index int Advanced link index
+*/
+
+extern void DelAllAdvLinkOutputs( int index );
 
 extern void DelAdvLinkInput( int index, const string & var_name );
 
