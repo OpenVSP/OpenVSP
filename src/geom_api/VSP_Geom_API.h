@@ -10318,6 +10318,41 @@ extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 
     IntersectSubSurf( sub_id );
 
+    Update();
+
+    // The sub-surface is an intersection of the two Pods, and it belongs to the
+    // first one.
+    if ( GetSubSurfType( sub_id ) != SS_INTERSECT )
+    {
+        Print( "ERROR: the sub-surface is not an intersection" );
+        __failure++;
+    }
+
+    array< string > @sub_ids = GetSubSurfIDVec( pid );
+
+    if ( sub_ids.size() != 1 || sub_ids[0] != sub_id )
+    {
+        Print( "ERROR: the intersection sub-surface is not on the Geom it was added to" );
+        __failure++;
+    }
+
+    // Naming a Geom that does not exist has to be rejected.
+    SetIntersectSubSurfGeomID( sub_id, "NOSUCHGEOM" );
+
+    IntersectSubSurf( sub_id );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: a bad Geom ID was accepted for the intersection" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
 
     \endcode
     \endforcpponly
@@ -10339,6 +10374,31 @@ extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
     SetIntersectSubSurfGeomID( sub_id, p2id )
 
     IntersectSubSurf( sub_id )
+
+    Update()
+
+    # The sub-surface is an intersection of the two Pods, and it belongs to the
+    # first one.
+    assert GetSubSurfType( sub_id ) == SS_INTERSECT, "the sub-surface is not an intersection"
+
+    sub_ids = GetSubSurfIDVec( pid )
+
+    assert len( sub_ids ) == 1, "the intersection sub-surface is not on the Geom it was added to"
+    assert sub_ids[0] == sub_id, "the intersection sub-surface is not on the Geom it was added to"
+
+    # Naming a Geom that does not exist has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetIntersectSubSurfGeomID( sub_id, "NOSUCHGEOM" )
+
+    IntersectSubSurf( sub_id )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "a bad Geom ID was accepted for the intersection"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \param [in] sub_id string Sub-surface ID
@@ -10370,6 +10430,41 @@ extern void IntersectSubSurf( const std::string & sub_id );
 
     IntersectSubSurf( sub_id );
 
+    Update();
+
+    // The sub-surface is an intersection of the two Pods, and it belongs to the
+    // first one.
+    if ( GetSubSurfType( sub_id ) != SS_INTERSECT )
+    {
+        Print( "ERROR: the sub-surface is not an intersection" );
+        __failure++;
+    }
+
+    array< string > @sub_ids = GetSubSurfIDVec( pid );
+
+    if ( sub_ids.size() != 1 || sub_ids[0] != sub_id )
+    {
+        Print( "ERROR: the intersection sub-surface is not on the Geom it was added to" );
+        __failure++;
+    }
+
+    // Naming a Geom that does not exist has to be rejected.
+    SetIntersectSubSurfGeomID( sub_id, "NOSUCHGEOM" );
+
+    IntersectSubSurf( sub_id );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: a bad Geom ID was accepted for the intersection" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
 
     \endcode
     \endforcpponly
@@ -10391,6 +10486,31 @@ extern void IntersectSubSurf( const std::string & sub_id );
     SetIntersectSubSurfGeomID( sub_id, p2id )
 
     IntersectSubSurf( sub_id )
+
+    Update()
+
+    # The sub-surface is an intersection of the two Pods, and it belongs to the
+    # first one.
+    assert GetSubSurfType( sub_id ) == SS_INTERSECT, "the sub-surface is not an intersection"
+
+    sub_ids = GetSubSurfIDVec( pid )
+
+    assert len( sub_ids ) == 1, "the intersection sub-surface is not on the Geom it was added to"
+    assert sub_ids[0] == sub_id, "the intersection sub-surface is not on the Geom it was added to"
+
+    # Naming a Geom that does not exist has to be rejected.  The error queue is
+    # reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetIntersectSubSurfGeomID( sub_id, "NOSUCHGEOM" )
+
+    IntersectSubSurf( sub_id )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "a bad Geom ID was accepted for the intersection"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \param [in] sub_id string Sub-surface ID
@@ -24985,6 +25105,30 @@ extern void ApplyModeSettings( const string &mid );
 
     ShowOnlyMode( mid1 );
 
+    Update();
+
+    // FatWetAreas uses SET_ALL as its normal set, so both Geoms end up shown.
+    if ( !GetSetFlag( pod1, SET_SHOWN ) || !GetSetFlag( wing, SET_SHOWN ) )
+    {
+        Print( "ERROR: ShowOnlyMode did not show the Mode's set" );
+        __failure++;
+    }
+
+    // A Mode that does not exist has to be rejected.
+    ShowOnlyMode( "NOSUCHMODE" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: ShowOnlyMode accepted a bad Mode ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25058,6 +25202,24 @@ extern void ApplyModeSettings( const string &mid );
     Update()
 
     ShowOnlyMode( mid1 )
+
+    Update()
+
+    # FatWetAreas uses SET_ALL as its normal set, so both Geoms end up shown.
+    assert GetSetFlag( pod1, SET_SHOWN ), "ShowOnlyMode did not show the Mode's set"
+    assert GetSetFlag( wing, SET_SHOWN ), "ShowOnlyMode did not show the Mode's set"
+
+    # A Mode that does not exist has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    ShowOnlyMode( "NOSUCHMODE" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "ShowOnlyMode accepted a bad Mode ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -26669,6 +26831,40 @@ extern void ResetPropellerThicknessCurve( const std::string & geom_id );
 
     //  deflect aileron
     string deflection_angle_id = FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
+
+    // Auto grouping puts each control surface in a group of its own, so the two
+    // that were added make two groups, and each holds one surface.
+    if ( GetNumControlSurfaceGroups() != 2 )
+    {
+        Print( "ERROR: AutoGroupVSPAEROControlSurfaces did not make a group per surface" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0; i < 2; i++ )
+        {
+            // Each wing is symmetric, so its control surface arrives as two
+            // copies and both land in the group.
+            if ( GetActiveCSNameVec( i ).size() != 2 )
+            {
+                Print( "ERROR: group " + i + " does not hold its control surface copies" );
+                __failure++;
+            }
+
+            if ( GetVSPAEROControlGroupName( i ).length() == 0 )
+            {
+                Print( "ERROR: group " + i + " was not named" );
+                __failure++;
+            }
+        }
+    }
+
+    // The Parms the grouping created have to be findable.
+    if ( deflection_gain_id.length() == 0 || deflection_angle_id.length() == 0 )
+    {
+        Print( "ERROR: the control surface group Parms were not created" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -26706,6 +26902,20 @@ extern void ResetPropellerThicknessCurve( const std::string & geom_id );
 
     #  deflect aileron
     deflection_angle_id = FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" )
+
+    # Auto grouping puts each control surface in a group of its own, so the two
+    # that were added make two groups, and each holds one surface.
+    assert GetNumControlSurfaceGroups() == 2, "AutoGroupVSPAEROControlSurfaces did not make a group per surface"
+
+    for i in range( 2 ):
+        # Each wing is symmetric, so its control surface arrives as two copies
+        # and both land in the group.
+        assert len( GetActiveCSNameVec( i ) ) == 2, "group " + str( i ) + " does not hold its control surface copies"
+        assert len( GetVSPAEROControlGroupName( i ) ) > 0, "group " + str( i ) + " was not named"
+
+    # The Parms the grouping created have to be findable.
+    assert len( deflection_gain_id ) > 0, "the control surface group Parms were not created"
+    assert len( deflection_angle_id ) > 0, "the control surface group Parms were not created"
 
     \endcode
     \endPythonOnly

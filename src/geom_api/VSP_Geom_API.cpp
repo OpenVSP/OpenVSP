@@ -9056,6 +9056,7 @@ void ApplyModeSettings( const string &mid )
     if ( !mod )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "ApplyModeSettings::Could not find mode." );
+        return;
     }
 
     mod->ApplySettings();
@@ -9069,6 +9070,7 @@ void ShowOnlyMode( const string &mid )
     if ( !mod )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "ShowOnlyMode::Could not find mode." );
+        return;
     }
 
     mod->ShowOnly();
@@ -9082,6 +9084,7 @@ void ModeAddGroupSetting( const string &mid, const string &gid, const string &si
     if ( !mod )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "ModeAddGroupSetting::Could not find mode." );
+        return;
     }
 
     mod->AddSetting( pair < string, string > ( gid, sid ) );
