@@ -27,6 +27,7 @@
 #include "FeaMeshMgr.h"
 #include "GeometryAnalysisMgr.h"
 #include "LinkMgr.h"
+#include "Link.h"
 #include "main.h"
 #include "MeasureMgr.h"
 #include "ParasiteDragMgr.h"
@@ -11924,6 +11925,305 @@ bool CheckForVSPHelp( const std::string & path )
         return veh->CheckForHelp( path );
     }
     return false;
+}
+
+//======================= Parm Link Functions ============================//
+
+//==== Look up a Parm Link by ID, reporting through the named caller. ====//
+Link* FindParmLink( const string & link_id, const string & caller )
+{
+    for ( int i = 0; i < LinkMgr.GetNumLinks(); i++ )
+    {
+        Link* lnk = LinkMgr.GetLink( i );
+        if ( lnk && lnk->GetID() == link_id )
+        {
+            return lnk;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Parm Link " + link_id );
+    return nullptr;
+}
+
+string AddParmLink( const string & parm_a_id, const string & parm_b_id )
+{
+    if ( !ParmMgr.FindParm( parm_a_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddParmLink::Can't Find Parm " + parm_a_id );
+        return string();
+    }
+
+    if ( !ParmMgr.FindParm( parm_b_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddParmLink::Can't Find Parm " + parm_b_id );
+        return string();
+    }
+
+    // AddLink refuses a pairing it already holds.
+    if ( !LinkMgr.AddLink( parm_a_id, parm_b_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddParmLink::Can't Link " + parm_a_id + " To " + parm_b_id );
+        return string();
+    }
+
+    Link* lnk = LinkMgr.GetLink( LinkMgr.GetNumLinks() - 1 );
+
+    if ( !lnk )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddParmLink::Invalid Link Ptr" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return lnk->GetID();
+}
+
+int GetNumParmLinks()
+{
+    ErrorMgr.NoError();
+    return LinkMgr.GetNumLinks();
+}
+
+string GetParmLinkID( int index )
+{
+    if ( index < 0 || index >= LinkMgr.GetNumLinks() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetParmLinkID::Link Index " + to_string( index ) + " Out of Range" );
+        return string();
+    }
+
+    Link* lnk = LinkMgr.GetLink( index );
+
+    if ( !lnk )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetParmLinkID::Invalid Link Ptr" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return lnk->GetID();
+}
+
+string GetParmLinkAParm( const string & link_id )
+{
+    Link* lnk = FindParmLink( link_id, "GetParmLinkAParm" );
+    if ( !lnk )
+    {
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return lnk->GetParmA();
+}
+
+string GetParmLinkBParm( const string & link_id )
+{
+    Link* lnk = FindParmLink( link_id, "GetParmLinkBParm" );
+    if ( !lnk )
+    {
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return lnk->GetParmB();
+}
+
+void SetParmLinkAParm( const string & link_id, const string & parm_id )
+{
+    Link* lnk = FindParmLink( link_id, "SetParmLinkAParm" );
+    if ( !lnk )
+    {
+        return;
+    }
+
+    if ( !ParmMgr.FindParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmLinkAParm::Can't Find Parm " + parm_id );
+        return;
+    }
+
+    lnk->SetParmA( parm_id );
+
+    ErrorMgr.NoError();
+}
+
+void SetParmLinkBParm( const string & link_id, const string & parm_id )
+{
+    Link* lnk = FindParmLink( link_id, "SetParmLinkBParm" );
+    if ( !lnk )
+    {
+        return;
+    }
+
+    if ( !ParmMgr.FindParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmLinkBParm::Can't Find Parm " + parm_id );
+        return;
+    }
+
+    lnk->SetParmB( parm_id );
+
+    ErrorMgr.NoError();
+}
+
+void DelParmLink( const string & link_id )
+{
+    for ( int i = 0; i < LinkMgr.GetNumLinks(); i++ )
+    {
+        Link* lnk = LinkMgr.GetLink( i );
+        if ( lnk && lnk->GetID() == link_id )
+        {
+            set < int > todel;
+            todel.insert( i );
+            LinkMgr.DelLinks( todel );
+
+            ErrorMgr.NoError();
+            return;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "DelParmLink::Can't Find Parm Link " + link_id );
+}
+
+void DelAllParmLinks()
+{
+    LinkMgr.DelAllLinks();
+
+    ErrorMgr.NoError();
+}
+
+bool LinkAllComp( const string & parm_a_id, const string & parm_b_id )
+{
+    if ( !ParmMgr.FindParm( parm_a_id ) || !ParmMgr.FindParm( parm_b_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "LinkAllComp::Can't Find Parm" );
+        return false;
+    }
+
+    LinkMgr.SetParm( true, parm_a_id );
+    LinkMgr.SetParm( false, parm_b_id );
+
+    bool ret = LinkMgr.LinkAllComp();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+bool LinkAllGroup( const string & parm_a_id, const string & parm_b_id )
+{
+    if ( !ParmMgr.FindParm( parm_a_id ) || !ParmMgr.FindParm( parm_b_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "LinkAllGroup::Can't Find Parm" );
+        return false;
+    }
+
+    LinkMgr.SetParm( true, parm_a_id );
+    LinkMgr.SetParm( false, parm_b_id );
+
+    bool ret = LinkMgr.LinkAllGroup();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+bool GetParmLinkOffsetFlag( const string & link_id )
+{
+    Link* lnk = FindParmLink( link_id, "GetParmLinkOffsetFlag" );
+    if ( !lnk )
+    {
+        return false;
+    }
+
+    ErrorMgr.NoError();
+    return lnk->GetOffsetFlag();
+}
+
+void SetParmLinkOffsetFlag( const string & link_id, bool flag )
+{
+    Link* lnk = FindParmLink( link_id, "SetParmLinkOffsetFlag" );
+    if ( !lnk )
+    {
+        return;
+    }
+
+    lnk->SetOffsetFlag( flag );
+
+    ErrorMgr.NoError();
+}
+
+bool GetParmLinkScaleFlag( const string & link_id )
+{
+    Link* lnk = FindParmLink( link_id, "GetParmLinkScaleFlag" );
+    if ( !lnk )
+    {
+        return false;
+    }
+
+    ErrorMgr.NoError();
+    return lnk->GetScaleFlag();
+}
+
+void SetParmLinkScaleFlag( const string & link_id, bool flag )
+{
+    Link* lnk = FindParmLink( link_id, "SetParmLinkScaleFlag" );
+    if ( !lnk )
+    {
+        return;
+    }
+
+    lnk->SetScaleFlag( flag );
+
+    ErrorMgr.NoError();
+}
+
+bool GetParmLinkLowerLimitFlag( const string & link_id )
+{
+    Link* lnk = FindParmLink( link_id, "GetParmLinkLowerLimitFlag" );
+    if ( !lnk )
+    {
+        return false;
+    }
+
+    ErrorMgr.NoError();
+    return lnk->GetLowerLimitFlag();
+}
+
+void SetParmLinkLowerLimitFlag( const string & link_id, bool flag )
+{
+    Link* lnk = FindParmLink( link_id, "SetParmLinkLowerLimitFlag" );
+    if ( !lnk )
+    {
+        return;
+    }
+
+    lnk->SetLowerLimitFlag( flag );
+
+    ErrorMgr.NoError();
+}
+
+bool GetParmLinkUpperLimitFlag( const string & link_id )
+{
+    Link* lnk = FindParmLink( link_id, "GetParmLinkUpperLimitFlag" );
+    if ( !lnk )
+    {
+        return false;
+    }
+
+    ErrorMgr.NoError();
+    return lnk->GetUpperLimitFlag();
+}
+
+void SetParmLinkUpperLimitFlag( const string & link_id, bool flag )
+{
+    Link* lnk = FindParmLink( link_id, "SetParmLinkUpperLimitFlag" );
+    if ( !lnk )
+    {
+        return;
+    }
+
+    lnk->SetUpperLimitFlag( flag );
+
+    ErrorMgr.NoError();
 }
 
 //======================= Advanced Link Functions ============================//

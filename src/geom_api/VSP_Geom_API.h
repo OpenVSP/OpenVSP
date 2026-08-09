@@ -23,6 +23,12 @@
     \brief The following functions are available for the Advanced Link tool.
     \ref index "Click here to return to the main page"
 
+    \defgroup ParmLink Parm Link Functions
+    \brief The following functions are available for the simple Parm Link tool, which drives one Parm
+    from another through an optional offset, scale and limits.  See the Advanced Link group for links
+    driven by a script.
+    \ref index "Click here to return to the main page"
+
     \defgroup Analysis Analysis Manager Functions
     \brief This group is for functions included in the Analysis Manager. The Analysis Manager allows for
     OpenVSP analyses to be setup and run through the API without having to modify Parms directly. Examples
@@ -35883,6 +35889,1240 @@ extern void DelProbe( const string &id );
 
 extern void DeleteAllProbes();
 
+
+//======================== Parm Link Functions ======================//
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Link two Parms so that changing the first drives the second.  This is the simple Parm Link the
+    Link screen builds, not an Advanced Link.  The link is created with its offset active and set to
+    the difference between the two Parms, so B follows A while holding its current separation.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    SetParmVal( xb, 3.0 );
+
+    Update();
+
+    string link_id = AddParmLink( xa, xb );
+
+    if ( link_id.length() == 0 )
+    {
+        Print( "ERROR: AddParmLink returned no id" );
+        __failure++;
+    }
+
+    if ( GetNumParmLinks() != 1 || GetParmLinkID( 0 ) != link_id )
+    {
+        Print( "ERROR: AddParmLink did not add the link" );
+        __failure++;
+    }
+
+    // The link drives B from A, holding the three unit offset it started with.
+    SetParmValUpdate( xa, 5.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( xb ), 8.0, 1e-6 ) )
+    {
+        Print( "ERROR: the parm link did not drive its output" );
+        __failure++;
+    }
+
+    // Linking the same pair twice has to be refused.
+    AddParmLink( xa, xb );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: AddParmLink accepted a duplicate link" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    SetParmVal( xb, 3.0 )
+
+    Update()
+
+    link_id = AddParmLink( xa, xb )
+
+    assert len( link_id ) > 0, "AddParmLink returned no id"
+    assert GetNumParmLinks() == 1, "AddParmLink did not add the link"
+    assert GetParmLinkID( 0 ) == link_id, "AddParmLink did not add the link"
+
+    # The link drives B from A, holding the three unit offset it started with.
+    SetParmValUpdate( xa, 5.0 )
+
+    Update()
+
+    assert abs( GetParmVal( xb ) - 8.0 ) < 1e-6, "the parm link did not drive its output"
+
+    # Linking the same pair twice has to be refused.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    AddParmLink( xa, xb )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "AddParmLink accepted a duplicate link"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa GetNumParmLinks, GetParmLinkID, DelParmLink, DelAllParmLinks, AddAdvLink
+    \param [in] parm_a_id string Parm ID of the driving Parm
+    \param [in] parm_b_id string Parm ID of the driven Parm
+    \return string Parm Link ID
+*/
+
+extern std::string AddParmLink( const std::string & parm_a_id, const std::string & parm_b_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get the number of simple Parm Links in the model
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    if ( GetNumParmLinks() != 0 )
+    {
+        Print( "ERROR: a new model starts with Parm Links" );
+        __failure++;
+    }
+
+    AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+    AddParmLink( GetParm( pod1, "Y_Rel_Location", "XForm" ), GetParm( pod2, "Y_Rel_Location", "XForm" ) );
+
+    if ( GetNumParmLinks() != 2 )
+    {
+        Print( "ERROR: GetNumParmLinks did not count both links" );
+        __failure++;
+    }
+
+    // Every link the count claims has to be findable.
+    for ( int i = 0; i < GetNumParmLinks(); i++ )
+    {
+        if ( GetParmLinkID( i ).length() == 0 )
+        {
+            Print( "ERROR: a counted link cannot be found" );
+            __failure++;
+        }
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    assert GetNumParmLinks() == 0, "a new model starts with Parm Links"
+
+    AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+    AddParmLink( GetParm( pod1, "Y_Rel_Location", "XForm" ), GetParm( pod2, "Y_Rel_Location", "XForm" ) )
+
+    assert GetNumParmLinks() == 2, "GetNumParmLinks did not count both links"
+
+    # Every link the count claims has to be findable.
+    for i in range( GetNumParmLinks() ):
+        assert len( GetParmLinkID( i ) ) > 0, "a counted link cannot be found"
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, GetParmLinkID
+    \return int Number of Parm Links
+*/
+
+extern int GetNumParmLinks();
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get the ID of the Parm Link at the specified index
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string first = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+    string second = AddParmLink( GetParm( pod1, "Y_Rel_Location", "XForm" ), GetParm( pod2, "Y_Rel_Location", "XForm" ) );
+
+    // Links come back in the order they were added.
+    if ( GetParmLinkID( 0 ) != first || GetParmLinkID( 1 ) != second )
+    {
+        Print( "ERROR: GetParmLinkID did not report the links in order" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    GetParmLinkID( GetNumParmLinks() );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetParmLinkID accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    first = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+    second = AddParmLink( GetParm( pod1, "Y_Rel_Location", "XForm" ), GetParm( pod2, "Y_Rel_Location", "XForm" ) )
+
+    # Links come back in the order they were added.
+    assert GetParmLinkID( 0 ) == first, "GetParmLinkID did not report the links in order"
+    assert GetParmLinkID( 1 ) == second, "GetParmLinkID did not report the links in order"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetParmLinkID( GetNumParmLinks() )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetParmLinkID accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, GetNumParmLinks
+    \param [in] index int Parm Link index
+    \return string Parm Link ID
+*/
+
+extern std::string GetParmLinkID( int index );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get the driving Parm of a Parm Link
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    string link_id = AddParmLink( xa, xb );
+
+    if ( GetParmLinkAParm( link_id ) != xa || GetParmLinkBParm( link_id ) != xb )
+    {
+        Print( "ERROR: the link does not report the Parms it was given" );
+        __failure++;
+    }
+
+    // Pointing A at a different Parm has to take.
+    string ya = GetParm( pod1, "Y_Rel_Location", "XForm" );
+
+    SetParmLinkAParm( link_id, ya );
+
+    if ( GetParmLinkAParm( link_id ) != ya )
+    {
+        Print( "ERROR: SetParmLinkAParm did not take" );
+        __failure++;
+    }
+
+    // A Parm that does not exist has to be rejected.
+    SetParmLinkAParm( link_id, "NOSUCHPARM" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetParmLinkAParm accepted a bad Parm ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    link_id = AddParmLink( xa, xb )
+
+    assert GetParmLinkAParm( link_id ) == xa, "the link does not report the Parms it was given"
+    assert GetParmLinkBParm( link_id ) == xb, "the link does not report the Parms it was given"
+
+    # Pointing A at a different Parm has to take.
+    ya = GetParm( pod1, "Y_Rel_Location", "XForm" )
+
+    SetParmLinkAParm( link_id, ya )
+
+    assert GetParmLinkAParm( link_id ) == ya, "SetParmLinkAParm did not take"
+
+    # A Parm that does not exist has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetParmLinkAParm( link_id, "NOSUCHPARM" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetParmLinkAParm accepted a bad Parm ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, GetParmLinkBParm, SetParmLinkAParm
+    \param [in] link_id string Parm Link ID
+    \return string Parm ID of the driving Parm
+*/
+
+extern std::string GetParmLinkAParm( const std::string & link_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get the driven Parm of a Parm Link
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    string link_id = AddParmLink( xa, xb );
+
+    if ( GetParmLinkBParm( link_id ) != xb )
+    {
+        Print( "ERROR: GetParmLinkBParm did not report the driven Parm" );
+        __failure++;
+    }
+
+    // The two ends are different Parms.
+    if ( GetParmLinkBParm( link_id ) == GetParmLinkAParm( link_id ) )
+    {
+        Print( "ERROR: both ends of the link report the same Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    link_id = AddParmLink( xa, xb )
+
+    assert GetParmLinkBParm( link_id ) == xb, "GetParmLinkBParm did not report the driven Parm"
+
+    # The two ends are different Parms.
+    assert GetParmLinkBParm( link_id ) != GetParmLinkAParm( link_id ), "both ends of the link report the same Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, GetParmLinkAParm, SetParmLinkBParm
+    \param [in] link_id string Parm Link ID
+    \return string Parm ID of the driven Parm
+*/
+
+extern std::string GetParmLinkBParm( const std::string & link_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Set the driving Parm of a Parm Link
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    string link_id = AddParmLink( xa, xb );
+
+    string ya = GetParm( pod1, "Y_Rel_Location", "XForm" );
+
+    SetParmLinkAParm( link_id, ya );
+
+    if ( GetParmLinkAParm( link_id ) != ya )
+    {
+        Print( "ERROR: SetParmLinkAParm did not take" );
+        __failure++;
+    }
+
+    // The driven end is left alone.
+    if ( GetParmLinkBParm( link_id ) != xb )
+    {
+        Print( "ERROR: SetParmLinkAParm disturbed the driven Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    link_id = AddParmLink( xa, xb )
+
+    ya = GetParm( pod1, "Y_Rel_Location", "XForm" )
+
+    SetParmLinkAParm( link_id, ya )
+
+    assert GetParmLinkAParm( link_id ) == ya, "SetParmLinkAParm did not take"
+
+    # The driven end is left alone.
+    assert GetParmLinkBParm( link_id ) == xb, "SetParmLinkAParm disturbed the driven Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, GetParmLinkAParm
+    \param [in] link_id string Parm Link ID
+    \param [in] parm_id string Parm ID of the driving Parm
+*/
+
+extern void SetParmLinkAParm( const std::string & link_id, const std::string & parm_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Set the driven Parm of a Parm Link
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    string link_id = AddParmLink( xa, xb );
+
+    string yb = GetParm( pod2, "Y_Rel_Location", "XForm" );
+
+    SetParmLinkBParm( link_id, yb );
+
+    if ( GetParmLinkBParm( link_id ) != yb )
+    {
+        Print( "ERROR: SetParmLinkBParm did not take" );
+        __failure++;
+    }
+
+    // The driving end is left alone.
+    if ( GetParmLinkAParm( link_id ) != xa )
+    {
+        Print( "ERROR: SetParmLinkBParm disturbed the driving Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    link_id = AddParmLink( xa, xb )
+
+    yb = GetParm( pod2, "Y_Rel_Location", "XForm" )
+
+    SetParmLinkBParm( link_id, yb )
+
+    assert GetParmLinkBParm( link_id ) == yb, "SetParmLinkBParm did not take"
+
+    # The driving end is left alone.
+    assert GetParmLinkAParm( link_id ) == xa, "SetParmLinkBParm disturbed the driving Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, GetParmLinkBParm
+    \param [in] link_id string Parm Link ID
+    \param [in] parm_id string Parm ID of the driven Parm
+*/
+
+extern void SetParmLinkBParm( const std::string & link_id, const std::string & parm_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Delete a single Parm Link
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string first = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+    string second = AddParmLink( GetParm( pod1, "Y_Rel_Location", "XForm" ), GetParm( pod2, "Y_Rel_Location", "XForm" ) );
+
+    DelParmLink( first );
+
+    // Only the named link goes.
+    if ( GetNumParmLinks() != 1 || GetParmLinkID( 0 ) != second )
+    {
+        Print( "ERROR: DelParmLink removed the wrong link" );
+        __failure++;
+    }
+
+    // An ID that is not a link has to be rejected.
+    DelParmLink( "NOSUCHLINK" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DelParmLink accepted a bad ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    first = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+    second = AddParmLink( GetParm( pod1, "Y_Rel_Location", "XForm" ), GetParm( pod2, "Y_Rel_Location", "XForm" ) )
+
+    DelParmLink( first )
+
+    # Only the named link goes.
+    assert GetNumParmLinks() == 1, "DelParmLink removed the wrong link"
+    assert GetParmLinkID( 0 ) == second, "DelParmLink removed the wrong link"
+
+    # An ID that is not a link has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DelParmLink( "NOSUCHLINK" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DelParmLink accepted a bad ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, DelAllParmLinks
+    \param [in] link_id string Parm Link ID
+*/
+
+extern void DelParmLink( const std::string & link_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Delete every simple Parm Link in the model.  Advanced Links are a separate list and are left alone.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+    AddParmLink( GetParm( pod1, "Y_Rel_Location", "XForm" ), GetParm( pod2, "Y_Rel_Location", "XForm" ) );
+
+    AddAdvLink( "ExampleAdvLink" );
+
+    DelAllParmLinks();
+
+    if ( GetNumParmLinks() != 0 )
+    {
+        Print( "ERROR: DelAllParmLinks left links behind" );
+        __failure++;
+    }
+
+    if ( GetAdvLinkNames().size() != 1 )
+    {
+        Print( "ERROR: DelAllParmLinks removed an advanced link" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+    AddParmLink( GetParm( pod1, "Y_Rel_Location", "XForm" ), GetParm( pod2, "Y_Rel_Location", "XForm" ) )
+
+    AddAdvLink( "ExampleAdvLink" )
+
+    DelAllParmLinks()
+
+    assert GetNumParmLinks() == 0, "DelAllParmLinks left links behind"
+    assert len( GetAdvLinkNames() ) == 1, "DelAllParmLinks removed an advanced link"
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, DelParmLink
+*/
+
+extern void DelAllParmLinks();
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Link every Parm of the container holding the first Parm to the matching Parm of the container
+    holding the second.  This is the Link screen's "Link All Comp" button.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    LinkAllComp( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+
+    // A Pod carries many Parms, so this makes many links at once.
+    if ( GetNumParmLinks() < 2 )
+    {
+        Print( "ERROR: LinkAllComp did not link the containers" );
+        __failure++;
+    }
+
+    // Every link it made joins two real Parms.
+    for ( int i = 0; i < GetNumParmLinks(); i++ )
+    {
+        string lid = GetParmLinkID( i );
+
+        if ( GetParmLinkAParm( lid ).length() == 0 || GetParmLinkBParm( lid ).length() == 0 )
+        {
+            Print( "ERROR: LinkAllComp made a link with no Parms" );
+            __failure++;
+        }
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    LinkAllComp( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+
+    # A Pod carries many Parms, so this makes many links at once.
+    assert GetNumParmLinks() >= 2, "LinkAllComp did not link the containers"
+
+    # Every link it made joins two real Parms.
+    for i in range( GetNumParmLinks() ):
+        lid = GetParmLinkID( i )
+        assert len( GetParmLinkAParm( lid ) ) > 0, "LinkAllComp made a link with no Parms"
+        assert len( GetParmLinkBParm( lid ) ) > 0, "LinkAllComp made a link with no Parms"
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, LinkAllGroup
+    \param [in] parm_a_id string Parm ID naming the driving container
+    \param [in] parm_b_id string Parm ID naming the driven container
+    \return bool True if any link was made
+*/
+
+extern bool LinkAllComp( const std::string & parm_a_id, const std::string & parm_b_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Link every Parm of the group holding the first Parm to the matching Parm of the group holding
+    the second.  This is the Link screen's "Link All Group" button.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    LinkAllGroup( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+
+    // The XForm group carries several Parms, so this makes several links.
+    int num_group = GetNumParmLinks();
+
+    if ( num_group < 2 )
+    {
+        Print( "ERROR: LinkAllGroup did not link the groups" );
+        __failure++;
+    }
+
+    // A group is part of the container, so linking the whole container makes at
+    // least as many links.
+    DelAllParmLinks();
+
+    LinkAllComp( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+
+    if ( GetNumParmLinks() < num_group )
+    {
+        Print( "ERROR: LinkAllGroup linked more than LinkAllComp" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    LinkAllGroup( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+
+    # The XForm group carries several Parms, so this makes several links.
+    num_group = GetNumParmLinks()
+
+    assert num_group >= 2, "LinkAllGroup did not link the groups"
+
+    # A group is part of the container, so linking the whole container makes at
+    # least as many links.
+    DelAllParmLinks()
+
+    LinkAllComp( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+
+    assert GetNumParmLinks() >= num_group, "LinkAllGroup linked more than LinkAllComp"
+
+    \endcode
+    \endPythonOnly
+    \sa AddParmLink, LinkAllComp
+    \param [in] parm_a_id string Parm ID naming the driving group
+    \param [in] parm_b_id string Parm ID naming the driven group
+    \return bool True if any link was made
+*/
+
+extern bool LinkAllGroup( const std::string & parm_a_id, const std::string & parm_b_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get whether a Parm Link applies its offset
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    string link_id = AddParmLink( xa, xb );
+
+    // A new link comes up with its offset on and the rest off.
+    if ( GetParmLinkOffsetFlag( link_id ) != true )
+    {
+        Print( "ERROR: the offset flag did not start where a new link starts" );
+        __failure++;
+    }
+
+    SetParmLinkOffsetFlag( link_id, !GetParmLinkOffsetFlag( link_id ) );
+
+    if ( GetParmLinkOffsetFlag( link_id ) == true )
+    {
+        Print( "ERROR: GetParmLinkOffsetFlag did not follow the setter" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    link_id = AddParmLink( xa, xb )
+
+    # A new link comes up with its offset on and the rest off.
+    assert GetParmLinkOffsetFlag( link_id ) == True, "the offset flag did not start where a new link starts"
+
+    SetParmLinkOffsetFlag( link_id, not GetParmLinkOffsetFlag( link_id ) )
+
+    assert GetParmLinkOffsetFlag( link_id ) != True, "GetParmLinkOffsetFlag did not follow the setter"
+
+    \endcode
+    \endPythonOnly
+    \sa SetParmLinkOffsetFlag, AddParmLink
+    \param [in] link_id string Parm Link ID
+    \return bool True if the offset is applied
+*/
+
+extern bool GetParmLinkOffsetFlag( const std::string & link_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Set whether a Parm Link applies its offset.  The value itself is the link's
+    Offset Parm, reached with FindParm on the link ID.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string link_id = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+
+    SetParmLinkOffsetFlag( link_id, true );
+
+    if ( !GetParmLinkOffsetFlag( link_id ) )
+    {
+        Print( "ERROR: the offset flag did not take" );
+        __failure++;
+    }
+
+    SetParmLinkOffsetFlag( link_id, false );
+
+    if ( GetParmLinkOffsetFlag( link_id ) )
+    {
+        Print( "ERROR: the offset flag did not clear" );
+        __failure++;
+    }
+
+    // The value it applies is a Parm on the link itself.
+    if ( FindParm( link_id, "Offset", "Link" ).length() == 0 )
+    {
+        Print( "ERROR: the link carries no Offset Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    link_id = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+
+    SetParmLinkOffsetFlag( link_id, True )
+
+    assert GetParmLinkOffsetFlag( link_id ), "the offset flag did not take"
+
+    SetParmLinkOffsetFlag( link_id, False )
+
+    assert not GetParmLinkOffsetFlag( link_id ), "the offset flag did not clear"
+
+    # The value it applies is a Parm on the link itself.
+    assert len( FindParm( link_id, "Offset", "Link" ) ) > 0, "the link carries no Offset Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa GetParmLinkOffsetFlag, AddParmLink
+    \param [in] link_id string Parm Link ID
+    \param [in] flag bool True to apply the offset
+*/
+
+extern void SetParmLinkOffsetFlag( const std::string & link_id, bool flag );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get whether a Parm Link applies its scale
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    string link_id = AddParmLink( xa, xb );
+
+    // A new link comes up with its offset on and the rest off.
+    if ( GetParmLinkScaleFlag( link_id ) != false )
+    {
+        Print( "ERROR: the scale flag did not start where a new link starts" );
+        __failure++;
+    }
+
+    SetParmLinkScaleFlag( link_id, !GetParmLinkScaleFlag( link_id ) );
+
+    if ( GetParmLinkScaleFlag( link_id ) == false )
+    {
+        Print( "ERROR: GetParmLinkScaleFlag did not follow the setter" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    link_id = AddParmLink( xa, xb )
+
+    # A new link comes up with its offset on and the rest off.
+    assert GetParmLinkScaleFlag( link_id ) == False, "the scale flag did not start where a new link starts"
+
+    SetParmLinkScaleFlag( link_id, not GetParmLinkScaleFlag( link_id ) )
+
+    assert GetParmLinkScaleFlag( link_id ) != False, "GetParmLinkScaleFlag did not follow the setter"
+
+    \endcode
+    \endPythonOnly
+    \sa SetParmLinkScaleFlag, AddParmLink
+    \param [in] link_id string Parm Link ID
+    \return bool True if the scale is applied
+*/
+
+extern bool GetParmLinkScaleFlag( const std::string & link_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Set whether a Parm Link applies its scale.  The value itself is the link's
+    Scale Parm, reached with FindParm on the link ID.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string link_id = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+
+    SetParmLinkScaleFlag( link_id, true );
+
+    if ( !GetParmLinkScaleFlag( link_id ) )
+    {
+        Print( "ERROR: the scale flag did not take" );
+        __failure++;
+    }
+
+    SetParmLinkScaleFlag( link_id, false );
+
+    if ( GetParmLinkScaleFlag( link_id ) )
+    {
+        Print( "ERROR: the scale flag did not clear" );
+        __failure++;
+    }
+
+    // The value it applies is a Parm on the link itself.
+    if ( FindParm( link_id, "Scale", "Link" ).length() == 0 )
+    {
+        Print( "ERROR: the link carries no Scale Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    link_id = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+
+    SetParmLinkScaleFlag( link_id, True )
+
+    assert GetParmLinkScaleFlag( link_id ), "the scale flag did not take"
+
+    SetParmLinkScaleFlag( link_id, False )
+
+    assert not GetParmLinkScaleFlag( link_id ), "the scale flag did not clear"
+
+    # The value it applies is a Parm on the link itself.
+    assert len( FindParm( link_id, "Scale", "Link" ) ) > 0, "the link carries no Scale Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa GetParmLinkScaleFlag, AddParmLink
+    \param [in] link_id string Parm Link ID
+    \param [in] flag bool True to apply the scale
+*/
+
+extern void SetParmLinkScaleFlag( const std::string & link_id, bool flag );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get whether a Parm Link applies its lower limit
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    string link_id = AddParmLink( xa, xb );
+
+    // A new link comes up with its offset on and the rest off.
+    if ( GetParmLinkLowerLimitFlag( link_id ) != false )
+    {
+        Print( "ERROR: the lower limit flag did not start where a new link starts" );
+        __failure++;
+    }
+
+    SetParmLinkLowerLimitFlag( link_id, !GetParmLinkLowerLimitFlag( link_id ) );
+
+    if ( GetParmLinkLowerLimitFlag( link_id ) == false )
+    {
+        Print( "ERROR: GetParmLinkLowerLimitFlag did not follow the setter" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    link_id = AddParmLink( xa, xb )
+
+    # A new link comes up with its offset on and the rest off.
+    assert GetParmLinkLowerLimitFlag( link_id ) == False, "the lower limit flag did not start where a new link starts"
+
+    SetParmLinkLowerLimitFlag( link_id, not GetParmLinkLowerLimitFlag( link_id ) )
+
+    assert GetParmLinkLowerLimitFlag( link_id ) != False, "GetParmLinkLowerLimitFlag did not follow the setter"
+
+    \endcode
+    \endPythonOnly
+    \sa SetParmLinkLowerLimitFlag, AddParmLink
+    \param [in] link_id string Parm Link ID
+    \return bool True if the lower limit is applied
+*/
+
+extern bool GetParmLinkLowerLimitFlag( const std::string & link_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Set whether a Parm Link applies its lower limit.  The value itself is the link's
+    LowerLimit Parm, reached with FindParm on the link ID.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string link_id = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+
+    SetParmLinkLowerLimitFlag( link_id, true );
+
+    if ( !GetParmLinkLowerLimitFlag( link_id ) )
+    {
+        Print( "ERROR: the lower limit flag did not take" );
+        __failure++;
+    }
+
+    SetParmLinkLowerLimitFlag( link_id, false );
+
+    if ( GetParmLinkLowerLimitFlag( link_id ) )
+    {
+        Print( "ERROR: the lower limit flag did not clear" );
+        __failure++;
+    }
+
+    // The value it applies is a Parm on the link itself.
+    if ( FindParm( link_id, "LowerLimit", "Link" ).length() == 0 )
+    {
+        Print( "ERROR: the link carries no LowerLimit Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    link_id = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+
+    SetParmLinkLowerLimitFlag( link_id, True )
+
+    assert GetParmLinkLowerLimitFlag( link_id ), "the lower limit flag did not take"
+
+    SetParmLinkLowerLimitFlag( link_id, False )
+
+    assert not GetParmLinkLowerLimitFlag( link_id ), "the lower limit flag did not clear"
+
+    # The value it applies is a Parm on the link itself.
+    assert len( FindParm( link_id, "LowerLimit", "Link" ) ) > 0, "the link carries no LowerLimit Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa GetParmLinkLowerLimitFlag, AddParmLink
+    \param [in] link_id string Parm Link ID
+    \param [in] flag bool True to apply the lower limit
+*/
+
+extern void SetParmLinkLowerLimitFlag( const std::string & link_id, bool flag );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get whether a Parm Link applies its upper limit
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string xa = GetParm( pod1, "X_Rel_Location", "XForm" );
+    string xb = GetParm( pod2, "X_Rel_Location", "XForm" );
+
+    string link_id = AddParmLink( xa, xb );
+
+    // A new link comes up with its offset on and the rest off.
+    if ( GetParmLinkUpperLimitFlag( link_id ) != false )
+    {
+        Print( "ERROR: the upper limit flag did not start where a new link starts" );
+        __failure++;
+    }
+
+    SetParmLinkUpperLimitFlag( link_id, !GetParmLinkUpperLimitFlag( link_id ) );
+
+    if ( GetParmLinkUpperLimitFlag( link_id ) == false )
+    {
+        Print( "ERROR: GetParmLinkUpperLimitFlag did not follow the setter" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    xa = GetParm( pod1, "X_Rel_Location", "XForm" )
+    xb = GetParm( pod2, "X_Rel_Location", "XForm" )
+
+    link_id = AddParmLink( xa, xb )
+
+    # A new link comes up with its offset on and the rest off.
+    assert GetParmLinkUpperLimitFlag( link_id ) == False, "the upper limit flag did not start where a new link starts"
+
+    SetParmLinkUpperLimitFlag( link_id, not GetParmLinkUpperLimitFlag( link_id ) )
+
+    assert GetParmLinkUpperLimitFlag( link_id ) != False, "GetParmLinkUpperLimitFlag did not follow the setter"
+
+    \endcode
+    \endPythonOnly
+    \sa SetParmLinkUpperLimitFlag, AddParmLink
+    \param [in] link_id string Parm Link ID
+    \return bool True if the upper limit is applied
+*/
+
+extern bool GetParmLinkUpperLimitFlag( const std::string & link_id );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Set whether a Parm Link applies its upper limit.  The value itself is the link's
+    UpperLimit Parm, reached with FindParm on the link ID.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+    string pod2 = AddGeom( "POD", "" );
+
+    string link_id = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) );
+
+    SetParmLinkUpperLimitFlag( link_id, true );
+
+    if ( !GetParmLinkUpperLimitFlag( link_id ) )
+    {
+        Print( "ERROR: the upper limit flag did not take" );
+        __failure++;
+    }
+
+    SetParmLinkUpperLimitFlag( link_id, false );
+
+    if ( GetParmLinkUpperLimitFlag( link_id ) )
+    {
+        Print( "ERROR: the upper limit flag did not clear" );
+        __failure++;
+    }
+
+    // The value it applies is a Parm on the link itself.
+    if ( FindParm( link_id, "UpperLimit", "Link" ).length() == 0 )
+    {
+        Print( "ERROR: the link carries no UpperLimit Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
+
+    link_id = AddParmLink( GetParm( pod1, "X_Rel_Location", "XForm" ), GetParm( pod2, "X_Rel_Location", "XForm" ) )
+
+    SetParmLinkUpperLimitFlag( link_id, True )
+
+    assert GetParmLinkUpperLimitFlag( link_id ), "the upper limit flag did not take"
+
+    SetParmLinkUpperLimitFlag( link_id, False )
+
+    assert not GetParmLinkUpperLimitFlag( link_id ), "the upper limit flag did not clear"
+
+    # The value it applies is a Parm on the link itself.
+    assert len( FindParm( link_id, "UpperLimit", "Link" ) ) > 0, "the link carries no UpperLimit Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa GetParmLinkUpperLimitFlag, AddParmLink
+    \param [in] link_id string Parm Link ID
+    \param [in] flag bool True to apply the upper limit
+*/
+
+extern void SetParmLinkUpperLimitFlag( const std::string & link_id, bool flag );
 
 //======================= Advanced Link Functions ============================//
 

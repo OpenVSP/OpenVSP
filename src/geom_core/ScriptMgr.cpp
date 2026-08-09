@@ -3247,6 +3247,63 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "string AddParmLink( const string & in parm_a_id, const string & in parm_b_id )", asFUNCTION( vsp::AddParmLink ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetNumParmLinks()", asFUNCTION( vsp::GetNumParmLinks ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetParmLinkID( int index )", asFUNCTION( vsp::GetParmLinkID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetParmLinkAParm( const string & in link_id )", asFUNCTION( vsp::GetParmLinkAParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetParmLinkBParm( const string & in link_id )", asFUNCTION( vsp::GetParmLinkBParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetParmLinkAParm( const string & in link_id, const string & in parm_id )", asFUNCTION( vsp::SetParmLinkAParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetParmLinkBParm( const string & in link_id, const string & in parm_id )", asFUNCTION( vsp::SetParmLinkBParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelParmLink( const string & in link_id )", asFUNCTION( vsp::DelParmLink ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelAllParmLinks()", asFUNCTION( vsp::DelAllParmLinks ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "bool LinkAllComp( const string & in parm_a_id, const string & in parm_b_id )", asFUNCTION( vsp::LinkAllComp ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "bool LinkAllGroup( const string & in parm_a_id, const string & in parm_b_id )", asFUNCTION( vsp::LinkAllGroup ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "bool GetParmLinkOffsetFlag( const string & in link_id )", asFUNCTION( vsp::GetParmLinkOffsetFlag ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetParmLinkOffsetFlag( const string & in link_id, bool flag )", asFUNCTION( vsp::SetParmLinkOffsetFlag ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "bool GetParmLinkScaleFlag( const string & in link_id )", asFUNCTION( vsp::GetParmLinkScaleFlag ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetParmLinkScaleFlag( const string & in link_id, bool flag )", asFUNCTION( vsp::SetParmLinkScaleFlag ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "bool GetParmLinkLowerLimitFlag( const string & in link_id )", asFUNCTION( vsp::GetParmLinkLowerLimitFlag ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetParmLinkLowerLimitFlag( const string & in link_id, bool flag )", asFUNCTION( vsp::SetParmLinkLowerLimitFlag ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "bool GetParmLinkUpperLimitFlag( const string & in link_id )", asFUNCTION( vsp::GetParmLinkUpperLimitFlag ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetParmLinkUpperLimitFlag( const string & in link_id, bool flag )", asFUNCTION( vsp::SetParmLinkUpperLimitFlag ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void AddAdvLink( const string & in name )", asFUNCTION( vsp::AddAdvLink ), asCALL_CDECL );
     assert( r >= 0 );
 
