@@ -753,6 +753,17 @@ void AdvLink::SearchReplaceCode( const string & from, const string & to )
 #ifdef NOREGEXP
     StringUtil::replace_all( m_ScriptCode, from, to );
 #else
-    m_ScriptCode = regex_replace( m_ScriptCode, regex( "([^\\w]|^)" + from + "([^\\w]|$)" ), "$1" + to + "$2" );
+    // Whatever is searched for gets spliced into a regular expression, so
+    // anything regex treats specially has to be escaped first.  Without this a
+    // '.' in the search string matches any character.
+    static const std::regex esc_chars( R"([.^$|()\[\]{}*+?\\])" );
+    string from_escaped = std::regex_replace( from, esc_chars, R"(\$&)" );
+
+    // The group references are written two digits wide on purpose.  Spelled
+    // "$1", a replacement that starts with a digit is swallowed into the group
+    // number: "$1" followed by "12.3" reads as group 112 then ".3", which drops
+    // the leading character of the replacement along with the captured
+    // delimiter.
+    m_ScriptCode = regex_replace( m_ScriptCode, regex( "([^\\w]|^)" + from_escaped + "([^\\w]|$)" ), "$01" + to + "$02" );
 #endif
 }
