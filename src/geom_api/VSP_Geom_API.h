@@ -10412,6 +10412,29 @@ extern void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::st
 
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
+
+    // The first structure on this Geom lands at index 0, and its ID has to lead
+    // back to that index.
+    if ( struct_ind != 0 || NumFeaStructures() != 1 )
+    {
+        Print( "ERROR: AddFeaStruct did not add a structure" );
+        __failure++;
+    }
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    if ( struct_id.length() == 0 || GetFeaStructIndex( struct_id ) != struct_ind )
+    {
+        Print( "ERROR: AddFeaStruct did not give the structure a usable ID" );
+        __failure++;
+    }
+
+    // init_skin defaults to true, so the structure starts with an FEA Skin.
+    if ( NumFeaParts( struct_id ) != 1 )
+    {
+        Print( "ERROR: AddFeaStruct did not initialize the skin" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -10421,6 +10444,19 @@ extern void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::st
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
+
+    # The first structure on this Geom lands at index 0, and its ID has to lead
+    # back to that index.
+    assert struct_ind == 0, "AddFeaStruct did not add a structure"
+    assert NumFeaStructures() == 1, "AddFeaStruct did not add a structure"
+
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    assert len( struct_id ) > 0, "AddFeaStruct did not give the structure a usable ID"
+    assert GetFeaStructIndex( struct_id ) == struct_ind, "AddFeaStruct did not give the structure a usable ID"
+
+    # init_skin defaults to true, so the structure starts with an FEA Skin.
+    assert NumFeaParts( struct_id ) == 1, "AddFeaStruct did not initialize the skin"
 
     \endcode
     \endPythonOnly
@@ -10487,7 +10523,29 @@ extern void SetFeaMeshStructIndex( int struct_index );
 
     int struct_ind_2 = AddFeaStruct( pod_id );
 
+    string struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 );
+
+    if ( NumFeaStructures() != 2 )
+    {
+        Print( "ERROR: the two structures were not both added" );
+        __failure++;
+    }
+
     DeleteFeaStruct( pod_id, struct_ind_1 );
+
+    // Deleting the first structure leaves the second one, which slides down to
+    // take its index.
+    if ( NumFeaStructures() != 1 )
+    {
+        Print( "ERROR: DeleteFeaStruct did not remove the structure" );
+        __failure++;
+    }
+
+    if ( GetFeaStructID( pod_id, 0 ) != struct_id_2 )
+    {
+        Print( "ERROR: DeleteFeaStruct removed the wrong structure" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -10500,7 +10558,16 @@ extern void SetFeaMeshStructIndex( int struct_index );
 
     struct_ind_2 = AddFeaStruct( pod_id )
 
+    struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 )
+
+    assert NumFeaStructures() == 2, "the two structures were not both added"
+
     DeleteFeaStruct( pod_id, struct_ind_1 )
+
+    # Deleting the first structure leaves the second one, which slides down to
+    # take its index.
+    assert NumFeaStructures() == 1, "DeleteFeaStruct did not remove the structure"
+    assert GetFeaStructID( pod_id, 0 ) == struct_id_2, "DeleteFeaStruct removed the wrong structure"
 
     \endcode
     \endPythonOnly
@@ -10571,6 +10638,33 @@ extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_i
     DeleteFeaStruct( pod_id, struct_ind_1 );
 
     int struct_ind_2_new = GetFeaStructIndex( struct_id_2 );
+
+    // The second structure slides down to fill the gap the first one left.
+    if ( struct_ind_2 != 1 || struct_ind_2_new != 0 )
+    {
+        Print( "ERROR: GetFeaStructIndex did not follow the delete" );
+        __failure++;
+    }
+
+    // The index has to lead back to the same structure.
+    if ( GetFeaStructID( pod_id, struct_ind_2_new ) != struct_id_2 )
+    {
+        Print( "ERROR: GetFeaStructIndex disagrees with GetFeaStructID" );
+        __failure++;
+    }
+
+    // An ID that is not a structure has to report -1.
+    if ( GetFeaStructIndex( "NOSUCHSTRUCT" ) != -1 )
+    {
+        Print( "ERROR: GetFeaStructIndex accepted a bad ID" );
+        __failure++;
+    }
+
+    // That lookup failure was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -10588,6 +10682,22 @@ extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_i
     DeleteFeaStruct( pod_id, struct_ind_1 )
 
     struct_ind_2_new = GetFeaStructIndex( struct_id_2 )
+
+    # The second structure slides down to fill the gap the first one left.
+    assert struct_ind_2 == 1, "GetFeaStructIndex did not follow the delete"
+    assert struct_ind_2_new == 0, "GetFeaStructIndex did not follow the delete"
+
+    # The index has to lead back to the same structure.
+    assert GetFeaStructID( pod_id, struct_ind_2_new ) == struct_id_2, "GetFeaStructIndex disagrees with GetFeaStructID"
+
+    # An ID that is not a structure has to report -1.
+    assert GetFeaStructIndex( "NOSUCHSTRUCT" ) == -1, "GetFeaStructIndex accepted a bad ID"
+
+    # That lookup failure was raised deliberately, so take it back off the queue.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -10918,8 +11028,32 @@ extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, 
     //==== Add Fixed Point ====//
     string fixed_id = AddFeaPart( pod_id, struct_ind, FEA_FIX_POINT );
 
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    // The skin, the bulkhead and the fixed point.
+    int num_before = NumFeaParts( struct_id );
+
+    if ( num_before != 3 )
+    {
+        Print( "ERROR: the parts were not all added" );
+        __failure++;
+    }
+
     //==== Delete Bulkead ====//
     DeleteFeaPart( pod_id, struct_ind, bulkhead_id );
+
+    // Only the named part goes; the fixed point stays.
+    if ( NumFeaParts( struct_id ) != num_before - 1 )
+    {
+        Print( "ERROR: DeleteFeaPart did not remove the part" );
+        __failure++;
+    }
+
+    if ( GetFeaPartName( fixed_id ).length() == 0 )
+    {
+        Print( "ERROR: DeleteFeaPart removed the wrong part" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -10936,8 +11070,19 @@ extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, 
     #==== Add Fixed Point ====//
     fixed_id = AddFeaPart( pod_id, struct_ind, FEA_FIX_POINT )
 
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    # The skin, the bulkhead and the fixed point.
+    num_before = NumFeaParts( struct_id )
+
+    assert num_before == 3, "the parts were not all added"
+
     #==== Delete Bulkead ====//
     DeleteFeaPart( pod_id, struct_ind, bulkhead_id )
+
+    # Only the named part goes; the fixed point stays.
+    assert NumFeaParts( struct_id ) == num_before - 1, "DeleteFeaPart did not remove the part"
+    assert len( GetFeaPartName( fixed_id ) ) > 0, "DeleteFeaPart removed the wrong part"
 
     \endcode
     \endPythonOnly
@@ -11530,8 +11675,18 @@ extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_in
     //==== Add Rectangle ====//
     string rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE );
 
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    int num_before = NumFeaSubSurfs( struct_id );
+
     //==== Delete LineArray ====//
     DeleteFeaSubSurf( pod_id, struct_ind, line_array_id );
+
+    if ( NumFeaSubSurfs( struct_id ) != num_before - 1 )
+    {
+        Print( "ERROR: DeleteFeaSubSurf did not remove the sub-surface" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11548,8 +11703,14 @@ extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_in
     #==== Add Rectangle ====//
     rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
 
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    num_before = NumFeaSubSurfs( struct_id )
+
     #==== Delete LineArray ====//
     DeleteFeaSubSurf( pod_id, struct_ind, line_array_id )
+
+    assert NumFeaSubSurfs( struct_id ) == num_before - 1, "DeleteFeaSubSurf did not remove the sub-surface"
 
     \endcode
     \endPythonOnly
@@ -12345,7 +12506,25 @@ extern std::string AddFeaBC( const string & fea_struct_id, int type = -1 );
     //==== Add BC ====//
     string bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE );
 
+    if ( NumFeaBCs( struct_id ) != 1 )
+    {
+        Print( "ERROR: AddFeaBC did not add a boundary condition" );
+        __failure++;
+    }
+
     DelFeaBC( struct_id, bc_id );
+
+    if ( NumFeaBCs( struct_id ) != 0 )
+    {
+        Print( "ERROR: DelFeaBC did not remove the boundary condition" );
+        __failure++;
+    }
+
+    if ( GetFeaBCIDVec( struct_id ).size() != 0 )
+    {
+        Print( "ERROR: DelFeaBC left the boundary condition in the ID list" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -12362,7 +12541,12 @@ extern std::string AddFeaBC( const string & fea_struct_id, int type = -1 );
     #==== Add BC ====//
     bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE )
 
+    assert NumFeaBCs( struct_id ) == 1, "AddFeaBC did not add a boundary condition"
+
     DelFeaBC( struct_id, bc_id )
+
+    assert NumFeaBCs( struct_id ) == 0, "DelFeaBC did not remove the boundary condition"
+    assert len( GetFeaBCIDVec( struct_id ) ) == 0, "DelFeaBC left the boundary condition in the ID list"
 
     \endcode
     \endPythonOnly
@@ -12445,6 +12629,20 @@ extern std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id );
 
     int nbc = NumFeaBCs( struct_id );
 
+    // The count has to match the list of IDs, and follow another add.
+    if ( nbc != 1 || nbc != int( GetFeaBCIDVec( struct_id ).size() ) )
+    {
+        Print( "ERROR: NumFeaBCs disagrees with GetFeaBCIDVec" );
+        __failure++;
+    }
+
+    AddFeaBC( struct_id, FEA_BC_STRUCTURE );
+
+    if ( NumFeaBCs( struct_id ) != nbc + 1 )
+    {
+        Print( "ERROR: NumFeaBCs did not follow AddFeaBC" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -12462,6 +12660,14 @@ extern std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id );
     bc_id = AddFeaBC( struct_id, FEA_BC_STRUCTURE )
 
     nbc = NumFeaBCs( struct_id )
+
+    # The count has to match the list of IDs, and follow another add.
+    assert nbc == 1, "NumFeaBCs did not count the boundary condition"
+    assert nbc == len( GetFeaBCIDVec( struct_id ) ), "NumFeaBCs disagrees with GetFeaBCIDVec"
+
+    AddFeaBC( struct_id, FEA_BC_STRUCTURE )
+
+    assert NumFeaBCs( struct_id ) == nbc + 1, "NumFeaBCs did not follow AddFeaBC"
 
     \endcode
     \endPythonOnly
@@ -12558,6 +12764,22 @@ extern std::string AddFeaProperty( int property_type = 0 );
     SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
 
     SetFeaMeshVal( pod_id, struct_ind, CFD_MIN_EDGE_LEN, 0.2 );
+
+    // The options are backed by Parms on the Structure, in its grid density
+    // group, so the values that were set can be read back.
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    if ( !closeTo( GetParmVal( FindParm( struct_id, "BaseLen", "FEAGridDensity" ) ), 0.75, 1e-12 ) )
+    {
+        Print( "ERROR: SetFeaMeshVal did not set CFD_MAX_EDGE_LEN" );
+        __failure++;
+    }
+
+    if ( !closeTo( GetParmVal( FindParm( struct_id, "MinLen", "FEAGridDensity" ) ), 0.2, 1e-12 ) )
+    {
+        Print( "ERROR: SetFeaMeshVal did not set CFD_MIN_EDGE_LEN" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12572,6 +12794,13 @@ extern std::string AddFeaProperty( int property_type = 0 );
     SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 )
 
     SetFeaMeshVal( pod_id, struct_ind, CFD_MIN_EDGE_LEN, 0.2 )
+
+    # The options are backed by Parms on the Structure, in its grid density
+    # group, so the values that were set can be read back.
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    assert abs( GetParmVal( FindParm( struct_id, "BaseLen", "FEAGridDensity" ) ) - 0.75 ) < 1e-12, "SetFeaMeshVal did not set CFD_MAX_EDGE_LEN"
+    assert abs( GetParmVal( FindParm( struct_id, "MinLen", "FEAGridDensity" ) ) - 0.2 ) < 1e-12, "SetFeaMeshVal did not set CFD_MIN_EDGE_LEN"
 
     \endcode
     \endPythonOnly
@@ -12605,7 +12834,36 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
     //==== Get Parent Geom ID and Index ====//
     string parent_id = GetFeaStructParentGeomID( struct_id ); // same as pod_id
 
+    if ( parent_id != pod_id )
+    {
+        Print( "ERROR: GetFeaStructParentGeomID did not report the parent Geom" );
+        __failure++;
+    }
+
     SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name );
+
+    // Keep the mesh coarse so the example runs quickly, then mesh to prove the
+    // name that was set is the name that gets written.
+    SetFeaMeshVal( parent_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
+
+    ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME );
+
+    file __f;
+
+    if ( __f.open( export_name, "r" ) < 0 )
+    {
+        Print( "ERROR: SetFeaMeshFileName did not name the output file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: the FEA mesh output file is empty" );
+            __failure++;
+        }
+        __f.close();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12624,7 +12882,18 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
     #==== Get Parent Geom ID and Index ====//
     parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
 
+    assert parent_id == pod_id, "GetFeaStructParentGeomID did not report the parent Geom"
+
     SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name )
+
+    # Keep the mesh coarse so the example runs quickly, then mesh to prove the
+    # name that was set is the name that gets written.
+    SetFeaMeshVal( parent_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 )
+
+    ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME )
+
+    import os
+    assert os.path.getsize( export_name ) > 0, "SetFeaMeshFileName did not name the output file"
 
     \endcode
     \endPythonOnly
@@ -12657,8 +12926,32 @@ extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind,
     //==== Get Parent Geom ID and Index ====//
     string parent_id = GetFeaStructParentGeomID( struct_id ); // same as pod_id
 
+    //==== Keep the mesh coarse so the example runs quickly ====//
+    SetFeaMeshVal( parent_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
+
+    SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, "FEAMeshTest_calculix.dat" );
+
     ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME );
     // Could also call ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME );
+
+    // FEA Mesh reports nothing through the Results Manager, so the output file
+    // is the evidence that it ran.
+    file __f;
+
+    if ( __f.open( "FEAMeshTest_calculix.dat", "r" ) < 0 )
+    {
+        Print( "ERROR: ComputeFeaMesh wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: ComputeFeaMesh wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12677,7 +12970,17 @@ extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind,
     #==== Get Parent Geom ID and Index ====//
     parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
 
+    #==== Keep the mesh coarse so the example runs quickly ====//
+    SetFeaMeshVal( parent_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 )
+
+    SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, "FEAMeshTest_calculix.dat" )
+
     ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME )
+
+    # FEA Mesh reports nothing through the Results Manager, so the output file is
+    # the evidence that it ran.
+    import os
+    assert os.path.getsize( "FEAMeshTest_calculix.dat" ) > 0, "ComputeFeaMesh wrote no file"
 
     \endcode
     \endPythonOnly
@@ -12710,8 +13013,32 @@ extern void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int
     //==== Get Parent Geom ID and Index ====//
     string parent_id = GetFeaStructParentGeomID( struct_id ); // same as pod_id
 
+    //==== Keep the mesh coarse so the example runs quickly ====//
+    SetFeaMeshVal( parent_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
+
+    SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, "FEAMeshTest_calculix.dat" );
+
     ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME );
     // Could also call ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME );
+
+    // FEA Mesh reports nothing through the Results Manager, so the output file
+    // is the evidence that it ran.
+    file __f;
+
+    if ( __f.open( "FEAMeshTest_calculix.dat", "r" ) < 0 )
+    {
+        Print( "ERROR: ComputeFeaMesh wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: ComputeFeaMesh wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -12725,12 +13052,23 @@ extern void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int
     struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Generate FEA Mesh and Export ====//
-    print( string( "--> Generating FeaMesh " ) )
+    print( "--> Generating FeaMesh " )
 
     #==== Get Parent Geom ID and Index ====//
     parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
 
-    Could also call ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME )
+    #==== Keep the mesh coarse so the example runs quickly ====//
+    SetFeaMeshVal( parent_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 )
+
+    SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, "FEAMeshTest_calculix.dat" )
+
+    # This form names the Structure directly rather than its parent and index.
+    ComputeFeaMesh( struct_id, FEA_CALCULIX_FILE_NAME )
+
+    # FEA Mesh reports nothing through the Results Manager, so the output file is
+    # the evidence that it ran.
+    import os
+    assert os.path.getsize( "FEAMeshTest_calculix.dat" ) > 0, "ComputeFeaMesh wrote no file"
 
     \endcode
     \endPythonOnly
