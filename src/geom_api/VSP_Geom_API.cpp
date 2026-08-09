@@ -12162,6 +12162,132 @@ bool CheckForVSPHelp( const std::string & path )
     return false;
 }
 
+//================ Measure Tool Display Functions ====================//
+
+void ShowAllRulers()
+{
+    MeasureMgr.ShowAllRulers();
+    ErrorMgr.NoError();
+}
+
+void HideAllRulers()
+{
+    MeasureMgr.HideAllRulers();
+    ErrorMgr.NoError();
+}
+
+void ShowAllProbes()
+{
+    MeasureMgr.ShowAllProbes();
+    ErrorMgr.NoError();
+}
+
+void HideAllProbes()
+{
+    MeasureMgr.HideAllProbes();
+    ErrorMgr.NoError();
+}
+
+void ShowAllProtractors()
+{
+    MeasureMgr.ShowAllProtractors();
+    ErrorMgr.NoError();
+}
+
+void HideAllProtractors()
+{
+    MeasureMgr.HideAllProtractors();
+    ErrorMgr.NoError();
+}
+
+void ShowAllRSTProbes()
+{
+    MeasureMgr.ShowAllRSTProbes();
+    ErrorMgr.NoError();
+}
+
+void HideAllRSTProbes()
+{
+    MeasureMgr.HideAllRSTProbes();
+    ErrorMgr.NoError();
+}
+
+//================ FEA Trim Part Functions ====================//
+
+//==== Look up an FEA Trim part by ID, reporting through the named caller. ====//
+FeaPartTrim* FindFeaPartTrim( const string & part_id, const string & caller )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Invalid FEA Part ID " + part_id );
+        return nullptr;
+    }
+
+    FeaPartTrim* trim = dynamic_cast< FeaPartTrim* >( part );
+
+    if ( !trim )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Part " + part_id + " is not a Trim part" );
+        return nullptr;
+    }
+
+    return trim;
+}
+
+void AddFeaTrimPart( const string & trim_id, const string & part_id )
+{
+    FeaPartTrim* trim = FindFeaPartTrim( trim_id, "AddFeaTrimPart" );
+    if ( !trim )
+    {
+        return;
+    }
+
+    if ( !StructureMgr.GetFeaPart( part_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddFeaTrimPart::Invalid FEA Part ID " + part_id );
+        return;
+    }
+
+    trim->AddTrimPart( part_id );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteFeaTrimPart( const string & trim_id, int index )
+{
+    FeaPartTrim* trim = FindFeaPartTrim( trim_id, "DeleteFeaTrimPart" );
+    if ( !trim )
+    {
+        return;
+    }
+
+    if ( index < 0 || index >= ( int )trim->m_TrimFeaPartIDVec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteFeaTrimPart::Trim Part Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
+    trim->DeleteTrimPart( index );
+
+    ErrorMgr.NoError();
+}
+
+vector < string > GetFeaTrimPartIDVec( const string & trim_id )
+{
+    vector < string > ret;
+
+    FeaPartTrim* trim = FindFeaPartTrim( trim_id, "GetFeaTrimPartIDVec" );
+    if ( !trim )
+    {
+        return ret;
+    }
+
+    ErrorMgr.NoError();
+    return trim->m_TrimFeaPartIDVec;
+}
+
 //==================== Geom Operation Functions ======================//
 
 //==== Look up a Geom by ID, reporting through the named caller. ====//

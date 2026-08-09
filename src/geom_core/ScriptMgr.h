@@ -299,6 +299,7 @@ private:
     static void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
     static void DeleteExcrescence(int index);
 
+    CScriptArray* GetFeaTrimPartIDVec( const string & trim_id );
     CScriptArray* GetPtCloudPnts( const string & geom_id );
     CScriptArray* GetFeaAssemblyIDVec();
     CScriptArray* GetFeaAssemblyStructureIDVec( const string & assembly_id );

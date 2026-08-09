@@ -5625,6 +5625,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //=== Register Measure Functions ===//
 
+    r = se->RegisterGlobalFunction( "void ShowAllRulers()", asFUNCTION( vsp::ShowAllRulers ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void HideAllRulers()", asFUNCTION( vsp::HideAllRulers ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ShowAllProbes()", asFUNCTION( vsp::ShowAllProbes ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void HideAllProbes()", asFUNCTION( vsp::HideAllProbes ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ShowAllProtractors()", asFUNCTION( vsp::ShowAllProtractors ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void HideAllProtractors()", asFUNCTION( vsp::HideAllProtractors ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ShowAllRSTProbes()", asFUNCTION( vsp::ShowAllRSTProbes ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void HideAllRSTProbes()", asFUNCTION( vsp::HideAllRSTProbes ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "string AddProtractor( const string & in startgeomid, int startsurfindx, double startu, double startw, const string & in midgeomid, int midsurfindx, double midu, double midw, const string & in endgeomid, int endsurfindx, double endu, double endw, const string & in name )", asFUNCTION( vsp::AddProtractor ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -5869,6 +5893,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int NumFeaBCs( const string & in fea_struct_id )", asFUNCTION( vsp::NumFeaBCs ), asCALL_CDECL );
     assert( r >= 0 );
 
+
+    r = se->RegisterGlobalFunction( "void AddFeaTrimPart( const string & in trim_id, const string & in part_id )", asFUNCTION( vsp::AddFeaTrimPart ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteFeaTrimPart( const string & in trim_id, int index )", asFUNCTION( vsp::DeleteFeaTrimPart ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaTrimPartIDVec( const string & in trim_id )", asMETHOD( ScriptMgrSingleton, GetFeaTrimPartIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string AddFeaAssembly()", asFUNCTION( vsp::AddFeaAssembly ), asCALL_CDECL );
     assert( r >= 0 );
@@ -6992,6 +7025,12 @@ void ScriptMgrSingleton::AddExcrescence( const std::string & excresName, int exc
 void ScriptMgrSingleton::DeleteExcrescence(int index)
 {
     vsp::DeleteExcrescence(index);
+}
+
+CScriptArray* ScriptMgrSingleton::GetFeaTrimPartIDVec( const string & trim_id )
+{
+    m_ProxyStringArray = vsp::GetFeaTrimPartIDVec( trim_id );
+    return GetProxyStringArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetPtCloudPnts( const string & geom_id )

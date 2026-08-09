@@ -13763,6 +13763,130 @@ extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
     \return string FEA Assembly ID
 */
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Add an FEA Part to the list a Trim part trims against.  This is the Trim part's Add button.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind = AddFeaStruct( pod_id );
+
+    //==== A Trim part and something for it to trim against ====//
+    string trim_id = AddFeaPart( pod_id, struct_ind, FEA_TRIM );
+
+    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+    if ( GetFeaTrimPartIDVec( trim_id ).size() != 0 )
+    {
+        Print( "ERROR: a new Trim part already trims against something" );
+        __failure++;
+    }
+
+    AddFeaTrimPart( trim_id, slice_id );
+
+    array< string > @trim_parts = GetFeaTrimPartIDVec( trim_id );
+
+    if ( trim_parts.size() != 1 || trim_parts[0] != slice_id )
+    {
+        Print( "ERROR: AddFeaTrimPart did not add the part" );
+        __failure++;
+    }
+
+    DeleteFeaTrimPart( trim_id, 0 );
+
+    if ( GetFeaTrimPartIDVec( trim_id ).size() != 0 )
+    {
+        Print( "ERROR: DeleteFeaTrimPart did not remove the part" );
+        __failure++;
+    }
+
+    // An FEA Part that is not a Trim part has to be rejected.
+    AddFeaTrimPart( slice_id, slice_id );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: AddFeaTrimPart accepted a part that is not a Trim part" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pod_id = AddGeom( "POD" )
+
+    struct_ind = AddFeaStruct( pod_id )
+
+    #==== A Trim part and something for it to trim against ====//
+    trim_id = AddFeaPart( pod_id, struct_ind, FEA_TRIM )
+
+    slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+
+    assert len( GetFeaTrimPartIDVec( trim_id ) ) == 0, "a new Trim part already trims against something"
+
+    AddFeaTrimPart( trim_id, slice_id )
+
+    trim_parts = GetFeaTrimPartIDVec( trim_id )
+
+    assert len( trim_parts ) == 1, "AddFeaTrimPart did not add the part"
+    assert trim_parts[0] == slice_id, "AddFeaTrimPart did not add the part"
+
+    DeleteFeaTrimPart( trim_id, 0 )
+
+    assert len( GetFeaTrimPartIDVec( trim_id ) ) == 0, "DeleteFeaTrimPart did not remove the part"
+
+    # An FEA Part that is not a Trim part has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    AddFeaTrimPart( slice_id, slice_id )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "AddFeaTrimPart accepted a part that is not a Trim part"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa DeleteFeaTrimPart, GetFeaTrimPartIDVec
+    \param [in] trim_id string FEA Trim part ID
+    \param [in] part_id string FEA Part ID to trim against
+*/
+
+extern void AddFeaTrimPart( const std::string & trim_id, const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Remove an entry from the list a Trim part trims against
+    \sa AddFeaTrimPart, GetFeaTrimPartIDVec
+    \param [in] trim_id string FEA Trim part ID
+    \param [in] index int Trim entry index
+*/
+
+extern void DeleteFeaTrimPart( const std::string & trim_id, int index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the FEA Parts a Trim part trims against
+    \sa AddFeaTrimPart, DeleteFeaTrimPart
+    \param [in] trim_id string FEA Trim part ID
+    \return vector\<string\> Array of FEA Part IDs
+*/
+
+extern std::vector < std::string > GetFeaTrimPartIDVec( const std::string & trim_id );
+
 extern std::string AddFeaAssembly();
 
 /*!
@@ -35940,6 +36064,127 @@ extern void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::v
     \param [in] name string Protractor name
     \return string Protractor ID
 */
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Show every Ruler in the Measure Tool.  This is the Measure screen's Show All button for rulers.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    string rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Example_Ruler" );
+
+    HideAllRulers();
+
+    // Visibility is a Parm on the ruler itself.
+    if ( !closeTo( GetParmVal( FindParm( rid, "Visible", "Measure" ) ), 0.0, 1e-12 ) )
+    {
+        Print( "ERROR: HideAllRulers did not hide the ruler" );
+        __failure++;
+    }
+
+    ShowAllRulers();
+
+    if ( !closeTo( GetParmVal( FindParm( rid, "Visible", "Measure" ) ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: ShowAllRulers did not show the ruler" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Example_Ruler" )
+
+    HideAllRulers()
+
+    # Visibility is a Parm on the ruler itself.
+    assert abs( GetParmVal( FindParm( rid, "Visible", "Measure" ) ) ) < 1e-12, "HideAllRulers did not hide the ruler"
+
+    ShowAllRulers()
+
+    assert abs( GetParmVal( FindParm( rid, "Visible", "Measure" ) ) - 1.0 ) < 1e-12, "ShowAllRulers did not show the ruler"
+
+    \endcode
+    \endPythonOnly
+    \sa HideAllRulers, AddRuler
+*/
+
+extern void ShowAllRulers();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Hide every Ruler in the Measure Tool.
+    \sa ShowAllRulers
+*/
+
+extern void HideAllRulers();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Show every Probe in the Measure Tool.
+    \sa HideAllProbes
+*/
+
+extern void ShowAllProbes();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Hide every Probe in the Measure Tool.
+    \sa ShowAllProbes
+*/
+
+extern void HideAllProbes();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Show every Protractor in the Measure Tool.
+    \sa HideAllProtractors
+*/
+
+extern void ShowAllProtractors();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Hide every Protractor in the Measure Tool.
+    \sa ShowAllProtractors
+*/
+
+extern void HideAllProtractors();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Show every RST Probe in the Measure Tool.
+    \sa HideAllRSTProbes
+*/
+
+extern void ShowAllRSTProbes();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Hide every RST Probe in the Measure Tool.
+    \sa ShowAllRSTProbes
+*/
+
+extern void HideAllRSTProbes();
 
 extern string AddProtractor( const string & startgeomid, int startsurfindx, double startu, double startw,
                              const string & midgeomid, int midsurfindx, double midu, double midw,
