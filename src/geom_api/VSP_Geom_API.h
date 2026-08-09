@@ -19918,6 +19918,25 @@ extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, cons
 
     // Get the control points for the default shape
     array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+
+    // The section is an edit curve carrying a closed cubic Bezier, normalized
+    // to the unit box.
+    if ( GetXSecShape( xsec_1 ) != XS_EDIT_CURVE )
+    {
+        Print( "ERROR: the section is not an edit curve" );
+        __failure++;
+    }
+
+    if ( xsec1_pts.size() < 4 )
+    {
+        Print( "ERROR: the edit curve carries too few control points" );
+        __failure++;
+    }
+    else if ( dist( xsec1_pts[0], xsec1_pts[xsec1_pts.size() - 1] ) > 1e-9 )
+    {
+        Print( "ERROR: the edit curve does not close" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -19938,6 +19957,12 @@ extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, cons
 
     # Get the control points for the default shape
     xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
+
+    # The section is an edit curve carrying a closed cubic Bezier, normalized to
+    # the unit box.
+    assert GetXSecShape( xsec_1 ) == XS_EDIT_CURVE, "the section is not an edit curve"
+    assert len( xsec1_pts ) >= 4, "the edit curve carries too few control points"
+    assert dist( xsec1_pts[0], xsec1_pts[-1] ) < 1e-9, "the edit curve does not close"
 
     \endcode
     \endPythonOnly
@@ -27083,6 +27108,31 @@ extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
     Print( "CS Group name: ", false );
 
     Print( GetVSPAEROControlGroupName( group_index ) );
+
+    if ( GetVSPAEROControlGroupName( group_index ) != "Example_CS_Group" )
+    {
+        Print( "ERROR: the control surface group name did not take" );
+        __failure++;
+    }
+
+    // A group index past the end has to be rejected, and name nothing.
+    if ( GetVSPAEROControlGroupName( GetNumControlSurfaceGroups() ).length() != 0 )
+    {
+        Print( "ERROR: an index past the end named a group" );
+        __failure++;
+    }
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: an index past the end was accepted" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27127,6 +27177,31 @@ extern void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex);
     Print( "CS Group name: ", false );
 
     Print( GetVSPAEROControlGroupName( group_index ) );
+
+    if ( GetVSPAEROControlGroupName( group_index ) != "Example_CS_Group" )
+    {
+        Print( "ERROR: the control surface group name did not take" );
+        __failure++;
+    }
+
+    // A group index past the end has to be rejected, and name nothing.
+    if ( GetVSPAEROControlGroupName( GetNumControlSurfaceGroups() ).length() != 0 )
+    {
+        Print( "ERROR: an index past the end named a group" );
+        __failure++;
+    }
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: an index past the end was accepted" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27179,6 +27254,19 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
     }
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ); // Add all available control surfaces to the group
+
+    // Everything that was named moved from available to active.
+    if ( int( GetActiveCSNameVec( group_index ).size() ) != int( cs_name_vec.size() ) )
+    {
+        Print( "ERROR: AddSelectedToCSGroup did not add them all" );
+        __failure++;
+    }
+
+    if ( GetAvailableCSNameVec( group_index ).size() != 0 )
+    {
+        Print( "ERROR: control surfaces are still available after adding them all" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27198,6 +27286,10 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
         cs_ind_vec[i] = i + 1
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ) # Add all available control surfaces to the group
+
+    # Everything that was named moved from available to active.
+    assert len( GetActiveCSNameVec( group_index ) ) == len( cs_name_vec ), "AddSelectedToCSGroup did not add them all"
+    assert len( GetAvailableCSNameVec( group_index ) ) == 0, "control surfaces are still available after adding them all"
 
     \endcode
     \endPythonOnly
@@ -27878,6 +27970,31 @@ extern int GetNumUnsteadyRotorGroups();
     AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 );
 
     AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 );
+
+    // Each excrescence gets its own row, so deleting them one at a time has to
+    // empty the table and then start being rejected.
+    DeleteExcrescence( 1 );
+    DeleteExcrescence( 0 );
+
+    if ( GetNumTotalErrors() != 0 )
+    {
+        Print( "ERROR: the two excrescences were not both added" );
+        __failure++;
+    }
+
+    DeleteExcrescence( 0 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: more excrescences were added than asked for" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27885,6 +28002,24 @@ extern int GetNumUnsteadyRotorGroups();
     AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 )
 
     AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 )
+
+    # Each excrescence gets its own row, so deleting them one at a time has to
+    # empty the table and then start being rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteExcrescence( 1 )
+    DeleteExcrescence( 0 )
+
+    assert err_mgr.GetNumTotalErrors() == 0, "the two excrescences were not both added"
+
+    DeleteExcrescence( 0 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "more excrescences were added than asked for"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -28032,6 +28167,39 @@ extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &at
     double delta_temp = 0;
 
     CalcAtmosphere( alt, delta_temp, ATMOS_TYPE_US_STANDARD_1976, temp, pres, pres_ratio, rho_ratio );
+
+    // The ratios are against sea level standard day, so asking at sea level with
+    // no temperature offset has to return the sea level standard itself.
+    double sl_temp, sl_pres, sl_pres_ratio, sl_rho_ratio;
+
+    CalcAtmosphere( 0.0, 0.0, ATMOS_TYPE_US_STANDARD_1976, sl_temp, sl_pres, sl_pres_ratio, sl_rho_ratio );
+
+    if ( !closeTo( sl_temp, 288.15, 1e-2 ) )
+    {
+        Print( "ERROR: sea level is not the standard day temperature" );
+        __failure++;
+    }
+
+    // The density ratio carries a little rounding from the model constants.
+    if ( !closeTo( sl_pres_ratio, 1.0, 1e-9 ) || !closeTo( sl_rho_ratio, 1.0, 1e-4 ) )
+    {
+        Print( "ERROR: the sea level ratios are not one" );
+        __failure++;
+    }
+
+    // The atmosphere thins with altitude.
+    if ( temp >= sl_temp || pres >= sl_pres || pres_ratio >= 1.0 || rho_ratio >= 1.0 )
+    {
+        Print( "ERROR: the atmosphere did not thin with altitude" );
+        __failure++;
+    }
+
+    // The pressure ratio is the pressure against sea level.
+    if ( !closeTo( pres_ratio, pres / sl_pres, 1e-6 ) )
+    {
+        Print( "ERROR: the pressure ratio does not match the pressure" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -28042,6 +28210,25 @@ extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &at
     delta_temp = 0
 
     temp, pres, pres_ratio, rho_ratio = CalcAtmosphere( alt, delta_temp, ATMOS_TYPE_US_STANDARD_1976)
+
+    # The ratios are against sea level standard day, so asking at sea level with
+    # no temperature offset has to return the sea level standard itself.
+    sl_temp, sl_pres, sl_pres_ratio, sl_rho_ratio = CalcAtmosphere( 0.0, 0.0, ATMOS_TYPE_US_STANDARD_1976 )
+
+    assert abs( sl_temp - 288.15 ) < 1e-2, "sea level is not the standard day temperature"
+
+    # The density ratio carries a little rounding from the model constants.
+    assert abs( sl_pres_ratio - 1.0 ) < 1e-9, "the sea level ratios are not one"
+    assert abs( sl_rho_ratio - 1.0 ) < 1e-4, "the sea level ratios are not one"
+
+    # The atmosphere thins with altitude.
+    assert temp < sl_temp, "the atmosphere did not thin with altitude"
+    assert pres < sl_pres, "the atmosphere did not thin with altitude"
+    assert pres_ratio < 1.0, "the atmosphere did not thin with altitude"
+    assert rho_ratio < 1.0, "the atmosphere did not thin with altitude"
+
+    # The pressure ratio is the pressure against sea level.
+    assert abs( pres_ratio - pres / sl_pres ) < 1e-6, "the pressure ratio does not match the pressure"
 
     \endcode
     \endPythonOnly
@@ -31939,6 +32126,25 @@ extern int GetLinkIndex( const string & name );
         Print( link_array[n] );
     }
 
+    if ( link_array.size() != 0 )
+    {
+        Print( "ERROR: links were left behind" );
+        __failure++;
+    }
+
+    // With the link gone, the Pod is no longer driven.
+    double x_before = GetParmVal( x_pos );
+
+    SetParmValUpdate( length, 7.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), x_before, 1e-9 ) )
+    {
+        Print( "ERROR: a deleted advanced link is still driving its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -31968,6 +32174,17 @@ extern int GetLinkIndex( const string & name );
     for n in range(len(link_array) ):
 
         print( link_array[n] )
+
+    assert len( link_array ) == 0, "links were left behind"
+
+    # With the link gone, the Pod is no longer driven.
+    x_before = GetParmVal( x_pos )
+
+    SetParmValUpdate( length, 7.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - x_before ) < 1e-9, "a deleted advanced link is still driving its output"
 
 
     \endcode
@@ -32008,6 +32225,25 @@ extern void DelAdvLink( int index );
         Print( link_array[n] );
     }
 
+    if ( link_array.size() != 0 )
+    {
+        Print( "ERROR: links were left behind" );
+        __failure++;
+    }
+
+    // With the link gone, the Pod is no longer driven.
+    double x_before = GetParmVal( x_pos );
+
+    SetParmValUpdate( length, 7.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), x_before, 1e-9 ) )
+    {
+        Print( "ERROR: a deleted advanced link is still driving its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -32034,6 +32270,17 @@ extern void DelAdvLink( int index );
     for n in range( len(link_array) ):
 
         print( link_array[n] )
+
+    assert len( link_array ) == 0, "links were left behind"
+
+    # With the link gone, the Pod is no longer driven.
+    x_before = GetParmVal( x_pos )
+
+    SetParmValUpdate( length, 7.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - x_before ) < 1e-9, "a deleted advanced link is still driving its output"
 
 
     \endcode
