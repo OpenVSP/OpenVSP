@@ -2614,6 +2614,11 @@ extern string SummarizeAttributesAsTree();
     \code{.cpp}
     //==== Attributes: FindAllAttributes ====//
     array < string > @AttrIDs = FindAllAttributes();
+    if ( AttrIDs.length() == 0 )
+    {
+        Print( "ERROR: FindAllAttributes found nothing" );
+        __failure++;
+    }
     for ( int i = 0; i < int( AttrIDs.size() ); ++i )
     {
         Print( AttrIDs[i] );
@@ -2625,6 +2630,7 @@ extern string SummarizeAttributesAsTree();
     \code{.py}
     ##==== Attributes: FindAllAttributes ====##
     AttrIDs = FindAllAttributes()
+    assert len( AttrIDs ) > 0, "FindAllAttributes found nothing"
     for AttrID in AttrIDs:
         print( AttrID )
 
@@ -2646,6 +2652,11 @@ extern vector < string > FindAllAttributes();
     \code{.cpp}
     //==== Attributes: FindAttributesByName ====//
     array < string > @AttrIDs = FindAttributesByName( "Watermark" );
+    if ( AttrIDs.length() == 0 )
+    {
+        Print( "ERROR: FindAttributesByName found nothing" );
+        __failure++;
+    }
     for ( int i = 0; i < int( AttrIDs.size() ); ++i )
     {
         Print( AttrIDs[i] );
@@ -2657,6 +2668,7 @@ extern vector < string > FindAllAttributes();
     \code{.py}
     ##==== Attributes: FindAttributesByName ====##
     AttrIDs = FindAttributesByName( "Watermark" )
+    assert len( AttrIDs ) > 0, "FindAttributesByName found nothing"
     for AttrID in AttrIDs:
         print( AttrID )
 
@@ -2677,6 +2689,11 @@ extern vector < string > FindAttributesByName( const string & search_str );
     \code{.cpp}
     //==== Attributes: FindAttributeByName ====//
     string AttrID = FindAttributeByName( "Watermark", 0 );
+    if ( AttrID.length() == 0 )
+    {
+        Print( "ERROR: FindAttributeByName found nothing" );
+        __failure++;
+    }
     Print( AttrID );
     \endcode
     \endforcpponly
@@ -2684,6 +2701,7 @@ extern vector < string > FindAttributesByName( const string & search_str );
     \code{.py}
     ##==== Attributes: FindAttributeByName ====##
     AttrID = FindAttributeByName( "Watermark", 0 )
+    assert len( AttrID ) > 0, "FindAttributeByName found nothing"
     print( AttrID )
 
     \endcode
@@ -2706,6 +2724,11 @@ extern string FindAttributeByName( const string & search_str, int index );
     //==== Attributes: FindAttributeInCollection ====//
     string VehID = GetVehicleID();
     string AttrID = FindAttributeInCollection( VehID, "Watermark", 0 );
+    if ( AttrID.length() == 0 )
+    {
+        Print( "ERROR: FindAttributeInCollection found nothing" );
+        __failure++;
+    }
     Print( AttrID );
     \endcode
     \endforcpponly
@@ -2714,6 +2737,7 @@ extern string FindAttributeByName( const string & search_str, int index );
     ##==== Attributes: FindAttributeInCollection ====##
     VehID = GetVehicleID()
     AttrID = FindAttributeInCollection( VehID, 'Watermark', 0 )
+    assert len( AttrID ) > 0, "FindAttributeInCollection found nothing"
     print( AttrID )
 
     \endcode
@@ -2737,6 +2761,11 @@ extern string FindAttributeInCollection( const string & obj_id, const string & s
     string VehID = GetVehicleID();
     string CollID = GetChildCollection( VehID );
     array < string > @AttrNames = FindAttributeNamesInCollection( CollID );
+    if ( AttrNames.length() == 0 )
+    {
+        Print( "ERROR: FindAttributeNamesInCollection found nothing" );
+        __failure++;
+    }
     for ( int i = 0; i < int( AttrNames.size() ); ++i )
     {
         Print( AttrNames[i] );
@@ -2750,6 +2779,7 @@ extern string FindAttributeInCollection( const string & obj_id, const string & s
     VehID = GetVehicleID()
     CollID = GetChildCollection( VehID )
     AttrNames = FindAttributeNamesInCollection( CollID )
+    assert len( AttrNames ) > 0, "FindAttributeNamesInCollection found nothing"
     for AttrName in AttrNames:
         print( AttrName )
 
@@ -2772,6 +2802,11 @@ extern vector< string > FindAttributeNamesInCollection(const string & collID );
     string VehID = GetVehicleID();
     string CollID = GetChildCollection( VehID );
     array < string > @AttrIDs = FindAttributesInCollection( CollID );
+    if ( AttrIDs.length() == 0 )
+    {
+        Print( "ERROR: FindAttributesInCollection found nothing" );
+        __failure++;
+    }
     for ( int i = 0; i < int( AttrIDs.size() ); ++i )
     {
         Print( AttrIDs[i] );
@@ -2785,6 +2820,7 @@ extern vector< string > FindAttributeNamesInCollection(const string & collID );
     VehID = GetVehicleID()
     CollID = GetChildCollection( VehID )
     AttrIDs = FindAttributesInCollection( CollID )
+    assert len( AttrIDs ) > 0, "FindAttributesInCollection found nothing"
     for AttrID in AttrIDs:
         print( AttrID )
 
@@ -2806,6 +2842,11 @@ extern vector< string > FindAttributesInCollection(const string & collID );
     \code{.cpp}
     //==== Attributes: FindAttributedObjects ====//
     array < string > @AttachIDs = FindAttributedObjects();
+    if ( AttachIDs.length() == 0 )
+    {
+        Print( "ERROR: FindAttributedObjects found nothing" );
+        __failure++;
+    }
     for ( int i = 0; i < int( AttachIDs.size() ); ++i )
     {
         Print( AttachIDs[i] );
@@ -2817,6 +2858,7 @@ extern vector< string > FindAttributesInCollection(const string & collID );
     \code{.py}
     ##==== Attributes: FindAttributedObjects ====##
     AttachIDs = FindAttributedObjects()
+    assert len( AttachIDs ) > 0, "FindAttributedObjects found nothing"
     for AttachID in AttachIDs:
         print( AttachID )
 
@@ -5437,6 +5479,11 @@ extern std::string FindResultsID( const std::string & name, int index = 0 );
     for ( int i = 0; i < int( results_array.size() ); i++ )
     {
         string resid = FindLatestResultsID( results_array[i] );
+        if ( resid.length() == 0 )
+        {
+            Print( "ERROR: FindLatestResultsID found nothing" );
+            __failure++;
+        }
         PrintResults( resid );
     }
     \endcode
@@ -5451,6 +5498,7 @@ extern std::string FindResultsID( const std::string & name, int index = 0 );
     for i in range(int( len(results_array) )):
 
         resid = FindLatestResultsID( results_array[i] )
+        assert len( resid ) > 0, "FindLatestResultsID found nothing"
         PrintResults( resid )
 
     \endcode
@@ -18007,6 +18055,11 @@ extern std::string GetParmDescript( const std::string & parm_id );
 
     //==== Turn Symmetry OFF ====//
     string sym_id = FindParm( wing_id, "Sym_Planar_Flag", "Sym");
+    if ( sym_id.length() == 0 )
+    {
+        Print( "ERROR: FindParm found nothing" );
+        __failure++;
+    }
 
     SetParmVal( sym_id, 0.0 ); // Note: bool input not supported in SetParmVal
     \endcode
@@ -18018,6 +18071,7 @@ extern std::string GetParmDescript( const std::string & parm_id );
 
     #==== Turn Symmetry OFF ====//
     sym_id = FindParm( wing_id, "Sym_Planar_Flag", "Sym")
+    assert len( sym_id ) > 0, "FindParm found nothing"
 
     SetParmVal( sym_id, 0.0 ) # Note: bool input not supported in SetParmVal
 
@@ -18042,6 +18096,11 @@ extern std::string FindParm( const std::string & parm_container_id, const std::s
     \forcpponly
     \code{.cpp}
     array<string> @ctr_arr = FindContainers();
+    if ( ctr_arr.length() == 0 )
+    {
+        Print( "ERROR: FindContainers found nothing" );
+        __failure++;
+    }
 
     Print( "---> API Parm Container IDs: " );
 
@@ -18056,6 +18115,7 @@ extern std::string FindParm( const std::string & parm_container_id, const std::s
     \beginPythonOnly
     \code{.py}
     ctr_arr = FindContainers()
+    assert len( ctr_arr ) > 0, "FindContainers found nothing"
 
     print( "---> API Parm Container IDs: " )
 
@@ -18080,6 +18140,11 @@ extern std::vector<std::string> FindContainers();
     \forcpponly
     \code{.cpp}
     array<string> @ctr_arr = FindContainersWithName( "UserParms" );
+    if ( ctr_arr.length() == 0 )
+    {
+        Print( "ERROR: FindContainersWithName found nothing" );
+        __failure++;
+    }
 
     if ( ctr_arr.size() > 0 )            { Print( ( "UserParms Parm Container ID: " + ctr_arr[0] ) ); }
     \endcode
@@ -18087,6 +18152,7 @@ extern std::vector<std::string> FindContainers();
     \beginPythonOnly
     \code{.py}
     ctr_arr = FindContainersWithName( "UserParms" )
+    assert len( ctr_arr ) > 0, "FindContainersWithName found nothing"
 
     if  len(ctr_arr) > 0 : print( ( "UserParms Parm Container ID: " + ctr_arr[0] ) )
 
@@ -18107,12 +18173,18 @@ extern std::vector<std::string> FindContainersWithName( const std::string & name
     \code{.cpp}
     //===== Get Vehicle Parm Container ID ====//
     string veh_id = FindContainer( "Vehicle", 0 );
+    if ( veh_id.length() == 0 )
+    {
+        Print( "ERROR: FindContainer found nothing" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     #===== Get Vehicle Parm Container ID ====//
     veh_id = FindContainer( "Vehicle", 0 )
+    assert len( veh_id ) > 0, "FindContainer found nothing"
 
     \endcode
     \endPythonOnly
@@ -18162,6 +18234,11 @@ extern std::string GetContainerName( const std::string & parm_container_id );
     string user_ctr = FindContainer( "UserParms", 0 );
 
     array<string> @grp_arr = FindContainerGroupNames( user_ctr );
+    if ( grp_arr.length() == 0 )
+    {
+        Print( "ERROR: FindContainerGroupNames found nothing" );
+        __failure++;
+    }
 
     Print( "---> UserParms Container Group IDs: " );
     for ( int i = 0; i < int( grp_arr.size() ); i++ )
@@ -18177,6 +18254,7 @@ extern std::string GetContainerName( const std::string & parm_container_id );
     user_ctr = FindContainer( "UserParms", 0 )
 
     grp_arr = FindContainerGroupNames( user_ctr )
+    assert len( grp_arr ) > 0, "FindContainerGroupNames found nothing"
 
     print( "---> UserParms Container Group IDs: " )
     for i in range(int( len(grp_arr) )):
@@ -18213,6 +18291,11 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
 
     //==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( parm_container_id );
+    if ( parm_ids.length() == 0 )
+    {
+        Print( "ERROR: FindContainerParmIDs found nothing" );
+        __failure++;
+    }
 
     for ( uint i = 0; i < uint(parm_ids.length()); i++ )
     {
@@ -18237,6 +18320,7 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
 
     #==== Get and List All Parms in the Container ====//
     parm_ids = FindContainerParmIDs( parm_container_id )
+    assert len( parm_ids ) > 0, "FindContainerParmIDs found nothing"
 
     for i in range(len(parm_ids)):
 
@@ -22477,6 +22561,11 @@ extern int GetNumControlSurfaceGroups();
 
     // Setup the actuator disk VSPAERO parms
     string disk_id = FindActuatorDisk( 0 );
+    if ( disk_id.length() == 0 )
+    {
+        Print( "ERROR: FindActuatorDisk found nothing" );
+        __failure++;
+    }
 
     SetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ), 1234.0 );
     SetParmVal( FindParm( disk_id, "RotorCT", "Rotor" ), 0.35 );
@@ -22495,6 +22584,7 @@ extern int GetNumControlSurfaceGroups();
 
     # Setup the actuator disk VSPAERO parms
     disk_id = FindActuatorDisk( 0 )
+    assert len( disk_id ) > 0, "FindActuatorDisk found nothing"
 
     SetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ), 1234.0 )
     SetParmVal( FindParm( disk_id, "RotorCT", "Rotor" ), 0.35 )
@@ -22573,6 +22663,11 @@ extern int GetNumActuatorDisks();
 
     // Setup the unsteady group VSPAERO parms
     string disk_id = FindUnsteadyGroup( 1 ); // fixed components are in group 0 (wing & pod)
+    if ( disk_id.length() == 0 )
+    {
+        Print( "ERROR: FindUnsteadyGroup found nothing" );
+        __failure++;
+    }
 
     SetParmVal( FindParm( disk_id, "RPM", "UnsteadyGroup" ), 1234.0 );
     \endcode
@@ -22590,6 +22685,7 @@ extern int GetNumActuatorDisks();
 
     # Setup the unsteady group VSPAERO parms
     disk_id = FindUnsteadyGroup( 1 ) # fixed components are in group 0 (wing & pod)
+    assert len( disk_id ) > 0, "FindUnsteadyGroup found nothing"
 
     SetParmVal( FindParm( disk_id, "RPM", "UnsteadyGroup" ), 1234.0 )
 
@@ -23859,6 +23955,13 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
     double d = FindRST( geom_id, surf_indx, pnt, rout, sout, tout );
 
     Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout );
+
+    // pnt came from CompPntRST at r, s, t, so the search has to land back on it.
+    if ( !closeTo( d, 0.0, 1e-6 ) || !closeTo( rout, r, 1e-6 ) || !closeTo( sout, s, 1e-6 ) || !closeTo( tout, t, 1e-6 ) )
+    {
+        Print( "ERROR: FindRST did not recover the original r, s, t" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -23878,6 +23981,10 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
     d, rout, sout, tout = FindRST( geom_id, surf_indx, pnt )
 
     print( f"Dist {d} r {rout} s {sout} t {tout}" )
+
+    # pnt came from CompPntRST at r, s, t, so the search has to land back on it.
+    assert abs( d ) < 1e-6, "FindRST distance"
+    assert abs( rout - r ) < 1e-6 and abs( sout - s ) < 1e-6 and abs( tout - t ) < 1e-6, "FindRST r, s, t"
 
     \endcode
     \endPythonOnly
@@ -23922,6 +24029,13 @@ extern double FindRST( const std::string &geom_id, const int &surf_indx, const v
     double d = FindRSTGuess( geom_id, surf_indx, pnt, r0, s0, t0, rout, sout, tout );
 
     Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout );
+
+    // pnt came from CompPntRST at r, s, t, so the search has to land back on it.
+    if ( !closeTo( d, 0.0, 1e-6 ) || !closeTo( rout, r, 1e-6 ) || !closeTo( sout, s, 1e-6 ) || !closeTo( tout, t, 1e-6 ) )
+    {
+        Print( "ERROR: FindRSTGuess did not recover the original r, s, t" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -23945,6 +24059,10 @@ extern double FindRST( const std::string &geom_id, const int &surf_indx, const v
     d, rout, sout, tout = FindRSTGuess( geom_id, surf_indx, pnt, r0, s0, t0 )
 
     print( f"Dist {d} r {rout} s {sout} t {tout}" )
+
+    # pnt came from CompPntRST at r, s, t, so the search has to land back on it.
+    assert abs( d ) < 1e-6, "FindRSTGuess distance"
+    assert abs( rout - r ) < 1e-6 and abs( sout - s ) < 1e-6 and abs( tout - t ) < 1e-6, "FindRSTGuess r, s, t"
 
     \endcode
     \endPythonOnly
@@ -25023,6 +25141,17 @@ extern std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const in
     array<double> routv, soutv, toutv, doutv;
 
     FindRSTVec( geom_id, 0, ptvec, routv, soutv, toutv, doutv );
+
+    // Every point came from CompVecPntRST, so each search lands back on its own.
+    for( int i = 0 ; i < n ; i++ )
+    {
+        if ( !closeTo( doutv[i], 0.0, 1e-6 ) || !closeTo( routv[i], rvec[i], 1e-6 ) ||
+             !closeTo( soutv[i], svec[i], 1e-6 ) || !closeTo( toutv[i], tvec[i], 1e-6 ) )
+        {
+            Print( "ERROR: FindRSTVec did not recover point " + i );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25049,6 +25178,13 @@ extern std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const in
 
 
     routv, soutv, toutv, doutv = FindRSTVec( geom_id, 0, ptvec )
+
+    # Every point came from CompVecPntRST, so each search lands back on its own.
+    for i in range( n ):
+        assert abs( doutv[i] ) < 1e-6, "FindRSTVec distance"
+        assert abs( routv[i] - rvec[i] ) < 1e-6, "FindRSTVec r"
+        assert abs( soutv[i] - svec[i] ) < 1e-6, "FindRSTVec s"
+        assert abs( toutv[i] - tvec[i] ) < 1e-6, "FindRSTVec t"
 
     \endcode
     \endPythonOnly
@@ -25103,6 +25239,25 @@ extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const 
     }
 
     FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec, routv, soutv, toutv, doutv );
+
+    // The points above were scaled off the surface on purpose, so the search
+    // does not return to the original r, s, t.  What must hold is that every
+    // point got an answer and that the reported distances are real.
+    if ( int( routv.length() ) != n || int( soutv.length() ) != n ||
+         int( toutv.length() ) != n || int( doutv.length() ) != n )
+    {
+        Print( "ERROR: FindRSTVecGuess returned the wrong number of results" );
+        __failure++;
+    }
+
+    for( int i = 0 ; i < int( doutv.length() ) ; i++ )
+    {
+        if ( doutv[i] < 0.0 )
+        {
+            Print( "ERROR: FindRSTVecGuess distance " + i + " is negative" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25131,6 +25286,13 @@ extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const 
         ptvec[i].set_xyz(ptvec[i].x() * 0.9, ptvec[i].y() * 0.9, ptvec[i].z() * 0.9)
 
      routv, soutv, toutv, doutv = FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec )
+
+     # The points above were scaled off the surface on purpose, so the search
+     # does not return to the original r, s, t.  What must hold is that every
+     # point got an answer and that the reported distances are real.
+     assert len( routv ) == n and len( soutv ) == n and len( toutv ) == n and len( doutv ) == n, "FindRSTVecGuess result count"
+     for i in range( len( doutv ) ):
+         assert doutv[i] >= 0.0, "FindRSTVecGuess distance"
 
     \endcode
     \endPythonOnly
