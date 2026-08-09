@@ -25669,7 +25669,39 @@ extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const
     // Add Propeller
     string prop = AddGeom( "PROP", "" );
 
+    // Take the blade curves off Bezier so the approximation has something to do.
+    PCurveConvertTo( prop, PROP_CHORD, PCHIP );
+    PCurveConvertTo( prop, PROP_TWIST, PCHIP );
+    PCurveConvertTo( prop, PROP_THICK, PCHIP );
+
+    Update();
+
+    if ( PCurveGetType( prop, PROP_CHORD ) != PCHIP )
+    {
+        Print( "ERROR: the blade curves would not convert to PCHIP" );
+        __failure++;
+    }
+
     ApproximateAllPropellerPCurves( prop );
+
+    // Every blade curve is now a cubic Bezier.
+    if ( PCurveGetType( prop, PROP_CHORD ) != CEDIT ||
+         PCurveGetType( prop, PROP_TWIST ) != CEDIT ||
+         PCurveGetType( prop, PROP_THICK ) != CEDIT )
+    {
+        Print( "ERROR: ApproximateAllPropellerPCurves did not convert the curves" );
+        __failure++;
+    }
+
+    // A cubic Bezier is stored in groups of three, so the control point count
+    // is one more than a multiple of three.
+    array< double > tvec = PCurveGetTVec( prop, PROP_CHORD );
+
+    if ( tvec.size() < 4 || ( tvec.size() - 1 ) % 3 != 0 )
+    {
+        Print( "ERROR: the converted curve is not a cubic Bezier" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -25678,8 +25710,27 @@ extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const
     # Add Propeller
     prop = AddGeom( "PROP", "" )
 
+    # Take the blade curves off Bezier so the approximation has something to do.
+    PCurveConvertTo( prop, PROP_CHORD, PCHIP )
+    PCurveConvertTo( prop, PROP_TWIST, PCHIP )
+    PCurveConvertTo( prop, PROP_THICK, PCHIP )
+
+    Update()
+
+    assert PCurveGetType( prop, PROP_CHORD ) == PCHIP, "the blade curves would not convert to PCHIP"
+
     ApproximateAllPropellerPCurves( prop )
 
+    # Every blade curve is now a cubic Bezier.
+    assert PCurveGetType( prop, PROP_CHORD ) == CEDIT, "ApproximateAllPropellerPCurves did not convert the curves"
+    assert PCurveGetType( prop, PROP_TWIST ) == CEDIT, "ApproximateAllPropellerPCurves did not convert the curves"
+    assert PCurveGetType( prop, PROP_THICK ) == CEDIT, "ApproximateAllPropellerPCurves did not convert the curves"
+
+    # A cubic Bezier is stored in groups of three, so the control point count is
+    # one more than a multiple of three.
+    tvec = PCurveGetTVec( prop, PROP_CHORD )
+
+    assert len( tvec ) >= 4 and ( len( tvec ) - 1 ) % 3 == 0, "the converted curve is not a cubic Bezier"
 
     \endcode
     \endPythonOnly
@@ -25702,6 +25753,64 @@ extern void ApproximateAllPropellerPCurves( const std::string & geom_id );
 
     ResetPropellerThicknessCurve( prop );
 
+    Update();
+
+    // The curve is rebuilt from the blade XSecs: one PCHIP station per XSec,
+    // each carrying that XSec's thickness to chord ratio.
+    array< double > tvec = PCurveGetTVec( prop, PROP_THICK );
+    array< double > vvec = PCurveGetValVec( prop, PROP_THICK );
+
+    string xsec_surf = GetXSecSurf( prop, 0 );
+
+    int num_xsec = GetNumXSec( xsec_surf );
+
+    if ( PCurveGetType( prop, PROP_THICK ) != PCHIP )
+    {
+        Print( "ERROR: ResetPropellerThicknessCurve did not make a PCHIP curve" );
+        __failure++;
+    }
+
+    if ( int( vvec.size() ) != num_xsec || tvec.size() != vvec.size() )
+    {
+        Print( "ERROR: ResetPropellerThicknessCurve did not follow the XSecs" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0; i < num_xsec; i++ )
+        {
+            string tc = GetXSecParm( GetXSec( xsec_surf, i ), "ThickChord" );
+
+            // A circular XSec carries no thickness Parm; its base thickness is
+            // used instead.
+            if ( tc.length() > 0 )
+            {
+                if ( !closeTo( vvec[i], GetParmVal( tc ), 1e-6 ) )
+                {
+                    Print( "ERROR: station " + i + " does not match its XSec" );
+                    __failure++;
+                }
+            }
+        }
+
+        // The stations run out along the blade.
+        for ( int i = 1; i < int( tvec.size() ); i++ )
+        {
+            if ( tvec[i] <= tvec[i - 1] )
+            {
+                Print( "ERROR: the thickness stations are not increasing" );
+                __failure++;
+            }
+        }
+    }
+
+    // Looking up the circular XSec's thickness raises an error on purpose, so
+    // take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25711,6 +25820,39 @@ extern void ApproximateAllPropellerPCurves( const std::string & geom_id );
 
     ResetPropellerThicknessCurve( prop )
 
+    Update()
+
+    # The curve is rebuilt from the blade XSecs: one PCHIP station per XSec, each
+    # carrying that XSec's thickness to chord ratio.
+    tvec = PCurveGetTVec( prop, PROP_THICK )
+    vvec = PCurveGetValVec( prop, PROP_THICK )
+
+    xsec_surf = GetXSecSurf( prop, 0 )
+
+    num_xsec = GetNumXSec( xsec_surf )
+
+    assert PCurveGetType( prop, PROP_THICK ) == PCHIP, "ResetPropellerThicknessCurve did not make a PCHIP curve"
+    assert len( vvec ) == num_xsec, "ResetPropellerThicknessCurve did not follow the XSecs"
+    assert len( tvec ) == len( vvec ), "ResetPropellerThicknessCurve did not follow the XSecs"
+
+    for i in range( num_xsec ):
+        tc = GetXSecParm( GetXSec( xsec_surf, i ), "ThickChord" )
+
+        # A circular XSec carries no thickness Parm; its base thickness is used
+        # instead.
+        if len( tc ) > 0:
+            assert abs( vvec[i] - GetParmVal( tc ) ) < 1e-6, "station " + str( i ) + " does not match its XSec"
+
+    # The stations run out along the blade.
+    for i in range( 1, len( tvec ) ):
+        assert tvec[i] > tvec[i - 1], "the thickness stations are not increasing"
+
+    # Looking up the circular XSec's thickness raises an error on purpose, so take
+    # it back off the queue.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -25868,7 +26010,42 @@ extern int CreateVSPAEROControlSurfaceGroup();
 
     int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
 
+    // The group starts empty and the wing offers one control surface, mirrored
+    // by the wing's own symmetry.
+    if ( GetNumControlSurfaceGroups() < 1 )
+    {
+        Print( "ERROR: CreateVSPAEROControlSurfaceGroup did not add a group" );
+        __failure++;
+    }
+
+    int num_avail = int( GetAvailableCSNameVec( group_index ).size() );
+
+    if ( num_avail < 1 )
+    {
+        Print( "ERROR: no control surfaces are available to add" );
+        __failure++;
+    }
+
+    if ( GetActiveCSNameVec( group_index ).size() != 0 )
+    {
+        Print( "ERROR: a new control surface group is not empty" );
+        __failure++;
+    }
+
     AddAllToVSPAEROControlSurfaceGroup( group_index );
+
+    // Everything that was available is now active, and nothing is left over.
+    if ( int( GetActiveCSNameVec( group_index ).size() ) != num_avail )
+    {
+        Print( "ERROR: AddAllToVSPAEROControlSurfaceGroup did not add them all" );
+        __failure++;
+    }
+
+    if ( GetAvailableCSNameVec( group_index ).size() != 0 )
+    {
+        Print( "ERROR: control surfaces are still available after adding them all" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25879,7 +26056,20 @@ extern int CreateVSPAEROControlSurfaceGroup();
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
+    # The group starts empty and the wing offers one control surface, mirrored
+    # by the wing's own symmetry.
+    assert GetNumControlSurfaceGroups() >= 1, "CreateVSPAEROControlSurfaceGroup did not add a group"
+
+    num_avail = len( GetAvailableCSNameVec( group_index ) )
+
+    assert num_avail >= 1, "no control surfaces are available to add"
+    assert len( GetActiveCSNameVec( group_index ) ) == 0, "a new control surface group is not empty"
+
     AddAllToVSPAEROControlSurfaceGroup( group_index )
+
+    # Everything that was available is now active, and nothing is left over.
+    assert len( GetActiveCSNameVec( group_index ) ) == num_avail, "AddAllToVSPAEROControlSurfaceGroup did not add them all"
+    assert len( GetAvailableCSNameVec( group_index ) ) == 0, "control surfaces are still available after adding them all"
 
     \endcode
     \endPythonOnly
@@ -25903,7 +26093,28 @@ extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
     AddAllToVSPAEROControlSurfaceGroup( group_index );
 
+    int num_active = int( GetActiveCSNameVec( group_index ).size() );
+
+    if ( num_active < 1 )
+    {
+        Print( "ERROR: nothing was added to the group to remove" );
+        __failure++;
+    }
+
     RemoveAllFromVSPAEROControlSurfaceGroup( group_index ); // Empty control surface group
+
+    // Everything that was active goes back to being available.
+    if ( GetActiveCSNameVec( group_index ).size() != 0 )
+    {
+        Print( "ERROR: RemoveAllFromVSPAEROControlSurfaceGroup left surfaces in the group" );
+        __failure++;
+    }
+
+    if ( int( GetAvailableCSNameVec( group_index ).size() ) != num_active )
+    {
+        Print( "ERROR: the removed surfaces did not become available again" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25916,7 +26127,15 @@ extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
     AddAllToVSPAEROControlSurfaceGroup( group_index )
 
+    num_active = len( GetActiveCSNameVec( group_index ) )
+
+    assert num_active >= 1, "nothing was added to the group to remove"
+
     RemoveAllFromVSPAEROControlSurfaceGroup( group_index ) # Empty control surface group
+
+    # Everything that was active goes back to being available.
+    assert len( GetActiveCSNameVec( group_index ) ) == 0, "RemoveAllFromVSPAEROControlSurfaceGroup left surfaces in the group"
+    assert len( GetAvailableCSNameVec( group_index ) ) == num_active, "the removed surfaces did not become available again"
 
     \endcode
     \endPythonOnly
