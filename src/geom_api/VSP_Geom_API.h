@@ -3846,10 +3846,31 @@ extern vector< string > FindAttributedObjects();
     \code{.cpp}
     //==== Attributes: GetObjectType ====//
     array < string > @AttachIDs = FindAttributedObjects();
+
+    if ( AttachIDs.length() == 0 )
+    {
+        Print( "ERROR: FindAttributedObjects found nothing" );
+        __failure++;
+    }
+
     for ( int i = 0; i < int( AttachIDs.size() ); ++i )
     {
         int ObjType = GetObjectType( AttachIDs[i] );
         Print( ObjType );
+
+        // Every object that carries attributes has to be a recognized kind, and
+        // the enum has to agree with the name form.
+        if ( ObjType == ATTROBJ_FREE )
+        {
+            Print( "ERROR: GetObjectType did not recognize " + AttachIDs[i] );
+            __failure++;
+        }
+
+        if ( GetObjectTypeName( AttachIDs[i] ).length() == 0 )
+        {
+            Print( "ERROR: GetObjectTypeName returned nothing for " + AttachIDs[i] );
+            __failure++;
+        }
     }
 
     \endcode
@@ -3858,9 +3879,17 @@ extern vector< string > FindAttributedObjects();
     \code{.py}
     ##==== Attributes: GetObjectType ====##
     AttachIDs = FindAttributedObjects()
+
+    assert len( AttachIDs ) > 0, "FindAttributedObjects found nothing"
+
     for AttachID in AttachIDs:
         ObjType = GetObjectType( AttachID )
         print( ObjType )
+
+        # Every object that carries attributes has to be a recognized kind, and
+        # the enum has to agree with the name form.
+        assert ObjType != ATTROBJ_FREE, "GetObjectType did not recognize " + AttachID
+        assert len( GetObjectTypeName( AttachID ) ) > 0, "GetObjectTypeName returned nothing for " + AttachID
 
     \endcode
     \endPythonOnly
@@ -4227,19 +4256,69 @@ extern string GetAttributeDoc(const string & attrID);
     \code{.cpp}
     //==== Attributes: GetAttributeType =====//
     array < string > @AttrIDs = FindAllAttributes();
+
+    if ( AttrIDs.length() == 0 )
+    {
+        Print( "ERROR: FindAllAttributes found nothing" );
+        __failure++;
+    }
+
     string AttrID = AttrIDs[0];
     int AttrType = GetAttributeType( AttrID );
     Print( AttrType );
 
-    // not implemented
+    // The attribute has to report a real type, and the enum has to agree with
+    // the name form.
+    if ( AttrType == INVALID_TYPE )
+    {
+        Print( "ERROR: GetAttributeType returned INVALID_TYPE" );
+        __failure++;
+    }
+
+    if ( GetAttributeTypeName( AttrID ).length() == 0 )
+    {
+        Print( "ERROR: GetAttributeTypeName returned nothing" );
+        __failure++;
+    }
+
+    // An ID that is not an attribute has to report INVALID_TYPE.
+    if ( GetAttributeType( "NOSUCHATTRIBUTE" ) != INVALID_TYPE )
+    {
+        Print( "ERROR: GetAttributeType accepted a bad ID" );
+        __failure++;
+    }
+
+    // That lookup failure was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     ##==== Attributes: GetAttributeType =====##
-    AttrID = FindAllAttributes()[0]
+    AttrIDs = FindAllAttributes()
+
+    assert len( AttrIDs ) > 0, "FindAllAttributes found nothing"
+
+    AttrID = AttrIDs[0]
     AttrType = GetAttributeType( AttrID )
     print( AttrType )
+
+    # The attribute has to report a real type, and the enum has to agree with
+    # the name form.
+    assert AttrType != INVALID_TYPE, "GetAttributeType returned INVALID_TYPE"
+    assert len( GetAttributeTypeName( AttrID ) ) > 0, "GetAttributeTypeName returned nothing"
+
+    # An ID that is not an attribute has to report INVALID_TYPE.
+    assert GetAttributeType( "NOSUCHATTRIBUTE" ) == INVALID_TYPE, "GetAttributeType accepted a bad ID"
+
+    # That lookup failure was raised deliberately, so take it back off the queue.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -6329,6 +6408,20 @@ extern int GetNumResults( const std::string & name );
     Print( "Results Name: ", false );
 
     Print( GetResultsName( res_id ) );
+
+    // The name is the Results Manager's handle for this result, so looking the
+    // name back up has to lead to the same result.
+    if ( GetResultsName( res_id ).length() == 0 )
+    {
+        Print( "ERROR: GetResultsName returned nothing" );
+        __failure++;
+    }
+
+    if ( FindLatestResultsID( GetResultsName( res_id ) ) != res_id )
+    {
+        Print( "ERROR: GetResultsName does not round trip through FindLatestResultsID" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6344,6 +6437,11 @@ extern int GetNumResults( const std::string & name );
     print( "Results Name: ", False )
 
     print( GetResultsName( res_id ) )
+
+    # The name is the Results Manager's handle for this result, so looking the
+    # name back up has to lead to the same result.
+    assert len( GetResultsName( res_id ) ) > 0, "GetResultsName returned nothing"
+    assert FindLatestResultsID( GetResultsName( res_id ) ) == res_id, "GetResultsName does not round trip through FindLatestResultsID"
 
     \endcode
     \endPythonOnly
@@ -6371,6 +6469,24 @@ extern std::string GetResultsName(const std::string & results_id );
     Print( "Results doc: ", false );
 
     Print( GetResultsSetDoc( res_id ) );
+
+    if ( GetResultsSetDoc( res_id ).length() == 0 )
+    {
+        Print( "ERROR: the result carries no documentation" );
+        __failure++;
+    }
+
+    // Every entry in the result has to be documented too.
+    array< string > @data_names = GetAllDataNames( res_id );
+
+    for ( int i = 0; i < int( data_names.size() ); i++ )
+    {
+        if ( GetResultsEntryDoc( res_id, data_names[i] ).length() == 0 )
+        {
+            Print( "ERROR: " + data_names[i] + " carries no documentation" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6386,6 +6502,14 @@ extern std::string GetResultsName(const std::string & results_id );
     print( "Results doc: ", False )
 
     print( GetResultsSetDoc( res_id ) )
+
+    assert len( GetResultsSetDoc( res_id ) ) > 0, "the result carries no documentation"
+
+    # Every entry in the result has to be documented too.
+    data_names = GetAllDataNames( res_id )
+
+    for data_name in data_names:
+        assert len( GetResultsEntryDoc( res_id, data_name ) ) > 0, data_name + " carries no documentation"
 
     \endcode
     \endPythonOnly
@@ -6546,9 +6670,44 @@ extern int GetNumData( const std::string & results_id, const std::string & data_
 
     array < string > @ res_array = GetAllDataNames( res_id );
 
+    if ( res_array.size() == 0 )
+    {
+        Print( "ERROR: GetAllDataNames returned nothing" );
+        __failure++;
+    }
+
     for ( int j = 0; j < int( res_array.size() ); j++ )
     {
         int typ = GetResultsType( res_id, res_array[j] );
+
+        // Every entry the result lists has to report a real data type.
+        if ( typ == INVALID_TYPE )
+        {
+            Print( "ERROR: GetResultsType returned INVALID_TYPE for " + res_array[j] );
+            __failure++;
+        }
+    }
+
+    // The fake results are written with known types.
+    if ( GetResultsType( res_id, "Test_Int" ) != INT_DATA ||
+         GetResultsType( res_id, "Test_Double" ) != DOUBLE_DATA ||
+         GetResultsType( res_id, "Test_String" ) != STRING_DATA )
+    {
+        Print( "ERROR: GetResultsType reported the wrong type" );
+        __failure++;
+    }
+
+    // An entry that does not exist has to report INVALID_TYPE.
+    if ( GetResultsType( res_id, "NoSuchEntry" ) != INVALID_TYPE )
+    {
+        Print( "ERROR: GetResultsType accepted an unknown entry" );
+        __failure++;
+    }
+
+    // That lookup failure was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
     }
     \endcode
     \endforcpponly
@@ -6561,9 +6720,28 @@ extern int GetNumData( const std::string & results_id, const std::string & data_
 
     res_array = GetAllDataNames( res_id )
 
+    assert len( res_array ) > 0, "GetAllDataNames returned nothing"
+
     for j in range(int( len(res_array) )):
 
         typ = GetResultsType( res_id, res_array[j] )
+
+        # Every entry the result lists has to report a real data type.
+        assert typ != INVALID_TYPE, "GetResultsType returned INVALID_TYPE for " + res_array[j]
+
+    # The fake results are written with known types.
+    assert GetResultsType( res_id, "Test_Int" ) == INT_DATA, "GetResultsType reported the wrong type"
+    assert GetResultsType( res_id, "Test_Double" ) == DOUBLE_DATA, "GetResultsType reported the wrong type"
+    assert GetResultsType( res_id, "Test_String" ) == STRING_DATA, "GetResultsType reported the wrong type"
+
+    # An entry that does not exist has to report INVALID_TYPE.
+    assert GetResultsType( res_id, "NoSuchEntry" ) == INVALID_TYPE, "GetResultsType accepted an unknown entry"
+
+    # That lookup failure was raised deliberately, so take it back off the queue.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -6997,6 +7175,25 @@ extern void WriteResultsCSVFile( const std::string & id, const std::string & fil
 
     // Get & Display Results
     PrintResults( rid );
+
+    // There has to be something to display.
+    if ( GetAllDataNames( rid ).size() == 0 )
+    {
+        Print( "ERROR: the result carries no data to print" );
+        __failure++;
+    }
+
+    // Every entry that gets printed has to have a value behind it.
+    array< string > @data_names = GetAllDataNames( rid );
+
+    for ( int i = 0; i < int( data_names.size() ); i++ )
+    {
+        if ( GetNumData( rid, data_names[i] ) < 1 )
+        {
+            Print( "ERROR: " + data_names[i] + " has no data to print" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7010,6 +7207,15 @@ extern void WriteResultsCSVFile( const std::string & id, const std::string & fil
 
     # Get & Display Results
     PrintResults( rid )
+
+    # There has to be something to display.
+    assert len( GetAllDataNames( rid ) ) > 0, "the result carries no data to print"
+
+    # Every entry that gets printed has to have a value behind it.
+    data_names = GetAllDataNames( rid )
+
+    for data_name in data_names:
+        assert GetNumData( rid, data_name ) >= 1, data_name + " has no data to print"
 
     \endcode
     \endPythonOnly
@@ -7034,6 +7240,25 @@ extern void PrintResults( const std::string &results_id );
 
     // Get & Display Results Docs
     PrintResultsDocs( rid );
+
+    // There has to be documentation to display.
+    if ( GetResultsSetDoc( rid ).length() == 0 )
+    {
+        Print( "ERROR: the result carries no documentation to print" );
+        __failure++;
+    }
+
+    // Every entry that gets printed has to carry documentation of its own.
+    array< string > @data_names = GetAllDataNames( rid );
+
+    for ( int i = 0; i < int( data_names.size() ); i++ )
+    {
+        if ( GetResultsEntryDoc( rid, data_names[i] ).length() == 0 )
+        {
+            Print( "ERROR: " + data_names[i] + " carries no documentation" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7047,6 +7272,15 @@ extern void PrintResults( const std::string &results_id );
 
     # Get & Display Results Docs
     PrintResultsDocs( rid )
+
+    # There has to be documentation to display.
+    assert len( GetResultsSetDoc( rid ) ) > 0, "the result carries no documentation to print"
+
+    # Every entry that gets printed has to carry documentation of its own.
+    data_names = GetAllDataNames( rid )
+
+    for data_name in data_names:
+        assert len( GetResultsEntryDoc( rid, data_name ) ) > 0, data_name + " carries no documentation"
 
     \endcode
     \endPythonOnly
@@ -7072,6 +7306,43 @@ extern void PrintResultsDocs( const std::string &results_id );
         string resid = FindLatestResultsID( results_array[i] );
         PrintResults( resid );
     }
+
+    // Two copies of Test_Results are written, carrying five named entries with
+    // known values.
+    if ( GetNumResults( "Test_Results" ) != 2 )
+    {
+        Print( "ERROR: WriteTestResults did not write two results" );
+        __failure++;
+    }
+
+    string res_id = FindResultsID( "Test_Results" );
+
+    if ( GetAllDataNames( res_id ).size() != 5 )
+    {
+        Print( "ERROR: WriteTestResults wrote the wrong number of entries" );
+        __failure++;
+    }
+
+    array< int > @int_arr = GetIntResults( res_id, "Test_Int", 0 );
+    array< double > @dbl_arr = GetDoubleResults( res_id, "Test_Double", 0 );
+    array< string > @str_arr = GetStringResults( res_id, "Test_String", 0 );
+
+    if ( int_arr[0] != 1 || !closeTo( dbl_arr[0], 0.1, 1e-12 ) || str_arr[0] != "This Is A Test" )
+    {
+        Print( "ERROR: WriteTestResults wrote the wrong values" );
+        __failure++;
+    }
+
+    // The second copy carries the next set of values.
+    string res_id_1 = FindResultsID( "Test_Results", 1 );
+
+    int_arr = GetIntResults( res_id_1, "Test_Int", 0 );
+
+    if ( int_arr[0] != 2 )
+    {
+        Print( "ERROR: WriteTestResults did not vary the second result" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7084,6 +7355,29 @@ extern void PrintResultsDocs( const std::string &results_id );
     for i in range( len( results_array ) ):
         resid = FindLatestResultsID( results_array[i] )
         PrintResults( resid )
+
+    # Two copies of Test_Results are written, carrying five named entries with
+    # known values.
+    assert GetNumResults( "Test_Results" ) == 2, "WriteTestResults did not write two results"
+
+    res_id = FindResultsID( "Test_Results" )
+
+    assert len( GetAllDataNames( res_id ) ) == 5, "WriteTestResults wrote the wrong number of entries"
+
+    int_arr = GetIntResults( res_id, "Test_Int", 0 )
+    dbl_arr = GetDoubleResults( res_id, "Test_Double", 0 )
+    str_arr = GetStringResults( res_id, "Test_String", 0 )
+
+    assert int_arr[0] == 1, "WriteTestResults wrote the wrong values"
+    assert abs( dbl_arr[0] - 0.1 ) < 1e-12, "WriteTestResults wrote the wrong values"
+    assert str_arr[0] == "This Is A Test", "WriteTestResults wrote the wrong values"
+
+    # The second copy carries the next set of values.
+    res_id_1 = FindResultsID( "Test_Results", 1 )
+
+    int_arr = GetIntResults( res_id_1, "Test_Int", 0 )
+
+    assert int_arr[0] == 2, "WriteTestResults did not vary the second result"
 
     \endcode
     \endPythonOnly
