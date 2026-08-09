@@ -2544,8 +2544,19 @@ extern string GetActiveGeometryAnalysis();
     result meshes exist.  The resulting MeshGeom is added to the model and made the active Geom.
     \forcpponly
     \code{.cpp}
+    //==== Add a Geom for the case to work on ====//
+    string pod_id = AddGeom( "POD" );
+    Update();
+
     string ga_id = AddGeometryAnalysis();
-    // ... configure the case's Parms (interference type, primary/secondary geoms or sets, ...) ...
+
+    //==== Configure the case.  Without a primary target the analysis has
+    //==== nothing to mesh and reports an empty primary mesh.
+    SetParmVal( FindParm( ga_id, "PrimaryType", "InterferenceCase" ), SET_TARGET );
+    SetParmVal( FindParm( ga_id, "PrimarySet", "InterferenceCase" ), SET_ALL );
+    SetParmVal( FindParm( ga_id, "SecondaryType", "InterferenceCase" ), SET_TARGET );
+    SetParmVal( FindParm( ga_id, "SecondarySet", "InterferenceCase" ), SET_ALL );
+    Update();
 
     // Evaluate the case through the Analysis framework so that its result meshes exist.
     SetAnalysisInputDefaults( "GeometryAnalysis" );
@@ -2567,8 +2578,19 @@ extern string GetActiveGeometryAnalysis();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    #==== Add a Geom for the case to work on ====//
+    pod_id = AddGeom( "POD" )
+    Update()
+
     ga_id = AddGeometryAnalysis()
-    # ... configure the case's Parms (interference type, primary/secondary geoms or sets, ...) ...
+
+    #==== Configure the case.  Without a primary target the analysis has
+    #==== nothing to mesh and reports an empty primary mesh.
+    SetParmVal( FindParm( ga_id, "PrimaryType", "InterferenceCase" ), SET_TARGET )
+    SetParmVal( FindParm( ga_id, "PrimarySet", "InterferenceCase" ), SET_ALL )
+    SetParmVal( FindParm( ga_id, "SecondaryType", "InterferenceCase" ), SET_TARGET )
+    SetParmVal( FindParm( ga_id, "SecondarySet", "InterferenceCase" ), SET_ALL )
+    Update()
 
     # Evaluate the case through the Analysis framework so that its result meshes exist.
     SetAnalysisInputDefaults( "GeometryAnalysis" )
