@@ -13867,6 +13867,25 @@ extern double GetXSecHeight( const std::string& xsec_id );
     string xsec_2 = GetXSec( xsec_surf, 2 );
 
     SetXSecWidthHeight( xsec_2, 1.5, 1.5 );
+
+    Update();
+
+    if ( !closeTo( GetXSecWidth( xsec_2 ), 1.5, 1e-6 ) ||
+         !closeTo( GetXSecHeight( xsec_2 ), 1.5, 1e-6 ) )
+    {
+        Print( "ERROR: SetXSecWidthHeight did not take" );
+        __failure++;
+    }
+
+    // The neighbouring sections have to be left alone.
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    if ( closeTo( GetXSecWidth( xsec_1 ), 1.5, 1e-6 ) &&
+         closeTo( GetXSecHeight( xsec_1 ), 1.5, 1e-6 ) )
+    {
+        Print( "ERROR: SetXSecWidthHeight reached a section it was not given" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13881,6 +13900,16 @@ extern double GetXSecHeight( const std::string& xsec_id );
     xsec_2 = GetXSec( xsec_surf, 2 )
 
     SetXSecWidthHeight( xsec_2, 1.5, 1.5 )
+
+    Update()
+
+    assert abs( GetXSecWidth( xsec_2 ) - 1.5 ) < 1e-6, "SetXSecWidthHeight did not take"
+    assert abs( GetXSecHeight( xsec_2 ) - 1.5 ) < 1e-6, "SetXSecWidthHeight did not take"
+
+    # The neighbouring sections have to be left alone.
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    assert abs( GetXSecWidth( xsec_1 ) - 1.5 ) > 1e-6 or abs( GetXSecHeight( xsec_1 ) - 1.5 ) > 1e-6, "SetXSecWidthHeight reached a section it was not given"
 
     \endcode
     \endPythonOnly
@@ -14096,6 +14125,40 @@ extern std::string GetXSecParm( const std::string& xsec_id, const std::string& n
     string xsec = GetXSec( xsec_surf, 2 );
 
     array< vec3d > @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" );
+
+    Update();
+
+    // The file holds a closed diamond, so the first and last points coincide
+    // and the section takes its size from their extents.
+    if ( vec_array.size() < 3 )
+    {
+        Print( "ERROR: ReadFileXSec returned too few points" );
+        __failure++;
+    }
+    else
+    {
+        if ( dist( vec_array[0], vec_array[vec_array.size() - 1] ) > 1e-8 )
+        {
+            Print( "ERROR: ReadFileXSec returned an open curve" );
+            __failure++;
+        }
+
+        // The shape is normalized on the way in and then scaled by the
+        // section's own width and height, so the curve has to fit inside them.
+        double w = GetXSecWidth( xsec );
+        double h = GetXSecHeight( xsec );
+
+        for ( int i = 0; i < 11; i++ )
+        {
+            vec3d p = ComputeXSecPnt( xsec, i * 0.1 );
+
+            if ( abs( p.y() ) > 0.5 * w + 1e-6 || abs( p.z() ) > 0.5 * h + 1e-6 )
+            {
+                Print( "ERROR: ReadFileXSec left the curve outside the section" );
+                __failure++;
+            }
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14111,6 +14174,23 @@ extern std::string GetXSecParm( const std::string& xsec_id, const std::string& n
 
     vec_array = ReadFileXSec(xsec, "TestXSec.fxs")
 
+    Update()
+
+    # The file holds a closed diamond, so the first and last points coincide and
+    # the section takes its size from their extents.
+    assert len( vec_array ) >= 3, "ReadFileXSec returned too few points"
+    assert dist( vec_array[0], vec_array[-1] ) < 1e-8, "ReadFileXSec returned an open curve"
+
+    # The shape is normalized on the way in and then scaled by the section's own
+    # width and height, so the curve has to fit inside them.
+    w = GetXSecWidth( xsec )
+    h = GetXSecHeight( xsec )
+
+    for i in range( 11 ):
+        p = ComputeXSecPnt( xsec, i * 0.1 )
+
+        assert abs( p.y() ) <= 0.5 * w + 1e-6, "ReadFileXSec left the curve outside the section"
+        assert abs( p.z() ) <= 0.5 * h + 1e-6, "ReadFileXSec left the curve outside the section"
 
     \endcode
     \endPythonOnly
@@ -14240,6 +14320,24 @@ extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_
     double u_fract = 0.25;
 
     vec3d pnt = ComputeXSecPnt( xsec, u_fract );
+
+    // The section is a closed curve, so the ends meet.
+    if ( dist( ComputeXSecPnt( xsec, 0.0 ), ComputeXSecPnt( xsec, 1.0 ) ) > 1e-6 )
+    {
+        Print( "ERROR: the XSec curve does not close" );
+        __failure++;
+    }
+
+    // The point has to lie on the section, which is sized by its width and
+    // height about the section origin.
+    double w = GetXSecWidth( xsec );
+    double h = GetXSecHeight( xsec );
+
+    if ( abs( pnt.y() ) > 0.5 * w + 1e-6 || abs( pnt.z() ) > 0.5 * h + 1e-6 )
+    {
+        Print( "ERROR: ComputeXSecPnt returned a point off the section" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14256,6 +14354,16 @@ extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_
 
     pnt = ComputeXSecPnt(xsec, u_fract)
 
+    # The section is a closed curve, so the ends meet.
+    assert dist( ComputeXSecPnt( xsec, 0.0 ), ComputeXSecPnt( xsec, 1.0 ) ) < 1e-6, "the XSec curve does not close"
+
+    # The point has to lie on the section, which is sized by its width and
+    # height about the section origin.
+    w = GetXSecWidth( xsec )
+    h = GetXSecHeight( xsec )
+
+    assert abs( pnt.y() ) <= 0.5 * w + 1e-6, "ComputeXSecPnt returned a point off the section"
+    assert abs( pnt.z() ) <= 0.5 * h + 1e-6, "ComputeXSecPnt returned a point off the section"
 
     \endcode
     \endPythonOnly
@@ -14284,6 +14392,38 @@ extern vec3d ComputeXSecPnt( const std::string& xsec_id, double fract );
     double u_fract = 0.25;
 
     vec3d tan = ComputeXSecTan( xsec, u_fract );
+
+    // A tangent is a direction, so it has to have some length.
+    if ( tan.mag() < 1e-9 )
+    {
+        Print( "ERROR: ComputeXSecTan returned a degenerate tangent" );
+        __failure++;
+    }
+
+    // The tangent has to follow the curve, so stepping along the curve from the
+    // point has to line up with it.
+    double du = 1.0e-5;
+
+    vec3d p0 = ComputeXSecPnt( xsec, u_fract );
+    vec3d p1 = ComputeXSecPnt( xsec, u_fract + du );
+
+    vec3d fd = p1 - p0;
+
+    if ( fd.mag() < 1e-12 )
+    {
+        Print( "ERROR: the XSec curve does not advance" );
+        __failure++;
+    }
+    else
+    {
+        double align = dot( fd, tan ) / ( fd.mag() * tan.mag() );
+
+        if ( align < 0.999 )
+        {
+            Print( "ERROR: ComputeXSecTan does not follow the curve" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14299,6 +14439,24 @@ extern vec3d ComputeXSecPnt( const std::string& xsec_id, double fract );
     u_fract = 0.25
 
     tan = ComputeXSecTan( xsec, u_fract )
+
+    # A tangent is a direction, so it has to have some length.
+    assert tan.mag() > 1e-9, "ComputeXSecTan returned a degenerate tangent"
+
+    # The tangent has to follow the curve, so stepping along the curve from the
+    # point has to line up with it.
+    du = 1.0e-5
+
+    p0 = ComputeXSecPnt( xsec, u_fract )
+    p1 = ComputeXSecPnt( xsec, u_fract + du )
+
+    fd = vec3d( p1.x() - p0.x(), p1.y() - p0.y(), p1.z() - p0.z() )
+
+    assert fd.mag() > 1e-12, "the XSec curve does not advance"
+
+    align = ( fd.x() * tan.x() + fd.y() * tan.y() + fd.z() * tan.z() ) / ( fd.mag() * tan.mag() )
+
+    assert align > 0.999, "ComputeXSecTan does not follow the curve"
 
     \endcode
     \endPythonOnly
@@ -14324,10 +14482,38 @@ extern vec3d ComputeXSecTan( const std::string& xsec_id, double fract );
 
     string xsec = GetXSec( xsec_surf, 1 );
 
-    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0.0 );       // Set Tangent Angles At Cross Section
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 15.0 );      // Set Tangent Angles At Cross Section
     SetXSecContinuity( xsec, 1 );                       // Set Continuity At Cross Section
 
+    if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TopLAngle" ) ), 15.0, 1e-6 ) )
+    {
+        Print( "ERROR: the skin Parms were never set" );
+        __failure++;
+    }
+
     ResetXSecSkinParms( xsec );
+
+    // Resetting zeroes every skin value on all four sides and turns the
+    // symmetry flags back on.  Continuity is left alone.
+    if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TopLAngle" ) ), 0.0, 1e-6 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "TopRAngle" ) ), 0.0, 1e-6 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "TopLSlew" ) ), 0.0, 1e-6 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "TopLStrength" ) ), 0.0, 1e-6 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "TopLCurve" ) ), 0.0, 1e-6 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "RightLAngle" ) ), 0.0, 1e-6 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "BottomLAngle" ) ), 0.0, 1e-6 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "LeftLAngle" ) ), 0.0, 1e-6 ) )
+    {
+        Print( "ERROR: ResetXSecSkinParms did not zero the skin Parms" );
+        __failure++;
+    }
+
+    if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TBSym" ) ), 1.0, 1e-12 ) ||
+         !closeTo( GetParmVal( GetXSecParm( xsec, "RLSym" ) ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: ResetXSecSkinParms did not restore the symmetry flags" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14340,10 +14526,21 @@ extern vec3d ComputeXSecTan( const std::string& xsec_id, double fract );
 
     xsec = GetXSec( xsec_surf, 1 )
 
-    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0.0, -1.0e12, -1.0e12, -1.0e12 )       # Set Tangent Angles At Cross Section
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 15.0, -1.0e12, -1.0e12, -1.0e12 )      # Set Tangent Angles At Cross Section
     SetXSecContinuity( xsec, 1 )                       # Set Continuity At Cross Section
 
+    assert abs( GetParmVal( GetXSecParm( xsec, "TopLAngle" ) ) - 15.0 ) < 1e-6, "the skin Parms were never set"
+
     ResetXSecSkinParms( xsec )
+
+    # Resetting zeroes every skin value on all four sides and turns the symmetry
+    # flags back on.  Continuity is left alone.
+    for skin_parm in [ "TopLAngle", "TopRAngle", "TopLSlew", "TopLStrength", "TopLCurve",
+                       "RightLAngle", "BottomLAngle", "LeftLAngle" ]:
+        assert abs( GetParmVal( GetXSecParm( xsec, skin_parm ) ) ) < 1e-6, "ResetXSecSkinParms did not zero " + skin_parm
+
+    assert abs( GetParmVal( GetXSecParm( xsec, "TBSym" ) ) - 1.0 ) < 1e-12, "ResetXSecSkinParms did not restore the symmetry flags"
+    assert abs( GetParmVal( GetXSecParm( xsec, "RLSym" ) ) - 1.0 ) < 1e-12, "ResetXSecSkinParms did not restore the symmetry flags"
 
     \endcode
     \endPythonOnly
@@ -14370,6 +14567,23 @@ extern void ResetXSecSkinParms( const std::string& xsec_id );
         string xsec = GetXSec( xsec_surf, i );
 
         SetXSecContinuity( xsec, 1 );                       // Set Continuity At Cross Section
+
+        // The setter is shorthand for the section's continuity Parm.
+        if ( !closeTo( GetParmVal( GetXSecParm( xsec, "ContinuityTop" ) ), 1.0, 1e-12 ) )
+        {
+            Print( "ERROR: SetXSecContinuity did not set section " + i );
+            __failure++;
+        }
+
+        SetXSecContinuity( xsec, 0 );
+
+        if ( !closeTo( GetParmVal( GetXSecParm( xsec, "ContinuityTop" ) ), 0.0, 1e-12 ) )
+        {
+            Print( "ERROR: SetXSecContinuity did not clear section " + i );
+            __failure++;
+        }
+
+        SetXSecContinuity( xsec, 1 );
     }
     \endcode
     \endforcpponly
@@ -14386,6 +14600,15 @@ extern void ResetXSecSkinParms( const std::string& xsec_id );
         xsec = GetXSec( xsec_surf, i )
 
         SetXSecContinuity( xsec, 1 )                       # Set Continuity At Cross Section
+
+        # The setter is shorthand for the section's continuity Parm.
+        assert abs( GetParmVal( GetXSecParm( xsec, "ContinuityTop" ) ) - 1.0 ) < 1e-12, "SetXSecContinuity did not set section " + str( i )
+
+        SetXSecContinuity( xsec, 0 )
+
+        assert abs( GetParmVal( GetXSecParm( xsec, "ContinuityTop" ) ) ) < 1e-12, "SetXSecContinuity did not clear section " + str( i )
+
+        SetXSecContinuity( xsec, 1 )
 
     \endcode
     \endPythonOnly
@@ -14415,6 +14638,15 @@ extern void SetXSecContinuity( const std::string& xsec_id, int cx );
         string xsec = GetXSec( xsec_surf, i );
 
         SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 10.0 );       // Set Tangent Angles At Cross Section
+
+        // The setter is shorthand for the skin Parms, so the value has to show
+        // up on both sides of the section.
+        if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TopLAngle" ) ), 10.0, 1e-6 ) ||
+             !closeTo( GetParmVal( GetXSecParm( xsec, "TopRAngle" ) ), 10.0, 1e-6 ) )
+        {
+            Print( "ERROR: SetXSecTanAngles did not set the top of section " + i );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -14433,6 +14665,11 @@ extern void SetXSecContinuity( const std::string& xsec_id, int cx );
         xsec = GetXSec( xsec_surf, i )
 
         SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 10.0, -1.0e12, -1.0e12, -1.0e12 )       # Set Tangent Angles At Cross Section
+
+        # The setter is shorthand for the skin Parms, so the value has to show up
+        # on both sides of the section.
+        assert abs( GetParmVal( GetXSecParm( xsec, "TopLAngle" ) ) - 10.0 ) < 1e-6, "SetXSecTanAngles did not set the top of section " + str( i )
+        assert abs( GetParmVal( GetXSecParm( xsec, "TopRAngle" ) ) - 10.0 ) < 1e-6, "SetXSecTanAngles did not set the top of section " + str( i )
 
     \endcode
     \endPythonOnly
@@ -14467,6 +14704,15 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
         string xsec = GetXSec( xsec_surf, i );
 
         SetXSecTanSlews( xsec, XSEC_BOTH_SIDES, 5.0 );       // Set Tangent Slews At Cross Section
+
+        // The setter is shorthand for the skin Parms, so the value has to show
+        // up on both sides of the section.
+        if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TopLSlew" ) ), 5.0, 1e-6 ) ||
+             !closeTo( GetParmVal( GetXSecParm( xsec, "TopRSlew" ) ), 5.0, 1e-6 ) )
+        {
+            Print( "ERROR: SetXSecTanSlews did not set the top of section " + i );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -14485,6 +14731,11 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
         xsec = GetXSec( xsec_surf, i )
 
         SetXSecTanSlews( xsec, XSEC_BOTH_SIDES, 5.0, -1.0e12, -1.0e12, -1.0e12 )       # Set Tangent Slews At Cross Section
+
+        # The setter is shorthand for the skin Parms, so the value has to show up
+        # on both sides of the section.
+        assert abs( GetParmVal( GetXSecParm( xsec, "TopLSlew" ) ) - 5.0 ) < 1e-6, "SetXSecTanSlews did not set the top of section " + str( i )
+        assert abs( GetParmVal( GetXSecParm( xsec, "TopRSlew" ) ) - 5.0 ) < 1e-6, "SetXSecTanSlews did not set the top of section " + str( i )
 
     \endcode
     \endPythonOnly
@@ -14520,6 +14771,15 @@ extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, d
         string xsec = GetXSec( xsec_surf, i );
 
         SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.8 );  // Set Tangent Strengths At Cross Section
+
+        // The setter is shorthand for the skin Parms, so the value has to show
+        // up on both sides of the section.
+        if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TopLStrength" ) ), 0.8, 1e-6 ) ||
+             !closeTo( GetParmVal( GetXSecParm( xsec, "TopRStrength" ) ), 0.8, 1e-6 ) )
+        {
+            Print( "ERROR: SetXSecTanStrengths did not set the top of section " + i );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -14539,6 +14799,11 @@ extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, d
         xsec = GetXSec( xsec_surf, i )
 
         SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.8, -1.0e12, -1.0e12, -1.0e12 )  # Set Tangent Strengths At Cross Section
+
+        # The setter is shorthand for the skin Parms, so the value has to show up
+        # on both sides of the section.
+        assert abs( GetParmVal( GetXSecParm( xsec, "TopLStrength" ) ) - 0.8 ) < 1e-6, "SetXSecTanStrengths did not set the top of section " + str( i )
+        assert abs( GetParmVal( GetXSecParm( xsec, "TopRStrength" ) ) - 0.8 ) < 1e-6, "SetXSecTanStrengths did not set the top of section " + str( i )
 
     \endcode
     \endPythonOnly
@@ -14574,6 +14839,15 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
         string xsec = GetXSec( xsec_surf, i );
 
         SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2 );  // Set Tangent Strengths At Cross Section
+
+        // The setter is shorthand for the skin Parms, so the value has to show
+        // up on both sides of the section.
+        if ( !closeTo( GetParmVal( GetXSecParm( xsec, "TopLCurve" ) ), 0.2, 1e-6 ) ||
+             !closeTo( GetParmVal( GetXSecParm( xsec, "TopRCurve" ) ), 0.2, 1e-6 ) )
+        {
+            Print( "ERROR: SetXSecCurvatures did not set the top of section " + i );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -14592,7 +14866,12 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
 
         xsec = GetXSec( xsec_surf, i )
 
-        SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2, -1.0e12, -1.0e12, -1.0e12 )  # Set Tangent Strengths At Cross Section
+        SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2, -1.0e12, -1.0e12, -1.0e12 )  # Set Curvatures At Cross Section
+
+        # The setter is shorthand for the skin Parms, so the value has to show up
+        # on both sides of the section.
+        assert abs( GetParmVal( GetXSecParm( xsec, "TopLCurve" ) ) - 0.2 ) < 1e-6, "SetXSecCurvatures did not set the top of section " + str( i )
+        assert abs( GetParmVal( GetXSecParm( xsec, "TopRCurve" ) ) - 0.2 ) < 1e-6, "SetXSecCurvatures did not set the top of section " + str( i )
 
     \endcode
     \endPythonOnly
@@ -14624,6 +14903,51 @@ extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top,
     string xsec = GetXSec( xsec_surf, 1 );
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
+    array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
+
+    if ( up_array.size() == 0 || up_array.size() != low_array.size() )
+    {
+        Print( "ERROR: ReadFileAirfoil did not read matching surfaces" );
+        __failure++;
+    }
+    else
+    {
+        // The points run from the leading edge to the trailing edge on a unit
+        // chord.
+        if ( !closeTo( up_array[0].x(), 0.0, 1e-6 ) ||
+             !closeTo( up_array[up_array.size() - 1].x(), 1.0, 1e-6 ) ||
+             !closeTo( low_array[0].x(), 0.0, 1e-6 ) )
+        {
+            Print( "ERROR: ReadFileAirfoil did not normalize the chord" );
+            __failure++;
+        }
+
+        // A NACA 0012 is symmetric, so the lower surface mirrors the upper, and
+        // the section is twelve percent thick.
+        double max_up = 0.0;
+
+        for ( int i = 0; i < int( up_array.size() ); i++ )
+        {
+            if ( !closeTo( low_array[i].y(), -up_array[i].y(), 1e-6 ) )
+            {
+                Print( "ERROR: ReadFileAirfoil did not read a symmetric section" );
+                __failure++;
+            }
+
+            if ( up_array[i].y() > max_up )
+            {
+                max_up = up_array[i].y();
+            }
+        }
+
+        if ( !closeTo( 2.0 * max_up, 0.12, 1e-3 ) )
+        {
+            Print( "ERROR: ReadFileAirfoil did not read a twelve percent section" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14638,6 +14962,26 @@ extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top,
     xsec = GetXSec( xsec_surf, 1 )
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
+
+    up_array = GetAirfoilUpperPnts( xsec )
+    low_array = GetAirfoilLowerPnts( xsec )
+
+    assert len( up_array ) > 0, "ReadFileAirfoil did not read matching surfaces"
+    assert len( up_array ) == len( low_array ), "ReadFileAirfoil did not read matching surfaces"
+
+    # The points run from the leading edge to the trailing edge on a unit chord.
+    assert abs( up_array[0].x() ) < 1e-6, "ReadFileAirfoil did not normalize the chord"
+    assert abs( up_array[-1].x() - 1.0 ) < 1e-6, "ReadFileAirfoil did not normalize the chord"
+    assert abs( low_array[0].x() ) < 1e-6, "ReadFileAirfoil did not normalize the chord"
+
+    # A NACA 0012 is symmetric, so the lower surface mirrors the upper, and the
+    # section is twelve percent thick.
+    for i in range( len( up_array ) ):
+        assert abs( low_array[i].y() + up_array[i].y() ) < 1e-6, "ReadFileAirfoil did not read a symmetric section"
+
+    max_up = max( [ p.y() for p in up_array ] )
+
+    assert abs( 2.0 * max_up - 0.12 ) < 1e-3, "ReadFileAirfoil did not read a twelve percent section"
 
     \endcode
     \endPythonOnly
@@ -14674,10 +15018,42 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
 
     SetAirfoilUpperPnts( xsec, up_array );
 
-    if ( GetAirfoilUpperPnts( xsec ).length() != up_array.length() )
+    array< vec3d > @check_array = GetAirfoilUpperPnts( xsec );
+
+    if ( check_array.length() != up_array.length() )
     {
         Print( "ERROR: SetAirfoilUpperPnts point count" );
         __failure++;
+    }
+    else
+    {
+        // The doubled upper surface has to come back doubled, and the lower
+        // surface has to be left alone.
+        for ( int i = 0; i < int( up_array.size() ); i++ )
+        {
+            if ( dist( check_array[i], up_array[i] ) > 1e-6 )
+            {
+                Print( "ERROR: SetAirfoilUpperPnts did not store point " + i );
+                __failure++;
+            }
+        }
+
+        array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
+
+        double max_up = 0.0;
+        double min_low = 0.0;
+
+        for ( int i = 0; i < int( check_array.size() ); i++ )
+        {
+            if ( check_array[i].y() > max_up ) { max_up = check_array[i].y(); }
+            if ( low_array[i].y() < min_low ) { min_low = low_array[i].y(); }
+        }
+
+        if ( !closeTo( max_up, -2.0 * min_low, 1e-6 ) )
+        {
+            Print( "ERROR: SetAirfoilUpperPnts did not leave the lower surface alone" );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -14702,7 +15078,21 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
 
     SetAirfoilUpperPnts( xsec, up_array )
 
-    assert len( GetAirfoilUpperPnts( xsec ) ) == len( up_array ), "SetAirfoilUpperPnts point count"
+    check_array = GetAirfoilUpperPnts( xsec )
+
+    assert len( check_array ) == len( up_array ), "SetAirfoilUpperPnts point count"
+
+    # The doubled upper surface has to come back doubled, and the lower surface
+    # has to be left alone.
+    for i in range( len( up_array ) ):
+        assert dist( check_array[i], up_array[i] ) < 1e-6, "SetAirfoilUpperPnts did not store point " + str( i )
+
+    low_array = GetAirfoilLowerPnts( xsec )
+
+    max_up = max( [ p.y() for p in check_array ] )
+    min_low = min( [ p.y() for p in low_array ] )
+
+    assert abs( max_up + 2.0 * min_low ) < 1e-6, "SetAirfoilUpperPnts did not leave the lower surface alone"
 
     \endcode
     \endPythonOnly
@@ -14737,7 +15127,45 @@ extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< 
         low_array[i].scale_y( 0.5 );
     }
 
-    SetAirfoilUpperPnts( xsec, low_array );
+    SetAirfoilLowerPnts( xsec, low_array );
+
+    array< vec3d > @check_array = GetAirfoilLowerPnts( xsec );
+
+    if ( check_array.length() != low_array.length() )
+    {
+        Print( "ERROR: SetAirfoilLowerPnts point count" );
+        __failure++;
+    }
+    else
+    {
+        // The halved lower surface has to come back halved, and the upper
+        // surface has to be left alone.
+        for ( int i = 0; i < int( low_array.size() ); i++ )
+        {
+            if ( dist( check_array[i], low_array[i] ) > 1e-6 )
+            {
+                Print( "ERROR: SetAirfoilLowerPnts did not store point " + i );
+                __failure++;
+            }
+        }
+
+        array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
+
+        double max_up = 0.0;
+        double min_low = 0.0;
+
+        for ( int i = 0; i < int( check_array.size() ); i++ )
+        {
+            if ( up_array[i].y() > max_up ) { max_up = up_array[i].y(); }
+            if ( check_array[i].y() < min_low ) { min_low = check_array[i].y(); }
+        }
+
+        if ( !closeTo( 0.5 * max_up, -min_low, 1e-6 ) )
+        {
+            Print( "ERROR: SetAirfoilLowerPnts did not leave the upper surface alone" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14759,7 +15187,23 @@ extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< 
 
         low_array[i].scale_y( 0.5 )
 
-    SetAirfoilUpperPnts( xsec, low_array )
+    SetAirfoilLowerPnts( xsec, low_array )
+
+    check_array = GetAirfoilLowerPnts( xsec )
+
+    assert len( check_array ) == len( low_array ), "SetAirfoilLowerPnts point count"
+
+    # The halved lower surface has to come back halved, and the upper surface
+    # has to be left alone.
+    for i in range( len( low_array ) ):
+        assert dist( check_array[i], low_array[i] ) < 1e-6, "SetAirfoilLowerPnts did not store point " + str( i )
+
+    up_array = GetAirfoilUpperPnts( xsec )
+
+    max_up = max( [ p.y() for p in up_array ] )
+    min_low = min( [ p.y() for p in check_array ] )
+
+    assert abs( 0.5 * max_up + min_low ) < 1e-6, "SetAirfoilLowerPnts did not leave the upper surface alone"
 
     \endcode
     \endPythonOnly
@@ -14799,6 +15243,43 @@ extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< 
     }
 
     SetAirfoilPnts( xsec, up_array, low_array );
+
+    array< vec3d > @check_up = GetAirfoilUpperPnts( xsec );
+    array< vec3d > @check_low = GetAirfoilLowerPnts( xsec );
+
+    if ( check_up.length() != up_array.length() || check_low.length() != low_array.length() )
+    {
+        Print( "ERROR: SetAirfoilPnts point count" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0; i < int( up_array.size() ); i++ )
+        {
+            if ( dist( check_up[i], up_array[i] ) > 1e-6 || dist( check_low[i], low_array[i] ) > 1e-6 )
+            {
+                Print( "ERROR: SetAirfoilPnts did not store point " + i );
+                __failure++;
+            }
+        }
+
+        // The section started symmetric; doubling the top and halving the
+        // bottom leaves the top four times as deep as the bottom.
+        double max_up = 0.0;
+        double min_low = 0.0;
+
+        for ( int i = 0; i < int( check_up.size() ); i++ )
+        {
+            if ( check_up[i].y() > max_up ) { max_up = check_up[i].y(); }
+            if ( check_low[i].y() < min_low ) { min_low = check_low[i].y(); }
+        }
+
+        if ( !closeTo( max_up, -4.0 * min_low, 1e-6 ) )
+        {
+            Print( "ERROR: SetAirfoilPnts did not scale the two surfaces apart" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14825,6 +15306,23 @@ extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< 
         low_array[i].scale_y( 0.5 )
 
     SetAirfoilPnts( xsec, up_array, low_array )
+
+    check_up = GetAirfoilUpperPnts( xsec )
+    check_low = GetAirfoilLowerPnts( xsec )
+
+    assert len( check_up ) == len( up_array ), "SetAirfoilPnts point count"
+    assert len( check_low ) == len( low_array ), "SetAirfoilPnts point count"
+
+    for i in range( len( up_array ) ):
+        assert dist( check_up[i], up_array[i] ) < 1e-6, "SetAirfoilPnts did not store point " + str( i )
+        assert dist( check_low[i], low_array[i] ) < 1e-6, "SetAirfoilPnts did not store point " + str( i )
+
+    # The section started symmetric; doubling the top and halving the bottom
+    # leaves the top four times as deep as the bottom.
+    max_up = max( [ p.y() for p in check_up ] )
+    min_low = min( [ p.y() for p in check_low ] )
+
+    assert abs( max_up + 4.0 * min_low ) < 1e-6, "SetAirfoilPnts did not scale the two surfaces apart"
 
     \endcode
     \endPythonOnly
