@@ -26624,6 +26624,31 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
     vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
 
     Print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' );
+
+    // The point is on the surface, so projecting it back has to land on it and
+    // recover the coordinates it came from.
+    double u_out, w_out;
+
+    double d = ProjPnt01( geom_id, surf_indx, pnt, u_out, w_out );
+
+    if ( d > 1e-6 )
+    {
+        Print( "ERROR: CompPnt01 returned a point off the surface" );
+        __failure++;
+    }
+
+    if ( !closeTo( u_out, u, 1e-6 ) || !closeTo( w_out, w, 1e-6 ) )
+    {
+        Print( "ERROR: CompPnt01 does not round trip through ProjPnt01" );
+        __failure++;
+    }
+
+    // W wraps around the section, so 0 and 1 are the same place.
+    if ( dist( CompPnt01( geom_id, surf_indx, u, 0.0 ), CompPnt01( geom_id, surf_indx, u, 1.0 ) ) > 1e-6 )
+    {
+        Print( "ERROR: the surface does not close in W" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -26639,6 +26664,17 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
     pnt = CompPnt01( geom_id, surf_indx, u, w )
 
     print( f"Point: ( {pnt.x()}, {pnt.y()}, {pnt.z()} )" )
+
+    # The point is on the surface, so projecting it back has to land on it and
+    # recover the coordinates it came from.
+    d, u_out, w_out = ProjPnt01( geom_id, surf_indx, pnt )
+
+    assert d < 1e-6, "CompPnt01 returned a point off the surface"
+    assert abs( u_out - u ) < 1e-6, "CompPnt01 does not round trip through ProjPnt01"
+    assert abs( w_out - w ) < 1e-6, "CompPnt01 does not round trip through ProjPnt01"
+
+    # W wraps around the section, so 0 and 1 are the same place.
+    assert dist( CompPnt01( geom_id, surf_indx, u, 0.0 ), CompPnt01( geom_id, surf_indx, u, 1.0 ) ) < 1e-6, "the surface does not close in W"
 
     \endcode
     \endPythonOnly
@@ -26831,6 +26867,27 @@ extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const 
     CompCurvature01( geom_id, surf_indx, u, w, k1, k2, ka, kg );
 
     Print( "Curvature : k1 " + k1 + " k2 " + k2 + " ka " + ka + " kg " + kg );
+
+    // The mean curvature is the average of the principal curvatures, and the
+    // Gaussian curvature is their product.
+    if ( !closeTo( ka, 0.5 * ( k1 + k2 ), 1e-9 ) )
+    {
+        Print( "ERROR: the mean curvature does not match the principal curvatures" );
+        __failure++;
+    }
+
+    if ( !closeTo( kg, k1 * k2, 1e-9 ) )
+    {
+        Print( "ERROR: the Gaussian curvature does not match the principal curvatures" );
+        __failure++;
+    }
+
+    // A Pod is convex everywhere, so the Gaussian curvature is positive.
+    if ( kg <= 0.0 )
+    {
+        Print( "ERROR: a Pod should be convex here" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -26847,6 +26904,14 @@ extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const 
     k1, k2, ka, kg = CompCurvature01( geom_id, surf_indx, u, w )
 
     print( f"Curvature : k1 {k1} k2 {k2} ka {ka} kg {kg}" )
+
+    # The mean curvature is the average of the principal curvatures, and the
+    # Gaussian curvature is their product.
+    assert abs( ka - 0.5 * ( k1 + k2 ) ) < 1e-9, "the mean curvature does not match the principal curvatures"
+    assert abs( kg - k1 * k2 ) < 1e-9, "the Gaussian curvature does not match the principal curvatures"
+
+    # A Pod is convex everywhere, so the Gaussian curvature is positive.
+    assert kg > 0.0, "a Pod should be convex here"
 
     \endcode
     \endPythonOnly
@@ -27444,6 +27509,33 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
     vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
 
     Print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' );
+
+    // T runs from the interior out to the skin, so t = 1 lands on the surface
+    // and anything short of that lands inside it.
+    double u_out, w_out;
+
+    if ( ProjPnt01( geom_id, surf_indx, CompPntRST( geom_id, surf_indx, r, s, 1.0 ), u_out, w_out ) > 1e-6 )
+    {
+        Print( "ERROR: CompPntRST at t = 1 is not on the surface" );
+        __failure++;
+    }
+
+    if ( !InsideSurf( geom_id, surf_indx, pnt ) )
+    {
+        Print( "ERROR: CompPntRST at t < 1 is not inside the surface" );
+        __failure++;
+    }
+
+    // The point has to round trip back through the coordinates it came from.
+    double r_out, s_out, t_out;
+
+    FindRST( geom_id, surf_indx, pnt, r_out, s_out, t_out );
+
+    if ( dist( CompPntRST( geom_id, surf_indx, r_out, s_out, t_out ), pnt ) > 1e-6 )
+    {
+        Print( "ERROR: CompPntRST does not round trip through FindRST" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27460,6 +27552,18 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
     pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
     print( f"Point: ( {pnt.x()}, {pnt.y()}, {pnt.z()} )" )
+
+    # T runs from the interior out to the skin, so t = 1 lands on the surface and
+    # anything short of that lands inside it.
+    d, u_out, w_out = ProjPnt01( geom_id, surf_indx, CompPntRST( geom_id, surf_indx, r, s, 1.0 ) )
+
+    assert d < 1e-6, "CompPntRST at t = 1 is not on the surface"
+    assert InsideSurf( geom_id, surf_indx, pnt ), "CompPntRST at t < 1 is not inside the surface"
+
+    # The point has to round trip back through the coordinates it came from.
+    d_rst, r_out, s_out, t_out = FindRST( geom_id, surf_indx, pnt )
+
+    assert dist( CompPntRST( geom_id, surf_indx, r_out, s_out, t_out ), pnt ) < 1e-6, "CompPntRST does not round trip through FindRST"
 
     \endcode
     \endPythonOnly
@@ -27763,6 +27867,32 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
 
     ConvertLMNtoRST( geom_id, surf_indx, l, m, n, r_out, s_out, t_out );
 
+    // The conversion is invertible, so going back has to return the input.
+    double l_out, m_out, n_out;
+
+    ConvertRSTtoLMN( geom_id, surf_indx, r_out, s_out, t_out, l_out, m_out, n_out );
+
+    if ( !closeTo( l_out, l, 1e-6 ) || !closeTo( m_out, m, 1e-6 ) || !closeTo( n_out, n, 1e-6 ) )
+    {
+        Print( "ERROR: ConvertLMNtoRST does not invert" );
+        __failure++;
+    }
+
+    // Both coordinate systems run over the unit cube.
+    if ( r_out < 0.0 || r_out > 1.0 || s_out < 0.0 || s_out > 1.0 || t_out < 0.0 || t_out > 1.0 )
+    {
+        Print( "ERROR: ConvertLMNtoRST left the unit cube" );
+        __failure++;
+    }
+
+    // The coordinates name a point in the volume, so evaluating them has to
+    // land inside the surface.
+    if ( !InsideSurf( geom_id, surf_indx, CompPntRST( geom_id, surf_indx, r_out, s_out, t_out ) ) )
+    {
+        Print( "ERROR: ConvertLMNtoRST did not name a point in the volume" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27778,6 +27908,21 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
 
     r_out, s_out, t_out = ConvertLMNtoRST( geom_id, surf_indx, l, m, n )
 
+    # The conversion is invertible, so going back has to return the input.
+    l_out, m_out, n_out = ConvertRSTtoLMN( geom_id, surf_indx, r_out, s_out, t_out )
+
+    assert abs( l_out - l ) < 1e-6, "ConvertLMNtoRST does not invert"
+    assert abs( m_out - m ) < 1e-6, "ConvertLMNtoRST does not invert"
+    assert abs( n_out - n ) < 1e-6, "ConvertLMNtoRST does not invert"
+
+    # Both coordinate systems run over the unit cube.
+    assert 0.0 <= r_out <= 1.0, "ConvertLMNtoRST left the unit cube"
+    assert 0.0 <= s_out <= 1.0, "ConvertLMNtoRST left the unit cube"
+    assert 0.0 <= t_out <= 1.0, "ConvertLMNtoRST left the unit cube"
+
+    # The coordinates name a point in the volume, so evaluating them has to land
+    # inside the surface.
+    assert InsideSurf( geom_id, surf_indx, CompPntRST( geom_id, surf_indx, r_out, s_out, t_out ) ), "ConvertLMNtoRST did not name a point in the volume"
 
     \endcode
     \endPythonOnly
@@ -27809,6 +27954,34 @@ extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, c
 
     ConvertLtoR( geom_id, surf_indx, l, r_out );
 
+    // The conversion is invertible, so going back has to return the input.
+    double l_out;
+
+    ConvertRtoL( geom_id, surf_indx, r_out, l_out );
+
+    if ( !closeTo( l_out, l, 1e-6 ) )
+    {
+        Print( "ERROR: ConvertLtoR does not invert" );
+        __failure++;
+    }
+
+    if ( r_out < 0.0 || r_out > 1.0 )
+    {
+        Print( "ERROR: ConvertLtoR left the unit interval" );
+        __failure++;
+    }
+
+    // Both coordinates run nose to tail, so the mapping is increasing.
+    double r_more;
+
+    ConvertLtoR( geom_id, surf_indx, l + 0.1, r_more );
+
+    if ( r_more <= r_out )
+    {
+        Print( "ERROR: ConvertLtoR is not increasing" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27822,6 +27995,16 @@ extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, c
 
     r_out = ConvertLtoR( geom_id, surf_indx, l )
 
+    # The conversion is invertible, so going back has to return the input.
+    l_out = ConvertRtoL( geom_id, surf_indx, r_out )
+
+    assert abs( l_out - l ) < 1e-6, "ConvertLtoR does not invert"
+    assert 0.0 <= r_out <= 1.0, "ConvertLtoR left the unit interval"
+
+    # Both coordinates run nose to tail, so the mapping is increasing.
+    r_more = ConvertLtoR( geom_id, surf_indx, l + 0.1 )
+
+    assert r_more > r_out, "ConvertLtoR is not increasing"
 
     \endcode
     \endPythonOnly
@@ -27931,6 +28114,10 @@ extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &
 
     u = ConvertEtatoU( geom_id, eta )
 
+    # Converting back has to return the coordinate we started from.
+    eta_back = ConvertUtoEta( geom_id, u )
+
+    assert abs( eta_back - eta ) < 1e-6, "ConvertEtatoU does not round trip"
 
     \endcode
     \endPythonOnly
@@ -27967,6 +28154,24 @@ extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double
     }
 
     array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec );
+
+    // One point per coordinate pair, each the same point the scalar form gives.
+    if ( int( ptvec.size() ) != n )
+    {
+        Print( "ERROR: CompVecPnt01 returned the wrong number of points" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0 ; i < n ; i++ )
+        {
+            if ( dist( ptvec[i], CompPnt01( geom_id, 0, uvec[i], wvec[i] ) ) > 1e-9 )
+            {
+                Print( "ERROR: CompVecPnt01 disagrees with CompPnt01 at " + i );
+                __failure++;
+            }
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27986,6 +28191,12 @@ extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double
         wvec[i] = (n-i)*1.0/(n+1)
 
     ptvec = CompVecPnt01( geom_id, 0, uvec, wvec )
+
+    # One point per coordinate pair, each the same point the scalar form gives.
+    assert len( ptvec ) == n, "CompVecPnt01 returned the wrong number of points"
+
+    for i in range(n):
+        assert dist( ptvec[i], CompPnt01( geom_id, 0, uvec[i], wvec[i] ) ) < 1e-9, "CompVecPnt01 disagrees with CompPnt01 at " + str( i )
 
     \endcode
     \endPythonOnly
@@ -28023,6 +28234,27 @@ extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int 
     }
 
     array< vec3d > ptvec = CompVecDegenPnt01( geom_id, 0, 0, uvec, wvec );
+
+    // One point per coordinate pair.  Degen type 0 is the surface itself, so
+    // those points are the ones the surface form gives.
+    if ( int( ptvec.size() ) != n )
+    {
+        Print( "ERROR: CompVecDegenPnt01 returned the wrong number of points" );
+        __failure++;
+    }
+    else
+    {
+        array< vec3d > surfvec = CompVecPnt01( geom_id, 0, uvec, wvec );
+
+        for ( int i = 0 ; i < n ; i++ )
+        {
+            if ( dist( ptvec[i], surfvec[i] ) > 1e-6 )
+            {
+                Print( "ERROR: the degen surface does not follow the surface at " + i );
+                __failure++;
+            }
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -28042,6 +28274,15 @@ extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int 
         wvec[i] = (n-i)*1.0/(n+1)
 
     ptvec = CompVecDegenPnt01( geom_id, 0, 0, uvec, wvec )
+
+    # One point per coordinate pair.  Degen type 0 is the surface itself, so
+    # those points are the ones the surface form gives.
+    assert len( ptvec ) == n, "CompVecDegenPnt01 returned the wrong number of points"
+
+    surfvec = CompVecPnt01( geom_id, 0, uvec, wvec )
+
+    for i in range(n):
+        assert dist( ptvec[i], surfvec[i] ) < 1e-6, "the degen surface does not follow the surface at " + str( i )
 
     \endcode
     \endPythonOnly
