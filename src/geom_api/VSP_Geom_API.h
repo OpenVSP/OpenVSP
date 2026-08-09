@@ -29619,6 +29619,102 @@ extern void AutoGroupVSPAEROControlSurfaces();
     \return int Index of the new VSPAERO control surface group
 */
 
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Delete a VSPAERO control surface group.  The control surfaces it held go back to being
+    available, and the groups above it slide down to fill the gap.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING", "" );                             // Add Wing
+
+    string aileron_id = AddSubSurf( wid, SS_CONTROL );                      // Add Control Surface Sub-Surface
+
+    int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
+
+    SetVSPAEROControlGroupName( "Doomed_Group", group_index );
+
+    AddAllToVSPAEROControlSurfaceGroup( group_index );
+
+    int num_active = GetActiveCSNameVec( group_index ).size();
+
+    DeleteVSPAEROControlSurfaceGroup( group_index );
+
+    if ( GetNumControlSurfaceGroups() != 0 )
+    {
+        Print( "ERROR: DeleteVSPAEROControlSurfaceGroup did not remove the group" );
+        __failure++;
+    }
+
+    // The surfaces it held are available again in a fresh group.
+    int new_index = CreateVSPAEROControlSurfaceGroup();
+
+    if ( int( GetAvailableCSNameVec( new_index ).size() ) != num_active )
+    {
+        Print( "ERROR: the deleted group did not release its control surfaces" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    DeleteVSPAEROControlSurfaceGroup( GetNumControlSurfaceGroups() );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteVSPAEROControlSurfaceGroup accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING", "" )                             # Add Wing
+
+    aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
+
+    group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
+
+    SetVSPAEROControlGroupName( "Doomed_Group", group_index )
+
+    AddAllToVSPAEROControlSurfaceGroup( group_index )
+
+    num_active = len( GetActiveCSNameVec( group_index ) )
+
+    DeleteVSPAEROControlSurfaceGroup( group_index )
+
+    assert GetNumControlSurfaceGroups() == 0, "DeleteVSPAEROControlSurfaceGroup did not remove the group"
+
+    # The surfaces it held are available again in a fresh group.
+    new_index = CreateVSPAEROControlSurfaceGroup()
+
+    assert len( GetAvailableCSNameVec( new_index ) ) == num_active, "the deleted group did not release its control surfaces"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteVSPAEROControlSurfaceGroup( GetNumControlSurfaceGroups() )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteVSPAEROControlSurfaceGroup accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CreateVSPAEROControlSurfaceGroup, GetNumControlSurfaceGroups
+    \param [in] CSGroupIndex int Index of the control surface group
+*/
+
+extern void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex );
+
 extern int CreateVSPAEROControlSurfaceGroup();
 
 /*!
@@ -34602,6 +34698,432 @@ extern void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::v
     \param [in] name string Ruler name
     \return string Ruler ID
 */
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Create and add a Protractor object from three points on Geom surfaces.  The angle is measured at
+    the middle point, between the legs running out to the start and end points.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    string pid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Example_Protractor" );
+
+    if ( pid.length() == 0 || pid == "NONE" )
+    {
+        Print( "ERROR: AddProtractor returned no id" );
+        __failure++;
+    }
+
+    // The new protractor is the only one in the model.
+    array< string > @prot_array = GetAllProtractors();
+
+    if ( prot_array.size() != 1 || prot_array[0] != pid )
+    {
+        Print( "ERROR: AddProtractor did not add the protractor" );
+        __failure++;
+    }
+
+    // Protractors are their own Parm Containers, so the name is readable.
+    if ( GetContainerName( pid ) != "Example_Protractor" )
+    {
+        Print( "ERROR: AddProtractor did not name the protractor" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    pid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Example_Protractor" )
+
+    assert len( pid ) > 0 and pid != "NONE", "AddProtractor returned no id"
+
+    # The new protractor is the only one in the model.
+    prot_array = GetAllProtractors()
+
+    assert len( prot_array ) == 1, "AddProtractor did not add the protractor"
+    assert prot_array[0] == pid, "AddProtractor did not add the protractor"
+
+    # Protractors are their own Parm Containers, so the name is readable.
+    assert GetContainerName( pid ) == "Example_Protractor", "AddProtractor did not name the protractor"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAllProtractors, DelProtractor, DeleteAllProtractors, AddRuler
+    \param [in] startgeomid string Start parent Geom ID
+    \param [in] startsurfindx int Start surface index from the start parent Geom
+    \param [in] startu double Start U (0 - 1) surface coordinate
+    \param [in] startw double Start W (0 - 1) surface coordinate
+    \param [in] midgeomid string Middle parent Geom ID
+    \param [in] midsurfindx int Middle surface index from the middle parent Geom
+    \param [in] midu double Middle U (0 - 1) surface coordinate
+    \param [in] midw double Middle W (0 - 1) surface coordinate
+    \param [in] endgeomid string End parent Geom ID
+    \param [in] endsurfindx int End surface index from the end parent Geom
+    \param [in] endu double End U (0 - 1) surface coordinate
+    \param [in] endw double End W (0 - 1) surface coordinate
+    \param [in] name string Protractor name
+    \return string Protractor ID
+*/
+
+extern string AddProtractor( const string & startgeomid, int startsurfindx, double startu, double startw,
+                             const string & midgeomid, int midsurfindx, double midu, double midw,
+                             const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Get an array of all Protractor IDs from the Measure Tool
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Protractor_1" );
+    AddProtractor( pod1, 0, 0.1, 0.0, pod1, 0, 0.4, 0.0, pod1, 0, 0.7, 0.0, "Protractor_2" );
+
+    array< string > @prot_array = GetAllProtractors();
+
+    if ( prot_array.size() != 2 )
+    {
+        Print( "ERROR: GetAllProtractors did not report both protractors" );
+        __failure++;
+    }
+
+    if ( prot_array.size() == 2 && prot_array[0] == prot_array[1] )
+    {
+        Print( "ERROR: GetAllProtractors reported the same protractor twice" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Protractor_1" )
+    AddProtractor( pod1, 0, 0.1, 0.0, pod1, 0, 0.4, 0.0, pod1, 0, 0.7, 0.0, "Protractor_2" )
+
+    prot_array = GetAllProtractors()
+
+    assert len( prot_array ) == 2, "GetAllProtractors did not report both protractors"
+    assert prot_array[0] != prot_array[1], "GetAllProtractors reported the same protractor twice"
+
+    \endcode
+    \endPythonOnly
+    \sa AddProtractor, DelProtractor, DeleteAllProtractors
+    \return vector\<string\> Array of Protractor IDs
+*/
+
+extern std::vector < string > GetAllProtractors();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Delete a particular Protractor from the Measure Tool
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    string pid1 = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Protractor_1" );
+    string pid2 = AddProtractor( pod1, 0, 0.1, 0.0, pod1, 0, 0.4, 0.0, pod1, 0, 0.7, 0.0, "Protractor_2" );
+
+    DelProtractor( pid1 );
+
+    // Only the named protractor goes.
+    array< string > @prot_array = GetAllProtractors();
+
+    if ( prot_array.size() != 1 || prot_array[0] != pid2 )
+    {
+        Print( "ERROR: DelProtractor removed the wrong protractor" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    pid1 = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Protractor_1" )
+    pid2 = AddProtractor( pod1, 0, 0.1, 0.0, pod1, 0, 0.4, 0.0, pod1, 0, 0.7, 0.0, "Protractor_2" )
+
+    DelProtractor( pid1 )
+
+    # Only the named protractor goes.
+    prot_array = GetAllProtractors()
+
+    assert len( prot_array ) == 1, "DelProtractor removed the wrong protractor"
+    assert prot_array[0] == pid2, "DelProtractor removed the wrong protractor"
+
+    \endcode
+    \endPythonOnly
+    \sa AddProtractor, GetAllProtractors, DeleteAllProtractors
+    \param [in] id string Protractor ID
+*/
+
+extern void DelProtractor( const string &id );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Delete all Protractors from the Measure Tool
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Protractor_1" );
+    AddProtractor( pod1, 0, 0.1, 0.0, pod1, 0, 0.4, 0.0, pod1, 0, 0.7, 0.0, "Protractor_2" );
+
+    DeleteAllProtractors();
+
+    if ( GetAllProtractors().size() != 0 )
+    {
+        Print( "ERROR: DeleteAllProtractors left protractors behind" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Protractor_1" )
+    AddProtractor( pod1, 0, 0.1, 0.0, pod1, 0, 0.4, 0.0, pod1, 0, 0.7, 0.0, "Protractor_2" )
+
+    DeleteAllProtractors()
+
+    assert len( GetAllProtractors() ) == 0, "DeleteAllProtractors left protractors behind"
+
+    \endcode
+    \endPythonOnly
+    \sa AddProtractor, GetAllProtractors, DelProtractor
+*/
+
+extern void DeleteAllProtractors();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Create and add an RST Probe object to the Measure Tool.  An RST Probe marks a point in the
+    volume of a Geom rather than on its surface.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    string pid = AddRSTProbe( pod1, 0, 0.5, 0.5, 0.5, "Example_RSTProbe" );
+
+    if ( pid.length() == 0 || pid == "NONE" )
+    {
+        Print( "ERROR: AddRSTProbe returned no id" );
+        __failure++;
+    }
+
+    // The new probe is the only one in the model, and it is not confused with a
+    // surface probe.
+    array< string > @probe_array = GetAllRSTProbes();
+
+    if ( probe_array.size() != 1 || probe_array[0] != pid )
+    {
+        Print( "ERROR: AddRSTProbe did not add the probe" );
+        __failure++;
+    }
+
+    if ( GetAllProbes().size() != 0 )
+    {
+        Print( "ERROR: an RST probe was counted as a surface probe" );
+        __failure++;
+    }
+
+    if ( GetContainerName( pid ) != "Example_RSTProbe" )
+    {
+        Print( "ERROR: AddRSTProbe did not name the probe" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    pid = AddRSTProbe( pod1, 0, 0.5, 0.5, 0.5, "Example_RSTProbe" )
+
+    assert len( pid ) > 0 and pid != "NONE", "AddRSTProbe returned no id"
+
+    # The new probe is the only one in the model, and it is not confused with a
+    # surface probe.
+    probe_array = GetAllRSTProbes()
+
+    assert len( probe_array ) == 1, "AddRSTProbe did not add the probe"
+    assert probe_array[0] == pid, "AddRSTProbe did not add the probe"
+    assert len( GetAllProbes() ) == 0, "an RST probe was counted as a surface probe"
+    assert GetContainerName( pid ) == "Example_RSTProbe", "AddRSTProbe did not name the probe"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAllRSTProbes, DelRSTProbe, DeleteAllRSTProbes, AddProbe
+    \param [in] geomid string Parent Geom ID
+    \param [in] surfindx int Main surface index from the parent Geom
+    \param [in] r double R (0 - 1) volume coordinate
+    \param [in] s double S (0 - 1) volume coordinate
+    \param [in] t double T (0 - 1) volume coordinate
+    \param [in] name string RST Probe name
+    \return string RST Probe ID
+*/
+
+extern string AddRSTProbe( const string & geomid, int surfindx, double r, double s, double t, const string & name );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Get an array of all RST Probe IDs from the Measure Tool
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    AddRSTProbe( pod1, 0, 0.5, 0.5, 0.5, "RSTProbe_1" );
+    AddRSTProbe( pod1, 0, 0.25, 0.5, 0.5, "RSTProbe_2" );
+
+    array< string > @probe_array = GetAllRSTProbes();
+
+    if ( probe_array.size() != 2 )
+    {
+        Print( "ERROR: GetAllRSTProbes did not report both probes" );
+        __failure++;
+    }
+
+    if ( probe_array.size() == 2 && probe_array[0] == probe_array[1] )
+    {
+        Print( "ERROR: GetAllRSTProbes reported the same probe twice" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    AddRSTProbe( pod1, 0, 0.5, 0.5, 0.5, "RSTProbe_1" )
+    AddRSTProbe( pod1, 0, 0.25, 0.5, 0.5, "RSTProbe_2" )
+
+    probe_array = GetAllRSTProbes()
+
+    assert len( probe_array ) == 2, "GetAllRSTProbes did not report both probes"
+    assert probe_array[0] != probe_array[1], "GetAllRSTProbes reported the same probe twice"
+
+    \endcode
+    \endPythonOnly
+    \sa AddRSTProbe, DelRSTProbe, DeleteAllRSTProbes
+    \return vector\<string\> Array of RST Probe IDs
+*/
+
+extern std::vector < string > GetAllRSTProbes();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Delete a particular RST Probe from the Measure Tool
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    string pid1 = AddRSTProbe( pod1, 0, 0.5, 0.5, 0.5, "RSTProbe_1" );
+    string pid2 = AddRSTProbe( pod1, 0, 0.25, 0.5, 0.5, "RSTProbe_2" );
+
+    DelRSTProbe( pid1 );
+
+    // Only the named probe goes.
+    array< string > @probe_array = GetAllRSTProbes();
+
+    if ( probe_array.size() != 1 || probe_array[0] != pid2 )
+    {
+        Print( "ERROR: DelRSTProbe removed the wrong probe" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    pid1 = AddRSTProbe( pod1, 0, 0.5, 0.5, 0.5, "RSTProbe_1" )
+    pid2 = AddRSTProbe( pod1, 0, 0.25, 0.5, 0.5, "RSTProbe_2" )
+
+    DelRSTProbe( pid1 )
+
+    # Only the named probe goes.
+    probe_array = GetAllRSTProbes()
+
+    assert len( probe_array ) == 1, "DelRSTProbe removed the wrong probe"
+    assert probe_array[0] == pid2, "DelRSTProbe removed the wrong probe"
+
+    \endcode
+    \endPythonOnly
+    \sa AddRSTProbe, GetAllRSTProbes, DeleteAllRSTProbes
+    \param [in] id string RST Probe ID
+*/
+
+extern void DelRSTProbe( const string &id );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Delete all RST Probes from the Measure Tool
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD", "" );
+
+    AddRSTProbe( pod1, 0, 0.5, 0.5, 0.5, "RSTProbe_1" );
+    AddRSTProbe( pod1, 0, 0.25, 0.5, 0.5, "RSTProbe_2" );
+
+    // Surface probes are a separate list and are left alone.
+    AddProbe( pod1, 0, 0.5, 0.5, "Surface_Probe" );
+
+    DeleteAllRSTProbes();
+
+    if ( GetAllRSTProbes().size() != 0 )
+    {
+        Print( "ERROR: DeleteAllRSTProbes left probes behind" );
+        __failure++;
+    }
+
+    if ( GetAllProbes().size() != 1 )
+    {
+        Print( "ERROR: DeleteAllRSTProbes removed a surface probe" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD", "" )
+
+    AddRSTProbe( pod1, 0, 0.5, 0.5, 0.5, "RSTProbe_1" )
+    AddRSTProbe( pod1, 0, 0.25, 0.5, 0.5, "RSTProbe_2" )
+
+    # Surface probes are a separate list and are left alone.
+    AddProbe( pod1, 0, 0.5, 0.5, "Surface_Probe" )
+
+    DeleteAllRSTProbes()
+
+    assert len( GetAllRSTProbes() ) == 0, "DeleteAllRSTProbes left probes behind"
+    assert len( GetAllProbes() ) == 1, "DeleteAllRSTProbes removed a surface probe"
+
+    \endcode
+    \endPythonOnly
+    \sa AddRSTProbe, GetAllRSTProbes, DelRSTProbe
+*/
+
+extern void DeleteAllRSTProbes();
 
 extern string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
                         const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );

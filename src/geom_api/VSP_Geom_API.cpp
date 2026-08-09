@@ -1062,6 +1062,20 @@ void AutoGroupVSPAEROControlSurfaces()
     VSPAEROMgr.InitControlSurfaceGroups();
 }
 
+void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )
+{
+    if ( CSGroupIndex < 0 || CSGroupIndex >= GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteVSPAEROControlSurfaceGroup::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
+        return;
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+    VSPAEROMgr.RemoveControlSurfaceGroup();
+
+    ErrorMgr.NoError();
+}
+
 int CreateVSPAEROControlSurfaceGroup()
 {
     VSPAEROMgr.Update();
@@ -11657,6 +11671,50 @@ void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::vector <
 
     ErrorMgr.NoError();
     return;
+}
+
+string AddProtractor( const string & startgeomid, int startsurfindx, double startu, double startw,
+                     const string & midgeomid, int midsurfindx, double midu, double midw,
+                     const string & endgeomid, int endsurfindx, double endu, double endw, const string & name )
+{
+    return MeasureMgr.CreateAndAddProtractor( startgeomid, startsurfindx, startu, startw,
+                                              midgeomid, midsurfindx, midu, midw,
+                                              endgeomid, endsurfindx, endu, endw, name );
+}
+
+vector < string > GetAllProtractors()
+{
+    return MeasureMgr.GetAllProtractors();
+}
+
+void DelProtractor( const string &id )
+{
+    MeasureMgr.DelProtractor( id );
+}
+
+void DeleteAllProtractors()
+{
+    MeasureMgr.DelAllProtractors();
+}
+
+string AddRSTProbe( const string & geomid, int surfindx, double r, double s, double t, const string & name )
+{
+    return MeasureMgr.CreateAndAddRSTProbe( geomid, surfindx, r, s, t, name );
+}
+
+vector < string > GetAllRSTProbes()
+{
+    return MeasureMgr.GetAllRSTProbes();
+}
+
+void DelRSTProbe( const string &id )
+{
+    MeasureMgr.DelRSTProbe( id );
+}
+
+void DeleteAllRSTProbes()
+{
+    MeasureMgr.DelAllRSTProbes();
 }
 
 string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,

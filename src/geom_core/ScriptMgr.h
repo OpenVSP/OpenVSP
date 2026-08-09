@@ -308,6 +308,8 @@ private:
     CScriptArray* GetFeaBCIDVec( const string & fea_struct_id );
 
     //=== Register Measure Functions ===//
+    CScriptArray* GetAllProtractors();
+    CScriptArray* GetAllRSTProbes();
     CScriptArray* GetAllRulers();
     CScriptArray* GetAllBogies( const string &gear_id );
     CScriptArray* GetAllProbes();

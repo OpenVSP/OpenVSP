@@ -4353,6 +4353,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction("void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::DeleteVSPAEROControlSurfaceGroup), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction("int CreateVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::CreateVSPAEROControlSurfaceGroup), asCALL_CDECL );
     assert(r >= 0);
 
@@ -5507,6 +5510,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     //=== Register Measure Functions ===//
+
+    r = se->RegisterGlobalFunction( "string AddProtractor( const string & in startgeomid, int startsurfindx, double startu, double startw, const string & in midgeomid, int midsurfindx, double midu, double midw, const string & in endgeomid, int endsurfindx, double endu, double endw, const string & in name )", asFUNCTION( vsp::AddProtractor ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllProtractors()", asMETHOD( ScriptMgrSingleton, GetAllProtractors ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelProtractor( const string & in id )", asFUNCTION( vsp::DelProtractor ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteAllProtractors()", asFUNCTION( vsp::DeleteAllProtractors ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string AddRSTProbe( const string & in geomid, int surfindx, double r, double s, double t, const string & in name )", asFUNCTION( vsp::AddRSTProbe ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllRSTProbes()", asMETHOD( ScriptMgrSingleton, GetAllRSTProbes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelRSTProbe( const string & in id )", asFUNCTION( vsp::DelRSTProbe ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteAllRSTProbes()", asFUNCTION( vsp::DeleteAllRSTProbes ), asCALL_CDECL);
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string AddRuler( const string & in startgeomid, int startsurfindx, double startu, double startw, const string & in endgeomid, int endsurfindx, double endu, double endw, const string & in name )", asFUNCTION( vsp::AddRuler ), asCALL_CDECL );
     assert( r >= 0 );
@@ -7147,6 +7174,18 @@ void ScriptMgrSingleton::GetUWTess01(const string &geom_id, const int &surf_indx
 }
 
 //=== Register Measure Functions ===//
+CScriptArray* ScriptMgrSingleton::GetAllProtractors()
+{
+    m_ProxyStringArray = vsp::GetAllProtractors();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllRSTProbes()
+{
+    m_ProxyStringArray = vsp::GetAllRSTProbes();
+    return GetProxyStringArray();
+}
+
 CScriptArray* ScriptMgrSingleton::GetAllRulers()
 {
     m_ProxyStringArray = vsp::GetAllRulers();
