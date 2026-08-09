@@ -2126,7 +2126,7 @@ extern void SetAnalysisInputDefaults( const std::string & analysis );
     thin_set = [vsp.SET_ALL]
 
     SetIntAnalysisInput( analysis_name, "GeomSet", thick_set )
-    assert GetIntAnalysisInput( analysis_name, "GeomSet" ) == thick_set, "SetIntAnalysisInput did not take"
+    assert list( GetIntAnalysisInput( analysis_name, "GeomSet" ) ) == list( thick_set ), "SetIntAnalysisInput did not take"
 
     SetIntAnalysisInput( analysis_name, "ThinGeomSet", thin_set )
 
@@ -2178,7 +2178,7 @@ extern void SetIntAnalysisInput( const std::string & analysis, const std::string
     ycuts.append( 8.0 )
 
     SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 )
-    assert GetDoubleAnalysisInput( analysis_name, "YSlicePosVec", 0 ) == ycuts, "SetDoubleAnalysisInput did not take"
+    assert list( GetDoubleAnalysisInput( analysis_name, "YSlicePosVec", 0 ) ) == list( ycuts ), "SetDoubleAnalysisInput did not take"
 
 
     \endcode
@@ -2219,7 +2219,7 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
     fileNameInput = ["ParasiteDragExample"]
 
     SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput )
-    assert GetStringAnalysisInput( "ParasiteDrag", "FileName" ) == fileNameInput, "SetStringAnalysisInput did not take"
+    assert list( GetStringAnalysisInput( "ParasiteDrag", "FileName" ) ) == list( fileNameInput ), "SetStringAnalysisInput did not take"
 
 
     \endcode
@@ -2262,7 +2262,13 @@ extern void SetStringAnalysisInput( const std::string & analysis, const std::str
     norm[0].set_xyz( 0.23, 0.6, 0.15 )
 
     SetVec3dAnalysisInput( "PlanarSlice", "Norm", norm )
-    assert GetVec3dAnalysisInput( "PlanarSlice", "Norm" ) == norm, "SetVec3dAnalysisInput did not take"
+    # The Python binding does not expose vec3d equality, so compare components.
+    norm_back = GetVec3dAnalysisInput( "PlanarSlice", "Norm" )
+    assert len( norm_back ) == len( norm ), "SetVec3dAnalysisInput length"
+    for i in range( len( norm ) ):
+        assert abs( norm_back[i].x() - norm[i].x() ) < 1e-9, "SetVec3dAnalysisInput x"
+        assert abs( norm_back[i].y() - norm[i].y() ) < 1e-9, "SetVec3dAnalysisInput y"
+        assert abs( norm_back[i].z() - norm[i].z() ) < 1e-9, "SetVec3dAnalysisInput z"
 
 
     \endcode
@@ -19849,7 +19855,7 @@ extern std::vector< double > GetVarPresetParmVals( const std::string &setting_id
 
     SetVarPresetParmVals( sid, vals )
 
-    assert GetVarPresetParmVals( sid ) == vals, "SetVarPresetParmVals did not take"
+    assert list( GetVarPresetParmVals( sid ) ) == list( vals ), "SetVarPresetParmVals did not take"
 
     \endcode
     \endPythonOnly
@@ -24297,7 +24303,10 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
     w = 0.67890
 
     surf_pt = CompPnt01( geom_id, surf_indx, u, w )
-    pt = surf_pt
+
+    # Assignment binds a reference in Python rather than copying as it does in
+    # AngelScript, so build a separate point instead of offsetting surf_pt.
+    pt = vec3d( surf_pt.x(), surf_pt.y(), surf_pt.z() )
 
     pt.offset_y( -5.0 )
 
@@ -24306,7 +24315,7 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
     # pt is the surface point pushed off in -Y, so projecting back along Y
     # has to land on the point it came from.
     p_out = CompPnt01( geom_id, surf_indx, u_out, w_out )
-    assert ( surf_pt - p_out ).mag() < 1e-6, "AxisProjPnt01 did not recover the original point"
+    assert abs( surf_pt.x() - p_out.x() ) < 1e-6 and abs( surf_pt.y() - p_out.y() ) < 1e-6 and abs( surf_pt.z() - p_out.z() ) < 1e-6, "AxisProjPnt01 did not recover the original point"
 
     print( f"iDist {idist} u_out {u_out} w_out {w_out}" )
     print( "3D Offset ", False)
@@ -24374,7 +24383,10 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     w = 0.67890
 
     surf_pt = CompPnt01( geom_id, surf_indx, u, w )
-    pt = surf_pt
+
+    # Assignment binds a reference in Python rather than copying as it does in
+    # AngelScript, so build a separate point instead of offsetting surf_pt.
+    pt = vec3d( surf_pt.x(), surf_pt.y(), surf_pt.z() )
 
     pt.offset_y( -5.0 )
 
@@ -24384,7 +24396,7 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     # pt is the surface point pushed off in -Y, so projecting back along Y
     # has to land on the point it came from.
     p_out = CompPnt01( geom_id, surf_indx, u_out, w_out )
-    assert ( surf_pt - p_out ).mag() < 1e-6, "AxisProjPnt01I did not recover the original point"
+    assert abs( surf_pt.x() - p_out.x() ) < 1e-6 and abs( surf_pt.y() - p_out.y() ) < 1e-6 and abs( surf_pt.z() - p_out.z() ) < 1e-6, "AxisProjPnt01I did not recover the original point"
 
     print( "iDist {idist} u_out {u_out} w_out {w_out} surf_index {surf_indx_out}" )
     print( "3D Offset ", False)
@@ -24450,7 +24462,10 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
 
 
     surf_pt = CompPnt01( geom_id, surf_indx, u, w )
-    pt = surf_pt
+
+    # Assignment binds a reference in Python rather than copying as it does in
+    # AngelScript, so build a separate point instead of offsetting surf_pt.
+    pt = vec3d( surf_pt.x(), surf_pt.y(), surf_pt.z() )
 
     pt.offset_y( -5.0 )
 
@@ -24771,6 +24786,16 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
 
     ConvertRSTtoLMN( geom_id, surf_indx, r, s, t, l_out, m_out, n_out );
 
+    // Converting back has to return the coordinates we started from.
+    double r_back, s_back, t_back;
+    ConvertLMNtoRST( geom_id, surf_indx, l_out, m_out, n_out, r_back, s_back, t_back );
+
+    if ( !closeTo( r_back, r, 1e-6 ) || !closeTo( s_back, s, 1e-6 ) || !closeTo( t_back, t, 1e-6 ) )
+    {
+        Print( "ERROR: ConvertRSTtoLMN does not round trip" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -24785,6 +24810,11 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
     t = 0.56
 
     l_out, m_out, n_out = ConvertRSTtoLMN( geom_id, surf_indx, r, s, t )
+
+    # Converting back has to return the coordinates we started from.
+    r_back, s_back, t_back = ConvertLMNtoRST( geom_id, surf_indx, l_out, m_out, n_out )
+
+    assert abs( r_back - r ) < 1e-6 and abs( s_back - s ) < 1e-6 and abs( t_back - t ) < 1e-6, "ConvertRSTtoLMN does not round trip"
 
 
     \endcode
@@ -24818,6 +24848,16 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
 
     ConvertRtoL( geom_id, surf_indx, r, l_out );
 
+    // Converting back has to return the coordinate we started from.
+    double r_back;
+    ConvertLtoR( geom_id, surf_indx, l_out, r_back );
+
+    if ( !closeTo( r_back, r, 1e-6 ) )
+    {
+        Print( "ERROR: ConvertRtoL does not round trip" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -24830,6 +24870,11 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
     r = 0.12
 
     l_out = ConvertRtoL( geom_id, surf_indx, r )
+
+    # Converting back has to return the coordinate we started from.
+    r_back = ConvertLtoR( geom_id, surf_indx, l_out )
+
+    assert abs( r_back - r ) < 1e-6, "ConvertRtoL does not round trip"
 
 
     \endcode
@@ -24942,10 +24987,22 @@ extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const
 
     int surf_indx = 0;
 
-    double u = 0.25;
+    // U runs from 1 to N+1 over an N section wing when the root end cap is on,
+    // so a U below 1 sits in the cap and does not map to a span station.
+    double u = 1.25;
     double eta_out;
 
     ConvertUtoEta( geom_id, u, eta_out );
+
+    // Converting back has to return the coordinate we started from.
+    double u_back;
+    ConvertEtatoU( geom_id, eta_out, u_back );
+
+    if ( !closeTo( u_back, u, 1e-6 ) )
+    {
+        Print( "ERROR: ConvertUtoEta does not round trip" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -24956,9 +25013,16 @@ extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const
 
     surf_indx = 0
 
-    u = 0.25
+    # U runs from 1 to N+1 over an N section wing when the root end cap is on,
+    # so a U below 1 sits in the cap and does not map to a span station.
+    u = 1.25
 
     eta_out = ConvertUtoEta( geom_id, u )
+
+    # Converting back has to return the coordinate we started from.
+    u_back = ConvertEtatoU( geom_id, eta_out )
+
+    assert abs( u_back - u ) < 1e-6, "ConvertUtoEta does not round trip"
 
 
     \endcode
@@ -24986,6 +25050,16 @@ extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &
     double u_out;
 
     ConvertEtatoU( geom_id, eta, u_out );
+
+    // Converting back has to return the coordinate we started from.
+    double eta_back;
+    ConvertUtoEta( geom_id, u_out, eta_back );
+
+    if ( !closeTo( eta_back, eta, 1e-6 ) )
+    {
+        Print( "ERROR: ConvertEtatoU does not round trip" );
+        __failure++;
+    }
 
     \endcode
     \endforcpponly
@@ -26023,6 +26097,19 @@ extern void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, c
     array<double> lvec, mvec, nvec;
 
     ConvertRSTtoLMNVec( geom_id, 0, rvec, svec, tvec, lvec, mvec, nvec );
+
+    // Converting back has to return the coordinates we started from.
+    array<double> rback, sback, tback;
+    ConvertLMNtoRSTVec( geom_id, 0, lvec, mvec, nvec, rback, sback, tback );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        if ( !closeTo( rback[i], rvec[i], 1e-6 ) || !closeTo( sback[i], svec[i], 1e-6 ) || !closeTo( tback[i], tvec[i], 1e-6 ) )
+        {
+            Print( "ERROR: ConvertRSTtoLMNVec does not round trip at " + i );
+            __failure++;
+        }
+    }
 
     \endcode
     \endforcpponly
