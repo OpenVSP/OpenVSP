@@ -12994,13 +12994,49 @@ extern string GetXSecCurveAlias( const string & id );
     string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
 
     //==== Insert, Cut, Paste Example ====//
+    string xsec_surf = GetXSecSurf( fid, 0 );
+
+    int num_start = GetNumXSec( xsec_surf );
+
     InsertXSec( fid, 1, XS_ROUNDED_RECTANGLE );         // Insert A Cross-Section
+
+    if ( GetNumXSec( xsec_surf ) != num_start + 1 )
+    {
+        Print( "ERROR: InsertXSec did not add a section" );
+        __failure++;
+    }
+
+    if ( GetXSecShape( GetXSec( xsec_surf, 2 ) ) != XS_ROUNDED_RECTANGLE )
+    {
+        Print( "ERROR: InsertXSec did not insert after the given index" );
+        __failure++;
+    }
 
     CopyXSec( fid, 2 );                                 // Copy Just Created XSec To Clipboard
 
     PasteXSec( fid, 1 );                                // Paste Clipboard
 
+    // Pasting replaces a section rather than adding one, and section 1 now
+    // carries the shape that was copied.
+    if ( GetNumXSec( xsec_surf ) != num_start + 1 )
+    {
+        Print( "ERROR: PasteXSec changed the number of sections" );
+        __failure++;
+    }
+
+    if ( GetXSecShape( GetXSec( xsec_surf, 1 ) ) != XS_ROUNDED_RECTANGLE )
+    {
+        Print( "ERROR: PasteXSec did not paste the copied section" );
+        __failure++;
+    }
+
     CutXSec( fid, 2 );                                  // Cut Created XSec
+
+    if ( GetNumXSec( xsec_surf ) != num_start )
+    {
+        Print( "ERROR: CutXSec did not remove a section" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13008,13 +13044,27 @@ extern string GetXSecCurveAlias( const string & id );
     fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
     #==== Insert, Cut, Paste Example ====//
+    xsec_surf = GetXSecSurf( fid, 0 )
+
+    num_start = GetNumXSec( xsec_surf )
+
     InsertXSec( fid, 1, XS_ROUNDED_RECTANGLE )         # Insert A Cross-Section
+
+    assert GetNumXSec( xsec_surf ) == num_start + 1, "InsertXSec did not add a section"
+    assert GetXSecShape( GetXSec( xsec_surf, 2 ) ) == XS_ROUNDED_RECTANGLE, "InsertXSec did not insert after the given index"
 
     CopyXSec( fid, 2 )                                 # Copy Just Created XSec To Clipboard
 
     PasteXSec( fid, 1 )                                # Paste Clipboard
 
+    # Pasting replaces a section rather than adding one, and section 1 now
+    # carries the shape that was copied.
+    assert GetNumXSec( xsec_surf ) == num_start + 1, "PasteXSec changed the number of sections"
+    assert GetXSecShape( GetXSec( xsec_surf, 1 ) ) == XS_ROUNDED_RECTANGLE, "PasteXSec did not paste the copied section"
+
     CutXSec( fid, 2 )                                  # Cut Created XSec
+
+    assert GetNumXSec( xsec_surf ) == num_start, "CutXSec did not remove a section"
 
     \endcode
     \endPythonOnly
@@ -13035,11 +13085,43 @@ extern void CutXSec( const std::string & geom_id, int index );
     // Add Stack
     string sid = AddGeom( "STACK", "" );
 
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Give XSec 1 a shape that XSec 3 does not have.
+    ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE );
+
+    Update();
+
+    int num_start = GetNumXSec( xsec_surf );
+
     // Copy XSec To Clipboard
     CopyXSec( sid, 1 );
 
     // Paste To XSec 3
     PasteXSec( sid, 3 );
+
+    Update();
+
+    // Pasting replaces the target section, so the count is unchanged and XSec 3
+    // now carries the shape that was copied.
+    if ( GetNumXSec( xsec_surf ) != num_start )
+    {
+        Print( "ERROR: PasteXSec changed the number of sections" );
+        __failure++;
+    }
+
+    if ( GetXSecShape( GetXSec( xsec_surf, 3 ) ) != XS_ROUNDED_RECTANGLE )
+    {
+        Print( "ERROR: PasteXSec did not paste the copied section" );
+        __failure++;
+    }
+
+    // The section that was copied has to be left alone.
+    if ( GetXSecShape( GetXSec( xsec_surf, 1 ) ) != XS_ROUNDED_RECTANGLE )
+    {
+        Print( "ERROR: CopyXSec disturbed the section it copied" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13047,11 +13129,30 @@ extern void CutXSec( const std::string & geom_id, int index );
     # Add Stack
     sid = AddGeom( "STACK", "" )
 
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    # Give XSec 1 a shape that XSec 3 does not have.
+    ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE )
+
+    Update()
+
+    num_start = GetNumXSec( xsec_surf )
+
     # Copy XSec To Clipboard
     CopyXSec( sid, 1 )
 
     # Paste To XSec 3
     PasteXSec( sid, 3 )
+
+    Update()
+
+    # Pasting replaces the target section, so the count is unchanged and XSec 3
+    # now carries the shape that was copied.
+    assert GetNumXSec( xsec_surf ) == num_start, "PasteXSec changed the number of sections"
+    assert GetXSecShape( GetXSec( xsec_surf, 3 ) ) == XS_ROUNDED_RECTANGLE, "PasteXSec did not paste the copied section"
+
+    # The section that was copied has to be left alone.
+    assert GetXSecShape( GetXSec( xsec_surf, 1 ) ) == XS_ROUNDED_RECTANGLE, "CopyXSec disturbed the section it copied"
 
     \endcode
     \endPythonOnly
@@ -13072,11 +13173,43 @@ extern void CopyXSec( const std::string & geom_id, int index );
     // Add Stack
     string sid = AddGeom( "STACK", "" );
 
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Give XSec 1 a shape that XSec 3 does not have.
+    ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE );
+
+    Update();
+
+    int num_start = GetNumXSec( xsec_surf );
+
     // Copy XSec To Clipboard
     CopyXSec( sid, 1 );
 
     // Paste To XSec 3
     PasteXSec( sid, 3 );
+
+    Update();
+
+    // Pasting replaces the target section, so the count is unchanged and XSec 3
+    // now carries the shape that was copied.
+    if ( GetNumXSec( xsec_surf ) != num_start )
+    {
+        Print( "ERROR: PasteXSec changed the number of sections" );
+        __failure++;
+    }
+
+    if ( GetXSecShape( GetXSec( xsec_surf, 3 ) ) != XS_ROUNDED_RECTANGLE )
+    {
+        Print( "ERROR: PasteXSec did not paste the copied section" );
+        __failure++;
+    }
+
+    // The section that was copied has to be left alone.
+    if ( GetXSecShape( GetXSec( xsec_surf, 1 ) ) != XS_ROUNDED_RECTANGLE )
+    {
+        Print( "ERROR: CopyXSec disturbed the section it copied" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13084,11 +13217,30 @@ extern void CopyXSec( const std::string & geom_id, int index );
     # Add Stack
     sid = AddGeom( "STACK", "" )
 
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    # Give XSec 1 a shape that XSec 3 does not have.
+    ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE )
+
+    Update()
+
+    num_start = GetNumXSec( xsec_surf )
+
     # Copy XSec To Clipboard
     CopyXSec( sid, 1 )
 
     # Paste To XSec 3
     PasteXSec( sid, 3 )
+
+    Update()
+
+    # Pasting replaces the target section, so the count is unchanged and XSec 3
+    # now carries the shape that was copied.
+    assert GetNumXSec( xsec_surf ) == num_start, "PasteXSec changed the number of sections"
+    assert GetXSecShape( GetXSec( xsec_surf, 3 ) ) == XS_ROUNDED_RECTANGLE, "PasteXSec did not paste the copied section"
+
+    # The section that was copied has to be left alone.
+    assert GetXSecShape( GetXSec( xsec_surf, 1 ) ) == XS_ROUNDED_RECTANGLE, "CopyXSec disturbed the section it copied"
 
     \endcode
     \endPythonOnly
@@ -13108,16 +13260,45 @@ extern void PasteXSec( const std::string & geom_id, int index );
     \code{.cpp}
     string wing_id = AddGeom( "WING" );
 
+    string xsec_surf = GetXSecSurf( wing_id, 0 );
+
+    int num_start = GetNumXSec( xsec_surf );
+
     //===== Add XSec ====//
     InsertXSec( wing_id, 1, XS_SIX_SERIES );
+
+    Update();
+
+    // The new section lands after the given index.
+    if ( GetNumXSec( xsec_surf ) != num_start + 1 )
+    {
+        Print( "ERROR: InsertXSec did not add a section" );
+        __failure++;
+    }
+
+    if ( GetXSecShape( GetXSec( xsec_surf, 2 ) ) != XS_SIX_SERIES )
+    {
+        Print( "ERROR: InsertXSec did not insert the requested shape" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     wing_id = AddGeom( "WING" )
 
+    xsec_surf = GetXSecSurf( wing_id, 0 )
+
+    num_start = GetNumXSec( xsec_surf )
+
     #===== Add XSec ====//
     InsertXSec( wing_id, 1, XS_SIX_SERIES )
+
+    Update()
+
+    # The new section lands after the given index.
+    assert GetNumXSec( xsec_surf ) == num_start + 1, "InsertXSec did not add a section"
+    assert GetXSecShape( GetXSec( xsec_surf, 2 ) ) == XS_SIX_SERIES, "InsertXSec did not insert the requested shape"
 
     \endcode
     \endPythonOnly
@@ -13141,20 +13322,60 @@ extern void InsertXSec( const std::string & geom_id, int index, int type );
     \code{.cpp}
     string wing_id = AddGeom( "WING", "" );
 
+    string xsec_surf = GetXSecSurf( wing_id, 0 );
+
+    int num_start = GetNumXSec( xsec_surf );
+
+    double span_start = GetParmVal( wing_id, "Span", "XSec_1" );
+
     //==== Set Wing Section Controls ====//
     SplitWingXSec( wing_id, 1 );
 
     Update();
+
+    // Splitting a section turns one section into two, and the two halves span
+    // what the one section spanned.
+    if ( GetNumXSec( xsec_surf ) != num_start + 1 )
+    {
+        Print( "ERROR: SplitWingXSec did not split the section" );
+        __failure++;
+    }
+    else
+    {
+        double span_1 = GetParmVal( wing_id, "Span", "XSec_1" );
+        double span_2 = GetParmVal( wing_id, "Span", "XSec_2" );
+
+        if ( !closeTo( span_1 + span_2, span_start, 1e-6 ) )
+        {
+            Print( "ERROR: SplitWingXSec changed the span of the wing" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     wing_id = AddGeom( "WING", "" )
 
+    xsec_surf = GetXSecSurf( wing_id, 0 )
+
+    num_start = GetNumXSec( xsec_surf )
+
+    span_start = GetParmVal( wing_id, "Span", "XSec_1" )
+
     #==== Set Wing Section Controls ====//
     SplitWingXSec( wing_id, 1 )
 
     Update()
+
+    # Splitting a section turns one section into two, and the two halves span
+    # what the one section spanned.
+    assert GetNumXSec( xsec_surf ) == num_start + 1, "SplitWingXSec did not split the section"
+
+    span_1 = GetParmVal( wing_id, "Span", "XSec_1" )
+    span_2 = GetParmVal( wing_id, "Span", "XSec_2" )
+
+    assert abs( ( span_1 + span_2 ) - span_start ) < 1e-6, "SplitWingXSec changed the span of the wing"
     \endcode
     \endPythonOnly
     \sa WING_DRIVERS, XSEC_DRIVERS
@@ -13184,6 +13405,28 @@ extern void SplitWingXSec( const string & wing_id, int section_index );
     SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
 
     Update();
+
+    // The three chosen drivers are the values that hold; span is now solved for
+    // from the aspect ratio and the two chords.
+    double ar = GetParmVal( wing_id, "Aspect", "XSec_1" );
+    double span = GetParmVal( wing_id, "Span", "XSec_1" );
+
+    if ( !closeTo( GetParmVal( wing_id, "Root_Chord", "XSec_1" ), 2.0, 1e-6 ) ||
+         !closeTo( GetParmVal( wing_id, "Tip_Chord", "XSec_1" ), 1.0, 1e-6 ) )
+    {
+        Print( "ERROR: the driving Parms did not hold their values" );
+        __failure++;
+    }
+
+    // A section of this planform has area span * ( root + tip ) / 2, and aspect
+    // ratio span * span / area.
+    double area = span * ( 2.0 + 1.0 ) * 0.5;
+
+    if ( !closeTo( ar, span * span / area, 1e-6 ) )
+    {
+        Print( "ERROR: SetDriverGroup left the section inconsistent" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -13201,6 +13444,20 @@ extern void SplitWingXSec( const string & wing_id, int section_index );
     SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 )
 
     Update()
+
+    # The three chosen drivers are the values that hold; span is now solved for
+    # from the aspect ratio and the two chords.
+    ar = GetParmVal( wing_id, "Aspect", "XSec_1" )
+    span = GetParmVal( wing_id, "Span", "XSec_1" )
+
+    assert abs( GetParmVal( wing_id, "Root_Chord", "XSec_1" ) - 2.0 ) < 1e-6, "the driving Parms did not hold their values"
+    assert abs( GetParmVal( wing_id, "Tip_Chord", "XSec_1" ) - 1.0 ) < 1e-6, "the driving Parms did not hold their values"
+
+    # A section of this planform has area span * ( root + tip ) / 2, and aspect
+    # ratio span * span / area.
+    area = span * ( 2.0 + 1.0 ) * 0.5
+
+    assert abs( ar - span * span / area ) < 1e-6, "SetDriverGroup left the section inconsistent"
 
     \endcode
     \endPythonOnly
@@ -13269,13 +13526,36 @@ extern std::string GetXSecSurf( const std::string & geom_id, int index );
     // Flatten ends
     int num_xsecs = GetNumXSec( xsec_surf );
 
+    // A Stack starts with five sections, and every index below the count has to
+    // name a real XSec.
+    if ( num_xsecs != 5 )
+    {
+        Print( "ERROR: GetNumXSec did not report the sections of a new Stack" );
+        __failure++;
+    }
+
     for ( int i = 0 ; i < num_xsecs ; i++ )
     {
         string xsec = GetXSec( xsec_surf, i );
 
+        if ( xsec.length() == 0 )
+        {
+            Print( "ERROR: GetNumXSec counted a section that GetXSec cannot find" );
+            __failure++;
+        }
+
         SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0 );       // Set Tangent Angles At Cross Section
 
         SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.0 );  // Set Tangent Strengths At Cross Section
+    }
+
+    // Inserting a section has to move the count.
+    InsertXSec( sid, 1, XS_ROUNDED_RECTANGLE );
+
+    if ( GetNumXSec( xsec_surf ) != num_xsecs + 1 )
+    {
+        Print( "ERROR: GetNumXSec did not follow InsertXSec" );
+        __failure++;
     }
     \endcode
     \endforcpponly
@@ -13290,13 +13570,24 @@ extern std::string GetXSecSurf( const std::string & geom_id, int index );
     # Flatten ends
     num_xsecs = GetNumXSec( xsec_surf )
 
+    # A Stack starts with five sections, and every index below the count has to
+    # name a real XSec.
+    assert num_xsecs == 5, "GetNumXSec did not report the sections of a new Stack"
+
     for i in range(num_xsecs):
 
         xsec = GetXSec( xsec_surf, i )
 
+        assert len( xsec ) > 0, "GetNumXSec counted a section that GetXSec cannot find"
+
         SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0, -1.0e12, -1.0e12, -1.0e12 )       # Set Tangent Angles At Cross Section
 
         SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.0, -1.0e12, -1.0e12, -1.0e12 )  # Set Tangent Strengths At Cross Section
+
+    # Inserting a section has to move the count.
+    InsertXSec( sid, 1, XS_ROUNDED_RECTANGLE )
+
+    assert GetNumXSec( xsec_surf ) == num_xsecs + 1, "GetNumXSec did not follow InsertXSec"
 
     \endcode
     \endPythonOnly
