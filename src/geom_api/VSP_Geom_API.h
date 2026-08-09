@@ -19265,7 +19265,38 @@ extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id,
     // Set XSec 2 to linear
     EditXSecConvertTo( xsec_2, LINEAR );
 
+    array< vec3d > @linear_pts = GetEditXSecCtrlVec( xsec_2, true );
+
     EditXSecInitShape( xsec_2 ); // Change back to default ellipse
+
+    Update();
+
+    // The default ellipse is a four point Bezier, so it carries more control
+    // points than the linear square it replaced.
+    array< vec3d > @ellipse_pts = GetEditXSecCtrlVec( xsec_2, true );
+
+    if ( ellipse_pts.size() < 4 || ( ellipse_pts.size() - 1 ) % 3 != 0 )
+    {
+        Print( "ERROR: EditXSecInitShape did not restore a cubic Bezier" );
+        __failure++;
+    }
+
+    if ( ellipse_pts.size() <= linear_pts.size() )
+    {
+        Print( "ERROR: EditXSecInitShape did not rebuild the control points" );
+        __failure++;
+    }
+
+    // The ellipse is symmetric about both axes, so it stays inside the unit box
+    // the control points are normalized to.
+    for ( int i = 0; i < int( ellipse_pts.size() ); i++ )
+    {
+        if ( abs( ellipse_pts[i].x() ) > 0.5 + 1e-9 || abs( ellipse_pts[i].y() ) > 0.5 + 1e-9 )
+        {
+            Print( "ERROR: the rebuilt shape is not normalized" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -19284,7 +19315,24 @@ extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id,
     # Set XSec 2 to linear
     EditXSecConvertTo( xsec_2, LINEAR )
 
+    linear_pts = GetEditXSecCtrlVec( xsec_2, True )
+
     EditXSecInitShape( xsec_2 ) # Change back to default ellipse
+
+    Update()
+
+    # The default ellipse is a four point Bezier, so it carries more control
+    # points than the linear square it replaced.
+    ellipse_pts = GetEditXSecCtrlVec( xsec_2, True )
+
+    assert len( ellipse_pts ) >= 4 and ( len( ellipse_pts ) - 1 ) % 3 == 0, "EditXSecInitShape did not restore a cubic Bezier"
+    assert len( ellipse_pts ) > len( linear_pts ), "EditXSecInitShape did not rebuild the control points"
+
+    # The ellipse is symmetric about both axes, so it stays inside the unit box
+    # the control points are normalized to.
+    for p in ellipse_pts:
+        assert abs( p.x() ) <= 0.5 + 1e-9, "the rebuilt shape is not normalized"
+        assert abs( p.y() ) <= 0.5 + 1e-9, "the rebuilt shape is not normalized"
 
     \endcode
     \endPythonOnly
@@ -19313,8 +19361,41 @@ extern void EditXSecInitShape( const std::string & xsec_id );
     // Identify XSec 1
     string xsec_1 = GetXSec( xsec_surf, 1 );
 
+    // The default shape is a Bezier ellipse, stored in groups of three plus a
+    // closing point.
+    array< vec3d > @bezier_pts = GetEditXSecCtrlVec( xsec_1, true );
+
+    if ( bezier_pts.size() < 4 || ( bezier_pts.size() - 1 ) % 3 != 0 )
+    {
+        Print( "ERROR: the edit curve did not start out as a cubic Bezier" );
+        __failure++;
+    }
+
     // Set XSec 1 to Linear
     EditXSecConvertTo( xsec_1, LINEAR );
+
+    Update();
+
+    // A linear curve needs no interior control points, so the conversion drops
+    // them: the ellipse keeps only the points that were on the curve.
+    array< vec3d > @linear_pts = GetEditXSecCtrlVec( xsec_1, true );
+
+    if ( int( linear_pts.size() ) != ( int( bezier_pts.size() ) - 1 ) / 3 + 1 )
+    {
+        Print( "ERROR: EditXSecConvertTo did not drop the interior control points" );
+        __failure++;
+    }
+
+    // Converting back has to put them back.
+    EditXSecConvertTo( xsec_1, CEDIT );
+
+    Update();
+
+    if ( GetEditXSecCtrlVec( xsec_1, true ).size() != bezier_pts.size() )
+    {
+        Print( "ERROR: EditXSecConvertTo would not convert back" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -19330,8 +19411,29 @@ extern void EditXSecInitShape( const std::string & xsec_id );
     # Identify XSec 1
     xsec_1 = GetXSec( xsec_surf, 1 )
 
+    # The default shape is a Bezier ellipse, stored in groups of three plus a
+    # closing point.
+    bezier_pts = GetEditXSecCtrlVec( xsec_1, True )
+
+    assert len( bezier_pts ) >= 4 and ( len( bezier_pts ) - 1 ) % 3 == 0, "the edit curve did not start out as a cubic Bezier"
+
     # Set XSec 1 to Linear
     EditXSecConvertTo( xsec_1, LINEAR )
+
+    Update()
+
+    # A linear curve needs no interior control points, so the conversion drops
+    # them: the ellipse keeps only the points that were on the curve.
+    linear_pts = GetEditXSecCtrlVec( xsec_1, True )
+
+    assert len( linear_pts ) == ( len( bezier_pts ) - 1 ) // 3 + 1, "EditXSecConvertTo did not drop the interior control points"
+
+    # Converting back has to put them back.
+    EditXSecConvertTo( xsec_1, CEDIT )
+
+    Update()
+
+    assert len( GetEditXSecCtrlVec( xsec_1, True ) ) == len( bezier_pts ), "EditXSecConvertTo would not convert back"
 
     \endcode
     \endPythonOnly
@@ -19875,7 +19977,47 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
 
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
 
+    array < vec3d > before_pts = GetEditXSecCtrlVec( xsec_1, true );
+
     ReparameterizeEditXSec( xsec_1 );
+
+    Update();
+
+    // Reparameterizing redistributes U without changing the shape, so the same
+    // control points are still there.
+    array < vec3d > after_pts = GetEditXSecCtrlVec( xsec_1, true );
+
+    if ( after_pts.size() != before_pts.size() )
+    {
+        Print( "ERROR: ReparameterizeEditXSec changed the number of control points" );
+        __failure++;
+    }
+
+    // The U values stay in order over the unit interval.
+    array < double > u_vec = GetEditXSecUVec( xsec_1 );
+
+    if ( u_vec.size() != after_pts.size() )
+    {
+        Print( "ERROR: the U vector does not match the control points" );
+        __failure++;
+    }
+    else
+    {
+        if ( !closeTo( u_vec[0], 0.0, 1e-9 ) || !closeTo( u_vec[u_vec.size() - 1], 1.0, 1e-9 ) )
+        {
+            Print( "ERROR: the U vector does not span the curve" );
+            __failure++;
+        }
+
+        for ( int i = 1; i < int( u_vec.size() ); i++ )
+        {
+            if ( u_vec[i] < u_vec[i - 1] )
+            {
+                Print( "ERROR: the U vector is not increasing at " + i );
+                __failure++;
+            }
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -19897,7 +20039,26 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
 
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec )
 
+    before_pts = GetEditXSecCtrlVec( xsec_1, True )
+
     ReparameterizeEditXSec( xsec_1 )
+
+    Update()
+
+    # Reparameterizing redistributes U without changing the shape, so the same
+    # control points are still there.
+    after_pts = GetEditXSecCtrlVec( xsec_1, True )
+
+    assert len( after_pts ) == len( before_pts ), "ReparameterizeEditXSec changed the number of control points"
+
+    # The U values stay in order over the unit interval.
+    u_vec = GetEditXSecUVec( xsec_1 )
+
+    assert len( u_vec ) == len( after_pts ), "the U vector does not match the control points"
+    assert abs( u_vec[0] ) < 1e-9 and abs( u_vec[-1] - 1.0 ) < 1e-9, "the U vector does not span the curve"
+
+    for i in range( 1, len( u_vec ) ):
+        assert u_vec[i] >= u_vec[i - 1], "the U vector is not increasing at " + str( i )
 
     \endcode
     \endPythonOnly
@@ -19963,7 +20124,26 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
 
     assert len( GetEditXSecFixedUVec( xsec_1 ) ) == len( fixed_u_vec ), "SetEditXSecFixedUVec length"
 
+    before_pts = GetEditXSecCtrlVec( xsec_1, True )
+
     ReparameterizeEditXSec( xsec_1 )
+
+    Update()
+
+    # Reparameterizing redistributes U without changing the shape, so the same
+    # control points are still there.
+    after_pts = GetEditXSecCtrlVec( xsec_1, True )
+
+    assert len( after_pts ) == len( before_pts ), "ReparameterizeEditXSec changed the number of control points"
+
+    # The U values stay in order over the unit interval.
+    u_vec = GetEditXSecUVec( xsec_1 )
+
+    assert len( u_vec ) == len( after_pts ), "the U vector does not match the control points"
+    assert abs( u_vec[0] ) < 1e-9 and abs( u_vec[-1] - 1.0 ) < 1e-9, "the U vector does not span the curve"
+
+    for i in range( 1, len( u_vec ) ):
+        assert u_vec[i] >= u_vec[i - 1], "the U vector is not increasing at " + str( i )
 
     \endcode
     \endPythonOnly
@@ -20000,7 +20180,47 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
 
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
 
+    array < vec3d > before_pts = GetEditXSecCtrlVec( xsec_1, true );
+
     ReparameterizeEditXSec( xsec_1 );
+
+    Update();
+
+    // Reparameterizing redistributes U without changing the shape, so the same
+    // control points are still there.
+    array < vec3d > after_pts = GetEditXSecCtrlVec( xsec_1, true );
+
+    if ( after_pts.size() != before_pts.size() )
+    {
+        Print( "ERROR: ReparameterizeEditXSec changed the number of control points" );
+        __failure++;
+    }
+
+    // The U values stay in order over the unit interval.
+    array < double > u_vec = GetEditXSecUVec( xsec_1 );
+
+    if ( u_vec.size() != after_pts.size() )
+    {
+        Print( "ERROR: the U vector does not match the control points" );
+        __failure++;
+    }
+    else
+    {
+        if ( !closeTo( u_vec[0], 0.0, 1e-9 ) || !closeTo( u_vec[u_vec.size() - 1], 1.0, 1e-9 ) )
+        {
+            Print( "ERROR: the U vector does not span the curve" );
+            __failure++;
+        }
+
+        for ( int i = 1; i < int( u_vec.size() ); i++ )
+        {
+            if ( u_vec[i] < u_vec[i - 1] )
+            {
+                Print( "ERROR: the U vector is not increasing at " + i );
+                __failure++;
+            }
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -20022,7 +20242,26 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
 
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec )
 
+    before_pts = GetEditXSecCtrlVec( xsec_1, True )
+
     ReparameterizeEditXSec( xsec_1 )
+
+    Update()
+
+    # Reparameterizing redistributes U without changing the shape, so the same
+    # control points are still there.
+    after_pts = GetEditXSecCtrlVec( xsec_1, True )
+
+    assert len( after_pts ) == len( before_pts ), "ReparameterizeEditXSec changed the number of control points"
+
+    # The U values stay in order over the unit interval.
+    u_vec = GetEditXSecUVec( xsec_1 )
+
+    assert len( u_vec ) == len( after_pts ), "the U vector does not match the control points"
+    assert abs( u_vec[0] ) < 1e-9 and abs( u_vec[-1] - 1.0 ) < 1e-9, "the U vector does not span the curve"
+
+    for i in range( 1, len( u_vec ) ):
+        assert u_vec[i] >= u_vec[i - 1], "the U vector is not increasing at " + str( i )
 
     \endcode
     \endPythonOnly
