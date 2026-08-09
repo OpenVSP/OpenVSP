@@ -6019,6 +6019,23 @@ extern void DeleteResult( const std::string & id );
     string rid = ExecAnalysis( analysis_name );
 
     WriteResultsCSVFile( rid, "CompGeomRes.csv" );
+    // The call above should have produced a file with content in it.
+    file __f;
+    if ( __f.open( "CompGeomRes.csv", "r" ) < 0 )
+    {
+        Print( "ERROR: WriteResultsCSVFile wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: WriteResultsCSVFile wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -6031,6 +6048,10 @@ extern void DeleteResult( const std::string & id );
     rid = ExecAnalysis( analysis_name )
 
     WriteResultsCSVFile( rid, "CompGeomRes.csv" )
+    # The call above should have produced a file with content in it.
+    import os
+    assert os.path.getsize( "CompGeomRes.csv" ) > 0, "WriteResultsCSVFile wrote no file"
+
 
     \endcode
     \endPythonOnly
@@ -15902,6 +15923,23 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
 
     //==== Write Bezier Airfoil File ====//
     WriteBezierAirfoil( "Example_Bezier.bz", wing_id, u );
+    // The call above should have produced a file with content in it.
+    file __f;
+    if ( __f.open( "Example_Bezier.bz", "r" ) < 0 )
+    {
+        Print( "ERROR: WriteBezierAirfoil wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: WriteBezierAirfoil wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15913,6 +15951,10 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
 
     #==== Write Bezier Airfoil File ====//
     WriteBezierAirfoil( "Example_Bezier.bz", wing_id, u )
+    # The call above should have produced a file with content in it.
+    import os
+    assert os.path.getsize( "Example_Bezier.bz" ) > 0, "WriteBezierAirfoil wrote no file"
+
 
     \endcode
     \endPythonOnly
@@ -15937,6 +15979,23 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
 
     //==== Write Selig Airfoil File ====//
     WriteSeligAirfoil( "Example_Selig.dat", wing_id, u );
+    // The call above should have produced a file with content in it.
+    file __f;
+    if ( __f.open( "Example_Selig.dat", "r" ) < 0 )
+    {
+        Print( "ERROR: WriteSeligAirfoil wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: WriteSeligAirfoil wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15948,6 +16007,10 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
 
     #==== Write Selig Airfoil File ====//
     WriteSeligAirfoil( "Example_Selig.dat", wing_id, u )
+    # The call above should have produced a file with content in it.
+    import os
+    assert os.path.getsize( "Example_Selig.dat" ) > 0, "WriteSeligAirfoil wrote no file"
+
 
     \endcode
     \endPythonOnly
@@ -23390,6 +23453,23 @@ extern void UpdateParasiteDrag();
     Print( "Starting USAF Atmosphere 1966 Table Creation. \n" );
 
     WriteAtmosphereCSVFile( "USAFAtmosphere1966Data.csv", ATMOS_TYPE_HERRINGTON_1966 );
+    // The call above should have produced a file with content in it.
+    file __f;
+    if ( __f.open( "USAFAtmosphere1966Data.csv", "r" ) < 0 )
+    {
+        Print( "ERROR: WriteAtmosphereCSVFile wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: WriteAtmosphereCSVFile wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -23397,6 +23477,10 @@ extern void UpdateParasiteDrag();
     print( "Starting USAF Atmosphere 1966 Table Creation. \n" )
 
     WriteAtmosphereCSVFile( "USAFAtmosphere1966Data.csv", ATMOS_TYPE_HERRINGTON_1966 )
+    # The call above should have produced a file with content in it.
+    import os
+    assert os.path.getsize( "USAFAtmosphere1966Data.csv" ) > 0, "WriteAtmosphereCSVFile wrote no file"
+
 
     \endcode
     \endPythonOnly
@@ -23458,12 +23542,33 @@ extern void CalcAtmosphere( const double & alt, const double & delta_temp, const
     \code{.cpp}
     Print( "Starting Body Form Factor Data Creation. \n" );
     WriteBodyFFCSVFile( "BodyFormFactorData.csv" );
+    // The call above should have produced a file with content in it.
+    file __f;
+    if ( __f.open( "BodyFormFactorData.csv", "r" ) < 0 )
+    {
+        Print( "ERROR: WriteBodyFFCSVFile wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: WriteBodyFFCSVFile wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     print( "Starting Body Form Factor Data Creation. \n" )
     WriteBodyFFCSVFile( "BodyFormFactorData.csv" )
+    # The call above should have produced a file with content in it.
+    import os
+    assert os.path.getsize( "BodyFormFactorData.csv" ) > 0, "WriteBodyFFCSVFile wrote no file"
+
 
     \endcode
     \endPythonOnly
@@ -23481,12 +23586,33 @@ extern void WriteBodyFFCSVFile( const std::string & file_name );
     \code{.cpp}
     Print( "Starting Wing Form Factor Data Creation. \n" );
     WriteWingFFCSVFile( "WingFormFactorData.csv" );
+    // The call above should have produced a file with content in it.
+    file __f;
+    if ( __f.open( "WingFormFactorData.csv", "r" ) < 0 )
+    {
+        Print( "ERROR: WriteWingFFCSVFile wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: WriteWingFFCSVFile wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     print( "Starting Wing Form Factor Data Creation. \n" )
     WriteWingFFCSVFile( "WingFormFactorData.csv" )
+    # The call above should have produced a file with content in it.
+    import os
+    assert os.path.getsize( "WingFormFactorData.csv" ) > 0, "WriteWingFFCSVFile wrote no file"
+
 
     \endcode
     \endPythonOnly
@@ -23504,12 +23630,33 @@ extern void WriteWingFFCSVFile( const std::string & file_name );
     \code{.cpp}
     Print( "Starting Turbulent Friciton Coefficient Data Creation. \n" );
     WriteCfEqnCSVFile( "FrictionCoefficientData.csv" );
+    // The call above should have produced a file with content in it.
+    file __f;
+    if ( __f.open( "FrictionCoefficientData.csv", "r" ) < 0 )
+    {
+        Print( "ERROR: WriteCfEqnCSVFile wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: WriteCfEqnCSVFile wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     print( "Starting Turbulent Friciton Coefficient Data Creation. \n" )
     WriteCfEqnCSVFile( "FrictionCoefficientData.csv" )
+    # The call above should have produced a file with content in it.
+    import os
+    assert os.path.getsize( "FrictionCoefficientData.csv" ) > 0, "WriteCfEqnCSVFile wrote no file"
+
 
     \endcode
     \endPythonOnly
@@ -23527,12 +23674,33 @@ extern void WriteCfEqnCSVFile( const std::string & file_name );
     \code{.cpp}
     Print( "Starting Partial Friction Method Data Creation. \n" );
     WritePartialCfMethodCSVFile( "PartialFrictionMethodData.csv" );
+    // The call above should have produced a file with content in it.
+    file __f;
+    if ( __f.open( "PartialFrictionMethodData.csv", "r" ) < 0 )
+    {
+        Print( "ERROR: WritePartialCfMethodCSVFile wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: WritePartialCfMethodCSVFile wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     print( "Starting Partial Friction Method Data Creation. \n" )
     WritePartialCfMethodCSVFile( "PartialFrictionMethodData.csv" )
+    # The call above should have produced a file with content in it.
+    import os
+    assert os.path.getsize( "PartialFrictionMethodData.csv" ) > 0, "WritePartialCfMethodCSVFile wrote no file"
+
 
     \endcode
     \endPythonOnly
