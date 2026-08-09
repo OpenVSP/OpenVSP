@@ -3560,6 +3560,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //==== Vehicle Functions ====//
 
+    r = se->RegisterGlobalFunction( "int GetAndResetUpdateCount()", asFUNCTION( vsp::GetAndResetUpdateCount ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void Update( bool update_managers = true)", asFUNCTION( vsp::Update ), asCALL_CDECL );
     assert( r >= 0 );
 

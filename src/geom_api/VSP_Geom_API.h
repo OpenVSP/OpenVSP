@@ -402,7 +402,60 @@ extern void VSPCrash( int crash_type );
 
     The OpenVSP update count tracks how many times the GUI has been told to update screens (set to dirty).  It
     provides a simple means of testing whether the OpenVSP state has possibly changed (non-zero returned).
+    Nothing marks a screen dirty when no GUI is running, so the count stays at zero in a plain script.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "POD" );
 
+    Update();
+
+    // Reading the count clears it, so a second read with nothing in between
+    // reports no change.
+    GetAndResetUpdateCount();
+
+    if ( GetAndResetUpdateCount() != 0 )
+    {
+        Print( "ERROR: the update count did not reset" );
+        __failure++;
+    }
+
+    // The count is a GUI notion.  A script with no GUI running never marks a
+    // screen dirty, so the count stays where the read left it.
+    SetParmValUpdate( pid, "Length", "Design", 10.0 );
+
+    Update();
+
+    if ( GetAndResetUpdateCount() < 0 )
+    {
+        Print( "ERROR: the update count went negative" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geometry ====//
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    # Reading the count clears it, so a second read with nothing in between
+    # reports no change.
+    GetAndResetUpdateCount()
+
+    assert GetAndResetUpdateCount() == 0, "the update count did not reset"
+
+    # The count is a GUI notion.  A script with no GUI running never marks a
+    # screen dirty, so the count stays where the read left it.
+    SetParmValUpdate( pid, "Length", "Design", 10.0 )
+
+    Update()
+
+    assert GetAndResetUpdateCount() >= 0, "the update count went negative"
+
+    \endcode
+    \endPythonOnly
     \return int OpenVSP update count
 */
 
