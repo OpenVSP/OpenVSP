@@ -27369,6 +27369,31 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     double d = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0, uout, wout);
 
     Print( "Dist " + d + " u " + uout + " w " + wout );
+
+    // The test point sits five units away along Y from a known surface point,
+    // so projecting back along Y has to recover that point and that distance.
+    if ( !closeTo( uout, u, 1e-6 ) || !closeTo( wout, w, 1e-6 ) )
+    {
+        Print( "ERROR: AxisProjPnt01Guess did not recover the surface point" );
+        __failure++;
+    }
+
+    if ( !closeTo( d, 5.0, 1e-6 ) )
+    {
+        Print( "ERROR: AxisProjPnt01Guess reported the wrong distance" );
+        __failure++;
+    }
+
+    // Starting from a guess must not change the answer.
+    double uout_ng, wout_ng;
+
+    double d_ng = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, uout_ng, wout_ng );
+
+    if ( !closeTo( uout_ng, uout, 1e-6 ) || !closeTo( wout_ng, wout, 1e-6 ) || !closeTo( d_ng, d, 1e-6 ) )
+    {
+        Print( "ERROR: the guess changed the answer" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -27398,6 +27423,19 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     d, uout, wout = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0 )
 
     print( f"Dist {d} u {uout} w {wout}" )
+
+    # The test point sits five units away along Y from a known surface point, so
+    # projecting back along Y has to recover that point and that distance.
+    assert abs( uout - u ) < 1e-6, "AxisProjPnt01Guess did not recover the surface point"
+    assert abs( wout - w ) < 1e-6, "AxisProjPnt01Guess did not recover the surface point"
+    assert abs( d - 5.0 ) < 1e-6, "AxisProjPnt01Guess reported the wrong distance"
+
+    # Starting from a guess must not change the answer.
+    d_ng, uout_ng, wout_ng = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt )
+
+    assert abs( uout_ng - uout ) < 1e-6, "the guess changed the answer"
+    assert abs( wout_ng - wout ) < 1e-6, "the guess changed the answer"
+    assert abs( d_ng - d ) < 1e-6, "the guess changed the answer"
 
     \endcode
     \endPythonOnly
@@ -28391,6 +28429,38 @@ extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int
     array<double> k1vec, k2vec, kavec, kgvec;
 
     CompVecCurvature01( geom_id, 0, uvec, wvec, k1vec, k2vec, kavec, kgvec );
+
+    // One value per coordinate pair, matching what the scalar form gives, and
+    // holding the same relationships between the four curvatures.
+    if ( int( k1vec.size() ) != n || int( k2vec.size() ) != n ||
+         int( kavec.size() ) != n || int( kgvec.size() ) != n )
+    {
+        Print( "ERROR: CompVecCurvature01 returned the wrong number of values" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0 ; i < n ; i++ )
+        {
+            double k1, k2, ka, kg;
+
+            CompCurvature01( geom_id, 0, uvec[i], wvec[i], k1, k2, ka, kg );
+
+            if ( !closeTo( k1vec[i], k1, 1e-9 ) || !closeTo( k2vec[i], k2, 1e-9 ) ||
+                 !closeTo( kavec[i], ka, 1e-9 ) || !closeTo( kgvec[i], kg, 1e-9 ) )
+            {
+                Print( "ERROR: CompVecCurvature01 disagrees with CompCurvature01 at " + i );
+                __failure++;
+            }
+
+            if ( !closeTo( kavec[i], 0.5 * ( k1vec[i] + k2vec[i] ), 1e-9 ) ||
+                 !closeTo( kgvec[i], k1vec[i] * k2vec[i], 1e-9 ) )
+            {
+                Print( "ERROR: the curvatures are inconsistent at " + i );
+                __failure++;
+            }
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -28412,6 +28482,24 @@ extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int
 
 
     k1vec, k2vec, kavec, kgvec = CompVecCurvature01( geom_id, 0, uvec, wvec )
+
+    # One value per coordinate pair, matching what the scalar form gives, and
+    # holding the same relationships between the four curvatures.
+    assert len( k1vec ) == n, "CompVecCurvature01 returned the wrong number of values"
+    assert len( k2vec ) == n, "CompVecCurvature01 returned the wrong number of values"
+    assert len( kavec ) == n, "CompVecCurvature01 returned the wrong number of values"
+    assert len( kgvec ) == n, "CompVecCurvature01 returned the wrong number of values"
+
+    for i in range(n):
+        k1, k2, ka, kg = CompCurvature01( geom_id, 0, uvec[i], wvec[i] )
+
+        assert abs( k1vec[i] - k1 ) < 1e-9, "CompVecCurvature01 disagrees with CompCurvature01 at " + str( i )
+        assert abs( k2vec[i] - k2 ) < 1e-9, "CompVecCurvature01 disagrees with CompCurvature01 at " + str( i )
+        assert abs( kavec[i] - ka ) < 1e-9, "CompVecCurvature01 disagrees with CompCurvature01 at " + str( i )
+        assert abs( kgvec[i] - kg ) < 1e-9, "CompVecCurvature01 disagrees with CompCurvature01 at " + str( i )
+
+        assert abs( kavec[i] - 0.5 * ( k1vec[i] + k2vec[i] ) ) < 1e-9, "the curvatures are inconsistent at " + str( i )
+        assert abs( kgvec[i] - k1vec[i] * k2vec[i] ) < 1e-9, "the curvatures are inconsistent at " + str( i )
 
     \endcode
     \endPythonOnly
@@ -28564,6 +28652,32 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
     }
 
     ProjVecPnt01Guess( geom_id, 0, ptvec, u0v,  w0v,  uoutv, woutv, doutv );
+
+    // Each point was pushed one unit along its own normal, so each projects back
+    // to where it came from at a distance of one.  Starting from a guess must
+    // not change that.
+    array<double> uv_ng, wv_ng, dv_ng;
+
+    ProjVecPnt01( geom_id, 0, ptvec, uv_ng, wv_ng, dv_ng );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        if ( !closeTo( doutv[i], 1.0, 1e-6 ) ||
+             !closeTo( uoutv[i], uvec[i], 1e-6 ) ||
+             !closeTo( woutv[i], wvec[i], 1e-6 ) )
+        {
+            Print( "ERROR: ProjVecPnt01Guess did not recover point " + i );
+            __failure++;
+        }
+
+        if ( !closeTo( uoutv[i], uv_ng[i], 1e-6 ) ||
+             !closeTo( woutv[i], wv_ng[i], 1e-6 ) ||
+             !closeTo( doutv[i], dv_ng[i], 1e-6 ) )
+        {
+            Print( "ERROR: the guess changed the answer at " + i );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -28600,6 +28714,20 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
         w0v[i] = wvec[i] - 0.05678
 
     uoutv, woutv, doutv = ProjVecPnt01Guess( geom_id, 0, ptvec, u0v,  w0v )
+
+    # Each point was pushed one unit along its own normal, so each projects back
+    # to where it came from at a distance of one.  Starting from a guess must not
+    # change that.
+    uv_ng, wv_ng, dv_ng = ProjVecPnt01( geom_id, 0, ptvec )
+
+    for i in range(n):
+        assert abs( doutv[i] - 1.0 ) < 1e-6, "ProjVecPnt01Guess did not recover point " + str( i )
+        assert abs( uoutv[i] - uvec[i] ) < 1e-6, "ProjVecPnt01Guess did not recover point " + str( i )
+        assert abs( woutv[i] - wvec[i] ) < 1e-6, "ProjVecPnt01Guess did not recover point " + str( i )
+
+        assert abs( uoutv[i] - uv_ng[i] ) < 1e-6, "the guess changed the answer at " + str( i )
+        assert abs( woutv[i] - wv_ng[i] ) < 1e-6, "the guess changed the answer at " + str( i )
+        assert abs( doutv[i] - dv_ng[i] ) < 1e-6, "the guess changed the answer at " + str( i )
 
     \endcode
     \endPythonOnly
@@ -28667,6 +28795,34 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
         Print( wvec[i] - woutv[i] );
     }
 
+    // Whichever intersection was found, it has to be a real one: the reported
+    // coordinates have to name a point on the surface, and that point has to
+    // sit on the same Y ray the test point was offset along.
+    for( int i = 0 ; i < n ; i++ )
+    {
+        if ( uoutv[i] < 0.0 || woutv[i] < 0.0 )
+        {
+            Print( "ERROR: no intersection was found for point " + i );
+            __failure++;
+        }
+        else
+        {
+            vec3d hit = CompPnt01( geom_id, surf_indx, uoutv[i], woutv[i] );
+
+            if ( !closeTo( hit.x(), ptvec[i].x(), 1e-6 ) || !closeTo( hit.z(), ptvec[i].z(), 1e-6 ) )
+            {
+                Print( "ERROR: the intersection left the Y ray at point " + i );
+                __failure++;
+            }
+
+            if ( !closeTo( doutv[i], abs( hit.y() - ptvec[i].y() ), 1e-6 ) )
+            {
+                Print( "ERROR: the wrong distance was reported at point " + i );
+                __failure++;
+            }
+        }
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -28705,6 +28861,18 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
         print( "W delta ", False )
         print( wvec[i] - woutv[i] )
 
+    # Whichever intersection was found, it has to be a real one: the reported
+    # coordinates have to name a point on the surface, and that point has to sit
+    # on the same Y ray the test point was offset along.
+    for i in range(n):
+
+        assert uoutv[i] >= 0.0 and woutv[i] >= 0.0, "no intersection was found for point " + str( i )
+
+        hit = CompPnt01( geom_id, surf_indx, uoutv[i], woutv[i] )
+
+        assert abs( hit.x() - ptvec[i].x() ) < 1e-6, "the intersection left the Y ray at point " + str( i )
+        assert abs( hit.z() - ptvec[i].z() ) < 1e-6, "the intersection left the Y ray at point " + str( i )
+        assert abs( doutv[i] - abs( hit.y() - ptvec[i].y() ) ) < 1e-6, "the wrong distance was reported at point " + str( i )
 
     \endcode
     \endPythonOnly
@@ -28774,6 +28942,34 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
         Print( wvec[i] - woutv[i] );
     }
 
+    // Whichever intersection was found, it has to be a real one: the reported
+    // coordinates have to name a point on the surface, and that point has to
+    // sit on the same Y ray the test point was offset along.
+    for( int i = 0 ; i < n ; i++ )
+    {
+        if ( uoutv[i] < 0.0 || woutv[i] < 0.0 )
+        {
+            Print( "ERROR: no intersection was found for point " + i );
+            __failure++;
+        }
+        else
+        {
+            vec3d hit = CompPnt01( geom_id, surf_indx, uoutv[i], woutv[i] );
+
+            if ( !closeTo( hit.x(), ptvec[i].x(), 1e-6 ) || !closeTo( hit.z(), ptvec[i].z(), 1e-6 ) )
+            {
+                Print( "ERROR: the intersection left the Y ray at point " + i );
+                __failure++;
+            }
+
+            if ( !closeTo( doutv[i], abs( hit.y() - ptvec[i].y() ), 1e-6 ) )
+            {
+                Print( "ERROR: the wrong distance was reported at point " + i );
+                __failure++;
+            }
+        }
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -28817,6 +29013,18 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
         print( "W delta ", False )
         print( wvec[i] - woutv[i] )
 
+    # Whichever intersection was found, it has to be a real one: the reported
+    # coordinates have to name a point on the surface, and that point has to sit
+    # on the same Y ray the test point was offset along.
+    for i in range(n):
+
+        assert uoutv[i] >= 0.0 and woutv[i] >= 0.0, "no intersection was found for point " + str( i )
+
+        hit = CompPnt01( geom_id, surf_indx, uoutv[i], woutv[i] )
+
+        assert abs( hit.x() - ptvec[i].x() ) < 1e-6, "the intersection left the Y ray at point " + str( i )
+        assert abs( hit.z() - ptvec[i].z() ) < 1e-6, "the intersection left the Y ray at point " + str( i )
+        assert abs( doutv[i] - abs( hit.y() - ptvec[i].y() ) ) < 1e-6, "the wrong distance was reported at point " + str( i )
 
     \endcode
     \endPythonOnly
@@ -28952,6 +29160,31 @@ extern std::vector < bool > VecInsideSurf( const std::string &geom_id, const int
     }
 
     array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+
+    // One point per coordinate triple, each the same point the scalar form
+    // gives, and every one of them inside the surface.
+    if ( int( ptvec.size() ) != n )
+    {
+        Print( "ERROR: CompVecPntRST returned the wrong number of points" );
+        __failure++;
+    }
+    else
+    {
+        for( int i = 0 ; i < n ; i++ )
+        {
+            if ( dist( ptvec[i], CompPntRST( geom_id, 0, rvec[i], svec[i], tvec[i] ) ) > 1e-9 )
+            {
+                Print( "ERROR: CompVecPntRST disagrees with CompPntRST at " + i );
+                __failure++;
+            }
+
+            if ( !InsideSurf( geom_id, 0, ptvec[i] ) )
+            {
+                Print( "ERROR: CompVecPntRST returned a point outside the surface at " + i );
+                __failure++;
+            }
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -28974,6 +29207,14 @@ extern std::vector < bool > VecInsideSurf( const std::string &geom_id, const int
         tvec[i] = (i+1)*1.0/(n+1)
 
     ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
+
+    # One point per coordinate triple, each the same point the scalar form
+    # gives, and every one of them inside the surface.
+    assert len( ptvec ) == n, "CompVecPntRST returned the wrong number of points"
+
+    for i in range(n):
+        assert dist( ptvec[i], CompPntRST( geom_id, 0, rvec[i], svec[i], tvec[i] ) ) < 1e-9, "CompVecPntRST disagrees with CompPntRST at " + str( i )
+        assert InsideSurf( geom_id, 0, ptvec[i] ), "CompVecPntRST returned a point outside the surface at " + str( i )
 
     \endcode
     \endPythonOnly
@@ -29304,6 +29545,39 @@ extern void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx
 
     ConvertLMNtoRSTVec( geom_id, 0, lvec, mvec, nvec, rvec, svec, tvec );
 
+    // One triple out per triple in, each matching the scalar form, and the whole
+    // conversion invertible.
+    array<double> lback, mback, nback;
+
+    ConvertRSTtoLMNVec( geom_id, 0, rvec, svec, tvec, lback, mback, nback );
+
+    if ( int( rvec.size() ) != n || int( svec.size() ) != n || int( tvec.size() ) != n )
+    {
+        Print( "ERROR: ConvertLMNtoRSTVec returned the wrong number of values" );
+        __failure++;
+    }
+    else
+    {
+        for( int i = 0 ; i < n ; i++ )
+        {
+            double r_one, s_one, t_one;
+
+            ConvertLMNtoRST( geom_id, 0, lvec[i], mvec[i], nvec[i], r_one, s_one, t_one );
+
+            if ( !closeTo( rvec[i], r_one, 1e-9 ) || !closeTo( svec[i], s_one, 1e-9 ) || !closeTo( tvec[i], t_one, 1e-9 ) )
+            {
+                Print( "ERROR: ConvertLMNtoRSTVec disagrees with ConvertLMNtoRST at " + i );
+                __failure++;
+            }
+
+            if ( !closeTo( lback[i], lvec[i], 1e-6 ) || !closeTo( mback[i], mvec[i], 1e-6 ) || !closeTo( nback[i], nvec[i], 1e-6 ) )
+            {
+                Print( "ERROR: ConvertLMNtoRSTVec does not invert at " + i );
+                __failure++;
+            }
+        }
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -29325,6 +29599,24 @@ extern void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx
 
     rvec, svec, tvec = ConvertLMNtoRSTVec( geom_id, 0, lvec, mvec, nvec )
 
+    # One triple out per triple in, each matching the scalar form, and the whole
+    # conversion invertible.
+    lback, mback, nback = ConvertRSTtoLMNVec( geom_id, 0, rvec, svec, tvec )
+
+    assert len( rvec ) == n, "ConvertLMNtoRSTVec returned the wrong number of values"
+    assert len( svec ) == n, "ConvertLMNtoRSTVec returned the wrong number of values"
+    assert len( tvec ) == n, "ConvertLMNtoRSTVec returned the wrong number of values"
+
+    for i in range(n):
+        r_one, s_one, t_one = ConvertLMNtoRST( geom_id, 0, lvec[i], mvec[i], nvec[i] )
+
+        assert abs( rvec[i] - r_one ) < 1e-9, "ConvertLMNtoRSTVec disagrees with ConvertLMNtoRST at " + str( i )
+        assert abs( svec[i] - s_one ) < 1e-9, "ConvertLMNtoRSTVec disagrees with ConvertLMNtoRST at " + str( i )
+        assert abs( tvec[i] - t_one ) < 1e-9, "ConvertLMNtoRSTVec disagrees with ConvertLMNtoRST at " + str( i )
+
+        assert abs( lback[i] - lvec[i] ) < 1e-6, "ConvertLMNtoRSTVec does not invert at " + str( i )
+        assert abs( mback[i] - mvec[i] ) < 1e-6, "ConvertLMNtoRSTVec does not invert at " + str( i )
+        assert abs( nback[i] - nvec[i] ) < 1e-6, "ConvertLMNtoRSTVec does not invert at " + str( i )
 
     \endcode
     \endPythonOnly
@@ -29358,6 +29650,40 @@ extern void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx
     array<double> utess, wtess;
 
     GetUWTess01( geom_id, surf_indx, utess, wtess );
+
+    // The wireframe spans the whole surface and never runs backwards.
+    if ( utess.size() < 2 || wtess.size() < 2 )
+    {
+        Print( "ERROR: GetUWTess01 returned too few stations" );
+        __failure++;
+    }
+    else
+    {
+        if ( !closeTo( utess[0], 0.0, 1e-9 ) || !closeTo( utess[utess.size() - 1], 1.0, 1e-9 ) ||
+             !closeTo( wtess[0], 0.0, 1e-9 ) || !closeTo( wtess[wtess.size() - 1], 1.0, 1e-9 ) )
+        {
+            Print( "ERROR: GetUWTess01 does not span the surface" );
+            __failure++;
+        }
+
+        for ( int i = 1; i < int( utess.size() ); i++ )
+        {
+            if ( utess[i] <= utess[i - 1] )
+            {
+                Print( "ERROR: the U stations are not increasing at " + i );
+                __failure++;
+            }
+        }
+
+        for ( int i = 1; i < int( wtess.size() ); i++ )
+        {
+            if ( wtess[i] <= wtess[i - 1] )
+            {
+                Print( "ERROR: the W stations are not increasing at " + i );
+                __failure++;
+            }
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -29368,6 +29694,19 @@ extern void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx
     surf_indx = 0
 
     utess, wtess = GetUWTess01( geom_id, surf_indx )
+
+    # The wireframe spans the whole surface and never runs backwards.
+    assert len( utess ) >= 2, "GetUWTess01 returned too few stations"
+    assert len( wtess ) >= 2, "GetUWTess01 returned too few stations"
+
+    assert abs( utess[0] ) < 1e-9 and abs( utess[-1] - 1.0 ) < 1e-9, "GetUWTess01 does not span the surface"
+    assert abs( wtess[0] ) < 1e-9 and abs( wtess[-1] - 1.0 ) < 1e-9, "GetUWTess01 does not span the surface"
+
+    for i in range( 1, len( utess ) ):
+        assert utess[i] > utess[i - 1], "the U stations are not increasing at " + str( i )
+
+    for i in range( 1, len( wtess ) ):
+        assert wtess[i] > wtess[i - 1], "the W stations are not increasing at " + str( i )
 
     \endcode
     \endPythonOnly

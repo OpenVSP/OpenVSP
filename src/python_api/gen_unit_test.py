@@ -139,19 +139,40 @@ def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
     in_code_segment = False
     code_segment = ""
     function_names = []
+    # A declaration that wraps onto a second line has to be gathered up before
+    # it can be read.  Handling only single line declarations quietly dropped
+    # the examples of every function declared across two lines.
+    declaration = ""
     with open(vsp_geom_api, 'r') as header:
         for line in header:
             line = line.replace("vector", "array").replace("std::", "")
             if r"\code{.cpp}" in line:
                 in_code_segment = True
                 code_segment = ""
+                continue
 
-            elif in_code_segment:
+            if in_code_segment:
                 if r"\endcode" in line:
                     in_code_segment = False
                 else:
                     code_segment += line
-            elif "extern" in line and ");" in line:
+                continue
+
+            if declaration:
+                declaration += " " + line.strip()
+            elif "extern" in line:
+                declaration = line.rstrip()
+
+            if not declaration:
+                continue
+
+            if ");" not in declaration:
+                continue
+
+            line = declaration
+            declaration = ""
+
+            if True:
                 line_split = line.split()
                 name_index = 2
                 for index, word in enumerate(line_split):

@@ -10815,7 +10815,7 @@ void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx,
 
                 for ( int i = 0; i < l_vec.size(); i++ )
                 {
-                    surf->ConvertRSTtoLMN( l_vec[i], m_vec[i], n_vec[i], r_out_vec[i], s_out_vec[i], t_out_vec[i] );
+                    surf->ConvertLMNtoRST( l_vec[i], m_vec[i], n_vec[i], r_out_vec[i], s_out_vec[i], t_out_vec[i] );
                 }
             }
             else
