@@ -1076,6 +1076,83 @@ void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )
     ErrorMgr.NoError();
 }
 
+string AddCpSlice( int cut_type, double location )
+{
+    CpSlice* slice = VSPAEROMgr.AddCpSlice();
+
+    if ( !slice )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCpSlice::Failed To Add Cp Slice" );
+        return string();
+    }
+
+    slice->m_CutType.Set( cut_type );
+    slice->m_CutPosition.Set( location );
+
+    ErrorMgr.NoError();
+    return slice->GetID();
+}
+
+int GetNumCpSlices()
+{
+    int ret = ( int )VSPAEROMgr.GetCpSliceVec().size();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+string GetCpSliceID( int slice_index )
+{
+    if ( !VSPAEROMgr.ValidCpSliceInd( slice_index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetCpSliceID::Slice Index " + to_string( slice_index ) + " Out of Range" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return VSPAEROMgr.GetCpSlice( slice_index )->GetID();
+}
+
+void DelCpSlice( int slice_index )
+{
+    if ( !VSPAEROMgr.ValidCpSliceInd( slice_index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelCpSlice::Slice Index " + to_string( slice_index ) + " Out of Range" );
+        return;
+    }
+
+    VSPAEROMgr.DelCpSlice( slice_index );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteAllCpSlices()
+{
+    VSPAEROMgr.ClearCpSliceVec();
+
+    ErrorMgr.NoError();
+}
+
+void DeleteAllVarPresetGroups()
+{
+    VarPresetMgr.DeleteAllSettingGroups();
+
+    ErrorMgr.NoError();
+}
+
+void DeleteAllVarPresetSettings( const string &group_id )
+{
+    if ( !VarPresetMgr.FindSettingGroup( group_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteAllVarPresetSettings::Invalid Var Preset Group ID " + group_id );
+        return;
+    }
+
+    VarPresetMgr.DeleteAllSettingsInGroup( group_id );
+
+    ErrorMgr.NoError();
+}
+
 int CreateVSPAEROControlSurfaceGroup()
 {
     VSPAEROMgr.Update();

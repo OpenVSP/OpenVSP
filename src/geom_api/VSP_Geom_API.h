@@ -25708,6 +25708,49 @@ extern void AddVarPresetParm( const std::string &group_id, const std::string &pa
     \param [in] group_id string Var Preset Group ID
 */
 
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Delete every Variable Preset Group, along with all the settings they contain
+    \forcpponly
+    \code{.cpp}
+    string gid1 = AddVarPresetGroup( "Tess" );
+    string gid2 = AddVarPresetGroup( "Design" );
+
+    if ( GetVarPresetGroups().size() != 2 )
+    {
+        Print( "ERROR: the two groups were not both added" );
+        __failure++;
+    }
+
+    DeleteAllVarPresetGroups();
+
+    if ( GetVarPresetGroups().size() != 0 )
+    {
+        Print( "ERROR: DeleteAllVarPresetGroups left groups behind" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid1 = AddVarPresetGroup( "Tess" )
+    gid2 = AddVarPresetGroup( "Design" )
+
+    assert len( GetVarPresetGroups() ) == 2, "the two groups were not both added"
+
+    DeleteAllVarPresetGroups()
+
+    assert len( GetVarPresetGroups() ) == 0, "DeleteAllVarPresetGroups left groups behind"
+
+    \endcode
+    \endPythonOnly
+    \sa AddVarPresetGroup, DeleteVarPresetGroup, GetVarPresetGroups
+*/
+
+extern void DeleteAllVarPresetGroups();
+
 extern void DeleteVarPresetGroup( const std::string &group_id );
 
 /*!
@@ -25762,6 +25805,68 @@ extern void DeleteVarPresetGroup( const std::string &group_id );
     \param [in] group_id string Var Preset Group ID
     \param [in] setting_id string Var Preset Setting ID
 */
+
+/*!
+    \ingroup VariablePreset
+*/
+/*!
+    Delete every setting in a Variable Preset Group, leaving the group itself in place
+    \forcpponly
+    \code{.cpp}
+    string gid = AddVarPresetGroup( "Tess" );
+
+    AddVarPresetSetting( gid, "Coarse" );
+    AddVarPresetSetting( gid, "Fine" );
+
+    string gid2 = AddVarPresetGroup( "Design" );
+    AddVarPresetSetting( gid2, "Normal" );
+
+    DeleteAllVarPresetSettings( gid );
+
+    // The group stays; its settings go.  The other group is left alone.
+    if ( GetVarPresetSettings( gid ).size() != 0 )
+    {
+        Print( "ERROR: DeleteAllVarPresetSettings left settings behind" );
+        __failure++;
+    }
+
+    if ( GetVarPresetGroups().size() != 2 )
+    {
+        Print( "ERROR: DeleteAllVarPresetSettings removed the group" );
+        __failure++;
+    }
+
+    if ( GetVarPresetSettings( gid2 ).size() != 1 )
+    {
+        Print( "ERROR: DeleteAllVarPresetSettings reached another group" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddVarPresetGroup( "Tess" )
+
+    AddVarPresetSetting( gid, "Coarse" )
+    AddVarPresetSetting( gid, "Fine" )
+
+    gid2 = AddVarPresetGroup( "Design" )
+    AddVarPresetSetting( gid2, "Normal" )
+
+    DeleteAllVarPresetSettings( gid )
+
+    # The group stays; its settings go.  The other group is left alone.
+    assert len( GetVarPresetSettings( gid ) ) == 0, "DeleteAllVarPresetSettings left settings behind"
+    assert len( GetVarPresetGroups() ) == 2, "DeleteAllVarPresetSettings removed the group"
+    assert len( GetVarPresetSettings( gid2 ) ) == 1, "DeleteAllVarPresetSettings reached another group"
+
+    \endcode
+    \endPythonOnly
+    \sa AddVarPresetSetting, DeleteVarPresetSetting, GetVarPresetSettings
+    \param [in] group_id string Var Preset Group ID
+*/
+
+extern void DeleteAllVarPresetSettings( const std::string &group_id );
 
 extern void DeleteVarPresetSetting( const std::string &group_id, const std::string &setting_id );
 
@@ -29712,6 +29817,301 @@ extern void AutoGroupVSPAEROControlSurfaces();
     \sa CreateVSPAEROControlSurfaceGroup, GetNumControlSurfaceGroups
     \param [in] CSGroupIndex int Index of the control surface group
 */
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Add a Cp slice to the VSPAERO Cp Slicer.  The CpSlicer analysis has nothing to slice until at
+    least one has been added.
+    \forcpponly
+    \code{.cpp}
+    // A fresh model already carries a default slice, so count from there.
+    int num_before = GetNumCpSlices();
+
+    string slice_id = AddCpSlice( X_DIR, 0.5 );
+
+    if ( slice_id.length() == 0 || GetNumCpSlices() != num_before + 1 )
+    {
+        Print( "ERROR: AddCpSlice did not add a slice" );
+        __failure++;
+    }
+
+    // The slice is its own Parm Container, so its cut can be read back.
+    if ( !closeTo( GetParmVal( FindParm( slice_id, "CutPosition", "CpSlice" ) ), 0.5, 1e-9 ) )
+    {
+        Print( "ERROR: AddCpSlice did not place the cut" );
+        __failure++;
+    }
+
+    if ( GetCpSliceID( num_before ) != slice_id )
+    {
+        Print( "ERROR: GetCpSliceID does not agree with AddCpSlice" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # A fresh model already carries a default slice, so count from there.
+    num_before = GetNumCpSlices()
+
+    slice_id = AddCpSlice( X_DIR, 0.5 )
+
+    assert len( slice_id ) > 0, "AddCpSlice did not add a slice"
+    assert GetNumCpSlices() == num_before + 1, "AddCpSlice did not add a slice"
+
+    # The slice is its own Parm Container, so its cut can be read back.
+    assert abs( GetParmVal( FindParm( slice_id, "CutPosition", "CpSlice" ) ) - 0.5 ) < 1e-9, "AddCpSlice did not place the cut"
+    assert GetCpSliceID( num_before ) == slice_id, "GetCpSliceID does not agree with AddCpSlice"
+
+    \endcode
+    \endPythonOnly
+    \sa GetNumCpSlices, GetCpSliceID, DelCpSlice, DeleteAllCpSlices
+    \param [in] cut_type int Slice direction enum (X_DIR, Y_DIR or Z_DIR)
+    \param [in] location double Location of the cut along that axis
+    \return string Cp slice ID
+*/
+
+extern string AddCpSlice( int cut_type, double location );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the number of Cp slices in the VSPAERO Cp Slicer
+    \forcpponly
+    \code{.cpp}
+    int num_before = GetNumCpSlices();
+
+    AddCpSlice( X_DIR, 0.5 );
+    AddCpSlice( Y_DIR, 0.25 );
+
+    if ( GetNumCpSlices() != num_before + 2 )
+    {
+        Print( "ERROR: GetNumCpSlices did not count both slices" );
+        __failure++;
+    }
+
+    // Every slice the count claims has to be findable.
+    for ( int i = 0; i < GetNumCpSlices(); i++ )
+    {
+        if ( GetCpSliceID( i ).length() == 0 )
+        {
+            Print( "ERROR: slice " + i + " cannot be found" );
+            __failure++;
+        }
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    num_before = GetNumCpSlices()
+
+    AddCpSlice( X_DIR, 0.5 )
+    AddCpSlice( Y_DIR, 0.25 )
+
+    assert GetNumCpSlices() == num_before + 2, "GetNumCpSlices did not count both slices"
+
+    # Every slice the count claims has to be findable.
+    for i in range( GetNumCpSlices() ):
+        assert len( GetCpSliceID( i ) ) > 0, "slice " + str( i ) + " cannot be found"
+
+    \endcode
+    \endPythonOnly
+    \sa AddCpSlice, GetCpSliceID, DelCpSlice, DeleteAllCpSlices
+    \return int Number of Cp slices
+*/
+
+extern int GetNumCpSlices();
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the ID of the Cp slice at the specified index
+    \forcpponly
+    \code{.cpp}
+    int num_before = GetNumCpSlices();
+
+    string first = AddCpSlice( X_DIR, 0.5 );
+    string second = AddCpSlice( Y_DIR, 0.25 );
+
+    // Slices come back in the order they were added.
+    if ( GetCpSliceID( num_before ) != first || GetCpSliceID( num_before + 1 ) != second )
+    {
+        Print( "ERROR: GetCpSliceID did not report the slices in order" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    GetCpSliceID( GetNumCpSlices() );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetCpSliceID accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    num_before = GetNumCpSlices()
+
+    first = AddCpSlice( X_DIR, 0.5 )
+    second = AddCpSlice( Y_DIR, 0.25 )
+
+    # Slices come back in the order they were added.
+    assert GetCpSliceID( num_before ) == first, "GetCpSliceID did not report the slices in order"
+    assert GetCpSliceID( num_before + 1 ) == second, "GetCpSliceID did not report the slices in order"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetCpSliceID( GetNumCpSlices() )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetCpSliceID accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddCpSlice, GetNumCpSlices
+    \param [in] slice_index int Cp slice index
+    \return string Cp slice ID
+*/
+
+extern string GetCpSliceID( int slice_index );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Delete a single Cp slice from the VSPAERO Cp Slicer
+    \forcpponly
+    \code{.cpp}
+    DeleteAllCpSlices();
+
+    string first = AddCpSlice( X_DIR, 0.5 );
+    string second = AddCpSlice( Y_DIR, 0.25 );
+
+    DelCpSlice( 0 );
+
+    // Only the indexed slice goes, and the rest slide down.
+    if ( GetNumCpSlices() != 1 || GetCpSliceID( 0 ) != second )
+    {
+        Print( "ERROR: DelCpSlice removed the wrong slice" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    DelCpSlice( GetNumCpSlices() );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DelCpSlice accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    DeleteAllCpSlices()
+
+    first = AddCpSlice( X_DIR, 0.5 )
+    second = AddCpSlice( Y_DIR, 0.25 )
+
+    DelCpSlice( 0 )
+
+    # Only the indexed slice goes, and the rest slide down.
+    assert GetNumCpSlices() == 1, "DelCpSlice removed the wrong slice"
+    assert GetCpSliceID( 0 ) == second, "DelCpSlice removed the wrong slice"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DelCpSlice( GetNumCpSlices() )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DelCpSlice accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddCpSlice, DeleteAllCpSlices
+    \param [in] slice_index int Cp slice index
+*/
+
+extern void DelCpSlice( int slice_index );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Delete all Cp slices from the VSPAERO Cp Slicer
+    \forcpponly
+    \code{.cpp}
+    AddCpSlice( X_DIR, 0.5 );
+    AddCpSlice( Y_DIR, 0.25 );
+
+    DeleteAllCpSlices();
+
+    if ( GetNumCpSlices() != 0 )
+    {
+        Print( "ERROR: DeleteAllCpSlices left slices behind" );
+        __failure++;
+    }
+
+    // Clearing an empty slicer is not an error.
+    DeleteAllCpSlices();
+
+    if ( GetNumTotalErrors() != 0 )
+    {
+        Print( "ERROR: DeleteAllCpSlices complained about an empty slicer" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddCpSlice( X_DIR, 0.5 )
+    AddCpSlice( Y_DIR, 0.25 )
+
+    DeleteAllCpSlices()
+
+    assert GetNumCpSlices() == 0, "DeleteAllCpSlices left slices behind"
+
+    # Clearing an empty slicer is not an error.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteAllCpSlices()
+
+    assert err_mgr.GetNumTotalErrors() == 0, "DeleteAllCpSlices complained about an empty slicer"
+
+    \endcode
+    \endPythonOnly
+    \sa AddCpSlice, DelCpSlice, GetNumCpSlices
+*/
+
+extern void DeleteAllCpSlices();
 
 extern void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex );
 

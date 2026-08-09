@@ -4353,6 +4353,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "string AddCpSlice( int cut_type, double location )", asFUNCTION( vsp::AddCpSlice ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetNumCpSlices()", asFUNCTION( vsp::GetNumCpSlices ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetCpSliceID( int slice_index )", asFUNCTION( vsp::GetCpSliceID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelCpSlice( int slice_index )", asFUNCTION( vsp::DelCpSlice ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteAllCpSlices()", asFUNCTION( vsp::DeleteAllCpSlices ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction("void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::DeleteVSPAEROControlSurfaceGroup), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -5173,6 +5188,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string & in group_id, const string & in parm_ID )", asFUNCTION( vsp::AddVarPresetParm ), asCALL_CDECL);
     assert( r >= 0 );
 
+
+    r = se->RegisterGlobalFunction( "void DeleteAllVarPresetGroups()", asFUNCTION( vsp::DeleteAllVarPresetGroups ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteAllVarPresetSettings( const string & in group_id )", asFUNCTION( vsp::DeleteAllVarPresetSettings ), asCALL_CDECL );
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void DeleteVarPresetGroup( const string & in group_id )", asFUNCTION( vsp::DeleteVarPresetGroup ), asCALL_CDECL);
     assert( r >= 0 );
