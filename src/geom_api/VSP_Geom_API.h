@@ -16407,9 +16407,21 @@ extern vector < string > GetAllBackground3Ds();
     AddBackground3D();
     AddBackground3D();
 
+    if ( GetNumBackground3Ds() != 3 || GetAllBackground3Ds().size() != 3 )
+    {
+        Print( "ERROR: the three Background3Ds were not all added" );
+        __failure++;
+    }
+
     ShowAllBackground3Ds();
 
     DelAllBackground3Ds();
+
+    if ( GetNumBackground3Ds() != 0 || GetAllBackground3Ds().size() != 0 )
+    {
+        Print( "ERROR: DelAllBackground3Ds left something behind" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16419,9 +16431,15 @@ extern vector < string > GetAllBackground3Ds();
     AddBackground3D()
     AddBackground3D()
 
+    assert GetNumBackground3Ds() == 3, "the three Background3Ds were not all added"
+    assert len( GetAllBackground3Ds() ) == 3, "the three Background3Ds were not all added"
+
     ShowAllBackground3Ds()
 
     DelAllBackground3Ds()
+
+    assert GetNumBackground3Ds() == 0, "DelAllBackground3Ds left something behind"
+    assert len( GetAllBackground3Ds() ) == 0, "DelAllBackground3Ds left something behind"
     \endcode
     \endPythonOnly
 */
@@ -16440,9 +16458,21 @@ extern void ShowAllBackground3Ds();
     AddBackground3D();
     AddBackground3D();
 
+    if ( GetNumBackground3Ds() != 3 || GetAllBackground3Ds().size() != 3 )
+    {
+        Print( "ERROR: the three Background3Ds were not all added" );
+        __failure++;
+    }
+
     HideAllBackground3Ds();
 
     DelAllBackground3Ds();
+
+    if ( GetNumBackground3Ds() != 0 || GetAllBackground3Ds().size() != 0 )
+    {
+        Print( "ERROR: DelAllBackground3Ds left something behind" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -16452,9 +16482,15 @@ extern void ShowAllBackground3Ds();
     AddBackground3D()
     AddBackground3D()
 
+    assert GetNumBackground3Ds() == 3, "the three Background3Ds were not all added"
+    assert len( GetAllBackground3Ds() ) == 3, "the three Background3Ds were not all added"
+
     HideAllBackground3Ds()
 
     DelAllBackground3Ds()
+
+    assert GetNumBackground3Ds() == 0, "DelAllBackground3Ds left something behind"
+    assert len( GetAllBackground3Ds() ) == 0, "DelAllBackground3Ds left something behind"
     \endcode
     \endPythonOnly
 */
@@ -16795,6 +16831,14 @@ extern void SetBackground3DRelativePath( const string &id, const string &fname )
 
     Print( bg_file );
 
+    // A relative name is resolved against the working directory, so the path
+    // that comes back ends with the name that was set.
+    if ( bg_file.length() == 0 || bg_file.findLast( "front.png" ) < 0 )
+    {
+        Print( "ERROR: SetBackground3DAbsolutePath did not take" );
+        __failure++;
+    }
+
     DelAllBackground3Ds();
     \endcode
     \endforcpponly
@@ -16807,6 +16851,10 @@ extern void SetBackground3DRelativePath( const string &id, const string &fname )
     bg_file = GetBackground3DAbsolutePath( bg_id )
 
     print( bg_file )
+
+    # A relative name is resolved against the working directory, so the path that
+    # comes back ends with the name that was set.
+    assert bg_file.endswith( "front.png" ), "SetBackground3DAbsolutePath did not take"
 
     DelAllBackground3Ds()
     \endcode
@@ -17046,6 +17094,22 @@ extern void DelAllBogies( const string &gear_id );
     SetParmVal(u2, 1.0);
 
     int npt = GetNumRoutingPts(routing_geom);
+
+    // Three points were added, and the count has to match the coordinate list.
+    if ( npt != 3 || npt != int( GetAllRoutingPtIds( routing_geom ).size() ) )
+    {
+        Print( "ERROR: GetNumRoutingPts did not count the points that were added" );
+        __failure++;
+    }
+
+    // Deleting one has to move the count.
+    DelRoutingPt( routing_geom, 1 );
+
+    if ( GetNumRoutingPts( routing_geom ) != npt - 1 )
+    {
+        Print( "ERROR: GetNumRoutingPts did not follow DelRoutingPt" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17069,6 +17133,16 @@ extern void DelAllBogies( const string &gear_id );
     vsp.SetParmVal(u2, 1.0)
 
     npt = vsp.GetNumRoutingPts(routing_geom)
+
+    # Three points were added, and the count has to match the ID list.
+    assert npt == 3, "GetNumRoutingPts did not count the points that were added"
+    assert npt == len( vsp.GetAllRoutingPtIds( routing_geom ) ), "GetNumRoutingPts disagrees with GetAllRoutingPtIds"
+
+    # Deleting one has to move the count.
+    vsp.DelRoutingPt( routing_geom, 1 )
+
+    assert vsp.GetNumRoutingPts( routing_geom ) == npt - 1, "GetNumRoutingPts did not follow DelRoutingPt"
+
     \endcode
     \endPythonOnly
     \sa AddRoutingPt, DelRoutingPt
@@ -17375,7 +17449,27 @@ extern void DelAllRoutingPt( const string &routing_id );
     string u2 = GetParm( rpt2, "U", "RoutePt");
     SetParmVal(u2, 1.0);
 
+    array< string > @before_ids = GetAllRoutingPtIds( routing_geom );
+
     int newindx = MoveRoutingPt( routing_geom, 1, REORDER_MOVE_DOWN );
+
+    // The point that was at index 1 is now at index 2, and its neighbour has
+    // taken its place.
+    array< string > @after_ids = GetAllRoutingPtIds( routing_geom );
+
+    if ( newindx != 2 || after_ids.size() != before_ids.size() )
+    {
+        Print( "ERROR: MoveRoutingPt did not move the point down" );
+        __failure++;
+    }
+    else
+    {
+        if ( after_ids[2] != before_ids[1] || after_ids[1] != before_ids[2] )
+        {
+            Print( "ERROR: MoveRoutingPt did not swap the two points" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17398,7 +17492,18 @@ extern void DelAllRoutingPt( const string &routing_id );
     u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
     vsp.SetParmVal(u2, 1.0)
 
+    before_ids = vsp.GetAllRoutingPtIds( routing_geom )
+
     newindx = vsp.MoveRoutingPt( routing_geom, 1, vsp.REORDER_MOVE_DOWN )
+
+    # The point that was at index 1 is now at index 2, and its neighbour has
+    # taken its place.
+    after_ids = vsp.GetAllRoutingPtIds( routing_geom )
+
+    assert newindx == 2, "MoveRoutingPt did not move the point down"
+    assert len( after_ids ) == len( before_ids ), "MoveRoutingPt changed the number of points"
+    assert after_ids[2] == before_ids[1], "MoveRoutingPt did not swap the two points"
+    assert after_ids[1] == before_ids[2], "MoveRoutingPt did not swap the two points"
     \endcode
     \endPythonOnly
     \sa AddRoutingPt, DelRoutingPt, REORDER_TYPE
@@ -25329,6 +25434,20 @@ extern string ModeGetSetting( const string &mid, int indx );
 
     array<string> gids = ModeGetAllGroups( mid1 );
 
+    // Two group settings were added to this Mode, in this order.
+    if ( gids.size() != 2 || gids[0] != gid || gids[1] != gid2 )
+    {
+        Print( "ERROR: ModeGetAllGroups did not report the groups that were added" );
+        __failure++;
+    }
+
+    // The groups and the settings line up one for one.
+    if ( gids.size() != ModeGetAllSettings( mid1 ).size() )
+    {
+        Print( "ERROR: ModeGetAllGroups disagrees with ModeGetAllSettings" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25402,6 +25521,14 @@ extern string ModeGetSetting( const string &mid, int indx );
     Update()
 
     gids = ModeGetAllGroups( mid1 )
+
+    # Two group settings were added to this Mode, in this order.
+    assert len( gids ) == 2, "ModeGetAllGroups did not report the groups that were added"
+    assert gids[0] == gid, "ModeGetAllGroups did not report the groups that were added"
+    assert gids[1] == gid2, "ModeGetAllGroups did not report the groups that were added"
+
+    # The groups and the settings line up one for one.
+    assert len( gids ) == len( ModeGetAllSettings( mid1 ) ), "ModeGetAllGroups disagrees with ModeGetAllSettings"
 
     \endcode
     \endPythonOnly
@@ -25488,6 +25615,13 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
 
     array<string> sids = ModeGetAllSettings( mid1 );
 
+    // The settings come back paired with the groups they were added under.
+    if ( sids.size() != 2 || sids[0] != sid1 || sids[1] != sid4 )
+    {
+        Print( "ERROR: ModeGetAllSettings did not report the settings that were added" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25561,6 +25695,11 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     Update()
 
     sids = ModeGetAllSettings( mid1 )
+
+    # The settings come back paired with the groups they were added under.
+    assert len( sids ) == 2, "ModeGetAllSettings did not report the settings that were added"
+    assert sids[0] == sid1, "ModeGetAllSettings did not report the settings that were added"
+    assert sids[1] == sid4, "ModeGetAllSettings did not report the settings that were added"
 
     \endcode
     \endPythonOnly
@@ -25647,6 +25786,16 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
 
     RemoveGroupSetting( mid1, 0 );
 
+    // Only the indexed pairing goes; the other one stays and slides down.
+    array<string> gids = ModeGetAllGroups( mid1 );
+    array<string> sids = ModeGetAllSettings( mid1 );
+
+    if ( gids.size() != 1 || gids[0] != gid2 || sids.size() != 1 || sids[0] != sid4 )
+    {
+        Print( "ERROR: RemoveGroupSetting removed the wrong pairing" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25720,6 +25869,13 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     Update()
 
     RemoveGroupSetting( mid1, 0 )
+
+    # Only the indexed pairing goes; the other one stays and slides down.
+    gids = ModeGetAllGroups( mid1 )
+    sids = ModeGetAllSettings( mid1 )
+
+    assert len( gids ) == 1 and gids[0] == gid2, "RemoveGroupSetting removed the wrong pairing"
+    assert len( sids ) == 1 and sids[0] == sid4, "RemoveGroupSetting removed the wrong pairing"
 
     \endcode
     \endPythonOnly
@@ -25806,6 +25962,19 @@ extern void RemoveGroupSetting( const string &mid, int indx );
 
     RemoveAllGroupSettings( mid1 );
 
+    // Every pairing on this Mode goes, and the other Mode is left alone.
+    if ( ModeGetAllGroups( mid1 ).size() != 0 || ModeGetAllSettings( mid1 ).size() != 0 )
+    {
+        Print( "ERROR: RemoveAllGroupSettings left pairings behind" );
+        __failure++;
+    }
+
+    if ( ModeGetAllGroups( mid2 ).size() != 2 )
+    {
+        Print( "ERROR: RemoveAllGroupSettings reached the other Mode" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25879,6 +26048,11 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     Update()
 
     RemoveAllGroupSettings( mid1 )
+
+    # Every pairing on this Mode goes, and the other Mode is left alone.
+    assert len( ModeGetAllGroups( mid1 ) ) == 0, "RemoveAllGroupSettings left pairings behind"
+    assert len( ModeGetAllSettings( mid1 ) ) == 0, "RemoveAllGroupSettings left pairings behind"
+    assert len( ModeGetAllGroups( mid2 ) ) == 2, "RemoveAllGroupSettings reached the other Mode"
 
     \endcode
     \endPythonOnly
