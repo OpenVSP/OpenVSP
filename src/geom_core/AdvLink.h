@@ -102,8 +102,8 @@ public:
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    void SaveCode( const string & file_name );
-    void ReadCode( const string & file_name );
+    bool SaveCode( const string & file_name );
+    bool ReadCode( const string & file_name );
     void SearchReplaceCode( const string & from, const string & to );
 
     void AttachAttrCollection()

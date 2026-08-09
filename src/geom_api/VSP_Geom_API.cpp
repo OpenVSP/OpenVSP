@@ -10782,6 +10782,20 @@ void UpdateParasiteDrag()
     ErrorMgr.NoError();
 }
 
+string ExportParasiteDragToCSV( const string & file_name )
+{
+    string res_id = ParasiteDragMgr.ExportToCSV( file_name );
+
+    if ( res_id.empty() )
+    {
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "ExportParasiteDragToCSV::Can't Write File " + file_name );
+        return res_id;
+    }
+
+    ErrorMgr.NoError();
+    return res_id;
+}
+
 void WriteAtmosphereCSVFile(const std::string & file_name, const int &atmos_type)
 {
     const static double arr[] = {0.0, 5000.0, 10000.0, 10999.0, 11001.0, 15000.0, 19999.0, 20000.0,
@@ -13577,6 +13591,104 @@ bool ValidateAdvLinkParms( int index )
         ErrorMgr.NoError();
     }
     return ret;
+}
+
+void WriteAdvLinkCodeFile( int index, const string & file_name )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "WriteAdvLinkCodeFile::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    if ( !adv_link->SaveCode( file_name ) )
+    {
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteAdvLinkCodeFile::Can't Write File " + file_name );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+void ReadAdvLinkCodeFile( int index, const string & file_name )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ReadAdvLinkCodeFile::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    if ( !adv_link->ReadCode( file_name ) )
+    {
+        ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadAdvLinkCodeFile::Can't Read File " + file_name );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+void SortAdvLinkInputsVar( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SortAdvLinkInputsVar::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->SortInputsVar( -1 );
+
+    ErrorMgr.NoError();
+}
+
+void SortAdvLinkInputsCGP( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SortAdvLinkInputsCGP::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->SortInputsCGP( -1 );
+
+    ErrorMgr.NoError();
+}
+
+void SortAdvLinkOutputsVar( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SortAdvLinkOutputsVar::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->SortOutputsVar( -1 );
+
+    ErrorMgr.NoError();
+}
+
+void SortAdvLinkOutputsCGP( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SortAdvLinkOutputsCGP::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->SortOutputsCGP( -1 );
+
+    ErrorMgr.NoError();
 }
 
 void SetAdvLinkCode( int index, const string & code )

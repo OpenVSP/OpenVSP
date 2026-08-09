@@ -33319,6 +33319,68 @@ extern void UpdateParasiteDrag();
     \ingroup ParasiteDrag
 */
 /*!
+    Write the Parasite Drag Tool buildup table out to a CSV file, the way the Export CSV button on
+    the tool does.  The same table is also placed in the Results Manager under the name
+    "Parasite_Drag", so the returned ID gives access to it without going through the file.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD", "" );
+
+    Update();
+
+    // The table is filled in by running the buildup, so do that first.
+    ExecAnalysis( "ParasiteDrag" );
+
+    string res_id = ExportParasiteDragToCSV( "ParasiteDragExample.csv" );
+
+    if ( res_id.length() == 0 )
+    {
+        Print( "ERROR: ExportParasiteDragToCSV returned no results" );
+        __failure++;
+    }
+
+    // The buildup carries one row per Geom, so the Pod has to be in there.
+    array< string > @labels = GetStringResults( res_id, "Comp_Label" );
+
+    if ( labels.size() == 0 )
+    {
+        Print( "ERROR: the buildup table is empty" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD", "" )
+
+    Update()
+
+    # The table is filled in by running the buildup, so do that first.
+    ExecAnalysis( "ParasiteDrag" )
+
+    res_id = ExportParasiteDragToCSV( "ParasiteDragExample.csv" )
+
+    assert len( res_id ) > 0, "ExportParasiteDragToCSV returned no results"
+
+    # The buildup carries one row per Geom, so the Pod has to be in there.
+    labels = GetStringResults( res_id, "Comp_Label" )
+
+    assert len( labels ) > 0, "the buildup table is empty"
+
+    \endcode
+    \endPythonOnly
+    \sa UpdateParasiteDrag
+    \param [in] file_name string Name of the CSV file to write
+    \return string Results ID for the buildup table
+*/
+
+extern string ExportParasiteDragToCSV( const string & file_name );
+
+/*!
+    \ingroup ParasiteDrag
+*/
+/*!
     Calculate the atmospheric properties determined by a specified model for a preset array of altitudes ranging from 0 to 90000 m and
     write the results to a CSV output file
     \forcpponly
@@ -41429,6 +41491,371 @@ extern void SearchReplaceAdvLinkCode( int index, const string & from, const stri
 */
 
 extern bool BuildAdvLinkScript( int index );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Write the code of an advanced link out to a text file, the way the File Write button on the
+    Advanced Link screen does.  Only the code is written; the input and output variable lists are
+    not, so a file written here can be read back into any link that declares the same variables.
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    WriteAdvLinkCodeFile( indx, "ExampleLink.vspscript" );
+
+    // Overwrite the code, then bring the saved version back.
+    SetAdvLinkCode( indx, "x = 0.0;" );
+
+    ReadAdvLinkCodeFile( indx, "ExampleLink.vspscript" );
+
+    if ( GetAdvLinkCode( indx ) != "x = 10.0 - len;" )
+    {
+        Print( "ERROR: the code did not survive the round trip" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+    AddAdvLinkInput( indx, length, "len" )
+    AddAdvLinkOutput( indx, x_pos, "x" )
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" )
+
+    WriteAdvLinkCodeFile( indx, "ExampleLink.vspscript" )
+
+    # Overwrite the code, then bring the saved version back.
+    SetAdvLinkCode( indx, "x = 0.0;" )
+
+    ReadAdvLinkCodeFile( indx, "ExampleLink.vspscript" )
+
+    assert GetAdvLinkCode( indx ) == "x = 10.0 - len;", "the code did not survive the round trip"
+
+    \endcode
+    \endPythonOnly
+    \sa ReadAdvLinkCodeFile, GetAdvLinkCode
+    \param [in] index int Index for advanced link
+    \param [in] file_name string Name of the file to write
+*/
+
+extern void WriteAdvLinkCodeFile( int index, const string & file_name );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Read the code of an advanced link in from a text file, the way the File Read button on the
+    Advanced Link screen does.  The link is rebuilt from the new code, so any variable the file
+    refers to must already have been declared as an input or an output.
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+    WriteAdvLinkCodeFile( indx, "ExampleLink.vspscript" );
+
+    // A second link can pick up the same code, so long as it declares len and x.
+    AddAdvLink( "SecondLink" );
+    int indx2 = GetLinkIndex( "SecondLink" );
+    AddAdvLinkInput( indx2, length, "len" );
+    AddAdvLinkOutput( indx2, GetParm( pod, "Y_Rel_Location", "XForm" ), "x" );
+
+    ReadAdvLinkCodeFile( indx2, "ExampleLink.vspscript" );
+
+    if ( GetAdvLinkCode( indx2 ) != GetAdvLinkCode( indx ) )
+    {
+        Print( "ERROR: ReadAdvLinkCodeFile did not load the code" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+    AddAdvLinkInput( indx, length, "len" )
+    AddAdvLinkOutput( indx, x_pos, "x" )
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" )
+    WriteAdvLinkCodeFile( indx, "ExampleLink.vspscript" )
+
+    # A second link can pick up the same code, so long as it declares len and x.
+    AddAdvLink( "SecondLink" )
+    indx2 = GetLinkIndex( "SecondLink" )
+    AddAdvLinkInput( indx2, length, "len" )
+    AddAdvLinkOutput( indx2, GetParm( pod, "Y_Rel_Location", "XForm" ), "x" )
+
+    ReadAdvLinkCodeFile( indx2, "ExampleLink.vspscript" )
+
+    assert GetAdvLinkCode( indx2 ) == GetAdvLinkCode( indx ), "ReadAdvLinkCodeFile did not load the code"
+
+    \endcode
+    \endPythonOnly
+    \sa WriteAdvLinkCodeFile, SetAdvLinkCode
+    \param [in] index int Index for advanced link
+    \param [in] file_name string Name of the file to read
+*/
+
+extern void ReadAdvLinkCodeFile( int index, const string & file_name );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Sort the input variables of an advanced link into alphabetical order by variable name.  Inputs
+    are otherwise kept in the order they were added, which is rarely the order that reads well once
+    a link has grown.
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+
+    AddAdvLinkInput( indx, FindParm( pod, "Length", "Design" ), "zlen" );
+    AddAdvLinkInput( indx, FindParm( pod, "FineRatio", "Design" ), "afine" );
+
+    SortAdvLinkInputsVar( indx );
+
+    array< string > @names = GetAdvLinkInputNames( indx );
+
+    if ( names[0] != "afine" || names[1] != "zlen" )
+    {
+        Print( "ERROR: SortAdvLinkInputsVar did not sort by name" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+
+    AddAdvLinkInput( indx, FindParm( pod, "Length", "Design" ), "zlen" )
+    AddAdvLinkInput( indx, FindParm( pod, "FineRatio", "Design" ), "afine" )
+
+    SortAdvLinkInputsVar( indx )
+
+    names = GetAdvLinkInputNames( indx )
+
+    assert names[0] == "afine", "SortAdvLinkInputsVar did not sort by name"
+    assert names[1] == "zlen", "SortAdvLinkInputsVar did not sort by name"
+
+    \endcode
+    \endPythonOnly
+    \sa SortAdvLinkInputsCGP, SortAdvLinkOutputsVar
+    \param [in] index int Index for advanced link
+*/
+
+extern void SortAdvLinkInputsVar( int index );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Sort the input variables of an advanced link by the Parm they are attached to, ordering on
+    container name, then group name, then Parm name.  This gathers the inputs that come from the
+    same Geom together, which is usually how a link is read.
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+
+    AddAdvLinkInput( indx, FindParm( pod, "Length", "Design" ), "a" );
+    AddAdvLinkInput( indx, FindParm( pod, "FineRatio", "Design" ), "b" );
+
+    SortAdvLinkInputsCGP( indx );
+
+    array< string > @names = GetAdvLinkInputNames( indx );
+
+    // FineRatio sorts ahead of Length, so the variables come back swapped.
+    if ( names[0] != "b" || names[1] != "a" )
+    {
+        Print( "ERROR: SortAdvLinkInputsCGP did not sort by Parm" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+
+    AddAdvLinkInput( indx, FindParm( pod, "Length", "Design" ), "a" )
+    AddAdvLinkInput( indx, FindParm( pod, "FineRatio", "Design" ), "b" )
+
+    SortAdvLinkInputsCGP( indx )
+
+    names = GetAdvLinkInputNames( indx )
+
+    # FineRatio sorts ahead of Length, so the variables come back swapped.
+    assert names[0] == "b", "SortAdvLinkInputsCGP did not sort by Parm"
+    assert names[1] == "a", "SortAdvLinkInputsCGP did not sort by Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa SortAdvLinkInputsVar, SortAdvLinkOutputsCGP
+    \param [in] index int Index for advanced link
+*/
+
+extern void SortAdvLinkInputsCGP( int index );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Sort the output variables of an advanced link into alphabetical order by variable name.
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+
+    AddAdvLinkOutput( indx, FindParm( pod, "X_Rel_Location", "XForm" ), "zx" );
+    AddAdvLinkOutput( indx, FindParm( pod, "Y_Rel_Location", "XForm" ), "ay" );
+
+    SortAdvLinkOutputsVar( indx );
+
+    array< string > @names = GetAdvLinkOutputNames( indx );
+
+    if ( names[0] != "ay" || names[1] != "zx" )
+    {
+        Print( "ERROR: SortAdvLinkOutputsVar did not sort by name" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+
+    AddAdvLinkOutput( indx, FindParm( pod, "X_Rel_Location", "XForm" ), "zx" )
+    AddAdvLinkOutput( indx, FindParm( pod, "Y_Rel_Location", "XForm" ), "ay" )
+
+    SortAdvLinkOutputsVar( indx )
+
+    names = GetAdvLinkOutputNames( indx )
+
+    assert names[0] == "ay", "SortAdvLinkOutputsVar did not sort by name"
+    assert names[1] == "zx", "SortAdvLinkOutputsVar did not sort by name"
+
+    \endcode
+    \endPythonOnly
+    \sa SortAdvLinkOutputsCGP, SortAdvLinkInputsVar
+    \param [in] index int Index for advanced link
+*/
+
+extern void SortAdvLinkOutputsVar( int index );
+
+/*!
+    \ingroup AdvancedLink
+*/
+/*!
+    Sort the output variables of an advanced link by the Parm they drive, ordering on container
+    name, then group name, then Parm name.
+    \forcpponly
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+
+    AddAdvLinkOutput( indx, FindParm( pod, "Y_Rel_Location", "XForm" ), "a" );
+    AddAdvLinkOutput( indx, FindParm( pod, "X_Rel_Location", "XForm" ), "b" );
+
+    SortAdvLinkOutputsCGP( indx );
+
+    array< string > @names = GetAdvLinkOutputNames( indx );
+
+    // X_Rel_Location sorts ahead of Y_Rel_Location, so the variables come back swapped.
+    if ( names[0] != "b" || names[1] != "a" )
+    {
+        Print( "ERROR: SortAdvLinkOutputsCGP did not sort by Parm" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    pod = AddGeom( "POD", "" )
+
+    AddAdvLink( "ExampleLink" )
+    indx = GetLinkIndex( "ExampleLink" )
+
+    AddAdvLinkOutput( indx, FindParm( pod, "Y_Rel_Location", "XForm" ), "a" )
+    AddAdvLinkOutput( indx, FindParm( pod, "X_Rel_Location", "XForm" ), "b" )
+
+    SortAdvLinkOutputsCGP( indx )
+
+    names = GetAdvLinkOutputNames( indx )
+
+    # X_Rel_Location sorts ahead of Y_Rel_Location, so the variables come back swapped.
+    assert names[0] == "b", "SortAdvLinkOutputsCGP did not sort by Parm"
+    assert names[1] == "a", "SortAdvLinkOutputsCGP did not sort by Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa SortAdvLinkOutputsVar, SortAdvLinkInputsCGP
+    \param [in] index int Index for advanced link
+*/
+
+extern void SortAdvLinkOutputsCGP( int index );
 
 
 }           // End vsp namespace

@@ -3440,6 +3440,24 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "bool BuildAdvLinkScript( int index )", asFUNCTION( vsp::BuildAdvLinkScript ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void WriteAdvLinkCodeFile( int index, const string & in file_name )", asFUNCTION( vsp::WriteAdvLinkCodeFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ReadAdvLinkCodeFile( int index, const string & in file_name )", asFUNCTION( vsp::ReadAdvLinkCodeFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SortAdvLinkInputsVar( int index )", asFUNCTION( vsp::SortAdvLinkInputsVar ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SortAdvLinkInputsCGP( int index )", asFUNCTION( vsp::SortAdvLinkInputsCGP ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SortAdvLinkOutputsVar( int index )", asFUNCTION( vsp::SortAdvLinkOutputsVar ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SortAdvLinkOutputsCGP( int index )", asFUNCTION( vsp::SortAdvLinkOutputsCGP ), asCALL_CDECL );
+    assert( r >= 0 );
+
 //
 // These methods appear to have been mistakenly exposed to the API.
 //
@@ -5531,6 +5549,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "void UpdateParasiteDrag()", asFUNCTION( vsp::UpdateParasiteDrag ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
+
+    r = se->RegisterGlobalFunction( "string ExportParasiteDragToCSV( const string & in file_name )", asFUNCTION( vsp::ExportParasiteDragToCSV ), asCALL_CDECL );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void WriteAtmosphereCSVFile( const string & in file_name, const int & in atmos_type )", asFUNCTION( vsp::WriteAtmosphereCSVFile ), asCALL_CDECL );

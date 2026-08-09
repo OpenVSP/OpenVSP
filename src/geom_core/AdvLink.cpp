@@ -724,16 +724,18 @@ xmlNodePtr AdvLink::DecodeXml( xmlNodePtr & adv_link_node )
     return adv_link_node;
 }
 
-void AdvLink::SaveCode( const string & file_name )
+bool AdvLink::SaveCode( const string & file_name )
 {
     std::ofstream os( file_name );
     if ( os )
     {
         os << m_ScriptCode;
+        return true;
     }
+    return false;
 }
 
-void AdvLink::ReadCode( const string & file_name )
+bool AdvLink::ReadCode( const string & file_name )
 {
     std::ifstream t(file_name.c_str());
     std::stringstream buffer;
@@ -745,7 +747,9 @@ void AdvLink::ReadCode( const string & file_name )
     {
         m_ScriptCode = buffer_string;
         BuildScript();
+        return true;
     }
+    return false;
 }
 
 void AdvLink::SearchReplaceCode( const string & from, const string & to )
