@@ -8024,6 +8024,14 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
     Update();
 
     vec3d max_pnt = GetGeomBBoxMax( pid, 0, false );
+
+    vec3d min_pnt = GetGeomBBoxMin( pid, 0, false );
+
+    if ( max_pnt.x() <= min_pnt.x() || max_pnt.y() <= min_pnt.y() || max_pnt.z() <= min_pnt.z() )
+    {
+        Print( "ERROR: GetGeomBBoxMax is not above the minimum corner" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8037,6 +8045,10 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
     Update()
 
     max_pnt = GetGeomBBoxMax( pid, 0, False )
+
+    min_pnt = GetGeomBBoxMin( pid, 0, False )
+
+    assert max_pnt.x() > min_pnt.x() and max_pnt.y() > min_pnt.y() and max_pnt.z() > min_pnt.z(), "GetGeomBBoxMax is not above the minimum corner"
 
     \endcode
     \endPythonOnly
@@ -8066,6 +8078,14 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
     Update();
 
     vec3d min_pnt = GetGeomBBoxMin( pid, 0, false );
+
+    vec3d max_pnt = GetGeomBBoxMax( pid, 0, false );
+
+    if ( min_pnt.x() >= max_pnt.x() || min_pnt.y() >= max_pnt.y() || min_pnt.z() >= max_pnt.z() )
+    {
+        Print( "ERROR: GetGeomBBoxMin is not below the maximum corner" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8079,6 +8099,10 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
     Update()
 
     min_pnt = GetGeomBBoxMin( pid, 0, False )
+
+    max_pnt = GetGeomBBoxMax( pid, 0, False )
+
+    assert min_pnt.x() < max_pnt.x() and min_pnt.y() < max_pnt.y() and min_pnt.z() < max_pnt.z(), "GetGeomBBoxMin is not below the maximum corner"
 
     \endcode
     \endPythonOnly
@@ -23581,6 +23605,12 @@ extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const d
 
     vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
 
+    if ( !closeTo( norm.mag(), 1.0, 1e-9 ) )
+    {
+        Print( "ERROR: CompNorm01 is not a unit vector" );
+        __failure++;
+    }
+
     Print( "Point: ( " + norm.x() + ', ' + norm.y() + ', ' + norm.z() + ' )' );
     \endcode
     \endforcpponly
@@ -23595,6 +23625,8 @@ extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const d
     w = 0.67890
 
     norm = CompNorm01( geom_id, surf_indx, u, w )
+
+    assert abs( norm.mag() - 1.0 ) < 1e-9, "CompNorm01 is not a unit vector"
 
     print( "Point: ( {norm.x()}, {norm.y()}, {norm.z()} )" )
 
@@ -23626,6 +23658,12 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
 
     vec3d tanu = CompTanU01( geom_id, surf_indx, u, w );
 
+    if ( tanu.mag() <= 0.0 )
+    {
+        Print( "ERROR: CompTanU01 is degenerate" );
+        __failure++;
+    }
+
     Print( "Point: ( " + tanu.x() + ', ' + tanu.y() + ', ' + tanu.z() + ' )' );
     \endcode
     \endforcpponly
@@ -23640,6 +23678,8 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
     w = 0.67890
 
     tanu = CompTanU01( geom_id, surf_indx, u, w )
+
+    assert tanu.mag() > 0.0, "CompTanU01 is degenerate"
 
     print( f"Point: ( {tanu.x()}, {tanu.y()}, {tanu.z()} )" )
 
@@ -23671,6 +23711,12 @@ extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const 
 
     vec3d tanw = CompTanW01( geom_id, surf_indx, u, w );
 
+    if ( tanw.mag() <= 0.0 )
+    {
+        Print( "ERROR: CompTanW01 is degenerate" );
+        __failure++;
+    }
+
     Print( "Point: ( " + tanw.x() + ', ' + tanw.y() + ', ' + tanw.z() + ' )' );
     \endcode
     \endforcpponly
@@ -23685,6 +23731,8 @@ extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const 
     w = 0.67890
 
     tanw = CompTanW01( geom_id, surf_indx, u, w )
+
+    assert tanw.mag() > 0.0, "CompTanW01 is degenerate"
 
     print( f"Point: ( {tanw.x()}, {tanw.y()}, {tanw.z()} )" )
 
@@ -24901,6 +24949,15 @@ extern std::vector < vec3d > CompVecDegenPnt01(const std::string &geom_id, const
     }
 
     array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec );
+
+    for( int i = 0 ; i < int( normvec.length() ) ; i++ )
+    {
+        if ( !closeTo( normvec[i].mag(), 1.0, 1e-9 ) )
+        {
+            Print( "ERROR: CompVecNorm01 entry " + i + " is not a unit vector" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -24920,6 +24977,9 @@ extern std::vector < vec3d > CompVecDegenPnt01(const std::string &geom_id, const
         wvec[i] = (n-i)*1.0/(n+1)
 
     normvec = CompVecNorm01( geom_id, 0, uvec, wvec )
+
+    for i in range( len( normvec ) ):
+        assert abs( normvec[i].mag() - 1.0 ) < 1e-9, "CompVecNorm01 is not a unit vector"
 
     \endcode
     \endPythonOnly
