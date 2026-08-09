@@ -2760,6 +2760,7 @@ vec3d GetGeomBBoxMax( const string& geom_id, int main_surf_ind, bool ref_frame_i
     if ( main_surf_ind < 0 || main_surf_ind >= num_surf )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMax::Main Surf Index " + to_string( main_surf_ind) + " Out of Range" );
+        return vec3d();
     }
 
     // Determine BndBox dimensions prior to rotating and translating
@@ -2798,6 +2799,7 @@ vec3d GetGeomBBoxMin( const string& geom_id, int main_surf_ind, bool ref_frame_i
     if ( main_surf_ind < 0 || main_surf_ind >= num_surf )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMin::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
+        return vec3d();
     }
 
     // Determine BndBox dimensions prior to rotating and translating
