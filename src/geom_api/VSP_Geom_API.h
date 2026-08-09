@@ -3977,6 +3977,262 @@ extern string AddGeometryAnalysis();
     \param [in] id string ID of the Geometry Analysis case to delete
 */
 
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Add a discrete azimuth and elevation pair to a Geometry Analysis case.  A visibility analysis
+    with the discrete visibility flag set is evaluated at each pair that has been added.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    if ( GetNumGeometryAnalysisAzEl( ga_id ) != 0 )
+    {
+        Print( "ERROR: a new Geometry Analysis already carries az/el pairs" );
+        __failure++;
+    }
+
+    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 );
+
+    if ( GetNumGeometryAnalysisAzEl( ga_id ) != 1 )
+    {
+        Print( "ERROR: AddGeometryAnalysisAzEl did not add a pair" );
+        __failure++;
+    }
+
+    // Each pair is a pair of Parms, so the values can be read and changed.
+    string az_id = GetGeometryAnalysisAzimuthParm( ga_id, 0 );
+    string el_id = GetGeometryAnalysisElevationParm( ga_id, 0 );
+
+    if ( !closeTo( GetParmVal( az_id ), 30.0, 1e-6 ) || !closeTo( GetParmVal( el_id ), 15.0, 1e-6 ) )
+    {
+        Print( "ERROR: the az/el pair does not hold the values it was given" );
+        __failure++;
+    }
+
+    // An ID that is not a Geometry Analysis has to be rejected.
+    AddGeometryAnalysisAzEl( "NOSUCHANALYSIS", 0.0, 0.0 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: AddGeometryAnalysisAzEl accepted a bad ID" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    assert GetNumGeometryAnalysisAzEl( ga_id ) == 0, "a new Geometry Analysis already carries az/el pairs"
+
+    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 )
+
+    assert GetNumGeometryAnalysisAzEl( ga_id ) == 1, "AddGeometryAnalysisAzEl did not add a pair"
+
+    # Each pair is a pair of Parms, so the values can be read and changed.
+    az_id = GetGeometryAnalysisAzimuthParm( ga_id, 0 )
+    el_id = GetGeometryAnalysisElevationParm( ga_id, 0 )
+
+    assert abs( GetParmVal( az_id ) - 30.0 ) < 1e-6, "the az/el pair does not hold the values it was given"
+    assert abs( GetParmVal( el_id ) - 15.0 ) < 1e-6, "the az/el pair does not hold the values it was given"
+
+    # An ID that is not a Geometry Analysis has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    AddGeometryAnalysisAzEl( "NOSUCHANALYSIS", 0.0, 0.0 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "AddGeometryAnalysisAzEl accepted a bad ID"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysis, DeleteGeometryAnalysisAzEl, GetNumGeometryAnalysisAzEl
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] azimuth double Azimuth angle (degrees, -180 to 180)
+    \param [in] elevation double Elevation angle (degrees, -90 to 90)
+*/
+
+extern void AddGeometryAnalysisAzEl( const std::string & geom_analysis_id, double azimuth, double elevation );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Delete one azimuth and elevation pair from a Geometry Analysis case
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 );
+    AddGeometryAnalysisAzEl( ga_id, 60.0, 45.0 );
+
+    DeleteGeometryAnalysisAzEl( ga_id, 0 );
+
+    // Only the indexed pair goes, and the rest slide down.
+    if ( GetNumGeometryAnalysisAzEl( ga_id ) != 1 )
+    {
+        Print( "ERROR: DeleteGeometryAnalysisAzEl did not remove one pair" );
+        __failure++;
+    }
+    else
+    {
+        if ( !closeTo( GetParmVal( GetGeometryAnalysisAzimuthParm( ga_id, 0 ) ), 60.0, 1e-6 ) )
+        {
+            Print( "ERROR: DeleteGeometryAnalysisAzEl removed the wrong pair" );
+            __failure++;
+        }
+    }
+
+    // An index past the end has to be rejected.
+    DeleteGeometryAnalysisAzEl( ga_id, GetNumGeometryAnalysisAzEl( ga_id ) );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteGeometryAnalysisAzEl accepted an index past the end" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 )
+    AddGeometryAnalysisAzEl( ga_id, 60.0, 45.0 )
+
+    DeleteGeometryAnalysisAzEl( ga_id, 0 )
+
+    # Only the indexed pair goes, and the rest slide down.
+    assert GetNumGeometryAnalysisAzEl( ga_id ) == 1, "DeleteGeometryAnalysisAzEl did not remove one pair"
+    assert abs( GetParmVal( GetGeometryAnalysisAzimuthParm( ga_id, 0 ) ) - 60.0 ) < 1e-6, "DeleteGeometryAnalysisAzEl removed the wrong pair"
+
+    # An index past the end has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteGeometryAnalysisAzEl( ga_id, GetNumGeometryAnalysisAzEl( ga_id ) )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteGeometryAnalysisAzEl accepted an index past the end"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysisAzEl, DeleteAllGeometryAnalysisAzEl
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] index int Az/El pair index
+*/
+
+extern void DeleteGeometryAnalysisAzEl( const std::string & geom_analysis_id, int index );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Delete every azimuth and elevation pair from a Geometry Analysis case
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 );
+    AddGeometryAnalysisAzEl( ga_id, 60.0, 45.0 );
+
+    DeleteAllGeometryAnalysisAzEl( ga_id );
+
+    if ( GetNumGeometryAnalysisAzEl( ga_id ) != 0 )
+    {
+        Print( "ERROR: DeleteAllGeometryAnalysisAzEl left pairs behind" );
+        __failure++;
+    }
+
+    // Clearing an empty case is not an error.
+    DeleteAllGeometryAnalysisAzEl( ga_id );
+
+    if ( GetNumTotalErrors() != 0 )
+    {
+        Print( "ERROR: DeleteAllGeometryAnalysisAzEl complained about an empty case" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 )
+    AddGeometryAnalysisAzEl( ga_id, 60.0, 45.0 )
+
+    DeleteAllGeometryAnalysisAzEl( ga_id )
+
+    assert GetNumGeometryAnalysisAzEl( ga_id ) == 0, "DeleteAllGeometryAnalysisAzEl left pairs behind"
+
+    # Clearing an empty case is not an error.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteAllGeometryAnalysisAzEl( ga_id )
+
+    assert err_mgr.GetNumTotalErrors() == 0, "DeleteAllGeometryAnalysisAzEl complained about an empty case"
+
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysisAzEl, DeleteGeometryAnalysisAzEl
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+*/
+
+extern void DeleteAllGeometryAnalysisAzEl( const std::string & geom_analysis_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the number of azimuth and elevation pairs in a Geometry Analysis case
+    \sa AddGeometryAnalysisAzEl
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \return int Number of az/el pairs
+*/
+
+extern int GetNumGeometryAnalysisAzEl( const std::string & geom_analysis_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the Parm ID of the azimuth of one az/el pair, so its value can be read or changed
+    \sa AddGeometryAnalysisAzEl, GetGeometryAnalysisElevationParm
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] index int Az/El pair index
+    \return string Azimuth Parm ID
+*/
+
+extern std::string GetGeometryAnalysisAzimuthParm( const std::string & geom_analysis_id, int index );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the Parm ID of the elevation of one az/el pair, so its value can be read or changed
+    \sa AddGeometryAnalysisAzEl, GetGeometryAnalysisAzimuthParm
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] index int Az/El pair index
+    \return string Elevation Parm ID
+*/
+
+extern std::string GetGeometryAnalysisElevationParm( const std::string & geom_analysis_id, int index );
+
 extern void DeleteGeometryAnalysis( const string &id );
 
 /*!
@@ -15035,6 +15291,155 @@ extern int NumFeaBCs( const string & fea_struct_id );
     \return vector\<string\> Array of FEA Material IDs
 */
 
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Add a layer to an FEA laminate material.  Only a material of type FEA_LAMINATE carries layers.
+    \forcpponly
+    \code{.cpp}
+    //==== Create a laminate material ====//
+    string mat_id = AddFeaMaterial();
+
+    SetParmVal( FindParm( mat_id, "FeaMaterialType", "FeaMaterial" ), FEA_LAMINATE );
+
+    Update();
+
+    // Becoming a laminate gives the material a first layer, so count from there.
+    int num_before = NumFeaLayers( mat_id );
+
+    if ( num_before < 1 )
+    {
+        Print( "ERROR: a laminate starts with no layers" );
+        __failure++;
+    }
+
+    string layer_id = AddFeaLayer( mat_id );
+
+    if ( layer_id.length() == 0 || NumFeaLayers( mat_id ) != num_before + 1 )
+    {
+        Print( "ERROR: AddFeaLayer did not add a layer" );
+        __failure++;
+    }
+
+    array< string > @layer_ids = GetFeaLayerIDVec( mat_id );
+
+    if ( int( layer_ids.size() ) != num_before + 1 || layer_ids[num_before] != layer_id )
+    {
+        Print( "ERROR: the layer is not in the layer list" );
+        __failure++;
+    }
+
+    DeleteFeaLayer( mat_id, layer_id );
+
+    if ( NumFeaLayers( mat_id ) != num_before )
+    {
+        Print( "ERROR: DeleteFeaLayer did not remove the layer" );
+        __failure++;
+    }
+
+    // A material that is not a laminate has to be rejected.
+    string plain_id = AddFeaMaterial();
+
+    AddFeaLayer( plain_id );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: AddFeaLayer accepted a material that is not a laminate" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Create a laminate material ====//
+    mat_id = AddFeaMaterial()
+
+    SetParmVal( FindParm( mat_id, "FeaMaterialType", "FeaMaterial" ), FEA_LAMINATE )
+
+    Update()
+
+    # Becoming a laminate gives the material a first layer, so count from there.
+    num_before = NumFeaLayers( mat_id )
+
+    assert num_before >= 1, "a laminate starts with no layers"
+
+    layer_id = AddFeaLayer( mat_id )
+
+    assert len( layer_id ) > 0, "AddFeaLayer did not add a layer"
+    assert NumFeaLayers( mat_id ) == num_before + 1, "AddFeaLayer did not add a layer"
+
+    layer_ids = GetFeaLayerIDVec( mat_id )
+
+    assert len( layer_ids ) == num_before + 1, "the layer is not in the layer list"
+    assert layer_ids[num_before] == layer_id, "the layer is not in the layer list"
+
+    DeleteFeaLayer( mat_id, layer_id )
+
+    assert NumFeaLayers( mat_id ) == num_before, "DeleteFeaLayer did not remove the layer"
+
+    # A material that is not a laminate has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    plain_id = AddFeaMaterial()
+
+    AddFeaLayer( plain_id )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "AddFeaLayer accepted a material that is not a laminate"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa DeleteFeaLayer, NumFeaLayers, GetFeaLayerIDVec, AddFeaMaterial
+    \param [in] material_id string FEA Material ID of a laminate
+    \return string FEA Layer ID
+*/
+
+extern std::string AddFeaLayer( const std::string & material_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete a layer from an FEA laminate material
+    \sa AddFeaLayer, GetFeaLayerIDVec
+    \param [in] material_id string FEA Material ID of a laminate
+    \param [in] layer_id string FEA Layer ID
+*/
+
+extern void DeleteFeaLayer( const std::string & material_id, const std::string & layer_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the number of layers in an FEA laminate material
+    \sa AddFeaLayer, GetFeaLayerIDVec
+    \param [in] material_id string FEA Material ID of a laminate
+    \return int Number of layers
+*/
+
+extern int NumFeaLayers( const std::string & material_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the IDs of every layer in an FEA laminate material
+    \sa AddFeaLayer, DeleteFeaLayer
+    \param [in] material_id string FEA Material ID of a laminate
+    \return vector\<string\> Array of FEA Layer IDs
+*/
+
+extern std::vector < std::string > GetFeaLayerIDVec( const std::string & material_id );
+
 extern std::vector < std::string > GetFeaMaterialIDVec();
 
 /*!
@@ -17505,6 +17910,180 @@ extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::s
 */
 
 extern std::vector< vec3d > GetXSecPnts( const std::string& xsec_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Copy the XSecCurve of a cross section to the XSecCurve clipboard.  This carries the section
+    shape without the section's placement, and works on a body of revolution too, where the index
+    is ignored because it holds only one curve.
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE );
+
+    Update();
+
+    CopyXSecCurve( sid, 1 );
+
+    PasteXSecCurve( sid, 3 );
+
+    Update();
+
+    // The shape travels to the pasted section.
+    if ( GetXSecShape( GetXSec( xsec_surf, 3 ) ) != XS_ROUNDED_RECTANGLE )
+    {
+        Print( "ERROR: the XSecCurve did not paste" );
+        __failure++;
+    }
+
+    // A Geom that carries no cross sections has to be rejected.
+    string pid = AddGeom( "POD" );
+
+    CopyXSecCurve( pid, 0 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: CopyXSecCurve accepted a Geom with no cross sections" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE )
+
+    Update()
+
+    CopyXSecCurve( sid, 1 )
+
+    PasteXSecCurve( sid, 3 )
+
+    Update()
+
+    # The shape travels to the pasted section.
+    assert GetXSecShape( GetXSec( xsec_surf, 3 ) ) == XS_ROUNDED_RECTANGLE, "the XSecCurve did not paste"
+
+    # A Geom that carries no cross sections has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    pid = AddGeom( "POD" )
+
+    CopyXSecCurve( pid, 0 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "CopyXSecCurve accepted a Geom with no cross sections"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa PasteXSecCurve, CopyXSec, CopyAirfoil
+    \param [in] geom_id string Geom ID
+    \param [in] index int XSec index, ignored for a body of revolution
+*/
+
+extern void CopyXSecCurve( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Paste the XSecCurve clipboard onto a cross section
+    \forcpponly
+    \code{.cpp}
+    // A body of revolution holds one XSecCurve, so its index is ignored.
+    string sid = AddGeom( "STACK", "" );
+
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE );
+
+    Update();
+
+    CopyXSecCurve( sid, 1 );
+
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    PasteXSecCurve( bor_id, 0 );
+
+    Update();
+
+    if ( GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE )
+    {
+        Print( "ERROR: the XSecCurve did not paste onto the body of revolution" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    PasteXSecCurve( sid, 100 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: PasteXSecCurve accepted an index past the end" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # A body of revolution holds one XSecCurve, so its index is ignored.
+    sid = AddGeom( "STACK", "" )
+
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE )
+
+    Update()
+
+    CopyXSecCurve( sid, 1 )
+
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+
+    PasteXSecCurve( bor_id, 0 )
+
+    Update()
+
+    assert GetBORXSecShape( bor_id ) == XS_ROUNDED_RECTANGLE, "the XSecCurve did not paste onto the body of revolution"
+
+    # An index past the end has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    PasteXSecCurve( sid, 100 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "PasteXSecCurve accepted an index past the end"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa CopyXSecCurve, PasteXSec, PasteAirfoil
+    \param [in] geom_id string Geom ID
+    \param [in] index int XSec index, ignored for a body of revolution
+*/
+
+extern void PasteXSecCurve( const std::string & geom_id, int index );
 
 extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_vec );
 

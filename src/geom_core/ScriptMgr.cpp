@@ -3898,6 +3898,24 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "string AddGeometryAnalysis( )", asFUNCTION( vsp::AddGeometryAnalysis ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void AddGeometryAnalysisAzEl( const string & in geom_analysis_id, double azimuth, double elevation )", asFUNCTION( vsp::AddGeometryAnalysisAzEl ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteGeometryAnalysisAzEl( const string & in geom_analysis_id, int index )", asFUNCTION( vsp::DeleteGeometryAnalysisAzEl ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteAllGeometryAnalysisAzEl( const string & in geom_analysis_id )", asFUNCTION( vsp::DeleteAllGeometryAnalysisAzEl ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetNumGeometryAnalysisAzEl( const string & in geom_analysis_id )", asFUNCTION( vsp::GetNumGeometryAnalysisAzEl ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeometryAnalysisAzimuthParm( const string & in geom_analysis_id, int index )", asFUNCTION( vsp::GetGeometryAnalysisAzimuthParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeometryAnalysisElevationParm( const string & in geom_analysis_id, int index )", asFUNCTION( vsp::GetGeometryAnalysisElevationParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
 
     r = se->RegisterGlobalFunction( "void DeleteGeometryAnalysis( const string & in id )", asFUNCTION( vsp::DeleteGeometryAnalysis ), asCALL_CDECL );
@@ -4645,6 +4663,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     r = se->RegisterGlobalFunction( "array<vec3d>@+ GetXSecPnts( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void CopyXSecCurve( const string & in geom_id, int index )", asFUNCTION( vsp::CopyXSecCurve ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void PasteXSecCurve( const string & in geom_id, int index )", asFUNCTION( vsp::PasteXSecCurve ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void SetXSecPnts( const string& in xsec_id, array<vec3d>@+ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -5948,6 +5972,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ComputeFeaAssemblyMesh( const string & in assembly_id )", asFUNCTION( vsp::ComputeFeaAssemblyMesh ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string AddFeaLayer( const string & in material_id )", asFUNCTION( vsp::AddFeaLayer ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteFeaLayer( const string & in material_id, const string & in layer_id )", asFUNCTION( vsp::DeleteFeaLayer ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int NumFeaLayers( const string & in material_id )", asFUNCTION( vsp::NumFeaLayers ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaLayerIDVec( const string & in material_id )", asMETHOD( ScriptMgrSingleton, GetFeaLayerIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "array<string>@+ GetFeaMaterialIDVec()", asMETHOD( ScriptMgrSingleton, GetFeaMaterialIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
@@ -7025,6 +7061,12 @@ void ScriptMgrSingleton::AddExcrescence( const std::string & excresName, int exc
 void ScriptMgrSingleton::DeleteExcrescence(int index)
 {
     vsp::DeleteExcrescence(index);
+}
+
+CScriptArray* ScriptMgrSingleton::GetFeaLayerIDVec( const string & material_id )
+{
+    m_ProxyStringArray = vsp::GetFeaLayerIDVec( material_id );
+    return GetProxyStringArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetFeaTrimPartIDVec( const string & trim_id )

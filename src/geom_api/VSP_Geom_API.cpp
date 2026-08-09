@@ -12162,6 +12162,115 @@ bool CheckForVSPHelp( const std::string & path )
     return false;
 }
 
+//============ Geometry Analysis Az/El Functions =====================//
+
+//==== Look up a Geometry Analysis case by ID, reporting through the named
+//==== caller. ====//
+GeometryAnalysisCase* FindGeometryAnalysis( const string & geom_analysis_id, const string & caller )
+{
+    GeometryAnalysisCase* gcase = GeometryAnalysisMgr.GetGeometryAnalysis( geom_analysis_id );
+
+    if ( !gcase )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Invalid Geometry Analysis ID " + geom_analysis_id );
+    }
+
+    return gcase;
+}
+
+void AddGeometryAnalysisAzEl( const string & geom_analysis_id, double azimuth, double elevation )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "AddGeometryAnalysisAzEl" );
+    if ( !gcase )
+    {
+        return;
+    }
+
+    gcase->AddAzEl( azimuth, elevation );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteGeometryAnalysisAzEl( const string & geom_analysis_id, int index )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "DeleteGeometryAnalysisAzEl" );
+    if ( !gcase )
+    {
+        return;
+    }
+
+    if ( index < 0 || index >= ( int )gcase->m_VizAzimuthVec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteGeometryAnalysisAzEl::Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
+    gcase->RemoveAzEl( index );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteAllGeometryAnalysisAzEl( const string & geom_analysis_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "DeleteAllGeometryAnalysisAzEl" );
+    if ( !gcase )
+    {
+        return;
+    }
+
+    gcase->RemoveAllAzEl();
+
+    ErrorMgr.NoError();
+}
+
+int GetNumGeometryAnalysisAzEl( const string & geom_analysis_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetNumGeometryAnalysisAzEl" );
+    if ( !gcase )
+    {
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return ( int )gcase->m_VizAzimuthVec.size();
+}
+
+string GetGeometryAnalysisAzimuthParm( const string & geom_analysis_id, int index )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisAzimuthParm" );
+    if ( !gcase )
+    {
+        return string();
+    }
+
+    if ( index < 0 || index >= ( int )gcase->m_VizAzimuthVec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeometryAnalysisAzimuthParm::Index " + to_string( index ) + " Out of Range" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return gcase->m_VizAzimuthVec[ index ]->GetID();
+}
+
+string GetGeometryAnalysisElevationParm( const string & geom_analysis_id, int index )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisElevationParm" );
+    if ( !gcase )
+    {
+        return string();
+    }
+
+    if ( index < 0 || index >= ( int )gcase->m_VizElevationVec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeometryAnalysisElevationParm::Index " + to_string( index ) + " Out of Range" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return gcase->m_VizElevationVec[ index ]->GetID();
+}
+
 //================ Measure Tool Display Functions ====================//
 
 void ShowAllRulers()
@@ -12573,6 +12682,176 @@ void ShowOnlySet( int set_index )
     veh->ShowOnlySet( set_index );
 
     ErrorMgr.NoError();
+}
+
+//============ XSecCurve Clipboard Functions =========================//
+
+void CopyXSecCurve( const string & geom_id, int index )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "CopyXSecCurve" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    BORGeom* bor = dynamic_cast< BORGeom* >( geom_ptr );
+    if ( bor )
+    {
+        // A body of revolution carries exactly one XSecCurve, so the index is
+        // not used.
+        bor->CopyXSecCurve();
+
+        ErrorMgr.NoError();
+        return;
+    }
+
+    GeomXSec* gxs = dynamic_cast< GeomXSec* >( geom_ptr );
+    if ( !gxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "CopyXSecCurve::Geom " + geom_id + " carries no XSecCurve" );
+        return;
+    }
+
+    if ( index < 0 || index >= gxs->GetXSecSurf( 0 )->NumXSec() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CopyXSecCurve::XSec Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
+    gxs->GetXSecSurf( 0 )->CopyXSecCurve( index );
+
+    ErrorMgr.NoError();
+}
+
+void PasteXSecCurve( const string & geom_id, int index )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "PasteXSecCurve" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    BORGeom* bor = dynamic_cast< BORGeom* >( geom_ptr );
+    if ( bor )
+    {
+        bor->PasteXSecCurve();
+        Update();
+
+        ErrorMgr.NoError();
+        return;
+    }
+
+    GeomXSec* gxs = dynamic_cast< GeomXSec* >( geom_ptr );
+    if ( !gxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "PasteXSecCurve::Geom " + geom_id + " carries no XSecCurve" );
+        return;
+    }
+
+    if ( index < 0 || index >= gxs->GetXSecSurf( 0 )->NumXSec() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "PasteXSecCurve::XSec Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
+    gxs->GetXSecSurf( 0 )->PasteXSecCurve( index );
+    Update();
+
+    ErrorMgr.NoError();
+}
+
+//============ FEA Laminate Layer Functions =========================//
+
+//==== Look up an FEA laminate material by ID, reporting through the named
+//==== caller. ====//
+FeaMaterial* FindFeaLaminate( const string & material_id, const string & caller )
+{
+    FeaMaterial* mat = StructureMgr.GetFeaMaterial( material_id );
+
+    if ( !mat )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Invalid FEA Material ID " + material_id );
+        return nullptr;
+    }
+
+    if ( mat->m_FeaMaterialType() != FEA_LAMINATE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Material " + material_id + " is not a laminate" );
+        return nullptr;
+    }
+
+    return mat;
+}
+
+string AddFeaLayer( const string & material_id )
+{
+    FeaMaterial* mat = FindFeaLaminate( material_id, "AddFeaLayer" );
+    if ( !mat )
+    {
+        return string();
+    }
+
+    FeaLayer* lay = mat->AddLayer();
+
+    if ( !lay )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaLayer::Invalid FEA Layer Ptr" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return lay->GetID();
+}
+
+void DeleteFeaLayer( const string & material_id, const string & layer_id )
+{
+    FeaMaterial* mat = FindFeaLaminate( material_id, "DeleteFeaLayer" );
+    if ( !mat )
+    {
+        return;
+    }
+
+    if ( !mat->DeleteLayer( layer_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaLayer::Invalid FEA Layer ID " + layer_id );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+int NumFeaLayers( const string & material_id )
+{
+    FeaMaterial* mat = FindFeaLaminate( material_id, "NumFeaLayers" );
+    if ( !mat )
+    {
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return mat->NumLayers();
+}
+
+vector < string > GetFeaLayerIDVec( const string & material_id )
+{
+    vector < string > ret;
+
+    FeaMaterial* mat = FindFeaLaminate( material_id, "GetFeaLayerIDVec" );
+    if ( !mat )
+    {
+        return ret;
+    }
+
+    vector < FeaLayer* > lay_vec = mat->GetLayerVec();
+
+    ret.reserve( lay_vec.size() );
+    for ( int i = 0; i < ( int )lay_vec.size(); i++ )
+    {
+        ret.push_back( lay_vec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret;
 }
 
 //======================= Parm Link Functions ============================//
