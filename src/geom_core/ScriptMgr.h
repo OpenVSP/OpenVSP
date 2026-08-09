@@ -160,6 +160,10 @@ private:
     void AddSelectedToCSGroup( CScriptArray* selected, int CSGroupIndex );
     void RemoveSelectedFromCSGroup( CScriptArray* selected, int CSGroupIndex );
     CScriptArray* GetUnsteadyGroupCompIDs( int group_index );
+    CScriptArray* GetXSecTanAngles( const string& xsec_id, int side );
+    CScriptArray* GetXSecTanSlews( const string& xsec_id, int side );
+    CScriptArray* GetXSecTanStrengths( const string& xsec_id, int side );
+    CScriptArray* GetXSecCurvatures( const string& xsec_id, int side );
     CScriptArray* GetDriverGroup( const string & geom_id, int section_index );
     CScriptArray* GetUnsteadyGroupSurfIndexes( int group_index );
     CScriptArray* GetXSecParmIDs( const string & xsec_id );

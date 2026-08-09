@@ -17005,6 +17005,125 @@ extern void SetXSecContinuity( const std::string& xsec_id, int cx );
     \param [in] left double Left angle (degrees)
 */
 
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the tangent angles for one side of the specified XSec.  The four values come back in
+    the order the setter takes them: top, right, bottom and left.  The two sides can hold different
+    values, so XSEC_BOTH_SIDES is not accepted here.
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 10.0 );
+
+    array< double > vals = GetXSecTanAngles( xsec, XSEC_LEFT_SIDE );
+
+    // Setting both sides at once sets all four positions of each.
+    if ( vals.size() != 4 )
+    {
+        Print( "ERROR: GetXSecTanAngles did not report four values" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0; i < 4; i++ )
+        {
+            if ( !closeTo( vals[i], 10.0, 1e-6 ) )
+            {
+                Print( "ERROR: GetXSecTanAngles did not report the value that was set" );
+                __failure++;
+            }
+        }
+    }
+
+    // Both sides were set, so they agree, and each matches its Parm.
+    array< double > right_vals = GetXSecTanAngles( xsec, XSEC_RIGHT_SIDE );
+
+    if ( right_vals.size() != 4 || !closeTo( right_vals[0], vals[0], 1e-9 ) )
+    {
+        Print( "ERROR: the two sides disagree after setting both" );
+        __failure++;
+    }
+
+    if ( !closeTo( vals[0], GetParmVal( GetXSecParm( xsec, "TopLAngle" ) ), 1e-9 ) )
+    {
+        Print( "ERROR: GetXSecTanAngles disagrees with its Parm" );
+        __failure++;
+    }
+
+    // XSEC_BOTH_SIDES names no single answer, so it has to be rejected.
+    GetXSecTanAngles( xsec, XSEC_BOTH_SIDES );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetXSecTanAngles accepted XSEC_BOTH_SIDES" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 10.0, -1.0e12, -1.0e12, -1.0e12 )
+
+    vals = GetXSecTanAngles( xsec, XSEC_LEFT_SIDE )
+
+    # Setting both sides at once sets all four positions of each.
+    assert len( vals ) == 4, "GetXSecTanAngles did not report four values"
+
+    for v in vals:
+        assert abs( v - 10.0 ) < 1e-6, "GetXSecTanAngles did not report the value that was set"
+
+    # Both sides were set, so they agree, and each matches its Parm.
+    right_vals = GetXSecTanAngles( xsec, XSEC_RIGHT_SIDE )
+
+    assert len( right_vals ) == 4, "the two sides disagree after setting both"
+    assert abs( right_vals[0] - vals[0] ) < 1e-9, "the two sides disagree after setting both"
+    assert abs( vals[0] - GetParmVal( GetXSecParm( xsec, "TopLAngle" ) ) ) < 1e-9, "GetXSecTanAngles disagrees with its Parm"
+
+    # XSEC_BOTH_SIDES names no single answer, so it has to be rejected.  The
+    # error queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetXSecTanAngles( xsec, XSEC_BOTH_SIDES )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetXSecTanAngles accepted XSEC_BOTH_SIDES"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa XSEC_SIDES_TYPE, SetXSecTanAngles
+    \param [in] xsec_id string XSec ID
+    \param [in] side int Side type enum (XSEC_LEFT_SIDE or XSEC_RIGHT_SIDE)
+    \return vector\<double\> Top, right, bottom and left values for that side
+*/
+
+extern std::vector < double > GetXSecTanAngles( const std::string& xsec_id, int side );
+
 extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 
 /*!
@@ -17070,6 +17189,125 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
     \param [in] bottom double Bottom angle (degrees)
     \param [in] left double Left angle (degrees)
 */
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the tangent slew angles for one side of the specified XSec.  The four values come back in
+    the order the setter takes them: top, right, bottom and left.  The two sides can hold different
+    values, so XSEC_BOTH_SIDES is not accepted here.
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    SetXSecTanSlews( xsec, XSEC_BOTH_SIDES, 5.0 );
+
+    array< double > vals = GetXSecTanSlews( xsec, XSEC_LEFT_SIDE );
+
+    // Setting both sides at once sets all four positions of each.
+    if ( vals.size() != 4 )
+    {
+        Print( "ERROR: GetXSecTanSlews did not report four values" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0; i < 4; i++ )
+        {
+            if ( !closeTo( vals[i], 5.0, 1e-6 ) )
+            {
+                Print( "ERROR: GetXSecTanSlews did not report the value that was set" );
+                __failure++;
+            }
+        }
+    }
+
+    // Both sides were set, so they agree, and each matches its Parm.
+    array< double > right_vals = GetXSecTanSlews( xsec, XSEC_RIGHT_SIDE );
+
+    if ( right_vals.size() != 4 || !closeTo( right_vals[0], vals[0], 1e-9 ) )
+    {
+        Print( "ERROR: the two sides disagree after setting both" );
+        __failure++;
+    }
+
+    if ( !closeTo( vals[0], GetParmVal( GetXSecParm( xsec, "TopLSlew" ) ), 1e-9 ) )
+    {
+        Print( "ERROR: GetXSecTanSlews disagrees with its Parm" );
+        __failure++;
+    }
+
+    // XSEC_BOTH_SIDES names no single answer, so it has to be rejected.
+    GetXSecTanSlews( xsec, XSEC_BOTH_SIDES );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetXSecTanSlews accepted XSEC_BOTH_SIDES" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    SetXSecTanSlews( xsec, XSEC_BOTH_SIDES, 5.0, -1.0e12, -1.0e12, -1.0e12 )
+
+    vals = GetXSecTanSlews( xsec, XSEC_LEFT_SIDE )
+
+    # Setting both sides at once sets all four positions of each.
+    assert len( vals ) == 4, "GetXSecTanSlews did not report four values"
+
+    for v in vals:
+        assert abs( v - 5.0 ) < 1e-6, "GetXSecTanSlews did not report the value that was set"
+
+    # Both sides were set, so they agree, and each matches its Parm.
+    right_vals = GetXSecTanSlews( xsec, XSEC_RIGHT_SIDE )
+
+    assert len( right_vals ) == 4, "the two sides disagree after setting both"
+    assert abs( right_vals[0] - vals[0] ) < 1e-9, "the two sides disagree after setting both"
+    assert abs( vals[0] - GetParmVal( GetXSecParm( xsec, "TopLSlew" ) ) ) < 1e-9, "GetXSecTanSlews disagrees with its Parm"
+
+    # XSEC_BOTH_SIDES names no single answer, so it has to be rejected.  The
+    # error queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetXSecTanSlews( xsec, XSEC_BOTH_SIDES )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetXSecTanSlews accepted XSEC_BOTH_SIDES"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa XSEC_SIDES_TYPE, SetXSecTanSlews
+    \param [in] xsec_id string XSec ID
+    \param [in] side int Side type enum (XSEC_LEFT_SIDE or XSEC_RIGHT_SIDE)
+    \return vector\<double\> Top, right, bottom and left values for that side
+*/
+
+extern std::vector < double > GetXSecTanSlews( const std::string& xsec_id, int side );
 
 extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 
@@ -17139,6 +17377,125 @@ extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, d
     \param [in] left double Left strength
 */
 
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the tangent strengths for one side of the specified XSec.  The four values come back in
+    the order the setter takes them: top, right, bottom and left.  The two sides can hold different
+    values, so XSEC_BOTH_SIDES is not accepted here.
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.8 );
+
+    array< double > vals = GetXSecTanStrengths( xsec, XSEC_LEFT_SIDE );
+
+    // Setting both sides at once sets all four positions of each.
+    if ( vals.size() != 4 )
+    {
+        Print( "ERROR: GetXSecTanStrengths did not report four values" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0; i < 4; i++ )
+        {
+            if ( !closeTo( vals[i], 0.8, 1e-6 ) )
+            {
+                Print( "ERROR: GetXSecTanStrengths did not report the value that was set" );
+                __failure++;
+            }
+        }
+    }
+
+    // Both sides were set, so they agree, and each matches its Parm.
+    array< double > right_vals = GetXSecTanStrengths( xsec, XSEC_RIGHT_SIDE );
+
+    if ( right_vals.size() != 4 || !closeTo( right_vals[0], vals[0], 1e-9 ) )
+    {
+        Print( "ERROR: the two sides disagree after setting both" );
+        __failure++;
+    }
+
+    if ( !closeTo( vals[0], GetParmVal( GetXSecParm( xsec, "TopLStrength" ) ), 1e-9 ) )
+    {
+        Print( "ERROR: GetXSecTanStrengths disagrees with its Parm" );
+        __failure++;
+    }
+
+    // XSEC_BOTH_SIDES names no single answer, so it has to be rejected.
+    GetXSecTanStrengths( xsec, XSEC_BOTH_SIDES );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetXSecTanStrengths accepted XSEC_BOTH_SIDES" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.8, -1.0e12, -1.0e12, -1.0e12 )
+
+    vals = GetXSecTanStrengths( xsec, XSEC_LEFT_SIDE )
+
+    # Setting both sides at once sets all four positions of each.
+    assert len( vals ) == 4, "GetXSecTanStrengths did not report four values"
+
+    for v in vals:
+        assert abs( v - 0.8 ) < 1e-6, "GetXSecTanStrengths did not report the value that was set"
+
+    # Both sides were set, so they agree, and each matches its Parm.
+    right_vals = GetXSecTanStrengths( xsec, XSEC_RIGHT_SIDE )
+
+    assert len( right_vals ) == 4, "the two sides disagree after setting both"
+    assert abs( right_vals[0] - vals[0] ) < 1e-9, "the two sides disagree after setting both"
+    assert abs( vals[0] - GetParmVal( GetXSecParm( xsec, "TopLStrength" ) ) ) < 1e-9, "GetXSecTanStrengths disagrees with its Parm"
+
+    # XSEC_BOTH_SIDES names no single answer, so it has to be rejected.  The
+    # error queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetXSecTanStrengths( xsec, XSEC_BOTH_SIDES )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetXSecTanStrengths accepted XSEC_BOTH_SIDES"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa XSEC_SIDES_TYPE, SetXSecTanStrengths
+    \param [in] xsec_id string XSec ID
+    \param [in] side int Side type enum (XSEC_LEFT_SIDE or XSEC_RIGHT_SIDE)
+    \return vector\<double\> Top, right, bottom and left values for that side
+*/
+
+extern std::vector < double > GetXSecTanStrengths( const std::string& xsec_id, int side );
+
 extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 
 /*!
@@ -17206,6 +17563,125 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
     \param [in] bottom double Bottom curvature
     \param [in] left double Left curvature
 */
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the curvatures for one side of the specified XSec.  The four values come back in
+    the order the setter takes them: top, right, bottom and left.  The two sides can hold different
+    values, so XSEC_BOTH_SIDES is not accepted here.
+    \forcpponly
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2 );
+
+    array< double > vals = GetXSecCurvatures( xsec, XSEC_LEFT_SIDE );
+
+    // Setting both sides at once sets all four positions of each.
+    if ( vals.size() != 4 )
+    {
+        Print( "ERROR: GetXSecCurvatures did not report four values" );
+        __failure++;
+    }
+    else
+    {
+        for ( int i = 0; i < 4; i++ )
+        {
+            if ( !closeTo( vals[i], 0.2, 1e-6 ) )
+            {
+                Print( "ERROR: GetXSecCurvatures did not report the value that was set" );
+                __failure++;
+            }
+        }
+    }
+
+    // Both sides were set, so they agree, and each matches its Parm.
+    array< double > right_vals = GetXSecCurvatures( xsec, XSEC_RIGHT_SIDE );
+
+    if ( right_vals.size() != 4 || !closeTo( right_vals[0], vals[0], 1e-9 ) )
+    {
+        Print( "ERROR: the two sides disagree after setting both" );
+        __failure++;
+    }
+
+    if ( !closeTo( vals[0], GetParmVal( GetXSecParm( xsec, "TopLCurve" ) ), 1e-9 ) )
+    {
+        Print( "ERROR: GetXSecCurvatures disagrees with its Parm" );
+        __failure++;
+    }
+
+    // XSEC_BOTH_SIDES names no single answer, so it has to be rejected.
+    GetXSecCurvatures( xsec, XSEC_BOTH_SIDES );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetXSecCurvatures accepted XSEC_BOTH_SIDES" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Stack
+    sid = AddGeom( "STACK", "" )
+
+    # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2, -1.0e12, -1.0e12, -1.0e12 )
+
+    vals = GetXSecCurvatures( xsec, XSEC_LEFT_SIDE )
+
+    # Setting both sides at once sets all four positions of each.
+    assert len( vals ) == 4, "GetXSecCurvatures did not report four values"
+
+    for v in vals:
+        assert abs( v - 0.2 ) < 1e-6, "GetXSecCurvatures did not report the value that was set"
+
+    # Both sides were set, so they agree, and each matches its Parm.
+    right_vals = GetXSecCurvatures( xsec, XSEC_RIGHT_SIDE )
+
+    assert len( right_vals ) == 4, "the two sides disagree after setting both"
+    assert abs( right_vals[0] - vals[0] ) < 1e-9, "the two sides disagree after setting both"
+    assert abs( vals[0] - GetParmVal( GetXSecParm( xsec, "TopLCurve" ) ) ) < 1e-9, "GetXSecCurvatures disagrees with its Parm"
+
+    # XSEC_BOTH_SIDES names no single answer, so it has to be rejected.  The
+    # error queue is reached through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetXSecCurvatures( xsec, XSEC_BOTH_SIDES )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetXSecCurvatures accepted XSEC_BOTH_SIDES"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa XSEC_SIDES_TYPE, SetXSecCurvatures
+    \param [in] xsec_id string XSec ID
+    \param [in] side int Side type enum (XSEC_LEFT_SIDE or XSEC_RIGHT_SIDE)
+    \return vector\<double\> Top, right, bottom and left values for that side
+*/
+
+extern std::vector < double > GetXSecCurvatures( const std::string& xsec_id, int side );
 
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 

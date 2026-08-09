@@ -1439,6 +1439,94 @@ void SkinXSec::SetContinuity( int cx )
     m_TopCont = cx;
 }
 
+vector < double > SkinXSec::GetTanAngles( int side ) const
+{
+    vector < double > ret;
+
+    if ( side == vsp::XSEC_LEFT_SIDE )
+    {
+        ret.push_back( m_TopLAngle() );
+        ret.push_back( m_RightLAngle() );
+        ret.push_back( m_BottomLAngle() );
+        ret.push_back( m_LeftLAngle() );
+    }
+    else if ( side == vsp::XSEC_RIGHT_SIDE )
+    {
+        ret.push_back( m_TopRAngle() );
+        ret.push_back( m_RightRAngle() );
+        ret.push_back( m_BottomRAngle() );
+        ret.push_back( m_LeftRAngle() );
+    }
+
+    return ret;
+}
+
+vector < double > SkinXSec::GetTanSlews( int side ) const
+{
+    vector < double > ret;
+
+    if ( side == vsp::XSEC_LEFT_SIDE )
+    {
+        ret.push_back( m_TopLSlew() );
+        ret.push_back( m_RightLSlew() );
+        ret.push_back( m_BottomLSlew() );
+        ret.push_back( m_LeftLSlew() );
+    }
+    else if ( side == vsp::XSEC_RIGHT_SIDE )
+    {
+        ret.push_back( m_TopRSlew() );
+        ret.push_back( m_RightRSlew() );
+        ret.push_back( m_BottomRSlew() );
+        ret.push_back( m_LeftRSlew() );
+    }
+
+    return ret;
+}
+
+vector < double > SkinXSec::GetTanStrengths( int side ) const
+{
+    vector < double > ret;
+
+    if ( side == vsp::XSEC_LEFT_SIDE )
+    {
+        ret.push_back( m_TopLStrength() );
+        ret.push_back( m_RightLStrength() );
+        ret.push_back( m_BottomLStrength() );
+        ret.push_back( m_LeftLStrength() );
+    }
+    else if ( side == vsp::XSEC_RIGHT_SIDE )
+    {
+        ret.push_back( m_TopRStrength() );
+        ret.push_back( m_RightRStrength() );
+        ret.push_back( m_BottomRStrength() );
+        ret.push_back( m_LeftRStrength() );
+    }
+
+    return ret;
+}
+
+vector < double > SkinXSec::GetCurvatures( int side ) const
+{
+    vector < double > ret;
+
+    if ( side == vsp::XSEC_LEFT_SIDE )
+    {
+        ret.push_back( m_TopLCurve() );
+        ret.push_back( m_RightLCurve() );
+        ret.push_back( m_BottomLCurve() );
+        ret.push_back( m_LeftLCurve() );
+    }
+    else if ( side == vsp::XSEC_RIGHT_SIDE )
+    {
+        ret.push_back( m_TopRCurve() );
+        ret.push_back( m_RightRCurve() );
+        ret.push_back( m_BottomRCurve() );
+        ret.push_back( m_LeftRCurve() );
+    }
+
+    return ret;
+}
+
 void SkinXSec::SetTanAngles( int side, double top, double right, double bottom, double left )
 {
     m_AllSymFlag = false;

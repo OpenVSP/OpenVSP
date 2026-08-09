@@ -4556,6 +4556,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "array<double>@+ GetXSecTanAngles( const string& in xsec_id, int side )", asMETHOD( ScriptMgrSingleton, GetXSecTanAngles ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<double>@+ GetXSecTanSlews( const string& in xsec_id, int side )", asMETHOD( ScriptMgrSingleton, GetXSecTanSlews ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<double>@+ GetXSecTanStrengths( const string& in xsec_id, int side )", asMETHOD( ScriptMgrSingleton, GetXSecTanStrengths ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<double>@+ GetXSecCurvatures( const string& in xsec_id, int side )", asMETHOD( ScriptMgrSingleton, GetXSecCurvatures ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void SetXSecTanAngles( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecTanAngles ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -6041,6 +6053,30 @@ CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupCompIDs( int group_index )
 {
     m_ProxyStringArray = vsp::GetUnsteadyGroupCompIDs( group_index );
     return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetXSecTanAngles( const string& xsec_id, int side )
+{
+    m_ProxyDoubleArray = vsp::GetXSecTanAngles( xsec_id, side );
+    return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetXSecTanSlews( const string& xsec_id, int side )
+{
+    m_ProxyDoubleArray = vsp::GetXSecTanSlews( xsec_id, side );
+    return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetXSecTanStrengths( const string& xsec_id, int side )
+{
+    m_ProxyDoubleArray = vsp::GetXSecTanStrengths( xsec_id, side );
+    return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetXSecCurvatures( const string& xsec_id, int side )
+{
+    m_ProxyDoubleArray = vsp::GetXSecCurvatures( xsec_id, side );
+    return GetProxyDoubleArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetDriverGroup( const string & geom_id, int section_index )

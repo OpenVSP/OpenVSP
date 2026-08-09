@@ -5411,6 +5411,126 @@ void SetXSecContinuity( const string& xsec_id, int cx )
 }
 
 //==== Set Tan Angles At XSec ====//
+vector < double > GetXSecTanAngles( const string& xsec_id, int side )
+{
+    vector < double > ret;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanAngles::Can't Find XSec " + xsec_id );
+        return ret;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanAngles::Can't Convert To Skin XSec " + xsec_id );
+        return ret;
+    }
+
+    // The two sides can hold different values, so XSEC_BOTH_SIDES names no
+    // single answer.
+    if ( side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanAngles::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE" );
+        return ret;
+    }
+
+    ret = skinxs->GetTanAngles( side );
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vector < double > GetXSecTanSlews( const string& xsec_id, int side )
+{
+    vector < double > ret;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanSlews::Can't Find XSec " + xsec_id );
+        return ret;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanSlews::Can't Convert To Skin XSec " + xsec_id );
+        return ret;
+    }
+
+    // The two sides can hold different values, so XSEC_BOTH_SIDES names no
+    // single answer.
+    if ( side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanSlews::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE" );
+        return ret;
+    }
+
+    ret = skinxs->GetTanSlews( side );
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vector < double > GetXSecTanStrengths( const string& xsec_id, int side )
+{
+    vector < double > ret;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanStrengths::Can't Find XSec " + xsec_id );
+        return ret;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanStrengths::Can't Convert To Skin XSec " + xsec_id );
+        return ret;
+    }
+
+    // The two sides can hold different values, so XSEC_BOTH_SIDES names no
+    // single answer.
+    if ( side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanStrengths::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE" );
+        return ret;
+    }
+
+    ret = skinxs->GetTanStrengths( side );
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vector < double > GetXSecCurvatures( const string& xsec_id, int side )
+{
+    vector < double > ret;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecCurvatures::Can't Find XSec " + xsec_id );
+        return ret;
+    }
+    SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
+    if ( !skinxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecCurvatures::Can't Convert To Skin XSec " + xsec_id );
+        return ret;
+    }
+
+    // The two sides can hold different values, so XSEC_BOTH_SIDES names no
+    // single answer.
+    if ( side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecCurvatures::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE" );
+        return ret;
+    }
+
+    ret = skinxs->GetCurvatures( side );
+    ErrorMgr.NoError();
+    return ret;
+}
+
 void SetXSecTanAngles( const string& xsec_id, int side, double top, double right, double bottom, double left )
 {
     XSec* xs = FindXSec( xsec_id );

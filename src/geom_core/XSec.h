@@ -286,6 +286,15 @@ public:
     {
         return m_TopCont();
     }
+    //==== Read the four skin values back for one side.  XSEC_BOTH_SIDES is not
+    //==== a side, so the caller has to name XSEC_LEFT_SIDE or XSEC_RIGHT_SIDE.
+    //==== The values come back in the order the setters take them: top, right,
+    //==== bottom, left. ====//
+    virtual vector < double > GetTanAngles( int side ) const;
+    virtual vector < double > GetTanSlews( int side ) const;
+    virtual vector < double > GetTanStrengths( int side ) const;
+    virtual vector < double > GetCurvatures( int side ) const;
+
     virtual void SetTanAngles( int side, double top, double right, double bottom, double left );
     virtual void SetTanSlews( int side, double top, double right, double bottom, double left );
     virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );
