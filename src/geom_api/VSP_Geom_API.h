@@ -7088,7 +7088,14 @@ extern void UpdateGeom( const std::string & geom_id );
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
 
+    int num_before_del = FindGeoms().length();
     DeleteGeom( wing_id );
+    if ( FindGeoms().length() >= num_before_del )
+    {
+        Print( "ERROR: DeleteGeom removed nothing" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7099,7 +7106,10 @@ extern void UpdateGeom( const std::string & geom_id );
     #==== Add Pod Geometry ====//
     pod_id = AddGeom( "POD" )
 
+    num_before_del = len( FindGeoms() )
     DeleteGeom( wing_id )
+    assert len( FindGeoms() ) < num_before_del, "DeleteGeom removed nothing"
+
 
     \endcode
     \endPythonOnly
@@ -7122,7 +7132,14 @@ extern void DeleteGeom( const std::string & geom_id );
 
     array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" );
 
+    int num_before_del = FindGeoms().length();
     DeleteGeomVec( mesh_id_vec );
+    if ( FindGeoms().length() >= num_before_del )
+    {
+        Print( "ERROR: DeleteGeomVec removed nothing" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7134,7 +7151,10 @@ extern void DeleteGeom( const std::string & geom_id );
 
     mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
 
+    num_before_del = len( FindGeoms() )
     DeleteGeomVec( mesh_id_vec )
+    assert len( FindGeoms() ) < num_before_del, "DeleteGeomVec removed nothing"
+
 
     \endcode
     \endPythonOnly
@@ -8150,7 +8170,14 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
 
     Print("Delete SS_Line\n");
 
+    int num_before_del = GetNumSubSurf( wid );
     DeleteSubSurf( wid, ss_line_id );
+    if ( GetNumSubSurf( wid ) >= num_before_del )
+    {
+        Print( "ERROR: DeleteSubSurf removed nothing" );
+        __failure++;
+    }
+
 
     int num_ss = GetNumSubSurf( wid );
 
@@ -8168,7 +8195,10 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
 
     print("Delete SS_Line\n")
 
+    num_before_del = GetNumSubSurf( wid )
     DeleteSubSurf( wid, ss_line_id )
+    assert GetNumSubSurf( wid ) < num_before_del, "DeleteSubSurf removed nothing"
+
 
     num_ss = GetNumSubSurf( wid )
 
@@ -8198,7 +8228,14 @@ extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_
 
     Print("Delete SS_Line\n");
 
+    int num_before_del = GetNumSubSurf( wid );
     DeleteSubSurf( ss_line_id );
+    if ( GetNumSubSurf( wid ) >= num_before_del )
+    {
+        Print( "ERROR: DeleteSubSurf removed nothing" );
+        __failure++;
+    }
+
 
     int num_ss = GetNumSubSurf( wid );
 
@@ -8216,7 +8253,10 @@ extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_
 
     print("Delete SS_Line\n")
 
+    num_before_del = GetNumSubSurf( wid )
     DeleteSubSurf( ss_line_id )
+    assert GetNumSubSurf( wid ) < num_before_del, "DeleteSubSurf removed nothing"
+
 
     num_ss = GetNumSubSurf( wid )
 
@@ -14152,7 +14192,14 @@ extern vector < string > GetAllBogies( const string &gear_id );
 
     string bogie_id = CreateAndAddBogie( gear_id );
 
+    int num_before_del = GetNumBogies( gear_id );
     DelBogie( gear_id, bogie_id );
+    if ( GetNumBogies( gear_id ) >= num_before_del )
+    {
+        Print( "ERROR: DelBogie removed nothing" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14161,7 +14208,10 @@ extern vector < string > GetAllBogies( const string &gear_id );
 
     bogie_id = CreateAndAddBogie( gear_id )
 
+    num_before_del = GetNumBogies( gear_id )
     DelBogie( gear_id, bogie_id )
+    assert GetNumBogies( gear_id ) < num_before_del, "DelBogie removed nothing"
+
     \endcode
     \endPythonOnly
     \sa CreateAndAddBogie, DelAllBogies
@@ -14433,7 +14483,14 @@ extern string InsertRoutingPt( const string &routing_id, int index, const string
     string u2 = GetParm( rpt2, "U", "RoutePt");
     SetParmVal(u2, 1.0);
 
+    int num_before_del = GetNumRoutingPts( routing_geom );
     DelRoutingPt( routing_geom, 1 );
+    if ( GetNumRoutingPts( routing_geom ) >= num_before_del )
+    {
+        Print( "ERROR: DelRoutingPt removed nothing" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14456,7 +14513,10 @@ extern string InsertRoutingPt( const string &routing_id, int index, const string
     u2 = vsp.GetParm( rpt2, 'U', 'RoutePt')
     vsp.SetParmVal(u2, 1.0)
 
+    num_before_del = vsp.GetNumRoutingPts( routing_geom )
     vsp.DelRoutingPt( routing_geom, 1 )
+    assert vsp.GetNumRoutingPts( routing_geom ) < num_before_del, "DelRoutingPt removed nothing"
+
     \endcode
     \endPythonOnly
     \sa AddRoutingPt, DelAllRoutingPt
@@ -18552,7 +18612,14 @@ extern string AddUserParm(int type, const string & name, const string & group );
 
     if ( int( id_arr.size() ) > n )
     {
+        int num_before_del = GetNumUserParms();
         DeleteUserParm( id_arr[n] );
+        if ( GetNumUserParms() >= num_before_del )
+        {
+            Print( "ERROR: DeleteUserParm removed nothing" );
+            __failure++;
+        }
+
     }
     \endcode
     \endforcpponly
@@ -18563,7 +18630,10 @@ extern string AddUserParm(int type, const string & name, const string & group );
     id_arr = GetAllUserParms()
 
     if  len(id_arr) > n :
+        num_before_del = GetNumUserParms()
         DeleteUserParm( id_arr[n] )
+        assert GetNumUserParms() < num_before_del, "DeleteUserParm removed nothing"
+
 
     \endcode
     \endPythonOnly
@@ -18853,7 +18923,14 @@ extern void AddVarPresetParm( const std::string &group_id, const std::string &pa
 
     AddVarPresetParm( gid, p1 );
 
+    int num_before_del = GetVarPresetGroups().length();
     DeleteVarPresetGroup( gid );
+    if ( GetVarPresetGroups().length() >= num_before_del )
+    {
+        Print( "ERROR: DeleteVarPresetGroup removed nothing" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -18870,7 +18947,10 @@ extern void AddVarPresetParm( const std::string &group_id, const std::string &pa
 
     AddVarPresetParm( gid, p1 )
 
+    num_before_del = len( GetVarPresetGroups() )
     DeleteVarPresetGroup( gid )
+    assert len( GetVarPresetGroups() ) < num_before_del, "DeleteVarPresetGroup removed nothing"
+
 
     \endcode
     \endPythonOnly
@@ -18897,7 +18977,14 @@ extern void DeleteVarPresetGroup( const std::string &group_id );
 
     AddVarPresetParm( gid, p1 );
 
+    int num_before_del = GetVarPresetSettings( gid ).length();
     DeleteVarPresetSetting( gid, sid );
+    if ( GetVarPresetSettings( gid ).length() >= num_before_del )
+    {
+        Print( "ERROR: DeleteVarPresetSetting removed nothing" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -18914,7 +19001,10 @@ extern void DeleteVarPresetGroup( const std::string &group_id );
 
     AddVarPresetParm( gid, p1 )
 
+    num_before_del = len( GetVarPresetSettings( gid ) )
     DeleteVarPresetSetting( gid, sid )
+    assert len( GetVarPresetSettings( gid ) ) < num_before_del, "DeleteVarPresetSetting removed nothing"
+
 
     \endcode
     \endPythonOnly
@@ -18942,7 +19032,14 @@ extern void DeleteVarPresetSetting( const std::string &group_id, const std::stri
 
     AddVarPresetParm( gid, p1 );
 
+    int num_before_del = GetVarPresetParmIDs( gid ).length();
     DeleteVarPresetParm( gid, p1 );
+    if ( GetVarPresetParmIDs( gid ).length() >= num_before_del )
+    {
+        Print( "ERROR: DeleteVarPresetParm removed nothing" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -18959,7 +19056,10 @@ extern void DeleteVarPresetSetting( const std::string &group_id, const std::stri
 
     AddVarPresetParm( gid, p1 )
 
+    num_before_del = len( GetVarPresetParmIDs( gid ) )
     DeleteVarPresetParm( gid, p1 )
+    assert len( GetVarPresetParmIDs( gid ) ) < num_before_del, "DeleteVarPresetParm removed nothing"
+
 
     \endcode
     \endPythonOnly
@@ -20147,7 +20247,14 @@ extern vector < string > GetAllModes();
     ApplyModeSettings( mid2 );
     Update();
 
+    int num_before_del = GetNumModes();
     DelMode( mid1 );
+    if ( GetNumModes() >= num_before_del )
+    {
+        Print( "ERROR: DelMode removed nothing" );
+        __failure++;
+    }
+
 
     \endcode
     \endforcpponly
@@ -20221,7 +20328,10 @@ extern vector < string > GetAllModes();
     ApplyModeSettings( mid2 )
     Update()
 
+    num_before_del = GetNumModes()
     DelMode( mid1 )
+    assert GetNumModes() < num_before_del, "DelMode removed nothing"
+
 
     \endcode
     \endPythonOnly
@@ -25687,7 +25797,14 @@ extern std::vector < string > GetAllRulers();
 
     array< string > @ruler_array = GetAllRulers();
 
+    int num_before_del = GetAllRulers().length();
     DelRuler( ruler_array[0] );
+    if ( GetAllRulers().length() >= num_before_del )
+    {
+        Print( "ERROR: DelRuler removed nothing" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25706,7 +25823,10 @@ extern std::vector < string > GetAllRulers();
 
     ruler_array = GetAllRulers()
 
+    num_before_del = len( GetAllRulers() )
     DelRuler( ruler_array[0] )
+    assert len( GetAllRulers() ) < num_before_del, "DelRuler removed nothing"
+
 
     \endcode
     \endPythonOnly
@@ -26077,7 +26197,14 @@ extern int GetLinkIndex( const string & name );
 
     BuildAdvLinkScript( indx );
 
+    int num_before_del = GetAdvLinkNames().length();
     DelAdvLink( indx );
+    if ( GetAdvLinkNames().length() >= num_before_del )
+    {
+        Print( "ERROR: DelAdvLink removed nothing" );
+        __failure++;
+    }
+
 
     array< string > @link_array = GetAdvLinkNames();
 
@@ -26105,7 +26232,10 @@ extern int GetLinkIndex( const string & name );
 
     BuildAdvLinkScript( indx )
 
+    num_before_del = len( GetAdvLinkNames() )
     DelAdvLink( indx )
+    assert len( GetAdvLinkNames() ) < num_before_del, "DelAdvLink removed nothing"
+
 
     link_array = GetAdvLinkNames()
 
@@ -26355,7 +26485,14 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
 
     BuildAdvLinkScript( indx );
 
+    int num_before_del = GetAdvLinkInputNames( indx ).length();
     DelAdvLinkInput( indx, "y" );
+    if ( GetAdvLinkInputNames( indx ).length() >= num_before_del )
+    {
+        Print( "ERROR: DelAdvLinkInput removed nothing" );
+        __failure++;
+    }
+
 
     BuildAdvLinkScript( indx );
 
@@ -26379,7 +26516,10 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
 
     BuildAdvLinkScript( indx )
 
+    num_before_del = len( GetAdvLinkInputNames( indx ) )
     DelAdvLinkInput( indx, "y" )
+    assert len( GetAdvLinkInputNames( indx ) ) < num_before_del, "DelAdvLinkInput removed nothing"
+
 
     BuildAdvLinkScript( indx )
 
@@ -26415,7 +26555,14 @@ extern void DelAdvLinkInput( int index, const string & var_name );
 
     BuildAdvLinkScript( indx );
 
+    int num_before_del = GetAdvLinkOutputNames( indx ).length();
     DelAdvLinkOutput( indx, "y" );
+    if ( GetAdvLinkOutputNames( indx ).length() >= num_before_del )
+    {
+        Print( "ERROR: DelAdvLinkOutput removed nothing" );
+        __failure++;
+    }
+
 
     BuildAdvLinkScript( indx );
 
@@ -26439,7 +26586,10 @@ extern void DelAdvLinkInput( int index, const string & var_name );
 
     BuildAdvLinkScript( indx )
 
+    num_before_del = len( GetAdvLinkOutputNames( indx ) )
     DelAdvLinkOutput( indx, "y" )
+    assert len( GetAdvLinkOutputNames( indx ) ) < num_before_del, "DelAdvLinkOutput removed nothing"
+
 
     BuildAdvLinkScript( indx )
 
