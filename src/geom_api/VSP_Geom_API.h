@@ -236,6 +236,16 @@ namespace vsp
 
     VSPCheckSetup();
 
+    // A failed setup exits OpenVSP outright, so reaching this point is most of
+    // the test.  Confirm the model is actually usable.
+    array< string > @type_array = GetGeomTypes();
+
+    if ( type_array.length() == 0 )
+    {
+        Print( "ERROR: VSPCheckSetup did not leave a usable model" );
+        __failure++;
+    }
+
     // Continue to do things...
 
     \endcode
@@ -244,6 +254,12 @@ namespace vsp
     \code{.py}
 
     VSPCheckSetup()
+
+    # A failed setup exits OpenVSP outright, so reaching this point is most of
+    # the test.  Confirm the model is actually usable.
+    type_array = GetGeomTypes()
+
+    assert len( type_array ) > 0, "VSPCheckSetup did not leave a usable model"
 
     # Continue to do things...
 
@@ -306,11 +322,25 @@ extern void VSPRenew();
 
     int num_xsecs = GetNumXSec( xsec_surf );
 
+    Update();
+
+    vec3d before_max = GetGeomBBoxMax( fid, 0, false );
+
     //==== Set Tan Angles At Nose/Tail
     SetXSecTanAngles( GetXSec( xsec_surf, 0 ), XSEC_BOTH_SIDES, 90 );
     SetXSecTanAngles( GetXSec( xsec_surf, num_xsecs - 1 ), XSEC_BOTH_SIDES, -90 );
 
     Update();       // Force Surface Update
+
+    vec3d after_max = GetGeomBBoxMax( fid, 0, false );
+
+    // Blunting the nose and tail pushes the surface out, which only shows up in
+    // the bounding box once Update() has rebuilt it.
+    if ( dist( before_max, after_max ) < 1e-9 )
+    {
+        Print( "ERROR: Update did not rebuild the surface" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -321,11 +351,21 @@ extern void VSPRenew();
 
     num_xsecs = GetNumXSec( xsec_surf )
 
+    Update()
+
+    before_max = GetGeomBBoxMax( fid, 0, False )
+
     #==== Set Tan Angles At Nose/Tail
     SetXSecTanAngles( GetXSec( xsec_surf, 0 ), XSEC_BOTH_SIDES, 90, -1.0e12, -1.0e12, -1.0e12 )
     SetXSecTanAngles( GetXSec( xsec_surf, num_xsecs - 1 ), XSEC_BOTH_SIDES, -90, -1.0e12, -1.0e12, -1.0e12 )
 
     Update()       # Force Surface Update
+
+    after_max = GetGeomBBoxMax( fid, 0, False )
+
+    # Blunting the nose and tail pushes the surface out, which only shows up in
+    # the bounding box once Update() has rebuilt it.
+    assert dist( before_max, after_max ) > 1e-9, "Update did not rebuild the surface"
 
     \endcode
     \endPythonOnly
@@ -378,14 +418,34 @@ extern int GetAndResetUpdateCount();
     \code{.cpp}
     Print( "The current OpenVSP version is: ", false );
 
-    Print( GetVSPVersion() );
+    string ver = GetVSPVersion();
+
+    Print( ver );
+
+    // The string form has to agree with the numeric accessors.
+    string num = formatInt( GetVSPVersionMajor() ) + "." +
+                 formatInt( GetVSPVersionMinor() ) + "." +
+                 formatInt( GetVSPVersionChange() );
+
+    if ( ver.findFirst( num ) < 0 )
+    {
+        Print( "ERROR: GetVSPVersion does not contain " + num );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     print( "The current OpenVSP version is: ", False )
 
-    print( GetVSPVersion() )
+    ver = GetVSPVersion()
+
+    print( ver )
+
+    # The string form has to agree with the numeric accessors.
+    num = f"{GetVSPVersionMajor()}.{GetVSPVersionMinor()}.{GetVSPVersionChange()}"
+
+    assert num in ver, "GetVSPVersion does not contain " + num
 
     \endcode
     \endPythonOnly
@@ -408,6 +468,23 @@ extern std::string GetVSPVersion();
     int change = GetVSPVersionChange();
 
     Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) );
+
+    // OpenVSP 3 and later.  Negative pieces would mean the version was never
+    // filled in.
+    if ( major < 3 || minor < 0 || change < 0 )
+    {
+        Print( "ERROR: implausible version number" );
+        __failure++;
+    }
+
+    // The pieces have to add back up to the string form.
+    string num = formatInt(major) + "." + formatInt(minor) + "." + formatInt(change);
+
+    if ( GetVSPVersion().findFirst( num ) < 0 )
+    {
+        Print( "ERROR: version pieces disagree with GetVSPVersion" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -419,6 +496,15 @@ extern std::string GetVSPVersion();
     change = GetVSPVersionChange()
 
     print( f"{major}.{minor}.{change}" )
+
+    # OpenVSP 3 and later.  Negative pieces would mean the version was never
+    # filled in.
+    assert major >= 3 and minor >= 0 and change >= 0, "implausible version number"
+
+    # The pieces have to add back up to the string form.
+    num = f"{major}.{minor}.{change}"
+
+    assert num in GetVSPVersion(), "version pieces disagree with GetVSPVersion"
 
     \endcode
     \endPythonOnly
@@ -441,6 +527,23 @@ extern int GetVSPVersionMajor();
     int change = GetVSPVersionChange();
 
     Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) );
+
+    // OpenVSP 3 and later.  Negative pieces would mean the version was never
+    // filled in.
+    if ( major < 3 || minor < 0 || change < 0 )
+    {
+        Print( "ERROR: implausible version number" );
+        __failure++;
+    }
+
+    // The pieces have to add back up to the string form.
+    string num = formatInt(major) + "." + formatInt(minor) + "." + formatInt(change);
+
+    if ( GetVSPVersion().findFirst( num ) < 0 )
+    {
+        Print( "ERROR: version pieces disagree with GetVSPVersion" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -452,6 +555,15 @@ extern int GetVSPVersionMajor();
     change = GetVSPVersionChange()
 
     print( f"{major}.{minor}.{change}" )
+
+    # OpenVSP 3 and later.  Negative pieces would mean the version was never
+    # filled in.
+    assert major >= 3 and minor >= 0 and change >= 0, "implausible version number"
+
+    # The pieces have to add back up to the string form.
+    num = f"{major}.{minor}.{change}"
+
+    assert num in GetVSPVersion(), "version pieces disagree with GetVSPVersion"
 
     \endcode
     \endPythonOnly
@@ -474,6 +586,23 @@ extern int GetVSPVersionMinor();
     int change = GetVSPVersionChange();
 
     Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) );
+
+    // OpenVSP 3 and later.  Negative pieces would mean the version was never
+    // filled in.
+    if ( major < 3 || minor < 0 || change < 0 )
+    {
+        Print( "ERROR: implausible version number" );
+        __failure++;
+    }
+
+    // The pieces have to add back up to the string form.
+    string num = formatInt(major) + "." + formatInt(minor) + "." + formatInt(change);
+
+    if ( GetVSPVersion().findFirst( num ) < 0 )
+    {
+        Print( "ERROR: version pieces disagree with GetVSPVersion" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -485,6 +614,15 @@ extern int GetVSPVersionMinor();
     change = GetVSPVersionChange()
 
     print( f"{major}.{minor}.{change}" )
+
+    # OpenVSP 3 and later.  Negative pieces would mean the version was never
+    # filled in.
+    assert major >= 3 and minor >= 0 and change >= 0, "implausible version number"
+
+    # The pieces have to add back up to the string form.
+    num = f"{major}.{minor}.{change}"
+
+    assert num in GetVSPVersion(), "version pieces disagree with GetVSPVersion"
 
     \endcode
     \endPythonOnly
@@ -503,14 +641,26 @@ extern int GetVSPVersionChange();
     \code{.cpp}
     Print( "The current VSP executable path is: ", false );
 
-    Print( GetVSPExePath() );
+    string exe_path = GetVSPExePath();
+
+    Print( exe_path );
+
+    if ( exe_path.length() == 0 )
+    {
+        Print( "ERROR: GetVSPExePath returned an empty path" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     print( "The current VSP executable path is: ", False )
 
-    print( GetVSPExePath() )
+    exe_path = GetVSPExePath()
+
+    print( exe_path )
+
+    assert len( exe_path ) > 0, "GetVSPExePath returned an empty path"
 
     \endcode
     \endPythonOnly
@@ -531,18 +681,42 @@ extern std::string GetVSPExePath();
     directory or this function can be called to tell Python where to look for VSPAERO.
     \forcpponly
     \code{.cpp}
+    string orig_path = GetVSPAEROPath();
+
     if ( !CheckForVSPAERO( GetVSPExePath() ) )
     {
         string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5";
         SetVSPAEROPath( vspaero_path );
     }
+
+    // A directory with no VSPAERO in it has to be rejected, and rejecting it
+    // must leave the stored path alone.
+    if ( SetVSPAEROPath( "/no/such/directory/anywhere" ) )
+    {
+        Print( "ERROR: SetVSPAEROPath accepted a nonexistent directory" );
+        __failure++;
+    }
+
+    if ( GetVSPAEROPath() != orig_path )
+    {
+        Print( "ERROR: a rejected SetVSPAEROPath changed the stored path" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    orig_path = GetVSPAEROPath()
+
     if  not CheckForVSPAERO( GetVSPExePath() ) :
         vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5"
         SetVSPAEROPath( vspaero_path )
+
+    # A directory with no VSPAERO in it has to be rejected, and rejecting it
+    # must leave the stored path alone.
+    assert not SetVSPAEROPath( "/no/such/directory/anywhere" ), "SetVSPAEROPath accepted a nonexistent directory"
+
+    assert GetVSPAEROPath() == orig_path, "a rejected SetVSPAEROPath changed the stored path"
 
     \endcode
     \endPythonOnly
@@ -566,12 +740,20 @@ extern bool SetVSPAEROPath( const std::string & path );
     {
         Print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." );
     }
+
+    if ( GetVSPAEROPath().length() == 0 )
+    {
+        Print( "ERROR: GetVSPAEROPath returned an empty path" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     if  not CheckForVSPAERO( GetVSPAEROPath() ) :
         print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." )
+
+    assert len( GetVSPAEROPath() ) > 0, "GetVSPAEROPath returned an empty path"
 
     \endcode
     \endPythonOnly
@@ -596,6 +778,13 @@ extern std::string GetVSPAEROPath();
     {
         SetVSPAEROPath( vspaero_path );
     }
+
+    // A directory that cannot exist must not report VSPAERO in it.
+    if ( CheckForVSPAERO( "/no/such/directory/anywhere" ) )
+    {
+        Print( "ERROR: CheckForVSPAERO found VSPAERO in a nonexistent directory" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -604,6 +793,9 @@ extern std::string GetVSPAEROPath();
 
     if  CheckForVSPAERO( vspaero_path ) :
         SetVSPAEROPath( vspaero_path )
+
+    # A directory that cannot exist must not report VSPAERO in it.
+    assert not CheckForVSPAERO( "/no/such/directory/anywhere" ), "CheckForVSPAERO found VSPAERO in a nonexistent directory"
 
     \endcode
     \endPythonOnly
@@ -624,18 +816,42 @@ extern bool CheckForVSPAERO( const std::string & path );
     directory or this function can be called to tell Python where to look for help.
     \forcpponly
     \code{.cpp}
+    string orig_path = GetVSPHelpPath();
+
     if ( !CheckForVSPHelp( GetVSPExePath() ) )
     {
         string vsphelp_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5/help";
         SetVSPHelpPath( vsphelp_path );
     }
+
+    // A directory with no help files in it has to be rejected, and rejecting it
+    // must leave the stored path alone.
+    if ( SetVSPHelpPath( "/no/such/directory/anywhere" ) )
+    {
+        Print( "ERROR: SetVSPHelpPath accepted a nonexistent directory" );
+        __failure++;
+    }
+
+    if ( GetVSPHelpPath() != orig_path )
+    {
+        Print( "ERROR: a rejected SetVSPHelpPath changed the stored path" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    orig_path = GetVSPHelpPath()
+
     if  not CheckForVSPHelp( GetVSPExePath() ) :
         vsphelp_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5/help"
         SetVSPHelpPath( vsphelp_path )
+
+    # A directory with no help files in it has to be rejected, and rejecting it
+    # must leave the stored path alone.
+    assert not SetVSPHelpPath( "/no/such/directory/anywhere" ), "SetVSPHelpPath accepted a nonexistent directory"
+
+    assert GetVSPHelpPath() == orig_path, "a rejected SetVSPHelpPath changed the stored path"
 
     \endcode
     \endPythonOnly
@@ -656,14 +872,22 @@ extern bool SetVSPHelpPath( const std::string & path );
     \code{.cpp}
     if ( !CheckForVSPHelp( GetVSPHelpPath() ) )
     {
-        Print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." );
+        Print( "OpenVSP help is not where OpenVSP thinks it is. I should move the help files or call SetVSPHelpPath." );
+    }
+
+    if ( GetVSPHelpPath().length() == 0 )
+    {
+        Print( "ERROR: GetVSPHelpPath returned an empty path" );
+        __failure++;
     }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     if  not CheckForVSPHelp( GetVSPHelpPath() ) :
-        print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." )
+        print( "OpenVSP help is not where OpenVSP thinks it is. I should move the help files or call SetVSPHelpPath." )
+
+    assert len( GetVSPHelpPath() ) > 0, "GetVSPHelpPath returned an empty path"
 
     \endcode
     \endPythonOnly
@@ -686,6 +910,13 @@ extern std::string GetVSPHelpPath();
     {
         SetVSPHelpPath( vsphelp_path );
     }
+
+    // A directory that cannot exist must not report help files in it.
+    if ( CheckForVSPHelp( "/no/such/directory/anywhere" ) )
+    {
+        Print( "ERROR: CheckForVSPHelp found help in a nonexistent directory" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -694,6 +925,9 @@ extern std::string GetVSPHelpPath();
 
     if  CheckForVSPHelp( vsphelp_path ) :
         SetVSPHelpPath( vsphelp_path )
+
+    # A directory that cannot exist must not report help files in it.
+    assert not CheckForVSPHelp( "/no/such/directory/anywhere" ), "CheckForVSPHelp found help in a nonexistent directory"
 
     \endcode
     \endPythonOnly
@@ -722,6 +956,10 @@ extern void LimitedIntersectSurfaces( const vector < string > & geomvec, vector 
 
     SetVSP3FileName( fname );
 
+    // A relative name is resolved against the working directory, so ask for the
+    // resolved name rather than assuming it comes back verbatim.
+    string full_name = GetVSPFileName();
+
     Update();
 
     //==== Save Vehicle to File ====//
@@ -736,7 +974,36 @@ extern void LimitedIntersectSurfaces( const vector < string > & geomvec, vector 
 
     ClearVSPModel();
 
+    if ( FindGeoms().size() != 0 )
+    {
+        Print( "ERROR: ClearVSPModel left Geoms behind" );
+        __failure++;
+    }
+
     ReadVSPFile( fname );
+
+    // The Fuselage has to come back, and come back the same shape.
+    array< string > @geoms = FindGeoms();
+
+    if ( geoms.size() != 1 )
+    {
+        Print( "ERROR: ReadVSPFile did not restore the model" );
+        __failure++;
+    }
+    else
+    {
+        if ( GetGeomTypeName( geoms[0] ) != "Fuselage" )
+        {
+            Print( "ERROR: ReadVSPFile restored the wrong Geom type" );
+            __failure++;
+        }
+
+        if ( GetVSPFileName() != full_name )
+        {
+            Print( "ERROR: ReadVSPFile did not set the project file name" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -746,6 +1013,10 @@ extern void LimitedIntersectSurfaces( const vector < string > & geomvec, vector 
     fname = "example_fuse.vsp3"
 
     SetVSP3FileName( fname )
+
+    # A relative name is resolved against the working directory, so ask for the
+    # resolved name rather than assuming it comes back verbatim.
+    full_name = GetVSPFileName()
 
     Update()
 
@@ -761,7 +1032,16 @@ extern void LimitedIntersectSurfaces( const vector < string > & geomvec, vector 
 
     ClearVSPModel()
 
+    assert len( FindGeoms() ) == 0, "ClearVSPModel left Geoms behind"
+
     ReadVSPFile( fname )
+
+    # The Fuselage has to come back, and come back the same shape.
+    geoms = FindGeoms()
+
+    assert len( geoms ) == 1, "ReadVSPFile did not restore the model"
+    assert GetGeomTypeName( geoms[0] ) == "Fuselage", "ReadVSPFile restored the wrong Geom type"
+    assert GetVSPFileName() == full_name, "ReadVSPFile did not set the project file name"
 
     \endcode
     \endPythonOnly
@@ -783,6 +1063,10 @@ extern void ReadVSPFile( const std::string & file_name );
 
     SetVSP3FileName( fname );
 
+    // A relative name is resolved against the working directory, so ask for the
+    // resolved name rather than assuming it comes back verbatim.
+    string full_name = GetVSPFileName();
+
     Update();
 
     //==== Save Vehicle to File ====//
@@ -797,7 +1081,36 @@ extern void ReadVSPFile( const std::string & file_name );
 
     ClearVSPModel();
 
+    if ( FindGeoms().size() != 0 )
+    {
+        Print( "ERROR: ClearVSPModel left Geoms behind" );
+        __failure++;
+    }
+
     ReadVSPFile( fname );
+
+    // The Fuselage has to come back, and come back the same shape.
+    array< string > @geoms = FindGeoms();
+
+    if ( geoms.size() != 1 )
+    {
+        Print( "ERROR: ReadVSPFile did not restore the model" );
+        __failure++;
+    }
+    else
+    {
+        if ( GetGeomTypeName( geoms[0] ) != "Fuselage" )
+        {
+            Print( "ERROR: ReadVSPFile restored the wrong Geom type" );
+            __failure++;
+        }
+
+        if ( GetVSPFileName() != full_name )
+        {
+            Print( "ERROR: ReadVSPFile did not set the project file name" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -807,6 +1120,10 @@ extern void ReadVSPFile( const std::string & file_name );
     fname = "example_fuse.vsp3"
 
     SetVSP3FileName( fname )
+
+    # A relative name is resolved against the working directory, so ask for the
+    # resolved name rather than assuming it comes back verbatim.
+    full_name = GetVSPFileName()
 
     Update()
 
@@ -822,7 +1139,16 @@ extern void ReadVSPFile( const std::string & file_name );
 
     ClearVSPModel()
 
+    assert len( FindGeoms() ) == 0, "ClearVSPModel left Geoms behind"
+
     ReadVSPFile( fname )
+
+    # The Fuselage has to come back, and come back the same shape.
+    geoms = FindGeoms()
+
+    assert len( geoms ) == 1, "ReadVSPFile did not restore the model"
+    assert GetGeomTypeName( geoms[0] ) == "Fuselage", "ReadVSPFile restored the wrong Geom type"
+    assert GetVSPFileName() == full_name, "ReadVSPFile did not set the project file name"
 
     \endcode
     \endPythonOnly
@@ -845,6 +1171,10 @@ extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
 
     SetVSP3FileName( fname );
 
+    // A relative name is resolved against the working directory, so ask for the
+    // resolved name rather than assuming it comes back verbatim.
+    string full_name = GetVSPFileName();
+
     Update();
 
     //==== Save Vehicle to File ====//
@@ -859,7 +1189,36 @@ extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
 
     ClearVSPModel();
 
+    if ( FindGeoms().size() != 0 )
+    {
+        Print( "ERROR: ClearVSPModel left Geoms behind" );
+        __failure++;
+    }
+
     ReadVSPFile( fname );
+
+    // The Fuselage has to come back, and come back the same shape.
+    array< string > @geoms = FindGeoms();
+
+    if ( geoms.size() != 1 )
+    {
+        Print( "ERROR: ReadVSPFile did not restore the model" );
+        __failure++;
+    }
+    else
+    {
+        if ( GetGeomTypeName( geoms[0] ) != "Fuselage" )
+        {
+            Print( "ERROR: ReadVSPFile restored the wrong Geom type" );
+            __failure++;
+        }
+
+        if ( GetVSPFileName() != full_name )
+        {
+            Print( "ERROR: ReadVSPFile did not set the project file name" );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -869,6 +1228,10 @@ extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
     fname = "example_fuse.vsp3"
 
     SetVSP3FileName( fname )
+
+    # A relative name is resolved against the working directory, so ask for the
+    # resolved name rather than assuming it comes back verbatim.
+    full_name = GetVSPFileName()
 
     Update()
 
@@ -884,7 +1247,16 @@ extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
 
     ClearVSPModel()
 
+    assert len( FindGeoms() ) == 0, "ClearVSPModel left Geoms behind"
+
     ReadVSPFile( fname )
+
+    # The Fuselage has to come back, and come back the same shape.
+    geoms = FindGeoms()
+
+    assert len( geoms ) == 1, "ReadVSPFile did not restore the model"
+    assert GetGeomTypeName( geoms[0] ) == "Fuselage", "ReadVSPFile restored the wrong Geom type"
+    assert GetVSPFileName() == full_name, "ReadVSPFile did not set the project file name"
 
     \endcode
     \endPythonOnly
@@ -906,6 +1278,10 @@ extern void SetVSP3FileName( const std::string & file_name );
 
     SetVSP3FileName( fname );
 
+    // A relative name is resolved against the working directory, so ask for the
+    // resolved name rather than assuming it comes back verbatim.
+    string full_name = GetVSPFileName();
+
     Update();
 
     //==== Save Vehicle to File ====//
@@ -914,6 +1290,12 @@ extern void SetVSP3FileName( const std::string & file_name );
     Print( fname );
 
     WriteVSPFile( GetVSPFileName(), SET_ALL );
+
+    if ( GetVSPFileName() != full_name || full_name.findLast( fname ) < 0 )
+    {
+        Print( "ERROR: GetVSPFileName did not report the name that was set" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -924,6 +1306,10 @@ extern void SetVSP3FileName( const std::string & file_name );
 
     SetVSP3FileName( fname )
 
+    # A relative name is resolved against the working directory, so ask for the
+    # resolved name rather than assuming it comes back verbatim.
+    full_name = GetVSPFileName()
+
     Update()
 
     #==== Save Vehicle to File ====//
@@ -932,6 +1318,8 @@ extern void SetVSP3FileName( const std::string & file_name );
     print( fname )
 
     WriteVSPFile( GetVSPFileName(), SET_ALL )
+
+    assert GetVSPFileName() == full_name and full_name.endswith( fname ), "GetVSPFileName did not report the name that was set"
 
     \endcode
     \endPythonOnly
@@ -952,6 +1340,12 @@ extern std::string GetVSPFileName();
     //==== Reset Geometry ====//
     Print( string( "--->Resetting VSP model to blank slate\n" ) );
     ClearVSPModel();
+
+    if ( FindGeoms().size() != 0 )
+    {
+        Print( "ERROR: ClearVSPModel left Geoms behind" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -961,6 +1355,8 @@ extern std::string GetVSPFileName();
     #==== Reset Geometry ====//
     print( "--->Resetting VSP model to blank slate\n" )
     ClearVSPModel()
+
+    assert len( FindGeoms() ) == 0, "ClearVSPModel left Geoms behind"
 
     \endcode
     \endPythonOnly
@@ -17283,7 +17679,23 @@ extern bool GetScaleIndependentBBoxSet( int set, double & xmin_out, double & ymi
     SetSetFlag( fuseid, 3, true );
 
     // Scale by a factor of 2
+    Update();
+
+    vec3d before_max = GetGeomBBoxMax( fuseid, 0, false );
+    vec3d before_min = GetGeomBBoxMin( fuseid, 0, false );
+
     ScaleSet( 3, 2.0 );
+
+    Update();
+
+    vec3d after_max = GetGeomBBoxMax( fuseid, 0, false );
+    vec3d after_min = GetGeomBBoxMin( fuseid, 0, false );
+
+    if ( !closeTo( after_max.x() - after_min.x(), 2.0 * ( before_max.x() - before_min.x() ), 1e-6 ) )
+    {
+        Print( "ERROR: ScaleSet did not double the extent" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17294,7 +17706,19 @@ extern bool GetScaleIndependentBBoxSet( int set, double & xmin_out, double & ymi
     SetSetFlag( fuseid, 3, True )
 
     # Scale by a factor of 2
+    Update()
+
+    before_max = GetGeomBBoxMax( fuseid, 0, False )
+    before_min = GetGeomBBoxMin( fuseid, 0, False )
+
     ScaleSet( 3, 2.0 )
+
+    Update()
+
+    after_max = GetGeomBBoxMax( fuseid, 0, False )
+    after_min = GetGeomBBoxMin( fuseid, 0, False )
+
+    assert abs( ( after_max.x() - after_min.x() ) - 2.0 * ( before_max.x() - before_min.x() ) ) < 1e-6, "ScaleSet did not double the extent"
 
     \endcode
     \endPythonOnly
@@ -17316,8 +17740,26 @@ extern void ScaleSet( int set_index, double scale );
 
     SetSetFlag( fuseid, 3, true );
 
+    Update();
+
+    vec3d before_max = GetGeomBBoxMax( fuseid, 0, true );
+    vec3d before_min = GetGeomBBoxMin( fuseid, 0, true );
+
     // Rotate 90 degrees about Y
     RotateSet( 3, 0, 90, 0 );
+
+    Update();
+
+    vec3d after_max = GetGeomBBoxMax( fuseid, 0, true );
+    vec3d after_min = GetGeomBBoxMin( fuseid, 0, true );
+
+    // Turning the Geom on its nose trades the X extent for the Z extent.
+    if ( !closeTo( after_max.z() - after_min.z(), before_max.x() - before_min.x(), 1e-6 ) ||
+         !closeTo( after_max.x() - after_min.x(), before_max.z() - before_min.z(), 1e-6 ) )
+    {
+        Print( "ERROR: RotateSet did not rotate the geometry" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17327,8 +17769,22 @@ extern void ScaleSet( int set_index, double scale );
 
     SetSetFlag( fuseid, 3, True )
 
+    Update()
+
+    before_max = GetGeomBBoxMax( fuseid, 0, True )
+    before_min = GetGeomBBoxMin( fuseid, 0, True )
+
     # Rotate 90 degrees about Y
     RotateSet( 3, 0, 90, 0 )
+
+    Update()
+
+    after_max = GetGeomBBoxMax( fuseid, 0, True )
+    after_min = GetGeomBBoxMin( fuseid, 0, True )
+
+    # Turning the Geom on its nose trades the X extent for the Z extent.
+    assert abs( ( after_max.z() - after_min.z() ) - ( before_max.x() - before_min.x() ) ) < 1e-6, "RotateSet did not rotate the geometry"
+    assert abs( ( after_max.x() - after_min.x() ) - ( before_max.z() - before_min.z() ) ) < 1e-6, "RotateSet did not rotate the geometry"
 
     \endcode
     \endPythonOnly
@@ -17353,7 +17809,23 @@ extern void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double
     SetSetFlag( fuseid, 3, true );
 
     // Translate 2 units in X and 3 units in Y
+    Update();
+
+    // The bounding box has to be asked for in the absolute frame.  A body frame
+    // box travels with the Geom, so it would not see the translation at all.
+    vec3d before_min = GetGeomBBoxMin( fuseid, 0, true );
+
     TranslateSet( 3, vec3d( 2, 3, 0 ) );
+
+    Update();
+
+    vec3d after_min = GetGeomBBoxMin( fuseid, 0, true );
+
+    if ( !closeTo( after_min.x() - before_min.x(), 2.0, 1e-6 ) || !closeTo( after_min.y() - before_min.y(), 3.0, 1e-6 ) )
+    {
+        Print( "ERROR: TranslateSet did not move the geometry" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -17364,7 +17836,19 @@ extern void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double
     SetSetFlag( fuseid, 3, True )
 
     # Translate 2 units in X and 3 units in Y
+    Update()
+
+    # The bounding box has to be asked for in the absolute frame.  A body frame
+    # box travels with the Geom, so it would not see the translation at all.
+    before_min = GetGeomBBoxMin( fuseid, 0, True )
+
     TranslateSet( 3, vec3d( 2, 3, 0 ) )
+
+    Update()
+
+    after_min = GetGeomBBoxMin( fuseid, 0, True )
+
+    assert abs( ( after_min.x() - before_min.x() ) - 2.0 ) < 1e-6 and abs( ( after_min.y() - before_min.y() ) - 3.0 ) < 1e-6, "TranslateSet did not move the geometry"
 
     \endcode
     \endPythonOnly
@@ -25388,6 +25872,17 @@ extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx,
     array<double> uoutv, woutv, doutv;
 
     ProjVecPnt01( geom_id, 0, ptvec, uoutv, woutv, doutv );
+
+    // Each point was pushed one unit along its own normal, so each projects
+    // back to where it came from at a distance of one.
+    for( int i = 0 ; i < n ; i++ )
+    {
+        if ( !closeTo( doutv[i], 1.0, 1e-6 ) || !closeTo( uoutv[i], uvec[i], 1e-6 ) || !closeTo( woutv[i], wvec[i], 1e-6 ) )
+        {
+            Print( "ERROR: ProjVecPnt01 did not recover point " + i );
+            __failure++;
+        }
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25782,6 +26277,16 @@ extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_in
     array<bool> res;
     res = VecInsideSurf( geom_id, surf_indx, ptvec );
 
+    // Every point came from CompVecPntRST with r below one, so all are inside.
+    for( int i = 0 ; i < int( res.length() ) ; i++ )
+    {
+        if ( !res[i] )
+        {
+            Print( "ERROR: VecInsideSurf says interior point " + i + " is outside" );
+            __failure++;
+        }
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -25809,6 +26314,10 @@ extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_in
 
 
     res = VecInsideSurf( geom_id, surf_indx, ptvec )
+
+    # Every point came from CompVecPntRST with r below one, so all are inside.
+    for i in range( len( res ) ):
+        assert res[i], "VecInsideSurf says an interior point is outside"
 
 
     \endcode
@@ -27704,6 +28213,12 @@ extern std::string GetAdvLinkCode( int index );
 
     Print( code );
 
+    if ( code.find( "12.3" ) < 0 || code.find( "10.0" ) >= 0 )
+    {
+        Print( "ERROR: SearchReplaceAdvLinkCode did not replace" );
+        __failure++;
+    }
+
     BuildAdvLinkScript( indx );
 
     \endcode
@@ -27726,6 +28241,8 @@ extern std::string GetAdvLinkCode( int index );
     code = GetAdvLinkCode( indx )
 
     print( code )
+
+    assert "12.3" in code and "10.0" not in code, "SearchReplaceAdvLinkCode did not replace"
 
     BuildAdvLinkScript( indx )
 
