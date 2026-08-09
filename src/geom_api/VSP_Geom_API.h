@@ -28324,13 +28324,38 @@ extern int GetNumUnsteadyGroups();
 
     int num_group = GetNumUnsteadyRotorGroups(); // Should be 0
 
+    if ( num_group != 0 )
+    {
+        Print( "ERROR: an actuator disk counts as a rotor group" );
+        __failure++;
+    }
+
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
 
     num_group = GetNumUnsteadyRotorGroups(); // Should be 1
 
+    if ( num_group != 1 )
+    {
+        Print( "ERROR: the bladed propeller was not counted" );
+        __failure++;
+    }
+
     string wing_id = AddGeom( "WING" );
 
     num_group = GetNumUnsteadyRotorGroups(); // Should be 1 still (fixed group not included)
+
+    if ( num_group != 1 )
+    {
+        Print( "ERROR: the wing was counted as a rotor group" );
+        __failure++;
+    }
+
+    // The wing does add a fixed component group, which the total counts.
+    if ( GetNumUnsteadyGroups() != num_group + 1 )
+    {
+        Print( "ERROR: the fixed component group was not counted" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -28344,13 +28369,22 @@ extern int GetNumUnsteadyGroups();
 
     num_group = GetNumUnsteadyRotorGroups() # Should be 0
 
+    assert num_group == 0, "an actuator disk counts as a rotor group"
+
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES )
 
     num_group = GetNumUnsteadyRotorGroups() # Should be 1
 
+    assert num_group == 1, "the bladed propeller was not counted"
+
     wing_id = AddGeom( "WING" )
 
     num_group = GetNumUnsteadyRotorGroups() # Should be 1 still (fixed group not included)
+
+    assert num_group == 1, "the wing was counted as a rotor group"
+
+    # The wing does add a fixed component group, which the total counts.
+    assert GetNumUnsteadyGroups() == num_group + 1, "the fixed component group was not counted"
 
     \endcode
     \endPythonOnly
