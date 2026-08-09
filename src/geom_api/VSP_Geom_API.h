@@ -8333,9 +8333,22 @@ extern std::string AddGeom( const std::string & type, const std::string & parent
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
 
+    Update();
+
+    vec3d before_min = GetGeomBBoxMin( pod_id, 0, true );
+
     SetParmVal( pod_id, "X_Rel_Location", "XForm", 5.0 );
 
     UpdateGeom( pod_id ); // Faster than updating the whole vehicle
+
+    // Updating just this Geom has to move it, the same as a full Update would.
+    vec3d after_min = GetGeomBBoxMin( pod_id, 0, true );
+
+    if ( !closeTo( after_min.x() - before_min.x(), 5.0, 1e-6 ) )
+    {
+        Print( "ERROR: UpdateGeom did not rebuild the Geom" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8346,9 +8359,18 @@ extern std::string AddGeom( const std::string & type, const std::string & parent
     #==== Add Pod Geometry ====//
     pod_id = AddGeom( "POD" )
 
+    Update()
+
+    before_min = GetGeomBBoxMin( pod_id, 0, True )
+
     SetParmVal( pod_id, "X_Rel_Location", "XForm", 5.0 )
 
     UpdateGeom( pod_id ) # Faster than updating the whole vehicle
+
+    # Updating just this Geom has to move it, the same as a full Update would.
+    after_min = GetGeomBBoxMin( pod_id, 0, True )
+
+    assert abs( ( after_min.x() - before_min.x() ) - 5.0 ) < 1e-6, "UpdateGeom did not rebuild the Geom"
 
     \endcode
     \endPythonOnly
@@ -8763,6 +8785,21 @@ extern void SetGeomName( const std::string & geom_id, const std::string & name )
     string name_str = "Geom Name: " + GetGeomName( pid );
 
     Print( name_str );
+
+    if ( GetGeomName( pid ) != "ExamplePodName" )
+    {
+        Print( "ERROR: GetGeomName did not report the name that was set" );
+        __failure++;
+    }
+
+    // The name is how FindGeomsWithName looks Geoms up.
+    array< string > @found = FindGeomsWithName( "ExamplePodName" );
+
+    if ( found.size() != 1 || found[0] != pid )
+    {
+        Print( "ERROR: GetGeomName disagrees with FindGeomsWithName" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8775,6 +8812,14 @@ extern void SetGeomName( const std::string & geom_id, const std::string & name )
     name_str = "Geom Name: " + GetGeomName( pid )
 
     print( name_str )
+
+    assert GetGeomName( pid ) == "ExamplePodName", "GetGeomName did not report the name that was set"
+
+    # The name is how FindGeomsWithName looks Geoms up.
+    found = FindGeomsWithName( "ExamplePodName" )
+
+    assert len( found ) == 1, "GetGeomName disagrees with FindGeomsWithName"
+    assert found[0] == pid, "GetGeomName disagrees with FindGeomsWithName"
 
     \endcode
     \endPythonOnly
@@ -8835,6 +8880,21 @@ extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
     Print( "Geom Type Name: ", false );
 
     Print( GetGeomTypeName( wing_id ) );
+
+    if ( GetGeomTypeName( wing_id ) != "Wing" )
+    {
+        Print( "ERROR: GetGeomTypeName did not report the type that was added" );
+        __failure++;
+    }
+
+    // A Geom of a different type has to report a different name.
+    string pod_id = AddGeom( "POD" );
+
+    if ( GetGeomTypeName( pod_id ) == GetGeomTypeName( wing_id ) )
+    {
+        Print( "ERROR: GetGeomTypeName gave two types the same name" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8845,6 +8905,13 @@ extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
     print( "Geom Type Name: ", False )
 
     print( GetGeomTypeName( wing_id ) )
+
+    assert GetGeomTypeName( wing_id ) == "Wing", "GetGeomTypeName did not report the type that was added"
+
+    # A Geom of a different type has to report a different name.
+    pod_id = AddGeom( "POD" )
+
+    assert GetGeomTypeName( pod_id ) != GetGeomTypeName( wing_id ), "GetGeomTypeName gave two types the same name"
 
     \endcode
     \endPythonOnly
@@ -8960,6 +9027,28 @@ extern void SetGeomParent( const std::string& geom_id, const std::string& parent
     Print( "Parent ID of Pod #2: ", false );
 
     Print( GetGeomParent( pod2 ) );
+
+    if ( GetGeomParent( pod2 ) != pod1 )
+    {
+        Print( "ERROR: GetGeomParent did not report the parent it was given" );
+        __failure++;
+    }
+
+    // The relationship has to read the same from the other end.
+    array< string > @children = GetGeomChildren( pod1 );
+
+    if ( children.size() != 1 || children[0] != pod2 )
+    {
+        Print( "ERROR: GetGeomParent disagrees with GetGeomChildren" );
+        __failure++;
+    }
+
+    // A Geom added with no parent sits at the top level.
+    if ( GetGeomParent( pod1 ) != "NONE" )
+    {
+        Print( "ERROR: GetGeomParent did not report NONE for a top level Geom" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -8972,6 +9061,17 @@ extern void SetGeomParent( const std::string& geom_id, const std::string& parent
     print( "Parent ID of Pod #2: ", False )
 
     print( GetGeomParent( pod2 ) )
+
+    assert GetGeomParent( pod2 ) == pod1, "GetGeomParent did not report the parent it was given"
+
+    # The relationship has to read the same from the other end.
+    children = GetGeomChildren( pod1 )
+
+    assert len( children ) == 1, "GetGeomParent disagrees with GetGeomChildren"
+    assert children[0] == pod2, "GetGeomParent disagrees with GetGeomChildren"
+
+    # A Geom added with no parent sits at the top level.
+    assert GetGeomParent( pod1 ) == "NONE", "GetGeomParent did not report NONE for a top level Geom"
 
     \endcode
     \endPythonOnly
@@ -9411,6 +9511,37 @@ extern std::string AddSubSurf( const std::string & geom_id, int type, int surfin
     Print( " = ", false );
 
     Print( GetSubSurf( wid, 1 ) );
+
+    // Sub-surfaces come back in the order they were added.
+    if ( GetSubSurf( wid, 0 ) != ss_rec_1 || GetSubSurf( wid, 1 ) != ss_rec_2 )
+    {
+        Print( "ERROR: GetSubSurf did not report the sub-surfaces in order" );
+        __failure++;
+    }
+
+    // The index form and the ID vector have to agree.
+    array< string > @id_vec = GetSubSurfIDVec( wid );
+
+    if ( id_vec.size() != 2 || id_vec[1] != GetSubSurf( wid, 1 ) )
+    {
+        Print( "ERROR: GetSubSurf disagrees with GetSubSurfIDVec" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    GetSubSurf( wid, 2 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetSubSurf accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -9426,6 +9557,28 @@ extern std::string AddSubSurf( const std::string & geom_id, int type, int surfin
     print( " = ", False )
 
     print( GetSubSurf( wid, 1 ) )
+
+    # Sub-surfaces come back in the order they were added.
+    assert GetSubSurf( wid, 0 ) == ss_rec_1, "GetSubSurf did not report the sub-surfaces in order"
+    assert GetSubSurf( wid, 1 ) == ss_rec_2, "GetSubSurf did not report the sub-surfaces in order"
+
+    # The index form and the ID vector have to agree.
+    id_vec = GetSubSurfIDVec( wid )
+
+    assert len( id_vec ) == 2, "GetSubSurf disagrees with GetSubSurfIDVec"
+    assert id_vec[1] == GetSubSurf( wid, 1 ), "GetSubSurf disagrees with GetSubSurfIDVec"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetSubSurf( wid, 2 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetSubSurf accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -9454,6 +9607,37 @@ extern std::string GetSubSurf( const std::string & geom_id, int index );
     Print( " = ", false );
 
     Print( GetSubSurf( wid, 1 ) );
+
+    // Sub-surfaces come back in the order they were added.
+    if ( GetSubSurf( wid, 0 ) != ss_rec_1 || GetSubSurf( wid, 1 ) != ss_rec_2 )
+    {
+        Print( "ERROR: GetSubSurf did not report the sub-surfaces in order" );
+        __failure++;
+    }
+
+    // The index form and the ID vector have to agree.
+    array< string > @id_vec = GetSubSurfIDVec( wid );
+
+    if ( id_vec.size() != 2 || id_vec[1] != GetSubSurf( wid, 1 ) )
+    {
+        Print( "ERROR: GetSubSurf disagrees with GetSubSurfIDVec" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    GetSubSurf( wid, 2 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetSubSurf accepted an index past the end" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -9469,6 +9653,28 @@ extern std::string GetSubSurf( const std::string & geom_id, int index );
     print( " = ", False )
 
     print( GetSubSurf( wid, 1 ) )
+
+    # Sub-surfaces come back in the order they were added.
+    assert GetSubSurf( wid, 0 ) == ss_rec_1, "GetSubSurf did not report the sub-surfaces in order"
+    assert GetSubSurf( wid, 1 ) == ss_rec_2, "GetSubSurf did not report the sub-surfaces in order"
+
+    # The index form and the ID vector have to agree.
+    id_vec = GetSubSurfIDVec( wid )
+
+    assert len( id_vec ) == 2, "GetSubSurf disagrees with GetSubSurfIDVec"
+    assert id_vec[1] == GetSubSurf( wid, 1 ), "GetSubSurf disagrees with GetSubSurfIDVec"
+
+    # An index past the end has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetSubSurf( wid, 2 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetSubSurf accepted an index past the end"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -9785,6 +9991,20 @@ extern std::string GetSubSurfName( const std::string & sub_id );
     string ind_str = string("Index of SS_Rectangle: ") + ind + string("\n");
 
     Print( ind_str );
+
+    // The rectangle was added second, so it sits at index 1.
+    if ( ind != 1 || GetSubSurfIndex( ss_line_id ) != 0 )
+    {
+        Print( "ERROR: GetSubSurfIndex did not report the order they were added" );
+        __failure++;
+    }
+
+    // The index has to lead back to the same sub-surface.
+    if ( GetSubSurf( wid, ind ) != ss_rec_id )
+    {
+        Print( "ERROR: GetSubSurfIndex disagrees with GetSubSurf" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -9799,6 +10019,13 @@ extern std::string GetSubSurfName( const std::string & sub_id );
     ind_str = f"Index of SS_Rectangle: {ind}"
 
     print( ind_str )
+
+    # The rectangle was added second, so it sits at index 1.
+    assert ind == 1, "GetSubSurfIndex did not report the order they were added"
+    assert GetSubSurfIndex( ss_line_id ) == 0, "GetSubSurfIndex did not report the order they were added"
+
+    # The index has to lead back to the same sub-surface.
+    assert GetSubSurf( wid, ind ) == ss_rec_id, "GetSubSurfIndex disagrees with GetSubSurf"
 
     \endcode
     \endPythonOnly
@@ -9951,6 +10178,13 @@ extern int GetNumSubSurf( const std::string & geom_id );
 
     array<string> id_vec = GetSubSurfIDVec( wid );
 
+    // Each sub-surface has to report the type it was created as.
+    if ( GetSubSurfType( ss_line_id ) != SS_LINE || GetSubSurfType( ss_rec_id ) != SS_RECTANGLE )
+    {
+        Print( "ERROR: GetSubSurfType did not report the type that was added" );
+        __failure++;
+    }
+
     string id_type_str = string( "SubSurface IDs and Type Indexes -> ");
 
     for ( uint i = 0; i < uint(id_vec.length()); i++ )
@@ -9977,6 +10211,10 @@ extern int GetNumSubSurf( const std::string & geom_id );
     ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
     id_vec = GetSubSurfIDVec( wid )
+
+    # Each sub-surface has to report the type it was created as.
+    assert GetSubSurfType( ss_line_id ) == SS_LINE, "GetSubSurfType did not report the type that was added"
+    assert GetSubSurfType( ss_rec_id ) == SS_RECTANGLE, "GetSubSurfType did not report the type that was added"
 
     id_type_str = "SubSurface IDs and Type Indexes -> "
 
