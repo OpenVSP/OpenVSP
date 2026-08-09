@@ -299,6 +299,8 @@ private:
     static void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
     static void DeleteExcrescence(int index);
 
+    CScriptArray* GetFeaAssemblyIDVec();
+    CScriptArray* GetFeaAssemblyStructureIDVec( const string & assembly_id );
     CScriptArray* GetFeaMaterialIDVec();
     CScriptArray* GetFeaPropertyIDVec();
     CScriptArray* GetFeaStructIDVec();

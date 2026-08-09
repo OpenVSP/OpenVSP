@@ -13702,6 +13702,771 @@ extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
     \return int Total Number of FEA Structures
 */
 
+//======================== FEA Assembly Functions ======================//
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Add an FEA Assembly.  An assembly gathers several FEA Structures and the connections between
+    them so they can be meshed and written out as one model.
+    \forcpponly
+    \code{.cpp}
+    string assembly_id = AddFeaAssembly();
+
+    if ( assembly_id.length() == 0 || NumFeaAssemblies() != 1 )
+    {
+        Print( "ERROR: AddFeaAssembly did not add an assembly" );
+        __failure++;
+    }
+
+    array< string > @assy_ids = GetFeaAssemblyIDVec();
+
+    if ( assy_ids.size() != 1 || assy_ids[0] != assembly_id )
+    {
+        Print( "ERROR: the assembly is not in the assembly list" );
+        __failure++;
+    }
+
+    // A new assembly is named and holds nothing yet.
+    if ( GetFeaAssemblyName( assembly_id ).length() == 0 )
+    {
+        Print( "ERROR: AddFeaAssembly did not name the assembly" );
+        __failure++;
+    }
+
+    if ( GetFeaAssemblyStructureIDVec( assembly_id ).size() != 0 )
+    {
+        Print( "ERROR: a new assembly already holds structures" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    assembly_id = AddFeaAssembly()
+
+    assert len( assembly_id ) > 0, "AddFeaAssembly did not add an assembly"
+    assert NumFeaAssemblies() == 1, "AddFeaAssembly did not add an assembly"
+
+    assy_ids = GetFeaAssemblyIDVec()
+
+    assert len( assy_ids ) == 1 and assy_ids[0] == assembly_id, "the assembly is not in the assembly list"
+
+    # A new assembly is named and holds nothing yet.
+    assert len( GetFeaAssemblyName( assembly_id ) ) > 0, "AddFeaAssembly did not name the assembly"
+    assert len( GetFeaAssemblyStructureIDVec( assembly_id ) ) == 0, "a new assembly already holds structures"
+
+    \endcode
+    \endPythonOnly
+    \sa DeleteFeaAssembly, AddFeaStructureToAssembly, ComputeFeaAssemblyMesh
+    \return string FEA Assembly ID
+*/
+
+extern std::string AddFeaAssembly();
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete an FEA Assembly.  The Structures it gathered are left in the model.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, GetFeaStructID( pod_id, struct_ind ) );
+
+    DeleteFeaAssembly( assembly_id );
+
+    if ( NumFeaAssemblies() != 0 )
+    {
+        Print( "ERROR: DeleteFeaAssembly did not remove the assembly" );
+        __failure++;
+    }
+
+    // The Structure it held survives.
+    if ( NumFeaStructures() != 1 )
+    {
+        Print( "ERROR: DeleteFeaAssembly removed the Structure it gathered" );
+        __failure++;
+    }
+
+    // An ID that is not an assembly has to be rejected.
+    DeleteFeaAssembly( "NOSUCHASSEMBLY" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteFeaAssembly accepted a bad ID" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_ind = AddFeaStruct( pod_id )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, GetFeaStructID( pod_id, struct_ind ) )
+
+    DeleteFeaAssembly( assembly_id )
+
+    assert NumFeaAssemblies() == 0, "DeleteFeaAssembly did not remove the assembly"
+
+    # The Structure it held survives.
+    assert NumFeaStructures() == 1, "DeleteFeaAssembly removed the Structure it gathered"
+
+    # An ID that is not an assembly has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteFeaAssembly( "NOSUCHASSEMBLY" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteFeaAssembly accepted a bad ID"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaAssembly, GetFeaAssemblyIDVec
+    \param [in] assembly_id string FEA Assembly ID
+*/
+
+extern void DeleteFeaAssembly( const std::string & assembly_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the number of FEA Assemblies in the model
+    \forcpponly
+    \code{.cpp}
+    if ( NumFeaAssemblies() != 0 )
+    {
+        Print( "ERROR: a new model starts with FEA Assemblies" );
+        __failure++;
+    }
+
+    AddFeaAssembly();
+    AddFeaAssembly();
+
+    if ( NumFeaAssemblies() != 2 || NumFeaAssemblies() != int( GetFeaAssemblyIDVec().size() ) )
+    {
+        Print( "ERROR: NumFeaAssemblies disagrees with GetFeaAssemblyIDVec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    assert NumFeaAssemblies() == 0, "a new model starts with FEA Assemblies"
+
+    AddFeaAssembly()
+    AddFeaAssembly()
+
+    assert NumFeaAssemblies() == 2, "NumFeaAssemblies did not count both assemblies"
+    assert NumFeaAssemblies() == len( GetFeaAssemblyIDVec() ), "NumFeaAssemblies disagrees with GetFeaAssemblyIDVec"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaAssembly, GetFeaAssemblyIDVec
+    \return int Number of FEA Assemblies
+*/
+
+extern int NumFeaAssemblies();
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the IDs of every FEA Assembly in the model
+    \forcpponly
+    \code{.cpp}
+    string first = AddFeaAssembly();
+    string second = AddFeaAssembly();
+
+    array< string > @assy_ids = GetFeaAssemblyIDVec();
+
+    // Assemblies come back in the order they were added.
+    if ( assy_ids.size() != 2 || assy_ids[0] != first || assy_ids[1] != second )
+    {
+        Print( "ERROR: GetFeaAssemblyIDVec did not report the assemblies in order" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    first = AddFeaAssembly()
+    second = AddFeaAssembly()
+
+    assy_ids = GetFeaAssemblyIDVec()
+
+    # Assemblies come back in the order they were added.
+    assert len( assy_ids ) == 2, "GetFeaAssemblyIDVec did not report the assemblies in order"
+    assert assy_ids[0] == first, "GetFeaAssemblyIDVec did not report the assemblies in order"
+    assert assy_ids[1] == second, "GetFeaAssemblyIDVec did not report the assemblies in order"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaAssembly, NumFeaAssemblies
+    \return vector\<string\> Array of FEA Assembly IDs
+*/
+
+extern std::vector < std::string > GetFeaAssemblyIDVec();
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the name of an FEA Assembly
+    \forcpponly
+    \code{.cpp}
+    string assembly_id = AddFeaAssembly();
+
+    SetFeaAssemblyName( assembly_id, "ExampleAssembly" );
+
+    if ( GetFeaAssemblyName( assembly_id ) != "ExampleAssembly" )
+    {
+        Print( "ERROR: GetFeaAssemblyName did not report the name that was set" );
+        __failure++;
+    }
+
+    // An ID that is not an assembly has to be rejected.
+    GetFeaAssemblyName( "NOSUCHASSEMBLY" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetFeaAssemblyName accepted a bad ID" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    assembly_id = AddFeaAssembly()
+
+    SetFeaAssemblyName( assembly_id, "ExampleAssembly" )
+
+    assert GetFeaAssemblyName( assembly_id ) == "ExampleAssembly", "GetFeaAssemblyName did not report the name that was set"
+
+    # An ID that is not an assembly has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    GetFeaAssemblyName( "NOSUCHASSEMBLY" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetFeaAssemblyName accepted a bad ID"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaAssembly, SetFeaAssemblyName
+    \param [in] assembly_id string FEA Assembly ID
+    \return string FEA Assembly name
+*/
+
+extern std::string GetFeaAssemblyName( const std::string & assembly_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the name of an FEA Assembly.  The assembly's export file names are rebuilt from the new name.
+    \sa AddFeaAssembly, GetFeaAssemblyName
+    \param [in] assembly_id string FEA Assembly ID
+    \param [in] name string FEA Assembly name
+*/
+
+extern void SetFeaAssemblyName( const std::string & assembly_id, const std::string & name );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Add an FEA Structure to an FEA Assembly
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind_1 = AddFeaStruct( pod_id );
+    int struct_ind_2 = AddFeaStruct( pod_id );
+
+    string struct_id_1 = GetFeaStructID( pod_id, struct_ind_1 );
+    string struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    array< string > @struct_ids = GetFeaAssemblyStructureIDVec( assembly_id );
+
+    if ( struct_ids.size() != 2 || struct_ids[0] != struct_id_1 || struct_ids[1] != struct_id_2 )
+    {
+        Print( "ERROR: the assembly does not hold the Structures it was given" );
+        __failure++;
+    }
+
+    // A Structure that does not exist has to be rejected.
+    AddFeaStructureToAssembly( assembly_id, "NOSUCHSTRUCT" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: AddFeaStructureToAssembly accepted a bad Structure ID" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_ind_1 = AddFeaStruct( pod_id )
+    struct_ind_2 = AddFeaStruct( pod_id )
+
+    struct_id_1 = GetFeaStructID( pod_id, struct_ind_1 )
+    struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    struct_ids = GetFeaAssemblyStructureIDVec( assembly_id )
+
+    assert len( struct_ids ) == 2, "the assembly does not hold the Structures it was given"
+    assert struct_ids[0] == struct_id_1, "the assembly does not hold the Structures it was given"
+    assert struct_ids[1] == struct_id_2, "the assembly does not hold the Structures it was given"
+
+    # A Structure that does not exist has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    AddFeaStructureToAssembly( assembly_id, "NOSUCHSTRUCT" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "AddFeaStructureToAssembly accepted a bad Structure ID"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaAssembly, DeleteFeaStructureFromAssembly, GetFeaAssemblyStructureIDVec
+    \param [in] assembly_id string FEA Assembly ID
+    \param [in] struct_id string FEA Structure ID
+*/
+
+extern void AddFeaStructureToAssembly( const std::string & assembly_id, const std::string & struct_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Remove an FEA Structure from an FEA Assembly.  The Structure itself is left in the model.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind_1 = AddFeaStruct( pod_id );
+    int struct_ind_2 = AddFeaStruct( pod_id );
+
+    string struct_id_1 = GetFeaStructID( pod_id, struct_ind_1 );
+    string struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    DeleteFeaStructureFromAssembly( assembly_id, struct_id_1 );
+
+    // Only the named Structure leaves the assembly, and it survives in the model.
+    array< string > @struct_ids = GetFeaAssemblyStructureIDVec( assembly_id );
+
+    if ( struct_ids.size() != 1 || struct_ids[0] != struct_id_2 )
+    {
+        Print( "ERROR: DeleteFeaStructureFromAssembly removed the wrong Structure" );
+        __failure++;
+    }
+
+    if ( NumFeaStructures() != 2 )
+    {
+        Print( "ERROR: DeleteFeaStructureFromAssembly deleted the Structure itself" );
+        __failure++;
+    }
+
+    // A Structure the assembly does not hold has to be rejected.
+    DeleteFeaStructureFromAssembly( assembly_id, struct_id_1 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteFeaStructureFromAssembly accepted a Structure it does not hold" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_ind_1 = AddFeaStruct( pod_id )
+    struct_ind_2 = AddFeaStruct( pod_id )
+
+    struct_id_1 = GetFeaStructID( pod_id, struct_ind_1 )
+    struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    DeleteFeaStructureFromAssembly( assembly_id, struct_id_1 )
+
+    # Only the named Structure leaves the assembly, and it survives in the model.
+    struct_ids = GetFeaAssemblyStructureIDVec( assembly_id )
+
+    assert len( struct_ids ) == 1, "DeleteFeaStructureFromAssembly removed the wrong Structure"
+    assert struct_ids[0] == struct_id_2, "DeleteFeaStructureFromAssembly removed the wrong Structure"
+    assert NumFeaStructures() == 2, "DeleteFeaStructureFromAssembly deleted the Structure itself"
+
+    # A Structure the assembly does not hold has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteFeaStructureFromAssembly( assembly_id, struct_id_1 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteFeaStructureFromAssembly accepted a Structure it does not hold"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaStructureToAssembly, GetFeaAssemblyStructureIDVec
+    \param [in] assembly_id string FEA Assembly ID
+    \param [in] struct_id string FEA Structure ID
+*/
+
+extern void DeleteFeaStructureFromAssembly( const std::string & assembly_id, const std::string & struct_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the IDs of the FEA Structures gathered by an FEA Assembly
+    \sa AddFeaStructureToAssembly, DeleteFeaStructureFromAssembly
+    \param [in] assembly_id string FEA Assembly ID
+    \return vector\<string\> Array of FEA Structure IDs
+*/
+
+extern std::vector < std::string > GetFeaAssemblyStructureIDVec( const std::string & assembly_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Connect two FEA Fixed Points, each belonging to a Structure in the assembly, so the Structures
+    are tied together where they meet.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind_1 = AddFeaStruct( pod_id );
+    int struct_ind_2 = AddFeaStruct( pod_id );
+
+    string struct_id_1 = GetFeaStructID( pod_id, struct_ind_1 );
+    string struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 );
+
+    //==== Each Structure needs a Fixed Point to connect ====//
+    string fix_pt_1 = AddFeaPart( pod_id, struct_ind_1, FEA_FIX_POINT );
+    string fix_pt_2 = AddFeaPart( pod_id, struct_ind_2, FEA_FIX_POINT );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    if ( NumFeaAssemblyConnections( assembly_id ) != 0 )
+    {
+        Print( "ERROR: a new assembly already holds connections" );
+        __failure++;
+    }
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+
+    if ( NumFeaAssemblyConnections( assembly_id ) != 1 )
+    {
+        Print( "ERROR: AddFeaAssemblyConnection did not add a connection" );
+        __failure++;
+    }
+
+    DeleteFeaAssemblyConnection( assembly_id, 0 );
+
+    if ( NumFeaAssemblyConnections( assembly_id ) != 0 )
+    {
+        Print( "ERROR: DeleteFeaAssemblyConnection did not remove the connection" );
+        __failure++;
+    }
+
+    // An index past the end has to be rejected.
+    DeleteFeaAssemblyConnection( assembly_id, 0 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: DeleteFeaAssemblyConnection accepted an index past the end" );
+        __failure++;
+    }
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_ind_1 = AddFeaStruct( pod_id )
+    struct_ind_2 = AddFeaStruct( pod_id )
+
+    struct_id_1 = GetFeaStructID( pod_id, struct_ind_1 )
+    struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 )
+
+    #==== Each Structure needs a Fixed Point to connect ====//
+    fix_pt_1 = AddFeaPart( pod_id, struct_ind_1, FEA_FIX_POINT )
+    fix_pt_2 = AddFeaPart( pod_id, struct_ind_2, FEA_FIX_POINT )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    assert NumFeaAssemblyConnections( assembly_id ) == 0, "a new assembly already holds connections"
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+
+    assert NumFeaAssemblyConnections( assembly_id ) == 1, "AddFeaAssemblyConnection did not add a connection"
+
+    DeleteFeaAssemblyConnection( assembly_id, 0 )
+
+    assert NumFeaAssemblyConnections( assembly_id ) == 0, "DeleteFeaAssemblyConnection did not remove the connection"
+
+    # An index past the end has to be rejected.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    DeleteFeaAssemblyConnection( assembly_id, 0 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "DeleteFeaAssemblyConnection accepted an index past the end"
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaAssembly, DeleteFeaAssemblyConnection, NumFeaAssemblyConnections
+    \param [in] assembly_id string FEA Assembly ID
+    \param [in] start_fix_pt_id string FEA Fixed Point ID at the start of the connection
+    \param [in] start_struct_id string FEA Structure ID the start Fixed Point belongs to
+    \param [in] start_index int Surface index of the start Fixed Point
+    \param [in] end_fix_pt_id string FEA Fixed Point ID at the end of the connection
+    \param [in] end_struct_id string FEA Structure ID the end Fixed Point belongs to
+    \param [in] end_index int Surface index of the end Fixed Point
+*/
+
+extern void AddFeaAssemblyConnection( const std::string & assembly_id,
+                                      const std::string & start_fix_pt_id, const std::string & start_struct_id, int start_index,
+                                      const std::string & end_fix_pt_id, const std::string & end_struct_id, int end_index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete a connection from an FEA Assembly
+    \sa AddFeaAssemblyConnection, NumFeaAssemblyConnections
+    \param [in] assembly_id string FEA Assembly ID
+    \param [in] connection_index int Connection index
+*/
+
+extern void DeleteFeaAssemblyConnection( const std::string & assembly_id, int connection_index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the number of connections in an FEA Assembly
+    \sa AddFeaAssemblyConnection, DeleteFeaAssemblyConnection
+    \param [in] assembly_id string FEA Assembly ID
+    \return int Number of connections
+*/
+
+extern int NumFeaAssemblyConnections( const std::string & assembly_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Mesh and write out an FEA Assembly.  Any Structure in the assembly that has not been meshed yet
+    is meshed first.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    //==== Keep the mesh coarse so the example runs quickly ====//
+    SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
+
+    string assembly_id = AddFeaAssembly();
+
+    SetFeaAssemblyName( assembly_id, "ExampleAssembly" );
+
+    AddFeaStructureToAssembly( assembly_id, struct_id );
+
+    string out_name = GetFeaAssemblyFileName( assembly_id, FEA_CALCULIX_FILE_NAME );
+
+    ComputeFeaAssemblyMesh( assembly_id );
+
+    // The assembly writes the Calculix deck it named.
+    file __f;
+
+    if ( __f.open( out_name, "r" ) < 0 )
+    {
+        Print( "ERROR: ComputeFeaAssemblyMesh wrote no file" );
+        __failure++;
+    }
+    else
+    {
+        if ( __f.getSize() <= 0 )
+        {
+            Print( "ERROR: ComputeFeaAssemblyMesh wrote an empty file" );
+            __failure++;
+        }
+        __f.close();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_ind = AddFeaStruct( pod_id )
+
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    #==== Keep the mesh coarse so the example runs quickly ====//
+    SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 )
+
+    assembly_id = AddFeaAssembly()
+
+    SetFeaAssemblyName( assembly_id, "ExampleAssembly" )
+
+    AddFeaStructureToAssembly( assembly_id, struct_id )
+
+    out_name = GetFeaAssemblyFileName( assembly_id, FEA_CALCULIX_FILE_NAME )
+
+    ComputeFeaAssemblyMesh( assembly_id )
+
+    # The assembly writes the Calculix deck it named.
+    import os
+    assert os.path.getsize( out_name ) > 0, "ComputeFeaAssemblyMesh wrote no file"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaAssembly, AddFeaStructureToAssembly
+    \param [in] assembly_id string FEA Assembly ID
+*/
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the name of an FEA Assembly output file.  The names are built from the assembly name when
+    it is set, so this reports where ComputeFeaAssemblyMesh will write.
+    \sa SetFeaAssemblyFileName, ComputeFeaAssemblyMesh, FEA_EXPORT_TYPE
+    \param [in] assembly_id string FEA Assembly ID
+    \param [in] file_type int FEA output file type enum (i.e. FEA_CALCULIX_FILE_NAME)
+    \return string Name of the output file
+*/
+
+extern std::string GetFeaAssemblyFileName( const std::string & assembly_id, int file_type );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the name of an FEA Assembly output file
+    \forcpponly
+    \code{.cpp}
+    string assembly_id = AddFeaAssembly();
+
+    SetFeaAssemblyFileName( assembly_id, FEA_CALCULIX_FILE_NAME, "ExampleAssembly.inp" );
+
+    if ( GetFeaAssemblyFileName( assembly_id, FEA_CALCULIX_FILE_NAME ) != "ExampleAssembly.inp" )
+    {
+        Print( "ERROR: SetFeaAssemblyFileName did not take" );
+        __failure++;
+    }
+
+    // Each output type carries its own name.
+    if ( GetFeaAssemblyFileName( assembly_id, FEA_NASTRAN_FILE_NAME ) == "ExampleAssembly.inp" )
+    {
+        Print( "ERROR: setting one output name disturbed another" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    assembly_id = AddFeaAssembly()
+
+    SetFeaAssemblyFileName( assembly_id, FEA_CALCULIX_FILE_NAME, "ExampleAssembly.inp" )
+
+    assert GetFeaAssemblyFileName( assembly_id, FEA_CALCULIX_FILE_NAME ) == "ExampleAssembly.inp", "SetFeaAssemblyFileName did not take"
+
+    # Each output type carries its own name.
+    assert GetFeaAssemblyFileName( assembly_id, FEA_NASTRAN_FILE_NAME ) != "ExampleAssembly.inp", "setting one output name disturbed another"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaAssemblyFileName, ComputeFeaAssemblyMesh, FEA_EXPORT_TYPE
+    \param [in] assembly_id string FEA Assembly ID
+    \param [in] file_type int FEA output file type enum (i.e. FEA_CALCULIX_FILE_NAME)
+    \param [in] file_name string Name for the output file
+*/
+
+extern void SetFeaAssemblyFileName( const std::string & assembly_id, int file_type, const std::string & file_name );
+
+extern void ComputeFeaAssemblyMesh( const std::string & assembly_id );
+
 extern int NumFeaStructures();
 
 /*!

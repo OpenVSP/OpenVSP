@@ -4509,6 +4509,239 @@ int NumFeaBCs( const string & fea_struct_id )
 }
 
 /// Add an FeaMaterial, return FeaMaterial ID
+//==== Look up an FEA Assembly by ID, reporting through the named caller. ====//
+FeaAssembly* FindFeaAssembly( const string & assembly_id, const string & caller )
+{
+    FeaAssembly* assy = StructureMgr.GetFeaAssembly( assembly_id );
+
+    if ( !assy )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Invalid FEA Assembly ID " + assembly_id );
+    }
+
+    return assy;
+}
+
+string AddFeaAssembly()
+{
+    FeaAssembly* assy = StructureMgr.AddFeaAssembly();
+
+    if ( !assy )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaAssembly::Invalid FEA Assembly Ptr" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return assy->GetID();
+}
+
+void DeleteFeaAssembly( const string & assembly_id )
+{
+    vector < FeaAssembly* > assy_vec = StructureMgr.GetFeaAssemblyVec();
+
+    for ( int i = 0; i < ( int )assy_vec.size(); i++ )
+    {
+        if ( assy_vec[i]->GetID() == assembly_id )
+        {
+            StructureMgr.DeleteFeaAssembly( i );
+
+            ErrorMgr.NoError();
+            return;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaAssembly::Invalid FEA Assembly ID " + assembly_id );
+}
+
+int NumFeaAssemblies()
+{
+    ErrorMgr.NoError();
+    return StructureMgr.NumFeaAssembly();
+}
+
+vector < string > GetFeaAssemblyIDVec()
+{
+    vector < string > ret;
+
+    vector < FeaAssembly* > assy_vec = StructureMgr.GetFeaAssemblyVec();
+
+    ret.reserve( assy_vec.size() );
+    for ( int i = 0; i < ( int )assy_vec.size(); i++ )
+    {
+        ret.push_back( assy_vec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+string GetFeaAssemblyName( const string & assembly_id )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "GetFeaAssemblyName" );
+    if ( !assy )
+    {
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return assy->GetName();
+}
+
+void SetFeaAssemblyName( const string & assembly_id, const string & name )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "SetFeaAssemblyName" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    assy->SetName( name );
+    assy->ResetExportFileNames();
+
+    ErrorMgr.NoError();
+}
+
+void AddFeaStructureToAssembly( const string & assembly_id, const string & struct_id )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "AddFeaStructureToAssembly" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    if ( !StructureMgr.GetFeaStruct( struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddFeaStructureToAssembly::Invalid FeaStructure ID " + struct_id );
+        return;
+    }
+
+    assy->AddStructure( struct_id );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteFeaStructureFromAssembly( const string & assembly_id, const string & struct_id )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "DeleteFeaStructureFromAssembly" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    if ( !vector_contains_val( assy->m_StructIDVec, struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaStructureFromAssembly::Assembly Does Not Hold Structure " + struct_id );
+        return;
+    }
+
+    assy->DelStructure( struct_id );
+
+    ErrorMgr.NoError();
+}
+
+vector < string > GetFeaAssemblyStructureIDVec( const string & assembly_id )
+{
+    vector < string > ret;
+
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "GetFeaAssemblyStructureIDVec" );
+    if ( !assy )
+    {
+        return ret;
+    }
+
+    ErrorMgr.NoError();
+    return assy->m_StructIDVec;
+}
+
+void AddFeaAssemblyConnection( const string & assembly_id,
+                               const string & start_fix_pt_id, const string & start_struct_id, int start_index,
+                               const string & end_fix_pt_id, const string & end_struct_id, int end_index )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "AddFeaAssemblyConnection" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    assy->AddConnection( start_fix_pt_id, start_struct_id, start_index,
+                         end_fix_pt_id, end_struct_id, end_index );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteFeaAssemblyConnection( const string & assembly_id, int connection_index )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "DeleteFeaAssemblyConnection" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    if ( connection_index < 0 || connection_index >= ( int )assy->m_ConnectionVec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteFeaAssemblyConnection::Connection Index " + to_string( connection_index ) + " Out of Range" );
+        return;
+    }
+
+    assy->DelConnection( connection_index );
+
+    ErrorMgr.NoError();
+}
+
+int NumFeaAssemblyConnections( const string & assembly_id )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "NumFeaAssemblyConnections" );
+    if ( !assy )
+    {
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return ( int )assy->m_ConnectionVec.size();
+}
+
+string GetFeaAssemblyFileName( const string & assembly_id, int file_type )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "GetFeaAssemblyFileName" );
+    if ( !assy )
+    {
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return assy->m_AssemblySettings.GetExportFileName( file_type );
+}
+
+void SetFeaAssemblyFileName( const string & assembly_id, int file_type, const string & file_name )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "SetFeaAssemblyFileName" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    assy->m_AssemblySettings.SetExportFileName( file_name, file_type );
+
+    ErrorMgr.NoError();
+}
+
+void ComputeFeaAssemblyMesh( const string & assembly_id )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "ComputeFeaAssemblyMesh" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    // Mesh whatever structures in the assembly have not been meshed yet, then
+    // write the assembly out.
+    FeaMeshMgr.MeshUnMeshed( assy->m_StructIDVec );
+    FeaMeshMgr.ExportAssemblyMesh( assembly_id );
+
+    ErrorMgr.NoError();
+}
+
 vector < string > GetFeaMaterialIDVec()
 {
     vector < string > ret;
