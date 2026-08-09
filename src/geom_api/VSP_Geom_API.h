@@ -20221,8 +20221,34 @@ extern void TranslateSet( int set_index, const vec3d &translation_vec );
 
     SetSetFlag( fuseid, 3, true );
 
+    Update();
+
+    vec3d before_max = GetGeomBBoxMax( fuseid, 0, true );
+    vec3d before_min = GetGeomBBoxMin( fuseid, 0, true );
+
     // Translate 2 units in X and 3 units in Y, rotate 90 degrees about Y, and scale by a factor of 2
     TransformSet( 3, vec3d( 2, 3, 0 ), 0, 90, 0, 2.0, true );
+
+    Update();
+
+    vec3d after_max = GetGeomBBoxMax( fuseid, 0, true );
+    vec3d after_min = GetGeomBBoxMin( fuseid, 0, true );
+
+    // Turning the Geom on its nose trades the X extent for the Z, and the scale
+    // doubles both.
+    if ( !closeTo( after_max.z() - after_min.z(), 2.0 * ( before_max.x() - before_min.x() ), 1e-6 ) ||
+         !closeTo( after_max.x() - after_min.x(), 2.0 * ( before_max.z() - before_min.z() ), 1e-6 ) )
+    {
+        Print( "ERROR: TransformSet did not rotate and scale the geometry" );
+        __failure++;
+    }
+
+    // The Y extent only scales, and the whole thing moves three units out in Y.
+    if ( !closeTo( after_max.y() - after_min.y(), 2.0 * ( before_max.y() - before_min.y() ), 1e-6 ) )
+    {
+        Print( "ERROR: TransformSet did not scale the geometry in Y" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -20232,8 +20258,26 @@ extern void TranslateSet( int set_index, const vec3d &translation_vec );
 
     SetSetFlag( fuseid, 3, True )
 
+    Update()
+
+    before_max = GetGeomBBoxMax( fuseid, 0, True )
+    before_min = GetGeomBBoxMin( fuseid, 0, True )
+
     # Translate 2 units in X and 3 units in Y, rotate 90 degrees about Y, and scale by a factor of 2
     TransformSet( 3, vec3d( 2, 3, 0 ), 0, 90, 0, 2.0, True )
+
+    Update()
+
+    after_max = GetGeomBBoxMax( fuseid, 0, True )
+    after_min = GetGeomBBoxMin( fuseid, 0, True )
+
+    # Turning the Geom on its nose trades the X extent for the Z, and the scale
+    # doubles both.
+    assert abs( ( after_max.z() - after_min.z() ) - 2.0 * ( before_max.x() - before_min.x() ) ) < 1e-6, "TransformSet did not rotate and scale the geometry"
+    assert abs( ( after_max.x() - after_min.x() ) - 2.0 * ( before_max.z() - before_min.z() ) ) < 1e-6, "TransformSet did not rotate and scale the geometry"
+
+    # The Y extent only scales.
+    assert abs( ( after_max.y() - after_min.y() ) - 2.0 * ( before_max.y() - before_min.y() ) ) < 1e-6, "TransformSet did not scale the geometry in Y"
 
     \endcode
     \endPythonOnly
@@ -20405,6 +20449,30 @@ extern double SetParmVal( const std::string & geom_id, const std::string & name,
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
 
     SetParmDescript( length, "Total Length of Geom" );
+
+    // The value and both limits have to take.
+    if ( !closeTo( GetParmVal( length ), 10.0, 1e-9 ) ||
+         !closeTo( GetParmLowerLimit( length ), 0.001, 1e-9 ) ||
+         !closeTo( GetParmUpperLimit( length ), 1.0e12, 1.0 ) )
+    {
+        Print( "ERROR: SetParmValLimits did not take" );
+        __failure++;
+    }
+
+    if ( GetParmDescript( length ) != "Total Length of Geom" )
+    {
+        Print( "ERROR: SetParmDescript did not take" );
+        __failure++;
+    }
+
+    // The limits are limits, so a value outside them gets clamped.
+    SetParmVal( length, -1.0 );
+
+    if ( !closeTo( GetParmVal( length ), 0.001, 1e-9 ) )
+    {
+        Print( "ERROR: the lower limit did not hold" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -20416,6 +20484,18 @@ extern double SetParmVal( const std::string & geom_id, const std::string & name,
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 )
 
     SetParmDescript( length, "Total Length of Geom" )
+
+    # The value and both limits have to take.
+    assert abs( GetParmVal( length ) - 10.0 ) < 1e-9, "SetParmValLimits did not take"
+    assert abs( GetParmLowerLimit( length ) - 0.001 ) < 1e-9, "SetParmValLimits did not take"
+    assert abs( GetParmUpperLimit( length ) - 1.0e12 ) < 1.0, "SetParmValLimits did not take"
+
+    assert GetParmDescript( length ) == "Total Length of Geom", "SetParmDescript did not take"
+
+    # The limits are limits, so a value outside them gets clamped.
+    SetParmVal( length, -1.0 )
+
+    assert abs( GetParmVal( length ) - 0.001 ) < 1e-9, "the lower limit did not hold"
 
     \endcode
     \endPythonOnly
@@ -20630,6 +20710,23 @@ extern double GetParmVal( const std::string & geom_id, const std::string & name,
     string num_blade_id = GetParm( prop_id, "NumBlade", "Design" );
 
     int num_blade = GetIntParmVal( num_blade_id );
+
+    // A new propeller has three blades, and the int form has to agree with the
+    // double form.
+    if ( num_blade != 3 || num_blade != int( GetParmVal( num_blade_id ) ) )
+    {
+        Print( "ERROR: GetIntParmVal did not report the blade count" );
+        __failure++;
+    }
+
+    // Setting it has to move both.
+    SetParmVal( num_blade_id, 5 );
+
+    if ( GetIntParmVal( num_blade_id ) != 5 )
+    {
+        Print( "ERROR: GetIntParmVal did not follow the Parm" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -20640,6 +20737,16 @@ extern double GetParmVal( const std::string & geom_id, const std::string & name,
     num_blade_id = GetParm( prop_id, "NumBlade", "Design" )
 
     num_blade = GetIntParmVal( num_blade_id )
+
+    # A new propeller has three blades, and the int form has to agree with the
+    # double form.
+    assert num_blade == 3, "GetIntParmVal did not report the blade count"
+    assert num_blade == int( GetParmVal( num_blade_id ) ), "GetIntParmVal disagrees with GetParmVal"
+
+    # Setting it has to move both.
+    SetParmVal( num_blade_id, 5 )
+
+    assert GetIntParmVal( num_blade_id ) == 5, "GetIntParmVal did not follow the Parm"
 
     \endcode
     \endPythonOnly
@@ -20866,6 +20973,29 @@ extern void SetParmLowerLimit( const std::string & parm_id, double val );
     string num_blade_id = GetParm( prop_id, "NumBlade", "Design" );
 
     double min_blade = GetParmLowerLimit( num_blade_id );
+
+    // A propeller needs at least one blade, and the limits have to bracket the
+    // current value.
+    if ( min_blade < 1.0 )
+    {
+        Print( "ERROR: GetParmLowerLimit allows a propeller with no blades" );
+        __failure++;
+    }
+
+    if ( min_blade > GetParmVal( num_blade_id ) || min_blade > GetParmUpperLimit( num_blade_id ) )
+    {
+        Print( "ERROR: the lower limit is above the value or the upper limit" );
+        __failure++;
+    }
+
+    // Asking for less than the limit allows has to clamp to it.
+    SetParmVal( num_blade_id, min_blade - 10.0 );
+
+    if ( !closeTo( GetParmVal( num_blade_id ), min_blade, 1e-9 ) )
+    {
+        Print( "ERROR: the lower limit did not hold" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -20876,6 +21006,17 @@ extern void SetParmLowerLimit( const std::string & parm_id, double val );
     num_blade_id = GetParm( prop_id, "NumBlade", "Design" )
 
     min_blade = GetParmLowerLimit( num_blade_id )
+
+    # A propeller needs at least one blade, and the limits have to bracket the
+    # current value.
+    assert min_blade >= 1.0, "GetParmLowerLimit allows a propeller with no blades"
+    assert min_blade <= GetParmVal( num_blade_id ), "the lower limit is above the value"
+    assert min_blade <= GetParmUpperLimit( num_blade_id ), "the lower limit is above the upper limit"
+
+    # Asking for less than the limit allows has to clamp to it.
+    SetParmVal( num_blade_id, min_blade - 10.0 )
+
+    assert abs( GetParmVal( num_blade_id ) - min_blade ) < 1e-9, "the lower limit did not hold"
 
     \endcode
     \endPythonOnly
@@ -21566,12 +21707,38 @@ extern std::string GetVehicleID();
     \code{.cpp}
     int n = GetNumUserParms();
 
+    // A fresh model already carries the predefined user Parms, and the count has
+    // to match the list.
+    if ( n != GetNumPredefinedUserParms() || n != int( GetAllUserParms().size() ) )
+    {
+        Print( "ERROR: GetNumUserParms disagrees with the user Parm list" );
+        __failure++;
+    }
+
+    // Adding one has to move the count.
+    AddUserParm( PARM_DOUBLE_TYPE, "ExampleParm", "ExampleGroup" );
+
+    if ( GetNumUserParms() != n + 1 )
+    {
+        Print( "ERROR: GetNumUserParms did not follow AddUserParm" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     n = GetNumUserParms()
 
+    # A fresh model already carries the predefined user Parms, and the count has
+    # to match the list.
+    assert n == GetNumPredefinedUserParms(), "GetNumUserParms does not match the predefined count"
+    assert n == len( GetAllUserParms() ), "GetNumUserParms disagrees with the user Parm list"
+
+    # Adding one has to move the count.
+    AddUserParm( PARM_DOUBLE_TYPE, "ExampleParm", "ExampleGroup" )
+
+    assert GetNumUserParms() == n + 1, "GetNumUserParms did not follow AddUserParm"
 
     \endcode
     \endPythonOnly
@@ -21836,6 +22003,24 @@ extern void DeleteAllUserParm();
     Update();
 
     double min_dist = ComputeMinClearanceDistance( pid, SET_ALL );
+
+    // The Pod was moved clear of the Fuselage, so there is a real gap between
+    // them.  Sliding it back into the Fuselage has to close that gap.
+    if ( min_dist <= 0.0 )
+    {
+        Print( "ERROR: ComputeMinClearanceDistance reports no clearance between separated Geoms" );
+        __failure++;
+    }
+
+    SetParmVal( x, 0.0 );
+
+    Update();
+
+    if ( ComputeMinClearanceDistance( pid, SET_ALL ) >= min_dist )
+    {
+        Print( "ERROR: ComputeMinClearanceDistance did not close as the Geoms came together" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -21851,6 +22036,16 @@ extern void DeleteAllUserParm();
     Update()
 
     min_dist = ComputeMinClearanceDistance( pid, SET_ALL )
+
+    # The Pod was moved clear of the Fuselage, so there is a real gap between
+    # them.  Sliding it back into the Fuselage has to close that gap.
+    assert min_dist > 0.0, "ComputeMinClearanceDistance reports no clearance between separated Geoms"
+
+    SetParmVal( x, 0.0 )
+
+    Update()
+
+    assert ComputeMinClearanceDistance( pid, SET_ALL ) < min_dist, "ComputeMinClearanceDistance did not close as the Geoms came together"
 
     \endcode
     \endPythonOnly
@@ -21882,6 +22077,29 @@ extern double ComputeMinClearanceDistance( const std::string & geom_id, int set 
     Update();
 
     double min_dist = SnapParm( x, 0.1, true, SET_ALL );
+
+    Update();
+
+    // Snapping moves the Parm until the clearance reaches the target, so the
+    // Parm has to have moved and the clearance has to end up where it was
+    // asked for.
+    if ( closeTo( GetParmVal( x ), 3.0, 1e-9 ) )
+    {
+        Print( "ERROR: SnapParm did not move the Parm" );
+        __failure++;
+    }
+
+    if ( !closeTo( ComputeMinClearanceDistance( pid, SET_ALL ), 0.1, 1e-4 ) )
+    {
+        Print( "ERROR: SnapParm did not reach the target clearance" );
+        __failure++;
+    }
+
+    if ( !closeTo( min_dist, ComputeMinClearanceDistance( pid, SET_ALL ), 1e-4 ) )
+    {
+        Print( "ERROR: SnapParm reported a clearance it did not reach" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -21898,6 +22116,14 @@ extern double ComputeMinClearanceDistance( const std::string & geom_id, int set 
     Update()
 
     min_dist = SnapParm( x, 0.1, True, SET_ALL )
+
+    Update()
+
+    # Snapping moves the Parm until the clearance reaches the target, so the Parm
+    # has to have moved and the clearance has to end up where it was asked for.
+    assert abs( GetParmVal( x ) - 3.0 ) > 1e-9, "SnapParm did not move the Parm"
+    assert abs( ComputeMinClearanceDistance( pid, SET_ALL ) - 0.1 ) < 1e-4, "SnapParm did not reach the target clearance"
+    assert abs( min_dist - ComputeMinClearanceDistance( pid, SET_ALL ) ) < 1e-4, "SnapParm reported a clearance it did not reach"
 
     \endcode
     \endPythonOnly
