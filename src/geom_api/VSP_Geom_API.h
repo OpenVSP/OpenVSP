@@ -31109,6 +31109,25 @@ extern std::vector< std::string > GetAdvLinkNames();
 
     BuildAdvLinkScript( indx );
 
+    // The link was named, so it has to be findable by that name and by that
+    // index, and it has to actually drive its output: x is 10 minus the Pod's
+    // length, so changing the length has to move the Pod.
+    if ( indx < 0 || GetAdvLinkNames().size() != 1 || GetAdvLinkNames()[0] != "ExampleLink" )
+    {
+        Print( "ERROR: the advanced link was not registered under its name" );
+        __failure++;
+    }
+
+    SetParmValUpdate( length, 6.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), 4.0, 1e-6 ) )
+    {
+        Print( "ERROR: the advanced link did not drive its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -31127,6 +31146,18 @@ extern std::vector< std::string > GetAdvLinkNames();
 
     BuildAdvLinkScript( indx )
 
+    # The link was named, so it has to be findable by that name and by that
+    # index, and it has to actually drive its output: x is 10 minus the Pod's
+    # length, so changing the length has to move the Pod.
+    assert indx >= 0, "the advanced link was not registered under its name"
+    assert len( GetAdvLinkNames() ) == 1, "the advanced link was not registered under its name"
+    assert GetAdvLinkNames()[0] == "ExampleLink", "the advanced link was not registered under its name"
+
+    SetParmValUpdate( length, 6.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - 4.0 ) < 1e-6, "the advanced link did not drive its output"
 
     \endcode
     \endPythonOnly
@@ -31299,6 +31330,25 @@ extern void DelAllAdvLinks();
 
     BuildAdvLinkScript( indx );
 
+    // The link was named, so it has to be findable by that name and by that
+    // index, and it has to actually drive its output: x is 10 minus the Pod's
+    // length, so changing the length has to move the Pod.
+    if ( indx < 0 || GetAdvLinkNames().size() != 1 || GetAdvLinkNames()[0] != "ExampleLink" )
+    {
+        Print( "ERROR: the advanced link was not registered under its name" );
+        __failure++;
+    }
+
+    SetParmValUpdate( length, 6.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), 4.0, 1e-6 ) )
+    {
+        Print( "ERROR: the advanced link did not drive its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -31317,6 +31367,18 @@ extern void DelAllAdvLinks();
 
     BuildAdvLinkScript( indx )
 
+    # The link was named, so it has to be findable by that name and by that
+    # index, and it has to actually drive its output: x is 10 minus the Pod's
+    # length, so changing the length has to move the Pod.
+    assert indx >= 0, "the advanced link was not registered under its name"
+    assert len( GetAdvLinkNames() ) == 1, "the advanced link was not registered under its name"
+    assert GetAdvLinkNames()[0] == "ExampleLink", "the advanced link was not registered under its name"
+
+    SetParmValUpdate( length, 6.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - 4.0 ) < 1e-6, "the advanced link did not drive its output"
 
     \endcode
     \endPythonOnly
@@ -31346,6 +31408,25 @@ extern void AddAdvLink( const string & name );
 
     BuildAdvLinkScript( indx );
 
+    // The link was named, so it has to be findable by that name and by that
+    // index, and it has to actually drive its output: x is 10 minus the Pod's
+    // length, so changing the length has to move the Pod.
+    if ( indx < 0 || GetAdvLinkNames().size() != 1 || GetAdvLinkNames()[0] != "ExampleLink" )
+    {
+        Print( "ERROR: the advanced link was not registered under its name" );
+        __failure++;
+    }
+
+    SetParmValUpdate( length, 6.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), 4.0, 1e-6 ) )
+    {
+        Print( "ERROR: the advanced link did not drive its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -31364,6 +31445,18 @@ extern void AddAdvLink( const string & name );
 
     BuildAdvLinkScript( indx )
 
+    # The link was named, so it has to be findable by that name and by that
+    # index, and it has to actually drive its output: x is 10 minus the Pod's
+    # length, so changing the length has to move the Pod.
+    assert indx >= 0, "the advanced link was not registered under its name"
+    assert len( GetAdvLinkNames() ) == 1, "the advanced link was not registered under its name"
+    assert GetAdvLinkNames()[0] == "ExampleLink", "the advanced link was not registered under its name"
+
+    SetParmValUpdate( length, 6.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - 4.0 ) < 1e-6, "the advanced link did not drive its output"
 
     \endcode
     \endPythonOnly
@@ -31395,6 +31488,25 @@ extern void AddAdvLinkInput( int index, const string & parm_id, const string & v
 
     BuildAdvLinkScript( indx );
 
+    // The link was named, so it has to be findable by that name and by that
+    // index, and it has to actually drive its output: x is 10 minus the Pod's
+    // length, so changing the length has to move the Pod.
+    if ( indx < 0 || GetAdvLinkNames().size() != 1 || GetAdvLinkNames()[0] != "ExampleLink" )
+    {
+        Print( "ERROR: the advanced link was not registered under its name" );
+        __failure++;
+    }
+
+    SetParmValUpdate( length, 6.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), 4.0, 1e-6 ) )
+    {
+        Print( "ERROR: the advanced link did not drive its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -31413,6 +31525,18 @@ extern void AddAdvLinkInput( int index, const string & parm_id, const string & v
 
     BuildAdvLinkScript( indx )
 
+    # The link was named, so it has to be findable by that name and by that
+    # index, and it has to actually drive its output: x is 10 minus the Pod's
+    # length, so changing the length has to move the Pod.
+    assert indx >= 0, "the advanced link was not registered under its name"
+    assert len( GetAdvLinkNames() ) == 1, "the advanced link was not registered under its name"
+    assert GetAdvLinkNames()[0] == "ExampleLink", "the advanced link was not registered under its name"
+
+    SetParmValUpdate( length, 6.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - 4.0 ) < 1e-6, "the advanced link did not drive its output"
 
     \endcode
     \endPythonOnly
@@ -31457,6 +31581,25 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
 
     BuildAdvLinkScript( indx );
 
+    // The link was named, so it has to be findable by that name and by that
+    // index, and it has to actually drive its output: x is 10 minus the Pod's
+    // length, so changing the length has to move the Pod.
+    if ( indx < 0 || GetAdvLinkNames().size() != 1 || GetAdvLinkNames()[0] != "ExampleLink" )
+    {
+        Print( "ERROR: the advanced link was not registered under its name" );
+        __failure++;
+    }
+
+    SetParmValUpdate( length, 6.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), 4.0, 1e-6 ) )
+    {
+        Print( "ERROR: the advanced link did not drive its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -31484,6 +31627,18 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
 
     BuildAdvLinkScript( indx )
 
+    # The link was named, so it has to be findable by that name and by that
+    # index, and it has to actually drive its output: x is 10 minus the Pod's
+    # length, so changing the length has to move the Pod.
+    assert indx >= 0, "the advanced link was not registered under its name"
+    assert len( GetAdvLinkNames() ) == 1, "the advanced link was not registered under its name"
+    assert GetAdvLinkNames()[0] == "ExampleLink", "the advanced link was not registered under its name"
+
+    SetParmValUpdate( length, 6.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - 4.0 ) < 1e-6, "the advanced link did not drive its output"
 
     \endcode
     \endPythonOnly
@@ -31527,6 +31682,25 @@ extern void DelAdvLinkInput( int index, const string & var_name );
 
     BuildAdvLinkScript( indx );
 
+    // The link was named, so it has to be findable by that name and by that
+    // index, and it has to actually drive its output: x is 10 minus the Pod's
+    // length, so changing the length has to move the Pod.
+    if ( indx < 0 || GetAdvLinkNames().size() != 1 || GetAdvLinkNames()[0] != "ExampleLink" )
+    {
+        Print( "ERROR: the advanced link was not registered under its name" );
+        __failure++;
+    }
+
+    SetParmValUpdate( length, 6.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), 4.0, 1e-6 ) )
+    {
+        Print( "ERROR: the advanced link did not drive its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -31554,6 +31728,18 @@ extern void DelAdvLinkInput( int index, const string & var_name );
 
     BuildAdvLinkScript( indx )
 
+    # The link was named, so it has to be findable by that name and by that
+    # index, and it has to actually drive its output: x is 10 minus the Pod's
+    # length, so changing the length has to move the Pod.
+    assert indx >= 0, "the advanced link was not registered under its name"
+    assert len( GetAdvLinkNames() ) == 1, "the advanced link was not registered under its name"
+    assert GetAdvLinkNames()[0] == "ExampleLink", "the advanced link was not registered under its name"
+
+    SetParmValUpdate( length, 6.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - 4.0 ) < 1e-6, "the advanced link did not drive its output"
 
     \endcode
     \endPythonOnly
@@ -31928,6 +32114,25 @@ extern bool ValidateAdvLinkParms( int index );
 
     BuildAdvLinkScript( indx );
 
+    // The link was named, so it has to be findable by that name and by that
+    // index, and it has to actually drive its output: x is 10 minus the Pod's
+    // length, so changing the length has to move the Pod.
+    if ( indx < 0 || GetAdvLinkNames().size() != 1 || GetAdvLinkNames()[0] != "ExampleLink" )
+    {
+        Print( "ERROR: the advanced link was not registered under its name" );
+        __failure++;
+    }
+
+    SetParmValUpdate( length, 6.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), 4.0, 1e-6 ) )
+    {
+        Print( "ERROR: the advanced link did not drive its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -31946,6 +32151,18 @@ extern bool ValidateAdvLinkParms( int index );
 
     BuildAdvLinkScript( indx )
 
+    # The link was named, so it has to be findable by that name and by that
+    # index, and it has to actually drive its output: x is 10 minus the Pod's
+    # length, so changing the length has to move the Pod.
+    assert indx >= 0, "the advanced link was not registered under its name"
+    assert len( GetAdvLinkNames() ) == 1, "the advanced link was not registered under its name"
+    assert GetAdvLinkNames()[0] == "ExampleLink", "the advanced link was not registered under its name"
+
+    SetParmValUpdate( length, 6.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - 4.0 ) < 1e-6, "the advanced link did not drive its output"
 
     \endcode
     \endPythonOnly
@@ -32049,6 +32266,25 @@ extern std::string GetAdvLinkCode( int index );
 
     BuildAdvLinkScript( indx );
 
+    // The link was named, so it has to be findable by that name and by that
+    // index, and it has to actually drive its output.  The replacement rewrote
+    // the code, so x is now 12.3 minus the Pod's length.
+    if ( indx < 0 || GetAdvLinkNames().size() != 1 || GetAdvLinkNames()[0] != "ExampleLink" )
+    {
+        Print( "ERROR: the advanced link was not registered under its name" );
+        __failure++;
+    }
+
+    SetParmValUpdate( length, 6.0 );
+
+    Update();
+
+    if ( !closeTo( GetParmVal( x_pos ), 6.3, 1e-6 ) )
+    {
+        Print( "ERROR: the advanced link did not drive its output" );
+        __failure++;
+    }
+
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -32074,6 +32310,18 @@ extern std::string GetAdvLinkCode( int index );
 
     BuildAdvLinkScript( indx )
 
+    # The link was named, so it has to be findable by that name and by that
+    # index, and it has to actually drive its output.  The replacement rewrote
+    # the code, so x is now 12.3 minus the Pod's length.
+    assert indx >= 0, "the advanced link was not registered under its name"
+    assert len( GetAdvLinkNames() ) == 1, "the advanced link was not registered under its name"
+    assert GetAdvLinkNames()[0] == "ExampleLink", "the advanced link was not registered under its name"
+
+    SetParmValUpdate( length, 6.0 )
+
+    Update()
+
+    assert abs( GetParmVal( x_pos ) - 6.3 ) < 1e-6, "the advanced link did not drive its output"
 
     \endcode
     \endPythonOnly
