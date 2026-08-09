@@ -16,6 +16,20 @@ from openvsp import *
 class TestOpenVSP(unittest.TestCase):
 	def setUp(self):
 		VSPRenew()
+		# Start from a clean error queue so each example is only judged on the
+		# errors it raised itself.
+		api_err_mgr = ErrorMgrSingleton.getInstance()
+		while api_err_mgr.GetNumTotalErrors() > 0:
+			api_err_mgr.PopLastError()
+	def tearDown(self):
+		# An example that leaves an API error behind has not worked, whether or
+		# not it bothered to check anything itself.  An example that raises one
+		# on purpose is expected to take it back off the queue.
+		api_err_mgr = ErrorMgrSingleton.getInstance()
+		api_err_msgs = []
+		while api_err_mgr.GetNumTotalErrors() > 0:
+			api_err_msgs.append( api_err_mgr.PopLastError().GetErrorString() )
+		assert len( api_err_msgs ) == 0, "API errors: " + "; ".join( api_err_msgs )
 '''
     with open(vsp_file, 'r') as vsp:
 

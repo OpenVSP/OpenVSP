@@ -1578,20 +1578,47 @@ extern int GetDesignVarType( int index );
     Get the file name of a specified file type. Note, this function cannot be used to set FEA Mesh file names.
     \forcpponly
     \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "POD" );
+
     //==== Set File Name ====//
     SetComputationFileName( DEGEN_GEOM_CSV_TYPE, "TestDegenScript.csv" );
 
     //==== Run Degen Geom ====//
     ComputeDegenGeom( SET_ALL, DEGEN_GEOM_CSV_TYPE );
+
+    // The degenerate representation is reported through the Results Manager as
+    // well as written to file.  A Pod yields a surface, a plate and a stick.
+    if ( GetNumResults( "DegenGeom" ) != 1 )
+    {
+        Print( "ERROR: ComputeDegenGeom produced no DegenGeom result" );
+        __failure++;
+    }
+
+    if ( GetNumResults( "Degen_surf" ) < 1 || GetNumResults( "Degen_plate" ) < 1 || GetNumResults( "Degen_stick" ) < 1 )
+    {
+        Print( "ERROR: ComputeDegenGeom did not produce the component results" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    #==== Add Pod Geometry ====//
+    pid = AddGeom( "POD" )
+
     #==== Set File Name ====//
     SetComputationFileName( DEGEN_GEOM_CSV_TYPE, "TestDegenScript.csv" )
 
     #==== Run Degen Geom ====//
     ComputeDegenGeom( SET_ALL, DEGEN_GEOM_CSV_TYPE )
+
+    # The degenerate representation is reported through the Results Manager as
+    # well as written to file.  A Pod yields a surface, a plate and a stick.
+    assert GetNumResults( "DegenGeom" ) == 1, "ComputeDegenGeom produced no DegenGeom result"
+    assert GetNumResults( "Degen_surf" ) >= 1, "ComputeDegenGeom produced no Degen_surf result"
+    assert GetNumResults( "Degen_plate" ) >= 1, "ComputeDegenGeom produced no Degen_plate result"
+    assert GetNumResults( "Degen_stick" ) >= 1, "ComputeDegenGeom produced no Degen_stick result"
 
     \endcode
     \endPythonOnly
@@ -1755,20 +1782,47 @@ extern std::string ComputePlaneSlice( int set, int num_slices, const vec3d & nor
     Compute the degenerate geometry representation for the components in the set. Alternatively can be run through the Analysis Manager with 'DegenGeom' or 'VSPAERODegenGeom'.
     \forcpponly
     \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "POD" );
+
     //==== Set File Name ====//
     SetComputationFileName( DEGEN_GEOM_CSV_TYPE, "TestDegenScript.csv" );
 
     //==== Run Degen Geom ====//
     ComputeDegenGeom( SET_ALL, DEGEN_GEOM_CSV_TYPE );
+
+    // The degenerate representation is reported through the Results Manager as
+    // well as written to file.  A Pod yields a surface, a plate and a stick.
+    if ( GetNumResults( "DegenGeom" ) != 1 )
+    {
+        Print( "ERROR: ComputeDegenGeom produced no DegenGeom result" );
+        __failure++;
+    }
+
+    if ( GetNumResults( "Degen_surf" ) < 1 || GetNumResults( "Degen_plate" ) < 1 || GetNumResults( "Degen_stick" ) < 1 )
+    {
+        Print( "ERROR: ComputeDegenGeom did not produce the component results" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    #==== Add Pod Geometry ====//
+    pid = AddGeom( "POD" )
+
     #==== Set File Name ====//
     SetComputationFileName( DEGEN_GEOM_CSV_TYPE, "TestDegenScript.csv" )
 
     #==== Run Degen Geom ====//
     ComputeDegenGeom( SET_ALL, DEGEN_GEOM_CSV_TYPE )
+
+    # The degenerate representation is reported through the Results Manager as
+    # well as written to file.  A Pod yields a surface, a plate and a stick.
+    assert GetNumResults( "DegenGeom" ) == 1, "ComputeDegenGeom produced no DegenGeom result"
+    assert GetNumResults( "Degen_surf" ) >= 1, "ComputeDegenGeom produced no Degen_surf result"
+    assert GetNumResults( "Degen_plate" ) >= 1, "ComputeDegenGeom produced no Degen_plate result"
+    assert GetNumResults( "Degen_stick" ) >= 1, "ComputeDegenGeom produced no Degen_stick result"
 
     \endcode
     \endPythonOnly
@@ -1786,22 +1840,65 @@ extern void ComputeDegenGeom( int set, int file_export_types );
     Create a CFD Mesh for the components in the set. This analysis cannot be run through the Analysis Manager.
     \forcpponly
     \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    //==== Keep the mesh coarse so the example runs quickly ====//
+    SetCFDMeshVal( CFD_MAX_EDGE_LEN, 1.0 );
+    SetCFDMeshVal( CFD_MIN_EDGE_LEN, 0.1 );
+
     //==== CFDMesh Method Facet Export =====//
     SetComputationFileName( CFD_FACET_TYPE, "TestCFDMeshFacet_API.facet" );
+    SetComputationFileName( CFD_STL_TYPE, "TestCFDMesh_API.stl" );
 
    Print( "\tComputing CFDMesh..." );
 
-    ComputeCFDMesh( SET_ALL, SET_NONE, CFD_FACET_TYPE );
+    ComputeCFDMesh( SET_ALL, SET_NONE, CFD_FACET_TYPE | CFD_STL_TYPE );
+
+    // CFD Mesh reports nothing through the Results Manager, so read the mesh it
+    // just wrote back in to prove it produced one.
+    string mesh_id = ImportFile( "TestCFDMesh_API.stl", IMPORT_STL, "" );
+
+    if ( mesh_id.length() == 0 || GetGeomTypeName( mesh_id ) != "Mesh" )
+    {
+        Print( "ERROR: ComputeCFDMesh did not write a readable mesh" );
+        __failure++;
+    }
+    else
+    {
+        DeleteGeom( mesh_id );
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    #==== Add Pod Geometry ====//
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    #==== Keep the mesh coarse so the example runs quickly ====//
+    SetCFDMeshVal( CFD_MAX_EDGE_LEN, 1.0 )
+    SetCFDMeshVal( CFD_MIN_EDGE_LEN, 0.1 )
+
     #==== CFDMesh Method Facet Export =====//
     SetComputationFileName( CFD_FACET_TYPE, "TestCFDMeshFacet_API.facet" )
+    SetComputationFileName( CFD_STL_TYPE, "TestCFDMesh_API.stl" )
 
    print( "\tComputing CFDMesh..." )
 
-    ComputeCFDMesh( SET_ALL, SET_NONE, CFD_FACET_TYPE )
+    ComputeCFDMesh( SET_ALL, SET_NONE, CFD_FACET_TYPE | CFD_STL_TYPE )
+
+    # CFD Mesh reports nothing through the Results Manager, so read the mesh it
+    # just wrote back in to prove it produced one.
+    mesh_id = ImportFile( "TestCFDMesh_API.stl", IMPORT_STL, "" )
+
+    assert len( mesh_id ) > 0, "ComputeCFDMesh did not write a readable mesh"
+    assert GetGeomTypeName( mesh_id ) == "Mesh", "ComputeCFDMesh did not write a readable mesh"
+
+    DeleteGeom( mesh_id )
 
     \endcode
     \endPythonOnly
@@ -1821,11 +1918,31 @@ extern void ComputeCFDMesh( int set, int degenset, int file_export_types );
     \forcpponly
     \code{.cpp}
     SetCFDMeshVal( CFD_MIN_EDGE_LEN, 1.0 );
+
+    // The control types are backed by Parms in the CFD grid density container,
+    // so the value that was set can be read back.
+    string dens_id = FindContainer( "CFDGridDensity", 0 );
+
+    string min_len_id = FindParm( dens_id, "MinLen", "CFDGridDensity" );
+
+    if ( !closeTo( GetParmVal( min_len_id ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: SetCFDMeshVal did not set CFD_MIN_EDGE_LEN" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     SetCFDMeshVal( CFD_MIN_EDGE_LEN, 1.0 )
+
+    # The control types are backed by Parms in the CFD grid density container,
+    # so the value that was set can be read back.
+    dens_id = FindContainer( "CFDGridDensity", 0 )
+
+    min_len_id = FindParm( dens_id, "MinLen", "CFDGridDensity" )
+
+    assert abs( GetParmVal( min_len_id ) - 1.0 ) < 1e-12, "SetCFDMeshVal did not set CFD_MIN_EDGE_LEN"
 
     \endcode
     \endPythonOnly
@@ -1848,6 +1965,21 @@ extern void SetCFDMeshVal( int type, double val );
     string wid = AddGeom( "WING", "" );
 
     SetCFDWakeFlag( wid, true );
+
+    if ( !closeTo( GetParmVal( wid, "Wake", "Shape" ), 1.0, 1e-12 ) )
+    {
+        Print( "ERROR: SetCFDWakeFlag did not activate the wake" );
+        __failure++;
+    }
+
+    SetCFDWakeFlag( wid, false );
+
+    if ( !closeTo( GetParmVal( wid, "Wake", "Shape" ), 0.0, 1e-12 ) )
+    {
+        Print( "ERROR: SetCFDWakeFlag did not deactivate the wake" );
+        __failure++;
+    }
+
     // This is equivalent to SetParmValUpdate( wid, "Wake", "Shape", 1.0 );
     // To change the scale: SetParmValUpdate( wid, "WakeScale", "WakeSettings", 10.0 );
     // To change the angle: SetParmValUpdate( wid, "WakeAngle", "WakeSettings", -5.0 );
@@ -1859,6 +1991,13 @@ extern void SetCFDMeshVal( int type, double val );
     wid = AddGeom( "WING", "" )
 
     SetCFDWakeFlag( wid, True )
+
+    assert abs( GetParmVal( wid, "Wake", "Shape" ) - 1.0 ) < 1e-12, "SetCFDWakeFlag did not activate the wake"
+
+    SetCFDWakeFlag( wid, False )
+
+    assert abs( GetParmVal( wid, "Wake", "Shape" ) ) < 1e-12, "SetCFDWakeFlag did not deactivate the wake"
+
     # This is equivalent to SetParmValUpdate( wid, "Wake", "Shape", 1.0 )
     # To change the scale: SetParmValUpdate( wid, "WakeScale", "WakeSettings", 10.0 )
     # To change the angle: SetParmValUpdate( wid, "WakeAngle", "WakeSettings", -5.0 )
@@ -1939,6 +2078,22 @@ extern void AddDefaultSources();
     string pid = AddGeom( "POD", "" );
 
     AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
+
+    // Sources cannot be read back through the API, but a source attached to a
+    // Geom that does not exist has to be rejected.
+    AddCFDSource( POINT_SOURCE, "NOSUCHGEOM", 0, 0.25, 2.0, 0.5, 0.5 );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: AddCFDSource accepted a bad Geom ID" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -1947,6 +2102,19 @@ extern void AddDefaultSources();
     pid = AddGeom( "POD", "" )
 
     AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
+
+    # Sources cannot be read back through the API, but a source attached to a
+    # Geom that does not exist has to be rejected.  The error queue is reached
+    # through the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    AddCFDSource( POINT_SOURCE, "NOSUCHGEOM", 0, 0.25, 2.0, 0.5, 0.5 )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "AddCFDSource accepted a bad Geom ID"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
 
     \endcode
     \endPythonOnly
@@ -12820,12 +12988,44 @@ extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::s
 
     array< vec3d > @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" );
 
-    if ( vec_array.size() > 0 )
+    if ( vec_array.size() == 0 )
+    {
+        Print( "ERROR: ReadFileXSec returned no points" );
+        __failure++;
+    }
+    else
     {
         vec_array[1] = vec_array[1] * 2.0;
         vec_array[3] = vec_array[3] * 2.0;
 
+        // A file XSec takes its width and height from the extents of the
+        // points it was given, in X and Y respectively.
+        double wmin = vec_array[0].x(), wmax = vec_array[0].x();
+        double hmin = vec_array[0].y(), hmax = vec_array[0].y();
+
+        for ( int i = 1; i < int( vec_array.size() ); i++ )
+        {
+            if ( vec_array[i].x() < wmin ) { wmin = vec_array[i].x(); }
+            if ( vec_array[i].x() > wmax ) { wmax = vec_array[i].x(); }
+            if ( vec_array[i].y() < hmin ) { hmin = vec_array[i].y(); }
+            if ( vec_array[i].y() > hmax ) { hmax = vec_array[i].y(); }
+        }
+
         SetXSecPnts( xsec, vec_array );
+
+        Update();
+
+        if ( !closeTo( GetXSecWidth( xsec ), wmax - wmin, 1e-6 ) )
+        {
+            Print( "ERROR: SetXSecPnts did not set the section width" );
+            __failure++;
+        }
+
+        if ( !closeTo( GetXSecHeight( xsec ), hmax - hmin, 1e-6 ) )
+        {
+            Print( "ERROR: SetXSecPnts did not set the section height" );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -12840,14 +13040,28 @@ extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::s
 
     xsec = GetXSec( xsec_surf, 2 )
 
-    vec_array = ReadFileXSec(xsec, "TestXSec.fxs")
+    # ReadFileXSec hands back a tuple, so copy it into a list to edit it.
+    vec_array = list( ReadFileXSec(xsec, "TestXSec.fxs") )
 
+    assert len( vec_array ) > 0, "ReadFileXSec returned no points"
 
-    if  len(vec_array) > 0 :
-        vec_array[1] = vec_array[1] * 2.0
-        vec_array[3] = vec_array[3] * 2.0
+    # The Python vec3d carries no arithmetic operators, so scale by component.
+    vec_array[1] = vec3d( vec_array[1].x() * 2.0, vec_array[1].y() * 2.0, vec_array[1].z() * 2.0 )
+    vec_array[3] = vec3d( vec_array[3].x() * 2.0, vec_array[3].y() * 2.0, vec_array[3].z() * 2.0 )
 
-        SetXSecPnts( xsec, vec_array )
+    # A file XSec takes its width and height from the extents of the points it
+    # was given, in X and Y respectively.
+    wmin = min( [ p.x() for p in vec_array ] )
+    wmax = max( [ p.x() for p in vec_array ] )
+    hmin = min( [ p.y() for p in vec_array ] )
+    hmax = max( [ p.y() for p in vec_array ] )
+
+    SetXSecPnts( xsec, vec_array )
+
+    Update()
+
+    assert abs( GetXSecWidth( xsec ) - ( wmax - wmin ) ) < 1e-6, "SetXSecPnts did not set the section width"
+    assert abs( GetXSecHeight( xsec ) - ( hmax - hmin ) ) < 1e-6, "SetXSecPnts did not set the section height"
 
     \endcode
     \endPythonOnly
@@ -15490,6 +15704,20 @@ extern void SetRoutingPtParentID( const string & pt_id, const string &parent_id 
 
     Update();
     vec3d p1 = GetMainRoutingPtCoord(rpt1);
+
+    // rpt1 rides on pod2, which was moved two units out in Y.
+    if ( !closeTo( p1.y(), 2.0, 1e-6 ) )
+    {
+        Print( "ERROR: GetMainRoutingPtCoord did not follow the parent Geom" );
+        __failure++;
+    }
+
+    // With no symmetry applied, the main copy is also symm_index 0.
+    if ( dist( p1, GetRoutingPtCoord( routing_geom, 1, 0 ) ) > 1e-6 )
+    {
+        Print( "ERROR: GetMainRoutingPtCoord disagrees with GetRoutingPtCoord" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15514,6 +15742,13 @@ extern void SetRoutingPtParentID( const string & pt_id, const string &parent_id 
 
     vsp.Update()
     p1 = vsp.GetMainRoutingPtCoord(rpt1)
+
+    # rpt1 rides on pod2, which was moved two units out in Y.
+    assert abs( p1.y() - 2.0 ) < 1e-6, "GetMainRoutingPtCoord did not follow the parent Geom"
+
+    # With no symmetry applied, the main copy is also symm_index 0.
+    assert vsp.dist( p1, vsp.GetRoutingPtCoord( routing_geom, 1, 0 ) ) < 1e-6, "GetMainRoutingPtCoord disagrees with GetRoutingPtCoord"
+
     \endcode
     \endPythonOnly
     \sa AddRoutingPt, DelRoutingPt, GetRoutingPtCoord, GetAllRoutingPtCoords, GetRoutingCurve
@@ -15550,6 +15785,22 @@ extern vec3d GetMainRoutingPtCoord( const string &pt_id );
 
     Update();
     vec3d p1 = GetRoutingPtCoord(routing_geom, 1, 0);
+
+    // rpt1 rides on pod2, which was moved two units out in Y.
+    if ( !closeTo( p1.y(), 2.0, 1e-6 ) )
+    {
+        Print( "ERROR: GetRoutingPtCoord did not follow the parent Geom" );
+        __failure++;
+    }
+
+    // The indexed point has to be the second of the three that were added.
+    array<vec3d> pvec = GetAllRoutingPtCoords(routing_geom, 0);
+
+    if ( pvec.length() != 3 || dist( p1, pvec[1] ) > 1e-6 )
+    {
+        Print( "ERROR: GetRoutingPtCoord disagrees with GetAllRoutingPtCoords" );
+        __failure++;
+    }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -15573,7 +15824,17 @@ extern vec3d GetMainRoutingPtCoord( const string &pt_id );
     vsp.SetParmVal(u2, 1.0)
 
     vsp.Update()
-    p1 = vsp.GetRoutingPtCoord(rpt1, 1, 0)
+    p1 = vsp.GetRoutingPtCoord(routing_geom, 1, 0)
+
+    # rpt1 rides on pod2, which was moved two units out in Y.
+    assert abs( p1.y() - 2.0 ) < 1e-6, "GetRoutingPtCoord did not follow the parent Geom"
+
+    # The indexed point has to be the second of the three that were added.
+    pvec = vsp.GetAllRoutingPtCoords(routing_geom, 0)
+
+    assert len( pvec ) == 3, "GetAllRoutingPtCoords returned the wrong number of points"
+    assert vsp.dist( p1, pvec[1] ) < 1e-6, "GetRoutingPtCoord disagrees with GetAllRoutingPtCoords"
+
     \endcode
     \endPythonOnly
     \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetAllRoutingPtCoords, GetRoutingCurve
@@ -15612,10 +15873,36 @@ extern vec3d GetRoutingPtCoord( const string &routing_id, int index, int symm_in
 
     Update();
     array<vec3d> pvec = GetAllRoutingPtCoords(routing_geom, 0);
-    if ( pvec.length() == 0 )
+
+    // One coordinate per routing point, in the order they were added.
+    if ( pvec.length() != 3 )
     {
-        Print( "ERROR: GetAllRoutingPtCoords returned nothing" );
+        Print( "ERROR: GetAllRoutingPtCoords returned the wrong number of points" );
         __failure++;
+    }
+    else
+    {
+        // rpt0 sits at the nose of pod1 and rpt2 at its tail, both on the
+        // centerline.  rpt1 rides on pod2, two units out in Y.
+        if ( !closeTo( pvec[0].y(), 0.0, 1e-6 ) ||
+             !closeTo( pvec[1].y(), 2.0, 1e-6 ) ||
+             !closeTo( pvec[2].y(), 0.0, 1e-6 ) )
+        {
+            Print( "ERROR: GetAllRoutingPtCoords did not follow the parent Geoms" );
+            __failure++;
+        }
+
+        if ( pvec[2].x() <= pvec[0].x() )
+        {
+            Print( "ERROR: GetAllRoutingPtCoords did not order the points by U" );
+            __failure++;
+        }
+
+        if ( dist( pvec[1], GetMainRoutingPtCoord( rpt1 ) ) > 1e-6 )
+        {
+            Print( "ERROR: GetAllRoutingPtCoords disagrees with GetMainRoutingPtCoord" );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -15640,7 +15927,21 @@ extern vec3d GetRoutingPtCoord( const string &routing_id, int index, int symm_in
     vsp.SetParmVal(u2, 1.0)
 
     vsp.Update()
-    pvec = vsp.GetAllRoutingPtCoords(rpt1, 0)
+    pvec = vsp.GetAllRoutingPtCoords(routing_geom, 0)
+
+    # One coordinate per routing point, in the order they were added.
+    assert len( pvec ) == 3, "GetAllRoutingPtCoords returned the wrong number of points"
+
+    # rpt0 sits at the nose of pod1 and rpt2 at its tail, both on the
+    # centerline.  rpt1 rides on pod2, two units out in Y.
+    assert abs( pvec[0].y() ) < 1e-6, "GetAllRoutingPtCoords did not follow the parent Geoms"
+    assert abs( pvec[1].y() - 2.0 ) < 1e-6, "GetAllRoutingPtCoords did not follow the parent Geoms"
+    assert abs( pvec[2].y() ) < 1e-6, "GetAllRoutingPtCoords did not follow the parent Geoms"
+
+    assert pvec[2].x() > pvec[0].x(), "GetAllRoutingPtCoords did not order the points by U"
+
+    assert vsp.dist( pvec[1], vsp.GetMainRoutingPtCoord( rpt1 ) ) < 1e-6, "GetAllRoutingPtCoords disagrees with GetMainRoutingPtCoord"
+
     \endcode
     \endPythonOnly
     \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetRoutingPtCoord, GetRoutingCurve
@@ -15679,10 +15980,24 @@ extern vector < vec3d > GetAllRoutingPtCoords( const string &routing_id, int sym
 
     Update();
     array<vec3d> pvec = GetRoutingCurve(routing_geom, 0);
-    if ( pvec.length() == 0 )
+
+    // The curve is tessellated, so it carries at least as many points as there
+    // are routing points, and it has to start and end on them.
+    array<vec3d> rpts = GetAllRoutingPtCoords(routing_geom, 0);
+
+    if ( pvec.length() < rpts.length() )
     {
-        Print( "ERROR: GetRoutingCurve returned nothing" );
+        Print( "ERROR: GetRoutingCurve returned too few points" );
         __failure++;
+    }
+    else
+    {
+        if ( dist( pvec[0], rpts[0] ) > 1e-6 ||
+             dist( pvec[pvec.length() - 1], rpts[rpts.length() - 1] ) > 1e-6 )
+        {
+            Print( "ERROR: GetRoutingCurve does not end on the routing points" );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -15707,7 +16022,16 @@ extern vector < vec3d > GetAllRoutingPtCoords( const string &routing_id, int sym
     vsp.SetParmVal(u2, 1.0)
 
     vsp.Update()
-    pvec = vsp.GetRoutingCurve(rpt1, 0)
+    pvec = vsp.GetRoutingCurve(routing_geom, 0)
+
+    # The curve is tessellated, so it carries at least as many points as there
+    # are routing points, and it has to start and end on them.
+    rpts = vsp.GetAllRoutingPtCoords(routing_geom, 0)
+
+    assert len( pvec ) >= len( rpts ), "GetRoutingCurve returned too few points"
+    assert vsp.dist( pvec[0], rpts[0] ) < 1e-6, "GetRoutingCurve does not start on the first routing point"
+    assert vsp.dist( pvec[-1], rpts[-1] ) < 1e-6, "GetRoutingCurve does not end on the last routing point"
+
     \endcode
     \endPythonOnly
     \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetRoutingPtCoord, GetAllRoutingPtCoords
@@ -15835,12 +16159,35 @@ extern std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std:
 
     array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" );
 
-    if ( vec_array.size() > 0 )
+    Update();
+
+    vec3d before = ComputeBORXSecPnt( bor_id, 0.0 );
+
+    if ( vec_array.size() == 0 )
+    {
+        Print( "ERROR: ReadBORFileXSec returned no points" );
+        __failure++;
+    }
+    else
     {
         vec_array[1] = vec_array[1] * 2.0;
         vec_array[3] = vec_array[3] * 2.0;
 
         SetBORXSecPnts( bor_id, vec_array );
+
+        Update();
+
+        vec3d after = ComputeBORXSecPnt( bor_id, 0.0 );
+
+        // Points 1 and 3 are the top and bottom of the diamond read from file,
+        // so doubling them doubles the height of the section while leaving its
+        // width alone.  The section is normalized to the body diameter by its
+        // height, so the section grows half as wide as it was.
+        if ( !closeTo( after.x(), 0.5 * before.x(), 1e-6 ) )
+        {
+            Print( "ERROR: SetBORXSecPnts did not reshape the section" );
+            __failure++;
+        }
     }
     \endcode
     \endforcpponly
@@ -15851,13 +16198,30 @@ extern std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std:
 
     ChangeBORXSecShape( bor_id, XS_FILE_FUSE )
 
-    vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
+    # ReadBORFileXSec hands back a tuple, so copy it into a list to edit it.
+    vec_array = list( ReadBORFileXSec( bor_id, "TestXSec.fxs" ) )
 
-    if  len(vec_array) > 0 :
-        vec_array[1] = vec_array[1] * 2.0
-        vec_array[3] = vec_array[3] * 2.0
+    Update()
 
-        SetBORXSecPnts( bor_id, vec_array )
+    before = ComputeBORXSecPnt( bor_id, 0.0 )
+
+    assert len( vec_array ) > 0, "ReadBORFileXSec returned no points"
+
+    # The Python vec3d carries no arithmetic operators, so scale by component.
+    vec_array[1] = vec3d( vec_array[1].x() * 2.0, vec_array[1].y() * 2.0, vec_array[1].z() * 2.0 )
+    vec_array[3] = vec3d( vec_array[3].x() * 2.0, vec_array[3].y() * 2.0, vec_array[3].z() * 2.0 )
+
+    SetBORXSecPnts( bor_id, vec_array )
+
+    Update()
+
+    after = ComputeBORXSecPnt( bor_id, 0.0 )
+
+    # Points 1 and 3 are the top and bottom of the diamond read from file, so
+    # doubling them doubles the height of the section while leaving its width
+    # alone.  The section is normalized to the body diameter by its height, so
+    # the section grows half as wide as it was.
+    assert abs( after.x() - 0.5 * before.x() ) < 1e-6, "SetBORXSecPnts did not reshape the section"
 
     \endcode
     \endPythonOnly
