@@ -1281,39 +1281,50 @@ void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool
             allpts = &m_BinAdaptCurveAVec;
         }
 
-        fprintf( fp, " %d\n", nchain );
-
-        int ichain = 0;
-        for ( ichain = 0; ichain < nchain; ichain++ )
-        {
-            fprintf( fp, " %zu 1 1\n", (*allpts)[ichain].size() );
-        }
-
-        for ( ichain = 0; ichain < nchain; ichain++ )
-        {
-            for ( int i = 0; i < (*allpts)[ichain].size(); i++ )
-            {
-                vec3d pt = (*allpts)[ichain][i];
-                fprintf( fp, "%25.17e ", pt.x() );
-            }
-            fprintf( fp, "\n" );
-
-            for ( int i = 0; i < (*allpts)[ichain].size(); i++ )
-            {
-                vec3d pt = (*allpts)[ichain][i];
-                fprintf( fp, "%25.17e ", pt.y() );
-            }
-            fprintf( fp, "\n" );
-
-            for ( int i = 0; i < (*allpts)[ichain].size(); i++ )
-            {
-                vec3d pt = (*allpts)[ichain][i];
-                fprintf( fp, "%25.17e ", pt.z() );
-            }
-            fprintf( fp, "\n" );
-        }
+        WritePlot3DCurveBlocks( fp, *allpts );
 
         fclose( fp );
+    }
+}
+
+// Write a set of curves as Plot3D multiple grid blocks.  Every block is a curve, so it
+// is i indexed only -- the j and k dimensions are 1 -- and each block's points are
+// written as all of x, then all of y, then all of z.
+void SurfaceIntersectionSingleton::WritePlot3DCurveBlocks( FILE* fp, const vector < vector < vec3d > > &curve_vec )
+{
+    if ( !fp )
+    {
+        return;
+    }
+
+    int ncurve = curve_vec.size();
+
+    fprintf( fp, " %d\n", ncurve );
+
+    for ( int icurve = 0; icurve < ncurve; icurve++ )
+    {
+        fprintf( fp, " %zu 1 1\n", curve_vec[icurve].size() );
+    }
+
+    for ( int icurve = 0; icurve < ncurve; icurve++ )
+    {
+        for ( int i = 0; i < curve_vec[icurve].size(); i++ )
+        {
+            fprintf( fp, "%25.17e ", curve_vec[icurve][i].x() );
+        }
+        fprintf( fp, "\n" );
+
+        for ( int i = 0; i < curve_vec[icurve].size(); i++ )
+        {
+            fprintf( fp, "%25.17e ", curve_vec[icurve][i].y() );
+        }
+        fprintf( fp, "\n" );
+
+        for ( int i = 0; i < curve_vec[icurve].size(); i++ )
+        {
+            fprintf( fp, "%25.17e ", curve_vec[icurve][i].z() );
+        }
+        fprintf( fp, "\n" );
     }
 }
 
