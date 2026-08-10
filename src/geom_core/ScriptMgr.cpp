@@ -3452,6 +3452,18 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ReorderGeom( const string & in geom_id, int reorder_type )", asFUNCTION( vsp::ReorderGeom ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string AttachGeomTexture( const string & in geom_id, const string & in file_name )", asFUNCTION( vsp::AttachGeomTexture ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void RemoveGeomTexture( const string & in geom_id, const string & in texture_id )", asFUNCTION( vsp::RemoveGeomTexture ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeomTextureIDVec( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomTextureIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeomTextureFileName( const string & in geom_id, const string & in texture_id )", asFUNCTION( vsp::GetGeomTextureFileName ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void ReorderSubSurf( const string & in geom_id, const string & in sub_id, int reorder_type )", asFUNCTION( vsp::ReorderSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -7172,6 +7184,13 @@ CScriptArray* ScriptMgrSingleton::GetFeaLayerIDVec( const string & material_id )
     m_ProxyStringArray = vsp::GetFeaLayerIDVec( material_id );
     return GetProxyStringArray();
 }
+
+CScriptArray* ScriptMgrSingleton::GetGeomTextureIDVec( const string & geom_id )
+{
+    m_ProxyStringArray = vsp::GetGeomTextureIDVec( geom_id );
+    return GetProxyStringArray();
+}
+
 
 CScriptArray* ScriptMgrSingleton::GetFeaTrimPartIDVec( const string & trim_id )
 {

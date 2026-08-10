@@ -10457,6 +10457,200 @@ extern void ReorderGeom( const string & geom_id, int reorder_type );
     \ingroup Geom
 */
 /*!
+    Attach a texture image to a Geom, the way the Add button on the Texture screen does.  A texture
+    is drawn on the Geom's surface at a placement given by its Parms; the returned ID is a
+    ParmContainer ID, so U, W, U_Scale, W_Scale, Transparency, U_Flip and W_Flip in the
+    "Texture_Parm" group are reached the usual way.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD", "" );
+
+    string tex_id = AttachGeomTexture( pod_id, "textures/nasa-logo.tga" );
+
+    if ( tex_id.length() == 0 )
+    {
+        Print( "ERROR: AttachGeomTexture attached nothing" );
+        __failure++;
+    }
+
+    // Place the logo on the upper surface, at half size.
+    SetParmVal( tex_id, "U", "Texture_Parm", 0.35 );
+    SetParmVal( tex_id, "W", "Texture_Parm", 0.25 );
+    SetParmVal( tex_id, "U_Scale", "Texture_Parm", 0.5 );
+    SetParmVal( tex_id, "W_Scale", "Texture_Parm", 0.5 );
+
+    Update();
+
+    array< string > @tex_ids = GetGeomTextureIDVec( pod_id );
+
+    if ( tex_ids.size() != 1 || tex_ids[0] != tex_id )
+    {
+        Print( "ERROR: the texture is not in the texture list" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD", "" )
+
+    tex_id = AttachGeomTexture( pod_id, "textures/nasa-logo.tga" )
+
+    assert len( tex_id ) > 0, "AttachGeomTexture attached nothing"
+
+    # Place the logo on the upper surface, at half size.
+    SetParmVal( tex_id, "U", "Texture_Parm", 0.35 )
+    SetParmVal( tex_id, "W", "Texture_Parm", 0.25 )
+    SetParmVal( tex_id, "U_Scale", "Texture_Parm", 0.5 )
+    SetParmVal( tex_id, "W_Scale", "Texture_Parm", 0.5 )
+
+    Update()
+
+    tex_ids = GetGeomTextureIDVec( pod_id )
+
+    assert len( tex_ids ) == 1, "the texture is not in the texture list"
+    assert tex_ids[0] == tex_id, "the texture is not in the texture list"
+
+    \endcode
+    \endPythonOnly
+    \sa RemoveGeomTexture, GetGeomTextureIDVec, GetGeomTextureFileName
+    \param [in] geom_id string Geom ID
+    \param [in] file_name string Name of the texture image file
+    \return string ParmContainer ID for the attached texture
+*/
+
+extern string AttachGeomTexture( const string & geom_id, const string & file_name );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Remove a texture from a Geom, the way the Delete button on the Texture screen does.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD", "" );
+
+    string tex_id = AttachGeomTexture( pod_id, "textures/nasa-logo.tga" );
+
+    RemoveGeomTexture( pod_id, tex_id );
+
+    if ( GetGeomTextureIDVec( pod_id ).size() != 0 )
+    {
+        Print( "ERROR: RemoveGeomTexture left the texture behind" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD", "" )
+
+    tex_id = AttachGeomTexture( pod_id, "textures/nasa-logo.tga" )
+
+    RemoveGeomTexture( pod_id, tex_id )
+
+    assert len( GetGeomTextureIDVec( pod_id ) ) == 0, "RemoveGeomTexture left the texture behind"
+
+    \endcode
+    \endPythonOnly
+    \sa AttachGeomTexture, GetGeomTextureIDVec
+    \param [in] geom_id string Geom ID
+    \param [in] texture_id string Texture ParmContainer ID
+*/
+
+extern void RemoveGeomTexture( const string & geom_id, const string & texture_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the ParmContainer IDs of all the textures attached to a Geom, in the order they are drawn.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD", "" );
+
+    // A fresh Geom carries no textures.
+    if ( GetGeomTextureIDVec( pod_id ).size() != 0 )
+    {
+        Print( "ERROR: a new Geom already carries textures" );
+        __failure++;
+    }
+
+    AttachGeomTexture( pod_id, "textures/nasa-logo.tga" );
+    AttachGeomTexture( pod_id, "textures/window.tga" );
+
+    if ( GetGeomTextureIDVec( pod_id ).size() != 2 )
+    {
+        Print( "ERROR: GetGeomTextureIDVec, two were attached" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD", "" )
+
+    # A fresh Geom carries no textures.
+    assert len( GetGeomTextureIDVec( pod_id ) ) == 0, "a new Geom already carries textures"
+
+    AttachGeomTexture( pod_id, "textures/nasa-logo.tga" )
+    AttachGeomTexture( pod_id, "textures/window.tga" )
+
+    assert len( GetGeomTextureIDVec( pod_id ) ) == 2, "GetGeomTextureIDVec, two were attached"
+
+    \endcode
+    \endPythonOnly
+    \sa AttachGeomTexture, RemoveGeomTexture
+    \param [in] geom_id string Geom ID
+    \return vector<string> Vector of texture ParmContainer IDs
+*/
+
+extern vector < string > GetGeomTextureIDVec( const string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the image file a texture was attached from.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD", "" );
+
+    string tex_id = AttachGeomTexture( pod_id, "textures/nasa-logo.tga" );
+
+    if ( GetGeomTextureFileName( pod_id, tex_id ) != "textures/nasa-logo.tga" )
+    {
+        Print( "ERROR: GetGeomTextureFileName did not report the file" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD", "" )
+
+    tex_id = AttachGeomTexture( pod_id, "textures/nasa-logo.tga" )
+
+    assert GetGeomTextureFileName( pod_id, tex_id ) == "textures/nasa-logo.tga", "GetGeomTextureFileName did not report the file"
+
+    \endcode
+    \endPythonOnly
+    \sa AttachGeomTexture
+    \param [in] geom_id string Geom ID
+    \param [in] texture_id string Texture ParmContainer ID
+    \return string Name of the texture image file
+*/
+
+extern string GetGeomTextureFileName( const string & geom_id, const string & texture_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
     Get the parent Geom ID for the input child Geom. "NONE" is returned if the Geom has no parent.
     \forcpponly
     \code{.cpp}

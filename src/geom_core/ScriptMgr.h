@@ -300,6 +300,7 @@ private:
     static void DeleteExcrescence(int index);
 
     CScriptArray* GetFeaLayerIDVec( const string & material_id );
+    CScriptArray* GetGeomTextureIDVec( const string & geom_id );
     CScriptArray* GetFeaTrimPartIDVec( const string & trim_id );
     CScriptArray* GetPtCloudPnts( const string & geom_id );
     CScriptArray* GetFeaAssemblyIDVec();

@@ -16,6 +16,10 @@ CONFIGURE_FILE( ${VSP_SOURCE_DIR}/../examples/airfoil/N0012_VSP.af
                 ${CMAKE_CURRENT_BINARY_DIR}/airfoil/N0012_VSP.af COPYONLY )
 CONFIGURE_FILE( ${VSP_SOURCE_DIR}/../examples/CCE/SD-24L.cce
                 ${CMAKE_CURRENT_BINARY_DIR}/CCE/SD-24L.cce COPYONLY )
+CONFIGURE_FILE( ${VSP_SOURCE_DIR}/../examples/textures/nasa-logo.tga
+                ${CMAKE_CURRENT_BINARY_DIR}/textures/nasa-logo.tga COPYONLY )
+CONFIGURE_FILE( ${VSP_SOURCE_DIR}/../examples/textures/window.tga
+                ${CMAKE_CURRENT_BINARY_DIR}/textures/window.tga COPYONLY )
 
 ADD_TEST( NAME AreaProj      COMMAND ${VSPSCRIPT} ${SCRIPT_DIR}TestAreaProj.vspscript
           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )

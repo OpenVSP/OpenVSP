@@ -3053,6 +3053,95 @@ string GetParm( const string & container_id, const string & name, const string &
 }
 
 // Set the parent of a Geom; new_parent_id can be either the Vehicle's ID or another Geom's ID
+//===================================================================//
+//==================       Texture Functions      ===================//
+//===================================================================//
+
+string AttachGeomTexture( const string & geom_id, const string & file_name )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AttachGeomTexture::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    string ret_id = geom_ptr->m_GuiDraw.getTextureMgr()->AttachTexture( file_name );
+
+    if ( ret_id.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AttachGeomTexture::No Texture Was Attached" );
+        return ret_id;
+    }
+
+    ErrorMgr.NoError();
+    return ret_id;
+}
+
+void RemoveGeomTexture( const string & geom_id, const string & texture_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "RemoveGeomTexture::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    TextureMgr* tex_mgr = geom_ptr->m_GuiDraw.getTextureMgr();
+
+    if ( !tex_mgr->FindTexture( texture_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveGeomTexture::Can't Find Texture " + texture_id );
+        return;
+    }
+
+    tex_mgr->RemoveTexture( texture_id );
+
+    ErrorMgr.NoError();
+}
+
+vector < string > GetGeomTextureIDVec( const string & geom_id )
+{
+    vector < string > ret;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomTextureIDVec::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    ret = geom_ptr->m_GuiDraw.getTextureMgr()->GetTextureVec();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+string GetGeomTextureFileName( const string & geom_id, const string & texture_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomTextureFileName::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    Texture* tex = geom_ptr->m_GuiDraw.getTextureMgr()->FindTexture( texture_id );
+
+    if ( !tex )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetGeomTextureFileName::Can't Find Texture " + texture_id );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return tex->m_FileName;
+}
+
 void ReorderGeom( const string & geom_id, int reorder_type )
 {
     Vehicle* veh = GetVehicle();
