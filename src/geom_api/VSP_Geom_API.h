@@ -17863,6 +17863,77 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
 extern void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, int type );
 
 /*!
+    \ingroup XSec
+*/
+/*!
+    Convert an airfoil cross section to a CST airfoil fitted to the shape it already has, the way
+    the Fit CST button on the airfoil panels does.  A CST airfoil is described by coefficients
+    rather than by a table or a series designation, which is what makes it useful for optimization;
+    fitting is how an airfoil of any other type is brought into that form without changing shape.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING", "" );
+
+    string xsec_surf = GetXSecSurf( wing_id, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_FOUR_SERIES );
+
+    Update();
+
+    FitCSTAirfoil( xsec_surf, 1, 8 );
+
+    Update();
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    if ( GetXSecShape( xsec ) != XS_CST_AIRFOIL )
+    {
+        Print( "ERROR: FitCSTAirfoil did not convert the XSec" );
+        __failure++;
+    }
+
+    // The fit is carried out at the degree that was asked for.
+    if ( GetUpperCSTDegree( xsec ) != 8 || GetLowerCSTDegree( xsec ) != 8 )
+    {
+        Print( "ERROR: FitCSTAirfoil did not fit at the requested degree" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING", "" )
+
+    xsec_surf = GetXSecSurf( wing_id, 0 )
+
+    ChangeXSecShape( xsec_surf, 1, XS_FOUR_SERIES )
+
+    Update()
+
+    FitCSTAirfoil( xsec_surf, 1, 8 )
+
+    Update()
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    assert GetXSecShape( xsec ) == XS_CST_AIRFOIL, "FitCSTAirfoil did not convert the XSec"
+
+    # The fit is carried out at the degree that was asked for.
+    assert GetUpperCSTDegree( xsec ) == 8, "FitCSTAirfoil did not fit at the requested degree"
+    assert GetLowerCSTDegree( xsec ) == 8, "FitCSTAirfoil did not fit at the requested degree"
+
+    \endcode
+    \endPythonOnly
+    \sa ChangeXSecShape, GetUpperCSTCoefs, PromoteCSTUpper
+    \param [in] xsec_surf_id string XSecSurf ID
+    \param [in] xsec_index int XSec index
+    \param [in] deg int Degree to fit the CST airfoil at
+*/
+
+extern void FitCSTAirfoil( const string & xsec_surf_id, int xsec_index, int deg );
+
+/*!
     \ingroup XSecSurf
 */
 /*!

@@ -5672,6 +5672,66 @@ string GetXSec( const string & xsec_surf_id, int xsec_index )
 }
 
 /// Change the shape of a particular XSec
+void FitCSTAirfoil( const string & xsec_surf_id, int xsec_index, int deg )
+{
+    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+    if ( !xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitCSTAirfoil::Can't Find XSecSurf " + xsec_surf_id );
+        return;
+    }
+    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FitCSTAirfoil::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
+        return;
+    }
+
+    if ( deg < 1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "FitCSTAirfoil::Fit Degree Must Be Positive" );
+        return;
+    }
+
+    XSec* xs = xsec_surf->FindXSec( xsec_index );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitCSTAirfoil::Can't Find XSec" );
+        return;
+    }
+
+    Airfoil* af = dynamic_cast< Airfoil* >( xs->GetXSecCurve() );
+    if ( !af )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitCSTAirfoil::XSec Is Not An Airfoil" );
+        return;
+    }
+
+    // Grab the curve before the conversion; changing the shape replaces the XSecCurve.
+    VspCurve c = af->GetOrigCurve();
+
+    xsec_surf->ChangeXSecShape( xsec_index, XS_CST_AIRFOIL );
+
+    XSec* newxs = xsec_surf->FindXSec( xsec_index );
+    if ( !newxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitCSTAirfoil::Can't Find XSec" );
+        return;
+    }
+
+    CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( newxs->GetXSecCurve() );
+    if ( !cst_xs )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitCSTAirfoil::XSec Did Not Convert To XS_CST_AIRFOIL" );
+        return;
+    }
+
+    cst_xs->FitCurve( c, deg );
+    cst_xs->Update();
+    newxs->Update();
+
+    ErrorMgr.NoError();
+}
+
 void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type )
 {
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
