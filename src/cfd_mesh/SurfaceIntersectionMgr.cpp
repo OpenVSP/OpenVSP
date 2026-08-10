@@ -2230,7 +2230,7 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
         nurbs_curve.m_SurfA_ID = ( *i_seg )->m_SurfA->GetSurfID();
         nurbs_curve.m_SurfB_ID = ( *i_seg )->m_SurfB->GetSurfID();
 
-        nurbs_curve.InitNURBSCurve( ( *i_seg )->m_ACurve, GetSettingsPtr()->m_RelCurveTol );
+        nurbs_curve.InitNURBSCurve( ( *i_seg )->m_ACurve, ( *i_seg )->m_BCurve, GetSettingsPtr()->m_RelCurveTol );
 
         m_NURBSCurveVec.push_back( nurbs_curve );
     }

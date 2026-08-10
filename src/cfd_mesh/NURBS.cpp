@@ -34,12 +34,36 @@ NURBS_Curve::NURBS_Curve()
     m_WakeFlag = false;
 }
 
-void NURBS_Curve::InitNURBSCurve( SCurve curve, double curve_tol )
+void NURBS_Curve::InitNURBSCurve( SCurve curveA, SCurve curveB, double curve_tol )
 {
-    Bezier_curve xyzcrvA = curve.GetUWCrv();
-    xyzcrvA.TessAdaptXYZ( *curve.GetSurf(), m_PntVec, curve_tol, 16 );
+    Bezier_curve uwcrvA = curveA.GetUWCrv();
 
-    m_BBox = curve.GetSurf()->GetBBox();
+    // Keep the parameters the adaptive tessellation settled on, so the curve can be
+    // reported in the parameter space of either parent at exactly the points it is
+    // reported in space.  The A and B curves interpolate the same list of intersection
+    // points, so one parameter names the same place on both.
+    vector < double > tvec;
+    uwcrvA.TessAdaptXYZ( *curveA.GetSurf(), m_PntVec, curve_tol, 16, tvec );
+
+    // Where the surface collapses, the tessellation lands on the same place several times
+    // over.  Straight segments join the points, so the repeats add nothing to the curve and
+    // go, before the parameters below are worked out from what is left.
+    RemoveRepeatedPnts( m_PntVec, tvec );
+
+    Bezier_curve uwcrvB = curveB.GetUWCrv();
+
+    m_UWPntVec_A.resize( tvec.size() );
+    m_UWPntVec_B.resize( tvec.size() );
+
+    // TessAdaptXYZ reports the curve's own parameter, which runs to the segment count
+    // rather than to one, so evaluate with CompPnt rather than CompPnt01.
+    for ( int i = 0; i < ( int )tvec.size(); i++ )
+    {
+        m_UWPntVec_A[i] = uwcrvA.CompPnt( tvec[i] );
+        m_UWPntVec_B[i] = uwcrvB.CompPnt( tvec[i] );
+    }
+
+    m_BBox = curveA.GetSurf()->GetBBox();
 
     m_MergeTol = m_BBox.DiagDist() * 1.0e-10;
 
@@ -410,6 +434,8 @@ unordered_map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::Build
                 if ( !orientation )
                 {
                     reverse( chain_vec[chain_ind].m_PntVec.begin(), chain_vec[chain_ind].m_PntVec.end() );
+                    reverse( chain_vec[chain_ind].m_UWPntVec_A.begin(), chain_vec[chain_ind].m_UWPntVec_A.end() );
+                    reverse( chain_vec[chain_ind].m_UWPntVec_B.begin(), chain_vec[chain_ind].m_UWPntVec_B.end() );
                 }
 
                 return_curve_map[map_ind].insert( return_curve_map[map_ind].begin(), make_pair( chain_vec[chain_ind], orientation ) );

@@ -29,9 +29,10 @@ public:
     NURBS_Curve();
     virtual ~NURBS_Curve() {};
 
-    // Initialize the NURBS curve from an SCurve. Control points are extracted and 
-    // saved to m_control_pnts_xyz.
-    void InitNURBSCurve( SCurve curve, double curve_tol );
+    // Initialize the NURBS curve from the SCurves of its two parent surfaces.  Control
+    // points are extracted and saved to m_control_pnts_xyz, and the curve is kept in the
+    // parameter space of both parents alongside them.
+    void InitNURBSCurve( SCurve curveA, SCurve curveB, double curve_tol );
 
     // Define the NURBS curve as a SdaiEdge_curve
     void WriteSTEPEdge( STEPutil* step, const string& label = "", bool mergepnts = false );
@@ -50,6 +51,13 @@ public:
 
     // Vector of points describing the curve
     vector < vec3d > m_PntVec;
+
+    // The curve in the parametric space of each of its two parent surfaces, one entry
+    // per m_PntVec point.  m_PntVec says where the curve runs, but not which side of it
+    // a parent surface lies on; that is only answerable in the parameter space of the
+    // surface in question.
+    vector < vec3d > m_UWPntVec_A;
+    vector < vec3d > m_UWPntVec_B;
 
     // Parent surface indexes
     int m_SurfA_ID;
