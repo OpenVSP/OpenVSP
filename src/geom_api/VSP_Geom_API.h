@@ -12911,6 +12911,70 @@ extern void ReorderFeaPart( const string & geom_id, int fea_struct_ind, const st
     \ingroup FEAMesh
 */
 /*!
+    Replace an FEA array part with the individual parts it stands for, the way the Individualize
+    buttons on the array panels do.  A rib array, slice array or SSLine array is a compact way of
+    laying down a regular set of parts; individualizing turns it into that set, so each one can then
+    be edited on its own.  The array part itself goes away.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD", "" );
+
+    int struct_ind = AddFeaStruct( pod_id );
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    string array_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE_ARRAY );
+
+    SetParmVal( FindParm( array_id, "SliceRelSpacing", "FeaSliceArray" ), 0.25 );
+
+    Update();
+
+    int num_before = NumFeaParts( struct_id );
+
+    IndividualizeFeaPart( pod_id, struct_ind, array_id );
+
+    // The array is replaced by the slices it stood for, so the part count goes up.
+    if ( NumFeaParts( struct_id ) <= num_before )
+    {
+        Print( "ERROR: IndividualizeFeaPart did not expand the array" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD", "" )
+
+    struct_ind = AddFeaStruct( pod_id )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    array_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE_ARRAY )
+
+    SetParmVal( FindParm( array_id, "SliceRelSpacing", "FeaSliceArray" ), 0.25 )
+
+    Update()
+
+    num_before = NumFeaParts( struct_id )
+
+    IndividualizeFeaPart( pod_id, struct_ind, array_id )
+
+    # The array is replaced by the slices it stood for, so the part count goes up.
+    assert NumFeaParts( struct_id ) > num_before, "IndividualizeFeaPart did not expand the array"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaPart, AddFeaSubSurf, NumFeaParts
+    \param [in] geom_id string Geom ID
+    \param [in] fea_struct_ind int FEA Structure index
+    \param [in] part_id string FEA Part or FEA Sub-Surface ID of an array part
+*/
+
+extern void IndividualizeFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
     Get the Parm ID of an FEA Part, identified from a FEA Structure Parm ID and FEA Part index.
     \forcpponly
     \code{.cpp}
@@ -31369,6 +31433,58 @@ extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const
 extern void ApproximateAllPropellerPCurves( const std::string & geom_id );
 
 /*!
+    \ingroup Geom
+*/
+/*!
+    Rebuild a propeller's thickness curve from the airfoils actually on its cross sections, the way
+    the Reset Thickness button on the Prop screen does.  The thickness curve normally drives the
+    sections; this runs the relationship the other way once, so a blade built up section by section
+    gets a thickness curve that matches what it already is.
+    \forcpponly
+    \code{.cpp}
+    string prop_id = AddGeom( "PROP", "" );
+
+    Update();
+
+    ResetPropellerThickness( prop_id );
+
+    // The thickness curve now carries one point per cross section.
+    array< double > @tvec = PCurveGetTVec( prop_id, PROP_THICK );
+
+    string xsec_surf = GetXSecSurf( prop_id, 0 );
+
+    if ( tvec.size() != GetNumXSec( xsec_surf ) )
+    {
+        Print( "ERROR: ResetPropellerThickness did not rebuild the curve" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    prop_id = AddGeom( "PROP", "" )
+
+    Update()
+
+    ResetPropellerThickness( prop_id )
+
+    # The thickness curve now carries one point per cross section.
+    tvec = PCurveGetTVec( prop_id, PROP_THICK )
+
+    xsec_surf = GetXSecSurf( prop_id, 0 )
+
+    assert len( tvec ) == GetNumXSec( xsec_surf ), "ResetPropellerThickness did not rebuild the curve"
+
+    \endcode
+    \endPythonOnly
+    \sa ApproximateAllPropellerPCurves, PCurveGetTVec
+    \param [in] geom_id string Propeller Geom ID
+*/
+
+extern void ResetPropellerThickness( const string & geom_id );
+
+/*!
     \ingroup PCurve
 */
 /*!
@@ -38748,6 +38864,80 @@ extern std::string CreateNGonMeshGeom( const std::string & geom_id );
 extern std::string CreateConvexHull( const std::string & geom_id );
 
 /*!
+    \ingroup Geom
+*/
+/*!
+    Project the points of a point cloud onto a surface of another Geom, the way the Project button
+    on the Point Cloud screen does.  Each point is moved along the chosen axis until it lands on the
+    target surface; a point that does not hit the surface is left where it is.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    // Mesh the Pod, then make a point cloud out of the mesh vertices.
+    string mesh_id = ExportFile( "ProjectExample.msh", SET_ALL, EXPORT_GMSH );
+
+    string cloud_id = CreatePtCloudGeom( mesh_id );
+
+    // Lift the cloud above the Pod so the points have somewhere to fall from.
+    SetParmVal( cloud_id, "Z_Rel_Location", "XForm", 5.0 );
+
+    Update();
+
+    array< vec3d > @before = GetPtCloudPnts( cloud_id );
+
+    ProjectPtCloudPts( cloud_id, pid, 0, Z_DIR );
+
+    Update();
+
+    array< vec3d > @after = GetPtCloudPnts( cloud_id );
+
+    // Projection moves points; it never adds or removes any.
+    if ( after.size() != before.size() )
+    {
+        Print( "ERROR: ProjectPtCloudPts changed the point count" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    # Mesh the Pod, then make a point cloud out of the mesh vertices.
+    mesh_id = ExportFile( "ProjectExample.msh", SET_ALL, EXPORT_GMSH )
+
+    cloud_id = CreatePtCloudGeom( mesh_id )
+
+    # Lift the cloud above the Pod so the points have somewhere to fall from.
+    SetParmVal( cloud_id, "Z_Rel_Location", "XForm", 5.0 )
+
+    Update()
+
+    before = GetPtCloudPnts( cloud_id )
+
+    ProjectPtCloudPts( cloud_id, pid, 0, Z_DIR )
+
+    Update()
+
+    after = GetPtCloudPnts( cloud_id )
+
+    # Projection moves points; it never adds or removes any.
+    assert len( after ) == len( before ), "ProjectPtCloudPts changed the point count"
+
+    \endcode
+    \endPythonOnly
+    \sa CreatePtCloudGeom, CreateConvexHull
+    \param [in] geom_id string Point cloud Geom ID
+    \param [in] target_geom_id string Geom ID of the Geom to project onto
+    \param [in] surf_index int Surface index on the target Geom
+    \param [in] dir_index int Direction to project along, X_DIR, Y_DIR or Z_DIR (see DIR_INDEX)
+*/
+
+extern void ProjectPtCloudPts( const string & geom_id, const string & target_geom_id, int surf_index, int dir_index );
+
+/*!
     \ingroup Sets
 */
 /*!
@@ -39401,6 +39591,116 @@ extern void DelParmLink( const std::string & link_id );
 */
 
 extern void DelAllParmLinks();
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Sort the Parm links by the Parm each one reads from, ordering on container name, then group
+    name, then Parm name.  This is the Sort A button on the Parm Link screen.
+    \forcpponly
+    \code{.cpp}
+    string pod = AddGeom( "POD", "" );
+
+    string length = FindParm( pod, "Length", "Design" );
+    string fine = FindParm( pod, "FineRatio", "Design" );
+    string x_pos = FindParm( pod, "X_Rel_Location", "XForm" );
+    string y_pos = FindParm( pod, "Y_Rel_Location", "XForm" );
+
+    // Add the links out of order, reading from Length first.
+    string link1 = AddParmLink( length, x_pos );
+    string link2 = AddParmLink( fine, y_pos );
+
+    SortParmLinksByA();
+
+    // FineRatio sorts ahead of Length, so its link comes first.
+    if ( GetParmLinkID( 0 ) != link2 )
+    {
+        Print( "ERROR: SortParmLinksByA did not sort the links" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod = AddGeom( "POD", "" )
+
+    length = FindParm( pod, "Length", "Design" )
+    fine = FindParm( pod, "FineRatio", "Design" )
+    x_pos = FindParm( pod, "X_Rel_Location", "XForm" )
+    y_pos = FindParm( pod, "Y_Rel_Location", "XForm" )
+
+    # Add the links out of order, reading from Length first.
+    link1 = AddParmLink( length, x_pos )
+    link2 = AddParmLink( fine, y_pos )
+
+    SortParmLinksByA()
+
+    # FineRatio sorts ahead of Length, so its link comes first.
+    assert GetParmLinkID( 0 ) == link2, "SortParmLinksByA did not sort the links"
+
+    \endcode
+    \endPythonOnly
+    \sa SortParmLinksByB, AddParmLink
+*/
+
+extern void SortParmLinksByA();
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Sort the Parm links by the Parm each one drives, ordering on container name, then group name,
+    then Parm name.  This is the Sort B button on the Parm Link screen.
+    \forcpponly
+    \code{.cpp}
+    string pod = AddGeom( "POD", "" );
+
+    string length = FindParm( pod, "Length", "Design" );
+    string fine = FindParm( pod, "FineRatio", "Design" );
+    string x_pos = FindParm( pod, "X_Rel_Location", "XForm" );
+    string y_pos = FindParm( pod, "Y_Rel_Location", "XForm" );
+
+    // Add the links so that the one driving Y_Rel_Location comes first.
+    string link1 = AddParmLink( length, y_pos );
+    string link2 = AddParmLink( fine, x_pos );
+
+    SortParmLinksByB();
+
+    // X_Rel_Location sorts ahead of Y_Rel_Location, so its link comes first.
+    if ( GetParmLinkID( 0 ) != link2 )
+    {
+        Print( "ERROR: SortParmLinksByB did not sort the links" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod = AddGeom( "POD", "" )
+
+    length = FindParm( pod, "Length", "Design" )
+    fine = FindParm( pod, "FineRatio", "Design" )
+    x_pos = FindParm( pod, "X_Rel_Location", "XForm" )
+    y_pos = FindParm( pod, "Y_Rel_Location", "XForm" )
+
+    # Add the links so that the one driving Y_Rel_Location comes first.
+    link1 = AddParmLink( length, y_pos )
+    link2 = AddParmLink( fine, x_pos )
+
+    SortParmLinksByB()
+
+    # X_Rel_Location sorts ahead of Y_Rel_Location, so its link comes first.
+    assert GetParmLinkID( 0 ) == link2, "SortParmLinksByB did not sort the links"
+
+    \endcode
+    \endPythonOnly
+    \sa SortParmLinksByA, AddParmLink
+*/
+
+extern void SortParmLinksByB();
 
 /*!
     \ingroup ParmLink

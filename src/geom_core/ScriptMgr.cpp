@@ -3461,6 +3461,21 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ReorderFeaLayer( const string & in material_id, const string & in layer_id, int reorder_type )", asFUNCTION( vsp::ReorderFeaLayer ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void IndividualizeFeaPart( const string & in geom_id, int fea_struct_ind, const string & in part_id )", asFUNCTION( vsp::IndividualizeFeaPart ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ProjectPtCloudPts( const string & in geom_id, const string & in target_geom_id, int surf_index, int dir_index )", asFUNCTION( vsp::ProjectPtCloudPts ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SortParmLinksByA()", asFUNCTION( vsp::SortParmLinksByA ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SortParmLinksByB()", asFUNCTION( vsp::SortParmLinksByB ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ResetPropellerThickness( const string & in geom_id )", asFUNCTION( vsp::ResetPropellerThickness ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void ReadAdvLinkCodeFile( int index, const string & in file_name )", asFUNCTION( vsp::ReadAdvLinkCodeFile ), asCALL_CDECL );
     assert( r >= 0 );
 

@@ -579,7 +579,9 @@ void PtCloudGeom::ProjectPts( const string &geomid, int surfid, int idir )
             vec3d pout;
 
             double u, w;
-            surf->ProjectPt( pin, idir, u, w );
+            // ProjectPt hands back raw surface parameters, so normalize them
+            // before asking for the point back in 0-1 parameterization.
+            surf->ProjectPt01( pin, idir, u, w );
 
             pout = surf->CompPnt01( u, w );
 

@@ -3865,6 +3865,73 @@ string AddFeaPart( const string & geom_id, int fea_struct_ind, int type )
     return feapart->GetID();
 }
 
+void IndividualizeFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "IndividualizeFeaPart::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "IndividualizeFeaPart::Invalid FeaStructure Ptr at index " + to_string( ( long long ) fea_struct_ind ) );
+        return;
+    }
+
+    // Rib and slice arrays are FeaParts; SSLine arrays are FeaSubSurfaces.  The two
+    // live in separate lists, so look in both.
+    int index = feastruct->GetFeaPartIndex( part_id );
+    if ( index >= 0 )
+    {
+        FeaPart* part = feastruct->GetFeaPart( index );
+
+        if ( part && part->GetType() == FEA_RIB_ARRAY )
+        {
+            feastruct->IndividualizeRibArray( index );
+            ErrorMgr.NoError();
+            return;
+        }
+
+        if ( part && part->GetType() == FEA_SLICE_ARRAY )
+        {
+            feastruct->IndividualizeSliceArray( index );
+            ErrorMgr.NoError();
+            return;
+        }
+
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "IndividualizeFeaPart::FEA Part " + part_id + " is not an array" );
+        return;
+    }
+
+    vector < SubSurface* > ss_vec = feastruct->GetFeaSubSurfVec();
+    for ( int i = 0; i < ( int )ss_vec.size(); i++ )
+    {
+        if ( ss_vec[i] && ss_vec[i]->GetID() == part_id )
+        {
+            if ( ss_vec[i]->GetType() != SS_LINE_ARRAY )
+            {
+                ErrorMgr.AddError( VSP_INVALID_TYPE, "IndividualizeFeaPart::FEA Part " + part_id + " is not an array" );
+                return;
+            }
+
+            feastruct->IndividualizeSSLineArray( i );
+            ErrorMgr.NoError();
+            return;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "IndividualizeFeaPart::Can't Find FeaPart " + part_id );
+}
+
 void ReorderFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id, int reorder_type )
 {
     Vehicle* veh = GetVehicle();
@@ -10759,6 +10826,29 @@ int PCurveSplit( const string & geom_id, const int & pcurveid, const double & ts
     ErrorMgr.NoError();
 }
 
+void ResetPropellerThickness( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetPropellerThickness::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast< PropGeom* >( geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ResetPropellerThickness::Geom " + geom_id + " is not a propeller" );
+        return;
+    }
+
+    prop_ptr->ResetThickness();
+    prop_ptr->Update();
+
+    ErrorMgr.NoError();
+}
+
 void ApproximateAllPropellerPCurves( const std::string & geom_id )
 {
     Vehicle* veh = GetVehicle();
@@ -12846,6 +12936,47 @@ string CreateNGonMeshGeom( const string & geom_id )
     return ret;
 }
 
+void ProjectPtCloudPts( const string & geom_id, const string & target_geom_id, int surf_index, int dir_index )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, "ProjectPtCloudPts" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    PtCloudGeom* pt_cloud = dynamic_cast< PtCloudGeom* >( geom_ptr );
+    if ( !pt_cloud )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ProjectPtCloudPts::Geom " + geom_id + " is not a point cloud" );
+        return;
+    }
+
+    Vehicle* veh = GetVehicle();
+    Geom* target_ptr = veh->FindGeom( target_geom_id );
+    if ( !target_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ProjectPtCloudPts::Can't Find Geom " + target_geom_id );
+        return;
+    }
+
+    if ( surf_index < 0 || surf_index >= target_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjectPtCloudPts::Surface Index Out Of Range " + to_string( surf_index ) );
+        return;
+    }
+
+    if ( dir_index < X_DIR || dir_index > Z_DIR )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ProjectPtCloudPts::Invalid Direction " + to_string( dir_index ) );
+        return;
+    }
+
+    pt_cloud->ProjectPts( target_geom_id, surf_index, dir_index );
+    Update();
+
+    ErrorMgr.NoError();
+}
+
 string CreateConvexHull( const string & geom_id )
 {
     Geom* geom_ptr = FindGeomForOp( geom_id, "CreateConvexHull" );
@@ -13294,6 +13425,20 @@ void DelParmLink( const string & link_id )
     }
 
     ErrorMgr.AddError( VSP_INVALID_ID, "DelParmLink::Can't Find Parm Link " + link_id );
+}
+
+void SortParmLinksByA()
+{
+    LinkMgr.SortLinksByA();
+
+    ErrorMgr.NoError();
+}
+
+void SortParmLinksByB()
+{
+    LinkMgr.SortLinksByB();
+
+    ErrorMgr.NoError();
 }
 
 void DelAllParmLinks()
