@@ -2754,6 +2754,155 @@ extern void DeleteAllCFDSources();
     \ingroup CFDMesh
 */
 /*!
+    Get the ParmContainer ID of a CFD Mesh source, so its size and placement can be read and driven
+    after the source has been created.  A source's Parms live in the "Source" group and are named
+    SrcLen, SrcRad, U_Loc and W_Loc, with SrcLen2, SrcRad2 and the numbered locations on the source
+    types that take two ends.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );
+
+    string src_id = GetCFDSourceID( pid, 0 );
+
+    if ( src_id.length() == 0 )
+    {
+        Print( "ERROR: GetCFDSourceID returned no id" );
+        __failure++;
+    }
+
+    // The source was created with a length of 0.25, and is editable from here.
+    if ( abs( GetParmVal( src_id, "SrcLen", "Source" ) - 0.25 ) > 1e-6 )
+    {
+        Print( "ERROR: GetCFDSourceID did not reach the source" );
+        __failure++;
+    }
+
+    SetParmVal( src_id, "SrcLen", "Source", 0.5 );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )
+
+    src_id = GetCFDSourceID( pid, 0 )
+
+    assert len( src_id ) > 0, "GetCFDSourceID returned no id"
+
+    # The source was created with a length of 0.25, and is editable from here.
+    assert abs( GetParmVal( src_id, "SrcLen", "Source" ) - 0.25 ) < 1e-6, "GetCFDSourceID did not reach the source"
+
+    SetParmVal( src_id, "SrcLen", "Source", 0.5 )
+
+    \endcode
+    \endPythonOnly
+    \sa AddCFDSource, GetCFDSourceName, GetCFDSourceType
+    \param [in] geom_id string Geom ID
+    \param [in] source_index int CFD Mesh source index
+    \return string ParmContainer ID for the source
+*/
+
+extern string GetCFDSourceID( const string & geom_id, int source_index );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Scale the edge length of every CFD Mesh source in the model by a common factor.  This is what
+    the four global source length buttons on the CFD Mesh screen do, at 1/1.5, 1/1.1, 1.1 and 1.5.
+    Sources are usually sized relative to one another, so scaling them together is how a mesh is
+    refined or coarsened as a whole.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );
+
+    string src_id = GetCFDSourceID( pid, 0 );
+
+    AdjustAllCFDSourceLen( 2.0 );
+
+    if ( abs( GetParmVal( src_id, "SrcLen", "Source" ) - 0.5 ) > 1e-6 )
+    {
+        Print( "ERROR: AdjustAllCFDSourceLen did not scale the source" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )
+
+    src_id = GetCFDSourceID( pid, 0 )
+
+    AdjustAllCFDSourceLen( 2.0 )
+
+    assert abs( GetParmVal( src_id, "SrcLen", "Source" ) - 0.5 ) < 1e-6, "AdjustAllCFDSourceLen did not scale the source"
+
+    \endcode
+    \endPythonOnly
+    \sa AdjustAllCFDSourceRad, GetCFDSourceID
+    \param [in] mult double Factor to scale every source length by
+*/
+
+extern void AdjustAllCFDSourceLen( double mult );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Scale the radius of influence of every CFD Mesh source in the model by a common factor.  This is
+    what the four global source radius buttons on the CFD Mesh screen do, at 1/1.5, 1/1.1, 1.1 and
+    1.5.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD", "" );
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );
+
+    string src_id = GetCFDSourceID( pid, 0 );
+
+    AdjustAllCFDSourceRad( 0.5 );
+
+    if ( abs( GetParmVal( src_id, "SrcRad", "Source" ) - 1.0 ) > 1e-6 )
+    {
+        Print( "ERROR: AdjustAllCFDSourceRad did not scale the source" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD", "" )
+
+    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )
+
+    src_id = GetCFDSourceID( pid, 0 )
+
+    AdjustAllCFDSourceRad( 0.5 )
+
+    assert abs( GetParmVal( src_id, "SrcRad", "Source" ) - 1.0 ) < 1e-6, "AdjustAllCFDSourceRad did not scale the source"
+
+    \endcode
+    \endPythonOnly
+    \sa AdjustAllCFDSourceLen, GetCFDSourceID
+    \param [in] mult double Factor to scale every source radius by
+*/
+
+extern void AdjustAllCFDSourceRad( double mult );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
     Add default CFD Mesh sources for all Geoms
     \forcpponly
     \code{.cpp}

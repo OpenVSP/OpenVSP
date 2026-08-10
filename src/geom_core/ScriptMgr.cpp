@@ -3908,6 +3908,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteAllCFDSources()", asFUNCTION( vsp::DeleteAllCFDSources ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string GetCFDSourceID( const string & in geom_id, int source_index )", asFUNCTION( vsp::GetCFDSourceID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AdjustAllCFDSourceLen( double mult )", asFUNCTION( vsp::AdjustAllCFDSourceLen ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AdjustAllCFDSourceRad( double mult )", asFUNCTION( vsp::AdjustAllCFDSourceRad ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void AddDefaultSources()", asFUNCTION( vsp::AddDefaultSources ), asCALL_CDECL );
     assert( r >= 0 );

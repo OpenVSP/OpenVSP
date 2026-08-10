@@ -880,6 +880,26 @@ int GetNumCFDSources( const string & geom_id )
     return ( int )geom_ptr->GetCfdMeshMainSourceVec().size();
 }
 
+string GetCFDSourceID( const string & geom_id, int source_index )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, "GetCFDSourceID" );
+    if ( !geom_ptr )
+    {
+        return string();
+    }
+
+    vector< BaseSource* > source_vec = geom_ptr->GetCfdMeshMainSourceVec();
+
+    if ( source_index < 0 || source_index >= ( int )source_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetCFDSourceID::Source Index " + to_string( source_index ) + " Out of Range" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return source_vec[ source_index ]->GetID();
+}
+
 string GetCFDSourceName( const string & geom_id, int source_index )
 {
     Geom* geom_ptr = FindGeomForSources( geom_id, "GetCFDSourceName" );
@@ -960,6 +980,32 @@ void DeleteCFDSource( const string & geom_id, int source_index )
     geom_ptr->SetCurrSourceID( source_index );
     geom_ptr->DelCurrSource();
     geom_ptr->SetCurrSourceID( prev_curr );
+
+    ErrorMgr.NoError();
+}
+
+void AdjustAllCFDSourceLen( double mult )
+{
+    if ( mult <= 0.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AdjustAllCFDSourceLen::Multiplier Must Be Positive" );
+        return;
+    }
+
+    CfdMeshMgr.AdjustAllSourceLen( mult );
+
+    ErrorMgr.NoError();
+}
+
+void AdjustAllCFDSourceRad( double mult )
+{
+    if ( mult <= 0.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AdjustAllCFDSourceRad::Multiplier Must Be Positive" );
+        return;
+    }
+
+    CfdMeshMgr.AdjustAllSourceRad( mult );
 
     ErrorMgr.NoError();
 }
