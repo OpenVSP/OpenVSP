@@ -2805,6 +2805,8 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
         base.erase( pos, base.length() - 1 );
     }
 
+    string cur_fn = base;
+    cur_fn.append( ".cur" );
     string topo_fn = base;
     topo_fn.append( ".topo" );
 
@@ -3144,6 +3146,28 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
 
             AccumulateLoopSense( *loop_ptr[j], nurbs_surf.m_SurfID, j != iouter, flip_flag, curve_face_sense );
         }
+    }
+
+    // The topology file numbers its edges by their position in used_curve_set, and those
+    // numbers are what index the curve file, so both are written from the same walk of
+    // the set.  A curve is written in its own direction, which is the direction the
+    // topology file's edge senses are stated against.
+    vector < vector < vec3d > > edge_curve_vec;
+    edge_curve_vec.reserve( used_curve_set.size() );
+
+    std::set < int >::iterator cit;
+    for ( cit = used_curve_set.begin(); cit != used_curve_set.end(); cit++ )
+    {
+        edge_curve_vec.push_back( m_NURBSCurveVec[ *cit ].m_PntVec );
+    }
+
+    FILE* cur_fp = fopen( cur_fn.c_str(), "w" );
+
+    if ( cur_fp )
+    {
+        WritePlot3DCurveBlocks( cur_fp, edge_curve_vec );
+
+        fclose( cur_fp );
     }
 
     FILE* topo_fp = fopen( topo_fn.c_str(), "w" );
