@@ -2038,6 +2038,22 @@ void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double >
     }
 }
 
+// The tessellation lines of one surface, in that surface's own parameter space.  This is
+// the same set of lines OpenVSP tessellates the Geom along, so anything downstream that
+// wants to sample the surface the way the user asked for it starts here.
+void Geom::GetUWTessSurf( const int &indx, vector < double > &u, vector < double > &w )
+{
+    u.clear();
+    w.clear();
+
+    if ( indx < 0 || indx >= ( int )m_SurfVec.size() )
+    {
+        return;
+    }
+
+    GetUWTess( m_SurfVec[indx], m_CapUMinSuccess[ m_MainSurfIndxVec[indx] ], m_CapUMaxSuccess[ m_MainSurfIndxVec[indx] ], false, u, w );
+}
+
 void Geom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref ) const
 {
     vector < int > num_u_vec( surf.GetNumSectU(), m_TessU() );

@@ -513,6 +513,7 @@ public:
 
     virtual vec3d CompPnt01(const int &indx, const double &u, const double &w);
     virtual void GetUWTess01( const int &indx, vector < double > &u, vector < double > &w );
+    virtual void GetUWTessSurf( const int &indx, vector < double > &u, vector < double > &w );
 
     virtual vec3d CompTanU( const int &indx, const double &u, const double &w );
     virtual vec3d CompTanW( const int &indx, const double &u, const double &w );

@@ -3565,7 +3565,29 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
     return true;
 }
 
-void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress ) const
+// Keep the tessellation lines that fall within a split piece of a surface, and make sure
+// the piece's own edges are among them.  Splitting happens along feature lines, which are
+// usually tessellation lines too, but the ends have to be there either way.
+void ClipTess( const vector < double > &tess, double lo, double hi, vector < double > &clipped )
+{
+    clipped.clear();
+
+    double tol = 1.0e-6 * ( hi - lo );
+
+    clipped.push_back( lo );
+
+    for ( int i = 0; i < ( int )tess.size(); i++ )
+    {
+        if ( tess[i] > lo + tol && tess[i] < hi - tol )
+        {
+            clipped.push_back( tess[i] );
+        }
+    }
+
+    clipped.push_back( hi );
+}
+
+void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress, const vector < double > &utess, const vector < double > &wtess ) const
 {
     vector < piecewise_surface_type > surfvec;
     surfvec.push_back( m_Surface );
@@ -3590,6 +3612,16 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         xsurf.m_GeomID = geom_id;
         xsurf.m_Name = name;
         xsurf.m_SplitNum = ivalid;
+
+        if ( !utess.empty() )
+        {
+            ClipTess( utess, surf.get_u0(), surf.get_umax(), xsurf.m_UTess );
+        }
+        if ( !wtess.empty() )
+        {
+            ClipTess( wtess, surf.get_v0(), surf.get_vmax(), xsurf.m_WTess );
+        }
+
         xsurf.m_SurfIndx = surf_ind;
         xsurf.m_SurfType = GetSurfType();
         xsurf.m_SurfCfdType = m_SurfCfdType;

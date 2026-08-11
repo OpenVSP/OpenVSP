@@ -15,9 +15,11 @@ typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
 
 #include <string>
+#include <vector>
 #include <APIDefines.h>
 #include <Vec3d.h>
 using std::string;
+using std::vector;
 
 class XferSurf
 {
@@ -61,6 +63,12 @@ public:
     int m_PlateNum;
     int m_CopyIndex;
     double m_PlanarUWAspect;
+
+    // The parent Geom's tessellation lines, in the parameter space of m_Surface and
+    // clipped to it.  A surface is split along its feature lines on the way here, so
+    // each piece carries only the lines that fall inside it.
+    vector < double > m_UTess;
+    vector < double > m_WTess;
 
     piecewise_surface_type m_Surface;
 };

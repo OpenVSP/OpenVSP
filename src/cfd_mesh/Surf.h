@@ -377,6 +377,22 @@ public:
         return m_BaseTag;
     }
 
+    // Tessellation lines inherited from the parent Geom, in this surface's parameter
+    // space.  Empty for surfaces that were not fetched from a Geom.
+    void SetUWTess( const vector < double > &utess, const vector < double > &wtess )
+    {
+        m_UTess = utess;
+        m_WTess = wtess;
+    }
+    const vector < double > & GetUTess() const
+    {
+        return m_UTess;
+    }
+    const vector < double > & GetWTess() const
+    {
+        return m_WTess;
+    }
+
     void SetIgnoreSurfFlag( bool flag )
     {
         m_IgnoreSurfFlag = flag;
@@ -421,6 +437,9 @@ protected:
     bool m_FarFlag;
 
     bool m_IgnoreSurfFlag; // Flag to ignore the surface after intersected
+
+    vector < double > m_UTess;
+    vector < double > m_WTess;
 
     int m_SurfCfdType;
     int m_SurfVspType;

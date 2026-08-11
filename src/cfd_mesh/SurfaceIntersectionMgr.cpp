@@ -1203,6 +1203,7 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, dou
         surfPtr->SetCompID( cid );
         surfPtr->SetUnmergedCompID( cid );
         surfPtr->SetSurfID( start_surf_id + i );
+        surfPtr->SetUWTess( xfersurfs[i].m_UTess, xfersurfs[i].m_WTess );
         surfPtr->GetSurfCore()->BuildPatches( surfPtr );
         m_SurfVec.push_back( surfPtr );
     }
