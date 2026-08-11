@@ -38,6 +38,7 @@ StackTrace.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
+UnformattedFile.cpp
 UnitConversion.cpp
 UtilTestSuite.cpp
 VKTAirfoil.cpp
@@ -65,6 +66,7 @@ StreamUtil.h
 StringUtil.h
 SuperEllipse.h
 tinydir.h
+UnformattedFile.h
 UnitConversion.h
 UtilTestSuite.h
 VKTAirfoil.h

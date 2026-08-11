@@ -37,9 +37,11 @@ public:
         TEST_ADD( UtilTestSuite::BilinearInterpTest )
         TEST_ADD( UtilTestSuite::FormatWidthTest )
         TEST_ADD( UtilTestSuite::NumbersTest )
+        TEST_ADD( UtilTestSuite::UnformattedFileTest )
     }
 
 private:
+    void UnformattedFileTest();
     void MessageMgrTest();
     void Vec2dUtilTest();
     void StringUtilTest();

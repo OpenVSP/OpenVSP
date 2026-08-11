@@ -9,6 +9,7 @@
 #include <cmath>
 
 #include "UtilTestSuite.h"
+#include "UnformattedFile.h"
 
 #include <float.h>
 #include "StringUtil.h"
@@ -713,6 +714,337 @@ void UtilTestSuite::BilinearInterpTest()
     interp_val = z0 * weights[0] + z1 * weights[1] + z2 * weights[2] + z3 * weights[3];
     TEST_ASSERT_DELTA( interp_val, 9.8125, DBL_EPSILON );
 
+}
+
+// Read a record back: leading count, data, trailing count.  Returns the data bytes, and
+// checks that the two counts agree and describe what lies between them.
+static bool ReadRecord( FILE* fp, vector < char > &data )
+{
+    int lead = 0;
+    if ( fread( &lead, sizeof( lead ), 1, fp ) != 1 )
+    {
+        return false;
+    }
+
+    data.resize( lead );
+    if ( lead > 0 && fread( &data[0], 1, lead, fp ) != ( size_t )lead )
+    {
+        return false;
+    }
+
+    int trail = 0;
+    if ( fread( &trail, sizeof( trail ), 1, fp ) != 1 )
+    {
+        return false;
+    }
+
+    return lead == trail;
+}
+
+void UtilTestSuite::UnformattedFileTest()
+{
+    string fname = "UnformattedFileTest.bin";
+
+    // Three records: a lone count, a mixed record of the kind a Plot3D header needs, and
+    // an array of reals.
+    vector < int > dims;
+    dims.push_back( 3 );
+    dims.push_back( 4 );
+    dims.push_back( 1 );
+
+    vector < double > vals;
+    for ( int i = 0; i < 12; i++ )
+    {
+        vals.push_back( 0.5 * i );
+    }
+
+    {
+        UnformattedOut fp;
+        TEST_ASSERT( fp.Open( fname ) );
+
+        fp.WriteRecord( 7 );
+
+        fp.BeginRecord();
+        fp.Write( dims );
+        fp.Write( 1.25 );
+        fp.EndRecord();
+
+        fp.WriteRecord( vals );
+
+        TEST_ASSERT( fp.IsGood() );
+    }
+
+    FILE* fp = fopen( fname.c_str(), "rb" );
+    TEST_ASSERT( fp != nullptr );
+
+    if ( fp )
+    {
+        vector < char > data;
+
+        // One int.
+        TEST_ASSERT( ReadRecord( fp, data ) );
+        TEST_ASSERT( data.size() == sizeof( int ) );
+        TEST_ASSERT( *( int* ) &data[0] == 7 );
+
+        // Three ints and a double, in one record.
+        TEST_ASSERT( ReadRecord( fp, data ) );
+        TEST_ASSERT( data.size() == 3 * sizeof( int ) + sizeof( double ) );
+        for ( int i = 0; i < 3; i++ )
+        {
+            TEST_ASSERT( *( int* ) &data[ i * sizeof( int ) ] == dims[i] );
+        }
+        TEST_ASSERT( *( double* ) &data[ 3 * sizeof( int ) ] == 1.25 );
+
+        // Twelve doubles.
+        TEST_ASSERT( ReadRecord( fp, data ) );
+        TEST_ASSERT( data.size() == vals.size() * sizeof( double ) );
+        for ( int i = 0; i < ( int )vals.size(); i++ )
+        {
+            TEST_ASSERT( *( double* ) &data[ i * sizeof( double ) ] == vals[i] );
+        }
+
+        // Nothing after the last record.
+        TEST_ASSERT( !ReadRecord( fp, data ) );
+
+        fclose( fp );
+    }
+
+    // The file's precision decides how wide a real lands, whatever type it was handed.
+    // Floats written to a double file are widened, doubles to a single file narrowed.
+    vector < float > fvals;
+    for ( int i = 0; i < ( int )vals.size(); i++ )
+    {
+        fvals.push_back( ( float )vals[i] );
+    }
+
+    for ( int single = 0; single < 2; single++ )
+    {
+        size_t realsize = sizeof( double );
+        if ( single )
+        {
+            realsize = sizeof( float );
+        }
+
+        {
+            UnformattedOut u;
+            TEST_ASSERT( u.Open( fname ) );
+            u.SetSinglePrecision( single != 0 );
+
+            u.WriteRecord( vals );      // from doubles
+            u.WriteRecord( fvals );     // from floats
+
+            u.BeginRecord();                // one at a time, either type
+            u.Write( vals[1] );
+            u.Write( fvals[1] );
+            u.EndRecord();
+
+            TEST_ASSERT( u.IsGood() );
+        }
+
+        fp = fopen( fname.c_str(), "rb" );
+        TEST_ASSERT( fp != nullptr );
+
+        if ( fp )
+        {
+            vector < char > data;
+
+            // Both arrays occupy the width the file was set to, and hold the same values.
+            for ( int pass = 0; pass < 2; pass++ )
+            {
+                TEST_ASSERT( ReadRecord( fp, data ) );
+                TEST_ASSERT( data.size() == vals.size() * realsize );
+
+                for ( int i = 0; i < ( int )vals.size(); i++ )
+                {
+                    if ( single )
+                    {
+                        TEST_ASSERT( *( float* ) &data[ i * realsize ] == ( float )vals[i] );
+                    }
+                    else
+                    {
+                        TEST_ASSERT( *( double* ) &data[ i * realsize ] == vals[i] );
+                    }
+                }
+            }
+
+            // A float and a double side by side come out the same width as each other.
+            TEST_ASSERT( ReadRecord( fp, data ) );
+            TEST_ASSERT( data.size() == 2 * realsize );
+
+            fclose( fp );
+        }
+    }
+
+    // Round trip through the reader, in both byte orders and both precisions.  Reading a
+    // swapped file also exercises the detection, since Open is not told which it is.
+    for ( int swap = 0; swap < 2; swap++ )
+    {
+        for ( int single = 0; single < 2; single++ )
+        {
+            {
+                UnformattedOut u;
+                TEST_ASSERT( u.Open( fname ) );
+                u.SetByteSwap( swap != 0 );
+                u.SetSinglePrecision( single != 0 );
+
+                u.WriteRecord( 7 );
+
+                u.BeginRecord();
+                u.Write( dims );
+                u.Write( 1.25 );
+                u.EndRecord();
+
+                u.WriteRecord( vals );
+
+                TEST_ASSERT( u.IsGood() );
+            }
+
+            UnformattedIn r;
+            TEST_ASSERT( r.Open( fname ) );
+            r.SetSinglePrecision( single != 0 );
+
+            // Open works the byte order out for itself.
+            TEST_ASSERT( r.GetByteSwap() == ( swap != 0 ) );
+
+            int n = 0;
+            TEST_ASSERT( r.ReadRecord( n ) );
+            TEST_ASSERT( n == 7 );
+
+            // A record read piece by piece, the way it was written.
+            TEST_ASSERT( r.BeginRecord() );
+
+            size_t rwide = sizeof( double );
+            if ( single )
+            {
+                rwide = sizeof( float );
+            }
+            TEST_ASSERT( r.GetRecordBytes() == ( long )( 3 * sizeof( int ) + rwide ) );
+
+            vector < int > rdims( 3 );
+            r.Read( rdims );
+            double rval = 0.0;
+            r.Read( rval );
+            TEST_ASSERT( r.EndRecord() );
+
+            for ( int i = 0; i < 3; i++ )
+            {
+                TEST_ASSERT( rdims[i] == dims[i] );
+            }
+            TEST_ASSERT( rval == 1.25 );
+
+            // A whole record, sized from its byte count.  A file of doubles read into
+            // floats, or the other way about, is the caller's business either way.
+            vector < double > rvals;
+            TEST_ASSERT( r.ReadRecord( rvals ) );
+            TEST_ASSERT( rvals.size() == vals.size() );
+            for ( int i = 0; i < ( int )vals.size(); i++ )
+            {
+                TEST_ASSERT( rvals[i] == vals[i] );
+            }
+
+            // Nothing after the last record.
+            TEST_ASSERT( !r.BeginRecord() );
+        }
+    }
+
+    // The width of a record's reals follows from how many values it is meant to hold.
+    for ( int single = 0; single < 2; single++ )
+    {
+        {
+            UnformattedOut u;
+            TEST_ASSERT( u.Open( fname ) );
+            u.SetSinglePrecision( single != 0 );
+
+            u.WriteRecord( ( int )vals.size() );
+
+            u.BeginRecord();            // reals and ints together, as a Plot3D block is
+            u.Write( vals );
+            u.Write( dims );
+            u.EndRecord();
+
+            u.WriteRecord( vals );      // an odd number of reals on its own
+        }
+
+        UnformattedIn r;
+        TEST_ASSERT( r.Open( fname ) );
+        TEST_ASSERT( r.GetSinglePrecision() == false );    // not yet told
+
+        int n = 0;
+        TEST_ASSERT( r.ReadRecord( n ) );
+        TEST_ASSERT( n == ( int )vals.size() );
+
+        // Looking ahead at the mixed record settles it, and leaves the file alone.
+        TEST_ASSERT( r.DetectPrecision( n, ( long )dims.size() ) );
+        TEST_ASSERT( r.GetSinglePrecision() == ( single != 0 ) );
+
+        vector < double > rvals( n );
+        vector < int > rdims( dims.size() );
+        TEST_ASSERT( r.BeginRecord() );
+        r.Read( rvals );
+        r.Read( rdims );
+        TEST_ASSERT( r.GetRecordRemaining() == 0 );
+        TEST_ASSERT( r.EndRecord() );
+
+        for ( int i = 0; i < n; i++ )
+        {
+            TEST_ASSERT( rvals[i] == vals[i] );
+        }
+
+        // It works on an open record too.
+        TEST_ASSERT( r.BeginRecord() );
+        r.SetSinglePrecision( single == 0 );               // put it back wrong
+        TEST_ASSERT( r.DetectPrecision( n ) );
+        TEST_ASSERT( r.GetSinglePrecision() == ( single != 0 ) );
+        TEST_ASSERT( r.EndRecord() );
+    }
+
+    // The answer is only as good as the count.  Four doubles fill the same record as
+    // eight floats, so a count out by a factor of two is answered confidently and wrong,
+    // while a count that fits neither reading is refused.
+    {
+        UnformattedOut u;
+        TEST_ASSERT( u.Open( fname ) );
+        vector < double > four( 4, 1.5 );
+        u.WriteRecord( four );
+    }
+
+    {
+        UnformattedIn r;
+        TEST_ASSERT( r.Open( fname ) );
+
+        TEST_ASSERT( r.DetectPrecision( 4 ) );             // 32 bytes: four doubles
+        TEST_ASSERT( r.GetSinglePrecision() == false );
+
+        TEST_ASSERT( r.DetectPrecision( 8 ) );             // or eight floats
+        TEST_ASSERT( r.GetSinglePrecision() == true );
+
+        TEST_ASSERT( !r.DetectPrecision( 5 ) );            // and neither of five
+        TEST_ASSERT( r.GetSinglePrecision() == true );     // left as it was
+    }
+
+    // Reading past the end of a record is caught rather than run into the next one.
+    {
+        UnformattedOut u;
+        TEST_ASSERT( u.Open( fname ) );
+        u.WriteRecord( 3 );
+        u.WriteRecord( 4 );
+    }
+
+    {
+        UnformattedIn r;
+        TEST_ASSERT( r.Open( fname ) );
+        TEST_ASSERT( r.BeginRecord() );
+
+        int a = 0, b = 0;
+        r.Read( a );
+        TEST_ASSERT( a == 3 );
+        TEST_ASSERT( r.GetRecordRemaining() == 0 );
+
+        r.Read( b );                    // nothing left in this record
+        TEST_ASSERT( !r.IsGood() );
+    }
+
+    remove( fname.c_str() );
 }
 
 void UtilTestSuite::FormatWidthTest()
