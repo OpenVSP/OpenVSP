@@ -437,29 +437,72 @@ void WireGeom::UpdateDrawObj()
 {
     UpdateXFormPts();
 
-    // Keep the existing DrawObj alive across updates -- assigning the meshes in place reuses
-    // their heap allocations from the previous update.
-    if ( m_WireShadeDrawObj_vec.size() != 1 )
+    m_LineDO.m_PntVec.clear();
+    m_LineDO.m_GeomChanged = true;
+
+    // A wireframe that is a single row or column of points -- a Plot3D file of curves reads
+    // in that way, one block per curve with a j dimension of one -- has no quads to make a
+    // mesh out of, and drawing it as one shows nothing.  Draw the polyline instead, and
+    // leave no shaded DrawObj for Geom to make a mesh of.
+    int nrow = ( int ) m_XFormPts.size();
+    int ncol = 0;
+    if ( nrow > 0 )
+    {
+        ncol = ( int ) m_XFormPts[0].size();
+    }
+
+    if ( ( nrow == 1 && ncol > 1 ) || ( ncol == 1 && nrow > 1 ) )
     {
         m_WireShadeDrawObj_vec.clear();
-        m_WireShadeDrawObj_vec.resize( 1 );
+
+        vector < vec3d > line_pnts;
+        if ( ncol == 1 )
+        {
+            line_pnts.reserve( nrow );
+            for ( int i = 0; i < nrow; i++ )
+            {
+                line_pnts.push_back( m_XFormPts[i][0] );
+            }
+        }
+        else
+        {
+            line_pnts = m_XFormPts[0];
+        }
+
+        // VSP_LINES takes a point pair per segment.
+        m_LineDO.m_PntVec.reserve( 2 * ( line_pnts.size() - 1 ) );
+        for ( int i = 0; i < ( int ) line_pnts.size() - 1; i++ )
+        {
+            m_LineDO.m_PntVec.push_back( line_pnts[i] );
+            m_LineDO.m_PntVec.push_back( line_pnts[i + 1] );
+        }
     }
-    m_WireShadeDrawObj_vec[0].m_FlipNormals = false;
-    m_WireShadeDrawObj_vec[0].m_GeomChanged = true;
-
-    m_WireShadeDrawObj_vec[0].m_PntMesh.resize( 1 );
-    m_WireShadeDrawObj_vec[0].m_PntMesh[0] = m_XFormPts;
-    m_WireShadeDrawObj_vec[0].m_NormMesh.resize( 1 );
-    m_WireShadeDrawObj_vec[0].m_NormMesh[0] = m_XFormNorm;
-
-    // Dummy texture coordinates matching the point mesh shape.
-    m_WireShadeDrawObj_vec[0].m_uTexMesh.resize( 1 );
-    m_WireShadeDrawObj_vec[0].m_uTexMesh[0].resize( m_XFormPts.size() );
-    for ( int i = 0; i < m_XFormPts.size(); i++ )
+    else
     {
-        m_WireShadeDrawObj_vec[0].m_uTexMesh[0][i].assign( m_XFormPts[0].size(), 0.0 );
+        // Keep the existing DrawObj alive across updates -- assigning the meshes in place
+        // reuses their heap allocations from the previous update.
+        if ( m_WireShadeDrawObj_vec.size() != 1 )
+        {
+            m_WireShadeDrawObj_vec.clear();
+            m_WireShadeDrawObj_vec.resize( 1 );
+        }
+        m_WireShadeDrawObj_vec[0].m_FlipNormals = false;
+        m_WireShadeDrawObj_vec[0].m_GeomChanged = true;
+
+        m_WireShadeDrawObj_vec[0].m_PntMesh.resize( 1 );
+        m_WireShadeDrawObj_vec[0].m_PntMesh[0] = m_XFormPts;
+        m_WireShadeDrawObj_vec[0].m_NormMesh.resize( 1 );
+        m_WireShadeDrawObj_vec[0].m_NormMesh[0] = m_XFormNorm;
+
+        // Dummy texture coordinates matching the point mesh shape.
+        m_WireShadeDrawObj_vec[0].m_uTexMesh.resize( 1 );
+        m_WireShadeDrawObj_vec[0].m_uTexMesh[0].resize( m_XFormPts.size() );
+        for ( int i = 0; i < m_XFormPts.size(); i++ )
+        {
+            m_WireShadeDrawObj_vec[0].m_uTexMesh[0][i].assign( m_XFormPts[0].size(), 0.0 );
+        }
+        m_WireShadeDrawObj_vec[0].m_vTexMesh = m_WireShadeDrawObj_vec[0].m_uTexMesh;
     }
-    m_WireShadeDrawObj_vec[0].m_vTexMesh = m_WireShadeDrawObj_vec[0].m_uTexMesh;
 
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
     m_HighlightDrawObj.m_GeomChanged = true;
@@ -518,6 +561,26 @@ void WireGeom::UpdateDrawObj()
             m_FeatureDrawObj_vec[1].m_GeomChanged = true;
         }
     }
+}
+
+void WireGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    Geom::LoadDrawObjs( draw_obj_vec );
+
+    // Empty unless the wireframe is one point wide, in which case it holds the polyline and
+    // there is no shaded DrawObj beside it.
+    m_LineDO.m_GeomID = m_ID + "Line";
+    m_LineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_LineDO.m_Type = DrawObj::VSP_LINES;
+    m_LineDO.m_LineWidth = 2.0;
+    m_LineDO.m_LineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                  m_GuiDraw.GetWireColor().y() / 255.0,
+                                  m_GuiDraw.GetWireColor().z() / 255.0 );
+    m_LineDO.m_Visible = GetSetFlag( vsp::SET_SHOWN ) &&
+                         m_GuiDraw.GetDisplayType() == vsp::DISPLAY_TYPE::DISPLAY_BEZIER &&
+                         m_GuiDraw.GetDrawType() != vsp::DRAW_TYPE::GEOM_DRAW_NONE;
+
+    draw_obj_vec.push_back( &m_LineDO );
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//

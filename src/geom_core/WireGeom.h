@@ -22,6 +22,7 @@ public:
     virtual void UpdateSurf() override;
     virtual void UpdateXForm() override;
     virtual void UpdateDrawObj() override;
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 
     virtual void Scale() override;
     // Put the main points where this Geom sits, and work out the normals there.  Called
@@ -70,6 +71,10 @@ public:
     IntParm m_JEndPatchType;
 
 protected:
+
+    // The wireframe drawn as a polyline, for the case where it is a single row or column of
+    // points and there are no quads to make a mesh out of.  Empty otherwise.
+    DrawObj m_LineDO;
 
     vector < vector < vec3d > > m_WirePts;
 
