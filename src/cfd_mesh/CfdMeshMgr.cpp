@@ -2921,6 +2921,134 @@ static void WritePOGSFunctionFile( const string &fn, const vector < vector < int
     fclose( fp );
 }
 
+// Write the geometric component file, which names the faces in human readable groups.
+// A component here is one surface of one Geom, named for the Geom, the surface's number
+// within it and the Geom's ID, so a Geom named Wing with a symmetric pair contributes
+// Wing_0_<ID> and Wing_1_<ID>, each owning the faces its surface was split into.
+//
+// The face list accepts ranges as well as single entries; single entries are written
+// throughout, which is always correct whatever order the faces came out in.
+void CfdMeshMgrSingleton::WritePOGSCompFile( const string &fn, const vector < int > &face_surf_vec )
+{
+    FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    // One component per surface of each Geom, keyed on its name, which holds the Geom's ID.  The
+    // Geom's name alone will not do -- nothing stops two Geoms sharing one -- and nor will the
+    // component id, which is shared by components whose surfaces meet.
+    //
+    // Components come out in the order their first face appears, so the file reads in step
+    // with the face numbering.
+    vector < string > comp_name_vec;
+    vector < vector < int > > comp_face_vec;
+
+    for ( int iface = 0; iface < ( int )face_surf_vec.size(); iface++ )
+    {
+        Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
+
+        string name = "Unnamed";
+
+        if ( srf )
+        {
+            if ( !srf->GetName().empty() )
+            {
+                // The surface's number within its Geom, which counts symmetry copies
+                // separately -- the main surface id does not, so a symmetric pair would
+                // otherwise share a name.
+                name = srf->GetName() + "_" + to_string( srf->GetFeaPartSurfNum() ) + "_" + srf->GetGeomID();
+            }
+            else if ( srf->GetFarFlag() )
+            {
+                name = "FarField";
+            }
+            else if ( srf->GetSymPlaneFlag() )
+            {
+                name = "SymmetryPlane";
+            }
+            else
+            {
+                name = "Surface";
+            }
+        }
+
+        int icomp = -1;
+        for ( int i = 0; i < ( int )comp_name_vec.size(); i++ )
+        {
+            if ( comp_name_vec[i] == name )
+            {
+                icomp = i;
+            }
+        }
+
+        if ( icomp < 0 )
+        {
+            icomp = comp_name_vec.size();
+            comp_name_vec.push_back( name );
+            comp_face_vec.push_back( vector < int >() );
+        }
+
+        comp_face_vec[icomp].push_back( iface + 1 );
+    }
+
+    for ( int i = 0; i < ( int )comp_name_vec.size(); i++ )
+    {
+        fprintf( fp, "%s\n", comp_name_vec[i].c_str() );
+
+        for ( int j = 0; j < ( int )comp_face_vec[i].size(); j++ )
+        {
+            if ( j > 0 )
+            {
+                fprintf( fp, "," );
+            }
+            fprintf( fp, "%d", comp_face_vec[i][j] );
+        }
+
+        fprintf( fp, "\n\n" );
+    }
+
+    fclose( fp );
+}
+
+// Write the pogs input file.  Only the grid control parameters on the second and third
+// lines matter much to start with, and the user is expected to edit them; these are the
+// defaults egads2srf writes, with the mesh spacing taken from the CFD Mesh base length
+// rather than guessed at.
+void CfdMeshMgrSingleton::WritePOGSInputFile( const string &fn, const string &rootname, int isym )
+{
+    FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    double sharp = 20.0;        // Dihedral angle above which an edge counts as sharp
+    double turntmax = 30.0;     // Max turning angle
+    double tolsp = 1.0e-6;      // Seam point tolerance
+    double tolonse = 1.0e-5;    // On-seam tolerance
+
+    int npmin = 11;             // Min points in each direction
+    double srmax = GetGridDensityPtr()->m_GrowRatio;         // Max stretching ratio
+    double dsm = GetGridDensityPtr()->GetBaseLen();          // Max grid spacing at curve interior
+    double maxa = 360.0 / GetGridDensityPtr()->m_NCircSeg;   // Max dihedral angle, degrees
+
+    int nfringe = 2;            // Fringe layers
+    double stenqual = 1.0;      // Donor stencil quality below which a point is an orphan
+    double dswall = 1.0e-4;     // Wall normal spacing for the volume grids
+    double dobnd = -10.0;       // Outer boundary marching distance
+
+    fprintf( fp, "%s\n\n", rootname.c_str() );
+    fprintf( fp, "%9.3f%9.3f%14.5E%14.5E   SHARP,TURNTMAX,TOLSP,TOLONSE\n", sharp, turntmax, tolsp, tolonse );
+    fprintf( fp, "%5d%9.3f%14.5E%9.3f   NPMIN,SRMAX,DSM,MAXA\n", npmin, srmax, dsm, maxa );
+    fprintf( fp, "%5d%5d%8.2f%14.5E%8.2f   ISYM,NFRINGE,STENQUAL,DSWALL,DOBND\n", isym, nfringe, stenqual, dswall, dobnd );
+
+    fclose( fp );
+}
+
 // Write the faces as Plot3D surface blocks with an iblank tag.  Each block is one face
 // sampled along its own tessellation lines; the surfaces are not trimmed, so a sample
 // that trimming removed is marked off the geometry with an iblank of zero.
@@ -3055,6 +3183,10 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     uv_fn.append( ".uv" );  // Currently unused, but filename passed through
     // string cuv_fn = base;
     // cuv_fn.append( ".cuv" ); // Currently unused.
+    string gcomp_fn = base;
+    gcomp_fn.append( ".gcomp" );
+    string pogsi_fn = base;
+    pogsi_fn.append( ".pogs.i" );
 
     // ISYM says what symmetry the body has: 0 for a closed body, 1/2/3 for a half body
     // on the +x/+y/+z side and the negatives for the other side, 11/12/13 for a full body
@@ -3469,7 +3601,18 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
         cuv_var_vec.push_back( var );
     }
 
+    // The pogs input file names the case on its first line, without a path.
+    string rootname = base;
+    size_t slash = rootname.find_last_of( "/\\" );
+    if ( slash != string::npos )
+    {
+        rootname.erase( 0, slash + 1 );
+    }
+
     WritePOGSSurfFile( uvin_fn, uv_fn, face_surf_vec );
+
+    WritePOGSCompFile( gcomp_fn, face_surf_vec );
+    WritePOGSInputFile( pogsi_fn, rootname, isym );
 
     FILE* cur_fp = fopen( cur_fn.c_str(), "w" );
 

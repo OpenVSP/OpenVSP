@@ -165,6 +165,8 @@ public:
     virtual void WriteFacet( const string &facet_fn );
     virtual void WritePOGS( const string &pogs_fn );
     virtual void WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn, const vector < int > &face_surf_vec );
+    virtual void WritePOGSCompFile( const string &fn, const vector < int > &face_surf_vec );
+    virtual void WritePOGSInputFile( const string &fn, const string &rootname, int isym );
     virtual bool PntInsideOtherComp( const vec3d &pnt, int comp_id, double x_dist );
 
 
