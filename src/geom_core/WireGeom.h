@@ -32,7 +32,7 @@ public:
     virtual void UpdateBBox() override;
     virtual Matrix4d GetTotalTransMat() const;
 
-    virtual void ReadP3D( FILE* fp, int ni, int nj, int nk );
+    virtual void ReadP3D( FILE* fp, int ni, int nj, int nk, int nvar = 3 );
     virtual void ReadXSec( FILE* fp );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node ) override;

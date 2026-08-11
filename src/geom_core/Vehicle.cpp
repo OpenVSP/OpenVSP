@@ -6452,6 +6452,39 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
             fscanf( fp, "%d %d %d\n", &ni[c], &nj[c], &nk[c] );
         }
 
+        // A Plot3D grid file gives no header notice of how many arrays each block
+        // carries -- two for a planar grid, three for x, y and z, or four when an iblank
+        // tag follows them.  Reading three from a file that holds four leaves every block
+        // after the first starting an array late, so the tags arrive as coordinates.  The
+        // file is nothing but numbers, so counting them settles it: the count past the
+        // dimensions divides by the total number of points.
+        long ntot = 0;
+        for ( int c = 0 ; c < num_comps ; c++ )
+        {
+            ntot += ( long )ni[c] * nj[c] * nk[c];
+        }
+
+        int nvar = 3;
+
+        long pos = ftell( fp );
+        long ndata = 0;
+        double val;
+        while ( fscanf( fp, "%lf", &val ) == 1 )
+        {
+            ndata++;
+        }
+        fseek( fp, pos, SEEK_SET );
+
+        if ( ntot > 0 && ndata % ntot == 0 )
+        {
+            long nv = ndata / ntot;
+
+            if ( nv >= 2 && nv <= 4 )
+            {
+                nvar = ( int )nv;
+            }
+        }
+
         // Make sure blank gets added to top level.
         // Consider removing this to make blank added as child of active.
         ClearActiveGeom();
@@ -6479,7 +6512,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
             WireGeom* new_geom = ( WireGeom* )FindGeom( cid );
             if ( new_geom )
             {
-                new_geom->ReadP3D( fp, ni[c], nj[c], nk[c] );
+                new_geom->ReadP3D( fp, ni[c], nj[c], nk[c], nvar );
                 new_geom->SetDirtyFlag( GeomBase::SURF );
             }
         }

@@ -757,15 +757,18 @@ void WireGeom::UpdateBBox()
     }
 }
 
-void WireGeom::ReadP3D( FILE* fp, int ni, int nj, int nk )
+// nvar is how many arrays a block carries: two for a planar grid, three for x, y and z,
+// and four when an iblank tag rides along behind them.  Every array has to be read
+// whether or not it is kept, or the next block starts at the wrong place.
+void WireGeom::ReadP3D( FILE* fp, int ni, int nj, int nk, int nvar )
 {
     m_WirePts.resize( ni );
     for ( int i = 0 ; i < ni ; i++ )
     {
-        m_WirePts[i].resize(nj);
+        m_WirePts[i].resize( nj, vec3d() );
     }
 
-    for ( int ix = 0; ix < 3; ix++ )
+    for ( int ix = 0; ix < nvar; ix++ )
     {
         for ( int k = 0; k < nk; k++ )
         {
@@ -775,7 +778,7 @@ void WireGeom::ReadP3D( FILE* fp, int ni, int nj, int nk )
                 {
                     double xi;
                     fscanf( fp, "%lf ", &xi );
-                    if ( k == 0 )  // Only store k=0 surface
+                    if ( k == 0 && ix < 3 )  // Only store k=0 surface, and only coordinates
                     {
                         m_WirePts[i][j].v[ix] = xi;
                     }
