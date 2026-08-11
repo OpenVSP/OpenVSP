@@ -252,6 +252,9 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_FarZLocation.Init( "FarZLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
     m_FarZLocation.SetDescript( "Far field Z location" );
 
+    m_POGSNRef.Init( "POGSNRef", "Global", this, 0, 0, 6 );
+    m_POGSNRef.SetDescript( "Number of tessellation refinements for POGS surface output" );
+
     m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 

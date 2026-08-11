@@ -103,6 +103,8 @@ public:
     bool m_FarManLocFlag;
     bool m_FarAbsSizeFlag;
 
+    int m_POGSNRef;
+
     string m_FarGeomID;
 
     double m_FarXScale; // Check FractionParm to double is appropriate data conversion

@@ -171,6 +171,8 @@ public:
     BoolParm m_DrawBadFlag;
     BoolParm m_DrawWakeFlag;
 
+    IntParm m_POGSNRef;
+
     IntParm m_SelectedSetIndex;
     IntParm m_SelectedDegenSetIndex;
 

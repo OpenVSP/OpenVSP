@@ -176,6 +176,8 @@ void SimpleIntersectSettings::CopyFrom( IntersectSettings* settings )
 
 SimpleCfdMeshSettings::SimpleCfdMeshSettings()
 {
+    m_POGSNRef = 0;
+
     m_FarManLocFlag = false;
     m_FarAbsSizeFlag = false;
 
@@ -209,6 +211,8 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
 {
     m_FarManLocFlag = settings->m_FarManLocFlag.Get();
     m_FarAbsSizeFlag = settings->m_FarAbsSizeFlag.Get();
+
+    m_POGSNRef = settings->m_POGSNRef.Get();
 
     m_FarGeomID = settings->m_FarGeomID;
 

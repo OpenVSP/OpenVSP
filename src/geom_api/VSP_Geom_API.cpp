@@ -676,6 +676,8 @@ double GetCFDMeshVal( int type )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation();
     else if ( type == CFD_PARALLEL_MESH_FLAG )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_ParallelMeshFlag();
+    else if ( type == CFD_POGS_NUM_REFINE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_POGSNRef();
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "GetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
@@ -736,6 +738,8 @@ void SetCFDMeshVal( int type, double val )
         GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation = val;
     else if ( type == CFD_PARALLEL_MESH_FLAG )
         GetVehicle()->GetCfdSettingsPtr()->m_ParallelMeshFlag = ToBool(val);
+    else if ( type == CFD_POGS_NUM_REFINE )
+        GetVehicle()->GetCfdSettingsPtr()->m_POGSNRef = val;
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
