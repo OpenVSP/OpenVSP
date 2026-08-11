@@ -2618,9 +2618,8 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     innerTopLeft = vec3d(corners[5][0], outerTopLeft[1], corners[5][2]);
 
     //Checks to see if inner plane is outside of outer plane
-    if ((innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
-            || innerTopLeft.z() > outerTopLeft.z() ||  innerBottomLeft.z() < outerBottomLeft.z())
-        && GetCfdSettingsPtr()->m_FarManLocFlag)
+    if ( innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
+      || innerTopLeft.z() > outerTopLeft.z() || innerBottomLeft.z() < outerBottomLeft.z() )
     {
         isInside = false;
     }
@@ -2793,6 +2792,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
         domainSurfs[i]->GetSurfCore()->MakePlaneSurf( pt0, pt1, pt2, pt3 );
         domainSurfs[i]->GetSurfCore()->BuildPatches( domainSurfs[i] );
+        domainSurfs[i]->SetFlipFlag( false );
     }
     return domainSurfs;
 }
@@ -4133,10 +4133,9 @@ void CfdMeshMgrSingleton::UpdateBBoxDOSymSplit( const BndBox &box )
     innerTopRight = vec3d(corners[6][0], outerTopRight[1], corners[6][2]);
     innerTopLeft = vec3d(corners[5][0], outerTopLeft[1], corners[5][2]);
 
-    //Checks to see if inner plane is outside of outer plane
-    if (!((innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
-         || innerTopLeft.z() > outerTopLeft.z() ||  innerBottomLeft.z() < outerBottomLeft.z())
-        && GetCfdSettingsPtr()->m_FarManLocFlag))
+    // Checks to see if inner plane is outside of outer plane
+    if (! ( innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
+         || innerTopLeft.z() > outerTopLeft.z() || innerBottomLeft.z() < outerBottomLeft.z()) )
     {
         //=== Symmetry Plane InnerBox as 'line strips' ===//
         temp = innerBottomLeft;
