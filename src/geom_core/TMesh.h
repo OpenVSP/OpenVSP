@@ -476,6 +476,8 @@ public:
     virtual void DecodeXml( xmlNodePtr & node );
     virtual xmlNodePtr EncodeTriList( xmlNodePtr & node );
     virtual void DecodeTriList( xmlNodePtr & node, int num_tris );
+    virtual xmlNodePtr EncodeTagList( xmlNodePtr & node );
+    virtual void DecodeTagList( xmlNodePtr & node );
 
     void LoadGeomAttributes( const Geom* geomPtr );
     int  RemoveDegenerate();

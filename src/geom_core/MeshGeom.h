@@ -136,6 +136,16 @@ protected:
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
 
+    // Work out which DrawObj draws each tag combination this MeshGeom's own triangles carry.
+    //
+    // SubSurfaceMgr keeps a map like this, but it is global and is cleared and rebuilt from
+    // scratch by whichever meshing operation ran last.  A MeshGeom that draws out of it
+    // draws by whatever happens to be registered rather than by what it holds, which is no
+    // use to a mesh read from a file or restored from a saved model.  PGMulti snapshots the
+    // map for the same reason.
+    virtual void UpdateTagMap();
+    map< vector < int >, int > m_SingleTagMap;
+
     virtual void ApplyScale(); // this is for intersectTrim
     vector<TMesh*> m_SubSurfVec;
 

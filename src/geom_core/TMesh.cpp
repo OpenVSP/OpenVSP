@@ -3667,6 +3667,7 @@ xmlNodePtr TMesh::EncodeXml( xmlNodePtr & node )
     xmlNodePtr tmesh_node = xmlNewChild( node, nullptr, BAD_CAST "TMesh", nullptr );
     XmlUtil::AddIntNode( tmesh_node, "Num_Tris", ( int )m_TVec.size() );
     EncodeTriList( tmesh_node );
+    EncodeTagList( tmesh_node );
     return tmesh_node;
 }
 
@@ -3684,6 +3685,65 @@ xmlNodePtr TMesh::EncodeTriList( xmlNodePtr & node )
         XmlUtil::AddVectorVec3dNode( tri_list_node, "Tri", tri );
     }
     return tri_list_node;
+}
+
+// The tags a triangle carries are what tells the parts of a mesh apart -- the component it
+// came from, and any sub-surfaces it falls in -- so they are worth keeping alongside the
+// triangles themselves.  A triangle may carry any number of them, so rather than a node per
+// triangle they go down end to end, behind a count per triangle.
+//
+// The numbers only mean something next to the names the tag maps hold for them, which are
+// written by whoever owns the mesh.  Nothing is written for a mesh whose triangles are
+// untagged.
+xmlNodePtr TMesh::EncodeTagList( xmlNodePtr & node )
+{
+    vector < int > ntagvec( m_TVec.size(), 0 );
+    vector < int > tagvec;
+
+    for ( int i = 0 ; i < ( int ) m_TVec.size() ; i++ )
+    {
+        ntagvec[i] = ( int )m_TVec[i]->m_Tags.size();
+        tagvec.insert( tagvec.end(), m_TVec[i]->m_Tags.begin(), m_TVec[i]->m_Tags.end() );
+    }
+
+    if ( tagvec.empty() )
+    {
+        return nullptr;
+    }
+
+    xmlNodePtr tag_list_node = xmlNewChild( node, nullptr, BAD_CAST "Tag_List", nullptr );
+    XmlUtil::AddVectorIntNode( tag_list_node, "Num_Tags", ntagvec );
+    XmlUtil::AddVectorIntNode( tag_list_node, "Tags", tagvec );
+    return tag_list_node;
+}
+
+void TMesh::DecodeTagList( xmlNodePtr & node )
+{
+    xmlNodePtr tag_list_node = XmlUtil::GetNode( node, "Tag_List", 0 );
+    if ( !tag_list_node )
+    {
+        return;
+    }
+
+    vector < int > ntagvec = XmlUtil::ExtractVectorIntNode( tag_list_node, "Num_Tags" );
+    vector < int > tagvec = XmlUtil::ExtractVectorIntNode( tag_list_node, "Tags" );
+
+    if ( ntagvec.size() != m_TVec.size() )
+    {
+        return;
+    }
+
+    int itag = 0;
+    for ( int i = 0 ; i < ( int )m_TVec.size() ; i++ )
+    {
+        if ( itag + ntagvec[i] > ( int )tagvec.size() )
+        {
+            return;
+        }
+
+        m_TVec[i]->m_Tags.assign( tagvec.begin() + itag, tagvec.begin() + itag + ntagvec[i] );
+        itag += ntagvec[i];
+    }
 }
 
 void TMesh::DecodeXml( xmlNodePtr & node )
@@ -3704,6 +3764,8 @@ void TMesh::DecodeXml( xmlNodePtr & node )
 
         DecodeTriList( tri_list_node, num_tris );
     }
+
+    DecodeTagList( node );
 }
 
 void TMesh::DecodeTriList( xmlNodePtr & node, int num_tris )
