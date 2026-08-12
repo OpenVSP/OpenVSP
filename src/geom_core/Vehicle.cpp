@@ -619,6 +619,7 @@ void Vehicle::Wype()
         m_CfdSettings.ResetToInitVals();
         m_ISectSettings.ResetToInitVals();
         m_CfdGridDensity.ResetToInitVals();
+        m_ClippingMgr.ResetToInitVals();
 
         m_UpdatingBBox = was_updating;
     }
@@ -702,7 +703,9 @@ void Vehicle::Wype()
     OldVarPresetMgr.Renew();
     ModeMgr.Renew();
     ParasiteDragMgr.Renew();
+    ProjectionMgr.Renew();
     VSPAEROMgr.Renew();
+    WaveDragMgr.Renew();
     MeasureMgr.Renew();
     Background3DMgr.Renew();
     StructureMgr.Renew();

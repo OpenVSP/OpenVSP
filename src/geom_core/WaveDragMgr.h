@@ -37,6 +37,10 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    // Back to a new instance: the Parms, the Geoms and sub-surfaces named, and the results
+    // of the last slice.
+    virtual void Renew();
+
     void Update();
 
     void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );

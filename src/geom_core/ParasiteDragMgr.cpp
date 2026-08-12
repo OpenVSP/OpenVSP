@@ -146,6 +146,9 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
 
 void ParasiteDragMgrSingleton::Renew()
 {
+    // Every Parm, including the excrescence type and value this used to set by hand.
+    ResetToInitVals();
+
     m_TableRowVec.clear();
     m_ExcresRowVec.clear();
 
@@ -159,9 +162,6 @@ void ParasiteDragMgrSingleton::Renew()
     m_TurbCfEqnName = "Blasius Power Law";
     m_RefGeomID = "";
     m_ModeID = "";
-
-    m_ExcresType = 0;
-    m_ExcresValue = 0;
 
     m_CurrentExcresIndex = -1;
 }

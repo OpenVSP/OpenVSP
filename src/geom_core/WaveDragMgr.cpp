@@ -119,6 +119,48 @@ xmlNodePtr WaveDragSingleton::DecodeXml( xmlNodePtr & node )
     return WaveDragnode;
 }
 
+void WaveDragSingleton::Renew()
+{
+    ResetToInitVals();
+
+    // Named a Geom, and sub-surfaces, that Renew deletes.
+    m_lastmeshgeomID = string();
+    m_RefGeomID = string();
+    m_SSFlow_vec.clear();
+    m_CompIDVec.clear();
+
+    // What the last slice left behind.  Setup sizes most of this again on the next run,
+    // but until then the plot screen is drawing the model that is gone.
+    m_NTheta = 0;
+    m_NComp = 0;
+    m_NSlice = 0;
+    m_AmbigSubSurf = false;
+
+    m_CompSliceAreaDist.clear();
+    m_SliceAreaDist.clear();
+    m_SliceAreaDistFlow.clear();
+
+    m_InletArea = 0.0;
+    m_ExitArea = 0.0;
+
+    m_StartX.clear();
+    m_EndX.clear();
+    m_ThetaRad.clear();
+    m_XNorm.clear();
+
+    m_Volume.clear();
+    m_MaxArea.clear();
+    m_Length.clear();
+    m_MaxMaxArea = 0.0;
+
+    m_CompFitAreaDist.clear();
+    m_BuildupFitAreaDist.clear();
+    m_FitAreaDist.clear();
+    m_FitAreaDistFlow.clear();
+    m_BuildupAreaDist.clear();
+    m_XMaxDrag.clear();
+}
+
 void WaveDragSingleton::Update()
 {
     if( m_RefFlag() == vsp::MANUAL_REF )

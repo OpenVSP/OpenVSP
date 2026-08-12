@@ -145,7 +145,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     //    wake parameters
     m_FixedWakeFlag.Init( "FixedWakeFlag", groupname, this, false, false, true );
     m_FixedWakeFlag.SetDescript( "Flag to enable a fixed wake." );
-    m_WakeNumIter.Init( "WakeNumIter", groupname, this, 3, 3, 255 );
+    m_WakeNumIter.Init( "WakeNumIter", groupname, this, 5, 3, 255 );
     m_WakeNumIter.SetDescript( "Number of wake iterations to execute" );
 
     // m_NumWakeNodes no longer must be a power of two.
@@ -197,7 +197,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CpSliceYMin.Init( "m_CpSliceYMin", groupname, this, -1, -1e12, 1e12 );
     m_CpSliceYMax.Init( "m_CpSliceYMax", groupname, this, 1, -1e12, 1e12 );
 
-    m_CpSliceYAxisFlipFlag.Init( "CpSliceYAxisFlipFlag", groupname, this, true, false, true );
+    m_CpSliceYAxisFlipFlag.Init( "CpSliceYAxisFlipFlag", groupname, this, false, false, true );
     m_CpSliceYAxisFlipFlag.SetDescript( "Flag to Flip Y Axis in Cp Slice Plot" );
     m_CpSlicePlotLinesFlag.Init( "CpSlicePlotLinesFlag", groupname, this, true, false, true );
     m_CpSlicePlotLinesFlag.SetDescript( "Flag to Plot Lines" );
@@ -385,6 +385,9 @@ void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 
 void VSPAEROMgrSingleton::Renew()
 {
+    // Every Parm this used to set one at a time, and the ones it missed.
+    ResetToInitVals();
+
     for(size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i)
     {
         delete m_ControlSurfaceGroupVec[i];
@@ -408,156 +411,17 @@ void VSPAEROMgrSingleton::Renew()
 
     ClearUnsteadyGroupVec();
 
-
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
 
-    m_GeomSet.Set( vsp::SET_NONE );
-    m_ThinGeomSet.Set( DEFAULT_SET );
-
-    m_UseMode.Set( false );
     m_ModeID = "";
 
-    m_CGUseMode.Set( false );
     m_CGModeID = "";
 
     m_RefGeomID = "";
 
-    m_NRef.Set( 0 );
-
-    m_CullFrac.Set( 0.03 );
-    m_CullFracFlag.Set( false );
-    m_FindBodyWakesFlag.Set( false );
-
-    m_RefFlag.Set( vsp::MANUAL_REF );
-    m_MACFlag.Set( false );
-    m_SCurveFlag.Set( false );
-    m_Sref.Set( 100 );
-    m_bref.Set( 1.0 );
-    m_cref.Set( 1.0 );
-
-    m_CGGeomSet.Set( DEFAULT_SET );
-    m_CGDegenSet.Set( vsp::SET_NONE );
-    m_NumMassSlice.Set( 10 );
-    m_MassSliceDir.Set( vsp::X_DIR );
-    m_Xcg.Set( 0.0 );
-    m_Ycg.Set( 0.0 );
-    m_Zcg.Set( 0.0 );
-
-    m_AlphaStart.Set( 0.0 ); m_AlphaEnd.Set( 10 ); m_AlphaNpts.Set( 3 );
-    m_BetaStart.Set( 0.0 ); m_BetaEnd.Set( 0.0 ); m_BetaNpts.Set( 1 );
-    m_MachStart.Set( 0.0 ); m_MachEnd.Set( 0.0 ); m_MachNpts.Set( 1 );
-    m_ReCrefStart.Set( 1.0e7 ); m_ReCrefEnd.Set( 2.0e7 ); m_ReCrefNpts.Set( 1 );
-
-    m_Symmetry.Set( false );
-    m_StabilityType.Set( vsp::STABILITY_OFF );
-
-    m_PropBladesMode.Set( vsp::VSPAERO_PROP_STATIC );
-
-    m_NCPU.Set( 4 );
-
     m_StopBeforeRun = false;
-
-    m_FixedWakeFlag.Set( false );
-    m_WakeNumIter.Set( 5 );
-    m_NumWakeNodes.Set( 8 );
-
-    m_StallModel.Set( vsp::STALL_OFF );
-    m_GroundEffectToggle.Set( false );
-    m_GroundEffect.Set( -1 );
-    m_FromSteadyState.Set( false );
-    m_NumWakeNodes.Set( 8 );
-
-    m_LoadDistXMax.Set( 1 );
-    m_LoadDistYMin.Set( -1 );
-    m_LoadDistYMax.Set( 1 );
-
-    m_SweepXMinIsManual.Set( 0 );
-    m_SweepXMaxIsManual.Set( 0 );
-    m_SweepYMinIsManual.Set( 0 );
-    m_SweepYMaxIsManual.Set( 0 );
-    m_SweepXMin.Set( -1 );
-    m_SweepXMax.Set( 1 );
-    m_SweepYMin.Set( -1 );
-    m_SweepYMax.Set( 1 );
-
-    m_CpSliceXMinIsManual.Set( 0 );
-    m_CpSliceXMaxIsManual.Set( 0 );
-    m_CpSliceYMinIsManual.Set( 0 );
-    m_CpSliceYMaxIsManual.Set( 0 );
-    m_CpSliceXMin.Set( -1 );
-    m_CpSliceXMax.Set( 1 );
-    m_CpSliceYMin.Set( -1 );
-    m_CpSliceYMax.Set( 1 );
-
-    m_CpSliceYAxisFlipFlag.Set( false );
-    m_CpSlicePlotLinesFlag.Set( true );
-
-    m_UnsteadyXMinIsManual.Set( 0 );
-    m_UnsteadyXMaxIsManual.Set( 0 );
-    m_UnsteadyYMinIsManual.Set( 0 );
-    m_UnsteadyYMaxIsManual.Set( 0 );
-    m_UnsteadyXMin.Set( -1 );
-    m_UnsteadyXMax.Set( 1 );
-    m_UnsteadyYMin.Set( -1 );
-    m_UnsteadyYMax.Set( 1 );
-
-    m_UnsteadyGroupSelectType.Set( UNSTEADY_TYPE_SELECT::HISTORY_SELECT_TYPE );
-    m_LoadDistSelectType.Set( LOAD_TYPE_SELECT::LOAD_SELECT_TYPE );
-
-    // Other Setup Parameters );
-    m_Vinf.Set( 100 );
-    m_Rho.Set( 0.002377 );
-    m_Vref.Set( 100 );
-    m_ManualVrefFlag.Set( false );
-
-    m_Machref.Set( 0.3 );
-
-    m_Write2DFEMFlag.Set( false );
-    m_WriteTecplotFlag.Set( false );
-    m_Clo2D.Set( 0 );
-
-    m_CLMax2D.Set( 1 );
-    m_FarDist.Set( -1 );
-    m_FarDistToggle.Set( false );
-    m_CpSliceFlag.Set( true );
-
-    m_FreezeMultiPoleAtIteration.Set( 10000 );
-    m_FreezeWakeAtIteration.Set( 10000 );
-    m_FreezeWakeRootVortices.Set( false );
-
-    m_ImplicitWake.Set( false );
-    m_ImplicitWakeStartIteration.Set( 0 );
-    m_WakeRelax.Set( 1 );
-
-    m_ForwardGMRESConvergenceFactor.Set( 1 );
-    m_AdjointGMRESConvergenceFactor.Set( 1 );
-    m_NonLinearConvergenceFactor.Set( 1 );
-
-    m_CoreSizeFactor.Set( 1 );
-    m_FarAway.Set( 5 );
-
-    m_UpdateMatrixPreconditioner.Set( false );
-    m_UseWakeNodeMatrixPreconditioner.Set( false );
-
-    m_QuadTreeBufferLevels.Set( 0 );
-
-    // Unsteady );
-    m_TimeStepSize.Set( 1.00E-03 );
-    m_NumTimeSteps.Set( 25 );
-    m_StartAveragingTimeStep.Set( 1 );
-    m_AutoTimeStepFlag.Set( true );
-    m_AutoTimeNumRevs.Set( 5 );
-    m_HoverRampFlag.Set( false );
-    m_HoverRamp.Set( 0 );
-    m_FromSteadyState.Set( false );
-
-    m_NoiseCalcFlag.Set( false );
-    m_NoiseCalcType.Set( vsp::NOISE_FLYBY );
-    m_NoiseUnits.Set( vsp::NOISE_SI );
-
-    m_UniformPropRPMFlag.Set( true );
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
