@@ -376,6 +376,24 @@ void WireGeom::UpdateSurf()
     // Calculate normal vectors.
 }
 
+// A lofted Geom keeps its surface in its own coordinates and is placed downstream of
+// UpdateSurf, so moving it does not mean lofting it again -- which is why Geom::Update runs
+// UpdateSurf only when the surface itself is dirty.  A wireframe has no surface to place:
+// UpdateSurf is where the transform is worked into m_XFormPts, and everything downstream --
+// the bounding box, the draw objects, the meshes handed to CompGeom and the exporters --
+// reads those points.  So moving it does mean building it again, or it stays where it was
+// last built.
+void WireGeom::UpdateXForm()
+{
+    Geom::UpdateXForm();
+
+    // Geom::Update calls UpdateSurf right after this when the surface is dirty too.
+    if ( !m_SurfDirty )
+    {
+        UpdateSurf();
+    }
+}
+
 void WireGeom::PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > &oppositerow, int type, vector < vec3d > &newrow )
 {
     if ( type == vsp::PATCH_POINT )

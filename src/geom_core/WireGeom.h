@@ -20,6 +20,7 @@ public:
     virtual ~WireGeom();
 
     virtual void UpdateSurf() override;
+    virtual void UpdateXForm() override;
     virtual void UpdateDrawObj() override;
 
     virtual void Scale() override;
