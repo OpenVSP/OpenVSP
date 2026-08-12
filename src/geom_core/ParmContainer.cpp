@@ -102,6 +102,20 @@ void ParmContainer::RemoveParm( const string& id )
     vector_remove_val( m_ParmVec, id );
 }
 
+//==== Put Every Parm Back The Way A New One Starts ====//
+void ParmContainer::ResetToInitVals()
+{
+    for ( int i = 0; i < ( int )m_ParmVec.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+
+        if ( p )
+        {
+            p->ResetToInitVal();
+        }
+    }
+}
+
 //==== Return Pointer To Parent Container ====//
 ParmContainer* ParmContainer::GetParentContainerPtr() const
 {

@@ -45,6 +45,10 @@ public:
     virtual void AddParm( const string & id );
     virtual void RemoveParm( const string & id );
 
+    // Put every Parm in the container back the way a new one starts.  A container with
+    // state that is not a Parm has more to do and should extend this.
+    virtual void ResetToInitVals();
+
     virtual string GetParentContainer() const       { return m_ParentContainer; }
     virtual ParmContainer* GetParentContainerPtr() const;
 

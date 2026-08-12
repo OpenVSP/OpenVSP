@@ -99,6 +99,16 @@ public:
     {
         return m_LastVal;
     }
+
+    // The value the Parm was set up with, which is what a new one holds.  Kept so a Parm --
+    // and through ParmContainer, everything in a container -- can be put back that way
+    // without each container having to keep a list of its own defaults.  Such a list has to
+    // be extended by hand every time a Parm is added, and is not.
+    double GetInitVal() const
+    {
+        return m_InitVal;
+    }
+    virtual void ResetToInitVal();
     double operator () () const
     {
         return Get();
@@ -187,6 +197,7 @@ protected:
 
     double m_Val;
     double m_LastVal;
+    double m_InitVal;
     double m_LowerLimit;
     double m_UpperLimit;
 
