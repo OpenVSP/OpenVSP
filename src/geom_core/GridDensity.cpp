@@ -1284,6 +1284,15 @@ GridDensity::~GridDensity()
     ClearSources();
 }
 
+void GridDensity::ResetToInitVals()
+{
+    ParmContainer::ResetToInitVals();
+
+    // The sources belong to the Geoms they were made for, and those are gone.  Left behind,
+    // LoadDrawObjs walks them every time the mesh screen draws.
+    ClearSources();
+}
+
 
 xmlNodePtr GridDensity::EncodeXml( xmlNodePtr & node )
 {

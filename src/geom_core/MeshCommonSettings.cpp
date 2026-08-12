@@ -115,6 +115,15 @@ IntersectSettings::~IntersectSettings()
 {
 }
 
+void IntersectSettings::ResetToInitVals()
+{
+    MeshCommonSettings::ResetToInitVals();
+
+    // The Mode this named is gone.  The export file names are left alone: they are worked
+    // out from the model file name, and Vehicle::Init does that as it names the new model.
+    m_ModeID = string();
+}
+
 xmlNodePtr IntersectSettings::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr structsettingnode = xmlNewChild( node, nullptr, BAD_CAST m_Name.c_str(), nullptr );
@@ -277,6 +286,18 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
 
 CfdMeshSettings::~CfdMeshSettings()
 {
+}
+
+void CfdMeshSettings::ResetToInitVals()
+{
+    MeshCommonSettings::ResetToInitVals();
+
+    // The Geom standing in for the far field, and the Mode, are both gone.  Left behind,
+    // the far field ID names a Geom that no longer exists.  The export file names are left
+    // alone: they are worked out from the model file name, and Vehicle::Init does that as
+    // it names the new model.
+    m_FarGeomID = string();
+    m_ModeID = string();
 }
 
 xmlNodePtr CfdMeshSettings::EncodeXml( xmlNodePtr & node )

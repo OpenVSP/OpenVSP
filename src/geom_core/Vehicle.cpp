@@ -649,6 +649,19 @@ void Vehicle::Wype()
 
     m_BEMPropID = string();
 
+    // Named a Geom that the loop below deletes.
+    m_LastMassMeshID = string();
+
+    // Results of the last run, holding copies of geometry that is going away.
+    m_DegenGeomVec.clear();
+    m_DegenPtMassVec.clear();
+
+    // Counts layers through a DXF or SVG export.  It starts over at each export, so this
+    // only matters for looking the way a new Vehicle does.
+    m_ColorCount = 0;
+
+    m_XSecLineColor = vec3d();
+
     for ( auto it = m_GeomStoreMap.begin(); it != m_GeomStoreMap.end(); ++it )
     {
         delete it->second;

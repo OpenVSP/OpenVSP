@@ -460,6 +460,9 @@ public:
     virtual double GetModelLen() { return 1.0; };
     virtual double GetDomainLen() { return 1.0; };
 
+    // Holds sources belonging to Geoms, which Renew deletes.
+    virtual void ResetToInitVals();
+
     BoolParm m_RigorLimit;
     Parm m_BaseLen;
     Parm m_BaseFrac;

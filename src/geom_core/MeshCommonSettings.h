@@ -74,6 +74,9 @@ public:
     IntersectSettings();
     virtual ~IntersectSettings();
 
+    // Names a Mode, which Renew deletes along with everything else.
+    virtual void ResetToInitVals();
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -111,6 +114,9 @@ class CfdMeshSettings : public MeshCommonSettings
 public:
     CfdMeshSettings();
     virtual ~CfdMeshSettings();
+
+    // Names a Geom and a Mode, both of which Renew deletes.
+    virtual void ResetToInitVals();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
