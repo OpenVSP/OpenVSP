@@ -154,12 +154,12 @@ Vehicle::Vehicle()
     m_DXFColorFlag.Init( "DXFColorFlag", "DXFSettings", this, false, 0, 1 );
     m_DXFColorFlag.SetDescript( "Flag To Make Each Layer A Different Color" );
     m_DXF2D3DFlag.Init( "DimFlag", "DXFSettings", this , vsp::SET_3D, vsp::SET_3D, vsp::SET_2D );
-    m_DXF2DView.Init( "ViewType", "DXFSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
+    m_DXF2DView.Init( "ViewType", "DXFSettings", this, vsp::VIEW_4, vsp::VIEW_1, vsp::VIEW_4 );
     m_DXF2DView.SetDescript( "Sets Number Of 2D Views" );
     m_DXF4View1.Init( "TopLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_DXF4View2.Init( "TopRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_DXF4View3.Init( "BottomLeftView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_DXF4View4.Init( "BottomRightView", "DXFSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View2.Init( "TopRightView", "DXFSettings", this, vsp::VIEW_NONE, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View3.Init( "BottomLeftView", "DXFSettings", this, vsp::VIEW_FRONT, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_DXF4View4.Init( "BottomRightView", "DXFSettings", this, vsp::VIEW_LEFT, vsp::VIEW_LEFT, vsp::VIEW_NONE );
     m_DXF4View1_rot.Init( "TopLeftRotation", "DXFSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
     m_DXF4View2_rot.Init( "TopRightRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
     m_DXF4View3_rot.Init( "BottomLeftRotation", "DXFSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
@@ -176,12 +176,12 @@ Vehicle::Vehicle()
     m_SVGTessFactor.SetDescript( "SVG Tessellation Multiplier. Caution: May Slow Export" );
     m_SVGAllXSecFlag.Init( "SVGAllXSecFlag", "SVGSettings", this, false, 0, 1 );
     m_SVGAllXSecFlag.SetDescript( "Flag To Export XSec Feature Lines" );
-    m_SVGView.Init( "ViewType", "SVGSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
+    m_SVGView.Init( "ViewType", "SVGSettings", this, vsp::VIEW_4, vsp::VIEW_1, vsp::VIEW_4 );
     m_SVGView.SetDescript( "Sets Number Of 2D Views" );
     m_SVGView1.Init( "TopLeftView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_SVGView2.Init( "TopRightView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_SVGView3.Init( "BottomLeftView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
-    m_SVGView4.Init( "BottomRightView", "SVGSettings", this, vsp::VIEW_TOP, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView2.Init( "TopRightView", "SVGSettings", this, vsp::VIEW_NONE, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView3.Init( "BottomLeftView", "SVGSettings", this, vsp::VIEW_FRONT, vsp::VIEW_LEFT, vsp::VIEW_NONE );
+    m_SVGView4.Init( "BottomRightView", "SVGSettings", this, vsp::VIEW_LEFT, vsp::VIEW_LEFT, vsp::VIEW_NONE );
     m_SVGView1_rot.Init( "TopLeftRotation", "SVGSettings", this, vsp::ROT_90, vsp::ROT_0, vsp::ROT_270 );
     m_SVGView2_rot.Init( "TopRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
     m_SVGView3_rot.Init( "BottomLeftRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
@@ -380,8 +380,8 @@ Vehicle::~Vehicle()
 //=== Init ====//
 void Vehicle::Init()
 {
-    // Reset number of sets to default here so it can be used in this function.
-    m_NumUserSets.Set( 20 );
+    // The Parms are back at the values they were set up with by the time this runs -- Wype
+    // resets them -- so the set count the loop below reads is already the default.
 
     //==== Init Custom Geom and Script Mgr ====//
     LightMgr.Init();
@@ -463,102 +463,13 @@ void Vehicle::Init()
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
     m_CG = vec3d( 0, 0, 0 );
-    m_NumMassSlices = 20;
-    m_MassSliceDir = vsp::X_DIR;
     m_TotalMass = 0;
-
-    m_STEPLenUnit.Set( vsp::LEN_FT );
-    m_STEPTol.Set( 1e-6 );
-    m_STEPSplitSurfs.Set( true );
-    m_STEPSplitSubSurfs.Set( false );
-    m_STEPMergePoints.Set( false );
-    m_STEPToCubic.Set( false );
-    m_STEPToCubicTol.Set( 1e-6 );
-    m_STEPTrimTE.Set( false );
-
-    m_IGESLenUnit.Set( vsp::LEN_FT );
-    m_IGESSplitSurfs.Set( true );
-    m_IGESSplitSubSurfs.Set( false );
-    m_IGESToCubic.Set( false );
-    m_IGESToCubicTol.Set( 1e-6 );
-    m_IGESTrimTE.Set( false );
-
-    //=== DXF Initial Conditions ===//
-    m_DXFLenUnit.Set( vsp::LEN_FT );
-    m_DXF2DView.Set( vsp::VIEW_4 );
-    m_DXF2D3DFlag.Set( vsp::SET_3D );
-    m_DXF4View1.Set( vsp::VIEW_TOP );
-    m_DXF4View2.Set( vsp::VIEW_NONE );
-    m_DXF4View3.Set( vsp::VIEW_FRONT );
-    m_DXF4View4.Set( vsp::VIEW_LEFT );
-    m_DXF4View1_rot.Set( vsp::ROT_90 );
-    m_DXF4View2_rot.Set( vsp::ROT_0 );
-    m_DXF4View3_rot.Set( vsp::ROT_0 );
-    m_DXF4View4_rot.Set( vsp::ROT_0 );
-
-    //=== SVG Initial Conditions ===//
-    m_SVGLenUnit.Set( vsp::LEN_FT );
-    m_SVGView.Set( vsp::VIEW_4 );
-    m_SVGView1.Set( vsp::VIEW_TOP );
-    m_SVGView2.Set( vsp::VIEW_NONE );
-    m_SVGView3.Set( vsp::VIEW_FRONT );
-    m_SVGView4.Set( vsp::VIEW_LEFT );
-    m_SVGView1_rot.Set( vsp::ROT_90 );
-    m_SVGView2_rot.Set( vsp::ROT_0 );
-    m_SVGView3_rot.Set( vsp::ROT_0 );
-    m_SVGView4_rot.Set( vsp::ROT_0 );
-
-    m_WorkingXDDMType.Set( vsp::XDDM_VAR );
-
-    m_UType.Set( TargetPt::FREE );
-    m_UTargetPt.Set( 0 );
-    m_WType.Set( TargetPt::FREE );
-    m_WTargetPt.Set( 0 );
-    m_SelectOneFlag.Set( false );
-    m_SelectBoxFlag.Set( false );
-
-    m_TargetType.Set( vsp::SET_TARGET );
-    m_BoundaryType.Set( vsp::NO_BOUNDARY );
-    m_DirectionType.Set( vsp::X_PROJ );
-    m_XComp.Set( 0.0 );
-    m_YComp.Set( 0.0 );
-    m_ZComp.Set( 0.0 );
-
-    m_NewRatioValue.Set( 1.0 );
-    m_NewWidthValue.Set( 1.0 );
-    m_NewHeightValue.Set( 1.0 );
-    m_TransparentBGFlag.Set( true );
-    m_AutoCropFlag.Set( false );
-
-    m_STLMultiSolid.Set( false );
-    m_STLExportPropMainSurf.Set( false );
 
     m_BEMPropID = string();
 
-    m_AFExportType.Set( vsp::BEZIER_AF_EXPORT );
-    m_AFWTessFactor.Set( 1.0 );
-    m_AFAppendGeomIDFlag.Set( true );
     m_AFFileDir = string();
 
     m_UpdatingBBox = false;
-    m_BbXLen.Set( 0 );
-    m_BbYLen.Set( 0 );
-    m_BbZLen.Set( 0 );
-    m_BbXMin.Set( 0 );
-    m_BbYMin.Set( 0 );
-    m_BbZMin.Set( 0 );
-
-    m_ScaleIndependentBbXLen.Set( 0 );
-    m_ScaleIndependentBbYLen.Set( 0 );
-    m_ScaleIndependentBbZLen.Set( 0 );
-    m_ScaleIndependentBbXMin.Set( 0 );
-    m_ScaleIndependentBbYMin.Set( 0 );
-    m_ScaleIndependentBbZMin.Set( 0 );
-
-    m_exportCompGeomTxtFile.Set( true );
-    m_exportCompGeomCsvFile.Set( true );
-    m_exportDegenGeomCsvFile.Set( true );
-    m_exportDegenGeomMFile.Set( true );
 
     m_ViewDirty = true;
 
@@ -693,17 +604,37 @@ void Vehicle::Wype()
 
     // Remove references to this set up in Init()
 
+    // Put every Parm back the way a new one starts.  Init used to do this a Parm at a time
+    // for the Vehicle's own, which meant a list to extend by hand every time a Parm was
+    // added -- 94 of them had been missed -- and the settings containers had no such list at
+    // all, so nothing about a CFD mesh was ever reset.
+    //
+    // Nothing wants to hear about these one by one while the model is being torn down, so
+    // ParmChanged is held off the way it is while the bounding box Parms are assigned.
+    {
+        bool was_updating = m_UpdatingBBox;
+        m_UpdatingBBox = true;
+
+        ResetToInitVals();
+        m_CfdSettings.ResetToInitVals();
+        m_ISectSettings.ResetToInitVals();
+        m_CfdGridDensity.ResetToInitVals();
+
+        m_UpdatingBBox = was_updating;
+    }
+
     //wype the attributeManager BEFORE removing geoms etc.
     AttributeMgr.Wype();
 
     LinkMgr.UnRegisterContainer( this->GetID() );
 
     // Public member variables
+    // The two Parms that used to be clobbered here, NumMassSlices and MassSliceDir, are
+    // reset above.  Clobbering NumMassSlices with a default constructed int asked for zero,
+    // which is below its lower limit of ten, and Init put it back to twenty afterwards.
     m_IxxIyyIzz = vec3d();
     m_IxyIxzIyz = vec3d();
     m_CG = vec3d();
-    m_NumMassSlices = int();
-    m_MassSliceDir = vsp::X_DIR;
     m_TotalMass = double();
     m_AttrCollection.Wype();
 
