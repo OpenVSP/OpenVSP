@@ -8,6 +8,7 @@
 #include "WireGeom.h"
 #include "Vehicle.h"
 #include "StringUtil.h"
+#include "UnformattedFile.h"
 #include "VspUtil.h"
 
 //==== Constructor ====//
@@ -786,6 +787,52 @@ void WireGeom::ReadP3D( FILE* fp, int ni, int nj, int nk, int nvar )
             }
         }
     }
+
+    m_InvertFlag = CheckInverted();
+
+    SetDirtyFlag( GeomBase::SURF );
+    Update();
+}
+
+// The same block, unformatted.  A block is one record holding its arrays end to end, so the
+// whole record has to be walked whether or not everything in it is kept.  How wide the
+// reals are is the caller's to know -- the file does not say -- and is set on fp before
+// this is reached.
+void WireGeom::ReadP3D( UnformattedIn &fp, int ni, int nj, int nk, int nvar )
+{
+    m_WirePts.resize( ni );
+    for ( int i = 0 ; i < ni ; i++ )
+    {
+        m_WirePts[i].resize( nj, vec3d() );
+    }
+
+    long npt = ( long )ni * ( long )nj * ( long )nk;
+
+    fp.BeginRecord();
+
+    for ( int ix = 0; ix < nvar && ix < 3; ix++ )
+    {
+        vector < double > vals( npt );
+        fp.Read( vals );
+
+        // Only the k=0 surface is stored, and it leads the array.
+        for ( int j = 0 ; j < nj ; j++ )
+        {
+            for ( int i = 0 ; i < ni ; i++ )
+            {
+                m_WirePts[i][j].v[ix] = vals[ j * ni + i ];
+            }
+        }
+    }
+
+    // The iblank tags, where a block carries them, are read past and dropped.
+    if ( nvar > 3 )
+    {
+        vector < int > iblank( npt );
+        fp.Read( iblank );
+    }
+
+    fp.EndRecord();
 
     m_InvertFlag = CheckInverted();
 

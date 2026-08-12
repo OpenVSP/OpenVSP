@@ -58,6 +58,7 @@
 #include "StructureMgr.h"
 #include "SubSurfaceMgr.h"
 #include "SVGUtil.h"
+#include "UnformattedFile.h"
 #include "VarPresetMgr.h"
 #include "VSPAEROMgr.h"
 #include "WingGeom.h"
@@ -6293,6 +6294,222 @@ string Vehicle::PSliceAndFlatten( int set, int numSlices, const vec3d &axis, boo
     return id;
 }
 
+//==== Read A Plot3D Multiple Grid Header ====//
+// The block count and the dimensions, as text.
+//
+// A Plot3D grid file gives no header notice of how many arrays each block carries -- two
+// for a planar grid, three for x, y and z, or four when an iblank tag follows them.
+// Reading three from a file that holds four leaves every block after the first starting an
+// array late, so the tags arrive as coordinates.  The file is nothing but numbers, so
+// counting them settles it: the count past the dimensions divides by the total number of
+// points.
+static bool ReadP3DGridHeaderFormatted( FILE *fp, vector < int > &ni, vector < int > &nj, vector < int > &nk,
+                                        int &nvar )
+{
+    int num_comps = 0;
+    if ( fscanf( fp, "%d\n", &num_comps ) != 1 || num_comps <= 0 )
+    {
+        return false;
+    }
+
+    ni.assign( num_comps, 0 );
+    nj.assign( num_comps, 0 );
+    nk.assign( num_comps, 0 );
+
+    for ( int c = 0 ; c < num_comps ; c++ )
+    {
+        if ( fscanf( fp, "%d %d %d\n", &ni[c], &nj[c], &nk[c] ) != 3 )
+        {
+            return false;
+        }
+    }
+
+    long ntot = 0;
+    for ( int c = 0 ; c < num_comps ; c++ )
+    {
+        ntot += ( long )ni[c] * nj[c] * nk[c];
+    }
+
+    nvar = 3;
+
+    long pos = ftell( fp );
+    long ndata = 0;
+    double val;
+    while ( fscanf( fp, "%lf", &val ) == 1 )
+    {
+        ndata++;
+    }
+    fseek( fp, pos, SEEK_SET );
+
+    if ( ntot > 0 && ndata % ntot == 0 )
+    {
+        long nv = ndata / ntot;
+
+        if ( nv >= 2 && nv <= 4 )
+        {
+            nvar = ( int )nv;
+        }
+    }
+
+    return true;
+}
+
+//==== Read A Plot3D Multiple Grid Header, Unformatted ====//
+// The same header, as the Fortran that reads these files sees it:
+//
+//     READ(IU) NBLOCK
+//     READ(IU) (NI(N),NJ(N),NK(N),N=1,NBLOCK)
+//     READ(IU) X,Y,Z[,IB]           one record per block
+//
+// nvar is not stated here either, and neither is how wide the reals are, but the length of
+// a block record says both.  Every array in a block holds one value per point, a real is
+// eight bytes or four, and an iblank tag is a four byte integer, which leaves six possible
+// lengths per point.  Only one pair of them collides: two doubles is as long as three
+// floats and an iblank.  Those are told apart by reading the trailing quarter of the record
+// as tags and seeing whether it looks like any -- tags are small, no larger than the number
+// of blocks they can point at, and a block with none of its points active is not a grid
+// anyone wrote on purpose.
+//
+// Nothing is read out of the block records here.  The file is opened again to read them,
+// which costs one record and keeps the two passes from having to agree about where the file
+// was left.
+static bool ReadP3DGridHeaderUnformatted( const string &fname, vector < int > &ni, vector < int > &nj,
+                                          vector < int > &nk, int &nvar, bool &single )
+{
+    UnformattedIn fp;
+
+    if ( !fp.Open( fname ) )
+    {
+        return false;
+    }
+
+    if ( !fp.BeginRecord() || fp.GetRecordBytes() != ( long )sizeof( int ) )
+    {
+        return false;
+    }
+
+    int num_comps = 0;
+    fp.Read( num_comps );
+
+    if ( !fp.EndRecord() || num_comps <= 0 )
+    {
+        return false;
+    }
+
+    // Three dimensions per block, or two where a planar grid leaves k out.
+    if ( !fp.BeginRecord() )
+    {
+        return false;
+    }
+
+    long ndim = fp.GetRecordBytes() / ( ( long )sizeof( int ) * num_comps );
+
+    if ( ( ndim != 2 && ndim != 3 ) ||
+         fp.GetRecordBytes() != ( long )sizeof( int ) * ndim * num_comps )
+    {
+        return false;
+    }
+
+    ni.assign( num_comps, 0 );
+    nj.assign( num_comps, 0 );
+    nk.assign( num_comps, 1 );
+
+    for ( int c = 0 ; c < num_comps ; c++ )
+    {
+        fp.Read( ni[c] );
+        fp.Read( nj[c] );
+        if ( ndim == 3 )
+        {
+            fp.Read( nk[c] );
+        }
+    }
+
+    if ( !fp.EndRecord() )
+    {
+        return false;
+    }
+
+    for ( int c = 0 ; c < num_comps ; c++ )
+    {
+        if ( ni[c] < 1 || nj[c] < 1 || nk[c] < 1 )
+        {
+            return false;
+        }
+    }
+
+    long npt = ( long )ni[0] * nj[0] * nk[0];
+
+    if ( !fp.BeginRecord() || fp.GetRecordBytes() % npt != 0 )
+    {
+        return false;
+    }
+
+    long nbyte = fp.GetRecordBytes() / npt;
+
+    if ( nbyte == 8 )
+    {
+        nvar = 2;
+        single = true;
+    }
+    else if ( nbyte == 12 )
+    {
+        nvar = 3;
+        single = true;
+    }
+    else if ( nbyte == 24 )
+    {
+        nvar = 3;
+        single = false;
+    }
+    else if ( nbyte == 28 )
+    {
+        nvar = 4;
+        single = false;
+    }
+    else if ( nbyte == 16 )
+    {
+        vector < int > raw( 4 * npt );
+        fp.Read( raw );
+
+        bool tags = false;
+        for ( long i = 3 * npt ; i < 4 * npt ; i++ )
+        {
+            if ( raw[i] < 0 || raw[i] > num_comps )
+            {
+                tags = false;
+                break;
+            }
+
+            if ( raw[i] > 0 )
+            {
+                tags = true;
+            }
+        }
+
+        if ( tags )
+        {
+            nvar = 4;
+            single = true;
+        }
+        else
+        {
+            nvar = 2;
+            single = false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+
+    if ( !fp.EndRecord() || !fp.IsGood() )
+    {
+        return false;
+    }
+
+    return true;
+}
+
 //==== Import File Methods ====//
 string Vehicle::ImportFile( const string & file_name, int file_type )
 {
@@ -6425,65 +6642,51 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     }
     else if ( file_type == IMPORT_P3D_WIRE )
     {
-        FILE *fp;
-
-        //==== Make Sure File Exists ====//
-        if ( ( fp = fopen( file_name.c_str(), "r" ) ) == ( FILE * )nullptr )
-        {
-            return id;
-        }
-
-        //==== Read in number of blockks ====//
-        int num_comps;
-        fscanf( fp, "%d\n", &num_comps );
-
-        if ( num_comps <= 0 )
-        {
-            fclose ( fp );
-            return id;
-        }
-
-        vector <int> ni( num_comps, 0 );
-        vector <int> nj( num_comps, 0 );
-        vector <int> nk( num_comps, 0 );
-
-        for ( int c = 0 ; c < num_comps ; c++ )
-        {
-            fscanf( fp, "%d %d %d\n", &ni[c], &nj[c], &nk[c] );
-        }
-
-        // A Plot3D grid file gives no header notice of how many arrays each block
-        // carries -- two for a planar grid, three for x, y and z, or four when an iblank
-        // tag follows them.  Reading three from a file that holds four leaves every block
-        // after the first starting an array late, so the tags arrive as coordinates.  The
-        // file is nothing but numbers, so counting them settles it: the count past the
-        // dimensions divides by the total number of points.
-        long ntot = 0;
-        for ( int c = 0 ; c < num_comps ; c++ )
-        {
-            ntot += ( long )ni[c] * nj[c] * nk[c];
-        }
-
+        vector < int > ni;
+        vector < int > nj;
+        vector < int > nk;
         int nvar = 3;
+        bool single = false;
 
-        long pos = ftell( fp );
-        long ndata = 0;
-        double val;
-        while ( fscanf( fp, "%lf", &val ) == 1 )
+        // A file says nothing about which form it is in, so try it as unformatted -- where
+        // a wrong guess shows up straight away, in record markers that do not describe the
+        // counts they bracket -- and read it as text if that does not hold up.
+        bool unformatted = ReadP3DGridHeaderUnformatted( file_name, ni, nj, nk, nvar, single );
+
+        UnformattedIn ufp;
+        FILE *fp = nullptr;
+
+        if ( unformatted )
         {
-            ndata++;
-        }
-        fseek( fp, pos, SEEK_SET );
-
-        if ( ntot > 0 && ndata % ntot == 0 )
-        {
-            long nv = ndata / ntot;
-
-            if ( nv >= 2 && nv <= 4 )
+            if ( !ufp.Open( file_name ) )
             {
-                nvar = ( int )nv;
+                return id;
+            }
+
+            ufp.SetSinglePrecision( single );
+
+            // Step past the two header records, which have already been read.
+            ufp.BeginRecord();
+            ufp.EndRecord();
+            ufp.BeginRecord();
+            ufp.EndRecord();
+        }
+        else
+        {
+            //==== Make Sure File Exists ====//
+            if ( ( fp = fopen( file_name.c_str(), "r" ) ) == ( FILE * )nullptr )
+            {
+                return id;
+            }
+
+            if ( !ReadP3DGridHeaderFormatted( fp, ni, nj, nk, nvar ) )
+            {
+                fclose( fp );
+                return id;
             }
         }
+
+        int num_comps = ni.size();
 
         // Make sure blank gets added to top level.
         // Consider removing this to make blank added as child of active.
@@ -6493,7 +6696,10 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         id = AddGeom( type );
         if ( !id.compare( "NONE" ) )
         {
-            fclose( fp );
+            if ( fp )
+            {
+                fclose( fp );
+            }
             return id;
         }
 
@@ -6506,17 +6712,32 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
             string cid = AddGeom( type );
             if ( !cid.compare( "NONE" ) )
             {
+                if ( fp )
+                {
+                    fclose( fp );
+                }
                 return id;
             }
 
             WireGeom* new_geom = ( WireGeom* )FindGeom( cid );
             if ( new_geom )
             {
-                new_geom->ReadP3D( fp, ni[c], nj[c], nk[c], nvar );
+                if ( unformatted )
+                {
+                    new_geom->ReadP3D( ufp, ni[c], nj[c], nk[c], nvar );
+                }
+                else
+                {
+                    new_geom->ReadP3D( fp, ni[c], nj[c], nk[c], nvar );
+                }
                 new_geom->SetDirtyFlag( GeomBase::SURF );
             }
         }
-        fclose( fp );
+
+        if ( fp )
+        {
+            fclose( fp );
+        }
 
         return id;
     }

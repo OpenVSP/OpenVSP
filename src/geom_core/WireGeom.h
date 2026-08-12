@@ -10,6 +10,7 @@
 
 #include "Geom.h"
 
+class UnformattedIn;
 
 //==== Wireframe Geom ====//
 //==== A Geom whose shape is a grid of points ====//
@@ -33,6 +34,7 @@ public:
     virtual Matrix4d GetTotalTransMat() const;
 
     virtual void ReadP3D( FILE* fp, int ni, int nj, int nk, int nvar = 3 );
+    virtual void ReadP3D( UnformattedIn &fp, int ni, int nj, int nk, int nvar = 3 );
     virtual void ReadXSec( FILE* fp );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node ) override;
