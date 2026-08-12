@@ -1621,9 +1621,16 @@ void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
 
         if ( nurbs_surf.m_NURBSLoopVec.size() == 1 &&
              nurbs_surf.m_NURBSLoopVec[0].m_BorderLoopFlag &&
-             nurbs_surf.m_NURBSLoopVec[0].m_InternalLoopFlag )
+             nurbs_surf.m_NURBSLoopVec[0].m_InternalLoopFlag &&
+             nurbs_surf.m_SurfType != vsp::CFD_NEGATIVE )
         {
-            continue; // Indicates that the surface is completely enclosed
+            // Indicates that the surface is completely enclosed.  A normal surface buried
+            // inside another component bounds nothing and goes.  A negative one does not:
+            // being wholly inside the component it cuts is what makes it the wall of the
+            // cavity, which is as real a boundary as the outer skin.  Only a negative
+            // surface entirely outside its component can be dropped, and that is the test
+            // below.
+            continue;
         }
         else if ( nurbs_surf.m_NURBSLoopVec.size() == 1 &&
                   !nurbs_surf.m_NURBSLoopVec[0].m_InternalLoopFlag &&
