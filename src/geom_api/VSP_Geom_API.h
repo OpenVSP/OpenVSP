@@ -11418,6 +11418,11 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
 /*!
     Get the the maximum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
     box may be specified in absolute or body reference frame.
+
+    A Geom with no surfaces -- a mesh, a point cloud, a wireframe -- answers out of its own bounding box, and
+    main_surf_ind does not apply. That box is built in absolute coordinates, so the body reference frame answer is
+    the absolute box turned back through the model matrix, which contains the geometry but is not as tight as the
+    box a surface gives.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
@@ -11472,6 +11477,11 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
 /*!
     Get the the minimum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
     box may be specified in absolute or body reference frame.
+
+    A Geom with no surfaces -- a mesh, a point cloud, a wireframe -- answers out of its own bounding box, and
+    main_surf_ind does not apply. That box is built in absolute coordinates, so the body reference frame answer is
+    the absolute box turned back through the model matrix, which contains the geometry but is not as tight as the
+    box a surface gives.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//

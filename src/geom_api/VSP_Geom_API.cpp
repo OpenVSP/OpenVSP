@@ -3376,6 +3376,29 @@ vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind, bool ref_fr
         return vec3d();
     }
 
+    // Determine BndBox dimensions prior to rotating and translating
+    Matrix4d model_matrix = geom_ptr->getModelMatrix();
+    model_matrix.affineInverse();
+
+    BndBox bbox;
+
+    // A Geom with no surfaces -- a mesh, a point cloud, a wireframe -- has none to ask for a
+    // bounding box, but it keeps one of its own.  That box is in absolute coordinates, so a
+    // box in body axes is the most a box can give: the absolute one turned back through the
+    // model matrix, which holds the geometry but is not as tight as what the surface path
+    // returns.  There is no surface to index either, so main_surf_ind does not apply.
+    if ( geom_ptr->isNonSurfaceType() )
+    {
+        bbox = geom_ptr->GetBndBox();
+
+        if ( !ref_frame_is_absolute )
+        {
+            bbox.Transform( model_matrix );
+        }
+
+        return bbox.GetMax();
+    }
+
     int num_surf = geom_ptr->GetNumTotalSurfs();
 
     if ( main_surf_ind < 0 || main_surf_ind >= num_surf )
@@ -3383,12 +3406,6 @@ vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind, bool ref_fr
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMax::Main Surf Index " + to_string( main_surf_ind) + " Out of Range" );
         return vec3d();
     }
-
-    // Determine BndBox dimensions prior to rotating and translating
-    Matrix4d model_matrix = geom_ptr->getModelMatrix();
-    model_matrix.affineInverse();
-
-    BndBox bbox;
 
     if ( !ref_frame_is_absolute )
     {
@@ -3415,6 +3432,25 @@ vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind, bool ref_fr
         return vec3d();
     }
 
+    // Determine BndBox dimensions prior to rotating and translating
+    Matrix4d model_matrix = geom_ptr->getModelMatrix();
+    model_matrix.affineInverse();
+
+    BndBox bbox;
+
+    // See GetGeomBBoxMax:  a Geom with no surfaces answers out of its own bounding box.
+    if ( geom_ptr->isNonSurfaceType() )
+    {
+        bbox = geom_ptr->GetBndBox();
+
+        if ( !ref_frame_is_absolute )
+        {
+            bbox.Transform( model_matrix );
+        }
+
+        return bbox.GetMin();
+    }
+
     int num_surf = geom_ptr->GetNumTotalSurfs();
 
     if ( main_surf_ind < 0 || main_surf_ind >= num_surf )
@@ -3422,12 +3458,6 @@ vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind, bool ref_fr
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMin::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
         return vec3d();
     }
-
-    // Determine BndBox dimensions prior to rotating and translating
-    Matrix4d model_matrix = geom_ptr->getModelMatrix();
-    model_matrix.affineInverse();
-
-    BndBox bbox;
 
     if ( !ref_frame_is_absolute )
     {
