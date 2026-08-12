@@ -72,7 +72,7 @@ void NGonMeshGeom::Scale()
 
 void NGonMeshGeom::UpdateBBox()
 {
-    m_BBox.Reset();
+    BndBox new_box;
 
     PGMesh * pgm = m_PGMulti.GetActiveMesh();
     if ( pgm->m_NodeList.size() > 0 )
@@ -82,12 +82,31 @@ void NGonMeshGeom::UpdateBBox()
         list< PGNode* >::iterator n;
         for ( n = pgm->m_NodeList.begin(); n != pgm->m_NodeList.end(); ++n )
         {
-            m_BBox.Update( transMat.xform( (*n)->m_Pt->m_Pnt ) );
+            new_box.Update( transMat.xform( (*n)->m_Pt->m_Pnt ) );
         }
     }
     else
     {
-        m_BBox.Update( vec3d( 0.0, 0.0, 0.0 ) );
+        new_box.Update( vec3d( 0.0, 0.0, 0.0 ) );
+    }
+
+    // The box was built into m_BBox directly, which left the BBox report-out Parms reading
+    // zero for the life of the Geom, and left m_ScaleIndependentBBox empty -- so an
+    // NGonMeshGeom counted for nothing in the Vehicle's scale independent box, which is what
+    // sizes the gear ground plane, the auxiliary geom reference lengths and the engine
+    // extension.  Assign them the way every other UpdateBBox does.
+    if ( new_box != m_BBox )
+    {
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+
+        m_BBox = new_box;
+        m_ScaleIndependentBBox = m_BBox;
     }
 }
 
