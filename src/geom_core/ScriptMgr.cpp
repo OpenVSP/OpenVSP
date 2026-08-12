@@ -3913,6 +3913,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteCFDSource( const string & in geom_id, int source_index )", asFUNCTION( vsp::DeleteCFDSource ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetCFDFarFieldGeomID( const string & in geom_id )", asFUNCTION( vsp::SetCFDFarFieldGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetCFDFarFieldGeomID()", asFUNCTION( vsp::GetCFDFarFieldGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "void DeleteAllCFDSources()", asFUNCTION( vsp::DeleteAllCFDSources ), asCALL_CDECL );
     assert( r >= 0 );
 

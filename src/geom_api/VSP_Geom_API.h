@@ -2327,6 +2327,162 @@ extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
     \ingroup CFDMesh
 */
 /*!
+    Set the Geom that stands in for the CFD Mesh far field box. Turning the far field on and choosing to use a
+    component for it are separate settings; this one only names the component. Pass an empty string to clear it.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod And A Sphere Around It ====//
+    string pid = AddGeom( "POD" );
+    string eid = AddGeom( "ELLIPSOID" );
+
+    SetParmVal( eid, "A_Radius", "Design", 12.0 );
+
+    SetCFDMeshVal( CFD_FAR_FIELD_FLAG, 1.0 );
+    SetParmVal( FindParm( FindContainer( "CFDMeshSettings", 0 ), "FarComp", "FarField" ), 1.0 );
+
+    SetCFDFarFieldGeomID( eid );
+
+    if ( GetCFDFarFieldGeomID() != eid )
+    {
+        Print( "ERROR: SetCFDFarFieldGeomID did not name the Geom" );
+        __failure++;
+    }
+
+    // An empty string puts the setting back the way it reads before a choice is made.
+    SetCFDFarFieldGeomID( "" );
+
+    if ( GetCFDFarFieldGeomID() != "" )
+    {
+        Print( "ERROR: SetCFDFarFieldGeomID did not clear the choice" );
+        __failure++;
+    }
+
+    // A Geom that does not exist has to be rejected.
+    SetCFDFarFieldGeomID( "NoSuchGeom" );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetCFDFarFieldGeomID accepted a Geom that does not exist" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod And A Sphere Around It ====//
+    pid = AddGeom( "POD" )
+    eid = AddGeom( "ELLIPSOID" )
+
+    SetParmVal( eid, "A_Radius", "Design", 12.0 )
+
+    SetCFDMeshVal( CFD_FAR_FIELD_FLAG, 1.0 )
+    SetParmVal( FindParm( FindContainer( "CFDMeshSettings", 0 ), "FarComp", "FarField" ), 1.0 )
+
+    SetCFDFarFieldGeomID( eid )
+
+    assert GetCFDFarFieldGeomID() == eid, "SetCFDFarFieldGeomID did not name the Geom"
+
+    # An empty string puts the setting back the way it reads before a choice is made.
+    SetCFDFarFieldGeomID( "" )
+
+    assert GetCFDFarFieldGeomID() == "", "SetCFDFarFieldGeomID did not clear the choice"
+
+    # A Geom that does not exist has to be rejected.  The error queue is reached through
+    # the error manager singleton in Python.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    SetCFDFarFieldGeomID( "NoSuchGeom" )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "SetCFDFarFieldGeomID accepted a Geom that does not exist"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa GetCFDFarFieldGeomID, SetCFDMeshVal
+    \param [in] geom_id string Geom ID, or an empty string to clear
+*/
+
+extern void SetCFDFarFieldGeomID( const std::string & geom_id );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the Geom that stands in for the CFD Mesh far field box. Comes back empty when none has been named.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Two Geoms To Choose Between ====//
+    string pid = AddGeom( "POD" );
+    string eid = AddGeom( "ELLIPSOID" );
+
+    SetCFDFarFieldGeomID( eid );
+
+    if ( GetCFDFarFieldGeomID() != eid )
+    {
+        Print( "ERROR: GetCFDFarFieldGeomID did not report the Geom that was set" );
+        __failure++;
+    }
+
+    // It follows the setting, so naming another Geom changes what comes back.
+    SetCFDFarFieldGeomID( pid );
+
+    if ( GetCFDFarFieldGeomID() != pid )
+    {
+        Print( "ERROR: GetCFDFarFieldGeomID did not follow SetCFDFarFieldGeomID" );
+        __failure++;
+    }
+
+    // With the choice cleared it comes back empty.
+    SetCFDFarFieldGeomID( "" );
+
+    if ( GetCFDFarFieldGeomID() != "" )
+    {
+        Print( "ERROR: GetCFDFarFieldGeomID did not come back empty" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Two Geoms To Choose Between ====//
+    pid = AddGeom( "POD" )
+    eid = AddGeom( "ELLIPSOID" )
+
+    SetCFDFarFieldGeomID( eid )
+
+    assert GetCFDFarFieldGeomID() == eid, "GetCFDFarFieldGeomID did not report the Geom that was set"
+
+    # It follows the setting, so naming another Geom changes what comes back.
+    SetCFDFarFieldGeomID( pid )
+
+    assert GetCFDFarFieldGeomID() == pid, "GetCFDFarFieldGeomID did not follow SetCFDFarFieldGeomID"
+
+    # With the choice cleared it comes back empty.
+    SetCFDFarFieldGeomID( "" )
+
+    assert GetCFDFarFieldGeomID() == "", "GetCFDFarFieldGeomID did not come back empty"
+
+    \endcode
+    \endPythonOnly
+    \sa SetCFDFarFieldGeomID
+    \return string Geom ID
+*/
+
+extern std::string GetCFDFarFieldGeomID();
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
     Delete all CFD Mesh sources for all Geoms
     \forcpponly
     \code{.cpp}

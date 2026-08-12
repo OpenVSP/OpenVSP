@@ -792,6 +792,31 @@ void SetCFDWakeFlag( const std::string & geom_id, bool flag )
     }
 }
 
+/// Name The Geom Standing In For The Far Field Box
+void SetCFDFarFieldGeomID( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+
+    // An empty ID is how the setting reads before anything has been chosen, so allow it
+    // back in to clear the choice.
+    if ( !geom_id.empty() && !veh->FindGeom( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetCFDFarFieldGeomID::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    veh->GetCfdSettingsPtr()->SetFarGeomID( geom_id );
+
+    ErrorMgr.NoError();
+}
+
+/// The Geom Standing In For The Far Field Box
+string GetCFDFarFieldGeomID()
+{
+    ErrorMgr.NoError();
+    return GetVehicle()->GetCfdSettingsPtr()->GetFarGeomID();
+}
+
 /// Add A CFD Source
 void AddCFDSource( int type, const std::string & geom_id, int surf_index,
                    double l1, double r1, double u1, double w1,
