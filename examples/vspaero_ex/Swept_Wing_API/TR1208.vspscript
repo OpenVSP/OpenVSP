@@ -14,7 +14,7 @@ void main()
   SetParmVal(myWing, "SectTess_U", "XSec_1", 20);
   SetParmVal(myWing, "Span", "XSec_1", 63.63);
   SetParmVal(myWing, "Taper", "XSec_1", 0.45);
-  SetParmVal(myWing, "Root_Chord", "XSec_1", 16.672);
+  SetParmVal(myWing, "Root_Chord", "XSec_1", 21.941);
   SetParmVal(myWing, "Sweep", "XSec_1", 45.0);
   SetParmVal(myWing, "Sweep_Location", "XSec_1", 0.25);
   Update();
@@ -48,10 +48,7 @@ void main()
   // PrintAnalysisInputs(myAnalysis);
 
   // Set inputs for VSPAero
-  array<int> analysis_method(1, VORTEX_LATTICE);
-  SetIntAnalysisInput(myAnalysis, "AnalysisMethod", analysis_method);
-
-  array<double> Sref(1, 2121.68);
+  array<double> Sref(1, 2024.35);
   SetDoubleAnalysisInput(myAnalysis, "Sref", Sref);
 
   array<double> bref(1, 127.26);
@@ -87,7 +84,7 @@ void main()
     array<double> alpha_vec = GetDoubleResults(sweepResults[i], "Alpha");
     Alpha_res[i] = alpha_vec[int(alpha_vec.length()) - 1];
 
-    array<double> cl_vec = GetDoubleResults(sweepResults[i], "CL");
+    array<double> cl_vec = GetDoubleResults(sweepResults[i], "CLtot");
     CL_res[i] = cl_vec[int(cl_vec.length()) - 1];
 
     Print(Alpha_res[i] + "      |   " + CL_res[i]);

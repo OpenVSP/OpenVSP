@@ -74,7 +74,7 @@ Here are the steps to construct the wing in the OpenVSP GUI:
     <img height="380" src="Images/GUI_VSPAERO_Overview.png"> <img height="380" src="Images/GUI_VSPAERO_Advanced.png"> 
     </p>  
 
-    1. In *Overview*, ensure **Vortex Lattice (VLM)** is selected and the reference area, **Sref** is **2121.68**, reference span, **bref** is **127.26** and reference chord, **cref** is **16.672**. **Sref** is used while computing force and moment coefficients and **bref** and **cref** are used while computing moment coefficients. The area and the chord we input are based on the mean aerodynamic chord since, for the current geometry, results are available based on these parameters.
+    1. In *Overview*, ensure **Vortex Lattice (VLM)** is selected and the reference area, **Sref** is **2024.35**, reference span, **bref** is **127.26** and reference chord, **cref** is **16.672**. **Sref** is used while computing force and moment coefficients and **bref** and **cref** are used while computing moment coefficients. The area and the chord we input are based on the mean aerodynamic chord since, for the current geometry, results are available based on these parameters.
 
     2. We shall perform our sweep analysis for angle of attack in the range 0 to 9 degrees using an increment of 1 degree. Ensure in *Flow Condition*, **Alpha Start** is **0.0** degrees and **Alpha End** is **9.0** degrees with **Npts** set to **10**.
 
@@ -195,10 +195,7 @@ At any point, the `Print()` function may be used to print messages or variables 
    // PrintAnalysisInputs(myAnalysis);
    
    // Set inputs for VSPAero
-   array<int> analysis_method(1, VORTEX_LATTICE);
-   SetIntAnalysisInput(myAnalysis, "AnalysisMethod", analysis_method);
-   
-   array<double> Sref(1, 2121.68);
+   array<double> Sref(1, 2024.35);
    SetDoubleAnalysisInput(myAnalysis, "Sref", Sref);
    
    array<double> bref(1, 127.26);
@@ -242,7 +239,7 @@ At any point, the `Print()` function may be used to print messages or variables 
      array<double> alpha_vec = GetDoubleResults(sweepResults[i], "Alpha");
      Alpha_res[i] = alpha_vec[int(alpha_vec.length()) - 1];
    
-     array<double> cl_vec = GetDoubleResults(sweepResults[i], "CL");
+     array<double> cl_vec = GetDoubleResults(sweepResults[i], "CLtot");
      CL_res[i] = cl_vec[int(cl_vec.length()) - 1];
    
      Print(Alpha_res[i] + "      |   " + CL_res[i]);
