@@ -60,7 +60,10 @@ void ICurve::BorderTesselate( )
         return;
     }
 
-    m_SCurve_B->BorderTesselate( );
+    // Cut to the same count as A.  The two are the same edge seen from either side, and the
+    // chain built from them walks both with one index; if B comes back shorter, that walk
+    // reads past its end.
+    m_SCurve_B->BorderTesselate( ( int )m_SCurve_A->GetUWTessPnts().size() );
 }
 
 void ICurve::PlaneBorderTesselate( SCurve* crv_A, SCurve* crv_B )

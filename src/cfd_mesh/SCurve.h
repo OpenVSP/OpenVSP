@@ -49,6 +49,7 @@ public:
     double GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, const vec3d &p, const vec3d &uw, double u, int &reason );
 
     void BorderTesselate( );
+    void BorderTesselate( int npt );
     void CheapTesselate( );
     void ProjectTessToSurf( SCurve* sca );
     void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi, int &reason );

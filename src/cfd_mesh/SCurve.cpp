@@ -155,6 +155,33 @@ void SCurve::BorderTesselate( )
     int ptsperseg = 5;
 
     int npt = ( ceil( span ) ) * ( ptsperseg - 1 ) + 1;
+
+    BorderTesselate( npt );
+}
+
+// Same, with the number of points named rather than worked out from this curve's own span.
+// Two curves that are the same edge of two patches have to be cut the same number of times,
+// and the spans they are cut from need not agree -- a patch made by joining two others
+// covers twice the parameter its neighbour does along the same edge.
+void SCurve::BorderTesselate( int npt )
+{
+    m_UTess.clear();
+    m_UWTess.clear();
+
+    vec3d uwstart = m_UWCrv.FirstPnt();
+    vec3d uwend = m_UWCrv.LastPnt();
+
+    double ust = uwstart[0];
+    double wst = uwstart[1];
+
+    double du = uwend[0] - ust;
+    double dw = uwend[1] - wst;
+
+    if ( npt < 2 )
+    {
+        npt = 2;
+    }
+
     m_UWTess.resize( npt );
 
     for( int i = 0; i < npt ; i++ )
