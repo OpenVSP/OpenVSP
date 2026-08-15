@@ -517,7 +517,7 @@ bool SurfCore::MatchThisOrientation( const piecewise_surface_type &osurf ) const
         {
             surface_patch_type::index_type icp, jcp;
             const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
-            const surface_patch_type *opatch = osurf.get_patch( 0, jp );
+            const surface_patch_type *opatch = osurf.get_patch( ip, jp );
 
             for( icp = 0; icp <= patch->degree_u(); ++icp )
             {
