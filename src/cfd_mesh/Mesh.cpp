@@ -523,10 +523,16 @@ Node* Mesh::AddNode( const vec3d &p, const vec2d &uw_in )
 
 void Mesh::RemoveNode( Node* nptr )
 {
-    garbageNodeVec.push_back( nptr );
-    nodeList.erase( nptr->list_ptr );
+    // Asked for twice where a collapse finds the same node at both ends of what it is
+    // collapsing, as it does among coincident triangles.  The second erase would work from an
+    // iterator that has already been used.  Edges and faces are dropped the same way.
+    if ( nptr && !nptr->m_DeleteMeFlag )
+    {
+        garbageNodeVec.push_back( nptr );
+        nodeList.erase( nptr->list_ptr );
 
-    nptr->m_DeleteMeFlag = true;
+        nptr->m_DeleteMeFlag = true;
+    }
 }
 
 Node* Mesh::FindNode( const vec3d& p )
@@ -1042,10 +1048,23 @@ bool Mesh::ValidCollapse( Edge* edge )
         return false;
     }
 
+    // The two sides of an edge have to be two faces.  Where a surface has been laid against
+    // itself the mesher can build the same triangle twice, and the pair share all three of
+    // their edges; collapsing between them would drop each of those twice.
+    if ( fa == fb )
+    {
+        return false;
+    }
+
     Node* na = fa->OtherNodeTri( n0, n1 );
     Node* nb = fb->OtherNodeTri( n0, n1 );
 
     if ( !na || !nb )
+    {
+        return false;
+    }
+
+    if ( na == nb )
     {
         return false;
     }
