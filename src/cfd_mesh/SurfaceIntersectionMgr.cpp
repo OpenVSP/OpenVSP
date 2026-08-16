@@ -16,6 +16,7 @@
 #include "ModeMgr.h"
 
 #include "eli/geom/intersect/intersect_surface.hpp"
+#include "eli/geom/intersect/minimum_distance_curve.hpp"
 
 #include "MeshAnalysis.h"
 
@@ -951,6 +952,213 @@ void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
     m_SurfVec = keepSurf;
 }
 
+// Where a patch has been put back together out of two, a side of it is one curve while the
+// patches across from it still have two: the join it was made across is an edge on that
+// side.  Curves pair off one to one, so the long one is cut where the short ones meet and
+// the pieces pair as they should.  The cut adds no edge of its own -- it puts a break where
+// the patch across from it already breaks.
+static vec3d SCurvePnt( SCurve* c, double t )
+{
+    vec3d uw = c->CompPntUW( t );
+    return c->GetSurf()->CompPnt( uw.x(), uw.y() );
+}
+
+// The side of its surface a border curve runs along, as the surface's own exact curve over just
+// the stretch the border curve covers, and where along the side that stretch starts and ends.
+// The side is cut to the stretch because a side that comes back on itself passes every point
+// twice, and the search must land on this curve's pass.
+struct SCurveSide
+{
+    piecewise_curve_type m_Crv;
+    double m_S0 = 0.0;
+    double m_S1 = 0.0;
+};
+
+// False for a curve that does not run along a side of its surface.
+static bool GetSCurveSide( SCurve* c, SCurveSide &side )
+{
+    Bezier_curve border;
+    c->GetBorderCurve( border );
+
+    piecewise_curve_type crv = border.GetCurve();
+
+    if ( crv.number_segments() == 0 )
+    {
+        return false;
+    }
+
+    vec3d uw0 = c->CompPntUW( 0.0 );
+    vec3d uw1 = c->CompPntUW( 1.0 );
+
+    // A side of constant u runs in w, and one of constant w runs in u.
+    if ( std::abs( uw0.x() - uw1.x() ) < 1.0e-12 )
+    {
+        side.m_S0 = uw0.y();
+        side.m_S1 = uw1.y();
+    }
+    else
+    {
+        side.m_S0 = uw0.x();
+        side.m_S1 = uw1.x();
+    }
+
+    double lo = min( side.m_S0, side.m_S1 );
+    double hi = max( side.m_S0, side.m_S1 );
+
+    piecewise_curve_type before, after;
+
+    crv.split( before, after, lo );
+    after.split( side.m_Crv, before, hi );
+
+    return side.m_Crv.number_segments() > 0;
+}
+
+// Where along the curve the point p lies, or a negative number if it does not lie on it.
+static double FindOnSCurve( const SCurveSide &side, const vec3d &p, double tol )
+{
+    curve_point_type pt;
+    pt << p.x(), p.y(), p.z();
+
+    double s;
+    double d = eli::geom::intersect::minimum_distance( s, side.m_Crv, pt );
+
+    if ( d > tol )
+    {
+        return -1.0;
+    }
+
+    return ( s - side.m_S0 ) / ( side.m_S1 - side.m_S0 );
+}
+
+void SurfaceIntersectionSingleton::SplitBordersToMatch()
+{
+    double tol = 1.0e-5;
+    bool changed = true;
+    int guard = 0;
+    const int guardmax = 1000;
+
+    while ( changed && guard < guardmax )
+    {
+        changed = false;
+        guard++;
+
+        // Every curve's two ends, taken once.  A cut adds a curve and moves the one it was
+        // made from, so the ends are gathered again each pass; within a pass they are looked
+        // at by every other curve in turn, and evaluating the surface for each of those
+        // pairings is the bulk of what this costs.
+        vector< vector< vec3d > > ends0( m_SurfVec.size() );
+        vector< vector< vec3d > > ends1( m_SurfVec.size() );
+
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+        {
+            vector< SCurve* > &cv = m_SurfVec[i]->GetSCurveVec();
+
+            ends0[i].resize( cv.size() );
+            ends1[i].resize( cv.size() );
+
+            for ( int c = 0 ; c < ( int )cv.size() ; c++ )
+            {
+                ends0[i][c] = SCurvePnt( cv[c], 0.0 );
+                ends1[i][c] = SCurvePnt( cv[c], 1.0 );
+            }
+        }
+
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() && !changed ; i++ )
+        {
+            vector< SCurve* > &cva = m_SurfVec[i]->GetSCurveVec();
+
+            for ( int a = 0 ; a < ( int )cva.size() && !changed ; a++ )
+            {
+                vec3d a0 = ends0[i][a];
+                vec3d a1 = ends1[i][a];
+
+                for ( int j = 0 ; j < ( int )m_SurfVec.size() && !changed ; j++ )
+                {
+                    if ( j == i )
+                    {
+                        continue;
+                    }
+
+                    vector< SCurve* > &cvb = m_SurfVec[j]->GetSCurveVec();
+
+                    for ( int b = 0 ; b < ( int )cvb.size() && !changed ; b++ )
+                    {
+                        vec3d b0 = ends0[j][b];
+                        vec3d b1 = ends1[j][b];
+
+                        // One end of the short curve has to sit on an end of the long one,
+                        // and its other end somewhere along the middle of it.
+                        vec3d far_end;
+                        bool shares = false;
+
+                        if ( dist( b0, a0 ) < tol || dist( b0, a1 ) < tol )
+                        {
+                            far_end = b1;
+                            shares = true;
+                        }
+                        else if ( dist( b1, a0 ) < tol || dist( b1, a1 ) < tol )
+                        {
+                            far_end = b0;
+                            shares = true;
+                        }
+
+                        if ( !shares || dist( far_end, a0 ) < tol || dist( far_end, a1 ) < tol )
+                        {
+                            continue;
+                        }
+
+                        SCurveSide side;
+
+                        if ( !GetSCurveSide( cva[a], side ) )
+                        {
+                            continue;
+                        }
+
+                        double t = FindOnSCurve( side, far_end, tol );
+
+                        if ( t < 0.01 || t > 0.99 )
+                        {
+                            continue;
+                        }
+
+                        vec3d uw0 = cva[a]->CompPntUW( 0.0 );
+                        vec3d uwt = cva[a]->CompPntUW( t );
+                        vec3d uw1 = cva[a]->CompPntUW( 1.0 );
+
+                        vector< vec3d > pnts( 2 );
+                        SCurve* c0 = new SCurve( m_SurfVec[i] );
+                        pnts[0] = uw0;
+                        pnts[1] = uwt;
+                        c0->InterpolateLinear( pnts );
+                        c0->PromoteTo( 3 );
+
+                        SCurve* c1 = new SCurve( m_SurfVec[i] );
+                        pnts[0] = uwt;
+                        pnts[1] = uw1;
+                        c1->InterpolateLinear( pnts );
+                        c1->PromoteTo( 3 );
+
+                        delete cva[a];
+                        cva[a] = c0;
+                        cva.push_back( c1 );
+
+                        changed = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // One cut per pass, so a model that needs many takes many.  Running out says the
+    // boundaries were not all brought into agreement, which shows up much later as borders
+    // that never matched, so say it here where it can still be tied to a cause.
+    if ( guard >= guardmax )
+    {
+        addOutputText( "\tWarning: gave up matching border curves after " +
+                       to_string( guardmax ) + " passes.\n" );
+    }
+}
+
 void SurfaceIntersectionSingleton::BuildGrid()
 {
 
@@ -959,6 +1167,12 @@ void SurfaceIntersectionSingleton::BuildGrid()
     for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         m_SurfVec[i]->FindBorderCurves();
+    }
+
+    SplitBordersToMatch();
+
+    for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
         m_SurfVec[i]->LoadSCurves( scurve_vec );
     }
 

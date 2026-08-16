@@ -312,6 +312,7 @@ public:
     virtual int FindSurfIndx( int surf_id ); // Find surface given surf ID
 
     virtual void DeleteDuplicateSurfs();
+    virtual void SplitBordersToMatch();
     virtual void BuildGrid();
 
     enum { QUIET_OUTPUT, VOCAL_OUTPUT, };
