@@ -4651,7 +4651,9 @@ void Vehicle::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSur
             vector < double > utess, wtess;
             geom_vec[i]->GetUWTessSurf( j, utess, wtess, n_ref );
 
-            (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs, std::vector< double >(), std::vector< double >(), utess, wtess );
+            (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs, std::vector< double >(), std::vector< double >(), utess, wtess,
+                                                 geom_vec[i]->GetCapUMinSuccess( geom_vec[i]->GetMainSurfID( j ) ),
+                                                 geom_vec[i]->GetCapUMaxSuccess( geom_vec[i]->GetMainSurfID( j ) ) );
             icomp++;
         }
     }
@@ -4688,7 +4690,9 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
                 vector < double > utess, wtess;
                 geom_vec[i]->GetUWTessSurf( j, utess, wtess, n_ref );
 
-                (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs, std::vector< double >(), std::vector< double >(), utess, wtess );
+                (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs, std::vector< double >(), std::vector< double >(), utess, wtess,
+                                                 geom_vec[i]->GetCapUMinSuccess( geom_vec[i]->GetMainSurfID( j ) ),
+                                                 geom_vec[i]->GetCapUMaxSuccess( geom_vec[i]->GetMainSurfID( j ) ) );
                 icomp++;
             }
         }
