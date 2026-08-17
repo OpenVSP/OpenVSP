@@ -9,7 +9,13 @@ requirements:
   build:
     - python
     - setuptools
-    - degen_geom
 
+  # Kept in step with install_requires in setup.py.in.  degen_geom, utilities and
+  # openvsp_config are built from this project alongside openvsp; numpy is wanted by the _vsp
+  # extension itself, which calls import_array() as it loads.
   run:
     - python
+    - numpy
+    - degen_geom
+    - utilities
+    - openvsp_config

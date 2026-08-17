@@ -19,6 +19,23 @@
 # THE SOFTWARE.
 
 from setuptools import setup
+from setuptools.dist import Distribution
+
+
+class BinaryDistribution(Distribution):
+    """A distribution that carries a compiled module.
+
+    The _vsp extension is built by CMake and arrives here as package data rather than through
+    ext_modules, so setuptools would otherwise take the package for pure Python and tag a wheel
+    built from it py3-none-any -- installable on any interpreter on any machine, almost all of
+    which cannot load the module.  Saying so here gets the interpreter, ABI and platform tags
+    of whichever Python builds the wheel, which is meant to be the one the module was compiled
+    against.
+    """
+
+    def has_ext_modules(self):
+        return True
+
 
 setup(
     name='openvsp',
@@ -28,6 +45,10 @@ setup(
     author='Uber Technologies',
     author_email='',
     description='OpenVSP Python Wrapper',
-    install_requires=['degen_geom', 'utilities', 'openvsp_config'],
-    include_package_data=True
+    # numpy is needed by the _vsp extension itself, which calls import_array() as it loads.
+    # Without it the module fails at import with an unreported exception rather than anything
+    # that names numpy.
+    install_requires=['degen_geom', 'utilities', 'openvsp_config', 'numpy'],
+    include_package_data=True,
+    distclass=BinaryDistribution
 )

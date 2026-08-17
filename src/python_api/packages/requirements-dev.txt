@@ -9,3 +9,7 @@
 pytest
 matplotlib
 sphinx
+
+# So the wheel target can build without reaching the network for its own build backend.
+setuptools
+wheel

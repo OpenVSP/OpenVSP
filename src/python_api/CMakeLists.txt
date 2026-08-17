@@ -273,6 +273,28 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
 
     ADD_CUSTOM_TARGET( run_pyvsp ${PYTHON_VENV_EXE} -m pyvsp.pyvsp )
 
+    # Build a binary wheel of the openvsp package into ${CMAKE_BINARY_DIR}/wheel.
+    #
+    # A wheel takes its interpreter, ABI and platform tags from whichever Python builds it,
+    # not from the module inside it, and nothing checks that the two agree.  Build this with
+    # the wrong Python and the wheel is labelled for an interpreter that cannot import it, and
+    # pip will install it anyway.  So it is pinned to the virtual environment's interpreter,
+    # which is made from the Python this build compiled the extension against.
+    #
+    # --no-deps keeps the openvsp package's own requirements out of the output directory, and
+    # --no-build-isolation uses the setuptools and wheel already in the environment rather than
+    # fetching a fresh copy of them.
+    ADD_CUSTOM_TARGET( wheel
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/wheel
+        COMMAND ${PYTHON_VENV_EXE} -m pip wheel
+        --no-deps
+        --no-build-isolation
+        --wheel-dir ${CMAKE_BINARY_DIR}/wheel
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo/openvsp
+        DEPENDS pyvsp venv
+        COMMENT "Building openvsp wheel with ${PYTHON_VENV_EXE}" )
+
     if ( NOT VSP_NO_PYDOC )
         add_custom_target( pydoc ALL
                 COMMAND ${PYTHON_VENV_EXE} -m sphinx
