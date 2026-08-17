@@ -1,5 +1,5 @@
-include openvsp/_vsp.so 
-include openvsp/_vsp_g.so
+include openvsp/_vsp*
+include openvsp/_vsp_g*
 
 include openvsp/vspaero*
 include openvsp/vsploads*
