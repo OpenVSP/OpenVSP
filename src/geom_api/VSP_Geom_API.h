@@ -231,10 +231,6 @@
 class vec3d;
 class Matrix4d;
 
-using std::string;
-using std::stack;
-using std::vector;
-
 namespace vsp
 {
 
@@ -1007,7 +1003,7 @@ extern bool CheckForVSPHelp( const std::string & path );
 
 extern void RegisterCFDMeshAnalyses();
 
-extern void LimitedIntersectSurfaces( const vector < string > & geomvec, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains );
+extern void LimitedIntersectSurfaces( const std::vector < std::string > & geomvec, std::vector < std::vector < vec3d > > & ptchains, std::vector < std::vector < vec3d > > & uwchains );
 
 //======================== File I/O ================================//
 /*!
@@ -1490,7 +1486,7 @@ extern void InsertVSPFile( const std::string & file_name, const std::string & pa
     \return string Mesh Geom ID if the export generates a mesh
 */
 
-extern std::string ExportFile( const std::string & file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = vsp::SET_NONE, bool useMode = false, const string &modeID = "" );
+extern std::string ExportFile( const std::string & file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = vsp::SET_NONE, bool useMode = false, const std::string &modeID = "" );
 
 /*!
     \ingroup FileIO
@@ -1606,9 +1602,9 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     \return string Propeller Geom ID
 */
 
-extern string GetBEMPropID();
+extern std::string GetBEMPropID();
 
-extern void SetBEMPropID( const string & prop_id );
+extern void SetBEMPropID( const std::string & prop_id );
 
 
 //======================== Design Files ================================//
@@ -2806,7 +2802,7 @@ extern void DeleteAllCFDSources();
     \return string ParmContainer ID for the source
 */
 
-extern string GetCFDSourceID( const string & geom_id, int source_index );
+extern std::string GetCFDSourceID( const std::string & geom_id, int source_index );
 
 /*!
     \ingroup CFDMesh
@@ -3049,7 +3045,7 @@ extern void AddCFDSource( int type, const std::string & geom_id, int surf_index,
     \return string Reference Geom ID
 */
 
-extern string GetVSPAERORefWingID();
+extern std::string GetVSPAERORefWingID();
 
 /*!
     \ingroup VSPAERO
@@ -3143,7 +3139,7 @@ extern string GetVSPAERORefWingID();
     \param [in] geom_id string Reference Geom ID
 */
 
-extern string SetVSPAERORefWingID( const std::string & geom_id );
+extern std::string SetVSPAERORefWingID( const std::string & geom_id );
 
 
 //======================== Analysis ================================//
@@ -4090,7 +4086,7 @@ extern void PrintAnalysisDocs( const std::string & analysis_name );
     \return string ID of the newly created Geometry Analysis case
 */
 
-extern string AddGeometryAnalysis();
+extern std::string AddGeometryAnalysis();
 
 /*!
     \ingroup Analysis
@@ -4390,7 +4386,7 @@ extern std::string GetGeometryAnalysisAzimuthParm( const std::string & geom_anal
 
 extern std::string GetGeometryAnalysisElevationParm( const std::string & geom_analysis_id, int index );
 
-extern void DeleteGeometryAnalysis( const string &id );
+extern void DeleteGeometryAnalysis( const std::string &id );
 
 /*!
     \ingroup Analysis
@@ -4486,7 +4482,7 @@ extern void DeleteAllGeometryAnalyses();
     \return vector\<string\> Array of all Geometry Analysis case IDs
 */
 
-extern vector < string > GetAllGeometryAnalysesIDVec();
+extern std::vector < std::string > GetAllGeometryAnalysesIDVec();
 
 /*!
     \ingroup Analysis
@@ -4519,7 +4515,7 @@ extern vector < string > GetAllGeometryAnalysesIDVec();
     \param [in] id string Geometry Analysis case ID (empty string for none)
 */
 
-extern void SetActiveGeometryAnalysis( const string &id );
+extern void SetActiveGeometryAnalysis( const std::string &id );
 
 /*!
     \ingroup Analysis
@@ -4550,7 +4546,7 @@ extern void SetActiveGeometryAnalysis( const string &id );
     \return string Active Geometry Analysis case ID (empty string if none)
 */
 
-extern string GetActiveGeometryAnalysis();
+extern std::string GetActiveGeometryAnalysis();
 
 /*!
     \ingroup Analysis
@@ -4627,7 +4623,7 @@ extern string GetActiveGeometryAnalysis();
     \return string Geom ID of the newly created MeshGeom
 */
 
-extern string MakeMeshGeom( const string &ga_id );
+extern std::string MakeMeshGeom( const std::string &ga_id );
 
 //======================== Attributes ================================//
 
@@ -4663,7 +4659,7 @@ extern string MakeMeshGeom( const string &ga_id );
     \return string Tab-delimited summary of all Attributes in vehicle
 */
 
-extern string SummarizeAttributes();
+extern std::string SummarizeAttributes();
 
 /*!
     \ingroup Attributes
@@ -4696,7 +4692,7 @@ extern string SummarizeAttributes();
     \return string Plain-text attribute tree of vehicle
 */
 
-extern string SummarizeAttributesAsTree();
+extern std::string SummarizeAttributesAsTree();
 
 /*!
     \ingroup Attributes
@@ -4732,7 +4728,7 @@ extern string SummarizeAttributesAsTree();
     \return vector \<string\> Vector of All Attribute IDs
 */
 
-extern vector < string > FindAllAttributes();
+extern std::vector < std::string > FindAllAttributes();
 
 
 
@@ -4771,7 +4767,7 @@ extern vector < string > FindAllAttributes();
     \param [in] search_str string for filtering attributes in model
 */
 
-extern vector < string > FindAttributesByName( const string & search_str );
+extern std::vector < std::string > FindAttributesByName( const std::string & search_str );
 
 /*!
     \ingroup Attributes
@@ -4804,7 +4800,7 @@ extern vector < string > FindAttributesByName( const string & search_str );
     \param [in] index int for indexing which of the vector of found attributes to select
 */
 
-extern string FindAttributeByName( const string & search_str, int index );
+extern std::string FindAttributeByName( const std::string & search_str, int index );
 
 /*!
     \ingroup Attributes
@@ -4841,7 +4837,7 @@ extern string FindAttributeByName( const string & search_str, int index );
     \param [in] index int for indexing which of the vector of found attributes to select
 */
 
-extern string FindAttributeInCollection( const string & obj_id, const string & search_str, int index );
+extern std::string FindAttributeInCollection( const std::string & obj_id, const std::string & search_str, int index );
 
 /*!
     \ingroup Attributes
@@ -4882,7 +4878,7 @@ extern string FindAttributeInCollection( const string & obj_id, const string & s
     \param [in] collID string ID of an attribute collection
 */
 
-extern vector< string > FindAttributeNamesInCollection(const string & collID );
+extern std::vector< std::string > FindAttributeNamesInCollection(const std::string & collID );
 
 /*!
     \ingroup Attributes
@@ -4923,7 +4919,7 @@ extern vector< string > FindAttributeNamesInCollection(const string & collID );
     \param [in] collID string ID of an attribute collection
 */
 
-extern vector< string > FindAttributesInCollection(const string & collID );
+extern std::vector< std::string > FindAttributesInCollection(const std::string & collID );
 
 /*!
     \ingroup Attributes
@@ -4960,7 +4956,7 @@ extern vector< string > FindAttributesInCollection(const string & collID );
     \return vector\<string\> Array of IDs of entities in OpenVSP that contain populated attribute collections
 */
 
-extern vector< string > FindAttributedObjects();
+extern std::vector< std::string > FindAttributedObjects();
 
 /*!
     \ingroup Attributes
@@ -5022,7 +5018,7 @@ extern vector< string > FindAttributedObjects();
     \param [in] attachID string ID of an OpenVSP object
 */
 
-extern int GetObjectType(const string & attachID);
+extern int GetObjectType(const std::string & attachID);
 
 /*!
     \ingroup Attributes
@@ -5060,7 +5056,7 @@ extern int GetObjectType(const string & attachID);
     \param [in] attachID string ID of an OpenVSP object
 */
 
-extern string GetObjectTypeName(const string & attachID);
+extern std::string GetObjectTypeName(const std::string & attachID);
 
 /*!
     \ingroup Attributes
@@ -5099,7 +5095,7 @@ extern string GetObjectTypeName(const string & attachID);
     \param [in] attachID string ID of an OpenVSP object
 */
 
-extern string GetObjectName(const string & attachID);
+extern std::string GetObjectName(const std::string & attachID);
 
 
 /*!
@@ -5162,7 +5158,7 @@ extern string GetObjectName(const string & attachID);
     \return string ID of object parent
 */
 
-extern string GetObjectParent( const string & id );
+extern std::string GetObjectParent( const std::string & id );
 
 /*!
     \ingroup Attributes
@@ -5199,7 +5195,7 @@ extern string GetObjectParent( const string & id );
     \param [in] attachID string ID of an OpenVSP object
 */
 
-extern string GetChildCollection(const string & attachID );
+extern std::string GetChildCollection(const std::string & attachID );
 
 /*!
     \ingroup Attributes
@@ -5231,7 +5227,7 @@ extern string GetChildCollection(const string & attachID );
     \param [in] index int Geom set
 */
 
-extern string GetGeomSetCollection( const int & index );
+extern std::string GetGeomSetCollection( const int & index );
 
 /*!
     \ingroup Attributes
@@ -5274,7 +5270,7 @@ extern string GetGeomSetCollection( const int & index );
     \return string name of attribute
 */
 
-extern string GetAttributeName( const string & attrID );
+extern std::string GetAttributeName( const std::string & attrID );
 
 /*!
     \ingroup Attributes
@@ -5322,7 +5318,7 @@ extern string GetAttributeName( const string & attrID );
     \param [in] index int index of attribute in collection
 */
 
-extern string GetAttributeID(const string & collID, const string & attributeName, int index);
+extern std::string GetAttributeID(const std::string & collID, const std::string & attributeName, int index);
 
 /*!
     \ingroup Attributes
@@ -5358,7 +5354,7 @@ extern string GetAttributeID(const string & collID, const string & attributeName
     \param [in] attrID string ID of attribute
 */
 
-extern string GetAttributeDoc(const string & attrID);
+extern std::string GetAttributeDoc(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -5451,7 +5447,7 @@ extern string GetAttributeDoc(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern int GetAttributeType( const string & attrID );
+extern int GetAttributeType( const std::string & attrID );
 
 /*!
     \ingroup Attributes
@@ -5488,7 +5484,7 @@ extern int GetAttributeType( const string & attrID );
     \param [in] attrID string ID of attribute
 */
 
-extern string GetAttributeTypeName(const string & attrID);
+extern std::string GetAttributeTypeName(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -5537,7 +5533,7 @@ extern string GetAttributeTypeName(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern vector< int > GetAttributeBoolVal(const string & attrID);
+extern std::vector< int > GetAttributeBoolVal(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -5586,7 +5582,7 @@ extern vector< int > GetAttributeBoolVal(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern vector< int > GetAttributeIntVal(const string & attrID);
+extern std::vector< int > GetAttributeIntVal(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -5634,7 +5630,7 @@ extern vector< int > GetAttributeIntVal(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern vector< double > GetAttributeDoubleVal(const string & attrID);
+extern std::vector< double > GetAttributeDoubleVal(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -5682,7 +5678,7 @@ extern vector< double > GetAttributeDoubleVal(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern vector< string > GetAttributeStringVal(const string & attrID);
+extern std::vector< std::string > GetAttributeStringVal(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -5743,7 +5739,7 @@ extern vector< string > GetAttributeStringVal(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern vector< string > GetAttributeParmID(const string & attrID);
+extern std::vector< std::string > GetAttributeParmID(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -5806,7 +5802,7 @@ extern vector< string > GetAttributeParmID(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern vector < double > GetAttributeParmVal( const string &attrID );
+extern std::vector < double > GetAttributeParmVal( const std::string &attrID );
 
 /*!
     \ingroup Attributes
@@ -5868,7 +5864,7 @@ extern vector < double > GetAttributeParmVal( const string &attrID );
     \param [in] attrID string ID of attribute
 */
 
-extern vector < string > GetAttributeParmName( const string &attrID );
+extern std::vector < std::string > GetAttributeParmName( const std::string &attrID );
 
 /*!
     \ingroup Attributes
@@ -5920,7 +5916,7 @@ extern vector < string > GetAttributeParmName( const string &attrID );
     \param [in] attrID string ID of attribute
 */
 
-extern vector< vec3d > GetAttributeVec3dVal(const string & attrID);
+extern std::vector< vec3d > GetAttributeVec3dVal(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -5977,7 +5973,7 @@ extern vector< vec3d > GetAttributeVec3dVal(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern vector< vector < int > > GetAttributeIntMatrixVal(const string & attrID);
+extern std::vector< std::vector < int > > GetAttributeIntMatrixVal(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -6028,7 +6024,7 @@ extern vector< vector < int > > GetAttributeIntMatrixVal(const string & attrID);
     \param [in] attrID string ID of attribute
 */
 
-extern vector< vector < double > > GetAttributeDoubleMatrixVal(const string & attrID);
+extern std::vector< std::vector < double > > GetAttributeDoubleMatrixVal(const std::string & attrID);
 
 /*!
     \ingroup Attributes
@@ -6084,7 +6080,7 @@ extern vector< vector < double > > GetAttributeDoubleMatrixVal(const string & at
     \param [in] name string name for attribute
 */
 
-extern void SetAttributeName( const string & attrID, const string & name );
+extern void SetAttributeName( const std::string & attrID, const std::string & name );
 
 /*!
     \ingroup Attributes
@@ -6142,7 +6138,7 @@ extern void SetAttributeName( const string & attrID, const string & name );
 */
 
 
-extern void SetAttributeDoc( const string & attrID, const string & doc );
+extern void SetAttributeDoc( const std::string & attrID, const std::string & doc );
 
 /*!
     \ingroup Attributes
@@ -6198,7 +6194,7 @@ extern void SetAttributeDoc( const string & attrID, const string & doc );
     \param [in] value bool boolean value for attribute
 */
 
-extern void SetAttributeBool( const string & attrID, bool value );
+extern void SetAttributeBool( const std::string & attrID, bool value );
 
 /*!
     \ingroup Attributes
@@ -6254,7 +6250,7 @@ extern void SetAttributeBool( const string & attrID, bool value );
     \param [in] value int value for attribute
 */
 
-extern void SetAttributeInt( const string & attrID, int value );
+extern void SetAttributeInt( const std::string & attrID, int value );
 
 /*!
     \ingroup Attributes
@@ -6313,7 +6309,7 @@ extern void SetAttributeInt( const string & attrID, int value );
     \param [in] value double value for attribute
 */
 
-extern void SetAttributeDouble( const string & attrID, double value );
+extern void SetAttributeDouble( const std::string & attrID, double value );
 
 /*!
     \ingroup Attributes
@@ -6370,7 +6366,7 @@ extern void SetAttributeDouble( const string & attrID, double value );
     \param [in] value string value for attribute
 */
 
-extern void SetAttributeString( const string & attrID, const string & value );
+extern void SetAttributeString( const std::string & attrID, const std::string & value );
 
 /*!
     \ingroup Attributes
@@ -6437,7 +6433,7 @@ extern void SetAttributeString( const string & attrID, const string & value );
     \param [in] value string value for attribute
 */
 
-extern void SetAttributeParmID( const string & attrID, const string & value );
+extern void SetAttributeParmID( const std::string & attrID, const std::string & value );
 
 /*!
     \ingroup Attributes
@@ -6494,7 +6490,7 @@ extern void SetAttributeParmID( const string & attrID, const string & value );
     \param [in] value vec3d value for attribute
 */
 
-extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > & value );
+extern void SetAttributeVec3d( const std::string & attrID, const std::vector < vec3d > & value );
 
 /*!
     \ingroup Attributes
@@ -6554,7 +6550,7 @@ extern void SetAttributeVec3d( const string & attrID, const vector < vec3d > & v
     \param [in] value int matrix value for attribute
 */
 
-extern void SetAttributeIntMatrix( const string & attrID, const vector < vector < int > > & value );
+extern void SetAttributeIntMatrix( const std::string & attrID, const std::vector < std::vector < int > > & value );
 
 /*!
     \ingroup Attributes
@@ -6614,7 +6610,7 @@ extern void SetAttributeIntMatrix( const string & attrID, const vector < vector 
     \param [in] value double matrix value for attribute
 */
 
-extern void SetAttributeDoubleMatrix( const string & attrID, const vector< vector< double > > & value );
+extern void SetAttributeDoubleMatrix( const std::string & attrID, const std::vector< std::vector< double > > & value );
 
 /*!
     \ingroup Attributes
@@ -6693,7 +6689,7 @@ extern void SetAttributeDoubleMatrix( const string & attrID, const vector< vecto
     \param [in] attrID string of attribute ID
 */
 
-extern void DeleteAttribute( const string & attrID );
+extern void DeleteAttribute( const std::string & attrID );
 
 /*!
     \ingroup Attributes
@@ -6744,7 +6740,7 @@ extern void DeleteAttribute( const string & attrID );
     \param [in] value bool boolean value of new attribute
 */
 
-extern string AddAttributeBool( const string & collID, const string & attributeName, bool value );
+extern std::string AddAttributeBool( const std::string & collID, const std::string & attributeName, bool value );
 
 /*!
     \ingroup Attributes
@@ -6796,7 +6792,7 @@ extern string AddAttributeBool( const string & collID, const string & attributeN
     \param [in] value int integer value of new attribute
 */
 
-extern string AddAttributeInt( const string & collID, const string & attributeName, int value );
+extern std::string AddAttributeInt( const std::string & collID, const std::string & attributeName, int value );
 
 /*!
     \ingroup Attributes
@@ -6850,7 +6846,7 @@ extern string AddAttributeInt( const string & collID, const string & attributeNa
     \param [in] value double value of new attribute
 */
 
-extern string AddAttributeDouble( const string & collID, const string & attributeName, double value );
+extern std::string AddAttributeDouble( const std::string & collID, const std::string & attributeName, double value );
 
 /*!
     \ingroup Attributes
@@ -6903,7 +6899,7 @@ extern string AddAttributeDouble( const string & collID, const string & attribut
     \param [in] value string value of new attribute
 */
 
-extern string AddAttributeString( const string & collID, const string & attributeName, const string & value );
+extern std::string AddAttributeString( const std::string & collID, const std::string & attributeName, const std::string & value );
 
 /*!
     \ingroup Attributes
@@ -6967,7 +6963,7 @@ extern string AddAttributeString( const string & collID, const string & attribut
     \param [in] parmID string Parm ID to add to attribute
 */
 
-extern string AddAttributeParm( const string &collID, const string &attributeName, const string &parmID );
+extern std::string AddAttributeParm( const std::string &collID, const std::string &attributeName, const std::string &parmID );
 
 /*!
     \ingroup Attributes
@@ -7023,7 +7019,7 @@ extern string AddAttributeParm( const string &collID, const string &attributeNam
     \param [in] value vector \<vec3d\> Vec3d value of new attribute
 */
 
-extern string AddAttributeVec3d( const string & collID, const string & attributeName, const vector < vec3d > & value );
+extern std::string AddAttributeVec3d( const std::string & collID, const std::string & attributeName, const std::vector < vec3d > & value );
 
 /*!
     \ingroup Attributes
@@ -7081,7 +7077,7 @@ extern string AddAttributeVec3d( const string & collID, const string & attribute
     \param [in] value int matrix value of new attribute
 */
 
-extern string AddAttributeIntMatrix( const string & collID, const string & attributeName, const vector < vector < int > > & value );
+extern std::string AddAttributeIntMatrix( const std::string & collID, const std::string & attributeName, const std::vector < std::vector < int > > & value );
 
 /*!
     \ingroup Attributes
@@ -7139,7 +7135,7 @@ extern string AddAttributeIntMatrix( const string & collID, const string & attri
     \param [in] value vector \<vector \<double\>\> Double matrix value of new attribute
 */
 
-extern string AddAttributeDoubleMatrix( const string & collID, const string & attributeName, const vector < vector < double > > & value );
+extern std::string AddAttributeDoubleMatrix( const std::string & collID, const std::string & attributeName, const std::vector < std::vector < double > > & value );
 
 /*!
     \ingroup Attributes
@@ -7188,7 +7184,7 @@ extern string AddAttributeDoubleMatrix( const string & collID, const string & at
     \param [in] attributeName string name of new attribute group
 */
 
-extern string AddAttributeGroup( const string & collID, const string & attributeName );
+extern std::string AddAttributeGroup( const std::string & collID, const std::string & attributeName );
 
 /*!
     \ingroup Attributes
@@ -7239,7 +7235,7 @@ extern string AddAttributeGroup( const string & collID, const string & attribute
     \param [in] attrID string ID of attribute to be copied
 */
 
-extern int CopyAttribute( const string & attrID );
+extern int CopyAttribute( const std::string & attrID );
 
 /*!
     \ingroup Attributes
@@ -7312,7 +7308,7 @@ extern int CopyAttribute( const string & attrID );
     \param [in] attrID string ID of attribute to be copied
 */
 
-extern void CutAttribute( const string & attrID );
+extern void CutAttribute( const std::string & attrID );
 
 /*!
     \ingroup Attributes
@@ -7400,7 +7396,7 @@ extern void CutAttribute( const string & attrID );
     \param [in] coll_id string ID of destination for pasting attribute into
 */
 
-extern vector < string > PasteAttribute( const string & coll_id );
+extern std::vector < std::string > PasteAttribute( const std::string & coll_id );
 
 //======================== Results ================================//
 /*!
@@ -7991,7 +7987,7 @@ extern const std::vector< double > & GetDoubleResults( const std::string & id, c
     \return vector\<vector<double\>> 2D array of data values
 */
 
-extern const std::vector< std::vector< double > > & GetDoubleMatResults( const std::string & id, const std:: string & name, int index = 0 );
+extern const std::vector< std::vector< double > > & GetDoubleMatResults( const std::string & id, const std::string & name, int index = 0 );
 
 /*!
     \ingroup Results
@@ -8927,7 +8923,7 @@ extern bool IsEventLoopRunning( );
     \param [in] autocrop bool Automatically crop transparent background flag
 */
 
-extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop = false );
+extern void ScreenGrab( const std::string & fname, int w, int h, bool transparentBG, bool autocrop = false );
 
 /*!
     \ingroup Visualization
@@ -9027,7 +9023,7 @@ extern void SetShowBorders( bool brdr );
     \param [in] type int Draw type enum (i.e. GEOM_DRAW_SHADE)
 */
 
-extern void SetGeomDrawType(const string &geom_id, int type);
+extern void SetGeomDrawType(const std::string &geom_id, int type);
 
 /*!
     \ingroup Visualization
@@ -9086,7 +9082,7 @@ extern void SetGeomDrawType(const string &geom_id, int type);
     \param [in] b int Blue component of color [0, 255]
 */
 
-extern void SetGeomWireColor( const string &geom_id, int r, int g, int b );
+extern void SetGeomWireColor( const std::string &geom_id, int r, int g, int b );
 
 /*!
     \ingroup Visualization
@@ -9144,7 +9140,7 @@ extern void SetGeomWireColor( const string &geom_id, int r, int g, int b );
     \param [in] type int Display type enum (i.e. DISPLAY_BEZIER)
 */
 
-extern void SetGeomDisplayType(const string &geom_id, int type);
+extern void SetGeomDisplayType(const std::string &geom_id, int type);
 
 /*!
     \ingroup Visualization
@@ -9264,7 +9260,7 @@ extern void SetGeomDisplayType(const string &geom_id, int type);
     \return int Draw type enum (i.e. GEOM_DRAW_SHADE)
 */
 
-extern int GetGeomDrawType( const string &geom_id );
+extern int GetGeomDrawType( const std::string &geom_id );
 
 /*!
     \ingroup Visualization
@@ -9311,7 +9307,7 @@ extern int GetGeomDrawType( const string &geom_id );
     \return int Display type enum (i.e. DISPLAY_BEZIER)
 */
 
-extern int GetGeomDisplayType( const string &geom_id );
+extern int GetGeomDisplayType( const std::string &geom_id );
 
 /*!
     \ingroup Visualization
@@ -9371,7 +9367,7 @@ extern int GetGeomDisplayType( const string &geom_id );
     \return vec3d Red, green and blue components of the wireframe color
 */
 
-extern vec3d GetGeomWireColor( const string &geom_id );
+extern vec3d GetGeomWireColor( const std::string &geom_id );
 
 /*!
     \ingroup Visualization
@@ -9428,9 +9424,9 @@ extern vec3d GetGeomWireColor( const string &geom_id );
     \return string Material name
 */
 
-extern string GetGeomMaterialName( const string &geom_id );
+extern std::string GetGeomMaterialName( const std::string &geom_id );
 
-extern void SetGeomMaterialName( const string &geom_id, const string &name );
+extern void SetGeomMaterialName( const std::string &geom_id, const std::string &name );
 
 /*!
     \ingroup Visualization
@@ -9513,7 +9509,7 @@ extern void SetGeomMaterialName( const string &geom_id, const string &name );
     \param [in] alpha double Transparency factor on scale [0, 1]
 */
 
-extern void AddMaterial( const string &name, const vec3d & ambient, const vec3d & diffuse, const vec3d & specular, const vec3d & emissive, const double & alpha, const double & shininess );
+extern void AddMaterial( const std::string &name, const vec3d & ambient, const vec3d & diffuse, const vec3d & specular, const vec3d & emissive, const double & alpha, const double & shininess );
 
 /*!
     \ingroup Visualization
@@ -9548,7 +9544,7 @@ extern void AddMaterial( const string &name, const vec3d & ambient, const vec3d 
     \return vector\<string\> Array of material names
 */
 
-extern vector < string > GetMaterialNames();
+extern std::vector < std::string > GetMaterialNames();
 
 /*!
     \ingroup Visualization
@@ -10600,7 +10596,7 @@ extern void SetGeomParent( const std::string& geom_id, const std::string& parent
     \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
 */
 
-extern void ReorderGeom( const string & geom_id, int reorder_type );
+extern void ReorderGeom( const std::string & geom_id, int reorder_type );
 
 /*!
     \ingroup Geom
@@ -10669,7 +10665,7 @@ extern void ReorderGeom( const string & geom_id, int reorder_type );
     \return string ParmContainer ID for the attached texture
 */
 
-extern string AttachGeomTexture( const string & geom_id, const string & file_name );
+extern std::string AttachGeomTexture( const std::string & geom_id, const std::string & file_name );
 
 /*!
     \ingroup Geom
@@ -10709,7 +10705,7 @@ extern string AttachGeomTexture( const string & geom_id, const string & file_nam
     \param [in] texture_id string Texture ParmContainer ID
 */
 
-extern void RemoveGeomTexture( const string & geom_id, const string & texture_id );
+extern void RemoveGeomTexture( const std::string & geom_id, const std::string & texture_id );
 
 /*!
     \ingroup Geom
@@ -10757,7 +10753,7 @@ extern void RemoveGeomTexture( const string & geom_id, const string & texture_id
     \return vector<string> Vector of texture ParmContainer IDs
 */
 
-extern vector < string > GetGeomTextureIDVec( const string & geom_id );
+extern std::vector < std::string > GetGeomTextureIDVec( const std::string & geom_id );
 
 /*!
     \ingroup Geom
@@ -10794,7 +10790,7 @@ extern vector < string > GetGeomTextureIDVec( const string & geom_id );
     \return string Name of the texture image file
 */
 
-extern string GetGeomTextureFileName( const string & geom_id, const string & texture_id );
+extern std::string GetGeomTextureFileName( const std::string & geom_id, const std::string & texture_id );
 
 /*!
     \ingroup Geom
@@ -11578,7 +11574,7 @@ extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_
     \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
 */
 
-extern void ReorderSubSurf( const string & geom_id, const string & sub_id, int reorder_type );
+extern void ReorderSubSurf( const std::string & geom_id, const std::string & sub_id, int reorder_type );
 
 /*!
     \ingroup SubSurface
@@ -13248,7 +13244,7 @@ extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, cons
     \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
 */
 
-extern void ReorderFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id, int reorder_type );
+extern void ReorderFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id, int reorder_type );
 
 /*!
     \ingroup FEAMesh
@@ -13312,7 +13308,7 @@ extern void ReorderFeaPart( const string & geom_id, int fea_struct_ind, const st
     \param [in] part_id string FEA Part or FEA Sub-Surface ID of an array part
 */
 
-extern void IndividualizeFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id );
+extern void IndividualizeFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id );
 
 /*!
     \ingroup FEAMesh
@@ -13999,7 +13995,7 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
     \return int FEA SubSurface Index
 */
 
-extern int GetFeaSubSurfIndex( const string & ss_id );
+extern int GetFeaSubSurfIndex( const std::string & ss_id );
 
 /*!
     \ingroup FEAMesh
@@ -14043,7 +14039,7 @@ extern int GetFeaSubSurfIndex( const string & ss_id );
     \return int Number of points in the Poly Spar
 */
 
-extern int GetFeaPolySparNumPt( const string & pspar_id );
+extern int GetFeaPolySparNumPt( const std::string & pspar_id );
 
 /*!
     \ingroup FEAMesh
@@ -14089,7 +14085,7 @@ extern int GetFeaPolySparNumPt( const string & pspar_id );
     \return string ID of the newly added Poly Spar point
 */
 
-extern string AddFeaPolySparPt( const string & pspar_id );
+extern std::string AddFeaPolySparPt( const std::string & pspar_id );
 
 /*!
     \ingroup FEAMesh
@@ -14137,7 +14133,7 @@ extern string AddFeaPolySparPt( const string & pspar_id );
     \return string ID of the newly inserted Poly Spar point
 */
 
-extern string InsertFeaPolySparPt( const string & pspar_id, int index );
+extern std::string InsertFeaPolySparPt( const std::string & pspar_id, int index );
 
 /*!
     \ingroup FEAMesh
@@ -14190,7 +14186,7 @@ extern string InsertFeaPolySparPt( const string & pspar_id, int index );
     \param [in] index int Index of the point to delete
 */
 
-extern void DelFeaPolySparPt( const string & pspar_id, int index );
+extern void DelFeaPolySparPt( const std::string & pspar_id, int index );
 
 /*!
     \ingroup FEAMesh
@@ -14240,7 +14236,7 @@ extern void DelFeaPolySparPt( const string & pspar_id, int index );
     \param [in] pspar_id string FEA Poly Spar part ID
 */
 
-extern void DelAllFeaPolySparPt( const string & pspar_id );
+extern void DelAllFeaPolySparPt( const std::string & pspar_id );
 
 /*!
     \ingroup FEAMesh
@@ -14293,7 +14289,7 @@ extern void DelAllFeaPolySparPt( const string & pspar_id );
     \return int New index of the moved point
 */
 
-extern int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_type );
+extern int MoveFeaPolySparPt( const std::string & pspar_id, int index, int reorder_type );
 
 /*!
     \ingroup FEAMesh
@@ -14341,7 +14337,7 @@ extern int MoveFeaPolySparPt( const string & pspar_id, int index, int reorder_ty
     \param [in] name string New name for the point
 */
 
-extern void SetFeaPolySparPtName( const string & pspar_id, int index, const string & name );
+extern void SetFeaPolySparPtName( const std::string & pspar_id, int index, const std::string & name );
 
 /*!
     \ingroup FEAMesh
@@ -14391,7 +14387,7 @@ extern void SetFeaPolySparPtName( const string & pspar_id, int index, const stri
     \return string Name of the point
 */
 
-extern string GetFeaPolySparPtName( const string & pspar_id, int index );
+extern std::string GetFeaPolySparPtName( const std::string & pspar_id, int index );
 
 /*!
     \ingroup FEAMesh
@@ -14450,7 +14446,7 @@ extern string GetFeaPolySparPtName( const string & pspar_id, int index );
     \return string ID of the Poly Spar point ParmContainer
 */
 
-extern string GetFeaPolySparPtID( const string & pspar_id, int index );
+extern std::string GetFeaPolySparPtID( const std::string & pspar_id, int index );
 
 /*!
     \ingroup FEAMesh
@@ -14510,7 +14506,7 @@ extern string GetFeaPolySparPtID( const string & pspar_id, int index );
     \return vector \<string\> Vector of Poly Spar point ParmContainer IDs
 */
 
-extern vector < string > GetAllFeaPolySparPtIDVec( const string & pspar_id );
+extern std::vector < std::string > GetAllFeaPolySparPtIDVec( const std::string & pspar_id );
 
 /*!
     \ingroup FEAMesh
@@ -15596,7 +15592,7 @@ extern int NumFeaSubSurfs( const std::string & fea_struct_id );
     \return string FEA BC ID
 */
 
-extern std::string AddFeaBC( const string & fea_struct_id, int type = -1 );
+extern std::string AddFeaBC( const std::string & fea_struct_id, int type = -1 );
 
 /*!
     \ingroup FEAMesh
@@ -15665,7 +15661,7 @@ extern std::string AddFeaBC( const string & fea_struct_id, int type = -1 );
     \param [in] bc_id int FEA BC ID
 */
 
-extern void DelFeaBC( const string & fea_struct_id, const std::string &bc_id );
+extern void DelFeaBC( const std::string & fea_struct_id, const std::string &bc_id );
 
 /*!
     \ingroup FEAMesh
@@ -15717,7 +15713,7 @@ extern void DelFeaBC( const string & fea_struct_id, const std::string &bc_id );
     \return vector\<string\> Array of FEA BC IDs
 */
 
-extern std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id );
+extern std::vector< std::string > GetFeaBCIDVec( const std::string & fea_struct_id );
 
 /*!
     \ingroup FEAMesh
@@ -15785,7 +15781,7 @@ extern std::vector< std::string > GetFeaBCIDVec( const string & fea_struct_id );
     \return int Number of FEA BCs
 */
 
-extern int NumFeaBCs( const string & fea_struct_id );
+extern int NumFeaBCs( const std::string & fea_struct_id );
 
 /*!
     \ingroup FEAMesh
@@ -16072,7 +16068,7 @@ extern void DeleteFeaLayer( const std::string & material_id, const std::string &
     \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
 */
 
-extern void ReorderFeaLayer( const string & material_id, const string & layer_id, int reorder_type );
+extern void ReorderFeaLayer( const std::string & material_id, const std::string & layer_id, int reorder_type );
 
 /*!
     \ingroup FEAMesh
@@ -16646,7 +16642,7 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
 
 extern std::string GetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type );
 
-extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type, const string & file_name );
+extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type, const std::string & file_name );
 
 /*!
     \ingroup FEAMesh
@@ -16881,7 +16877,7 @@ extern void ComputeFeaMesh( const std::string & struct_id, int file_type );
     \param [in] alias string Xsec alias
 */
 
-extern void SetXSecAlias( const string & id, const string & alias );
+extern void SetXSecAlias( const std::string & id, const std::string & alias );
 
 /*!
     \ingroup XSec
@@ -16942,7 +16938,7 @@ extern void SetXSecAlias( const string & id, const string & alias );
     \return string Xsec alias
 */
 
-extern string GetXSecAlias( const string & id );
+extern std::string GetXSecAlias( const std::string & id );
 
 /*!
     \ingroup XSec
@@ -17003,7 +16999,7 @@ extern string GetXSecAlias( const string & id );
     \param [in] alias string XsecCurve alias
 */
 
-extern void SetXSecCurveAlias( const string & id, const string & alias );
+extern void SetXSecCurveAlias( const std::string & id, const std::string & alias );
 
 /*!
     \ingroup XSec
@@ -17063,7 +17059,7 @@ extern void SetXSecCurveAlias( const string & id, const string & alias );
     \param [in] id string XSec ID
 */
 
-extern string GetXSecCurveAlias( const string & id );
+extern std::string GetXSecCurveAlias( const std::string & id );
 
 /*!
     \ingroup XSec
@@ -17464,7 +17460,7 @@ extern void InsertXSec( const std::string & geom_id, int index, int type );
     \param [in] section_index int Wing section index
 */
 
-extern void SplitWingXSec( const string & wing_id, int section_index );
+extern void SplitWingXSec( const std::string & wing_id, int section_index );
 
 /*!
     \ingroup Geom
@@ -17931,7 +17927,7 @@ extern void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, i
     \param [in] deg int Degree to fit the CST airfoil at
 */
 
-extern void FitCSTAirfoil( const string & xsec_surf_id, int xsec_index, int deg );
+extern void FitCSTAirfoil( const std::string & xsec_surf_id, int xsec_index, int deg );
 
 /*!
     \ingroup XSecSurf
@@ -20646,7 +20642,7 @@ extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d
     \return vector\<vec3d\> Array of points along the Geom's feature lines
 */
 
-extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
+extern std::vector<vec3d> GetFeatureLinePnts( const std::string& geom_id );
 
 /*!
     \ingroup XSec
@@ -21013,7 +21009,7 @@ extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg 
     \return string ID for added Background3D
 */
 
-extern string AddBackground3D();
+extern std::string AddBackground3D();
 
 /*!
     \ingroup Background3D
@@ -21110,7 +21106,7 @@ extern int GetNumBackground3Ds();
     \return vector\<string\> Vector of Background3D IDs
 */
 
-extern vector < string > GetAllBackground3Ds();
+extern std::vector < std::string > GetAllBackground3Ds();
 
 /*!
     \ingroup Background3D
@@ -21301,7 +21297,7 @@ extern void DelAllBackground3Ds();
     \param [in] id string Background3D ID to delete
 */
 
-extern void DelBackground3D( const string &id );
+extern void DelBackground3D( const std::string &id );
 
 /*!
     \ingroup Background3D
@@ -21350,7 +21346,7 @@ extern void DelBackground3D( const string &id );
     \return vector\<string\> Vector of relative paths to Background3D image files
 */
 
-extern vector < string > GetAllBackground3DRelativePaths();
+extern std::vector < std::string > GetAllBackground3DRelativePaths();
 
 /*!
     \ingroup Background3D
@@ -21398,7 +21394,7 @@ extern vector < string > GetAllBackground3DRelativePaths();
     \return vector\<string\> Vector of absolute paths to Background3D image files
 */
 
-extern vector < string > GetAllBackground3DAbsolutePaths();
+extern std::vector < std::string > GetAllBackground3DAbsolutePaths();
 
 /*!
     \ingroup Background3D
@@ -21442,7 +21438,7 @@ extern vector < string > GetAllBackground3DAbsolutePaths();
     \return string Relative path to Background3D image file
 */
 
-extern string GetBackground3DRelativePath( const string &id );
+extern std::string GetBackground3DRelativePath( const std::string &id );
 
 /*!
     \ingroup Background3D
@@ -21485,7 +21481,7 @@ extern string GetBackground3DRelativePath( const string &id );
     \return string Absolute path to Background3D image file
 */
 
-extern string GetBackground3DAbsolutePath( const string &id );
+extern std::string GetBackground3DAbsolutePath( const std::string &id );
 
 /*!
     \ingroup Background3D
@@ -21531,7 +21527,7 @@ extern string GetBackground3DAbsolutePath( const string &id );
     \param [in] fname string Relative path to Background3D image file
 */
 
-extern void SetBackground3DRelativePath( const string &id, const string &fname );
+extern void SetBackground3DRelativePath( const std::string &id, const std::string &fname );
 
 /*!
     \ingroup Background3D
@@ -21580,7 +21576,7 @@ extern void SetBackground3DRelativePath( const string &id, const string &fname )
     \param [in] fname string Absolute path to Background3D image file
 */
 
-extern void SetBackground3DAbsolutePath( const string &id, const string &fname );
+extern void SetBackground3DAbsolutePath( const std::string &id, const std::string &fname );
 
 
 //======================== GearGeom Functions ======================//
@@ -21624,7 +21620,7 @@ extern void SetBackground3DAbsolutePath( const string &id, const string &fname )
     \return string ParmContainer ID for the newly added Bogie
 */
 
-extern string CreateAndAddBogie( const string &gear_id );
+extern std::string CreateAndAddBogie( const std::string &gear_id );
 
 /*!
     \ingroup GearGeom
@@ -21664,7 +21660,7 @@ extern string CreateAndAddBogie( const string &gear_id );
     \return int Number of Bogies in the specified GearGeom
 */
 
-extern int GetNumBogies( const string &gear_id );
+extern int GetNumBogies( const std::string &gear_id );
 
 /*!
     \ingroup GearGeom
@@ -21702,7 +21698,7 @@ extern int GetNumBogies( const string &gear_id );
     \return vector\<string\> Vector of Bogie ParmContainer IDs
 */
 
-extern vector < string > GetAllBogies( const string &gear_id );
+extern std::vector < std::string > GetAllBogies( const std::string &gear_id );
 
 /*!
     \ingroup GearGeom
@@ -21742,7 +21738,7 @@ extern vector < string > GetAllBogies( const string &gear_id );
     \param [in] bogie_id string Bogie ParmContainer ID
 */
 
-extern void DelBogie( const string &gear_id, const string &bogie_id );
+extern void DelBogie( const std::string &gear_id, const std::string &bogie_id );
 
 /*!
     \ingroup GearGeom
@@ -21781,7 +21777,7 @@ extern void DelBogie( const string &gear_id, const string &bogie_id );
     \param [in] gear_id string GearGeom Geom ID
 */
 
-extern void DelAllBogies( const string &gear_id );
+extern void DelAllBogies( const std::string &gear_id );
 
 
 //====================== AuxiliaryGeom Functions ======================//
@@ -21852,7 +21848,7 @@ extern void DelAllBogies( const string &gear_id );
     \param [in] bogie_id string Bogie ParmContainer ID
 */
 
-extern void SetAuxiliaryGeomContactPtID( const string &geom_id, int index, const string &bogie_id );
+extern void SetAuxiliaryGeomContactPtID( const std::string &geom_id, int index, const std::string &bogie_id );
 
 /*!
     \ingroup AuxiliaryGeom
@@ -21903,7 +21899,7 @@ extern void SetAuxiliaryGeomContactPtID( const string &geom_id, int index, const
     \return string Bogie ParmContainer ID, empty if no Bogie is assigned
 */
 
-extern string GetAuxiliaryGeomContactPtID( const string &geom_id, int index );
+extern std::string GetAuxiliaryGeomContactPtID( const std::string &geom_id, int index );
 
 /*!
     \ingroup AuxiliaryGeom
@@ -21954,7 +21950,7 @@ extern string GetAuxiliaryGeomContactPtID( const string &geom_id, int index );
     \param [in] file_name string Name of the *.cce file to read
 */
 
-extern void ReadAuxiliaryGeomCCEFile( const string &geom_id, const string &file_name );
+extern void ReadAuxiliaryGeomCCEFile( const std::string &geom_id, const std::string &file_name );
 
 
 //======================== StackGeom Functions ========================//
@@ -22004,7 +22000,7 @@ extern void ReadAuxiliaryGeomCCEFile( const string &geom_id, const string &file_
     \param [in] preset int Preset enum (see STACK_PRESETS)
 */
 
-extern void InitStackPreset( const string &geom_id, int preset );
+extern void InitStackPreset( const std::string &geom_id, int preset );
 
 
 //======================== RoutingGeom Functions ======================//
@@ -22090,7 +22086,7 @@ extern void InitStackPreset( const string &geom_id, int preset );
     \return int Number of routing points in specified RoutingGeom
 */
 
-extern int GetNumRoutingPts( const string &routing_id );
+extern int GetNumRoutingPts( const std::string &routing_id );
 
 /*!
     \ingroup RoutingGeom
@@ -22153,7 +22149,7 @@ extern int GetNumRoutingPts( const string &routing_id );
     \return string ParmContainer ID for the newly added routing point
 */
 
-extern string AddRoutingPt( const string &routing_id, const string &geom_id, int surf_index );
+extern std::string AddRoutingPt( const std::string &routing_id, const std::string &geom_id, int surf_index );
 
 /*!
     \ingroup RoutingGeom
@@ -22228,7 +22224,7 @@ extern string AddRoutingPt( const string &routing_id, const string &geom_id, int
     \return string ParmContainer ID for the newly added routing point
 */
 
-extern string InsertRoutingPt( const string &routing_id, int index, const string &geom_id, int surf_index );
+extern std::string InsertRoutingPt( const std::string &routing_id, int index, const std::string &geom_id, int surf_index );
 
 /*!
     \ingroup RoutingGeom
@@ -22296,7 +22292,7 @@ extern string InsertRoutingPt( const string &routing_id, int index, const string
     \param [in] index int Index of routing point to delete
 */
 
-extern void DelRoutingPt( const string &routing_id, int index );
+extern void DelRoutingPt( const std::string &routing_id, int index );
 
 /*!
     \ingroup RoutingGeom
@@ -22362,7 +22358,7 @@ extern void DelRoutingPt( const string &routing_id, int index );
     \param [in] routing_id string RoutingGeom Geom ID
 */
 
-extern void DelAllRoutingPt( const string &routing_id );
+extern void DelAllRoutingPt( const std::string &routing_id );
 
 /*!
     \ingroup RoutingGeom
@@ -22452,7 +22448,7 @@ extern void DelAllRoutingPt( const string &routing_id );
     \param [in] reorder_type int Enum specifying reordering type (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
 */
 
-extern int MoveRoutingPt( const string &routing_id, int index, int reorder_type );
+extern int MoveRoutingPt( const std::string &routing_id, int index, int reorder_type );
 
 /*!
     \ingroup RoutingGeom
@@ -22516,7 +22512,7 @@ extern int MoveRoutingPt( const string &routing_id, int index, int reorder_type 
     \return string ParmContainer ID for the specified routing point
 */
 
-extern string GetRoutingPtID( const string &routing_id, int index );
+extern std::string GetRoutingPtID( const std::string &routing_id, int index );
 
 /*!
     \ingroup RoutingGeom
@@ -22579,7 +22575,7 @@ extern string GetRoutingPtID( const string &routing_id, int index );
     \return vector\<string\> Vector of routing point ParmConatiner IDs
 */
 
-extern vector < string > GetAllRoutingPtIds( const string &routing_id );
+extern std::vector < std::string > GetAllRoutingPtIds( const std::string &routing_id );
 
 /*!
     \ingroup RoutingGeom
@@ -22642,7 +22638,7 @@ extern vector < string > GetAllRoutingPtIds( const string &routing_id );
     \return string Geom ID for the geom the routing point is anchored to
 */
 
-extern string GetRoutingPtParentID( const string & pt_id );
+extern std::string GetRoutingPtParentID( const std::string & pt_id );
 
 /*!
     \ingroup RoutingGeom
@@ -22706,7 +22702,7 @@ extern string GetRoutingPtParentID( const string & pt_id );
     \param [in] parent_id string Geom ID for the geom to anchor the routing point to
 */
 
-extern void SetRoutingPtParentID( const string & pt_id, const string &parent_id );
+extern void SetRoutingPtParentID( const std::string & pt_id, const std::string &parent_id );
 
 /*!
     \ingroup RoutingGeom
@@ -22788,7 +22784,7 @@ extern void SetRoutingPtParentID( const string & pt_id, const string &parent_id 
     \return vec3d coordinate of main routing point
 */
 
-extern vec3d GetMainRoutingPtCoord( const string &pt_id );
+extern vec3d GetMainRoutingPtCoord( const std::string &pt_id );
 
 /*!
     \ingroup RoutingGeom
@@ -22876,7 +22872,7 @@ extern vec3d GetMainRoutingPtCoord( const string &pt_id );
     \return vec3d coordinate of routing point
 */
 
-extern vec3d GetRoutingPtCoord( const string &routing_id, int index, int symm_index );
+extern vec3d GetRoutingPtCoord( const std::string &routing_id, int index, int symm_index );
 
 /*!
     \ingroup RoutingGeom
@@ -22982,7 +22978,7 @@ extern vec3d GetRoutingPtCoord( const string &routing_id, int index, int symm_in
     \return vector \< vec3d \> coordinate of routing points along RoutingGeom
 */
 
-extern vector < vec3d > GetAllRoutingPtCoords( const string &routing_id, int symm_index );
+extern std::vector < vec3d > GetAllRoutingPtCoords( const std::string &routing_id, int symm_index );
 
 /*!
     \ingroup RoutingGeom
@@ -23072,7 +23068,7 @@ extern vector < vec3d > GetAllRoutingPtCoords( const string &routing_id, int sym
     \return vector \< vec3d \> coordinate of points along RoutingGeom curve
 */
 
-extern vector < vec3d > GetRoutingCurve( const string &routing_id, int symm_index );
+extern std::vector < vec3d > GetRoutingCurve( const std::string &routing_id, int symm_index );
 
 //======================== BOR Functions ======================//
 /*!
@@ -23108,7 +23104,7 @@ extern vector < vec3d > GetRoutingCurve( const string &routing_id, int symm_inde
     \param [in] type int XSec type enum (i.e. XS_ROUNDED_RECTANGLE)
 */
 
-extern void ChangeBORXSecShape( const string & bor_id, int type );
+extern void ChangeBORXSecShape( const std::string & bor_id, int type );
 
 /*!
     \ingroup BOR
@@ -23142,7 +23138,7 @@ extern void ChangeBORXSecShape( const string & bor_id, int type );
     \return int XSec type enum (i.e. XS_ROUNDED_RECTANGLE)
 */
 
-extern int GetBORXSecShape( const string & bor_id );
+extern int GetBORXSecShape( const std::string & bor_id );
 
 /*!
     \ingroup BOR
@@ -27666,7 +27662,7 @@ extern std::string GetUserParmContainer();
     \return string Parm ID
   */
 
-extern string AddUserParm(int type, const string & name, const string & group );
+extern std::string AddUserParm(int type, const std::string & name, const std::string & group );
 
 /*!
     \ingroup ParmContainer
@@ -27836,7 +27832,7 @@ extern void DeleteAllUserParm();
     \return double Minimum clearance distance
 */
 
-extern double ComputeMinClearanceDistance( const std::string & geom_id, int set  = SET_ALL, bool useMode = false, const string &modeID = string() );
+extern double ComputeMinClearanceDistance( const std::string & geom_id, int set  = SET_ALL, bool useMode = false, const std::string &modeID = std::string() );
 
 /*!
     \ingroup SnapTo
@@ -27916,7 +27912,7 @@ extern double ComputeMinClearanceDistance( const std::string & geom_id, int set 
     \return double Minimum clearance distance
 */ // TODO: Validate inc_flag description
 
-extern double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL, bool useMode = false, const string &modeID = string() );
+extern double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL, bool useMode = false, const std::string &modeID = std::string() );
 
 
 //======================== Variable Preset Functions ======================//
@@ -27952,7 +27948,7 @@ extern double SnapParm( const std::string & parm_id, double target_min_dist, boo
     \return string Var Preset Group ID
 */
 
-extern string AddVarPresetGroup( const std::string &group_name );
+extern std::string AddVarPresetGroup( const std::string &group_name );
 
 /*!
     \ingroup VariablePreset
@@ -27991,7 +27987,7 @@ extern string AddVarPresetGroup( const std::string &group_name );
     \return string Var Preset Setting ID
 */
 
-extern string AddVarPresetSetting( const std::string &group_id, const std::string &setting_name );
+extern std::string AddVarPresetSetting( const std::string &group_id, const std::string &setting_name );
 
 /*!
     \ingroup VariablePreset
@@ -29222,7 +29218,7 @@ extern void ApplyVarPresetSetting( const std::string &group_id, const std::strin
     \return string Mode ID for new Mode
 */
 
-extern string CreateAndAddMode( const string & name, int normal_set, int degen_set );
+extern std::string CreateAndAddMode( const std::string & name, int normal_set, int degen_set );
 
 /*!
     \ingroup Mode
@@ -29552,7 +29548,7 @@ extern int GetNumModes();
     \return array<string> array of Mode IDs
 */
 
-extern vector < string > GetAllModes();
+extern std::vector < std::string > GetAllModes();
 
 /*!
     \ingroup Mode
@@ -29720,7 +29716,7 @@ extern vector < string > GetAllModes();
     \param [in] mid string Mode ID of mode to delete
 */
 
-extern void DelMode( const string &mid );
+extern void DelMode( const std::string &mid );
 
 /*!
     \ingroup Mode
@@ -30158,7 +30154,7 @@ extern void DelAllModes();
     \return string Mode name
 */
 
-extern string GetModeName( const string &mid );
+extern std::string GetModeName( const std::string &mid );
 
 /*!
     \ingroup Mode
@@ -30211,9 +30207,9 @@ extern string GetModeName( const string &mid );
     \param [in] name string Mode name
 */
 
-extern void SetModeName( const string &mid, const string &name );
+extern void SetModeName( const std::string &mid, const std::string &name );
 
-extern void ApplyModeSettings( const string &mid );
+extern void ApplyModeSettings( const std::string &mid );
 
 /*!
     \ingroup Mode
@@ -30413,7 +30409,7 @@ extern void ApplyModeSettings( const string &mid );
     \param [in] mid string Mode ID of mode to show-only
 */
 
-extern void ShowOnlyMode( const string &mid );
+extern void ShowOnlyMode( const std::string &mid );
 
 /*!
     \ingroup Mode
@@ -30632,7 +30628,7 @@ extern void ShowOnlyMode( const string &mid );
     \param [in] sid string Variable preset setting ID to add to mode
 */
 
-extern void ModeAddGroupSetting( const string &mid, const string &gid, const string &sid );
+extern void ModeAddGroupSetting( const std::string &mid, const std::string &gid, const std::string &sid );
 
 /*!
     \ingroup Mode
@@ -30800,7 +30796,7 @@ extern void ModeAddGroupSetting( const string &mid, const string &gid, const str
     \return string Group ID for Mode Variable preset indx
 */
 
-extern string ModeGetGroup( const string &mid, int indx );
+extern std::string ModeGetGroup( const std::string &mid, int indx );
 
 /*!
     \ingroup Mode
@@ -30968,7 +30964,7 @@ extern string ModeGetGroup( const string &mid, int indx );
     \return string Setting ID for Mode Variable preset indx
 */
 
-extern string ModeGetSetting( const string &mid, int indx );
+extern std::string ModeGetSetting( const std::string &mid, int indx );
 
 /*!
     \ingroup Mode
@@ -31149,7 +31145,7 @@ extern string ModeGetSetting( const string &mid, int indx );
     \return array<string> array of Group IDs
 */
 
-extern vector < string >  ModeGetAllGroups( const string &mid );
+extern std::vector < std::string >  ModeGetAllGroups( const std::string &mid );
 
 /*!
     \ingroup Mode
@@ -31320,7 +31316,7 @@ extern vector < string >  ModeGetAllGroups( const string &mid );
     \return array<string> array of Group IDs
 */
 
-extern vector < string >  ModeGetAllSettings( const string &mid );
+extern std::vector < std::string >  ModeGetAllSettings( const std::string &mid );
 
 /*!
     \ingroup Mode
@@ -31496,7 +31492,7 @@ extern vector < string >  ModeGetAllSettings( const string &mid );
     \param [in] indx int Index of Variable preset to remove
 */
 
-extern void RemoveGroupSetting( const string &mid, int indx );
+extern void RemoveGroupSetting( const std::string &mid, int indx );
 
 /*!
     \ingroup Mode
@@ -31672,7 +31668,7 @@ extern void RemoveGroupSetting( const string &mid, int indx );
     \param [in] mid string Mode ID to remove all variable presets from
 */
 
-extern void RemoveAllGroupSettings( const string &mid );
+extern void RemoveAllGroupSettings( const std::string &mid );
 
 //======================== Parametric Curve Functions ======================//
 /*!
@@ -31896,7 +31892,7 @@ extern void ApproximateAllPropellerPCurves( const std::string & geom_id );
     \param [in] geom_id string Propeller Geom ID
 */
 
-extern void ResetPropellerThickness( const string & geom_id );
+extern void ResetPropellerThickness( const std::string & geom_id );
 
 /*!
     \ingroup PCurve
@@ -32351,7 +32347,7 @@ extern void AutoGroupVSPAEROControlSurfaces();
     \return string Cp slice ID
 */
 
-extern string AddCpSlice( int cut_type, double location );
+extern std::string AddCpSlice( int cut_type, double location );
 
 /*!
     \ingroup CSGroup
@@ -32468,7 +32464,7 @@ extern int GetNumCpSlices();
     \return string Cp slice ID
 */
 
-extern string GetCpSliceID( int slice_index );
+extern std::string GetCpSliceID( int slice_index );
 
 /*!
     \ingroup CSGroup
@@ -32997,7 +32993,7 @@ extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
-extern void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex);
+extern void SetVSPAEROControlGroupName(const std::string & name, int CSGroupIndex);
 
 /*!
     \ingroup CSGroup
@@ -33138,7 +33134,7 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
-extern void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex);
+extern void AddSelectedToCSGroup( const std::vector <int> &selected, int CSGroupIndex);
 
 /*!
     \ingroup CSGroup
@@ -33232,7 +33228,7 @@ extern void AddSelectedToCSGroup( const vector <int> &selected, int CSGroupIndex
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
-extern void RemoveSelectedFromCSGroup( const vector <int> &selected, int CSGroupIndex);
+extern void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CSGroupIndex);
 
 /*!
     \ingroup CSGroup
@@ -34148,7 +34144,7 @@ extern void UpdateParasiteDrag();
     \return string Results ID for the buildup table
 */
 
-extern string ExportParasiteDragToCSV( const string & file_name );
+extern std::string ExportParasiteDragToCSV( const std::string & file_name );
 
 /*!
     \ingroup ParasiteDrag
@@ -37831,9 +37827,9 @@ extern void ShowAllRSTProbes();
 
 extern void HideAllRSTProbes();
 
-extern string AddProtractor( const string & startgeomid, int startsurfindx, double startu, double startw,
-                             const string & midgeomid, int midsurfindx, double midu, double midw,
-                             const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );
+extern std::string AddProtractor( const std::string & startgeomid, int startsurfindx, double startu, double startw,
+                             const std::string & midgeomid, int midsurfindx, double midu, double midw,
+                             const std::string & endgeomid, int endsurfindx, double endu, double endw, const std::string & name );
 
 /*!
     \ingroup Measure
@@ -37880,7 +37876,7 @@ extern string AddProtractor( const string & startgeomid, int startsurfindx, doub
     \return vector\<string\> Array of Protractor IDs
 */
 
-extern std::vector < string > GetAllProtractors();
+extern std::vector < std::string > GetAllProtractors();
 
 /*!
     \ingroup Measure
@@ -37927,7 +37923,7 @@ extern std::vector < string > GetAllProtractors();
     \param [in] id string Protractor ID
 */
 
-extern void DelProtractor( const string &id );
+extern void DelProtractor( const std::string &id );
 
 /*!
     \ingroup Measure
@@ -38038,7 +38034,7 @@ extern void DeleteAllProtractors();
     \return string RST Probe ID
 */
 
-extern string AddRSTProbe( const string & geomid, int surfindx, double r, double s, double t, const string & name );
+extern std::string AddRSTProbe( const std::string & geomid, int surfindx, double r, double s, double t, const std::string & name );
 
 /*!
     \ingroup Measure
@@ -38085,7 +38081,7 @@ extern string AddRSTProbe( const string & geomid, int surfindx, double r, double
     \return vector\<string\> Array of RST Probe IDs
 */
 
-extern std::vector < string > GetAllRSTProbes();
+extern std::vector < std::string > GetAllRSTProbes();
 
 /*!
     \ingroup Measure
@@ -38132,7 +38128,7 @@ extern std::vector < string > GetAllRSTProbes();
     \param [in] id string RST Probe ID
 */
 
-extern void DelRSTProbe( const string &id );
+extern void DelRSTProbe( const std::string &id );
 
 /*!
     \ingroup Measure
@@ -38186,8 +38182,8 @@ extern void DelRSTProbe( const string &id );
 
 extern void DeleteAllRSTProbes();
 
-extern string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
-                        const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );
+extern std::string AddRuler( const std::string & startgeomid, int startsurfindx, double startu, double startw,
+                        const std::string & endgeomid, int endsurfindx, double endu, double endw, const std::string & name );
 /*!
     \ingroup Measure
 */
@@ -38250,7 +38246,7 @@ extern string AddRuler( const string & startgeomid, int startsurfindx, double st
     \return vector\<string\> Vector of Ruler IDs
 */
 
-extern std::vector < string > GetAllRulers();
+extern std::vector < std::string > GetAllRulers();
 
 /*!
     \ingroup Measure
@@ -38309,7 +38305,7 @@ extern std::vector < string > GetAllRulers();
     \param [in] id string Ruler ID
 */
 
-extern void DelRuler( const string &id );
+extern void DelRuler( const std::string &id );
 
 /*!
     \ingroup Measure
@@ -38406,7 +38402,7 @@ extern void DeleteAllRulers();
     \return string Probe ID
 */
 
-extern string AddProbe( const string & geomid, int surfindx, double u, double w, const string & name );
+extern std::string AddProbe( const std::string & geomid, int surfindx, double u, double w, const std::string & name );
 
 /*!
     \ingroup Measure
@@ -38453,7 +38449,7 @@ extern string AddProbe( const string & geomid, int surfindx, double u, double w,
     \return vector\<string\> Array of Probe IDs
 */
 
-extern std::vector < string > GetAllProbes();
+extern std::vector < std::string > GetAllProbes();
 
 /*!
     \ingroup Measure
@@ -38498,7 +38494,7 @@ extern std::vector < string > GetAllProbes();
     \param [in] id string Probe ID
 */
 
-extern void DelProbe( const string &id );
+extern void DelProbe( const std::string &id );
 
 /*!
     \ingroup Measure
@@ -39349,7 +39345,7 @@ extern std::string CreateConvexHull( const std::string & geom_id );
     \param [in] dir_index int Direction to project along, X_DIR, Y_DIR or Z_DIR (see DIR_INDEX)
 */
 
-extern void ProjectPtCloudPts( const string & geom_id, const string & target_geom_id, int surf_index, int dir_index );
+extern void ProjectPtCloudPts( const std::string & geom_id, const std::string & target_geom_id, int surf_index, int dir_index );
 
 /*!
     \ingroup Sets
@@ -40860,7 +40856,7 @@ extern std::vector< std::string > GetAdvLinkNames();
 
 */
 
-extern int GetLinkIndex( const string & name );
+extern int GetLinkIndex( const std::string & name );
 
 /*!
     \ingroup AdvancedLink
@@ -41286,7 +41282,7 @@ extern void DelAllAdvLinks();
     \param [in] name string Name for advanced link
 */
 
-extern void AddAdvLink( const string & name );
+extern void AddAdvLink( const std::string & name );
 
 /*!
     \ingroup AdvancedLink
@@ -41366,7 +41362,7 @@ extern void AddAdvLink( const string & name );
     \param [in] var_name string Name for advanced link input variable
 */
 
-extern void AddAdvLinkInput( int index, const string & parm_id, const string & var_name );
+extern void AddAdvLinkInput( int index, const std::string & parm_id, const std::string & var_name );
 
 /*!
     \ingroup AdvancedLink
@@ -41446,7 +41442,7 @@ extern void AddAdvLinkInput( int index, const string & parm_id, const string & v
     \param [in] var_name string Name for advanced link output variable
 */
 
-extern void AddAdvLinkOutput( int index, const string & parm_id, const string & var_name );
+extern void AddAdvLinkOutput( int index, const std::string & parm_id, const std::string & var_name );
 
 /*!
     \ingroup AdvancedLink
@@ -41691,7 +41687,7 @@ extern void DelAllAdvLinkInputs( int index );
 
 extern void DelAllAdvLinkOutputs( int index );
 
-extern void DelAdvLinkInput( int index, const string & var_name );
+extern void DelAdvLinkInput( int index, const std::string & var_name );
 
 /*!
     \ingroup AdvancedLink
@@ -41792,7 +41788,7 @@ extern void DelAdvLinkInput( int index, const string & var_name );
     \param [in] var_name string Name for advanced link output variable to delete
 */
 
-extern void DelAdvLinkOutput( int index, const string & var_name );
+extern void DelAdvLinkOutput( int index, const std::string & var_name );
 
 /*!
     \ingroup AdvancedLink
@@ -42215,7 +42211,7 @@ extern bool ValidateAdvLinkParms( int index );
     \param [in] code string Code for advanced link
 */
 
-extern void SetAdvLinkCode( int index, const string & code );
+extern void SetAdvLinkCode( int index, const std::string & code );
 
 /*!
     \ingroup AdvancedLink
@@ -42375,7 +42371,7 @@ extern std::string GetAdvLinkCode( int index );
     \param [in] to string Replace token
 */
 
-extern void SearchReplaceAdvLinkCode( int index, const string & from, const string & to );
+extern void SearchReplaceAdvLinkCode( int index, const std::string & from, const std::string & to );
 
 /*!
     \ingroup AdvancedLink
@@ -42515,7 +42511,7 @@ extern bool BuildAdvLinkScript( int index );
     \param [in] file_name string Name of the file to write
 */
 
-extern void WriteAdvLinkCodeFile( int index, const string & file_name );
+extern void WriteAdvLinkCodeFile( int index, const std::string & file_name );
 
 /*!
     \ingroup AdvancedLink
@@ -42572,7 +42568,7 @@ extern void WriteAdvLinkCodeFile( int index, const string & file_name );
     \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
 */
 
-extern void ReorderAdvLinkInput( int index, const string & var_name, int reorder_type );
+extern void ReorderAdvLinkInput( int index, const std::string & var_name, int reorder_type );
 
 /*!
     \ingroup AdvancedLink
@@ -42630,7 +42626,7 @@ extern void ReorderAdvLinkInput( int index, const string & var_name, int reorder
     \param [in] reorder_type int Reorder type enum (see REORDER_TYPE)
 */
 
-extern void ReorderAdvLinkOutput( int index, const string & var_name, int reorder_type );
+extern void ReorderAdvLinkOutput( int index, const std::string & var_name, int reorder_type );
 
 /*!
     \ingroup AdvancedLink
@@ -42702,7 +42698,7 @@ extern void ReorderAdvLinkOutput( int index, const string & var_name, int reorde
     \param [in] file_name string Name of the file to read
 */
 
-extern void ReadAdvLinkCodeFile( int index, const string & file_name );
+extern void ReadAdvLinkCodeFile( int index, const std::string & file_name );
 
 /*!
     \ingroup AdvancedLink
