@@ -1,3 +1,90 @@
+# [OpenVSP 3.51.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.51.3)
+
+2026-08-17
+
+OpenVSP 3.51.3
+
+While this version breaks from the strict 'speed only' theme of .1 and .2, this
+release is still pretty small and doesn't warrant a new .0 release.
+
+It includes one fix for the only problem found so far in .1 or .2.  This was an
+esoteric issue with the AngelScript wrappers for some OpenVSP classes.  These
+only manifested when running scripts that used certain language features on
+these classes.  Thanks to John Dannenhoffer for finding a failure case at the
+Workshop.
+
+That lead me down an AI driven path to turn the API example code (and other
+sample scripts in the tree) into unit tests that can actually report failures.
+This sudden increase in tests consequently turned up some bugs.  This also has
+the effect of making the documentation code samples a bit ugly.  If this is a
+real problem, let me know and I'll see if there is a way to get clean examples
+while keeping the value of the tests.
+
+As it turns out, our inertia calculation for thin-shells has been wrong forever.
+Since the major contribution is the parallel axis theorem part (which was
+right), our answers were close enough to not raise suspicion.  Now they are
+correct.
+
+The search and replace variable names in Advanced Link code could screw up in
+certain situations.  It shouldn't eat your code now.
+
+CFDMesh with a symmetry plane may be vanishingly faster.  Nobody will ever
+notice.
+
+There were a few other fixes in this sweep.  Nothing major, but good things
+to fix.
+
+After the sample code and unit testing sweep, I asked AI to audit the API for
+completeness.  This was inspired by the observation that there was no
+SetContainerName() in the API.  Thanks to Cooper Cook for pointing that out.
+
+We started with a pass looking for asymmetric pairs -- Set/Get, Add/Delete, etc.
+After that, we searched for any GUI button that didn't have an API equivalent.
+For all these things, AI added the API call, registered it with AngelScript,
+wrote the help documentation including AS and Python examples - including
+test conditions making the example into a unit test.  While I'm sure it isn't
+perfect, it should be better.
+
+Another Workshop discovery, Max Lindstrom found that you couldn't work with
+matrix type spreadsheet UI's (say for Attributes or Results).  This was caused
+by a recent change I'd made to increase pointer safety in that area.  Searching
+for the same problem elsewhere turned up another latent bug in AttributeScreen.
+
+As it turns out, ancient SWIG doesn't like 'using std::' directives.  Since we
+used std:: inconsistently in the API header, seemingly random Python API calls
+failed to work on RHEL8.  That should be sorted.
+
+The Python MANIFEST.in should be platform agnostic for any users installing
+the OpenVSP package with pip.
+
+Jaime Benitez did some debugging and enhancements for VSPAERO moving body
+full unsteady analysis.  They should be useful for people who drop things.
+
+Roman Prokopyshyn had help from Claude fixing some problems with one of
+the VSPAERO example cases that hadn't been touched since before the
+thick/thin era.
+
+Features:
+- API code examples now serve as unit tests
+- AI Audit for API completeness
+- VSPAERO Outputs more stuff for dynamic analysis
+
+Build System:
+- Update AngelScript to v2.38
+- Improve Python MANIFEST.in and packaging
+
+Bugs:
+- Fix AngelScript registration of vec3d and Matrix4d
+- Fix thin shell inertia calculation
+- Fix many small bugs identified by new unit tests
+- Fix matrix spreadsheet UI referencing
+- Fix DeltaFlatPlateDragArea for unsteady cases (thanks Jaime)
+- Swept_Wing_API example VSPAERO script brought current (thanks Roman)
+
+
+---
+
+
 # [OpenVSP 3.51.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.51.2)
 
 2026-07-26
