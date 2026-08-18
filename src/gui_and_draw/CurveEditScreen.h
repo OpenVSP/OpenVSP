@@ -153,7 +153,7 @@ private:
     double m_ImageXOffsetOrig;
     double m_ImageYOffsetOrig;
 
-    XSecCurve *m_XSecCurve;
+    string m_XSecCurveID;
 };
 
 #endif // !defined(CURVE_EDIT_H)

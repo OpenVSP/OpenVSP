@@ -23,6 +23,7 @@
 #include "Background.h"
 #include "GraphicSingletons.h"
 #include "SubSurfaceMgr.h"
+#include "ParmMgr.h"
 
 #include "VspUtil.h"
 
@@ -347,7 +348,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_ImageWOrig = 1;
     m_ImageHOrig = 1;
 
-    m_XSecCurve = nullptr;
+    m_XSecCurveID = string();
 }
 
 //==== Deconstructor ====//
@@ -380,13 +381,20 @@ void CurveEditScreen::Show()
 
 void CurveEditScreen::SetXSecCurve( XSecCurve* xsc )
 {
-    m_XSecCurve = xsc;
+    if ( xsc )
+    {
+        m_XSecCurveID = xsc->GetID();
+    }
+    else
+    {
+        m_XSecCurveID = string();
+    }
 }
 
 //==== Get the Active XSec Curve ====//
 XSecCurve* CurveEditScreen::GetXSecCurve()
 {
-    return m_XSecCurve;
+    return dynamic_cast< XSecCurve* >( ParmMgr.FindParmContainer( m_XSecCurveID ) );
 }
 
 //==== Update Curve Edit Screen ====//
