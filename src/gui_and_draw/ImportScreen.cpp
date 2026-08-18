@@ -27,7 +27,7 @@ ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 200, 25 + 9*20
     m_GenLayout.AddButton( m_NASCARTButton, "NASCART (.dat)" );
     m_GenLayout.AddButton( m_XSecButton, "XSec as Tri Mesh (.hrm)" );
     m_GenLayout.AddButton( m_XSecWireButton, "XSec as Wireframe (.hrm)" );
-    m_GenLayout.AddButton( m_PTSButton, "Point Cloud (.pts)" );
+    m_GenLayout.AddButton( m_PTSButton, "Point Cloud (.pts, .csv)" );
     m_GenLayout.AddButton( m_V2Button, "OpenVSP v2 (.vsp)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
     m_GenLayout.AddButton( m_P3DWireButton, "Plot3D as Wireframe (.p3d)" );
@@ -62,7 +62,7 @@ void ImportScreen::ImportFile( string & in_file, int type )
     }
     else if ( type == IMPORT_PTS )
     {
-        in_file = m_ScreenMgr->FileChooser( "Import Points File?", "*.pts" );
+        in_file = m_ScreenMgr->FileChooser( "Import Points File?", "*.{pts,csv}" );
     }
     else if ( type == IMPORT_V2 )
     {

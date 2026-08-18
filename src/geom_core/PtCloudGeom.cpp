@@ -202,7 +202,7 @@ int PtCloudGeom::ReadPTS( const char* file_name )
         while ( !stopFlag )
         {
             double x, y, z;
-            if ( EOF == fscanf( file_id, "%lf %lf %lf\n", &x, &y, &z ) )
+            if ( EOF == fscanf( file_id, "%lf%*[, ]%lf%*[, ]%lf\n", &x, &y, &z ) )
             {
                 break;
             }
