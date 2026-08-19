@@ -2568,7 +2568,7 @@ bool FeaPartEditScreen::Update()
 
                             if ( xsscreen )
                             {
-                                xsscreen->SetXSecCurve( xsc );
+                                xsscreen->SetXSecCurve( xsc->GetID() );
                             }
 
                             empty_coll_ids.push_back( xsc->GetAttrCollection()->GetID() );

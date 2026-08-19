@@ -1246,8 +1246,10 @@ public:
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual void SetXSecCurve( XSecCurve* xsc ) { m_XSecCurve = xsc; };
+    virtual void SetXSecCurve( const string &xsc_id ) { m_XSecCurveID = xsc_id; };
 protected:
+
+    virtual XSecCurve* GetXSecCurve();
 
     VSPGUI::VspSubGlWindow * m_GlWin;
 
@@ -1273,7 +1275,7 @@ protected:
 
     TriggerButton m_ResetDefaults;
 
-    XSecCurve * m_XSecCurve;
+    string m_XSecCurveID;
 
     DrawObj m_CurveDO;
 };

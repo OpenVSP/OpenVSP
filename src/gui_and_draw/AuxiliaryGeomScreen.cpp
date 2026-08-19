@@ -1267,7 +1267,7 @@ bool AuxiliaryGeomScreen::Update()
 
                 if ( xsscreen )
                 {
-                    xsscreen->SetXSecCurve( xsc );
+                    xsscreen->SetXSecCurve( xsc->GetID() );
                 }
 
                 m_XsecAttributeEditor.SetEditorCollID( xsc->GetAttrCollection()->GetID() );

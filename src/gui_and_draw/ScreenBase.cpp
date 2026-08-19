@@ -2149,7 +2149,7 @@ bool GeomScreen::Update()
                 Fl_Group* sstab = GetTab( m_SubSurfTab_ind );
                 if ( xsscreen && sstab && tabs && tabs->value() == sstab)
                 {
-                    xsscreen->SetXSecCurve( xsc );
+                    xsscreen->SetXSecCurve( xsc->GetID() );
                 }
 
                 empty_coll_ids.push_back( xsc->GetAttrCollection()->GetID() );
@@ -4188,7 +4188,7 @@ bool XSecScreen::Update()
 
             if ( xsscreen )
             {
-                xsscreen->SetXSecCurve( xsc );
+                xsscreen->SetXSecCurve( xsc->GetID() );
             }
 
             m_XSecCurveNameInput.Update( xsc->GetGroupAlias() );
@@ -6629,7 +6629,13 @@ XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 600, "
     m_Image.GetFlButton()->value( 0 );
     m_PreserveAspect.GetFlButton()->value( 1 );
 
-    m_XSecCurve = nullptr;
+    m_XSecCurveID = string();
+}
+
+//==== Get the Active XSec Curve ====//
+XSecCurve* XSecViewScreen::GetXSecCurve()
+{
+    return dynamic_cast< XSecCurve* >( ParmMgr.FindParmContainer( m_XSecCurveID ) );
 }
 
 bool XSecViewScreen::Update()
@@ -6640,7 +6646,7 @@ bool XSecViewScreen::Update()
 
     BasicScreen::Update();
 
-    XSecCurve* xsc = m_XSecCurve;
+    XSecCurve* xsc = GetXSecCurve();
 
     if( !xsc )
     {
@@ -6732,7 +6738,7 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    XSecCurve* xsc = m_XSecCurve;
+    XSecCurve* xsc = GetXSecCurve();
 
     if( !xsc )
     {
@@ -6800,7 +6806,7 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void XSecViewScreen::UpdateDrawObj()
 {
-    XSecCurve* xsc = m_XSecCurve;
+    XSecCurve* xsc = GetXSecCurve();
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     if( xsc && veh )
