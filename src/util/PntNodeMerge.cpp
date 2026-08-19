@@ -12,6 +12,7 @@
 //******************************************************************************
 
 #include "PntNodeMerge.h"
+#include "VspSurf.h"
 
 PntNodeCloud::PntNodeCloud()
 {
@@ -185,3 +186,197 @@ void IndexPntNodes( PntNodeCloud & cloud, double tol )
 
 
 
+
+bool AnyPntWithinTol( PntNodeCloud & cloud, const vec3d & pnt, double tol )
+{
+    if ( !cloud.m_index )
+    {
+        return false;
+    }
+
+    vector < pair < unsigned int, double > > matches;
+    nanoflann::SearchParams params;
+
+    // L2_Simple_Adaptor works in squared distance, so the radius handed to radiusSearch is squared.
+    vec3d p = pnt;
+    return cloud.m_index->radiusSearch( &p[0], tol * tol, matches, params ) > 0;
+}
+
+vector < vec3d > FilterPntsByMembership( const vector < vec3d > & pnts, const vector < vec3d > & other_pnts,
+                                         double tol, bool keep_matched )
+{
+    vector < vec3d > out;
+
+    if ( other_pnts.empty() )
+    {
+        // Nothing to match against: everything matches nothing, so keeping the matched ones keeps
+        // none and dropping them keeps all.
+        if ( !keep_matched )
+        {
+            out = pnts;
+        }
+        return out;
+    }
+
+    PntNodeCloud cloud;
+    cloud.AddPntNodes( other_pnts );
+    IndexPntNodes( cloud, tol * tol );
+
+    out.reserve( pnts.size() );
+    for ( int i = 0; i < ( int )pnts.size(); i++ )
+    {
+        if ( AnyPntWithinTol( cloud, pnts[i], tol ) == keep_matched )
+        {
+            out.push_back( pnts[i] );
+        }
+    }
+
+    return out;
+}
+
+vector < vec3d > UniquePnts( const vector < vec3d > & pnts, double tol )
+{
+    vector < vec3d > out;
+
+    if ( pnts.empty() )
+    {
+        return out;
+    }
+
+    // The tree groups every point with the others within tol and names one of each group; those
+    // are the ones kept.  O( n log n ) rather than comparing every pair.
+    PntNodeCloud cloud;
+    cloud.AddPntNodes( pnts );
+    IndexPntNodes( cloud, tol * tol );
+
+    out.reserve( pnts.size() );
+    for ( int i = 0; i < ( int )pnts.size(); i++ )
+    {
+        if ( cloud.UsedNode( i ) )
+        {
+            out.push_back( pnts[i] );
+        }
+    }
+
+    return out;
+}
+
+vector < vec3d > FilterPntsInBBox( const vector < vec3d > & pnts, const vec3d & min_pnt, const vec3d & max_pnt,
+                                   bool keep_inside )
+{
+    vector < vec3d > out;
+    out.reserve( pnts.size() );
+
+    for ( int i = 0; i < ( int )pnts.size(); i++ )
+    {
+        const vec3d &p = pnts[i];
+
+        bool inside = p.x() >= min_pnt.x() && p.x() <= max_pnt.x() &&
+                      p.y() >= min_pnt.y() && p.y() <= max_pnt.y() &&
+                      p.z() >= min_pnt.z() && p.z() <= max_pnt.z();
+
+        if ( inside == keep_inside )
+        {
+            out.push_back( p );
+        }
+    }
+
+    return out;
+}
+
+vector < vec3d > FilterPntsInRange( const vector < vec3d > & pnts, int dir_index, double low, double high,
+                                    bool keep_inside )
+{
+    vector < vec3d > out;
+    out.reserve( pnts.size() );
+
+    for ( int i = 0; i < ( int )pnts.size(); i++ )
+    {
+        double v = pnts[i].v[dir_index];
+
+        bool inside = v >= low && v <= high;
+
+        if ( inside == keep_inside )
+        {
+            out.push_back( pnts[i] );
+        }
+    }
+
+    return out;
+}
+
+vector < vec3d > FilterPntsByValue( const vector < vec3d > & pnts, int dir_index, double val, bool keep_above )
+{
+    vector < vec3d > out;
+    out.reserve( pnts.size() );
+
+    for ( int i = 0; i < ( int )pnts.size(); i++ )
+    {
+        bool above = pnts[i].v[dir_index] > val;
+
+        if ( above == keep_above )
+        {
+            out.push_back( pnts[i] );
+        }
+    }
+
+    return out;
+}
+
+vector < vec3d > FilterPntsNearPnt( const vector < vec3d > & pnts, const vec3d & center, double radius,
+                                    bool keep_near )
+{
+    vector < vec3d > out;
+    out.reserve( pnts.size() );
+
+    double r2 = radius * radius;
+
+    for ( int i = 0; i < ( int )pnts.size(); i++ )
+    {
+        bool near = dist_squared( pnts[i], center ) <= r2;
+
+        if ( near == keep_near )
+        {
+            out.push_back( pnts[i] );
+        }
+    }
+
+    return out;
+}
+
+vector < vec3d > FilterPntsNearSurf( const vector < vec3d > & pnts, const VspSurf * surf, double tol,
+                                     bool keep_near )
+{
+    vector < vec3d > out;
+
+    if ( !surf )
+    {
+        return out;
+    }
+
+    out.reserve( pnts.size() );
+
+    for ( int i = 0; i < ( int )pnts.size(); i++ )
+    {
+        double u, w;
+        double d = surf->FindNearest01( u, w, pnts[i] );
+
+        if ( ( d <= tol ) == keep_near )
+        {
+            out.push_back( pnts[i] );
+        }
+    }
+
+    return out;
+}
+
+vector < vec3d > UnionPnts( const vector < vec3d > & pnts_a, const vector < vec3d > & pnts_b, double tol )
+{
+    vector < vec3d > both;
+
+    both.reserve( pnts_a.size() + pnts_b.size() );
+    both.insert( both.end(), pnts_a.begin(), pnts_a.end() );
+    both.insert( both.end(), pnts_b.begin(), pnts_b.end() );
+
+    return UniquePnts( both, tol );
+}
