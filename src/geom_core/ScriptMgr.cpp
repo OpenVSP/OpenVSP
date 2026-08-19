@@ -3883,6 +3883,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetComputationFileName( int file_type )", asFUNCTION( vsp::GetComputationFileName ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void RegisterCFDMeshAnalyses()", asFUNCTION( vsp::RegisterCFDMeshAnalyses ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void SetComputationFileName( int file_type, const string & in file_name )", asFUNCTION( vsp::SetComputationFileName ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: FIXME for FEA Mesh
 
@@ -4912,6 +4915,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<double>@+ GetVKTAirfoilCpDist( const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau, array<vec3d>@+ xydata )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+
+    r = se->RegisterGlobalFunction( "double IntegrateEllipsoidFlow( const vec3d & in abc_rad, const int & in abc_index )", asFUNCTION( vsp::IntegrateEllipsoidFlow ), asCALL_CDECL );
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "array<vec3d>@+ GetEllipsoidSurfPnts( const vec3d& in center, const vec3d& in abc_rad, int u_npts = 20, int w_npts = 20 )", asMETHOD( ScriptMgrSingleton, GetEllipsoidSurfPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
@@ -6289,6 +6295,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void DeleteFeaStructureFromAssembly( const string & in assembly_id, const string & in struct_id )", asFUNCTION( vsp::DeleteFeaStructureFromAssembly ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFeaAssemblyStructure( const string & in assembly_id, const string & in struct_id )", asFUNCTION( vsp::AddFeaAssemblyStructure ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteFeaAssemblyStructure( const string & in assembly_id, const string & in struct_id )", asFUNCTION( vsp::DeleteFeaAssemblyStructure ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetFeaAssemblyStructureIDVec( const string & in assembly_id )", asMETHOD( ScriptMgrSingleton, GetFeaAssemblyStructureIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );

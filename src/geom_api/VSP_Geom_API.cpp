@@ -226,11 +226,6 @@ void RegisterCFDMeshAnalyses()
     FeaMeshMgr.RegisterAnalysis();
 }
 
-void LimitedIntersectSurfaces( const std::vector < std::string > & geomvec, std::vector < std::vector < vec3d > > & ptchains, std::vector < std::vector < vec3d > > & uwchains )
-{
-    SurfaceIntersectionMgr.LimitedIntersectSurfaces( geomvec, ptchains, uwchains );
-}
-
 //===================================================================//
 //===============       File I/O Functions        ===================//
 //===================================================================//
@@ -5033,6 +5028,52 @@ void DeleteFeaStructureFromAssembly( const std::string & assembly_id, const std:
     if ( !vector_contains_val( assy->m_StructIDVec, struct_id ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaStructureFromAssembly::Assembly Does Not Hold Structure " + struct_id );
+        return;
+    }
+
+    assy->DelStructure( struct_id );
+
+    ErrorMgr.NoError();
+}
+
+void AddFeaAssemblyStructure( const std::string & assembly_id, const std::string & struct_id )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "AddFeaAssemblyStructure" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    // The assembly holds structures by ID, and nothing downstream checks that the ID names one, so
+    // it is checked here.
+    if ( StructureMgr.GetFeaStruct( struct_id ) == nullptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddFeaAssemblyStructure::Can't Find Structure " + struct_id );
+        return;
+    }
+
+    if ( vector_contains_val( assy->m_StructIDVec, struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddFeaAssemblyStructure::Structure Already In Assembly " + struct_id );
+        return;
+    }
+
+    assy->AddStructure( struct_id );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteFeaAssemblyStructure( const std::string & assembly_id, const std::string & struct_id )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "DeleteFeaAssemblyStructure" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    if ( !vector_contains_val( assy->m_StructIDVec, struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaAssemblyStructure::Structure Not In Assembly " + struct_id );
         return;
     }
 
