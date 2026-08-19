@@ -5451,6 +5451,137 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set, bool useMode = false, const string & in modeID = string() )", asFUNCTION( vsp::SnapParm ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //=== Register Fit Model Functions ====//
+
+    r = se->RegisterGlobalFunction( "void ResetFitModel()", asFUNCTION( vsp::ResetFitModel ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int AddFitModelTargetPt( const string & in geom_id, int surf_indx, const vec3d & in pt, int u_type = FIT_MODEL_FREE, int w_type = FIT_MODEL_FREE, double u = 0.0, double w = 0.0 )", asFUNCTION( vsp::AddFitModelTargetPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int AddFitModelTargetPtFixedU( const string & in geom_id, int surf_indx, const vec3d & in pt, double u )", asFUNCTION( vsp::AddFitModelTargetPtFixedU ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int AddFitModelTargetPtFixedW( const string & in geom_id, int surf_indx, const vec3d & in pt, double w )", asFUNCTION( vsp::AddFitModelTargetPtFixedW ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int AddFitModelTargetPtFixedUW( const string & in geom_id, int surf_indx, const vec3d & in pt, double u, double w )", asFUNCTION( vsp::AddFitModelTargetPtFixedUW ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFitModelTargetPts( const string & in geom_id, int surf_indx, array<vec3d>@+ pt_arr )", asMETHOD( ScriptMgrSingleton, AddFitModelTargetPts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFitModelTargetPtsFixedU( const string & in geom_id, int surf_indx, array<vec3d>@+ pt_arr, double u )", asMETHOD( ScriptMgrSingleton, AddFitModelTargetPtsFixedU ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFitModelTargetPtsFixedUs( const string & in geom_id, int surf_indx, array<vec3d>@+ pt_arr, array<double>@+ u_arr )", asMETHOD( ScriptMgrSingleton, AddFitModelTargetPtsFixedUs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFitModelTargetPtsFixedW( const string & in geom_id, int surf_indx, array<vec3d>@+ pt_arr, double w )", asMETHOD( ScriptMgrSingleton, AddFitModelTargetPtsFixedW ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFitModelTargetPtsFixedWs( const string & in geom_id, int surf_indx, array<vec3d>@+ pt_arr, array<double>@+ w_arr )", asMETHOD( ScriptMgrSingleton, AddFitModelTargetPtsFixedWs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFitModelTargetPtsFixedUW( const string & in geom_id, int surf_indx, array<vec3d>@+ pt_arr, double u, double w )", asMETHOD( ScriptMgrSingleton, AddFitModelTargetPtsFixedUW ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFitModelTargetPtsFixedUWs( const string & in geom_id, int surf_indx, array<vec3d>@+ pt_arr, array<double>@+ u_arr, array<double>@+ w_arr )", asMETHOD( ScriptMgrSingleton, AddFitModelTargetPtsFixedUWs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelFitModelTargetPt( int index )", asFUNCTION( vsp::DelFitModelTargetPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelAllFitModelTargetPts()", asFUNCTION( vsp::DelAllFitModelTargetPts ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetNumFitModelTargetPts()", asFUNCTION( vsp::GetNumFitModelTargetPts ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "vec3d GetFitModelTargetPt( int index )", asFUNCTION( vsp::GetFitModelTargetPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFitModelTargetPt( int index, const vec3d & in pt )", asFUNCTION( vsp::SetFitModelTargetPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFitModelTargetPtGeom( int index )", asFUNCTION( vsp::GetFitModelTargetPtGeom ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFitModelTargetPtGeom( int index, const string & in geom_id )", asFUNCTION( vsp::SetFitModelTargetPtGeom ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetFitModelTargetPtSurfIndx( int index )", asFUNCTION( vsp::GetFitModelTargetPtSurfIndx ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFitModelTargetPtSurfIndx( int index, int surf_indx )", asFUNCTION( vsp::SetFitModelTargetPtSurfIndx ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double GetFitModelTargetPtU( int index )", asFUNCTION( vsp::GetFitModelTargetPtU ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double GetFitModelTargetPtW( int index )", asFUNCTION( vsp::GetFitModelTargetPtW ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFitModelTargetPtUW( int index, double u, double w )", asFUNCTION( vsp::SetFitModelTargetPtUW ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetFitModelTargetPtUType( int index )", asFUNCTION( vsp::GetFitModelTargetPtUType ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFitModelTargetPtUType( int index, int u_type )", asFUNCTION( vsp::SetFitModelTargetPtUType ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetFitModelTargetPtWType( int index )", asFUNCTION( vsp::GetFitModelTargetPtWType ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFitModelTargetPtWType( int index, int w_type )", asFUNCTION( vsp::SetFitModelTargetPtWType ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "vec3d GetFitModelTargetPtSurfPt( int index )", asFUNCTION( vsp::GetFitModelTargetPtSurfPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddFitModelVar( const string & in parm_id )", asFUNCTION( vsp::AddFitModelVar ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelFitModelVar( const string & in parm_id )", asFUNCTION( vsp::DelFitModelVar ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelAllFitModelVars()", asFUNCTION( vsp::DelAllFitModelVars ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetNumFitModelVars()", asFUNCTION( vsp::GetNumFitModelVars ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFitModelVar( int index )", asFUNCTION( vsp::GetFitModelVar ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFitModelVarVec()", asMETHOD( ScriptMgrSingleton, GetFitModelVarVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SearchFitModelTargetUW()", asFUNCTION( vsp::SearchFitModelTargetUW ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void RefineFitModelTargetUW()", asFUNCTION( vsp::RefineFitModelTargetUW ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double UpdateFitModelDist()", asFUNCTION( vsp::UpdateFitModelDist ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double GetFitModelDist()", asFUNCTION( vsp::GetFitModelDist ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetNumFitModelOptVars()", asFUNCTION( vsp::GetNumFitModelOptVars ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int OptimizeFitModel()", asFUNCTION( vsp::OptimizeFitModel ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SaveFitModelFile( const string & in file_name )", asFUNCTION( vsp::SaveFitModelFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int LoadFitModelFile( const string & in file_name )", asFUNCTION( vsp::LoadFitModelFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
     //=== Register Var Preset Functions ====//
 
     r = se->RegisterGlobalFunction( "string AddVarPresetGroup( const string & in group_name )", asFUNCTION( vsp::AddVarPresetGroup ), asCALL_CDECL);
@@ -7242,6 +7373,80 @@ CScriptArray* ScriptMgrSingleton::GetFeaTrimPartIDVec( const string & trim_id )
 {
     m_ProxyStringArray = vsp::GetFeaTrimPartIDVec( trim_id );
     return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetFitModelVarVec()
+{
+    m_ProxyStringArray = vsp::GetFitModelVarVec();
+    return GetProxyStringArray();
+}
+
+void ScriptMgrSingleton::AddFitModelTargetPts( const string & geom_id, int surf_indx, CScriptArray* pt_arr )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    vsp::AddFitModelTargetPts( geom_id, surf_indx, pt_vec );
+}
+
+void ScriptMgrSingleton::AddFitModelTargetPtsFixedU( const string & geom_id, int surf_indx, CScriptArray* pt_arr, double u )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    vsp::AddFitModelTargetPtsFixedU( geom_id, surf_indx, pt_vec, u );
+}
+
+void ScriptMgrSingleton::AddFitModelTargetPtsFixedUs( const string & geom_id, int surf_indx, CScriptArray* pt_arr, CScriptArray* u_arr )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    vector < double > u_vec;
+    FillSTLVector( u_arr, u_vec );
+
+    vsp::AddFitModelTargetPtsFixedUs( geom_id, surf_indx, pt_vec, u_vec );
+}
+
+void ScriptMgrSingleton::AddFitModelTargetPtsFixedW( const string & geom_id, int surf_indx, CScriptArray* pt_arr, double w )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    vsp::AddFitModelTargetPtsFixedW( geom_id, surf_indx, pt_vec, w );
+}
+
+void ScriptMgrSingleton::AddFitModelTargetPtsFixedWs( const string & geom_id, int surf_indx, CScriptArray* pt_arr, CScriptArray* w_arr )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    vector < double > w_vec;
+    FillSTLVector( w_arr, w_vec );
+
+    vsp::AddFitModelTargetPtsFixedWs( geom_id, surf_indx, pt_vec, w_vec );
+}
+
+void ScriptMgrSingleton::AddFitModelTargetPtsFixedUW( const string & geom_id, int surf_indx, CScriptArray* pt_arr, double u, double w )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    vsp::AddFitModelTargetPtsFixedUW( geom_id, surf_indx, pt_vec, u, w );
+}
+
+void ScriptMgrSingleton::AddFitModelTargetPtsFixedUWs( const string & geom_id, int surf_indx, CScriptArray* pt_arr, CScriptArray* u_arr, CScriptArray* w_arr )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    vector < double > u_vec;
+    FillSTLVector( u_arr, u_vec );
+
+    vector < double > w_vec;
+    FillSTLVector( w_arr, w_vec );
+
+    vsp::AddFitModelTargetPtsFixedUWs( geom_id, surf_indx, pt_vec, u_vec, w_vec );
 }
 
 CScriptArray* ScriptMgrSingleton::GetPtCloudPnts( const string & geom_id )

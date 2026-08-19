@@ -100,6 +100,16 @@
     \brief This group of functions provides file input and output interfacing through the API.
     \ref index "Click here to return to the main page"
 
+    \defgroup FitModel Fit Model Functions
+    \brief This group of functions supports the Fit Model Tool, which adjusts a model until its surfaces pass through a
+    set of known points.  Each point to match is set up as a target point: a point in space paired with the surface of a
+    Geom, either pinned to a surface coordinate or free to slide along the surface.  One or more Parms are then nominated
+    as variables.  Together these define a least squares problem, which is solved with a Levenberg-Marquardt algorithm
+    where the free surface coordinates and the nominated Parms are the degrees of freedom and every target point
+    contributes three residuals.  Unlike the GUI, the API takes target points directly as coordinates rather than through
+    a point cloud Geom and mouse selection.
+    \ref index "Click here to return to the main page"
+
     \defgroup GearGeom GearGeom Functions
     \brief This group of functions is available for interacting with the Bogie list of a GearGeom through the API.
     \ref index "Click here to return to the main page"
@@ -28316,6 +28326,1898 @@ extern double ComputeMinClearanceDistance( const std::string & geom_id, int set 
 */ // TODO: Validate inc_flag description
 
 extern double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL, bool useMode = false, const std::string &modeID = std::string() );
+
+
+//======================== Fit Model Functions ======================//
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Clear the Fit Model Tool, removing every target point and every variable.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, vec3d( 3.0, 0.0, 0.0 ) );
+
+    ResetFitModel();
+
+    if ( GetNumFitModelTargetPts() != 0 )                { Print( "ERROR: ResetFitModel" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, vec3d( 3.0, 0.0, 0.0 ) )
+
+    ResetFitModel()
+
+    assert GetNumFitModelTargetPts() == 0, "ResetFitModel left target points behind"
+
+    \endcode
+    \endPythonOnly
+    \sa DelAllFitModelTargetPts, DelAllFitModelVars
+*/
+
+extern void ResetFitModel();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add a target point to the Fit Model Tool.  The point is paired with the first surface of the given Geom.  Each
+    direction may be pinned to the supplied surface coordinate ( FIT_MODEL_FIXED ) or left free to slide along the
+    surface ( FIT_MODEL_FREE ).  The supplied coordinate is used for a pinned direction; a free one is searched onto the
+    nearest point of the surface as the point is added, so what is passed for it does not matter.
+
+    Called with a Geom and a point alone this leaves both directions free, matching AddFitModelTargetPts.  It is the
+    general form: use it to walk a loop of points that each want their own pinned or free directions and their own
+    coordinates.  Where every point in a group wants the same treatment, the named forms say so more plainly.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    vec3d pnt = CompPnt01( pid, 0, 0.5, 0.0 );
+
+    int index = AddFitModelTargetPt( pid, 0, pnt, FIT_MODEL_FREE, FIT_MODEL_FREE );
+
+    if ( index != 0 )                                    { Print( "ERROR: AddFitModelTargetPt" ); __failure++; }
+
+    if ( GetNumFitModelTargetPts() != 1 )                { Print( "ERROR: AddFitModelTargetPt" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pnt = CompPnt01( pid, 0, 0.5, 0.0 )
+
+    index = AddFitModelTargetPt( pid, 0, pnt, FIT_MODEL_FREE, FIT_MODEL_FREE )
+
+    assert index == 0, "AddFitModelTargetPt did not return the first index"
+
+    assert GetNumFitModelTargetPts() == 1, "AddFitModelTargetPt did not add a point"
+
+    \endcode
+    \endPythonOnly
+    \sa FIT_MODEL_TARGET_TYPE, AddFitModelTargetPtFixedU, AddFitModelTargetPtFixedW, AddFitModelTargetPtFixedUW, AddFitModelTargetPts
+    \param [in] geom_id string Geom ID of the surface the point is matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt vec3d Point to be matched, in model coordinates
+    \param [in] u_type int Fit model target type enum for the U direction (i.e. FIT_MODEL_FREE)
+    \param [in] w_type int Fit model target type enum for the W direction (i.e. FIT_MODEL_FREE)
+    \param [in] u double Starting U surface coordinate in [0, 1]
+    \param [in] w double Starting W surface coordinate in [0, 1]
+    \return int Index of the new target point
+*/
+
+extern int AddFitModelTargetPt( const std::string & geom_id, int surf_indx, const vec3d & pt, int u_type = FIT_MODEL_FREE, int w_type = FIT_MODEL_FREE, double u = 0.0, double w = 0.0 );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add one target point held at a U surface coordinate and free to slide in W.  The single point counterpart of
+    AddFitModelTargetPtsFixedU.  The W of the point is searched onto the surface as it is added.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPtFixedU( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), 0.5 );
+
+    if ( GetFitModelTargetPtUType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: AddFitModelTargetPtFixedU" ); __failure++; }
+
+    if ( abs( GetFitModelTargetPtU( 0 ) - 0.5 ) > 1e-6 ) { Print( "ERROR: AddFitModelTargetPtFixedU" ); __failure++; }
+
+    if ( UpdateFitModelDist() > 1e-4 )                   { Print( "ERROR: AddFitModelTargetPtFixedU" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPtFixedU( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), 0.5 )
+
+    assert GetFitModelTargetPtUType( 0 ) == FIT_MODEL_FIXED, "AddFitModelTargetPtFixedU did not pin U"
+
+    assert abs( GetFitModelTargetPtU( 0 ) - 0.5 ) < 1e-6, "AddFitModelTargetPtFixedU did not use the given U"
+
+    assert UpdateFitModelDist() < 1e-4, "AddFitModelTargetPtFixedU did not place the point on the surface"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedU, AddFitModelTargetPtFixedW, AddFitModelTargetPt
+    \param [in] geom_id string Geom ID of the surface the point is matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt vec3d Point to be matched, in model coordinates
+    \param [in] u double U surface coordinate in [0, 1] to hold the point at
+    \return int Index of the new target point
+*/
+
+extern int AddFitModelTargetPtFixedU( const std::string & geom_id, int surf_indx, const vec3d & pt, double u );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add one target point held at a W surface coordinate and free to slide in U.  The single point counterpart of
+    AddFitModelTargetPtsFixedW.  The U of the point is searched onto the surface as it is added.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPtFixedW( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), 0.25 );
+
+    if ( GetFitModelTargetPtWType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: AddFitModelTargetPtFixedW" ); __failure++; }
+
+    if ( abs( GetFitModelTargetPtW( 0 ) - 0.25 ) > 1e-6 )    { Print( "ERROR: AddFitModelTargetPtFixedW" ); __failure++; }
+
+    if ( UpdateFitModelDist() > 1e-4 )                   { Print( "ERROR: AddFitModelTargetPtFixedW" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPtFixedW( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), 0.25 )
+
+    assert GetFitModelTargetPtWType( 0 ) == FIT_MODEL_FIXED, "AddFitModelTargetPtFixedW did not pin W"
+
+    assert abs( GetFitModelTargetPtW( 0 ) - 0.25 ) < 1e-6, "AddFitModelTargetPtFixedW did not use the given W"
+
+    assert UpdateFitModelDist() < 1e-4, "AddFitModelTargetPtFixedW did not place the point on the surface"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedW, AddFitModelTargetPtFixedU, AddFitModelTargetPt
+    \param [in] geom_id string Geom ID of the surface the point is matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt vec3d Point to be matched, in model coordinates
+    \param [in] w double W surface coordinate in [0, 1] to hold the point at
+    \return int Index of the new target point
+*/
+
+extern int AddFitModelTargetPtFixedW( const std::string & geom_id, int surf_indx, const vec3d & pt, double w );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add one target point pinned to a surface coordinate, free in neither direction.  The single point counterpart of
+    AddFitModelTargetPtsFixedUW.  Nothing is searched; the point contributes no degrees of freedom, so the fit has only
+    the model's own Parms to work with.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPtFixedUW( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), 0.5, 0.25 );
+
+    if ( GetNumFitModelOptVars() != 0 )                  { Print( "ERROR: AddFitModelTargetPtFixedUW" ); __failure++; }
+
+    if ( UpdateFitModelDist() > 1e-6 )                   { Print( "ERROR: AddFitModelTargetPtFixedUW" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPtFixedUW( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), 0.5, 0.25 )
+
+    assert GetNumFitModelOptVars() == 0, "AddFitModelTargetPtFixedUW left a direction free"
+
+    assert UpdateFitModelDist() < 1e-6, "AddFitModelTargetPtFixedUW did not land on the given coordinate"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedUW, AddFitModelTargetPt
+    \param [in] geom_id string Geom ID of the surface the point is matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt vec3d Point to be matched, in model coordinates
+    \param [in] u double U surface coordinate in [0, 1] to hold the point at
+    \param [in] w double W surface coordinate in [0, 1] to hold the point at
+    \return int Index of the new target point
+*/
+
+extern int AddFitModelTargetPtFixedUW( const std::string & geom_id, int surf_indx, const vec3d & pt, double u, double w );
+
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add a group of target points to the Fit Model Tool, all matched to the same Geom, each free to slide anywhere on the
+    surface.  This is the API's replacement for selecting points of a point cloud with the mouse.  Every point is placed
+    on the nearest point of the surface as it is added, searching the whole surface, so no starting coordinate is asked
+    for: a caller is unlikely to have a useful guess for a free coordinate.  Where the topology does tell you where a
+    point belongs, use one of the fixed variants instead.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+
+    pts.push_back( CompPnt01( pid, 0, 0.25, 0.0 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.50, 0.0 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.75, 0.0 ) );
+
+    AddFitModelTargetPts( pid, 0, pts );
+
+    if ( GetNumFitModelTargetPts() != 3 )                { Print( "ERROR: AddFitModelTargetPts" ); __failure++; }
+
+    if ( UpdateFitModelDist() > 1e-4 )                   { Print( "ERROR: AddFitModelTargetPts" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+
+    pts.append( CompPnt01( pid, 0, 0.25, 0.0 ) )
+    pts.append( CompPnt01( pid, 0, 0.50, 0.0 ) )
+    pts.append( CompPnt01( pid, 0, 0.75, 0.0 ) )
+
+    AddFitModelTargetPts( pid, 0, pts )
+
+    assert GetNumFitModelTargetPts() == 3, "AddFitModelTargetPts did not add three points"
+
+    assert UpdateFitModelDist() < 1e-4, "AddFitModelTargetPts did not place the points on the surface"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedU, AddFitModelTargetPtsFixedW, AddFitModelTargetPtsFixedUW, SearchFitModelTargetUW
+    \param [in] geom_id string Geom ID of the surface the points are matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
+*/
+
+extern void AddFitModelTargetPts( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add a group of target points held at one U surface coordinate and free to slide in W.  Use this where the topology
+    says which station the points belong to but not where around it, such as points measured around one fuselage frame.
+    The W of each point is searched onto the surface as it is added.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+
+    pts.push_back( CompPnt01( pid, 0, 0.5, 0.10 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.5, 0.35 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.5, 0.60 ) );
+
+    AddFitModelTargetPtsFixedU( pid, 0, pts, 0.5 );
+
+    if ( GetFitModelTargetPtUType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: AddFitModelTargetPtsFixedU" ); __failure++; }
+
+    if ( abs( GetFitModelTargetPtU( 0 ) - 0.5 ) > 1e-6 ) { Print( "ERROR: AddFitModelTargetPtsFixedU" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+
+    pts.append( CompPnt01( pid, 0, 0.5, 0.10 ) )
+    pts.append( CompPnt01( pid, 0, 0.5, 0.35 ) )
+    pts.append( CompPnt01( pid, 0, 0.5, 0.60 ) )
+
+    AddFitModelTargetPtsFixedU( pid, 0, pts, 0.5 )
+
+    assert GetFitModelTargetPtUType( 0 ) == FIT_MODEL_FIXED, "AddFitModelTargetPtsFixedU did not pin U"
+
+    assert abs( GetFitModelTargetPtU( 0 ) - 0.5 ) < 1e-6, "AddFitModelTargetPtsFixedU did not use the given U"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedUs, AddFitModelTargetPtsFixedW, AddFitModelTargetPts
+    \param [in] geom_id string Geom ID of the surface the points are matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
+    \param [in] u double U surface coordinate in [0, 1] to hold every point at
+*/
+
+extern void AddFitModelTargetPtsFixedU( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, double u );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add a group of target points, each held at its own U surface coordinate and free to slide in W.  The two vectors are
+    paired by index and must be the same length.  The W of each point is searched onto the surface as it is added.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+    array < double > us;
+
+    pts.push_back( CompPnt01( pid, 0, 0.25, 0.1 ) );    us.push_back( 0.25 );
+    pts.push_back( CompPnt01( pid, 0, 0.50, 0.1 ) );    us.push_back( 0.50 );
+    pts.push_back( CompPnt01( pid, 0, 0.75, 0.1 ) );    us.push_back( 0.75 );
+
+    AddFitModelTargetPtsFixedUs( pid, 0, pts, us );
+
+    if ( abs( GetFitModelTargetPtU( 2 ) - 0.75 ) > 1e-6 )    { Print( "ERROR: AddFitModelTargetPtsFixedUs" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+    us = []
+
+    for u in [ 0.25, 0.50, 0.75 ]:
+        pts.append( CompPnt01( pid, 0, u, 0.1 ) )
+        us.append( u )
+
+    AddFitModelTargetPtsFixedUs( pid, 0, pts, us )
+
+    assert abs( GetFitModelTargetPtU( 2 ) - 0.75 ) < 1e-6, "AddFitModelTargetPtsFixedUs did not use the given U values"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedU, AddFitModelTargetPtsFixedWs
+    \param [in] geom_id string Geom ID of the surface the points are matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
+    \param [in] u_vec vector<double> U surface coordinate in [0, 1] for each point, same length as pt_vec
+*/
+
+extern void AddFitModelTargetPtsFixedUs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & u_vec );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add a group of target points held at one W surface coordinate and free to slide in U.  Use this where the topology
+    says which line around the section the points belong to but not where along it, such as points measured along a
+    wing's leading edge.  The U of each point is searched onto the surface as it is added.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+
+    pts.push_back( CompPnt01( pid, 0, 0.25, 0.5 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.50, 0.5 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.75, 0.5 ) );
+
+    AddFitModelTargetPtsFixedW( pid, 0, pts, 0.5 );
+
+    if ( GetFitModelTargetPtWType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: AddFitModelTargetPtsFixedW" ); __failure++; }
+
+    if ( abs( GetFitModelTargetPtW( 0 ) - 0.5 ) > 1e-6 ) { Print( "ERROR: AddFitModelTargetPtsFixedW" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+
+    pts.append( CompPnt01( pid, 0, 0.25, 0.5 ) )
+    pts.append( CompPnt01( pid, 0, 0.50, 0.5 ) )
+    pts.append( CompPnt01( pid, 0, 0.75, 0.5 ) )
+
+    AddFitModelTargetPtsFixedW( pid, 0, pts, 0.5 )
+
+    assert GetFitModelTargetPtWType( 0 ) == FIT_MODEL_FIXED, "AddFitModelTargetPtsFixedW did not pin W"
+
+    assert abs( GetFitModelTargetPtW( 0 ) - 0.5 ) < 1e-6, "AddFitModelTargetPtsFixedW did not use the given W"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedWs, AddFitModelTargetPtsFixedU, AddFitModelTargetPts
+    \param [in] geom_id string Geom ID of the surface the points are matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
+    \param [in] w double W surface coordinate in [0, 1] to hold every point at
+*/
+
+extern void AddFitModelTargetPtsFixedW( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, double w );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add a group of target points, each held at its own W surface coordinate and free to slide in U.  The two vectors are
+    paired by index and must be the same length.  The U of each point is searched onto the surface as it is added.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+    array < double > ws;
+
+    pts.push_back( CompPnt01( pid, 0, 0.3, 0.10 ) );    ws.push_back( 0.10 );
+    pts.push_back( CompPnt01( pid, 0, 0.3, 0.35 ) );    ws.push_back( 0.35 );
+    pts.push_back( CompPnt01( pid, 0, 0.3, 0.60 ) );    ws.push_back( 0.60 );
+
+    AddFitModelTargetPtsFixedWs( pid, 0, pts, ws );
+
+    if ( abs( GetFitModelTargetPtW( 2 ) - 0.60 ) > 1e-6 )    { Print( "ERROR: AddFitModelTargetPtsFixedWs" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+    ws = []
+
+    for w in [ 0.10, 0.35, 0.60 ]:
+        pts.append( CompPnt01( pid, 0, 0.3, w ) )
+        ws.append( w )
+
+    AddFitModelTargetPtsFixedWs( pid, 0, pts, ws )
+
+    assert abs( GetFitModelTargetPtW( 2 ) - 0.60 ) < 1e-6, "AddFitModelTargetPtsFixedWs did not use the given W values"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedW, AddFitModelTargetPtsFixedUs
+    \param [in] geom_id string Geom ID of the surface the points are matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
+    \param [in] w_vec vector<double> W surface coordinate in [0, 1] for each point, same length as pt_vec
+*/
+
+extern void AddFitModelTargetPtsFixedWs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & w_vec );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add a group of target points all held at one surface coordinate, free in neither direction.  Every point is pinned to
+    the same place on the surface, which suits repeated measurements of one identifiable feature.  To pin each point to
+    its own coordinate, use AddFitModelTargetPtsFixedUWs.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+
+    pts.push_back( CompPnt01( pid, 0, 0.5, 0.25 ) );
+
+    AddFitModelTargetPtsFixedUW( pid, 0, pts, 0.5, 0.25 );
+
+    if ( GetFitModelTargetPtUType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: AddFitModelTargetPtsFixedUW" ); __failure++; }
+
+    if ( GetFitModelTargetPtWType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: AddFitModelTargetPtsFixedUW" ); __failure++; }
+
+    if ( UpdateFitModelDist() > 1e-6 )                   { Print( "ERROR: AddFitModelTargetPtsFixedUW" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+
+    pts.append( CompPnt01( pid, 0, 0.5, 0.25 ) )
+
+    AddFitModelTargetPtsFixedUW( pid, 0, pts, 0.5, 0.25 )
+
+    assert GetFitModelTargetPtUType( 0 ) == FIT_MODEL_FIXED, "AddFitModelTargetPtsFixedUW did not pin U"
+
+    assert GetFitModelTargetPtWType( 0 ) == FIT_MODEL_FIXED, "AddFitModelTargetPtsFixedUW did not pin W"
+
+    assert UpdateFitModelDist() < 1e-6, "AddFitModelTargetPtsFixedUW did not land on the given coordinate"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedUWs, AddFitModelTargetPt
+    \param [in] geom_id string Geom ID of the surface the points are matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
+    \param [in] u double U surface coordinate in [0, 1] to hold every point at
+    \param [in] w double W surface coordinate in [0, 1] to hold every point at
+*/
+
+extern void AddFitModelTargetPtsFixedUW( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, double u, double w );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Add a group of target points, each pinned to its own surface coordinate and free in neither direction.  The three
+    vectors are paired by index and must all be the same length.  Use this where every point has been identified on the
+    surface already, so the fit has only the model's own Parms to work with.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+    array < double > us;
+    array < double > ws;
+
+    pts.push_back( CompPnt01( pid, 0, 0.25, 0.1 ) );    us.push_back( 0.25 );    ws.push_back( 0.1 );
+    pts.push_back( CompPnt01( pid, 0, 0.50, 0.4 ) );    us.push_back( 0.50 );    ws.push_back( 0.4 );
+    pts.push_back( CompPnt01( pid, 0, 0.75, 0.7 ) );    us.push_back( 0.75 );    ws.push_back( 0.7 );
+
+    AddFitModelTargetPtsFixedUWs( pid, 0, pts, us, ws );
+
+    if ( GetNumFitModelOptVars() != 0 )                  { Print( "ERROR: AddFitModelTargetPtsFixedUWs" ); __failure++; }
+
+    if ( UpdateFitModelDist() > 1e-6 )                   { Print( "ERROR: AddFitModelTargetPtsFixedUWs" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+    us = []
+    ws = []
+
+    for u, w in [ ( 0.25, 0.1 ), ( 0.50, 0.4 ), ( 0.75, 0.7 ) ]:
+        pts.append( CompPnt01( pid, 0, u, w ) )
+        us.append( u )
+        ws.append( w )
+
+    AddFitModelTargetPtsFixedUWs( pid, 0, pts, us, ws )
+
+    assert GetNumFitModelOptVars() == 0, "AddFitModelTargetPtsFixedUWs left a direction free"
+
+    assert UpdateFitModelDist() < 1e-6, "AddFitModelTargetPtsFixedUWs did not land on the given coordinates"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPtsFixedUW, AddFitModelTargetPtsFixedUs, AddFitModelTargetPtsFixedWs
+    \param [in] geom_id string Geom ID of the surface the points are matched to
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] pt_vec vector<vec3d> Points to be matched, in model coordinates
+    \param [in] u_vec vector<double> U surface coordinate in [0, 1] for each point, same length as pt_vec
+    \param [in] w_vec vector<double> W surface coordinate in [0, 1] for each point, same length as pt_vec
+*/
+
+extern void AddFitModelTargetPtsFixedUWs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & u_vec, const std::vector < double > & w_vec );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Delete one target point from the Fit Model Tool.  The points after it move down one index.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.25, 0.0 ) );
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.75, 0.0 ) );
+
+    DelFitModelTargetPt( 0 );
+
+    if ( GetNumFitModelTargetPts() != 1 )                { Print( "ERROR: DelFitModelTargetPt" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.25, 0.0 ) )
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.75, 0.0 ) )
+
+    DelFitModelTargetPt( 0 )
+
+    assert GetNumFitModelTargetPts() == 1, "DelFitModelTargetPt did not remove a point"
+
+    \endcode
+    \endPythonOnly
+    \sa DelAllFitModelTargetPts
+    \param [in] index int Target point index
+*/
+
+extern void DelFitModelTargetPt( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Delete every target point from the Fit Model Tool, leaving the variables alone.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) );
+
+    DelAllFitModelTargetPts();
+
+    if ( GetNumFitModelTargetPts() != 0 )                { Print( "ERROR: DelAllFitModelTargetPts" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) )
+
+    DelAllFitModelTargetPts()
+
+    assert GetNumFitModelTargetPts() == 0, "DelAllFitModelTargetPts left points behind"
+
+    \endcode
+    \endPythonOnly
+    \sa DelFitModelTargetPt, ResetFitModel
+*/
+
+extern void DelAllFitModelTargetPts();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the number of target points held by the Fit Model Tool.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) );
+
+    if ( GetNumFitModelTargetPts() != 1 )                { Print( "ERROR: GetNumFitModelTargetPts" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) )
+
+    assert GetNumFitModelTargetPts() == 1, "GetNumFitModelTargetPts did not count the point"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPt
+    \return int Number of target points
+*/
+
+extern int GetNumFitModelTargetPts();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the point a target point is trying to match.  This is the point supplied when it was added, not the point
+    currently on the surface; for that, see GetFitModelTargetPtSurfPt.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    vec3d pnt = vec3d( 3.0, 1.0, 2.0 );
+
+    AddFitModelTargetPt( pid, 0, pnt );
+
+    vec3d pnt_out = GetFitModelTargetPt( 0 );
+
+    if ( dist( pnt, pnt_out ) > 1e-6 )                   { Print( "ERROR: GetFitModelTargetPt" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pnt = vec3d( 3.0, 1.0, 2.0 )
+
+    AddFitModelTargetPt( pid, 0, pnt )
+
+    pnt_out = GetFitModelTargetPt( 0 )
+
+    assert dist( pnt, pnt_out ) < 1e-6, "GetFitModelTargetPt did not report the point that was set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFitModelTargetPt, GetFitModelTargetPtSurfPt
+    \param [in] index int Target point index
+    \return vec3d Point to be matched
+*/
+
+extern vec3d GetFitModelTargetPt( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Move the point a target point is trying to match.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, vec3d( 0.0, 0.0, 0.0 ) );
+
+    SetFitModelTargetPt( 0, vec3d( 3.0, 1.0, 2.0 ) );
+
+    if ( dist( GetFitModelTargetPt( 0 ), vec3d( 3.0, 1.0, 2.0 ) ) > 1e-6 )    { Print( "ERROR: SetFitModelTargetPt" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, vec3d( 0.0, 0.0, 0.0 ) )
+
+    SetFitModelTargetPt( 0, vec3d( 3.0, 1.0, 2.0 ) )
+
+    assert dist( GetFitModelTargetPt( 0 ), vec3d( 3.0, 1.0, 2.0 ) ) < 1e-6, "SetFitModelTargetPt did not take"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelTargetPt
+    \param [in] index int Target point index
+    \param [in] pt vec3d Point to be matched, in model coordinates
+*/
+
+extern void SetFitModelTargetPt( int index, const vec3d & pt );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the Geom a target point is matched to.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) );
+
+    if ( GetFitModelTargetPtGeom( 0 ) != pid )           { Print( "ERROR: GetFitModelTargetPtGeom" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) )
+
+    assert GetFitModelTargetPtGeom( 0 ) == pid, "GetFitModelTargetPtGeom did not report the Geom that was set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFitModelTargetPtGeom
+    \param [in] index int Target point index
+    \return string Geom ID of the matched surface
+*/
+
+extern std::string GetFitModelTargetPtGeom( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Match a target point to a different Geom.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string fid = AddGeom( "FUSELAGE" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) );
+
+    SetFitModelTargetPtGeom( 0, fid );
+
+    if ( GetFitModelTargetPtGeom( 0 ) != fid )           { Print( "ERROR: SetFitModelTargetPtGeom" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    fid = AddGeom( "FUSELAGE" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) )
+
+    SetFitModelTargetPtGeom( 0, fid )
+
+    assert GetFitModelTargetPtGeom( 0 ) == fid, "SetFitModelTargetPtGeom did not take"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelTargetPtGeom
+    \param [in] index int Target point index
+    \param [in] geom_id string Geom ID of the surface the point is matched to
+*/
+
+extern void SetFitModelTargetPtGeom( int index, const std::string & geom_id );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the surface of the matched Geom a target point is paired with.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    SetParmVal( FindParm( pid, "Sym_Planar_Flag", "Sym" ), SYM_XZ );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 1, CompPnt01( pid, 1, 0.5, 0.25 ) );
+
+    if ( GetFitModelTargetPtSurfIndx( 0 ) != 1 )         { Print( "ERROR: GetFitModelTargetPtSurfIndx" ); __failure++; }
+
+    if ( UpdateFitModelDist() > 1e-4 )                   { Print( "ERROR: GetFitModelTargetPtSurfIndx" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    SetParmVal( FindParm( pid, "Sym_Planar_Flag", "Sym" ), SYM_XZ )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 1, CompPnt01( pid, 1, 0.5, 0.25 ) )
+
+    assert GetFitModelTargetPtSurfIndx( 0 ) == 1, "GetFitModelTargetPtSurfIndx did not report the surface that was set"
+
+    assert UpdateFitModelDist() < 1e-4, "target point did not land on the second surface"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFitModelTargetPtSurfIndx, GetFitModelTargetPtGeom
+    \param [in] index int Target point index
+    \return int Index of the matched surface of the Geom
+*/
+
+extern int GetFitModelTargetPtSurfIndx( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Pair a target point with a different surface of the Geom it is already matched to.  The index must be in range on that
+    Geom.  Note that surfaces are numbered by position, so turning symmetry on or off, or changing the number of copies of
+    a Geom, changes which surface an index names.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    SetParmVal( FindParm( pid, "Sym_Planar_Flag", "Sym" ), SYM_XZ );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 1, 0.5, 0.25 ) );
+
+    SetFitModelTargetPtSurfIndx( 0, 1 );
+
+    if ( GetFitModelTargetPtSurfIndx( 0 ) != 1 )         { Print( "ERROR: SetFitModelTargetPtSurfIndx" ); __failure++; }
+
+    SearchFitModelTargetUW();
+
+    if ( UpdateFitModelDist() > 1e-4 )                   { Print( "ERROR: SetFitModelTargetPtSurfIndx" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    SetParmVal( FindParm( pid, "Sym_Planar_Flag", "Sym" ), SYM_XZ )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 1, 0.5, 0.25 ) )
+
+    SetFitModelTargetPtSurfIndx( 0, 1 )
+
+    assert GetFitModelTargetPtSurfIndx( 0 ) == 1, "SetFitModelTargetPtSurfIndx did not take"
+
+    SearchFitModelTargetUW()
+
+    assert UpdateFitModelDist() < 1e-4, "target point did not land on the second surface"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelTargetPtSurfIndx, SetFitModelTargetPtGeom
+    \param [in] index int Target point index
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+*/
+
+extern void SetFitModelTargetPtSurfIndx( int index, int surf_indx );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the U surface coordinate of a target point.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 );
+
+    if ( abs( GetFitModelTargetPtU( 0 ) - 0.5 ) > 1e-6 ) { Print( "ERROR: GetFitModelTargetPtU" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 )
+
+    assert abs( GetFitModelTargetPtU( 0 ) - 0.5 ) < 1e-6, "GetFitModelTargetPtU did not report the U that was set"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelTargetPtW, SetFitModelTargetPtUW
+    \param [in] index int Target point index
+    \return double U surface coordinate in [0, 1]
+*/
+
+extern double GetFitModelTargetPtU( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the W surface coordinate of a target point.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 );
+
+    if ( abs( GetFitModelTargetPtW( 0 ) - 0.25 ) > 1e-6 )    { Print( "ERROR: GetFitModelTargetPtW" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 )
+
+    assert abs( GetFitModelTargetPtW( 0 ) - 0.25 ) < 1e-6, "GetFitModelTargetPtW did not report the W that was set"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelTargetPtU, SetFitModelTargetPtUW
+    \param [in] index int Target point index
+    \return double W surface coordinate in [0, 1]
+*/
+
+extern double GetFitModelTargetPtW( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Set the surface coordinate of a target point.  For a fixed direction this is where the point is held; for a free
+    direction it is only where the search starts.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ) );
+
+    SetFitModelTargetPtUW( 0, 0.5, 0.25 );
+
+    if ( abs( GetFitModelTargetPtU( 0 ) - 0.5 ) > 1e-6 ) { Print( "ERROR: SetFitModelTargetPtUW" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ) )
+
+    SetFitModelTargetPtUW( 0, 0.5, 0.25 )
+
+    assert abs( GetFitModelTargetPtU( 0 ) - 0.5 ) < 1e-6, "SetFitModelTargetPtUW did not take"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelTargetPtU, GetFitModelTargetPtW
+    \param [in] index int Target point index
+    \param [in] u double U surface coordinate in [0, 1]
+    \param [in] w double W surface coordinate in [0, 1]
+*/
+
+extern void SetFitModelTargetPtUW( int index, double u, double w );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get whether the U direction of a target point is pinned or free.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ), FIT_MODEL_FIXED, FIT_MODEL_FREE );
+
+    if ( GetFitModelTargetPtUType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: GetFitModelTargetPtUType" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ), FIT_MODEL_FIXED, FIT_MODEL_FREE )
+
+    assert GetFitModelTargetPtUType( 0 ) == FIT_MODEL_FIXED, "GetFitModelTargetPtUType did not report the type that was set"
+
+    \endcode
+    \endPythonOnly
+    \sa FIT_MODEL_TARGET_TYPE, SetFitModelTargetPtUType
+    \param [in] index int Target point index
+    \return int Fit model target type enum (i.e. FIT_MODEL_FREE)
+*/
+
+extern int GetFitModelTargetPtUType( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Pin or free the U direction of a target point.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) );
+
+    SetFitModelTargetPtUType( 0, FIT_MODEL_FIXED );
+
+    if ( GetFitModelTargetPtUType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: SetFitModelTargetPtUType" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) )
+
+    SetFitModelTargetPtUType( 0, FIT_MODEL_FIXED )
+
+    assert GetFitModelTargetPtUType( 0 ) == FIT_MODEL_FIXED, "SetFitModelTargetPtUType did not take"
+
+    \endcode
+    \endPythonOnly
+    \sa FIT_MODEL_TARGET_TYPE, GetFitModelTargetPtUType
+    \param [in] index int Target point index
+    \param [in] u_type int Fit model target type enum (i.e. FIT_MODEL_FREE)
+*/
+
+extern void SetFitModelTargetPtUType( int index, int u_type );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get whether the W direction of a target point is pinned or free.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ), FIT_MODEL_FREE, FIT_MODEL_FIXED );
+
+    if ( GetFitModelTargetPtWType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: GetFitModelTargetPtWType" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ), FIT_MODEL_FREE, FIT_MODEL_FIXED )
+
+    assert GetFitModelTargetPtWType( 0 ) == FIT_MODEL_FIXED, "GetFitModelTargetPtWType did not report the type that was set"
+
+    \endcode
+    \endPythonOnly
+    \sa FIT_MODEL_TARGET_TYPE, SetFitModelTargetPtWType
+    \param [in] index int Target point index
+    \return int Fit model target type enum (i.e. FIT_MODEL_FREE)
+*/
+
+extern int GetFitModelTargetPtWType( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Pin or free the W direction of a target point.  W often wraps around the surface, and a free W that has wandered to
+    the seam can leave the optimizer stuck; SearchFitModelTargetUW will lift it off.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) );
+
+    SetFitModelTargetPtWType( 0, FIT_MODEL_FIXED );
+
+    if ( GetFitModelTargetPtWType( 0 ) != FIT_MODEL_FIXED )    { Print( "ERROR: SetFitModelTargetPtWType" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) )
+
+    SetFitModelTargetPtWType( 0, FIT_MODEL_FIXED )
+
+    assert GetFitModelTargetPtWType( 0 ) == FIT_MODEL_FIXED, "SetFitModelTargetPtWType did not take"
+
+    \endcode
+    \endPythonOnly
+    \sa FIT_MODEL_TARGET_TYPE, GetFitModelTargetPtWType, SearchFitModelTargetUW
+    \param [in] index int Target point index
+    \param [in] w_type int Fit model target type enum (i.e. FIT_MODEL_FREE)
+*/
+
+extern void SetFitModelTargetPtWType( int index, int w_type );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the point currently on the surface at a target point's surface coordinate.  The distance from here to the target
+    point is what the optimizer is driving to zero.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    vec3d pnt = CompPnt01( pid, 0, 0.5, 0.25 );
+
+    AddFitModelTargetPt( pid, 0, pnt, FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 );
+
+    vec3d surf_pnt = GetFitModelTargetPtSurfPt( 0 );
+
+    if ( dist( pnt, surf_pnt ) > 1e-6 )                  { Print( "ERROR: GetFitModelTargetPtSurfPt" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pnt = CompPnt01( pid, 0, 0.5, 0.25 )
+
+    AddFitModelTargetPt( pid, 0, pnt, FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 )
+
+    surf_pnt = GetFitModelTargetPtSurfPt( 0 )
+
+    assert dist( pnt, surf_pnt ) < 1e-6, "GetFitModelTargetPtSurfPt did not land on the target point"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelTargetPt, UpdateFitModelDist
+    \param [in] index int Target point index
+    \return vec3d Point on the surface at the target point's surface coordinate
+*/
+
+extern vec3d GetFitModelTargetPtSurfPt( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Nominate a Parm as a variable for the Fit Model Tool to adjust.  Choosing Parms that are not independent of one
+    another, or that have much the same effect on the surface, can leave the optimizer a very long time in converging.
+    Nominating the same Parm twice does nothing and reports an error.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    string len = GetParm( pid, "Length", "Design" );
+
+    AddFitModelVar( len );
+
+    if ( GetNumFitModelVars() != 1 )                     { Print( "ERROR: AddFitModelVar" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    length = GetParm( pid, "Length", "Design" )
+
+    AddFitModelVar( length )
+
+    assert GetNumFitModelVars() == 1, "AddFitModelVar did not add the variable"
+
+    \endcode
+    \endPythonOnly
+    \sa DelFitModelVar, OptimizeFitModel
+    \param [in] parm_id string Parm ID
+*/
+
+extern void AddFitModelVar( const std::string & parm_id );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Withdraw a Parm from the Fit Model Tool's variables.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    string len = GetParm( pid, "Length", "Design" );
+
+    AddFitModelVar( len );
+
+    DelFitModelVar( len );
+
+    if ( GetNumFitModelVars() != 0 )                     { Print( "ERROR: DelFitModelVar" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    length = GetParm( pid, "Length", "Design" )
+
+    AddFitModelVar( length )
+
+    DelFitModelVar( length )
+
+    assert GetNumFitModelVars() == 0, "DelFitModelVar did not remove the variable"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelVar, DelAllFitModelVars
+    \param [in] parm_id string Parm ID
+*/
+
+extern void DelFitModelVar( const std::string & parm_id );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Withdraw every Parm from the Fit Model Tool's variables, leaving the target points alone.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) );
+
+    DelAllFitModelVars();
+
+    if ( GetNumFitModelVars() != 0 )                     { Print( "ERROR: DelAllFitModelVars" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) )
+
+    DelAllFitModelVars()
+
+    assert GetNumFitModelVars() == 0, "DelAllFitModelVars left variables behind"
+
+    \endcode
+    \endPythonOnly
+    \sa DelFitModelVar, ResetFitModel
+*/
+
+extern void DelAllFitModelVars();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the number of Parms nominated as Fit Model Tool variables.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) );
+
+    if ( GetNumFitModelVars() != 1 )                     { Print( "ERROR: GetNumFitModelVars" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) )
+
+    assert GetNumFitModelVars() == 1, "GetNumFitModelVars did not count the variable"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelVar
+    \return int Number of variables
+*/
+
+extern int GetNumFitModelVars();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the Parm ID of one Fit Model Tool variable.  The variables are held sorted by name, so this index need not follow
+    the order they were added in.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    string len = GetParm( pid, "Length", "Design" );
+
+    AddFitModelVar( len );
+
+    if ( GetFitModelVar( 0 ) != len )                    { Print( "ERROR: GetFitModelVar" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    length = GetParm( pid, "Length", "Design" )
+
+    AddFitModelVar( length )
+
+    assert GetFitModelVar( 0 ) == length, "GetFitModelVar did not report the variable that was added"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelVarVec
+    \param [in] index int Variable index
+    \return string Parm ID
+*/
+
+extern std::string GetFitModelVar( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the Parm IDs of every Fit Model Tool variable.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) );
+
+    array < string > @var_array = GetFitModelVarVec();
+
+    if ( var_array.size() != 1 )                         { Print( "ERROR: GetFitModelVarVec" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) )
+
+    var_array = GetFitModelVarVec()
+
+    assert len( var_array ) == 1, "GetFitModelVarVec did not report the variable"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelVar
+    \return vector<string> Parm IDs of every variable
+*/
+
+extern std::vector < std::string > GetFitModelVarVec();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Move every free target point to the closest point on its surface, searching the whole surface rather than working
+    from where the point currently sits.  This is slower than RefineFitModelTargetUW but does not depend on a good
+    starting coordinate, so it is what lifts a point off a seam it has become stuck against.  Fixed directions are left
+    where they are.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    vec3d pnt = CompPnt01( pid, 0, 0.5, 0.25 );
+
+    AddFitModelTargetPt( pid, 0, pnt, FIT_MODEL_FREE, FIT_MODEL_FREE );
+
+    SearchFitModelTargetUW();
+
+    if ( UpdateFitModelDist() > 1e-4 )                   { Print( "ERROR: SearchFitModelTargetUW" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pnt = CompPnt01( pid, 0, 0.5, 0.25 )
+
+    AddFitModelTargetPt( pid, 0, pnt, FIT_MODEL_FREE, FIT_MODEL_FREE )
+
+    SearchFitModelTargetUW()
+
+    assert UpdateFitModelDist() < 1e-4, "SearchFitModelTargetUW did not find the point on the surface"
+
+    \endcode
+    \endPythonOnly
+    \sa RefineFitModelTargetUW, UpdateFitModelDist
+*/
+
+extern void SearchFitModelTargetUW();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Move every free target point to the closest point on its surface, starting from where the point currently sits.  This
+    is faster than SearchFitModelTargetUW but can settle on a nearby answer rather than the best one.  Fixed directions
+    are left where they are.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    vec3d pnt = CompPnt01( pid, 0, 0.5, 0.25 );
+
+    AddFitModelTargetPt( pid, 0, pnt, FIT_MODEL_FREE, FIT_MODEL_FREE, 0.45, 0.25 );
+
+    RefineFitModelTargetUW();
+
+    if ( UpdateFitModelDist() > 1e-4 )                   { Print( "ERROR: RefineFitModelTargetUW" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pnt = CompPnt01( pid, 0, 0.5, 0.25 )
+
+    AddFitModelTargetPt( pid, 0, pnt, FIT_MODEL_FREE, FIT_MODEL_FREE, 0.45, 0.25 )
+
+    RefineFitModelTargetUW()
+
+    assert UpdateFitModelDist() < 1e-4, "RefineFitModelTargetUW did not settle on the point"
+
+    \endcode
+    \endPythonOnly
+    \sa SearchFitModelTargetUW, UpdateFitModelDist
+*/
+
+extern void RefineFitModelTargetUW();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Recompute and return how far the model is from the target points.  The measure is the root mean square of the
+    distance from each target point to the point on its surface.  Zero is the wanted answer, so it does not also stand for
+    having nothing to measure; with no target points this reports -1.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 );
+
+    if ( UpdateFitModelDist() > 1e-6 )                   { Print( "ERROR: UpdateFitModelDist" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 )
+
+    assert UpdateFitModelDist() < 1e-6, "UpdateFitModelDist did not report a matched point as matched"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFitModelDist, OptimizeFitModel
+    \return double Root mean square distance from the target points to the surfaces, or -1 when there are no target points to measure
+*/
+
+extern double UpdateFitModelDist();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the distance measure last computed, without recomputing it.  Reports -1 if the last computation had no target
+    points to measure.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 );
+
+    UpdateFitModelDist();
+
+    if ( GetFitModelDist() > 1e-6 )                      { Print( "ERROR: GetFitModelDist" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 )
+
+    UpdateFitModelDist()
+
+    assert GetFitModelDist() < 1e-6, "GetFitModelDist did not report the distance last computed"
+
+    \endcode
+    \endPythonOnly
+    \sa UpdateFitModelDist
+    \return double Root mean square distance last computed
+*/
+
+extern double GetFitModelDist();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Get the number of degrees of freedom the optimization problem has: one for each variable, plus one for each free
+    direction of each target point.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ), FIT_MODEL_FREE, FIT_MODEL_FREE );
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) );
+
+    if ( GetNumFitModelOptVars() != 3 )                  { Print( "ERROR: GetNumFitModelOptVars" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ), FIT_MODEL_FREE, FIT_MODEL_FREE )
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) )
+
+    assert GetNumFitModelOptVars() == 3, "GetNumFitModelOptVars did not count one variable and two free directions"
+
+    \endcode
+    \endPythonOnly
+    \sa OptimizeFitModel
+    \return int Number of degrees of freedom
+*/
+
+extern int GetNumFitModelOptVars();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Adjust the variables, and any free target point surface coordinates, until the surfaces pass as close as they can to
+    the target points.  A Levenberg-Marquardt algorithm solves the least squares problem, with three residuals per target
+    point.  Least squares needs at least as many conditions as unknowns, so at least three target points are needed for
+    every three degrees of freedom; GetNumFitModelOptVars counts the latter.  The return value is the termination code of
+    the solver: 0 reports that the inputs were not usable, which generally means the variables chosen are not independent
+    or do not move the surface at all.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    string len = GetParm( pid, "Length", "Design" );
+
+    // Sample points from the pod, then stretch it away from them.
+    array < vec3d > pts;
+
+    pts.push_back( CompPnt01( pid, 0, 0.25, 0.0 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.50, 0.0 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.75, 0.0 ) );
+
+    double len0 = GetParmVal( len );
+
+    SetParmVal( len, 1.4 * len0 );
+
+    Update();
+
+    AddFitModelTargetPts( pid, 0, pts );
+
+    AddFitModelVar( len );
+
+    OptimizeFitModel();
+
+    // Fitting the points back should have recovered the original length.
+    if ( abs( GetParmVal( len ) - len0 ) > 1e-3 )        { Print( "ERROR: OptimizeFitModel" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    length = GetParm( pid, "Length", "Design" )
+
+    # Sample points from the pod, then stretch it away from them.
+    pts = []
+
+    pts.append( CompPnt01( pid, 0, 0.25, 0.0 ) )
+    pts.append( CompPnt01( pid, 0, 0.50, 0.0 ) )
+    pts.append( CompPnt01( pid, 0, 0.75, 0.0 ) )
+
+    len0 = GetParmVal( length )
+
+    SetParmVal( length, 1.4 * len0 )
+
+    Update()
+
+    AddFitModelTargetPts( pid, 0, pts )
+
+    AddFitModelVar( length )
+
+    OptimizeFitModel()
+
+    # Fitting the points back should have recovered the original length.
+    assert abs( GetParmVal( length ) - len0 ) < 1e-3, "OptimizeFitModel did not recover the original length"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFitModelTargetPts, AddFitModelVar, UpdateFitModelDist
+    \return int Termination code of the least squares solver
+*/
+
+extern int OptimizeFitModel();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Write the Fit Model Tool's target points and variables to a *.fit file.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) );
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) );
+
+    SaveFitModelFile( "TestFitModel.fit" );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) )
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) )
+
+    SaveFitModelFile( "TestFitModel.fit" )
+
+    \endcode
+    \endPythonOnly
+    \sa LoadFitModelFile
+    \param [in] file_name string Name of the *.fit file to write
+*/
+
+extern void SaveFitModelFile( const std::string & file_name );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Read target points and variables from a *.fit file, adding them to whatever the Fit Model Tool already holds.  Call
+    ResetFitModel first to read into an empty tool.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) );
+
+    SaveFitModelFile( "TestFitModel.fit" );
+
+    ResetFitModel();
+
+    LoadFitModelFile( "TestFitModel.fit" );
+
+    if ( GetNumFitModelTargetPts() != 1 )                { Print( "ERROR: LoadFitModelFile" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.0 ) )
+
+    SaveFitModelFile( "TestFitModel.fit" )
+
+    ResetFitModel()
+
+    LoadFitModelFile( "TestFitModel.fit" )
+
+    assert GetNumFitModelTargetPts() == 1, "LoadFitModelFile did not read the target point back"
+
+    \endcode
+    \endPythonOnly
+    \sa SaveFitModelFile, ResetFitModel
+    \param [in] file_name string Name of the *.fit file to read
+    \return int Zero on success, or a nonzero code describing why the file could not be read
+*/
+
+extern int LoadFitModelFile( const std::string & file_name );
 
 
 //======================== Variable Preset Functions ======================//

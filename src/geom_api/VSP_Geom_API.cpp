@@ -24,6 +24,7 @@
 #include "CfdMeshMgr.h"
 #include "DesignVarMgr.h"
 #include "FeaMeshMgr.h"
+#include "FitModelMgr.h"
 #include "GeometryAnalysisMgr.h"
 #include "LinkMgr.h"
 #include "Link.h"
@@ -10418,6 +10419,623 @@ double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_f
     veh->GetSnapToPtr()->m_CollisionTargetDist = old_min_dist;
 
     return min_clearance_dist;
+}
+
+//===================================================================//
+//=======================  Fit Model Functions  =====================//
+//===================================================================//
+
+// Look up a target point by index, reporting the error the API reports for a bad index.  Every
+// function here that takes an index goes through this so they all fail the same way.
+static TargetPt * FindFitModelTargetPt( int index, const std::string & routine )
+{
+    if ( index < 0 || index >= FitModelMgr.GetNumTargetPt() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, routine + "::Index Out Of Range " + to_string( index ) );
+        return nullptr;
+    }
+
+    TargetPt *tpt = FitModelMgr.GetTargetPt( index );
+
+    if ( !tpt )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, routine + "::Can't Find Target Point " + to_string( index ) );
+        return nullptr;
+    }
+
+    return tpt;
+}
+
+// A target point is matched against the first surface of a Geom, so a Geom that has no surfaces
+// -- a Blank, a point cloud -- cannot carry one.  Nothing downstream checks, and the optimizer
+// would read through the null surface pointer.
+static Geom * FindFitModelMatchGeom( const std::string & geom_id, int surf_indx, const std::string & routine )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, routine + "::Can't Find Geom " + geom_id );
+        return nullptr;
+    }
+
+    if ( geom_ptr->GetNumTotalSurfs() < 1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, routine + "::Geom Has No Surface " + geom_id );
+        return nullptr;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, routine + "::Surface Index Out Of Range " + to_string( surf_indx ) +
+                           ", " + geom_id + " has " + to_string( geom_ptr->GetNumTotalSurfs() ) + " surfaces" );
+        return nullptr;
+    }
+
+    return geom_ptr;
+}
+
+static bool CheckFitModelTargetType( int type, const std::string & routine )
+{
+    if ( type != FIT_MODEL_FIXED && type != FIT_MODEL_FREE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, routine + "::Invalid Fit Model Target Type " + to_string( type ) );
+        return false;
+    }
+    return true;
+}
+
+void ResetFitModel()
+{
+    FitModelMgr.Renew();
+    ErrorMgr.NoError();
+}
+
+// One place where a single target point is built, so each of the four ways in reports under its
+// own name.  Mirrors AddFitModelTargetPtGroup for the vector forms.
+static int AddFitModelTargetPtOne( const std::string & geom_id, int surf_indx, const vec3d & pt, int u_type, int w_type,
+                                   double u, double w, const std::string & routine )
+{
+    Geom* geom_ptr = FindFitModelMatchGeom( geom_id, surf_indx, routine );
+    if ( !geom_ptr )
+    {
+        return -1;
+    }
+
+    if ( !CheckFitModelTargetType( u_type, routine ) ||
+         !CheckFitModelTargetType( w_type, routine ) )
+    {
+        return -1;
+    }
+
+    TargetPt *tpt = new TargetPt();
+    tpt->SetPt( pt );
+    tpt->SetMatchGeom( geom_id );
+    tpt->SetSurfIndx( surf_indx );
+    tpt->SetUW( vec2d( u, w ) );
+    tpt->SetUType( u_type );
+    tpt->SetWType( w_type );
+
+    // Only moves the free directions; with both pinned this does nothing.
+    tpt->SearchUW( geom_ptr );
+
+    FitModelMgr.AddTargetPt( tpt );
+
+    ErrorMgr.NoError();
+    return FitModelMgr.GetNumTargetPt() - 1;
+}
+
+int AddFitModelTargetPt( const std::string & geom_id, int surf_indx, const vec3d & pt, int u_type, int w_type, double u, double w )
+{
+    return AddFitModelTargetPtOne( geom_id, surf_indx, pt, u_type, w_type, u, w, "AddFitModelTargetPt" );
+}
+
+int AddFitModelTargetPtFixedU( const std::string & geom_id, int surf_indx, const vec3d & pt, double u )
+{
+    return AddFitModelTargetPtOne( geom_id, surf_indx, pt, FIT_MODEL_FIXED, FIT_MODEL_FREE, u, 0.0, "AddFitModelTargetPtFixedU" );
+}
+
+int AddFitModelTargetPtFixedW( const std::string & geom_id, int surf_indx, const vec3d & pt, double w )
+{
+    return AddFitModelTargetPtOne( geom_id, surf_indx, pt, FIT_MODEL_FREE, FIT_MODEL_FIXED, 0.0, w, "AddFitModelTargetPtFixedW" );
+}
+
+int AddFitModelTargetPtFixedUW( const std::string & geom_id, int surf_indx, const vec3d & pt, double u, double w )
+{
+    return AddFitModelTargetPtOne( geom_id, surf_indx, pt, FIT_MODEL_FIXED, FIT_MODEL_FIXED, u, w, "AddFitModelTargetPtFixedUW" );
+}
+
+// One place where a group of target points is built.  u_vec and w_vec, when given, carry a
+// coordinate per point; otherwise u and w are used for every point.  A pinned direction is left
+// where it is put.  A free one is searched onto the nearest point of the surface, because the
+// topology can tell a caller where a point sits in a pinned direction but seldom in a free one,
+// and a coordinate left at zero would otherwise pin the search to a corner of the surface.
+static void AddFitModelTargetPtGroup( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec,
+                                      int u_type, int w_type, double u, double w,
+                                      const std::vector < double > & u_vec, const std::vector < double > & w_vec,
+                                      const std::string & routine )
+{
+    Geom* geom_ptr = FindFitModelMatchGeom( geom_id, surf_indx, routine );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    if ( !u_vec.empty() && u_vec.size() != pt_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, routine + "::U Vector Length " + to_string( ( int )u_vec.size() ) +
+                           " Does Not Match Point Vector Length " + to_string( ( int )pt_vec.size() ) );
+        return;
+    }
+
+    if ( !w_vec.empty() && w_vec.size() != pt_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, routine + "::W Vector Length " + to_string( ( int )w_vec.size() ) +
+                           " Does Not Match Point Vector Length " + to_string( ( int )pt_vec.size() ) );
+        return;
+    }
+
+    for ( int i = 0; i < ( int )pt_vec.size(); i++ )
+    {
+        double ui = u;
+        if ( !u_vec.empty() )
+        {
+            ui = u_vec[i];
+        }
+
+        double wi = w;
+        if ( !w_vec.empty() )
+        {
+            wi = w_vec[i];
+        }
+
+        TargetPt *tpt = new TargetPt();
+        tpt->SetPt( pt_vec[i] );
+        tpt->SetMatchGeom( geom_id );
+        tpt->SetSurfIndx( surf_indx );
+        tpt->SetUW( vec2d( ui, wi ) );
+        tpt->SetUType( u_type );
+        tpt->SetWType( w_type );
+
+        // Only moves the free directions; with both pinned this does nothing.
+        tpt->SearchUW( geom_ptr );
+
+        FitModelMgr.AddTargetPt( tpt );
+    }
+
+    ErrorMgr.NoError();
+}
+
+void AddFitModelTargetPts( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec )
+{
+    AddFitModelTargetPtGroup( geom_id, surf_indx, pt_vec, FIT_MODEL_FREE, FIT_MODEL_FREE, 0.0, 0.0,
+                              std::vector < double >(), std::vector < double >(), "AddFitModelTargetPts" );
+}
+
+void AddFitModelTargetPtsFixedU( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, double u )
+{
+    AddFitModelTargetPtGroup( geom_id, surf_indx, pt_vec, FIT_MODEL_FIXED, FIT_MODEL_FREE, u, 0.0,
+                              std::vector < double >(), std::vector < double >(), "AddFitModelTargetPtsFixedU" );
+}
+
+void AddFitModelTargetPtsFixedUs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & u_vec )
+{
+    AddFitModelTargetPtGroup( geom_id, surf_indx, pt_vec, FIT_MODEL_FIXED, FIT_MODEL_FREE, 0.0, 0.0,
+                              u_vec, std::vector < double >(), "AddFitModelTargetPtsFixedUs" );
+}
+
+void AddFitModelTargetPtsFixedW( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, double w )
+{
+    AddFitModelTargetPtGroup( geom_id, surf_indx, pt_vec, FIT_MODEL_FREE, FIT_MODEL_FIXED, 0.0, w,
+                              std::vector < double >(), std::vector < double >(), "AddFitModelTargetPtsFixedW" );
+}
+
+void AddFitModelTargetPtsFixedWs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & w_vec )
+{
+    AddFitModelTargetPtGroup( geom_id, surf_indx, pt_vec, FIT_MODEL_FREE, FIT_MODEL_FIXED, 0.0, 0.0,
+                              std::vector < double >(), w_vec, "AddFitModelTargetPtsFixedWs" );
+}
+
+void AddFitModelTargetPtsFixedUW( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, double u, double w )
+{
+    AddFitModelTargetPtGroup( geom_id, surf_indx, pt_vec, FIT_MODEL_FIXED, FIT_MODEL_FIXED, u, w,
+                              std::vector < double >(), std::vector < double >(), "AddFitModelTargetPtsFixedUW" );
+}
+
+void AddFitModelTargetPtsFixedUWs( const std::string & geom_id, int surf_indx, const std::vector < vec3d > & pt_vec, const std::vector < double > & u_vec, const std::vector < double > & w_vec )
+{
+    AddFitModelTargetPtGroup( geom_id, surf_indx, pt_vec, FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.0, 0.0,
+                              u_vec, w_vec, "AddFitModelTargetPtsFixedUWs" );
+}
+
+void DelFitModelTargetPt( int index )
+{
+    if ( index < 0 || index >= FitModelMgr.GetNumTargetPt() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelFitModelTargetPt::Index Out Of Range " + to_string( index ) );
+        return;
+    }
+
+    // The manager deletes whichever point it currently calls current, so say which that is.  It
+    // clears the selection afterwards, which is left alone here: the points above the deleted one
+    // have moved down, so any index held from before now names a different point.
+    FitModelMgr.SetCurrTargetPtIndex( index );
+    FitModelMgr.DelCurrTargetPt();
+
+    ErrorMgr.NoError();
+}
+
+void DelAllFitModelTargetPts()
+{
+    FitModelMgr.DelAllTargetPts();
+    ErrorMgr.NoError();
+}
+
+int GetNumFitModelTargetPts()
+{
+    ErrorMgr.NoError();
+    return FitModelMgr.GetNumTargetPt();
+}
+
+vec3d GetFitModelTargetPt( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPt" );
+    if ( !tpt )
+    {
+        return vec3d();
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetPt();
+}
+
+void SetFitModelTargetPt( int index, const vec3d & pt )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "SetFitModelTargetPt" );
+    if ( !tpt )
+    {
+        return;
+    }
+
+    tpt->SetPt( pt );
+    ErrorMgr.NoError();
+}
+
+std::string GetFitModelTargetPtGeom( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtGeom" );
+    if ( !tpt )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetMatchGeom();
+}
+
+void SetFitModelTargetPtGeom( int index, const std::string & geom_id )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "SetFitModelTargetPtGeom" );
+    if ( !tpt )
+    {
+        return;
+    }
+
+    // The index has to be in range on the Geom being moved to, not the one being left.
+    if ( !FindFitModelMatchGeom( geom_id, tpt->GetSurfIndx(), "SetFitModelTargetPtGeom" ) )
+    {
+        return;
+    }
+
+    tpt->SetMatchGeom( geom_id );
+    ErrorMgr.NoError();
+}
+
+int GetFitModelTargetPtSurfIndx( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtSurfIndx" );
+    if ( !tpt )
+    {
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetSurfIndx();
+}
+
+void SetFitModelTargetPtSurfIndx( int index, int surf_indx )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "SetFitModelTargetPtSurfIndx" );
+    if ( !tpt )
+    {
+        return;
+    }
+
+    if ( !FindFitModelMatchGeom( tpt->GetMatchGeom(), surf_indx, "SetFitModelTargetPtSurfIndx" ) )
+    {
+        return;
+    }
+
+    tpt->SetSurfIndx( surf_indx );
+    ErrorMgr.NoError();
+}
+
+double GetFitModelTargetPtU( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtU" );
+    if ( !tpt )
+    {
+        return 0.0;
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetUW().x();
+}
+
+double GetFitModelTargetPtW( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtW" );
+    if ( !tpt )
+    {
+        return 0.0;
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetUW().y();
+}
+
+void SetFitModelTargetPtUW( int index, double u, double w )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "SetFitModelTargetPtUW" );
+    if ( !tpt )
+    {
+        return;
+    }
+
+    tpt->SetUW( vec2d( u, w ) );
+    ErrorMgr.NoError();
+}
+
+int GetFitModelTargetPtUType( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtUType" );
+    if ( !tpt )
+    {
+        return FIT_MODEL_FIXED;
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetUType();
+}
+
+void SetFitModelTargetPtUType( int index, int u_type )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "SetFitModelTargetPtUType" );
+    if ( !tpt )
+    {
+        return;
+    }
+
+    if ( !CheckFitModelTargetType( u_type, "SetFitModelTargetPtUType" ) )
+    {
+        return;
+    }
+
+    tpt->SetUType( u_type );
+    ErrorMgr.NoError();
+}
+
+int GetFitModelTargetPtWType( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtWType" );
+    if ( !tpt )
+    {
+        return FIT_MODEL_FIXED;
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetWType();
+}
+
+void SetFitModelTargetPtWType( int index, int w_type )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "SetFitModelTargetPtWType" );
+    if ( !tpt )
+    {
+        return;
+    }
+
+    if ( !CheckFitModelTargetType( w_type, "SetFitModelTargetPtWType" ) )
+    {
+        return;
+    }
+
+    tpt->SetWType( w_type );
+    ErrorMgr.NoError();
+}
+
+vec3d GetFitModelTargetPtSurfPt( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtSurfPt" );
+    if ( !tpt )
+    {
+        return vec3d();
+    }
+
+    if ( !tpt->IsValid() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetFitModelTargetPtSurfPt::Can't Find Surface For Geom " + tpt->GetMatchGeom() );
+        return vec3d();
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetMatchPt();
+}
+
+void AddFitModelVar( const std::string & parm_id )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddFitModelVar::Can't Find Parm " + parm_id );
+        return;
+    }
+
+    if ( !FitModelMgr.AddVar( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddFitModelVar::Duplicate Variable " + parm_id );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+void DelFitModelVar( const std::string & parm_id )
+{
+    if ( !FitModelMgr.CheckForDuplicateVar( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "DelFitModelVar::Can't Find Variable " + parm_id );
+        return;
+    }
+
+    FitModelMgr.DelVar( parm_id );
+    ErrorMgr.NoError();
+}
+
+void DelAllFitModelVars()
+{
+    FitModelMgr.DelAllVars();
+    ErrorMgr.NoError();
+}
+
+int GetNumFitModelVars()
+{
+    ErrorMgr.NoError();
+    return FitModelMgr.GetNumVars();
+}
+
+std::string GetFitModelVar( int index )
+{
+    if ( index < 0 || index >= FitModelMgr.GetNumVars() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFitModelVar::Index Out Of Range " + to_string( index ) );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return FitModelMgr.GetVar( index );
+}
+
+std::vector < std::string > GetFitModelVarVec()
+{
+    ErrorMgr.NoError();
+    return FitModelMgr.GetVarVec();
+}
+
+void SearchFitModelTargetUW()
+{
+    FitModelMgr.SearchTargetUW();
+    ErrorMgr.NoError();
+}
+
+void RefineFitModelTargetUW()
+{
+    FitModelMgr.RefineTargetUW();
+    ErrorMgr.NoError();
+}
+
+double UpdateFitModelDist()
+{
+    // Zero is a real answer here, and the wanted one, so it cannot also stand for having nothing
+    // to measure.  The manager reports -1 for that.
+    if ( FitModelMgr.GetNumTargetPt() == 0 )
+    {
+        FitModelMgr.UpdateDist();
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "UpdateFitModelDist::No Target Points" );
+        return -1.0;
+    }
+
+    FitModelMgr.UpdateDist();
+    ErrorMgr.NoError();
+    return FitModelMgr.m_DistMetric;
+}
+
+double GetFitModelDist()
+{
+    ErrorMgr.NoError();
+    return FitModelMgr.m_DistMetric;
+}
+
+int GetNumFitModelOptVars()
+{
+    FitModelMgr.UpdateNumOptVars();
+    ErrorMgr.NoError();
+    return FitModelMgr.GetNumOptVars();
+}
+
+int OptimizeFitModel()
+{
+    if ( FitModelMgr.GetNumTargetPt() == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "OptimizeFitModel::No Target Points" );
+        return 0;
+    }
+
+    FitModelMgr.UpdateNumOptVars();
+    int n = FitModelMgr.GetNumOptVars();
+    if ( n == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "OptimizeFitModel::No Variables Or Free Target Points" );
+        return 0;
+    }
+
+    // Least squares needs at least as many conditions as unknowns.  Each target point supplies
+    // three.  Given fewer, the solver returns its invalid-input code and changes nothing, which on
+    // its own does not say which way the problem was underdetermined.
+    int m = 3 * FitModelMgr.GetNumTargetPt();
+    if ( m < n )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "OptimizeFitModel::Too Few Target Points, " +
+                           to_string( m ) + " conditions for " + to_string( n ) + " degrees of freedom" );
+        return 0;
+    }
+
+    int info = FitModelMgr.Optimize();
+
+    FitModelMgr.UpdateDist();
+
+    ErrorMgr.NoError();
+    return info;
+}
+
+void SaveFitModelFile( const std::string & file_name )
+{
+    FitModelMgr.SetSaveFitFileName( file_name );
+
+    if ( !FitModelMgr.Save() )
+    {
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "SaveFitModelFile::Failure Writing File " + file_name );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+int LoadFitModelFile( const std::string & file_name )
+{
+    FitModelMgr.SetLoadFitFileName( file_name );
+
+    int err = FitModelMgr.Load();
+
+    if ( err != 0 )
+    {
+        ErrorMgr.AddError( VSP_FILE_READ_FAILURE, "LoadFitModelFile::Failure Reading File " + file_name );
+        return err;
+    }
+
+    ErrorMgr.NoError();
+    return err;
 }
 
 //===================================================================//

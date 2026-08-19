@@ -301,6 +301,15 @@ private:
     CScriptArray* GetFeaLayerIDVec( const string & material_id );
     CScriptArray* GetGeomTextureIDVec( const string & geom_id );
     CScriptArray* GetFeaTrimPartIDVec( const string & trim_id );
+    CScriptArray* GetFitModelVarVec();
+    void AddFitModelTargetPts( const string & geom_id, int surf_indx, CScriptArray* pt_arr );
+    void AddFitModelTargetPtsFixedU( const string & geom_id, int surf_indx, CScriptArray* pt_arr, double u );
+    void AddFitModelTargetPtsFixedUs( const string & geom_id, int surf_indx, CScriptArray* pt_arr, CScriptArray* u_arr );
+    void AddFitModelTargetPtsFixedW( const string & geom_id, int surf_indx, CScriptArray* pt_arr, double w );
+    void AddFitModelTargetPtsFixedWs( const string & geom_id, int surf_indx, CScriptArray* pt_arr, CScriptArray* w_arr );
+    void AddFitModelTargetPtsFixedUW( const string & geom_id, int surf_indx, CScriptArray* pt_arr, double u, double w );
+    void AddFitModelTargetPtsFixedUWs( const string & geom_id, int surf_indx, CScriptArray* pt_arr, CScriptArray* u_arr, CScriptArray* w_arr );
+
     CScriptArray* GetPtCloudPnts( const string & geom_id );
     CScriptArray* GetFeaAssemblyIDVec();
     CScriptArray* GetFeaAssemblyStructureIDVec( const string & assembly_id );
