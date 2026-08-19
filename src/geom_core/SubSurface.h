@@ -312,7 +312,12 @@ public:
     virtual ~SSIntersect();
 
     virtual void Intersect();
-    virtual void IntersectBezier();
+
+    // An earlier way of making an intersection subsurface, working from the Bezier surfaces rather
+    // than from a discrete mesh.  It worked; the discrete path was taken instead.  Kept for
+    // reference.  Restoring it also means restoring vsp::LimitedIntersectSurfaces, which was only
+    // ever in the API so that geom_core could reach it, and which has since been taken back out.
+    // virtual void IntersectBezier();
 
     virtual void SetFromUWChain( vector < vec3d > uwchain );
 

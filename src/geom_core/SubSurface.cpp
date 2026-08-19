@@ -1653,26 +1653,33 @@ void SSIntersect::Intersect()
     DeleteTMeshVec( inttmv );
 }
 
-void SSIntersect::IntersectBezier()
-{
-    vector < vector < vec3d > > ptchains;
-    vector < vector < vec3d > > uwchains;
-
-    vsp::LimitedIntersectSurfaces( { m_CompID, m_IntersectID }, ptchains, uwchains );
-
-    m_NCurves.Set( uwchains.size() );
-
-    if ( m_ICurve() >= m_NCurves() )
-    {
-        m_ICurve.Set( 0 );
-    }
-
-    // Set subsurface from chain
-    if ( uwchains.size() > m_ICurve() )
-    {
-        SetFromUWChain( uwchains[ m_ICurve() ] );
-    }
-}
+// An earlier way of making an intersection subsurface, working from the Bezier surfaces rather than
+// from a discrete mesh.  It worked; the discrete path was taken instead.  Kept for reference.
+//
+// vsp::LimitedIntersectSurfaces was only ever in the API so that this could reach it, which is a
+// layering violation, and it has since been taken back out.  Reviving this wants that call put back
+// or replaced with a direct one to SurfaceIntersectionMgr.
+//
+// void SSIntersect::IntersectBezier()
+// {
+//     vector < vector < vec3d > > ptchains;
+//     vector < vector < vec3d > > uwchains;
+//
+//     vsp::LimitedIntersectSurfaces( { m_CompID, m_IntersectID }, ptchains, uwchains );
+//
+//     m_NCurves.Set( uwchains.size() );
+//
+//     if ( m_ICurve() >= m_NCurves() )
+//     {
+//         m_ICurve.Set( 0 );
+//     }
+//
+//     // Set subsurface from chain
+//     if ( uwchains.size() > m_ICurve() )
+//     {
+//         SetFromUWChain( uwchains[ m_ICurve() ] );
+//     }
+// }
 
 void SSIntersect::SetFromUWChain( vector < vec3d > uwchain )
 {
