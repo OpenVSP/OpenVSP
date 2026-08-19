@@ -781,6 +781,14 @@ void FitModelMgrSingleton::UpdateDist()
 
     int npt = m_TargetPts.size();
 
+    // With no target points there is no distance to report.  Averaging over none of them used to
+    // divide by zero; -1 marks the absence, since zero is a real and wanted answer.
+    if ( npt == 0 )
+    {
+        m_DistMetric = -1.0;
+        return;
+    }
+
     m_DistMetric = 0;
 
     // Calculate target point distances
