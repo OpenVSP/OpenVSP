@@ -238,6 +238,15 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade.py
     )
 
+    # Write the per group reference pages from the API header, so a function added there turns up
+    # in the documentation without a second place to remember.
+    add_custom_command( TARGET pyvsp POST_BUILD
+        COMMAND ${PYTHON_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/gen_api_docs.py
+        ${VSP_SOURCE_DIR}/geom_api/VSP_Geom_API.h
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
+    )
+
     add_custom_command( TARGET pyvsp POST_BUILD
         COMMAND ${PYTHON_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/gen_unit_test.py

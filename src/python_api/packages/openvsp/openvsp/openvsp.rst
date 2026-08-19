@@ -33,11 +33,8 @@ utilities
    :undoc-members:
    :show-inheritance:
 
-vsp
-------------------
-
-.. automodule:: openvsp.vsp
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. The API functions themselves are documented a group at a time, under "API Functions by Group".
+   Pulling them in here as well put all eight hundred of them on one page several megabytes long,
+   which no browser enjoys and nobody could find anything in.  The alphabetical listing lives in
+   the general index, and the search box covers the rest.
 

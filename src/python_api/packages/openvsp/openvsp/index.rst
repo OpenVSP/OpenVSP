@@ -55,6 +55,7 @@ Contents
    :maxdepth: 2
 
    openvsp_config
+   api_groups
    openvsp
 
 Indices and tables
