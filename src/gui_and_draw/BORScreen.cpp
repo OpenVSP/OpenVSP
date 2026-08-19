@@ -1235,7 +1235,7 @@ bool BORScreen::Update()
 
             if ( ceditcreen )
             {
-                ceditcreen->SetXSecCurve( xsc );
+                ceditcreen->SetXSecCurve( xsc->GetID() );
             }
 
             m_EditCEDITGroup.Show();
@@ -1567,7 +1567,7 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             if ( ceditcreen && edit_xsec )
             {
-                ceditcreen->SetXSecCurve( edit_xsec );
+                ceditcreen->SetXSecCurve( edit_xsec->GetID() );
             }
 
             m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
@@ -1578,7 +1578,7 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             if ( ceditcreen )
             {
-                ceditcreen->SetXSecCurve( nullptr );
+                ceditcreen->SetXSecCurve( string() );
             }
         }
     }
@@ -1610,7 +1610,7 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             if ( ceditcreen )
             {
-                ceditcreen->SetXSecCurve( edit_xsec );
+                ceditcreen->SetXSecCurve( edit_xsec->GetID() );
             }
 
             m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );

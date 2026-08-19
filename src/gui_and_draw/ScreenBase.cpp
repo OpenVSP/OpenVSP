@@ -2511,7 +2511,7 @@ bool GeomScreen::Update()
 
                     if ( ceditcreen )
                     {
-                        ceditcreen->SetXSecCurve( xsc );
+                        ceditcreen->SetXSecCurve( xsc->GetID() );
                     }
 
                     m_SSXSCEditCEDITGroup.Show();
@@ -2876,7 +2876,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( ceditcreen && edit_xsec )
                 {
-                    ceditcreen->SetXSecCurve( edit_xsec );
+                    ceditcreen->SetXSecCurve( edit_xsec->GetID() );
                 }
 
                 m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
@@ -2887,7 +2887,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( ceditcreen )
                 {
-                    ceditcreen->SetXSecCurve( nullptr );
+                    ceditcreen->SetXSecCurve( string() );
                 }
             }
         }
@@ -2925,7 +2925,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( ceditcreen )
                 {
-                    ceditcreen->SetXSecCurve( edit_xsec );
+                    ceditcreen->SetXSecCurve( edit_xsec->GetID() );
                 }
 
                 m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
@@ -3132,7 +3132,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( ceditcreen && edit_xsec )
                 {
-                    ceditcreen->SetXSecCurve( edit_xsec );
+                    ceditcreen->SetXSecCurve( edit_xsec->GetID() );
                 }
 
                 m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
@@ -4632,7 +4632,7 @@ bool XSecScreen::Update()
 
                 if ( ceditcreen )
                 {
-                    ceditcreen->SetXSecCurve( xsc );
+                    ceditcreen->SetXSecCurve( xsc->GetID() );
                 }
 
                 m_EditCEDITButtonGroup.Show();
@@ -4783,7 +4783,7 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                     if ( ceditcreen && edit_xsec )
                     {
-                        ceditcreen->SetXSecCurve( edit_xsec );
+                        ceditcreen->SetXSecCurve( edit_xsec->GetID() );
                     }
                 }
             }
@@ -4796,7 +4796,7 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             if ( ceditcreen )
             {
-                ceditcreen->SetXSecCurve( nullptr );
+                ceditcreen->SetXSecCurve( string() );
             }
         }
     }
@@ -4818,7 +4818,7 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
                 if ( ceditcreen )
                 {
-                    ceditcreen->SetXSecCurve( edit_xsec );
+                    ceditcreen->SetXSecCurve( edit_xsec->GetID() );
                 }
 
                 m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );

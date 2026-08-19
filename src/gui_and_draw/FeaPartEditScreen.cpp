@@ -2930,7 +2930,7 @@ bool FeaPartEditScreen::Update()
 
                                 if ( ceditcreen )
                                 {
-                                    ceditcreen->SetXSecCurve( xsc );
+                                    ceditcreen->SetXSecCurve( xsc->GetID() );
                                 }
 
                                 m_FeaSSXSCEditCEDITGroup.Show();
@@ -3295,7 +3295,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                     if ( ceditcreen && edit_xsec )
                     {
-                        ceditcreen->SetXSecCurve( edit_xsec );
+                        ceditcreen->SetXSecCurve( edit_xsec->GetID() );
                     }
 
                     m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
@@ -3306,7 +3306,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                     if ( ceditcreen )
                     {
-                        ceditcreen->SetXSecCurve( nullptr );
+                        ceditcreen->SetXSecCurve( string() );
                     }
                 }
             }
@@ -3344,7 +3344,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                     if ( ceditcreen )
                     {
-                        ceditcreen->SetXSecCurve( edit_xsec );
+                        ceditcreen->SetXSecCurve( edit_xsec->GetID() );
                     }
 
                     m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
@@ -3551,7 +3551,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                     if ( ceditcreen && edit_xsec )
                     {
-                        ceditcreen->SetXSecCurve( edit_xsec );
+                        ceditcreen->SetXSecCurve( edit_xsec->GetID() );
                     }
 
                     m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );

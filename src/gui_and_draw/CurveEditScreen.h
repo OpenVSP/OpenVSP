@@ -26,7 +26,7 @@ public:
     virtual void CloseCallBack( Fl_Widget* w );
     virtual void GuiDeviceCallBack( GuiDevice* d );
 
-    void SetXSecCurve( XSecCurve* xsc );
+    void SetXSecCurve( const string &xsc_id );
     XSecCurve* GetXSecCurve();
 
     void UpdateDrawObj();

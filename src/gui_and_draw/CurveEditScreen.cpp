@@ -379,16 +379,9 @@ void CurveEditScreen::Show()
     }
 }
 
-void CurveEditScreen::SetXSecCurve( XSecCurve* xsc )
+void CurveEditScreen::SetXSecCurve( const string &xsc_id )
 {
-    if ( xsc )
-    {
-        m_XSecCurveID = xsc->GetID();
-    }
-    else
-    {
-        m_XSecCurveID = string();
-    }
+    m_XSecCurveID = xsc_id;
 }
 
 //==== Get the Active XSec Curve ====//
