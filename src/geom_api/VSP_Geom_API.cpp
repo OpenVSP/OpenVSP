@@ -32,6 +32,7 @@
 #include "MeasureMgr.h"
 #include "ParasiteDragMgr.h"
 #include "ParmMgr.h"
+#include "PntNodeMerge.h"
 #include "PropGeom.h"
 #include "RoutingGeom.h"
 #include "AuxiliaryGeom.h"
@@ -11036,6 +11037,271 @@ int LoadFitModelFile( const std::string & file_name )
 
     ErrorMgr.NoError();
     return err;
+}
+
+//===================================================================//
+//====================  Point Cloud Functions  ======================//
+//===================================================================//
+
+static bool CheckPtsTol( double tol, const std::string & routine )
+{
+    if ( tol < 0.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, routine + "::Negative Tolerance" );
+        return false;
+    }
+    return true;
+}
+
+static bool CheckDirIndex( int dir_index, const std::string & routine )
+{
+    if ( dir_index < vsp::X_DIR || dir_index > vsp::Z_DIR )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, routine + "::Invalid Direction Index " + to_string( dir_index ) );
+        return false;
+    }
+    return true;
+}
+
+std::string CreatePtCloudGeomFromPts( const std::vector < vec3d > & pt_vec, const std::string & name )
+{
+    Vehicle* veh = GetVehicle();
+
+    // A point cloud is not one of the types offered for creation -- it only ever arrives by import
+    // or by conversion from a mesh -- so the type is built here the way Vehicle::ImportFile builds
+    // it, rather than looked up by name.
+    GeomType type = GeomType( PT_CLOUD_GEOM_TYPE, "PTS", true );
+    std::string id = veh->AddGeom( type );
+
+    if ( id.empty() || id.compare( "NONE" ) == 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CreatePtCloudGeomFromPts::Could Not Add Point Cloud Geom" );
+        return std::string();
+    }
+
+    Geom* geom_ptr = veh->FindGeom( id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CreatePtCloudGeomFromPts::Could Not Add Point Cloud Geom" );
+        return std::string();
+    }
+
+    PtCloudGeom* pt_cloud = dynamic_cast< PtCloudGeom* >( geom_ptr );
+    if ( !pt_cloud )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreatePtCloudGeomFromPts::Geom Is Not A Point Cloud" );
+        return std::string();
+    }
+
+    pt_cloud->m_Pts = pt_vec;
+    pt_cloud->InitPts();
+
+    if ( !name.empty() )
+    {
+        pt_cloud->SetName( name );
+    }
+
+    pt_cloud->SetDirtyFlag( GeomBase::SURF );
+    pt_cloud->Update();
+
+    Update();
+
+    ErrorMgr.NoError();
+    return id;
+}
+
+std::vector < vec3d > KeepPtsInBBox( const std::vector < vec3d > & pt_vec, const vec3d & min_pt, const vec3d & max_pt )
+{
+    ErrorMgr.NoError();
+    return FilterPntsInBBox( pt_vec, min_pt, max_pt, true );
+}
+
+std::vector < vec3d > RemovePtsInBBox( const std::vector < vec3d > & pt_vec, const vec3d & min_pt, const vec3d & max_pt )
+{
+    ErrorMgr.NoError();
+    return FilterPntsInBBox( pt_vec, min_pt, max_pt, false );
+}
+
+std::vector < vec3d > KeepPtsInRange( const std::vector < vec3d > & pt_vec, int dir_index, double low, double high )
+{
+    if ( !CheckDirIndex( dir_index, "KeepPtsInRange" ) )
+    {
+        return std::vector < vec3d >();
+    }
+
+    ErrorMgr.NoError();
+    return FilterPntsInRange( pt_vec, dir_index, low, high, true );
+}
+
+std::vector < vec3d > RemovePtsInRange( const std::vector < vec3d > & pt_vec, int dir_index, double low, double high )
+{
+    if ( !CheckDirIndex( dir_index, "RemovePtsInRange" ) )
+    {
+        return std::vector < vec3d >();
+    }
+
+    ErrorMgr.NoError();
+    return FilterPntsInRange( pt_vec, dir_index, low, high, false );
+}
+
+std::vector < vec3d > KeepPtsAbove( const std::vector < vec3d > & pt_vec, int dir_index, double val )
+{
+    if ( !CheckDirIndex( dir_index, "KeepPtsAbove" ) )
+    {
+        return std::vector < vec3d >();
+    }
+
+    ErrorMgr.NoError();
+    return FilterPntsByValue( pt_vec, dir_index, val, true );
+}
+
+std::vector < vec3d > KeepPtsBelow( const std::vector < vec3d > & pt_vec, int dir_index, double val )
+{
+    if ( !CheckDirIndex( dir_index, "KeepPtsBelow" ) )
+    {
+        return std::vector < vec3d >();
+    }
+
+    ErrorMgr.NoError();
+    return FilterPntsByValue( pt_vec, dir_index, val, false );
+}
+
+std::vector < vec3d > KeepPtsNearPt( const std::vector < vec3d > & pt_vec, const vec3d & center, double radius )
+{
+    if ( !CheckPtsTol( radius, "KeepPtsNearPt" ) )
+    {
+        return std::vector < vec3d >();
+    }
+
+    ErrorMgr.NoError();
+    return FilterPntsNearPnt( pt_vec, center, radius, true );
+}
+
+std::vector < vec3d > RemovePtsNearPt( const std::vector < vec3d > & pt_vec, const vec3d & center, double radius )
+{
+    if ( !CheckPtsTol( radius, "RemovePtsNearPt" ) )
+    {
+        return std::vector < vec3d >();
+    }
+
+    ErrorMgr.NoError();
+    return FilterPntsNearPnt( pt_vec, center, radius, false );
+}
+
+// Look up the surface a point filter is measured against, reporting whichever way it is not there.
+static const VspSurf * FindPtsSurf( const std::string & geom_id, int surf_indx, double tol, const std::string & routine )
+{
+    if ( !CheckPtsTol( tol, routine ) )
+    {
+        return nullptr;
+    }
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, routine + "::Can't Find Geom " + geom_id );
+        return nullptr;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, routine + "::Surface Index Out Of Range " + to_string( surf_indx ) );
+        return nullptr;
+    }
+
+    const VspSurf* surf = geom_ptr->GetSurfPtr( surf_indx );
+    if ( !surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, routine + "::Can't Find Surface " + to_string( surf_indx ) );
+        return nullptr;
+    }
+
+    return surf;
+}
+
+std::vector < vec3d > KeepPtsNearGeom( const std::vector < vec3d > & pt_vec, const std::string & geom_id, int surf_indx, double tol )
+{
+    const VspSurf* surf = FindPtsSurf( geom_id, surf_indx, tol, "KeepPtsNearGeom" );
+    if ( !surf )
+    {
+        return std::vector < vec3d >();
+    }
+
+    ErrorMgr.NoError();
+    return FilterPntsNearSurf( pt_vec, surf, tol, true );
+}
+
+std::vector < vec3d > RemovePtsNearGeom( const std::vector < vec3d > & pt_vec, const std::string & geom_id, int surf_indx, double tol )
+{
+    const VspSurf* surf = FindPtsSurf( geom_id, surf_indx, tol, "RemovePtsNearGeom" );
+    if ( !surf )
+    {
+        return std::vector < vec3d >();
+    }
+
+    ErrorMgr.NoError();
+    return FilterPntsNearSurf( pt_vec, surf, tol, false );
+}
+
+std::vector < vec3d > UniquePts( const std::vector < vec3d > & pt_vec, double tol )
+{
+    std::vector < vec3d > out;
+
+    if ( !CheckPtsTol( tol, "UniquePts" ) )
+    {
+        return out;
+    }
+
+    out = UniquePnts( pt_vec, tol );
+
+    ErrorMgr.NoError();
+    return out;
+}
+
+std::vector < vec3d > UnionPts( const std::vector < vec3d > & pt_vec_a, const std::vector < vec3d > & pt_vec_b, double tol )
+{
+    std::vector < vec3d > both;
+
+    if ( !CheckPtsTol( tol, "UnionPts" ) )
+    {
+        return both;
+    }
+
+    both = UnionPnts( pt_vec_a, pt_vec_b, tol );
+
+    ErrorMgr.NoError();
+    return both;
+}
+
+std::vector < vec3d > IntersectPts( const std::vector < vec3d > & pt_vec_a, const std::vector < vec3d > & pt_vec_b, double tol )
+{
+    std::vector < vec3d > out;
+
+    if ( !CheckPtsTol( tol, "IntersectPts" ) )
+    {
+        return out;
+    }
+
+    out = FilterPntsByMembership( pt_vec_a, pt_vec_b, tol, true );
+
+    ErrorMgr.NoError();
+    return out;
+}
+
+std::vector < vec3d > SubtractPts( const std::vector < vec3d > & pt_vec_a, const std::vector < vec3d > & pt_vec_b, double tol )
+{
+    std::vector < vec3d > out;
+
+    if ( !CheckPtsTol( tol, "SubtractPts" ) )
+    {
+        return out;
+    }
+
+    out = FilterPntsByMembership( pt_vec_a, pt_vec_b, tol, false );
+
+    ErrorMgr.NoError();
+    return out;
 }
 
 //===================================================================//

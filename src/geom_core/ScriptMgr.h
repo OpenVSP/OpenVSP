@@ -310,6 +310,22 @@ private:
     void AddFitModelTargetPtsFixedUW( const string & geom_id, int surf_indx, CScriptArray* pt_arr, double u, double w );
     void AddFitModelTargetPtsFixedUWs( const string & geom_id, int surf_indx, CScriptArray* pt_arr, CScriptArray* u_arr, CScriptArray* w_arr );
 
+    string CreatePtCloudGeomFromPts( CScriptArray* pt_arr, const string & name );
+    CScriptArray* KeepPtsInBBox( CScriptArray* pt_arr, const vec3d & min_pt, const vec3d & max_pt );
+    CScriptArray* RemovePtsInBBox( CScriptArray* pt_arr, const vec3d & min_pt, const vec3d & max_pt );
+    CScriptArray* KeepPtsInRange( CScriptArray* pt_arr, int dir_index, double low, double high );
+    CScriptArray* RemovePtsInRange( CScriptArray* pt_arr, int dir_index, double low, double high );
+    CScriptArray* KeepPtsAbove( CScriptArray* pt_arr, int dir_index, double val );
+    CScriptArray* KeepPtsBelow( CScriptArray* pt_arr, int dir_index, double val );
+    CScriptArray* KeepPtsNearPt( CScriptArray* pt_arr, const vec3d & center, double radius );
+    CScriptArray* RemovePtsNearPt( CScriptArray* pt_arr, const vec3d & center, double radius );
+    CScriptArray* KeepPtsNearGeom( CScriptArray* pt_arr, const string & geom_id, int surf_indx, double tol );
+    CScriptArray* RemovePtsNearGeom( CScriptArray* pt_arr, const string & geom_id, int surf_indx, double tol );
+    CScriptArray* UniquePts( CScriptArray* pt_arr, double tol );
+    CScriptArray* UnionPts( CScriptArray* pt_arr_a, CScriptArray* pt_arr_b, double tol );
+    CScriptArray* IntersectPts( CScriptArray* pt_arr_a, CScriptArray* pt_arr_b, double tol );
+    CScriptArray* SubtractPts( CScriptArray* pt_arr_a, CScriptArray* pt_arr_b, double tol );
+
     CScriptArray* GetPtCloudPnts( const string & geom_id );
     CScriptArray* GetFeaAssemblyIDVec();
     CScriptArray* GetFeaAssemblyStructureIDVec( const string & assembly_id );

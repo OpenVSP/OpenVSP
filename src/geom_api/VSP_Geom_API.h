@@ -138,6 +138,16 @@
     \brief The following group of API functions may be used to control parametric propeller blade curves (PCurves).
     \ref index "Click here to return to the main page"
 
+    \defgroup PointCloud Point Cloud Functions
+    \brief This group of functions works with clouds of points -- imported, or made from a MeshGeom such
+    as the one a planar slice produces -- and narrows them down to the points wanted.  In the GUI a cloud
+    is whittled down by selecting and hiding points with the mouse, which projects a screen rectangle into
+    three dimensions and is only as good as that projection.  Through the API the points are handed about
+    as plain vectors of coordinates and filtered by where they actually are, which is both exact and
+    repeatable.  Filters come in keep and remove pairs, so a selection is inverted by asking for the other
+    one, and there are set operations for combining the results.
+    \ref index "Click here to return to the main page"
+
     \defgroup ParasiteDrag Parasite Drag Functions
     \brief This group of API functions is supplemental to performing a Paraste Drag analysis through the Analysis Manager. They include
     functions to write out Parasite Drag Tool equations, calculate atmospheric properties, and control excrescences.
@@ -30220,6 +30230,677 @@ extern void SaveFitModelFile( const std::string & file_name );
 extern int LoadFitModelFile( const std::string & file_name );
 
 
+
+//======================== Point Cloud Functions ======================//
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Make a Point Cloud Geom out of a set of points.  This is how a set worked out in a script is put
+    back into the model, so it can be looked at in the GUI and saved with the file.  The counterpart
+    of GetPtCloudPnts.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    string cloud_id = CreatePtCloudGeomFromPts( pts, "ScriptCloud" );
+
+    if ( GetPtCloudPnts( cloud_id ).size() != 4 )        { Print( "ERROR: CreatePtCloudGeomFromPts" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    cloud_id = CreatePtCloudGeomFromPts( pts, "ScriptCloud" )
+
+    assert len( GetPtCloudPnts( cloud_id ) ) == 4, "CreatePtCloudGeomFromPts did not keep the points"
+
+    \endcode
+    \endPythonOnly
+    \sa GetPtCloudPnts, CreatePtCloudGeom
+    \param [in] pt_vec vector<vec3d> Points to place in the new Geom
+    \param [in] name string Name for the new Geom, or an empty string for the default
+    \return string Geom ID of the new Point Cloud Geom
+*/
+
+extern std::string CreatePtCloudGeomFromPts( const std::vector < vec3d > & pt_vec, const std::string & name );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Keep the points inside an axis aligned box.  This is what the GUI's rectangle selection is
+    reaching for, done in three dimensions rather than through a screen projection.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > inside = KeepPtsInBBox( pts, vec3d( 1.0, -1.0, -1.0 ), vec3d( 5.0, 1.0, 1.0 ) );
+
+    if ( inside.size() != 2 )                            { Print( "ERROR: KeepPtsInBBox" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    inside = KeepPtsInBBox( pts, vec3d( 1.0, -1.0, -1.0 ), vec3d( 5.0, 1.0, 1.0 ) )
+
+    assert len( inside ) == 2, "KeepPtsInBBox did not keep the points inside the box"
+
+    \endcode
+    \endPythonOnly
+    \sa RemovePtsInBBox, KeepPtsInRange
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] min_pt vec3d Corner of the box with the smallest coordinates
+    \param [in] max_pt vec3d Corner of the box with the largest coordinates
+    \return vector<vec3d> Points inside the box
+*/
+
+extern std::vector < vec3d > KeepPtsInBBox( const std::vector < vec3d > & pt_vec, const vec3d & min_pt, const vec3d & max_pt );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Drop the points inside an axis aligned box, keeping the rest.  The complement of KeepPtsInBBox,
+    which is how a selection is inverted.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > outside = RemovePtsInBBox( pts, vec3d( 1.0, -1.0, -1.0 ), vec3d( 5.0, 1.0, 1.0 ) );
+
+    if ( outside.size() != 2 )                           { Print( "ERROR: RemovePtsInBBox" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    outside = RemovePtsInBBox( pts, vec3d( 1.0, -1.0, -1.0 ), vec3d( 5.0, 1.0, 1.0 ) )
+
+    assert len( outside ) == 2, "RemovePtsInBBox did not drop the points inside the box"
+
+    \endcode
+    \endPythonOnly
+    \sa KeepPtsInBBox
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] min_pt vec3d Corner of the box with the smallest coordinates
+    \param [in] max_pt vec3d Corner of the box with the largest coordinates
+    \return vector<vec3d> Points outside the box
+*/
+
+extern std::vector < vec3d > RemovePtsInBBox( const std::vector < vec3d > & pt_vec, const vec3d & min_pt, const vec3d & max_pt );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Keep the points whose coordinate along one axis falls between two values, inclusive.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > mid = KeepPtsInRange( pts, X_DIR, 1.0, 5.0 );
+
+    if ( mid.size() != 2 )                               { Print( "ERROR: KeepPtsInRange" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    mid = KeepPtsInRange( pts, X_DIR, 1.0, 5.0 )
+
+    assert len( mid ) == 2, "KeepPtsInRange did not keep the points in range"
+
+    \endcode
+    \endPythonOnly
+    \sa RemovePtsInRange, KeepPtsAbove, KeepPtsBelow
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] dir_index int Direction index enum (i.e. X_DIR)
+    \param [in] low double Lowest coordinate to keep
+    \param [in] high double Highest coordinate to keep
+    \return vector<vec3d> Points within the range
+*/
+
+extern std::vector < vec3d > KeepPtsInRange( const std::vector < vec3d > & pt_vec, int dir_index, double low, double high );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Drop the points whose coordinate along one axis falls between two values, keeping the rest.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > ends = RemovePtsInRange( pts, X_DIR, 1.0, 5.0 );
+
+    if ( ends.size() != 2 )                              { Print( "ERROR: RemovePtsInRange" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    ends = RemovePtsInRange( pts, X_DIR, 1.0, 5.0 )
+
+    assert len( ends ) == 2, "RemovePtsInRange did not drop the points in range"
+
+    \endcode
+    \endPythonOnly
+    \sa KeepPtsInRange
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] dir_index int Direction index enum (i.e. X_DIR)
+    \param [in] low double Lowest coordinate to drop
+    \param [in] high double Highest coordinate to drop
+    \return vector<vec3d> Points outside the range
+*/
+
+extern std::vector < vec3d > RemovePtsInRange( const std::vector < vec3d > & pt_vec, int dir_index, double low, double high );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Keep the points whose coordinate along one axis is greater than a value.  Together with
+    KeepPtsBelow this splits a set in two: the two answers are complements, so no separate remove
+    call is wanted.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > aft = KeepPtsAbove( pts, X_DIR, 3.0 );
+
+    if ( aft.size() != 2 )                               { Print( "ERROR: KeepPtsAbove" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    aft = KeepPtsAbove( pts, X_DIR, 3.0 )
+
+    assert len( aft ) == 2, "KeepPtsAbove did not keep the points above the value"
+
+    \endcode
+    \endPythonOnly
+    \sa KeepPtsBelow, KeepPtsInRange
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] dir_index int Direction index enum (i.e. X_DIR)
+    \param [in] val double Value to compare against
+    \return vector<vec3d> Points above the value
+*/
+
+extern std::vector < vec3d > KeepPtsAbove( const std::vector < vec3d > & pt_vec, int dir_index, double val );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Keep the points whose coordinate along one axis is less than or equal to a value.  The
+    complement of KeepPtsAbove.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > fwd = KeepPtsBelow( pts, X_DIR, 3.0 );
+
+    if ( fwd.size() != 2 )                               { Print( "ERROR: KeepPtsBelow" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    fwd = KeepPtsBelow( pts, X_DIR, 3.0 )
+
+    assert len( fwd ) == 2, "KeepPtsBelow did not keep the points below the value"
+
+    \endcode
+    \endPythonOnly
+    \sa KeepPtsAbove, KeepPtsInRange
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] dir_index int Direction index enum (i.e. X_DIR)
+    \param [in] val double Value to compare against
+    \return vector<vec3d> Points at or below the value
+*/
+
+extern std::vector < vec3d > KeepPtsBelow( const std::vector < vec3d > & pt_vec, int dir_index, double val );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Keep the points within a distance of a given point.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > near = KeepPtsNearPt( pts, vec3d( 4.0, 0.0, 0.0 ), 1.0 );
+
+    if ( near.size() != 1 )                              { Print( "ERROR: KeepPtsNearPt" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    near = KeepPtsNearPt( pts, vec3d( 4.0, 0.0, 0.0 ), 1.0 )
+
+    assert len( near ) == 1, "KeepPtsNearPt did not keep the points near the point"
+
+    \endcode
+    \endPythonOnly
+    \sa RemovePtsNearPt
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] center vec3d Point to measure from
+    \param [in] radius double Distance within which to keep points
+    \return vector<vec3d> Points within the radius
+*/
+
+extern std::vector < vec3d > KeepPtsNearPt( const std::vector < vec3d > & pt_vec, const vec3d & center, double radius );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Drop the points within a distance of a given point, keeping the rest.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > far = RemovePtsNearPt( pts, vec3d( 4.0, 0.0, 0.0 ), 1.0 );
+
+    if ( far.size() != 3 )                               { Print( "ERROR: RemovePtsNearPt" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    far = RemovePtsNearPt( pts, vec3d( 4.0, 0.0, 0.0 ), 1.0 )
+
+    assert len( far ) == 3, "RemovePtsNearPt did not drop the points near the point"
+
+    \endcode
+    \endPythonOnly
+    \sa KeepPtsNearPt
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] center vec3d Point to measure from
+    \param [in] radius double Distance within which to drop points
+    \return vector<vec3d> Points outside the radius
+*/
+
+extern std::vector < vec3d > RemovePtsNearPt( const std::vector < vec3d > & pt_vec, const vec3d & center, double radius );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Keep the points lying within tol of a surface.  This narrows a cloud -- a slice through a whole
+    model, say -- down to the component being fitted.  Unlike the other filters this one costs a
+    surface projection for every point rather than a comparison, so on a large cloud it is worth
+    cutting the set down with one of the cheap filters first.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+
+    pts.push_back( CompPnt01( pid, 0, 0.5, 0.25 ) );
+    pts.push_back( vec3d( 0.0, 100.0, 0.0 ) );
+
+    array < vec3d > on_body = KeepPtsNearGeom( pts, pid, 0, 1e-4 );
+
+    if ( on_body.size() != 1 )                           { Print( "ERROR: KeepPtsNearGeom" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+
+    pts.append( CompPnt01( pid, 0, 0.5, 0.25 ) )
+    pts.append( vec3d( 0.0, 100.0, 0.0 ) )
+
+    on_body = KeepPtsNearGeom( pts, pid, 0, 1e-4 )
+
+    assert len( on_body ) == 1, "KeepPtsNearGeom did not keep the point on the surface"
+
+    \endcode
+    \endPythonOnly
+    \sa RemovePtsNearGeom, KeepPtsInBBox
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] geom_id string Geom ID of the surface to measure against
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] tol double Distance within which to keep points
+    \return vector<vec3d> Points lying within tol of the surface
+*/
+
+extern std::vector < vec3d > KeepPtsNearGeom( const std::vector < vec3d > & pt_vec, const std::string & geom_id, int surf_indx, double tol );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Drop the points lying within tol of a surface, keeping the rest.  Useful for taking one
+    component's points out of a cloud that covers several.  Costs a surface projection per point.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    array < vec3d > pts;
+
+    pts.push_back( CompPnt01( pid, 0, 0.5, 0.25 ) );
+    pts.push_back( vec3d( 0.0, 100.0, 0.0 ) );
+
+    array < vec3d > off_body = RemovePtsNearGeom( pts, pid, 0, 1e-4 );
+
+    if ( off_body.size() != 1 )                          { Print( "ERROR: RemovePtsNearGeom" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    pts = []
+
+    pts.append( CompPnt01( pid, 0, 0.5, 0.25 ) )
+    pts.append( vec3d( 0.0, 100.0, 0.0 ) )
+
+    off_body = RemovePtsNearGeom( pts, pid, 0, 1e-4 )
+
+    assert len( off_body ) == 1, "RemovePtsNearGeom did not drop the point on the surface"
+
+    \endcode
+    \endPythonOnly
+    \sa KeepPtsNearGeom
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] geom_id string Geom ID of the surface to measure against
+    \param [in] surf_indx int Index of the surface of that Geom, from 0 to GetNumTotalSurfs() - 1
+    \param [in] tol double Distance within which to drop points
+    \return vector<vec3d> Points lying further than tol from the surface
+*/
+
+extern std::vector < vec3d > RemovePtsNearGeom( const std::vector < vec3d > & pt_vec, const std::string & geom_id, int surf_indx, double tol );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Drop the repeated points of a set, keeping one of each group that falls within tol of one
+    another.  Answered with a spatial tree rather than by comparing every pair.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > twice;
+
+    for ( int i = 0 ; i < int( pts.size() ) ; i++ )
+    {
+        twice.push_back( pts[i] );
+        twice.push_back( pts[i] );
+    }
+
+    array < vec3d > once = UniquePts( twice, 1e-8 );
+
+    if ( once.size() != 4 )                              { Print( "ERROR: UniquePts" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    twice = pts + pts
+
+    once = UniquePts( twice, 1e-8 )
+
+    assert len( once ) == 4, "UniquePts did not drop the repeats"
+
+    \endcode
+    \endPythonOnly
+    \sa UnionPts
+    \param [in] pt_vec vector<vec3d> Points to filter
+    \param [in] tol double Distance within which two points count as the same point
+    \return vector<vec3d> Points with the repeats removed
+*/
+
+extern std::vector < vec3d > UniquePts( const std::vector < vec3d > & pt_vec, double tol );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Put two sets of points together, keeping one of any that fall within tol of one another.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > fwd = KeepPtsBelow( pts, X_DIR, 3.0 );
+    array < vec3d > aft = KeepPtsAbove( pts, X_DIR, 3.0 );
+
+    array < vec3d > all = UnionPts( fwd, aft, 1e-8 );
+
+    if ( all.size() != 4 )                               { Print( "ERROR: UnionPts" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    fwd = KeepPtsBelow( pts, X_DIR, 3.0 )
+    aft = KeepPtsAbove( pts, X_DIR, 3.0 )
+
+    all_pts = UnionPts( fwd, aft, 1e-8 )
+
+    assert len( all_pts ) == 4, "UnionPts did not put the two halves back together"
+
+    \endcode
+    \endPythonOnly
+    \sa SubtractPts, IntersectPts, UniquePts
+    \param [in] pt_vec_a vector<vec3d> First set of points
+    \param [in] pt_vec_b vector<vec3d> Second set of points
+    \param [in] tol double Distance within which two points count as the same point
+    \return vector<vec3d> Points of either set
+*/
+
+extern std::vector < vec3d > UnionPts( const std::vector < vec3d > & pt_vec_a, const std::vector < vec3d > & pt_vec_b, double tol );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Keep the points of the first set that also appear, within tol, in the second.  Answered with a
+    spatial tree over the second set rather than by comparing every pair.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > mid = KeepPtsInRange( pts, X_DIR, 1.0, 5.0 );
+
+    array < vec3d > both = IntersectPts( pts, mid, 1e-8 );
+
+    if ( both.size() != 2 )                              { Print( "ERROR: IntersectPts" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    mid = KeepPtsInRange( pts, X_DIR, 1.0, 5.0 )
+
+    both = IntersectPts( pts, mid, 1e-8 )
+
+    assert len( both ) == 2, "IntersectPts did not keep the shared points"
+
+    \endcode
+    \endPythonOnly
+    \sa SubtractPts, UnionPts
+    \param [in] pt_vec_a vector<vec3d> Set to take points from
+    \param [in] pt_vec_b vector<vec3d> Set to test against
+    \param [in] tol double Distance within which two points count as the same point
+    \return vector<vec3d> Points of the first set that appear in the second
+*/
+
+extern std::vector < vec3d > IntersectPts( const std::vector < vec3d > & pt_vec_a, const std::vector < vec3d > & pt_vec_b, double tol );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Keep the points of the first set that do not appear, within tol, in the second.  This is how a
+    group already dealt with is taken back out of a working set.
+    \forcpponly
+    \code{.cpp}
+    array < vec3d > pts;
+
+    pts.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 2.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 4.0, 0.0, 0.0 ) );
+    pts.push_back( vec3d( 6.0, 0.0, 0.0 ) );
+    array < vec3d > mid = KeepPtsInRange( pts, X_DIR, 1.0, 5.0 );
+
+    array < vec3d > rest = SubtractPts( pts, mid, 1e-8 );
+
+    if ( rest.size() != 2 )                              { Print( "ERROR: SubtractPts" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pts = []
+
+    pts.append( vec3d( 0.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 2.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 4.0, 0.0, 0.0 ) )
+    pts.append( vec3d( 6.0, 0.0, 0.0 ) )
+    mid = KeepPtsInRange( pts, X_DIR, 1.0, 5.0 )
+
+    rest = SubtractPts( pts, mid, 1e-8 )
+
+    assert len( rest ) == 2, "SubtractPts did not remove the shared points"
+
+    \endcode
+    \endPythonOnly
+    \sa IntersectPts, UnionPts
+    \param [in] pt_vec_a vector<vec3d> Set to take points from
+    \param [in] pt_vec_b vector<vec3d> Set to remove
+    \param [in] tol double Distance within which two points count as the same point
+    \return vector<vec3d> Points of the first set that do not appear in the second
+*/
+
+extern std::vector < vec3d > SubtractPts( const std::vector < vec3d > & pt_vec_a, const std::vector < vec3d > & pt_vec_b, double tol );
+
+
 //======================== Variable Preset Functions ======================//
 
 /*!
@@ -41510,6 +42191,45 @@ extern void AcceptGeomScale( const std::string & geom_id );
 */
 
 extern std::vector < vec3d > GetPtCloudPnts( const std::string & geom_id );
+
+/*!
+    \ingroup PointCloud
+*/
+/*!
+    Make a Point Cloud Geom out of the vertices of a MeshGeom.  This is the Mesh screen's Convert to
+    Point Cloud button, and it is the usual way into a fit: take a planar slice of a model, which
+    leaves a MeshGeom, and turn that into points to match.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    string mesh_id = ComputePlaneSlice( SET_ALL, 3, vec3d( 1.0, 0.0, 0.0 ), true );
+
+    string cloud_id = CreatePtCloudGeom( mesh_id );
+
+    if ( GetPtCloudPnts( cloud_id ).size() == 0 )        { Print( "ERROR: CreatePtCloudGeom" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    mesh_id = ComputePlaneSlice( SET_ALL, 3, vec3d( 1.0, 0.0, 0.0 ), True )
+
+    cloud_id = CreatePtCloudGeom( mesh_id )
+
+    assert len( GetPtCloudPnts( cloud_id ) ) > 0, "CreatePtCloudGeom made no points"
+
+    \endcode
+    \endPythonOnly
+    \sa GetPtCloudPnts, CreatePtCloudGeomFromPts, ComputePlaneSlice
+    \param [in] geom_id string MeshGeom ID to take the vertices of
+    \return string Geom ID of the new Point Cloud Geom
+*/
 
 extern std::string CreatePtCloudGeom( const std::string & geom_id );
 

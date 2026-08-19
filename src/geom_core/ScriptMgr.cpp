@@ -5451,6 +5451,53 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set, bool useMode = false, const string & in modeID = string() )", asFUNCTION( vsp::SnapParm ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //=== Register Point Cloud Functions ====//
+
+    r = se->RegisterGlobalFunction( "string CreatePtCloudGeomFromPts( array<vec3d>@+ pt_arr, const string & in name )", asMETHOD( ScriptMgrSingleton, CreatePtCloudGeomFromPts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ KeepPtsInBBox( array<vec3d>@+ pt_arr, const vec3d & in min_pt, const vec3d & in max_pt )", asMETHOD( ScriptMgrSingleton, KeepPtsInBBox ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ RemovePtsInBBox( array<vec3d>@+ pt_arr, const vec3d & in min_pt, const vec3d & in max_pt )", asMETHOD( ScriptMgrSingleton, RemovePtsInBBox ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ KeepPtsInRange( array<vec3d>@+ pt_arr, int dir_index, double low, double high )", asMETHOD( ScriptMgrSingleton, KeepPtsInRange ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ RemovePtsInRange( array<vec3d>@+ pt_arr, int dir_index, double low, double high )", asMETHOD( ScriptMgrSingleton, RemovePtsInRange ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ KeepPtsAbove( array<vec3d>@+ pt_arr, int dir_index, double val )", asMETHOD( ScriptMgrSingleton, KeepPtsAbove ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ KeepPtsBelow( array<vec3d>@+ pt_arr, int dir_index, double val )", asMETHOD( ScriptMgrSingleton, KeepPtsBelow ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ KeepPtsNearPt( array<vec3d>@+ pt_arr, const vec3d & in center, double radius )", asMETHOD( ScriptMgrSingleton, KeepPtsNearPt ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ RemovePtsNearPt( array<vec3d>@+ pt_arr, const vec3d & in center, double radius )", asMETHOD( ScriptMgrSingleton, RemovePtsNearPt ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ KeepPtsNearGeom( array<vec3d>@+ pt_arr, const string & in geom_id, int surf_indx, double tol )", asMETHOD( ScriptMgrSingleton, KeepPtsNearGeom ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ RemovePtsNearGeom( array<vec3d>@+ pt_arr, const string & in geom_id, int surf_indx, double tol )", asMETHOD( ScriptMgrSingleton, RemovePtsNearGeom ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ UniquePts( array<vec3d>@+ pt_arr, double tol )", asMETHOD( ScriptMgrSingleton, UniquePts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ UnionPts( array<vec3d>@+ pt_arr_a, array<vec3d>@+ pt_arr_b, double tol )", asMETHOD( ScriptMgrSingleton, UnionPts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ IntersectPts( array<vec3d>@+ pt_arr_a, array<vec3d>@+ pt_arr_b, double tol )", asMETHOD( ScriptMgrSingleton, IntersectPts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ SubtractPts( array<vec3d>@+ pt_arr_a, array<vec3d>@+ pt_arr_b, double tol )", asMETHOD( ScriptMgrSingleton, SubtractPts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     //=== Register Fit Model Functions ====//
 
     r = se->RegisterGlobalFunction( "void ResetFitModel()", asFUNCTION( vsp::ResetFitModel ), asCALL_CDECL );
@@ -7447,6 +7494,149 @@ void ScriptMgrSingleton::AddFitModelTargetPtsFixedUWs( const string & geom_id, i
     FillSTLVector( w_arr, w_vec );
 
     vsp::AddFitModelTargetPtsFixedUWs( geom_id, surf_indx, pt_vec, u_vec, w_vec );
+}
+
+string ScriptMgrSingleton::CreatePtCloudGeomFromPts( CScriptArray* pt_arr, const string & name )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    return vsp::CreatePtCloudGeomFromPts( pt_vec, name );
+}
+
+CScriptArray* ScriptMgrSingleton::KeepPtsInBBox( CScriptArray* pt_arr, const vec3d & min_pt, const vec3d & max_pt )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::KeepPtsInBBox( pt_vec, min_pt, max_pt );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::RemovePtsInBBox( CScriptArray* pt_arr, const vec3d & min_pt, const vec3d & max_pt )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::RemovePtsInBBox( pt_vec, min_pt, max_pt );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::KeepPtsInRange( CScriptArray* pt_arr, int dir_index, double low, double high )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::KeepPtsInRange( pt_vec, dir_index, low, high );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::RemovePtsInRange( CScriptArray* pt_arr, int dir_index, double low, double high )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::RemovePtsInRange( pt_vec, dir_index, low, high );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::KeepPtsAbove( CScriptArray* pt_arr, int dir_index, double val )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::KeepPtsAbove( pt_vec, dir_index, val );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::KeepPtsBelow( CScriptArray* pt_arr, int dir_index, double val )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::KeepPtsBelow( pt_vec, dir_index, val );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::KeepPtsNearPt( CScriptArray* pt_arr, const vec3d & center, double radius )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::KeepPtsNearPt( pt_vec, center, radius );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::RemovePtsNearPt( CScriptArray* pt_arr, const vec3d & center, double radius )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::RemovePtsNearPt( pt_vec, center, radius );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::KeepPtsNearGeom( CScriptArray* pt_arr, const string & geom_id, int surf_indx, double tol )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::KeepPtsNearGeom( pt_vec, geom_id, surf_indx, tol );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::RemovePtsNearGeom( CScriptArray* pt_arr, const string & geom_id, int surf_indx, double tol )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::RemovePtsNearGeom( pt_vec, geom_id, surf_indx, tol );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::UniquePts( CScriptArray* pt_arr, double tol )
+{
+    vector < vec3d > pt_vec;
+    FillSTLVector( pt_arr, pt_vec );
+
+    m_ProxyVec3dArray = vsp::UniquePts( pt_vec, tol );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::UnionPts( CScriptArray* pt_arr_a, CScriptArray* pt_arr_b, double tol )
+{
+    vector < vec3d > pt_vec_a;
+    FillSTLVector( pt_arr_a, pt_vec_a );
+
+    vector < vec3d > pt_vec_b;
+    FillSTLVector( pt_arr_b, pt_vec_b );
+
+    m_ProxyVec3dArray = vsp::UnionPts( pt_vec_a, pt_vec_b, tol );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::IntersectPts( CScriptArray* pt_arr_a, CScriptArray* pt_arr_b, double tol )
+{
+    vector < vec3d > pt_vec_a;
+    FillSTLVector( pt_arr_a, pt_vec_a );
+
+    vector < vec3d > pt_vec_b;
+    FillSTLVector( pt_arr_b, pt_vec_b );
+
+    m_ProxyVec3dArray = vsp::IntersectPts( pt_vec_a, pt_vec_b, tol );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::SubtractPts( CScriptArray* pt_arr_a, CScriptArray* pt_arr_b, double tol )
+{
+    vector < vec3d > pt_vec_a;
+    FillSTLVector( pt_arr_a, pt_vec_a );
+
+    vector < vec3d > pt_vec_b;
+    FillSTLVector( pt_arr_b, pt_vec_b );
+
+    m_ProxyVec3dArray = vsp::SubtractPts( pt_vec_a, pt_vec_b, tol );
+    return GetProxyVec3dArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetPtCloudPnts( const string & geom_id )
