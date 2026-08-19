@@ -14,6 +14,21 @@
 #define CMINPACK_NO_DLL
 #include <cminpack.h>
 
+// The surface a target point is matched against, or null when there is not one.  A *.fit file
+// carries Geom IDs, so one written against another model -- or against this one before a Geom was
+// deleted or swapped for a Blank or a point cloud -- names Geoms that either are not here or have
+// no surface to match against.  Geom::GetSurfPtr returns null for the latter, which was read
+// through.
+static const VspSurf * MatchSurf( Geom* matchgeom )
+{
+    if ( !matchgeom || matchgeom->GetNumTotalSurfs() < 1 )
+    {
+        return nullptr;
+    }
+
+    return matchgeom->GetSurfPtr( 0 );
+}
+
 vec3d TargetPt::GetMatchPt()
 {
     Geom* matchgeom = VehicleMgr.GetVehicle()->FindGeom( m_MatchGeom );
@@ -30,10 +45,13 @@ vec3d TargetPt::GetMatchPt(Geom* matchgeom)
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        const VspSurf* s = matchgeom->GetSurfPtr(0);
-        vec3d ps = s->CompPnt01( m_UW.x(), m_UW.y() );
+        const VspSurf* s = MatchSurf( matchgeom );
+        if ( !s )
+        {
+            return vec3d();
+        }
 
-        return ps;
+        return s->CompPnt01( m_UW.x(), m_UW.y() );
     }
     return vec3d();
 }
@@ -56,7 +74,12 @@ vec3d TargetPt::CalcDelta(Geom* matchgeom)
 
         vec3d pt = GetPt();
 
-        const VspSurf* s = matchgeom->GetSurfPtr(0);
+        const VspSurf* s = MatchSurf( matchgeom );
+        if ( !s )
+        {
+            return vec3d();
+        }
+
         vec3d ps = s->CompPnt01( m_UW.x(), m_UW.y() );
 
         return (ps - pt);
@@ -70,7 +93,11 @@ vec3d TargetPt::CalcDerivU( Geom* matchgeom )
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        const VspSurf* s = matchgeom->GetSurfPtr(0);
+        const VspSurf* s = MatchSurf( matchgeom );
+        if ( !s )
+        {
+            return vec3d();
+        }
 
         return s->CompTanU01( m_UW.x(), m_UW.y() );
     }
@@ -83,7 +110,11 @@ vec3d TargetPt::CalcDerivW( Geom* matchgeom )
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        const VspSurf* s = matchgeom->GetSurfPtr(0);
+        const VspSurf* s = MatchSurf( matchgeom );
+        if ( !s )
+        {
+            return vec3d();
+        }
 
         return s->CompTanW01( m_UW.x(), m_UW.y() );
     }
@@ -108,7 +139,12 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             d0 = CalcDelta( matchgeom ).mag();
 
-            const VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = MatchSurf( matchgeom );
+            if ( !s )
+            {
+                return;
+            }
+
             d = s->FindNearest01( u, w, pt );
 
             if ( d0 < d )
@@ -133,7 +169,12 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             w = w0;
 
-            const VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = MatchSurf( matchgeom );
+            if ( !s )
+            {
+                return;
+            }
+
             VspCurve c;
             s->GetW01ConstCurve( c, w );
 
@@ -159,7 +200,12 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             u = u0;
 
-            const VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = MatchSurf( matchgeom );
+            if ( !s )
+            {
+                return;
+            }
+
             VspCurve c;
             s->GetU01ConstCurve( c, u );
 
@@ -195,7 +241,12 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u0=m_UW.x();
             w0=m_UW.y();
 
-            const VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = MatchSurf( matchgeom );
+            if ( !s )
+            {
+                return;
+            }
+
             s->FindNearest01( u, w, pt, u0, w0 );
 
             m_UW.set_xy( u, w );
@@ -210,7 +261,12 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u0=m_UW.x();
             w=m_UW.y();
 
-            const VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = MatchSurf( matchgeom );
+            if ( !s )
+            {
+                return;
+            }
+
             VspCurve c;
             s->GetW01ConstCurve( c, w );
 
@@ -227,7 +283,12 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u=m_UW.x();
             w0=m_UW.y();
 
-            const VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = MatchSurf( matchgeom );
+            if ( !s )
+            {
+                return;
+            }
+
             VspCurve c;
             s->GetU01ConstCurve( c, u );
 
@@ -245,11 +306,11 @@ void TargetPt::RefineUW( Geom* matchgeom )
 bool TargetPt::IsValid()
 {
     Geom* matchgeom = VehicleMgr.GetVehicle()->FindGeom( m_MatchGeom );
-    if ( matchgeom )
-    {
-        return true;
-    }
-    return false;
+
+    // A Geom that is not here, or that has no surface to match against, cannot carry a target
+    // point.  ValidateTargetPts drops the ones that answer no, which is what keeps a *.fit file
+    // written against another model from being read in and then optimized against nothing.
+    return MatchSurf( matchgeom ) != nullptr;
 }
 
 xmlNodePtr TargetPt::WrapXml( xmlNodePtr & node )
@@ -642,8 +703,16 @@ void FitModelMgrSingleton::BuildPtrVec()
         const string& id = *it;
         SurfData s;
         s.m_GeomPtr = VehicleMgr.GetVehicle()->FindGeom( id );
-        s.m_UClosed = s.m_GeomPtr->GetSurfPtr(0)->IsClosedU();
-        s.m_WClosed = s.m_GeomPtr->GetSurfPtr(0)->IsClosedW();
+        s.m_UClosed = false;
+        s.m_WClosed = false;
+
+        const VspSurf* surf = MatchSurf( s.m_GeomPtr );
+        if ( surf )
+        {
+            s.m_UClosed = surf->IsClosedU();
+            s.m_WClosed = surf->IsClosedW();
+        }
+
         geomdata[ id ] = s;
     }
 
