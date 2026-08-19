@@ -1475,5 +1475,9 @@ int FitModelMgrSingleton::Load()
     //===== Free Doc =====//
     xmlFreeDoc( doc );
 
+    // The file names Geoms by ID.  Drop any target point naming a Geom this model does not have,
+    // or one without a surface, rather than carrying it into the optimizer.
+    ValidateTargetPts();
+
     return 0;
 }
