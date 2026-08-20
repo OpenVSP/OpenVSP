@@ -33,6 +33,8 @@ namespace std {
     %template(DoubleVecVec)  vector< vector<double> >;
     %template(Vec3dVec) vector<vec3d>;
     %template(Vec2dVec) vector<vec2d>;
+    // xformmat and xformnormmat take a grid of points; without this they cannot be called at all.
+    %template(Vec3dVecVec) vector< vector<vec3d> >;
     %template(Matrix4dVec) vector<Matrix4d>;
 }
 
@@ -191,4 +193,10 @@ namespace std {
 %clear vec2d &int_pnt, vec2d &p_out;
 %clear double &t1, double &t2, double &s, double &t, double &s2;
 
+/* getRotationAxis and toQuat report through double references.  Their parameters carry _out names
+   so the typemap cannot catch an input by accident -- Matrix4d::rotate takes "const double &angle",
+   and %apply matches on the name whatever the constness, which silently turned that input into an
+   output and broke the wrapper.  Scoped to this include and cleared after, for the same reason. */
+%apply ( double& OUTPUT ) { double &angle_out, double &qw_out, double &qx_out, double &qy_out, double &qz_out, double &tx_out, double &ty_out, double &tz_out };
 %include "Matrix4d.h"
+%clear double &angle_out, double &qw_out, double &qx_out, double &qy_out, double &qz_out, double &tx_out, double &ty_out, double &tz_out;

@@ -19,45 +19,62 @@ import sys
 import api_headers
 
 
-# Which example a declaration needs follows from where it is reachable, and that is a property of
-# the type rather than of the name -- vec2d::x and the free dist() over vec2d share their names with
-# vec3d versions, so the test has to be by file.  CustomGeom is reachable only from a custom
-# component script and has no Python side at all.
-PYTHON_ONLY = set()
-ANGELSCRIPT_ONLY = { 'geom_core/CustomGeom.h' }
+# Which example a declaration needs follows from where it is actually reachable, and that is
+# resolved per declaration against the owning type.  A bare name is not enough to decide it:
+# vec2d::x and vec3d::x share a name, as do the free dist() over each, and Matrix4d has 28 methods
+# in the Python bindings that AngelScript never registered.
 
 
 def angelscript_names( srcdir ):
-    """Everything ScriptMgr registers, by name."""
+    """What ScriptMgr registers: ( set of globals, set of ( type, method ) )."""
     path = os.path.join( srcdir, 'geom_core/ScriptMgr.cpp' )
     if not os.path.exists( path ):
-        return set()
+        return set(), set()
 
     src = open( path ).read()
-    out = set()
-    for m in re.finditer( r'Register(?:GlobalFunction|ObjectMethod|ObjectBehaviour|ObjectType)\(\s*(?:"[^"]*"\s*,\s*)?"([^"]*)"', src ):
+    globals_, methods = set(), set()
+
+    # A global registration can be bound to a singleton method -- that is how the whole CustomGeom
+    # API is exposed -- so record the owning class too, or those read as unreachable.
+    for m in re.finditer( r'RegisterGlobalFunction\(\s*"([^"]*)"\s*,\s*(as\w+)\(\s*(\w+)\s*,\s*(\w+)', src ):
         g = re.search( r'(\w+)\s*\(', m.group( 1 ) )
         if g:
-            out.add( g.group( 1 ) )
-    return out
+            globals_.add( g.group( 1 ) )
+        if m.group( 2 ).startswith( 'asMETHOD' ):
+            methods.add( ( m.group( 3 ), m.group( 4 ) ) )
+
+    for m in re.finditer( r'RegisterGlobalFunction\(\s*"([^"]*)"', src ):
+        g = re.search( r'(\w+)\s*\(', m.group( 1 ) )
+        if g:
+            globals_.add( g.group( 1 ) )
+
+    for m in re.finditer( r'RegisterObjectMethod\(\s*"(\w+)"\s*,\s*"([^"]*)"', src ):
+        g = re.search( r'(\w+)\s*\(', m.group( 2 ) )
+        if g:
+            methods.add( ( m.group( 1 ), g.group( 1 ) ) )
+
+    return globals_, methods
 
 
-def python_names():
-    """Everything the built module publishes, including the members of the wrapped classes."""
+def python_module():
     try:
         import openvsp.vsp as v
+        return v
     except ImportError:
         return None
 
-    out = set( n for n in dir( v ) if not n.startswith( '_' ) )
-    for cn in dir( v ):
-        c = getattr( v, cn, None )
-        if isinstance( c, type ):
-            out |= set( n for n in dir( c ) if not n.startswith( '_' ) )
-    return out
+
+def in_python( v, e ):
+    """Is this declaration reachable from Python, as itself rather than as a name?"""
+    if v is None:
+        return False
+    if e.cls:
+        c = getattr( v, e.cls, None )
+        return c is not None and hasattr( c, e.name )
+    return hasattr( v, e.name )
 
 
-def classify( e, header ):
+def classify( e, py, ascript ):
     """'' when the entity is fully documented, otherwise what it is missing."""
     if e.excluded:
         # A plain // comment where the doxygen block would be says this was left out on purpose.
@@ -70,24 +87,30 @@ def classify( e, header ):
     if e.decl.startswith( 'class ' ):
         return ''
 
-    if header not in ANGELSCRIPT_ONLY and not e.code( 'py' ).strip():
+    if py and not e.code( 'py' ).strip():
         return 'no Python example'
 
-    if header not in PYTHON_ONLY and not e.code( 'cpp' ).strip():
+    if ascript and not e.code( 'cpp' ).strip():
         return 'no AngelScript example'
 
     return ''
 
 
-def main( srcdir, verbose ):
-    as_names = angelscript_names( srcdir )
-    py_names = python_names()
-    if py_names is None:
-        print( 'audit_api_docs: openvsp not importable; auditing every declaration' )
-        py_names = set()
-        exposed = None
+def reachable( v, as_globals, as_methods, e ):
+    """( reachable from Python, reachable from AngelScript )."""
+    py = in_python( v, e )
+    if e.cls:
+        ascript = ( e.cls, e.name ) in as_methods
     else:
-        exposed = as_names | py_names
+        ascript = e.name in as_globals
+    return py, ascript
+
+
+def main( srcdir, verbose ):
+    as_globals, as_methods = angelscript_names( srcdir )
+    v = python_module()
+    if v is None:
+        print( 'audit_api_docs: openvsp not importable; the Python side cannot be checked' )
 
     total = 0
     for h in api_headers.HEADERS:
@@ -95,21 +118,23 @@ def main( srcdir, verbose ):
         if not os.path.exists( p ):
             continue
 
-        rows = api_headers.parse( p, h )
-        if exposed is not None:
-            rows = [ e for e in rows if e.name in exposed or e.decl.startswith( 'class ' ) ]
+        rows = []
+        for e in api_headers.parse( p, h ):
+            py, ascript = reachable( v, as_globals, as_methods, e )
+            if py or ascript or e.decl.startswith( 'class ' ):
+                rows.append( ( e, py, ascript ) )
 
         # A function can be declared more than once in a header -- Vec3d.h documents its free
         # functions outside the class and repeats them as bare friends, Vec2d.h does the reverse --
         # and the documentation belongs to the function, not to each declaration of it.  Count a
         # name once it is documented anywhere in the file.
-        documented = set( e.name for e in rows if e.doc and not e.excluded )
+        documented = set( e.name for e, _, _ in rows if e.doc and not e.excluded )
 
         gaps = {}
-        for e in rows:
+        for e, py, ascript in rows:
             if not e.doc and e.name in documented:
                 continue
-            c = classify( e, h )
+            c = classify( e, py, ascript )
             if c:
                 gaps.setdefault( c, [] ).append( e.name )
 
