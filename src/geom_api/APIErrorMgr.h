@@ -50,18 +50,41 @@ public:
     Get the ERROR_CODE enum of the last raised error
     \forcpponly
     \code{.cpp}
+    //==== Silence the errors so the bogus call below does not print ====//
+    SilenceErrors();
+
+    //==== Bogus call to raise an error ====//
+    SetParmVal( "BogusParmID", 23.0 );
+
+    PrintOnErrors();
+
     ErrorObj err = PopLastError();
 
-    if ( err.GetErrorCode() != VSP_CANT_FIND_PARM )            { Print( "---> Error: API PopLast" ); }
+    if ( err.GetErrorCode() != VSP_CANT_FIND_PARM )      { Print( "ERROR: GetErrorCode" ); __failure++; }
+
+    //==== Leave the queue as it was found ====//
+    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    err = PopLastError()
+    err_mgr = ErrorMgrSingleton.getInstance()
 
-    if err.GetErrorCode() != vsp.VSP_CANT_FIND_PARM:
-        print( "---> Error: API PopLast" )
+    #==== Silence the errors so the bogus call below does not print ====#
+    err_mgr.SilenceErrors()
 
+    #==== Bogus call to raise an error ====#
+    SetParmVal( "BogusParmID", 23.0 )
+
+    err_mgr.PrintOnErrors()
+
+    err = err_mgr.PopLastError()
+
+    assert err.GetErrorCode() == VSP_CANT_FIND_PARM, "GetErrorCode did not report the missing Parm"
+
+    #==== Leave the queue as it was found ====#
+    while err_mgr.GetNumTotalErrors() > 0:
+        err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \sa ERROR_CODE
@@ -80,21 +103,35 @@ public:
     Get the error string of the last raised error
     \forcpponly
     \code{.cpp}
-    //==== Check For API Errors ====//
-    while ( GetNumTotalErrors() > 0 )
-    {
-        ErrorObj err = PopLastError();
-        Print( err.GetErrorString() );
-    }
+    SilenceErrors();
+
+    SetParmVal( "BogusParmID", 23.0 );
+
+    PrintOnErrors();
+
+    ErrorObj err = PopLastError();
+
+    if ( err.GetErrorString().length() == 0 )            { Print( "ERROR: GetErrorString" ); __failure++; }
+
+    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #==== Check For API Errors ====##
-    while GetNumTotalErrors() > 0:
-        err = PopLastError()
-        print( err.GetErrorString() )
+    err_mgr = ErrorMgrSingleton.getInstance()
 
+    err_mgr.SilenceErrors()
+
+    SetParmVal( "BogusParmID", 23.0 )
+
+    err_mgr.PrintOnErrors()
+
+    err = err_mgr.PopLastError()
+
+    assert len( err.GetErrorString() ) > 0, "GetErrorString returned nothing to report"
+
+    while err_mgr.GetNumTotalErrors() > 0:
+        err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \return Error string
@@ -118,6 +155,15 @@ public:
 
 
 //======================== Error Mgr ================================//
+/*!
+    \ingroup APIError
+*/
+/*!
+    ErrorMgrSingleton is the queue that API errors are reported through.  An API function that fails
+    pushes an ErrorObj onto it and returns a default value rather than throwing, so a script that
+    does not check anything keeps running.  Reach it with ErrorMgrSingleton.getInstance(), then use
+    GetNumTotalErrors and PopLastError to find out what went wrong.
+*/
 class ErrorMgrSingleton : public MessageBase
 {
 public:
@@ -129,36 +175,33 @@ public:
     Check if there was an error on the last call to the API
     \forcpponly
     \code{.cpp}
-    //==== Force API to silence error messages ====//
     SilenceErrors();
 
-    //==== Bogus Call To Create API Error ====//
-    Print( string( "---> Test Error Handling" ) );
-
+    //==== Bogus call to raise an error ====//
     SetParmVal( "BogusParmID", 23.0 );
 
-    if ( !GetErrorLastCallFlag() )                        { Print( "---> Error: API GetErrorLastCallFlag " ); }
+    if ( !GetErrorLastCallFlag() )                       { Print( "ERROR: GetErrorLastCallFlag" ); __failure++; }
 
-    //==== Tell API to print error messages ====//
     PrintOnErrors();
+
+    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #==== Force API to silence error messages ====##
-    SilenceErrors()
+    err_mgr = ErrorMgrSingleton.getInstance()
 
-    #==== Bogus Call To Create API Error ====##
-    print( "---> Test Error Handling" )
+    err_mgr.SilenceErrors()
 
+    #==== Bogus call to raise an error ====#
     SetParmVal( "BogusParmID", 23.0 )
 
-    if not GetErrorLastCallFlag():
-        print( "---> Error: API GetErrorLastCallFlag" )
+    assert err_mgr.GetErrorLastCallFlag(), "GetErrorLastCallFlag missed the error"
 
-    #==== Tell API to print error messages ====##
-    PrintOnErrors()
+    err_mgr.PrintOnErrors()
 
+    while err_mgr.GetNumTotalErrors() > 0:
+        err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \return False if no error, true otherwise
@@ -173,39 +216,35 @@ public:
     Count the total number of errors on the stack
     \forcpponly
     \code{.cpp}
-    //==== Force API to silence error messages ====//
     SilenceErrors();
 
-    Print( "Creating an API error" );
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+    //==== Two bogus calls, so the count is something to check ====//
+    SetParmVal( "BogusParmID", 23.0 );
+    SetParmVal( "AnotherBogusParmID", 23.0 );
 
-    //==== Check For API Errors ====//
-    while ( GetNumTotalErrors() > 0 )
-    {
-        ErrorObj err = PopLastError();
-        Print( err.GetErrorString() );
-    }
+    if ( GetNumTotalErrors() != 2 )                      { Print( "ERROR: GetNumTotalErrors" ); __failure++; }
 
-    //==== Tell API to print error messages ====//
     PrintOnErrors();
+
+    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #==== Force API to silence error messages ====##
-    SilenceErrors()
+    err_mgr = ErrorMgrSingleton.getInstance()
 
-    print( "Creating an API error" )
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
+    err_mgr.SilenceErrors()
 
-    #==== Check For API Errors ====##
-    while GetNumTotalErrors() > 0:
-        err = PopLastError()
-        print( err.GetErrorString() )
+    #==== Two bogus calls, so the count is something to check ====#
+    SetParmVal( "BogusParmID", 23.0 )
+    SetParmVal( "AnotherBogusParmID", 23.0 )
 
-    #==== Tell API to print error messages ====##
-    PrintOnErrors()
+    assert err_mgr.GetNumTotalErrors() == 2, "GetNumTotalErrors did not count both errors"
 
+    err_mgr.PrintOnErrors()
+
+    while err_mgr.GetNumTotalErrors() > 0:
+        err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \return Number of errors
@@ -220,39 +259,45 @@ public:
     Pop (remove) and return the most recent error from the stack. Note, errors are printed on occurrence by default. 
     \forcpponly
     \code{.cpp}
-    //==== Force API to silence error messages ====//
     SilenceErrors();
 
-    Print( "Creating an API error" );
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+    SetParmVal( "BogusParmID", 23.0 );
 
-    //==== Check For API Errors ====//
-    while ( GetNumTotalErrors() > 0 )
-    {
-        ErrorObj err = PopLastError();
-        Print( err.GetErrorString() );
-    }
+    int n0 = GetNumTotalErrors();
 
-    //==== Tell API to print error messages ====//
+    ErrorObj err = PopLastError();
+
+    //==== Pop takes the error off the queue ====//
+    if ( GetNumTotalErrors() != n0 - 1 )                 { Print( "ERROR: PopLastError" ); __failure++; }
+
+    if ( err.GetErrorCode() != VSP_CANT_FIND_PARM )      { Print( "ERROR: PopLastError" ); __failure++; }
+
     PrintOnErrors();
+
+    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #==== Force API to silence error messages ====##
-    SilenceErrors()
+    err_mgr = ErrorMgrSingleton.getInstance()
 
-    print( "Creating an API error" )
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
+    err_mgr.SilenceErrors()
 
-    #==== Check For API Errors ====##
-    while GetNumTotalErrors() > 0:
-        err = PopLastError()
-        print( err.GetErrorString() )
+    SetParmVal( "BogusParmID", 23.0 )
 
-    #==== Tell API to print error messages ====##
-    PrintOnErrors()
+    n0 = err_mgr.GetNumTotalErrors()
 
+    err = err_mgr.PopLastError()
+
+    #==== Pop takes the error off the queue ====#
+    assert err_mgr.GetNumTotalErrors() == n0 - 1, "PopLastError left the error on the queue"
+
+    assert err.GetErrorCode() == VSP_CANT_FIND_PARM, "PopLastError returned the wrong error"
+
+    err_mgr.PrintOnErrors()
+
+    while err_mgr.GetNumTotalErrors() > 0:
+        err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \return Error object
@@ -267,37 +312,45 @@ public:
     Return the most recent error from the stack (does NOT pop error off the stack)
     \forcpponly
     \code{.cpp}
-    //==== Force API to silence error messages ====//
     SilenceErrors();
 
-    Print( "Creating an API error" );
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+    SetParmVal( "BogusParmID", 23.0 );
 
-    //==== Check For API Errors ====//
+    int n0 = GetNumTotalErrors();
+
     ErrorObj err = GetLastError();
 
-    Print( err.GetErrorString() );
+    //==== Unlike PopLastError, the error stays on the queue ====//
+    if ( GetNumTotalErrors() != n0 )                     { Print( "ERROR: GetLastError" ); __failure++; }
 
-    //==== Tell API to print error messages ====//
+    if ( err.GetErrorCode() != VSP_CANT_FIND_PARM )      { Print( "ERROR: GetLastError" ); __failure++; }
+
     PrintOnErrors();
+
+    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #==== Force API to silence error messages ====##
-    SilenceErrors()
+    err_mgr = ErrorMgrSingleton.getInstance()
 
-    print( "Creating an API error" )
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
+    err_mgr.SilenceErrors()
 
-    #==== Check For API Errors ====##
-    err = GetLastError()
+    SetParmVal( "BogusParmID", 23.0 )
 
-    print( err.GetErrorString() )
+    n0 = err_mgr.GetNumTotalErrors()
 
-    #==== Tell API to print error messages ====##
-    PrintOnErrors()
+    err = err_mgr.GetLastError()
 
+    #==== Unlike PopLastError, the error stays on the queue ====#
+    assert err_mgr.GetNumTotalErrors() == n0, "GetLastError removed the error"
+
+    assert err.GetErrorCode() == VSP_CANT_FIND_PARM, "GetLastError returned the wrong error"
+
+    err_mgr.PrintOnErrors()
+
+    while err_mgr.GetNumTotalErrors() > 0:
+        err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \sa SilenceErrors, PrintOnErrors;
@@ -315,27 +368,35 @@ public:
     Prevent errors from printing to stdout as they occur.
     \forcpponly
     \code{.cpp}
-    //==== Force API to silence error messages ====//
+    //==== Errors are printed as they happen unless silenced ====//
     SilenceErrors();
 
-    Print( "Creating an API error" );
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+    SetParmVal( "BogusParmID", 23.0 );
 
-    //==== Tell API to print error messages ====//
+    //==== The error is still recorded, it is only the printing that stops ====//
+    if ( GetNumTotalErrors() != 1 )                      { Print( "ERROR: SilenceErrors" ); __failure++; }
+
     PrintOnErrors();
+
+    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #==== Force API to silence error messages ====##
-    SilenceErrors()
+    err_mgr = ErrorMgrSingleton.getInstance()
 
-    print( "Creating an API error" )
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
+    #==== Errors are printed as they happen unless silenced ====#
+    err_mgr.SilenceErrors()
 
-    #==== Tell API to print error messages ====##
-    PrintOnErrors()
+    SetParmVal( "BogusParmID", 23.0 )
 
+    #==== The error is still recorded, it is only the printing that stops ====#
+    assert err_mgr.GetNumTotalErrors() == 1, "SilenceErrors also stopped the error being recorded"
+
+    err_mgr.PrintOnErrors()
+
+    while err_mgr.GetNumTotalErrors() > 0:
+        err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \sa PrintOnErrors
@@ -350,27 +411,33 @@ public:
     Cause errors to be printed to stdout as they occur.
     \forcpponly
     \code{.cpp}
-    //==== Force API to silence error messages ====//
     SilenceErrors();
 
-    Print( "Creating an API error" );
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+    SetParmVal( "BogusParmID", 23.0 );
 
-    //==== Tell API to print error messages ====//
+    //==== Turn printing back on ====//
     PrintOnErrors();
+
+    if ( GetNumTotalErrors() != 1 )                      { Print( "ERROR: PrintOnErrors" ); __failure++; }
+
+    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    #==== Force API to silence error messages ====##
-    SilenceErrors()
+    err_mgr = ErrorMgrSingleton.getInstance()
 
-    print( "Creating an API error" )
-    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 )
+    err_mgr.SilenceErrors()
 
-    #==== Tell API to print error messages ====##
-    PrintOnErrors()
+    SetParmVal( "BogusParmID", 23.0 )
 
+    #==== Turn printing back on ====#
+    err_mgr.PrintOnErrors()
+
+    assert err_mgr.GetNumTotalErrors() == 1, "PrintOnErrors lost the recorded error"
+
+    while err_mgr.GetNumTotalErrors() > 0:
+        err_mgr.PopLastError()
     \endcode
     \endPythonOnly
     \sa SilenceErrors

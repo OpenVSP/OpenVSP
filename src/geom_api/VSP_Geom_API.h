@@ -237,6 +237,12 @@
     \defgroup vec3d Vec3D Functions
     \brief API functions that utilize the vec3d class are grouped here. For details of the class, including member functions, see vec3d.
     \ref index "Click here to return to the main page"
+
+    \defgroup vec2d Vec2D Functions
+    \brief API functions that utilize the vec2d class are grouped here. For details of the class, including member functions, see vec2d.
+    vec2d is used for the two dimensional problems that come up inside three dimensional ones -- parameter space
+    coordinates, projections into a plane, and polygon tests.
+    \ref index "Click here to return to the main page"
 */
 
 #if !defined(VSPAPI__INCLUDED_)
@@ -2503,7 +2509,7 @@ extern void ComputeDegenGeom( int set, int file_export_types );
     SetComputationFileName( CFD_FACET_TYPE, "TestCFDMeshFacet_API.facet" )
     SetComputationFileName( CFD_STL_TYPE, "TestCFDMesh_API.stl" )
 
-   print( "\tComputing CFDMesh..." )
+    print( "\tComputing CFDMesh..." )
 
     ComputeCFDMesh( SET_ALL, SET_NONE, CFD_FACET_TYPE | CFD_STL_TYPE )
 
@@ -2515,7 +2521,6 @@ extern void ComputeDegenGeom( int set, int file_export_types );
     assert GetGeomTypeName( mesh_id ) == "Mesh", "ComputeCFDMesh did not write a readable mesh"
 
     DeleteGeom( mesh_id )
-
     \endcode
     \endPythonOnly
     \sa COMPUTATION_FILE_TYPE
@@ -43669,15 +43674,14 @@ extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const 
 
         ptvec[i].set_xyz(ptvec[i].x() * 0.9, ptvec[i].y() * 0.9, ptvec[i].z() * 0.9)
 
-     routv, soutv, toutv, doutv = FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec )
+    routv, soutv, toutv, doutv = FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec )
 
-     # The points above were scaled off the surface on purpose, so the search
-     # does not return to the original r, s, t.  What must hold is that every
-     # point got an answer and that the reported distances are real.
-     assert len( routv ) == n and len( soutv ) == n and len( toutv ) == n and len( doutv ) == n, "FindRSTVecGuess result count"
-     for i in range( len( doutv ) ):
-         assert doutv[i] >= 0.0, "FindRSTVecGuess distance"
-
+    # The points above were scaled off the surface on purpose, so the search
+    # does not return to the original r, s, t.  What must hold is that every
+    # point got an answer and that the reported distances are real.
+    assert len( routv ) == n and len( soutv ) == n and len( toutv ) == n and len( doutv ) == n, "FindRSTVecGuess result count"
+    for i in range( len( doutv ) ):
+        assert doutv[i] >= 0.0, "FindRSTVecGuess distance"
     \endcode
     \endPythonOnly
     \sa FindRSTVec,

@@ -28,6 +28,13 @@ vec2d operator*( const vec2d& a, const vec2d& b );
 vec2d operator/( const vec2d& a, double b );
 
 
+/*!
+    \ingroup vec2d
+*/
+/*!
+    vec2d is typically used to describe coordinate points and vectors in 2D space.
+    Both elements in the vector are of type double.
+*/
 class vec2d
 {
 private:

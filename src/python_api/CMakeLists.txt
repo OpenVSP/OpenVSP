@@ -60,6 +60,12 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
         ${GEOM_API_INCLUDE_DIR}/VSP_Geom_API.h
         ${GEOM_CORE_INCLUDE_DIR}/SWIGDefines.h
         ${UTIL_API_INCLUDE_DIR}/Vec3d.h
+        # vsp_common.i holds the typemaps and the %extend blocks that bind the vec3d and vec2d
+        # operators, and Vec2d.h and Matrix4d.h are wrapped just like Vec3d.h.  Without them here
+        # SWIG is not re-run when they change, and the build quietly keeps the previous bindings.
+        ${UTIL_API_INCLUDE_DIR}/Vec2d.h
+        ${UTIL_API_INCLUDE_DIR}/Matrix4d.h
+        ${GEOM_API_INCLUDE_DIR}/vsp_common.i
     )
     set(I_FILES
         ../geom_api/vsp_python.i
@@ -110,6 +116,9 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
             ${GEOM_API_INCLUDE_DIR}/VSP_Geom_API.h
             ${GEOM_CORE_INCLUDE_DIR}/SWIGDefines.h
             ${UTIL_API_INCLUDE_DIR}/Vec3d.h
+            ${UTIL_API_INCLUDE_DIR}/Vec2d.h
+            ${UTIL_API_INCLUDE_DIR}/Matrix4d.h
+            ${GEOM_API_INCLUDE_DIR}/vsp_common.i
         )
 
         set(I_FILES_g
@@ -243,15 +252,17 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND AND IS_NUMPY_FOUND )
     add_custom_command( TARGET pyvsp POST_BUILD
         COMMAND ${PYTHON_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/gen_api_docs.py
-        ${VSP_SOURCE_DIR}/geom_api/VSP_Geom_API.h
+        ${VSP_SOURCE_DIR}
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
     )
 
+    # Both generators take the source directory rather than one header.  The API is spread over
+    # several -- see the HEADERS list in api_headers.py, which tracks the INPUT list in Doxyfile.in.
     add_custom_command( TARGET pyvsp POST_BUILD
         COMMAND ${PYTHON_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/gen_unit_test.py
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp
-        ${VSP_SOURCE_DIR}/geom_api/VSP_Geom_API.h
+        ${VSP_SOURCE_DIR}
     )
 
     # Configure files to pseudo install -- redundant to package configure above, but tracks dependencies best.

@@ -39,12 +39,10 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
-        m.loadIdentity()
-
-
-        \endcode
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
+    m.loadIdentity()
+    \endcode
         \endPythonOnly
     */
 
@@ -71,14 +69,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadIdentity()
+    m.loadIdentity()
 
-        m.translatef( 1.0, 0.0, 0.0 )
-
-        \endcode
+    m.translatef( 1.0, 0.0, 0.0 )
+    \endcode
         \endPythonOnly
         \param [in] x Translation along the X axis
         \param [in] y Translation along the Y axis
@@ -106,14 +103,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadIdentity()
+    m.loadIdentity()
 
-        m.rotateX( 90.0 )
-
-        \endcode
+    m.rotateX( 90.0 )
+    \endcode
         \endPythonOnly
         \param [in] ang Angle of rotation (degrees)
     */
@@ -137,14 +133,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadIdentity()
+    m.loadIdentity()
 
-        m.rotateY( 90.0 )
-
-        \endcode
+    m.rotateY( 90.0 )
+    \endcode
         \endPythonOnly
         \param [in] ang Angle of rotation (degrees)
     */
@@ -168,14 +163,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadIdentity()
+    m.loadIdentity()
 
-        m.rotateZ( 90.0 )
-
-        \endcode
+    m.rotateZ( 90.0 )
+    \endcode
         \endPythonOnly
         \param [in] ang Angle of rotation (degrees)
     */
@@ -200,15 +194,14 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
-        PI = 3.14
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
+    PI = 3.14
 
-        m.loadIdentity()
+    m.loadIdentity()
 
-        m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) )      # Radians
-
-        \endcode
+    m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) )                                # Radians
+    \endcode
         \endPythonOnly
         \param [in] angle Angle of rotation (rad)
         \param [in] axis Vector to rotate about
@@ -244,20 +237,19 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadIdentity()
+    m.loadIdentity()
 
-        m.rotateY( 10.0 )
-        m.rotateX( 20.0 )
-        m.rotateZ( 30.0 )
+    m.rotateY( 10.0 )
+    m.rotateX( 20.0 )
+    m.rotateZ( 30.0 )
 
-        vec3d c = m.xform( vec3d( 1.0, 1.0, 1.0 ) )
+    c = m.xform( vec3d( 1.0, 1.0, 1.0 ) )
 
-        m.affineInverse()
-
-        \endcode
+    m.affineInverse()
+    \endcode
         \endPythonOnly
     */
 
@@ -280,14 +272,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadXZRef()
+    m.loadXZRef()
 
-        m.scale( 10.0 )
-
-        \endcode
+    m.scale( 10.0 )
+    \endcode
         \endPythonOnly
         \param [in] scale Value to scale by
     */
@@ -346,14 +337,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadXZRef()
+    m.loadXZRef()
 
-        vec3d b = m.xform( vec3d( 1, 2, 3 ) )
-
-        \endcode
+    b = m.xform( vec3d( 1, 2, 3 ) )
+    \endcode
         \endPythonOnly
     */
 
@@ -376,14 +366,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadXYRef()
+    m.loadXYRef()
 
-        vec3d b = m.xform( vec3d( 1, 2, 3 ) )
-
-        \endcode
+    b = m.xform( vec3d( 1, 2, 3 ) )
+    \endcode
         \endPythonOnly
     */
 
@@ -406,14 +395,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadYZRef()
+    m.loadYZRef()
 
-        vec3d b = m.xform( vec3d( 1, 2, 3 ) )
-
-        \endcode
+    b = m.xform( vec3d( 1, 2, 3 ) )
+    \endcode
         \endPythonOnly
     */
 
@@ -437,14 +425,13 @@ public:
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            #==== Test Matrix4d ====//
-        Matrix4d m()                            # Default Constructor
+    #==== Test Matrix4d ====
+    m = Matrix4d()                                # Default Constructor
 
-        m.loadIdentity()
+    m.loadIdentity()
 
-        vec3d a = m.xform( vec3d( 1.0, 2.0, 3.0 ) )
-
-        \endcode
+    a = m.xform( vec3d( 1.0, 2.0, 3.0 ) )
+    \endcode
         \endPythonOnly
     */
 
@@ -474,23 +461,22 @@ public:
 
         mat.loadIdentity();
 
-        m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) );      // Radians
+        mat.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) );      // Radians
 
         vec3d angles = mat.getAngles();
         \endcode
         \endforcpponly
         \beginPythonOnly
         \code{.py}
-            Matrix4d mat
-        PI = 3.14
+    mat = Matrix4d()
+    PI = 3.14
 
-        mat.loadIdentity()
+    mat.loadIdentity()
 
-        m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) )      # Radians
+    mat.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) )                                # Radians
 
-        vec3d angles = mat.getAngles()
-
-        \endcode
+    angles = mat.getAngles()
+    \endcode
         \endPythonOnly
         \return Angle measurement between each axis (degrees)
     */

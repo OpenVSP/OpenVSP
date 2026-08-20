@@ -57,6 +57,107 @@ namespace std {
 %apply ( std::vector<double> &OUTPUT ) { std::vector < double > &m_out_vec };
 %apply ( std::vector<double> &OUTPUT ) { std::vector < double > &n_out_vec };
 
+/* The arithmetic on vec3d and vec2d is written as free operator functions, which SWIG cannot wrap:
+   "operator+" is not a valid Python identifier, so it is skipped with a warning and the operators
+   simply do not reach Python.  They are documented in Vec3d.h with examples that do "vec3d c = a +
+   b", so the documentation promised arithmetic that raised TypeError, and "a == b" quietly compared
+   identity instead of value -- two equal points came back unequal.  Nothing caught it because the
+   examples in these headers were never generated into the test suite.
+
+   Bind them here as the corresponding Python special methods.  %pythonmaybecall makes a comparison
+   against an unrelated type return NotImplemented rather than raise, so "v == None" still works. */
+%extend vec3d {
+    vec3d __add__( const vec3d &b )      { return ( *$self ) + b; }
+    vec3d __sub__( const vec3d &b )      { return ( *$self ) - b; }
+    vec3d __mul__( double b )            { return ( *$self ) * b; }
+    vec3d __mul__( const vec3d &b )      { return ( *$self ) * b; }
+    vec3d __rmul__( double b )           { return ( *$self ) * b; }
+    vec3d __truediv__( double b )        { return ( *$self ) / b; }
+    vec3d __neg__()                      { return -( *$self ); }
+
+    %pythonmaybecall __eq__;
+    bool __eq__( const vec3d &b )        { return ( *$self ) == b; }
+    %pythonmaybecall __ne__;
+    bool __ne__( const vec3d &b )        { return ( *$self ) != b; }
+
+    /* vec3d::operator[] does not range check, so the bounds test has to live somewhere.  It is done
+       on the Python side because a C++ throw out of an %extend method does not become a Python
+       exception -- %exception does not attach to these, so the wrapper returns normally with the
+       error still set and the interpreter reports "returned a result with an exception set".
+       Raising IndexError properly is also what lets list( v ) and tuple( v ) terminate. */
+    double _getitem( int i )             { return ( *$self )[i]; }
+    void _setitem( int i, double val )   { ( *$self )[i] = val; }
+    int __len__()                        { return 3; }
+
+    %pythoncode %{
+        def __getitem__( self, i ):
+            if i < 0:
+                i += 3
+            if i < 0 or i > 2:
+                raise IndexError( "vec3d index out of range" )
+            return self._getitem( i )
+
+        def __setitem__( self, i, val ):
+            if i < 0:
+                i += 3
+            if i < 0 or i > 2:
+                raise IndexError( "vec3d index out of range" )
+            self._setitem( i, val )
+    %}
+
+    std::string __repr__() {
+        char buf[128];
+        snprintf( buf, sizeof( buf ), "vec3d( %g, %g, %g )", $self->x(), $self->y(), $self->z() );
+        return std::string( buf );
+    }
+
+    /* Defining __eq__ drops the inherited __hash__ in Python 3.  Put the identity hash back so a
+       vec3d can still go in a set or be used as a dict key, as it could before. */
+    %pythoncode %{
+        __hash__ = object.__hash__
+    %}
+}
+
+%extend vec2d {
+    vec2d __add__( const vec2d &b )      { return ( *$self ) + b; }
+    vec2d __sub__( const vec2d &b )      { return ( *$self ) - b; }
+    vec2d __mul__( double b )            { return ( *$self ) * b; }
+    vec2d __mul__( const vec2d &b )      { return ( *$self ) * b; }
+    vec2d __rmul__( double b )           { return ( *$self ) * b; }
+    vec2d __truediv__( double b )        { return ( *$self ) / b; }
+
+    /* vec2d::operator[] does not range check, so the bounds test has to live somewhere.  It is done
+       on the Python side because a C++ throw out of an %extend method does not become a Python
+       exception -- %exception does not attach to these, so the wrapper returns normally with the
+       error still set and the interpreter reports "returned a result with an exception set".
+       Raising IndexError properly is also what lets list( v ) and tuple( v ) terminate. */
+    double _getitem( int i )             { return ( *$self )[i]; }
+    void _setitem( int i, double val )   { ( *$self )[i] = val; }
+    int __len__()                        { return 2; }
+
+    %pythoncode %{
+        def __getitem__( self, i ):
+            if i < 0:
+                i += 2
+            if i < 0 or i > 1:
+                raise IndexError( "vec2d index out of range" )
+            return self._getitem( i )
+
+        def __setitem__( self, i, val ):
+            if i < 0:
+                i += 2
+            if i < 0 or i > 1:
+                raise IndexError( "vec2d index out of range" )
+            self._setitem( i, val )
+    %}
+
+    std::string __repr__() {
+        char buf[128];
+        snprintf( buf, sizeof( buf ), "vec2d( %g, %g )", $self->x(), $self->y() );
+        return std::string( buf );
+    }
+}
+
 /* Let's just grab the original header file here */
 %include "APIDefines.h"
 %include "APIErrorMgr.h"

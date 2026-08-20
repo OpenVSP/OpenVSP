@@ -1,9 +1,24 @@
+# Turn the examples in the API headers into test suites, one Python and one AngelScript.
+#
+# Every documented API function carries two examples, and they are the only thing keeping the
+# documentation honest -- an example that no longer works is a test failure rather than something a
+# user discovers.
+#
+# Both suites are generated from the headers through api_headers, so the two languages are always
+# exercising the same set of examples.  The Python half used to read the docstrings back out of
+# vsp.py instead, which quietly dropped two whole categories: anything with "(self" in its
+# signature, meaning every method of vec3d, vec2d, Matrix4d, ErrorObj and ErrorMgrSingleton, and
+# every overloaded function, because SWIG replaces the docstring of an overload set with a bare list
+# of signatures.  The AngelScript half only ever read VSP_Geom_API.h.  Between them, the examples in
+# Vec3d.h, Vec2d.h, Matrix4d.h and APIErrorMgr.h had never been run at all.
+
 import os
 import sys
 
-def generate_unit_test(vsp_file, unit_file):
-    unit_test = ''
-    unit_test +='''
+import api_headers
+
+
+PY_HEADER = '''
 import unittest
 import os, sys
 
@@ -14,237 +29,185 @@ sys.path.insert(1, vsp_path)
 from openvsp import *
 
 class TestOpenVSP(unittest.TestCase):
-	def setUp(self):
-		VSPRenew()
-		# Start from a clean error queue so each example is only judged on the
-		# errors it raised itself.
-		api_err_mgr = ErrorMgrSingleton.getInstance()
-		while api_err_mgr.GetNumTotalErrors() > 0:
-			api_err_mgr.PopLastError()
-	def tearDown(self):
-		# An example that leaves an API error behind has not worked, whether or
-		# not it bothered to check anything itself.  An example that raises one
-		# on purpose is expected to take it back off the queue.
-		api_err_mgr = ErrorMgrSingleton.getInstance()
-		api_err_msgs = []
-		while api_err_mgr.GetNumTotalErrors() > 0:
-			api_err_msgs.append( api_err_mgr.PopLastError().GetErrorString() )
-		assert len( api_err_msgs ) == 0, "API errors: " + "; ".join( api_err_msgs )
+\tdef setUp(self):
+\t\tVSPRenew()
+\t\t# Start from a clean error queue so each example is only judged on the
+\t\t# errors it raised itself.
+\t\tapi_err_mgr = ErrorMgrSingleton.getInstance()
+\t\twhile api_err_mgr.GetNumTotalErrors() > 0:
+\t\t\tapi_err_mgr.PopLastError()
+\tdef tearDown(self):
+\t\t# An example that leaves an API error behind has not worked, whether or
+\t\t# not it bothered to check anything itself.  An example that raises one
+\t\t# on purpose is expected to take it back off the queue.
+\t\tapi_err_mgr = ErrorMgrSingleton.getInstance()
+\t\tapi_err_msgs = []
+\t\twhile api_err_mgr.GetNumTotalErrors() > 0:
+\t\t\tapi_err_msgs.append( api_err_mgr.PopLastError().GetErrorString() )
+\t\tassert len( api_err_msgs ) == 0, "API errors: " + "; ".join( api_err_msgs )
 '''
-    with open(vsp_file, 'r') as vsp:
-
-        func_dict = {}
-        lines = vsp.readlines()
-        for iline, line in enumerate(lines):
-            check_line = line.replace(' ','').lower()
-
-            if 'def' in check_line and '):' in check_line and not "(self" in check_line:
-                func_line = line
-
-                idx = iline + 1
-                idx_python_start = 0
-                idx_python_end = 0
-                check_for_python_flag = True
-
-                second_quote = False
-
-                while check_for_python_flag and idx < len(lines):
-                    curr_line = lines[idx]
-
-                    if '"""' in curr_line or "'''" in curr_line:
-                        if not second_quote:
-                            second_quote = True
-                        elif second_quote:
-                            idx_python_end = idx - 1
-                            check_for_python_flag = False
-                    elif ':rtype' in curr_line or \
-                        ':return' in curr_line or \
-                        ':param' in curr_line or \
-                        'See also:' in curr_line or \
-                        'Notes:' in curr_line or \
-                        ('def' in curr_line and '):' in curr_line):
-                        idx_python_end = idx - 1
-                        check_for_python_flag = False
-
-                    elif 'code-block' in curr_line and \
-                        'python' in curr_line:
-                        idx_python_start = idx + 1
-                    else:
-                        pass
-
-                    idx += 1
 
 
-                if idx_python_start != 0:
-                    python_code = lines[idx_python_start:idx_python_end]
-                    func_dict[add_test(func_line)] = clean_up(python_code)
-                else:
-                    pass
+# An operator is documented under its C++ spelling, which is not an identifier in either language.
+_SYMBOL = {
+    '+': 'add', '-': 'sub', '*': 'mul', '/': 'div', '=': 'assign',
+    '[]': 'index', '==': 'eq', '!=': 'ne', '<': 'lt', '>': 'gt',
+    '+=': 'add_assign', '-=': 'sub_assign', '*=': 'mul_assign', '/=': 'div_assign',
+    '<=': 'le', '>=': 'ge', '()': 'call',
+}
 
 
-    for k, v in func_dict.items():
-        if not 'def ' == k.lstrip()[:4]:
-            unit_test += '\t'
-        unit_test += '\t' + k.lstrip() +'\n'
-        unit_test += v
+def safe_name( name ):
+    """A test function name that both languages will accept."""
+    if name.startswith( 'operator' ):
+        sym = name[ len( 'operator' ) : ].strip()
+        return 'operator_' + _SYMBOL.get( sym, 'op' )
+    return name.replace( '~', 'dtor_' )
+
+
+def unique( name, seen ):
+    """Overloads share a name; give each example its own test."""
+    out = name
+    while out in seen:
+        out += '1'
+    seen.add( out )
+    return out
+
+
+def reindent( code, tabs ):
+    """Put an example at a fixed indent, keeping the block structure it had.
+
+    The indent of each line is turned into a level and re-emitted as tabs, rather than the original
+    whitespace being kept as-is.  Two reasons.  The common leading whitespace is what has to be
+    stripped, not the indent of the first line -- several examples indent their first line further
+    than the rest, which a first-line version turns into code that will not parse.  And the examples
+    are hand written, so a line here and there sits a space off from its neighbours; keeping that
+    verbatim under a tab indent mixes tabs and spaces and Python rejects it.  Rounding to the
+    nearest level absorbs the jitter, and emitting tabs throughout means nothing can mix.
+    """
+    lines = code.split( '\n' )
+    body = [ l for l in lines if l.strip() ]
+    if not body:
+        return ''
+
+    indents = [ len( l ) - len( l.lstrip() ) for l in body ]
+    base = min( indents )
+
+    out = ''
+    for l in lines:
+        if not l.strip():
+            out += '\n'
+            continue
+
+        level = int( round( ( len( l ) - len( l.lstrip() ) - base ) / 4.0 ) )
+        out += '\t' * ( tabs + max( 0, level ) ) + l.strip() + '\n'
+    return out
+
+
+def generate_unit_test( srcdir, unit_file ):
+    ents = api_headers.parse_all( srcdir )
+
+    unit_test = PY_HEADER
+    seen = set()
+
+    for e in ents:
+        code = e.code( 'py' )
+        if not code.strip():
+            continue
+
+        name = unique( 'test_' + safe_name( e.name ), seen )
+
+        unit_test += '\tdef %s(self):\n' % name
+        unit_test += reindent( code, 2 )
+        unit_test += '\n'
 
     unit_test += '''
 if __name__ == '__main__':
     unittest.main()
 '''
 
-    with open(unit_file, 'w') as unit:
-        unit.write(unit_test)
+    with open( unit_file, 'w' ) as unit:
+        unit.write( unit_test )
 
-def count_space(l):
-    leading_space = l[:l.find(l.strip())]
-
-    import math
-    total_num_tab = math.ceil(leading_space.count(' ')/4) + leading_space.count('\t')
-
-    return total_num_tab
-
-def clean_up(code):
-    space_cnt = 0
-    new_code = ''
-    for l in code:
-        if l.strip() != '':
-            space_cnt = count_space(l)
-            break
-
-    for i, l in enumerate(code):
-        if l.strip() == '':
-            if (i ==0 or i==len(code)):
-                pass
-            else:
-                new_code += l
-        else:
-            curr_space_cnt = count_space(l)
-            diff = curr_space_cnt - space_cnt
-            new_code += '\t'*(diff+ 2) + l.lstrip()
+    return len( seen )
 
 
-    return new_code
+def generate_vspscript_unit_test( srcdir, vspscript_unittest_filepath ):
+    ents = api_headers.parse_all( srcdir )
 
-def add_test(line):
-    new_line = line[:4] + 'test_' + line[4:]
-    split_line = new_line.split('(')
-    new_line = split_line[0] + '(self):'
-    return new_line
+    script = ''
+    end_script = 'int main()\n{\n    int int_ret = 0;\n'
+    seen = set()
 
-def generate_vspscript_unit_test(vsp_geom_api, vspscript_unittest_filepath):
-    script = ""
-    end_script = "int main()\n"
-    end_script += "{\n"
-    end_script += "    int int_ret = 0;\n"
-    in_code_segment = False
-    code_segment = ""
-    function_names = []
-    # A declaration that wraps onto a second line has to be gathered up before
-    # it can be read.  Handling only single line declarations quietly dropped
-    # the examples of every function declared across two lines.
-    declaration = ""
-    with open(vsp_geom_api, 'r') as header:
-        for line in header:
-            line = line.replace("vector", "array").replace("std::", "")
-            if r"\code{.cpp}" in line:
-                in_code_segment = True
-                code_segment = ""
-                continue
+    for e in ents:
+        code = e.code( 'cpp' )
+        if not code.strip():
+            continue
 
-            if in_code_segment:
-                if r"\endcode" in line:
-                    in_code_segment = False
-                else:
-                    code_segment += line
-                continue
+        # AngelScript spells the containers differently from C++.
+        code = code.replace( 'vector', 'array' ).replace( 'std::', '' )
 
-            if declaration:
-                declaration += " " + line.strip()
-            elif "extern" in line:
-                declaration = line.rstrip()
+        name = unique( 'test_' + safe_name( e.name ), seen )
 
-            if not declaration:
-                continue
+        script += 'int %s()\n{\n' % name
+        script += '    VSPRenew();\n'
+        script += '    int __failure = 0;\n'
+        # Start from a clean error queue so this example is only judged on errors it raised itself.
+        script += '    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }\n'
+        script += '    Print("//==== %s ====//");\n' % name
+        script += code
+        # An example that leaves an API error behind has not worked, whether or not it bothered to
+        # check anything itself.  Nothing in the documentation raises an error on purpose.
+        script += '\n    while ( GetNumTotalErrors() > 0 )\n'
+        script += '    {\n'
+        script += '        ErrorObj err = PopLastError();\n'
+        script += '        Print( "    API error: " + err.GetErrorString() );\n'
+        script += '        __failure++;\n'
+        script += '    }\n'
+        script += '\n    return __failure;\n'
+        script += '}\n'
 
-            if ");" not in declaration:
-                continue
+        # Report which example failed rather than only how many.
+        end_script += '    {\n'
+        end_script += '        int f = %s();\n' % name
+        end_script += '        if ( f > 0 )\n'
+        end_script += '        {\n'
+        end_script += '            Print( "    FAILED: %s" );\n' % name
+        end_script += '        }\n'
+        end_script += '        int_ret += f;\n'
+        end_script += '    }\n'
 
-            line = declaration
-            declaration = ""
+    end_script += '    Print( "\\n//==== ALL TEST SCRIPTS COMPLETED ====//" );\n'
+    end_script += '    if ( int_ret == 0 )\n'
+    end_script += '    {\n'
+    end_script += '        Print("    All Scripts Run Successfully");\n'
+    end_script += '    }\n'
+    end_script += '    else\n'
+    end_script += '    {\n'
+    end_script += '        string fail_message = "    Number of failed scripts : " + int_ret;\n'
+    end_script += '        Print( fail_message );\n'
+    end_script += '    }\n'
+    # Report the accumulated failures to the caller.  This used to return zero unconditionally, so
+    # the generated test could never fail no matter what the examples reported through __failure.
+    end_script += '    return int_ret;\n'
+    end_script += '}\n'
 
-            if True:
-                line_split = line.split()
-                name_index = 2
-                for index, word in enumerate(line_split):
-                    if "(" in word:
-                        name_index = index
-                        break
-                function_name = "test_"+line_split[name_index][:line_split[name_index].index("(")]
-                while function_name in function_names:
-                    function_name += "1"
-                function_names.append(function_name)
-                script += f"int {function_name}()"
-                script += "\n{\n"
-                script += "    VSPRenew();\n"
-                script += "    int __failure = 0;\n"
-                # Start from a clean error queue so this example is only judged
-                # on errors it raised itself.
-                script += "    while ( GetNumTotalErrors() > 0 ) { PopLastError(); }\n"
-                script += f"    Print(\"//==== {function_name} ====//\");\n"
-                script += code_segment
-                # An example that leaves an API error behind has not worked,
-                # whether or not it bothered to check anything itself.  Nothing
-                # in the documentation raises an error on purpose.
-                script += "\n    while ( GetNumTotalErrors() > 0 )\n"
-                script += "    {\n"
-                script += "        ErrorObj err = PopLastError();\n"
-                script += "        Print( \"    API error: \" + err.GetErrorString() );\n"
-                script += "        __failure++;\n"
-                script += "    }\n"
-                script += "\n    return __failure;\n"
-                script += "}\n"
-
-                # Clear the example after using it.  It used to persist, so a
-                # function documented without a \code{.cpp} block was handed the
-                # previous function's example and the generated test exercised
-                # the wrong thing under the wrong name.
-                code_segment = ""
-
-                # Report which example failed rather than only how many.
-                end_script += f'    {{\n'
-                end_script += f'        int f = {function_name}();\n'
-                end_script += f'        if ( f > 0 )\n'
-                end_script += f'        {{\n'
-                end_script += f'            Print( "    FAILED: {function_name}" );\n'
-                end_script += f'        }}\n'
-                end_script += f'        int_ret += f;\n'
-                end_script += f'    }}\n'
-    end_script += "    Print( \"\\n//==== ALL TEST SCRIPTS COMPLETED ====//\" );\n"
-    end_script += "    if ( int_ret == 0 )\n"
-    end_script += "    {\n"
-    end_script += "        Print(\"    All Scripts Run Successfully\");\n"
-    end_script += "    }\n"
-    end_script += "    else\n"
-    end_script += "    {\n"
-    end_script += "        string fail_message = \"    Number of failed scripts : \" + int_ret;\n"
-    end_script += "        Print( fail_message );\n"
-    end_script += "    }\n"
-    # Report the accumulated failures to the caller.  This used to return zero
-    # unconditionally, so the generated test could never fail no matter what the
-    # individual examples reported through __failure.
-    end_script += "    return int_ret;\n"
-    end_script += "}\n"
     script += end_script
-    with open(vspscript_unittest_filepath, 'w') as f:
-        f.write(script)
+
+    with open( vspscript_unittest_filepath, 'w' ) as f:
+        f.write( script )
+
+    return len( seen )
+
 
 if __name__ == '__main__':
     base_dir = sys.argv[1]
-    vsp_geom_api = sys.argv[2]
-    openvsp_dir = os.path.join(base_dir, 'openvsp')
-    vsp_file = os.path.join(openvsp_dir, 'vsp.py')
-    unit_file = os.path.join(openvsp_dir, 'tests', 'test_vsp_api.py')
-    unit_file_vspscript = os.path.join(openvsp_dir, 'tests', 'test_vsp_api.vspscript')
-    generate_unit_test(vsp_file, unit_file)
-    generate_vspscript_unit_test(vsp_geom_api, unit_file_vspscript)
+    srcdir = sys.argv[2]
+    openvsp_dir = os.path.join( base_dir, 'openvsp' )
+    unit_file = os.path.join( openvsp_dir, 'tests', 'test_vsp_api.py' )
+    unit_file_vspscript = os.path.join( openvsp_dir, 'tests', 'test_vsp_api.vspscript' )
+
+    npy = generate_unit_test( srcdir, unit_file )
+    nas = generate_vspscript_unit_test( srcdir, unit_file_vspscript )
+
+    print( 'gen_unit_test: %d Python tests, %d AngelScript tests' % ( npy, nas ) )
