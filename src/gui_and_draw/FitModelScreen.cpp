@@ -232,24 +232,26 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_OptimLayout.ForceNewLine();
 
 
+    int halfw = ( m_OptimLayout.GetRemainX() ) / 2;
 
-    m_OptimLayout.SetButtonWidth( ( m_OptimLayout.GetRemainX() ) / 2 );
+    m_OptimLayout.SetButtonWidth( halfw );
 
     m_OptimLayout.AddButton( m_SearchUWButton, "Search UW" );
     m_OptimLayout.AddButton( m_RefineUWButton, "Refine UW" );
 
     m_OptimLayout.ForceNewLine();
 
-    m_OptimLayout.AddButton( m_UpdateDistButton, "Update Distance" );
     m_OptimLayout.AddButton( m_OptimizeButton, "Fit" );
+    m_OptimLayout.AddButton( m_UndoButton, "Undo" );
 
     m_OptimLayout.ForceNewLine();
 
-    m_OptimLayout.SetFitWidthFlag( true );
-    m_OptimLayout.SetSameLineFlag( false );
+    m_OptimLayout.AddButton( m_UpdateDistButton, "Update" );
 
-    m_OptimLayout.SetButtonWidth( 100 );
-    m_OptimLayout.AddOutput( m_DistOutput, "Distance Metric" );
+    m_OptimLayout.SetFitWidthFlag( true );
+
+    m_OptimLayout.SetButtonWidth( halfw / 2 );
+    m_OptimLayout.AddOutput( m_DistOutput, "Distance", halfw );
 
     //===== Save/Load Tab =====//
     Fl_Group* saveLoad_group = AddSubGroup( saveLoad_tab, 5 );
@@ -480,6 +482,17 @@ bool FitModelScreen::Update()
 
     m_DistOutput.Update( std::to_string( static_cast<long double> (FitModelMgr.m_DistMetric) ) );
 
+    // Nothing to put back until an operation has run, and a snapshot taken against a different set
+    // of variables or target points cannot be put back at all.
+    if ( FitModelMgr.CanUndo() )
+    {
+        m_UndoButton.Activate();
+    }
+    else
+    {
+        m_UndoButton.Deactivate();
+    }
+
     //===== Save/Load =====//
     m_SaveOutput.Update( StringUtil::truncateFileName( FitModelMgr.GetSaveFitFileName(), 40 ) );
     m_LoadOutput.Update( StringUtil::truncateFileName( FitModelMgr.GetLoadFitFileName(), 40 ) );
@@ -699,6 +712,10 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_UpdateDistButton )
     {
         FitModelMgr.UpdateDist();
+    }
+    else if ( device == &m_UndoButton )
+    {
+        FitModelMgr.Undo();
     }
     else if ( device == &m_OptimizeButton )
     {

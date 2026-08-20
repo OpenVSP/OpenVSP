@@ -224,6 +224,12 @@ public:
     void UpdateDist();
     int Optimize();
 
+    // Undo the last Optimize, SearchTargetUW or RefineTargetUW.  Each of those snapshots the
+    // optimization vector before it runs; Undo puts it back.  One level deep -- the snapshot is
+    // spent once it has been used.
+    bool CanUndo();
+    bool Undo();
+
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     /*
@@ -299,6 +305,16 @@ private:
     void BuildPtrVec();
     void ParmToX( double *x );
     void XtoParm( const double *x );
+
+    // Take the snapshot Undo restores.  BuildPtrVec must have been called first, since the
+    // optimization vector is laid out from the pointer vectors it builds.
+    void SaveUndoState();
+
+    // What the snapshot was taken against.  The layout of the optimization vector depends on which
+    // Parms are variables and on the free/fixed state of every target point, so restoring a
+    // snapshot taken against a different setup would write values into the wrong slots.  Comparing
+    // this is what stops that.
+    string UndoSignature();
     static double Clamp01( double x, bool closed );
 
     bool m_GUIShown;
@@ -320,6 +336,10 @@ private:
     vector < Parm* > m_ParmPtrVec;
     vector < Geom* > m_TargetGeomPtrVec;
     int m_NumOptVars;
+
+    vector< double > m_XPrevious;
+    string m_UndoSignature;
+    bool m_UndoValid;
 
     DrawObj m_TargetPntDrawObj;
     DrawObj m_TargetLineDrawObj;

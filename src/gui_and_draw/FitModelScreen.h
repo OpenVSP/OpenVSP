@@ -121,6 +121,7 @@ protected:
     TriggerButton m_RefineUWButton;
     TriggerButton m_UpdateDistButton;
     TriggerButton m_OptimizeButton;
+    TriggerButton m_UndoButton;
     StringOutput m_DistOutput;
 
     //===== Save/Load Tab Items =====//

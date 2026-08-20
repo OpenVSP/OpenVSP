@@ -392,6 +392,10 @@ void FitModelMgrSingleton::Init()
     m_CurrVarIndex = int();
     m_CurrTargetPtIndex = int();
     m_NumOptVars = int();
+
+    m_XPrevious.clear();
+    m_UndoSignature = string();
+    m_UndoValid = false;
 }
 
 void FitModelMgrSingleton::Wype()
@@ -754,6 +758,11 @@ void FitModelMgrSingleton::RefineTargetUW()
 {
     ValidateTargetPts();
 
+    // Refine only moves the free surface coordinates, but the snapshot is the whole optimization
+    // vector either way -- the Parm entries simply come back unchanged.
+    BuildPtrVec();
+    SaveUndoState();
+
     int npt = m_TargetPts.size();
 
     for ( int i = 0 ; i < npt; i++ )
@@ -763,11 +772,17 @@ void FitModelMgrSingleton::RefineTargetUW()
 
         tpt->RefineUW( g );
     }
+
+    m_ParmPtrVec.clear();
+    m_TargetGeomPtrVec.clear();
 }
 
 void FitModelMgrSingleton::SearchTargetUW()
 {
     ValidateTargetPts();
+
+    BuildPtrVec();
+    SaveUndoState();
 
     int npt = m_TargetPts.size();
 
@@ -778,6 +793,9 @@ void FitModelMgrSingleton::SearchTargetUW()
 
         tpt->SearchUW( g );
     }
+
+    m_ParmPtrVec.clear();
+    m_TargetGeomPtrVec.clear();
 }
 
 void FitModelMgrSingleton::ParmToX( double *x )
@@ -842,6 +860,96 @@ void FitModelMgrSingleton::XtoParm( const double *x )
 
         tpt->SetUW( uw );
     }
+}
+
+string FitModelMgrSingleton::UndoSignature()
+{
+    // Everything the layout and the meaning of the optimization vector depends on: which Parms are
+    // variables, in order, and for each target point the surface it is matched to and whether each
+    // of its surface coordinates is free.
+    string sig;
+
+    for ( int i = 0 ; i < ( int )m_VarVec.size(); i++ )
+    {
+        sig += m_VarVec[i] + ";";
+    }
+
+    sig += "|";
+
+    for ( int i = 0 ; i < ( int )m_TargetPts.size(); i++ )
+    {
+        TargetPt* tpt = m_TargetPts[i];
+
+        sig += tpt->GetMatchGeom() + ",";
+        sig += std::to_string( tpt->GetSurfIndx() ) + ",";
+        sig += std::to_string( tpt->GetUType() ) + ",";
+        sig += std::to_string( tpt->GetWType() ) + ";";
+    }
+
+    return sig;
+}
+
+void FitModelMgrSingleton::SaveUndoState()
+{
+    m_XPrevious.resize( m_NumOptVars );
+
+    if ( m_NumOptVars > 0 )
+    {
+        ParmToX( m_XPrevious.data() );
+    }
+
+    m_UndoSignature = UndoSignature();
+    m_UndoValid = true;
+}
+
+bool FitModelMgrSingleton::CanUndo()
+{
+    if ( !m_UndoValid )
+    {
+        return false;
+    }
+
+    // A snapshot taken against a different set of variables or target points cannot be put back.
+    return UndoSignature() == m_UndoSignature;
+}
+
+bool FitModelMgrSingleton::Undo()
+{
+    ValidateTargetPts();
+
+    if ( !CanUndo() )
+    {
+        // Whatever was saved no longer describes the current setup, so it is of no further use.
+        m_UndoValid = false;
+        return false;
+    }
+
+    BuildPtrVec();
+
+    if ( ( int )m_XPrevious.size() != m_NumOptVars )
+    {
+        m_UndoValid = false;
+        m_ParmPtrVec.clear();
+        m_TargetGeomPtrVec.clear();
+        return false;
+    }
+
+    if ( m_NumOptVars > 0 )
+    {
+        XtoParm( m_XPrevious.data() );
+    }
+
+    VehicleMgr.GetVehicle()->ForceUpdate( GeomBase::SURF );
+
+    m_ParmPtrVec.clear();
+    m_TargetGeomPtrVec.clear();
+
+    // One level of undo; the snapshot is spent.
+    m_UndoValid = false;
+
+    UpdateDist();
+
+    return true;
 }
 
 double FitModelMgrSingleton::Clamp01( double x, bool periodic )
@@ -1019,6 +1127,8 @@ int FitModelMgrSingleton::Optimize()
     ValidateTargetPts();
 
     BuildPtrVec();
+
+    SaveUndoState();
 
     int nvar = m_NumOptVars;
     int npt = m_TargetPts.size();
