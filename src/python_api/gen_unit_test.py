@@ -111,6 +111,9 @@ def generate_unit_test( srcdir, unit_file ):
     seen = set()
 
     for e in ents:
+        if e.group in api_headers.NO_TEST_GROUPS:
+            continue
+
         code = e.code( 'py' )
         if not code.strip():
             continue
@@ -140,6 +143,9 @@ def generate_vspscript_unit_test( srcdir, vspscript_unittest_filepath ):
     seen = set()
 
     for e in ents:
+        if e.group in api_headers.NO_TEST_GROUPS:
+            continue
+
         code = e.code( 'cpp' )
         if not code.strip():
             continue

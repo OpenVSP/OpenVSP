@@ -87,6 +87,11 @@ def classify( e, py, ascript ):
     if e.decl.startswith( 'class ' ):
         return ''
 
+    if e.group in api_headers.NO_TEST_GROUPS:
+        # Illustrative examples only; see NO_TEST_GROUPS.  A block and its parameters are still
+        # required, and are what is checked here.
+        return ''
+
     if py and not e.code( 'py' ).strip():
         return 'no Python example'
 

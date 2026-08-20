@@ -22,6 +22,13 @@ HEADERS = [
     'geom_core/CustomGeom.h',
 ]
 
+# Groups whose functions cannot be exercised from a standalone script, so their examples are
+# illustrative rather than generated into the test suite.  The CustomGeom functions only do anything
+# while a custom component is being built from a .vsppart file; called from an ordinary script they
+# return an empty string and raise no error, so a generated test would assert against a silent
+# no-op and be documenting the wrong thing entirely.
+NO_TEST_GROUPS = { 'CustomGeom' }
+
 # APIDefines.h holds the enums.  They are documented, but there is nothing to declare and nothing to
 # test, so it is read separately by parse_enums rather than through parse.
 ENUM_HEADER = 'geom_api/APIDefines.h'
