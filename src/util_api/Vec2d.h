@@ -12,10 +12,6 @@
 //
 //******************************************************************************
 
-// Unlike vec3d and Matrix4d, vec2d is not registered with AngelScript -- ScriptMgr never mentions
-// it -- so it reaches the API through the Python bindings alone.  The examples below are therefore
-// Python only.  An \forcpponly block here would be generated into the AngelScript test suite and
-// fail to compile, and would be documenting something a script cannot use.
 
 #ifndef VSPVEC2D_H
 #define VSPVEC2D_H
@@ -31,6 +27,28 @@ vec2d operator-( const vec2d& a, const vec2d& b );
 vec2d operator*( const vec2d& a, double b );
 vec2d operator*( const vec2d& a, const vec2d& b );
 vec2d operator/( const vec2d& a, double b );
+
+//==== And the free functions.  Declared only as friends below, which makes them findable by ADL but
+//==== not by ordinary name lookup, so ScriptMgr could not take their address to register them.
+//==== The documentation stays on the friend declarations, which is where doxygen reads it. ====//
+double dist( const vec2d& a, const vec2d& b );
+double dist_squared( const vec2d& a, const vec2d& b );
+double cross( const vec2d& a, const vec2d& b );
+double dot( const vec2d& a, const vec2d& b );
+double angle( const vec2d& a, const vec2d& b );
+double cos_angle( const vec2d& a, const vec2d& b );
+int seg_seg_intersect( const vec2d& pnt_A, const vec2d& pnt_B, const vec2d& pnt_C, const vec2d& pnt_D, vec2d& int_pnt, double &t1, double &t2 );
+vec2d proj_pnt_on_line_seg( const vec2d& line_A, const vec2d& line_B, const vec2d& pnt );
+double proj_pnt_on_line_u( const vec2d& line_A, const vec2d& line_B, const vec2d& pnt );
+void encode( double x_min, double y_min, double x_max, double y_max, const vec2d& pnt, int code[4] );
+void clip_seg_rect( double x_min, double y_min, double x_max, double y_max, vec2d& pnt1, vec2d& pnt2, int& visible );
+bool PointInPolygon( const vec2d & R, const std::vector< vec2d > & pnts );
+double det( const vec2d & p0, const vec2d & p1, const vec2d & offset );
+double poly_area( const std::vector< vec2d > & pnt_vec );
+vec2d poly_centroid( const std::vector< vec2d > & pnt_vec );
+double orient2d( const vec2d & p0, const vec2d & p1, const vec2d & p );
+void bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, double s, double t, vec2d &p_out );
+int inverse_bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, const vec2d &p, double &s, double &t, double &s2, double &t2 );
 
 
 /*!
@@ -67,6 +85,15 @@ public:
 /*!
     Construct a vec2d from its two coordinates.  The default constructor leaves the coordinates
     uninitialized, so prefer this one unless the value is about to be overwritten.
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 3.0, 4.0 );
+
+    if ( abs( a.x() - 3.0 ) > 1e-12 )                    { Print( "ERROR: vec2d" ); __failure++; }
+
+    if ( abs( a.y() - 4.0 ) > 1e-12 )                    { Print( "ERROR: vec2d" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 3.0, 4.0 )
@@ -91,6 +118,15 @@ public:
 /*!
     Index a vec2d by coordinate, 0 for X and 1 for Y.  An index outside that range raises an
     IndexError, which is also what lets list() and tuple() walk a vec2d.
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 3.0, 4.0 );
+
+    if ( abs( a[0] - 3.0 ) > 1e-12 )                     { Print( "ERROR: vec2d opIndex" ); __failure++; }
+
+    if ( abs( a[1] - 4.0 ) > 1e-12 )                     { Print( "ERROR: vec2d opIndex" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 3.0, 4.0 )
@@ -124,6 +160,17 @@ public:
 */
 /*!
     Set both coordinates of the vec2d
+    \forcpponly
+    \code{.cpp}
+    vec2d a();
+
+    a.set_xy( 2.0, 4.0 );
+
+    if ( abs( a.x() - 2.0 ) > 1e-12 )                    { Print( "ERROR: set_xy" ); __failure++; }
+
+    if ( abs( a.y() - 4.0 ) > 1e-12 )                    { Print( "ERROR: set_xy" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d()
@@ -149,6 +196,17 @@ public:
 */
 /*!
     Set the X coordinate (index 0) of the vec2d
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 0.0, 4.0 );
+
+    a.set_x( 2.0 );
+
+    if ( abs( a.x() - 2.0 ) > 1e-12 )                    { Print( "ERROR: set_x" ); __failure++; }
+
+    if ( abs( a.y() - 4.0 ) > 1e-12 )                    { Print( "ERROR: set_x" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 0.0, 4.0 )
@@ -173,6 +231,17 @@ public:
 */
 /*!
     Set the Y coordinate (index 1) of the vec2d
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 2.0, 0.0 );
+
+    a.set_y( 4.0 );
+
+    if ( abs( a.y() - 4.0 ) > 1e-12 )                    { Print( "ERROR: set_y" ); __failure++; }
+
+    if ( abs( a.x() - 2.0 ) > 1e-12 )                    { Print( "ERROR: set_y" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 2.0, 0.0 )
@@ -198,6 +267,13 @@ public:
 */
 /*!
     Get the X coordinate (index 0) of the vec2d
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 3.0, 4.0 );
+
+    if ( abs( a.x() - 3.0 ) > 1e-12 )                    { Print( "ERROR: x" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 3.0, 4.0 )
@@ -217,6 +293,13 @@ public:
 */
 /*!
     Get the Y coordinate (index 1) of the vec2d
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 3.0, 4.0 );
+
+    if ( abs( a.y() - 4.0 ) > 1e-12 )                    { Print( "ERROR: y" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 3.0, 4.0 )
@@ -254,6 +337,18 @@ public:
 */
 /*!
     Addition operator for two vec2d objects, performed by the addition of each corresponding component
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 1.0, 2.0 );
+    vec2d b( 3.0, 4.0 );
+
+    vec2d c = a + b;
+
+    if ( abs( c.x() - 4.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opAdd" ); __failure++; }
+
+    if ( abs( c.y() - 6.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opAdd" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 1.0, 2.0 )
@@ -279,6 +374,18 @@ public:
 */
 /*!
     Subtraction operator for two vec2d objects, performed by the subtraction of each corresponding component
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 3.0, 4.0 );
+    vec2d b( 1.0, 2.0 );
+
+    vec2d c = a - b;
+
+    if ( abs( c.x() - 2.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opSub" ); __failure++; }
+
+    if ( abs( c.y() - 2.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opSub" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 3.0, 4.0 )
@@ -304,6 +411,17 @@ public:
 */
 /*!
     Scalar multiplication operator for a vec2d, performed by the multiplication of each vec2d component and the scalar
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 1.0, 2.0 );
+
+    vec2d c = a * 1.5;
+
+    if ( abs( c.x() - 1.5 ) > 1e-12 )                    { Print( "ERROR: vec2d opMul" ); __failure++; }
+
+    if ( abs( c.y() - 3.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opMul" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 1.0, 2.0 )
@@ -330,6 +448,18 @@ public:
 /*!
     Component-wise multiplication of two vec2d objects.  This is not a dot or a cross product; see
     dot and cross for those.
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 1.0, 2.0 );
+    vec2d b( 3.0, 4.0 );
+
+    vec2d c = a * b;
+
+    if ( abs( c.x() - 3.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opMul_r" ); __failure++; }
+
+    if ( abs( c.y() - 8.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opMul_r" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 1.0, 2.0 )
@@ -356,6 +486,17 @@ public:
 */
 /*!
     Scalar division operator for a vec2d, performed by the division of each vec2d component by the scalar
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 3.0, 6.0 );
+
+    vec2d c = a / 1.5;
+
+    if ( abs( c.x() - 2.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opDiv" ); __failure++; }
+
+    if ( abs( c.y() - 4.0 ) > 1e-12 )                    { Print( "ERROR: vec2d opDiv" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 3.0, 6.0 )
@@ -383,6 +524,14 @@ public:
 */
 /*!
     Calculate the distance between two vec2d
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 0.0, 0.0 );
+    vec2d b( 3.0, 4.0 );
+
+    if ( abs( dist( a, b ) - 5.0 ) > 1e-12 )             { Print( "ERROR: dist" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 0.0, 0.0 )
@@ -406,6 +555,14 @@ public:
 /*!
     Calculate the square of the distance between two vec2d.  Cheaper than dist when the answer is
     only being compared against another distance.
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 0.0, 0.0 );
+    vec2d b( 3.0, 4.0 );
+
+    if ( abs( dist_squared( a, b ) - 25.0 ) > 1e-12 )    { Print( "ERROR: dist_squared" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 0.0, 0.0 )
@@ -428,6 +585,13 @@ public:
 */
 /*!
     Get the magnitude of a vec2d
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 3.0, 4.0 );
+
+    if ( abs( a.mag() - 5.0 ) > 1e-12 )                  { Print( "ERROR: mag" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 3.0, 4.0 )
@@ -447,6 +611,17 @@ public:
 */
 /*!
     Scale a vec2d to unit length, in place
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 3.0, 4.0 );
+
+    a.normalize();
+
+    if ( abs( a.mag() - 1.0 ) > 1e-12 )                  { Print( "ERROR: normalize" ); __failure++; }
+
+    if ( abs( a.x() - 0.6 ) > 1e-12 )                    { Print( "ERROR: normalize" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 3.0, 4.0 )
@@ -470,6 +645,16 @@ public:
 /*!
     Calculate the 2D cross product of two vec2d.  In two dimensions the cross product is the single
     scalar a.x * b.y - a.y * b.x, which is the signed area of the parallelogram they span.
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 1.0, 0.0 );
+    vec2d b( 0.0, 1.0 );
+
+    if ( abs( cross( a, b ) - 1.0 ) > 1e-12 )            { Print( "ERROR: cross" ); __failure++; }
+
+    if ( abs( cross( b, a ) + 1.0 ) > 1e-12 )            { Print( "ERROR: cross" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 1.0, 0.0 )
@@ -494,6 +679,14 @@ public:
 */
 /*!
     Calculate the dot product of two vec2d
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 1.0, 2.0 );
+    vec2d b( 3.0, 4.0 );
+
+    if ( abs( dot( a, b ) - 11.0 ) > 1e-12 )             { Print( "ERROR: dot" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 1.0, 2.0 )
@@ -516,6 +709,16 @@ public:
 */
 /*!
     Calculate the angle between two vec2d, in radians.  The result is unsigned, in [0, pi].
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 1.0, 0.0 );
+    vec2d b( 0.0, 1.0 );
+
+    double PI = 3.14159265358979323846;
+
+    if ( abs( angle( a, b ) - 0.5 * PI ) > 1e-12 )       { Print( "ERROR: angle" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     import math
@@ -541,6 +744,16 @@ public:
 /*!
     Calculate the cosine of the angle between two vec2d.  Cheaper than angle, which has to take an
     arc cosine, and enough on its own when the angle is only being compared.
+    \forcpponly
+    \code{.cpp}
+    vec2d a( 1.0, 0.0 );
+    vec2d b( 0.0, 1.0 );
+
+    if ( abs( cos_angle( a, b ) ) > 1e-12 )              { Print( "ERROR: cos_angle" ); __failure++; }
+
+    if ( abs( cos_angle( a, a ) - 1.0 ) > 1e-12 )        { Print( "ERROR: cos_angle" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     a = vec2d( 1.0, 0.0 )
@@ -567,6 +780,22 @@ public:
     Intersect two line segments, AB and CD.  Reports whether they cross, and where.  The parameters
     t1 and t2 locate the intersection along each segment, running 0 at the first point to 1 at the
     second.
+    \forcpponly
+    \code{.cpp}
+    vec2d pnt;
+    double t1, t2;
+
+    int hit = seg_seg_intersect( vec2d( 0.0, 0.0 ), vec2d( 2.0, 0.0 ), vec2d( 1.0, -1.0 ), vec2d( 1.0, 1.0 ), pnt, t1, t2 );
+
+    if ( hit == 0 )                                      { Print( "ERROR: seg_seg_intersect" ); __failure++; }
+
+    if ( abs( pnt.x() - 1.0 ) > 1e-12 )                  { Print( "ERROR: seg_seg_intersect" ); __failure++; }
+
+    if ( abs( t1 - 0.5 ) > 1e-12 )                       { Print( "ERROR: seg_seg_intersect" ); __failure++; }
+
+    if ( abs( t2 - 0.5 ) > 1e-12 )                       { Print( "ERROR: seg_seg_intersect" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     hit, pnt, t1, t2 = seg_seg_intersect( vec2d( 0.0, 0.0 ), vec2d( 2.0, 0.0 ), vec2d( 1.0, -1.0 ), vec2d( 1.0, 1.0 ) )
@@ -599,6 +828,19 @@ public:
 /*!
     Project a point onto a line segment.  The result is clamped to the segment, so a point that
     projects past either end comes back as that end point.
+    \forcpponly
+    \code{.cpp}
+    vec2d p = proj_pnt_on_line_seg( vec2d( 0.0, 0.0 ), vec2d( 2.0, 0.0 ), vec2d( 1.0, 1.0 ) );
+
+    if ( abs( p.x() - 1.0 ) > 1e-12 )                    { Print( "ERROR: proj_pnt_on_line_seg" ); __failure++; }
+
+    if ( abs( p.y() ) > 1e-12 )                          { Print( "ERROR: proj_pnt_on_line_seg" ); __failure++; }
+
+    vec2d q = proj_pnt_on_line_seg( vec2d( 0.0, 0.0 ), vec2d( 2.0, 0.0 ), vec2d( 5.0, 1.0 ) );
+
+    if ( abs( q.x() - 2.0 ) > 1e-12 )                    { Print( "ERROR: proj_pnt_on_line_seg" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     p = proj_pnt_on_line_seg( vec2d( 0.0, 0.0 ), vec2d( 2.0, 0.0 ), vec2d( 1.0, 1.0 ) )
@@ -629,6 +871,13 @@ public:
     Project a point onto a line and return where along it the projection falls, running 0 at the
     first point to 1 at the second.  Unlike proj_pnt_on_line_seg the result is not clamped, so a
     point beyond the segment gives a parameter outside [0, 1].
+    \forcpponly
+    \code{.cpp}
+    double u = proj_pnt_on_line_u( vec2d( 0.0, 0.0 ), vec2d( 2.0, 0.0 ), vec2d( 1.0, 1.0 ) );
+
+    if ( abs( u - 0.5 ) > 1e-12 )                        { Print( "ERROR: proj_pnt_on_line_u" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     u = proj_pnt_on_line_u( vec2d( 0.0, 0.0 ), vec2d( 2.0, 0.0 ), vec2d( 1.0, 1.0 ) )
@@ -662,6 +911,15 @@ public:
 /*!
     Test whether a point lies inside a polygon.  The polygon is given as its vertices in order; it
     does not have to be convex and does not have to repeat its first point at the end.
+    \forcpponly
+    \code{.cpp}
+    array<vec2d> square = { vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ) };
+
+    if ( !PointInPolygon( vec2d( 0.5, 0.5 ), square ) )  { Print( "ERROR: PointInPolygon" ); __failure++; }
+
+    if ( PointInPolygon( vec2d( 1.5, 0.5 ), square ) )   { Print( "ERROR: PointInPolygon" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     square = Vec2dVec( [ vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ) ] )
@@ -686,6 +944,13 @@ public:
 /*!
     Twice the signed area of the triangle p0, p1, offset.  Positive when the three points turn
     counter-clockwise, so the sign says which side of the line p0-p1 the third point is on.
+    \forcpponly
+    \code{.cpp}
+    double d = det( vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 0.0, 1.0 ) );
+
+    if ( d <= 0.0 )                                      { Print( "ERROR: det" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     d = det( vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 0.0, 1.0 ) )
@@ -710,6 +975,13 @@ public:
     Calculate the area enclosed by a polygon, given as its vertices in order.  The result is
     unsigned, so the winding direction does not matter.  Repeating the first point at the end is
     allowed but not required.
+    \forcpponly
+    \code{.cpp}
+    array<vec2d> square = { vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ) };
+
+    if ( abs( poly_area( square ) - 1.0 ) > 1e-12 )      { Print( "ERROR: poly_area" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     square = Vec2dVec( [ vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ) ] )
@@ -731,6 +1003,17 @@ public:
 /*!
     Calculate the centroid of a polygon, given as its vertices in order.  This is the centroid of
     the enclosed area, not the average of the vertices.
+    \forcpponly
+    \code{.cpp}
+    array<vec2d> square = { vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ) };
+
+    vec2d c = poly_centroid( square );
+
+    if ( abs( c.x() - 0.5 ) > 1e-12 )                    { Print( "ERROR: poly_centroid" ); __failure++; }
+
+    if ( abs( c.y() - 0.5 ) > 1e-12 )                    { Print( "ERROR: poly_centroid" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     square = Vec2dVec( [ vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ) ] )
@@ -756,6 +1039,13 @@ public:
 /*!
     Report which side of the directed line p0-p1 the point p falls on.  Positive when p is to the
     left, negative to the right, and zero when the three are collinear.
+    \forcpponly
+    \code{.cpp}
+    if ( orient2d( vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 0.0, 1.0 ) ) <= 0.0 )   { Print( "ERROR: orient2d" ); __failure++; }
+
+    if ( orient2d( vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 0.0, -1.0 ) ) >= 0.0 )  { Print( "ERROR: orient2d" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     assert orient2d( vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 0.0, 1.0 ) ) > 0.0, "orient2d put a left turn on the right"
@@ -779,6 +1069,17 @@ public:
 /*!
     Interpolate a point inside the quadrilateral p0, p1, p2, p3.  The parameter s runs from the
     p0-p3 edge to the p1-p2 edge and t runs from the p0-p1 edge to the p3-p2 edge, both over [0, 1].
+    \forcpponly
+    \code{.cpp}
+    vec2d p;
+
+    bi_lin_interp( vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ), 0.25, 0.75, p );
+
+    if ( abs( p.x() - 0.625 ) > 1e-12 )                  { Print( "ERROR: bi_lin_interp" ); __failure++; }
+
+    if ( abs( p.y() - 0.75 ) > 1e-12 )                   { Print( "ERROR: bi_lin_interp" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     p0 = vec2d( 0.0, 0.0 )
@@ -814,6 +1115,23 @@ public:
     the inverse of bi_lin_interp.  The problem is quadratic, so it can have two answers, returned
     as (s, t) and (s2, t2); the return value says how many were found.  A configuration that
     degenerates for the point being asked about can return none.
+    \forcpponly
+    \code{.cpp}
+    vec2d p;
+
+    bi_lin_interp( vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ), 0.25, 0.75, p );
+
+    double s, t, s2, t2;
+
+    int n = inverse_bi_lin_interp( vec2d( 0.0, 0.0 ), vec2d( 1.0, 0.0 ), vec2d( 1.0, 1.0 ), vec2d( 0.0, 1.0 ), p, s, t, s2, t2 );
+
+    if ( n <= 0 )                                        { Print( "ERROR: inverse_bi_lin_interp" ); __failure++; }
+
+    if ( abs( s - 0.25 ) > 1e-9 )                        { Print( "ERROR: inverse_bi_lin_interp" ); __failure++; }
+
+    if ( abs( t - 0.75 ) > 1e-9 )                        { Print( "ERROR: inverse_bi_lin_interp" ); __failure++; }
+    \endcode
+    \endforcpponly
     \beginPythonOnly
     \code{.py}
     p0 = vec2d( 0.0, 0.0 )

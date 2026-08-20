@@ -140,6 +140,10 @@ void ScriptMgrSingleton::Init( )
     m_Vec3dArrayType  = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<vec3d>" ) );
     assert( m_Vec3dArrayType );
 
+    RegisterVec2d( m_ScriptEngine );
+    m_Vec2dArrayType  = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<vec2d>" ) );
+    assert( m_Vec2dArrayType );
+
     RegisterMatrix4d( m_ScriptEngine );
     RegisterCustomGeomMgr( m_ScriptEngine );
     RegisterAdvLinkMgr( m_ScriptEngine );
@@ -3035,6 +3039,146 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+}
+
+//==== vec2d Constructors ====//
+static void Vec2dDefaultConstructor( vec2d *self )
+{
+    new( self ) vec2d();
+}
+static void Vec2dCopyConstructor( const vec2d &other, vec2d *self )
+{
+    new( self ) vec2d( other );
+}
+static void Vec2dInitConstructor( double x, double y, vec2d *self )
+{
+    new( self ) vec2d( x, y );
+}
+
+// vec2d has no operator== in C++, and comparing component by component is what a script means by
+// it.  The array add-on also needs the subtype to provide opEquals before array<vec2d> can be
+// compared, which is why this is registered rather than left out.
+static bool Vec2dEquals( const vec2d &a, const vec2d &b )
+{
+    return a.x() == b.x() && a.y() == b.y();
+}
+
+//==== Register Vec2d Object ====//
+void ScriptMgrSingleton::RegisterVec2d( asIScriptEngine* se )
+{
+    // Same trait flags as vec3d, and for the same reason: vec2d is trivially copyable and all of
+    // its members are double, so ARM64 returns it in the floating point registers.  AngelScript
+    // only knows to expect that when ALLFLOATS and ALIGN8 are both set.
+    int r = se->RegisterObjectType( "vec2d", sizeof( vec2d ), asOBJ_VALUE | asOBJ_POD | asGetTypeTraits< vec2d >() | asOBJ_APP_CLASS_ALLFLOATS | asOBJ_APP_CLASS_ALIGN8 );
+    assert( r >= 0 );
+
+    //==== Register the vec2d Constructors  ====//
+    r = se->RegisterObjectBehaviour( "vec2d", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION( Vec2dDefaultConstructor ), asCALL_CDECL_OBJLAST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectBehaviour( "vec2d", asBEHAVE_CONSTRUCT, "void f(double, double)", asFUNCTION( Vec2dInitConstructor ), asCALL_CDECL_OBJLAST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectBehaviour( "vec2d", asBEHAVE_CONSTRUCT, "void f(const vec2d &in)", asFUNCTION( Vec2dCopyConstructor ), asCALL_CDECL_OBJLAST );
+    assert( r >= 0 );
+
+    //==== Register the vec2d Methods  ====//
+    r = se->RegisterObjectMethod( "vec2d", "double& opIndex(int) const", asMETHODPR( vec2d, operator[], ( int ), double& ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "double x() const", asMETHOD( vec2d, x ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "double y() const", asMETHOD( vec2d, y ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "vec2d& set_xy(double x, double y)", asMETHOD( vec2d, set_xy ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "vec2d& set_x(double x)", asMETHOD( vec2d, set_x ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "vec2d& set_y(double y)", asMETHOD( vec2d, set_y ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "double mag() const", asMETHOD( vec2d, mag ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "void normalize()", asMETHOD( vec2d, normalize ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "vec2d opAdd(const vec2d &in) const", asFUNCTIONPR( operator+, ( const vec2d&, const vec2d& ), vec2d ), asCALL_CDECL_OBJFIRST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "vec2d opSub(const vec2d &in) const", asFUNCTIONPR( operator-, ( const vec2d&, const vec2d& ), vec2d ), asCALL_CDECL_OBJFIRST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "vec2d opMul(double b) const", asFUNCTIONPR( operator*, ( const vec2d & a, double b ), vec2d ), asCALL_CDECL_OBJFIRST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "vec2d opMul_r(const vec2d &in) const", asFUNCTIONPR( operator*, ( const vec2d&, const vec2d& ), vec2d ), asCALL_CDECL_OBJFIRST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "vec2d opDiv(double b) const", asFUNCTIONPR( operator/, ( const vec2d&, double b ), vec2d ), asCALL_CDECL_OBJFIRST );
+    assert( r >= 0 );
+
+    r = se->RegisterObjectMethod( "vec2d", "bool opEquals(const vec2d &in) const", asFUNCTION( Vec2dEquals ), asCALL_CDECL_OBJFIRST );
+    assert( r >= 0 );
+
+    //==== Register the vec2d free functions ====//
+    r = se->RegisterGlobalFunction( "double dist(const vec2d& in a, const vec2d& in b)", asFUNCTIONPR( dist, ( const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double dist_squared(const vec2d& in a, const vec2d& in b)", asFUNCTIONPR( dist_squared, ( const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double dot(const vec2d& in a, const vec2d& in b)", asFUNCTIONPR( dot, ( const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    // In two dimensions the cross product is a single scalar, not a vector.
+    r = se->RegisterGlobalFunction( "double cross(const vec2d& in a, const vec2d& in b)", asFUNCTIONPR( cross, ( const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double angle(const vec2d& in a, const vec2d& in b)", asFUNCTIONPR( angle, ( const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double cos_angle(const vec2d& in a, const vec2d& in b)", asFUNCTIONPR( cos_angle, ( const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "vec2d proj_pnt_on_line_seg(const vec2d& in line_A, const vec2d& in line_B, const vec2d& in pnt)", asFUNCTIONPR( proj_pnt_on_line_seg, ( const vec2d&, const vec2d&, const vec2d& ), vec2d ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double proj_pnt_on_line_u(const vec2d& in line_A, const vec2d& in line_B, const vec2d& in pnt)", asFUNCTIONPR( proj_pnt_on_line_u, ( const vec2d&, const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double det(const vec2d& in p0, const vec2d& in p1, const vec2d& in offset)", asFUNCTIONPR( det, ( const vec2d&, const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double orient2d(const vec2d& in p0, const vec2d& in p1, const vec2d& in p)", asFUNCTIONPR( orient2d, ( const vec2d&, const vec2d&, const vec2d& ), double ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    // AngelScript passes these back through &out parameters, so unlike the Python bindings they
+    // need no typemap of their own.
+    r = se->RegisterGlobalFunction( "int seg_seg_intersect(const vec2d& in pnt_A, const vec2d& in pnt_B, const vec2d& in pnt_C, const vec2d& in pnt_D, vec2d& out int_pnt, double& out t1, double& out t2)", asFUNCTIONPR( seg_seg_intersect, ( const vec2d&, const vec2d&, const vec2d&, const vec2d&, vec2d&, double&, double& ), int ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void bi_lin_interp(const vec2d& in p0, const vec2d& in p1, const vec2d& in p2, const vec2d& in p3, double s, double t, vec2d& out p_out)", asFUNCTIONPR( bi_lin_interp, ( const vec2d&, const vec2d&, const vec2d&, const vec2d&, double, double, vec2d& ), void ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int inverse_bi_lin_interp(const vec2d& in p0, const vec2d& in p1, const vec2d& in p2, const vec2d& in p3, const vec2d& in p, double& out s, double& out t, double& out s2, double& out t2)", asFUNCTIONPR( inverse_bi_lin_interp, ( const vec2d&, const vec2d&, const vec2d&, const vec2d&, const vec2d&, double&, double&, double&, double& ), int ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    // The polygon functions take a vector<vec2d>, so they go through a thin wrapper that turns the
+    // script array into one.  PolyArea2d and PolyCentroid2d are named apart from the vec3d
+    // poly_area and poly_centroid on the C++ side only; the script sees the usual names.
+    r = se->RegisterGlobalFunction( "bool PointInPolygon(const vec2d& in R, array<vec2d>@+ pnts)", asMETHOD( ScriptMgrSingleton, PointInPolygon ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "double poly_area(array<vec2d>@+ pnt_vec)", asMETHOD( ScriptMgrSingleton, PolyArea2d ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "vec2d poly_centroid(array<vec2d>@+ pnt_vec)", asMETHOD( ScriptMgrSingleton, PolyCentroid2d ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 }
 
 //==== Matrix4d Constructors ====//
@@ -6922,6 +7066,28 @@ void ScriptMgrSingleton::SetAttributeVec3d( const string & attrID, CScriptArray*
     vector < vec3d > vec3d_vec;
     FillSTLVector( vec3dVector, vec3d_vec );
     vsp::SetAttributeVec3d( attrID, vec3d_vec );
+}
+
+//===== vec2d polygon functions, bridged from a script array =====//
+bool ScriptMgrSingleton::PointInPolygon( const vec2d & R, CScriptArray* pnts )
+{
+    vector < vec2d > pnt_vec;
+    FillSTLVector( pnts, pnt_vec );
+    return ::PointInPolygon( R, pnt_vec );
+}
+
+double ScriptMgrSingleton::PolyArea2d( CScriptArray* pnts )
+{
+    vector < vec2d > pnt_vec;
+    FillSTLVector( pnts, pnt_vec );
+    return ::poly_area( pnt_vec );
+}
+
+vec2d ScriptMgrSingleton::PolyCentroid2d( CScriptArray* pnts )
+{
+    vector < vec2d > pnt_vec;
+    FillSTLVector( pnts, pnt_vec );
+    return ::poly_centroid( pnt_vec );
 }
 
 void ScriptMgrSingleton::SetAttributeIntMatrix( const string & attrID, CScriptArray* intMatrix )

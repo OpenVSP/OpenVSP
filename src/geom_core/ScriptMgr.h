@@ -98,6 +98,7 @@ public:
     asITypeInfo* m_DoubleArrayType;
     asITypeInfo* m_DoubleMatArrayType;
     asITypeInfo* m_Vec3dArrayType;
+    asITypeInfo* m_Vec2dArrayType;
     asITypeInfo* m_StringArrayType;
 
     //==== Utility ====//
@@ -119,6 +120,7 @@ private:
 
     static void RegisterEnums( asIScriptEngine* se );
     static void RegisterVec3d( asIScriptEngine* se );
+    static void RegisterVec2d( asIScriptEngine* se );
     static void RegisterMatrix4d( asIScriptEngine* se );
     static void RegisterCustomGeomMgr( asIScriptEngine* se );
     static void RegisterAdvLinkMgr( asIScriptEngine* se );
@@ -210,6 +212,11 @@ private:
     CScriptArray* GetAttributeDoubleMatrixVal( const string & attrID );
 
     void SetAttributeVec3d( const string & attrID, CScriptArray* vec3dVector );
+
+    //==== vec2d functions that take a polygon ====//
+    bool PointInPolygon( const vec2d & R, CScriptArray* pnts );
+    double PolyArea2d( CScriptArray* pnts );
+    vec2d PolyCentroid2d( CScriptArray* pnts );
     void SetAttributeIntMatrix( const string & attrID, CScriptArray* intMatrix );
     void SetAttributeDoubleMatrix( const string & attrID, CScriptArray* dblMatrix );
 

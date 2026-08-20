@@ -20,12 +20,10 @@ import api_headers
 
 
 # Which example a declaration needs follows from where it is reachable, and that is a property of
-# the type rather than of the name.  vec2d is wrapped by SWIG but never registered with AngelScript,
-# so a missing \forcpponly block in Vec2d.h is correct rather than a gap -- and the test has to be
-# by file, because vec2d::x and the free dist() over vec2d share their names with vec3d versions
-# that AngelScript does register.  CustomGeom is the other way round: reachable only from a custom
-# component script, with no Python side at all.
-PYTHON_ONLY = { 'util_api/Vec2d.h' }
+# the type rather than of the name -- vec2d::x and the free dist() over vec2d share their names with
+# vec3d versions, so the test has to be by file.  CustomGeom is reachable only from a custom
+# component script and has no Python side at all.
+PYTHON_ONLY = set()
 ANGELSCRIPT_ONLY = { 'geom_core/CustomGeom.h' }
 
 
@@ -101,8 +99,16 @@ def main( srcdir, verbose ):
         if exposed is not None:
             rows = [ e for e in rows if e.name in exposed or e.decl.startswith( 'class ' ) ]
 
+        # A function can be declared more than once in a header -- Vec3d.h documents its free
+        # functions outside the class and repeats them as bare friends, Vec2d.h does the reverse --
+        # and the documentation belongs to the function, not to each declaration of it.  Count a
+        # name once it is documented anywhere in the file.
+        documented = set( e.name for e in rows if e.doc and not e.excluded )
+
         gaps = {}
         for e in rows:
+            if not e.doc and e.name in documented:
+                continue
             c = classify( e, h )
             if c:
                 gaps.setdefault( c, [] ).append( e.name )
