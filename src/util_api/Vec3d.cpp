@@ -1831,7 +1831,8 @@ double poly_area( const vector< vec3d > & pnt_vec )
         total_area += pnt_vec.back().x() * pnt_vec[0].y() - pnt_vec[0].x() * pnt_vec.back().y();
     }
 
-    return std::abs( total_area );
+    // The shoelace sum is twice the enclosed area.
+    return 0.5 * std::abs( total_area );
 }
 
 bool PtInTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p )

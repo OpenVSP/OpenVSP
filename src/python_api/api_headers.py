@@ -26,10 +26,14 @@ HEADERS = [
 # test, so it is read separately by parse_enums rather than through parse.
 ENUM_HEADER = 'geom_api/APIDefines.h'
 
-# Not a declaration, whatever else the line may look like.  A friend declaration inside a class
-# names a free function, and Vec3d.h repeats every one of them outside the class where the
-# documentation actually is, so counting the friend as a method both misfiles it and duplicates it.
-_SKIP = re.compile( r'^\s*(#|\}|\{|public:|private:|protected:|template|namespace|using|typedef|return|friend\b|enum\b)' )
+# Not a declaration, whatever else the line may look like.
+_SKIP = re.compile( r'^\s*(#|\}|\{|public:|private:|protected:|template|namespace|using|typedef|return|enum\b)' )
+
+# A friend declaration inside a class names a free function, not a method.  Vec3d.h repeats each of
+# them outside the class, where the documentation is, so the friend is a duplicate and is dropped.
+# Vec2d.h declares them only as friends, so there the friend is the only place documentation can go
+# -- which is why the test is for a doc block rather than for the keyword alone.
+_FRIEND = re.compile( r'^\s*friend\b' )
 
 # Types the API deals in.  A declaration has to start with one of these or be a constructor,
 # destructor or operator, which keeps member variables and stray code out of the list.
@@ -149,6 +153,10 @@ def parse( path, header = '' ):
             if not one or _SKIP.match( one ) or '(' not in one:
                 continue
 
+            friend = _FRIEND.match( one )
+            if friend and not doc:
+                continue
+
             m = _DECL.search( one )
             if not m:
                 continue
@@ -157,7 +165,8 @@ def parse( path, header = '' ):
             if name in ( 'if', 'for', 'while', 'switch', 'return', 'sizeof' ):
                 continue
 
-            out.append( Entity( name, cls, one, doc, header ) )
+            # A documented friend is a free function that happens to be declared inside the class.
+            out.append( Entity( name, '' if friend else cls, one, doc, header ) )
             doc = ''
 
     return out

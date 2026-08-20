@@ -541,7 +541,8 @@ double poly_area( const std::vector< vec2d > & pnt_vec )
         total_area += pnt_vec.back().x() * pnt_vec[0].y() - pnt_vec[0].x() * pnt_vec.back().y();
     }
 
-    return std::abs( total_area );
+    // The shoelace sum is twice the enclosed area.
+    return 0.5 * std::abs( total_area );
 }
 
 vec2d poly_centroid( const std::vector< vec2d > & pnt_vec )
@@ -716,9 +717,9 @@ int inverse_bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, ve
     return t_valid + t2_valid;
 }
 
-void bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, double s, double t, vec2d &p )
+void bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, double s, double t, vec2d &p_out )
 {
-    p = t * ( s * p3 + ( 1.0 - s ) * p2 ) + ( 1 - t ) * ( s * p1 + ( 1.0 - s ) * p0 );
+    p_out = t * ( s * p3 + ( 1.0 - s ) * p2 ) + ( 1 - t ) * ( s * p1 + ( 1.0 - s ) * p0 );
 }
 
 

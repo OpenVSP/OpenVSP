@@ -32,7 +32,19 @@ namespace std {
     %template(IntVecVec) vector< vector<int> >;
     %template(DoubleVecVec)  vector< vector<double> >;
     %template(Vec3dVec) vector<vec3d>;
+    %template(Vec2dVec) vector<vec2d>;
     %template(Matrix4dVec) vector<Matrix4d>;
+}
+
+/* Vec2d.h has a handful of functions that hand their answer back through a reference.  Without a
+   typemap they are wrapped as required *input* arguments of a type Python has no way to build, so
+   seg_seg_intersect, bi_lin_interp and inverse_bi_lin_interp were all reachable and all uncallable.
+   typemaps.i only covers the primitives, so vec2d needs one of its own. */
+%typemap(in, numinputs=0) vec2d &OUTPUT ( vec2d temp ) {
+    $1 = &temp;
+}
+%typemap(argout) vec2d &OUTPUT {
+    %append_output( SWIG_NewPointerObj( new vec2d( *$1 ), SWIGTYPE_p_vec2d, SWIG_POINTER_OWN ) );
 }
 
 %apply std::vector<vec3d> &INPUT { std::vector<vec3d> & pnt_vec };
@@ -164,5 +176,11 @@ namespace std {
 %include "VSP_Geom_API.h"
 %include "SWIGDefines.h"
 %include "Vec3d.h"
+
+%apply vec2d &OUTPUT { vec2d &int_pnt, vec2d &p_out };
+%apply ( double& OUTPUT ) { double &t1, double &t2, double &s, double &t, double &s2 };
 %include "Vec2d.h"
+%clear vec2d &int_pnt, vec2d &p_out;
+%clear double &t1, double &t2, double &s, double &t, double &s2;
+
 %include "Matrix4d.h"
