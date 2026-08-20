@@ -38,8 +38,21 @@ namespace vsp
 class ErrorObj
 {
 public:
+/*!
+    \internal
+    An ErrorObj is built by the error manager, never by a caller, so the constructors are described
+    with the class above rather than documented one by one.
+*/
     ErrorObj();
+/*!
+    \internal
+    Build an ErrorObj from a code and a description.
+*/
     ErrorObj( ERROR_CODE err_code, const string & err_str );
+/*!
+    \internal
+    Copy constructor.
+*/
     ErrorObj( const ErrorObj& from );
     ~ErrorObj()         {}
 
@@ -146,6 +159,10 @@ public:
     ERROR_CODE m_ErrorCode;
     string m_ErrorString;
 
+/*!
+    \internal
+    Reset this object to the "no error" state.  Bookkeeping for the error manager.
+*/
     void NoError()
     {
         m_ErrorCode = VSP_OK;
@@ -359,7 +376,12 @@ public:
 
     ErrorObj GetLastError();                    // Get last error but leave on stack
 
-    bool PopErrorAndPrint( FILE* stream );      // Check for error, pop and print to stream
+/*!
+    \internal
+    Pop the most recent error and write it to an open C stream.  Takes a FILE*, which the bindings
+    cannot supply, so it is a C++ convenience rather than part of the scripting API.
+*/
+    bool PopErrorAndPrint( FILE* stream );
 
 /*!
     \ingroup APIError
@@ -446,10 +468,49 @@ public:
     void PrintOnErrors()    { m_PrintErrors = true; };
 
 
+/*!
+    \internal
+    Push an error onto the queue.  Called by the API functions themselves when something goes wrong;
+    a script reads the queue rather than adding to it.
+*/
     void AddError( ERROR_CODE code, const string & desc );
+/*!
+    \internal
+    Clear the last-call error flag.
+*/
     void NoError();
 
+/*!
+    \internal
+    MessageMgr delivers errors raised elsewhere in OpenVSP through here.  Part of the MessageBase
+    contract, not something an API caller invokes.
+*/
     virtual void MessageCallback( const MessageBase* from, const MessageData& data );
+
+/*!
+    \ingroup APIError
+*/
+/*!
+    Get the error manager.  There is one queue for the whole session, and this is how a script
+    reaches it -- every other call in this group is made on the object returned here.
+    \forcpponly
+    \code{.cpp}
+    //==== AngelScript reaches the same queue through global functions, so there is no instance to
+    //==== fetch.  Call GetNumTotalErrors, PopLastError and the rest directly.
+    if ( GetNumTotalErrors() < 0 )                       { Print( "ERROR: getInstance" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    assert err_mgr.GetNumTotalErrors() >= 0, "getInstance did not return a usable error manager"
+
+    \endcode
+    \endPythonOnly
+    \sa GetNumTotalErrors, PopLastError, GetErrorLastCallFlag
+    \return ErrorMgrSingleton The one error manager for this session
+*/
 
     static ErrorMgrSingleton& getInstance()
     {
@@ -463,6 +524,10 @@ private:
     bool m_ErrorLastCallFlag;
     stack< ErrorObj > m_ErrorStack;
 
+/*!
+    \internal
+    Private -- there is one error manager per session and getInstance is how to reach it.
+*/
     ErrorMgrSingleton();
     ~ErrorMgrSingleton();
     ErrorMgrSingleton( ErrorMgrSingleton const& copy ) = delete;          // Not Implemented

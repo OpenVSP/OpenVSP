@@ -1063,11 +1063,12 @@ extern std::string GetVSPHelpPath();
 
 extern bool CheckForVSPHelp( const std::string & path );
 
-// Registers the CFD Mesh analyses with the Analysis Manager.  Reaching into CFD Mesh from
-// geom_core this way is a layering violation, kept because the analyses are not registered at
-// startup with the rest.  Deliberately left out of the documentation and the generated examples:
-// a plain comment rather than a doxygen block means gen_api_docs.py puts it in no group and
-// gen_unit_test.py writes no test for it.
+/*!
+    \internal
+    Registers the CFD Mesh analyses with the Analysis Manager.  Reaching into CFD Mesh from
+    geom_core this way is a layering violation, kept because the analyses are not registered at
+    startup with the rest.  Deliberately left out of the documentation and the generated examples.
+*/
 
 extern void RegisterCFDMeshAnalyses();
 

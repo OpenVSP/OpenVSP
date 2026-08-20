@@ -47,8 +47,11 @@ private:
 public:
     double v[2];
 
-    // Default constructor.  Leaves the coordinates uninitialized; described with the two argument
-    // constructor below rather than documented separately.
+/*!
+    \internal
+    Default constructor.  Leaves the coordinates uninitialized; described with the two argument
+    constructor below rather than documented separately.
+*/
     vec2d();
 
     // The copy constructor, copy assignment operator, and destructor are intentionally left implicit.
@@ -228,14 +231,21 @@ public:
 
     double y() const;
 
-    // Raw pointer to the coordinates, for C++ callers handing a vec2d to something that expects a
-    // double[2].  %ignore'd in the bindings -- a bare pointer is of no use from Python.
+/*!
+    \internal
+    Raw pointer to the coordinates, for C++ callers handing a vec2d to something that expects a
+    double[2].  %ignore'd in the bindings -- a bare pointer is of no use from Python.
+*/
     double* data()
     {
         return( v );
     }
 
-    // Transform Matrix.  %ignore'd in the bindings: a 3x3 C array is not something Python can build.
+/*!
+    \internal
+    Transform by a 3x3 matrix.  %ignore'd in the bindings: a 3x3 C array is not something Python can
+    build.
+*/
     vec2d transform( float mat[3][3] );
     vec2d transform( double mat[3][3] );
 
@@ -636,8 +646,11 @@ public:
 
     friend double proj_pnt_on_line_u( const vec2d& line_A, const vec2d& line_B, const vec2d& pnt );
 
-    // Cohen-Sutherland clipping helpers.  Both hand their answer back through a C array or through
-    // arguments that are read as well as written, so neither is exposed in the bindings.
+/*!
+    \internal
+    Cohen-Sutherland clipping helpers.  Both hand their answer back through a C array or through
+    arguments that are read as well as written, so neither is exposed in the bindings.
+*/
     friend void encode( double x_min, double y_min, double x_max, double y_max,
                         const vec2d& pnt, int code[4] );
     friend void clip_seg_rect( double x_min, double y_min, double x_max, double y_max,

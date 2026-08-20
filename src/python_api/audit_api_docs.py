@@ -19,12 +19,13 @@ import sys
 import api_headers
 
 
-# vec2d is wrapped by SWIG but never registered with AngelScript, so its examples are Python only
-# and the absence of an \forcpponly block is correct rather than a gap.
+# Which example a declaration needs follows from where it is reachable, and that is a property of
+# the type rather than of the name.  vec2d is wrapped by SWIG but never registered with AngelScript,
+# so a missing \forcpponly block in Vec2d.h is correct rather than a gap -- and the test has to be
+# by file, because vec2d::x and the free dist() over vec2d share their names with vec3d versions
+# that AngelScript does register.  CustomGeom is the other way round: reachable only from a custom
+# component script, with no Python side at all.
 PYTHON_ONLY = { 'util_api/Vec2d.h' }
-
-# CustomGeom.h is the other way round: it is reachable only from a custom component script, so it
-# has no Python side at all.
 ANGELSCRIPT_ONLY = { 'geom_core/CustomGeom.h' }
 
 
