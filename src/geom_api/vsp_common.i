@@ -177,6 +177,14 @@ namespace std {
 %include "SWIGDefines.h"
 %include "Vec3d.h"
 
+/* Not expressible in Python: data() hands back a bare pointer, transform() wants a 3x3 C array, and
+   the two clipping helpers report through a C array or through arguments they read as well as
+   write.  Leaving them wrapped puts entries in the documentation that cannot be called. */
+%ignore vec2d::data;
+%ignore vec2d::transform;
+%ignore encode( double, double, double, double, const vec2d&, int[4] );
+%ignore clip_seg_rect;
+
 %apply vec2d &OUTPUT { vec2d &int_pnt, vec2d &p_out };
 %apply ( double& OUTPUT ) { double &t1, double &t2, double &s, double &t, double &s2 };
 %include "Vec2d.h"

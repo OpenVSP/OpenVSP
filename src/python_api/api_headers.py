@@ -43,12 +43,23 @@ _DECL = re.compile( r'(operator\s*(?:[-+*/=!<>\[\]]+|\s*\w+)|[~\w]+)\s*\(' )
 class Entity:
     """One documented thing in a header: a free function, a class, or a method of one."""
 
-    def __init__( self, name, cls, decl, doc, header ):
+    def __init__( self, name, cls, decl, doc, header, comment = '' ):
         self.name = name
         self.cls = cls              # enclosing class, or '' for a free function
         self.decl = decl
         self.doc = doc
         self.header = header
+        self.comment = comment      # plain // comment sitting where a doxygen block would
+
+    @property
+    def excluded( self ):
+        """True when a plain // comment stands where a doxygen block would go.
+
+        Marks the handful of declarations that are deliberately undocumented -- a layering violation
+        kept for compatibility, or something the bindings %ignore because it cannot be expressed
+        from the target language.  The audit honours it, so a later pass does not put them back.
+        """
+        return bool( self.comment.strip() )
 
     @property
     def group( self ):
@@ -119,7 +130,17 @@ def parse( path, header = '' ):
         pending = ''
 
         stmt = ''
+        # Consecutive //-comment lines standing on their own, kept so a deliberate exclusion can be
+        # told apart from a declaration nobody has documented yet.
+        comment = ''
         for line in chunk.split( '\n' ):
+            bare = line.strip()
+            if bare.startswith( '//' ):
+                comment += bare[2:].strip() + ' '
+            elif bare:
+                pass
+            else:
+                comment = ''
             line = line.split( '//' )[0]
 
             m = re.match( r'\s*class\s+(\w+)', line )
@@ -166,8 +187,9 @@ def parse( path, header = '' ):
                 continue
 
             # A documented friend is a free function that happens to be declared inside the class.
-            out.append( Entity( name, '' if friend else cls, one, doc, header ) )
+            out.append( Entity( name, '' if friend else cls, one, doc, header, comment ) )
             doc = ''
+            comment = ''
 
     return out
 
