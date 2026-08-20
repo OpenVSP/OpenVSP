@@ -22,8 +22,10 @@ import api_headers
 
 # Operators are wrapped under their Python names, and Sphinx will not document them without being
 # asked.  vec3d and vec2d both overload arithmetic, which is most of what makes them usable.
-SPECIAL = ( '__add__, __sub__, __mul__, __rmul__, __truediv__, __neg__, __eq__, __ne__, '
-            '__getitem__, __setitem__, __len__, __repr__' )
+# The ones PY_OPERATOR covers are written out by write_operators, with the description and example
+# from the header, so they are left out here -- listing them both ways gives Sphinx two definitions
+# of the same method and a duplicate-object warning for each.
+SPECIAL = '__rmul__, __neg__, __setitem__, __len__, __repr__' 
 
 # The header documents the free operator functions under their C++ spelling.  They reach Python as
 # special methods of the class (bound in vsp_common.i), so the documentation has to name them the
@@ -63,7 +65,7 @@ def write_operators( f, cls, ops ):
             f.write( '\n' )
 
 
-def write_group_page( path, title, brief, classes, functions, operators ):
+def write_group_page( path, title, brief, classes, functions, operators, seen ):
     with open( path, 'w' ) as f:
         f.write( underline( title, '=' ) + '\n\n' )
 
@@ -103,6 +105,13 @@ def write_group_page( path, title, brief, classes, functions, operators ):
 
             f.write( underline( 'Details', '-' ) + '\n\n' )
             for n in functions:
+                # dist, dot, cross and the rest are overloaded across vec2d and vec3d, so they are
+                # one Python object appearing in two groups.  The summary table lists it on both
+                # pages, but the full description is written once -- documenting it twice gives
+                # Sphinx two definitions of the same function and an ambiguous cross-reference.
+                if n in seen:
+                    continue
+                seen.add( n )
                 f.write( '.. autofunction:: %s\n\n' % n )
 
 
@@ -161,10 +170,20 @@ def main( srcdir, outdir ):
     functions = {}
     operators = {}
     for e in ents:
+        # \internal says this is not part of the documented API; several are %ignore'd in the
+        # bindings as well, so autosummary cannot resolve them either.
+        if e.excluded:
+            continue
+
         tag = e.group
         if not tag and e.cls:
             tag = class_group.get( e.cls, '' )
         if not tag:
+            continue
+
+        # After the class fallback, not before: a method rarely repeats its class's \ingroup, so
+        # testing e.group alone lets every method of an AngelScript-only class through.
+        if tag in api_headers.ANGELSCRIPT_ONLY_GROUPS:
             continue
 
         if e.name.startswith( 'operator' ):
@@ -211,12 +230,19 @@ def main( srcdir, outdir ):
     gdir = os.path.join( outdir, 'groups' )
     os.makedirs( gdir, exist_ok = True )
 
+    # Clear the directory first.  A group that stops being generated -- renamed, or moved out of the
+    # Python reference -- otherwise leaves its page behind, and Sphinx keeps building the stale copy.
+    for name in os.listdir( gdir ):
+        if name.endswith( '.rst' ):
+            os.remove( os.path.join( gdir, name ) )
+
     enums = api_headers.parse_enums( srcdir )
 
     tags = set( classes ) | set( functions )
     if enums:
         tags.add( 'Enumerations' )
 
+    seen = set()
     entries = []
     for tag in sorted( tags, key = lambda t: groups.get( t, ( t, '' ) )[0].lower() ):
         title, brief = groups.get( tag, ( tag, '' ) )
@@ -226,7 +252,7 @@ def main( srcdir, outdir ):
             write_enum_page( path, title, brief, enums )
         else:
             write_group_page( path, title, brief, classes.get( tag, {} ),
-                              functions.get( tag, [] ), operators.get( tag, {} ) )
+                              functions.get( tag, [] ), operators.get( tag, {} ), seen )
 
         entries.append( ( tag, title ) )
 

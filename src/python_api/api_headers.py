@@ -29,6 +29,11 @@ HEADERS = [
 # no-op and be documenting the wrong thing entirely.
 NO_TEST_GROUPS = { 'CustomGeom' }
 
+# Groups that exist only on the AngelScript side.  They belong in the C++ documentation, which
+# Doxygen builds from the same headers, but not in the Python reference: nothing in them can be
+# imported, so listing them there produces pages of entries that autosummary cannot resolve.
+ANGELSCRIPT_ONLY_GROUPS = { 'CustomGeom', 'ProxyUtility' }
+
 # APIDefines.h holds the enums.  They are documented, but there is nothing to declare and nothing to
 # test, so it is read separately by parse_enums rather than through parse.
 ENUM_HEADER = 'geom_api/APIDefines.h'
