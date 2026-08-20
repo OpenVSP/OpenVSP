@@ -102,15 +102,7 @@ public:
     asITypeInfo* m_StringArrayType;
 
     //==== Utility ====//
-    void Print( const string & data, bool new_line );
-    void Print( const vec3d & data, bool new_line );
-    void Print( double data, bool new_line );
-    void Print( int data, bool new_line );
 
-    double Rad2Deg( double r )                      { return r*( 180.0 / M_PI ); }
-    double Deg2Rad( double d )                      { return d*( M_PI / 180.0 ); }
-    double Min( double x, double y )                { return  (x < y ) ? x : y; }
-    double Max( double x, double y )                { return  (x > y ) ? x : y; }
 
 private:
 

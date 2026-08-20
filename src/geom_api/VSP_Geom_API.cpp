@@ -13666,6 +13666,53 @@ void DeleteAllProbes()
     MeasureMgr.DelAllProbes();
 }
 
+//===================================================================//
+//========================  General Utilities  ======================//
+//===================================================================//
+
+// The bodies live in VspUtil.h and VspUtil.cpp, next to the MAX, MIN and DEG2RAD macros they are
+// the function forms of.  These are the wrappers that put them in the API.
+
+void Print( const std::string & data, bool new_line )
+{
+    ::Print( data, new_line );
+}
+
+void Print( const vec3d & data, bool new_line )
+{
+    ::Print( data, new_line );
+}
+
+void Print( double data, bool new_line )
+{
+    ::Print( data, new_line );
+}
+
+void Print( int data, bool new_line )
+{
+    ::Print( data, new_line );
+}
+
+double Min( double x, double y )
+{
+    return ::Min( x, y );
+}
+
+double Max( double x, double y )
+{
+    return ::Max( x, y );
+}
+
+double Rad2Deg( double r )
+{
+    return ::Rad2Deg( r );
+}
+
+double Deg2Rad( double d )
+{
+    return ::Deg2Rad( d );
+}
+
 std::string GetVSPVersion()
 {
     return std::string( VSPVERSION4 );

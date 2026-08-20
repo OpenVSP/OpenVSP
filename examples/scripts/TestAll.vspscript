@@ -181,7 +181,9 @@ int TestProxy()
 //    SetSaveInt( 23 );
 
 //    //==== Get Vector of Vec3d From App =====//
-    array< vec3d > @vec3d_array = GetProxyVec3dArray();
+//    GetProxyVec3dArray is no longer registered with AngelScript.  It converts the manager's
+//    staging buffer, which the array-returning API functions fill just before calling it, so on its
+//    own it handed back whatever the previous call happened to leave there.
 //    Print( formatInt( vec3d_array.size(), '' ) );
     //for ( uint i = 0 ; i < vec3d_array.size() ; i++ )
     //{

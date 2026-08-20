@@ -533,6 +533,200 @@ extern int GetAndResetUpdateCount();
     \ingroup APIUtilities
 */
 /*!
+    Print a string to stdout.  Print to stdout.  Writes the value and, unless asked not to, a newline; there is nothing to
+    check in an example beyond the call itself.
+    \forcpponly
+    \code{.cpp}
+    Print( "Hello from the OpenVSP API" );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    Print( "Hello from the OpenVSP API" )
+    \endcode
+    \endPythonOnly
+    \sa Min, Max, Rad2Deg, Deg2Rad
+    \param [in] data string Text to print
+    \param [in] new_line bool Follow the text with a newline
+*/
+
+extern void Print( const std::string & data, bool new_line = true );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Print a vec3d to stdout, as its three coordinates.  Print to stdout.  Writes the value and, unless asked not to, a newline; there is nothing to
+    check in an example beyond the call itself.
+    \forcpponly
+    \code{.cpp}
+    Print( vec3d( 1.0, 2.0, 3.0 ) );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    Print( vec3d( 1.0, 2.0, 3.0 ) )
+    \endcode
+    \endPythonOnly
+    \sa Print
+    \param [in] data vec3d Point to print
+    \param [in] new_line bool Follow the point with a newline
+*/
+
+extern void Print( const vec3d & data, bool new_line = true );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Print a double to stdout.  Print to stdout.  Writes the value and, unless asked not to, a newline; there is nothing to
+    check in an example beyond the call itself.
+    \forcpponly
+    \code{.cpp}
+    Print( 3.14159 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    Print( 3.14159 )
+    \endcode
+    \endPythonOnly
+    \sa Print
+    \param [in] data double Value to print
+    \param [in] new_line bool Follow the value with a newline
+*/
+
+extern void Print( double data, bool new_line = true );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Print an integer to stdout.  Print to stdout.  Writes the value and, unless asked not to, a newline; there is nothing to
+    check in an example beyond the call itself.
+    \forcpponly
+    \code{.cpp}
+    Print( 42 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    Print( 42 )
+    \endcode
+    \endPythonOnly
+    \sa Print
+    \param [in] data int Value to print
+    \param [in] new_line bool Follow the value with a newline
+*/
+
+extern void Print( int data, bool new_line = true );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Get the smaller of two values.
+    \forcpponly
+    \code{.cpp}
+    if ( abs( Min( 2.0, 5.0 ) - 2.0 ) > 1e-12 )          { Print( "ERROR: Min" ); __failure++; }
+
+    if ( abs( Min( 5.0, 2.0 ) - 2.0 ) > 1e-12 )          { Print( "ERROR: Min" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    assert abs( Min( 2.0, 5.0 ) - 2.0 ) < 1e-12, "Min did not return the smaller value"
+
+    assert abs( Min( 5.0, 2.0 ) - 2.0 ) < 1e-12, "Min depends on the order of its arguments"
+    \endcode
+    \endPythonOnly
+    \sa Max
+    \param [in] x double First value
+    \param [in] y double Second value
+    \return double The smaller of the two
+*/
+
+extern double Min( double x, double y );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Get the larger of two values.
+    \forcpponly
+    \code{.cpp}
+    if ( abs( Max( 2.0, 5.0 ) - 5.0 ) > 1e-12 )          { Print( "ERROR: Max" ); __failure++; }
+
+    if ( abs( Max( 5.0, 2.0 ) - 5.0 ) > 1e-12 )          { Print( "ERROR: Max" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    assert abs( Max( 2.0, 5.0 ) - 5.0 ) < 1e-12, "Max did not return the larger value"
+
+    assert abs( Max( 5.0, 2.0 ) - 5.0 ) < 1e-12, "Max depends on the order of its arguments"
+    \endcode
+    \endPythonOnly
+    \sa Min
+    \param [in] x double First value
+    \param [in] y double Second value
+    \return double The larger of the two
+*/
+
+extern double Max( double x, double y );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Convert an angle from radians to degrees.
+    \forcpponly
+    \code{.cpp}
+    if ( abs( Rad2Deg( 3.14159265358979323846 ) - 180.0 ) > 1e-9 )   { Print( "ERROR: Rad2Deg" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    import math
+
+    assert abs( Rad2Deg( math.pi ) - 180.0 ) < 1e-9, "Rad2Deg did not convert half a turn to 180 degrees"
+    \endcode
+    \endPythonOnly
+    \sa Deg2Rad
+    \param [in] r double Angle in radians
+    \return double Angle in degrees
+*/
+
+extern double Rad2Deg( double r );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
+    Convert an angle from degrees to radians.
+    \forcpponly
+    \code{.cpp}
+    if ( abs( Deg2Rad( 180.0 ) - 3.14159265358979323846 ) > 1e-9 )   { Print( "ERROR: Deg2Rad" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    import math
+
+    assert abs( Deg2Rad( 180.0 ) - math.pi ) < 1e-9, "Deg2Rad did not convert 180 degrees to half a turn"
+    \endcode
+    \endPythonOnly
+    \sa Rad2Deg
+    \param [in] d double Angle in degrees
+    \return double Angle in radians
+*/
+
+extern double Deg2Rad( double d );
+
+/*!
+    \ingroup APIUtilities
+*/
+/*!
     Get the version of the OpenVSP instance currently running
     \forcpponly
     \code{.cpp}

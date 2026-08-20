@@ -6505,35 +6505,30 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     int r;
     //==== Register Utility Functions ====//
 
-    r = se->RegisterGlobalFunction( "void Print(const string & in data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (const string &, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    // Registered straight onto the API functions.  These used to be ScriptMgrSingleton methods, so
+    // they existed for AngelScript alone -- undocumented, and unavailable to C++ or Python callers.
+    r = se->RegisterGlobalFunction( "void Print(const string & in data, bool new_line = true )", asFUNCTIONPR( vsp::Print, ( const string &, bool ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
-
-    r = se->RegisterGlobalFunction( "void Print(const vec3d & in data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (const vec3d &, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void Print(const vec3d & in data, bool new_line = true )", asFUNCTIONPR( vsp::Print, ( const vec3d &, bool ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
-
-    r = se->RegisterGlobalFunction( "void Print(double data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (double, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void Print(double data, bool new_line = true )", asFUNCTIONPR( vsp::Print, ( double, bool ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
-
-    r = se->RegisterGlobalFunction( "void Print(int data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (int, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void Print(int data, bool new_line = true )", asFUNCTIONPR( vsp::Print, ( int, bool ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
-
-    r = se->RegisterGlobalFunction( "double Min( double x, double y)", asMETHOD( ScriptMgrSingleton, Min ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "double Min( double x, double y)", asFUNCTIONPR( vsp::Min, ( double, double ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
-
-    r = se->RegisterGlobalFunction( "double Max( double x, double y)", asMETHOD( ScriptMgrSingleton, Max ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "double Max( double x, double y)", asFUNCTIONPR( vsp::Max, ( double, double ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
-
-    r = se->RegisterGlobalFunction( "double Rad2Deg( double r )", asMETHOD( ScriptMgrSingleton, Rad2Deg ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "double Rad2Deg( double r )", asFUNCTIONPR( vsp::Rad2Deg, ( double ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
-
-    r = se->RegisterGlobalFunction( "double Deg2Rad( double d )", asMETHOD( ScriptMgrSingleton, Deg2Rad ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "double Deg2Rad( double d )", asFUNCTIONPR( vsp::Deg2Rad, ( double ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -6590,13 +6585,10 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
 
     //====  Register Proxy Utility Functions ====//
 
-    // Internal plumbing, registered as a script global.  The 39 wrappers that return an array of
-    // points fill m_ProxyVec3dArray and then call this to convert it; calling it directly from a
-    // script hands back whatever the last of those left in the buffer, which has no useful meaning.
-    // It is a candidate for removal -- it was the only member of the ProxyUtility documentation
-    // group, which has been dropped as having nothing in it worth documenting.
-    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetProxyVec3dArray()", asMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
+    // GetProxyVec3dArray is deliberately not registered.  The 39 wrappers that return an array of
+    // points fill m_ProxyVec3dArray and then call it to convert; called from a script it handed
+    // back whatever the last of them left in the buffer, which has no meaning.  It stays as
+    // internal plumbing.
 
 }
 
@@ -8209,32 +8201,12 @@ CScriptArray* ScriptMgrSingleton::GetAllProbes()
 }
 
 //==== Console Print String Data ====//
-void ScriptMgrSingleton::Print( const string & data, bool new_line )
-{
-    printf( " %s ", data.c_str() );
-    if ( new_line ) printf( "\n" );
-}
 
 //==== Console Print Vec3d Data ====//
-void ScriptMgrSingleton::Print( const vec3d & data, bool new_line )
-{
-    printf( " %f, %f, %f ", data.x(), data.y(), data.z() );
-    if ( new_line ) printf( "\n" );
-}
 
 //==== Console Print Double Data ====//
-void ScriptMgrSingleton::Print( double data, bool new_line )
-{
-    printf( " %f ", data );
-    if ( new_line ) printf( "\n" );
-}
 
 //==== Console Print Int Data ====//
-void ScriptMgrSingleton::Print( int data, bool new_line )
-{
-    printf( " %d ", data );
-    if ( new_line ) printf( "\n" );
-}
 
 //=== Register Advanced Link Functions ===//
 CScriptArray* ScriptMgrSingleton::GetAdvLinkNames()

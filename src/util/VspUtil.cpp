@@ -7,6 +7,7 @@
 #include <random>
 #include <pcg_random.hpp>
 #include <cmath>
+#include <cstdio>
 
 //==== Generate A Unique Random String of Length =====//
 string GenerateRandomID( int length )
@@ -164,4 +165,43 @@ bool angle_less( double a, double b )
     double d = std::remainder( b - a, 2.0 * M_PI );
 
     return d > 0.0;
+}
+
+//==== Print to stdout ====//
+// The spacing and formatting are what OpenVSP scripts have always produced; kept as they were so
+// existing scripts' output does not change.
+void Print( const string & data, bool new_line )
+{
+    printf( " %s ", data.c_str() );
+    if ( new_line )
+    {
+        printf( "\n" );
+    }
+}
+
+void Print( const vec3d & data, bool new_line )
+{
+    printf( " %f, %f, %f ", data.x(), data.y(), data.z() );
+    if ( new_line )
+    {
+        printf( "\n" );
+    }
+}
+
+void Print( double data, bool new_line )
+{
+    printf( " %f ", data );
+    if ( new_line )
+    {
+        printf( "\n" );
+    }
+}
+
+void Print( int data, bool new_line )
+{
+    printf( " %d ", data );
+    if ( new_line )
+    {
+        printf( "\n" );
+    }
 }

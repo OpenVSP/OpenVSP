@@ -24,6 +24,45 @@ using std::string;
 #endif
 #define DEG2RAD(x) ( (x)*0.017453293 )
 
+// Function forms of the MAX, MIN and DEG2RAD macros above.  The macros evaluate their arguments
+// twice, and a macro cannot be exposed through the API at all; these can be, and are -- the
+// APIUtilities group in VSP_Geom_API.h wraps them, which is what makes them reachable from a
+// script.  Kept next to the macros so the two do not drift apart.
+inline double Min( double x, double y )
+{
+    if ( x < y )
+    {
+        return x;
+    }
+    return y;
+}
+
+inline double Max( double x, double y )
+{
+    if ( x > y )
+    {
+        return x;
+    }
+    return y;
+}
+
+inline double Rad2Deg( double r )
+{
+    return r * ( 180.0 / M_PI );
+}
+
+inline double Deg2Rad( double d )
+{
+    return d * ( M_PI / 180.0 );
+}
+
+// Print to stdout.  Four overloads so a script can print the types it deals in without converting
+// them first, which is the whole point of having them.
+extern void Print( const string & data, bool new_line = true );
+extern void Print( const vec3d & data, bool new_line = true );
+extern void Print( double data, bool new_line = true );
+extern void Print( int data, bool new_line = true );
+
 #ifndef SQ
 #define SQ(x) ((x)*(x))
 #endif
