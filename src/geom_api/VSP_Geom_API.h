@@ -163,7 +163,7 @@
     work with Parm Containers through the API.
     \ref index "Click here to return to the main page"
 
-    \defgroup ProxyUtitity API Proxy Utility Functions
+    \defgroup ProxyUtility API Proxy Utility Functions
     \brief The API functions defined in this group enable conversion between AngelScript and OpenVSP C++ data types,
     such as array and vector.
     \ref index "Click here to return to the main page"
