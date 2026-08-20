@@ -17,6 +17,8 @@
 #include "Clipping.h"
 #include "ByteOperationUtil.h"
 
+#include <algorithm>
+
 namespace VSPGraphic
 {
 Scene::Scene()
@@ -49,6 +51,7 @@ void Scene::clearScene()
         delete it->second;
     }
     _sceneMap.clear();
+    _sceneOrder.clear();
 
     // Clean all selections.
     for(int i = 0; i < (int)_selections.size(); i++)
@@ -105,6 +108,7 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
         // Store object and cache id.
         object->setID(*id_out);
         _sceneMap[ object->getID() ] = object;
+        _sceneOrder.push_back( object );
     }
 }
 
@@ -148,6 +152,7 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out, unsi
         // Store object and cache id.
         object->setID(*id_out);
         _sceneMap[ object->getID() ] = object;
+        _sceneOrder.push_back( object );
     }
 
     // Check if picking still needed.
@@ -170,6 +175,7 @@ void Scene::removeObject(unsigned int id)
         }
 
         // Clean up.
+        _sceneOrder.erase( std::remove( _sceneOrder.begin(), _sceneOrder.end(), it->second ), _sceneOrder.end() );
         delete it->second;
         _sceneMap.erase( id );
     }
@@ -568,9 +574,9 @@ void Scene::_updateFlags()
 
 void Scene::predraw()
 {
-    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
+    for ( int i = 0; i < ( int )_sceneOrder.size(); i++ )
     {
-        it->second->predraw();
+        _sceneOrder[i]->predraw();
     }
 
     for(int i = 0; i < (int)_selections.size(); i++)
@@ -588,9 +594,10 @@ void Scene::draw()
     _clip->predraw();
 
     // Draw markers and entities that are not transparent.  Store transparent entities to render later.
-    for ( auto it = _sceneMap.begin(); it != _sceneMap.end(); ++it )
+    // Drawn in creation order -- see _sceneOrder in Scene.h for why that matters.
+    for ( int i = 0; i < ( int )_sceneOrder.size(); i++ )
     {
-        Entity * entity = dynamic_cast<Entity*>( it->second );
+        Entity * entity = dynamic_cast<Entity*>( _sceneOrder[i] );
         if( entity && entity->isTransparent() && 
             ( entity->getRenderStyle() == Common::VSP_DRAW_SHADED ||
               entity->getRenderStyle() == Common::VSP_DRAW_WIRE_FRAME_SHADED ||
@@ -598,11 +605,11 @@ void Scene::draw()
               entity->getRenderStyle() == Common::VSP_DRAW_TEXTURED ||
               entity->getRenderStyle() == Common::VSP_DRAW_TEXTURED_TRANSPARENT_BACK ))
         {
-            alphaList.push_back( it->second );
+            alphaList.push_back( _sceneOrder[i] );
         }
         else
         {
-            it->second->draw();
+            _sceneOrder[i]->draw();
         }
     }
 

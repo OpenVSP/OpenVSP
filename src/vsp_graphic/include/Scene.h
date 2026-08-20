@@ -163,7 +163,17 @@ private:
     void _removeSelections(Renderable * source);
 
 private:
+    // Lookup by id, for getObject().
     std::unordered_map< int, SceneObject* > _sceneMap;
+
+    // The same objects in the order they were created, which is the order they must be drawn in.
+    // An unordered_map iterates in bucket order, so drawing straight out of _sceneMap leaves the
+    // order between two objects unspecified.  That matters whenever two of them cover the same
+    // pixels at the same depth: the visible pass uses glDepthFunc( GL_LEQUAL ), so the one drawn
+    // last wins.  A point cloud does exactly that -- its points are plotted once as a Marker and
+    // again as the green PickablePnts overlay -- and when the Marker happened to come last the
+    // overlay vanished and selection in Fit Model stopped being visible.
+    std::vector< SceneObject* > _sceneOrder;
     std::vector<Selectable*> _selections;
     std::vector<unsigned int> _recycleBin;
 
