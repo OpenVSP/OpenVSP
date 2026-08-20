@@ -9,6 +9,49 @@
 %feature("doxygen:ignore:forcpponly", range="end");
 %feature("doxygen:ignore:beginPythonOnly", range="end:endPythonOnly", contents="parse");
 
+/* --- Warnings SWIG raises that are answered elsewhere, or are noise ------------------------------
+
+   566: "Unexpected iterator value in DoxygenParser::parse", ~1800 of them.  SWIG's doxygen parser
+   trips over the ends of the \forcpponly and \beginPythonOnly ranges that the features above ask
+   it to skip.  The docstrings come out complete and correct -- description, the right language's
+   example, params and return -- so this is the parser complaining about its own bookkeeping.
+
+   401: ErrorMgrSingleton derives from MessageBase, which lives in MessageMgr.h and is not wrapped.
+   The base contributes nothing to the API, so there is nothing to fix, only to say so.
+
+   315: std::stack, from the "using std::stack" at the top of APIErrorMgr.h.  It is there for the
+   private m_ErrorStack member, and nothing is generated for that.
+
+   These three are suppressed with the nowarn pragma rather than %warnfilter.  A %warnfilter with no
+   target applies to the next declaration, not to everything, so writing several in a row simply
+   consumes them; the pragma is the global form.  509 does attach to a name, so it stays targeted.
+   401 and 315 are each the only instance of their number in the whole build.
+
+   509: poly_area is overloaded on vector<vec3d> and vector<vec2d>.  Those are both wrapped pointer
+   types, so they tie on typecheck precedence and SWIG reports the second as shadowed.  The runtime
+   dispatcher tries each in turn and gets it right -- both spellings are covered by the test suite. */
+#pragma SWIG nowarn=566,401,315
+%warnfilter(509) poly_area;
+
+/* The operators are bound below as Python special methods with %extend, so the C++ declarations
+   have nothing left to contribute.  Ignoring them is what silences warnings 503, 389 and 362:
+   "operator+" is not a valid Python identifier, operator[] wants %extend -- which is exactly what it
+   gets -- and there is no assignment operator to overload in Python at all. */
+%ignore operator+;
+%ignore operator-;
+%ignore operator*;
+%ignore operator/;
+%ignore operator==;
+%ignore operator!=;
+%ignore vec3d::operator[];
+%ignore vec2d::operator[];
+%ignore vec3d::operator=;
+%ignore vec2d::operator=;
+
+/* cstdout is there to be read and handed to a C++ call, never assigned; without this SWIG generates
+   a setter for it and warns that setting a pointer variable may leak memory (454). */
+%immutable cstdout;
+
 %include typemaps.i
 %{
 

@@ -163,11 +163,6 @@
     work with Parm Containers through the API.
     \ref index "Click here to return to the main page"
 
-    \defgroup ProxyUtility API Proxy Utility Functions
-    \brief The API functions defined in this group enable conversion between AngelScript and OpenVSP C++ data types,
-    such as array and vector.
-    \ref index "Click here to return to the main page"
-
     \defgroup Results Results Manager Functions
     \brief This group is for functions included in the Results Manager. The Results Manager stores
     analysis results and provides methods to get, print, and export them.

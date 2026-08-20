@@ -165,6 +165,11 @@ def main( srcdir, outdir ):
         if e.decl.startswith( 'class ' ) and e.group:
             class_group[ e.name ] = e.group
 
+    # \internal on one declaration covers the whole overload set -- vec2d::transform and
+    # vec3d::set_arr each carry the marker on the first spelling only, and without this the second
+    # is listed and autosummary cannot resolve it.
+    excluded = set( ( e.header, e.cls, e.name ) for e in ents if e.excluded )
+
     # Group tag -> { class: [ methods ] }, [ free functions ], { class: [ operators ] }.
     classes = {}
     functions = {}
@@ -172,7 +177,7 @@ def main( srcdir, outdir ):
     for e in ents:
         # \internal says this is not part of the documented API; several are %ignore'd in the
         # bindings as well, so autosummary cannot resolve them either.
-        if e.excluded:
+        if ( e.header, e.cls, e.name ) in excluded:
             continue
 
         tag = e.group
@@ -263,8 +268,10 @@ def main( srcdir, outdir ):
     print( 'gen_api_docs: %d groups, %d functions, %d methods, %d enums'
            % ( len( entries ), nfunc, nmeth, len( enums ) ) )
 
-    # A group named on the front page with nothing behind it is a dead link.
-    empty = sorted( t for t in groups if t not in tags )
+    # A group named on the front page with nothing behind it is a dead link.  The AngelScript-only
+    # groups are absent on purpose and are not worth reporting.
+    empty = sorted( t for t in groups
+                    if t not in tags and t not in api_headers.ANGELSCRIPT_ONLY_GROUPS )
     if empty:
         print( 'gen_api_docs: WARNING groups with no documented members: %s' % ', '.join( empty ) )
 

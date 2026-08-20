@@ -6590,6 +6590,11 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
 
     //====  Register Proxy Utility Functions ====//
 
+    // Internal plumbing, registered as a script global.  The 39 wrappers that return an array of
+    // points fill m_ProxyVec3dArray and then call this to convert it; calling it directly from a
+    // script hands back whatever the last of those left in the buffer, which has no useful meaning.
+    // It is a candidate for removal -- it was the only member of the ProxyUtility documentation
+    // group, which has been dropped as having nothing in it worth documenting.
     r = se->RegisterGlobalFunction( "array<vec3d>@+ GetProxyVec3dArray()", asMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
