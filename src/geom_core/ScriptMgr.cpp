@@ -5773,6 +5773,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int OptimizeFitModel()", asFUNCTION( vsp::OptimizeFitModel ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "bool CanUndoFitModel()", asFUNCTION( vsp::CanUndoFitModel ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "bool UndoFitModel()", asFUNCTION( vsp::UndoFitModel ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void SaveFitModelFile( const string & in file_name )", asFUNCTION( vsp::SaveFitModelFile ), asCALL_CDECL );
     assert( r >= 0 );
 

@@ -33227,6 +33227,132 @@ extern int OptimizeFitModel();
     \ingroup FitModel
 */
 /*!
+    Check whether the last Fit Model operation can be undone.  False before anything has been run,
+    after an undo has already been used, and when the variables or target points have changed since
+    -- a snapshot describes one arrangement of them and cannot be applied to another.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    if ( CanUndoFitModel() )                             { Print( "ERROR: CanUndoFitModel" ); __failure++; }
+
+    array< vec3d > pts;
+    pts.push_back( CompPnt01( pid, 0, 0.2, 0.3 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.5, 0.6 ) );
+
+    AddFitModelTargetPts( pid, 0, pts );
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) );
+
+    OptimizeFitModel();
+
+    if ( !CanUndoFitModel() )                            { Print( "ERROR: CanUndoFitModel" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    assert not CanUndoFitModel(), "CanUndoFitModel is true before anything has been run"
+
+    pts = [ CompPnt01( pid, 0, 0.2, 0.3 ), CompPnt01( pid, 0, 0.5, 0.6 ) ]
+
+    AddFitModelTargetPts( pid, 0, pts )
+
+    AddFitModelVar( GetParm( pid, "Length", "Design" ) )
+
+    OptimizeFitModel()
+
+    assert CanUndoFitModel(), "CanUndoFitModel is false after a fit"
+
+    \endcode
+    \endPythonOnly
+    \sa UndoFitModel, OptimizeFitModel
+    \return bool True if there is something to undo
+*/
+
+extern bool CanUndoFitModel();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
+    Undo the last Fit Model operation, putting back the Parm values and the free surface coordinates
+    of the target points as they were before OptimizeFitModel, SearchFitModelTargetUW or
+    RefineFitModelTargetUW was run.  One level deep: the snapshot is spent once it has been used.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    string length = GetParm( pid, "Length", "Design" );
+
+    array< vec3d > pts;
+    pts.push_back( CompPnt01( pid, 0, 0.2, 0.3 ) );
+    pts.push_back( CompPnt01( pid, 0, 0.5, 0.6 ) );
+
+    AddFitModelTargetPts( pid, 0, pts );
+
+    AddFitModelVar( length );
+
+    SetParmVal( length, 7.0 );
+    Update();
+
+    OptimizeFitModel();
+
+    if ( !UndoFitModel() )                               { Print( "ERROR: UndoFitModel" ); __failure++; }
+
+    //==== The Parm is back where it was before the fit ====//
+    if ( abs( GetParmVal( length ) - 7.0 ) > 1e-6 )      { Print( "ERROR: UndoFitModel" ); __failure++; }
+
+    //==== And there is nothing left to undo ====//
+    if ( UndoFitModel() )                                { Print( "ERROR: UndoFitModel" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    length = GetParm( pid, "Length", "Design" )
+
+    pts = [ CompPnt01( pid, 0, 0.2, 0.3 ), CompPnt01( pid, 0, 0.5, 0.6 ) ]
+
+    AddFitModelTargetPts( pid, 0, pts )
+
+    AddFitModelVar( length )
+
+    SetParmVal( length, 7.0 )
+    Update()
+
+    OptimizeFitModel()
+
+    assert UndoFitModel(), "UndoFitModel found nothing to undo"
+
+    #==== The Parm is back where it was before the fit ====#
+    assert abs( GetParmVal( length ) - 7.0 ) < 1e-6, "UndoFitModel did not restore the Parm"
+
+    #==== And there is nothing left to undo ====#
+    assert not UndoFitModel(), "UndoFitModel is repeatable, but it should be one level deep"
+
+    \endcode
+    \endPythonOnly
+    \sa CanUndoFitModel, OptimizeFitModel, SearchFitModelTargetUW, RefineFitModelTargetUW
+    \return bool True if a previous state was restored
+*/
+
+extern bool UndoFitModel();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
     Write the Fit Model Tool's target points and variables to a .fit file.
     \forcpponly
     \code{.cpp}

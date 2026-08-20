@@ -11051,6 +11051,18 @@ int OptimizeFitModel()
     return info;
 }
 
+bool CanUndoFitModel()
+{
+    ErrorMgr.NoError();
+    return FitModelMgr.CanUndo();
+}
+
+bool UndoFitModel()
+{
+    ErrorMgr.NoError();
+    return FitModelMgr.Undo();
+}
+
 void SaveFitModelFile( const std::string & file_name )
 {
     FitModelMgr.SetSaveFitFileName( file_name );
