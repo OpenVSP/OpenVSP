@@ -1057,40 +1057,11 @@ extern std::string GetVSPHelpPath();
 
 extern bool CheckForVSPHelp( const std::string & path );
 
-/*!
-    \ingroup CFDMesh
-*/
-/*!
-    Register the CFD Mesh analyses with the Analysis Manager.  These are not registered at startup
-    the way the other analyses are, so this must be called before CfdMeshAnalysis or SurfaceIntersection
-    can be found by name.
-    \forcpponly
-    \code{.cpp}
-    RegisterCFDMeshAnalyses();
-
-    array < string > @analysis_array = ListAnalysis();
-
-    bool found = false;
-    for ( int i = 0 ; i < int( analysis_array.size() ) ; i++ )
-    {
-        if ( analysis_array[i] == "CfdMeshAnalysis" ) { found = true; }
-    }
-
-    if ( !found )                                        { Print( "ERROR: RegisterCFDMeshAnalyses" ); __failure++; }
-    \endcode
-    \endforcpponly
-    \beginPythonOnly
-    \code{.py}
-    RegisterCFDMeshAnalyses()
-
-    analysis_array = ListAnalysis()
-
-    assert "CfdMeshAnalysis" in analysis_array, "RegisterCFDMeshAnalyses did not register the analysis"
-
-    \endcode
-    \endPythonOnly
-    \sa ListAnalysis
-*/
+// Registers the CFD Mesh analyses with the Analysis Manager.  Reaching into CFD Mesh from
+// geom_core this way is a layering violation, kept because the analyses are not registered at
+// startup with the rest.  Deliberately left out of the documentation and the generated examples:
+// a plain comment rather than a doxygen block means gen_api_docs.py puts it in no group and
+// gen_unit_test.py writes no test for it.
 
 extern void RegisterCFDMeshAnalyses();
 
