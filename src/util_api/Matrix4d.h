@@ -969,6 +969,21 @@ public:
     */
     /*!
         Translate the Matrix4d to a given position and rotate it a about a given center of rotation
+        \forcpponly
+        \code{.cpp}
+        Matrix4d m;
+
+        m.loadIdentity();
+
+        m.buildXForm( vec3d( 1.0, 0.0, 0.0 ), vec3d( 0.0, 0.0, 90.0 ), vec3d( 0.0, 0.0, 0.0 ) );
+
+        vec3d p = m.xform( vec3d( 1.0, 0.0, 0.0 ) );
+
+        if ( abs( p.y() - 1.0 ) > 1e-9 )                     { Print( "ERROR: buildXForm" ); __failure++; }
+
+        if ( abs( p.x() - 1.0 ) > 1e-9 )                     { Print( "ERROR: buildXForm" ); __failure++; }
+        \endcode
+        \endforcpponly
         \beginPythonOnly
         \code{.py}
         m = Matrix4d()

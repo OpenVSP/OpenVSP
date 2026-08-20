@@ -128,7 +128,8 @@ def main( srcdir, verbose ):
         # functions outside the class and repeats them as bare friends, Vec2d.h does the reverse --
         # and the documentation belongs to the function, not to each declaration of it.  Count a
         # name once it is documented anywhere in the file.
-        documented = set( e.name for e, _, _ in rows if e.doc and not e.excluded )
+        # \internal counts here too: marking one overload as not-part-of-the-API covers the set.
+        documented = set( e.name for e, _, _ in rows if e.doc )
 
         gaps = {}
         for e, py, ascript in rows:

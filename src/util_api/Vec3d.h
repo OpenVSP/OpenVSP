@@ -301,7 +301,38 @@ public:
 
     vec3d& set_xyz( double xx, double yy, double zz );
 
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Set all three coordinates from a vector of three doubles.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d()
+
+    a.set_vec( [ 1.0, 2.0, 3.0 ] )
+
+    assert abs( a.x() - 1.0 ) < 1e-12, "set_vec did not set x"
+
+    assert abs( a.z() - 3.0 ) < 1e-12, "set_vec did not set z"
+    \endcode
+    \endPythonOnly
+    \sa set_xyz
+    \param [in] a vector<double> Three coordinates, X, Y and Z
+    \return vec3d Updated vec3d
+*/
+
     vec3d& set_vec( const std::vector<double> &a );
+/*!
+    \internal
+    Set the coordinates from a raw double[3] or float[3].  set_vec and set_xyz are the ones to use
+    from a script.
+*/
+/*!
+    \internal
+    Set the coordinates from a raw double[3] or float[3].  The bindings cannot carry a C array;
+    set_vec and set_xyz are the ones to use from a script.
+*/
     vec3d& set_arr( const double a[] );
     vec3d& set_arr( const float a[] );
   /*!
@@ -377,11 +408,85 @@ public:
     vec3d& set_z( double zz );
 
 
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Set this vec3d to another reflected about the YZ plane, negating X.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    b = vec3d()
+
+    b.set_refx( a )
+
+    assert abs( b.x() + 1.0 ) < 1e-12, "set_refx did not negate x"
+
+    assert abs( b.y() - 2.0 ) < 1e-12, "set_refx disturbed y"
+    \endcode
+    \endPythonOnly
+    \sa set_refy, set_refz, reflect_yz
+    \param [in] a vec3d Point to reflect
+    \return vec3d Updated vec3d
+*/
+
     vec3d& set_refx( const vec3d &a );
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Set this vec3d to another reflected about the XZ plane, negating Y.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    b = vec3d()
+
+    b.set_refy( a )
+
+    assert abs( b.y() + 2.0 ) < 1e-12, "set_refy did not negate y"
+
+    assert abs( b.x() - 1.0 ) < 1e-12, "set_refy disturbed x"
+    \endcode
+    \endPythonOnly
+    \sa set_refx, set_refz, reflect_xz
+    \param [in] a vec3d Point to reflect
+    \return vec3d Updated vec3d
+*/
+
     vec3d& set_refy( const vec3d &a );
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Set this vec3d to another reflected about the XY plane, negating Z.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    b = vec3d()
+
+    b.set_refz( a )
+
+    assert abs( b.z() + 3.0 ) < 1e-12, "set_refz did not negate z"
+
+    assert abs( b.x() - 1.0 ) < 1e-12, "set_refz disturbed x"
+    \endcode
+    \endPythonOnly
+    \sa set_refx, set_refy, reflect_xy
+    \param [in] a vec3d Point to reflect
+    \return vec3d Updated vec3d
+*/
+
     vec3d& set_refz( const vec3d &a );
 
     // Get Point Values
+/*!
+    \internal
+    Copy the coordinates into a raw array or an Eigen point.  Of no use from a script, which should
+    use x(), y() and z().
+*/
     void get_pnt( double pnt[3] ) const
     {
         pnt[0] = v[0];
@@ -399,16 +504,14 @@ public:
   /*!
     Get the X coordinate (index 0) of the vec3d
     \forcpponly
-    \code{cpp}
+    \code{.cpp}
     vec3d a();                                // Default Constructor
 
     a.set_xyz( 2.0, 4.0, 6.0 );
 
-    Print( "a.x() = ", false );
-    Print( a.x() );
+    if ( abs( a.x() - 2.0 ) > 1e-12 )                    { Print( "ERROR: x" ); __failure++; }
 
-    Print( "a[0]= ", false );
-    Print( a[0] );
+    if ( abs( a[0] - 2.0 ) > 1e-12 )                     { Print( "ERROR: x" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -417,11 +520,9 @@ public:
 
     a.set_xyz( 2.0, 4.0, 6.0 )
 
-    print( "a.x() = ", False )
-    print( a.x() )
+    assert abs( a.x() - 2.0 ) < 1e-12, "x did not return the coordinate"
 
-    print( "a[0]= ", False )
-    print( a[0] )
+    assert abs( a[0] - 2.0 ) < 1e-12, "indexing disagrees with x()"
     \endcode
     \endPythonOnly
     \return X value
@@ -435,16 +536,14 @@ public:
   /*!
     Get the Y coordinate (index 1) of the vec3d
     \forcpponly
-    \code{cpp}
+    \code{.cpp}
     vec3d a();                                // Default Constructor
 
     a.set_xyz( 2.0, 4.0, 6.0 );
 
-    Print( "a.y() = ", false );
-    Print( a.y() );
+    if ( abs( a.y() - 4.0 ) > 1e-12 )                    { Print( "ERROR: y" ); __failure++; }
 
-    Print( "a[1]= ", false );
-    Print( a[1] );
+    if ( abs( a[1] - 4.0 ) > 1e-12 )                     { Print( "ERROR: y" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -453,11 +552,9 @@ public:
 
     a.set_xyz( 2.0, 4.0, 6.0 )
 
-    print( "a.y() = ", False )
-    print( a.y() )
+    assert abs( a.y() - 4.0 ) < 1e-12, "y did not return the coordinate"
 
-    print( "a[1]= ", False )
-    print( a[1] )
+    assert abs( a[1] - 4.0 ) < 1e-12, "indexing disagrees with y()"
     \endcode
     \endPythonOnly
     \return Y value
@@ -471,16 +568,14 @@ public:
   /*!
     Get the Z coordinate (index 2) of the vec3d
     \forcpponly
-    \code{cpp}
+    \code{.cpp}
     vec3d a();                                // Default Constructor
 
     a.set_xyz( 2.0, 4.0, 6.0 );
 
-    Print( "a.z() = ", false );
-    Print( a.z() );
+    if ( abs( a.z() - 6.0 ) > 1e-12 )                    { Print( "ERROR: z" ); __failure++; }
 
-    Print( "a[2]= ", false );
-    Print( a[2] );
+    if ( abs( a[2] - 6.0 ) > 1e-12 )                     { Print( "ERROR: z" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -489,11 +584,9 @@ public:
 
     a.set_xyz( 2.0, 4.0, 6.0 )
 
-    print( "a.z() = ", False )
-    print( a.z() )
+    assert abs( a.z() - 6.0 ) < 1e-12, "z did not return the coordinate"
 
-    print( "a[2]= ", False )
-    print( a[2] )
+    assert abs( a[2] - 6.0 ) < 1e-12, "indexing disagrees with z()"
     \endcode
     \endPythonOnly
     \return Z value
@@ -511,6 +604,11 @@ public:
     }
 
     void Transform( const Matrix4d &m );
+/*!
+    \internal
+    Does nothing.  vec3d and BndBox both carry an empty FlipNormal so generic code can call it on
+    either without caring which it has; there is no normal to flip on a point.
+*/
     void FlipNormal()                          {};
 
     // Rotate About Axis --> Change Internal Values
@@ -798,6 +896,29 @@ public:
     {
         v[2] += offset;
     };
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Offset one coordinate, chosen by index: 0 for X, 1 for Y, 2 for Z.  The indexed counterpart of
+    offset_x, offset_y and offset_z.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    a.offset_i( 0.5, 1 )
+
+    assert abs( a.y() - 2.5 ) < 1e-12, "offset_i did not offset the Y coordinate"
+
+    assert abs( a.x() - 1.0 ) < 1e-12, "offset_i disturbed a coordinate it should not have"
+
+    \endcode
+    \endPythonOnly
+    \sa offset_x, offset_y, offset_z
+    \param [in] offset double Amount to offset by
+    \param [in] idir int Coordinate index, 0 for X, 1 for Y, 2 for Z
+*/
+
     void offset_i( double offset, int idir )
     {
         v[idir] += offset;
@@ -972,6 +1093,22 @@ public:
 
     double mag() const;                // x = a.mag()
 
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Get the square of the magnitude.  Cheaper than mag, which has to take a square root, and enough on its own when magnitudes are only being compared.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    assert abs( a.magsq() - 14.0 ) < 1e-12, "magsq did not return the squared magnitude"
+    \endcode
+    \endPythonOnly
+    \sa mag
+    \return double Squared magnitude
+*/
+
     double magsq() const;
 
 /*!
@@ -1011,12 +1148,109 @@ public:
     void normalize();           // a.normalize()
 
 
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Get the index of the largest coordinate: 0 for X, 1 for Y, 2 for Z.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 5.0, 3.0 )
+
+    assert a.major_comp() == 1, "major_comp did not find the largest coordinate"
+    \endcode
+    \endPythonOnly
+    \sa minor_comp
+    \return int Index of the largest coordinate
+*/
+
     int major_comp() const;
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Get the index of the smallest coordinate: 0 for X, 1 for Y, 2 for Z.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 5.0, 3.0 )
+
+    assert a.minor_comp() == 0, "minor_comp did not find the smallest coordinate"
+    \endcode
+    \endPythonOnly
+    \sa major_comp
+    \return int Index of the smallest coordinate
+*/
+
     int minor_comp() const;
 
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Test whether any coordinate is NaN.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    assert not a.isnan(), "isnan reported a NaN in an ordinary point"
+    \endcode
+    \endPythonOnly
+    \sa isinf, isfinite
+    \return bool True if any coordinate is NaN
+*/
+
     bool isnan() const;
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Test whether any coordinate is infinite.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    assert not a.isinf(), "isinf reported an infinity in an ordinary point"
+    \endcode
+    \endPythonOnly
+    \sa isnan, isfinite
+    \return bool True if any coordinate is infinite
+*/
+
     bool isinf() const;
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Test whether every coordinate is finite -- neither infinite nor NaN.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    assert a.isfinite(), "isfinite rejected an ordinary point"
+    \endcode
+    \endPythonOnly
+    \sa isnan, isinf
+    \return bool True if all three coordinates are finite
+*/
+
     bool isfinite() const;
+
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Print the vec3d to stdout, for debugging.  Writes to the console rather than returning anything, so there is nothing for an example to check.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    a.print( "a" )
+
+    assert abs( a.x() - 1.0 ) < 1e-12, "print changed the point"
+    \endcode
+    \endPythonOnly
+    \param [in] label string Label to print in front of the coordinates
+*/
 
     void print( const char* label = "" ) const;
 
@@ -1425,14 +1659,78 @@ vec3d RotateArbAxis( const vec3d & p, double theta, const vec3d & r );
 
 namespace std
 {
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Format a vec3d as a string, for printing or writing to a file.
+    \beginPythonOnly
+    \code{.py}
+    a = vec3d( 1.0, 2.0, 3.0 )
+
+    s = to_string( a )
+
+    assert len( s ) > 0, "to_string returned nothing"
+    \endcode
+    \endPythonOnly
+    \param [in] v vec3d Point to format
+    \return string The formatted point
+*/
+
 string to_string( const vec3d &v);
 }
 
 vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
 
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Fit a plane through a set of points by least squares, reporting a point on the plane and its
+    normal.
+    \beginPythonOnly
+    \code{.py}
+    pts = Vec3dVec( [ vec3d( 0.0, 0.0, 0.0 ), vec3d( 1.0, 0.0, 0.0 ), vec3d( 0.0, 1.0, 0.0 ), vec3d( 1.0, 1.0, 0.0 ) ] )
+
+    cen = vec3d()
+    norm = vec3d()
+
+    FitPlane( pts, cen, norm )
+
+    assert abs( cen.z() ) < 1e-9, "FitPlane put the centre off the plane"
+
+    assert abs( abs( norm.z() ) - 1.0 ) < 1e-9, "FitPlane did not find the plane normal"
+
+    \endcode
+    \endPythonOnly
+    \param [in] pts vector<vec3d> Points to fit the plane through
+    \param [out] cen vec3d A point on the fitted plane
+    \param [out] norm vec3d Normal of the fitted plane
+*/
+
 void FitPlane( const std::vector < vec3d > & pts, vec3d & cen, vec3d & norm );
 
 // Vector version that does not branch on magnitude of values.
+/*!
+    \ingroup vec3d
+*/
+/*!
+    Sum a vector of vec3d using compensated summation, which keeps the rounding error down over a long list.
+    \beginPythonOnly
+    \code{.py}
+    pts = Vec3dVec( [ vec3d( 1.0, 0.0, 0.0 ), vec3d( 0.0, 2.0, 0.0 ), vec3d( 0.0, 0.0, 3.0 ) ] )
+
+    s = compsum( pts )
+
+    assert abs( s.x() - 1.0 ) < 1e-12, "compsum is wrong in x"
+
+    assert abs( s.z() - 3.0 ) < 1e-12, "compsum is wrong in z"
+    \endcode
+    \endPythonOnly
+    \param [in] x vector<vec3d> Points to sum
+    \return vec3d Sum of the points
+*/
+
 vec3d compsum( const std::vector < vec3d > &x );
 
 // Perform compensated summation of a vector of values.  Should be robust to rounding errors when some elements of x
