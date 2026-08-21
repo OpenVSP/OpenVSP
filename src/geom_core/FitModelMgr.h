@@ -43,6 +43,7 @@ public:
         m_WClosed = false;
         m_MatchGeom = "";
         m_SurfIndx = 0;
+        m_Dist = 0.0;
     }
 
     virtual ~TargetPt()
@@ -113,6 +114,21 @@ public:
     {
         m_WClosed = wClosed;
     }
+    // The distance from this point to the surface point it is matched to, as of the last time
+    // something moved one of them.  Stored rather than calculated on demand because the browser
+    // displays it and the GUI refreshes often; evaluating the surface once per point per frame
+    // would not pay for itself.  Not written to file -- it is derived, and Load recalculates it.
+    double GetDist() const
+    {
+        return m_Dist;
+    }
+    void SetDist( double d )
+    {
+        m_Dist = d;
+    }
+
+    void UpdateDist();
+    void UpdateDist( Geom* matchgeom );
 
     xmlNodePtr WrapXml( xmlNodePtr & node );
     xmlNodePtr UnwrapXml( xmlNodePtr & node );
@@ -137,6 +153,7 @@ protected:
     int m_SurfIndx;
     vec2d m_UW;
     vec3d m_Pt;
+    double m_Dist;
 };
 
 //==== Fit Model Manager ====//

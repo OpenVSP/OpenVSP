@@ -83,10 +83,10 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int target_col_widths[] = { 90, 36, 42, 42, 42, 42, 42, 42, 50, 0 }; // widths for each column
+    static int target_col_widths[] = { 90, 36, 60, 42, 42, 42, 42, 42, 42, 50, 0 }; // widths for each column
 
     int browser_h = 150;
-    m_TargetPtBrowser = m_PickPtsLayout.AddColResizeBrowser( target_col_widths, 9, browser_h );
+    m_TargetPtBrowser = m_PickPtsLayout.AddColResizeBrowser( target_col_widths, 10, browser_h );
     m_TargetPtBrowser->callback( staticScreenCB, this );
 
     m_PickPtsLayout.SetFitWidthFlag( false );
@@ -363,7 +363,7 @@ bool FitModelScreen::Update()
 
     m_TargetPtBrowser->column_char( ':' );         // use : as the column character
 
-    snprintf( str, sizeof( str ),  "@b@.GEOM:@b@c@.Surf:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@.Type" );
+    snprintf( str, sizeof( str ),  "@b@.GEOM:@b@c@.Surf:@b@c@.Dist:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@.Type" );
     m_TargetPtBrowser->add( str );
 
     int num_fix = FitModelMgr.GetNumTargetPt();
@@ -396,7 +396,10 @@ bool FitModelScreen::Update()
                     wt = string( "free" );
                 }
 
-                snprintf( str, sizeof( str ),  "%s:%d:%4.2f:%4.2f:%4.2f:%4.2f:%s:%4.2f:%s", g->GetName().c_str(), tpt->GetSurfIndx(), tpt->GetPt().x(), tpt->GetPt().y(), tpt->GetPt().z(), tpt->GetUW().x(), ut.c_str(), tpt->GetUW().y(), wt.c_str() );
+                // Distance gets %.3g rather than the fixed format the coordinates use.  A converged
+                // fit leaves distances several orders of magnitude smaller than the model, and
+                // %4.2f would show every one of them as 0.00.
+                snprintf( str, sizeof( str ),  "%s:%d:%.3g:%4.2f:%4.2f:%4.2f:%4.2f:%s:%4.2f:%s", g->GetName().c_str(), tpt->GetSurfIndx(), tpt->GetDist(), tpt->GetPt().x(), tpt->GetPt().y(), tpt->GetPt().z(), tpt->GetUW().x(), ut.c_str(), tpt->GetUW().y(), wt.c_str() );
                 m_TargetPtBrowser->add( str );
             }
         }

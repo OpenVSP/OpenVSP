@@ -87,6 +87,17 @@ vec3d TargetPt::CalcDelta(Geom* matchgeom)
     return vec3d();
 }
 
+void TargetPt::UpdateDist()
+{
+    Geom* matchgeom = VehicleMgr.GetVehicle()->FindGeom( m_MatchGeom );
+    UpdateDist( matchgeom );
+}
+
+void TargetPt::UpdateDist( Geom* matchgeom )
+{
+    m_Dist = CalcDelta( matchgeom ).mag();
+}
+
 vec3d TargetPt::CalcDerivU( Geom* matchgeom )
 {
     if ( matchgeom )
@@ -771,6 +782,7 @@ void FitModelMgrSingleton::RefineTargetUW()
         Geom* g = VehicleMgr.GetVehicle()->FindGeom( tpt->GetMatchGeom() );
 
         tpt->RefineUW( g );
+        tpt->UpdateDist( g );
     }
 
     m_ParmPtrVec.clear();
@@ -792,6 +804,7 @@ void FitModelMgrSingleton::SearchTargetUW()
         Geom* g = VehicleMgr.GetVehicle()->FindGeom( tpt->GetMatchGeom() );
 
         tpt->SearchUW( g );
+        tpt->UpdateDist( g );
     }
 
     m_ParmPtrVec.clear();
@@ -995,6 +1008,10 @@ void FitModelMgrSingleton::UpdateDist()
 
         vec3d delta = tpt->CalcDelta();
 
+        // Store what each point contributes so the browser can display it without re-evaluating
+        // the surface every time it refreshes.
+        tpt->SetDist( delta.mag() );
+
         m_DistMetric += dot( delta, delta );
     }
     m_DistMetric = sqrt( m_DistMetric / npt );
@@ -1171,6 +1188,14 @@ int FitModelMgrSingleton::Optimize()
 
     XtoParm( x );
     VehicleMgr.GetVehicle()->ForceUpdate( GeomBase::SURF ); // Update tesselation to ensure Geom is drawn properly
+
+    // The solution moved both the model and the surface coordinates, so every stored distance is
+    // stale.  Bring them current here, while the Geom pointers the optimizer built are still on
+    // hand, rather than leaving it to whoever calls next.
+    for ( int i = 0 ; i < npt; i++ )
+    {
+        m_TargetPts[i]->UpdateDist( m_TargetGeomPtrVec[i] );
+    }
 
     m_ParmPtrVec.clear();
     m_TargetGeomPtrVec.clear();
@@ -1558,6 +1583,7 @@ void FitModelMgrSingleton::AddSelectedPts( const string &tgtGeomID )
         Geom* g = veh->FindGeom( tpt->GetMatchGeom() );
 
         tpt->SearchUW( g );
+        tpt->UpdateDist( g );
 
         AddTargetPt( tpt );
     }
@@ -1678,6 +1704,10 @@ int FitModelMgrSingleton::Load()
     // The file names Geoms by ID.  Drop any target point naming a Geom this model does not have,
     // or one without a surface, rather than carrying it into the optimizer.
     ValidateTargetPts();
+
+    // Distance is not written to the file, so the points come back with none.  Measure them
+    // against the model as loaded.
+    UpdateDist();
 
     return 0;
 }

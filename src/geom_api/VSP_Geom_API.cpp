@@ -10815,6 +10815,18 @@ double GetFitModelTargetPtU( int index )
     return tpt->GetUW().x();
 }
 
+double GetFitModelTargetPtDist( int index )
+{
+    TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtDist" );
+    if ( !tpt )
+    {
+        return 0.0;
+    }
+
+    ErrorMgr.NoError();
+    return tpt->GetDist();
+}
+
 double GetFitModelTargetPtW( int index )
 {
     TargetPt *tpt = FindFitModelTargetPt( index, "GetFitModelTargetPtW" );

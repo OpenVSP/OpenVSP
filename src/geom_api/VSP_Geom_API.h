@@ -32482,6 +32482,50 @@ extern double GetFitModelTargetPtW( int index );
     \ingroup FitModel
 */
 /*!
+    Get the distance from a target point to the surface point it is matched to.
+
+    The Fit Model browser shows this in its Dist column and the API can sort the target points
+    by it, so it was the one quantity a script could order by without being able to read.
+    Meaningful after Update, which is what recomputes it.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 );
+
+    Update();
+
+    if ( GetFitModelTargetPtDist( 0 ) > 1e-6 )    { Print( "ERROR: GetFitModelTargetPtDist" ); __failure++; }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.5, 0.25 ), FIT_MODEL_FIXED, FIT_MODEL_FIXED, 0.5, 0.25 )
+
+    Update()
+
+    assert GetFitModelTargetPtDist( 0 ) < 1e-6, "a target point placed on the surface is not at zero distance"
+
+    \endcode
+    \endPythonOnly
+    \sa SortFitModelTargetPtsByDist
+    \param [in] index int Target point index
+    \return double Distance from the target point to the surface
+*/
+
+extern double GetFitModelTargetPtDist( int index );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
     Set the surface coordinate of a target point.  For a fixed direction this is where the point is held; for a free
     direction it is only where the search starts.
     \forcpponly

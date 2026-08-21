@@ -5716,6 +5716,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "double GetFitModelTargetPtU( int index )", asFUNCTION( vsp::GetFitModelTargetPtU ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "double GetFitModelTargetPtDist( int index )", asFUNCTION( vsp::GetFitModelTargetPtDist ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "double GetFitModelTargetPtW( int index )", asFUNCTION( vsp::GetFitModelTargetPtW ), asCALL_CDECL );
     assert( r >= 0 );
 
