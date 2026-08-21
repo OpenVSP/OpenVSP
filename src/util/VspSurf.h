@@ -150,6 +150,10 @@ public:
     double FindNearest01( double &u, double &w, const vec3d &pt ) const;
     double FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
 
+    // Step away from a parameter where the normal degenerates, in the direction given, until the
+    // surface has one.  False if it never does.
+    bool FindNearbyNorm( double u, double v, double du, double dv, vec3d &norm ) const;
+
     void FindDistanceAngle( double &u, double &w, const vec3d &pt, const vec3d &dir, const double &d, const double &theta, const double &u0, const double &w0 ) const;
     void GuessDistanceAngle( double &du, double &dw, const vec3d &udir, const vec3d & wdir, const double &d, const double &theta ) const;
 

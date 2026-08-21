@@ -313,6 +313,101 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt ) const
     return dist;
 }
 
+// Find a normal near a parameter where the surface has none.
+//
+// A zero normal means the patch at that parameter has no area of its own.  OpenVSP builds such
+// patches deliberately -- zero width strips at a leading or trailing edge, so those edges have an
+// exact parameter value, and collapsed pieces of an end cap -- and on one of them Su is parallel
+// to Sv everywhere, not merely at a point.  The cross product vanishes across the whole region, so
+// no expansion about the point can recover anything and the answer has to come from off it.
+//
+// The nearest surface that has a normal is usually the one to take, and searching outwards and
+// stopping at the first hit says that.  What it does not say is that some of those neighbours are
+// across a crease.  A zero width strip at a sharp leading edge has a different surface either
+// side, so a search that steps through it comes back with a normal from the wrong side -- and at
+// a leading edge that is very nearly the negative of the right one.
+//
+// So the direction the caller asks for is tried, and both directions along the other parameter,
+// but stepping the other way along the caller's parameter is a last resort, taken only when
+// nothing else has a normal at any distance.  That is the one step that can cross the strip the
+// point is sitting on the edge of.
+//
+// Traced on NormalVecTest2, whose extended trailing edge rounded tip cap is degenerate over
+// u in [2.0, 2.4] along v = 1.996: the surface either side in u has the normal (-0.866, 0.5, 0),
+// the leading edge strip is 0.008 of V away while the live surface is 0.1 of U away, and taking
+// the nearer one returned (0.866, -0.5, 0) -- inverted.
+bool VspSurf::FindNearbyNorm( double u, double v, double du, double dv, vec3d &norm ) const
+{
+    double umax = GetUMax();
+    double wmax = GetWMax();
+
+    // Two passes.  The second holds the one direction that can cross a crease.
+    for ( int pass = 0; pass < 2; pass++ )
+    {
+        // Start far finer than any strip OpenVSP builds and grow until the surface turns up, out
+        // to the whole parameter range.  A quarter of it is not enough: a wing tip cap whose
+        // leading edge has been closed off has S_u zero over a two dimensional region, not a
+        // strip.  Doubling rather than quadrupling, so that among the directions tried together
+        // the one that turns up first is really the nearer.
+        for ( double s = 1.0e-6; s <= 1.0; s *= 2.0 )
+        {
+            double try_du[3], try_dv[3];
+            int ntry;
+
+            if ( pass == 0 )
+            {
+                try_du[0] = 0.0;  try_dv[0] = dv;
+                try_du[1] = du;   try_dv[1] = 0.0;
+                try_du[2] = -du;  try_dv[2] = 0.0;
+                ntry = 3;
+            }
+            else
+            {
+                try_du[0] = 0.0;  try_dv[0] = -dv;
+                ntry = 1;
+            }
+
+            for ( int k = 0; k < ntry; k++ )
+            {
+                double un = u + s * try_du[k] * umax;
+                double vn = v + s * try_dv[k] * wmax;
+
+                if ( un < 0.0 )
+                {
+                    un = 0.0;
+                }
+                if ( un > umax )
+                {
+                    un = umax;
+                }
+                if ( vn < 0.0 )
+                {
+                    vn = 0.0;
+                }
+                if ( vn > wmax )
+                {
+                    vn = wmax;
+                }
+
+                // The raw surface normal, not CompNorm.  CompNorm applies m_FlipNormal, and so
+                // does Tesselate to whatever this returns -- flipping it twice leaves it pointing
+                // exactly backwards on any surface that is flipped.  The grid this stands in for
+                // is unflipped too, so this has to match it.
+                surface_point_type sp( m_Surface.normal( un, vn ) );
+                vec3d n( sp.x(), sp.y(), sp.z() );
+
+                if ( n.mag() > 1.0e-6 )
+                {
+                    n.normalize();
+                    norm = n;
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
 double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const
 {
     double dist;
@@ -2190,25 +2285,27 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
             vec3d norm = nmat[i][j];
             if ( norm.mag() < 1e-6 ) // Zero normal vector
             {
-                double tmax = GetWMax();
-                double thalf = 0.5 * GetWMax();
-                if ( v[j] <= TMAGIC ) // Near TE lower
+                // The strip through this parameter has no area, so its normal has to come from
+                // off the strip.  FindNearbyNorm decides where from; all the block supplies is a
+                // tie-break.  Tesselate is handed one block at a time, already split at its
+                // feature lines, so at the low edge of a block the surface lies up and at the
+                // high edge it lies down.
+                //
+                // This replaces four hard coded tests against TMAGIC and the half way point of W,
+                // which only described where a wing keeps its degenerate strips.
+                double dv = 1.0;
+                if ( j == nv - 1 )
                 {
-                    norm = CompNorm( u[i], TMAGIC + 1e-6 );
+                    dv = -1.0;
                 }
-                else if ( v[j] <= thalf && v[j] >= ( thalf - TMAGIC ) ) // Near leading edge
+
+                double du = 1.0;
+                if ( i == nu - 1 )
                 {
-                    norm = CompNorm( u[i], thalf - ( TMAGIC + 1e-6 ) );
+                    du = -1.0;
                 }
-                else if ( v[j] >= thalf && v[j] <= ( thalf + TMAGIC ) ) // Near leading edge
-                {
-                    norm = CompNorm( u[i], thalf + TMAGIC + 1e-6 );
-                }
-                else if ( v[j] >= ( tmax - TMAGIC ) ) // Near TE upper
-                {
-                    norm = CompNorm( u[i], tmax - ( TMAGIC + 1e-6 ) );
-                }
-                norm.normalize();
+
+                FindNearbyNorm( u[i], v[j], du, dv, norm );
             }
 
             if ( m_FlipNormal )
