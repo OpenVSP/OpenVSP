@@ -10714,6 +10714,12 @@ void DelAllFitModelTargetPts()
     ErrorMgr.NoError();
 }
 
+void SortFitModelTargetPtsByDist()
+{
+    FitModelMgr.SortTargetPtsByDist();
+    ErrorMgr.NoError();
+}
+
 int GetNumFitModelTargetPts()
 {
     ErrorMgr.NoError();

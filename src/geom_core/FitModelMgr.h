@@ -212,6 +212,10 @@ public:
     void DelAllTargetPts();
     void ValidateTargetPts();
 
+    // Reorder the target points worst fit first.  Recomputes the distances before sorting, so the
+    // order reflects the model as it stands rather than whenever the distances were last measured.
+    void SortTargetPtsByDist();
+
     int GetNumTargetPt()
     {
         return ( int )m_TargetPts.size();

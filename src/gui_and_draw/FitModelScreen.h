@@ -82,6 +82,7 @@ protected:
     TriggerButton m_AddTargetPtButton;
     TriggerButton m_DelTargetPtButton;
     TriggerButton m_ClearTargetPtButton;
+    TriggerButton m_SortTargetPtButton;
 
     StringOutput m_NTgtOutput;
 

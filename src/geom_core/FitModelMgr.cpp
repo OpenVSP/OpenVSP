@@ -684,6 +684,38 @@ void FitModelMgrSingleton::ValidateTargetPts()
     m_TargetPts = tokeep;
 }
 
+static bool DistCompare( TargetPt* a, TargetPt* b )
+{
+    return a->GetDist() > b->GetDist();
+}
+
+void FitModelMgrSingleton::SortTargetPtsByDist()
+{
+    // Sorting on a stale measurement would put the points in an order that no longer describes the
+    // model, so measure first.  This also validates the points.
+    UpdateDist();
+
+    // The current index names a slot in the vector, and sorting moves points between slots.  Hold
+    // the point itself so the selection follows it rather than staying behind on whatever lands in
+    // its old slot.
+    TargetPt* curr = GetCurrTargetPt();
+
+    // Stable, so points that are the same distance away keep the order they were added in.
+    std::stable_sort( m_TargetPts.begin(), m_TargetPts.end(), DistCompare );
+
+    m_CurrTargetPtIndex = -1;
+    for ( int i = 0 ; i < ( int )m_TargetPts.size() ; i++ )
+    {
+        if ( m_TargetPts[i] == curr )
+        {
+            m_CurrTargetPtIndex = i;
+            break;
+        }
+    }
+
+    ForgetUndoState();
+}
+
 void FitModelMgrSingleton::UpdateNumOptVars()
 {
     int nvar = m_VarVec.size();

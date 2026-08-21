@@ -136,10 +136,11 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 500, 469 + 10
 
     m_PickPtsLayout.SetFitWidthFlag( false );
 
-    m_PickPtsLayout.SetButtonWidth( ( m_PickPtsLayout.GetRemainX() ) / 3 );
+    m_PickPtsLayout.SetButtonWidth( ( m_PickPtsLayout.GetRemainX() ) / 4 );
     m_PickPtsLayout.AddButton( m_AddTargetPtButton, "Add Target" );
     m_PickPtsLayout.AddButton( m_DelTargetPtButton, "Delete Target" );
     m_PickPtsLayout.AddButton( m_ClearTargetPtButton, "Clear Target" );
+    m_PickPtsLayout.AddButton( m_SortTargetPtButton, "Sort by Dist" );
 
     m_PickPtsLayout.ForceNewLine();
     m_PickPtsLayout.SetFitWidthFlag( true );
@@ -677,6 +678,11 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         FitModelMgr.DelAllTargetPts( );
         FitModelMgr.UpdateDist();
+    }
+    else if ( device == &m_SortTargetPtButton )
+    {
+        // Measures the distances itself, so there is no UpdateDist call to pair with this one.
+        FitModelMgr.SortTargetPtsByDist();
     }
     else if ( device == &m_AddVarButton )
     {

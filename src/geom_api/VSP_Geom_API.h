@@ -32121,6 +32121,53 @@ extern void DelAllFitModelTargetPts();
     \ingroup FitModel
 */
 /*!
+    Reorder the target points worst fit first, by descending distance from each point to the surface it is matched to.
+    The distances are recomputed before sorting, so the order describes the model as it stands.  Target points are
+    addressed by index, so this renumbers them -- an index held across the call names a different point afterwards.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    vec3d near_pnt = CompPnt01( pid, 0, 0.5, 0.25 );
+    vec3d far_pnt = vec3d( near_pnt.x(), near_pnt.y(), near_pnt.z() + 1.0 );
+
+    AddFitModelTargetPtFixedUW( pid, 0, near_pnt, 0.5, 0.25 );
+    AddFitModelTargetPtFixedUW( pid, 0, far_pnt, 0.5, 0.25 );
+
+    SortFitModelTargetPtsByDist();
+
+    if ( abs( GetFitModelTargetPt( 0 ).z() - far_pnt.z() ) > 1e-6 )    { Print( "ERROR: SortFitModelTargetPtsByDist" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    near_pnt = CompPnt01( pid, 0, 0.5, 0.25 )
+    far_pnt = vec3d( near_pnt.x(), near_pnt.y(), near_pnt.z() + 1.0 )
+
+    AddFitModelTargetPtFixedUW( pid, 0, near_pnt, 0.5, 0.25 )
+    AddFitModelTargetPtFixedUW( pid, 0, far_pnt, 0.5, 0.25 )
+
+    SortFitModelTargetPtsByDist()
+
+    assert abs( GetFitModelTargetPt( 0 ).z() - far_pnt.z() ) < 1e-6, "SortFitModelTargetPtsByDist did not put the worst fit first"
+
+    \endcode
+    \endPythonOnly
+    \sa UpdateFitModelDist, GetFitModelTargetPt
+*/
+
+extern void SortFitModelTargetPtsByDist();
+
+/*!
+    \ingroup FitModel
+*/
+/*!
     Get the number of target points held by the Fit Model Tool.
     \forcpponly
     \code{.cpp}
