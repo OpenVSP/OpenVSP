@@ -378,6 +378,11 @@ private:
     DrawObj m_TargetPntDrawObj;
     DrawObj m_TargetLineDrawObj;
 
+    // The selected target point, drawn blue.  Separate DrawObjs because color is a property of the
+    // DrawObj rather than of the points within it.
+    DrawObj m_HighlightPntDrawObj;
+    DrawObj m_HighlightLineDrawObj;
+
     string m_SaveFitFileName;
     string m_LoadFitFileName;
 };

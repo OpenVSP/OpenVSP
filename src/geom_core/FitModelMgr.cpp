@@ -1293,6 +1293,26 @@ void FitModelMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_TargetLineDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
     m_TargetLineDrawObj.m_GeomChanged = true;
 
+    // A DrawObj carries one color, so the selected target point cannot be blue while it sits in
+    // the same DrawObj as the black ones.  It goes into these instead, which are otherwise the
+    // same.  They stay empty, and nothing is drawn from them, when nothing is selected.
+    m_HighlightPntDrawObj.m_PntVec.clear();
+    m_HighlightLineDrawObj.m_PntVec.clear();
+
+    m_HighlightPntDrawObj.m_GeomID = "IDFORTARGETHIGHLIGHTPNTDO";
+    m_HighlightPntDrawObj.m_Type = DrawObj::VSP_POINTS;
+    m_HighlightPntDrawObj.m_PointSize = 8.0;
+    m_HighlightPntDrawObj.m_PointColor = vec3d( 0.0, 0.0, 1.0 );
+    m_HighlightPntDrawObj.m_GeomChanged = true;
+
+    m_HighlightLineDrawObj.m_GeomID = "IDFORTARGETHIGHLIGHTLINEDO";
+    m_HighlightLineDrawObj.m_Type = DrawObj::VSP_LINES;
+    m_HighlightLineDrawObj.m_LineWidth = 1.0;
+    m_HighlightLineDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
+    m_HighlightLineDrawObj.m_GeomChanged = true;
+
+    // Can reset the current index, so it has to happen before that index is used to pick out the
+    // point to highlight.
     ValidateTargetPts();
 
     int numOfTargetPts = FitModelMgr.GetNumTargetPt();
@@ -1301,14 +1321,29 @@ void FitModelMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         TargetPt * tpnt = FitModelMgr.GetTargetPt( i );
         vec3d pt1 = tpnt->GetPt() ;
         vec3d pt2 = tpnt->GetMatchPt();
-        m_TargetPntDrawObj.m_PntVec.push_back( pt1 );
-        m_TargetPntDrawObj.m_PntVec.push_back( pt2 );
 
-        m_TargetLineDrawObj.m_PntVec.push_back( pt1 );
-        m_TargetLineDrawObj.m_PntVec.push_back( pt2 );
+        DrawObj *pntdo = &m_TargetPntDrawObj;
+        DrawObj *linedo = &m_TargetLineDrawObj;
+
+        if ( i == m_CurrTargetPtIndex )
+        {
+            pntdo = &m_HighlightPntDrawObj;
+            linedo = &m_HighlightLineDrawObj;
+        }
+
+        pntdo->m_PntVec.push_back( pt1 );
+        pntdo->m_PntVec.push_back( pt2 );
+
+        linedo->m_PntVec.push_back( pt1 );
+        linedo->m_PntVec.push_back( pt2 );
     }
     draw_obj_vec.push_back( &m_TargetPntDrawObj );
     draw_obj_vec.push_back( &m_TargetLineDrawObj );
+
+    // Pushed even when they hold nothing, so that deselecting clears what was drawn for the point
+    // that used to be selected.
+    draw_obj_vec.push_back( &m_HighlightPntDrawObj );
+    draw_obj_vec.push_back( &m_HighlightLineDrawObj );
 
 }
 
