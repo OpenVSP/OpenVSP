@@ -327,6 +327,12 @@ private:
     // optimization vector is laid out from the pointer vectors it builds.
     void SaveUndoState();
 
+    // Throw the snapshot away.  Reordering the target points has to do this: the snapshot is laid
+    // out in target point order, and UndoSignature cannot tell an order change apart when the
+    // points that swapped describe themselves identically, so restoring it would put one point's
+    // surface coordinates onto another.
+    void ForgetUndoState();
+
     // What the snapshot was taken against.  The layout of the optimization vector depends on which
     // Parms are variables and on the free/fixed state of every target point, so restoring a
     // snapshot taken against a different setup would write values into the wrong slots.  Comparing

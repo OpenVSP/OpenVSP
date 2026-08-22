@@ -915,6 +915,11 @@ void FitModelMgrSingleton::SaveUndoState()
     m_UndoValid = true;
 }
 
+void FitModelMgrSingleton::ForgetUndoState()
+{
+    m_UndoValid = false;
+}
+
 bool FitModelMgrSingleton::CanUndo()
 {
     if ( !m_UndoValid )
