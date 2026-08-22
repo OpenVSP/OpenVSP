@@ -216,6 +216,13 @@ public:
     // order reflects the model as it stands rather than whenever the distances were last measured.
     void SortTargetPtsByDist();
 
+    // Move one target point within the list.  Returns where it ended up, which is the index passed
+    // in when there is nothing to move.
+    int MoveTargetPt( int index, int reorder_type );
+
+    // Move the selected target point, carrying the selection along with it.
+    void MoveCurrTargetPt( int reorder_type );
+
     int GetNumTargetPt()
     {
         return ( int )m_TargetPts.size();

@@ -32168,6 +32168,62 @@ extern void SortFitModelTargetPtsByDist();
     \ingroup FitModel
 */
 /*!
+    Move one target point within the Fit Model Tool's list, and return where it ended up.  Target points are addressed by
+    index, so this renumbers them -- an index held across the call names a different point afterwards.  Order does not
+    change the fit; it is the order the points are listed and stepped through in.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    Update();
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.25, 0.0 ) );
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.50, 0.0 ) );
+
+    vec3d last_pnt = CompPnt01( pid, 0, 0.75, 0.0 );
+
+    AddFitModelTargetPt( pid, 0, last_pnt );
+
+    int newindex = MoveFitModelTargetPt( 2, REORDER_MOVE_TOP );
+
+    if ( newindex != 0 )                                 { Print( "ERROR: MoveFitModelTargetPt" ); __failure++; }
+
+    if ( abs( GetFitModelTargetPt( 0 ).x() - last_pnt.x() ) > 1e-6 )    { Print( "ERROR: MoveFitModelTargetPt" ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    Update()
+
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.25, 0.0 ) )
+    AddFitModelTargetPt( pid, 0, CompPnt01( pid, 0, 0.50, 0.0 ) )
+
+    last_pnt = CompPnt01( pid, 0, 0.75, 0.0 )
+
+    AddFitModelTargetPt( pid, 0, last_pnt )
+
+    newindex = MoveFitModelTargetPt( 2, REORDER_MOVE_TOP )
+
+    assert newindex == 0, "MoveFitModelTargetPt did not report the point at the top"
+
+    assert abs( GetFitModelTargetPt( 0 ).x() - last_pnt.x() ) < 1e-6, "MoveFitModelTargetPt did not move the point to the top"
+
+    \endcode
+    \endPythonOnly
+    \sa SortFitModelTargetPtsByDist, GetFitModelTargetPt, REORDER_TYPE
+    \param [in] index int Index of target point to move
+    \param [in] reorder_type int Enum specifying reordering type (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
+    \return int Index the target point ended up at
+*/
+
+extern int MoveFitModelTargetPt( int index, int reorder_type );
+
+/*!
+    \ingroup FitModel
+*/
+/*!
     Get the number of target points held by the Fit Model Tool.
     \forcpponly
     \code{.cpp}

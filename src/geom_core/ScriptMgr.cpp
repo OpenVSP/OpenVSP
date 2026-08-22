@@ -5695,6 +5695,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SortFitModelTargetPtsByDist()", asFUNCTION( vsp::SortFitModelTargetPtsByDist ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "int MoveFitModelTargetPt( int index, int reorder_type )", asFUNCTION( vsp::MoveFitModelTargetPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "int GetNumFitModelTargetPts()", asFUNCTION( vsp::GetNumFitModelTargetPts ), asCALL_CDECL );
     assert( r >= 0 );
 

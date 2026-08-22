@@ -66,6 +66,14 @@ protected:
     TriggerButton m_HideNoneButton;
     TriggerButton m_HideInvButton;
 
+    GroupLayout m_MoveTargetPtLayout;
+    GroupLayout m_TargetPtBrowserLayout;
+
+    TriggerButton m_MoveTargetPtTopButton;
+    TriggerButton m_MoveTargetPtUpButton;
+    TriggerButton m_MoveTargetPtDownButton;
+    TriggerButton m_MoveTargetPtBotButton;
+
     ColResizeBrowser* m_TargetPtBrowser;
     GeomPicker m_TargetGeomPicker;
     Choice m_SurfChoice;

@@ -85,9 +85,36 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 500, 469 + 10
     // Last column width must be 0
     static int target_col_widths[] = { 90, 36, 60, 42, 42, 42, 42, 42, 42, 50, 0 }; // widths for each column
 
+    int movebw = 20;
     int browser_h = 150;
-    m_TargetPtBrowser = m_PickPtsLayout.AddColResizeBrowser( target_col_widths, 10, browser_h );
+    int start_x = m_PickPtsLayout.GetX();
+    int start_y = m_PickPtsLayout.GetY();
+
+    m_PickPtsLayout.AddSubGroupLayout( m_MoveTargetPtLayout, movebw, browser_h );
+
+    m_MoveTargetPtLayout.SetSameLineFlag( false );
+    m_MoveTargetPtLayout.SetFitWidthFlag( false );
+
+    m_MoveTargetPtLayout.SetButtonWidth( movebw );
+    m_MoveTargetPtLayout.AddButton( m_MoveTargetPtTopButton, "@2<<" );
+    m_MoveTargetPtLayout.AddYGap();
+    m_MoveTargetPtLayout.AddButton( m_MoveTargetPtUpButton, "@2<" );
+    m_MoveTargetPtLayout.AddY( browser_h - 4 * m_MoveTargetPtLayout.GetStdHeight() - 2 * m_MoveTargetPtLayout.GetGapHeight() );
+    m_MoveTargetPtLayout.AddButton( m_MoveTargetPtDownButton, "@2>" );
+    m_MoveTargetPtLayout.AddYGap();
+    m_MoveTargetPtLayout.AddButton( m_MoveTargetPtBotButton, "@2>>" );
+
+    m_PickPtsLayout.SetY( start_y );
+    m_PickPtsLayout.AddX( movebw );
+    m_PickPtsLayout.SetFitWidthFlag( true );
+
+    m_PickPtsLayout.AddSubGroupLayout( m_TargetPtBrowserLayout, m_PickPtsLayout.GetRemainX(), browser_h );
+    m_PickPtsLayout.AddY( browser_h );
+
+    m_TargetPtBrowser = m_TargetPtBrowserLayout.AddColResizeBrowser( target_col_widths, 10, browser_h );
     m_TargetPtBrowser->callback( staticScreenCB, this );
+
+    m_PickPtsLayout.SetX( start_x );
 
     m_PickPtsLayout.SetFitWidthFlag( false );
     m_PickPtsLayout.SetSameLineFlag( true );
@@ -683,6 +710,22 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         // Measures the distances itself, so there is no UpdateDist call to pair with this one.
         FitModelMgr.SortTargetPtsByDist();
+    }
+    else if ( device == &m_MoveTargetPtTopButton )
+    {
+        FitModelMgr.MoveCurrTargetPt( vsp::REORDER_MOVE_TOP );
+    }
+    else if ( device == &m_MoveTargetPtUpButton )
+    {
+        FitModelMgr.MoveCurrTargetPt( vsp::REORDER_MOVE_UP );
+    }
+    else if ( device == &m_MoveTargetPtDownButton )
+    {
+        FitModelMgr.MoveCurrTargetPt( vsp::REORDER_MOVE_DOWN );
+    }
+    else if ( device == &m_MoveTargetPtBotButton )
+    {
+        FitModelMgr.MoveCurrTargetPt( vsp::REORDER_MOVE_BOTTOM );
     }
     else if ( device == &m_AddVarButton )
     {

@@ -10,6 +10,7 @@
 #include "FitModelMgr.h"
 #include "ParmMgr.h"
 #include "PtCloudGeom.h"
+#include "StlHelper.h"
 
 #define CMINPACK_NO_DLL
 #include <cminpack.h>
@@ -714,6 +715,25 @@ void FitModelMgrSingleton::SortTargetPtsByDist()
     }
 
     ForgetUndoState();
+}
+
+int FitModelMgrSingleton::MoveTargetPt( int index, int reorder_type )
+{
+    if ( index < 0 || index >= ( int )m_TargetPts.size() )
+    {
+        return index;
+    }
+
+    int new_index = ReorderVectorIndex( m_TargetPts, index, reorder_type );
+
+    ForgetUndoState();
+
+    return new_index;
+}
+
+void FitModelMgrSingleton::MoveCurrTargetPt( int reorder_type )
+{
+    m_CurrTargetPtIndex = MoveTargetPt( m_CurrTargetPtIndex, reorder_type );
 }
 
 void FitModelMgrSingleton::UpdateNumOptVars()

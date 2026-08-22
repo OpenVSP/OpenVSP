@@ -10720,6 +10720,26 @@ void SortFitModelTargetPtsByDist()
     ErrorMgr.NoError();
 }
 
+int MoveFitModelTargetPt( int index, int reorder_type )
+{
+    if ( index < 0 || index >= FitModelMgr.GetNumTargetPt() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "MoveFitModelTargetPt::index " + to_string( index ) + " is out of range" );
+        return index;
+    }
+
+    if ( reorder_type < REORDER_MOVE_UP || reorder_type > REORDER_MOVE_BOTTOM )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "MoveFitModelTargetPt::Invalid Reorder Type " + to_string( reorder_type ) );
+        return index;
+    }
+
+    int newindex = FitModelMgr.MoveTargetPt( index, reorder_type );
+
+    ErrorMgr.NoError();
+    return newindex;
+}
+
 int GetNumFitModelTargetPts()
 {
     ErrorMgr.NoError();
