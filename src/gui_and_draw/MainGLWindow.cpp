@@ -3122,7 +3122,7 @@ int EditXSecWindow::handle( int fl_event )
     }
 
 
-    if ( fl_event == FL_PUSH && !Fl::event_button2() )
+    if ( fl_event == FL_PUSH && Fl::event_button1() )
     {
         vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
 
@@ -3183,7 +3183,7 @@ int EditXSecWindow::handle( int fl_event )
             curve_editor->UpdateIndexSelector( new_pnt );
         }
     }
-    else if ( fl_event == FL_DRAG && m_LastHit != -1 && !Fl::event_button2() )
+    else if ( fl_event == FL_DRAG && m_LastHit != -1 && Fl::event_button1() )
     {
         vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
 
