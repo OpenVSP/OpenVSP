@@ -3227,6 +3227,9 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add( new NameValData( "FC_Temp", m_Temp.Get(), "Flow condition temperature." ) );
     res->Add( new NameValData( "FC_Pres", m_Pres.Get(), "Flow condition pressure." ) );
     res->Add( new NameValData( "FC_Rho", m_Rho.Get(), "Flow condition density." ) );
+    res->Add( new NameValData( "FreestreamPropChoice", m_FreestreamType.Get(), "Freestream property input mode choice." ) );
+    res->Add( new NameValData( "Re_L", m_ReqL.Get(), "Reynolds number per unit length." ) );
+    res->Add( new NameValData( "SpecificHeatRatio", m_SpecificHeatRatio.Get(), "Ratio of specific heats." ) );
 
     // Component Related
     if ( !m_ExportSubCompFlag() )
