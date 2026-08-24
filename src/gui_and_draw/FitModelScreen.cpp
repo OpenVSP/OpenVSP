@@ -842,4 +842,30 @@ void FitModelScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 
     FitModelMgr.LoadDrawObjs( draw_obj_vec );
+
+    m_TargetUWPntDrawObj.m_PntVec.clear();
+
+    m_TargetUWPntDrawObj.m_GeomID = "IDFORTARGETUWPNTDO";
+    m_TargetUWPntDrawObj.m_Type = DrawObj::VSP_POINTS;
+    m_TargetUWPntDrawObj.m_PointSize = 10.0;
+    m_TargetUWPntDrawObj.m_PointColor = vec3d( 0.0, 0.8, 0.0 );
+    m_TargetUWPntDrawObj.m_GeomChanged = true;
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    Geom* target_geom = veh->FindGeom( m_TargetGeomPicker.GetGeomChoice() );
+
+    // The surface count moves with the model, so an index that was in range when it was picked can
+    // fall out of it while the Geom is still the one chosen.
+    if ( target_geom && veh->m_SurfIndx() >= 0 && veh->m_SurfIndx() < target_geom->GetNumTotalSurfs() )
+    {
+        const VspSurf* s = target_geom->GetSurfPtr( veh->m_SurfIndx() );
+        if ( s )
+        {
+            m_TargetUWPntDrawObj.m_PntVec.push_back( s->CompPnt01( veh->m_UTargetPt(), veh->m_WTargetPt() ) );
+        }
+    }
+
+    // Pushed even when nothing was found to draw, so that picking a Geom without a surface clears
+    // the point left from the one before it.
+    draw_obj_vec.push_back( &m_TargetUWPntDrawObj );
 }

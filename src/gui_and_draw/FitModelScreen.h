@@ -76,6 +76,9 @@ protected:
 
     ColResizeBrowser* m_TargetPtBrowser;
     GeomPicker m_TargetGeomPicker;
+
+    // Where the U and W target sliders currently point on the picked surface, drawn green.
+    DrawObj m_TargetUWPntDrawObj;
     Choice m_SurfChoice;
 
     ToggleButton m_UFixButton;
