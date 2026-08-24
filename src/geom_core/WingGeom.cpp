@@ -2509,11 +2509,6 @@ void WingGeom::UpdatePreTess()
     CalculateMeshMetrics();
 }
 
-void WingGeom::UpdateDrawObj()
-{
-    GeomXSec::UpdateDrawObjUtil();
-}
-
 void WingGeom::UpdateHighlightDrawObj()
 {
     GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveWingSection.Get() );

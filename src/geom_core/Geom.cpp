@@ -6503,27 +6503,6 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
 }
 
-void GeomXSec::UpdateDrawObjUtil()
-{
-    Geom::UpdateDrawObj();
-
-    Matrix4d relTrans;
-    relTrans = m_AttachMatrix;
-    relTrans.affineInverse();
-    relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( m_AttachMatrix.data() );
-
-    unsigned int nxsec = m_XSecSurf.NumXSec();
-    m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
-
-    //==== Tesselate Surface ====//
-    for ( int i = 0 ; i < nxsec ; i++ )
-    {
-        m_XSecSurf.FindXSec( i )->GetDrawLines( relTrans, m_XSecDrawObj_vec[i].m_PntVec );
-        m_XSecDrawObj_vec[i].m_GeomChanged = true;
-    }
-}
-
 void GeomXSec::UpdateHighlightDrawObjUtil( int bbox_index )
 {
     Matrix4d attachMat;

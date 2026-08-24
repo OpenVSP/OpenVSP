@@ -694,11 +694,6 @@ void GeomEngine::UpdateEngine()
     }
 }
 
-void GeomEngine::UpdateDrawObj()
-{
-    GeomXSec::UpdateDrawObjUtil();
-}
-
 void GeomEngine::UpdateHighlightDrawObj()
 {
     GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveXSec.Get() );

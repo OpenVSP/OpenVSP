@@ -1013,7 +1013,6 @@ public:
     IntParm m_ActiveXSec;
 
 protected:
-    void UpdateDrawObjUtil();
     void UpdateHighlightDrawObjUtil( int bbox_index );
     void LoadDrawObjsUtil( vector< DrawObj* > & draw_obj_vec );
 
