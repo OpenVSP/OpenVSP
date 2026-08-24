@@ -166,6 +166,11 @@ public:
 
     virtual rib_data_type GetRib( bool first, bool last );
 
+    // Build the tangent (fp) and normal (fpp) curves that control the loft on one side
+    // of this XSec.  'left' selects the parameters that control the loft before this
+    // XSec, otherwise the parameters controlling the loft after it are used.
+    virtual void GetSkinCrvs( bool left, piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
+
     virtual void SetUnsetParms( int irib, const VspSurf &surf );
 
     virtual void SetUnsetParms( double t, bool flipslew, int irib, const VspSurf &surf,

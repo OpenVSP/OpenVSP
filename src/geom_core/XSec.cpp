@@ -1105,6 +1105,69 @@ void SkinXSec::ValidateParms( )
     }
 }
 
+void SkinXSec::GetSkinCrvs( bool left, piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
+{
+    vector< double > angles( 5, 0.0 );
+    vector< double > slews( 5, 0.0 );
+    vector< double > strengths( 5, 0.0 );
+    vector< double > curves( 5, 0.0 );
+
+    double scale = GetScale();
+
+    if ( left )
+    {
+        angles[0] = m_RightLAngle()*M_PI/180.0;
+        angles[1] = m_BottomLAngle()*M_PI/180.0;
+        angles[2] = m_LeftLAngle()*M_PI/180.0;
+        angles[3] = m_TopLAngle()*M_PI/180.0;
+
+        slews[0] = m_RightLSlew()*M_PI/180.0;
+        slews[1] = -m_BottomLSlew()*M_PI/180.0;
+        slews[2] = -m_LeftLSlew()*M_PI/180.0;
+        slews[3] = m_TopLSlew()*M_PI/180.0;
+
+        strengths[0] = m_RightLStrength() * scale;
+        strengths[1] = m_BottomLStrength() * scale;
+        strengths[2] = m_LeftLStrength() * scale;
+        strengths[3] = m_TopLStrength() * scale;
+
+        curves[0] = m_RightLCurve() * scale;
+        curves[1] = m_BottomLCurve() * scale;
+        curves[2] = m_LeftLCurve() * scale;
+        curves[3] = m_TopLCurve() * scale;
+    }
+    else
+    {
+        angles[0] = m_RightRAngle()*M_PI/180.0;
+        angles[1] = m_BottomRAngle()*M_PI/180.0;
+        angles[2] = m_LeftRAngle()*M_PI/180.0;
+        angles[3] = m_TopRAngle()*M_PI/180.0;
+
+        slews[0] = m_RightRSlew()*M_PI/180.0;
+        slews[1] = -m_BottomRSlew()*M_PI/180.0;
+        slews[2] = -m_LeftRSlew()*M_PI/180.0;
+        slews[3] = m_TopRSlew()*M_PI/180.0;
+
+        strengths[0] = m_RightRStrength() * scale;
+        strengths[1] = m_BottomRStrength() * scale;
+        strengths[2] = m_LeftRStrength() * scale;
+        strengths[3] = m_TopRStrength() * scale;
+
+        curves[0] = m_RightRCurve() * scale;
+        curves[1] = m_BottomRCurve() * scale;
+        curves[2] = m_LeftRCurve() * scale;
+        curves[3] = m_TopRCurve() * scale;
+    }
+
+    // Close the periodic control spline back onto the Right station.
+    angles[4] = angles[0];
+    slews[4] = slews[0];
+    strengths[4] = strengths[0];
+    curves[4] = curves[0];
+
+    GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
+}
+
 rib_data_type SkinXSec::GetRib( bool first, bool last )
 {
     if( first || last )
@@ -1128,41 +1191,10 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
     piecewise_curve_type tangentcrv;
     piecewise_curve_type normcrv;
 
-    vector< double > angles( 5, 0.0 );
-    vector< double > slews( 5, 0.0 );
-    vector< double > strengths( 5, 0.0 );
-    vector< double > curves( 5, 0.0 );
-
-    double scale =  GetScale();
-
     // Use 'wrong' side of first cross section to set right side.
     if ( first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
     {
-        angles[0] = m_RightLAngle()*M_PI/180.0;
-        angles[1] = m_BottomLAngle()*M_PI/180.0;
-        angles[2] = m_LeftLAngle()*M_PI/180.0;
-        angles[3] = m_TopLAngle()*M_PI/180.0;
-        angles[4] = angles[0];
-
-        slews[0] = m_RightLSlew()*M_PI/180.0;
-        slews[1] = -m_BottomLSlew()*M_PI/180.0;
-        slews[2] = -m_LeftLSlew()*M_PI/180.0;
-        slews[3] = m_TopLSlew()*M_PI/180.0;
-        slews[4] = slews[0];
-
-        strengths[0] = m_RightLStrength() * scale;
-        strengths[1] = m_BottomLStrength() * scale;
-        strengths[2] = m_LeftLStrength() * scale;
-        strengths[3] = m_TopLStrength() * scale;
-        strengths[4] = strengths[0];
-
-        curves[0] = m_RightLCurve() * scale;
-        curves[1] = m_BottomLCurve() * scale;
-        curves[2] = m_LeftLCurve() * scale;
-        curves[3] = m_TopLCurve() * scale;
-        curves[4] = curves[0];
-
-        GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
+        GetSkinCrvs( true, tangentcrv, normcrv );
 
         if( m_TopLAngleSet() ) rib.set_right_fp( tangentcrv );
         if( m_TopLCurveSet() ) rib.set_right_fpp( normcrv );
@@ -1171,66 +1203,16 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
     // Set the left side of a rib.
     if( !first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
     {
-
-        angles[0] = m_RightLAngle()*M_PI/180.0;
-        angles[1] = m_BottomLAngle()*M_PI/180.0;
-        angles[2] = m_LeftLAngle()*M_PI/180.0;
-        angles[3] = m_TopLAngle()*M_PI/180.0;
-        angles[4] = angles[0];
-
-        slews[0] = m_RightLSlew()*M_PI/180.0;
-        slews[1] = -m_BottomLSlew()*M_PI/180.0;
-        slews[2] = -m_LeftLSlew()*M_PI/180.0;
-        slews[3] = m_TopLSlew()*M_PI/180.0;
-        slews[4] = slews[0];
-
-        strengths[0] = m_RightLStrength() * scale;
-        strengths[1] = m_BottomLStrength() * scale;
-        strengths[2] = m_LeftLStrength() * scale;
-        strengths[3] = m_TopLStrength() * scale;
-        strengths[4] = strengths[0];
-
-        curves[0] = m_RightLCurve() * scale;
-        curves[1] = m_BottomLCurve() * scale;
-        curves[2] = m_LeftLCurve() * scale;
-        curves[3] = m_TopLCurve() * scale;
-        curves[4] = curves[0];
-
-        GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
+        GetSkinCrvs( true, tangentcrv, normcrv );
 
         if( m_TopLAngleSet() ) rib.set_left_fp( tangentcrv );
         if( m_TopLCurveSet() ) rib.set_left_fpp( normcrv );
-
     }
 
     // Set the right side of a rib.
     if( !first && !last && ( m_TopRAngleSet() || m_TopRCurveSet() ) )
     {
-        angles[0] = m_RightRAngle()*M_PI/180.0;
-        angles[1] = m_BottomRAngle()*M_PI/180.0;
-        angles[2] = m_LeftRAngle()*M_PI/180.0;
-        angles[3] = m_TopRAngle()*M_PI/180.0;
-        angles[4] = angles[0];
-
-        slews[0] = m_RightRSlew()*M_PI/180.0;
-        slews[1] = -m_BottomRSlew()*M_PI/180.0;
-        slews[2] = -m_LeftRSlew()*M_PI/180.0;
-        slews[3] = m_TopRSlew()*M_PI/180.0;
-        slews[4] = slews[0];
-
-        strengths[0] = m_RightRStrength() * scale;
-        strengths[1] = m_BottomRStrength() * scale;
-        strengths[2] = m_LeftRStrength() * scale;
-        strengths[3] = m_TopRStrength() * scale;
-        strengths[4] = strengths[0];
-
-        curves[0] = m_RightRCurve() * scale;
-        curves[1] = m_BottomRCurve() * scale;
-        curves[2] = m_LeftRCurve() * scale;
-        curves[3] = m_TopRCurve() * scale;
-        curves[4] = curves[0];
-
-        GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
+        GetSkinCrvs( false, tangentcrv, normcrv );
 
         if( m_TopRAngleSet() ) rib.set_right_fp( tangentcrv );
         if( m_TopRCurveSet() ) rib.set_right_fpp( normcrv );
