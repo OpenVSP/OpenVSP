@@ -2880,6 +2880,7 @@ void SSControlSurf::UpdateDrawObjs()
         m_HingeDO.m_GeomChanged = true;
 
         m_ArrowDO.m_PntVec.clear();
+        m_ArrowDO.m_NormVec.clear();
         m_ArrowDO.m_Type = DrawObj::VSP_SHADED_TRIS;
         m_ArrowDO.m_GeomID = m_ID + string( "_ss_arrow" );
         m_ArrowDO.m_GeomChanged = true;
@@ -2948,7 +2949,6 @@ void SSControlSurf::UpdateDrawObjs()
 
                 MakeCircleArrow( pmid, dir, 0.25 * axlen, 0.25 * axlen, m_HingeDO, m_ArrowDO );
             }
-            m_ArrowDO.m_NormVec = vector <vec3d> ( m_ArrowDO.m_PntVec.size() );
         }
     }
 }

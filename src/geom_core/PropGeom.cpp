@@ -581,6 +581,7 @@ void PropGeom::UpdateDrawObj()
 
     m_ArrowLinesDO.m_PntVec.clear();
     m_ArrowHeadDO.m_PntVec.clear();
+    m_ArrowHeadDO.m_NormVec.clear();
 
     m_ArrowLinesDO.m_GeomChanged = true;
     m_ArrowHeadDO.m_GeomChanged = true;
@@ -656,7 +657,7 @@ void PropGeom::UpdateDrawObj()
         m_ArrowLinesDO.m_PntVec.push_back( cen + refdir * axlen );
         m_ArrowLinesDO.m_PntVec.push_back( cen );
         m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
-        MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
+        MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec, m_ArrowHeadDO.m_NormVec );
         MakeCircleArrow( cen, rotdir, rot_axlen, axlen, m_ArrowLinesDO, m_ArrowHeadDO );
 
         if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
@@ -754,7 +755,6 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_ArrowHeadDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
     m_ArrowHeadDO.m_LineWidth = 1.0;
     m_ArrowHeadDO.m_Type = DrawObj::VSP_SHADED_TRIS;
-    m_ArrowHeadDO.m_NormVec = vector <vec3d> ( m_ArrowHeadDO.m_PntVec.size() );
 
     for ( int i = 0; i < 4; i++ )
     {

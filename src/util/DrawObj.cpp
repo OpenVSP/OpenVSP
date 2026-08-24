@@ -40,18 +40,36 @@ void MakePlane( DrawObj &dobj )
     dobj.m_GeomChanged = true;
 }
 
-void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts )
+// Append one flat-shaded triangle and its outward face normal.  Wind the vertices
+// counterclockwise as seen from outside the solid.
+static void PushTri( const vec3d &p0, const vec3d &p1, const vec3d &p2,
+                     vector < vec3d > &pts, vector < vec3d > &norms )
+{
+    vec3d n = cross( p1 - p0, p2 - p0 );
+    n.normalize();
+
+    pts.push_back( p0 );
+    pts.push_back( p1 );
+    pts.push_back( p2 );
+
+    norms.push_back( n );
+    norms.push_back( n );
+    norms.push_back( n );
+}
+
+void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts, vector < vec3d > &norms )
 {
     double fr = 0.2;
 
     vec3d u = uref;
-    u.normalize();
 
     if ( u.mag() < 1e-6 )
     {
         printf("Zero direction vector in MakeArrowhead!\n");
         return;
     }
+
+    u.normalize();
 
     vec3d v, w;
     v.v[ u.minor_comp() ] = 1.0;
@@ -67,38 +85,26 @@ void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < v
     vec3d p4 = p - fr * len * w;
 
     pts.reserve( pts.size() + 18 );
-    pts.push_back( p1 );
-    pts.push_back( p2 );
-    pts.push_back( p3 );
+    norms.reserve( norms.size() + 18 );
 
-    pts.push_back( p1 );
-    pts.push_back( p3 );
-    pts.push_back( p4 );
+    // Base.  Wound backwards relative to the sides so the normal points away from the
+    // tip, out of the closed pyramid.
+    PushTri( p1, p3, p2, pts, norms );
+    PushTri( p1, p4, p3, pts, norms );
 
-    pts.push_back( p1 );
-    pts.push_back( p2 );
-    pts.push_back( ptip );
-
-    pts.push_back( p2 );
-    pts.push_back( p3 );
-    pts.push_back( ptip );
-
-    pts.push_back( p3 );
-    pts.push_back( p4 );
-    pts.push_back( ptip );
-
-    pts.push_back( p4 );
-    pts.push_back( p1 );
-    pts.push_back( ptip );
+    // Sides.
+    PushTri( p1, p2, ptip, pts, norms );
+    PushTri( p2, p3, ptip, pts, norms );
+    PushTri( p3, p4, ptip, pts, norms );
+    PushTri( p4, p1, ptip, pts, norms );
 }
 
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &dobj )
 {
-    MakeArrowhead( ptip, uref, len, dobj.m_PntVec );
+    MakeArrowhead( ptip, uref, len, dobj.m_PntVec, dobj.m_NormVec );
 
     dobj.m_LineWidth = 1.0;
     dobj.m_Type = DrawObj::VSP_SHADED_TRIS;
-    dobj.m_NormVec = vector <vec3d> ( dobj.m_PntVec.size() );
 
     for ( int i = 0; i < 4; i++ )
     {
@@ -178,19 +184,20 @@ void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, double h
     dobj.m_GeomChanged = true;
 
 
-    vector < vec3d > arrowpts;
-    MakeArrowhead( vec3d( 0, 0, 0 ), v, headlen * lenfrac, arrowpts );
+    vector < vec3d > arrowpts, arrownorms;
+    MakeArrowhead( vec3d( 0, 0, 0 ), v, headlen * lenfrac, arrowpts, arrownorms );
 
     Matrix4d mat;
     mat.translatev( pcen + pstart );
     mat.rotate( atan( lenfrac * 0.5 ), n );
     mat.xformvec( arrowpts );
+    mat.xformnormvec( arrownorms );
 
     arrow.m_PntVec.insert( arrow.m_PntVec.end(), arrowpts.begin(), arrowpts.end() );
+    arrow.m_NormVec.insert( arrow.m_NormVec.end(), arrownorms.begin(), arrownorms.end() );
 
     arrow.m_LineWidth = 1.0;
     arrow.m_Type = DrawObj::VSP_SHADED_TRIS;
-    arrow.m_NormVec = vector <vec3d> ( dobj.m_PntVec.size() );
 
     for ( int i = 0; i < 4; i++ )
     {

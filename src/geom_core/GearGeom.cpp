@@ -2335,7 +2335,6 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
 
         vec3d u = axend - axstart;
         MakeCircleArrow(axstart + 0.6 * u, u, 0.5 * axlen, 0.5 * axlen, m_AxisCircleDO, m_AxisArrowDO );
-        m_AxisArrowDO.m_NormVec = vector <vec3d> ( m_AxisArrowDO.m_PntVec.size() );
 
         MakeDashedLine( axstart,  axend, 4, m_AxisDO.m_PntVec );
 

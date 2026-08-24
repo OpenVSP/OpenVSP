@@ -4270,7 +4270,7 @@ void FeaPartTrim::UpdateDrawObjs()
                 arrowLineDO.m_PntVec.push_back( cen );
                 arrowLineDO.m_PntVec.push_back( cen + dir * axlen );
 
-                MakeArrowhead( cen + dir * axlen, dir, 0.25 * axlen, arrowHeadDO.m_PntVec );
+                MakeArrowhead( cen + dir * axlen, dir, 0.25 * axlen, arrowHeadDO.m_PntVec, arrowHeadDO.m_NormVec );
 
             }
         }
@@ -4279,7 +4279,6 @@ void FeaPartTrim::UpdateDrawObjs()
     arrowHeadDO.m_GeomID = m_ID + "Arrows";
     arrowHeadDO.m_LineWidth = 1.0;
     arrowHeadDO.m_Type = DrawObj::VSP_SHADED_TRIS;
-    arrowHeadDO.m_NormVec = vector <vec3d> ( arrowHeadDO.m_PntVec.size() );
 
     for ( int i = 0; i < 3; i++ )
     {

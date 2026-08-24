@@ -662,7 +662,9 @@ protected:
 
 void MakePlane( DrawObj &dobj );
 
-void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts );
+// Appends the arrowhead triangles and their outward flat-shaded face normals.  Callers
+// that clear m_PntVec between updates must clear m_NormVec alongside it.
+void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts, vector < vec3d > &norms );
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &dobj );
 
 void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts, int nseg = 48 );
