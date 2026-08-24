@@ -5093,6 +5093,15 @@ void XSecScreen::RebuildCSTGroup( CSTAirfoil* cst_xs )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
+// The Fl_Color matching one of DrawObj's, so a divider can key the controls beneath it to
+// the vectors drawn in the 3D view.
+static Fl_Color SkinKeyColor( int drawobjcolor )
+{
+    vec3d c = 255 * DrawObj::Color( drawobjcolor );
+
+    return fl_rgb_color( ( uchar )c.x(), ( uchar )c.y(), ( uchar )c.z() );
+}
+
 SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile ) :
     XSecScreen( mgr, w, h, title, helpfile, "Sect Alias", "Curve Alias" ) // do not combine xs and xsc
 {
@@ -5127,10 +5136,13 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.SetFitWidthFlag( false );
     m_SkinLayout.AddButton( m_ClearSkinningButton, "Clear Skinning For XSec" );
     m_SkinLayout.AddButton( m_ClearAllSkinningButton, "Clear Skinning For Entire Stack" );
+    m_SkinLayout.ForceNewLine();
+    m_SkinLayout.AddButton( m_ShowSkinningTanToggle, "Show Tangent Vectors" );
+    m_SkinLayout.AddButton( m_ShowSkinningCurveToggle, "Show Curvature Vectors" );
+    m_SkinLayout.ForceNewLine();
     m_SkinLayout.SetSameLineFlag( false );
     m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetButtonWidth( stdwidth );
-    m_SkinLayout.ForceNewLine();
 
     m_SkinLayout.SetButtonWidth( 75 );
 
@@ -5139,7 +5151,8 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.AddYGap();
 
     m_SkinLayout.SetSameLineFlag( true );
-    m_SkinLayout.AddDividerBox( "Top Side", m_SkinLayout.GetButtonWidth() );
+    m_SkinLayout.AddDividerBox( "Top Side", m_SkinLayout.GetButtonWidth(),
+                                SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_TOP ) ) );
     m_SkinLayout.SetFitWidthFlag( false );
     m_SkinLayout.AddButton( m_AllSymButton, "All Sym" );
     m_SkinLayout.ForceNewLine();
@@ -5157,7 +5170,8 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.AddSkinControl( m_TopCurvatureSkinControl, "Curvature", curveRng, curveFmt);
 
     m_SkinLayout.AddYGap();
-    m_SkinLayout.AddDividerBox( "Right Side" );
+    m_SkinLayout.AddDividerBox( "Right Side", 0,
+                                SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_RIGHT ) ) );
 
     m_SkinLayout.AddSkinHeader( m_RightHeader );
     m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", angleRng, angleFmt);
@@ -5167,7 +5181,8 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.SetSameLineFlag( true );
-    m_SkinLayout.AddDividerBox( "Bottom Side", m_SkinLayout.GetButtonWidth() );
+    m_SkinLayout.AddDividerBox( "Bottom Side", m_SkinLayout.GetButtonWidth(),
+                                SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_BOTTOM ) ) );
     m_SkinLayout.SetFitWidthFlag( false );
     m_SkinLayout.AddButton( m_TBSymButton, "T/B Sym" );
     m_SkinLayout.ForceNewLine();
@@ -5182,7 +5197,8 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.SetSameLineFlag( true );
-    m_SkinLayout.AddDividerBox( "Left Side", m_SkinLayout.GetButtonWidth() );
+    m_SkinLayout.AddDividerBox( "Left Side", m_SkinLayout.GetButtonWidth(),
+                                SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_LEFT ) ) );
     m_SkinLayout.SetFitWidthFlag( false );
     m_SkinLayout.AddButton( m_RLSymButton, "R/L Sym" );
     m_SkinLayout.ForceNewLine();
@@ -5220,6 +5236,9 @@ bool SkinScreen::Update()
     //==== Skin & XSec Index Display ===//
     int xsid = geomxsec_ptr->m_ActiveXSec();
     m_SkinIndexSelector.Update( geomxsec_ptr->m_ActiveXSec.GetID() );
+
+    m_ShowSkinningTanToggle.Update( geomxsec_ptr->m_ShowSkinningTanFlag.GetID() );
+    m_ShowSkinningCurveToggle.Update( geomxsec_ptr->m_ShowSkinningCurveFlag.GetID() );
 
     SkinXSec* xs = dynamic_cast < SkinXSec* > ( geomxsec_ptr->GetXSec( xsid ) );
     if ( xs )

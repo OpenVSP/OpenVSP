@@ -675,6 +675,10 @@ void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, double h
 
 void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector < vec3d > &dashpts );
 
+// Cap every tail/tip pair in pntvec with an arrowhead, appending to dobj.  len is the head
+// length wanted; a head is shortened when the vector it caps is too short to carry it.
+void MakeArrowheads( const vector < vec3d > &pntvec, double len, DrawObj &dobj );
+
 #endif
 
 

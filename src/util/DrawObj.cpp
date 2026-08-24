@@ -212,6 +212,36 @@ void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, double h
     arrow.m_GeomChanged = true;
 }
 
+// A vector drawn at the magnitude of whatever it stands for can be shorter than the head
+// that caps it, and MakeArrowhead builds the pyramid backwards from the tip -- so a head of
+// fixed size on a short vector reaches past the tail and points the wrong way.  Cap the head
+// at a fraction of the vector to keep it on the vector it belongs to.
+void MakeArrowheads( const vector < vec3d > &pntvec, double len, DrawObj &dobj )
+{
+    for ( int i = 0; i < ( int )pntvec.size(); i += 2 )
+    {
+        const vec3d &tail = pntvec[i];
+        const vec3d &tip = pntvec[i + 1];
+
+        vec3d dir = tip - tail;
+        double mag = dir.mag();
+
+        // MakeArrowhead does not tolerate a zero direction vector.
+        if ( mag < 1e-8 )
+        {
+            continue;
+        }
+
+        double headlen = len;
+        if ( headlen > 0.3 * mag )
+        {
+            headlen = 0.3 * mag;
+        }
+
+        MakeArrowhead( tip, dir, headlen, dobj.m_PntVec, dobj.m_NormVec );
+    }
+}
+
 void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector < vec3d > &dashpts )
 {
     int npt = 2 * ndash;

@@ -200,6 +200,15 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
         // WingGeom::m_ActiveAirfoil
         // PropGeom::m_ActiveBlade
     }
+    else if ( gname == string("Skinning") )
+    {
+        // A flag that only decides whether something is drawn shapes no surface, so it asks
+        // for the draw objects and nothing else.  Falling through to the terminal case below
+        // would re-loft the body to change which line segments are in a DrawObj.
+        m_HighlightDirty = true;
+        // GeomXSec::m_ShowSkinningTanFlag
+        // GeomXSec::m_ShowSkinningCurveFlag
+    }
     else if ( gname.substr(0, 3) == string("Fea") )
     {
         // Do nothing here, FeaParts set their own internal dirty flags.  However, it is important to prevent
@@ -6409,6 +6418,9 @@ GeomXSec::GeomXSec( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = m_Name;
 
     m_ActiveXSec.Init( "ActiveXSec", "Index", this, 0, 0, 1e6 );
+
+    m_ShowSkinningTanFlag.Init( "ShowSkinningTanFlag", "Skinning", this, true, false, true );
+    m_ShowSkinningCurveFlag.Init( "ShowSkinningCurveFlag", "Skinning", this, false, false, true );
 }
 //==== Destructor ====//
 GeomXSec::~GeomXSec()
@@ -6471,6 +6483,167 @@ void GeomXSec::UpdateHighlightDrawObj()
     }
 
     m_HighlightXSecDrawObj.m_GeomChanged = true;
+
+    UpdateSkinDrawObj( relTrans, m_ActiveXSec() );
+}
+
+// Append the line segments that visualize one skinning station, each as a tail/tip pair
+// starting at the XSec point.  The caller passes the draw object for the side being drawn,
+// which is what separates the dashed before vectors from the solid after ones.
+static void AppendSkinVectors( const vec3d &pnt, const curve_point_type &tp, const curve_point_type &np,
+                               double du, bool tanflag, bool curveflag, vector < vec3d > &pntvec )
+{
+    if ( tanflag )
+    {
+        vec3d tan( tp.x(), tp.y(), tp.z() );
+
+        pntvec.push_back( pnt );
+        pntvec.push_back( pnt + tan * du );
+    }
+
+    if ( curveflag )
+    {
+        // The curvature term of the loft's expansion about the XSec is fpp * du^2 / 2.  Being
+        // even in du, it is not mirrored between the before and after sides the way the
+        // tangent is.  A closed body normally has negative curvature, so this usually points
+        // inward.
+        vec3d nrm( np.x(), np.y(), np.z() );
+
+        pntvec.push_back( pnt );
+        pntvec.push_back( pnt + nrm * ( 0.5 * du * du ) );
+    }
+}
+
+// One colour per station, so what the sliders are moving can be picked out of the bundle of
+// vectors at a cross section.  The four sides take the set the engine definition stations
+// use, and the Skinning tab keys them by colouring each side's divider to match.
+int GeomXSec::SkinDrawColor( int k )
+{
+    switch ( k )
+    {
+        case SKIN_DRAW_TOP:
+            return DrawObj::CYAN;
+        case SKIN_DRAW_BOTTOM:
+            return DrawObj::MAGENTA;
+        case SKIN_DRAW_LEFT:
+            return DrawObj::LIME;
+        case SKIN_DRAW_RIGHT:
+            return DrawObj::YELLOW;
+    }
+
+    return DrawObj::WHITE;
+}
+
+// The skinning controls are evaluated at the four spine stations in the order used to
+// build the control curves in XSec::GetTanNormCrv -- Right, Bottom, Left, Top.
+void GeomXSec::UpdateSkinDrawObj( const Matrix4d &relTrans, int index )
+{
+    m_SkinDrawObj_vec.resize( NUM_SKIN_DRAW );
+    m_SkinBeforeDrawObj_vec.resize( NUM_SKIN_DRAW );
+    m_SkinArrowDrawObj_vec.resize( NUM_SKIN_DRAW );
+
+    for ( int k = 0; k < NUM_SKIN_DRAW; k++ )
+    {
+        m_SkinDrawObj_vec[k].m_PntVec.clear();
+        m_SkinBeforeDrawObj_vec[k].m_PntVec.clear();
+        m_SkinArrowDrawObj_vec[k].m_PntVec.clear();
+        m_SkinArrowDrawObj_vec[k].m_NormVec.clear();
+        m_SkinDrawObj_vec[k].m_GeomChanged = true;
+        m_SkinBeforeDrawObj_vec[k].m_GeomChanged = true;
+        m_SkinArrowDrawObj_vec[k].m_GeomChanged = true;
+    }
+
+    // With nothing to draw, stop before the tangent and normal curves are fitted -- that is
+    // the work here, not the handful of points it ends in.
+    if ( !m_ShowSkinningTanFlag() && !m_ShowSkinningCurveFlag() )
+    {
+        return;
+    }
+
+    SkinXSec* sxs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( index ) );
+    if ( !sxs )
+    {
+        return;
+    }
+
+    int nxsec = m_XSecSurf.NumXSec();
+    bool first = ( index == 0 );
+    bool last = ( index == nxsec - 1 );
+
+    // Match SkinXSec::GetRib -- the 'left' parameters drive the loft before this XSec,
+    // except at the first XSec where they drive the loft after it instead.  The 'right'
+    // parameters drive the loft after this XSec, and are unused at either end.
+    piecewise_curve_type beforetan, beforenrm;
+    bool drawbefore = false;
+    piecewise_curve_type aftertan, afternrm;
+    bool drawafter = false;
+
+    if ( first )
+    {
+        if ( !last )
+        {
+            sxs->GetSkinCrvs( true, aftertan, afternrm );
+            drawafter = true;
+        }
+    }
+    else
+    {
+        sxs->GetSkinCrvs( true, beforetan, beforenrm );
+        drawbefore = true;
+
+        if ( !last )
+        {
+            sxs->GetSkinCrvs( false, aftertan, afternrm );
+            drawafter = true;
+        }
+    }
+
+    const piecewise_curve_type &crv = sxs->GetCurve().GetCurve();
+    double t0 = crv.get_t0();
+    double tmax = crv.get_tmax();
+
+    // Ribs are skinned with a uniform parameterization, so one section spans du = 1.
+    // Drawing the derivatives at full magnitude therefore shows the Hermite tangent and
+    // curvature vectors that reach across the neighboring section.
+    for ( int i = 0; i < 4; i++ )
+    {
+        double t = t0 + i * ( tmax - t0 ) / 4.0;
+
+        curve_point_type p = crv.f( t );
+        vec3d pnt( p.x(), p.y(), p.z() );
+
+        // The section before this XSec runs toward decreasing u, so its tangent is drawn
+        // reversed to point along the surface as it actually leaves the XSec.
+        if ( drawbefore )
+        {
+            AppendSkinVectors( pnt, beforetan.f( t ), beforenrm.f( t ), -1.0,
+                               m_ShowSkinningTanFlag(), m_ShowSkinningCurveFlag(),
+                               m_SkinBeforeDrawObj_vec[i].m_PntVec );
+        }
+
+        if ( drawafter )
+        {
+            AppendSkinVectors( pnt, aftertan.f( t ), afternrm.f( t ), 1.0,
+                               m_ShowSkinningTanFlag(), m_ShowSkinningCurveFlag(),
+                               m_SkinDrawObj_vec[i].m_PntVec );
+        }
+    }
+
+    // The heads come after the transform, which would otherwise skew them.
+    double axlen = 1.0;
+    if ( m_Vehicle )
+    {
+        axlen = m_Vehicle->m_AxisLength();
+    }
+
+    for ( int k = 0; k < NUM_SKIN_DRAW; k++ )
+    {
+        relTrans.xformvec( m_SkinDrawObj_vec[k].m_PntVec );
+        relTrans.xformvec( m_SkinBeforeDrawObj_vec[k].m_PntVec );
+
+        MakeArrowheads( m_SkinDrawObj_vec[k].m_PntVec, 0.25 * axlen, m_SkinArrowDrawObj_vec[k] );
+        MakeArrowheads( m_SkinBeforeDrawObj_vec[k].m_PntVec, 0.25 * axlen, m_SkinArrowDrawObj_vec[k] );
+    }
 }
 
 void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -6501,6 +6674,73 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_HighlightXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
     m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
     draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
+
+    // The two Show flags are not checked here.  They gate what UpdateSkinDrawObj builds, and
+    // a Parm change carries an update behind it -- the highlight one, which is what
+    // SetDirtyFlags hands the Skinning group.  isshown and isactive are not Parms, so nothing
+    // carries them and they are asked every draw.
+    bool skinvisible = isshown && isactive &&
+                       m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
+
+    m_SkinDrawObj_vec.resize( NUM_SKIN_DRAW );
+    m_SkinBeforeDrawObj_vec.resize( NUM_SKIN_DRAW );
+    m_SkinArrowDrawObj_vec.resize( NUM_SKIN_DRAW );
+
+    for ( int k = 0; k < NUM_SKIN_DRAW; k++ )
+    {
+        vec3d c = DrawObj::Color( SkinDrawColor( k ) );
+
+        snprintf( str, sizeof( str ), "SKIN_%d", k );
+
+        m_SkinDrawObj_vec[k].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_SkinDrawObj_vec[k].m_GeomID = XSECHEADER + m_ID + str;
+        m_SkinDrawObj_vec[k].m_Visible = skinvisible;
+        m_SkinDrawObj_vec[k].m_LineWidth = 2.0;
+        m_SkinDrawObj_vec[k].m_LineColor = c;
+        m_SkinDrawObj_vec[k].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_SkinDrawObj_vec[k] );
+
+        snprintf( str, sizeof( str ), "SKINBEFORE_%d", k );
+
+        // The same colour, dashed.  The stipple is a screen space pattern, so a short vector
+        // reads as dashed the same way a long one does -- which matters here, because these
+        // vectors are as long as the derivative they stand for.  Four pixels on and four off
+        // gives a couple of dashes on the shortest vector worth looking at.
+        m_SkinBeforeDrawObj_vec[k].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_SkinBeforeDrawObj_vec[k].m_GeomID = XSECHEADER + m_ID + str;
+        m_SkinBeforeDrawObj_vec[k].m_Visible = skinvisible;
+        m_SkinBeforeDrawObj_vec[k].m_LineWidth = 2.0;
+        m_SkinBeforeDrawObj_vec[k].m_LineColor = c;
+        m_SkinBeforeDrawObj_vec[k].m_Type = DrawObj::VSP_LINES;
+        m_SkinBeforeDrawObj_vec[k].m_StippleFactor = 4;
+        m_SkinBeforeDrawObj_vec[k].m_StipplePattern = 0xAAAA;
+        m_SkinBeforeDrawObj_vec[k].m_StippleFlag = true;
+        draw_obj_vec.push_back( &m_SkinBeforeDrawObj_vec[k] );
+
+        snprintf( str, sizeof( str ), "SKINARROW_%d", k );
+
+        m_SkinArrowDrawObj_vec[k].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_SkinArrowDrawObj_vec[k].m_GeomID = XSECHEADER + m_ID + str;
+        m_SkinArrowDrawObj_vec[k].m_Visible = skinvisible;
+        m_SkinArrowDrawObj_vec[k].m_LineWidth = 1.0;
+        m_SkinArrowDrawObj_vec[k].m_Type = DrawObj::VSP_SHADED_TRIS;
+
+        // Shade the heads to match the lines they cap.  Alpha follows the other arrowheads.
+        for ( int i = 0; i < 3; i++ )
+        {
+            m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Ambient[i] = 0.2f * ( float )c.v[i];
+            m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Diffuse[i] = ( float )c.v[i];
+            m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Specular[i] = 0.7f;
+            m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Emission[i] = 0.0f;
+        }
+        m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Ambient[3] = 0.2f;
+        m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Diffuse[3] = 0.5f;
+        m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Specular[3] = 0.7f;
+        m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Emission[3] = 0.0f;
+        m_SkinArrowDrawObj_vec[k].m_MaterialInfo.Shininess = 5.0f;
+
+        draw_obj_vec.push_back( &m_SkinArrowDrawObj_vec[k] );
+    }
 }
 
 //==== Get XSec ====//

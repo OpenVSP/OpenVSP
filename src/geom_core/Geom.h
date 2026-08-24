@@ -1010,18 +1010,52 @@ public:
 
     virtual void ClearSkinning( const int & i_xs = -1 );
 
+    // One draw object per colour, since a DrawObj carries a single colour and the point of
+    // this is to tell the stations apart.  The side entries are indexed by
+    // SkinXSec::SKIN_SIDE_*, so a side's station number is its own draw object.
+    enum { SKIN_DRAW_RIGHT = 0,
+           SKIN_DRAW_BOTTOM,
+           SKIN_DRAW_LEFT,
+           SKIN_DRAW_TOP,
+           NUM_SKIN_DRAW };
+
+    // The DrawObj colour each of those is drawn in.  Shared with the Skinning tab, which keys
+    // its dividers with the same answer -- a key that can drift from what it keys is worse
+    // than no key at all.
+    static int SkinDrawColor( int k );
+
     IntParm m_ActiveXSec;
+
+    // The tangent term is what the loft is usually shaped by, so it is drawn by default.
+    // The curvature term is off by default: it doubles the count of vectors meeting at a
+    // cross section, and most models never enforce it.
+    BoolParm m_ShowSkinningTanFlag;
+    BoolParm m_ShowSkinningCurveFlag;
 
 protected:
 
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
 
+    // Build lines showing the skinning derivatives at the Top/Bottom/Left/Right spine
+    // stations of XSec index.  Does nothing unless the XSec is a SkinXSec.
+    void UpdateSkinDrawObj( const Matrix4d &relTrans, int index );
+
     virtual void NormalizeFlaps();
 
     XSecSurf m_XSecSurf;
     vector<DrawObj> m_XSecDrawObj_vec;
     DrawObj m_HighlightXSecDrawObj;
+    // Skinning derivative vectors at the active XSec, one draw object per colour.  The
+    // vectors shaping the section before the XSec are kept apart from the ones shaping the
+    // section after it so they can be drawn dashed -- the stipple is a property of the draw
+    // object, so the two cannot share one.
+    vector < DrawObj > m_SkinDrawObj_vec;
+    vector < DrawObj > m_SkinBeforeDrawObj_vec;
+
+    // Arrowheads capping both.  They are shaded triangles rather than lines, so one set
+    // serves both sides.
+    vector < DrawObj > m_SkinArrowDrawObj_vec;
 };
 
 #endif // !defined(VSPGEOM__INCLUDED_)

@@ -1029,6 +1029,8 @@ protected:
     ToggleButton m_AllSymButton;
     TriggerButton m_ClearSkinningButton;
     TriggerButton m_ClearAllSkinningButton;
+    ToggleButton m_ShowSkinningTanToggle;
+    ToggleButton m_ShowSkinningCurveToggle;
     SkinHeader m_TopHeader;
     SkinControl m_TopAngleSkinControl;
     SkinControl m_TopSlewSkinControl;
