@@ -131,7 +131,11 @@ public:
     void SetCanvasHeight( int h )       { m_CanvasHeight = h; }
 
     //==== Add FLTK Widgets and Initialize GUI Devices ====//
-    Fl_Box* AddDividerBox( const string& text, int used_w = 0 );
+
+    // A divider may be given a background colour, which is how a group of controls is keyed
+    // to something drawn in the same colour in the 3D view.  The label switches between light
+    // and dark to stay legible against whatever is chosen.
+    Fl_Box* AddDividerBox( const string& text, int used_w = 0, Fl_Color color = ( Fl_Color )12 );
     void AddResizeBox( );
 
     Vsp_Canvas* AddCanvas( int w, int h, double xmin, double xmax, double ymin, double ymax, const char *label, const char *xlabel, const char *ylabel );

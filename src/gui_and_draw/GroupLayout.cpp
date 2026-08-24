@@ -675,7 +675,7 @@ void GroupLayout::AddButton( RadioButton& rbutton, const char* label, int val )
 }
 
 //==== Create & Init Box Divider  ====//
-Fl_Box* GroupLayout::AddDividerBox( const string& text, int used_w )
+Fl_Box* GroupLayout::AddDividerBox( const string& text, int used_w, Fl_Color color )
 {
     assert( m_Group && m_Screen );
 
@@ -684,9 +684,23 @@ Fl_Box* GroupLayout::AddDividerBox( const string& text, int used_w )
 
     Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_DividerHeight );
     flbox->box( FL_BORDER_BOX );
-    flbox->color( ( Fl_Color )12 );
+    flbox->color( color );
     flbox->labelfont( FL_HELVETICA_BOLD );
-    flbox->labelcolor( FL_BACKGROUND2_COLOR );
+
+    // The default divider is dark and takes light text.  A keying colour may be anything,
+    // and pale text on yellow cannot be read at all, so pick by how bright the background
+    // is -- Rec. 601 luma, which weights the channels the way the eye does.
+    unsigned char r, g, b;
+    Fl::get_color( color, r, g, b );
+
+    if ( ( 0.299 * r + 0.587 * g + 0.114 * b ) > 140.0 )
+    {
+        flbox->labelcolor( FL_FOREGROUND_COLOR );
+    }
+    else
+    {
+        flbox->labelcolor( FL_BACKGROUND2_COLOR );
+    }
     flbox->align( FL_ALIGN_NOWRAP );
     flbox->copy_label( text.c_str() );
     m_Group->add( flbox );
