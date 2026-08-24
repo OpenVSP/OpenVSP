@@ -6145,6 +6145,8 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title, co
     m_BlendLayout.SetButtonWidth( stdwidth );
     m_BlendLayout.AddYGap();
 
+    m_BlendLayout.AddButton( m_ShowBlendingToggle, "Show Blending Vectors", m_BlendLayout.GetW() * 0.5 );
+
     m_BlendLayout.AddYGap();
 
     m_BlendLayout.AddDividerBox( "Leading Edge" );
@@ -6268,6 +6270,8 @@ bool BlendScreen::Update()
     //==== Skin & XSec Index Display ===//
     int xsid = wing_ptr->m_ActiveXSec();
     m_BlendIndexSelector.Update( wing_ptr->m_ActiveXSec.GetID() );
+
+    m_ShowBlendingToggle.Update( wing_ptr->m_ShowBlendingFlag.GetID() );
 
     BlendWingSect* xs = dynamic_cast < BlendWingSect* > ( geomxsec_ptr->GetXSec( xsid ) );
     if ( xs )

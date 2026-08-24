@@ -619,6 +619,7 @@ WingSect::WingSect( XSecCurve *xsc ) : BlendWingSect( xsc)
     m_XYTwist = false;
     m_XCenterRot = m_YCenterRot = m_ZCenterRot = 0;
     m_ThickScale = 1.0;
+    m_TEInStr = m_TEOutStr = m_LEInStr = m_LEOutStr = 0.0;
 
     m_Aspect.Init( "Aspect", m_GroupName, this, 1.0, 1e-10, 1000.0 );
     m_Aspect.SetDescript( "Aspect Ratio of Wing Section" );
@@ -1212,8 +1213,44 @@ void WingSect::GetPoints( curve_point_type &te_point, curve_point_type &le_point
     le_point = crv.f( tle );
 }
 
+// Build the tangent vectors that control the blend on one side of this section.  Mirrors
+// the BLEND_ANGLES branches of GetJoints.  The other modes do not read the sweep and
+// dihedral parameters, but SetUnsetParms writes the achieved values back into them, so
+// this reproduces the blend the surface actually uses in every mode.
+void WingSect::GetBlendTangents( bool in, vec3d &te_tan, vec3d &le_tan )
+{
+    double tte = 0.0;
+    double tle = 2.0;
+
+    vec3d normal;
+
+    if ( in )
+    {
+        GetTanNormVec( tle, -m_InLESweep() * M_PI / 180.0, -m_InLEDihedral() * M_PI / 180.0, le_tan, normal );
+        le_tan = le_tan * m_InLEStrength() * m_LEInStr;
+
+        GetTanNormVec( tte, m_InTESweep() * M_PI / 180.0, m_InTEDihedral() * M_PI / 180.0, te_tan, normal );
+        te_tan = te_tan * m_InTEStrength() * m_TEInStr;
+    }
+    else
+    {
+        GetTanNormVec( tle, -m_OutLESweep() * M_PI / 180.0, m_OutLEDihedral() * M_PI / 180.0, le_tan, normal );
+        le_tan = le_tan * m_OutLEStrength() * m_LEOutStr;
+
+        GetTanNormVec( tte, m_OutTESweep() * M_PI / 180.0, -m_OutTEDihedral() * M_PI / 180.0, te_tan, normal );
+        te_tan = te_tan * m_OutTEStrength() * m_TEOutStr;
+    }
+}
+
 void WingSect::SetUnsetParms( int irib, const VspSurf &surf, const double &te_in_str, const double &te_out_str, const double &le_in_str, const double &le_out_str )
 {
+    // Cache the neighbor distances for GetBlendTangents.  They are not otherwise
+    // recoverable from the section alone.
+    m_TEInStr = te_in_str;
+    m_TEOutStr = te_out_str;
+    m_LEInStr = le_in_str;
+    m_LEOutStr = le_out_str;
+
     double thetaL, phiL, strengthL, curvatureL;
     double thetaR, phiR, strengthR, curvatureR;
 
@@ -1345,6 +1382,8 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_CapUMaxOption.Parm::Set(FLAT_END_CAP);
 
     m_ActiveWingSection.Init( "ActiveAirfoil", "Index", this, 1, 1, 1e6 );
+
+    m_ShowBlendingFlag.Init( "ShowBlendingFlag", "Blending", this, false, false, true );
 
     //==== Init Parms ====//
     m_TessU = 16;
@@ -2519,7 +2558,10 @@ void WingGeom::UpdateHighlightDrawObj()
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( m_AttachMatrix.data() );
 
+    // The Sections tab drives m_ActiveWingSection, the Blending tab m_ActiveXSec.  The
+    // latter is also the index the highlighted XSec itself uses.
     UpdateSectBBoxDrawObj( relTrans, m_ActiveWingSection() );
+    UpdateBlendDrawObj( relTrans, m_ActiveXSec() );
 }
 
 // Bounding box spanning the section inboard of index, drawn to call out the active
@@ -2551,6 +2593,73 @@ void WingGeom::UpdateSectBBoxDrawObj( const Matrix4d &relTrans, int index )
     m_SectBBoxDrawObj.m_PntVec = oBBox.GetBBoxDrawLines();
 }
 
+// Blending is controlled only along the LE and TE, so only those two stations get
+// vectors.  Unlike skinning there is no curvature term -- the LE and TE joints carry a
+// tangent only, so there is nothing here to match the skinning curvature toggle.
+void WingGeom::UpdateBlendDrawObj( const Matrix4d &relTrans, int index )
+{
+    m_BlendDrawObj.m_PntVec.clear();
+    m_BlendInboardDrawObj.m_PntVec.clear();
+    m_BlendArrowDrawObj.m_PntVec.clear();
+    m_BlendArrowDrawObj.m_NormVec.clear();
+    m_BlendDrawObj.m_GeomChanged = true;
+    m_BlendInboardDrawObj.m_GeomChanged = true;
+    m_BlendArrowDrawObj.m_GeomChanged = true;
+
+    WingSect* ws = dynamic_cast < WingSect* > ( m_XSecSurf.FindXSec( index ) );
+    if ( !ws )
+    {
+        return;
+    }
+
+    int nxsec = m_XSecSurf.NumXSec();
+    bool first = ( index == 0 );
+    bool last = ( index == nxsec - 1 );
+
+    curve_point_type te_point, le_point;
+    ws->GetPoints( te_point, le_point );
+
+    vec3d tept( te_point.x(), te_point.y(), te_point.z() );
+    vec3d lept( le_point.x(), le_point.y(), le_point.z() );
+
+    // The inboard section runs toward decreasing u, so its tangent is drawn reversed to
+    // follow the LE and TE curves as they actually leave the section.
+    if ( !first )
+    {
+        vec3d te_tan, le_tan;
+        ws->GetBlendTangents( true, te_tan, le_tan );
+
+        m_BlendInboardDrawObj.m_PntVec.push_back( tept );
+        m_BlendInboardDrawObj.m_PntVec.push_back( tept - te_tan );
+        m_BlendInboardDrawObj.m_PntVec.push_back( lept );
+        m_BlendInboardDrawObj.m_PntVec.push_back( lept - le_tan );
+    }
+
+    if ( !last )
+    {
+        vec3d te_tan, le_tan;
+        ws->GetBlendTangents( false, te_tan, le_tan );
+
+        m_BlendDrawObj.m_PntVec.push_back( tept );
+        m_BlendDrawObj.m_PntVec.push_back( tept + te_tan );
+        m_BlendDrawObj.m_PntVec.push_back( lept );
+        m_BlendDrawObj.m_PntVec.push_back( lept + le_tan );
+    }
+
+    // The heads come after the transform, which would otherwise skew them.
+    relTrans.xformvec( m_BlendDrawObj.m_PntVec );
+    relTrans.xformvec( m_BlendInboardDrawObj.m_PntVec );
+
+    double axlen = 1.0;
+    if ( m_Vehicle )
+    {
+        axlen = m_Vehicle->m_AxisLength();
+    }
+
+    MakeArrowheads( m_BlendDrawObj.m_PntVec, axlen, m_BlendArrowDrawObj );
+    MakeArrowheads( m_BlendInboardDrawObj.m_PntVec, axlen, m_BlendArrowDrawObj );
+}
+
 void WingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     GeomXSec::LoadDrawObjs( draw_obj_vec );
@@ -2562,6 +2671,52 @@ void WingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_SectBBoxDrawObj.m_LineColor = vec3d( 0.0, 1.0, 0.0 );
     m_SectBBoxDrawObj.m_Type = DrawObj::VSP_LINES;
     draw_obj_vec.push_back( &m_SectBBoxDrawObj );
+
+    bool blendvisible = m_Vehicle->IsGeomActive( m_ID ) && GetSetFlag( vsp::SET_SHOWN ) &&
+                        m_ShowBlendingFlag() && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
+    vec3d blendcolor = DrawObj::Color( DrawObj::FUCHSIA );
+
+    m_BlendDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_BlendDrawObj.m_GeomID = XSECHEADER + m_ID + "BLEND";
+    m_BlendDrawObj.m_Visible = blendvisible;
+    m_BlendDrawObj.m_LineWidth = 2.0;
+    m_BlendDrawObj.m_LineColor = blendcolor;
+    m_BlendDrawObj.m_Type = DrawObj::VSP_LINES;
+    draw_obj_vec.push_back( &m_BlendDrawObj );
+
+    // The inboard tangents, dashed, the same way round as the skinning vectors.
+    m_BlendInboardDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_BlendInboardDrawObj.m_GeomID = XSECHEADER + m_ID + "BLENDINBOARD";
+    m_BlendInboardDrawObj.m_Visible = blendvisible;
+    m_BlendInboardDrawObj.m_LineWidth = 2.0;
+    m_BlendInboardDrawObj.m_LineColor = blendcolor;
+    m_BlendInboardDrawObj.m_Type = DrawObj::VSP_LINES;
+    m_BlendInboardDrawObj.m_StippleFactor = 4;
+    m_BlendInboardDrawObj.m_StipplePattern = 0xAAAA;
+    m_BlendInboardDrawObj.m_StippleFlag = true;
+    draw_obj_vec.push_back( &m_BlendInboardDrawObj );
+
+    m_BlendArrowDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_BlendArrowDrawObj.m_GeomID = XSECHEADER + m_ID + "BLENDARROW";
+    m_BlendArrowDrawObj.m_Visible = blendvisible;
+    m_BlendArrowDrawObj.m_LineWidth = 1.0;
+    m_BlendArrowDrawObj.m_Type = DrawObj::VSP_SHADED_TRIS;
+
+    // Shade the heads to match the lines they cap.  Alpha follows the other arrowheads.
+    for ( int i = 0; i < 3; i++ )
+    {
+        m_BlendArrowDrawObj.m_MaterialInfo.Ambient[i] = 0.2f * ( float )blendcolor.v[i];
+        m_BlendArrowDrawObj.m_MaterialInfo.Diffuse[i] = ( float )blendcolor.v[i];
+        m_BlendArrowDrawObj.m_MaterialInfo.Specular[i] = 0.7f;
+        m_BlendArrowDrawObj.m_MaterialInfo.Emission[i] = 0.0f;
+    }
+    m_BlendArrowDrawObj.m_MaterialInfo.Ambient[3] = 0.2f;
+    m_BlendArrowDrawObj.m_MaterialInfo.Diffuse[3] = 0.5f;
+    m_BlendArrowDrawObj.m_MaterialInfo.Specular[3] = 0.7f;
+    m_BlendArrowDrawObj.m_MaterialInfo.Emission[3] = 0.0f;
+    m_BlendArrowDrawObj.m_MaterialInfo.Shininess = 5.0f;
+
+    draw_obj_vec.push_back( &m_BlendArrowDrawObj );
 }
 
 

@@ -209,6 +209,11 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
         // GeomXSec::m_ShowSkinningTanFlag
         // GeomXSec::m_ShowSkinningCurveFlag
     }
+    else if ( gname == string("Blending") )
+    {
+        m_HighlightDirty = true;
+        // WingGeom::m_ShowBlendingFlag
+    }
     else if ( gname.substr(0, 3) == string("Fea") )
     {
         // Do nothing here, FeaParts set their own internal dirty flags.  However, it is important to prevent

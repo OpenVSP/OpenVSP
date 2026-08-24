@@ -92,6 +92,11 @@ public:
 
     virtual void GetPoints( curve_point_type &te_point, curve_point_type &le_point );
 
+    // Build the LE and TE tangent vectors that control the blend on one side of this
+    // section.  'in' selects the parameters that control the blend inboard of this
+    // section, otherwise the parameters controlling the blend outboard are used.
+    virtual void GetBlendTangents( bool in, vec3d &te_tan, vec3d &le_tan );
+
     virtual void SetUnsetParms( int irib, const VspSurf &surf, const double &te_in_str, const double &te_out_str, const double &le_in_str, const double &le_out_str );
 
     WingDriverGroup m_DriverGroup;
@@ -137,6 +142,13 @@ public:
     double m_ZCenterRot;
 
     double m_ThickScale;
+
+    // Distances to the neighboring sections, cached by SetUnsetParms.  These scale the
+    // strength parameters into the tangent vectors the blend actually uses.
+    double m_TEInStr;
+    double m_TEOutStr;
+    double m_LEInStr;
+    double m_LEOutStr;
 
 protected:
 
@@ -227,6 +239,7 @@ public:
     BoolParm m_TwistAllInXZPlaneFlag;
 
     IntParm m_ActiveWingSection;
+    BoolParm m_ShowBlendingFlag;
 
     enum { V2_NACA_4_SERIES = 1,
            V2_BICONVEX = 2,
@@ -249,6 +262,8 @@ protected:
     // Build the bounding box spanning the section inboard of index.
     void UpdateSectBBoxDrawObj( const Matrix4d &relTrans, int index );
 
+    // Build lines showing the blend tangents at the LE and TE of wing section index.
+    void UpdateBlendDrawObj( const Matrix4d &relTrans, int index );
     virtual void MatchWingSections();
 
     virtual void CalculateMeshMetrics();
@@ -285,6 +300,11 @@ protected:
     Vsp1DCurve m_EtatoT;
 
     DrawObj m_SectBBoxDrawObj;      // Bounding box over the active section.
+    // Blend tangent vectors at the active section.  The inboard ones are kept apart so they
+    // can be drawn dashed -- the stipple is a property of the draw object.
+    DrawObj m_BlendDrawObj;
+    DrawObj m_BlendInboardDrawObj;
+    DrawObj m_BlendArrowDrawObj;    // Arrowheads capping the blend tangent vectors.
 
 };
 #endif // !defined(VSPWINGGEOM__INCLUDED_)

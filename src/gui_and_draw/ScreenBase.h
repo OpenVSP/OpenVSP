@@ -1208,6 +1208,7 @@ protected:
     GroupLayout m_BlendLayout;
 
     IndexSelector m_BlendIndexSelector;
+    ToggleButton m_ShowBlendingToggle;
 
     GroupLayout m_InLELayout;
     Choice m_InLEChoice;
