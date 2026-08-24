@@ -1013,8 +1013,6 @@ public:
     IntParm m_ActiveXSec;
 
 protected:
-    void UpdateHighlightDrawObjUtil( int bbox_index );
-    void LoadDrawObjsUtil( vector< DrawObj* > & draw_obj_vec );
 
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
@@ -1024,7 +1022,6 @@ protected:
     XSecSurf m_XSecSurf;
     vector<DrawObj> m_XSecDrawObj_vec;
     DrawObj m_HighlightXSecDrawObj;
-    DrawObj m_HighlightXSecLoftDrawObj;
 };
 
 #endif // !defined(VSPGEOM__INCLUDED_)

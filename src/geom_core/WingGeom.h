@@ -245,6 +245,10 @@ protected:
     virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
     virtual void UpdatePreTess();
     virtual void UpdateHighlightDrawObj();
+
+    // Build the bounding box spanning the section inboard of index.
+    void UpdateSectBBoxDrawObj( const Matrix4d &relTrans, int index );
+
     virtual void MatchWingSections();
 
     virtual void CalculateMeshMetrics();
@@ -279,6 +283,8 @@ protected:
 
     Vsp1DCurve m_TtoEta;
     Vsp1DCurve m_EtatoT;
+
+    DrawObj m_SectBBoxDrawObj;      // Bounding box over the active section.
 
 };
 #endif // !defined(VSPWINGGEOM__INCLUDED_)

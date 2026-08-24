@@ -696,7 +696,7 @@ void GeomEngine::UpdateEngine()
 
 void GeomEngine::UpdateHighlightDrawObj()
 {
-    GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveXSec.Get() );
+    GeomXSec::UpdateHighlightDrawObj();
 
     if ( m_EngineGeomIOType() == ENGINE_GEOM_NONE )
     {

@@ -6503,54 +6503,6 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
 }
 
-void GeomXSec::UpdateHighlightDrawObjUtil( int bbox_index )
-{
-    Matrix4d attachMat;
-    Matrix4d relTrans;
-    relTrans = m_AttachMatrix;
-    relTrans.affineInverse();
-    relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( m_AttachMatrix.data() );
-
-    m_XSecSurf.FindXSec( m_ActiveXSec() )->GetDrawLines( relTrans, m_HighlightXSecDrawObj.m_PntVec );
-    m_HighlightXSecDrawObj.m_GeomChanged = true;
-
-    // make bounding box over current XSec if not first xsec in stack/fuse
-    if ( bbox_index > 0 )
-    {
-        VspCurve inbd = m_XSecSurf.FindXSec( bbox_index - 1 )->GetCurve(); // FIXME: Crash when loading a model
-        inbd.Transform( relTrans );
-
-        VspCurve outbd = m_XSecSurf.FindXSec( bbox_index )->GetCurve();
-        outbd.Transform( relTrans );
-
-        BndBox iBBox, oBBox;
-        inbd.GetBoundingBox( iBBox );
-        outbd.GetBoundingBox( oBBox );
-        oBBox.Update( iBBox );
-
-        m_HighlightXSecLoftDrawObj.m_PntVec = oBBox.GetBBoxDrawLines();
-        m_HighlightXSecLoftDrawObj.m_GeomChanged = true;
-    }
-    else
-    {
-        m_HighlightXSecLoftDrawObj.m_PntVec.clear();
-        m_HighlightXSecLoftDrawObj.m_GeomChanged = true;
-    }
-}
-
-void GeomXSec::LoadDrawObjsUtil( vector< DrawObj* > & draw_obj_vec )
-{
-    GeomXSec::LoadDrawObjs( draw_obj_vec );
-    m_HighlightXSecLoftDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_HighlightXSecLoftDrawObj.m_GeomID = BBOXHEADER + m_ID + "ACTIVE_SECT";
-    m_HighlightXSecLoftDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
-    m_HighlightXSecLoftDrawObj.m_LineWidth = 4.0;
-    m_HighlightXSecLoftDrawObj.m_LineColor = vec3d( 0.0, 1.0, 0.0 );
-    m_HighlightXSecLoftDrawObj.m_Type = DrawObj::VSP_LINES;
-    draw_obj_vec.push_back( &m_HighlightXSecLoftDrawObj );
-}
-
 //==== Get XSec ====//
 XSec* GeomXSec::GetXSec( int index )
 {

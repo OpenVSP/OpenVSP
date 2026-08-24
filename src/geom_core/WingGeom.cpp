@@ -2511,12 +2511,57 @@ void WingGeom::UpdatePreTess()
 
 void WingGeom::UpdateHighlightDrawObj()
 {
-    GeomXSec::UpdateHighlightDrawObjUtil( m_ActiveWingSection.Get() );
+    GeomXSec::UpdateHighlightDrawObj();
+
+    Matrix4d relTrans;
+    relTrans = m_AttachMatrix;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
+
+    UpdateSectBBoxDrawObj( relTrans, m_ActiveWingSection() );
+}
+
+// Bounding box spanning the section inboard of index, drawn to call out the active
+// section.  Only wings show this.
+void WingGeom::UpdateSectBBoxDrawObj( const Matrix4d &relTrans, int index )
+{
+    m_SectBBoxDrawObj.m_PntVec.clear();
+    m_SectBBoxDrawObj.m_GeomChanged = true;
+
+    // The first XSec has no section inboard of it.
+    if ( index <= 0 )
+    {
+        return;
+    }
+
+    Matrix4d mat = relTrans; // VspCurve::Transform takes a non-const reference.
+
+    VspCurve inbd = m_XSecSurf.FindXSec( index - 1 )->GetCurve(); // FIXME: Crash when loading a model
+    inbd.Transform( mat );
+
+    VspCurve outbd = m_XSecSurf.FindXSec( index )->GetCurve();
+    outbd.Transform( mat );
+
+    BndBox iBBox, oBBox;
+    inbd.GetBoundingBox( iBBox );
+    outbd.GetBoundingBox( oBBox );
+    oBBox.Update( iBBox );
+
+    m_SectBBoxDrawObj.m_PntVec = oBBox.GetBBoxDrawLines();
 }
 
 void WingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    GeomXSec::LoadDrawObjsUtil( draw_obj_vec );
+    GeomXSec::LoadDrawObjs( draw_obj_vec );
+
+    m_SectBBoxDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_SectBBoxDrawObj.m_GeomID = BBOXHEADER + m_ID + "ACTIVE_SECT";
+    m_SectBBoxDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
+    m_SectBBoxDrawObj.m_LineWidth = 4.0;
+    m_SectBBoxDrawObj.m_LineColor = vec3d( 0.0, 1.0, 0.0 );
+    m_SectBBoxDrawObj.m_Type = DrawObj::VSP_LINES;
+    draw_obj_vec.push_back( &m_SectBBoxDrawObj );
 }
 
 
