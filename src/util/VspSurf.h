@@ -71,8 +71,12 @@ public:
 
     // Skin once per condition set and blend, so different parts of a cross section can
     // enforce different conditions without tearing the surface.
-    void SkinRibsBlended( const vector< vector<rib_data_type> > &ribsets, const vector < double > & param, bool closed_flag );
-    void SkinRibsBlended( const vector< vector<rib_data_type> > &ribsets, bool closed_flag );
+    // ws gives the station parameters around the cross section; insets[k] says which of
+    // those stations the k'th rib set covers.  Stations sharing a set share its skin.
+    void SkinRibsBlended( const vector< vector<rib_data_type> > &ribsets, const vector < double > &ws,
+                          const vector < vector < bool > > &insets, const vector < double > & param, bool closed_flag );
+    void SkinRibsBlended( const vector< vector<rib_data_type> > &ribsets, const vector < double > &ws,
+                          const vector < vector < bool > > &insets, bool closed_flag );
 
     // As SkinRibs, but solved with the uniform structure skinning creator -- valid when
     // every control point strip shares one constraint structure, which holds for all ribs

@@ -6651,6 +6651,161 @@ void GeomXSec::UpdateSkinDrawObj( const Matrix4d &relTrans, int index )
     }
 }
 
+// Fill every pass's rib set from the cross sections.
+//
+// Every station in a group produces the same rib, so any member of the group will do.  Each
+// XSec's rib depends only on that XSec, so this could as easily run inside the loop that
+// places them -- it is a pass of its own so that placing a cross section and reading one
+// stay separate things.
+void GeomXSec::StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
+                                 const vector< vector< bool > > &insets )
+{
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( !xs )
+        {
+            continue;
+        }
+
+        bool first = ( i == 0 );
+        bool last = ( i == nxsec - 1 );
+
+        vector< rib_data_type > ribs;
+        xs->GetRibs( first, last, ribs );
+
+        for ( int g = 0; g < ( int )rib_sets.size(); g++ )
+        {
+            for ( int k = 0; k < ( int )insets[g].size(); k++ )
+            {
+                if ( insets[g][k] )
+                {
+                    rib_sets[g][i] = ribs[k];
+                    break;
+                }
+            }
+        }
+    }
+}
+
+// Gather the ribs for one skin.
+//
+// Every station gets a rib, but stations enforcing identical conditions produce identical
+// ribs, so they are grouped and the group skinned once.  insets records which stations each
+// group covers, which is what the blend weights are built from: a span with the same group
+// at both ends carries a constant weight of one, so grouping costs nothing in the blend.
+//
+// Returns false when every station enforces the same conditions, in which case there is a
+// single group and the caller should take the ordinary unblended path.
+bool GeomXSec::BuildSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
+                                 vector< double > &ws, vector< vector< bool > > &insets )
+{
+    rib_sets.clear();
+    insets.clear();
+    ws.clear();
+
+    bool blend = false;
+
+    // Station layout comes from the XSecs, which all carry the same stations.
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            xs->GetStationW( ws );
+            break;
+        }
+    }
+
+    int nst = ws.size();
+    if ( nst < 1 )
+    {
+        return false;
+    }
+
+    // Gather each XSec's stations once.  The grouping below compares station pairs across
+    // every XSec, so asking inside those loops would rebuild and re-sort the same list
+    // thousands of times on a long body -- and each rebuild can drag an XSec update along
+    // with it.
+    vector< vector< SkinXSec::SkinStation > > xsecstations( nxsec );
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            xs->GetStations( xsecstations[i] );
+        }
+    }
+
+    // Group stations by the conditions they enforce.  Two stations belong together when
+    // every XSec enforces the same thing at both.
+    vector< int > group( nst, -1 );
+    int ngroup = 0;
+
+    for ( int a = 0; a < nst; a++ )
+    {
+        if ( group[a] >= 0 )
+        {
+            continue;
+        }
+
+        group[a] = ngroup;
+
+        for ( int b = a + 1; b < nst; b++ )
+        {
+            if ( group[b] >= 0 )
+            {
+                continue;
+            }
+
+            bool same = true;
+            for ( int i = 0; i < nxsec && same; i++ )
+            {
+                const vector< SkinXSec::SkinStation > &st = xsecstations[i];
+
+                if ( st[a].m_LAngleSet != st[b].m_LAngleSet || st[a].m_LCurveSet != st[b].m_LCurveSet ||
+                     st[a].m_RAngleSet != st[b].m_RAngleSet || st[a].m_RCurveSet != st[b].m_RCurveSet )
+                {
+                    same = false;
+                }
+            }
+
+            if ( same )
+            {
+                group[b] = ngroup;
+            }
+        }
+
+        ngroup++;
+    }
+
+    if ( ngroup > 1 )
+    {
+        blend = true;
+    }
+
+    rib_sets.resize( ngroup );
+    for ( int g = 0; g < ngroup; g++ )
+    {
+        rib_sets[g].resize( nxsec );
+    }
+
+    insets.resize( ngroup );
+    for ( int g = 0; g < ngroup; g++ )
+    {
+        insets[g].assign( nst, false );
+        for ( int k = 0; k < nst; k++ )
+        {
+            if ( group[k] == g )
+            {
+                insets[g][k] = true;
+            }
+        }
+    }
+
+    return blend;
+}
+
 void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );

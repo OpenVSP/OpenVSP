@@ -1034,40 +1034,49 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag )
 // slope there, so a linear ramp would tear the tangent at every station in proportion to
 // how far apart the surfaces being blended are.
 //
+// Stations need not be evenly spaced: the spans are whatever the station parameters say,
+// and the ramp shape is the same on each regardless of its width.  A station may also be
+// shared by several members of a group, in which case both ends of a span carry one and
+// the ramp degenerates to a constant -- which is what lets several stations enforcing the
+// same conditions share a single skin.
+//
 // One patch per span, constant in u.  product1d splits this to the skin's parameterization
 // and the skin to this one, and Bezier subdivision is exact, so there is no need to align
 // anything here.
-static void BuildSkinWeightSurf( double u0, double umax, double v0, double vmax, int nset, int s,
-                                 oned_piecewise_surface_type &wsurf )
+static void BuildSkinWeightSurf( double u0, double umax, const vector< double > &ws, double vmax,
+                                 const vector< bool > &inset, oned_piecewise_surface_type &wsurf )
 {
+    int nst = ws.size();
+
     vector< double > upmap, vpmap;
 
     upmap.push_back( u0 );
     upmap.push_back( umax );
 
-    for ( int k = 0; k <= nset; k++ )
+    for ( int k = 0; k < nst; k++ )
     {
-        vpmap.push_back( v0 + ( vmax - v0 ) * k / nset );
+        vpmap.push_back( ws[k] );
     }
+    vpmap.push_back( vmax );
 
     wsurf.init_uv( upmap, vpmap );
 
-    for ( int k = 0; k < nset; k++ )
+    for ( int k = 0; k < nst; k++ )
     {
-        double cp[4] = { 0.0, 0.0, 0.0, 0.0 };
+        // Span k runs from station k to station k+1, the last wrapping onto station 0.
+        double a = 0.0;
+        double b = 0.0;
 
-        if ( k == s )
+        if ( inset[k] )
         {
-            // Leaving this station: one down to zero.
-            cp[0] = 1.0;
-            cp[1] = 1.0;
+            a = 1.0;
         }
-        else if ( k == ( s + nset - 1 ) % nset )
+        if ( inset[( k + 1 ) % nst] )
         {
-            // Approaching this station: zero up to one.
-            cp[2] = 1.0;
-            cp[3] = 1.0;
+            b = 1.0;
         }
+
+        double cp[4] = { a, a, b, b };
 
         oned_surface_patch_type wp;
         wp.resize( 0, 3 );
@@ -1095,7 +1104,8 @@ static void BuildSkinWeightSurf( double u0, double umax, double v0, double vmax,
 // Each set enforces its conditions exactly at its own station, where its weight is one and
 // the others are zero, and blends in between.  That is the same compromise the condition
 // values already make: they come from one periodic spline through all four stations.
-void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets, const vector < double > & param, bool closed_flag )
+void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets, const vector < double > &ws,
+                               const vector < vector < bool > > &insets, const vector < double > & param, bool closed_flag )
 {
     int nset = ribsets.size();
 
@@ -1176,7 +1186,6 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
     // continuity of the surfaces and of the weights rather than approximating it.
     double u0 = surfvec[0].get_u0();
     double umax = surfvec[0].get_umax();
-    double v0 = surfvec[0].get_v0();
     double vmax = surfvec[0].get_vmax();
 
     for ( int s = 0; s < nset; s++ )
@@ -1184,7 +1193,7 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
         oned_piecewise_surface_type wsurf;
         piecewise_surface_type prod;
 
-        BuildSkinWeightSurf( u0, umax, v0, vmax, nset, s, wsurf );
+        BuildSkinWeightSurf( u0, umax, ws, vmax, insets[s], wsurf );
         prod.product1d( surfvec[s], wsurf );
 
         if ( s == 0 )
@@ -1210,7 +1219,8 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
     m_SkinClosedFlag = closed_flag;
 }
 
-void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets, bool closed_flag )
+void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets, const vector < double > &ws,
+                               const vector < vector < bool > > &insets, bool closed_flag )
 {
     if ( ribsets.empty() )
     {
@@ -1223,7 +1233,7 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
     {
         param[i] = 1.0 * i;
     }
-    SkinRibsBlended( ribsets, param, closed_flag );
+    SkinRibsBlended( ribsets, ws, insets, param, closed_flag );
 }
 
 void VspSurf::SkinRibsUniform( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )

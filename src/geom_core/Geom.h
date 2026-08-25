@@ -1037,9 +1037,18 @@ protected:
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
 
-    // Build lines showing the skinning derivatives at the Top/Bottom/Left/Right spine
-    // stations of XSec index.  Does nothing unless the XSec is a SkinXSec.
+    // Build lines showing the skinning derivatives at the station of XSec index.  Does
+    // nothing unless the XSec is a SkinXSec.
     void UpdateSkinDrawObj( const Matrix4d &relTrans, int index );
+
+    // Collect the ribs for a skin, grouping stations that enforce the same conditions so
+    // they share one solve.  Returns false when a single unblended skin will do.
+    // Fill every pass's rib set from the cross sections.
+    void StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
+                           const vector< vector< bool > > &insets );
+
+    bool BuildSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
+                           vector< double > &ws, vector< vector< bool > > &insets );
 
     virtual void NormalizeFlaps();
 

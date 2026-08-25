@@ -163,14 +163,12 @@ void FuselageGeom::UpdateSurf()
     }
 
     //==== Cross Section Curves & joint info ====//
-    // One rib set per side of the cross section.  When every XSec enforces the same
-    // conditions on all four sides the sets are identical and one skin is enough.
-    vector< vector< rib_data_type > > rib_sets( SkinXSec::NUM_SKIN_SIDES );
-    for ( int s = 0; s < SkinXSec::NUM_SKIN_SIDES; s++ )
-    {
-        rib_sets[s].resize( nxsec );
-    }
-    bool sides_match = true;
+    // One rib set per group of stations enforcing the same conditions.  When every station
+    // enforces the same thing there is a single group and one skin is enough.
+    vector< vector< rib_data_type > > rib_sets;
+    vector< double > station_w;
+    vector< vector< bool > > insets;
+    bool blend = BuildSkinRibSets( nxsec, rib_sets, station_w, insets );
 
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < nxsec ; i++ )
@@ -187,29 +185,21 @@ void FuselageGeom::UpdateSurf()
 
             xs->SetRefLength( m_Length() );
 
-            bool first = false;
-            bool last = false;
-
-            if( i == 0 ) first = true;
-            else if( i == (nxsec-1) ) last = true;
-
-            vector< rib_data_type > ribs;
-            xs->GetRibs( first, last, ribs );
-            for ( int s = 0; s < SkinXSec::NUM_SKIN_SIDES; s++ )
-            {
-                rib_sets[s][i] = ribs[s];
-            }
-            sides_match = sides_match && xs->SidesMatch();
         }
     }
 
-    if ( sides_match )
+    // Build every pass's ribs.  Each XSec's rib depends only on that XSec, but they are
+    // collected in a pass of their own rather than inside the loop above so that placing a
+    // cross section and reading one stay separate things.
+    StageSkinRibSets( nxsec, rib_sets, insets );
+
+    if ( !blend )
     {
         m_MainSurfVec[0].SkinRibs( rib_sets[0], false );
     }
     else
     {
-        m_MainSurfVec[0].SkinRibsBlended( rib_sets, false );
+        m_MainSurfVec[0].SkinRibsBlended( rib_sets, station_w, insets, false );
     }
     m_MainSurfVec[0].SetMagicVParm( false );
 

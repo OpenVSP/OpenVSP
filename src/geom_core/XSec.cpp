@@ -1043,148 +1043,186 @@ void SkinXSec::ValidateParms( )
     }
 }
 
-void SkinXSec::GetSkinCrvs( bool left, piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
+// Fill one station from a side's parameters.  Slew carries a sign convention per side so
+// that a positive value reads the same way around the cross section; SetUnsetParms applies
+// the matching flip when reading achieved values back.
+void SkinXSec::GetSideStation( int side, SkinStation &st )
 {
-    vector< double > angles( 5, 0.0 );
-    vector< double > slews( 5, 0.0 );
-    vector< double > strengths( 5, 0.0 );
-    vector< double > curves( 5, 0.0 );
+    st.m_W = side;
 
-    double scale = GetScale();
-
-    if ( left )
+    if ( side == SKIN_SIDE_RIGHT )
     {
-        angles[0] = m_RightLAngle()*M_PI/180.0;
-        angles[1] = m_BottomLAngle()*M_PI/180.0;
-        angles[2] = m_LeftLAngle()*M_PI/180.0;
-        angles[3] = m_TopLAngle()*M_PI/180.0;
+        st.m_LAngleSet = m_RightLAngleSet();   st.m_LSlewSet = m_RightLSlewSet();
+        st.m_LStrengthSet = m_RightLStrengthSet(); st.m_LCurveSet = m_RightLCurveSet();
+        st.m_RAngleSet = m_RightRAngleSet();   st.m_RSlewSet = m_RightRSlewSet();
+        st.m_RStrengthSet = m_RightRStrengthSet(); st.m_RCurveSet = m_RightRCurveSet();
 
-        slews[0] = m_RightLSlew()*M_PI/180.0;
-        slews[1] = -m_BottomLSlew()*M_PI/180.0;
-        slews[2] = -m_LeftLSlew()*M_PI/180.0;
-        slews[3] = m_TopLSlew()*M_PI/180.0;
+        st.m_LAngle = m_RightLAngle();  st.m_LSlew = m_RightLSlew();
+        st.m_LStrength = m_RightLStrength(); st.m_LCurve = m_RightLCurve();
+        st.m_RAngle = m_RightRAngle();  st.m_RSlew = m_RightRSlew();
+        st.m_RStrength = m_RightRStrength(); st.m_RCurve = m_RightRCurve();
+    }
+    else if ( side == SKIN_SIDE_BOTTOM )
+    {
+        st.m_LAngleSet = m_BottomLAngleSet();   st.m_LSlewSet = m_BottomLSlewSet();
+        st.m_LStrengthSet = m_BottomLStrengthSet(); st.m_LCurveSet = m_BottomLCurveSet();
+        st.m_RAngleSet = m_BottomRAngleSet();   st.m_RSlewSet = m_BottomRSlewSet();
+        st.m_RStrengthSet = m_BottomRStrengthSet(); st.m_RCurveSet = m_BottomRCurveSet();
 
-        strengths[0] = m_RightLStrength() * scale;
-        strengths[1] = m_BottomLStrength() * scale;
-        strengths[2] = m_LeftLStrength() * scale;
-        strengths[3] = m_TopLStrength() * scale;
+        st.m_LAngle = m_BottomLAngle();  st.m_LSlew = -m_BottomLSlew();
+        st.m_LStrength = m_BottomLStrength(); st.m_LCurve = m_BottomLCurve();
+        st.m_RAngle = m_BottomRAngle();  st.m_RSlew = -m_BottomRSlew();
+        st.m_RStrength = m_BottomRStrength(); st.m_RCurve = m_BottomRCurve();
+    }
+    else if ( side == SKIN_SIDE_LEFT )
+    {
+        st.m_LAngleSet = m_LeftLAngleSet();   st.m_LSlewSet = m_LeftLSlewSet();
+        st.m_LStrengthSet = m_LeftLStrengthSet(); st.m_LCurveSet = m_LeftLCurveSet();
+        st.m_RAngleSet = m_LeftRAngleSet();   st.m_RSlewSet = m_LeftRSlewSet();
+        st.m_RStrengthSet = m_LeftRStrengthSet(); st.m_RCurveSet = m_LeftRCurveSet();
 
-        curves[0] = m_RightLCurve() * scale;
-        curves[1] = m_BottomLCurve() * scale;
-        curves[2] = m_LeftLCurve() * scale;
-        curves[3] = m_TopLCurve() * scale;
+        st.m_LAngle = m_LeftLAngle();  st.m_LSlew = -m_LeftLSlew();
+        st.m_LStrength = m_LeftLStrength(); st.m_LCurve = m_LeftLCurve();
+        st.m_RAngle = m_LeftRAngle();  st.m_RSlew = -m_LeftRSlew();
+        st.m_RStrength = m_LeftRStrength(); st.m_RCurve = m_LeftRCurve();
     }
     else
     {
-        angles[0] = m_RightRAngle()*M_PI/180.0;
-        angles[1] = m_BottomRAngle()*M_PI/180.0;
-        angles[2] = m_LeftRAngle()*M_PI/180.0;
-        angles[3] = m_TopRAngle()*M_PI/180.0;
+        st.m_LAngleSet = m_TopLAngleSet();   st.m_LSlewSet = m_TopLSlewSet();
+        st.m_LStrengthSet = m_TopLStrengthSet(); st.m_LCurveSet = m_TopLCurveSet();
+        st.m_RAngleSet = m_TopRAngleSet();   st.m_RSlewSet = m_TopRSlewSet();
+        st.m_RStrengthSet = m_TopRStrengthSet(); st.m_RCurveSet = m_TopRCurveSet();
 
-        slews[0] = m_RightRSlew()*M_PI/180.0;
-        slews[1] = -m_BottomRSlew()*M_PI/180.0;
-        slews[2] = -m_LeftRSlew()*M_PI/180.0;
-        slews[3] = m_TopRSlew()*M_PI/180.0;
-
-        strengths[0] = m_RightRStrength() * scale;
-        strengths[1] = m_BottomRStrength() * scale;
-        strengths[2] = m_LeftRStrength() * scale;
-        strengths[3] = m_TopRStrength() * scale;
-
-        curves[0] = m_RightRCurve() * scale;
-        curves[1] = m_BottomRCurve() * scale;
-        curves[2] = m_LeftRCurve() * scale;
-        curves[3] = m_TopRCurve() * scale;
+        st.m_LAngle = m_TopLAngle();  st.m_LSlew = m_TopLSlew();
+        st.m_LStrength = m_TopLStrength(); st.m_LCurve = m_TopLCurve();
+        st.m_RAngle = m_TopRAngle();  st.m_RSlew = m_TopRSlew();
+        st.m_RStrength = m_TopRStrength(); st.m_RCurve = m_TopRCurve();
     }
-
-    // Close the periodic control spline back onto the Right station.
-    angles[4] = angles[0];
-    slews[4] = slews[0];
-    strengths[4] = strengths[0];
-    curves[4] = curves[0];
-
-    GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
 }
 
-// Whether any of the four sides enforces a given condition.  The tangent and normal
-// curves span the whole cross section, so a curve is built once if any side wants it.
+void SkinXSec::GetStations( vector< SkinStation > &stations )
+{
+    stations.resize( NUM_SKIN_SIDES );
+
+    for ( int i = 0; i < NUM_SKIN_SIDES; i++ )
+    {
+        GetSideStation( i, stations[i] );
+    }
+}
+
+void SkinXSec::GetStationW( vector< double > &ws )
+{
+    vector< SkinStation > stations;
+    GetStations( stations );
+
+    ws.resize( stations.size() );
+    for ( int i = 0; i < ( int )stations.size(); i++ )
+    {
+        ws[i] = stations[i].m_W;
+    }
+}
+
+// Build the tangent (fp) and normal (fpp) curves that control the loft on one side of this
+// XSec.  'left' selects the parameters that control the loft before this XSec, otherwise
+// the parameters controlling the loft after it are used.
+//
+// The control values are laid out at the station parameters and closed back onto the first
+// station, so the periodic spline through them does not care how many stations there are
+// or how they are spaced.
+void SkinXSec::GetSkinCrvs( bool left, piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
+{
+    vector< SkinStation > stations;
+    GetStations( stations );
+
+    int n = stations.size();
+
+    vector< double > ts( n + 1 );
+    vector< double > angles( n + 1 );
+    vector< double > slews( n + 1 );
+    vector< double > strengths( n + 1 );
+    vector< double > curves( n + 1 );
+
+    double scale = GetScale();
+
+    double t0 = GetCurve().GetCurve().get_t0();
+    double tmax = GetCurve().GetCurve().get_tmax();
+
+    for ( int i = 0; i < n; i++ )
+    {
+        const SkinStation &st = stations[i];
+
+        ts[i] = st.m_W;
+
+        if ( left )
+        {
+            angles[i] = st.m_LAngle * M_PI / 180.0;
+            slews[i] = st.m_LSlew * M_PI / 180.0;
+            strengths[i] = st.m_LStrength * scale;
+            curves[i] = st.m_LCurve * scale;
+        }
+        else
+        {
+            angles[i] = st.m_RAngle * M_PI / 180.0;
+            slews[i] = st.m_RSlew * M_PI / 180.0;
+            strengths[i] = st.m_RStrength * scale;
+            curves[i] = st.m_RCurve * scale;
+        }
+    }
+
+    // Close the periodic control spline back onto the first station.
+    ts[n] = t0 + ( tmax - t0 );
+    angles[n] = angles[0];
+    slews[n] = slews[0];
+    strengths[n] = strengths[0];
+    curves[n] = curves[0];
+
+    GetTanNormCrv( ts, angles, slews, strengths, curves, tangentcrv, normcrv );
+}
+
+// Whether any station enforces a given condition.  The tangent and normal curves span the
+// whole cross section, so a curve is built once if any station wants it.
 bool SkinXSec::AnyAngleSet( bool left )
 {
-    if ( left )
+    vector< SkinStation > stations;
+    GetStations( stations );
+
+    for ( int i = 0; i < ( int )stations.size(); i++ )
     {
-        return m_TopLAngleSet() || m_RightLAngleSet() || m_BottomLAngleSet() || m_LeftLAngleSet();
+        if ( left && stations[i].m_LAngleSet )
+        {
+            return true;
+        }
+        if ( !left && stations[i].m_RAngleSet )
+        {
+            return true;
+        }
     }
-    return m_TopRAngleSet() || m_RightRAngleSet() || m_BottomRAngleSet() || m_LeftRAngleSet();
+    return false;
 }
 
 bool SkinXSec::AnyCurveSet( bool left )
 {
-    if ( left )
-    {
-        return m_TopLCurveSet() || m_RightLCurveSet() || m_BottomLCurveSet() || m_LeftLCurveSet();
-    }
-    return m_TopRCurveSet() || m_RightRCurveSet() || m_BottomRCurveSet() || m_LeftRCurveSet();
-}
+    vector< SkinStation > stations;
+    GetStations( stations );
 
-// Set flags for one side.  Sides are indexed in station order -- the same order
-// GetTanNormCrv lays the control values out in, and the order the skinning blend weights
-// are built in.
-void SkinXSec::GetSideSetFlags( int side, bool &langle, bool &lcurve, bool &rangle, bool &rcurve )
-{
-    if ( side == SKIN_SIDE_RIGHT )
+    for ( int i = 0; i < ( int )stations.size(); i++ )
     {
-        langle = m_RightLAngleSet();
-        lcurve = m_RightLCurveSet();
-        rangle = m_RightRAngleSet();
-        rcurve = m_RightRCurveSet();
-    }
-    else if ( side == SKIN_SIDE_BOTTOM )
-    {
-        langle = m_BottomLAngleSet();
-        lcurve = m_BottomLCurveSet();
-        rangle = m_BottomRAngleSet();
-        rcurve = m_BottomRCurveSet();
-    }
-    else if ( side == SKIN_SIDE_LEFT )
-    {
-        langle = m_LeftLAngleSet();
-        lcurve = m_LeftLCurveSet();
-        rangle = m_LeftRAngleSet();
-        rcurve = m_LeftRCurveSet();
-    }
-    else
-    {
-        langle = m_TopLAngleSet();
-        lcurve = m_TopLCurveSet();
-        rangle = m_TopRAngleSet();
-        rcurve = m_TopRCurveSet();
-    }
-}
-
-// Whether all four sides enforce the same conditions.  When they do the four ribs are
-// identical and the caller can skin once instead of once per side.
-bool SkinXSec::SidesMatch()
-{
-    bool la, lc, ra, rc;
-    GetSideSetFlags( 0, la, lc, ra, rc );
-
-    for ( int s = 1; s < NUM_SKIN_SIDES; s++ )
-    {
-        bool la2, lc2, ra2, rc2;
-        GetSideSetFlags( s, la2, lc2, ra2, rc2 );
-
-        if ( la2 != la || lc2 != lc || ra2 != ra || rc2 != rc )
+        if ( left && stations[i].m_LCurveSet )
         {
-            return false;
+            return true;
+        }
+        if ( !left && stations[i].m_RCurveSet )
+        {
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
-// One rib per side.  Every rib carries the same tangent and normal curves -- their values
-// come from one periodic spline through all four stations -- but enforces only the
-// conditions its own side asks for.  The surface is skinned once per rib set and the
-// results blended, which keeps it continuous where a side stops enforcing something.
+// One rib per station.  Every rib carries the same tangent and normal curves -- their
+// values come from one periodic spline through all the stations -- but enforces only the
+// conditions its own station asks for.  The surface is skinned once per rib set and the
+// results blended, which keeps it continuous where a station stops enforcing something.
 void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )
 {
     if( first || last )
@@ -1196,6 +1234,9 @@ void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )
     }
 
     ValidateParms( );
+
+    vector< SkinStation > stations;
+    GetStations( stations );
 
     piecewise_curve_type ltan, lnrm, rtan, rnrm;
 
@@ -1209,9 +1250,9 @@ void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )
         GetSkinCrvs( false, rtan, rnrm );
     }
 
-    ribs.resize( NUM_SKIN_SIDES );
+    ribs.resize( stations.size() );
 
-    for ( int s = 0; s < NUM_SKIN_SIDES; s++ )
+    for ( int s = 0; s < ( int )stations.size(); s++ )
     {
         rib_data_type &rib = ribs[s];
 
@@ -1221,24 +1262,23 @@ void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )
         if( !first && !last )
             rib.set_continuity( ( rib_data_type::connection_continuity ) m_TopCont() );
 
-        bool langle, lcurve, rangle, rcurve;
-        GetSideSetFlags( s, langle, lcurve, rangle, rcurve );
+        const SkinStation &st = stations[s];
 
         // Use 'wrong' side of first cross section to set right side.
         if ( first )
         {
-            if( langle ) rib.set_right_fp( ltan );
-            if( lcurve ) rib.set_right_fpp( lnrm );
+            if( st.m_LAngleSet ) rib.set_right_fp( ltan );
+            if( st.m_LCurveSet ) rib.set_right_fpp( lnrm );
         }
         else
         {
-            if( langle ) rib.set_left_fp( ltan );
-            if( lcurve ) rib.set_left_fpp( lnrm );
+            if( st.m_LAngleSet ) rib.set_left_fp( ltan );
+            if( st.m_LCurveSet ) rib.set_left_fpp( lnrm );
 
             if ( !last )
             {
-                if( rangle ) rib.set_right_fp( rtan );
-                if( rcurve ) rib.set_right_fpp( rnrm );
+                if( st.m_RAngleSet ) rib.set_right_fp( rtan );
+                if( st.m_RCurveSet ) rib.set_right_fpp( rnrm );
             }
         }
     }
@@ -1248,7 +1288,24 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
 {
     vector< rib_data_type > ribs;
     GetRibs( first, last, ribs );
-    return ribs[ SKIN_SIDE_TOP ];
+
+    // Find Top by its parameter, not by counting.  GetRibs returns one rib per station in W
+    // order, so index SKIN_SIDE_TOP is the Top side only while the stations are exactly the
+    // four sides -- anything inserted below it shifts Top along and this quietly returned a
+    // neighbour's rib instead.  Nothing else can sit at Top's parameter: a station landing
+    // within GetMinStationGap of a side is merged into it.
+    vector< SkinStation > stations;
+    GetStations( stations );
+
+    for ( int i = 0; i < ( int )stations.size() && i < ( int )ribs.size(); i++ )
+    {
+        if ( stations[i].m_W == SKIN_SIDE_TOP )
+        {
+            return ribs[i];
+        }
+    }
+
+    return ribs[ ribs.size() - 1 ];
 }
 
 void SkinXSec::SetUnsetParms( int irib, const VspSurf &surf )

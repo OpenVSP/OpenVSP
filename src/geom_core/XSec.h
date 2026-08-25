@@ -160,7 +160,43 @@ public:
     // order the skinning blend weights are built in.
     enum { SKIN_SIDE_RIGHT = 0, SKIN_SIDE_BOTTOM, SKIN_SIDE_LEFT, SKIN_SIDE_TOP, NUM_SKIN_SIDES };
 
-    // One rib per side, each enforcing only that side's conditions.
+    // One place where skinning is controlled around the cross section.  The four sides are
+    // stations at W = 0, 1, 2, and 3; user defined spines add more at arbitrary W.  The
+    // skinning path reads stations rather than sides, so it does not care how many there
+    // are or where they sit.
+    struct SkinStation
+    {
+        double m_W;
+
+        bool m_LAngleSet;
+        bool m_LSlewSet;
+        bool m_LStrengthSet;
+        bool m_LCurveSet;
+        bool m_RAngleSet;
+        bool m_RSlewSet;
+        bool m_RStrengthSet;
+        bool m_RCurveSet;
+
+        double m_LAngle;
+        double m_LSlew;
+        double m_LStrength;
+        double m_LCurve;
+        double m_RAngle;
+        double m_RSlew;
+        double m_RStrength;
+        double m_RCurve;
+    };
+
+    // One station built from a side's parameters.
+    virtual void GetSideStation( int side, SkinStation &st );
+
+    // Every station around the cross section, ordered by W.
+    virtual void GetStations( vector< SkinStation > &stations );
+
+    // W of every station, ordered.  What the blend weights are built from.
+    virtual void GetStationW( vector< double > &ws );
+
+    // One rib per station, each enforcing only that station's conditions.
     virtual void GetRibs( bool first, bool last, vector< rib_data_type > &ribs );
 
     // The Top side's rib.  Retained for callers that do not blend.
@@ -168,8 +204,8 @@ public:
 
     virtual bool AnyAngleSet( bool left );
     virtual bool AnyCurveSet( bool left );
-    virtual void GetSideSetFlags( int side, bool &langle, bool &lcurve, bool &rangle, bool &rcurve );
-    virtual bool SidesMatch();
+
+    // Whether every station enforces the same conditions, in which case one skin suffices.
 
     // Build the tangent (fp) and normal (fpp) curves that control the loft on one side
     // of this XSec.  'left' selects the parameters that control the loft before this
