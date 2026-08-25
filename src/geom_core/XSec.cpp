@@ -718,15 +718,12 @@ void SkinXSec::CopySetValidate( IntParm &Cont,
     BoolParm &LRStrengthEq,
     BoolParm &LRCurveEq )
 {
+    // Continuity stays uniform around the cross section.  A C1 or C2 joint requires the
+    // left and right derivative curves to agree over the span that enforces it, but the
+    // values come from one periodic spline through all four stations, so the two curves
+    // only coincide at a station -- never across a whole span -- unless all four sides
+    // agree.  The Set flags below are per side; only continuity is copied.
     Cont = m_TopCont();
-    LAngleSet = m_TopLAngleSet();
-    LSlewSet = m_TopLSlewSet();
-    LStrengthSet = m_TopLStrengthSet();
-    LCurveSet = m_TopLCurveSet();
-    RAngleSet = m_TopRAngleSet();
-    RSlewSet = m_TopRSlewSet();
-    RStrengthSet = m_TopRStrengthSet();
-    RCurveSet = m_TopRCurveSet();
 
     ValidateParms( Cont,
         LAngleSet,
@@ -848,67 +845,8 @@ void SkinXSec::ValidateParms( IntParm &Cont,
     }
 }
 
-void SkinXSec::CrossValidateParms( BoolParm &topEq,
-        BoolParm &rightEq,
-        BoolParm &bottomEq,
-        BoolParm &leftEq,
-        BoolParm &topRSet,
-        BoolParm &topLSet,
-        bool CX )
-{
-    if( !CX )
-    {
-        if ( topEq() || rightEq() || bottomEq() || leftEq() )
-        {
-            topRSet = true;
-            topLSet = true;
-        }
-    }
-    else
-    {
-        topRSet = topLSet();
-        topEq = topLSet();
-        rightEq = topLSet();
-        bottomEq = topLSet();
-        leftEq = topLSet();
-    }
-}
-
-
 void SkinXSec::ValidateParms( )
 {
-    CrossValidateParms( m_TopLRAngleEq,
-            m_RightLRAngleEq,
-            m_BottomLRAngleEq,
-            m_LeftLRAngleEq,
-            m_TopRAngleSet,
-            m_TopLAngleSet,
-            m_TopCont() >= 1 );
-
-    CrossValidateParms( m_TopLRSlewEq,
-            m_RightLRSlewEq,
-            m_BottomLRSlewEq,
-            m_LeftLRSlewEq,
-            m_TopRSlewSet,
-            m_TopLSlewSet,
-            m_TopCont() >= 1 );
-
-    CrossValidateParms( m_TopLRStrengthEq,
-            m_RightLRStrengthEq,
-            m_BottomLRStrengthEq,
-            m_LeftLRStrengthEq,
-            m_TopRAngleSet,
-            m_TopLAngleSet,
-            m_TopCont() >= 1 );
-
-    CrossValidateParms( m_TopLRCurveEq,
-            m_RightLRCurveEq,
-            m_BottomLRCurveEq,
-            m_LeftLRCurveEq,
-            m_TopRCurveSet,
-            m_TopLCurveSet,
-            m_TopCont() >= 2 );
-
     ValidateParms( m_TopCont,
                m_TopLAngleSet,
                m_TopLSlewSet,

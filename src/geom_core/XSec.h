@@ -154,14 +154,6 @@ public:
             BoolParm &m_TopLRStrengthEq,
             BoolParm &m_TopLRCurveEq );
 
-    virtual void CrossValidateParms( BoolParm &topEq,
-            BoolParm &rightEq,
-            BoolParm &bottomEq,
-            BoolParm &leftEq,
-            BoolParm &topRSet,
-            BoolParm &topLSet,
-            bool CX );
-
     virtual void ValidateParms( );
 
     // Sides in station order, matching XSec::GetTanNormCrv's control value layout and the

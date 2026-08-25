@@ -5409,26 +5409,15 @@ bool SkinScreen::Update()
         }
 
 
-        // Deactivate GUI for non-top curves.  Code-Eli right now requires
-        // things to be set per cross section.  This restriction may someday
-        // be lifted -- while the above Strength restriction will not.
-        m_RightAngleSkinControl.DeactivateSet();
-        m_RightSlewSkinControl.DeactivateSet();
-        m_RightStrengthSkinControl.DeactivateSet();
-        m_RightCurvatureSkinControl.DeactivateSet();
+        // Each side now enforces its own conditions over the span of the cross section
+        // centered on its station, so the Angle and Curvature Set flags are live for all
+        // four.  Slew and Strength Set remain slaved to Angle Set for every side, which
+        // the block above already handles.
 
-        m_BottomAngleSkinControl.DeactivateSet();
-        m_BottomSlewSkinControl.DeactivateSet();
-        m_BottomStrengthSkinControl.DeactivateSet();
-        m_BottomCurvatureSkinControl.DeactivateSet();
-
-        m_LeftAngleSkinControl.DeactivateSet();
-        m_LeftSlewSkinControl.DeactivateSet();
-        m_LeftStrengthSkinControl.DeactivateSet();
-        m_LeftCurvatureSkinControl.DeactivateSet();
-
-        // Deactivate GUI for non-top continuity control.  Code-Eli currently
-        // requires continuity to be enforced on per cross section basis.
+        // Continuity is still enforced per cross section rather than per side.  A C1 or
+        // C2 joint needs the left and right derivative curves to agree over the span
+        // enforcing it, but their values come from one periodic spline through all four
+        // stations, so they coincide only at a station unless all four sides agree.
         m_RightHeader.DeactiveContChoice();
         m_BottomHeader.DeactiveContChoice();
         m_LeftHeader.DeactiveContChoice();
