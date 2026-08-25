@@ -163,8 +163,14 @@ void FuselageGeom::UpdateSurf()
     }
 
     //==== Cross Section Curves & joint info ====//
-    vector< rib_data_type > rib_vec;
-    rib_vec.resize( nxsec );
+    // One rib set per side of the cross section.  When every XSec enforces the same
+    // conditions on all four sides the sets are identical and one skin is enough.
+    vector< vector< rib_data_type > > rib_sets( SkinXSec::NUM_SKIN_SIDES );
+    for ( int s = 0; s < SkinXSec::NUM_SKIN_SIDES; s++ )
+    {
+        rib_sets[s].resize( nxsec );
+    }
+    bool sides_match = true;
 
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < nxsec ; i++ )
@@ -187,11 +193,24 @@ void FuselageGeom::UpdateSurf()
             if( i == 0 ) first = true;
             else if( i == (nxsec-1) ) last = true;
 
-            rib_vec[i] = xs->GetRib( first, last );
+            vector< rib_data_type > ribs;
+            xs->GetRibs( first, last, ribs );
+            for ( int s = 0; s < SkinXSec::NUM_SKIN_SIDES; s++ )
+            {
+                rib_sets[s][i] = ribs[s];
+            }
+            sides_match = sides_match && xs->SidesMatch();
         }
     }
 
-    m_MainSurfVec[0].SkinRibsUniform( rib_vec, false );
+    if ( sides_match )
+    {
+        m_MainSurfVec[0].SkinRibs( rib_sets[0], false );
+    }
+    else
+    {
+        m_MainSurfVec[0].SkinRibsBlended( rib_sets, false );
+    }
     m_MainSurfVec[0].SetMagicVParm( false );
 
     for ( int i = 0 ; i < nxsec ; i++ )
