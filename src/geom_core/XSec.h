@@ -164,7 +164,20 @@ public:
 
     virtual void ValidateParms( );
 
+    // Sides in station order, matching XSec::GetTanNormCrv's control value layout and the
+    // order the skinning blend weights are built in.
+    enum { SKIN_SIDE_RIGHT = 0, SKIN_SIDE_BOTTOM, SKIN_SIDE_LEFT, SKIN_SIDE_TOP, NUM_SKIN_SIDES };
+
+    // One rib per side, each enforcing only that side's conditions.
+    virtual void GetRibs( bool first, bool last, vector< rib_data_type > &ribs );
+
+    // The Top side's rib.  Retained for callers that do not blend.
     virtual rib_data_type GetRib( bool first, bool last );
+
+    virtual bool AnyAngleSet( bool left );
+    virtual bool AnyCurveSet( bool left );
+    virtual void GetSideSetFlags( int side, bool &langle, bool &lcurve, bool &rangle, bool &rcurve );
+    virtual bool SidesMatch();
 
     // Build the tangent (fp) and normal (fpp) curves that control the loft on one side
     // of this XSec.  'left' selects the parameters that control the loft before this

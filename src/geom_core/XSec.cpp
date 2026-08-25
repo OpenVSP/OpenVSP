@@ -1168,7 +1168,86 @@ void SkinXSec::GetSkinCrvs( bool left, piecewise_curve_type &tangentcrv, piecewi
     GetTanNormCrv( angles, slews, strengths, curves, tangentcrv, normcrv );
 }
 
-rib_data_type SkinXSec::GetRib( bool first, bool last )
+// Whether any of the four sides enforces a given condition.  The tangent and normal
+// curves span the whole cross section, so a curve is built once if any side wants it.
+bool SkinXSec::AnyAngleSet( bool left )
+{
+    if ( left )
+    {
+        return m_TopLAngleSet() || m_RightLAngleSet() || m_BottomLAngleSet() || m_LeftLAngleSet();
+    }
+    return m_TopRAngleSet() || m_RightRAngleSet() || m_BottomRAngleSet() || m_LeftRAngleSet();
+}
+
+bool SkinXSec::AnyCurveSet( bool left )
+{
+    if ( left )
+    {
+        return m_TopLCurveSet() || m_RightLCurveSet() || m_BottomLCurveSet() || m_LeftLCurveSet();
+    }
+    return m_TopRCurveSet() || m_RightRCurveSet() || m_BottomRCurveSet() || m_LeftRCurveSet();
+}
+
+// Set flags for one side.  Sides are indexed in station order -- the same order
+// GetTanNormCrv lays the control values out in, and the order the skinning blend weights
+// are built in.
+void SkinXSec::GetSideSetFlags( int side, bool &langle, bool &lcurve, bool &rangle, bool &rcurve )
+{
+    if ( side == SKIN_SIDE_RIGHT )
+    {
+        langle = m_RightLAngleSet();
+        lcurve = m_RightLCurveSet();
+        rangle = m_RightRAngleSet();
+        rcurve = m_RightRCurveSet();
+    }
+    else if ( side == SKIN_SIDE_BOTTOM )
+    {
+        langle = m_BottomLAngleSet();
+        lcurve = m_BottomLCurveSet();
+        rangle = m_BottomRAngleSet();
+        rcurve = m_BottomRCurveSet();
+    }
+    else if ( side == SKIN_SIDE_LEFT )
+    {
+        langle = m_LeftLAngleSet();
+        lcurve = m_LeftLCurveSet();
+        rangle = m_LeftRAngleSet();
+        rcurve = m_LeftRCurveSet();
+    }
+    else
+    {
+        langle = m_TopLAngleSet();
+        lcurve = m_TopLCurveSet();
+        rangle = m_TopRAngleSet();
+        rcurve = m_TopRCurveSet();
+    }
+}
+
+// Whether all four sides enforce the same conditions.  When they do the four ribs are
+// identical and the caller can skin once instead of once per side.
+bool SkinXSec::SidesMatch()
+{
+    bool la, lc, ra, rc;
+    GetSideSetFlags( 0, la, lc, ra, rc );
+
+    for ( int s = 1; s < NUM_SKIN_SIDES; s++ )
+    {
+        bool la2, lc2, ra2, rc2;
+        GetSideSetFlags( s, la2, lc2, ra2, rc2 );
+
+        if ( la2 != la || lc2 != lc || ra2 != ra || rc2 != rc )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+// One rib per side.  Every rib carries the same tangent and normal curves -- their values
+// come from one periodic spline through all four stations -- but enforces only the
+// conditions its own side asks for.  The surface is skinned once per rib set and the
+// results blended, which keeps it continuous where a side stops enforcing something.
+void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )
 {
     if( first || last )
     {
@@ -1180,45 +1259,58 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
 
     ValidateParms( );
 
-    rib_data_type rib;
+    piecewise_curve_type ltan, lnrm, rtan, rnrm;
 
-    // First GetCurve() forces Update() call if needed;
-    rib.set_f( GetCurve().GetCurve() );
-
-    if( !first && !last )
-        rib.set_continuity( ( rib_data_type::connection_continuity ) m_TopCont() );
-
-    piecewise_curve_type tangentcrv;
-    piecewise_curve_type normcrv;
-
-    // Use 'wrong' side of first cross section to set right side.
-    if ( first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
+    if ( AnyAngleSet( true ) || AnyCurveSet( true ) )
     {
-        GetSkinCrvs( true, tangentcrv, normcrv );
-
-        if( m_TopLAngleSet() ) rib.set_right_fp( tangentcrv );
-        if( m_TopLCurveSet() ) rib.set_right_fpp( normcrv );
+        GetSkinCrvs( true, ltan, lnrm );
     }
 
-    // Set the left side of a rib.
-    if( !first && ( m_TopLAngleSet() || m_TopLCurveSet() ) )
+    if ( AnyAngleSet( false ) || AnyCurveSet( false ) )
     {
-        GetSkinCrvs( true, tangentcrv, normcrv );
-
-        if( m_TopLAngleSet() ) rib.set_left_fp( tangentcrv );
-        if( m_TopLCurveSet() ) rib.set_left_fpp( normcrv );
+        GetSkinCrvs( false, rtan, rnrm );
     }
 
-    // Set the right side of a rib.
-    if( !first && !last && ( m_TopRAngleSet() || m_TopRCurveSet() ) )
+    ribs.resize( NUM_SKIN_SIDES );
+
+    for ( int s = 0; s < NUM_SKIN_SIDES; s++ )
     {
-        GetSkinCrvs( false, tangentcrv, normcrv );
+        rib_data_type &rib = ribs[s];
 
-        if( m_TopRAngleSet() ) rib.set_right_fp( tangentcrv );
-        if( m_TopRCurveSet() ) rib.set_right_fpp( normcrv );
+        // First GetCurve() forces Update() call if needed;
+        rib.set_f( GetCurve().GetCurve() );
+
+        if( !first && !last )
+            rib.set_continuity( ( rib_data_type::connection_continuity ) m_TopCont() );
+
+        bool langle, lcurve, rangle, rcurve;
+        GetSideSetFlags( s, langle, lcurve, rangle, rcurve );
+
+        // Use 'wrong' side of first cross section to set right side.
+        if ( first )
+        {
+            if( langle ) rib.set_right_fp( ltan );
+            if( lcurve ) rib.set_right_fpp( lnrm );
+        }
+        else
+        {
+            if( langle ) rib.set_left_fp( ltan );
+            if( lcurve ) rib.set_left_fpp( lnrm );
+
+            if ( !last )
+            {
+                if( rangle ) rib.set_right_fp( rtan );
+                if( rcurve ) rib.set_right_fpp( rnrm );
+            }
+        }
     }
+}
 
-    return rib;
+rib_data_type SkinXSec::GetRib( bool first, bool last )
+{
+    vector< rib_data_type > ribs;
+    GetRibs( first, last, ribs );
+    return ribs[ SKIN_SIDE_TOP ];
 }
 
 void SkinXSec::SetUnsetParms( int irib, const VspSurf &surf )
