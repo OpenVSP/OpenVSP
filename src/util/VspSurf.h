@@ -69,6 +69,11 @@ public:
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag );
 
+    // Skin once per condition set and blend, so different parts of a cross section can
+    // enforce different conditions without tearing the surface.
+    void SkinRibsBlended( const vector< vector<rib_data_type> > &ribsets, const vector < double > & param, bool closed_flag );
+    void SkinRibsBlended( const vector< vector<rib_data_type> > &ribsets, bool closed_flag );
+
     // As SkinRibs, but solved with the uniform structure skinning creator -- valid when
     // every control point strip shares one constraint structure, which holds for all ribs
     // built through the current rib API.  Substantially faster; falls short only if ribs
