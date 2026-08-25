@@ -1521,6 +1521,98 @@ void SkinXSec::OrderSpinesLike( const SkinXSec* other )
     m_SpineVec = ordered;
 }
 
+// Evaluate the periodic control spline the existing stations define, at w.
+//
+// This is the first stage of what GetTanNormCrv does -- a closed cubic spline through the
+// per station control values -- sampled at one parameter rather than turned into tangent
+// curves.  The values are the raw Parm units the stations carry, so what comes out can be
+// written straight back into a spine.
+void SkinXSec::InterpStationControls( double w, bool left, double &angle, double &slew,
+                                      double &strength, double &curve )
+{
+    vector< SkinStation > stations;
+    GetStations( stations );
+
+    int n = stations.size();
+
+    double t0 = GetCurve().GetCurve().get_t0();
+    double tmax = GetCurve().GetCurve().get_tmax();
+
+    piecewise_cubic_spline_creator_type pcc( n );
+    pcc.set_t0( stations[0].m_W );
+    for ( int i = 0; i < n - 1; i++ )
+    {
+        pcc.set_segment_dt( stations[i + 1].m_W - stations[i].m_W, i );
+    }
+    pcc.set_segment_dt( ( t0 + ( tmax - t0 ) ) - stations[n - 1].m_W, n - 1 );
+
+    // Angle, strength and curvature ride in one curve; slew in another.
+    vector< curve_point_type > pts( n + 1 ), spts( n + 1 );
+    for ( int i = 0; i < n; i++ )
+    {
+        const SkinStation &st = stations[i];
+        if ( left )
+        {
+            pts[i] << st.m_LAngle, st.m_LStrength, st.m_LCurve;
+            spts[i] << st.m_LSlew, 0.0, 0.0;
+        }
+        else
+        {
+            pts[i] << st.m_RAngle, st.m_RStrength, st.m_RCurve;
+            spts[i] << st.m_RSlew, 0.0, 0.0;
+        }
+    }
+    pts[n] = pts[0];
+    spts[n] = spts[0];
+
+    // Seeding samples the same interpolant the surface is built from, so it follows the same
+    // choice -- otherwise a new spine would be seeded off the curve it is joining.
+    piecewise_curve_type crv, scrv;
+    pcc.set_monotonic_chip( pts.begin(), eli::geom::general::C1 );
+    pcc.create( crv );
+
+    pcc.set_monotonic_chip( spts.begin(), eli::geom::general::C1 );
+    pcc.create( scrv );
+
+    curve_point_type v = crv.f( w );
+    curve_point_type sv = scrv.f( w );
+
+    angle = v.x();
+    strength = v.y();
+    curve = v.z();
+    slew = sv.x();
+}
+
+// The station closest to w, measured around the cross section so the seam is not a wall.
+void SkinXSec::GetNearestStation( double w, SkinStation &near )
+{
+    vector< SkinStation > stations;
+    GetStations( stations );
+
+    double t0 = GetCurve().GetCurve().get_t0();
+    double period = GetCurve().GetCurve().get_tmax() - t0;
+
+    int best = 0;
+    double bestd = 2.0 * period;
+
+    for ( int i = 0; i < ( int )stations.size(); i++ )
+    {
+        double d = std::abs( stations[i].m_W - w );
+        if ( d > 0.5 * period )
+        {
+            d = period - d;
+        }
+
+        if ( d < bestd )
+        {
+            bestd = d;
+            best = i;
+        }
+    }
+
+    near = stations[best];
+}
+
 // Where to put a spine when the user just presses Add: the middle of the widest gap in the
 // station layout as it stands.
 //
@@ -1593,6 +1685,9 @@ void SkinXSec::ChangeID( const string &newid )
     }
 }
 
+// The position comes in on a [0, 1] basis, the way the rest of OpenVSP states U and W.  The
+// skinning works in the cross section curve's own parameter, so scale up once here and pass
+// that to everything below.
 SkinSpine* SkinXSec::AddSpine( double w01 )
 {
     SkinSpine* sp = new SkinSpine();
@@ -1601,9 +1696,47 @@ SkinSpine* SkinXSec::AddSpine( double w01 )
         return nullptr;
     }
 
+    double t0 = GetCurve().GetCurve().get_t0();
+    double period = GetCurve().GetCurve().get_tmax() - t0;
+    double w = t0 + w01 * period;
+
+    // Seed the new spine from what the surrounding stations already produce at w, and give
+    // it their Set flags, so that adding a spine is inert until the user changes something.
+    // Left alone it would enforce nothing where its neighbors enforce a tangent, which
+    // makes the loft run free around it and doubles the tangent magnitude there.
+    double la, ls, lstr, lc, ra, rs, rstr, rc;
+    InterpStationControls( w, true, la, ls, lstr, lc );
+    InterpStationControls( w, false, ra, rs, rstr, rc );
+
     sp->m_W01 = w01;
     sp->SetSpineID( GenerateRandomID( vsp::ID_LENGTH_PARMCONTAINER ) );
     sp->SetParentContainer( m_ID );
+
+    sp->m_LAngle = la;
+    sp->m_LSlew = ls;
+    sp->m_LStrength = lstr;
+    sp->m_LCurve = lc;
+    sp->m_RAngle = ra;
+    sp->m_RSlew = rs;
+    sp->m_RStrength = rstr;
+    sp->m_RCurve = rc;
+
+    // Take the Set flags from the nearest station.  Leaving them all off would be the
+    // larger change, not the smaller one: a spine enforcing nothing where its neighbors
+    // enforce a tangent puts it in its own condition group, so the loft runs free around it
+    // and the tangent there doubles.  Matching the neighborhood is what actually leaves the
+    // surface alone, and on a default model that comes out as angle on, curvature off.
+    SkinStation near;
+    GetNearestStation( w, near );
+
+    sp->m_LAngleSet = near.m_LAngleSet;
+    sp->m_LSlewSet = near.m_LSlewSet;
+    sp->m_LStrengthSet = near.m_LStrengthSet;
+    sp->m_LCurveSet = near.m_LCurveSet;
+    sp->m_RAngleSet = near.m_RAngleSet;
+    sp->m_RSlewSet = near.m_RSlewSet;
+    sp->m_RStrengthSet = near.m_RStrengthSet;
+    sp->m_RCurveSet = near.m_RCurveSet;
 
     sp->SetName( UnusedSpineName() );
 

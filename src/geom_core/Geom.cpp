@@ -6671,6 +6671,11 @@ void GeomXSec::SyncSkinSpines()
 
             if ( !c )
             {
+                // Seed it where it is going to live.  AddSpine takes its values and its Set
+                // flags from the stations around the position it is given, so adding at a
+                // fixed W and moving it afterwards seeds it from the wrong neighborhood --
+                // a cross section that lost a spine would come back with the angle of
+                // somewhere else entirely.
                 c = xs->AddSpine( m->m_W01() );
                 if ( c )
                 {

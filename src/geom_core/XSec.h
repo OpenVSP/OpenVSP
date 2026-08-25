@@ -329,6 +329,13 @@ public:
 
     virtual SkinSpine* AddSpine( double w01 );
 
+    virtual void GetNearestStation( double w, SkinStation &near );
+
+    // Sample the control values the existing stations already produce at w.  Used to seed a
+    // new spine so that adding one changes nothing until the user asks it to.
+    virtual void InterpStationControls( double w, bool left, double &angle, double &slew,
+                                        double &strength, double &curve );
+
     // Name the spines Spine_0, Spine_1 ... and push the XSec index and each spine's name
     // down onto its parms, so the display group names stay right as spines come and go.
     virtual void RenumberSpines();
