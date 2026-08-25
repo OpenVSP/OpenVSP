@@ -1028,6 +1028,7 @@ public:
            SKIN_DRAW_BOTTOM,
            SKIN_DRAW_LEFT,
            SKIN_DRAW_TOP,
+           SKIN_DRAW_SPINE,
            NUM_SKIN_DRAW };
 
     // The DrawObj colour each of those is drawn in.  Shared with the Skinning tab, which keys

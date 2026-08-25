@@ -6789,6 +6789,7 @@ static void AppendSkinVectors( const vec3d &pnt, const curve_point_type &tp, con
 // One colour per station, so what the sliders are moving can be picked out of the bundle of
 // vectors at a cross section.  The four sides take the set the engine definition stations
 // use, and the Skinning tab keys them by colouring each side's divider to match.
+// A spine is not one of the four and takes a colour of its own.
 int GeomXSec::SkinDrawColor( int k )
 {
     switch ( k )
@@ -6801,13 +6802,16 @@ int GeomXSec::SkinDrawColor( int k )
             return DrawObj::LIME;
         case SKIN_DRAW_RIGHT:
             return DrawObj::YELLOW;
+        case SKIN_DRAW_SPINE:
+            return DrawObj::BLUE;
     }
 
     return DrawObj::WHITE;
 }
 
-// The skinning controls are evaluated at the four spine stations in the order used to
-// build the control curves in XSec::GetTanNormCrv -- Right, Bottom, Left, Top.
+// The skinning controls are evaluated at every station, in the order used to build the
+// control curves in XSec::GetTanNormCrv -- the four sides at Right, Bottom, Left and Top,
+// with any spines between them.
 void GeomXSec::UpdateSkinDrawObj( const Matrix4d &relTrans, int index )
 {
     m_SkinDrawObj_vec.resize( NUM_SKIN_DRAW );
@@ -6871,15 +6875,25 @@ void GeomXSec::UpdateSkinDrawObj( const Matrix4d &relTrans, int index )
     }
 
     const piecewise_curve_type &crv = sxs->GetCurve().GetCurve();
-    double t0 = crv.get_t0();
-    double tmax = crv.get_tmax();
+
+    // Draw at every station, so user defined spines get vectors alongside the four sides.
+    vector< SkinXSec::SkinStation > stations;
+    sxs->GetStations( stations );
 
     // Ribs are skinned with a uniform parameterization, so one section spans du = 1.
     // Drawing the derivatives at full magnitude therefore shows the Hermite tangent and
     // curvature vectors that reach across the neighboring section.
-    for ( int i = 0; i < 4; i++ )
+    for ( int i = 0; i < ( int )stations.size(); i++ )
     {
-        double t = t0 + i * ( tmax - t0 ) / 4.0;
+        double t = stations[i].m_W;
+
+        // A side's station parameter is its own index -- the four of them sit at 0, 1, 2
+        // and 3.  Everything else came from a spine.
+        int k = SKIN_DRAW_SPINE;
+        if ( stations[i].m_IsSide )
+        {
+            k = ( int )stations[i].m_W;
+        }
 
         curve_point_type p = crv.f( t );
         vec3d pnt( p.x(), p.y(), p.z() );
@@ -6890,14 +6904,14 @@ void GeomXSec::UpdateSkinDrawObj( const Matrix4d &relTrans, int index )
         {
             AppendSkinVectors( pnt, beforetan.f( t ), beforenrm.f( t ), -1.0,
                                m_ShowSkinningTanFlag(), m_ShowSkinningCurveFlag(),
-                               m_SkinBeforeDrawObj_vec[i].m_PntVec );
+                               m_SkinBeforeDrawObj_vec[k].m_PntVec );
         }
 
         if ( drawafter )
         {
             AppendSkinVectors( pnt, aftertan.f( t ), afternrm.f( t ), 1.0,
                                m_ShowSkinningTanFlag(), m_ShowSkinningCurveFlag(),
-                               m_SkinDrawObj_vec[i].m_PntVec );
+                               m_SkinDrawObj_vec[k].m_PntVec );
         }
     }
 
