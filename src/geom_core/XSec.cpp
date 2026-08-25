@@ -416,13 +416,25 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
         pts[i] << thetas[i], angstr[i], crvstr[i];
         phipts[i] << phis[i], 0.0, 0.0;
     }
-    pcc.set_closed_cubic_spline( pts.begin() );
+    // A monotonicity limited PCHIP, rather than a C2 spline.  A C2 spline is a global
+    // interpolant: changing the control value at one station moves the curve everywhere, so
+    // editing a spine on one side of the body rings through to the far side.  PCHIP takes
+    // each joint's slope from its immediate neighbors, so a station's influence stops at the
+    // stations either side of it, and the limiter keeps the interpolated control inside the
+    // range the stations actually ask for -- four stations at 0, 0, 30, 0 degrees otherwise
+    // give an angle of -2.2 between them, a direction nobody chose.  The cost is C1 rather
+    // than C2 between stations.
+
+    // The second stage below keeps the unlimited form: it interpolates tangent and normal
+    // vectors, and limiting those would constrain each Cartesian component of a direction on
+    // its own, which is a different property and not one worth asking for.
+    pcc.set_monotonic_chip( pts.begin(), eli::geom::general::C1 );
 
     // Build control curve.
     piecewise_curve_type crvcntrl, crvphi;
     pcc.create( crvcntrl );
 
-    pcc.set_closed_cubic_spline( phipts.begin() );
+    pcc.set_monotonic_chip( phipts.begin(), eli::geom::general::C1 );
     pcc.create( crvphi );
 
 
@@ -526,11 +538,13 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
     {
         pcc.set_segment_dt( crvts[i+1] - crvts[i], i );
     }
-    // Build tangent and normal vector curves.
-    pcc.set_closed_cubic_spline( tanpts.begin() );
+    // Build tangent and normal vector curves.  PCHIP here too: a C2 spline through these
+    // samples would carry a station's influence back around the cross section even though
+    // the samples themselves are already local.
+    pcc.set_chip( tanpts.begin(), eli::geom::general::C1 );
     pcc.create( tangentcrv );
 
-    pcc.set_closed_cubic_spline( nrmpts.begin() );
+    pcc.set_chip( nrmpts.begin(), eli::geom::general::C1 );
     pcc.create( normcrv );
 }
 
