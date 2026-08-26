@@ -130,6 +130,7 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Side4Trim.SetDescript( "Side4 Trim Value" );
 
     m_WingParentFlag = false;
+    m_ConformalParentReported = false;
     m_TessU = 41;
     m_TessW = 41;
 
@@ -236,6 +237,29 @@ void ConformalGeom::UpdateSurf()
     {
         return;
     }
+
+    // A Conformal of a Conformal does not work and never has: the offset is built by moving
+    // the parent's skinning ribs, and a Conformal keeps none of its own to move.  It came out
+    // collapsed on the origin.  Say so and stop, rather than produce that quietly.
+    if ( parent_geom->GetType().m_Type == CONFORMAL_GEOM_TYPE )
+    {
+        // Once, not on every update.  UpdateSurf runs on every parameter change anywhere on
+        // the Geom, and a model left in this state would otherwise put an error dialog in
+        // front of the user on each one, which is not saying it more clearly -- it is
+        // stopping them fixing it.  Reset when the parent changes to something that works.
+        if ( !m_ConformalParentReported )
+        {
+            m_ConformalParentReported = true;
+
+            MessageData errMsgData;
+            errMsgData.m_String = "Error";
+            errMsgData.m_StringVec.push_back( "Error: A Conformal Geom may not be the parent of another Conformal Geom" );
+            MessageMgr::getInstance().SendAll( errMsgData );
+        }
+        return;
+    }
+
+    m_ConformalParentReported = false;
 
     //==== Wing Specific Stuff ====//
     m_WingParentFlag = false;
@@ -641,13 +665,40 @@ void ConformalGeom::OffsetCurve( curve_type & crv, double offset )
 //==== Force Reskin ====//
 void ConformalGeom::ReSkin( VspSurf & surf, vector< rib_data_type > & rib_vec )
 {
-    //==== Reskin Surface ====//
-    bool closed_flag = surf.GetSkinClosedFlag();
-    vector< int > degree_vec;
-    surf.GetSkinDegreeVec( degree_vec );
-    vector< double > parm_vec;
-    surf.GetSkinParmVec( parm_vec );
-    surf.SkinRibsUniform( rib_vec, degree_vec, parm_vec, closed_flag );
+    if ( surf.GetSkinBlendedFlag() )
+    {
+        // The parent was blended: one skin per group of stations enforcing alike, summed with
+        // weights.  Its conditions cannot be carried by a single rib set -- taking one meant
+        // applying that group's conditions right around the cross section, so the sides that
+        // asked for something else silently lost it, and once a group's conditions are
+        // confined to its own spans that rib is not one the uniform creator will even accept.
+        //
+        // Rebuild the same way instead.  The cross section curves are what this class moves,
+        // and every group carries the same ones, so put them back into each group and blend
+        // again with the weights the parent used.
+        vector< vector< rib_data_type > > sets;
+        surf.GetSkinRibSets( sets );
+
+        for ( int s = 0; s < ( int )sets.size(); s++ )
+        {
+            for ( int i = 0; i < ( int )sets[s].size() && i < ( int )rib_vec.size(); i++ )
+            {
+                sets[s][i].set_f( rib_vec[i].get_f() );
+            }
+        }
+
+        surf.ReSkinBlended( sets );
+    }
+    else
+    {
+        //==== Reskin Surface ====//
+        bool closed_flag = surf.GetSkinClosedFlag();
+        vector< int > degree_vec;
+        surf.GetSkinDegreeVec( degree_vec );
+        vector< double > parm_vec;
+        surf.GetSkinParmVec( parm_vec );
+        surf.SkinRibsUniform( rib_vec, degree_vec, parm_vec, closed_flag );
+    }
 
     if ( m_WingParentFlag )
     {
@@ -711,6 +762,16 @@ void ConformalGeom::AdjustShape( VspSurf & surf, const VspSurf & ref_surf, doubl
 
     if ( rib_vec.size() < 2 )
         return;
+
+    // This tunes the offset by scaling the tangents on one rib set.  A blended surface has one
+    // set per group and they carry different tangents, so scaling the first group's and
+    // reusing it for the rest would put that group's skinning everywhere -- the shape error it
+    // is trying to reduce.  The offset is a little less closely held without it; the shape is
+    // right, which matters more.
+    if ( surf.GetSkinBlendedFlag() )
+    {
+        return;
+    }
 
     double u_r = 1.0/3.0;
     double u_l = 2.0/3.0;

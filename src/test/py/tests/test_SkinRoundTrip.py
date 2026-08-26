@@ -508,3 +508,75 @@ def test_the_surface_does_not_tear_between_stations():
         assert biggest < 1.3 * typical, \
             "spine at W01=%.3f: the section steps by %.4f where it usually steps %.4f" % (
                 w01, biggest, typical )
+
+
+def test_a_conformal_child_reproduces_a_blended_parent():
+    """A Conformal geom rebuilds its parent's skin from what the surface kept.
+
+    A blended surface is one skin per group of stations enforcing alike, summed with weights,
+    and no single rib set describes it.  The surface used to keep only the first group's ribs,
+    so the child applied that group's conditions right around the cross section and the sides
+    that asked for something else silently lost them -- and once a group's conditions are
+    confined to its own spans, that rib is not one the uniform creator will even accept, so it
+    failed outright.
+
+    At zero offset the child should sit exactly on its parent, which is the sharpest statement
+    of "rebuilt the same surface".
+    """
+    for spine in [ False, True ]:
+        vsp.VSPRenew()
+        gid = vsp.AddGeom( "STACK" )
+        xsurf = vsp.GetXSecSurf( gid, 0 )
+
+        if spine:
+            vsp.AddSkinSpine( gid, 0.35 )
+        vsp.Update()
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            xsec = vsp.GetXSec( xsurf, i )
+            for nm in [ "AllSym", "TBSym", "RLSym" ]:
+                vsp.SetParmVal( vsp.GetXSecParm( xsec, nm ), 0.0 )
+
+            # Top and Left hold a tangent, Bottom and Right run free: several groups, so the
+            # parent is blended.
+            for side in SIDES:
+                on = 0.0
+                if side in ( "Top", "Left" ):
+                    on = 1.0
+                for nm in EQUALS:
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + nm ), 0.0 )
+                for lr in [ "L", "R" ]:
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "AngleSet" ), on )
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "Angle" ), 25.0 )
+
+            if spine:
+                spn = vsp.GetSkinSpineID( xsec, 0 )
+                for nm in EQUALS:
+                    vsp.SetParmVal( vsp.GetSkinSpineParm( spn, nm ), 0.0 )
+                for lr in [ "L", "R" ]:
+                    vsp.SetParmVal( vsp.GetSkinSpineParm( spn, lr + "AngleSet" ), 1.0 )
+                    vsp.SetParmVal( vsp.GetSkinSpineParm( spn, lr + "Angle" ), -30.0 )
+        vsp.Update()
+
+        cid = vsp.AddGeom( "CONFORMAL", gid )
+        vsp.SetParmVal( vsp.GetParm( cid, "Offset", "Design" ), 0.0 )
+        vsp.Update()
+
+        worst = 0.0
+        for i in range( 21 ):
+            for j in range( 31 ):
+                a = vsp.CompPnt01( gid, 0, i / 20.0, j / 30.0 )
+                b = vsp.CompPnt01( cid, 0, i / 20.0, j / 30.0 )
+                worst = max( worst, math.dist( ( a.x(), a.y(), a.z() ), ( b.x(), b.y(), b.z() ) ) )
+
+        assert worst < 1.0e-9, \
+            "spine=%s: conformal child at zero offset is %.3e from its parent" % ( spine, worst )
+
+
+def _sample_surface( gid, nu = 17, nw = 49 ):
+    pts = []
+    for i in range( nu ):
+        for j in range( nw ):
+            p = vsp.CompPnt01( gid, 0, i / ( nu - 1.0 ), j / ( nw - 1.0 ) )
+            pts.append( ( p.x(), p.y(), p.z() ) )
+    return pts

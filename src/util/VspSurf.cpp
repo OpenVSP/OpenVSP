@@ -74,6 +74,7 @@ VspSurf::VspSurf()
     m_ThickSurf = true;
     m_PlateNum = -1;
     m_SkinType = SKIN_NONE;
+    m_SkinBlendedFlag = false;
 
     m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
     m_FeaOrientation = vec3d();
@@ -126,6 +127,10 @@ void VspSurf::CopyNonSurfaceData( const VspSurf & s )
 
     //==== Store Skinning Inputs =====//
     m_SkinType = s.m_SkinType;
+    m_SkinBlendedFlag = s.m_SkinBlendedFlag;
+    m_SkinRibSets = s.m_SkinRibSets;
+    m_SkinWs = s.m_SkinWs;
+    m_SkinInsets = s.m_SkinInsets;
     m_BodyRevCurve = s.m_BodyRevCurve;
     m_SkinRibVec = s.m_SkinRibVec;
     m_SkinDegreeVec = s.m_SkinDegreeVec;
@@ -791,6 +796,19 @@ Matrix4d VspSurf::CompTransCoordSysLMN( const double &l, const double &m, const 
     return CompTransCoordSysRST( r, s, t );
 }
 
+// Let go of what a previous blend left here.  CopyNonSurfaceData copies these to every
+// symmetry image on every update, so a body that was briefly blended would otherwise carry
+// and re-copy its old rib sets for the rest of the session -- unread, because the flag
+// guards every use, which is the sort of thing that stays true until it does not.  Every
+// routine that gives this surface a shape some other way calls it.
+void VspSurf::ClearBlendData()
+{
+    m_SkinBlendedFlag = false;
+    m_SkinRibSets.clear();
+    m_SkinWs.clear();
+    m_SkinInsets.clear();
+}
+
 void VspSurf::CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm, int iaxis )
 {
     eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), iaxis, true, match_uparm );
@@ -799,6 +817,7 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm,
     ResetUSkip();
 
     //==== Store Skinning Data ====//
+    ClearBlendData();
     m_SkinType = SKIN_BODY_REV;
     m_BodyRevCurve = input_crv;
 }
@@ -992,6 +1011,9 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
 
     //==== Store Skinning Data ====//
     m_SkinType = SKIN_RIBS;
+
+    ClearBlendData();
+
     m_SkinRibVec = ribs;
     m_SkinDegreeVec = degree;
     m_SkinParmVec = param;
@@ -1117,6 +1139,7 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
             return;
         }
     }
+
     int nst = ws.size();
 
     // Where each set is wanted.
@@ -1383,6 +1406,21 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
     m_SkinDegreeVec = vector< int >( nrib - 1, 0 );
     m_SkinParmVec = param;
     m_SkinClosedFlag = closed_flag;
+
+    // Keep everything the blend was made of.  m_SkinRibVec alone is one group's ribs, which
+    // is not this surface and, once a group's conditions are confined to its own spans, not
+    // even a valid rib for the uniform creator.
+    m_SkinBlendedFlag = true;
+    m_SkinRibSets = ribsets;
+    m_SkinWs = ws;
+    m_SkinInsets = insets;
+}
+
+// Skin again from modified rib sets, keeping the weights and parameterization this surface
+// was blended with.
+void VspSurf::ReSkinBlended( const vector< vector< rib_data_type > > & sets )
+{
+    SkinRibsBlended( sets, m_SkinWs, m_SkinInsets, m_SkinParmVec, m_SkinClosedFlag );
 }
 
 void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets, const vector < double > &ws,
@@ -1448,6 +1486,9 @@ void VspSurf::SkinRibsUniform( const vector<rib_data_type> &ribs, const vector <
 
     //==== Store Skinning Data ====//
     m_SkinType = SKIN_RIBS;
+
+    ClearBlendData();
+
     m_SkinRibVec = ribs;
     m_SkinDegreeVec = degree;
     m_SkinParmVec = param;
@@ -1485,6 +1526,8 @@ void VspSurf::SkinRibsUniform( const vector<rib_data_type> &ribs, bool closed_fl
 
 void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, const vector < int > &degree, bool closed_flag )
 {
+    ClearBlendData();
+
     spline_creator_type sc;
     surface_index_type nrib, i;
 

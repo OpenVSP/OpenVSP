@@ -141,6 +141,11 @@ protected:
 
 
     bool m_WingParentFlag;
+
+    // Whether the Conformal-of-a-Conformal refusal has already been reported for the parent
+    // now in place.  UpdateSurf runs on every parameter change, and the message is worth
+    // sending once rather than on each of them.
+    bool m_ConformalParentReported;
     string m_ConformalParentID;
 
 };
