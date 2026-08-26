@@ -6928,7 +6928,8 @@ void GeomXSec::UpdateSkinDrawObj( const Matrix4d &relTrans, int index )
 // Returns false when every station enforces the same conditions, in which case there is a
 // single group and the caller should take the ordinary unblended path.
 bool GeomXSec::BuildSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
-                                 vector< double > &ws, vector< vector< bool > > &insets )
+                                 vector< double > &ws, vector< vector< bool > > &insets,
+                                 vector< int > &stationmap )
 {
     rib_sets.clear();
     insets.clear();
@@ -6946,6 +6947,65 @@ bool GeomXSec::BuildSkinRibSets( int nxsec, vector< vector< rib_data_type > > &r
             break;
         }
     }
+
+    // A spine that enforces nothing anywhere has nothing to say about the loft, and letting
+    // it stand would hand its neighborhood to a pass that enforces nothing.  Drop it.  This
+    // is decided across every XSec at once, so the station layout stays identical for all of
+    // them -- the rib sets are blended against one shared list of W, and a station that
+    // vanished from one XSec but not another would tear that apart.
+    vector< SkinXSec::SkinStation > st0;
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            xs->GetStations( st0 );
+            break;
+        }
+    }
+
+    stationmap.clear();
+    for ( int k = 0; k < ( int )st0.size(); k++ )
+    {
+        bool anywhere = st0[k].m_IsSide;
+
+        for ( int i = 0; i < nxsec && !anywhere; i++ )
+        {
+            SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+            if ( !xs )
+            {
+                continue;
+            }
+
+            vector< SkinXSec::SkinStation > st;
+            xs->GetStations( st );
+
+            // The angle and curvature flags and no others, because those are the four the
+            // grouping keys on and the two per side a rib is built from.  Slew and strength
+            // are parts of a tangent the angle flag decides, and gate nothing by themselves
+            // -- a station carrying only those enforces nothing, but asking about them here
+            // would keep it, hand it a condition group of its own and blend that group's
+            // unconstrained solution into the surface.
+            if ( k < ( int )st.size() &&
+                 ( st[k].m_LAngleSet || st[k].m_LCurveSet ||
+                   st[k].m_RAngleSet || st[k].m_RCurveSet ) )
+            {
+                anywhere = true;
+            }
+        }
+
+        if ( anywhere )
+        {
+            stationmap.push_back( k );
+        }
+    }
+
+    vector< double > wskept( stationmap.size() );
+    for ( int k = 0; k < ( int )stationmap.size(); k++ )
+    {
+        wskept[k] = ws[ stationmap[k] ];
+    }
+    ws = wskept;
 
     int nst = ws.size();
     if ( nst < 1 )
@@ -6993,8 +7053,16 @@ bool GeomXSec::BuildSkinRibSets( int nxsec, vector< vector< rib_data_type > > &r
             {
                 const vector< SkinXSec::SkinStation > &st = xsecstations[i];
 
-                if ( st[a].m_LAngleSet != st[b].m_LAngleSet || st[a].m_LCurveSet != st[b].m_LCurveSet ||
-                     st[a].m_RAngleSet != st[b].m_RAngleSet || st[a].m_RCurveSet != st[b].m_RCurveSet )
+                int sa = stationmap[a];
+                int sb = stationmap[b];
+
+                if ( sa >= ( int )st.size() || sb >= ( int )st.size() )
+                {
+                    continue;
+                }
+
+                if ( st[sa].m_LAngleSet != st[sb].m_LAngleSet || st[sa].m_LCurveSet != st[sb].m_LCurveSet ||
+                     st[sa].m_RAngleSet != st[sb].m_RAngleSet || st[sa].m_RCurveSet != st[sb].m_RCurveSet )
                 {
                     same = false;
                 }
@@ -7070,7 +7138,8 @@ void GeomXSec::PrepSkinRibs( int nxsec )
 // which is the whole of where its blend weight is nonzero, and takes its control values only
 // from those stations.  See SkinXSec::GetGroupRib.
 void GeomXSec::StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
-                                 const vector< vector< bool > > &insets, bool closed )
+                                 const vector< vector< bool > > &insets,
+                                 const vector< int > &stationmap, bool closed )
 {
     int ngroup = rib_sets.size();
 
@@ -7078,6 +7147,8 @@ void GeomXSec::StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &r
     {
         return;
     }
+
+    int nst = stationmap.size();
 
     vector< vector< SkinXSec::SkinStation > > allstations( nxsec );
 
@@ -7092,7 +7163,34 @@ void GeomXSec::StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &r
         bool first = ( i == 0 );
         bool last = ( i == nxsec - 1 );
 
-        xs->GetStations( allstations[i] );
+        vector< SkinXSec::SkinStation > full;
+        xs->GetStations( full );
+
+        // Only the kept stations shape the curves.  A dropped spine enforces nothing
+        // anywhere, so its values are pure readback and would otherwise still bend the
+        // control spline through a knot that says nothing.
+        //
+        // The map indexes the unfiltered list of whichever XSec BuildSkinRibSets read, so
+        // what matters is the largest index it holds, not how many entries it has.  All the
+        // XSecs carry the same stations, so this cannot bite; clamping rather than skipping
+        // keeps a malformed model from reading past the end without leaving this XSec
+        // without a rib.
+        allstations[i].resize( nst );
+        for ( int k = 0; k < nst; k++ )
+        {
+            if ( full.empty() )
+            {
+                break;
+            }
+
+            int idx = stationmap[k];
+            if ( idx >= ( int )full.size() )
+            {
+                idx = ( int )full.size() - 1;
+            }
+
+            allstations[i][k] = full[idx];
+        }
     }
 
     // Curvature is specified in a frame the angle and slew define, so a pass enforcing

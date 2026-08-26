@@ -793,7 +793,8 @@ void StackGeom::UpdateSurf()
     // Validation cascades the Set flags, and the grouping below keys on them.
     PrepSkinRibs( nxsec );
 
-    bool blend = BuildSkinRibSets( nxsec, rib_sets, station_w, insets );
+    vector< int > stationmap;
+    bool blend = BuildSkinRibSets( nxsec, rib_sets, station_w, insets, stationmap );
 
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < nxsec ; i++ )
@@ -813,7 +814,14 @@ void StackGeom::UpdateSurf()
 
     // Values a pass does not own now come from a pass that left them free, so the ribs
     // cannot be filled until every XSec is placed.
-    StageSkinRibSets( nxsec, rib_sets, insets, false );
+    StageSkinRibSets( nxsec, rib_sets, insets, stationmap, false );
+
+    // BuildSkinRibSets gives up without a station, which cannot happen for these Geoms -- but
+    // both branches below index the first set.
+    if ( rib_sets.empty() )
+    {
+        return;
+    }
 
     if ( !blend )
     {

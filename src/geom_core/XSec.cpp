@@ -1613,8 +1613,14 @@ SkinSpine* SkinXSec::GetSpine( int index )
     return m_SpineVec[index];
 }
 
+// The four sides sit at 0, 1, 2 and 3, which is the cross section curve's own parameter only
+// because every XSecCurve in the tree runs 0 to 4.  Spines are placed as t0 + w, and
+// GetGroupRib lays its condition regions out from t0, so all three agree only while t0 is
+// zero.  Nothing here would notice if that changed.
 void SkinXSec::GetSideStation( int side, SkinStation &st )
 {
+    assert( GetCurve().GetCurve().get_t0() == 0.0 );
+
     st.m_W = side;
     st.m_IsSide = true;
 

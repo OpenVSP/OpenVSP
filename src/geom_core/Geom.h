@@ -1058,10 +1058,12 @@ protected:
 
     // Fill every pass's rib set from the cross sections.
     void StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
-                           const vector< vector< bool > > &insets, bool closed );
+                           const vector< vector< bool > > &insets,
+                           const vector< int > &stationmap, bool closed );
 
     bool BuildSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
-                           vector< double > &ws, vector< vector< bool > > &insets );
+                           vector< double > &ws, vector< vector< bool > > &insets,
+                           vector< int > &stationmap );
 
     virtual void NormalizeFlaps();
 

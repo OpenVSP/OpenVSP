@@ -258,6 +258,8 @@ public:
         double m_W;
 
         // Whether this is one of the four fixed sides or came from a spine.
+        // The sides anchor the control spline and always stand; a spine is the user's, and
+        // one that enforces nothing anywhere is dropped instead.
         bool m_IsSide;
 
         bool m_LAngleSet;
