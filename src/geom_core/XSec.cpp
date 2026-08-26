@@ -204,19 +204,35 @@ void XSec::CopyFrom( XSec* xs )
 {
     string lastreset = IDMgr.ResetRemapID();
     xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
-    if ( xs->GetType() == GetType() && xs->GetXSecCurve()->GetType() == GetXSecCurve()->GetType() )
-    {
-        xs->EncodeXml( root );
-        IDMgr.PreRegisterIDs( root );
-        DecodeXml( root );
-    }
-    else
-    {
-        xs->XSec::EncodeXml( root );
-        DecodeXml( root );
 
+    // Always encode the source at its own level, and let this XSec take what it recognizes.
+    // Decoding is already tolerant in both directions: ParmContainer::DecodeXml matches parms
+    // by name, so a parm this type does not have is simply absent and keeps its default, and
+    // a node this type does not know about is never looked for.
+    //
+    // Dropping to XSec::EncodeXml when the types differed threw away everything a derived
+    // XSec holds outside its own Parms.  For a SkinXSec that is the entire spine set, and
+    // ChangeXSecShape takes this path every single time: it builds the replacement from the
+    // same XSecSurf, so the XSec types always match and only the XSecCurve type differs.
+    // Changing a cross section's shape silently deleted its spines, and doing it to the
+    // active cross section deleted them from every cross section on the Geom, because
+    // SyncSkinSpines then truncated the rest to match the master.
+    xs->EncodeXml( root );
+    IDMgr.PreRegisterIDs( root );
+    DecodeXml( root );
+
+    // Width and height are the one thing names cannot carry across a type change: the curve
+    // types spell them differently -- Diameter, Chord, Width -- so nothing above restated
+    // them.  Only needed when the curve types differ.  Doing it unconditionally would be
+    // harmless for the plain setters but not quite for an Airfoil, where GetHeight is
+    // m_Chord * m_ThickChord and SetWidthHeight divides it back out: (c*t)/c differs from t
+    // in the last bit about an eighth of the time, so a same type copy would stop being
+    // exact.
+    if ( xs->GetXSecCurve()->GetType() != GetXSecCurve()->GetType() )
+    {
         m_XSCurve->SetWidthHeight( xs->GetXSecCurve()->GetWidth(), xs->GetXSecCurve()->GetHeight() );
     }
+
     xmlFreeNode( root );
     IDMgr.ResetRemapID( lastreset );
 }
@@ -1354,6 +1370,43 @@ string SkinXSec::UnusedSpineName() const
         if ( !taken )
         {
             return string( str );
+        }
+    }
+}
+
+// ParmContainer::SwapIDs pairs Parms by name and group inside the container it is given, so
+// it never reaches a spine -- a spine is a container of its own, nested in this one.
+//
+// ChangeXSecShape is what makes that matter.  It builds the replacement from the same
+// XSecSurf and hands the old cross section here so the new one keeps its Parm identity;
+// without this the spines come back with freshly minted IDs, and a Parm Link or a Design
+// Variable pointing at a spine parm is left pointing at nothing while the same link onto one
+// of the four sides survives.  Match the spines by tag, the way the sync does.
+void SkinXSec::SwapIDs( ParmContainer* from )
+{
+    XSec::SwapIDs( from );
+
+    SkinXSec* sfrom = dynamic_cast < SkinXSec* > ( from );
+    if ( !sfrom )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        if ( !m_SpineVec[i] )
+        {
+            continue;
+        }
+
+        for ( int j = 0; j < ( int )sfrom->m_SpineVec.size(); j++ )
+        {
+            if ( sfrom->m_SpineVec[j] &&
+                 sfrom->m_SpineVec[j]->GetSpineID() == m_SpineVec[i]->GetSpineID() )
+            {
+                m_SpineVec[i]->SwapIDs( sfrom->m_SpineVec[j] );
+                break;
+            }
         }
     }
 }

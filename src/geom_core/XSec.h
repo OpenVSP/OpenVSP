@@ -208,6 +208,9 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    // Carry the spines' Parm identity across as well as this container's own.
+    virtual void SwapIDs( ParmContainer* from );
+
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
     virtual void CopySetValidate( IntParm &m_TopCont,
