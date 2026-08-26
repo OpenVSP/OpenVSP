@@ -152,6 +152,39 @@ void vector_remove_vector( vector< T > & vec, const vector< T > & rem_vec )
     }
 }
 
+//==== Delete Vector of Indices from Vector ====//
+template <class T>
+void vector_remove_indices( vector< T > & vec, const vector< int > & indices )
+{
+    vector< int > sorted_indices = indices;
+
+    // sort indices from smallest to largest, each once
+    std::sort( sorted_indices.begin(), sorted_indices.end() );
+    sorted_indices.erase( std::unique( sorted_indices.begin(), sorted_indices.end() ), sorted_indices.end() );
+
+    // work from largest index to smallest to prevent indexing issues
+    while ( !sorted_indices.empty() )
+    {
+        vec.erase( vec.begin() + sorted_indices.back() );
+        sorted_indices.pop_back();
+    }
+}
+
+//==== Delete Referenced Objects from Vector ====//
+template <class T>
+void vector_delete_indices( vector< T > & vec, const vector< int > & indices )
+{
+    // each index once, so no object is deleted twice
+    vector< int > sorted_indices = indices;
+    std::sort( sorted_indices.begin(), sorted_indices.end() );
+    sorted_indices.erase( std::unique( sorted_indices.begin(), sorted_indices.end() ), sorted_indices.end() );
+
+    for ( int i = 0 ; i < ( int )sorted_indices.size() ; i++ )
+    {
+        delete vec[sorted_indices[i]];
+    }
+}
+
 template <class T>
 int vector_find_minimum( const vector < T > & vec )
 {
