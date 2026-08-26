@@ -757,6 +757,18 @@ void SkinXSec::ValidateParms( IntParm &Cont,
     BoolParm &LRStrengthEq,
     BoolParm &LRCurveEq )
 {
+    // Settle the angle flags before deriving anything from them.  Equality forces its pair
+    // on, and that used to happen at the bottom -- after slew and strength had been derived
+    // from the angle flag's earlier value.  One pass then left LAngleSet on with LStrengthSet
+    // off, which the line below says cannot happen, and the surface was built from that state
+    // while the next validation quietly produced a different one.
+    if ( LRAngleEq() )
+    {
+        LAngleSet = true;
+        RAngleSet = true;
+    }
+
+    // Slew and strength are parts of the same tangent as the angle, so they follow it.
     LStrengthSet = LAngleSet();
     RStrengthSet = RAngleSet();
     LSlewSet = LAngleSet();
