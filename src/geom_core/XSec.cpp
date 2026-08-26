@@ -2254,7 +2254,33 @@ void SkinXSec::GetGroupRib( bool first, bool last, const vector< SkinStation > &
         }
     }
 
-    rib.set_condition_regions( breaks, masks );
+    // Leave the regions off only when this group owns every station, which is to say it is
+    // the only group: the rib then enforces the same thing all the way round, which is what a
+    // rib without regions means, and the faster uniform creator -- which knows nothing of
+    // regions -- can take it.
+    //
+    // Not merely when the group touches every span.  A rib gains a joint at a station either
+    // by carrying regions, whose breaks are merged into the joint set, or by carrying a
+    // tangent or normal curve, which is sampled at the stations.  A group that enforces
+    // nothing has neither, so dropping its regions would leave it with no joint where a
+    // station falls between two cross section curve joints -- while the group that does
+    // enforce there has one.  The two skins would then have different patches, and the blend,
+    // which pairs them by patch index, would multiply a weight into the wrong interval and
+    // tear the surface.
+    bool ownsall = true;
+    for ( int k = 0; k < n; k++ )
+    {
+        if ( k >= ( int )ingroup.size() || !ingroup[k] )
+        {
+            ownsall = false;
+            break;
+        }
+    }
+
+    if ( !ownsall )
+    {
+        rib.set_condition_regions( breaks, masks );
+    }
 }
 
 void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )

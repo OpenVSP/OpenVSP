@@ -47,6 +47,14 @@ typedef eli::geom::surface::piecewise_uniform_skinning_surface_creator<double, 3
 typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
 typedef eli::geom::surface::piecewise_cubic_spline_skinning_surface_creator<double, 3, surface_tolerance_type> spline_creator_type;
 
+// Tolerant ordering for merging skinning joint parameters: joints closer together than
+// the tolerance are the same joint.
+static bool JointLess( const double &a, const double &b )
+{
+    surface_tolerance_type tol;
+    return tol.approximately_less_than( a, b );
+}
+
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
 typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
@@ -1020,76 +1028,45 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, bool closed_flag )
     SkinRibs( ribs, degree, closed_flag );
 }
 
-// Build the blend weight for one station as a scalar surface.
-//
-// Each weight is one at its own station, zero at every other, and the set sums to one.
-// Between two neighboring stations only those two are nonzero, and there they are
-// complements: the ramp is a smoothstep, whose Bernstein control points are simply
-// [0, 0, 1, 1] going up and [1, 1, 0, 0] coming down.  Two ramps that sum to one at every
-// control point sum to one everywhere, so the partition of unity is exact by construction
-// rather than by arithmetic.
-//
-// The zero slope at both ends of the ramp is what makes the weight safe to blend with.
-// The tangent jump a weight contributes at a station is proportional to the jump in its
-// slope there, so a linear ramp would tear the tangent at every station in proportion to
-// how far apart the surfaces being blended are.
-//
-// Stations need not be evenly spaced: the spans are whatever the station parameters say,
-// and the ramp shape is the same on each regardless of its width.  A station may also be
-// shared by several members of a group, in which case both ends of a span carry one and
-// the ramp degenerates to a constant -- which is what lets several stations enforcing the
-// same conditions share a single skin.
-//
-// One patch per span, constant in u.  product1d splits this to the skin's parameterization
-// and the skin to this one, and Bezier subdivision is exact, so there is no need to align
-// anything here.
-static void BuildSkinWeightSurf( double u0, double umax, const vector< double > &ws, double vmax,
-                                 const vector< bool > &inset, oned_piecewise_surface_type &wsurf )
+// The one weight shape there is: degree zero in u, cubic in v, control points [1,1,0,0]
+// ramping down across the span or [0,0,1,1] ramping up.  Only where it sits changes.
+static void BuildSpanWeight( double u0, double umax, double v0, double vmax, bool down,
+                             oned_piecewise_surface_type &w )
 {
-    int nst = ws.size();
-
     vector< double > upmap, vpmap;
-
     upmap.push_back( u0 );
     upmap.push_back( umax );
-
-    for ( int k = 0; k < nst; k++ )
-    {
-        vpmap.push_back( ws[k] );
-    }
+    vpmap.push_back( v0 );
     vpmap.push_back( vmax );
 
-    wsurf.init_uv( upmap, vpmap );
+    w.init_uv( upmap, vpmap );
 
-    for ( int k = 0; k < nst; k++ )
+    double cp[4] = { 0.0, 0.0, 1.0, 1.0 };
+    if ( down )
     {
-        // Span k runs from station k to station k+1, the last wrapping onto station 0.
-        double a = 0.0;
-        double b = 0.0;
-
-        if ( inset[k] )
-        {
-            a = 1.0;
-        }
-        if ( inset[( k + 1 ) % nst] )
-        {
-            b = 1.0;
-        }
-
-        double cp[4] = { a, a, b, b };
-
-        oned_surface_patch_type wp;
-        wp.resize( 0, 3 );
-
-        for ( int j = 0; j <= 3; j++ )
-        {
-            oned_surface_point_type pt;
-            pt << cp[j];
-            wp.set_control_point( pt, 0, j );
-        }
-
-        wsurf.set( wp, 0, k );
+        cp[0] = 1.0; cp[1] = 1.0; cp[2] = 0.0; cp[3] = 0.0;
     }
+
+    oned_surface_patch_type wp;
+    wp.resize( 0, 3 );
+
+    for ( int j = 0; j <= 3; j++ )
+    {
+        oned_surface_point_type pt;
+        pt << cp[j];
+        wp.set_control_point( pt, 0, j );
+    }
+
+    w.set( wp, 0, 0 );
+}
+
+// Raise both patches to the degree of the higher, so their control points can be added.
+static void MatchDegree( surface_patch_type &a, surface_patch_type &b )
+{
+    if ( a.degree_u() < b.degree_u() ) { a.promote_u_to( b.degree_u() ); }
+    if ( b.degree_u() < a.degree_u() ) { b.promote_u_to( a.degree_u() ); }
+    if ( a.degree_v() < b.degree_v() ) { a.promote_v_to( b.degree_v() ); }
+    if ( b.degree_v() < a.degree_v() ) { b.promote_v_to( a.degree_v() ); }
 }
 
 // Skin one surface per condition set and blend the results.
@@ -1140,8 +1117,46 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
             return;
         }
     }
+    int nst = ws.size();
 
-    vector< piecewise_surface_type > surfvec( nset );
+    // Where each set is wanted.
+    //
+    // A set's weight is one at its own stations and zero at every other, ramping across the
+    // spans between, so it is nonzero only on the spans touching a station it owns.  Every
+    // other span multiplies that set's solution by zero.  Since a span has two ends, no span
+    // ever needs more than two of the sets, however many there are -- so solving every set
+    // over the whole cross section costs N skins where the answer only ever uses two.
+    vector< vector< double > > vlo( nset ), vhi( nset );
+
+    for ( int s = 0; s < nset; s++ )
+    {
+        for ( int k = 0; k < nst; k++ )
+        {
+            double a = ws[k];
+
+            // The last span closes onto the seam, whose parameter is not known until the
+            // surface exists.  Leave its far end open.
+            double b = 1.0e30;
+            if ( k + 1 < nst )
+            {
+                b = ws[k + 1];
+            }
+
+            if ( insets[s][k] || insets[s][( k + 1 ) % nst] )
+            {
+                vlo[s].push_back( a );
+                vhi[s].push_back( b );
+            }
+        }
+    }
+
+    // Bring the sets onto one patch grid.  Each set is skinned on its own, and the creator
+    // takes a surface's v joints from that set's own rib joints and condition breaks, so two
+    // sets need not agree.  The blend below indexes every set by a single grid, so collect
+    // the joints every set asks for and split every set's ribs to the union.  set_conditions
+    // then reaches the same v-parameterization for each set, since the union already holds
+    // everything it would add, and patch (u,v) is the same span in every set.
+    vector< double > vjoints;
 
     for ( int s = 0; s < nset; s++ )
     {
@@ -1154,29 +1169,47 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
             return;
         }
 
+        vector< double > sjoints( 1, gc.get_v0() );
+        for ( surface_index_type j = 0; j < gc.get_number_v_segments(); j++ )
+        {
+            sjoints.push_back( sjoints[j] + gc.get_segment_dv( j ) );
+        }
+
+        vector< double > merged;
+        std::set_union( vjoints.begin(), vjoints.end(), sjoints.begin(), sjoints.end(),
+                        std::back_inserter( merged ), JointLess );
+        vjoints.swap( merged );
+    }
+
+    vector< piecewise_surface_type > surfvec( nset );
+
+    for ( int s = 0; s < nset; s++ )
+    {
+        general_creator_type gc;
+        std::vector< typename general_creator_type::index_type > max_degree( nrib - 1, 0 );
+
+        vector< rib_data_type > ribs( ribsets[s] );
+        for ( surface_index_type i = 0; i < nrib; i++ )
+        {
+            vector< typename general_creator_type::index_type > jdegs;
+            ribs[i].split( vjoints.begin(), vjoints.end(), std::back_inserter( jdegs ) );
+        }
+
+        if ( !gc.set_conditions( ribs, max_degree, closed_flag ) )
+        {
+            printf( "Failure in SkinRibsBlended set_conditions\n" );
+            return;
+        }
+
         gc.set_u0( param[0] );
         for ( surface_index_type i = 0; i < gc.get_number_u_segments(); ++i )
         {
             gc.set_segment_du( param[i + 1] - param[i], i );
         }
 
-        if ( !gc.create( surfvec[s] ) )
+        if ( !gc.create( surfvec[s], vlo[s], vhi[s] ) )
         {
             printf( "Failure in SkinRibsBlended create\n" );
-            return;
-        }
-    }
-
-    // Every set carries the same rib curves, so the patch layout matches; only the u
-    // degree varies with how many conditions each set enforces.
-    surface_index_type nu = surfvec[0].number_u_patches();
-    surface_index_type nv = surfvec[0].number_v_patches();
-
-    for ( int s = 1; s < nset; s++ )
-    {
-        if ( surfvec[s].number_u_patches() != nu || surfvec[s].number_v_patches() != nv )
-        {
-            printf( "Mismatched patch layout in SkinRibsBlended\n" );
             return;
         }
     }
@@ -1188,23 +1221,156 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
     double umax = surfvec[0].get_umax();
     double vmax = surfvec[0].get_vmax();
 
+    // Assemble the blend a span at a time.
+    //
+    // Between two stations there are only ever two cases.  If both ends belong to the
+    // same set, that set's weight is identically one across the span and every other
+    // set's is identically zero, so the answer is that set's patches -- copied, with no
+    // arithmetic at all.  If the ends belong to different sets, exactly those two
+    // contribute, one ramping down and the other up, and they are the only spans that
+    // cost a product and a sum.
+    //
+    // So the only weight patches that exist are [1,1,0,0] and [0,0,1,1], degree zero in
+    // u and cubic in v.  Where a span sits is a matter of v0 and dv, not of shape, and
+    // nothing has to be built per set or carried across the whole cross section.
+    vector< double > upmap, vpmap;
+    surfvec[0].get_pmap_uv( upmap, vpmap );
+
+    m_Surface.init_uv( upmap, vpmap );
+
+    surface_index_type npu = surfvec[0].number_u_patches();
+    int nvseg = ( int )vpmap.size() - 1;
+
+    // Every set is cut in the same places, because the ribs were all split to the union of
+    // every set's joints before they were skinned.  The assembly below relies on it: it
+    // pairs patches by index, and piecewise::get leaves its output untouched and merely
+    // returns an error code when asked for a patch that is not there, which summed and
+    // stored would put a patch at the origin with nothing said.  Say it here instead.
+    for ( int s = 1; s < nset; s++ )
+    {
+        if ( surfvec[s].number_u_patches() != npu ||
+             ( int )surfvec[s].number_v_patches() != nvseg )
+        {
+            printf( "SkinRibsBlended: set %d has a %d by %d patch grid against %d by %d\n",
+                    s, ( int )surfvec[s].number_u_patches(), ( int )surfvec[s].number_v_patches(),
+                    ( int )npu, nvseg );
+            return;
+        }
+    }
+
+    double uw0 = upmap[0];
+    double uwmax = upmap[upmap.size() - 1];
+
+    // Which set owns each station.  A station belongs to exactly one.
+    vector< int > owner( nst, 0 );
     for ( int s = 0; s < nset; s++ )
     {
-        oned_piecewise_surface_type wsurf;
-        piecewise_surface_type prod;
-
-        BuildSkinWeightSurf( u0, umax, ws, vmax, insets[s], wsurf );
-        prod.product1d( surfvec[s], wsurf );
-
-        if ( s == 0 )
+        for ( int k = 0; k < nst; k++ )
         {
-            m_Surface = prod;
+            if ( insets[s][k] )
+            {
+                owner[k] = s;
+            }
         }
-        else
+    }
+
+    for ( int k = 0; k < nst; k++ )
+    {
+        double wa = ws[k];
+        double wb = vpmap[nvseg];
+        if ( k + 1 < nst )
         {
-            piecewise_surface_type tmp;
-            tmp.sum( m_Surface, prod );
-            m_Surface = tmp;
+            wb = ws[k + 1];
+        }
+
+        // The skin's joints include every station, so each of its segments lies wholly
+        // within one span.
+        int va = -1;
+        int vb = -1;
+        for ( int v = 0; v < nvseg; v++ )
+        {
+            double vmid = 0.5 * ( vpmap[v] + vpmap[v + 1] );
+            if ( vmid > wa && vmid < wb )
+            {
+                if ( va < 0 )
+                {
+                    va = v;
+                }
+                vb = v;
+            }
+        }
+
+        if ( va < 0 )
+        {
+            continue;
+        }
+
+        int g0 = owner[k];
+        int g1 = owner[( k + 1 ) % nst];
+
+        if ( g0 == g1 )
+        {
+            for ( int v = va; v <= vb; v++ )
+            {
+                for ( surface_index_type u = 0; u < npu; u++ )
+                {
+                    surface_patch_type sp;
+                    if ( surfvec[g0].get( sp, u, v ) != piecewise_surface_type::NO_ERRORS )
+                    {
+                        printf( "SkinRibsBlended: no patch %d %d in set %d\n", ( int )u, v, g0 );
+                        return;
+                    }
+                    if ( m_Surface.set( sp, u, v ) != piecewise_surface_type::NO_ERRORS )
+                    {
+                        printf( "Failure setting patch in SkinRibsBlended\n" );
+                        return;
+                    }
+                }
+            }
+            continue;
+        }
+
+        // A transition.  One weight ramps down across the span, the other up; split each
+        // at whatever joints fall inside, which is a handful, not the whole quilt.
+        oned_piecewise_surface_type wdn, wup;
+        BuildSpanWeight( uw0, uwmax, wa, wb, true, wdn );
+        BuildSpanWeight( uw0, uwmax, wa, wb, false, wup );
+
+        for ( int v = va; v < vb; v++ )
+        {
+            wdn.split_v( vpmap[v + 1] );
+            wup.split_v( vpmap[v + 1] );
+        }
+
+        for ( int v = va; v <= vb; v++ )
+        {
+            oned_surface_patch_type wp0, wp1;
+            wdn.get( wp0, 0, v - va );
+            wup.get( wp1, 0, v - va );
+
+            for ( surface_index_type u = 0; u < npu; u++ )
+            {
+                surface_patch_type s0, s1, p0, p1, acc;
+
+                if ( surfvec[g0].get( s0, u, v ) != piecewise_surface_type::NO_ERRORS ||
+                     surfvec[g1].get( s1, u, v ) != piecewise_surface_type::NO_ERRORS )
+                {
+                    printf( "SkinRibsBlended: no patch %d %d in set %d or %d\n", ( int )u, v, g0, g1 );
+                    return;
+                }
+
+                p0.product1d( s0, wp0 );
+                p1.product1d( s1, wp1 );
+
+                MatchDegree( p0, p1 );
+                acc.sum( p0, p1 );
+
+                if ( m_Surface.set( acc, u, v ) != piecewise_surface_type::NO_ERRORS )
+                {
+                    printf( "Failure setting patch in SkinRibsBlended\n" );
+                    return;
+                }
+            }
         }
     }
 

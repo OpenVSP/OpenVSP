@@ -825,7 +825,11 @@ void StackGeom::UpdateSurf()
 
     if ( !blend )
     {
-        m_MainSurfVec[0].SkinRibs( rib_sets[0], false );
+        // One group means every station enforces the same thing, which is the uniform
+        // structure this creator is built for -- and GetGroupRib leaves the regions off in
+        // that case, so there is nothing for it to be blind to.  It solves the whole quilt
+        // in one factored pass instead of one curve creator call per strip.
+        m_MainSurfVec[0].SkinRibsUniform( rib_sets[0], false );
     }
     else
     {
