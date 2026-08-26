@@ -15,6 +15,7 @@
 #include "ParmMgr.h"
 #include "IDMgr.h"
 #include "StlHelper.h"
+#include "XmlUtil.h"
 #include <float.h>
 
 using std::string;
@@ -746,6 +747,98 @@ SkinXSec::SkinXSec( XSecCurve *xsc ) : XSec( xsc)
     m_LeftRCurve.Init( "LeftRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 }
 
+SkinXSec::~SkinXSec()
+{
+    DelAllSpines();
+}
+
+xmlNodePtr SkinXSec::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr xsec_node = XSec::EncodeXml( node );
+
+    if ( xsec_node )
+    {
+        xmlNodePtr spine_root = xmlNewChild( xsec_node, nullptr, BAD_CAST "SkinSpines", nullptr );
+        if ( spine_root )
+        {
+            XmlUtil::AddIntNode( spine_root, "NumSpines", m_SpineVec.size() );
+
+            for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+            {
+                char name[256];
+                snprintf( name, sizeof( name ), "SkinSpine_%d", i );
+                xmlNodePtr spine_node = xmlNewChild( spine_root, nullptr, BAD_CAST name, nullptr );
+                if ( spine_node )
+                {
+                    XmlUtil::AddStringNode( spine_node, "SpineID", m_SpineVec[i]->GetSpineID() );
+                    m_SpineVec[i]->EncodeXml( spine_node );
+                }
+            }
+        }
+    }
+
+    return xsec_node;
+}
+
+xmlNodePtr SkinXSec::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr xsec_node = XSec::DecodeXml( node );
+
+    DelAllSpines();
+
+    if ( xsec_node )
+    {
+        xmlNodePtr spine_root = XmlUtil::GetNode( xsec_node, "SkinSpines", 0 );
+        if ( spine_root )
+        {
+            int nspine = XmlUtil::FindInt( spine_root, "NumSpines", 0 );
+
+            for ( int i = 0; i < nspine; i++ )
+            {
+                char name[256];
+                snprintf( name, sizeof( name ), "SkinSpine_%d", i );
+                xmlNodePtr spine_node = XmlUtil::GetNode( spine_root, name, 0 );
+                if ( spine_node )
+                {
+                    // Not AddSpine: every value it would set is about to be overwritten by
+                    // the file a line later.
+                    SkinSpine* sp = new SkinSpine();
+                    if ( sp )
+                    {
+                        // Older files carry no tag; give those a fresh one so the sync has
+                        // something to match on, which for a file written in step is the same
+                        // as matching by position.
+                        string sid = XmlUtil::FindString( spine_node, "SpineID", "" );
+                        if ( sid.empty() )
+                        {
+                            sid = GenerateRandomID( vsp::ID_LENGTH_PARMCONTAINER );
+                        }
+                        sp->SetSpineID( sid );
+                        sp->SetParentContainer( m_ID );
+                        m_SpineVec.push_back( sp );
+                        sp->DecodeXml( spine_node );
+                    }
+                }
+            }
+        }
+    }
+
+    return xsec_node;
+}
+
+void SkinXSec::AddLinkableParms( vector< string > & parm_vec, const string & link_container_id )
+{
+    XSec::AddLinkableParms( parm_vec, link_container_id );
+
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        if ( m_SpineVec[i] )
+        {
+            m_SpineVec[i]->AddLinkableParms( parm_vec, link_container_id );
+        }
+    }
+}
+
 
 
 void SkinXSec::CopySetValidate( IntParm &Cont,
@@ -1090,9 +1183,387 @@ void SkinXSec::ValidateParms( )
 // Fill one station from a side's parameters.  Slew carries a sign convention per side so
 // that a positive value reads the same way around the cross section; SetUnsetParms applies
 // the matching flip when reading achieved values back.
+//===============================================================================//
+//========================        SkinSpine        ==============================//
+//===============================================================================//
+
+SkinSpine::SkinSpine() : ParmContainer()
+{
+    m_Name = "Spine";
+
+    string group = "SkinSpine";
+
+    // Position on a [0, 1] basis, the way OpenVSP shows U and W everywhere else.  The
+    // skinning works in the cross section curve's own parameter, so this is scaled up
+    // wherever it is read -- 01 in the name to keep which basis is which unmistakable.
+    m_W01.Init( "W01", group, this, 0.125, 0.0, 1.0 );
+    m_W01.SetDescript( "Position of this spine around the cross section, on a [0, 1] basis" );
+
+    m_LRSymFlag.Init( "LRSym", group, this, false, 0, 1 );
+    m_LRSymFlag.SetDescript( "Mirror this spine to the other side" );
+    m_TBSymFlag.Init( "TBSym", group, this, false, 0, 1 );
+    m_TBSymFlag.SetDescript( "Mirror this spine to the other half" );
+
+    m_LAngleSet.Init( "LAngleSet", group, this, 0, 0, 1 );
+    m_LSlewSet.Init( "LSlewSet", group, this, 0, 0, 1 );
+    m_LStrengthSet.Init( "LStrengthSet", group, this, 0, 0, 1 );
+    m_LCurveSet.Init( "LCurveSet", group, this, 0, 0, 1 );
+    m_RAngleSet.Init( "RAngleSet", group, this, 0, 0, 1 );
+    m_RSlewSet.Init( "RSlewSet", group, this, 0, 0, 1 );
+    m_RStrengthSet.Init( "RStrengthSet", group, this, 0, 0, 1 );
+    m_RCurveSet.Init( "RCurveSet", group, this, 0, 0, 1 );
+
+    m_LRAngleEq.Init( "LRAngleEq", group, this, 0, 0, 1 );
+    m_LRSlewEq.Init( "LRSlewEq", group, this, 0, 0, 1 );
+    m_LRStrengthEq.Init( "LRStrengthEq", group, this, 0, 0, 1 );
+    m_LRCurveEq.Init( "LRCurveEq", group, this, 0, 0, 1 );
+
+    m_LAngle.Init( "LAngle", group, this, 0.0, -180.0, 180.0 );
+    m_LSlew.Init( "LSlew", group, this, 0.0, -180.0, 180.0 );
+    m_LStrength.Init( "LStrength", group, this, 0.0, 0.0, 1.0e12 );
+    m_LCurve.Init( "LCurve", group, this, 0.0, -1.0e12, 1.0e12 );
+    m_RAngle.Init( "RAngle", group, this, 0.0, -180.0, 180.0 );
+    m_RSlew.Init( "RSlew", group, this, 0.0, -180.0, 180.0 );
+    m_RStrength.Init( "RStrength", group, this, 0.0, 0.0, 1.0e12 );
+    m_RCurve.Init( "RCurve", group, this, 0.0, -1.0e12, 1.0e12 );
+}
+
+void SkinSpine::ParmChanged( Parm* parm_ptr, int type )
+{
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        pc->ParmChanged( parm_ptr, type );
+    }
+}
+
+void SkinSpine::SetGroupDisplaySuffix( int num )
+{
+    for ( int i = 0; i < ( int )m_ParmVec.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
+}
+
+void SkinSpine::SetGroupAlias( const string & alias )
+{
+    for ( int i = 0; i < ( int )m_ParmVec.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupAlias( alias );
+        }
+    }
+}
+
+// The spine itself plus a mirror for each symmetry asked for.  A left/right mirror sends
+// W to 2 - W, which fixes Bottom and Top and swaps Left and Right; a top/bottom mirror
+// sends W to -W, which fixes Right and Left and swaps Top and Bottom.  Asking for both
+// gives the third, W + 2.  Each reflection reverses the sense of slew, so the mirrored
+// copies carry a flag telling the caller to negate it.
+void SkinSpine::GetMirrorW( vector< double > &ws, vector< bool > &flipslew, double period )
+{
+    ws.clear();
+    flipslew.clear();
+
+    // Up into the cross section curve's parameter, where the reflections are expressed.
+    double w = m_W01() * period;
+
+    ws.push_back( w );
+    flipslew.push_back( false );
+
+    // Half a period is the Left station, which is the axis a left/right mirror reflects in.
+    double half = 0.5 * period;
+
+    if ( m_LRSymFlag() )
+    {
+        ws.push_back( half - w );
+        flipslew.push_back( true );
+    }
+
+    if ( m_TBSymFlag() )
+    {
+        ws.push_back( -w );
+        flipslew.push_back( true );
+    }
+
+    if ( m_LRSymFlag() && m_TBSymFlag() )
+    {
+        // Both reflections compose into a half turn, which reverses slew twice.
+        ws.push_back( half + w );
+        flipslew.push_back( false );
+    }
+
+    for ( int i = 0; i < ( int )ws.size(); i++ )
+    {
+        while ( ws[i] < 0.0 )
+        {
+            ws[i] += period;
+        }
+        while ( ws[i] >= period )
+        {
+            ws[i] -= period;
+        }
+    }
+}
+
+//===============================================================================//
+
+void SkinXSec::SetGroupDisplaySuffix( int num )
+{
+    XSec::SetGroupDisplaySuffix( num );
+
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        if ( m_SpineVec[i] )
+        {
+            m_SpineVec[i]->SetGroupDisplaySuffix( num );
+        }
+    }
+}
+
+// Seed each spine's name with its index and push it down as the parms' group alias.  Two
+// spines on one XSec would otherwise share a display group name; a user is free to rename
+// from here, and the browser shows whatever they choose.
+// The lowest numbered Spine_ name no spine here is using.  Numbering by the array index or
+// by the current count repeats a name as soon as one has been deleted -- with Spine_0 and
+// Spine_1, removing Spine_0 and adding gives a second Spine_1 -- and the name is the parm
+// group alias, so the two then collide in the Parm Link and Design Variable pickers.
+string SkinXSec::UnusedSpineName() const
+{
+    char str[256];
+
+    for ( int n = 0; ; n++ )
+    {
+        snprintf( str, sizeof( str ), "Spine_%d", n );
+
+        bool taken = false;
+        for ( int i = 0; i < ( int )m_SpineVec.size() && !taken; i++ )
+        {
+            if ( m_SpineVec[i] && m_SpineVec[i]->GetName() == string( str ) )
+            {
+                taken = true;
+            }
+        }
+
+        if ( !taken )
+        {
+            return string( str );
+        }
+    }
+}
+
+void SkinXSec::RenumberSpines()
+{
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        SkinSpine* sp = m_SpineVec[i];
+        if ( !sp )
+        {
+            continue;
+        }
+
+        // An empty name gets the lowest unused number rather than the array index, which
+        // would collide with a spine already carrying that name.
+        if ( sp->GetName().empty() )
+        {
+            sp->SetName( UnusedSpineName() );
+        }
+
+        sp->SetGroupAlias( sp->GetName() );
+    }
+}
+
+// Put this cross section's spines in the same order as another's, matching by tag.
+//
+// Syncing matches a copy to its master by tag and so does not care what order the arrays are
+// in, but everything downstream reaches a spine by its index: the Skinning tab, DelSkinSpine,
+// GetSkinSpineID and the active spine highlight.  An array that disagrees with the master's
+// therefore makes one index mean different spines on different cross sections, which a paste
+// from another Geom produces -- it rebuilds the list in the source's order.
+void SkinXSec::OrderSpinesLike( const SkinXSec* other )
+{
+    if ( !other )
+    {
+        return;
+    }
+
+    vector< SkinSpine* > ordered;
+    ordered.reserve( m_SpineVec.size() );
+
+    for ( int k = 0; k < ( int )other->m_SpineVec.size(); k++ )
+    {
+        const SkinSpine* o = other->m_SpineVec[k];
+        if ( !o )
+        {
+            continue;
+        }
+
+        for ( int j = 0; j < ( int )m_SpineVec.size(); j++ )
+        {
+            if ( m_SpineVec[j] && m_SpineVec[j]->GetSpineID() == o->GetSpineID() )
+            {
+                ordered.push_back( m_SpineVec[j] );
+                break;
+            }
+        }
+    }
+
+    // A spine the other does not have keeps its place at the end.  This routine orders; it
+    // does not decide what belongs here.
+    for ( int j = 0; j < ( int )m_SpineVec.size(); j++ )
+    {
+        if ( !m_SpineVec[j] )
+        {
+            continue;
+        }
+
+        if ( std::find( ordered.begin(), ordered.end(), m_SpineVec[j] ) == ordered.end() )
+        {
+            ordered.push_back( m_SpineVec[j] );
+        }
+    }
+
+    m_SpineVec = ordered;
+}
+
+// Where to put a spine when the user just presses Add: the middle of the widest gap in the
+// station layout as it stands.
+//
+// Any fixed choice eventually lands on a station that is already there, and two stations at
+// the same parameter are one station -- the newcomer is merged away and appears in the
+// browser doing nothing at all.  A fixed 0.25 would sit on Bottom; adding twice would put the
+// second on top of the first.  The widest gap is always clear, and always the most useful
+// place to be offered.
+double SkinXSec::SuggestSpineW01()
+{
+    vector< SkinStation > stations;
+    GetStations( stations );
+
+    double t0 = GetCurve().GetCurve().get_t0();
+    double period = GetCurve().GetCurve().get_tmax() - t0;
+
+    int n = stations.size();
+    if ( n < 1 )
+    {
+        return 0.125;
+    }
+
+    double best = stations[0].m_W + 0.5 * period;
+    double bestgap = -1.0;
+
+    for ( int i = 0; i < n; i++ )
+    {
+        int j = i + 1;
+        double wj;
+        if ( j < n )
+        {
+            wj = stations[j].m_W;
+        }
+        else
+        {
+            // The last gap closes back onto the first station, the long way round.
+            wj = stations[0].m_W + period;
+        }
+
+        double gap = wj - stations[i].m_W;
+        if ( gap > bestgap )
+        {
+            bestgap = gap;
+            best = stations[i].m_W + 0.5 * gap;
+        }
+    }
+
+    while ( best >= t0 + period )
+    {
+        best -= period;
+    }
+
+    return ( best - t0 ) / period;
+}
+
+// A ParmContainer's children hold their parent's ID, so changing it has to reach them.
+// XSec::ChangeID reparents the XSecCurve; the spines are children too, and leaving them
+// pointing at an ID that no longer exists would stop SkinSpine::ParmChanged finding the Geom
+// to dirty, after which a spine edit would no longer rebuild the surface.
+void SkinXSec::ChangeID( const string &newid )
+{
+    XSec::ChangeID( newid );
+
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        if ( m_SpineVec[i] )
+        {
+            m_SpineVec[i]->SetParentContainer( newid );
+        }
+    }
+}
+
+SkinSpine* SkinXSec::AddSpine( double w01 )
+{
+    SkinSpine* sp = new SkinSpine();
+    if ( !sp )
+    {
+        return nullptr;
+    }
+
+    sp->m_W01 = w01;
+    sp->SetSpineID( GenerateRandomID( vsp::ID_LENGTH_PARMCONTAINER ) );
+    sp->SetParentContainer( m_ID );
+
+    sp->SetName( UnusedSpineName() );
+
+    m_SpineVec.push_back( sp );
+
+    RenumberSpines();
+
+    m_LateUpdateFlag = true;
+
+    return sp;
+}
+
+void SkinXSec::DelSpine( int index )
+{
+    if ( index < 0 || index >= ( int )m_SpineVec.size() )
+    {
+        return;
+    }
+
+    delete m_SpineVec[index];
+    m_SpineVec.erase( m_SpineVec.begin() + index );
+
+    m_LateUpdateFlag = true;
+}
+
+void SkinXSec::DelAllSpines()
+{
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        delete m_SpineVec[i];
+    }
+    m_SpineVec.clear();
+
+    m_LateUpdateFlag = true;
+}
+
+SkinSpine* SkinXSec::GetSpine( int index )
+{
+    if ( index < 0 || index >= ( int )m_SpineVec.size() )
+    {
+        return nullptr;
+    }
+    return m_SpineVec[index];
+}
+
 void SkinXSec::GetSideStation( int side, SkinStation &st )
 {
     st.m_W = side;
+    st.m_IsSide = true;
 
     if ( side == SKIN_SIDE_RIGHT )
     {
@@ -1144,14 +1615,99 @@ void SkinXSec::GetSideStation( int side, SkinStation &st )
     }
 }
 
+// Every station around the cross section: the four sides, plus each spine and whatever
+// mirrors its symmetry flags ask for, ordered by W.
+//
+// A station lands on the ordered list only if it clears the minimum gap from the ones
+// already there.  Two stations at the same parameter would give the control spline a zero
+// length segment, and a spine dragged onto a side is better ignored than fatal.  The four
+// sides go in first, so they always win a collision.
 void SkinXSec::GetStations( vector< SkinStation > &stations )
 {
-    stations.resize( NUM_SKIN_SIDES );
+    stations.clear();
+    stations.reserve( NUM_SKIN_SIDES + 4 * m_SpineVec.size() );
 
     for ( int i = 0; i < NUM_SKIN_SIDES; i++ )
     {
-        GetSideStation( i, stations[i] );
+        SkinStation st;
+        GetSideStation( i, st );
+        stations.push_back( st );
     }
+
+    double t0 = GetCurve().GetCurve().get_t0();
+    double period = GetCurve().GetCurve().get_tmax() - t0;
+    double gap = GetMinStationGap();
+
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        SkinSpine* sp = m_SpineVec[i];
+        if ( !sp )
+        {
+            continue;
+        }
+
+        vector< double > ws;
+        vector< bool > flipslew;
+        sp->GetMirrorW( ws, flipslew, period );
+
+        for ( int k = 0; k < ( int )ws.size(); k++ )
+        {
+            double w = t0 + ws[k];
+
+            bool clear = true;
+            for ( int j = 0; j < ( int )stations.size(); j++ )
+            {
+                double d = std::abs( stations[j].m_W - w );
+                if ( d > 0.5 * period )
+                {
+                    d = period - d;
+                }
+                if ( d < gap )
+                {
+                    clear = false;
+                    break;
+                }
+            }
+
+            if ( !clear )
+            {
+                continue;
+            }
+
+            double sgn = 1.0;
+            if ( flipslew[k] )
+            {
+                sgn = -1.0;
+            }
+
+            SkinStation st;
+            st.m_W = w;
+            st.m_IsSide = false;
+
+            st.m_LAngleSet = sp->m_LAngleSet();
+            st.m_LSlewSet = sp->m_LSlewSet();
+            st.m_LStrengthSet = sp->m_LStrengthSet();
+            st.m_LCurveSet = sp->m_LCurveSet();
+            st.m_RAngleSet = sp->m_RAngleSet();
+            st.m_RSlewSet = sp->m_RSlewSet();
+            st.m_RStrengthSet = sp->m_RStrengthSet();
+            st.m_RCurveSet = sp->m_RCurveSet();
+
+            st.m_LAngle = sp->m_LAngle();
+            st.m_LSlew = sgn * sp->m_LSlew();
+            st.m_LStrength = sp->m_LStrength();
+            st.m_LCurve = sp->m_LCurve();
+            st.m_RAngle = sp->m_RAngle();
+            st.m_RSlew = sgn * sp->m_RSlew();
+            st.m_RStrength = sp->m_RStrength();
+            st.m_RCurve = sp->m_RCurve();
+
+            stations.push_back( st );
+        }
+    }
+
+    std::sort( stations.begin(), stations.end(),
+               []( const SkinStation &a, const SkinStation &b ) { return a.m_W < b.m_W; } );
 }
 
 void SkinXSec::GetStationW( vector< double > &ws )
@@ -1554,6 +2110,9 @@ void SkinXSec::FillUnsetFromSurf( int irib, const VspSurf &surf, vector< SkinSta
 
 void SkinXSec::SetUnsetParms( int irib, const VspSurf &surf )
 {
+    double t0 = GetCurve().GetCurve().get_t0();
+    double period = GetCurve().GetCurve().get_tmax() - t0;
+
     SetUnsetParms( 0.0, false, irib, surf,
              m_RightLAngleSet,
              m_RightLSlewSet,
@@ -1626,6 +2185,36 @@ void SkinXSec::SetUnsetParms( int irib, const VspSurf &surf )
              m_TopRStrength,
              m_TopRCurve );
 
+    // Spines read back the same way, at their own W.  Unlike the four sides they carry no
+    // sign convention on slew, so nothing is flipped here.  A spine whose mirrors are
+    // switched on is read at its own position only: the mirrors are generated from it, so
+    // reading them back would just overwrite it with a reflection of itself.
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        SkinSpine* sp = m_SpineVec[i];
+        if ( !sp )
+        {
+            continue;
+        }
+
+        SetUnsetParms( t0 + sp->m_W01() * period, false, irib, surf,
+                 sp->m_LAngleSet,
+                 sp->m_LSlewSet,
+                 sp->m_LStrengthSet,
+                 sp->m_LCurveSet,
+                 sp->m_RAngleSet,
+                 sp->m_RSlewSet,
+                 sp->m_RStrengthSet,
+                 sp->m_RCurveSet,
+                 sp->m_LAngle,
+                 sp->m_LSlew,
+                 sp->m_LStrength,
+                 sp->m_LCurve,
+                 sp->m_RAngle,
+                 sp->m_RSlew,
+                 sp->m_RStrength,
+                 sp->m_RCurve );
+    }
 }
 
 void SkinXSec::SetUnsetParms( double t, bool flipslew, int irib, const VspSurf &surf,

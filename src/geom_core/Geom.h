@@ -1010,6 +1010,17 @@ public:
 
     virtual void ClearSkinning( const int & i_xs = -1 );
 
+    //==== User defined skinning spines ====//
+    // A spine runs the length of the body, so its position and symmetry are the same on
+    // every XSec while its values are not.  Add and delete reach every XSec; SyncSkinSpines
+    // copies position and symmetry from the active XSec, which is the one the GUI edits.
+    virtual double SuggestSkinSpineW01();
+    virtual int AddSkinSpine( double w01 );
+    virtual void DelSkinSpine( int index );
+    virtual void DelAllSkinSpines();
+    virtual int NumSkinSpines();
+    virtual void SyncSkinSpines();
+
     // One draw object per colour, since a DrawObj carries a single colour and the point of
     // this is to tell the stations apart.  The side entries are indexed by
     // SkinXSec::SKIN_SIDE_*, so a side's station number is its own draw object.

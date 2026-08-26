@@ -120,11 +120,95 @@ protected:
     virtual void ChangeID( const string &id );
 };
 
+// A user defined skinning station at an arbitrary position around the cross section.
+//
+// Skinning has always been controlled at four fixed places -- Top, Bottom, Left and Right.
+// A spine adds another, anywhere in between, carrying its own conditions and values.  It
+// runs the length of the body: its position and symmetry are synced across every XSec by
+// the Geom, while the values stay per XSec, which is the point of having it.
+//
+// Symmetry works the opposite way round from the AllSym / TBSym / RLSym controls.  Those
+// start on and tie the four sides together; a spine starts alone, and the flags below
+// mirror it to the other side, the other half, or both.  Mirrored copies are generated
+// rather than stored, so there is nothing to keep in sync and the browser shows only what
+// the user made.
+class SkinSpine : public ParmContainer
+{
+public:
+    SkinSpine();
+
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    // A spine's parms land in its Geom's flattened group map alongside every other parm
+    // beneath that Geom, so they need to be told apart.  The suffix carries the XSec index,
+    // the alias the spine's name -- giving SkinSpine_2_Spine_0 and matching how an XSec's
+    // own parms already read.
+    virtual void SetGroupDisplaySuffix( int num );
+    virtual void SetGroupAlias( const string & alias );
+
+    // Where this spine's mirror images sit.  Right is W = 0, Bottom 1, Left 2, Top 3, so a
+    // left/right mirror is W -> 2 - W and a top/bottom mirror is W -> -W, both modulo the
+    // cross section period.
+    virtual void GetMirrorW( vector< double > &ws, vector< bool > &flipslew, double period );
+
+    // Which spine this is one cross section's copy of.
+    //
+    // A spine runs the length of the body: every cross section holds a copy carrying the
+    // values it enforces there, while the position and the name belong to the first.  Keeping
+    // those copies in step by matching them on position in the array holds only for as long as
+    // nothing reorders it -- and a paste rebuilds the array from whatever the source held, in
+    // the source's order.  Two spines at W01 0.4 and 0.6 could then trade places on one cross
+    // section and nothing would notice: one's values would be read as the other's, and moving
+    // the first to 0.35 would move the wrong one.
+    //
+    // The tag is shared by every copy of one spine and generated once, when the spine is
+    // created.  It is not a Parm and not a container ID -- each copy is its own container --
+    // it says only which spine this copy is of.
+    virtual const string & GetSpineID() const                   { return m_SpineID; }
+    virtual void SetSpineID( const string & id )                { m_SpineID = id; }
+
+    Parm m_W01;
+
+    string m_SpineID;
+
+    BoolParm m_LRSymFlag;
+    BoolParm m_TBSymFlag;
+
+    BoolParm m_LAngleSet;
+    BoolParm m_LSlewSet;
+    BoolParm m_LStrengthSet;
+    BoolParm m_LCurveSet;
+    BoolParm m_RAngleSet;
+    BoolParm m_RSlewSet;
+    BoolParm m_RStrengthSet;
+    BoolParm m_RCurveSet;
+
+    BoolParm m_LRAngleEq;
+    BoolParm m_LRSlewEq;
+    BoolParm m_LRStrengthEq;
+    BoolParm m_LRCurveEq;
+
+    Parm m_LAngle;
+    Parm m_LSlew;
+    Parm m_LStrength;
+    Parm m_LCurve;
+    Parm m_RAngle;
+    Parm m_RSlew;
+    Parm m_RStrength;
+    Parm m_RCurve;
+};
+
 class SkinXSec : public XSec
 {
 public:
 
     SkinXSec( XSecCurve *xsc );
+    virtual ~SkinXSec();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
     virtual void CopySetValidate( IntParm &m_TopCont,
             BoolParm &m_TopLAngleSet,
@@ -139,6 +223,8 @@ public:
             BoolParm &m_TopLRSlewEq,
             BoolParm &m_TopLRStrengthEq,
             BoolParm &m_TopLRCurveEq );
+
+    virtual void ChangeID( const string &newid );
 
     virtual void ValidateParms( IntParm &m_TopCont,
             BoolParm &m_TopLAngleSet,
@@ -167,6 +253,9 @@ public:
     struct SkinStation
     {
         double m_W;
+
+        // Whether this is one of the four fixed sides or came from a spine.
+        bool m_IsSide;
 
         bool m_LAngleSet;
         bool m_LSlewSet;
@@ -222,6 +311,32 @@ public:
     virtual bool AnyCurveSet( bool left, const vector< SkinStation > &stations );
 
     // Whether every station enforces the same conditions, in which case one skin suffices.
+
+    virtual void SetGroupDisplaySuffix( int num );
+
+    //==== User defined spines ====//
+    // A position for a new spine that will not land on a station already there.
+    virtual double SuggestSpineW01();
+
+    virtual SkinSpine* AddSpine( double w01 );
+
+    // Name the spines Spine_0, Spine_1 ... and push the XSec index and each spine's name
+    // down onto its parms, so the display group names stay right as spines come and go.
+    virtual void RenumberSpines();
+
+    // The lowest numbered Spine_ name not already in use here.
+    virtual string UnusedSpineName() const;
+
+    // Put this cross section's spines in the same order as another's, matching by tag.
+    virtual void OrderSpinesLike( const SkinXSec* other );
+    virtual void DelSpine( int index );
+    virtual void DelAllSpines();
+    virtual int NumSpines() const                       { return m_SpineVec.size(); }
+    virtual SkinSpine* GetSpine( int index );
+
+    // The smallest gap allowed between stations.  Two stations at the same parameter would
+    // give the control spline a zero length segment.
+    static double GetMinStationGap()                    { return 1.0e-3; }
 
     // Build the tangent (fp) and normal (fpp) curves that control the loft on one side
     // of this XSec.  'left' selects the parameters that control the loft before this
@@ -372,6 +487,9 @@ public:
     virtual void ReadV2FileFuse1( xmlNodePtr &root );
 
 protected:
+
+    vector< SkinSpine* > m_SpineVec;
+
 };
 
 

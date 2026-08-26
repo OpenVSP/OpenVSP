@@ -6437,7 +6437,274 @@ void GeomXSec::Update( bool fullupdate )
 {
     m_ActiveXSec.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
 
+    SyncSkinSpines();
+
     Geom::Update( fullupdate );
+}
+
+// Ask the active XSec where a new spine should go.  They all carry the same stations, so any
+// of them would answer the same.
+double GeomXSec::SuggestSkinSpineW01()
+{
+    SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( m_ActiveXSec() ) );
+    if ( !xs )
+    {
+        return 0.125;
+    }
+
+    return xs->SuggestSpineW01();
+}
+
+int GeomXSec::AddSkinSpine( double w01 )
+{
+    int index = -1;
+
+    for ( int i = 0; i < m_XSecSurf.NumXSec(); i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            xs->AddSpine( w01 );
+            index = xs->NumSpines() - 1;
+        }
+    }
+
+    m_SurfDirty = true;
+
+    return index;
+}
+
+void GeomXSec::DelSkinSpine( int index )
+{
+    for ( int i = 0; i < m_XSecSurf.NumXSec(); i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            xs->DelSpine( index );
+        }
+    }
+
+    m_SurfDirty = true;
+}
+
+void GeomXSec::DelAllSkinSpines()
+{
+    for ( int i = 0; i < m_XSecSurf.NumXSec(); i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            xs->DelAllSpines();
+        }
+    }
+
+    m_SurfDirty = true;
+}
+
+int GeomXSec::NumSkinSpines()
+{
+    for ( int i = 0; i < m_XSecSurf.NumXSec(); i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            return xs->NumSpines();
+        }
+    }
+    return 0;
+}
+
+// Make every XSec carry the same spines as the active one, at the same positions and with
+// the same symmetry.  Values are deliberately left alone: varying them along the body is
+// the point of a spine.
+// A spine runs the length of the body, so its position, its symmetry and its name belong to
+// the Geom rather than to any one cross section -- only the skinning values it carries are
+// per XSec.  The first cross section holds them, and the rest follow.
+//
+// The active cross section used to hold them, which made a write to W01 stick or not
+// depending on which one the GUI happened to be showing: setting it through the API or a Parm
+// Link on any other cross section was silently undone on the next update.
+// Distance between two positions on the [0, 1] basis, around a section that closes on
+// itself -- so 0.02 and 0.98 are neighbours.
+static double SpineW01Dist( double a, double b )
+{
+    double d = std::abs( a - b );
+
+    if ( d > 0.5 )
+    {
+        d = 1.0 - d;
+    }
+
+    return d;
+}
+
+void GeomXSec::SyncSkinSpines()
+{
+    SkinXSec* master = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( 0 ) );
+    if ( !master )
+    {
+        return;
+    }
+
+    int nspine = master->NumSpines();
+
+    for ( int i = 0; i < m_XSecSurf.NumXSec(); i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( !xs || xs == master )
+        {
+            continue;
+        }
+
+        // Match the copies by which spine they are of, not by where they sit in the array.
+        // Position only agrees while nothing reorders either list, and a paste rebuilds one
+        // of them in the source's order -- after which two spines could trade places and one
+        // would be read as the other.
+        for ( int k = 0; k < nspine; k++ )
+        {
+            SkinSpine* m = master->GetSpine( k );
+            if ( !m )
+            {
+                continue;
+            }
+
+            SkinSpine* c = nullptr;
+            for ( int j = 0; j < xs->NumSpines(); j++ )
+            {
+                SkinSpine* cand = xs->GetSpine( j );
+                if ( cand && cand->GetSpineID() == m->GetSpineID() )
+                {
+                    c = cand;
+                    break;
+                }
+            }
+
+            if ( !c )
+            {
+                // No copy of this spine here.  Before making one, look for a spine this Geom
+                // does not know the tag of: that is what a cross section pasted from another
+                // Geom brings, and it holds the values the user meant to carry across.  Adopt
+                // it rather than throwing those values away.
+                //
+                // By position around the section, not by position in the array.  The two Geoms
+                // agree on where their spines sit; they agree on nothing about the order they
+                // were added in, and a paste rebuilds the list in the source's order.  Taking
+                // the first unknown spine in the list is the very matching-by-index that the
+                // tag exists to replace -- with two spines at W01 0.4 and 0.6 added in
+                // opposite orders, each one's values land on the other.
+                //
+                double bestdist = 2.0;
+
+                for ( int j = 0; j < xs->NumSpines(); j++ )
+                {
+                    SkinSpine* cand = xs->GetSpine( j );
+                    if ( !cand )
+                    {
+                        continue;
+                    }
+
+                    bool known = false;
+                    for ( int q = 0; q < nspine && !known; q++ )
+                    {
+                        SkinSpine* mq = master->GetSpine( q );
+                        if ( mq && mq->GetSpineID() == cand->GetSpineID() )
+                        {
+                            known = true;
+                        }
+                    }
+
+                    if ( known )
+                    {
+                        continue;
+                    }
+
+                    double d = SpineW01Dist( cand->m_W01(), m->m_W01() );
+
+                    if ( d < bestdist )
+                    {
+                        bestdist = d;
+                        c = cand;
+                    }
+                }
+
+                // Adopt it only where this master is also the master nearest to it.  With
+                // one spine either side there is nothing to disambiguate and the values
+                // cross however far apart the two sit -- the position belongs to this Geom
+                // and carrying the values is the whole point of the paste.  With several,
+                // letting the first master in the list take whatever happens to be nearest
+                // to it hands it one that plainly belongs to a later master, and that later
+                // master then gets a freshly seeded spine while its values sit somewhere
+                // else.
+                for ( int q = 0; q < nspine && c; q++ )
+                {
+                    SkinSpine* mq = master->GetSpine( q );
+                    if ( q != k && mq && SpineW01Dist( mq->m_W01(), c->m_W01() ) < bestdist )
+                    {
+                        c = nullptr;
+                    }
+                }
+
+                if ( c )
+                {
+                    c->SetSpineID( m->GetSpineID() );
+                }
+            }
+
+            if ( !c )
+            {
+                c = xs->AddSpine( m->m_W01() );
+                if ( c )
+                {
+                    c->SetSpineID( m->GetSpineID() );
+                }
+            }
+
+            if ( c )
+            {
+                c->m_W01 = m->m_W01();
+                c->m_LRSymFlag = m->m_LRSymFlag();
+                c->m_TBSymFlag = m->m_TBSymFlag();
+                c->SetName( m->GetName() );
+            }
+        }
+
+        // Both lists hold the same spines now.  Put them in the same order too: matching by
+        // tag is what makes the sync safe, and every index below this line is what makes it
+        // necessary.
+        xs->OrderSpinesLike( master );
+
+        // Anything left over is a spine this Geom no longer has.
+        for ( int j = xs->NumSpines() - 1; j >= 0; j-- )
+        {
+            SkinSpine* cand = xs->GetSpine( j );
+
+            bool wanted = false;
+            for ( int k = 0; k < nspine && !wanted; k++ )
+            {
+                SkinSpine* m = master->GetSpine( k );
+                if ( m && cand && cand->GetSpineID() == m->GetSpineID() )
+                {
+                    wanted = true;
+                }
+            }
+
+            if ( !wanted )
+            {
+                xs->DelSpine( j );
+            }
+        }
+    }
+
+    // Names and the group alias built from them have to follow add, delete and rename.
+    for ( int i = 0; i < m_XSecSurf.NumXSec(); i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            xs->RenumberSpines();
+        }
+    }
 }
 
 void GeomXSec::UpdateDrawObj()

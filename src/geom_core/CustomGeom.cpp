@@ -939,6 +939,13 @@ void CustomGeom::SkinXSecSurf( bool closed_flag )
             VspCurve crv = xs->GetCurve();
 
             //==== Load Ribs ====//
+            // GetRib answers with the Top station's conditions and applies them right around
+            // the section.  A CustomXSec is a SkinXSec, so it carries spines and per side
+            // conditions like any other, but this path does not build the per group rib sets
+            // that Fuselage and Stack blend -- so a CustomGeom whose sides disagree, or which
+            // has a spine, silently gets Top's skinning everywhere.  Wiring it to
+            // PrepSkinRibs and SkinRibsBlended is the fix; until then this is the limit, and
+            // it is a limit rather than a bug in GetRib.
             if ( j == 0 )
                 rib_vec.push_back( xs->GetRib( true, false ) );
             else if ( j == m_XSecSurfVec[i]->NumXSec() -1 )
