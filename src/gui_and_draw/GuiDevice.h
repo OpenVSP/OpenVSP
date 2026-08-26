@@ -1624,6 +1624,8 @@ public:
 
     virtual void GetItemDims( int &X, int &Y, int &W, int &H, int index, int col = 0 );
 
+    void GetSelected( vector < int > &int_vec );
+
     int GetCBReason()
     {
         return m_CBReason;

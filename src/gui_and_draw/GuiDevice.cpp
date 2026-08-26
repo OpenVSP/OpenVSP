@@ -5592,6 +5592,20 @@ void VspBrowser::GetItemDims( int &X, int &Y, int &W, int &H, int index, int col
     Y -= vposition();
 }
 
+void VspBrowser::GetSelected( vector < int > &int_vec )
+{
+    int k = 0;
+    int_vec.clear();
+    for ( void *i=item_first(); i; i=item_next(i) )
+    {
+        if ( item_selected(i) )
+        {
+            int_vec.push_back(k);
+        }
+        k++;
+    }
+}
+
 void VspBrowser::BrowserCB( Fl_Widget* w )
 {
     // BrowserCB is tied to 3 events;
