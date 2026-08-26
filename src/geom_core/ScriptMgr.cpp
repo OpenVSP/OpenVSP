@@ -5000,6 +5000,32 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterGlobalFunction( "int AddSkinSpine( const string& in geom_id, double w01 )", asFUNCTION( vsp::AddSkinSpine ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelSkinSpine( const string& in geom_id, int index )", asFUNCTION( vsp::DelSkinSpine ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelAllSkinSpines( const string& in geom_id )", asFUNCTION( vsp::DelAllSkinSpines ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int GetNumSkinSpines( const string& in geom_id )", asFUNCTION( vsp::GetNumSkinSpines ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetSkinSpineName( const string& in geom_id, int index )", asFUNCTION( vsp::GetSkinSpineName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetSkinSpineName( const string& in geom_id, int index, const string& in name )", asFUNCTION( vsp::SetSkinSpineName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "string GetSkinSpineID( const string& in xsec_id, int index )", asFUNCTION( vsp::GetSkinSpineID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetSkinSpineParm( const string& in spine_id, const string& in name )", asFUNCTION( vsp::GetSkinSpineParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
     r = se->RegisterGlobalFunction( "array<double>@+ GetXSecTanAngles( const string& in xsec_id, int side )", asMETHOD( ScriptMgrSingleton, GetXSecTanAngles ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 

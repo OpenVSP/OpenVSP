@@ -21601,6 +21601,347 @@ extern void SetXSecContinuity( const std::string& xsec_id, int cx );
     \ingroup XSec
 */
 /*!
+    Add a user defined skinning spine to a Fuselage or Stack.  Skinning is otherwise
+    controlled only at the four fixed stations -- Right, Bottom, Left and Top, at W01 of 0,
+    0.25, 0.5 and 0.75.  A spine adds another anywhere in between.  It runs the length of
+    the body, so it is added to every cross section at once; its values are then set per
+    cross section.
+    \param [in] geom_id string Geom ID
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    // Add a spine between the Right and Bottom stations
+    int ispine = AddSkinSpine( sid, 0.15 );
+
+    if ( GetNumSkinSpines( sid ) != 1 )                 { Print( "---> Error: API AddSkinSpine " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    # Add a spine between the Right and Bottom stations
+    ispine = AddSkinSpine( sid, 0.15 )
+
+    if  GetNumSkinSpines( sid ) != 1 :
+        print( "---> Error: API AddSkinSpine " )
+        assert False, "---> Error: API AddSkinSpine"
+
+    \endcode
+    \endPythonOnly
+    \param [in] w01 double Position around the cross section, on a [0, 1] basis
+    \return int Index of the new spine
+*/
+extern int AddSkinSpine( const std::string& geom_id, double w01 );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Delete a user defined skinning spine from every cross section of a Geom.
+    \param [in] geom_id string Geom ID
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    AddSkinSpine( sid, 0.15 );
+
+    DelSkinSpine( sid, 0 );
+
+    if ( GetNumSkinSpines( sid ) != 0 )                 { Print( "---> Error: API DelSkinSpine " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    AddSkinSpine( sid, 0.15 )
+
+    DelSkinSpine( sid, 0 )
+
+    if  GetNumSkinSpines( sid ) != 0 :
+        print( "---> Error: API DelSkinSpine " )
+        assert False, "---> Error: API DelSkinSpine"
+
+    \endcode
+    \endPythonOnly
+    \param [in] index int Spine index
+*/
+extern void DelSkinSpine( const std::string& geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Delete every user defined skinning spine from a Geom.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    AddSkinSpine( sid, 0.15 );
+
+    AddSkinSpine( sid, 0.35 );
+
+    DelAllSkinSpines( sid );
+
+    if ( GetNumSkinSpines( sid ) != 0 )                 { Print( "---> Error: API DelAllSkinSpines " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    AddSkinSpine( sid, 0.15 )
+
+    AddSkinSpine( sid, 0.35 )
+
+    DelAllSkinSpines( sid )
+
+    if  GetNumSkinSpines( sid ) != 0 :
+        print( "---> Error: API DelAllSkinSpines " )
+        assert False, "---> Error: API DelAllSkinSpines"
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Geom ID
+*/
+extern void DelAllSkinSpines( const std::string& geom_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the number of user defined skinning spines on a Geom.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    AddSkinSpine( sid, 0.15 );
+
+    if ( GetNumSkinSpines( sid ) != 1 )                 { Print( "---> Error: API GetNumSkinSpines " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    AddSkinSpine( sid, 0.15 )
+
+    if  GetNumSkinSpines( sid ) != 1 :
+        print( "---> Error: API GetNumSkinSpines " )
+        assert False, "---> Error: API GetNumSkinSpines"
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Geom ID
+    \return int Number of spines
+*/
+extern int GetNumSkinSpines( const std::string& geom_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the name of a skinning spine.
+
+    The name belongs to the whole spine rather than to one cross section: it is held by the
+    first cross section and synced outwards, the same way the position and the symmetry flags
+    are.  It is also what the spine's Parms are grouped under, so it is how they are told apart
+    in the Parm Link and Design Variable pickers.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    Update();
+
+    int ispine = AddSkinSpine( sid, 0.15 );
+
+    if ( GetSkinSpineName( sid, ispine ) == "" )    { Print( "ERROR: GetSkinSpineName" ); __failure++; }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    Update()
+
+    ispine = AddSkinSpine( sid, 0.15 )
+
+    assert GetSkinSpineName( sid, ispine ) != "", "a new spine was given no name"
+
+    \endcode
+    \endPythonOnly
+    \sa SetSkinSpineName, AddSkinSpine
+    \param [in] geom_id string Geom ID
+    \param [in] index int Spine index
+    \return string Spine name
+*/
+
+extern std::string GetSkinSpineName( const std::string& geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set the name of a skinning spine.  See GetSkinSpineName for what the name is used for.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    Update();
+
+    int ispine = AddSkinSpine( sid, 0.15 );
+
+    SetSkinSpineName( sid, ispine, "Chine" );
+
+    if ( GetSkinSpineName( sid, ispine ) != "Chine" )    { Print( "ERROR: SetSkinSpineName" ); __failure++; }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    Update()
+
+    ispine = AddSkinSpine( sid, 0.15 )
+
+    SetSkinSpineName( sid, ispine, "Chine" )
+
+    assert GetSkinSpineName( sid, ispine ) == "Chine", "SetSkinSpineName did not take"
+
+    \endcode
+    \endPythonOnly
+    \sa GetSkinSpineName
+    \param [in] geom_id string Geom ID
+    \param [in] index int Spine index
+    \param [in] name string Spine name
+*/
+
+extern void SetSkinSpineName( const std::string& geom_id, int index, const std::string& name );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the Parm container ID of one cross section's copy of a skinning spine.  Position and
+    symmetry are the same on every cross section; the skinning values are not.
+
+    Note that a spine's W and symmetry flags are properties of the whole spine, and are held
+    by the first cross section.  Setting them on any other cross section is undone by the next
+    update; set them on cross section 0.  The skinning values carry no such restriction.
+
+    Use GetSkinSpineParm to reach the spine's Parms.  FindParm reaches them too, given the
+    spine's own ID returned here and the group name "SkinSpine" -- not the cross section's
+    ID, since a spine's Parms are in a container of its own.  GetSkinSpineParm does not ask
+    the caller to know either of those.
+    \param [in] xsec_id string XSec ID
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    AddSkinSpine( sid, 0.15 );
+
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    string spine = GetSkinSpineID( xsec, 0 );
+
+    string wid = GetSkinSpineParm( spine, "W01" );
+
+    if ( !ValidParm( wid ) )                            { Print( "---> Error: API GetSkinSpineID " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    AddSkinSpine( sid, 0.15 )
+
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    spine = GetSkinSpineID( xsec, 0 )
+
+    wid = GetSkinSpineParm( spine, "W01" )
+
+    if  not ValidParm( wid ) :
+        print( "---> Error: API GetSkinSpineID " )
+        assert False, "---> Error: API GetSkinSpineID"
+
+    \endcode
+    \endPythonOnly
+    \param [in] index int Spine index
+    \return string Spine Parm container ID
+*/
+extern std::string GetSkinSpineID( const std::string& xsec_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get a Parm ID from a skinning spine by name.  The counterpart of GetXSecParm: FindParm
+    on the spine's own container would do the same job, but only if the caller knows the
+    group is named "SkinSpine".
+    \param [in] spine_id string Spine Parm container ID, from GetSkinSpineID
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK", "" );
+
+    AddSkinSpine( sid, 0.15 );
+
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    string spine = GetSkinSpineID( xsec, 0 );
+
+    string aid = GetSkinSpineParm( spine, "LAngle" );
+
+    if ( !ValidParm( aid ) )                            { Print( "---> Error: API GetSkinSpineParm " ); __failure++; }
+
+    SetParmVal( GetSkinSpineParm( spine, "LAngleSet" ), 1.0 );
+
+    SetParmVal( aid, 12.0 );
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK", "" )
+
+    AddSkinSpine( sid, 0.15 )
+
+    xsec_surf = GetXSecSurf( sid, 0 )
+
+    xsec = GetXSec( xsec_surf, 1 )
+
+    spine = GetSkinSpineID( xsec, 0 )
+
+    aid = GetSkinSpineParm( spine, "LAngle" )
+
+    if  not ValidParm( aid ) :
+        print( "---> Error: API GetSkinSpineParm " )
+        assert False, "---> Error: API GetSkinSpineParm"
+
+    SetParmVal( GetSkinSpineParm( spine, "LAngleSet" ), 1.0 )
+
+    SetParmVal( aid, 12.0 )
+
+    \endcode
+    \endPythonOnly
+    \param [in] name string Parm name
+    \return string Parm ID
+*/
+extern std::string GetSkinSpineParm( const std::string& spine_id, const std::string& name );
+
+/*!
+    \ingroup XSec
+*/
+/*!
     Set the tangent angles for the specified XSec
     \forcpponly
     \code{.cpp}

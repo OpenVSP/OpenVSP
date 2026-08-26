@@ -1016,9 +1016,18 @@ public:
     // copies position and symmetry from the active XSec, which is the one the GUI edits.
     virtual double SuggestSkinSpineW01();
     virtual int AddSkinSpine( double w01 );
+
+    // Whether a spine placed at w01 would survive the station merge rather than vanish into
+    // a station already there.
+    virtual bool SkinSpineW01IsClear( double w01 );
     virtual void DelSkinSpine( int index );
     virtual void DelAllSkinSpines();
     virtual int NumSkinSpines();
+
+    // The name belongs to the whole spine, so it is read and written on cross section 0 and
+    // synced outwards from there, the same way the position and the symmetry flags are.
+    virtual string GetSkinSpineName( int index );
+    virtual void SetSkinSpineName( int index, const string & name );
     virtual void SyncSkinSpines();
 
     // Which spine the Skinning tab is editing, so its vectors can be drawn apart from the

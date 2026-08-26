@@ -6252,6 +6252,248 @@ int GetXSecContinuity( const std::string& xsec_id )
     return skinxs->GetContinuity();
 }
 
+// Whether this Geom's cross sections are the kind that carry skinning.
+//
+// GeomXSec alone does not say so: Wing and Prop are GeomXSec, but their cross sections are
+// not SkinXSec, so every spine call on them found nothing to do and said nothing about it.
+// The spine functions returned -1, which is also what they return for a Geom ID that does
+// not exist, so a caller could not tell the two apart by the return value or by the error
+// queue.
+static bool SkinnableGeom( GeomXSec* gxs )
+{
+    if ( !gxs )
+    {
+        return false;
+    }
+
+    return dynamic_cast < SkinXSec* > ( gxs->GetXSec( 0 ) ) != nullptr;
+}
+
+int AddSkinSpine( const string& geom_id, double w )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSkinSpine::Can't Find Geom " + geom_id );
+        return -1;
+    }
+
+    GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
+    if ( !SkinnableGeom( gxs ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "AddSkinSpine::Geom does not support skinning " + geom_id );
+        return -1;
+    }
+
+    // Written as a positive test so a NaN is refused rather than waved through: every
+    // comparison against a NaN is false, so "w < 0 || w > 1" lets one past, and it then
+    // reaches the station sort, whose comparator a NaN makes inconsistent.
+    if ( !( w >= 0.0 && w <= 1.0 ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddSkinSpine::Position " + to_string( w ) + " is not on [0, 1]" );
+        return -1;
+    }
+
+    // And not on a station that is already there.  Two stations at the same parameter are
+    // one station, so the newcomer is merged away by GetStations and does nothing -- while
+    // GetNumSkinSpines counts it, the Skinning tab lists it, and its sliders move nothing.
+    // 0 and 1 are both the fixed Right station on a periodic section, which is what a
+    // mistyped position most often lands on.
+    if ( !gxs->SkinSpineW01IsClear( w ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL,
+                           "AddSkinSpine::Position " + to_string( w ) + " is already taken by a station" );
+        return -1;
+    }
+
+    int index = gxs->AddSkinSpine( w );
+    geom_ptr->Update();
+
+    ErrorMgr.NoError();
+    return index;
+}
+
+void DelSkinSpine( const string& geom_id, int index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelSkinSpine::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
+    if ( !SkinnableGeom( gxs ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DelSkinSpine::Geom does not support skinning " + geom_id );
+        return;
+    }
+
+    // GetSkinSpineID raises for exactly this; deleting should fail the same way rather than
+    // return quietly having done nothing.
+    if ( index < 0 || index >= gxs->NumSkinSpines() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelSkinSpine::Index " + to_string( index ) + " is out of range" );
+        return;
+    }
+
+    gxs->DelSkinSpine( index );
+    geom_ptr->Update();
+
+    ErrorMgr.NoError();
+}
+
+void DelAllSkinSpines( const string& geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllSkinSpines::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
+    if ( !SkinnableGeom( gxs ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DelAllSkinSpines::Geom does not support skinning " + geom_id );
+        return;
+    }
+
+    gxs->DelAllSkinSpines();
+    geom_ptr->Update();
+
+    ErrorMgr.NoError();
+}
+
+string GetSkinSpineName( const string& geom_id, int index )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSkinSpineName::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
+    if ( !SkinnableGeom( gxs ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetSkinSpineName::Geom does not support skinning " + geom_id );
+        return string();
+    }
+
+    if ( index < 0 || index >= gxs->NumSkinSpines() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetSkinSpineName::Index " + to_string( index ) + " is out of range" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return gxs->GetSkinSpineName( index );
+}
+
+void SetSkinSpineName( const string& geom_id, int index, const string& name )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSkinSpineName::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
+    if ( !SkinnableGeom( gxs ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetSkinSpineName::Geom does not support skinning " + geom_id );
+        return;
+    }
+
+    if ( index < 0 || index >= gxs->NumSkinSpines() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetSkinSpineName::Index " + to_string( index ) + " is out of range" );
+        return;
+    }
+
+    gxs->SetSkinSpineName( index, name );
+    geom_ptr->Update();
+
+    ErrorMgr.NoError();
+}
+
+int GetNumSkinSpines( const string& geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumSkinSpines::Can't Find Geom " + geom_id );
+        return 0;
+    }
+
+    GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
+    if ( !SkinnableGeom( gxs ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetNumSkinSpines::Geom does not support skinning " + geom_id );
+        return 0;
+    }
+
+    ErrorMgr.NoError();
+    return gxs->NumSkinSpines();
+}
+
+string GetSkinSpineParm( const string& spine_id, const string& name )
+{
+    ParmContainer* pc = ParmMgr.FindParmContainer( spine_id );
+
+    SkinSpine* sp = dynamic_cast < SkinSpine* > ( pc );
+    if ( !sp )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSkinSpineParm::Can't Find Spine " + spine_id );
+        return string();
+    }
+
+    string pid = sp->FindParm( name );
+    if ( ValidParm( pid ) )
+    {
+        ErrorMgr.NoError();
+        return pid;
+    }
+
+    ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetSkinSpineParm::Can't Find Parm " + name );
+    return string();
+}
+
+string GetSkinSpineID( const string& xsec_id, int index )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSkinSpineID::Can't Find XSec " + xsec_id );
+        return string();
+    }
+
+    SkinXSec* sxs = dynamic_cast < SkinXSec* > ( xs );
+    if ( !sxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSkinSpineID::Can't Convert To Skin XSec " + xsec_id );
+        return string();
+    }
+
+    SkinSpine* sp = sxs->GetSpine( index );
+    if ( !sp )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetSkinSpineID::Spine index out of range" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return sp->GetID();
+}
+
 void SetXSecContinuity( const std::string& xsec_id, int cx )
 {
     XSec* xs = FindXSec( xsec_id );

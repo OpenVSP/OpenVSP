@@ -6473,6 +6473,44 @@ double GeomXSec::SuggestSkinSpineW01()
     return xs->SuggestSpineW01();
 }
 
+// Whether a spine placed at w01 would survive GetStations rather than being merged into a
+// station already there.  Asked on the first cross section, which is where the position
+// lives; the others are synced to it.
+bool GeomXSec::SkinSpineW01IsClear( double w01 )
+{
+    SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( 0 ) );
+    if ( !xs )
+    {
+        return false;
+    }
+
+    double t0 = xs->GetCurve().GetCurve().get_t0();
+    double period = xs->GetCurve().GetCurve().get_tmax() - t0;
+    double w = t0 + w01 * period;
+
+    vector< SkinXSec::SkinStation > stations;
+    xs->GetStations( stations );
+
+    for ( int i = 0; i < ( int )stations.size(); i++ )
+    {
+        double d = std::abs( stations[i].m_W - w );
+
+        // The section is a closed loop, so the far end of the range is a neighbour of the
+        // near end.
+        if ( d > 0.5 * period )
+        {
+            d = period - d;
+        }
+
+        if ( d < SkinXSec::GetMinStationGap() )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int GeomXSec::AddSkinSpine( double w01 )
 {
     int index = -1;
@@ -6518,6 +6556,63 @@ void GeomXSec::DelAllSkinSpines()
     }
 
     m_SurfDirty = true;
+}
+
+string GeomXSec::GetSkinSpineName( int index )
+{
+    SkinXSec* master = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( 0 ) );
+    if ( !master )
+    {
+        return string();
+    }
+
+    SkinSpine* sp = master->GetSpine( index );
+    if ( !sp )
+    {
+        return string();
+    }
+
+    return sp->GetName();
+}
+
+void GeomXSec::SetSkinSpineName( int index, const string & name )
+{
+    SkinXSec* master = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( 0 ) );
+    if ( !master )
+    {
+        return;
+    }
+
+    SkinSpine* sp = master->GetSpine( index );
+    if ( !sp )
+    {
+        return;
+    }
+
+    sp->SetName( name );
+
+    // The name is the parm group alias, so two spines sharing one collide in the Parm Link
+    // and Design Variable pickers -- which is the whole reason AddSpine goes to the trouble
+    // of finding an unused number.  Renaming has to keep that, so a name already in use, or
+    // an empty one, falls back to the lowest number free here.
+    for ( int i = 0; i < master->NumSpines(); i++ )
+    {
+        SkinSpine* other = master->GetSpine( i );
+        if ( other && other != sp && other->GetName() == sp->GetName() )
+        {
+            sp->SetName( "" );
+            break;
+        }
+    }
+
+    if ( sp->GetName().empty() )
+    {
+        sp->SetName( master->UnusedSpineName() );
+    }
+
+    // SyncSkinSpines carries the name to every other cross section's copy, and the group
+    // alias is rebuilt from it.
+    m_LateUpdateFlag = true;
 }
 
 int GeomXSec::NumSkinSpines()
