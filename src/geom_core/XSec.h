@@ -244,6 +244,7 @@ public:
             BoolParm &m_TopLRCurveEq );
 
     virtual void ValidateParms( );
+    virtual void ValidateSpineParms();
 
     // Sides in station order, matching XSec::GetTanNormCrv's control value layout and the
     // order the skinning blend weights are built in.

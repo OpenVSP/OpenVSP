@@ -5406,6 +5406,23 @@ bool SkinScreen::Update()
         // Slew and Strength follow Angle, as they do for the fixed sides.
         m_SpineSlewSkinControl.DeactivateSet();
         m_SpineStrengthSkinControl.DeactivateSet();
+
+        // Continuity couples the two halves, so the right hand Set and the Equal toggle
+        // stop being the user's to choose -- same rule the sides follow.
+        if ( xs->m_TopCont() >= 1 )
+        {
+            m_SpineAngleSkinControl.DeactivateRSet();
+            m_SpineAngleSkinControl.DeactivateEqual();
+            m_SpineSlewSkinControl.DeactivateRSet();
+            m_SpineSlewSkinControl.DeactivateEqual();
+            m_SpineStrengthSkinControl.DeactivateRSet();
+            m_SpineStrengthSkinControl.DeactivateEqual();
+        }
+        if ( xs->m_TopCont() >= 2 )
+        {
+            m_SpineCurvatureSkinControl.DeactivateRSet();
+            m_SpineCurvatureSkinControl.DeactivateEqual();
+        }
     }
     else
     {

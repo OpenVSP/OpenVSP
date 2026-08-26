@@ -1092,6 +1092,8 @@ void SkinXSec::ValidateParms( )
                m_LeftLRStrengthEq,
                m_LeftLRCurveEq );
 
+    ValidateSpineParms();
+
     if ( m_TopLRAngleEq() ) m_TopRAngle = m_TopLAngle();
     if ( m_TopLRSlewEq() ) m_TopRSlew = m_TopLSlew();
     if ( m_TopLRStrengthEq() ) m_TopRStrength = m_TopLStrength();
@@ -1229,6 +1231,46 @@ void SkinXSec::ValidateParms( )
         m_LeftRSlew = m_RightRSlew();
         m_LeftRStrength = m_RightRStrength();
         m_LeftRCurve = m_RightRCurve();
+    }
+}
+
+// Spines get the same validation the sides do -- strength and slew follow angle, and the
+// continuity setting couples the left and right halves.  Without it a spine's Set flags
+// never move, so clearing its Angle Set leaves the Strength and Slew sliders live.
+void SkinXSec::ValidateSpineParms()
+{
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        SkinSpine* sp = m_SpineVec[i];
+        if ( !sp )
+        {
+            continue;
+        }
+
+        ValidateParms( m_TopCont,
+            sp->m_LAngleSet,
+            sp->m_LSlewSet,
+            sp->m_LStrengthSet,
+            sp->m_LCurveSet,
+            sp->m_RAngleSet,
+            sp->m_RSlewSet,
+            sp->m_RStrengthSet,
+            sp->m_RCurveSet,
+            sp->m_LRAngleEq,
+            sp->m_LRSlewEq,
+            sp->m_LRStrengthEq,
+            sp->m_LRCurveEq );
+
+        // Equal means equal.  The call above settles the flags; the values are copied
+        // separately, exactly as ValidateParms does for the four sides.  Without this a
+        // spine could carry an Equal flag and two different numbers, and which one reached
+        // the surface depended on the continuity: at C0 each side of the joint used its own,
+        // but from C1 up set_right_fp overwrites the left curve, so only the right value
+        // survived and editing the left did nothing at all.
+        if ( sp->m_LRAngleEq() ) sp->m_RAngle = sp->m_LAngle();
+        if ( sp->m_LRSlewEq() ) sp->m_RSlew = sp->m_LSlew();
+        if ( sp->m_LRStrengthEq() ) sp->m_RStrength = sp->m_LStrength();
+        if ( sp->m_LRCurveEq() ) sp->m_RCurve = sp->m_LCurve();
     }
 }
 
