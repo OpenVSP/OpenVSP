@@ -1041,11 +1041,13 @@ protected:
     // nothing unless the XSec is a SkinXSec.
     void UpdateSkinDrawObj( const Matrix4d &relTrans, int index );
 
-    // Collect the ribs for a skin, grouping stations that enforce the same conditions so
-    // they share one solve.  Returns false when a single unblended skin will do.
+    // Settle every XSec's skinning flags before anything reads them.  The grouping below
+    // keys on those flags, so it has to run after they have stopped changing.
+    void PrepSkinRibs( int nxsec );
+
     // Fill every pass's rib set from the cross sections.
     void StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
-                           const vector< vector< bool > > &insets );
+                           const vector< vector< bool > > &insets, bool closed );
 
     bool BuildSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
                            vector< double > &ws, vector< vector< bool > > &insets );

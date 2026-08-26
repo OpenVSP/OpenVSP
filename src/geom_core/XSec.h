@@ -197,13 +197,29 @@ public:
     virtual void GetStationW( vector< double > &ws );
 
     // One rib per station, each enforcing only that station's conditions.
+    virtual void PrepRibs( bool first, bool last );
+
     virtual void GetRibs( bool first, bool last, vector< rib_data_type > &ribs );
+
+    // Build the ribs from a supplied station list rather than the parms.
+    virtual void GetRibs( bool first, bool last, vector< rib_data_type > &ribs,
+                          const vector< SkinStation > &stations );
+
+    // The one rib a blending pass uses: conditions confined to the spans its own stations
+    // touch, values drawn only from those stations.
+    virtual void GetGroupRib( bool first, bool last, const vector< SkinStation > &stations,
+                              const vector< bool > &ingroup, rib_data_type &rib );
+
+    // Replace every value this station does not enforce with what surf actually did there.
+    // These are the values with no authority of their own, so a pass that needs them takes
+    // them from a solution that left them free.
+    virtual void FillUnsetFromSurf( int irib, const VspSurf &surf, vector< SkinStation > &stations );
 
     // The Top side's rib.  Retained for callers that do not blend.
     virtual rib_data_type GetRib( bool first, bool last );
 
-    virtual bool AnyAngleSet( bool left );
-    virtual bool AnyCurveSet( bool left );
+    virtual bool AnyAngleSet( bool left, const vector< SkinStation > &stations );
+    virtual bool AnyCurveSet( bool left, const vector< SkinStation > &stations );
 
     // Whether every station enforces the same conditions, in which case one skin suffices.
 
@@ -211,6 +227,8 @@ public:
     // of this XSec.  'left' selects the parameters that control the loft before this
     // XSec, otherwise the parameters controlling the loft after it are used.
     virtual void GetSkinCrvs( bool left, piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
+    virtual void GetSkinCrvs( bool left, const vector< SkinStation > &stations,
+                              piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv );
 
     virtual void SetUnsetParms( int irib, const VspSurf &surf );
 

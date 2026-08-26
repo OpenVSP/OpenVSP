@@ -790,6 +790,9 @@ void StackGeom::UpdateSurf()
     vector< vector< rib_data_type > > rib_sets;
     vector< double > station_w;
     vector< vector< bool > > insets;
+    // Validation cascades the Set flags, and the grouping below keys on them.
+    PrepSkinRibs( nxsec );
+
     bool blend = BuildSkinRibSets( nxsec, rib_sets, station_w, insets );
 
     //==== Update XSec Location/Rotation ====//
@@ -808,10 +811,9 @@ void StackGeom::UpdateSurf()
     }
 
 
-    // Build every pass's ribs.  Each XSec's rib depends only on that XSec, but they are
-    // collected in a pass of their own rather than inside the loop above so that placing a
-    // cross section and reading one stay separate things.
-    StageSkinRibSets( nxsec, rib_sets, insets );
+    // Values a pass does not own now come from a pass that left them free, so the ribs
+    // cannot be filled until every XSec is placed.
+    StageSkinRibSets( nxsec, rib_sets, insets, false );
 
     if ( !blend )
     {

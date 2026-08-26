@@ -6651,43 +6651,6 @@ void GeomXSec::UpdateSkinDrawObj( const Matrix4d &relTrans, int index )
     }
 }
 
-// Fill every pass's rib set from the cross sections.
-//
-// Every station in a group produces the same rib, so any member of the group will do.  Each
-// XSec's rib depends only on that XSec, so this could as easily run inside the loop that
-// places them -- it is a pass of its own so that placing a cross section and reading one
-// stay separate things.
-void GeomXSec::StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
-                                 const vector< vector< bool > > &insets )
-{
-    for ( int i = 0; i < nxsec; i++ )
-    {
-        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
-        if ( !xs )
-        {
-            continue;
-        }
-
-        bool first = ( i == 0 );
-        bool last = ( i == nxsec - 1 );
-
-        vector< rib_data_type > ribs;
-        xs->GetRibs( first, last, ribs );
-
-        for ( int g = 0; g < ( int )rib_sets.size(); g++ )
-        {
-            for ( int k = 0; k < ( int )insets[g].size(); k++ )
-            {
-                if ( insets[g][k] )
-                {
-                    rib_sets[g][i] = ribs[k];
-                    break;
-                }
-            }
-        }
-    }
-}
-
 // Gather the ribs for one skin.
 //
 // Every station gets a rib, but stations enforcing identical conditions produce identical
@@ -6804,6 +6767,140 @@ bool GeomXSec::BuildSkinRibSets( int nxsec, vector< vector< rib_data_type > > &r
     }
 
     return blend;
+}
+
+// Settle every XSec's skinning parms before anything reads them.
+//
+// ValidateParms cascades: continuity forces the right hand Set flags from the left, an Equal
+// flag forces both of its Set flags on, and the symmetry flags copy whole sides across.  The
+// station grouping below keys on exactly those flags, so it has to run after them.  Grouping
+// first and validating later lays the passes out for the flags the user left behind while the
+// ribs are built from the flags validation produced -- and since Update clears the dirty flag
+// at the end, the mismatched surface stands until something else is touched.  Reloading the
+// file then gives a different shape from the same parms.
+void GeomXSec::PrepSkinRibs( int nxsec )
+{
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( xs )
+        {
+            xs->PrepRibs( i == 0, i == nxsec - 1 );
+        }
+    }
+}
+
+// Fill the rib sets, one rib per blending pass per XSec.
+//
+// Each W = constant curve up the body is its own problem: the XSec curves give its points and
+// the skinning parms give whatever slopes and curvature are enforced along it.  Blending
+// several passes is what used to break that independence, because a pass enforcing a quantity
+// everywhere needed a value for it at stations that never specified one, and the only numbers
+// on hand were the readback values SetUnsetParms had written into the parms.  An unenforced
+// value then steered the loft, and the surface stopped being a function of the parms.
+//
+// Nothing needs inventing now.  A pass enforces only on the spans touching its own stations,
+// which is the whole of where its blend weight is nonzero, and takes its control values only
+// from those stations.  See SkinXSec::GetGroupRib.
+void GeomXSec::StageSkinRibSets( int nxsec, vector< vector< rib_data_type > > &rib_sets,
+                                 const vector< vector< bool > > &insets, bool closed )
+{
+    int ngroup = rib_sets.size();
+
+    if ( ngroup < 1 )
+    {
+        return;
+    }
+
+    vector< vector< SkinXSec::SkinStation > > allstations( nxsec );
+
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( !xs )
+        {
+            continue;
+        }
+
+        bool first = ( i == 0 );
+        bool last = ( i == nxsec - 1 );
+
+        xs->GetStations( allstations[i] );
+    }
+
+    // Curvature is specified in a frame the angle and slew define, so a pass enforcing
+    // curvature without angle still needs an angle -- there is no way to not need one.  What
+    // matters is where it comes from.  Reading it from the parms is what broke the round
+    // trip: SetUnsetParms had written the achieved value there, so a number the user never
+    // set, produced by the previous build, steered the next one.
+    //
+    // Derive it instead, from a reference loft that enforces nothing anywhere.  It is well
+    // defined, it depends on no other pass so there is nothing to order and nothing circular,
+    // and being computed inside the build it leaves the surface a function of the parms.
+    // Only curvature ever needs it, so most models never pay for it.
+    //
+    // Angle, slew and strength are parts of one tangent and ValidateParms turns them on and
+    // off together, so a station enforcing a tangent supplies every number that tangent
+    // needs.  Curvature is the exception: it is stated in the frame the angle and slew
+    // define, so a station can ask for curvature while leaving the angle free, and then the
+    // frame has to come from somewhere.  Nothing else reads what this loft produces --
+    // GetGroupRib takes every other value from a station in its own group.
+    //
+    // Building it regardless cost a whole extra skin on every update of every Fuselage and
+    // Stack, which on a forty section body was around a sixth of the time spent.
+    bool needref = false;
+    for ( int i = 0; i < nxsec && !needref; i++ )
+    {
+        for ( int k = 0; k < ( int )allstations[i].size(); k++ )
+        {
+            const SkinXSec::SkinStation &st = allstations[i][k];
+
+            if ( ( st.m_LCurveSet && !st.m_LAngleSet ) || ( st.m_RCurveSet && !st.m_RAngleSet ) )
+            {
+                needref = true;
+                break;
+            }
+        }
+    }
+
+    vector< rib_data_type > refribs( nxsec );
+    VspSurf ref;
+
+    if ( needref )
+    {
+        for ( int i = 0; i < nxsec; i++ )
+        {
+            SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+            if ( !xs )
+            {
+                continue;
+            }
+
+            refribs[i].set_f( xs->GetCurve().GetCurve() );
+        }
+
+        ref.SkinRibs( refribs, closed );
+        ref.SetMagicVParm( false );
+    }
+
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( m_XSecSurf.FindXSec( i ) );
+        if ( !xs )
+        {
+            continue;
+        }
+
+        if ( needref )
+        {
+            xs->FillUnsetFromSurf( i, ref, allstations[i] );
+        }
+
+        for ( int g = 0; g < ngroup; g++ )
+        {
+            xs->GetGroupRib( i == 0, i == nxsec - 1, allstations[i], insets[g], rib_sets[g][i] );
+        }
+    }
 }
 
 void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )

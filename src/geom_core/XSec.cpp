@@ -1134,6 +1134,12 @@ void SkinXSec::GetSkinCrvs( bool left, piecewise_curve_type &tangentcrv, piecewi
     vector< SkinStation > stations;
     GetStations( stations );
 
+    GetSkinCrvs( left, stations, tangentcrv, normcrv );
+}
+
+void SkinXSec::GetSkinCrvs( bool left, const vector< SkinStation > &stations,
+                            piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
+{
     int n = stations.size();
 
     vector< double > ts( n + 1 );
@@ -1179,13 +1185,8 @@ void SkinXSec::GetSkinCrvs( bool left, piecewise_curve_type &tangentcrv, piecewi
     GetTanNormCrv( ts, angles, slews, strengths, curves, tangentcrv, normcrv );
 }
 
-// Whether any station enforces a given condition.  The tangent and normal curves span the
-// whole cross section, so a curve is built once if any station wants it.
-bool SkinXSec::AnyAngleSet( bool left )
+bool SkinXSec::AnyAngleSet( bool left, const vector< SkinStation > &stations )
 {
-    vector< SkinStation > stations;
-    GetStations( stations );
-
     for ( int i = 0; i < ( int )stations.size(); i++ )
     {
         if ( left && stations[i].m_LAngleSet )
@@ -1200,11 +1201,8 @@ bool SkinXSec::AnyAngleSet( bool left )
     return false;
 }
 
-bool SkinXSec::AnyCurveSet( bool left )
+bool SkinXSec::AnyCurveSet( bool left, const vector< SkinStation > &stations )
 {
-    vector< SkinStation > stations;
-    GetStations( stations );
-
     for ( int i = 0; i < ( int )stations.size(); i++ )
     {
         if ( left && stations[i].m_LCurveSet )
@@ -1223,7 +1221,10 @@ bool SkinXSec::AnyCurveSet( bool left )
 // values come from one periodic spline through all the stations -- but enforces only the
 // conditions its own station asks for.  The surface is skinned once per rib set and the
 // results blended, which keeps it continuous where a station stops enforcing something.
-void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )
+// Settle the parms before anything reads them.  A staged solve calls this once per XSec and
+// then builds each pass from its own station list, so validation must not be buried in the
+// rib build itself.
+void SkinXSec::PrepRibs( bool first, bool last )
 {
     if( first || last )
     {
@@ -1234,20 +1235,181 @@ void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )
     }
 
     ValidateParms( );
+}
+
+// Build the single rib one blending pass uses.
+//
+// A pass owns some stations and knows nothing about the rest.  Two things follow from that,
+// and together they mean the pass never has to invent a number.
+//
+// It enforces only where it has something to say.  Its solution is multiplied by a blend
+// weight that is one at its own stations and zero at every other, so what it does outside the
+// spans touching its stations is discarded anyway.  Confining the conditions to those spans
+// costs nothing and lets the loft run free everywhere else, which is exactly where the pass
+// has no information.
+//
+// And its control values come only from its own stations.  Every station in a pass enforces
+// the same things, so those values are all the user's.  Letting a station outside the pass
+// contribute would put a number nobody chose into the interpolant, and a PCHIP carries a
+// station's influence one span either way -- far enough to reach the spans this pass does
+// enforce on.  Each station therefore takes the values of the nearest member.
+void SkinXSec::GetGroupRib( bool first, bool last, const vector< SkinStation > &stations,
+                            const vector< bool > &ingroup, rib_data_type &rib )
+{
+    int n = stations.size();
+
+    int rep = -1;
+    for ( int k = 0; k < n; k++ )
+    {
+        if ( k < ( int )ingroup.size() && ingroup[k] )
+        {
+            rep = k;
+            break;
+        }
+    }
+
+    if ( rep < 0 )
+    {
+        return;
+    }
+
+    double t0 = GetCurve().GetCurve().get_t0();
+    double period = GetCurve().GetCurve().get_tmax() - t0;
+
+    // Every station takes the values of the nearest member, measured around the section.
+    vector< SkinStation > vals( n );
+    for ( int k = 0; k < n; k++ )
+    {
+        int best = rep;
+        double bestd = 2.0 * period;
+
+        for ( int m = 0; m < n; m++ )
+        {
+            if ( m >= ( int )ingroup.size() || !ingroup[m] )
+            {
+                continue;
+            }
+
+            double d = std::abs( stations[m].m_W - stations[k].m_W );
+            if ( d > 0.5 * period )
+            {
+                d = period - d;
+            }
+
+            if ( d < bestd )
+            {
+                bestd = d;
+                best = m;
+            }
+        }
+
+        vals[k] = stations[best];
+        vals[k].m_W = stations[k].m_W;
+    }
+
+    piecewise_curve_type ltan, lnrm, rtan, rnrm;
+
+    if ( AnyAngleSet( true, vals ) || AnyCurveSet( true, vals ) )
+    {
+        GetSkinCrvs( true, vals, ltan, lnrm );
+    }
+
+    if ( AnyAngleSet( false, vals ) || AnyCurveSet( false, vals ) )
+    {
+        GetSkinCrvs( false, vals, rtan, rnrm );
+    }
+
+    rib.set_f( GetCurve().GetCurve() );
+
+    if( !first && !last )
+    {
+        rib.set_continuity( ( rib_data_type::connection_continuity ) m_TopCont() );
+    }
+
+    const SkinStation &st = stations[rep];
+
+    // Use 'wrong' side of first cross section to set right side.
+    if ( first )
+    {
+        if( st.m_LAngleSet ) rib.set_right_fp( ltan );
+        if( st.m_LCurveSet ) rib.set_right_fpp( lnrm );
+    }
+    else
+    {
+        if( st.m_LAngleSet ) rib.set_left_fp( ltan );
+        if( st.m_LCurveSet ) rib.set_left_fpp( lnrm );
+
+        if ( !last )
+        {
+            if( st.m_RAngleSet ) rib.set_right_fp( rtan );
+            if( st.m_RCurveSet ) rib.set_right_fpp( rnrm );
+        }
+    }
+
+    // One region per span between neighboring stations, on where the span touches a station
+    // this pass owns.  The stations are sorted and the section is periodic, so the last span
+    // closes back onto the first station.
+    vector< double > breaks;
+    vector< unsigned int > masks;
+
+    breaks.push_back( t0 );
+    for ( int k = 1; k < n; k++ )
+    {
+        breaks.push_back( stations[k].m_W );
+    }
+    breaks.push_back( t0 + period );
+
+    for ( int k = 0; k < n; k++ )
+    {
+        int a = k;
+        int b = k + 1;
+        if ( b >= n )
+        {
+            b = 0;
+        }
+
+        bool touches = false;
+        if ( a < ( int )ingroup.size() && ingroup[a] ) touches = true;
+        if ( b < ( int )ingroup.size() && ingroup[b] ) touches = true;
+
+        if ( touches )
+        {
+            masks.push_back( ~0u );
+        }
+        else
+        {
+            masks.push_back( rib_data_type::CONNECTION_SET );
+        }
+    }
+
+    rib.set_condition_regions( breaks, masks );
+}
+
+void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs )
+{
+    PrepRibs( first, last );
 
     vector< SkinStation > stations;
     GetStations( stations );
 
+    GetRibs( first, last, ribs, stations );
+}
+
+// The station list is supplied rather than read from the parms, so a caller can build the
+// ribs from stations it has adjusted -- GetGroupRib hands each pass its own.
+void SkinXSec::GetRibs( bool first, bool last, vector< rib_data_type > &ribs,
+                        const vector< SkinStation > &stations )
+{
     piecewise_curve_type ltan, lnrm, rtan, rnrm;
 
-    if ( AnyAngleSet( true ) || AnyCurveSet( true ) )
+    if ( AnyAngleSet( true, stations ) || AnyCurveSet( true, stations ) )
     {
-        GetSkinCrvs( true, ltan, lnrm );
+        GetSkinCrvs( true, stations, ltan, lnrm );
     }
 
-    if ( AnyAngleSet( false ) || AnyCurveSet( false ) )
+    if ( AnyAngleSet( false, stations ) || AnyCurveSet( false, stations ) )
     {
-        GetSkinCrvs( false, rtan, rnrm );
+        GetSkinCrvs( false, stations, rtan, rnrm );
     }
 
     ribs.resize( stations.size() );
@@ -1306,6 +1468,44 @@ rib_data_type SkinXSec::GetRib( bool first, bool last )
     }
 
     return ribs[ ribs.size() - 1 ];
+}
+
+// Every quantity a station does not enforce is replaced by what surf actually did there.
+//
+// These are exactly the values that carry no authority: the user never set them, so the
+// only meaningful thing to say about them is what the loft chose.  A pass that enforces a
+// quantity somewhere still needs a value for it everywhere, and taking it from a solution
+// that left it free is what keeps that pass from inventing one.
+//
+// Slew needs no sign flip here.  The station list is already in station space -- the sides
+// negate on the way in -- and GetAngStrCrv reports in that same space.  It is SetUnsetParms
+// writing back to the parms that has to flip, because the parms are in GUI space.
+void SkinXSec::FillUnsetFromSurf( int irib, const VspSurf &surf, vector< SkinStation > &stations )
+{
+    double scale = GetScale();
+
+    for ( int i = 0; i < ( int )stations.size(); i++ )
+    {
+        SkinStation &st = stations[i];
+
+        double thetaL, phiL, strengthL, curvatureL;
+        double thetaR, phiR, strengthR, curvatureR;
+
+        GetAngStrCrv( st.m_W, irib,
+                      thetaL, phiL, strengthL, curvatureL,
+                      thetaR, phiR, strengthR, curvatureR,
+                      surf );
+
+        if ( !st.m_LAngleSet ) st.m_LAngle = thetaL * 180.0 / M_PI;
+        if ( !st.m_LSlewSet ) st.m_LSlew = phiL * 180.0 / M_PI;
+        if ( !st.m_LStrengthSet ) st.m_LStrength = strengthL / scale;
+        if ( !st.m_LCurveSet ) st.m_LCurve = curvatureL / scale;
+
+        if ( !st.m_RAngleSet ) st.m_RAngle = thetaR * 180.0 / M_PI;
+        if ( !st.m_RSlewSet ) st.m_RSlew = phiR * 180.0 / M_PI;
+        if ( !st.m_RStrengthSet ) st.m_RStrength = strengthR / scale;
+        if ( !st.m_RCurveSet ) st.m_RCurve = curvatureR / scale;
+    }
 }
 
 void SkinXSec::SetUnsetParms( int irib, const VspSurf &surf )
