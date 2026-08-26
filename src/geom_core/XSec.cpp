@@ -417,6 +417,50 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
 
     GetCurve().GetCurve().get_pmap( crvts );
 
+    // Sample at the stations as well as at the XSec curve's own joints.
+    //
+    // The controls are laid out at the stations, but what the rib actually carries is a
+    // curve of tangent and normal vectors, built by evaluating the controls at these
+    // parameters and fitting through the results.  A station falling between two joints
+    // never gets sampled, so its value is smeared across the gap rather than enforced: on a
+    // default Stack the joints fall on half integers, and a spine at W=2.5 holds its 40
+    // degrees exactly while one at W=2.25 achieves 24 of them.  Which is to say the control
+    // resolution was the cross section curve's segmentation, not the user's station layout.
+    // Matches SkinXSec::GetMinStationGap: two stations closer than this are one station, so
+    // two sample parameters that close are one sample.
+    double sampgap = 1.0e-3;
+
+    // Take the bounds before inserting anything.  Reading them from the back of crvts inside
+    // the loop would read whatever was last pushed instead of the largest parameter, and
+    // every station beyond it would be rejected as out of range -- which left the first
+    // station sampled and the rest of them not.
+    double tfirst = crvts[0];
+    double tlast = crvts[crvts.size() - 1];
+
+    for ( int i = 0; i < ( int )ts.size(); i++ )
+    {
+        if ( ts[i] < tfirst || ts[i] > tlast )
+        {
+            continue;
+        }
+
+        bool have = false;
+        for ( int j = 0; j < ( int )crvts.size(); j++ )
+        {
+            if ( std::abs( crvts[j] - ts[i] ) < sampgap )
+            {
+                have = true;
+                break;
+            }
+        }
+
+        if ( !have )
+        {
+            crvts.push_back( ts[i] );
+        }
+    }
+    std::sort( crvts.begin(), crvts.end() );
+
     int ntcrv = crvts.size();
 
     // Evaluate controls and build tan & norm vectors at piecewise endpoints
