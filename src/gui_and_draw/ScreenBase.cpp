@@ -5137,6 +5137,8 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.AddButton( m_ClearSkinningButton, "Clear Skinning For XSec" );
     m_SkinLayout.AddButton( m_ClearAllSkinningButton, "Clear Skinning For Entire Stack" );
     m_SkinLayout.ForceNewLine();
+    m_SkinLayout.AddButton( m_CurveBasisToggle, "Angle Basis From Curve" );
+    m_SkinLayout.ForceNewLine();
     m_SkinLayout.AddButton( m_ShowSkinningTanToggle, "Show Tangent Vectors" );
     m_SkinLayout.AddButton( m_ShowSkinningCurveToggle, "Show Curvature Vectors" );
     m_SkinLayout.ForceNewLine();
@@ -5453,6 +5455,8 @@ bool SkinScreen::Update()
         {
             m_SkinXSecCurveNameInput.Update( xsc->GetGroupAlias() );
         }
+
+        m_CurveBasisToggle.Update( xs->m_CurveBasisFlag.GetID() );
 
         //==== Skin ====//
         // Update Symmetry flags to Parms.
