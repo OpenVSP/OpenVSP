@@ -76,6 +76,11 @@ def build_random( rng, geom_type ):
         # Symmetry, continuity and the Equal flags all make ValidateParms cascade -- they turn
         # Set flags on that the user did not.  Randomize them: the station grouping keys on
         # those flags, and an ordering mistake anywhere in that chain shows up here.
+        # Which frame the angles are measured from is per cross section, so a body may mix
+        # them.  Randomized here rather than tested apart, because the properties below have
+        # to hold whichever frame a section chose.
+        vsp.SetParmVal( vsp.GetXSecParm( xsec, "CurveBasis" ), float( rng.randint( 0, 1 ) ) )
+
         for nm in [ "AllSym", "TBSym", "RLSym" ]:
             vsp.SetParmVal( vsp.GetXSecParm( xsec, nm ), float( rng.randint( 0, 1 ) ) )
         vsp.SetParmVal( vsp.GetXSecParm( xsec, "ContinuityTop" ), float( rng.randint( 0, 2 ) ) )
@@ -580,3 +585,266 @@ def _sample_surface( gid, nu = 17, nw = 49 ):
             p = vsp.CompPnt01( gid, 0, i / ( nu - 1.0 ), j / ( nw - 1.0 ) )
             pts.append( ( p.x(), p.y(), p.z() ) )
     return pts
+
+
+def test_the_curve_frame_matches_the_circle_frame_on_a_circle():
+    """The two skinning frames must agree wherever the assumption behind the old one holds.
+
+    Angle and slew are rotations of a frame.  The old one is built by assuming the section is
+    a circle traversed uniformly in the curve parameter; the new one takes the frame from the
+    curve itself.  On a circle the assumption is true, so the two have to give the same
+    surface -- and if the tangent's sign or the handedness were wrong, they would not be close
+    at all.  This is what pins those down.
+
+    A rounded rectangle is the other half of the statement: it agrees at the four sides, where
+    a symmetric section's tangent runs along the face and the circle is right anyway, and
+    differs in between, which is the whole point of offering the choice.
+    """
+    def build( shape, curvebasis ):
+        vsp.VSPRenew()
+        gid = vsp.AddGeom( "STACK" )
+        xsurf = vsp.GetXSecSurf( gid, 0 )
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            vsp.ChangeXSecShape( xsurf, i, shape )
+        vsp.Update()
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            xsec = vsp.GetXSec( xsurf, i )
+            vsp.SetParmVal( vsp.GetXSecParm( xsec, "CurveBasis" ), curvebasis )
+            for nm in [ "AllSym", "TBSym", "RLSym" ]:
+                vsp.SetParmVal( vsp.GetXSecParm( xsec, nm ), 0.0 )
+            for side in SIDES:
+                for lr in [ "L", "R" ]:
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "AngleSet" ), 1.0 )
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "Angle" ), 25.0 )
+        vsp.Update()
+        return gid
+
+    def walk( gid, ws ):
+        return [ ( lambda p: ( p.x(), p.y(), p.z() ) )( vsp.CompPnt01( gid, 0, i / 40.0, w ) )
+                 for i in range( 41 ) for w in ws ]
+
+    everywhere = [ j / 120.0 for j in range( 121 ) ]
+    sides = [ 0.0, 0.25, 0.5, 0.75 ]
+
+    circle_ref = walk( build( vsp.XS_CIRCLE, 0.0 ), everywhere )
+    circle_new = walk( build( vsp.XS_CIRCLE, 1.0 ), everywhere )
+    # A circle section is four cubic Beziers, so it is exactly circular only at the segment
+    # joints.  The skinning controls are sampled between the joints too, where the circle
+    # assumption is off by the approximation error, so the two frames agree to that rather
+    # than exactly.  The rounded rectangle below moves ninety times further, so a wrong
+    # tangent sign or handedness still cannot pass this.
+    assert deviation( circle_ref, circle_new ) < 1.0e-3, \
+        "on a circle the two frames differ by %.3e" % deviation( circle_ref, circle_new )
+
+    rr_ref = walk( build( vsp.XS_ROUNDED_RECTANGLE, 0.0 ), sides )
+    rr_new = walk( build( vsp.XS_ROUNDED_RECTANGLE, 1.0 ), sides )
+    assert deviation( rr_ref, rr_new ) < 1.0e-12, \
+        "at the four sides the two frames differ by %.3e" % deviation( rr_ref, rr_new )
+
+    rr_ref = walk( build( vsp.XS_ROUNDED_RECTANGLE, 0.0 ), everywhere )
+    rr_new = walk( build( vsp.XS_ROUNDED_RECTANGLE, 1.0 ), everywhere )
+    # Measured 7.46e-2.  The floor is set well below that but far above nothing, so a
+    # regression that merely halved the disagreement still fails rather than sliding under a
+    # tolerance chosen to be easy to pass.
+    assert deviation( rr_ref, rr_new ) > 3.0e-2, \
+        "the curve frame moved a rounded rectangle only %.3e, against 7.46e-2 measured" % (
+            deviation( rr_ref, rr_new ) )
+
+
+def test_a_point_section_keeps_the_circle_frame():
+    """A point section has no extent, so no tangent at any parameter and no frame to build.
+
+    It keeps the circle whatever the flag says, so setting the flag on one does nothing at
+    all.  The nose and tail of a default Stack are point sections, so this is not a corner
+    case a user has to go looking for.
+    """
+    def build( curvebasis ):
+        vsp.VSPRenew()
+        gid = vsp.AddGeom( "STACK" )
+        xsurf = vsp.GetXSecSurf( gid, 0 )
+
+        vsp.ChangeXSecShape( xsurf, 2, vsp.XS_POINT )
+        vsp.Update()
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            xsec = vsp.GetXSec( xsurf, i )
+            for nm in [ "AllSym", "TBSym", "RLSym" ]:
+                vsp.SetParmVal( vsp.GetXSecParm( xsec, nm ), 0.0 )
+            for side in SIDES:
+                for lr in [ "L", "R" ]:
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "AngleSet" ), 1.0 )
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "Angle" ), 25.0 )
+
+        # Only the point section, so it is the one thing that differs between runs.
+        vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xsurf, 2 ), "CurveBasis" ), curvebasis )
+        vsp.Update()
+        return gid
+
+    moved = deviation( sample( build( 0.0 ) ), sample( build( 1.0 ) ) )
+    assert moved == 0.0, \
+        "asking a point section for a curve frame moved the surface by %.3e" % moved
+
+
+def test_a_slit_section_takes_its_frame_from_the_curve():
+    """A section with no width or no height still has a tangent, and it is worth having.
+
+    A slit is not a closed loop: the curve runs out along it and back.  The tangent reverses
+    at each end, so the two sides get frames a half turn apart -- which is right, since those
+    really are the two sides of the surface and each one's width axis points out of its own.
+    Only the fold itself has nothing to say, and there the two one sided tangents are exactly
+    opposed and the circle stands in.
+
+    So the flag has to do something here, and what it does has to stay finite and bounded.
+    """
+    def build( shape, w, h, curvebasis ):
+        vsp.VSPRenew()
+        gid = vsp.AddGeom( "STACK" )
+        xsurf = vsp.GetXSecSurf( gid, 0 )
+
+        vsp.ChangeXSecShape( xsurf, 2, shape )
+        vsp.Update()
+        vsp.SetXSecWidthHeight( vsp.GetXSec( xsurf, 2 ), w, h )
+        vsp.Update()
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            xsec = vsp.GetXSec( xsurf, i )
+            for nm in [ "AllSym", "TBSym", "RLSym" ]:
+                vsp.SetParmVal( vsp.GetXSecParm( xsec, nm ), 0.0 )
+            for side in SIDES:
+                for lr in [ "L", "R" ]:
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "AngleSet" ), 1.0 )
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "Angle" ), 25.0 )
+
+        vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xsurf, 2 ), "CurveBasis" ), curvebasis )
+        vsp.Update()
+        return gid
+
+    for name, w, h in [ ( "no width", 0.0, 2.0 ), ( "no height", 2.0, 0.0 ) ]:
+        ref = sample( build( vsp.XS_ELLIPSE, w, h, 0.0 ) )
+        new = sample( build( vsp.XS_ELLIPSE, w, h, 1.0 ) )
+
+        # Measured 7.6e-2 with no height and 8.6e-2 with no width.
+        assert deviation( ref, new ) > 3.0e-2, \
+            "%s: the curve frame moved the slit only %.3e, against 7.6e-2 measured" % (
+                name, deviation( ref, new ) )
+
+        # Finite, and nowhere near escaping: the fold is where a frame built on a reversing
+        # tangent would go wrong, and it would go wrong by a lot rather than a little.
+        reach = max( abs( c ) for p in ref for c in p )
+        for p in new:
+            for c in p:
+                assert math.isfinite( c ), "%s: the surface came back with %r" % ( name, c )
+                assert abs( c ) < 10.0 * reach + 1.0, \
+                    "%s: the surface reaches %.3e where the circle frame reaches %.3e" % (
+                        name, abs( c ), reach )
+
+
+def test_the_readback_uses_the_frame_the_surface_was_built_in():
+    """Both directions go through GetBasis, so both have to follow the flag.
+
+    GetTanNormCrv turns angle and slew into the derivatives the loft is built from.
+    GetAngStrCrv goes the other way, turning an achieved derivative back into angle and slew,
+    and SetUnsetParms writes those into the parms that are switched off so the GUI can report
+    what the loft did.  If the readback measured from a different frame than the surface was
+    built in, the numbers on screen would describe some other surface.
+
+    With nothing enforced the flag cannot touch the geometry -- there are no conditions for a
+    frame to orient -- so the surface is identical either way and any change in the reported
+    values is the readback, and only the readback, changing frame.  Were GetAngStrCrv still
+    measuring from the circle, the reported values would be identical too.
+    """
+    VALUES = [ "LAngle", "LSlew", "RAngle", "RSlew" ]
+    SETS = [ v + "Set" for v in [ "LAngle", "LSlew", "LStrength", "LCurve",
+                                  "RAngle", "RSlew", "RStrength", "RCurve" ] ]
+
+    def build( curvebasis ):
+        vsp.VSPRenew()
+        gid = vsp.AddGeom( "STACK" )
+        xsurf = vsp.GetXSecSurf( gid, 0 )
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            vsp.ChangeXSecShape( xsurf, i, vsp.XS_ROUNDED_RECTANGLE )
+        vsp.Update()
+
+        # Off the four sides, so the frames do not happen to coincide there.
+        vsp.AddSkinSpine( gid, 0.10 )
+        vsp.Update()
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            xsec = vsp.GetXSec( xsurf, i )
+            vsp.SetParmVal( vsp.GetXSecParm( xsec, "CurveBasis" ), curvebasis )
+            for nm in [ "AllSym", "TBSym", "RLSym" ]:
+                vsp.SetParmVal( vsp.GetXSecParm( xsec, nm ), 0.0 )
+            for side in SIDES:
+                for nm in EQUALS + SETS:
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + nm ), 0.0 )
+            spine = vsp.GetSkinSpineID( xsec, 0 )
+            for nm in EQUALS + SETS:
+                vsp.SetParmVal( vsp.GetSkinSpineParm( spine, nm ), 0.0 )
+        vsp.Update()
+
+        reported = {}
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            xsec = vsp.GetXSec( xsurf, i )
+            for side in SIDES:
+                for nm in VALUES:
+                    reported[ ( i, side, nm ) ] = vsp.GetParmVal( vsp.GetXSecParm( xsec, side + nm ) )
+            spine = vsp.GetSkinSpineID( xsec, 0 )
+            for nm in VALUES:
+                reported[ ( i, "spine", nm ) ] = vsp.GetParmVal( vsp.GetSkinSpineParm( spine, nm ) )
+
+        return sample( gid ), reported
+
+    circle_surf, circle_says = build( 0.0 )
+    curve_surf, curve_says = build( 1.0 )
+
+    assert deviation( circle_surf, curve_surf ) == 0.0, \
+        "with nothing enforced the flag moved the surface by %.3e" % deviation( circle_surf, curve_surf )
+
+    sides = max( abs( circle_says[k] - curve_says[k] ) for k in circle_says if k[1] != "spine" )
+    assert sides < 1.0e-9, \
+        "the two frames disagree by %.3e at the four sides of a symmetric section" % sides
+
+    spine = max( abs( circle_says[k] - curve_says[k] ) for k in circle_says if k[1] == "spine" )
+    # Measured 34.5 degrees.
+    assert spine > 20.0, \
+        "the readback differs by only %.4f degrees between frames, against 34.5 measured -- " \
+        "is it still measuring from the circle?" % spine
+
+
+def test_the_curve_frame_reaches_a_shape_that_keeps_no_size_in_its_parms():
+    """The frame comes from the curve, so a shape that does not record its size cannot hide.
+
+    AC25_773 keeps dummy Width and Height parms pinned to zero while its curve spans about
+    140 by 62.  Deciding "this section is a point" from those parms classified it as one, so
+    the curve frame was refused on it and the toggle did nothing at all -- ticked, with no
+    warning and nothing greyed out.  The extent is measured from the curve now.
+    """
+    def build( curvebasis ):
+        vsp.VSPRenew()
+        gid = vsp.AddGeom( "STACK" )
+        xsurf = vsp.GetXSecSurf( gid, 0 )
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            vsp.ChangeXSecShape( xsurf, i, vsp.XS_AC25_773 )
+        vsp.Update()
+
+        for i in range( vsp.GetNumXSec( xsurf ) ):
+            xsec = vsp.GetXSec( xsurf, i )
+            vsp.SetParmVal( vsp.GetXSecParm( xsec, "CurveBasis" ), curvebasis )
+            for nm in [ "AllSym", "TBSym", "RLSym" ]:
+                vsp.SetParmVal( vsp.GetXSecParm( xsec, nm ), 0.0 )
+            for side in SIDES:
+                for lr in [ "L", "R" ]:
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "AngleSet" ), 1.0 )
+                    vsp.SetParmVal( vsp.GetXSecParm( xsec, side + lr + "Angle" ), 25.0 )
+        vsp.Update()
+        return gid
+
+    moved = deviation( sample( build( 0.0 ) ), sample( build( 1.0 ) ) )
+    # Measured 2.99e-2.
+    assert moved > 1.0e-2, \
+        "the curve frame moved a section whose size parms are dummies only %.3e, against " \
+        "2.99e-2 measured" % moved
