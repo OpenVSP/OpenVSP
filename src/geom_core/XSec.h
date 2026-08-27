@@ -80,6 +80,10 @@ public:
 
     virtual void GetSimpleBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir );
 
+    // The cross section's own orientation, before anything is said about where around the
+    // section a station sits: width, up and principal directions as this XSec is placed.
+    virtual void GetBaseBasis( Matrix4d &basis );
+
     virtual void GetBasis( double t, Matrix4d &basis );
     virtual void GetTanNormVec( double t, double theta, double phi, vec3d &tangent, vec3d &normal );
     virtual void GetTanNormCrv( const vector< double > &ts, const vector< double > &thetas,

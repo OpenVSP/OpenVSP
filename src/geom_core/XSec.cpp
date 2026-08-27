@@ -327,17 +327,12 @@ void XSec::GetSimpleBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir )
 {
     Matrix4d basis;
 
-    // Get primary orientation of this XSecSurf
-    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-    xsecsurf->GetBasicTransformation( 0.0, basis );
-
-    // Transform primary orientation to orientation of this XSec
-    basis.postMult( GetTransform()->data() );
+    GetBaseBasis( basis );
 
     basis.getBasis( xdir, ydir, zdir );
 }
 
-void XSec::GetBasis( double t, Matrix4d &basis )
+void XSec::GetBaseBasis( Matrix4d &basis )
 {
     // Get primary orientation of this XSecSurf
     XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
@@ -345,6 +340,11 @@ void XSec::GetBasis( double t, Matrix4d &basis )
 
     // Transform primary orientation to orientation of this XSec
     basis.postMult( GetTransform()->data() );
+}
+
+void XSec::GetBasis( double t, Matrix4d &basis )
+{
+    GetBaseBasis( basis );
 
     // Pull out width, up, and principal directions.
     vec3d wdir, updir, pdir;
