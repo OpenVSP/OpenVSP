@@ -860,6 +860,7 @@ string CompGeomAnalysis::Execute()
         int useModeFlag = 0;
         string modeID;
 
+        int prevTxtFile = veh->getExportCompGeomTxtFile();
         int prevCsvFile = veh->getExportCompGeomCsvFile();
 
         NameValData *nvd = nullptr;
@@ -919,6 +920,7 @@ string CompGeomAnalysis::Execute()
 
         res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
 
+        veh->setExportCompGeomTxtFile( prevTxtFile );
         veh->setExportCompGeomCsvFile( prevCsvFile );
     }
 

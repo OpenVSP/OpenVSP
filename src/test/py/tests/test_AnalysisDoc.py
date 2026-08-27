@@ -6,6 +6,11 @@ def test_AnalysisDoc():
     vsp.AddGeom( 'POD', '' )
     vsp.Update()
 
+    # This is about what the analysis and its results document about themselves, so it should
+    # not leave files behind.  A previous test in the same session may have read a model, and
+    # the output is named after whatever file the Vehicle last held -- so without this the
+    # run drops a <that model>_CompGeom.txt next to it.
+    vsp.SetIntAnalysisInput( 'CompGeom', 'WriteTXTFlag', [0] )
     vsp.SetIntAnalysisInput( 'CompGeom', 'WriteCSVFlag', [0] )
 
     vsp.PrintAnalysisInputs( 'CompGeom' )
