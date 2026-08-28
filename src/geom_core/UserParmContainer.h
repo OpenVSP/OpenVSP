@@ -45,6 +45,7 @@ public:
     virtual int GetUserParmIndex( const string & id );
     virtual string AddParm(int type, const string & name, const string & group );
     virtual void DeleteParm( int index );
+    virtual void DeleteParm( vector < int > indices );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );

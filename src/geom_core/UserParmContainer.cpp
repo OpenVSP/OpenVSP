@@ -219,13 +219,27 @@ string UserParmContainer::AddParm(int type, const string & name, const string & 
 }
 
 //==== Delete User Defined Parm ====//
-void UserParmContainer::DeleteParm(int index )
+void UserParmContainer::DeleteParm( int index )
 {
-    if ( index >= 0 && index < m_UserParmVec.size() )
+    vector < int > indices = {index};
+    DeleteParm( indices );
+}
+
+void UserParmContainer::DeleteParm( vector < int > indices )
+{
+    // verify that all the indices in the delete vector are valid
+    for ( int i = 0; i < indices.size(); i++ )
     {
-        delete m_UserParmVec[index];
-        m_UserParmVec.erase( m_UserParmVec.begin() + index );
+        if ( indices[i] < 0 || indices[i] >= m_UserParmVec.size() )
+        {
+            return;
+        }
     }
+
+    // delete referenced objects
+    vector_delete_indices( m_UserParmVec, indices );
+    // remove pointers from vector
+    vector_remove_indices( m_UserParmVec, indices );
 }
 
 bool UserParmNameCompare( const Parm *dvA, const Parm *dvB )
