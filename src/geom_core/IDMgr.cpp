@@ -12,7 +12,6 @@
 #include "ParmMgr.h"
 #include "VspUtil.h"
 #include "VarPresetMgr.h"
-#include "VspUtil.h"
 
 using std::map;
 using std::string;
