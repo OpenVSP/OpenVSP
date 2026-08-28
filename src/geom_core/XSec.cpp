@@ -675,6 +675,9 @@ SkinXSec::SkinXSec( XSecCurve *xsc ) : XSec( xsc)
 {
     m_Name = "SkinXSec";
 
+    m_CurveBasisFlag.Init( "CurveBasis", m_GroupName, this, 0, 0, 1 );
+    m_CurveBasisFlag.SetDescript( "Measure skinning angles from the cross section curve rather than from an assumed circle." );
+
     m_AllSymFlag.Init( "AllSym", m_GroupName, this, 1, 0, 1 );
     m_AllSymFlag.SetDescript( "Set all skinning parameters equal." );
     m_TBSymFlag.Init( "TBSym", m_GroupName, this, 1, 0, 1 );
@@ -892,6 +895,176 @@ void SkinXSec::AddLinkableParms( vector< string > & parm_vec, const string & lin
 }
 
 
+
+// A section with no extent at all, which therefore has no tangent anywhere.
+//
+// Every other section has one, including a slit -- no width or no height.  A slit is not a
+// closed loop: the curve runs out along it and back, so the tangent reverses at each end and
+// the two sides of it get frames a half turn apart.  That is the right answer rather than a
+// problem, since those really are the two sides of the surface and each one's width axis
+// points out of its own.  Only the fold itself has nothing to say, and GetBasis handles that
+// where it meets it.
+//
+// A point has neither, so there is nothing to build a frame from at any parameter.
+bool SkinXSec::IsPointSection()
+{
+    if ( !m_XSCurve || m_XSCurve->GetType() == vsp::XS_POINT )
+    {
+        return true;
+    }
+
+    return SectionExtent() <= 0.0;
+}
+
+// Whether the section is a point, given an extent already measured.  GetBasis runs once per
+// sample of the cross section and wants the extent anyway, and measuring it means building
+// the curve's bounding box -- so asking IsPointSection as well would build it twice for an
+// answer that cannot change between the two calls.
+bool SkinXSec::IsPointSection( double extent )
+{
+    if ( !m_XSCurve || m_XSCurve->GetType() == vsp::XS_POINT )
+    {
+        return true;
+    }
+
+    return extent <= 0.0;
+}
+
+// How far the cross section curve actually reaches.
+//
+// Not the shape's Width and Height parms.  Those are what the user typed, and some shapes do
+// not keep their size there at all: AC25_773's are documented dummies pinned to zero while
+// the curve itself spans about 140 by 62.  Reading them made that section look like a point,
+// so the curve frame was refused on it and the toggle did nothing with no way to tell.
+//
+// The curve is the thing a tangent is taken from, so the curve is the thing to measure.
+double SkinXSec::SectionExtent()
+{
+    BndBox bb;
+    m_TransformedCurve.GetBoundingBox( bb );
+
+    return bb.GetLargestDist();
+}
+
+// The frame the skinning angles are measured from.
+//
+// XSec::GetBasis turns the base orientation to face the station on the assumption that the
+// section is a circle traversed uniformly in the curve parameter.  With m_CurveBasisFlag the
+// turn comes from the curve instead: the up axis is the curve's own tangent there, and the
+// width axis follows from it and the principal direction.  The two agree wherever the section
+// really is a circle, and part company exactly where the assumption was wrong.
+//
+// The tangent is taken from both sides and averaged.  At a corner -- a rounded rectangle's,
+// or the seam of a section that closes on itself -- the two differ, and there is no reason to
+// prefer either; the bisector is the one direction the corner does not argue with, and it is
+// the ordinary tangent wherever the curve is smooth.
+void SkinXSec::GetBasis( double t, Matrix4d &basis )
+{
+    // Measured once and used twice: for the point section test and for the tolerance below.
+    double extent = 0.0;
+    if ( m_CurveBasisFlag() )
+    {
+        extent = SectionExtent();
+    }
+
+    if ( !m_CurveBasisFlag() || IsPointSection( extent ) )
+    {
+        XSec::GetBasis( t, basis );
+        return;
+    }
+
+    GetBaseBasis( basis );
+
+    vec3d wdir, updir, pdir;
+    basis.getBasis( wdir, updir, pdir );
+
+    // Each side to unit length before they are added, so the bisector sits midway rather
+    // than being dragged toward whichever side is parameterized faster.
+    //
+    // A side is only taken if it has a tangent to speak of.  The section spans t over a
+    // range of four and reaches about as far as it is wide, so a tangent is of the order of
+    // the section's size, and anything a billionth of that is rounding rather than a
+    // direction -- normalizing it would turn noise into a confident unit vector.  Both sides
+    // are that small at the ends of a slit, where the curve stops and turns round.
+    // The section is a closed loop, so its two ends are one place and the side "before" the
+    // first parameter is the side approaching the last.  CompTan cannot know that -- asked
+    // for the before side at the start it hands back the after side, and the other way round
+    // at the end -- so at the seam both sides came out the same and the bisector the comment
+    // above promises quietly became a one sided tangent.  Ask at the other end instead.
+    double tmin = m_TransformedCurve.GetCurve().get_parameter_min();
+    double tmax = m_TransformedCurve.GetCurve().get_parameter_max();
+
+    double tb = t;
+    double ta = t;
+
+    if ( t <= tmin )
+    {
+        tb = tmax;
+    }
+    if ( t >= tmax )
+    {
+        ta = tmin;
+    }
+
+    vec3d tanb = m_TransformedCurve.CompTan( tb, VspCurve::BEFORE );
+    vec3d tana = m_TransformedCurve.CompTan( ta, VspCurve::AFTER );
+
+    double tol = 1.0e-9 * extent;
+
+    vec3d u;
+
+    if ( tanb.mag() > tol )
+    {
+        tanb.normalize();
+        u = u + tanb;
+    }
+    if ( tana.mag() > tol )
+    {
+        tana.normalize();
+        u = u + tana;
+    }
+
+    // Negated.  The frame's up axis and the curve run opposite ways round the section: at
+    // the first station the axis points one way along the section and the curve, heading for
+    // the next station, points the other.  Taking the tangent as it comes would turn every
+    // frame through half a turn and invert what angle and slew mean.
+    u = -u;
+
+    // Into the plane of the section.  Not every cross section is planar -- a chevron, or an
+    // edited curve given a third dimension, leaves it -- and the tangent of one that is not
+    // has a component along the principal direction.
+    //
+    // It has to go.  Angle is a rotation of the frame about this axis, and rotating the
+    // principal direction about an axis it is not perpendicular to sweeps a cone of half
+    // angle theta*cos(tilt), not theta.  On ChevronTest the flanks run 42 degrees out of
+    // plane, and a spine there asked for 30 degrees leaves the surface at 22.2 -- the slider
+    // saying one thing and the loft doing another, by a factor that varies around the
+    // section with the local tilt.  Projected, the same spine gives 30.000.
+    //
+    // On a planar section this removes round off and nothing else, which is why it reads as
+    // a formality: circle and rounded rectangle results are identical either way.
+    u = u - pdir * dot( u, pdir );
+
+    // Nothing usable came out: neither side had a tangent, or the two were opposed and
+    // cancelled.  Two unit vectors sum to twice the cosine of half the angle between them,
+    // so the threshold reads as an angle -- within a millionth of a radian of opposed, the
+    // bisector is whichever way the rounding fell and means nothing.  Either way the circle
+    // has an answer here and this does not, so take it.  On the sections tried it is the
+    // first that happens, at the ends of a slit; the second is what a cusp would do.
+    if ( u.mag() < 1.0e-6 )
+    {
+        XSec::GetBasis( t, basis );
+        return;
+    }
+
+    u.normalize();
+
+    // Right handed, the same way round as the base: w cross u is p.
+    vec3d w = cross( u, pdir );
+    w.normalize();
+
+    basis.setBasis( w, u, pdir );
+}
 
 void SkinXSec::CopySetValidate( IntParm &Cont,
     BoolParm &LAngleSet,

@@ -217,6 +217,17 @@ public:
 
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
+    // Where the skinning angles are measured from.  See m_CurveBasisFlag.
+    virtual void GetBasis( double t, Matrix4d &basis );
+
+    // Whether this section has no extent at all, and so no tangent to take a frame from.
+    virtual bool IsPointSection();
+    virtual bool IsPointSection( double extent );
+
+    // How far the cross section curve reaches, measured from the curve rather than from the
+    // shape's Width and Height parms, which some shapes do not keep their size in.
+    virtual double SectionExtent();
+
     virtual void CopySetValidate( IntParm &m_TopCont,
             BoolParm &m_TopLAngleSet,
             BoolParm &m_TopLSlewSet,
@@ -388,6 +399,21 @@ public:
             Parm &RCurve );
 
     virtual double GetScale() = 0;
+
+    // Take the station's frame from the cross section curve rather than from a circle.
+    //
+    // Angle and slew are rotations of a frame, so they only mean what the user expects if
+    // that frame follows the section.  It is built by assuming the section is a circle
+    // traversed uniformly in the curve parameter: the up direction is where the circle's
+    // tangent would point, and the width direction is radially out from it.  On a circle
+    // that is exact; on anything else it is not, and a zero angle then does not mean the
+    // loft leaves along the surface -- it means it leaves along a direction borrowed from a
+    // circle nobody drew.
+    //
+    // Set this and the frame is taken from the curve itself: the up direction is the curve's
+    // own tangent at the station, and the width direction follows.  Experimental, and off by
+    // default, since it changes every surface that enforces a skinning condition.
+    BoolParm m_CurveBasisFlag;
 
     BoolParm m_AllSymFlag;
     BoolParm m_TBSymFlag;

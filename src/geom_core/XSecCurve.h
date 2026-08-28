@@ -410,11 +410,13 @@ public:
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
-    virtual double GetWidth()
+    // const, so that these override the base rather than hiding it.  Without it a call
+    // through an XSecCurve pointer reached the base and got 0.0 back.
+    virtual double GetWidth() const
     {
         return m_Width();
     }
-    virtual double GetHeight()
+    virtual double GetHeight() const
     {
         return m_Height();
     }
