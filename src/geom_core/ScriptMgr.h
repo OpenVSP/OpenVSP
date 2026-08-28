@@ -11,7 +11,6 @@
 #if !defined(SCRIPTMGR__INCLUDED_)
 #define SCRIPTMGR__INCLUDED_
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include <angelscript.h>

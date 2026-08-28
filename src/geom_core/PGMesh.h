@@ -21,7 +21,6 @@
 #include "Vec3d.h"
 #include "Matrix4d.h"
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <cassert>
 

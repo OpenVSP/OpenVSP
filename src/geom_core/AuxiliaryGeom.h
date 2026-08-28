@@ -13,7 +13,6 @@
 #if !defined(VSPAUXILIARYGEOM__INCLUDED_)
 #define VSPAUXILIARYGEOM__INCLUDED_
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Geom.h"

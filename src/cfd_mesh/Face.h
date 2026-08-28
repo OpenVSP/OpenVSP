@@ -11,7 +11,6 @@
 #if !defined(FACE_FACE__INCLUDED_)
 #define FACE_FACE__INCLUDED_
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Vec2d.h"

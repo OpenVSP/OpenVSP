@@ -10,7 +10,6 @@
 #ifndef WAVEDRAGSCREEN_H
 #define WAVEDRAGSCREEN_H
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "ScreenMgr.h"

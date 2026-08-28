@@ -11,7 +11,6 @@
 #if !defined(SURF_SURFPATCH__INCLUDED_)
 #define SURF_SURFPATCH__INCLUDED_
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Vec2d.h"

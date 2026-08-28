@@ -17,7 +17,6 @@
 #ifndef BEZIER_CURVE_H
 #define BEZIER_CURVE_H
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Vec3d.h"

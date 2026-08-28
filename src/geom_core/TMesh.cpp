@@ -18,7 +18,6 @@
 #include <windows.h>
 #endif
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Vehicle.h"

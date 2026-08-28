@@ -11,7 +11,6 @@
 #if !defined(INTERSECT_QUAD__INCLUDED_)
 #define INTERSECT_QUAD__INCLUDED_
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Vec2d.h"
