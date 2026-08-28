@@ -320,24 +320,25 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             ptype = "INT_";
         }
 
-        string pname = "USERPARM_" + ptype + to_string( LinkMgr.GetNumUserParms() - LinkMgr.GetNumPredefinedUserParms() );
-        string pid = LinkMgr.AddUserParm( type, pname, m_GroupText );
-        if ( pid.size() )
+        string pname;
+        string pid;
+        int index = 0;
+        while ( !pid.size() )
         {
-            Parm* pptr = ParmMgr.FindParm( pid );
-            if ( pptr )
-            {
-                pptr->SetDescript( m_DescText );
-                pptr->SetLowerUpperLimits( veh->m_UserParmMin(), veh->m_UserParmMax() );
-                pptr->Set( veh->m_UserParmVal() );
-            }
-            RebuildAdjustGroup();
+            pname = "USERPARM_" + ptype + to_string( index );
+            pid = LinkMgr.AddUserParm( type, pname, m_GroupText );
+            index++;
         }
-        else
+
+        Parm* pptr = ParmMgr.FindParm( pid );
+        if ( pptr )
         {
-            m_ScreenMgr->Alert( "Duplicate Name and Group" );
+            pptr->SetDescript( m_DescText );
+            pptr->SetLowerUpperLimits( veh->m_UserParmMin(), veh->m_UserParmMax() );
+            pptr->Set( veh->m_UserParmVal() );
         }
         m_UserBrowserSelection = -1;
+        RebuildAdjustGroup();
      }
     else if ( gui_device == &m_DeleteParm )
     {
