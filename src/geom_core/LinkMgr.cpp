@@ -792,10 +792,22 @@ string LinkMgrSingleton::AddUserParm(int type, const string & name, const string
 
 void LinkMgrSingleton::DeleteUserParm( int index )
 {
-    if ( index >= m_NumPredefinedUserParms && index < m_UserParms.GetNumUserParms() )
+    vector < int > indices = { index };
+    DeleteUserParm( indices );
+}
+
+void LinkMgrSingleton::DeleteUserParm( vector< int > &indices )
+{
+    // verify that all the indices in the delete vector are valid
+    for ( int i = 0; i < indices.size(); i++ )
     {
-        m_UserParms.DeleteParm( index );
+        if ( indices[i] < m_NumPredefinedUserParms || indices[i] >= m_UserParms.GetNumUserParms() )
+        {
+            return;
+        }
     }
+
+    m_UserParms.DeleteParm( indices );
 }
 
 void LinkMgrSingleton::DeleteAllUserParm( )

@@ -77,6 +77,7 @@ public:
     int GetUserParmIndex( const string & id )               { return m_UserParms.GetUserParmIndex( id ); }
     string AddUserParm(int type, const string & name, const string & group );
     void DeleteUserParm( int index );
+    void DeleteUserParm( vector< int > &indices );
     void DeleteAllUserParm( );
     UserParmContainer * GetUserParmContainer()              { return &m_UserParms; }
 
