@@ -24,7 +24,14 @@ IF( VSP_LIBRARY_PATH )
 ENDIF( VSP_LIBRARY_PATH )
 
 IF(WIN32)
-    ADD_DEFINITIONS(/D _CRT_SECURE_NO_WARNINGS /D "NOMINMAX" /MP )
+    # _USE_MATH_DEFINES is what makes math.h declare M_PI and its neighbours on MSVC, and it
+    # has to be set before the first include of math.h anywhere in a translation unit.  A
+    # header cannot arrange that for itself: math.h has an include guard, so if anything
+    # earlier in the unit pulled it in already, a later define arrives too late and the
+    # #include is a no-op.  On the command line it is in force before the first token of
+    # every unit, which is the only place the guarantee holds.  Same species as NOMINMAX
+    # beside it.
+    ADD_DEFINITIONS(/D _CRT_SECURE_NO_WARNINGS /D "NOMINMAX" /D _USE_MATH_DEFINES /MP )
 ENDIF(WIN32)
 
 IF(WIN32)
