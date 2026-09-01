@@ -375,13 +375,17 @@ bool Edge::SetFace( Face* f )
     return true;
 }
 
+// Forget the face given, and only that one.  An edge asked to forget a face it never held
+// keeps the face it does have -- which matters where a surface is laid against itself and the
+// mesher builds the same triangle twice, since an edge left pointing at a removed face reads
+// it after the next DumpGarbage.  ReplaceFace, just below, checks both the same way.
 void Edge::RemoveFace( Face* f )
 {
     if ( f0 == f )
     {
         f0 = nullptr;
     }
-    else
+    else if ( f1 == f )
     {
         f1 = nullptr;
     }
