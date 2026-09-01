@@ -409,6 +409,8 @@ protected:
 
     double m_PlanarUWAspect;
 
+    double LinearSTAspect() const;
+
     SurfCore m_SurfCore;
 
     BndBox m_BBox;

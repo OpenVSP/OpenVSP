@@ -1306,12 +1306,44 @@ void Surf::UtoIndexFrac( const double &u, int &indx, double &frac )
     frac = clamp( frac, 0.0, 1.0 );
 }
 
-vec2d Surf::GetST( const vec2d &uw )
+// The aspect to map U and W through when there is no ST map to use.
+//
+// A planar patch never builds one and says what its aspect is.  A patch whose map had to be
+// abandoned -- a grid whose rows collapse, or one OpenABF could not flatten -- has no aspect
+// of its own, so it falls back on its parameter extents.  Either way the mesher ends up
+// spacing points by the surface's own parameter, which is what giving up on the map means.
+//
+// Returns a negative number when the map is there and should be used instead.
+double Surf::LinearSTAspect() const
 {
     if ( m_PlanarUWAspect > 0 )
     {
+        return m_PlanarUWAspect;
+    }
+
+    if ( !m_STMap.empty() )
+    {
+        return -1.0;
+    }
+
+    double dw = m_SurfCore.GetMaxW() - m_SurfCore.GetMinW();
+
+    if ( dw > 0.0 )
+    {
+        return ( m_SurfCore.GetMaxU() - m_SurfCore.GetMinU() ) / dw;
+    }
+
+    return 1.0;
+}
+
+vec2d Surf::GetST( const vec2d &uw )
+{
+    double asp = LinearSTAspect();
+
+    if ( asp > 0 )
+    {
         vec2d st;
-        st.set_xy( m_PlanarUWAspect * uw.x(), uw.y() );
+        st.set_xy( asp * uw.x(), uw.y() );
         return st;
     }
 
@@ -1470,10 +1502,12 @@ void Surf::FindSTBox( const vec2d &st, int &i_match, int &j_match )
 
 vec2d Surf::GetUW( const vec2d &st )
 {
-    if ( m_PlanarUWAspect > 0 )
+    double asp = LinearSTAspect();
+
+    if ( asp > 0 )
     {
         vec2d uw;
-        uw.set_xy( st.x() / m_PlanarUWAspect, st.y() );
+        uw.set_xy( st.x() / asp, st.y() );
         return uw;
     }
 
