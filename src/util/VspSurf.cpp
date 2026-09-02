@@ -3522,6 +3522,45 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
         return false;
     }
 
+    // A patch that encloses no area is not a surface, whatever its outline looks like, and
+    // nothing downstream can make anything of it: the distance map flattens it to a singular
+    // system, and every triangle built on it is degenerate.
+    //
+    // The tests above do not see these.  The ones that come off a wing tip have a whole side
+    // collapsed to a point, and their other three sides all lie along one curve -- the long
+    // side retraces exactly what the two short ones cover, so the boundary runs out and back
+    // and encloses nothing.  Their corners are distinct and no two opposite edges are equal,
+    // so both earlier tests pass them.
+    //
+    // Rather than try to enumerate the ways an outline can fold, ask the surface for the one
+    // thing that has to be true of it: it must have area.  The area integrand is never
+    // negative, so it integrates to zero exactly when it is everywhere zero, and there is no
+    // need to integrate to find that out -- it is enough that every control point of
+    // |Su x Sv|^2 vanish.  Code-Eli builds that surface exactly.  Nothing here depends on how
+    // the patch is oriented or how big the model is.
+    //
+    // A surface has area if any one of its patches does.
+    bool anyarea = false;
+
+    for ( int ip = 0; ip < surf.number_u_patches() && !anyarea; ip++ )
+    {
+        for ( int jp = 0; jp < surf.number_v_patches() && !anyarea; jp++ )
+        {
+            const surface_patch_type *patch = surf.get_patch( ip, jp );
+
+            if ( patch && !patch->degenerate_area( 1.0e-10 ) )
+            {
+                anyarea = true;
+            }
+        }
+    }
+
+    if ( !anyarea )
+    {
+        // Collapsed onto a curve, or onto a point.
+        return false;
+    }
+
     // Passed all tests, valid surface.
     return true;
 }
