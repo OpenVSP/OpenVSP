@@ -1017,7 +1017,16 @@ void SurfaceIntersectionSingleton::CleanMergeSurfs(  bool skip_duplicate_removal
         {
             int compA = m_SurfVec[s]->GetCompID();
             int compB = m_SurfVec[t]->GetCompID();
-            if ( compA != compB && m_SurfVec[s]->BorderMatch( m_SurfVec[t] ) )
+
+            // Surfaces whose boxes do not come near each other cannot share a border, and BorderMatch is
+            // expensive enough to be worth not asking.
+            if ( compA == compB ||
+                 !Compare( m_SurfVec[s]->GetBBox(), m_SurfVec[t]->GetBBox(), 1.0e-6 ) )
+            {
+                continue;
+            }
+
+            if ( m_SurfVec[s]->BorderMatch( m_SurfVec[t] ) )
             {
                 // Only merge like-type surfaces.  I.e. normal, negative, etc.
                 if ( m_SurfVec[s]->GetSurfaceCfdType() == m_SurfVec[t]->GetSurfaceCfdType() )
@@ -1056,10 +1065,35 @@ void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
         delflag[i] = false;
     }
 
+    // Two surfaces can only be duplicates if they occupy the same box.  SurfMatch copies the
+    // other surface eight times over, once for each way round it might be turned, so pairs that
+    // cannot possibly match are worth turning away before it is asked.
+    double bbtol = 1.0e-6;
+
     for ( int s = 0 ; s + 1 < nsurf ; s++ )
     {
+        BndBox &bbs = m_SurfVec[s]->GetBBox();
+
         for ( int t = s + 1 ; t < nsurf ; t++ )
         {
+            BndBox &bbt = m_SurfVec[t]->GetBBox();
+
+            bool samebox = true;
+
+            for ( int k = 0; k < 3 && samebox; k++ )
+            {
+                if ( std::abs( bbs.GetMin( k ) - bbt.GetMin( k ) ) > bbtol ||
+                     std::abs( bbs.GetMax( k ) - bbt.GetMax( k ) ) > bbtol )
+                {
+                    samebox = false;
+                }
+            }
+
+            if ( !samebox )
+            {
+                continue;
+            }
+
             if ( m_SurfVec[s]->GetSurfCore()->SurfMatch( m_SurfVec[t]->GetSurfCore() ) )
             {
                 delflag[s] = true;
