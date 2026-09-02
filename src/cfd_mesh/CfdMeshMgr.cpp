@@ -3498,23 +3498,33 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
     {
         int s_comp_id = m_SurfVec[s]->GetCompID();
-        list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+
+        // A reference.  Copying the list copied a node per triangle, over a million of them
+        // on the wing matrix, to walk something that is not modified here.
+        const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+
+        // Built once and emptied per triangle rather than built per triangle.  It is a vector
+        // of vectors as wide as the model has components, and it was being allocated, sized
+        // and thrown away for every triangle in the mesh.
+        int ncross = m_NumComps + 6;
+
+        if ( GetSettingsPtr()->m_SymSplittingOnFlag )
+        {
+            ncross = m_NumComps + 10;   // room for the outer domain and the symmetry plane
+        }
+
+        vector< vector< double > > t_vec_vec( ncross );
+
+        list< Face* >::const_iterator f;
         for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every triangle
         {
-            vector< vector< double > > t_vec_vec;
+            for ( int i = 0 ; i < ncross ; i++ )
+            {
+                t_vec_vec[i].clear();
+            }
 
-            if ( GetSettingsPtr()->m_SymSplittingOnFlag )
-            {
-                t_vec_vec.resize( m_NumComps + 10 );  // + 10 to handle possibility of outer domain and symmetry plane.
-                ( *f )->insideSurf.resize( m_NumComps + 10);
-                ( *f )->insideCount.resize( m_NumComps + 10);
-            }
-            else
-            {
-                t_vec_vec.resize( m_NumComps + 6 );
-                ( *f )->insideSurf.resize( m_NumComps + 6);
-                ( *f )->insideCount.resize( m_NumComps + 6);
-            }
+            ( *f )->insideSurf.resize( ncross );
+            ( *f )->insideCount.resize( ncross );
 
             vec3d cp = ( *f )->ComputeCenterPnt( m_SurfVec[s] );
             vec3d ep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
