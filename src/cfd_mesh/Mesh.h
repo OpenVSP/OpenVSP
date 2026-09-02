@@ -69,6 +69,13 @@ public:
     static bool ValidCollapse( Edge* edge );
     void CollapseEdge( Edge* edge );
 
+    // Is this face wound against the surface it lies on?
+    bool FaceReversed( Face* f );
+
+    // Would a triangle on these three points be wound against the surface?  Asked of points
+    // that do not exist yet, so a step can decline to build a face it would have to undo.
+    bool TriReversed( const vec3d &p0, const vec3d &p1, const vec3d &p2,
+                      const vec2d &uw0, const vec2d &uw1, const vec2d &uw2 );
     int RemoveRevFaces();
 
     void LimitTargetEdgeLength();

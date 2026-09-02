@@ -219,6 +219,7 @@ void Mesh::Remesh()
             SwapEdge( *e );
         }
     }
+
 //printf("Smooth\n");
     LaplacianSmooth( 2 );
 
@@ -438,6 +439,45 @@ int Mesh::Collapse( int num_iter )
 
 }
 
+// Is this face wound against the surface it lies on?
+bool Mesh::FaceReversed( Face* f )
+{
+    if ( !f )
+    {
+        return false;
+    }
+
+    vec3d nface = f->Normal();
+    vec3d nsurf = f->ComputeCenterNormal( m_Surf );
+
+    double dprod = dot( nface, nsurf );
+
+    if ( m_Surf->GetFlipFlag() )
+    {
+        dprod = -dprod;
+    }
+
+    return dprod < 0.0;
+}
+
+bool Mesh::TriReversed( const vec3d &p0, const vec3d &p1, const vec3d &p2,
+                        const vec2d &uw0, const vec2d &uw1, const vec2d &uw2 )
+{
+    vec3d nface = cross( p1 - p0, p2 - p0 );
+
+    vec2d avg = ( uw0 + uw1 + uw2 ) * ( 1.0 / 3.0 );
+    vec3d nsurf = m_Surf->CompNorm( avg[0], avg[1] );
+
+    double dprod = dot( nface, nsurf );
+
+    if ( m_Surf->GetFlipFlag() )
+    {
+        dprod = -dprod;
+    }
+
+    return dprod < 0.0;
+}
+
 int Mesh::RemoveRevFaces()
 {
     int badcount = 0;
@@ -447,17 +487,7 @@ int Mesh::RemoveRevFaces()
     list< Face* >::iterator f;
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
-        vec3d nface = (*f)->Normal();
-        vec3d nsurf = (*f)->ComputeCenterNormal( m_Surf );
-
-        double dprod = dot ( nface, nsurf );
-
-        if ( m_Surf->GetFlipFlag() )
-        {
-            dprod = -dprod;
-        }
-
-        if ( dprod < 0.0 )
+        if ( FaceReversed( *f ) )
         {
             Edge* e = ( *f )->FindShortEdge();
 
@@ -723,6 +753,51 @@ void Mesh::SplitEdge( Edge* edge )
 
     vec2d uws = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
     vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
+
+    // A split must not turn a face over.  CollapseEdge already refuses a move that would,
+    // through ValidNodeMove; splitting had no such check, and it is far and away the largest
+    // source of reversed faces -- 76 of them on WingMatrix_problems against 24 from smoothing
+    // and 1 from swapping.  A reversed face is then collapsed away by RemoveRevFaces, which
+    // is how a tip ends up with edges shared by more than two triangles.
+    //
+    // The four faces the split would build are checked before anything is created.  A split
+    // that would turn one over does not happen; the edge stays as it is.
+    {
+        bool wouldreverse = false;
+
+        if ( fa )
+        {
+            Node* na = fa->OtherNodeTri( n0, n1 );
+
+            if ( na )
+            {
+                if ( TriReversed( n0->pnt, ps, na->pnt, n0->uw, uws, na->uw ) ||
+                     TriReversed( n1->pnt, na->pnt, ps, n1->uw, na->uw, uws ) )
+                {
+                    wouldreverse = true;
+                }
+            }
+        }
+
+        if ( fb && !wouldreverse )
+        {
+            Node* nb = fb->OtherNodeTri( n0, n1 );
+
+            if ( nb )
+            {
+                if ( TriReversed( n0->pnt, nb->pnt, ps, n0->uw, nb->uw, uws ) ||
+                     TriReversed( n1->pnt, ps, nb->pnt, n1->uw, uws, nb->uw ) )
+                {
+                    wouldreverse = true;
+                }
+            }
+        }
+
+        if ( wouldreverse )
+        {
+            return;
+        }
+    }
 
     Node* ns  = AddNode( ps, uws );
     Edge* es0 = AddEdge( n0, ns );
