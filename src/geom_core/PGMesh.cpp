@@ -4955,14 +4955,30 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
 
     all_fnames.push_back( key_name );
 
-    int npart = 0;
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    // Count the parts themselves, not the tag combos that happen to hold a single tag.  A
+    // part whose subsurfaces cover it completely owns no such combo, and went uncounted and
+    // undeclared while the tag section below still referred to it.
+    vector < int > partvec;
+    MakePartList( partvec );
+
+    // A part indexes the component arrays as part - 1.  Anything that does not is dropped
+    // here, before the count is taken, so that the number written in the header and the
+    // number of lines written below cannot disagree -- the reader takes the header at its
+    // word and reads exactly that many.  This is the same filter
+    // SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile applies; m_ThickVec and its neighbours
+    // here are copies of the very arrays it is protecting.
+    vector < int > goodparts;
+    goodparts.reserve( partvec.size() );
+    for ( int i = 0 ; i < ( int )partvec.size() ; i++ )
     {
-        if ( m_TagKeys[i].size() == 1 )
+        if ( partvec[i] >= 1 && partvec[i] <= ( int )m_ThickVec.size() )
         {
-            npart++;
+            goodparts.push_back( partvec[i] );
         }
     }
+    partvec = goodparts;
+
+    int npart = partvec.size();
 
     // Write Out Header Information
     fprintf( fid, "# VSPGEOM v3 Tag Key File\n" );
@@ -5012,49 +5028,25 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
     fprintf( fid, "# part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#\n" );
 
 
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    for ( int i = 0 ; i < npart ; i++ )
     {
-        if ( m_TagKeys[i].size() != 1 )
+        int part = partvec[i];
+
+        string gname, snum;
+        SubSurfaceMgrSingleton::SplitCompName( GetPartName( part ), gname, snum );
+
+        // A part whose name carries no _Surf token has no surface number -- a CFDMesh wake,
+        // the symmetry plane and the far field are all named that way.  The field is written
+        // as zero rather than left empty, because the reader splits this line on commas with
+        // strtok, which runs empty fields together and would shift every later field along.
+        // Zero is what the reader already made of the value it used to be given here, which
+        // was a fragment of the name rather than a number at all.
+        if ( snum.empty() )
         {
-            continue;
+            snum = "0";
         }
 
-        int part = GetPart( m_TagKeys[i] );
-
-        string comp_list = GetTagNames( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        int spos = comp_list.find( "_Surf" );
-
-        string gname = comp_list.substr( 0, spos );
-
-        string snum, ssnames, ssids;
-
-        // Find position of first comma
-        int cpos = comp_list.find( "," );
-        if ( cpos != std::string::npos )
-        {
-            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
-            ssnames = comp_list.substr( cpos );
-        }
-        else
-        {
-            snum = comp_list.substr( spos + 5 );
-        }
-
-        string id_list = GetTagIDs( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        spos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, spos );
-        string gid_bare = gid.substr( 0, 10 );
-
-        // Find position of first comma
-        cpos = id_list.find( "," );
-        if ( cpos != std::string::npos )
-        {
-            ssids = id_list.substr( cpos );
-        }
+        string gid_bare = SubSurfaceMgrSingleton::BareGeomID( GetPartID( part ) );
 
         // Lookup Geom number
         int gnum = distance( gids.begin(), gids.find( gid_bare ) );
@@ -5430,47 +5422,35 @@ void PGMulti::GetPartData( vector < string > &gidvec, vector < int > &partvec, v
     partvec.clear();
     surfvec.clear();
 
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    // Walk the parts themselves, for the same reason WriteVSPGEOMKeyFile does.
+    vector < int > parts;
+    MakePartList( parts );
+
+    for ( int i = 0 ; i < ( int )parts.size() ; i++ )
     {
-        if ( m_TagKeys[i].size() != 1 )
-        {
-            continue;
-        }
+        int part = parts[i];
 
-        int part = GetPart( m_TagKeys[i] );
+        string gname, snum;
+        SubSurfaceMgrSingleton::SplitCompName( GetPartName( part ), gname, snum );
 
-        string comp_list = GetTagNames( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        int spos = comp_list.find( "_Surf" );
-
-        string gname = comp_list.substr( 0, spos );
-
-        string snum, ssnames, ssids;
-
-        // Find position of first comma
-        int cpos = comp_list.find( "," );
-        if ( cpos != std::string::npos )
-        {
-            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
-            ssnames = comp_list.substr( cpos );
-        }
-        else
-        {
-            snum = comp_list.substr( spos + 5 );
-        }
-
-        string id_list = GetTagIDs( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        spos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, spos );
-        string gid_bare = gid.substr( 0, 10 );
-
-
-        gidvec.push_back( gid_bare );
+        gidvec.push_back( SubSurfaceMgrSingleton::BareGeomID( GetPartID( part ) ) );
         partvec.push_back( part );
-        surfvec.push_back( stoi( snum ) );
+
+        // SplitCompName reports no surface number for a name that does not carry the token,
+        // and stoi throws on that rather than returning anything.  Nothing here is expected
+        // to produce such a name -- only CFDMesh makes wakes, and CFDMesh does not build a
+        // PGMulti -- but the previous code would have gone down on it, so it is answered.
+        int sn = -1;
+
+        try
+        {
+            sn = stoi( snum );
+        }
+        catch ( const std::exception &e )
+        {
+        }
+
+        surfvec.push_back( sn );
     }
 }
 
