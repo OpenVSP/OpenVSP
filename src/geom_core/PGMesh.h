@@ -477,6 +477,12 @@ public:
     void WriteTagFiles( const string& file_name, vector < string > &all_fnames );
     void WriteVSPGEOMKeyFile(const string & file_name, vector < string > &all_fnames );
 
+    // A part's own name and ID.  The tag maps are keyed by tag and a part is itself a tag --
+    // the first one in every tag combo -- so these are plain lookups.  GetTagNames and
+    // GetTagIDs return these same strings with the combo's subsurfaces appended.
+    std::string GetPartName( int part );
+    std::string GetPartID( int part );
+
     // Get Comma Delimited list of names for a set of tags
     std::string GetTagNames( const std::vector<int> & tags );
     std::string GetTagNames( int indx );

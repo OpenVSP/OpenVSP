@@ -4983,10 +4983,7 @@ void PGMulti::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
-        string id_list = GetTagIDs( m_TagKeys[i] );
-        int pos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, pos );
-        string gid_bare = gid.substr( 0, 10 );
+        string gid_bare = SubSurfaceMgrSingleton::BareGeomID( GetTagIDs( m_TagKeys[i] ) );
         gids.insert( gid_bare );
 
         int part = GetPart( m_TagKeys[i] );
@@ -5234,6 +5231,30 @@ string PGMulti::GetTagIDs( const int indx )
         return GetTagIDs( m_TagKeys[indx] );
     }
     return string( "Error_Tag" );
+}
+
+string PGMulti::GetPartName( int part )
+{
+    unordered_map< int, string >::iterator si = m_TagNames.find( part );
+
+    if ( si == m_TagNames.end() )
+    {
+        return string( "Error_Part" );
+    }
+
+    return si->second;
+}
+
+string PGMulti::GetPartID( int part )
+{
+    unordered_map< int, string >::iterator si = m_TagIDs.find( part );
+
+    if ( si == m_TagIDs.end() )
+    {
+        return string( "Error_Part" );
+    }
+
+    return si->second;
 }
 
 string PGMulti::GetGID( const int& tag )
