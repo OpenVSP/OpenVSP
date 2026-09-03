@@ -229,7 +229,21 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
 
 bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, int n_ref, int &iQuad  )
 {
-    double tol=1.0e-12;
+    // Below this a section of the patch is taken to enclose nothing.
+    //
+    // It is an area, in the model's own units, and it is meant to catch a patch that has
+    // collapsed rather than one that is merely small.  At 1e-12 it caught only the sections
+    // that had collapsed exactly; sections a hundred times larger than that -- still measuring
+    // zero across two of their three dimensions -- passed, and were meshed into hundreds of
+    // triangles with no area for the solver to do anything with.
+    double areatol = 1.0e-9;
+
+    // The edge length below which a triangle is not built at all.  This is a LENGTH, in the
+    // model's own units, and is a different question from the area test above -- it was
+    // left at its long standing value when that one was loosened, because raising it would
+    // quietly raise the minimum edge length for every quad of every patch this function
+    // builds, not just for the collapsed sections the area test is aimed at.
+    double edgetol = 1.0e-12;
 
     vector< vector<vec3d> > *pnts = &(tmesh->m_XYZPnts);
     vector< vector<vec3d> > *uw_pnts = &(tmesh->m_UWPnts);
@@ -260,7 +274,7 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
 
             areaj += area( v0, v1, v2 ) + area( v0, v2, v3 );
         }
-        if ( areaj > tol )
+        if ( areaj > areatol )
         {
             firstj = j;
             break;
@@ -282,7 +296,7 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
 
             areaj += area( v0, v1, v2 ) + area( v0, v2, v3 );
         }
-        if ( areaj > tol )
+        if ( areaj > areatol )
         {
             lastj = j;
             break;
@@ -351,7 +365,7 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
             if ( evencorners )
             {
                 d20 = v2 - v0;
-                if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
+                if ( d21.mag() > edgetol && d01.mag() > edgetol && d20.mag() > edgetol )
                 {
                     norm = cross( d21, d01 );
                     norm.normalize();
@@ -365,7 +379,7 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     }
                 }
 
-                if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
+                if ( d03.mag() > edgetol && d23.mag() > edgetol && d20.mag() > edgetol )
                 {
                     norm = cross( d03, d23 );
                     norm.normalize();
@@ -382,7 +396,7 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
             else
             {
                 d31 = v3 - v1;
-                if ( d01.mag() > tol && d31.mag() > tol && d03.mag() > tol )
+                if ( d01.mag() > edgetol && d31.mag() > edgetol && d03.mag() > edgetol )
                 {
                     norm = cross( d01, d03 );
                     norm.normalize();
@@ -396,7 +410,7 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     }
                 }
 
-                if ( d21.mag() > tol && d23.mag() > tol && d31.mag() > tol )
+                if ( d21.mag() > edgetol && d23.mag() > edgetol && d31.mag() > edgetol )
                 {
                     norm = cross( d23, d21 );
                     norm.normalize();
