@@ -696,7 +696,9 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, bool skipnegflipnormal, int &iQuad );
 
-void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax, int platenum, int n_ref, int &iQuad  );
+// Build the triangles of one patch.  False if every section of it was degenerate, in which
+// case nothing was built and the patch is not worth keeping.
+bool BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax, int platenum, int n_ref, int &iQuad  );
 
 vector<TMesh*> CopyTMeshVec( const vector<TMesh*> &tmv );
 void DeleteTMeshVec(  vector<TMesh*> &tmv );

@@ -70,8 +70,12 @@ void CreateTMeshVecFromPts( const Geom * geom,
         flipnormal = !flipnormal;
     }
 
-    BuildTMeshTris( TMeshVec[itmesh], flipnormal, geom->GetWMax( indx ), platenum, n_ref, iQuad );
-
+    if ( !BuildTMeshTris( TMeshVec[itmesh], flipnormal, geom->GetWMax( indx ), platenum, n_ref, iQuad ) )
+    {
+        // Nothing in this patch had any area, so there is no surface here to carry forward.
+        delete TMeshVec[itmesh];
+        TMeshVec.pop_back();
+    }
 }
 
 void CreateTMeshVecFromPts( const Geom * geom,
@@ -223,7 +227,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
 }
 
 
-void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, int n_ref, int &iQuad  )
+bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, int n_ref, int &iQuad  )
 {
     double tol=1.0e-12;
 
@@ -283,6 +287,21 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
             lastj = j;
             break;
         }
+    }
+
+    // Every section of this patch is degenerate, so there is nothing here to build.
+    //
+    // The patch is real geometry -- it is a flat end of a body, whose plate representation
+    // collapses onto a line -- but as a plate it encloses no area, and the lines below would
+    // read uw_pnts[ -1 ] looking for the first section that does.  That read landed outside
+    // the vector and took whatever was in front of it, which sometimes brought the export
+    // down and otherwise fed a made up value into the mesh without saying so.
+    //
+    // Saying no here leaves the patch out.  A patch with no area contributes no triangles
+    // either way; the difference is that it is now left out deliberately.
+    if ( firstj < 0 || lastj < 0 )
+    {
+        return false;
     }
 
     // Use degenerate j sections to find u to set condition
@@ -407,6 +426,8 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
             jref = ref_start;
         }
     }
+
+    return true;
 }
 
 vector<TMesh*> CopyTMeshVec( const vector<TMesh*> &tmv )
