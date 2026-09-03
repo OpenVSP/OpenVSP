@@ -230,7 +230,7 @@ public:
 
     PGNode * FindDoubleBackNode( PGEdge* & edouble ) const;
 
-    void SplitEdge( PGEdge *e0, PGEdge *e1 );
+    bool SplitEdge( PGEdge *e0, PGEdge *e1 );
 
     void GetHullEdges( vector < PGEdge* > & evec ) const;
 

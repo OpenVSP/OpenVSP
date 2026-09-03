@@ -1822,9 +1822,15 @@ PGNode * PGFace::FindDoubleBackNode( PGEdge* & edouble ) const
 }
 
 // Split edge e0 into e0,e1.  Direction indeterminte (e1 can go before or after e0).
-// e0 can also appear more than once in this face.
-void PGFace::SplitEdge( PGEdge *e0, PGEdge *e1 )
+// e0 can also appear more than once in this face.  Says whether e1 went in.
+//
+// It cannot always go in.  The place for it is found from the two edges either side of e0,
+// and on a face whose loop doubles back on itself neither of them holds the node e1 needs to
+// join.  The caller has to know that, because it is the caller that decides whether e1 is to
+// count this face among its own -- and the two have to agree.
+bool PGFace::SplitEdge( PGEdge *e0, PGEdge *e1 )
 {
+    bool inserted = false;
 
     PGNode* ns = e0->SharedNode( e1 );
     PGNode* n1 = e1->OtherNode( ns );
@@ -1848,14 +1854,18 @@ void PGFace::SplitEdge( PGEdge *e0, PGEdge *e1 )
             // enext->ContainsNode( n0 ); Should be true.
             // Insert e1 betweeen eprev and e0.
             vector_insert_after( m_EdgeVec, iprev, e1 );
+            inserted = true;
         }
         else if ( enext->ContainsNode( n1 ) )
         {
             // eprev->ContainsNode( n0 ); Should be true.
             // Insert e1 betweeen e0 and enext.
             vector_insert_after( m_EdgeVec, i0, e1 );
+            inserted = true;
         }
     }
+
+    return inserted;
 }
 
 void PGFace::GetHullEdges( vector < PGEdge* > & evec ) const
@@ -3219,20 +3229,24 @@ PGEdge * PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
 
     PGEdge *e1 = AddEdge( n, n1 );
 
-    // Copy face vector
-    e1->m_FaceVec = e0->m_FaceVec;
-
-    //e0->DumpMatlab();
-    //e1->DumpMatlab();
-
-
+    // e1 counts a face as its own only once that face has taken e1 into its edge loop.
+    //
+    // Every face of e0 used to be copied across before they were asked, on the assumption
+    // that each would take it.  A face whose loop doubles back cannot say where e1 goes and
+    // takes nothing, and one that no longer holds e0 at all has nothing to insert beside;
+    // either way the face was left not knowing about an edge that claimed it.  When such a
+    // face was later removed, it was unhooked from the edges in its own loop -- which did not
+    // include e1 -- so e1 was left holding a pointer to a face that had been deleted.
     vector <PGFace* > fv = e0->m_FaceVec;
 
     for ( int i = 0; i < fv.size(); i++ )
     {
         PGFace *f = fv[i];
-        f->SplitEdge( e0, e1 );
-        //f->DumpMatlab();
+
+        if ( f->SplitEdge( e0, e1 ) )
+        {
+            e1->AddConnectFace( f );
+        }
     }
 
     return e1;
