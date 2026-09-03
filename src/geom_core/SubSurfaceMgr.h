@@ -98,6 +98,23 @@ public:
     // Write Nascart Key File
     void WriteNascartKeyFile( const string & filename );
 
+    // A part's own name and ID.
+    //
+    // The tag maps are keyed by tag, and a part is itself a tag -- the first one in every tag
+    // combo -- so these are plain lookups.  GetTagNames and GetTagIDs below return these same
+    // strings with the combo's subsurfaces appended after commas; when only the part is
+    // wanted, ask for the part rather than building that list and splitting it apart again.
+    std::string GetPartName( int part );
+    std::string GetPartID( int part );
+
+    // Pull apart the "<name>_Surf<n>" convention that the part name and ID are built with.
+    // A name that does not carry the token -- a CFDMesh wake is one -- keeps the whole string
+    // as its name and reports no surface number.
+    static void SplitCompName( const std::string &str, std::string &gname, std::string &snum );
+
+    // The bare GeomID from the front of "<gid>[_V|_H|_C]_Surf<n>".
+    static std::string BareGeomID( const std::string &str );
+
     // Get Comma Delimited list of names for a set of tags
     std::string GetTagNames( const std::vector<int> & tags );
     std::string GetTagNames( int indx );

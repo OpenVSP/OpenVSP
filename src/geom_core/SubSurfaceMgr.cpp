@@ -543,6 +543,54 @@ void SubSurfaceMgrSingleton::WriteNascartKeyFile( const string & filename )
 
 }
 
+string SubSurfaceMgrSingleton::GetPartName( int part )
+{
+    unordered_map< int, string >::iterator si = m_TagNames.find( part );
+
+    if ( si == m_TagNames.end() )
+    {
+        return string( "Error_Part" );
+    }
+
+    return si->second;
+}
+
+string SubSurfaceMgrSingleton::GetPartID( int part )
+{
+    unordered_map< int, string >::iterator si = m_TagIDs.find( part );
+
+    if ( si == m_TagIDs.end() )
+    {
+        return string( "Error_Part" );
+    }
+
+    return si->second;
+}
+
+void SubSurfaceMgrSingleton::SplitCompName( const string &str, string &gname, string &snum )
+{
+    string::size_type spos = str.find( "_Surf" );
+
+    if ( spos == string::npos )
+    {
+        gname = str;
+        snum.clear();
+        return;
+    }
+
+    gname = str.substr( 0, spos );
+    snum = str.substr( spos + 5 );
+}
+
+string SubSurfaceMgrSingleton::BareGeomID( const string &str )
+{
+    string::size_type spos = str.find( "_Surf" );
+
+    string gid = str.substr( 0, spos );         // npos takes the whole string
+
+    return gid.substr( 0, std::min( gid.size(), ( string::size_type )vsp::ID_LENGTH_PARMCONTAINER ) );
+}
+
 string SubSurfaceMgrSingleton::GetTagNames( const vector<int> & tags )
 {
     string comp_list;
