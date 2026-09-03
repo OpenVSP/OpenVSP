@@ -4275,9 +4275,25 @@ void CfdMeshMgrSingleton::SubTagTris()
 
                 name = geom_ptr->GetName() + nplate + "_Surf" + to_string((long long)geom_comp_map[geom_id].size() - 1 );
                 exportid = geom_id + idplate + "_Surf" + to_string( (long long)geom_comp_map[geom_id].size() - 1 );
-                if ( surf->GetWakeFlag() ) name = geom_ptr->GetName()
-                                                 + to_string( (long long)comp_num_map[ surf->GetUnmergedCompID() ] )
-                                                 + "_Wake";
+                if ( surf->GetWakeFlag() )
+                {
+                    name = geom_ptr->GetName()
+                           + to_string( (long long)comp_num_map[ surf->GetUnmergedCompID() ] )
+                           + "_Wake";
+
+                    // A wake is never given a GeomID of its own -- it is built from a curve
+                    // rather than from a Geom, and the Geom it trails from is named by
+                    // GetRefGeomID.  Left as it was, the ID came out as the surface suffix
+                    // alone and the key file's ID field was written empty.  That field is
+                    // not free to be empty: the reader splits the row on commas with strtok,
+                    // which runs empty fields together and shifts every later field along.
+                    //
+                    // The wake takes the ID of the Geom it belongs to.  The marker is kept on
+                    // the end for anything reading the full string, and falls off the ten
+                    // character GeomID that the key file asks for, so the file names the Geom
+                    // the wake came from and the numbering groups it there.
+                    exportid = surf->GetRefGeomID() + "_Wake";
+                }
             }
 
             SubSurfaceMgr.m_CompNames.push_back(name);
