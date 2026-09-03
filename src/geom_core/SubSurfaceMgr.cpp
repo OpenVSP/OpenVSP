@@ -805,53 +805,29 @@ void SubSurfaceMgrSingleton::GetPartData( vector < string > &gidvec, vector < in
     partvec.clear();
     surfvec.clear();
 
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    // Walk the parts themselves, for the same reason WriteVSPGEOMKeyFile does: a part whose
+    // subsurfaces cover it completely owns no single tag combo, and used to be missed here.
+    // That left it out of the control surface file as well as out of the key file.
+    vector < int > parts;
+    MakePartList( parts );
+
+    for ( int i = 0 ; i < ( int )parts.size() ; i++ )
     {
-        if ( m_TagKeys[i].size() != 1 )
-        {
-            continue;
-        }
+        int part = parts[i];
 
-        int part = GetPart( m_TagKeys[i] );
+        string gname, snum;
+        SplitCompName( GetPartName( part ), gname, snum );
 
-        string comp_list = GetTagNames( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        int spos = comp_list.find( "_Surf" );
-
-        string gname = comp_list.substr( 0, spos );
-
-        string snum, ssnames;
-
-        // Find position of first comma
-        int cpos = comp_list.find( ',' );
-        if ( cpos != std::string::npos )
-        {
-            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
-            ssnames = comp_list.substr( cpos );
-        }
-        else
-        {
-            snum = comp_list.substr( spos + 5 );
-        }
-
-        string id_list = GetTagIDs( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        spos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, spos );
-        string gid_bare = gid.substr( 0, 10 );
-
-
-        gidvec.push_back( gid_bare );
+        gidvec.push_back( BareGeomID( GetPartID( part ) ) );
         partvec.push_back( part );
+
         int sn = -1;
 
         try
         {
-            sn = stoi( snum.c_str() );
+            sn = stoi( snum );
         }
-        catch (const std::exception& e)
+        catch ( const std::exception &e )
         {
         }
 
