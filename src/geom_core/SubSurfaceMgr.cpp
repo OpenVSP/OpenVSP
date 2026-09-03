@@ -355,14 +355,25 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         return;
     }
 
-    int npart = 0;
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    vector < int > partvec;
+    MakePartList( partvec );
+
+    // A part indexes the component arrays as part - 1.  Anything that does not is dropped
+    // here, before the count is taken, so that the number written in the header and the
+    // number of lines written below cannot disagree -- the reader takes the header at its
+    // word and reads exactly that many.
+    vector < int > goodparts;
+    goodparts.reserve( partvec.size() );
+    for ( int i = 0 ; i < ( int )partvec.size() ; i++ )
     {
-        if ( m_TagKeys[i].size() == 1 )
+        if ( partvec[i] >= 1 && partvec[i] <= ( int )m_CompThick.size() )
         {
-            npart++;
+            goodparts.push_back( partvec[i] );
         }
     }
+    partvec = goodparts;
+
+    int npart = partvec.size();
 
     // Write Out Header Information
     fprintf( fid, "# VSPGEOM v3 Tag Key File\n" );
@@ -374,49 +385,32 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     fprintf( fid, "# part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#\n" );
 
 
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    // Walk the parts themselves.
+    //
+    // This used to walk the tag combos and keep the ones holding a single tag, on the
+    // assumption that every part owns some triangle carrying no subsurface.  A model whose
+    // subsurfaces cover a component completely has no such triangle, and that part went
+    // undeclared here while the tag section below still referred to it.  Nothing about a part
+    // requires a bare triangle to exist, so nothing here asks for one.
+    for ( int i = 0 ; i < npart ; i++ )
     {
-        if ( m_TagKeys[i].size() != 1 )
+        int part = partvec[i];
+
+        string gname, snum;
+        SplitCompName( GetPartName( part ), gname, snum );
+
+        // A part whose name carries no _Surf token has no surface number -- a CFDMesh wake,
+        // the symmetry plane and the far field are all named that way.  The field is written
+        // as zero rather than left empty, because the reader splits this line on commas with
+        // strtok, which runs empty fields together and would shift every later field along.
+        // Zero is what the reader already made of the value it used to be given here, which
+        // was a fragment of the name rather than a number at all.
+        if ( snum.empty() )
         {
-            continue;
+            snum = "0";
         }
 
-        int part = GetPart( m_TagKeys[i] );
-
-        string comp_list = GetTagNames( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        int spos = comp_list.find( "_Surf" );
-
-        string gname = comp_list.substr( 0, spos );
-
-        string snum, ssnames, ssids;
-
-        // Find position of first comma
-        int cpos = comp_list.find( ',' );
-        if ( cpos != std::string::npos )
-        {
-            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
-            ssnames = comp_list.substr( cpos );
-        }
-        else
-        {
-            snum = comp_list.substr( spos + 5 );
-        }
-
-        string id_list = GetTagIDs( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        spos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, spos );
-        string gid_bare = gid.substr( 0, 10 );
-
-        // Find position of first comma
-        cpos = id_list.find( ',' );
-        if ( cpos != std::string::npos )
-        {
-            ssids = id_list.substr( cpos );
-        }
+        string gid_bare = BareGeomID( GetPartID( part ) );
 
         // Lookup Geom number
         int gnum = FindGNum( gid_bare );
