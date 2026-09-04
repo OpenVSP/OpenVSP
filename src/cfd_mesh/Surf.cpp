@@ -110,6 +110,58 @@ int Surf::UWPointOnBorder( double u, double w, double tol ) const
     return m_SurfCore.UWPointOnBorder( u, w, tol );
 }
 
+// A point can sit exactly on the seam between two regions, and the parameters carry rounding
+// from the splits that produced them, so the containment tests are given a little room.
+static const double uwregion_tol = 1.0e-8;
+
+int Surf::FindRegionPatchUW( double u, double w ) const
+{
+    for ( int i = 0; i < ( int )m_UWRegions.size(); i++ )
+    {
+        double ulo, uhi, wlo, whi;
+        m_UWRegions[i].PatchExtentU( ulo, uhi );
+        m_UWRegions[i].PatchExtentW( wlo, whi );
+
+        if ( u >= ulo - uwregion_tol && u <= uhi + uwregion_tol &&
+             w >= wlo - uwregion_tol && w <= whi + uwregion_tol )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+bool Surf::ToOriginalUW( double u, double w, double &uo, double &wo ) const
+{
+    int i = FindRegionPatchUW( u, w );
+
+    if ( i < 0 )
+    {
+        return false;
+    }
+
+    uo = m_UWRegions[i].ToOrigU( u );
+    wo = m_UWRegions[i].ToOrigW( w );
+    return true;
+}
+
+bool Surf::ToPatchUW( double uo, double wo, double &u, double &w ) const
+{
+    for ( int i = 0; i < ( int )m_UWRegions.size(); i++ )
+    {
+        const UWRegion &r = m_UWRegions[i];
+
+        if ( uo >= r.m_UMin - uwregion_tol && uo <= r.m_UMax + uwregion_tol &&
+             wo >= r.m_WMin - uwregion_tol && wo <= r.m_WMax + uwregion_tol )
+        {
+            u = r.ToPatchU( uo );
+            w = r.ToPatchW( wo );
+            return true;
+        }
+    }
+    return false;
+}
+
 double Surf::TargetLen( double u, double w, double gap, double radfrac, int &reason )
 {
     double k1, k2, ka, kg;

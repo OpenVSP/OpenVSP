@@ -20,6 +20,7 @@
 #include "MapSource.h"
 #include "SurfCore.h"
 #include "TwoDNN.h"
+#include "XferSurf.h"
 
 #include <cassert>
 
@@ -393,6 +394,30 @@ public:
         return m_WTess;
     }
 
+    // Where this surface's parameters came from on the Geom it was cut out of.  Things that
+    // were written against the Geom's surface -- subsurfaces, structured tessellation, wake
+    // attachment, fixed points -- have to be asked for in those parameters, not these.
+    void SetUWRegions( const vector < UWRegion > &rv )
+    {
+        m_UWRegions = rv;
+    }
+    const vector < UWRegion > & GetUWRegions() const
+    {
+        return m_UWRegions;
+    }
+
+    // This surface's parameters to the Geom's.  False if the point is not in any region,
+    // which should not happen for a point on this surface.
+    bool ToOriginalUW( double u, double w, double &uo, double &wo ) const;
+
+    // The Geom's parameters to this surface's.  False if the point does not land on this
+    // surface at all -- which is the common case, and is how a caller decides whether a
+    // subsurface or a tessellation line touches this patch.
+    bool ToPatchUW( double uo, double wo, double &u, double &w ) const;
+
+    // The region a point of this surface belongs to, or -1.
+    int FindRegionPatchUW( double u, double w ) const;
+
     void SetIgnoreSurfFlag( bool flag )
     {
         m_IgnoreSurfFlag = flag;
@@ -440,6 +465,8 @@ protected:
 
     vector < double > m_UTess;
     vector < double > m_WTess;
+
+    vector < UWRegion > m_UWRegions;
 
     int m_SurfCfdType;
     int m_SurfVspType;
