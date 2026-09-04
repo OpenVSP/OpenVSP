@@ -131,8 +131,31 @@ int Surf::FindRegionPatchUW( double u, double w ) const
     return -1;
 }
 
+vector < UWRegion > Surf::GetUWRegionsOrWhole() const
+{
+    if ( !m_UWRegions.empty() )
+    {
+        return m_UWRegions;
+    }
+
+    vector < UWRegion > rv( 1 );
+    rv[0].m_UMin = m_SurfCore.GetMinU();
+    rv[0].m_UMax = m_SurfCore.GetMaxU();
+    rv[0].m_WMin = m_SurfCore.GetMinW();
+    rv[0].m_WMax = m_SurfCore.GetMaxW();
+    return rv;
+}
+
 bool Surf::ToOriginalUW( double u, double w, double &uo, double &wo ) const
 {
+    if ( m_UWRegions.empty() )
+    {
+        uo = u;
+        wo = w;
+        return true;
+    }
+
+
     int i = FindRegionPatchUW( u, w );
 
     if ( i < 0 )
@@ -147,6 +170,13 @@ bool Surf::ToOriginalUW( double u, double w, double &uo, double &wo ) const
 
 bool Surf::ToPatchUW( double uo, double wo, double &u, double &w ) const
 {
+    if ( m_UWRegions.empty() )
+    {
+        u = uo;
+        w = wo;
+        return true;
+    }
+
     for ( int i = 0; i < ( int )m_UWRegions.size(); i++ )
     {
         const UWRegion &r = m_UWRegions[i];

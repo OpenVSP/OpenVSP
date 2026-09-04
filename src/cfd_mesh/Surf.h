@@ -418,6 +418,11 @@ public:
     // The region a point of this surface belongs to, or -1.
     int FindRegionPatchUW( double u, double w ) const;
 
+    // The regions, or one identity region covering the whole surface when none were
+    // recorded.  Wake and far field surfaces were not cut from a Geom, so their own
+    // parameters are the only ones they have.
+    vector < UWRegion > GetUWRegionsOrWhole() const;
+
     void SetIgnoreSurfFlag( bool flag )
     {
         m_IgnoreSurfFlag = flag;

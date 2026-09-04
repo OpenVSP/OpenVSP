@@ -3365,15 +3365,28 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
         // Get all SubSurfaces for the specified geom
         vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID(), surf->GetCompID() );
 
+        // A patch is not always a plain piece of the Geom's surface -- an end cap or a
+        // trailing edge is built from two pieces of it, and may carry them reversed.
+        // Subsurfaces are drawn in the Geom's parameters, so every piece has to be clipped
+        // and converted on its own.  For a patch that is a plain piece the region is the identity.
+        vector < UWRegion > regvec = surf->GetUWRegionsOrWhole();
+
         // Split SubSurfs
         for ( int ss = 0 ; ss < ( int ) ss_vec.size(); ss++ )
         {
-            ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMinU() );
-            ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMaxU() );
-            ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMinW() );
-            ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMaxW() );
+          for ( int ir = 0 ; ir < ( int )regvec.size() ; ir++ )
+          {
+            const UWRegion &reg = regvec[ir];
 
-            vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
+            // Splitting modifies the subsurface, so each region starts from a fresh copy.
+            SimpleSubSurface ssurf = ss_vec[ss];
+
+            ssurf.SplitSegsU( reg.m_UMin );
+            ssurf.SplitSegsU( reg.m_UMax );
+            ssurf.SplitSegsW( reg.m_WMin );
+            ssurf.SplitSegsW( reg.m_WMax );
+
+            vector < vector< SSLineSeg > >& segsvec = ssurf.GetSplitSegs();
 
             for ( int i = 0; i < segsvec.size(); i++ )
             {
@@ -3382,7 +3395,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                 ISegChain* chain = nullptr;
 
                 bool new_chain = true;
-                bool is_poly = ss_vec[ss].GetPolyFlag();
+                bool is_poly = ssurf.GetPolyFlag();
 
                 // Build Intersection Chains
                 for ( int ls = 0; ls < ( int )segs.size(); ls++ )
@@ -3391,7 +3404,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                     {
                         if ( chain->Valid() )
                         {
-                            if ( ss_vec[ss].m_CreateBeamElements )
+                            if ( ssurf.m_CreateBeamElements )
                             {
                                 chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
                             }
@@ -3426,10 +3439,10 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                     double max_u, max_w, tol;
                     double min_u, min_w;
                     tol = 1e-6;
-                    min_u = surf->GetSurfCore()->GetMinU();
-                    min_w = surf->GetSurfCore()->GetMinW();
-                    max_u = surf->GetSurfCore()->GetMaxU();
-                    max_w = surf->GetSurfCore()->GetMaxW();
+                    min_u = reg.m_UMin;
+                    min_w = reg.m_WMin;
+                    max_u = reg.m_UMax;
+                    max_w = reg.m_WMax;
 
                     if ( uw_pnt0[0] < min_u - FLT_EPSILON || uw_pnt0[1] < min_w - FLT_EPSILON || uw_pnt1[0] < min_u - FLT_EPSILON || uw_pnt1[1] < min_w - FLT_EPSILON )
                     {
@@ -3465,6 +3478,14 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                         uw_pnts[p] = vec2d( uw_pnt0[0] + delta_u * p, uw_pnt0[1] + delta_w * p );
                     }
 
+                    // Everything above was in the Geom's parameters.  From here on the
+                    // surface is asked about its own.
+                    for ( int p = 0 ; p < ( int ) uw_pnts.size() ; p++ )
+                    {
+                        uw_pnts[p] = vec2d( reg.ToPatchU( uw_pnts[p][0] ),
+                                            reg.ToPatchW( uw_pnts[p][1] ) );
+                    }
+
                     for ( int p = 1 ; p < ( int ) uw_pnts.size() ; p++ )
                     {
                         Puw* puwA0 = new Puw( surf, uw_pnts[p - 1] );
@@ -3494,7 +3515,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                 {
                     if ( chain->Valid() )
                     {
-                        if ( ss_vec[ss].m_CreateBeamElements )
+                        if ( ssurf.m_CreateBeamElements )
                         {
                             chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
                         }
@@ -3508,6 +3529,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                     }
                 }
             }
+          }
         }
     }
 }
