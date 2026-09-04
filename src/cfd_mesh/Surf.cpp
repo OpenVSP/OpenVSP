@@ -1997,9 +1997,14 @@ void Surf::Subtag( bool tag_subs )
             center = ( pnts[face.ind0] + pnts[face.ind1] + pnts[face.ind2] ) * 1 / 3.0;
         }
 
+        // As in CfdMeshMgrSingleton::Subtag -- the centre is in this patch's parameters
+        // and the subsurface was drawn in the Geom's.
+        double uo, wo;
+        bool onsurf = ToOriginalUW( center.x(), center.y(), uo, wo );
+
         for ( int s = 0 ; s < ( int ) s_surfs.size() ; s++ )
         {
-            if ( s_surfs[s]->Subtag( vec3d( center.x(), center.y(), 0 ) ) )
+            if ( onsurf && s_surfs[s]->Subtag( vec3d( uo, wo, 0 ) ) )
             {
                 face.m_Tags.push_back( s_surfs[s]->m_Tag );
             }

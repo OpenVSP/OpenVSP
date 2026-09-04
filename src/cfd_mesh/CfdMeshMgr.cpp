@@ -6355,9 +6355,15 @@ void CfdMeshMgrSingleton::Subtag( Surf* surf, std::set< std::vector< int > > &co
         // face and the target length at its centre is already being asked for.
         SetFaceQuality( face, xyz, tgt );
 
+        // The centre is in this patch's parameters.  Subsurfaces are drawn in the Geom's,
+        // so a patch built from two pieces of the surface has to say which piece this face
+        // sits on before the question means anything.
+        double uo, wo;
+        bool onsurf = surf->ToOriginalUW( center.x(), center.y(), uo, wo );
+
         for ( int s = 0; s < (int)simp_s_surfs.size(); s++ )
         {
-            if ( simp_s_surfs[s].Subtag( vec3d( center.x(), center.y(), 0 ) ) && surf->GetCompID() >= 0 )
+            if ( onsurf && simp_s_surfs[s].Subtag( vec3d( uo, wo, 0 ) ) && surf->GetCompID() >= 0 )
             {
                 face.m_Tags.push_back( simp_s_surfs[s].m_Tag );
             }
