@@ -2250,19 +2250,32 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                 // Get all SubSurfaces for the specified geom
                 vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf_vec[i]->GetGeomID(), surf_vec[i]->GetMainSurfID(), surf_vec[i]->GetCompID() );
 
+                // Everything below this point -- the chain's split points, the surface
+                // limits, the clamping -- is in the patch's parameters.  The subsurface is
+                // in the Geom's, so it is clipped and converted per region up front and the
+                // rest of the comparison is left to work in one space.
+                vector < UWRegion > regvec = surf_vec[i]->GetUWRegionsOrWhole();
+
                 int ss = 0;
 
                 while ( ss < (int)ss_vec.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0 )
                 {
                     if ( ss_vec[ss].m_CreateBeamElements ) // Only consider SubSurface if cap intersections is flagged
                     {
-                        // Split SubSurfs
-                        ss_vec[ss].SplitSegsU( surf_vec[i]->GetSurfCore()->GetMinU() );
-                        ss_vec[ss].SplitSegsU( surf_vec[i]->GetSurfCore()->GetMaxU() );
-                        ss_vec[ss].SplitSegsW( surf_vec[i]->GetSurfCore()->GetMinW() );
-                        ss_vec[ss].SplitSegsW( surf_vec[i]->GetSurfCore()->GetMaxW() );
+                      for ( int ir = 0; ir < (int)regvec.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0; ir++ )
+                      {
+                        const UWRegion &reg = regvec[ir];
 
-                        vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
+                        // Splitting modifies the subsurface, so each region starts from a copy.
+                        SimpleSubSurface ssurf = ss_vec[ss];
+
+                        // Split SubSurfs
+                        ssurf.SplitSegsU( reg.m_UMin );
+                        ssurf.SplitSegsU( reg.m_UMax );
+                        ssurf.SplitSegsW( reg.m_WMin );
+                        ssurf.SplitSegsW( reg.m_WMax );
+
+                        vector < vector< SSLineSeg > >& segsvec = ssurf.GetSplitSegs();
 
                         // Build Intersection Chains
                         int j = 0;
@@ -2276,6 +2289,11 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                             {
                                 vec3d lp0 = segs[ls].GetP0();
                                 vec3d lp1 = segs[ls].GetP1();
+
+                                // Into the patch's parameters before anything is compared.
+                                lp0 = vec3d( reg.ToPatchU( lp0.x() ), reg.ToPatchW( lp0.y() ), 0.0 );
+                                lp1 = vec3d( reg.ToPatchU( lp1.x() ), reg.ToPatchW( lp1.y() ), 0.0 );
+
                                 vec2d uw_pnt0 = vec2d( lp0.x(), lp0.y() );
                                 vec2d uw_pnt1 = vec2d( lp1.x(), lp1.y() );
 
@@ -2350,7 +2368,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                     ( std::abs( uw_pnt0[1] - max_w ) < tol && std::abs( uw_pnt1[1] - max_w ) < tol ) ||
                                      ( std::abs( uw_pnt0[0] - min_u ) < tol && std::abs( uw_pnt1[0] - min_u ) < tol ) ||
                                      ( std::abs( uw_pnt0[1] - min_w ) < tol && std::abs( uw_pnt1[1] - min_w ) < tol ) )
-                                        && ss_vec[ss].GetPolyFlag() )
+                                        && ssurf.GetPolyFlag() )
                                 {
                                     if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Puws[0]->m_UW, uw_pnt0 ) <= FLT_EPSILON
                                          && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Puws.back()->m_UW, uw_pnt1 ) <= FLT_EPSILON )
@@ -2532,6 +2550,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                             }
                             j++; // increase segvec index
                         }
+                      }
                     }
                     ss++; // increase subsurface index
                 }
@@ -2565,20 +2584,32 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
             {
                 vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surfB->GetGeomID(), surfB->GetMainSurfID(), surfB->GetCompID() );
 
+                // The skin patch may be built from more than one piece of the Geom's
+                // surface, and the subsurface is drawn in the Geom's parameters, so each
+                // piece is clipped and converted on its own.
+                vector < UWRegion > regvec = surfB->GetUWRegionsOrWhole();
+
                 // Split SubSurfs
                 for ( int ss = 0; ss < (int)ss_vec.size(); ss++ )
                 {
-                    ss_vec[ss].SplitSegsU( surfB->GetSurfCore()->GetMinU() );
-                    ss_vec[ss].SplitSegsU( surfB->GetSurfCore()->GetMaxU() );
-                    ss_vec[ss].SplitSegsW( surfB->GetSurfCore()->GetMinW() );
-                    ss_vec[ss].SplitSegsW( surfB->GetSurfCore()->GetMaxW() );
+                  for ( int ir = 0; ir < (int)regvec.size(); ir++ )
+                  {
+                    const UWRegion &reg = regvec[ir];
 
-                    vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
+                    // Splitting modifies the subsurface, so each region starts from a copy.
+                    SimpleSubSurface ssurf = ss_vec[ss];
+
+                    ssurf.SplitSegsU( reg.m_UMin );
+                    ssurf.SplitSegsU( reg.m_UMax );
+                    ssurf.SplitSegsW( reg.m_WMin );
+                    ssurf.SplitSegsW( reg.m_WMax );
+
+                    vector < vector< SSLineSeg > >& segsvec = ssurf.GetSplitSegs();
 
                     for ( int k = 0; k < segsvec.size(); k++ )
                     {
                         vector< SSLineSeg >& segs = segsvec[k];
-                        bool is_poly = ss_vec[ss].GetPolyFlag();
+                        bool is_poly = ssurf.GetPolyFlag();
 
                         // Build Intersection Chains
                         for ( int ls = 0; ls < (int)segs.size(); ls++ )
@@ -2593,10 +2624,10 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                             double max_u, max_w, tol;
                             double min_u, min_w;
                             tol = 1e-6;
-                            min_u = surfB->GetSurfCore()->GetMinU();
-                            min_w = surfB->GetSurfCore()->GetMinW();
-                            max_u = surfB->GetSurfCore()->GetMaxU();
-                            max_w = surfB->GetSurfCore()->GetMaxW();
+                            min_u = reg.m_UMin;
+                            min_w = reg.m_WMin;
+                            max_u = reg.m_UMax;
+                            max_w = reg.m_WMax;
 
                             if ( uw_pnt0[0] < min_u - FLT_EPSILON || uw_pnt0[1] < min_w - FLT_EPSILON || uw_pnt1[0] < min_u - FLT_EPSILON || uw_pnt1[1] < min_w - FLT_EPSILON )
                             {
@@ -2614,6 +2645,11 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                             {
                                 continue; // Skip if both end points are on the same edge of the surface
                             }
+
+                            // Everything above was in the Geom's parameters.  From here on
+                            // the skin patch is asked about its own.
+                            uw_pnt0 = vec2d( reg.ToPatchU( uw_pnt0[0] ), reg.ToPatchW( uw_pnt0[1] ) );
+                            uw_pnt1 = vec2d( reg.ToPatchU( uw_pnt1[0] ), reg.ToPatchW( uw_pnt1[1] ) );
 
                             // Project SubSurface edge point on FeaPart surface
                             vec3d skin_pnt0 = surfB->CompPnt( uw_pnt0[0], uw_pnt0[1] );
@@ -2640,7 +2676,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                                             if ( std::find( remove_chain_list.begin(), remove_chain_list.end(), ( *c1 ) ) == remove_chain_list.end() )
                                             {
                                                 string part = GetMeshPtr()->m_FeaPartNameVec[surfA->GetFeaPartIndex()];
-                                                string message = "Merged Intersection Curve: " + part + " and " + ss_vec[ss].GetName() + "\n";
+                                                string message = "Merged Intersection Curve: " + part + " and " + ssurf.GetName() + "\n";
                                                 addOutputText( message );
 
                                                 remove_chain_list.push_back( *c1 );
@@ -2712,6 +2748,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                             }
                         }
                     }
+                  }
                 }
             }
         }
