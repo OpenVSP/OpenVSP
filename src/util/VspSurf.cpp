@@ -3863,23 +3863,104 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
 // Keep the tessellation lines that fall within a split piece of a surface, and make sure
 // the piece's own edges are among them.  Splitting happens along feature lines, which are
 // usually tessellation lines too, but the ends have to be there either way.
-void ClipTess( const vector < double > &tess, double lo, double hi, vector < double > &clipped )
+// Merge a list of parameter values, dropping ones that repeat.  The seam between two
+// pieces of a joined patch is a boundary of both, so it arrives twice.
+static void SortUniqueTess( vector < double > &v )
 {
-    clipped.clear();
+    std::sort( v.begin(), v.end() );
 
-    double tol = 1.0e-6 * ( hi - lo );
-
-    clipped.push_back( lo );
-
-    for ( int i = 0; i < ( int )tess.size(); i++ )
+    if ( v.size() < 2 )
     {
-        if ( tess[i] > lo + tol && tess[i] < hi - tol )
+        return;
+    }
+
+    double tol = 1.0e-6 * ( v.back() - v.front() );
+
+    vector < double > out;
+    out.push_back( v[0] );
+
+    for ( int i = 1; i < ( int )v.size(); i++ )
+    {
+        if ( v[i] > out.back() + tol )
         {
-            clipped.push_back( tess[i] );
+            out.push_back( v[i] );
         }
     }
 
-    clipped.push_back( hi );
+    // Reversing a region can turn a zero into a negative zero, which compares equal but
+    // prints as "-0".  Nothing downstream should have to wonder about that.
+    for ( int i = 0; i < ( int )out.size(); i++ )
+    {
+        if ( out[i] == 0.0 )
+        {
+            out[i] = 0.0;
+        }
+    }
+
+    v = out;
+}
+
+// The Geom's tessellation lines are given in the Geom's parameters.  A patch may cover more
+// than one piece of that surface, and may carry a piece reversed, so each piece is clipped
+// against the part of the original it covers and then converted to the patch's parameters.
+// For a patch that is a plain piece this comes out the same as clipping against the patch's
+// own range.
+static void ClipTessRegionsU( const vector < double > &tess, const vector < UWRegion > &rv,
+                              vector < double > &clipped )
+{
+    clipped.clear();
+
+    for ( int i = 0; i < ( int )rv.size(); i++ )
+    {
+        double lo = rv[i].m_UMin;
+        double hi = rv[i].m_UMax;
+        double tol = 1.0e-6 * ( hi - lo );
+
+        double plo, phi;
+        rv[i].PatchExtentU( plo, phi );
+
+        clipped.push_back( plo );
+        clipped.push_back( phi );
+
+        for ( int j = 0; j < ( int )tess.size(); j++ )
+        {
+            if ( tess[j] > lo + tol && tess[j] < hi - tol )
+            {
+                clipped.push_back( rv[i].ToPatchU( tess[j] ) );
+            }
+        }
+    }
+
+    SortUniqueTess( clipped );
+}
+
+static void ClipTessRegionsW( const vector < double > &tess, const vector < UWRegion > &rv,
+                              vector < double > &clipped )
+{
+    clipped.clear();
+
+    for ( int i = 0; i < ( int )rv.size(); i++ )
+    {
+        double lo = rv[i].m_WMin;
+        double hi = rv[i].m_WMax;
+        double tol = 1.0e-6 * ( hi - lo );
+
+        double plo, phi;
+        rv[i].PatchExtentW( plo, phi );
+
+        clipped.push_back( plo );
+        clipped.push_back( phi );
+
+        for ( int j = 0; j < ( int )tess.size(); j++ )
+        {
+            if ( tess[j] > lo + tol && tess[j] < hi - tol )
+            {
+                clipped.push_back( rv[i].ToPatchW( tess[j] ) );
+            }
+        }
+    }
+
+    SortUniqueTess( clipped );
 }
 
 // A patch that is a plain piece of the surface, the same way round.
@@ -4072,16 +4153,16 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         xsurf.m_Name = name;
         xsurf.m_SplitNum = ivalid;
 
+        xsurf.m_UWRegions = regionvec[isect];
+
         if ( !utess.empty() )
         {
-            ClipTess( utess, surf.get_u0(), surf.get_umax(), xsurf.m_UTess );
+            ClipTessRegionsU( utess, xsurf.m_UWRegions, xsurf.m_UTess );
         }
         if ( !wtess.empty() )
         {
-            ClipTess( wtess, surf.get_v0(), surf.get_vmax(), xsurf.m_WTess );
+            ClipTessRegionsW( wtess, xsurf.m_UWRegions, xsurf.m_WTess );
         }
-
-        xsurf.m_UWRegions = regionvec[isect];
 
         xsurf.m_SurfIndx = surf_ind;
         xsurf.m_SurfType = GetSurfType();
