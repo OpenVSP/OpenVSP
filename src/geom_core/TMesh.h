@@ -57,6 +57,10 @@ class NBndBox;
 class TMesh;
 class PGMesh;
 
+// Below this a triangle encloses nothing worth keeping.  An area, in the model's own units.
+// See TMesh::AddTri for how the number was arrived at.
+const double TRI_AREA_TOL = 1.0e-7;
+
 struct dba_point
 {
     double x, y;
@@ -529,13 +533,15 @@ public:
     virtual void FlipNormals();
     virtual void Transform( const Matrix4d & TransMat );
 
-    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const int & iQuad );
-    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const int & iQuad, const int & jref, const int & kref );
-    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const int & iQuad );
-    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const int & iQuad, const int & jref, const int & kref );
+    // The overloads returning bool answer false, having added nothing, for a triangle that
+    // encloses no area.  See TMesh::AddTri.
+    virtual bool AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const int & iQuad );
+    virtual bool AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const int & iQuad, const int & jref, const int & kref );
+    virtual bool AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const int & iQuad );
+    virtual bool AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const int & iQuad, const int & jref, const int & kref );
     virtual void AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm, const int & iQuad, const int & jref, const int & kref );
     virtual void AddTri( TNode * node0, TNode * node1, TNode * node2, const vec3d & norm, const int & iQuad );
-    virtual void AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
+    virtual bool AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
                          const vec3d & uw1, const vec3d & uw2, const int & iQuad, const int & jref, const int & kref );
     virtual void AddTri( const TTri* tri );
     virtual void AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm, const int & iQuad );

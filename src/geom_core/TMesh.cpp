@@ -4931,7 +4931,7 @@ void TMesh::Transform( const Matrix4d & TransMat )
 }
 
 // Wrapper
-void TMesh::AddTri( const vec3d &p0, const vec3d &p1, const vec3d &p2, const int &iQuad )
+bool TMesh::AddTri( const vec3d &p0, const vec3d &p1, const vec3d &p2, const int &iQuad )
 {
     double dist_tol = 1.0e-12;
 
@@ -4941,26 +4941,51 @@ void TMesh::AddTri( const vec3d &p0, const vec3d &p1, const vec3d &p2, const int
 
     if ( v01.mag() < dist_tol || v02.mag() < dist_tol || v12.mag() < dist_tol )
     {
-        return;
+        return false;
     }
 
     vec3d norm = cross( v01, v02 );
     norm.normalize();
 
-    AddTri( p0, p1, p2, norm, iQuad );
+    return AddTri( p0, p1, p2, norm, iQuad );
 }
 
-void TMesh::AddTri( const vec3d &p0, const vec3d &p1, const vec3d &p2, const int &iQuad, const int & jref, const int & kref )
+bool TMesh::AddTri( const vec3d &p0, const vec3d &p1, const vec3d &p2, const int &iQuad, const int & jref, const int & kref )
 {
-    AddTri( p0, p1, p2, iQuad );
+    if ( !AddTri( p0, p1, p2, iQuad ) )
+    {
+        return false;
+    }
+
     TTri* tri = m_TVec.back();
     tri->m_jref = jref;
     tri->m_kref = kref;
+
+    return true;
 }
 
 // Base.  i.e. does m_TVec.push_back()
-void TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &norm, const int &iQuad )
+bool TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &norm, const int &iQuad )
 {
+    // A triangle enclosing no area is worse than useless further down.  It has no normal
+    // worth reading, nothing can orient it, and it survives into the intersection and into
+    // whatever reads the mesh afterwards.  The cheapest place to be rid of one is before it
+    // exists.
+    //
+    // The question is put as an area rather than as any test on the coordinates, because area
+    // does not care which way the geometry is turned.  The routine used measures it stably --
+    // Kahan's arrangement of Heron's formula, in Vec3d.cpp -- which keeps the cancellation
+    // that the naive form loses on a needle.
+    //
+    // The cutoff is an area in the model's own units.  Turning a twenty unit model to an
+    // arbitrary angle leaves the triangles meant here below 1e-8 and the smallest triangle
+    // actually wanted at 1e-6; this sits between.  Being an absolute area it travels with the
+    // size of the model, so a model built at a very different scale deserves a fresh look.
+    if ( area( v0, v1, v2 ) < TRI_AREA_TOL )
+    {
+        return false;
+    }
+
     // Use For XYZ Tri
     TTri* ttri = new TTri( this );
     ttri->m_Norm = norm;
@@ -4983,14 +5008,22 @@ void TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec
     m_NVec.push_back( ttri->m_N0 );
     m_NVec.push_back( ttri->m_N1 );
     m_NVec.push_back( ttri->m_N2 );
+
+    return true;
 }
 
-void TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &norm, const int &iQuad, const int & jref, const int & kref )
+bool TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec3d &norm, const int &iQuad, const int & jref, const int & kref )
 {
-    AddTri( v0, v1, v2, norm, iQuad );
+    if ( !AddTri( v0, v1, v2, norm, iQuad ) )
+    {
+        return false;
+    }
+
     TTri* tri = m_TVec.back();
     tri->m_jref = jref;
     tri->m_kref = kref;
+
+    return true;
 }
 
 // Base
@@ -5037,10 +5070,14 @@ void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm
 }
 
 // Wrapper
-void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
+bool TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
                     const vec3d & uw1, const vec3d & uw2, const int & iQuad, const int & jref, const int & kref ){
     // AddTri with both xyz and uw info
-    AddTri( v0, v1, v2, norm, iQuad );
+    if ( !AddTri( v0, v1, v2, norm, iQuad ) )
+    {
+        return false;
+    }
+
     TTri* tri = m_TVec.back();
     tri->m_N0->m_UWPnt = uw0;
     tri->m_N1->m_UWPnt = uw1;
@@ -5052,6 +5089,8 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
 
     tri->m_jref = jref;
     tri->m_kref = kref;
+
+    return true;
 }
 
 // Base

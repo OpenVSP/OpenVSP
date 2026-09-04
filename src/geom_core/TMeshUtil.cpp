@@ -183,6 +183,8 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                     iuend++;
                 }
 
+                size_t nbefore = TMeshVec.size();
+
                 CreateTMeshVecFromPts( geom,
                                        TMeshVec,
                                        pnts,
@@ -194,9 +196,18 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                        iQuad, flatpatch );
 
                 // Over-ride some variable copies to full range rather than patch subset.
-                TMeshVec.back()->m_UWPnts = uw_pnts;
-                TMeshVec.back()->m_XYZPnts = pnts;
-                TMeshVec.back()->m_Wmin = uw_pnts[0][0].y();
+                //
+                // A strip whose triangles all enclose no area adds nothing at all, so there
+                // is not always a new TMesh to override.  Without this check back() is
+                // either an earlier, already finished TMesh -- whose points would be
+                // replaced with this strip's -- or, on the first strip, the back of an
+                // empty vector.
+                if ( TMeshVec.size() > nbefore )
+                {
+                    TMeshVec.back()->m_UWPnts = uw_pnts;
+                    TMeshVec.back()->m_XYZPnts = pnts;
+                    TMeshVec.back()->m_Wmin = uw_pnts[0][0].y();
+                }
 
                 iustart = iuend;
             }
