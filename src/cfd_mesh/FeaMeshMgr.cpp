@@ -1015,6 +1015,23 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
     }
 }
 
+// A fix point is given in the parent surface's parameters.  A patch cut from that surface is
+// not always a plain piece of it -- a wing's trailing edge patch is the strip at one end of w
+// joined to the strip at the other -- so the patch has to be asked where the point falls in
+// its own terms.  A point the patch does not cover is handed back unchanged; it was never
+// going to be used, and an invented number would be worse than the original.
+static vec2d FixPointPatchUW( const Surf *srf, const vec2d &uw )
+{
+    double u, w;
+
+    if ( srf->ToPatchUW( uw.x(), uw.y(), u, w ) )
+    {
+        return vec2d( u, w );
+    }
+
+    return uw;
+}
+
 void FeaMeshMgrSingleton::AddStructureFixPoints()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
@@ -1077,11 +1094,13 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                                 // values of the parameter are valid on both patches.  This is not true when you reach the max/min
                                 // limit of a patch.  I.e. W=0.0 and W=1.0 are the same point, but both do not get added by this
                                 // logic.
-                                if ( m_SurfVec[k]->ValidUW( fxpt.m_UW, 0.0 ) )
+                                vec2d puw = FixPointPatchUW( m_SurfVec[k], fxpt.m_UW );
+
+                                if ( m_SurfVec[k]->ValidUW( puw, 0.0 ) )
                                 {
                                     surf_index.push_back( k );
 
-                                    int border = m_SurfVec[k]->UWPointOnBorder( fxpt.m_UW.x(), fxpt.m_UW.y(), 1e-6 );
+                                    int border = m_SurfVec[k]->UWPointOnBorder( puw.x(), puw.y(), 1e-6 );
                                     if ( border != SurfCore::NOBNDY )
                                     {
                                         onborder = true;
@@ -1162,7 +1181,7 @@ void FeaMeshMgrSingleton::ForceSurfaceFixPoints( int surf_indx, vector < vec2d >
                     {
                         if ( fxpt.m_BorderFlag[ j ] == SURFACE_FIX_POINT )  // Should be redundant by now, but to be safe.
                         {
-                            adduw.push_back( fxpt.m_UW );
+                            adduw.push_back( FixPointPatchUW( m_SurfVec[ surf_indx ], fxpt.m_UW ) );
                         }
                     }
                 }
@@ -1830,7 +1849,8 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
                     {
                         string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[ fxpt.m_FeaPartIndex ];
 
-                        if ( m_SurfVec[ fxpt.m_SurfInd[j][0] ]->GetMesh()->SetFixPoint( fxpt.m_Pnt[j], fxpt.m_UW ) )
+                        if ( m_SurfVec[ fxpt.m_SurfInd[j][0] ]->GetMesh()->SetFixPoint( fxpt.m_Pnt[j],
+                                 FixPointPatchUW( m_SurfVec[ fxpt.m_SurfInd[j][0] ], fxpt.m_UW ) ) )
                         {
                             // No message on success.
                         }
@@ -1877,18 +1897,21 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                         {
                             vec2d closest_uwA, closest_uwB;
 
-                            if ( ( *c )->m_SurfA->ValidUW( fxpt.m_UW ) )
+                            vec2d puwA = FixPointPatchUW( ( *c )->m_SurfA, fxpt.m_UW );
+                            vec2d puwB = FixPointPatchUW( ( *c )->m_SurfB, fxpt.m_UW );
+
+                            if ( ( *c )->m_SurfA->ValidUW( puwA ) )
                             {
-                                closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                                closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], puwA[0], puwA[1] );
                             }
                             else
                             {
                                 closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j] );
                             }
 
-                            if ( ( *c )->m_SurfB->ValidUW( fxpt.m_UW ) )
+                            if ( ( *c )->m_SurfB->ValidUW( puwB ) )
                             {
-                                closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                                closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], puwB[0], puwB[1] );
                             }
                             else
                             {
@@ -1996,7 +2019,8 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                     // Compare FeaFixPoint to closest point on other surface
                                     if ( dist( closest_pnt, fxpt.m_Pnt[j] ) <= tol )
                                     {
-                                        vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                                        vec2d puwA = FixPointPatchUW( ( *c )->m_SurfA, fxpt.m_UW );
+                                        vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], puwA[0], puwA[1] );
                                         vec2d closest_uwB = closest_uw;
 
                                         if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
@@ -2032,7 +2056,8 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                     if ( dist( closest_pnt, fxpt.m_Pnt[j] ) <= tol )
                                     {
                                         vec2d closest_uwA = closest_uw;
-                                        vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                                        vec2d puwB = FixPointPatchUW( ( *c )->m_SurfB, fxpt.m_UW );
+                                        vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], puwB[0], puwB[1] );
 
                                         if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
                                         {
@@ -2082,8 +2107,10 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
 
                                 if ( closest_dist < ss_tol )
                                 {
-                                    vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
-                                    vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                                    vec2d puwA = FixPointPatchUW( ( *c )->m_SurfA, fxpt.m_UW );
+                                    vec2d puwB = FixPointPatchUW( ( *c )->m_SurfB, fxpt.m_UW );
+                                    vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], puwA[0], puwA[1] );
+                                    vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], puwB[0], puwB[1] );
 
                                     if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
                                     {
