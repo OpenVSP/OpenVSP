@@ -18,11 +18,6 @@
 
 #include "StringUtil.h"
 
-#ifdef DEBUG_CFD_MESH
-// #include <direct.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
 
 
 CfdMeshMgrSingleton::CfdMeshMgrSingleton() : SurfaceIntersectionSingleton()
@@ -2064,11 +2059,14 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
         string base_path, base_fname;
         GetPathFile( base_name, base_path, base_fname );
 
-        StringUtil::change_space_to_underscore( base_fname );
-        string base_path_nospace = base_path + "/" + base_fname;
+        string subdir = base_path + "/" + "TaggedRegions.OpenVSP/";
+        MakeDirectory( subdir );
 
-        string taglist_name = base_name + ".ALL.taglist";
-        string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
+        string taglist_name = subdir + base_fname + ".ALL.taglist";
+        string csf_taglist_name = subdir + base_fname + ".ControlSurfaces.taglist";
+
+        StringUtil::change_space_to_underscore( base_fname );
+        string base_path_nospace = subdir + base_fname;
 
         FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
         FILE* csf_taglist_fid = NULL;
