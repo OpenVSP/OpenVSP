@@ -390,8 +390,25 @@ void CobraGeom::UpdateSurf()
         // Could possibly be improved by using tangent point(s).
         double usplit = pow( ( 0 - xmin ) / xrng, 1.0 / powX );
 
+        // Unless the nose is where the curve already ends, or where it starts.
+        //
+        // usplit is where the nose gives way to the aft body.  With no aft length that is the
+        // far end of the curve, and with no nose length it is the near end; either way there
+        // is nothing on one side of it to split off.  Asking for the split anyway hands the
+        // adaptive curve builder a piece of zero length, and it goes looking for a segment in
+        // front of the first one it has.
+        bool splitinside = ( usplit > 0.0 && usplit < 1.0 );
+
         VspCurve ctest;
-        int depth = ctest.FunToBinaryCubic( f, 0.0, 1.0, usplit, tol );
+        int depth;
+        if ( splitinside )
+        {
+            depth = ctest.FunToBinaryCubic( f, 0.0, 1.0, usplit, tol );
+        }
+        else
+        {
+            depth = ctest.FunToBinaryCubic( f, 0.0, 1.0, tol );
+        }
 
         ctest.GetCurve().get_pmap( urib );
 
@@ -413,7 +430,14 @@ void CobraGeom::UpdateSurf()
                    XpowNL );
 
             VspCurve ctest2;
-            depth = std::max( depth, ctest2.FunToBinaryCubic( f, 0.0, 1.0, usplit, tol ) );
+            if ( splitinside )
+            {
+                depth = std::max( depth, ctest2.FunToBinaryCubic( f, 0.0, 1.0, usplit, tol ) );
+            }
+            else
+            {
+                depth = std::max( depth, ctest2.FunToBinaryCubic( f, 0.0, 1.0, tol ) );
+            }
 
             vector < double > urib2;
             ctest2.GetCurve().get_pmap( urib2 );
@@ -702,9 +726,45 @@ void SE_SingleSuperEllipse_FixedPt_TangentLine_Define (
     // Assumes ellipse is aligned on y=0 axis (so ye=0)
     // Ellipse assumed to the left of fixed pt (has smaller xe < xfx)
 
-    if ( xfx <= 0 )
+    // The two ways this construction has nothing to work with.
+    //
+    // Both are reachable from the GUI, because the lengths they come from are allowed down to
+    // zero, and OffsetXSecs clamps them to zero on purpose.  Neither is an error; each is a
+    // shape in its own right, and each has an answer of the same kind as the be == yfx case
+    // below -- the tangent point is the top of the ellipse, and the line is whatever is left
+    // once the construction has collapsed.
+    //
+    // Only xp0 and yp0 are read afterwards.  SE_SingleSuperEllipse_FixedPt_TangentLine_Calc
+    // takes aline and xline but never looks at them; it works the slope out again from the
+    // tangent point and the fixed point.  They are still set to something meaningful here.
+
+    if ( xfx <= 0.0 )
     {
-        exit( 1 );
+        // No aft length.  The fixed point stands on the ellipse's own mid plane, so the body
+        // reaches the top of the ellipse and stops there with no room for a line to run out
+        // to.  The surface ends along the ellipse, so it ends tangent to it, which is flat.
+        xp0 = 0.0;
+        yp0 = be;
+        aline = 0.0;
+        xline = xp0;
+        return;
+    }
+
+    if ( ae <= 0.0 )
+    {
+        // No nose length.  The ellipse has collapsed onto the segment between its own ends,
+        // and the only point on it a line can touch is the top.  From there the line runs
+        // straight out to the fixed point, which is a cone rather than a faired body.
+        xp0 = 0.0;
+        yp0 = be;
+
+        aline = ( yfx - yp0 ) / ( xfx - xp0 );
+        xline = xp0;
+        if ( aline != 0.0 )
+        {
+            xline = xp0 - yp0 / aline;
+        }
+        return;
     }
 
     if ( be == yfx )
@@ -825,7 +885,15 @@ void SE_SingleSuperEllipse_FixedPt_TangentLine_Calc (
 
         const double u = pow( ( xpt + ae ) / xrng, 1.0 / pe );
         const double dxdu = pe * xrng * pow( u, pe - 1.0 );
-        const double dydx = ( yp0 - yfx ) / ( xp0 - xfx );
+
+        // The tangent point and the fixed point share an x when the aft length is zero.  The
+        // body then ends on the ellipse, so it ends tangent to it, and at the top of an
+        // ellipse that is flat.
+        double dydx = 0.0;
+        if ( std::abs( xp0 - xfx ) > 1e-12 )
+        {
+            dydx = ( yp0 - yfx ) / ( xp0 - xfx );
+        }
 
         dydu = dydx * dxdu;
     }
@@ -865,7 +933,12 @@ void SE_SingleSuperEllipse_FixedPt_TangentLine_Calc (
         const double u = pow( ( xpt + ae ) / xrng, 1.0 / pe );
         const double dxdu = pe * xrng * pow( u, pe - 1.0 );
 
-        const double dydx = ( yp0 - yfx ) / ( xp0 - xfx );
+        double dydx = 0.0;
+        if ( std::abs( xp0 - xfx ) > 1e-12 )
+        {
+            dydx = ( yp0 - yfx ) / ( xp0 - xfx );
+        }
+
         // Point is past tangent point, use tangent line
         ypt = yfx + ( xpt - xfx ) * dydx;
 
