@@ -8,6 +8,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Mesh.h"
+
+#include <map>
+#include <set>
 #include "Surf.h"
 #include "PntNodeMerge.h"
 #include "VspUtil.h"
@@ -198,7 +201,6 @@ void Mesh::LimitTargetEdgeLength()
     }
 }
 
-
 void Mesh::Remesh()
 {
     int num_split = 1;
@@ -214,15 +216,20 @@ void Mesh::Remesh()
 
     LimitTargetEdgeLength();
 
+    // Neither step may switch itself off for the rest of the pass.  The two steps feed each other
+    // -- splitting a long edge makes short ones and collapsing a short edge makes long ones -- so a
+    // round that finds nothing for one step says nothing about the rounds after it.
+    //
+    // The loop stops early only at a real fixed point: neither step has anything to do in the same
+    // round.
     for ( int i = 0 ; i < 20 ; i++ )
     {
-        if ( num_split )
+        num_split = Split( 1 );
+        num_collapse = Collapse( 1 );
+
+        if ( num_split == 0 && num_collapse == 0 )
         {
-            num_split = Split( 1 );
-        }
-        if ( num_collapse )
-        {
-            num_collapse = Collapse( 1 );
+            break;
         }
     }
 
@@ -425,7 +432,13 @@ int Mesh::Collapse( int num_iter )
         //==== Sort Matches By Length ====//
         sort( shortEdges.begin(), shortEdges.end(), ShortEdgePairLengthCompare );
 
+        // A tenth of the candidates, but never none: below ten candidates integer division gives
+        // zero, and a step that does nothing reports that it has nothing to do.
         int num_colapse = shortEdges.size() / 10;
+        if ( num_colapse < 1 && !shortEdges.empty() )
+        {
+            num_colapse = 1;
+        }
         num_colapse = min( num_colapse, ( int )shortEdges.size() );
 
         num_short_edges = 0;
@@ -511,7 +524,10 @@ int Mesh::RemoveIllFormedFaces()
     list< Face* >::iterator f;
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
-        if ( FaceReversed( *f ) || ( *f )->Degenerate() )
+        bool rev = FaceReversed( *f );
+        bool deg = ( *f )->Degenerate();
+
+        if ( rev || deg )
         {
             remFaces.push_back( *f );
 
@@ -540,7 +556,7 @@ int Mesh::RemoveIllFormedFaces()
         {
             if ( cand[j] && ValidCollapse( cand[j] ) )
             {
-                CollapseEdge( cand[j] );
+                CollapseEdge( cand[j], true );
                 break;
             }
         }
@@ -751,6 +767,16 @@ void Mesh::SetNodeFlags()
     }
 }
 
+// Wang 2006 gives the contraction parameter as Cc = 1/sqrt(2): an edge below this fraction
+// of its target is one the mesher wants to collapse away.  Nothing should deliberately build
+// one.
+static const double CC_LENGTH_RATIO = 0.707;
+
+// A collapse may not leave a triangle worse than this.  Half a degree is what Face
+// ::Degenerate already calls unfit, so anything at or under it is a face the mesher would
+// immediately want to be rid of again.
+static const double MIN_COLLAPSE_ANGLE = 0.5 * M_PI / 180.0;
+
 void Mesh::SplitEdge( Edge* edge )
 {
     assert( m_Surf );
@@ -828,6 +854,55 @@ void Mesh::SplitEdge( Edge* edge )
 
         if ( wouldreverse )
         {
+            return;
+        }
+    }
+
+    // A split must not manufacture an edge shorter than the size that was asked for.
+    //
+    // The criterion that chose this edge looked only at the edge being consumed.  The two
+    // halves it becomes are bounded by that criterion -- an edge over Cs * target halves to
+    // something at or above Cc * target -- but the edge from the new point to the apex of an
+    // adjacent face is not.  Its length is the height of that face, which has nothing to do
+    // with the base that was measured.
+    //
+    // Splitting the long base of a thin triangle therefore produces an edge far under target, and
+    // splitting again halves the height once more, while that target never moves.
+    //
+    // The target field is graded, so the parent edge's own target is a good local scale and
+    // costs nothing to reuse.
+    {
+        double shortest = CC_LENGTH_RATIO * edge->target_len;
+
+        bool wouldbeshort = false;
+
+        if ( fa )
+        {
+            Node* na = fa->OtherNodeTri( n0, n1 );
+
+            if ( na && dist( na->pnt, ps ) < shortest )
+            {
+                wouldbeshort = true;
+            }
+        }
+
+        if ( fb && !wouldbeshort )
+        {
+            Node* nb = fb->OtherNodeTri( n0, n1 );
+
+            if ( nb && dist( nb->pnt, ps ) < shortest )
+            {
+                wouldbeshort = true;
+            }
+        }
+
+        if ( wouldbeshort )
+        {
+            // The edge is genuinely too long, but bisecting it is the wrong answer for the
+            // shape it sits on.  A thin triangle wants its long edge swapped away, not cut
+            // in half.  SwapEdge only acts when it raises the smallest angle, so this either
+            // improves the pair or leaves them alone.
+            SwapEdge( edge );
             return;
         }
     }
@@ -917,6 +992,42 @@ void Mesh::SplitEdge( Edge* edge )
 
     ComputeTargetEdgeLength( ns );
     LimitTargetEdgeLength( ns );
+
+    // "Neighboring edge swapping is performed to improve the local configuration, in terms
+    // of both approximation of the geometry and the element quality" -- Wang 2006, 5.1.
+    //
+    // Inserting a point can leave the edges around it badly connected, and waiting until the
+    // end of the pass to swap lets twenty rounds of splitting build on the bad connection.
+    // SwapEdge acts only when it raises the smallest angle of the pair, so this cannot make
+    // the neighbourhood worse.
+    for ( int i = 0; i < ( int )ns->edgeVec.size(); i++ )
+    {
+        Edge* e = ns->edgeVec[i];
+
+        if ( !e || e->m_DeleteMeFlag )
+        {
+            continue;
+        }
+
+        // The edges opposite the new point are the ones whose connection it may have
+        // spoiled; the edges meeting it were just built to fit.
+        Face* ff[2] = { e->f0, e->f1 };
+
+        for ( int k = 0; k < 2; k++ )
+        {
+            if ( !ff[k] || ff[k]->m_DeleteMeFlag )
+            {
+                continue;
+            }
+
+            Edge* opp = ff[k]->FindEdgeWithout( ns );
+
+            if ( opp && !opp->m_DeleteMeFlag && !opp->border && !opp->ridge )
+            {
+                SwapEdge( opp );
+            }
+        }
+    }
 }
 
 void Mesh::SwapEdge( Edge* edge )
@@ -948,9 +1059,9 @@ void Mesh::SwapEdge( Edge* edge )
 
     // A flip replaces the shared edge with one joining the two opposite corners.  If those
     // two are already joined, the flip builds a SECOND edge between the same pair of nodes,
-    // which is not a surface any more: the pair bounds no area and the faces beside it are
-    // shared three ways.  ThreeEdgesThreeFaces catches the valence-3 instance of this, which
-    // is one case of it and not the general one.
+    // which is not a surface any more: the pair of edges bounds no area and the faces on
+    // either side of it are shared three ways.  ThreeEdgesThreeFaces catches only the
+    // valence-3 case, which is one instance of this and not the general one.
     {
         Node* sa = edge->f0->OtherNodeTri( edge->n0, edge->n1 );
         Node* sb = edge->f1->OtherNodeTri( edge->n0, edge->n1 );
@@ -1239,15 +1350,15 @@ bool Mesh::ValidCollapse( Edge* edge )
 
     // The link condition.
     //
-    // Contracting an edge preserves topology exactly when the vertices adjacent to BOTH of
-    // its ends are precisely the vertices opposite it -- two of them for an interior edge.
-    // Any further shared neighbour means the two vertex stars meet somewhere other than
-    // along this edge, and merging the ends pinches the surface there: a handle is cut, or
-    // two sheets are joined at a point, and the result is not a surface.
+    // Contracting an edge is topology-preserving exactly when the vertices adjacent to BOTH
+    // ends are precisely the vertices opposite the edge -- two of them for an interior edge,
+    // one for a boundary edge.  Any further shared neighbour means the two vertex stars meet
+    // somewhere other than along this edge, and merging the ends pinches the surface there:
+    // a handle is cut, or two sheets are joined at a point, and the result is not a surface.
     //
-    // The checks below test particular configurations one and two faces out.  They are
-    // instances of this condition rather than the condition itself, which is why a shared
-    // neighbour further around the ring passed them and pinched the mesh.
+    // The checks below this comment test particular configurations one and two faces out.  They
+    // catch some instances of that and not the general case: a shared neighbour further around the
+    // ring passes them and pinches the mesh.
     {
         int nshared = 0;
 
@@ -1279,8 +1390,8 @@ bool Mesh::ValidCollapse( Edge* edge )
             }
         }
 
-        // fa and fb both exist by this point, so this is an interior edge and exactly two
-        // shared neighbours are expected: na and nb.
+        // fa and fb both exist here, so this is an interior edge and exactly two shared
+        // neighbours are expected -- na and nb.
         if ( nshared != 2 )
         {
             return false;
@@ -1411,7 +1522,131 @@ void Mesh::CollapseHighlightEdge()
 
 }
 
-void Mesh::CollapseEdge( Edge* edge )
+// Signed area of a triangle in the parametric domain.  Only the sign is used: if it changes
+// across an operation, the triangle turned inside out and the mesh overlapped itself.
+// Smallest angle of a triangle on three points, in radians.  Face::ComputeTriQual asks the
+// same question of an existing face; this asks it of a face that does not exist yet.
+static double TriMinAngle( const vec3d &p0, const vec3d &p1, const vec3d &p2 )
+{
+    double s[3];
+    s[0] = dist( p1, p2 );
+    s[1] = dist( p0, p2 );
+    s[2] = dist( p0, p1 );
+
+    if ( s[0] <= 0.0 || s[1] <= 0.0 || s[2] <= 0.0 )
+    {
+        return 0.0;
+    }
+
+    std::sort( s, s + 3 );
+
+    // The smallest angle faces the shortest side.
+    double cosv = ( s[1] * s[1] + s[2] * s[2] - s[0] * s[0] ) / ( 2.0 * s[1] * s[2] );
+
+    if ( cosv > 1.0 )
+    {
+        cosv = 1.0;
+    }
+    if ( cosv < -1.0 )
+    {
+        cosv = -1.0;
+    }
+
+    return acos( cosv );
+}
+
+static double SignedUWArea( const vec2d &a, const vec2d &b, const vec2d &c )
+{
+    return 0.5 * ( ( b.x() - a.x() ) * ( c.y() - a.y() ) -
+                   ( c.x() - a.x() ) * ( b.y() - a.y() ) );
+}
+
+double Mesh::CollapseConfigQuality( Edge* edge, const vec3d &pc, const vec2d &uwc, bool &flipped, double &qbefore )
+{
+    flipped = false;
+    qbefore = M_PI;
+
+    Node* n0 = edge->n0;
+    Node* n1 = edge->n1;
+    Face* fa = edge->f0;
+    Face* fb = edge->f1;
+
+    double worst = M_PI;
+
+    for ( int side = 0; side < 2; side++ )
+    {
+        Node* nn = n0;
+        if ( side == 1 )
+        {
+            nn = n1;
+        }
+
+        vector < Face* > faceVec;
+        nn->GetConnectFaces( faceVec );
+
+        for ( int i = 0; i < ( int )faceVec.size(); i++ )
+        {
+            Face* f = faceVec[i];
+
+            // These two vanish in the collapse, so their shape afterwards is not a question.
+            if ( !f || f == fa || f == fb || f->m_DeleteMeFlag || f->n3 )
+            {
+                continue;
+            }
+
+            Node* fn[3] = { f->n0, f->n1, f->n2 };
+
+            if ( !fn[0] || !fn[1] || !fn[2] )
+            {
+                continue;
+            }
+
+            vec3d p[3];
+            vec2d uw[3];
+
+            for ( int k = 0; k < 3; k++ )
+            {
+                if ( fn[k] == n0 || fn[k] == n1 )
+                {
+                    p[k] = pc;
+                    uw[k] = uwc;
+                }
+                else
+                {
+                    p[k] = fn[k]->pnt;
+                    uw[k] = fn[k]->uw;
+                }
+            }
+
+            double abefore = SignedUWArea( fn[0]->uw, fn[1]->uw, fn[2]->uw );
+            double aafter = SignedUWArea( uw[0], uw[1], uw[2] );
+
+            if ( abefore * aafter <= 0.0 )
+            {
+                flipped = true;
+                return 0.0;
+            }
+
+            double qnow = TriMinAngle( fn[0]->pnt, fn[1]->pnt, fn[2]->pnt );
+
+            if ( qnow < qbefore )
+            {
+                qbefore = qnow;
+            }
+
+            double q = TriMinAngle( p[0], p[1], p[2] );
+
+            if ( q < worst )
+            {
+                worst = q;
+            }
+        }
+    }
+
+    return worst;
+}
+
+void Mesh::CollapseEdge( Edge* edge, bool repair )
 {
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
@@ -1454,8 +1689,15 @@ void Mesh::CollapseEdge( Edge* edge )
 
 
 
+    // Where the two ends meet.
+    //
+    // Wang 2006 5.2: "either the two end points are merged to create one vertex or a new
+    // vertex is created ... In practice, both options are checked and the configuration
+    // ... is adopted."  Both configurations are tried here and judged on the shape they leave
+    // behind.
     vec3d pc;
     vec2d uwc;
+
     if ( n0->fixed )
     {
         pc = n0->pnt;
@@ -1468,10 +1710,72 @@ void Mesh::CollapseEdge( Edge* edge )
     }
     else
     {
+        vec3d cand_p[3];
+        vec2d cand_uw[3];
+
         vec3d psplit = ( n0->pnt + n1->pnt ) * 0.5;
         vec2d uwsplit = ( n0->uw + n1->uw ) * 0.5;
-        uwc = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
-        pc  = m_Surf->CompPnt( uwc.x(), uwc.y() );
+        cand_uw[0] = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
+        cand_p[0]  = m_Surf->CompPnt( cand_uw[0].x(), cand_uw[0].y() );
+
+        cand_p[1] = n0->pnt;
+        cand_uw[1] = n0->uw;
+
+        cand_p[2] = n1->pnt;
+        cand_uw[2] = n1->uw;
+
+        int best = -1;
+        double bestq = -1.0;
+        double qbefore = M_PI;
+
+        for ( int k = 0; k < 3; k++ )
+        {
+            bool flipped = false;
+            double qb = M_PI;
+            double q = CollapseConfigQuality( edge, cand_p[k], cand_uw[k], flipped, qb );
+            qbefore = qb;
+
+            // Wang 2006 5.2 step 2: a negative area means the collapse overlapped the mesh.
+            if ( flipped )
+            {
+                continue;
+            }
+
+            if ( q > bestq )
+            {
+                bestq = q;
+                best = k;
+            }
+        }
+
+        if ( best < 0 )
+        {
+            return;         // every way of doing this would overlap
+        }
+
+        // Wang 2006 5.2 step 3: the new configuration must not contain a triangle whose
+        // minimum angle tends to zero.
+        //
+        // Stated as a bare floor this refuses to improve a neighbourhood that is already
+        // below the floor, which is the one place the improvement is most wanted.  The rule
+        // that does what is meant is that the collapse may not make the neighbourhood worse:
+        // either it comes out acceptable, or it comes out better than it went in.
+        // Stated as "better than it was" this permits a collapse that leaves a triangle at
+        // very nearly zero, so long as the one it replaced was slightly worse.  Locally that
+        // reads as progress; over a surface it spirals, because the measurement only covers
+        // the faces beside the edge while the consequences land further out.  A plain floor is what
+        // holds.   [delete "Tried, and it degenerated most of a surface."]
+        // A collapse made for size may not leave a triangle at nearly zero.  A collapse made
+        // to remove a face that is already unfit may, because refusing it leaves the unfit
+        // face in the mesh, which is the worse of the two outcomes.  Overlap is refused
+        // either way.
+        if ( !repair && bestq < MIN_COLLAPSE_ANGLE )
+        {
+            return;
+        }
+
+        pc = cand_p[best];
+        uwc = cand_uw[best];
     }
 
     if ( !ValidNodeMove( n0, pc, fa ) )

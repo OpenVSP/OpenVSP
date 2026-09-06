@@ -61,7 +61,10 @@ public:
 
     int Collapse( int num_iter );
     static bool ValidCollapse( Edge* edge );
-    void CollapseEdge( Edge* edge );
+    // repair means the caller is removing a face that is already unfit, rather than
+    // collapsing for size.  Such a collapse is allowed to leave a poor triangle, because the
+    // face it removes is worse than poor; it is still refused if it would overlap the mesh.
+    void CollapseEdge( Edge* edge, bool repair = false );
 
     // Is this face wound against the surface it lies on?
     bool FaceReversed( Face* f );
@@ -104,6 +107,12 @@ public:
     Node* FindNode( const vec3d& p );
 
     static bool ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace = nullptr );
+
+    // What a collapse of this edge to the given point would leave behind.  Returns the
+    // smallest angle, in radians, over every face that survives the collapse, and reports
+    // through flipped whether any of them would be turned inside out in the parametric
+    // domain -- which is Wang 2006 5.2's negative area test for overlap.
+    double CollapseConfigQuality( Edge* edge, const vec3d &pc, const vec2d &uwc, bool &flipped, double &qbefore );
 
     Edge* AddEdge( Node* n0, Node* n1 );
     void  RemoveEdge( Edge* eptr );
