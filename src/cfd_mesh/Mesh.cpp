@@ -803,6 +803,30 @@ void Mesh::SwapEdge( Edge* edge )
         return;
     }
 
+    // A flip replaces the shared edge with one joining the two opposite corners.  If those
+    // two are already joined, the flip builds a SECOND edge between the same pair of nodes,
+    // which is not a surface any more: the pair bounds no area and the faces beside it are
+    // shared three ways.  ThreeEdgesThreeFaces catches the valence-3 instance of this, which
+    // is one case of it and not the general one.
+    {
+        Node* sa = edge->f0->OtherNodeTri( edge->n0, edge->n1 );
+        Node* sb = edge->f1->OtherNodeTri( edge->n0, edge->n1 );
+
+        if ( !sa || !sb || sa == sb )
+        {
+            return;
+        }
+
+        for ( int i = 0; i < ( int )sa->edgeVec.size(); i++ )
+        {
+            Edge* ee = sa->edgeVec[i];
+            if ( ee && !ee->m_DeleteMeFlag && ee->OtherNode( sa ) == sb )
+            {
+                return;
+            }
+        }
+    }
+
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
 
@@ -1067,6 +1091,56 @@ bool Mesh::ValidCollapse( Edge* edge )
     if ( na == nb )
     {
         return false;
+    }
+
+    // The link condition.
+    //
+    // Contracting an edge preserves topology exactly when the vertices adjacent to BOTH of
+    // its ends are precisely the vertices opposite it -- two of them for an interior edge.
+    // Any further shared neighbour means the two vertex stars meet somewhere other than
+    // along this edge, and merging the ends pinches the surface there: a handle is cut, or
+    // two sheets are joined at a point, and the result is not a surface.
+    //
+    // The checks below test particular configurations one and two faces out.  They are
+    // instances of this condition rather than the condition itself, which is why a shared
+    // neighbour further around the ring passed them and pinched the mesh.
+    {
+        int nshared = 0;
+
+        for ( int i = 0; i < ( int )n0->edgeVec.size(); i++ )
+        {
+            Edge* ei = n0->edgeVec[i];
+            if ( !ei || ei->m_DeleteMeFlag )
+            {
+                continue;
+            }
+            Node* vi = ei->OtherNode( n0 );
+            if ( !vi || vi == n1 )
+            {
+                continue;
+            }
+
+            for ( int j = 0; j < ( int )n1->edgeVec.size(); j++ )
+            {
+                Edge* ej = n1->edgeVec[j];
+                if ( !ej || ej->m_DeleteMeFlag )
+                {
+                    continue;
+                }
+                if ( ej->OtherNode( n1 ) == vi )
+                {
+                    nshared++;
+                    break;
+                }
+            }
+        }
+
+        // fa and fb both exist by this point, so this is an interior edge and exactly two
+        // shared neighbours are expected: na and nb.
+        if ( nshared != 2 )
+        {
+            return false;
+        }
     }
 
     //==== Check 3 Faces in a Face Case =====//
