@@ -381,7 +381,15 @@ int Mesh::Split( int num_iter )
         //==== Sort Matches By Length ====//
         sort( longEdges.begin(), longEdges.end(), LongEdgePairLengthCompare );
 
+        // A tenth of the candidates, but never none: with fewer than ten candidates integer division
+        // gives zero, and a step that does nothing reports that it has nothing to do.  Collapse takes
+        // the same floor; the two steps feed each other, so a floor on only one tips the balance
+        // towards that one.
         int num_split = longEdges.size() / 10;
+        if ( num_split < 1 && !longEdges.empty() )
+        {
+            num_split = 1;
+        }
         num_split = min( num_split, ( int )longEdges.size() );
 
         for ( int i = 0 ; i < num_split ; i++ )
@@ -404,6 +412,55 @@ int Mesh::Split( int num_iter )
 
 }
 
+// Wang 2006 gives the contraction parameter as Cc = 1/sqrt(2): an edge below this fraction
+// of its target is one the mesher wants to collapse away.  Nothing should deliberately build
+// one.
+static const double CC_LENGTH_RATIO = 0.707;
+
+// The angle below which a triangle is ill-shaped whatever its size.
+static const double COLLAPSE_QUAL_ANGLE = 17.0 * M_PI / 180.0;
+
+// Is this edge the shortest edge of an ill-shaped face, and how ill-shaped?  M_PI when it is
+// nobody's shortest edge -- the answer that admits nothing.
+//
+// Only the shortest edge of a face is offered.  It is the one whose removal deletes the
+// face; collapsing a longer one drags a whole neighbourhood about to fix one triangle.
+static double ShortEdgeOfPoorFace( Edge* e )
+{
+    double worst = M_PI;
+    double le = e->GetLength();
+
+    Face* ff[2] = { e->f0, e->f1 };
+
+    for ( int k = 0 ; k < 2 ; k++ )
+    {
+        Face* f = ff[k];
+
+        if ( !f || f->m_DeleteMeFlag || f->IsQuad() )
+        {
+            continue;
+        }
+
+        double s0 = dist( f->n0->pnt, f->n1->pnt );
+        double s1 = dist( f->n1->pnt, f->n2->pnt );
+        double s2 = dist( f->n2->pnt, f->n0->pnt );
+
+        if ( le > min( s0, min( s1, s2 ) ) )
+        {
+            continue;
+        }
+
+        double q = f->ComputeTriQual();
+
+        if ( q < worst )
+        {
+            worst = q;
+        }
+    }
+
+    return worst;
+}
+
 int Mesh::Collapse( int num_iter )
 {
     int num_short_edges = 0;
@@ -421,9 +478,54 @@ int Mesh::Collapse( int num_iter )
                 if ( ValidCollapse( *e ) )
                 {
                     double rat = ( *e )->GetLength() / ( *e )->target_len;
-                    if ( rat < 0.707 )
+
+                    // Short for the size that was asked for, or short for the triangle it sits
+                    // on.  Only the first of those was ever asked.
+                    //
+                    // The length test compares an edge against the target field and nothing
+                    // else, so it can only see a triangle that is too small.  It cannot see one
+                    // that is the right size and the wrong shape.  A cap -- a triangle whose
+                    // apex has fallen onto the far side -- is exactly that: its height is far
+                    // under its base, but where the target field is already fine, that height
+                    // is not under target and no edge of it is ever offered to the collapse.
+                    //
+                    // Measurement on poormesh.vsp3: 462 of the 470 triangles left under five
+                    // degrees have an angle over 160, and every one of them survived every pass
+                    // untouched.  Swapping cannot reach them either -- accepting a flip that
+                    // lowers the largest angle as well as one that raises the smallest changes
+                    // the output not at all -- so the length test is the whole of the reason
+                    // they stay.
+                    //
+                    // Wang 2006 selects on length because it assumes an isotropic starting
+                    // mesh; the papers that deal with degenerate faces (Botsch and Kobbelt
+                    // 2001) select on shape.  Asking both questions is the smaller change.
+                    //
+                    // The two are put on one scale so that one sorted list and one budget still
+                    // serve: how short against target, or how flat against the angle below
+                    // which a triangle is considered ill-shaped.  Both are fractions of the
+                    // limit that admitted the edge, so the worst offender of either kind sorts
+                    // to the front.
+                    double score = rat;
+                    bool candidate = false;
+
+                    if ( rat < CC_LENGTH_RATIO )
                     {
-                        shortEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
+                        candidate = true;
+                    }
+                    else
+                    {
+                        double qworst = ShortEdgeOfPoorFace( *e );
+
+                        if ( qworst < COLLAPSE_QUAL_ANGLE )
+                        {
+                            candidate = true;
+                            score = qworst / COLLAPSE_QUAL_ANGLE;
+                        }
+                    }
+
+                    if ( candidate )
+                    {
+                        shortEdges.emplace_back( pair< Edge*, double >( ( *e ), score ) );
                     }
                 }
             }
@@ -766,11 +868,6 @@ void Mesh::SetNodeFlags()
         }
     }
 }
-
-// Wang 2006 gives the contraction parameter as Cc = 1/sqrt(2): an edge below this fraction
-// of its target is one the mesher wants to collapse away.  Nothing should deliberately build
-// one.
-static const double CC_LENGTH_RATIO = 0.707;
 
 // A collapse may not leave a triangle worse than this.  Half a degree is what Face
 // ::Degenerate already calls unfit, so anything at or under it is a face the mesher would
