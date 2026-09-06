@@ -3068,6 +3068,31 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     MergeEndPointCloud( cloud, tol );
 }
 
+// Union-find over the points of an IPntCloud, so that "within tol of" can be closed
+// transitively.  Path compression on the lookup, union by nothing in particular -- the sets
+// here are tiny, a handful of chain ends meeting at one corner.
+static int FindPnt( vector< int > &parent, int i )
+{
+    while ( parent[i] != i )
+    {
+        parent[i] = parent[ parent[i] ];
+        i = parent[i];
+    }
+
+    return i;
+}
+
+static void UnionPnts( vector< int > &parent, int a, int b )
+{
+    int ra = FindPnt( parent, a );
+    int rb = FindPnt( parent, b );
+
+    if ( ra != rb )
+    {
+        parent[rb] = ra;
+    }
+}
+
 void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
 {
     list< ISegChain* >::iterator c;
@@ -3077,27 +3102,59 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
 
     list < IPntGroup* > iPntGroupList;
 
+    // Group the points that are within tol of each other, transitively.
+    //
+    // The point of this routine is that two chains meeting at one place end up sharing one
+    // point.  Grouping by "seed a group, take everything in the radius, move on" does not
+    // deliver that, because nearness is not transitive: with A near B and B near C but A not
+    // near C, whichever way the groups fall A and C are told they are different points, and
+    // whichever of them a chain happens to hold is where that chain ends.
+    //
+    // radiusSearch also answers with points that are already spoken for, so a point could
+    // land in two groups at once; the replacement below then kept whichever it found last,
+    // because its break left only the inner loop while the group counter carried on.  On
+    // x57full.vsp3 that left exactly one pair of chain ends within the merge radius still
+    // holding two different points -- a hole, made at the moment the mesh was assembled.
+    //
+    // Union-find gives the transitive closure directly and cannot produce either fault: a
+    // point is in exactly one set, and two points within tol are always in the same one.
+    vector< int > parent( cloud.m_IPnts.size() );
+
+    for ( size_t i = 0 ; i < parent.size() ; i++ )
+    {
+        parent[i] = ( int )i;
+    }
+
     for ( size_t i = 0 ; i < cloud.m_IPnts.size() ; i++ )
     {
-        if ( cloud.m_IPnts[i]->m_GroupedFlag == false )
+        std::vector < std::pair < unsigned int, double > > ret_matches;
+
+        nanoflann::SearchParams params;
+        index.radiusSearch( &cloud.m_IPnts[i]->m_Pnt[0], tol, ret_matches, params );
+
+        for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
         {
-            iPntGroupList.push_back( new IPntGroup );
-            m_DelIPntGroupVec.push_back( iPntGroupList.back() );
-
-            std::vector < std::pair < unsigned int, double > > ret_matches;
-
-            nanoflann::SearchParams params;
-            index.radiusSearch( &cloud.m_IPnts[i]->m_Pnt[0], tol, ret_matches, params );
-
-            for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
-            {
-                unsigned int m_ind = ret_matches[j].first;
-                cloud.m_IPnts[ m_ind ]->m_GroupedFlag = true;
-                iPntGroupList.back()->m_IPntVec.push_back( cloud.m_IPnts[ m_ind ] );
-            }
+            UnionPnts( parent, ( int )i, ( int )ret_matches[j].first );
         }
     }
 
+    //==== Collect Each Set ====//
+    std::unordered_map< int, IPntGroup* > setGroup;
+
+    for ( size_t i = 0 ; i < cloud.m_IPnts.size() ; i++ )
+    {
+        int r = FindPnt( parent, ( int )i );
+
+        if ( !setGroup.count( r ) )
+        {
+            iPntGroupList.push_back( new IPntGroup );
+            m_DelIPntGroupVec.push_back( iPntGroupList.back() );
+            setGroup[r] = iPntGroupList.back();
+        }
+
+        cloud.m_IPnts[i]->m_GroupedFlag = true;
+        setGroup[r]->m_IPntVec.push_back( cloud.m_IPnts[i] );
+    }
 
     //==== Merge Ipnts In Groups ====//
     list< IPntGroup* >::iterator g;
@@ -3115,35 +3172,34 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
     }
 
     //==== Replace IPnts in Chains ====//
+    //
+    // Which merged point each original became, looked up rather than searched for.
+    std::unordered_map< IPnt*, IPnt* > mergedOf;
+
+    int cnt = 0;
+    for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
+    {
+        for ( int j = 0 ; j < ( int )( *g )->m_IPntVec.size() ; j++ )
+        {
+            mergedOf[ ( *g )->m_IPntVec[j] ] = merged_ipnts[cnt];
+        }
+        cnt++;
+    }
+
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        IPnt* ip = ( *c )->m_TessVec.front();
-        int cnt = 0;
-        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
+        std::unordered_map< IPnt*, IPnt* >::iterator mit;
+
+        mit = mergedOf.find( ( *c )->m_TessVec.front() );
+        if ( mit != mergedOf.end() )
         {
-            for ( int j = 0 ; j < ( int )( *g )->m_IPntVec.size() ; j++ )
-            {
-                if ( ip == ( *g )->m_IPntVec[j] )
-                {
-                    ( *c )->m_TessVec.front() = merged_ipnts[cnt];
-                    break;
-                }
-            }
-            cnt++;
+            ( *c )->m_TessVec.front() = mit->second;
         }
-        cnt = 0;
-        ip = ( *c )->m_TessVec.back();
-        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
+
+        mit = mergedOf.find( ( *c )->m_TessVec.back() );
+        if ( mit != mergedOf.end() )
         {
-            for ( int j = 0 ; j < ( int )( *g )->m_IPntVec.size() ; j++ )
-            {
-                if ( ip == ( *g )->m_IPntVec[j] )
-                {
-                    ( *c )->m_TessVec.back() = merged_ipnts[cnt];
-                    break;
-                }
-            }
-            cnt++;
+            ( *c )->m_TessVec.back() = mit->second;
         }
     }
 }
