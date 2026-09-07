@@ -65,6 +65,36 @@ void SimpleSubSurface::CopyFrom( SubSurface *ss, const vector < string > & prop_
     }
 }
 
+void SimpleSubSurface::SetAsFiniteLine( const string &compid, int mainsurfindx,
+                                       const string &name, const vec3d &uw0, const vec3d &uw1 )
+{
+    m_CompID = compid;
+    m_MainSurfIndx = mainsurfindx;
+    m_Name = name;
+    m_SSID = string();
+    m_Type = vsp::SS_FINITE_LINE;
+
+    m_TestType = SSLineSeg::NO;         // Tags nothing on either side of itself.
+    m_PolyFlag = false;                 // A line, not a closed boundary.
+    m_CreateBeamElements = false;       // No FEA beam is built along it.
+    m_Tag = 0;
+
+    SSLineSeg seg;
+    seg.SetP0( uw0 );
+    seg.SetP1( uw1 );
+    seg.m_TestType = SSLineSeg::NO;
+
+    m_LVec.clear();
+    m_LVec.push_back( seg );
+
+    m_SplitLVec.clear();
+    m_SplitLVec.push_back( m_LVec );
+
+    m_FirstSplit = true;
+    m_PolyPntsVec.clear();
+    m_PolyPntsReadyFlag = true;
+}
+
 void SimpleSubSurface::SplitSegsU( const double & u )
 {
     for ( int i = 0; i < m_SplitLVec.size(); i++ )

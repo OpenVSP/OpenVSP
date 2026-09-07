@@ -23,6 +23,13 @@ public:
 
     void CopyFrom( SubSurface *ss, const vector < string > & );
 
+    // Build a one segment finite line straight into this, from end points already in the Geom
+    // surface's parameters.  Unlike CopyFrom it does not go through the 0-1 form a user's
+    // subsurface is written in, so nothing has to invert the u map.  Tags nothing and builds
+    // no beam: it exists to put a line of nodes into the mesh.
+    void SetAsFiniteLine( const string &compid, int mainsurfindx, const string &name,
+                          const vec3d &uw0, const vec3d &uw1 );
+
     void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
     void SplitSegsU( const double & u, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant U value

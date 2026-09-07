@@ -3983,6 +3983,9 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
     // Where each of those came from on this surface.  Runs parallel to surfvec.
     vector < vector < UWRegion > > regionvec;
 
+    // Where this surface gets joined to itself.  See XferSurf::m_JoinLines.
+    vector < pair < vec3d, vec3d > > joins;
+
     vector < double > usup= usuppress;
     vector < double > wsup = wsuppress;
 
@@ -4012,6 +4015,9 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
             scapupper.reverse_v();
             scaplower.set_v0( scapupper.get_v0() );
             scaplower.set_u0( scapupper.get_umax() );
+            // The upper half's edge at u = umin, which the lower half meets along.
+            joins.push_back( make_pair( vec3d( umin, vmid, 0 ), vec3d( umin, vmax, 0 ) ) );
+
             scap.join_u( scapupper, scaplower );
 
             surfvec.emplace_back( scap );
@@ -4051,6 +4057,8 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
             scapupper.reverse_v();
             scapupper.set_v0( scaplower.get_v0() );
             scapupper.set_u0( scaplower.get_umax() );
+            joins.push_back( make_pair( vec3d( umax, vmin, 0 ), vec3d( umax, vmid, 0 ) ) );
+
             scap.join_u( scaplower, scapupper );
 
 
@@ -4092,6 +4100,9 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         // span it, and all of them keep u exactly as it was.
         double ulo = s.get_u0();
         double uhi = s.get_umax();
+
+        // The upper strip's edge at w = vmax, which the lower strip meets along.
+        joins.push_back( make_pair( vec3d( ulo, vmax, 0 ), vec3d( uhi, vmax, 0 ) ) );
 
         surfvec.emplace_back( ste );
 
@@ -4154,6 +4165,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         xsurf.m_SplitNum = ivalid;
 
         xsurf.m_UWRegions = regionvec[isect];
+        xsurf.m_JoinLines = joins;
 
         if ( !utess.empty() )
         {

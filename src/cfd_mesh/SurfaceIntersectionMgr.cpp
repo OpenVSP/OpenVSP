@@ -1207,6 +1207,7 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, dou
         surfPtr->SetSurfID( start_surf_id + i );
         surfPtr->SetUWTess( xfersurfs[i].m_UTess, xfersurfs[i].m_WTess );
         surfPtr->SetUWRegions( xfersurfs[i].m_UWRegions );
+        surfPtr->SetJoinLines( xfersurfs[i].m_JoinLines );
         surfPtr->GetSurfCore()->BuildPatches( surfPtr );
         m_SurfVec.push_back( surfPtr );
     }
@@ -2304,7 +2305,8 @@ void SurfaceIntersectionSingleton::Intersect()
     char str[256];
     int n = m_SurfVec.size();
 
-    if ( GetSettingsPtr()->m_IntersectSubSurfs ) BuildSubSurfIntChains();
+    // Always called; the switch is applied inside, to the user's subsurfaces only.
+    BuildSubSurfIntChains();
 
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
     IntersectPairs();
@@ -3362,8 +3364,30 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
     {
         Surf* surf = m_SurfVec[s];
 
-        // Get all SubSurfaces for the specified geom
-        vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID(), surf->GetCompID() );
+        // Get all SubSurfaces for the specified geom.  The user's answer to the switch that
+        // turns subsurfaces off; the patch join seams do not, because they stand in for patch
+        // boundaries, which are always held.
+        vector < SimpleSubSurface > ss_vec;
+
+        if ( GetSettingsPtr()->m_IntersectSubSurfs )
+        {
+            ss_vec = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID(), surf->GetCompID() );
+        }
+
+        // The seams where the surface this patch came from was stitched back together.  A
+        // boundary between two patches is a crease the mesher must follow, and joining two
+        // pieces into one patch gives that up; these put it back.  FetchXFerSurf wrote them
+        // down as it made them, and as ordinary subsurfaces the clipping below puts each on
+        // the patch it belongs to and drops it from the rest.
+        const vector < pair < vec3d, vec3d > > &jvec = surf->GetJoinLines();
+
+        for ( int i = 0 ; i < ( int )jvec.size() ; i++ )
+        {
+            SimpleSubSurface ss;
+            ss.SetAsFiniteLine( surf->GetGeomID(), surf->GetMainSurfID(),
+                                surf->GetName() + "_PatchJoin", jvec[i].first, jvec[i].second );
+            ss_vec.push_back( ss );
+        }
 
         // A patch is not always a plain piece of the Geom's surface -- an end cap or a
         // trailing edge is built from two pieces of it, and may carry them reversed.

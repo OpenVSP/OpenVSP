@@ -401,6 +401,16 @@ public:
     {
         m_UWRegions = rv;
     }
+
+    // See XferSurf::m_JoinLines.
+    void SetJoinLines( const vector < pair < vec3d, vec3d > > &jv )
+    {
+        m_JoinLines = jv;
+    }
+    const vector < pair < vec3d, vec3d > > & GetJoinLines() const
+    {
+        return m_JoinLines;
+    }
     const vector < UWRegion > & GetUWRegions() const
     {
         return m_UWRegions;
@@ -472,6 +482,7 @@ protected:
     vector < double > m_WTess;
 
     vector < UWRegion > m_UWRegions;
+    vector < pair < vec3d, vec3d > > m_JoinLines;
 
     int m_SurfCfdType;
     int m_SurfVspType;

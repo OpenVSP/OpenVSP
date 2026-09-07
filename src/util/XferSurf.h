@@ -15,12 +15,15 @@ typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
 
 #include <algorithm>
+#include <utility>
 #include <string>
 #include <vector>
 #include <APIDefines.h>
 #include <Vec3d.h>
 using std::string;
 using std::vector;
+using std::pair;
+using std::make_pair;
 
 // One piece of a patch that came from one piece of the Geom's surface.
 //
@@ -144,6 +147,19 @@ public:
     // Where this patch came from on the Geom's surface.  One entry for a patch that is a
     // plain piece of it, more than one for a patch built by joining pieces together.
     vector < UWRegion > m_UWRegions;
+
+    // The lines where the surface this patch came from was joined to itself, as pairs of end
+    // points in the GEOM's parameters -- ( u, w, 0 ), which is how a subsurface segment is
+    // written.  Recorded at the join by VspSurf::FetchXFerSurf, which knows where it is:
+    // join_u( a, b ) puts the seam at a's umax, join_v( a, b ) at a's vmax.
+    //
+    // Only ONE of each seam's two halves is here.  The two pieces meet along it, so each has
+    // its own name for it and both come back to the same line of the patch; recording both
+    // would build the same chain twice.
+    //
+    // The same list goes to every patch of the surface, and the clipping every subsurface
+    // already gets decides which of them each patch keeps.
+    vector < pair < vec3d, vec3d > > m_JoinLines;
 
     piecewise_surface_type m_Surface;
 };
