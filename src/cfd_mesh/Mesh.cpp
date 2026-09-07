@@ -539,23 +539,27 @@ int Mesh::Collapse( int num_iter )
                 continue;
             }
 
-            Node* fn[3] = { fp->n0, fp->n1, fp->n2 };
+            // Asked of the face's edges rather than its corners.  The three edges are the
+            // three sides, and the smallest angle is the one opposite the shortest side, so
+            // which corner a side faces never has to be worked out -- which means the
+            // shortest edge falls out of the same loop instead of costing a FindEdge.
+            //
+            // The lengths are the ones the edges are already carrying.  They are only
+            // recomputed when something has moved an end since they were last asked for; see
+            // Edge::GetLength.
+            Edge* fe[3] = { fp->e0, fp->e1, fp->e2 };
 
-            if ( !fn[0] || !fn[1] || !fn[2] )
+            if ( !fe[0] || !fe[1] || !fe[2] )
             {
                 continue;
             }
 
-            // Squared, because only their order is wanted until the shortest is known.
-            double d[3];
-            d[0] = dist_squared( fn[1]->pnt, fn[2]->pnt );   // The side opposite fn[0].
-            d[1] = dist_squared( fn[2]->pnt, fn[0]->pnt );
-            d[2] = dist_squared( fn[0]->pnt, fn[1]->pnt );
+            double L[3] = { fe[0]->GetLength(), fe[1]->GetLength(), fe[2]->GetLength() };
 
             int ishort = 0;
             for ( int k = 1; k < 3; k++ )
             {
-                if ( d[k] < d[ishort] )
+                if ( L[k] < L[ishort] )
                 {
                     ishort = k;
                 }
@@ -564,14 +568,15 @@ int Mesh::Collapse( int num_iter )
             int ia = ( ishort + 1 ) % 3;
             int ib = ( ishort + 2 ) % 3;
 
-            if ( d[ia] <= 0.0 || d[ib] <= 0.0 )
+            if ( L[ia] <= 0.0 || L[ib] <= 0.0 )
             {
                 continue;
             }
 
-            // The smallest angle faces the shortest side, and cos is decreasing, so an angle
-            // under the limit is a cosine over it.  No inverse trig unless the face is poor.
-            double cosq = ( d[ia] + d[ib] - d[ishort] ) / ( 2.0 * sqrt( d[ia] * d[ib] ) );
+            // cos is decreasing, so an angle under the limit is a cosine over it.  No inverse
+            // trig unless the face turns out to be poor.
+            double cosq = ( L[ia] * L[ia] + L[ib] * L[ib] - L[ishort] * L[ishort] ) /
+                          ( 2.0 * L[ia] * L[ib] );
 
             if ( cosq <= COS_COLLAPSE_QUAL_ANGLE )
             {
@@ -583,11 +588,11 @@ int Mesh::Collapse( int num_iter )
                 cosq = 1.0;
             }
 
-            Edge* es = fp->FindEdge( fn[ia], fn[ib] );
+            Edge* es = fe[ishort];
 
             // Already offered -- for being too short, or as the shortest edge of the face on
             // the other side of it, which may be just as poor.
-            if ( !es || es->m_DeleteMeFlag || es->m_CandStamp == m_CandStamp )
+            if ( es->m_DeleteMeFlag || es->m_CandStamp == m_CandStamp )
             {
                 continue;
             }
@@ -1645,6 +1650,7 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace, F
 
     vec3d save_pos = nptr->pnt;
     nptr->pnt = move_to;
+    nptr->MarkEdgesDirty();
 
     vector < vec3d > move_normals;
     move_normals.reserve( normals.size() );
@@ -1674,6 +1680,7 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace, F
     }
 
     nptr->pnt = save_pos;
+    nptr->MarkEdgesDirty();
 
 
     return valid_flag;
@@ -2163,6 +2170,7 @@ bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
         // Move closest node to fixed point location
         closest_node->uw = m_Surf->ClosestUW( fix_pnt, fix_uw.x(), fix_uw.y() );
         closest_node->pnt = m_Surf->CompPnt( closest_node->uw.x(), closest_node->uw.y() );
+        closest_node->MarkEdgesDirty();
         closest_node->fixed = true;
 
         // Check for any error.  Should always be 0.0.
@@ -2199,6 +2207,8 @@ void Mesh::AdjustEdgeLengths()
 
             ( *e )->n0->pnt = ( *e )->n1->pnt + dir * scale;
             ( *e )->n1->pnt = ( *e )->n0->pnt - dir * scale;
+            ( *e )->n0->MarkEdgesDirty();
+            ( *e )->n1->MarkEdgesDirty();
         }
 
     }

@@ -64,6 +64,9 @@ public:
 
     void AddConnectEdge( Edge* e );
     void RemoveConnectEdge( Edge* e );
+
+    // This node has moved, so every edge leaving it is a different length now.
+    void MarkEdgesDirty();
     void LaplacianSmooth();
     void LaplacianSmoothUW();
 //  void AngleSmooth();
@@ -123,6 +126,7 @@ public:
 
     double target_len;
     double m_Length;
+    bool m_LengthDirty = true;
 
     // Which pass last offered this edge to the collapse.  Collapse gathers its candidates
     // from two places -- edges that are too short, then faces that are the wrong shape --
@@ -147,11 +151,29 @@ public:
     double ComputeLength()
     {
         m_Length = length();
+        m_LengthDirty = false;
         return m_Length;
     }
+
+    // The stored length, worked out again first if anything has moved an end of this edge.
+    //
+    // Several things move a node without saying so: LaplacianSmooth moves every node in the mesh
+    // and recomputes nothing, and CollapseEdge reconnects an edge to a merged node in a new place,
+    // also recomputing nothing.  Split and Collapse compare a length against a target, so the
+    // length has to be current.
     double GetLength()
     {
+        if ( m_LengthDirty )
+        {
+            m_Length = length();
+            m_LengthDirty = false;
+        }
         return m_Length;
+    }
+
+    void SetLengthDirty()
+    {
+        m_LengthDirty = true;
     }
 
     bool BothAdjoiningFacesInterior();

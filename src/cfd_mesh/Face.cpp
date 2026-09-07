@@ -49,6 +49,17 @@ void Node::RemoveConnectEdge( Edge* e )
     }
 }
 
+void Node::MarkEdgesDirty()
+{
+    for ( int i = 0 ; i < ( int )edgeVec.size() ; i++ )
+    {
+        if ( edgeVec[i] )
+        {
+            edgeVec[i]->SetLengthDirty();
+        }
+    }
+}
+
 void Node::GetConnectNodes( vector< Node* > & cnVec )
 {
     cnVec.resize( edgeVec.size() );
@@ -170,6 +181,7 @@ void Node::LaplacianSmooth( Surf* surfPtr )
 
     uw = uw + ( close_uw - uw ) * 0.1;
     pnt = surfPtr->CompPnt( uw.x(), uw.y() );
+    MarkEdgesDirty();
 
 }
 
@@ -314,6 +326,7 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
     {
         uw = uw0 + ( target - uw0 ) * frac;
         pnt = surfPtr->CompPnt( uw.x(), uw.y() );
+        MarkEdgesDirty();
 
         bool turned = false;
         for ( int i = 0 ; i < ( int )connectFaces.size() && !turned ; i++ )
@@ -337,6 +350,7 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
 
     uw = uw0;
     pnt = pnt0;
+    MarkEdgesDirty();
 }
 
 void Node::LaplacianSmooth()
@@ -357,6 +371,7 @@ void Node::LaplacianSmooth()
     movePnt = movePnt * ( 1.0 / ( double )connectNodes.size() );
 
     pnt = pnt + ( movePnt - pnt ) * 0.1;
+    MarkEdgesDirty();
 }
 
 
@@ -421,6 +436,7 @@ void Node::OptSmooth()
         vec3d target_pos = ( far_edge->n0->pnt + far_edge->n1->pnt ) * 0.5 + dir * len;
 
         pnt = pnt + ( target_pos - pnt ) * 0.02;            // Move 1% Towards Target
+        MarkEdgesDirty();
 
         bool move_back = false;
         for ( int i = 0 ; i < ( int )connectFaces.size() ; i++ )
@@ -437,6 +453,7 @@ void Node::OptSmooth()
         if ( move_back )
         {
             pnt = orig_pos;
+            MarkEdgesDirty();
         }
     }
 }
@@ -550,6 +567,8 @@ Node* Edge::OtherNode( Node* n )
 
 void Edge::ReplaceNode( Node* curr_node, Node* replace_node )
 {
+    m_LengthDirty = true;
+
     if ( n0 == curr_node )
     {
         n0 = replace_node;
