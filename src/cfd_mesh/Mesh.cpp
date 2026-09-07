@@ -472,49 +472,11 @@ int Mesh::Split( int num_iter )
 // one.
 static const double CC_LENGTH_RATIO = 0.707;
 
-// The angle below which a triangle is ill-shaped whatever its size.
+// The angle below which a triangle is ill-shaped whatever its size, and its cosine.  The
+// cosine is what the test uses: cos is decreasing, so an angle under the limit is a cosine
+// over it, and asking it that way costs no inverse trig.
 static const double COLLAPSE_QUAL_ANGLE = 17.0 * M_PI / 180.0;
-
-// Is this edge the shortest edge of an ill-shaped face, and how ill-shaped?  M_PI when it is
-// nobody's shortest edge -- the answer that admits nothing.
-//
-// Only the shortest edge of a face is offered.  It is the one whose removal deletes the
-// face; collapsing a longer one drags a whole neighbourhood about to fix one triangle.
-static double ShortEdgeOfPoorFace( Edge* e )
-{
-    double worst = M_PI;
-    double le = e->GetLength();
-
-    Face* ff[2] = { e->f0, e->f1 };
-
-    for ( int k = 0 ; k < 2 ; k++ )
-    {
-        Face* f = ff[k];
-
-        if ( !f || f->m_DeleteMeFlag || f->IsQuad() )
-        {
-            continue;
-        }
-
-        double s0 = dist( f->n0->pnt, f->n1->pnt );
-        double s1 = dist( f->n1->pnt, f->n2->pnt );
-        double s2 = dist( f->n2->pnt, f->n0->pnt );
-
-        if ( le > min( s0, min( s1, s2 ) ) )
-        {
-            continue;
-        }
-
-        double q = f->ComputeTriQual();
-
-        if ( q < worst )
-        {
-            worst = q;
-        }
-    }
-
-    return worst;
-}
+static const double COS_COLLAPSE_QUAL_ANGLE = cos( COLLAPSE_QUAL_ANGLE );
 
 int Mesh::Collapse( int num_iter )
 {
@@ -524,6 +486,8 @@ int Mesh::Collapse( int num_iter )
         list< Edge* >::iterator e;
 
         //==== Collapse =====//
+        m_CandStamp++;
+
         vector < pair < Edge*, double > > shortEdges;
         shortEdges.reserve( edgeList.size() );
         for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
@@ -547,28 +511,91 @@ int Mesh::Collapse( int num_iter )
                 // a fraction of the limit that admitted the edge, so the worst offender of
                 // either kind sorts to the front.
                 //
-                double score = rat;
-                bool candidate = false;
-
-                if ( rat < CC_LENGTH_RATIO )
+                // The shape question is asked of the faces below, not here.
+                if ( rat < CC_LENGTH_RATIO && ValidCollapse( *e ) )
                 {
-                    candidate = true;
+                    shortEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
+                    ( *e )->m_CandStamp = m_CandStamp;
                 }
-                else
-                {
-                    double qworst = ShortEdgeOfPoorFace( *e );
+            }
+        }
 
-                    if ( qworst < COLLAPSE_QUAL_ANGLE )
-                    {
-                        candidate = true;
-                        score = qworst / COLLAPSE_QUAL_ANGLE;
-                    }
-                }
+        //==== And The Ones That Are The Wrong Shape ====//
+        //
+        // Asked of each face once, rather than of each edge about its two faces.  The same
+        // question either way, but an edge asking reaches every face two or three times over
+        // and the answer does not depend on which edge is asking.
+        //
+        // Only the shortest edge of an ill-shaped face is offered: it is the one whose removal
+        // deletes the face, where collapsing a longer one drags a neighbourhood about to fix
+        // one triangle.
+        list< Face* >::iterator f;
+        for ( f = faceList.begin() ; f != faceList.end(); ++f )
+        {
+            Face* fp = *f;
 
-                if ( candidate && ValidCollapse( *e ) )
+            if ( !fp || fp->m_DeleteMeFlag || fp->IsQuad() )
+            {
+                continue;
+            }
+
+            Node* fn[3] = { fp->n0, fp->n1, fp->n2 };
+
+            if ( !fn[0] || !fn[1] || !fn[2] )
+            {
+                continue;
+            }
+
+            // Squared, because only their order is wanted until the shortest is known.
+            double d[3];
+            d[0] = dist_squared( fn[1]->pnt, fn[2]->pnt );   // The side opposite fn[0].
+            d[1] = dist_squared( fn[2]->pnt, fn[0]->pnt );
+            d[2] = dist_squared( fn[0]->pnt, fn[1]->pnt );
+
+            int ishort = 0;
+            for ( int k = 1; k < 3; k++ )
+            {
+                if ( d[k] < d[ishort] )
                 {
-                    shortEdges.emplace_back( pair< Edge*, double >( ( *e ), score ) );
+                    ishort = k;
                 }
+            }
+
+            int ia = ( ishort + 1 ) % 3;
+            int ib = ( ishort + 2 ) % 3;
+
+            if ( d[ia] <= 0.0 || d[ib] <= 0.0 )
+            {
+                continue;
+            }
+
+            // The smallest angle faces the shortest side, and cos is decreasing, so an angle
+            // under the limit is a cosine over it.  No inverse trig unless the face is poor.
+            double cosq = ( d[ia] + d[ib] - d[ishort] ) / ( 2.0 * sqrt( d[ia] * d[ib] ) );
+
+            if ( cosq <= COS_COLLAPSE_QUAL_ANGLE )
+            {
+                continue;
+            }
+
+            if ( cosq > 1.0 )
+            {
+                cosq = 1.0;
+            }
+
+            Edge* es = fp->FindEdge( fn[ia], fn[ib] );
+
+            // Already offered -- for being too short, or as the shortest edge of the face on
+            // the other side of it, which may be just as poor.
+            if ( !es || es->m_DeleteMeFlag || es->m_CandStamp == m_CandStamp )
+            {
+                continue;
+            }
+
+            if ( ValidCollapse( es ) )
+            {
+                shortEdges.emplace_back( pair< Edge*, double >( es, acos( cosq ) / COLLAPSE_QUAL_ANGLE ) );
+                es->m_CandStamp = m_CandStamp;
             }
         }
 

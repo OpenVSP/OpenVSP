@@ -75,6 +75,9 @@ public:
                       const vec2d &uw0, const vec2d &uw1, const vec2d &uw2 );
     int RemoveIllFormedFaces();
 
+    // Bumped once per Collapse round; see Edge::m_CandStamp.
+    int m_CandStamp = 0;
+
     void LimitTargetEdgeLength();
     void LimitTargetEdgeLength( Edge* e );
     void LimitTargetEdgeLength( Node* n );

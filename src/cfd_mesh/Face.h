@@ -124,6 +124,12 @@ public:
     double target_len;
     double m_Length;
 
+    // Which pass last offered this edge to the collapse.  Collapse gathers its candidates
+    // from two places -- edges that are too short, then faces that are the wrong shape --
+    // and an edge must not be offered twice, or it takes two places in a budget that is a
+    // fraction of the list.  A stamp rather than a flag so nothing has to be cleared.
+    int m_CandStamp = 0;
+
     Face* OtherFace( Face* f );
     Node* OtherNode( Node* n );
     void ReplaceNode( Node* curr_node, Node* replace_node );
