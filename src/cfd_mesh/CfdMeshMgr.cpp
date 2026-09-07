@@ -150,6 +150,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     string resultTxt = CheckWaterTight();
     addOutputText( resultTxt );
 
+    // string lenTxt = TargetLengthReport();
+    // addOutputText( lenTxt );
+
     UpdateDrawObjs();
 
     m_MeshInProgress = false;
@@ -878,9 +881,15 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 void CfdMeshMgrSingleton::PostMesh()
 {
     int nsurf = ( int )m_SurfVec.size();
+
+    // Gathered here because Clear() below is the end of the edges, and the target length an
+    // edge was working to lives on the edge.
+    m_LengthRatios.clear();
+
     for ( int i = 0 ; i < nsurf ; ++i )
     {
         m_SurfVec[ i ]->GetMesh()->LoadSimpFaces();
+        m_SurfVec[ i ]->GetMesh()->AccumLengthRatios( m_LengthRatios );
         m_SurfVec[i]->GetMesh()->Clear();
         Subtag( m_SurfVec[i] );
         m_SurfVec[ i ]->GetMesh()->CondenseSimpFaces();
@@ -2416,6 +2425,59 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
             fclose( fp );
         }
     }
+}
+
+// How close the mesh came to the edge lengths it was asked for.
+//
+// Split takes an edge over sqrt(2) times its target and halves it; Collapse takes one under
+// 1/sqrt(2) and removes it.  Anything between is left alone, so the algorithm's own fixed
+// point is a band a factor of two wide and the spread inside it is not something the two
+// operators are trying to close.  This says how wide the spread actually is, which is the
+// thing to watch if that band is ever tightened or a smoother is asked to do the closing.
+//
+// Border edges are not counted: their target is their own length, so they would all score 1.
+string CfdMeshMgrSingleton::TargetLengthReport()
+{
+    vector < double > &r = m_LengthRatios;
+
+    if ( r.empty() )
+    {
+        return string();
+    }
+
+    sort( r.begin(), r.end() );
+
+    double sum = 0.0;
+    int n10 = 0, n25 = 0, nband = 0;
+
+    for ( int i = 0 ; i < ( int )r.size() ; i++ )
+    {
+        sum += r[i];
+
+        if ( r[i] > 0.90 && r[i] < 1.10 )
+        {
+            n10++;
+        }
+        if ( r[i] > 0.75 && r[i] < 1.25 )
+        {
+            n25++;
+        }
+        if ( r[i] > 0.707 && r[i] < 1.414 )
+        {
+            nband++;
+        }
+    }
+
+    double npct = 100.0 / ( double )r.size();
+
+    char buf[512];
+    snprintf( buf, sizeof( buf ),
+              "Edge length / target: %d edges, mean %.3f, median %.3f, min %.3f, max %.3f\n"
+              "  within 10%%: %.1f%%   within 25%%: %.1f%%   inside the split/collapse band: %.1f%%\n",
+              ( int )r.size(), sum / ( double )r.size(), r[ r.size() / 2 ], r.front(), r.back(),
+              n10 * npct, n25 * npct, nband * npct );
+
+    return string( buf );
 }
 
 string CfdMeshMgrSingleton::CheckWaterTight()

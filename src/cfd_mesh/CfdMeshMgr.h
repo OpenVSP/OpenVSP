@@ -165,6 +165,11 @@ public:
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
 
     virtual string CheckWaterTight();
+
+    // How close the mesh came to the edge lengths it was asked for.  Collected in PostMesh,
+    // which is the last moment the edges exist.
+    virtual string TargetLengthReport();
+    vector < double > m_LengthRatios;
     virtual Edge* FindAddEdge( unordered_map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
 
     virtual void BuildDomain();

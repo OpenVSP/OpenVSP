@@ -248,6 +248,20 @@ void Mesh::Remesh()
 
 }
 
+void Mesh::AccumLengthRatios( vector < double > &ratios ) const
+{
+    list< Edge* >::const_iterator e;
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
+    {
+        if ( ( *e )->m_DeleteMeFlag || ( *e )->border || ( *e )->target_len <= 0.0 )
+        {
+            continue;
+        }
+
+        ratios.push_back( ( *e )->length() / ( *e )->target_len );
+    }
+}
+
 void Mesh::LoadSimpFaces()
 {
     list< Face* >::iterator f;

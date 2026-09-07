@@ -200,6 +200,13 @@ public:
 
     void RemoveInteriorFacesEdgesNodes();
 
+    // Append len / target_len for every interior edge of this patch.
+    //
+    // Border edges are left out on purpose.  ComputeTargetEdgeLength hands a border its own
+    // length as its target, so every one of them scores exactly 1 and would flatter the
+    // answer without saying anything about the mesher's work.
+    void AccumLengthRatios( vector < double > &ratios ) const;
+
 protected:
 
     Surf* m_Surf;
