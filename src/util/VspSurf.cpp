@@ -3976,6 +3976,27 @@ static vector < UWRegion > MakeIdentityRegion( double u0, double u1, double w0, 
     return rv;
 }
 
+// Does the line at this w lie in the symmetry plane the mesher cuts a half mesh along?
+//
+// Sampled rather than solved: a body's quarter lines are either in the plane along their whole
+// length or nowhere near it, so a handful of stations settles it.
+static bool WLineInSymPlane( const VspSurf &surf, double umin, double umax, double w, double tol )
+{
+    const int nstation = 9;
+
+    for ( int i = 0; i <= nstation; i++ )
+    {
+        double u = umin + ( umax - umin ) * ( double )i / ( double )nstation;
+
+        if ( std::abs( surf.CompPnt( u, w ).y() ) > tol )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress, const vector < double > &utess, const vector < double > &wtess, bool capumin, bool capumax ) const
 {
     vector < piecewise_surface_type > surfvec;
@@ -4134,6 +4155,126 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
 
         surfvec.emplace_back( supper );
         regionvec.push_back( MakeIdentityRegion( ulo, uhi, vmid + TMAGIC, vmax - TMAGIC ) );
+    }
+    else if ( GetSurfType() == vsp::NORMAL_SURF && IsClosedW() && !IsHalfBOR() )
+    {
+        // A body's w goes once around it, with feature lines at the quarter points.  Cutting
+        // at all of them leaves four quadrant patches; two are wanted, one for each side, so
+        // that a seam does not run down the middle of either side.
+        //
+        // Which pair of quarter lines to cut along depends on where w starts, and that is
+        // decided by how the surface was built rather than by where the body now sits.  A
+        // body of revolution starts w on the curve it was turned from, which lies in the
+        // body's own centre plane, so its start and half lines run along the top and bottom.
+        // A skinned body starts w at the side of its sections, so its quarter and
+        // three-quarter lines do.  Cut along whichever pair lies in the centre plane and the
+        // halves come out left and right, in the body's own frame -- which holds however the
+        // body is turned or moved afterwards.
+        //
+        // It matters beyond tidiness.  A half mesh throws away whole surfaces lying in -y and
+        // cuts the rest at y = 0.  Left and right halves are each wholly on one side, so on a
+        // body down the centreline the far half goes as a piece and the near one is never cut.
+        // Split the other way and both halves straddle the plane, the seam runs along it, and
+        // the mesher is left intersecting a surface with a plane that lies exactly on a line
+        // the surface was joined along.
+        double umin = m_Surface.get_u0();
+        double umax = m_Surface.get_umax();
+
+        double vmin = m_Surface.get_v0();
+        double vmax = m_Surface.get_vmax();
+        double vrng = vmax - vmin;
+
+        double vqtr = vmin + 0.25 * vrng;
+        double vmid = vmin + 0.50 * vrng;
+        double vthreeqtr = vmin + 0.75 * vrng;
+
+        // Which pair of lines to cut along is decided by where they lie, not by how the surface
+        // was built.  The cut has to run along the plane a half mesh is taken about: the two
+        // halves then sit wholly on one side of it, and the pair left inside a patch -- the pair
+        // recorded below as creases -- does not land on the cut.  A crease lying along the cut is
+        // two coincident curves, which opens a hole.
+        //
+        // Where neither pair is in the plane the body does not straddle it along a line, either
+        // choice will do, and how the surface was skinned decides: a body of revolution starts w
+        // on the curve it was turned from, a skinned body at the side of its sections.
+        BndBox bbox;
+        GetBoundingBox( bbox );
+        double symtol = 1.0e-8 * std::max( bbox.GetLargestDist(), 1.0 );
+
+        bool seam_in_plane = WLineInSymPlane( *this, umin, umax, vmin, symtol ) &&
+                             WLineInSymPlane( *this, umin, umax, vmid, symtol );
+
+        bool qtr_in_plane = WLineInSymPlane( *this, umin, umax, vqtr, symtol ) &&
+                            WLineInSymPlane( *this, umin, umax, vthreeqtr, symtol );
+
+        if ( seam_in_plane || ( !qtr_in_plane && GetSkinType() == SKIN_BODY_REV ) )
+        {
+            // w starts in the centre plane, so the two halves fall either side of a single cut
+            // at the half line -- the ends of w already meet along the other.  No join needed.
+            piecewise_surface_type sside0, sside1;
+
+            m_Surface.split_v( sside0, sside1, vmid );
+
+            surfvec.emplace_back( sside0 );
+            regionvec.push_back( MakeIdentityRegion( umin, umax, vmin, vmid ) );
+
+            surfvec.emplace_back( sside1 );
+            regionvec.push_back( MakeIdentityRegion( umin, umax, vmid, vmax ) );
+
+            // The quarter lines run up the sides and are now inside a patch.
+            joins.push_back( make_pair( vec3d( umin, vqtr, 0 ), vec3d( umax, vqtr, 0 ) ) );
+            joins.push_back( make_pair( vec3d( umin, vthreeqtr, 0 ), vec3d( umax, vthreeqtr, 0 ) ) );
+
+            wsup.push_back( vqtr );
+            wsup.push_back( vthreeqtr );
+        }
+        else
+        {
+            // w starts at the side of the sections.  The middle stretch is one half; the two
+            // end stretches are the other, reached either way round the seam at the start of
+            // w, so they are joined back into one -- the piece above the three-quarter line first and the
+            // piece below the quarter line second, which keeps w running the way it did.
+            // Neither piece is reversed.
+            piecewise_surface_type sbelow, srest, smiddle, sabove;
+
+            m_Surface.split_v( sbelow, srest, vqtr );
+            srest.split_v( smiddle, sabove, vthreeqtr );
+
+            surfvec.emplace_back( smiddle );
+            regionvec.push_back( MakeIdentityRegion( umin, umax, vqtr, vthreeqtr ) );
+
+            piecewise_surface_type sjoined;
+            sjoined.join_v( sabove, sbelow );
+
+            surfvec.emplace_back( sjoined );
+
+            // join_v lays the second piece out past the end of the first, so the joined
+            // patch's own w runs from the three-quarter line to vmax and then on again by a
+            // quarter of the range, while that second stretch names the piece at the bottom
+            // of the original.
+            {
+                vector < UWRegion > rv( 2 );
+
+                rv[0].m_UMin = umin;        rv[0].m_UMax = umax;
+                rv[0].m_WMin = vthreeqtr;   rv[0].m_WMax = vmax;
+                rv[0].m_WOff = 0.0;
+
+                rv[1].m_UMin = umin;    rv[1].m_UMax = umax;
+                rv[1].m_WMin = vmin;    rv[1].m_WMax = vqtr;
+                rv[1].m_WOff = vmin - vmax;
+
+                regionvec.push_back( rv );
+            }
+
+            // The seam at the start of w now runs down the middle of the joined patch, and the
+            // half line down the middle of the other.
+            joins.push_back( make_pair( vec3d( umin, vmax, 0 ), vec3d( umax, vmax, 0 ) ) );
+            joins.push_back( make_pair( vec3d( umin, vmid, 0 ), vec3d( umax, vmid, 0 ) ) );
+
+            wsup.push_back( vmin );
+            wsup.push_back( vmid );
+            wsup.push_back( vmax );
+        }
     }
     else
     {
