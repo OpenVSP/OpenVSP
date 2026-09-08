@@ -3448,6 +3448,50 @@ static void SplitRegionsW( const vector< UWRegion > &in, double wsplit,
     }
 }
 
+// Where a split written in the original surface's parameters lands in a patch's own.
+//
+// A patch built by joining two pieces of the surface covers two disjoint stretches of the
+// original, and the second of them sits at parameters that continue past the first -- so the
+// value a feature line is written at says nothing about where that line falls on the patch
+// until it is run back through the region map.  Comparing the two directly silently drops the
+// line on the joined half and could cut the wrong place on a reversed one.
+//
+// One original value can land in more than one piece, so all of them are returned.  Splits
+// that fall on a patch edge are not splits and are left out.
+static void PatchSplitsW( const vector< UWRegion > &rv, double worig,
+                          double v0, double vmax, vector < double > &splits )
+{
+    for ( int i = 0; i < ( int )rv.size(); i++ )
+    {
+        if ( worig > rv[i].m_WMin && worig < rv[i].m_WMax )
+        {
+            double w = rv[i].ToPatchW( worig );
+
+            if ( w > v0 && w < vmax )
+            {
+                splits.push_back( w );
+            }
+        }
+    }
+}
+
+static void PatchSplitsU( const vector< UWRegion > &rv, double uorig,
+                          double u0, double umax, vector < double > &splits )
+{
+    for ( int i = 0; i < ( int )rv.size(); i++ )
+    {
+        if ( uorig > rv[i].m_UMin && uorig < rv[i].m_UMax )
+        {
+            double u = rv[i].ToPatchU( uorig );
+
+            if ( u > u0 && u < umax )
+            {
+                splits.push_back( u );
+            }
+        }
+    }
+}
+
 void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < double > &USplit,
                   vector< vector< UWRegion > > &regionvec )
 {
@@ -3458,32 +3502,66 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
 
         for ( int j = 0; j < surfvec.size(); j++ )
         {
-            piecewise_surface_type s, s1, s2;
+            // A joined patch can see one original value in either of its two pieces, so the
+            // pieces are worked over until none of them still contains it.  Kept in order, so
+            // the numbering of the patches that come out does not depend on this.
+            vector < piecewise_surface_type > q;
+            vector < vector < UWRegion > > qr;
 
-            s = surfvec[j];
+            q.push_back( surfvec[j] );
+            qr.push_back( regionvec[j] );
 
-            if ( s.get_u0() < USplit[i] && s.get_umax() > USplit[i] )
+            for ( int k = 0; k < ( int )q.size(); k++ )
             {
-                s.split_u( s1, s2, USplit[i] );
+                vector < double > cuts;
+                PatchSplitsU( qr[k], USplit[i], q[k].get_u0(), q[k].get_umax(), cuts );
 
-                vector < UWRegion > r1, r2;
-                SplitRegionsU( regionvec[j], USplit[i], r1, r2 );
-
-                if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
+                if ( cuts.empty() )
                 {
-                    splitsurfvec.push_back( s1 );
-                    splitregionvec.push_back( r1 );
+                    continue;
                 }
-                if ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 )
+
+                piecewise_surface_type s1, s2;
+                vector < UWRegion > r1, r2;
+
+                q[k].split_u( s1, s2, cuts[0] );
+                SplitRegionsU( qr[k], cuts[0], r1, r2 );
+
+                bool keep1 = ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 );
+                bool keep2 = ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 );
+
+                if ( keep1 && keep2 )
                 {
-                    splitsurfvec.push_back( s2 );
-                    splitregionvec.push_back( r2 );
+                    q[k] = s1;
+                    qr[k] = r1;
+                    q.insert( q.begin() + k + 1, s2 );
+                    qr.insert( qr.begin() + k + 1, r2 );
+                    k--;
+                }
+                else if ( keep1 )
+                {
+                    q[k] = s1;
+                    qr[k] = r1;
+                    k--;
+                }
+                else if ( keep2 )
+                {
+                    q[k] = s2;
+                    qr[k] = r2;
+                    k--;
+                }
+                else
+                {
+                    q.erase( q.begin() + k );
+                    qr.erase( qr.begin() + k );
+                    k--;
                 }
             }
-            else
+
+            for ( int k = 0; k < ( int )q.size(); k++ )
             {
-                splitsurfvec.push_back( s );
-                splitregionvec.push_back( regionvec[j] );
+                splitsurfvec.push_back( q[k] );
+                splitregionvec.push_back( qr[k] );
             }
         }
         surfvec = splitsurfvec;
@@ -3501,32 +3579,66 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
 
         for ( int j = 0; j < surfvec.size(); j++ )
         {
-            piecewise_surface_type s, s1, s2;
+            // A joined patch can see one original value in either of its two pieces, so the
+            // pieces are worked over until none of them still contains it.  Kept in order, so
+            // the numbering of the patches that come out does not depend on this.
+            vector < piecewise_surface_type > q;
+            vector < vector < UWRegion > > qr;
 
-            s = surfvec[j];
+            q.push_back( surfvec[j] );
+            qr.push_back( regionvec[j] );
 
-            if ( s.get_v0() < WSplit[i] && s.get_vmax() > WSplit[i] )
+            for ( int k = 0; k < ( int )q.size(); k++ )
             {
-                s.split_v( s1, s2, WSplit[i] );
+                vector < double > cuts;
+                PatchSplitsW( qr[k], WSplit[i], q[k].get_v0(), q[k].get_vmax(), cuts );
 
-                vector < UWRegion > r1, r2;
-                SplitRegionsW( regionvec[j], WSplit[i], r1, r2 );
-
-                if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
+                if ( cuts.empty() )
                 {
-                    splitsurfvec.push_back( s1 );
-                    splitregionvec.push_back( r1 );
+                    continue;
                 }
-                if ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 )
+
+                piecewise_surface_type s1, s2;
+                vector < UWRegion > r1, r2;
+
+                q[k].split_v( s1, s2, cuts[0] );
+                SplitRegionsW( qr[k], cuts[0], r1, r2 );
+
+                bool keep1 = ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 );
+                bool keep2 = ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 );
+
+                if ( keep1 && keep2 )
                 {
-                    splitsurfvec.push_back( s2 );
-                    splitregionvec.push_back( r2 );
+                    q[k] = s1;
+                    qr[k] = r1;
+                    q.insert( q.begin() + k + 1, s2 );
+                    qr.insert( qr.begin() + k + 1, r2 );
+                    k--;
+                }
+                else if ( keep1 )
+                {
+                    q[k] = s1;
+                    qr[k] = r1;
+                    k--;
+                }
+                else if ( keep2 )
+                {
+                    q[k] = s2;
+                    qr[k] = r2;
+                    k--;
+                }
+                else
+                {
+                    q.erase( q.begin() + k );
+                    qr.erase( qr.begin() + k );
+                    k--;
                 }
             }
-            else
+
+            for ( int k = 0; k < ( int )q.size(); k++ )
             {
-                splitsurfvec.push_back( s );
-                splitregionvec.push_back( regionvec[j] );
+                splitsurfvec.push_back( q[k] );
+                splitregionvec.push_back( qr[k] );
             }
         }
         surfvec = splitsurfvec;
