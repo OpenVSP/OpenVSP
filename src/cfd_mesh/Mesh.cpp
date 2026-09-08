@@ -1582,14 +1582,21 @@ bool vec2dCompare( const vec2d &a, const vec2d &b )
     return a.x() < b.x();
 }
 
-vector< int > Mesh::RandomizePointOrder( vector< vec2d > & uw, vector< MeshSeg > & segs )
+// Where the retry shuffle seeds start.
+static const unsigned int CFD_MESH_SEED_BASE = 1;
+
+// The shuffle only has to break whatever ordering the triangulator choked on, so the sequence
+// is seeded from the attempt number and not from the machine.  Seeding from random_device
+// instead makes a surface that needed a retry come out differently on every run, and a mesh
+// that cannot be reproduced cannot be compared or debugged.
+vector< int > Mesh::RandomizePointOrder( vector< vec2d > & uw, vector< MeshSeg > & segs, unsigned int seed )
 {
     int npt = (int)uw.size();
 
     // perm[new_idx] = old_idx
     vector< int > perm( npt );
     iota( perm.begin(), perm.end(), 0 );
-    shuffle( perm.begin(), perm.end(), mt19937{ random_device{}() } );
+    shuffle( perm.begin(), perm.end(), mt19937{ seed } );
 
     vector< int > inv_perm( npt );
     for ( int i = 0; i < npt; i++ )
@@ -1613,9 +1620,9 @@ vector< int > Mesh::RandomizePointOrder( vector< vec2d > & uw, vector< MeshSeg >
     return perm;
 }
 
-void Mesh::RandomizeSegOrder( vector< MeshSeg > & segs )
+void Mesh::RandomizeSegOrder( vector< MeshSeg > & segs, unsigned int seed )
 {
-    shuffle( segs.begin(), segs.end(), mt19937{ random_device{}() } );
+    shuffle( segs.begin(), segs.end(), mt19937{ seed } );
 }
 
 bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
@@ -1984,7 +1991,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 #ifdef DEBUG_CFD_MESH
             printf( "  Triangulation failed for surface %d %s %s, randomizing point order for %d time and trying again\n", namecnt, m_Surf->GetName().c_str(), m_Surf->GetGeomID().c_str(), n );
 #endif
-            RandomizePointOrder( uw_prime, segs_indexes );
+            RandomizePointOrder( uw_prime, segs_indexes, CFD_MESH_SEED_BASE + n );
 
             connlist.clear();
             points_out.clear();

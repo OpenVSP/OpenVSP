@@ -989,6 +989,17 @@ void Surf::SetBBox( const vec3d &pmin, const vec3d &pmax )
 }
 
 
+// Order two mesh input points by where they are, not by where they happen to live in memory.
+// See the note in Surf::InitMesh.
+static bool UWPntIndexCompare( const pair< vec2d, IPnt* > &a, const pair< vec2d, IPnt* > &b )
+{
+    if ( a.first.x() != b.first.x() )
+    {
+        return a.first.x() < b.first.x();
+    }
+    return a.first.y() < b.first.y();
+}
+
 void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr )
 {
     //==== Store Only One Instance of each IPnt ====//
@@ -1003,10 +1014,29 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
 
     vector < vec2d > uwPntVec;
 
-    set< IPnt* >::iterator ip;
-    for ( ip = ipntSet.begin() ; ip != ipntSet.end() ; ++ip )
+    // A set of pointers iterates in heap address order, and that moves from one run to the
+    // next.  This loop hands each point its index, and the constraint segments below are
+    // written in terms of those indices, so the entire input to the triangulator would change
+    // shape between two runs of the same model.  That alone makes a run impossible to reproduce;
+    // it also matters because both triangulators are sensitive to the order they are fed, to the
+    // point of occasionally failing on one ordering and not another.
+    //
+    // Order the points by where they are instead.  The result is the same set of points,
+    // always in the same sequence, for the same geometry.
+    vector < pair < vec2d, IPnt* > > ipnts;
+    ipnts.reserve( ipntSet.size() );
+
+    for ( set< IPnt* >::iterator ip = ipntSet.begin() ; ip != ipntSet.end() ; ++ip )
     {
-        vec2d uw = ( *ip )->GetPuw( this )->m_UW;
+        ipnts.push_back( pair< vec2d, IPnt* >( ( *ip )->GetPuw( this )->m_UW, *ip ) );
+    }
+
+    sort( ipnts.begin(), ipnts.end(), UWPntIndexCompare );
+
+    for ( int k = 0 ; k < ( int )ipnts.size() ; k++ )
+    {
+        vec2d uw = ipnts[k].first;
+        IPnt *ipt = ipnts[k].second;
 
         int min_id = -1;
         double min_dist = 1.0;
@@ -1022,12 +1052,12 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
 
         if ( min_dist < 1.0e-4 )
         {
-            ( *ip )->m_Index = min_id;
+            ipt->m_Index = min_id;
         }
         else
         {
             uwPntVec.push_back( uw );
-            ( *ip )->m_Index = uwPntVec.size() - 1;
+            ipt->m_Index = uwPntVec.size() - 1;
         }
     }
 
@@ -1057,7 +1087,7 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
         }
     }
 
-    // Remove duplicate constraint segments — same pair of point indices in either order.
+    // Remove duplicate constraint segments -- same pair of point indices in either order.
     // Duplicates arise when two chains share a boundary and both contribute the same edge.
     // Duplicates appear to be harmless, but removing them is cheap insurance.
     {
