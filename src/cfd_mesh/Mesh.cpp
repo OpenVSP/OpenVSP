@@ -1792,10 +1792,114 @@ void Mesh::RandomizeSegOrder( vector< MeshSeg > & segs, unsigned int seed )
     shuffle( segs.begin(), segs.end(), mt19937{ seed } );
 }
 
-bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
-                          vector< vector< int > > & connlist, vector< vec2d > & points_out )
+// Points on a lattice across the domain, at the spacing the mesh was asked for, far enough
+// from what is already there to be worth adding.
+//
+// The fallback triangulator adds nothing of its own: it joins up the points it is given.  Given
+// only the curve points, it spans the middle of the patch with whatever triangles reach across
+// it, and a patch that is a whole side of a body is a long way across.  Seeding the inside
+// first means a surface that the main triangulator refused still comes out near the size it
+// was meant to be, instead of needing the remesher to dig it out of a hole it may not manage.
+static void SeedInteriorPoints( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs,
+                                double spacing, vector< vec2d > & seeds )
 {
-    int npt  = uw_prime.size();
+    seeds.clear();
+
+    if ( spacing <= 0.0 || uw_prime.empty() )
+    {
+        return;
+    }
+
+    double xlo = uw_prime[0].x(), xhi = xlo, ylo = uw_prime[0].y(), yhi = ylo;
+
+    for ( int i = 1; i < ( int )uw_prime.size(); i++ )
+    {
+        xlo = min( xlo, uw_prime[i].x() );
+        xhi = max( xhi, uw_prime[i].x() );
+        ylo = min( ylo, uw_prime[i].y() );
+        yhi = max( yhi, uw_prime[i].y() );
+    }
+
+    int nx = ( int )( ( xhi - xlo ) / spacing );
+    int ny = ( int )( ( yhi - ylo ) / spacing );
+
+    if ( nx < 1 || ny < 1 )
+    {
+        return;
+    }
+
+    // Anything closer than this to a point already given, or to a constraint, is left out --
+    // a seed on top of the existing work only makes slivers.
+    double clear = 0.5 * spacing;
+    double clear2 = clear * clear;
+
+    for ( int i = 1; i < nx; i++ )
+    {
+        for ( int j = 1; j < ny; j++ )
+        {
+            vec2d p( xlo + i * spacing, ylo + j * spacing );
+
+            bool ok = true;
+
+            for ( int k = 0; k < ( int )uw_prime.size() && ok; k++ )
+            {
+                double dx = uw_prime[k].x() - p.x();
+                double dy = uw_prime[k].y() - p.y();
+
+                if ( dx * dx + dy * dy < clear2 )
+                {
+                    ok = false;
+                }
+            }
+
+            for ( int k = 0; k < ( int )segs.size() && ok; k++ )
+            {
+                const vec2d &a = uw_prime[ segs[k].m_Index[0] ];
+                const vec2d &b = uw_prime[ segs[k].m_Index[1] ];
+
+                double ex = b.x() - a.x(), ey = b.y() - a.y();
+                double elen2 = ex * ex + ey * ey;
+
+                if ( elen2 <= 0.0 )
+                {
+                    continue;
+                }
+
+                double t = ( ( p.x() - a.x() ) * ex + ( p.y() - a.y() ) * ey ) / elen2;
+
+                if ( t < 0.0 ) t = 0.0;
+                if ( t > 1.0 ) t = 1.0;
+
+                double cx = a.x() + t * ex - p.x();
+                double cy = a.y() + t * ey - p.y();
+
+                if ( cx * cx + cy * cy < clear2 )
+                {
+                    ok = false;
+                }
+            }
+
+            if ( ok )
+            {
+                seeds.push_back( p );
+            }
+        }
+    }
+}
+
+bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
+                          vector< vector< int > > & connlist, vector< vec2d > & points_out,
+                          double spacing )
+{
+    // The curve points first, so the constraint indices still refer to them, then the seeds.
+    vector< vec2d > pts = uw_prime;
+
+    vector< vec2d > seeds;
+    SeedInteriorPoints( uw_prime, segs_indexes, spacing, seeds );
+
+    pts.insert( pts.end(), seeds.begin(), seeds.end() );
+
+    int npt  = pts.size();
     int nedg = segs_indexes.size();
 
     dba_point* cloud  = new dba_point[npt];
@@ -1803,8 +1907,8 @@ bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg
 
     for ( int i = 0; i < npt; i++ )
     {
-        cloud[i].x = uw_prime[i].x();
-        cloud[i].y = uw_prime[i].y();
+        cloud[i].x = pts[i].x();
+        cloud[i].y = pts[i].y();
     }
 
     for ( int i = 0; i < nedg; i++ )
@@ -1833,7 +1937,7 @@ bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg
             dela = dela->next;
         }
 
-        points_out = uw_prime;
+        points_out = pts;
         success = true;
     }
     else
@@ -1849,7 +1953,8 @@ bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg
 }
 
 bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
-                         vector< vector< int > > & connlist, vector< vec2d > & points_out )
+                         vector< vector< int > > & connlist, vector< vec2d > & points_out, int relax,
+                         double areascale )
 {
     int num_pnts  = uw_prime.size();
     int num_edges = segs_indexes.size();
@@ -1909,11 +2014,38 @@ bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg
     }
 
     double uw_area = ( box.GetMax( 0 ) - box.GetMin( 0 ) ) * ( box.GetMax( 1 ) - box.GetMin( 1 ) );
-    double uw_tri_area = 4.0 * uw_area / est_num_tris;
+    double uw_tri_area = areascale * 4.0 * uw_area / est_num_tris;
     if ( uw_tri_area < 1.0e-4 ) uw_tri_area = 1.0e-4;
 
+    // z  number from zero      p  respect the segments      YY  add no points on them
+    // Q  quiet                   a  limit triangle size        q20  no angle under 20 degrees
+    //
+    // The last two are what a triangulation fails on: the quality bound cannot always be met,
+    // and a size limit can conflict with the segments.  Relaxing them in turn keeps a hard
+    // surface with the triangulator, which respects the segments, rather than dropping it to a
+    // fallback that ignores the sizing altogether.
     char str[256];
-    snprintf( str, sizeof( str ), "zpYYQa%8.6fq20", uw_tri_area );
+
+    if ( relax <= 0 )
+    {
+        snprintf( str, sizeof( str ), "zpYYQa%8.6fq20", uw_tri_area );
+    }
+    else if ( relax == 1 )
+    {
+        snprintf( str, sizeof( str ), "zpYYQa%8.6f", uw_tri_area );
+    }
+    else if ( relax == 2 )
+    {
+        snprintf( str, sizeof( str ), "zpYYQ" );
+    }
+    else
+    {
+        // One Y instead of two: the outer boundary is still left alone, so the patch still
+        // meets its neighbours where it did, but an interior segment may be split.  That is
+        // what a segment insertion failure needs -- two constraints that cross cannot both be
+        // held without a point where they meet.
+        snprintf( str, sizeof( str ), "zpYQa%8.6fq20", uw_tri_area );
+    }
 
     tristatus = triangle_context_options( ctx, str );
     if ( tristatus != TRI_OK ) printf( "triangle_context_options Error\n" );
@@ -2150,6 +2282,40 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     vector< vec2d > points_out;
 
     bool success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out );
+
+    int trimethod = 0;      // 0 first try, 1..5 retry number, 9 fell back to DBA, -1 nothing worked
+
+    // Nudge the size limit before asking for anything less.  A segment insertion failure is a
+    // robustness limit reached on one particular arrangement of added points; moving the size
+    // limit moves every one of them, which usually steps around it and still returns a mesh
+    // built to the sizing that was asked for.
+    const double areatry[] = { 0.8, 1.25, 0.6, 1.6 };
+
+    for ( int r = 0; !success && r < 4; r++ )
+    {
+        connlist.clear();
+        points_out.clear();
+        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, 0, areatry[r] );
+
+        if ( success )
+        {
+            trimethod = 20 + r;
+        }
+    }
+
+    // Then ask for less: without the quality bound, then without the size limit either.
+    for ( int r = 1; !success && r <= 2; r++ )
+    {
+        connlist.clear();
+        points_out.clear();
+        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, r );
+
+        if ( success )
+        {
+            trimethod = 10 + r;
+        }
+    }
+
     if ( !success )
     {
         int n = 0;
@@ -2164,6 +2330,11 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             points_out.clear();
             success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out );
             n++;
+
+            if ( success )
+            {
+                trimethod = n;
+            }
         }
 
 #ifdef DEBUG_CFD_MESH
@@ -2177,6 +2348,20 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         }
 #endif
     }
+    // Last thing before giving the surface to a triangulator that ignores the sizing: let the
+    // interior segments be split.
+    if ( !success )
+    {
+        connlist.clear();
+        points_out.clear();
+        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, 3 );
+
+        if ( success )
+        {
+            trimethod = 13;
+        }
+    }
+
     if ( !success )
     {
 #ifdef DEBUG_CFD_MESH
@@ -2184,7 +2369,25 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 #endif
         connlist.clear();
         points_out.clear();
-        success = InitMesh_DBA( uw_prime, segs_indexes, connlist, points_out );
+        // The size the mesh was asked for, worked out the way the main triangulator works it out.
+        double dba_est = ( uw_prime.size() / 4 ) * ( uw_prime.size() / 4 );
+        if ( dba_est < 1 )     dba_est = 1;
+        if ( dba_est > 10000 ) dba_est = 10000;
+
+        BndBox dbabox;
+        for ( int k = 0; k < ( int )uw_prime.size(); k++ )
+        {
+            dbabox.Update( vec3d( uw_prime[k].x(), uw_prime[k].y(), 0 ) );
+        }
+
+        double dba_area = ( dbabox.GetMax( 0 ) - dbabox.GetMin( 0 ) ) *
+                          ( dbabox.GetMax( 1 ) - dbabox.GetMin( 1 ) );
+        double dba_tri_area = 4.0 * dba_area / dba_est;
+        if ( dba_tri_area < 1.0e-4 ) dba_tri_area = 1.0e-4;
+
+        success = InitMesh_DBA( uw_prime, segs_indexes, connlist, points_out, sqrt( 2.0 * dba_tri_area ) );
+
+        trimethod = 9;
 
 #ifdef DEBUG_CFD_MESH
         if ( success )
@@ -2201,6 +2404,39 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 #ifdef DEBUG_CFD_MESH
     if ( !success ) printf( "  Triangulation failed for surface %d\n", namecnt );
 #endif
+
+    if ( !success )
+    {
+        trimethod = -1;
+    }
+
+    // Say so when a surface did not triangulate the way it was asked to.  The surfaces it happens
+    // to are the ones worth looking at -- the mesh on them is not the mesh that was asked for.
+    if ( trimethod != 0 )
+    {
+        const char *how = "retried with different points";
+
+        if ( trimethod >= 20 )
+        {
+            how = "retried with a different size limit";
+        }
+        else if ( trimethod >= 10 )
+        {
+            how = "retried with the quality bound relaxed";
+        }
+        else if ( trimethod == 9 )
+        {
+            how = "FELL BACK to the second triangulator";
+        }
+        else if ( trimethod < 0 )
+        {
+            how = "COULD NOT BE TRIANGULATED";
+        }
+
+        printf( "Surface %d (%s %s): %s.\n", m_Surf->GetSurfID(),
+                m_Surf->GetName().c_str(), m_Surf->GetGeomID().c_str(), how );
+        fflush( stdout );
+    }
 
     //==== Clear All Node, Edge, Tri Data ====//
     Clear();
