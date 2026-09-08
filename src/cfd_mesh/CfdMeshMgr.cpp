@@ -17,7 +17,6 @@
 
 #include <algorithm>
 #include <functional>
-#include <mutex>
 
 #include "StringUtil.h"
 
@@ -851,58 +850,27 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
     splitSources.clear();
 }
 
-// addOutputText appends to one buffer, so calls coming from several surfaces at once have to
-// be kept from overlapping.
-void CfdMeshMgrSingleton::ReportProgress( const string &str, int output_type )
-{
-    static std::mutex outmutex;
-    std::lock_guard< std::mutex > lock( outmutex );
-
-    addOutputText( str, output_type );
-}
-
 // Remesh one surface.  Everything here reaches the model only through that surface's own
 // Mesh, which is what lets surfaces be run side by side.  The two shared things it touches
 // are the grid density, which is only read, and the progress text, which is locked.
-void CfdMeshMgrSingleton::RemeshOneSurf( int isurf, int nsurf, int output_type, bool iter_progress, int &num_tris )
+void CfdMeshMgrSingleton::RemeshOneSurf( int isurf, int nsurf, int output_type, int &num_tris )
 {
-    char str[256];
-
     num_tris = 0;
-
-    int num_ill_removed = 0;
 
     for ( int iter = 0 ; iter < 10 ; ++iter )
     {
         num_tris = 0;
         m_SurfVec[isurf]->GetMesh()->Remesh();
 
-        num_ill_removed = m_SurfVec[isurf]->GetMesh()->RemoveIllFormedFaces();
+        m_SurfVec[isurf]->GetMesh()->RemoveIllFormedFaces();
 
         num_tris += m_SurfVec[isurf]->GetMesh()->GetNumFaces();
-
-        // The running count only reads as progress when the surfaces come in order, so it is
-        // left to the single threaded case.
-        if ( iter_progress && output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
-        {
-            snprintf( str, sizeof( str ), "Surf %3d/%3d Iter %2d/10 Num Tris = %8d %s                                       \r", isurf + 1, nsurf, iter + 1, num_tris, m_SurfVec[isurf]->GetDisplayName().c_str() );
-            ReportProgress( str, output_type );
-        }
-    }
-
-    if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
-    {
-        snprintf( str, sizeof( str ), "Surf %3d/%3d Num Tris = %8d %s                                       \n", isurf + 1, nsurf, num_tris, m_SurfVec[isurf]->GetDisplayName().c_str() );
-        ReportProgress( str, output_type );
-
-        if ( num_ill_removed > 0 )
-        {
-            snprintf( str, sizeof( str ), "%d Ill formed tris collapsed in final iteration.\n", num_ill_removed );
-            ReportProgress( str, output_type );
-        }
     }
 
     m_SurfVec[isurf]->GetMesh()->DumpGarbage();
+
+    m_ProgressDone++;
+    StepProgress( output_type );
 }
 
 void CfdMeshMgrSingleton::Remesh( int output_type )
@@ -913,9 +881,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
     int nthread = StageThreadCount( nsurf );
 
-    // The running count only reads as progress when the surfaces come in order, so the per
-    // iteration line is left to the single threaded case.
-    bool iter_progress = ( nthread == 1 );
+    BeginProgress( "Remesh", nsurf, output_type );
 
     // Biggest surfaces first, so the long surfaces start while there is still small work to fill
     // in behind them and the run does not end on one large surface with every other thread idle.
@@ -933,8 +899,10 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
     {
         int i = order[k].second;
 
-        RemeshOneSurf( i, nsurf, output_type, iter_progress, surftris[i] );
+        RemeshOneSurf( i, nsurf, output_type, surftris[i] );
     } );
+
+    EndProgress( output_type );
 
     int total_num_tris = 0;
 
@@ -3694,10 +3662,17 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     int nsurf = ( int )m_SurfVec.size();
     int nthread = StageThreadCount( nsurf );
 
+    BeginProgress( "Inside/outside", nsurf, VOCAL_OUTPUT );
+
     RunIndexed( nsurf, nthread, [&]( int is )
     {
         RemoveInteriorTrisOneSurf( is, x_dist );
+
+        m_ProgressDone++;
+        StepProgress( VOCAL_OUTPUT );
     } );
+
+    EndProgress( VOCAL_OUTPUT );
 
     list< Face* >::const_iterator f;
 

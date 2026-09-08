@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <thread>
+#include <mutex>
 #include <functional>
 #include <atomic>
 #include "SurfaceIntersectionMgr.h"
@@ -349,6 +350,9 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
     m_MeshInProgress = false;
 
     m_MessageName = "SurfIntersectMessage";
+
+    m_ProgressTotal = 0;
+    m_ProgressDone = 0;
 
     // A mesh belongs to the model it was built from, so it has to go when that model does.
     m_RenewListener.SetMgr( this );
@@ -730,6 +734,77 @@ int SurfaceIntersectionSingleton::GetNumCurvePnts() const
 void SurfaceIntersectionSingleton::RenewMesh()
 {
     CleanUp();
+}
+
+// addOutputText appends to one buffer, so calls coming from several surfaces at once have to
+// be kept from overlapping.
+void SurfaceIntersectionSingleton::ReportProgress( const string &str, int output_type )
+{
+    static std::mutex outmutex;
+    std::lock_guard< std::mutex > lock( outmutex );
+
+    addOutputText( str, output_type );
+}
+
+void SurfaceIntersectionSingleton::BeginProgress( const string &label, int n, int output_type )
+{
+    m_ProgressLabel = label;
+    m_ProgressTotal = n;
+    m_ProgressDone = 0;
+
+    StepProgress( output_type );
+}
+
+// Draw the bar at a given count.  The line is redrawn in place, so every call has to write the
+// same width -- a shorter line would leave the tail of the previous one behind.  The counts only
+// ever grow, so the width is stable as long as the last draw uses the total.
+void SurfaceIntersectionSingleton::DrawProgress( int done, char term, int output_type )
+{
+    const int nbar = 24;
+    int nfill = ( nbar * done ) / m_ProgressTotal;
+
+    char bar[nbar + 1];
+    for ( int i = 0; i < nbar; i++ )
+    {
+        if ( i < nfill )
+        {
+            bar[i] = '=';
+        }
+        else
+        {
+            bar[i] = ' ';
+        }
+    }
+    bar[nbar] = '\0';
+
+    char str[256];
+    snprintf( str, sizeof( str ), "%-16s [%s] %d/%d%c", m_ProgressLabel.c_str(), bar, done, m_ProgressTotal, term );
+
+    ReportProgress( str, output_type );
+}
+
+void SurfaceIntersectionSingleton::StepProgress( int output_type )
+{
+    if ( output_type == QUIET_OUTPUT || m_ProgressTotal <= 0 )
+    {
+        return;
+    }
+
+    DrawProgress( m_ProgressDone, '\r', output_type );
+}
+
+void SurfaceIntersectionSingleton::EndProgress( int output_type )
+{
+    if ( output_type == QUIET_OUTPUT || m_ProgressTotal <= 0 )
+    {
+        return;
+    }
+
+    // Threads redraw as they finish, so the last one to land is not necessarily the highest
+    // count.  Draw the finished bar once here so the stage always ends showing all of its work.
+    DrawProgress( m_ProgressTotal, '\n', output_type );
+
+    m_ProgressTotal = 0;
 }
 
 void SurfaceIntersectionSingleton::CleanUp()
@@ -1451,6 +1526,7 @@ void SurfaceIntersectionSingleton::BuildGrid()
 
     int i, j;
     vector< SCurve* > scurve_vec;
+
     for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         m_SurfVec[i]->FindBorderCurves();
@@ -2098,6 +2174,8 @@ void SurfaceIntersectionSingleton::IntersectPairs()
 
     vector < pair < int, int > > work;
 
+    BeginProgress( "Intersect scan", n, VOCAL_OUTPUT );
+
     for ( int i = 0 ; i < n ; i++ )
     {
         for ( int j = i + 1 ; j < n ; j++ )
@@ -2108,9 +2186,11 @@ void SurfaceIntersectionSingleton::IntersectPairs()
             }
         }
 
-        snprintf( str, sizeof( str ), "Intersect %3d/%3d %s                                                      \r", i + 1, n, m_SurfVec[i]->GetDisplayName().c_str() );
-        addOutputText( str );
+        m_ProgressDone++;
+        StepProgress( VOCAL_OUTPUT );
     }
+
+    EndProgress( VOCAL_OUTPUT );
 
     // One piece of work for each patch of a pair's first surface, rather than one for the pair:
     // a single pair can cost as much as all the others together, and as one piece it would
@@ -2135,6 +2215,8 @@ void SurfaceIntersectionSingleton::IntersectPairs()
 
     int nthread = StageThreadCount( nwork );
 
+    BeginProgress( "Intersect", nwork, VOCAL_OUTPUT );
+
     RunIndexed( nwork, nthread, [&]( int k )
     {
         tl_isect_out = &out[k];
@@ -2143,7 +2225,12 @@ void SurfaceIntersectionSingleton::IntersectPairs()
         m_SurfVec[ surfs.first ]->IntersectPatch( piece[k].second, m_SurfVec[ surfs.second ], this );
 
         tl_isect_out = nullptr;
+
+        m_ProgressDone++;
+        StepProgress( VOCAL_OUTPUT );
     } );
+
+    EndProgress( VOCAL_OUTPUT );
 
     for ( int k = 0 ; k < nwork ; k++ )
     {
@@ -2153,9 +2240,6 @@ void SurfaceIntersectionSingleton::IntersectPairs()
         m_IPatchADrawLines.insert( m_IPatchADrawLines.end(), out[k].m_PatchADraw.begin(), out[k].m_PatchADraw.end() );
         m_IPatchBDrawLines.insert( m_IPatchBDrawLines.end(), out[k].m_PatchBDraw.begin(), out[k].m_PatchBDraw.end() );
     }
-
-    snprintf( str, sizeof( str ), "Intersect %d surfaces, %d pairs with work                                    \n", n, ( int )work.size() );
-    addOutputText( str );
 }
 
 void SurfaceIntersectionSingleton::Intersect()
@@ -2762,6 +2846,7 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
             buw->m_UW[1] = wB;
         }
     }
+
 }
 
 void SurfaceIntersectionSingleton::RefineISegChain( ISegChain* c )

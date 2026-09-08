@@ -58,6 +58,7 @@
 #define DEBUG_CFD_MESH
 #endif
 
+#include <atomic>
 #include <functional>
 #include "Surf.h"
 #include "Mesh.h"
@@ -458,6 +459,20 @@ public:
     vector< vector< vec3d > > m_DebugCurves;
     vector< vec3d > m_DebugColors;
 #endif
+
+    // A count of finished work, for a stage whose pieces come back in whatever order the
+    // threads happen to finish them.  Which piece finished is not worth reporting when the
+    // order is arbitrary; how much is left is, and it says plainly that the run is moving.
+    void ReportProgress( const string &str, int output_type );
+    void DrawProgress( int done, char term, int output_type );
+
+    void BeginProgress( const string &label, int n, int output_type );
+    void StepProgress( int output_type );
+    void EndProgress( int output_type );
+
+    string m_ProgressLabel;
+    std::atomic< int > m_ProgressDone;
+    int m_ProgressTotal;
 
     void IntersectPairs();
 
