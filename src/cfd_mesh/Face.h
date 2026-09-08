@@ -134,6 +134,10 @@ public:
     // fraction of the list.  A stamp rather than a flag so nothing has to be cleared.
     int m_CandStamp = 0;
 
+    // Which round last put this edge on the list of edges worth looking at.  See
+    // Mesh::MakeActive.
+    int m_ActiveStamp = -1;
+
     Face* OtherFace( Face* f );
     Node* OtherNode( Node* n );
     void ReplaceNode( Node* curr_node, Node* replace_node );
@@ -256,6 +260,10 @@ public:
     Edge* e3;
 
     bool debugFlag;
+
+    // Which round last measured this face's shape, so a face reached from two of its edges is
+    // only measured once.  See Mesh::Collapse.
+    int m_ShapeStamp = -1;
 
     // true if inside surface with a cid corresponding to an index.
     vector< bool > insideSurf;

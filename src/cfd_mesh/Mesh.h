@@ -78,6 +78,52 @@ public:
     // Bumped once per Collapse round; see Edge::m_CandStamp.
     int m_CandStamp = 0;
 
+    // The edges worth looking at this round, and the ones to look at next.
+    //
+    // An edge only becomes interesting when its length or its target changes, so only the edges
+    // something happened to need looking at again, rather than the whole edge list every round.
+    //
+    // m_ScanEdges is what this round examines; m_ActiveEdges is what the next round will.
+    // A candidate that the budget did not reach stays on, because it is still a candidate.
+    vector < Edge* > m_ScanEdges;
+    vector < Edge* > m_ActiveEdges;
+    int m_ActiveStamp = 0;
+    int m_ShapeStamp = 0;
+
+    // Put an edge on the list for the next round, once.
+    void MakeActive( Edge* e )
+    {
+        if ( e && !e->m_DeleteMeFlag && e->m_ActiveStamp != m_ActiveStamp )
+        {
+            e->m_ActiveStamp = m_ActiveStamp;
+            m_ActiveEdges.push_back( e );
+        }
+    }
+
+    // Everything a node touches, for when the node itself has moved.
+    void MakeActiveAround( Node* n )
+    {
+        if ( n )
+        {
+            for ( int i = 0 ; i < ( int )n->edgeVec.size() ; i++ )
+            {
+                MakeActive( n->edgeVec[i] );
+
+                Face* ff[2] = { n->edgeVec[i]->f0, n->edgeVec[i]->f1 };
+
+                for ( int k = 0 ; k < 2 ; k++ )
+                {
+                    if ( ff[k] )
+                    {
+                        MakeActive( ff[k]->e0 );
+                        MakeActive( ff[k]->e1 );
+                        MakeActive( ff[k]->e2 );
+                    }
+                }
+            }
+        }
+    }
+
     void LimitTargetEdgeLength();
     void LimitTargetEdgeLength( Edge* e );
     void LimitTargetEdgeLength( Node* n );

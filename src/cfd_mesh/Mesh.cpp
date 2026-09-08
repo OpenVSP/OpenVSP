@@ -54,6 +54,11 @@ Mesh::~Mesh()
 
 void Mesh::Clear()
 {
+    // These hold raw pointers into what is about to be deleted, and unlike DumpGarbage this
+    // deletes the live lists rather than the flagged ones, so there is nothing to filter on.
+    m_ScanEdges.clear();
+    m_ActiveEdges.clear();
+
     list< Face* >::iterator f;
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
@@ -216,6 +221,17 @@ void Mesh::Remesh()
 
     LimitTargetEdgeLength();
 
+    // Everything is worth looking at at the start of a pass: the smoothing that ended the
+    // last one moved every node, and the target lengths have just been worked out again.
+    m_ActiveStamp++;
+    m_ActiveEdges.clear();
+    m_ActiveEdges.reserve( edgeList.size() );
+
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
+    {
+        MakeActive( *e );
+    }
+
     // Neither step may switch itself off for the rest of the pass.  The two steps feed each other
     // -- splitting a long edge makes short ones and collapsing a short edge makes long ones -- so a
     // round that finds nothing for one step says nothing about the rounds after it.
@@ -224,6 +240,12 @@ void Mesh::Remesh()
     // round.
     for ( int i = 0 ; i < 20 ; i++ )
     {
+        // This round looks at what the last one left; what this one touches is gathered for
+        // the next.  An edge nothing happened to cannot have become a candidate.
+        m_ScanEdges.swap( m_ActiveEdges );
+        m_ActiveEdges.clear();
+        m_ActiveStamp++;
+
         num_split = Split( 1 );
         num_collapse = Collapse( 1 );
 
@@ -418,18 +440,26 @@ int Mesh::Split( int num_iter )
         //===== Split ====//
         vector < pair < Edge*, double > > longEdges;
         longEdges.reserve( edgeList.size() );
-        for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
+
+        for ( int is = 0 ; is < ( int )m_ScanEdges.size() ; is++ )
         {
-            if ( !( *e )->border )
+            Edge* ep = m_ScanEdges[is];
+
+            if ( !ep || ep->m_DeleteMeFlag || ep->border )
             {
-                // Filter with a multiply (len > 1.41 * target_len) so the per-edge
-                // division is only paid for the few edges that are actually long.
-                double len = ( *e )->GetLength();
-                if ( len > 1.41 * ( *e )->target_len )
-                {
-                    double rat = len / ( *e )->target_len;
-                    longEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
-                }
+                continue;
+            }
+
+            // Filter with a multiply (len > 1.41 * target_len) so the per-edge
+            // division is only paid for the few edges that are actually long.
+            double len = ep->GetLength();
+            if ( len > 1.41 * ep->target_len )
+            {
+                double rat = len / ep->target_len;
+                longEdges.emplace_back( pair< Edge*, double >( ep, rat ) );
+
+                // Still a candidate whether or not the budget reaches it.
+                MakeActive( ep );
             }
         }
 
@@ -489,15 +519,18 @@ int Mesh::Collapse( int num_iter )
         m_CandStamp++;
 
         vector < pair < Edge*, double > > shortEdges;
-        shortEdges.reserve( edgeList.size() );
-        for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
+        shortEdges.reserve( m_ScanEdges.size() );
+
+        for ( int is = 0 ; is < ( int )m_ScanEdges.size() ; is++ )
         {
-            if ( *e )
+            Edge* ep = m_ScanEdges[is];
+
+            if ( ep && !ep->m_DeleteMeFlag )
             {
                 // Length first.  Only a short edge is a candidate, and the ratio is two reads and a divide
                 // where ValidCollapse walks both faces, finds four edges and looks for a third face along
                 // each of them.
-                double rat = ( *e )->GetLength() / ( *e )->target_len;
+                double rat = ep->GetLength() / ep->target_len;
 
                 // Short for the size that was asked for, or short for the triangle it sits
                 // on.  The length test sees only a triangle that is too small, never one that
@@ -512,10 +545,11 @@ int Mesh::Collapse( int num_iter )
                 // either kind sorts to the front.
                 //
                 // The shape question is asked of the faces below, not here.
-                if ( rat < CC_LENGTH_RATIO && ValidCollapse( *e ) )
+                if ( rat < CC_LENGTH_RATIO && ValidCollapse( ep ) )
                 {
-                    shortEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
-                    ( *e )->m_CandStamp = m_CandStamp;
+                    shortEdges.emplace_back( pair< Edge*, double >( ep, rat ) );
+                    ep->m_CandStamp = m_CandStamp;
+                    MakeActive( ep );
                 }
             }
         }
@@ -529,15 +563,33 @@ int Mesh::Collapse( int num_iter )
         // Only the shortest edge of an ill-shaped face is offered: it is the one whose removal
         // deletes the face, where collapsing a longer one drags a neighbourhood about to fix
         // one triangle.
-        list< Face* >::iterator f;
-        for ( f = faceList.begin() ; f != faceList.end(); ++f )
-        {
-            Face* fp = *f;
+        m_ShapeStamp++;
 
-            if ( !fp || fp->m_DeleteMeFlag || fp->IsQuad() )
+        for ( int is = 0 ; is < ( int )m_ScanEdges.size() ; is++ )
+        {
+          Edge* ep = m_ScanEdges[is];
+
+          if ( !ep || ep->m_DeleteMeFlag )
+          {
+              continue;
+          }
+
+          // Reached through the edges rather than by walking every face.  A face's shape is
+          // settled by the lengths of its own three edges, so a face none of whose edges
+          // changed cannot have changed shape -- and a face reached from two of its edges is
+          // only measured once.
+          Face* fpair[2] = { ep->f0, ep->f1 };
+
+          for ( int kf = 0 ; kf < 2 ; kf++ )
+          {
+            Face* fp = fpair[kf];
+
+            if ( !fp || fp->m_DeleteMeFlag || fp->IsQuad() || fp->m_ShapeStamp == m_ShapeStamp )
             {
                 continue;
             }
+
+            fp->m_ShapeStamp = m_ShapeStamp;
 
             // Asked of the face's edges rather than its corners.  The three edges are the
             // three sides, and the smallest angle is the one opposite the shortest side, so
@@ -601,7 +653,9 @@ int Mesh::Collapse( int num_iter )
             {
                 shortEdges.emplace_back( pair< Edge*, double >( es, acos( cosq ) / COLLAPSE_QUAL_ANGLE ) );
                 es->m_CandStamp = m_CandStamp;
+                MakeActive( es );
             }
+          }
         }
 
         //==== Sort Matches By Length ====//
@@ -898,8 +952,31 @@ void Mesh::RemoveFace( Face* fptr )
     }
 }
 
+// Drop the edges that are about to be freed from a list of raw pointers.
+static void DropDeadEdges( vector< Edge* > &v )
+{
+    int n = 0;
+
+    for ( int i = 0 ; i < ( int )v.size() ; i++ )
+    {
+        if ( v[i] && !v[i]->m_DeleteMeFlag )
+        {
+            v[n] = v[i];
+            n++;
+        }
+    }
+
+    v.resize( n );
+}
+
 void Mesh::DumpGarbage()
 {
+    // The scan lists hold raw pointers, so an edge about to be freed has to come off them
+    // first: Split calls this and then Collapse reads the same list, so a collapsed-away edge
+    // would otherwise be asked for its delete flag after it had been freed.
+    DropDeadEdges( m_ScanEdges );
+    DropDeadEdges( m_ActiveEdges );
+
     //==== Delete Flagged Nodes =====//
     for ( int i = 0 ; i < ( int )garbageNodeVec.size() ; i++ )
     {
@@ -1162,6 +1239,8 @@ void Mesh::SplitEdge( Edge* edge )
     ComputeTargetEdgeLength( ns );
     LimitTargetEdgeLength( ns );
 
+    MakeActiveAround( ns );
+
     // "Neighboring edge swapping is performed to improve the local configuration, in terms
     // of both approximation of the geometry and the element quality" -- Wang 2006, 5.1.
     //
@@ -1366,6 +1445,9 @@ void Mesh::SwapEdge( Edge* edge )
     }
 
     LimitTargetEdgeLength( edge );
+
+    MakeActiveAround( edge->n0 );
+    MakeActiveAround( edge->n1 );
 
     CheckFace( fa );
     CheckFace( fb );
@@ -2100,6 +2182,10 @@ bool Mesh::CollapseEdge( Edge* edge, bool repair )
 
     ComputeTargetEdgeLength( nc );
     LimitTargetEdgeLength( nc );
+
+    // Every face and edge that touches the merged node is a different shape and a different
+    // length now, so all of them are worth looking at again next round.
+    MakeActiveAround( nc );
 
     CheckFace( fa0 );
     CheckFace( fa1 );
