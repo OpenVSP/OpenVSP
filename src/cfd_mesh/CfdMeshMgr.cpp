@@ -4593,6 +4593,13 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
     }
 }
 
+static void RegisterCfdMeshAnalysis()
+{
+    CfdMeshMgr.RegisterAnalysis();
+}
+
+static AnalysisRegistrar g_CfdMeshRegistrar( RegisterCfdMeshAnalysis );
+
 void CfdMeshMgrSingleton::RegisterAnalysis()
 {
     if (!AnalysisMgr.FindAnalysis( "CfdMeshAnalysis" ))

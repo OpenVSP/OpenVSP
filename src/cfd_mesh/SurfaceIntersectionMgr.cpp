@@ -597,6 +597,13 @@ void SurfaceIntersectionSingleton::CleanUp()
 
 }
 
+static void RegisterSurfaceIntersectionAnalysis()
+{
+    SurfaceIntersectionMgr.RegisterAnalysis();
+}
+
+static AnalysisRegistrar g_SurfaceIntersectionRegistrar( RegisterSurfaceIntersectionAnalysis );
+
 void SurfaceIntersectionSingleton::RegisterAnalysis()
 {
     if ( !AnalysisMgr.FindAnalysis( "SurfaceIntersection" ) )

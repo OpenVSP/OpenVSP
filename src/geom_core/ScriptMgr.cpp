@@ -4013,9 +4013,6 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetComputationFileName( int file_type )", asFUNCTION( vsp::GetComputationFileName ), asCALL_CDECL );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void RegisterCFDMeshAnalyses()", asFUNCTION( vsp::RegisterCFDMeshAnalyses ), asCALL_CDECL );
-    assert( r >= 0 );
-
     r = se->RegisterGlobalFunction( "void SetComputationFileName( int file_type, const string & in file_name )", asFUNCTION( vsp::SetComputationFileName ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: FIXME for FEA Mesh
 

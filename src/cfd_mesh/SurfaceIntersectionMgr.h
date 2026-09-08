@@ -196,6 +196,37 @@ protected:
 
 class SurfaceIntersectionSingleton;
 
+// Offers one analysis to AnalysisMgr when it asks for the meshing ones.
+//
+// AnalysisMgr lives in the geometry core, which cannot see this library and must not, so it
+// cannot name these analyses itself.  It asks; these answer.  One sits beside each manager, so
+// an analysis is offered exactly when the manager that runs it is built into the program.
+//
+// Made when the program loads, because a caller may only ever ask what analyses exist without
+// meshing anything.  It must not touch its manager until asked: the managers are built on
+// first use, and building one at load time would drag the vehicle up with it.
+class AnalysisRegistrar : public MessageBase
+{
+public:
+    AnalysisRegistrar( void ( *reg )() )
+    {
+        m_Register = reg;
+        Register( "RegisterAnalyses" );
+    }
+
+    void MessageCallback( const MessageBase* from, const MessageData& data ) override
+    {
+        if ( m_Register && data.m_String == "Register" )
+        {
+            m_Register();
+        }
+    }
+
+protected:
+    void ( *m_Register )();
+};
+
+
 // Hears that the vehicle has been emptied.  A listener rather than a call, because the
 // geometry core cannot see this library -- which is the case MessageMgr exists for.
 class MeshRenewListener : public MessageBase

@@ -1252,16 +1252,6 @@ extern std::string GetVSPHelpPath();
 
 extern bool CheckForVSPHelp( const std::string & path );
 
-/*!
-    \internal
-    Registers the CFD Mesh analyses with the Analysis Manager.  Reaching into CFD Mesh from
-    geom_core this way is a layering violation, kept because the analyses are not registered at
-    startup with the rest.  Deliberately left out of the documentation and the generated examples.
-*/
-
-extern void RegisterCFDMeshAnalyses();
-
-
 //======================== File I/O ================================//
 /*!
     \ingroup FileIO

@@ -219,13 +219,6 @@ int GetAndResetUpdateCount()
     return (int) UpdateCountMgr.GetAndResetUpdateCount();
 }
 
-void RegisterCFDMeshAnalyses()
-{
-    SurfaceIntersectionMgr.RegisterAnalysis();
-    CfdMeshMgr.RegisterAnalysis();
-    FeaMeshMgr.RegisterAnalysis();
-}
-
 //===================================================================//
 //===============       File I/O Functions        ===================//
 //===================================================================//

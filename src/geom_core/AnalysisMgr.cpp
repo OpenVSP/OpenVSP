@@ -23,7 +23,8 @@
 #include "ModeMgr.h"
 #include "GeometryAnalysisMgr.h"
 
-#include "VSP_Geom_API.h"
+#include "APIDefines.h"
+#include "MessageMgr.h"
 
 // RWCollection has wrapper for NVC Add to gatekeep against unsupported datatypes
 void RWCollection::Add( NameValData* d )
@@ -71,10 +72,12 @@ AnalysisMgrSingleton::~AnalysisMgrSingleton()
 void AnalysisMgrSingleton::Init()
 {
     RegisterBuiltins();
-    // CFD Mesh analyses are registered here since the geom_core and vsp projects can't call
-    // cfd_mesh directly. Calling the API function here allows support for cfd_mesh
-    // analysis from the GUI, script, API test, and python interfaces. 
-    vsp::RegisterCFDMeshAnalyses();
+
+    // The meshing analyses live in a library this one cannot see, and must not -- the core
+    // does not depend on the layers built on it.  Ask for them rather than reaching up for
+    // them; whoever provides them is listening.  Sent on every Init because Renew empties the
+    // book first, so they have to be written back in each time.
+    MessageMgr::getInstance().Send( "RegisterAnalyses", "Register" );
 }
 
 void AnalysisMgrSingleton::Wype()

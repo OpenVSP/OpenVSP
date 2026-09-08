@@ -3022,6 +3022,13 @@ void FeaMeshMgrSingleton::UpdateAssemblyDisplaySettings( const string &assembly_
     }
 }
 
+static void RegisterFeaMeshAnalysis()
+{
+    FeaMeshMgr.RegisterAnalysis();
+}
+
+static AnalysisRegistrar g_FeaMeshRegistrar( RegisterFeaMeshAnalysis );
+
 void FeaMeshMgrSingleton::RegisterAnalysis()
 {
     if (!AnalysisMgr.FindAnalysis( "FeaMeshAnalysis" ))
