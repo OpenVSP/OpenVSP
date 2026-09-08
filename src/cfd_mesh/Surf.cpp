@@ -949,46 +949,80 @@ void Surf::WriteSTL( const char* filename )
     m_Mesh.WriteSimpleSTL( filename );
 }
 
-void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
+// Everything that has to happen before two surfaces' patch trees are worth intersecting, and
+// the answer to whether they are.  Kept apart from the patch work because it projects curves
+// onto the surface -- an evaluation, which writes the surface's own scratch buffers, so two
+// threads must never do it to the same surface at once.  It also adds curves of its own.
+bool Surf::IntersectPrepare( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
-    int i;
-
     if ( surfPtr->GetCompID() == m_CompID )
     {
-        return;
+        return false;
     }
 
     if ( m_FeaSymmIndex >= 0 && surfPtr->GetFeaSymmIndex() >= 0 &&
          surfPtr->GetFeaSymmIndex() != m_FeaSymmIndex )
     {
-        return;
+        return false;
     }
 
     if ( !Compare( m_BBox, surfPtr->GetBBox() ) )
     {
-        return;
+        return false;
     }
     if ( BorderCurveOnSurface( surfPtr, MeshMgr ) )
     {
-        return;
+        return false;
     }
     if ( surfPtr->BorderCurveOnSurface( this, MeshMgr ) )
     {
-        return;
+        return false;
     }
 
-    vector< SurfPatch* > otherPatchVec = surfPtr->GetPatchVec();
-    for ( i = 0 ; i < ( int )m_PatchVec.size() ; i++ )
+    return true;
+}
+
+void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
+{
+    if ( IntersectPrepare( surfPtr, MeshMgr ) )
+    {
+        vector < int > patch_vec;
+        FindIntersectPatches( surfPtr, patch_vec );
+
+        for ( int i = 0 ; i < ( int )patch_vec.size() ; i++ )
+        {
+            IntersectPatch( patch_vec[i], surfPtr, MeshMgr );
+        }
+    }
+}
+
+void Surf::FindIntersectPatches( Surf* surfPtr, vector < int > &patch_vec )
+{
+    patch_vec.clear();
+
+    for ( int i = 0 ; i < ( int )m_PatchVec.size() ; i++ )
+    {
         if ( Compare( *m_PatchVec[i]->get_bbox(), surfPtr->GetBBox() ) )
         {
-            for ( int j = 0 ; j < ( int )otherPatchVec.size() ; j++ )
-            {
-                if ( Compare( *m_PatchVec[i]->get_bbox(), *otherPatchVec[j]->get_bbox() ) )
-                {
-                    intersect( *m_PatchVec[i], *otherPatchVec[j], MeshMgr );
-                }
-            }
+            patch_vec.push_back( i );
         }
+    }
+}
+
+// Walk one patch's tree against the patches of surfPtr it meets.  This reaches the surfaces only
+// through their control points, and every patch it makes along the way comes from a pool that
+// belongs to the calling thread, so two threads may do this to the same surface at the same time.
+void Surf::IntersectPatch( int ipatch, Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
+{
+    const vector< SurfPatch* > &otherPatchVec = surfPtr->GetPatchVec();
+
+    for ( int j = 0 ; j < ( int )otherPatchVec.size() ; j++ )
+    {
+        if ( Compare( *m_PatchVec[ipatch]->get_bbox(), *otherPatchVec[j]->get_bbox() ) )
+        {
+            intersect( *m_PatchVec[ipatch], *otherPatchVec[j], MeshMgr );
+        }
+    }
 }
 
 void Surf::IntersectLineSeg( vec3d & p0, vec3d & p1, vector< double > & t_vals )

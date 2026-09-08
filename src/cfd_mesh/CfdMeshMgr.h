@@ -222,7 +222,12 @@ public:
     void BuildGrid() override;
 
     enum { QUIET_OUTPUT, VOCAL_OUTPUT, };
+
+    void RemoveInteriorTrisOneSurf( int s, double x_dist );
+
     virtual void Remesh( int output_type );
+    virtual void RemeshOneSurf( int isurf, int nsurf, int output_type, bool iter_progress, int &num_tris );
+    virtual void ReportProgress( const string &str, int output_type );
 
     virtual void PostMesh();
 

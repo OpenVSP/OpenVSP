@@ -202,6 +202,10 @@ public:
     }
 
     void Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
+    bool IntersectPrepare( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
+    // The patches whose boxes meet surfPtr's, which are the only ones IntersectPatch has work for
+    void FindIntersectPatches( Surf* surfPtr, vector < int > &patch_vec );
+    void IntersectPatch( int ipatch, Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
     void IntersectLineSeg( vec3d & p0, vec3d & p1, vector< double > & t_vals );
 
     bool BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );

@@ -16,6 +16,8 @@
 #include "FileUtil.h"
 
 #include <algorithm>
+#include <functional>
+#include <mutex>
 
 #include "StringUtil.h"
 
@@ -748,7 +750,15 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
     vector< MapSource* > allsources;
 
     int i;
-    for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+
+    // Serial.  A constant U or W line source evaluates the *Geom's* surface to find its target
+    // length, not the mesher's private copy, and several of this vector's Surfs can share one Geom
+    // surface (symmetric copies, and the strips one surface is split into all keep the same main
+    // index).  Two threads would then evaluate one Bezier patch at once, and Code-Eli's evaluator
+    // keeps its scratch buffers in the patch.
+    int nsurf = ( int )m_SurfVec.size();
+
+    for ( i = 0 ; i < nsurf ; i++ )
     {
         m_SurfVec[i]->BuildTargetMap( allsources, i );
         m_SurfVec[i]->LimitTargetMap();
@@ -841,51 +851,82 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
     splitSources.clear();
 }
 
-void CfdMeshMgrSingleton::Remesh( int output_type )
+// addOutputText appends to one buffer, so calls coming from several surfaces at once have to
+// be kept from overlapping.
+void CfdMeshMgrSingleton::ReportProgress( const string &str, int output_type )
+{
+    static std::mutex outmutex;
+    std::lock_guard< std::mutex > lock( outmutex );
+
+    addOutputText( str, output_type );
+}
+
+// Remesh one surface.  Everything here reaches the model only through that surface's own
+// Mesh, which is what lets surfaces be run side by side.  The two shared things it touches
+// are the grid density, which is only read, and the progress text, which is locked.
+void CfdMeshMgrSingleton::RemeshOneSurf( int isurf, int nsurf, int output_type, bool iter_progress, int &num_tris )
 {
     char str[256];
-    int total_num_tris = 0;
-    int nsurf = ( int )m_SurfVec.size();
-    for ( int i = 0 ; i < nsurf ; ++i )
+
+    num_tris = 0;
+
+    int num_ill_removed = 0;
+
+    for ( int iter = 0 ; iter < 10 ; ++iter )
     {
-        int num_tris = 0;
+        num_tris = 0;
+        m_SurfVec[isurf]->GetMesh()->Remesh();
 
-        int num_ill_removed = 0;
+        num_ill_removed = m_SurfVec[isurf]->GetMesh()->RemoveIllFormedFaces();
 
-        for ( int iter = 0 ; iter < 10 ; ++iter )
+        num_tris += m_SurfVec[isurf]->GetMesh()->GetNumFaces();
+
+        // The running count only reads as progress when the surfaces come in order, so it is
+        // left to the single threaded case.
+        if ( iter_progress && output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
         {
-            num_tris = 0;
-            m_SurfVec[i]->GetMesh()->Remesh();
-
-            num_ill_removed = m_SurfVec[ i ]->GetMesh()->RemoveIllFormedFaces();
-
-
-            num_tris += m_SurfVec[ i ]->GetMesh()->GetNumFaces();
-
-            snprintf( str, sizeof( str ), "Surf %3d/%3d Iter %2d/10 Num Tris = %8d %s                                       \r", i + 1, nsurf, iter + 1, num_tris, m_SurfVec[i]->GetDisplayName().c_str() );
-
-            if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
-            {
-                addOutputText( str, output_type );
-            }
+            snprintf( str, sizeof( str ), "Surf %3d/%3d Iter %2d/10 Num Tris = %8d %s                                       \r", isurf + 1, nsurf, iter + 1, num_tris, m_SurfVec[isurf]->GetDisplayName().c_str() );
+            ReportProgress( str, output_type );
         }
-        total_num_tris += num_tris;
+    }
 
-        if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
-        {
-            snprintf( str, sizeof( str ), "Surf %3d/%3d Num Tris = %8d %s                                       \n", i + 1, nsurf, num_tris, m_SurfVec[i]->GetDisplayName().c_str() );
-            addOutputText( str, output_type );
-        }
+    if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
+    {
+        snprintf( str, sizeof( str ), "Surf %3d/%3d Num Tris = %8d %s                                       \n", isurf + 1, nsurf, num_tris, m_SurfVec[isurf]->GetDisplayName().c_str() );
+        ReportProgress( str, output_type );
 
         if ( num_ill_removed > 0 )
         {
             snprintf( str, sizeof( str ), "%d Ill formed tris collapsed in final iteration.\n", num_ill_removed );
-            if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
-            {
-                addOutputText( str, output_type );
-            }
+            ReportProgress( str, output_type );
         }
-        m_SurfVec[i]->GetMesh()->DumpGarbage();
+    }
+
+    m_SurfVec[isurf]->GetMesh()->DumpGarbage();
+}
+
+void CfdMeshMgrSingleton::Remesh( int output_type )
+{
+    char str[256];
+    int nsurf = ( int )m_SurfVec.size();
+    vector < int > surftris( nsurf, 0 );
+
+    int nthread = StageThreadCount( nsurf );
+
+    // The running count only reads as progress when the surfaces come in order, so the per
+    // iteration line is left to the single threaded case.
+    bool iter_progress = ( nthread == 1 );
+
+    RunIndexed( nsurf, nthread, [&]( int i )
+    {
+        RemeshOneSurf( i, nsurf, output_type, iter_progress, surftris[i] );
+    } );
+
+    int total_num_tris = 0;
+
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        total_num_tris += surftris[i];
     }
 
     WakeMgr.StretchWakes();
@@ -928,7 +969,6 @@ void CfdMeshMgrSingleton::PostMesh()
                 }
             }
         }
-
         m_SurfVec[i]->GetMesh()->Clear();
         Subtag( m_SurfVec[i] );
         m_SurfVec[ i ]->GetMesh()->CondenseSimpFaces();
@@ -3506,6 +3546,123 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, const vect
     return deleteTri;
 }
 
+// One surface's share of the interior/exterior test.  It casts a ray from each of its own
+// triangles against every other surface and writes the verdict onto its own faces, so the
+// surfaces are independent of each other here.
+void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist )
+{
+    int s_comp_id = m_SurfVec[s]->GetCompID();
+
+    // A reference.  The list is only walked here, and copying it would copy a node per triangle.
+    const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+
+    // Built once and emptied per triangle.  It is a vector of vectors as wide as the model has
+    // components.
+    int ncross = m_NumComps + 6;
+
+    if ( GetSettingsPtr()->m_SymSplittingOnFlag )
+    {
+        ncross = m_NumComps + 10;   // room for the outer domain and the symmetry plane
+    }
+
+    vector< vector< double > > t_vec_vec( ncross );
+
+    list< Face* >::const_iterator f;
+    for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every triangle
+    {
+        for ( int i = 0 ; i < ncross ; i++ )
+        {
+            t_vec_vec[i].clear();
+        }
+
+        ( *f )->insideSurf.resize( ncross );
+        ( *f )->insideCount.resize( ncross );
+
+        vec3d cp = ( *f )->ComputeCenterPnt( m_SurfVec[s] );
+        vec3d ep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
+
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
+        {
+            int comp_id = m_SurfVec[i]->GetCompID();
+            if ( i != s && comp_id != s_comp_id ) // Don't check self intersection.
+            {
+                if ( m_SurfVec[s]->GetFeaSymmIndex() >=0 && m_SurfVec[i]->GetFeaSymmIndex() >=0 &&
+                     m_SurfVec[s]->GetFeaSymmIndex() != m_SurfVec[i]->GetFeaSymmIndex() )
+                {
+                    // Do nothing.
+                }
+                else if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT &&
+                     m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STRUCTURE &&
+                     m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STIFFENER ) // Don't check against transparent, structure, or stiffener surf.
+                {
+                    m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
+                }
+                else if ( m_SurfVec[i]->GetFarFlag() && m_SurfVec[s]->GetSymPlaneFlag() &&
+                          GetSettingsPtr()->m_FarCompFlag ) // Unless trimming sym plane by outer domain
+                {
+                    m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
+                }
+            }
+        }
+
+        // Loop over m_SurfVec instead of component id's.  Components will be addressed multiple times,
+        // but it allows access to m_SurfVec[i]->GetFarFlag() without a reverse lookup on component id.
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
+        {
+            int c = m_SurfVec[i]->GetCompID();
+
+            if ( c >= 0 && c < ( *f )->insideSurf.size() )
+            {
+                if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
+                     GetSettingsPtr()->m_FarCompFlag )
+                {
+                    if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
+                    {
+                        ( *f )->insideSurf[c] = true;
+                    }
+                }
+                else
+                {
+
+                    if ( ( int )t_vec_vec[c].size() % 2 == 1)
+                    {
+                        ( *f )->insideSurf[c] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every face
+    {
+        //==== Load Adjoining Faces - NOT Crossing Borders ====//
+        set< Face* > faceSet;
+        ( *f )->LoadAdjFaces( 3, faceSet );
+
+        set<Face*>::iterator sf;
+
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
+        {
+            int c = m_SurfVec[i]->GetCompID();
+            if ( c >= 0 && c < ( *f )->insideSurf.size() )
+            {
+
+                for ( sf = faceSet.begin() ; sf != faceSet.end() ; ++sf )
+                {
+                    if ( ( *f )->insideSurf[c] )
+                    {
+                        ( *sf )->insideCount[c]++;
+                    }
+                    else
+                    {
+                        ( *sf )->insideCount[c]--;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void CfdMeshMgrSingleton::RemoveInteriorTris()
 {
     debugRayIsect.clear();
@@ -3520,122 +3677,15 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
 
     //==== Count Number of Component Crossings for Each Component =====//
-    list< Face* >::const_iterator f;
-    for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
+    int nsurf = ( int )m_SurfVec.size();
+    int nthread = StageThreadCount( nsurf );
+
+    RunIndexed( nsurf, nthread, [&]( int is )
     {
-        int s_comp_id = m_SurfVec[s]->GetCompID();
+        RemoveInteriorTrisOneSurf( is, x_dist );
+    } );
 
-        // A reference.  Copying the list copied a node per triangle, over a million of them
-        // on the wing matrix, to walk something that is not modified here.
-        const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-
-        // Built once and emptied per triangle rather than built per triangle.  It is a vector
-        // of vectors as wide as the model has components, and it was being allocated, sized
-        // and thrown away for every triangle in the mesh.
-        int ncross = m_NumComps + 6;
-
-        if ( GetSettingsPtr()->m_SymSplittingOnFlag )
-        {
-            ncross = m_NumComps + 10;   // room for the outer domain and the symmetry plane
-        }
-
-        vector< vector< double > > t_vec_vec( ncross );
-
-        list< Face* >::const_iterator f;
-        for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every triangle
-        {
-            for ( int i = 0 ; i < ncross ; i++ )
-            {
-                t_vec_vec[i].clear();
-            }
-
-            ( *f )->insideSurf.resize( ncross );
-            ( *f )->insideCount.resize( ncross );
-
-            vec3d cp = ( *f )->ComputeCenterPnt( m_SurfVec[s] );
-            vec3d ep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
-
-            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
-            {
-                int comp_id = m_SurfVec[i]->GetCompID();
-                if ( i != s && comp_id != s_comp_id ) // Don't check self intersection.
-                {
-                    if ( m_SurfVec[s]->GetFeaSymmIndex() >=0 && m_SurfVec[i]->GetFeaSymmIndex() >= 0 &&
-                         m_SurfVec[s]->GetFeaSymmIndex() != m_SurfVec[i]->GetFeaSymmIndex() )
-                    {
-                        // Do nothing.
-                    }
-                    else if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT &&
-                         m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STRUCTURE &&
-                         m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STIFFENER ) // Don't check against transparent, structure, or stiffener surf.
-                    {
-                        m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
-                    }
-                    else if ( m_SurfVec[i]->GetFarFlag() && m_SurfVec[s]->GetSymPlaneFlag() &&
-                              GetSettingsPtr()->m_FarCompFlag ) // Unless trimming sym plane by outer domain
-                    {
-                        m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
-                    }
-                }
-            }
-
-            // Loop over m_SurfVec instead of component id's.  Components will be addressed multiple times,
-            // but it allows access to m_SurfVec[i]->GetFarFlag() without a reverse lookup on component id.
-            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
-            {
-                int c = m_SurfVec[i]->GetCompID();
-
-                if ( c >= 0 && c < ( *f )->insideSurf.size() )
-                {
-                    if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
-                         GetSettingsPtr()->m_FarCompFlag )
-                    {
-                        if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
-                        {
-                            ( *f )->insideSurf[c] = true;
-                        }
-                    }
-                    else
-                    {
-
-                        if ( ( int )t_vec_vec[c].size() % 2 == 1)
-                        {
-                            ( *f )->insideSurf[c] = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every face
-        {
-            //==== Load Adjoining Faces - NOT Crossing Borders ====//
-            set< Face* > faceSet;
-            ( *f )->LoadAdjFaces( 3, faceSet );
-
-            set<Face*>::iterator sf;
-
-            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
-            {
-                int c = m_SurfVec[i]->GetCompID();
-                if ( c >= 0 && c < ( *f )->insideSurf.size() )
-                {
-
-                    for ( sf = faceSet.begin() ; sf != faceSet.end() ; ++sf )
-                    {
-                        if ( ( *f )->insideSurf[c] )
-                        {
-                            ( *sf )->insideCount[c]++;
-                        }
-                        else
-                        {
-                            ( *sf )->insideCount[c]--;
-                        }
-                    }
-                }
-            }
-        }
-    }
+    list< Face* >::const_iterator f;
 
     //==== Check Vote and Mark Interior Tris =====//
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )

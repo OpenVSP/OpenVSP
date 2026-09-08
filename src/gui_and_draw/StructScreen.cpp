@@ -1784,6 +1784,12 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_MeshTabLayout.SetFitWidthFlag( true );
 
     m_MeshTabLayout.AddYGap();
+    m_MeshTabLayout.AddDividerBox( "Process Control" );
+    m_MeshTabLayout.AddYGap();
+
+    m_MeshTabLayout.AddButton( m_ParallelMesh, "Run Multi-threaded" );
+
+    m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddDividerBox( "Element Type" );
     m_MeshTabLayout.AddYGap();
 
@@ -3591,6 +3597,7 @@ bool StructScreen::Update()
 
             m_ToCubicToggle.Update( curr_struct->GetStructSettingsPtr()->m_DemoteSurfsCubicFlag.GetID() );
             m_ToCubicTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_CubicSurfTolerance.GetID() );
+            m_ParallelMesh.Update( curr_struct->GetStructSettingsPtr()->m_ParallelMeshFlag.GetID() );
 
             if ( curr_struct->GetStructSettingsPtr()->m_DemoteSurfsCubicFlag.Get() )
             {

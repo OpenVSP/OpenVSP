@@ -58,6 +58,7 @@
 #define DEBUG_CFD_MESH
 #endif
 
+#include <functional>
 #include "Surf.h"
 #include "Mesh.h"
 #include "SCurve.h"
@@ -193,6 +194,18 @@ protected:
 };
 
 #define WakeMgr WakeMgrSingleton::getInstance()
+
+// What one surface pair's patch intersection produced.  Pairs are worked side by side, so each
+// keeps its own output and they are folded into the manager's lists in pair order afterwards --
+// which is the order the plain loop over pairs would have built them in.
+class IsectOutput
+{
+public:
+    vector< Puw* > m_Puws;
+    vector< IPnt* > m_IPnts;
+    vector< vector< vec3d > > m_PatchADraw;
+    vector< vector< vec3d > > m_PatchBDraw;
+};
 
 class SurfaceIntersectionSingleton;
 
@@ -445,6 +458,15 @@ public:
     vector< vector< vec3d > > m_DebugCurves;
     vector< vec3d > m_DebugColors;
 #endif
+
+    void IntersectPairs();
+
+    // How many threads the mesher may use, and how a stage of independent pieces is run
+    // across them.  These live here rather than with the CFD mesher because the intersection
+    // stage needs them too.
+    static int MeshThreadCount();
+    int StageThreadCount( int nitem );
+    void RunIndexed( int n, int nthread, const std::function< void( int ) > &body );
 
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {

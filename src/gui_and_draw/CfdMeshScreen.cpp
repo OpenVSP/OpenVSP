@@ -22,7 +22,7 @@
 
 #define CFD_CONSOLE_HEIGHT 200
 
-CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 472 + CFD_CONSOLE_HEIGHT, "CFD Mesh", "", CFD_CONSOLE_HEIGHT )
+CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 572 + CFD_CONSOLE_HEIGHT, "CFD Mesh", "", CFD_CONSOLE_HEIGHT )
 {
     m_Vehicle = m_ScreenMgr->GetVehiclePtr();
 
@@ -225,6 +225,11 @@ void CfdMeshScreen::CreateGlobalTab()
 
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddButton( m_ConvertToQuadsToggle, "Convert to Quads" );
+
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddDividerBox("Process Control");
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddButton( m_ParallelMesh, "Run Multi-threaded" );
 
     globalTab->show();
 }
@@ -944,6 +949,8 @@ bool CfdMeshScreen::Update()
 
 void CfdMeshScreen::UpdateGlobalTab()
 {
+    m_ParallelMesh.Update( m_Vehicle->GetCfdSettingsPtr()->m_ParallelMeshFlag.GetID() );
+
     //===== Global Mesh Control =====//
     m_MaxEdgeLenToggleGroup.Update( m_Vehicle->GetCfdGridDensityPtr()->m_BaseAbsRel.GetID() );
     if ( m_Vehicle->GetCfdGridDensityPtr()->m_BaseAbsRel() == vsp::ABS )

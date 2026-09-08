@@ -504,6 +504,7 @@ private:
     ToggleButton m_HalfMeshButton;
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;
+    ToggleButton m_ParallelMesh;
 
     ToggleButton m_ConvertToQuadsToggle;
     ToggleButton m_HighOrderElementToggle;

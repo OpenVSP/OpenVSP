@@ -105,6 +105,8 @@ protected:
 
     ToggleButton m_ConvertToQuadsToggle;
 
+    ToggleButton m_ParallelMesh;
+
     //===== Display Tab Items =====//
 
     ToggleButton m_ShowSourcesAndWakePreview;

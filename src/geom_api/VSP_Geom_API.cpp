@@ -674,6 +674,8 @@ double GetCFDMeshVal( int type )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation();
     else if ( type == CFD_FAR_LOC_Z )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation();
+    else if ( type == CFD_PARALLEL_MESH_FLAG )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_ParallelMeshFlag();
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "GetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
@@ -732,6 +734,8 @@ void SetCFDMeshVal( int type, double val )
         GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation = val;
     else if ( type == CFD_FAR_LOC_Z )
         GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation = val;
+    else if ( type == CFD_PARALLEL_MESH_FLAG )
+        GetVehicle()->GetCfdSettingsPtr()->m_ParallelMeshFlag = ToBool(val);
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
@@ -5374,6 +5378,8 @@ double GetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type 
         ret = feastruct->GetFeaGridDensityPtr()->GetRigorLimit();
     else if ( type == CFD_HALF_MESH_FLAG )
         ret = feastruct->GetStructSettingsPtr()->m_HalfMeshFlag();
+    else if ( type == CFD_PARALLEL_MESH_FLAG )
+        ret = feastruct->GetStructSettingsPtr()->m_ParallelMeshFlag();
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "GetFeaMeshVal::Can't Find Type " + to_string( ( long long )type ) );
@@ -5434,6 +5440,8 @@ void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type, d
         feastruct->GetFeaGridDensityPtr()->SetRigorLimit( ToBool( val ) );
     else if ( type == CFD_HALF_MESH_FLAG )
         feastruct->GetStructSettingsPtr()->m_HalfMeshFlag = ToBool( val );
+    else if ( type == CFD_PARALLEL_MESH_FLAG )
+        feastruct->GetStructSettingsPtr()->m_ParallelMeshFlag = ToBool( val );
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetFEAMeshVal::Can't Find Type " + to_string( (long long)type ) );

@@ -24,6 +24,7 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
 
     m_DrawMeshFlag = false;
     m_ColorFacesFlag = false;
+    m_ParallelMeshFlag = true;
     m_ColorTagReason = vsp::TAG;
 
     m_DrawSourceWakeFlag = false;
@@ -78,6 +79,7 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
 
     m_DrawMeshFlag = settings->m_DrawMeshFlag.Get();
     m_ColorFacesFlag = settings->m_ColorFacesFlag.Get();
+    m_ParallelMeshFlag = settings->m_ParallelMeshFlag.Get();
     m_ColorTagReason = settings->m_ColorTagReason.Get();
 
     m_DrawSourceWakeFlag = settings->m_DrawSourceWakeFlag.Get();
@@ -519,6 +521,7 @@ SimpleAssemblySettings::SimpleAssemblySettings()
 
     m_DrawMeshFlag = false;
     m_ColorFacesFlag = false;
+    m_ParallelMeshFlag = true;
     m_ColorTagReason = vsp::TAG;
 
     m_DrawNodesFlag = false;

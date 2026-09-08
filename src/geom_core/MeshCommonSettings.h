@@ -29,6 +29,10 @@ public:
     BoolParm m_DrawMeshFlag;
     BoolParm m_ColorFacesFlag;
 
+    // Remesh the surfaces on several threads.  Off makes a run easier to profile and to
+    // compare against, and the result is the same either way.
+    BoolParm m_ParallelMeshFlag;
+
     // What the face colors mean: vsp::CFD_VIS_TYPE.  The saved name still says Flag, so old files
     // still find it.
     IntParm m_ColorTagReason;

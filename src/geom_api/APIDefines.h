@@ -239,6 +239,7 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,	/*!< Minimum mesh edge length */
                             CFD_FAR_LOC_X,	/*!< Far field X location */
                             CFD_FAR_LOC_Y,	/*!< Far field Y location */
                             CFD_FAR_LOC_Z,	/*!< Far field Z location */
+                            CFD_PARALLEL_MESH_FLAG,	/*!< Flag to mesh on several threads */
 };
 
 /*!

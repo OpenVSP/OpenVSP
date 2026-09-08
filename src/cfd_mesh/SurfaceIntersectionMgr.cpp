@@ -7,6 +7,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <chrono>
+#include <thread>
+#include <functional>
+#include <atomic>
 #include "SurfaceIntersectionMgr.h"
 #include "ResultsMgr.h"
 #include "VspUtil.h"
@@ -444,6 +448,89 @@ SurfaceIntersectionSingleton::~SurfaceIntersectionSingleton()
     }
 #endif
 
+}
+
+// Where AddIntersectionSeg puts what it makes.  Set for the length of one piece of the
+// intersection, so a piece's output stays together whichever thread ran it.
+static thread_local IsectOutput *tl_isect_out = nullptr;
+
+// How many threads the mesher may use: what the machine says it can run at once, never less
+// than one.
+int SurfaceIntersectionSingleton::MeshThreadCount()
+{
+    int nthread = ( int )std::thread::hardware_concurrency();
+
+    if ( nthread < 1 )
+    {
+        nthread = 1;
+    }
+
+    return nthread;
+}
+
+// How many threads a stage of nitem independent pieces should use.
+int SurfaceIntersectionSingleton::StageThreadCount( int nitem )
+{
+    int nthread = 1;
+
+    if ( GetSettingsPtr()->m_ParallelMeshFlag )
+    {
+        nthread = MeshThreadCount();
+    }
+
+    if ( nthread > nitem )
+    {
+        nthread = nitem;
+    }
+
+    if ( nthread < 1 )
+    {
+        nthread = 1;
+    }
+
+    return nthread;
+}
+
+// Run body( i ) for every i below n.  A thread takes the next piece that has not been started
+// rather than a fixed share handed out up front, because one piece can cost many times what
+// another does and a fixed split would leave threads idle waiting on the slowest share.
+void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::function< void( int ) > &body )
+{
+    if ( nthread > 1 )
+    {
+        std::atomic< int > next( 0 );
+        vector < std::thread > pool;
+
+        for ( int t = 0 ; t < nthread ; t++ )
+        {
+            pool.push_back( std::thread( [&]()
+            {
+                while ( true )
+                {
+                    int i = next++;
+
+                    if ( i >= n )
+                    {
+                        break;
+                    }
+
+                    body( i );
+                }
+            } ) );
+        }
+
+        for ( int t = 0 ; t < ( int )pool.size() ; t++ )
+        {
+            pool[t].join();
+        }
+    }
+    else
+    {
+        for ( int i = 0 ; i < n ; i++ )
+        {
+            body( i );
+        }
+    }
 }
 
 void SurfaceIntersectionSingleton::IntersectSurfaces()
@@ -1991,6 +2078,86 @@ void SurfaceIntersectionSingleton::BuildCurves()
     }
 }
 
+// Intersect every pair of surfaces, in two passes.
+//
+// The first pass decides which pairs are worth the patch work.  It has to run on one thread:
+// deciding involves projecting one surface's border curves onto the other, and an evaluation
+// writes scratch buffers that belong to the surface, so two threads asking about the same
+// It is also the cheap pass.
+//
+// The second pass walks the patch trees, which is the expensive part and touches the surfaces
+// only through their control points.  Pairs are handed out one at a time rather than in fixed
+// shares, because on a real model nearly every pair is rejected on its bounding box and the
+// few that survive are not evenly spread.  Each pair writes into its own bucket; the buckets
+// are folded back in pair order, so the result does not depend on which thread ran what.
+void SurfaceIntersectionSingleton::IntersectPairs()
+{
+    char str[256];
+
+    int n = ( int )m_SurfVec.size();
+
+    vector < pair < int, int > > work;
+
+    for ( int i = 0 ; i < n ; i++ )
+    {
+        for ( int j = i + 1 ; j < n ; j++ )
+        {
+            if ( m_SurfVec[i]->IntersectPrepare( m_SurfVec[j], this ) )
+            {
+                work.push_back( pair< int, int >( i, j ) );
+            }
+        }
+
+        snprintf( str, sizeof( str ), "Intersect %3d/%3d %s                                                      \r", i + 1, n, m_SurfVec[i]->GetDisplayName().c_str() );
+        addOutputText( str );
+    }
+
+    // One piece of work for each patch of a pair's first surface, rather than one for the pair:
+    // a single pair can cost as much as all the others together, and as one piece it would
+    // leave every other thread waiting on it.  The pieces are taken in order and their output
+    // gathered in that order, so the result is the same however they are run.
+    vector < pair < int, int > > piece;
+    vector < int > patch_vec;
+
+    for ( int k = 0 ; k < ( int )work.size() ; k++ )
+    {
+        m_SurfVec[ work[k].first ]->FindIntersectPatches( m_SurfVec[ work[k].second ], patch_vec );
+
+        for ( int i = 0 ; i < ( int )patch_vec.size() ; i++ )
+        {
+            piece.push_back( pair< int, int >( k, patch_vec[i] ) );
+        }
+    }
+
+    int nwork = ( int )piece.size();
+
+    vector < IsectOutput > out( nwork );
+
+    int nthread = StageThreadCount( nwork );
+
+    RunIndexed( nwork, nthread, [&]( int k )
+    {
+        tl_isect_out = &out[k];
+
+        const pair < int, int > &surfs = work[ piece[k].first ];
+        m_SurfVec[ surfs.first ]->IntersectPatch( piece[k].second, m_SurfVec[ surfs.second ], this );
+
+        tl_isect_out = nullptr;
+    } );
+
+    for ( int k = 0 ; k < nwork ; k++ )
+    {
+        m_DelPuwVec.insert( m_DelPuwVec.end(), out[k].m_Puws.begin(), out[k].m_Puws.end() );
+        m_DelIPntVec.insert( m_DelIPntVec.end(), out[k].m_IPnts.begin(), out[k].m_IPnts.end() );
+        m_AllIPnts.insert( m_AllIPnts.end(), out[k].m_IPnts.begin(), out[k].m_IPnts.end() );
+        m_IPatchADrawLines.insert( m_IPatchADrawLines.end(), out[k].m_PatchADraw.begin(), out[k].m_PatchADraw.end() );
+        m_IPatchBDrawLines.insert( m_IPatchBDrawLines.end(), out[k].m_PatchBDraw.begin(), out[k].m_PatchBDraw.end() );
+    }
+
+    snprintf( str, sizeof( str ), "Intersect %d surfaces, %d pairs with work                                    \n", n, ( int )work.size() );
+    addOutputText( str );
+}
+
 void SurfaceIntersectionSingleton::Intersect()
 {
     char str[256];
@@ -1999,19 +2166,7 @@ void SurfaceIntersectionSingleton::Intersect()
     if ( GetSettingsPtr()->m_IntersectSubSurfs ) BuildSubSurfIntChains();
 
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
-    for ( int i = 0 ; i < n; i++ )
-    {
-        for ( int j = i + 1; j < n; j++ )
-        {
-            snprintf( str, sizeof( str ), "Intersect %3d/%3d %s vs. %3d %s                                           \r", i + 1, n, m_SurfVec[i]->GetDisplayName().c_str(),
-                                                                                             j + 1, m_SurfVec[j]->GetDisplayName().c_str());
-            addOutputText( str );
-
-            m_SurfVec[i]->Intersect( m_SurfVec[j], this );
-        }
-        snprintf( str, sizeof( str ), "Intersect %3d/%3d %s                                                      \n", i + 1, n, m_SurfVec[i]->GetDisplayName().c_str() );
-        addOutputText( str );
-    }
+    IntersectPairs();
 
     // WriteISegs();
 
@@ -2148,63 +2303,31 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     pB.find_closest_uw( ip1, plane_uwB1.v, proj_uwB1.v );
 
     Puw* puwA0 = new Puw( pA.get_surf_ptr(), proj_uwA0 );
-    m_DelPuwVec.push_back( puwA0 );
+    tl_isect_out->m_Puws.push_back( puwA0 );
 
     Puw* puwB0 = new Puw( pB.get_surf_ptr(), proj_uwB0 );
-    m_DelPuwVec.push_back( puwB0 );
+    tl_isect_out->m_Puws.push_back( puwB0 );
 
     IPnt* ipnt0 = new IPnt( puwA0, puwB0 );
     ipnt0->m_Pnt = ip0;
-    m_DelIPntVec.push_back( ipnt0 );
+    tl_isect_out->m_IPnts.push_back( ipnt0 );
 
     Puw* puwA1 = new Puw( pA.get_surf_ptr(), proj_uwA1 );
-    m_DelPuwVec.push_back( puwA1 );
+    tl_isect_out->m_Puws.push_back( puwA1 );
 
     Puw* puwB1 = new Puw( pB.get_surf_ptr(), proj_uwB1 );
-    m_DelPuwVec.push_back( puwB1 );
+    tl_isect_out->m_Puws.push_back( puwB1 );
 
     IPnt* ipnt1 = new IPnt( puwA1, puwB1 );
     ipnt1->m_Pnt = ip1;
-    m_DelIPntVec.push_back( ipnt1 );
+    tl_isect_out->m_IPnts.push_back( ipnt1 );
 
     // Identify rectangles to represent final patches
-    m_IPatchADrawLines.push_back( pA.GetPatchDrawLines() );
-    m_IPatchBDrawLines.push_back( pB.GetPatchDrawLines() );
+    tl_isect_out->m_PatchADraw.push_back( pA.GetPatchDrawLines() );
+    tl_isect_out->m_PatchBDraw.push_back( pB.GetPatchDrawLines() );
 
     new ISeg( pA.get_surf_ptr(), pB.get_surf_ptr(), ipnt0, ipnt1 );
-
-    m_AllIPnts.push_back( ipnt0 );
-    m_AllIPnts.push_back( ipnt1 );
-
-#ifdef DEBUG_CFD_MESH
-
-    static bool onetime = true;
-    static int ipntcnt = 0;
-    static double max_dist = 0.0;
-    if ( onetime )
-    {
-        fprintf( m_DebugFile, "CfdMeshMgr::AddIntersectionSeg \n" );
-        onetime = false;
-    }
-
-    double dA0 = dist( ip0, puwA0->m_Surf->CompPnt( puwA0->m_UW.x(), puwA0->m_UW.y() ) );
-    double dB0 = dist( ip0, puwB0->m_Surf->CompPnt( puwB0->m_UW.x(), puwB0->m_UW.y() ) );
-
-    double dA1 = dist( ip1, puwA0->m_Surf->CompPnt( puwA1->m_UW.x(), puwA1->m_UW.y() ) );
-    double dB1 = dist( ip1, puwB0->m_Surf->CompPnt( puwB1->m_UW.x(), puwB1->m_UW.y() ) );
-
-    double total_d = dA0 + dB0 + dA1 + dB1;
-
-    if ( total_d > max_dist )
-    {
-        max_dist = total_d;
-        fprintf( m_DebugFile, "  Proj Pnt Dist = %f    %d \n", max_dist, ipntcnt );
-    }
-    ipntcnt++;
-
-#endif
 }
-
 
 ISeg* SurfaceIntersectionSingleton::CreateSurfaceSeg(  Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1   )
 {
@@ -2639,7 +2762,6 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
             buw->m_UW[1] = wB;
         }
     }
-
 }
 
 void SurfaceIntersectionSingleton::RefineISegChain( ISegChain* c )

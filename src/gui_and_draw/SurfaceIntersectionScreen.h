@@ -72,6 +72,7 @@ protected:
 
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;
+    ToggleButton m_ParallelMesh;
 
     //===== Display Tab Items =====//
 

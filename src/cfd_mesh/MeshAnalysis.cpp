@@ -41,6 +41,7 @@ void CfdMeshAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "IntersectSubSurfs", veh->GetCfdSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
         m_Inputs.Add( new NameValData( "TaggedMultiSolid", veh->m_STLMultiSolid(), "Flag to enable non-standard tagged multi-solid STL file export." ) );
         m_Inputs.Add( new NameValData( "GenerateHalfMesh", veh->GetCfdSettingsPtr()->m_HalfMeshFlag(), "Flag to generate a half mesh in +Y domain." ) );
+        m_Inputs.Add( new NameValData( "ParallelMesh", veh->GetCfdSettingsPtr()->m_ParallelMeshFlag(), "Flag to mesh on several threads." ) );
 
         m_Inputs.Add( new NameValData( "SelectedSetIndex", veh->GetCfdSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
         m_Inputs.Add( new NameValData( "SelectedDegenSetIndex", veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex(), "Degenerate (thin) geometry set for analysis." ) );
@@ -116,6 +117,10 @@ string CfdMeshAnalysis::Execute()
         bool generateHalfMeshOrig = veh->GetCfdSettingsPtr()->m_HalfMeshFlag();
         nvd = m_Inputs.FindPtr( "GenerateHalfMesh", 0 );
         if( nvd ) veh->GetCfdSettingsPtr()->m_HalfMeshFlag.Set( nvd->GetInt( 0 ) );
+
+        bool parallelMeshOrig = veh->GetCfdSettingsPtr()->m_ParallelMeshFlag();
+        nvd = m_Inputs.FindPtr( "ParallelMesh", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->m_ParallelMeshFlag.Set( nvd->GetInt( 0 ) );
 
         int selectedSetIndexOrig = veh->GetCfdSettingsPtr()->m_SelectedSetIndex();
         nvd = m_Inputs.FindPtr( "SelectedSetIndex", 0 );
@@ -200,6 +205,7 @@ string CfdMeshAnalysis::Execute()
         veh->GetCfdSettingsPtr()->m_IntersectSubSurfs.Set( intersectSubSurfsOrig );
         veh->m_STLMultiSolid.Set( taggedMultiSolidOrig );
         veh->GetCfdSettingsPtr()->m_HalfMeshFlag.Set( generateHalfMeshOrig );
+        veh->GetCfdSettingsPtr()->m_ParallelMeshFlag.Set( parallelMeshOrig );
 
         veh->GetCfdSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
         veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.Set( selectedDegenSetIndexOrig );

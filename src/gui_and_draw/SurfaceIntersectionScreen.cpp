@@ -126,6 +126,11 @@ void SurfaceIntersectionScreen::CreateGlobalTab()
     m_GlobalTabLayout.SetSameLineFlag( false );
     m_GlobalTabLayout.SetFitWidthFlag( true );
 
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddDividerBox("Process Control");
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddButton( m_ParallelMesh, "Run Multi-threaded" );
+
     globalTab->show();
 }
 
@@ -362,6 +367,7 @@ void SurfaceIntersectionScreen::UpdateGlobalTab()
 
     m_ToCubicToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_DemoteSurfsCubicFlag.GetID() );
     m_ToCubicTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_CubicSurfTolerance.GetID() );
+    m_ParallelMesh.Update( m_Vehicle->GetISectSettingsPtr()->m_ParallelMeshFlag.GetID() );
 
     if ( m_Vehicle->GetISectSettingsPtr()->m_DemoteSurfsCubicFlag.Get() )
     {
