@@ -917,8 +917,22 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
     // iteration line is left to the single threaded case.
     bool iter_progress = ( nthread == 1 );
 
-    RunIndexed( nsurf, nthread, [&]( int i )
+    // Biggest surfaces first, so the long surfaces start while there is still small work to fill
+    // in behind them and the run does not end on one large surface with every other thread idle.
+    // The surfaces are independent, so the order they are taken in does not change any of them.
+    vector < pair < int, int > > order( nsurf );
+
+    for ( int i = 0 ; i < nsurf ; i++ )
     {
+        order[i] = pair< int, int >( m_SurfVec[i]->GetMesh()->GetNumFaces(), i );
+    }
+
+    sort( order.begin(), order.end(), std::greater< pair < int, int > >() );
+
+    RunIndexed( nsurf, nthread, [&]( int k )
+    {
+        int i = order[k].second;
+
         RemeshOneSurf( i, nsurf, output_type, iter_progress, surftris[i] );
     } );
 
