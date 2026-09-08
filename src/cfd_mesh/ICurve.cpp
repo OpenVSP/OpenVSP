@@ -23,13 +23,18 @@ ICurve::~ICurve()
 
 bool ICurve::Match( SCurve* crv_A, SCurve* crv_B )
 {
-    double tol = 1.0e-5;
-
     Bezier_curve xyzcrvA = crv_A->GetUWCrv();
     xyzcrvA.UWCurveToXYZCurve( crv_A->GetSurf() );
 
     Bezier_curve xyzcrvB = crv_B->GetUWCrv();
     xyzcrvB.UWCurveToXYZCurve( crv_B->GetSurf() );
+
+    return Match( crv_A, crv_B, xyzcrvA, xyzcrvB );
+}
+
+bool ICurve::Match( SCurve* crv_A, SCurve* crv_B, const Bezier_curve &xyzcrvA, const Bezier_curve &xyzcrvB )
+{
+    double tol = 1.0e-5;
 
     bool fmatch = xyzcrvA.MatchFwd( xyzcrvB, tol );
     bool bmatch = xyzcrvA.MatchBkwd( xyzcrvB, tol );

@@ -1196,6 +1196,41 @@ static double FindOnSCurve( const SCurveSide &side, const vec3d &p, double tol )
     return ( s - side.m_S0 ) / ( side.m_S1 - side.m_S0 );
 }
 
+// What matching needs of one border curve: its two ends, its side, and a box around it.  They
+// depend only on the curve, so they are worked out once and kept rather than again for every
+// curve it is tried against.
+//
+// The box turns a point away before it is searched for.  A Bezier stays inside the hull of its
+// control points, so a box around the side's, grown by the tolerance, holds every point that
+// could be found on the curve.
+struct SCurveTake
+{
+    vec3d m_End0;
+    vec3d m_End1;
+    bool m_HasSide = false;
+    SCurveSide m_Side;
+    BndBox m_Box;
+};
+
+static void TakeSCurve( SCurve* c, double tol, SCurveTake &take )
+{
+    take.m_End0 = SCurvePnt( c, 0.0 );
+    take.m_End1 = SCurvePnt( c, 1.0 );
+    take.m_HasSide = GetSCurveSide( c, take.m_Side );
+
+    take.m_Box.Reset();
+
+    if ( take.m_HasSide )
+    {
+        piecewise_curve_type::bounding_box_type bbox;
+        take.m_Side.m_Crv.get_bounding_box( bbox );
+
+        take.m_Box.Update( vec3d( bbox.get_max() ) );
+        take.m_Box.Update( vec3d( bbox.get_min() ) );
+        take.m_Box.Expand( tol );
+    }
+}
+
 void SurfaceIntersectionSingleton::SplitBordersToMatch()
 {
     double tol = 1.0e-5;
@@ -1203,31 +1238,27 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
     int guard = 0;
     const int guardmax = 1000;
 
+    // Every curve, taken once.  There is one pass for every cut made, and a cut only ever changes
+    // the curves of the surface being cut, so they are taken here and that one surface's are
+    // taken again when it changes.
+    vector< vector< SCurveTake > > takes( m_SurfVec.size() );
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector< SCurve* > &cv = m_SurfVec[i]->GetSCurveVec();
+
+        takes[i].resize( cv.size() );
+
+        for ( int c = 0 ; c < ( int )cv.size() ; c++ )
+        {
+            TakeSCurve( cv[c], tol, takes[i][c] );
+        }
+    }
+
     while ( changed && guard < guardmax )
     {
         changed = false;
         guard++;
-
-        // Every curve's two ends, taken once.  A cut adds a curve and moves the one it was
-        // made from, so the ends are gathered again each pass; within a pass they are looked
-        // at by every other curve in turn, and evaluating the surface for each of those
-        // pairings is the bulk of what this costs.
-        vector< vector< vec3d > > ends0( m_SurfVec.size() );
-        vector< vector< vec3d > > ends1( m_SurfVec.size() );
-
-        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-        {
-            vector< SCurve* > &cv = m_SurfVec[i]->GetSCurveVec();
-
-            ends0[i].resize( cv.size() );
-            ends1[i].resize( cv.size() );
-
-            for ( int c = 0 ; c < ( int )cv.size() ; c++ )
-            {
-                ends0[i][c] = SCurvePnt( cv[c], 0.0 );
-                ends1[i][c] = SCurvePnt( cv[c], 1.0 );
-            }
-        }
 
         for ( int i = 0 ; i < ( int )m_SurfVec.size() && !changed ; i++ )
         {
@@ -1235,8 +1266,8 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
 
             for ( int a = 0 ; a < ( int )cva.size() && !changed ; a++ )
             {
-                vec3d a0 = ends0[i][a];
-                vec3d a1 = ends1[i][a];
+                vec3d a0 = takes[i][a].m_End0;
+                vec3d a1 = takes[i][a].m_End1;
 
                 for ( int j = 0 ; j < ( int )m_SurfVec.size() && !changed ; j++ )
                 {
@@ -1249,8 +1280,8 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
 
                     for ( int b = 0 ; b < ( int )cvb.size() && !changed ; b++ )
                     {
-                        vec3d b0 = ends0[j][b];
-                        vec3d b1 = ends1[j][b];
+                        vec3d b0 = takes[j][b].m_End0;
+                        vec3d b1 = takes[j][b].m_End1;
 
                         // One end of the short curve has to sit on an end of the long one,
                         // and its other end somewhere along the middle of it.
@@ -1273,14 +1304,12 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
                             continue;
                         }
 
-                        SCurveSide side;
-
-                        if ( !GetSCurveSide( cva[a], side ) )
+                        if ( !takes[i][a].m_HasSide || !takes[i][a].m_Box.CheckPnt( far_end ) )
                         {
                             continue;
                         }
 
-                        double t = FindOnSCurve( side, far_end, tol );
+                        double t = FindOnSCurve( takes[i][a].m_Side, far_end, tol );
 
                         if ( t < 0.01 || t > 0.99 )
                         {
@@ -1307,6 +1336,11 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
                         delete cva[a];
                         cva[a] = c0;
                         cva.push_back( c1 );
+
+                        // Only this surface's curves moved; take them again.
+                        takes[i].resize( cva.size() );
+                        TakeSCurve( cva[a], tol, takes[i][a] );
+                        TakeSCurve( cva.back(), tol, takes[i].back() );
 
                         changed = true;
                     }
@@ -1342,14 +1376,41 @@ void SurfaceIntersectionSingleton::BuildGrid()
         m_SurfVec[i]->LoadSCurves( scurve_vec );
     }
 
-    for ( i = 0 ; i < ( int )scurve_vec.size() ; i++ )
+    // Every border curve against every other, which is quadratic, and the costly part of a
+    // comparison is putting each curve into xyz.  Convert each one once, and let a bounding box
+    // turn away the pairs that cannot possibly meet before anything is compared point by point.
+    int nsc = ( int )scurve_vec.size();
+
+    vector< Bezier_curve > xyzcrvs( nsc );
+    vector< BndBox > crvboxes( nsc );
+
+    for ( i = 0 ; i < nsc ; i++ )
     {
-        for ( j = i + 1 ; j < ( int )scurve_vec.size() ; j++ )
+        xyzcrvs[i] = scurve_vec[i]->GetUWCrv();
+        xyzcrvs[i].UWCurveToXYZCurve( scurve_vec[i]->GetSurf() );
+        xyzcrvs[i].GetBBox( crvboxes[i] );
+    }
+
+    for ( i = 0 ; i < nsc ; i++ )
+    {
+        for ( j = i + 1 ; j < nsc ; j++ )
         {
+            if ( !Compare( crvboxes[i], crvboxes[j], 1.0e-5 ) )
+            {
+                continue;
+            }
+
             ICurve* icrv = new ICurve;
-            if ( icrv->Match( scurve_vec[i], scurve_vec[j] ) )
+            if ( icrv->Match( scurve_vec[i], scurve_vec[j], xyzcrvs[i], xyzcrvs[j] ) )
             {
                 m_ICurveVec.push_back( icrv );
+
+                // A backwards match turns the second curve around, so the copy held for it is
+                // no longer the curve it names.  Take it again before it is compared to
+                // anything else.
+                xyzcrvs[j] = scurve_vec[j]->GetUWCrv();
+                xyzcrvs[j].UWCurveToXYZCurve( scurve_vec[j]->GetSurf() );
+                xyzcrvs[j].GetBBox( crvboxes[j] );
             }
             else
             {

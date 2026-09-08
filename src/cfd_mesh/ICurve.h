@@ -40,6 +40,11 @@ public:
     virtual ~ICurve();
 
     bool Match( SCurve* crv_A, SCurve* crv_B );
+
+    // The same, given the two curves already in xyz.  Matching is quadratic in the number of
+    // border curves and the conversion is the expensive part, so the caller converts each
+    // curve once and hands it in rather than having it done again for every partner.
+    bool Match( SCurve* crv_A, SCurve* crv_B, const Bezier_curve &xyzcrvA, const Bezier_curve &xyzcrvB );
     void BorderTesselate( );
     static void PlaneBorderTesselate( SCurve* sca, SCurve* scb );
     void SetACurve( SCurve* crv_A )
