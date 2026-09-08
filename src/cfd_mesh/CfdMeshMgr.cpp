@@ -163,7 +163,6 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Build Single Tag Map\n" );
     SubSurfaceMgr.BuildSingleTagMap();
 
-    addOutputText( "Exporting Files\n" );
     ExportFiles();
 
     addOutputText( "Check Water Tight\n" );
@@ -1031,8 +1030,13 @@ string CfdMeshMgrSingleton::GetQualString()
     return "";
 }
 
+// Each message goes out ahead of the work it names, so whatever is on screen is what is running.
+// The POGS files are the slow ones and are optional, so they speak for themselves below rather
+// than being covered by one label for the whole stage.
 void CfdMeshMgrSingleton::ExportFiles()
 {
+    addOutputText( "Exporting Files\n" );
+
     if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME ) )
     {
         if ( !m_Vehicle->m_STLMultiSolid() )
@@ -1095,6 +1099,8 @@ void CfdMeshMgrSingleton::ExportFiles()
     string pogs_fn;
     if (  GetSettingsPtr()->GetExportFileFlag( vsp::CFD_POGS_FILE_NAME ) )
     {
+        addOutputText( "Building POGS Surfaces\n" );
+
         BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
 
         BuildNURBSSurfMap();
@@ -3220,7 +3226,20 @@ void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
             }
         }
 
+        all_pnt_vec[iface] = pnt_vec;
+    }
+
+    // Deciding which samples fall inside another component is a ray cast apiece, and it is the
+    // whole cost of writing these files, so it is named on the progress line.
+    addOutputText( "POGS Ray Trace\n" );
+
+    RunRayCastStage( "POGS ray trace", nface, [&]( int iface )
+    {
+        Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
+
         int comp_id = srf->GetCompID();
+
+        const vector < vec3d > &pnt_vec = all_pnt_vec[iface];
 
         vector < int > iblank_vec( pnt_vec.size(), 1 );
 
@@ -3232,9 +3251,10 @@ void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
             }
         }
 
-        all_pnt_vec[iface] = pnt_vec;
         all_iblank_vec[iface] = iblank_vec;
-    }
+    } );
+
+    addOutputText( "Writing POGS Files\n" );
 
     // egads2srf writes these with the u count first and u running fastest, so the reader
     // takes the first index for u and the second for v.  Match it.
@@ -4802,6 +4822,28 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, const vect
     return deleteTri;
 }
 
+// Both interior tests -- the one that votes on triangles and the one that blanks the samples
+// written for POGS -- ask the same question of the same surfaces, and thread on the same terms:
+// they read the surfaces' patches, split them out of a pool that belongs to the thread, and each
+// index writes only its own answer.
+void CfdMeshMgrSingleton::RunRayCastStage( const string &label, int n,
+                                           const std::function< void( int ) > &body )
+{
+    int nthread = StageThreadCount( n );
+
+    BeginProgress( label, n, VOCAL_OUTPUT );
+
+    RunIndexed( n, nthread, [&]( int i )
+    {
+        body( i );
+
+        m_ProgressDone++;
+        StepProgress( VOCAL_OUTPUT );
+    } );
+
+    EndProgress( VOCAL_OUTPUT );
+}
+
 // One surface's share of the interior/exterior test.  It casts a ray from each of its own
 // triangles against every other surface and writes the verdict onto its own faces, so the
 // surfaces are independent of each other here.
@@ -4933,20 +4975,10 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
 
     //==== Count Number of Component Crossings for Each Component =====//
-    int nsurf = ( int )m_SurfVec.size();
-    int nthread = StageThreadCount( nsurf );
-
-    BeginProgress( "Inside/outside", nsurf, VOCAL_OUTPUT );
-
-    RunIndexed( nsurf, nthread, [&]( int is )
+    RunRayCastStage( "Inside/outside", ( int )m_SurfVec.size(), [&]( int is )
     {
         RemoveInteriorTrisOneSurf( is, x_dist );
-
-        m_ProgressDone++;
-        StepProgress( VOCAL_OUTPUT );
     } );
-
-    EndProgress( VOCAL_OUTPUT );
 
     list< Face* >::const_iterator f;
 

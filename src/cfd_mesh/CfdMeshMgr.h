@@ -230,6 +230,7 @@ public:
 
     enum { QUIET_OUTPUT, VOCAL_OUTPUT, };
 
+    void RunRayCastStage( const string &label, int n, const std::function< void( int ) > &body );
     void RemoveInteriorTrisOneSurf( int s, double x_dist );
 
     virtual void Remesh( int output_type );
