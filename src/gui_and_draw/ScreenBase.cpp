@@ -637,8 +637,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     // init AttachLayout and AttachLayoutSub; hierarchy permits leaving none buttons active on orphaned attach geoms
     int labelw = 74;
     int buttonw = ( m_XFormLayout.GetW() - labelw ) / 6;
-    m_XFormLayout.AddSubGroupLayout( m_AttachLayout, m_XFormLayout.GetW(), 11 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
-    m_AttachLayout.AddSubGroupLayout( m_AttachLayoutSelections, m_AttachLayout.GetW(), 11 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
+    m_XFormLayout.AddSubGroupLayout( m_AttachLayout, m_XFormLayout.GetW(), 12 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
+    m_AttachLayout.AddSubGroupLayout( m_AttachLayoutSelections, m_AttachLayout.GetW(), 12 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
     m_AttachLayout.AddSubGroupLayout( m_AttachLayoutTransHeader, buttonw + labelw, m_AttachLayout.GetStdHeight() );
     m_AttachLayout.ForceNewLine();
     m_AttachLayout.AddYGap();
