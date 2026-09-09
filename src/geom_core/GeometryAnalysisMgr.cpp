@@ -321,6 +321,12 @@ string GeometryAnalysisCase::GetSecondaryName() const
 
 vector< TMesh* > GeometryAnalysisCase::GetPrimaryTMeshVec()
 {
+    BndBox bbox;
+    return GetPrimaryTMeshVec( bbox );
+}
+
+vector< TMesh* > GeometryAnalysisCase::GetPrimaryTMeshVec( BndBox & bbox )
+{
     vector< TMesh* > tmv;
 
     Vehicle *veh = VehicleMgr.GetVehicle();
@@ -343,11 +349,11 @@ vector< TMesh* > GeometryAnalysisCase::GetPrimaryTMeshVec()
                 }
             }
 
-            tmv = veh->CreateTMeshVec( set );
+            tmv = veh->CreateTMeshVec( set, bbox );
         }
         else if ( m_PrimaryType() == vsp::GEOM_TARGET )
         {
-            tmv = veh->CreateTMeshVec( m_PrimaryGeomID );
+            tmv = veh->CreateTMeshVec( m_PrimaryGeomID, bbox );
         }
     }
 

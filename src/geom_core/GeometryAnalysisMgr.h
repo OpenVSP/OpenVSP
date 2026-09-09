@@ -37,6 +37,7 @@ public:
     string GetSecondaryName() const;
 
     vector< TMesh* > GetPrimaryTMeshVec();
+    vector< TMesh* > GetPrimaryTMeshVec( BndBox & bbox );
     vector< TetraMassProp* > GetPrimaryTetraMassPropVec();
     vector< TMesh* > GetSecondaryTMeshVec();
     vector< TMesh* > GetHingeSecondaryTMeshVec();
