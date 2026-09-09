@@ -387,6 +387,7 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                         m_UserDefinedBrowser->add( pname.c_str() );
                     }
                 }
+                RebuildAdjustGroup();
             }
         }
     }
