@@ -579,6 +579,10 @@ public:
     {
         return m_ScaleIndependentBBox;
     }
+    virtual bool IsBndBoxScaleDependent() const
+    {
+        return m_BBox != m_ScaleIndependentBBox;
+    }
 
     virtual void WriteAirfoilFiles( FILE* meta_fid );
     virtual void WriteBezierAirfoil( const string & file_name, double foilsurf_u_location );
