@@ -2207,64 +2207,62 @@ void VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, 
     }
 
     // create rectangle
+    pt.resize( 8 );
+    u.resize( 9 );
+
+    // set the segment points
+    pt[0].set_xyz( w,                 h_off,        0 );
+    pt[1].set_xyz( w2 + wb2 - w_off, -h2 + h_off,   0 );
+    pt[2].set_xyz( w2 - w_off,       -h2,           0 );
+    pt[3].set_xyz( w2 - wb2 - w_off, -h2 - h_off,   0 );
+    pt[4].set_xyz( 0,                -h_off,        0 );
+    pt[5].set_xyz( w2 - wt2 + w_off,  h2 - h_off,   0 );
+    pt[6].set_xyz( w2 + w_off,        h2,           0 );
+    pt[7].set_xyz( w2 + wt2 + w_off,  h2 + h_off,   0 );
+
+    // set the corresponding parameters
+    u[0] = 0;
+    u[2] = 1;
+    u[4] = 2;
+    u[6] = 3;
+    u[8] = 4;
+
+    if ( keycorner )
     {
-        pt.resize( 8 );
-        u.resize( 9 );
+        u[1] = 0.5;
+        u[3] = 1.5;
+        u[5] = 2.5;
+        u[7] = 3.5;
+    }
+    else
+    {
+        double d1 = dist( pt[0], pt[1] );
+        double d2 = dist( pt[1], pt[2] );
+        double du = d1 / ( d1 + d2 );
+        if ( du < 0.001 ) du = 0.001;
+        if ( du > 0.999 ) du = 0.999;
+        u[1] = du;
 
-        // set the segment points
-        pt[0].set_xyz( w,                 h_off,        0 );
-        pt[1].set_xyz( w2 + wb2 - w_off, -h2 + h_off,   0 );
-        pt[2].set_xyz( w2 - w_off,       -h2,           0 );
-        pt[3].set_xyz( w2 - wb2 - w_off, -h2 - h_off,   0 );
-        pt[4].set_xyz( 0,                -h_off,        0 );
-        pt[5].set_xyz( w2 - wt2 + w_off,  h2 - h_off,   0 );
-        pt[6].set_xyz( w2 + w_off,        h2,           0 );
-        pt[7].set_xyz( w2 + wt2 + w_off,  h2 + h_off,   0 );
+        d1 = dist( pt[2], pt[3] );
+        d2 = dist( pt[3], pt[4] );
+        du = d1 / ( d1 + d2 );
+        if ( du < 0.001 ) du = 0.001;
+        if ( du > 0.999 ) du = 0.999;
+        u[3] = 1 + du;
 
-        // set the corresponding parameters
-        u[0] = 0;
-        u[2] = 1;
-        u[4] = 2;
-        u[6] = 3;
-        u[8] = 4;
+        d1 = dist( pt[4], pt[5] );
+        d2 = dist( pt[5], pt[6] );
+        du = d1 / ( d1 + d2 );
+        if ( du < 0.001 ) du = 0.001;
+        if ( du > 0.999 ) du = 0.999;
+        u[5] = 2 + du;
 
-        if ( keycorner )
-        {
-            u[1] = 0.5;
-            u[3] = 1.5;
-            u[5] = 2.5;
-            u[7] = 3.5;
-        }
-        else
-        {
-            double d1 = dist( pt[0], pt[1] );
-            double d2 = dist( pt[1], pt[2] );
-            double du = d1 / ( d1 + d2 );
-            if ( du < 0.001 ) du = 0.001;
-            if ( du > 0.999 ) du = 0.999;
-            u[1] = du;
-
-            d1 = dist( pt[2], pt[3] );
-            d2 = dist( pt[3], pt[4] );
-            du = d1 / ( d1 + d2 );
-            if ( du < 0.001 ) du = 0.001;
-            if ( du > 0.999 ) du = 0.999;
-            u[3] = 1 + du;
-
-            d1 = dist( pt[4], pt[5] );
-            d2 = dist( pt[5], pt[6] );
-            du = d1 / ( d1 + d2 );
-            if ( du < 0.001 ) du = 0.001;
-            if ( du > 0.999 ) du = 0.999;
-            u[5] = 2 + du;
-
-            d1 = dist( pt[6], pt[7] );
-            d2 = dist( pt[7], pt[0] );
-            du = d1 / ( d1 + d2 );
-            if ( du < 0.001 ) du = 0.001;
-            if ( du > 0.999 ) du = 0.999;
-            u[7] = 3 + du;
-        }
+        d1 = dist( pt[6], pt[7] );
+        d2 = dist( pt[7], pt[0] );
+        du = d1 / ( d1 + d2 );
+        if ( du < 0.001 ) du = 0.001;
+        if ( du > 0.999 ) du = 0.999;
+        u[7] = 3 + du;
     }
 
     // build the polygon
