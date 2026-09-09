@@ -1452,6 +1452,24 @@ void Vehicle::DeleteSavedXSecCurve ()
 
 vector< TMesh* > Vehicle::CreateTMeshVec( int normal_set )
 {
+    BndBox bbox;
+    return CreateTMeshVec( normal_set, bbox );
+}
+
+vector< TMesh* > Vehicle::CreateTMeshVec( const vector < string > &geom_vec )
+{
+    BndBox bbox;
+    return CreateTMeshVec( geom_vec, bbox );
+}
+
+vector< TMesh* > Vehicle::CreateTMeshVec( const string &geomid )
+{
+    BndBox bbox;
+    return CreateTMeshVec( geomid, bbox );
+}
+
+vector< TMesh* > Vehicle::CreateTMeshVec( int normal_set, BndBox & bbox )
+{
     vector< TMesh* > tmv;
     vector<string> geom_vec = GetGeomVec();
 
@@ -1467,13 +1485,25 @@ vector< TMesh* > Vehicle::CreateTMeshVec( int normal_set )
                 {
                     tmv.push_back( tMeshVec[j] );
                 }
+
+                if ( g_ptr->IsBndBoxScaleDependent() )
+                {
+                    bbox.Update( g_ptr->GetScaleIndependentBndBox() );
+                }
+                else
+                {
+                    for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+                    {
+                        tMeshVec[j]->UpdateBBox( bbox );
+                    }
+                }
             }
         }
     }
     return tmv;
 }
 
-vector< TMesh* > Vehicle::CreateTMeshVec( const vector < string > &geom_vec )
+vector< TMesh* > Vehicle::CreateTMeshVec( const vector < string > &geom_vec, BndBox & bbox )
 {
     vector< TMesh* > tmv;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -1486,18 +1516,42 @@ vector< TMesh* > Vehicle::CreateTMeshVec( const vector < string > &geom_vec )
             {
                 tmv.push_back( tMeshVec[j] );
             }
+
+            if ( g_ptr->IsBndBoxScaleDependent() )
+            {
+                bbox.Update( g_ptr->GetScaleIndependentBndBox() );
+            }
+            else
+            {
+                for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+                {
+                    tMeshVec[j]->UpdateBBox( bbox );
+                }
+            }
         }
     }
     return tmv;
 }
 
-vector< TMesh* > Vehicle::CreateTMeshVec( const string &geomid )
+vector< TMesh* > Vehicle::CreateTMeshVec( const string &geomid, BndBox & bbox )
 {
     vector< TMesh* > tmv;
     Geom *g = FindGeom( geomid );
     if ( g )
     {
         tmv = g->CreateTMeshVec( false );
+
+        if ( g->IsBndBoxScaleDependent() )
+        {
+            bbox.Update( g->GetScaleIndependentBndBox() );
+        }
+        else
+        {
+            for ( int j = 0 ; j < ( int )tmv.size() ; j++ )
+            {
+                tmv[j]->UpdateBBox( bbox );
+            }
+        }
     }
     return tmv;
 }

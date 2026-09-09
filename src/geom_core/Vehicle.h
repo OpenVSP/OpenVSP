@@ -116,6 +116,10 @@ public:
     vector< TMesh* > CreateTMeshVec( const vector < string > &geom_vec );
     vector< TMesh* > CreateTMeshVec( const string &geomid );
 
+    vector< TMesh* > CreateTMeshVec( int normal_set, BndBox & bbox );
+    vector< TMesh* > CreateTMeshVec( const vector < string > &geom_vec, BndBox & bbox );
+    vector< TMesh* > CreateTMeshVec( const string &geomid, BndBox & bbox );
+
     vector< TetraMassProp* > CreateTetraMassPropVec( int set );
     vector< TetraMassProp* > CreateTetraMassPropVec( const string &geomid );
 
