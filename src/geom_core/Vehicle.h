@@ -104,6 +104,7 @@ public:
     string AddGeom( const GeomType & type );
     string AddGeom( Geom* add_geom );
     string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false, bool skipnegflipnormal = false, int n_ref = 0, bool checkFlat = false, const string & singleGeomID = string() );
+    string AddMeshGeom( BndBox & bbox, int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false, bool skipnegflipnormal = false, int n_ref = 0, bool checkFlat = false, const string & singleGeomID = string() );
 
     void SetSavedXSec( XSec * xSec );
     XSec * GetSavedXSec();

@@ -1290,6 +1290,12 @@ string Vehicle::AddGeom( Geom* add_geom )
 
 string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal, int n_ref, bool checkFlat, const string & singleGeomID )
 {
+    BndBox bbox;
+    return AddMeshGeom( bbox, normal_set, degen_set, suppressdisks, skipnegflipnormal, n_ref, checkFlat, singleGeomID );
+}
+
+string Vehicle::AddMeshGeom( BndBox & bbox, int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal, int n_ref, bool checkFlat, const string & singleGeomID )
+{
     ClearActiveGeom();
 
     vector<string> geom_vec = GetGeomVec(); // Get geom vec before mesh is added
@@ -1341,6 +1347,18 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
                         // Camber surfaces for wings & props, plates for bodies.
                         DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec, skipnegflipnormal, n_ref, checkFlat );
                     }
+                }
+            }
+
+            if ( g_ptr->IsBndBoxScaleDependent() )
+            {
+                bbox.Update( g_ptr->GetScaleIndependentBndBox() );
+            }
+            else
+            {
+                for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+                {
+                    tMeshVec[j]->UpdateBBox( bbox );
                 }
             }
 
