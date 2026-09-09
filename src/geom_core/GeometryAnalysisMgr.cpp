@@ -2144,7 +2144,8 @@ string GeometryAnalysisCase::Evaluate()
             }
             case vsp::PLANAR_SLICE:
             {
-                primary_tmv = GetPrimaryTMeshVec();
+                BndBox bbox;
+                primary_tmv = GetPrimaryTMeshVec( bbox );
 
                 if ( !primary_tmv.empty() )
                 {
@@ -2154,8 +2155,6 @@ string GeometryAnalysisCase::Evaluate()
                         m_LastResult = res->GetID();
 
                         vector<TMesh*> slicevec;
-
-                        BndBox bbox = GetPrimaryScaleIndependentBBox();
 
                         vec3d norm_axis;
                         norm_axis[ m_SliceDir.Get() ] = 1;

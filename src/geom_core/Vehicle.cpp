@@ -6288,9 +6288,7 @@ string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoun
 
     // Grab bounding box before MeshGeom is created -- which will hide the Shown Set, rendering it empty if used.
     BndBox b;
-    GetScaleIndependentBBoxSet( set, b );
-
-    string id = AddMeshGeom( set );
+    string id = AddMeshGeom( b, set );
     if ( id.compare( "NONE" ) == 0 )
     {
         return id;
