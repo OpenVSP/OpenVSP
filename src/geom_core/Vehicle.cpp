@@ -1319,21 +1319,10 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
         Geom* g_ptr = FindGeom( geom_vec[i] );
         if ( g_ptr )
         {
+            vector< TMesh* > tMeshVec;
             if ( g_ptr->GetSetFlag( normal_set ) )
             {
-                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec( skipnegflipnormal, n_ref );
-                for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
-                {
-                    if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
-                    {
-                        // Skip actuator disk.
-                        delete tMeshVec[j];
-                    }
-                    else
-                    {
-                        mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
-                    }
-                }
+                tMeshVec = g_ptr->CreateTMeshVec( skipnegflipnormal, n_ref );
             }
 
             if ( g_ptr->GetSetFlag( degen_set ) )
@@ -1344,7 +1333,6 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
 
                     g_ptr->CreateDegenGeom( DegenGeomVec, true, n_ref );
 
-                    vector< TMesh* > tMeshVec;
                     for ( int j = 0; j < DegenGeomVec.size(); j++ )
                     {
                         // Flip normals because surfaces are based on 'bottom' surface and we'd prefer normals face up.
@@ -1353,22 +1341,22 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, 
                         // Camber surfaces for wings & props, plates for bodies.
                         DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec, skipnegflipnormal, n_ref, checkFlat );
                     }
-
-                    // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
-                    for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
-                    {
-                        if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
-                        {
-                            // Skip actuator disk.
-                            delete tMeshVec[j];
-                        }
-                        else
-                        {
-                            mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
-                        }
-                    }
                 }
             }
+
+            for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+            {
+                if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
+                {
+                    // Skip actuator disk.
+                    delete tMeshVec[j];
+                }
+                else
+                {
+                    mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
+                }
+            }
+
         }
     }
 
