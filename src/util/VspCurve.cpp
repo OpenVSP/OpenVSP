@@ -2203,26 +2203,10 @@ void VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, 
     // catch special cases of degenerate cases
     if ( ( w2 == 0 ) || ( h2 == 0 ) )
     {
-        pt.resize( 4 );
-        u.resize( 5 );
-
-        // set the segment points
-        pt[0].set_xyz(  w,   0, 0 );
-        pt[1].set_xyz( w2, -h2, 0 );
-        pt[2].set_xyz(  0,   0, 0 );
-        pt[3].set_xyz( w2,  h2, 0 );
-
-        // set the corresponding parameters
-        u[0] = 0;
-        u[1] = 1;
-        u[2] = 2;
-        u[3] = 3;
-        u[4] = 4;
-
         round_curve = false;
     }
+
     // create rectangle
-    else
     {
         pt.resize( 8 );
         u.resize( 9 );
