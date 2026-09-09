@@ -44,7 +44,7 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "
     m_BorderLayout.SetFitWidthFlag( true );
     m_BorderLayout.SetSameLineFlag( false );
 
-    m_BorderLayout.AddDividerBox("Parasite Drag Output");
+    m_BorderLayout.AddDividerBox("Analysis Output");
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.SetFitWidthFlag( true );
