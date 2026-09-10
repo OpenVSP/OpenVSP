@@ -3119,7 +3119,20 @@ void SetGeomName( const std::string & geom_id, const std::string & name )
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomName::Can't Find Geom " + geom_id );
         return;
     }
+
+    // A self-naming Geom would overwrite this on its next update, so refuse, as the GUI does.
+    if ( geom_ptr->NameIsAutomatic() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomName::Geom " + geom_id +
+                           " names itself and would write over this on its next update" );
+        return;
+    }
+
     geom_ptr->SetName( name );
+
+    // A name is not a Parm, so update here for Clones named after this Geom.
+    Update();
+
     ErrorMgr.NoError();
 }
 
@@ -3137,6 +3150,124 @@ std::string GetGeomName( const std::string & geom_id )
     ret_name = geom_ptr->GetName();
     ErrorMgr.NoError();
     return ret_name;
+}
+
+void SetGeomCloneOriginal( const std::string & clone_id, const std::string & original_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( clone_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomCloneOriginal::Can't Find Geom " + clone_id );
+        return;
+    }
+
+    CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+    if ( !clone_ptr )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetGeomCloneOriginal::Geom " + clone_id + " is not a Clone" );
+        return;
+    }
+
+    // An empty ID clears the original; the Clone shows nothing but keeps the Parms it copied.
+    if ( original_id.empty() )
+    {
+        clone_ptr->SetOriginalID( original_id );
+        ErrorMgr.NoError();
+        return;
+    }
+
+    Geom* original_ptr = veh->FindGeom( original_id );
+    if ( !original_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomCloneOriginal::Can't Find Geom " + original_id );
+        return;
+    }
+
+    if ( original_id == clone_id )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::A Clone cannot be a Clone of itself" );
+        return;
+    }
+
+    if ( !clone_ptr->SetOriginalID( original_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::Geom " + original_id + " would make Clone " + clone_id + " a Clone of itself" );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+std::string GetGeomCloneOriginal( const std::string & clone_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( clone_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomCloneOriginal::Can't Find Geom " + clone_id );
+        return std::string();
+    }
+
+    CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+    if ( !clone_ptr )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetGeomCloneOriginal::Geom " + clone_id + " is not a Clone" );
+        return std::string();
+    }
+
+    string origid = clone_ptr->GetOriginalID();
+    if ( origid == "NONE" )
+    {
+        origid = std::string();
+    }
+
+    ErrorMgr.NoError();
+    return origid;
+}
+
+void SetGeomCloneNameSuffix( const std::string & clone_id, const std::string & name_suffix )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( clone_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomCloneNameSuffix::Can't Find Geom " + clone_id );
+        return;
+    }
+
+    CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+    if ( !clone_ptr )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetGeomCloneNameSuffix::Geom " + clone_id + " is not a Clone" );
+        return;
+    }
+
+    clone_ptr->SetNameSuffix( name_suffix );
+    clone_ptr->Update();
+
+    ErrorMgr.NoError();
+}
+
+std::string GetGeomCloneNameSuffix( const std::string & clone_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( clone_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomCloneNameSuffix::Can't Find Geom " + clone_id );
+        return std::string();
+    }
+
+    CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+    if ( !clone_ptr )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetGeomCloneNameSuffix::Geom " + clone_id + " is not a Clone" );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return clone_ptr->GetNameSuffix();
 }
 
 // Get the VSP Surface type for the specified Geom (i.e DISK_SURF)
@@ -10587,6 +10718,15 @@ void SetContainerName( const std::string & parm_container_id, const std::string 
     if ( !pc )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetContainerName::Can't Find Parm Container " + parm_container_id );
+        return;
+    }
+
+    // A self-naming Geom refuses here too, as in SetGeomName.
+    Geom* geom_ptr = dynamic_cast< Geom* >( pc );
+    if ( geom_ptr && geom_ptr->NameIsAutomatic() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetContainerName::Geom " + parm_container_id +
+                           " names itself and would write over this on its next update" );
         return;
     }
 

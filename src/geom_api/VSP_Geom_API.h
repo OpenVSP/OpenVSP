@@ -11663,7 +11663,8 @@ extern std::string FindGeom( const std::string & name, int index );
     \ingroup Geom
 */
 /*!
-    Set the name of the specified Geom
+    Set the name of the specified Geom.  A Geom that names itself, such as a Clone with its
+    AutoName Parm (group Behavior) on, refuses the name with an error; turn AutoName off first.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
@@ -11676,6 +11677,31 @@ extern std::string FindGeom( const std::string & name, int index );
     if ( geom_ids.size() != 1 )
     {
         Print( "---> Error: API FindGeomsWithName " );
+        __failure++;
+    }
+
+    //==== A Clone names itself until AutoName is turned off ====//
+    array< string > one;
+    one.push_back( pid );
+    string clone_id = CloneGeomVec( one )[0];
+
+    SetGeomName( clone_id, "MyClone" );
+    if ( GetGeomName( clone_id ) == "MyClone" )
+    {
+        Print( "---> Error: SetGeomName renamed a Clone that names itself" );
+        __failure++;
+    }
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    SetParmVal( clone_id, "AutoName", "Behavior", 0.0 );
+    SetGeomName( clone_id, "MyClone" );
+    Update();
+    if ( GetGeomName( clone_id ) != "MyClone" )
+    {
+        Print( "---> Error: SetGeomName did not rename the Clone" );
         __failure++;
     }
     \endcode
@@ -11692,6 +11718,20 @@ extern std::string FindGeom( const std::string & name, int index );
     if  len(geom_ids) != 1 :
         print( "---> Error: API FindGeomsWithName " )
         assert False, "---> Error: API FindGeomsWithName"
+
+    #==== A Clone names itself until AutoName is turned off ====#
+    clone_id = CloneGeomVec( [ pid ] )[0]
+
+    SetGeomName( clone_id, "MyClone" )
+    assert GetGeomName( clone_id ) != "MyClone", "SetGeomName renamed a Clone that names itself"
+    err_mgr = ErrorMgrSingleton.getInstance()
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    SetParmVal( clone_id, "AutoName", "Behavior", 0.0 )
+    SetGeomName( clone_id, "MyClone" )
+    Update()
+    assert GetGeomName( clone_id ) == "MyClone", "SetGeomName did not rename the Clone"
 
     \endcode
     \endPythonOnly
@@ -11759,6 +11799,378 @@ extern void SetGeomName( const std::string & geom_id, const std::string & name )
 */
 
 extern std::string GetGeomName( const std::string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Set which Geom a Clone Geom is a Clone of.  A Clone shows the original's surfaces while
+    keeping its own place in the model.  What else it takes from the original -- symmetry, Set
+    membership, placement, attachment, colour, subsurfaces and the rest -- is controlled by the
+    Parms in its Behavior group.  Passing an empty original_id leaves the Clone showing nothing
+    and turns its AutoName off, so its name is the user's.
+
+    A Clone's Flip_Flag (group Sym) is its own.  With CloneSym on, the Clone also shows its
+    original's flip: the planes are combined, and a plane set on both cancels.
+    \forcpponly
+    \code{.cpp}
+    string pod = AddGeom( "POD", "" );
+
+    string clone = AddGeom( "CLONE", "" );
+
+    SetGeomCloneOriginal( clone, pod );
+
+    if ( GetGeomCloneOriginal( clone ) != pod )
+    {
+        Print( "ERROR: SetGeomCloneOriginal did not take" );
+        __failure++;
+    }
+
+    // A Clone cannot be its own original; refused, original unchanged.
+    SetGeomCloneOriginal( clone, clone );
+
+    if ( GetGeomCloneOriginal( clone ) != pod )
+    {
+        Print( "ERROR: SetGeomCloneOriginal accepted the Clone as its own original" );
+        __failure++;
+    }
+
+    // Clear that error before the next check.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    // Asking a Geom that is not a Clone is an error.
+    GetGeomCloneOriginal( pod );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetGeomCloneOriginal accepted a Geom that is not a Clone" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    //==== The original's flip and the Clone's own combine ====//
+    SetParmVal( pod, "Y_Rel_Location", "XForm", 3.0 );
+    SetParmVal( clone, "Y_Rel_Location", "XForm", 3.0 );
+    Update();
+    vec3d plain = CompPnt01( clone, 0, 0.5, 0.25 );
+
+    SetParmVal( pod, "Flip_Flag", "Sym", SYM_XZ );
+    Update();
+    vec3d one_plane = CompPnt01( clone, 0, 0.5, 0.25 );
+    if ( abs( ( one_plane.y() - 3.0 ) + ( plain.y() - 3.0 ) ) > 1e-9 )
+    {
+        Print( "ERROR: the Clone did not show its original's flip" );
+        __failure++;
+    }
+
+    SetParmVal( clone, "Flip_Flag", "Sym", SYM_XZ );
+    Update();
+    if ( dist( plain, CompPnt01( clone, 0, 0.5, 0.25 ) ) > 1e-9 )
+    {
+        Print( "ERROR: the same plane on both did not cancel" );
+        __failure++;
+    }
+
+    //==== Clearing the original hands the name back ====//
+    SetGeomCloneOriginal( clone, "" );
+    if ( GetParmVal( FindParm( clone, "AutoName", "Behavior" ) ) != 0.0 )
+    {
+        Print( "ERROR: clearing the original left AutoName on" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod = AddGeom( "POD", "" )
+
+    clone = AddGeom( "CLONE", "" )
+
+    SetGeomCloneOriginal( clone, pod )
+
+    assert GetGeomCloneOriginal( clone ) == pod, "SetGeomCloneOriginal did not take"
+
+    # A Clone cannot be its own original; refused, original unchanged.
+    SetGeomCloneOriginal( clone, clone )
+
+    assert GetGeomCloneOriginal( clone ) == pod, "SetGeomCloneOriginal accepted the Clone as its own original"
+
+    # Clear that error before the next check.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    # Asking a Geom that is not a Clone is an error.
+    GetGeomCloneOriginal( pod )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetGeomCloneOriginal accepted a Geom that is not a Clone"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    #==== The original's flip and the Clone's own combine ====#
+    SetParmVal( pod, "Y_Rel_Location", "XForm", 3.0 )
+    SetParmVal( clone, "Y_Rel_Location", "XForm", 3.0 )
+    Update()
+    plain = CompPnt01( clone, 0, 0.5, 0.25 )
+
+    SetParmVal( pod, "Flip_Flag", "Sym", SYM_XZ )
+    Update()
+    one_plane = CompPnt01( clone, 0, 0.5, 0.25 )
+    assert abs( ( one_plane.y() - 3.0 ) + ( plain.y() - 3.0 ) ) < 1e-9, "the Clone did not show its original's flip"
+
+    SetParmVal( clone, "Flip_Flag", "Sym", SYM_XZ )
+    Update()
+    assert dist( plain, CompPnt01( clone, 0, 0.5, 0.25 ) ) < 1e-9, "the same plane on both did not cancel"
+
+    #==== Clearing the original hands the name back ====#
+    SetGeomCloneOriginal( clone, "" )
+    assert GetParmVal( FindParm( clone, "AutoName", "Behavior" ) ) == 0.0, "clearing the original left AutoName on"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeomCloneOriginal, SYM_FLAG
+    \param [in] clone_id string Clone Geom ID
+    \param [in] original_id string ID of the Geom to be cloned
+*/
+
+extern void SetGeomCloneOriginal( const std::string & clone_id, const std::string & original_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the Geom a Clone Geom is a Clone of.  An empty string means the Clone has not been given
+    one, or has been cleared.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geom and a Clone of it, made under the Pod ====//
+    string pod = AddGeom( "POD" );
+
+    string clone = AddGeom( "CLONE", pod );
+
+    //==== A Clone with no original set takes its parent ====//
+    Update();
+
+    if ( GetGeomCloneOriginal( clone ) != pod )
+    {
+        Print( "ERROR: a Clone made under a Geom did not take it as its original" );
+        __failure++;
+    }
+
+    //==== Once cleared, it does not take the parent again ====//
+    SetGeomCloneOriginal( clone, "" );
+
+    Update();
+
+    if ( GetGeomCloneOriginal( clone ) != "" )
+    {
+        Print( "ERROR: GetGeomCloneOriginal answered for a Clone that has none" );
+        __failure++;
+    }
+
+    //==== Reports the original that was set ====//
+    SetGeomCloneOriginal( clone, pod );
+
+    Update();
+
+    if ( GetGeomCloneOriginal( clone ) != pod )
+    {
+        Print( "ERROR: GetGeomCloneOriginal did not report the Geom that was set" );
+        __failure++;
+    }
+
+    //==== A Geom that is not a Clone is rejected; clear the queue first ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj drained = PopLastError();
+    }
+
+    GetGeomCloneOriginal( pod );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: GetGeomCloneOriginal answered for a Geom that is not a Clone" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geom and a Clone of it, made under the Pod ====#
+    pod = AddGeom( "POD" )
+
+    clone = AddGeom( "CLONE", pod )
+
+    #==== A Clone with no original set takes its parent ====#
+    Update()
+
+    assert GetGeomCloneOriginal( clone ) == pod, "a Clone made under a Geom did not take it as its original"
+
+    #==== Once cleared, it does not take the parent again ====#
+    SetGeomCloneOriginal( clone, "" )
+
+    Update()
+
+    assert GetGeomCloneOriginal( clone ) == "", "GetGeomCloneOriginal answered for a Clone that has none"
+
+    #==== Reports the original that was set ====#
+    SetGeomCloneOriginal( clone, pod )
+
+    Update()
+
+    assert GetGeomCloneOriginal( clone ) == pod, "GetGeomCloneOriginal did not report the Geom that was set"
+
+    #==== A Geom that is not a Clone is rejected; clear the queue first ====#
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        drained = err_mgr.PopLastError()
+
+    GetGeomCloneOriginal( pod )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "GetGeomCloneOriginal answered for a Geom that is not a Clone"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeomCloneOriginal
+    \param [in] clone_id string Clone Geom ID
+    \return string ID of the Geom being cloned, or an empty string if there is none
+*/
+
+extern std::string GetGeomCloneOriginal( const std::string & clone_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Set the suffix automatic naming appends to the original's name.  A Clone with automatic
+    naming on is called the original's name followed by this suffix, so changing it renames the
+    Clone on the next update.  The suffix is saved with the model.
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geom and a Clone of it ====//
+    string pod = AddGeom( "POD" );
+
+    string clone = AddGeom( "CLONE" );
+
+    SetGeomCloneOriginal( clone, pod );
+
+    Update();
+
+    SetGeomCloneNameSuffix( clone, "_Left" );
+
+    Update();
+
+    if ( GetGeomName( clone ) != GetGeomName( pod ) + "_Left" )
+    {
+        Print( "ERROR: SetGeomCloneNameSuffix did not rename the Clone" );
+        __failure++;
+    }
+
+    if ( GetGeomCloneNameSuffix( clone ) != "_Left" )
+    {
+        Print( "ERROR: GetGeomCloneNameSuffix did not report the suffix that was set" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geom and a Clone of it ====#
+    pod = AddGeom( "POD" )
+
+    clone = AddGeom( "CLONE" )
+
+    SetGeomCloneOriginal( clone, pod )
+
+    Update()
+
+    SetGeomCloneNameSuffix( clone, "_Left" )
+
+    Update()
+
+    assert GetGeomName( clone ) == GetGeomName( pod ) + "_Left", "SetGeomCloneNameSuffix did not rename the Clone"
+
+    assert GetGeomCloneNameSuffix( clone ) == "_Left", "GetGeomCloneNameSuffix did not report the suffix that was set"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeomCloneNameSuffix, CloneGeomVec
+    \param [in] clone_id string Clone Geom ID
+    \param [in] name_suffix string Suffix to append to the original's name
+*/
+
+extern void SetGeomCloneNameSuffix( const std::string & clone_id, const std::string & name_suffix );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the suffix automatic naming appends to the original's name.  A new Clone starts with
+    "_Clone".
+    \forcpponly
+    \code{.cpp}
+    //==== Add Pod Geom and a Clone of it ====//
+    string pod = AddGeom( "POD" );
+
+    string clone = AddGeom( "CLONE" );
+
+    SetGeomCloneOriginal( clone, pod );
+
+    Update();
+
+    if ( GetGeomCloneNameSuffix( clone ) != "_Clone" )
+    {
+        Print( "ERROR: GetGeomCloneNameSuffix did not report the default suffix" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Add Pod Geom and a Clone of it ====#
+    pod = AddGeom( "POD" )
+
+    clone = AddGeom( "CLONE" )
+
+    SetGeomCloneOriginal( clone, pod )
+
+    Update()
+
+    #==== A new Clone starts with the default suffix ====#
+    assert GetGeomCloneNameSuffix( clone ) == "_Clone", "GetGeomCloneNameSuffix did not report the default suffix"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeomCloneNameSuffix, CloneGeomVec
+    \param [in] clone_id string Clone Geom ID
+    \return string Suffix appended to the original's name
+*/
+
+extern std::string GetGeomCloneNameSuffix( const std::string & clone_id );
 
 /*!
     \ingroup Geom
