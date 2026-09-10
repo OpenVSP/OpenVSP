@@ -241,6 +241,63 @@ if __name__ == "__main__":
             print( name )
             fn()
 
+def testATexturesPlacementSurvivesAFile():
+    """Reading a texture back WROTE its Parms out again instead of taking the stored values.
+
+    Texture::DecodeXml called ParmContainer::EncodeXml, so every placement -- the position, the
+    two scales, the transparency and the two flips -- came back at the constructor's defaults.
+    The file name survived, which is what made it look like textures worked at all.
+
+    The values are read by writing the model out a second time and comparing the two files:
+    FindParm cannot reach a texture's Parms by container ID once a file has been loaded, which
+    is a separate fault and would make this test measure that instead.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+
+    pod = vsp.AddGeom( "POD" )
+    tex = vsp.AttachGeomTexture( pod, a_texture_file() )
+    assert tex, "the texture did not attach"
+    vsp.SetParmVal( vsp.FindParm( tex, "U", "Texture_Parm" ), 0.25 )
+    vsp.SetParmVal( vsp.FindParm( tex, "U_Scale", "Texture_Parm" ), 0.5 )
+    vsp.SetParmVal( vsp.FindParm( tex, "Transparency", "Texture_Parm" ), 0.75 )
+    vsp.Update()
+
+    first = os.path.join( out, "before.vsp3" )
+    vsp.WriteVSPFile( first )
+
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( first )
+    vsp.Update()
+    second = os.path.join( out, "after.vsp3" )
+    vsp.WriteVSPFile( second )
+
+    was = texture_placement( first )
+    now = texture_placement( second )
+    assert was[ "U" ] == pytest.approx( 0.25 ), was
+    assert was[ "U_Scale" ] == pytest.approx( 0.5 ), was
+    assert was[ "Transparency" ] == pytest.approx( 0.75 ), was
+    assert now == was, "the placement came back different: %s against %s" % ( now, was )
+    assert_no_errors()
+
+
+def a_texture_file():
+    """An image from the repo, by a path that does not depend on the working directory."""
+    here = os.path.dirname( os.path.abspath( __file__ ) )
+    return os.path.join( here, "..", "..", "..", "examples", "textures", "nasa-logo.tga" )
+
+
+def texture_placement( path ):
+    """The first texture's Parm values, read out of a written file."""
+    import re
+    text = open( path ).read()
+    start = text.find( "<Texture_Parm>" )
+    assert start >= 0, "no texture was written to %s" % path
+    block = text[ start : text.find( "</Texture_Parm>", start ) ]
+    return { m.group( 1 ): float( m.group( 2 ) )
+             for m in re.finditer( r'<(\w+) Value="([^"]+)"', block ) }
+
 def testAParmCanBeFoundByNameAndGroupAfterAFileLoad():
     """Every container except the Geom lost name-and-group lookup when a model was reopened.
 
@@ -264,6 +321,7 @@ def testAParmCanBeFoundByNameAndGroupAfterAFileLoad():
     gear = vsp.AddGeom( "GEAR" )
     route = vsp.AddGeom( "ROUTING" )
     vsp.AddSubSurf( wing, vsp.SS_LINE )
+    vsp.AttachGeomTexture( pod, a_texture_file() )
     vsp.AddCFDSource( vsp.POINT_SOURCE, pod, 0, 0.5, 1.0, 0.5, 0.5 )
     vsp.CreateAndAddBogie( gear )
     vsp.AddRoutingPt( route, pod, 0 )
@@ -290,6 +348,7 @@ def testAParmCanBeFoundByNameAndGroupAfterAFileLoad():
         "Geom":         pod,
         "XSec":         vsp.GetXSec( vsp.GetXSecSurf( fuse, 0 ), 1 ),
         "SubSurface":   vsp.GetSubSurfIDVec( wing )[0],
+        "Texture":      vsp.GetGeomTextureIDVec( pod )[0],
         "BaseSource":   vsp.GetCFDSourceID( pod, 0 ),
         "Bogie":        list( vsp.GetAllBogies( gear ) )[0],
         "RoutingPoint": list( vsp.GetAllRoutingPtIds( route ) )[0],

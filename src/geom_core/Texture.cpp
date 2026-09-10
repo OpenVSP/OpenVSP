@@ -65,7 +65,7 @@ xmlNodePtr Texture::EncodeXml( xmlNodePtr &node )
 
 xmlNodePtr Texture::DecodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr container_node = ParmContainer::EncodeXml( node );
+    xmlNodePtr container_node = ParmContainer::DecodeXml( node );
     if ( container_node )
     {
         m_FileName = XmlUtil::FindString( container_node, "File_Name", m_FileName );
