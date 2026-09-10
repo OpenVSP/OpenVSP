@@ -26,11 +26,15 @@ public:
     virtual bool Update();
 
     virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* d );
 
 protected:
 
     // The Clone tab: what it copies, naming, and joint deflection.
     GroupLayout m_CloneLayout;
+
+    Choice m_OriginalChoice;
+    vector <string> m_CompVec;
 };
 
 
