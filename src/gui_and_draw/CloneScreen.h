@@ -36,6 +36,11 @@ protected:
     Choice m_OriginalChoice;
     vector <string> m_CompVec;
 
+    SliderAdjRangeInput m_JointTranslateSlider;
+    TriggerButton m_JointTranslateRngButton;
+    SliderAdjRangeInput m_JointRotateSlider;
+    TriggerButton m_JointRotateRngButton;
+
     ToggleButton m_CloneSetsButton;
     ToggleButton m_CloneSymButton;
     ToggleButton m_CloneXFormButton;
@@ -44,6 +49,7 @@ protected:
     ToggleButton m_CloneNegativeVolumeButton;
     ToggleButton m_CloneMassPropsButton;
     ToggleButton m_CloneSubSurfsButton;
+    ToggleButton m_CloneJointButton;
     ToggleButton m_AutoNameButton;
     StringInput m_NameSuffixInput;
 };

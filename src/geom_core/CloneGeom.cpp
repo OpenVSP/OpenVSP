@@ -49,10 +49,19 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_CloneSubSurfs.Init( "CloneSubSurfs", "Behavior", this, true, false, true );
     m_CloneSubSurfs.SetDescript( "Flag to copy the original's subsurfaces" );
 
+    m_CloneJoint.Init( "CloneJoint", "Behavior", this, true, false, true );
+    m_CloneJoint.SetDescript( "Flag to copy the original's joint deflection" );
+
     m_AutoName.Init( "AutoName", "Behavior", this, true, false, true );
     m_AutoName.SetDescript( "Flag to name this Geom after the original with the suffix appended" );
 
     m_NameSuffix = "_Clone";
+
+    m_JointTranslate.Init( "JointTranslate", "Hinge", this, 0.0, -1e12, 1e12 );
+    m_JointTranslate.SetDescript( "Joint translation, when the original is a hinge" );
+
+    m_JointRotate.Init( "JointRotate", "Hinge", this, 0.0, -360.0, 360.0 );
+    m_JointRotate.SetDescript( "Joint rotation, when the original is a hinge" );
 
     // Tessellation comes from the original.
     m_TessU.Deactivate();
@@ -171,6 +180,67 @@ bool CloneGeom::PlacedBBoxIncludesOrigin() const
     }
 
     return original_geom->PlacedBBoxIncludesOrigin();
+}
+
+int CloneGeom::GetJointPrimaryDir(  ) const
+{
+    JointRole* joint = GetOriginalJoint();
+    if ( joint )
+    {
+        return joint->GetJointPrimaryDir(  );
+    }
+
+    return vsp::X_DIR;
+}
+
+JointRole* CloneGeom::GetOriginalJoint() const
+{
+    return Geom::CastTo< JointRole >( GetOriginalGeom() );
+}
+
+// Uses the hinge at the end of the chain, posed through this Geom's flip like its shape.
+Matrix4d CloneGeom::BuildJointMatrix( double translate, double rotate, const Matrix4d &model_matrix ) const
+{
+    // An inner Clone's flip is already part of this Geom's flip flag, so the joint is
+    // reflected once, by this Geom's flip.
+    JointRole* joint = Geom::CastTo< JointRole >( FollowOriginals() );
+    if ( !joint )
+    {
+        return model_matrix;
+    }
+
+    return joint->BuildFlippedJointMatrix( translate, rotate, model_matrix, GetFlipMat() );
+}
+
+bool CloneGeom::GetJointTransMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const
+{
+    JointRole* joint = GetOriginalJoint();
+    if ( joint )
+    {
+        return joint->GetJointTransMotion( min_set, min_val, max_set, max_val );
+    }
+
+    return false;
+}
+
+bool CloneGeom::GetJointRotMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const
+{
+    JointRole* joint = GetOriginalJoint();
+    if ( joint )
+    {
+        return joint->GetJointRotMotion( min_set, min_val, max_set, max_val );
+    }
+
+    return false;
+}
+
+void CloneGeom::SetJointParmLimits( Parm &translate, Parm &rotate )
+{
+    JointRole* joint = GetOriginalJoint();
+    if ( joint )
+    {
+        joint->SetJointParmLimits( translate, rotate );
+    }
 }
 
 bool CloneGeom::IsCloneAncestor( const string &id ) const
@@ -410,6 +480,17 @@ void CloneGeom::UpdateSets()
 
     CopySetFlags( original_geom, this );
 }
+// Like a Blank or Hinge, a Clone with no surfaces still needs one symmetry copy per placement.
+void CloneGeom::UpdateSymmAttach()
+{
+    if ( GetNumMainSurfs() < 1 )
+    {
+        Geom::UpdateSymmAttach( 1 );
+        return;
+    }
+
+    Geom::UpdateSymmAttach();
+}
 
 void CloneGeom::CopySymParms( Geom* from, Geom* to )
 {
@@ -537,6 +618,19 @@ void CloneGeom::UpdateCopyXFormParms()
     {
         CopyAttachParms( original_geom, this );
     }
+
+    JointRole* joint = GetOriginalJoint();
+    if ( joint )
+    {
+        // Limits are always the original's, even when the deflection is not copied.
+        SetJointParmLimits( m_JointTranslate, m_JointRotate );
+
+        if ( m_CloneJoint() )
+        {
+            m_JointTranslate.Set( joint->GetJointTranslate() );
+            m_JointRotate.Set( joint->GetJointRotate() );
+        }
+    }
 }
 
 void CloneGeom::DeactivateXForms()
@@ -602,6 +696,30 @@ void CloneGeom::DeactivateXForms()
         m_R01.Activate();
         m_L01.Activate();
         m_EtaLoc.Activate();
+    }
+
+    // Disable a deflection that is copied or that the original does not allow.
+    bool min_set;
+    bool max_set;
+    double min_val;
+    double max_val;
+
+    if ( m_CloneJoint() || !GetJointTransMotion( min_set, min_val, max_set, max_val ) )
+    {
+        m_JointTranslate.Deactivate();
+    }
+    else
+    {
+        m_JointTranslate.Activate();
+    }
+
+    if ( m_CloneJoint() || !GetJointRotMotion( min_set, min_val, max_set, max_val ) )
+    {
+        m_JointRotate.Deactivate();
+    }
+    else
+    {
+        m_JointRotate.Activate();
     }
 
     // Deactivation persists, so reactivate what is no longer copied.

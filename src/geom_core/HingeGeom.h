@@ -62,7 +62,15 @@ public:
     virtual void UpdateMotionFlagsLimits();
 
     virtual void UpdateDrawObj() override;
+    virtual void BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec ) override;
+    virtual void SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec ) override;
     virtual void LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec) override;
+
+    // The frame the joint turns about is what there is of a Hinge to pick.
+    virtual bool LoadsMarkersAsMain() override
+    {
+        return true;
+    }
     virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec) override;
 
     virtual int GetJointPrimaryDir() const override
@@ -139,10 +147,8 @@ public:
 protected:
     virtual void UpdateSurf() override;
 
-    DrawObj m_MotionLinesDO;
-    DrawObj m_MotionArrowsDO;
-
-    DrawObj m_PrimaryLineDO;
+    // The markers: the two frames' axes, then the motion and the primary direction.
+    enum { HINGE_MARKER_MOTION_ARROWS = 6, HINGE_MARKER_MOTION_LINES, HINGE_MARKER_PRIMARY_LINE, NUM_HINGE_MARKERS };
 
     Matrix4d m_JointMatrix;
 

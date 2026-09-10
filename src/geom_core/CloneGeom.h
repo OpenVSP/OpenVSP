@@ -12,12 +12,14 @@
 #define VSPCLONEGEOM__INCLUDED_
 
 #include "Geom.h"
+#include "GeomInterface.h"
+#include "HingeGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom
+class CloneGeom : public Geom, public JointRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -91,6 +93,25 @@ public:
     virtual int GetBehaviorType() const override;
     virtual Geom* GetBehaviorGeom() override;
 
+    // Defined by the original, so a Clone of a hinge moves its children.  The deflection is
+    // this Clone's own, so two Clones can sit at different angles.
+    virtual double GetJointTranslate() const override
+    {
+        return m_JointTranslate();
+    }
+    virtual double GetJointRotate() const override
+    {
+        return m_JointRotate();
+    }
+    virtual int GetJointPrimaryDir() const override;
+
+    // The original as a joint, if it is one.
+    virtual JointRole* GetOriginalJoint() const;
+    virtual Matrix4d BuildJointMatrix( double translate, double rotate, const Matrix4d &model_matrix ) const override;
+    virtual void SetJointParmLimits( Parm &translate, Parm &rotate ) override;
+    virtual bool GetJointTransMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const override;
+    virtual bool GetJointRotMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const override;
+
     // The original's markers, placed where this Geom is.
     virtual Geom* GetMarkerGeom() override;
 
@@ -116,7 +137,12 @@ public:
     BoolParm m_CloneNegativeVolume;
     BoolParm m_CloneMassProps;
     BoolParm m_CloneSubSurfs;
+    BoolParm m_CloneJoint;
     BoolParm m_AutoName;
+
+    // Used only when the original is a joint.
+    Parm m_JointTranslate;
+    Parm m_JointRotate;
 
 protected:
     virtual void UpdateSurf() override;
@@ -129,6 +155,9 @@ protected:
 
     // Symmetry, placement and attachment are needed before UpdateSurf, so they are copied here.
     virtual void UpdateCopyXFormParms() override;
+
+    // A Blank or a Hinge has no surfaces but still places its children.
+    virtual void UpdateSymmAttach() override;
 
     // Runs after the base class, so copied Parms stay deactivated; their GUI follows the Parm.
     virtual void DeactivateXForms() override;

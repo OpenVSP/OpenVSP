@@ -29,7 +29,7 @@ CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone" 
     m_CloneLayout.AddInput( m_NameSuffixInput, "Suffix" );
     m_CloneLayout.AddYGap();
 
-    // The surfaces and their tessellation always come across.  These are optional.
+    // Surfaces and tessellation are always copied; these are optional.
     m_CloneLayout.AddDividerBox( "Copy From Original" );
     m_CloneLayout.AddButton( m_CloneXFormButton, "Transformation" );
     m_CloneLayout.AddButton( m_CloneAttachButton, "Attachment" );
@@ -39,10 +39,38 @@ CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone" 
     m_CloneLayout.AddButton( m_CloneNegativeVolumeButton, "Negative Volume" );
     m_CloneLayout.AddButton( m_CloneMassPropsButton, "Mass Properties" );
     m_CloneLayout.AddButton( m_CloneSubSurfsButton, "Subsurfaces" );
+    m_CloneLayout.AddButton( m_CloneJointButton, "Joint Deflection" );
     m_CloneLayout.AddYGap();
 
+    // Used only when the original has a joint.  The original decides which motions are allowed;
+    // Rng sets the slider range to the original's limits.
+    m_CloneLayout.AddDividerBox( "Joint" );
 
+    int bw = 110;
+    int sw = 35;
 
+    m_CloneLayout.SetSameLineFlag( true );
+
+    m_CloneLayout.SetFitWidthFlag( false );
+    m_CloneLayout.SetButtonWidth( sw );
+    m_CloneLayout.AddButton( m_JointTranslateRngButton, "Rng" );
+    m_CloneLayout.SetFitWidthFlag( true );
+    m_CloneLayout.SetButtonWidth( bw - sw );
+    m_CloneLayout.AddSlider( m_JointTranslateSlider, "Translate", 10, "%6.2f" );
+    m_CloneLayout.ForceNewLine();
+
+    m_CloneLayout.SetFitWidthFlag( false );
+    m_CloneLayout.SetButtonWidth( sw );
+    m_CloneLayout.AddButton( m_JointRotateRngButton, "Rng" );
+    m_CloneLayout.SetFitWidthFlag( true );
+    m_CloneLayout.SetButtonWidth( bw - sw );
+    m_CloneLayout.AddSlider( m_JointRotateSlider, "Rotate", 100, "%6.2f" );
+    m_CloneLayout.ForceNewLine();
+
+    m_CloneLayout.SetSameLineFlag( false );
+    m_CloneLayout.SetFitWidthFlag( true );
+    m_CloneLayout.SetButtonWidth( bw );
+    m_CloneLayout.AddYGap();
 }
 
 
@@ -80,8 +108,46 @@ bool CloneScreen::Update()
     m_CloneNegativeVolumeButton.Update( clone_ptr->m_CloneNegativeVolume.GetID() );
     m_CloneMassPropsButton.Update( clone_ptr->m_CloneMassProps.GetID() );
     m_CloneSubSurfsButton.Update( clone_ptr->m_CloneSubSurfs.GetID() );
+    m_CloneJointButton.Update( clone_ptr->m_CloneJoint.GetID() );
     m_AutoNameButton.Update( clone_ptr->m_AutoName.GetID() );
     m_NameSuffixInput.Update( clone_ptr->GetNameSuffix() );
+
+    m_JointTranslateSlider.Update( clone_ptr->m_JointTranslate.GetID() );
+    m_JointRotateSlider.Update( clone_ptr->m_JointRotate.GetID() );
+
+    if ( !clone_ptr->GetOriginalJoint() )
+    {
+        m_CloneJointButton.Deactivate();
+    }
+
+    // Rng needs a limit to range to.
+    bool trans_min_set;
+    bool trans_max_set;
+    bool rot_min_set;
+    bool rot_max_set;
+    double min_lim;
+    double max_lim;
+
+    bool trans_on = clone_ptr->GetJointTransMotion( trans_min_set, min_lim, trans_max_set, max_lim );
+    bool rot_on = clone_ptr->GetJointRotMotion( rot_min_set, min_lim, rot_max_set, max_lim );
+
+    if ( clone_ptr->m_CloneJoint() || !trans_on || ( !trans_min_set && !trans_max_set ) )
+    {
+        m_JointTranslateRngButton.Deactivate();
+    }
+    else
+    {
+        m_JointTranslateRngButton.Activate();
+    }
+
+    if ( clone_ptr->m_CloneJoint() || !rot_on || ( !rot_min_set && !rot_max_set ) )
+    {
+        m_JointRotateRngButton.Deactivate();
+    }
+    else
+    {
+        m_JointRotateRngButton.Activate();
+    }
 
     // A Clone takes its size from the original.
     m_ScaleSlider.Deactivate();
@@ -162,8 +228,11 @@ bool CloneScreen::Update()
             Geom* g = veh->FindGeom( geomVec[i] );
             if ( g )
             {
-                // A Clone of itself would have nothing to copy.
-                if ( g->GetType().m_Type != HINGE_GEOM_TYPE && geomVec[i] != clone_ptr->GetID() )
+                // A Clone of itself would have nothing to copy.  Every other Geom can be
+                // cloned -- one that keeps its shape somewhere other than its main surfaces
+                // hands it over through the abstract class beside it, and one with no shape at
+                // all is a coordinate system a Clone can stand in for just as well.
+                if ( geomVec[i] != clone_ptr->GetID() )
                 {
                     snprintf( str, sizeof( str ), "%d_%s", i, g->GetName().c_str() );
                     m_OriginalChoice.AddItem( str );
@@ -215,6 +284,44 @@ void CloneScreen::GuiDeviceCallBack( GuiDevice *device )
         // The suffix is not a Parm, so update here to rebuild the name.
         clone_ptr->SetNameSuffix( m_NameSuffixInput.GetString() );
         clone_ptr->Update();
+    }
+    else if ( device == &m_JointTranslateRngButton )
+    {
+        bool min_set;
+        bool max_set;
+        double min_val;
+        double max_val;
+
+        if ( clone_ptr->GetJointTransMotion( min_set, min_val, max_set, max_val ) )
+        {
+            if ( min_set )
+            {
+                m_JointTranslateSlider.SetMinBound( min_val );
+            }
+            if ( max_set )
+            {
+                m_JointTranslateSlider.SetMaxBound( max_val );
+            }
+        }
+    }
+    else if ( device == &m_JointRotateRngButton )
+    {
+        bool min_set;
+        bool max_set;
+        double min_val;
+        double max_val;
+
+        if ( clone_ptr->GetJointRotMotion( min_set, min_val, max_set, max_val ) )
+        {
+            if ( min_set )
+            {
+                m_JointRotateSlider.SetMinBound( min_val );
+            }
+            if ( max_set )
+            {
+                m_JointRotateSlider.SetMaxBound( max_val );
+            }
+        }
     }
     else if ( device == &m_OriginalChoice )
     {

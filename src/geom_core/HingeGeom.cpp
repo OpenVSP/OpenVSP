@@ -7,6 +7,7 @@
 
 #include "HingeGeom.h"
 #include "Vehicle.h"
+#include "VehicleMgr.h"
 
 
 //==== Constructor ====//
@@ -402,51 +403,12 @@ void HingeGeom::SetParmLimits( Parm & p, const Parm & pflag, const Parm & pmin, 
 
 void HingeGeom::UpdateDrawObj()
 {
-    double axlen = 1.0;
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        axlen = veh->m_AxisLength();
-    }
-
-    // Evaluate points for visualization.
-    vec3d jointOrigin = m_JointMatrix.xform(vec3d(0.0, 0.0, 0.0 ) );
     vec3d baseOrigin = m_ModelMatrix.xform(vec3d(0.0, 0.0, 0.0 ) );
-
-    vector < vec3d > baseAxis(3);
-    vector < vec3d > jointAxis(3);
-    for ( int i = 0; i < 3; i++ )
-    {
-        vec3d pt = vec3d( 0.0, 0.0, 0.0 );
-        pt.v[i] = axlen;
-        baseAxis[i] = m_ModelMatrix.xform(pt );
-        jointAxis[i] = m_JointMatrix.xform(pt );
-    }
 
     m_HighlightDrawObj.m_PntVec.resize(1);
     m_HighlightDrawObj.m_PntVec[0] = baseOrigin;
     m_HighlightDrawObj.m_PointSize = 10.0;
     m_HighlightDrawObj.m_GeomChanged = true;
-
-    if ( m_FeatureDrawObj_vec.size() != 6 )
-    {
-        m_FeatureDrawObj_vec.clear();
-        m_FeatureDrawObj_vec.resize( 6 );
-    }
-    for ( int i = 0; i < 6; i++ )
-    {
-        m_FeatureDrawObj_vec[i].m_PntVec.clear();
-    }
-    for ( int i = 0; i < 3; i++ )
-    {
-        m_FeatureDrawObj_vec[i].m_PntVec.push_back(baseOrigin );
-        m_FeatureDrawObj_vec[i].m_PntVec.push_back(baseAxis[i] );
-        vec3d c;
-        c.v[i] = 1.0;
-        m_FeatureDrawObj_vec[i].m_LineColor = c;
-        m_FeatureDrawObj_vec[i].m_GeomChanged = true;
-    }
 
     //=== Attach Axis ===//
     if ( m_AxisDrawObj_vec.size() != 3 )
@@ -464,72 +426,156 @@ void HingeGeom::UpdateDrawObj()
         m_AxisDrawObj_vec[i].m_GeomChanged = true;
     }
 
-    for ( int i = 0; i < 3; i++ )
-    {
-        int k = i + 3;
-        MakeDashedLine(jointOrigin, jointAxis[i], 8, m_FeatureDrawObj_vec[k].m_PntVec );
-        vec3d c;
-        c.v[i] = 1.0;
-        m_FeatureDrawObj_vec[k].m_LineColor = c;
-        m_FeatureDrawObj_vec[k].m_GeomChanged = true;
-    }
-
-    m_MotionLinesDO.m_PntVec.clear();
-    m_MotionArrowsDO.m_PntVec.clear();
-    m_MotionArrowsDO.m_NormVec.clear();
-
-    // MakeCircleArrow flags these itself, but it only runs for a rotating joint.  A
-    // translating one fills the arrows through the vector form of MakeArrowhead, which knows
-    // nothing of the DrawObj, and a joint that does neither is left with the points cleared
-    // and nothing to say so.  Either way the renderer would go on drawing the last arrow.
-    m_MotionLinesDO.m_GeomChanged = true;
-    m_MotionArrowsDO.m_GeomChanged = true;
-
-    if ( m_JointRotateFlag.Get() )
-    {
-        vec3d u = baseAxis[ m_PrimaryDir() ] - baseOrigin;
-        MakeCircleArrow(baseOrigin + 0.6 * u, u, 0.5 * axlen, 0.5 * axlen, m_MotionLinesDO, m_MotionArrowsDO );
-    }
-    if ( m_JointTranslateFlag.Get() )
-    {
-        MakeArrowhead(baseAxis[ m_PrimaryDir() ], baseAxis[ m_PrimaryDir() ] - baseOrigin, 0.5 * axlen * 0.5, m_MotionArrowsDO.m_PntVec, m_MotionArrowsDO.m_NormVec );
-    }
-
-    m_PrimaryLineDO.m_PntVec.clear();
-    m_PrimaryLineDO.m_GeomChanged = true;
-
-    if ( m_PrimaryType() == POINT3D || m_PrimaryType() == SURFPT )
-    {
-        m_PrimaryLineDO.m_PntVec.push_back(baseOrigin );
-        m_PrimaryLineDO.m_PntVec.push_back( m_PrimEndpt );
-        m_PrimaryLineDO.m_LineWidth = 2.0;
-        m_PrimaryLineDO.m_Type = DrawObj::VSP_LINES;
-        vec3d c;
-        c.v[ m_PrimaryDir() ] = 1.0;
-        m_PrimaryLineDO.m_LineColor = c;
-    }
-    else if ( m_PrimaryType() == UDIR || m_PrimaryType() == WDIR || m_PrimaryType() == NDIR )
+    if ( m_PrimaryType() == UDIR || m_PrimaryType() == WDIR || m_PrimaryType() == NDIR )
     {
         m_HighlightDrawObj.m_PntVec.push_back( m_PrimEndpt );
     }
 }
 
-void HingeGeom::LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec)
+// The joint frame, the frame its children are carried to, the allowed motion, and the primary
+// direction line, placed by placer.  A Clone is posed by its own deflection.
+void HingeGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
 {
-    char str[256];
+    JointRole* joint = Geom::CastTo< JointRole >( placer );
+    if ( !joint )
+    {
+        marker_vec.clear();
+        return;
+    }
 
-    bool isactive = m_Vehicle->IsGeomActive( m_ID );
+    double axlen = 1.0;
 
-    // Add just the first three m_FeatureDrawObj_vec
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        axlen = veh->m_AxisLength();
+    }
+
+    Matrix4d model_matrix = placer->getModelMatrix();
+    Matrix4d joint_matrix = joint->GetJointMatrix();
+
+    // Evaluate points for visualization.
+    vec3d jointOrigin = joint_matrix.xform(vec3d(0.0, 0.0, 0.0 ) );
+    vec3d baseOrigin = model_matrix.xform(vec3d(0.0, 0.0, 0.0 ) );
+
+    vector < vec3d > baseAxis(3);
+    vector < vec3d > jointAxis(3);
     for ( int i = 0; i < 3; i++ )
     {
-        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        snprintf( str, sizeof( str ),  "%d", i );
-        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "_Feature_" + str;
-        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
-        m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
-        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+        vec3d pt = vec3d( 0.0, 0.0, 0.0 );
+        pt.v[i] = axlen;
+        baseAxis[i] = model_matrix.xform(pt );
+        jointAxis[i] = joint_matrix.xform(pt );
+    }
+
+    if ( marker_vec.size() != NUM_HINGE_MARKERS )
+    {
+        marker_vec.clear();
+        marker_vec.resize( NUM_HINGE_MARKERS );
+    }
+    for ( int i = 0; i < NUM_HINGE_MARKERS; i++ )
+    {
+        marker_vec[i].m_PntVec.clear();
+        marker_vec[i].m_NormVec.clear();
+        marker_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        marker_vec[i].m_GeomChanged = true;
+    }
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        marker_vec[i].m_PntVec.push_back(baseOrigin );
+        marker_vec[i].m_PntVec.push_back(baseAxis[i] );
+        vec3d c;
+        c.v[i] = 1.0;
+        marker_vec[i].m_LineColor = c;
+    }
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        int k = i + 3;
+        MakeDashedLine(jointOrigin, jointAxis[i], 8, marker_vec[k].m_PntVec );
+        vec3d c;
+        c.v[i] = 1.0;
+        marker_vec[k].m_LineColor = c;
+    }
+
+    for ( int i = 0; i < 6; i++ )
+    {
+        marker_vec[i].m_GeomID = placer->GetID() + "_Feature_" + std::to_string( i );
+        marker_vec[i].m_LineWidth = 2.0;
+        marker_vec[i].m_Type = DrawObj::VSP_LINES;
+    }
+
+    DrawObj &motion_arrows = marker_vec[ HINGE_MARKER_MOTION_ARROWS ];
+    DrawObj &motion_lines = marker_vec[ HINGE_MARKER_MOTION_LINES ];
+    DrawObj &primary_line = marker_vec[ HINGE_MARKER_PRIMARY_LINE ];
+
+    if ( m_JointRotateFlag.Get() )
+    {
+        vec3d u = baseAxis[ m_PrimaryDir() ] - baseOrigin;
+        MakeCircleArrow(baseOrigin + 0.6 * u, u, 0.5 * axlen, 0.5 * axlen, motion_lines, motion_arrows );
+    }
+    if ( m_JointTranslateFlag.Get() )
+    {
+        MakeArrowhead(baseAxis[ m_PrimaryDir() ], baseAxis[ m_PrimaryDir() ] - baseOrigin, 0.5 * axlen * 0.5, motion_arrows.m_PntVec, motion_arrows.m_NormVec );
+    }
+
+    motion_arrows.m_GeomID = placer->GetID() + "MArrows";
+    motion_arrows.m_LineWidth = 1.0;
+    motion_arrows.m_Type = DrawObj::VSP_SHADED_TRIS;
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        motion_arrows.m_MaterialInfo.Ambient[i] = 0.2f;
+        motion_arrows.m_MaterialInfo.Diffuse[i] = 0.1f;
+        motion_arrows.m_MaterialInfo.Specular[i] = 0.7f;
+        motion_arrows.m_MaterialInfo.Emission[i] = 0.0f;
+    }
+    motion_arrows.m_MaterialInfo.Diffuse[3] = 0.5f;
+    motion_arrows.m_MaterialInfo.Shininess = 5.0f;
+
+    motion_lines.m_GeomID = placer->GetID() + "MLines";
+    motion_lines.m_LineWidth = 2.0;
+    motion_lines.m_Type = DrawObj::VSP_LINES;
+
+    primary_line.m_GeomID = placer->GetID() + "PrimLines";
+    primary_line.m_LineWidth = 2.0;
+    primary_line.m_Type = DrawObj::VSP_LINES;
+
+    if ( m_PrimaryType() == POINT3D || m_PrimaryType() == SURFPT )
+    {
+        // The direction target, carried from this hinge's frame into placer's.
+        Matrix4d to_local = m_ModelMatrix;
+        to_local.affineInverse();
+
+        primary_line.m_PntVec.push_back(baseOrigin );
+        primary_line.m_PntVec.push_back( model_matrix.xform( to_local.xform( m_PrimEndpt ) ) );
+        vec3d c;
+        c.v[ m_PrimaryDir() ] = 1.0;
+        primary_line.m_LineColor = c;
+    }
+
+    // The flip reverses the motion; the frames themselves are not reflected.
+    placer->FlipDrawObjs( { &motion_lines, &motion_arrows, &primary_line } );
+}
+
+void HingeGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )
+{
+    bool visible = placer->ShowsMarkers();
+    for ( int i = 0; i < ( int )marker_vec.size(); i++ )
+    {
+        marker_vec[i].m_Visible = visible;
+    }
+}
+
+// The frame the joint turns about is what there is of a Hinge to pick.
+void HingeGeom::LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec)
+{
+    SetMarkerVisibility( this, m_MarkerDrawObj_vec );
+
+    for ( int i = 0; i < 3 && i < ( int )m_MarkerDrawObj_vec.size(); i++ )
+    {
+        draw_obj_vec.push_back( &m_MarkerDrawObj_vec[i] );
     }
 }
 
@@ -561,49 +607,11 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
     }
 
-    // Add the remaining m_FeatureDrawObj_vec
-    for ( int i = 3; i < m_FeatureDrawObj_vec.size(); i++ )
+    // The rest of the markers: the joint's own frame and its motion.
+    for ( int i = 3; i < ( int )m_MarkerDrawObj_vec.size(); i++ )
     {
-        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        snprintf( str, sizeof( str ),  "%d", i );
-        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "_Feature_" + str;
-        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
-        m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
-        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+        draw_obj_vec.push_back( &m_MarkerDrawObj_vec[i] );
     }
-
-    m_MotionArrowsDO.m_GeomID = m_ID + "MArrows";
-    m_MotionArrowsDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
-    m_MotionArrowsDO.m_LineWidth = 1.0;
-    m_MotionArrowsDO.m_Type = DrawObj::VSP_SHADED_TRIS;
-
-    for ( int i = 0; i < 4; i++ )
-    {
-        m_MotionArrowsDO.m_MaterialInfo.Ambient[i] = 0.2f;
-        m_MotionArrowsDO.m_MaterialInfo.Diffuse[i] = 0.1f;
-        m_MotionArrowsDO.m_MaterialInfo.Specular[i] = 0.7f;
-        m_MotionArrowsDO.m_MaterialInfo.Emission[i] = 0.0f;
-    }
-    m_MotionArrowsDO.m_MaterialInfo.Diffuse[3] = 0.5f;
-    m_MotionArrowsDO.m_MaterialInfo.Shininess = 5.0f;
-
-
-    m_MotionLinesDO.m_GeomID = m_ID + "MLines";
-    m_MotionLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
-    m_MotionLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_MotionLinesDO.m_LineWidth = 2.0;
-    m_MotionLinesDO.m_Type = DrawObj::VSP_LINES;
-
-    m_PrimaryLineDO.m_GeomID = m_ID + "PrimLines";
-    m_PrimaryLineDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
-    m_PrimaryLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_PrimaryLineDO.m_LineWidth = 2.0;
-    m_PrimaryLineDO.m_Type = DrawObj::VSP_LINES;
-
-    draw_obj_vec.push_back( &m_MotionArrowsDO );
-    draw_obj_vec.push_back( &m_MotionLinesDO );
-    draw_obj_vec.push_back( &m_PrimaryLineDO );
 }
 
 Matrix4d HingeGeom::GetJointMatrix() const
