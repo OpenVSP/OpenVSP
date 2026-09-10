@@ -8,6 +8,7 @@
 #include "APIDefines.h"
 #include "VspUtil.h"
 #include "ConformalGeom.h"
+#include "CloneGeom.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
 #include "WingGeom.h"
@@ -236,6 +237,17 @@ void ConformalGeom::UpdateSurf()
     if ( !parent_geom )
     {
         return;
+    }
+
+    // A Clone has no cross sections, so offset those of the Geom it shows; placement stays the Clone's.
+    CloneGeom* clone_parent = dynamic_cast< CloneGeom* >( parent_geom );
+    if ( clone_parent )
+    {
+        Geom* behavior_geom = clone_parent->GetBehaviorGeom();
+        if ( behavior_geom && behavior_geom != parent_geom )
+        {
+            parent_geom = behavior_geom;
+        }
     }
 
     // A Conformal of a Conformal does not work and never has: the offset is built by moving
@@ -1184,7 +1196,8 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         return;
     }
 
-    WingGeom* wing_geom = dynamic_cast < WingGeom* > ( parent_geom );
+    // Only EtatoU and UtoEta are used; they depend on shape alone, so a Clone of a wing works too.
+    WingGeom* behavior_wing = dynamic_cast < WingGeom* > ( parent_geom->GetBehaviorGeom() );
 
     double lmax = surf.GetLMax();
 
@@ -1195,10 +1208,10 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         m_LTrimMin.Set( l );
         m_L0LenTrimMin.Set( m_LTrimMin() * lmax );
 
-        if ( wing_geom )
+        if ( behavior_wing )
         {
-            double umax = wing_geom->NumXSec() - 1;
-            m_EtaTrimMin = wing_geom->UtoEta( m_UTrimMin() * umax, true );
+            double umax = behavior_wing->NumXSec() - 1;
+            m_EtaTrimMin = behavior_wing->UtoEta( m_UTrimMin() * umax, true );
         }
     }
     else if ( m_UMinTrimTypeFlag() == vsp::L_TRIM ) // Trim based on L.
@@ -1218,18 +1231,18 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         surf.ConvertLMNtoRST( m_LTrimMin(), 0.5, 0.5, r, s, t );
         m_UTrimMin.Set( r );
 
-        if ( wing_geom )
+        if ( behavior_wing )
         {
-            double umax = wing_geom->NumXSec() - 1;
-            m_EtaTrimMin = wing_geom->UtoEta( m_UTrimMin() * umax, true );
+            double umax = behavior_wing->NumXSec() - 1;
+            m_EtaTrimMin = behavior_wing->UtoEta( m_UTrimMin() * umax, true );
         }
     }
     else // Trim based on eta
     {
-        if ( wing_geom )
+        if ( behavior_wing )
         {
-            double umax = wing_geom->NumXSec() - 1;
-            m_UTrimMin = wing_geom->EtatoU( m_EtaTrimMin(), true ) / umax;
+            double umax = behavior_wing->NumXSec() - 1;
+            m_UTrimMin = behavior_wing->EtatoU( m_EtaTrimMin(), true ) / umax;
 
             double l, m, n;
             surf.ConvertRSTtoLMN( m_UTrimMin(), 0.5, 0.5, l, m, n );
@@ -1245,10 +1258,10 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         m_LTrimMax.Set( l );
         m_L0LenTrimMax.Set( m_LTrimMax() * lmax );
 
-        if ( wing_geom )
+        if ( behavior_wing )
         {
-            double umax = wing_geom->NumXSec() - 1;
-            m_EtaTrimMax = wing_geom->UtoEta( m_UTrimMax() * umax, true );
+            double umax = behavior_wing->NumXSec() - 1;
+            m_EtaTrimMax = behavior_wing->UtoEta( m_UTrimMax() * umax, true );
         }
     }
     else if ( m_UMaxTrimTypeFlag() == L_TRIM ) // Trim based on L.
@@ -1268,18 +1281,18 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         surf.ConvertLMNtoRST( m_LTrimMax(), 0.5, 0.5, r, s, t );
         m_UTrimMax.Set( r );
 
-        if ( wing_geom )
+        if ( behavior_wing )
         {
-            double umax = wing_geom->NumXSec() - 1;
-            m_EtaTrimMax = wing_geom->UtoEta( m_UTrimMax() * umax, true );
+            double umax = behavior_wing->NumXSec() - 1;
+            m_EtaTrimMax = behavior_wing->UtoEta( m_UTrimMax() * umax, true );
         }
     }
     else // Trim based on eta
     {
-        if ( wing_geom )
+        if ( behavior_wing )
         {
-            double umax = wing_geom->NumXSec() - 1;
-            m_UTrimMax = wing_geom->EtatoU( m_EtaTrimMax(), true ) / umax;
+            double umax = behavior_wing->NumXSec() - 1;
+            m_UTrimMax = behavior_wing->EtatoU( m_EtaTrimMax(), true ) / umax;
 
             double l, m, n;
             surf.ConvertRSTtoLMN( m_UTrimMax(), 0.5, 0.5, l, m, n );
