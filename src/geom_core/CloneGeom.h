@@ -29,6 +29,19 @@ public:
     virtual void AddDefaultSources( double base_len = 1.0 ) override;
 
 
+    // Meshing resamples the surface, so these defer to the original's tessellation scheme.
+    virtual void GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen,
+                            vector< double > &utess, vector< double > &vtess, const int & n_ref = 0 ) const override;
+    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen,
+                                  vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                                  vector< vector< vec3d > > &uw_pnts, const int & n_ref = 0 ) const override;
+    virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                                       vector< vector< vector< vec3d > > > &pnts,
+                                       vector< vector< vector< vec3d > > > &norms ) const override;
+
+    // The copied surfaces are already capped; take the original's results.
+    virtual void UpdateEndCaps( int ncap = -1 ) override;
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node ) override;
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node ) override;
 

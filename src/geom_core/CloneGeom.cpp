@@ -182,6 +182,68 @@ void CloneGeom::UpdateSurf()
     original_geom->GetMainSurfVecCopy( m_MainSurfVec );
 }
 
+// The surface is this Clone's own; only the sampling comes from the original.
+void CloneGeom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen,
+                           vector< double > &utess, vector< double > &vtess, const int & n_ref ) const
+{
+    Geom* original_geom = GetOriginalGeom();
+    if ( original_geom )
+    {
+        original_geom->GetUWTess( surf, capUMinSuccess, capUMaxSuccess, degen, utess, vtess, n_ref );
+        return;
+    }
+
+    Geom::GetUWTess( surf, capUMinSuccess, capUMaxSuccess, degen, utess, vtess, n_ref );
+}
+
+void CloneGeom::UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen,
+                                 vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                                 vector< vector< vec3d > > &uw_pnts, const int & n_ref ) const
+{
+    Geom* original_geom = GetOriginalGeom();
+    if ( original_geom )
+    {
+        original_geom->UpdateTesselate( surf, capUMinSuccess, capUMaxSuccess, degen, pnts, norms, uw_pnts, n_ref );
+        return;
+    }
+
+    Geom::UpdateTesselate( surf, capUMinSuccess, capUMaxSuccess, degen, pnts, norms, uw_pnts, n_ref );
+}
+
+void CloneGeom::UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
+                                      vector< vector< vector< vec3d > > > &pnts,
+                                      vector< vector< vector< vec3d > > > &norms ) const
+{
+    Geom* original_geom = GetOriginalGeom();
+    if ( original_geom )
+    {
+        original_geom->UpdateSplitTesselate( surf, capUMinSuccess, capUMaxSuccess, pnts, norms );
+        return;
+    }
+
+    Geom::UpdateSplitTesselate( surf, capUMinSuccess, capUMaxSuccess, pnts, norms );
+}
+
+void CloneGeom::UpdateEndCaps( int ncap )
+{
+    if ( m_CappingDone )
+    {
+        return;
+    }
+    m_CappingDone = true;
+
+    m_CapUMinSuccess.clear();
+    m_CapUMaxSuccess.clear();
+
+    Geom* original_geom = GetOriginalGeom();
+    if ( !original_geom )
+    {
+        return;
+    }
+
+    original_geom->GetCapSuccessCopy( m_CapUMinSuccess, m_CapUMaxSuccess );
+}
+
 void CloneGeom::UpdateMainTessVec()
 {
     Geom* original_geom = GetOriginalGeom();
