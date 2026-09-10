@@ -11,6 +11,8 @@
 #include "IDMgr.h"
 #include "StlHelper.h"
 #include "StringUtil.h"
+#include "SubSurfaceMgr.h"
+#include "XSec.h"
 
 //==== Constructor ====//
 CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -99,7 +101,6 @@ bool CloneGeom::PlacedBBoxIncludesOrigin() const
     return original_geom->PlacedBBoxIncludesOrigin();
 }
 
-// Whether following the chain of originals from id arrives back at this Geom.
 bool CloneGeom::IsCloneAncestor( const string &id ) const
 {
     string walk = id;
@@ -194,6 +195,120 @@ void CloneGeom::ResolveOriginal()
         m_NameDirty = true;
         m_SubSurfDirty = true;
     }
+}
+
+SubSurface* CloneGeom::FindCopiedSubSurf( const string &source_id, int type )
+{
+    map < string, string >::iterator it = m_SubSurfSourceMap.find( source_id );
+    if ( it == m_SubSurfSourceMap.end() )
+    {
+        return nullptr;
+    }
+
+    for ( int i = 0; i < ( int )m_SubSurfVec.size(); i++ )
+    {
+        if ( m_SubSurfVec[i]->GetID() == it->second )
+        {
+            // A subsurface cannot change type, so a mismatch is not this one.
+            if ( m_SubSurfVec[i]->GetType() == type )
+            {
+                return m_SubSurfVec[i];
+            }
+            return nullptr;
+        }
+    }
+
+    return nullptr;
+}
+
+// Match the copies to the original's subsurfaces, updating in place so IDs stay stable.
+void CloneGeom::UpdateCopySubSurfs()
+{
+    Geom* original_geom = GetOriginalGeom();
+    if ( !original_geom || !m_CloneSubSurfs() )
+    {
+        // Existing copies stay and become editable.  The pairing is kept so turning the switch
+        // back on reuses them instead of adding duplicates.
+        return;
+    }
+
+    vector< SubSurface* > oss = original_geom->GetSubSurfVec();
+
+    vector< SubSurface* > keep;
+    map < string, string > newmap;
+
+    for ( int i = 0; i < ( int )oss.size(); i++ )
+    {
+        SubSurface* mine = FindCopiedSubSurf( oss[i]->GetID(), oss[i]->GetType() );
+
+        if ( !mine )
+        {
+            mine = Geom::AddSubSurf( oss[i]->GetType(), oss[i]->m_MainSurfIndx() );
+            if ( !mine )
+            {
+                continue;
+            }
+        }
+
+        mine->CopyVals( oss[i] );
+        mine->SetName( oss[i]->GetName() );
+
+        // CopyVals does not recurse into child containers, so copy the cross section by hand.
+        SSXSecCurve* mine_xsc = dynamic_cast< SSXSecCurve* >( mine );
+        SSXSecCurve* orig_xsc = dynamic_cast< SSXSecCurve* >( oss[i] );
+        if ( mine_xsc && orig_xsc && orig_xsc->GetXSecCurve() )
+        {
+            mine_xsc->SetXSecCurveType( orig_xsc->GetXSecCurve()->GetType() );
+
+            if ( mine_xsc->GetXSecCurve() )
+            {
+                mine_xsc->GetXSecCurve()->CopyFrom( orig_xsc->GetXSecCurve() );
+            }
+        }
+
+        if ( vector_contains_val( keep, mine ) )
+        {
+            // Two sources paired to one copy (hand-edited file); keep it once.
+            continue;
+        }
+
+        newmap[ oss[i]->GetID() ] = mine->GetID();
+        keep.push_back( mine );
+    }
+
+    // Copies as of the last update.  Any other subsurface is the user's and is kept.
+    set < string > was_copy;
+    map < string, string >::iterator iwas;
+    for ( iwas = m_SubSurfSourceMap.begin(); iwas != m_SubSurfSourceMap.end(); ++iwas )
+    {
+        was_copy.insert( iwas->second );
+    }
+
+    vector< SubSurface* > own;
+    for ( int i = 0; i < ( int )m_SubSurfVec.size(); i++ )
+    {
+        if ( vector_contains_val( keep, m_SubSurfVec[i] ) )
+        {
+            continue;
+        }
+
+        if ( was_copy.count( m_SubSurfVec[i]->GetID() ) > 0 )
+        {
+            // A copy of something the original no longer has.
+            delete m_SubSurfVec[i];
+        }
+        else
+        {
+            own.push_back( m_SubSurfVec[i] );
+        }
+    }
+
+    // The copies in the original's order, then whatever this Geom owns itself.
+    m_SubSurfVec = keep;
+    m_SubSurfVec.insert( m_SubSurfVec.end(), own.begin(), own.end() );
+    m_SubSurfSourceMap = newmap;
+
+    SubSurfaceMgr.ReSuffixGroupNames( GetID() );
 }
 
 void CloneGeom::UpdateSets()
@@ -729,6 +844,17 @@ xmlNodePtr CloneGeom::EncodeXml( xmlNodePtr & node )
     {
         XmlUtil::AddStringNode( clone_node, "OriginalID", m_OriginalID );
         XmlUtil::AddStringNode( clone_node, "NameSuffix", m_NameSuffix );
+
+        map < string, string >::iterator it;
+        for ( it = m_SubSurfSourceMap.begin(); it != m_SubSurfSourceMap.end(); ++it )
+        {
+            xmlNodePtr pair_node = xmlNewChild( clone_node, NULL, BAD_CAST "SubSurfSource", NULL );
+            if ( pair_node )
+            {
+                XmlUtil::AddStringNode( pair_node, "SourceID", it->first );
+                XmlUtil::AddStringNode( pair_node, "CopyID", it->second );
+            }
+        }
     }
     return clone_node;
 }
@@ -755,9 +881,42 @@ xmlNodePtr CloneGeom::DecodeXml( xmlNodePtr & node )
             // Through the setter so the suffix is cleaned.
             SetNameSuffix( XmlUtil::FindString( clone_node, "NameSuffix", string() ) );
         }
+
+        m_SubSurfSourceMap.clear();
+        int npair = XmlUtil::GetNumNames( clone_node, "SubSurfSource" );
+        for ( int i = 0; i < npair; i++ )
+        {
+            xmlNodePtr pair_node = XmlUtil::GetNode( clone_node, "SubSurfSource", i );
+            if ( pair_node )
+            {
+                string sid = IDMgr.RemapRefID( XmlUtil::FindString( pair_node, "SourceID", string() ) );
+                string mid = IDMgr.RemapRefID( XmlUtil::FindString( pair_node, "CopyID", string() ) );
+                m_SubSurfSourceMap[ sid ] = mid;
+            }
+        }
     }
 
     return clone_node;
+}
+
+bool CloneGeom::IsCopiedSubSurf( const string &id ) const
+{
+    // Nothing is a copy while copying is off, even though the pairing is kept.
+    if ( !m_CloneSubSurfs() )
+    {
+        return false;
+    }
+
+    map < string, string >::const_iterator it;
+    for ( it = m_SubSurfSourceMap.begin(); it != m_SubSurfSourceMap.end(); ++it )
+    {
+        if ( it->second == id )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool CloneGeom::SetOriginalID( const string &id )

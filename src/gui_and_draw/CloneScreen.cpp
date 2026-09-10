@@ -111,6 +111,40 @@ bool CloneScreen::Update()
         m_CustomMaterialButton.Activate();
     }
 
+    // Turning copying off keeps the subsurfaces as the Clone's own.
+    if ( clone_ptr->m_CloneSubSurfs() )
+    {
+        m_AddSubSurfButton.Deactivate();
+        m_DelSubSurfButton.Deactivate();
+        m_SubSurfChoice.Deactivate();
+        m_SubSurfSelectSurface.Deactivate();
+        m_SSMoveTopButton.Deactivate();
+        m_SSMoveUpButton.Deactivate();
+        m_SSMoveDownButton.Deactivate();
+        m_SSMoveBotButton.Deactivate();
+        m_SubSurfBrowser->deactivate();
+        if ( m_SSCommonGroup.GetGroup() )
+        {
+            m_SSCommonGroup.GetGroup()->deactivate();
+        }
+    }
+    else
+    {
+        m_AddSubSurfButton.Activate();
+        m_DelSubSurfButton.Activate();
+        m_SubSurfChoice.Activate();
+        m_SubSurfSelectSurface.Activate();
+        m_SSMoveTopButton.Activate();
+        m_SSMoveUpButton.Activate();
+        m_SSMoveDownButton.Activate();
+        m_SSMoveBotButton.Activate();
+        m_SubSurfBrowser->activate();
+        if ( m_SSCommonGroup.GetGroup() )
+        {
+            m_SSCommonGroup.GetGroup()->activate();
+        }
+    }
+
     m_OriginalChoice.ClearItems();
     m_CompVec.clear();
     map <string, int> CompIDMap;

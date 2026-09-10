@@ -47,6 +47,10 @@ public:
 
     // False if the Geom cannot be copied or would form a cycle of Clones.
     virtual bool SetOriginalID( const string &id );
+
+    // Whether the subsurface is a copy of the original's (rebuilt every update) rather than
+    // one added to this Geom.
+    virtual bool IsCopiedSubSurf( const string &id ) const;
     virtual string GetOriginalID() const
     {
         return m_OriginalID;
@@ -125,10 +129,19 @@ protected:
     virtual void UpdateCopyAppearance() override;
     virtual void UpdateCopyName() override;
 
+    // Copies of the original's subsurfaces, owned by this Geom so they carry its component ID
+    // for the mesher.  Updated in place via m_SubSurfSourceMap so their IDs, which VSPAERO
+    // keys control surfaces on, persist.
+    virtual void UpdateCopySubSurfs() override;
+    virtual SubSurface* FindCopiedSubSurf( const string &source_id, int type );
+
     string m_OriginalID;
 
     // Appended to the original's name by automatic naming.  Saved to file.
     string m_NameSuffix;
+
+    // Original subsurface ID -> our copy's ID.  Saved, so the pairing survives a round trip.
+    map < string, string > m_SubSurfSourceMap;
 };
 
 

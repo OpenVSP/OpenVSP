@@ -46,6 +46,7 @@
 #include "VehicleMgr.h"
 #include "VKTAirfoil.h"
 #include "VSP_Geom_API.h"
+#include "CloneGeom.h"
 #include "VSPAEROMgr.h"
 #include "LightMgr.h"
 #include "VspUtil.h"
@@ -3632,6 +3633,17 @@ void DeleteSubSurf( const std::string & geom_id, const std::string & sub_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
     }
+
+    // A Clone rebuilds its copied subsurfaces on every update, so they cannot be deleted here.
+    CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+    if ( clone_ptr && clone_ptr->IsCopiedSubSurf( sub_id ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DeleteSubSurf::SubSurf " + sub_id +
+                           " is copied from Geom " + clone_ptr->GetOriginalID() +
+                           " -- delete it there, or turn the Clone's subsurface copying off" );
+        return;
+    }
+
     geom_ptr->DelSubSurf( index );
     ErrorMgr.NoError();
     return;
@@ -3658,6 +3670,17 @@ void DeleteSubSurf( const std::string & sub_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
     }
+
+    // A Clone rebuilds its copied subsurfaces on every update, so they cannot be deleted here.
+    CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+    if ( clone_ptr && clone_ptr->IsCopiedSubSurf( sub_id ) )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DeleteSubSurf::SubSurf " + sub_id +
+                           " is copied from Geom " + clone_ptr->GetOriginalID() +
+                           " -- delete it there, or turn the Clone's subsurface copying off" );
+        return;
+    }
+
     geom_ptr->DelSubSurf( index );
     ErrorMgr.NoError();
     return;

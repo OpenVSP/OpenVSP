@@ -12886,7 +12886,7 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
     \ingroup SubSurface
 */
 /*!
-    Delete the specified sub-surface
+    Delete the specified sub-surface.  A subsurface a Clone copies from its original is refused; delete it from the original.
     \forcpponly
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
@@ -12997,7 +12997,7 @@ extern void ReorderSubSurf( const std::string & geom_id, const std::string & sub
     \ingroup SubSurface
 */
 /*!
-    Delete the specified sub-surface
+    Delete the specified sub-surface.  A subsurface a Clone copies from its original is refused; delete it from the original.
     \forcpponly
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
