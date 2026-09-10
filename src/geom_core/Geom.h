@@ -186,7 +186,7 @@ public:
     virtual ~GeomBase();                        // Destructor
 
     // Only used internally.  Do not need to move to API.
-    enum { NONE, XFORM, TESS, SURF, HIGHLIGHT, GLOBAL_SCALE };
+    enum { NONE, XFORM, TESS, SURF, HIGHLIGHT, GLOBAL_SCALE, APPEARANCE, NAME, SUBSURF };
 
     virtual GeomType GetType()
     {
@@ -258,7 +258,19 @@ public:
     bool m_FeaDirty;
     bool m_GlobalScaleDirty;
 
+    // Name, colours and the subsurface list are not Parms, so changes to them are flagged here
+    // and passed on like the other flags.
+    bool m_AppearanceDirty;
+    bool m_UpdateAppearance;
+    bool m_NameDirty;
+    bool m_UpdateName;
+    bool m_SubSurfDirty;
+    bool m_UpdateSubSurf;
+
     void SetDirtyFlag( int dflag );
+
+    // Renaming is not a Parm change, so this sets m_NameDirty.
+    virtual void SetName( const string& name, bool removeslashes = true );
 
     virtual bool IsModelScaleSensitive() { return false; }
 
@@ -892,6 +904,9 @@ protected:
     virtual void UpdateCopyXFormParms() {};
     virtual void UpdateCopySurfParms() {};
     virtual void UpdateCopyTessParms() {};
+    virtual void UpdateCopyAppearance() {};
+    virtual void UpdateCopyName() {};
+    virtual void UpdateCopySubSurfs() {};
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d )
     template <typename T>

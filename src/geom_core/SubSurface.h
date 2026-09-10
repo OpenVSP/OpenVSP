@@ -97,6 +97,9 @@ public:
     {
         return m_Type;
     }
+    // Renaming is not a Parm change, so this marks the owning Geom dirty itself.
+    virtual void SetName( const string& name, bool removeslashes = true );
+
     virtual string GetCompID()
     {
         return m_CompID;

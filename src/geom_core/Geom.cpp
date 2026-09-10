@@ -110,6 +110,12 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
     m_TessDirty = true;
     m_HighlightDirty = true;
     m_FeaDirty = true;
+    m_AppearanceDirty = true;
+    m_UpdateAppearance = false;
+    m_NameDirty = true;
+    m_UpdateName = false;
+    m_SubSurfDirty = true;
+    m_UpdateSubSurf = false;
     // This flag is only set true when global scale is updated.
     m_GlobalScaleDirty = false;
 
@@ -241,6 +247,12 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
 
 }
 
+void GeomBase::SetName( const string& name, bool removeslashes )
+{
+    ParmContainer::SetName( name, removeslashes );
+    m_NameDirty = true;
+}
+
 void GeomBase::SetDirtyFlag( int dflag )
 {
     if ( dflag == XFORM )
@@ -262,6 +274,18 @@ void GeomBase::SetDirtyFlag( int dflag )
     else if ( dflag == GLOBAL_SCALE )
     {
         m_GlobalScaleDirty = true;
+    }
+    else if ( dflag == APPEARANCE )
+    {
+        m_AppearanceDirty = true;
+    }
+    else if ( dflag == NAME )
+    {
+        m_NameDirty = true;
+    }
+    else if ( dflag == SUBSURF )
+    {
+        m_SubSurfDirty = true;
     }
 }
 
@@ -1880,6 +1904,12 @@ void Geom::Update( bool fullupdate )
     if ( m_TessDirty )
         UpdateCopyTessParms();
 
+    if ( m_AppearanceDirty )
+        UpdateCopyAppearance();
+
+    if ( m_NameDirty )
+        UpdateCopyName();
+
     if ( m_XFormDirty )
         UpdateXForm();
 
@@ -1923,6 +1953,9 @@ void Geom::Update( bool fullupdate )
         // is 0.1 sec.  Typical cost is two orders smaller.
         UpdateSurfVec();
     }
+
+    if ( m_SubSurfDirty )
+        UpdateCopySubSurfs();
 
     if ( fullupdate ) // Option to make FitModel and similar things faster.
     {
@@ -2005,6 +2038,21 @@ void Geom::Update( bool fullupdate )
     m_HighlightDirty = false;
 
     m_GlobalScaleDirty = false;
+
+    m_UpdateAppearance = false;
+    if ( m_AppearanceDirty )
+        m_UpdateAppearance = true;
+    m_AppearanceDirty = false;
+
+    m_UpdateName = false;
+    if ( m_NameDirty )
+        m_UpdateName = true;
+    m_NameDirty = false;
+
+    m_UpdateSubSurf = false;
+    if ( m_SubSurfDirty )
+        m_UpdateSubSurf = true;
+    m_SubSurfDirty = false;
 
     UpdateChildren( fullupdate );
     UpdateStepChildren( fullupdate );
@@ -6106,6 +6154,8 @@ void Geom::DelSubSurf( int ind )
         m_SubSurfVec.erase( m_SubSurfVec.begin() + ind );
     }
 
+    m_SubSurfDirty = true;
+
     SubSurfaceMgr.ReSuffixGroupNames( GetID() );
 }
 
@@ -6186,6 +6236,8 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
         AddSubSurf( ssurf );
     }
 
+    m_SubSurfDirty = true;
+
     SubSurfaceMgr.ReSuffixGroupNames( GetID() );
 
     return ssurf;
@@ -6248,6 +6300,8 @@ void Geom::ReorderSubSurf( const string & id, int action )
     int new_index = ReorderVectorIndex( m_SubSurfVec, curr_index, action );
 
     SubSurfaceMgr.SetCurrSubSurfInd( new_index );
+
+    m_SubSurfDirty = true;
 }
 
 //==== Highlight Active Subsurface ====//

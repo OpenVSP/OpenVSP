@@ -2811,11 +2811,14 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             ssurf->Update();
         }
+        // Adding a subsurface changes no Parm, so update here.
+        geom_ptr->Update();
         SetCurrSubSurf( geom_ptr->NumSubSurfs() - 1 );
     }
     else if ( device == &m_DelSubSurfButton )
     {
         geom_ptr->DelSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        geom_ptr->Update();
         SetCurrSubSurf( geom_ptr->NumSubSurfs() - 1 );
     }
     else if ( device == &m_SSMoveTopButton )
@@ -2824,6 +2827,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( subsurf )
         {
             geom_ptr->ReorderSubSurf( subsurf->GetID(), vsp::REORDER_MOVE_TOP );
+            geom_ptr->Update();
         }
     }
     else if ( device == &m_SSMoveUpButton )
@@ -2832,6 +2836,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( subsurf )
         {
             geom_ptr->ReorderSubSurf( subsurf->GetID(), vsp::REORDER_MOVE_UP );
+            geom_ptr->Update();
         }
     }
     else if ( device == &m_SSMoveDownButton )
@@ -2840,6 +2845,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( subsurf )
         {
             geom_ptr->ReorderSubSurf( subsurf->GetID(), vsp::REORDER_MOVE_DOWN );
+            geom_ptr->Update();
         }
     }
     else if ( device == &m_SSMoveBotButton )
@@ -2848,6 +2854,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( subsurf )
         {
             geom_ptr->ReorderSubSurf( subsurf->GetID(), vsp::REORDER_MOVE_BOTTOM );
+            geom_ptr->Update();
         }
     }
     else if ( device == &m_SubNameInput )

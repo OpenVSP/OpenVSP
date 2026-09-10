@@ -21,6 +21,7 @@
 #include "Vec2d.h"
 #include "VspUtil.h"
 #include "StlHelper.h"
+#include "StringUtil.h"
 
 #include "VSP_Geom_API.h"
 
@@ -97,6 +98,18 @@ SubSurface::~SubSurface()
 
 void SubSurface::ParmChanged( Parm* parm_ptr, int type )
 {
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    // Before the deferred return: a deferred change is still a change.
+    if ( veh )
+    {
+        Geom* geom = veh->FindGeom( m_CompID );
+        if ( geom )
+        {
+            geom->SetDirtyFlag( GeomBase::SUBSURF );
+        }
+    }
+
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
@@ -105,10 +118,43 @@ void SubSurface::ParmChanged( Parm* parm_ptr, int type )
 
     Update();
 
-    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
+        // Update the owning Geom too; a subsurface's Parms do not reach GeomBase::ParmChanged.
+        Geom* geom = veh->FindGeom( m_CompID );
+        if ( geom )
+        {
+            geom->Update();
+        }
+
         veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+void SubSurface::SetName( const string& name, bool removeslashes )
+{
+    // Mark the owner dirty only on a real change, compared as stored; a Clone's copied
+    // subsurfaces are renamed every pass.
+    string new_name = name;
+    if ( removeslashes )
+    {
+        StringUtil::remove_all( new_name, '/' );
+    }
+    bool changed = ( new_name != m_Name );
+
+    ParmContainer::SetName( name, removeslashes );
+
+    if ( changed )
+    {
+        Vehicle* veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            Geom* geom = veh->FindGeom( m_CompID );
+            if ( geom )
+            {
+                geom->SetDirtyFlag( GeomBase::SUBSURF );
+            }
+        }
     }
 }
 
