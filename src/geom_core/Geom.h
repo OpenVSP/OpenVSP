@@ -449,6 +449,28 @@ public:
     {
         surf_vec = m_MainSurfVec;
     }
+
+    virtual void GetMainTessVecCopy( vector <SimpleTess> &tess_vec ) const
+    {
+        tess_vec = m_MainTessVec;
+    }
+
+    virtual void GetMainFeatureTessVecCopy( vector <SimpleFeatureTess> &tess_vec ) const
+    {
+        tess_vec = m_MainFeatureTessVec;
+    }
+
+    virtual void GetMainDegenGeomPreviewCopy( vector< DegenGeom > & degen_vec ) const
+    {
+         degen_vec = m_MainDegenGeomPreviewVec;
+    }
+
+    // Whether capping changed each main surface.  A Clone copies these with the capped surfaces.
+    virtual void GetCapSuccessCopy( vector< bool > & umin_vec, vector< bool > & umax_vec ) const
+    {
+        umin_vec = m_CapUMinSuccess;
+        umax_vec = m_CapUMaxSuccess;
+    }
     virtual int GetNumSymFlags() const;
     virtual int GetNumTotalSurfs() const;
     virtual int GetNumTotalHrmSurfs() const;
@@ -568,6 +590,13 @@ public:
     virtual void ReadV2File( xmlNodePtr &root );
 
     virtual int GetSymFlag() const;
+
+    // Surface tessellation.  Public so a Clone can defer to its original's scheme.
+    virtual void GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref = 0 ) const;
+
+    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref = 0 ) const;
+
+    virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
 
     virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
     vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal, const int & n_ref = 0 ) const;
@@ -852,7 +881,7 @@ protected:
     // Cap the first ncap main surfaces (ncap < 0 means all of them).  Capping fewer than all is
     // used by Geoms whose main surfaces are copies of one computed surface (e.g. prop blades),
     // so only the single source surface needs capping before it is duplicated.
-    void UpdateEndCaps( int ncap = -1 );
+    virtual void UpdateEndCaps( int ncap = -1 );
     virtual void UpdateEngine()   {};
     virtual void UpdateFeatureLines();
     virtual void UpdateLCurve();
@@ -936,12 +965,6 @@ protected:
 
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateDegenGeomPreview();
-
-    virtual void GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref = 0 ) const;
-
-    virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref = 0 ) const;
-
-    virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
 
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
