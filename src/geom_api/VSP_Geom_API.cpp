@@ -2694,7 +2694,7 @@ std::string GetGeomMaterialName( const std::string &geom_id )
         return std::string();
     }
 
-    Material *mat = geom_ptr->GetMaterial();
+    const Material *mat = geom_ptr->GetMaterial();
     if ( !mat )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomMaterialName::Geom " + geom_id + " has no material" );

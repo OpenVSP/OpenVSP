@@ -21,7 +21,7 @@ public:
 
     void SetMaterialToDefault( );
     void SetMaterial( const std::string& name );
-    void SetMaterial( Material * material );
+    void SetMaterial( const Material * material );
     void SetMaterial( const std::string& name, double ambi[], double diff[], double spec[], double emis[], double shin );
 
     void SetAmbient( vec3d color );
@@ -31,12 +31,12 @@ public:
     void SetAlpha( double alpha );
     void SetShininess( double shiny );
 
-    void GetAmbient( vec3d &color );
-    void GetDiffuse( vec3d &color );
-    void GetSpecular( vec3d &color );
-    void GetEmissive( vec3d &color );
-    void GetAlpha( double &alpha );
-    void GetShininess( double &shiny );
+    void GetAmbient( vec3d &color ) const;
+    void GetDiffuse( vec3d &color ) const;
+    void GetSpecular( vec3d &color ) const;
+    void GetEmissive( vec3d &color ) const;
+    void GetAlpha( double &alpha ) const;
+    void GetShininess( double &shiny ) const;
 
 
     std::string m_Name;

@@ -93,7 +93,7 @@ void Material::SetMaterial( const std::string& name )
     MaterialMgr.FindMaterial( name, *this );
 }
 
-void Material::SetMaterial( Material * material )
+void Material::SetMaterial( const Material * material )
 {
     for ( int j = 0; j < 4; j++ )
         m_Ambi[j] = material->m_Ambi[j];
@@ -163,36 +163,36 @@ void Material::SetShininess( double shiny )
     m_Shininess = (float)shiny;
 }
 
-void Material::GetAmbient( vec3d &color )
+void Material::GetAmbient( vec3d &color ) const
 {
     for ( int j = 0; j < 3; j++ )
         color[j] = m_Ambi[j] * 255.0;
 }
 
-void Material::GetDiffuse( vec3d &color )
+void Material::GetDiffuse( vec3d &color ) const
 {
     for ( int j = 0; j < 3; j++ )
         color[j] = m_Diff[j] * 255.0;
 }
 
-void Material::GetSpecular( vec3d &color )
+void Material::GetSpecular( vec3d &color ) const
 {
     for ( int j = 0; j < 3; j++ )
         color[j] = m_Spec[j] * 255.0;
 }
 
-void Material::GetEmissive( vec3d &color )
+void Material::GetEmissive( vec3d &color ) const
 {
     for ( int j = 0; j < 3; j++ )
         color[j] = m_Emis[j] * 255.0;
 }
 
-void Material::GetAlpha( double &alpha )
+void Material::GetAlpha( double &alpha ) const
 {
     alpha = m_Diff[3];
 }
 
-void Material::GetShininess( double &shiny )
+void Material::GetShininess( double &shiny ) const
 {
     shiny = m_Shininess;
 }
@@ -560,14 +560,20 @@ void MaterialMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
     Geom* g = VehicleMgr.GetVehicle()->FindGeom( m_ActiveGeom );
     if ( g )
     {
+        // Edit a copy and set it back, so the Geom sees the change.
+        Material mat;
+        mat.SetMaterial( g->GetMaterial() );
+
         if ( parm_ptr->GetID() == m_Alpha.GetID() )
         {
-            g->GetMaterial()->SetAlpha( m_Alpha.Get() );
+            mat.SetAlpha( m_Alpha.Get() );
         }
         else if ( parm_ptr->GetID() == m_Shininess.GetID() )
         {
-            g->GetMaterial()->SetShininess( m_Shininess.Get() );
+            mat.SetShininess( m_Shininess.Get() );
         }
+
+        g->SetMaterial( mat );
     }
 
     if ( VehicleMgr.GetVehicle() )

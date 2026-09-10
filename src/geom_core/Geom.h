@@ -148,6 +148,10 @@ public:
     {
         return &m_Material;
     }
+    const Material * getMaterial() const
+    {
+        return &m_Material;
+    }
     void SetDispSubSurfFlag( bool f )
     {
         m_DispSubSurfFlag = f;
@@ -424,7 +428,9 @@ public:
 
     virtual void SetMaterialToDefault();
     virtual void SetMaterial( const std::string &name, double ambi[], double diff[], double spec[], double emis[], double shin );
-    virtual Material * GetMaterial();
+    // Read only.  Changes go through SetMaterial so they are announced.
+    virtual const Material * GetMaterial() const;
+    virtual void SetMaterial( const Material &mat );
 
     virtual bool GetSetFlag( int index ) const;
     virtual vector< bool > GetSetFlags()

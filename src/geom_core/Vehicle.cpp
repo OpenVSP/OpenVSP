@@ -2179,7 +2179,7 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
 
     vec3d color = fuse->GetColor();
     stack->SetColor( color.x(), color.y(), color.z() );
-    stack->GetMaterial()->SetMaterial( fuse->GetMaterial() );
+    stack->SetMaterial( *fuse->GetMaterial() );
 
     stack->m_GuiDraw.SetDisplayType( fuse->m_GuiDraw.GetDisplayType() );
     stack->m_GuiDraw.SetDrawType( fuse->m_GuiDraw.GetDrawType() );
@@ -4488,7 +4488,7 @@ void Vehicle::WriteX3DViewpointProps( xmlNodePtr node, const string &orients, co
     xmlSetProp( node, BAD_CAST "fieldOfView", BAD_CAST sfov.c_str() );
 }
 
-void Vehicle::WriteX3DMaterial( xmlNodePtr node, Material * material )
+void Vehicle::WriteX3DMaterial( xmlNodePtr node, const Material * material )
 {
     if ( !material ) return;
 

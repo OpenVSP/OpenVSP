@@ -4556,6 +4556,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 void Geom::SetColor( double r, double g, double b )
 {
     m_GuiDraw.SetWireColor( r, g, b );
+    m_AppearanceDirty = true;
 }
 
 vec3d Geom::GetColor() const
@@ -4566,16 +4567,24 @@ vec3d Geom::GetColor() const
 void Geom::SetMaterialToDefault()
 {
     m_GuiDraw.SetMaterialToDefault();
+    m_AppearanceDirty = true;
 }
 
 void Geom::SetMaterial( const std::string &name, double ambi[], double diff[], double spec[], double emis[], double shin )
 {
     m_GuiDraw.SetMaterial( name, ambi, diff, spec, emis, shin );
+    m_AppearanceDirty = true;
 }
 
-Material * Geom::GetMaterial()
+const Material * Geom::GetMaterial() const
 {
     return m_GuiDraw.getMaterial();
+}
+
+void Geom::SetMaterial( const Material &mat )
+{
+    m_GuiDraw.getMaterial()->SetMaterial( &mat );
+    m_AppearanceDirty = true;
 }
 
 //==== Create Degenerate Geometry ====//

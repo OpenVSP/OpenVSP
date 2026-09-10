@@ -1745,7 +1745,7 @@ bool GeomScreen::Update()
     m_ColorPicker.Update( geom_ptr->GetColor() );
 
     //==== Material ====//
-    Material * mat = geom_ptr->GetMaterial();
+    const Material * mat = geom_ptr->GetMaterial();
 
     UpdateMaterialNames();
     m_MaterialChoice.UpdateItems();
@@ -2767,6 +2767,9 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         vec3d c = m_ColorPicker.GetColor();
         geom_ptr->SetColor( ( int )c.x(), ( int )c.y(), ( int )c.z() );
+
+        // Color is not a Parm, so update here.
+        geom_ptr->Update();
     }
     else if ( device == &m_MaterialChoice )
     {
@@ -2782,11 +2785,18 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             geom_ptr->SetMaterialToDefault();
         }
+
+        geom_ptr->Update();
     }
     else if ( device == &m_CustomMaterialButton )
     {
         ( ( MaterialEditScreen* ) ( m_ScreenMgr->GetScreen( vsp::VSP_MATERIAL_EDIT_SCREEN ) ) )->m_OrigColor = geom_ptr->GetMaterial()->m_Name;
-        geom_ptr->GetMaterial()->m_Name = "Custom";
+
+        Material custom;
+        custom.SetMaterial( geom_ptr->GetMaterial() );
+        custom.m_Name = "Custom";
+        geom_ptr->SetMaterial( custom );
+        geom_ptr->Update();
         m_ScreenMgr->ShowScreen( vsp::VSP_MATERIAL_EDIT_SCREEN );
     }
     else if ( device == &m_ScaleAcceptButton )

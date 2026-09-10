@@ -106,33 +106,37 @@ void MaterialEditScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    // Edit a copy and set it back, so the Geom sees the change.
+    Material mat;
+    mat.SetMaterial( geom_ptr->GetMaterial() );
+
     if ( device == &m_AmbientColorPicker )
     {
         vec3d c = m_AmbientColorPicker.GetColor();
-        geom_ptr->GetMaterial()->SetAmbient( c );
+        mat.SetAmbient( c );
     }
     else if ( device == &m_DiffuseColorPicker )
     {
         vec3d c = m_DiffuseColorPicker.GetColor();
-        geom_ptr->GetMaterial()->SetDiffuse( c );
+        mat.SetDiffuse( c );
     }
     else if ( device == &m_SpecularColorPicker )
     {
         vec3d c = m_SpecularColorPicker.GetColor();
-        geom_ptr->GetMaterial()->SetSpecular( c );
+        mat.SetSpecular( c );
     }
     else if ( device == &m_EmissiveColorPicker )
     {
         vec3d c = m_EmissiveColorPicker.GetColor();
-        geom_ptr->GetMaterial()->SetEmissive( c );
+        mat.SetEmissive( c );
     }
     else if ( device == &m_MaterialNameInput )
     {
-        geom_ptr->GetMaterial()->m_Name = m_MaterialNameInput.GetString();
+        mat.m_Name = m_MaterialNameInput.GetString();
     }
     else if ( device == &m_SaveApplyButton )
     {
-        string name = geom_ptr->GetMaterial()->m_Name;
+        string name = mat.m_Name;
         vector< string > names = MaterialMgr.GetNames();
 
         bool repeat = false;
@@ -147,7 +151,8 @@ void MaterialEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if( !repeat )
         {
-            Material newmat = *(geom_ptr->GetMaterial());
+            Material newmat;
+            newmat.SetMaterial( &mat );
             newmat.m_UserMaterial = true;
 
             MaterialMgr.AddMaterial( newmat );
@@ -160,9 +165,12 @@ void MaterialEditScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CancelButton )
     {
-        geom_ptr->GetMaterial()->SetMaterial( m_OrigColor );
+        // As in CloseCallBack, restore only a known material name.
+        MaterialMgr.FindMaterial( m_OrigColor, mat );
         Hide();
     }
+
+    geom_ptr->SetMaterial( mat );
 
     geom_ptr->ForceUpdate();
 }
@@ -173,8 +181,16 @@ void MaterialEditScreen::CloseCallBack( Fl_Widget *w )
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
     if ( geom_ptr )
     {
-        geom_ptr->GetMaterial()->SetMaterial( m_OrigColor );
-        geom_ptr->ForceUpdate();
+        // Restore only a known material name.  "Custom" is not in the list, and looking it up
+        // would replace the material with the default.
+        Material mat;
+        mat.SetMaterial( geom_ptr->GetMaterial() );
+
+        if ( MaterialMgr.FindMaterial( m_OrigColor, mat ) )
+        {
+            geom_ptr->SetMaterial( mat );
+            geom_ptr->ForceUpdate();
+        }
     }
     Hide();
 }

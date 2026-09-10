@@ -252,7 +252,7 @@ public:
     string WriteNascartFiles( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
     string WriteGmshFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
     void WriteX3DFile( const string & file_name, int write_set, bool useMode, const string &modeID );
-    static void WriteX3DMaterial( xmlNodePtr node, Material * material );
+    static void WriteX3DMaterial( xmlNodePtr node, const Material * material );
     void WriteX3DViewpoints( xmlNodePtr node );
 
     static void WriteX3DViewpointProps( xmlNodePtr node, const string &orients, const string &cents, const string &posits, const string &sfov, const string &name );
