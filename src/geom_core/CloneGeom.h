@@ -119,6 +119,10 @@ protected:
     // Runs after the base class, so copied Parms stay deactivated; their GUI follows the Parm.
     virtual void DeactivateXForms() override;
 
+    // Feature lines and the arc length curve come with the copied surfaces.
+    virtual void UpdateFeatureLines() override;
+    virtual void UpdateLCurve() override;
+
     // Copies negative volume and mass properties alongside the surfaces.
     virtual void UpdateCopySurfParms() override;
 

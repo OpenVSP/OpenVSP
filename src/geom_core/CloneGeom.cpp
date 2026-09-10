@@ -714,6 +714,7 @@ void CloneGeom::UpdateSurf()
         return;
     }
 
+    // Assigned in place to reuse storage.  Includes the skinning inputs a conformal lofts from.
     original_geom->GetMainSurfVecCopy( m_MainSurfVec );
 }
 
@@ -727,6 +728,26 @@ void CloneGeom::UpdateFlags()
     }
 
     Geom::UpdateFlags();
+}
+
+void CloneGeom::UpdateFeatureLines()
+{
+    if ( GetOriginalGeom() )
+    {
+        return;
+    }
+
+    Geom::UpdateFeatureLines();
+}
+
+void CloneGeom::UpdateLCurve()
+{
+    if ( GetOriginalGeom() )
+    {
+        return;
+    }
+
+    Geom::UpdateLCurve();
 }
 
 // The surface is this Clone's own; only the sampling comes from the original.
