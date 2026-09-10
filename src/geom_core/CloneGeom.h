@@ -52,6 +52,30 @@ public:
         return m_OriginalID;
     }
 
+    // Suffix that automatic naming appends to the original's name.
+    virtual string GetNameSuffix() const
+    {
+        return m_NameSuffix;
+    }
+    virtual void SetNameSuffix( const string &suffix );
+
+    // True while automatic naming is on, even before an original is found, since the next
+    // update writes the name.  Losing the original turns automatic naming off.
+    virtual bool NameIsAutomatic() const override;
+
+    // The original's textures while appearance is copied.  Asked of the original, so a Clone
+    // of a Clone reaches the end of the chain.
+    virtual TextureMgr* GetDrawTextureMgr() override;
+
+    // The Parms each switch governs, copied from the original.
+    static void CopySymParms( Geom* from, Geom* to );
+    static void CopyXFormParms( Geom* from, Geom* to );
+    static void CopyAttachParms( Geom* from, Geom* to );
+    static void CopyMassPropParms( Geom* from, Geom* to );
+    static void CopyNegativeVolumeParm( Geom* from, Geom* to );
+    static void CopySetFlags( Geom* from, Geom* to );
+    static void CopyAppearance( Geom* from, Geom* to );
+
     virtual Geom* GetOriginalGeom() const;
 
     // The original's boxes, laid out by this Clone's symmetry and placement.  Whether the origin
@@ -62,6 +86,20 @@ public:
     // Whether following the chain of originals from id arrives back here.
     virtual bool IsCloneAncestor( const string &id ) const;
 
+    // This Clone's flip planes, combined with the original's while symmetry is copied.
+    virtual int GetFlipFlag() const override;
+
+    // What is copied from the original.  All on by default except the transformation.
+    BoolParm m_CloneSets;
+    BoolParm m_CloneSym;
+    BoolParm m_CloneXForm;
+    BoolParm m_CloneAttach;
+    BoolParm m_CloneAppearance;
+    BoolParm m_CloneNegativeVolume;
+    BoolParm m_CloneMassProps;
+    BoolParm m_CloneSubSurfs;
+    BoolParm m_AutoName;
+
 protected:
     virtual void UpdateSurf() override;
     virtual void UpdateMainTessVec() override;
@@ -71,7 +109,26 @@ protected:
     // read order do not matter.
     virtual void ResolveOriginal();
 
+    // Symmetry, placement and attachment are needed before UpdateSurf, so they are copied here.
+    virtual void UpdateCopyXFormParms() override;
+
+    // Runs after the base class, so copied Parms stay deactivated; their GUI follows the Parm.
+    virtual void DeactivateXForms() override;
+
+    // Copies negative volume and mass properties alongside the surfaces.
+    virtual void UpdateCopySurfParms() override;
+
+    // While negative volume is copied, the copied surfaces already carry their CFD types.
+    virtual void UpdateFlags() override;
+
+    // Name and colours are not Parms; these run when the original's dirty flag arrives.
+    virtual void UpdateCopyAppearance() override;
+    virtual void UpdateCopyName() override;
+
     string m_OriginalID;
+
+    // Appended to the original's name by automatic naming.  Saved to file.
+    string m_NameSuffix;
 };
 
 

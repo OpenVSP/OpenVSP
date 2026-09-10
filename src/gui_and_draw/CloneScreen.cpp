@@ -22,6 +22,27 @@ CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone" 
     m_CloneLayout.AddChoice( m_OriginalChoice, "Original" );
     m_CloneLayout.AddYGap();
 
+    m_CloneLayout.AddDividerBox( "Name" );
+    m_CloneLayout.AddButton( m_AutoNameButton, "Name After Original" );
+
+    // Appended to the name while Name After Original is on.
+    m_CloneLayout.AddInput( m_NameSuffixInput, "Suffix" );
+    m_CloneLayout.AddYGap();
+
+    // The surfaces and their tessellation always come across.  These are optional.
+    m_CloneLayout.AddDividerBox( "Copy From Original" );
+    m_CloneLayout.AddButton( m_CloneXFormButton, "Transformation" );
+    m_CloneLayout.AddButton( m_CloneAttachButton, "Attachment" );
+    m_CloneLayout.AddButton( m_CloneSymButton, "Symmetry and Flip" );
+    m_CloneLayout.AddButton( m_CloneSetsButton, "Set Membership" );
+    m_CloneLayout.AddButton( m_CloneAppearanceButton, "Color and Material" );
+    m_CloneLayout.AddButton( m_CloneNegativeVolumeButton, "Negative Volume" );
+    m_CloneLayout.AddButton( m_CloneMassPropsButton, "Mass Properties" );
+    m_CloneLayout.AddButton( m_CloneSubSurfsButton, "Subsurfaces" );
+    m_CloneLayout.AddYGap();
+
+
+
 }
 
 
@@ -51,10 +72,44 @@ bool CloneScreen::Update()
     CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
     assert( clone_ptr );
 
+    m_CloneSetsButton.Update( clone_ptr->m_CloneSets.GetID() );
+    m_CloneSymButton.Update( clone_ptr->m_CloneSym.GetID() );
+    m_CloneXFormButton.Update( clone_ptr->m_CloneXForm.GetID() );
+    m_CloneAttachButton.Update( clone_ptr->m_CloneAttach.GetID() );
+    m_CloneAppearanceButton.Update( clone_ptr->m_CloneAppearance.GetID() );
+    m_CloneNegativeVolumeButton.Update( clone_ptr->m_CloneNegativeVolume.GetID() );
+    m_CloneMassPropsButton.Update( clone_ptr->m_CloneMassProps.GetID() );
+    m_CloneSubSurfsButton.Update( clone_ptr->m_CloneSubSurfs.GetID() );
+    m_AutoNameButton.Update( clone_ptr->m_AutoName.GetID() );
+    m_NameSuffixInput.Update( clone_ptr->GetNameSuffix() );
+
     // A Clone takes its size from the original.
     m_ScaleSlider.Deactivate();
     m_ScaleResetButton.Deactivate();
     m_ScaleAcceptButton.Deactivate();
+
+    // Copied settings would be overwritten on the next update, so lock their controls.
+    if ( clone_ptr->m_CloneSets() )
+    {
+        m_SetBrowser->deactivate();
+    }
+    else
+    {
+        m_SetBrowser->activate();
+    }
+
+    if ( clone_ptr->m_CloneAppearance() )
+    {
+        m_ColorPicker.Deactivate();
+        m_MaterialChoice.Deactivate();
+        m_CustomMaterialButton.Deactivate();
+    }
+    else
+    {
+        m_ColorPicker.Activate();
+        m_MaterialChoice.Activate();
+        m_CustomMaterialButton.Activate();
+    }
 
     m_OriginalChoice.ClearItems();
     m_CompVec.clear();
@@ -98,7 +153,6 @@ bool CloneScreen::Update()
         }
     }
 
-
     return true;
 }
 
@@ -122,7 +176,13 @@ void CloneScreen::GuiDeviceCallBack( GuiDevice *device )
     CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
     assert( clone_ptr );
 
-    if ( device == &m_OriginalChoice )
+    if ( device == &m_NameSuffixInput )
+    {
+        // The suffix is not a Parm, so update here to rebuild the name.
+        clone_ptr->SetNameSuffix( m_NameSuffixInput.GetString() );
+        clone_ptr->Update();
+    }
+    else if ( device == &m_OriginalChoice )
     {
         int id = m_OriginalChoice.GetVal();
         if ( id >= 0 && id < ( int )m_CompVec.size() )
@@ -133,3 +193,7 @@ void CloneScreen::GuiDeviceCallBack( GuiDevice *device )
 
     GeomScreen::GuiDeviceCallBack( device );
 }
+
+
+
+

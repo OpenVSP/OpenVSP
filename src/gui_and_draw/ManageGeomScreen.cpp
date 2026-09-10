@@ -438,6 +438,16 @@ void ManageGeomScreen::LoadBrowser()
                 }
                 geom_tree_item->labelcolor( label_color );
 
+                // Italics mark an automatic name, which the browser will not rename.
+                if ( gPtr->NameIsAutomatic() )
+                {
+                    geom_tree_item->labelfont( FL_HELVETICA_ITALIC );
+                }
+                else
+                {
+                    geom_tree_item->labelfont( FL_HELVETICA );
+                }
+
                 // Close item if display children flag false
                 if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
                 {
@@ -499,6 +509,10 @@ vector< string > ManageGeomScreen::GetSelectedBrowserItems()
 void ManageGeomScreen::LoadActiveGeomOutput()
 {
     vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
+
+    // Re-enabled on every load; deactivated below for an automatic name.
+    m_ActiveGeomInput.Activate();
+
     if ( m_VehSelected )
     {
         m_ActiveGeomInput.Update( m_VehiclePtr->GetName().c_str() );
@@ -509,6 +523,11 @@ void ManageGeomScreen::LoadActiveGeomOutput()
         if ( gptr )
         {
             m_ActiveGeomInput.Update( gptr->GetName().c_str() );
+
+            if ( gptr->NameIsAutomatic() )
+            {
+                m_ActiveGeomInput.Deactivate();
+            }
         }
     }
     else if ( activeVec.size() > 1 )
@@ -1095,6 +1114,13 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
                 }
             }
 
+            // Re-check: the name may have become automatic while the popup was open.
+            Geom* g = dynamic_cast< Geom* >( pc );
+            if ( g && g->NameIsAutomatic() )
+            {
+                pc = nullptr;
+            }
+
             if ( pc )
             {
                 string pc_name = m_GeomBrowser->GetPopupValue();
@@ -1129,6 +1155,12 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
                 {
                     pc = m_VehiclePtr->FindGeom( m_SelVec[0] );
                 }
+            }
+
+            Geom* g = dynamic_cast< Geom* >( pc );
+            if ( g && g->NameIsAutomatic() )
+            {
+                pc = nullptr;
             }
 
             if ( pc )

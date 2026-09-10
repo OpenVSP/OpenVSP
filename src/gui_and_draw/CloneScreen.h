@@ -35,6 +35,17 @@ protected:
 
     Choice m_OriginalChoice;
     vector <string> m_CompVec;
+
+    ToggleButton m_CloneSetsButton;
+    ToggleButton m_CloneSymButton;
+    ToggleButton m_CloneXFormButton;
+    ToggleButton m_CloneAttachButton;
+    ToggleButton m_CloneAppearanceButton;
+    ToggleButton m_CloneNegativeVolumeButton;
+    ToggleButton m_CloneMassPropsButton;
+    ToggleButton m_CloneSubSurfsButton;
+    ToggleButton m_AutoNameButton;
+    StringInput m_NameSuffixInput;
 };
 
 

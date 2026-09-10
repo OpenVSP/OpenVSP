@@ -241,6 +241,15 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
     {
         m_XFormDirty = true;
     }
+    else if ( gname == string("Behavior") )
+    {
+        // A Clone's Behavior flags choose what it copies, so a change dirties every copy pass.
+        m_XFormDirty = true;
+        m_SurfDirty = true;
+        m_AppearanceDirty = true;
+        m_NameDirty = true;
+        m_SubSurfDirty = true;
+    }
     else
     {
         m_SurfDirty = true;
@@ -2568,6 +2577,37 @@ void Geom::UpdateStepChildren( bool fullupdate )
                 }
             }
 
+            if ( child->GetType().m_Type == CLONE_GEOM_TYPE )
+            {
+                // Mark each pass of the Clone from the matching change here.
+                if ( m_UpdateXForm )
+                {
+                    child->m_XFormDirty = true;
+                }
+                if ( m_UpdateSurf )
+                {
+                    child->m_SurfDirty = true;
+                }
+                // A Clone shows the tessellation of these surfaces.
+                if ( m_UpdateTess )
+                {
+                    child->m_TessDirty = true;
+                }
+                // Name, colours and subsurfaces are not Parms, so they are flagged explicitly.
+                if ( m_UpdateAppearance )
+                {
+                    child->m_AppearanceDirty = true;
+                }
+                if ( m_UpdateName )
+                {
+                    child->m_NameDirty = true;
+                }
+                if ( m_UpdateSubSurf )
+                {
+                    child->m_SubSurfDirty = true;
+                }
+            }
+
             if ( child->GetType().m_Type == GEAR_GEOM_TYPE )
             {
                 // Gear stepchildren are used for stow and mechanism attach points.  These are updated
@@ -4286,7 +4326,8 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
                 // Reload texture infos.
                 m_WireShadeDrawObj_vec[i].m_TextureInfos.clear();
-                vector<Texture*> texList = m_GuiDraw.getTextureMgr()->FindTextureVec( m_GuiDraw.getTextureMgr()->GetTextureVec() );
+                TextureMgr* tex_mgr = GetDrawTextureMgr();
+                vector<Texture*> texList = tex_mgr->FindTextureVec( tex_mgr->GetTextureVec() );
                 for ( int j = 0; j < (int)texList.size(); j++ )
                 {
                     DrawObj::TextureInfo info;

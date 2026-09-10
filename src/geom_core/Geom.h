@@ -318,6 +318,20 @@ public:
     // Renaming is not a Parm change, so this sets m_NameDirty.
     virtual void SetName( const string& name, bool removeslashes = true );
 
+    // The textures to draw this Geom with.  A Clone returns its original's rather than keeping
+    // a copy.  Read only; the Texture editor works on the Geom's own list.
+    virtual TextureMgr* GetDrawTextureMgr()
+    {
+        return m_GuiDraw.getTextureMgr();
+    }
+
+    // Whether this Geom generates its own name.  Such a name is overwritten every update, so
+    // the Geom Browser refuses to rename it and shows it in italics.
+    virtual bool NameIsAutomatic() const
+    {
+        return false;
+    }
+
     virtual bool IsModelScaleSensitive() { return false; }
 
     // Whether this Geom's origin belongs in its placed bounding box.  True for a landing gear,

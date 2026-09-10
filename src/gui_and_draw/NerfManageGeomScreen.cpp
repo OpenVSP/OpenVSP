@@ -390,6 +390,16 @@ void NerfManageGeomScreen::LoadBrowser()
                 }
                 geom_tree_item->labelcolor( label_color );
 
+                // Italics mark an automatic name, as in the Geom Browser.
+                if ( gPtr->NameIsAutomatic() )
+                {
+                    geom_tree_item->labelfont( FL_HELVETICA_ITALIC );
+                }
+                else
+                {
+                    geom_tree_item->labelfont( FL_HELVETICA );
+                }
+
                 // Close item if display children flag false
                 if ( !gPtr->m_GuiDraw.GetDisplayChildrenFlag() )
                 {
