@@ -2615,10 +2615,18 @@ void ColorPicker::Init( VspScreen* screen, Fl_Button* title, Fl_Button* result,
     for ( int i = 0 ; i < ( int )m_ColorButtons.size() ; i++ )
     {
         m_ColorButtons[i]->callback( StaticDeviceCB, this );
+        AddWidget( m_ColorButtons[i] );
     }
     m_RGB_Sliders[0]->callback( StaticDeviceCB, this );
     m_RGB_Sliders[1]->callback( StaticDeviceCB, this );
     m_RGB_Sliders[2]->callback( StaticDeviceCB, this );
+
+    // Registered so Deactivate reaches them.
+    AddWidget( m_RGB_Sliders[0] );
+    AddWidget( m_RGB_Sliders[1] );
+    AddWidget( m_RGB_Sliders[2] );
+    AddWidget( m_ColorResult );
+    AddWidget( title );
 }
 
 vec3d ColorPicker::GetIndexRGB( int index )
