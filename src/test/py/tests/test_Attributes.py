@@ -167,6 +167,44 @@ def testEveryCollectionNamesWhatHoldsItFromTheStart():
     pop_errors()
 
 
+def testAnAttributeOnAParmFollowsThatParmsID():
+    """Two Parms that swap identities swap what is attached to them, because an attribute
+    names its Parm by ID.
+
+    A cross section keeps its Parm IDs when its shape changes, so that links, design variables
+    and advanced links go on naming the same thing.  An attribute is one more thing naming it,
+    and so is its collection's ID.  The Parm object that carried them is destroyed with the old
+    cross section, so unless they move to whichever Parm holds the ID afterwards they are lost
+    with nothing said.
+    """
+    fresh()
+    fuse = vsp.AddGeom( "FUSELAGE" )
+    xsurf = vsp.GetXSecSurf( fuse, 0 )
+    vsp.ChangeXSecShape( xsurf, 1, vsp.XS_SUPER_ELLIPSE )
+    vsp.Update()
+
+    width = vsp.GetXSecParm( vsp.GetXSec( xsurf, 1 ), "Super_Width" )
+    assert width, "the reshaped cross section has no width Parm"
+    coll = vsp.GetChildCollection( width )
+    attr = vsp.AddAttributeString( coll, "WidthNote", "mine" )
+    vsp.Update()
+    assert list( vsp.FindAttributesInCollection( coll ) ) == [ attr ]
+
+    vsp.ChangeXSecShape( xsurf, 1, vsp.XS_ELLIPSE )
+    vsp.Update()
+
+    after = vsp.GetXSecParm( vsp.GetXSec( xsurf, 1 ), "Ellipse_Width" )
+    assert after == width, "the width Parm did not keep its ID, so this measures nothing"
+    assert vsp.GetChildCollection( after ) == coll, "the Parm's collection took a new ID"
+    assert list( vsp.FindAttributesInCollection( coll ) ) == [ attr ], \
+           "the attribute stayed with the Parm object rather than following its ID"
+    assert list( vsp.GetAttributeStringVal( attr ) ) == [ "mine" ]
+
+    # A collection held across the change still takes attributes.
+    assert vsp.AddAttributeString( coll, "Later", "too" )
+    assert not pop_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
