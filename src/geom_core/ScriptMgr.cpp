@@ -1682,6 +1682,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "NGON_MESH_GEOM_SCREEN", NGON_MESH_GEOM_SCREEN );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "CLONE_GEOM_SCREEN", CLONE_GEOM_SCREEN );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "NUM_GEOM_SCREENS", NUM_GEOM_SCREENS );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "ALL_GEOM_SCREENS", ALL_GEOM_SCREENS );

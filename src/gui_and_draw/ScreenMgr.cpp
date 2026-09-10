@@ -22,6 +22,7 @@
 #include "BEMOptionsScreen.h"
 #include "CfdMeshScreen.h"
 #include "ClippingScreen.h"
+#include "CloneScreen.h"
 #include "CompGeomScreen.h"
 #include "CurveEditScreen.h"
 #include "DegenGeomScreen.h"

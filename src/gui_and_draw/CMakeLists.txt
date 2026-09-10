@@ -39,6 +39,7 @@ BEMOptionsScreen.cpp
 BORScreen.cpp
 CfdMeshScreen.cpp
 ClippingScreen.cpp
+CloneScreen.cpp
 CobraScreen.cpp
 CompGeomScreen.cpp
 ConformalScreen.cpp
@@ -134,6 +135,7 @@ BEMOptionsScreen.h
 BORScreen.h
 CfdMeshScreen.h
 ClippingScreen.h
+CloneScreen.h
 CobraScreen.h
 CompGeomScreen.h
 ConformalScreen.h
