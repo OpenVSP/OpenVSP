@@ -143,7 +143,6 @@ protected:
     void SelectSet( int set );
     void SetGeomDisplayChoice( int type );
     void SetGeomDisplayType( int type );
-    void EditName( const string &name );
     void SetSubDrawFlag( bool f );
     void SetFeatureDrawFlag( bool f );
 

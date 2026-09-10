@@ -833,32 +833,6 @@ void NerfManageGeomScreen::SetGeomDisplayType( int type )
 //  aircraftPtr->triggerDraw();
 }
 
-void NerfManageGeomScreen::EditName( const string &name )
-{
-    vector<string> active_geom_vec = m_VehiclePtr->GetActiveGeomVec();
-
-    //==== Dont Change Multiple Names ====//
-    if ( active_geom_vec.size() > 1 )
-    {
-        return;
-    }
-
-    if ( active_geom_vec.size() == 0 )
-    {
-        m_VehiclePtr->SetName( name );
-    }
-    else
-    {
-        Geom* g_ptr = m_VehiclePtr->FindGeom( active_geom_vec[0] );
-        if ( g_ptr )
-        {
-            g_ptr->SetName( name );
-        }
-    }
-//jrg FIX!!!
-//  Trigger Edit Screen Update...
-}
-
 //==== Show Hide Geom Screen Depending on Active Geoms ====//
 void NerfManageGeomScreen::ShowHideGeomScreens()
 {
