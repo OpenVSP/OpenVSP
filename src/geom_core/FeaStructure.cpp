@@ -959,6 +959,29 @@ int FeaStructure::GetFeaBCIndex( FeaBC* fea_bc )
     return -1; // indicates an error
 }
 
+// Told once, and passed on to everything inside that resolves the parent for itself.
+void FeaStructure::SetParentGeomID( const string & id )
+{
+    m_ParentGeomID = id;
+
+    for ( int i = 0; i < ( int )m_FeaPartVec.size(); i++ )
+    {
+        if ( m_FeaPartVec[i] )
+        {
+            m_FeaPartVec[i]->SetParentGeomID( id );
+        }
+    }
+
+    // A structure's subsurfaces are matched to a surface the same way a Geom's own are.
+    for ( int i = 0; i < ( int )m_FeaSubSurfVec.size(); i++ )
+    {
+        if ( m_FeaSubSurfVec[i] )
+        {
+            m_FeaSubSurfVec[i]->SetCompID( id );
+        }
+    }
+}
+
 void FeaStructure::SetDirtyFlag()
 {
     for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )

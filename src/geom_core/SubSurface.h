@@ -101,6 +101,15 @@ public:
     {
         return m_CompID;
     }
+
+    // Which Geom this subsurface belongs to.  The mesher matches a subsurface to a surface by
+    // comparing this against the Geom's own ID, so a subsurface handed from one Geom to another
+    // has to be told, and the parent container has to follow for the Parm tree to agree.
+    virtual void SetCompID( const string & id )
+    {
+        m_CompID = id;
+        SetParentContainer( id );
+    }
     virtual std::vector< std::vector< SSLineSeg > >& GetSplitSegs()
     {
         return m_SplitLVec;

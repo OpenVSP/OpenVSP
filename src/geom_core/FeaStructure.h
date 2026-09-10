@@ -132,6 +132,11 @@ public:
         return m_ParentGeomID;
     }
 
+    // Which Geom this structure is built on.  Everything in it that resolves the parent does so
+    // through this ID, so a structure handed from one Geom to another -- or a Geom whose own ID
+    // changes -- has to be told, along with every part and subsurface inside it.
+    void SetParentGeomID( const string & id );
+
     int GetFeaStructMainSurfIndx()
     {
         return m_MainSurfIndx;
@@ -252,6 +257,10 @@ public:
     virtual string GetParentGeomID()
     {
         return m_ParentGeomID;
+    }
+    virtual void SetParentGeomID( const string & id )
+    {
+        m_ParentGeomID = id;
     }
 
     virtual vector < VspSurf > GetFeaPartSurfVec()
