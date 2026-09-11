@@ -894,7 +894,7 @@ RoutingPoint * RoutingGeom::GetPt( int index )
     return nullptr;
 }
 
-vec3d RoutingGeom::GetPtCoord( int index, int symm_index )
+vec3d RouteRole::GetRoutePtCoord( int index, int symm_index ) const
 {
     if ( symm_index >= 0 && symm_index < m_RouteTessVec.size() )
     {
@@ -909,7 +909,7 @@ vec3d RoutingGeom::GetPtCoord( int index, int symm_index )
     return vec3d();
 }
 
-vector < vec3d > RoutingGeom::GetAllPtCoord( int symm_index )
+vector < vec3d > RouteRole::GetAllRoutePtCoord( int symm_index ) const
 {
     if ( symm_index >= 0 && symm_index < m_RouteTessVec.size() )
     {
@@ -921,7 +921,7 @@ vector < vec3d > RoutingGeom::GetAllPtCoord( int symm_index )
     return vector < vec3d >();
 }
 
-vector < vec3d > RoutingGeom::GetCurve( int symm_index )
+vector < vec3d > RouteRole::GetRouteCurve( int symm_index ) const
 {
     if ( symm_index >= 0 && symm_index < m_RouteTessCurveVec.size() )
     {

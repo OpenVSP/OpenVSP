@@ -116,6 +116,12 @@ public:
     // What the route weighs and where.  A line of mass, so it has no volume to hand back.
     vector < TetraMassProp* > ComputeMassProp() const;
 
+    // Points on the route as this Geom places it.  index runs along the route, symm_index picks
+    // the symmetric copy.
+    vec3d GetRoutePtCoord( int index, int symm_index ) const;
+    vector < vec3d > GetAllRoutePtCoord( int symm_index ) const;
+    vector < vec3d > GetRouteCurve( int symm_index ) const;
+
 protected:
     // The route's extent, placed.
     void BuildRouteBndBox( BndBox &bbox ) const;
@@ -167,10 +173,6 @@ public:
 
     virtual RoutingPoint * GetPt( int index );
     virtual vector < RoutingPoint* > GetAllPt()      { return m_RoutingPointVec; };
-
-    virtual vec3d GetPtCoord( int index, int symm_index );
-    virtual vector < vec3d > GetAllPtCoord( int symm_index );
-    virtual vector < vec3d > GetCurve( int symm_index );
 
     virtual string GetPtID( int index ) const;
     virtual vector < string > GetAllPtIds() const;

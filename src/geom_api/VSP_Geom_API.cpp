@@ -5920,10 +5920,11 @@ std::vector < int > GetDriverGroup( const std::string & geom_id, int section_ind
         return choices;
     }
 
-    if ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE )
+    // Read-only, so a Clone of a wing answers from its original.  SetDriverGroup does not.
+    if ( geom_ptr->GetBehaviorType() == MS_WING_GEOM_TYPE )
     {
-        WingGeom* wg = dynamic_cast<WingGeom*>( geom_ptr );
-        WingSect* ws = wg->GetWingSect( section_index );
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( geom_ptr->GetBehaviorGeom() );
+        WingSect* ws = behavior_wing->GetWingSect( section_index );
         if ( !ws )
         {
             ErrorMgr.AddError( VSP_INVALID_PTR, "GetDriverGroup::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
@@ -8117,16 +8118,17 @@ int GetNumRoutingPts( const std::string &routing_id )
         return -1;
     }
 
-    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a route answers too.
+    RouteRole* route_ptr = Geom::CastTo< RouteRole > ( geom_ptr );
 
-    if ( !routing_ptr || geom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    if ( !route_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetNumRoutingPts::Geom " + routing_id + " is not a RoutingGeom" );
         return -1;
     }
 
     ErrorMgr.NoError();
-    return routing_ptr->GetNumPt();
+    return route_ptr->GetNumRoutePts();
 }
 
 std::string AddRoutingPt( const std::string &routing_id, const std::string &geom_id, int surf_index )
@@ -8318,21 +8320,22 @@ std::string GetRoutingPtID( const std::string &routing_id, int index )
         return ret_id;
     }
 
-    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+    // For a Clone these IDs belong to its original; writing through them changes the original.
+    RoutingGeom* behavior_route = dynamic_cast< RoutingGeom* > ( rgeom_ptr->GetBehaviorGeom() );
 
-    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    if ( !behavior_route || rgeom_ptr->GetBehaviorType() != ROUTING_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingPtID::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_id;
     }
 
-    if ( index < 0 || index >= routing_ptr->GetNumPt() )
+    if ( index < 0 || index >= behavior_route->GetNumPt() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingPtID::index " + to_string( index ) + " is out of range" );
         return ret_id;
     }
 
-    ret_id = routing_ptr->GetPtID( index );
+    ret_id = behavior_route->GetPtID( index );
 
     ErrorMgr.NoError();
     return ret_id;
@@ -8350,15 +8353,16 @@ std::vector < std::string > GetAllRoutingPtIds( const std::string &routing_id )
         return ret_vec;
     }
 
-    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+    // For a Clone these IDs belong to its original; writing through them changes the original.
+    RoutingGeom* behavior_route = dynamic_cast< RoutingGeom* > ( rgeom_ptr->GetBehaviorGeom() );
 
-    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    if ( !behavior_route || rgeom_ptr->GetBehaviorType() != ROUTING_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllRoutingPtIds::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_vec;
     }
 
-    ret_vec = routing_ptr->GetAllPtIds();
+    ret_vec = behavior_route->GetAllPtIds();
 
     ErrorMgr.NoError();
     return ret_vec;
@@ -8431,27 +8435,28 @@ vec3d GetRoutingPtCoord( const std::string &routing_id, int index, int symm_inde
         return ret;
     }
 
-    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+    // Placed coordinates, so asked of this Geom, not its original; a Clone holds its own.
+    RouteRole* route_ptr = Geom::CastTo< RouteRole > ( rgeom_ptr );
 
-    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    if ( !route_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingPtCoord::Geom " + routing_id + " is not a RoutingGeom" );
         return ret;
     }
 
-    if ( index < 0 || index >= routing_ptr->GetNumPt() )
+    if ( index < 0 || index >= route_ptr->GetNumRoutePts() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingPtCoord::index " + to_string( index ) + " is out of range" );
         return ret;
     }
 
-    if ( symm_index < 0 || symm_index >= routing_ptr->GetNumSymmCopies() )
+    if ( symm_index < 0 || symm_index >= rgeom_ptr->GetNumSymmCopies() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingPtCoord::symm_index " + to_string( symm_index ) + " is out of range" );
         return ret;
     }
 
-    ret = routing_ptr->GetPtCoord( index,symm_index );
+    ret = route_ptr->GetRoutePtCoord( index, symm_index );
 
     ErrorMgr.NoError();
     return ret;
@@ -8469,21 +8474,22 @@ std::vector < vec3d > GetAllRoutingPtCoords( const std::string &routing_id, int 
         return ret_vec;
     }
 
-    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+    // Placed coordinates, so they come from the Geom that was asked -- see GetRoutingPtCoord.
+    RouteRole* route_ptr = Geom::CastTo< RouteRole > ( rgeom_ptr );
 
-    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    if ( !route_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllRoutingPtCoords::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_vec;
     }
 
-    if ( symm_index < 0 || symm_index >= routing_ptr->GetNumSymmCopies() )
+    if ( symm_index < 0 || symm_index >= rgeom_ptr->GetNumSymmCopies() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAllRoutingPtCoords::symm_index " + to_string( symm_index ) + " is out of range" );
         return ret_vec;
     }
 
-    ret_vec = routing_ptr->GetAllPtCoord( symm_index );
+    ret_vec = route_ptr->GetAllRoutePtCoord( symm_index );
 
     ErrorMgr.NoError();
     return ret_vec;
@@ -8501,21 +8507,22 @@ std::vector < vec3d > GetRoutingCurve( const std::string &routing_id, int symm_i
         return ret_vec;
     }
 
-    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* > ( rgeom_ptr );
+    // The placed curve, so it comes from the Geom that was asked -- see GetRoutingPtCoord.
+    RouteRole* route_ptr = Geom::CastTo< RouteRole > ( rgeom_ptr );
 
-    if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
+    if ( !route_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingCurve::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_vec;
     }
 
-    if ( symm_index < 0 || symm_index >= routing_ptr->GetNumSymmCopies() )
+    if ( symm_index < 0 || symm_index >= rgeom_ptr->GetNumSymmCopies() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingCurve::symm_index " + to_string( symm_index ) + " is out of range" );
         return ret_vec;
     }
 
-    ret_vec = routing_ptr->GetCurve( symm_index );
+    ret_vec = route_ptr->GetRouteCurve( symm_index );
 
     ErrorMgr.NoError();
     return ret_vec;
@@ -8702,16 +8709,17 @@ int GetNumBogies( const std::string &gear_id )
         return -1;
     }
 
-    GearGeom* gear_ptr = dynamic_cast< GearGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a gear answers from its original.
+    GearGeom* behavior_gear = dynamic_cast< GearGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
+    if ( !behavior_gear || geom_ptr->GetBehaviorType() != GEAR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetNumBogies::Geom " + gear_id + " is not a GearGeom" );
         return -1;
     }
 
     ErrorMgr.NoError();
-    return ( int )gear_ptr->GetBogieVec().size();
+    return ( int )behavior_gear->GetBogieVec().size();
 }
 
 std::vector < std::string > GetAllBogies( const std::string &gear_id )
@@ -8726,15 +8734,16 @@ std::vector < std::string > GetAllBogies( const std::string &gear_id )
         return ret_vec;
     }
 
-    GearGeom* gear_ptr = dynamic_cast< GearGeom* > ( geom_ptr );
+    // For a Clone these are its original's bogies; writing through them changes the original.
+    GearGeom* behavior_gear = dynamic_cast< GearGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
+    if ( !behavior_gear || geom_ptr->GetBehaviorType() != GEAR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllBogies::Geom " + gear_id + " is not a GearGeom" );
         return ret_vec;
     }
 
-    ret_vec = gear_ptr->GetAllBogies();
+    ret_vec = behavior_gear->GetAllBogies();
 
     ErrorMgr.NoError();
     return ret_vec;
@@ -8829,16 +8838,17 @@ int GetBORXSecShape( const std::string & geom_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecShape::Can't Find Geom " + geom_id );
         return XS_UNDEFINED;
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
         return XS_UNDEFINED;
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
     ErrorMgr.NoError();
-    return bor_ptr->GetXSecCurveType();
+    return behavior_bor->GetXSecCurveType();
 }
 
 //==== Read XSec From File ====//
@@ -8900,15 +8910,16 @@ std::vector< vec3d > GetBORXSecPnts( const std::string& bor_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecPnts::Can't Find Geom " + bor_id );
         return pnt_vec;
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORXSecPnts::Geom " + bor_id + " is not a body of revolution" );
         return pnt_vec;
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -8980,15 +8991,16 @@ vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract )
         ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeBORXSecPnt::Can't Find Geom " + bor_id );
         return vec3d();
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "ComputeBORXSecPnt::Geom " + bor_id + " is not a body of revolution" );
         return vec3d();
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -9012,15 +9024,16 @@ vec3d ComputeBORXSecTan( const std::string& bor_id, double fract )
         ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeBORXSecTan::Can't Find Geom " + bor_id );
         return vec3d();
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "ComputeBORXSecTan::Geom " + bor_id + " is not a body of revolution" );
         return vec3d();
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -9200,15 +9213,16 @@ std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORAirfoilUpperPnts::Can't Find Geom " + bor_id );
         return pnt_vec;
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORAirfoilUpperPnts::Geom " + bor_id + " is not a body of revolution" );
         return pnt_vec;
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -9240,15 +9254,16 @@ std::vector<vec3d> GetBORAirfoilLowerPnts( const std::string& bor_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORAirfoilLowerPnts::Can't Find Geom " + bor_id );
         return pnt_vec;
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORAirfoilLowerPnts::Geom " + bor_id + " is not a body of revolution" );
         return pnt_vec;
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -9280,15 +9295,16 @@ std::vector<double> GetBORUpperCSTCoefs( const std::string& bor_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORUpperCSTCoefs::Can't Find Geom " + bor_id );
         return ret_vec;
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORUpperCSTCoefs::Geom " + bor_id + " is not a body of revolution" );
         return ret_vec;
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -9322,15 +9338,16 @@ std::vector<double> GetBORLowerCSTCoefs( const std::string& bor_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORLowerCSTCoefs::Can't Find Geom " + bor_id );
         return ret_vec;
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORLowerCSTCoefs::Geom " + bor_id + " is not a body of revolution" );
         return ret_vec;
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -9363,15 +9380,16 @@ int GetBORUpperCSTDegree( const std::string& bor_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORUpperCSTDegree::Can't Find Geom " + bor_id );
         return deg;
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORUpperCSTDegree::Geom " + bor_id + " is not a body of revolution" );
         return deg;
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -9404,15 +9422,16 @@ int GetBORLowerCSTDegree( const std::string& bor_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORLowerCSTDegree::Can't Find Geom " + bor_id );
         return deg;
     }
-    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORLowerCSTDegree::Geom " + bor_id + " is not a body of revolution" );
         return deg;
     }
 
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    // Read-only, so a Clone of a body of revolution answers from its original.
+    BORGeom* behavior_bor = dynamic_cast< BORGeom* > ( geom_ptr->GetBehaviorGeom() );
 
-    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+    XSecCurve* xsc = behavior_bor->GetXSecCurve();
 
     if ( !xsc )
     {
@@ -12479,18 +12498,19 @@ int PCurveGetType( const std::string & geom_id, const int & pcurveid )
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Can't Find Geom " + geom_id );
         return -1;
     }
-    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Geom doesn't support PCurves " + geom_id );
         return -1;
     }
 
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    // Read-only, so a Clone of a propeller answers from its original.
+    PropGeom* behavior_prop = dynamic_cast < PropGeom* > ( geom_ptr->GetBehaviorGeom() );
     PCurve *pc = nullptr;
 
-    if ( prop_ptr )
+    if ( behavior_prop )
     {
-        pc = prop_ptr->GetPCurve( pcurveid );
+        pc = behavior_prop->GetPCurve( pcurveid );
     }
 
     if ( !pc )
@@ -12515,18 +12535,19 @@ std::vector < double > PCurveGetTVec( const std::string & geom_id, const int & p
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Can't Find Geom " + geom_id );
         return retvec;
     }
-    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Geom doesn't support PCurves " + geom_id );
         return retvec;
     }
 
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    // Read-only, so a Clone of a propeller answers from its original.
+    PropGeom* behavior_prop = dynamic_cast < PropGeom* > ( geom_ptr->GetBehaviorGeom() );
     PCurve *pc = nullptr;
 
-    if ( prop_ptr )
+    if ( behavior_prop )
     {
-        pc = prop_ptr->GetPCurve( pcurveid );
+        pc = behavior_prop->GetPCurve( pcurveid );
     }
 
     if ( !pc )
@@ -12553,18 +12574,19 @@ std::vector < double > PCurveGetValVec( const std::string & geom_id, const int &
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Can't Find Geom " + geom_id );
         return retvec;
     }
-    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Geom doesn't support PCurves " + geom_id );
         return retvec;
     }
 
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+    // Read-only, so a Clone of a propeller answers from its original.
+    PropGeom* behavior_prop = dynamic_cast < PropGeom* > ( geom_ptr->GetBehaviorGeom() );
     PCurve *pc = nullptr;
 
-    if ( prop_ptr )
+    if ( behavior_prop )
     {
-        pc = prop_ptr->GetPCurve( pcurveid );
+        pc = behavior_prop->GetPCurve( pcurveid );
     }
 
     if ( !pc )
