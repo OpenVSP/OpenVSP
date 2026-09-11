@@ -351,134 +351,6 @@ void NGonMeshGeom::UpdateDrawObj()
 
     BuildPGDrawObjs( m_WireShadeDrawObj_vec );
 
-    int nwwake = pgm->m_WingWakeVec.size();
-    int nbwake = pgm->m_BodyWakeVec.size();
-    int nbpwake = pgm->m_BodyNodeWakeVec.size();
-
-    m_WakeEdgeDrawObj_vec.resize( nwwake + nbwake );
-
-    // Calculate constants for color sequence.
-    const int ncgrp = nwwake + nbwake + nbpwake; // Number of basic colors
-    const int ncstep = 1;
-    const double nctodeg = 360.0/(ncgrp*ncstep);
-
-    int iwake = 0;
-    for ( int iwwake = 0; iwwake < nwwake; iwwake++, iwake++ )
-    {
-
-        // Color sequence -- go around color wheel ncstep times with slight
-        // offset from ncgrp basic colors.
-        // Note, (cnt/ncgrp) uses integer division resulting in floor.
-        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
-
-        if ( deg > 360 )
-        {
-            deg = (int)deg % 360;
-        }
-
-        vec3d rgb = m_WakeEdgeDrawObj_vec[iwake].ColorWheel( deg );
-        rgb.normalize();
-
-        m_WakeEdgeDrawObj_vec[iwake].m_Type = DrawObj::VSP_LINE_STRIP;
-        m_WakeEdgeDrawObj_vec[iwake].m_LineWidth = 5;
-        m_WakeEdgeDrawObj_vec[iwake].m_LineColor = rgb;
-        m_WakeEdgeDrawObj_vec[iwake].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-        char str[255];
-        snprintf( str, sizeof( str ),  "_%d", iwake );
-        m_WakeEdgeDrawObj_vec[iwake].m_GeomID = m_ID + "Feature_" + str;
-
-        m_WakeEdgeDrawObj_vec[iwake].m_GeomChanged = true;
-
-        vector< PGNode* > nodVec;
-        GetNodes( pgm->m_WingWakeVec[iwwake], nodVec );
-
-        m_WakeEdgeDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
-        for ( int i = 0; i < nodVec.size(); i++ )
-        {
-            if ( nodVec[i] )
-            {
-                m_WakeEdgeDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pt->m_Pnt );
-            }
-        }
-    }
-
-    for ( int ibwake = 0; ibwake < nbwake; ibwake++, iwake++ )
-    {
-
-        // Color sequence -- go around color wheel ncstep times with slight
-        // offset from ncgrp basic colors.
-        // Note, (cnt/ncgrp) uses integer division resulting in floor.
-        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
-
-        if ( deg > 360 )
-        {
-            deg = (int)deg % 360;
-        }
-
-        vec3d rgb = m_WakeEdgeDrawObj_vec[iwake].ColorWheel( deg );
-        rgb.normalize();
-
-        m_WakeEdgeDrawObj_vec[iwake].m_Type = DrawObj::VSP_LINE_STRIP;
-        m_WakeEdgeDrawObj_vec[iwake].m_LineWidth = 5;
-        m_WakeEdgeDrawObj_vec[iwake].m_LineColor = rgb;
-        m_WakeEdgeDrawObj_vec[iwake].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-        char str[255];
-        snprintf( str, sizeof( str ),  "_%d", iwake );
-        m_WakeEdgeDrawObj_vec[iwake].m_GeomID = m_ID + "Feature_" + str;
-
-        m_WakeEdgeDrawObj_vec[iwake].m_GeomChanged = true;
-
-        vector< PGNode* > nodVec;
-        GetNodes( pgm->m_BodyWakeVec[ibwake], nodVec );
-
-        m_WakeEdgeDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
-        for ( int i = 0; i < nodVec.size(); i++ )
-        {
-            if ( nodVec[i] )
-            {
-                m_WakeEdgeDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pt->m_Pnt );
-            }
-        }
-    }
-
-
-    m_WakeNodeDrawObj_vec.resize( nbpwake );
-
-    for ( int ibpwake = 0; ibpwake < nbpwake; ibpwake++, iwake++ )
-    {
-        // Color sequence -- go around color wheel ncstep times with slight
-        // offset from ncgrp basic colors.
-        // Note, (cnt/ncgrp) uses integer division resulting in floor.
-        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
-
-        if ( deg > 360 )
-        {
-            deg = (int)deg % 360;
-        }
-
-        vec3d rgb = m_WakeEdgeDrawObj_vec[iwake].ColorWheel( deg );
-        rgb.normalize();
-
-        m_WakeNodeDrawObj_vec[ibpwake].m_Type = DrawObj::VSP_POINTS;
-        m_WakeNodeDrawObj_vec[ibpwake].m_PointSize = 8;
-        m_WakeNodeDrawObj_vec[ibpwake].m_PointColor = rgb;
-        m_WakeNodeDrawObj_vec[ibpwake].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-        char str[255];
-        snprintf( str, sizeof( str ),  "_%d", iwake );
-        m_WakeNodeDrawObj_vec[ibpwake].m_GeomID = m_ID + "Feature_" + str;
-
-        m_WakeNodeDrawObj_vec[ibpwake].m_GeomChanged = true;
-
-        vec3d pt = trans.xform( pgm->m_BodyNodeWakeVec[ibpwake]->m_Pt->m_Pnt );
-        // Clear before push_back -- the DrawObj persists across updates, so without this the
-        // point vector accumulates one point per update.
-        m_WakeNodeDrawObj_vec[ibpwake].m_PntVec.clear();
-        m_WakeNodeDrawObj_vec[ibpwake].m_PntVec.push_back( pt );
-    }
-
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
     m_HighlightDrawObj.m_GeomChanged = true;
@@ -488,22 +360,134 @@ void NGonMeshGeom::UpdateDrawObj()
     {
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
     }
+}
+
+// The wakes and the mesh defects (edges with too few or too many faces, co-linear loops,
+// nodes that double back), placed by placer.
+void NGonMeshGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
+{
+    PGMeshRole* source = Geom::CastTo< PGMeshRole >( placer );
+    if ( !source )
+    {
+        marker_vec.clear();
+        return;
+    }
+
+    Matrix4d trans = source->GetPGTransMat();
+
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
+
+    int nwwake = pgm->m_WingWakeVec.size();
+    int nbwake = pgm->m_BodyWakeVec.size();
+    int nbpwake = pgm->m_BodyNodeWakeVec.size();
+
+    marker_vec.resize( nwwake + nbwake + nbpwake + NUM_NGON_DEFECT_MARKERS );
+
+    // Calculate constants for color sequence.
+    const int ncgrp = nwwake + nbwake + nbpwake; // Number of basic colors
+    const int ncstep = 1;
+    const double nctodeg = 360.0/(ncgrp*ncstep);
+
+    int iwake = 0;
+    for ( int iwwake = 0; iwwake < nwwake + nbwake; iwwake++, iwake++ )
+    {
+        DrawObj &wake_do = marker_vec[ iwake ];
+
+        // Color sequence -- go around color wheel ncstep times with slight
+        // offset from ncgrp basic colors.
+        // Note, (cnt/ncgrp) uses integer division resulting in floor.
+        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
+
+        if ( deg > 360 )
+        {
+            deg = (int)deg % 360;
+        }
+
+        vec3d rgb = wake_do.ColorWheel( deg );
+        rgb.normalize();
+
+        wake_do.m_Type = DrawObj::VSP_LINE_STRIP;
+        wake_do.m_LineWidth = 5;
+        wake_do.m_LineColor = rgb;
+        wake_do.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        char str[255];
+        snprintf( str, sizeof( str ),  "_%d", iwake );
+        wake_do.m_GeomID = placer->GetID() + "Feature_" + str;
+
+        wake_do.m_GeomChanged = true;
+
+        vector< PGNode* > nodVec;
+        if ( iwwake < nwwake )
+        {
+            GetNodes( pgm->m_WingWakeVec[iwwake], nodVec );
+        }
+        else
+        {
+            GetNodes( pgm->m_BodyWakeVec[iwwake - nwwake], nodVec );
+        }
+
+        wake_do.m_PntVec.resize( nodVec.size() );
+        for ( int i = 0; i < nodVec.size(); i++ )
+        {
+            if ( nodVec[i] )
+            {
+                wake_do.m_PntVec[i] = trans.xform( nodVec[i]->m_Pt->m_Pnt );
+            }
+        }
+    }
+
+    for ( int ibpwake = 0; ibpwake < nbpwake; ibpwake++, iwake++ )
+    {
+        DrawObj &node_do = marker_vec[ iwake ];
+
+        // Color sequence -- go around color wheel ncstep times with slight
+        // offset from ncgrp basic colors.
+        // Note, (cnt/ncgrp) uses integer division resulting in floor.
+        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
+
+        if ( deg > 360 )
+        {
+            deg = (int)deg % 360;
+        }
+
+        vec3d rgb = node_do.ColorWheel( deg );
+        rgb.normalize();
+
+        node_do.m_Type = DrawObj::VSP_POINTS;
+        node_do.m_PointSize = 8;
+        node_do.m_PointColor = rgb;
+        node_do.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        char str[255];
+        snprintf( str, sizeof( str ),  "_%d", iwake );
+        node_do.m_GeomID = placer->GetID() + "Feature_" + str;
+
+        node_do.m_GeomChanged = true;
+
+        node_do.m_PntVec.clear();
+        node_do.m_PntVec.push_back( trans.xform( pgm->m_BodyNodeWakeVec[ibpwake]->m_Pt->m_Pnt ) );
+    }
+
+    DrawObj &bad_few = marker_vec[ iwake + NGON_BAD_EDGE_FEW ];
+    DrawObj &bad_many = marker_vec[ iwake + NGON_BAD_EDGE_MANY ];
+    DrawObj &colinear = marker_vec[ iwake + NGON_COLINEAR_LOOP ];
+    DrawObj &double_back = marker_vec[ iwake + NGON_DOUBLE_BACK_NODE ];
+
+    bad_few.m_PntVec.clear();
+    bad_few.m_LineWidth = 8;
+    bad_few.m_LineColor = DrawObj::Color( DrawObj::BLUE );
+    bad_few.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    bad_few.m_GeomID = placer->GetID() + "Bad_Edges_Few";
+    bad_few.m_Type = DrawObj::VSP_LINES;
 
 
-    m_BadEdgeTooFewDO.m_PntVec.clear();
-    m_BadEdgeTooFewDO.m_LineWidth = 8;
-    m_BadEdgeTooFewDO.m_LineColor = DrawObj::Color( DrawObj::BLUE );
-    m_BadEdgeTooFewDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_BadEdgeTooFewDO.m_GeomID = GetID() + "Bad_Edges_Few";
-    m_BadEdgeTooFewDO.m_Type = DrawObj::VSP_LINES;
-
-
-    m_BadEdgeTooManyDO.m_PntVec.clear();
-    m_BadEdgeTooManyDO.m_LineWidth = 8;
-    m_BadEdgeTooManyDO.m_LineColor = DrawObj::Color( DrawObj::RED );
-    m_BadEdgeTooManyDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_BadEdgeTooManyDO.m_GeomID = GetID() + "Bad_Edges_Many";
-    m_BadEdgeTooManyDO.m_Type = DrawObj::VSP_LINES;
+    bad_many.m_PntVec.clear();
+    bad_many.m_LineWidth = 8;
+    bad_many.m_LineColor = DrawObj::Color( DrawObj::RED );
+    bad_many.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    bad_many.m_GeomID = placer->GetID() + "Bad_Edges_Many";
+    bad_many.m_Type = DrawObj::VSP_LINES;
 
 
     list< PGEdge* >::iterator e;
@@ -511,24 +495,24 @@ void NGonMeshGeom::UpdateDrawObj()
     {
         if ( ( *e )->m_FaceVec.size() < 2 )
         {
-            m_BadEdgeTooFewDO.m_PntVec.push_back( trans.xform( ( *e )->m_N0->m_Pt->m_Pnt ) );
-            m_BadEdgeTooFewDO.m_PntVec.push_back( trans.xform( ( *e )->m_N1->m_Pt->m_Pnt ) );
+            bad_few.m_PntVec.push_back( trans.xform( ( *e )->m_N0->m_Pt->m_Pnt ) );
+            bad_few.m_PntVec.push_back( trans.xform( ( *e )->m_N1->m_Pt->m_Pnt ) );
         }
         if ( ( *e )->m_FaceVec.size() > 2 )
         {
-            m_BadEdgeTooManyDO.m_PntVec.push_back( trans.xform( ( *e )->m_N0->m_Pt->m_Pnt ) );
-            m_BadEdgeTooManyDO.m_PntVec.push_back( trans.xform( ( *e )->m_N1->m_Pt->m_Pnt ) );
+            bad_many.m_PntVec.push_back( trans.xform( ( *e )->m_N0->m_Pt->m_Pnt ) );
+            bad_many.m_PntVec.push_back( trans.xform( ( *e )->m_N1->m_Pt->m_Pnt ) );
         }
     }
-    m_BadEdgeTooFewDO.m_GeomChanged = true;
-    m_BadEdgeTooManyDO.m_GeomChanged = true;
+    bad_few.m_GeomChanged = true;
+    bad_many.m_GeomChanged = true;
 
-    m_CoLinearLoopDO.m_PntVec.clear();
-    m_CoLinearLoopDO.m_LineWidth = 8;
-    m_CoLinearLoopDO.m_LineColor = DrawObj::Color( DrawObj::ORANGE );
-    m_CoLinearLoopDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_CoLinearLoopDO.m_GeomID = GetID() + "Colinear";
-    m_CoLinearLoopDO.m_Type = DrawObj::VSP_LINES;
+    colinear.m_PntVec.clear();
+    colinear.m_LineWidth = 8;
+    colinear.m_LineColor = DrawObj::Color( DrawObj::ORANGE );
+    colinear.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    colinear.m_GeomID = placer->GetID() + "Colinear";
+    colinear.m_Type = DrawObj::VSP_LINES;
 
     for ( int i = 0; i < pgm->m_EdgeLoopVec.size(); i++ )
     {
@@ -537,53 +521,41 @@ void NGonMeshGeom::UpdateDrawObj()
         for ( int j = 0; j < eloop.size(); j++ )
         {
             PGEdge *e = eloop[ j ];
-            m_CoLinearLoopDO.m_PntVec.push_back( trans.xform( e->m_N0->m_Pt->m_Pnt ) );
-            m_CoLinearLoopDO.m_PntVec.push_back( trans.xform( e->m_N1->m_Pt->m_Pnt ) );
+            colinear.m_PntVec.push_back( trans.xform( e->m_N0->m_Pt->m_Pnt ) );
+            colinear.m_PntVec.push_back( trans.xform( e->m_N1->m_Pt->m_Pnt ) );
         }
     }
-    m_CoLinearLoopDO.m_GeomChanged = true;
+    colinear.m_GeomChanged = true;
 
-    m_DoubleBackNodeDO.m_PntVec.clear();
-    m_DoubleBackNodeDO.m_PointSize = 10;
-    m_DoubleBackNodeDO.m_PointColor = DrawObj::Color( DrawObj::BLACK );
-    m_DoubleBackNodeDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_DoubleBackNodeDO.m_GeomID = GetID() + "DoubleBack";
-    m_DoubleBackNodeDO.m_Type = DrawObj::VSP_POINTS;
+    double_back.m_PntVec.clear();
+    double_back.m_PointSize = 10;
+    double_back.m_PointColor = DrawObj::Color( DrawObj::BLACK );
+    double_back.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    double_back.m_GeomID = placer->GetID() + "DoubleBack";
+    double_back.m_Type = DrawObj::VSP_POINTS;
 
     for ( int i = 0; i < pgm->m_DoubleBackNode.size(); i++ )
     {
-        m_DoubleBackNodeDO.m_PntVec.push_back( trans.xform( pgm->m_DoubleBackNode[i]->m_Pt->m_Pnt ) );
+        double_back.m_PntVec.push_back( trans.xform( pgm->m_DoubleBackNode[i]->m_Pt->m_Pnt ) );
     }
-    m_DoubleBackNodeDO.m_GeomChanged = true;
+    double_back.m_GeomChanged = true;
+}
 
-    // Debug DrawObj's to display jref, kref at each face center.
-    if ( false )
+// The wakes, or the defects in their place -- this Geom's switch says which.
+void NGonMeshGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )
+{
+    bool visible = placer->GetSetFlag( vsp::SET_SHOWN );
+    int nwake = ( int )marker_vec.size() - NUM_NGON_DEFECT_MARKERS;
+
+    for ( int i = 0; i < ( int )marker_vec.size(); i++ )
     {
-        int i = 0;
-        m_LabelDO_vec.resize( pgm->m_FaceList.size() );
-        for ( list< PGFace* >::iterator f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
+        if ( i < nwake )
         {
-            m_LabelDO_vec[i].m_GeomID = GenerateRandomID( 4 ) + "_Probe";
-            m_LabelDO_vec[i].m_Type = DrawObj::VSP_PROBE;
-            m_LabelDO_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            m_LabelDO_vec[i].m_TextColor = vec3d( 0, 0, 0 );
-            m_LabelDO_vec[i].m_TextSize = 1;
-
-            m_LabelDO_vec[i].m_VisibleDirFlag = true;
-            m_LabelDO_vec[i].m_VisTol = 89.0;
-            m_LabelDO_vec[i].m_VisibleDir = ( *f )->m_Nvec;
-
-            m_LabelDO_vec[i].m_Probe.Step = DrawObj::VSP_PROBE_STEP_COMPLETE;
-            m_LabelDO_vec[i].m_Probe.Pt = ( *f )->ComputeCenter();
-            m_LabelDO_vec[i].m_Probe.Norm = ( *f )->m_Nvec;
-            m_LabelDO_vec[i].m_Probe.Len = 0.01;
-            m_LabelDO_vec[i].m_GeomChanged = true;
-
-            char str[255];
-            snprintf( str, sizeof(str), "%d, %d", (*f)->m_jref, (*f)->m_kref );
-            m_LabelDO_vec[i].m_Probe.Label = string( str );
-
-            i++;
+            marker_vec[i].m_Visible = !m_ShowNonManifoldEdges() && visible;
+        }
+        else
+        {
+            marker_vec[i].m_Visible = m_ShowNonManifoldEdges() && visible;
         }
     }
 }
@@ -699,30 +671,6 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     Geom::LoadDrawObjs( draw_obj_vec );
 
     LoadPGDrawObjs( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType(), visible );
-
-    // Load Wake Lines
-    for ( int i = 0; i < m_WakeEdgeDrawObj_vec.size(); i++ )
-    {
-        m_WakeEdgeDrawObj_vec[i].m_Visible = !m_ShowNonManifoldEdges() && visible;
-        draw_obj_vec.push_back( &m_WakeEdgeDrawObj_vec[i] );
-    }
-
-    for ( int i = 0; i < m_WakeNodeDrawObj_vec.size(); i++ )
-    {
-        m_WakeNodeDrawObj_vec[i].m_Visible = !m_ShowNonManifoldEdges() && visible;
-        draw_obj_vec.push_back( &m_WakeNodeDrawObj_vec[i] );
-    }
-
-    m_BadEdgeTooFewDO.m_Visible = m_ShowNonManifoldEdges() && visible;
-    m_BadEdgeTooManyDO.m_Visible = m_ShowNonManifoldEdges() && visible;
-    draw_obj_vec.push_back( &m_BadEdgeTooFewDO );
-    draw_obj_vec.push_back( &m_BadEdgeTooManyDO );
-
-    m_CoLinearLoopDO.m_Visible = m_ShowNonManifoldEdges() && visible;
-    draw_obj_vec.push_back( &m_CoLinearLoopDO );
-
-    m_DoubleBackNodeDO.m_Visible = m_ShowNonManifoldEdges() && visible;
-    draw_obj_vec.push_back( &m_DoubleBackNodeDO );
 
     for ( int i = 0; i < m_LabelDO_vec.size(); i++ )
     {

@@ -21,12 +21,13 @@
 #include "MeshGeom.h"
 #include "PtCloudGeom.h"
 #include "WireGeom.h"
+#include "NGonMeshGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole, public PGMeshRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -200,6 +201,12 @@ public:
     virtual bool GetWireInvert() const override;
     virtual int GetWireDegenType() const override;
     virtual WirePtRole* GetOriginalWirePts() const;
+
+    //==== Standing in for a Geom made of a polygon mesh ====//
+    virtual PGMulti* GetPGMulti() const override;
+    virtual Matrix4d GetPGTransMat() const override;
+    virtual Matrix4d GetPGScaleMat() const override;
+    virtual PGMeshRole* GetOriginalPGMesh() const;
 
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;

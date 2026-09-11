@@ -486,7 +486,7 @@ void CloneGeom::UpdateSets()
 // single matrix.  Such Geoms ignore symmetry.
 bool CloneGeom::ShowsOnePlacedShape() const
 {
-    return GetOriginalTMesh() || GetOriginalPointCloud() || GetOriginalWirePts();
+    return GetOriginalTMesh() || GetOriginalPointCloud() || GetOriginalWirePts() || GetOriginalPGMesh();
 }
 
 // No symmetry for a single placed shape.  Copy count, transforms and mass split all derive from
@@ -1658,6 +1658,38 @@ void CloneGeom::BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bo
     flipnormal.resize( verts.size(), false );
 }
 
+PGMeshRole* CloneGeom::GetOriginalPGMesh() const
+{
+    return Geom::CastTo< PGMeshRole >( GetOriginalGeom() );
+}
+
+PGMulti* CloneGeom::GetPGMulti() const
+{
+    PGMeshRole* pgmesh = GetOriginalPGMesh();
+    if ( !pgmesh )
+    {
+        return nullptr;
+    }
+
+    return pgmesh->GetPGMulti();
+}
+
+Matrix4d CloneGeom::GetPGScaleMat() const
+{
+    PGMeshRole* pgmesh = GetOriginalPGMesh();
+    if ( !pgmesh )
+    {
+        return Matrix4d();
+    }
+
+    return pgmesh->GetPGScaleMat();
+}
+
+Matrix4d CloneGeom::GetPGTransMat() const
+{
+    return PlaceBorrowedShape( GetPGScaleMat() );
+}
+
 WirePtRole* CloneGeom::GetOriginalWirePts() const
 {
     return Geom::CastTo< WirePtRole >( GetOriginalGeom() );
@@ -1857,6 +1889,11 @@ vector< TMesh* > CloneGeom::CreateTMeshVec( bool skipnegflipnormal, const int &n
         return BuildHumanTMeshVec( verts, flipnormal, this );
     }
 
+    if ( GetOriginalPGMesh() )
+    {
+        return BuildPGTMeshVec( this );
+    }
+
     // Two triangles per grid cell, as the original gives to analyses.
     if ( GetOriginalWirePts() )
     {
@@ -1896,6 +1933,13 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         return;
     }
 
+    // Faces and outlines per tag, coloured by tag.
+    if ( GetOriginalPGMesh() )
+    {
+        LoadPGDrawObjs( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType(), GetSetFlag( vsp::SET_SHOWN ) );
+        return;
+    }
+
     if ( GetOriginalTMesh() || GetOriginalHumanVert() )
     {
         for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
@@ -1916,7 +1960,7 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 void CloneGeom::UpdateBBox()
 {
     // No main surfaces: bound the borrowed shape at this Geom's position.
-    if ( GetOriginalTMesh() || GetOriginalHumanVert() || GetOriginalPointCloud() || GetOriginalWirePts() )
+    if ( GetOriginalTMesh() || GetOriginalHumanVert() || GetOriginalPointCloud() || GetOriginalWirePts() || GetOriginalPGMesh() )
     {
         BndBox new_box;
 
@@ -1931,6 +1975,10 @@ void CloneGeom::UpdateBBox()
             BuildCloneVerts( verts, flipnormal );
 
             BuildHumanBndBox( verts, new_box );
+        }
+        else if ( GetOriginalPGMesh() )
+        {
+            BuildPGBndBox( new_box );
         }
         else if ( GetOriginalWirePts() )
         {
@@ -1985,6 +2033,15 @@ void CloneGeom::UpdateDrawObj()
         BuildCloneVerts( verts, flipnormal );
 
         BuildHumanDrawObjs( verts, flipnormal, m_WireShadeDrawObj_vec );
+
+        m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+        m_HighlightDrawObj.m_GeomChanged = true;
+        return;
+    }
+
+    if ( GetOriginalPGMesh() )
+    {
+        BuildPGDrawObjs( m_WireShadeDrawObj_vec );
 
         m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
         m_HighlightDrawObj.m_GeomChanged = true;

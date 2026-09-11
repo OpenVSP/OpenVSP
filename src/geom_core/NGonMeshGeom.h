@@ -63,6 +63,8 @@ public:
 
     virtual void UpdateSurf() override;
     virtual void UpdateDrawObj() override;
+    virtual void BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec ) override;
+    virtual void SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec ) override;
     virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec) override;
 
     virtual void ApplyScale( double currentScale ) override;
@@ -90,14 +92,8 @@ public:
 
     IntParm m_ActiveMesh;
 
-    DrawObj m_BadEdgeTooFewDO;
-    DrawObj m_BadEdgeTooManyDO;
-
-    vector<DrawObj> m_WakeEdgeDrawObj_vec;
-    vector<DrawObj> m_WakeNodeDrawObj_vec;
-
-    DrawObj m_CoLinearLoopDO;
-    DrawObj m_DoubleBackNodeDO;
+    // The markers after the wakes: the mesh's defects.
+    enum { NGON_BAD_EDGE_FEW, NGON_BAD_EDGE_MANY, NGON_COLINEAR_LOOP, NGON_DOUBLE_BACK_NODE, NUM_NGON_DEFECT_MARKERS };
 
     vector<DrawObj> m_LabelDO_vec;
 
