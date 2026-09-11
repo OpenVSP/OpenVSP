@@ -250,7 +250,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                 m_geo_surfNum.push_back( 0 );
                 m_geo_expandedList.push_back( geom->m_ExpandedListFlag() );
 
-                if ( geom->GetType().m_Type == CUSTOM_GEOM_TYPE )
+                if ( geom->GetBehaviorType() == CUSTOM_GEOM_TYPE )
                 {
                     if ( geom->GetSurfType(0) == vsp::NORMAL_SURF )
                     {
@@ -307,7 +307,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     }
                     else
                     {
-                        if ( geom->GetType().m_Type == CUSTOM_GEOM_TYPE )
+                        if ( geom->GetBehaviorType() == CUSTOM_GEOM_TYPE )
                         {
                             if ( geom->GetSurfType(j) == vsp::NORMAL_SURF )
                             {
@@ -619,7 +619,7 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
                         {
                             m_geo_lref.push_back( CalcReferenceLength( iSurf ) );
 
-                            if (geom->GetType().m_Type != PROP_GEOM_TYPE)
+                            if (geom->GetBehaviorType() != PROP_GEOM_TYPE)
                             {
                                 iSurf += geom->GetNumSymmCopies();
                             }
@@ -901,7 +901,7 @@ void ParasiteDragMgrSingleton::Calculate_fineRat_and_toc()
                         {
                             m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf, i) );
 
-                            if ( geom->GetType().m_Type != PROP_GEOM_TYPE )
+                            if ( geom->GetBehaviorType() != PROP_GEOM_TYPE )
                             {
                                 iSurf += geom->GetNumSymmCopies();
                             }
@@ -1008,7 +1008,7 @@ void ParasiteDragMgrSingleton::Calculate_FF()
                     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_geo_geomID[i] );
                     if (geom)
                     {
-                        if ( geom->GetType().m_Type != PROP_GEOM_TYPE )
+                        if ( geom->GetBehaviorType() != PROP_GEOM_TYPE )
                         {
                             iSurf += geom->GetNumSymmCopies();
                         }
@@ -2581,13 +2581,14 @@ void ParasiteDragMgrSingleton::UpdateRefWing()
 
         if ( refgeom )
         {
-            if ( refgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+            if ( refgeom->GetBehaviorType() == MS_WING_GEOM_TYPE )
             {
-                WingGeom* refwing = dynamic_cast < WingGeom* > ( refgeom );
+                // A reference area is a property of the shape, so it comes from what is copied.
+                WingGeom* behavior_wing = dynamic_cast < WingGeom* > ( refgeom->GetBehaviorGeom() );
 
-                if ( refwing )
+                if ( behavior_wing )
                 {
-                    m_Sref.Set( refwing->m_TotalArea() );
+                    m_Sref.Set( behavior_wing->m_TotalArea() );
                     m_Sref.Deactivate();
                 }
             }

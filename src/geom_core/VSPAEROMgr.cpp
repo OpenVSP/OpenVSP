@@ -574,28 +574,34 @@ void VSPAEROMgrSingleton::UpdateSref()
 
         if( refgeom )
         {
-            if( refgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+            if( refgeom->GetBehaviorType() == MS_WING_GEOM_TYPE )
             {
-                WingGeom* refwing = ( WingGeom* ) refgeom;
+                // The reference area comes from the shape, so from the Geom copied.
+                WingGeom* behavior_wing = dynamic_cast< WingGeom* >( refgeom->GetBehaviorGeom() );
+                if ( !behavior_wing )
+                {
+                    return;
+                }
+
 
                 if ( m_SCurveFlag() )
                 {
-                    m_Sref.Set( refwing->m_CurvedArea() );
+                    m_Sref.Set( behavior_wing->m_CurvedArea() );
                 }
                 else
                 {
-                    m_Sref.Set( refwing->m_TotalArea() );
+                    m_Sref.Set( behavior_wing->m_TotalArea() );
                 }
 
-                m_bref.Set( refwing->m_TotalSpan() );
+                m_bref.Set( behavior_wing->m_TotalSpan() );
 
                 if ( m_MACFlag() )
                 {
-                    m_cref.Set( refwing->m_MAC() );
+                    m_cref.Set( behavior_wing->m_MAC() );
                 }
                 else
                 {
-                    m_cref.Set( refwing->m_TotalChord() );
+                    m_cref.Set( behavior_wing->m_TotalChord() );
                 }
 
                 m_Sref.Deactivate();
@@ -4448,9 +4454,9 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
             continue;
         }
 
-        if ( geom->GetType().m_Type == BLANK_GEOM_TYPE ||
-             geom->GetType().m_Type == HINGE_GEOM_TYPE ||
-             geom->GetType().m_Type == PT_CLOUD_GEOM_TYPE ) // Skip these types.
+        if ( geom->GetBehaviorType() == BLANK_GEOM_TYPE ||
+             geom->GetBehaviorType() == HINGE_GEOM_TYPE ||
+             geom->GetBehaviorType() == PT_CLOUD_GEOM_TYPE ) // Skip these types.
         {
             continue;
         }
@@ -4471,16 +4477,17 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
 
         // Human and Mesh types will run in VSPAERO panel method... support accordingly
         size_t num_surf = 0;
-        if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
+        if ( geom->GetBehaviorType() == HUMAN_GEOM_TYPE )
         {
             num_surf = 1;
         }
-        else if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
+        else if ( geom->GetBehaviorType() == MESH_GEOM_TYPE )
         {
-            MeshGeom* mesh = dynamic_cast<MeshGeom*>( geom );
+            // Ask the interface, so a Clone of a mesh counts its triangles.
+            TMeshRole* mesh = Geom::CastTo< TMeshRole >( geom );
             assert( mesh );
 
-            num_surf = (int)mesh->m_TMeshVec.size();
+            num_surf = (int)mesh->GetTMeshVecInSelf().size();
         }
         else
         {
@@ -4667,19 +4674,19 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 
             if ( !grouped )
             {
-                if ( geom->GetType().m_Type == PROP_GEOM_TYPE )
+                if ( geom->GetBehaviorType() == PROP_GEOM_TYPE )
                 {
-                    PropGeom* prop = dynamic_cast<PropGeom*>( geom );
-                    assert( prop );
-                    if ( prop->m_PropMode() != vsp::PROP_DISK )
+                    PropGeom* behavior_prop = dynamic_cast<PropGeom*>( geom->GetBehaviorGeom() );
+                    assert( behavior_prop );
+                    if ( behavior_prop->m_PropMode() != vsp::PROP_DISK )
                     {
                         ungrouped_props.emplace_back( std::make_pair( geom_set_vec[i], s ) );
                     }
                 }
                 else if ( !vspaero_geom_index_map[std::make_pair( geom_set_vec[i], s )].empty() &&
-                          geom->GetType().m_Type != BLANK_GEOM_TYPE &&
-                          geom->GetType().m_Type != PT_CLOUD_GEOM_TYPE &&
-                          geom->GetType().m_Type != HINGE_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
+                          geom->GetBehaviorType() != BLANK_GEOM_TYPE &&
+                          geom->GetBehaviorType() != PT_CLOUD_GEOM_TYPE &&
+                          geom->GetBehaviorType() != HINGE_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
                 {
                     ungrouped_comps.emplace_back( std::make_pair( geom_set_vec[i], s ) );
                 }
@@ -4699,18 +4706,18 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
 
             if ( parent && ( parent->GetSetFlag( set ) || parent->GetSetFlag( degenset ) ) )
             {
-                if ( parent->GetType().m_Type == PROP_GEOM_TYPE )
+                if ( parent->GetBehaviorType() == PROP_GEOM_TYPE )
                 {
-                    PropGeom* prop = dynamic_cast<PropGeom*>( parent );
-                    assert( prop );
-                    if ( prop->m_PropMode() == vsp::PROP_DISK )
+                    PropGeom* behavior_prop = dynamic_cast<PropGeom*>( parent->GetBehaviorGeom() );
+                    assert( behavior_prop );
+                    if ( behavior_prop->m_PropMode() == vsp::PROP_DISK )
                     {
                         break;
                     }
                 }
-                else if ( parent->GetType().m_Type == BLANK_GEOM_TYPE ||
-                          parent->GetType().m_Type == HINGE_GEOM_TYPE ||
-                          parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
+                else if ( parent->GetBehaviorType() == BLANK_GEOM_TYPE ||
+                          parent->GetBehaviorType() == HINGE_GEOM_TYPE ||
+                          parent->GetBehaviorType() == PT_CLOUD_GEOM_TYPE )
                 {
                     continue; // TODO: Check if point cloud works in panel method?
                 }
@@ -6496,7 +6503,7 @@ void UnsteadyGroup::Update()
 
         if ( geom )
         {
-            if ( geom->GetType().m_Type == PROP_GEOM_TYPE )
+            if ( geom->GetBehaviorType() == PROP_GEOM_TYPE )
             {
                 // Blades from the Geom copied; placement and name from this one.
                 RotorRole* prop = Geom::CastTo< RotorRole >( geom );
