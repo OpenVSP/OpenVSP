@@ -1038,6 +1038,18 @@ void CloneGeom::UpdateMainTessVec()
     original_geom->GetMainFeatureTessVecCopy( m_MainFeatureTessVec );
 }
 
+void CloneGeom::UpdateTessVec()
+{
+    Geom::UpdateTessVec();
+
+    // Place the borrowed route with this Clone's symmetry transforms.
+    if ( GetOriginalRoute() )
+    {
+        ApplySymm( GetMainRouteTessVec(), m_RouteTessVec );
+        ApplySymm( GetMainRouteCurveTessVec(), m_RouteTessCurveVec );
+    }
+}
+
 void CloneGeom::UpdateMainDegenGeomPreview()
 {
     Geom* original_geom = GetOriginalGeom();
@@ -1658,6 +1670,73 @@ void CloneGeom::BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bo
     flipnormal.resize( verts.size(), false );
 }
 
+RouteRole* CloneGeom::GetOriginalRoute() const
+{
+    return Geom::CastTo< RouteRole >( GetOriginalGeom() );
+}
+
+const vector < VspCurve > & CloneGeom::GetMainRouteCurveVec() const
+{
+    static const vector < VspCurve > empty;
+
+    RouteRole* route = GetOriginalRoute();
+    if ( !route )
+    {
+        return empty;
+    }
+
+    return route->GetMainRouteCurveVec();
+}
+
+const vector < SimpleFeatureTess > & CloneGeom::GetMainRouteCurveTessVec() const
+{
+    static const vector < SimpleFeatureTess > empty;
+
+    RouteRole* route = GetOriginalRoute();
+    if ( !route )
+    {
+        return empty;
+    }
+
+    return route->GetMainRouteCurveTessVec();
+}
+
+const vector < SimpleFeatureTess > & CloneGeom::GetMainRouteTessVec() const
+{
+    static const vector < SimpleFeatureTess > empty;
+
+    RouteRole* route = GetOriginalRoute();
+    if ( !route )
+    {
+        return empty;
+    }
+
+    return route->GetMainRouteTessVec();
+}
+
+double CloneGeom::GetRouteLinearDensity() const
+{
+    RouteRole* route = GetOriginalRoute();
+    if ( !route )
+    {
+        return 0.0;
+    }
+
+    return route->GetRouteLinearDensity();
+}
+
+int CloneGeom::GetNumRoutePts() const
+{
+    RouteRole* route = GetOriginalRoute();
+    if ( !route )
+    {
+        return 0;
+    }
+
+    // The count is the original's; the positions come from GetRoutePtCoord.
+    return route->GetNumRoutePts();
+}
+
 PGMeshRole* CloneGeom::GetOriginalPGMesh() const
 {
     return Geom::CastTo< PGMeshRole >( GetOriginalGeom() );
@@ -1933,6 +2012,16 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         return;
     }
 
+    if ( GetOriginalRoute() )
+    {
+        m_RouteLineDO.m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        m_RouteLineDO.m_LineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                           m_GuiDraw.GetWireColor().y() / 255.0,
+                                           m_GuiDraw.GetWireColor().z() / 255.0 );
+        draw_obj_vec.push_back( &m_RouteLineDO );
+        return;
+    }
+
     // Faces and outlines per tag, coloured by tag.
     if ( GetOriginalPGMesh() )
     {
@@ -1960,11 +2049,15 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 void CloneGeom::UpdateBBox()
 {
     // No main surfaces: bound the borrowed shape at this Geom's position.
-    if ( GetOriginalTMesh() || GetOriginalHumanVert() || GetOriginalPointCloud() || GetOriginalWirePts() || GetOriginalPGMesh() )
+    if ( GetOriginalTMesh() || GetOriginalHumanVert() || GetOriginalPointCloud() || GetOriginalWirePts() || GetOriginalPGMesh() || GetOriginalRoute() )
     {
         BndBox new_box;
 
-        if ( GetOriginalTMesh() )
+        if ( GetOriginalRoute() )
+        {
+            BuildRouteBndBox( new_box );
+        }
+        else if ( GetOriginalTMesh() )
         {
             BuildTMeshBndBox( new_box );
         }
@@ -2042,6 +2135,17 @@ void CloneGeom::UpdateDrawObj()
     if ( GetOriginalPGMesh() )
     {
         BuildPGDrawObjs( m_WireShadeDrawObj_vec );
+
+        m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+        m_HighlightDrawObj.m_GeomChanged = true;
+        return;
+    }
+
+    if ( GetOriginalRoute() )
+    {
+        // Line only; the route points are edited on the original.
+        BuildRouteLineDrawObj( m_RouteLineDO );
+        m_RouteLineDO.m_GeomID = "Rte_" + m_ID;
 
         m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
         m_HighlightDrawObj.m_GeomChanged = true;

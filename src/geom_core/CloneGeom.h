@@ -22,12 +22,13 @@
 #include "PtCloudGeom.h"
 #include "WireGeom.h"
 #include "NGonMeshGeom.h"
+#include "RoutingGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole, public PGMeshRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole, public PGMeshRole, public RouteRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -208,6 +209,14 @@ public:
     virtual Matrix4d GetPGScaleMat() const override;
     virtual PGMeshRole* GetOriginalPGMesh() const;
 
+    //==== Standing in for a Geom whose shape is a route ====//
+    virtual const vector < VspCurve > & GetMainRouteCurveVec() const override;
+    virtual const vector < SimpleFeatureTess > & GetMainRouteCurveTessVec() const override;
+    virtual const vector < SimpleFeatureTess > & GetMainRouteTessVec() const override;
+    virtual double GetRouteLinearDensity() const override;
+    virtual int GetNumRoutePts() const override;
+    virtual RouteRole* GetOriginalRoute() const;
+
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;
     virtual double GetRotorR0() const override;
@@ -272,6 +281,7 @@ public:
 protected:
     virtual void UpdateSurf() override;
     virtual void UpdateMainTessVec() override;
+    virtual void UpdateTessVec() override;
     virtual void UpdateMainDegenGeomPreview() override;
 
     // Link to the original if it exists.  Idempotent and run every update, so creation and
@@ -306,6 +316,8 @@ protected:
     // keys control surfaces on, persist.
     virtual void UpdateCopySubSurfs() override;
     virtual SubSurface* FindCopiedSubSurf( const string &source_id, int type );
+
+    DrawObj m_RouteLineDO;
 
     // A Clone of a wireframe that is a single row or column of points, drawn as a polyline.
     DrawObj m_WireLineDO;
