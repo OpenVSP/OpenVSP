@@ -486,7 +486,7 @@ void CloneGeom::UpdateSets()
 // single matrix.  Such Geoms ignore symmetry.
 bool CloneGeom::ShowsOnePlacedShape() const
 {
-    return GetOriginalTMesh() || GetOriginalPointCloud();
+    return GetOriginalTMesh() || GetOriginalPointCloud() || GetOriginalWirePts();
 }
 
 // No symmetry for a single placed shape.  Copy count, transforms and mass split all derive from
@@ -1658,6 +1658,67 @@ void CloneGeom::BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bo
     flipnormal.resize( verts.size(), false );
 }
 
+WirePtRole* CloneGeom::GetOriginalWirePts() const
+{
+    return Geom::CastTo< WirePtRole >( GetOriginalGeom() );
+}
+
+const vector < vector < vec3d > > & CloneGeom::GetMainWirePts() const
+{
+    static const vector < vector < vec3d > > empty;
+
+    WirePtRole* wire = GetOriginalWirePts();
+    if ( !wire )
+    {
+        return empty;
+    }
+
+    return wire->GetMainWirePts();
+}
+
+Matrix4d CloneGeom::GetWireScaleMat() const
+{
+    WirePtRole* wire = GetOriginalWirePts();
+    if ( !wire )
+    {
+        return Matrix4d();
+    }
+
+    return wire->GetWireScaleMat();
+}
+
+Matrix4d CloneGeom::GetWireTransMat() const
+{
+    return PlaceBorrowedShape( GetWireScaleMat() );
+}
+
+// The original's facing, corrected for both Geoms' flips.
+bool CloneGeom::GetWireInvert() const
+{
+    Geom* original_geom = GetOriginalGeom();
+    WirePtRole* wire = GetOriginalWirePts();
+    if ( !wire || !original_geom )
+    {
+        return false;
+    }
+
+    // A flip reverses the grid's normals.  Remove the original's flip, then apply this
+    // Geom's.  This flag also sets the winding of triangles given to analyses.
+    bool invert = wire->GetWireInvert() != original_geom->GetFlipReversesNormal();
+    return invert != GetFlipReversesNormal();
+}
+
+int CloneGeom::GetWireDegenType() const
+{
+    WirePtRole* wire = GetOriginalWirePts();
+    if ( !wire )
+    {
+        return DegenGeom::SURFACE_TYPE;
+    }
+
+    return wire->GetWireDegenType();
+}
+
 PointCloudRole* CloneGeom::GetOriginalPointCloud() const
 {
     return Geom::CastTo< PointCloudRole >( GetOriginalGeom() );
@@ -1796,6 +1857,16 @@ vector< TMesh* > CloneGeom::CreateTMeshVec( bool skipnegflipnormal, const int &n
         return BuildHumanTMeshVec( verts, flipnormal, this );
     }
 
+    // Two triangles per grid cell, as the original gives to analyses.
+    if ( GetOriginalWirePts() )
+    {
+        vector < vector < vec3d > > xform_pts;
+        vector < vector < vec3d > > xform_norm;
+        BuildWireXFormPts( GetMainWirePts(), GetWireTransMat(), GetWireInvert(), xform_pts, xform_norm );
+
+        return BuildWireTMeshVec( xform_pts, GetWireInvert(), this );
+    }
+
     return Geom::CreateTMeshVec( skipnegflipnormal, n_ref );
 }
 
@@ -1815,6 +1886,13 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
                                                             m_GuiDraw.GetWireColor().z() / 255.0 );
             m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
         }
+        return;
+    }
+
+    // A grid of a single row or column is a polyline, not a mesh.
+    if ( GetOriginalWirePts() )
+    {
+        LoadWireLineDrawObj( m_WireLineDO, draw_obj_vec );
         return;
     }
 
@@ -1838,7 +1916,7 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 void CloneGeom::UpdateBBox()
 {
     // No main surfaces: bound the borrowed shape at this Geom's position.
-    if ( GetOriginalTMesh() || GetOriginalHumanVert() || GetOriginalPointCloud() )
+    if ( GetOriginalTMesh() || GetOriginalHumanVert() || GetOriginalPointCloud() || GetOriginalWirePts() )
     {
         BndBox new_box;
 
@@ -1853,6 +1931,14 @@ void CloneGeom::UpdateBBox()
             BuildCloneVerts( verts, flipnormal );
 
             BuildHumanBndBox( verts, new_box );
+        }
+        else if ( GetOriginalWirePts() )
+        {
+            vector < vector < vec3d > > xform_pts;
+            vector < vector < vec3d > > xform_norm;
+            BuildWireXFormPts( GetMainWirePts(), GetWireTransMat(), GetWireInvert(), xform_pts, xform_norm );
+
+            BuildWireBndBox( xform_pts, new_box );
         }
         else
         {
@@ -1899,6 +1985,19 @@ void CloneGeom::UpdateDrawObj()
         BuildCloneVerts( verts, flipnormal );
 
         BuildHumanDrawObjs( verts, flipnormal, m_WireShadeDrawObj_vec );
+
+        m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+        m_HighlightDrawObj.m_GeomChanged = true;
+        return;
+    }
+
+    if ( GetOriginalWirePts() )
+    {
+        vector < vector < vec3d > > xform_pts;
+        vector < vector < vec3d > > xform_norm;
+        BuildWireXFormPts( GetMainWirePts(), GetWireTransMat(), GetWireInvert(), xform_pts, xform_norm );
+
+        BuildWireDrawObjs( xform_pts, xform_norm, m_WireShadeDrawObj_vec, m_WireLineDO );
 
         m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
         m_HighlightDrawObj.m_GeomChanged = true;

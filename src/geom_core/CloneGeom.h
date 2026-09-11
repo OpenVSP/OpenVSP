@@ -20,12 +20,13 @@
 #include "HumanGeom.h"
 #include "MeshGeom.h"
 #include "PtCloudGeom.h"
+#include "WireGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -192,6 +193,14 @@ public:
     virtual Matrix4d GetPtsScaleMat() const override;
     virtual PointCloudRole* GetOriginalPointCloud() const;
 
+    //==== Standing in for a Geom made of a point grid ====//
+    virtual const vector < vector < vec3d > > & GetMainWirePts() const override;
+    virtual Matrix4d GetWireTransMat() const override;
+    virtual Matrix4d GetWireScaleMat() const override;
+    virtual bool GetWireInvert() const override;
+    virtual int GetWireDegenType() const override;
+    virtual WirePtRole* GetOriginalWirePts() const;
+
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;
     virtual double GetRotorR0() const override;
@@ -290,6 +299,9 @@ protected:
     // keys control surfaces on, persist.
     virtual void UpdateCopySubSurfs() override;
     virtual SubSurface* FindCopiedSubSurf( const string &source_id, int type );
+
+    // A Clone of a wireframe that is a single row or column of points, drawn as a polyline.
+    DrawObj m_WireLineDO;
 
     string m_OriginalID;
 

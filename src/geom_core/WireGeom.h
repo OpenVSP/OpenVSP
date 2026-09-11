@@ -50,10 +50,14 @@ protected:
     // Its extent.
     static void BuildWireBndBox( const vector < vector < vec3d > > &xform_pts, BndBox &bbox );
 
-    // Draw it as a grid of quads.
+    // Draw it as a grid of quads.  A single row or column of points (e.g. a Plot3D file of curves)
+    // is drawn as a polyline into line_do instead, leaving draw_obj_vec empty.
     static void BuildWireDrawObjs( const vector < vector < vec3d > > &xform_pts,
                                    const vector < vector < vec3d > > &xform_norm,
-                                   vector < DrawObj > &draw_obj_vec );
+                                   vector < DrawObj > &draw_obj_vec, DrawObj &line_do );
+
+    // The polyline, shown the way this Geom shows its wireframe.
+    void LoadWireLineDrawObj( DrawObj &line_do, vector< DrawObj* > &draw_obj_vec );
 
     // The same quads as triangles, two per cell, wound to face the way the surface does, for
     // analyses.  Tagged as geom_ptr.
