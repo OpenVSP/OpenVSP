@@ -22,6 +22,7 @@
 using std::string;
 using std::vector;
 
+class Bogie;
 class GeomXForm;
 class Parm;
 

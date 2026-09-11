@@ -20,6 +20,7 @@
 #include "XSecSurf.h"
 
 class GearGeom;
+class GearContactRole;
 
 //==== Auxiliary Geom ====//
 class AuxiliaryGeom : public Geom
