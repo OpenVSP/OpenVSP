@@ -14,12 +14,13 @@
 #include "Geom.h"
 #include "GeomInterface.h"
 #include "HingeGeom.h"
+#include "GearGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -92,6 +93,32 @@ public:
     // Behaves as the original; GetType still returns Clone.
     virtual int GetBehaviorType() const override;
     virtual Geom* GetBehaviorGeom() override;
+
+    //==== Standing in for a landing gear ====//
+    // Answered by the original in the gear's own frame; this Geom's matrix places the result.
+    virtual void BuildOnePtBasis( const string &cp1, int isymm1, int suspension1, int tire1, double thetabogie, double thetawheel, double thetaroll, Matrix4d &mat, vec3d &p1 ) override;
+    virtual void BuildTwoPtBasis( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, double thetabogie, Matrix4d &mat, vec3d &p1, vec3d &p2 ) override;
+    virtual void BuildThreePtBasis( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, const string &cp3, int isymm3, int suspension3, int tire3, Matrix4d &mat ) override;
+    virtual void BuildThreePtOffAxisBasis( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, const string &cp3, int isymm3, int suspension3, int tire3, double mainoffset, Matrix4d &mat ) override;
+    virtual bool GetTwoPtPivot( const string &cp1, int isymm1, int suspension1, const string &cp2, int isymm2, int suspension2, vec3d &ptaxis, vec3d &axis ) const override;
+    virtual bool GetTwoPtAftAxleAxis( const string &cp1, int isymm1, int suspension1, const string &cp2, int isymm2, int suspension2, double thetabogie, vec3d &ptaxis, vec3d &axis ) const override;
+    virtual bool GetTwoPtFwdAxleAxis( const string &cp1, int isymm1, int suspension1, const string &cp2, int isymm2, int suspension2, double thetabogie, vec3d &ptaxis, vec3d &axis ) const override;
+    virtual bool GetTwoPtMeanContactPtNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, double thetabogie, vec3d &pt, vec3d &normal, vec3d &p1, vec3d &p2, bool &usepivot, double &mintheta, double &maxtheta ) const override;
+    virtual bool GetTwoPtAftContactPtNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, double thetabogie, double thetawheel, vec3d &pt, vec3d &normal, vec3d &p1, vec3d &p2 ) const override;
+    virtual bool GetTwoPtFwdContactPtNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, double thetabogie, double thetawheel, vec3d &pt, vec3d &normal, vec3d &p1, vec3d &p2 ) const override;
+    virtual bool GetTwoPtSideContactPtsNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, vec3d &p1, vec3d &p2, vec3d &normal ) const override;
+    virtual bool GetOnePtSideContactPtAxisNormal( const string &cp1, int isymm1, int suspension1, int tire1, double thetabogie, double thetawheel, double thetaroll, vec3d &p1, vec3d &axis, vec3d &normal, int &ysign ) const override;
+    virtual bool GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, const string &cp3, int isymm3, int suspension3, int tire3, vec3d &pt, vec3d &normal ) const override;
+    virtual bool GetSteerAngle( const string &cp1, const string &cp2, const string &cp3, int &isteer, double &steerangle ) const override;
+    virtual void GetNominalPtNormal( vec3d &pt, vec3d &normal ) const override;
+    virtual void GetCG( vec3d &cgnom, vector < vec3d > &cgbounds ) const override;
+    virtual bool GetContactPointVecNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, const string &cp3, int isymm3, int suspension3, int tire3, vector < vec3d > &ptvec, vec3d &normal ) const override;
+    virtual Bogie* GetBogie( const string &id ) const override;
+    virtual vector < Bogie* > GetBogieVec(  ) override;
+    virtual int GetGearModelLenUnits(  ) const override;
+
+    // The original as a gear contact role, if it is one.
+    virtual GearContactRole* GetOriginalGearContact() const;
 
     // Defined by the original, so a Clone of a hinge moves its children.  The deflection is
     // this Clone's own, so two Clones can sit at different angles.

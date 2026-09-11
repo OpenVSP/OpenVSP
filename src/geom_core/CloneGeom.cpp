@@ -1189,3 +1189,230 @@ bool CloneGeom::SetOriginalID( const string &id )
 
     return true;
 }
+
+//==== Standing in for a landing gear ====//
+
+GearContactRole* CloneGeom::GetOriginalGearContact() const
+{
+    return Geom::CastTo< GearContactRole >( GetOriginalGeom() );
+}
+
+void CloneGeom::BuildOnePtBasis( const string &cp1, int isymm1, int suspension1, int tire1, double thetabogie, double thetawheel, double thetaroll, Matrix4d &mat, vec3d &p1 )
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return;
+    }
+
+    gear->BuildOnePtBasis( cp1, isymm1, suspension1, tire1, thetabogie, thetawheel, thetaroll, mat, p1 );
+}
+
+void CloneGeom::BuildTwoPtBasis( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, double thetabogie, Matrix4d &mat, vec3d &p1, vec3d &p2 )
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return;
+    }
+
+    gear->BuildTwoPtBasis( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, mat, p1, p2 );
+}
+
+void CloneGeom::BuildThreePtBasis( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, const string &cp3, int isymm3, int suspension3, int tire3, Matrix4d &mat )
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return;
+    }
+
+    gear->BuildThreePtBasis( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, cp3, isymm3, suspension3, tire3, mat );
+}
+
+void CloneGeom::BuildThreePtOffAxisBasis( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, const string &cp3, int isymm3, int suspension3, int tire3, double mainoffset, Matrix4d &mat )
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return;
+    }
+
+    gear->BuildThreePtOffAxisBasis( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, cp3, isymm3, suspension3, tire3, mainoffset, mat );
+}
+
+bool CloneGeom::GetTwoPtPivot( const string &cp1, int isymm1, int suspension1, const string &cp2, int isymm2, int suspension2, vec3d &ptaxis, vec3d &axis ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetTwoPtPivot( cp1, isymm1, suspension1, cp2, isymm2, suspension2, ptaxis, axis );
+}
+
+bool CloneGeom::GetTwoPtAftAxleAxis( const string &cp1, int isymm1, int suspension1, const string &cp2, int isymm2, int suspension2, double thetabogie, vec3d &ptaxis, vec3d &axis ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetTwoPtAftAxleAxis( cp1, isymm1, suspension1, cp2, isymm2, suspension2, thetabogie, ptaxis, axis );
+}
+
+bool CloneGeom::GetTwoPtFwdAxleAxis( const string &cp1, int isymm1, int suspension1, const string &cp2, int isymm2, int suspension2, double thetabogie, vec3d &ptaxis, vec3d &axis ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetTwoPtFwdAxleAxis( cp1, isymm1, suspension1, cp2, isymm2, suspension2, thetabogie, ptaxis, axis );
+}
+
+bool CloneGeom::GetTwoPtMeanContactPtNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, double thetabogie, vec3d &pt, vec3d &normal, vec3d &p1, vec3d &p2, bool &usepivot, double &mintheta, double &maxtheta ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetTwoPtMeanContactPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, pt, normal, p1, p2, usepivot, mintheta, maxtheta );
+}
+
+bool CloneGeom::GetTwoPtAftContactPtNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, double thetabogie, double thetawheel, vec3d &pt, vec3d &normal, vec3d &p1, vec3d &p2 ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetTwoPtAftContactPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, thetawheel, pt, normal, p1, p2 );
+}
+
+bool CloneGeom::GetTwoPtFwdContactPtNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, double thetabogie, double thetawheel, vec3d &pt, vec3d &normal, vec3d &p1, vec3d &p2 ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetTwoPtFwdContactPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, thetawheel, pt, normal, p1, p2 );
+}
+
+bool CloneGeom::GetTwoPtSideContactPtsNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, vec3d &p1, vec3d &p2, vec3d &normal ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetTwoPtSideContactPtsNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, p1, p2, normal );
+}
+
+bool CloneGeom::GetOnePtSideContactPtAxisNormal( const string &cp1, int isymm1, int suspension1, int tire1, double thetabogie, double thetawheel, double thetaroll, vec3d &p1, vec3d &axis, vec3d &normal, int &ysign ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetOnePtSideContactPtAxisNormal( cp1, isymm1, suspension1, tire1, thetabogie, thetawheel, thetaroll, p1, axis, normal, ysign );
+}
+
+bool CloneGeom::GetPtNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, const string &cp3, int isymm3, int suspension3, int tire3, vec3d &pt, vec3d &normal ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, cp3, isymm3, suspension3, tire3, pt, normal );
+}
+
+bool CloneGeom::GetSteerAngle( const string &cp1, const string &cp2, const string &cp3, int &isteer, double &steerangle ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetSteerAngle( cp1, cp2, cp3, isteer, steerangle );
+}
+
+void CloneGeom::GetNominalPtNormal( vec3d &pt, vec3d &normal ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return;
+    }
+
+    gear->GetNominalPtNormal( pt, normal );
+}
+
+void CloneGeom::GetCG( vec3d &cgnom, vector < vec3d > &cgbounds ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return;
+    }
+
+    gear->GetCG( cgnom, cgbounds );
+}
+
+bool CloneGeom::GetContactPointVecNormal( const string &cp1, int isymm1, int suspension1, int tire1, const string &cp2, int isymm2, int suspension2, int tire2, const string &cp3, int isymm3, int suspension3, int tire3, vector < vec3d > &ptvec, vec3d &normal ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return false;
+    }
+
+    return gear->GetContactPointVecNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, cp3, isymm3, suspension3, tire3, ptvec, normal );
+}
+
+Bogie* CloneGeom::GetBogie( const string &id ) const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return nullptr;
+    }
+
+    return gear->GetBogie( id );
+}
+
+vector < Bogie* > CloneGeom::GetBogieVec()
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return vector < Bogie* >();
+    }
+
+    return gear->GetBogieVec();
+}
+
+int CloneGeom::GetGearModelLenUnits() const
+{
+    GearContactRole* gear = GetOriginalGearContact();
+    if ( !gear )
+    {
+        return 0;
+    }
+
+    return gear->GetGearModelLenUnits();
+}

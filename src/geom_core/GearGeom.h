@@ -44,8 +44,10 @@ public:
 
     void Scale( double s );
 
-    void UpdateDrawObj( const Matrix4d &relTrans );
-    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    // Its suspension travel, retraction axis and motion, and strut, placed by relTrans and
+    // appended to dobj_vec in that order.  Each is named from id_prefix and this bogie's ID.
+    void BuildDrawObjs( const Matrix4d &relTrans, const string &id_prefix, vector< DrawObj > &dobj_vec );
+    enum { BOGIE_AXIS, BOGIE_AXIS_CIRCLE, BOGIE_AXIS_ARROW, BOGIE_STRUT, BOGIE_TRAVEL_LINES, BOGIE_TRAVEL_POINTS, NUM_BOGIE_DRAWOBJS };
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -269,20 +271,12 @@ public:
     bool m_TireDirty;
     bool m_TireTessDirty;
 
-    DrawObj m_SuspensionTravelLinesDO;
-    DrawObj m_SuspensionTravelPointsDO;
-
     vec3d m_StrutAttachPt;
     vec3d m_Axis;
     vec3d m_StowPivotPt;
     vector < vec3d > m_PivotPtVec;
     vector < vec3d > m_KneePtVec;
     vector < vec3d > m_KneeAxVec;
-
-    DrawObj m_AxisDO;
-    DrawObj m_AxisCircleDO;
-    DrawObj m_AxisArrowDO;
-    DrawObj m_StrutDO;
 
     // Bogie
     BoolParm m_Symmetrical;
@@ -750,8 +744,8 @@ protected:
     virtual void UpdateMainTessVec();
     virtual void UpdateTessVec();
     virtual void UpdateMainDegenGeomPreview();
-    virtual void UpdateDrawObj();
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    virtual void BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec );
+    virtual void SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec );
 
     std::vector < Bogie * > m_Bogies;
     std::vector < int > m_BogieMainSurfIndex;
@@ -764,11 +758,8 @@ protected:
     vec3d m_MainMinCGPoint;
     vec3d m_MainMaxCGPoint;
 
-    vector < vec3d > m_NominalCGPointVec;
-    vector < SimpleFeatureTess > m_LimitsCGPointVec;
-
-    DrawObj m_CGNominalDrawObj;
-    DrawObj m_CGLimitsDrawObj;
+    // The markers after the bogies' own.
+    enum { GEAR_CG_NOMINAL, GEAR_CG_LIMITS, NUM_GEAR_CG_MARKERS };
 
 };
 

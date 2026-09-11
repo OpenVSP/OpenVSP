@@ -2263,77 +2263,78 @@ void Bogie::Scale( double s )
     m_MechStrutDL *= s;
 }
 
-void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
+void Bogie::BuildDrawObjs( const Matrix4d &relTrans, const string &id_prefix, vector< DrawObj > &dobj_vec )
 {
-    m_SuspensionTravelLinesDO.m_PntVec.clear();
-    m_SuspensionTravelPointsDO.m_PntVec.clear();
+    int ifirst = dobj_vec.size();
+    dobj_vec.resize( ifirst + NUM_BOGIE_DRAWOBJS );
 
-    m_AxisDO.m_PntVec.clear();
-    m_AxisArrowDO.m_PntVec.clear();
-    m_AxisArrowDO.m_NormVec.clear();
-    m_AxisCircleDO.m_PntVec.clear();
-    m_StrutDO.m_PntVec.clear();
+    DrawObj &axis_do = dobj_vec[ ifirst + BOGIE_AXIS ];
+    DrawObj &axis_circle_do = dobj_vec[ ifirst + BOGIE_AXIS_CIRCLE ];
+    DrawObj &axis_arrow_do = dobj_vec[ ifirst + BOGIE_AXIS_ARROW ];
+    DrawObj &strut_do = dobj_vec[ ifirst + BOGIE_STRUT ];
+    DrawObj &travel_lines_do = dobj_vec[ ifirst + BOGIE_TRAVEL_LINES ];
+    DrawObj &travel_points_do = dobj_vec[ ifirst + BOGIE_TRAVEL_POINTS ];
 
-    m_SuspensionTravelLinesDO.m_GeomID = m_ID + "LSuspension";
-    m_SuspensionTravelLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_SuspensionTravelLinesDO.m_LineWidth = 2.0;
-    m_SuspensionTravelLinesDO.m_Type = DrawObj::VSP_LINES;
-    m_SuspensionTravelLinesDO.m_LineColor = vec3d( 0, 1, 0 );
-    m_SuspensionTravelLinesDO.m_GeomChanged = true;
+    string id = id_prefix + m_ID;
 
-    m_SuspensionTravelPointsDO.m_GeomID = m_ID + "PSuspension";
-    m_SuspensionTravelPointsDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_SuspensionTravelPointsDO.m_PointSize = 12.0;
-    m_SuspensionTravelPointsDO.m_Type = DrawObj::VSP_POINTS;
-    m_SuspensionTravelPointsDO.m_PointColor = vec3d( 0, 0, 0 );
-    m_SuspensionTravelPointsDO.m_GeomChanged = true;
+    travel_lines_do.m_GeomID = id + "LSuspension";
+    travel_lines_do.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    travel_lines_do.m_LineWidth = 2.0;
+    travel_lines_do.m_Type = DrawObj::VSP_LINES;
+    travel_lines_do.m_LineColor = vec3d( 0, 1, 0 );
+    travel_lines_do.m_GeomChanged = true;
 
-    m_AxisDO.m_GeomID = m_ID + "MAxis";
-    m_AxisDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_AxisDO.m_LineWidth = 2.0;
-    m_AxisDO.m_Type = DrawObj::VSP_LINES;
-    m_AxisDO.m_LineColor = vec3d( 0, 0, 0 );
-    m_AxisDO.m_GeomChanged = true;
+    travel_points_do.m_GeomID = id + "PSuspension";
+    travel_points_do.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    travel_points_do.m_PointSize = 12.0;
+    travel_points_do.m_Type = DrawObj::VSP_POINTS;
+    travel_points_do.m_PointColor = vec3d( 0, 0, 0 );
+    travel_points_do.m_GeomChanged = true;
 
-    m_AxisCircleDO.m_GeomID = m_ID + "MCircle";
-    m_AxisCircleDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_AxisCircleDO.m_LineWidth = 2.0;
-    m_AxisCircleDO.m_Type = DrawObj::VSP_LINES;
-    m_AxisCircleDO.m_LineColor = vec3d( 0, 0, 0 );
-    m_AxisCircleDO.m_GeomChanged = true;
+    axis_do.m_GeomID = id + "MAxis";
+    axis_do.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    axis_do.m_LineWidth = 2.0;
+    axis_do.m_Type = DrawObj::VSP_LINES;
+    axis_do.m_LineColor = vec3d( 0, 0, 0 );
+    axis_do.m_GeomChanged = true;
 
-    m_AxisArrowDO.m_GeomID = m_ID + "MArrow";
-    m_AxisArrowDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_AxisArrowDO.m_LineWidth = 1.0;
-    m_AxisArrowDO.m_Type = DrawObj::VSP_SHADED_TRIS;
-    m_AxisArrowDO.m_GeomChanged = true;
+    axis_circle_do.m_GeomID = id + "MCircle";
+    axis_circle_do.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    axis_circle_do.m_LineWidth = 2.0;
+    axis_circle_do.m_Type = DrawObj::VSP_LINES;
+    axis_circle_do.m_LineColor = vec3d( 0, 0, 0 );
+    axis_circle_do.m_GeomChanged = true;
+
+    axis_arrow_do.m_GeomID = id + "MArrow";
+    axis_arrow_do.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    axis_arrow_do.m_LineWidth = 1.0;
+    axis_arrow_do.m_Type = DrawObj::VSP_SHADED_TRIS;
+    axis_arrow_do.m_GeomChanged = true;
 
     for ( int i = 0; i < 4; i++ )
     {
-        m_AxisArrowDO.m_MaterialInfo.Ambient[i] = 0.2f;
-        m_AxisArrowDO.m_MaterialInfo.Diffuse[i] = 0.1f;
-        m_AxisArrowDO.m_MaterialInfo.Specular[i] = 0.7f;
-        m_AxisArrowDO.m_MaterialInfo.Emission[i] = 0.0f;
+        axis_arrow_do.m_MaterialInfo.Ambient[i] = 0.2f;
+        axis_arrow_do.m_MaterialInfo.Diffuse[i] = 0.1f;
+        axis_arrow_do.m_MaterialInfo.Specular[i] = 0.7f;
+        axis_arrow_do.m_MaterialInfo.Emission[i] = 0.0f;
     }
-    m_AxisArrowDO.m_MaterialInfo.Diffuse[3] = 0.5f;
-    m_AxisArrowDO.m_MaterialInfo.Shininess = 5.0f;
+    axis_arrow_do.m_MaterialInfo.Diffuse[3] = 0.5f;
+    axis_arrow_do.m_MaterialInfo.Shininess = 5.0f;
 
 
-    m_StrutDO.m_GeomID = m_ID + "MStrut";
-    m_StrutDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_StrutDO.m_LineWidth = 2.0;
-    m_StrutDO.m_Type = DrawObj::VSP_LINES;
-    m_StrutDO.m_LineColor = vec3d( 0, 0, 0 );
-    m_StrutDO.m_GeomChanged = true;
+    strut_do.m_GeomID = id + "MStrut";
+    strut_do.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    strut_do.m_LineWidth = 2.0;
+    strut_do.m_Type = DrawObj::VSP_LINES;
+    strut_do.m_LineColor = vec3d( 0, 0, 0 );
+    strut_do.m_GeomChanged = true;
 
-    int isymm = 0;
+    travel_lines_do.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_EXTENDED ) ) );
+    travel_lines_do.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
 
-    m_SuspensionTravelLinesDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_EXTENDED ) ) );
-    m_SuspensionTravelLinesDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
-
-    m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_EXTENDED ) ) );
-    m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_NOMINAL ) ) );
-    m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
+    travel_points_do.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_EXTENDED ) ) );
+    travel_points_do.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_NOMINAL ) ) );
+    travel_points_do.m_PntVec.push_back( relTrans.xform( GetPivotPoint( 0, vsp::GEAR_SUSPENSION_COMPRESSED ) ) );
 
     if ( !m_PivotPtVec.empty() )
     {
@@ -2349,21 +2350,21 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
         vec3d axend = relTrans.xform( m_StrutAttachPt + axlen * m_Axis );
 
         vec3d u = axend - axstart;
-        MakeCircleArrow(axstart + 0.6 * u, u, 0.5 * axlen, 0.5 * axlen, m_AxisCircleDO, m_AxisArrowDO );
+        MakeCircleArrow(axstart + 0.6 * u, u, 0.5 * axlen, 0.5 * axlen, axis_circle_do, axis_arrow_do );
 
-        MakeDashedLine( axstart,  axend, 4, m_AxisDO.m_PntVec );
+        MakeDashedLine( axstart,  axend, 4, axis_do.m_PntVec );
 
         for ( int i = 0; i < m_PivotPtVec.size(); i++ )
         {
-            m_StrutDO.m_PntVec.push_back( axstart );
-            m_StrutDO.m_PntVec.push_back( relTrans.xform( m_KneePtVec[i] ) );
-            m_StrutDO.m_PntVec.push_back( relTrans.xform( m_KneePtVec[i] ) );
-            m_StrutDO.m_PntVec.push_back( relTrans.xform( m_PivotPtVec[i] ) );
+            strut_do.m_PntVec.push_back( axstart );
+            strut_do.m_PntVec.push_back( relTrans.xform( m_KneePtVec[i] ) );
+            strut_do.m_PntVec.push_back( relTrans.xform( m_KneePtVec[i] ) );
+            strut_do.m_PntVec.push_back( relTrans.xform( m_PivotPtVec[i] ) );
 
             vec3d knee_axstart = relTrans.xform( m_KneePtVec[i] );
             vec3d knee_axend = relTrans.xform( m_KneePtVec[i] + axlen * m_KneeAxVec[i] );
 
-            MakeDashedLine( knee_axstart,  knee_axend, 4, m_AxisDO.m_PntVec );
+            MakeDashedLine( knee_axstart,  knee_axend, 4, axis_do.m_PntVec );
         }
     }
 
@@ -2373,26 +2374,11 @@ void Bogie::UpdateDrawObj( const Matrix4d &relTrans )
     // // {
     // //     bogietheta = m_BogieTheta();
     // // }
-    // m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 0,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta * M_PI / 180.0 ) ) );
+    // travel_points_do.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 0,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta * M_PI / 180.0 ) ) );
     // if ( m_Symmetrical() )
     // {
-    //     m_SuspensionTravelPointsDO.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 1,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta * M_PI / 180.0 ) ) );
+    //     travel_points_do.m_PntVec.push_back( relTrans.xform( GetMeanContactPoint( 1,  vsp::TIRE_STATIC_LODED_CONTACT, vsp::GEAR_SUSPENSION_NOMINAL, bogietheta * M_PI / 180.0 ) ) );
     // }
-
-    if ( m_Symmetrical() )
-    {
-        isymm++;
-    }
-}
-
-void Bogie::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
-{
-    draw_obj_vec.push_back( &m_AxisDO );
-    draw_obj_vec.push_back( &m_AxisCircleDO );
-    draw_obj_vec.push_back( &m_AxisArrowDO );
-    draw_obj_vec.push_back( &m_StrutDO );
-    draw_obj_vec.push_back( &m_SuspensionTravelLinesDO );
-    draw_obj_vec.push_back( &m_SuspensionTravelPointsDO );
 }
 
 xmlNodePtr Bogie::EncodeXml( xmlNodePtr & node )
@@ -3061,16 +3047,6 @@ void GearGeom::UpdateMainTessVec()
 void GearGeom::UpdateTessVec()
 {
     Geom::UpdateTessVec();
-    ApplySymm( m_MainNominalCGPointVec, m_NominalCGPointVec );
-
-
-    BndBox cgbox;
-    cgbox.Update( m_MainMinCGPoint );
-    cgbox.Update( m_MainMaxCGPoint );
-    vector < SimpleFeatureTess > tessvec(1);
-    tessvec[0].m_ptline.push_back( cgbox.GetBBoxDrawLines() );
-
-    ApplySymm( tessvec, m_LimitsCGPointVec );
 }
 
 void GearGeom::UpdateMainDegenGeomPreview()
@@ -3118,80 +3094,105 @@ void GearGeom::UpdateMainDegenGeomPreview()
     }
 }
 
-void GearGeom::UpdateDrawObj()
+// Each bogie's suspension travel, retraction and strut, and the nominal CG and its limits,
+// placed by placer.  The CG is in the gear's own frame, so it moves with a Clone.
+void GearGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
 {
-    Geom::UpdateDrawObj();
-
-    Matrix4d relTrans = m_AttachMatrix;
-    relTrans.affineInverse();
-    relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( m_AttachMatrix.data() );
-
     int nbogies = m_Bogies.size();
+    int nbogie_do = nbogies * Bogie::NUM_BOGIE_DRAWOBJS;
 
-    for ( int i = 0; i < nbogies; i++ )
+    // A change of global scale alone leaves the bogies as they were drawn.
+    if ( !m_GlobalScaleDirty || ( int )marker_vec.size() != nbogie_do + NUM_GEAR_CG_MARKERS )
     {
-        if ( m_Bogies[i] )
+        marker_vec.clear();
+
+        for ( int i = 0; i < nbogies; i++ )
         {
-            if ( !m_GlobalScaleDirty )
+            if ( m_Bogies[i] )
             {
-                m_Bogies[i]->UpdateDrawObj( relTrans );
+                m_Bogies[i]->BuildDrawObjs( placer->getModelMatrix(), placer->GetID(), marker_vec );
             }
         }
+
+        // Built from directions as well as points, so the flip is put in afterwards.
+        vector< DrawObj* > bogie_do_vec;
+        for ( int i = 0; i < ( int )marker_vec.size(); i++ )
+        {
+            bogie_do_vec.push_back( &marker_vec[i] );
+        }
+        placer->FlipDrawObjs( bogie_do_vec );
+
+        nbogie_do = marker_vec.size();
+        marker_vec.resize( nbogie_do + NUM_GEAR_CG_MARKERS );
     }
 
+    DrawObj &cg_nominal = marker_vec[ nbogie_do + GEAR_CG_NOMINAL ];
+    DrawObj &cg_limits = marker_vec[ nbogie_do + GEAR_CG_LIMITS ];
 
-    m_CGNominalDrawObj.m_PntVec = m_NominalCGPointVec;
-    m_CGNominalDrawObj.m_GeomChanged = true;
+    cg_nominal.m_PntVec.clear();
+    cg_limits.m_PntVec.clear();
 
+    BndBox cgbox;
+    cgbox.Update( m_MainMinCGPoint );
+    cgbox.Update( m_MainMaxCGPoint );
 
-    m_CGLimitsDrawObj.m_PntVec.clear();
-    for ( int i = 0 ; i < m_LimitsCGPointVec.size() ; i++ )
+    // With no ground plane or bogie there are no surfaces; use placer's own position.
+    vector< Matrix4d > copy_vec;
+    vector< Matrix4d > trans_vec = placer->GetTransMatVec();
+    int nmain = placer->GetNumMainSurfs();
+    if ( nmain < 1 || trans_vec.empty() )
     {
-        for( int j = 0; j < m_LimitsCGPointVec[i].m_ptline.size(); j++ )
+        copy_vec.push_back( placer->GetShapeMatrix() );
+    }
+    else
+    {
+        for ( int i = 0; i < placer->GetNumSymmCopies() && i * nmain < ( int )trans_vec.size(); i++ )
         {
-            m_CGLimitsDrawObj.m_PntVec.insert( m_CGLimitsDrawObj.m_PntVec.end(), m_LimitsCGPointVec[i].m_ptline[j].begin(), m_LimitsCGPointVec[i].m_ptline[j].end() );
+            copy_vec.push_back( trans_vec[ i * nmain ] );
         }
     }
-    m_CGLimitsDrawObj.m_GeomChanged = true;
 
+    for ( int i = 0; i < ( int )copy_vec.size() && !m_MainNominalCGPointVec.empty(); i++ )
+    {
+        const Matrix4d &trans_mat = copy_vec[ i ];
+
+        cg_nominal.m_PntVec.push_back( trans_mat.xform( m_MainNominalCGPointVec[0] ) );
+
+        vector< vec3d > lines = cgbox.GetBBoxDrawLines();
+        trans_mat.xformvec( lines );
+        cg_limits.m_PntVec.insert( cg_limits.m_PntVec.end(), lines.begin(), lines.end() );
+    }
+
+    cg_nominal.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    cg_nominal.m_GeomID = placer->GetID() + string( "cgnominal" );
+    cg_nominal.m_PointSize = 10.0;
+    cg_nominal.m_PointColor = vec3d( 0.5, 0.5, 0.5 );
+    cg_nominal.m_Type = DrawObj::VSP_POINTS;
+    cg_nominal.m_GeomChanged = true;
+
+    cg_limits.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    cg_limits.m_GeomID = placer->GetID() + string( "cgrange" );
+    cg_limits.m_LineWidth = 4.0;
+    cg_limits.m_LineColor = vec3d( 0.5, 0.5, 0.5 );
+    cg_limits.m_Type = DrawObj::VSP_LINES;
+    cg_limits.m_GeomChanged = true;
 }
 
-void GearGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+void GearGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )
 {
-    Geom::LoadDrawObjs( draw_obj_vec );
+    int nbogie_do = ( int )marker_vec.size() - NUM_GEAR_CG_MARKERS;
 
-    vector< DrawObj* > bogie_draw_obj_vec;
-    int nbogies = m_Bogies.size();
-    for ( int i = 0; i < nbogies; i++ )
+    bool bogie_visible = placer->ShowsMarkers();
+    for ( int i = 0; i < nbogie_do; i++ )
     {
-        if ( m_Bogies[i] )
-        {
-            m_Bogies[i]->LoadDrawObjs( bogie_draw_obj_vec );
-        }
+        marker_vec[i].m_Visible = bogie_visible;
     }
 
-    for ( int i = 0; i < bogie_draw_obj_vec.size(); i++ )
+    bool cg_visible = placer->GetSetFlag( vsp::SET_SHOWN );
+    for ( int i = std::max( nbogie_do, 0 ); i < ( int )marker_vec.size(); i++ )
     {
-        bogie_draw_obj_vec[i]->m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-        draw_obj_vec.push_back( bogie_draw_obj_vec[i] );
+        marker_vec[i].m_Visible = cg_visible;
     }
-
-    m_CGNominalDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_CGNominalDrawObj.m_GeomID = m_ID + string( "cgnominal" );
-    m_CGNominalDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
-    m_CGNominalDrawObj.m_PointSize = 10.0;
-    m_CGNominalDrawObj.m_PointColor = vec3d( 0.5, 0.5, 0.5 );
-    m_CGNominalDrawObj.m_Type = DrawObj::VSP_POINTS;
-    draw_obj_vec.push_back( &m_CGNominalDrawObj );
-
-    m_CGLimitsDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_CGLimitsDrawObj.m_GeomID = m_ID + string( "cgrange" );
-    m_CGLimitsDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
-    m_CGLimitsDrawObj.m_LineWidth = 4.0;
-    m_CGLimitsDrawObj.m_LineColor = vec3d( 0.5, 0.5, 0.5 );
-    m_CGLimitsDrawObj.m_Type = DrawObj::VSP_LINES;
-    draw_obj_vec.push_back( &m_CGLimitsDrawObj );
 }
 
 //==== Compute Rotation Center ====//
