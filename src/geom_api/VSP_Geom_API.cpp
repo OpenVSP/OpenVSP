@@ -378,17 +378,20 @@ void SetBEMPropID( const std::string & prop_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetBEMPropID::Can't Find Geom " + prop_id );
         return;
     }
-    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
+    else if ( geom_ptr->GetBehaviorType() != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetBEMPropID::Geom is not a propeller " + prop_id );
         return;
     }
 
-    PropGeom* prop_ptr = dynamic_cast <PropGeom*> ( geom_ptr );
-    if ( prop_ptr )
+    PropGeom* behavior_prop = dynamic_cast <PropGeom*> ( geom_ptr->GetBehaviorGeom() );
+    if ( !behavior_prop )
     {
-        veh->m_BEMPropID = prop_id;
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBEMPropID::Geom is not a propeller " + prop_id );
+        return;
     }
+
+    veh->m_BEMPropID = prop_id;
 }
 
 //===================================================================//

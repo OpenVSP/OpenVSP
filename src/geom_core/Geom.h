@@ -746,6 +746,10 @@ public:
     virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
     vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal, const int & n_ref = 0 ) const;
 
+    // Set during an export that wants one propeller blade rather than the whole rotor.  On Geom
+    // rather than PropGeom so a Clone of a propeller answers the same.
+    void SetExportMainSurf( bool b )                 { m_ExportMainSurf = b; }
+
     virtual BndBox GetBndBox() const
     {
         return m_BBox;
@@ -775,7 +779,9 @@ public:
         scale_independent_main_box = m_ScaleIndependentMainBBox;
     }
 
-    virtual void WriteAirfoilFiles( FILE* meta_fid );
+    // name and id label the files; empty means this Geom's own.  A Clone of a wing or propeller
+    // has its original write the shape under the Clone's name and ID.
+    virtual void WriteAirfoilFiles( FILE* meta_fid, const string &name = string(), const string &id = string() );
     virtual void WriteBezierAirfoil( const string & file_name, double foilsurf_u_location );
     virtual void WriteSeligAirfoil( const string & file_name, double foilsurf_u_location );
     virtual vector < vec3d > GetAirfoilCoordinates( double foilsurf_u_location );
@@ -1150,6 +1156,9 @@ protected:
 
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
+
+    // Hand out m_MainSurfVec where m_SurfVec would normally go.  See SetExportMainSurf.
+    bool m_ExportMainSurf;
     vector<int> m_MainSurfIndxVec;
     vector< vector< int > > m_SurfSymmMap;
     vector<int> m_SurfCopyIndx;

@@ -1624,6 +1624,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
 
+    m_ExportMainSurf = false;
+
     m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  1000 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
     m_TessW.Init( "Tess_W", "Shape", this, 9, 2,  1001 );
@@ -4931,6 +4933,11 @@ int Geom::GetSymFlag() const
 //==== Return Pointer to Surface indx ====//
 const VspSurf* Geom::GetSurfPtr( int indx ) const
 {
+    if ( m_ExportMainSurf )
+    {
+        return GetMainSurfPtr( indx );
+    }
+
     if ( indx >= 0 && indx < GetNumTotalSurfs() )
     {
         // m_SurfVec is filled by Update, so it can be short of the count before the first one.
@@ -5634,13 +5641,25 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
     return ordered_vec;
 }
 
-void Geom::WriteAirfoilFiles( FILE* meta_fid )
+void Geom::WriteAirfoilFiles( FILE* meta_fid, const string &name, const string &id )
 {
     // This function writes out the Bezier control points for all untwisted unit length airfoils.
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh || !meta_fid || m_MainSurfVec.size() == 0 )
     {
         return;
+    }
+
+    // A Clone passes its own name and ID so the files are named after it.
+    string geom_name = name;
+    string geom_id = id;
+    if ( geom_name.empty() )
+    {
+        geom_name = m_Name;
+    }
+    if ( geom_id.empty() )
+    {
+        geom_id = m_ID;
     }
 
     // Adjust Tessellation
@@ -5726,11 +5745,11 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
 
         for ( /* j */; j < utess_vec[i]; j++ )
         {
-            string af_file_name = m_Name + "_";
+            string af_file_name = geom_name + "_";
 
             if ( veh->m_AFAppendGeomIDFlag() )
             {
-                af_file_name += ( m_ID + "_" );
+                af_file_name += ( geom_id + "_" );
             }
 
             af_file_name += to_string( foil_cnt );
@@ -5754,8 +5773,8 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
 
             fprintf( meta_fid, "########################################\n" );
             fprintf( meta_fid, "Airfoil File Name, %s\n", af_file_name.c_str() );
-            fprintf( meta_fid, "Geom Name, %s\n", m_Name.c_str() );
-            fprintf( meta_fid, "Geom ID, %s\n", m_ID.c_str() );
+            fprintf( meta_fid, "Geom Name, %s\n", geom_name.c_str() );
+            fprintf( meta_fid, "Geom ID, %s\n", geom_id.c_str() );
             fprintf( meta_fid, "Airfoil Index, %d\n", foil_cnt );
             fprintf( meta_fid, "XSec Flag, %d\n", xsec_flag );
 
@@ -6258,6 +6277,11 @@ void Geom::WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma
 //==== Create TMesh Vector ====//
 vector< TMesh* > Geom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
 {
+    if ( m_ExportMainSurf )
+    {
+        return CreateTMeshVec( m_MainSurfVec, skipnegflipnormal, n_ref );
+    }
+
     return CreateTMeshVec( m_SurfVec, skipnegflipnormal, n_ref );
 }
 

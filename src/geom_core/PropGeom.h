@@ -161,13 +161,7 @@ public:
 
     virtual PCurve* GetPCurve( int curveid );
 
-    virtual void WriteAirfoilFiles( FILE* meta_fid );
-
-    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
-
-    virtual void SetExportMainSurf( bool b )         { m_ExportMainSurf = b; }
-
-    virtual const VspSurf* GetSurfPtr( int indx ) const;
+    virtual void WriteAirfoilFiles( FILE* meta_fid, const string &name = string(), const string &id = string() );
 
     virtual void ApproxCubicAllPCurves();
 
@@ -309,8 +303,6 @@ protected:
     // tessellations can be assigned into existing buffers rather than cleared and reallocated.
     SimpleTess m_BladeTess;
     SimpleFeatureTess m_BladeFeatureTess;
-
-    bool m_ExportMainSurf;
 
     vector < double > m_UPseudo;
 

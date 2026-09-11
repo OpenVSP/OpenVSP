@@ -1288,7 +1288,7 @@ string Vehicle::AddMeshGeom( BndBox & bbox, int normal_set, int degen_set, bool 
 
             if ( g_ptr->GetSetFlag( degen_set ) )
             {
-                if( g_ptr->GetType().m_Type != BLANK_GEOM_TYPE )
+                if( g_ptr->GetBehaviorType() != BLANK_GEOM_TYPE )
                 {
                     vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
 
@@ -4504,7 +4504,7 @@ void Vehicle::WriteX3DFile( const string & file_name, int write_set, bool useMod
     //==== All Geometry ====//
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type != BLANK_GEOM_TYPE && geom_vec[i]->GetType().m_Type != HINGE_GEOM_TYPE )
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetBehaviorType() != BLANK_GEOM_TYPE && geom_vec[i]->GetBehaviorType() != HINGE_GEOM_TYPE )
         {
             xmlNodePtr shape_node = xmlNewChild( scene_node, nullptr, BAD_CAST "Shape", nullptr );
 
@@ -5173,10 +5173,17 @@ void Vehicle::WriteBEMFile( const string &file_name, int write_set, bool useMode
 
     Geom* geom = FindGeom( m_BEMPropID );
 
-    PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
-    if ( pgeom )
+    // A Clone shows the blade unchanged, so the BEM file comes from the Geom it copies.
+    Geom* behavior_geom = nullptr;
+    if ( geom )
     {
-        string rid = pgeom->BuildBEMResults();
+        behavior_geom = geom->GetBehaviorGeom();
+    }
+
+    PropGeom* behavior_prop = dynamic_cast < PropGeom* > ( behavior_geom );
+    if ( behavior_prop )
+    {
+        string rid = behavior_prop->BuildBEMResults();
 
         Results* resptr = ResultsMgr.FindResultsPtr( rid );
         if( resptr )
@@ -5223,9 +5230,15 @@ void Vehicle::WriteAirfoilFile( const string &file_name, int write_set, bool use
 
     for ( int i = 0; i < (int)geom_vec.size(); i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && ( geom_vec[i]->GetType().m_Type == MS_WING_GEOM_TYPE || geom_vec[i]->GetType().m_Type == PROP_GEOM_TYPE ) )
+        // Airfoils carry no placement, so a Clone's are its original's.  Written from the
+        // original under the Clone's name and ID.
+        if ( geom_vec[i]->GetSetFlag( write_set ) && ( geom_vec[i]->GetBehaviorType() == MS_WING_GEOM_TYPE || geom_vec[i]->GetBehaviorType() == PROP_GEOM_TYPE ) )
         {
-            geom_vec[i]->WriteAirfoilFiles( meta_fid );
+            Geom* behavior_geom = geom_vec[i]->GetBehaviorGeom();
+            if ( behavior_geom )
+            {
+                behavior_geom->WriteAirfoilFiles( meta_fid, geom_vec[i]->GetName(), geom_vec[i]->GetID() );
+            }
         }
     }
 
@@ -7513,9 +7526,10 @@ void Vehicle::CreateDegenGeom( int set, bool useMode, const string &modeID )
     {
         if ( geom_vec[i]->GetSetFlag( set ) )
         {
-            if( geom_vec[i]->GetType().m_Type == BLANK_GEOM_TYPE )
+            if( geom_vec[i]->GetBehaviorType() == BLANK_GEOM_TYPE )
             {
-                BlankGeom *g = (BlankGeom*) geom_vec[i];
+                // Geom members only, so a Clone of a blank uses its own mass and position.
+                Geom *g = geom_vec[i];
                 if( g->m_PointMass() != 0.0 )
                 {
                     DegenPtMass pm;
@@ -7824,10 +7838,10 @@ void Vehicle::SetExportPropMainSurf( bool b )
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0; i < (int) geom_vec.size(); i++ )
     {
-        PropGeom *pg = dynamic_cast< PropGeom * > ( geom_vec[i] );
-        if ( pg )
+        // By behaviour, so a Clone of a propeller is included; it holds its own flag.
+        if ( geom_vec[i]->GetBehaviorType() == PROP_GEOM_TYPE )
         {
-            pg->SetExportMainSurf( b );
+            geom_vec[i]->SetExportMainSurf( b );
         }
     }
 }

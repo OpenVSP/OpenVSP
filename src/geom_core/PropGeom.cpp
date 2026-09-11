@@ -236,7 +236,6 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Type.m_Name = "Propeller";
     m_Type.m_Type = PROP_GEOM_TYPE;
 
-    m_ExportMainSurf = false;
 
     m_XSecSurf.SetBasicOrientation( Y_DIR, Z_DIR, XS_SHIFT_MID, true );
 
@@ -2889,7 +2888,7 @@ PCurve* PropGeom::GetPCurve( int curveid )
     return nullptr;
 }
 
-void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
+void PropGeom::WriteAirfoilFiles( FILE* meta_fid, const string &name, const string &id )
 {
     // This function writes out the coordinate/control point data for all untwisted unit length airfoils.
     //  Special considerations need to be taken for PropGeoms because the interpolated airfoils do
@@ -2899,6 +2898,18 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     if ( !veh || !meta_fid || m_MainSurfVec.size() == 0 )
     {
         return;
+    }
+
+    // File names come from name and id, so a Clone names the files after itself.
+    string geom_name = name;
+    string geom_id = id;
+    if ( geom_name.empty() )
+    {
+        geom_name = m_Name;
+    }
+    if ( geom_id.empty() )
+    {
+        geom_id = m_ID;
     }
 
     // Adjust Tessellation
@@ -2960,11 +2971,11 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
 
     for ( size_t j = 0; j < m_TessU(); j++ )
     {
-        string af_file_name = m_Name + "_";
+        string af_file_name = geom_name + "_";
 
         if ( veh->m_AFAppendGeomIDFlag() )
         {
-            af_file_name += ( m_ID + "_" );
+            af_file_name += ( geom_id + "_" );
         }
 
         af_file_name += to_string( foil_cnt );
@@ -2989,8 +3000,8 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
 
         fprintf( meta_fid, "########################################\n" );
         fprintf( meta_fid, "Airfoil File Name, %s\n", af_file_name.c_str() );
-        fprintf( meta_fid, "Geom Name, %s\n", m_Name.c_str() );
-        fprintf( meta_fid, "Geom ID, %s\n", m_ID.c_str() );
+        fprintf( meta_fid, "Geom Name, %s\n", geom_name.c_str() );
+        fprintf( meta_fid, "Geom ID, %s\n", geom_id.c_str() );
         fprintf( meta_fid, "Airfoil Index, %d\n", foil_cnt );
         fprintf( meta_fid, "XSec Flag, %d\n", xsec_flag );
 
@@ -3105,34 +3116,6 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
     {
         m_TessW.Set( m_TessW.GetLastVal() );
-    }
-}
-
-vector< TMesh* > PropGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
-{
-    vector< TMesh* > TMeshVec;
-
-    if ( m_ExportMainSurf )
-    {
-        TMeshVec = Geom::CreateTMeshVec( m_MainSurfVec, skipnegflipnormal, n_ref );
-    }
-    else
-    {
-        TMeshVec = Geom::CreateTMeshVec( skipnegflipnormal, n_ref );
-    }
-
-    return TMeshVec;
-}
-
-const VspSurf* PropGeom::GetSurfPtr( int indx ) const
-{
-    if ( m_ExportMainSurf )
-    {
-        return Geom::GetMainSurfPtr( indx );
-    }
-    else
-    {
-        return Geom::GetSurfPtr( indx );
     }
 }
 
