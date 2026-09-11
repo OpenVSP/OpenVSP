@@ -3036,7 +3036,7 @@ bool Vehicle::ExistMesh( int set )
 bool Vehicle::ExistType( int set, int geomtype )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return false;
     }
@@ -3059,7 +3059,7 @@ vector < string > Vehicle::GetPtCloudGeoms()
     vector < string > ptclouds;
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return ptclouds;
     }
@@ -3092,7 +3092,7 @@ string Vehicle::WriteSTLFile( const string & file_name, int write_set, bool useM
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return mesh_id;
     }
@@ -3148,7 +3148,7 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, i
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return mesh_id;
     }
@@ -3227,7 +3227,7 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return mesh_id;
     }
@@ -3917,7 +3917,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return mesh_id;
     }
@@ -4024,7 +4024,7 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
     string mesh_id = string();
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return mesh_id;
     }
@@ -4125,7 +4125,7 @@ void Vehicle::WriteX3DFile( const string & file_name, int write_set, bool useMod
     }
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return;
     }
@@ -4304,7 +4304,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set, bool use
     int i;
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return;
     }
