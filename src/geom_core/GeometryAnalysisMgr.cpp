@@ -16,6 +16,7 @@
 #include <Eigen/SVD>
 
 #include "GeometryAnalysisMgr.h"
+#include "GeomInterface.h"
 
 #include "ModeMgr.h"
 #include "StlHelper.h"
@@ -434,12 +435,11 @@ vector< TMesh* > GeometryAnalysisCase::GetHingeSecondaryTMeshVec()
 
             if ( geom )
             {
-                HingeGeom* hinge_ptr = dynamic_cast< HingeGeom* >( geom );
-
-                if ( hinge_ptr )
+                // This Geom, not what it copies: the descendants wanted are this one's.
+                if ( Geom::CastTo< JointRole >( geom ) )
                 {
                     vector < string > descendants;
-                    hinge_ptr->BuildRigidAttachedDescendantList( descendants );
+                    geom->BuildRigidAttachedDescendantList( descendants );
 
                     tmv = veh->CreateTMeshVec( descendants );
                 }
@@ -602,47 +602,47 @@ bool GeometryAnalysisCase::GetDisplacement( double dist, vec3d &dstart, vec3d &d
 
             if ( geom )
             {
-                HingeGeom* hinge_ptr = dynamic_cast< HingeGeom* >( geom );
+                // Axis and deflection from this Geom; limits from the joint.
+                bool min_set;
+                bool max_set;
+                double start;
+                double end;
 
-                if ( hinge_ptr )
+                JointRole* joint = Geom::CastTo< JointRole >( geom );
+
+                if ( joint && joint->GetJointTransMotion( min_set, start, max_set, end ) )
                 {
-                    if ( hinge_ptr->m_JointTranslateFlag() )
+                    vec3d dir = joint->GetJointAxis();
+
+                    const double pos = joint->GetJointTranslate();
+
+                    if ( m_ExtentType() == vsp::EXTENT_FORWARD_INF )
                     {
-                        vec3d dir( hinge_ptr->m_PrimXVec(), hinge_ptr->m_PrimYVec(), hinge_ptr->m_PrimZVec() );
-                        dir.normalize();
-
-                        const double pos = hinge_ptr->m_JointTranslate();
-                        const double start = hinge_ptr->m_JointTransMin();
-                        const double end = hinge_ptr->m_JointTransMax();
-
-                        if ( m_ExtentType() == vsp::EXTENT_FORWARD_INF )
-                        {
-                            dstart.set_xyz( 0, 0, 0 );
-                            disp = dist * dir;
-                        }
-                        else if ( m_ExtentType() == vsp::EXTENT_REVERSE_INF )
-                        {
-                            dstart.set_xyz( 0, 0, 0 );
-                            disp = -dist * dir;
-                        }
-                        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_FULL )
-                        {
-                            dstart = ( start - pos ) * dir;
-                            disp = ( end - start ) * dir;
-                        }
-                        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_BEFORE )
-                        {
-                            dstart.set_xyz( 0, 0, 0 );
-                            disp = ( start - pos ) * dir;
-                        }
-                        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_AFTER )
-                        {
-                            dstart.set_xyz( 0, 0, 0 );
-                            disp = ( end - pos ) * dir;
-                        }
-
-                        return true;
+                        dstart.set_xyz( 0, 0, 0 );
+                        disp = dist * dir;
                     }
+                    else if ( m_ExtentType() == vsp::EXTENT_REVERSE_INF )
+                    {
+                        dstart.set_xyz( 0, 0, 0 );
+                        disp = -dist * dir;
+                    }
+                    else if ( m_ExtentType() == vsp::EXTENT_SLIDER_FULL )
+                    {
+                        dstart = ( start - pos ) * dir;
+                        disp = ( end - start ) * dir;
+                    }
+                    else if ( m_ExtentType() == vsp::EXTENT_SLIDER_BEFORE )
+                    {
+                        dstart.set_xyz( 0, 0, 0 );
+                        disp = ( start - pos ) * dir;
+                    }
+                    else if ( m_ExtentType() == vsp::EXTENT_SLIDER_AFTER )
+                    {
+                        dstart.set_xyz( 0, 0, 0 );
+                        disp = ( end - pos ) * dir;
+                    }
+
+                    return true;
                 }
             }
         }

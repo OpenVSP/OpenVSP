@@ -796,7 +796,8 @@ void GeomXForm::UpdateAttachParms()
             return;
         }
 
-        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+        // EtatoU depends only on the wing's shape, so a Clone of a wing answers it too.
+        WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
         double umax = parent->GetMainUMapMax( 0 );
         double lmax = parent->GetMainSurfPtr( 0 )->GetLMax();
@@ -838,13 +839,13 @@ void GeomXForm::UpdateAttachParms()
             m_LLoc.Set( val / lmax );
         }
 
-        if ( wing_parent )
+        if ( behavior_wing )
         {
             if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_EtaMN || m_RotAttachFlag() == vsp::ATTACH_ROT_EtaMN ) // Eta is active.
             {
                 if ( m_TransAttachFlag() != vsp::ATTACH_TRANS_UV && m_RotAttachFlag() != vsp::ATTACH_ROT_UV ) // U is not active.
                 {
-                    double u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+                    double u = behavior_wing->EtatoU( m_EtaLoc() ) / umax;
 
                     double r;
                     r = u;
@@ -873,7 +874,7 @@ void GeomXForm::UpdateAttachParms()
                 if ( m_TransAttachFlag() != vsp::ATTACH_TRANS_RST && m_RotAttachFlag() != vsp::ATTACH_ROT_RST ) // R is not active
                 {
                     double u, w;
-                    u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+                    u = behavior_wing->EtatoU( m_EtaLoc() ) / umax;
                     w = m_WLoc();
                     double r, s, t;
                     r = u;
@@ -890,7 +891,7 @@ void GeomXForm::UpdateAttachParms()
 
                 if ( m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_RotAttachFlag() != vsp::ATTACH_ROT_LMN ) // L is not active
                 {
-                    double u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+                    double u = behavior_wing->EtatoU( m_EtaLoc() ) / umax;
 
                     double r;
                     r = u;
@@ -907,13 +908,13 @@ void GeomXForm::UpdateAttachParms()
             {
                 if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_UV || m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) // UV is active
                 {
-                    m_EtaLoc = wing_parent->UtoEta( m_ULoc() * umax );
+                    m_EtaLoc = behavior_wing->UtoEta( m_ULoc() * umax );
                 }
                 else if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_RST || m_RotAttachFlag() == vsp::ATTACH_ROT_RST ) // RST is active
                 {
                     double r = m_RLoc();
                     double u = r;
-                    m_EtaLoc = wing_parent->UtoEta( u * umax );
+                    m_EtaLoc = behavior_wing->UtoEta( u * umax );
                 }
                 else if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_RotAttachFlag() == vsp::ATTACH_ROT_LMN ) // LMN is active
                 {
@@ -921,11 +922,11 @@ void GeomXForm::UpdateAttachParms()
                     double r;
                     parent->ConvertLtoR( 0, l, r );
                     double u = r;
-                    m_EtaLoc = wing_parent->UtoEta( u * umax );
+                    m_EtaLoc = behavior_wing->UtoEta( u * umax );
                 }
                 else // Nothing is active, use U value anyway.
                 {
-                    m_EtaLoc = wing_parent->UtoEta( m_ULoc() * umax );
+                    m_EtaLoc = behavior_wing->UtoEta( m_ULoc() * umax );
                 }
             }
         }
@@ -1183,7 +1184,8 @@ void GeomXForm::ComposeAttachMatrix()
         bool revertCompTrans = false;
         bool revertCompRot = false;
 
-        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+        // EtatoU depends only on the wing's shape, so a Clone of a wing answers it too.
+        WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
         // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
         // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
@@ -1216,10 +1218,10 @@ void GeomXForm::ComposeAttachMatrix()
         {
             double l = m_EtaLoc();
 
-            if ( wing_parent )
+            if ( behavior_wing )
             {
                 double umax = parent->GetMainUMapMax( 0 );
-                double u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+                double u = behavior_wing->EtatoU( m_EtaLoc() ) / umax;
 
                 double r = u;
                 parent->ConvertRtoL( 0, r, l );
@@ -1264,10 +1266,10 @@ void GeomXForm::ComposeAttachMatrix()
         {
             double l = m_EtaLoc();
 
-            if ( wing_parent )
+            if ( behavior_wing )
             {
                 double umax = parent->GetMainUMapMax( 0 );
-                double u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+                double u = behavior_wing->EtatoU( m_EtaLoc() ) / umax;
 
                 double r = u;
                 parent->ConvertRtoL( 0, r, l );

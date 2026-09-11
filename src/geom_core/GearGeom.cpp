@@ -673,7 +673,8 @@ void Bogie::UpdateStowAttachParms()
             return;
         }
 
-        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+        // Only EtatoU is used; it depends on shape alone, so a Clone of a wing works too.
+        WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
         double umax = parent->GetUMapMax( m_StowSurfIndx() );
         double lmax = parent->GetSurfPtr( m_StowSurfIndx() )->GetLMax();
@@ -715,13 +716,13 @@ void Bogie::UpdateStowAttachParms()
             m_StowLLoc.Set( val / lmax );
         }
 
-        if ( wing_parent )
+        if ( behavior_wing )
         {
             if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_EtaMN || m_StowRotAttachFlag() == vsp::ATTACH_ROT_EtaMN ) // Eta is active.
             {
                 if ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_UV && m_StowRotAttachFlag() != vsp::ATTACH_ROT_UV ) // U is not active.
                 {
-                    double u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+                    double u = behavior_wing->EtatoU( m_StowEtaLoc() ) / umax;
 
                     double r;
                     r = u;
@@ -750,7 +751,7 @@ void Bogie::UpdateStowAttachParms()
                 if ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_RST && m_StowRotAttachFlag() != vsp::ATTACH_ROT_RST ) // R is not active
                 {
                     double u, w;
-                    u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+                    u = behavior_wing->EtatoU( m_StowEtaLoc() ) / umax;
                     w = m_StowWLoc();
                     double r, s, t;
                     r = u;
@@ -767,7 +768,7 @@ void Bogie::UpdateStowAttachParms()
 
                 if ( m_StowTransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_StowRotAttachFlag() != vsp::ATTACH_ROT_LMN ) // L is not active
                 {
-                    double u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+                    double u = behavior_wing->EtatoU( m_StowEtaLoc() ) / umax;
 
                     double r;
                     r = u;
@@ -784,13 +785,13 @@ void Bogie::UpdateStowAttachParms()
             {
                 if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_UV || m_StowRotAttachFlag() == vsp::ATTACH_ROT_UV ) // UV is active
                 {
-                    m_StowEtaLoc = wing_parent->UtoEta( m_StowULoc() * umax );
+                    m_StowEtaLoc = behavior_wing->UtoEta( m_StowULoc() * umax );
                 }
                 else if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_RST || m_StowRotAttachFlag() == vsp::ATTACH_ROT_RST ) // RST is active
                 {
                     double r = m_StowRLoc();
                     double u = r;
-                    m_StowEtaLoc = wing_parent->UtoEta( u * umax );
+                    m_StowEtaLoc = behavior_wing->UtoEta( u * umax );
                 }
                 else if ( m_StowTransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_StowRotAttachFlag() == vsp::ATTACH_ROT_LMN ) // LMN is active
                 {
@@ -798,11 +799,11 @@ void Bogie::UpdateStowAttachParms()
                     double r;
                     parent->ConvertLtoR( m_StowSurfIndx(), l, r );
                     double u = r;
-                    m_StowEtaLoc = wing_parent->UtoEta( u * umax );
+                    m_StowEtaLoc = behavior_wing->UtoEta( u * umax );
                 }
                 else // Nothing is active, use U value anyway.
                 {
-                    m_StowEtaLoc = wing_parent->UtoEta( m_StowULoc() * umax );
+                    m_StowEtaLoc = behavior_wing->UtoEta( m_StowULoc() * umax );
                 }
             }
         }
@@ -948,7 +949,8 @@ void Bogie::UpdateMechAttachParms()
             return;
         }
 
-        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+        // Only EtatoU is used; it depends on shape alone, so a Clone of a wing works too.
+        WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
         double umax = parent->GetUMapMax( m_MechSurfIndx() );
         double lmax = parent->GetSurfPtr( m_MechSurfIndx() )->GetLMax();
@@ -990,11 +992,11 @@ void Bogie::UpdateMechAttachParms()
             m_MechLLoc.Set( val / lmax );
         }
 
-        if ( wing_parent )
+        if ( behavior_wing )
         {
             if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_EtaMN ) // Eta is active.
             {
-                double u = wing_parent->EtatoU( m_MechEtaLoc() ) / umax;
+                double u = behavior_wing->EtatoU( m_MechEtaLoc() ) / umax;
 
                 double r;
                 r = u;
@@ -1031,13 +1033,13 @@ void Bogie::UpdateMechAttachParms()
             {
                 if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_UV ) // UV is active
                 {
-                    m_MechEtaLoc = wing_parent->UtoEta( m_MechULoc() * umax );
+                    m_MechEtaLoc = behavior_wing->UtoEta( m_MechULoc() * umax );
                 }
                 else if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_RST ) // RST is active
                 {
                     double r = m_MechRLoc();
                     double u = r;
-                    m_MechEtaLoc = wing_parent->UtoEta( u * umax );
+                    m_MechEtaLoc = behavior_wing->UtoEta( u * umax );
                 }
                 else if ( m_MechTransAttachFlag() == vsp::ATTACH_TRANS_LMN ) // LMN is active
                 {
@@ -1045,11 +1047,11 @@ void Bogie::UpdateMechAttachParms()
                     double r;
                     parent->ConvertLtoR( m_MechSurfIndx(), l, r );
                     double u = r;
-                    m_MechEtaLoc = wing_parent->UtoEta( u * umax );
+                    m_MechEtaLoc = behavior_wing->UtoEta( u * umax );
                 }
                 else // Nothing is active, use U value anyway.
                 {
-                    m_MechEtaLoc = wing_parent->UtoEta( m_MechULoc() * umax );
+                    m_MechEtaLoc = behavior_wing->UtoEta( m_MechULoc() * umax );
                 }
             }
         }
@@ -1399,7 +1401,8 @@ void Bogie::ComposeStowAttachMatrix()
         bool revertCompTrans = false;
         bool revertCompRot = false;
 
-        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+        // Only EtatoU is used; it depends on shape alone, so a Clone of a wing works too.
+        WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
         // Parent CompXXXCoordSys methods query the positioned m_RetSurfVec[0] surface,
         // not m_RetMainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
@@ -1432,10 +1435,10 @@ void Bogie::ComposeStowAttachMatrix()
         {
             double l = m_StowEtaLoc();
 
-            if ( wing_parent )
+            if ( behavior_wing )
             {
                 double umax = parent->GetUMapMax( m_StowSurfIndx() );
-                double u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+                double u = behavior_wing->EtatoU( m_StowEtaLoc() ) / umax;
 
                 double r = u;
                 parent->ConvertRtoL( m_StowSurfIndx(), r, l );
@@ -1490,10 +1493,10 @@ void Bogie::ComposeStowAttachMatrix()
         {
             double l = m_StowEtaLoc();
 
-            if ( wing_parent )
+            if ( behavior_wing )
             {
                 double umax = parent->GetUMapMax( m_StowSurfIndx() );
-                double u = wing_parent->EtatoU( m_StowEtaLoc() ) / umax;
+                double u = behavior_wing->EtatoU( m_StowEtaLoc() ) / umax;
 
                 double r = u;
                 parent->ConvertRtoL( m_StowSurfIndx(), r, l );
@@ -1585,7 +1588,8 @@ void Bogie::ComposeMechAttachMatrix()
 
         bool revertCompTrans = false;
 
-        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+        // Only EtatoU is used; it depends on shape alone, so a Clone of a wing works too.
+        WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
         // Parent CompXXXCoordSys methods query the positioned m_RetSurfVec[0] surface,
         // not m_RetMainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
@@ -1618,10 +1622,10 @@ void Bogie::ComposeMechAttachMatrix()
         {
             double l = m_MechEtaLoc();
 
-            if ( wing_parent )
+            if ( behavior_wing )
             {
                 double umax = parent->GetUMapMax( m_MechSurfIndx() );
-                double u = wing_parent->EtatoU( m_MechEtaLoc() ) / umax;
+                double u = behavior_wing->EtatoU( m_MechEtaLoc() ) / umax;
 
                 double r = u;
                 parent->ConvertRtoL( m_MechSurfIndx(), r, l );

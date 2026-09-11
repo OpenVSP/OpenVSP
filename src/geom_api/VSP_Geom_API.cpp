@@ -13493,18 +13493,16 @@ void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta_out
         return;
     }
 
-    WingGeom *wg = dynamic_cast<WingGeom *>( geom );
+    // A Clone of a wing answers from its original.
+    WingGeom *behavior_wing = dynamic_cast<WingGeom *>( geom->GetBehaviorGeom() );
 
-    if ( geom->GetType().m_Type != MS_WING_GEOM_TYPE || !wg )
+    if ( geom->GetBehaviorType() != MS_WING_GEOM_TYPE || !behavior_wing )
     {
         ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertUtoEta::Geom is not a WingGeom" );
         return;
     }
 
-    if ( wg )
-    {
-        eta_out = wg->UtoEta( u );
-    }
+    eta_out = behavior_wing->UtoEta( u );
 
     ErrorMgr.NoError();
 
@@ -13524,18 +13522,16 @@ void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u_out
         return;
     }
 
-    WingGeom *wg = dynamic_cast<WingGeom *>( geom );
+    // A Clone of a wing answers from its original.
+    WingGeom *behavior_wing = dynamic_cast<WingGeom *>( geom->GetBehaviorGeom() );
 
-    if ( geom->GetType().m_Type != MS_WING_GEOM_TYPE || !wg )
+    if ( geom->GetBehaviorType() != MS_WING_GEOM_TYPE || !behavior_wing )
     {
         ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertEtatoU::Geom is not a WingGeom" );
         return;
     }
 
-    if ( wg )
-    {
-        u_out = wg->EtatoU( eta );
-    }
+    u_out = behavior_wing->EtatoU( eta );
 
     ErrorMgr.NoError();
 
