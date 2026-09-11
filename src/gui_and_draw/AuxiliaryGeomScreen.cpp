@@ -1687,7 +1687,7 @@ void AuxiliaryGeomScreen::UpdateGroundPlaneChoices()
     {
         Geom* parent_geom = veh->FindGeom( auxiliary_ptr->GetParentID() );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             vector < Bogie* > bogie_vec = gear->GetBogieVec();

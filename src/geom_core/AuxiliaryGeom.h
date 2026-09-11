@@ -242,20 +242,20 @@ protected:
     virtual void UpdateDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    void AppendContact1Surfs( GearGeom * gear, double bogietheta = 0 );
-    void AppendContact2Surfs( GearGeom * gear, double bogietheta = 0 );
-    void AppendContact3Surfs( GearGeom * gear, double bogietheta = 0 );
+    void AppendContact1Surfs( GearContactRole * gear, double bogietheta = 0 );
+    void AppendContact2Surfs( GearContactRole * gear, double bogietheta = 0 );
+    void AppendContact3Surfs( GearContactRole * gear, double bogietheta = 0 );
 
     // The Tess and Degen contact methods write into m_MainTessVec / m_MainFeatureTessVec and
     // m_MainDegenGeomPreviewVec starting at index itess / idegen and return the index one past the last
     // element written.  The tess and feature tess vectors advance in lockstep, so one cursor serves both.
-    int TessContact1( GearGeom * gear, int itess, double bogietheta = 0 );
-    int TessContact2( GearGeom * gear, int itess, double bogietheta = 0 );
-    int TessContact3( GearGeom * gear, int itess, double bogietheta = 0 );
+    int TessContact1( GearContactRole * gear, int itess, double bogietheta = 0 );
+    int TessContact2( GearContactRole * gear, int itess, double bogietheta = 0 );
+    int TessContact3( GearContactRole * gear, int itess, double bogietheta = 0 );
 
-    int DegenContact1( GearGeom * gear, int idegen, double bogietheta = 0 );
-    int DegenContact2( GearGeom * gear, int idegen, double bogietheta = 0 );
-    int DegenContact3( GearGeom * gear, int idegen, double bogietheta = 0 );
+    int DegenContact1( GearContactRole * gear, int idegen, double bogietheta = 0 );
+    int DegenContact2( GearContactRole * gear, int idegen, double bogietheta = 0 );
+    int DegenContact3( GearContactRole * gear, int idegen, double bogietheta = 0 );
 
     vector < vec3d > m_ContactPts;
 

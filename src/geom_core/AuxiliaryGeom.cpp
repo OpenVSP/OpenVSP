@@ -226,7 +226,8 @@ void AuxiliaryGeom::UpdateSurf()
         return;
     }
 
-    m_ParentType = parent_geom->GetType().m_Type;
+    // Behavior type, so a parent that is a Clone of a gear or prop counts as one.
+    m_ParentType = parent_geom->GetBehaviorType();
 
 
     double refLen = 30.0;
@@ -336,7 +337,7 @@ void AuxiliaryGeom::UpdateSurf()
     }
     if ( m_ParentType == GEAR_GEOM_TYPE )
     {
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             vector < Bogie* > bogie_vec = gear->GetBogieVec();
@@ -376,7 +377,7 @@ void AuxiliaryGeom::UpdateSurf()
 
         if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND )
         {
-            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
             if ( gear )
             {
                 Matrix4d mat;
@@ -397,7 +398,7 @@ void AuxiliaryGeom::UpdateSurf()
         }
         else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TWO_PT_GROUND )
         {
-            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
             if ( gear )
             {
                 Matrix4d basis;
@@ -449,7 +450,7 @@ void AuxiliaryGeom::UpdateSurf()
                 AppendContact2Surfs( gear, m_BogieTheta() );
 
                 // Return results in world coordinates
-                Matrix4d world = gear->getModelMatrix();
+                Matrix4d world = gear->GetRoleShapeMatrix();
                 world.xformvec( m_ContactPts );
 
                 // Visualize fwd/aft contact point and axis on rotated bogie.
@@ -464,7 +465,7 @@ void AuxiliaryGeom::UpdateSurf()
         }
         else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_ONE_PT_GROUND )
         {
-            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
             if ( gear )
             {
                 Matrix4d basis;
@@ -494,7 +495,7 @@ void AuxiliaryGeom::UpdateSurf()
         }
         else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_CCE )
         {
-            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
             if ( gear )
             {
                 Matrix4d mat;
@@ -508,7 +509,7 @@ void AuxiliaryGeom::UpdateSurf()
 
                 vector < VspCurve > crv_vec( 2, m_CCECurve );
 
-                double cce2model = ConvertLength( 1, m_CCEUnits(), gear->m_ModelLenUnits() );
+                double cce2model = ConvertLength( 1, m_CCEUnits(), gear->GetGearModelLenUnits() );
 
 
                 Matrix4d start;
@@ -536,7 +537,7 @@ void AuxiliaryGeom::UpdateSurf()
         }
         else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SINGLE_GEAR )
         {
-            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
             if ( gear )
             {
                 m_MainSurfVec.clear();
@@ -546,7 +547,7 @@ void AuxiliaryGeom::UpdateSurf()
         }
         else if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_TIRE_SPRAY )
         {
-            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
             if ( gear )
             {
                 m_MainSurfVec.clear();
@@ -707,7 +708,7 @@ void AuxiliaryGeom::UpdateSurf()
         {
             m_MainSurfVec.clear();
 
-            GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+            GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
             if ( gear )
             {
 
@@ -1291,7 +1292,7 @@ void AuxiliaryGeom::UpdateMainTessVec()
         int itess = 1;
 
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
@@ -1346,7 +1347,7 @@ void AuxiliaryGeom::UpdateMainDegenGeomPreview()
         int idegen = 1;
 
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             if ( m_AuxuliaryGeomMode() == vsp::AUX_GEOM_THREE_PT_GROUND ||
@@ -1775,7 +1776,7 @@ void AuxiliaryGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     // draw_obj_vec.push_back( &m_ContactDrawObj );
 }
 
-void AuxiliaryGeom::AppendContact1Surfs( GearGeom * gear, double bogietheta )
+void AuxiliaryGeom::AppendContact1Surfs( GearContactRole * gear, double bogietheta )
 {
     if ( gear )
     {
@@ -1819,7 +1820,7 @@ void AuxiliaryGeom::AppendContact1Surfs( GearGeom * gear, double bogietheta )
     }
 }
 
-void AuxiliaryGeom::AppendContact2Surfs( GearGeom * gear, double bogietheta )
+void AuxiliaryGeom::AppendContact2Surfs( GearContactRole * gear, double bogietheta )
 {
     if ( gear )
     {
@@ -1842,7 +1843,7 @@ void AuxiliaryGeom::AppendContact2Surfs( GearGeom * gear, double bogietheta )
     }
 }
 
-void AuxiliaryGeom::AppendContact3Surfs( GearGeom * gear, double bogietheta )
+void AuxiliaryGeom::AppendContact3Surfs( GearContactRole * gear, double bogietheta )
 {
     if ( gear )
     {
@@ -1865,7 +1866,7 @@ void AuxiliaryGeom::AppendContact3Surfs( GearGeom * gear, double bogietheta )
     }
 }
 
-int AuxiliaryGeom::TessContact1( GearGeom * gear, int itess, double bogietheta )
+int AuxiliaryGeom::TessContact1( GearContactRole * gear, int itess, double bogietheta )
 {
     if ( gear )
     {
@@ -1915,7 +1916,7 @@ int AuxiliaryGeom::TessContact1( GearGeom * gear, int itess, double bogietheta )
     return itess;
 }
 
-int AuxiliaryGeom::TessContact2( GearGeom * gear, int itess, double bogietheta )
+int AuxiliaryGeom::TessContact2( GearContactRole * gear, int itess, double bogietheta )
 {
     if ( gear )
     {
@@ -1944,7 +1945,7 @@ int AuxiliaryGeom::TessContact2( GearGeom * gear, int itess, double bogietheta )
     return itess;
 }
 
-int AuxiliaryGeom::TessContact3( GearGeom * gear, int itess, double bogietheta )
+int AuxiliaryGeom::TessContact3( GearContactRole * gear, int itess, double bogietheta )
 {
     if ( gear )
     {
@@ -1973,7 +1974,7 @@ int AuxiliaryGeom::TessContact3( GearGeom * gear, int itess, double bogietheta )
     return itess;
 }
 
-int AuxiliaryGeom::DegenContact1( GearGeom * gear, int idegen, double bogietheta )
+int AuxiliaryGeom::DegenContact1( GearContactRole * gear, int idegen, double bogietheta )
 {
     if ( gear )
     {
@@ -2022,7 +2023,7 @@ int AuxiliaryGeom::DegenContact1( GearGeom * gear, int idegen, double bogietheta
     return idegen;
 }
 
-int AuxiliaryGeom::DegenContact2( GearGeom * gear, int idegen, double bogietheta )
+int AuxiliaryGeom::DegenContact2( GearContactRole * gear, int idegen, double bogietheta )
 {
     if ( gear )
     {
@@ -2050,7 +2051,7 @@ int AuxiliaryGeom::DegenContact2( GearGeom * gear, int idegen, double bogietheta
     return idegen;
 }
 
-int AuxiliaryGeom::DegenContact3( GearGeom * gear, int idegen, double bogietheta )
+int AuxiliaryGeom::DegenContact3( GearContactRole * gear, int idegen, double bogietheta )
 {
     if ( gear )
     {
@@ -2198,7 +2199,7 @@ bool AuxiliaryGeom::GetCGInGear( vec3d &cgnom, vector < vec3d > &cgbounds )
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             gear->GetCG( cgnom, cgbounds );
@@ -2215,7 +2216,7 @@ bool AuxiliaryGeom::GetPtNormalInGear( vec3d &pt, vec3d &normal ) const
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             gear->GetPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
@@ -2252,7 +2253,7 @@ bool AuxiliaryGeom::GetPtNormalMeanContactPtPivotAxisInGear( vec3d &pt, vec3d &n
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             vec3d scratch1, scratch2;
@@ -2276,7 +2277,7 @@ bool AuxiliaryGeom::GetSideContactPtRollAxisNormalInGear( vec3d &pt, vec3d &axis
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             gear->GetOnePtSideContactPtAxisNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
@@ -2293,7 +2294,7 @@ bool AuxiliaryGeom::GetPtNormalAftAxleAxisInGear( double thetabogie, vec3d &pt, 
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             vec3d scratch1, scratch2;
@@ -2317,7 +2318,7 @@ bool AuxiliaryGeom::GetPtNormalFwdAxleAxisInGear( double thetabogie, vec3d &pt, 
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             vec3d scratch1, scratch2;
@@ -2341,7 +2342,7 @@ bool AuxiliaryGeom::GetTwoPtSideContactPtsNormalInGear( vec3d &p1, vec3d &p2, ve
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             gear->GetTwoPtSideContactPtsNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
@@ -2360,7 +2361,7 @@ bool AuxiliaryGeom::GetContactPointVecNormalInGear( vector < vec3d > &ptvec, vec
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             gear->GetContactPointVecNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
@@ -2380,7 +2381,7 @@ bool AuxiliaryGeom::CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<doubl
     {
         Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
 
-        GearGeom * gear = dynamic_cast< GearGeom* > ( parent_geom );
+        GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
             vector < vec3d > ptvec;
