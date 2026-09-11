@@ -586,10 +586,6 @@ RoutingGeom::RoutingGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Picking = false;
     m_ActivePointIndex = -1;
 
-    m_RouteLineDO.m_Type = DrawObj::VSP_LINES;
-    m_RouteLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_RouteLineDO.m_LineWidth = 2.0;
-
     m_DynamicRouteDO.m_Type = DrawObj::VSP_ROUTING;
     m_DynamicRouteDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
@@ -751,15 +747,22 @@ void RoutingGeom::OffsetXSecs( double off )
 {
 }
 
-vector < TetraMassProp* > RoutingGeom::ComputeMassProp()
+vector < TetraMassProp* > RouteRole::ComputeMassProp() const
 {
-    double ld = m_LinearDensity();
+    // The mass is reported as belonging to the Geom asked.
+    const Geom* geom_ptr = dynamic_cast < const Geom* > ( this );
+    if ( !geom_ptr )
+    {
+        return vector < TetraMassProp* > ();
+    }
+
+    double ld = GetRouteLinearDensity();
     vector < TetraMassProp* > mpv;
     for ( int i = 0; i < m_RouteTessCurveVec.size(); i++ )
     {
         if ( !m_RouteTessCurveVec[ i ].m_ptline.empty() )
         {
-            vector < vec3d > &pts = m_RouteTessCurveVec[ i ].m_ptline[0];
+            const vector < vec3d > &pts = m_RouteTessCurveVec[ i ].m_ptline[0];
 
             vec3d cg;
             double mass = 0;
@@ -800,8 +803,8 @@ vector < TetraMassProp* > RoutingGeom::ComputeMassProp()
 
             TetraMassProp* mp = new TetraMassProp();
 
-            mp->m_CompId = GetID();
-            mp->m_Name = GetName() + "_rg";
+            mp->m_CompId = geom_ptr->GetID();
+            mp->m_Name = geom_ptr->GetName() + "_rg";
 
             mp->m_Density = 0.0;
             mp->m_Vol  = 0.0;
@@ -1142,21 +1145,48 @@ void RoutingGeom::UpdateSymmAttach()
     Geom::UpdateSymmAttach( 1 );                 // Currently hard-coded to 1.
 }
 
-void RoutingGeom::UpdateBBox()
+void RouteRole::BuildRouteBndBox( BndBox &bbox ) const
 {
-    //==== Load Bounding Box ====//
-    BndBox new_box;
-
     for ( int i = 0 ; i < m_RouteTessVec.size() ; i++ )
     {
         for( int j = 0; j < m_RouteTessVec[i].m_ptline.size(); j++ )
         {
             for ( int k = 0; k < m_RouteTessVec[i].m_ptline[j].size(); k++ )
             {
-                new_box.Update( m_RouteTessVec[i].m_ptline[j][k] );
+                bbox.Update( m_RouteTessVec[i].m_ptline[j][k] );
             }
         }
     }
+}
+
+void RouteRole::BuildRouteLineDrawObj( DrawObj &dobj ) const
+{
+    dobj.m_Type = DrawObj::VSP_LINES;
+    dobj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    dobj.m_LineWidth = 2.0;
+
+    dobj.m_PntVec.clear();
+    dobj.m_GeomChanged = true;
+
+    for ( int i = 0 ; i < m_RouteTessCurveVec.size() ; i++ )
+    {
+        for( int j = 0; j < m_RouteTessCurveVec[i].m_ptline.size(); j++ )
+        {
+            for ( int k = 0; k < (int) m_RouteTessCurveVec[i].m_ptline[j].size() - 1; k++ )
+            {
+                dobj.m_PntVec.push_back( m_RouteTessCurveVec[i].m_ptline[j][ k ] );
+                dobj.m_PntVec.push_back( m_RouteTessCurveVec[i].m_ptline[j][ k + 1 ] );
+            }
+        }
+    }
+}
+
+void RoutingGeom::UpdateBBox()
+{
+    //==== Load Bounding Box ====//
+    BndBox new_box;
+
+    BuildRouteBndBox( new_box );
 
     if ( new_box != m_BBox )
     {
@@ -1198,26 +1228,12 @@ void RoutingGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
 
-    m_RouteLineDO.m_PntVec.clear();
-    m_DynamicRouteDO.m_PntVec.clear();
-
-    m_RouteLineDO.m_GeomChanged = true;
-    m_DynamicRouteDO.m_GeomChanged = true;
-
+    BuildRouteLineDrawObj( m_RouteLineDO );
     m_RouteLineDO.m_GeomID = "Rte_" + m_ID;
-    m_DynamicRouteDO.m_GeomID = "DyRte_" + m_ID;
 
-    for ( int i = 0 ; i < m_RouteTessCurveVec.size() ; i++ )
-    {
-        for( int j = 0; j < m_RouteTessCurveVec[i].m_ptline.size(); j++ )
-        {
-            for ( int k = 0; k < (int) m_RouteTessCurveVec[i].m_ptline[j].size() - 1; k++ )
-            {
-                m_RouteLineDO.m_PntVec.push_back( m_RouteTessCurveVec[i].m_ptline[j][ k ] );
-                m_RouteLineDO.m_PntVec.push_back( m_RouteTessCurveVec[i].m_ptline[j][ k + 1 ] );
-            }
-        }
-    }
+    m_DynamicRouteDO.m_PntVec.clear();
+    m_DynamicRouteDO.m_GeomChanged = true;
+    m_DynamicRouteDO.m_GeomID = "DyRte_" + m_ID;
 
 
     // Dynamic points need to include points currently being placed.

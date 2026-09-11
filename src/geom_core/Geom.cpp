@@ -4803,7 +4803,7 @@ const VspSurf* Geom::GetMainSurfPtr( int indx ) const
 
 vector < int > Geom::GetNonSurfaceTypeVec()
 {
-    return { BLANK_GEOM_TYPE, HINGE_GEOM_TYPE, HUMAN_GEOM_TYPE, MESH_GEOM_TYPE, NGON_GEOM_TYPE, PT_CLOUD_GEOM_TYPE, WIRE_FRAME_GEOM_TYPE };
+    return { BLANK_GEOM_TYPE, HINGE_GEOM_TYPE, HUMAN_GEOM_TYPE, MESH_GEOM_TYPE, NGON_GEOM_TYPE, PT_CLOUD_GEOM_TYPE, ROUTING_GEOM_TYPE, WIRE_FRAME_GEOM_TYPE };
 }
 
 // This is a massive layering violation.  It requires knowledge of the numeric values of the different enums.

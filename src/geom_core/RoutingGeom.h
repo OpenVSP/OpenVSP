@@ -15,6 +15,7 @@
 
 
 #include "Geom.h"
+#include "GeomInterface.h"
 #include "XSec.h"
 #include "XSecSurf.h"
 
@@ -87,9 +88,49 @@ protected:
 
 };
 
+//==== A Geom whose shape is a route ====//
+// Implemented by RoutingGeom.  A route is a curve through points on other Geoms, built in the
+// Geom's own frame and placed by symmetry on output (drawing, bounding box, mass).  It is not
+// exported.  A Clone borrows the unplaced route.
+class RouteRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return ROUTING_GEOM_TYPE; }
+
+    virtual ~RouteRole()  {}
+
+    // The route in its own frame.
+    virtual const vector < VspCurve > & GetMainRouteCurveVec() const = 0;
+
+    // Its tessellation: the rounded curve, and the corner points it was threaded through.
+    virtual const vector < SimpleFeatureTess > & GetMainRouteCurveTessVec() const = 0;
+    virtual const vector < SimpleFeatureTess > & GetMainRouteTessVec() const = 0;
+
+    // Mass per unit length along the route.
+    virtual double GetRouteLinearDensity() const = 0;
+
+    // How many corner points the route was threaded through.
+    virtual int GetNumRoutePts() const = 0;
+
+    // What the route weighs and where.  A line of mass, so it has no volume to hand back.
+    vector < TetraMassProp* > ComputeMassProp() const;
+
+protected:
+    // The route's extent, placed.
+    void BuildRouteBndBox( BndBox &bbox ) const;
+
+    // The route drawn as line segments, placed.
+    void BuildRouteLineDrawObj( DrawObj &dobj ) const;
+
+    // The route placed, one entry per symmetric copy.
+    vector < SimpleFeatureTess > m_RouteTessCurveVec;
+    vector < SimpleFeatureTess > m_RouteTessVec;
+};
+
 
 //==== Routing Geom ====//
-class RoutingGeom : public Geom
+class RoutingGeom : public Geom, public RouteRole
 {
 public:
     RoutingGeom( Vehicle* vehicle_ptr );
@@ -110,7 +151,11 @@ public:
 
     virtual void OffsetXSecs( double off );
 
-    virtual vector < TetraMassProp* > ComputeMassProp();
+    virtual const vector < VspCurve > & GetMainRouteCurveVec() const                 { return m_MainRouteCurveVec; }
+    virtual const vector < SimpleFeatureTess > & GetMainRouteCurveTessVec() const    { return m_MainRouteCurveTessVec; }
+    virtual const vector < SimpleFeatureTess > & GetMainRouteTessVec() const         { return m_MainRouteTessVec; }
+    virtual double GetRouteLinearDensity() const                                    { return m_LinearDensity(); }
+    virtual int GetNumRoutePts() const                                              { return m_RoutingPointVec.size(); }
 
     virtual int GetNumPt() const          { return m_RoutingPointVec.size(); };
     virtual RoutingPoint* AddPt();
@@ -172,10 +217,7 @@ protected:
     vector < VspCurve > m_MainRouteCurveVec;
 
     vector <SimpleFeatureTess> m_MainRouteCurveTessVec;
-    vector <SimpleFeatureTess> m_RouteTessCurveVec;
-
     vector <SimpleFeatureTess> m_MainRouteTessVec;
-    vector <SimpleFeatureTess> m_RouteTessVec;
 };
 
 #endif // !defined(VSPROUTINGGEOM__INCLUDED_)

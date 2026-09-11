@@ -1573,10 +1573,11 @@ vector< TetraMassProp* > Vehicle::CreateTetraMassPropVec( const string &geomid )
 
         }
 
-        RoutingGeom *rg = dynamic_cast< RoutingGeom* >( geom_ptr );
+        // By role, so a Clone of a route is weighed too.
+        RouteRole *rg = Geom::CastTo< RouteRole >( geom_ptr );
         if ( rg )
         {
-            if ( rg->m_LinearDensity() != 0.0 )
+            if ( rg->GetRouteLinearDensity() != 0.0 )
             {
                 vector < TetraMassProp* > rgm = rg->ComputeMassProp(); // Deleted by mesh_ptr
 
