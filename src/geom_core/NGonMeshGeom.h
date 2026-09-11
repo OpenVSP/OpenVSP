@@ -9,13 +9,48 @@
 #define VSPNGonMeshGeom__INCLUDED_
 
 #include "Geom.h"
+#include "GeomInterface.h"
 #include "DrawObj.h"
 
 #include "TMesh.h"
 #include "PGMesh.h"
 
 //==== Point Cloud Geom ====//
-class NGonMeshGeom : public Geom
+//==== A Geom whose shape is a polygon mesh ====//
+// Implemented by NGonMeshGeom.  The mesh is held untransformed in its PGMulti and placed on
+// output: bounding box, drawing, analysis triangles and the VSPGEOM file.  It is not written to
+// the model file.  A Clone borrows the mesh.
+class PGMeshRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return NGON_GEOM_TYPE; }
+
+    virtual ~PGMeshRole()   {}
+
+    // The mesh, untransformed.  Writable, but asking for it does not change the Geom.
+    virtual PGMulti* GetPGMulti() const = 0;
+
+    // Where this Geom stands it.
+    virtual Matrix4d GetPGTransMat() const = 0;
+    // The shape's own scaling, not part of the placement.  A Clone applies it too.
+    virtual Matrix4d GetPGScaleMat() const = 0;
+
+protected:
+    // The mesh's extent, placed.
+    void BuildPGBndBox( BndBox &bbox ) const;
+
+    // Its triangles, placed and tagged as geom_ptr.
+    vector < TMesh* > BuildPGTMeshVec( const Geom* geom_ptr ) const;
+
+    // The faces and their outlines, placed -- one pair of draw objects per tag.
+    void BuildPGDrawObjs( vector < DrawObj > &draw_obj_vec ) const;
+
+    // Colour each pair per tag and pick the primitives (triangles and lines) for the draw mode.
+    void LoadPGDrawObjs( vector < DrawObj > &draw_obj_vec, int drawtype, bool visible ) const;
+};
+
+class NGonMeshGeom : public Geom, public PGMeshRole
 {
 public:
     NGonMeshGeom( Vehicle* vehicle_ptr );
@@ -65,6 +100,20 @@ public:
     DrawObj m_DoubleBackNodeDO;
 
     vector<DrawObj> m_LabelDO_vec;
+
+    virtual PGMulti* GetPGMulti() const override
+    {
+        return const_cast< PGMulti* >( &m_PGMulti );
+    }
+    virtual Matrix4d GetPGTransMat() const override
+    {
+        return GetTotalTransMat();
+    }
+
+    virtual Matrix4d GetPGScaleMat() const override
+    {
+        return m_ScaleMatrix;
+    }
 
     PGMulti m_PGMulti;
 
