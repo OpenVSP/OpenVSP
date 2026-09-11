@@ -1688,6 +1688,17 @@ vector< TMesh* > CloneGeom::CreateTMeshVecInSelf( bool skipnegflipnormal, const 
     return mesh->CreateTMeshVecInSelf( skipnegflipnormal, n_ref );
 }
 
+int CloneGeom::GetTMeshColorStartDegree() const
+{
+    TMeshRole* mesh = GetOriginalTMesh();
+    if ( !mesh )
+    {
+        return 0;
+    }
+
+    return mesh->GetTMeshColorStartDegree();
+}
+
 Matrix4d CloneGeom::GetTMeshScaleMat() const
 {
     TMeshRole* mesh = GetOriginalTMesh();

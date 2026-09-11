@@ -53,6 +53,9 @@ public:
     // whose global map the last meshing run rebuilds.
     virtual const map< vector < int >, int > & GetTMeshSingleTagMap() const = 0;
 
+    // Colour wheel start for the first subsurface tag; zero is red.
+    virtual int GetTMeshColorStartDegree() const = 0;
+
 protected:
     // Placed copies of the triangles, for analyses.  Attributes come from geom_ptr.
     vector< TMesh* > BuildTMeshVec( const Geom* geom_ptr ) const;
@@ -68,6 +71,9 @@ public:
     // Pick the primitive for draw objects holding loose triangles; the usual Geom route picks a
     // structured mesh, which draws nothing.
     static void SetTriDrawObjTypes( vector< DrawObj > &draw_obj_vec, int drawtype );
+
+    // Colour one draw object per subsurface tag, going round the colour wheel.
+    static void SetTagDrawObjColors( vector< DrawObj > &draw_obj_vec, int startdegree, int num_uniq_tags );
 };
 
 class MeshGeom : public Geom, public TMeshRole
@@ -184,6 +190,10 @@ public:
     virtual Matrix4d GetTMeshScaleMat() const
     {
         return m_ScaleMatrix;
+    }
+    virtual int GetTMeshColorStartDegree() const
+    {
+        return m_StartColorDegree();
     }
 
     virtual const map< vector < int >, int > & GetTMeshSingleTagMap() const

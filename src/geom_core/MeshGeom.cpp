@@ -999,6 +999,54 @@ vector< TMesh* > TMeshRole::BuildTMeshVec( const Geom* geom_ptr ) const
     return ret_tmesh_vec;
 }
 
+void TMeshRole::SetTagDrawObjColors( vector< DrawObj > &draw_obj_vec, int startdegree, int num_uniq_tags )
+{
+    // Go round the colour wheel ncstep times, offset slightly from ncgrp basic colours.  The
+    // step is set by the number of tags, not the number of draw objects.
+    const int ncgrp = 6;
+    // At least one step, so a mesh with no tags at all does not divide by zero.
+    const int ncstep = std::max( ( int )ceil( ( double )num_uniq_tags / ( double )ncgrp ), 1 );
+    const double nctodeg = 360.0 / ( ncgrp * ncstep );
+
+    for ( int i = 0 ; i < ( int )draw_obj_vec.size() ; i++ )
+    {
+        // Note, ( i / ncgrp ) uses integer division resulting in floor.
+        double deg = startdegree + ( ( i % ncgrp ) * ncstep + ( i / ncgrp ) ) * nctodeg;
+
+        if ( deg > 360 )
+        {
+            deg = ( int )deg % 360;
+        }
+
+        vec3d rgb = draw_obj_vec[i].ColorWheel( deg );
+        rgb.normalize();
+
+        draw_obj_vec[i].m_MaterialInfo.Ambient[0] = ( float )rgb.x() / 5.0f;
+        draw_obj_vec[i].m_MaterialInfo.Ambient[1] = ( float )rgb.y() / 5.0f;
+        draw_obj_vec[i].m_MaterialInfo.Ambient[2] = ( float )rgb.z() / 5.0f;
+        draw_obj_vec[i].m_MaterialInfo.Ambient[3] = ( float )1.0f;
+
+        draw_obj_vec[i].m_MaterialInfo.Diffuse[0] = 0.4f + ( float )rgb.x() / 10.0f;
+        draw_obj_vec[i].m_MaterialInfo.Diffuse[1] = 0.4f + ( float )rgb.y() / 10.0f;
+        draw_obj_vec[i].m_MaterialInfo.Diffuse[2] = 0.4f + ( float )rgb.z() / 10.0f;
+        draw_obj_vec[i].m_MaterialInfo.Diffuse[3] = 1.0f;
+
+        draw_obj_vec[i].m_MaterialInfo.Specular[0] = 0.04f + 0.7f * ( float )rgb.x();
+        draw_obj_vec[i].m_MaterialInfo.Specular[1] = 0.04f + 0.7f * ( float )rgb.y();
+        draw_obj_vec[i].m_MaterialInfo.Specular[2] = 0.04f + 0.7f * ( float )rgb.z();
+        draw_obj_vec[i].m_MaterialInfo.Specular[3] = 1.0f;
+
+        draw_obj_vec[i].m_MaterialInfo.Emission[0] = ( float )rgb.x() / 20.0f;
+        draw_obj_vec[i].m_MaterialInfo.Emission[1] = ( float )rgb.y() / 20.0f;
+        draw_obj_vec[i].m_MaterialInfo.Emission[2] = ( float )rgb.z() / 20.0f;
+        draw_obj_vec[i].m_MaterialInfo.Emission[3] = 1.0f;
+
+        draw_obj_vec[i].m_MaterialInfo.Shininess = 32.0f;
+
+        draw_obj_vec[i].m_LineColor = rgb;
+    }
+}
+
 void TMeshRole::SetTriDrawObjTypes( vector< DrawObj > &draw_obj_vec, int drawtype )
 {
     for ( int i = 0 ; i < ( int )draw_obj_vec.size() ; i++ )
@@ -1354,55 +1402,10 @@ void MeshGeom::UpdateDrawObj()
 
 void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    // At least one, so a mesh with no triangles at all does not divide by zero below.
-    int num_uniq_tags = std::max( ( int )m_SingleTagMap.size(), 1 );
-
-    // Calculate constants for color sequence.
-    const int ncgrp = 6; // Number of basic colors
-    const int ncstep = (int)ceil((double)num_uniq_tags/(double)ncgrp);
-    const double nctodeg = 360.0/(ncgrp*ncstep);
-
     Geom::LoadDrawObjs( draw_obj_vec );
-    for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
+    if ( m_DrawType() == MeshGeom::DRAW_TAGS && m_GuiDraw.GetDispSubSurfFlag() )
     {
-        if ( m_DrawType() == MeshGeom::DRAW_TAGS && m_GuiDraw.GetDispSubSurfFlag() )
-        {
-            // Color sequence -- go around color wheel ncstep times with slight
-            // offset from ncgrp basic colors.
-            // Note, (cnt/ncgrp) uses integer division resulting in floor.
-            double deg = m_StartColorDegree() + ( ( i % ncgrp ) * ncstep + ( i / ncgrp ) ) * nctodeg;
-
-            if ( deg > 360 )
-            {
-                deg = (int)deg % 360;
-            }
-
-            vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
-            rgb.normalize();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)rgb.x()/5.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = (float)rgb.y()/5.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = (float)rgb.z()/5.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = (float)1.0f;
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = 0.4f + (float)rgb.x()/10.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = 0.4f + (float)rgb.y()/10.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = 0.4f + (float)rgb.z()/10.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = 1.0f;
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = 0.04f + 0.7f * (float)rgb.x();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = 0.04f + 0.7f * (float)rgb.y();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = 0.04f + 0.7f * (float)rgb.z();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = 1.0f;
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)rgb.x()/20.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y()/20.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z()/20.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = 1.0f;
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = 32.0f;
-
-            m_WireShadeDrawObj_vec[i].m_LineColor = rgb;
-        }
+        SetTagDrawObjColors( m_WireShadeDrawObj_vec, m_StartColorDegree(), m_SingleTagMap.size() );
     }
 
     SetTriDrawObjTypes( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType() );

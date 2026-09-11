@@ -167,6 +167,7 @@ public:
     virtual Matrix4d GetTMeshTransMat() const override;
     virtual Matrix4d GetTMeshScaleMat() const override;
     virtual const map< vector < int >, int > & GetTMeshSingleTagMap() const override;
+    virtual int GetTMeshColorStartDegree() const override;
     virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int &n_ref = 0 ) const override;
 
     // The original as a mesh, if it is one.
