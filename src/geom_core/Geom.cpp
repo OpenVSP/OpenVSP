@@ -25,6 +25,7 @@ using namespace vsp;
 
 #include <atomic>
 #include <float.h>
+#include <algorithm>
 
 //==== Constructor ====//
 GeomType::GeomType()
@@ -2037,6 +2038,7 @@ void Geom::Update( bool fullupdate )
         if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
         {
             UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
+            UpdateMarkerDrawObj();
         }
 
         if ( m_XFormDirty || m_SurfDirty || m_HighlightDirty )
@@ -3392,6 +3394,81 @@ void Geom::UpdateDrawObj()
     UpdateDegenDrawObj();
 }
 
+void Geom::UpdateMarkerDrawObj()
+{
+    Geom* source = GetMarkerGeom();
+    if ( source )
+    {
+        source->BuildMarkerDrawObjs( this, m_MarkerDrawObj_vec );
+    }
+    else
+    {
+        m_MarkerDrawObj_vec.clear();
+    }
+}
+
+void Geom::LoadMarkerDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    Geom* source = GetMarkerGeom();
+    if ( !source )
+    {
+        return;
+    }
+
+    source->SetMarkerVisibility( this, m_MarkerDrawObj_vec );
+
+    for ( int i = 0; i < ( int )m_MarkerDrawObj_vec.size(); i++ )
+    {
+        draw_obj_vec.push_back( &m_MarkerDrawObj_vec[i] );
+    }
+}
+
+bool Geom::ShowsMarkers()
+{
+    return ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+}
+
+void Geom::FlipDrawObjs( const vector< DrawObj* > &dobj_vec )
+{
+    Matrix4d flip_mat = GetFlipMat();
+
+    Matrix4d identity;
+    double m[16];
+    double id[16];
+    flip_mat.getMat( m );
+    identity.getMat( id );
+    if ( std::equal( m, m + 16, id ) )
+    {
+        return;
+    }
+
+    Matrix4d to_local = m_ModelMatrix;
+    to_local.affineInverse();
+
+    Matrix4d reflect = m_ModelMatrix;
+    reflect.matMult( flip_mat.data() );
+    reflect.matMult( to_local.data() );
+
+    bool rewind = GetFlipReversesNormal();
+
+    for ( int i = 0; i < ( int )dobj_vec.size(); i++ )
+    {
+        DrawObj* dobj = dobj_vec[i];
+
+        reflect.xformvec( dobj->m_PntVec );
+        reflect.xformnormvec( dobj->m_NormVec );
+
+        if ( rewind && dobj->m_Type == DrawObj::VSP_SHADED_TRIS )
+        {
+            for ( int j = 0; j + 2 < ( int )dobj->m_PntVec.size(); j += 3 )
+            {
+                std::swap( dobj->m_PntVec[ j + 1 ], dobj->m_PntVec[ j + 2 ] );
+                std::swap( dobj->m_NormVec[ j + 1 ], dobj->m_NormVec[ j + 2 ] );
+            }
+        }
+    }
+}
+
 void Geom::UpdateDegenDrawObj()
 {
     if ( m_GuiDraw.GetDisplayType() != DISPLAY_TYPE::DISPLAY_BEZIER )
@@ -4357,6 +4434,10 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
         draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
     }
 
+    if ( LoadsMarkersAsMain() )
+    {
+        LoadMarkerDrawObjs( draw_obj_vec );
+    }
 }
 
 //==== Load All Draw Objects ====//
@@ -4402,6 +4483,11 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         m_FeatureDrawObj_vec[i].m_Visible = m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN );
         draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+    }
+
+    if ( !LoadsMarkersAsMain() )
+    {
+        LoadMarkerDrawObjs( draw_obj_vec );
     }
 
     // Load Subsurfaces

@@ -87,8 +87,22 @@ public:
     virtual void UpdateMainBBox() override;
     virtual bool PlacedBBoxIncludesOrigin() const override;
 
+    // Behaves as the original; GetType still returns Clone.
+    virtual int GetBehaviorType() const override;
+    virtual Geom* GetBehaviorGeom() override;
+
+    // The original's markers, placed where this Geom is.
+    virtual Geom* GetMarkerGeom() override;
+
+    // Picked the same way as the original's.
+    virtual bool LoadsMarkersAsMain() override;
+
     // Whether following the chain of originals from id arrives back here.
     virtual bool IsCloneAncestor( const string &id ) const;
+
+    // The Geom at the end of the chain of originals, or null.  Bounded, since a file may
+    // contain a cycle.
+    virtual Geom* FollowOriginals() const;
 
     // This Clone's flip planes, combined with the original's while symmetry is copied.
     virtual int GetFlipFlag() const override;

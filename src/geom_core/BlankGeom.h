@@ -20,7 +20,13 @@ public:
 
     virtual void UpdateSurf();
     virtual void UpdateDrawObj();
-    virtual void LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec);
+    virtual void BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec );
+    virtual void SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec );
+    // The triad is all there is of a Blank to pick.
+    virtual bool LoadsMarkersAsMain()
+    {
+        return true;
+    }
     virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
     virtual void UpdateSymmAttach();

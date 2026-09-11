@@ -68,6 +68,78 @@ CloneGeom::~CloneGeom()
 
 }
 
+// The non-Clone Geom at the end of the chain of originals, or null if the chain ends in nothing
+// or a ring.  Iterative and ring-safe: it is called while a file is read, before ResolveOriginal
+// has rejected a ring.
+Geom* CloneGeom::FollowOriginals() const
+{
+    set < string > visited;
+    visited.insert( GetID() );
+
+    Geom* geom_ptr = GetOriginalGeom();
+    while ( geom_ptr )
+    {
+        if ( !visited.insert( geom_ptr->GetID() ).second )
+        {
+            return nullptr;
+        }
+
+        CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+        if ( !clone_ptr )
+        {
+            return geom_ptr;
+        }
+
+        geom_ptr = clone_ptr->GetOriginalGeom();
+    }
+
+    return nullptr;
+}
+
+// Follows the chain, so a Clone of a Clone reports the type at its end.
+int CloneGeom::GetBehaviorType() const
+{
+    Geom* original_geom = FollowOriginals();
+    if ( original_geom )
+    {
+        return original_geom->GetBehaviorType();
+    }
+
+    return Geom::GetBehaviorType();
+}
+
+Geom* CloneGeom::GetBehaviorGeom()
+{
+    Geom* original_geom = FollowOriginals();
+    if ( original_geom )
+    {
+        return original_geom->GetBehaviorGeom();
+    }
+
+    return Geom::GetBehaviorGeom();
+}
+
+Geom* CloneGeom::GetMarkerGeom()
+{
+    // A Clone with no original has no markers.
+    Geom* source = GetBehaviorGeom();
+    if ( source == this )
+    {
+        return nullptr;
+    }
+    return source;
+}
+
+bool CloneGeom::LoadsMarkersAsMain()
+{
+    Geom* source = GetMarkerGeom();
+    if ( source )
+    {
+        return source->LoadsMarkersAsMain();
+    }
+    return false;
+}
+
 Geom* CloneGeom::GetOriginalGeom() const
 {
     if ( m_OriginalID == "NONE" || m_OriginalID.empty() || m_OriginalID == GetID() )

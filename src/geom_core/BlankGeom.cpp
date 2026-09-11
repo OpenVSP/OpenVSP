@@ -7,6 +7,7 @@
 
 #include "BlankGeom.h"
 #include "Vehicle.h"
+#include "VehicleMgr.h"
 
 
 //==== Constructor ====//
@@ -50,32 +51,6 @@ void BlankGeom::UpdateSurf()
 
 void BlankGeom::UpdateDrawObj()
 {
-    double axlen = 1.0;
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        axlen = veh->m_AxisLength();
-    }
-
-    if ( m_FeatureDrawObj_vec.size() != 3 )
-    {
-        m_FeatureDrawObj_vec.clear();
-        m_FeatureDrawObj_vec.resize( 3 );
-    }
-    for ( int i = 0; i < 3; i++ )
-    {
-        m_FeatureDrawObj_vec[i].m_PntVec.clear();
-    }
-
-    for ( int i = 0; i < 3; i++ )
-    {
-        vec3d c;
-        c.v[ i ] = 1.0;
-        m_FeatureDrawObj_vec[ i ].m_LineColor = c;
-        m_FeatureDrawObj_vec[ i ].m_GeomChanged = true;
-    }
-
     m_HighlightDrawObj.m_PntVec.clear();
     m_HighlightDrawObj.m_PointSize = 10.0;
     m_HighlightDrawObj.m_GeomChanged = true;
@@ -93,15 +68,6 @@ void BlankGeom::UpdateDrawObj()
         {
             vec3d cg = m_TransMatVec[ j ].xform( vec3d( m_CGx(), m_CGy(), m_CGz() ) );
             m_PtMassCGDrawObj.m_PntVec.push_back( cg );
-        }
-
-        for ( int i = 0; i < 3; i++ )
-        {
-            vec3d pt = vec3d( 0.0, 0.0, 0.0 );
-            pt.v[ i ] = axlen;
-
-            m_FeatureDrawObj_vec[ i ].m_PntVec.push_back( blankOrigin );
-            m_FeatureDrawObj_vec[ i ].m_PntVec.push_back( m_TransMatVec[ j ].xform( pt ) );
         }
     }
 
@@ -122,23 +88,61 @@ void BlankGeom::UpdateDrawObj()
     }
 }
 
-void BlankGeom::LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec)
+// An axis triad at each symmetric copy of the placing Geom.
+void BlankGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
 {
-    char str[256];
+    double axlen = 1.0;
 
-    bool isactive = m_Vehicle->IsGeomActive( m_ID );
-
-    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
     {
-        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        snprintf( str, sizeof( str ),  "%d", i );
-        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "_Feature_" + str;
-        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
-        m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
-        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+        axlen = veh->m_AxisLength();
+    }
+
+    if ( marker_vec.size() != 3 )
+    {
+        marker_vec.clear();
+        marker_vec.resize( 3 );
+    }
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        vec3d c;
+        c.v[ i ] = 1.0;
+        marker_vec[ i ].m_PntVec.clear();
+        marker_vec[ i ].m_LineColor = c;
+        marker_vec[ i ].m_GeomChanged = true;
+        marker_vec[ i ].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        marker_vec[ i ].m_GeomID = placer->GetID() + "_Feature_" + std::to_string( i );
+        marker_vec[ i ].m_LineWidth = 2.0;
+        marker_vec[ i ].m_Type = DrawObj::VSP_LINES;
+    }
+
+    vector< Matrix4d > trans_vec = placer->GetTransMatVec();
+    for ( int j = 0; j < ( int )trans_vec.size(); j++ )
+    {
+        vec3d origin = trans_vec[ j ].getTranslation();
+
+        for ( int i = 0; i < 3; i++ )
+        {
+            vec3d pt = vec3d( 0.0, 0.0, 0.0 );
+            pt.v[ i ] = axlen;
+
+            marker_vec[ i ].m_PntVec.push_back( origin );
+            marker_vec[ i ].m_PntVec.push_back( trans_vec[ j ].xform( pt ) );
+        }
     }
 }
+
+void BlankGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )
+{
+    bool visible = placer->ShowsMarkers();
+    for ( int i = 0; i < ( int )marker_vec.size(); i++ )
+    {
+        marker_vec[ i ].m_Visible = visible;
+    }
+}
+
 
 void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 {

@@ -486,6 +486,38 @@ public:
     virtual void LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    //==== Markers ====//
+    // Drawn to show function rather than shape -- a propeller's thrust and rotation, a hinge's
+    // axes, an engine's stations.  Built with the placement, symmetry, flip and ID of placer,
+    // which is this Geom or a Clone of it.  Editing highlights are not markers.
+    virtual void BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
+    {
+        marker_vec.clear();
+    }
+
+    // Which markers placer shows.  Run at every draw, since selection changes without an update.
+    virtual void SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )    {}
+
+    // The Geom whose markers this Geom draws: itself, or the Geom it stands in for.
+    virtual Geom* GetMarkerGeom()
+    {
+        return this;
+    }
+
+    // Whether the markers are what is picked (a Blank's axes, a hinge's frame), so they load
+    // with the main draw objects.
+    virtual bool LoadsMarkersAsMain()
+    {
+        return false;
+    }
+
+    // Shown with the feature lines, or when this Geom is selected.
+    bool ShowsMarkers();
+
+    // Reflects draw objects through this Geom's flip, for markers built from directions that
+    // placement alone does not reflect.  Shaded triangles are rewound.
+    void FlipDrawObjs( const vector< DrawObj* > &dobj_vec );
+
     virtual void SetColor( double r, double g, double b );
     virtual vec3d GetColor() const;
 
@@ -1091,6 +1123,8 @@ protected:
 
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj()    {};
+    virtual void UpdateMarkerDrawObj();
+    virtual void LoadMarkerDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void UpdatePreTess()   {};
 
@@ -1118,6 +1152,7 @@ protected:
     vector<DrawObj> m_DegenSurfDrawObj_vec;
     vector<DrawObj> m_DegenCamberPlateDrawObj_vec;
     vector<DrawObj> m_DegenSubSurfDrawObj_vec;
+    vector<DrawObj> m_MarkerDrawObj_vec;
 
     vector <SimpleTess> m_MainTessVec;
     vector <SimpleTess> m_TessVec;
