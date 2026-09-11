@@ -86,8 +86,7 @@ void WireGeom::UpdateSurf()
 
     if ( num_i <= 0 )
     {
-        m_XFormPts.resize(0);
-        m_XFormNorm.resize(0);
+        m_MainPts.resize(0);
         return;
     }
 
@@ -95,25 +94,13 @@ void WireGeom::UpdateSurf()
 
     if ( num_j <= 0 )
     {
-        m_XFormPts.resize(0);
-        m_XFormNorm.resize(0);
+        m_MainPts.resize(0);
         return;
     }
 
-    // Perform transformation on base points.
-    Matrix4d transMat = GetTotalTransMat();
-    m_XFormPts.resize( num_i );
-    for ( unsigned int i = 0 ; i < num_i ; i++ )
-    {
-        m_XFormPts[i].resize( num_j );
-        for ( unsigned int j = 0 ; j < num_j ; j++ )
-        {
-            m_XFormPts[i][j] = transMat.xform( m_WirePts[i][j] );
-        }
-    }
-
-    m_TransMatVec.resize( 1 );
-    m_TransMatVec[0] = transMat;
+    // Everything below rearranges points and keeps them in this Geom's own frame.  Where the
+    // Geom sits is applied afterwards, so moving it does not have to rebuild any of this.
+    m_MainPts = m_WirePts;
 
     // Handle swapping I/J.
     if ( m_SwapIJFlag() )
@@ -132,7 +119,7 @@ void WireGeom::UpdateSurf()
         {
             for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
-                tmppts[j][i] = m_XFormPts[i][j];
+                tmppts[j][i] = m_MainPts[i][j];
             }
         }
 
@@ -140,7 +127,7 @@ void WireGeom::UpdateSurf()
         num_i = num_j;
         num_j = tmp;
 
-        m_XFormPts = tmppts;
+        m_MainPts = tmppts;
     }
 
     // Handle reversing I
@@ -162,11 +149,11 @@ void WireGeom::UpdateSurf()
             unsigned int k = num_i - i - 1;
             for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
-                tmppts[k][j] = m_XFormPts[i][j];
+                tmppts[k][j] = m_MainPts[i][j];
             }
         }
 
-        m_XFormPts = tmppts;
+        m_MainPts = tmppts;
     }
 
     // Handle reversing J
@@ -188,11 +175,11 @@ void WireGeom::UpdateSurf()
             for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
                 unsigned int k = num_j - j - 1;
-                tmppts[i][k] = m_XFormPts[i][j];
+                tmppts[i][k] = m_MainPts[i][j];
             }
         }
 
-        m_XFormPts = tmppts;
+        m_MainPts = tmppts;
     }
 
     // Handle skipping.
@@ -203,8 +190,7 @@ void WireGeom::UpdateSurf()
 
         if ( num_i <= 0 || num_j <= 0 ) // No surface left
         {
-            m_XFormPts.resize(0);
-            m_XFormNorm.resize(0);
+            m_MainPts.resize(0);
             return;
         }
 
@@ -215,10 +201,10 @@ void WireGeom::UpdateSurf()
             tmppts[i].resize( num_j );
             for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
-                tmppts[i][j] =  m_XFormPts[i + m_ISkipStart()][j + m_JSkipStart()];
+                tmppts[i][j] =  m_MainPts[i + m_ISkipStart()][j + m_JSkipStart()];
             }
         }
-        m_XFormPts = tmppts;
+        m_MainPts = tmppts;
     }
 
     // Handle I Stride
@@ -229,16 +215,16 @@ void WireGeom::UpdateSurf()
         unsigned int ilast = 0;
         for ( unsigned int i = 0 ; i < num_i ; i = i + m_IStride() )
         {
-            tmppts.push_back( m_XFormPts[i] );
+            tmppts.push_back( m_MainPts[i] );
             ilast = i;
         }
         if ( ilast != num_i - 1 )
         {
-            tmppts.push_back( m_XFormPts[num_i - 1] );
+            tmppts.push_back( m_MainPts[num_i - 1] );
         }
 
-        m_XFormPts = tmppts;
-        num_i = m_XFormPts.size();
+        m_MainPts = tmppts;
+        num_i = m_MainPts.size();
     }
 
     // Handle J Stride
@@ -252,7 +238,7 @@ void WireGeom::UpdateSurf()
         {
             for ( unsigned int i = 0 ; i < num_i ; i++ )
             {
-                tmppts[i].push_back( m_XFormPts[i][j] );
+                tmppts[i].push_back( m_MainPts[i][j] );
             }
             jlast = j;
         }
@@ -260,12 +246,12 @@ void WireGeom::UpdateSurf()
         {
             for ( unsigned int i = 0 ; i < num_i ; i++ )
             {
-                tmppts[i].push_back( m_XFormPts[i][num_j - 1] );
+                tmppts[i].push_back( m_MainPts[i][num_j - 1] );
             }
         }
 
-        m_XFormPts = tmppts;
-        num_j = m_XFormPts[0].size();
+        m_MainPts = tmppts;
+        num_j = m_MainPts[0].size();
     }
 
     if ( m_IStartPatchType() != vsp::PATCH_NONE )
@@ -275,8 +261,8 @@ void WireGeom::UpdateSurf()
 
         vector < vec3d > newrow;
 
-        oldrow = m_XFormPts[0];
-        oppositerow = m_XFormPts[ m_XFormPts.size() - 1 ];
+        oldrow = m_MainPts[0];
+        oppositerow = m_MainPts[ m_MainPts.size() - 1 ];
 
         PatchRow( oldrow, oppositerow, m_IStartPatchType(), newrow );
 
@@ -285,10 +271,10 @@ void WireGeom::UpdateSurf()
         tmppts[0] = newrow;
         for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
-            tmppts[i+1] = m_XFormPts[i];
+            tmppts[i+1] = m_MainPts[i];
         }
 
-        m_XFormPts = tmppts;
+        m_MainPts = tmppts;
         num_i++;
     }
 
@@ -299,12 +285,12 @@ void WireGeom::UpdateSurf()
 
         vector < vec3d > newrow;
 
-        oldrow = m_XFormPts[ m_XFormPts.size() - 1 ];
-        oppositerow = m_XFormPts[0];
+        oldrow = m_MainPts[ m_MainPts.size() - 1 ];
+        oppositerow = m_MainPts[0];
 
         PatchRow( oldrow, oppositerow, m_IEndPatchType(), newrow );
 
-        m_XFormPts.push_back( newrow );
+        m_MainPts.push_back( newrow );
         num_i++;
     }
 
@@ -320,8 +306,8 @@ void WireGeom::UpdateSurf()
 
         for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
-            oldrow[i] = m_XFormPts[i][0];
-            oppositerow[i] = m_XFormPts[i][num_j - 1];
+            oldrow[i] = m_MainPts[i][0];
+            oppositerow[i] = m_MainPts[i][num_j - 1];
         }
 
         PatchRow( oldrow, oppositerow, m_JStartPatchType(), newrow );
@@ -340,11 +326,11 @@ void WireGeom::UpdateSurf()
 
             for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
-                tmppts[i][j+1] = m_XFormPts[i][j];
+                tmppts[i][j+1] = m_MainPts[i][j];
             }
         }
 
-        m_XFormPts = tmppts;
+        m_MainPts = tmppts;
         num_j++;
     }
 
@@ -360,8 +346,8 @@ void WireGeom::UpdateSurf()
 
         for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
-            oldrow[i] = m_XFormPts[i][num_j - 1];
-            oppositerow[i] = m_XFormPts[i][0];
+            oldrow[i] = m_MainPts[i][num_j - 1];
+            oppositerow[i] = m_MainPts[i][0];
         }
 
         PatchRow( oldrow, oppositerow, m_JEndPatchType(), newrow );
@@ -378,43 +364,16 @@ void WireGeom::UpdateSurf()
         {
             for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
-                tmppts[i][j] = m_XFormPts[i][j];
+                tmppts[i][j] = m_MainPts[i][j];
             }
             tmppts[i][num_j] = newrow[i];
         }
 
-        m_XFormPts = tmppts;
+        m_MainPts = tmppts;
         num_j++;
     }
 
     // Calculate normal vectors.
-    m_XFormNorm.resize( num_i );
-    for ( int i = 0 ; i < num_i ; i++ )
-    {
-        m_XFormNorm[i].resize( num_j );
-
-        int inext = clamp( i + 1, 0, num_i - 1 );
-        int iprev = clamp( i - 1, 0, num_i - 1 );
-        for ( int j = 0 ; j < num_j ; j++ )
-        {
-            int jnext = clamp( j + 1, 0, num_j - 1 );
-            int jprev = clamp( j - 1, 0, num_j - 1 );
-
-            vec3d di = m_XFormPts[inext][j] - m_XFormPts[iprev][j];
-            vec3d dj = m_XFormPts[i][jnext] - m_XFormPts[i][jprev];
-
-            vec3d n = cross( di, dj );
-            n.normalize();
-
-            if ( m_InvertFlag() ^ m_OtherInvertFlag ) // Bitwise XOR
-            {
-                n = -1.0 * n;
-            }
-
-            m_XFormNorm[i][j] = n;
-        }
-    }
-
 }
 
 void WireGeom::PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > &oppositerow, int type, vector < vec3d > &newrow )
@@ -458,6 +417,8 @@ void WireGeom::PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > 
 
 void WireGeom::UpdateDrawObj()
 {
+    UpdateXFormPts();
+
     // Keep the existing DrawObj alive across updates -- assigning the meshes in place reuses
     // their heap allocations from the previous update.
     if ( m_WireShadeDrawObj_vec.size() != 1 )
@@ -560,8 +521,120 @@ void WireGeom::Scale()
     m_LastScale = m_Scale();
 }
 
+
+//==== Placing the rearranged grid, and drawing it ====//
+
+void WireGeom::BuildWireXFormPts( const vector < vector < vec3d > > &main_pts, const Matrix4d &trans,
+                                      bool invert,
+                                      vector < vector < vec3d > > &xform_pts,
+                                      vector < vector < vec3d > > &xform_norm )
+{
+    unsigned int num_i = main_pts.size();
+
+    if ( num_i <= 0 )
+    {
+        xform_pts.resize( 0 );
+        xform_norm.resize( 0 );
+        return;
+    }
+
+    unsigned int num_j = main_pts[0].size();
+
+    xform_pts.resize( num_i );
+    for ( unsigned int i = 0 ; i < num_i ; i++ )
+    {
+        xform_pts[i].resize( num_j );
+        for ( unsigned int j = 0 ; j < num_j ; j++ )
+        {
+            xform_pts[i][j] = trans.xform( main_pts[i][j] );
+        }
+    }
+
+    // Worked out where the points have been placed, so a scale in the transform is accounted for.
+    xform_norm.resize( num_i );
+    for ( unsigned int i = 0 ; i < num_i ; i++ )
+    {
+        xform_norm[i].resize( num_j );
+        for ( unsigned int j = 0 ; j < num_j ; j++ )
+        {
+            int inext = clamp( (int)i + 1, 0, (int)num_i - 1 );
+            int iprev = clamp( (int)i - 1, 0, (int)num_i - 1 );
+            int jnext = clamp( (int)j + 1, 0, (int)num_j - 1 );
+            int jprev = clamp( (int)j - 1, 0, (int)num_j - 1 );
+
+            vec3d di = xform_pts[inext][j] - xform_pts[iprev][j];
+            vec3d dj = xform_pts[i][jnext] - xform_pts[i][jprev];
+
+            vec3d n = cross( di, dj );
+            n.normalize();
+
+            if ( invert )
+            {
+                n = -1.0 * n;
+            }
+
+            xform_norm[i][j] = n;
+        }
+    }
+}
+
+void WireGeom::BuildWireBndBox( const vector < vector < vec3d > > &xform_pts, BndBox &bbox )
+{
+    bbox.Reset();
+
+    for ( int i = 0 ; i < ( int )xform_pts.size() ; i++ )
+    {
+        for ( int j = 0 ; j < ( int )xform_pts[i].size() ; j++ )
+        {
+            bbox.Update( xform_pts[i][j] );
+        }
+    }
+}
+
+void WireGeom::BuildWireDrawObjs( const vector < vector < vec3d > > &xform_pts,
+                                      const vector < vector < vec3d > > &xform_norm,
+                                      vector < DrawObj > &draw_obj_vec )
+{
+    // Keep the existing DrawObj alive across updates -- assigning the meshes in place reuses
+    // their heap allocations from the previous update.
+    if ( draw_obj_vec.size() != 1 )
+    {
+        draw_obj_vec.clear();
+        draw_obj_vec.resize( 1 );
+    }
+
+    draw_obj_vec[0].m_FlipNormals = false;
+    draw_obj_vec[0].m_GeomChanged = true;
+
+    draw_obj_vec[0].m_PntMesh.resize( 1 );
+    draw_obj_vec[0].m_PntMesh[0] = xform_pts;
+    draw_obj_vec[0].m_NormMesh.resize( 1 );
+    draw_obj_vec[0].m_NormMesh[0] = xform_norm;
+
+    // Dummy texture coordinates matching the point mesh shape.
+    draw_obj_vec[0].m_uTexMesh.resize( 1 );
+    draw_obj_vec[0].m_vTexMesh.resize( 1 );
+    draw_obj_vec[0].m_uTexMesh[0].resize( xform_pts.size() );
+    draw_obj_vec[0].m_vTexMesh[0].resize( xform_pts.size() );
+    for ( int i = 0; i < ( int )xform_pts.size(); i++ )
+    {
+        draw_obj_vec[0].m_uTexMesh[0][i].resize( xform_pts[i].size(), 0.0 );
+        draw_obj_vec[0].m_vTexMesh[0][i].resize( xform_pts[i].size(), 0.0 );
+    }
+}
+
+void WireGeom::UpdateXFormPts()
+{
+    m_TransMatVec.resize( 1 );
+    m_TransMatVec[0] = GetWireTransMat();
+
+    BuildWireXFormPts( m_MainPts, GetWireTransMat(), GetWireInvert(), m_XFormPts, m_XFormNorm );
+}
+
 void WireGeom::UpdateBBox()
 {
+    UpdateXFormPts();
+
     BndBox new_box;
 
     int num_pnts, num_cross;

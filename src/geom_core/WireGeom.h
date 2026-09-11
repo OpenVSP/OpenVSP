@@ -12,6 +12,7 @@
 
 
 //==== Wireframe Geom ====//
+//==== A Geom whose shape is a grid of points ====//
 class WireGeom : public Geom
 {
 public:
@@ -22,6 +23,10 @@ public:
     virtual void UpdateDrawObj() override;
 
     virtual void Scale() override;
+    // Put the main points where this Geom sits, and work out the normals there.  Called
+    // whenever the placement or the shape changes, so moving the Geom moves what is drawn.
+    virtual void UpdateXFormPts();
+
     virtual void UpdateBBox() override;
     virtual Matrix4d GetTotalTransMat() const;
 
@@ -66,6 +71,41 @@ public:
 protected:
 
     vector < vector < vec3d > > m_WirePts;
+
+    // The grid, placed, and the normals worked out there so a scale in the transform counts.
+    static void BuildWireXFormPts( const vector < vector < vec3d > > &main_pts, const Matrix4d &trans,
+                                   bool invert,
+                                   vector < vector < vec3d > > &xform_pts,
+                                   vector < vector < vec3d > > &xform_norm );
+
+    // Its extent.
+    static void BuildWireBndBox( const vector < vector < vec3d > > &xform_pts, BndBox &bbox );
+
+    // Draw it as a grid of quads.
+    static void BuildWireDrawObjs( const vector < vector < vec3d > > &xform_pts,
+                                   const vector < vector < vec3d > > &xform_norm,
+                                   vector < DrawObj > &draw_obj_vec );
+
+
+    // The points after they have been rearranged -- swapped, reversed, skipped, strided,
+    // patched -- but before this Geom's placement is applied.  This is the shape itself, which
+    // is what another Geom can stand in for.
+public:
+    virtual const vector < vector < vec3d > > & GetMainWirePts() const
+    {
+        return m_MainPts;
+    }
+    virtual Matrix4d GetWireTransMat() const
+    {
+        return GetTotalTransMat();
+    }
+    virtual bool GetWireInvert() const
+    {
+        return m_InvertFlag() ^ m_OtherInvertFlag;
+    }
+
+protected:
+    vector < vector < vec3d > > m_MainPts;
     vector < vector < vec3d > > m_XFormPts;
 
     vector < vector < vec3d > > m_XFormNorm;
