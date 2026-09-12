@@ -475,8 +475,8 @@ void NameValData::DecodeXml( xmlNodePtr & node )
 
         bool protect_flag = XmlUtil::FindIntProp( node, "Protection", default_int );
 
-        string ID = IDMgr.RemapID( XmlUtil::FindStringProp( node, "ID", default_str ) );
-        string attachID = IDMgr.RemapID( XmlUtil::FindStringProp( node, "AttachID", default_str ) );
+        string ID = IDMgr.RemapID( XmlUtil::FindStringProp( node, "ID", m_ID ) );
+        string attachID = IDMgr.RemapID( XmlUtil::FindStringProp( node, "AttachID", m_AttachID ) );
 
         m_Name = XmlUtil::FindStringProp( node, "Name", default_str );
         m_Type = XmlUtil::FindIntProp( node, "Type", default_int );
@@ -509,7 +509,7 @@ void NameValData::DecodeXml( xmlNodePtr & node )
         }
         else if ( m_Type == vsp::PARM_REFERENCE_DATA )
         {
-            string parmIDData = XmlUtil::FindStringProp( node, "ParmIDData", default_str );
+            string parmIDData = XmlUtil::FindStringProp( node, "ParmIDData", string() );
             SetParmIDData( { parmIDData } );
         }
         else if ( m_Type == vsp::VEC3D_DATA )
@@ -1289,10 +1289,6 @@ void AttributeCollection::EncodeXml( xmlNodePtr & node ) const
 //==== Decode Data from XML Data Structure ====//
 void AttributeCollection::DecodeXml( xmlNodePtr & node )
 {
-    string default_str = "None";
-    int default_int = 0;
-    double default_dbl = 0.;
-
     string attrXmlName = "AttributeCollection";
     xmlNodePtr dnode = XmlUtil::GetNode( node, attrXmlName.c_str(), 0 );
     if ( dnode )
@@ -1320,7 +1316,10 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node )
             xmlNodePtr attrNode = XmlUtil::GetNode( dnode, "Attribute", i );
             if ( attrNode )
             {
-                string attrID = IDMgr.RemapID( XmlUtil::FindStringProp( attrNode, "ID", default_str ) );
+                // The ID the attribute below will take, not this collection's own.  Resolving
+                // it here separates a hardcoded attribute already in the model, which the
+                // file's data is decoded onto, from one that is new.
+                string attrID = IDMgr.RemapID( XmlUtil::FindStringProp( attrNode, "ID", string() ) );
                 NameValData* attr = AttributeMgr.GetAttributePtr( attrID );
 
                 // if there is an existing attribute with the same ID, it is a hardcoded attribute and will use the new XMLfile's attribute data on the existing attribute

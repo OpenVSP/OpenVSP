@@ -103,6 +103,41 @@ def testAnAttributeStillNamesItsCollectionAfterTheIdsHaveMoved():
     pop_errors()
 
 
+def testTwoAttributesWithNoIdInTheFileBothSurvive():
+    """Two attributes whose ID property is missing from the file both survive.
+
+    No version of OpenVSP writes an <Attribute> without an ID, so this is a file from somewhere
+    else.  An identity falls back to the ID the attribute was constructed with, which is unique
+    to it, so the two do not collide.
+    """
+    out = fresh()
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+    coll = vsp.GetChildCollection( pod )
+    vsp.AddAttributeString( coll, "alpha", "one" )
+    vsp.AddAttributeString( coll, "beta", "two" )
+    vsp.Update()
+
+    written = os.path.join( out, "ids.vsp3" )
+    vsp.WriteVSPFile( written )
+    text = open( written ).read()
+
+    stripped = re.sub( r'(<Attribute )ID="[A-Za-z0-9_]*" ( ?[^>]*Name="(?:alpha|beta)")',
+                       r'\1\2', text )
+    assert stripped != text, "neither attribute was written with an ID, so nothing is measured"
+    no_id = os.path.join( out, "no_id.vsp3" )
+    open( no_id, "w" ).write( stripped )
+
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( no_id )
+    vsp.Update()
+
+    coll_after = vsp.GetChildCollection( vsp.FindGeoms()[0] )
+    names = sorted( vsp.FindAttributeNamesInCollection( coll_after ) )
+    assert names == [ "alpha", "beta" ], "an attribute with no ID was lost: %s" % names
+    pop_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
