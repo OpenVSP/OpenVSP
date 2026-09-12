@@ -4507,14 +4507,36 @@ void Geom::CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > 
     degenGeom.setParentGeom( this );
     degenGeom.setSurfNum( isurf );
     degenGeom.setFlipNormal( flipnormal );
-    degenGeom.setMainSurfInd( m_MainSurfIndxVec[isurf] );
-    degenGeom.setSymCopyInd( m_SurfCopyIndx[isurf] );
+
+    // The symmetry tables are indexed by surface number, and a Geom with no surface of its own
+    // -- a wireframe, whose points are already transformed -- has none of them: UpdateSymmAttach
+    // sizes them by the number of main surfaces.  Such a Geom is its own main surface and its
+    // own symmetry copy, with no relative transform.
+    int main_surf_indx = 0;
+    int sym_copy_indx = 0;
+    Matrix4d trans_mat;
+
+    if ( isurf >= 0 && isurf < ( int )m_MainSurfIndxVec.size() )
+    {
+        main_surf_indx = m_MainSurfIndxVec[isurf];
+    }
+    if ( isurf >= 0 && isurf < ( int )m_SurfCopyIndx.size() )
+    {
+        sym_copy_indx = m_SurfCopyIndx[isurf];
+    }
+    if ( isurf >= 0 && isurf < ( int )m_TransMatVec.size() )
+    {
+        trans_mat = m_TransMatVec[isurf];
+    }
+
+    degenGeom.setMainSurfInd( main_surf_indx );
+    degenGeom.setSymCopyInd( sym_copy_indx );
     degenGeom.setCfdSurfType( cfdsurftype );
 
     vector < double > tmatvec( 16 );
     for ( int j = 0; j < 16; j++ )
     {
-        tmatvec[j] = m_TransMatVec[isurf].data()[ j ];
+        tmatvec[j] = trans_mat.data()[ j ];
     }
     degenGeom.setTransMat( tmatvec );
 
@@ -4566,7 +4588,7 @@ void Geom::CreateDegenGeom( DegenGeom &degenGeom, const vector< vector< vec3d > 
     // degenerate subsurfaces
     for ( int j = 0; j < m_SubSurfVec.size(); j++ )
     {
-        if ( m_SubSurfVec[j]->m_MainSurfIndx() == -1 || m_MainSurfIndxVec[isurf] == m_SubSurfVec[j]->m_MainSurfIndx() )
+        if ( m_SubSurfVec[j]->m_MainSurfIndx() == -1 || main_surf_indx == m_SubSurfVec[j]->m_MainSurfIndx() )
         {
             degenGeom.addDegenSubSurf( m_SubSurfVec[j], isurf );    //TODO is there a way to eliminate having to send in the surf index "i"
 
