@@ -476,7 +476,7 @@ void NameValData::DecodeXml( xmlNodePtr & node )
         bool protect_flag = XmlUtil::FindIntProp( node, "Protection", default_int );
 
         string ID = IDMgr.RemapID( XmlUtil::FindStringProp( node, "ID", m_ID ) );
-        string attachID = IDMgr.RemapID( XmlUtil::FindStringProp( node, "AttachID", m_AttachID ) );
+        string attachID = IDMgr.RemapRefID( XmlUtil::FindStringProp( node, "AttachID", m_AttachID ) );
 
         m_Name = XmlUtil::FindStringProp( node, "Name", default_str );
         m_Type = XmlUtil::FindIntProp( node, "Type", default_int );
@@ -509,7 +509,7 @@ void NameValData::DecodeXml( xmlNodePtr & node )
         }
         else if ( m_Type == vsp::PARM_REFERENCE_DATA )
         {
-            string parmIDData = XmlUtil::FindStringProp( node, "ParmIDData", string() );
+            string parmIDData = IDMgr.RemapRefID( XmlUtil::FindStringProp( node, "ParmIDData", string() ) );
             SetParmIDData( { parmIDData } );
         }
         else if ( m_Type == vsp::VEC3D_DATA )

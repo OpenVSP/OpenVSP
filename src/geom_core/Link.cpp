@@ -113,8 +113,8 @@ xmlNodePtr Link::DecodeXml( xmlNodePtr & link_node )
         {
             ParmContainer::DecodeXml( link_node );
 
-            m_ParmA = IDMgr.RemapID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
-            m_ParmB = IDMgr.RemapID( XmlUtil::FindString( link_node, "ParmBID", string() ) );
+            m_ParmA = IDMgr.RemapRefID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
+            m_ParmB = IDMgr.RemapRefID( XmlUtil::FindString( link_node, "ParmBID", string() ) );
 
             m_OffsetFlag = !!XmlUtil::FindInt( link_node, "OffsetFlag", m_OffsetFlag );
             m_ScaleFlag = !!XmlUtil::FindInt( link_node, "ScaleFlag", m_ScaleFlag );
@@ -123,8 +123,8 @@ xmlNodePtr Link::DecodeXml( xmlNodePtr & link_node )
         }
         else // Read legacy format
         {
-            m_ParmA = IDMgr.RemapID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
-            m_ParmB = IDMgr.RemapID( XmlUtil::FindString( link_node, "ParmBID", string() ) );
+            m_ParmA = IDMgr.RemapRefID( XmlUtil::FindString( link_node, "ParmAID", string() ) );
+            m_ParmB = IDMgr.RemapRefID( XmlUtil::FindString( link_node, "ParmBID", string() ) );
 
             m_Offset.DecodeXml( link_node );
             m_Scale.DecodeXml( link_node );

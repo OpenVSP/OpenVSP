@@ -344,7 +344,7 @@ xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &grp_node )
         for ( int i = 0; i < num_parm; i++ )
         {
             xmlNodePtr n = XmlUtil::GetNode( grp_node, "Parm", i );
-            m_ParmIDVec.push_back( IDMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+            m_ParmIDVec.push_back( IDMgr.RemapRefID( XmlUtil::FindString( n, "ID", string() ) ) );
         }
 
         int num_setting = XmlUtil::GetNumNames( grp_node, "Setting" );
@@ -718,7 +718,7 @@ OldPreset OldPreset::DecodeXml( xmlNodePtr &varpresetnode, int i )
     for ( int j = 0; j < numParmqGroup[ i ]; j++ )
     {
         snprintf( buffer, sizeof( buffer ),  "ParmID%i", j);
-        p_IDs.push_back( IDMgr.RemapID( XmlUtil::FindString( groupqualnode, buffer, name) ) );
+        p_IDs.push_back( IDMgr.RemapRefID( XmlUtil::FindString( groupqualnode, buffer, name) ) );
     }
 
     // Grab Setting Qualities
