@@ -56,6 +56,11 @@ public:
     // Colour wheel start for the first subsurface tag; zero is red.
     virtual int GetTMeshColorStartDegree() const = 0;
 
+    // The slices cut through the mesh, in the Geom's own frame, and which of the two is shown.
+    virtual const vector< TMesh* > & GetTMeshSliceVec() const = 0;
+    virtual bool GetTMeshViewMeshFlag() const = 0;
+    virtual bool GetTMeshViewSliceFlag() const = 0;
+
 protected:
     // Placed copies of the triangles, for analyses.  Attributes come from geom_ptr.
     vector< TMesh* > BuildTMeshVec( const Geom* geom_ptr ) const;
@@ -66,6 +71,9 @@ protected:
 
     // The triangles' extent, placed.
     void BuildTMeshBndBox( BndBox &bbox ) const;
+
+    // The mesh written as stereolithography triangles, placed.
+    void WriteTMeshStl( FILE* file_id ) const;
 
 public:
     // Pick the primitive for draw objects holding loose triangles; the usual Geom route picks a
@@ -190,6 +198,21 @@ public:
     virtual Matrix4d GetTMeshScaleMat() const
     {
         return m_ScaleMatrix;
+    }
+
+    virtual const vector< TMesh* > & GetTMeshSliceVec() const
+    {
+        return m_SliceVec;
+    }
+
+    virtual bool GetTMeshViewMeshFlag() const
+    {
+        return m_ViewMeshFlag();
+    }
+
+    virtual bool GetTMeshViewSliceFlag() const
+    {
+        return m_ViewSliceFlag();
     }
     virtual int GetTMeshColorStartDegree() const
     {

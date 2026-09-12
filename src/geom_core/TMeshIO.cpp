@@ -37,6 +37,23 @@
 #include "delabella.h"
 #include "StlHelper.h"
 
+// The order a triangle's three nodes are written in; a flipped shape swaps two of them.
+// Each writer below keeps its own convention on top of this order.
+static void TriNodes( const TTri* ttri, bool flipnormal, TNode* &na, TNode* &nb, TNode* &nc )
+{
+    na = ttri->m_N0;
+    if ( flipnormal )
+    {
+        nb = ttri->m_N2;
+        nc = ttri->m_N1;
+    }
+    else
+    {
+        nb = ttri->m_N1;
+        nc = ttri->m_N2;
+    }
+}
+
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec )
 {
     Matrix4d mat;
@@ -310,16 +327,20 @@ void BuildIndexedMesh( const vector< TMesh* > &tmv, const vector< TMesh* > &slic
 // dedicated IndexedTriMesh class.
 //=============================================================================
 
-void WriteStlByTag( FILE* file_id, int tag, const vector< TTri* > &trivec )
+void WriteStlByTag( FILE* file_id, int tag, const vector< TTri* > &trivec, const Matrix4d &trans, bool flipnormal )
 {
     for ( int i = 0 ; i < ( int )trivec.size() ; i++ )
     {
         TTri* ttri = trivec[i];
         if ( SubSurfaceMgr.GetTag( ttri->m_Tags ) == tag )
         {
-            vec3d p0 = ttri->m_N0->m_Pnt;
-            vec3d p1 = ttri->m_N1->m_Pnt;
-            vec3d p2 = ttri->m_N2->m_Pnt;
+            TNode *na, *nb, *nc;
+            TriNodes( ttri, flipnormal, na, nb, nc );
+
+            // The nodes are in the Geom's own frame, so place them on output.
+            vec3d p0 = trans.xform( na->m_Pnt );
+            vec3d p1 = trans.xform( nb->m_Pnt );
+            vec3d p2 = trans.xform( nc->m_Pnt );
             vec3d v10 = p1 - p0;
             vec3d v20 = p2 - p1;
             vec3d norm = cross( v10, v20 );
@@ -415,83 +436,100 @@ void WriteFacetNodes( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &
     }
 }
 
-int WriteNascartTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+int WriteNascartTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal )
 {
     for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
         TTri* ttri = trivec[t];
         if ( ttri )
         {
-            fprintf( fp, "%d %d %d %d.0\n", ttri->m_N0->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off,
-                     ttri->m_N1->m_ID + 1 + off, SubSurfaceMgr.GetTag( ttri->m_Tags ) );
+            TNode *na, *nb, *nc;
+            TriNodes( ttri, flipnormal, na, nb, nc );
+
+            // Nascart's own order is the reverse of the node order, so nc comes before nb.
+            fprintf( fp, "%d %d %d %d.0\n", na->m_ID + 1 + off, nc->m_ID + 1 + off,
+                     nb->m_ID + 1 + off, SubSurfaceMgr.GetTag( ttri->m_Tags ) );
         }
     }
     return off + ( int )nodvec.size();
 }
 
-int WriteCart3DTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+int WriteCart3DTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal )
 {
     for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
         TTri* ttri = trivec[t];
         if ( ttri )
         {
-            fprintf( fp, "%d %d %d\n", ttri->m_N0->m_ID + 1 + off, ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
+            TNode *na, *nb, *nc;
+            TriNodes( ttri, flipnormal, na, nb, nc );
+            fprintf( fp, "%d %d %d\n", na->m_ID + 1 + off, nb->m_ID + 1 + off, nc->m_ID + 1 + off );
         }
     }
     return off + ( int )nodvec.size();
 }
 
-int WriteOBJTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+int WriteOBJTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal )
 {
     for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
         TTri* ttri = trivec[t];
         if ( ttri )
         {
-            fprintf( fp, "f %d %d %d\n", ttri->m_N0->m_ID + 1 + off, ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
+            TNode *na, *nb, *nc;
+            TriNodes( ttri, flipnormal, na, nb, nc );
+            fprintf( fp, "f %d %d %d\n", na->m_ID + 1 + off, nb->m_ID + 1 + off, nc->m_ID + 1 + off );
         }
     }
     return off + ( int )nodvec.size();
 }
 
-int WriteVSPGeomTris( FILE* file_id, int offset, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+int WriteVSPGeomTris( FILE* file_id, int offset, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal )
 {
     for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
         TTri* ttri = trivec[t];
-        fprintf( file_id, "3 %d %d %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset );
+        TNode *na, *nb, *nc;
+        TriNodes( ttri, flipnormal, na, nb, nc );
+        fprintf( file_id, "3 %d %d %d\n", na->m_ID + 1 + offset, nb->m_ID + 1 + offset, nc->m_ID + 1 + offset );
     }
     return offset + ( int )nodvec.size();
 }
 
-int WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+int WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal )
 {
     for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
         TTri* ttri = trivec[t];
-        fprintf( file_id, "%d 1 %d %d %d\n", tcount, ttri->m_N0->m_ID + 1 + noffset, ttri->m_N1->m_ID + 1 + noffset, ttri->m_N2->m_ID + 1 + noffset );
+        TNode *na, *nb, *nc;
+        TriNodes( ttri, flipnormal, na, nb, nc );
+        fprintf( file_id, "%d 1 %d %d %d\n", tcount, na->m_ID + 1 + noffset, nb->m_ID + 1 + noffset, nc->m_ID + 1 + noffset );
         tcount++;
     }
     return noffset + ( int )nodvec.size();
 }
 
-int WriteGMshTris( FILE* fp, int node_offset, int tri_offset, const vector< TTri* > &trivec )
+int WriteGMshTris( FILE* fp, int node_offset, int tri_offset, const vector< TTri* > &trivec, bool flipnormal )
 {
     for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
         TTri* ttri = trivec[t];
         if ( ttri )
         {
+            TNode *na, *nb, *nc;
+            TriNodes( ttri, flipnormal, na, nb, nc );
+
+            // GMsh's own order is the reverse of the node order, so nc comes before nb.
             fprintf( fp, "%d 2 0 %d %d %d\n", t + tri_offset + 1,
-                     ttri->m_N0->m_ID + 1 + node_offset, ttri->m_N2->m_ID + 1 + node_offset, ttri->m_N1->m_ID + 1 + node_offset );
+                     na->m_ID + 1 + node_offset, nc->m_ID + 1 + node_offset, nb->m_ID + 1 + node_offset );
         }
     }
     return tri_offset + ( int )trivec.size();
 }
 
 void WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &part_count,
-                         const vector< TMesh* > &tmv, const vector< TTri* > &trivec, const vector< TNode* > &nodvec )
+                         const vector< TMesh* > &tmv, const vector< TTri* > &trivec, const vector< TNode* > &nodvec,
+                         bool flipnormal )
 {
     vector < string > geom_ID_vec;
     geom_ID_vec.resize( tmv.size() );
@@ -547,9 +585,11 @@ void WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &part_count,
                 }
 
                 TTri* ttri = trivec[j];
+                TNode *na, *nb, *nc;
+                TriNodes( ttri, flipnormal, na, nb, nc );
                 tri_count++;
-                fprintf( fp, "%d %d %d %d %u %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset,
-                         ttri->m_N2->m_ID + 1 + offset, materialID, i + 1 + part_count, tri_count );
+                fprintf( fp, "%d %d %d %d %u %d\n", na->m_ID + 1 + offset, nb->m_ID + 1 + offset,
+                         nc->m_ID + 1 + offset, materialID, i + 1 + part_count, tri_count );
             }
         }
     }
@@ -576,7 +616,7 @@ int WriteCart3DParts( FILE* fp, const vector< TTri* > &trivec )
     return 0;
 }
 
-int WriteVSPGeomParts( FILE* file_id, const vector< TTri* > &trivec )
+int WriteVSPGeomParts( FILE* file_id, const vector< TTri* > &trivec, bool flipnormal )
 {
     for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
@@ -585,15 +625,19 @@ int WriteVSPGeomParts( FILE* file_id, const vector< TTri* > &trivec )
         int part = SubSurfaceMgr.GetPart( ttri->m_Tags );
         double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
         double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
+
+        // One UW pair per node, in the order the nodes were written.
+        TNode *na, *nb, *nc;
+        TriNodes( ttri, flipnormal, na, nb, nc );
         fprintf( file_id, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
-                 ttri->m_N0->m_UWPnt.x() / uscale, ttri->m_N0->m_UWPnt.y() / wscale,
-                 ttri->m_N1->m_UWPnt.x() / uscale, ttri->m_N1->m_UWPnt.y() / wscale,
-                 ttri->m_N2->m_UWPnt.x() / uscale, ttri->m_N2->m_UWPnt.y() / wscale );
+                 na->m_UWPnt.x() / uscale, na->m_UWPnt.y() / wscale,
+                 nb->m_UWPnt.x() / uscale, nb->m_UWPnt.y() / wscale,
+                 nc->m_UWPnt.x() / uscale, nc->m_UWPnt.y() / wscale );
     }
     return 0;
 }
 
-int WriteVSPGeomAlternateParts( FILE* file_id, int &tcount, const vector< TTri* > &trivec )
+int WriteVSPGeomAlternateParts( FILE* file_id, int &tcount, const vector< TTri* > &trivec, bool flipnormal )
 {
     for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
     {
@@ -602,10 +646,14 @@ int WriteVSPGeomAlternateParts( FILE* file_id, int &tcount, const vector< TTri* 
         int part = SubSurfaceMgr.GetPart( ttri->m_Tags );
         double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
         double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
+
+        // See WriteVSPGeomParts: the UW pairs follow the order the nodes were written in.
+        TNode *na, *nb, *nc;
+        TriNodes( ttri, flipnormal, na, nb, nc );
         fprintf( file_id, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", tcount, part, tag,
-                 ttri->m_N0->m_UWPnt.x() / uscale, ttri->m_N0->m_UWPnt.y() / wscale,
-                 ttri->m_N1->m_UWPnt.x() / uscale, ttri->m_N1->m_UWPnt.y() / wscale,
-                 ttri->m_N2->m_UWPnt.x() / uscale, ttri->m_N2->m_UWPnt.y() / wscale );
+                 na->m_UWPnt.x() / uscale, na->m_UWPnt.y() / wscale,
+                 nb->m_UWPnt.x() / uscale, nb->m_UWPnt.y() / wscale,
+                 nc->m_UWPnt.x() / uscale, nc->m_UWPnt.y() / wscale );
         tcount++;
     }
     return 0;

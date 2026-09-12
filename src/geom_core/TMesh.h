@@ -553,7 +553,7 @@ public:
     virtual void AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm, const int & iQuad );
 
     virtual void WriteIgnoredSTLTris( FILE* file_id, Matrix4d XFormMat );
-    virtual void WriteSTLTris( FILE* file_id, Matrix4d XFormMat );
+    virtual void WriteSTLTris( FILE* file_id, Matrix4d XFormMat, bool flipnormal = false );
     virtual void WriteInsideMStlTris( FILE* file_id, Matrix4d XFormMat, int minside );
 
     virtual void WriteIgnoredSTL( string fname, double scale = 1.0 );
@@ -812,7 +812,7 @@ void BuildIndexedMesh( const vector< TMesh* > &tmv, const vector< TMesh* > &slic
 // dedicated IndexedTriMesh class.
 //=============================================================================
 
-void WriteStlByTag( FILE* file_id, int tag, const vector< TTri* > &trivec );
+void WriteStlByTag( FILE* file_id, int tag, const vector< TTri* > &trivec, const Matrix4d &trans, bool flipnormal = false );
 
 void WriteNascartPnts( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm );
 void WriteCart3DPnts( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm );
@@ -821,19 +821,20 @@ void WriteVSPGeomPnts( FILE* file_id, const vector< TNode* > &nodvec, const Matr
 int  WriteGMshNodes( FILE* fp, int node_offset, const vector< TNode* > &nodvec, const Matrix4d &xfm );
 void WriteFacetNodes( FILE* fp, const vector< TNode* > &nodvec, const Matrix4d &xfm );
 
-int  WriteNascartTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
-int  WriteCart3DTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
-int  WriteOBJTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
-int  WriteVSPGeomTris( FILE* file_id, int offset, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
-int  WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
-int  WriteGMshTris( FILE* fp, int node_offset, int tri_offset, const vector< TTri* > &trivec );
+int  WriteNascartTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal = false );
+int  WriteCart3DTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal = false );
+int  WriteOBJTris( FILE* fp, int off, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal = false );
+int  WriteVSPGeomTris( FILE* file_id, int offset, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal = false );
+int  WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount, const vector< TTri* > &trivec, const vector< TNode* > &nodvec, bool flipnormal = false );
+int  WriteGMshTris( FILE* fp, int node_offset, int tri_offset, const vector< TTri* > &trivec, bool flipnormal = false );
 
 void WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &part_count,
-                         const vector< TMesh* > &tmv, const vector< TTri* > &trivec, const vector< TNode* > &nodvec );
+                         const vector< TMesh* > &tmv, const vector< TTri* > &trivec, const vector< TNode* > &nodvec,
+                         bool flipnormal = false );
 int  WriteNascartParts( FILE* fp, int off, const vector< TMesh* > &tmv );
 int  WriteCart3DParts( FILE* fp, const vector< TTri* > &trivec );
-int  WriteVSPGeomParts( FILE* file_id, const vector< TTri* > &trivec );
-int  WriteVSPGeomAlternateParts( FILE* file_id, int &tcount, const vector< TTri* > &trivec );
+int  WriteVSPGeomParts( FILE* file_id, const vector< TTri* > &trivec, bool flipnormal = false );
+int  WriteVSPGeomAlternateParts( FILE* file_id, int &tcount, const vector< TTri* > &trivec, bool flipnormal = false );
 
 int  WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag, const vector< TTri* > &trivec );
 int  CountVSPGeomPartTagTris( int part, int tag, const vector< TTri* > &trivec );

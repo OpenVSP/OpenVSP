@@ -203,6 +203,7 @@ public:
 
     bool ExistMesh( int set );
     bool ExistType( int set, int geomtype );
+    bool ExistGeomType( int set, int geomtype );
 
     vector < string > GetPtCloudGeoms();
 

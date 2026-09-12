@@ -466,23 +466,34 @@ int MeshGeom::ReadBinInt( FILE* fptr )
 }
 
 //==== Write STL File ====//
+void TMeshRole::WriteTMeshStl( FILE* file_id ) const
+{
+    const vector< TMesh* > &tmesh_vec = GetTMeshVecInSelf();
+    Matrix4d mat = GetTMeshTransMat();
+
+    // The matrix may carry a flip, which reverses the winding.
+    bool flipnormal = GetRoleShapeFlipNormal();
+
+    for ( int m = 0; m < ( int )tmesh_vec.size(); m++ )
+    {
+        tmesh_vec[m]->WriteSTLTris( file_id, mat, flipnormal );
+    }
+}
+
 void MeshGeom::WriteStl( FILE* file_id )
 {
     int m;
 
     if ( m_ViewMeshFlag() )
     {
-        for (m = 0; m < (int) m_TMeshVec.size(); m++)
-        {
-            m_TMeshVec[m]->WriteSTLTris(file_id, GetTotalTransMat());
-        }
+        WriteTMeshStl( file_id );
     }
 
     if ( m_ViewSliceFlag() )
     {
         for (m = 0; m < (int) m_SliceVec.size(); m++)
         {
-            m_SliceVec[m]->WriteSTLTris(file_id, GetTotalTransMat());
+            m_SliceVec[m]->WriteSTLTris( file_id, GetTotalTransMat(), GetFlipReversesNormal() );
         }
     }
 }

@@ -3395,6 +3395,22 @@ bool Vehicle::ExistMesh( int set )
     return ExistType( set, MESH_GEOM_TYPE );
 }
 
+// Strictly the type; a Clone of that type does not count.  ExistType checks the behaviour.
+bool Vehicle::ExistGeomType( int set, int geomtype )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i] && geom_vec[i]->GetSetFlag( set ) && geom_vec[i]->GetType().m_Type == geomtype )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool Vehicle::ExistType( int set, int geomtype )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
@@ -3407,7 +3423,7 @@ bool Vehicle::ExistType( int set, int geomtype )
     bool exist = false;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( set ) && geom_vec[i]->GetType().m_Type == geomtype )
+        if ( geom_vec[i]->GetSetFlag( set ) && geom_vec[i]->GetBehaviorType() == geomtype )
         {
             exist = true;
         }
@@ -3479,7 +3495,7 @@ string Vehicle::WriteSTLFile( const string & file_name, int write_set, bool useM
     fprintf( fid, "solid\n" );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        if ( geom_vec[i]->GetSetFlag( write_set ) && Geom::CastTo< TMeshRole >( geom_vec[i] ) )
         {
             mesh_id = geom_vec[i]->GetID(); // Set ID in case mesh already existed
 
@@ -3533,18 +3549,20 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, i
     }
 
     // Pre-build indexed meshes
-    vector< MeshGeom* > mg_vec;
+    vector< TMeshRole* > mg_vec;
+    vector< Geom* > mg_geom_vec;
     vector< vector< TTri* > > trivec_vec;
     vector< vector< TNode* > > nodvec_vec;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        TMeshRole* mg = Geom::CastTo< TMeshRole >( geom_vec[i] );
+        if ( geom_vec[i]->GetSetFlag( write_set ) && mg )
         {
-            MeshGeom* mg = ( MeshGeom* )geom_vec[i];
             mg_vec.push_back( mg );
+            mg_geom_vec.push_back( geom_vec[i] );
             trivec_vec.emplace_back();
             nodvec_vec.emplace_back();
-            BuildIndexedMesh( mg->m_TMeshVec, mg->m_SliceVec, mg->m_ViewMeshFlag(), mg->m_ViewSliceFlag(),
+            BuildIndexedMesh( mg->GetTMeshVecInSelf(), mg->GetTMeshSliceVec(), mg->GetTMeshViewMeshFlag(), mg->GetTMeshViewSliceFlag(),
                               trivec_vec.back(), nodvec_vec.back() );
         }
     }
@@ -3560,8 +3578,8 @@ string Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set, i
 
             for ( int j = 0 ; j < ( int )mg_vec.size() ; j++ )
             {
-                mesh_id = mg_vec[j]->GetID(); // Set ID in case mesh already existed
-                WriteStlByTag( file_id, tags[i], trivec_vec[j] );
+                mesh_id = mg_geom_vec[j]->GetID(); // Set ID in case mesh already existed
+                WriteStlByTag( file_id, tags[i], trivec_vec[j], mg_vec[j]->GetTMeshTransMat(), mg_vec[j]->GetRoleShapeFlipNormal() );
             }
             fprintf( file_id, "endsolid %d_%s\n", tags[i], tagname.c_str() );
         }
@@ -3632,20 +3650,22 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
         int num_parts = 0;
 
         // Pre-build indexed meshes
-        vector< MeshGeom* > mg_vec;
+        vector< TMeshRole* > mg_vec;
+        vector< Geom* > mg_geom_vec;
         vector< vector< TTri* > > trivec_vec;
         vector< vector< TNode* > > nodvec_vec;
         for ( int i = 0; i < (int)geom_vec.size(); i++ )
         {
-            if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+            TMeshRole* mg = Geom::CastTo< TMeshRole >( geom_vec[i] );
+            if ( geom_vec[i]->GetSetFlag( write_set ) && mg )
             {
-                MeshGeom* mg = (MeshGeom*)geom_vec[i];
                 mg_vec.push_back( mg );
+                mg_geom_vec.push_back( geom_vec[i] );
                 trivec_vec.emplace_back();
                 nodvec_vec.emplace_back();
-                BuildIndexedMesh( mg->m_TMeshVec, mg->m_SliceVec, mg->m_ViewMeshFlag(), mg->m_ViewSliceFlag(),
+                BuildIndexedMesh( mg->GetTMeshVecInSelf(), mg->GetTMeshSliceVec(), mg->GetTMeshViewMeshFlag(), mg->GetTMeshViewSliceFlag(),
                                   trivec_vec.back(), nodvec_vec.back() );
-                num_parts += (int)mg->m_TMeshVec.size();
+                num_parts += (int)mg->GetTMeshVecInSelf().size();
                 num_pnts += (int)nodvec_vec.back().size();
             }
         }
@@ -3655,8 +3675,8 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
         // List all points (nodes) in "Big" part
         for ( int i = 0; i < (int)mg_vec.size(); i++ )
         {
-            mesh_id = mg_vec[i]->GetID(); // Set ID in case mesh already existed
-            WriteFacetNodes( fid, nodvec_vec[i], mg_vec[i]->GetTotalTransMat() );
+            mesh_id = mg_geom_vec[i]->GetID(); // Set ID in case mesh already existed
+            WriteFacetNodes( fid, nodvec_vec[i], mg_vec[i]->GetTMeshTransMat() );
         }
 
         // Define each "Small" part by corresponding nodes for each facet
@@ -3670,7 +3690,8 @@ string Vehicle::WriteFacetFile( const string & file_name, int write_set, int sub
 
         for ( int i = 0; i < (int)mg_vec.size(); i++ )
         {
-            WriteFacetTriParts( fid, offset, tri_count, part_count, mg_vec[i]->m_TMeshVec, trivec_vec[i], nodvec_vec[i] );
+            WriteFacetTriParts( fid, offset, tri_count, part_count, mg_vec[i]->GetTMeshVecInSelf(), trivec_vec[i], nodvec_vec[i],
+                                mg_vec[i]->GetRoleShapeFlipNormal() );
         }
 
         // Note: The mesh geom created during the export is not deleted.
@@ -3740,20 +3761,22 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
     int i;
 
     // Pre-build indexed meshes
-    vector< MeshGeom* > mg_vec;
+    vector< TMeshRole* > mg_vec;
+    vector< Geom* > mg_geom_vec;
     vector< vector< TTri* > > trivec_vec;
     vector< vector< TNode* > > nodvec_vec;
     for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        TMeshRole* mg = Geom::CastTo< TMeshRole >( geom_vec[i] );
+        if ( geom_vec[i]->GetSetFlag( write_set ) && mg )
         {
-            MeshGeom* mg = ( MeshGeom* )geom_vec[i];
             mg_vec.push_back( mg );
+            mg_geom_vec.push_back( geom_vec[i] );
             trivec_vec.emplace_back();
             nodvec_vec.emplace_back();
-            BuildIndexedMesh( mg->m_TMeshVec, mg->m_SliceVec, mg->m_ViewMeshFlag(), mg->m_ViewSliceFlag(),
+            BuildIndexedMesh( mg->GetTMeshVecInSelf(), mg->GetTMeshSliceVec(), mg->GetTMeshViewMeshFlag(), mg->GetTMeshViewSliceFlag(),
                               trivec_vec.back(), nodvec_vec.back() );
-            num_parts += (int)mg->m_TMeshVec.size();
+            num_parts += (int)mg->GetTMeshVecInSelf().size();
             num_pnts += (int)nodvec_vec.back().size();
             num_tris += (int)trivec_vec.back().size();
         }
@@ -3764,15 +3787,15 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set, int subsF
     //==== Dump Points ====//
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
     {
-        mesh_id = mg_vec[i]->GetID(); // Set ID in case mesh already existed
-        WriteCart3DPnts( file_id, nodvec_vec[i], mg_vec[i]->GetTotalTransMat() );
+        mesh_id = mg_geom_vec[i]->GetID(); // Set ID in case mesh already existed
+        WriteCart3DPnts( file_id, nodvec_vec[i], mg_vec[i]->GetTMeshTransMat() );
     }
 
     int offset = 0;
     //==== Dump Tris ====//
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
     {
-        offset = WriteCart3DTris( file_id, offset, trivec_vec[i], nodvec_vec[i] );
+        offset = WriteCart3DTris( file_id, offset, trivec_vec[i], nodvec_vec[i], mg_vec[i]->GetRoleShapeFlipNormal() );
     }
 
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
@@ -3844,20 +3867,22 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
     int num_parts = 0;
     int i;
 
-    vector< MeshGeom* > mg_vec;
+    vector< TMeshRole* > mg_vec;
+    vector< Geom* > mg_geom_vec;
     vector< vector< TTri* > > trivec_vec;
     vector< vector< TNode* > > nodvec_vec;
     for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        TMeshRole* mg = Geom::CastTo< TMeshRole >( geom_vec[i] );
+        if ( geom_vec[i]->GetSetFlag( write_set ) && mg )
         {
-            MeshGeom* mg = ( MeshGeom* )geom_vec[i];
             mg_vec.push_back( mg );
+            mg_geom_vec.push_back( geom_vec[i] );
             trivec_vec.emplace_back();
             nodvec_vec.emplace_back();
-            BuildIndexedMesh( mg->m_TMeshVec, mg->m_SliceVec, mg->m_ViewMeshFlag(), mg->m_ViewSliceFlag(),
+            BuildIndexedMesh( mg->GetTMeshVecInSelf(), mg->GetTMeshSliceVec(), mg->GetTMeshViewMeshFlag(), mg->GetTMeshViewSliceFlag(),
                               trivec_vec.back(), nodvec_vec.back() );
-            num_parts += (int)mg->m_TMeshVec.size();
+            num_parts += (int)mg->GetTMeshVecInSelf().size();
             num_pnts += (int)nodvec_vec.back().size();
             num_tris += (int)trivec_vec.back().size();
         }
@@ -3866,16 +3891,16 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
     //==== Dump Points ====//
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
     {
-        mesh_id = mg_vec[i]->GetID(); // Set ID in case mesh already existed
-        WriteOBJPnts( file_id, nodvec_vec[i], mg_vec[i]->GetTotalTransMat() );
+        mesh_id = mg_geom_vec[i]->GetID(); // Set ID in case mesh already existed
+        WriteOBJPnts( file_id, nodvec_vec[i], mg_vec[i]->GetTMeshTransMat() );
     }
 
     int offset = 0;
     //==== Dump Tris ====//
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
     {
-        fprintf( file_id, "g %s\n", mg_vec[i]->GetName().c_str() );
-        offset = WriteOBJTris( file_id, offset, trivec_vec[i], nodvec_vec[i] );
+        fprintf( file_id, "g %s\n", mg_geom_vec[i]->GetName().c_str() );
+        offset = WriteOBJTris( file_id, offset, trivec_vec[i], nodvec_vec[i], mg_vec[i]->GetRoleShapeFlipNormal() );
     }
 
     fclose( file_id );
@@ -3943,9 +3968,10 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         return mesh_id;
     }
 
-    // Add a new mesh if one does not exist in either set
-    if ( ( write_set >= 0 && !ExistMesh( write_set ) && !ExistType( write_set, NGON_GEOM_TYPE ) ) ||
-         ( degen_set >= 0 && !ExistMesh( degen_set ) && !ExistType( degen_set, NGON_GEOM_TYPE ) ) )
+    // Add a new mesh if one does not exist in either set.  Strictly the type for the polygon
+    // mesh, so a Clone of one still gets a mesh built.
+    if ( ( write_set >= 0 && !ExistMesh( write_set ) && !ExistGeomType( write_set, NGON_GEOM_TYPE ) ) ||
+         ( degen_set >= 0 && !ExistMesh( degen_set ) && !ExistGeomType( degen_set, NGON_GEOM_TYPE ) ) )
     {
         mesh_id = AddMeshGeom( write_set, degen_set, suppressdisks );
         if ( mesh_id.compare( "NONE" ) != 0 )
@@ -3988,8 +4014,10 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         }
     }
 
-    if ( ExistType( write_set, NGON_GEOM_TYPE ) ||
-         ExistType( degen_set, NGON_GEOM_TYPE ) )
+    // Strictly the type: only a real polygon mesh has a PGMulti.  A Clone of one falls through
+    // to the triangle branch below.
+    if ( ExistGeomType( write_set, NGON_GEOM_TYPE ) ||
+         ExistGeomType( degen_set, NGON_GEOM_TYPE ) )
     {
         for ( int i = 0; i < ( int ) geom_vec.size(); i++ )
         {
@@ -4029,25 +4057,31 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         int i;
 
         // Pre-build indexed meshes
-        vector< MeshGeom* > mg_vec;
+        vector< TMeshRole* > mg_vec;
+        vector< Geom* > mg_geom_vec;
         vector< vector< TTri* > > trivec_vec;
         vector< vector< TNode* > > nodvec_vec;
         for ( i = 0; i < ( int ) geom_vec.size(); i++ )
         {
+            TMeshRole *mg = Geom::CastTo< TMeshRole >( geom_vec[i] );
             if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) )
-                && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+                && mg )
             {
-                MeshGeom *mg = ( MeshGeom * ) geom_vec[i];
                 mg_vec.push_back( mg );
+                mg_geom_vec.push_back( geom_vec[i] );
                 trivec_vec.emplace_back();
                 nodvec_vec.emplace_back();
-                BuildIndexedMesh( mg->m_TMeshVec, mg->m_SliceVec, mg->m_ViewMeshFlag(), mg->m_ViewSliceFlag(),
+                BuildIndexedMesh( mg->GetTMeshVecInSelf(), mg->GetTMeshSliceVec(), mg->GetTMeshViewMeshFlag(), mg->GetTMeshViewSliceFlag(),
                                   trivec_vec.back(), nodvec_vec.back() );
-                IdentifyWakes( trivec_vec.back(), mg->m_Wakes, mg->m_PolyVec );
-                num_parts += (int)mg->m_TMeshVec.size();
+                MeshGeom* wake_mesh = dynamic_cast< MeshGeom* >( geom_vec[i] );
+                if ( wake_mesh )
+                {
+                    IdentifyWakes( trivec_vec.back(), wake_mesh->m_Wakes, wake_mesh->m_PolyVec );
+                    num_wakes += wake_mesh->GetNumWakes();
+                }
+                num_parts += (int)mg->GetTMeshVecInSelf().size();
                 num_pnts += (int)nodvec_vec.back().size();
                 num_tris += (int)trivec_vec.back().size();
-                num_wakes += mg->GetNumWakes();
             }
         }
 
@@ -4058,8 +4092,8 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         //==== Dump Points ====//
         for ( i = 0; i < ( int ) mg_vec.size(); i++ )
         {
-            mesh_id = mg_vec[i]->GetID(); // Set ID in case mesh already existed
-            WriteVSPGeomPnts( file_id, nodvec_vec[i], mg_vec[i]->GetTotalTransMat() );
+            mesh_id = mg_geom_vec[i]->GetID(); // Set ID in case mesh already existed
+            WriteVSPGeomPnts( file_id, nodvec_vec[i], mg_vec[i]->GetTMeshTransMat() );
         }
 
         fprintf( file_id, "%d\n", num_tris );
@@ -4068,12 +4102,12 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         //==== Dump Tris ====//
         for ( i = 0; i < ( int ) mg_vec.size(); i++ )
         {
-            offset = WriteVSPGeomTris( file_id, offset, trivec_vec[i], nodvec_vec[i] );
+            offset = WriteVSPGeomTris( file_id, offset, trivec_vec[i], nodvec_vec[i], mg_vec[i]->GetRoleShapeFlipNormal() );
         }
 
         for ( i = 0; i < ( int ) mg_vec.size(); i++ )
         {
-            WriteVSPGeomParts( file_id, trivec_vec[i] );
+            WriteVSPGeomParts( file_id, trivec_vec[i], mg_vec[i]->GetRoleShapeFlipNormal() );
         }
 
         //==== Write parents ====//
@@ -4089,10 +4123,21 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         // Wake line data.
         for ( i = 0; i < ( int ) mg_vec.size(); i++ )
         {
-            offset = WriteVSPGeomWakes( file_id, offset, mg_vec[i]->m_Wakes, nodvec_vec[i] );
+            // A Clone of a mesh has no wakes, but the offset must still step over its nodes.
+            MeshGeom* wake_mesh = dynamic_cast< MeshGeom* >( mg_geom_vec[i] );
+            vector < deque < TEdge > > no_wakes;
 
-            mg_vec[i]->m_SurfDirty = true;
-            mg_vec[i]->Update();
+            if ( wake_mesh )
+            {
+                offset = WriteVSPGeomWakes( file_id, offset, wake_mesh->m_Wakes, nodvec_vec[i] );
+            }
+            else
+            {
+                offset = WriteVSPGeomWakes( file_id, offset, no_wakes, nodvec_vec[i] );
+            }
+
+            mg_geom_vec[i]->SetDirtyFlag( GeomBase::SURF );
+            mg_geom_vec[i]->Update();
         }
 
         offset = 0;
@@ -4100,13 +4145,13 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         //==== Dump alternate Tris ====//
         for ( i = 0; i < ( int ) mg_vec.size(); i++ )
         {
-            offset = WriteVSPGeomAlternateTris( file_id, offset, tcount, trivec_vec[i], nodvec_vec[i] );
+            offset = WriteVSPGeomAlternateTris( file_id, offset, tcount, trivec_vec[i], nodvec_vec[i], mg_vec[i]->GetRoleShapeFlipNormal() );
         }
 
         tcount = 1;
         for ( i = 0; i < ( int ) mg_vec.size(); i++ )
         {
-            WriteVSPGeomAlternateParts( file_id, tcount, trivec_vec[i] );
+            WriteVSPGeomAlternateParts( file_id, tcount, trivec_vec[i], mg_vec[i]->GetRoleShapeFlipNormal() );
         }
         fclose( file_id );
 
@@ -4315,20 +4360,22 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
     int num_tris = 0;
     int num_parts = 0;
     // Pre-build indexed meshes
-    vector< MeshGeom* > mg_vec;
+    vector< TMeshRole* > mg_vec;
+    vector< Geom* > mg_geom_vec;
     vector< vector< TTri* > > trivec_vec;
     vector< vector< TNode* > > nodvec_vec;
     for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        TMeshRole* mg = Geom::CastTo< TMeshRole >( geom_vec[i] );
+        if ( geom_vec[i]->GetSetFlag( write_set ) && mg )
         {
-            MeshGeom* mg = ( MeshGeom* )geom_vec[i];
             mg_vec.push_back( mg );
+            mg_geom_vec.push_back( geom_vec[i] );
             trivec_vec.emplace_back();
             nodvec_vec.emplace_back();
-            BuildIndexedMesh( mg->m_TMeshVec, mg->m_SliceVec, mg->m_ViewMeshFlag(), mg->m_ViewSliceFlag(),
+            BuildIndexedMesh( mg->GetTMeshVecInSelf(), mg->GetTMeshSliceVec(), mg->GetTMeshViewMeshFlag(), mg->GetTMeshViewSliceFlag(),
                               trivec_vec.back(), nodvec_vec.back() );
-            num_parts += (int)mg->m_TMeshVec.size();
+            num_parts += (int)mg->GetTMeshVecInSelf().size();
             num_pnts += (int)nodvec_vec.back().size();
             num_tris += (int)trivec_vec.back().size();
         }
@@ -4338,15 +4385,15 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set, int 
     //==== Dump Points ====//
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
     {
-        mesh_id = mg_vec[i]->GetID(); // Set ID in case mesh already existed
-        WriteNascartPnts( file_id, nodvec_vec[i], mg_vec[i]->GetTotalTransMat() );
+        mesh_id = mg_geom_vec[i]->GetID(); // Set ID in case mesh already existed
+        WriteNascartPnts( file_id, nodvec_vec[i], mg_vec[i]->GetTMeshTransMat() );
     }
 
     int offset = 0;
     //==== Dump Tris ====//
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
     {
-        offset = WriteNascartTris( file_id, offset, trivec_vec[i], nodvec_vec[i] );
+        offset = WriteNascartTris( file_id, offset, trivec_vec[i], nodvec_vec[i], mg_vec[i]->GetRoleShapeFlipNormal() );
     }
 
     fclose( file_id );
@@ -4422,22 +4469,24 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
     int num_parts = 0;
     int i;
 
-    vector< MeshGeom* > mg_vec;
+    vector< TMeshRole* > mg_vec;
+    vector< Geom* > mg_geom_vec;
     vector< vector< TTri* > > trivec_vec;
     vector< vector< TNode* > > nodvec_vec;
     vector< int > node_offset_vec;
     for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        TMeshRole* mg = Geom::CastTo< TMeshRole >( geom_vec[i] );
+        if ( geom_vec[i]->GetSetFlag( write_set ) && mg )
         {
-            MeshGeom* mg = ( MeshGeom* )geom_vec[i];
             node_offset_vec.push_back( num_pnts );
             mg_vec.push_back( mg );
+            mg_geom_vec.push_back( geom_vec[i] );
             trivec_vec.emplace_back();
             nodvec_vec.emplace_back();
-            BuildIndexedMesh( mg->m_TMeshVec, mg->m_SliceVec, mg->m_ViewMeshFlag(), mg->m_ViewSliceFlag(),
+            BuildIndexedMesh( mg->GetTMeshVecInSelf(), mg->GetTMeshSliceVec(), mg->GetTMeshViewMeshFlag(), mg->GetTMeshViewSliceFlag(),
                               trivec_vec.back(), nodvec_vec.back() );
-            num_parts += (int)mg->m_TMeshVec.size();
+            num_parts += (int)mg->GetTMeshVecInSelf().size();
             num_pnts += (int)nodvec_vec.back().size();
             num_tris += (int)trivec_vec.back().size();
         }
@@ -4453,8 +4502,8 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
     int node_offset = 0;
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
     {
-        mesh_id = mg_vec[i]->GetID(); // Set ID in case mesh already existed
-        node_offset = WriteGMshNodes( file_id, node_offset, nodvec_vec[i], mg_vec[i]->GetTotalTransMat() );
+        mesh_id = mg_geom_vec[i]->GetID(); // Set ID in case mesh already existed
+        node_offset = WriteGMshNodes( file_id, node_offset, nodvec_vec[i], mg_vec[i]->GetTMeshTransMat() );
     }
     fprintf( file_id, "$EndNodes\n" );
 
@@ -4464,7 +4513,7 @@ string Vehicle::WriteGmshFile( const string & file_name, int write_set, int subs
     int tri_offset = 0;
     for ( i = 0 ; i < ( int )mg_vec.size() ; i++ )
     {
-        tri_offset = WriteGMshTris( file_id, node_offset_vec[i], tri_offset, trivec_vec[i] );
+        tri_offset = WriteGMshTris( file_id, node_offset_vec[i], tri_offset, trivec_vec[i], mg_vec[i]->GetRoleShapeFlipNormal() );
     }
     fprintf( file_id, "$EndElements\n" );
 

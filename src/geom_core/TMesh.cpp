@@ -5363,7 +5363,7 @@ void TMesh::WriteIgnoredSTLTris( FILE* file_id, Matrix4d XFormMat )
 }
 
 //==== Write STL Tris =====//
-void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
+void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat, bool flipnormal )
 {
     int t, s;
     vec3d norm;
@@ -5383,6 +5383,13 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
                     v0 = XFormMat.xform( tri->m_SplitVec[s]->m_N0->m_Pnt );
                     v1 = XFormMat.xform( tri->m_SplitVec[s]->m_N1->m_Pnt );
                     v2 = XFormMat.xform( tri->m_SplitVec[s]->m_N2->m_Pnt );
+
+                    // A reflecting matrix reverses the winding, so swap two vertices; the normal
+                    // below is computed from them.
+                    if ( flipnormal )
+                    {
+                        std::swap( v1, v2 );
+                    }
 
                     d21 = v2 - v1;
 
@@ -5410,6 +5417,11 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
                 v1 = XFormMat.xform( tri->m_N1->m_Pnt );
                 v2 = XFormMat.xform( tri->m_N2->m_Pnt );
 
+                if ( flipnormal )
+                {
+                    std::swap( v1, v2 );
+                }
+
                 d21 = v2 - v1;
 
                 if ( d21.mag() > 0.000001 )
@@ -5429,7 +5441,6 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
         }
     }
 }
-
 void TMesh::WriteInsideMStlTris( FILE* file_id, Matrix4d XFormMat, int minside )
 {
     int t, s;

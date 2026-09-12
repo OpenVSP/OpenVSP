@@ -1973,6 +1973,54 @@ int CloneGeom::GetTMeshColorStartDegree() const
     return mesh->GetTMeshColorStartDegree();
 }
 
+void CloneGeom::WriteStl( FILE* file_id )
+{
+    if ( GetOriginalTMesh() )
+    {
+        WriteTMeshStl( file_id );
+        return;
+    }
+
+    Geom::WriteStl( file_id );
+}
+
+// The original's slices, in its own frame.  Needed because the view flags are copied too: a Clone
+// showing the mesh while the original shows only slices would export triangles the original omits.
+const vector< TMesh* > & CloneGeom::GetTMeshSliceVec() const
+{
+    static const vector< TMesh* > empty;
+
+    TMeshRole* mesh = GetOriginalTMesh();
+    if ( !mesh )
+    {
+        return empty;
+    }
+
+    return mesh->GetTMeshSliceVec();
+}
+
+bool CloneGeom::GetTMeshViewMeshFlag() const
+{
+    TMeshRole* mesh = GetOriginalTMesh();
+    if ( !mesh )
+    {
+        return true;
+    }
+
+    return mesh->GetTMeshViewMeshFlag();
+}
+
+bool CloneGeom::GetTMeshViewSliceFlag() const
+{
+    TMeshRole* mesh = GetOriginalTMesh();
+    if ( !mesh )
+    {
+        return false;
+    }
+
+    return mesh->GetTMeshViewSliceFlag();
+}
+
 Matrix4d CloneGeom::GetTMeshScaleMat() const
 {
     TMeshRole* mesh = GetOriginalTMesh();
