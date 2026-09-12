@@ -1292,14 +1292,13 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node )
     string default_str = "None";
     int default_int = 0;
     double default_dbl = 0.;
-    
+
     string attrXmlName = "AttributeCollection";
     xmlNodePtr dnode = XmlUtil::GetNode( node, attrXmlName.c_str(), 0 );
     if ( dnode )
     {
         int decode_error = 0;
 
-        string attachID;
         string oldID = XmlUtil::FindStringProp( dnode, "ID", m_ID );
 
         string newID = IDMgr.RemapID( oldID, m_ID );
@@ -1309,10 +1308,10 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node )
             ChangeID( newID );
         }
 
-        attachID = IDMgr.RemapID( XmlUtil::FindStringProp( dnode, "AttachID", m_AttachID ) , m_AttachID );
-
-        int attachType = XmlUtil::FindIntProp( dnode, "AttachType", vsp::ATTROBJ_FREE );
-        SetCollAttach( attachID, attachType );
+        // The attach names the object holding this collection, and is not read back from the
+        // file.  AttachAttrCollection supplies it, ID and type together, from the owner's
+        // constructor and again whenever the owner's ID changes -- and a container settles its
+        // own ID before it reads its collection.
 
         //then get all the xmlNodePtrs to all the Attributes in there...
         int num_Attr = XmlUtil::GetNumNames( dnode, "Attribute" );
