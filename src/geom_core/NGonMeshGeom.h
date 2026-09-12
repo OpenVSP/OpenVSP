@@ -45,7 +45,7 @@ public:
     virtual void RemovePotentialFiles( const string& file_name );
     virtual void WriteVSPGEOM( string fname, vector < string > &all_fnames );
 
-    virtual vector< TMesh* > CreateTMeshVec();
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const override;
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;

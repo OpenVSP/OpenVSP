@@ -653,7 +653,7 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-vector<TMesh*> NGonMeshGeom::CreateTMeshVec()
+vector<TMesh*> NGonMeshGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
 {
     PGMesh *pgm = m_PGMulti.GetActiveMesh();
     vector<TMesh*> retTMeshVec(1);

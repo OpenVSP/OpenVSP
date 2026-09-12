@@ -467,7 +467,7 @@ public:
     PGPoint* AddPoint( const vec3d& p );
     void  RemovePoint( PGPoint* pptr );
 
-    PGMesh* GetActiveMesh();
+    PGMesh* GetActiveMesh() const;
 
     bool Check();
     void ResetPointNumbers();

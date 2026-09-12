@@ -4671,7 +4671,7 @@ void PGMulti::DumpGarbage()
     m_GarbagePointVec.clear();
 }
 
-PGMesh* PGMulti::GetActiveMesh()
+PGMesh* PGMulti::GetActiveMesh() const
 {
     return m_MeshVec[ m_ActiveMesh ];
 }
