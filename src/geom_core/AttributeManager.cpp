@@ -948,7 +948,10 @@ string AttributeMgrSingleton::AddAttributeParm( const string &collID, const stri
     NameValData* attr = new NameValData( attributeName );
     attr->SetType( vsp::PARM_REFERENCE_DATA );
     attr->SetParmIDData( { parmID } );
-    attr->ChangeID( id );
+    if ( !id.empty() )
+    {
+        attr->ChangeID( id );
+    }
     string ret_id = AddAttributeUtil( collID, attr, updateFlag );
     return ret_id;
 }
@@ -978,7 +981,10 @@ string AttributeMgrSingleton::AddAttributeGroup( const string &collID, const str
 {
     NameValData* attr = new NameValData( attributeName );
     attr->SetType( vsp::ATTR_COLLECTION_DATA );
-    attr->ChangeID( id );
+    if ( !id.empty() )
+    {
+        attr->ChangeID( id );
+    }
     string ret_id = AddAttributeUtil( collID, attr, updateFlag );
     return ret_id;
 }
