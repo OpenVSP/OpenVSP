@@ -59,6 +59,50 @@ def testAGroupAndAParmAttributeSurviveAFile():
     pop_errors()
 
 
+def attach_ids( path ):
+    """Every attribute's attach, and every collection ID defined, in a written file."""
+    root = xml.etree.ElementTree.parse( path ).getroot()
+    defined = set()
+    attaches = []
+    for coll in root.iter( "AttributeCollection" ):
+        defined.add( coll.get( "ID" ) )
+    for attr in root.iter( "Attribute" ):
+        defined.add( attr.get( "ID" ) )
+        attaches.append( ( attr.get( "Name" ), attr.get( "AttachID" ) ) )
+    return defined, attaches
+
+
+def testAnAttributeStillNamesItsCollectionAfterTheIdsHaveMoved():
+    """No attribute may name a collection the file does not define.
+
+    An attribute's attach names the collection holding it, and a collection taking a new ID
+    tells the attributes inside, so the two ends stay together however the IDs move.
+    """
+    out = fresh()
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+    vsp.AddAttributeString( vsp.GetChildCollection( pod ), "note", "hello" )
+    vsp.Update()
+
+    written = os.path.join( out, "attach.vsp3" )
+    vsp.WriteVSPFile( written )
+
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( written )
+    vsp.Update()
+    vsp.InsertVSPFile( written, "" )      # every identity collides, so every one moves
+    vsp.Update()
+
+    again = os.path.join( out, "attach2.vsp3" )
+    vsp.WriteVSPFile( again )
+
+    defined, attaches = attach_ids( again )
+    assert attaches, "the file carries no attributes, so nothing is measured"
+    dangling = [ ( n, a ) for n, a in attaches if a and a not in defined and a != "NONE" ]
+    assert not dangling, "an attribute names something the file does not define: %s" % dangling
+    pop_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):

@@ -1238,6 +1238,19 @@ void AttributeCollection::ChangeID( const string &id )
     {
         m_ID = id;
     }
+
+    // Every attribute in here is attached by this collection's ID -- Add is what puts it there --
+    // so they all have to be told, the same way Parm and ParmContainer tell their collection when
+    // their own ID changes.  Leaving them behind writes an attach naming a collection that no
+    // longer exists.
+    vector < NameValData* > attr_vec = GetAllPtrs();
+    for ( int i = 0; i < ( int )attr_vec.size(); i++ )
+    {
+        if ( attr_vec[i] )
+        {
+            attr_vec[i]->SetAttrAttach( m_ID );
+        }
+    }
 }
 
 // ==== Encode Data To XML Data Structure ====//
