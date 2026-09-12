@@ -2233,9 +2233,8 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
 
     IDMgr.ResetRemapID( lastreset );
 
-    // Scan through and look for parents & children outside copied vector
-    // These have nonexistant ID's because the remap created a new unique
-    // ID, but no geom was ever created and changed to that ID.
+    // Drop anything still naming a Geom outside the copy: a parent becomes "NONE", which puts
+    // the copy at the top level, and a child is removed from the list.
     for ( int i = 0 ; i < ( int )created_id_vec.size() ; i++ )
     {
         Geom* geom = FindGeom( created_id_vec[i] );

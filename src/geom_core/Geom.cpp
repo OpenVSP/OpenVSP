@@ -560,7 +560,13 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
         //m_Type.m_Name   = XmlUtil::FindString( child_node, "TypeName", m_Type.m_Name );
         //m_Type.m_Type   = XmlUtil::FindInt( child_node, "TypeID", m_Type.m_Type );
         m_Type.m_FixedFlag = !!XmlUtil::FindInt( geombase_node, "TypeFixed", m_Type.m_FixedFlag );
-        m_ParentID = IDMgr.RemapID( XmlUtil::FindString( geombase_node, "ParentID", m_ParentID ) );
+        // The parent only comes across if it was part of the same read or copy.  Anything
+        // else and this Geom lands at the top level, where the paste puts it.
+        m_ParentID = IDMgr.RemapCopiedID( XmlUtil::FindString( geombase_node, "ParentID", m_ParentID ) );
+        if ( m_ParentID.empty() )
+        {
+            m_ParentID = "NONE";
+        }
 
         m_ChildIDVec.clear();
 
@@ -572,7 +578,11 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
             for ( int i = 0 ; i < num_children ; i++ )
             {
                 xmlNodePtr n = XmlUtil::GetNode( cl_node, "Child", i );
-                m_ChildIDVec.push_back( IDMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+                string child = IDMgr.RemapCopiedID( XmlUtil::FindString( n, "ID", string() ) );
+                if ( !child.empty() )
+                {
+                    m_ChildIDVec.push_back( child );
+                }
             }
         }
 
@@ -586,7 +596,11 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
             for ( int i = 0 ; i < num_stepchildren ; i++ )
             {
                 xmlNodePtr n = XmlUtil::GetNode( scl_node, "Step_Child", i );
-                AddStepChildID( IDMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+                string child = IDMgr.RemapCopiedID( XmlUtil::FindString( n, "ID", string() ) );
+                if ( !child.empty() )
+                {
+                    AddStepChildID( child );
+                }
             }
         }
     }
