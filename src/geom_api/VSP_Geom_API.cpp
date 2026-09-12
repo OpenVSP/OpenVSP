@@ -2682,6 +2682,7 @@ void AddMaterial( const std::string &name, const vec3d & ambient, const vec3d & 
     mat.SetEmissive( emissive );
     mat.SetAlpha( alpha );
     mat.SetShininess( shininess );
+    mat.m_UserMaterial = true;
 
     MaterialMgr.AddMaterial( mat );
     ErrorMgr.NoError();
