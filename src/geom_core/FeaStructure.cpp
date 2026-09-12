@@ -1268,8 +1268,8 @@ xmlNodePtr FeaPart::DecodeXml( xmlNodePtr & node )
 {
     if ( node )
     {
-        m_FeaPropertyID = IDMgr.RemapID( XmlUtil::FindString( node, "FeaPropertyID", m_FeaPropertyID ) );
-        m_CapFeaPropertyID = IDMgr.RemapID( XmlUtil::FindString( node, "CapFeaPropertyID", m_CapFeaPropertyID ) );
+        m_FeaPropertyID = IDMgr.RemapRefID( XmlUtil::FindString( node, "FeaPropertyID", m_FeaPropertyID ) );
+        m_CapFeaPropertyID = IDMgr.RemapRefID( XmlUtil::FindString( node, "CapFeaPropertyID", m_CapFeaPropertyID ) );
     }
 
     return ParmContainer::DecodeXml( node );
@@ -4001,8 +4001,8 @@ xmlNodePtr FeaFixPoint::DecodeXml( xmlNodePtr & node )
 
     if ( fea_prt_node )
     {
-        m_ParentFeaPartID = IDMgr.RemapID( XmlUtil::FindString( fea_prt_node, "ParentFeaPartID", m_ParentFeaPartID ) );
-        m_OtherGeomID = IDMgr.RemapID( XmlUtil::FindString( fea_prt_node, "OtherGeomID", m_OtherGeomID ) );
+        m_ParentFeaPartID = IDMgr.RemapRefID( XmlUtil::FindString( fea_prt_node, "ParentFeaPartID", m_ParentFeaPartID ) );
+        m_OtherGeomID = IDMgr.RemapRefID( XmlUtil::FindString( fea_prt_node, "OtherGeomID", m_OtherGeomID ) );
     }
 
     return fea_prt_node;
@@ -4160,7 +4160,7 @@ xmlNodePtr FeaPartTrim::DecodeXml( xmlNodePtr & node )
     for ( int i = 0 ; i < num_trim ; i++ )
     {
         xmlNodePtr n = XmlUtil::GetNode( tl_node, "TrimPart", i );
-        AddTrimPart(IDMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+        AddTrimPart(IDMgr.RemapRefID( XmlUtil::FindString( n, "ID", string() ) ) );
     }
 
     ParmContainer::DecodeXml( node );
@@ -5854,7 +5854,7 @@ xmlNodePtr FeaProperty::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        m_FeaMaterialID = IDMgr.RemapID( XmlUtil::FindString( node, "FeaMaterialID", m_FeaMaterialID ) );
+        m_FeaMaterialID = IDMgr.RemapRefID( XmlUtil::FindString( node, "FeaMaterialID", m_FeaMaterialID ) );
     }
 
     return node;
@@ -5983,7 +5983,7 @@ xmlNodePtr FeaLayer::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        m_FeaMaterialID = IDMgr.RemapID( XmlUtil::FindString( node, "FeaLaminaID", m_FeaMaterialID ) );
+        m_FeaMaterialID = IDMgr.RemapRefID( XmlUtil::FindString( node, "FeaLaminaID", m_FeaMaterialID ) );
     }
 
     return node;
@@ -6956,7 +6956,7 @@ xmlNodePtr FeaMaterial::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        m_Description = IDMgr.RemapID( XmlUtil::FindString( node, "Description", m_Description ) );
+        m_Description = XmlUtil::FindString( node, "Description", m_Description );
 
         int numlayers = XmlUtil::GetNumNames( node, "FeaLayerInfo" );
 
@@ -7640,10 +7640,10 @@ xmlNodePtr FeaConnection::DecodeXml( xmlNodePtr & conn_node )
     {
         ParmContainer::DecodeXml( conn_node );
 
-        m_StartFixPtID = IDMgr.RemapID( XmlUtil::FindString( conn_node, "StartFixPtID", m_StartFixPtID ) );
-        m_StartStructID = IDMgr.RemapID( XmlUtil::FindString( conn_node, "StartStructID", m_StartStructID ) );
-        m_EndFixPtID = IDMgr.RemapID( XmlUtil::FindString( conn_node, "EndFixPtID", m_EndFixPtID ) );
-        m_EndStructID = IDMgr.RemapID( XmlUtil::FindString( conn_node, "EndStructID", m_EndStructID ) );
+        m_StartFixPtID = IDMgr.RemapRefID( XmlUtil::FindString( conn_node, "StartFixPtID", m_StartFixPtID ) );
+        m_StartStructID = IDMgr.RemapRefID( XmlUtil::FindString( conn_node, "StartStructID", m_StartStructID ) );
+        m_EndFixPtID = IDMgr.RemapRefID( XmlUtil::FindString( conn_node, "EndFixPtID", m_EndFixPtID ) );
+        m_EndStructID = IDMgr.RemapRefID( XmlUtil::FindString( conn_node, "EndStructID", m_EndStructID ) );
     }
 
     return conn_node;
@@ -7829,7 +7829,7 @@ xmlNodePtr FeaAssembly::DecodeXml( xmlNodePtr & assy_node )
             for ( int i = 0; i < num_struct; i++ )
             {
                 xmlNodePtr n = XmlUtil::GetNode( structlist_node, "Structure", i );
-                m_StructIDVec.push_back( IDMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+                m_StructIDVec.push_back( IDMgr.RemapRefID( XmlUtil::FindString( n, "ID", string() ) ) );
             }
         }
 
@@ -7998,8 +7998,8 @@ xmlNodePtr FeaBC::DecodeXml( xmlNodePtr & node )
 
     if ( conn_node )
     {
-        m_PartID = IDMgr.RemapID( XmlUtil::FindString( conn_node, "PartID", m_PartID ) );
-        m_SubSurfID = IDMgr.RemapID( XmlUtil::FindString( conn_node, "SubSurfID", m_SubSurfID ) );
+        m_PartID = IDMgr.RemapRefID( XmlUtil::FindString( conn_node, "PartID", m_PartID ) );
+        m_SubSurfID = IDMgr.RemapRefID( XmlUtil::FindString( conn_node, "SubSurfID", m_SubSurfID ) );
 
     }
 
