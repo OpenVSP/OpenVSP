@@ -48,16 +48,6 @@ GeomType::GeomType( int id, const string& name, bool fixed_flag, const string& m
 static_assert( std::is_nothrow_move_constructible< GeomType >::value, "GeomType must be nothrow move constructible" );
 static_assert( std::is_nothrow_move_assignable< GeomType >::value, "GeomType must be nothrow move assignable" );
 
-void GeomType::CopyFrom( const GeomType & t )
-{
-    m_Type = t.m_Type;
-    m_Name = t.m_Name;
-    m_FixedFlag = t.m_FixedFlag;
-    m_ModuleName = t.m_ModuleName;
-    m_DisplayName = t.m_DisplayName;
-    m_GeomID = t.m_GeomID;
-}
-
 
 
 

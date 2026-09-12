@@ -1189,13 +1189,6 @@ string Vehicle::CreateGeom( const GeomType & type )
     m_GeomStoreMap[ new_geom->GetID() ] = new_geom;
     SetGeomMapDirtyFlag( true );
 
-    Geom* type_geom_ptr = FindGeom( type.m_GeomID );
-    if ( type_geom_ptr )
-    {
-        new_geom->CopyFrom( type_geom_ptr );
-        new_geom->SetName( type.m_Name );
-    }
-
     return new_geom->GetID();
 }
 

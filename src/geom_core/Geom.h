@@ -66,8 +66,6 @@ public:
     // Destructor and copy/move operations are intentionally left implicit so vector<GeomType>
     // can move elements instead of deep-copying them.
 
-    void CopyFrom( const GeomType & t );
-
     bool GetAdoptableFlag()
     {
         return m_AdoptableFlag;
@@ -79,7 +77,6 @@ public:
 
     bool m_AdoptableFlag;
 
-    string m_GeomID;
     string m_ModuleName;
     string m_DisplayName;
 
