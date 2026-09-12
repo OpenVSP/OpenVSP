@@ -301,12 +301,12 @@ void HumanGeom::CopyVertsToSkel( const vector < vec3d > & sv )
 
 void HumanGeom::GetDesignEyeVec( vector < vec3d > & eyevec ) const
 {
-    int n = m_TransMatVec.size();
-    eyevec.resize( n );
-    for ( int i = 0; i < n; i++ )
-    {
-        eyevec[i] = m_TransMatVec[ i ].xform( m_PoseSkelVerts[ DES_EYE ] );
-    }
+    BuildDesignEyeVec( eyevec );
+}
+
+vec3d HumanGeom::GetDesignEyePtInSelf() const
+{
+    return m_PoseSkelVerts[ DES_EYE ];
 }
 
 vec3d HumanGeom::GetMainDesignEye() const
@@ -314,30 +314,63 @@ vec3d HumanGeom::GetMainDesignEye() const
     return m_ModelMatrix.xform( m_PoseSkelVerts[ DES_EYE ] );
 }
 
-Matrix4d HumanGeom::GetDesignEyeMatrix( bool axisaligned ) const
+// A frame, not an answer: a super cone hangs off this, so it is built on where the Geom sits.
+// A flipped shape looks the other way, and saying that in an eye basis would mean a reflection in
+// the cone's attachment -- so a Clone showing a flipped shape offers the unflipped eye.  The eye
+// positions an analysis reads come from BuildDesignEyeVec, which is laid out by symmetry and does
+// follow the flip.
+Matrix4d HumanVertRole::BuildDesignEyeMatrix( bool axisaligned ) const
 {
-    vec3d eyept = GetMainDesignEye();
+    Matrix4d model = GetRoleModelMatrix();
+    Matrix4d flip_mat = GetRoleFlipMat();
+
+    vec3d eyept = GetDesignEyePtInSelf();
     Matrix4d mat;
 
     if ( axisaligned )
     {
+        eyept.Transform( GetRoleShapeMatrix() );
         mat.translatev( eyept );
     }
     else
     {
         vec3d xdir, ydir, zdir;
-        m_TVision.getBasis( xdir, ydir, zdir );
-
-        Matrix4d modelinv = m_ModelMatrix;
-        modelinv.affineInverse();
-        eyept.Transform( modelinv );
+        GetVisionBasis().getBasis( xdir, ydir, zdir );
 
         mat.translatev( eyept );
         mat.setBasis( xdir, ydir, zdir );
 
-        mat.postMult( m_ModelMatrix );
+        Matrix4d seen = flip_mat;
+        seen.matMult( mat.data() );
+        seen.matMult( flip_mat.data() );
+        mat = seen;
+
+        mat.postMult( model );
     }
     return mat;
+}
+
+void HumanVertRole::BuildDesignEyeVec( vector < vec3d > & eyevec ) const
+{
+    Geom* geom_ptr = const_cast < Geom* > ( dynamic_cast < const Geom* > ( this ) );
+    if ( !geom_ptr )
+    {
+        eyevec.clear();
+        return;
+    }
+
+    vector < Matrix4d > tmv = geom_ptr->GetTransMatVec();
+
+    eyevec.resize( tmv.size() );
+    for ( int i = 0; i < ( int )tmv.size(); i++ )
+    {
+        eyevec[i] = tmv[ i ].xform( GetDesignEyePtInSelf() );
+    }
+}
+
+Matrix4d HumanGeom::GetDesignEyeMatrix( bool axisaligned ) const
+{
+    return BuildDesignEyeMatrix( axisaligned );
 }
 
 double HumanGeom::Get_mm2UX()

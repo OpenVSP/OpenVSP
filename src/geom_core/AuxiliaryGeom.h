@@ -39,6 +39,9 @@ public:
     // Which arrangement this auxiliary describes.
     virtual int GetAuxiliaryMode() const = 0;
 
+    // Whether a super cone is aligned to the world rather than to the head it hangs off.
+    virtual bool GetAuxWorldAligned() const = 0;
+
     //==== In the gear's frame ====//
     virtual bool GetCGInGear( vec3d &cgnom, vector < vec3d > &cgbounds ) = 0;
     virtual bool GetPtNormalInGear( vec3d &pt, vec3d &normal ) const = 0;
@@ -136,6 +139,11 @@ public:
 
     //==== The gear-frame halves of the interface ====//
     virtual GearContactRole* GetContactGear() const;
+    virtual bool GetAuxWorldAligned() const
+    {
+        return m_SCWorldAligned();
+    }
+
     virtual int GetAuxiliaryMode() const
     {
         return m_AuxuliaryGeomMode();

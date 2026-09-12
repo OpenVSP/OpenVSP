@@ -2381,11 +2381,13 @@ void MeshGeom::WaterTightCheck( FILE* fid )
     m_TMeshVec.push_back( oneMesh );
 }
 
-void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int & n_ref )
+void TMeshRole::BuildTMeshDegenGeom( Geom* geom_ptr, vector< DegenGeom > &dgs ) const
 {
-    unsigned int num_meshes = m_TMeshVec.size();
+    unsigned int num_meshes = GetTMeshVecInSelf().size();
 
     dgs.resize( num_meshes );
+
+    Matrix4d trans = GetTMeshTransMat();
 
     for ( int i = 0; i < num_meshes; i++ )
     {
@@ -2393,13 +2395,11 @@ void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int 
 
         degenGeom.setType( DegenGeom::MESH_TYPE );
 
-        degenGeom.setParentGeom( this );
+        degenGeom.setParentGeom( geom_ptr );
         degenGeom.setSurfNum( i );
         degenGeom.setFlipNormal( false );
         degenGeom.setMainSurfInd( 0 );
         degenGeom.setSymCopyInd( 0 );
-
-        Matrix4d trans = GetTotalTransMat();
 
         vector < double > tmatvec( 16 );
         for ( int j = 0; j < 16; j++ )
@@ -2410,8 +2410,13 @@ void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int 
 
         degenGeom.setNumXSecs( 0 );
         degenGeom.setNumPnts( 0 );
-        degenGeom.setName( GetName() );
+        degenGeom.setName( geom_ptr->GetName() );
     }
+}
+
+void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int & n_ref )
+{
+    BuildTMeshDegenGeom( this, dgs );
 }
 
 // The mesh as it is held, with no placement in it.

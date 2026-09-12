@@ -1512,7 +1512,7 @@ int CloneGeom::GetGearModelLenUnits() const
     GearContactRole* gear = GetOriginalGearContact();
     if ( !gear )
     {
-        return 0;
+        return vsp::LEN_UNITLESS;
     }
 
     return gear->GetGearModelLenUnits();
@@ -1529,6 +1529,17 @@ AuxiliaryRole* CloneGeom::GetOriginalAuxiliary() const
 GearContactRole* CloneGeom::GetContactGear() const
 {
     return Geom::CastTo< GearContactRole >( m_Vehicle->FindGeom( m_ParentID ) );
+}
+
+bool CloneGeom::GetAuxWorldAligned() const
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetAuxWorldAligned();
 }
 
 int CloneGeom::GetAuxiliaryMode() const
@@ -1710,6 +1721,29 @@ bool CloneGeom::GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d > &t,
 }
 
 //==== Standing in for a Geom whose shape is a mesh ====//
+
+// Eye point and view direction in the original's frame; this Geom's placement positions them.
+vec3d CloneGeom::GetDesignEyePtInSelf() const
+{
+    HumanVertRole* verts = GetOriginalHumanVert();
+    if ( !verts )
+    {
+        return vec3d();
+    }
+
+    return verts->GetDesignEyePtInSelf();
+}
+
+Matrix4d CloneGeom::GetVisionBasis() const
+{
+    HumanVertRole* verts = GetOriginalHumanVert();
+    if ( !verts )
+    {
+        return Matrix4d();
+    }
+
+    return verts->GetVisionBasis();
+}
 
 HumanVertRole* CloneGeom::GetOriginalHumanVert() const
 {
@@ -1953,7 +1987,7 @@ const vector< TMesh* > & CloneGeom::GetTMeshVecInSelf() const
 
 vector< TMesh* > CloneGeom::CreateTMeshVecInSelf( bool skipnegflipnormal, const int &n_ref ) const
 {
-    TMeshRole* mesh = Geom::CastTo< TMeshRole >( GetOriginalGeom() );
+    TMeshRole* mesh = GetOriginalTMesh();
     if ( !mesh )
     {
         return vector< TMesh* >();
@@ -1971,6 +2005,87 @@ int CloneGeom::GetTMeshColorStartDegree() const
     }
 
     return mesh->GetTMeshColorStartDegree();
+}
+
+void CloneGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int & n_ref )
+{
+    // One point-free entry per mesh, carrying this Geom's placement.
+    if ( GetOriginalTMesh() )
+    {
+        BuildTMeshDegenGeom( this, dgs );
+        return;
+    }
+
+    // One entry per symmetric copy, each with its placement and mirror flag.
+    if ( GetOriginalHumanVert() )
+    {
+        unsigned int num_meshes = m_TransMatVec.size();
+
+        dgs.resize( num_meshes );
+
+        for ( int i = 0; i < num_meshes; i++ )
+        {
+            DegenGeom &degenGeom = dgs[i];
+
+            degenGeom.setType( DegenGeom::MESH_TYPE );
+
+            degenGeom.setParentGeom( this );
+            degenGeom.setSurfNum( i );
+            degenGeom.setFlipNormal( m_FlipNormalVec[i] );
+            degenGeom.setMainSurfInd( m_MainSurfIndxVec[i] );
+            degenGeom.setSymCopyInd( m_SurfCopyIndx[i] );
+
+            vector < double > tmatvec( 16 );
+            for ( int j = 0; j < 16; j++ )
+            {
+                tmatvec[ j ] = m_TransMatVec[i].data()[ j ];
+            }
+            degenGeom.setTransMat( tmatvec );
+
+            degenGeom.setNumXSecs( 0 );
+            degenGeom.setNumPnts( 0 );
+            degenGeom.setName( GetName() );
+        }
+
+        return;
+    }
+
+    // A point grid becomes one surface, placed at this Geom.
+    if ( GetOriginalWirePts() )
+    {
+        vector < vector < vec3d > > xform_pts;
+        vector < vector < vec3d > > xform_norm;
+        BuildWireXFormPts( GetMainWirePts(), GetWireTransMat(), GetWireInvert(), xform_pts, xform_norm );
+
+        if ( xform_pts.empty() || xform_pts[0].empty() )
+        {
+            return;
+        }
+
+        vector < vector < vec3d > > uwpnts( xform_pts.size() );
+        for ( int i = 0; i < ( int )xform_pts.size(); i++ )
+        {
+            uwpnts[i].resize( xform_pts[i].size() );
+            for ( int j = 0; j < ( int )xform_pts[i].size(); j++ )
+            {
+                uwpnts[i][j] = vec3d( i * 1.0 / xform_pts.size(), j * 1.0 / xform_pts[i].size(), 0.0 );
+            }
+        }
+
+        int cfdsurftype = vsp::CFD_NORMAL;
+        if ( m_NegativeVolumeFlag() )
+        {
+            cfdsurftype = vsp::CFD_NEGATIVE;
+        }
+
+        dgs.resize( 1 );
+        Geom::CreateDegenGeom( dgs[0], xform_pts, xform_norm, uwpnts, false, 0, preview,
+                               GetWireInvert(), GetWireDegenType(), cfdsurftype, nullptr );
+        return;
+    }
+
+    // Polygon meshes, point clouds and routes have no degenerate form.
+    Geom::CreateDegenGeom( dgs, preview, n_ref );
 }
 
 void CloneGeom::WriteStl( FILE* file_id )

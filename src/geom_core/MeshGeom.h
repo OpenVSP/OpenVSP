@@ -75,6 +75,9 @@ protected:
     // The mesh written as stereolithography triangles, placed.
     void WriteTMeshStl( FILE* file_id ) const;
 
+    // The mesh in degenerate form, one entry per mesh, named and parented as geom_ptr.
+    void BuildTMeshDegenGeom( Geom* geom_ptr, vector< DegenGeom > &dgs ) const;
+
 public:
     // Pick the primitive for draw objects holding loose triangles; the usual Geom route picks a
     // structured mesh, which draws nothing.

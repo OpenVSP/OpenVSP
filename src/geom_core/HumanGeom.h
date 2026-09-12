@@ -50,6 +50,10 @@ class Attachment;
 class HumanVertRole : virtual public GeomInterface
 {
 public:
+    // The eyes, in this Geom's own frame, and the head direction; a super cone is placed from them.
+    virtual vec3d GetDesignEyePtInSelf() const = 0;
+    virtual Matrix4d GetVisionBasis() const = 0;
+
     // The behavior type this role belongs to; checked by Geom::CastTo.
     static int BehaviorType()   { return HUMAN_GEOM_TYPE; }
 
@@ -57,6 +61,10 @@ public:
 
     // The vertices, in the Geom's own frame, before symmetry or placement.
     virtual const vector < vec3d > & GetMainVerts() const = 0;
+
+    // The eye placed at the asked Geom, and one eye per symmetric copy.
+    Matrix4d BuildDesignEyeMatrix( bool axisaligned ) const;
+    void BuildDesignEyeVec( vector < vec3d > & eyevec ) const;
 
 protected:
     // One vertex set per symmetric copy, each put through the matching transform.
@@ -188,6 +196,9 @@ public:
 
     virtual void GetDesignEyeVec( vector < vec3d > & eyevec ) const;
     virtual vec3d GetMainDesignEye() const;
+
+    virtual vec3d GetDesignEyePtInSelf() const;
+    virtual Matrix4d GetVisionBasis() const   { return m_TVision; }
     virtual Matrix4d GetDesignEyeMatrix( bool axisaligned ) const;
 
     IntParm m_LenUnit;

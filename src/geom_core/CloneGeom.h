@@ -137,6 +137,7 @@ public:
     // Answered by the original, measured against this Geom's own parent gear.
     virtual GearContactRole* GetContactGear() const override;
     virtual int GetAuxiliaryMode() const override;
+    virtual bool GetAuxWorldAligned() const override;
 
     // Both roles declare these names; bring both overload sets into scope so neither hides
     // the other.
@@ -176,6 +177,10 @@ public:
 
     // Writes the copied mesh.
     virtual void WriteStl( FILE* file_id ) override;
+
+    // A non-surface shape has its own degenerate form; a Clone must match it or be missing
+    // from the degenerate set.
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 ) override;
     virtual bool GetTMeshViewMeshFlag() const override;
     virtual bool GetTMeshViewSliceFlag() const override;
     virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int &n_ref = 0 ) const override;
@@ -187,6 +192,8 @@ public:
     // Vertices come from the original; this Geom's symmetry and placement expand them.
     virtual const vector < vec3d > & GetMainVerts() const override;
     virtual HumanVertRole* GetOriginalHumanVert() const;
+    virtual vec3d GetDesignEyePtInSelf() const override;
+    virtual Matrix4d GetVisionBasis() const override;
 
     // The original's vertices, expanded by this Geom's symmetry and placement.
     virtual void BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bool > &flipnormal ) const;
