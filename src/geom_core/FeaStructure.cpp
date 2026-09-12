@@ -3021,6 +3021,19 @@ bool FeaPolySpar::ValidPtIndex( int index )
 //===================== FeaRib =====================//
 //////////////////////////////////////////////////////
 
+// A rib's perpendicular edge is either the ID of another FEA part or one of three sentinels:
+// "Trailing Edge", "Leading Edge", "None".  A part is followed if it came along with the copy;
+// a sentinel is a word rather than an ID, and is passed through untouched.
+static string RemapPerpendicularEdgeID( const string &id )
+{
+    if ( id == "Trailing Edge" || id == "Leading Edge" || id == "None" || id.empty() )
+    {
+        return id;
+    }
+
+    return IDMgr.RemapRefID( id );
+}
+
 FeaRib::FeaRib( const string &geomID, const string &structID, int type ) : FeaSlice( geomID, structID, type )
 {
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
@@ -3138,7 +3151,7 @@ xmlNodePtr FeaRib::DecodeXml( xmlNodePtr & node )
 
     if ( fea_prt_node )
     {
-        m_PerpendicularEdgeID = XmlUtil::FindString( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID );
+        m_PerpendicularEdgeID = RemapPerpendicularEdgeID( XmlUtil::FindString( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID ) );
 
         // Check for previous implementation of perpendicular edge for ribs to enable compatibility in new VSP versions
         xmlNodePtr child_node = XmlUtil::GetNode( fea_prt_node, "FeaRib", 0 );
@@ -5111,7 +5124,7 @@ xmlNodePtr FeaRibArray::DecodeXml( xmlNodePtr & node )
 
     if ( fea_prt_node )
     {
-        m_PerpendicularEdgeID = XmlUtil::FindString( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID );
+        m_PerpendicularEdgeID = RemapPerpendicularEdgeID( XmlUtil::FindString( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID ) );
 
         // Check for previous implementation of perpendicular edge for ribs to enable compatibility in new VSP versions
         xmlNodePtr child_node = XmlUtil::GetNode( fea_prt_node, "FeaRib", 0 );
