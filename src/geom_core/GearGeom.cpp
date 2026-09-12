@@ -2753,6 +2753,9 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     // Bogie * mg =  CreateAndAddBogie();
 
+    // What the first UpdateParents compares against.
+    m_ParentHash = 0;
+
     m_MainSurfVec.clear();
 }
 
@@ -3365,9 +3368,11 @@ void GearGeom::UpdateParents()
     std::sort( parent_vec.begin(), parent_vec.end() );
     parent_vec.erase(std::unique( parent_vec.begin(), parent_vec.end()), parent_vec.end() );
 
-    // Serialize m_ParmIDs into single long string.
-    string str = string_vec_serialize( parent_vec );
-    // Calculate hash to detect changes in m_ParmIDs
+    // The Geoms depended on, plus this Geom's own ID, hashed to tell whether the step-child
+    // registration still matches.  That registration is this Geom's ID sitting in each of
+    // those Geoms' lists, so either end changing makes it stale.
+    string str = string_vec_serialize( parent_vec ) + m_ID;
+    // Calculate hash to detect changes
     std::size_t str_hash = std::hash < std::string >{}( str );
 
     // Relies on currency of m_ParmIDs by UpdateVarBrowser()

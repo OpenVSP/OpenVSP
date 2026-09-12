@@ -9,6 +9,7 @@
 # with the depending Geom's own ID, says it has gone stale.
 
 import openvsp as vsp
+import pytest
 import os
 import re
 import tempfile
@@ -27,6 +28,9 @@ def pop_errors():
     return [ mgr.PopLastError().m_ErrorString for _ in range( mgr.GetNumTotalErrors() ) ]
 
 
+def geoms_of_type( type_name ):
+    return [ g for g in vsp.FindGeoms() if vsp.GetGeomTypeName( g ) == type_name ]
+
 
 def step_child_lists( path ):
     """Every step child list in the file, as lists of IDs."""
@@ -35,8 +39,6 @@ def step_child_lists( path ):
     for listing in re.findall( r"<Step_Child_List>(.*?)</Step_Child_List>", text, re.S ):
         out.append( re.findall( r"<ID>(\w+)</ID>", listing ) )
     return [ ids for ids in out if ids ]
-
-
 
 
 def a_pod_and_route():
@@ -49,6 +51,10 @@ def a_pod_and_route():
         vsp.SetParmVal( vsp.FindParm( pt, "U", "RoutePt" ), u )
     vsp.Update()
     return pod, route
+
+
+def route_x( route ):
+    return vsp.GetParmVal( vsp.FindParm( route, "X_Min", "BBox" ) )
 
 
 def testAStepChildListDoesNotGrowOnEverySaveAndOpen():
@@ -104,6 +110,71 @@ def testAStepChildListThatIsAlreadyTooLongComesBackPruned():
     pop_errors()
 
 
+def testOnePodListsARouteOnceHoweverManyPointsSitOnIt():
+    """Several points can be anchored to the same Geom, and it depends on the route once."""
+    out = fresh()
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+    route = vsp.AddGeom( "ROUTING" )
+    for u in ( 0.1, 0.3, 0.5, 0.7, 0.9 ):
+        pt = vsp.AddRoutingPt( route, pod, 0 )
+        vsp.SetParmVal( vsp.FindParm( pt, "U", "RoutePt" ), u )
+    vsp.Update()
+
+    written = os.path.join( out, "five.vsp3" )
+    vsp.WriteVSPFile( written )
+
+    listed = step_child_lists( written )
+    assert listed, "the pod wrote no step child"
+    for ids in listed:
+        assert ids.count( route ) <= 1, "the route is listed %d times" % ids.count( route )
+    pop_errors()
+
+
+def testAStepChildStillFollowsItsParentAfterTheIdsHaveMoved():
+    """Reading a file into a model that already holds it gives every copy a new ID.
+
+    The registration is this Geom's ID sitting in its parents' lists, so this checks the
+    remapped links land on the right pod.  Moving each pod is what says the route it carries is
+    really registered against it.
+    """
+    out = fresh()
+    pod, route = a_pod_and_route()
+    written = os.path.join( out, "route.vsp3" )
+    vsp.WriteVSPFile( written )
+
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( written )
+    vsp.Update()
+    vsp.InsertVSPFile( written, "" )      # every identity collides, so every one is moved
+    vsp.Update()
+
+    pods = geoms_of_type( "Pod" )
+    routes = geoms_of_type( "Routing" )
+    assert len( pods ) == 2 and len( routes ) == 2
+
+    # Which route sits on which pod, by what the points say.
+    anchored = {}
+    for r in routes:
+        parents = set( vsp.GetRoutingPtParentID( pid ) for pid in vsp.GetAllRoutingPtIds( r ) )
+        assert len( parents ) == 1, "a route's points are split across %s" % parents
+        anchored[ r ] = parents.pop()
+    assert sorted( anchored.values() ) == sorted( pods )
+
+    # Move each pod in turn: the route anchored to it follows, and the other one does not.
+    for i, ( r, p ) in enumerate( anchored.items() ):
+        before = { x: route_x( x ) for x in routes }
+        shift = 7.0 + i
+        vsp.SetParmVal( vsp.FindParm( p, "X_Rel_Location", "XForm" ), shift )
+        vsp.Update()
+
+        assert route_x( r ) == pytest.approx( before[r] + shift ), \
+               "the route did not follow the pod it sits on"
+        for other in routes:
+            if other is not r:
+                assert route_x( other ) == pytest.approx( before[other] ), \
+                       "a route followed a pod it does not sit on"
+    pop_errors()
 
 
 if __name__ == "__main__":

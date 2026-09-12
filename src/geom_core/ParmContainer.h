@@ -121,6 +121,18 @@ protected:
     virtual void LoadGroupParmVec( vector< string > & parm_vec );
     virtual void LoadGroupParmVec( vector< string > & parm_vec, bool displaynames );
 
+    // Take a new ID.  This moves the object in the registries that find it by ID, and tells
+    // whatever this object contains that its container has a new name.  It does not tell
+    // anything holding this ID as a reference -- a link, an attribute, a preset, a Geom's
+    // parent, child or step child list.
+    //
+    // Those hold together because an ID only changes before anything in the model refers to the
+    // object: a file read or a paste settles the ID first and then reads the references,
+    // translating each through the remap map, and IDs assigned at construction, such as user
+    // parms and the built-in FEA materials, are set before anything can name them.
+    //
+    // ParmMgr::SwapIDs is the deliberate exception, and compensates by swapping: two live Parms
+    // trade IDs so that everything holding either one keeps naming the same cross section.
     virtual void ChangeID( const string &id );
 
 };
