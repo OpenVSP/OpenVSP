@@ -485,6 +485,16 @@ void GeomBase::RemoveChildID( const string &id )
     vector_remove_val( m_ChildIDVec, id );
 }
 
+void GeomBase::AddStepChildID( const string &id )
+{
+    if ( vector_contains_val( m_StepChildIDVec, id ) )
+    {
+        return;
+    }
+
+    m_StepChildIDVec.push_back( id );
+}
+
 void GeomBase::RemoveStepChildID( const string &id )
 {
     vector_remove_val( m_StepChildIDVec, id );
@@ -575,7 +585,7 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
             for ( int i = 0 ; i < num_stepchildren ; i++ )
             {
                 xmlNodePtr n = XmlUtil::GetNode( scl_node, "Step_Child", i );
-                m_StepChildIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+                AddStepChildID( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
             }
         }
     }

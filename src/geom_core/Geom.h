@@ -228,10 +228,9 @@ public:
         m_ChildIDVec = vec;
     }
 
-    virtual void AddStepChildID( const string &id )
-    {
-        m_StepChildIDVec.push_back( id );
-    }
+    // Adds the ID once.  Whoever depends on this Geom re-adds itself on every update, and the
+    // list is saved with the model, so the same ID arrives many times over.
+    virtual void AddStepChildID( const string &id );
     virtual void RemoveStepChildID( const string &id );
     virtual vector< string > GetStepChildIDVec()
     {
