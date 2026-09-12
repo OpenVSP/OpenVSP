@@ -2,12 +2,18 @@ import numpy as np
 import openvsp as vsp
 import matplotlib.pyplot as plt
 import os
+import tempfile
 
 
 def test_rst():
     # Open VSP geometry
     vsp_file = 'tests/wing.vsp3'
     vsp.ReadVSPFile(vsp_file)
+
+    # Keep analysis output out of the source tree.
+    out = tempfile.mkdtemp()
+    vsp.SetComputationFileName(vsp.COMP_GEOM_TXT_TYPE, os.path.join(out, 'comp_geom.txt'))
+    vsp.SetComputationFileName(vsp.COMP_GEOM_CSV_TYPE, os.path.join(out, 'comp_geom.csv'))
     all_geoms = vsp.FindGeoms()
     geom_id = all_geoms[0]
 

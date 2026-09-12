@@ -1,7 +1,14 @@
 import openvsp as vsp
+import os
+import tempfile
 
 def test_AnalysisDoc():
     errorMgr = vsp.ErrorMgrSingleton.getInstance()
+
+    # Keep CompGeom output out of the source tree.
+    out = tempfile.mkdtemp()
+    vsp.SetComputationFileName( vsp.COMP_GEOM_TXT_TYPE, os.path.join( out, 'comp_geom.txt' ) )
+    vsp.SetComputationFileName( vsp.COMP_GEOM_CSV_TYPE, os.path.join( out, 'comp_geom.csv' ) )
 
     vsp.AddGeom( 'POD', '' )
     vsp.Update()
