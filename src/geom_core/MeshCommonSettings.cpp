@@ -131,7 +131,7 @@ xmlNodePtr IntersectSettings::DecodeXml( xmlNodePtr & node )
     xmlNodePtr structsettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
     if ( structsettingnode )
     {
-        m_ModeID = IDMgr.RemapID( XmlUtil::FindString( structsettingnode, "ModeID", m_ModeID ) );
+        m_ModeID = IDMgr.RemapRefID( XmlUtil::FindString( structsettingnode, "ModeID", m_ModeID ) );
 
         MeshCommonSettings::DecodeXml( structsettingnode );
     }
@@ -296,8 +296,8 @@ xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
     xmlNodePtr cfdsettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
     if ( cfdsettingnode )
     {
-        m_FarGeomID = IDMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "FarGeomID", m_FarGeomID ) );
-        m_ModeID = IDMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "ModeID", m_ModeID ) );
+        m_FarGeomID = IDMgr.RemapRefID( XmlUtil::FindString( cfdsettingnode, "FarGeomID", m_FarGeomID ) );
+        m_ModeID = IDMgr.RemapRefID( XmlUtil::FindString( cfdsettingnode, "ModeID", m_ModeID ) );
 
         MeshCommonSettings::DecodeXml( cfdsettingnode );
     }

@@ -984,10 +984,10 @@ xmlNodePtr GeometryAnalysisCase::EncodeXml( xmlNodePtr & node )
 
 xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
 {
-    m_PrimaryModeID = IDMgr.RemapID( XmlUtil::FindString( node, "PrimaryModeID", m_PrimaryModeID ) );
-    m_PrimaryGeomID = IDMgr.RemapID( XmlUtil::FindString( node, "PrimaryGeomID", m_PrimaryGeomID ) );
-    m_SecondaryGeomID = IDMgr.RemapID( XmlUtil::FindString( node, "SecondaryGeomID", m_SecondaryGeomID ) );
-    m_DirectionGeomID = IDMgr.RemapID( XmlUtil::FindString( node, "DirectionGeomID", m_DirectionGeomID ) );
+    m_PrimaryModeID = IDMgr.RemapRefID( XmlUtil::FindString( node, "PrimaryModeID", m_PrimaryModeID ) );
+    m_PrimaryGeomID = IDMgr.RemapRefID( XmlUtil::FindString( node, "PrimaryGeomID", m_PrimaryGeomID ) );
+    m_SecondaryGeomID = IDMgr.RemapRefID( XmlUtil::FindString( node, "SecondaryGeomID", m_SecondaryGeomID ) );
+    m_DirectionGeomID = IDMgr.RemapRefID( XmlUtil::FindString( node, "DirectionGeomID", m_DirectionGeomID ) );
 
     //==== Cutout Subsurfaces ====//
     xmlNodePtr cutoutSS_list_node = XmlUtil::GetNode( node, "CutoutSS_List", 0 );
@@ -998,7 +998,7 @@ xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
         for ( int i = 0 ; i < num_cutoutSS ; i++ )
         {
             xmlNodePtr cutoutSS_node = XmlUtil::GetNode( cutoutSS_list_node, "CutoutSS", i );
-            string new_cutoutSS = IDMgr.RemapID( XmlUtil::FindString( cutoutSS_node, "cutoutSS_ID", string() ) );
+            string new_cutoutSS = IDMgr.RemapRefID( XmlUtil::FindString( cutoutSS_node, "cutoutSS_ID", string() ) );
             m_CutoutVec.push_back( new_cutoutSS );
         }
     }

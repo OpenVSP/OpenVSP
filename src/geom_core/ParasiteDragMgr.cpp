@@ -3422,8 +3422,8 @@ xmlNodePtr ParasiteDragMgrSingleton::DecodeXml( xmlNodePtr & node )
     if ( ParasiteDragnode )
     {
         ParmContainer::DecodeXml( ParasiteDragnode );
-        m_RefGeomID = IDMgr.RemapID( XmlUtil::FindString( ParasiteDragnode, "ReferenceGeomID", m_RefGeomID ) );
-        m_ModeID = IDMgr.RemapID( XmlUtil::FindString( ParasiteDragnode, "ModeID", m_ModeID ) );
+        m_RefGeomID = IDMgr.RemapRefID( XmlUtil::FindString( ParasiteDragnode, "ReferenceGeomID", m_RefGeomID ) );
+        m_ModeID = IDMgr.RemapRefID( XmlUtil::FindString( ParasiteDragnode, "ModeID", m_ModeID ) );
 
         xmlNodePtr ExcresDragnode = XmlUtil::GetNode( ParasiteDragnode, "Excrescence", 0 );
 

@@ -203,8 +203,8 @@ xmlNodePtr Mode::DecodeXml( xmlNodePtr &node )
                 if ( setting_node )
                 {
                     pair < string, string > set_pair;
-                    set_pair.first = IDMgr.RemapID( XmlUtil::FindString( setting_node, "SettingGroupID", set_pair.first ) );
-                    set_pair.second = IDMgr.RemapID( XmlUtil::FindString( setting_node, "SettingID", set_pair.second ) );
+                    set_pair.first = IDMgr.RemapRefID( XmlUtil::FindString( setting_node, "SettingGroupID", set_pair.first ) );
+                    set_pair.second = IDMgr.RemapRefID( XmlUtil::FindString( setting_node, "SettingID", set_pair.second ) );
                     m_GroupSettingVec.push_back( set_pair );
                 }
             }
