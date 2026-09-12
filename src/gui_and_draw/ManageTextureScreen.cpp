@@ -145,7 +145,7 @@ bool ManageTextureScreen::Update()
 
     for ( int i = 0; i < ( int )geom_vec.size(); i++ )
     {
-        int geom_type = geom_vec[i]->GetType().m_Type;
+        int geom_type = geom_vec[i]->GetBehaviorType();
 
         if ( geom_type != BLANK_GEOM_TYPE &&
              geom_type != HINGE_GEOM_TYPE ) // TODO: Any other types that don't support textures?

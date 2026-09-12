@@ -804,10 +804,10 @@ string BEMAnalysis::Execute()
 
         if ( geom )
         {
-            PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
-            if ( pgeom )
+            PropGeom* behavior_prop = dynamic_cast < PropGeom* > ( geom->GetBehaviorGeom() );
+            if ( behavior_prop )
             {
-                res = pgeom->BuildBEMResults();
+                res = behavior_prop->BuildBEMResults();
                 Results* resptr = ResultsMgr.FindResultsPtr( res );
 
                 if ( export_flag && resptr )

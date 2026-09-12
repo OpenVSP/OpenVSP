@@ -195,11 +195,9 @@ public:
     void CopyVertsToSkel( const vector < vec3d > & sv );
 
     virtual void GetDesignEyeVec( vector < vec3d > & eyevec ) const;
-    virtual vec3d GetMainDesignEye() const;
 
     virtual vec3d GetDesignEyePtInSelf() const;
     virtual Matrix4d GetVisionBasis() const   { return m_TVision; }
-    virtual Matrix4d GetDesignEyeMatrix( bool axisaligned ) const;
 
     IntParm m_LenUnit;
     IntParm m_MassUnit;

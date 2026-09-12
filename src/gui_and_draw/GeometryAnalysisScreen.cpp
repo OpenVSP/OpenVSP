@@ -605,26 +605,26 @@ bool GeometryAnalysisScreen::Update()
 
                 if ( geom )
                 {
-                    HingeGeom* hinge_ptr = dynamic_cast< HingeGeom* >( geom );
+                    HingeGeom* behavior_hinge = dynamic_cast< HingeGeom* >( geom->GetBehaviorGeom() );
 
-                    if ( hinge_ptr )
+                    if ( behavior_hinge )
                     {
                         transhinge = true;
-                        if ( hinge_ptr->m_JointTranslateFlag() )
+                        if ( behavior_hinge->m_JointTranslateFlag() )
                         {
 
-                            if ( hinge_ptr->m_JointTransMinFlag() &&
-                                 hinge_ptr->m_JointTransMaxFlag() )
+                            if ( behavior_hinge->m_JointTransMinFlag() &&
+                                 behavior_hinge->m_JointTransMaxFlag() )
                             {
                                 m_ExtentChoice.AddItem( "Full Range", vsp::EXTENT_SLIDER_FULL );
                             }
 
-                            if ( hinge_ptr->m_JointTransMinFlag() )
+                            if ( behavior_hinge->m_JointTransMinFlag() )
                             {
                                 m_ExtentChoice.AddItem( "Before", vsp::EXTENT_SLIDER_BEFORE );
                             }
 
-                            if ( hinge_ptr->m_JointTransMaxFlag() )
+                            if ( behavior_hinge->m_JointTransMaxFlag() )
                             {
                                 m_ExtentChoice.AddItem( "After", vsp::EXTENT_SLIDER_AFTER );
                             }
@@ -976,11 +976,11 @@ bool GeometryAnalysisScreen::Update()
 
                 if ( geom )
                 {
-                    HingeGeom* hinge_ptr = dynamic_cast< HingeGeom* >( geom );
+                    HingeGeom* behavior_hinge = dynamic_cast< HingeGeom* >( geom->GetBehaviorGeom() );
 
-                    if ( hinge_ptr )
+                    if ( behavior_hinge )
                     {
-                        if ( hinge_ptr->m_JointTranslateFlag() )
+                        if ( behavior_hinge->m_JointTranslateFlag() )
                         {
                             m_DispXSlider.Deactivate();
                             m_DispYSlider.Deactivate();
@@ -1056,9 +1056,14 @@ bool GeometryAnalysisScreen::Update()
             OptionsDisplayGroup( nullptr );
         }
 
-        if ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
-             gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
-             gcase->m_GeometryAnalysisType() == vsp::RISK_ANGLE )
+        // Apply Rotation writes an angle onto the secondary AuxiliaryGeom itself.  A Clone of
+        // one does not qualify: the write would move the original, not the Clone.
+        AuxiliaryGeom* secondary_aux = dynamic_cast< AuxiliaryGeom* > ( veh->FindGeom( gcase->m_SecondaryGeomID ) );
+
+        if ( secondary_aux &&
+             ( gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
+               gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
+               gcase->m_GeometryAnalysisType() == vsp::RISK_ANGLE ) )
         {
             m_ApplyRotation.Activate();
         }

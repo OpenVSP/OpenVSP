@@ -1673,8 +1673,8 @@ void ParasiteDragScreen::UpdateIncorporateDropDowns()
 
                 for ( size_t j = 1; j < m_grouped[i].GetItems().size(); ++j )
                 {
-                    if ( veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetType().m_Type != HINGE_GEOM_TYPE &&
-                        veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetType().m_Type != BLANK_GEOM_TYPE)
+                    if ( veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetBehaviorType() != HINGE_GEOM_TYPE &&
+                        veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetBehaviorType() != BLANK_GEOM_TYPE)
                     {
                         if ( rowVec[i].GeomShapeType !=
                                 veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetSurfType(0) )
@@ -2064,7 +2064,7 @@ string ParasiteDragScreen::GetComponentTableLabel( int subsurfFlag, const string
     {
         if ( rowVec[index].MasterRow )
         {
-            if ( veh->FindGeom( rowVec[index].GeomID )->GetType().m_Type == CUSTOM_GEOM_TYPE )
+            if ( veh->FindGeom( rowVec[index].GeomID )->GetBehaviorType() == CUSTOM_GEOM_TYPE )
             {
                 snprintf( str, sizeof( str ),  "(+) %s", rowVec[index].Label.c_str() );
             }

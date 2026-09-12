@@ -304,8 +304,8 @@ bool RoutingScreen::Update()
 
                 if ( parent )
                 {
-                    WingGeom* wing_ptr = dynamic_cast< WingGeom* >( parent );
-                    if ( wing_ptr )
+                    WingGeom* behavior_wing = dynamic_cast< WingGeom* >( parent->GetBehaviorGeom() );
+                    if ( behavior_wing )
                     {
                         wing_parent = true;
                     }
@@ -527,8 +527,8 @@ void RoutingScreen::UpdateBrowser()
                 m_SurfChoice.SetVal( rpt->m_SurfIndx() );
 
 
-                WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent_geom );
-                if ( wing_parent )
+                WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent_geom->GetBehaviorGeom() );
+                if ( behavior_wing )
                 {
                     char etaMN[7];
                     int indx = 0;

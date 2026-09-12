@@ -309,16 +309,8 @@ vec3d HumanGeom::GetDesignEyePtInSelf() const
     return m_PoseSkelVerts[ DES_EYE ];
 }
 
-vec3d HumanGeom::GetMainDesignEye() const
-{
-    return m_ModelMatrix.xform( m_PoseSkelVerts[ DES_EYE ] );
-}
-
-// A frame, not an answer: a super cone hangs off this, so it is built on where the Geom sits.
-// A flipped shape looks the other way, and saying that in an eye basis would mean a reflection in
-// the cone's attachment -- so a Clone showing a flipped shape offers the unflipped eye.  The eye
-// positions an analysis reads come from BuildDesignEyeVec, which is laid out by symmetry and does
-// follow the flip.
+// The eye frame a super cone hangs off.  Reflected on both sides by the flip, so it stays
+// unreflected; the cone applies the flip to its own shape.
 Matrix4d HumanVertRole::BuildDesignEyeMatrix( bool axisaligned ) const
 {
     Matrix4d model = GetRoleModelMatrix();
@@ -366,11 +358,6 @@ void HumanVertRole::BuildDesignEyeVec( vector < vec3d > & eyevec ) const
     {
         eyevec[i] = tmv[ i ].xform( GetDesignEyePtInSelf() );
     }
-}
-
-Matrix4d HumanGeom::GetDesignEyeMatrix( bool axisaligned ) const
-{
-    return BuildDesignEyeMatrix( axisaligned );
 }
 
 double HumanGeom::Get_mm2UX()

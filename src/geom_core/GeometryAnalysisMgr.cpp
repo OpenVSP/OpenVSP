@@ -745,12 +745,13 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
             {
                 Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-                HumanGeom* human_ptr = dynamic_cast< HumanGeom* >( geom );
+                // A Clone of a human sees from its own eyes.
+                HumanVertRole* human_ptr = Geom::CastTo< HumanVertRole >( geom );
                 AuxiliaryRole* auxthis = Geom::CastTo< AuxiliaryRole >( geom );
 
                 if ( human_ptr )
                 {
-                    human_ptr->GetDesignEyeVec( pt_vec );
+                    human_ptr->BuildDesignEyeVec( pt_vec );
                     fov_vec.resize( pt_vec.size(), nullptr );
                     return true;
                 }
@@ -2337,8 +2338,14 @@ string GeometryAnalysisCase::Evaluate()
                 if ( m_PrimaryType() == vsp::GEOM_TARGET )
                 {
 
-                    WingGeom *w = dynamic_cast < WingGeom* > ( veh->FindGeom( m_PrimaryGeomID ) );
-                    if ( w )
+                    // Reference dimensions from the wing shown; name and CG from the Geom asked.
+                    Geom *asked = veh->FindGeom( m_PrimaryGeomID );
+                    WingGeom *behavior_wing = nullptr;
+                    if ( asked )
+                    {
+                        behavior_wing = dynamic_cast < WingGeom* > ( asked->GetBehaviorGeom() );
+                    }
+                    if ( behavior_wing )
                     {
                         Results* res = ResultsMgr.CreateResults( "Aero_Center", "Calculate aero center of wing." );
                         if( res )
@@ -2347,21 +2354,21 @@ string GeometryAnalysisCase::Evaluate()
 
                             string fname_before = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
 
-                            string fname = w->GetName();
+                            string fname = asked->GetName();
                             StringUtil::change_space_to_underscore( fname );
 
-                            fname += "_" + w->GetID() + "_AERO_CENTER.vspgeom";
+                            fname += "_" + asked->GetID() + "_AERO_CENTER.vspgeom";
 
                             veh->setExportFileName( vsp::VSPAERO_VSPGEOM_TYPE, fname );
                             VSPAEROMgr.UpdateFilenames();
 
-                            double Sref = w->m_TotalArea();
-                            double bref = w->m_TotalSpan();
-                            double cref = w->m_MAC();
+                            double Sref = behavior_wing->m_TotalArea();
+                            double bref = behavior_wing->m_TotalSpan();
+                            double cref = behavior_wing->m_MAC();
 
-                            double xcg = w->m_XLoc();
-                            double ycg = w->m_YLoc();
-                            double zcg = w->m_ZLoc();
+                            double xcg = asked->m_XLoc();
+                            double ycg = asked->m_YLoc();
+                            double zcg = asked->m_ZLoc();
 
                             // Here we use an instance of the analysis directly rather than the AnalysisMgr.
                             // This allows us to set all the settings without clobbering those stored in the

@@ -1376,14 +1376,14 @@ bool GearScreen::Update()
 
             if ( parent )
             {
-                WingGeom* wing_ptr = dynamic_cast< WingGeom* >( parent );
-                if ( wing_ptr )
+                WingGeom* behavior_wing = dynamic_cast< WingGeom* >( parent->GetBehaviorGeom() );
+                if ( behavior_wing )
                 {
                     wing_parent = true;
                 }
 
-                RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( parent );
-                if ( routing_ptr )
+                RoutingGeom* behavior_route = dynamic_cast< RoutingGeom* >( parent->GetBehaviorGeom() );
+                if ( behavior_route )
                 {
                     routing_parent = true;
                 }
@@ -1585,14 +1585,14 @@ bool GearScreen::Update()
 
             if ( parent )
             {
-                WingGeom* wing_ptr = dynamic_cast< WingGeom* >( parent );
-                if ( wing_ptr )
+                WingGeom* behavior_wing = dynamic_cast< WingGeom* >( parent->GetBehaviorGeom() );
+                if ( behavior_wing )
                 {
                     wing_parent = true;
                 }
 
-                RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( parent );
-                if ( routing_ptr )
+                RoutingGeom* behavior_route = dynamic_cast< RoutingGeom* >( parent->GetBehaviorGeom() );
+                if ( behavior_route )
                 {
                     routing_parent = true;
                 }

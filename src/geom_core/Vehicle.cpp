@@ -1338,7 +1338,7 @@ string Vehicle::AddMeshGeom( BndBox & bbox, int normal_set, int degen_set, bool 
         Geom* g_ptr = FindGeom( singleGeomID );
         if ( g_ptr )
         {
-            if( g_ptr->GetType().m_Type != BLANK_GEOM_TYPE )
+            if( g_ptr->GetBehaviorType() != BLANK_GEOM_TYPE )
             {
                 vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
 

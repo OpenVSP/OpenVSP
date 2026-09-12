@@ -1152,17 +1152,18 @@ void GeomXForm::ComposeAttachMatrix()
 
         if ( parent )
         {
-            AuxiliaryGeom* auxthis = dynamic_cast < AuxiliaryGeom* > ( this );
+            // Asked of the role, so a Clone of a super cone or a human behaves the same.
+            AuxiliaryRole* auxthis = Geom::CastTo < AuxiliaryRole > ( this );
             if ( auxthis )
             {
-                if ( auxthis->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
+                if ( auxthis->GetAuxiliaryMode() == vsp::AUX_GEOM_SUPER_CONE )
                 {
-                    bool axisaligned = auxthis->m_SCWorldAligned();
+                    bool axisaligned = auxthis->GetAuxWorldAligned();
 
-                    HumanGeom* humanparent = dynamic_cast < HumanGeom* > ( parent );
+                    HumanVertRole* humanparent = Geom::CastTo < HumanVertRole > ( parent );
                     if ( humanparent )
                     {
-                        parentMat = humanparent->GetDesignEyeMatrix( axisaligned );
+                        parentMat = humanparent->BuildDesignEyeMatrix( axisaligned );
                     }
                     else
                     {
@@ -2513,7 +2514,7 @@ void Geom::UpdateChildren( bool fullupdate )
             }
 
             // If the child is an Auxiliary
-            if ( child->GetType().m_Type == AUXILIARY_GEOM_TYPE )
+            if ( child->GetBehaviorType() == AUXILIARY_GEOM_TYPE )
             {
                 if ( m_UpdateSurf )
                 {
@@ -2614,7 +2615,7 @@ void Geom::UpdateStepChildren( bool fullupdate )
                 }
             }
 
-            if ( child->GetType().m_Type == GEAR_GEOM_TYPE )
+            if ( child->GetBehaviorType() == GEAR_GEOM_TYPE )
             {
                 // Gear stepchildren are used for stow and mechanism attach points.  These are updated
                 // in UpdateSurface(), so any change in this Geom that could change an attach point
@@ -4974,10 +4975,12 @@ vector < int > Geom::GetNonSurfaceTypeVec()
 // Or an optional method implemented by only non-surface types.
 bool Geom::isNonSurfaceType()
 {
+    // Uses the behaviour type, so a Clone of a non-surface Geom counts.  The fallback below
+    // catches a Clone not yet updated, whose surface vector is still empty.
     vector < int > nst = GetNonSurfaceTypeVec();
     for ( int i = 0; i < nst.size(); i++ )
     {
-        if ( m_Type.m_Type == nst[i] )
+        if ( GetBehaviorType() == nst[i] )
         {
             return true;
         }

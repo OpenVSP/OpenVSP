@@ -1980,31 +1980,32 @@ void SSControlSurf::Update()
 
     double umax = geom->GetUMax(0);
 
-    if ( WingGeom * wing = dynamic_cast< WingGeom* > ( geom ) )
+    // Eta is converted by the wing shown; the subsurface may be on a Clone of it.
+    if ( WingGeom * behavior_wing = dynamic_cast< WingGeom* > ( geom->GetBehaviorGeom() ) )
     {
         if ( m_EtaFlag() )
         {
-            m_UStart = wing->EtatoU( m_EtaStart() ) / umax;
-            m_UEnd = wing->EtatoU( m_EtaEnd() ) / umax;
+            m_UStart = behavior_wing->EtatoU( m_EtaStart() ) / umax;
+            m_UEnd = behavior_wing->EtatoU( m_EtaEnd() ) / umax;
         }
         else
         {
-            m_EtaStart = wing->UtoEta( m_UStart() * umax );
-            m_EtaEnd = wing->UtoEta( m_UEnd() * umax );
+            m_EtaStart = behavior_wing->UtoEta( m_UStart() * umax );
+            m_EtaEnd = behavior_wing->UtoEta( m_UEnd() * umax );
         }
     }
-    else if ( PropGeom * prop = dynamic_cast< PropGeom* > ( geom ) )
+    else if ( PropGeom * behavior_prop = dynamic_cast< PropGeom* > ( geom->GetBehaviorGeom() ) )
     {
-        m_EtaStart.SetLowerLimit( prop->GetR0() );
+        m_EtaStart.SetLowerLimit( behavior_prop->GetR0() );
         if ( m_EtaFlag() )
         {
-            m_UStart = prop->EtatoU( m_EtaStart() ) / umax;
-            m_UEnd = prop->EtatoU( m_EtaEnd() ) / umax;
+            m_UStart = behavior_prop->EtatoU( m_EtaStart() ) / umax;
+            m_UEnd = behavior_prop->EtatoU( m_EtaEnd() ) / umax;
         }
         else
         {
-            m_EtaStart = prop->UtoEta( m_UStart() * umax );
-            m_EtaEnd = prop->UtoEta( m_UEnd() * umax );
+            m_EtaStart = behavior_prop->UtoEta( m_UStart() * umax );
+            m_EtaEnd = behavior_prop->UtoEta( m_UEnd() * umax );
         }
     }
 

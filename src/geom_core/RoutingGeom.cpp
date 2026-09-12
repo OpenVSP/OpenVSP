@@ -102,7 +102,8 @@ void RoutingPoint::Update()
             double tempMat[16];
             parentMat.getMat( tempMat );
 
-            WingGeom* wing_parent = dynamic_cast < WingGeom * > ( g );
+            // Eta from the wing shown; the surface from the Geom the point is on.
+            WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( g->GetBehaviorGeom() );
 
             // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
             // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
@@ -128,10 +129,10 @@ void RoutingPoint::Update()
                     {
                         double l = m_Eta();
 
-                        if (wing_parent)
+                        if (behavior_wing)
                         {
                             double umax = g->GetMainUMapMax( m_SurfIndx() );
-                            double u = wing_parent->EtatoU( m_Eta()) / umax;
+                            double u = behavior_wing->EtatoU( m_Eta()) / umax;
 
                             double r = u;
                             g->ConvertRtoL( m_SurfIndx(), r, l );
@@ -244,17 +245,13 @@ void RoutingPoint::UpdateParms()
 
     if ( parent )
     {
-        if ( parent->GetType().m_Type == MESH_GEOM_TYPE ||
-             parent->GetType().m_Type == WIRE_FRAME_GEOM_TYPE ||
-             parent->GetType().m_Type == BLANK_GEOM_TYPE ||
-             parent->GetType().m_Type == HINGE_GEOM_TYPE ||
-             parent->GetType().m_Type == HUMAN_GEOM_TYPE ||
-             parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
+        if ( parent->isNonSurfaceType() )
         {
             return;
         }
 
-        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+        // Eta stations come from the wing shown, whether the parent is the wing or a Clone of it.
+        WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
         const VspSurf * surf = parent->GetMainSurfPtr( parent->GetMainSurfID( m_SurfIndx() ) );
 
@@ -300,11 +297,11 @@ void RoutingPoint::UpdateParms()
                 m_L.Set( val / lmax );
             }
 
-            if ( wing_parent )
+            if ( behavior_wing )
             {
                 if ( m_CoordType() == vsp::ROUTE_PT_EtaMN ) // Eta is active.
                 {
-                    double u = wing_parent->EtatoU( m_Eta() ) / umax;
+                    double u = behavior_wing->EtatoU( m_Eta() ) / umax;
 
                     double r;
                     r = u;
@@ -339,13 +336,13 @@ void RoutingPoint::UpdateParms()
                 }
                 else if ( m_CoordType() == vsp::ROUTE_PT_UV ) // UV is active
                 {
-                    m_Eta = wing_parent->UtoEta( m_U() * umax );
+                    m_Eta = behavior_wing->UtoEta( m_U() * umax );
                 }
                 else if ( m_CoordType() == vsp::ROUTE_PT_RST ) // RST is active
                 {
                     double r = m_R();
                     double u = r;
-                    m_Eta = wing_parent->UtoEta( u * umax );
+                    m_Eta = behavior_wing->UtoEta( u * umax );
                 }
                 else if ( m_CoordType() == vsp::ROUTE_PT_LMN ) // LMN is active
                 {
@@ -353,11 +350,11 @@ void RoutingPoint::UpdateParms()
                     double r;
                     parent->ConvertLtoR( m_SurfIndx(), l, r );
                     double u = r;
-                    m_Eta = wing_parent->UtoEta( u * umax );
+                    m_Eta = behavior_wing->UtoEta( u * umax );
                 }
                 else // Nothing is active, use U value anyway.
                 {
-                    m_Eta = wing_parent->UtoEta( m_U() * umax );
+                    m_Eta = behavior_wing->UtoEta( m_U() * umax );
                 }
             }
 
