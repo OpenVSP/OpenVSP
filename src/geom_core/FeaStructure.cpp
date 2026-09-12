@@ -2295,11 +2295,15 @@ void FeaSpar::UpdateParms()
             return;
         }
 
-        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
-        assert( wing );
+        // Sections come from the wing shown; surfaces from the parent, which may be a Clone of it.
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
+        if ( !behavior_wing )
+        {
+            return;
+        }
 
-        int num_wing_sec = wing->NumXSec();
-        double U_max = wing->GetSurfPtr( m_MainSurfIndx )->GetUMax();
+        int num_wing_sec = behavior_wing->NumXSec();
+        double U_max = current_wing->GetSurfPtr( m_MainSurfIndx )->GetUMax();
 
         m_StartWingSection.SetLowerUpperLimits( 1, m_EndWingSection() );
         m_EndWingSection.SetLowerUpperLimits( m_StartWingSection(), num_wing_sec - 1 );
@@ -2307,7 +2311,7 @@ void FeaSpar::UpdateParms()
         // Determine U limits of spar
         if ( m_LimitSparToSectionFlag() )
         {
-            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+            if ( behavior_wing->m_CapUMinOption() == vsp::NO_END_CAP )
             {
                 m_U_sec_min = ( m_StartWingSection() - 1 );
             }
@@ -2320,7 +2324,7 @@ void FeaSpar::UpdateParms()
         }
         else
         {
-            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+            if ( behavior_wing->m_CapUMinOption() == vsp::NO_END_CAP )
             {
                 m_U_sec_min = 0;
             }
@@ -2328,7 +2332,7 @@ void FeaSpar::UpdateParms()
             {
                 m_U_sec_min = 1;
             }
-            if ( wing->m_CapUMaxOption() == vsp::NO_END_CAP )
+            if ( behavior_wing->m_CapUMaxOption() == vsp::NO_END_CAP )
             {
                 m_U_sec_max = U_max;
             }
@@ -2340,7 +2344,7 @@ void FeaSpar::UpdateParms()
 
         double u_mid = ( ( m_U_sec_min + m_U_sec_max ) / 2 ) / U_max;
 
-        double chord_length = dist( wing->GetSurfPtr( m_MainSurfIndx )->CompPnt01( u_mid, 0.5 ), wing->GetSurfPtr( m_MainSurfIndx )->CompPnt01( u_mid, 0.0 ) ); // average chord length
+        double chord_length = dist( current_wing->GetSurfPtr( m_MainSurfIndx )->CompPnt01( u_mid, 0.5 ), current_wing->GetSurfPtr( m_MainSurfIndx )->CompPnt01( u_mid, 0.0 ) ); // average chord length
 
         if ( m_AbsRelParmFlag() == vsp::REL )
         {
@@ -2372,8 +2376,12 @@ void FeaSpar::ComputePlanarSurf()
 
         m_MainFeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
 
-        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
-        assert( wing );
+        // Sections come from the wing shown; surfaces from the parent, which may be a Clone of it.
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
+        if ( !behavior_wing )
+        {
+            return;
+        }
 
         // Get surface prior to rotating and translating
         Matrix4d model_matrix = current_wing->GetShapeMatrix();
@@ -2899,8 +2907,12 @@ void FeaPolySpar::UpdateParms()
             return;
         }
 
-        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
-        assert( wing );
+        // Sections come from the wing shown; surfaces from the parent, which may be a Clone of it.
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
+        if ( !behavior_wing )
+        {
+            return;
+        }
 
 
     }
@@ -2933,9 +2945,10 @@ void FeaPolySpar::ComputePlanarSurf()
         orig_surf.GetBoundingBox( wing_bbox );
         wing_bbox.Expand( wing_bbox.GetSmallestDist() * 0.1 );
 
-        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
+        // The spar points are placed along the wing being shown.
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
 
-        if ( wing )
+        if ( behavior_wing )
         {
 
             int npt = m_SparPointVec.size();
@@ -2943,7 +2956,7 @@ void FeaPolySpar::ComputePlanarSurf()
             vector < vec3d > upper_pts( npt );
             for ( int i = 0; i < npt; i++ )
             {
-                m_SparPointVec[ i ]->Update( wing );
+                m_SparPointVec[ i ]->Update( behavior_wing );
 
                 double u = m_SparPointVec[ i ]->m_U01();
                 double xoc = m_SparPointVec[ i ]->m_XoC();
@@ -3123,10 +3136,14 @@ void FeaRib::UpdateParmLimits()
             return;
         }
 
-        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
-        assert( wing );
+        // Sections come from the wing shown; surfaces from the parent, which may be a Clone of it.
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
+        if ( !behavior_wing )
+        {
+            return;
+        }
 
-        int num_wing_sec = wing->NumXSec();
+        int num_wing_sec = behavior_wing->NumXSec();
 
         m_StartWingSection.SetLowerUpperLimits( 1, m_EndWingSection() );
         m_EndWingSection.SetLowerUpperLimits( m_StartWingSection(), num_wing_sec - 1 );
@@ -3151,7 +3168,7 @@ void FeaRib::UpdateParmLimits()
         // Determine wing span:
         for ( size_t i = start_sect; i < end_sect; i++ )
         {
-            WingSect* wing_sec = wing->GetWingSect( i );
+            WingSect* wing_sec = behavior_wing->GetWingSect( i );
 
             if ( wing_sec )
             {
@@ -3231,15 +3248,19 @@ double FeaRib::GetRibPerU( )
 
         if ( current_wing )
         {
-            WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
-            assert( wing );
+            // Sections come from the wing shown; surfaces from the parent, which may be a Clone of it.
+            WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
+            if ( !behavior_wing )
+            {
+                return m_PerU;
+            }
 
-            int num_wing_sec = wing->NumXSec();
+            int num_wing_sec = behavior_wing->NumXSec();
 
             vector < double > wing_sec_span_vec; // Vector of wing span increasing by each wing section (first section has no length)
             wing_sec_span_vec.push_back( 0.0 );
 
-            double U_max = wing->GetSurfPtr( m_MainSurfIndx )->GetUMax();
+            double U_max = current_wing->GetSurfPtr( m_MainSurfIndx )->GetUMax();
 
             // Init values:
             double span_0 = 0.0;
@@ -3262,7 +3283,7 @@ double FeaRib::GetRibPerU( )
 
             for ( size_t i = start_sect; i < end_sect; i++ )
             {
-                WingSect* wing_sec = wing->GetWingSect( i );
+                WingSect* wing_sec = behavior_wing->GetWingSect( i );
 
                 if ( wing_sec )
                 {
@@ -3281,7 +3302,7 @@ double FeaRib::GetRibPerU( )
 
             if ( m_LimitRibToSectionFlag() )
             {
-                if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+                if ( behavior_wing->m_CapUMinOption() == vsp::NO_END_CAP )
                 {
                     m_U_sec_min = ( m_StartWingSection() - 1 );
                 }
@@ -3294,7 +3315,7 @@ double FeaRib::GetRibPerU( )
             }
             else
             {
-                if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+                if ( behavior_wing->m_CapUMinOption() == vsp::NO_END_CAP )
                 {
                     m_U_sec_min = 0;
                 }
@@ -3302,7 +3323,7 @@ double FeaRib::GetRibPerU( )
                 {
                     m_U_sec_min = 1;
                 }
-                if ( wing->m_CapUMaxOption() == vsp::NO_END_CAP )
+                if ( behavior_wing->m_CapUMaxOption() == vsp::NO_END_CAP )
                 {
                     m_U_sec_max = U_max;
                 }
@@ -3421,11 +3442,15 @@ VspSurf FeaRib::ComputeRibSurf()
         }
         rib_surf = VspSurf(); // Create primary VspSurf
 
-        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
-        assert( wing );
+        // Sections come from the wing shown; surfaces from the parent, which may be a Clone of it.
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
+        if ( !behavior_wing )
+        {
+            return rib_surf;
+        }
 
-        // Get surface prior to rotating and translating
-        Matrix4d model_matrix = wing->getModelMatrix();
+        // Get surface prior to rotating and translating, in the parent Geom's own frame.
+        Matrix4d model_matrix = current_wing->GetShapeMatrix();
         model_matrix.affineInverse();
 
         VspSurf orig_surf = *( current_wing->GetSurfPtr( m_MainSurfIndx ) );
@@ -3487,12 +3512,12 @@ VspSurf FeaRib::ComputeRibSurf()
             else
             {
                 min_sec = 1;
-                max_sec = wing->NumXSec() - 1;
+                max_sec = behavior_wing->NumXSec() - 1;
             }
 
             for ( size_t i_sec = min_sec; i_sec <= max_sec; i_sec++ )
             {
-                WingSect* ws = (WingSect*)wing->GetXSecSurf( 0 )->FindXSec( i_sec );
+                WingSect* ws = (WingSect*)behavior_wing->GetXSecSurf( 0 )->FindXSec( i_sec );
                 x_rot += ws->m_Dihedral();
             }
 
@@ -4929,10 +4954,14 @@ void FeaRibArray::CalcNumRibs()
             return;
         }
 
-        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
-        assert( wing );
+        // Sections come from the wing shown; surfaces from the parent, which may be a Clone of it.
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
+        if ( !behavior_wing )
+        {
+            return;
+        }
 
-        int num_wing_sec = wing->NumXSec();
+        int num_wing_sec = behavior_wing->NumXSec();
 
         m_StartWingSection.SetLowerUpperLimits( 1, m_EndWingSection() );
         m_EndWingSection.SetLowerUpperLimits( m_StartWingSection(), num_wing_sec - 1 );
@@ -4955,7 +4984,7 @@ void FeaRibArray::CalcNumRibs()
         // Determine wing span:
         for ( size_t i = start_sect; i < end_sect; i++ )
         {
-            WingSect* wing_sec = wing->GetWingSect( i );
+            WingSect* wing_sec = behavior_wing->GetWingSect( i );
 
             if ( wing_sec )
             {
@@ -5066,8 +5095,12 @@ void FeaRibArray::CreateFeaRibArray()
             return;
         }
 
-        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
-        assert( wing );
+        // Sections come from the wing shown; surfaces from the parent, which may be a Clone of it.
+        WingGeom* behavior_wing = dynamic_cast<WingGeom*>( current_wing->GetBehaviorGeom() );
+        if ( !behavior_wing )
+        {
+            return;
+        }
 
         BndBox wing_bbox;
         current_wing->GetSurfPtr( m_MainSurfIndx )->GetBoundingBox( wing_bbox );

@@ -2435,7 +2435,7 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_XSEC_CURVE ), vsp::SS_XSEC_CURVE + m_FeaPartChoiceSubSurfOffset  );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_INTERSECT ), vsp::SS_INTERSECT + m_FeaPartChoiceSubSurfOffset  );
 
-                    if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                    if ( currgeom->GetBehaviorType() == MS_WING_GEOM_TYPE )
                     {
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB, 0 ); // FEA_RIB
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_SPAR, 0 ); // FEA_SPAR
@@ -2452,7 +2452,7 @@ void StructScreen::UpdateFeaPartChoice()
                         m_FeaPartChoice.SetFlagByVal( vsp::SS_CONTROL + m_FeaPartChoiceSubSurfOffset, FL_MENU_INACTIVE );
                     }
 
-                    if ( currgeom->GetType().m_Type == FUSELAGE_GEOM_TYPE || currgeom->GetType().m_Type == POD_GEOM_TYPE || currgeom->GetType().m_Type == STACK_GEOM_TYPE ) //TODO: Improve
+                    if ( currgeom->GetBehaviorType() == FUSELAGE_GEOM_TYPE || currgeom->GetBehaviorType() == POD_GEOM_TYPE || currgeom->GetBehaviorType() == STACK_GEOM_TYPE ) //TODO: Improve
                     {
                         m_FeaPartChoice.SetFlagByVal( vsp::FEA_DOME, 0 ); // FEA_DOME
                     }
@@ -2843,7 +2843,7 @@ void StructScreen::FeaStructDispGroup( GroupLayout* group )
 
             if ( currgeom )
             {
-                if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                if ( currgeom->GetBehaviorType() == MS_WING_GEOM_TYPE )
                 {
                     m_StructWingGroup.Show();
                     m_StructGeneralGroup.Hide();
@@ -5225,7 +5225,7 @@ void StructScreen::OrientWing()
             return;
         }
 
-        if ( current_wing->GetType().m_Type == MS_WING_GEOM_TYPE )
+        if ( current_wing->GetBehaviorType() == MS_WING_GEOM_TYPE )
         {
             BndBox wing_bbox = current_wing->GetBndBox();
 
