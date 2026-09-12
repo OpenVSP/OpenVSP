@@ -12,6 +12,7 @@
 #define IDMGR__INCLUDED_
 
 #include "MessageMgr.h"
+#include "XmlUtil.h"
 
 #include <map>
 #include <unordered_map>

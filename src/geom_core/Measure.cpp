@@ -14,6 +14,7 @@
 #include "Measure.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "LinkMgr.h"
 #include "VSP_Geom_API.h"
 #include "UnitConversion.h"
@@ -84,7 +85,7 @@ xmlNodePtr Probe::DecodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_OriginGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
+        m_OriginGeomID = IDMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
         m_Stage = STAGE_COMPLETE;
     }
 
@@ -268,7 +269,7 @@ xmlNodePtr RSTProbe::DecodeXml(xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_OriginGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
+        m_OriginGeomID = IDMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
         m_Stage = STAGE_COMPLETE;
     }
 
@@ -609,8 +610,8 @@ xmlNodePtr Ruler::DecodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_OriginGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
-        m_EndGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "EndGeomID", m_EndGeomID ) );
+        m_OriginGeomID = IDMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
+        m_EndGeomID = IDMgr.RemapID( XmlUtil::FindString( parmcontain_node, "EndGeomID", m_EndGeomID ) );
         m_Stage = STAGE_COMPLETE;
     }
 
@@ -928,9 +929,9 @@ xmlNodePtr Protractor::DecodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_OriginGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
-        m_MidGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "MidGeomID", m_MidGeomID ) );
-        m_EndGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "EndGeomID", m_EndGeomID ) );
+        m_OriginGeomID = IDMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
+        m_MidGeomID = IDMgr.RemapID( XmlUtil::FindString( parmcontain_node, "MidGeomID", m_MidGeomID ) );
+        m_EndGeomID = IDMgr.RemapID( XmlUtil::FindString( parmcontain_node, "EndGeomID", m_EndGeomID ) );
         m_Stage = STAGE_COMPLETE;
     }
 

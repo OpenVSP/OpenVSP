@@ -17,6 +17,7 @@
 #include "PropGeom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "StructureMgr.h"
 #include "Vec2d.h"
 #include "VspUtil.h"
@@ -693,8 +694,8 @@ xmlNodePtr SubSurface::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        m_FeaPropertyID = ParmMgr.RemapID( XmlUtil::FindString( node, "FeaPropertyID", m_FeaPropertyID ) );
-        m_CapFeaPropertyID = ParmMgr.RemapID( XmlUtil::FindString( node, "CapFeaPropertyID", m_CapFeaPropertyID ) );
+        m_FeaPropertyID = IDMgr.RemapID( XmlUtil::FindString( node, "FeaPropertyID", m_FeaPropertyID ) );
+        m_CapFeaPropertyID = IDMgr.RemapID( XmlUtil::FindString( node, "CapFeaPropertyID", m_CapFeaPropertyID ) );
     }
 
     return node;
@@ -1791,7 +1792,7 @@ xmlNodePtr SSIntersect::DecodeXml(  xmlNodePtr & node  )
 {
     xmlNodePtr xscrv_node = SSXSecCurve::DecodeXml( node );
 
-    m_IntersectID = ParmMgr.RemapID( XmlUtil::FindString( node, "IntersectID", m_IntersectID ) );
+    m_IntersectID = IDMgr.RemapID( XmlUtil::FindString( node, "IntersectID", m_IntersectID ) );
 
     return xscrv_node;
 }

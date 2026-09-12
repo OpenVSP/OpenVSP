@@ -62,7 +62,6 @@ string IDMgrSingleton::RemapID( const string & oldID, const string & suggestID )
     return RemapID( oldID, suggestID, -1 );
 }
 
-// ForceRemapID works as above, but makes no attempt to
 string IDMgrSingleton::ForceRemapID( const string & oldID, int size )
 {
     string dummy;

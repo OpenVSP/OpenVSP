@@ -238,45 +238,6 @@ void ParmMgrSingleton::UnDo()
     }
 }
 
-//==== Remap oldID into newID avoiding collisions ====//
-
-// RemapID will map an old set of ID's to a new set of ID's.
-//
-// When an oldID is first passed to RemapID, a newID is chosen which will be returned
-// every time oldID is passed (until a reset).
-//
-// If oldID is not used by VSP (i.e. there are no collisions), then newID will match
-// oldID.  This allows seamless persistence of ID's.
-//
-// If oldID is already used by VSP (i.e. there are collisions), then newID will either
-// be set an optional suggestedID or randomly selected.
-//
-// Remapping is done in context of the last time ResetRemapID was called.  I.e. collisions
-// are when an ID already exists when Reset is called.
-//
-
-string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID )
-{
-    return IDMgr.RemapID( oldID, suggestID, -1 );
-}
-
-// ForceRemapID works as above, but makes no attempt to
-string ParmMgrSingleton::ForceRemapID( const string & oldID, int size )
-{
-    string dummy;
-    return IDMgr.RemapID( oldID, dummy, size );
-}
-
-string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID, int size )
-{
-    return IDMgr.RemapID( oldID, suggestID, size );
-}
-
-string ParmMgrSingleton::ResetRemapID( const string & lastReset )
-{
-    return IDMgr.ResetRemapID();
-}
-
 void ParmMgrSingleton::SwapIDs( const string &aID, const string &bID )
 {
 

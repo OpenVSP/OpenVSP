@@ -10,6 +10,7 @@
 #include "MeshCommonSettings.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +131,7 @@ xmlNodePtr IntersectSettings::DecodeXml( xmlNodePtr & node )
     xmlNodePtr structsettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
     if ( structsettingnode )
     {
-        m_ModeID = ParmMgr.RemapID( XmlUtil::FindString( structsettingnode, "ModeID", m_ModeID ) );
+        m_ModeID = IDMgr.RemapID( XmlUtil::FindString( structsettingnode, "ModeID", m_ModeID ) );
 
         MeshCommonSettings::DecodeXml( structsettingnode );
     }
@@ -295,8 +296,8 @@ xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
     xmlNodePtr cfdsettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
     if ( cfdsettingnode )
     {
-        m_FarGeomID = ParmMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "FarGeomID", m_FarGeomID ) );
-        m_ModeID = ParmMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "ModeID", m_ModeID ) );
+        m_FarGeomID = IDMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "FarGeomID", m_FarGeomID ) );
+        m_ModeID = IDMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "ModeID", m_ModeID ) );
 
         MeshCommonSettings::DecodeXml( cfdsettingnode );
     }
@@ -321,7 +322,7 @@ void CfdMeshSettings::ReadV2File( xmlNodePtr &root )
     string fargeom = XmlUtil::FindString( root, "CFD_Far_Geom_PtrID", m_FarGeomID );
     if ( fargeom != "0" )
     {
-        m_FarGeomID = ParmMgr.ForceRemapID( fargeom , 10 );
+        m_FarGeomID = IDMgr.ForceRemapID( fargeom , 10 );
     }
 
     SetFileExportFlag( vsp::CFD_STL_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Stl_File_Flag", GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get() ) );

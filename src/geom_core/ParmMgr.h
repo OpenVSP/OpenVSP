@@ -48,8 +48,6 @@ private:
 
     bool m_DirtyFlag;
 
-    string RemapID( const string & oldID, const string & suggestID, int size );
-
 public:
     static ParmMgrSingleton& getInstance()
     {
@@ -70,10 +68,6 @@ public:
 
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     void UnDo();
-
-    string ForceRemapID( const string & oldID, int size );
-    string RemapID( const string & oldID, const string & suggestID = "" );
-    string ResetRemapID( const string & lastReset = "" );
 
     void SwapIDs( const string &aID, const string &bID );
 

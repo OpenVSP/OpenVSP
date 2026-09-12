@@ -10,6 +10,7 @@
 
 #include "GearGeom.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "LinkMgr.h"
 #include "VspCurve.h"
 #include "VspSurf.h"
@@ -2404,8 +2405,8 @@ xmlNodePtr Bogie::DecodeXml( xmlNodePtr & node )
 
     if ( bogie_node )
     {
-        m_StowParentID = ParmMgr.RemapID( XmlUtil::FindString( bogie_node, "StowParentID", m_StowParentID ) );
-        m_MechParentID = ParmMgr.RemapID( XmlUtil::FindString( bogie_node, "MechParentID", m_MechParentID ) );
+        m_StowParentID = IDMgr.RemapID( XmlUtil::FindString( bogie_node, "StowParentID", m_StowParentID ) );
+        m_MechParentID = IDMgr.RemapID( XmlUtil::FindString( bogie_node, "MechParentID", m_MechParentID ) );
     }
 
     return pcnode;

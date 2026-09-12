@@ -15,6 +15,7 @@
 #include "SVGUtil.h"
 #include "StringUtil.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "SubSurfaceMgr.h"
 #include "HingeGeom.h"
 #include "HumanGeom.h"
@@ -559,7 +560,7 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
         //m_Type.m_Name   = XmlUtil::FindString( child_node, "TypeName", m_Type.m_Name );
         //m_Type.m_Type   = XmlUtil::FindInt( child_node, "TypeID", m_Type.m_Type );
         m_Type.m_FixedFlag = !!XmlUtil::FindInt( geombase_node, "TypeFixed", m_Type.m_FixedFlag );
-        m_ParentID = ParmMgr.RemapID( XmlUtil::FindString( geombase_node, "ParentID", m_ParentID ) );
+        m_ParentID = IDMgr.RemapID( XmlUtil::FindString( geombase_node, "ParentID", m_ParentID ) );
 
         m_ChildIDVec.clear();
 
@@ -571,7 +572,7 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
             for ( int i = 0 ; i < num_children ; i++ )
             {
                 xmlNodePtr n = XmlUtil::GetNode( cl_node, "Child", i );
-                m_ChildIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+                m_ChildIDVec.push_back( IDMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
             }
         }
 
@@ -585,7 +586,7 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
             for ( int i = 0 ; i < num_stepchildren ; i++ )
             {
                 xmlNodePtr n = XmlUtil::GetNode( scl_node, "Step_Child", i );
-                AddStepChildID( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+                AddStepChildID( IDMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
             }
         }
     }
@@ -3931,7 +3932,7 @@ void Geom::ReadV2File( xmlNodePtr &root )
     m_WLoc = XmlUtil::FindDouble( root, "V_Attach", m_WLoc() );
 
     //==== Read Pointer ID and Parent/Children Info ====//
-    string newID = ParmMgr.ForceRemapID( XmlUtil::FindString( root, "PtrID", m_ID ), 10 );
+    string newID = IDMgr.ForceRemapID( XmlUtil::FindString( root, "PtrID", m_ID ), 10 );
 
     if( newID.compare( m_ID ) != 0 )
     {
@@ -3941,7 +3942,7 @@ void Geom::ReadV2File( xmlNodePtr &root )
     string parent = XmlUtil::FindString( root, "Parent_PtrID", m_ParentID );
     if ( parent != "0" )
     {
-        m_ParentID = ParmMgr.ForceRemapID( parent , 10 );
+        m_ParentID = IDMgr.ForceRemapID( parent , 10 );
     }
 
     m_ChildIDVec.clear();
@@ -3949,7 +3950,7 @@ void Geom::ReadV2File( xmlNodePtr &root )
     for (  i = 0 ; i < numChildren ; i++ )
     {
         xmlNodePtr child_node = XmlUtil::GetNode( root, "Children_PtrID", i );
-        m_ChildIDVec.push_back( ParmMgr.ForceRemapID( XmlUtil::ExtractString( child_node ) , 10 ) );
+        m_ChildIDVec.push_back( IDMgr.ForceRemapID( XmlUtil::ExtractString( child_node ) , 10 ) );
     }
 
     //==== Read CFD Mesh Sources ====//

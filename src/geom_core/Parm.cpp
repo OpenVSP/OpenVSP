@@ -9,6 +9,7 @@
 
 #include "Parm.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "LinkMgr.h"
 #include <cfloat>
 
@@ -362,7 +363,7 @@ void Parm::DecodeXml( xmlNodePtr & node, bool detailed )
         val = XmlUtil::FindDoubleProp( n, "Value", m_Val );
 
         string oldID = XmlUtil::FindStringProp( n, "ID", m_ID );
-        string newID = ParmMgr.RemapID( oldID, m_ID );
+        string newID = IDMgr.RemapID( oldID, m_ID );
 
 
         if( newID.compare( m_ID ) != 0 )        // they differ

@@ -13,6 +13,7 @@
 #include "WingGeom.h"
 #include <cfloat>  //For DBL_EPSILON
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "StlHelper.h"
 
 using namespace vsp;
@@ -513,7 +514,7 @@ xmlNodePtr RoutingPoint::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        m_ParentID = ParmMgr.RemapID( XmlUtil::FindString( node, "ParentID", m_ParentID ) );
+        m_ParentID = IDMgr.RemapID( XmlUtil::FindString( node, "ParentID", m_ParentID ) );
     }
 
     return node;

@@ -348,7 +348,7 @@ void NameValData::CopyFrom( NameValData* nvd )
         return;
     }
 
-    string lastreset = ParmMgr.ResetRemapID();
+    string lastreset = IDMgr.ResetRemapID();
 
     xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Attributes" );
 
@@ -357,7 +357,7 @@ void NameValData::CopyFrom( NameValData* nvd )
     DecodeXml( attr_node );
 
     xmlFreeNode( root );
-    ParmMgr.ResetRemapID( lastreset );
+    IDMgr.ResetRemapID( lastreset );
 }
 
 string NameValData::TruncateString( string str, int len )

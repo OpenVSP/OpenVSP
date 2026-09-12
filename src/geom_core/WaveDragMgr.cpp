@@ -14,6 +14,7 @@
 #include "MeshGeom.h"
 #include "WingGeom.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "wavedragEL.h"
 #include "ModeMgr.h"
 
@@ -97,8 +98,8 @@ xmlNodePtr WaveDragSingleton::DecodeXml( xmlNodePtr & node )
     if ( WaveDragnode )
     {
         ParmContainer::DecodeXml( WaveDragnode );
-        m_RefGeomID   = ParmMgr.RemapID( XmlUtil::FindString( WaveDragnode, "ReferenceGeomID", m_RefGeomID ) );
-        m_ModeID   = ParmMgr.RemapID( XmlUtil::FindString( WaveDragnode, "ModeID", m_ModeID ) );
+        m_RefGeomID   = IDMgr.RemapID( XmlUtil::FindString( WaveDragnode, "ReferenceGeomID", m_RefGeomID ) );
+        m_ModeID   = IDMgr.RemapID( XmlUtil::FindString( WaveDragnode, "ModeID", m_ModeID ) );
 
         //==== Flow-Through Subsurfaces ====//
         xmlNodePtr flowSS_list_node = XmlUtil::GetNode( WaveDragnode, "FlowSS_List", 0 );
@@ -109,7 +110,7 @@ xmlNodePtr WaveDragSingleton::DecodeXml( xmlNodePtr & node )
             for ( int i = 0 ; i < num_flowSS ; i++ )
             {
                 xmlNodePtr flowSS_node = XmlUtil::GetNode( flowSS_list_node, "FlowSS", i );
-                string new_flowSS = ParmMgr.RemapID( XmlUtil::FindString( flowSS_node, "flowSS_ID", string() ) );
+                string new_flowSS = IDMgr.RemapID( XmlUtil::FindString( flowSS_node, "flowSS_ID", string() ) );
                 m_SSFlow_vec.push_back( new_flowSS );
             }
         }

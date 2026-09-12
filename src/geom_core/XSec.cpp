@@ -13,6 +13,7 @@
 #include "XSec.h"
 #include "Geom.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "StlHelper.h"
 #include <float.h>
 
@@ -200,7 +201,7 @@ Matrix4d* XSec::GetTransform()
 //==== Copy From XSec ====//
 void XSec::CopyFrom( XSec* xs )
 {
-    string lastreset = ParmMgr.ResetRemapID();
+    string lastreset = IDMgr.ResetRemapID();
     xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
     if ( xs->GetType() == GetType() && xs->GetXSecCurve()->GetType() == GetXSecCurve()->GetType() )
     {
@@ -215,7 +216,7 @@ void XSec::CopyFrom( XSec* xs )
         m_XSCurve->SetWidthHeight( xs->GetXSecCurve()->GetWidth(), xs->GetXSecCurve()->GetHeight() );
     }
     xmlFreeNode( root );
-    ParmMgr.ResetRemapID( lastreset );
+    IDMgr.ResetRemapID( lastreset );
 }
 
 //==== Encode XML ====//

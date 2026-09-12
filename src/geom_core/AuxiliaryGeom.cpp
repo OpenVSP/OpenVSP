@@ -17,6 +17,7 @@
 #include "GearGeom.h"
 #include "Geom.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "StlHelper.h"
 #include <cfloat>  //For DBL_EPSILON
 
@@ -2106,9 +2107,9 @@ xmlNodePtr AuxiliaryGeom::DecodeXml( xmlNodePtr & node )
 
     if ( child_node )
     {
-        m_ContactPt1_ID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt1_ID", m_ContactPt1_ID ) );
-        m_ContactPt2_ID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt2_ID", m_ContactPt2_ID ) );
-        m_ContactPt3_ID = ParmMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt3_ID", m_ContactPt3_ID ) );
+        m_ContactPt1_ID = IDMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt1_ID", m_ContactPt1_ID ) );
+        m_ContactPt2_ID = IDMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt2_ID", m_ContactPt2_ID ) );
+        m_ContactPt3_ID = IDMgr.RemapID( XmlUtil::FindString( child_node, "ContactPt3_ID", m_ContactPt3_ID ) );
 
         vector < vec3d > pnt_vec = XmlUtil::ExtractVectorVec3dNode( child_node, "CCEFilePnts" );
         SetPnts( pnt_vec );

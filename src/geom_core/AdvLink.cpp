@@ -10,6 +10,7 @@
 #include "AdvLink.h"
 #include "AdvLinkMgr.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "APIErrorMgr.h"
 #include "StringUtil.h"
 #include "StlHelper.h"
@@ -35,7 +36,7 @@ xmlNodePtr VarDef::DecodeXml( xmlNodePtr & var_node )
     if ( var_node )
     {
         m_VarName = XmlUtil::FindStringProp( var_node, "Name", m_VarName );
-        m_ParmID  = ParmMgr.RemapID( XmlUtil::FindStringProp( var_node, "ParmID", string() ) );
+        m_ParmID  = IDMgr.RemapID( XmlUtil::FindStringProp( var_node, "ParmID", string() ) );
 
     }
     return var_node;

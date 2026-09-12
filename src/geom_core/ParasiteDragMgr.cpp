@@ -12,6 +12,7 @@
 
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "StlHelper.h"
 #include "WingGeom.h"
 #include "ParasiteDragMgr.h"
@@ -3421,8 +3422,8 @@ xmlNodePtr ParasiteDragMgrSingleton::DecodeXml( xmlNodePtr & node )
     if ( ParasiteDragnode )
     {
         ParmContainer::DecodeXml( ParasiteDragnode );
-        m_RefGeomID = ParmMgr.RemapID( XmlUtil::FindString( ParasiteDragnode, "ReferenceGeomID", m_RefGeomID ) );
-        m_ModeID = ParmMgr.RemapID( XmlUtil::FindString( ParasiteDragnode, "ModeID", m_ModeID ) );
+        m_RefGeomID = IDMgr.RemapID( XmlUtil::FindString( ParasiteDragnode, "ReferenceGeomID", m_RefGeomID ) );
+        m_ModeID = IDMgr.RemapID( XmlUtil::FindString( ParasiteDragnode, "ModeID", m_ModeID ) );
 
         xmlNodePtr ExcresDragnode = XmlUtil::GetNode( ParasiteDragnode, "Excrescence", 0 );
 

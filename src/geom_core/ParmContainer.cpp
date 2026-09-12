@@ -9,6 +9,7 @@
 
 #include "Parm.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "LinkMgr.h"
 #include "StringUtil.h"
 #include "StlHelper.h"
@@ -213,7 +214,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
     if ( child_node )
     {
         string oldID = XmlUtil::FindString( child_node, "ID", m_ID );
-        string newID = ParmMgr.RemapID( oldID, m_ID );
+        string newID = IDMgr.RemapID( oldID, m_ID );
 
         if( newID.compare( m_ID ) != 0 )        // they differ
         {

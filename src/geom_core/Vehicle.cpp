@@ -44,6 +44,7 @@
 #include "NGonMeshGeom.h"
 #include "ParasiteDragMgr.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include "PodGeom.h"
 #include "ProjectionMgr.h"
 #include "PropGeom.h"
@@ -2167,7 +2168,7 @@ bool Vehicle::IDinClipboard( const string & id )
 //==== Copy Geoms In Vec - Create New IDs But Keep Parent/Child ====//
 vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
 {
-    string lastreset = ParmMgr.ResetRemapID();
+    string lastreset = IDMgr.ResetRemapID();
 
     //==== Create New Geoms ====//
     vector< string > created_id_vec;
@@ -2200,7 +2201,7 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
         }
     }
 
-    ParmMgr.ResetRemapID( lastreset );
+    IDMgr.ResetRemapID( lastreset );
 
     // Scan through and look for parents & children outside copied vector
     // These have nonexistant ID's because the remap created a new unique
@@ -2751,7 +2752,7 @@ bool Vehicle::WriteXMLFile( const string & file_name, int set )
 //==== Read File ====//
 int Vehicle::ReadXMLFile( const string & file_name )
 {
-    string lastreset = ParmMgr.ResetRemapID();
+    string lastreset = IDMgr.ResetRemapID();
 
     // Disable link updates when until all geoms are loaded
     LinkMgr.SetFreezeUpdateFlag( true );
@@ -2809,7 +2810,7 @@ int Vehicle::ReadXMLFile( const string & file_name )
     //===== Free Doc =====//
     xmlFreeDoc( doc );
 
-    ParmMgr.ResetRemapID( lastreset );
+    IDMgr.ResetRemapID( lastreset );
 
     Update();
     AdvLinkMgr.ForceUpdate();
@@ -2823,7 +2824,7 @@ int Vehicle::ReadXMLFile( const string & file_name )
 //==== Read File ====//
 int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
 {
-    string lastreset = ParmMgr.ResetRemapID();
+    string lastreset = IDMgr.ResetRemapID();
 
     //==== Read Xml File ====//
     xmlDocPtr doc;
@@ -2879,7 +2880,7 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
     //===== Free Doc =====//
     xmlFreeDoc( doc );
 
-    ParmMgr.ResetRemapID( lastreset );
+    IDMgr.ResetRemapID( lastreset );
 
     Update();
 
@@ -6533,7 +6534,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
 string Vehicle::ImportV2File( const string & file_name )
 {
-    string lastreset = ParmMgr.ResetRemapID();
+    string lastreset = IDMgr.ResetRemapID();
 
     //==== Read Xml File ====//
     xmlDocPtr doc;
@@ -6683,7 +6684,7 @@ string Vehicle::ImportV2File( const string & file_name )
     //===== Free Doc =====//
     xmlFreeDoc( doc );
 
-    ParmMgr.ResetRemapID( lastreset );
+    IDMgr.ResetRemapID( lastreset );
 
     // The import routine has set the appropriate coordinate system values and
     // rel/abs flags. Therefore, the ignore absolute coordinate flag should

@@ -13,6 +13,7 @@
 #include "WingGeom.h"
 #include "HingeGeom.h"
 #include "ParmMgr.h"
+#include "IDMgr.h"
 #include <cfloat>  //For DBL_EPSILON
 
 using namespace vsp;
@@ -171,7 +172,7 @@ xmlNodePtr ConformalGeom::DecodeXml( xmlNodePtr & node )
 
     if ( child_node )
     {
-        SetConformalParent( ParmMgr.RemapID( XmlUtil::FindString( child_node, "ConformalParentID", GetConformalParent() ) ) );
+        SetConformalParent( IDMgr.RemapID( XmlUtil::FindString( child_node, "ConformalParentID", GetConformalParent() ) ) );
     }
 
     return child_node;
