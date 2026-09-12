@@ -172,7 +172,7 @@ xmlNodePtr ConformalGeom::DecodeXml( xmlNodePtr & node )
 
     if ( child_node )
     {
-        SetConformalParent( IDMgr.RemapID( XmlUtil::FindString( child_node, "ConformalParentID", GetConformalParent() ) ) );
+        SetConformalParent( IDMgr.RemapRefID( XmlUtil::FindString( child_node, "ConformalParentID", GetConformalParent() ) ) );
     }
 
     return child_node;

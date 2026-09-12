@@ -514,7 +514,7 @@ xmlNodePtr RoutingPoint::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        m_ParentID = IDMgr.RemapID( XmlUtil::FindString( node, "ParentID", m_ParentID ) );
+        m_ParentID = IDMgr.RemapRefID( XmlUtil::FindString( node, "ParentID", m_ParentID ) );
     }
 
     return node;
