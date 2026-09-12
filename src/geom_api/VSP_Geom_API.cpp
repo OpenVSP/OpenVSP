@@ -3190,9 +3190,24 @@ void SetGeomCloneOriginal( const std::string & clone_id, const std::string & ori
         return;
     }
 
+    if ( clone_ptr->IsCloneAncestor( original_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::Geom " + original_id +
+                           " already copies Clone " + clone_id + ", so this would close a ring of Clones" );
+        return;
+    }
+
+    if ( clone_ptr->IsDescendant( original_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::Geom " + original_id +
+                           " hangs off Clone " + clone_id + ", so it updates after it and would always be a pass behind" );
+        return;
+    }
+
     if ( !clone_ptr->SetOriginalID( original_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::Geom " + original_id + " would make Clone " + clone_id + " a Clone of itself" );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::Clone " + clone_id +
+                           " cannot copy Geom " + original_id );
         return;
     }
 

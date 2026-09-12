@@ -256,6 +256,13 @@ public:
     // contain a cycle.
     virtual Geom* FollowOriginals() const;
 
+    // IDs of all children and step children below this Geom, recursively.
+    virtual void CollectDescendantIDs( set < string > &ids ) const;
+
+    // Whether id is below this Geom.  Copying a descendant is refused: its update runs inside
+    // this Geom's update, so the Clone would show a stale shape.
+    virtual bool IsDescendant( const string &id ) const;
+
     // The original's scaling, then this Geom's own placement.
     virtual Matrix4d PlaceBorrowedShape( const Matrix4d &scale_mat ) const;
 

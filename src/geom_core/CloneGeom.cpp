@@ -244,6 +244,48 @@ void CloneGeom::SetJointParmLimits( Parm &translate, Parm &rotate )
     }
 }
 
+// All children and step children below this Geom, recursively.  Ring-safe, because a file can
+// name any parent or step child.
+void CloneGeom::CollectDescendantIDs( set < string > &ids ) const
+{
+    vector < string > walk;
+
+    walk.push_back( GetID() );
+
+    while ( !walk.empty() )
+    {
+        Geom* geom_ptr = m_Vehicle->FindGeom( walk.back() );
+        walk.pop_back();
+
+        if ( !geom_ptr )
+        {
+            continue;
+        }
+
+        vector < string > below = geom_ptr->GetChildIDVec();
+        vector < string > stepchildren = geom_ptr->GetStepChildIDVec();
+        below.insert( below.end(), stepchildren.begin(), stepchildren.end() );
+
+        for ( int i = 0; i < ( int )below.size(); i++ )
+        {
+            if ( below[i] != GetID() && ids.insert( below[i] ).second )
+            {
+                walk.push_back( below[i] );
+            }
+        }
+    }
+}
+
+bool CloneGeom::IsDescendant( const string &id ) const
+{
+    // A descendant updates inside this Geom's update, so copying it would lag one pass behind.
+    set < string > below;
+    CollectDescendantIDs( below );
+
+    return below.count( id ) > 0;
+}
+
+// Whether following the chain of originals from id arrives back at this Geom.
 bool CloneGeom::IsCloneAncestor( const string &id ) const
 {
     string walk = id;
@@ -296,12 +338,16 @@ void CloneGeom::ResolveOriginal()
 
     Geom* original_geom = GetOriginalGeom();
 
-    // A file names whatever it names.  SetOriginalID refuses a ring, but a file never went
-    // through it, and a ring of clones would each be waiting on the one in front -- asking any
-    // of them anything walks the ring forever.
-    if ( original_geom && IsCloneAncestor( m_OriginalID ) )
+    // A file bypasses SetOriginalID, so a ring or a descendant is rejected here too.
+    bool circular = false;
+
+    if ( original_geom && ( IsCloneAncestor( m_OriginalID ) || IsDescendant( m_OriginalID ) ) )
     {
+        // It is there, it just cannot be copied.  Let go of it properly: the Geom is still
+        // holding this one in its step-child list.
+        original_geom->RemoveStepChildID( GetID() );
         original_geom = nullptr;
+        circular = true;
     }
 
     if ( !original_geom )
@@ -309,6 +355,29 @@ void CloneGeom::ResolveOriginal()
         // Deleted, pasted without its original, or circular.  Go empty rather than silently
         // switch to copying the parent.
         m_OriginalID.clear();
+
+        // Tell the user; only they can fix a circular case, by moving the Clone.
+        string message;
+        if ( circular )
+        {
+            message = GetName() +
+                " can no longer copy what it was copying, because that Geom now hangs off " +
+                GetName() + " itself.  Its original has been cleared.  Move " + GetName() +
+                " out from under that Geom and choose an original again.";
+        }
+        else
+        {
+            message = GetName() +
+                " has lost the Geom it was copying, and has been cleared.  Choose an original"
+                " for it again.";
+        }
+
+        // Reaches both the GUI (ScreenMgr message box) and scripts (ErrorMgr error stack).
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_CLONE_ORIGINAL_LOST );
+        errMsgData.m_StringVec.push_back( "Error:  " + message );
+        MessageMgr::getInstance().SendAll( errMsgData );
 
         // The name was being written from a Geom that is gone, so it stops being written at
         // all: the switch goes off, and what is on the Geom now is the user's to keep or to
@@ -1179,9 +1248,8 @@ bool CloneGeom::IsCopiedSubSurf( const string &id ) const
 
 bool CloneGeom::SetOriginalID( const string &id )
 {
-    // A Clone of itself has nothing to copy, and neither does a ring of Clones -- each would be
-    // waiting on the one in front of it.
-    if ( id == GetID() || IsCloneAncestor( id ) )
+    // Refuse itself, a ring of Clones, and a descendant (which would lag one update behind).
+    if ( id == GetID() || IsCloneAncestor( id ) || IsDescendant( id ) )
     {
         return false;
     }

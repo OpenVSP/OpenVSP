@@ -544,6 +544,7 @@ enum ERROR_CODE {   VSP_UNKNOWN = -1,	/*!< Unknown error */
                     VSP_DUPLICATE_NAME,	/*!< A duplicate name has been provided */
                     VSP_GUI_DEVICE_DEACTIVATED, /*!< A deactivated GUI device was touched */
                     VSP_COULD_NOT_CREATE_BACKGROUND3D,	/*!< Could not create and add Background3D */
+                    VSP_CLONE_ORIGINAL_LOST,	/*!< A Clone Geom no longer has the Geom it was copying */
                     VSP_NUM_ERROR_CODE	/*!< Total number of VSP error codes */
 };
 
