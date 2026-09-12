@@ -122,6 +122,92 @@ string IDMgrSingleton::RemapID( const string & oldID, const string & suggestID, 
     return newID;
 }
 
+string IDMgrSingleton::RemapRefID( const string & oldID )
+{
+    if ( NonRandomID( oldID ) )
+    {
+        return oldID;
+    }
+
+    unordered_map< string, string >::const_iterator it = m_IDRemap.find( oldID );
+    if ( it != m_IDRemap.end() )
+    {
+        return it->second;                  // the thing referred to came along; follow it
+    }
+
+    return oldID;                           // it did not, so this is already who is meant
+}
+
+string IDMgrSingleton::RemapCopiedID( const string & oldID )
+{
+    if ( NonRandomID( oldID ) )
+    {
+        return oldID;
+    }
+
+    unordered_map< string, string >::const_iterator it = m_IDRemap.find( oldID );
+    if ( it != m_IDRemap.end() )
+    {
+        return it->second;
+    }
+
+    return string();
+}
+
+void IDMgrSingleton::PreRegisterIDs( xmlNodePtr node )
+{
+    if ( !node )
+    {
+        return;
+    }
+
+    RegisterIDs( node );
+}
+
+// An identity is written in one of two shapes: a container writes its ID as a child node, and
+// an element that is itself the object carries an ID property, which is how a Parm and an
+// attribute write theirs.  A reference is written under a name of its own, so neither shape
+// picks one up.
+void IDMgrSingleton::RegisterOneID( xmlNodePtr node )
+{
+    if ( !node || node->type != XML_ELEMENT_NODE )
+    {
+        return;
+    }
+
+    if ( xmlStrcmp( node->name, ( const xmlChar* )"ParmContainer" ) == 0 ||
+         xmlStrcmp( node->name, ( const xmlChar* )"Setting" ) == 0 ||
+         xmlStrcmp( node->name, ( const xmlChar* )"SettingGroup" ) == 0 )
+    {
+        string id = XmlUtil::FindString( node, "ID", string() );
+        if ( !id.empty() && !NonRandomID( id ) )
+        {
+            RemapID( id );
+        }
+    }
+
+    string prop = XmlUtil::FindStringProp( node, "ID", string() );
+    if ( !prop.empty() && !NonRandomID( prop ) )
+    {
+        RemapID( prop );
+    }
+}
+
+void IDMgrSingleton::RegisterIDs( xmlNodePtr node )
+{
+    // The node handed in is registered along with its children, so a caller may pass an
+    // object's own element and not only a document root.
+    RegisterOneID( node );
+
+    for ( xmlNodePtr child = node->children; child; child = child->next )
+    {
+        if ( child->type == XML_ELEMENT_NODE )
+        {
+            RegisterIDs( child );
+        }
+    }
+}
+
 string IDMgrSingleton::ResetRemapID( const string & lastReset )
 {
     if ( lastReset != "" && lastReset != m_LastReset )
