@@ -1765,16 +1765,6 @@ void Geom::NoShow()
 }
 
 //==== Copy Geometry ====//
-void Geom::CopyFrom( Geom* geom )
-{
-    xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
-
-    geom->EncodeGeom( root );
-    DecodeGeom( root );
-
-    xmlFreeNode( root );
-}
-
 //==== Update ====//
 void Geom::Update( bool fullupdate )
 {

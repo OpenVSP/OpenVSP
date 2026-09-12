@@ -2173,32 +2173,62 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
     //==== Create New Geoms ====//
     vector< string > created_id_vec;
 
+    // Make them all first and say which copy stands for which original, before any of them is
+    // filled in.  A reference from one of these Geoms to another then follows the copy however
+    // the two are ordered, while a reference to a Geom that is not being copied stays put.
+    vector< Geom* > to_vec;
+    vector< xmlNodePtr > from_node_vec;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         Geom* fromPtr = FindGeom( geom_vec[i] );
         if ( fromPtr )
         {
-            GeomType t = fromPtr->GetType();
-            string id = CreateGeom( t );
+            string id = CreateGeom( fromPtr->GetType() );
             Geom* toPtr = FindGeom( id );
             if ( toPtr )
             {
-                toPtr->CopyFrom( fromPtr );
-                if (m_CopySetsWithGeomsFlag.Get() == false)
-                {
-                    // New geom is only in SET_SHOWN
-                    for ( int j = SET_FIRST_USER; j < m_NumUserSets() + SET_FIRST_USER; j++ )
-                    {
-                        toPtr->SetSetFlag( j, false );
-                    }
+                // States the mapping from original to copy rather than reading one, so that
+                // everything decoded below resolves a reference to the original into the copy.
+                IDMgr.RemapID( fromPtr->GetID(), toPtr->GetID() );
 
-                    toPtr->Show();
-                }
+                // Written out once and kept, since the copy is read back from this same tree
+                // below.  Registering it names the copy standing for each thing nested inside --
+                // a subsurface, a cross section, a bogie, a route point -- so a reference from
+                // one of these Geoms into another follows the copy whichever order they read.
+                xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
+                fromPtr->EncodeGeom( root );
+                IDMgr.PreRegisterIDs( root );
 
-                id = toPtr->GetID();
-                created_id_vec.push_back( id );
+                from_node_vec.push_back( root );
+                to_vec.push_back( toPtr );
             }
         }
+    }
+
+    for ( int i = 0 ; i < ( int )to_vec.size() ; i++ )
+    {
+        Geom* toPtr = to_vec[i];
+
+        // Read back from the tree written and registered in the loop above.
+        toPtr->DecodeGeom( from_node_vec[i] );
+
+        if ( m_CopySetsWithGeomsFlag.Get() == false )
+        {
+            // New geom is only in SET_SHOWN
+            for ( int j = SET_FIRST_USER; j < m_NumUserSets() + SET_FIRST_USER; j++ )
+            {
+                toPtr->SetSetFlag( j, false );
+            }
+
+            toPtr->Show();
+        }
+
+        created_id_vec.push_back( toPtr->GetID() );
+    }
+
+    for ( int i = 0 ; i < ( int )from_node_vec.size() ; i++ )
+    {
+        xmlFreeNode( from_node_vec[i] );
     }
 
     IDMgr.ResetRemapID( lastreset );
@@ -2749,6 +2779,27 @@ bool Vehicle::WriteXMLFile( const string & file_name, int set )
     return true;
 }
 
+//==== Register the identities in the trees read into newly made objects ====//
+// A file's Geoms are always created fresh, so an ID inside one may move and a reference to it
+// has to follow.  The Vehicle and the settings containers decode into the objects that already
+// hold their IDs, so they keep them and are left out.
+static void PreRegisterNewObjectIDs( xmlNodePtr node )
+{
+    xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
+    if ( vehicle_node )
+    {
+        int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
+        for ( int i = 0 ; i < num ; i++ )
+        {
+            xmlNodePtr geom_node = XmlUtil::GetNode( vehicle_node, "Geom", i );
+            if ( geom_node )
+            {
+                IDMgr.PreRegisterIDs( geom_node );
+            }
+        }
+    }
+}
+
 //==== Read File ====//
 int Vehicle::ReadXMLFile( const string & file_name )
 {
@@ -2803,6 +2854,10 @@ int Vehicle::ReadXMLFile( const string & file_name )
         m_FileOpenVersion = -1;
         return 4;
     }
+
+    // Register the Geoms before reading any of them, so a reference into one resolves whichever
+    // order the file lists it and the thing it names.
+    PreRegisterNewObjectIDs( root );
 
     //==== Decode Vehicle from document ====//
     DecodeXml( root );
@@ -2874,6 +2929,10 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
     }
 
     //==== Decode Vehicle from document ====//
+
+    // Register the Geoms before reading any of them, so a reference into one resolves whichever
+    // order the file lists it and the thing it names.
+    PreRegisterNewObjectIDs( root );
 
     DecodeXmlGeomsOnly( root );
 

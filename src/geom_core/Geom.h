@@ -544,7 +544,6 @@ public:
         return nullptr;
     }
 
-    virtual void CopyFrom( Geom* geom );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
