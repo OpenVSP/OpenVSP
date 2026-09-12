@@ -578,11 +578,11 @@ void VSPAEROMgrSingleton::UpdateSref()
             {
                 // The reference area comes from the shape, so from the Geom copied.
                 WingGeom* behavior_wing = dynamic_cast< WingGeom* >( refgeom->GetBehaviorGeom() );
+
                 if ( !behavior_wing )
                 {
                     return;
                 }
-
 
                 if ( m_SCurveFlag() )
                 {

@@ -1735,7 +1735,7 @@ void VSPAEROScreen::UpdateRefWing()
             {
                 snprintf( str, sizeof( str ),  "%d_%s", i, g->GetName().c_str());
 
-                if (g->GetType().m_Type == MS_WING_GEOM_TYPE)
+                if (g->GetBehaviorType() == MS_WING_GEOM_TYPE)
                 {
                     m_RefWingChoice.AddItem(str);
                     WingCompIDMap[geomVec[i]] = iwing;

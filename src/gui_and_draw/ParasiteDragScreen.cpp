@@ -857,7 +857,7 @@ void ParasiteDragScreen::UpdateSrefChoice()
             {
                 snprintf( str, sizeof( str ),  "%d_%s", i, geom->GetName().c_str() );
 
-                if ( geom->GetType().m_Type == MS_WING_GEOM_TYPE )
+                if ( geom->GetBehaviorType() == MS_WING_GEOM_TYPE )
                 {
                     m_RefWingChoice.AddItem( str );
                     WingCompIDMap[g_IDs[i]] = iwing;

@@ -172,10 +172,11 @@ void WaveDragSingleton::Update()
 
         if( refgeom )
         {
-            if( refgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
+            // The reference area is the wing's, so cast the Geom whose shape it is.
+            WingGeom* behavior_wing = dynamic_cast< WingGeom* >( refgeom->GetBehaviorGeom() );
+            if( behavior_wing )
             {
-                WingGeom* refwing = (WingGeom*) refgeom;
-                m_Sref.Set( refwing->m_TotalArea() );
+                m_Sref.Set( behavior_wing->m_TotalArea() );
 
                 m_Sref.Deactivate();
             }
