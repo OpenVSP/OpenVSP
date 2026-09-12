@@ -237,10 +237,6 @@ public:
     {
         return m_StepChildIDVec;
     }
-    virtual void SetStepChildIDVec( vector< string > & vec )
-    {
-        m_StepChildIDVec = vec;
-    }
 
     virtual bool UpdatedParm( const string & id );
 
