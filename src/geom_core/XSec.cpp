@@ -206,6 +206,7 @@ void XSec::CopyFrom( XSec* xs )
     if ( xs->GetType() == GetType() && xs->GetXSecCurve()->GetType() == GetXSecCurve()->GetType() )
     {
         xs->EncodeXml( root );
+        IDMgr.PreRegisterIDs( root );
         DecodeXml( root );
     }
     else
