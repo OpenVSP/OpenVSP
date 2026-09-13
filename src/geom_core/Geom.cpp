@@ -1959,9 +1959,12 @@ void Geom::Update( bool fullupdate )
 
     if ( fullupdate ) // Option to make FitModel and similar things faster.
     {
-        for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+        if ( m_XFormDirty || m_SurfDirty || m_SubSurfDirty ) // Everything except m_TessDirty
         {
-            m_SubSurfVec[i]->Update();  // Can be protected by m_SurfDirty, except for call to UpdateDrawObj - perhaps should be split out.  Some may depend on m_SurfVec, but could be switched to m_MainSurfVec instead.
+            for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+            {
+                m_SubSurfVec[i]->Update();
+            }
         }
 
         if ( m_XFormDirty || m_SurfDirty ) // Everything except m_TessDirty
