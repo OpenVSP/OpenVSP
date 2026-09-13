@@ -1300,16 +1300,16 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node )
         int decode_error = 0;
 
         string attachID;
-            string oldID = XmlUtil::FindStringProp( dnode, "ID", m_ID );
+        string oldID = XmlUtil::FindStringProp( dnode, "ID", m_ID );
 
-            string newID = IDMgr.RemapID( oldID, m_ID );
+        string newID = IDMgr.RemapID( oldID, m_ID );
 
-            if( newID.compare( m_ID ) != 0 )
-            {
-                ChangeID( newID );
-            }
+        if( newID.compare( m_ID ) != 0 )
+        {
+            ChangeID( newID );
+        }
 
-            attachID = IDMgr.RemapID( XmlUtil::FindStringProp( dnode, "AttachID", m_AttachID ) , m_AttachID );
+        attachID = IDMgr.RemapID( XmlUtil::FindStringProp( dnode, "AttachID", m_AttachID ) , m_AttachID );
 
         int attachType = XmlUtil::FindIntProp( dnode, "AttachType", vsp::ATTROBJ_FREE );
         SetCollAttach( attachID, attachType );
