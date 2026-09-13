@@ -610,12 +610,12 @@ void WireGeom::ApplyScale( double currentScale )
 }
 
 
-//==== Placing the rearranged grid, and drawing it ====//
+//==== WirePtRole: shared by WireGeom and a Clone of one ====//
 
-void WireGeom::BuildWireXFormPts( const vector < vector < vec3d > > &main_pts, const Matrix4d &trans,
-                                      bool invert,
-                                      vector < vector < vec3d > > &xform_pts,
-                                      vector < vector < vec3d > > &xform_norm )
+void WirePtRole::BuildWireXFormPts( const vector < vector < vec3d > > &main_pts, const Matrix4d &trans,
+                                    bool invert,
+                                    vector < vector < vec3d > > &xform_pts,
+                                    vector < vector < vec3d > > &xform_norm )
 {
     unsigned int num_i = main_pts.size();
 
@@ -666,7 +666,7 @@ void WireGeom::BuildWireXFormPts( const vector < vector < vec3d > > &main_pts, c
     }
 }
 
-void WireGeom::BuildWireBndBox( const vector < vector < vec3d > > &xform_pts, BndBox &bbox )
+void WirePtRole::BuildWireBndBox( const vector < vector < vec3d > > &xform_pts, BndBox &bbox )
 {
     bbox.Reset();
 
@@ -679,9 +679,9 @@ void WireGeom::BuildWireBndBox( const vector < vector < vec3d > > &xform_pts, Bn
     }
 }
 
-void WireGeom::BuildWireDrawObjs( const vector < vector < vec3d > > &xform_pts,
-                                      const vector < vector < vec3d > > &xform_norm,
-                                      vector < DrawObj > &draw_obj_vec )
+void WirePtRole::BuildWireDrawObjs( const vector < vector < vec3d > > &xform_pts,
+                                    const vector < vector < vec3d > > &xform_norm,
+                                    vector < DrawObj > &draw_obj_vec )
 {
     // Keep the existing DrawObj alive across updates -- assigning the meshes in place reuses
     // their heap allocations from the previous update.
@@ -1024,21 +1024,19 @@ bool WireGeom::CheckInverted()
     return false;
 }
 
-//==== Create TMesh Vector ====//
-vector< TMesh* > WireGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
+vector< TMesh* > WirePtRole::BuildWireTMeshVec( const vector < vector < vec3d > > &xform_pts,
+                                                bool invert, const Geom* geom_ptr )
 {
     vector < TMesh* > tmeshvec;
 
-    int num_pnts, num_cross;
-
-    num_cross = ( int ) m_XFormPts.size();
+    int num_cross = ( int ) xform_pts.size();
 
     if ( num_cross == 0 )
     {
         return tmeshvec;
     }
 
-    num_pnts = ( int ) m_XFormPts[0].size();
+    int num_pnts = ( int ) xform_pts[0].size();
 
     if ( num_pnts == 0 )
     {
@@ -1052,23 +1050,29 @@ vector< TMesh* > WireGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n
     {
         for ( int j = 1; j < num_pnts; j++ )
         {
-            if ( m_InvertFlag() ^ m_OtherInvertFlag ) // Bitwise XOR
+            if ( invert )
             {
-                tMesh->AddTri( m_XFormPts[ i - 1 ][ j - 1 ], m_XFormPts[ i ][ j ], m_XFormPts[ i ][ j - 1 ], iQuad );
-                tMesh->AddTri( m_XFormPts[ i - 1 ][ j - 1 ], m_XFormPts[ i - 1 ][ j ], m_XFormPts[ i ][ j ], iQuad );
+                tMesh->AddTri( xform_pts[ i - 1 ][ j - 1 ], xform_pts[ i ][ j ], xform_pts[ i ][ j - 1 ], iQuad );
+                tMesh->AddTri( xform_pts[ i - 1 ][ j - 1 ], xform_pts[ i - 1 ][ j ], xform_pts[ i ][ j ], iQuad );
             }
             else
             {
-                tMesh->AddTri( m_XFormPts[ i - 1 ][ j - 1 ], m_XFormPts[ i ][ j - 1 ], m_XFormPts[ i ][ j ], iQuad );
-                tMesh->AddTri( m_XFormPts[ i - 1 ][ j - 1 ], m_XFormPts[ i ][ j ], m_XFormPts[ i - 1 ][ j ], iQuad );
+                tMesh->AddTri( xform_pts[ i - 1 ][ j - 1 ], xform_pts[ i ][ j - 1 ], xform_pts[ i ][ j ], iQuad );
+                tMesh->AddTri( xform_pts[ i - 1 ][ j - 1 ], xform_pts[ i ][ j ], xform_pts[ i - 1 ][ j ], iQuad );
             }
             iQuad++;
         }
     }
-    tMesh->LoadGeomAttributes( this );
+    tMesh->LoadGeomAttributes( geom_ptr );
 
     tmeshvec.push_back( tMesh );
     return tmeshvec;
+}
+
+//==== Create TMesh Vector ====//
+vector< TMesh* > WireGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
+{
+    return BuildWireTMeshVec( m_XFormPts, GetWireInvert(), this );
 }
 
 //==== Create Degenerate Geometry ====//
@@ -1104,12 +1108,6 @@ void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int 
         }
     }
 
-    int surftype = DegenGeom::SURFACE_TYPE;
-    if ( m_WireType() == 1 )
-    {
-        surftype = DegenGeom::BODY_TYPE;
-    }
-
     int cfdsurftype = vsp::CFD_NORMAL;
     if ( m_NegativeVolumeFlag() )
     {
@@ -1117,7 +1115,8 @@ void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int 
     }
 
     dgs.resize( 1 );
-    Geom::CreateDegenGeom( dgs[0], m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, cfdsurftype, nullptr );
+    // The same flip the triangles and normals use.
+    Geom::CreateDegenGeom( dgs[0], m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, GetWireInvert(), GetWireDegenType(), cfdsurftype, nullptr );
 }
 
 int WireGeom::GetNumTotalHrmSurfs() const

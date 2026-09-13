@@ -9,12 +9,59 @@
 #define VSPWIREGEOM__INCLUDED_
 
 #include "Geom.h"
+#include "GeomInterface.h"
 
 class UnformattedIn;
 
 //==== Wireframe Geom ====//
 //==== A Geom whose shape is a grid of points ====//
-class WireGeom : public Geom
+// Implemented by WireGeom.  The points are rearranged (swapped, reversed, skipped, strided,
+// patched) into a main grid in the Geom's own frame and placed on output.  A Clone borrows the
+// rearranged grid.
+class WirePtRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return WIRE_FRAME_GEOM_TYPE; }
+
+    virtual ~WirePtRole()   {}
+
+    // The rearranged grid, in this Geom's own frame.
+    virtual const vector < vector < vec3d > > & GetMainWirePts() const = 0;
+
+    // Where this Geom stands it.
+    virtual Matrix4d GetWireTransMat() const = 0;
+    // The shape's own scaling, not part of the placement.  A Clone applies it too.
+    virtual Matrix4d GetWireScaleMat() const = 0;
+
+    // Which way the surface faces.
+    virtual bool GetWireInvert() const = 0;
+
+    // Whether the grid is a surface (lifting) or a body (non-lifting).
+    virtual int GetWireDegenType() const = 0;
+
+protected:
+    // The grid, placed, and the normals worked out there so a scale in the transform counts.
+    static void BuildWireXFormPts( const vector < vector < vec3d > > &main_pts, const Matrix4d &trans,
+                                   bool invert,
+                                   vector < vector < vec3d > > &xform_pts,
+                                   vector < vector < vec3d > > &xform_norm );
+
+    // Its extent.
+    static void BuildWireBndBox( const vector < vector < vec3d > > &xform_pts, BndBox &bbox );
+
+    // Draw it as a grid of quads.
+    static void BuildWireDrawObjs( const vector < vector < vec3d > > &xform_pts,
+                                   const vector < vector < vec3d > > &xform_norm,
+                                   vector < DrawObj > &draw_obj_vec );
+
+    // The same quads as triangles, two per cell, wound to face the way the surface does, for
+    // analyses.  Tagged as geom_ptr.
+    static vector< TMesh* > BuildWireTMeshVec( const vector < vector < vec3d > > &xform_pts,
+                                               bool invert, const Geom* geom_ptr );
+};
+
+class WireGeom : public Geom, public WirePtRole
 {
 public:
     WireGeom( Vehicle* vehicle_ptr );
@@ -80,36 +127,34 @@ protected:
 
     vector < vector < vec3d > > m_WirePts;
 
-    // The grid, placed, and the normals worked out there so a scale in the transform counts.
-    static void BuildWireXFormPts( const vector < vector < vec3d > > &main_pts, const Matrix4d &trans,
-                                   bool invert,
-                                   vector < vector < vec3d > > &xform_pts,
-                                   vector < vector < vec3d > > &xform_norm );
-
-    // Its extent.
-    static void BuildWireBndBox( const vector < vector < vec3d > > &xform_pts, BndBox &bbox );
-
-    // Draw it as a grid of quads.
-    static void BuildWireDrawObjs( const vector < vector < vec3d > > &xform_pts,
-                                   const vector < vector < vec3d > > &xform_norm,
-                                   vector < DrawObj > &draw_obj_vec );
-
-
     // The points after they have been rearranged -- swapped, reversed, skipped, strided,
     // patched -- but before this Geom's placement is applied.  This is the shape itself, which
     // is what another Geom can stand in for.
 public:
-    virtual const vector < vector < vec3d > > & GetMainWirePts() const
+    virtual const vector < vector < vec3d > > & GetMainWirePts() const override
     {
         return m_MainPts;
     }
-    virtual Matrix4d GetWireTransMat() const
+    virtual Matrix4d GetWireTransMat() const override
     {
         return GetTotalTransMat();
     }
-    virtual bool GetWireInvert() const
+
+    virtual Matrix4d GetWireScaleMat() const override
+    {
+        return m_ScaleMatrix;
+    }
+    virtual bool GetWireInvert() const override
     {
         return m_InvertFlag() ^ m_OtherInvertFlag;
+    }
+    virtual int GetWireDegenType() const override
+    {
+        if ( m_WireType() == 1 )
+        {
+            return DegenGeom::BODY_TYPE;
+        }
+        return DegenGeom::SURFACE_TYPE;
     }
 
 protected:
