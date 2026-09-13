@@ -540,9 +540,19 @@ xmlNodePtr GeomBase::EncodeXml( xmlNodePtr & node )
             XmlUtil::AddStringNode( child_node, "ID", m_ChildIDVec[i] );
         }
 
+        Vehicle* veh = VehicleMgr.GetVehicle();
+
         xmlNodePtr sclist_node = xmlNewChild( geombase_node, nullptr, BAD_CAST "Step_Child_List", nullptr );
         for ( int i = 0 ; i < ( int )m_StepChildIDVec.size() ; i++ )
         {
+            // A Geom on the clipboard is registered with the Geoms its points name, but it is
+            // not part of the model and is not written, so it is left out here.  It becomes a
+            // step child like any other once it is pasted.
+            if ( veh && veh->IDinClipboard( m_StepChildIDVec[i] ) )
+            {
+                continue;
+            }
+
             xmlNodePtr schild_node = xmlNewChild( sclist_node, nullptr, BAD_CAST "Step_Child", nullptr );
             XmlUtil::AddStringNode( schild_node, "ID", m_StepChildIDVec[i] );
         }

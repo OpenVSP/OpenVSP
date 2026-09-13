@@ -177,6 +177,48 @@ def testAStepChildStillFollowsItsParentAfterTheIdsHaveMoved():
     pop_errors()
 
 
+def testAGeomOnTheClipboardIsNotListedAsAStepChild():
+    """A Geom on the clipboard is not written as a step child of anything in the model.
+
+    Copying a route puts a copy on the clipboard, and its points name the same pod the
+    original's do, so the copy is registered with that live pod.  The clipboard is not saved,
+    and the copy joins the model only when it is pasted.
+    """
+    out = fresh()
+    pod, route = a_pod_and_route()
+    vsp.Update()
+
+    written = os.path.join( out, "clip.vsp3" )
+    vsp.WriteVSPFile( written )
+    before = step_child_lists( written )
+    assert before, "the pod wrote no step child, so nothing is measured"
+
+    vsp.CopyGeomToClipboard( route )
+    vsp.Update()
+    vsp.WriteVSPFile( written )
+
+    live = set( vsp.FindGeoms() )
+    for ids in step_child_lists( written ):
+        for i in ids:
+            assert i in live, "a step child names %s, which is not a Geom in the model" % i
+    assert step_child_lists( written ) == before, \
+           "copying to the clipboard changed what the pod depends on: %s -> %s" % (
+               before, step_child_lists( written ) )
+
+    # Pasting makes it part of the model, and then the pod really does depend on it.
+    vsp.PasteGeomClipboard()
+    vsp.Update()
+    vsp.WriteVSPFile( written )
+    live = set( vsp.FindGeoms() )
+    listed = step_child_lists( written )
+    assert any( len( ids ) == 2 for ids in listed ), \
+           "the pasted route was not registered with the pod: %s" % listed
+    for ids in listed:
+        for i in ids:
+            assert i in live, "a step child names %s, which is not a Geom in the model" % i
+    pop_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
