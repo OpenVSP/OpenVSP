@@ -1287,7 +1287,7 @@ void AttributeCollection::EncodeXml( xmlNodePtr & node ) const
 }
 
 //==== Decode Data from XML Data Structure ====//
-void AttributeCollection::DecodeXml( xmlNodePtr & node, bool retainIDs )
+void AttributeCollection::DecodeXml( xmlNodePtr & node )
 {
     string default_str = "None";
     int default_int = 0;
@@ -1300,8 +1300,6 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node, bool retainIDs )
         int decode_error = 0;
 
         string attachID;
-        if ( !retainIDs )
-        {
             string oldID = XmlUtil::FindStringProp( dnode, "ID", m_ID );
 
             string newID = IDMgr.RemapID( oldID, m_ID );
@@ -1312,11 +1310,6 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node, bool retainIDs )
             }
 
             attachID = IDMgr.RemapID( XmlUtil::FindStringProp( dnode, "AttachID", m_AttachID ) , m_AttachID );
-        }
-        else
-        {
-            attachID = m_AttachID;
-        }
 
         int attachType = XmlUtil::FindIntProp( dnode, "AttachType", vsp::ATTROBJ_FREE );
         SetCollAttach( attachID, attachType );

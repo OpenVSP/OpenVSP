@@ -380,7 +380,7 @@ public:
     void ChangeID( const string & id );
 
     virtual void EncodeXml( xmlNodePtr & node ) const;
-    virtual void DecodeXml( xmlNodePtr & node, bool retainIDs = false );
+    virtual void DecodeXml( xmlNodePtr & node );
 
 protected:
 
