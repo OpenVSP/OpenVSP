@@ -60,9 +60,13 @@ void XSec::ChangeID( const string &newid )
     string oldid = m_ID;
     ParmContainer::ChangeID( newid );
 
+    // The XSec kept as the copy buffer has no XSecSurf holding it.
     XSecSurf* xssurf = ( XSecSurf* ) GetParentContainerPtr();
 
-    xssurf->ChangeXSecID( oldid, newid );
+    if ( xssurf )
+    {
+        xssurf->ChangeXSecID( oldid, newid );
+    }
 
     if ( m_XSCurve  )
     {
