@@ -495,7 +495,7 @@ BndBox GeometryAnalysisCase::GetPrimaryScaleIndependentBBox() const
 
 bool GeometryAnalysisCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal )
 {
-    AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
+    AuxiliaryRole* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
     if ( auxiliary_ptr )
     {
         return auxiliary_ptr->GetTwoPtSideContactPtsNormal( p1, p2, normal );
@@ -505,7 +505,7 @@ bool GeometryAnalysisCase::GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d
 
 bool GeometryAnalysisCase::GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal )
 {
-    AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
+    AuxiliaryRole* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
     if ( auxiliary_ptr )
     {
         return auxiliary_ptr->GetContactPointVecNormal( ptvec, normal );
@@ -515,7 +515,7 @@ bool GeometryAnalysisCase::GetPrimaryContactPointVecNormal( vector < vec3d > &pt
 
 bool GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds )
 {
-    AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
+    AuxiliaryRole* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
     if ( auxiliary_ptr )
     {
         return auxiliary_ptr->GetCG( cgnom, cgbounds );
@@ -523,11 +523,11 @@ bool GeometryAnalysisCase::GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbound
     return false;
 }
 
-AuxiliaryGeom* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
+AuxiliaryRole* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    AuxiliaryGeom* auxiliary_ptr = nullptr;
+    AuxiliaryRole* auxiliary_ptr = nullptr;
 
     if ( veh )
     {
@@ -557,7 +557,7 @@ AuxiliaryGeom* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
                 {
                     if ( geom->GetSetFlag( set ) )
                     {
-                        AuxiliaryGeom* aux = dynamic_cast< AuxiliaryGeom* >( geom );
+                        AuxiliaryRole* aux = Geom::CastTo< AuxiliaryRole >( geom );
                         if ( aux )
                         {
                             auxiliary_ptr = aux;
@@ -571,7 +571,7 @@ AuxiliaryGeom* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
         {
             Geom* geom = veh->FindGeom( m_PrimaryGeomID );
 
-            auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+            auxiliary_ptr = Geom::CastTo< AuxiliaryRole >( geom );
         }
     }
 
@@ -580,7 +580,7 @@ AuxiliaryGeom* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
 
 bool GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const
 {
-    AuxiliaryGeom* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
+    AuxiliaryRole* auxiliary_ptr = GetPrimaryAuxiliaryGeom();
 
     if ( auxiliary_ptr )
     {
@@ -746,7 +746,7 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
                 Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
                 HumanGeom* human_ptr = dynamic_cast< HumanGeom* >( geom );
-                AuxiliaryGeom* auxthis = dynamic_cast < AuxiliaryGeom* > ( geom );
+                AuxiliaryRole* auxthis = Geom::CastTo< AuxiliaryRole >( geom );
 
                 if ( human_ptr )
                 {
@@ -754,7 +754,7 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
                     fov_vec.resize( pt_vec.size(), nullptr );
                     return true;
                 }
-                else if ( auxthis && auxthis->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
+                else if ( auxthis && auxthis->GetAuxiliaryMode() == vsp::AUX_GEOM_SUPER_CONE )
                 {
                     const int n = geom->GetNumTotalSurfs();
 
@@ -764,7 +764,7 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
 
                     for ( int i = 0; i < n; i++ )
                     {
-                        pt_vec[ i ] = auxthis->CompPnt01( i, 1, 0 );
+                        pt_vec[ i ] = geom->CompPnt01( i, 1, 0 );
 
                         fov_vec[ i ]->IgnoreUGreaterThan( 1.0 );
                         fov_vec[ i ]->FlattenInPlace();
@@ -794,9 +794,9 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
                     {
                         if ( geom->GetSetFlag( set ) )
                         {
-                            AuxiliaryGeom* auxthis = dynamic_cast < AuxiliaryGeom* > ( geom );
+                            AuxiliaryRole* auxthis = Geom::CastTo< AuxiliaryRole >( geom );
 
-                            if ( auxthis && auxthis->m_AuxuliaryGeomMode() == vsp::AUX_GEOM_SUPER_CONE )
+                            if ( auxthis && auxthis->GetAuxiliaryMode() == vsp::AUX_GEOM_SUPER_CONE )
                             {
                                 const int n = geom->GetNumTotalSurfs();
 
@@ -804,7 +804,7 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
 
                                 for ( int j = 0; j < n; j++ )
                                 {
-                                    pt_vec.push_back( auxthis->CompPnt01( j, 1, 0 ) );
+                                    pt_vec.push_back( geom->CompPnt01( j, 1, 0 ) );
 
                                     fov[ j ]->IgnoreUGreaterThan( 1.0 );
                                     fov[ j ]->FlattenInPlace();
@@ -839,8 +839,8 @@ bool GeometryAnalysisCase::GetSecondaryPtNormal( vec3d &pt, vec3d &normal )
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
-            GearGeom* gear_ptr = dynamic_cast< GearGeom* >( geom );
+            AuxiliaryRole* auxiliary_ptr = Geom::CastTo< AuxiliaryRole >( geom );
+            GearContactRole* gear_ptr = Geom::CastTo< GearContactRole >( geom );
 
             if ( auxiliary_ptr )
             {
@@ -865,7 +865,7 @@ bool GeometryAnalysisCase::GetSecondarySideContactPtRollAxisNormal( vec3d &pt, v
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+            AuxiliaryRole* auxiliary_ptr = Geom::CastTo< AuxiliaryRole >( geom );
 
             if ( auxiliary_ptr )
             {
@@ -886,7 +886,7 @@ bool GeometryAnalysisCase::GetSecondaryPtNormalMeanContactPivotAxis( vec3d &pt, 
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+            AuxiliaryRole* auxiliary_ptr = Geom::CastTo< AuxiliaryRole >( geom );
 
             if ( auxiliary_ptr )
             {
@@ -906,7 +906,7 @@ bool GeometryAnalysisCase::GetSecondaryPtNormalAftAxleAxis( double thetabogie, v
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+            AuxiliaryRole* auxiliary_ptr = Geom::CastTo< AuxiliaryRole >( geom );
 
             if ( auxiliary_ptr )
             {
@@ -926,7 +926,7 @@ bool GeometryAnalysisCase::GetSecondaryPtNormalFwdAxleAxis( double thetabogie, v
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+            AuxiliaryRole* auxiliary_ptr = Geom::CastTo< AuxiliaryRole >( geom );
 
             if ( auxiliary_ptr )
             {
@@ -946,7 +946,7 @@ bool GeometryAnalysisCase::GetSecondarySpreadTri( vec3d &pt, vec3d &axis, vector
         {
             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+            AuxiliaryRole* auxiliary_ptr = Geom::CastTo< AuxiliaryRole >( geom );
 
             if ( auxiliary_ptr )
             {
@@ -1813,7 +1813,7 @@ string GeometryAnalysisCase::Evaluate()
                         {
                             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
 
-                            AuxiliaryGeom* auxiliary_ptr = dynamic_cast< AuxiliaryGeom* >( geom );
+                            AuxiliaryRole* auxiliary_ptr = Geom::CastTo< AuxiliaryRole >( geom );
                             if ( auxiliary_ptr )
                             {
                                 vec3d cor;

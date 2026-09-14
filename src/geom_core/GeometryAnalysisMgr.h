@@ -16,6 +16,8 @@
 #include "TMesh.h"
 #include "DrawObj.h"
 #include "MaterialMgr.h"
+#include "GeomInterface.h"
+#include "AuxiliaryGeom.h"
 
 class AuxiliaryGeom;
 
@@ -47,7 +49,7 @@ public:
     bool GetPrimaryTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
     bool GetPrimaryContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
     bool GetPrimaryCG( vec3d &cgnom, vector < vec3d > &cgbounds );
-    AuxiliaryGeom* GetPrimaryAuxiliaryGeom() const;
+    AuxiliaryRole* GetPrimaryAuxiliaryGeom() const;
     bool GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const;
 
 

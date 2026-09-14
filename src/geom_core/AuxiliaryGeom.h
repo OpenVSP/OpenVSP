@@ -16,14 +16,66 @@
 #include <cmath>
 
 #include "Geom.h"
+#include "GeomInterface.h"
 #include "XSec.h"
 #include "XSecSurf.h"
 
 class GearGeom;
 class GearContactRole;
 
+//==== What an auxiliary geom describes ====//
+// Implemented by AuxiliaryGeom and by a Clone standing in for one; one interface covers every mode.
+// The *InGear answers are in the frame of the gear the asked Geom hangs off, so a Clone
+// measures against its own parent.
+class AuxiliaryRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return AUXILIARY_GEOM_TYPE; }
+
+    // The gear these answers are measured against.
+    virtual GearContactRole* GetContactGear() const = 0;
+
+    // Which arrangement this auxiliary describes.
+    virtual int GetAuxiliaryMode() const = 0;
+
+    //==== In the gear's frame ====//
+    virtual bool GetCGInGear( vec3d &cgnom, vector < vec3d > &cgbounds ) = 0;
+    virtual bool GetPtNormalInGear( vec3d &pt, vec3d &normal ) const = 0;
+    virtual bool GetPtPivotAxisInGear( vec3d &ptaxis, vec3d &axis ) = 0;
+    virtual bool GetPtNormalMeanContactPtPivotAxisInGear( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta ) = 0;
+    virtual bool GetSideContactPtRollAxisNormalInGear( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign ) = 0;
+    virtual bool GetPtNormalAftAxleAxisInGear( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis ) = 0;
+    virtual bool GetPtNormalFwdAxleAxisInGear( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis ) = 0;
+    virtual bool GetTwoPtSideContactPtsNormalInGear( vec3d &p1, vec3d &p2, vec3d &normal ) = 0;
+    virtual bool GetContactPointVecNormalInGear( vector < vec3d > &ptvec, vec3d &normal ) = 0;
+    virtual bool CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<double> &rvec ) = 0;
+
+    //==== In this Geom's own frame ====//
+    // The rotor burst spread.  It comes from this Geom's own Parms, so this Geom places it.
+    virtual bool GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip ) const = 0;
+
+    //==== The same, in world coordinates ====//
+    bool GetSpreadTri( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip ) const;
+
+    bool GetCG( vec3d &cgnom, vector < vec3d > &cgbounds );
+    bool GetPtNormal( vec3d &pt, vec3d &normal ) const;
+    bool GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
+    bool GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
+    bool GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
+    bool GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
+    bool GetPtPivotAxis( vec3d &ptaxis, vec3d &axis );
+    bool GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
+    bool GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
+    bool CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec );
+
+protected:
+    // Placement of that gear, or identity if there is none (every query above then returns false).
+    Matrix4d GetContactGearMatrix() const;
+};
+
 //==== Auxiliary Geom ====//
-class AuxiliaryGeom : public Geom
+class AuxiliaryGeom : public Geom, public AuxiliaryRole
 {
 public:
     AuxiliaryGeom( Vehicle* vehicle_ptr );
@@ -70,17 +122,24 @@ public:
     virtual std::string GetContactPt2ID() const           { return m_ContactPt2_ID; }
     virtual std::string GetContactPt3ID() const           { return m_ContactPt3_ID; }
 
-    virtual bool GetCG( vec3d &cgnom, vector < vec3d > &cgbounds );
-    virtual bool GetPtNormal( vec3d &pt, vec3d &normal ) const;
-    virtual bool GetPtPivotAxis( vec3d &ptaxis, vec3d &axis );
-    virtual bool GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
-    virtual bool GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
-    virtual bool GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
-    virtual bool GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
-    virtual bool GetTwoPtSideContactPtsNormal( vec3d &p1, vec3d &p2, vec3d &normal );
-    virtual bool GetContactPointVecNormal( vector < vec3d > &ptvec, vec3d &normal );
-    virtual bool CalculateTurn( vec3d &cor, vec3d &normal, vector<double> &rvec );
-    virtual bool GetSpreadTri( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip );
+    //==== The gear-frame halves of the interface ====//
+    virtual GearContactRole* GetContactGear() const;
+    virtual int GetAuxiliaryMode() const
+    {
+        return m_AuxuliaryGeomMode();
+    }
+
+    virtual bool GetCGInGear( vec3d &cgnom, vector < vec3d > &cgbounds );
+    virtual bool GetPtNormalInGear( vec3d &pt, vec3d &normal ) const;
+    virtual bool GetPtPivotAxisInGear( vec3d &ptaxis, vec3d &axis );
+    virtual bool GetPtNormalMeanContactPtPivotAxisInGear( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta );
+    virtual bool GetSideContactPtRollAxisNormalInGear( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign );
+    virtual bool GetPtNormalAftAxleAxisInGear( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
+    virtual bool GetPtNormalFwdAxleAxisInGear( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis );
+    virtual bool GetTwoPtSideContactPtsNormalInGear( vec3d &p1, vec3d &p2, vec3d &normal );
+    virtual bool GetContactPointVecNormalInGear( vector < vec3d > &ptvec, vec3d &normal );
+    virtual bool CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<double> &rvec );
+    virtual bool GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip ) const;
 
     IntParm m_AuxuliaryGeomMode;
 
