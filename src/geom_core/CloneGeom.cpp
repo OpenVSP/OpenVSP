@@ -1754,6 +1754,24 @@ vector< TMesh* > CloneGeom::CreateTMeshVec( bool skipnegflipnormal, const int &n
     return Geom::CreateTMeshVec( skipnegflipnormal, n_ref );
 }
 
+void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    Geom::LoadDrawObjs( draw_obj_vec );
+
+    // Standing in for a Geom made of triangles, the draw objects hold loose triangles rather
+    // than a structured mesh, and the usual route has just picked the wrong primitive for them.
+    // Visibility does not depend on a Bezier surface either -- there is not one.
+    if ( GetOriginalTMesh() || GetOriginalHumanVert() )
+    {
+        for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
+        {
+            m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        }
+
+        TMeshRole::SetTriDrawObjTypes( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType() );
+    }
+}
+
 void CloneGeom::UpdateBBox()
 {
     // No main surfaces: bound the borrowed shape at this Geom's position.

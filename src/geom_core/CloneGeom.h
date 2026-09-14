@@ -181,6 +181,7 @@ public:
     virtual void BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bool > &flipnormal ) const;
 
     virtual void UpdateDrawObj() override;
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
     virtual void UpdateBBox() override;
 
     //==== Standing in for a rotor ====//
