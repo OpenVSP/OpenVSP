@@ -3164,6 +3164,31 @@ void PropGeom::ResetThickness()
     m_ThickCurve.SetCurve( rvec, tcvec, PCHIP );
 }
 
+// The innermost cross section is the hub.
+bool PropGeom::GetRotorHubDiameter( double &hubdia ) const
+{
+    XSecSurf* xsecsurf = const_cast< PropGeom* >( this )->GetXSecSurf( 0 );
+    if ( !xsecsurf )
+    {
+        return false;
+    }
+
+    XSec* xsec = xsecsurf->FindXSec( 0 );
+    if ( !xsec || xsec->GetType() != vsp::XSEC_PROP )
+    {
+        return false;
+    }
+
+    PropXSec* prop_xsec = dynamic_cast< PropXSec* >( xsec );
+    if ( !prop_xsec )
+    {
+        return false;
+    }
+
+    hubdia = 2.0 * prop_xsec->m_RadiusFrac.GetResult();  // radius to diameter
+    return true;
+}
+
 double PropGeom::GetR0()
 {
     if (  PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( 0 ) )

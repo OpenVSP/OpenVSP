@@ -807,8 +807,12 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                             temp.back()->SetName(str);
                         }
 
-                        string dia_id = geom->FindParm("Diameter", "Design");
-                        temp.back()->m_Diameter.Set(ParmMgr.FindParm(dia_id)->Get());
+                        // The rotor the disk describes -- this Geom or the one it copies.
+                        RotorRole* rotor = Geom::CastTo< RotorRole >( geom );
+                        if ( rotor )
+                        {
+                            temp.back()->m_Diameter.Set( rotor->GetRotorDiameter() );
+                        }
 
                         temp.back()->m_XYZ = geom->CompPnt01( iSubsurf, 0, 0 );
 
@@ -830,26 +834,24 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
                         // Set hub diameter from geometry
                         bool hub_set = false;
-                        XSecSurf* xsecsurf = geom->GetXSecSurf( 0 );
-                        if ( xsecsurf )
+                        double hubdia = 0.0;
+                        if ( rotor )
                         {
-                            XSec* xsec = xsecsurf->FindXSec( 0 );
-                            if ( xsec && xsec->GetType() == vsp::XSEC_PROP )
+                            if ( rotor->GetRotorHubDiameter( hubdia ) )
                             {
                                 if ( temp.back()->m_AutoHubDiaFlag() )
                                 {
-                                    PropXSec* prop_xsec = dynamic_cast <PropXSec*> ( xsec );
-                                    temp.back()->m_HubDiameter.Set( 2 * prop_xsec->m_RadiusFrac.GetResult() ); // radius to diameter
+                                    temp.back()->m_HubDiameter.Set( hubdia );
                                     temp.back()->m_HubDiameter.Deactivate();
                                     hub_set = true;
                                 }
                             }
                             else
                             {
+                                // No hub described; keep the user's value.
                                 temp.back()->m_AutoHubDiaFlag.Set( false );
                                 temp.back()->m_AutoHubDiaFlag.Deactivate();
                             }
-
                         }
 
                         if ( !hub_set )
@@ -6496,7 +6498,8 @@ void UnsteadyGroup::Update()
         {
             if ( geom->GetType().m_Type == PROP_GEOM_TYPE )
             {
-                PropGeom* prop = dynamic_cast<PropGeom*>( geom );
+                // Blades from the Geom copied; placement and name from this one.
+                RotorRole* prop = Geom::CastTo< RotorRole >( geom );
                 assert( prop );
 
                 is_rotor = true;
@@ -6518,10 +6521,10 @@ void UnsteadyGroup::Update()
                 o_vec = trans_mat.xform( cen );
                 r_vec = trans_mat.xform( rotdir ) - o_vec;
 
-                rotor_dia = prop->m_Diameter.Get();
+                rotor_dia = prop->GetRotorDiameter();
 
                 // Set group name
-                m_Name = prop->GetName();
+                m_Name = geom->GetName();
             }
         }
     }

@@ -252,7 +252,7 @@ void AuxiliaryGeom::UpdateSurf()
 
     if ( m_ParentType == PROP_GEOM_TYPE )
     {
-        PropGeom * parent_prop = dynamic_cast< PropGeom* > ( parent_geom );
+        RotorRole * parent_prop = Geom::CastTo< RotorRole >( parent_geom );
 
         if ( parent_prop )
         {
@@ -260,7 +260,7 @@ void AuxiliaryGeom::UpdateSurf()
             {
                 if ( m_AuxuliaryGeomMode() == AUX_GEOM_ROTOR_TIP_PATH )
                 {
-                    m_Diameter.Set( parent_prop->m_Diameter() );
+                    m_Diameter.Set( parent_prop->GetRotorDiameter() );
                 }
                 else // AUX_GEOM_ROTOR_BURST
                 {
@@ -1159,18 +1159,18 @@ void AuxiliaryGeom::UpdateSurf()
 
             if ( m_ParentType == PROP_GEOM_TYPE )
             {
-                PropGeom * parent_prop = dynamic_cast< PropGeom* > ( parent_geom );
+                RotorRole * parent_prop = Geom::CastTo< RotorRole >( parent_geom );
 
                 if ( parent_prop )
                 {
-                    double r0 = parent_prop->GetR0();
-                    double r = 0.5 * parent_prop->m_Diameter();
+                    double r0 = parent_prop->GetRotorR0();
+                    double r = 0.5 * parent_prop->GetRotorDiameter();
 
                     double bladelen = r * ( 1.0 - r0 );
                     m_FragLength = 2.0 * std::max( 1.0 - m_ThrownBladeCGFrac(), m_ThrownBladeCGFrac() ) * bladelen;
                     m_CGRadius = r0 * r + m_ThrownBladeCGFrac() * bladelen;
 
-                    m_RotDir = !parent_prop->m_ReverseFlag();
+                    m_RotDir = !parent_prop->GetRotorReverseFlag();
                 }
             }
         }

@@ -13,6 +13,7 @@
 
 
 #include "Geom.h"
+#include "GeomInterface.h"
 #include "XSec.h"
 #include "XSecCurve.h"
 #include "XSecSurf.h"
@@ -87,8 +88,27 @@ protected:
     double m_RefLenVal;
 };
 
+//==== A Geom that turns blades about an axis ====//
+// Implemented by PropGeom and by a Clone standing in for one.  What an auxiliary geom needs
+// for a tip path or a burst.
+class RotorRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return PROP_GEOM_TYPE; }
+
+    virtual double GetRotorDiameter() const = 0;
+    virtual double GetRotorR0() const = 0;
+
+    // Which way the blades turn.
+    virtual bool GetRotorReverseFlag() const = 0;
+
+    // The hub, if this rotor describes one; false otherwise.
+    virtual bool GetRotorHubDiameter( double &hubdia ) const = 0;
+};
+
 //==== Propeller Geom ====//
-class PropGeom : public GeomXSec
+class PropGeom : public GeomXSec, public RotorRole
 {
 public:
     PropGeom( Vehicle* vehicle_ptr );
@@ -152,6 +172,20 @@ public:
     virtual void ResetThickness();
 
     virtual double GetR0();
+
+    virtual double GetRotorDiameter() const
+    {
+        return m_Diameter();
+    }
+    virtual double GetRotorR0() const
+    {
+        return const_cast< PropGeom* >( this )->GetR0();
+    }
+    virtual bool GetRotorReverseFlag() const
+    {
+        return m_ReverseFlag();
+    }
+    virtual bool GetRotorHubDiameter( double &hubdia ) const;
     virtual double UtoEta( const double &u, bool ignoreCap = false );
     virtual double EtatoU( const double &eta, bool ignoreCap = false );
 
