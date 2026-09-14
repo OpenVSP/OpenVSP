@@ -17,12 +17,13 @@
 #include "GearGeom.h"
 #include "AuxiliaryGeom.h"
 #include "PropGeom.h"
+#include "MeshGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -92,6 +93,11 @@ public:
     virtual void UpdateMainBBox() override;
     virtual bool PlacedBBoxIncludesOrigin() const override;
 
+    // True when the copied shape is not surfaces but one shape placed by one matrix.  Such a
+    // Clone has no symmetry copies.
+    virtual bool ShowsOnePlacedShape() const;
+    virtual int GetSymFlag() const override;
+
     // Behaves as the original; GetType still returns Clone.
     virtual int GetBehaviorType() const override;
     virtual Geom* GetBehaviorGeom() override;
@@ -153,6 +159,21 @@ public:
     // The original as an auxiliary geom, if it is one.
     virtual AuxiliaryRole* GetOriginalAuxiliary() const;
 
+    //==== Standing in for a Geom whose shape is a mesh ====//
+    // The original's mesh in its own frame; this Geom's placement positions it.
+    virtual vector< TMesh* > CreateTMeshVecInSelf( bool skipnegflipnormal, const int &n_ref ) const override;
+    virtual const vector< TMesh* > & GetTMeshVecInSelf() const override;
+    virtual Matrix4d GetTMeshTransMat() const override;
+    virtual Matrix4d GetTMeshScaleMat() const override;
+    virtual const map< vector < int >, int > & GetTMeshSingleTagMap() const override;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int &n_ref = 0 ) const override;
+
+    // The original as a mesh, if it is one.
+    virtual TMeshRole* GetOriginalTMesh() const;
+
+    virtual void UpdateDrawObj() override;
+    virtual void UpdateBBox() override;
+
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;
     virtual double GetRotorR0() const override;
@@ -191,6 +212,9 @@ public:
     // The Geom at the end of the chain of originals, or null.  Bounded, since a file may
     // contain a cycle.
     virtual Geom* FollowOriginals() const;
+
+    // The original's scaling, then this Geom's own placement.
+    virtual Matrix4d PlaceBorrowedShape( const Matrix4d &scale_mat ) const;
 
     // This Clone's flip planes, combined with the original's while symmetry is copied.
     virtual int GetFlipFlag() const override;

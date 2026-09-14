@@ -480,6 +480,26 @@ void CloneGeom::UpdateSets()
 
     CopySetFlags( original_geom, this );
 }
+
+// True when the original's shape is a mesh, point cloud, point grid or polygon mesh, placed by a
+// single matrix.  Such Geoms ignore symmetry.
+bool CloneGeom::ShowsOnePlacedShape() const
+{
+    return GetOriginalTMesh();
+}
+
+// No symmetry for a single placed shape.  Copy count, transforms and mass split all derive from
+// this flag, so they stay consistent.
+int CloneGeom::GetSymFlag() const
+{
+    if ( ShowsOnePlacedShape() )
+    {
+        return 0;
+    }
+
+    return Geom::GetSymFlag();
+}
+
 // Like a Blank or Hinge, a Clone with no surfaces still needs one symmetry copy per placement.
 void CloneGeom::UpdateSymmAttach()
 {
@@ -723,7 +743,7 @@ void CloneGeom::DeactivateXForms()
     }
 
     // Deactivation persists, so reactivate what is no longer copied.
-    if ( m_CloneSym() )
+    if ( m_CloneSym() || ShowsOnePlacedShape() )
     {
         m_SymPlanFlag.Deactivate();
         m_SymAxFlag.Deactivate();
@@ -1606,4 +1626,137 @@ bool CloneGeom::GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d > &t,
     }
 
     return aux->GetSpreadTriInSelf( pt, axis, t, flip );
+}
+
+//==== Standing in for a Geom whose shape is a mesh ====//
+
+TMeshRole* CloneGeom::GetOriginalTMesh() const
+{
+    return Geom::CastTo< TMeshRole >( GetOriginalGeom() );
+}
+
+// Returned unchanged, in the original's own frame.
+const vector< TMesh* > & CloneGeom::GetTMeshVecInSelf() const
+{
+    static const vector< TMesh* > empty;
+
+    TMeshRole* mesh = GetOriginalTMesh();
+    if ( !mesh )
+    {
+        return empty;
+    }
+
+    return mesh->GetTMeshVecInSelf();
+}
+
+vector< TMesh* > CloneGeom::CreateTMeshVecInSelf( bool skipnegflipnormal, const int &n_ref ) const
+{
+    TMeshRole* mesh = Geom::CastTo< TMeshRole >( GetOriginalGeom() );
+    if ( !mesh )
+    {
+        return vector< TMesh* >();
+    }
+
+    return mesh->CreateTMeshVecInSelf( skipnegflipnormal, n_ref );
+}
+
+Matrix4d CloneGeom::GetTMeshScaleMat() const
+{
+    TMeshRole* mesh = GetOriginalTMesh();
+    if ( !mesh )
+    {
+        return Matrix4d();
+    }
+
+    return mesh->GetTMeshScaleMat();
+}
+
+// The original's tag-to-draw-object map, so triangles are grouped the same way.
+const map< vector < int >, int > & CloneGeom::GetTMeshSingleTagMap() const
+{
+    static const map< vector < int >, int > empty;
+
+    TMeshRole* mesh = GetOriginalTMesh();
+    if ( !mesh )
+    {
+        return empty;
+    }
+
+    return mesh->GetTMeshSingleTagMap();
+}
+
+// Placed at this Geom, not at the original.
+Matrix4d CloneGeom::GetTMeshTransMat() const
+{
+    return PlaceBorrowedShape( GetTMeshScaleMat() );
+}
+
+// The original's scale, then this Geom's flip and placement.
+Matrix4d CloneGeom::PlaceBorrowedShape( const Matrix4d &scale_mat ) const
+{
+    Matrix4d mat;
+    mat.initMat( scale_mat );
+
+    // These shapes are not placed through m_TransMatVec, so apply the flip here, innermost as
+    // there.  TMesh::copyPlaced or the point grid's facing flag fixes the normals.
+    mat.postMult( GetFlipMat() );
+
+    mat.postMult( m_ModelMatrix );
+
+    return mat;
+}
+
+vector< TMesh* > CloneGeom::CreateTMeshVec( bool skipnegflipnormal, const int &n_ref ) const
+{
+    // No surfaces to tessellate: borrow the mesh and place it at this Geom.
+    if ( GetOriginalTMesh() )
+    {
+        return BuildTMeshVec( this );
+    }
+
+    return Geom::CreateTMeshVec( skipnegflipnormal, n_ref );
+}
+
+void CloneGeom::UpdateBBox()
+{
+    // No main surfaces: bound the borrowed shape at this Geom's position.
+    if ( GetOriginalTMesh() )
+    {
+        BndBox new_box;
+        BuildTMeshBndBox( new_box );
+
+        if ( new_box.IsEmpty() )
+        {
+            new_box.Update( vec3d( 0.0, 0.0, 0.0 ) );
+        }
+
+        m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
+        m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
+        m_BbZLen = new_box.GetMax( 2 ) - new_box.GetMin( 2 );
+
+        m_BbXMin = new_box.GetMin( 0 );
+        m_BbYMin = new_box.GetMin( 1 );
+        m_BbZMin = new_box.GetMin( 2 );
+
+        m_BBox = new_box;
+        m_ScaleIndependentBBox = m_BBox;
+        return;
+    }
+
+    Geom::UpdateBBox();
+}
+
+void CloneGeom::UpdateDrawObj()
+{
+    // No tessellation: draw the mesh the way the original does.
+    if ( GetOriginalTMesh() )
+    {
+        BuildTMeshDrawObjs( GetTMeshVecInSelf(), m_GuiDraw.GetDispSubSurfFlag(), m_WireShadeDrawObj_vec );
+
+        m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+        m_HighlightDrawObj.m_GeomChanged = true;
+        return;
+    }
+
+    Geom::UpdateDrawObj();
 }
