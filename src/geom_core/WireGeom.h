@@ -18,25 +18,25 @@ public:
     WireGeom( Vehicle* vehicle_ptr );
     virtual ~WireGeom();
 
-    virtual void UpdateSurf();
-    virtual void UpdateDrawObj();
+    virtual void UpdateSurf() override;
+    virtual void UpdateDrawObj() override;
 
-    virtual void Scale();
-    virtual void UpdateBBox();
+    virtual void Scale() override;
+    virtual void UpdateBBox() override;
     virtual Matrix4d GetTotalTransMat() const;
 
     virtual void ReadP3D( FILE* fp, int ni, int nj, int nk );
     virtual void ReadXSec( FILE* fp );
 
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node ) override;
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node ) override;
 
-    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const override;
 
-    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 );
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 ) override;
 
-    virtual int GetNumTotalHrmSurfs() const;
-    virtual void WriteXSecFile( int geom_no, FILE* dump_file );
+    virtual int GetNumTotalHrmSurfs() const override;
+    virtual void WriteXSecFile( int geom_no, FILE* dump_file ) override;
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;

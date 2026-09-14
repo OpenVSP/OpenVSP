@@ -21,21 +21,21 @@ public:
     NGonMeshGeom( Vehicle* vehicle_ptr );
     virtual ~NGonMeshGeom();
 
-    virtual int GetNumMainSurfs() const
+    virtual int GetNumMainSurfs() const override
     {
         return 0;
     };
 
-    virtual void UpdateSurf();
-    virtual void UpdateDrawObj();
-    virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
+    virtual void UpdateSurf() override;
+    virtual void UpdateDrawObj() override;
+    virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec) override;
 
-    virtual void Scale();
-    virtual void UpdateBBox();
+    virtual void Scale() override;
+    virtual void UpdateBBox() override;
     virtual Matrix4d GetTotalTransMat()const ;
 
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node ) override;
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node ) override;
 
     virtual void SplitLEGeom();
     virtual void Triangulate();
