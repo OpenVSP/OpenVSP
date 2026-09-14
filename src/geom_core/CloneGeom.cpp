@@ -1416,3 +1416,148 @@ int CloneGeom::GetGearModelLenUnits() const
 
     return gear->GetGearModelLenUnits();
 }
+
+//==== Standing in for an auxiliary geom ====//
+
+AuxiliaryRole* CloneGeom::GetOriginalAuxiliary() const
+{
+    return Geom::CastTo< AuxiliaryRole >( GetOriginalGeom() );
+}
+
+// This Clone's parent, not the original's.
+GearContactRole* CloneGeom::GetContactGear() const
+{
+    return Geom::CastTo< GearContactRole >( m_Vehicle->FindGeom( m_ParentID ) );
+}
+
+int CloneGeom::GetAuxiliaryMode() const
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return vsp::AUX_GEOM_ROTOR_TIP_PATH;
+    }
+
+    return aux->GetAuxiliaryMode();
+}
+
+bool CloneGeom::GetCGInGear( vec3d &cgnom, vector < vec3d > &cgbounds )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetCGInGear( cgnom, cgbounds );
+}
+
+bool CloneGeom::GetPtNormalInGear( vec3d &pt, vec3d &normal ) const
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetPtNormalInGear( pt, normal );
+}
+
+bool CloneGeom::GetPtNormalMeanContactPtPivotAxisInGear( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetPtNormalMeanContactPtPivotAxisInGear( pt, normal, ptaxis, axis, usepivot, mintheta, maxtheta );
+}
+
+bool CloneGeom::GetSideContactPtRollAxisNormalInGear( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetSideContactPtRollAxisNormalInGear( pt, axis, normal, ysign );
+}
+
+bool CloneGeom::GetPtNormalAftAxleAxisInGear( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetPtNormalAftAxleAxisInGear( thetabogie, pt, normal, ptaxis, axis );
+}
+
+bool CloneGeom::GetPtNormalFwdAxleAxisInGear( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetPtNormalFwdAxleAxisInGear( thetabogie, pt, normal, ptaxis, axis );
+}
+
+bool CloneGeom::GetPtPivotAxisInGear( vec3d &ptaxis, vec3d &axis )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetPtPivotAxisInGear( ptaxis, axis );
+}
+
+bool CloneGeom::GetTwoPtSideContactPtsNormalInGear( vec3d &p1, vec3d &p2, vec3d &normal )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetTwoPtSideContactPtsNormalInGear( p1, p2, normal );
+}
+
+bool CloneGeom::GetContactPointVecNormalInGear( vector < vec3d > &ptvec, vec3d &normal )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetContactPointVecNormalInGear( ptvec, normal );
+}
+
+bool CloneGeom::CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<double> &rvec )
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->CalculateTurnInGear( cor, normal, rvec );
+}
+
+bool CloneGeom::GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip ) const
+{
+    AuxiliaryRole* aux = GetOriginalAuxiliary();
+    if ( !aux )
+    {
+        return false;
+    }
+
+    return aux->GetSpreadTriInSelf( pt, axis, t, flip );
+}

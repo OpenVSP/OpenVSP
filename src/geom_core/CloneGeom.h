@@ -15,12 +15,13 @@
 #include "GeomInterface.h"
 #include "HingeGeom.h"
 #include "GearGeom.h"
+#include "AuxiliaryGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -120,6 +121,38 @@ public:
     // The original as a gear contact role, if it is one.
     virtual GearContactRole* GetOriginalGearContact() const;
 
+    //==== Standing in for an auxiliary geom ====//
+    // Answered by the original, measured against this Geom's own parent gear.
+    virtual GearContactRole* GetContactGear() const override;
+    virtual int GetAuxiliaryMode() const override;
+
+    // Both roles declare these names; bring both overload sets into scope so neither hides
+    // the other.
+    using GearContactRole::GetCG;
+    using AuxiliaryRole::GetCG;
+    using GearContactRole::GetPtNormal;
+    using AuxiliaryRole::GetPtNormal;
+    using GearContactRole::GetTwoPtSideContactPtsNormal;
+    using AuxiliaryRole::GetTwoPtSideContactPtsNormal;
+    using GearContactRole::GetContactPointVecNormal;
+    using AuxiliaryRole::GetContactPointVecNormal;
+
+    virtual bool GetCGInGear( vec3d &cgnom, vector < vec3d > &cgbounds ) override;
+    virtual bool GetPtNormalInGear( vec3d &pt, vec3d &normal ) const override;
+    virtual bool GetPtNormalMeanContactPtPivotAxisInGear( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta ) override;
+    virtual bool GetSideContactPtRollAxisNormalInGear( vec3d &pt, vec3d &axis, vec3d &normal, int &ysign ) override;
+    virtual bool GetPtNormalAftAxleAxisInGear( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis ) override;
+    virtual bool GetPtNormalFwdAxleAxisInGear( double thetabogie, vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis ) override;
+    virtual bool GetPtPivotAxisInGear( vec3d &ptaxis, vec3d &axis ) override;
+    virtual bool GetTwoPtSideContactPtsNormalInGear( vec3d &p1, vec3d &p2, vec3d &normal ) override;
+    virtual bool GetContactPointVecNormalInGear( vector < vec3d > &ptvec, vec3d &normal ) override;
+    virtual bool CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<double> &rvec ) override;
+    virtual bool GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip ) const override;
+
+    // The original as an auxiliary geom, if it is one.
+    virtual AuxiliaryRole* GetOriginalAuxiliary() const;
+
+    //==== Standing in for a joint ====//
     // Defined by the original, so a Clone of a hinge moves its children.  The deflection is
     // this Clone's own, so two Clones can sit at different angles.
     virtual double GetJointTranslate() const override
