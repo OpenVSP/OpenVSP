@@ -17,13 +17,14 @@
 #include "GearGeom.h"
 #include "AuxiliaryGeom.h"
 #include "PropGeom.h"
+#include "HumanGeom.h"
 #include "MeshGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -170,6 +171,14 @@ public:
 
     // The original as a mesh, if it is one.
     virtual TMeshRole* GetOriginalTMesh() const;
+
+    //==== Standing in for a Geom built from one vertex set ====//
+    // Vertices come from the original; this Geom's symmetry and placement expand them.
+    virtual const vector < vec3d > & GetMainVerts() const override;
+    virtual HumanVertRole* GetOriginalHumanVert() const;
+
+    // The original's vertices, expanded by this Geom's symmetry and placement.
+    virtual void BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bool > &flipnormal ) const;
 
     virtual void UpdateDrawObj() override;
     virtual void UpdateBBox() override;

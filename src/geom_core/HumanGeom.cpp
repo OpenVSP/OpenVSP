@@ -1001,44 +1001,6 @@ void HumanGeom::UpdateDrawObj()
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
     }
 
-    if ( m_FeatureDrawObj_vec.size() != 2 )
-    {
-        m_FeatureDrawObj_vec.clear();
-        m_FeatureDrawObj_vec.resize(2);
-    }
-    m_FeatureDrawObj_vec[0].m_PntVec.clear();
-    m_FeatureDrawObj_vec[1].m_PntVec.clear();
-    m_FeatureDrawObj_vec[0].m_GeomChanged = true;
-    m_FeatureDrawObj_vec[0].m_LineWidth = 3.0;
-    m_FeatureDrawObj_vec[0].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-    m_FeatureDrawObj_vec[1].m_GeomChanged = true;
-    m_FeatureDrawObj_vec[1].m_LineWidth = 3.0;
-    m_FeatureDrawObj_vec[1].m_LineColor = vec3d( 0.0, 0.0, 1.0 );
-
-    if( m_GuiDraw.GetDispFeatureFlag() && !m_TransMatVec.empty() )
-    {
-        m_FeatureDrawObj_vec[0].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
-        m_FeatureDrawObj_vec[1].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
-
-        const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 14, 0, 16, 17, 18, 22, 22, 3, 18, 14};
-
-        for ( int i = 1; i < NUM_SKEL; i++ )
-        {
-            int iprev = prevarr[i];
-
-            m_FeatureDrawObj_vec[0].m_PntVec[ (i - 1) * 2 ] = m_SkelVerts[iprev];
-            m_FeatureDrawObj_vec[0].m_PntVec[ (i - 1) * 2 + 1 ] = m_SkelVerts[i];
-
-            m_FeatureDrawObj_vec[1].m_PntVec[ (i - 1) * 2 ] = m_PoseSkelVerts[iprev];
-            m_FeatureDrawObj_vec[1].m_PntVec[ (i - 1) * 2 + 1 ] = m_PoseSkelVerts[i];
-        }
-
-        // The skeleton is held in the Human's own frame, like the body; place it where the
-        // body is.
-        m_TransMatVec[0].xformvec( m_FeatureDrawObj_vec[0].m_PntVec );
-        m_TransMatVec[0].xformvec( m_FeatureDrawObj_vec[1].m_PntVec );
-    }
-
     //=== Axis ===//
     if ( m_AxisDrawObj_vec.size() != 3 )
     {
@@ -1103,16 +1065,7 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     TMeshRole::SetTriDrawObjTypes( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType() );
 
-    // Load Feature Lines
-    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
-    {
-        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        snprintf( str, sizeof( str ),  "_%d", i );
-        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-        m_FeatureDrawObj_vec[i].m_Visible = m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) && m_ShowSkelFlag();
-        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
-    }
+    LoadMarkerDrawObjs( draw_obj_vec );
 
     // Load BoundingBox and Axes
     m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -1134,6 +1087,69 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
     }
 
+}
+
+// The skeleton, as built and as posed, at placer's main copy.
+void HumanGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
+{
+    if ( marker_vec.size() != 2 )
+    {
+        marker_vec.clear();
+        marker_vec.resize(2);
+    }
+    marker_vec[0].m_PntVec.clear();
+    marker_vec[1].m_PntVec.clear();
+    marker_vec[0].m_GeomChanged = true;
+    marker_vec[0].m_LineWidth = 3.0;
+    marker_vec[0].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+    marker_vec[1].m_GeomChanged = true;
+    marker_vec[1].m_LineWidth = 3.0;
+    marker_vec[1].m_LineColor = vec3d( 0.0, 0.0, 1.0 );
+
+    for ( int i = 0; i < 2; i++ )
+    {
+        char str[256];
+        snprintf( str, sizeof( str ),  "_%d", i );
+        marker_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        marker_vec[i].m_GeomID = placer->GetID() + "Feature_" + str;
+        marker_vec[i].m_Type = DrawObj::VSP_LINES;
+    }
+
+    vector< Matrix4d > trans_vec = placer->GetTransMatVec();
+    if ( trans_vec.empty() )
+    {
+        return;
+    }
+
+    marker_vec[0].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
+    marker_vec[1].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
+
+    const int prevarr[] = {-1, 0, 1, 0, 2, 4, 5, 6, 2, 8, 9, 10, 0, 12, 13, 14, 0, 16, 17, 18, 22, 22, 3, 18, 14};
+
+    for ( int i = 1; i < NUM_SKEL; i++ )
+    {
+        int iprev = prevarr[i];
+
+        marker_vec[0].m_PntVec[ (i - 1) * 2 ] = m_SkelVerts[iprev];
+        marker_vec[0].m_PntVec[ (i - 1) * 2 + 1 ] = m_SkelVerts[i];
+
+        marker_vec[1].m_PntVec[ (i - 1) * 2 ] = m_PoseSkelVerts[iprev];
+        marker_vec[1].m_PntVec[ (i - 1) * 2 + 1 ] = m_PoseSkelVerts[i];
+    }
+
+    // The skeleton is in the Human's own frame, like the body.
+    trans_vec[0].xformvec( marker_vec[0].m_PntVec );
+    trans_vec[0].xformvec( marker_vec[1].m_PntVec );
+}
+
+// Shown with the feature lines, when this Human says to show its skeleton.
+void HumanGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )
+{
+    bool visible = placer->m_GuiDraw.GetDispFeatureFlag() && placer->GetSetFlag( vsp::SET_SHOWN ) && m_ShowSkelFlag();
+    for ( int i = 0; i < ( int )marker_vec.size(); i++ )
+    {
+        marker_vec[i].m_Visible = visible;
+    }
 }
 
 //==== Count Number of Sym Surfaces ====//

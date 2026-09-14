@@ -157,6 +157,8 @@ public:
     virtual void ValidateParms( );
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    virtual void BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec );
+    virtual void SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec );
 
     virtual int  GetNumXSecSurfs() const
     {

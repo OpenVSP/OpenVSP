@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "CloneGeom.h"
+#include "HumanGeom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "IDMgr.h"
@@ -1630,6 +1631,33 @@ bool CloneGeom::GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d > &t,
 
 //==== Standing in for a Geom whose shape is a mesh ====//
 
+HumanVertRole* CloneGeom::GetOriginalHumanVert() const
+{
+    return Geom::CastTo< HumanVertRole >( GetOriginalGeom() );
+}
+
+const vector < vec3d > & CloneGeom::GetMainVerts() const
+{
+    static const vector < vec3d > empty;
+
+    HumanVertRole* verts = GetOriginalHumanVert();
+    if ( !verts )
+    {
+        return empty;
+    }
+
+    return verts->GetMainVerts();
+}
+
+// The original's vertices, placed by this Geom's transforms.
+void CloneGeom::BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bool > &flipnormal ) const
+{
+    ExpandMainVerts( GetMainVerts(), m_TransMatVec, verts );
+
+    flipnormal = m_FlipNormalVec;
+    flipnormal.resize( verts.size(), false );
+}
+
 TMeshRole* CloneGeom::GetOriginalTMesh() const
 {
     return Geom::CastTo< TMeshRole >( GetOriginalGeom() );
@@ -1714,16 +1742,37 @@ vector< TMesh* > CloneGeom::CreateTMeshVec( bool skipnegflipnormal, const int &n
         return BuildTMeshVec( this );
     }
 
+    if ( GetOriginalHumanVert() )
+    {
+        vector < vector < vec3d > > verts;
+        vector < bool > flipnormal;
+        BuildCloneVerts( verts, flipnormal );
+
+        return BuildHumanTMeshVec( verts, flipnormal, this );
+    }
+
     return Geom::CreateTMeshVec( skipnegflipnormal, n_ref );
 }
 
 void CloneGeom::UpdateBBox()
 {
     // No main surfaces: bound the borrowed shape at this Geom's position.
-    if ( GetOriginalTMesh() )
+    if ( GetOriginalTMesh() || GetOriginalHumanVert() )
     {
         BndBox new_box;
-        BuildTMeshBndBox( new_box );
+
+        if ( GetOriginalTMesh() )
+        {
+            BuildTMeshBndBox( new_box );
+        }
+        else
+        {
+            vector < vector < vec3d > > verts;
+            vector < bool > flipnormal;
+            BuildCloneVerts( verts, flipnormal );
+
+            BuildHumanBndBox( verts, new_box );
+        }
 
         if ( new_box.IsEmpty() )
         {
@@ -1752,6 +1801,19 @@ void CloneGeom::UpdateDrawObj()
     if ( GetOriginalTMesh() )
     {
         BuildTMeshDrawObjs( GetTMeshVecInSelf(), m_GuiDraw.GetDispSubSurfFlag(), m_WireShadeDrawObj_vec );
+
+        m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+        m_HighlightDrawObj.m_GeomChanged = true;
+        return;
+    }
+
+    if ( GetOriginalHumanVert() )
+    {
+        vector < vector < vec3d > > verts;
+        vector < bool > flipnormal;
+        BuildCloneVerts( verts, flipnormal );
+
+        BuildHumanDrawObjs( verts, flipnormal, m_WireShadeDrawObj_vec );
 
         m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
         m_HighlightDrawObj.m_GeomChanged = true;
