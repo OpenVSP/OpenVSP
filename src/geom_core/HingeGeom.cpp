@@ -336,36 +336,11 @@ void HingeGeom::UpdateXForm()
 
     UpdateMotionFlagsLimits();
 
-
-    // Initialize the joint matrix to identity.
-    m_JointMatrix.loadIdentity();
-
-    // Do everything to build joint motion.
-    vec3d trans;
-    trans.v[ m_PrimaryDir() ] = m_JointTranslate();
-
-    m_JointMatrix.translatev( trans );
-
-    if ( m_PrimaryDir.Get() == vsp::X_DIR )
-    {
-        m_JointMatrix.rotateX( m_JointRotate() );
-    }
-    else if ( m_PrimaryDir.Get() == vsp::Y_DIR )
-    {
-        m_JointMatrix.rotateY( m_JointRotate() );
-    }
-    else
-    {
-        m_JointMatrix.rotateZ( m_JointRotate() );
-    }
-
-
     // Move joint according to ModelMatrix.
     // Update m_ModelMatrix again -- rotations included this time.
     Geom::UpdateXForm();
-    double mat[16];
-    m_ModelMatrix.getMat( mat );
-    m_JointMatrix.postMult( mat );
+
+    m_JointMatrix = BuildJointMatrix( m_JointTranslate(), m_JointRotate(), m_ModelMatrix );
 
 
     vector < vec3d > dirs(3);
@@ -395,13 +370,7 @@ void HingeGeom::UpdateXForm()
 
 void HingeGeom::UpdateMotionFlagsLimits()
 {
-    SetParmLimits( m_JointTranslate, m_JointTranslateFlag,
-                   m_JointTransMin, m_JointTransMinFlag,
-                   m_JointTransMax, m_JointTransMaxFlag );
-
-    SetParmLimits( m_JointRotate, m_JointRotateFlag,
-                   m_JointRotMin, m_JointRotMinFlag,
-                   m_JointRotMax, m_JointRotMaxFlag );
+    SetJointParmLimits( m_JointTranslate, m_JointRotate );
 }
 
 void HingeGeom::SetParmLimits( Parm & p, const Parm & pflag, const Parm & pmin, const Parm & pminflag, const Parm & pmax, const Parm & pmaxflag )
@@ -637,7 +606,90 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
     draw_obj_vec.push_back( &m_PrimaryLineDO );
 }
 
-Matrix4d HingeGeom::GetJointMatrix()
+Matrix4d HingeGeom::GetJointMatrix() const
 {
     return m_JointMatrix;
+}
+
+// The deflection is passed in, so a Clone can pose the joint by its own angle.
+Matrix4d HingeGeom::BuildJointMatrix( double translate, double rotate, const Matrix4d &model_matrix ) const
+{
+    Matrix4d joint_matrix;
+
+    vec3d trans;
+    trans.v[ m_PrimaryDir() ] = translate;
+
+    joint_matrix.translatev( trans );
+
+    if ( m_PrimaryDir.Get() == vsp::X_DIR )
+    {
+        joint_matrix.rotateX( rotate );
+    }
+    else if ( m_PrimaryDir.Get() == vsp::Y_DIR )
+    {
+        joint_matrix.rotateY( rotate );
+    }
+    else
+    {
+        joint_matrix.rotateZ( rotate );
+    }
+
+    double mat[16];
+    model_matrix.getMat( mat );
+    joint_matrix.postMult( mat );
+
+    return joint_matrix;
+}
+
+bool HingeGeom::GetJointTransMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const
+{
+    min_set = m_JointTransMinFlag();
+    min_val = m_JointTransMin();
+    max_set = m_JointTransMaxFlag();
+    max_val = m_JointTransMax();
+
+    return m_JointTranslateFlag();
+}
+
+bool HingeGeom::GetJointRotMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const
+{
+    min_set = m_JointRotMinFlag();
+    min_val = m_JointRotMin();
+    max_set = m_JointRotMaxFlag();
+    max_val = m_JointRotMax();
+
+    return m_JointRotateFlag();
+}
+
+void HingeGeom::SetJointParmLimits( Parm &translate, Parm &rotate )
+{
+    SetParmLimits( translate, m_JointTranslateFlag,
+                   m_JointTransMin, m_JointTransMinFlag,
+                   m_JointTransMax, m_JointTransMaxFlag );
+
+    SetParmLimits( rotate, m_JointRotateFlag,
+                   m_JointRotMin, m_JointRotMinFlag,
+                   m_JointRotMax, m_JointRotMaxFlag );
+}
+
+// The frame children of this joint hang off.
+Matrix4d JointRole::GetJointMatrix() const
+{
+    return BuildJointMatrix( GetJointTranslate(), GetJointRotate(), GetRoleModelMatrix() );
+}
+
+// The direction the joint translates along, in world coordinates.
+vec3d JointRole::GetJointAxis() const
+{
+    Matrix4d mat = GetRoleModelMatrix();
+
+    vec3d pt( 0.0, 0.0, 0.0 );
+    pt.v[ GetJointPrimaryDir() ] = 1.0;
+
+    vec3d origin = mat.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+    vec3d axis = mat.xform( pt ) - origin;
+    axis.normalize();
+
+    return axis;
 }

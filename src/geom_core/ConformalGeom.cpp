@@ -375,7 +375,7 @@ void ConformalGeom::UpdateCopyXFormParms()
         return;
     }
 
-    HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( m_Vehicle->FindGeom( GetParentID() ) );
+    JointRole* hingeparent = Geom::CastTo< JointRole >( m_Vehicle->FindGeom( GetParentID() ) );
 
     m_HingeConformalPositionFlag.Deactivate();
 
@@ -418,7 +418,7 @@ void ConformalGeom::UpdateCopyXFormParms()
                 // Deactivate relative position parms
                 ActiveRel = false;
 
-                Matrix4d hingeMat = hingeparent->getModelMatrix();
+                Matrix4d hingeMat = hingeparent->GetRoleModelMatrix();
                 Matrix4d parentMat = parent_geom->getModelMatrix();
 
                 hingeMat.affineInverse();

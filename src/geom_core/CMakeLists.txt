@@ -54,6 +54,7 @@ FeaStructure.cpp
 FitModelMgr.cpp
 FuselageGeom.cpp
 GearGeom.cpp
+GeomInterface.cpp
 Geom.cpp
 GeometryAnalysisMgr.cpp
 GeomCoreTestSuite.cpp
@@ -140,6 +141,7 @@ FemaleGeomDataReduced.h
 FitModelMgr.h
 FuselageGeom.h
 GearGeom.h
+GeomInterface.h
 Geom.h
 GeometryAnalysisMgr.h
 GeomCoreTestSuite.h

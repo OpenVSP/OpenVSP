@@ -9,27 +9,78 @@
 #define VSPHINGEGEOM__INCLUDED_
 
 #include "Geom.h"
+#include "GeomInterface.h"
 
+
+//==== A Geom that articulates its children ====//
+// Implemented by HingeGeom and by a Clone standing in for one.  Children ride the joint.
+class JointRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return HINGE_GEOM_TYPE; }
+
+    // Which axis of the Geom's own frame the joint moves along and turns about.
+    virtual int GetJointPrimaryDir() const = 0;
+
+    // The deflection this Geom is posed at.  Each Clone of a joint has its own.
+    virtual double GetJointTranslate() const = 0;
+    virtual double GetJointRotate() const = 0;
+
+    // The allowed motion: returns whether it is enabled, with a flag for each limit that is set.
+    virtual bool GetJointTransMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const = 0;
+    virtual bool GetJointRotMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const = 0;
+
+    // Apply this joint's motion flags and limits to another Geom's Parms.
+    virtual void SetJointParmLimits( Parm &translate, Parm &rotate ) = 0;
+
+    // The joint motion for a given deflection.
+    virtual Matrix4d BuildJointMatrix( double translate, double rotate, const Matrix4d &model_matrix ) const = 0;
+
+    // Where the joint has carried its children, from this Geom's own deflection and placement.
+    virtual Matrix4d GetJointMatrix() const;
+
+    // The line the joint moves along, in world coordinates.
+    vec3d GetJointAxis() const;
+};
 
 //==== Hinge Geom ====//
-class HingeGeom : public Geom
+class HingeGeom : public Geom, public JointRole
 {
 public:
     HingeGeom( Vehicle* vehicle_ptr );
     virtual ~HingeGeom();
 
-    virtual void ApplyScale( double currentScale );
+    virtual void ApplyScale( double currentScale ) override;
 
-    virtual void UpdateXForm();
+    virtual void UpdateXForm() override;
 
 
     virtual void UpdateMotionFlagsLimits();
 
-    virtual void UpdateDrawObj();
-    virtual void LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec);
-    virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
+    virtual void UpdateDrawObj() override;
+    virtual void LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec) override;
+    virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec) override;
 
-    virtual Matrix4d GetJointMatrix();
+    virtual int GetJointPrimaryDir() const override
+    {
+        return m_PrimaryDir();
+    }
+
+    // Built once in UpdateXForm.
+    virtual Matrix4d GetJointMatrix() const override;
+    virtual double GetJointTranslate() const override
+    {
+        return m_JointTranslate();
+    }
+    virtual double GetJointRotate() const override
+    {
+        return m_JointRotate();
+    }
+    virtual Matrix4d BuildJointMatrix( double translate, double rotate, const Matrix4d &model_matrix ) const override;
+    virtual void SetJointParmLimits( Parm &translate, Parm &rotate ) override;
+    virtual bool GetJointTransMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const override;
+    virtual bool GetJointRotMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const override;
 
     Parm m_JointTranslate;
     BoolParm m_JointTranslateFlag;
@@ -83,7 +134,7 @@ public:
 
 
 protected:
-    virtual void UpdateSurf();
+    virtual void UpdateSurf() override;
 
     DrawObj m_MotionLinesDO;
     DrawObj m_MotionArrowsDO;

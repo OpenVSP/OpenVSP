@@ -2349,7 +2349,7 @@ vector< string > Vehicle::PasteClipboard()
                 parentGeom->AddChildID( gPtr->GetID() );
 
                 //==== Update gPtr and all children  ====//
-                if ( parentGeom->GetType().m_Type != HINGE_GEOM_TYPE )
+                if ( !Geom::CastTo< JointRole >( parentGeom ) )
                 {
                     gPtr->SetIgnoreAbsFlag( true );
                 }
@@ -2359,7 +2359,7 @@ vector< string > Vehicle::PasteClipboard()
 
             if ( parentGeom )
             {
-                if ( parentGeom->GetType().m_Type != HINGE_GEOM_TYPE )
+                if ( !Geom::CastTo< JointRole >( parentGeom ) )
                 {
                     gPtr->SetIgnoreAbsFlag( false );
                 }

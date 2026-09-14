@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Geom.h"
+#include "GeomInterface.h"
 
 #include "AuxiliaryGeom.h"
 #include "Vehicle.h"
@@ -374,16 +375,7 @@ int GeomBase::CountParents( int count )
 
 bool GeomBase::IsParentJoint() const
 {
-    GeomBase* parentPtr = m_Vehicle->FindGeom( m_ParentID );
-    if ( parentPtr )
-    {
-        HingeGeom* hingeParentPtr = dynamic_cast < HingeGeom* > ( parentPtr );
-        if ( hingeParentPtr )
-        {
-            return true;
-        }
-    }
-    return false;
+    return Geom::CastTo< JointRole >( m_Vehicle->FindGeom( m_ParentID ) ) != nullptr;
 }
 
 //==== Changes parent of existing Geom, places in new parent's child vector & removes from old parent's child vector ====//
@@ -1126,14 +1118,11 @@ void GeomXForm::ComposeAttachMatrix()
 
     Geom* parent = m_Vehicle->FindGeom( GetParentID() );
 
-    if ( parent )
+    JointRole* jointparent = Geom::CastTo< JointRole >( parent );
+    if ( jointparent )
     {
-        HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent );
-        if ( hingeparent )
-        {
-            m_AttachMatrix = hingeparent->GetJointMatrix();
-            return;
-        }
+        m_AttachMatrix = jointparent->GetJointMatrix();
+        return;
     }
 
     // If both attachment flags set to none, return identity
@@ -2475,8 +2464,8 @@ void Geom::UpdateChildren( bool fullupdate )
                 }
             }
 
-            // We are a hinge, children are force attached.
-            if ( GetType().m_Type == HINGE_GEOM_TYPE )
+            // We provide a joint, children are force attached.
+            if ( Geom::CastTo< JointRole >( this ) )
             {
                 child->m_XFormDirty = true;
             }

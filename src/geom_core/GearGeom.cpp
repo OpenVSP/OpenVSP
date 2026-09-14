@@ -1364,10 +1364,10 @@ void Bogie::ComposeStowAttachMatrix()
 
     if ( parent )
     {
-        HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent );
-        if ( hingeparent )
+        JointRole* jointparent = Geom::CastTo< JointRole >( parent );
+        if ( jointparent )
         {
-            m_StowAttachMatrix = hingeparent->GetJointMatrix();
+            m_StowAttachMatrix = jointparent->GetJointMatrix();
 
             Matrix4d gmm = m_GearModelMatrix;
             gmm.affineInverse();
@@ -1539,10 +1539,10 @@ void Bogie::ComposeMechAttachMatrix()
 
     if ( parent )
     {
-        HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent );
-        if ( hingeparent )
+        JointRole* jointparent = Geom::CastTo< JointRole >( parent );
+        if ( jointparent )
         {
-            m_MechAttachMatrix = hingeparent->GetJointMatrix();
+            m_MechAttachMatrix = jointparent->GetJointMatrix();
 
             Matrix4d gmm = m_GearModelMatrix;
             gmm.affineInverse();
@@ -2677,31 +2677,13 @@ void Bogie::AppendMainSurf( vector < VspSurf > &surfvec, int gear_config ) const
 bool Bogie::IsStowParentJoint()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
-    GeomBase* parentPtr = veh->FindGeom( m_StowParentID );
-    if ( parentPtr )
-    {
-        HingeGeom* hingeParentPtr = dynamic_cast < HingeGeom* > ( parentPtr );
-        if ( hingeParentPtr )
-        {
-            return true;
-        }
-    }
-    return false;
+    return Geom::CastTo< JointRole >( veh->FindGeom( m_StowParentID ) ) != nullptr;
 }
 
 bool Bogie::IsMechParentJoint()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
-    GeomBase* parentPtr = veh->FindGeom( m_MechParentID );
-    if ( parentPtr )
-    {
-        HingeGeom* hingeParentPtr = dynamic_cast < HingeGeom* > ( parentPtr );
-        if ( hingeParentPtr )
-        {
-            return true;
-        }
-    }
-    return false;
+    return Geom::CastTo< JointRole >( veh->FindGeom( m_MechParentID ) ) != nullptr;
 }
 
 //===============================================================================//
