@@ -19901,7 +19901,7 @@ extern std::string GetXSecCurveAlias( const std::string & id );
     \ingroup XSec
 */
 /*!
-    Cut a cross-section from the specified geometry and maintain it in memory
+    Cut a cross-section from the specified geometry and maintain it in memory.  Refused on a Clone; change the Geom it copies.
     \forcpponly
     \code{.cpp}
     string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
@@ -20080,7 +20080,7 @@ extern void CopyXSec( const std::string & geom_id, int index );
     \ingroup XSec
 */
 /*!
-    Paste the cross-section currently held in memory to the specified geometry
+    Paste the cross-section currently held in memory to the specified geometry.  Refused on a Clone; change the Geom it copies.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -20168,7 +20168,7 @@ extern void PasteXSec( const std::string & geom_id, int index );
     \ingroup XSec
 */
 /*!
-    Insert a cross-section of particular type to the specified geometry after the given index
+    Insert a cross-section of particular type to the specified geometry after the given index.  Refused on a Clone; change the Geom it copies.
     \forcpponly
     \code{.cpp}
     string wing_id = AddGeom( "WING" );

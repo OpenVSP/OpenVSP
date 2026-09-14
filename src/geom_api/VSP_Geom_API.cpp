@@ -5824,6 +5824,19 @@ std::string GetXSecCurveAlias( const std::string & id )
     return xsc->GetGroupAlias();
 }
 
+// A Clone's cross sections belong to its original, so XSec edits on a Clone are refused.
+static bool RefuseOnClone( Geom* geom_ptr, const std::string &fname )
+{
+    if ( !dynamic_cast< CloneGeom* >( geom_ptr ) )
+    {
+        return false;
+    }
+
+    ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, fname + "::Geom " + geom_ptr->GetID() +
+                       " is a Clone -- change the Geom it copies" );
+    return true;
+}
+
 void CutXSec( const std::string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
@@ -5831,6 +5844,11 @@ void CutXSec( const std::string & geom_id, int index )
     if ( !geom_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( RefuseOnClone( geom_ptr, "CutXSec" ) )
+    {
         return;
     }
 
@@ -5864,6 +5882,11 @@ void PasteXSec( const std::string & geom_id, int index )
         return;
     }
 
+    if ( RefuseOnClone( geom_ptr, "PasteXSec" ) )
+    {
+        return;
+    }
+
     geom_ptr->PasteXSec( index );
     ErrorMgr.NoError();
 }
@@ -5875,6 +5898,11 @@ void InsertXSec( const std::string & geom_id, int index, int type )
     if ( !geom_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "InsertXSec::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( RefuseOnClone( geom_ptr, "InsertXSec" ) )
+    {
         return;
     }
 
