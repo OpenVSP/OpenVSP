@@ -44,6 +44,33 @@ void PtCloudGeom::UpdateSurf()
 {
 }
 
+
+//==== PointCloudRole: shared by PtCloudGeom and a Clone of one ====//
+
+void PointCloudRole::BuildXFormPts( vector < vec3d > &xform_pts ) const
+{
+    const vector < vec3d > &pts = GetPtsInSelf();
+    Matrix4d trans = GetPtsTransMat();
+
+    xform_pts.resize( pts.size() );
+    for ( int i = 0 ; i < ( int )pts.size() ; i++ )
+    {
+        xform_pts[i] = trans.xform( pts[i] );
+    }
+}
+
+void PointCloudRole::BuildPtsBndBox( BndBox &bbox ) const
+{
+    vector < vec3d > xform_pts;
+    BuildXFormPts( xform_pts );
+
+    bbox.Reset();
+    for ( int i = 0 ; i < ( int )xform_pts.size() ; i++ )
+    {
+        bbox.Update( xform_pts[i] );
+    }
+}
+
 void PtCloudGeom::UpdateDrawObj()
 {
     m_PickDrawObj.m_Type = DrawObj::VSP_PICK_VERTEX;
@@ -55,12 +82,7 @@ void PtCloudGeom::UpdateDrawObj()
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
     m_HighlightDrawObj.m_GeomChanged = true;
 
-    Matrix4d transMat = GetTotalTransMat();
-    m_XformPts.resize( m_Pts.size() );
-    for ( int i = 0 ; i < ( int )m_Pts.size() ; i++ )
-    {
-        m_XformPts[i] = transMat.xform( m_Pts[i] );
-    }
+    BuildXFormPts( m_XformPts );
 }
 
 void PtCloudGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)

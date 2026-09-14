@@ -9,10 +9,38 @@
 #define VSPPTCLOUDGEOM__INCLUDED_
 
 #include "Geom.h"
+#include "GeomInterface.h"
 
 
 //==== Point Cloud Geom ====//
-class PtCloudGeom : public Geom
+//==== A Geom whose shape is a cloud of points ====//
+// Implemented by PtCloudGeom.  Points are kept in the Geom's own frame and placed on output,
+// so a Clone can borrow them.  A Clone shows the whole cloud, ignoring selection and hiding.
+class PointCloudRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return PT_CLOUD_GEOM_TYPE; }
+
+    virtual ~PointCloudRole()   {}
+
+    // The points, in this Geom's own frame.
+    virtual const vector < vec3d > & GetPtsInSelf() const = 0;
+
+    // Where this Geom stands them.
+    virtual Matrix4d GetPtsTransMat() const = 0;
+    // The shape's own scaling, not part of the placement.  A Clone applies it too.
+    virtual Matrix4d GetPtsScaleMat() const = 0;
+
+protected:
+    // The points, placed.
+    void BuildXFormPts( vector < vec3d > &xform_pts ) const;
+
+    // Their extent.
+    void BuildPtsBndBox( BndBox &bbox ) const;
+};
+
+class PtCloudGeom : public Geom, public PointCloudRole
 {
 public:
     PtCloudGeom( Vehicle* vehicle_ptr );
@@ -59,6 +87,20 @@ public:
     }
 
     void ProjectPts( const string &geomid, int surfid, int idir );
+
+    virtual const vector < vec3d > & GetPtsInSelf() const
+    {
+        return m_Pts;
+    }
+    virtual Matrix4d GetPtsTransMat() const
+    {
+        return GetTotalTransMat();
+    }
+
+    virtual Matrix4d GetPtsScaleMat() const
+    {
+        return m_ScaleMatrix;
+    }
 
     vector < vec3d > m_Pts;
     vector < int > m_ShownIndx;
