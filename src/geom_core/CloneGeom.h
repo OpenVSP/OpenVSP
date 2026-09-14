@@ -16,12 +16,13 @@
 #include "HingeGeom.h"
 #include "GearGeom.h"
 #include "AuxiliaryGeom.h"
+#include "PropGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -151,6 +152,12 @@ public:
 
     // The original as an auxiliary geom, if it is one.
     virtual AuxiliaryRole* GetOriginalAuxiliary() const;
+
+    //==== Standing in for a rotor ====//
+    virtual double GetRotorDiameter() const override;
+    virtual double GetRotorR0() const override;
+    virtual bool GetRotorReverseFlag() const override;
+    virtual bool GetRotorHubDiameter( double &hubdia ) const override;
 
     //==== Standing in for a joint ====//
     // Defined by the original, so a Clone of a hinge moves its children.  The deflection is

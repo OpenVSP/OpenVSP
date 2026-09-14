@@ -1551,6 +1551,52 @@ bool CloneGeom::CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<double> &
     return aux->CalculateTurnInGear( cor, normal, rvec );
 }
 
+//==== Standing in for a rotor ====//
+
+double CloneGeom::GetRotorDiameter() const
+{
+    RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );
+    if ( !rotor )
+    {
+        return 0.0;
+    }
+
+    return rotor->GetRotorDiameter();
+}
+
+double CloneGeom::GetRotorR0() const
+{
+    RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );
+    if ( !rotor )
+    {
+        return 0.0;
+    }
+
+    return rotor->GetRotorR0();
+}
+
+bool CloneGeom::GetRotorReverseFlag() const
+{
+    RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );
+    if ( !rotor )
+    {
+        return false;
+    }
+
+    return rotor->GetRotorReverseFlag();
+}
+
+bool CloneGeom::GetRotorHubDiameter( double &hubdia ) const
+{
+    RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );
+    if ( !rotor )
+    {
+        return false;
+    }
+
+    return rotor->GetRotorHubDiameter( hubdia );
+}
+
 bool CloneGeom::GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d > &t, int &flip ) const
 {
     AuxiliaryRole* aux = GetOriginalAuxiliary();

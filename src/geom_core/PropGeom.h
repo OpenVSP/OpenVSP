@@ -117,6 +117,8 @@ public:
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    virtual void BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec );
+    virtual void SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec );
 
     virtual void ComputeCenter();
 
@@ -295,8 +297,7 @@ protected:
 
     virtual void CalculateMeshMetrics();
 
-    DrawObj m_ArrowLinesDO;
-    DrawObj m_ArrowHeadDO;
+    enum { PROP_MARKER_LINES, PROP_MARKER_HEADS, NUM_PROP_MARKERS };
     BndBox m_MainBladeBBox;
     DrawObj m_HighlightBladeDrawObj;
 

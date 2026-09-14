@@ -12,6 +12,7 @@
 #include "PropGeom.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
+#include "VehicleMgr.h"
 #include <float.h>
 
 #include <eli/mutil/nls/newton_raphson_system_method.hpp>
@@ -582,12 +583,35 @@ void PropGeom::UpdateDrawObj()
         relTrans.xformvec( m_XSecDrawObj_vec[ i ].m_PntVec );
     }
 
-    m_ArrowLinesDO.m_PntVec.clear();
-    m_ArrowHeadDO.m_PntVec.clear();
-    m_ArrowHeadDO.m_NormVec.clear();
+    if ( m_TipMarkerScaleFlag.Get() )
+    {
+        m_TipMarkerScale.Activate();
+    }
+    else
+    {
+        m_TipMarkerScale.Deactivate();
+    }
+}
 
-    m_ArrowLinesDO.m_GeomChanged = true;
-    m_ArrowHeadDO.m_GeomChanged = true;
+// The thrust, rotation direction and fold axis at each of placer's symmetric copies.  The
+// rotation direction follows each copy's orientation, flip included.
+void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
+{
+    if ( marker_vec.size() != NUM_PROP_MARKERS )
+    {
+        marker_vec.clear();
+        marker_vec.resize( NUM_PROP_MARKERS );
+    }
+
+    DrawObj &arrow_lines = marker_vec[ PROP_MARKER_LINES ];
+    DrawObj &arrow_heads = marker_vec[ PROP_MARKER_HEADS ];
+
+    arrow_lines.m_PntVec.clear();
+    arrow_heads.m_PntVec.clear();
+    arrow_heads.m_NormVec.clear();
+
+    arrow_lines.m_GeomChanged = true;
+    arrow_heads.m_GeomChanged = true;
 
     double axlen = 1.0;
     double rot_axlen = 1.0;
@@ -602,20 +626,15 @@ void PropGeom::UpdateDrawObj()
 
     if ( m_TipMarkerScaleFlag.Get() )
     {
-        m_TipMarkerScale.Activate();
         rot_axlen = m_TipMarkerScale() * m_Diameter() / 2;
     }
-    else
-    {
-        m_TipMarkerScale.Deactivate();
-    }
 
-    for ( int i = 0; i < GetNumSymmCopies(); i++)
-    {
-        double data[16];
-        m_ModelMatrix.getMat( data );
+    vector< Matrix4d > trans_vec = placer->GetTransMatVec();
+    int nmain = placer->GetNumMainSurfs();
 
-        Matrix4d trans_mat = m_TransMatVec[i * GetNumMainSurfs()]; // Translations for the specific symmetric copy
+    for ( int i = 0; i < placer->GetNumSymmCopies() && nmain > 0 && i * nmain < ( int )trans_vec.size(); i++)
+    {
+        Matrix4d trans_mat = trans_vec[i * nmain]; // Translations for the specific symmetric copy
 
         vec3d cen( 0, 0, 0 );
         vec3d rotdir( -1, 0, 0 );
@@ -623,7 +642,7 @@ void PropGeom::UpdateDrawObj()
         vec3d refdir( 0, 1, 0 );
 
         double rev = 1.0;
-        if ( !m_FlipNormalVec[i * GetNumMainSurfs()] )
+        if ( !placer->GetFlipNormal( i * nmain ) )
         {
             // Note inverse of m_FipNormalVec is used because Props are flipped by 
             // default (m_XSecSurf.GetFlipUD() in UpdateSurf())
@@ -652,24 +671,53 @@ void PropGeom::UpdateDrawObj()
 
         if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
         {
-            m_ArrowLinesDO.m_PntVec.push_back( ptstart );
-            m_ArrowLinesDO.m_PntVec.push_back( ptend );
+            arrow_lines.m_PntVec.push_back( ptstart );
+            arrow_lines.m_PntVec.push_back( ptend );
         }
 
-        m_ArrowLinesDO.m_PntVec.push_back( cen );
-        m_ArrowLinesDO.m_PntVec.push_back( cen + refdir * axlen );
-        m_ArrowLinesDO.m_PntVec.push_back( cen );
-        m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
-        MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec, m_ArrowHeadDO.m_NormVec );
-        MakeCircleArrow( cen, rotdir, rot_axlen, axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+        arrow_lines.m_PntVec.push_back( cen );
+        arrow_lines.m_PntVec.push_back( cen + refdir * axlen );
+        arrow_lines.m_PntVec.push_back( cen );
+        arrow_lines.m_PntVec.push_back( cen + thrustdir * axlen );
+        MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, arrow_heads.m_PntVec, arrow_heads.m_NormVec );
+        MakeCircleArrow( cen, rotdir, rot_axlen, axlen, arrow_lines, arrow_heads );
 
         if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
         {
-            MakeCircleArrow( pmid, dir, 0.5 * axlen, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+            MakeCircleArrow( pmid, dir, 0.5 * axlen, 0.5 * axlen, arrow_lines, arrow_heads );
         }
 
 
 
+    }
+
+    arrow_heads.m_GeomID = placer->GetID() + "Arrows";
+    arrow_heads.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    arrow_heads.m_LineWidth = 1.0;
+    arrow_heads.m_Type = DrawObj::VSP_SHADED_TRIS;
+
+    for ( int i = 0; i < 4; i++ )
+    {
+        arrow_heads.m_MaterialInfo.Ambient[i] = 0.2f;
+        arrow_heads.m_MaterialInfo.Diffuse[i] = 0.1f;
+        arrow_heads.m_MaterialInfo.Specular[i] = 0.7f;
+        arrow_heads.m_MaterialInfo.Emission[i] = 0.0f;
+    }
+    arrow_heads.m_MaterialInfo.Diffuse[3] = 0.5f;
+    arrow_heads.m_MaterialInfo.Shininess = 5.0f;
+
+    arrow_lines.m_GeomID = placer->GetID() + "ALines";
+    arrow_lines.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    arrow_lines.m_LineWidth = 2.0;
+    arrow_lines.m_Type = DrawObj::VSP_LINES;
+}
+
+void PropGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )
+{
+    bool visible = placer->ShowsMarkers();
+    for ( int i = 0; i < ( int )marker_vec.size(); i++ )
+    {
+        marker_vec[i].m_Visible = visible;
     }
 }
 
@@ -757,29 +805,6 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_HighlightBladeDrawObj.m_Type = DrawObj::VSP_LINES;
     draw_obj_vec.push_back( &m_HighlightBladeDrawObj );
 
-    m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
-    m_ArrowHeadDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-    m_ArrowHeadDO.m_LineWidth = 1.0;
-    m_ArrowHeadDO.m_Type = DrawObj::VSP_SHADED_TRIS;
-
-    for ( int i = 0; i < 4; i++ )
-    {
-        m_ArrowHeadDO.m_MaterialInfo.Ambient[i] = 0.2f;
-        m_ArrowHeadDO.m_MaterialInfo.Diffuse[i] = 0.1f;
-        m_ArrowHeadDO.m_MaterialInfo.Specular[i] = 0.7f;
-        m_ArrowHeadDO.m_MaterialInfo.Emission[i] = 0.0f;
-    }
-    m_ArrowHeadDO.m_MaterialInfo.Diffuse[3] = 0.5f;
-    m_ArrowHeadDO.m_MaterialInfo.Shininess = 5.0f;
-
-    m_ArrowLinesDO.m_GeomID = m_ID + "ALines";
-    m_ArrowLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-    m_ArrowLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_ArrowLinesDO.m_LineWidth = 2.0;
-    m_ArrowLinesDO.m_Type = DrawObj::VSP_LINES;
-
-    draw_obj_vec.push_back( &m_ArrowLinesDO );
-    draw_obj_vec.push_back( &m_ArrowHeadDO );
 }
 
 void PropGeom::ChangeID( const string &id )
