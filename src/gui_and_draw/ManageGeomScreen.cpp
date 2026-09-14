@@ -951,10 +951,14 @@ void ManageGeomScreen::EditName( const string &name )
         if ( g_ptr )
         {
             g_ptr->SetName( name );
+
+            // A name is not a Parm, so nothing else announces it.  Without this the browser
+            // redraws the old name until some unrelated edit forces an update, and anything
+            // reading the name -- a copy named after this Geom, a mesh naming its file -- keeps
+            // the old one.  A file written in between holds both names at once.
+            g_ptr->Update();
         }
     }
-//jrg FIX!!!
-//  Trigger Edit Screen Update...
 }
 
 
@@ -1094,6 +1098,14 @@ void ManageGeomScreen::CallBack( Fl_Widget *w )
             {
                 string pc_name = m_GeomBrowser->GetPopupValue();
                 pc->SetName( pc_name );
+
+                // The same reason as the Active field above: a rename has to run the update
+                // that carries it, or whatever reads the name keeps the old one.
+                Geom* renamed = dynamic_cast< Geom* >( pc );
+                if ( renamed )
+                {
+                    renamed->Update();
+                }
             }
         }
 

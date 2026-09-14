@@ -2800,6 +2800,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_NameInput )
     {
         geom_ptr->SetName( m_NameInput.GetString() );
+        geom_ptr->Update();
     }
     else if ( device == &m_AddSubSurfButton )
     {
