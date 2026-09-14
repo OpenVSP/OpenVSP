@@ -8,6 +8,7 @@
 #include <unordered_set>
 
 #include "HumanGeom.h"
+#include "MeshGeom.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
 
@@ -1200,33 +1201,11 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
 
 
-        switch ( m_GuiDraw.GetDrawType() )
-        {
-            case vsp::DRAW_TYPE::GEOM_DRAW_WIRE:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_TRIS;
-                break;
-
-            case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_TRIS;
-                break;
-
-            case vsp::DRAW_TYPE::GEOM_DRAW_SHADE:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
-                break;
-
-            case vsp::DRAW_TYPE::GEOM_DRAW_NONE:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
-                m_WireShadeDrawObj_vec[i].m_Visible = false;
-                break;
-
-            case vsp::DRAW_TYPE::GEOM_DRAW_TEXTURE:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
-                break;
-        }
-
         draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
 
     }
+
+    TMeshRole::SetTriDrawObjTypes( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType() );
 
     // Load Feature Lines
     for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )

@@ -966,6 +966,156 @@ void MeshGeom::UpdateTagMap()
     }
 }
 
+
+//==== TMeshRole: shared by MeshGeom and a Clone of one ====//
+
+vector< TMesh* > TMeshRole::BuildTMeshVec( const Geom* geom_ptr ) const
+{
+    const vector< TMesh* > &tmesh_vec = GetTMeshVecInSelf();
+
+    // Placed as it is copied.
+    Matrix4d mat = GetTMeshTransMat();
+
+    vector< TMesh* > ret_tmesh_vec;
+    ret_tmesh_vec.resize( tmesh_vec.size() );
+    for ( int i = 0 ; i < ( int )tmesh_vec.size() ; i++ )
+    {
+        ret_tmesh_vec[i] = new TMesh();
+        ret_tmesh_vec[i]->copyPlaced( tmesh_vec[i], mat );
+        ret_tmesh_vec[i]->LoadGeomAttributes( geom_ptr );
+    }
+
+    return ret_tmesh_vec;
+}
+
+void TMeshRole::SetTriDrawObjTypes( vector< DrawObj > &draw_obj_vec, int drawtype )
+{
+    for ( int i = 0 ; i < ( int )draw_obj_vec.size() ; i++ )
+    {
+        switch ( drawtype )
+        {
+        case vsp::DRAW_TYPE::GEOM_DRAW_WIRE:
+            draw_obj_vec[i].m_Type = DrawObj::VSP_WIRE_TRIS;
+            break;
+
+        case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
+            draw_obj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_TRIS;
+            break;
+
+        case vsp::DRAW_TYPE::GEOM_DRAW_SHADE:
+            draw_obj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
+            break;
+
+        case vsp::DRAW_TYPE::GEOM_DRAW_NONE:
+            draw_obj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
+            draw_obj_vec[i].m_Visible = false;
+            break;
+
+        // Triangles carry no texture coordinates, so these are shaded instead.
+        case vsp::DRAW_TYPE::GEOM_DRAW_TEXTURE:
+            draw_obj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
+            break;
+        }
+    }
+}
+
+void TMeshRole::BuildTMeshBndBox( BndBox &bbox ) const
+{
+    bbox.Reset();
+
+    const vector< TMesh* > &tmesh_vec = GetTMeshVecInSelf();
+    Matrix4d trans = GetTMeshTransMat();
+
+    for ( int i = 0 ; i < ( int )tmesh_vec.size() ; i++ )
+    {
+        tmesh_vec[i]->UpdateBBox( bbox, trans );
+    }
+}
+
+void TMeshRole::BuildTMeshDrawObjs( const vector< TMesh* > &tmesh_vec, bool bytag,
+                                    vector< DrawObj > &draw_obj_vec ) const
+{
+    Matrix4d trans = GetTMeshTransMat();
+
+    // Normals turn but do not move, so the translation is taken back off.
+    vec3d zeroV = trans.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
+    if ( !bytag )
+    {
+        draw_obj_vec.resize( tmesh_vec.size(), DrawObj() );
+
+        for ( int m = 0 ; m < ( int )tmesh_vec.size() ; m++ )
+        {
+            int num_tris = tmesh_vec[m]->m_TVec.size();
+            vector< TTri* > &tris = tmesh_vec[m]->m_TVec;
+
+            draw_obj_vec[m].m_PntVec.resize( num_tris * 3 );
+            draw_obj_vec[m].m_NormVec.resize( num_tris * 3 );
+
+            int pi = 0;
+            for ( int t = 0 ; t < num_tris ; t++ )
+            {
+                draw_obj_vec[m].m_PntVec[pi]     = trans.xform( tris[t]->m_N0->m_Pnt );
+                draw_obj_vec[m].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
+                draw_obj_vec[m].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
+
+                vec3d norm = trans.xform( tris[t]->m_Norm ) - zeroV;
+                norm.normalize();
+                draw_obj_vec[m].m_NormVec[pi]     = norm;
+                draw_obj_vec[m].m_NormVec[pi + 1] = norm;
+                draw_obj_vec[m].m_NormVec[pi + 2] = norm;
+
+                pi += 3;
+            }
+        }
+    }
+    else
+    {
+        // One draw object per tag combination, so each subsurface is coloured separately.  The map
+        // is the mesh owner's, not SubSurfaceMgr's global one, which the last meshing run rebuilds.
+        const map< vector< int >, int > &tagMap = GetTMeshSingleTagMap();
+        map< vector< int >, int >::const_iterator mit;
+
+        draw_obj_vec.resize( tagMap.size() );
+        for ( int i = 0; i < ( int )draw_obj_vec.size(); i++ )
+        {
+            draw_obj_vec[i].m_PntVec.clear();
+            draw_obj_vec[i].m_NormVec.clear();
+        }
+
+        for ( int m = 0 ; m < ( int )tmesh_vec.size() ; m++ )
+        {
+            int num_tris = tmesh_vec[m]->m_TVec.size();
+            vector< TTri* > &tris = tmesh_vec[m]->m_TVec;
+
+            for ( int t = 0 ; t < num_tris ; t++ )
+            {
+                mit = tagMap.find( tris[t]->m_Tags );
+                if ( mit == tagMap.end() || mit->second < 0 || mit->second >= ( int )draw_obj_vec.size() )
+                {
+                    continue;
+                }
+                DrawObj* d_obj = &draw_obj_vec[ mit->second ];
+
+                d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N0->m_Pnt ) );
+                d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N1->m_Pnt ) );
+                d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N2->m_Pnt ) );
+
+                vec3d norm = trans.xform( tris[t]->m_Norm ) - zeroV;
+                norm.normalize();
+                d_obj->m_NormVec.push_back( norm );
+                d_obj->m_NormVec.push_back( norm );
+                d_obj->m_NormVec.push_back( norm );
+            }
+        }
+    }
+
+    for ( int i = 0 ; i < ( int )draw_obj_vec.size(); i++ )
+    {
+        draw_obj_vec[i].m_GeomChanged = true;
+    }
+}
+
 void MeshGeom::UpdateDrawObj()
 {
     // Add in SubSurfaces to TMeshVec if m_DrawSubSurfs is true
@@ -1020,8 +1170,9 @@ void MeshGeom::UpdateDrawObj()
     }
 
 
+    // Turned by the transform that places the points, then normalised.
     Matrix4d trans = GetTotalTransMat();
-    vec3d zeroV = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
+    vec3d zeroV = trans.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
     if ( m_ViewMeshFlag.Get() )
     {
@@ -1039,7 +1190,8 @@ void MeshGeom::UpdateDrawObj()
                     m_WireShadeDrawObj_vec[m].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
                     m_WireShadeDrawObj_vec[m].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
                     m_WireShadeDrawObj_vec[m].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                    vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                    vec3d norm =  trans.xform( tris[t]->m_Norm ) - zeroV;
+                    norm.normalize();
                     m_WireShadeDrawObj_vec[m].m_NormVec[pi] = norm;
                     m_WireShadeDrawObj_vec[m].m_NormVec[pi + 1] = norm;
                     m_WireShadeDrawObj_vec[m].m_NormVec[pi + 2] = norm;
@@ -1063,7 +1215,8 @@ void MeshGeom::UpdateDrawObj()
                     m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
                     m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
                     m_WireShadeDrawObj_vec[m + add_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                    vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                    vec3d norm =  trans.xform( tris[t]->m_Norm ) - zeroV;
+                    norm.normalize();
                     m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi] = norm;
                     m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 1] = norm;
                     m_WireShadeDrawObj_vec[m + add_ind].m_NormVec[pi + 2] = norm;
@@ -1093,7 +1246,8 @@ void MeshGeom::UpdateDrawObj()
                     d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N0->m_Pnt ) );
                     d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N1->m_Pnt ) );
                     d_obj->m_PntVec.push_back( trans.xform( tris[t]->m_N2->m_Pnt ) );
-                    vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                    vec3d norm =  trans.xform( tris[t]->m_Norm ) - zeroV;
+                    norm.normalize();
                     d_obj->m_NormVec.push_back( norm );
                     d_obj->m_NormVec.push_back( norm );
                     d_obj->m_NormVec.push_back( norm );
@@ -1129,7 +1283,8 @@ void MeshGeom::UpdateDrawObj()
                 m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi] = trans.xform( tris[t]->m_N0->m_Pnt );
                 m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 1] = trans.xform( tris[t]->m_N1->m_Pnt );
                 m_WireShadeDrawObj_vec[draw_ind].m_PntVec[pi + 2] = trans.xform( tris[t]->m_N2->m_Pnt );
-                vec3d norm =  m_ModelMatrix.xform( tris[t]->m_Norm ) - zeroV;
+                vec3d norm =  trans.xform( tris[t]->m_Norm ) - zeroV;
+                norm.normalize();
                 m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi] = norm;
                 m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 1] = norm;
                 m_WireShadeDrawObj_vec[draw_ind].m_NormVec[pi + 2] = norm;
@@ -1237,31 +1392,9 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             m_WireShadeDrawObj_vec[i].m_LineColor = rgb;
         }
-        switch( m_GuiDraw.GetDrawType() )
-        {
-        case vsp::DRAW_TYPE::GEOM_DRAW_WIRE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_TRIS;
-            break;
-
-        case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_TRIS;
-            break;
-
-        case vsp::DRAW_TYPE::GEOM_DRAW_SHADE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
-            break;
-
-        case vsp::DRAW_TYPE::GEOM_DRAW_NONE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
-            m_WireShadeDrawObj_vec[i].m_Visible = false;
-            break;
-
-        // Does not support Texture Mapping.  Render Shaded instead.
-        case vsp::DRAW_TYPE::GEOM_DRAW_TEXTURE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
-            break;
-        }
     }
+
+    SetTriDrawObjTypes( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType() );
 }
 
 //==== Create And Load Tris into Results Data Structures ====//
@@ -2247,7 +2380,8 @@ void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int 
     }
 }
 
-vector<TMesh*> MeshGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
+// The mesh as it is held, with no placement in it.
+vector<TMesh*> MeshGeom::CreateTMeshVecInSelf( bool skipnegflipnormal, const int & n_ref ) const
 {
     vector<TMesh*> retTMeshVec;
     retTMeshVec.resize( m_TMeshVec.size() );
@@ -2258,11 +2392,12 @@ vector<TMesh*> MeshGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_r
         retTMeshVec[i]->LoadGeomAttributes( this );
     }
 
-    // Apply Transformations
-    Matrix4d TransMat = GetTotalTransMat();
-    TransformMeshVec( retTMeshVec, TransMat );
-
     return retTMeshVec;
+}
+
+vector<TMesh*> MeshGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
+{
+    return BuildTMeshVec( this );
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//

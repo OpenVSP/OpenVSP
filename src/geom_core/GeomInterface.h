@@ -23,6 +23,7 @@ using std::string;
 using std::vector;
 
 class Bogie;
+class TMesh;
 class GeomXForm;
 class Parm;
 

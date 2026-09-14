@@ -467,6 +467,10 @@ public:
     virtual void Wype();
 
     void copy( TMesh* m );
+
+    // The same, placed by a matrix as it is copied.
+    void copyPlaced( TMesh* m, const Matrix4d &mat );
+
     void copyFewerNodes( TMesh* m );
     void CopyFlatten( TMesh* m );
     void FlattenInPlace();

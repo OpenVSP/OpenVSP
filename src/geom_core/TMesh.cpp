@@ -3448,6 +3448,46 @@ void TMesh::copy( TMesh* m )
     }
 }
 
+// A copy of another mesh with a matrix applied as it is copied.
+void TMesh::copyPlaced( TMesh* m, const Matrix4d &mat )
+{
+    CopyAttributes( m );
+    m_TVec.clear();
+    m_NVec.clear();
+
+    m_AreaCenter = mat.xform( m_AreaCenter );
+
+    for ( int i = 0 ; i < ( int )m->m_TVec.size() ; i++ )
+    {
+        TTri* tri = new TTri( this );
+        tri->m_N0   = new TNode();
+        tri->m_N1   = new TNode();
+        tri->m_N2   = new TNode();
+
+        tri->m_Norm    = mat.xformnorm( m->m_TVec[i]->m_Norm );
+        tri->m_iQuad    = m->m_TVec[i]->m_iQuad;
+        tri->m_jref     = m->m_TVec[i]->m_jref;
+        tri->m_kref     = m->m_TVec[i]->m_kref;
+        tri->m_ID    = m->m_TVec[i]->m_ID;
+        tri->m_Tags = m->m_TVec[i]->m_Tags;
+        tri->m_GeomID = m->m_TVec[i]->m_GeomID;
+        tri->m_Density = m->m_TVec[i]->m_Density;
+
+        tri->m_N0->m_Pnt = mat.xform( m->m_TVec[i]->m_N0->m_Pnt );
+        tri->m_N1->m_Pnt = mat.xform( m->m_TVec[i]->m_N1->m_Pnt );
+        tri->m_N2->m_Pnt = mat.xform( m->m_TVec[i]->m_N2->m_Pnt );
+
+        tri->m_N0->m_UWPnt = m->m_TVec[i]->m_N0->m_UWPnt;
+        tri->m_N1->m_UWPnt = m->m_TVec[i]->m_N1->m_UWPnt;
+        tri->m_N2->m_UWPnt = m->m_TVec[i]->m_N2->m_UWPnt;
+
+        m_TVec.push_back( tri );
+        m_NVec.push_back( tri->m_N0 );
+        m_NVec.push_back( tri->m_N1 );
+        m_NVec.push_back( tri->m_N2 );
+    }
+}
+
 void TMesh::copyFewerNodes( TMesh* m )
 {
     CopyAttributes( m );
