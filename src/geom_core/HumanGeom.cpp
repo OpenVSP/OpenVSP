@@ -8,6 +8,7 @@
 #include <unordered_set>
 
 #include "HumanGeom.h"
+#include "pinocchioApi.h"
 #include "MeshGeom.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
@@ -984,115 +985,7 @@ void HumanGeom::UpdateSymmAttach()
 
 void HumanGeom::UpdateDrawObj()
 {
-    // Add in SubSurfaces to TMeshVec if m_DrawSubSurfs is true
-    int num_meshes = m_Verts.size();
-
-    // Mesh Should Be Flat Before Calling this Method
-    int add_ind = 0;
-
-    m_WireShadeDrawObj_vec.resize( 1, DrawObj() );
-
-    unsigned int pi = 0;
-    unsigned int ido = 0;
-    unsigned int isize = 0;
-
-    for ( int m = 0 ; m < ( int )num_meshes ; m++ )
-    {
-        int num_tris = NUM_MESH_TRI;
-
-        isize = isize + num_tris * 3 * 2;
-        m_WireShadeDrawObj_vec[ido].m_PntVec.resize( isize );
-        m_WireShadeDrawObj_vec[ido].m_NormVec.resize( isize );
-        for ( int t = 0 ; t < ( int ) num_tris ; t++ )
-        {
-            int i2 = 1;
-            int i3 = 2;
-
-            if( m_FlipNormal[m] )
-            {
-                i2 = 2;
-                i3 = 1;
-            }
-
-            vec3d p0 = m_Verts[m][m_half_tris[t][0]];
-            vec3d p1 = m_Verts[m][m_half_tris[t][i2]];
-            vec3d p2 = m_Verts[m][m_half_tris[t][i3]];
-
-            vec3d v0 (0, 0, 0);
-            if ( dist (p0, v0) == 0 )
-            {
-                printf("Found zero vert %d\n", m_half_tris[t][0] );
-            }
-            if ( dist (p1, v0) == 0 )
-            {
-                printf("Found zero vert %d\n", m_half_tris[t][i2] );
-            }
-            if ( dist (p2, v0) == 0 )
-            {
-                printf("Found zero vert %d\n", m_half_tris[t][i3] );
-            }
-
-            //==== Compute Normal ====//
-            vec3d p10 = p1 - p0;
-            vec3d p20 = p2 - p0;
-            vec3d norm = cross( p10, p20 );
-            norm.normalize();
-
-            m_WireShadeDrawObj_vec[ido].m_PntVec[pi] = p0 ;
-            m_WireShadeDrawObj_vec[ido].m_PntVec[pi + 1] = p1 ;
-            m_WireShadeDrawObj_vec[ido].m_PntVec[pi + 2] = p2 ;
-
-            m_WireShadeDrawObj_vec[ido].m_NormVec[pi] = norm;
-            m_WireShadeDrawObj_vec[ido].m_NormVec[pi + 1] = norm;
-            m_WireShadeDrawObj_vec[ido].m_NormVec[pi + 2] = norm;
-            pi += 3;
-        }
-
-        for ( int t = 0 ; t < ( int ) num_tris ; t++ )
-        {
-            int i2 = 2;
-            int i3 = 1;
-
-            if( m_FlipNormal[m] )
-            {
-                i2 = 1;
-                i3 = 2;
-            }
-
-            vec3d p0 = m_Verts[m][m_half_tris[t][0]+NUM_MESH_VERT];
-            vec3d p1 = m_Verts[m][m_half_tris[t][i2]+NUM_MESH_VERT];
-            vec3d p2 = m_Verts[m][m_half_tris[t][i3]+NUM_MESH_VERT];
-
-            vec3d v0 (0, 0, 0);
-            if ( dist (p0, v0) == 0 )
-            {
-                printf("Found zero vert %d\n", m_half_tris[t][0] );
-            }
-            if ( dist (p1, v0) == 0 )
-            {
-                printf("Found zero vert %d\n", m_half_tris[t][i2] );
-            }
-            if ( dist (p2, v0) == 0 )
-            {
-                printf("Found zero vert %d\n", m_half_tris[t][i3] );
-            }
-
-            //==== Compute Normal ====//
-            vec3d p10 = p1 - p0;
-            vec3d p20 = p2 - p0;
-            vec3d norm = cross( p10, p20 );
-            norm.normalize();
-
-            m_WireShadeDrawObj_vec[ido].m_PntVec[pi] = p0 ;
-            m_WireShadeDrawObj_vec[ido].m_PntVec[pi + 1] = p1 ;
-            m_WireShadeDrawObj_vec[ido].m_PntVec[pi + 2] = p2 ;
-
-            m_WireShadeDrawObj_vec[ido].m_NormVec[pi] = norm;
-            m_WireShadeDrawObj_vec[ido].m_NormVec[pi + 1] = norm;
-            m_WireShadeDrawObj_vec[ido].m_NormVec[pi + 2] = norm;
-            pi += 3;
-        }
-    }
+    BuildHumanDrawObjs( m_Verts, m_FlipNormal, m_WireShadeDrawObj_vec );
 
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
@@ -1285,75 +1178,176 @@ void HumanGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview, const int
     }
 }
 
-vector<TMesh*> HumanGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
+
+//==== HumanVertRole: shared by HumanGeom and a Clone of one ====//
+
+void HumanVertRole::ExpandMainVerts( const vector < vec3d > &main_verts,
+                                     const vector < Matrix4d > &trans_mat_vec,
+                                     vector < vector < vec3d > > &verts )
 {
-    vector<TMesh*> retTMeshVec;
+    verts.clear();
+    verts.resize( trans_mat_vec.size() );
 
-    for ( int j = 0; j < m_Verts.size(); j++ )
+    for ( int i = 0 ; i < ( int )trans_mat_vec.size() ; i++ )
     {
-        int num_tris;
-        num_tris = NUM_MESH_TRI;
+        verts[i] = main_verts;
+        trans_mat_vec[i].xformvec( verts[i] );
+    }
+}
 
-        TMesh*  tMesh = new TMesh();
+vector < TMesh* > HumanVertRole::BuildHumanTMeshVec( const vector < vector < vec3d > > &verts,
+                                                     const vector < bool > &flipnormal,
+                                                     const Geom* geom_ptr )
+{
+    vector < TMesh* > retTMeshVec;
 
-        tMesh->LoadGeomAttributes( this );
+    for ( int j = 0; j < ( int )verts.size(); j++ )
+    {
+        if ( verts[j].size() < 2 * NUM_MESH_VERT )
+        {
+            continue;
+        }
 
+        bool flip = false;
+        if ( j < ( int )flipnormal.size() )
+        {
+            flip = flipnormal[j];
+        }
+
+        TMesh* tMesh = new TMesh();
+        tMesh->LoadGeomAttributes( geom_ptr );
         tMesh->m_SurfNum = j;
 
-        for ( int i = 0 ; i < num_tris ; i++ )
+        // Each half is stitched with the same connectivity, the second mirrored.
+        for ( int half = 0; half < 2; half++ )
         {
+            int offset = 0;
             int i2 = 1;
             int i3 = 2;
 
-            if ( m_FlipNormal[j] )
+            if ( half == 1 )
             {
+                offset = NUM_MESH_VERT;
                 i2 = 2;
                 i3 = 1;
             }
 
-            vec3d p0 = vec3d( m_Verts[j][m_half_tris[i][0]] );
-            vec3d p1 = vec3d( m_Verts[j][m_half_tris[i][i2]] );
-            vec3d p2 = vec3d( m_Verts[j][m_half_tris[i][i3]] );
-
-            //==== Compute Normal ====//
-            vec3d p10 = p1 - p0;
-            vec3d p20 = p2 - p0;
-            vec3d norm = cross( p10, p20 );
-            norm.normalize();
-
-            //==== Add Valid Facet ====//
-            tMesh->AddTri( p0, p1, p2, norm, -1 );
-        }
-
-        for ( int i = 0 ; i < num_tris ; i++ )
-        {
-            int i2 = 2;
-            int i3 = 1;
-
-            if ( m_FlipNormal[j] )
+            if ( flip )
             {
-                i2 = 1;
-                i3 = 2;
+                std::swap( i2, i3 );
             }
 
-            vec3d p0 = vec3d( m_Verts[j][m_half_tris[i][0] + NUM_MESH_VERT] );
-            vec3d p1 = vec3d( m_Verts[j][m_half_tris[i][i2] + NUM_MESH_VERT] );
-            vec3d p2 = vec3d( m_Verts[j][m_half_tris[i][i3] + NUM_MESH_VERT] );
+            for ( int i = 0 ; i < NUM_MESH_TRI ; i++ )
+            {
+                vec3d p0 = verts[j][ HumanGeom::m_half_tris[i][0] + offset ];
+                vec3d p1 = verts[j][ HumanGeom::m_half_tris[i][i2] + offset ];
+                vec3d p2 = verts[j][ HumanGeom::m_half_tris[i][i3] + offset ];
 
-            //==== Compute Normal ====//
-            vec3d p10 = p1 - p0;
-            vec3d p20 = p2 - p0;
-            vec3d norm = cross( p10, p20 );
-            norm.normalize();
+                vec3d p10 = p1 - p0;
+                vec3d p20 = p2 - p0;
+                vec3d norm = cross( p10, p20 );
+                norm.normalize();
 
-            //==== Add Valid Facet ====//
-            tMesh->AddTri( p0, p1, p2, norm, -1 );
+                tMesh->AddTri( p0, p1, p2, norm, -1 );
+            }
         }
 
         retTMeshVec.push_back( tMesh );
     }
 
     return retTMeshVec;
+}
+
+void HumanVertRole::BuildHumanDrawObjs( const vector < vector < vec3d > > &verts,
+                                        const vector < bool > &flipnormal,
+                                        vector < DrawObj > &draw_obj_vec )
+{
+    draw_obj_vec.resize( 1, DrawObj() );
+
+    unsigned int pi = 0;
+    unsigned int isize = 0;
+
+    for ( int m = 0 ; m < ( int )verts.size() ; m++ )
+    {
+        if ( verts[m].size() < 2 * NUM_MESH_VERT )
+        {
+            continue;
+        }
+
+        bool flip = false;
+        if ( m < ( int )flipnormal.size() )
+        {
+            flip = flipnormal[m];
+        }
+
+        isize = isize + NUM_MESH_TRI * 3 * 2;
+        draw_obj_vec[0].m_PntVec.resize( isize );
+        draw_obj_vec[0].m_NormVec.resize( isize );
+
+        for ( int half = 0; half < 2; half++ )
+        {
+            int offset = 0;
+            int i2 = 1;
+            int i3 = 2;
+
+            if ( half == 1 )
+            {
+                offset = NUM_MESH_VERT;
+                i2 = 2;
+                i3 = 1;
+            }
+
+            if ( flip )
+            {
+                std::swap( i2, i3 );
+            }
+
+            for ( int t = 0 ; t < NUM_MESH_TRI ; t++ )
+            {
+                vec3d p0 = verts[m][ HumanGeom::m_half_tris[t][0] + offset ];
+                vec3d p1 = verts[m][ HumanGeom::m_half_tris[t][i2] + offset ];
+                vec3d p2 = verts[m][ HumanGeom::m_half_tris[t][i3] + offset ];
+
+                vec3d p10 = p1 - p0;
+                vec3d p20 = p2 - p0;
+                vec3d norm = cross( p10, p20 );
+                norm.normalize();
+
+                draw_obj_vec[0].m_PntVec[pi]     = p0;
+                draw_obj_vec[0].m_PntVec[pi + 1] = p1;
+                draw_obj_vec[0].m_PntVec[pi + 2] = p2;
+
+                draw_obj_vec[0].m_NormVec[pi]     = norm;
+                draw_obj_vec[0].m_NormVec[pi + 1] = norm;
+                draw_obj_vec[0].m_NormVec[pi + 2] = norm;
+
+                pi += 3;
+            }
+        }
+    }
+
+    for ( int i = 0 ; i < ( int )draw_obj_vec.size(); i++ )
+    {
+        draw_obj_vec[i].m_GeomChanged = true;
+    }
+}
+
+void HumanVertRole::BuildHumanBndBox( const vector < vector < vec3d > > &verts, BndBox &bbox )
+{
+    bbox.Reset();
+
+    for ( int j = 0 ; j < ( int )verts.size() ; j++ )
+    {
+        for ( int i = 0; i < ( int )verts[j].size(); i++ )
+        {
+            bbox.Update( verts[j][i] );
+        }
+    }
+}
+
+vector<TMesh*> HumanGeom::CreateTMeshVec( bool skipnegflipnormal, const int & n_ref ) const
+{
+    return BuildHumanTMeshVec( m_Verts, m_FlipNormal, this );
 }
 
 void HumanGeom::SetupMesh( Pinocchio::Mesh &m )
