@@ -19,12 +19,13 @@
 #include "PropGeom.h"
 #include "HumanGeom.h"
 #include "MeshGeom.h"
+#include "PtCloudGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -184,6 +185,12 @@ public:
     virtual void UpdateDrawObj() override;
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
     virtual void UpdateBBox() override;
+
+    //==== Standing in for a Geom made of points ====//
+    virtual const vector < vec3d > & GetPtsInSelf() const override;
+    virtual Matrix4d GetPtsTransMat() const override;
+    virtual Matrix4d GetPtsScaleMat() const override;
+    virtual PointCloudRole* GetOriginalPointCloud() const;
 
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;

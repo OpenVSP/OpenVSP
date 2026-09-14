@@ -486,7 +486,7 @@ void CloneGeom::UpdateSets()
 // single matrix.  Such Geoms ignore symmetry.
 bool CloneGeom::ShowsOnePlacedShape() const
 {
-    return GetOriginalTMesh();
+    return GetOriginalTMesh() || GetOriginalPointCloud();
 }
 
 // No symmetry for a single placed shape.  Copy count, transforms and mass split all derive from
@@ -1658,6 +1658,40 @@ void CloneGeom::BuildCloneVerts( vector < vector < vec3d > > &verts, vector < bo
     flipnormal.resize( verts.size(), false );
 }
 
+PointCloudRole* CloneGeom::GetOriginalPointCloud() const
+{
+    return Geom::CastTo< PointCloudRole >( GetOriginalGeom() );
+}
+
+const vector < vec3d > & CloneGeom::GetPtsInSelf() const
+{
+    static const vector < vec3d > empty;
+
+    PointCloudRole* cloud = GetOriginalPointCloud();
+    if ( !cloud )
+    {
+        return empty;
+    }
+
+    return cloud->GetPtsInSelf();
+}
+
+Matrix4d CloneGeom::GetPtsScaleMat() const
+{
+    PointCloudRole* cloud = GetOriginalPointCloud();
+    if ( !cloud )
+    {
+        return Matrix4d();
+    }
+
+    return cloud->GetPtsScaleMat();
+}
+
+Matrix4d CloneGeom::GetPtsTransMat() const
+{
+    return PlaceBorrowedShape( GetPtsScaleMat() );
+}
+
 TMeshRole* CloneGeom::GetOriginalTMesh() const
 {
     return Geom::CastTo< TMeshRole >( GetOriginalGeom() );
@@ -1769,14 +1803,32 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
 
-    // Standing in for a Geom made of triangles, the draw objects hold loose triangles rather
-    // than a structured mesh, and the usual route has just picked the wrong primitive for them.
-    // Visibility does not depend on a Bezier surface either -- there is not one.
+    // Draw a point cloud as points; there is no surface to set visibility from.
+    if ( GetOriginalPointCloud() )
+    {
+        for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
+        {
+            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_POINTS;
+            m_WireShadeDrawObj_vec[i].m_PointSize = 4.0;
+            m_WireShadeDrawObj_vec[i].m_PointColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                                            m_GuiDraw.GetWireColor().y() / 255.0,
+                                                            m_GuiDraw.GetWireColor().z() / 255.0 );
+            m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        }
+        return;
+    }
+
     if ( GetOriginalTMesh() || GetOriginalHumanVert() )
     {
         for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
         {
             m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        }
+
+        // Colour by tag when subsurfaces are shown, as the original does.
+        if ( GetOriginalTMesh() && m_GuiDraw.GetDispSubSurfFlag() )
+        {
+            TMeshRole::SetTagDrawObjColors( m_WireShadeDrawObj_vec, GetTMeshColorStartDegree(), GetTMeshSingleTagMap().size() );
         }
 
         TMeshRole::SetTriDrawObjTypes( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType() );
@@ -1786,7 +1838,7 @@ void CloneGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 void CloneGeom::UpdateBBox()
 {
     // No main surfaces: bound the borrowed shape at this Geom's position.
-    if ( GetOriginalTMesh() || GetOriginalHumanVert() )
+    if ( GetOriginalTMesh() || GetOriginalHumanVert() || GetOriginalPointCloud() )
     {
         BndBox new_box;
 
@@ -1794,13 +1846,17 @@ void CloneGeom::UpdateBBox()
         {
             BuildTMeshBndBox( new_box );
         }
-        else
+        else if ( GetOriginalHumanVert() )
         {
             vector < vector < vec3d > > verts;
             vector < bool > flipnormal;
             BuildCloneVerts( verts, flipnormal );
 
             BuildHumanBndBox( verts, new_box );
+        }
+        else
+        {
+            BuildPtsBndBox( new_box );
         }
 
         if ( new_box.IsEmpty() )
@@ -1843,6 +1899,18 @@ void CloneGeom::UpdateDrawObj()
         BuildCloneVerts( verts, flipnormal );
 
         BuildHumanDrawObjs( verts, flipnormal, m_WireShadeDrawObj_vec );
+
+        m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+        m_HighlightDrawObj.m_GeomChanged = true;
+        return;
+    }
+
+    if ( GetOriginalPointCloud() )
+    {
+        // All points; hiding and picking belong to the original.
+        m_WireShadeDrawObj_vec.resize( 1, DrawObj() );
+        BuildXFormPts( m_WireShadeDrawObj_vec[0].m_PntVec );
+        m_WireShadeDrawObj_vec[0].m_GeomChanged = true;
 
         m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
         m_HighlightDrawObj.m_GeomChanged = true;
