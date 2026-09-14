@@ -201,6 +201,48 @@ public:
         m_Type = type;
     }
 
+    // What this Geom behaves like: its own type, unless it stands in for another Geom.
+    // GetType says what it is (GUI screen, file, browser) and must not be redirected; ask this
+    // when the question is what the Geom does.  Overrides must keep the const, or they become
+    // a separate overload that callers never reach.
+    virtual int GetBehaviorType() const
+    {
+        return m_Type.m_Type;
+    }
+
+    // The Geom whose behaviour this one stands in for, or itself.  Positions read from it are
+    // that Geom's, not this one's: use it for what a Geom is, not where it is.
+    virtual Geom* GetBehaviorGeom() = 0;
+
+    // A Geom's role interface (joint, landing gear, rotor, mesh, ...), or null if it has none
+    // or geom_ptr is null.
+    //
+    //     JointRole* joint = Geom::CastTo< JointRole >( parent );
+    //
+    // A plain dynamic_cast is not enough: a Clone implements every role, so the behaviour type
+    // must also match the one the role names.
+    template < typename T >
+    static T* CastTo( GeomBase* geom_ptr )
+    {
+        if ( !geom_ptr || geom_ptr->GetBehaviorType() != T::BehaviorType() )
+        {
+            return nullptr;
+        }
+
+        return dynamic_cast< T* >( geom_ptr );
+    }
+
+    template < typename T >
+    static const T* CastTo( const GeomBase* geom_ptr )
+    {
+        if ( !geom_ptr || geom_ptr->GetBehaviorType() != T::BehaviorType() )
+        {
+            return nullptr;
+        }
+
+        return dynamic_cast< const T* >( geom_ptr );
+    }
+
     virtual void Update( bool fullupdate = true ) = 0;
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
@@ -336,7 +378,7 @@ public:
     }
 
 
-    Matrix4d getModelMatrix()
+    Matrix4d getModelMatrix() const
     {
         return m_ModelMatrix;
     }
@@ -641,6 +683,11 @@ public:
     virtual bool IsBndBoxScaleDependent() const
     {
         return m_BBox != m_ScaleIndependentBBox;
+    }
+
+    virtual Geom* GetBehaviorGeom()
+    {
+        return this;
     }
 
     // The two boxes before symmetry and placement, so a Clone can lay out its own from them.
