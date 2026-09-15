@@ -177,13 +177,9 @@ public:
     void CopyPasteSet(int copyIndex, int pasteIndex);
 
     //==== Geom Type Data =====//
-    vector< string > GetValidTypeGeoms();
-    vector< GeomType > GetEditableGeomTypes();
-
     int GetNumGeomTypes()                                    { return ( int )m_GeomTypeVec.size(); }
     int GetNumFixedGeomTypes();
     GeomType GetGeomType( int index );
-    void SetGeomType( int index, const GeomType & type );
 
     BndBox GetBndBox()                                        { return m_BBox; }
     BndBox GetScaleIndependentBndBox()                        { return m_ScaleIndependentBBox; }

@@ -2516,45 +2516,6 @@ GeomType Vehicle::GetGeomType( int index )
     return GeomType( 0, "" );
 }
 
-//==== Set Geom Type ====//
-void Vehicle::SetGeomType( int index, const GeomType & type )
-{
-    if ( index >= 0 && index < (int)m_GeomTypeVec.size() )
-    {
-        m_GeomTypeVec[index] = type;
-    }
-}
-
-//==== Get Vector of Geom IDs That Are Valid For Types ====//
-vector< string > Vehicle::GetValidTypeGeoms()
-{
-    vector< string > geom_id_vec;
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
-    {
-        if ( geom_vec[i]->GetType().m_Type != CUSTOM_GEOM_TYPE )
-        {
-           geom_id_vec.push_back( geom_vec[i]->GetID() );
-        }
-    }
-    return geom_id_vec;
-}
-
-
-//==== Get All Geometry Types That Are Editable ====//
-vector< GeomType > Vehicle::GetEditableGeomTypes()
-{
-    vector< GeomType > type_vec;
-    for ( int i = 0 ; i < (int)m_GeomTypeVec.size() ; i++ )
-    {
-        if ( !m_GeomTypeVec[i].m_FixedFlag && m_GeomTypeVec[i].m_Type != CUSTOM_GEOM_TYPE )
-        {
-            type_vec.push_back( m_GeomTypeVec[i] );
-        }
-    }
-    return type_vec;
-}
-
 xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 {
     xmlNodePtr vehicle_node = xmlNewChild( node, nullptr, BAD_CAST"Vehicle", nullptr );
