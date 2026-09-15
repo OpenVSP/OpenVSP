@@ -424,3 +424,28 @@ void StringUtil::parse_table( const char * str, int len, std::vector < std::vect
         table[i].resize( ncol );
     }
 }
+
+void StringUtil::split_comp_tag_name( const string & str, string & gname, string & sname )
+{
+    gname = str;
+    sname = string();
+
+    size_t spos = str.rfind( "_Surf" );
+    if ( spos == string::npos )
+    {
+        return;
+    }
+
+    gname = str.substr( 0, spos );
+    sname = str.substr( spos );
+
+    // The plate token is always two characters when it is there at all.
+    if ( gname.size() >= 2 )
+    {
+        string plate = gname.substr( gname.size() - 2 );
+        if ( plate == "_S" || plate == "_V" || plate == "_H" || plate == "_C" )
+        {
+            gname = gname.substr( 0, gname.size() - 2 );
+        }
+    }
+}

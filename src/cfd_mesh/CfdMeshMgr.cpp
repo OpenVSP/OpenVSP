@@ -2103,9 +2103,9 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
                         parttag.push_back( tag );
 
                         string str = SubSurfaceMgr.m_TagNames[ part ];
-                        int pos = str.find_first_of( '_' );
-                        string gname = str.substr( 0, pos );
-                        string sname = str.substr( pos + 2 );
+                        string gname;
+                        string sname;
+                        StringUtil::split_comp_tag_name( str, gname, sname );
 
                         StringUtil::change_space_to_underscore( gname );
                         StringUtil::change_space_to_underscore( sname );

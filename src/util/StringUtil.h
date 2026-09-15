@@ -20,6 +20,12 @@ void remove_all( string& str, const char& c );
 void change_underscore_to_space( string & str );
 void change_space_to_underscore( string & str );
 
+// Split a component tag name -- "<geom name><plate>_Surf<n>" -- into the Geom's name and the
+// "_Surf<n>" that follows it, dropping the two character plate token in between.  Searched from
+// the _Surf token rather than the first underscore, because a Geom's name may hold underscores
+// of its own: anything called Left_Wing, or any Clone, which is named after what it copies.
+void split_comp_tag_name( const string & str, string & gname, string & sname );
+
 bool replace_once( string & str, const string & from, const string & to );
 void replace_all( string & str, const string & from, const string & to  );
 
