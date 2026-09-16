@@ -20,6 +20,8 @@ CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone" 
 
     m_CloneLayout.AddDividerBox( "Original" );
     m_CloneLayout.AddChoice( m_OriginalChoice, "Original" );
+
+    m_CloneLayout.AddButton( m_ReplaceButton, "Replace With Copy Of Original" );
     m_CloneLayout.AddYGap();
 
     m_CloneLayout.AddDividerBox( "Name" );
@@ -111,6 +113,15 @@ bool CloneScreen::Update()
     m_CloneJointButton.Update( clone_ptr->m_CloneJoint.GetID() );
     m_AutoNameButton.Update( clone_ptr->m_AutoName.GetID() );
     m_NameSuffixInput.Update( clone_ptr->GetNameSuffix() );
+
+    if ( clone_ptr->GetOriginalGeom() )
+    {
+        m_ReplaceButton.Activate();
+    }
+    else
+    {
+        m_ReplaceButton.Deactivate();
+    }
 
     m_JointTranslateSlider.Update( clone_ptr->m_JointTranslate.GetID() );
     m_JointRotateSlider.Update( clone_ptr->m_JointRotate.GetID() );
@@ -299,6 +310,14 @@ void CloneScreen::GuiDeviceCallBack( GuiDevice *device )
         // The suffix is not a Parm, so update here to rebuild the name.
         clone_ptr->SetNameSuffix( m_NameSuffixInput.GetString() );
         clone_ptr->Update();
+    }
+    else if ( device == &m_ReplaceButton )
+    {
+        // Deletes this Geom; clone_ptr is invalid afterwards.
+        m_ScreenMgr->GetVehiclePtr()->ReplaceCloneGeom( clone_ptr->GetID() );
+
+        m_ScreenMgr->SetUpdateFlag( true );
+        return;
     }
     else if ( device == &m_JointTranslateRngButton )
     {

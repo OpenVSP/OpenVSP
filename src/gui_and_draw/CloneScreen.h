@@ -52,6 +52,7 @@ protected:
     ToggleButton m_CloneJointButton;
     ToggleButton m_AutoNameButton;
     StringInput m_NameSuffixInput;
+    TriggerButton m_ReplaceButton;
 };
 
 
