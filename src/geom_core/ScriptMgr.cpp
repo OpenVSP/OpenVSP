@@ -4629,6 +4629,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "string GetGeomCloneNameSuffix( const string & in clone_id )", asFUNCTION( vsp::GetGeomCloneNameSuffix ), asCALL_CDECL );
     assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string ReplaceCloneGeom( const string & in clone_id )", asFUNCTION( vsp::ReplaceCloneGeom ), asCALL_CDECL );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<string>@+ CloneGeomVec( array<string>@+ geom_arr, const string & in name_suffix = \"_Clone\" )", asMETHOD( ScriptMgrSingleton, CloneGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetGeomName( const string & in geom_id, const string & in name )", asFUNCTION( vsp::SetGeomName ), asCALL_CDECL );

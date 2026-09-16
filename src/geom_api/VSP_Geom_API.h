@@ -12296,6 +12296,173 @@ extern std::string GetGeomCloneNameSuffix( const std::string & clone_id );
     \ingroup Geom
 */
 /*!
+    Replace a Clone with a full copy of the Geom it shows.  The copy takes the Clone's place,
+    name and children, the Clone's own Parm values (any whose Copy From Original switch is off)
+    are written onto it, and the Clone is deleted.
+
+    The replacement takes the Clone's Geom ID, the IDs of the Parms they share, and its
+    subsurfaces with their IDs, so attached Geoms, design variables, links and VSPAERO control
+    surface groups keep working.  The returned ID is the one passed in.
+
+    The replacement's Flip_Flag holds every plane the Clone showed its shape reflected about.
+
+    A Clone of a polygon mesh is not replaced, because a polygon mesh cannot be copied.
+    \forcpponly
+    \code{.cpp}
+    //==== A Pod and a Clone of it, placed separately ====//
+    string pod = AddGeom( "POD" );
+
+    string clone = AddGeom( "CLONE" );
+
+    SetGeomCloneOriginal( clone, pod );
+
+    SetParmVal( FindParm( clone, "Y_Rel_Location", "XForm" ), 4.0 );
+
+    //==== Flipped: the original about XZ, the Clone's own about XY ====//
+    SetParmVal( FindParm( pod, "Flip_Flag", "Sym" ), SYM_XZ );
+    SetParmVal( FindParm( clone, "Flip_Flag", "Sym" ), SYM_XY );
+
+    Update();
+
+    string name = GetGeomName( clone );
+    vec3d shown = CompPnt01( clone, 0, 0.3, 0.2 );
+
+    //==== Replace the Clone ====//
+    string real = ReplaceCloneGeom( clone );
+
+    Update();
+
+    //==== A Pod, under the Clone's name ====//
+    if ( GetGeomTypeName( real ) != "Pod" )
+    {
+        Print( "ERROR: the replacement is not the original's type" );
+        __failure++;
+    }
+
+    if ( GetGeomName( real ) != name )
+    {
+        Print( "ERROR: the replacement did not take the Clone's name" );
+        __failure++;
+    }
+
+    //==== With the Clone's own placement ====//
+    if ( abs( GetParmVal( FindParm( real, "Y_Rel_Location", "XForm" ) ) - 4.0 ) > 1e-6 )
+    {
+        Print( "ERROR: the replacement did not take the position the Clone held of its own" );
+        __failure++;
+    }
+
+    //==== With the same flip planes, so the surface is unchanged ====//
+    if ( int( GetParmVal( FindParm( real, "Flip_Flag", "Sym" ) ) + 0.5 ) != ( SYM_XZ | SYM_XY ) )
+    {
+        Print( "ERROR: the replacement did not take the planes the Clone showed" );
+        __failure++;
+    }
+
+    if ( dist( shown, CompPnt01( real, 0, 0.3, 0.2 ) ) > 1e-9 )
+    {
+        Print( "ERROR: the replacement does not stand where the Clone stood" );
+        __failure++;
+    }
+
+    //==== The replacement answers to the Clone's own ID ====//
+    if ( real != clone )
+    {
+        Print( "ERROR: the replacement did not take the Clone's ID" );
+        __failure++;
+    }
+
+    //==== It is no longer a Clone; clear the queue first ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj drained = PopLastError();
+    }
+
+    GetGeomCloneOriginal( clone );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: what took the Clone's ID is still a Clone" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== A Pod and a Clone of it, placed separately ====#
+    pod = AddGeom( "POD" )
+
+    clone = AddGeom( "CLONE" )
+
+    SetGeomCloneOriginal( clone, pod )
+
+    SetParmVal( FindParm( clone, "Y_Rel_Location", "XForm" ), 4.0 )
+
+    #==== Flipped: the original about XZ, the Clone's own about XY ====#
+    SetParmVal( FindParm( pod, "Flip_Flag", "Sym" ), SYM_XZ )
+    SetParmVal( FindParm( clone, "Flip_Flag", "Sym" ), SYM_XY )
+
+    Update()
+
+    name = GetGeomName( clone )
+    shown = CompPnt01( clone, 0, 0.3, 0.2 )
+
+    #==== Replace the Clone ====#
+    real = ReplaceCloneGeom( clone )
+
+    Update()
+
+    #==== A Pod, under the Clone's name ====#
+    assert GetGeomTypeName( real ) == "Pod", "the replacement is not the original's type"
+
+    assert GetGeomName( real ) == name, "the replacement did not take the Clone's name"
+
+    #==== With the Clone's own placement ====#
+    assert abs( GetParmVal( FindParm( real, "Y_Rel_Location", "XForm" ) ) - 4.0 ) < 1e-6, \
+           "the replacement did not take the position the Clone held of its own"
+
+    #==== With the same flip planes, so the surface is unchanged ====#
+    assert int( GetParmVal( FindParm( real, "Flip_Flag", "Sym" ) ) + 0.5 ) == ( SYM_XZ | SYM_XY ), \
+           "the replacement did not take the planes the Clone showed"
+    assert dist( shown, CompPnt01( real, 0, 0.3, 0.2 ) ) < 1e-9, "the replacement does not stand where the Clone stood"
+
+    #==== The replacement answers to the Clone's own ID ====#
+    assert real == clone, "the replacement did not take the Clone's ID"
+
+    #==== It is no longer a Clone; clear the queue first ====#
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        drained = err_mgr.PopLastError()
+
+    GetGeomCloneOriginal( clone )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "what took the Clone's ID is still a Clone"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeomCloneOriginal, CloneGeomVec
+    \param [in] clone_id string Clone Geom ID
+    \return string ID of the Geom that replaced it -- the Clone's own ID -- or an empty string on failure
+*/
+
+extern std::string ReplaceCloneGeom( const std::string & clone_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
     Get all Parm IDs associated with this Geom Parm container
     \forcpponly
     \code{.cpp}

@@ -3288,6 +3288,46 @@ std::string GetGeomCloneNameSuffix( const std::string & clone_id )
     return clone_ptr->GetNameSuffix();
 }
 
+std::string ReplaceCloneGeom( const std::string & clone_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( clone_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReplaceCloneGeom::Can't Find Geom " + clone_id );
+        return std::string();
+    }
+
+    CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+    if ( !clone_ptr )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ReplaceCloneGeom::Geom " + clone_id + " is not a Clone" );
+        return std::string();
+    }
+
+    if ( !clone_ptr->GetOriginalGeom() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ReplaceCloneGeom::Clone " + clone_id + " has no original to copy" );
+        return std::string();
+    }
+
+    int n_errors_before = ErrorMgr.GetNumTotalErrors();
+
+    std::string new_id = veh->ReplaceCloneGeom( clone_id );
+    if ( new_id.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ReplaceCloneGeom::Could not replace Clone " + clone_id );
+        return std::string();
+    }
+
+    // Leave the call flagged if anything was reported, e.g. a replacement that moved.
+    if ( ErrorMgr.GetNumTotalErrors() == n_errors_before )
+    {
+        ErrorMgr.NoError();
+    }
+    return new_id;
+}
+
 std::vector< std::string > CloneGeomVec( const std::vector< std::string > & geom_id_vec, const std::string & name_suffix )
 {
     Vehicle* veh = GetVehicle();
