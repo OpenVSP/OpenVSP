@@ -659,6 +659,64 @@ def testTheAppearanceSwitchDecidesWhoseTexturesTheCloneShows():
     assert_no_errors()
 
 
+def testTheTexturesACloneOwnsSurviveItsReplacement():
+    """A Clone with its own textures is replaced with those, not the original's."""
+    vsp.VSPRenew()
+    drop_errors()
+    pod = vsp.AddGeom( "POD" )
+    vsp.AttachGeomTexture( pod, a_texture_file() )
+    clone = vsp.CloneGeomVec( [ pod ] )[0]
+    switch( clone, "CloneAppearance", False )
+    vsp.Update()
+
+    own = vsp.AttachGeomTexture( clone, a_texture_file() )
+    vsp.Update()
+
+    real = vsp.ReplaceCloneGeom( clone )
+    vsp.Update()
+    assert_no_errors()
+    assert list( vsp.GetGeomTextureIDVec( real ) ) == [ own ], \
+           "the Clone's texture was lost, or the original's arrived beside it"
+    assert list( vsp.GetGeomTextureIDVec( pod ) ) != [], "the original's texture moved"
+
+
+def testACloneShowingNoTexturesIsReplacedShowingNone():
+    """A Clone with the switch off and no textures is replaced with none."""
+    vsp.VSPRenew()
+    drop_errors()
+    pod = vsp.AddGeom( "POD" )
+    vsp.AttachGeomTexture( pod, a_texture_file() )
+    clone = vsp.CloneGeomVec( [ pod ] )[0]
+    switch( clone, "CloneAppearance", False )
+    vsp.Update()
+    assert list( vsp.GetGeomTextureIDVec( clone ) ) == [], "the Clone owns one already"
+
+    real = vsp.ReplaceCloneGeom( clone )
+    vsp.Update()
+    assert list( vsp.GetGeomTextureIDVec( real ) ) == [], \
+           "the replacement arrived wearing the textures it was copied with"
+    assert_no_errors()
+
+
+def testABorrowingCloneIsReplacedWithTheOriginalsTextures():
+    """A borrowing Clone is replaced with the original's textures."""
+    vsp.VSPRenew()
+    drop_errors()
+    pod = vsp.AddGeom( "POD" )
+    vsp.AttachGeomTexture( pod, a_texture_file() )
+    clone = vsp.CloneGeomVec( [ pod ] )[0]
+    vsp.Update()
+    assert list( vsp.GetGeomTextureIDVec( clone ) ) == []
+
+    real = vsp.ReplaceCloneGeom( clone )
+    vsp.Update()
+    assert_no_errors()
+    assert len( list( vsp.GetGeomTextureIDVec( real ) ) ) == 1, \
+           "the replacement lost the textures the Clone was being drawn with"
+    assert vsp.GetGeomTextureFileName( real, vsp.GetGeomTextureIDVec( real )[0] ) == \
+           vsp.GetGeomTextureFileName( pod, vsp.GetGeomTextureIDVec( pod )[0] )
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
