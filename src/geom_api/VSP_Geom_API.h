@@ -9550,6 +9550,140 @@ extern std::vector < std::string > GetMaterialNames();
     \ingroup Visualization
 */
 /*!
+    Get the number of lights in the model.  The count is fixed: a model always has the same
+    lights, each one either active or not.
+    \forcpponly
+    \code{.cpp}
+    //==== A model always has the same number of lights ====//
+    if ( GetNumLights() <= 0 )
+    {
+        Print( "ERROR: GetNumLights did not count the lights" );
+        __failure++;
+    }
+
+    //==== Every one of them answers ====//
+    for ( int i = 0; i < GetNumLights(); i++ )
+    {
+        if ( FindLight( i ).length() == 0 )
+        {
+            Print( "ERROR: FindLight found nothing" );
+            __failure++;
+        }
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== A model always has the same number of lights ====#
+    assert GetNumLights() > 0, "GetNumLights did not count the lights"
+
+    #==== Every one of them answers ====#
+    for i in range( GetNumLights() ):
+        assert len( FindLight( i ) ) > 0, "FindLight found nothing"
+
+    \endcode
+    \endPythonOnly
+    \sa FindLight
+    \return int Number of lights
+*/
+
+extern int GetNumLights();
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Get the ID of a light, so that its Parms can be reached the way any other container's are.
+    A light has an ActiveFlag, a position and ambient, diffuse and specular strengths, all in
+    Parm group "Light_Parm".
+    \forcpponly
+    \code{.cpp}
+    //==== Take the first light and put it somewhere of its own ====//
+    string light_id = FindLight( 0 );
+
+    if ( light_id.length() == 0 )
+    {
+        Print( "ERROR: FindLight found nothing" );
+        __failure++;
+    }
+
+    SetParmVal( FindParm( light_id, "ActiveFlag", "Light_Parm" ), 1.0 );
+    SetParmVal( FindParm( light_id, "X", "Light_Parm" ), 12.0 );
+
+    Update();
+
+    if ( abs( GetParmVal( light_id, "X", "Light_Parm" ) - 12.0 ) > 1e-6 )
+    {
+        Print( "ERROR: the light did not take the position it was given" );
+        __failure++;
+    }
+
+    //==== Asking for one that is not there is refused ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj drained = PopLastError();
+    }
+
+    FindLight( GetNumLights() );
+
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: FindLight answered for a light that does not exist" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Take the first light and put it somewhere of its own ====#
+    light_id = FindLight( 0 )
+
+    assert len( light_id ) > 0, "FindLight found nothing"
+
+    SetParmVal( FindParm( light_id, "ActiveFlag", "Light_Parm" ), 1.0 )
+    SetParmVal( FindParm( light_id, "X", "Light_Parm" ), 12.0 )
+
+    Update()
+
+    moved = GetParmVal( light_id, "X", "Light_Parm" )
+
+    assert abs( moved - 12.0 ) < 1e-6, "the light did not take the position it was given"
+
+    #==== Asking for one that is not there is refused.  The error queue is reached through
+    #==== the error manager singleton in Python, and is drained first so the count below is
+    #==== about that call and not about anything before it.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    while err_mgr.GetNumTotalErrors() > 0 :
+        drained = err_mgr.PopLastError()
+
+    FindLight( GetNumLights() )
+
+    assert err_mgr.GetNumTotalErrors() > 0, "FindLight answered for a light that does not exist"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa GetNumLights
+    \param [in] index int Light index
+    \return string Light ID
+*/
+
+extern std::string FindLight( int index );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
     Set the background color
     \forcpponly
     \code{.cpp}
@@ -15297,6 +15431,109 @@ extern void DeleteFeaAssemblyConnection( const std::string & assembly_id, int co
 */
 
 extern int NumFeaAssemblyConnections( const std::string & assembly_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the ID of one of an assembly's connections, so that its Parms can be reached the way any
+    other container's are.  A connection carries the two fix point surface indices, its mode and
+    its constraints, all in Parm group "Connection".  Everything else about connections is
+    addressed by index; this is what lets a script read or set what a connection does.
+    \forcpponly
+    \code{.cpp}
+    //==== Two structures to connect ====//
+    string pod = AddGeom( "POD", "" );
+    string wing = AddGeom( "WING", "" );
+
+    int pod_struct = AddFeaStruct( pod );
+    int wing_struct = AddFeaStruct( wing );
+
+    string pod_struct_id = GetFeaStructID( pod, pod_struct );
+    string wing_struct_id = GetFeaStructID( wing, wing_struct );
+
+    //==== A fix point on each, which is what a connection joins ====//
+    string pod_pt = AddFeaPart( pod, pod_struct, FEA_FIX_POINT );
+    string wing_pt = AddFeaPart( wing, wing_struct, FEA_FIX_POINT );
+
+    string assembly_id = AddFeaAssembly();
+    AddFeaStructureToAssembly( assembly_id, pod_struct_id );
+    AddFeaStructureToAssembly( assembly_id, wing_struct_id );
+
+    AddFeaAssemblyConnection( assembly_id, pod_pt, pod_struct_id, 0, wing_pt, wing_struct_id, 0 );
+
+    if ( NumFeaAssemblyConnections( assembly_id ) != 1 )
+    {
+        Print( "ERROR: the connection was not added" );
+        __failure++;
+    }
+
+    string conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 );
+
+    if ( conn_id.length() == 0 )
+    {
+        Print( "ERROR: GetFeaAssemblyConnectionID found nothing" );
+        __failure++;
+    }
+
+    //==== And what it constrains is a Parm like any other ====//
+    SetParmVal( FindParm( conn_id, "ConMode", "Connection" ), FEA_BCM_PIN );
+
+    Update();
+
+    if ( GetParmVal( conn_id, "ConMode", "Connection" ) != FEA_BCM_PIN )
+    {
+        Print( "ERROR: the connection did not take the mode it was given" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Two structures to connect ====#
+    pod = AddGeom( "POD", "" )
+    wing = AddGeom( "WING", "" )
+
+    pod_struct = AddFeaStruct( pod )
+    wing_struct = AddFeaStruct( wing )
+
+    pod_struct_id = GetFeaStructID( pod, pod_struct )
+    wing_struct_id = GetFeaStructID( wing, wing_struct )
+
+    #==== A fix point on each, which is what a connection joins ====#
+    pod_pt = AddFeaPart( pod, pod_struct, FEA_FIX_POINT )
+    wing_pt = AddFeaPart( wing, wing_struct, FEA_FIX_POINT )
+
+    assembly_id = AddFeaAssembly()
+    AddFeaStructureToAssembly( assembly_id, pod_struct_id )
+    AddFeaStructureToAssembly( assembly_id, wing_struct_id )
+
+    AddFeaAssemblyConnection( assembly_id, pod_pt, pod_struct_id, 0, wing_pt, wing_struct_id, 0 )
+
+    assert NumFeaAssemblyConnections( assembly_id ) == 1, "the connection was not added"
+
+    conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 )
+
+    assert len( conn_id ) > 0, "GetFeaAssemblyConnectionID found nothing"
+
+    #==== And what it constrains is a Parm like any other ====#
+    SetParmVal( FindParm( conn_id, "ConMode", "Connection" ), FEA_BCM_PIN )
+
+    Update()
+
+    mode = GetParmVal( conn_id, "ConMode", "Connection" )
+
+    assert mode == FEA_BCM_PIN, "the connection did not take the mode it was given"
+
+    \endcode
+    \endPythonOnly
+    \sa NumFeaAssemblyConnections, AddFeaAssemblyConnection
+    \param [in] assembly_id string FEA assembly ID
+    \param [in] connection_index int Connection index
+    \return string Connection ID
+*/
+
+extern std::string GetFeaAssemblyConnectionID( const std::string & assembly_id, int connection_index );
 
 /*!
     \ingroup FEAMesh
@@ -33288,6 +33525,91 @@ extern void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CS
 */
 
 extern int GetNumControlSurfaceGroups();
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the ID of a VSPAERO control surface group, so that its Parms can be reached the way any
+    other container's are.  A group carries an ActiveFlag and a DeflectionAngle, both in Parm
+    group "ControlSurfaceGroup".  Everything else about these groups is addressed by index;
+    this is what lets a script set a deflection without knowing the index a group happens to
+    hold.
+    \forcpponly
+    \code{.cpp}
+    //==== A wing with a control surface on it ====//
+    string wid = AddGeom( "WING", "" );
+    string subsurf_id = AddSubSurf( wid, SS_CONTROL, 0 );
+
+    Update();
+
+    //==== Group it, the way the VSPAERO screen does ====//
+    AutoGroupVSPAEROControlSurfaces();
+
+    Update();
+
+    if ( GetNumControlSurfaceGroups() <= 0 )
+    {
+        Print( "ERROR: no control surface group was made" );
+        __failure++;
+    }
+
+    string group_id = FindControlSurfaceGroup( 0 );
+
+    if ( group_id.length() == 0 )
+    {
+        Print( "ERROR: FindControlSurfaceGroup found nothing" );
+        __failure++;
+    }
+
+    //==== And its deflection is a Parm like any other ====//
+    SetParmVal( FindParm( group_id, "DeflectionAngle", "ControlSurfaceGroup" ), 7.0 );
+
+    Update();
+
+    if ( abs( GetParmVal( group_id, "DeflectionAngle", "ControlSurfaceGroup" ) - 7.0 ) > 1e-6 )
+    {
+        Print( "ERROR: the group did not take the deflection it was given" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== A wing with a control surface on it ====#
+    wid = AddGeom( "WING", "" )
+    subsurf_id = AddSubSurf( wid, SS_CONTROL, 0 )
+
+    Update()
+
+    #==== Group it, the way the VSPAERO screen does ====#
+    AutoGroupVSPAEROControlSurfaces()
+
+    Update()
+
+    assert GetNumControlSurfaceGroups() > 0, "no control surface group was made"
+
+    group_id = FindControlSurfaceGroup( 0 )
+
+    assert len( group_id ) > 0, "FindControlSurfaceGroup found nothing"
+
+    #==== And its deflection is a Parm like any other ====#
+    SetParmVal( FindParm( group_id, "DeflectionAngle", "ControlSurfaceGroup" ), 7.0 )
+
+    Update()
+
+    deflected = GetParmVal( group_id, "DeflectionAngle", "ControlSurfaceGroup" )
+
+    assert abs( deflected - 7.0 ) < 1e-6, "the group did not take the deflection it was given"
+
+    \endcode
+    \endPythonOnly
+    \sa GetNumControlSurfaceGroups, AutoGroupVSPAEROControlSurfaces
+    \param [in] group_index int Control surface group index
+    \return string Control surface group ID
+*/
+
+extern std::string FindControlSurfaceGroup( int group_index );
 
 
 //================ VSPAERO Actuator Disk and Unsteady Functions ==============//

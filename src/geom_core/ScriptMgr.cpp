@@ -4665,6 +4665,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string FindActuatorDisk( int disk_index )", asFUNCTION( vsp::FindActuatorDisk ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "int GetNumLights()", asFUNCTION( vsp::GetNumLights ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string FindLight( int index )", asFUNCTION( vsp::FindLight ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string FindControlSurfaceGroup( int group_index )", asFUNCTION( vsp::FindControlSurfaceGroup ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaAssemblyConnectionID( const string & in assembly_id, int connection_index )", asFUNCTION( vsp::GetFeaAssemblyConnectionID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "int GetNumActuatorDisks()", asFUNCTION( vsp::GetNumActuatorDisks ), asCALL_CDECL );
     assert( r >= 0 );

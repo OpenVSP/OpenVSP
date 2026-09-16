@@ -46,6 +46,7 @@
 #include "VKTAirfoil.h"
 #include "VSP_Geom_API.h"
 #include "VSPAEROMgr.h"
+#include "LightMgr.h"
 #include "VspUtil.h"
 #include "WingGeom.h"
 #include "MeshGeom.h"
@@ -1403,6 +1404,28 @@ int GetNumControlSurfaceGroups()
     return VSPAEROMgr.GetControlSurfaceGroupVec().size();
 }
 
+std::string FindControlSurfaceGroup( int group_index )
+{
+    vector < ControlSurfaceGroup* > cs_vec = VSPAEROMgr.GetControlSurfaceGroupVec();
+
+    if ( group_index < 0 || group_index >= ( int )cs_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindControlSurfaceGroup::group_index " +
+                           to_string( group_index ) + " out of range" );
+        return std::string();
+    }
+
+    if ( !cs_vec[ group_index ] )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FindControlSurfaceGroup::Group " +
+                           to_string( group_index ) + " is empty" );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return cs_vec[ group_index ]->GetID();
+}
+
 
 //===================================================================//
 //=========       VSPAERO Unsteady Group Functions        ===========//
@@ -2692,6 +2715,33 @@ std::vector < std::string > GetMaterialNames()
 {
     ErrorMgr.NoError();
     return MaterialMgr.GetNames();
+}
+
+int GetNumLights()
+{
+    ErrorMgr.NoError();
+    return ( int )LightMgr.GetVec().size();
+}
+
+std::string FindLight( int index )
+{
+    vector < Light* > lights = LightMgr.GetVec();
+
+    if ( index < 0 || index >= ( int )lights.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindLight::index " + to_string( index ) +
+                           " out of range" );
+        return std::string();
+    }
+
+    if ( !lights[ index ] )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FindLight::Light " + to_string( index ) + " is empty" );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return lights[ index ]->GetID();
 }
 
 void SetBackground( double r, double g, double b )
@@ -4994,6 +5044,32 @@ int NumFeaAssemblyConnections( const std::string & assembly_id )
 
     ErrorMgr.NoError();
     return ( int )assy->m_ConnectionVec.size();
+}
+
+std::string GetFeaAssemblyConnectionID( const std::string & assembly_id, int connection_index )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "GetFeaAssemblyConnectionID" );
+    if ( !assy )
+    {
+        return std::string();
+    }
+
+    if ( connection_index < 0 || connection_index >= ( int )assy->m_ConnectionVec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFeaAssemblyConnectionID::connection_index " +
+                           to_string( connection_index ) + " out of range" );
+        return std::string();
+    }
+
+    if ( !assy->m_ConnectionVec[ connection_index ] )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaAssemblyConnectionID::Connection " +
+                           to_string( connection_index ) + " is empty" );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return assy->m_ConnectionVec[ connection_index ]->GetID();
 }
 
 std::string GetFeaAssemblyFileName( const std::string & assembly_id, int file_type )
