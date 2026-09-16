@@ -243,9 +243,17 @@ public:
     {
         return m_JointTranslate();
     }
+    virtual void SetJointTranslate( double val ) override
+    {
+        m_JointTranslate.Set( val );
+    }
     virtual double GetJointRotate() const override
     {
         return m_JointRotate();
+    }
+    virtual void SetJointRotate( double val ) override
+    {
+        m_JointRotate.Set( val );
     }
     virtual int GetJointPrimaryDir() const override;
 

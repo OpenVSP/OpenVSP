@@ -27,6 +27,10 @@ public:
     virtual double GetJointTranslate() const = 0;
     virtual double GetJointRotate() const = 0;
 
+    // Pose the joint.  A Clone writes its own deflection; a hinge writes its own Parms.
+    virtual void SetJointTranslate( double val ) = 0;
+    virtual void SetJointRotate( double val ) = 0;
+
     // The allowed motion: returns whether it is enabled, with a flag for each limit that is set.
     virtual bool GetJointTransMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const = 0;
     virtual bool GetJointRotMotion( bool &min_set, double &min_val, bool &max_set, double &max_val ) const = 0;
@@ -84,9 +88,17 @@ public:
     {
         return m_JointTranslate();
     }
+    virtual void SetJointTranslate( double val ) override
+    {
+        m_JointTranslate.Set( val );
+    }
     virtual double GetJointRotate() const override
     {
         return m_JointRotate();
+    }
+    virtual void SetJointRotate( double val ) override
+    {
+        m_JointRotate.Set( val );
     }
     virtual Matrix4d BuildJointMatrix( double translate, double rotate, const Matrix4d &model_matrix ) const override;
     virtual void SetJointParmLimits( Parm &translate, Parm &rotate ) override;
