@@ -570,6 +570,26 @@ void ParmContainer::CopyVals( ParmContainer *from )
     }
 }
 
+// The IDs cannot simply be assigned across: for the moment between the two writes both objects
+// would answer to the same ID, and whichever registry is asked first would hand back the wrong
+// one.  A spare name in the middle keeps every ID unique at every step.
+void ParmContainer::SwapIdentity( ParmContainer* other )
+{
+    if ( !other || other == this )
+    {
+        return;
+    }
+
+    SwapIDs( other );
+
+    string mine = m_ID;
+    string theirs = other->m_ID;
+
+    other->ChangeID( "SWAPIDENTITY_TEMP_ID" );
+    ChangeID( theirs );
+    other->ChangeID( mine );
+}
+
 void ParmContainer::SwapIDs( ParmContainer *from )
 {
     // Make a copy to iterate over because SwapID's implicitly modifies m_ParmVec.

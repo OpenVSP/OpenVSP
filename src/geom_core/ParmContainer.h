@@ -94,6 +94,13 @@ public:
 
     virtual void SwapIDs( ParmContainer* from );
 
+    // Trade identities with another container: the Parms the two have in common by group and
+    // name, and then the container IDs themselves.  Everything holding either identity goes on
+    // naming the same thing afterwards -- a link, a design variable, an analysis that named a
+    // Geom, a control surface group that named a subsurface.  For when one object takes
+    // another's place rather than being created beside it.
+    virtual void SwapIdentity( ParmContainer* other );
+
     AttributeCollection* GetAttrCollection()
     {
         return &m_AttrCollection;
