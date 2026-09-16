@@ -149,6 +149,10 @@ public:
 
     // A Clone of each, keeping the hierarchy among them.  Returns the new IDs.
     vector< string > CloneGeomVec( const vector<string> & geom_id_vec, const string & name_suffix = "_Clone" );
+
+    // Swaps a Clone for a full copy of the Geom it shows, keeping the Clone's ID, name and
+    // place in the tree.  Returns that ID, or an empty string on failure.
+    string ReplaceCloneGeom( const string & clone_id );
     void AddTopGeomID( const string & geom_id, const string &insert_after_id = string() );
     void RemoveTopGeomID( const string & geom_id );
     void CutGeomVec( const vector<string> & cut_vec );

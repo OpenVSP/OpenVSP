@@ -82,7 +82,8 @@ public:
     // of a Clone reaches the end of the chain.
     virtual TextureMgr* GetDrawTextureMgr() override;
 
-    // The Parms each switch governs, copied from the original.
+    // The Parms each switch governs.  Used to copy from the original, and to copy all of them
+    // back when the Clone is replaced by a real Geom, so both directions share one list.
     static void CopySymParms( Geom* from, Geom* to );
     static void CopyXFormParms( Geom* from, Geom* to );
     static void CopyAttachParms( Geom* from, Geom* to );
@@ -90,6 +91,9 @@ public:
     static void CopyNegativeVolumeParm( Geom* from, Geom* to );
     static void CopySetFlags( Geom* from, Geom* to );
     static void CopyAppearance( Geom* from, Geom* to );
+
+    // Also clears the record of which subsurfaces were copies.
+    virtual void HandSubSurfsTo( Geom* to ) override;
 
     virtual Geom* GetOriginalGeom() const;
 

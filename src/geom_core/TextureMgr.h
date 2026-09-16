@@ -59,6 +59,11 @@ public:
     */
     virtual void HandTexturesTo( TextureMgr* to );
 
+    /*!
+    * Move every texture to another manager, appended after its own.
+    */
+    virtual void AppendTexturesTo( TextureMgr* to );
+
 public:
     /*!
     * Encode Texture Info to xml.

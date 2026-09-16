@@ -686,6 +686,12 @@ void CloneGeom::CopyAppearance( Geom* from, Geom* to )
     to->SetMaterial( *from->GetMaterial() );
 }
 
+void CloneGeom::HandSubSurfsTo( Geom* to )
+{
+    Geom::HandSubSurfsTo( to );
+    m_SubSurfSourceMap.clear();
+}
+
 void CloneGeom::UpdateCopyXFormParms()
 {
     Geom* original_geom = GetOriginalGeom();

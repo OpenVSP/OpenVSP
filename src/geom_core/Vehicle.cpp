@@ -2054,6 +2054,182 @@ vector< string > Vehicle::CloneGeomVec( const vector<string> & geom_id_vec, cons
     return clone_vec;
 }
 
+// Replaces a Clone with a full copy of the Geom it shows, with the Clone's own Parm values
+// written onto the copy.  The copy takes the Clone's Geom ID, Parm IDs and subsurface IDs, so
+// attached Geoms, design variables, links and control surface groups keep working.
+string Vehicle::ReplaceCloneGeom( const string & clone_id )
+{
+    CloneGeom* clone = dynamic_cast< CloneGeom* >( FindGeom( clone_id ) );
+    if ( !clone )
+    {
+        return string();
+    }
+
+    // The end of the Clone chain, so a Clone of a Clone is not replaced by another Clone.
+    Geom* original = clone->GetBehaviorGeom();
+    if ( !original || original == clone )
+    {
+        return string();
+    }
+
+    // A polygon mesh cannot be copied.
+    if ( original->GetType().m_Type == NGON_GEOM_TYPE )
+    {
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+        errMsgData.m_StringVec.push_back( string( "ReplaceCloneGeom::" ) + clone->GetName() +
+                                          " is a Clone of a polygon mesh, which cannot be copied." );
+        MessageMgr::getInstance().SendAll( errMsgData );
+        return string();
+    }
+
+    string clone_name = clone->GetName();
+    string parent_id = clone->GetParentID();
+    vector< string > children = clone->GetChildIDVec();
+    // Every plane the Clone shows its shape reflected about.  None where the flip does not
+    // apply (e.g. a Blank), whatever its Parm holds.
+    int flip_flag = 0;
+    if ( clone->GetNumFlipPlanes() != 0 )
+    {
+        flip_flag = clone->GetFlipFlag();
+    }
+
+    BndBox clone_box = clone->GetBndBox();
+
+    //==== Full copy of the original ====//
+    vector< string > made = CopyGeomVec( vector< string >( 1, original->GetID() ) );
+    if ( made.size() != 1 )
+    {
+        return string();
+    }
+
+    Geom* replacement = FindGeom( made[0] );
+    if ( !replacement )
+    {
+        return string();
+    }
+
+    //==== Values the Clone shows, taken from the Clone ====//
+    // Not gated on the switches: the Clone holds every value either way, and in a chain of Clones
+    // the copy (from the end of the chain) may differ from what the Clone shows.
+    CloneGeom::CopyXFormParms( clone, replacement );
+    CloneGeom::CopyAttachParms( clone, replacement );
+    CloneGeom::CopySymParms( clone, replacement );
+    if ( replacement->FlipApplies() )
+    {
+        replacement->m_FlipFlag.Set( flip_flag );
+    }
+    CloneGeom::CopySetFlags( clone, replacement );
+    CloneGeom::CopyMassPropParms( clone, replacement );
+    CloneGeom::CopyNegativeVolumeParm( clone, replacement );
+    CloneGeom::CopyAppearance( clone, replacement );
+
+    // Display settings are not Parms, so copy them explicitly.
+    replacement->m_GuiDraw.CopyDisplaySettings( clone->m_GuiDraw );
+
+    // CopySetFlags skips the show flags; the replacement takes the Clone's.
+    replacement->SetSetFlag( vsp::SET_SHOWN, clone->GetSetFlag( vsp::SET_SHOWN ) );
+    replacement->SetSetFlag( vsp::SET_NOT_SHOWN, clone->GetSetFlag( vsp::SET_NOT_SHOWN ) );
+
+    // Joint pose, if the replacement is a joint.
+    JointRole* joint = Geom::CastTo< JointRole >( replacement );
+    if ( joint )
+    {
+        joint->SetJointTranslate( clone->GetJointTranslate() );
+        joint->SetJointRotate( clone->GetJointRotate() );
+    }
+
+    // Drop the Clone's step-child entry on its original before the ID swap; the replacement
+    // takes the ID, so the stale entry would never be pruned.
+    Geom* registered_on = clone->GetOriginalGeom();
+    if ( registered_on )
+    {
+        registered_on->RemoveStepChildID( clone_id );
+    }
+
+    // Step children of the Clone (routes, gear) do not re-register themselves.
+    vector< string > step_children = clone->GetStepChildIDVec();
+    for ( int i = 0; i < ( int )step_children.size(); i++ )
+    {
+        replacement->AddStepChildID( step_children[i] );
+    }
+
+    //==== Subsurfaces, keeping their IDs ====//
+    clone->HandSubSurfsTo( replacement );
+
+    // Structures built on the Clone are the user's own; keep them alongside any the copy brought.
+    clone->HandFeaStructsTo( replacement );
+
+    // CFD sources are the Clone's own; they replace the copy's.
+    clone->HandCfdSourcesTo( replacement );
+
+    // Textures: with CloneAppearance off the Clone's list (even empty) replaces the copy's;
+    // with it on the Clone's own are appended.  Handed over to keep their IDs and Parms.
+    if ( !clone->m_CloneAppearance() )
+    {
+        clone->m_GuiDraw.getTextureMgr()->HandTexturesTo( replacement->m_GuiDraw.getTextureMgr() );
+    }
+    else
+    {
+        clone->m_GuiDraw.getTextureMgr()->AppendTexturesTo( replacement->m_GuiDraw.getTextureMgr() );
+    }
+
+    // The replacement takes the Clone's attributes, not the copy's.
+    replacement->GetAttrCollection()->DelAllAttrs();
+
+    //==== Swap the Geom ID and the IDs of Parms in common (by group and name) ====//
+    // Only base Geom Parms match; Clone-only Parms are in groups no other Geom has.  Everything
+    // that named the Clone now names the replacement, including its slot in the tree.
+    replacement->SwapIdentity( clone );
+
+    // Attributes follow the IDs; those on Clone-only Parms are kept on the replacement.
+    clone->HandAttributesTo( replacement );
+    clone->HandUnpairedAttributesTo( replacement );
+
+    replacement->SetName( clone_name );
+
+    //==== Parent and children are not covered by the swap ====//
+    replacement->SetParentID( parent_id );
+    for ( int i = 0; i < ( int )children.size(); i++ )
+    {
+        replacement->AddChildID( children[i] );
+    }
+
+    //==== Detach the Clone so deleting it disturbs nothing ====//
+    clone->SetParentID( "NONE" );
+    for ( int i = 0; i < ( int )children.size(); i++ )
+    {
+        clone->RemoveChildID( children[i] );
+    }
+
+    DeleteGeomVec( vector< string >( 1, clone->GetID() ) );
+
+    SetGeomMapDirtyFlag( true );
+
+    Update();
+
+    // Some Geoms place their own shape (e.g. a route or a conformal), so the copy may not land
+    // where the Clone stood.  Keep it, but report it.
+    BndBox replaced_box = replacement->GetBndBox();
+    double tol = 1.0e-9 * std::max( 1.0, clone_box.DiagDist() );
+    if ( dist( clone_box.GetMin(), replaced_box.GetMin() ) > tol ||
+         dist( clone_box.GetMax(), replaced_box.GetMax() ) > tol )
+    {
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_WRONG_GEOM_TYPE );
+        errMsgData.m_StringVec.push_back( string( "ReplaceCloneGeom::" ) + clone_name +
+                                          " is a Clone of a Geom that places its own shape, so the"
+                                          " replacement does not stand where the Clone did." );
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
+
+    SetActiveGeomVec( vector< string >( 1, clone_id ) );
+
+    return clone_id;
+}
+
 void Vehicle::DeleteActiveGeomVec()
 {
     vector< string > sel_vec = GetActiveGeomVec();
