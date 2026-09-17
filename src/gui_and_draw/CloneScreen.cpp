@@ -149,6 +149,19 @@ bool CloneScreen::Update()
         m_JointRotateRngButton.Activate();
     }
 
+    // While the name is automatic, Update overwrites it, so a typed name would be lost.  This
+    // keys on the switch alone: a Clone with no original yet adopts its parent on the next update.
+    if ( clone_ptr->NameIsAutomatic() )
+    {
+        m_NameInput.Deactivate();
+        m_NameSuffixInput.Activate();
+    }
+    else
+    {
+        m_NameInput.Activate();
+        m_NameSuffixInput.Deactivate();
+    }
+
     // A Clone takes its size from the original.
     m_ScaleSlider.Deactivate();
     m_ScaleResetButton.Deactivate();
@@ -222,17 +235,19 @@ bool CloneScreen::Update()
     {
         vector <string> geomVec = veh->GetGeomVec();
 
+        set < string > below;
+        clone_ptr->CollectDescendantIDs( below );
+
         for ( int i = 0; i < (int)geomVec.size(); i++ )
         {
             char str[256];
             Geom* g = veh->FindGeom( geomVec[i] );
             if ( g )
             {
-                // A Clone of itself would have nothing to copy.  Every other Geom can be
-                // cloned -- one that keeps its shape somewhere other than its main surfaces
-                // hands it over through the abstract class beside it, and one with no shape at
-                // all is a coordinate system a Clone can stand in for just as well.
-                if ( geomVec[i] != clone_ptr->GetID() )
+                // Any Geom can be an original except this Clone, its descendants, or a Geom that
+                // would form a cycle of Clones; those would be silently rejected on update.
+                if ( geomVec[i] != clone_ptr->GetID() && !below.count( geomVec[i] ) &&
+                     !clone_ptr->IsCloneAncestor( geomVec[i] ) )
                 {
                     snprintf( str, sizeof( str ), "%d_%s", i, g->GetName().c_str() );
                     m_OriginalChoice.AddItem( str );
