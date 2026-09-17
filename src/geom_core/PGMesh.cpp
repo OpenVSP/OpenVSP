@@ -2582,10 +2582,14 @@ int PGMesh::MergeCoincidentNodes()
 
     DumpGarbage();
 
+    ClearTris();
+
+    // This mesh is garbage the moment its last face goes: PGMulti::CleanUnused hands it to
+    // the garbage vector and DumpGarbage deletes it.  Everything this mesh owns has to be
+    // finished with before that sweep runs, because nothing may touch this afterwards.
     m_PGMulti->CleanUnused();
     m_PGMulti->DumpGarbage();
 
-    ClearTris();
     return nmerge;
 }
 
@@ -2927,10 +2931,13 @@ void PGMesh::SealDoubleBackNodes()
 
     DumpGarbage();
 
+    ClearTris();
+
+    // This mesh is garbage the moment its last face goes: PGMulti::CleanUnused hands it to
+    // the garbage vector and DumpGarbage deletes it.  Everything this mesh owns has to be
+    // finished with before that sweep runs, because nothing may touch this afterwards.
     m_PGMulti->CleanUnused();
     m_PGMulti->DumpGarbage();
-
-    ClearTris();
 }
 
 void PGMesh::ResetEdgeLoopFlags()
@@ -3791,10 +3798,13 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
 
     DumpGarbage();
 
+    ClearTris();
+
+    // This mesh is garbage the moment its last face goes: PGMulti::CleanUnused hands it to
+    // the garbage vector and DumpGarbage deletes it.  Everything this mesh owns has to be
+    // finished with before that sweep runs, because nothing may touch this afterwards.
     m_PGMulti->CleanUnused();
     m_PGMulti->DumpGarbage();
-
-    ClearTris();
 }
 
 void PGMesh::Coarsen1()
@@ -3867,10 +3877,13 @@ void PGMesh::CleanColinearVerts()
     CleanUnused();
     DumpGarbage();
 
+    ClearTris();
+
+    // This mesh is garbage the moment its last face goes: PGMulti::CleanUnused hands it to
+    // the garbage vector and DumpGarbage deletes it.  Everything this mesh owns has to be
+    // finished with before that sweep runs, because nothing may touch this afterwards.
     m_PGMulti->CleanUnused();
     m_PGMulti->DumpGarbage();
-
-    ClearTris();
 }
 
 void PGMesh::WriteVSPGeom( const string & fname )
