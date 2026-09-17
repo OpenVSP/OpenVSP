@@ -1,3 +1,160 @@
+# [OpenVSP 3.52.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.52.0)
+
+2026-09-19
+
+OpenVSP 3.52.0
+
+This one almost went out the door as a .4 bugfix-only release made from
+trimmings on the floor resulting from a handful of big features I am working
+on.  Those big features aren't quite ready to release yet, but by the time
+I was done sweeping up the mess, it looked more like a .0 than a .4 release.
+In addition to the bycatch, there are a group of fixes for problems
+identified by some users.
+
+The tidy up was initiated because I was getting annoyed dealing with fixes
+in four separate piles, so I decided to stack them all together and release
+them.  Now I can rebase all my work on top of this and keep going.  The
+upcoming features are really cool, but you'll just have to be patient.
+If you like fewer bugs in your tools, you should still update.
+
+If you rummage around in the commit messages here, you'll find breadcrumbs
+about the in-progress features.  I'm not saying what they are, but I'm
+also too lazy / not paranoid enough for the level of op-sec to go
+back and scrub everything.  On the other hand, I am aware of the leaks
+and I don't want you to think you got one over on me.
+
+The most 'feature' part of this release is a handful of improvements
+to FitModel.  Most importantly, FitModel has gained API support for all
+your automated fitting needs.  In the GUI, things are a little nicer,
+with a few small tweaks - most noticable, you can now 'undo' an
+optimization step.
+
+The most scary thing here is a change to how ID's are remapped when collisions
+happen.  This is a substantial change to something that is very core, so I
+don't take this lightly.  OpenVSP uses unique ID's for a lot of entities
+(namely Parms and Geoms).  Sometimes (when you insert a file into itself,
+or when you paste a duplicate geometry) collisions occur -- the new entity
+has the same ID as the preexisting entity.  This is bad.  So, previously
+when a collision is detected (during the paste operation), a new ID is
+created and any later (during the paste) reference to the colliding ID
+is replaced with the new ID on the fly.
+
+The problem arises when an ID within the pasted set of entities referrs to
+an entity outside the pasted set of entities.  In that situation, a new ID
+is created, but no new entity is created with that ID.  This results in
+an invalid link.  This was safe for about a decade because the problem
+never came up.  However, the introduction of Routing Geometry (3.43.0)
+made it possible.  If you copy/paste a Routing Geom without including
+everything the Routing geom, then the route points will point to nowhere.
+
+So now the ID remapping is a two-pass process.  On the first pass, new ID's
+are created for entities within the paste set (but not for references).  On
+the second pass, things are created with the new ID's.  Any ID that referrs
+to an entity outside the paste set will be preserved.  So, if you copy
+a Routing geom without any of the things it points at, it will still work.
+
+If your Routing geom points at GeomA and GeomB, and then you copy/paste
+the Routing geom and GeomA (but not GeomB), the new Routing Geom will now
+point at GeomACopy and GeomB (the original).  It is pretty slick.
+
+I say this is scary because it is really core code that is pretty tricky
+and hasn't been touched in ~10 years.  Any time I go near it, I get a bit
+nervous.  That said, I've beaten on this quite a bit and I feel good about
+it.
+
+A few of the bugs were user reported.  Keenan noticed that a recent fix
+for how planar slice automatic bounds were calculated had changed the
+bounds on a test case -- hopefully the new bounds will achieve the best
+of both worlds.
+
+Mass Properties calculation is now faster and more accurate.  There was
+a bug in the inertia calculation for solids that I had been compensating
+for by jacking up the tessellation of each slice.  That made it slow,
+the fix was to find the bug and then not over-resolve. Thanks
+Mike R. for the test case.
+
+The GUI controls for the N parameter used from attachment could not be
+used.  They lie within a box that was too small.
+
+Converting a zero height (or width) rounded rectangle to CEdit would crash.
+The CEdit screen would also crash if you deleted the XSec while the GUI
+was still open.  Both fixed.
+
+The *.vkey file written alongside *.vspgeom files was missing some surfaces
+if there were no triangles outside a subsurface.  I.e. if you walpaper
+your entire Geom with SubSurfaces, then the surface would vanish from
+the *.vkey file.  I don't know why Dave insisted on doing this, but now
+it works.
+
+There has been a problem using FindParm( container_id, name, group ) from
+the API -- you couldn't find all Parms.  Hopefully that has been sorted
+and Parms from SubSurfacex, XSecs, Textures, Mesh Sources, Bogies, Routing
+Points, etc. should all be findable.  Lights, control surface groups and
+FEA assembly connections were entirely unreachable.  They should be
+reachable now.
+
+VSPAERO control surfaces should now work on geom's whose name contains
+an underscore.  The Reynolds number was scaled wrong in VSPAERO, this has
+been fixed.
+
+There was another pretty heavy pass over the API - auditing coverage
+and documentation.  Hopefully things are in a better place and we won't
+have another heavy pass like this in the future.
+
+The 'Scale' feature in OpenVSP has been chronically plagued with
+errors of omission.  The whole thing has been audited and hopefully
+we're close to full coverage for now.  If you try to scale a model and
+it doesn't scale the way you'd like, let me know.
+
+The process of resetting everything when a model is renewed has been
+simplified and hopefully made more complete.  Parms now remember their
+initial value, so resetting to default is straightforward.
+
+Bryan S. had AI help him fix a bunch of issues he was encountering
+with FEA Structures.  Thanks
+
+In certain situations of degenerate surfaces, normal vector
+calculation has been improved.  This will remove some visual artifacts
+that have been bothering me for about a decade.
+
+And a bunch more small fixes all over the place.  There are so many
+fixes that even looking at the changes I don't remember them all.
+They certainly aren't all listed here.
+
+Features:
+- FitModel undo button
+- FitModel GUI improvements
+- FitModel API access
+- Read point clouds as .csv files
+- Read unformatted Plot3D and Cart3D .tri files
+- Expose Parasite Drag flow conditions in Results - thanks Ojasvi
+
+Bugs:
+- Fix ID remapping when referencing an ID outside of the DecodeXml set
+- Fix scaling of Reynolds number in VSPAERO
+- Fix Mass Properties calculation - now better and faster
+- API access to lights, control surface groups and FEA assembly connections
+- AddMaterial now writes the material to the file
+- Tag file names carry a . separator; CFDMesh writes them to a subdirectory
+- Fix Parm lookup by container, name and group after a file load
+- Fix NGonMesh contributing nothing to CompGeom and mass properties
+- Fix WireGeom not moving when the Geom moves
+- Fix WireGeom's four patch types sharing one Parm name
+- Fix VSPAERO control surface lookup for a Geom name containing an underscore
+- Fix export crash on a model with no geometry
+- Fix crashes and bad geometry from degenerate plates and zero area triangles
+- Fix a polygon mesh being used after the sweep that deletes it
+- Fix vspgeom key file dropping a part covered entirely by subsurfaces
+- Fix Cobra exiting on a zero nose or aft length
+- Fix Geom rename not reaching the rest of the model
+- Register three GUI screen enums and the Background3D error code for scripts
+- Fix the 'N' attachment buttons being outside the layout
+- Fix colour picker deactivation
+
+
+---
+
+
 # [OpenVSP 3.51.3](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.51.3)
 
 2026-08-17
