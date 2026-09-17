@@ -22,6 +22,10 @@ string PathToCWD();
 
 bool CheckForFile( const string & path, const string &file );
 bool FileExist( const string & file );
+
+// Create a directory, and any missing parent of it.  True if the directory is there
+// afterwards, whether this call made it or it already existed.
+bool MakeDirectory( const string & path );
 int WaitForFile( const string &filename );
 int WaitForFiles( const vector < string > & fnames );
 string GetFilename( const string &pathfile );

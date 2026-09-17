@@ -11,6 +11,7 @@
 #include "VspUtil.h"
 #include "SubSurfaceMgr.h"
 #include "StringUtil.h"
+#include "FileUtil.h"
 #include <cfloat>  //For DBL_EPSILON
 #include "ModeMgr.h"
 
@@ -18,11 +19,6 @@
 
 #include "MeshAnalysis.h"
 
-#ifdef DEBUG_CFD_MESH
-// #include <direct.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
 
 #ifdef DEBUG_CFD_MESH
 #define DEBUG_TIME_OUTPUT
@@ -350,7 +346,7 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
 
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = string( "MeshDebug/" );
-    mkdir( m_DebugDir.c_str(), 0777 );
+    MakeDirectory( m_DebugDir );
     m_DebugFile = fopen( "MeshDebug/log.txt", "w" );
     m_DebugDraw = false;
 #endif

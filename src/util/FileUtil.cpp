@@ -278,6 +278,21 @@ bool FileExist( const string & file )
     return std::filesystem::exists( file );
 }
 
+// mkdir is not portable: MSVC spells it _mkdir, takes no mode, and declares it in
+// <direct.h> rather than <sys/stat.h>, so every raw use of it in this tree has needed its
+// own #ifdef, and one written without one does not compile at all.  std::filesystem says
+// the same thing once, everywhere.
+bool MakeDirectory( const string & path )
+{
+    std::error_code ec;
+
+    std::filesystem::create_directories( path, ec );
+
+    // create_directories reports false when the directory was already there, which is not a
+    // failure for any caller here.  Ask the question the callers actually mean.
+    return std::filesystem::is_directory( path, ec );
+}
+
 // function is used to wait for the result to show up on the file system
 int WaitForFile( const string &filename )
 {
