@@ -3848,8 +3848,8 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
                             string ptagname = gname + sname + "_" + tname;
 
-                            string tagfile_name = base_path_nospace + ptagname + ".tag";
-                            string tagfile_localname = base_fname + ptagname;
+                            string tagfile_name = base_path_nospace + "." + ptagname + ".tag";
+                            string tagfile_localname = base_fname + "." + ptagname;
 
                             fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
 
@@ -5739,7 +5739,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         string csname = cs->GetName();
                         StringUtil::change_space_to_underscore( csname );
 
-                        snprintf( str, sizeof( str ),  "%s%s_Surf%d_%s", base_fname.c_str(), gname.c_str(), isurf, csname.c_str() );
+                        snprintf( str, sizeof( str ),  "%s.%s_Surf%d_%s", base_fname.c_str(), gname.c_str(), isurf, csname.c_str() );
 
                         fprintf( csf_file, "Tagfile Name: %s\n", str );
                         fprintf( csf_file, "Surface #:    %d\n", isurf );

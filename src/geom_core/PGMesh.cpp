@@ -4913,8 +4913,8 @@ void PGMulti::WriteTagFiles( const string& file_name, vector < string > &all_fna
 
                         string ptagname = gname + sname + "_" + tname;
 
-                        string tagfile_name = base_path_nospace + ptagname + ".tag";
-                        string tagfile_localname = base_fname + ptagname;
+                        string tagfile_name = base_path_nospace + "." + ptagname + ".tag";
+                        string tagfile_localname = base_fname + "." + ptagname;
 
                         fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
 
