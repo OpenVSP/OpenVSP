@@ -4603,8 +4603,6 @@ void MassSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, BndBox &bbox,
         vec3d cgSolid( 0, 0, 0 ), cgShell( 0, 0, 0 );
         double compVolSolid = 0.0, compAreaShell = 0.0;
 
-        id_vec.push_back( id );
-
         for ( j = 0; j < tetraVecVec.size(); j++ )
         {
             for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
