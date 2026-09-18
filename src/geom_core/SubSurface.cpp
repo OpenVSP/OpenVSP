@@ -631,8 +631,17 @@ void SubSurface::UpdateOrientation()
     vector < int > symms;
     geom->GetSymmIndexs( isurf, symms );
     vector<Matrix4d> transMats = geom->GetFeaTransMatVec();
+
+    // symms should hold one index per symmetry copy and each index should reach a transform.
+    // The sibling callers assert that, which the release build drops, so check it here: a
+    // surface index the geom no longer has leaves symms empty and this walks off the end.
     for ( size_t j = 1; j < ncopy; j++ )
     {
+        if ( j >= symms.size() || symms[ j ] < 0 || symms[ j ] >= ( int )transMats.size() )
+        {
+            continue;
+        }
+
         m_FeaOrientationVec[j] = transMats[ symms[ j ] ].xformnorm( m_FeaOrientationVec[j] );
     }
 }
