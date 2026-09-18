@@ -2879,7 +2879,10 @@ double MakeSlices( vector<TMesh*> &tmv, const BndBox & bbox, int numSlices, int 
 
         if ( tesselate )
         {
-            int ntess = numSlices;
+            // Subdividing the slice lets the octree reject most of the model for each small
+            // quad.  Eight is the cheapest: coarser defeats the culling, finer becomes the
+            // work.  The loop is nested, so tying this to numSlices grew it as the cube.
+            int ntess = 8;
             double ds = 1.0 / (double) ntess;
             int iQuad = 0;
             for ( i = 0 ; i < ntess ; i++ )
