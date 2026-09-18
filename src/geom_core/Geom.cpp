@@ -4632,7 +4632,7 @@ const VspSurf* Geom::GetSurfPtr( int indx ) const
     {
         return &m_SurfVec[ indx ];
     }
-    assert( true );
+    assert( false );
     return nullptr;
 }
 
@@ -4643,7 +4643,7 @@ const VspSurf* Geom::GetMainSurfPtr( int indx ) const
     {
         return &m_MainSurfVec[ indx ];
     }
-    assert( true );
+    assert( false );
     return nullptr;
 }
 
