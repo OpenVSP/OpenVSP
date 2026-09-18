@@ -466,8 +466,12 @@ public:
     bool GetCapUMinSuccess( int indx ) const { return m_CapUMinSuccess[indx]; }
     bool GetCapUMaxSuccess( int indx ) const { return m_CapUMaxSuccess[indx]; }
 
+    // Always writes symindexs, so an out of range imain is an empty answer rather than
+    // whatever the caller happened to have there.
     virtual void GetSymmIndexs( int imain, vector < int > & symindexs )
     {
+        symindexs.clear();
+
         if ( imain >= 0 && imain < m_SurfSymmMap.size() )
         {
             symindexs = m_SurfSymmMap[ imain ];

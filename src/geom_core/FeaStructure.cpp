@@ -1325,6 +1325,14 @@ void FeaPart::UpdateSymmParts()
     int nsurf = m_MainFeaPartSurfVec.size();
     int nsymm = m_SymmIndexVec.size();
 
+    if ( nsymm < 1 )
+    {
+        // No symmetry indices means no copies to build, and the loops below would write
+        // nsurf entries into a vector sized nsurf * nsymm.
+        m_FeaPartSurfVec.clear();
+        return;
+    }
+
     m_FeaPartSurfVec.resize( nsurf * nsymm );
 
     // Translation matrices for all Geom's surfaces.
