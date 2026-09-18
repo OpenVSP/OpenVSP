@@ -11,3 +11,7 @@ warranted.  These in-program help files will be added as needed, but this also p
 opportunity for users to contribute.
 
  - [Advanced Parameter Linking](AdvLink.md)
+ - [Attribute Explorer](AttributeExplorer.md)
+ - [Geometry Analysis](GeometryAnalysis.md)
+ - [Set Editor](SetEdit.md)
+ - [Stack Presets](StackPresets.md)
