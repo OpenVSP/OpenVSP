@@ -17760,15 +17760,15 @@ void VSP_SOLVER::CalculateViscousForceGradients(void)
              
              pCl_pChord = -ABS(Gamma/(0.5*Velocity*Chord*Chord));
                     
-             Re = MAX(2.,ReCref_ * Velocity * Chord / Cref_);
+             Re = MAX(2.,ReCref_ * Velocity * Chord / ( Vinf_ * Cref_ ));
              
-             pRe_pChord = ReCref_ * Velocity / Cref_;
+             pRe_pChord = ReCref_ * Velocity / ( Vinf_ * Cref_ );
              
              if ( Re <= 2. ) pRe_pChord = 0.;
    
              pRe_pVelocity = 0.;
              
-             if ( Re > 2. ) pRe_pVelocity = ReCref_ * Chord / Cref_;
+             if ( Re > 2. ) pRe_pVelocity = ReCref_ * Chord / ( Vinf_ * Cref_ );
    
              pCf_pCl2 = 0.00625 + 0.01*ABS(Clo_2d_);
              
@@ -21541,11 +21541,11 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialFreeStream(int ForceCase, i
           
         //  if ( Gamma/(0.5*Velocity*Velocity*Chord) < 0. ) pCl_pVelocity *= -1.;
           
-          Re = MAX(2.,ReCref_ * Velocity * Chord / Cref_);
+          Re = MAX(2.,ReCref_ * Velocity * Chord / ( Vinf_ * Cref_ ));
           
           pRe_pVelocity = 0.;
           
-          if ( Re > 2. ) pRe_pVelocity = ReCref_ * Chord / Cref_;
+          if ( Re > 2. ) pRe_pVelocity = ReCref_ * Chord / ( Vinf_ * Cref_ );
 
           pCf_pCl2 = 0.00625 + 0.01*ABS(Clo_2d_);
         
@@ -29836,7 +29836,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
 
 //printf("chord: %f ... Cl: %f ... CpCrit: %f \n",Chord,1.5*Cl,CpCrit_);fflush(NULL);
           
-          Re = MAX(2.,ReCref_ * Velocity * Chord / Cref_);
+          Re = MAX(2.,ReCref_ * Velocity * Chord / ( Vinf_ * Cref_ ) );
 
           pCf_pCl2 = 0.00625 + 0.01*ABS(Clo_2d_);
         
