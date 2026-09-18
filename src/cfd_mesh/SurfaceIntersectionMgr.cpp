@@ -1894,46 +1894,61 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     // that share that boundary.  So, detect intersections that lie on the patch minimum edge
     // and don't carry those forward.  Don't do this if the minimum parameter is zero.  I.e.
     // there is no prior patch.
+    //
+    // Skip this dedup for FEA structure×structure pairs. After Y-mirror (FeaSymmIndex), planar
+    // part intersections (e.g. XY floor × poly-spar web) can be reported only on the w_min/u_min
+    // side of a split while the w_max twin is missed — dropping the min-edge copy then deletes
+    // the entire chain on one symmetry side.
+    bool skip_min_edge_dedup = false;
+    if ( pA.get_surf_ptr() && pB.get_surf_ptr() &&
+         pA.get_surf_ptr()->GetSurfaceCfdType() == vsp::CFD_STRUCTURE &&
+         pB.get_surf_ptr()->GetSurfaceCfdType() == vsp::CFD_STRUCTURE )
+    {
+        skip_min_edge_dedup = true;
+    }
 
     double tol = 1e-10; // Tolerance buildup due to SurfPatch::find_closest_uw_planar_approx and other inaccuracies
 
-    if ( pA.get_u_min() > 0.0 ) // if Patch A is not the very beginning of u
+    if ( !skip_min_edge_dedup )
     {
-        double lim = pA.get_u_min() + tol;
-        // if both points projected to A are on the starting edge of u
-        if ( plane_uwA0.v[0] <= lim && plane_uwA1.v[0] <= lim )
+        if ( pA.get_u_min() > 0.0 ) // if Patch A is not the very beginning of u
         {
-            return;
+            double lim = pA.get_u_min() + tol;
+            // if both points projected to A are on the starting edge of u
+            if ( plane_uwA0.v[0] <= lim && plane_uwA1.v[0] <= lim )
+            {
+                return;
+            }
         }
-    }
 
-    if ( pB.get_u_min() > 0.0 ) // if Patch B is not the very beginning of u
-    {
-        double lim = pB.get_u_min() + tol;
-        // if both points projected to B are on the starting edge of u
-        if ( plane_uwB0.v[0] <= lim && plane_uwB1.v[0] <= lim )
+        if ( pB.get_u_min() > 0.0 ) // if Patch B is not the very beginning of u
         {
-            return;
+            double lim = pB.get_u_min() + tol;
+            // if both points projected to B are on the starting edge of u
+            if ( plane_uwB0.v[0] <= lim && plane_uwB1.v[0] <= lim )
+            {
+                return;
+            }
         }
-    }
 
-    if ( pA.get_w_min() > 0.0 ) // if Patch A is not the very beginning of w
-    {
-        double lim = pA.get_w_min() + tol;
-        // if both points projected to A are on the starting edge of w
-        if ( plane_uwA0.v[1] <= lim && plane_uwA1.v[1] <= lim )
+        if ( pA.get_w_min() > 0.0 ) // if Patch A is not the very beginning of w
         {
-            return;
+            double lim = pA.get_w_min() + tol;
+            // if both points projected to A are on the starting edge of w
+            if ( plane_uwA0.v[1] <= lim && plane_uwA1.v[1] <= lim )
+            {
+                return;
+            }
         }
-    }
 
-    if ( pB.get_w_min() > 0.0 ) // if Patch B is not the very beginning of w
-    {
-        double lim = pB.get_w_min() + tol;
-        // if both points projected to B are on the starting edge of w
-        if ( plane_uwB0.v[1] <= lim && plane_uwB1.v[1] <= lim )
+        if ( pB.get_w_min() > 0.0 ) // if Patch B is not the very beginning of w
         {
-            return;
+            double lim = pB.get_w_min() + tol;
+            // if both points projected to B are on the starting edge of w
+            if ( plane_uwB0.v[1] <= lim && plane_uwB1.v[1] <= lim )
+            {
+                return;
+            }
         }
     }
 

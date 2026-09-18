@@ -755,6 +755,17 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
             {
                 if ( ( std::abs( std::abs( dot( all_norm_vec[i], all_norm_vec[j] ) ) - 1.0 ) <= FLT_EPSILON ) && ( all_norm_vec[j].mag() >= FLT_EPSILON ) && ( all_norm_vec[i].mag() >= FLT_EPSILON ) )
                 {
+                    // Do not merge distinct Y-symmetry (etc.) copies of coplanar parts.
+                    // Surf::Intersect only pairs surfaces with matching FeaSymmIndex; collapsing
+                    // L/R copies into one plane (typically FeaSymmIndex 0) leaves the mirrored
+                    // skin uncut — e.g. an XY tray floor that meshes on +Y only.
+                    if ( all_surf_vec[i].GetFeaSymmIndex() >= 0 &&
+                         all_surf_vec[j].GetFeaSymmIndex() >= 0 &&
+                         all_surf_vec[i].GetFeaSymmIndex() != all_surf_vec[j].GetFeaSymmIndex() )
+                    {
+                        continue;
+                    }
+
                     vec3d pntA = all_surf_vec[i].CompPnt01( 0.5, 0.5 );
                     vec3d pntB = all_surf_vec[j].CompPnt01( 0.5, 0.5 );
 
