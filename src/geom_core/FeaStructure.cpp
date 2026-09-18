@@ -1104,6 +1104,20 @@ void FeaPart::Update()
         }
     }
 
+    // The parent may have fewer main surfaces than when this part was made -- a prop losing
+    // blades is the easy way to get there -- and the index is not corrected anywhere.  The
+    // surface builders below fetch the parent surface by that index and dereference the
+    // result without checking, so leave the part unbuilt rather than follow a null.
+    Geom* parent_geom = VehicleMgr.GetVehicle() ? VehicleMgr.GetVehicle()->FindGeom( m_ParentGeomID ) : nullptr;
+    if ( parent_geom && m_MainSurfIndx >= parent_geom->GetNumMainSurfs() )
+    {
+        m_MainFeaPartSurfVec.clear();
+        m_FeaPartSurfVec.clear();
+        m_SymmIndexVec.clear();
+        m_SurfDirty = false;
+        return;
+    }
+
     if ( m_SurfDirty )
     {
         UpdateSurface();
