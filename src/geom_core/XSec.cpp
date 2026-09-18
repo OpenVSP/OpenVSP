@@ -478,6 +478,28 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
     }
     std::sort( crvts.begin(), crvts.end() );
 
+    // Sample the controls four times per interval.  The curve fitted through the tangents and
+    // normals interpolates their Cartesian components, so a direction that turns between two
+    // samples comes out short by the sagitta of the turn.  The controls are known exactly at
+    // any W, so take the samples close enough together that the fit has little left to guess.
+    const int nsub = 4;
+    if ( crvts.size() > 1 )
+    {
+        vector< double > dense;
+        dense.reserve( nsub * ( crvts.size() - 1 ) + 1 );
+
+        for ( int i = 0; i + 1 < ( int )crvts.size(); i++ )
+        {
+            for ( int k = 0; k < nsub; k++ )
+            {
+                dense.push_back( crvts[i] + ( crvts[i + 1] - crvts[i] ) * k / ( double )nsub );
+            }
+        }
+        dense.push_back( crvts[ crvts.size() - 1 ] );
+
+        crvts = dense;
+    }
+
     int ntcrv = crvts.size();
 
     // Evaluate controls and build tan & norm vectors at piecewise endpoints
