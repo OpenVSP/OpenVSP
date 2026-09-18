@@ -815,7 +815,8 @@ void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
         return;
     }
 
-    if ( m_FeaSymmIndex >= 0 && surfPtr->GetFeaSymmIndex() != m_FeaSymmIndex )
+    if ( m_FeaSymmIndex >= 0 && surfPtr->GetFeaSymmIndex() >= 0 &&
+         surfPtr->GetFeaSymmIndex() != m_FeaSymmIndex )
     {
         return;
     }

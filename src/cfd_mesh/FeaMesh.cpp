@@ -13,7 +13,9 @@
 // between the point and the plane.  Hence, a comparison to the mesh minimum length as a tolerance is appropriate.
 bool PartTrim::CullPtByTrimGroup( const vec3d &pt, int isymm, double tol )
 {
-    if ( isymm != m_TrimSymm )
+    // FeaSymmIndex=-1 means a merged cross-symmetry plane (e.g. XY floor). Apply every
+    // trim-symmetry copy so outboard trim still removes material past the OB rib.
+    if ( isymm >= 0 && isymm != m_TrimSymm )
     {
         return false;
     }

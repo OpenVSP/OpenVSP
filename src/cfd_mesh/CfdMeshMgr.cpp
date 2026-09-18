@@ -3274,7 +3274,8 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 int comp_id = m_SurfVec[i]->GetCompID();
                 if ( i != s && comp_id != s_comp_id ) // Don't check self intersection.
                 {
-                    if ( m_SurfVec[s]->GetFeaSymmIndex() >=0 && m_SurfVec[s]->GetFeaSymmIndex() != m_SurfVec[i]->GetFeaSymmIndex() )
+                    if ( m_SurfVec[s]->GetFeaSymmIndex() >=0 && m_SurfVec[i]->GetFeaSymmIndex() >= 0 &&
+                         m_SurfVec[s]->GetFeaSymmIndex() != m_SurfVec[i]->GetFeaSymmIndex() )
                     {
                         // Do nothing.
                     }

@@ -755,17 +755,6 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
             {
                 if ( ( std::abs( std::abs( dot( all_norm_vec[i], all_norm_vec[j] ) ) - 1.0 ) <= FLT_EPSILON ) && ( all_norm_vec[j].mag() >= FLT_EPSILON ) && ( all_norm_vec[i].mag() >= FLT_EPSILON ) )
                 {
-                    // Do not merge distinct Y-symmetry (etc.) copies of coplanar parts.
-                    // Surf::Intersect only pairs surfaces with matching FeaSymmIndex; collapsing
-                    // L/R copies into one plane (typically FeaSymmIndex 0) leaves the mirrored
-                    // skin uncut — e.g. an XY tray floor that meshes on +Y only.
-                    if ( all_surf_vec[i].GetFeaSymmIndex() >= 0 &&
-                         all_surf_vec[j].GetFeaSymmIndex() >= 0 &&
-                         all_surf_vec[i].GetFeaSymmIndex() != all_surf_vec[j].GetFeaSymmIndex() )
-                    {
-                        continue;
-                    }
-
                     vec3d pntA = all_surf_vec[i].CompPnt01( 0.5, 0.5 );
                     vec3d pntB = all_surf_vec[j].CompPnt01( 0.5, 0.5 );
 
@@ -782,7 +771,18 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
 
                     if ( ( dist_pnt_2_plane( pntA, all_norm_vec[i], pntB ) <= FLT_EPSILON ) && Compare( temp_bboxA, temp_bboxB ) )
                     {
+                        // Merging L/R (etc.) symmetry copies of a coplanar part (e.g. XY tray floor).
+                        // Surf::Intersect only pairs matching FeaSymmIndex when >= 0; keep FeaSymmIndex=-1
+                        // so one merged plane still cuts both mirrored skins/webs and remains a single mesh.
+                        bool cross_symm = ( all_surf_vec[i].GetFeaSymmIndex() >= 0 &&
+                                            all_surf_vec[j].GetFeaSymmIndex() >= 0 &&
+                                            all_surf_vec[i].GetFeaSymmIndex() != all_surf_vec[j].GetFeaSymmIndex() );
+
                         VspSurf new_surf = all_surf_vec[i];
+                        if ( cross_symm )
+                        {
+                            new_surf.SetFeaSymmIndex( -1 );
+                        }
 
                         vec3d maxA = bboxA.GetMax();
                         vec3d maxB = bboxB.GetMax();
@@ -830,6 +830,10 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
                             new_surf.Offset( -1 * centerA );
                             new_surf.Scale( scale_factor );
                             new_surf.Offset( new_center );
+                            if ( cross_symm )
+                            {
+                                new_surf.SetFeaSymmIndex( -1 );
+                            }
                         }
 
                         fea_part_vec[all_feaprt_ind_vec[i]]->DeleteFeaPartSurf( feaprt_surf_ind_vec[i] );
