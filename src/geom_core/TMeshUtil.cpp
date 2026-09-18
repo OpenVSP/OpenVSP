@@ -4080,7 +4080,10 @@ void AreaSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, const BndBox &bbo
 
     vector< double > loc_vec;
     bool mpslice = false; // Do counting for mass properties slicing.
-    bool tesselate = false; // Sub-tessellate slice into smaller triangles.
+    // Sub-tessellate the slice into smaller triangles.  The areas do not depend on it, but
+    // small quads let the octree reject most of the model for each one, where a quad spanning
+    // the whole section has to be tested against everything.
+    bool tesselate = true;
     MakeSlices( slicevec, tbbox, numSlices, vsp::X_DIR, loc_vec, mpslice, tesselate, autoBounds, start, end, slctype );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.

@@ -1958,10 +1958,29 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
             vec3d gpnorm = cross( gp[3]-gp[2], gp[1]-gp[2] );
             gpnorm.normalize();
 
-            // Build triangles
-            tm->AddTri( gp[ 2 ], gp[ 3 ], gp[ 0 ], gpnorm, iQuad );
-            tm->AddTri( gp[ 2 ], gp[ 0 ], gp[ 1 ], gpnorm, iQuad );
-            iQuad++;
+            // Build triangles.  The slice plane spans several times the model, so cut it into
+            // small quads: the octree can reject most of the model for each one, where a single
+            // quad this size has to be tested against everything.  The areas do not depend on
+            // the subdivision.  Eight to a side, matching the mass and area slicers.
+            const int ntess = 8;
+            const double dtess = 1.0 / ( double )ntess;
+            const vec3d e1 = gp[3] - gp[2];
+            const vec3d e2 = gp[1] - gp[2];
+
+            for ( int a = 0; a < ntess; a++ )
+            {
+                for ( int b = 0; b < ntess; b++ )
+                {
+                    vec3d q00 = gp[2] + e1 * ( a * dtess )       + e2 * ( b * dtess );
+                    vec3d q10 = gp[2] + e1 * ( ( a + 1 ) * dtess ) + e2 * ( b * dtess );
+                    vec3d q11 = gp[2] + e1 * ( ( a + 1 ) * dtess ) + e2 * ( ( b + 1 ) * dtess );
+                    vec3d q01 = gp[2] + e1 * ( a * dtess )       + e2 * ( ( b + 1 ) * dtess );
+
+                    tm->AddTri( q00, q10, q11, gpnorm, iQuad );
+                    tm->AddTri( q00, q11, q01, gpnorm, iQuad );
+                    iQuad++;
+                }
+            }
         }
     }
 
