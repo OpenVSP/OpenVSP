@@ -3156,7 +3156,10 @@ bool StructScreen::Update()
 {
     TabScreen::Update();
 
-    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+    // Not while the mesh thread is running: it walks the same structure, and both ends
+    // resize the parts' surface vectors.
+    if ( !FeaMeshMgr.GetFeaMeshInProgress() &&
+         StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
     {
         vector < FeaStructure * > structVec = StructureMgr.GetAllFeaStructs();
         FeaStructure *curr_struct = structVec[ StructureMgr.m_CurrStructIndex() ];
@@ -4276,6 +4279,9 @@ void StructScreen::LaunchFEAMesh()
         // Identify which structure to mesh
         FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
+        // Update it here, on the main thread, while nothing else is walking it.
+        FeaMeshMgr.UpdateStructure();
+
         m_FeaMeshProcess.StartThread( feamesh_thread_fun, nullptr );
 
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
@@ -4323,6 +4329,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             // Identify which structure to mesh
             FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+
+            // Update it here, on the main thread, while nothing else is walking it.
+            FeaMeshMgr.UpdateStructure();
 
             m_FeaMeshProcess.StartThread( feamesh_thread_fun, nullptr );
         }

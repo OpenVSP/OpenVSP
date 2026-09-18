@@ -54,6 +54,15 @@ FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
 }
 
 // Cleanup done between mesh generation runs.
+void FeaMeshMgrSingleton::UpdateStructure()
+{
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
+    if ( fea_struct )
+    {
+        fea_struct->Update();
+    }
+}
+
 void FeaMeshMgrSingleton::CleanUp()
 {
     CfdMeshMgrSingleton::CleanUp();
@@ -480,12 +489,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Init Timer\n" );
 #endif
 
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
-    if ( fea_struct )
-    {
-        fea_struct->Update();
-    }
-
+    // The structure is updated by whoever starts the mesh, on the model's own thread --
+    // doing it here raced the screen, which updates the same structure on every refresh.
     addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
 

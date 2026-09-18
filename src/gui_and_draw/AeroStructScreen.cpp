@@ -665,6 +665,14 @@ void * aerostruct_feamesh_thread_fun( void *data )
 
 void AeroStructScreen::LaunchBatchFEAMesh( const vector < string > &idvec )
 {
+    // Update every structure in the batch here, on the main thread, before the worker
+    // starts: GenerateFeaMesh no longer updates them itself.
+    for ( int i = 0; i < ( int )idvec.size(); i++ )
+    {
+        FeaMeshMgr.SetFeaMeshStructID( idvec[i] );
+        FeaMeshMgr.UpdateStructure();
+    }
+
     // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
     FeaMeshMgr.SetFeaMeshInProgress( true );
 

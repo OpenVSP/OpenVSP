@@ -353,7 +353,9 @@ bool StructAssemblyScreen::Update()
     // This makes sure connection DO's are updated.
     // does not need to be called every time, but they aren't in an update path
     // otherwise.
-    if ( curr_assy )
+    // Not while the mesh thread is running: FeaAssembly::Update walks every structure in
+    // the assembly, which is what the worker is meshing.
+    if ( curr_assy && !FeaMeshMgr.GetFeaMeshInProgress() )
     {
         curr_assy->Update();
     }
@@ -831,6 +833,14 @@ void * feaassy_thread_fun( void *data )
 void StructAssemblyScreen::LaunchBatchFEAMesh( const vector < string > &idvec )
 {
     FeaMeshMgr.SetFeaMeshInProgress( true );
+
+    // Update every structure in the batch here, on the main thread, before the worker
+    // starts: GenerateFeaMesh no longer updates them itself.
+    for ( int i = 0; i < ( int )idvec.size(); i++ )
+    {
+        FeaMeshMgr.SetFeaMeshStructID( idvec[i] );
+        FeaMeshMgr.UpdateStructure();
+    }
 
     // Copy vector to memory that will persist through duration of meshing process.
     m_BatchIDs = idvec;

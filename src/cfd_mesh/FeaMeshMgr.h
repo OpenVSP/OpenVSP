@@ -139,6 +139,10 @@ public:
         }
     }
 
+    // Update the structure this mesh is for.  Must be called from the thread that owns the
+    // model, before the meshing thread starts: GenerateFeaMesh no longer does it itself.
+    virtual void UpdateStructure();
+
     virtual string GetFeaMeshStructID()
     {
         return m_FeaStructID;

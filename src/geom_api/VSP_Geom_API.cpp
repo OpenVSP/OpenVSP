@@ -5162,6 +5162,12 @@ void ComputeFeaAssemblyMesh( const std::string & assembly_id )
 
     // Mesh whatever structures in the assembly have not been meshed yet, then
     // write the assembly out.
+    for ( int i = 0; i < ( int )assy->m_StructIDVec.size(); i++ )
+    {
+        FeaMeshMgr.SetFeaMeshStructID( assy->m_StructIDVec[i] );
+        FeaMeshMgr.UpdateStructure();
+    }
+
     FeaMeshMgr.MeshUnMeshed( assy->m_StructIDVec );
     FeaMeshMgr.ExportAssemblyMesh( assembly_id );
 
@@ -5435,6 +5441,7 @@ void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int file_t
     feastruct->GetStructSettingsPtr()->SetFileExportFlag( file_type, true );
 
     FeaMeshMgr.SetFeaMeshStructID( feastruct->GetID() );
+    FeaMeshMgr.UpdateStructure();
 
     FeaMeshMgr.addOutputText( "CLEAR_TERMINAL" );
     FeaMeshMgr.GenerateFeaMesh();
@@ -5459,6 +5466,7 @@ void ComputeFeaMesh( const std::string & struct_id, int file_type )
     feastruct->GetStructSettingsPtr()->SetFileExportFlag( file_type, true );
 
     FeaMeshMgr.SetFeaMeshStructID( struct_id );
+    FeaMeshMgr.UpdateStructure();
 
     FeaMeshMgr.addOutputText( "CLEAR_TERMINAL" );
     FeaMeshMgr.GenerateFeaMesh();
