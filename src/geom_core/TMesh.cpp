@@ -322,6 +322,17 @@ TetraMassProp::TetraMassProp( const string& id, double denIn, const vec3d& p0, c
     vector < double > vxz2 = { m_v1.x() * m_v2.z(), m_v2.x() * m_v1.z(), m_v1.x() * m_v3.z(), m_v3.x() * m_v1.z(), m_v2.x() * m_v3.z(), m_v3.x() * m_v2.z() };
     m_Ixz = m_Mass / 20.0 * ( 2.0 * compsum( vxz1 ) + compsum( vxz2 ) );
 
+    // The integrals above are taken about p0, which is the origin of the local vectors.
+    // Shift them to the centroid: that is where a parallel axis term has to start from,
+    // and it is the convention every consumer uses -- TriShellMassProp below stores its
+    // moments about its own centroid, and SetDistributedMass takes them that way too.
+    vec3d c = ( m_v1 + m_v2 + m_v3 ) * 0.25;
+    m_Ixx -= m_Mass * ( c.y() * c.y() + c.z() * c.z() );
+    m_Iyy -= m_Mass * ( c.x() * c.x() + c.z() * c.z() );
+    m_Izz -= m_Mass * ( c.x() * c.x() + c.y() * c.y() );
+    m_Ixy -= m_Mass * c.x() * c.y();
+    m_Iyz -= m_Mass * c.y() * c.z();
+    m_Ixz -= m_Mass * c.x() * c.z();
 }
 
 void TetraMassProp::SetDistributedMass( double massIn, const vec3d& cgIn, const double & IxxIn, const double & IyyIn, const double & IzzIn,
