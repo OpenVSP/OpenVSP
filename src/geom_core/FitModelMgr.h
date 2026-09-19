@@ -20,7 +20,7 @@
 #include <string>
 
 #define MIN_FIT_FILE_VER 1
-#define CURRENT_FIT_FILE_VER 1
+#define CURRENT_FIT_FILE_VER 2
 
 using std::string;
 using std::vector;
@@ -42,6 +42,7 @@ public:
         m_UClosed = false;
         m_WClosed = false;
         m_MatchGeom = "";
+        m_SurfIndx = 0;
     }
 
     virtual ~TargetPt()
@@ -71,6 +72,14 @@ public:
     void SetMatchGeom( const string &geomid )
     {
         m_MatchGeom = geomid;
+    }
+    int GetSurfIndx() const
+    {
+        return m_SurfIndx;
+    }
+    void SetSurfIndx( int surfindx )
+    {
+        m_SurfIndx = surfindx;
     }
     int GetUType()
     {
@@ -125,6 +134,7 @@ protected:
     bool m_UClosed;
     bool m_WClosed;
     string m_MatchGeom;
+    int m_SurfIndx;
     vec2d m_UW;
     vec3d m_Pt;
 };

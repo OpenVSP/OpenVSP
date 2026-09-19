@@ -189,6 +189,9 @@ Vehicle::Vehicle()
 
     m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", this, vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST );
 
+    m_SurfIndx.Init( "SurfIndx", "FitModel", this, 0, 0, 1e6 );
+    m_SurfIndx.SetDescript( "Surface index a target point is matched to" );
+
     m_UType.Init( "U_Type", "FitModel", this, vsp::FIT_MODEL_FREE, vsp::FIT_MODEL_FIXED, vsp::FIT_MODEL_FREE );
     m_UType.SetDescript( "Target U fixed or free" );
     m_UTargetPt.Init( "U_TargetPt", "FitModel", this, 0, 0, 1 );

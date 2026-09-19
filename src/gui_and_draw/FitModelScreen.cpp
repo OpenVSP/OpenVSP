@@ -83,11 +83,18 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int target_col_widths[] = { 90, 42, 42, 42, 42, 42, 42, 50, 0 }; // widths for each column
+    static int target_col_widths[] = { 90, 36, 42, 42, 42, 42, 42, 42, 50, 0 }; // widths for each column
 
     int browser_h = 150;
-    m_TargetPtBrowser = m_PickPtsLayout.AddColResizeBrowser( target_col_widths, 8, browser_h );
+    m_TargetPtBrowser = m_PickPtsLayout.AddColResizeBrowser( target_col_widths, 9, browser_h );
     m_TargetPtBrowser->callback( staticScreenCB, this );
+
+    m_PickPtsLayout.SetFitWidthFlag( false );
+    m_PickPtsLayout.SetSameLineFlag( true );
+
+    m_PickPtsLayout.SetChoiceButtonWidth( 60 );
+
+    m_PickPtsLayout.SetSliderWidth( m_PickPtsLayout.GetW() / 2 - m_PickPtsLayout.GetChoiceButtonWidth() );
 
     m_TargetGeomPicker.AddExcludeType( MESH_GEOM_TYPE );
     m_TargetGeomPicker.AddExcludeType( HUMAN_GEOM_TYPE );
@@ -98,8 +105,9 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_TargetGeomPicker.AddExcludeType( NGON_GEOM_TYPE );
     m_PickPtsLayout.AddGeomPicker( m_TargetGeomPicker );
 
-    m_PickPtsLayout.SetFitWidthFlag( false );
-    m_PickPtsLayout.SetSameLineFlag( true );
+    m_PickPtsLayout.AddChoice( m_SurfChoice, "Surface" );
+
+    m_PickPtsLayout.ForceNewLine();
 
     m_PickPtsLayout.SetButtonWidth( 50 );
 
@@ -306,6 +314,37 @@ bool FitModelScreen::Update()
 
     m_TargetGeomPicker.Update();
 
+    // The surface list belongs to whichever Geom is picked, and its length moves with the model,
+    // so it is rebuilt here rather than once at construction.  An index left past the end -- a
+    // symmetry turned off since it was chosen -- is brought back to the first surface.
+    m_SurfChoice.ClearItems();
+
+    Geom* target_geom = veh->FindGeom( m_TargetGeomPicker.GetGeomChoice() );
+    if ( target_geom )
+    {
+        int nsurf = target_geom->GetNumTotalSurfs();
+
+        for ( int isurf = 0; isurf < nsurf; isurf++ )
+        {
+            snprintf( str, sizeof( str ), "Surf_%d", isurf );
+            m_SurfChoice.AddItem( str );
+        }
+        m_SurfChoice.UpdateItems();
+
+        if ( veh->m_SurfIndx() < 0 || veh->m_SurfIndx() >= nsurf )
+        {
+            veh->m_SurfIndx = 0;
+        }
+        m_SurfChoice.SetVal( veh->m_SurfIndx() );
+
+        m_SurfChoice.Activate();
+    }
+    else
+    {
+        m_SurfChoice.UpdateItems();
+        m_SurfChoice.Deactivate();
+    }
+
     m_UToggleGroup.Update( veh->m_UType.GetID() );
     m_USlider.Update( veh->m_UTargetPt.GetID() );
 
@@ -322,7 +361,7 @@ bool FitModelScreen::Update()
 
     m_TargetPtBrowser->column_char( ':' );         // use : as the column character
 
-    snprintf( str, sizeof( str ),  "@b@.GEOM:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@.Type" );
+    snprintf( str, sizeof( str ),  "@b@.GEOM:@b@c@.Surf:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@.Type" );
     m_TargetPtBrowser->add( str );
 
     int num_fix = FitModelMgr.GetNumTargetPt();
@@ -355,7 +394,7 @@ bool FitModelScreen::Update()
                     wt = string( "free" );
                 }
 
-                snprintf( str, sizeof( str ),  "%s:%4.2f:%4.2f:%4.2f:%4.2f:%s:%4.2f:%s", g->GetName().c_str(), tpt->GetPt().x(), tpt->GetPt().y(), tpt->GetPt().z(), tpt->GetUW().x(), ut.c_str(), tpt->GetUW().y(), wt.c_str() );
+                snprintf( str, sizeof( str ),  "%s:%d:%4.2f:%4.2f:%4.2f:%4.2f:%s:%4.2f:%s", g->GetName().c_str(), tpt->GetSurfIndx(), tpt->GetPt().x(), tpt->GetPt().y(), tpt->GetPt().z(), tpt->GetUW().x(), ut.c_str(), tpt->GetUW().y(), wt.c_str() );
                 m_TargetPtBrowser->add( str );
             }
         }
@@ -534,6 +573,7 @@ void FitModelScreen::CallBack( Fl_Widget* w )
 
         if ( tpt )
         {
+            veh->m_SurfIndx = tpt->GetSurfIndx();
             veh->m_UType = tpt->GetUType();
             veh->m_WType = tpt->GetWType();
 
@@ -636,6 +676,10 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         FitModelMgr.DelAllVars( );
         RebuildAdjustTab();
+    }
+    else if ( device == &m_SurfChoice )
+    {
+        VehicleMgr.GetVehicle()->m_SurfIndx = m_SurfChoice.GetVal();
     }
     else if ( device == &m_ParmPicker )
     {

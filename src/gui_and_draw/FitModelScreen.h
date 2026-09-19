@@ -68,6 +68,7 @@ protected:
 
     ColResizeBrowser* m_TargetPtBrowser;
     GeomPicker m_TargetGeomPicker;
+    Choice m_SurfChoice;
 
     ToggleButton m_UFixButton;
     ToggleButton m_UFreeButton;

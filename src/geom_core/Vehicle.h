@@ -517,6 +517,7 @@ public:
     // FitModelMgr
     BoolParm m_SelectOneFlag;
     BoolParm m_SelectBoxFlag;
+    IntParm m_SurfIndx;
     IntParm m_UType;
     IntParm m_WType;
     Parm m_UTargetPt;

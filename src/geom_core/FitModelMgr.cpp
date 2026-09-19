@@ -19,14 +19,14 @@
 // deleted or swapped for a Blank or a point cloud -- names Geoms that either are not here or have
 // no surface to match against.  Geom::GetSurfPtr returns null for the latter, which was read
 // through.
-static const VspSurf * MatchSurf( Geom* matchgeom )
+static const VspSurf * MatchSurf( Geom* matchgeom, int surfindx )
 {
-    if ( !matchgeom || matchgeom->GetNumTotalSurfs() < 1 )
+    if ( !matchgeom || surfindx < 0 || surfindx >= matchgeom->GetNumTotalSurfs() )
     {
         return nullptr;
     }
 
-    return matchgeom->GetSurfPtr( 0 );
+    return matchgeom->GetSurfPtr( surfindx );
 }
 
 vec3d TargetPt::GetMatchPt()
@@ -45,7 +45,7 @@ vec3d TargetPt::GetMatchPt(Geom* matchgeom)
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        const VspSurf* s = MatchSurf( matchgeom );
+        const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
         if ( !s )
         {
             return vec3d();
@@ -74,7 +74,7 @@ vec3d TargetPt::CalcDelta(Geom* matchgeom)
 
         vec3d pt = GetPt();
 
-        const VspSurf* s = MatchSurf( matchgeom );
+        const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
         if ( !s )
         {
             return vec3d();
@@ -93,7 +93,7 @@ vec3d TargetPt::CalcDerivU( Geom* matchgeom )
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        const VspSurf* s = MatchSurf( matchgeom );
+        const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
         if ( !s )
         {
             return vec3d();
@@ -110,7 +110,7 @@ vec3d TargetPt::CalcDerivW( Geom* matchgeom )
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        const VspSurf* s = MatchSurf( matchgeom );
+        const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
         if ( !s )
         {
             return vec3d();
@@ -139,7 +139,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             d0 = CalcDelta( matchgeom ).mag();
 
-            const VspSurf* s = MatchSurf( matchgeom );
+            const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
             if ( !s )
             {
                 return;
@@ -169,7 +169,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             w = w0;
 
-            const VspSurf* s = MatchSurf( matchgeom );
+            const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
             if ( !s )
             {
                 return;
@@ -200,7 +200,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             u = u0;
 
-            const VspSurf* s = MatchSurf( matchgeom );
+            const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
             if ( !s )
             {
                 return;
@@ -241,7 +241,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u0=m_UW.x();
             w0=m_UW.y();
 
-            const VspSurf* s = MatchSurf( matchgeom );
+            const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
             if ( !s )
             {
                 return;
@@ -261,7 +261,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u0=m_UW.x();
             w=m_UW.y();
 
-            const VspSurf* s = MatchSurf( matchgeom );
+            const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
             if ( !s )
             {
                 return;
@@ -283,7 +283,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u=m_UW.x();
             w0=m_UW.y();
 
-            const VspSurf* s = MatchSurf( matchgeom );
+            const VspSurf* s = MatchSurf( matchgeom, m_SurfIndx );
             if ( !s )
             {
                 return;
@@ -307,10 +307,24 @@ bool TargetPt::IsValid()
 {
     Geom* matchgeom = VehicleMgr.GetVehicle()->FindGeom( m_MatchGeom );
 
-    // A Geom that is not here, or that has no surface to match against, cannot carry a target
-    // point.  ValidateTargetPts drops the ones that answer no, which is what keeps a *.fit file
-    // written against another model from being read in and then optimized against nothing.
-    return MatchSurf( matchgeom ) != nullptr;
+    // A Geom that is not here, or that has no surface at all, cannot carry a target point.
+    // ValidateTargetPts drops the ones that answer no, which is what keeps a *.fit file written
+    // against another model from being read in and then optimized against nothing.
+    if ( !matchgeom || matchgeom->GetNumTotalSurfs() < 1 )
+    {
+        return false;
+    }
+
+    // The surface count moves with the model -- turning symmetry on or off, changing a blade
+    // count -- so an index that was in range when it was set can fall out of it while the model
+    // is open, not only across a file load.  The Geom is still here and the point still means
+    // something, so bring the index back rather than throw the point away.
+    if ( m_SurfIndx < 0 || m_SurfIndx >= matchgeom->GetNumTotalSurfs() )
+    {
+        m_SurfIndx = 0;
+    }
+
+    return true;
 }
 
 xmlNodePtr TargetPt::WrapXml( xmlNodePtr & node )
@@ -325,6 +339,7 @@ xmlNodePtr TargetPt::WrapXml( xmlNodePtr & node )
         XmlUtil::AddIntNode( targetpt_node, "WClosed", m_WClosed );
 
         XmlUtil::AddStringNode( targetpt_node, "MatchGeom", m_MatchGeom );
+        XmlUtil::AddIntNode( targetpt_node, "SurfIndx", m_SurfIndx );
 
         XmlUtil::AddVec2dNode( targetpt_node, "UW", m_UW );
         XmlUtil::AddVec3dNode( targetpt_node, "Pt", m_Pt );
@@ -341,6 +356,9 @@ xmlNodePtr TargetPt::UnwrapXml( xmlNodePtr & node )
     m_WClosed = (bool) XmlUtil::FindInt( node, "WClosed", m_WClosed );
 
     m_MatchGeom = XmlUtil::FindString( node, "MatchGeom", m_MatchGeom );
+
+    // Written since file version 2.  An older file has no such node and reads as surface 0.
+    m_SurfIndx = XmlUtil::FindInt( node, "SurfIndx", 0 );
 
     m_UW = XmlUtil::ExtractVec2dNode( node, "UW");
     m_Pt = XmlUtil::ExtractVec3dNode( node, "Pt");
@@ -688,32 +706,34 @@ void FitModelMgrSingleton::BuildPtrVec()
         m_ParmPtrVec[i] = ParmMgr.FindParm( m_VarVec[i] );
     }
 
-    set<string> usedgeoms;
-    set<string>::iterator it;
+    // Whether a surface closes on itself in U or W decides how the optimizer wraps a free
+    // coordinate, and it is a property of the surface rather than of the Geom -- two surfaces of
+    // one Geom can differ.  So this is gathered per Geom and surface index, not per Geom.
+    set< pair< string, int > > usedsurfs;
+    set< pair< string, int > >::iterator it;
 
     for ( int i = 0 ; i < npt; i++ )
     {
         TargetPt* tpt = m_TargetPts[i];
-        usedgeoms.insert( tpt->GetMatchGeom() );
+        usedsurfs.insert( make_pair( tpt->GetMatchGeom(), tpt->GetSurfIndx() ) );
     }
 
-    unordered_map<string,SurfData> geomdata;
-    for ( it = usedgeoms.begin(); it != usedgeoms.end(); ++it )
+    map< pair< string, int >, SurfData > surfdata;
+    for ( it = usedsurfs.begin(); it != usedsurfs.end(); ++it )
     {
-        const string& id = *it;
         SurfData s;
-        s.m_GeomPtr = VehicleMgr.GetVehicle()->FindGeom( id );
+        s.m_GeomPtr = VehicleMgr.GetVehicle()->FindGeom( it->first );
         s.m_UClosed = false;
         s.m_WClosed = false;
 
-        const VspSurf* surf = MatchSurf( s.m_GeomPtr );
+        const VspSurf* surf = MatchSurf( s.m_GeomPtr, it->second );
         if ( surf )
         {
             s.m_UClosed = surf->IsClosedU();
             s.m_WClosed = surf->IsClosedW();
         }
 
-        geomdata[ id ] = s;
+        surfdata[ *it ] = s;
     }
 
     m_TargetGeomPtrVec.clear();
@@ -722,7 +742,7 @@ void FitModelMgrSingleton::BuildPtrVec()
     for ( int i = 0 ; i < npt; i++ )
     {
         TargetPt* tpt = m_TargetPts[i];
-        SurfData s = geomdata[ tpt->GetMatchGeom() ];
+        SurfData s = surfdata[ make_pair( tpt->GetMatchGeom(), tpt->GetSurfIndx() ) ];
 
         m_TargetGeomPtrVec[i] = s.m_GeomPtr;
         tpt->SetUClosed( s.m_UClosed );
@@ -1421,6 +1441,7 @@ void FitModelMgrSingleton::AddSelectedPts( const string &tgtGeomID )
         tpt->SetPt( pt );
         tpt->SetMatchGeom( tgtGeomID );
         tpt->SetUW( uw );
+        tpt->SetSurfIndx( veh->m_SurfIndx.Get() );
         tpt->SetUType( veh->m_UType.Get() );
         tpt->SetWType( veh->m_WType.Get() );
 
