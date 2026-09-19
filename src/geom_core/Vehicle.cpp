@@ -189,11 +189,11 @@ Vehicle::Vehicle()
 
     m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", this, vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST );
 
-    m_UType.Init( "U_Type", "FitModel", this, TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE );
+    m_UType.Init( "U_Type", "FitModel", this, vsp::FIT_MODEL_FREE, vsp::FIT_MODEL_FIXED, vsp::FIT_MODEL_FREE );
     m_UType.SetDescript( "Target U fixed or free" );
     m_UTargetPt.Init( "U_TargetPt", "FitModel", this, 0, 0, 1 );
     m_UTargetPt.SetDescript( "U Coordinate of Fixed Point" );
-    m_WType.Init( "W_Type", "FitModel", this, TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE );
+    m_WType.Init( "W_Type", "FitModel", this, vsp::FIT_MODEL_FREE, vsp::FIT_MODEL_FIXED, vsp::FIT_MODEL_FREE );
     m_WType.SetDescript( "Target W fixed or free" );
     m_WTargetPt.Init( "W_TargetPt", "FitModel", this, 0, 0, 1 );
     m_WTargetPt.SetDescript( "W Coordinate of Fixed Point" );

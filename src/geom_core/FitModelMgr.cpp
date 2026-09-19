@@ -97,7 +97,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
         assert( matchgeom->GetID() == m_MatchGeom );
 
 
-        if( m_UType == FREE && m_WType == FREE )
+        if( m_UType == vsp::FIT_MODEL_FREE && m_WType == vsp::FIT_MODEL_FREE )
         {
             double u, w, d, u0, w0, d0;
 
@@ -120,7 +120,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
             m_UW.set_xy( u, w );
 
         }
-        else if( m_UType == FREE && m_WType == FIXED )
+        else if( m_UType == vsp::FIT_MODEL_FREE && m_WType == vsp::FIT_MODEL_FIXED )
         {
             double u, w, d, u0, w0, d0;
 
@@ -146,7 +146,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             m_UW.set_x(u);
         }
-        else if( m_UType == FIXED && m_WType == FREE )
+        else if( m_UType == vsp::FIT_MODEL_FIXED && m_WType == vsp::FIT_MODEL_FREE )
         {
             double u, w, d, u0, w0, d0;
 
@@ -172,7 +172,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             m_UW.set_y(w);
         }
-        else // m_UType == FIXED && m_WType == FIXED
+        else // m_UType == vsp::FIT_MODEL_FIXED && m_WType == vsp::FIT_MODEL_FIXED
         {
             // Do nothing.
         }
@@ -186,7 +186,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
 
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        if( m_UType == FREE && m_WType == FREE )
+        if( m_UType == vsp::FIT_MODEL_FREE && m_WType == vsp::FIT_MODEL_FREE )
         {
             double u, w, u0, w0;
 
@@ -201,7 +201,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
             m_UW.set_xy( u, w );
 
         }
-        else if( m_UType == FREE && m_WType == FIXED )
+        else if( m_UType == vsp::FIT_MODEL_FREE && m_WType == vsp::FIT_MODEL_FIXED )
         {
             double u, w, u0;
 
@@ -218,7 +218,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
 
             m_UW.set_x(u);
         }
-        else if( m_UType == FIXED && m_WType == FREE )
+        else if( m_UType == vsp::FIT_MODEL_FIXED && m_WType == vsp::FIT_MODEL_FREE )
         {
             double u, w, w0;
 
@@ -235,7 +235,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
 
             m_UW.set_y(w);
         }
-        else // m_UType == FIXED && m_WType == FIXED
+        else // m_UType == vsp::FIT_MODEL_FIXED && m_WType == vsp::FIT_MODEL_FIXED
         {
             // Do nothing.
         }
@@ -601,11 +601,11 @@ void FitModelMgrSingleton::UpdateNumOptVars()
     {
         TargetPt* tpt = m_TargetPts[i];
 
-        if ( tpt->GetUType() == TargetPt::FREE )
+        if ( tpt->GetUType() == vsp::FIT_MODEL_FREE )
         {
             m_NumOptVars++;
         }
-        if ( tpt->GetWType() == TargetPt::FREE )
+        if ( tpt->GetWType() == vsp::FIT_MODEL_FREE )
         {
             m_NumOptVars++;
         }
@@ -709,12 +709,12 @@ void FitModelMgrSingleton::ParmToX( double *x )
 
         vec2d uw = tpt->GetUW();
 
-        if ( tpt->GetUType() == TargetPt::FREE )
+        if ( tpt->GetUType() == vsp::FIT_MODEL_FREE )
         {
             x[xindx] = uw.x();
             xindx++;
         }
-        if ( tpt->GetWType() == TargetPt::FREE )
+        if ( tpt->GetWType() == vsp::FIT_MODEL_FREE )
         {
             x[xindx] = uw.y();
             xindx++;
@@ -740,12 +740,12 @@ void FitModelMgrSingleton::XtoParm( const double *x )
 
         vec2d uw = tpt->GetUW();
 
-        if ( tpt->GetUType() == TargetPt::FREE )
+        if ( tpt->GetUType() == vsp::FIT_MODEL_FREE )
         {
             uw.set_x( Clamp01( x[xindx], tpt->IsUClosed() ) );
             xindx++;
         }
-        if ( tpt->GetWType() == TargetPt::FREE )
+        if ( tpt->GetWType() == vsp::FIT_MODEL_FREE )
         {
             uw.set_y( Clamp01( x[xindx], tpt->IsWClosed() ) );
             xindx++;
@@ -891,7 +891,7 @@ void FitModelMgrSingleton::CalcMetricDeriv( const double *x, double *y, double *
         TargetPt* tpt = m_TargetPts[i];
         Geom* g = m_TargetGeomPtrVec[i];
 
-        if ( tpt->GetUType() == TargetPt::FREE )
+        if ( tpt->GetUType() == vsp::FIT_MODEL_FREE )
         {
             vec3d du = tpt->CalcDerivU( g );
 
@@ -901,7 +901,7 @@ void FitModelMgrSingleton::CalcMetricDeriv( const double *x, double *y, double *
 
             xindx++;
         }
-        if ( tpt->GetWType() == TargetPt::FREE )
+        if ( tpt->GetWType() == vsp::FIT_MODEL_FREE )
         {
             vec3d dw = tpt->CalcDerivW( g );
 

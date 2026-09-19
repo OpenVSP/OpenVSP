@@ -1362,6 +1362,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "FIT_MODEL_TARGET_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FIT_MODEL_TARGET_TYPE", "FIT_MODEL_FIXED", FIT_MODEL_FIXED );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FIT_MODEL_TARGET_TYPE", "FIT_MODEL_FREE", FIT_MODEL_FREE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "FF_B_EQN" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_MANUAL", FF_B_MANUAL );

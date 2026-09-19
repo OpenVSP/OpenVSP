@@ -337,7 +337,7 @@ bool FitModelScreen::Update()
                 string ut;
                 string wt;
 
-                if( tpt->GetUType() == TargetPt::FIXED )
+                if( tpt->GetUType() == vsp::FIT_MODEL_FIXED )
                 {
                     ut = string( "fix" );
                 }
@@ -346,7 +346,7 @@ bool FitModelScreen::Update()
                     ut = string( "free" );
                 }
 
-                if( tpt->GetWType() == TargetPt::FIXED )
+                if( tpt->GetWType() == vsp::FIT_MODEL_FIXED )
                 {
                     wt = string( "fix" );
                 }

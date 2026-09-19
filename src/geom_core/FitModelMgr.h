@@ -10,6 +10,7 @@
 #if !defined(FITMODEL__INCLUDED_)
 #define FITMODEL__INCLUDED_
 
+#include "APIDefines.h"
 #include "VehicleMgr.h"
 #include "Vehicle.h"
 #include "Geom.h"
@@ -36,8 +37,8 @@ class TargetPt
 public:
     TargetPt()
     {
-        m_UType = 0;
-        m_WType = 0;
+        m_UType = vsp::FIT_MODEL_FREE;
+        m_WType = vsp::FIT_MODEL_FREE;
         m_UClosed = false;
         m_WClosed = false;
         m_MatchGeom = "";
@@ -46,8 +47,6 @@ public:
     virtual ~TargetPt()
     {
     }
-
-    enum { FIXED, FREE };
 
     vec3d GetPt()
     {

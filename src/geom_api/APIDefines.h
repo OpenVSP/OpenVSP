@@ -764,6 +764,14 @@ enum FEA_UNIT_TYPE { SI_UNIT = 0, /*!< FEA Files output in (m, kg) */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for whether a Fit Model target point is pinned to a surface coordinate or free to slide along it. */
+enum FIT_MODEL_TARGET_TYPE { FIT_MODEL_FIXED = 0,	/*!< Target point is held at the given surface coordinate */
+                             FIT_MODEL_FREE = 1	/*!< Target point may slide along the surface in this direction */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for Parasite Drag Tool form factor equations for body-type components. */
 enum FF_B_EQN { FF_B_MANUAL = 0,	/*!< Manual FF equation */
                 FF_B_SCHEMENSKY_FUSE,	/*!< Schemensky Fuselage FF equation */
