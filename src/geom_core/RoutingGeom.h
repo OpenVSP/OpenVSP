@@ -148,6 +148,7 @@ public:
 protected:
 
     virtual void UpdateSurf();
+    virtual void UpdateCopyXFormParms();
     virtual void DisableParms();
 
     virtual void UpdateSymmAttach();

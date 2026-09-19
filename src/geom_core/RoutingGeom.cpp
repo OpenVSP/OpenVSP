@@ -1033,11 +1033,36 @@ void RoutingGeom::UpdateSurf()
 }
 
 
-void RoutingGeom::DisableParms()
+// A RoutingGeom has no position of its own -- its points are computed in absolute coordinates
+// from their parent Geoms, so the model matrix must be identity at all times.  The XForm Parms
+// are deactivated in DisableParms(), but Deactivate() only greys out the GUI.  Group
+// transformations, the API, Parm links, and files written before this was enforced all write the
+// Parms directly.  Geom::Update() calls this hook while m_XFormDirty, immediately before
+// UpdateXForm() composes the attach and model matrices, so the values are enforced everywhere
+// they could otherwise leak in.
+void RoutingGeom::UpdateCopyXFormParms()
 {
+    m_AbsRelFlag = vsp::REL;
+
     m_TransAttachFlag = vsp::ATTACH_TRANS_NONE;
     m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
 
+    m_XRelLoc = 0.0;
+    m_YRelLoc = 0.0;
+    m_ZRelLoc = 0.0;
+
+    m_XRelRot = 0.0;
+    m_YRelRot = 0.0;
+    m_ZRelRot = 0.0;
+
+    m_Origin = 0.0;
+}
+
+// Deactivation only.  This must run after Geom::UpdateXForm() because GeomXForm::DeactivateXForms()
+// re-Activates these Parms.  Values are forced in UpdateCopyXFormParms(), which runs before the
+// matrices are composed.
+void RoutingGeom::DisableParms()
+{
     m_AbsRelFlag.Deactivate();
     m_TransAttachFlag.Deactivate();
     m_RotAttachFlag.Deactivate();
