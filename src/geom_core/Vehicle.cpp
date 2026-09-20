@@ -1176,7 +1176,7 @@ string Vehicle::AddGeom( const GeomType & type )
 
                     MessageMgr::getInstance().SendAll( errMsgData );
 
-                    DeleteGeom( geom_id );
+                    DeleteGeomVec( { geom_id } );
                     return "NONE";
                 }
             }
@@ -1189,7 +1189,7 @@ string Vehicle::AddGeom( const GeomType & type )
 
                 MessageMgr::getInstance().SendAll( errMsgData );
 
-                DeleteGeom( geom_id );
+                DeleteGeomVec( { geom_id } );
                 return "NONE";
             }
 
@@ -6143,7 +6143,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     }
     else
     {
-        DeleteGeom( id );
+        DeleteGeomVec( { id } );
         ClearActiveGeom(); // AddMeshGeom() makes id Active.
         id = "NONE";
     }
@@ -6211,7 +6211,7 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
     }
     else
     {
-        DeleteGeom( id );
+        DeleteGeomVec( { id } );
         ClearActiveGeom(); // AddMeshGeom() makes id Active.
         id = "NONE";
     }
@@ -6221,7 +6221,7 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
 
 string Vehicle::MassPropsAndFlatten( int set, int degen_set, int numSlices, int idir, bool hidegeom, bool writefile, bool useMode, const string &modeID )
 {
-    DeleteGeom( m_LastMassMeshID );
+    DeleteGeomVec( { m_LastMassMeshID } );
     m_LastMassMeshID = MassProps( set, degen_set, numSlices, idir, hidegeom, writefile, useMode, modeID );
     Geom* geom = FindGeom( m_LastMassMeshID );
     if ( !geom )
@@ -6272,7 +6272,7 @@ string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoun
     }
     else
     {
-        DeleteGeom( id );
+        DeleteGeomVec( { id } );
         ClearActiveGeom(); // AddMeshGeom() makes id Active.
         id = "NONE";
     }
@@ -6533,7 +6533,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
             if ( !validFlag )
             {
-                DeleteGeom( id );
+                DeleteGeomVec( { id } );
                 id = "NONE";
             }
             else
@@ -6567,7 +6567,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
                 if ( !validFlag )
                 {
-                    DeleteGeom( id );
+                    DeleteGeomVec( { id } );
                     id = "NONE";
                 }
                 else
@@ -6779,7 +6779,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
             if ( !validFlag )
             {
-                DeleteGeom( id );
+                DeleteGeomVec( { id } );
                 id = "NONE";
             }
             else
@@ -7158,7 +7158,7 @@ void Vehicle::CreateDegenGeom( int set, bool useMode, const string &modeID )
         if ( mesh_ptr != nullptr )
         {
             mesh_ptr->IntersectTrim( m_DegenGeomVec, true, 0, false );
-            DeleteGeom( id );
+            DeleteGeomVec( { id } );
         }
     }
 
@@ -7172,7 +7172,7 @@ void Vehicle::CreateDegenGeom( int set, bool useMode, const string &modeID )
             double totalMass;
             vec3d centerOfGrav, IxxIyyIzz, IxyIxzIyz;
             mesh_ptr->MassSlice( m_DegenGeomVec, true, 25, vsp::X_DIR, false, totalMass, centerOfGrav, IxxIyyIzz, IxyIxzIyz );
-            DeleteGeom( id );
+            DeleteGeomVec( { id } );
         }
     }
 

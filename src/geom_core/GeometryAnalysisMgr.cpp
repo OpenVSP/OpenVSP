@@ -2501,7 +2501,7 @@ string GeometryAnalysisCase::Evaluate()
                                 vector < string > meshids = meshnvd->GetStringData();
                                 if ( !meshids.empty() )
                                 {
-                                    veh->DeleteGeom( meshids[0] );
+                                    veh->DeleteGeomVec( { meshids[0] } );
                                 }
                             }
 

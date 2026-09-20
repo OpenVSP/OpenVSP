@@ -2936,7 +2936,7 @@ void DeleteGeom( const std::string & geom_id )
 {
     Vehicle* veh = GetVehicle();
 
-    veh->DeleteGeom( geom_id );
+    veh->DeleteGeomVec( { geom_id } );
 
     ErrorMgr.NoError();
 }

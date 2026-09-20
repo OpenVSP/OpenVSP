@@ -338,7 +338,7 @@ void ConformalGeom::UpdateSurf()
     }
 
     //==== Delete Geom Copy ====//
-    m_Vehicle->DeleteGeom( copy_geom->GetID() );
+    m_Vehicle->DeleteGeomVec( { copy_geom->GetID() } );
 
 }
 

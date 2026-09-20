@@ -1436,7 +1436,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             bool hidegeom = true;
             bool writefile = true;
             string id = veh->MassPropsAndFlatten( m_CGSetChoice.GetVal(), m_CGDegenSetChoice.GetVal(), VSPAEROMgr.m_NumMassSlice(), VSPAEROMgr.m_MassSliceDir(), hidegeom, writefile, VSPAEROMgr.m_CGUseMode(), VSPAEROMgr.m_CGModeID );
-            veh->DeleteGeom( id );
+            veh->DeleteGeomVec( { id } );
 
             VSPAEROMgr.m_Xcg = veh->m_CG.x();
             VSPAEROMgr.m_Ycg = veh->m_CG.y();

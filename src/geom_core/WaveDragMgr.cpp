@@ -331,7 +331,7 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
     }
 
     // Delete MeshGeom from previous wave drag tool run
-    veh->DeleteGeom( m_lastmeshgeomID );
+    veh->DeleteGeomVec( { m_lastmeshgeomID } );
 
     // Run slicing routine
     m_lastmeshgeomID = WaveDragSlice( set, numSlices, numRots, Mach, Flow_vec, Symm );
@@ -464,7 +464,7 @@ string WaveDragSingleton::WaveDragSlice( int set, int numSlices, int numRots, do
     }
     else
     {
-        veh->DeleteGeom( id );
+        veh->DeleteGeomVec( { id } );
         veh->ClearActiveGeom(); // AddMeshGeom() makes id Active.
         id = "NONE";
     }

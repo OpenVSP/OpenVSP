@@ -453,7 +453,7 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
         // Don't pass mode parameters here as they've already been applied to 'set'.
         veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
         string meshID = veh->CompGeomAndFlatten( set, 0 );
-        veh->DeleteGeom( meshID );
+        veh->DeleteGeomVec( { meshID } );
 
         // Restore set visibility. At this point, all geoms in the set will only be in the 
         //  Not_Shown set. We want the Parasite Drag table to contain the same geoms before 
@@ -3932,7 +3932,7 @@ void ParasiteDragMgrSingleton::RenewDegenGeomVec()
         // Don't pass mode parameters here as they've already been applied to 'set'.
         veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
         string meshID = veh->CompGeomAndFlatten( set, 0);
-        veh->DeleteGeom(meshID);
+        veh->DeleteGeomVec( { meshID } );
         veh->ShowOnlySet( set );
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
