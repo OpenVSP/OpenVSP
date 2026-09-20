@@ -146,7 +146,12 @@ protected:
     virtual void UpdateTagMap();
     map< vector < int >, int > m_SingleTagMap;
 
-    virtual void ApplyScale(); // this is for intersectTrim
+    // Scale the triangles themselves, by m_Scale over the scale they were last left at.  This
+    // is not the ApplyScale( double ) hook above -- it is how IntersectTrim gets the mesh to
+    // its working size and back, and it keeps m_LastScale itself.  Named apart from the hook
+    // because the two differed only by an argument list, and a mechanical conversion to the
+    // hook once took this one's bookkeeping with it.
+    virtual void ScaleTriangles();
     vector<TMesh*> m_SubSurfVec;
 
 };

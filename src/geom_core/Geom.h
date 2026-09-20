@@ -395,10 +395,10 @@ public:
     virtual ~Geom();
 
     // Scaling is a template method.  Scale() computes the incremental scale factor, dispatches to
-    // the per-Geom ApplyScale() hook (that Geom's own dimensional Parms and geom-specific nested
+    // the per-Geom ApplyScale( double ) hook (that Geom's own dimensional Parms and geom-specific nested
     // containers), and then always recurses into the Geom-common containers -- SubSurfaces, CFD
     // sources, and FEA structures -- so their dimensional Parms scale too.  Derived Geoms override
-    // ApplyScale(), never Scale(), which guarantees the common containers are never missed.
+    // ApplyScale( double ), never Scale(), which guarantees the common containers are never missed.
     virtual void Scale();
     virtual void ApplyScale( double currentScale ) {}
     void ScaleCommonSubComponents( double currentScale );

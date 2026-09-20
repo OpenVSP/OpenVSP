@@ -1265,7 +1265,7 @@ void HumanGeom::ApplyScale( double currentScale )
 {
 }
 
-void HumanGeom::ApplyScale()
+void HumanGeom::ScaleTriangles()
 {
 }
 

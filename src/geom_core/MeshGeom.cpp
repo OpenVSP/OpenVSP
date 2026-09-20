@@ -1472,7 +1472,7 @@ void MeshGeom::ApplyScale( double currentScale )
     m_ScaleFromOrig *= currentScale;
 }
 
-void MeshGeom::ApplyScale()
+void MeshGeom::ScaleTriangles()
 {
     if ( std::abs( m_LastScale() - m_Scale() ) < 0.0000001 )
     {
@@ -1498,7 +1498,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     UpdateBBox();
     m_LastScale = 1.0;
     m_Scale = 1000.0 / m_BBox.GetLargestDist();
-    ApplyScale();
+    ScaleTriangles();
 
     MeshInfo info;
     Results *res = nullptr;
@@ -1514,7 +1514,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
     //===== Reset Scale =====//
     m_Scale = 1;
-    ApplyScale();
+    ScaleTriangles();
     UpdateBBox();
 
     // PostIntersectTrim needs to be after re-scaling.  Otherwise, areas off by m_Scale.
