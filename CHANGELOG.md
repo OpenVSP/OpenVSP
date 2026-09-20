@@ -1,3 +1,19 @@
+# [OpenVSP 3.52.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.52.1)
+
+2026-09-19
+
+OpenVSP 3.52.1
+
+Quick fix for a scaling bug in CompGeom that came in from merging too many
+different things together.
+
+Fixes:
+- Fix CompGeom scaling / un-scaling bug
+
+
+---
+
+
 # [OpenVSP 3.52.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.52.0)
 
 2026-09-19
