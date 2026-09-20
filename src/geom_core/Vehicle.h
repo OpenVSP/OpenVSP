@@ -146,7 +146,6 @@ public:
     void DeleteActiveGeomVec();
     void CopyActiveGeomVec();
     void DeleteGeomVec( const vector<string> & del_vec );
-    void DeleteGeom( const string & geom_id );
     void AddTopGeomID( const string & geom_id, const string &insert_after_id = string() );
     void RemoveTopGeomID( const string & geom_id );
     void CutGeomVec( const vector<string> & cut_vec );
@@ -692,6 +691,11 @@ protected:
     void AddDefaultAttributes();
 
 private:
+
+    // Erase and free a Geom without touching the hierarchy.  Only DeleteGeomVec calls this,
+    // after RemoveGeomVecFromHierarchy has detached it.
+    void DeleteGeom( const string & geom_id );
+
 
     void Wype();
 };
