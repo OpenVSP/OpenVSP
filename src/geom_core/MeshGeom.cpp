@@ -1481,6 +1481,13 @@ void MeshGeom::ApplyScale()
 
     ::ApplyScale( m_Scale() / m_LastScale(), m_TMeshVec );
 
+    // What scale the triangles are now at.  IntersectTrim scales them up to a working size and
+    // then back again by setting m_Scale to 1 and calling here a second time; that call works out
+    // its factor from m_LastScale, so without this it comes out as one, the guard above takes the
+    // early return, and the triangles are left at the working size.  It also keeps Geom::Update
+    // from seeing a scale factor it has not applied and folding the working scale into
+    // m_ScaleFromOrig on top of the triangles.
+    m_LastScale = m_Scale();
 }
 
 void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag, const vector < string > & sub_vec )
