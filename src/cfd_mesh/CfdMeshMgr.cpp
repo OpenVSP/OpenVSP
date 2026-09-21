@@ -1393,9 +1393,12 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     fprintf( m_DebugFile, "CfdMeshMgr::WriteNASCART Small Edge Length = %f \n", sqrt( small_edge ) );
 #endif
 
-//  //==== Any Files To Write? ====//
-//  if ( !dat_fn && !key_fn && !obj_fn && !tri_fn )
-//      return;
+    //==== Any Files To Write? ====//
+    if ( dat_fn.empty() && key_fn.empty() && obj_fn.empty() && tri_fn.empty() &&
+         gmsh_fn.empty() && vspgeom_fn.empty() )
+    {
+        return;
+    }
 
     // Used when comparing W parameter to TMAGIC
     double tol = 1e-12;
@@ -2751,7 +2754,7 @@ Edge* CfdMeshMgrSingleton::FindAddEdge( unordered_map< int, vector<Edge*> > & ed
 
     if ( iter != edgeMap.end() )    // Found Edge Vec so Check
     {
-        vector<Edge*> eVec = edgeMap[combind];
+        const vector<Edge*> &eVec = iter->second;
         for ( int i = 0 ; i < ( int )eVec.size() ; i++ )
         {
             if ( eVec[i]->ContainsNodes( nodeVec[ind1], nodeVec[ind2] ) )
@@ -3387,7 +3390,7 @@ void CfdMeshMgrSingleton::BuildMesh()
 }
 
 // Determines if a triangle should be deleted based on its type and whether or not it is inside every other surface
-bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < bool > aInB )
+bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, const vector < bool > &aInB )
 {
     // Always delete Stiffener tris
     if ( aType == vsp::CFD_STIFFENER )
@@ -3494,7 +3497,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
 
     //==== Count Number of Component Crossings for Each Component =====//
-    list< Face* >::iterator f;
+    list< Face* >::const_iterator f;
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
     {
         int s_comp_id = m_SurfVec[s]->GetCompID();
@@ -3614,7 +3617,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     //==== Check Vote and Mark Interior Tris =====//
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
-        list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+        const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
         for ( f = faceList.begin() ; f != faceList.end(); ++f )
         {
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
@@ -3644,7 +3647,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
     for ( int a = 0 ; a < ( int )m_SurfVec.size() ; a++ )
     {
-        list< Face * > faceList = m_SurfVec[ a ]->GetMesh()->GetFaceList();
+        const list< Face * > &faceList = m_SurfVec[ a ]->GetMesh()->GetFaceList();
         for ( f = faceList.begin(); f != faceList.end(); ++f )
         {
             // Determine if the triangle should be deleted
@@ -3666,7 +3669,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         {
             if ( ! m_SurfVec[s]->GetSymPlaneFlag() )
             {
-                list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+                const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
                 for ( f = faceList.begin() ; f != faceList.end(); ++f )
                 {
                     vec3d cp = ( *f )->ComputeCenterPnt( m_SurfVec[s] );
@@ -3681,7 +3684,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
-                    list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+                    const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
                     for ( f = faceList.begin() ; f != faceList.end(); ++f )
                     {
                         ( *f )->deleteFlag = true;
@@ -3705,8 +3708,8 @@ void CfdMeshMgrSingleton::ConnectBorderNodes( bool wakeOnly )
     {
         if ( m_SurfVec[s]->GetWakeFlag() == wakeOnly )
         {
-            list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-            for ( list< Face* >::iterator f = faceList.begin() ; f != faceList.end(); ++f )
+            const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+            for ( list< Face* >::const_iterator f = faceList.begin() ; f != faceList.end(); ++f )
             {
                 ( *f )->AddBorderNodes( nodeVec );
             }

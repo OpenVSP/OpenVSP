@@ -1267,8 +1267,8 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
         {
             bool delSomeTris = false;
 
-            list < Face * > faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-            for ( list < Face * >::iterator t = faceList.begin(); t != faceList.end(); ++t ) // every triangle
+            const list < Face * > &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+            for ( list < Face * >::const_iterator t = faceList.begin(); t != faceList.end(); ++t ) // every triangle
             {
                 vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[ s ] );
 
