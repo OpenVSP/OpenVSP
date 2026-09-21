@@ -82,7 +82,12 @@ void CfdMeshMgrSingleton::GenerateMesh()
 
     if ( m_SurfVec.size() == 0 )
     {
+        // Nothing was selected.  Worth saying out loud: the meshing set defaults to the
+        // shown set and a run hides every Geom when it has taken their surfaces, so a
+        // second run in a row finds nothing and would otherwise write empty files and
+        // report success.  addOutputText reaches the screen only.
         addOutputText( "No Surfaces To Mesh\n" );
+        printf( "No Surfaces To Mesh\n" );
         m_MeshInProgress = false;
         MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
