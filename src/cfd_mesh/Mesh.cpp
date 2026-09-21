@@ -3550,6 +3550,26 @@ void Mesh::ReadSTL( const char* file_name )
 
 }
 
+// One STL facet, in the seven lines the format asks for.  buf is the caller's scratch, so a
+// loop over a million faces does not stand one up each time round.
+void AppendSTLFacet( string &out, char* buf, int buflen, const vec3d &norm,
+                     const vec3d &p0, const vec3d &p1, const vec3d &p2 )
+{
+    snprintf( buf, buflen, " facet normal  %2.10le %2.10le %2.10le\n", norm.x(), norm.y(), norm.z() );
+    out += buf;
+    out += "   outer loop\n";
+
+    snprintf( buf, buflen, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+    out += buf;
+    snprintf( buf, buflen, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
+    out += buf;
+    snprintf( buf, buflen, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+    out += buf;
+
+    out += "   endloop\n";
+    out += " endfacet\n";
+}
+
 void Mesh::WriteSimpleSTL( const char* file_name )
 {
     FILE* file_id = fopen( file_name, "w" );
@@ -3568,7 +3588,16 @@ void Mesh::WriteSimpleSTL( const char* file_name )
 
 void Mesh::WriteSimpleSTL( FILE* file_id )
 {
-    for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
+    string out;
+    AppendSimpleSTL( 0, ( int )simpFaceVec.size(), out );
+    fwrite( out.data(), 1, out.size(), file_id );
+}
+
+void Mesh::AppendSimpleSTL( int ibeg, int iend, string &out )
+{
+    char buf[256];
+
+    for ( int i = ibeg ; i < iend ; i++ )
     {
         SimpFace* f = &simpFaceVec[i];
 
@@ -3580,15 +3609,7 @@ void Mesh::WriteSimpleSTL( FILE* file_id )
         vec3d norm = cross( v01, v12 );
         norm.normalize();
 
-        fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n", norm.x(), norm.y(), norm.z() );
-        fprintf( file_id, "   outer loop\n" );
-
-        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
-        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
-        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
-
-        fprintf( file_id, "   endloop\n" );
-        fprintf( file_id, " endfacet\n" );
+        AppendSTLFacet( out, buf, sizeof( buf ), norm, p0, p1, p2 );
 
         if ( f->m_isQuad ) // Split quad and write additional tri.
         {
@@ -3598,15 +3619,7 @@ void Mesh::WriteSimpleSTL( FILE* file_id )
             norm = cross( v23, v30 );
             norm.normalize();
 
-            fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n", norm.x(), norm.y(), norm.z() );
-            fprintf( file_id, "   outer loop\n" );
-
-            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
-            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
-            fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p3.x(), p3.y(), p3.z() );
-
-            fprintf( file_id, "   endloop\n" );
-            fprintf( file_id, " endfacet\n" );
+            AppendSTLFacet( out, buf, sizeof( buf ), norm, p0, p2, p3 );
         }
     }
 }

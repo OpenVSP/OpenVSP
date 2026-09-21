@@ -483,6 +483,12 @@ public:
     int StageThreadCount( int nitem );
     void RunIndexed( int n, int nthread, const std::function< void( int ) > &body );
 
+    // Write n items to fp, formatting them on several threads and writing them out in order.
+    // body( ibeg, iend, out ) appends items [ibeg,iend) to out, and must depend on nothing
+    // but those items.  The chunks go to the file in order, so the result is byte for byte
+    // the file the plain loop wrote.
+    void WriteChunked( FILE* fp, int n, const std::function< void( int, int, string & ) > &body );
+
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
         return (SimpleMeshCommonSettings* )&m_IntersectSettings;

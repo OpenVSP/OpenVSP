@@ -27,6 +27,11 @@ class SurfaceIntersectionSingleton;
 using namespace std;
 
 
+// One STL facet as the seven lines the format asks for, appended to out.  buf is the caller's
+// scratch buffer, so a loop over a million faces does not stand one up each time round.
+void AppendSTLFacet( string &out, char* buf, int buflen, const vec3d &norm,
+                     const vec3d &p0, const vec3d &p1, const vec3d &p2 );
+
 class MeshSeg
 {
 public:
@@ -194,6 +199,15 @@ public:
     void ReadSTL( const char* file_name );
     void WriteSimpleSTL( const char* file_name );
     void WriteSimpleSTL( FILE* file_id );
+
+    // Faces [ibeg,iend) as STL facets, appended as text.  Splitting the writing from the
+    // file lets the formatting be done on several threads; see WriteChunked.
+    void AppendSimpleSTL( int ibeg, int iend, string &out );
+
+    int GetNumSimpFaces() const
+    {
+        return ( int )simpFaceVec.size();
+    }
 
     void WriteSTL( const char* file_name );
     void WriteSTL( FILE* file_id );

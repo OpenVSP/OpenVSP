@@ -574,6 +574,60 @@ void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::fu
     }
 }
 
+// The ASCII export writers spend most of their time turning numbers into text: on the larger
+// test models that formatting is a third of the whole mesh run.  It depends on nothing but the
+// item being written, so it can be done on several threads as long as the results reach the
+// file in the order the items came in.
+//
+// Only one wave of chunks is in flight at a time, so a mesh whose text runs to a gigabyte is
+// never held in memory.
+void SurfaceIntersectionSingleton::WriteChunked( FILE* fp, int n,
+        const std::function< void( int, int, string & ) > &body )
+{
+    if ( !fp || n <= 0 )
+    {
+        return;
+    }
+
+    // Large enough that a chunk is worth handing to a thread, small enough that the chunks in
+    // flight are a few megabytes between them.
+    const int chunkitems = 2048;
+
+    int nchunk = ( n + chunkitems - 1 ) / chunkitems;
+    int nthread = StageThreadCount( nchunk );
+
+    vector < string > chunk( nthread );
+
+    for ( int c0 = 0 ; c0 < nchunk ; c0 += nthread )
+    {
+        int nwave = nchunk - c0;
+
+        if ( nwave > nthread )
+        {
+            nwave = nthread;
+        }
+
+        RunIndexed( nwave, nwave, [&]( int k )
+        {
+            int ibeg = ( c0 + k ) * chunkitems;
+            int iend = ibeg + chunkitems;
+
+            if ( iend > n )
+            {
+                iend = n;
+            }
+
+            chunk[k].clear();
+            body( ibeg, iend, chunk[k] );
+        } );
+
+        for ( int k = 0 ; k < nwave ; k++ )
+        {
+            fwrite( chunk[k].data(), 1, chunk[k].size(), fp );
+        }
+    }
+}
+
 void SurfaceIntersectionSingleton::IntersectSurfaces()
 {
     addOutputText( "CLEAR_TERMINAL" );
