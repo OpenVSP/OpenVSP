@@ -28,7 +28,8 @@ void MeshCommonSettings::InitCommonParms( bool curveFlagDefault )
 {
     m_DrawMeshFlag.Init( "DrawMeshFlag", "DrawMesh", this, true, 0, 1 );
     m_ColorFacesFlag.Init( "ColorTagsFlag", "DrawMesh", this, true, 0, 1 );
-    m_ColorTagReason.Init( "ColorReasonFlag", "DrawMesh", this, false, 0, 1 );
+    // The saved name is left alone so old files still find it.
+    m_ColorTagReason.Init( "ColorReasonFlag", "DrawMesh", this, vsp::TAG, vsp::TAG, vsp::QUALITY_LENGTH );
 
     m_DrawBorderFlag.Init( "DrawBorderFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
     m_DrawIsectFlag.Init( "DrawIsectFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );

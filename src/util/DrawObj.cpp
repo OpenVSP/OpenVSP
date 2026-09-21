@@ -257,6 +257,9 @@ void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector <
 //====================== Constructor ======================//
 DrawObj::DrawObj()
 {
+    m_VertexColorFlag = false;
+    m_ColorScaleFlag = false;
+
     m_GeomID = "Default";
 
     m_Visible = true;
@@ -762,6 +765,26 @@ vec3d DrawObj::Color( int color )
             return vec3d( 0.0, 0.0, 0.0 );
             break;
     }
+}
+
+vec3d DrawObj::qualityColorRamp( double t )
+{
+    if ( t < 0.0 )
+    {
+        t = 0.0;
+    }
+    if ( t > 1.0 )
+    {
+        t = 1.0;
+    }
+
+    // Red to yellow over the first half, yellow to green over the second.
+    if ( t < 0.5 )
+    {
+        return vec3d( 1.0, 2.0 * t, 0.0 );
+    }
+
+    return vec3d( 2.0 - 2.0 * t, 1.0, 0.0 );
 }
 
 int DrawObj::reasonColorMap( int reason )

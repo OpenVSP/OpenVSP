@@ -77,6 +77,26 @@ public:
     static vec3d Color( int color );
     static int reasonColorMap( int reason );
 
+    // A continuous ramp for a scalar already scaled to 0 (worst) through 1 (best): red,
+    // orange, yellow, green.  For per-vertex coloring through m_FaceColorVec.
+    static vec3d qualityColorRamp( double t );
+
+    // Ask the viewport for a color scale alongside this object's per vertex colors.  A color
+    // mapped picture is unreadable without one: the colors say which places are worse than
+    // which, and nothing at all about how bad any of them is.  The labels are what the ends
+    // and middle of the ramp mean; the viewport draws the ramp itself.
+    // The per vertex colors are this object's colour, so let them through lighting.  Off by
+    // default because most objects that carry a colour array still want their material to
+    // decide -- FEA parts send reason colours while drawing in their part's tag material,
+    // and letting the array win there would make Color By Tag draw the reason colours.
+    bool m_VertexColorFlag;
+
+    bool m_ColorScaleFlag;
+    string m_ColorScaleTitle;
+    string m_ColorScaleLoLabel;
+    string m_ColorScaleMidLabel;
+    string m_ColorScaleHiLabel;
+
     // Colors match https://www.rapidtables.com/web/color/RGB_Color.html
     enum COLOR
     {

@@ -28,7 +28,10 @@ public:
 
     BoolParm m_DrawMeshFlag;
     BoolParm m_ColorFacesFlag;
-    BoolParm m_ColorTagReason;
+
+    // What the face colors mean: vsp::CFD_VIS_TYPE.  The saved name still says Flag, so old files
+    // still find it.
+    IntParm m_ColorTagReason;
 
     BoolParm m_DrawSourceWakeFlag;
 

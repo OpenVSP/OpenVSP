@@ -89,6 +89,13 @@ public:
     */
     void enableMeshCBuffer( bool enable );
 
+    /*!
+    * Whether the mesh colour buffer is this object's colour, rather than something the
+    * material should override.  See DrawObj::m_VertexColorFlag.
+    */
+    void setVertexColorFlag( bool flag );
+    bool getVertexColorFlag();
+
 public:
     /*!
     * Define font and back facing polygons.  If  true, set facing to clock wise, else counter 
@@ -223,6 +230,7 @@ private:
     bool _stippleFlag;
 
     bool _eBufferFlag, _lineColorBufferFlag, _meshColorBufferFlag;
+    bool _vertexColorFlag;
 
     bool _facingCWFlag;
 };

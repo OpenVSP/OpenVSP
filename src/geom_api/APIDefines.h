@@ -275,7 +275,9 @@ enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,	/*!< Point source */
 */
 /*! Enum that identifies how CFD and FEA meshes are colored. */
 enum CFD_VIS_TYPE { TAG,    /*!< Color mesh by tag value (component, subsurface, part, etc) */
-                    REASON    /*!< Color mesh by local edge length reason */
+                    REASON,    /*!< Color mesh by local edge length reason */
+                    QUALITY_ANGLE,    /*!< Color mesh by the smallest angle of each face */
+                    QUALITY_LENGTH    /*!< Color mesh by realized edge length over target edge length */
 };
 
 /*!

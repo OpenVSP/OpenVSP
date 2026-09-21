@@ -118,6 +118,8 @@ protected:
 
     ToggleButton m_ColorByTag;
     ToggleButton m_ColorByReason;
+    ToggleButton m_ColorByQualityAngle;
+    ToggleButton m_ColorByQualityLength;
     ToggleRadioGroup m_ColorByToggleGroup;
 
     ToggleButton m_DrawIsect;

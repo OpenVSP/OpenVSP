@@ -149,6 +149,9 @@ public:
     string SourcesAndWakesState();
 
     virtual void UpdateDrawObjs() override;
+
+    // Sort every face into a quality band and fill m_QualityDO.
+    virtual void UpdateQualityDrawObjs();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 
     void UpdateDisplaySettings() override;
@@ -170,6 +173,15 @@ public:
     // which is the last moment the edges exist.
     virtual string TargetLengthReport();
     vector < double > m_LengthRatios;
+
+    // The same misses per face rather than per edge, a face counting as bad as its worst
+    // edge.  This is what the coloured picture shows, and it is always a larger share than
+    // the per edge number -- the two are not interchangeable.
+    vector < double > m_FaceLengthRatios;
+
+    // The subset sitting against a border, to test whether the row of triangles next to an
+    // intersection curve misses its target worse than the field does.
+    vector < double > m_BorderFaceLengthRatios;
     virtual Edge* FindAddEdge( unordered_map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
 
     virtual void BuildDomain();
@@ -209,6 +221,9 @@ public:
     virtual void SubTagTris();
     virtual void SetSimpSubSurfTags( int tag_offset );
     virtual void Subtag( Surf* surf );
+
+    // The smallest angle and the realized-over-target edge length of one face.
+    virtual void SetFaceQuality( SimpFace &face, const vector< vec3d > &xyz, double tgt );
 
     virtual bool SetDeleteTriFlag( int aType, bool symPlane, vector < bool > aInB );
 
@@ -265,6 +280,11 @@ private:
     DrawObj m_BBoxLineSymSplit;
     vector< DrawObj > m_TagDO;
     vector< DrawObj > m_ReasonDO;
+
+    // One per quality band, tris then quads, laid out exactly as m_ReasonDO is, and which of
+    // the two quality measures they were last filled for.
+    vector< DrawObj > m_QualityDO;
+    int m_QualityDOMetric = -1;
 
     DrawObj m_DegenCornerPointDO;
     DrawObj m_DegenCornerEdgeDO;

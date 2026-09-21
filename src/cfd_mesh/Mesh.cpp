@@ -297,6 +297,47 @@ void Mesh::LoadSimpFaces()
             ncnt++;
         }
 
+        // Each edge against the target it was actually built to, while the edges are still
+        // here to ask.  Taken as the worse of the two directions, so one number says how far
+        // off the face is whichever way it missed.
+        double worst = -1.0;
+
+        Edge* fe[4] = { ( *f )->e0, ( *f )->e1, ( *f )->e2, ( *f )->e3 };
+
+        for ( int k = 0 ; k < 4 ; k++ )
+        {
+            if ( !fe[k] || fe[k]->target_len <= 0.0 )
+            {
+                continue;
+            }
+
+            double r = fe[k]->length() / fe[k]->target_len;
+
+            if ( r > 0.0 && r < 1.0 )
+            {
+                r = 1.0 / r;
+            }
+
+            if ( r > worst )
+            {
+                worst = r;
+            }
+        }
+
+        simpFaceVec[cnt].m_WorstLenRatio = worst;
+
+        bool onborder = false;
+
+        for ( int k = 0 ; k < 4 ; k++ )
+        {
+            if ( fe[k] && fe[k]->border )
+            {
+                onborder = true;
+            }
+        }
+
+        simpFaceVec[cnt].m_OffBorder = onborder;
+
         cnt++;
     }
 

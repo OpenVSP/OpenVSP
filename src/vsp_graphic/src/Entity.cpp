@@ -313,8 +313,22 @@ void Entity::_draw_Mesh()
 {
     bool meshCBufferEnabled = _getMeshCBufferFlag();
 
+    // Only when the object says the array is its colour.  With lighting on, the material is
+    // where the colour comes from and the array is ignored; colour material makes the array
+    // feed ambient and diffuse instead.  That is wanted for a colour mapped mesh and wrong
+    // for anything that carries an array but means to draw in its material -- FEA parts send
+    // reason colours while drawing in their tag material, and turning this on for them would make
+    // Color By Tag draw the reason colours.
+    bool useVertexColor = ( meshCBufferEnabled && getVertexColorFlag() );
+
     if( meshCBufferEnabled )
     {
+        if( useVertexColor )
+        {
+            glEnable( GL_COLOR_MATERIAL );
+            glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+        }
+
         _meshColorBuffer->bind();
     }
 
@@ -324,6 +338,11 @@ void Entity::_draw_Mesh()
     if( meshCBufferEnabled )
     {
         _meshColorBuffer->unbind();
+
+        if( useVertexColor )
+        {
+            glDisable( GL_COLOR_MATERIAL );
+        }
     }
 }
 

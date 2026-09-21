@@ -1,6 +1,8 @@
 #ifndef _VSP_GRAPHIC_VIEWPORT_H
 #define _VSP_GRAPHIC_VIEWPORT_H
 
+#include <string>
+#include <vector>
 #include "OpenGLHeaders.h"
 #include "Common.h"
 #include "glm/glm.hpp"
@@ -54,6 +56,20 @@ public:
     * If selected, draw border in red.
     */
     virtual void drawBorder( bool selected );
+
+    /*!
+    * Draw a color scale in the corner of the viewport.  Drawn in screen coordinates, so it
+    * stays put while the model is rotated and zoomed.
+    */
+    virtual void drawColorScale();
+
+    /*!
+    * Set what the color scale shows.  stops are the ramp's colors from its low end to its
+    * high end; the three labels are what the bottom, middle and top of the ramp mean.
+    */
+    void setColorScale( bool showFlag, const std::string &title,
+                        const std::string &lolabel, const std::string &midlabel, const std::string &hilabel,
+                        const std::vector < glm::vec3 > &stops );
     /*!
     * Draw coordinate system vector arrows.
     */
@@ -179,6 +195,13 @@ private:
     int _vHeight;
 
     bool _showBorders;
+
+    bool _showColorScale;
+    std::string _colorScaleTitle;
+    std::string _colorScaleLoLabel;
+    std::string _colorScaleMidLabel;
+    std::string _colorScaleHiLabel;
+    std::vector < glm::vec3 > _colorScaleStops;
     bool _showArrows;
     bool _showGrid;
     bool _showWatermark;

@@ -40,6 +40,7 @@ void Renderable::init()
     _stippleFlag = false;
 
     _meshColorBufferFlag = _lineColorBufferFlag = _eBufferFlag = false;
+    _vertexColorFlag = false;
 
     _facingCWFlag = false;
 }
@@ -105,6 +106,16 @@ void Renderable::emptyMeshCBuffer()
 void Renderable::enableMeshCBuffer( bool enable )
 {
     _meshColorBufferFlag = enable;
+}
+
+void Renderable::setVertexColorFlag( bool flag )
+{
+    _vertexColorFlag = flag;
+}
+
+bool Renderable::getVertexColorFlag()
+{
+    return _vertexColorFlag;
 }
 
 void Renderable::setFacingCW( bool flag )

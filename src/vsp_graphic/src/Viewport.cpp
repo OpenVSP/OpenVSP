@@ -40,6 +40,7 @@ Viewport::Viewport( int x, int y, int width, int height )
     _watermark = nullptr;
 
     _showBorders = _showArrows = true;
+    _showColorScale = false;
     _showGrid = false;
 
     _showWatermark = false;
@@ -143,6 +144,119 @@ void Viewport::drawBorder( bool selected )
     glPopMatrix();
 
     glMatrixMode( GL_MODELVIEW );
+}
+
+void Viewport::setColorScale( bool showFlag, const std::string &title,
+                              const std::string &lolabel, const std::string &midlabel, const std::string &hilabel,
+                              const std::vector < glm::vec3 > &stops )
+{
+    _showColorScale = showFlag;
+    _colorScaleTitle = title;
+    _colorScaleLoLabel = lolabel;
+    _colorScaleMidLabel = midlabel;
+    _colorScaleHiLabel = hilabel;
+    _colorScaleStops = stops;
+}
+
+void Viewport::drawColorScale()
+{
+    if( !_showColorScale || _colorScaleStops.size() < 2 )
+    {
+        return;
+    }
+
+    // Identity projection and modelview put the drawing in normalized device coordinates, so
+    // it sits at a fixed place on the screen instead of somewhere in the model.  The window
+    // is not square, so the bar's width is scaled by the aspect ratio to keep it a bar.
+    float aspect = 1.0f;
+
+    if( _vHeight > 0 )
+    {
+        aspect = ( float )_vWidth / ( float )_vHeight;
+    }
+
+    float barw = 0.035f;
+
+    if( aspect > 0.0f )
+    {
+        barw = 0.035f / aspect;
+    }
+
+    float x0 = 0.86f;
+    float x1 = x0 + barw;
+    float y0 = -0.55f;
+    float y1 = 0.55f;
+
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadIdentity();
+
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glLoadIdentity();
+
+    glDisable( GL_LIGHTING );
+    glDisable( GL_DEPTH_TEST );
+
+    // The ramp, as a strip of quads between neighbouring stops.
+    int nstop = ( int )_colorScaleStops.size();
+
+    glBegin( GL_QUAD_STRIP );
+    for( int i = 0; i < nstop; i++ )
+    {
+        float f = ( float )i / ( float )( nstop - 1 );
+        float y = y0 + f * ( y1 - y0 );
+
+        glColor3f( _colorScaleStops[i].r, _colorScaleStops[i].g, _colorScaleStops[i].b );
+        glVertex2f( x0, y );
+        glVertex2f( x1, y );
+    }
+    glEnd();
+
+    // Outline, so the ends of the ramp are visible against any background.
+    glColor3f( 0.0f, 0.0f, 0.0f );
+    glLineWidth( 1.0f );
+    glBegin( GL_LINE_LOOP );
+    glVertex2f( x0, y0 );
+    glVertex2f( x1, y0 );
+    glVertex2f( x1, y1 );
+    glVertex2f( x0, y1 );
+    glEnd();
+
+    // Labels.  drawText draws at the origin of the current modelview, so each one is placed
+    // by translating to where it belongs.
+    glActiveTexture( GL_TEXTURE0 );
+    glColor3ub( 0, 0, 0 );
+
+    float tx = x1 + 0.012f;
+
+    glPushMatrix();
+    glTranslatef( tx, y1 - 0.02f, 0.0f );
+    _textMgr->drawText( _textMgr->loadFont(), 2.0f, _colorScaleHiLabel, 0.f, 0.f, 0.f, 0.f );
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef( tx, 0.5f * ( y0 + y1 ) - 0.02f, 0.0f );
+    _textMgr->drawText( _textMgr->loadFont(), 2.0f, _colorScaleMidLabel, 0.f, 0.f, 0.f, 0.f );
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef( tx, y0 - 0.02f, 0.0f );
+    _textMgr->drawText( _textMgr->loadFont(), 2.0f, _colorScaleLoLabel, 0.f, 0.f, 0.f, 0.f );
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef( x0, y1 + 0.045f, 0.0f );
+    _textMgr->drawText( _textMgr->loadFont(), 2.0f, _colorScaleTitle, 0.f, 0.f, 0.f, 0.f );
+    glPopMatrix();
+
+    glEnable( GL_DEPTH_TEST );
+
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
 }
 
 void Viewport::drawXYZArrows()

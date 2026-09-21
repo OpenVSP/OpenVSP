@@ -246,14 +246,21 @@ void CfdMeshScreen::CreateDisplayTab()
     m_DisplayTabLayout.SetFitWidthFlag( false );
     m_DisplayTabLayout.SetSameLineFlag( true );
 
-    m_DisplayTabLayout.AddButton( m_ColorFaces, "Color Mesh");
-    m_DisplayTabLayout.AddButton( m_ColorByTag, "By Tag" );
-    m_DisplayTabLayout.AddButton( m_ColorByReason, "By Reason" );
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 5.0 );
+    m_DisplayTabLayout.AddButton( m_ColorFaces, "Color By:");
+    m_DisplayTabLayout.AddButton( m_ColorByTag, "Tag" );
+    m_DisplayTabLayout.AddButton( m_ColorByReason, "Reason" );
+    m_DisplayTabLayout.AddButton( m_ColorByQualityAngle, "Angle" );
+    m_DisplayTabLayout.AddButton( m_ColorByQualityLength, "Length" );
     m_DisplayTabLayout.ForceNewLine();
 
+    // The order the buttons are added is the value each one sets, so it has to match
+    // vsp::CFD_VIS_TYPE.
     m_ColorByToggleGroup.Init( this );
     m_ColorByToggleGroup.AddButton( m_ColorByTag.GetFlButton() );
     m_ColorByToggleGroup.AddButton( m_ColorByReason.GetFlButton() );
+    m_ColorByToggleGroup.AddButton( m_ColorByQualityAngle.GetFlButton() );
+    m_ColorByToggleGroup.AddButton( m_ColorByQualityLength.GetFlButton() );
 
     m_DisplayTabLayout.SetFitWidthFlag( true );
     m_DisplayTabLayout.SetSameLineFlag( false );

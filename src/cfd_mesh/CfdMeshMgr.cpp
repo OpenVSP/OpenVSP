@@ -220,6 +220,7 @@ void CfdMeshMgrSingleton::CleanUp()
 
     m_TagDO.clear();
     m_ReasonDO.clear();
+    m_QualityDO.clear();
 }
 
 void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
@@ -885,11 +886,32 @@ void CfdMeshMgrSingleton::PostMesh()
     // Gathered here because Clear() below is the end of the edges, and the target length an
     // edge was working to lives on the edge.
     m_LengthRatios.clear();
+    m_FaceLengthRatios.clear();
+    m_BorderFaceLengthRatios.clear();
 
     for ( int i = 0 ; i < nsurf ; ++i )
     {
         m_SurfVec[ i ]->GetMesh()->LoadSimpFaces();
         m_SurfVec[ i ]->GetMesh()->AccumLengthRatios( m_LengthRatios );
+
+        // The same misses counted per face instead of per edge, which is what the coloured
+        // picture shows: a face is as bad as its worst edge, so the share of bad faces is
+        // always larger than the share of bad edges and the two must not be confused.
+        const vector< SimpFace > &sfv = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+
+        for ( int f = 0 ; f < ( int )sfv.size() ; f++ )
+        {
+            if ( sfv[f].m_WorstLenRatio > 0.0 )
+            {
+                m_FaceLengthRatios.push_back( sfv[f].m_WorstLenRatio );
+
+                if ( sfv[f].m_OffBorder )
+                {
+                    m_BorderFaceLengthRatios.push_back( sfv[f].m_WorstLenRatio );
+                }
+            }
+        }
+
         m_SurfVec[i]->GetMesh()->Clear();
         Subtag( m_SurfVec[i] );
         m_SurfVec[ i ]->GetMesh()->CondenseSimpFaces();
@@ -2436,6 +2458,37 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
 // thing to watch if that band is ever tightened or a smoother is asked to do the closing.
 //
 // Border edges are not counted: their target is their own length, so they would all score 1.
+// How many faces are worse than a given multiple of their target, counting a face by its
+// worst edge.  This is the number the coloured picture shows.
+static string FaceRatioLine( vector < double > &fr, const char *what )
+{
+    if ( fr.empty() )
+    {
+        return string();
+    }
+
+    int nband = 0, n2 = 0;
+
+    for ( int i = 0 ; i < ( int )fr.size() ; i++ )
+    {
+        if ( fr[i] < 1.414 )
+        {
+            nband++;
+        }
+        if ( fr[i] >= 2.0 )
+        {
+            n2++;
+        }
+    }
+
+    char buf[256];
+    snprintf( buf, sizeof( buf ),
+              "  %-22s %8d faces, inside the band %5.1f%%, at or past 2x %5.1f%%\n",
+              what, ( int )fr.size(), 100.0 * nband / fr.size(), 100.0 * n2 / fr.size() );
+
+    return string( buf );
+}
+
 string CfdMeshMgrSingleton::TargetLengthReport()
 {
     vector < double > &r = m_LengthRatios;
@@ -2477,7 +2530,9 @@ string CfdMeshMgrSingleton::TargetLengthReport()
               ( int )r.size(), sum / ( double )r.size(), r[ r.size() / 2 ], r.front(), r.back(),
               n10 * npct, n25 * npct, nband * npct );
 
-    return string( buf );
+    return string( buf )
+           + FaceRatioLine( m_FaceLengthRatios, "by face, worst edge:" )
+           + FaceRatioLine( m_BorderFaceLengthRatios, "of those, on a border:" );
 }
 
 string CfdMeshMgrSingleton::CheckWaterTight()
@@ -3166,12 +3221,6 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
     // near C, whichever way the groups fall A and C are told they are different points, and
     // whichever of them a chain happens to hold is where that chain ends.
     //
-    // radiusSearch also answers with points that are already spoken for, so a point could
-    // land in two groups at once; the replacement below then kept whichever it found last,
-    // because its break left only the inner loop while the group counter carried on.  On
-    // x57full.vsp3 that left exactly one pair of chain ends within the merge radius still
-    // holding two different points -- a hole, made at the moment the mesh was assembled.
-    //
     // Union-find gives the transitive closure directly and cannot produce either fault: a
     // point is in exactly one set, and two points within tol are always in the same one.
     vector< int > parent( cloud.m_IPnts.size() );
@@ -3662,6 +3711,186 @@ void CfdMeshMgrSingleton::MatchBorderNodes( const vector< Node* > & nodeVec )
 
 }
 
+// Color every face by a continuous quality measure, one color per corner.
+//
+// Bins suit tags and reasons, which are labels; a quality is a number, and bucketing one
+// hides everything inside a bucket and invents features at the boundaries.
+//
+// DrawObj::m_FaceColorVec is one color per entry in m_PntVec, which for triangles is one per
+// corner.  Being per corner rather than per node of the mesh, two triangles sharing a node may
+// give it different values, which is what lets a discontinuous quantity draw honestly.
+//
+//   angle    the angle at that corner over 60 degrees, so a sliver goes red at the corner that
+//            is actually bad rather than all over.
+//   length   the mean of the two edges meeting at that corner over the target length there --
+//            edge data drawn as corner data.  Taken as how far off it is either way, so 0.8
+//            and 1.25 match and sqrt(2) lands halfway up the ramp.
+void CfdMeshMgrSingleton::UpdateQualityDrawObjs()
+{
+    m_QualityDO.clear();
+    m_QualityDO.resize( 2 );
+
+    char str[256];
+    snprintf( str, sizeof( str ), "%s_TQUAL", GetID().c_str() );
+    m_QualityDO[0].m_GeomID = string( str );
+    snprintf( str, sizeof( str ), "%s_QQUAL", GetID().c_str() );
+    m_QualityDO[1].m_GeomID = string( str );
+
+    m_QualityDO[0].m_GeomChanged = true;
+    m_QualityDO[1].m_GeomChanged = true;
+
+    // The material still has to be set even though the color comes per vertex.  Color material
+    // only routes the array into ambient and diffuse; specular and emission stay the
+    // material's, and DrawObj's default emission is opaque white, which on its own drives any
+    // lit surface to white however right the colors underneath are.  Set to no highlight and
+    // no glow, which is what a color map wants anyway.
+    for ( int i = 0; i < 2; i++ )
+    {
+        for ( int k = 0; k < 4; k++ )
+        {
+            m_QualityDO[i].m_MaterialInfo.Ambient[k] = 1.0f;
+            m_QualityDO[i].m_MaterialInfo.Diffuse[k] = 1.0f;
+            m_QualityDO[i].m_MaterialInfo.Specular[k] = 0.0f;
+            m_QualityDO[i].m_MaterialInfo.Emission[k] = 0.0f;
+        }
+
+        m_QualityDO[i].m_MaterialInfo.Shininess = 1.0f;
+    }
+
+    m_QualityDOMetric = GetCfdSettingsPtr()->m_ColorTagReason;
+
+    if ( m_QualityDOMetric != vsp::QUALITY_ANGLE && m_QualityDOMetric != vsp::QUALITY_LENGTH )
+    {
+        return;
+    }
+
+    bool bylen = ( m_QualityDOMetric == vsp::QUALITY_LENGTH );
+
+    // What the ramp means, so the picture can be read.  Both ends are fixed rather than taken
+    // from the data, so two meshes colored the same way can be held against each other.
+    for ( int i = 0; i < 2; i++ )
+    {
+        m_QualityDO[i].m_VertexColorFlag = true;
+        m_QualityDO[i].m_ColorScaleFlag = true;
+
+        if ( bylen )
+        {
+            m_QualityDO[i].m_ColorScaleTitle = "Edge length";
+            m_QualityDO[i].m_ColorScaleLoLabel = "2x off";
+            m_QualityDO[i].m_ColorScaleMidLabel = "1.41x off";
+            m_QualityDO[i].m_ColorScaleHiLabel = "on target";
+        }
+        else
+        {
+            m_QualityDO[i].m_ColorScaleTitle = "Worst angle";
+            m_QualityDO[i].m_ColorScaleLoLabel = "0 deg";
+            m_QualityDO[i].m_ColorScaleMidLabel = "30 deg";
+            m_QualityDO[i].m_ColorScaleHiLabel = "60 deg";
+        }
+    }
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        const vector< vec3d >& pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        const vector< SimpFace >& fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+
+        for ( int f = 0 ; f < ( int ) fVec.size() ; f++ )
+        {
+            const SimpFace* sface = &fVec[f];
+
+            int n = 3;
+            int ind[4] = { sface->ind0, sface->ind1, sface->ind2, sface->ind3 };
+
+            if ( sface->m_isQuad )
+            {
+                n = 4;
+            }
+
+            int ido = 0;
+
+            if ( sface->m_isQuad )
+            {
+                ido = 1;
+            }
+
+            vec3d norm = cross( pVec[ind[1]] - pVec[ind[0]], pVec[ind[2]] - pVec[ind[0]] );
+            norm.normalize();
+
+            // One value for the whole face, taken from its worst corner.  Coloring each corner
+            // on its own hides the defect: a triangle with two sound corners and one bad one
+            // reads as mostly sound, and the bad corner is the thing worth seeing.  Wing tips
+            // and trailing edges are where that matters.
+            double tface = 1.0;
+
+            for ( int k = 0 ; k < n ; k++ )
+            {
+                const vec3d &a = pVec[ ind[ ( k + n - 1 ) % n ] ];
+                const vec3d &b = pVec[ ind[k] ];
+                const vec3d &c = pVec[ ind[ ( k + 1 ) % n ] ];
+
+                double lab = dist( a, b );
+                double lbc = dist( b, c );
+
+                double t = 1.0;
+
+                if ( bylen )
+                {
+                    // Handled once for the whole face below, from the edges' own targets.
+                    t = 1.0;
+                }
+                else
+                {
+                    if ( lab > 0.0 && lbc > 0.0 )
+                    {
+                        double cosb = dot( a - b, c - b ) / ( lab * lbc );
+
+                        if ( cosb > 1.0 )
+                        {
+                            cosb = 1.0;
+                        }
+                        if ( cosb < -1.0 )
+                        {
+                            cosb = -1.0;
+                        }
+
+                        t = ( acos( cosb ) * 180.0 / M_PI ) / 60.0;
+                    }
+                }
+
+                if ( t < tface )
+                {
+                    tface = t;
+                }
+            }
+
+            if ( bylen )
+            {
+                // Each edge against the target it was built to, worst edge wins.  The target at the face's
+                // centre is a different number wherever the target length varies quickly -- which is exactly
+                // where the mesh struggles -- and does not agree with the edge length report.
+                tface = 1.0;
+
+                if ( sface->m_WorstLenRatio > 0.0 )
+                {
+                    // One octave off target is the bottom of the ramp; sqrt(2), where Split
+                    // and Collapse act, is the middle.
+                    tface = 1.0 - log2( max( sface->m_WorstLenRatio, 1.0 ) );
+                }
+            }
+
+            vec3d rgb = DrawObj::qualityColorRamp( tface );
+
+            for ( int k = 0 ; k < n ; k++ )
+            {
+                m_QualityDO[ ido ].m_PntVec.push_back( pVec[ ind[k] ] );
+                m_QualityDO[ ido ].m_NormVec.push_back( norm );
+                m_QualityDO[ ido ].m_FaceColorVec.push_back( rgb );
+                m_QualityDO[ ido ].m_FaceAlphaVec.push_back( 1.0f );
+            }
+        }
+    }
+}
+
 void CfdMeshMgrSingleton::UpdateDrawObjs()
 {
     SurfaceIntersectionSingleton::UpdateDrawObjs();
@@ -3681,6 +3910,8 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
         m_ReasonDO[i].m_GeomChanged = true;
         m_ReasonDO[ i + num_reason ].m_GeomChanged = true;
     }
+
+    UpdateQualityDrawObjs();
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -3905,6 +4136,42 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     draw_obj_vec.push_back( &m_BBoxLineStripSymSplit );
     m_BBoxLineSymSplit.m_Visible = m_BBoxLineStripSymSplit.m_Visible;
     draw_obj_vec.push_back( &m_BBoxLineSymSplit );
+
+    // The two quality objects.  Their color is per vertex, so no material is set on them --
+    // see UpdateQualityDrawObjs.
+    if ( m_QualityDOMetric != GetCfdSettingsPtr()->m_ColorTagReason &&
+         ( GetCfdSettingsPtr()->m_ColorTagReason == vsp::QUALITY_ANGLE ||
+           GetCfdSettingsPtr()->m_ColorTagReason == vsp::QUALITY_LENGTH ) )
+    {
+        UpdateQualityDrawObjs();
+    }
+
+    if ( m_QualityDO.size() == 2 )
+    {
+        bool onqual = GetCfdSettingsPtr()->m_ColorFacesFlag &&
+                      ( GetCfdSettingsPtr()->m_ColorTagReason == vsp::QUALITY_ANGLE ||
+                        GetCfdSettingsPtr()->m_ColorTagReason == vsp::QUALITY_LENGTH );
+
+        m_QualityDO[0].m_Visible = onqual;
+        m_QualityDO[1].m_Visible = onqual;
+
+        m_QualityDO[0].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+        m_QualityDO[1].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+        if ( onqual && !GetCfdSettingsPtr()->m_DrawMeshFlag )
+        {
+            m_QualityDO[0].m_Type = DrawObj::VSP_SHADED_TRIS;
+            m_QualityDO[1].m_Type = DrawObj::VSP_SHADED_QUADS;
+        }
+        else
+        {
+            m_QualityDO[0].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
+            m_QualityDO[1].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
+        }
+
+        draw_obj_vec.push_back( &m_QualityDO[0] );
+        draw_obj_vec.push_back( &m_QualityDO[1] );
+    }
 
     unsigned int num_reason = vsp::NUM_MESH_REASON + 1;
 
@@ -4502,10 +4769,71 @@ void CfdMeshMgrSingleton::SetSimpSubSurfTags( int tag_offset )
     }
 }
 
+// How good a face is, by the two measures the mesher can be judged on.
+//
+// The smallest angle says whether it is a usable triangle.  The mean edge length over the
+// target length says whether it is the size that was asked for -- which the angle cannot
+// say, because a triangle can be a perfect equilateral at twice the size it should be.
+void CfdMeshMgrSingleton::SetFaceQuality( SimpFace &face, const vector< vec3d > &xyz, double tgt )
+{
+    int n = 3;
+    int ind[4] = { face.ind0, face.ind1, face.ind2, face.ind3 };
+
+    if ( face.m_isQuad )
+    {
+        n = 4;
+    }
+
+    double lsum = 0.0;
+    double mincos = -1.0;
+
+    for ( int i = 0 ; i < n ; i++ )
+    {
+        const vec3d &a = xyz[ ind[ ( i + n - 1 ) % n ] ];
+        const vec3d &b = xyz[ ind[i] ];
+        const vec3d &c = xyz[ ind[ ( i + 1 ) % n ] ];
+
+        double lab = dist( a, b );
+        double lbc = dist( b, c );
+
+        lsum += lbc;
+
+        if ( lab > 0.0 && lbc > 0.0 )
+        {
+            // Cosine of the corner at b.  The largest cosine is the smallest angle.
+            double cosb = dot( a - b, c - b ) / ( lab * lbc );
+
+            if ( cosb > mincos )
+            {
+                mincos = cosb;
+            }
+        }
+    }
+
+    if ( mincos > 1.0 )
+    {
+        mincos = 1.0;
+    }
+    if ( mincos < -1.0 )
+    {
+        mincos = -1.0;
+    }
+
+    face.m_MinAngle = acos( mincos ) * 180.0 / M_PI;
+
+    face.m_TargetLen = tgt;
+
+    if ( tgt > 0.0 )
+    {
+        face.m_LenRatio = ( lsum / ( double )n ) / tgt;
+    }
+}
+
 void CfdMeshMgrSingleton::Subtag( Surf* surf )
 {
     vector< SimpFace >& face_vec = surf->GetMesh()->GetSimpFaceVec();
     const vector< vec2d >& pnts = surf->GetMesh()->GetSimpUWPntVec();
+    const vector< vec3d >& xyz = surf->GetMesh()->GetSimpPntVec();
     vector< SimpleSubSurface > simp_s_surfs = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() , surf->GetCompID() );
 
     for ( int f = 0; f < (int)face_vec.size(); f++ )
@@ -4522,7 +4850,11 @@ void CfdMeshMgrSingleton::Subtag( Surf* surf )
             center = ( pnts[face.ind0] + pnts[face.ind1] + pnts[face.ind2] ) * 1 / 3.0;
         }
 
-        surf->InterpTargetMap( center.x(), center.y(), face.m_reason );
+        double tgt = surf->InterpTargetMap( center.x(), center.y(), face.m_reason );
+
+        // The two quality measures, taken here because this is already a pass over every
+        // face and the target length at its centre is already being asked for.
+        SetFaceQuality( face, xyz, tgt );
 
         for ( int s = 0; s < (int)simp_s_surfs.size(); s++ )
         {

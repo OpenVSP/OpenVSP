@@ -666,10 +666,59 @@ void VspGlWindow::_initGLEW()
     }
 }
 
+
+// Hand the viewport the color scale that a visible color mapped object asked for, or turn it
+// off when nothing did.  The ramp is sampled here so the scale and the surfaces it explains
+// are coming from the same function.
+void VspGlWindow::_updateColorScale( const std::vector<DrawObj *> &objects )
+{
+    Display * dis = m_GEngine->getDisplay();
+
+    if ( !dis )
+    {
+        return;
+    }
+
+    VSPGraphic::Viewport * vpt = dis->getViewport();
+
+    if ( !vpt )
+    {
+        return;
+    }
+
+    for( int i = 0; i < (int)objects.size(); i++ )
+    {
+        if ( objects[i]->m_ColorScaleFlag && objects[i]->m_Visible )
+        {
+            const int nstop = 17;
+            std::vector < glm::vec3 > stops( nstop );
+
+            for ( int k = 0; k < nstop; k++ )
+            {
+                vec3d c = DrawObj::qualityColorRamp( ( double )k / ( double )( nstop - 1 ) );
+                stops[k] = glm::vec3( ( float )c.x(), ( float )c.y(), ( float )c.z() );
+            }
+
+            vpt->setColorScale( true, objects[i]->m_ColorScaleTitle,
+                                objects[i]->m_ColorScaleLoLabel,
+                                objects[i]->m_ColorScaleMidLabel,
+                                objects[i]->m_ColorScaleHiLabel, stops );
+            return;
+        }
+    }
+
+    std::vector < glm::vec3 > none;
+    vpt->setColorScale( false, "", "", "", "", none );
+}
+
 void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
 {
     // Check for changes in DrawObjs and adjust accordingly.
     _updateBuffer( objects );
+
+    // A color mapped object asks for a scale to read it by.  Asked for every frame, so it
+    // goes away by itself when whatever wanted it stops being drawn.
+    _updateColorScale( objects );
 
     // Get view Z vector for 3D background visibility check.
     Display * dis = m_GEngine->getDisplay();
@@ -2219,11 +2268,13 @@ void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
         destObj->emptyMeshCBuffer();
         destObj->appendMeshCBuffer( cdata.data(), sizeof( float ) * cdata.size());
         destObj->enableMeshCBuffer( true );
+        destObj->setVertexColorFlag( drawObj->m_VertexColorFlag );
     }
     else
     {
         destObj->emptyMeshCBuffer();
         destObj->enableMeshCBuffer( false );
+        destObj->setVertexColorFlag( false );
     }
 }
 
