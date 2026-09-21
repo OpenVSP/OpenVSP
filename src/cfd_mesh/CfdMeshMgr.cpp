@@ -1113,17 +1113,38 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
     if ( file_id )
     {
         std::vector< int > tags = SubSurfaceMgr.GetAllTags();
+
+        // Which faces belong to each tag, gathered in one pass.  Asking every face about
+        // every tag in turn is a walk of the whole mesh per tag, and a model can carry
+        // dozens of tags.
+        std::map< int, int > tagpos;
+        for ( int itag = 0; itag < ( int ) tags.size(); itag++ )
+        {
+            tagpos[ tags[itag] ] = itag;
+        }
+
+        vector < vector < int > > tagface( tags.size() );
+        for ( int f = 0; f < ( int ) allFaceVec.size(); f++ )
+        {
+            std::map< int, int >::const_iterator it = tagpos.find( SubSurfaceMgr.GetTag( allFaceVec[f].m_Tags ) );
+
+            if ( it != tagpos.end() )
+            {
+                tagface[ it->second ].push_back( f );
+            }
+        }
+
         for ( int itag = 0; itag < ( int ) tags.size(); itag++ )
         {
             std::string tagname = SubSurfaceMgr.GetTagNames( itag );
             fprintf( file_id, "solid %s\n", tagname.c_str() );
 
-            for ( int f = 0; f < ( int ) allFaceVec.size(); f++ )
-            {
-                SimpFace* sface = &allFaceVec[f];
-                int t = SubSurfaceMgr.GetTag( sface->m_Tags );
+            const vector < int > &face = tagface[itag];
 
-                if ( t == tags[itag] )
+            for ( int k = 0; k < ( int ) face.size(); k++ )
+            {
+                SimpFace* sface = &allFaceVec[ face[k] ];
+
                 {
                     const vec3d& p0 = allUsedPntVec[sface->ind0];
                     const vec3d& p1 = allUsedPntVec[sface->ind1];
