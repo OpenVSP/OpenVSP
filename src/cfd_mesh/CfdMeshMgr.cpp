@@ -2835,60 +2835,93 @@ static void POGSTess( const vector < double > &tess, double lo, double hi, vecto
 // sampled, because a surface's parameterization does not always cover it evenly -- the
 // mesher collapses a degenerate row, such as the nose of a Pod, to a single node, and
 // every sample along that row is really the same point on the geometry.
-bool CfdMeshMgrSingleton::PntInsideOtherComp( const vec3d &pnt, int comp_id, double x_dist )
+// Would trimming have removed a sample here?
+//
+// The surfaces in these files are not trimmed, so a sample the mesher would have thrown away is
+// marked off the geometry with an iblank of zero instead.  That is the question
+// RemoveInteriorTris asks of a triangle's centre, and it is answered the same way: cast a ray,
+// count the crossings of each other component, and put the answer to SetDeleteTriFlag, which
+// knows what being inside something means for a surface of this kind.
+//
+// Asking only whether the point is inside anything at all is right for a positive skin and
+// backwards for a negative volume or a transparent disk, whose surface is kept exactly where it
+// lies inside the body it cuts.
+//
+// t_vec_vec is the caller's scratch, sized to hold every component; it is cleared here.  It
+// belongs to the caller because this is asked once per sample.
+bool CfdMeshMgrSingleton::PntTrimmedAway( const vec3d &pnt, Surf *srf, double x_dist,
+                                          vector < vector < double > > &t_vec_vec )
 {
-    // Sized from the component numbers actually present rather than from a count plus slack.
-    // A surface left out because its number ran past the end would not make the answer
-    // cautious -- it would make it wrong, by hiding the very crossings that say the point is
-    // inside something.
-    int maxcomp = -1;
-
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    for ( int c = 0 ; c < ( int )t_vec_vec.size() ; c++ )
     {
-        int c = m_SurfVec[i]->GetCompID();
-
-        if ( c > maxcomp )
-        {
-            maxcomp = c;
-        }
+        t_vec_vec[c].clear();
     }
 
-    vector < vector < double > > t_vec_vec;
-    t_vec_vec.resize( maxcomp + 1 );
+    int s_comp_id = srf->GetCompID();
 
     vec3d p0 = pnt;
     vec3d p1 = pnt + vec3d( x_dist, 1.0e-4, 1.0e-4 );
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        int comp_id = m_SurfVec[i]->GetCompID();
+
+        if ( m_SurfVec[i] == srf || comp_id == s_comp_id ||
+             comp_id < 0 || comp_id >= ( int )t_vec_vec.size() )
+        {
+            continue;
+        }
+
+        if ( srf->GetFeaSymmIndex() >= 0 && m_SurfVec[i]->GetFeaSymmIndex() >= 0 &&
+             srf->GetFeaSymmIndex() != m_SurfVec[i]->GetFeaSymmIndex() )
+        {
+            continue;
+        }
+
+        int itype = m_SurfVec[i]->GetSurfaceCfdType();
+
+        // Transparent, structure and stiffener surfaces do not bound a volume, so they cannot
+        // put a point inside anything -- unless the far field is trimming a symmetry plane.
+        if ( itype != vsp::CFD_TRANSPARENT && itype != vsp::CFD_STRUCTURE &&
+             itype != vsp::CFD_STIFFENER )
+        {
+            m_SurfVec[i]->IntersectLineSeg( p0, p1, t_vec_vec[comp_id] );
+        }
+        else if ( m_SurfVec[i]->GetFarFlag() && srf->GetSymPlaneFlag() &&
+                  GetSettingsPtr()->m_FarCompFlag )
+        {
+            m_SurfVec[i]->IntersectLineSeg( p0, p1, t_vec_vec[comp_id] );
+        }
+    }
+
+    vector < bool > inside( t_vec_vec.size(), false );
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
         int c = m_SurfVec[i]->GetCompID();
 
-        if ( c == comp_id || c < 0 )
+        if ( c < 0 || c >= ( int )inside.size() )
         {
             continue;
         }
 
-        // Transparent, structure and stiffener surfaces do not bound a volume, so they
-        // cannot put a point inside anything.
-        if ( m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT ||
-             m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_STRUCTURE ||
-             m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_STIFFENER )
+        if ( srf->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
+             GetSettingsPtr()->m_FarCompFlag )
         {
-            continue;
+            // The symmetry plane is kept where it is inside the outer boundary, which is the
+            // other way round from everything else.
+            if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 )
+            {
+                inside[c] = true;
+            }
         }
-
-        m_SurfVec[i]->IntersectLineSeg( p0, p1, t_vec_vec[c] );
-    }
-
-    for ( int c = 0 ; c < ( int )t_vec_vec.size() ; c++ )
-    {
-        if ( t_vec_vec[c].size() % 2 == 1 )
+        else if ( ( int )t_vec_vec[c].size() % 2 == 1 )
         {
-            return true;
+            inside[c] = true;
         }
     }
 
-    return false;
+    return SetDeleteTriFlag( srf->GetSurfaceCfdType(), srf->GetSymPlaneFlag(), inside );
 }
 
 // A CART3D triangulation, unformatted, the way pogs reads it:
@@ -3229,6 +3262,14 @@ void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
         all_pnt_vec[iface] = pnt_vec;
     }
 
+    // How many components the crossing table has to hold, from the numbers actually present
+    // rather than from a count plus slack.
+    int ncomp = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        ncomp = max( ncomp, m_SurfVec[i]->GetCompID() + 1 );
+    }
+
     // Deciding which samples fall inside another component is a ray cast apiece, and it is the
     // whole cost of writing these files, so it is named on the progress line.
     addOutputText( "POGS Ray Trace\n" );
@@ -3237,15 +3278,16 @@ void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
     {
         Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
 
-        int comp_id = srf->GetCompID();
-
         const vector < vec3d > &pnt_vec = all_pnt_vec[iface];
 
         vector < int > iblank_vec( pnt_vec.size(), 1 );
 
+        // One scratch table per face, so the ray cast does not allocate per sample.
+        vector < vector < double > > t_vec_vec( ncomp );
+
         for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
         {
-            if ( PntInsideOtherComp( pnt_vec[i], comp_id, x_dist ) )
+            if ( PntTrimmedAway( pnt_vec[i], srf, x_dist, t_vec_vec ) )
             {
                 iblank_vec[i] = 0;
             }

@@ -168,7 +168,8 @@ public:
                                     const vector < int > &face_surf_vec );
     virtual void WritePOGSCompFile( const string &fn, const vector < int > &face_surf_vec );
     virtual void WritePOGSInputFile( const string &fn, const string &rootname, int isym );
-    virtual bool PntInsideOtherComp( const vec3d &pnt, int comp_id, double x_dist );
+    virtual bool PntTrimmedAway( const vec3d &pnt, Surf *srf, double x_dist,
+                                 vector < vector < double > > &t_vec_vec );
 
 
     void ExportFiles() override;
