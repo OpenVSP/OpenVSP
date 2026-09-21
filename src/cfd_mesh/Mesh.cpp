@@ -83,19 +83,33 @@ void Mesh::LimitTargetEdgeLength( Node* n )
         LimitTargetEdgeLength( n->edgeVec[i], n );
     }
 
-    list< Edge* >::iterator e;
-    list< Edge* > el( n->edgeVec.begin(), n->edgeVec.end() );
-    el.sort( ShortEdgeTargetLengthCompare );
-
-    e = el.begin();
-    double limitlen = ( *e )->target_len * m_GridDensity->m_GrowRatio;
-    ++e;
-
-    for ( ; e != el.end(); ++e )
+    if ( n->edgeVec.empty() )
     {
-        if( ( *e )->target_len > limitlen )
+        return;
+    }
+
+    // Only the shortest target in the star matters -- every other edge is capped against it.
+    // Finding it is a pass over half a dozen pointers.
+    //
+    // The shortest edge is left alone either way: the growth ratio is greater than one, so
+    // its own target is never above the limit it sets.
+    double minlen = n->edgeVec[0]->target_len;
+
+    for ( int i = 1; i < ( int )n->edgeVec.size(); i++ )
+    {
+        if ( n->edgeVec[i]->target_len < minlen )
         {
-            ( *e )->target_len = limitlen;
+            minlen = n->edgeVec[i]->target_len;
+        }
+    }
+
+    double limitlen = minlen * m_GridDensity->m_GrowRatio;
+
+    for ( int i = 0; i < ( int )n->edgeVec.size(); i++ )
+    {
+        if ( n->edgeVec[i]->target_len > limitlen )
+        {
+            n->edgeVec[i]->target_len = limitlen;
         }
     }
 }
@@ -478,40 +492,58 @@ bool Mesh::TriReversed( const vec3d &p0, const vec3d &p1, const vec3d &p2,
     return dprod < 0.0;
 }
 
-int Mesh::RemoveRevFaces()
+// Collapse away the faces that are not fit to keep.
+//
+// A face is unfit if it faces the wrong way, or if it has been squeezed until it has no
+// inside left.  Both are removed the same way, by collapsing one of the face's edges.
+//
+// Reversal alone does not catch every unfit face: a face that is squeezed flat and stops there
+// never reverses, and one with no area has no meaningful normal for the reversal test to read.
+// Such a face reaches the assembled mesh, where it cannot be oriented and shows up as an edge
+// held by more than two triangles.  Asking about the face itself, rather than about which way
+// it happens to point, catches both.
+int Mesh::RemoveIllFormedFaces()
 {
     int badcount = 0;
 
-    vector < Edge* > remEdges;
+    vector < Face* > remFaces;
 
     list< Face* >::iterator f;
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
-        if ( FaceReversed( *f ) )
+        if ( FaceReversed( *f ) || ( *f )->Degenerate() )
         {
-            Edge* e = ( *f )->FindShortEdge();
+            remFaces.push_back( *f );
 
-            if ( e )
-            {
-                remEdges.push_back( e );
-
-                badcount++;
-            }
+            badcount++;
         }
     }
 
-    for ( int i = 0; i < remEdges.size(); i++ )
+    // Any of the face's edges will do to be rid of it, so all of them are offered.
+    //
+    // The shortest is asked first, because collapsing it disturbs the least.  The shortest alone
+    // is not enough: a splinter lying along the edge of a tip cap has its short side on the border
+    // itself, a border may not be collapsed, and its corners are pinned so smoothing cannot reach
+    // it either.  Its other two edges usually run inward and collapse perfectly well.
+    for ( int i = 0; i < ( int )remFaces.size(); i++ )
     {
-        Edge* e = remEdges[i];
+        Face* fc = remFaces[i];
 
-        if ( e )
+        if ( !fc || fc->m_DeleteMeFlag )
         {
-            if ( ValidCollapse( e ) )
-            {
-                CollapseEdge( e );
-            }
+            continue;
         }
 
+        Edge* cand[5] = { fc->FindShortEdge(), fc->e0, fc->e1, fc->e2, fc->e3 };
+
+        for ( int j = 0; j < 5; j++ )
+        {
+            if ( cand[j] && ValidCollapse( cand[j] ) )
+            {
+                CollapseEdge( cand[j] );
+                break;
+            }
+        }
     }
 
     return badcount;
@@ -757,11 +789,9 @@ void Mesh::SplitEdge( Edge* edge )
     vec2d uws = m_Surf->SplitUW( n0->pnt, n1->pnt, n0->uw, n1->uw );
     vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
 
-    // A split must not turn a face over.  CollapseEdge already refuses a move that would,
-    // through ValidNodeMove; splitting had no such check, and it is far and away the largest
-    // source of reversed faces -- 76 of them on WingMatrix_problems against 24 from smoothing
-    // and 1 from swapping.  A reversed face is then collapsed away by RemoveRevFaces, which
-    // is how a tip ends up with edges shared by more than two triangles.
+    // A split must not turn a face over.  CollapseEdge refuses a move that would, through
+    // ValidNodeMove.  A reversed face is collapsed away by RemoveIllFormedFaces, which is how a
+    // tip ends up with edges shared by more than two triangles.
     //
     // The four faces the split would build are checked before anything is created.  A split
     // that would turn one over does not happen; the edge stays as it is.

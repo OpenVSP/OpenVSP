@@ -70,7 +70,7 @@ public:
     // that do not exist yet, so a step can decline to build a face it would have to undo.
     bool TriReversed( const vec3d &p0, const vec3d &p1, const vec3d &p2,
                       const vec2d &uw0, const vec2d &uw1, const vec2d &uw2 );
-    int RemoveRevFaces();
+    int RemoveIllFormedFaces();
 
     void LimitTargetEdgeLength();
     void LimitTargetEdgeLength( Edge* e );

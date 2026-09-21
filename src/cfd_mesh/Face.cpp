@@ -173,6 +173,22 @@ void Node::LaplacianSmooth( Surf* surfPtr )
 
 }
 
+// Does this face face the same way as the surface it sits on?
+//
+// The same question Mesh::FaceReversed asks, with the surface's normal handed in rather than
+// looked up, so that a caller trying several positions for one node pays for it once.
+static bool FaceOutward( Face* f, const vec3d &nsurf, Surf* surfPtr )
+{
+    double dprod = dot( f->Normal(), nsurf );
+
+    if ( surfPtr->GetFlipFlag() )
+    {
+        dprod = -dprod;
+    }
+
+    return dprod >= 0.0;
+}
+
 void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
 {
     vector< Face* > connectFaces;
@@ -194,7 +210,6 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
     }
 
     vec3d movePnt = vec3d( 0, 0, 0 );
-    vec2d moveUW  = vec2d( 0, 0 );
     double k2 = 1.0 / ( 3.0 * sum_area );
     for ( int i = 0 ; i < ( int )connectFaces.size() ; i++ )
     {
@@ -202,21 +217,126 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
         {
             double k = k2 * areas[i];
             movePnt = movePnt + ( connectFaces[i]->n0->pnt + connectFaces[i]->n1->pnt + connectFaces[i]->n2->pnt ) * k;
-            moveUW = moveUW + ( connectFaces[i]->n0->uw + connectFaces[i]->n1->uw + connectFaces[i]->n2->uw ) * k;
         }
     }
 
-    // TODO:  This routine calculates an area weighted smoothed point to high precision.
-    // it then moves 1/10th the way from the old point to the new point (in UW terms).
-    // This is likely a remnant from the v2 code that searched much less precisely.
-    // Consider a (much) less precise search, discarding (or tuning) the 1/10th lag, or
-    // performing the 1/10th step in x,y,z space before performing the surface search.
-    // Profiling shows this routine is one of the most expensive parts of Remesh.
-    vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y() );
+    // Where the ring wants this node is a question about space, so it is asked in space: the
+    // area weighted average of the surrounding triangles' corners.  That point is not on the
+    // surface, and the node has to stay on it, so the node steps toward it along the surface.
+    //
+    // The step is a single linear one, taken through the surface's own derivatives.  A full
+    // nonlinear projection of the same target converges to a point that only a tenth of a
+    // relaxation step is taken toward anyway, and the next pass redoes it.
+    //
+    // Averaging in the surface's parameters and skipping the step entirely is cheaper still, and
+    // holds up wherever a step in u moves about as far in space as the next one does.  Where it
+    // does not hold up is a cap whose patch has collapsed to a line along part of its u range:
+    // half the parameter range there covers almost no surface, so a parametric midpoint sits
+    // nowhere near the middle of anything, and the mesh at the base of such a cap comes out
+    // skewed.
+    vec2d target = uw;
+    surfPtr->GetSurfCore()->TangentStep( target.v[0], target.v[1], movePnt );
 
-    uw = uw + ( close_uw - uw ) * 0.1;
-    pnt = surfPtr->CompPnt( uw.x(), uw.y() );
+    // Keep the step inside the ring the node already sits in.
+    //
+    // Nothing bounds the linear solve on its own.  Where the patch has collapsed the two
+    // parametric directions stop being independent, and a solve asked to reach a point in
+    // space can answer with an arbitrarily long step along the direction that has almost no
+    // length in space.  The direction is still the right one; only the distance is not to be
+    // trusted, so it is held to the distance the node's own neighbours already are.
+    //
+    // Without it a node thrown clear of its own ring is clamped onto the edge of the patch,
+    // where it can only do harm, and the trials below would spend themselves halving a step
+    // that was far too long to begin with.  It bites seldom and gently.
+    double rmax = 0.0;
+    for ( int i = 0 ; i < ( int )connectFaces.size() ; i++ )
+    {
+        if ( connectFaces[i]->n0 && connectFaces[i]->n1 && connectFaces[i]->n2 )
+        {
+            rmax = std::max( rmax, dist( connectFaces[i]->n0->uw, uw ) );
+            rmax = std::max( rmax, dist( connectFaces[i]->n1->uw, uw ) );
+            rmax = std::max( rmax, dist( connectFaces[i]->n2->uw, uw ) );
+        }
+    }
 
+    double step = dist( target, uw );
+
+    if ( step > rmax && step > 0.0 )
+    {
+        target = uw + ( target - uw ) * ( rmax / step );
+    }
+
+    // What the faces around the node look like before it moves.
+    //
+    // A face is fit to keep if it faces the same way as the surface and still has a shape.
+    // Both are recorded now so that each trial position can be judged against the state the
+    // node found, rather than against some absolute standard the mesh may not have met.
+    //
+    // One surface normal is read, at the node itself, and stood for the whole ring: the faces
+    // around a node cover a patch small enough that they all face much the same way, and this
+    // is a question about sign, not about angle.  Reading it per face, at each face's centre,
+    // costs six surface evaluations a node where the pass as a whole wants one.  It is read
+    // before the move and reused across the trials -- over a step this small it is the face
+    // that turns over, not the surface underneath it.
+    vec3d nsurf = surfPtr->CompNorm( uw.x(), uw.y() );
+
+    vector< bool > wasgood( connectFaces.size() );
+
+    for ( int i = 0 ; i < ( int )connectFaces.size() ; i++ )
+    {
+        // A face short of a corner is judged on nothing and vetoes nothing.  The loops above
+        // already decline to take such a face's centroid; asking it for a normal or an angle
+        // would read through the corner that is not there.
+        wasgood[i] = connectFaces[i]->n0 && connectFaces[i]->n1 && connectFaces[i]->n2 &&
+                     FaceOutward( connectFaces[i], nsurf, surfPtr ) &&
+                     !connectFaces[i]->Degenerate();
+    }
+
+    // Take as much of the step as the surrounding mesh can stand.
+    //
+    // The direction is worth keeping but the distance is not worth insisting on.  A node that
+    // oversteps drags a triangle inside out, or squeezes one to a splinter, and either has to
+    // be collapsed away afterwards; it is that collapsing, not the skewed triangles
+    // themselves, that leaves the assembled mesh with edges held by more than two triangles.
+    //
+    // So each trial position is put to the ring, and if any face that was fit to keep no
+    // longer is, the step is halved and asked again.  The node still moves -- it moves as far
+    // as it can without ruining anything, which is what its neighbours are entitled to.
+    //
+    // It is held still only if even the smallest trial spoils something, and then only for
+    // this pass.  The next pass asks again from wherever the neighbours have since moved to,
+    // so nothing is frozen; it is merely asked to wait its turn.
+    vec2d uw0 = uw;
+    vec3d pnt0 = pnt;
+    double frac = 0.1;
+
+    for ( int trial = 0 ; trial < 5 ; trial++ )
+    {
+        uw = uw0 + ( target - uw0 ) * frac;
+        pnt = surfPtr->CompPnt( uw.x(), uw.y() );
+
+        bool turned = false;
+        for ( int i = 0 ; i < ( int )connectFaces.size() && !turned ; i++ )
+        {
+            // A face that was already inside out is not held against this node.  It is not
+            // this node's doing, and standing still would only leave it that way.
+            if ( wasgood[i] && ( !FaceOutward( connectFaces[i], nsurf, surfPtr ) ||
+                                 connectFaces[i]->Degenerate() ) )
+            {
+                turned = true;
+            }
+        }
+
+        if ( !turned )
+        {
+            return;
+        }
+
+        frac = frac * 0.5;
+    }
+
+    uw = uw0;
+    pnt = pnt0;
 }
 
 void Node::LaplacianSmooth()
@@ -699,6 +819,22 @@ void Face::ReplaceEdge( Edge* curr_edge, Edge* replace_edge )
     {
         assert( 0 );
     }
+}
+
+// Below this smallest angle a triangle has no usable shape left: no normal worth reading and
+// nothing downstream able to orient it.  The cutoff sits far below anything the mesher aims
+// for, so this catches only faces that are past saving and leaves ordinary poor ones to be
+// improved by smoothing and swapping.
+static const double MIN_TRI_ANGLE = 0.5 * M_PI / 180.0;
+
+bool Face::Degenerate()
+{
+    if ( n3 )
+    {
+        return false;                       // quads are not this routine's business
+    }
+
+    return ComputeTriQual() < MIN_TRI_ANGLE;
 }
 
 double Face::ComputeTriQual()

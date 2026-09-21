@@ -125,13 +125,17 @@ public:
     double FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0, double umin, double umax, double vmin, double vmax ) const;
     double FindNearest( double &u, double &w, const vec3d &pt ) const;
 
-    // The point equidistant from two others, nearest to them.  Used to split an edge at a
-    // place that actually halves it; see eli/geom/intersect/equidistant_surface.hpp.
+    // One step from (u,w) toward a point in space, taken through the surface's own first
+    // derivatives so that it knows how far a step in the parameters actually moves.
+    void TangentStep( double &u, double &w, const vec3d &target ) const;
+
     // The equidistant point along the straight line in parameter space between the two.
     // Always exists, always found; used to seed FindEquidistant.
     void FindEquidistantOnLine( double &u, double &w, const vec3d &p0, const vec3d &p1,
                                 double u0, double w0, double u1, double w1 ) const;
 
+    // The point equidistant from two others, nearest to them.  Used to split an edge at a
+    // place that actually halves it; see eli/geom/intersect/equidistant_surface.hpp.
     double FindEquidistant( double &u, double &w, const vec3d &p0, const vec3d &p1,
                             double u0, double w0,
                             double ulo, double uhi, double wlo, double whi ) const;

@@ -177,6 +177,10 @@ public:
     void ReplaceNode( Node* curr_node, Node* replace_node );
     void ReplaceEdge( Edge* curr_edge, Edge* replace_edge );
 
+    // Has this face been squeezed until it has no inside left?  Smoothing will not make one,
+    // and the mesher collapses any that it finds.
+    bool Degenerate();
+
     double ComputeTriQual();
     static double ComputeTriQual( Node* n0, Node* n1, Node* n2 );
 

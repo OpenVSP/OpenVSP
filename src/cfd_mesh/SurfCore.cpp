@@ -794,6 +794,107 @@ double SurfCore::FindNearest( double &u, double &w, const vec3d &pt ) const
     return dist;
 }
 
+// Step toward a point in space, once, linearly.
+//
+// S(u+du, w+dw) is about S + Su du + Sv dw, so the step that best reaches the target is the
+// least squares solution of that two by three system: two dot products against the residual
+// and a 2x2 solve against the metric [[Su.Su, Su.Sv], [Su.Sv, Sv.Sv]].
+//
+// This is the first step of the search that projects a point onto a surface, and taking only
+// the first is the point.  A smoothing pass does not need a projection carried to
+// convergence; it needs a direction that knows the local stretch of the parameterization.
+// Averaging in the parameters assumes that stretch is constant, which is exactly what fails
+// where half of a cap's u range is laid along a collapsed edge.
+//
+// The metric is solved by its eigenvectors rather than by inversion because in that same
+// place it is singular: where the patch has collapsed to a line, one tangent direction has
+// no length and moving along it means nothing.  Dropping that direction leaves the step that
+// the surface can actually take, instead of either a huge step or none at all.
+void SurfCore::TangentStep( double &u, double &w, const vec3d &target ) const
+{
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
+
+    u = std::min( std::max( u, umn ), umx );
+    w = std::min( std::max( w, wmn ), wmx );
+
+    surface_point_type S( m_Surface.f( u, w ) );
+    surface_point_type Su( m_Surface.f_u( u, w ) );
+    surface_point_type Sv( m_Surface.f_v( u, w ) );
+
+    surface_point_type tgt;
+    target.get_pnt( tgt );
+    surface_point_type d = tgt - S;
+
+    double a = Su.dot( Su );
+    double b = Su.dot( Sv );
+    double c = Sv.dot( Sv );
+
+    double rhsu = Su.dot( d );
+    double rhsw = Sv.dot( d );
+
+    // Eigenvalues of the symmetric metric.  Both are real and neither is negative.
+    double tr = a + c;
+    double diff = a - c;
+    double rad = sqrt( diff * diff + 4.0 * b * b );
+
+    double l0 = 0.5 * ( tr + rad );         // the larger
+    double l1 = 0.5 * ( tr - rad );
+
+    if ( l0 <= 0.0 )
+    {
+        return;                             // no tangent plane at all; leave the node be
+    }
+
+    // Eigenvector for l0.  Both (b, l0 - a) and (l0 - c, b) span it; take the longer so the
+    // choice stays sound when one of them vanishes.
+    double e0u, e0w;
+    if ( std::abs( l0 - c ) > std::abs( l0 - a ) )
+    {
+        e0u = l0 - c;
+        e0w = b;
+    }
+    else
+    {
+        e0u = b;
+        e0w = l0 - a;
+    }
+
+    double n0 = sqrt( e0u * e0u + e0w * e0w );
+    if ( n0 <= 0.0 )
+    {
+        e0u = 1.0;                          // metric is a multiple of the identity
+        e0w = 0.0;
+        n0 = 1.0;
+    }
+    e0u = e0u / n0;
+    e0w = e0w / n0;
+
+    double du = ( ( rhsu * e0u + rhsw * e0w ) / l0 ) * e0u;
+    double dw = ( ( rhsu * e0u + rhsw * e0w ) / l0 ) * e0w;
+
+    // The second direction is kept only when the surface really moves along it.  The cutoff
+    // is relative, so it does not depend on the size of the model.
+    if ( l1 > 1.0e-9 * l0 )
+    {
+        double e1u = -e0w;
+        double e1w = e0u;
+
+        du = du + ( ( rhsu * e1u + rhsw * e1w ) / l1 ) * e1u;
+        dw = dw + ( ( rhsu * e1u + rhsw * e1w ) / l1 ) * e1w;
+    }
+
+    if ( !( std::abs( du ) < 1.0e30 ) || !( std::abs( dw ) < 1.0e30 ) )
+    {
+        return;
+    }
+
+    u = std::min( std::max( u + du, umn ), umx );
+    w = std::min( std::max( w + dw, wmn ), wmx );
+}
+
 void SurfCore::FindEquidistantOnLine( double &u, double &w, const vec3d &p0, const vec3d &p1,
                                       double u0, double w0, double u1, double w1 ) const
 {
