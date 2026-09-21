@@ -106,7 +106,11 @@ public:
     void  RemoveNode( Node* nptr );
     Node* FindNode( const vec3d& p );
 
-    static bool ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace = nullptr );
+    // Whether a node may be moved to a given point.  The faces the caller is about to remove
+    // are named so they are left out: they are allowed to fold up, and would otherwise be the
+    // very faces that refuse the move.
+    static bool ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace = nullptr,
+                               Face* ignoreFace2 = nullptr );
 
     // What a collapse of this edge to the given point would leave behind.  Returns the
     // smallest angle, in radians, over every face that survives the collapse, and reports

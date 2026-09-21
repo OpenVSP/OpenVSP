@@ -1550,7 +1550,7 @@ bool Mesh::ValidCollapse( Edge* edge )
     return true;
 }
 
-bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace )
+bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace, Face* ignoreFace2 )
 {
     int i;
     bool valid_flag = true;
@@ -1561,7 +1561,7 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace )
     normals.reserve( faceVec.size() );
     for ( i = 0 ; i < ( int )faceVec.size() ; i++ )
     {
-        if ( faceVec[i] != ignoreFace )
+        if ( faceVec[i] != ignoreFace && faceVec[i] != ignoreFace2 )
         {
             normals.push_back( faceVec[i]->Normal() );
         }
@@ -1574,7 +1574,7 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace )
     move_normals.reserve( normals.size() );
     for ( i = 0 ; i < ( int )faceVec.size() ; i++ )
     {
-        if ( faceVec[i] != ignoreFace )
+        if ( faceVec[i] != ignoreFace && faceVec[i] != ignoreFace2 )
         {
             move_normals.push_back( faceVec[i]->Normal() );
         }
@@ -1874,11 +1874,13 @@ bool Mesh::CollapseEdge( Edge* edge, bool repair )
         uwc = cand_uw[best];
     }
 
-    if ( !ValidNodeMove( n0, pc, fa ) )
+    // Both faces beside the edge go away in this collapse, so neither end's move is judged
+    // against them.
+    if ( !ValidNodeMove( n0, pc, fa, fb ) )
     {
         return false;
     }
-    if ( !ValidNodeMove( n1, pc, fb ) )
+    if ( !ValidNodeMove( n1, pc, fa, fb ) )
     {
         return false;
     }
