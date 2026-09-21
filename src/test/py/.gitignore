@@ -1,0 +1,7 @@
+# The suite runs the mesher and the exporters from this directory, and several of the tests
+# leave their output beside them: a script or a generated test that does not name a path
+# writes into the working directory, and for ctest that is here.  None of it belongs in the
+# repository.
+Unnamed*
+*.vspaero
+*.history
