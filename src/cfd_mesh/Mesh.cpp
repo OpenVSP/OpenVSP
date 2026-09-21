@@ -1805,26 +1805,27 @@ bool Mesh::CollapseEdge( Edge* edge, bool repair )
     //
     // Wang 2006 5.2: "either the two end points are merged to create one vertex or a new
     // vertex is created ... In practice, both options are checked and the configuration
-    // ... is adopted."  Both configurations are tried here and judged on the shape they leave
-    // behind.
-    vec3d pc;
-    vec2d uwc;
+    // ... is adopted."  A fixed end settles where the merge point goes on its own -- it lies
+    // on a border or an intersection curve and may not move -- but the configuration it
+    // gives still has to pass the same tests as any other.
+    vec3d cand_p[3];
+    vec2d cand_uw[3];
+    int ncand = 0;
 
     if ( n0->fixed )
     {
-        pc = n0->pnt;
-        uwc = n0->uw;
+        cand_p[0] = n0->pnt;
+        cand_uw[0] = n0->uw;
+        ncand = 1;
     }
     else if ( n1->fixed )
     {
-        pc = n1->pnt;
-        uwc = n1->uw;
+        cand_p[0] = n1->pnt;
+        cand_uw[0] = n1->uw;
+        ncand = 1;
     }
     else
     {
-        vec3d cand_p[3];
-        vec2d cand_uw[3];
-
         vec3d psplit = ( n0->pnt + n1->pnt ) * 0.5;
         vec2d uwsplit = ( n0->uw + n1->uw ) * 0.5;
         cand_uw[0] = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
@@ -1836,59 +1837,49 @@ bool Mesh::CollapseEdge( Edge* edge, bool repair )
         cand_p[2] = n1->pnt;
         cand_uw[2] = n1->uw;
 
-        int best = -1;
-        double bestq = -1.0;
-        double qbefore = M_PI;
-
-        for ( int k = 0; k < 3; k++ )
-        {
-            bool flipped = false;
-            double qb = M_PI;
-            double q = CollapseConfigQuality( edge, cand_p[k], cand_uw[k], flipped, qb );
-            qbefore = qb;
-
-            // Wang 2006 5.2 step 2: a negative area means the collapse overlapped the mesh.
-            if ( flipped )
-            {
-                continue;
-            }
-
-            if ( q > bestq )
-            {
-                bestq = q;
-                best = k;
-            }
-        }
-
-        if ( best < 0 )
-        {
-            return false;         // every way of doing this would overlap
-        }
-
-        // Wang 2006 5.2 step 3: the new configuration must not contain a triangle whose
-        // minimum angle tends to zero.
-        //
-        // Stated as a bare floor this refuses to improve a neighbourhood that is already
-        // below the floor, which is the one place the improvement is most wanted.  The rule
-        // that does what is meant is that the collapse may not make the neighbourhood worse:
-        // either it comes out acceptable, or it comes out better than it went in.
-        // Stated as "better than it was" this permits a collapse that leaves a triangle at
-        // very nearly zero, so long as the one it replaced was slightly worse.  Locally that
-        // reads as progress; over a surface it spirals, because the measurement only covers
-        // the faces beside the edge while the consequences land further out.  A plain floor is what
-        // holds.   [delete "Tried, and it degenerated most of a surface."]
-        // A collapse made for size may not leave a triangle at nearly zero.  A collapse made
-        // to remove a face that is already unfit may, because refusing it leaves the unfit
-        // face in the mesh, which is the worse of the two outcomes.  Overlap is refused
-        // either way.
-        if ( !repair && bestq < MIN_COLLAPSE_ANGLE )
-        {
-            return false;
-        }
-
-        pc = cand_p[best];
-        uwc = cand_uw[best];
+        ncand = 3;
     }
+
+    int best = -1;
+    double bestq = -1.0;
+
+    for ( int k = 0; k < ncand; k++ )
+    {
+        bool flipped = false;
+        double qb = M_PI;
+        double q = CollapseConfigQuality( edge, cand_p[k], cand_uw[k], flipped, qb );
+
+        // Wang 2006 5.2 step 2: a negative area means the collapse overlapped the mesh.
+        if ( flipped )
+        {
+            continue;
+        }
+
+        if ( q > bestq )
+        {
+            bestq = q;
+            best = k;
+        }
+    }
+
+    if ( best < 0 )
+    {
+        return false;         // every way of doing this would overlap
+    }
+
+    // Wang 2006 5.2 step 3: the new configuration must not contain a triangle whose minimum
+    // angle tends to zero.
+    //
+    // A collapse made for size may not leave a triangle at nearly zero.  A collapse made to
+    // remove a face that is already unfit may, because refusing it leaves the unfit face in
+    // the mesh, which is the worse of the two outcomes.  Overlap is refused either way.
+    if ( !repair && bestq < MIN_COLLAPSE_ANGLE )
+    {
+        return false;
+    }
+
+    vec3d pc = cand_p[best];
+    vec2d uwc = cand_uw[best];
 
     // Both faces beside the edge go away in this collapse, so neither end's move is judged
     // against them.
