@@ -530,58 +530,44 @@ int Mesh::Collapse( int num_iter )
         {
             if ( *e )
             {
-                if ( ValidCollapse( *e ) )
+                // Length first.  Only a short edge is a candidate, and the ratio is two reads and a divide
+                // where ValidCollapse walks both faces, finds four edges and looks for a third face along
+                // each of them.
+                double rat = ( *e )->GetLength() / ( *e )->target_len;
+
+                // Short for the size that was asked for, or short for the triangle it sits
+                // on.  The length test sees only a triangle that is too small, never one that
+                // is the right size and the wrong shape: a cap's height is far under its base,
+                // but where the target field is fine that height is not under target, so no
+                // edge of it is ever offered.  Wang 2006 selects on length because it assumes
+                // an isotropic starting mesh; the work on degenerate faces (Botsch and Kobbelt
+                // 2001) selects on shape.
+                //
+                // Both go on one scale so a single sorted list and budget still serve, each as
+                // a fraction of the limit that admitted the edge, so the worst offender of
+                // either kind sorts to the front.
+                //
+                double score = rat;
+                bool candidate = false;
+
+                if ( rat < CC_LENGTH_RATIO )
                 {
-                    double rat = ( *e )->GetLength() / ( *e )->target_len;
+                    candidate = true;
+                }
+                else
+                {
+                    double qworst = ShortEdgeOfPoorFace( *e );
 
-                    // Short for the size that was asked for, or short for the triangle it sits
-                    // on.  Only the first of those was ever asked.
-                    //
-                    // The length test compares an edge against the target field and nothing
-                    // else, so it can only see a triangle that is too small.  It cannot see one
-                    // that is the right size and the wrong shape.  A cap -- a triangle whose
-                    // apex has fallen onto the far side -- is exactly that: its height is far
-                    // under its base, but where the target field is already fine, that height
-                    // is not under target and no edge of it is ever offered to the collapse.
-                    //
-                    // Measurement on poormesh.vsp3: 462 of the 470 triangles left under five
-                    // degrees have an angle over 160, and every one of them survived every pass
-                    // untouched.  Swapping cannot reach them either -- accepting a flip that
-                    // lowers the largest angle as well as one that raises the smallest changes
-                    // the output not at all -- so the length test is the whole of the reason
-                    // they stay.
-                    //
-                    // Wang 2006 selects on length because it assumes an isotropic starting
-                    // mesh; the papers that deal with degenerate faces (Botsch and Kobbelt
-                    // 2001) select on shape.  Asking both questions is the smaller change.
-                    //
-                    // The two are put on one scale so that one sorted list and one budget still
-                    // serve: how short against target, or how flat against the angle below
-                    // which a triangle is considered ill-shaped.  Both are fractions of the
-                    // limit that admitted the edge, so the worst offender of either kind sorts
-                    // to the front.
-                    double score = rat;
-                    bool candidate = false;
-
-                    if ( rat < CC_LENGTH_RATIO )
+                    if ( qworst < COLLAPSE_QUAL_ANGLE )
                     {
                         candidate = true;
+                        score = qworst / COLLAPSE_QUAL_ANGLE;
                     }
-                    else
-                    {
-                        double qworst = ShortEdgeOfPoorFace( *e );
+                }
 
-                        if ( qworst < COLLAPSE_QUAL_ANGLE )
-                        {
-                            candidate = true;
-                            score = qworst / COLLAPSE_QUAL_ANGLE;
-                        }
-                    }
-
-                    if ( candidate )
-                    {
-                        shortEdges.emplace_back( pair< Edge*, double >( ( *e ), score ) );
-                    }
+                if ( candidate && ValidCollapse( *e ) )
+                {
+                    shortEdges.emplace_back( pair< Edge*, double >( ( *e ), score ) );
                 }
             }
         }
@@ -603,7 +589,7 @@ int Mesh::Collapse( int num_iter )
         {
             shortEdges[i].first->ComputeLength();
 //          printf("  Collapse %f \n", dist );
-            if ( ValidCollapse( shortEdges[i].first ) && !shortEdges[i].first->m_DeleteMeFlag )
+            if ( !shortEdges[i].first->m_DeleteMeFlag && ValidCollapse( shortEdges[i].first ) )
             {
                 num_short_edges++;
                 CollapseEdge( shortEdges[i].first );
