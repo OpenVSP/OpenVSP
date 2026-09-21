@@ -673,6 +673,152 @@ vec2d Surf::ClosestUW( const vec3d & pnt_in ) const
     return vec2d( u, w );
 }
 
+// A pattern search for the least of the larger of the two distances, over a box of the
+// surface's parameters.  Derivative free, because the objective creases along the set where
+// the two distances are equal, which is where the answer lives.  Slower than solving for it,
+// but it cannot converge to the wrong stationary point.
+double Surf::SplitSearch( const vec3d & p0, const vec3d & p1,
+                          double ulo, double uhi, double wlo, double whi,
+                          double &u, double &w ) const
+{
+    vec3d p = m_SurfCore.CompPnt( u, w );
+    double best = max( dist( p, p0 ), dist( p, p1 ) );
+
+    double du = 0.25 * ( uhi - ulo );
+    double dw = 0.25 * ( whi - wlo );
+
+    for ( int iter = 0; iter < 40; iter++ )
+    {
+        bool moved = false;
+
+        for ( int k = 0; k < 4; k++ )
+        {
+            double tu = u;
+            double tw = w;
+
+            if ( k == 0 ) { tu = u + du; }
+            if ( k == 1 ) { tu = u - du; }
+            if ( k == 2 ) { tw = w + dw; }
+            if ( k == 3 ) { tw = w - dw; }
+
+            tu = clamp( tu, ulo, uhi );
+            tw = clamp( tw, wlo, whi );
+
+            vec3d tp = m_SurfCore.CompPnt( tu, tw );
+            double f = max( dist( tp, p0 ), dist( tp, p1 ) );
+
+            if ( f < best )
+            {
+                best = f;
+                u = tu;
+                w = tw;
+                moved = true;
+            }
+        }
+
+        if ( !moved )
+        {
+            du *= 0.5;
+            dw *= 0.5;
+
+            if ( du < 1.0e-7 && dw < 1.0e-7 )
+            {
+                break;
+            }
+        }
+    }
+
+    return best;
+}
+
+// Where to put the new point when an edge is split.
+//
+// Taking the midpoint of the two ends and projecting it to the surface assumes the midpoint
+// lies near the surface.  Across a wing tip, where an edge runs from the lower surface round
+// to the upper, it does not: the midpoint is inside the wing, and the nearest surface point to
+// it is back on the side the edge came from.  The split then produces a child edge nearly as
+// long as its parent, which is split again, and the mesher fills the tip with a hairball until
+// something gives way.
+//
+// What halves the edge is the point equidistant from its two ends, and of those the nearest.
+// Solving for it directly is quick -- a two by two system in u and w, see
+// Solving for it directly is quick -- a two by two system in u and w, see
+// eli/geom/intersect/equidistant_surface.hpp -- but it finds a stationary point of the
+// constrained problem, which is not always the one wanted.
+//
+// So solve first and check the answer.  A split that halves its edge is kept, and only one
+// Both are measured against the projection, which is kept where it beats them.
+vec2d Surf::SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1 ) const
+{
+    double u0 = 0.5 * ( uw0.x() + uw1.x() );
+    double w0 = 0.5 * ( uw0.y() + uw1.y() );
+
+    double ulo = min( uw0.x(), uw1.x() );
+    double uhi = max( uw0.x(), uw1.x() );
+    double wlo = min( uw0.y(), uw1.y() );
+    double whi = max( uw0.y(), uw1.y() );
+
+    double upad = 0.25 * ( uhi - ulo );
+    double wpad = 0.25 * ( whi - wlo );
+
+    ulo = max( ulo - upad, m_SurfCore.GetMinU() );
+    uhi = min( uhi + upad, m_SurfCore.GetMaxU() );
+    wlo = max( wlo - wpad, m_SurfCore.GetMinW() );
+    whi = min( whi + wpad, m_SurfCore.GetMaxW() );
+
+    // Seed on the straight line between the two ends in parameter space.  The equidistant
+    // point along that line always exists and is always found, and unlike the parametric
+    // midpoint it is already equidistant, which is most of what the solve is looking for.
+    double su = u0;
+    double sw = w0;
+    m_SurfCore.FindEquidistantOnLine( su, sw, p0, p1, uw0.x(), uw0.y(), uw1.x(), uw1.y() );
+
+    su = clamp( su, ulo, uhi );
+    sw = clamp( sw, wlo, whi );
+
+    double u = su;
+    double w = sw;
+    m_SurfCore.FindEquidistant( u, w, p0, p1, su, sw, ulo, uhi, wlo, whi );
+
+    vec3d pe = m_SurfCore.CompPnt( u, w );
+    double fe = max( dist( pe, p0 ), dist( pe, p1 ) );
+
+    double half = 0.5 * dist( p0, p1 );
+
+    // Did it halve the edge?  If it did, that is the answer.
+    //
+    // Both fallbacks below -- the search, and projecting the midpoint onto the surface -- are
+    // for the case where the solve did not.  Projecting is a second Newton solve as costly as
+    // the first, and the most it can win once the solve is already within five percent of a
+    // perfect halving is those five percent, which is not worth a solve to chase.
+    if ( fe > 1.05 * half )
+    {
+        double su = u0;
+        double sw = w0;
+        double fs = SplitSearch( p0, p1, ulo, uhi, wlo, whi, su, sw );
+
+        if ( fs < fe )
+        {
+            u = su;
+            w = sw;
+            fe = fs;
+        }
+
+        // Fall back on the projection where it does better.
+        vec3d pmid = ( p0 + p1 ) * 0.5;
+        double pu, pw;
+        m_SurfCore.FindNearest( pu, pw, pmid, u0, w0 );
+        vec3d pp = m_SurfCore.CompPnt( pu, pw );
+
+        if ( max( dist( pp, p0 ), dist( pp, p1 ) ) < fe )
+        {
+            return vec2d( pu, pw );
+        }
+    }
+
+    return vec2d( u, w );
+}
+
 // One side of the patch, from one corner of its parameter domain to the next.
 //
 // Where a patch has been put back together out of two pieces, the side along the join can come

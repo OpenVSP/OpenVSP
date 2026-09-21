@@ -6,6 +6,7 @@
 #include "SurfCore.h"
 #include "BezierCurve.h"
 #include "eli/geom/intersect/distance_angle_surface.hpp"
+#include "eli/geom/intersect/equidistant_surface.hpp"
 #include "StlHelper.h"
 
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
@@ -791,6 +792,61 @@ double SurfCore::FindNearest( double &u, double &w, const vec3d &pt ) const
     dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p );
 
     return dist;
+}
+
+void SurfCore::FindEquidistantOnLine( double &u, double &w, const vec3d &p0, const vec3d &p1,
+                                      double u0, double w0, double u1, double w1 ) const
+{
+    surface_point_type q0, q1;
+    p0.get_pnt( q0 );
+    p1.get_pnt( q1 );
+
+    // Hold the ends on the surface before walking between them.
+    //
+    // Every point the walk evaluates is a convex combination of the two ends, so ends on the
+    // surface keep the whole walk on it and ends off it do not.  A node sitting on a patch
+    // boundary can round a single bit past it, and piecewise::f answers an out of range
+    // parameter with a patch index of -1 guarded only by an assert -- which a release build
+    // compiles out, leaving it to index the patch array out of range.
+    //
+    // CompPnt and FindEquidistant hold their parameters this way already.
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
+
+    u0 = std::min( std::max( u0, umn ), umx );
+    u1 = std::min( std::max( u1, umn ), umx );
+    w0 = std::min( std::max( w0, wmn ), wmx );
+    w1 = std::min( std::max( w1, wmn ), wmx );
+
+    eli::geom::intersect::equidistant_uwline( u, w, m_Surface, q0, q1, u0, w0, u1, w1 );
+}
+
+double SurfCore::FindEquidistant( double &u, double &w, const vec3d &p0, const vec3d &p1,
+                                  double u0, double w0,
+                                  double ulo, double uhi, double wlo, double whi ) const
+{
+    surface_point_type q0, q1;
+    p0.get_pnt( q0 );
+    p1.get_pnt( q1 );
+
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
+
+    ulo = std::max( ulo, umn );
+    uhi = std::min( uhi, umx );
+    wlo = std::max( wlo, wmn );
+    whi = std::min( whi, wmx );
+
+    u0 = std::min( std::max( u0, ulo ), uhi );
+    w0 = std::min( std::max( w0, wlo ), whi );
+
+    int ret = 0;
+    return eli::geom::intersect::equidistant( u, w, m_Surface, q0, q1, u0, w0,
+                                              ulo, uhi, wlo, whi, ret );
 }
 
 // u0, w0 is assumed to be a corner point of a surface.

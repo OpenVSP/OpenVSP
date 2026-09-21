@@ -748,10 +748,9 @@ void Mesh::SplitEdge( Edge* edge )
     //  n1 = edge->n0;
     //}
 
-    vec3d psplit  = ( n0->pnt + n1->pnt ) * 0.5; // Split
-    vec2d uwsplit = ( n0->uw  + n1->uw ) * 0.5;
-
-    vec2d uws = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
+    // Not the midpoint projected to the surface: across a tip that lands back on the side the
+    // edge came from, and the split does not shorten anything.  See Surf::SplitUW.
+    vec2d uws = m_Surf->SplitUW( n0->pnt, n1->pnt, n0->uw, n1->uw );
     vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
 
     // A split must not turn a face over.  CollapseEdge already refuses a move that would,
