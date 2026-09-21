@@ -17,6 +17,7 @@
 #include "IntersectPatch.h"
 #include "VspUtil.h"
 #include <cfloat>  //For DBL_EPSILON
+#include <set>
 #include "Vec3d.h"
 
 #ifdef DEBUG_CFD_MESH
@@ -1122,6 +1123,34 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
 }
 
 
+// OpenABF builds a half edge mesh, and that needs every directed edge to belong to at most one
+// face.  A grid whose rows collapse -- a patch that runs to a point, or one made by laying a
+// cap against itself -- can offer the same directed edge twice.
+//
+// OpenABF answers some of those with an exception, which is caught below.  It does not answer
+// this one: where it decides a face has to be wound the other way, it swaps the edges it has
+// collected for their pairs but leaves the face's head pointing at the edge it abandoned.
+// That edge is never given a next, so walking the face reads through a null pointer instead of
+// throwing, and the program goes down.  The check has to happen here, before the face is
+// offered.
+//
+// Returns false, and records nothing, for a face that would reuse a directed edge.
+static bool ManifoldFace( std::set< std::pair< int, int > > &used, int a, int b, int c )
+{
+    std::pair< int, int > e0( a, b ), e1( b, c ), e2( c, a );
+
+    if ( used.count( e0 ) > 0 || used.count( e1 ) > 0 || used.count( e2 ) > 0 )
+    {
+        return false;
+    }
+
+    used.insert( e0 );
+    used.insert( e1 );
+    used.insert( e2 );
+
+    return true;
+}
+
 void Surf::BuildDistMap()
 {
 #ifdef DEBUG_CFD_MESH
@@ -1209,6 +1238,15 @@ void Surf::BuildDistMap()
         }
     }
 
+    // A patch that runs to a point at one end -- a wing that closes on its spine -- samples
+    // to a grid whose rows collapse, and the triangles built from it can ask for a third face
+    // along an edge.  There is no flattening one of those, and asking for it walks off the
+    // end of the mesh, so notice and give up on the map instead.  Without it the mesher
+    // spaces points by the surface's own parameter, as it does for a planar patch.
+    bool badface = false;
+    int nrefuse = 0;
+    std::set< std::pair< int, int > > usededge;
+
     for ( i = 0 ; i < nump - 1; i++ )
     {
         for ( j = 0; j < nump - 1; j++ )
@@ -1220,21 +1258,69 @@ void Surf::BuildDistMap()
             i2 = pnCloud.GetNodeUsedIndex( ptindx[ i ][ j + 1 ] );
             i3 = pnCloud.GetNodeUsedIndex( ptindx[ i + 1 ][ j + 1 ] );
 
+            // A patch that runs to a point at one end -- a wing that closes on its spine --
+            // samples to a grid whose rows collapse, and the triangles built from it can ask
+            // for a third face along an edge.  Leave those out rather than let the throw take
+            // the program down; what is left still stands in for the surface well enough to
+            // space points on it.
             if ( (i0 != i1) && (i0 != i2) && (i1 != i2) )
             {
-                mesh->insert_face( i0, i1, i2 );
+                if ( ManifoldFace( usededge, i0, i1, i2 ) )
+                {
+                    try { mesh->insert_face( i0, i1, i2 ); }
+                    catch ( const std::exception & ) { badface = true; }
+                }
+                else
+                {
+                    nrefuse++;
+                }
             }
 
             if ( (i1 != i3) && (i1 != i2) && (i3 != i2) )
             {
-                mesh->insert_face( i1, i3, i2 );
+                if ( ManifoldFace( usededge, i1, i3, i2 ) )
+                {
+                    try { mesh->insert_face( i1, i3, i2 ); }
+                    catch ( const std::exception & ) { badface = true; }
+                }
+                else
+                {
+                    nrefuse++;
+                }
             }
         }
     }
 
+    // Flattening can fail outright on a grid like that.  Without the map the mesher spaces
+    // points by the surface's own parameter, which is what it does for a planar patch, so
+    // give up on the map rather than on the surface.
+    // Faces left out are not on their own a reason to give up.  A grid that repeats points
+    // loses the faces built on them, and what remains often still flattens; only a flattener
+    // that actually fails costs the map.
+    if ( nrefuse > 0 )
+    {
+        printf( "Surface %s: %d of the distance map grid's faces are not 2-manifold and were "
+                "left out.\n", GetDisplayName().c_str(), nrefuse );
+    }
 
-    ABF::Compute( mesh );
-    LSCM::Compute( mesh );
+    if ( badface )
+    {
+        printf( "Surface %s: the flattener refused a face; spacing points by surface "
+                "parameter instead.\n", GetDisplayName().c_str() );
+        return;
+    }
+
+    try
+    {
+        ABF::Compute( mesh );
+        LSCM::Compute( mesh );
+    }
+    catch ( const std::exception &e )
+    {
+        printf( "Surface %s: could not flatten the distance map grid (%s); spacing points by "
+                "surface parameter instead.\n", GetDisplayName().c_str(), e.what() );
+        return;
+    }
 
     vector< vector< double > > smat( nump, vector< double > ( nump, -1.0 ) );
     vector< vector< double > > tmat( nump, vector< double > ( nump, -1.0 ) );
