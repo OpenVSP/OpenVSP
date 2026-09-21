@@ -929,10 +929,22 @@ void CfdMeshMgrSingleton::PostMesh()
     m_FaceLengthRatios.clear();
     m_BorderFaceLengthRatios.clear();
 
-    for ( int i = 0 ; i < nsurf ; ++i )
+    // Each surface's share of what this stage collects, kept apart and joined in surface
+    // order afterwards, so the answer does not depend on which thread finished first.
+    vector < vector < double > > lenratio( nsurf );
+    vector < vector < double > > faceratio( nsurf );
+    vector < vector < double > > borderratio( nsurf );
+    vector < std::set< std::vector< int > > > tagcombo( nsurf );
+
+    int nthread = StageThreadCount( nsurf );
+
+    // Each surface reduces its own mesh to simple faces, tags them and condenses them.  None
+    // of that reaches another surface: the target map, the subsurfaces and the tag numbering
+    // are all read, and everything written belongs to the surface or to the vectors above.
+    RunIndexed( nsurf, nthread, [&]( int i )
     {
         m_SurfVec[ i ]->GetMesh()->LoadSimpFaces();
-        m_SurfVec[ i ]->GetMesh()->AccumLengthRatios( m_LengthRatios );
+        m_SurfVec[ i ]->GetMesh()->AccumLengthRatios( lenratio[i] );
 
         // The same misses counted per face instead of per edge, which is what the coloured
         // picture shows: a face is as bad as its worst edge, so the share of bad faces is
@@ -943,17 +955,25 @@ void CfdMeshMgrSingleton::PostMesh()
         {
             if ( sfv[f].m_WorstLenRatio > 0.0 )
             {
-                m_FaceLengthRatios.push_back( sfv[f].m_WorstLenRatio );
+                faceratio[i].push_back( sfv[f].m_WorstLenRatio );
 
                 if ( sfv[f].m_OffBorder )
                 {
-                    m_BorderFaceLengthRatios.push_back( sfv[f].m_WorstLenRatio );
+                    borderratio[i].push_back( sfv[f].m_WorstLenRatio );
                 }
             }
         }
         m_SurfVec[i]->GetMesh()->Clear();
-        Subtag( m_SurfVec[i] );
+        Subtag( m_SurfVec[i], tagcombo[i] );
         m_SurfVec[ i ]->GetMesh()->CondenseSimpFaces();
+    } );
+
+    for ( int i = 0 ; i < nsurf ; ++i )
+    {
+        m_LengthRatios.insert( m_LengthRatios.end(), lenratio[i].begin(), lenratio[i].end() );
+        m_FaceLengthRatios.insert( m_FaceLengthRatios.end(), faceratio[i].begin(), faceratio[i].end() );
+        m_BorderFaceLengthRatios.insert( m_BorderFaceLengthRatios.end(), borderratio[i].begin(), borderratio[i].end() );
+        SubSurfaceMgr.m_TagCombos.insert( tagcombo[i].begin(), tagcombo[i].end() );
     }
 }
 
@@ -5048,7 +5068,7 @@ void CfdMeshMgrSingleton::SetFaceQuality( SimpFace &face, const vector< vec3d > 
     }
 }
 
-void CfdMeshMgrSingleton::Subtag( Surf* surf )
+void CfdMeshMgrSingleton::Subtag( Surf* surf, std::set< std::vector< int > > &combo )
 {
     vector< SimpFace >& face_vec = surf->GetMesh()->GetSimpFaceVec();
     const vector< vec2d >& pnts = surf->GetMesh()->GetSimpUWPntVec();
@@ -5082,7 +5102,7 @@ void CfdMeshMgrSingleton::Subtag( Surf* surf )
                 face.m_Tags.push_back( simp_s_surfs[s].m_Tag );
             }
         }
-        SubSurfaceMgr.m_TagCombos.insert( face.m_Tags );
+        combo.insert( face.m_Tags );
     }
 }
 

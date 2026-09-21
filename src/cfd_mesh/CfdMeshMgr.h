@@ -258,7 +258,9 @@ public:
     // SubSurface Methods
     virtual void SubTagTris();
     virtual void SetSimpSubSurfTags( int tag_offset );
-    virtual void Subtag( Surf* surf );
+    // Tag one surface's faces.  The tag combinations found go into combo rather than
+    // straight into the manager's set, so surfaces can be tagged side by side.
+    virtual void Subtag( Surf* surf, std::set< std::vector< int > > &combo );
 
     // The smallest angle and the realized-over-target edge length of one face.
     virtual void SetFaceQuality( SimpFace &face, const vector< vec3d > &xyz, double tgt );
