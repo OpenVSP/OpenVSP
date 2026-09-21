@@ -864,8 +864,8 @@ void Mesh::SplitEdge( Edge* edge )
         ea0->RemoveFace( fa );
         ea1->RemoveFace( fa );
 
-        AddFace( n0, ns, na, ea0, ea, es0 );
-        AddFace( n1, na, ns, ea1, es1, ea );
+        CheckFace( AddFace( n0, ns, na, ea0, ea, es0 ) );
+        CheckFace( AddFace( n1, na, ns, ea1, es1, ea ) );
 
         RemoveFace( fa );
     }
@@ -877,8 +877,8 @@ void Mesh::SplitEdge( Edge* edge )
         eb0->RemoveFace( fb );
         eb1->RemoveFace( fb );
 
-        AddFace( n0, nb, ns, es0, eb, eb0 );
-        AddFace( n1, ns, nb, es1, eb1, eb );
+        CheckFace( AddFace( n0, nb, ns, es0, eb, eb0 ) );
+        CheckFace( AddFace( n1, ns, nb, es1, eb1, eb ) );
 
         RemoveFace( fb );
     }
@@ -1049,7 +1049,8 @@ void Mesh::SwapEdge( Edge* edge )
 
     LimitTargetEdgeLength( edge );
 
-//CheckValidAllEdges();
+    CheckFace( fa );
+    CheckFace( fb );
 }
 
 bool Mesh::ThreeEdgesThreeFaces( Edge* edge )
@@ -1586,7 +1587,10 @@ void Mesh::CollapseEdge( Edge* edge )
     ComputeTargetEdgeLength( nc );
     LimitTargetEdgeLength( nc );
 
-//CheckValidAllEdges( );
+    CheckFace( fa0 );
+    CheckFace( fa1 );
+    CheckFace( fb0 );
+    CheckFace( fb1 );
 
 }
 
@@ -1728,6 +1732,40 @@ void Mesh::CheckValidAllEdges()
         {
             CheckValidEdge( ( *e ) );
         }
+    }
+}
+
+void Mesh::CheckFace( Face* f )
+{
+    if ( !f || f->m_DeleteMeFlag )
+    {
+        return;
+    }
+
+    Node* fn[4] = { f->n0, f->n1, f->n2, f->n3 };
+    Edge* fe[4] = { f->e0, f->e1, f->e2, f->e3 };
+
+    int nv = 3;
+
+    if ( fn[3] )
+    {
+        nv = 4;
+    }
+
+    for ( int i = 0 ; i < nv ; i++ )
+    {
+        assert( fn[i] );
+        assert( fe[i] );
+
+        if ( !fn[i] || !fe[i] )
+        {
+            return;
+        }
+
+        assert( fe[i]->n0 && fe[i]->n1 );
+        assert( fe[i]->n0 != fe[i]->n1 );
+        assert( f->Contains( fe[i]->n0, fe[i]->n1 ) );
+        assert( fe[i]->f0 == f || fe[i]->f1 == f );
     }
 }
 

@@ -92,6 +92,11 @@ public:
     void AdjustEdgeLengths();
 
     static void CheckValidEdge( Edge* e );
+
+    // A face and the edges it names must agree: every edge joins two of the face's corners,
+    // and every edge holds the face as one of the two it belongs to.  It costs a fixed handful
+    // of comparisons, so an operation can afford to check the faces it just built.
+    static void CheckFace( Face* f );
     void CheckValidAllEdges();
 
     Node* AddNode( const vec3d &p, const vec2d &uw_in );
