@@ -1210,6 +1210,12 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
 
     sort( ipnts.begin(), ipnts.end(), UWPntIndexCompare );
 
+    // Where each intersection point sits in uwPntVec.  A point belongs to a chain, and a chain
+    // is handed to both the surfaces it lies between, so this numbering is the surface's own
+    // and is kept here rather than on the point.
+    unordered_map< IPnt*, int > pntindex;
+    pntindex.reserve( ipnts.size() );
+
     for ( int k = 0 ; k < ( int )ipnts.size() ; k++ )
     {
         vec2d uw = ipnts[k].first;
@@ -1229,12 +1235,12 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
 
         if ( min_dist < 1.0e-4 )
         {
-            ipt->m_Index = min_id;
+            pntindex[ ipt ] = min_id;
         }
         else
         {
             uwPntVec.push_back( uw );
-            ipt->m_Index = uwPntVec.size() - 1;
+            pntindex[ ipt ] = ( int )uwPntVec.size() - 1;
         }
     }
 
@@ -1252,8 +1258,8 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
         int nhalf = 0.5 * ( n - 1 )  + 1;
         for ( int j = 0 ; j < nhalf - 1; j++ )
         {
-            seg.m_Index[0] = chains[i]->m_TessVec[2 * j]->m_Index;
-            seg.m_Index[1] = chains[i]->m_TessVec[2 * (j + 1)]->m_Index;
+            seg.m_Index[0] = pntindex[ chains[i]->m_TessVec[2 * j] ];
+            seg.m_Index[1] = pntindex[ chains[i]->m_TessVec[2 * (j + 1)] ];
             seg.m_UWmid = chains[i]->m_TessVec[2 * j + 1]->GetPuw( this )->m_UW;
 
             seg.m_P[0] = chains[i]->m_TessVec[2 * j]->m_Pnt;

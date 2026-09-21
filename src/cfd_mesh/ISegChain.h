@@ -78,7 +78,6 @@ public:
     void AddSegRef( ISeg* seg );
     void RemoveSegRef( ISeg* seg );
 
-    int m_Index;
     bool m_UsedFlag;
     bool m_GroupedFlag;
     vec3d m_Pnt;
