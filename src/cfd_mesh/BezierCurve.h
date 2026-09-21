@@ -92,6 +92,10 @@ public:
     }
 };
 
+// Drop points that repeat the one before them from a tessellation, keeping the ends of the
+// curve.  uvec is the parameter of each point and is kept in step with them.
+void RemoveRepeatedPnts( vector< vec3d > &pnts, vector< double > &uvec );
+
 #endif
 
 

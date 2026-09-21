@@ -3663,6 +3663,8 @@ void SurfaceIntersectionSingleton::BuildIntChain( const string &id, vector < vec
                 Bezier_curve xyzcrvA = matchCurve->GetUWCrv();
                 xyzcrvA.TessAdaptXYZ( *( matchCurve->GetSurf() ), ptvec, .1, 8, uvec );
 
+                RemoveRepeatedPnts( ptvec, uvec );
+
                 for ( int i = 0 ; i < ( int )uvec.size() ; i++ )
                 {
                     uwvec.push_back( xyzcrvA.CompPnt( uvec[ i ] ) );

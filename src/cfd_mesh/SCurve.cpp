@@ -214,6 +214,12 @@ void SCurve::TessAdapt( const Surf& srf, double tol, int Nlimit )
     // Binary Adaptive refinement - ignore 3D points
     GetUWCrv().TessAdaptXYZ( srf, pnt_vec, tol, Nlimit, m_UTess );
 
+    // Where the surface collapses, a run of parameter lands on one place.  The 3D points are
+    // dropped here, but the parameters that named them are what the mesh is built from, and
+    // several of them naming the same place is several mesh nodes there.  The points decide
+    // which parameters are worth keeping, so they earn their keep before being thrown away.
+    RemoveRepeatedPnts( pnt_vec, m_UTess );
+
     UWTess();
 }
 

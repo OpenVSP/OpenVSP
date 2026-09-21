@@ -381,6 +381,79 @@ void Bezier_curve::TessAdaptXYZ( const Surf &srf, double umin, double umax, cons
     }
 }
 
+// TessAdaptXYZ reports where a curve lands, and where the surface it runs on collapses it
+// lands in the same place more than once -- a run of parameter that maps nowhere.  The
+// points join up as straight segments, so a point that repeats the one before it adds no
+// shape and can go.
+//
+// The ends stay.  They are where the curve starts and finishes, and the topology is stated
+// against them, so where a repeated run reaches an end it is the end that is kept and the
+// interior of the run that goes.  uvec is the parameter of each point, kept in step, and
+// may be empty.
+void RemoveRepeatedPnts( vector< vec3d > &pnts, vector< double > &uvec )
+{
+    int npnt = ( int )pnts.size();
+
+    if ( npnt < 2 )
+    {
+        return;
+    }
+
+    vector < int > keep;
+    keep.reserve( npnt );
+    keep.push_back( 0 );
+
+    for ( int i = 1; i < npnt; i++ )
+    {
+        if ( dist( pnts[i], pnts[ keep.back() ] ) != 0.0 )
+        {
+            keep.push_back( i );
+        }
+    }
+
+    // A repeated run reaching the end of the curve kept the point it started at.  Take the
+    // end of the curve instead -- the same place, but the point the curve is meant to finish
+    // on, and the parameter that goes with it.
+    if ( keep.back() != npnt - 1 )
+    {
+        keep.back() = npnt - 1;
+    }
+
+    // Both ends stay, even when they are the same place.  A curve whose every point repeats
+    // the first has nothing to tell them apart, and taking it down to the one point they
+    // share would leave something that is no longer a curve at all -- the callers go on to
+    // measure its length, join segments along it, and write it out as a run of points.  Keep
+    // the start and the end, and let whoever wants to reject a curve of no length do so on
+    // its length.
+    if ( keep.size() == 1 && npnt > 1 )
+    {
+        keep[0] = 0;
+        keep.push_back( npnt - 1 );
+    }
+
+    if ( ( int )keep.size() == npnt )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < ( int )keep.size(); i++ )
+    {
+        pnts[i] = pnts[ keep[i] ];
+
+        if ( !uvec.empty() )
+        {
+            uvec[i] = uvec[ keep[i] ];
+        }
+    }
+
+    pnts.resize( keep.size() );
+
+    if ( !uvec.empty() )
+    {
+        uvec.resize( keep.size() );
+    }
+}
+
 //===== Interpolate Creates piecewise linear curves ===//
 void Bezier_curve::InterpolateLinear( const vector< vec3d > & input_pnt_vec )
 {
