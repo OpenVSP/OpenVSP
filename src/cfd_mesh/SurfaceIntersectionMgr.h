@@ -273,6 +273,31 @@ public:
 
     virtual void IntersectSurfaces();
 
+    // What the last run produced, for a caller that wants the numbers rather than the files.
+    int GetNumSurfs() const
+    {
+        return ( int )m_SurfVec.size();
+    }
+
+    int GetNumChains() const
+    {
+        return ( int )m_ISegChainList.size();
+    }
+
+    // Raw intersection points over all the intersection curves.
+    int GetNumCurvePnts() const;
+
+    // The same numbers as a Results entry, so a scripted run can read what the intersection
+    // found rather than parse the files it wrote.  Written by every run.
+    virtual void RecordResults();
+
+    const string& GetLastResultID() const
+    {
+        return m_LastResultID;
+    }
+
+    string m_LastResultID;
+
     virtual void LimitedIntersectSurfaces( const vector < string > & geomvec, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains );
 
     virtual void TransferMeshSettings();

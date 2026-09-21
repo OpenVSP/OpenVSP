@@ -16,6 +16,9 @@
 #include "StlHelper.h"
 #include "MessageMgr.h"
 #include "VspUtil.h"
+#include "ResultsMgr.h"
+
+#include <map>
 
 //=============================================================//
 //=============================================================//
@@ -506,6 +509,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     if ( m_SurfVec.size() == 0 )
     {
         addOutputText( "No Surfaces.  Done.\n" );
+        RecordResults();
         m_FeaMeshInProgress = false;
         MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
@@ -534,6 +538,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     if ( !CheckPropMat() )
     {
         addOutputText( "Material or property not identified.\n" );
+        RecordResults();
         m_FeaMeshInProgress = false;
         MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
@@ -647,12 +652,102 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     GetMeshPtr()->m_MeshReady = true;
 
+    RecordResults();
+
     UpdateDrawObjs();
 
     addOutputText( "Finished\n" );
 
     m_FeaMeshInProgress = false;
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+}
+
+// A structure's mesh is open by design -- a part's edge stops where the part does, and a half
+// mesh stops at the symmetry plane -- and every joint between parts puts more than two elements
+// on one edge, so the CFD mesher's watertight verdict means nothing here.  What is reported in
+// its place is the free edges, those of one shell element alone, which is how a structure's
+// connections are checked: a part that should meet another and does not shows up there.
+void FeaMeshMgrSingleton::RecordResults()
+{
+    m_LastResultID = string();
+
+    Results* res = ResultsMgr.CreateResults( "FEAMesh", "FEA mesh generation results." );
+
+    if ( !res )
+    {
+        return;
+    }
+
+    m_LastResultID = res->GetID();
+
+    FeaMesh* mesh = GetMeshPtr();
+
+    int num_nodes = 0;
+    int num_els = 0;
+    int num_tris = 0;
+    int num_quads = 0;
+    int num_beams = 0;
+    int num_free_edges = 0;
+
+    if ( mesh && mesh->m_MeshReady )
+    {
+        num_nodes = ( int )mesh->m_NumNodes;
+        num_els = ( int )mesh->m_NumEls;
+        num_tris = ( int )mesh->m_NumTris;
+        num_quads = ( int )mesh->m_NumQuads;
+        num_beams = ( int )mesh->m_NumBeams;
+
+        // Each shell element's edges, between corners, by the numbers the nodes are written with.
+        map< pair< long long int, long long int >, int > edge_count;
+
+        for ( int i = 0; i < ( int )mesh->m_FeaElementVec.size(); i++ )
+        {
+            FeaElement* el = mesh->m_FeaElementVec[i];
+            int type = el->GetElementType();
+
+            if ( type != FeaElement::FEA_TRI_3 && type != FeaElement::FEA_TRI_6 &&
+                 type != FeaElement::FEA_QUAD_4 && type != FeaElement::FEA_QUAD_8 )
+            {
+                continue;
+            }
+
+            int ncorner = ( int )el->m_Corners.size();
+
+            for ( int j = 0; j < ncorner; j++ )
+            {
+                long long int a = el->m_Corners[j]->m_Index;
+                long long int b = el->m_Corners[( j + 1 ) % ncorner]->m_Index;
+
+                if ( a == b )
+                {
+                    continue;
+                }
+
+                if ( a > b )
+                {
+                    std::swap( a, b );
+                }
+
+                edge_count[ make_pair( a, b ) ]++;
+            }
+        }
+
+        map< pair< long long int, long long int >, int >::const_iterator e;
+        for ( e = edge_count.begin(); e != edge_count.end(); ++e )
+        {
+            if ( e->second == 1 )
+            {
+                num_free_edges++;
+            }
+        }
+    }
+
+    res->Add( new NameValData( "Num_Nodes", num_nodes, "Number of nodes in the mesh." ) );
+    res->Add( new NameValData( "Num_Els", num_els, "Number of elements in the mesh." ) );
+    res->Add( new NameValData( "Num_Tris", num_tris, "Number of triangular shell elements." ) );
+    res->Add( new NameValData( "Num_Quads", num_quads, "Number of quadrilateral shell elements." ) );
+    res->Add( new NameValData( "Num_Beams", num_beams, "Number of beam elements." ) );
+    res->Add( new NameValData( "Num_Free_Edges", num_free_edges, "Number of shell element edges with no other shell element on them." ) );
 }
 
 void FeaMeshMgrSingleton::ExportFeaMesh( const string &structID )

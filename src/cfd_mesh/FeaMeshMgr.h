@@ -100,6 +100,9 @@ public:
     virtual bool LoadSurfaces();
     virtual void LoadSkins();
     virtual void GenerateFeaMesh();
+
+    // What the run produced, as a Results entry, in place of the CFD mesher's.
+    void RecordResults() override;
     virtual void ExportFeaMesh( const string &structID );
     virtual void ExportCADFiles();
     virtual void TransferMeshSettings() override;

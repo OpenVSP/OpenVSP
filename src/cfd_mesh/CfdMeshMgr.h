@@ -169,6 +169,40 @@ public:
 
     virtual string CheckWaterTight();
 
+    // What the last run produced.  The watertight check's verdict is a line of text meant
+    // for a person; these are the same numbers for a caller that has to act on them.  An
+    // edge with one triangle on it is a border edge and one with more than two is over
+    // connected; a closed mesh has neither.
+    int GetNumMeshTris() const
+    {
+        return m_NumMeshTris;
+    }
+
+    int GetNumBorderEdges() const
+    {
+        return m_NumBorderEdges;
+    }
+
+    int GetNumOverConnEdges() const
+    {
+        return m_NumOverConnEdges;
+    }
+
+    int m_NumMeshTris = 0;
+    int m_NumBorderEdges = 0;
+    int m_NumOverConnEdges = 0;
+
+    // The same numbers as a Results entry, so a scripted run can read the verdict rather
+    // than watch the console for it.  Written by every run.
+    void RecordResults() override;
+
+    const string& GetLastResultID() const
+    {
+        return m_LastResultID;
+    }
+
+    string m_LastResultID;
+
     // How close the mesh came to the edge lengths it was asked for.  Collected in PostMesh,
     // which is the last moment the edges exist.
     virtual string TargetLengthReport();

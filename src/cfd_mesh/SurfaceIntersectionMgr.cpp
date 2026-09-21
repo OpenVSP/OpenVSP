@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "SurfaceIntersectionMgr.h"
+#include "ResultsMgr.h"
 #include "VspUtil.h"
 #include "SubSurfaceMgr.h"
 #include "StringUtil.h"
@@ -498,6 +499,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
         // report success.  addOutputText reaches the screen only.
         addOutputText( "No Surfaces To Mesh\n" );
         printf( "No Surfaces To Mesh\n" );
+        RecordResults();
         m_MeshInProgress = false;
         MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
@@ -513,6 +515,8 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
 
     addOutputText( "Exporting Files\n" );
     ExportFiles();
+
+    RecordResults();
 
     UpdateDrawObjs();
 
@@ -593,6 +597,49 @@ void MeshRenewListener::MessageCallback( const MessageBase* from, const MessageD
 // Everything built from the vehicle's geometry goes.  The intersection and meshing managers
 // outlive any one model, so without this a mesh -- and everything drawn from it -- survives
 // into a model it has nothing to do with.
+void SurfaceIntersectionSingleton::RecordResults()
+{
+    m_LastResultID = string();
+
+    Results* res = ResultsMgr.CreateResults( "SurfaceIntersection", "Surface intersection results." );
+
+    if ( !res )
+    {
+        return;
+    }
+
+    m_LastResultID = res->GetID();
+
+    res->Add( new NameValData( "Num_Surfs", GetNumSurfs(), "Number of surfaces the intersection ran on." ) );
+    res->Add( new NameValData( "Num_Chains", GetNumChains(), "Number of intersection curves found." ) );
+    res->Add( new NameValData( "Num_Curve_Pnts", GetNumCurvePnts(), "Number of raw intersection points over all the intersection curves." ) );
+
+    // Each curve's raw points, one after another, and how many belong to each
+    vector < int > npnt_vec( m_RawCurveAVec.size() );
+    vector < vec3d > pnt_vec;
+    pnt_vec.reserve( GetNumCurvePnts() );
+    for ( int i = 0 ; i < ( int )m_RawCurveAVec.size() ; i++ )
+    {
+        npnt_vec[i] = ( int )m_RawCurveAVec[i].size();
+        pnt_vec.insert( pnt_vec.end(), m_RawCurveAVec[i].begin(), m_RawCurveAVec[i].end() );
+    }
+
+    res->Add( new NameValData( "Curve_Num_Pnts", npnt_vec, "Number of raw points on each intersection curve." ) );
+    res->Add( new NameValData( "Curve_Pnts", pnt_vec, "Raw points of every intersection curve, curve after curve." ) );
+}
+
+int SurfaceIntersectionSingleton::GetNumCurvePnts() const
+{
+    int npnt = 0;
+
+    for ( int i = 0 ; i < ( int )m_RawCurveAVec.size() ; i++ )
+    {
+        npnt += ( int )m_RawCurveAVec[i].size();
+    }
+
+    return npnt;
+}
+
 void SurfaceIntersectionSingleton::RenewMesh()
 {
     CleanUp();

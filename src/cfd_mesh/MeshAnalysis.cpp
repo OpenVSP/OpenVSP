@@ -185,6 +185,8 @@ string CfdMeshAnalysis::Execute()
         // Execute analysis
         CfdMeshMgr.GenerateMesh();
 
+        res_id = CfdMeshMgr.GetLastResultID();
+
         // ==== Restore original values that were overwritten by analysis inputs ==== //
 
         veh->GetCfdGridDensityPtr()->m_BaseLen.Set( baseLenOrig );
@@ -314,6 +316,8 @@ string FeaMeshAnalysis::Execute()
         FeaMeshMgr.UpdateStructure();
         FeaMeshMgr.addOutputText( "CLEAR_TERMINAL" );
         FeaMeshMgr.GenerateFeaMesh();
+
+        res_id = FeaMeshMgr.GetLastResultID();
 
         // ==== Restore original values that were overwritten by analysis inputs ==== //
 
@@ -735,7 +739,9 @@ string SurfaceIntersectionAnalysis::Execute()
         if( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_STEP_FILE_NAME );
 
         // Execute analysis
-        SurfaceIntersectionMgr.IntersectSurfaces(); // TODO: Add results
+        SurfaceIntersectionMgr.IntersectSurfaces();
+
+        res_id = SurfaceIntersectionMgr.GetLastResultID();
 
         // ==== Restore original values that were overwritten by analysis inputs ==== //
         veh->GetISectSettingsPtr()->m_IntersectSubSurfs.Set( intersectSubSurfsOrig );

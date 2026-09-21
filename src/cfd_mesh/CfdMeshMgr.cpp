@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "CfdMeshMgr.h"
+#include "ResultsMgr.h"
 #include "SubSurfaceMgr.h"
 #include "main.h"
 #include "MeshAnalysis.h"
@@ -47,6 +48,12 @@ void CfdMeshMgrSingleton::GenerateMesh()
 #ifdef DEBUG_TIME_OUTPUT
     addOutputText( "Init Timer\n" );
 #endif
+
+    // What this run produced, reported at the end.  Cleared here so a run that stops early
+    // cannot be read as the one before it.
+    m_NumMeshTris = 0;
+    m_NumBorderEdges = 0;
+    m_NumOverConnEdges = 0;
 
     addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
@@ -88,6 +95,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
         // report success.  addOutputText reaches the screen only.
         addOutputText( "No Surfaces To Mesh\n" );
         printf( "No Surfaces To Mesh\n" );
+        RecordResults();
         m_MeshInProgress = false;
         MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
@@ -154,6 +162,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Check Water Tight\n" );
     string resultTxt = CheckWaterTight();
     addOutputText( resultTxt );
+
+    RecordResults();
 
     // string lenTxt = TargetLengthReport();
     // addOutputText( lenTxt );
@@ -879,6 +889,8 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
     }
 
     WakeMgr.StretchWakes();
+
+    m_NumMeshTris = total_num_tris;
 
     snprintf( str, sizeof( str ), "Total Num Tris = %d\n", total_num_tris );
     addOutputText( str, output_type );
@@ -2540,6 +2552,27 @@ string CfdMeshMgrSingleton::TargetLengthReport()
            + FaceRatioLine( m_BorderFaceLengthRatios, "of those, on a border:" );
 }
 
+void CfdMeshMgrSingleton::RecordResults()
+{
+    m_LastResultID = string();
+
+    Results* res = ResultsMgr.CreateResults( "CFDMesh", "CFD mesh generation results." );
+
+    if ( !res )
+    {
+        return;
+    }
+
+    m_LastResultID = res->GetID();
+
+    bool tight = m_NumBorderEdges == 0 && m_NumOverConnEdges == 0;
+
+    res->Add( new NameValData( "Num_Tris", m_NumMeshTris, "Number of triangles in the mesh." ) );
+    res->Add( new NameValData( "Num_Border_Edges", m_NumBorderEdges, "Number of mesh edges with one triangle on them." ) );
+    res->Add( new NameValData( "Num_Over_Connected_Edges", m_NumOverConnEdges, "Number of mesh edges with more than two triangles on them." ) );
+    res->Add( new NameValData( "Water_Tight", tight, "Flag set when the mesh is closed." ) );
+}
+
 string CfdMeshMgrSingleton::CheckWaterTight()
 {
     vector< Face* > faceVec;
@@ -2690,6 +2723,9 @@ string CfdMeshMgrSingleton::CheckWaterTight()
             delete faceVec[i];
         }
     }
+
+    m_NumBorderEdges = num_border_edges;
+    m_NumOverConnEdges = moreThanTwoTriPerEdge;
 
     char resultStr[255];
     if ( num_border_edges || moreThanTwoTriPerEdge )
