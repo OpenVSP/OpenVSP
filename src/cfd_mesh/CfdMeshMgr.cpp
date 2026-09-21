@@ -3277,7 +3277,7 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     int pos = base.find( ".i.tri" );
     if ( pos >= 0 )
     {
-        base.erase( pos, base.length() - 1 );
+        base.erase( pos );
     }
 
     string uvin_fn = base;
