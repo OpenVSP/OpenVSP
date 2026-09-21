@@ -12,6 +12,7 @@
 #include <mutex>
 #include <functional>
 #include <atomic>
+#include <exception>
 #include "SurfaceIntersectionMgr.h"
 #include "ResultsMgr.h"
 #include "VspUtil.h"
@@ -500,27 +501,58 @@ int SurfaceIntersectionSingleton::StageThreadCount( int nitem )
 // another does and a fixed split would leave threads idle waiting on the slowest share.
 void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::function< void( int ) > &body )
 {
+    // The first exception a work item threw, if any.  One that escaped a thread would end the
+    // process, so a worker keeps it here instead and the caller is given it once the threads
+    // are back -- the same thing that happens on the one-thread path.
+    std::exception_ptr err;
+
     if ( nthread > 1 )
     {
         std::atomic< int > next( 0 );
         vector < std::thread > pool;
+        std::mutex errmutex;
 
-        for ( int t = 0 ; t < nthread ; t++ )
+        try
         {
-            pool.push_back( std::thread( [&]()
+            for ( int t = 0 ; t < nthread ; t++ )
             {
-                while ( true )
+                pool.push_back( std::thread( [&]()
                 {
-                    int i = next++;
-
-                    if ( i >= n )
+                    while ( true )
                     {
-                        break;
-                    }
+                        int i = next++;
 
-                    body( i );
-                }
-            } ) );
+                        if ( i >= n )
+                        {
+                            break;
+                        }
+
+                        try
+                        {
+                            body( i );
+                        }
+                        catch ( ... )
+                        {
+                            std::lock_guard< std::mutex > errlock( errmutex );
+
+                            if ( !err )
+                            {
+                                err = std::current_exception();
+                            }
+
+                            // Hand out no more work.  The items already running finish.
+                            next = n;
+                        }
+                    }
+                } ) );
+            }
+        }
+        catch ( ... )
+        {
+            // Starting a thread failed partway through.  The ones already running still have
+            // to be joined below, or their destructors end the process too.
+            next = n;
+            err = std::current_exception();
         }
 
         for ( int t = 0 ; t < ( int )pool.size() ; t++ )
@@ -534,6 +566,11 @@ void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::fu
         {
             body( i );
         }
+    }
+
+    if ( err )
+    {
+        std::rethrow_exception( err );
     }
 }
 
