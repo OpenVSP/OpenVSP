@@ -937,6 +937,17 @@ void Face::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double*
     double d12 = sqrt( dsqr12 );
     double d20 = sqrt( dsqr20 );
 
+    // Two corners in the same place leave the angles undefined.  Report the triangle as
+    // closed flat rather than dividing by zero: a NaN compares false against every
+    // threshold, so the worst triangle there is would pass every test that looks for one.
+    if ( d01 <= 0.0 || d12 <= 0.0 || d20 <= 0.0 )
+    {
+        *ang0 = 1.0;
+        *ang1 = 1.0;
+        *ang2 = 1.0;
+        return;
+    }
+
     *ang0 = ( -dsqr12 + dsqr01 + dsqr20 ) / ( 2.0 * d01 * d20 );
     *ang1 = ( -dsqr20 + dsqr01 + dsqr12 ) / ( 2.0 * d01 * d12 );
     *ang2 = ( -dsqr01 + dsqr12 + dsqr20 ) / ( 2.0 * d12 * d20 );

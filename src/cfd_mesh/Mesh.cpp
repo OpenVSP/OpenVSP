@@ -1217,25 +1217,33 @@ void Mesh::SwapEdge( Edge* edge )
     vec3d normc = Face::Normal( n0, nb, na );
     vec3d normd = Face::Normal( n1, na, nb );
 
-    double angab = angle( norma, normb );
-
-    if ( angab > 0.25 * M_PI_4  )
+    // The three tests below ask whether the swap would fold the surface over, by the angle
+    // between face normals.  A face with no area has no normal to read and angle() reports
+    // it as perfectly aligned with anything, so the tests would pass on nothing.  A face
+    // that bad is one the swap is wanted for, and the pair it becomes was already required
+    // to be better shaped than the pair it replaces, so let it through deliberately.
+    if ( norma.mag() > 0.0 && normb.mag() > 0.0 )
     {
-        return;
-    }
+        double angab = angle( norma, normb );
 
-    double angcd = angle( normc, normd );
+        if ( angab > 0.25 * M_PI_4  )
+        {
+            return;
+        }
 
-    if ( angcd > 0.25 * M_PI_4  )
-    {
-        return;
-    }
+        double angcd = angle( normc, normd );
 
-    double angac = angle( norma, normc );
+        if ( angcd > 0.25 * M_PI_4  )
+        {
+            return;
+        }
 
-    if ( angac > 0.25 * M_PI_4 )
-    {
-        return;
+        double angac = angle( norma, normc );
+
+        if ( angac > 0.25 * M_PI_4 )
+        {
+            return;
+        }
     }
 
     Edge* ea0 = fa->FindEdge( n0, na );
@@ -1582,6 +1590,14 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace, F
 
     for ( i = 0 ; i < ( int )normals.size() ; i++ )
     {
+        // A face the move leaves with no area has no normal, and angle() reads that as no
+        // turn at all.  Flattening a face onto a line is the move most worth refusing.
+        if ( move_normals[i].mag() <= 0.0 )
+        {
+            valid_flag = false;
+            break;
+        }
+
         if ( angle( normals[i], move_normals[i] ) >= 0.5 * M_PI_4 )
         {
             valid_flag = false;
