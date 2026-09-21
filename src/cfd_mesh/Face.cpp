@@ -324,43 +324,14 @@ void Node::OptSmooth()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+// Take on a face, unless the edge already holds the two it may have.  The third face is the
+// one that does not belong, so the edge keeps the pair it has: swapping one of them out for
+// the newcomer would leave a face that is part of the mesh with no edge pointing at it.
 bool Edge::SetFace( Face* f )
 {
     if ( f0 && f1 )
     {
-        printf( "Edge: More Than 2 Faces %16.10f %16.10f %16.10f\n",
-//          f0->ComputeQual(), f1->ComputeQual(), f->ComputeQual() );
-                f0->Area(), f1->Area(), f->Area() );
-        Face* badface = f;
-        if ( f0->Area() < badface->Area() )
-        {
-            f0 = badface;
-        }
-        if ( f1->Area() < badface->Area() )
-        {
-            f1 = badface;
-        }
-
-        printf( "     vertex %f %f %f\n", f0->n0->pnt.x(), f0->n0->pnt.y(), f0->n0->pnt.z() );
-        printf( "     vertex %f %f %f\n", f0->n1->pnt.x(), f0->n1->pnt.y(), f0->n1->pnt.z() );
-        printf( "     vertex %f %f %f\n", f0->n2->pnt.x(), f0->n2->pnt.y(), f0->n2->pnt.z() );
-
-        printf( "     vertex %f %f %f\n", f1->n0->pnt.x(), f1->n0->pnt.y(), f1->n0->pnt.z() );
-        printf( "     vertex %f %f %f\n", f1->n1->pnt.x(), f1->n1->pnt.y(), f1->n1->pnt.z() );
-        printf( "     vertex %f %f %f\n", f1->n2->pnt.x(), f1->n2->pnt.y(), f1->n2->pnt.z() );
-
-        printf( "     vertex %f %f %f\n", f->n0->pnt.x(), f->n0->pnt.y(), f->n0->pnt.z() );
-        printf( "     vertex %f %f %f\n", f->n1->pnt.x(), f->n1->pnt.y(), f->n1->pnt.z() );
-        printf( "     vertex %f %f %f\n", f->n2->pnt.x(), f->n2->pnt.y(), f->n2->pnt.z() );
-
-        printf( "   Face = %f %f %f\n        %f %f %f\n        %f %f %f \n",
-                badface->n0->pnt.x(), badface->n0->pnt.y(), badface->n0->pnt.z(),
-                badface->n1->pnt.x(), badface->n1->pnt.y(), badface->n1->pnt.z(),
-                badface->n2->pnt.x(), badface->n2->pnt.y(), badface->n2->pnt.z() );
-
-        printf( "   Border %d %d %d\n", badface->e0->border, badface->e1->border, badface->e2->border );
-
-
+        printf( "Edge: More Than 2 Faces\n" );
         return false;
     }
     if ( f0 )

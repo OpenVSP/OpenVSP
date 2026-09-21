@@ -640,9 +640,12 @@ Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge
     faceList.push_back( fptr );
     fptr->list_ptr = --faceList.end();
 
-    ee0->SetFace( fptr );
-    ee1->SetFace( fptr );
-    ee2->SetFace( fptr );
+    // Every operation that builds a face here hands it edges it has just made or just freed,
+    // so an edge that will not take it means the mesh was already wrong.
+    bool ok = ee0->SetFace( fptr );
+    ok = ee1->SetFace( fptr ) && ok;
+    ok = ee2->SetFace( fptr ) && ok;
+    assert( ok );
 
     return fptr;
 }
@@ -653,10 +656,11 @@ Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge
     faceList.push_back( fptr );
     fptr->list_ptr = --faceList.end();
 
-    ee0->SetFace( fptr );
-    ee1->SetFace( fptr );
-    ee2->SetFace( fptr );
-    ee3->SetFace( fptr );
+    bool ok = ee0->SetFace( fptr );
+    ok = ee1->SetFace( fptr ) && ok;
+    ok = ee2->SetFace( fptr ) && ok;
+    ok = ee3->SetFace( fptr ) && ok;
+    assert( ok );
 
     return fptr;
 }
