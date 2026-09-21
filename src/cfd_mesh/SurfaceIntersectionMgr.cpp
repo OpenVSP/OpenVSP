@@ -663,6 +663,12 @@ void SurfaceIntersectionSingleton::CleanUp()
     m_RawBorderCurveDO = DrawObj();
     m_RawBorderPtsDO = DrawObj();
 
+    // The curves that bound one patch rather than two.  Emptied with the rest: UpdateDrawObjs
+    // adds to these rather than rebuilding them, so anything left here is drawn again on top
+    // of the next mesh.
+    m_RawNonManifoldCurveDO = DrawObj();
+    m_RawNonManifoldPtsDO = DrawObj();
+
     m_ApproxPlanesDO = DrawObj();
 
     m_DelPtsDO = DrawObj();
@@ -3803,11 +3809,17 @@ void SurfaceIntersectionSingleton::RecordIntCurves()
     m_RawCurveAVec.clear();
     m_RawCurveBVec.clear();
     m_BorderCurveFlagVec.clear();
+    m_NonManifoldCurveFlagVec.clear();
 
     list<ISegChain *>::iterator c;
     for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         m_BorderCurveFlagVec.push_back( (*c)->m_BorderFlag );
+
+        // Valence: two distinct parents is a curve between two patches; the same surface
+        // on both sides means it bounds only one, and the mesh is not manifold along it.
+        m_NonManifoldCurveFlagVec.push_back(
+                (*c)->m_ACurve.GetSurf() == (*c)->m_BCurve.GetSurf() );
 
         vector<vec3d> rawptvec;
 
@@ -3828,10 +3840,15 @@ void SurfaceIntersectionSingleton::RecordIntCurves()
 
 void SurfaceIntersectionSingleton::UpdateDrawObjs()
 {
+    // One color for each kind of curve, from the Okabe-Ito palette: each dark enough to read on
+    // white, and told apart with red-green color blindness
+    vec3d isect_color( 0.84, 0.37, 0 );
+    vec3d border_color( 0, 0.45, 0.70 );
+
     // Draw ISegChains
     m_RawIsectCurveDO.m_GeomID = GetID() + "RAWISECTCURVE";
     m_RawIsectCurveDO.m_Type = DrawObj::VSP_LINES;
-    m_RawIsectCurveDO.m_LineColor = vec3d(1, 0, 1);
+    m_RawIsectCurveDO.m_LineColor = isect_color;
     m_RawIsectCurveDO.m_LineWidth = 2.0;
 
     m_RawIsectPtsDO.m_GeomID = GetID() + "RAWISECTPTS";
@@ -3841,8 +3858,20 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
 
     m_RawBorderCurveDO.m_GeomID = GetID() + "RAWBORDERCURVE";
     m_RawBorderCurveDO.m_Type = DrawObj::VSP_LINES;
-    m_RawBorderCurveDO.m_LineColor = vec3d(1, 1, 0);
+    m_RawBorderCurveDO.m_LineColor = border_color;
     m_RawBorderCurveDO.m_LineWidth = 2.0;
+
+    // Curves that bound one patch rather than two, drawn apart from the rest, so a surface
+    // laid against itself can be seen where it happens.
+    m_RawNonManifoldCurveDO.m_GeomID = GetID() + "RAWNONMANIFOLDCURVE";
+    m_RawNonManifoldCurveDO.m_Type = DrawObj::VSP_LINES;
+    m_RawNonManifoldCurveDO.m_LineColor = vec3d( 0, 0, 0 );
+    m_RawNonManifoldCurveDO.m_LineWidth = 3.0;
+
+    m_RawNonManifoldPtsDO.m_GeomID = GetID() + "RAWNONMANIFOLDPTS";
+    m_RawNonManifoldPtsDO.m_Type = DrawObj::VSP_POINTS;
+    m_RawNonManifoldPtsDO.m_PointColor = vec3d( 0, 0, 0 );
+    m_RawNonManifoldPtsDO.m_PointSize = 12.0;
 
     m_RawBorderPtsDO.m_GeomID = GetID() + "RAWBORDERPTS";
     m_RawBorderPtsDO.m_Type = DrawObj::VSP_POINTS;
@@ -3854,7 +3883,12 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
         DrawObj *rawcurveDO;
         DrawObj *rawptsDO;
 
-        if ( m_BorderCurveFlagVec[indx] )
+        if ( indx < ( int )m_NonManifoldCurveFlagVec.size() && m_NonManifoldCurveFlagVec[indx] )
+        {
+            rawcurveDO = &m_RawNonManifoldCurveDO;
+            rawptsDO = &m_RawNonManifoldPtsDO;
+        }
+        else if ( m_BorderCurveFlagVec[indx] )
         {
             rawcurveDO = &m_RawBorderCurveDO;
             rawptsDO = &m_RawBorderPtsDO;
@@ -3887,10 +3921,16 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
     m_RawBorderCurveDO.m_NormVec = m_RawBorderCurveDO.m_PntVec;
     m_RawBorderPtsDO.m_NormVec = m_RawBorderPtsDO.m_PntVec;
 
+    m_RawNonManifoldCurveDO.m_NormVec = m_RawNonManifoldCurveDO.m_PntVec;
+    m_RawNonManifoldPtsDO.m_NormVec = m_RawNonManifoldPtsDO.m_PntVec;
+
     m_RawIsectCurveDO.m_GeomChanged = true;
     m_RawIsectPtsDO.m_GeomChanged = true;
     m_RawBorderCurveDO.m_GeomChanged = true;
     m_RawBorderPtsDO.m_GeomChanged = true;
+
+    m_RawNonManifoldCurveDO.m_GeomChanged = true;
+    m_RawNonManifoldPtsDO.m_GeomChanged = true;
 
     //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//
     if ( false ) // Set to true to turn visualization tools ON
@@ -3993,9 +4033,23 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
                                  GetSettingsPtr()->m_DrawPntsFlag &&
                                  GetSettingsPtr()->m_DrawRawFlag;
 
+    // A curve that bounds one patch rather than two may be either an intersection or a
+    // border, so it follows whichever of the two is being shown.
+    bool anycrv = GetSettingsPtr()->m_DrawIsectFlag || GetSettingsPtr()->m_DrawBorderFlag;
+
+    m_RawNonManifoldCurveDO.m_Visible = anycrv &&
+                                        GetSettingsPtr()->m_DrawCurveFlag &&
+                                        GetSettingsPtr()->m_DrawRawFlag;
+
+    m_RawNonManifoldPtsDO.m_Visible = anycrv &&
+                                      GetSettingsPtr()->m_DrawPntsFlag &&
+                                      GetSettingsPtr()->m_DrawRawFlag;
+
     draw_obj_vec.push_back( &m_RawIsectCurveDO );
     draw_obj_vec.push_back( &m_RawIsectPtsDO );
     draw_obj_vec.push_back( &m_RawBorderCurveDO );
+    draw_obj_vec.push_back( &m_RawNonManifoldCurveDO );
+    draw_obj_vec.push_back( &m_RawNonManifoldPtsDO );
     draw_obj_vec.push_back( &m_RawBorderPtsDO );
 
     //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//

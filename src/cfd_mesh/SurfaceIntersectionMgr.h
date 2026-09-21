@@ -485,6 +485,10 @@ protected:
 
     vector< vector< vec3d > > debugRayIsect;
 
+    // A chain whose two parents are the same surface is matched to itself: the surface is
+    // laid against itself along it, and it bounds one patch rather than two.
+    vector < bool > m_NonManifoldCurveFlagVec;
+
     vector < vector < vec3d > > m_RawCurveAVec;
     vector < vector < vec3d > > m_RawCurveBVec;
     vector < bool > m_BorderCurveFlagVec;
@@ -514,6 +518,9 @@ private:
     DrawObj m_RawIsectPtsDO;
     DrawObj m_RawBorderCurveDO;
     DrawObj m_RawBorderPtsDO;
+
+    DrawObj m_RawNonManifoldCurveDO;
+    DrawObj m_RawNonManifoldPtsDO;
 
     DrawObj m_ApproxPlanesDO;
 
