@@ -3590,8 +3590,90 @@ void ClipTess( const vector < double > &tess, double lo, double hi, vector < dou
 void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress, const vector < double > &utess, const vector < double > &wtess, bool capumin, bool capumax ) const
 {
     vector < piecewise_surface_type > surfvec;
-    surfvec.push_back( m_Surface );
-    SplitSurfs( surfvec, usuppress, wsuppress );
+
+    vector < double > usup= usuppress;
+    vector < double > wsup = wsuppress;
+
+    if ( GetSurfType() == vsp::WING_SURF ) // IsMagicVParm()
+    {
+        double umin = m_Surface.get_u0();
+        double umax = m_Surface.get_umax();
+
+        double vmin = m_Surface.get_v0();
+        double vmax = m_Surface.get_vmax();
+        double vmid = 0.5 * ( vmin + vmax );
+
+        piecewise_surface_type srest, s;
+        s = m_Surface;
+
+        if ( capumin )
+        {
+            piecewise_surface_type scaplower, scapupper, scap;
+            double ucap = umin + 1.0;
+
+            s.split_u( scap, srest, ucap );
+            s = srest;
+
+            scap.split_v( scaplower, scapupper, vmid );
+
+            scapupper.reverse_u();
+            scapupper.reverse_v();
+            scaplower.set_v0( scapupper.get_v0() );
+            scaplower.set_u0( scapupper.get_umax() );
+            scap.join_u( scapupper, scaplower );
+
+            surfvec.emplace_back( scap );
+
+            usup.push_back( ucap );
+        }
+
+        if ( capumax )
+        {
+            piecewise_surface_type scaplower, scapupper, scap;
+            double ucap = umax - 1.0;
+
+            s.split_u( srest, scap, ucap );
+            s = srest;
+
+            scap.split_v( scaplower, scapupper, vmid );
+
+            scapupper.reverse_u();
+            scapupper.reverse_v();
+            scapupper.set_v0( scaplower.get_v0() );
+            scapupper.set_u0( scaplower.get_umax() );
+            scap.join_u( scaplower, scapupper );
+
+
+            surfvec.emplace_back( scap );
+            usup.push_back( umax );
+        }
+
+        piecewise_surface_type stelower, slower, sle, supper, steupper, ste;
+
+        s.split_v( stelower, srest, TMAGIC );
+        s = srest;
+        s.split_v( slower, srest, vmid - TMAGIC );
+        s = srest;
+        s.split_v( sle, srest, vmid + TMAGIC );
+        s = srest;
+        s.split_v( supper, steupper, vmax - TMAGIC );
+        ste.join_v( steupper, stelower );
+
+        surfvec.emplace_back( ste );
+        surfvec.emplace_back( sle );
+
+        wsup.push_back( vmid );
+        wsup.push_back( vmax );
+
+        surfvec.emplace_back( slower );
+        surfvec.emplace_back( supper );
+    }
+    else
+    {
+        surfvec.push_back( m_Surface );
+    }
+
+    SplitSurfs( surfvec, usup, wsup );
 
     int num_sections = surfvec.size();
 
