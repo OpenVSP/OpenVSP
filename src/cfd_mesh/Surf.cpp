@@ -982,20 +982,6 @@ bool Surf::IntersectPrepare( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMg
     return true;
 }
 
-void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
-{
-    if ( IntersectPrepare( surfPtr, MeshMgr ) )
-    {
-        vector < int > patch_vec;
-        FindIntersectPatches( surfPtr, patch_vec );
-
-        for ( int i = 0 ; i < ( int )patch_vec.size() ; i++ )
-        {
-            IntersectPatch( patch_vec[i], surfPtr, MeshMgr );
-        }
-    }
-}
-
 void Surf::FindIntersectPatches( Surf* surfPtr, vector < int > &patch_vec )
 {
     patch_vec.clear();

@@ -201,7 +201,6 @@ public:
         return &m_Mesh;
     }
 
-    void Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
     bool IntersectPrepare( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
     // The patches whose boxes meet surfPtr's, which are the only ones IntersectPatch has work for
     void FindIntersectPatches( Surf* surfPtr, vector < int > &patch_vec );
