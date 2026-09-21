@@ -673,83 +673,76 @@ vec2d Surf::ClosestUW( const vec3d & pnt_in ) const
     return vec2d( u, w );
 }
 
-void Surf::FindBorderCurves()
+// One side of the patch, from one corner of its parameter domain to the next.
+//
+// Where a patch has been put back together out of two pieces, the side along the join can come
+// back on itself: the surface reaches the same place from either half, so the side runs out and
+// back over one curve in space.  Cut in two at the turn, the halves are that curve from either
+// end and pair with each other, which is one edge of topology rather than the two an ordinary
+// cut would make.
+void Surf::AddBorderCurve( double ua, double wa, double ub, double wb )
 {
     double degen_tol = 1.0e-6;
 
-    //==== Load 4 Border Curves if Not Degenerate ====//
-    SCurve* scrv;
+    bool folded = true;
+    int nchk = 8;
+
+    for ( int i = 1; i < nchk; i++ )
+    {
+        double f = ( double )i / ( double )( 2 * nchk );
+
+        vec3d p0 = m_SurfCore.CompPnt( ua + f * ( ub - ua ), wa + f * ( wb - wa ) );
+        vec3d p1 = m_SurfCore.CompPnt( ub - f * ( ub - ua ), wb - f * ( wb - wa ) );
+
+        if ( dist( p0, p1 ) > degen_tol )
+        {
+            folded = false;
+            break;
+        }
+    }
+
+    int npiece = 1;
+    if ( folded )
+    {
+        npiece = 2;
+    }
+
+    vector< vec3d > pnts( 2 );
+
+    for ( int k = 0; k < npiece; k++ )
+    {
+        double f0 = ( double )k / ( double )npiece;
+        double f1 = ( double )( k + 1 ) / ( double )npiece;
+
+        pnts[0].set_xyz( ua + f0 * ( ub - ua ), wa + f0 * ( wb - wa ), 0 );
+        pnts[1].set_xyz( ua + f1 * ( ub - ua ), wa + f1 * ( wb - wa ), 0 );
+
+        SCurve* scrv = new SCurve( this );
+        scrv->InterpolateLinear( pnts );
+        scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
+
+        if ( scrv->Length( 10 ) > degen_tol )
+        {
+            m_SCurveVec.push_back( scrv );
+        }
+        else
+        {
+            delete scrv;
+        }
+    }
+}
+
+void Surf::FindBorderCurves()
+{
     double min_u = m_SurfCore.GetMinU();
     double min_w = m_SurfCore.GetMinW();
     double max_u = m_SurfCore.GetMaxU();
     double max_w = m_SurfCore.GetMaxW();
 
-    vector< vec3d > pnts;
-    pnts.resize( 2 );
-
-    pnts[0].set_xyz( min_u, min_w, 0 );         // Inc U
-    pnts[1].set_xyz( max_u, min_w, 0 );
-
-    scrv = new SCurve( this );
-    scrv->InterpolateLinear( pnts );
-    scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
-
-    if ( scrv->Length( 10 ) > degen_tol )
-    {
-        m_SCurveVec.push_back( scrv );
-    }
-    else
-    {
-        delete scrv;
-    }
-
-    pnts[0].set_xyz( max_u, min_w, 0 );       // Inc W
-    pnts[1].set_xyz( max_u, max_w, 0 );
-
-    scrv = new SCurve( this );
-    scrv->InterpolateLinear( pnts );
-    scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
-
-    if ( scrv->Length( 10 ) > degen_tol )
-    {
-        m_SCurveVec.push_back( scrv );
-    }
-    else
-    {
-        delete scrv;
-    }
-
-    pnts[0].set_xyz( max_u, max_w, 0 );         // Dec U
-    pnts[1].set_xyz( min_u, max_w, 0 );
-
-    scrv = new SCurve( this );
-    scrv->InterpolateLinear( pnts );
-    scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
-
-    if ( scrv->Length( 10 ) > degen_tol )
-    {
-        m_SCurveVec.push_back( scrv );
-    }
-    else
-    {
-        delete scrv;
-    }
-
-    pnts[0].set_xyz( min_u, max_w,   0 );           // Dec W
-    pnts[1].set_xyz( min_u, min_w,   0 );
-
-    scrv = new SCurve( this );
-    scrv->InterpolateLinear( pnts );
-    scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
-
-    if ( scrv->Length( 10 ) > degen_tol )
-    {
-        m_SCurveVec.push_back( scrv );
-    }
-    else
-    {
-        delete scrv;
-    }
+    AddBorderCurve( min_u, min_w, max_u, min_w );       // Inc U
+    AddBorderCurve( max_u, min_w, max_u, max_w );       // Inc W
+    AddBorderCurve( max_u, max_w, min_u, max_w );       // Dec U
+    AddBorderCurve( min_u, max_w, min_u, min_w );       // Dec W
 }
 
 string Surf::GetDisplayName()

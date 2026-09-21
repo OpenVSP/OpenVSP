@@ -86,6 +86,7 @@ public:
     vec2d ClosestUW( const vec3d & pnt_in, double guess_u, double guess_w ) const;
     vec2d ClosestUW( const vec3d & pnt_in ) const;
 
+    void AddBorderCurve( double ua, double wa, double ub, double wb );
     void FindBorderCurves();
 
     void SetGridDensityPtr( SimpleGridDensity*  gp )
@@ -174,6 +175,7 @@ public:
     // void Draw();
 
     void LoadSCurves( vector< SCurve* > & scurve_vec );
+    vector< SCurve* >& GetSCurveVec()  { return m_SCurveVec; }
     void BuildGrid();
 
     void WriteSTL( const char* filename );
