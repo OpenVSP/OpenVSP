@@ -30,11 +30,13 @@ SCurve::~SCurve()
 void SCurve::InterpolateLinear( const vector<vec3d> &pnts_to_interpolate )
 {
     m_UWCrv.InterpolateLinear( pnts_to_interpolate );
+    CleanupDistTable();
 }
 
 void SCurve::PromoteTo( int deg )
 {
     m_UWCrv.PromoteTo( deg );
+    CleanupDistTable();
 }
 
 double SCurve::Length( int num_segs )
@@ -303,9 +305,6 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
 {
     assert( m_Surf );
 
-    CleanupDistTable();
-    vector< vec3d >  pnt_vec;
-
     //==== Build U to Dist Table ====//
     int nref = 10;
     int nseglim = 10000;
@@ -319,28 +318,54 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
         }
         num_segs = nref * m_UWCrv.GetNumSections() + 1;
     }
-    double total_dist = 0.0;
-    vec3d uw = m_UWCrv.CompPnt01( 0 );
-    vec3d last_p = m_Surf->CompPnt( uw.x(), uw.y() );
+
+    // Density is spread along the curve in several passes and the curve does not move between
+    // them, so where the table's entries are is worked out on the first pass only.  Each
+    // entry costs a curve evaluation and a surface evaluation, which is most of what this
+    // routine does.
+    if ( ( int )m_TablePnt.size() != num_segs )
+    {
+        CleanupDistTable();
+
+        u_vec.reserve( num_segs );
+        dist_vec.reserve( num_segs );
+        m_TableUW.reserve( num_segs );
+        m_TablePnt.reserve( num_segs );
+
+        double total_dist = 0.0;
+        vec3d uw0 = m_UWCrv.CompPnt01( 0 );
+        vec3d last_p = m_Surf->CompPnt( uw0.x(), uw0.y() );
+
+        for ( int i = 0 ; i < num_segs ; i++ )
+        {
+            double u = ( double )i / ( double )( num_segs - 1 );
+
+            vec3d uw = m_UWCrv.CompPnt01( u );
+            vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
+
+            u_vec.push_back( u );
+            m_TableUW.push_back( uw );
+            m_TablePnt.push_back( p );
+
+            total_dist += dist( p, last_p );
+            dist_vec.push_back( total_dist );
+
+            last_p = p;
+        }
+    }
+
+    target_vec.clear();
+    reason_vec.clear();
+    target_vec.reserve( num_segs );
+    reason_vec.reserve( num_segs );
+
     for ( int i = 0 ; i < num_segs ; i++ )
     {
-        double u = ( double )i / ( double )( num_segs - 1 );
-
-        uw = m_UWCrv.CompPnt01( u );
-        vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
-
         int reason = -1;
-        double t = GetTargetLen( grid_den, BCurve, p, uw, u, reason );
+        double t = GetTargetLen( grid_den, BCurve, m_TablePnt[i], m_TableUW[i], u_vec[i], reason );
 
-        u_vec.push_back( u );
         target_vec.push_back( t );
         reason_vec.push_back( reason );
-        pnt_vec.push_back( p );
-
-        total_dist += dist( p, last_p );
-        dist_vec.push_back( total_dist );
-
-        last_p = p;
     }
 
     double grm1 = grid_den->m_GrowRatio - 1.0;
@@ -356,7 +381,7 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
 
         for ( int i = 0; i < 2; i++ ) // Loop over first and last points.
         {
-            double r = dist( pt, pnt_vec[indx[i]] );
+            double r = dist( pt, m_TablePnt[indx[i]] );
             double targetstr = str + r * grm1;
 
             if ( targetstr < target_vec[indx[i]] )
@@ -399,6 +424,8 @@ void SCurve::CleanupDistTable()
     dist_vec.clear();
     target_vec.clear();
     reason_vec.clear();
+    m_TableUW.clear();
+    m_TablePnt.clear();
 }
 
 void SCurve::LimitTarget( SimpleGridDensity* grid_den )
@@ -863,6 +890,7 @@ void SCurve::Tesselate( const vector< double > & u_tess )
 void SCurve::FlipDir()
 {
     m_UWCrv.FlipCurve();
+    CleanupDistTable();
 }
 
 vec3d SCurve::CompPntUW( double u )

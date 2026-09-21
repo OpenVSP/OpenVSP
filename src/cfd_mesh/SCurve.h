@@ -105,6 +105,7 @@ public:
     void SetUWCrv( const Bezier_curve &crv )
     {
         m_UWCrv = crv;
+        CleanupDistTable();
     }
 
     void FlipDir();
@@ -132,6 +133,12 @@ protected:
     vector< double > dist_vec;
     vector< double > target_vec;
     vector< double > reason_vec;
+
+    // Where each entry of the table sits, in the surface's parameters and in space.  The
+    // curve does not move while density is spread along it, so these are worked out once and
+    // the passes after the first recompute only the targets.  CleanupDistTable drops them.
+    vector< vec3d > m_TableUW;
+    vector< vec3d > m_TablePnt;
 };
 
 
