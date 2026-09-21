@@ -337,7 +337,6 @@ public:
 
     virtual void CleanMergeSurfs( bool skip_duplicate_removal );
 
-    virtual void WritePlot3DCurveBlocks( FILE* fp, const vector < vector < vec3d > > &curve_vec );
     virtual void WriteIGESFile( const string &filename, int len_unit,
                                 bool label_id = false, bool label_surf_num = false, bool label_split_num = false,
                                 bool label_name = false, const string &label_delim = "" );

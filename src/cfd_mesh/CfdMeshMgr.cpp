@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "CfdMeshMgr.h"
+#include "UnformattedFile.h"
 #include "ResultsMgr.h"
 #include "SubSurfaceMgr.h"
 #include "main.h"
@@ -2884,41 +2885,137 @@ bool CfdMeshMgrSingleton::PntInsideOtherComp( const vec3d &pnt, int comp_id, dou
     return false;
 }
 
-// Write a Plot3D function file.  It is laid out like a grid file, except that each
-// block's dimensions are followed by the number of variables the block carries, and the
-// data is that many arrays rather than an assumed three.
-static void WritePOGSFunctionFile( const string &fn, const vector < vector < int > > &dim_vec,
-                                   const vector < vector < vector < double > > > &var_vec )
+// A CART3D triangulation, unformatted, the way pogs reads it:
+//
+//     WRITE(IU) NVERT,NFACE
+//     WRITE(IU) (X(I),Y(I),Z(I),I=1,NVERT)        coordinates interleaved
+//     WRITE(IU) (IFACE(I,1:3),I=1,NFACE)
+//     WRITE(IU) (ICOMP(I),I=1,NFACE)
+//
+// Coordinates go out single precision -- these files are single by convention, and the
+// routine that normally writes them casts down to REAL even in a double precision build.
+//
+// conn_vec holds three vertex numbers per triangle and comp_vec one component tag.
+static void WriteCart3DTri( const string &fn, const vector < vec3d > &pnt_vec,
+                            const vector < int > &conn_vec, const vector < int > &comp_vec )
 {
-    FILE* fp = fopen( fn.c_str(), "w" );
+    UnformattedOut fp;
 
-    if ( !fp )
+    if ( !fp.Open( fn ) )
+    {
+        return;
+    }
+
+    fp.SetSinglePrecision( true );
+
+    fp.BeginRecord();
+    fp.Write( ( int )pnt_vec.size() );
+    fp.Write( ( int )comp_vec.size() );
+    fp.EndRecord();
+
+    fp.BeginRecord();
+    for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
+    {
+        fp.Write( pnt_vec[i].x() );
+        fp.Write( pnt_vec[i].y() );
+        fp.Write( pnt_vec[i].z() );
+    }
+    fp.EndRecord();
+
+    fp.WriteRecord( conn_vec );
+    fp.WriteRecord( comp_vec );
+}
+
+// Write a Plot3D grid file.  pogs reads these unformatted, the way egads2srf writes
+// them, so each Fortran WRITE becomes one record and the records have to line up with
+// the READ statements on the other side.
+//
+//     WRITE(IU) NBLOCK
+//     WRITE(IU) (NI(N),NJ(N),1,N=1,NBLOCK)
+//     WRITE(IU) X,Y,Z[,IB]        one record per block
+//
+// iblank_vec is left empty for a file that carries no tags, as the curve file does not.
+static void WritePlot3DGrid( const string &fn, const vector < vector < int > > &dim_vec,
+                             const vector < vector < vec3d > > &pnt_vec,
+                             const vector < vector < int > > &iblank_vec )
+{
+    UnformattedOut fp;
+
+    if ( !fp.Open( fn ) )
     {
         return;
     }
 
     int nblock = dim_vec.size();
 
-    fprintf( fp, " %d\n", nblock );
+    fp.WriteRecord( nblock );
+
+    fp.BeginRecord();
+    for ( int i = 0; i < nblock; i++ )
+    {
+        fp.Write( dim_vec[i] );
+    }
+    fp.EndRecord();
 
     for ( int i = 0; i < nblock; i++ )
     {
-        fprintf( fp, " %d %d %d %d\n", dim_vec[i][0], dim_vec[i][1], dim_vec[i][2], ( int )var_vec[i].size() );
+        fp.BeginRecord();
+
+        for ( int k = 0; k < 3; k++ )
+        {
+            for ( int j = 0; j < ( int )pnt_vec[i].size(); j++ )
+            {
+                fp.Write( pnt_vec[i][j].v[k] );
+            }
+        }
+
+        if ( i < ( int )iblank_vec.size() )
+        {
+            fp.Write( iblank_vec[i] );
+        }
+
+        fp.EndRecord();
+    }
+}
+
+// Write a Plot3D function file.  It is laid out like a grid file, except that each
+// block's dimensions are followed by the number of variables the block carries, and the
+// data is that many arrays rather than an assumed three.
+//
+//     WRITE(IU) NBLOCK
+//     WRITE(IU) (NI(N),NJ(N),1,NVAR,N=1,NBLOCK)
+//     WRITE(IU) Q                 one record per block
+static void WritePlot3DFunction( const string &fn, const vector < vector < int > > &dim_vec,
+                                 const vector < vector < vector < double > > > &var_vec )
+{
+    UnformattedOut fp;
+
+    if ( !fp.Open( fn ) )
+    {
+        return;
     }
 
+    int nblock = dim_vec.size();
+
+    fp.WriteRecord( nblock );
+
+    fp.BeginRecord();
     for ( int i = 0; i < nblock; i++ )
     {
+        fp.Write( dim_vec[i] );
+        fp.Write( ( int )var_vec[i].size() );
+    }
+    fp.EndRecord();
+
+    for ( int i = 0; i < nblock; i++ )
+    {
+        fp.BeginRecord();
         for ( int v = 0; v < ( int )var_vec[i].size(); v++ )
         {
-            for ( int k = 0; k < ( int )var_vec[i][v].size(); k++ )
-            {
-                fprintf( fp, "%25.17e ", var_vec[i][v][k] );
-            }
-            fprintf( fp, "\n" );
+            fp.Write( var_vec[i][v] );
         }
+        fp.EndRecord();
     }
-
-    fclose( fp );
 }
 
 // Write the geometric component file, which names the faces in human readable groups.
@@ -3052,15 +3149,9 @@ void CfdMeshMgrSingleton::WritePOGSInputFile( const string &fn, const string &ro
 // Write the faces as Plot3D surface blocks with an iblank tag.  Each block is one face
 // sampled along its own tessellation lines; the surfaces are not trimmed, so a sample
 // that trimming removed is marked off the geometry with an iblank of zero.
-void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn, const vector < int > &face_surf_vec )
+void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn,
+                                             const vector < int > &face_surf_vec )
 {
-    FILE* fp = fopen( uvin_fn.c_str(), "w" );
-
-    if ( !fp )
-    {
-        return;
-    }
-
     int nface = face_surf_vec.size();
 
     // The parameters of every sample, carried alongside so the companion function file
@@ -3078,6 +3169,10 @@ void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
 
     vector < vector < double > > uvec( nface ), wvec( nface );
 
+    // Held so the same numbers can go out in both forms.
+    vector < vector < vec3d > > all_pnt_vec( nface );
+    vector < vector < int > > all_iblank_vec( nface );
+
     for ( int iface = 0; iface < nface; iface++ )
     {
         Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
@@ -3093,15 +3188,6 @@ void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
         {
             std::reverse( wvec[iface].begin(), wvec[iface].end() );
         }
-    }
-
-    fprintf( fp, " %d\n", nface );
-
-    // egads2srf writes these with the u count first and u running fastest, so the reader
-    // takes the first index for u and the second for v.  Match it.
-    for ( int iface = 0; iface < nface; iface++ )
-    {
-        fprintf( fp, " %zu %zu 1\n", uvec[iface].size(), wvec[iface].size() );
     }
 
     for ( int iface = 0; iface < nface; iface++ )
@@ -3134,33 +3220,34 @@ void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
             }
         }
 
-        for ( int k = 0; k < 3; k++ )
-        {
-            for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
-            {
-                fprintf( fp, "%25.17e ", pnt_vec[i].v[k] );
-            }
-            fprintf( fp, "\n" );
-        }
-
         int comp_id = srf->GetCompID();
+
+        vector < int > iblank_vec( pnt_vec.size(), 1 );
 
         for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
         {
-            int iblank = 1;
             if ( PntInsideOtherComp( pnt_vec[i], comp_id, x_dist ) )
             {
-                iblank = 0;
+                iblank_vec[i] = 0;
             }
-
-            fprintf( fp, "%12d", iblank );
         }
-        fprintf( fp, "\n" );
+
+        all_pnt_vec[iface] = pnt_vec;
+        all_iblank_vec[iface] = iblank_vec;
     }
 
-    fclose( fp );
+    // egads2srf writes these with the u count first and u running fastest, so the reader
+    // takes the first index for u and the second for v.  Match it.
+    vector < vector < int > > grid_dim_vec( nface );
+    for ( int iface = 0; iface < nface; iface++ )
+    {
+        grid_dim_vec[iface].push_back( ( int )uvec[iface].size() );
+        grid_dim_vec[iface].push_back( ( int )wvec[iface].size() );
+        grid_dim_vec[iface].push_back( 1 );
+    }
 
-    // WritePOGSFunctionFile( uv_fn, uv_dim_vec, uv_var_vec );
+    WritePlot3DGrid( uvin_fn, grid_dim_vec, all_pnt_vec, all_iblank_vec );
+    // WritePlot3DFunction( uv_fn, uv_dim_vec, uv_var_vec );
 }
 
 void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
@@ -3187,6 +3274,36 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     gcomp_fn.append( ".gcomp" );
     string pogsi_fn = base;
     pogsi_fn.append( ".pogs.i" );
+
+    // A surface is a face of the topology only if it is part of the triangulation the
+    // topology describes, and the test for that is whether it carries any mesh.  The half
+    // mesh symmetry plane is the case that matters: it slices the geometry and is then
+    // discarded, so the mesh is left open along the cut and the plane is not a face of
+    // it.  The far field's symmetry boundary is meshed and is a face.  Wakes are kept out
+    // of the triangulation, so they are kept out here too.
+    //
+    // A face's number is its position in this list, which is what NFACE counts and what
+    // the triangulation tags its triangles with.  A Surf ID cannot serve: IDs are handed
+    // out when surfaces are loaded, and by this point the far field has renumbered them,
+    // half mesh trimming and duplicate removal have deleted some, and BuildNURBSSurfMap
+    // has passed over any surface that ended up completely enclosed by another component
+    // or is an external negative surface.  So the IDs run past the end of the face list
+    // and have gaps in the middle.
+    vector < int > face_surf_vec;
+    std::map < int, int > surf_id_face_num;
+
+    for ( int i = 0 ; i < ( int )m_NURBSSurfVec.size() ; i++ )
+    {
+        Surf* srf = FindSurf( m_NURBSSurfVec[i].m_SurfID );
+
+        if ( !srf || srf->GetWakeFlag() || !srf->GetMesh() || srf->GetMesh()->GetSimpFaceVec().empty() )
+        {
+            continue;
+        }
+
+        surf_id_face_num[ m_NURBSSurfVec[i].m_SurfID ] = ( int )face_surf_vec.size() + 1;
+        face_surf_vec.push_back( i );
+    }
 
     // ISYM says what symmetry the body has: 0 for a closed body, 1/2/3 for a half body
     // on the +x/+y/+z side and the negatives for the other side, 11/12/13 for a full body
@@ -3312,41 +3429,47 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     //=====================================================================================//
     if ( pogs_fn.length() != 0 )
     {
-        FILE* fp = fopen( pogs_fn.c_str(), "w" );
+        // Flatten the triangles out first, splitting any quads, so both forms of the
+        // file are written from the same numbers.
+        vector < int > conn_vec;
+        vector < int > comp_vec;
 
-        if ( fp )
+        conn_vec.reserve( 3 * ntristrict );
+        comp_vec.reserve( ntristrict );
+
+        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
         {
-            //==== Write Pnt Count and Tri Count ====//
-            fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ntristrict );
+            // A triangle is tagged with the number of the face it lies on, the same
+            // number the topology and component files use.  A surface that did not
+            // become a face has none to give.
+            int icomp = 0;
 
-            //==== Write Pnts ====//
-            for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
+            if ( allFaceVec[i].m_iSurf >= 0 && allFaceVec[i].m_iSurf < ( int )m_SurfVec.size() )
             {
-                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
-            }
+                std::map < int, int >::const_iterator it =
+                        surf_id_face_num.find( m_SurfVec[ allFaceVec[i].m_iSurf ]->GetSurfID() );
 
-            //==== Write Tris ====//
-            for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-            {
-                fprintf( fp, "%d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
-                if( allFaceVec[i].m_isQuad )
+                if ( it != surf_id_face_num.end() )
                 {
-                    fprintf( fp, "%d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                    icomp = it->second;
                 }
             }
 
-            //==== Write Component ID ====//
-            for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-            {
-                fprintf( fp, "%d \n", allFaceVec[i].m_iSurf + 1 );
-                if( allFaceVec[i].m_isQuad )
-                {
-                    fprintf( fp, "%d \n", allFaceVec[i].m_iSurf + 1 );
-                }
-            }
+            conn_vec.push_back( allFaceVec[i].ind0 );
+            conn_vec.push_back( allFaceVec[i].ind1 );
+            conn_vec.push_back( allFaceVec[i].ind2 );
+            comp_vec.push_back( icomp );
 
-            fclose( fp );
+            if( allFaceVec[i].m_isQuad )
+            {
+                conn_vec.push_back( allFaceVec[i].ind0 );
+                conn_vec.push_back( allFaceVec[i].ind2 );
+                conn_vec.push_back( allFaceVec[i].ind3 );
+                comp_vec.push_back( icomp );
+            }
         }
+
+        WriteCart3DTri( pogs_fn, allUsedPntVec, conn_vec, comp_vec );
     }
 
 
@@ -3378,36 +3501,6 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     // most two faces, and each of them reports independently whether it lies to the left
     // or the right of the curve's own direction.
     std::map < int, std::map < int, int > > curve_face_sense;
-
-    // A surface is a face of the topology only if it is part of the triangulation the
-    // topology describes, and the test for that is whether it carries any mesh.  The
-    // half mesh symmetry plane is the case that matters: it slices the geometry and is
-    // then discarded, so the mesh is left open along the cut and the plane is not a face
-    // of it.  The far field's symmetry boundary is meshed and is a face.  Wakes are kept
-    // out of the triangulation, so they are kept out here too.
-    vector < int > face_surf_vec;
-
-    // Face number of each surface that became a face, which is its position in the list
-    // NFACE counts.  A Surf ID cannot serve as the face number: IDs are handed out when
-    // surfaces are loaded, and by this point the far field has renumbered them, half mesh
-    // trimming and duplicate removal have deleted some, and BuildNURBSSurfMap has passed
-    // over any surface that ended up completely enclosed by another component or is an
-    // external negative surface.  So the IDs run past the end of the face list and have
-    // gaps in the middle.
-    std::map < int, int > surf_id_face_num;
-
-    for ( int i = 0 ; i < ( int )nsrf ; i++ )
-    {
-        Surf* srf = FindSurf( m_NURBSSurfVec[i].m_SurfID );
-
-        if ( !srf || srf->GetWakeFlag() || !srf->GetMesh() || srf->GetMesh()->GetSimpFaceVec().empty() )
-        {
-            continue;
-        }
-
-        surf_id_face_num[ m_NURBSSurfVec[i].m_SurfID ] = ( int )face_surf_vec.size() + 1;
-        face_surf_vec.push_back( i );
-    }
 
     int nface = face_surf_vec.size();
 
@@ -3614,16 +3707,17 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     WritePOGSCompFile( gcomp_fn, face_surf_vec );
     WritePOGSInputFile( pogsi_fn, rootname, isym );
 
-    FILE* cur_fp = fopen( cur_fn.c_str(), "w" );
-
-    if ( cur_fp )
+    // A curve file carries no iblank.
+    vector < vector < int > > cur_dim_vec( edge_curve_vec.size() );
+    for ( int i = 0; i < ( int )edge_curve_vec.size(); i++ )
     {
-        WritePlot3DCurveBlocks( cur_fp, edge_curve_vec );
-
-        fclose( cur_fp );
+        cur_dim_vec[i].push_back( ( int )edge_curve_vec[i].size() );
+        cur_dim_vec[i].push_back( 1 );
+        cur_dim_vec[i].push_back( 1 );
     }
 
-    // WritePOGSFunctionFile( cuv_fn, cuv_dim_vec, cuv_var_vec );
+    WritePlot3DGrid( cur_fn, cur_dim_vec, edge_curve_vec, vector < vector < int > >() );
+    // WritePlot3DFunction( cuv_fn, cuv_dim_vec, cuv_var_vec );
 
     FILE* topo_fp = fopen( topo_fn.c_str(), "w" );
 
