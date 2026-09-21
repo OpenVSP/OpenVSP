@@ -66,6 +66,7 @@
 #include "GridDensity.h"
 #include "BezierCurve.h"
 #include "Vehicle.h"
+#include "MessageMgr.h"
 #include "MeshCommonSettings.h"
 #include "SimpleSubSurface.h"
 #include "SimpleMeshSettings.h"
@@ -193,6 +194,29 @@ protected:
 
 #define WakeMgr WakeMgrSingleton::getInstance()
 
+class SurfaceIntersectionSingleton;
+
+// Hears that the vehicle has been emptied.  A listener rather than a call, because the
+// geometry core cannot see this library -- which is the case MessageMgr exists for.
+class MeshRenewListener : public MessageBase
+{
+public:
+    MeshRenewListener()
+    {
+        m_Mgr = nullptr;
+    }
+
+    void SetMgr( SurfaceIntersectionSingleton *mgr )
+    {
+        m_Mgr = mgr;
+    }
+
+    void MessageCallback( const MessageBase* from, const MessageData& data ) override;
+
+protected:
+    SurfaceIntersectionSingleton *m_Mgr;
+};
+
 class SurfaceIntersectionSingleton : public ParmContainer
 {
 protected:
@@ -209,6 +233,10 @@ public:
 
     ~SurfaceIntersectionSingleton() override;
     virtual void CleanUp();
+
+    // Throw away everything built from the vehicle's geometry.  Sent when the vehicle is
+    // emptied, by a new file or by one loaded over the top of this one.
+    virtual void RenewMesh();
 
     virtual void RegisterAnalysis();
 
@@ -431,6 +459,8 @@ protected:
     string m_WakeGeomID;
 
 private:
+
+    MeshRenewListener m_RenewListener;
 
     DrawObj m_RawIsectCurveDO;
     DrawObj m_RawIsectPtsDO;

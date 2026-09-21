@@ -716,7 +716,12 @@ void Vehicle::Wype()
 
     ResultsMgr.DeleteAllResults();
 
-    // Need to renew FeaMeshMgr to  FeaMeshMgr.CleanMeshMap() however, it is invisible from here.
+    // The meshers keep their results and everything drawn from them, and they outlive any one
+    // model, so a mesh left behind here would survive into a model it has nothing to do with.
+    // They cannot be called directly -- the geometry core does not depend on the meshing
+    // library, and must not -- so they are told, which is what MessageMgr is for.  Any that
+    // was never used has never registered, and has nothing to throw away in any case.
+    MessageMgr::getInstance().Send( "MeshRenew", "Renew" );
 
     LightMgr.Wype();
 }

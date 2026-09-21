@@ -58,10 +58,14 @@ public:
     }
 
     virtual ~FeaMeshMgrSingleton();
-    virtual void CleanUp();
+    virtual void CleanUp() override;
     virtual void CleanMeshMap();
 
-    virtual SimpleGridDensity* GetGridDensityPtr()
+    // The finished meshes are kept in a map of their own, one per structure, so emptying the
+    // vehicle has to take those as well as the working state.
+    void RenewMesh() override;
+
+    virtual SimpleGridDensity* GetGridDensityPtr() override
     {
         if ( GetMeshPtr() )
         {
@@ -70,7 +74,7 @@ public:
         return nullptr;
     }
 
-    virtual SimpleMeshCommonSettings* GetSettingsPtr()
+    virtual SimpleMeshCommonSettings* GetSettingsPtr() override
     {
         if ( GetMeshPtr() )
         {
@@ -98,27 +102,27 @@ public:
     virtual void GenerateFeaMesh();
     virtual void ExportFeaMesh( const string &structID );
     virtual void ExportCADFiles();
-    virtual void TransferMeshSettings();
-    virtual void IdentifyCompIDNames();
+    virtual void TransferMeshSettings() override;
+    virtual void IdentifyCompIDNames() override;
     virtual void TransferFeaData();
     virtual void TransferPropMatData();
-    virtual void TransferSubSurfData();
+    virtual void TransferSubSurfData() override;
     virtual bool CheckPropMat();
     virtual void TransferBCData();
     virtual void MergeCoplanarParts();
     virtual void AddStructureSurfParts();
     virtual void AddStructureFixPoints();
-    virtual void ForceSurfaceFixPoints( int surf_indx, vector < vec2d > &adduw );
+    virtual void ForceSurfaceFixPoints( int surf_indx, vector < vec2d > &adduw ) override;
     virtual void AddStructureTrimPlanes();
     virtual void BuildMeshOrientationLookup();
-    virtual void RemoveTrimTris();
+    virtual void RemoveTrimTris() override;
     virtual void SetFixPointSurfaceNodes();
-    virtual void SetFixPointBorderNodes();
-    virtual void CheckFixPointIntersects();
+    virtual void SetFixPointBorderNodes() override;
+    virtual void CheckFixPointIntersects() override;
     virtual void BuildFeaMesh();
     virtual void CheckSubSurfBorderIntersect();
     virtual void CheckDuplicateSSIntersects();
-    virtual void MergeFeaPartSSEdgeOverlap();
+    virtual void MergeFeaPartSSEdgeOverlap() override;
     virtual void RemoveSubSurfFeaTris();
     virtual void TagFeaNodes();
 
@@ -174,10 +178,10 @@ public:
 
     virtual void TransferDrawObjData();
 
-    virtual void UpdateDrawObjs();
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    virtual void UpdateDrawObjs() override;
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 
-    virtual void UpdateDisplaySettings();
+    virtual void UpdateDisplaySettings() override;
     virtual void UpdateAssemblyDisplaySettings( const string &assembly_id );
 
     virtual const vector < SimpleFeaProperty >& GetSimplePropertyVec()
@@ -208,7 +212,7 @@ public:
         m_SimpleMaterialVec[ m_SimplePropertyVec[ indx ].GetSimpFeaMatIndex() ].m_Used = true;
     }
 
-    virtual void RegisterAnalysis();
+    virtual void RegisterAnalysis() override;
 
     virtual Surf* GetFeaSurf( int FeaPartID, int surf_num );
 

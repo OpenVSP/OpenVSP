@@ -344,6 +344,10 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
 
     m_MessageName = "SurfIntersectMessage";
 
+    // A mesh belongs to the model it was built from, so it has to go when that model does.
+    m_RenewListener.SetMgr( this );
+    m_RenewListener.Register( "MeshRenew" );
+
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = string( "MeshDebug/" );
     MakeDirectory( m_DebugDir );
@@ -496,6 +500,22 @@ void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < stri
 
     m_MeshInProgress = false;
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+}
+
+void MeshRenewListener::MessageCallback( const MessageBase* from, const MessageData& data )
+{
+    if ( m_Mgr && data.m_String == "Renew" )
+    {
+        m_Mgr->RenewMesh();
+    }
+}
+
+// Everything built from the vehicle's geometry goes.  The intersection and meshing managers
+// outlive any one model, so without this a mesh -- and everything drawn from it -- survives
+// into a model it has nothing to do with.
+void SurfaceIntersectionSingleton::RenewMesh()
+{
+    CleanUp();
 }
 
 void SurfaceIntersectionSingleton::CleanUp()

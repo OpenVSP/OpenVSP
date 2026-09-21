@@ -73,6 +73,12 @@ void FeaMeshMgrSingleton::CleanUp()
     m_IntersectComplete = false;
 }
 
+void FeaMeshMgrSingleton::RenewMesh()
+{
+    CleanUp();
+    CleanMeshMap();
+}
+
 // Cleanup done on file-load.
 void FeaMeshMgrSingleton::CleanMeshMap()
 {
