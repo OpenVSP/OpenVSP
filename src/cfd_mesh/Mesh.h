@@ -19,12 +19,6 @@ class Surf;
 class SimpleGridDensity;
 class SurfaceIntersectionSingleton;
 
-#ifndef WIN32
-#  ifndef NDEBUG
-#    define NDEBUG
-#  endif
-#endif
-
 #include <cassert>
 
 #include <vector>
