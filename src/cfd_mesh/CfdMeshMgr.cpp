@@ -1475,7 +1475,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     vector< SimpFace > allFaceVec;
     int ntristrict = 0;
     vector< int > allSurfIDVec;
-    vector< vector< vec2d > > allUWVec;
+    // Four parameter pairs per face, laid end to end.  A vector per face is an allocation
+    // per face, and a mesh has a million of them.
+    vector< vec2d > allUWVec;
     vector < pair < int, int > > wedges;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -1503,7 +1505,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 allFaceVec.push_back( sface );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
 
-                vector< vec2d > uwFace( 4 );
+                vec2d uwFace[4];
                 uwFace[0] = sUWVec[ sFaceVec[t].ind0 ];
                 uwFace[1] = sUWVec[ sFaceVec[t].ind1 ];
                 uwFace[2] = sUWVec[ sFaceVec[t].ind2 ];
@@ -1511,7 +1513,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 {
                     uwFace[3] = sUWVec[ sFaceVec[t].ind3 ];
                 }
-                allUWVec.push_back( uwFace );
+                allUWVec.insert( allUWVec.end(), uwFace, uwFace + 4 );
 
                 if ( m_SurfVec[i]->GetSurfaceVSPType() == vsp::WING_SURF )
                 {
@@ -1684,7 +1686,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 allFaceVec.push_back( sface );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
 
-                vector< vec2d > uwFace( 4 );
+                vec2d uwFace[4];
                 uwFace[0] = sUWVec[ sFaceVec[f].ind0 ];
                 uwFace[1] = sUWVec[ sFaceVec[f].ind1 ];
                 uwFace[2] = sUWVec[ sFaceVec[f].ind2 ];
@@ -1692,7 +1694,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 {
                     uwFace[3] = sUWVec[ sFaceVec[f].ind3 ];
                 }
-                allUWVec.push_back( uwFace );
+                allUWVec.insert( allUWVec.end(), uwFace, uwFace + 4 );
 
             }
         }
@@ -1946,17 +1948,17 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     if( allFaceVec[i].m_isQuad )
                     {
                         fprintf( fp, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
-                             allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                             allUWVec[i][1].x() / uscale, allUWVec[i][1].y() / wscale,
-                             allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale,
-                             allUWVec[i][3].x() / uscale, allUWVec[i][3].y() / wscale );
+                             allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                             allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
+                             allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale,
+                             allUWVec[4 * i + 3].x() / uscale, allUWVec[4 * i + 3].y() / wscale );
                     }
                     else
                     {
                         fprintf( fp, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
-                                 allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                                 allUWVec[i][1].x() / uscale, allUWVec[i][1].y() / wscale,
-                                 allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale );
+                                 allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                                 allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
+                                 allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale );
                     }
                 }
             }
@@ -1972,15 +1974,15 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
 
                     fprintf( fp, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
-                             allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                             allUWVec[i][1].x() / uscale, allUWVec[i][1].y() / wscale,
-                             allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale );
+                             allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                             allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
+                             allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale );
                     if( allFaceVec[i].m_isQuad )
                     {
                         fprintf( fp, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
-                                 allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                                 allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale,
-                                 allUWVec[i][3].x() / uscale, allUWVec[i][3].y() / wscale );
+                                 allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                                 allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale,
+                                 allUWVec[4 * i + 3].x() / uscale, allUWVec[4 * i + 3].y() / wscale );
                     }
                 }
             }
@@ -2068,19 +2070,19 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     if( allFaceVec[i].m_isQuad )
                     {
                         fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", i + 1, part, tag,
-                             allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                             allUWVec[i][1].x() / uscale, allUWVec[i][1].y() / wscale,
-                             allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale,
-                             allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                             allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale,
-                             allUWVec[i][3].x() / uscale, allUWVec[i][3].y() / wscale );
+                             allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                             allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
+                             allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale,
+                             allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                             allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale,
+                             allUWVec[4 * i + 3].x() / uscale, allUWVec[4 * i + 3].y() / wscale );
                     }
                     else
                     {
                         fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", i + 1, part, tag,
-                                 allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                                 allUWVec[i][1].x() / uscale, allUWVec[i][1].y() / wscale,
-                                 allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale );
+                                 allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                                 allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
+                                 allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale );
                     }
                 }
             }
@@ -2097,16 +2099,16 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
 
                     fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", iface, part, tag,
-                             allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                             allUWVec[i][1].x() / uscale, allUWVec[i][1].y() / wscale,
-                             allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale );
+                             allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                             allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
+                             allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale );
                     iface++;
                     if( allFaceVec[i].m_isQuad )
                     {
                         fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", iface, part, tag,
-                                 allUWVec[i][0].x() / uscale, allUWVec[i][0].y() / wscale,
-                                 allUWVec[i][2].x() / uscale, allUWVec[i][2].y() / wscale,
-                                 allUWVec[i][3].x() / uscale, allUWVec[i][3].y() / wscale );
+                                 allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
+                                 allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale,
+                                 allUWVec[4 * i + 3].x() / uscale, allUWVec[4 * i + 3].y() / wscale );
                         iface++;
                     }
                 }
