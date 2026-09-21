@@ -400,6 +400,22 @@ public:
     FILE* m_DebugFile;
     string m_DebugDir;
 
+    // The per surface debug scripts are numbered within one pass over the surfaces, and the
+    // master scripts that run them are opened on first use and closed when the pass ends.
+    //
+    // All of this used to be function static inside Mesh::InitMesh, which meant it belonged
+    // to the process rather than to the run.  A second meshing run carried on numbering where
+    // the first left off, so the master scripts were never reopened, and the condition that
+    // closed them -- the surface count reaching the last surface -- could still come true and
+    // write to a file that was already closed.
+    int m_DebugSurfCnt;
+    FILE* m_DebugSortedUWFile;
+    FILE* m_DebugMeshUWFile;
+    FILE* m_DebugTriMeshFile;
+
+    void BeginDebugSurfFiles();
+    void EndDebugSurfFiles();
+
     bool m_DebugDraw;
     vector< vector< vec3d > > m_DebugCurves;
     vector< vec3d > m_DebugColors;

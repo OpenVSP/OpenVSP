@@ -354,18 +354,92 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
     MakeDirectory( m_DebugDir );
     m_DebugFile = fopen( "MeshDebug/log.txt", "w" );
     m_DebugDraw = false;
+
+    m_DebugSurfCnt = 0;
+    m_DebugSortedUWFile = nullptr;
+    m_DebugMeshUWFile = nullptr;
+    m_DebugTriMeshFile = nullptr;
 #endif
 
 }
+
+#ifdef DEBUG_CFD_MESH
+
+// Start a fresh pass over the surfaces.
+//
+// Anything still open belongs to a pass that did not finish -- a run that threw, or one whose
+// last surface failed to triangulate -- so it is finished off here rather than left to be
+// written into by the new pass.
+void SurfaceIntersectionSingleton::BeginDebugSurfFiles()
+{
+    EndDebugSurfFiles();
+
+    // Made again each pass rather than once when the manager was built.  The path is
+    // relative, and the working directory can move under a long lived process, in which case
+    // every file below would silently fail to open.
+    MakeDirectory( m_DebugDir );
+
+    m_DebugSurfCnt = 0;
+}
+
+// Finish the master scripts, if a pass opened any.
+//
+// They are closed here, at the end of the pass, rather than when the surface count reaches
+// the last surface.  The count is not to be trusted for this: a surface that fails to
+// triangulate never increments it, so the last surface need not be the one that carries the
+// final number, and nothing would close the files at all.
+void SurfaceIntersectionSingleton::EndDebugSurfFiles()
+{
+    if ( m_DebugSortedUWFile )
+    {
+        fprintf( m_DebugSortedUWFile, "figure(1)\n" );
+        fprintf( m_DebugSortedUWFile, "axis off\n" );
+        fprintf( m_DebugSortedUWFile, "axis equal\n" );
+        fprintf( m_DebugSortedUWFile, "hold off\n" );
+
+        fclose( m_DebugSortedUWFile );
+        m_DebugSortedUWFile = nullptr;
+    }
+
+    if ( m_DebugMeshUWFile )
+    {
+        fprintf( m_DebugMeshUWFile, "figure(1)\n" );
+        fprintf( m_DebugMeshUWFile, "axis off\n" );
+        fprintf( m_DebugMeshUWFile, "axis equal\n" );
+        fprintf( m_DebugMeshUWFile, "hold off\n" );
+
+        fclose( m_DebugMeshUWFile );
+        m_DebugMeshUWFile = nullptr;
+    }
+
+    if ( m_DebugTriMeshFile )
+    {
+        for ( int ifig = 2 ; ifig <= 4 ; ifig++ )
+        {
+            fprintf( m_DebugTriMeshFile, "figure(%d)\n", ifig );
+            fprintf( m_DebugTriMeshFile, "axis off\n" );
+            fprintf( m_DebugTriMeshFile, "axis equal\n" );
+            fprintf( m_DebugTriMeshFile, "hold off\n" );
+        }
+
+        fclose( m_DebugTriMeshFile );
+        m_DebugTriMeshFile = nullptr;
+    }
+}
+
+#endif
 
 SurfaceIntersectionSingleton::~SurfaceIntersectionSingleton()
 {
     CleanUp();
 
 #ifdef DEBUG_CFD_MESH
+    EndDebugSurfFiles();
+
     if ( m_DebugFile )
     {
         fclose( m_DebugFile );
+        m_DebugFile = nullptr;
     }
 #endif
 

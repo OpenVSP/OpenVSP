@@ -2619,18 +2619,26 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
 #ifdef DEBUG_CFD_MESH
-    static int namecnt = 0;
-    FILE* fp = nullptr;
-    static FILE* fpmas = nullptr;
+    // The numbering and the master scripts belong to the manager, and to one pass over the
+    // surfaces; see SurfaceIntersectionSingleton::BeginDebugSurfFiles.
+    // The number is claimed here, at the top, so every surface that writes any debug file writes
+    // all of them under the same number, whether or not it goes on to triangulate.
+    int namecnt = MeshMgr->m_DebugSurfCnt;
+    MeshMgr->m_DebugSurfCnt++;
 
-    if ( namecnt == 0 )
+    FILE* fp = nullptr;
+
+    if ( !MeshMgr->m_DebugSortedUWFile )
     {
         char str2[256];
         snprintf( str2, sizeof( str2 ), "%sSortedUnscaledMesh_UW.m", MeshMgr->m_DebugDir.c_str() );
-        fpmas = fopen( str2, "w" );
+        MeshMgr->m_DebugSortedUWFile = fopen( str2, "w" );
 
-        fprintf( fpmas, "clear all; format compact; close all;\n" );
-        fprintf( fpmas, "figure(1); hold on\n" );
+        if ( MeshMgr->m_DebugSortedUWFile )
+        {
+            fprintf( MeshMgr->m_DebugSortedUWFile, "clear all; format compact; close all;\n" );
+            fprintf( MeshMgr->m_DebugSortedUWFile, "figure(1); hold on\n" );
+        }
     }
 
     vector< vec2d > sorted = uw_points;
@@ -2638,56 +2646,48 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
     snprintf( str, sizeof( str ), "%sSortedUnscaledMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
-
-    if (fpmas )
+    if ( fp )
     {
-        snprintf( str, sizeof( str ), "SortedUnscaledMesh_UW%d.m", namecnt );
-        fprintf( fpmas, "run( '%s' );\n", str );
-    }
 
-    fprintf( fp, "u = [" );
-    for ( i = 0 ; i < sorted.size() ; i++ )
-    {
-        fprintf( fp, "%.19e", sorted[i].x() );
-
-        if ( i < sorted.size() - 1 )
+        if ( MeshMgr->m_DebugSortedUWFile )
         {
-            fprintf( fp, ";\n" );
+            snprintf( str, sizeof( str ), "SortedUnscaledMesh_UW%d.m", namecnt );
+            fprintf( MeshMgr->m_DebugSortedUWFile, "run( '%s' );\n", str );
         }
-        else
+
+        fprintf( fp, "u = [" );
+        for ( i = 0 ; i < sorted.size() ; i++ )
         {
-            fprintf( fp, "];\n" );
-        }
-    }
-    fprintf( fp, "v = [" );
-    for ( i = 0 ; i < sorted.size() ; i++ )
-    {
-        fprintf( fp, "%.19e", sorted[i].y() );
+            fprintf( fp, "%.19e", sorted[i].x() );
 
-        if ( i < sorted.size() - 1 )
+            if ( i < sorted.size() - 1 )
+            {
+                fprintf( fp, ";\n" );
+            }
+            else
+            {
+                fprintf( fp, "];\n" );
+            }
+        }
+        fprintf( fp, "v = [" );
+        for ( i = 0 ; i < sorted.size() ; i++ )
         {
-            fprintf( fp, ";\n" );
+            fprintf( fp, "%.19e", sorted[i].y() );
+
+            if ( i < sorted.size() - 1 )
+            {
+                fprintf( fp, ";\n" );
+            }
+            else
+            {
+                fprintf( fp, "];\n" );
+            }
         }
-        else
-        {
-            fprintf( fp, "];\n" );
-        }
-    }
-    fprintf( fp, "figure ( 1 );\n" );
-    fprintf( fp, "plot( u', v', 'x' );\n" );
-    fprintf( fp, "axis equal;\n" );
+        fprintf( fp, "figure ( 1 );\n" );
+        fprintf( fp, "plot( u', v', 'x' );\n" );
+        fprintf( fp, "axis equal;\n" );
 
-    fclose( fp );
-
-    if ( namecnt == MeshMgr->GetTotalNumSurfs() - 1 )
-    {
-        fprintf( fpmas, "figure(1)\n");
-        fprintf( fpmas, "axis off\n" );
-        fprintf( fpmas, "axis equal\n" );
-        fprintf( fpmas, "hold off\n" );
-
-        fclose( fpmas );
-        fpmas = nullptr;
+        fclose( fp );
     }
 #endif
 
@@ -2700,75 +2700,68 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
 #ifdef DEBUG_CFD_MESH
 
-    static FILE* fpmas2 = nullptr;
-
-    if ( namecnt == 0 )
+    if ( !MeshMgr->m_DebugMeshUWFile )
     {
         char str2[256];
         snprintf( str2, sizeof( str2 ), "%sMesh_UW.m", MeshMgr->m_DebugDir.c_str() );
-        fpmas2 = fopen( str2, "w" );
+        MeshMgr->m_DebugMeshUWFile = fopen( str2, "w" );
 
-        fprintf( fpmas2, "clear all; format compact; close all;\n" );
-        fprintf( fpmas2, "figure(1); hold on\n" );
+        if ( MeshMgr->m_DebugMeshUWFile )
+        {
+            fprintf( MeshMgr->m_DebugMeshUWFile, "clear all; format compact; close all;\n" );
+            fprintf( MeshMgr->m_DebugMeshUWFile, "figure(1); hold on\n" );
+        }
     }
 
 
     snprintf( str, sizeof( str ), "%sMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
-
-    if ( fpmas2 )
+    if ( fp )
     {
-        snprintf( str, sizeof( str ), "Mesh_UW%d.m", namecnt );
-        fprintf( fpmas2, "run( '%s' );\n", str );
-    }
 
-    fprintf( fp, "u = [" );
-    for ( i = 0 ; i < num_edges ; i++ )
-    {
-        int ind0 = segs_indexes[i].m_Index[0];
-        int ind1 = segs_indexes[i].m_Index[1];
-        fprintf( fp, "%.19e %.19e", uw_prime[ind0].x(), uw_prime[ind1].x() );
-
-        if ( i < num_edges - 1 )
+        if ( MeshMgr->m_DebugMeshUWFile )
         {
-            fprintf( fp, ";\n" );
+            snprintf( str, sizeof( str ), "Mesh_UW%d.m", namecnt );
+            fprintf( MeshMgr->m_DebugMeshUWFile, "run( '%s' );\n", str );
         }
-        else
+
+        fprintf( fp, "u = [" );
+        for ( i = 0 ; i < num_edges ; i++ )
         {
-            fprintf( fp, "];\n" );
-        }
-    }
-    fprintf( fp, "v = [" );
-    for ( i = 0 ; i < num_edges ; i++ )
-    {
-        int ind0 = segs_indexes[i].m_Index[0];
-        int ind1 = segs_indexes[i].m_Index[1];
-        fprintf( fp, "%.19e %.19e", uw_prime[ind0].y(), uw_prime[ind1].y() );
+            int ind0 = segs_indexes[i].m_Index[0];
+            int ind1 = segs_indexes[i].m_Index[1];
+            fprintf( fp, "%.19e %.19e", uw_prime[ind0].x(), uw_prime[ind1].x() );
 
-        if ( i < num_edges - 1 )
+            if ( i < num_edges - 1 )
+            {
+                fprintf( fp, ";\n" );
+            }
+            else
+            {
+                fprintf( fp, "];\n" );
+            }
+        }
+        fprintf( fp, "v = [" );
+        for ( i = 0 ; i < num_edges ; i++ )
         {
-            fprintf( fp, ";\n" );
+            int ind0 = segs_indexes[i].m_Index[0];
+            int ind1 = segs_indexes[i].m_Index[1];
+            fprintf( fp, "%.19e %.19e", uw_prime[ind0].y(), uw_prime[ind1].y() );
+
+            if ( i < num_edges - 1 )
+            {
+                fprintf( fp, ";\n" );
+            }
+            else
+            {
+                fprintf( fp, "];\n" );
+            }
         }
-        else
-        {
-            fprintf( fp, "];\n" );
-        }
-    }
-    fprintf( fp, "figure ( 1 );\n" );
-    fprintf( fp, "plot( u', v', 'x-' );\n" );
-    fprintf( fp, "axis equal;\n" );
+        fprintf( fp, "figure ( 1 );\n" );
+        fprintf( fp, "plot( u', v', 'x-' );\n" );
+        fprintf( fp, "axis equal;\n" );
 
-    fclose( fp );
-
-    if ( namecnt == MeshMgr->GetTotalNumSurfs() - 1 )
-    {
-        fprintf( fpmas2, "figure(1)\n");
-        fprintf( fpmas2, "axis off\n" );
-        fprintf( fpmas2, "axis equal\n" );
-        fprintf( fpmas2, "hold off\n" );
-
-        fclose( fpmas2 );
-        fpmas2 = nullptr;
+        fclose( fp );
     }
 #endif
 
@@ -2776,21 +2769,24 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 #ifdef DEBUG_CFD_MESH
     snprintf( str, sizeof( str ), "%sTriInput_%d.dat", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
-
-    fprintf( fp, "%d\n", uw_prime.size() );
-
-    for ( i = 0; i < (int)uw_prime.size(); i++ )
+    if ( fp )
     {
-        fprintf( fp, "%d %.19e %.19e\n", i, uw_prime[i].x(), uw_prime[i].y() );
-    }
 
-    fprintf( fp, "%d\n", segs_indexes.size() );
+        fprintf( fp, "%d\n", uw_prime.size() );
 
-    for ( i = 0; i < (int)segs_indexes.size(); i++ )
-    {
-        fprintf( fp, "%d %d %d\n", i, segs_indexes[i].m_Index[0], segs_indexes[i].m_Index[1] );
+        for ( i = 0; i < (int)uw_prime.size(); i++ )
+        {
+            fprintf( fp, "%d %.19e %.19e\n", i, uw_prime[i].x(), uw_prime[i].y() );
+        }
+
+        fprintf( fp, "%d\n", segs_indexes.size() );
+
+        for ( i = 0; i < (int)segs_indexes.size(); i++ )
+        {
+            fprintf( fp, "%d %d %d\n", i, segs_indexes[i].m_Index[0], segs_indexes[i].m_Index[1] );
+        }
+        fclose( fp );
     }
-    fclose( fp );
 #endif
 
 
@@ -3047,210 +3043,191 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
 #ifdef DEBUG_CFD_MESH
-        static FILE* fpmas3 = nullptr;
-
-        if ( namecnt == 0 )
+        if ( !MeshMgr->m_DebugTriMeshFile )
         {
             char str2[256];
             snprintf( str2, sizeof( str2 ), "%sUWTriMeshOut.m", MeshMgr->m_DebugDir.c_str() );
-            fpmas3 = fopen( str2, "w" );
+            MeshMgr->m_DebugTriMeshFile = fopen( str2, "w" );
 
-            fprintf( fpmas3, "clear all; format compact; close all;\n" );
-            fprintf( fpmas3, "figure(2); hold on\n" );
-            fprintf( fpmas3, "figure(3); hold on\n" );
-            fprintf( fpmas3, "figure(4); hold on\n" );
+            if ( MeshMgr->m_DebugTriMeshFile )
+            {
+                fprintf( MeshMgr->m_DebugTriMeshFile, "clear all; format compact; close all;\n" );
+                fprintf( MeshMgr->m_DebugTriMeshFile, "figure(2); hold on\n" );
+                fprintf( MeshMgr->m_DebugTriMeshFile, "figure(3); hold on\n" );
+                fprintf( MeshMgr->m_DebugTriMeshFile, "figure(4); hold on\n" );
+            }
         }
 
         snprintf( str, sizeof( str ), "%sUWTriMeshOut%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
         fp = fopen( str, "w" );
-
-        if (fpmas3 )
+        if ( fp )
         {
-            snprintf( str, sizeof( str ), "UWTriMeshOut%d.m", namecnt );
-            fprintf( fpmas3, "run( '%s' );\n", str );
-        }
 
-        fprintf( fp, "clear all\nformat compact\n" );
-        fprintf( fp, "t = [" );
-        for ( i = 0 ; i < (int)connlist.size() ; i++ )
-        {
-            fprintf( fp, "%d, %d, %d", connlist[i][0] + 1, connlist[i][1] + 1, connlist[i][2] + 1 );
-
-            if ( i < (int)connlist.size() - 1 )
-                fprintf( fp, ";\n" );
-            else
-                fprintf( fp, "];\n" );
-        }
-
-        fprintf( fp, "uprm = [" );
-        for ( i = 0; i < (int)points_out.size(); i++ )
-        {
-            fprintf( fp, "%f", points_out[i].x() );
-
-            if ( i < (int)points_out.size() - 1 )
-                fprintf( fp, ";\n" );
-            else
-                fprintf( fp, "];\n" );
-        }
-
-        fprintf( fp, "wprm = [" );
-        for ( i = 0; i < (int)points_out.size(); i++ )
-        {
-            fprintf( fp, "%f", points_out[i].y() );
-
-            if ( i < (int)points_out.size() - 1 )
-                fprintf( fp, ";\n" );
-            else
-                fprintf( fp, "];\n" );
-        }
-
-        fprintf( fp, "u = [" );
-        for ( i = 0; i < (int)points_out.size(); i++ )
-        {
-            vec2d uw;
-            if ( i < num_pnts )
+            if ( MeshMgr->m_DebugTriMeshFile )
             {
-                uw = uw_points[i];
-            }
-            else
-            {
-                uw = m_Surf->GetUW( points_out[i] );
+                snprintf( str, sizeof( str ), "UWTriMeshOut%d.m", namecnt );
+                fprintf( MeshMgr->m_DebugTriMeshFile, "run( '%s' );\n", str );
             }
 
-            fprintf( fp, "%f", uw.x() );
+            fprintf( fp, "clear all\nformat compact\n" );
+            fprintf( fp, "t = [" );
+            for ( i = 0 ; i < (int)connlist.size() ; i++ )
+            {
+                fprintf( fp, "%d, %d, %d", connlist[i][0] + 1, connlist[i][1] + 1, connlist[i][2] + 1 );
 
-            if ( i < (int)points_out.size() - 1 )
-                fprintf( fp, ";\n" );
-            else
-                fprintf( fp, "];\n" );
+                if ( i < (int)connlist.size() - 1 )
+                    fprintf( fp, ";\n" );
+                else
+                    fprintf( fp, "];\n" );
+            }
+
+            fprintf( fp, "uprm = [" );
+            for ( i = 0; i < (int)points_out.size(); i++ )
+            {
+                fprintf( fp, "%f", points_out[i].x() );
+
+                if ( i < (int)points_out.size() - 1 )
+                    fprintf( fp, ";\n" );
+                else
+                    fprintf( fp, "];\n" );
+            }
+
+            fprintf( fp, "wprm = [" );
+            for ( i = 0; i < (int)points_out.size(); i++ )
+            {
+                fprintf( fp, "%f", points_out[i].y() );
+
+                if ( i < (int)points_out.size() - 1 )
+                    fprintf( fp, ";\n" );
+                else
+                    fprintf( fp, "];\n" );
+            }
+
+            fprintf( fp, "u = [" );
+            for ( i = 0; i < (int)points_out.size(); i++ )
+            {
+                vec2d uw;
+                if ( i < num_pnts )
+                {
+                    uw = uw_points[i];
+                }
+                else
+                {
+                    uw = m_Surf->GetUW( points_out[i] );
+                }
+
+                fprintf( fp, "%f", uw.x() );
+
+                if ( i < (int)points_out.size() - 1 )
+                    fprintf( fp, ";\n" );
+                else
+                    fprintf( fp, "];\n" );
+            }
+
+            fprintf( fp, "w = [" );
+            for ( i = 0; i < (int)points_out.size(); i++ )
+            {
+                vec2d uw;
+                if ( i < num_pnts )
+                {
+                    uw = uw_points[i];
+                }
+                else
+                {
+                    uw = m_Surf->GetUW( points_out[i] );
+                }
+
+                fprintf( fp, "%f", uw.y() );
+
+                if ( i < (int)points_out.size() - 1 )
+                    fprintf( fp, ";\n" );
+                else
+                    fprintf( fp, "];\n" );
+            }
+
+            fprintf( fp, "x = [" );
+            for ( i = 0; i < (int)points_out.size(); i++ )
+            {
+                vec2d uw;
+                if ( i < num_pnts )
+                {
+                    uw = uw_points[i];
+                }
+                else
+                {
+                    uw = m_Surf->GetUW( points_out[i] );
+                }
+
+                vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+
+                fprintf( fp, "%f", pnt.x() );
+
+                if ( i < (int)points_out.size() - 1 )
+                    fprintf( fp, ";\n" );
+                else
+                    fprintf( fp, "];\n" );
+            }
+
+            fprintf( fp, "y = [" );
+            for ( i = 0; i < (int)points_out.size(); i++ )
+            {
+                vec2d uw;
+                if ( i < num_pnts )
+                {
+                    uw = uw_points[i];
+                }
+                else
+                {
+                    uw = m_Surf->GetUW( points_out[i] );
+                }
+
+                vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+
+                fprintf( fp, "%f", pnt.y() );
+
+                if ( i < (int)points_out.size() - 1 )
+                    fprintf( fp, ";\n" );
+                else
+                    fprintf( fp, "];\n" );
+            }
+
+            fprintf( fp, "z = [" );
+            for ( i = 0; i < (int)points_out.size(); i++ )
+            {
+                vec2d uw;
+                if ( i < num_pnts )
+                {
+                    uw = uw_points[i];
+                }
+                else
+                {
+                    uw = m_Surf->GetUW( points_out[i] );
+                }
+
+                vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+
+                fprintf( fp, "%f", pnt.z() );
+
+                if ( i < (int)points_out.size() - 1 )
+                    fprintf( fp, ";\n" );
+                else
+                    fprintf( fp, "];\n" );
+            }
+
+            fprintf( fp, "figure( 2 )\n" );
+            fprintf( fp, "triplot( t, uprm, wprm )\n" );
+            fprintf( fp, "axis equal\n" );
+
+            fprintf( fp, "figure( 3 )\n" );
+            fprintf( fp, "triplot( t, u, w )\n" );
+            fprintf( fp, "axis equal\n" );
+
+            fprintf( fp, "figure( 4 )\n" );
+            fprintf( fp, "trimesh( t, x, y, z )\n" );
+            fprintf( fp, "axis equal\n" );
+
+            fclose( fp );
         }
-
-        fprintf( fp, "w = [" );
-        for ( i = 0; i < (int)points_out.size(); i++ )
-        {
-            vec2d uw;
-            if ( i < num_pnts )
-            {
-                uw = uw_points[i];
-            }
-            else
-            {
-                uw = m_Surf->GetUW( points_out[i] );
-            }
-
-            fprintf( fp, "%f", uw.y() );
-
-            if ( i < (int)points_out.size() - 1 )
-                fprintf( fp, ";\n" );
-            else
-                fprintf( fp, "];\n" );
-        }
-
-        fprintf( fp, "x = [" );
-        for ( i = 0; i < (int)points_out.size(); i++ )
-        {
-            vec2d uw;
-            if ( i < num_pnts )
-            {
-                uw = uw_points[i];
-            }
-            else
-            {
-                uw = m_Surf->GetUW( points_out[i] );
-            }
-
-            vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
-
-            fprintf( fp, "%f", pnt.x() );
-
-            if ( i < (int)points_out.size() - 1 )
-                fprintf( fp, ";\n" );
-            else
-                fprintf( fp, "];\n" );
-        }
-
-        fprintf( fp, "y = [" );
-        for ( i = 0; i < (int)points_out.size(); i++ )
-        {
-            vec2d uw;
-            if ( i < num_pnts )
-            {
-                uw = uw_points[i];
-            }
-            else
-            {
-                uw = m_Surf->GetUW( points_out[i] );
-            }
-
-            vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
-
-            fprintf( fp, "%f", pnt.y() );
-
-            if ( i < (int)points_out.size() - 1 )
-                fprintf( fp, ";\n" );
-            else
-                fprintf( fp, "];\n" );
-        }
-
-        fprintf( fp, "z = [" );
-        for ( i = 0; i < (int)points_out.size(); i++ )
-        {
-            vec2d uw;
-            if ( i < num_pnts )
-            {
-                uw = uw_points[i];
-            }
-            else
-            {
-                uw = m_Surf->GetUW( points_out[i] );
-            }
-
-            vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
-
-            fprintf( fp, "%f", pnt.z() );
-
-            if ( i < (int)points_out.size() - 1 )
-                fprintf( fp, ";\n" );
-            else
-                fprintf( fp, "];\n" );
-        }
-
-        fprintf( fp, "figure( 2 )\n" );
-        fprintf( fp, "triplot( t, uprm, wprm )\n" );
-        fprintf( fp, "axis equal\n" );
-
-        fprintf( fp, "figure( 3 )\n" );
-        fprintf( fp, "triplot( t, u, w )\n" );
-        fprintf( fp, "axis equal\n" );
-
-        fprintf( fp, "figure( 4 )\n" );
-        fprintf( fp, "trimesh( t, x, y, z )\n" );
-        fprintf( fp, "axis equal\n" );
-
-        fclose( fp );
-
-        if ( namecnt == MeshMgr->GetTotalNumSurfs() - 1 )
-        {
-            fprintf( fpmas3, "figure(2)\n");
-            fprintf( fpmas3, "axis off\n" );
-            fprintf( fpmas3, "axis equal\n" );
-            fprintf( fpmas3, "hold off\n" );
-
-            fprintf( fpmas3, "figure(3)\n");
-            fprintf( fpmas3, "axis off\n" );
-            fprintf( fpmas3, "axis equal\n" );
-            fprintf( fpmas3, "hold off\n" );
-
-            fprintf( fpmas3, "figure(4)\n");
-            fprintf( fpmas3, "axis off\n" );
-            fprintf( fpmas3, "axis equal\n" );
-            fprintf( fpmas3, "hold off\n" );
-
-            fclose( fpmas3 );
-            fpmas3 = nullptr;
-        }
-
-        namecnt++;
 #endif
 
 

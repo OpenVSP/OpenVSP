@@ -1502,16 +1502,19 @@ void Surf::BuildDistMap()
 
         FILE *fp = fopen( str, "w" );
 
-        WriteMatDoubleM writeMatDouble;
+        if ( fp )
+        {
+            WriteMatDoubleM writeMatDouble;
 
-        writeMatDouble.write( fp, smat, string( "smat" ), nump, nump );
+            writeMatDouble.write( fp, smat, string( "smat" ), nump, nump );
 
-        writeMatDouble.write( fp, tmat, string( "tmat" ), nump, nump );
+            writeMatDouble.write( fp, tmat, string( "tmat" ), nump, nump );
 
-        fprintf( fp, "figure(2)\n" );
-        fprintf( fp, "plot( smat, tmat, smat', tmat' );\n" );
+            fprintf( fp, "figure(2)\n" );
+            fprintf( fp, "plot( smat, tmat, smat', tmat' );\n" );
 
-        fclose( fp );
+            fclose( fp );
+        }
     }
 
     cnt++;

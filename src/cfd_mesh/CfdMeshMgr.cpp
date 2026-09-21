@@ -35,13 +35,7 @@ CfdMeshMgrSingleton::~CfdMeshMgrSingleton()
 {
     CleanUp();
 
-#ifdef DEBUG_CFD_MESH
-    if ( m_DebugFile )
-    {
-        fclose( m_DebugFile );
-    }
-#endif
-
+    // The debug log belongs to the base class, which closes it.
 }
 
 void CfdMeshMgrSingleton::GenerateMesh()
@@ -3209,6 +3203,10 @@ void CfdMeshMgrSingleton::BuildMesh()
     char str[256];
     int n = m_SurfVec.size();
 
+#ifdef DEBUG_CFD_MESH
+    BeginDebugSurfFiles();
+#endif
+
     //==== Mesh Each Surface ====//
     for ( int s = 0; s < n; s++ )
     {
@@ -3230,6 +3228,10 @@ void CfdMeshMgrSingleton::BuildMesh()
         m_SurfVec[s]->InitMesh( surf_chains, adduw, this );
     }
     addOutputText( "\n" );
+
+#ifdef DEBUG_CFD_MESH
+    EndDebugSurfFiles();
+#endif
 }
 
 // Determines if a triangle should be deleted based on its type and whether or not it is inside every other surface
