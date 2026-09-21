@@ -86,6 +86,11 @@ public:
 
     void ApplyES( const vec3d &uw, double t, int reason );
 
+    // The same, for a caller that already knows where uw lands in space.  The point is only
+    // used to measure how far the map's corners are from it, and evaluating the surface for
+    // it again is the most expensive thing this routine does.
+    void ApplyESAtPnt( const vec3d &uw, const vec3d &p, double t, int reason );
+
     vec2d ClosestUW( const vec3d & pnt_in, double guess_u, double guess_w ) const;
     vec2d ClosestUW( const vec3d & pnt_in ) const;
 

@@ -616,6 +616,11 @@ void Surf::UWtoTargetMapij( double u, double w, int &i, int &j )
 
 void Surf::ApplyES( const vec3d &uw, double t, int reason )
 {
+    ApplyESAtPnt( uw, m_SurfCore.CompPnt( uw.x(), uw.y() ), t, reason );
+}
+
+void Surf::ApplyESAtPnt( const vec3d &uw, const vec3d &p, double t, int reason )
+{
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
     int nmapu = m_SrcMap.size();
     int nmapw = m_SrcMap[0].size();
@@ -624,8 +629,6 @@ void Surf::ApplyES( const vec3d &uw, double t, int reason )
     double u = uw.x();
     double w = uw.y();
     UWtoTargetMapij( u, w, ibase, jbase );
-
-    vec3d p = m_SurfCore.CompPnt( u, w );
 
     int iadd[] = { 0, 1, 0, 1 };
     int jadd[] = { 0, 0, 1, 1 };

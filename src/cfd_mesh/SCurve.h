@@ -46,7 +46,7 @@ public:
         return m_Surf;
     }
 
-    double GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, const vec3d &p, const vec3d &uw, double u, int &reason );
+    double GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, const vec3d &p, const vec3d &uw, const vec3d &uwB, int &reason );
 
     void BorderTesselate( );
     void BorderTesselate( int npt );
@@ -67,7 +67,7 @@ public:
     void UWTess();
     void SpreadDensity( SCurve* BCurve );
     void CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
-    void ApplyESSurface( double u, double t, int reason );
+    void ApplyESAtUW( const vec3d &uw, const vec3d &p, double t, int reason );
     void Tesselate();
 
     void InterpolateLinear( const vector<vec3d> &pnts_to_interpolate );
@@ -139,6 +139,13 @@ protected:
     // the passes after the first recompute only the targets.  CleanupDistTable drops them.
     vector< vec3d > m_TableUW;
     vector< vec3d > m_TablePnt;
+
+    // The same for the curve on the other side of the intersection, which the spreading
+    // walks in step with this one.  Held here because it is this curve's table, and rebuilt
+    // if a different partner is ever handed in.
+    SCurve* m_TableBCurve = nullptr;
+    vector< vec3d > m_TableUWB;
+    vector< vec3d > m_TablePntB;
 };
 
 

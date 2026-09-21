@@ -65,7 +65,7 @@ void SCurve::GetBorderCurve( Bezier_curve & crv ) const
     m_Surf->GetBorderCurve( uw0, uw1, crv );
 }
 
-double SCurve::GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, const vec3d &p, const vec3d &uw, double u, int &reason )
+double SCurve::GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, const vec3d &p, const vec3d &uw, const vec3d &uwB, int &reason )
 {
     bool limitFlag = false;
     if ( m_Surf->GetFarFlag() )
@@ -97,8 +97,6 @@ double SCurve::GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, const 
         {
             limitFlag = true;
         }
-
-        vec3d uwB = BCurve->m_UWCrv.CompPnt01( u );
 
         double lenB = grid_den->GetBaseLen( limitFlag );
 
@@ -354,6 +352,25 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
         }
     }
 
+    // Where the partner curve sits at each of this table's stations.  Spreading walks the two
+    // curves in step, so every pass asked the partner for the same points and asked its
+    // surface where they land; neither moves between passes.
+    if ( BCurve && ( m_TableBCurve != BCurve || ( int )m_TableUWB.size() != num_segs ) )
+    {
+        m_TableBCurve = BCurve;
+        m_TableUWB.clear();
+        m_TablePntB.clear();
+        m_TableUWB.reserve( num_segs );
+        m_TablePntB.reserve( num_segs );
+
+        for ( int i = 0 ; i < num_segs ; i++ )
+        {
+            vec3d uwB = BCurve->m_UWCrv.CompPnt01( u_vec[i] );
+            m_TableUWB.push_back( uwB );
+            m_TablePntB.push_back( BCurve->m_Surf->CompPnt( uwB.x(), uwB.y() ) );
+        }
+    }
+
     target_vec.clear();
     reason_vec.clear();
     target_vec.reserve( num_segs );
@@ -362,7 +379,14 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
     for ( int i = 0 ; i < num_segs ; i++ )
     {
         int reason = -1;
-        double t = GetTargetLen( grid_den, BCurve, m_TablePnt[i], m_TableUW[i], u_vec[i], reason );
+        vec3d uwB;
+
+        if ( BCurve )
+        {
+            uwB = m_TableUWB[i];
+        }
+
+        double t = GetTargetLen( grid_den, BCurve, m_TablePnt[i], m_TableUW[i], uwB, reason );
 
         target_vec.push_back( t );
         reason_vec.push_back( reason );
@@ -426,6 +450,9 @@ void SCurve::CleanupDistTable()
     reason_vec.clear();
     m_TableUW.clear();
     m_TablePnt.clear();
+    m_TableBCurve = nullptr;
+    m_TableUWB.clear();
+    m_TablePntB.clear();
 }
 
 void SCurve::LimitTarget( SimpleGridDensity* grid_den )
@@ -803,13 +830,18 @@ void SCurve::UWTess()
 
 void SCurve::SpreadDensity( SCurve* BCurve )
 {
+    // The stations and the points they land on were worked out when the table was built.
+    if ( ( int )m_TablePnt.size() != num_segs || ( int )m_TablePntB.size() != num_segs )
+    {
+        return;
+    }
+
     for ( int i = 0 ; i < num_segs ; i++ )
     {
-        double u = u_vec[i];
         double t = target_vec[i];
         int reason = reason_vec[i];
-        ApplyESSurface( u, t, reason );
-        BCurve->ApplyESSurface( u, t, reason );
+        ApplyESAtUW( m_TableUW[i], m_TablePnt[i], t, reason );
+        BCurve->ApplyESAtUW( m_TableUWB[i], m_TablePntB[i], t, reason );
     }
 }
 
@@ -820,10 +852,9 @@ void SCurve::CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< Map
     LimitTarget( grid_den );
 }
 
-void SCurve::ApplyESSurface( double u, double t, int reason )
+void SCurve::ApplyESAtUW( const vec3d &uw, const vec3d &p, double t, int reason )
 {
-    vec3d uw = m_UWCrv.CompPnt01( u );
-    m_Surf->ApplyES( uw, t, reason );
+    m_Surf->ApplyESAtPnt( uw, p, t, reason );
 }
 
 void SCurve::DoubleTess()
