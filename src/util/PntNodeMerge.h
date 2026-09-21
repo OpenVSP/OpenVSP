@@ -108,7 +108,12 @@ struct PntNodeCloud
 
 };
 
-void IndexPntNodes( PntNodeCloud & cloud, double tol );
+// Group the cloud's points, every point within the tolerance of another landing in one group.
+//
+// tolsq is a SQUARED distance: the search underneath works in squared distance, so points
+// closer together than sqrt( tolsq ) are merged.  Callers have not always read it that way --
+// see the note on PT_MERGE_TOL in Surf.h.
+void IndexPntNodes( PntNodeCloud & cloud, double tolsq );
 
 class VspSurf;
 

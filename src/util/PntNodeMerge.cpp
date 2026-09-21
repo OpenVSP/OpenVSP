@@ -155,7 +155,7 @@ long long int PntNodeCloud::LookupPntBase( const vec3d & pnt )
     return -1;
 }
 
-void IndexPntNodes( PntNodeCloud & cloud, double tol )
+void IndexPntNodes( PntNodeCloud & cloud, double tolsq )
 {
     cloud.m_index = new PNTree( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 )  );
     cloud.m_index->buildIndex();
@@ -169,7 +169,9 @@ void IndexPntNodes( PntNodeCloud & cloud, double tol )
             std::vector < std::pair < unsigned int, double > > ret_matches;
 
             nanoflann::SearchParams params;
-            cloud.m_index->radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tol, ret_matches, params );
+            // L2_Simple_Adaptor works in squared distance, so the radius handed to
+            // radiusSearch is squared.
+            cloud.m_index->radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tolsq, ret_matches, params );
 
             for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
             {

@@ -41,6 +41,9 @@ class ISegChain;
 // 1e-9 Compromise that still caused some issues.
 // Fixed problem of not using averaged points along intersections, so those points should now match to machine
 // precision and this tolerance should be able to be much smaller.
+// Read as a squared distance by IndexPntNodes and the searches beside it, so what is applied
+// is 1e-6: points closer together than that are one point.  The figures in the note above are
+// distances, which is not what this number is.
 #define PT_MERGE_TOL 1e-12
 
 //////////////////////////////////////////////////////////////////////
