@@ -656,9 +656,8 @@ int Mesh::RemoveIllFormedFaces()
 
         for ( int j = 0; j < 5; j++ )
         {
-            if ( cand[j] && ValidCollapse( cand[j] ) )
+            if ( cand[j] && ValidCollapse( cand[j] ) && CollapseEdge( cand[j], true ) )
             {
-                CollapseEdge( cand[j], true );
                 break;
             }
         }
@@ -1743,7 +1742,7 @@ double Mesh::CollapseConfigQuality( Edge* edge, const vec3d &pc, const vec2d &uw
     return worst;
 }
 
-void Mesh::CollapseEdge( Edge* edge, bool repair )
+bool Mesh::CollapseEdge( Edge* edge, bool repair )
 {
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
@@ -1760,14 +1759,14 @@ void Mesh::CollapseEdge( Edge* edge, bool repair )
     Edge* eb0 = fb->FindEdge( nb, n0 );
     Edge* eb1 = fb->FindEdge( nb, n1 );
 
-    if ( !ea0 || !ea1 || !eb0 || !eb1 ) return;
+    if ( !ea0 || !ea1 || !eb0 || !eb1 ) return false;
 
     Face* fa0 = ea0->OtherFace( fa );
     Face* fa1 = ea1->OtherFace( fa );
     Face* fb0 = eb0->OtherFace( fb );
     Face* fb1 = eb1->OtherFace( fb );
 
-    if ( !fa0 || !fa1 || !fb0 || !fb1 ) return;
+    if ( !fa0 || !fa1 || !fb0 || !fb1 ) return false;
 
     if ( fa0 && fa1 )
     {
@@ -1847,7 +1846,7 @@ void Mesh::CollapseEdge( Edge* edge, bool repair )
 
         if ( best < 0 )
         {
-            return;         // every way of doing this would overlap
+            return false;         // every way of doing this would overlap
         }
 
         // Wang 2006 5.2 step 3: the new configuration must not contain a triangle whose
@@ -1868,7 +1867,7 @@ void Mesh::CollapseEdge( Edge* edge, bool repair )
         // either way.
         if ( !repair && bestq < MIN_COLLAPSE_ANGLE )
         {
-            return;
+            return false;
         }
 
         pc = cand_p[best];
@@ -1877,11 +1876,11 @@ void Mesh::CollapseEdge( Edge* edge, bool repair )
 
     if ( !ValidNodeMove( n0, pc, fa ) )
     {
-        return;
+        return false;
     }
     if ( !ValidNodeMove( n1, pc, fb ) )
     {
-        return;
+        return false;
     }
 
     Node* nc  = AddNode( pc, uwc );
@@ -2023,6 +2022,7 @@ void Mesh::CollapseEdge( Edge* edge, bool repair )
     CheckFace( fb0 );
     CheckFace( fb1 );
 
+    return true;
 }
 
 void Mesh::LaplacianSmooth( int num_iter )

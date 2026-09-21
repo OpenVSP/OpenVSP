@@ -64,7 +64,7 @@ public:
     // repair means the caller is removing a face that is already unfit, rather than
     // collapsing for size.  Such a collapse is allowed to leave a poor triangle, because the
     // face it removes is worse than poor; it is still refused if it would overlap the mesh.
-    void CollapseEdge( Edge* edge, bool repair = false );
+    bool CollapseEdge( Edge* edge, bool repair = false );
 
     // Is this face wound against the surface it lies on?
     bool FaceReversed( Face* f );
