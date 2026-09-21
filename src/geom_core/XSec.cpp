@@ -1832,6 +1832,16 @@ void SkinXSec::ClearSkinning()
     m_TopRSlewSet = false;
     m_TopRStrengthSet = false;
     m_TopRCurveSet = false;
+
+    // And the equality flags again.  From C1 up, validation derives each of them from the
+    // matching left hand Set flag -- LRAngleEq from LAngleSet -- so the pass above turns
+    // back on exactly what the four lines before it turned off.  The next validation then
+    // reads those equality flags and forces the Set flags back on with them, which left
+    // Clear Skinning clearing nothing whatever at C1 or C2.
+    m_TopLRAngleEq = false;
+    m_TopLRStrengthEq = false;
+    m_TopLRSlewEq = false;
+    m_TopLRCurveEq = false;
 }
 
 void SkinXSec::ReadV2FileFuse2( xmlNodePtr &root )
