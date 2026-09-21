@@ -920,6 +920,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "VSPAERO_VSPGEOM_TYPE", VSPAERO_VSPGEOM_TYPE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_POGS_TYPE", CFD_POGS_TYPE );
+    assert( r >= 0 );
 
 
     r = se->RegisterEnum( "CONFORMAL_TRIM_TYPE" );

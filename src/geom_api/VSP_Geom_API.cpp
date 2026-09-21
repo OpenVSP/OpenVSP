@@ -488,6 +488,8 @@ std::string GetComputationFileName( int file_type )
         return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_TKEY_FILE_NAME );
     if ( file_type == CFD_VSPGEOM_TYPE )
         return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_VSPGEOM_FILE_NAME );
+    if ( file_type == CFD_POGS_TYPE )
+        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_POGS_FILE_NAME );
 
     std::string ret = GetVehicle()->getExportFileName( file_type );
 
