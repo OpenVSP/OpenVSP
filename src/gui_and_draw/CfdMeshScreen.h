@@ -106,6 +106,7 @@ protected:
     ToggleButton m_ConvertToQuadsToggle;
 
     ToggleButton m_ParallelMesh;
+    ToggleButton m_SplitJoinSurfs;
 
     //===== Display Tab Items =====//
 

@@ -251,7 +251,7 @@ public:
 
     virtual bool RefFrameIsBody( int orientation_plane );
 
-    virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector < double >() );
+    virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector < double >(), bool splitjoin = true );
 
     virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
     virtual void UpdateDrawObjs();

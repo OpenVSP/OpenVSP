@@ -70,6 +70,7 @@ protected:
     Choice m_ModeChoice;
     vector < string > m_ModeIDs;
 
+    ToggleButton m_SplitJoinSurfs;
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;
     ToggleButton m_ParallelMesh;

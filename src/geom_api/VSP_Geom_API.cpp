@@ -678,6 +678,8 @@ double GetCFDMeshVal( int type )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation();
     else if ( type == CFD_FAR_LOC_Z )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation();
+    else if ( type == CFD_SPLIT_JOIN_SURFS_FLAG )
+        ret = GetVehicle()->GetCfdSettingsPtr()->m_SplitJoinSurfsFlag();
     else if ( type == CFD_PARALLEL_MESH_FLAG )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_ParallelMeshFlag();
     else if ( type == CFD_POGS_NUM_REFINE )
@@ -740,6 +742,8 @@ void SetCFDMeshVal( int type, double val )
         GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation = val;
     else if ( type == CFD_FAR_LOC_Z )
         GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation = val;
+    else if ( type == CFD_SPLIT_JOIN_SURFS_FLAG )
+        GetVehicle()->GetCfdSettingsPtr()->m_SplitJoinSurfsFlag = ToBool(val);
     else if ( type == CFD_PARALLEL_MESH_FLAG )
         GetVehicle()->GetCfdSettingsPtr()->m_ParallelMeshFlag = ToBool(val);
     else if ( type == CFD_POGS_NUM_REFINE )
@@ -5388,6 +5392,8 @@ double GetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type 
         ret = feastruct->GetFeaGridDensityPtr()->GetRigorLimit();
     else if ( type == CFD_HALF_MESH_FLAG )
         ret = feastruct->GetStructSettingsPtr()->m_HalfMeshFlag();
+    else if ( type == CFD_SPLIT_JOIN_SURFS_FLAG )
+        ret = feastruct->GetStructSettingsPtr()->m_SplitJoinSurfsFlag();
     else if ( type == CFD_PARALLEL_MESH_FLAG )
         ret = feastruct->GetStructSettingsPtr()->m_ParallelMeshFlag();
     else
@@ -5450,6 +5456,8 @@ void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type, d
         feastruct->GetFeaGridDensityPtr()->SetRigorLimit( ToBool( val ) );
     else if ( type == CFD_HALF_MESH_FLAG )
         feastruct->GetStructSettingsPtr()->m_HalfMeshFlag = ToBool( val );
+    else if ( type == CFD_SPLIT_JOIN_SURFS_FLAG )
+        feastruct->GetStructSettingsPtr()->m_SplitJoinSurfsFlag = ToBool( val );
     else if ( type == CFD_PARALLEL_MESH_FLAG )
         feastruct->GetStructSettingsPtr()->m_ParallelMeshFlag = ToBool( val );
     else

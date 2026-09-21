@@ -1770,6 +1770,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
     m_MeshTabLayout.AddYGap();
+    m_MeshTabLayout.AddButton( m_SplitJoinSurfs, "Split and Join Surfaces" );
+
+    m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.SetButtonWidth( m_MeshTabLayout.GetW() / 3 );
     m_MeshTabLayout.SetSameLineFlag( true );
     m_MeshTabLayout.SetFitWidthFlag( false );
@@ -3595,6 +3598,7 @@ bool StructScreen::Update()
             //===== Geometry Control =====//
             m_HalfMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
 
+            m_SplitJoinSurfs.Update( curr_struct->GetStructSettingsPtr()->m_SplitJoinSurfsFlag.GetID() );
             m_ToCubicToggle.Update( curr_struct->GetStructSettingsPtr()->m_DemoteSurfsCubicFlag.GetID() );
             m_ToCubicTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_CubicSurfTolerance.GetID() );
             m_ParallelMesh.Update( curr_struct->GetStructSettingsPtr()->m_ParallelMeshFlag.GetID() );

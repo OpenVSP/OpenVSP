@@ -33,6 +33,12 @@ public:
     // compare against, and the result is the same either way.
     BoolParm m_ParallelMeshFlag;
 
+    // Cut a wing or a body into patches chosen for the feature it carries -- a trailing edge,
+    // a leading edge, an end cap, one side of a body -- joining pieces across a seam where a
+    // feature spans one.  Off hands each surface to the mesher whole and lets the general
+    // feature-line splitter cut it.
+    BoolParm m_SplitJoinSurfsFlag;
+
     // What the face colors mean: vsp::CFD_VIS_TYPE.  The saved name still says Flag, so old files
     // still find it.
     IntParm m_ColorTagReason;

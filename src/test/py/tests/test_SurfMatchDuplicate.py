@@ -51,6 +51,9 @@ def test_SurfMatchDuplicate( tmp_path, monkeypatch ):
     vsp.SetCFDMeshVal( vsp.CFD_MAX_EDGE_LEN, 1.0 )
     vsp.SetCFDMeshVal( vsp.CFD_MIN_EDGE_LEN, 0.2 )
 
+    # The faces and edges counted below are those of a wing cut into its feature patches
+    vsp.SetCFDMeshVal( vsp.CFD_SPLIT_JOIN_SURFS_FLAG, 1 )
+
     # SetComputationFileName keys on COMPUTATION_FILE_TYPE, so the name only sticks when it is
     # given the *_TYPE value; a *_FILE_NAME value matches nothing and is dropped in silence.
     err_mgr = vsp.ErrorMgrSingleton.getInstance()

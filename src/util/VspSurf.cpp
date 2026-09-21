@@ -3997,7 +3997,7 @@ static bool WLineInSymPlane( const VspSurf &surf, double umin, double umax, doub
     return true;
 }
 
-void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress, const vector < double > &utess, const vector < double > &wtess, bool capumin, bool capumax ) const
+void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress, const vector < double > &utess, const vector < double > &wtess, bool capumin, bool capumax, bool splitjoin ) const
 {
     vector < piecewise_surface_type > surfvec;
 
@@ -4010,7 +4010,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
     vector < double > usup= usuppress;
     vector < double > wsup = wsuppress;
 
-    if ( GetSurfType() == vsp::WING_SURF ) // IsMagicVParm()
+    if ( splitjoin && GetSurfType() == vsp::WING_SURF ) // IsMagicVParm()
     {
         double umin = m_Surface.get_u0();
         double umax = m_Surface.get_umax();
@@ -4156,7 +4156,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         surfvec.emplace_back( supper );
         regionvec.push_back( MakeIdentityRegion( ulo, uhi, vmid + TMAGIC, vmax - TMAGIC ) );
     }
-    else if ( GetSurfType() == vsp::NORMAL_SURF && IsClosedW() && !IsHalfBOR() )
+    else if ( splitjoin && GetSurfType() == vsp::NORMAL_SURF && IsClosedW() && !IsHalfBOR() )
     {
         // A body's w goes once around it, with feature lines at the quarter points.  Cutting
         // at all of them leaves four quadrant patches; two are wanted, one for each side, so

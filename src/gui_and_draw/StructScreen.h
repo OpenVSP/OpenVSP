@@ -502,6 +502,7 @@ private:
 
     ToggleButton m_Rig3dGrowthLimit;
     ToggleButton m_HalfMeshButton;
+    ToggleButton m_SplitJoinSurfs;
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;
     ToggleButton m_ParallelMesh;

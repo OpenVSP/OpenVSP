@@ -180,7 +180,8 @@ void FeaMeshMgrSingleton::LoadSkins()
 
             int skin_index = fea_struct->GetFeaPartIndex( prt );
 
-            skin->FetchFeaXFerSurf( skinxfersurfs, 0, fea_struct->GetUSuppress(), fea_struct->GetWSuppress() );
+            skin->FetchFeaXFerSurf( skinxfersurfs, 0, fea_struct->GetUSuppress(), fea_struct->GetWSuppress(),
+                                    GetSettingsPtr()->m_SplitJoinSurfsFlag );
 
             // Load Skin XFerSurf to m_SurfVec
             LoadSurfs( skinxfersurfs, GetMeshPtr()->m_LenScale );
@@ -996,7 +997,8 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
             {
                 vector< XferSurf > partxfersurfs;
 
-                fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
+                fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ), std::vector< double >(),
+                                                   std::vector< double >(), GetSettingsPtr()->m_SplitJoinSurfsFlag );
 
                 // Load FeaPart XFerSurf to m_SurfVec
                 LoadSurfs( partxfersurfs, GetMeshPtr()->m_LenScale, start_surf_id );

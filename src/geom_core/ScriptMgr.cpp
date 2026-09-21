@@ -738,6 +738,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_LOC_Z", CFD_FAR_LOC_Z );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_SPLIT_JOIN_SURFS_FLAG", CFD_SPLIT_JOIN_SURFS_FLAG );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_PARALLEL_MESH_FLAG", CFD_PARALLEL_MESH_FLAG );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_POGS_NUM_REFINE", CFD_POGS_NUM_REFINE );

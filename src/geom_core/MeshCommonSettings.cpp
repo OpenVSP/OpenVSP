@@ -34,6 +34,9 @@ void MeshCommonSettings::InitCommonParms( bool curveFlagDefault )
     m_ParallelMeshFlag.Init( "ParallelMeshFlag", "Global", this, true, 0, 1 );
     m_ParallelMeshFlag.SetDescript( "Mesh the surfaces on several threads" );
 
+    m_SplitJoinSurfsFlag.Init( "SplitJoinSurfsFlag", "Global", this, false, 0, 1 );
+    m_SplitJoinSurfsFlag.SetDescript( "Cut wings and bodies into patches chosen for the feature they carry" );
+
     m_DrawBorderFlag.Init( "DrawBorderFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
     m_DrawIsectFlag.Init( "DrawIsectFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
 

@@ -34,6 +34,7 @@ public:
     bool m_DrawMeshFlag;
     bool m_ColorFacesFlag;
     bool m_ParallelMeshFlag;
+    bool m_SplitJoinSurfsFlag;
     int m_ColorTagReason;
 
     bool m_DrawSourceWakeFlag;

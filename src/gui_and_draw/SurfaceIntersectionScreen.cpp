@@ -114,6 +114,9 @@ void SurfaceIntersectionScreen::CreateGlobalTab()
     m_GlobalTabLayout.SetSameLineFlag( false );
 
     m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddButton( m_SplitJoinSurfs, "Split and Join Surfaces" );
+
+    m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetW() / 3 );
     m_GlobalTabLayout.SetSameLineFlag( true );
     m_GlobalTabLayout.SetFitWidthFlag( false );
@@ -365,6 +368,7 @@ void SurfaceIntersectionScreen::UpdateGlobalTab()
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.GetID() );
 
+    m_SplitJoinSurfs.Update( m_Vehicle->GetISectSettingsPtr()->m_SplitJoinSurfsFlag.GetID() );
     m_ToCubicToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_DemoteSurfsCubicFlag.GetID() );
     m_ToCubicTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_CubicSurfTolerance.GetID() );
     m_ParallelMesh.Update( m_Vehicle->GetISectSettingsPtr()->m_ParallelMeshFlag.GetID() );
