@@ -1115,7 +1115,9 @@ void SurfaceIntersectionSingleton::FetchXFerSurfs( const vector < string > & geo
     m_Vehicle->FetchXFerSurfs( geomvec, xfersurfs );
 }
 
-void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
+// n_ref asks each Geom for that many levels of tessellation refinement on the lines its
+// surfaces carry along.  Only the POGS surface output wants anything but the default.
+void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs, int n_ref )
 {
     int normal_set = GetSettingsPtr()->m_SelectedSetIndex;
     int degen_set = GetSettingsPtr()->m_SelectedDegenSetIndex;
@@ -1131,7 +1133,7 @@ void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
         }
     }
 
-    m_Vehicle->FetchXFerSurfs( normal_set, degen_set, xfersurfs );
+    m_Vehicle->FetchXFerSurfs( normal_set, degen_set, xfersurfs, n_ref );
 }
 
 void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, double scale, int start_surf_id )

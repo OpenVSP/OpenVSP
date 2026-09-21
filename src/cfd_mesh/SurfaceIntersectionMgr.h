@@ -331,7 +331,8 @@ public:
     virtual void UpdateDisplaySettings();
 
     virtual void FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs );
-    virtual void FetchSurfs( vector< XferSurf > &xfersurfs );
+    virtual void FetchSurfs( vector< XferSurf > &xfersurfs, int n_ref = 0 );
+
     virtual void LoadSurfs( vector< XferSurf > &xfersurfs, double scale = 1.0, int start_surf_id = 0 );
 
     virtual void CleanMergeSurfs( bool skip_duplicate_removal );

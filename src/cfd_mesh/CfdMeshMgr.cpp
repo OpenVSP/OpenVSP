@@ -62,7 +62,12 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Fetching Bezier Surfaces\n" );
 
     vector< XferSurf > xfersurfs;
-    FetchSurfs( xfersurfs );
+
+    // The POGS surface files sample along each Geom's own tessellation lines, refined by
+    // however much the user asked for.  Read the copy TransferMeshSettings just took, not
+    // the Vehicle's live Parms, so a setting changed while the mesher runs cannot land
+    // halfway through.
+    FetchSurfs( xfersurfs, GetCfdSettingsPtr()->m_POGSNRef );
 
     // UpdateSourcesAndWakes must be before m_Vehicle->HideAll() to prevent components 
     // being being added to or removed from the CFD Mesh set
@@ -2795,6 +2800,241 @@ static void GetTopoEdgeFaceChecked( int surf_id, const std::map < int, int > &su
     }
 }
 
+// Tessellation lines for one direction of a surface.  Surfaces the mesher builds for
+// itself -- the far field box and the symmetry plane -- have no parent Geom to inherit
+// lines from, so they fall back to a plain subdivision of their own range.
+static void POGSTess( const vector < double > &tess, double lo, double hi, vector < double > &out )
+{
+    out = tess;
+
+    if ( out.size() >= 2 )
+    {
+        return;
+    }
+
+    out.clear();
+    for ( int i = 0; i < 5; i++ )
+    {
+        out.push_back( lo + ( hi - lo ) * i / 4.0 );
+    }
+}
+
+// Whether a point lies inside a component other than its own, which is what makes a
+// sample of an untrimmed surface off the geometry.  This is the test RemoveInteriorTris
+// runs on triangle centers: shoot a ray and count how many times it crosses each other
+// component; an odd count means it started inside that one.
+//
+// The test is made against the model rather than against the mesh of the surface being
+// sampled, because a surface's parameterization does not always cover it evenly -- the
+// mesher collapses a degenerate row, such as the nose of a Pod, to a single node, and
+// every sample along that row is really the same point on the geometry.
+bool CfdMeshMgrSingleton::PntInsideOtherComp( const vec3d &pnt, int comp_id, double x_dist )
+{
+    // Sized from the component numbers actually present rather than from a count plus slack.
+    // A surface left out because its number ran past the end would not make the answer
+    // cautious -- it would make it wrong, by hiding the very crossings that say the point is
+    // inside something.
+    int maxcomp = -1;
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        int c = m_SurfVec[i]->GetCompID();
+
+        if ( c > maxcomp )
+        {
+            maxcomp = c;
+        }
+    }
+
+    vector < vector < double > > t_vec_vec;
+    t_vec_vec.resize( maxcomp + 1 );
+
+    vec3d p0 = pnt;
+    vec3d p1 = pnt + vec3d( x_dist, 1.0e-4, 1.0e-4 );
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        int c = m_SurfVec[i]->GetCompID();
+
+        if ( c == comp_id || c < 0 )
+        {
+            continue;
+        }
+
+        // Transparent, structure and stiffener surfaces do not bound a volume, so they
+        // cannot put a point inside anything.
+        if ( m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT ||
+             m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_STRUCTURE ||
+             m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_STIFFENER )
+        {
+            continue;
+        }
+
+        m_SurfVec[i]->IntersectLineSeg( p0, p1, t_vec_vec[c] );
+    }
+
+    for ( int c = 0 ; c < ( int )t_vec_vec.size() ; c++ )
+    {
+        if ( t_vec_vec[c].size() % 2 == 1 )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// Write a Plot3D function file.  It is laid out like a grid file, except that each
+// block's dimensions are followed by the number of variables the block carries, and the
+// data is that many arrays rather than an assumed three.
+static void WritePOGSFunctionFile( const string &fn, const vector < vector < int > > &dim_vec,
+                                   const vector < vector < vector < double > > > &var_vec )
+{
+    FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    int nblock = dim_vec.size();
+
+    fprintf( fp, " %d\n", nblock );
+
+    for ( int i = 0; i < nblock; i++ )
+    {
+        fprintf( fp, " %d %d %d %d\n", dim_vec[i][0], dim_vec[i][1], dim_vec[i][2], ( int )var_vec[i].size() );
+    }
+
+    for ( int i = 0; i < nblock; i++ )
+    {
+        for ( int v = 0; v < ( int )var_vec[i].size(); v++ )
+        {
+            for ( int k = 0; k < ( int )var_vec[i][v].size(); k++ )
+            {
+                fprintf( fp, "%25.17e ", var_vec[i][v][k] );
+            }
+            fprintf( fp, "\n" );
+        }
+    }
+
+    fclose( fp );
+}
+
+// Write the faces as Plot3D surface blocks with an iblank tag.  Each block is one face
+// sampled along its own tessellation lines; the surfaces are not trimmed, so a sample
+// that trimming removed is marked off the geometry with an iblank of zero.
+void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn, const vector < int > &face_surf_vec )
+{
+    FILE* fp = fopen( uvin_fn.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    int nface = face_surf_vec.size();
+
+    // The parameters of every sample, carried alongside so the companion function file
+    // can be written from the same tessellation.
+    vector < vector < int > > uv_dim_vec( nface );
+    vector < vector < vector < double > > > uv_var_vec( nface );
+
+    // Ray length for the interior test, long enough to leave the model from anywhere in it.
+    BndBox big_box;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        big_box.Update( m_SurfVec[i]->GetBBox() );
+    }
+    double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
+
+    vector < vector < double > > uvec( nface ), wvec( nface );
+
+    for ( int iface = 0; iface < nface; iface++ )
+    {
+        Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
+
+        POGSTess( srf->GetUTess(), srf->GetSurfCore()->GetMinU(), srf->GetSurfCore()->GetMaxU(), uvec[iface] );
+        POGSTess( srf->GetWTess(), srf->GetSurfCore()->GetMinW(), srf->GetSurfCore()->GetMaxW(), wvec[iface] );
+
+        // The reader takes the normal of a face to be u_vec x v_vec, and wants it
+        // pointing out of the body.  Walking v backwards on a surface whose parametric
+        // normal points inward turns it around, and costs nothing else: the u and w
+        // values written alongside the points stay the ones that name them.
+        if ( srf->GetFlipFlag() )
+        {
+            std::reverse( wvec[iface].begin(), wvec[iface].end() );
+        }
+    }
+
+    fprintf( fp, " %d\n", nface );
+
+    // egads2srf writes these with the u count first and u running fastest, so the reader
+    // takes the first index for u and the second for v.  Match it.
+    for ( int iface = 0; iface < nface; iface++ )
+    {
+        fprintf( fp, " %zu %zu 1\n", uvec[iface].size(), wvec[iface].size() );
+    }
+
+    for ( int iface = 0; iface < nface; iface++ )
+    {
+        Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
+
+        const vector < double > &u = uvec[iface];
+        const vector < double > &w = wvec[iface];
+
+        vector < vec3d > pnt_vec( u.size() * w.size() );
+
+        uv_dim_vec[iface].push_back( ( int )u.size() );
+        uv_dim_vec[iface].push_back( ( int )w.size() );
+        uv_dim_vec[iface].push_back( 1 );
+
+        uv_var_vec[iface].resize( 2 );
+        uv_var_vec[iface][0].resize( pnt_vec.size() );
+        uv_var_vec[iface][1].resize( pnt_vec.size() );
+
+        for ( int j = 0; j < ( int )w.size(); j++ )
+        {
+            for ( int i = 0; i < ( int )u.size(); i++ )
+            {
+                int k = j * u.size() + i;
+
+                pnt_vec[k] = srf->CompPnt( u[i], w[j] );
+
+                uv_var_vec[iface][0][k] = u[i];
+                uv_var_vec[iface][1][k] = w[j];
+            }
+        }
+
+        for ( int k = 0; k < 3; k++ )
+        {
+            for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
+            {
+                fprintf( fp, "%25.17e ", pnt_vec[i].v[k] );
+            }
+            fprintf( fp, "\n" );
+        }
+
+        int comp_id = srf->GetCompID();
+
+        for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
+        {
+            int iblank = 1;
+            if ( PntInsideOtherComp( pnt_vec[i], comp_id, x_dist ) )
+            {
+                iblank = 0;
+            }
+
+            fprintf( fp, "%12d", iblank );
+        }
+        fprintf( fp, "\n" );
+    }
+
+    fclose( fp );
+
+    // WritePOGSFunctionFile( uv_fn, uv_dim_vec, uv_var_vec );
+}
+
 void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
 {
     string base = pogs_fn;
@@ -2805,10 +3045,16 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
         base.erase( pos, base.length() - 1 );
     }
 
+    string uvin_fn = base;
+    uvin_fn.append( ".uvin" );
     string cur_fn = base;
     cur_fn.append( ".cur" );
     string topo_fn = base;
     topo_fn.append( ".topo" );
+    string uv_fn = base;
+    uv_fn.append( ".uv" );  // Currently unused, but filename passed through
+    // string cuv_fn = base;
+    // cuv_fn.append( ".cuv" ); // Currently unused.
 
     // ISYM says what symmetry the body has: 0 for a closed body, 1/2/3 for a half body
     // on the +x/+y/+z side and the negatives for the other side, 11/12/13 for a full body
@@ -3033,6 +3279,7 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
 
     int nface = face_surf_vec.size();
 
+
     for ( int iface = 0 ; iface < nface ; iface++ )
     {
         int i = face_surf_vec[iface];
@@ -3155,11 +3402,74 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     vector < vector < vec3d > > edge_curve_vec;
     edge_curve_vec.reserve( used_curve_set.size() );
 
+    // The same curves in the parameter space of the faces on either side of them.
+    vector < vector < int > > cuv_dim_vec;
+    vector < vector < vector < double > > > cuv_var_vec;
+
     std::set < int >::iterator cit;
     for ( cit = used_curve_set.begin(); cit != used_curve_set.end(); cit++ )
     {
-        edge_curve_vec.push_back( m_NURBSCurveVec[ *cit ].m_PntVec );
+        NURBS_Curve &nurbs_curve = m_NURBSCurveVec[ *cit ];
+
+        edge_curve_vec.push_back( nurbs_curve.m_PntVec );
+
+        int npnt = nurbs_curve.m_PntVec.size();
+
+        vector < int > dim;
+        dim.push_back( npnt );
+        dim.push_back( 1 );
+        dim.push_back( 1 );
+        cuv_dim_vec.push_back( dim );
+
+        // u and w along the first of the curve's two faces, then along the second.  The
+        // topology file writes the face that exists in its first pair of columns, which
+        // can put the curve's B surface there, so make the same choice here to keep the
+        // two files reading in the same order.
+        int faceA = 0, senseA = 0;
+        int faceB = 0, senseB = 0;
+
+        GetTopoEdgeFaceChecked( nurbs_curve.m_SurfA_ID, surf_id_face_num, curve_face_sense, *cit, faceA, senseA );
+        if ( nurbs_curve.m_SurfB_ID != nurbs_curve.m_SurfA_ID )
+        {
+            GetTopoEdgeFaceChecked( nurbs_curve.m_SurfB_ID, surf_id_face_num, curve_face_sense, *cit, faceB, senseB );
+        }
+
+        const vector < vec3d > *uw_first = &nurbs_curve.m_UWPntVec_A;
+        const vector < vec3d > *uw_second = &nurbs_curve.m_UWPntVec_B;
+
+        if ( faceA == 0 )
+        {
+            uw_first = &nurbs_curve.m_UWPntVec_B;
+            uw_second = &nurbs_curve.m_UWPntVec_A;
+        }
+
+        // The parametric copies are sampled at the same places as the points, so they
+        // line up with them one for one.
+        vector < vector < double > > var( 4 );
+        for ( int v = 0; v < 4; v++ )
+        {
+            var[v].resize( npnt, 0.0 );
+        }
+
+        for ( int i = 0; i < npnt; i++ )
+        {
+            if ( i < ( int )uw_first->size() )
+            {
+                var[0][i] = ( *uw_first )[i].x();
+                var[1][i] = ( *uw_first )[i].y();
+            }
+
+            if ( i < ( int )uw_second->size() )
+            {
+                var[2][i] = ( *uw_second )[i].x();
+                var[3][i] = ( *uw_second )[i].y();
+            }
+        }
+
+        cuv_var_vec.push_back( var );
     }
+
+    WritePOGSSurfFile( uvin_fn, uv_fn, face_surf_vec );
 
     FILE* cur_fp = fopen( cur_fn.c_str(), "w" );
 
@@ -3169,6 +3479,8 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
 
         fclose( cur_fp );
     }
+
+    // WritePOGSFunctionFile( cuv_fn, cuv_dim_vec, cuv_var_vec );
 
     FILE* topo_fp = fopen( topo_fn.c_str(), "w" );
 
