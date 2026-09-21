@@ -3400,34 +3400,56 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
 
 void CfdMeshMgrSingleton::BuildMesh()
 {
-    char str[256];
     int n = m_SurfVec.size();
 
 #ifdef DEBUG_CFD_MESH
     BeginDebugSurfFiles();
 #endif
 
-    //==== Mesh Each Surface ====//
-    for ( int s = 0; s < n; s++ )
+    // Which chains lie on each surface.  Asking the whole chain list once per surface is the
+    // list walked once for every surface; one walk fills them all.
+    vector < vector < ISegChain* > > surf_chains( n );
+
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        vector< ISegChain* > surf_chains;
-        list< ISegChain* >::iterator c;
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+        for ( int s = 0; s < n; s++ )
         {
-            if ( ( ( *c )->m_SurfA == m_SurfVec[s] || ( *c )->m_SurfB == m_SurfVec[s] ) )
+            if ( ( *c )->m_SurfA == m_SurfVec[s] || ( *c )->m_SurfB == m_SurfVec[s] )
             {
-                surf_chains.push_back( ( *c ) );
+                surf_chains[s].push_back( *c );
             }
         }
-
-        vector < vec2d > adduw;
-        ForceSurfaceFixPoints( s, adduw );
-
-        snprintf( str, sizeof( str ), "InitMesh %3d/%3d %s                                          \r", s+1, n, m_SurfVec[s]->GetDisplayName().c_str() );
-        addOutputText( str );
-        m_SurfVec[s]->InitMesh( surf_chains, adduw, this );
     }
-    addOutputText( "\n" );
+
+    // The fix points a structure forces into a surface.  Worked out here because it reads the
+    // mesh's own fix point list, which the surfaces below are not given.
+    vector < vector < vec2d > > adduw( n );
+    for ( int s = 0; s < n; s++ )
+    {
+        ForceSurfaceFixPoints( s, adduw[s] );
+    }
+
+    // Each surface builds its own mesh from its own chains, and reaches nothing the others
+    // touch.  The debug output is the exception: it numbers surfaces and writes them to files
+    // shared across the pass, so with it on the surfaces are taken one at a time.
+    int nthread = 1;
+
+#ifndef DEBUG_CFD_MESH
+    nthread = StageThreadCount( n );
+#endif
+
+    BeginProgress( "InitMesh", n, VOCAL_OUTPUT );
+
+    RunIndexed( n, nthread, [&]( int s )
+    {
+        m_SurfVec[s]->InitMesh( surf_chains[s], adduw[s], this );
+
+        m_ProgressDone++;
+        StepProgress( VOCAL_OUTPUT );
+    } );
+
+    EndProgress( VOCAL_OUTPUT );
 
 #ifdef DEBUG_CFD_MESH
     EndDebugSurfFiles();
