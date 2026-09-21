@@ -164,10 +164,11 @@ public:
     virtual void WriteTagFile( FILE* file_id, int part, int tag, const vector< SimpFace > &allFaceVec, bool allowquads );
     virtual void WriteFacet( const string &facet_fn );
     virtual void WritePOGS( const string &pogs_fn );
-    virtual void WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn,
+    virtual void ReportPOGSWrite( const string &fn, bool ok );
+    virtual bool WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn,
                                     const vector < int > &face_surf_vec );
-    virtual void WritePOGSCompFile( const string &fn, const vector < int > &face_surf_vec );
-    virtual void WritePOGSInputFile( const string &fn, const string &rootname, int isym );
+    virtual bool WritePOGSCompFile( const string &fn, const vector < int > &face_surf_vec );
+    virtual bool WritePOGSInputFile( const string &fn, const string &rootname, int isym );
     virtual bool PntTrimmedAway( const vec3d &pnt, Surf *srf, double x_dist,
                                  vector < vector < double > > &t_vec_vec );
 

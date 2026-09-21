@@ -2935,14 +2935,14 @@ bool CfdMeshMgrSingleton::PntTrimmedAway( const vec3d &pnt, Surf *srf, double x_
 // routine that normally writes them casts down to REAL even in a double precision build.
 //
 // conn_vec holds three vertex numbers per triangle and comp_vec one component tag.
-static void WriteCart3DTri( const string &fn, const vector < vec3d > &pnt_vec,
+static bool WriteCart3DTri( const string &fn, const vector < vec3d > &pnt_vec,
                             const vector < int > &conn_vec, const vector < int > &comp_vec )
 {
     UnformattedOut fp;
 
     if ( !fp.Open( fn ) )
     {
-        return;
+        return false;
     }
 
     fp.SetSinglePrecision( true );
@@ -2963,6 +2963,8 @@ static void WriteCart3DTri( const string &fn, const vector < vec3d > &pnt_vec,
 
     fp.WriteRecord( conn_vec );
     fp.WriteRecord( comp_vec );
+
+    return true;
 }
 
 // Write a Plot3D grid file.  pogs reads these unformatted, the way egads2srf writes
@@ -2974,7 +2976,7 @@ static void WriteCart3DTri( const string &fn, const vector < vec3d > &pnt_vec,
 //     WRITE(IU) X,Y,Z[,IB]        one record per block
 //
 // iblank_vec is left empty for a file that carries no tags, as the curve file does not.
-static void WritePlot3DGrid( const string &fn, const vector < vector < int > > &dim_vec,
+static bool WritePlot3DGrid( const string &fn, const vector < vector < int > > &dim_vec,
                              const vector < vector < vec3d > > &pnt_vec,
                              const vector < vector < int > > &iblank_vec )
 {
@@ -2982,7 +2984,7 @@ static void WritePlot3DGrid( const string &fn, const vector < vector < int > > &
 
     if ( !fp.Open( fn ) )
     {
-        return;
+        return false;
     }
 
     int nblock = dim_vec.size();
@@ -3015,6 +3017,8 @@ static void WritePlot3DGrid( const string &fn, const vector < vector < int > > &
 
         fp.EndRecord();
     }
+
+    return true;
 }
 
 // Write a Plot3D function file.  It is laid out like a grid file, except that each
@@ -3024,14 +3028,14 @@ static void WritePlot3DGrid( const string &fn, const vector < vector < int > > &
 //     WRITE(IU) NBLOCK
 //     WRITE(IU) (NI(N),NJ(N),1,NVAR,N=1,NBLOCK)
 //     WRITE(IU) Q                 one record per block
-static void WritePlot3DFunction( const string &fn, const vector < vector < int > > &dim_vec,
+static bool WritePlot3DFunction( const string &fn, const vector < vector < int > > &dim_vec,
                                  const vector < vector < vector < double > > > &var_vec )
 {
     UnformattedOut fp;
 
     if ( !fp.Open( fn ) )
     {
-        return;
+        return false;
     }
 
     int nblock = dim_vec.size();
@@ -3055,6 +3059,8 @@ static void WritePlot3DFunction( const string &fn, const vector < vector < int >
         }
         fp.EndRecord();
     }
+
+    return true;
 }
 
 // Write the geometric component file, which names the faces in human readable groups.
@@ -3064,13 +3070,13 @@ static void WritePlot3DFunction( const string &fn, const vector < vector < int >
 //
 // The face list accepts ranges as well as single entries; single entries are written
 // throughout, which is always correct whatever order the faces came out in.
-void CfdMeshMgrSingleton::WritePOGSCompFile( const string &fn, const vector < int > &face_surf_vec )
+bool CfdMeshMgrSingleton::WritePOGSCompFile( const string &fn, const vector < int > &face_surf_vec )
 {
     FILE* fp = fopen( fn.c_str(), "w" );
 
     if ( !fp )
     {
-        return;
+        return false;
     }
 
     // One component per surface of each Geom, keyed on its name, which holds the Geom's ID.  The
@@ -3147,19 +3153,21 @@ void CfdMeshMgrSingleton::WritePOGSCompFile( const string &fn, const vector < in
     }
 
     fclose( fp );
+
+    return true;
 }
 
 // Write the pogs input file.  Only the grid control parameters on the second and third
 // lines matter much to start with, and the user is expected to edit them; these are the
 // defaults egads2srf writes, with the mesh spacing taken from the CFD Mesh base length
 // rather than guessed at.
-void CfdMeshMgrSingleton::WritePOGSInputFile( const string &fn, const string &rootname, int isym )
+bool CfdMeshMgrSingleton::WritePOGSInputFile( const string &fn, const string &rootname, int isym )
 {
     FILE* fp = fopen( fn.c_str(), "w" );
 
     if ( !fp )
     {
-        return;
+        return false;
     }
 
     double sharp = 20.0;        // Dihedral angle above which an edge counts as sharp
@@ -3183,14 +3191,18 @@ void CfdMeshMgrSingleton::WritePOGSInputFile( const string &fn, const string &ro
     fprintf( fp, "%5d%5d%8.2f%14.5E%8.2f   ISYM,NFRINGE,STENQUAL,DSWALL,DOBND\n", isym, nfringe, stenqual, dswall, dobnd );
 
     fclose( fp );
+
+    return true;
 }
 
 // Write the faces as Plot3D surface blocks with an iblank tag.  Each block is one face
 // sampled along its own tessellation lines; the surfaces are not trimmed, so a sample
 // that trimming removed is marked off the geometry with an iblank of zero.
-void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn,
+bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn,
                                              const vector < int > &face_surf_vec )
 {
+    bool ok = true;
+
     int nface = face_surf_vec.size();
 
     // The parameters of every sample, carried alongside so the companion function file
@@ -3308,8 +3320,28 @@ void CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
         grid_dim_vec[iface].push_back( 1 );
     }
 
-    WritePlot3DGrid( uvin_fn, grid_dim_vec, all_pnt_vec, all_iblank_vec );
-    // WritePlot3DFunction( uv_fn, uv_dim_vec, uv_var_vec );
+    ok = WritePlot3DGrid( uvin_fn, grid_dim_vec, all_pnt_vec, all_iblank_vec ) && ok;
+    // ok = WritePlot3DFunction( uv_fn, uv_dim_vec, uv_var_vec ) && ok;
+
+    return ok;
+}
+
+// Say so when a POGS file could not be written.
+//
+// These go out through the progress path and to stdout alike: a run driven from a script sees
+// nothing addOutputText posts, and a silently missing file is the worst way to learn that a
+// disk was full or a directory read only.
+void CfdMeshMgrSingleton::ReportPOGSWrite( const string &fn, bool ok )
+{
+    if ( ok )
+    {
+        return;
+    }
+
+    char str[1024];
+    snprintf( str, sizeof( str ), "POGS: could not write %s\n", fn.c_str() );
+    addOutputText( str );
+    printf( "%s", str );
 }
 
 void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
@@ -3531,7 +3563,8 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
             }
         }
 
-        WriteCart3DTri( pogs_fn, allUsedPntVec, conn_vec, comp_vec );
+        ReportPOGSWrite( pogs_fn,
+                         WriteCart3DTri( pogs_fn, allUsedPntVec, conn_vec, comp_vec ) );
     }
 
 
@@ -3764,10 +3797,10 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
         rootname.erase( 0, slash + 1 );
     }
 
-    WritePOGSSurfFile( uvin_fn, uv_fn, face_surf_vec );
+    ReportPOGSWrite( uvin_fn /* + " or " + uv_fn */, WritePOGSSurfFile( uvin_fn, uv_fn, face_surf_vec ) );
 
-    WritePOGSCompFile( gcomp_fn, face_surf_vec );
-    WritePOGSInputFile( pogsi_fn, rootname, isym );
+    ReportPOGSWrite( gcomp_fn, WritePOGSCompFile( gcomp_fn, face_surf_vec ) );
+    ReportPOGSWrite( pogsi_fn, WritePOGSInputFile( pogsi_fn, rootname, isym ) );
 
     // A curve file carries no iblank.
     vector < vector < int > > cur_dim_vec( edge_curve_vec.size() );
@@ -3778,10 +3811,12 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
         cur_dim_vec[i].push_back( 1 );
     }
 
-    WritePlot3DGrid( cur_fn, cur_dim_vec, edge_curve_vec, vector < vector < int > >() );
-    // WritePlot3DFunction( cuv_fn, cuv_dim_vec, cuv_var_vec );
+    ReportPOGSWrite( cur_fn, WritePlot3DGrid( cur_fn, cur_dim_vec, edge_curve_vec, vector < vector < int > >() ) );
+    // ReportPOGSWrite( cuv_fn, WritePlot3DFunction( cuv_fn, cuv_dim_vec, cuv_var_vec ) );
 
     FILE* topo_fp = fopen( topo_fn.c_str(), "w" );
+
+    ReportPOGSWrite( topo_fn, topo_fp != nullptr );
 
     if ( topo_fp )
     {
