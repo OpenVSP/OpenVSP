@@ -798,6 +798,53 @@ void Mesh::SplitEdge( Edge* edge )
         }
     }
 
+    // What the split needs from each face, gathered before the mesh is touched.  Giving up
+    // once a face has been removed and its two replacements not yet built leaves a hole with
+    // a hanging node in it, which nothing downstream can repair.
+    Node* na = nullptr;
+    Edge* ea0 = nullptr;
+    Edge* ea1 = nullptr;
+
+    if ( fa )
+    {
+        na = fa->OtherNodeTri( n0, n1 );
+
+        if ( !na )
+        {
+            return;
+        }
+
+        ea0 = fa->FindEdge( n0, na );
+        ea1 = fa->FindEdge( na, n1 );
+
+        if ( !ea0 || !ea1 )
+        {
+            return;
+        }
+    }
+
+    Node* nb = nullptr;
+    Edge* eb0 = nullptr;
+    Edge* eb1 = nullptr;
+
+    if ( fb )
+    {
+        nb = fb->OtherNodeTri( n0, n1 );
+
+        if ( !nb )
+        {
+            return;
+        }
+
+        eb0 = fb->FindEdge( n0, nb );
+        eb1 = fb->FindEdge( nb, n1 );
+
+        if ( !eb0 || !eb1 )
+        {
+            return;
+        }
+    }
+
     Node* ns  = AddNode( ps, uws );
     Edge* es0 = AddEdge( n0, ns );
     Edge* es1 = AddEdge( ns, n1 );
@@ -808,38 +855,26 @@ void Mesh::SplitEdge( Edge* edge )
 
     if ( fa )
     {
-        Node* na = fa->OtherNodeTri( n0, n1 );
         Edge* ea = AddEdge( na, ns );
-
-        Edge* ea0 = fa->FindEdge( n0, na );
-        Edge* ea1 = fa->FindEdge( na, n1 );
-
-        if ( !ea0 || !ea1 ) return;
 
         ea0->RemoveFace( fa );
         ea1->RemoveFace( fa );
 
-        Face* fa0 = AddFace( n0, ns, na, ea0, ea, es0 );
-        Face* fa1 = AddFace( n1, na, ns, ea1, es1, ea );
+        AddFace( n0, ns, na, ea0, ea, es0 );
+        AddFace( n1, na, ns, ea1, es1, ea );
 
         RemoveFace( fa );
     }
 
     if ( fb )
     {
-        Node* nb = fb->OtherNodeTri( n0, n1 );
         Edge* eb = AddEdge( ns, nb );
-
-        Edge* eb0 = fb->FindEdge( n0, nb );
-        Edge* eb1 = fb->FindEdge( nb, n1 );
-
-        if ( !eb0 || !eb1 ) return;
 
         eb0->RemoveFace( fb );
         eb1->RemoveFace( fb );
 
-        Face* fb0 = AddFace( n0, nb, ns, es0, eb, eb0 );
-        Face* fb1 = AddFace( n1, ns, nb, es1, eb1, eb );
+        AddFace( n0, nb, ns, es0, eb, eb0 );
+        AddFace( n1, ns, nb, es1, eb1, eb );
 
         RemoveFace( fb );
     }
