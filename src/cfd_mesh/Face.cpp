@@ -877,6 +877,17 @@ Node* Face::OtherNodeTri( Node* a, Node* b )
         return nullptr;
     }
 
+    // The cancelling only works if a and b are two different corners of this face.  Given
+    // anything else the XOR yields an address built out of three unrelated pointers, and
+    // every caller reads through what comes back.
+    if ( a == b ||
+         ( a != n0 && a != n1 && a != n2 ) ||
+         ( b != n0 && b != n1 && b != n2 ) )
+    {
+        assert( false );
+        return nullptr;
+    }
+
     return (Node *) ((uintptr_t) n0 ^ (uintptr_t) n1 ^ (uintptr_t) n2 ^ (uintptr_t) a ^ (uintptr_t) b);
 }
 
