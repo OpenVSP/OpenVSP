@@ -5221,7 +5221,7 @@ bool SkinScreen::Update()
     int xsid = geomxsec_ptr->m_ActiveXSec();
     m_SkinIndexSelector.Update( geomxsec_ptr->m_ActiveXSec.GetID() );
 
-    SkinXSec* xs = ( SkinXSec* ) geomxsec_ptr->GetXSec( xsid );
+    SkinXSec* xs = dynamic_cast < SkinXSec* > ( geomxsec_ptr->GetXSec( xsid ) );
     if ( xs )
     {
         XSecCurve* xsc = xs->GetXSecCurve();
@@ -5432,7 +5432,7 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         int t = m_TopHeader.m_ContChoice->GetVal();
         int xsid = geomxsec_ptr->m_ActiveXSec();
-        SkinXSec* xs = (SkinXSec*) geomxsec_ptr->GetXSec( xsid );
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( geomxsec_ptr->GetXSec( xsid ) );
         if ( xs )
         {
             xs->m_TopCont.Set( t );
@@ -5443,7 +5443,7 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_SkinXSecCurveNameInput )
     {
         int xsid = geomxsec_ptr->m_ActiveXSec();
-        SkinXSec* xs = (SkinXSec*) geomxsec_ptr->GetXSec( xsid );
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( geomxsec_ptr->GetXSec( xsid ) );
         if ( xs )
         {
             XSecCurve* xsc = xs->GetXSecCurve();
@@ -6250,7 +6250,7 @@ bool BlendScreen::Update()
     int xsid = wing_ptr->m_ActiveXSec();
     m_BlendIndexSelector.Update( wing_ptr->m_ActiveXSec.GetID() );
 
-    BlendWingSect* xs = ( BlendWingSect* ) geomxsec_ptr->GetXSec( xsid );
+    BlendWingSect* xs = dynamic_cast < BlendWingSect* > ( geomxsec_ptr->GetXSec( xsid ) );
     if ( xs )
     {
         XSecCurve* xsc = xs->GetXSecCurve();
