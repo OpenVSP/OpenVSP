@@ -3710,13 +3710,13 @@ void SkinHeader::Init( VspScreen* screen,
 
 void SkinHeader::Activate()
 {
-    if ( !m_ContChoice )
+    // A header built without a continuity choice still has its Set and Equal buttons, and
+    // they are the whole of it -- returning early on the missing choice left them live.  The
+    // spine header is built that way, so both of its calls were doing nothing at all.
+    if ( m_ContChoice )
     {
-        return;
+        m_ContChoice->Activate();
     }
-
-    assert( m_ContChoice );
-    m_ContChoice->Activate();
 
     for( int i = 0; i < (int)m_Buttons.size(); i++ )
     {
@@ -3727,13 +3727,13 @@ void SkinHeader::Activate()
 
 void SkinHeader::Deactivate()
 {
-    if ( !m_ContChoice )
+    // A header built without a continuity choice still has its Set and Equal buttons, and
+    // they are the whole of it -- returning early on the missing choice left them live.  The
+    // spine header is built that way, so both of its calls were doing nothing at all.
+    if ( m_ContChoice )
     {
-        return;
+        m_ContChoice->Deactivate();
     }
-
-    assert( m_ContChoice );
-    m_ContChoice->Deactivate();
 
     for( int i = 0; i < (int)m_Buttons.size(); i++ )
     {

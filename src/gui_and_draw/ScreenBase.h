@@ -1022,9 +1022,36 @@ protected:
 
     GroupLayout m_SkinLayout;
 
+    // The Skinning tab carries its own tabs: the four fixed sides, and the user defined
+    // spines that can be added between them.
+    Fl_Tabs* m_SkinTabs;
+    GroupLayout m_SpineLayout;
+
     IndexSelector m_SkinIndexSelector;
 
     StringInput m_SkinXSecCurveNameInput;
+
+    //==== Spines sub tab ====//
+    ColResizeBrowser* m_SpineBrowser;
+    int m_ActiveSpine;
+
+    // Which Geom m_ActiveSpine refers to, so it is not carried to another one.
+    string m_ActiveSpineGeomID;
+
+    SliderAdjRangeInput m_SpineWSlider;
+    TriggerButton m_AddSpineButton;
+    TriggerButton m_DelSpineButton;
+    TriggerButton m_DelAllSpinesButton;
+    ToggleButton m_SpineLRSymButton;
+    ToggleButton m_SpineTBSymButton;
+
+    SkinHeader m_SpineHeader;
+    SkinControl m_SpineAngleSkinControl;
+    SkinControl m_SpineSlewSkinControl;
+    SkinControl m_SpineStrengthSkinControl;
+    SkinControl m_SpineCurvatureSkinControl;
+
+    virtual void UpdateSpineBrowser( SkinXSec* xs );
 
     ToggleButton m_AllSymButton;
     TriggerButton m_ClearSkinningButton;

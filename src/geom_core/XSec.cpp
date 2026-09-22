@@ -1726,6 +1726,7 @@ void SkinXSec::GetStations( vector< SkinStation > &stations )
     {
         SkinStation st;
         GetSideStation( i, st );
+        st.m_SpineIndex = -1;
         stations.push_back( st );
     }
 
@@ -1778,6 +1779,7 @@ void SkinXSec::GetStations( vector< SkinStation > &stations )
             SkinStation st;
             st.m_W = w;
             st.m_IsSide = false;
+            st.m_SpineIndex = i;
 
             st.m_LAngleSet = sp->m_LAngleSet();
             st.m_LSlewSet = sp->m_LSlewSet();

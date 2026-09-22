@@ -1021,6 +1021,10 @@ public:
     virtual int NumSkinSpines();
     virtual void SyncSkinSpines();
 
+    // Which spine the Skinning tab is editing, so its vectors can be drawn apart from the
+    // rest.  Nothing about the surface depends on it, so it only dirties the highlight.
+    virtual void SetActiveSkinSpine( int index );
+
     // One draw object per colour, since a DrawObj carries a single colour and the point of
     // this is to tell the stations apart.  The side entries are indexed by
     // SkinXSec::SKIN_SIDE_*, so a side's station number is its own draw object.
@@ -1029,6 +1033,7 @@ public:
            SKIN_DRAW_LEFT,
            SKIN_DRAW_TOP,
            SKIN_DRAW_SPINE,
+           SKIN_DRAW_ACTIVE_SPINE,
            NUM_SKIN_DRAW };
 
     // The DrawObj colour each of those is drawn in.  Shared with the Skinning tab, which keys
@@ -1081,6 +1086,11 @@ protected:
     // Arrowheads capping both.  They are shaded triangles rather than lines, so one set
     // serves both sides.
     vector < DrawObj > m_SkinArrowDrawObj_vec;
+
+    // The spine whose controls the Skinning tab is showing, or -1.  This is view state and
+    // not a Parm: it belongs to what the user is looking at, not to the model, so it is
+    // neither written to the file nor linkable.
+    int m_ActiveSpine;
 };
 
 #endif // !defined(VSPGEOM__INCLUDED_)

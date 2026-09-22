@@ -5144,11 +5144,100 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.SetFitWidthFlag( true );
     m_SkinLayout.SetButtonWidth( stdwidth );
 
+    m_SkinLayout.AddYGap();
+
+    // Sub tabs: the four fixed sides, and the spines the user adds between them.
+    int sborder = 5;
+
+    m_SkinTabs = new Fl_Tabs( m_SkinLayout.GetX(), m_SkinLayout.GetY(),
+                              m_SkinLayout.GetRemainX(), m_SkinLayout.GetRemainY() );
+    m_SkinTabs->labelcolor( FL_BLUE );
+
+    int sx, sy, sw, sh;
+    m_SkinTabs->client_area( sx, sy, sw, sh, TAB_H );
+
+    int sgx = sx + sborder;
+    int sgy = sy + sborder;
+    int sgw = sw - 2 * sborder;
+    int sgh = sh - 2 * sborder;
+
+    Fl_Group* sides_grp = new Vsp_Group( sx, sy, sw, sh );
+    sides_grp->copy_label( "Sides" );
+    sides_grp->selection_color( FL_GRAY );
+    sides_grp->labelfont( 1 );
+    sides_grp->labelcolor( FL_BLACK );
+    m_SkinTabs->add( sides_grp );
+
+    Fl_Group* sides_sub = new Fl_Group( sgx, sgy, sgw, sgh );
+    sides_grp->add( sides_sub );
+
+    Fl_Group* spine_grp = new Vsp_Group( sx, sy, sw, sh );
+    spine_grp->copy_label( "Spines" );
+    spine_grp->selection_color( FL_GRAY );
+    spine_grp->labelfont( 1 );
+    spine_grp->labelcolor( FL_BLACK );
+    m_SkinTabs->add( spine_grp );
+
+    Fl_Group* spine_sub = new Fl_Group( sgx, sgy, sgw, sgh );
+    spine_grp->add( spine_sub );
+
+    sides_grp->show();
+
+    m_SpineLayout.SetGroupAndScreen( spine_sub, this );
+
+    //==== Spines sub tab ====//
+    m_ActiveSpine = -1;
+
+    static int spine_widths[] = { 60, 90, 90, 0 };
+    m_SpineBrowser = m_SpineLayout.AddColResizeBrowser( spine_widths, 3, 90 );
+    m_SpineBrowser->Init( this, m_SpineLayout.GetGroup() );
+
+    m_SpineLayout.SetSameLineFlag( true );
+    m_SpineLayout.SetFitWidthFlag( false );
+    m_SpineLayout.SetButtonWidth( m_SpineLayout.GetW() / 3.0 );
+    m_SpineLayout.AddButton( m_AddSpineButton, "Add" );
+    m_SpineLayout.AddButton( m_DelSpineButton, "Delete" );
+    m_SpineLayout.AddButton( m_DelAllSpinesButton, "Delete All" );
+    m_SpineLayout.ForceNewLine();
+    m_SpineLayout.SetSameLineFlag( false );
+    m_SpineLayout.SetFitWidthFlag( true );
+
+    m_SpineLayout.AddYGap();
+    m_SpineLayout.SetButtonWidth( 75 );
+    m_SpineLayout.AddSlider( m_SpineWSlider, "W", 1.0, "%6.4f" );
+
+    m_SpineLayout.SetSameLineFlag( true );
+    m_SpineLayout.SetFitWidthFlag( false );
+    m_SpineLayout.SetButtonWidth( m_SpineLayout.GetW() / 2.0 );
+    m_SpineLayout.AddButton( m_SpineLRSymButton, "L/R Sym" );
+    m_SpineLayout.AddButton( m_SpineTBSymButton, "T/B Sym" );
+    m_SpineLayout.ForceNewLine();
+    m_SpineLayout.SetSameLineFlag( false );
+    m_SpineLayout.SetFitWidthFlag( true );
+
+    m_SpineLayout.AddYGap();
+    m_SpineLayout.AddDividerBox( "Spine Skinning", 0,
+                                 SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_ACTIVE_SPINE ) ) );
+
+    m_SpineLayout.SetChoiceButtonWidth( 55 );
+    m_SpineLayout.SetInputWidth( 45 );
+    m_SpineLayout.SetSliderWidth( 50 );
+    m_SpineLayout.SetButtonWidth( 75 );
+    m_SpineLayout.AddSkinHeader( m_SpineHeader, false );
+
+    m_SpineLayout.AddSkinControl( m_SpineAngleSkinControl, "Angle", angleRng, angleFmt );
+    m_SpineLayout.AddSkinControl( m_SpineSlewSkinControl, "Slew", angleRng, angleFmt );
+    m_SpineLayout.AddSkinControl( m_SpineStrengthSkinControl, "Strength", strengthRng, strengthFmt );
+    m_SpineLayout.AddSkinControl( m_SpineCurvatureSkinControl, "Curvature", curveRng, curveFmt );
+
+    //==== Sides sub tab ====//
+    // Re-point the skin layout at the Sides group so the existing side controls below land
+    // there instead of on the bare tab.
+    m_SkinLayout.SetGroupAndScreen( sides_sub, this );
+
     m_SkinLayout.SetButtonWidth( 75 );
 
     int oldDH = m_SkinLayout.GetDividerHeight();
-
-    m_SkinLayout.AddYGap();
 
     m_SkinLayout.SetSameLineFlag( true );
     m_SkinLayout.AddDividerBox( "Top Side", m_SkinLayout.GetButtonWidth(),
@@ -5241,6 +5330,105 @@ bool SkinScreen::Update()
     m_ShowSkinningCurveToggle.Update( geomxsec_ptr->m_ShowSkinningCurveFlag.GetID() );
 
     SkinXSec* xs = dynamic_cast < SkinXSec* > ( geomxsec_ptr->GetXSec( xsid ) );
+
+    //==== Spines ====//
+    int nspine = 0;
+    if ( xs )
+    {
+        nspine = xs->NumSpines();
+    }
+
+    // The selection belongs to the Geom being shown, not to this screen.  Switching Geom
+    // used to carry the index across to an unrelated spine, and leave the Geom being left
+    // drawing that spine as the active one.
+    if ( geom_ptr->GetID() != m_ActiveSpineGeomID )
+    {
+        m_ActiveSpineGeomID = geom_ptr->GetID();
+        m_ActiveSpine = -1;
+    }
+
+    if ( m_ActiveSpine >= nspine )
+    {
+        m_ActiveSpine = nspine - 1;
+    }
+
+    // Every path that changes the selection -- adding, deleting, picking a row, switching
+    // Geom -- comes back through here, so this is the one place that has to say so.
+    geomxsec_ptr->SetActiveSkinSpine( m_ActiveSpine );
+
+    UpdateSpineBrowser( xs );
+
+    SkinSpine* spine = nullptr;
+    if ( xs && m_ActiveSpine >= 0 )
+    {
+        spine = xs->GetSpine( m_ActiveSpine );
+    }
+
+    // Position, symmetry and name belong to the spine as a whole rather than to one cross
+    // section, and the first cross section holds them.  Drive those controls from there, or
+    // the slider would edit a copy that the next update overwrites.  The skinning values
+    // below are per cross section and stay on the active one.
+    SkinSpine* master = nullptr;
+    SkinXSec* masterxs = dynamic_cast < SkinXSec* > ( geomxsec_ptr->GetXSec( 0 ) );
+    if ( masterxs && m_ActiveSpine >= 0 )
+    {
+        master = masterxs->GetSpine( m_ActiveSpine );
+    }
+
+    if ( spine && master )
+    {
+        m_SpineWSlider.Update( master->m_W01.GetID() );
+        m_SpineLRSymButton.Update( master->m_LRSymFlag.GetID() );
+        m_SpineTBSymButton.Update( master->m_TBSymFlag.GetID() );
+
+        // Activate first, then Update.  SkinControl::Update deactivates the halves whose Set
+        // flag is off, so anything activated after it would undo exactly that.
+        m_SpineHeader.Activate();
+        m_SpineAngleSkinControl.Activate();
+        m_SpineSlewSkinControl.Activate();
+        m_SpineStrengthSkinControl.Activate();
+        m_SpineCurvatureSkinControl.Activate();
+
+        m_SpineAngleSkinControl.Update( spine->m_LAngle.GetID(), spine->m_LAngleSet.GetID(),
+                                        spine->m_LRAngleEq.GetID(), spine->m_RAngleSet.GetID(), spine->m_RAngle.GetID() );
+        m_SpineSlewSkinControl.Update( spine->m_LSlew.GetID(), spine->m_LSlewSet.GetID(),
+                                       spine->m_LRSlewEq.GetID(), spine->m_RSlewSet.GetID(), spine->m_RSlew.GetID() );
+        m_SpineStrengthSkinControl.Update( spine->m_LStrength.GetID(), spine->m_LStrengthSet.GetID(),
+                                           spine->m_LRStrengthEq.GetID(), spine->m_RStrengthSet.GetID(), spine->m_RStrength.GetID() );
+        m_SpineCurvatureSkinControl.Update( spine->m_LCurve.GetID(), spine->m_LCurveSet.GetID(),
+                                            spine->m_LRCurveEq.GetID(), spine->m_RCurveSet.GetID(), spine->m_RCurve.GetID() );
+
+        m_DelSpineButton.Activate();
+        m_SpineWSlider.Activate();
+        m_SpineLRSymButton.Activate();
+        m_SpineTBSymButton.Activate();
+
+        // Slew and Strength follow Angle, as they do for the fixed sides.
+        m_SpineSlewSkinControl.DeactivateSet();
+        m_SpineStrengthSkinControl.DeactivateSet();
+    }
+    else
+    {
+        m_DelSpineButton.Deactivate();
+        m_SpineWSlider.Deactivate();
+        m_SpineLRSymButton.Deactivate();
+        m_SpineTBSymButton.Deactivate();
+        m_SpineHeader.Deactivate();
+        m_SpineAngleSkinControl.Deactivate();
+        m_SpineSlewSkinControl.Deactivate();
+        m_SpineStrengthSkinControl.Deactivate();
+        m_SpineCurvatureSkinControl.Deactivate();
+    }
+
+    if ( xs && xs->NumSpines() > 0 )
+    {
+        m_DelAllSpinesButton.Activate();
+    }
+    else
+    {
+        m_DelAllSpinesButton.Deactivate();
+    }
+
     if ( xs )
     {
         XSecCurve* xsc = xs->GetXSecCurve();
@@ -5425,6 +5613,64 @@ bool SkinScreen::Update()
     return true;
 }
 
+// List the spines of the active XSec.  Position and symmetry are the same on every XSec,
+// so the list reads the same wherever you are along the body; the values behind it do not.
+void SkinScreen::UpdateSpineBrowser( SkinXSec* xs )
+{
+    int h_pos = m_SpineBrowser->hposition();
+    int v_pos = m_SpineBrowser->vposition();
+
+    m_SpineBrowser->clear();
+    m_SpineBrowser->column_char( ':' );
+
+    m_SpineBrowser->add( "@b@.NAME:@b@.W:@b@.SYMMETRY" );
+
+    int nspine = 0;
+    if ( xs )
+    {
+        nspine = xs->NumSpines();
+    }
+
+    for ( int i = 0; i < nspine; i++ )
+    {
+        SkinSpine* sp = xs->GetSpine( i );
+        if ( !sp )
+        {
+            continue;
+        }
+
+        string sym;
+        if ( sp->m_LRSymFlag() )
+        {
+            sym += "L/R";
+        }
+        if ( sp->m_TBSymFlag() )
+        {
+            if ( !sym.empty() )
+            {
+                sym += " ";
+            }
+            sym += "T/B";
+        }
+        if ( sym.empty() )
+        {
+            sym = "none";
+        }
+
+        char str[256];
+        snprintf( str, sizeof( str ), "%s:%6.4f:%s", sp->GetName().c_str(), sp->m_W01(), sym.c_str() );
+        m_SpineBrowser->add( str );
+    }
+
+    if ( m_ActiveSpine >= 0 && m_ActiveSpine < nspine )
+    {
+        m_SpineBrowser->select( m_ActiveSpine + 2 );
+    }
+
+    m_SpineBrowser->hposition( h_pos );
+    m_SpineBrowser->vposition( v_pos );
+}
+
 void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     //==== Find Fuselage Ptr ====//
@@ -5436,7 +5682,32 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     GeomXSec* geomxsec_ptr = dynamic_cast< GeomXSec* >( geom_ptr );
     assert( geomxsec_ptr );
 
-    if ( gui_device == m_TopHeader.m_ContChoice )
+    if ( gui_device == &m_AddSpineButton )
+    {
+        // Drop the new spine midway between the two sides the user is nearest, so it lands
+        // somewhere visible rather than on top of an existing station.
+        m_ActiveSpine = geomxsec_ptr->AddSkinSpine( geomxsec_ptr->SuggestSkinSpineW01() );
+        geomxsec_ptr->Update();
+    }
+    else if ( gui_device == &m_DelSpineButton )
+    {
+        geomxsec_ptr->DelSkinSpine( m_ActiveSpine );
+
+        // Step back only when there is nothing left at this index.  Deleting the first of
+        // three used to leave nothing selected although two remained.
+        if ( m_ActiveSpine >= geomxsec_ptr->NumSkinSpines() )
+        {
+            m_ActiveSpine = geomxsec_ptr->NumSkinSpines() - 1;
+        }
+        geomxsec_ptr->Update();
+    }
+    else if ( gui_device == &m_DelAllSpinesButton )
+    {
+        geomxsec_ptr->DelAllSkinSpines();
+        m_ActiveSpine = -1;
+        geomxsec_ptr->Update();
+    }
+    else if ( gui_device == m_TopHeader.m_ContChoice )
     {
         int t = m_TopHeader.m_ContChoice->GetVal();
         int xsid = geomxsec_ptr->m_ActiveXSec();
@@ -5489,6 +5760,23 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 //==== Fltk  Callbacks ====//
 void SkinScreen::CallBack( Fl_Widget *w )
 {
+    if ( w == m_SpineBrowser )
+    {
+        // Row 1 is the header, so the spine index is two less than the selection.
+        // Row 1 is the header, so the spine index is two less than the selection -- except
+        // that a click below the last row selects nothing and reports 0, which would give -2.
+        // Nothing selected is -1.
+        int sel = m_SpineBrowser->value();
+        m_ActiveSpine = sel - 2;
+        if ( m_ActiveSpine < -1 )
+        {
+            m_ActiveSpine = -1;
+        }
+
+        m_ScreenMgr->SetUpdateFlag( true );
+        return;
+    }
+
     XSecScreen::CallBack( w );
 }
 

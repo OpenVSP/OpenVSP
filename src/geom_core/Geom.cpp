@@ -6424,6 +6424,8 @@ GeomXSec::GeomXSec( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_ActiveXSec.Init( "ActiveXSec", "Index", this, 0, 0, 1e6 );
 
+    m_ActiveSpine = -1;
+
     m_ShowSkinningTanFlag.Init( "ShowSkinningTanFlag", "Skinning", this, true, false, true );
     m_ShowSkinningCurveFlag.Init( "ShowSkinningCurveFlag", "Skinning", this, false, false, true );
 }
@@ -6440,6 +6442,22 @@ void GeomXSec::Update( bool fullupdate )
     SyncSkinSpines();
 
     Geom::Update( fullupdate );
+}
+
+void GeomXSec::SetActiveSkinSpine( int index )
+{
+    if ( index != m_ActiveSpine )
+    {
+        m_ActiveSpine = index;
+
+        // Nothing about the surface depends on which spine is being edited -- only which
+        // colour its vectors are drawn in -- so ask for the highlight and no more.  And then
+        // do it: a Parm would have been carried into an update by ParmChanged, and this is
+        // not one, so nothing else is going to.  Selecting a row in the browser has to
+        // recolour the vectors there and then, not at the next parameter change.
+        SetDirtyFlag( HIGHLIGHT );
+        Update();
+    }
 }
 
 // Ask the active XSec where a new spine should go.  They all carry the same stations, so any
@@ -6790,6 +6808,8 @@ static void AppendSkinVectors( const vec3d &pnt, const curve_point_type &tp, con
 // vectors at a cross section.  The four sides take the set the engine definition stations
 // use, and the Skinning tab keys them by colouring each side's divider to match.
 // A spine is not one of the four and takes a colour of its own.
+// Blue for a spine, and red for the one being edited, since the point of separating it is
+// that the user can see which of several they are moving.
 int GeomXSec::SkinDrawColor( int k )
 {
     switch ( k )
@@ -6804,6 +6824,8 @@ int GeomXSec::SkinDrawColor( int k )
             return DrawObj::YELLOW;
         case SKIN_DRAW_SPINE:
             return DrawObj::BLUE;
+        case SKIN_DRAW_ACTIVE_SPINE:
+            return DrawObj::RED;
     }
 
     return DrawObj::WHITE;
@@ -6893,6 +6915,10 @@ void GeomXSec::UpdateSkinDrawObj( const Matrix4d &relTrans, int index )
         if ( stations[i].m_IsSide )
         {
             k = ( int )stations[i].m_W;
+        }
+        else if ( stations[i].m_SpineIndex == m_ActiveSpine )
+        {
+            k = SKIN_DRAW_ACTIVE_SPINE;
         }
 
         curve_point_type p = crv.f( t );

@@ -262,6 +262,10 @@ public:
         // one that enforces nothing anywhere is dropped instead.
         bool m_IsSide;
 
+        // Which spine this came from, or -1 for a side.  A spine's mirror images carry the
+        // same index, since they are that spine seen elsewhere on the section.
+        int m_SpineIndex;
+
         bool m_LAngleSet;
         bool m_LSlewSet;
         bool m_LStrengthSet;
