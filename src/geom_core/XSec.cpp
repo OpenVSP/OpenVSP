@@ -2624,6 +2624,7 @@ void SkinXSec::Reset()
     m_LeftRStrength = 0.0;
     m_LeftRCurve = 0.0;
 
+    ClearSpineSkinning();
 }
 
 void SkinXSec::SetContinuity( int cx )
@@ -2986,6 +2987,36 @@ void SkinXSec::SetV2DefaultBehavior()
     m_LeftLRAngleEq = 1;
 }
 
+// Stop every spine enforcing anything, without discarding it.  A spine is structure the
+// user placed deliberately, so clearing skinning switches it off rather than deleting it;
+// deleting is its own command.
+void SkinXSec::ClearSpineSkinning()
+{
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        SkinSpine* sp = m_SpineVec[i];
+        if ( !sp )
+        {
+            continue;
+        }
+
+        // Equal flags first: left standing they force the Set flags straight back on.
+        sp->m_LRAngleEq = false;
+        sp->m_LRSlewEq = false;
+        sp->m_LRStrengthEq = false;
+        sp->m_LRCurveEq = false;
+
+        sp->m_LAngleSet = false;
+        sp->m_LSlewSet = false;
+        sp->m_LStrengthSet = false;
+        sp->m_LCurveSet = false;
+        sp->m_RAngleSet = false;
+        sp->m_RSlewSet = false;
+        sp->m_RStrengthSet = false;
+        sp->m_RCurveSet = false;
+    }
+}
+
 void SkinXSec::ClearSkinning()
 {
     m_AllSymFlag = true;
@@ -3016,6 +3047,8 @@ void SkinXSec::ClearSkinning()
     m_TopLRStrengthEq = false;
     m_TopLRSlewEq = false;
     m_TopLRCurveEq = false;
+
+    ClearSpineSkinning();
 }
 
 void SkinXSec::ReadV2FileFuse2( xmlNodePtr &root )
