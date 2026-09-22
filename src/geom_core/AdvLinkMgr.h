@@ -33,6 +33,8 @@ public:
     AdvLink* AddLink( const string & name );
     void DelLink( AdvLink* link_ptr );
     void DelLink( int index );
+    void DelLink( vector < int > indices );
+    void DelLink( vector < AdvLink* > link_ptrs );
     void DelAllLinks();
     void CheckLinks();                  // Check If All Links Are Still Valid
 

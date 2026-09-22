@@ -102,41 +102,65 @@ AdvLink* AdvLinkMgrSingleton::AddLink( const string & name )
 
 void AdvLinkMgrSingleton::DelLink( AdvLink* link_ptr )
 {
-    if ( !link_ptr )
-    {
-        return;
-    }
-
-    if ( m_ActiveLink == link_ptr )
-    {
-        m_ActiveLink = nullptr;
-    }
-    m_EditLinkIndex = -1;
-
-    vector_remove_val( m_LinkVec, link_ptr );
-    AttributeMgr.DeregisterCollID( link_ptr->GetAttrCollection()->GetID() );
-
-    delete link_ptr;
+    vector < AdvLink * > link_ptrs = { link_ptr };
+    DelLink( link_ptrs );
 }
 
 void AdvLinkMgrSingleton::DelLink( int index )
 {
-    AdvLink * link_ptr = GetLink( index );
+    vector < int > indices = { index };
+    DelLink( indices );
+}
 
-    DelLink( link_ptr );
+void AdvLinkMgrSingleton::DelLink( vector < AdvLink* > link_ptrs )
+{
+    for ( int i = 0; i < link_ptrs.size(); i++ )
+    {
+        if ( !link_ptrs[i] )
+        {
+            return;
+        }
+    }
+
+    // each link once, so none is deleted twice
+    std::sort( link_ptrs.begin(), link_ptrs.end() );
+    link_ptrs.erase( std::unique( link_ptrs.begin(), link_ptrs.end() ), link_ptrs.end() );
+
+    for ( int i = 0; i < link_ptrs.size(); i++ )
+    {
+        if ( m_ActiveLink == link_ptrs[i] )
+        {
+            m_ActiveLink = nullptr;
+        }
+    }
+    m_EditLinkIndex = -1;
+
+    vector_remove_vector( m_LinkVec, link_ptrs );
+
+    for ( int i = 0; i < link_ptrs.size(); i++ )
+    {
+        AttributeMgr.DeregisterCollID( link_ptrs[i]->GetAttrCollection()->GetID() );
+        delete link_ptrs[i];
+    }
+}
+
+void AdvLinkMgrSingleton::DelLink( vector < int > indices )
+{
+    vector < AdvLink* > link_ptrs;
+    for ( int i = 0; i < indices.size(); i++ )
+    {
+        if ( !GetLink( indices[i] ) )
+        {
+            return;
+        }
+        link_ptrs.push_back( GetLink( indices[i] ) );
+    }
+    DelLink( link_ptrs );
 }
 
 void AdvLinkMgrSingleton::DelAllLinks( )
 {
-    m_EditLinkIndex = -1;
-    m_ActiveLink = nullptr;
-
-    for ( int i = 0 ; i < (int)m_LinkVec.size() ; i++ )
-    {
-        AttributeMgr.DeregisterCollID( m_LinkVec[i]->GetAttrCollection()->GetID() );
-        delete m_LinkVec[i];
-    }
-    m_LinkVec.clear();
+    DelLink( m_LinkVec );
 }
 
 void AdvLinkMgrSingleton::CheckLinks()
