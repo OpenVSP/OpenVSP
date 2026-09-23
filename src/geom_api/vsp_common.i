@@ -215,6 +215,13 @@ namespace std {
     }
 }
 
+/* SWIG's Python keyword list still carries Python 2's "print" and renames these methods to _print.
+   In Python 3 print is an ordinary name, so keep the name that Vec3d.h and Matrix4d.h document.
+   %rename cannot do it -- the keyword rename wins over it -- so clear the keyword rule for just
+   these two methods. */
+%namewarn( "" ) vec3d::print;
+%namewarn( "" ) Matrix4d::print;
+
 /* Let's just grab the original header file here */
 %include "APIDefines.h"
 %include "APIErrorMgr.h"
