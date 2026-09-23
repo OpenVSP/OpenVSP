@@ -1507,7 +1507,6 @@ bool AuxiliaryGeom::ReadCCEFile( FILE* file_id )
             }
             pnt_vec.push_back( vec3d( 0.0, x, y ) );
         }
-        fclose( file_id );
     }
 
     if ( pnt_vec.size() == 0 )
