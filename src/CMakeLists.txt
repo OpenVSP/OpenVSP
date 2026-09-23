@@ -185,7 +185,39 @@ IF( NOT VSP_NO_API_WRAPPERS )
 
 
     IF( SWIG_FOUND )
-        FIND_PACKAGE( PythonLibsNew 3 )
+        # Find Python with CMake's FindPython3.  To choose an installation, set
+        # Python3_EXECUTABLE or Python3_ROOT_DIR (actions/setup-python sets the
+        # latter).  The older PYTHON_EXECUTABLE, PYTHON_LIBRARY and
+        # PYTHON_INCLUDE_DIR hints are still honored.  Otherwise the Python on the
+        # PATH is preferred over macOS frameworks and the Windows registry.
+        IF( PYTHON_EXECUTABLE AND NOT Python3_EXECUTABLE )
+            SET( Python3_EXECUTABLE ${PYTHON_EXECUTABLE} )
+        ENDIF()
+        IF( PYTHON_LIBRARY AND NOT Python3_LIBRARY )
+            SET( Python3_LIBRARY ${PYTHON_LIBRARY} )
+        ENDIF()
+        IF( PYTHON_INCLUDE_DIR AND NOT Python3_INCLUDE_DIR )
+            SET( Python3_INCLUDE_DIR ${PYTHON_INCLUDE_DIR} )
+        ENDIF()
+        IF( NOT DEFINED Python3_FIND_FRAMEWORK )
+            SET( Python3_FIND_FRAMEWORK LAST )
+        ENDIF()
+        IF( NOT DEFINED Python3_FIND_REGISTRY )
+            SET( Python3_FIND_REGISTRY LAST )
+        ENDIF()
+
+        FIND_PACKAGE( Python3 COMPONENTS Interpreter Development )
+
+        # Variables used by the rest of the build.
+        IF( Python3_FOUND )
+            SET( PYTHONLIBS_FOUND TRUE )
+            SET( PYTHON_EXECUTABLE ${Python3_EXECUTABLE} )
+            SET( PYTHON_INCLUDE_DIR ${Python3_INCLUDE_DIRS} )
+            SET( PYTHON_INCLUDE_PATH ${Python3_INCLUDE_DIRS} )
+            SET( PYTHON_LIBRARY ${Python3_LIBRARIES} )
+            SET( PYTHON_LIBRARIES ${Python3_LIBRARIES} )
+            SET( PYTHON_VERSION ${Python3_VERSION} )
+        ENDIF()
 
         if ( PYTHONLIBS_FOUND )
             execute_process(
