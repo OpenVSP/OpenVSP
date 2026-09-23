@@ -197,16 +197,20 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
     LoadGroupParmVec( m_ParmVec, false );
     ParmMgr.IncNumParmChanges();
 
-    unordered_map< string, vector< std::pair< string, string > > >::iterator groupIter;
-    for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; ++groupIter )
+    // Write groups in name order.  m_GroupParmMap's iteration order depends on
+    // its history, so it differs between a new and a reloaded model.
+    vector< string > group_names = m_GroupNames;
+    sort( group_names.begin(), group_names.end() );
+
+    for ( int i = 0 ; i < ( int )group_names.size() ; i++ )
     {
-        string name = groupIter->first;
+        const string & name = group_names[i];
         gnode = xmlNewChild( parmcontain_node, nullptr, BAD_CAST name.c_str(), nullptr );
 
         if ( gnode )
         {
             vector< std::pair< string, string > >::iterator parmIter;
-            for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); ++parmIter )
+            for ( parmIter = m_GroupParmMap[name].begin(); parmIter != m_GroupParmMap[name].end(); ++parmIter )
             {
                 string parmID = parmIter->first;
                 Parm* p = ParmMgr.FindParm( parmID );
