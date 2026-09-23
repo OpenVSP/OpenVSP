@@ -72,6 +72,11 @@ INCLUDE_DIRECTORIES( ${VSP_BINARY_DIR} )
 
 INCLUDE( extLibraryFind )
 
+# Let the sources see VSP_NO_GRAPHICS too, not only the CMake scripts.
+IF( VSP_NO_GRAPHICS )
+	ADD_COMPILE_DEFINITIONS( VSP_NO_GRAPHICS )
+ENDIF()
+
 ADD_SUBDIRECTORY( external )
 
 IF( NOT VSP_NO_GRAPHICS )
