@@ -4115,7 +4115,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetAnalysisInputDoc( const string & in analysis, const string & in name )", asFUNCTION( vsp::GetNumAnalysisInputData ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetAnalysisInputDoc( const string & in analysis, const string & in name )", asFUNCTION( vsp::GetAnalysisInputDoc ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4269,7 +4269,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction(
             "string GetResultsEntryDoc( const string & in results_id, const string & in data_name )",
-            asFUNCTION( vsp::GetResultsSetDoc ), asCALL_CDECL );
+            asFUNCTION( vsp::GetResultsEntryDoc ), asCALL_CDECL );
     assert( r >= 0 );
 
 
