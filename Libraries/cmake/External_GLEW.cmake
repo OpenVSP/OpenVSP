@@ -1,7 +1,7 @@
-# An external project for GLEW, The OpenGL Extension Wrangler Library http://glew.sourceforge.net/
+# An external project for GLEW, The OpenGL Extension Wrangler Library https://github.com/nigels-com/glew
 
 ExternalProject_Add( GLEW
-	URL ${CMAKE_SOURCE_DIR}/glew-2.1.0.tgz
+	URL ${CMAKE_SOURCE_DIR}/glew-2.3.1.tgz
 	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 	SOURCE_SUBDIR "build/cmake"
 	CMAKE_ARGS
