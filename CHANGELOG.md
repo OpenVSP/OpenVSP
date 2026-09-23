@@ -1,3 +1,20 @@
+# [OpenVSP 3.52.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.52.2)
+
+2026-09-23
+
+OpenVSP 3.52.2
+
+Good news - the stuff I was scared of in 3.52.0 seems to be working fine.
+Bad news - one of the changes I wasn't worried about bit me.  So here
+is a quick bugfix release to fix that up.
+
+Fixes:
+- Fix tessellation spacing on wing lower surface.
+
+
+---
+
+
 # [OpenVSP 3.52.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.52.1)
 
 2026-09-19
