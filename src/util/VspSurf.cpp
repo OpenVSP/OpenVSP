@@ -2036,26 +2036,12 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, int n_cap, bool 
             vtess[j] = vabsmin;
             j++;
         }
-        // The lower surface runs from vmin to vlelow, and has to reach it.  The upper half below
-        // spans vleup to vmax with (nv-1)/2 + 1 points and an argument that runs a full 1 to 0;
-        // this half gets the remaining jle points, so its argument has to be divided by jle-1.
-        // Dividing by (nv-1)/2 instead left the last point short of the leading edge -- at 0.95 of
-        // the way there for the default 41 -- so vlelow never appeared in the tessellation at all.
-        //
-        // SplitTesselate then closed the lower block on the nearest parameter it could find, which
-        // was vleup, the first point of the *upper* surface.  Where the leading edge is sharp that
-        // is the same place in space, so nothing looked wrong geometrically, but the normal came
-        // from the other side of the edge.  On a flat wing tip, where every normal across the cap
-        // should be identical, that one row is reversed exactly.
-        double dlow = jle - 1;
-        if ( dlow < 1 )
-        {
-            dlow = 1;
-        }
-
+        // The lower surface is laid out with the same spacing as the upper surface below, so the
+        // two halves mirror each other.  That leaves the lower half one step short of vlelow; the
+        // point that reaches it is added after these loops.
         for ( ; j < jle; ++j )
         {
-            vtess[j] = vmin + ( vlelow - vmin ) * Cluster( static_cast<double>( j ) / dlow, m_TECluster, m_LECluster );
+            vtess[j] = vmin + ( vlelow - vmin ) * Cluster( static_cast<double>( j ) / jle, m_TECluster, m_LECluster );
         }
         if ( degen )
         {
