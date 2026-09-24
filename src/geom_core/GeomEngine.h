@@ -64,6 +64,7 @@ protected:
     virtual void ValidateParms();
     virtual void Extend( VspSurf &surf, const double & u, bool extbefore );
     virtual void UpdateEngine();
+    virtual void UpdateLCurve();
     virtual void UpdateBBox();
     virtual void UpdateXForm();
 

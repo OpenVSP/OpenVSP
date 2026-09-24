@@ -356,6 +356,10 @@ void GeomEngine::UpdateEngine()
             }
         }
 
+        // The trim, roll, cap, and extend operations below carry this mapping along, so the
+        // tessellation can relate each section of the engine surface to a section of the original.
+        m_MainSurfVec[0].InitUMapping();
+
         m_OrigSurf = m_MainSurfVec[0];
         m_OrigSurf.BuildFeatureLines( m_ForceXSecFlag );
 
@@ -691,6 +695,22 @@ void GeomEngine::UpdateEngine()
             m_MainSurfVec[ isurf ] = surf3;
             isurf++;
         }
+    }
+}
+
+// UpdateEngine has already built the U mapping of each engine surface, so only the arc length
+// curve is built here.  InitUMapping would replace that mapping with one of the engine surface itself.
+void GeomEngine::UpdateLCurve()
+{
+    if ( m_EngineGeomIOType() == ENGINE_GEOM_NONE )
+    {
+        Geom::UpdateLCurve();
+        return;
+    }
+
+    for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+    {
+        m_MainSurfVec[i].BuildLCurve();
     }
 }
 
