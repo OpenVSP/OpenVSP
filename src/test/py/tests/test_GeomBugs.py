@@ -122,3 +122,20 @@ def testAParmCanBeFoundByNameAndGroupAfterItsXSecChangesShape():
     for key, pid in before.items():
         assert vsp.ValidParm( pid ), key
         assert vsp.FindParm( xs, *key ) == pid, key
+
+
+def testAttributesThatShareANameAreEachFound():
+    """A collection may hold two attributes with the same name.  The search paired a list with
+    one entry per attribute against a list with one entry per distinct name, so past the first
+    repeat every attribute was matched against another's name -- and the last read ran off the
+    end of the shorter list."""
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    coll = vsp.GetChildCollection( pod )
+    first = vsp.AddAttributeString( coll, "Note", "first" )
+    second = vsp.AddAttributeString( coll, "Note", "second" )
+    other = vsp.AddAttributeString( coll, "Other", "third" )
+
+    notes = [ vsp.FindAttributeInCollection( pod, "Note", i ) for i in range( 2 ) ]
+    assert sorted( notes ) == sorted( [ first, second ] )
+    assert vsp.FindAttributeInCollection( pod, "Other", 0 ) == other
