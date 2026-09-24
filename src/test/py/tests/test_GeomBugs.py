@@ -101,3 +101,24 @@ def testAFlowThroughStackPresetClosesItsLoop( preset ):
     last = vsp.GetXSec( xss, vsp.GetNumXSec( xss ) - 1 )
     for name in ( "XAbs", "YAbs", "ZAbs" ):
         assert vsp.GetParmVal( vsp.GetXSecParm( last, name ) ) == pytest.approx( 0.0, abs=1e-12 ), name
+
+
+def testAParmCanBeFoundByNameAndGroupAfterItsXSecChangesShape():
+    """Changing a cross section's shape keeps its Parm IDs by swapping them onto the new cross
+    section.  The swap moved the IDs but not the map each container finds its Parms by, so a
+    lookup by name and group answered an ID that no longer belonged to it, while a lookup by
+    name alone still worked."""
+    vsp.VSPRenew()
+    fid = vsp.AddGeom( "FUSELAGE" )
+    vsp.Update()
+    xss = vsp.GetXSecSurf( fid, 0 )
+    xs = vsp.GetXSec( xss, 2 )
+    before = { key: vsp.FindParm( xs, *key ) for key in ( ( "TopLStrength", "XSec" ), ( "SectTess_U", "XSec" ) ) }
+
+    vsp.ChangeXSecShape( xss, 2, vsp.XS_SUPER_ELLIPSE )
+    vsp.Update()
+    xs = vsp.GetXSec( xss, 2 )
+
+    for key, pid in before.items():
+        assert vsp.ValidParm( pid ), key
+        assert vsp.FindParm( xs, *key ) == pid, key

@@ -340,6 +340,11 @@ void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec )
     LoadGroupParmVec( parm_vec, true );
 }
 
+void ParmContainer::UpdateGroupParmMap()
+{
+    LoadGroupParmVec( m_ParmVec, false );
+}
+
 //==== Find Parm ID Given GroupName and Parm Index ====//
 string ParmContainer::FindParm( const string& group_name, int parm_ind )
 {
