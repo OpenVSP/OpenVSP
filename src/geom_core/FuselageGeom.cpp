@@ -139,6 +139,11 @@ void FuselageGeom::UpdatePreTess()
 //==== Update Fuselage And Cross Section Placement ====//
 void FuselageGeom::UpdateSurf()
 {
+    // One surface is skinned here.  UpdateEngine replaces it with as many as the engine
+    // representation needs -- none, one, or several -- so the count from the last update
+    // says nothing about this one.
+    m_MainSurfVec.resize( 1 );
+
     unsigned int nxsec = m_XSecSurf.NumXSec();
 
     if ( m_OrderPolicy() == FUSE_LOOP )

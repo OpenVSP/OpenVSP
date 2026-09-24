@@ -101,7 +101,49 @@ def testEngineNegativeFlowpathTessellatesItsSectionAndCaps( typ ):
     assert num_u( gid, 1 ) == expected_neg
 
 
+@pytest.mark.parametrize( "typ", [ "FUSELAGE", "STACK" ] )
+def testTurningTheEngineOffLeavesOneSurface( typ ):
+    """The negative flowpath surface goes away with the engine representation."""
+    gid = build_engine_body( typ )
+    expected_plain = num_u( gid, 0 )
+
+    set_engine( gid,
+                GeomIOType=vsp.ENGINE_GEOM_INLET,
+                GeomInType=vsp.ENGINE_GEOM_FLOWTHROUGH,
+                InletModeType=vsp.ENGINE_MODE_TO_FACE_NEG,
+                InletLipMode=vsp.ENGINE_LOC_INDEX,
+                InletFaceMode=vsp.ENGINE_LOC_INDEX,
+                InletFaceIndex=1,
+                InletLipIndex=2 )
+    assert vsp.GetNumMainSurfs( gid ) == 2
+
+    set_engine( gid, GeomIOType=vsp.ENGINE_GEOM_NONE )
+    assert vsp.GetNumMainSurfs( gid ) == 1
+    assert num_u( gid, 0 ) == expected_plain
+
+
+@pytest.mark.parametrize( "typ", [ "FUSELAGE", "STACK" ] )
+def testAnEngineWithNoSurfaceCanBeTurnedBackOn( typ ):
+    """A flowpath shown only as its negative surface, with no inlet flowpath to show, has no
+    surfaces at all.  The next update skins the Geom again from nothing.
+    """
+    gid = build_engine_body( typ )
+    expected_plain = num_u( gid, 0 )
+
+    set_engine( gid,
+                GeomIOType=vsp.ENGINE_GEOM_INLET,
+                GeomInType=vsp.ENGINE_GEOM_FLOWPATH,
+                InletModeType=vsp.ENGINE_MODE_TO_FACE_NEG_ONLY )
+    assert vsp.GetNumMainSurfs( gid ) == 0
+
+    set_engine( gid, GeomIOType=vsp.ENGINE_GEOM_NONE )
+    assert vsp.GetNumMainSurfs( gid ) == 1
+    assert num_u( gid, 0 ) == expected_plain
+
+
 if __name__ == "__main__":
     for t in [ "FUSELAGE", "STACK" ]:
         testEngineInletTessellatesEachSectionWithItsOwnCount( t )
         testEngineNegativeFlowpathTessellatesItsSectionAndCaps( t )
+        testTurningTheEngineOffLeavesOneSurface( t )
+        testAnEngineWithNoSurfaceCanBeTurnedBackOn( t )
