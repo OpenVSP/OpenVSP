@@ -708,6 +708,20 @@ void StackGeom::InitXSecs( vector < StackXSec* > stack_xs )
         if ( i == 0 )
         {
             xs->FlipLRSkinning();
+
+            // The first section starts at the origin, whatever placement the preset gave it.
+            xs->m_XDelta = 0.0;
+            xs->m_YDelta = 0.0;
+            xs->m_ZDelta = 0.0;
+            xs->m_XRotate = 0.0;
+            xs->m_YRotate = 0.0;
+            xs->m_ZRotate = 0.0;
+            xs->m_XAbs = 0.0;
+            xs->m_YAbs = 0.0;
+            xs->m_ZAbs = 0.0;
+            xs->m_XRotateAbs = 0.0;
+            xs->m_YRotateAbs = 0.0;
+            xs->m_ZRotateAbs = 0.0;
         }
     }
     // ValidateParms to update index parm upper limits

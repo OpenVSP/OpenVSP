@@ -78,3 +78,26 @@ def testAParmCanBeFoundByNameAndGroupAfterAFileLoad():
         assert found == parms[0], "%s: FindParm found a different Parm" % tag
 
     
+
+
+@pytest.mark.parametrize( "preset", [ vsp.STACK_PRESET_FLOWTHRU_OUTLIP_ORIG,
+                                      vsp.STACK_PRESET_FLOWTHRU_INLIP_ORIG,
+                                      vsp.STACK_PRESET_FLOWTHRU_MID_ORIG ] )
+def testAFlowThroughStackPresetClosesItsLoop( preset ):
+    """A loop Stack's last cross section closes onto its first.
+
+    The flow-through presets list their sections starting from wherever the loop begins, so the
+    section that lands first carried a delta meant for its place further round -- 3.0, -2.0,
+    -0.75.  The first section was held at the origin, but only once the rest of the chain had
+    already been placed from it, so a freshly made preset stayed open by exactly that delta
+    until the model was saved and reopened.
+    """
+    vsp.VSPRenew()
+    sid = vsp.AddGeom( "STACK" )
+    vsp.InitStackPreset( sid, preset )
+    vsp.Update()
+
+    xss = vsp.GetXSecSurf( sid, 0 )
+    last = vsp.GetXSec( xss, vsp.GetNumXSec( xss ) - 1 )
+    for name in ( "XAbs", "YAbs", "ZAbs" ):
+        assert vsp.GetParmVal( vsp.GetXSecParm( last, name ) ) == pytest.approx( 0.0, abs=1e-12 ), name
