@@ -695,6 +695,24 @@ void GeomEngine::UpdateEngine()
             m_MainSurfVec[ isurf ] = surf3;
             isurf++;
         }
+
+        // One end cap flag per engine surface.  Only the main engine surface is cut from the
+        // surface UpdateEndCaps capped, so it keeps that surface's flags; the flowpath surfaces
+        // carry no Geom end caps.
+        bool capumin = false;
+        bool capumax = false;
+        if ( usesurf && !m_CapUMinSuccess.empty() && !m_CapUMaxSuccess.empty() )
+        {
+            capumin = m_CapUMinSuccess[0];
+            capumax = m_CapUMaxSuccess[0];
+        }
+        m_CapUMinSuccess.assign( ns, false );
+        m_CapUMaxSuccess.assign( ns, false );
+        if ( usesurf )
+        {
+            m_CapUMinSuccess[0] = capumin;
+            m_CapUMaxSuccess[0] = capumax;
+        }
     }
 }
 

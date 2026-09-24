@@ -50,6 +50,20 @@ def num_u( gid, isurf ):
     return len( u )
 
 
+def degen_num_u( gid ):
+    vsp.SetAnalysisInputDefaults( "DegenGeom" )
+    vsp.SetIntAnalysisInput( "DegenGeom", "WriteCSVFlag", [ 0 ] )
+    vsp.SetIntAnalysisInput( "DegenGeom", "WriteMFileFlag", [ 0 ] )
+    rid = vsp.ExecAnalysis( "DegenGeom" )
+    nu = []
+    for dg in vsp.GetStringResults( rid, "Degen_DegenGeoms" ):
+        if vsp.GetStringResults( dg, "geom_id" )[0] == gid:
+            surf = vsp.GetStringResults( dg, "surf" )[0]
+            nu.append( len( vsp.GetDoubleMatResults( surf, "x" ) ) )
+    vsp.DeleteAllResults()
+    return nu
+
+
 @pytest.mark.parametrize( "typ", [ "FUSELAGE", "STACK" ] )
 def testEngineInletTessellatesEachSectionWithItsOwnCount( typ ):
     """An inlet trimmed to its lip keeps each remaining section's U tessellation.
@@ -141,9 +155,40 @@ def testAnEngineWithNoSurfaceCanBeTurnedBackOn( typ ):
     assert num_u( gid, 0 ) == expected_plain
 
 
+@pytest.mark.parametrize( "typ", [ "FUSELAGE", "STACK" ] )
+def testDegenGeomKeepsEveryEngineSurfaceWhole( typ ):
+    """With no Geom end caps, DegenGeom drops no section of any engine surface.
+
+    An inlet and an outlet each shown with a negative flowpath make three main surfaces.
+    DegenGeom skips a surface's first or last section when that surface's end cap flag is set,
+    so a flag for a surface past the first shows as missing rows.
+    """
+    gid = build_engine_body( typ )
+
+    set_engine( gid,
+                GeomIOType=vsp.ENGINE_GEOM_INLET_OUTLET,
+                GeomInType=vsp.ENGINE_GEOM_FLOWTHROUGH,
+                GeomOutType=vsp.ENGINE_GEOM_FLOWTHROUGH,
+                InletModeType=vsp.ENGINE_MODE_TO_FACE_NEG,
+                OutletModeType=vsp.ENGINE_MODE_TO_FACE_NEG,
+                InletLipMode=vsp.ENGINE_LOC_INDEX,
+                InletFaceMode=vsp.ENGINE_LOC_INDEX,
+                OutletLipMode=vsp.ENGINE_LOC_INDEX,
+                OutletFaceMode=vsp.ENGINE_LOC_INDEX,
+                InletFaceIndex=0,
+                InletLipIndex=1,
+                OutletLipIndex=3,
+                OutletFaceIndex=4 )
+
+    nsurf = vsp.GetNumMainSurfs( gid )
+    assert nsurf == 3
+    assert degen_num_u( gid ) == [ num_u( gid, i ) for i in range( nsurf ) ]
+
+
 if __name__ == "__main__":
     for t in [ "FUSELAGE", "STACK" ]:
         testEngineInletTessellatesEachSectionWithItsOwnCount( t )
         testEngineNegativeFlowpathTessellatesItsSectionAndCaps( t )
         testTurningTheEngineOffLeavesOneSurface( t )
         testAnEngineWithNoSurfaceCanBeTurnedBackOn( t )
+        testDegenGeomKeepsEveryEngineSurfaceWhole( t )
