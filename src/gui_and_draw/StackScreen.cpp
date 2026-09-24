@@ -269,16 +269,9 @@ bool StackScreen::Update()
 
         if ( firstxs )
         {
-            m_XSecAbsRelToggle.Deactivate();
             m_SectUTessSlider.Deactivate();
             m_FwdClusterSlider.Deactivate();
             m_AftClusterSlider.Deactivate();
-            m_XSecXDeltaSlider.Deactivate();
-            m_XSecYDeltaSlider.Deactivate();
-            m_XSecZDeltaSlider.Deactivate();
-            m_XSecXRotSlider.Deactivate();
-            m_XSecYRotSlider.Deactivate();
-            m_XSecZRotSlider.Deactivate();
         }
 
         if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP)
