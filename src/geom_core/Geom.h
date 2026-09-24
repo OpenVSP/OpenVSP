@@ -632,6 +632,11 @@ public:
     }
     virtual void RecolorSubSurfs( int active_ind );
 
+    // Hands every subsurface this Geom holds to another, and is left holding none.  Whatever
+    // the destination was carrying is deleted first.  Handed over rather than copied, so the
+    // subsurfaces keep their IDs and their Parm IDs.
+    virtual void HandSubSurfsTo( Geom* to );
+
     //==== FeaStructure Data =====//
     vector < FeaStructure* > GetFeaStructVec()
     {
@@ -646,6 +651,16 @@ public:
     {
         return m_FeaStructVec.size();
     }
+
+    // Hands every structure this Geom holds to another, and is left holding none.  For when one
+    // Geom takes another's place: a structure is a Geom's own work and would otherwise be freed
+    // with it.  Each is told which Geom it belongs to now.
+    virtual void HandFeaStructsTo( Geom* to );
+
+    // The same, for the CFD mesh sources.  Whatever the destination was carrying is dropped
+    // first: a Geom taking another's place wants that Geom's sources, not the ones it was
+    // copied from.
+    virtual void HandCfdSourcesTo( Geom* to );
 
     //===== Degenerate Geometry =====//
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false, const int & n_ref = 0 );

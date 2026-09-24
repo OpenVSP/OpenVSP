@@ -5965,6 +5965,51 @@ void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string 
     }
 }
 
+void Geom::HandFeaStructsTo( Geom* to )
+{
+    if ( !to || to == this )
+    {
+        return;
+    }
+
+    for ( int i = 0 ; i < ( int )m_FeaStructVec.size() ; i++ )
+    {
+        if ( !m_FeaStructVec[i] )
+        {
+            continue;
+        }
+
+        m_FeaStructVec[i]->SetParentGeomID( to->GetID() );
+        to->m_FeaStructVec.push_back( m_FeaStructVec[i] );
+    }
+
+    // Emptied rather than deleted: the destination owns them now, and this Geom's destructor
+    // would otherwise free structures that are still in use.
+    m_FeaStructVec.clear();
+}
+
+void Geom::HandCfdSourcesTo( Geom* to )
+{
+    if ( !to || to == this )
+    {
+        return;
+    }
+
+    to->DelAllSources();
+
+    for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )
+    {
+        if ( m_MainSourceVec[i] )
+        {
+            to->AddCfdMeshSource( m_MainSourceVec[i] );
+        }
+    }
+
+    // Emptied rather than deleted: the destination owns them now, and this Geom's destructor
+    // would otherwise free sources that are still in use.
+    m_MainSourceVec.clear();
+}
+
 void Geom::ChangeID( const string &id )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
@@ -6019,6 +6064,31 @@ void Geom::DelSubSurf( int ind )
     }
 
     SubSurfaceMgr.ReSuffixGroupNames( GetID() );
+}
+
+void Geom::HandSubSurfsTo( Geom* to )
+{
+    if ( !to || to == this )
+    {
+        return;
+    }
+
+    while ( !to->m_SubSurfVec.empty() )
+    {
+        to->DelSubSurf( 0 );
+    }
+
+    for ( int i = 0; i < ( int )m_SubSurfVec.size(); i++ )
+    {
+        m_SubSurfVec[i]->SetCompID( to->GetID() );
+        to->AddSubSurf( m_SubSurfVec[i] );
+    }
+
+    // Emptied rather than deleted: the destination owns them now, and this Geom's destructor
+    // would otherwise free subsurfaces that are still in use.
+    m_SubSurfVec.clear();
+
+    SubSurfaceMgr.ReSuffixGroupNames( to->GetID() );
 }
 
 SubSurface* Geom::AddSubSurf( int type, int surfindex )

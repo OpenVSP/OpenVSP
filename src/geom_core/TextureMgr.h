@@ -50,6 +50,15 @@ public:
     */
     virtual std::vector<Texture*> FindTextureVec( std::vector<std::string> texture_id_vec );
 
+    /*!
+    * Hand every texture this manager holds to another, and be left holding none.  For when one
+    * Geom takes another's place: whatever the destination was carrying is dropped first,
+    * because it wants this Geom's textures and not the ones it was copied from.  The objects
+    * move rather than being re-attached, so their IDs and their Parms survive untouched and
+    * anything naming one goes on naming it.
+    */
+    virtual void HandTexturesTo( TextureMgr* to );
+
 public:
     /*!
     * Encode Texture Info to xml.

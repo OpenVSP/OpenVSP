@@ -101,6 +101,14 @@ public:
     // another's place rather than being created beside it.
     virtual void SwapIdentity( ParmContainer* other );
 
+    // Moves this container's attributes to another, and the receiving collection takes the
+    // giving collection's ID as well.  A Parm's attributes belong with its ID, not here.
+    virtual void HandAttributesTo( ParmContainer* to );
+
+    // Moves the attributes of each Parm with no counterpart of the same group and name in
+    // another container onto that container, where they are kept rather than lost.
+    virtual void HandUnpairedAttributesTo( ParmContainer* to );
+
     AttributeCollection* GetAttrCollection()
     {
         return &m_AttrCollection;

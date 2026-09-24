@@ -590,6 +590,34 @@ void ParmContainer::SwapIdentity( ParmContainer* other )
     other->ChangeID( mine );
 }
 
+void ParmContainer::HandAttributesTo( ParmContainer* to )
+{
+    if ( !to || to == this )
+    {
+        return;
+    }
+
+    m_AttrCollection.HandAttrsTo( to->GetAttrCollection() );
+    to->GetAttrCollection()->SwapID( &m_AttrCollection );
+}
+
+void ParmContainer::HandUnpairedAttributesTo( ParmContainer* to )
+{
+    if ( !to || to == this )
+    {
+        return;
+    }
+
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p && to->FindParm( p->GetName(), p->GetGroupName() ).empty() )
+        {
+            p->GetAttrCollection()->HandAttrsTo( to->GetAttrCollection() );
+        }
+    }
+}
+
 void ParmContainer::SwapIDs( ParmContainer *from )
 {
     // Make a copy to iterate over because SwapID's implicitly modifies m_ParmVec.

@@ -1253,6 +1253,38 @@ void AttributeCollection::ChangeID( const string &id )
     }
 }
 
+void AttributeCollection::HandAttrsTo( AttributeCollection* to )
+{
+    if ( !to || to == this )
+    {
+        return;
+    }
+
+    vector < NameValData* > attr_vec = GetAllPtrs();
+    for ( int i = 0; i < ( int )attr_vec.size(); i++ )
+    {
+        if ( attr_vec[i] && Remove( attr_vec[i] ) == 0 )
+        {
+            to->Add( attr_vec[i] );
+        }
+    }
+}
+
+void AttributeCollection::SwapID( AttributeCollection* other )
+{
+    if ( !other || other == this )
+    {
+        return;
+    }
+
+    string mine = m_ID;
+    string theirs = other->m_ID;
+
+    other->ChangeID( "SWAPIDENTITY_TEMP_COLL_ID" );
+    ChangeID( theirs );
+    other->ChangeID( mine );
+}
+
 // ==== Encode Data To XML Data Structure ====//
 void AttributeCollection::EncodeXml( xmlNodePtr & node ) const
 {

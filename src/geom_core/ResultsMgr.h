@@ -379,6 +379,13 @@ public:
 
     void ChangeID( const string & id );
 
+    // Moves every attribute in this collection into another, leaving this one empty.  The
+    // attributes themselves move, so their IDs are unchanged.
+    void HandAttrsTo( AttributeCollection* to );
+
+    // Trades collection IDs with another.
+    void SwapID( AttributeCollection* other );
+
     virtual void EncodeXml( xmlNodePtr & node ) const;
     virtual void DecodeXml( xmlNodePtr & node );
 

@@ -20,6 +20,29 @@ std::string TextureMgr::AttachTexture( const std::string &fileName )
     return texture->GetID(); 
 }
 
+void TextureMgr::HandTexturesTo( TextureMgr* to )
+{
+    if ( !to || to == this )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < ( int )to->m_TextureList.size(); i++ )
+    {
+        delete to->m_TextureList[i];
+    }
+    to->m_TextureList.clear();
+
+    for ( int i = 0; i < ( int )m_TextureList.size(); i++ )
+    {
+        to->m_TextureList.push_back( m_TextureList[i] );
+    }
+
+    // Emptied rather than deleted: the destination owns them now, and this manager's
+    // destructor would otherwise free textures that are still in use.
+    m_TextureList.clear();
+}
+
 void TextureMgr::RemoveTexture( const std::string &texture_id )
 {
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
