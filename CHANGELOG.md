@@ -1,3 +1,138 @@
+# [OpenVSP 3.53.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.53.0)
+
+2026-09-25
+
+OpenVSP 3.53.0
+
+Some cool related features, a bunch of library and build system
+updates and a handful of unimportant fixes.
+
+Over the years, OpenVSP's development has often been driven by certain
+alpha users.  They often sat next to the developer (or at least had
+their ear) and were able to steer development by saying things like:
+'make it do this...' or 'it would be cool if...'.  OpenVSP would not
+be what it is today without their input.  The OG OpenVSP alpha user is
+Andy Hahn.
+
+The OpenVSP v2 (and earlier) fuselage component had simple control
+of how the body was lofted from nose to tail (today called skinning).
+It did many things, but there were obvious gaps in its capabilities.
+
+When we were doing the v3 re-write (~2015), Andy said 'make it do
+the missing things.'  And so we did, and the v3 skinning for
+fuselage and stack were born.
+
+Ever since, Andy has complained that the v3 skinning is too
+complicated.  He isn't wrong.
+
+So recently, some users came to me and said 'Can you make skinning
+more complicated?' and I said 'Hold my drink, I got you.'
+
+So this one's for you Andy.
+
+Skinning allows you to specify how certain spines (top, bottom, left,
+right) along a body are lofted.  While you can set the values of the
+angle, slew, strength, and curvature separately for each spine, the
+choice of which parameters to set (or leave un-set) had to be the same
+at each station.
+
+This restriction has been lifted.  You can now choose to set (or leave
+un-set) the skinning parameters independently for each spine.  This is
+great for designs where you want a sharp corner in some places, but
+smooth behavior other places.
+
+In addition, you are no longer limited to just the TBLR spines.  You
+can insert additional spines at a user-defined location.  Be judicious,
+a little here goes a long way.  Only use this if you need to.
+
+The orientation of the coordinate system used for defining the tangent
+and curvature vectors in terms of angle and slew was previously based
+on a virtual circle at each section.  Values were specified at TBLR
+and then interpolated around this virtual circle.  This worked well
+enough and nobody (except me) ever really knew about the virtual circle.
+
+The added control left this solution a little lacking, so now there
+is an option to use the local curve's shape to define the local
+coordinate system.  This option 'Angle Basis From Curve' is subtle,
+but if you need it, you need it.
+
+To help with the madness, skinning control is now visualized with
+colored arrows along each spine that illustrate what you're controlling.
+There is a color key to map each one to TBLR to CMGY - with user-defined
+in blue (with the active one in red).  The 'before' side is dashed,
+the 'after' side is solid.  This probably should have been there from
+the start, but sometimes the developer doesn't see the obvious.
+
+In addition to some new math, these changes required some changes to
+the old skinning math.  Consequently, the exact surface definition
+for old files will change a tiny amount.  This will break unit tests
+(I'm looking at you John and AJ) that expect exact matches.  There
+should be no significant changes - let me know if there is.
+
+Previously, our stack and fuselage surfaces were circumferentially
+cubic.  Now, if you use different controls along different spines,
+you will get 6th order surfaces that way.  It shouldn't matter,
+but maybe some downstream tools will struggle, so I'm just letting
+you know.
+
+Since its introduction, there has been much confusion about Stack
+vs Fuselage in OpenVSP.  Many users go straight to Fuselage and
+never give Stack a second look.  However, in most situations, they
+should be using Stack for everything they're using Fuselage for.
+I've tried everything from educating to negotiating -- nothing
+seems to change this.  So, I'm going to try something else.
+Fuselages can now be converted into Stacks (via the GUI or API).
+Everything should convert -- it should produce the exact same
+surface.  Your SubSurfaces, structures parts, attributes, and
+CFDMesh sources should be transferred over.  ParmID's and
+GeomID's will be left intact -- so your Links, Design Vars, and
+Advanced Links will still be connected (you may need to change
+what your link calculates, but it should stay connected).  So,
+if you've used Fuselage in the past but want to change your ways,
+there is now a button for that.
+
+The other big thing in this release is a sweeping update to our build
+system.  Some time ago, CMake updated to v4 -- breaking lots of stuff
+that used v3.  While most of VSP and our dependencies worked fine
+with v4, there were a few libraries that could not transition
+gracefully.  I've had to force v3 until I had time to deal with the
+mess.  That time has finally come.
+
+The OpenVSP build process should now work fine with CMake v4.  This
+required updating STEPCode, libxml2, and GLEW.  Hopefully this is
+better for everyone.
+
+If you've tried to track *.vsp3 files with version control, you may
+have noticed that the order of some things change for no apparent
+reason.  This has hopefully been fixed -- once saved with this
+version, the order of things in the file should be stable on
+subsequent saves.  Hopefully this will make version controlling
+more pleasant.
+
+There are a handful of other fixes in here that probably don't
+matter.  A user would really have to be trying hard to hit these
+defects.  They're good to fix, but aren't worth sweating.
+
+Features:
+- Independent skinning controls (not just values) for spines
+- User-defined intermediate skinning spines
+- Angle Basis From Curve option for skinning
+- Visualization of skinning vectors
+- Convert Fuselage to Stack
+
+Build System:
+- STEPCode 0.8.1 (with some tweaks)
+- libxml2 2.15.4
+- GLEW 2.3.1
+- Build updated to be compatible with CMake 4
+
+Bug Fixes:
+- Entities in *.vsp3 files should now have stable ordering
+
+
+---
+
+
 # [OpenVSP 3.52.2](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.52.2)
 
 2026-09-23
