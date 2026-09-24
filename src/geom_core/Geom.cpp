@@ -4687,7 +4687,12 @@ const VspSurf* Geom::GetSurfPtr( int indx ) const
 {
     if ( indx >= 0 && indx < GetNumTotalSurfs() )
     {
-        return &m_SurfVec[ indx ];
+        // m_SurfVec is filled by Update, so it can be short of the count before the first one.
+        if ( indx < ( int ) m_SurfVec.size() )
+        {
+            return &m_SurfVec[ indx ];
+        }
+        return nullptr;
     }
     assert( false );
     return nullptr;
