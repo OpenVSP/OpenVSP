@@ -117,6 +117,10 @@ public:
     // another container onto that container, where they are kept rather than lost.
     virtual void HandUnpairedAttributesTo( ParmContainer* to );
 
+    // Moves the attributes of each Parm to the Parm of the same group and name in another
+    // container, beside whatever that one holds.
+    virtual void HandPairedAttributesTo( ParmContainer* to );
+
     // Deletes the attributes on this container and on each of its Parms.
     virtual void DeleteAttributes();
 

@@ -573,7 +573,7 @@ def testACopiedXSecsAttributeNamesTheCurveThatCameWithIt():
     vsp.PasteXSec( stack, 2 )
     vsp.Update()
 
-    pasted = vsp.GetXSec( vsp.GetXSecSurf( stack, 0 ), 2 )   # the paste makes a new XSec
+    pasted = vsp.GetXSec( vsp.GetXSecSurf( stack, 0 ), 2 )   # the slot keeps its ID
     pasted_curve_parms = [ p for p in vsp.FindContainerParmIDs( pasted )
                            if vsp.GetParmGroupName( p ) == "XSecCurve" ]
 

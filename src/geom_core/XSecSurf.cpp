@@ -377,6 +377,135 @@ void XSecSurf::CopyXSec( int index )
 }
 
 //==== Paste XSec ====//
+// A Parm reference in an attribute, held as the Parm it names rather than by its ID.
+struct HeldParmRef
+{
+    NameValData* m_Attr;
+    int m_Index;
+    Parm* m_Parm;
+};
+
+static void HoldParmRefs( AttributeCollection* coll, const vector< string > & own, vector< HeldParmRef > & refs )
+{
+    if ( !coll )
+    {
+        return;
+    }
+
+    vector< NameValData* > attrs = coll->GetAllPtrs();
+    for ( int i = 0; i < ( int )attrs.size(); i++ )
+    {
+        NameValData* attr = attrs[i];
+        if ( !attr )
+        {
+            continue;
+        }
+
+        if ( attr->GetType() == vsp::PARM_REFERENCE_DATA )
+        {
+            vector< string > & ids = attr->GetParmIDData();
+            for ( int j = 0; j < ( int )ids.size(); j++ )
+            {
+                Parm* p = ParmMgr.FindParm( ids[j] );
+                if ( p && vector_contains_val( own, ids[j] ) )
+                {
+                    HeldParmRef ref;
+                    ref.m_Attr = attr;
+                    ref.m_Index = j;
+                    ref.m_Parm = p;
+                    refs.push_back( ref );
+                }
+            }
+        }
+        else if ( attr->GetType() == vsp::ATTR_COLLECTION_DATA )
+        {
+            HoldParmRefs( attr->GetAttributeCollectionPtr(), own, refs );
+        }
+    }
+}
+
+// Every Parm reference among the attributes on these containers and on their Parms that names
+// one of top's own Parms -- those of the containers beneath it included -- held as the Parm it
+// names, so it can be pointed back at that Parm once the IDs have traded places.
+static vector< HeldParmRef > HoldOwnParmRefs( ParmContainer* top, const vector< ParmContainer* > & holders )
+{
+    vector< string > own;
+    top->AddLinkableParms( own );
+
+    vector< HeldParmRef > refs;
+    for ( int i = 0; i < ( int )holders.size(); i++ )
+    {
+        HoldParmRefs( holders[i]->GetAttrCollection(), own, refs );
+    }
+    for ( int i = 0; i < ( int )own.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( own[i] );
+        if ( p )
+        {
+            HoldParmRefs( p->GetAttrCollection(), own, refs );
+        }
+    }
+    return refs;
+}
+
+static void ReleaseParmRefs( const vector< HeldParmRef > & refs )
+{
+    for ( int i = 0; i < ( int )refs.size(); i++ )
+    {
+        refs[i].m_Attr->GetParmIDData()[ refs[i].m_Index ] = refs[i].m_Parm->GetID();
+    }
+}
+
+// The containers of a section that hold attributes: the section, its curve and its spines.
+static vector< ParmContainer* > SectionHolders( XSec* xs )
+{
+    vector< ParmContainer* > holders;
+    holders.push_back( xs );
+    holders.push_back( xs->GetXSecCurve() );
+
+    SkinXSec* sxs = dynamic_cast < SkinXSec* > ( xs );
+    if ( sxs )
+    {
+        for ( int i = 0; i < sxs->NumSpines(); i++ )
+        {
+            if ( sxs->GetSpine( i ) )
+            {
+                holders.push_back( sxs->GetSpine( i ) );
+            }
+        }
+    }
+    return holders;
+}
+
+// Once a pasted section has taken the identity of the one it replaces, the Parm IDs have traded
+// places and the old section's Parms hold the copies of the source's attributes the paste made.
+// They go to the Parms that took each one's place.
+static void HandPastedAttributes( XSec* old, XSec* pasted )
+{
+    old->HandPairedAttributesTo( pasted );
+    old->GetXSecCurve()->HandPairedAttributesTo( pasted->GetXSecCurve() );
+
+    SkinXSec* sold = dynamic_cast < SkinXSec* > ( old );
+    SkinXSec* spasted = dynamic_cast < SkinXSec* > ( pasted );
+    if ( !sold || !spasted )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < spasted->NumSpines(); i++ )
+    {
+        for ( int j = 0; j < sold->NumSpines(); j++ )
+        {
+            if ( spasted->GetSpine( i ) && sold->GetSpine( j ) &&
+                 sold->GetSpine( j )->GetSpineID() == spasted->GetSpine( i )->GetSpineID() )
+            {
+                sold->GetSpine( j )->HandPairedAttributesTo( spasted->GetSpine( i ) );
+                break;
+            }
+        }
+    }
+}
+
 void XSecSurf::PasteXSec( int index )
 {
     XSec* xs = FindXSec( index );
@@ -405,6 +534,14 @@ void XSecSurf::PasteXSec( int index )
 
             //==== Copy Position from xsec being replaced ====//
             new_xs->CopyBasePos( xs );
+
+            // The slot keeps its identity, and the pasted section keeps the copies of the
+            // source's attributes as well as the slot's own.  A copy that names one of the
+            // pasted section's Parms goes on naming it under the ID it takes.
+            vector< HeldParmRef > refs = HoldOwnParmRefs( new_xs, SectionHolders( new_xs ) );
+            new_xs->TakeIdentityOf( xs );
+            HandPastedAttributes( xs, new_xs );
+            ReleaseParmRefs( refs );
 
             deque_remove_val( m_XSecIDDeque, xs->GetID() );
             vector_remove_val( m_XSecPtrVec, xs );
@@ -485,6 +622,15 @@ void XSecSurf::PasteXSecCurve( int index )
 
     if ( duplicate_saved_crv )
     {
+        // The slot keeps its identity, and the pasted curve keeps the copies of the source's
+        // attributes as well as the slot's own.  A copy that names one of the pasted curve's
+        // Parms goes on naming it under the ID it takes.
+        vector< HeldParmRef > refs = HoldOwnParmRefs( duplicate_saved_crv,
+                                                      vector< ParmContainer* >( 1, duplicate_saved_crv ) );
+        duplicate_saved_crv->TakeIdentityOf( xs->GetXSecCurve() );
+        xs->GetXSecCurve()->HandPairedAttributesTo( duplicate_saved_crv );
+        ReleaseParmRefs( refs );
+
         xs->SetXSecCurve( duplicate_saved_crv );
     }
 

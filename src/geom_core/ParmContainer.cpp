@@ -654,6 +654,27 @@ void ParmContainer::HandUnpairedAttributesTo( ParmContainer* to )
     }
 }
 
+void ParmContainer::HandPairedAttributesTo( ParmContainer* to )
+{
+    if ( !to || to == this )
+    {
+        return;
+    }
+
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            Parm* q = ParmMgr.FindParm( to->FindParm( p->GetName(), p->GetGroupName() ) );
+            if ( q )
+            {
+                p->GetAttrCollection()->HandAttrsTo( q->GetAttrCollection() );
+            }
+        }
+    }
+}
+
 void ParmContainer::DeleteAttributes()
 {
     m_AttrCollection.DelAllAttrs();

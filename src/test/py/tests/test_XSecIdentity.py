@@ -196,3 +196,65 @@ def testAReplacedCurveKeepsItsIdentity( how ):
     assert sorted( vsp.FindAllAttributes() ) == everything
     for name, ( obj, coll, attr ) in tags.items():
         assert_kept( obj, coll, attr, name )
+
+
+@pytest.mark.parametrize( "paste", [ "section", "curve" ] )
+def testAPasteKeepsTheSlotsIdentityAndCarriesTheSourcesAttributes( paste ):
+    """Pasting over a cross section, or over its curve, takes the source's values but keeps the
+    slot's identity: its IDs, a design variable and a link on one of its Parms, and its own
+    attributes, each on its own ID in a collection with its own ID.  The pasted object carries
+    copies of the source's attributes as well."""
+    vsp.VSPRenew()
+    drain()
+    fid = vsp.AddGeom( "FUSELAGE" )
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+    xss = vsp.GetXSecSurf( fid, 0 )
+
+    src = vsp.GetXSec( xss, 1 )
+    vsp.SetParmVal( vsp.GetXSecParm( src, "Ellipse_Width" ), 1.7 )
+    for obj in ( src, curve_of( src ), vsp.GetXSecParm( src, "Ellipse_Width" ) ):
+        tag( obj, "SourceNote" )
+
+    slot = vsp.GetXSec( xss, 2 )
+    crv = curve_of( slot )
+    height = vsp.GetXSecParm( slot, "Ellipse_Height" )
+    held = { "XSec": slot, "Curve": crv, "Ellipse_Height": height }
+    tags = { name: tag( obj, "SlotNote_" + name ) for name, obj in held.items() }
+    vsp.AddDesignVar( height, vsp.XDDM_VAR )
+    link = vsp.AddParmLink( vsp.GetParm( pod, "Length", "Design" ), height )
+    vsp.SetParmLinkOffsetFlag( link, False )
+    vsp.Update()
+
+    if paste == "section":
+        vsp.CopyXSec( fid, 1 )
+        vsp.PasteXSec( fid, 2 )
+    else:
+        vsp.CopyXSecCurve( fid, 1 )
+        vsp.PasteXSecCurve( fid, 2 )
+    vsp.Update()
+    assert drain() == []
+
+    after = vsp.GetXSec( xss, 2 )
+    assert after == slot, "the cross section took a new ID"
+    assert curve_of( after ) == crv, "the curve took a new ID"
+    assert vsp.GetParmVal( vsp.GetXSecParm( after, "Ellipse_Width" ) ) == pytest.approx( 1.7 ), \
+           "the source's values were not pasted"
+
+    assert vsp.GetDesignVar( 0 ) == height
+    vsp.SetParmVal( vsp.GetParm( pod, "Length", "Design" ), 3.25 )
+    vsp.Update()
+    assert vsp.GetParmVal( height ) == pytest.approx( 3.25 )
+
+    for name, obj in held.items():
+        coll, attr = tags[name]
+        assert vsp.GetChildCollection( obj ) == coll, name + ": the collection took a new ID"
+        assert attr in vsp.FindAttributesInCollection( coll ), name + ": the slot's attribute was lost"
+
+    # A copy of the source's, beside the slot's own, on the pasted curve and on its width.
+    for obj in ( crv, vsp.GetXSecParm( after, "Ellipse_Width" ) ):
+        names = [ vsp.GetAttributeName( a ) for a in vsp.FindAttributesInCollection( vsp.GetChildCollection( obj ) ) ]
+        assert "SourceNote" in names, names
+    if paste == "section":
+        names = [ vsp.GetAttributeName( a ) for a in vsp.FindAttributesInCollection( vsp.GetChildCollection( after ) ) ]
+        assert sorted( names ) == [ "SlotNote_XSec", "SourceNote" ], names
