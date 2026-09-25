@@ -6039,6 +6039,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //=== Register Surface Query Functions ===//
 
+    r = se->RegisterGlobalFunction( "double CompareGeomSurfaces( const string & in geom_a, const string & in geom_b )", asFUNCTION( vsp::CompareGeomSurfaces ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "vec3d CompPnt01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", asFUNCTION(vsp::CompPnt01), asCALL_CDECL );
     assert( r >= 0 );
 

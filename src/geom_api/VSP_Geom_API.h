@@ -41683,6 +41683,71 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
     \ingroup SurfaceQuery
 */
 /*!
+    Bound the distance between two Geoms' surfaces.  Each surface of the first -- its main
+    surfaces and their symmetric copies -- is compared with the surface at the same index of the
+    second, at the same parameters.  The bound comes from the control points of the difference
+    between the two, so it is never less than the true distance, and equals it where one surface
+    is the other moved rigidly.  Identical surfaces give exactly zero.
+
+    Two Geoms that cannot be compared -- a different number of surfaces, or a pair spanning
+    different parameter ranges -- give -1 and an error.
+    \forcpponly
+    \code{.cpp}
+    //==== A Pod and a copy of it ====//
+    string pod = AddGeom( "POD" );
+
+    Update();
+
+    CopyGeomToClipboard( pod );
+    array< string > @pasted = PasteGeomClipboard();
+    string copy = pasted[0];
+
+    Update();
+
+    if ( CompareGeomSurfaces( pod, copy ) != 0.0 )                      { Print( "---> Error: API CompareGeomSurfaces found a copy differs " ); __failure++; }
+
+    //==== Moved, the copy differs by exactly how far it moved ====//
+    SetParmVal( FindParm( copy, "X_Rel_Location", "XForm" ), 2.5 );
+
+    Update();
+
+    if ( abs( CompareGeomSurfaces( pod, copy ) - 2.5 ) > 1e-9 )         { Print( "---> Error: API CompareGeomSurfaces missed a move " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== A Pod and a copy of it ====#
+    pod = AddGeom( "POD" )
+
+    Update()
+
+    CopyGeomToClipboard( pod )
+    copy = PasteGeomClipboard()[0]
+
+    Update()
+
+    assert CompareGeomSurfaces( pod, copy ) == 0.0, "---> Error: API CompareGeomSurfaces found a copy differs"
+
+    #==== Moved, the copy differs by exactly how far it moved ====#
+    SetParmVal( FindParm( copy, "X_Rel_Location", "XForm" ), 2.5 )
+
+    Update()
+
+    assert abs( CompareGeomSurfaces( pod, copy ) - 2.5 ) < 1e-9, "---> Error: API CompareGeomSurfaces missed a move"
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_a string First Geom ID
+    \param [in] geom_b string Second Geom ID
+    \return double Bound on the distance between the two Geoms' surfaces, or -1 if they cannot be compared
+*/
+
+extern double CompareGeomSurfaces( const std::string & geom_a, const std::string & geom_b );
+
+/*!
+    \ingroup SurfaceQuery
+*/
+/*!
     Calculate the 3D coordinate equivalent for the input surface coordinate point
     \forcpponly
     \code{.cpp}

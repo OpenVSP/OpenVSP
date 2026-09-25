@@ -12710,6 +12710,51 @@ void WritePartialCfMethodCSVFile(const std::string & file_name)
 
 //============================================================================//
 
+double CompareGeomSurfaces( const std::string & geom_a, const std::string & geom_b )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* a = veh->FindGeom( geom_a );
+    if ( !a )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompareGeomSurfaces::Can't Find Geom " + geom_a );
+        return -1.0;
+    }
+    Geom* b = veh->FindGeom( geom_b );
+    if ( !b )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompareGeomSurfaces::Can't Find Geom " + geom_b );
+        return -1.0;
+    }
+
+    if ( a->GetNumTotalSurfs() != b->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "CompareGeomSurfaces::Geoms have " + to_string( a->GetNumTotalSurfs() ) +
+                           " and " + to_string( b->GetNumTotalSurfs() ) + " surfaces" );
+        return -1.0;
+    }
+
+    double worst = 0.0;
+    for ( int i = 0; i < a->GetNumTotalSurfs(); i++ )
+    {
+        const VspSurf* sa = a->GetSurfPtr( i );
+        const VspSurf* sb = b->GetSurfPtr( i );
+        double bound = -1.0;
+        if ( sa && sb )
+        {
+            sa->Compare( *sb, bound );
+        }
+        if ( bound < 0.0 )
+        {
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "CompareGeomSurfaces::Surface " + to_string( i ) + " cannot be compared" );
+            return -1.0;
+        }
+        worst = std::max( worst, bound );
+    }
+
+    ErrorMgr.NoError();
+    return worst;
+}
+
 vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
 {
     Vehicle* veh = GetVehicle();
