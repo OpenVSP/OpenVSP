@@ -155,6 +155,10 @@ public:
     bool IDinClipboard( const string & id );
     vector< string > CopyGeomVec( const vector<string> & geom_vec );
 
+    // Replaces a Fuselage with a Stack of the same shape, in the Fuselage's place in the tree
+    // and under its ID.  Returns that ID, or an empty string if it cannot be converted.
+    string ConvertFuselageToStack( const string & fuse_id );
+
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     //==== Geom Sets ====//

@@ -1998,6 +1998,183 @@ void Vehicle::DeleteClipBoard()
     m_ClipBoard.clear();
 }
 
+// A Fuselage numbers its order policies MONOTONIC, LOOP, FREE; a Stack FREE, LOOP.
+static int StackOrderPolicy( int fuse_policy )
+{
+    if ( fuse_policy == FuselageGeom::FUSE_LOOP )
+    {
+        return StackGeom::STACK_LOOP;
+    }
+    return StackGeom::STACK_FREE;
+}
+
+// A Stack places each cross section relative to the one before it, where a Fuselage places
+// each one as a fraction of the overall length.  Each Stack XSec is set in absolute mode to
+// exactly where the Fuselage put it, the Stack is updated so that it works out the relative
+// placement, and then each is put back in relative mode.
+//
+// A Stack rotates about its origin where a Fuselage rotates about a point along its length.
+// Where that matters, the Stack's placement is worked out from the Fuselage's, so the two share
+// one frame and nothing built in that frame moves.
+//
+// The Stack takes the Fuselage's identity -- its ID and the IDs of the Parms the two have in
+// common by group and name -- which puts it in the Fuselage's place in the model.
+string Vehicle::ConvertFuselageToStack( const string & fuse_id )
+{
+    FuselageGeom* fuse = dynamic_cast < FuselageGeom* > ( FindGeom( fuse_id ) );
+    if ( !fuse )
+    {
+        return string();
+    }
+
+    Update();
+
+    XSecSurf* fxss = fuse->GetXSecSurf( 0 );
+    int nxsec = fxss->NumXSec();
+    if ( nxsec < 2 )
+    {
+        return string();
+    }
+
+    StackGeom* stack = dynamic_cast < StackGeom* > ( FindGeom( CreateGeom( GeomType( STACK_GEOM_TYPE, "Stack", true ) ) ) );
+    if ( !stack )
+    {
+        return string();
+    }
+
+    // In the frame it will hang from, before anything is placed.  The parent does not list it
+    // as a child until it takes the Fuselage's ID.
+    stack->SetParentID( fuse->GetParentID() );
+
+    vector< string > children = fuse->GetChildIDVec();
+
+    //==== The Geom's own Parms ====//
+    stack->CopyMatchingVals( fuse );
+
+    stack->m_OrderPolicy = StackOrderPolicy( fuse->m_OrderPolicy() );
+
+    stack->Update();
+
+    //==== The cross sections, placed where the Fuselage put them ====//
+    XSecSurf* sxss = stack->GetXSecSurf( 0 );
+    sxss->DeleteAllXSecs();
+
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        FuseXSec* fxs = dynamic_cast < FuseXSec* > ( fxss->FindXSec( i ) );
+
+        sxss->AddXSec( fxs->GetXSecCurve()->GetType() );
+        StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
+
+        sxs->CopyFrom( fxs );
+
+        // Both place a section by a translation followed by rotations about X, Y and Z, so the
+        // Fuselage's own values are the Stack's absolute ones.
+        vec3d trans = fxs->GetTransform()->getTranslation();
+
+        sxs->m_XSAbsRelFlag = vsp::ABS;
+        sxs->m_XAbs = trans.x();
+        sxs->m_YAbs = trans.y();
+        sxs->m_ZAbs = trans.z();
+        sxs->m_XRotateAbs = fxs->m_XRotate();
+        sxs->m_YRotateAbs = fxs->m_YRotate();
+        sxs->m_ZRotateAbs = fxs->m_ZRotate();
+    }
+
+    stack->Update();
+
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
+        sxs->m_XSAbsRelFlag = vsp::REL;
+    }
+
+    stack->Update();
+
+    //==== Skinning strengths ====//
+    // A strength is multiplied by its XSec's GetScale().  Each type has its own GetScale(); both
+    // measure the distance between neighbouring section origins, which placing the sections
+    // identically preserves, so the factor is one to roundoff -- but it is applied, not assumed.
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        FuseXSec* fxs = dynamic_cast < FuseXSec* > ( fxss->FindXSec( i ) );
+        StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
+
+        double fscale = fxs->GetScale();
+        double sscale = sxs->GetScale();
+        if ( fscale != sscale )
+        {
+            sxs->ScaleTanStrengths( fscale / sscale );
+        }
+    }
+
+    stack->Update();
+
+    //==== Placement ====//
+    // A Fuselage rotates about m_Center, a Stack about its origin.  The rotations are the same
+    // either way; only where the origin lands differs.  An absolute location names where the
+    // center is, so it differs whenever there is a center; a relative one only once there is a
+    // rotation to pivot.  The Stack's translation is read off the Fuselage's frame.
+    bool differs;
+    if ( fuse->m_AbsRelFlag() == vsp::ABS )
+    {
+        differs = true;
+    }
+    else
+    {
+        differs = fuse->m_XRelRot() != 0.0 || fuse->m_YRelRot() != 0.0 || fuse->m_ZRelRot() != 0.0;
+    }
+
+    if ( differs && fuse->m_Center.mag() != 0.0 )
+    {
+        if ( fuse->m_AbsRelFlag() == vsp::ABS )
+        {
+            vec3d trans = fuse->getModelMatrix().getTranslation();
+            stack->m_XLoc = trans.x();
+            stack->m_YLoc = trans.y();
+            stack->m_ZLoc = trans.z();
+        }
+        else
+        {
+            Matrix4d local = fuse->getAttachMatrix();
+            local.affineInverse();
+            local.matMult( fuse->getModelMatrix().data() );
+
+            vec3d trans = local.getTranslation();
+            stack->m_XRelLoc = trans.x();
+            stack->m_YRelLoc = trans.y();
+            stack->m_ZRelLoc = trans.z();
+        }
+
+        stack->Update();
+    }
+
+    //==== Identities ====//
+    stack->SwapIdentity( fuse );
+
+    //==== Its place in the tree ====//
+    // The Stack answers to the Fuselage's ID now, so the parent's child list and the top level
+    // list already name it.  These two point outward, and are moved by hand.
+    stack->SetParentID( fuse->GetParentID() );
+    for ( int i = 0; i < ( int )children.size(); i++ )
+    {
+        stack->AddChildID( children[i] );
+    }
+
+    fuse->SetParentID( "NONE" );
+    for ( int i = 0; i < ( int )children.size(); i++ )
+    {
+        fuse->RemoveChildID( children[i] );
+    }
+
+    DeleteGeomVec( vector< string >( 1, fuse->GetID() ) );
+
+    SetGeomMapDirtyFlag( true );
+    Update();
+
+    return fuse_id;
+}
+
 void Vehicle::DeleteGeom( const string & geom_id )
 {
     auto it = m_GeomStoreMap.find( geom_id );
