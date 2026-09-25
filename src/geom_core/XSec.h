@@ -72,6 +72,12 @@ public:
     // Deletes the attributes on this cross section, its Parms, and its curve.
     virtual void DeleteAttributes();
 
+    // Takes another cross section's identity, for when this one replaces it: the IDs of the
+    // Parms the two share by group and name, the container IDs, and the attributes, for this
+    // section and its curve.  Attributes on a Parm with no counterpart move to the container.
+    // Whatever attributes this one holds are kept, so a copy's are deleted first.
+    virtual void TakeIdentityOf( XSec* old );
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -220,6 +226,7 @@ public:
     virtual void SwapIDs( ParmContainer* from );
 
     virtual void DeleteAttributes();
+    virtual void TakeIdentityOf( XSec* old );
 
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 

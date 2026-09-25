@@ -89,6 +89,13 @@ public:
 
     virtual void CopyFrom( XSecCurve* from_crv );
 
+    // Takes another curve's identity, for when this one replaces it: the IDs of the Parms the
+    // two share by group and name -- and the width and height by role, where the names differ
+    // -- the container ID, and the attributes.  Attributes on a Parm with no counterpart move
+    // to the container.  Whatever attributes this one holds are kept, so a copy's are deleted
+    // first.
+    virtual void TakeIdentityOf( XSecCurve* old );
+
     virtual double GetWidth() const
     {
         return 0.0;

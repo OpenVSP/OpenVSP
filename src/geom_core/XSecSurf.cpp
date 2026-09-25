@@ -517,36 +517,10 @@ void XSecSurf::ChangeXSecShape( int index, int type )
         // Restore name.
         nxs->GetXSecCurve()->SetName( nxs_name );
 
-        // Swap all XSec ID's.
-        nxs->SwapIDs( xs );
-
-        // Store first Width ID.
-        string waID = nxs->GetXSecCurve()->GetWidthParmID();
-
-        // Swap all XSecCurve ID's.
-        nxs->GetXSecCurve()->SwapIDs( xs->GetXSecCurve() );
-
-        // Width and height Parms need special treatment because they don't always exist (Point, Circle) and
-        // they are inconsistently named.
-        // Circle_Diameter, Ellipse_Width, Super_Width, RoundedRect_Width, Width, Chord, etc.
-        if ( waID == nxs->GetXSecCurve()->GetWidthParmID() ) // ID did not change.
-        {
-            Parm* wa = ParmMgr.FindParm( nxs->GetXSecCurve()->GetWidthParmID() );
-            Parm* ha = ParmMgr.FindParm( nxs->GetXSecCurve()->GetHeightParmID() );
-
-            Parm* wb = ParmMgr.FindParm( xs->GetXSecCurve()->GetWidthParmID() );
-            Parm* hb = ParmMgr.FindParm( xs->GetXSecCurve()->GetHeightParmID() );
-
-            if ( wb && wa )
-            {
-                ParmMgr.SwapIDs( wa->GetID(), wb->GetID() );
-            }
-
-            if ( hb && ha )
-            {
-                ParmMgr.SwapIDs( ha->GetID(), hb->GetID() );
-            }
-        }
+        // The copies of the old section's attributes go; the old section hands over its own
+        // along with every ID.
+        nxs->DeleteAttributes();
+        nxs->TakeIdentityOf( xs );
 
         m_XSecIDDeque.insert( m_XSecIDDeque.begin() + index, nxs->GetID() );
 

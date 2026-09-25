@@ -582,6 +582,44 @@ void XSecCurve::CopyFrom( XSecCurve* from_crv )
     IDMgr.ResetRemapID( lastreset );
 }
 
+void XSecCurve::TakeIdentityOf( XSecCurve* old )
+{
+    if ( !old || old == this )
+    {
+        return;
+    }
+
+    string width_id = GetWidthParmID();
+
+    SwapIDs( old );
+
+    // Each type names its width and height its own way -- Circle_Diameter, Ellipse_Width,
+    // Chord -- so where the names did not pair them, they pair by role.  Not every type has
+    // both.
+    if ( width_id == GetWidthParmID() )
+    {
+        Parm* wa = ParmMgr.FindParm( GetWidthParmID() );
+        Parm* ha = ParmMgr.FindParm( GetHeightParmID() );
+
+        Parm* wb = ParmMgr.FindParm( old->GetWidthParmID() );
+        Parm* hb = ParmMgr.FindParm( old->GetHeightParmID() );
+
+        if ( wa && wb )
+        {
+            ParmMgr.SwapIDs( wa->GetID(), wb->GetID() );
+        }
+
+        if ( ha && hb )
+        {
+            ParmMgr.SwapIDs( ha->GetID(), hb->GetID() );
+        }
+    }
+
+    SwapContainerID( old );
+    old->HandAttributesTo( this );
+    old->HandUnpairedAttributesTo( this );
+}
+
 bool XSecCurve::DetermineWingType()
 {
     bool wingtype = false;

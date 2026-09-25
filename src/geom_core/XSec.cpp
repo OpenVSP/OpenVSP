@@ -250,6 +250,23 @@ void XSec::DeleteAttributes()
     }
 }
 
+void XSec::TakeIdentityOf( XSec* old )
+{
+    if ( !old || old == this )
+    {
+        return;
+    }
+
+    SwapIdentity( old );
+    old->HandAttributesTo( this );
+    old->HandUnpairedAttributesTo( this );
+
+    if ( m_XSCurve && old->m_XSCurve )
+    {
+        m_XSCurve->TakeIdentityOf( old->m_XSCurve );
+    }
+}
+
 //==== Encode XML ====//
 xmlNodePtr XSec::EncodeXml(  xmlNodePtr & node  )
 {
@@ -1684,6 +1701,38 @@ void SkinXSec::DeleteAttributes()
         if ( m_SpineVec[i] )
         {
             m_SpineVec[i]->DeleteAttributes();
+        }
+    }
+}
+
+void SkinXSec::TakeIdentityOf( XSec* old )
+{
+    XSec::TakeIdentityOf( old );
+
+    SkinXSec* sold = dynamic_cast < SkinXSec* > ( old );
+    if ( !sold || sold == this )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        if ( !m_SpineVec[i] )
+        {
+            continue;
+        }
+
+        for ( int j = 0; j < ( int )sold->m_SpineVec.size(); j++ )
+        {
+            if ( sold->m_SpineVec[j] &&
+                 sold->m_SpineVec[j]->GetSpineID() == m_SpineVec[i]->GetSpineID() )
+            {
+                // SwapIDs has already traded the spines' Parm IDs; SwapIdentity would trade them
+                // straight back.
+                m_SpineVec[i]->SwapContainerID( sold->m_SpineVec[j] );
+                sold->m_SpineVec[j]->HandAttributesTo( m_SpineVec[i] );
+                break;
+            }
         }
     }
 }
