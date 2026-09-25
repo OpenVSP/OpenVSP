@@ -2028,6 +2028,8 @@ static int StackOrderPolicy( int fuse_policy )
 // thing.  Where a Parm has a counterpart that means something different, it is paired with it
 // anyway: a link that behaves differently is better than a link to nothing.  Only the
 // Fuselage's length has no counterpart at all.
+//
+// Attributes stay on the IDs they were on; those on the length go to the Stack itself.
 string Vehicle::ConvertFuselageToStack( const string & fuse_id )
 {
     FuselageGeom* fuse = dynamic_cast < FuselageGeom* > ( FindGeom( fuse_id ) );
@@ -2194,8 +2196,14 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
 
     //==== Identities ====//
     stack->SwapIdentity( fuse );
+    fuse->HandAttributesTo( stack );
+
+    // The length has no counterpart on a Stack, so what was said about it is said about the
+    // Stack instead of being lost with it.
+    fuse->HandUnpairedAttributesTo( stack );
 
     sxss->SwapIdentity( fxss );
+    fxss->HandAttributesTo( sxss );
 
     for ( int i = 0; i < nxsec; i++ )
     {
