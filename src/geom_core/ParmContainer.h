@@ -117,6 +117,9 @@ public:
     // another container onto that container, where they are kept rather than lost.
     virtual void HandUnpairedAttributesTo( ParmContainer* to );
 
+    // Deletes the attributes on this container and on each of its Parms.
+    virtual void DeleteAttributes();
+
     AttributeCollection* GetAttrCollection()
     {
         return &m_AttrCollection;

@@ -654,6 +654,20 @@ void ParmContainer::HandUnpairedAttributesTo( ParmContainer* to )
     }
 }
 
+void ParmContainer::DeleteAttributes()
+{
+    m_AttrCollection.DelAllAttrs();
+
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->GetAttrCollection()->DelAllAttrs();
+        }
+    }
+}
+
 void ParmContainer::SwapIDs( ParmContainer *from )
 {
     // Make a copy to iterate over because SwapID's implicitly modifies m_ParmVec.

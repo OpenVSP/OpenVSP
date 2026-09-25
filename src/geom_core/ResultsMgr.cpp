@@ -1285,6 +1285,15 @@ void AttributeCollection::SwapID( AttributeCollection* other )
     other->ChangeID( mine );
 }
 
+void AttributeCollection::DelAllAttrs()
+{
+    vector < NameValData* > attr_vec = GetAllPtrs();
+    for ( int i = 0; i < ( int )attr_vec.size(); i++ )
+    {
+        Del( attr_vec[i] );
+    }
+}
+
 // ==== Encode Data To XML Data Structure ====//
 void AttributeCollection::EncodeXml( xmlNodePtr & node ) const
 {

@@ -386,6 +386,9 @@ public:
     // Trades collection IDs with another.
     void SwapID( AttributeCollection* other );
 
+    // Deletes every attribute in this collection.
+    void DelAllAttrs();
+
     virtual void EncodeXml( xmlNodePtr & node ) const;
     virtual void DecodeXml( xmlNodePtr & node );
 
