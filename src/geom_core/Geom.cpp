@@ -2268,6 +2268,7 @@ void Geom::UpdateSymmAttach( int num_main )
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
 
+
     for ( int i = 0 ; i < ( int )m_TransMatVec.size() ; i++ )
     {
         m_TransMatVec[i].initMat( relTrans.data() );
@@ -2579,39 +2580,58 @@ void Geom::UpdateStepChildren( bool fullupdate )
     m_StepChildIDVec = updated_child_vec;
 }
 
-void Geom::UpdateBBox( )
+void Geom::UpdateMainBBox()
 {
-    BndBox empty_box;
-    UpdateBBox( 0, empty_box );
-}
+    m_MainBBox.Reset();
 
-void Geom::UpdateBBox( int istart, const BndBox & start_box )
-{
-    BndBox new_box = start_box;
-
-    //==== Load Bounding Box ====//
-    BndBox main_box;
-    for ( int i = istart ; i < GetNumMainSurfs() ; i++ )
+    for ( int i = 0 ; i < GetNumMainSurfs() ; i++ )
     {
         BndBox bb;
         m_MainSurfVec[i].GetBoundingBox( bb );
         if ( !bb.IsEmpty() )
         {
-            main_box.Update( bb );
+            m_MainBBox.Update( bb );
         }
     }
 
+    m_ScaleIndependentMainBBox = m_MainBBox;
+}
+
+BndBox Geom::PlaceMainBBox( const BndBox & main_box ) const
+{
+    BndBox placed_box;
+
     if ( !main_box.IsEmpty() )
     {
-        BndBox placed_box;
         for ( int isymm = 0; isymm < m_SymmTransMatVec.size(); isymm++ )
         {
             BndBox bb = main_box;
             bb.Transform( m_SymmTransMatVec[ isymm ] );
             placed_box.Update( bb );
         }
-        new_box.Update( placed_box );
     }
+
+    if ( PlacedBBoxIncludesOrigin() )
+    {
+        // Added after placement, since rotating a box stretched to the origin would oversize it.
+        // Added even with no shape.
+        for ( int isymm = 0; isymm < m_SymmTransMatVec.size(); isymm++ )
+        {
+            vec3d origin;
+            origin.Transform( m_SymmTransMatVec[ isymm ] );
+            placed_box.Update( origin );
+        }
+    }
+
+    return placed_box;
+}
+
+void Geom::UpdateBBox( )
+{
+    UpdateMainBBox();
+
+    BndBox new_box = PlaceMainBBox( m_MainBBox );
+    BndBox new_scale_independent_box = PlaceMainBBox( m_ScaleIndependentMainBBox );
 
     // If the surface vec size is zero ( like blank geom )
     // set bbox to zero size
@@ -2619,9 +2639,10 @@ void Geom::UpdateBBox( int istart, const BndBox & start_box )
     if ( !GetNumTotalSurfs() )
     {
         new_box.Update( vec3d(0,0,0) );
+        new_scale_independent_box.Update( vec3d(0,0,0) );
     }
 
-    if ( new_box != m_BBox )
+    if ( new_box != m_BBox || new_scale_independent_box != m_ScaleIndependentBBox )
     {
         m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
         m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
@@ -2632,7 +2653,7 @@ void Geom::UpdateBBox( int istart, const BndBox & start_box )
         m_BbZMin = new_box.GetMin( 2 );
 
         m_BBox = new_box;
-        m_ScaleIndependentBBox = m_BBox;
+        m_ScaleIndependentBBox = new_scale_independent_box;
     }
 }
 

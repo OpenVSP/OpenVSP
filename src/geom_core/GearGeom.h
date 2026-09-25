@@ -499,7 +499,11 @@ public:
     void DelBogie( const int &i );
     void DelBogie( const string &id );
 
-    virtual void UpdateBBox();
+    virtual void UpdateMainBBox();
+
+    // The Geom's position stands in for the ground plane, which is left out of the main box.
+    virtual bool PlacedBBoxIncludesOrigin() const                 { return true; }
+
     virtual bool IsModelScaleSensitive()        { return m_AutoPlaneFlag(); }
 
     virtual void BuildOnePtBasis( const string &cp1, int isymm1, int suspension1, int tire1,

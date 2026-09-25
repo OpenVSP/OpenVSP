@@ -2078,13 +2078,12 @@ int AuxiliaryGeom::DegenContact3( GearGeom * gear, int idegen, double bogietheta
     return idegen;
 }
 
-void AuxiliaryGeom::UpdateBBox( )
+void AuxiliaryGeom::UpdateMainBBox( )
 {
-    // Fill m_BBox like normal
-    Geom::UpdateBBox();
+    Geom::UpdateMainBBox();
 
-    // Reset m_ScaleIndependentBBox to empty
-    m_ScaleIndependentBBox.Reset();
+    // Burst zones and clearance surfaces are all sized from the model box.
+    m_ScaleIndependentMainBBox.Reset();
 }
 
 xmlNodePtr AuxiliaryGeom::EncodeXml( xmlNodePtr & node )

@@ -54,7 +54,7 @@ public:
     // Alternative to XSecSurf::ConvertToEdit for Auxiliary Geom SuperCone components
     virtual EditCurveXSec* ConvertToEdit();
 
-    virtual void UpdateBBox();
+    virtual void UpdateMainBBox();
     virtual bool IsModelScaleSensitive()        { return true; }
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

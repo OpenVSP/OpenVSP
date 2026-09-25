@@ -3487,25 +3487,29 @@ void GearGeom::DelBogie( const string &id )
     DelBogie( idel );
 }
 
-void GearGeom::UpdateBBox( )
+// The ground plane (main surface zero) is sized from the model box, so it is left out; the
+// Geom's position stands in for it in PlaceMainBBox.
+void GearGeom::UpdateMainBBox()
 {
-    // Add GearGeom origin point to represent ground plane without scale.
-    BndBox gnd_box;
-    for ( int isymm = 0; isymm < m_SymmTransMatVec.size(); isymm++ )
-    {
-        vec3d origin;
-        origin.Transform( m_SymmTransMatVec[ isymm ] );
-        gnd_box.Update( origin );
-    }
+    m_MainBBox.Reset();
 
-    // Fill m_BBox and m_ScaleIndependentBBox while skipping ground plane.
-    // Call at the end so m_Bb*Len and m_Bb*Min are updated correctly.
     int istart = 0;
     if ( m_IncludeNominalGroundPlane() )
     {
         istart = 1;
     }
-    Geom::UpdateBBox( istart, gnd_box );
+
+    for ( int i = istart ; i < GetNumMainSurfs() ; i++ )
+    {
+        BndBox bb;
+        m_MainSurfVec[i].GetBoundingBox( bb );
+        if ( !bb.IsEmpty() )
+        {
+            m_MainBBox.Update( bb );
+        }
+    }
+
+    m_ScaleIndependentMainBBox = m_MainBBox;
 }
 
 void GearGeom::BuildOnePtBasis( const string &cp1, int isymm1, int suspension1, int tire1,

@@ -278,6 +278,13 @@ public:
 
     virtual bool IsModelScaleSensitive() { return false; }
 
+    // Whether this Geom's origin belongs in its placed bounding box.  True for a landing gear,
+    // whose ground plane is sized from the model box, so the origin stands in for it.
+    virtual bool PlacedBBoxIncludesOrigin() const
+    {
+        return false;
+    }
+
 protected:
 
     virtual void SetDirtyFlags( Parm* parm_ptr );
@@ -636,6 +643,13 @@ public:
         return m_BBox != m_ScaleIndependentBBox;
     }
 
+    // The two boxes before symmetry and placement, so a Clone can lay out its own from them.
+    virtual void GetMainBBoxes( BndBox &main_box, BndBox &scale_independent_main_box ) const
+    {
+        main_box = m_MainBBox;
+        scale_independent_main_box = m_ScaleIndependentMainBBox;
+    }
+
     virtual void WriteAirfoilFiles( FILE* meta_fid );
     virtual void WriteBezierAirfoil( const string & file_name, double foilsurf_u_location );
     virtual void WriteSeligAirfoil( const string & file_name, double foilsurf_u_location );
@@ -974,8 +988,15 @@ protected:
     virtual void UpdateGrandChildren( Geom* grandparent, bool fullupdate );
     virtual void UpdateChildren( bool fullupdate );
     virtual void UpdateStepChildren( bool fullupdate );
-    virtual void UpdateBBox( int istart, const BndBox & start_box );
     virtual void UpdateBBox();
+
+    // Fills the two main boxes.  A surface sized from the model box is not scale independent
+    // and goes in the first box only.
+    virtual void UpdateMainBBox();
+
+    // One main box laid out by this Geom's symmetry and placement.
+    virtual BndBox PlaceMainBBox( const BndBox & main_box ) const;
+
     virtual void UpdateDrawObj();
     virtual void UpdateHighlightDrawObj()    {};
 
@@ -1013,6 +1034,10 @@ protected:
 
     vector< DegenGeom > m_MainDegenGeomPreviewVec;
     vector< DegenGeom > m_DegenGeomPreviewVec;
+
+    // Before symmetry and placement.
+    BndBox m_MainBBox;
+    BndBox m_ScaleIndependentMainBBox;
 
     BndBox m_BBox;
     // Similar to m_BBox, but it omits surfaces that automatically scale with the model size.  These include

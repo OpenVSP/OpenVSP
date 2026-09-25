@@ -303,20 +303,12 @@ void GeomEngine::Extend( VspSurf &surf, const double & u, bool extbefore )
     surf = s;
 }
 
-void GeomEngine::UpdateBBox()
+void GeomEngine::UpdateMainBBox()
 {
-    // Fill m_BBox like normal
-    Geom::UpdateBBox();
+    Geom::UpdateMainBBox();
 
-    // Fill m_ScaleIndependentBBox with positioned copies of m_OrigMainBBox
-    vector < BndBox > mainBBvec;
-    mainBBvec.push_back( m_ScaleIndependentMainBBox );
-
-    vector < BndBox > bbvec;
-    ApplySymm( mainBBvec, bbvec );
-
-    m_ScaleIndependentBBox.Reset();
-    m_ScaleIndependentBBox.Update( bbvec );
+    // The extension is sized from the model box, so only the surface it was grown from counts.
+    m_ScaleIndependentMainBBox = m_UnextendedMainBBox;
 }
 
 void GeomEngine::UpdateXForm()
@@ -337,8 +329,8 @@ void GeomEngine::UpdateXForm()
 
 void GeomEngine::UpdateEngine()
 {
-    m_ScaleIndependentMainBBox.Reset();
-    m_MainSurfVec[0].GetBoundingBox( m_ScaleIndependentMainBBox );
+    m_UnextendedMainBBox.Reset();
+    m_MainSurfVec[0].GetBoundingBox( m_UnextendedMainBBox );
 
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
@@ -372,7 +364,7 @@ void GeomEngine::UpdateEngine()
         VspSurf surf3;
         bool usesurf3 = false;
 
-        vec3d ptoff( m_ScaleIndependentMainBBox.DiagDist() * 1.0e-4, 0, 0 );
+        vec3d ptoff( m_UnextendedMainBBox.DiagDist() * 1.0e-4, 0, 0 );
         vec3d zero( 0.0, 0.0, 0.0 );
 
         double umax = surf.GetUMax();
