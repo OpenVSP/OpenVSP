@@ -2022,6 +2022,12 @@ static int StackOrderPolicy( int fuse_policy )
 //
 // What the Fuselage owns rather than computes is handed over whole: its subsurfaces,
 // structures, mesh sources and textures.
+//
+// Each cross section, its curve and its spines take the Fuselage's IDs as well, so a link, a
+// design variable, an advanced link or an analysis naming any of them goes on naming the same
+// thing.  Where a Parm has a counterpart that means something different, it is paired with it
+// anyway: a link that behaves differently is better than a link to nothing.  Only the
+// Fuselage's length has no counterpart at all.
 string Vehicle::ConvertFuselageToStack( const string & fuse_id )
 {
     FuselageGeom* fuse = dynamic_cast < FuselageGeom* > ( FindGeom( fuse_id ) );
@@ -2070,6 +2076,9 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
         StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
 
         sxs->CopyFrom( fxs );
+
+        // CopyFrom copies attributes, under new IDs.  The originals are handed over below.
+        sxs->DeleteAttributes();
 
         // Both place a section by a translation followed by rotations about X, Y and Z, so the
         // Fuselage's own values are the Stack's absolute ones.
@@ -2185,6 +2194,24 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
 
     //==== Identities ====//
     stack->SwapIdentity( fuse );
+
+    sxss->SwapIdentity( fxss );
+
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        FuseXSec* fxs = dynamic_cast < FuseXSec* > ( fxss->FindXSec( i ) );
+        StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
+
+        // The location fractions pair with the deltas that place a Stack XSec in the same
+        // mode, which are lengths rather than fractions of one.  Paired by role, so before the
+        // rest pair by name.  The rotations pair by name, though a Stack XSec's is relative to
+        // the one before it and a Fuselage XSec's is not.
+        ParmMgr.SwapIDs( fxs->m_XLocPercent.GetID(), sxs->m_XDelta.GetID() );
+        ParmMgr.SwapIDs( fxs->m_YLocPercent.GetID(), sxs->m_YDelta.GetID() );
+        ParmMgr.SwapIDs( fxs->m_ZLocPercent.GetID(), sxs->m_ZDelta.GetID() );
+
+        sxs->TakeIdentityOf( fxs );
+    }
 
     //==== Its place in the tree ====//
     // The Stack answers to the Fuselage's ID now, so the parent's child list and the top level
