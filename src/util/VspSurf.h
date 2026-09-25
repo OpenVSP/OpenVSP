@@ -124,6 +124,12 @@ public:
     void SwapUWDirections();
     void Transform( const Matrix4d & mat );
     void GetBoundingBox( BndBox &bb ) const;
+
+    // Whether this surface and another share one structure -- the same patches, at the same
+    // parameters, of the same degrees -- and in bound, a bound on the distance between them at
+    // the same parameters.  Surfaces over different parameter ranges cannot be compared; they
+    // answer false, with a negative bound.
+    bool Compare( const VspSurf & other, double & bound ) const;
     void GetLimitedBoundingBox( BndBox &bb, const double &U0, const double &Uf, const double &W0, const double &Wf );
     bool IsClosedU() const;
     bool IsClosedW() const;

@@ -268,6 +268,75 @@ void VspSurf::GetBoundingBox( BndBox &bb ) const
     bb.Update( v3max );
 }
 
+// The bound comes from the control points of the difference between the two, which enclose it.
+// Both are first split and raised to a common structure, so it is found whether or not they
+// shared one to begin with.
+bool VspSurf::Compare( const VspSurf & other, double & bound ) const
+{
+    piecewise_surface_type a( m_Surface );
+    piecewise_surface_type b( other.m_Surface );
+
+    vector< double > au, aw, bu, bw;
+    a.get_pmap_uv( au, aw );
+    b.get_pmap_uv( bu, bw );
+
+    // A surface with no patches matches only another with none.
+    if ( au.empty() || aw.empty() || bu.empty() || bw.empty() )
+    {
+        if ( au.empty() == bu.empty() && aw.empty() == bw.empty() )
+        {
+            bound = 0.0;
+            return true;
+        }
+        bound = -1.0;
+        return false;
+    }
+
+    double utol = 1e-12 * std::max( 1.0, std::abs( au.back() - au.front() ) );
+    double wtol = 1e-12 * std::max( 1.0, std::abs( aw.back() - aw.front() ) );
+
+    if ( std::abs( au.front() - bu.front() ) > utol || std::abs( au.back() - bu.back() ) > utol ||
+         std::abs( aw.front() - bw.front() ) > wtol || std::abs( aw.back() - bw.back() ) > wtol )
+    {
+        bound = -1.0;
+        return false;
+    }
+
+    vector< piecewise_surface_type::index_type > adu, adw, bdu, bdw;
+    a.degree_u( adu );
+    a.degree_v( adw );
+    b.degree_u( bdu );
+    b.degree_v( bdw );
+
+    bool same = au.size() == bu.size() && aw.size() == bw.size() && adu == bdu && adw == bdw;
+    for ( int i = 0; same && i < ( int )au.size(); i++ )
+    {
+        same = std::abs( au[i] - bu[i] ) <= utol;
+    }
+    for ( int i = 0; same && i < ( int )aw.size(); i++ )
+    {
+        same = std::abs( aw[i] - bw[i] ) <= wtol;
+    }
+
+    piecewise_surface_type::parm_match_u( a, b );
+    piecewise_surface_type::parm_match_v( a, b );
+    piecewise_surface_type::order_match_u( a, b );
+    piecewise_surface_type::order_match_v( a, b );
+
+    piecewise_surface_type diff;
+    diff.scaledsum( 1.0, a, -1.0, b );
+
+    // No point of the difference lies farther from the origin than its box's farthest corner.
+    surface_bounding_box_type bb;
+    diff.get_bounding_box( bb );
+    double x = std::max( std::abs( bb.get_min().x() ), std::abs( bb.get_max().x() ) );
+    double y = std::max( std::abs( bb.get_min().y() ), std::abs( bb.get_max().y() ) );
+    double z = std::max( std::abs( bb.get_min().z() ), std::abs( bb.get_max().z() ) );
+    bound = sqrt( x * x + y * y + z * z );
+
+    return same;
+}
+
 void VspSurf::GetLimitedBoundingBox( BndBox &bb, const double &U0, const double &Uf, const double &W0, const double &Wf )
 {
     surface_bounding_box_type bbx;
