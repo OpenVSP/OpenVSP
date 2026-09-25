@@ -8,6 +8,7 @@
 #include "FuselageScreen.h"
 #include "ScreenMgr.h"
 #include "FuselageGeom.h"
+#include "ManageGeomScreen.h"
 
 using namespace vsp;
 
@@ -23,6 +24,9 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800,
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
+    m_DesignLayout.AddButton( m_ConvertToStackButton, "Convert to Stack" );
+    m_DesignLayout.AddYGap();
+
     m_DesignLayout.AddDividerBox( "Design" );
     m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%6.5f" );
 
@@ -256,7 +260,29 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     FuselageGeom* fuselage_ptr = dynamic_cast< FuselageGeom* >( geom_ptr );
     assert( fuselage_ptr );
 
-    if ( gui_device == &m_CutXSec )
+    if ( gui_device == &m_ConvertToStackButton )
+    {
+        switch( fl_choice( "Convert Fuselage to Stack Geom (can not be un-done)?", "Cancel", "Ok", 0 ) )
+        {
+            case(0):
+                break;
+            case(1):
+                // Deletes this Geom, so nothing may touch fuselage_ptr afterwards.  The Stack keeps its
+                // ID, so it is the one still selected, and it needs its own screen in place of this one.
+                m_ScreenMgr->GetVehiclePtr()->ConvertFuselageToStack( fuselage_ptr->GetID() );
+
+                ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+                if ( mgs )
+                {
+                    mgs->SetNeedsShowHideGeoms();
+                }
+
+                m_ScreenMgr->SetUpdateFlag( true );
+                return;
+                break;
+        }
+    }
+    else if ( gui_device == &m_CutXSec )
     {
         fuselage_ptr->CutActiveXSec();
     }

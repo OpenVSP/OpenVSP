@@ -52,6 +52,8 @@ protected:
 
     SliderAdjRangeInput m_CapTessSlider;
 
+    TriggerButton m_ConvertToStackButton;
+
     TriggerButton m_InsertXSec;
     TriggerButton m_CutXSec;
     TriggerButton m_CopyXSec;
