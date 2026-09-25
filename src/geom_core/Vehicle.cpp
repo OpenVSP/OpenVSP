@@ -7089,7 +7089,7 @@ string Vehicle::ImportV2File( const string & file_name )
 
     //==== Build an XML tree from a the file ====//
     doc = xmlReadFile( file_name.c_str(), nullptr, XML_PARSE_HUGE );
-    if ( doc == nullptr ) return 0;
+    if ( doc == nullptr ) return string();
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
     if ( root == nullptr )
