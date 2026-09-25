@@ -690,6 +690,8 @@ EditCurveXSec* XSec::ConvertToEdit()
 
     if ( xscrv_ptr && xscrv_ptr != m_XSCurve )
     {
+        xscrv_ptr->DeleteAttributes();
+        xscrv_ptr->TakeIdentityOf( m_XSCurve );
         SetXSecCurve( xscrv_ptr );
     }
 

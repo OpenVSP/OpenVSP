@@ -149,3 +149,50 @@ def testAnAttributeOnAParmThatGoesAwayMovesToItsCurve():
     assert not vsp.ValidParm( height )
     assert sorted( vsp.FindAllAttributes() ) == everything
     assert attr in vsp.FindAttributesInCollection( vsp.GetChildCollection( crv ) )
+
+
+@pytest.mark.parametrize( "how", [ "BOR shape", "BOR edit", "XSec edit" ] )
+def testAReplacedCurveKeepsItsIdentity( how ):
+    """A body of revolution's curve replaced by another shape, and any curve converted to an
+    edit curve, keep the curve's ID and those of every Parm the two share.  A design variable
+    and a link on one go on naming it, and an attribute on it or on the curve keeps its ID."""
+    vsp.VSPRenew()
+    drain()
+    pod = vsp.AddGeom( "POD" )
+    if how.startswith( "BOR" ):
+        gid = vsp.AddGeom( "BODYOFREVOLUTION" )
+        vsp.Update()
+        scale = vsp.FindParm( gid, "Scale", "XSecCurve" )
+    else:
+        gid = vsp.AddGeom( "FUSELAGE" )
+        vsp.Update()
+        scale = vsp.GetXSecParm( vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 2 ), "Scale" )
+    crv = vsp.GetParmContainer( scale )
+    parms = vsp.FindContainerParmIDs( crv )
+
+    vsp.AddDesignVar( scale, vsp.XDDM_VAR )
+    link = vsp.AddParmLink( vsp.GetParm( pod, "Length", "Design" ), scale )
+    vsp.SetParmLinkOffsetFlag( link, False )
+    tags = { "Curve": ( crv, ) + tag( crv, "CurveNote" ), "Scale": ( scale, ) + tag( scale, "ScaleNote" ) }
+    everything = sorted( vsp.FindAllAttributes() )
+
+    if how == "BOR shape":
+        vsp.ChangeBORXSecShape( gid, vsp.XS_SUPER_ELLIPSE )
+    elif how == "BOR edit":
+        vsp.ConvertXSecToEdit( gid, 0 )
+    else:
+        vsp.ConvertXSecToEdit( gid, 2 )
+    vsp.Update()
+    drain()
+
+    assert vsp.GetParmContainer( scale ) == crv, "the curve took a new ID"
+    shared = [ p for p in parms if vsp.ValidParm( p ) ]
+    assert len( shared ) > 70, "the Parms the two shapes share took new IDs: %d kept" % len( shared )
+    assert vsp.GetDesignVar( 0 ) == scale
+    vsp.SetParmVal( vsp.GetParm( pod, "Length", "Design" ), 1.5 )
+    vsp.Update()
+    assert vsp.GetParmVal( scale ) == pytest.approx( 1.5 )
+
+    assert sorted( vsp.FindAllAttributes() ) == everything
+    for name, ( obj, coll, attr ) in tags.items():
+        assert_kept( obj, coll, attr, name )

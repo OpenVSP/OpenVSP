@@ -1381,6 +1381,8 @@ void SSXSecCurve::SetXSecCurveType( int type )
         if ( oldXSCurve )
         {
             m_XSCurve->CopyFrom( oldXSCurve );
+            m_XSCurve->DeleteAttributes();
+            m_XSCurve->TakeIdentityOf( oldXSCurve );
             delete oldXSCurve;
         }
 
@@ -1531,6 +1533,8 @@ EditCurveXSec* SSXSecCurve::ConvertToEdit()
 
     if ( xscrv_ptr && xscrv_ptr != m_XSCurve )
     {
+        xscrv_ptr->DeleteAttributes();
+        xscrv_ptr->TakeIdentityOf( m_XSCurve );
         delete m_XSCurve;
 
         m_XSCurve = xscrv_ptr;
