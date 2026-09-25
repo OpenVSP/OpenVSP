@@ -2274,6 +2274,10 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
         }
     }
 
+    // An undo names its Parm by ID too, and several of those IDs now belong to Parms that mean
+    // something else -- a fraction of the length would be put back as a distance.
+    ParmMgr.ClearUndo();
+
     return fuse_id;
 }
 
