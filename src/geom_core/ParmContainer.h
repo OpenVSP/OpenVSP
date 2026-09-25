@@ -105,6 +105,10 @@ public:
     // another's place rather than being created beside it.
     virtual void SwapIdentity( ParmContainer* other );
 
+    // Trade container IDs only, leaving the Parms' IDs where they are.  For a container nested in
+    // one whose SwapIDs has already traded its Parms.
+    virtual void SwapContainerID( ParmContainer* other );
+
     // Moves this container's attributes to another, and the receiving collection takes the
     // giving collection's ID as well.  A Parm's attributes belong with its ID, not here.
     virtual void HandAttributesTo( ParmContainer* to );

@@ -611,6 +611,21 @@ void ParmContainer::SwapIdentity( ParmContainer* other )
     other->ChangeID( mine );
 }
 
+void ParmContainer::SwapContainerID( ParmContainer* other )
+{
+    if ( !other || other == this )
+    {
+        return;
+    }
+
+    string mine = m_ID;
+    string theirs = other->m_ID;
+
+    other->ChangeID( "SWAPIDENTITY_TEMP_ID" );
+    ChangeID( theirs );
+    other->ChangeID( mine );
+}
+
 void ParmContainer::HandAttributesTo( ParmContainer* to )
 {
     if ( !to || to == this )
