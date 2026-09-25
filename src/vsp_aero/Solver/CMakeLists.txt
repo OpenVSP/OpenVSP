@@ -204,7 +204,7 @@ if ( is_multi_config )
         SET( conf_suffix "$<CONFIG>/" )
 endif()
 
-INSTALL( TARGETS vspaero RUNTIME DESTINATION . )
+INSTALL( TARGETS vspaero RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 add_custom_command(TARGET vspaero POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
@@ -212,7 +212,7 @@ add_custom_command(TARGET vspaero POST_BUILD
         ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspaero> )
 
 IF( NOT VSP_NO_VSPAERO_OPT )
-  INSTALL( TARGETS vspaero_opt RUNTIME DESTINATION . )
+  INSTALL( TARGETS vspaero_opt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   add_custom_command(TARGET vspaero_opt POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy
