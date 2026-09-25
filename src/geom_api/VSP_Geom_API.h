@@ -21173,7 +21173,7 @@ extern void PasteXSecCurve( const std::string & geom_id, int index );
     \endPythonOnly
     \sa GetXSecPnts, ChangeXSecShape
     \param [in] xsec_id string XSec ID, of type XS_FILE_FUSE
-    \param [in] pnt_vec vector<vec3d> Points defining the section
+    \param [in] pnt_vec vector<vec3d> Points defining the section: a closed curve in the XY plane, running from the right-hand point down through the bottom, round the side and over the top.  Any other set is refused with VSP_INVALID_INPUT_VAL and the section is left as it was
 */
 
 extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_vec );
@@ -26835,7 +26835,7 @@ extern std::vector< vec3d > GetBORXSecPnts( const std::string& bor_id );
     \endPythonOnly
     \sa GetBORXSecPnts, ChangeBORXSecShape
     \param [in] bor_id string Body of revolution Geom ID
-    \param [in] pnt_vec vector<vec3d> Points defining the section
+    \param [in] pnt_vec vector<vec3d> Points defining the section: a closed curve in the XY plane, running from the right-hand point down through the bottom, round the side and over the top.  Any other set is refused with VSP_INVALID_INPUT_VAL and the section is left as it was
 */
 
 extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pnt_vec );

@@ -551,7 +551,9 @@ public:
 
     //===== Read File ====//
     bool ReadXsecFile( const string &file_name );
-    void SetPnts( vector< vec3d > & pnt_vec );
+    // False, and nothing changed, if the points do not form a closed section in the XY plane
+    // running from the right-hand point down through the bottom, round the side and over the top.
+    bool SetPnts( vector< vec3d > & pnt_vec );
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
 

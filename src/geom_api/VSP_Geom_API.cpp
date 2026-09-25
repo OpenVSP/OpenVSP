@@ -6176,7 +6176,11 @@ void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_vec )
 
     FileXSec* file_xs = dynamic_cast<FileXSec*>( xs->GetXSecCurve() );
     assert( file_xs );
-    file_xs->SetPnts( pnt_vec );
+    if ( !file_xs->SetPnts( pnt_vec ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetXSecPnts::The points must form a closed section in the XY plane, running from the right-hand point down through the bottom, round the side and over the top" );
+        return;
+    }
     ErrorMgr.NoError();
 }
 
@@ -8704,7 +8708,11 @@ void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pnt_vec )
 
     FileXSec* file_xs = dynamic_cast<FileXSec*>( xsc );
     assert( file_xs );
-    file_xs->SetPnts( pnt_vec );
+    if ( !file_xs->SetPnts( pnt_vec ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetBORXSecPnts::The points must form a closed section in the XY plane, running from the right-hand point down through the bottom, round the side and over the top" );
+        return;
+    }
     ErrorMgr.NoError();
 }
 

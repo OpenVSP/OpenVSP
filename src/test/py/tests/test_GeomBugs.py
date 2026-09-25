@@ -6,6 +6,7 @@
 
 import openvsp as vsp
 import pytest
+import math
 
 import os
 import tempfile
@@ -156,3 +157,44 @@ def testAnAuxiliaryGeomWithNoSurfaceAnswersWithoutCrashing():
     assert vsp.dist( vsp.CompPnt01( aux, 0, 0.5, 0.5 ), zero ) == 0.0
     assert vsp.dist( vsp.CompNorm01( aux, 0, 0.5, 0.5 ), zero ) == 0.0
     assert list( vsp.CompCurvature01( aux, 0, 0.5, 0.5 ) ) == [ 0.0, 0.0, 0.0, 0.0 ]
+
+
+@pytest.mark.parametrize( "points", [ "YZ plane", "counter-clockwise", "none" ] )
+def testAFileSectionRefusesPointsItCannotShape( points ):
+    """A file section finds its bottom, side and top by walking the points from the right-hand
+    one down through the bottom.  Points in the YZ plane all have x = 0, so none of the three
+    was ever found and the curve was built from a division by zero -- which crashed.  Points
+    running the other way round were read past the end of the list, and made a wrong shape
+    with nothing said.  Either is refused now, and the section is left as it was."""
+    vsp.VSPRenew()
+    fid = vsp.AddGeom( "FUSELAGE" )
+    xss = vsp.GetXSecSurf( fid, 0 )
+    vsp.ChangeXSecShape( xss, 1, vsp.XS_FILE_FUSE )
+    vsp.Update()
+    xs = vsp.GetXSec( xss, 1 )
+    before = [ ( p.x(), p.y(), p.z() ) for p in vsp.GetXSecPnts( xs ) ]
+
+    angles = [ 2.0 * math.pi * k / 20 for k in range( 21 ) ]
+    if points == "YZ plane":
+        pnts = [ vsp.vec3d( 0.0, 0.5 * math.cos( -a ), 0.5 * math.sin( -a ) ) for a in angles ]
+    elif points == "counter-clockwise":
+        pnts = [ vsp.vec3d( 0.5 * math.cos( a ), 0.5 * math.sin( a ), 0.0 ) for a in angles ]
+    else:
+        pnts = []
+
+    em = vsp.ErrorMgrSingleton.getInstance()
+    while em.GetNumTotalErrors() > 0:
+        em.PopLastError()
+    vsp.SetXSecPnts( xs, pnts )
+    vsp.Update()
+
+    assert em.GetNumTotalErrors() == 1
+    assert em.PopLastError().GetErrorCode() == vsp.VSP_INVALID_INPUT_VAL
+    assert [ ( p.x(), p.y(), p.z() ) for p in vsp.GetXSecPnts( xs ) ] == before
+
+    # The same circle the right way round is taken.
+    pnts = [ vsp.vec3d( 0.5 * math.cos( -a ), 0.5 * math.sin( -a ), 0.0 ) for a in angles ]
+    vsp.SetXSecPnts( xs, pnts )
+    vsp.Update()
+    assert em.GetNumTotalErrors() == 0
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "Width" ) ) == pytest.approx( 1.0 )

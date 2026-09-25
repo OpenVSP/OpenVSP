@@ -3187,6 +3187,34 @@ void FileXSec::SetWidthHeight( double w, double h )
     m_Height = h;
 }
 
+// Finds the bottom, side and top of a closed set of unit points in the XY plane.  The set runs
+// from the right-hand point down through the bottom, round the side and over the top, so a
+// usable one has the three in that order, each after the last.
+static bool FindFileXSecSides( const vector< vec3d > & unity, int & ibot, int & ileft, int & itop )
+{
+    // Point set is closed with last point repeating first.
+    int npts = ( int )unity.size() - 1;
+
+    ibot = 0;
+    itop = 0;
+    for ( int i = 0 ; i < npts ; i++ )
+    {
+        if ( unity[i].y() < 0 && std::abs( unity[i].x() ) < std::abs( unity[ibot].x() ) )
+        {
+            ibot = i;
+        }
+
+        if ( unity[i].y() > 0 && std::abs( unity[i].x() ) < std::abs( unity[itop].x() ) )
+        {
+            itop = i;
+        }
+    }
+
+    ileft = ibot * 2; // Make ileft symmetrical.
+
+    return ibot > 0 && ileft > ibot && itop > ileft && itop < npts;
+}
+
 //==== Update Geometry ====//
 void FileXSec::UpdateCurve( bool updateParms )
 {
@@ -3194,26 +3222,20 @@ void FileXSec::UpdateCurve( bool updateParms )
     vector< vec3d > scaled_file_pnts;
     vector< double > arclen;
 
+    int itop, ileft, ibot;
+    if ( !FindFileXSecSides( m_UnityFilePnts, ibot, ileft, itop ) )
+    {
+        return;
+    }
+
     // Point set is closed with last point repeating first.
     int npts = m_UnityFilePnts.size() - 1;
-
-    int itop = 0, ileft = 0, ibot = 0;
 
     for ( int i = 0 ; i < npts ; i++ )
     {
         double x = m_UnityFilePnts[i].x() * m_Width();
         double y = m_UnityFilePnts[i].y() * m_Height();
         scaled_file_pnts.push_back( vec3d( x + m_Width() / 2.0, y, 0.0 ) );
-
-        if ( m_UnityFilePnts[i].y() < 0 && std::abs( m_UnityFilePnts[i].x() ) < std::abs(m_UnityFilePnts[ibot].x() ) )
-        {
-            ibot = i;
-        }
-
-        if ( m_UnityFilePnts[i].y() > 0 && std::abs( m_UnityFilePnts[i].x() ) < std::abs(m_UnityFilePnts[itop].x() ) )
-        {
-            itop = i;
-        }
 
         if ( i > 0 )
         {
@@ -3242,8 +3264,6 @@ void FileXSec::UpdateCurve( bool updateParms )
             arclen.push_back( arclen[i] + ds );
         }
     }
-
-    ileft = ibot * 2; // Make ileft symmetrical.
 
     double arcend1 = arclen[ibot];
     double arcend2 = arclen[ileft];
@@ -3443,7 +3463,10 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
         }
     }
 
-    SetPnts( pnt_vec );
+    if ( !SetPnts( pnt_vec ) )
+    {
+        return false;
+    }
 
     //int num_pnts = (int)pnt_vec.size();
 
@@ -3474,8 +3497,13 @@ bool FileXSec::ReadXSecFile( FILE* file_id )
 }
 
 //==== Set Pnt Vec ====//
-void FileXSec::SetPnts( vector< vec3d > & pnt_vec )
+bool FileXSec::SetPnts( vector< vec3d > & pnt_vec )
 {
+    if ( pnt_vec.empty() )
+    {
+        return false;
+    }
+
     // Check for repeated first/last point and close curve.
     double gap = dist( pnt_vec[0], pnt_vec.back() );
     if ( gap > 1e-8 )
@@ -3486,33 +3514,45 @@ void FileXSec::SetPnts( vector< vec3d > & pnt_vec )
     int num_pnts = ( int )pnt_vec.size();
 
     //==== Find Height & Width ====//
-    m_Width  = 1.0e-12;
-    m_Height = 1.0e-12;
+    double width = 1.0e-12;
+    double height = 1.0e-12;
     for ( int i = 0 ; i < num_pnts ; i++ )
     {
         for ( int j = 0 ; j < num_pnts ; j++ )
         {
             double w = std::abs( pnt_vec[i].x() - pnt_vec[j].x() );
-            if ( w > m_Width() )
+            if ( w > width )
             {
-                m_Width = w;
+                width = w;
             }
             double h = std::abs( pnt_vec[i].y() - pnt_vec[j].y() );
-            if ( h > m_Height() )
+            if ( h > height )
             {
-                m_Height = h;
+                height = h;
             }
         }
     }
 
     //==== Scale Point By Height & Width ====//
-    m_UnityFilePnts.clear();
+    vector< vec3d > unity;
     for ( int i = 0 ; i < ( int )pnt_vec.size() ; i++ )
     {
-        double x = pnt_vec[i].x() / m_Width();
-        double y = pnt_vec[i].y() / m_Height();
-        m_UnityFilePnts.push_back( vec3d( x, y, 0.0 ) );
+        double x = pnt_vec[i].x() / width;
+        double y = pnt_vec[i].y() / height;
+        unity.push_back( vec3d( x, y, 0.0 ) );
     }
+
+    // A set with no bottom, side and top in order is kept out, and what was here stays.
+    int ibot, ileft, itop;
+    if ( !FindFileXSecSides( unity, ibot, ileft, itop ) )
+    {
+        return false;
+    }
+
+    m_Width = width;
+    m_Height = height;
+    m_UnityFilePnts = unity;
+    return true;
 }
 
 void FileXSec::ReadV2FileFuse2( xmlNodePtr &root )
