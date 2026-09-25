@@ -570,6 +570,27 @@ void ParmContainer::CopyVals( ParmContainer *from )
     }
 }
 
+void ParmContainer::CopyMatchingVals( ParmContainer *from )
+{
+    if ( !from || from == this )
+    {
+        return;
+    }
+
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm *p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            Parm *fp = ParmMgr.FindParm( from->FindParm( p->GetName(), p->GetGroupName() ) );
+            if ( fp )
+            {
+                p->Set( fp->Get() );
+            }
+        }
+    }
+}
+
 // The IDs cannot simply be assigned across: for the moment between the two writes both objects
 // would answer to the same ID, and whichever registry is asked first would hand back the wrong
 // one.  A spare name in the middle keeps every ID unique at every step.

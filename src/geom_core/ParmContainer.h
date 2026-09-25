@@ -92,6 +92,10 @@ public:
 
     virtual void CopyVals( ParmContainer *from );
 
+    // Like CopyVals, but pairs the Parms by group as well as by name -- the pairing SwapIDs
+    // uses -- so a name that appears in two groups is not confused.
+    virtual void CopyMatchingVals( ParmContainer *from );
+
     virtual void SwapIDs( ParmContainer* from );
 
     // Trade identities with another container: the Parms the two have in common by group and
