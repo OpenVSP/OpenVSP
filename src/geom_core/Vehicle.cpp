@@ -2241,6 +2241,39 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
     SetGeomMapDirtyFlag( true );
     Update();
 
+    //==== Values kept by ID elsewhere ====//
+    // A preset records the order policy by the Parm's ID, which the Stack's answers to now, in
+    // the Fuselage's numbering.
+    string policy_id = stack->m_OrderPolicy.GetID();
+    vector< string > group_ids = VarPresetMgr.GetAllSettingGroups();
+    for ( int i = 0; i < ( int )group_ids.size(); i++ )
+    {
+        SettingGroup* group = VarPresetMgr.FindSettingGroup( group_ids[i] );
+        if ( !group )
+        {
+            continue;
+        }
+
+        vector< string > parm_ids = group->GetParmIDVec();
+        vector< string > setting_ids = group->GetSettingIDVec();
+        for ( int j = 0; j < ( int )parm_ids.size(); j++ )
+        {
+            if ( parm_ids[j] != policy_id )
+            {
+                continue;
+            }
+
+            for ( int k = 0; k < ( int )setting_ids.size(); k++ )
+            {
+                Setting* setting = VarPresetMgr.FindSetting( setting_ids[k] );
+                if ( setting )
+                {
+                    setting->SetParmVal( j, StackOrderPolicy( ( int )setting->GetParmVal( j ) ) );
+                }
+            }
+        }
+    }
+
     return fuse_id;
 }
 
