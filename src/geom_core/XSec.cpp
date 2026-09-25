@@ -3087,6 +3087,33 @@ void SkinXSec::SetCurvatures( int side, double top, double right, double bottom,
     }
 }
 
+// Strength and curvature are both multiplied by GetScale() when the ribs are built, and one
+// scale serves both sides of the XSec, so a single factor carries every one of them across.
+void SkinXSec::ScaleTanStrengths( double factor )
+{
+    Parm* parms[] = { &m_TopLStrength, &m_TopRStrength, &m_TopLCurve, &m_TopRCurve,
+                      &m_RightLStrength, &m_RightRStrength, &m_RightLCurve, &m_RightRCurve,
+                      &m_BottomLStrength, &m_BottomRStrength, &m_BottomLCurve, &m_BottomRCurve,
+                      &m_LeftLStrength, &m_LeftRStrength, &m_LeftLCurve, &m_LeftRCurve };
+
+    for ( int i = 0; i < ( int )( sizeof( parms ) / sizeof( parms[0] ) ); i++ )
+    {
+        parms[i]->Set( parms[i]->Get() * factor );
+    }
+
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        SkinSpine* sp = m_SpineVec[i];
+        if ( sp )
+        {
+            sp->m_LStrength.Set( sp->m_LStrength() * factor );
+            sp->m_RStrength.Set( sp->m_RStrength() * factor );
+            sp->m_LCurve.Set( sp->m_LCurve() * factor );
+            sp->m_RCurve.Set( sp->m_RCurve() * factor );
+        }
+    }
+}
+
 void SkinXSec::FlipLRSkinning()
 {
     double ang, slew, str, curv;

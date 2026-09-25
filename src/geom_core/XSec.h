@@ -526,6 +526,8 @@ public:
     virtual void SetTanSlews( int side, double top, double right, double bottom, double left );
     virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );
     virtual void SetCurvatures( int side, double top, double right, double bottom, double left );
+    // Multiplies every tangent strength and curvature, on all four sides and every spine.
+    virtual void ScaleTanStrengths( double factor );
     virtual void FlipLRSkinning();
 
     virtual void SetV2DefaultBehavior();
