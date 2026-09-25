@@ -2019,6 +2019,9 @@ static int StackOrderPolicy( int fuse_policy )
 //
 // The Stack takes the Fuselage's identity -- its ID and the IDs of the Parms the two have in
 // common by group and name -- which puts it in the Fuselage's place in the model.
+//
+// What the Fuselage owns rather than computes is handed over whole: its subsurfaces,
+// structures, mesh sources and textures.
 string Vehicle::ConvertFuselageToStack( const string & fuse_id )
 {
     FuselageGeom* fuse = dynamic_cast < FuselageGeom* > ( FindGeom( fuse_id ) );
@@ -2147,6 +2150,37 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
         }
 
         stack->Update();
+    }
+
+    //==== What is not a Parm ====//
+    stack->SetName( fuse->GetName() );
+
+    vector< bool > sets = fuse->GetSetFlags();
+    for ( int i = 0; i < ( int )sets.size(); i++ )
+    {
+        stack->SetSetFlag( i, sets[i] );
+    }
+
+    vec3d color = fuse->GetColor();
+    stack->SetColor( color.x(), color.y(), color.z() );
+    stack->GetMaterial()->SetMaterial( fuse->GetMaterial() );
+
+    stack->m_GuiDraw.SetDisplayType( fuse->m_GuiDraw.GetDisplayType() );
+    stack->m_GuiDraw.SetDrawType( fuse->m_GuiDraw.GetDrawType() );
+    stack->m_GuiDraw.SetDisplayChildrenFlag( fuse->m_GuiDraw.GetDisplayChildrenFlag() );
+    stack->m_GuiDraw.SetDispSubSurfFlag( fuse->m_GuiDraw.GetDispSubSurfFlag() );
+    stack->m_GuiDraw.SetDispFeatureFlag( fuse->m_GuiDraw.GetDispFeatureFlag() );
+
+    fuse->m_GuiDraw.getTextureMgr()->HandTexturesTo( stack->m_GuiDraw.getTextureMgr() );
+
+    fuse->HandSubSurfsTo( stack );
+    fuse->HandFeaStructsTo( stack );
+    fuse->HandCfdSourcesTo( stack );
+
+    vector< string > step_children = fuse->GetStepChildIDVec();
+    for ( int i = 0; i < ( int )step_children.size(); i++ )
+    {
+        stack->AddStepChildID( step_children[i] );
     }
 
     //==== Identities ====//
