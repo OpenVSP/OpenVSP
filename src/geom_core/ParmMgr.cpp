@@ -216,6 +216,15 @@ void ParmMgrSingleton::AddToUndoStack( Parm* parm_ptr, bool drag_flag )
 }
 
 //==== Add Parm To Undo Stack ====//
+void ParmMgrSingleton::ClearUndo()
+{
+    while ( !m_ParmUndoStack.empty() )
+    {
+        m_ParmUndoStack.pop();
+    }
+    m_LastUndoFlag = false;
+}
+
 void ParmMgrSingleton::UnDo()
 {
     if ( m_LastUndoFlag )

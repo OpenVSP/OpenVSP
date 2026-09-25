@@ -68,6 +68,7 @@ public:
 
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     void UnDo();
+    void ClearUndo();
 
     void SwapIDs( const string &aID, const string &bID );
 
