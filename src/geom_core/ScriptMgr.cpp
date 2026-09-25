@@ -4597,6 +4597,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@+ PasteGeomClipboard( const string & in parent_id = \"\" )", asMETHOD( ScriptMgrSingleton, PasteGeomClipboard ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string ConvertFuselageToStack( const string & in geom_id )", asFUNCTION( vsp::ConvertFuselageToStack ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "array<string>@+ FindGeoms()", asMETHOD( ScriptMgrSingleton, FindGeoms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );

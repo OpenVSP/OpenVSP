@@ -11453,6 +11453,98 @@ extern std::vector<std::string> PasteGeomClipboard( const std::string & parent =
     \ingroup Geom
 */
 /*!
+    Replace a Fuselage with a Stack of the same shape.  Each cross section is placed where the
+    Fuselage put it, and its skinning is carried across, so the surface is unchanged.  The Stack
+    goes in the Fuselage's place in the model, under its name, with its children, subsurfaces,
+    structures, mesh sources, textures and attributes.
+
+    The Stack takes over the Fuselage's identity: its Geom ID, the IDs of the Parms the two have
+    in common, and the IDs of each cross section and its Parms.  A link, a design variable or an
+    advanced link on one of those Parms goes on naming the same thing, and the ID this returns is
+    the ID that was passed in.  Some Parms are paired with a counterpart that means something
+    different: a cross section's rotation, which in a Stack is relative to the section before it,
+    and its location fractions, which become the Stack's X, Y and Z deltas -- lengths, and
+    relative ones.  Only the Fuselage's length has no counterpart at all; attributes on it, or on
+    a cross section's copy of it, move to the Stack itself.  Attributes elsewhere -- on the Geom,
+    a cross section, a subsurface, a Parm -- stay with the ID they were on.
+
+    CompareGeomSurfaces measures how closely the Stack's surfaces match a copy of the Fuselage
+    kept for the purpose.
+    \forcpponly
+    \code{.cpp}
+    //==== A Fuselage rotated about a point along its length, with a Pod hung off it ====//
+    string fid = AddGeom( "FUSELAGE" );
+    SetParmVal( FindParm( fid, "Origin", "XForm" ), 0.4 );
+    SetParmVal( FindParm( fid, "Y_Rel_Rotation", "XForm" ), 8.0 );
+
+    string pid = AddGeom( "POD", fid );
+    SetParmVal( FindParm( pid, "X_Rel_Location", "XForm" ), 6.0 );
+
+    Update();
+
+    vec3d before = CompPnt01( fid, 0, 0.3, 0.2 );
+    vec3d pod_before = CompPnt01( pid, 0, 0.5, 0.5 );
+
+    //==== Convert it ====//
+    string sid = ConvertFuselageToStack( fid );
+
+    if ( GetErrorLastCallFlag() )               { Print( "---> Error: API ConvertFuselageToStack reported an error " ); __failure++; }
+
+    Update();
+
+    if ( sid != fid )                           { Print( "---> Error: API ConvertFuselageToStack did not keep the ID " ); __failure++; }
+
+    if ( GetGeomTypeName( sid ) != "Stack" )    { Print( "---> Error: API ConvertFuselageToStack did not make a Stack " ); __failure++; }
+
+    //==== The surface is where it was, and so is the Pod ====//
+    if ( dist( before, CompPnt01( sid, 0, 0.3, 0.2 ) ) > 1e-9 )      { Print( "---> Error: API ConvertFuselageToStack moved the surface " ); __failure++; }
+
+    if ( dist( pod_before, CompPnt01( pid, 0, 0.5, 0.5 ) ) > 1e-9 )  { Print( "---> Error: API ConvertFuselageToStack moved a child " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== A Fuselage rotated about a point along its length, with a Pod hung off it ====#
+    fid = AddGeom( "FUSELAGE" )
+    SetParmVal( FindParm( fid, "Origin", "XForm" ), 0.4 )
+    SetParmVal( FindParm( fid, "Y_Rel_Rotation", "XForm" ), 8.0 )
+
+    pid = AddGeom( "POD", fid )
+    SetParmVal( FindParm( pid, "X_Rel_Location", "XForm" ), 6.0 )
+
+    Update()
+
+    before = CompPnt01( fid, 0, 0.3, 0.2 )
+    pod_before = CompPnt01( pid, 0, 0.5, 0.5 )
+
+    #==== Convert it ====#
+    sid = ConvertFuselageToStack( fid )
+
+    assert not ErrorMgrSingleton.getInstance().GetErrorLastCallFlag(), "---> Error: API ConvertFuselageToStack reported an error"
+
+    Update()
+
+    assert sid == fid, "---> Error: API ConvertFuselageToStack did not keep the ID"
+
+    assert GetGeomTypeName( sid ) == "Stack", "---> Error: API ConvertFuselageToStack did not make a Stack"
+
+    #==== The surface is where it was, and so is the Pod ====#
+    assert dist( before, CompPnt01( sid, 0, 0.3, 0.2 ) ) < 1e-9, "---> Error: API ConvertFuselageToStack moved the surface"
+
+    assert dist( pod_before, CompPnt01( pid, 0, 0.5, 0.5 ) ) < 1e-9, "---> Error: API ConvertFuselageToStack moved a child"
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Fuselage Geom ID
+    \return string ID of the Stack, which is the Fuselage's own ID
+*/
+
+extern std::string ConvertFuselageToStack( const std::string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
     Find and return all Geom IDs in the model
     \forcpponly
     \code{.cpp}

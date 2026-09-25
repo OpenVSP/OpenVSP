@@ -3005,6 +3005,33 @@ std::vector< std::string > PasteGeomClipboard( const std::string & parent )
     return pasted_ids;
 }
 
+std::string ConvertFuselageToStack( const std::string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ConvertFuselageToStack::Can't Find Geom " + geom_id );
+        return std::string();
+    }
+
+    if ( geom_ptr->GetType().m_Type != FUSELAGE_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertFuselageToStack::Geom " + geom_id + " is not a Fuselage" );
+        return std::string();
+    }
+
+    std::string stack_id = veh->ConvertFuselageToStack( geom_id );
+    if ( stack_id.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ConvertFuselageToStack::Could not convert Fuselage " + geom_id );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return stack_id;
+}
+
 /// Find and return all geoms
 std::vector< std::string > FindGeoms()
 {
