@@ -205,6 +205,55 @@ def testAnAttributeOnAParmFollowsThatParmsID():
     assert not pop_errors()
 
 
+def testACopyOntoALoopsLastSectionReplacesItsAttributes():
+    """A loop's last cross section is kept a copy of its first on every update.  The copy
+    added the first curve's attributes to whatever the last one held, so each update left
+    another copy of every one of them behind, and each save wrote them all."""
+    for gtype in ( "FUSELAGE", "STACK" ):
+        fresh()
+        gid = vsp.AddGeom( gtype )
+        # The loop policy is 1 on both types.
+        vsp.SetParmVal( gid, "OrderPolicy", "Design", 1 )
+        xss = vsp.GetXSecSurf( gid, 0 )
+        vsp.ChangeXSecShape( xss, 0, vsp.XS_ELLIPSE )
+        vsp.Update()
+        width = vsp.GetXSecParm( vsp.GetXSec( xss, 0 ), "Ellipse_Width" )
+        assert width
+        vsp.AddAttributeString( vsp.GetChildCollection( vsp.GetParmContainer( width ) ), "CurveNote", "c" )
+        vsp.AddAttributeString( vsp.GetChildCollection( width ), "WidthNote", "w" )
+        vsp.Update()
+        counts = [ len( vsp.FindAllAttributes() ) ]
+
+        for i in range( 3 ):
+            vsp.SetParmVal( width, 1.0 + 0.1 * i )
+            vsp.Update()
+            counts.append( len( vsp.FindAllAttributes() ) )
+
+        # The last section is a copy of the first, attributes and all -- once.
+        assert counts[1:] == [ counts[1] ] * 3, "%s: %s" % ( gtype, counts )
+    pop_errors()
+
+
+def testASectionCopiedAgainAndAgainPastesOneCopyOfItsAttributes():
+    """Copying a cross section reuses the saved one when the type matches, and the copy added
+    to what the saved one held -- so a paste after three copies carried three of each."""
+    fresh()
+    fuse = vsp.AddGeom( "FUSELAGE" )
+    vsp.Update()
+    xss = vsp.GetXSecSurf( fuse, 0 )
+    vsp.AddAttributeString( vsp.GetChildCollection( vsp.GetXSec( xss, 1 ) ), "SectionNote", "s" )
+    vsp.Update()
+
+    for i in range( 3 ):
+        vsp.CopyXSec( fuse, 1 )
+    vsp.PasteXSec( fuse, 2 )
+    vsp.Update()
+
+    pasted = vsp.GetChildCollection( vsp.GetXSec( xss, 2 ) )
+    assert len( vsp.FindAttributesInCollection( pasted ) ) == 1
+    pop_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):

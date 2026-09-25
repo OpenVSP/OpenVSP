@@ -573,6 +573,9 @@ void XSecCurve::CopyFrom( XSecCurve* from_crv )
     xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
 
     from_crv->EncodeXml( root );
+
+    // Decoding adds the source's attributes to whatever is here, so what is here goes first.
+    DeleteAttributes();
     DecodeXml( root );
 
     xmlFreeNode( root );

@@ -68,6 +68,10 @@ public:
     //==== Copy Between Different Types ====//
     virtual void CopyFrom( XSec* xs );
     virtual void CopyBasePos( XSec* xs ) = 0;
+
+    // Deletes the attributes on this cross section, its Parms, and its curve.
+    virtual void DeleteAttributes();
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -214,6 +218,8 @@ public:
 
     // Carry the spines' Parm identity across as well as this container's own.
     virtual void SwapIDs( ParmContainer* from );
+
+    virtual void DeleteAttributes();
 
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 

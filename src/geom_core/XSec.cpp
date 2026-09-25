@@ -219,6 +219,9 @@ void XSec::CopyFrom( XSec* xs )
     // SyncSkinSpines then truncated the rest to match the master.
     xs->EncodeXml( root );
     IDMgr.PreRegisterIDs( root );
+
+    // Decoding adds the source's attributes to whatever is here, so what is here goes first.
+    DeleteAttributes();
     DecodeXml( root );
 
     // Width and height are the one thing names cannot carry across a type change: the curve
@@ -235,6 +238,16 @@ void XSec::CopyFrom( XSec* xs )
 
     xmlFreeNode( root );
     IDMgr.ResetRemapID( lastreset );
+}
+
+void XSec::DeleteAttributes()
+{
+    ParmContainer::DeleteAttributes();
+
+    if ( m_XSCurve )
+    {
+        m_XSCurve->DeleteAttributes();
+    }
 }
 
 //==== Encode XML ====//
@@ -1658,6 +1671,19 @@ void SkinXSec::SwapIDs( ParmContainer* from )
                 m_SpineVec[i]->SwapIDs( sfrom->m_SpineVec[j] );
                 break;
             }
+        }
+    }
+}
+
+void SkinXSec::DeleteAttributes()
+{
+    XSec::DeleteAttributes();
+
+    for ( int i = 0; i < ( int )m_SpineVec.size(); i++ )
+    {
+        if ( m_SpineVec[i] )
+        {
+            m_SpineVec[i]->DeleteAttributes();
         }
     }
 }
