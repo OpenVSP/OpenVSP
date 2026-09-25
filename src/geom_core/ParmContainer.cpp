@@ -71,6 +71,7 @@ ParmContainer::ParmContainer()
     m_Name = string( "Default" );
     m_LateUpdateFlag = true; // Force update first time through.
     m_ParmContainer_Type = vsp::ATTROBJ_FREE;
+    AttachAttrCollection();
     ParmMgr.AddParmContainer( this );
 }
 

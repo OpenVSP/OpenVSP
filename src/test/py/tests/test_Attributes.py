@@ -138,6 +138,35 @@ def testTwoAttributesWithNoIdInTheFileBothSurvive():
     pop_errors()
 
 
+def testEveryCollectionNamesWhatHoldsItFromTheStart():
+    """A collection names the object holding it from the moment the object is made.
+
+    A cross section surface, a skinning spine, a structure, a mesh source and a texture set
+    their collection's attach only when their ID changed or a file was read, so until then an
+    attribute on one named nothing and was summarized as unattached.
+    """
+    fresh()
+    fuse = vsp.AddGeom( "FUSELAGE" )
+    k = vsp.AddSkinSpine( fuse, 0.125 )
+    fea = vsp.AddFeaStruct( fuse )
+    vsp.AddCFDSource( vsp.POINT_SOURCE, fuse, 0, 0.5, 1.0, 0.5, 0.5 )
+    tex = vsp.AttachGeomTexture( fuse, "hull.png" )
+    vsp.Update()
+
+    xss = vsp.GetXSecSurf( fuse, 0 )
+    held = {
+        "XSecSurf": xss,
+        "Spine": vsp.GetSkinSpineID( vsp.GetXSec( xss, 1 ), k ),
+        "FeaStructure": vsp.GetFeaStructID( fuse, fea ),
+        "Source": vsp.GetCFDSourceID( fuse, 0 ),
+        "Texture": tex,
+    }
+    for name, obj in held.items():
+        assert obj, name
+        assert vsp.GetObjectParent( vsp.GetChildCollection( obj ) ) == obj, name
+    pop_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
