@@ -1841,6 +1841,11 @@ vec3d VspSurf::CompTanUW01( double u01, double v01 ) const
 //===== Compute Second Derivative U,U   =====//
 vec3d VspSurf::CompTanUU( double u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f_uu( u, v ) );
 
@@ -1851,6 +1856,11 @@ vec3d VspSurf::CompTanUU( double u, double v ) const
 //===== Compute Second Derivative W,W   =====//
 vec3d VspSurf::CompTanWW( double u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f_vv( u, v ) );
 
@@ -1861,6 +1871,11 @@ vec3d VspSurf::CompTanWW( double u, double v ) const
 //===== Compute Second Derivative U,W   =====//
 vec3d VspSurf::CompTanUW( double u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f_uv( u, v ) );
 
@@ -1871,6 +1886,11 @@ vec3d VspSurf::CompTanUW( double u, double v ) const
 //===== Compute Tangent In U Direction   =====//
 vec3d VspSurf::CompTanU( double u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f_u( u, v ) );
 
@@ -1881,6 +1901,11 @@ vec3d VspSurf::CompTanU( double u, double v ) const
 //===== Compute Tangent In W Direction   =====//
 vec3d VspSurf::CompTanW( double u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f_v( u, v ) );
 
@@ -1890,6 +1915,11 @@ vec3d VspSurf::CompTanW( double u, double v ) const
 
 vec3d VspSurf::CompPntRST( double r, double s, double t ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.fRST( r, s, t ) );
 
@@ -1899,6 +1929,11 @@ vec3d VspSurf::CompPntRST( double r, double s, double t ) const
 
 vec3d VspSurf::CompTanR( double r, double s, double t ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f_R( r, s, t ) );
 
@@ -1908,6 +1943,11 @@ vec3d VspSurf::CompTanR( double r, double s, double t ) const
 
 vec3d VspSurf::CompTanS( double r, double s, double t ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f_S( r, s, t ) );
 
@@ -1917,6 +1957,11 @@ vec3d VspSurf::CompTanS( double r, double s, double t ) const
 
 vec3d VspSurf::CompTanT( double r, double s, double t ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f_T( r, s, t ) );
 
@@ -1927,6 +1972,11 @@ vec3d VspSurf::CompTanT( double r, double s, double t ) const
 //===== Compute Point On Surf Given  U W =====//
 vec3d VspSurf::CompPnt( double u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.f( u, v ) );
 
@@ -1937,6 +1987,11 @@ vec3d VspSurf::CompPnt( double u, double v ) const
 //===== Compute Point On Surf Given  U W =====//
 vec3d VspSurf::CompDegenPnt( const int &type, const double &u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     const double wmax = GetWMax();
 
@@ -1967,6 +2022,11 @@ vec3d VspSurf::CompDegenPnt( const int &type, const double &u, double v ) const
 //===== Compute Normal  =====//
 vec3d VspSurf::CompNorm( double u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.normal( u, v ) );
 
@@ -1981,6 +2041,11 @@ vec3d VspSurf::CompNorm( double u, double v ) const
 
 vec3d VspSurf::CompAveNorm( double u, double v ) const
 {
+    if ( Empty() )
+    {
+        return vec3d();
+    }
+
     vec3d rtn;
     surface_point_type p( m_Surface.average_normal( u, v ) );
 
@@ -2007,6 +2072,15 @@ vec3d VspSurf::CompAveNorm01( double u01, double v01 ) const
 //===== Compute Surface Curvature Metrics Given  U W =====//
 void VspSurf::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const
 {
+    if ( Empty() )
+    {
+        k1 = 0.0;
+        k2 = 0.0;
+        ka = 0.0;
+        kg = 0.0;
+        return;
+    }
+
     double umn = m_Surface.get_u0();
     double wmn = m_Surface.get_v0();
 

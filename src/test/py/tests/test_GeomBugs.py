@@ -139,3 +139,20 @@ def testAttributesThatShareANameAreEachFound():
     notes = [ vsp.FindAttributeInCollection( pod, "Note", i ) for i in range( 2 ) ]
     assert sorted( notes ) == sorted( [ first, second ] )
     assert vsp.FindAttributeInCollection( pod, "Other", 0 ) == other
+
+
+def testAnAuxiliaryGeomWithNoSurfaceAnswersWithoutCrashing():
+    """An auxiliary Geom with nothing to hang off has a surface with no patches.  Asking it for
+    a point, a normal, a curvature or a tangent read past an empty patch map, which is what
+    adding a subsurface to one did."""
+    vsp.VSPRenew()
+    aux = vsp.AddGeom( "AUXILIARY" )
+    vsp.Update()
+
+    assert vsp.AddSubSurf( aux, vsp.SS_LINE )
+    vsp.Update()
+
+    zero = vsp.vec3d()
+    assert vsp.dist( vsp.CompPnt01( aux, 0, 0.5, 0.5 ), zero ) == 0.0
+    assert vsp.dist( vsp.CompNorm01( aux, 0, 0.5, 0.5 ), zero ) == 0.0
+    assert list( vsp.CompCurvature01( aux, 0, 0.5, 0.5 ) ) == [ 0.0, 0.0, 0.0, 0.0 ]
