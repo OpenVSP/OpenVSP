@@ -1857,7 +1857,6 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
     vector < vector < int > > comp_id_group_vec = GetCompIDGroupVec();
 
     vector < vector < SdaiAdvanced_face* > > adv_vec( comp_id_group_vec.size() );
-    unordered_map < string, vector < SdaiSurface* > > geom_surf_label_map;
 
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
@@ -1908,7 +1907,6 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         }
 
         SdaiSurface* surf = m_NURBSSurfVec[si].WriteSTEPSurf( &step, label, merge_pnts );
-        geom_surf_label_map[label].push_back( surf );
 
         int comp_id = current_surf->GetCompID();
 
@@ -1919,20 +1917,6 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
                 vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, surf, label, merge_pnts );
                 adv_vec[j].insert( adv_vec[j].end(), adv.begin(), adv.end() );
             }
-        }
-    }
-
-    unordered_map < string, vector < SdaiSurface* > >::iterator it;
-
-    for ( it = geom_surf_label_map.begin(); it != geom_surf_label_map.end(); ++it )
-    {
-        SdaiGeometric_set* gset = (SdaiGeometric_set*)step.registry->ObjCreate( "GEOMETRIC_SET" );
-        step.instance_list->Append( (SDAI_Application_instance*)gset, completeSE );
-        gset->name_( "'" + ( *it ).first + "'" );
-
-        for ( size_t i = 0; i < ( *it ).second.size(); i++ )
-        {
-            gset->elements_()->AddNode( new EntityNode( (SDAI_Application_instance*)( *it ).second[i] ) );
         }
     }
 
