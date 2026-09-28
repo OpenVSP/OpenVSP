@@ -389,8 +389,8 @@ void Bezier_curve::TessAdaptXYZ( const Surf &srf, double umin, double umax, cons
 // The ends stay.  They are where the curve starts and finishes, and the topology is stated
 // against them, so where a repeated run reaches an end it is the end that is kept and the
 // interior of the run that goes.  uvec is the parameter of each point, kept in step, and
-// may be empty.
-void RemoveRepeatedPnts( vector< vec3d > &pnts, vector< double > &uvec )
+// may be empty.  A point within tol of the one kept before it repeats it.
+void RemoveRepeatedPnts( vector< vec3d > &pnts, vector< double > &uvec, double tol )
 {
     int npnt = ( int )pnts.size();
 
@@ -405,7 +405,7 @@ void RemoveRepeatedPnts( vector< vec3d > &pnts, vector< double > &uvec )
 
     for ( int i = 1; i < npnt; i++ )
     {
-        if ( dist( pnts[i], pnts[ keep.back() ] ) != 0.0 )
+        if ( dist( pnts[i], pnts[ keep.back() ] ) > tol )
         {
             keep.push_back( i );
         }

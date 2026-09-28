@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "NURBS.h"
+#include "IsectAdapt.h"
 
 
 //////////////////////////////////////////////////////
@@ -37,30 +38,21 @@ NURBS_Curve::NURBS_Curve()
 void NURBS_Curve::InitNURBSCurve( SCurve curveA, SCurve curveB, double curve_tol )
 {
     Bezier_curve uwcrvA = curveA.GetUWCrv();
-
-    // Keep the parameters the adaptive tessellation settled on, so the curve can be
-    // reported in the parameter space of either parent at exactly the points it is
-    // reported in space.  The A and B curves interpolate the same list of intersection
-    // points, so one parameter names the same place on both.
-    vector < double > tvec;
-    uwcrvA.TessAdaptXYZ( *curveA.GetSurf(), m_PntVec, curve_tol, 16, tvec );
-
-    // Where the surface collapses, the tessellation lands on the same place several times
-    // over.  Straight segments join the points, so the repeats add nothing to the curve and
-    // go, before the parameters below are worked out from what is left.
-    RemoveRepeatedPnts( m_PntVec, tvec );
-
     Bezier_curve uwcrvB = curveB.GetUWCrv();
 
-    m_UWPntVec_A.resize( tvec.size() );
-    m_UWPntVec_B.resize( tvec.size() );
+    // At the same points in the parameters of both parents.  A border runs where two patches
+    // meet, often tangent to each other, so only an intersection is put on both.
+    IsectAdaptCurve poly;
+    poly.Adapt( uwcrvA, uwcrvB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, false, curve_tol, 0.0 );
 
-    // TessAdaptXYZ reports the curve's own parameter, which runs to the segment count
-    // rather than to one, so evaluate with CompPnt rather than CompPnt01.
-    for ( int i = 0; i < ( int )tvec.size(); i++ )
+    m_PntVec.resize( poly.m_Pnts.size() );
+    m_UWPntVec_A.resize( poly.m_Pnts.size() );
+    m_UWPntVec_B.resize( poly.m_Pnts.size() );
+    for ( int i = 0; i < ( int )poly.m_Pnts.size(); i++ )
     {
-        m_UWPntVec_A[i] = uwcrvA.CompPnt( tvec[i] );
-        m_UWPntVec_B[i] = uwcrvB.CompPnt( tvec[i] );
+        m_PntVec[i] = poly.m_Pnts[i].m_Pnt;
+        m_UWPntVec_A[i] = poly.m_Pnts[i].m_UW[0];
+        m_UWPntVec_B[i] = poly.m_Pnts[i].m_UW[1];
     }
 
     m_BBox = curveA.GetSurf()->GetBBox();

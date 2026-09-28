@@ -35,6 +35,7 @@ FeaMesh.cpp
 FeaMeshMgr.cpp
 ICurve.cpp
 IntersectPatch.cpp
+IsectAdapt.cpp
 ISegChain.cpp
 Mesh.cpp
 MeshAnalysis.cpp
@@ -57,6 +58,7 @@ FeaMesh.h
 FeaMeshMgr.h
 ICurve.h
 IntersectPatch.h
+IsectAdapt.h
 ISegChain.h
 MapSource.h
 Mesh.h

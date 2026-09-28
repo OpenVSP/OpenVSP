@@ -103,6 +103,10 @@ public:
     {
         return &m_Surface;
     }
+    const piecewise_surface_type * GetSurf() const
+    {
+        return &m_Surface;
+    }
 
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const;
 

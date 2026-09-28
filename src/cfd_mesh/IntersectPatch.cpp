@@ -219,7 +219,7 @@ void refine_intersect_pt( const vec3d& pt, const SurfPatch &pA, double uwA[2], c
     }
 }
 
-double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB )
+bool refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB )
 {
     surface_point_type p;
     p << pt.x(), pt.y(), pt.z();
@@ -235,6 +235,24 @@ double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec
     uwB[0] = u2;
     uwB[1] = w2;
 
-    return d;
+    return ret == 0;
 }
 
+bool refine_intersect_pt_held( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB, int held )
+{
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    double u1, w1, u2, w2, d;
+
+    int ret = eli::geom::intersect::intersect( u1, w1, u2, w2, d, *( sA->GetSurfCore()->GetSurf() ),
+                                     *( sB->GetSurfCore()->GetSurf() ),
+                                     p, uwA.x(), uwA.y(), uwB.x(), uwB.y(), held );
+
+    uwA[0] = u1;
+    uwA[1] = w1;
+    uwB[0] = u2;
+    uwB[1] = w2;
+
+    return ret == 0;
+}

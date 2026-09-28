@@ -215,6 +215,10 @@ public:
     {
         return m_BBox;
     }
+    const BndBox& GetBBox() const
+    {
+        return m_BBox;
+    }
     void SetBBox( const vec3d &pmin, const vec3d &pmax );
 
     vector< SurfPatch* >& GetPatchVec()
@@ -453,7 +457,8 @@ public:
 
     void Subtag( bool tag_subs );
 
-    friend double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB );
+    friend bool refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB );
+    friend bool refine_intersect_pt_held( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB, int held );
 
 protected:
 

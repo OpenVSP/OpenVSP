@@ -32,6 +32,12 @@ class CfdMeshMgrSingleton;
 void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
 void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersectionSingleton *MeshMgr );
 void refine_intersect_pt( const vec3d& pt, const SurfPatch &pA, double uwA[2], const SurfPatch &pB, double uwB[2] );
-double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB );
+// Move uwA and uwB to the point on both surfaces nearest pt.  Returns whether the solve found
+// one; where it did not, they are left as they were.
+bool refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB );
+
+// The same, with one of the four parameters -- uA wA uB wB in that order -- held where it is:
+// where the intersection crosses that parameter line.
+bool refine_intersect_pt_held( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB, int held );
 
 #endif
