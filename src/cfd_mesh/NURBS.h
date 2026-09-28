@@ -313,6 +313,12 @@ public:
     // The edge for a curve, written the first time it is asked for
     SdaiEdge_curve* GetEdge( STEPutil* step, int curve_id, bool mergepts );
 
+    // The surface written for a NURBS surface, which a curve on it gets a pcurve on
+    void SetSurf( int surf_id, SdaiSurface* surf )
+    {
+        m_SurfMap[ surf_id ] = surf;
+    }
+
     // Largest distance from a curve end to the vertex it was given, over every edge written
     double GetMaxEndGap() const
     {
@@ -345,6 +351,8 @@ protected:
 
     vector < SdaiVertex_point* > m_VertVec;
     vector < SdaiEdge_curve* > m_EdgeVec;
+
+    unordered_map < int, SdaiSurface* > m_SurfMap;
 
     double m_MaxEndGap;
 };

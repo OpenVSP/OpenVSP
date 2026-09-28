@@ -1877,6 +1877,11 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 
     vector < vector < SdaiAdvanced_face* > > adv_vec( comp_id_group_vec.size() );
 
+    // Every surface is written before any face, so an edge can be placed on both of its surfaces
+    // whichever face asks for it first
+    vector < SdaiSurface* > surf_vec( m_NURBSSurfVec.size() );
+    vector < string > label_vec( m_NURBSSurfVec.size() );
+
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
         // Match NURBS_Surface to index in m_SurfVec using m_SurfID. 
@@ -1925,7 +1930,15 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
             label.append( to_string( m_NURBSSurfVec[si].m_SurfID ) );
         }
 
-        SdaiSurface* surf = m_NURBSSurfVec[si].WriteSTEPSurf( &step, label, merge_pnts );
+        surf_vec[si] = m_NURBSSurfVec[si].WriteSTEPSurf( &step, label, merge_pnts );
+        label_vec[si] = label;
+
+        topo.SetSurf( m_NURBSSurfVec[si].m_SurfID, surf_vec[si] );
+    }
+
+    for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
+    {
+        Surf* current_surf = FindSurf( m_NURBSSurfVec[si].m_SurfID );
 
         int comp_id = current_surf->GetCompID();
 
@@ -1933,7 +1946,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         {
             if ( std::count( comp_id_group_vec[j].begin(), comp_id_group_vec[j].end(), comp_id ) )
             {
-                vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, &topo, surf, label, merge_pnts );
+                vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, &topo, surf_vec[si], label_vec[si], merge_pnts );
                 adv_vec[j].insert( adv_vec[j].end(), adv.begin(), adv.end() );
             }
         }

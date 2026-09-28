@@ -1331,6 +1331,28 @@ SdaiEdge_curve* STEP_Topology::GetEdge( STEPutil* step, int curve_id, bool merge
 
         m_EdgeVec[curve_id] = crv.WriteSTEPEdge( step, GetVertex( step, vstart ), GetVertex( step, vend ),
                                                  to_string( curve_id ), mergepts );
+
+        // Place the curve on each surface written that it lies on
+        vector < SdaiPcurve* > pcurve_vec;
+
+        unordered_map < int, SdaiSurface* >::const_iterator it = m_SurfMap.find( crv.m_SurfA_ID );
+        if ( it != m_SurfMap.end() )
+        {
+            pcurve_vec.push_back( step->MakePCurve( it->second, crv.m_CADUWPntVec_A, crv.m_CADUWDeg, crv.m_CADUWBreakVec_A ) );
+        }
+
+        // A border a surface meets itself along gets one on each side, at its two places there
+        it = m_SurfMap.find( crv.m_SurfB_ID );
+        if ( it != m_SurfMap.end() )
+        {
+            pcurve_vec.push_back( step->MakePCurve( it->second, crv.m_CADUWPntVec_B, crv.m_CADUWDeg, crv.m_CADUWBreakVec_B ) );
+        }
+
+        if ( !pcurve_vec.empty() )
+        {
+            SdaiEdge_curve* edge = m_EdgeVec[curve_id];
+            edge->edge_geometry_( step->MakeCurveOnSurfaces( edge->edge_geometry_(), pcurve_vec, to_string( curve_id ) ) );
+        }
     }
     return m_EdgeVec[curve_id];
 }

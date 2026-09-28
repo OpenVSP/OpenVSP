@@ -60,6 +60,9 @@ public:
     void  WriteFile( const string &fname );
     SdaiCartesian_point * MakePoint( const double & x, const double & y, const double & z );
 
+    // A point in the parameter space of a surface
+    SdaiCartesian_point * MakePoint2D( const double & u, const double & v );
+
     Registry * registry;
     InstMgr * instance_list;
 
@@ -87,6 +90,13 @@ public:
     void MakeSurfaceCurve( const vector < vec3d > &cp_vec, int deg, const vector < double > &break_vec, const string& label = "",
                            bool mergepnts = false, double merge_tol = 1e-8 );
 
+    // Write a curve in the parameter space of a surface as a PCURVE: a piecewise Bezier curve of degree deg
+    // through the (u, v) held in the x and y of uv_vec, laid out as MakeCurve takes a curve
+    SdaiPcurve* MakePCurve( SdaiSurface* surf, const vector < vec3d > &uv_vec, int deg, const vector < double > &break_vec );
+
+    // Write a curve together with the pcurves that place it on its surfaces, as a SURFACE_CURVE
+    SdaiSurface_curve* MakeCurveOnSurfaces( SdaiCurve* curve, const vector < SdaiPcurve* > &pcurve_vec, const string& label = "" );
+
 protected:
 
     STEPfile * sfile;
@@ -100,7 +110,12 @@ protected:
     SdaiShape_representation * shape_rep;
     SdaiProduct_definition_shape* pshape;
 
+    // Context for curves in the parameter space of a surface, made when first needed
+    STEPcomplex * param_context;
+
     STEPcomplex * Geometric_Context( const vsp::LEN_UNITS & len, const vsp::ANG_UNITS & angle, const char * tolstr );
+
+    STEPcomplex * Parametric_Context();
 
     // Knots of a clamped piecewise Bezier curve of degree deg, from the parameter at each segment end
     void SetKnots( SdaiB_spline_curve_with_knots* curve, int deg, const vector < double > &break_vec );

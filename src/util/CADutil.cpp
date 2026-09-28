@@ -22,6 +22,7 @@
 STEPutil::STEPutil( const int & len, const double & tol )
 {
     context = nullptr;
+    param_context = nullptr;
     shape_rep = nullptr;
     pshape = nullptr;
     file_name = nullptr;
@@ -429,6 +430,75 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
     instance_cnt++;
 
     return complex_entity;
+}
+
+SdaiCartesian_point * STEPutil::MakePoint2D( const double & u, const double & v )
+{
+    SdaiCartesian_point * pnt = ( SdaiCartesian_point * ) registry->ObjCreate( "CARTESIAN_POINT" );
+    pnt->name_( "''" );
+
+    RealAggregate * coords = pnt->coordinates_();
+
+    RealNode * unode = new RealNode();
+    unode->value = u;
+    coords->AddNode( unode );
+
+    RealNode * vnode = new RealNode();
+    vnode->value = v;
+    coords->AddNode( vnode );
+
+    instance_list->Append( ( SDAI_Application_instance * ) pnt, completeSE );
+
+    return pnt;
+}
+
+STEPcomplex * STEPutil::Parametric_Context()
+{
+    if ( param_context )
+    {
+        return param_context;
+    }
+
+    const char * entNmArr[4] = { "geometric_representation_context", "parametric_representation_context", "representation_context", "*" };
+    param_context = new STEPcomplex( registry, ( const char ** ) entNmArr, 0 );
+
+    STEPattribute * attr;
+    STEPcomplex * stepcomplex = param_context->head;
+
+    while( stepcomplex )
+    {
+        if( !strcmp( stepcomplex->EntityName(), "Geometric_Representation_Context" ) )
+        {
+            stepcomplex->ResetAttributes();
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
+            {
+                if( !strcmp( attr->Name(), "coordinate_space_dimension" ) )
+                {
+                    attr->StrToVal( "2" );
+                }
+            }
+        }
+
+        if( !strcmp( stepcomplex->EntityName(), "Representation_Context" ) )
+        {
+            stepcomplex->ResetAttributes();
+            while( ( attr = stepcomplex->NextAttribute() ) != nullptr )
+            {
+                if( !strcmp( attr->Name(), "context_identifier" ) )
+                {
+                    attr->StrToVal( "'2D SPACE'" );
+                }
+                if( !strcmp( attr->Name(), "context_type" ) )
+                {
+                    attr->StrToVal( "''" );
+                }
+            }
+        }
+        stepcomplex = stepcomplex->sc;
+    }
+    instance_list->Append( ( SDAI_Application_instance * ) param_context, completeSE );
+
+    return param_context;
 }
 
 SdaiCartesian_point * STEPutil::MakePoint( const double & x, const double & y, const double & z )
@@ -1149,6 +1219,90 @@ void STEPutil::SetKnots( SdaiB_spline_curve_with_knots* curve, int deg, const ve
     }
 
     curve->knot_spec_( Knot_type__piecewise_bezier_knots );
+}
+
+SdaiPcurve* STEPutil::MakePCurve( SdaiSurface* surf, const vector < vec3d > &uv_vec, int deg, const vector < double > &break_vec )
+{
+    int npts = (int)uv_vec.size();
+
+    SdaiB_spline_curve_with_knots* curve = (SdaiB_spline_curve_with_knots*)registry->ObjCreate( "B_SPLINE_CURVE_WITH_KNOTS" );
+    instance_list->Append( (SDAI_Application_instance*)curve, completeSE );
+    curve->name_( "''" );
+    curve->degree_( deg );
+    if ( deg == 1 )
+    {
+        curve->curve_form_( B_spline_curve_form__polyline_form );
+    }
+    else
+    {
+        curve->curve_form_( B_spline_curve_form__unspecified );
+    }
+    curve->closed_curve_( SDAI_LOGICAL( LFalse ) );
+    curve->self_intersect_( SDAI_LOGICAL( LFalse ) );
+
+    std::ostringstream point_ss;
+
+    for ( int j = 0; j < npts; ++j )
+    {
+        SdaiCartesian_point* pt = MakePoint2D( uv_vec[j].x(), uv_vec[j].y() );
+        point_ss << "#" << pt->GetFileId();
+
+        if ( j < npts - 1 )
+        {
+            point_ss << ", ";
+        }
+    }
+
+    curve->control_points_list_()->AddNode( new GenericAggrNode( point_ss.str().c_str() ) );
+
+    SetKnots( curve, deg, break_vec );
+
+    SdaiDefinitional_representation* rep = (SdaiDefinitional_representation*)registry->ObjCreate( "DEFINITIONAL_REPRESENTATION" );
+    instance_list->Append( (SDAI_Application_instance*)rep, completeSE );
+    rep->name_( "''" );
+    rep->items_()->AddNode( new EntityNode( (SDAI_Application_instance*)curve ) );
+    rep->context_of_items_( (SdaiRepresentation_context*)Parametric_Context() );
+
+    SdaiPcurve* pcurve = (SdaiPcurve*)registry->ObjCreate( "PCURVE" );
+    instance_list->Append( (SDAI_Application_instance*)pcurve, completeSE );
+    pcurve->name_( "''" );
+    pcurve->basis_surface_( surf );
+    pcurve->reference_to_curve_( rep );
+
+    return pcurve;
+}
+
+SdaiSurface_curve* STEPutil::MakeCurveOnSurfaces( SdaiCurve* curve, const vector < SdaiPcurve* > &pcurve_vec, const string& label )
+{
+    SdaiSurface_curve* scurve = (SdaiSurface_curve*)registry->ObjCreate( "SURFACE_CURVE" );
+    instance_list->Append( (SDAI_Application_instance*)scurve, completeSE );
+
+    if ( label.size() > 0 )
+    {
+        scurve->name_( STEPString( "SurfCurve_" + label ) );
+    }
+    else
+    {
+        scurve->name_( "''" );
+    }
+
+    scurve->curve_3d_( curve );
+
+    std::ostringstream pc_ss;
+    for ( size_t i = 0; i < pcurve_vec.size(); i++ )
+    {
+        pc_ss << "#" << pcurve_vec[i]->GetFileId();
+
+        if ( i < pcurve_vec.size() - 1 )
+        {
+            pc_ss << ", ";
+        }
+    }
+    scurve->associated_geometry_()->AddNode( new GenericAggrNode( pc_ss.str().c_str() ) );
+
+    scurve->master_representation_( Preferred_surface_curve_representation__curve_3d );
+
+    return scurve;
 }
 
 // A number as a STEP real, all its digits and its decimal point
