@@ -5516,6 +5516,7 @@ void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int file_t
     FeaMeshMgr.GenerateFeaMesh();
 
     FeaMeshMgr.ExportFeaMesh( feastruct->GetID() );
+    FeaMeshMgr.ExportCADFiles();
 
     ErrorMgr.NoError();
 }
@@ -5541,6 +5542,7 @@ void ComputeFeaMesh( const std::string & struct_id, int file_type )
     FeaMeshMgr.GenerateFeaMesh();
 
     FeaMeshMgr.ExportFeaMesh( struct_id );
+    FeaMeshMgr.ExportCADFiles();
 
     ErrorMgr.NoError();
 }

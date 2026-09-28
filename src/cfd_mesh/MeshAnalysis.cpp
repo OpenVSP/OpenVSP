@@ -280,10 +280,138 @@ void FeaMeshAnalysis::SetDefaults()
     if ( struct_settings )
     {
         m_Inputs.Add( new NameValData( "RelCurveTol", struct_settings->m_RelCurveTol(), "Tolerance used when constructing binary adapted curves." ) );
+
+        m_Inputs.Add( new NameValData( "HalfMeshFlag", struct_settings->m_HalfMeshFlag(), "Flag to generate a half mesh in +Y domain." ) );
+    }
+}
+
+string FeaMeshAnalysis::Execute()
+{
+    string res_id;
+
+    FeaStructure* curr_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructID() );
+
+    if( curr_struct )
+    {
+        NameValData* nvd = nullptr;
+
+        double baseLenOrig = curr_struct->GetFeaGridDensityPtr()->m_BaseLen();
+        nvd = m_Inputs.FindPtr( "BaseLen", 0 );
+        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_BaseLen.Set( nvd->GetDouble( 0 ) );
+
+        double minLenOrig = curr_struct->GetFeaGridDensityPtr()->m_MinLen();
+        nvd = m_Inputs.FindPtr( "MinLen", 0 );
+        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_MinLen.Set( nvd->GetDouble( 0 ) );
+
+        double maxGapOrig = curr_struct->GetFeaGridDensityPtr()->m_MaxGap();
+        nvd = m_Inputs.FindPtr( "MaxGap", 0 );
+        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_MaxGap.Set( nvd->GetDouble( 0 ) );
+
+        double nCircSegOrig = curr_struct->GetFeaGridDensityPtr()->m_NCircSeg();
+        nvd = m_Inputs.FindPtr( "NCircSeg", 0 );
+        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_NCircSeg.Set( nvd->GetDouble( 0 ) );
+
+        double growRatioOrig = curr_struct->GetFeaGridDensityPtr()->m_GrowRatio();
+        nvd = m_Inputs.FindPtr( "GrowRatio", 0 );
+        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.Set( nvd->GetDouble( 0 ) );
+
+        double relCurveTolOrig = curr_struct->GetStructSettingsPtr()->m_RelCurveTol();
+        nvd = m_Inputs.FindPtr( "RelCurveTol", 0 );
+        if( nvd ) curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( nvd->GetDouble( 0 ) );
+
+        bool rigorLimitOrig = curr_struct->GetFeaGridDensityPtr()->m_RigorLimit();
+        nvd = m_Inputs.FindPtr( "RigorLimit", 0 );
+        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.Set( nvd->GetInt( 0 ) );
+
+        bool halfMeshFlagOrig = curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag();
+        nvd = m_Inputs.FindPtr( "HalfMeshFlag", 0 );
+        if( nvd ) curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.Set( nvd->GetInt( 0 ) );
+
+        // Execute analysis
+        FeaMeshMgr.UpdateStructure();
+        FeaMeshMgr.addOutputText( "CLEAR_TERMINAL" );
+        FeaMeshMgr.GenerateFeaMesh();
+
+        // ==== Restore original values that were overwritten by analysis inputs ==== //
+
+        //Input Sliders
+        curr_struct->GetFeaGridDensityPtr()->m_BaseLen.Set( baseLenOrig );
+        curr_struct->GetFeaGridDensityPtr()->m_MinLen.Set( minLenOrig );
+        curr_struct->GetFeaGridDensityPtr()->m_MaxGap.Set( maxGapOrig );
+        curr_struct->GetFeaGridDensityPtr()->m_NCircSeg.Set( nCircSegOrig );
+        curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.Set( growRatioOrig );
+        curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
+
+        //Input Triggers
+        curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.Set( rigorLimitOrig );
+        curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.Set( halfMeshFlagOrig );
+    }
+    else
+    {
+        printf( " Error - Cannot find FEA Structure. See SetFeaMeshStructIndex API Function \n " );
+    }
+
+    return res_id;
+}
+
+//======================================================================================//
+//================================= Fea Mesh Export ====================================//
+//======================================================================================//
+
+// Reported through the error stack, so a script learns that nothing was written.
+static void SendExportError( const string &msg )
+{
+    MessageData errMsgData;
+    errMsgData.m_String = "Error";
+    errMsgData.m_IntVec.push_back( vsp::VSP_FILE_WRITE_FAILURE );
+    errMsgData.m_StringVec.push_back( msg );
+    MessageMgr::getInstance().SendAll( errMsgData );
+}
+
+// Whether any of the files written from the intersection data rather than the mesh is asked for.
+static bool CADFileRequested( StructSettings* settings )
+{
+    int types[] = { vsp::FEA_SRF_FILE_NAME, vsp::FEA_CURV_FILE_NAME, vsp::FEA_PLOT3D_FILE_NAME,
+                    vsp::FEA_IGES_FILE_NAME, vsp::FEA_STEP_FILE_NAME };
+    for ( int i = 0; i < 5; i++ )
+    {
+        if ( settings->GetExportFileFlag( types[i] )->Get() )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+FeaMeshExportAnalysis::FeaMeshExportAnalysis() : Analysis( "FeaMeshExport", "Write the files of the current structure's finite element mesh." )
+{
+}
+
+void FeaMeshExportAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+
+    FeaStructure* curr_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructID() );
+
+    StructSettings* struct_settings = nullptr;
+
+    StructSettings temp_settings;
+
+    if( curr_struct )
+    {
+        struct_settings = curr_struct->GetStructSettingsPtr();
+    }
+    else
+    {
+        struct_settings = &temp_settings;
+    }
+
+
+    if ( struct_settings )
+    {
         m_Inputs.Add( new NameValData( "STEPTol", struct_settings->m_STEPTol(), "Tolerance output to STEP files." ) );
 
         m_Inputs.Add( new NameValData( "ExportRawFlag", struct_settings->m_ExportRawFlag(), "Flag to export raw intersection points." ) );
-        m_Inputs.Add( new NameValData( "HalfMeshFlag", struct_settings->m_HalfMeshFlag(), "Flag to generate a half mesh in +Y domain." ) );
         m_Inputs.Add( new NameValData( "XYZIntCurveFlag", struct_settings->m_XYZIntCurveFlag(), "Flag to include X,Y,Z intersection curves in *.srf file." ) );
         m_Inputs.Add( new NameValData( "CADLabelID", struct_settings->m_CADLabelID(), "Flag to include GeomID in CAD surface label." ) );
         m_Inputs.Add( new NameValData( "CADLabelName", struct_settings->m_CADLabelName(), "Flag to include Geom name in CAD surface label." ) );
@@ -330,7 +458,7 @@ void FeaMeshAnalysis::SetDefaults()
     }
 }
 
-string FeaMeshAnalysis::Execute()
+string FeaMeshExportAnalysis::Execute()
 {
     string res_id;
 
@@ -340,45 +468,13 @@ string FeaMeshAnalysis::Execute()
     {
         NameValData* nvd = nullptr;
 
-        double baseLenOrig = curr_struct->GetFeaGridDensityPtr()->m_BaseLen();
-        nvd = m_Inputs.FindPtr( "BaseLen", 0 );
-        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_BaseLen.Set( nvd->GetDouble( 0 ) );
-
-        double minLenOrig = curr_struct->GetFeaGridDensityPtr()->m_MinLen();
-        nvd = m_Inputs.FindPtr( "MinLen", 0 );
-        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_MinLen.Set( nvd->GetDouble( 0 ) );
-
-        double maxGapOrig = curr_struct->GetFeaGridDensityPtr()->m_MaxGap();
-        nvd = m_Inputs.FindPtr( "MaxGap", 0 );
-        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_MaxGap.Set( nvd->GetDouble( 0 ) );
-
-        double nCircSegOrig = curr_struct->GetFeaGridDensityPtr()->m_NCircSeg();
-        nvd = m_Inputs.FindPtr( "NCircSeg", 0 );
-        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_NCircSeg.Set( nvd->GetDouble( 0 ) );
-
-        double growRatioOrig = curr_struct->GetFeaGridDensityPtr()->m_GrowRatio();
-        nvd = m_Inputs.FindPtr( "GrowRatio", 0 );
-        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.Set( nvd->GetDouble( 0 ) );
-
-        double relCurveTolOrig = curr_struct->GetStructSettingsPtr()->m_RelCurveTol();
-        nvd = m_Inputs.FindPtr( "RelCurveTol", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( nvd->GetDouble( 0 ) );
-
         double sTEPTolOrig = curr_struct->GetStructSettingsPtr()->m_STEPTol();
         nvd = m_Inputs.FindPtr( "STEPTol", 0 );
         if( nvd ) curr_struct->GetStructSettingsPtr()->m_STEPTol.Set( nvd->GetDouble( 0 ) );
 
-        bool rigorLimitOrig = curr_struct->GetFeaGridDensityPtr()->m_RigorLimit();
-        nvd = m_Inputs.FindPtr( "RigorLimit", 0 );
-        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.Set( nvd->GetInt( 0 ) );
-
         bool exportRawFlagOrig = curr_struct->GetStructSettingsPtr()->m_ExportRawFlag();
         nvd = m_Inputs.FindPtr( "ExportRawFlag", 0 );
         if( nvd ) curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.Set( nvd->GetInt( 0 ) );
-
-        bool halfMeshFlagOrig = curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag();
-        nvd = m_Inputs.FindPtr( "HalfMeshFlag", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.Set( nvd->GetInt( 0 ) );
 
         bool xYZIntCurveFlagOrig = curr_struct->GetStructSettingsPtr()->m_XYZIntCurveFlag();
         nvd = m_Inputs.FindPtr( "XYZIntCurveFlag", 0 );
@@ -501,26 +597,37 @@ string FeaMeshAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "STEPFileName", 0 );
         if( nvd ) curr_struct->GetStructSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::FEA_STEP_FILE_NAME );
 
-        // Execute analysis
-        FeaMeshMgr.UpdateStructure();
-        FeaMeshMgr.addOutputText( "CLEAR_TERMINAL" );
-        FeaMeshMgr.GenerateFeaMesh();
+        // Write the mesh of the current structure.  The CAD files come from the intersection
+        // data, which is kept only until another structure is selected.
+        FeaMesh* mesh = FeaMeshMgr.GetMeshPtr( curr_struct->GetID() );
+        if ( !mesh || !mesh->m_MeshReady )
+        {
+            SendExportError( "FeaMeshExport::No mesh for structure " + curr_struct->GetName() + ".  Run FeaMeshAnalysis first." );
+        }
+        else
+        {
+            FeaMeshMgr.ExportFeaMesh( curr_struct->GetID() );
+
+            if ( CADFileRequested( curr_struct->GetStructSettingsPtr() ) )
+            {
+                if ( FeaMeshMgr.GetIntersectComplete() )
+                {
+                    FeaMeshMgr.ExportCADFiles();
+                }
+                else
+                {
+                    SendExportError( "FeaMeshExport::No intersection data for structure " + curr_struct->GetName() + ".  Run FeaMeshAnalysis on it again to write CAD files." );
+                }
+            }
+        }
 
         // ==== Restore original values that were overwritten by analysis inputs ==== //
 
         //Input Sliders
-        curr_struct->GetFeaGridDensityPtr()->m_BaseLen.Set( baseLenOrig );
-        curr_struct->GetFeaGridDensityPtr()->m_MinLen.Set( minLenOrig );
-        curr_struct->GetFeaGridDensityPtr()->m_MaxGap.Set( maxGapOrig );
-        curr_struct->GetFeaGridDensityPtr()->m_NCircSeg.Set( nCircSegOrig );
-        curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.Set( growRatioOrig );
-        curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
         curr_struct->GetStructSettingsPtr()->m_STEPTol.Set( sTEPTolOrig );
 
         //Input Triggers
-        curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.Set( rigorLimitOrig );
         curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.Set( exportRawFlagOrig );
-        curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.Set( halfMeshFlagOrig );
         curr_struct->GetStructSettingsPtr()->m_XYZIntCurveFlag.Set( xYZIntCurveFlagOrig );
         curr_struct->GetStructSettingsPtr()->m_CADLabelID.Set( cADLabelIDOrig );
         curr_struct->GetStructSettingsPtr()->m_CADLabelName.Set( cADLabelNameOrig );
@@ -565,7 +672,6 @@ string FeaMeshAnalysis::Execute()
 
         curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_STEP_FILE_NAME, sTEPFileFlagOrig );
         curr_struct->GetStructSettingsPtr()->SetExportFileName( sTEPFileNameOrig, vsp::FEA_STEP_FILE_NAME );
-
     }
     else
     {

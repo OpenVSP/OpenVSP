@@ -147,6 +147,18 @@ void NewFEAMeshAnalysisExample( string struct_id )
 	relCurveTolNums.push_back( 0.01 );
     SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
 	
+	// list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+	
+	Print( "--> Executing Analysis\n" );
+    ExecAnalysis( analysis_name );
+	
+	// Meshing writes no files.  FeaMeshExport writes the mesh just made.
+    analysis_name = "FeaMeshExport";
+    Print( analysis_name );
+
+    SetAnalysisInputDefaults( analysis_name );
+	
     array < double > sTEPTolNums;
 	sTEPTolNums.push_back( 1e-06 );
     SetDoubleAnalysisInput( analysis_name, "STEPTol", sTEPTolNums, 0 );

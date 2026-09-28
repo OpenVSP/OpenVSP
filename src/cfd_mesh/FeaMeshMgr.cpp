@@ -3043,6 +3043,16 @@ void FeaMeshMgrSingleton::RegisterAnalysis()
             delete sia;
         }
     }
+
+    if ( !AnalysisMgr.FindAnalysis( "FeaMeshExport" ) )
+    {
+        FeaMeshExportAnalysis* fea_export = new FeaMeshExportAnalysis();
+
+        if ( fea_export && !AnalysisMgr.RegisterAnalysis( fea_export ) )
+        {
+            delete fea_export;
+        }
+    }
 }
 
 Surf* FeaMeshMgrSingleton::GetFeaSurf( int FeaPartID, int surf_num )

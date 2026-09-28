@@ -35,6 +35,17 @@ public:
     virtual string Execute();
 };
 
+// Writes the files of a mesh FeaMeshAnalysis made, so meshing and writing are separate steps.
+class FeaMeshExportAnalysis : public Analysis
+{
+public:
+
+    FeaMeshExportAnalysis();
+
+    virtual void SetDefaults();
+    virtual string Execute();
+};
+
 class SurfaceIntersectionAnalysis : public Analysis
 {
 public:
