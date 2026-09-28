@@ -866,6 +866,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "CLONE_DELETE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLONE_DELETE_TYPE", "CLONE_DELETE_LEAVE_EMPTY", CLONE_DELETE_LEAVE_EMPTY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLONE_DELETE_TYPE", "CLONE_DELETE_WITH_ORIGINAL", CLONE_DELETE_WITH_ORIGINAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLONE_DELETE_TYPE", "CLONE_DELETE_REPLACE", CLONE_DELETE_REPLACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CLONE_DELETE_TYPE", "CLONE_DELETE_NUM_TYPES", CLONE_DELETE_NUM_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "COLLISION_ERRORS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COLLISION_ERRORS", "COLLISION_OK", COLLISION_OK );
@@ -4584,15 +4596,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteGeom(const string & in geom_id)", asFUNCTION( vsp::DeleteGeom ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteGeom(const string & in geom_id, int clone_delete = CLONE_DELETE_LEAVE_EMPTY)", asFUNCTION( vsp::DeleteGeom ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteGeomVec( array<string>@+ del_arr )", asMETHOD( ScriptMgrSingleton, DeleteGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void DeleteGeomVec( array<string>@+ del_arr, int clone_delete = CLONE_DELETE_LEAVE_EMPTY )", asMETHOD( ScriptMgrSingleton, DeleteGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CutGeomToClipboard(const string & in geom_id)", asFUNCTION( vsp::CutGeomToClipboard ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void CutGeomToClipboard(const string & in geom_id, int clone_delete = CLONE_DELETE_LEAVE_EMPTY)", asFUNCTION( vsp::CutGeomToClipboard ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4633,6 +4645,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string ReplaceCloneGeom( const string & in clone_id )", asFUNCTION( vsp::ReplaceCloneGeom ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<string>@+ CloneGeomVec( array<string>@+ geom_arr, const string & in name_suffix = \"_Clone\" )", asMETHOD( ScriptMgrSingleton, CloneGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@+ FindGeomClones( array<string>@+ geom_arr )", asMETHOD( ScriptMgrSingleton, FindGeomClones ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetGeomName( const string & in geom_id, const string & in name )", asFUNCTION( vsp::SetGeomName ), asCALL_CDECL );
     assert( r >= 0 );
@@ -7313,12 +7327,12 @@ CScriptArray* ScriptMgrSingleton::GetBORLowerCSTCoefs( const string & bor_id )
     return GetProxyDoubleArray();
 }
 
-void ScriptMgrSingleton::DeleteGeomVec( CScriptArray* del_arr )
+void ScriptMgrSingleton::DeleteGeomVec( CScriptArray* del_arr, int clone_delete )
 {
     vector < string > del_vec;
     FillSTLVector( del_arr, del_vec );
 
-    vsp::DeleteGeomVec( del_vec );
+    vsp::DeleteGeomVec( del_vec, clone_delete );
 }
 
 CScriptArray* ScriptMgrSingleton::CloneGeomVec( CScriptArray* geom_arr, const string & name_suffix )
@@ -7327,6 +7341,15 @@ CScriptArray* ScriptMgrSingleton::CloneGeomVec( CScriptArray* geom_arr, const st
     FillSTLVector( geom_arr, geom_vec );
 
     m_ProxyStringArray = vsp::CloneGeomVec( geom_vec, name_suffix );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::FindGeomClones( CScriptArray* geom_arr )
+{
+    vector < string > geom_vec;
+    FillSTLVector( geom_arr, geom_vec );
+
+    m_ProxyStringArray = vsp::FindGeomClones( geom_vec );
     return GetProxyStringArray();
 }
 

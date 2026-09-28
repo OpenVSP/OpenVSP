@@ -11223,7 +11223,9 @@ extern void UpdateGeom( const std::string & geom_id );
     \ingroup Geom
 */
 /*!
-    Delete a particular Geom
+    Delete a particular Geom.  clone_delete says what becomes of each Clone of it.  By default
+    each is left empty and VSP_CLONE_ORIGINAL_LOST is reported for it.  FindGeomClones lists
+    them beforehand.
     \forcpponly
     \code{.cpp}
     //==== Add Wing Geometry ====//
@@ -11237,6 +11239,39 @@ extern void UpdateGeom( const std::string & geom_id );
     if ( FindGeoms().length() >= num_before_del )
     {
         Print( "ERROR: DeleteGeom removed nothing" );
+        __failure++;
+    }
+
+    //==== A Clone of a deleted Geom is left empty and reported ====//
+    array< string > one;
+    one.push_back( pod_id );
+    string clone_id = CloneGeomVec( one )[0];
+
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    DeleteGeom( pod_id );
+
+    if ( GetGeomCloneOriginal( clone_id ) != "" )
+    {
+        Print( "ERROR: DeleteGeom left the Clone an original" );
+        __failure++;
+    }
+
+    bool lost = false;
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        if ( err.GetErrorCode() == VSP_CLONE_ORIGINAL_LOST )
+        {
+            lost = true;
+        }
+    }
+    if ( !lost )
+    {
+        Print( "ERROR: DeleteGeom did not report the emptied Clone" );
         __failure++;
     }
 
@@ -11254,19 +11289,37 @@ extern void UpdateGeom( const std::string & geom_id );
     DeleteGeom( wing_id )
     assert len( FindGeoms() ) < num_before_del, "DeleteGeom removed nothing"
 
+    #==== A Clone of a deleted Geom is left empty and reported ====#
+    clone_id = CloneGeomVec( [ pod_id ] )[0]
+
+    err_mgr = ErrorMgrSingleton.getInstance()
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    DeleteGeom( pod_id )
+
+    assert GetGeomCloneOriginal( clone_id ) == "", "DeleteGeom left the Clone an original"
+
+    codes = []
+    while err_mgr.GetNumTotalErrors() > 0 :
+        codes.append( err_mgr.PopLastError().GetErrorCode() )
+    assert VSP_CLONE_ORIGINAL_LOST in codes, "DeleteGeom did not report the emptied Clone"
 
     \endcode
     \endPythonOnly
+    \sa FindGeomClones, CLONE_DELETE_TYPE
     \param [in] geom_id string Geom ID
+    \param [in] clone_delete int What becomes of each Clone of the Geom (CLONE_DELETE_TYPE)
 */
 
-extern void DeleteGeom( const std::string & geom_id );
+extern void DeleteGeom( const std::string & geom_id, int clone_delete = CLONE_DELETE_LEAVE_EMPTY );
 
 /*!
     \ingroup Geom
 */
 /*!
-    Delete multiple Geoms
+    Delete multiple Geoms.  clone_delete applies to each Clone of them that is not itself being
+    deleted, as for DeleteGeom.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
@@ -11281,6 +11334,19 @@ extern void DeleteGeom( const std::string & geom_id );
     if ( FindGeoms().length() >= num_before_del )
     {
         Print( "ERROR: DeleteGeomVec removed nothing" );
+        __failure++;
+    }
+
+    //==== Delete a Geom and its Clones together ====//
+    array< string > one;
+    one.push_back( pid );
+    string clone_id = CloneGeomVec( one )[0];
+
+    DeleteGeomVec( one, CLONE_DELETE_WITH_ORIGINAL );
+
+    if ( FindGeoms().find( clone_id ) >= 0 )
+    {
+        Print( "ERROR: DeleteGeomVec left the Clone behind" );
         __failure++;
     }
 
@@ -11299,19 +11365,29 @@ extern void DeleteGeom( const std::string & geom_id );
     DeleteGeomVec( mesh_id_vec )
     assert len( FindGeoms() ) < num_before_del, "DeleteGeomVec removed nothing"
 
+    #==== Delete a Geom and its Clones together ====#
+    clone_id = CloneGeomVec( [ pid ] )[0]
+
+    DeleteGeomVec( [ pid ], CLONE_DELETE_WITH_ORIGINAL )
+
+    assert clone_id not in FindGeoms(), "DeleteGeomVec left the Clone behind"
 
     \endcode
     \endPythonOnly
+    \sa FindGeomClones, CLONE_DELETE_TYPE
     \param [in] del_vec vector<string> Vector of Geom IDs
+    \param [in] clone_delete int What becomes of each Clone of those Geoms (CLONE_DELETE_TYPE)
 */
 
-extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
+extern void DeleteGeomVec( const std::vector< std::string > & del_vec, int clone_delete = CLONE_DELETE_LEAVE_EMPTY );
 
 /*!
     \ingroup Geom
 */
 /*!
-    Cut Geom from current location and store on clipboard
+    Cut Geom from current location and store on clipboard.  A pasted Geom is a new Geom, so
+    clone_delete applies to each Clone of the cut Geom, as for DeleteGeom.  A Clone cut along
+    with it is pasted as a Clone of the pasted Geom.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometries ====//
@@ -11325,6 +11401,16 @@ extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
     array< string > @geom_ids = FindGeoms();
 
     if ( geom_ids.size() != 2 )                { Print( "---> Error: API Cut/Paste Geom  " ); __failure++; }
+
+    //==== Cutting a Geom replaces its Clone with a real Geom ====//
+    string pid3 = AddGeom( "POD", "" );
+    array< string > one;
+    one.push_back( pid3 );
+    string clone_id = CloneGeomVec( one )[0];
+
+    CutGeomToClipboard( pid3, CLONE_DELETE_REPLACE );
+
+    if ( GetGeomTypeName( clone_id ) != "Pod" )   { Print( "---> Error: CutGeomToClipboard did not replace the Clone" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -11343,13 +11429,22 @@ extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
         print( "---> Error: API Cut/Paste Geom  " )
         assert False, "---> Error: API Cut/Paste Geom"
 
+    #==== Cutting a Geom replaces its Clone with a real Geom ====#
+    pid3 = AddGeom( "POD", "" )
+    clone_id = CloneGeomVec( [ pid3 ] )[0]
+
+    CutGeomToClipboard( pid3, CLONE_DELETE_REPLACE )
+
+    assert GetGeomTypeName( clone_id ) == "Pod", "CutGeomToClipboard did not replace the Clone"
+
     \endcode
     \endPythonOnly
-    \sa PasteGeomClipboard
+    \sa PasteGeomClipboard, FindGeomClones, CLONE_DELETE_TYPE
     \param [in] geom_id string Geom ID
+    \param [in] clone_delete int What becomes of each Clone of the Geom (CLONE_DELETE_TYPE)
 */
 
-extern void CutGeomToClipboard( const std::string & geom_id );
+extern void CutGeomToClipboard( const std::string & geom_id, int clone_delete = CLONE_DELETE_LEAVE_EMPTY );
 
 /*!
     \ingroup Geom
@@ -12458,6 +12553,83 @@ extern std::string GetGeomCloneNameSuffix( const std::string & clone_id );
 */
 
 extern std::string ReplaceCloneGeom( const std::string & clone_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Find the Clones of a group of Geoms that are not in the group themselves -- the ones a
+    delete or cut of the group would leave empty.  Clones of these Clones are not returned,
+    though CLONE_DELETE_WITH_ORIGINAL deletes them too.
+    \forcpponly
+    \code{.cpp}
+    string pod = AddGeom( "POD" );
+
+    Update();
+
+    array< string > group;
+    group.push_back( pod );
+
+    array< string > clones = CloneGeomVec( group );
+
+    //==== The pod's Clone is found ====//
+    array< string > @found = FindGeomClones( group );
+
+    if ( found.size() != 1 || found[0] != clones[0] )
+    {
+        Print( "ERROR: FindGeomClones did not find the Clone of the pod" );
+        __failure++;
+    }
+
+    //==== A Clone in the group is not returned ====//
+    group.push_back( clones[0] );
+
+    if ( FindGeomClones( group ).size() != 0 )
+    {
+        Print( "ERROR: FindGeomClones found a Clone that is going too" );
+        __failure++;
+    }
+
+    //==== Delete the pod, replacing its Clone ====//
+    DeleteGeom( pod, CLONE_DELETE_REPLACE );
+
+    if ( GetGeomTypeName( clones[0] ) != "Pod" )
+    {
+        Print( "ERROR: DeleteGeom did not replace the Clone" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod = AddGeom( "POD" )
+
+    Update()
+
+    clones = CloneGeomVec( [pod] )
+
+    #==== The pod's Clone is found ====#
+    found = FindGeomClones( [pod] )
+
+    assert list( found ) == [clones[0]], "FindGeomClones did not find the Clone of the pod"
+
+    #==== A Clone in the group is not returned ====#
+    assert len( FindGeomClones( [pod, clones[0]] ) ) == 0, "FindGeomClones found a Clone that is going too"
+
+    #==== Delete the pod, replacing its Clone ====#
+    DeleteGeom( pod, CLONE_DELETE_REPLACE )
+
+    assert GetGeomTypeName( clones[0] ) == "Pod", "DeleteGeom did not replace the Clone"
+
+    \endcode
+    \endPythonOnly
+    \sa DeleteGeom, DeleteGeomVec, CutGeomToClipboard, CLONE_DELETE_TYPE
+    \param [in] geom_id_vec vector<string> Vector of Geom IDs
+    \return vector<string> IDs of the Clones of those Geoms that are not among them
+*/
+
+extern std::vector< std::string > FindGeomClones( const std::vector< std::string > & geom_id_vec );
 
 /*!
     \ingroup Geom

@@ -2957,34 +2957,91 @@ void UpdateGeom( const std::string & geom_id )
 }
 
 
-void DeleteGeom( const std::string & geom_id )
+// Validate clone_delete before anything is removed.
+static bool ValidCloneDelete( int clone_delete, const std::string & caller )
 {
-    Vehicle* veh = GetVehicle();
-
-    veh->DeleteGeomVec( { geom_id } );
-
-    ErrorMgr.NoError();
+    if ( clone_delete < 0 || clone_delete >= CLONE_DELETE_NUM_TYPES )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, caller + "::Clone delete type " + to_string( clone_delete ) + " is not a CLONE_DELETE_TYPE" );
+        return false;
+    }
+    return true;
 }
 
-void DeleteGeomVec( const std::vector< std::string > & del_vec )
+// Reports VSP_CLONE_ORIGINAL_LOST for each Clone left empty, including failed replacements.
+// Leaves the call flagged if anything else was reported.
+static void ReportClonesOf( Vehicle* veh, const std::vector< std::string > & clone_vec, int n_errors_before )
+{
+    for ( int i = 0; i < ( int )clone_vec.size(); i++ )
+    {
+        CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( veh->FindGeom( clone_vec[i] ) );
+        if ( clone_ptr && clone_ptr->GetOriginalID().empty() )
+        {
+            ErrorMgr.AddError( VSP_CLONE_ORIGINAL_LOST, "Error:  " + clone_ptr->GetOriginalLostMessage() );
+        }
+    }
+
+    if ( ErrorMgr.GetNumTotalErrors() == n_errors_before )
+    {
+        ErrorMgr.NoError();
+    }
+}
+
+static void DeleteGeoms( const std::vector< std::string > & del_vec, int clone_delete, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
 
-    veh->DeleteGeomVec( del_vec );
+    if ( !ValidCloneDelete( clone_delete, caller ) )
+    {
+        return;
+    }
 
-    ErrorMgr.NoError();
+    int n_errors_before = ErrorMgr.GetNumTotalErrors();
+    std::vector< std::string > clone_vec = veh->FindClonesOf( del_vec );
+
+    veh->DeleteGeomVec( del_vec, clone_delete );
+
+    ReportClonesOf( veh, clone_vec, n_errors_before );
+}
+
+void DeleteGeom( const std::string & geom_id, int clone_delete )
+{
+    DeleteGeoms( { geom_id }, clone_delete, "DeleteGeom" );
+}
+
+void DeleteGeomVec( const std::vector< std::string > & del_vec, int clone_delete )
+{
+    DeleteGeoms( del_vec, clone_delete, "DeleteGeomVec" );
 }
 
 /// Cut geometry and place it in the clipboard.  The clipboard is cleared before
 /// the cut geom is placed there.
-void CutGeomToClipboard( const std::string & geom_id )
+void CutGeomToClipboard( const std::string & geom_id, int clone_delete )
 {
     Vehicle* veh = GetVehicle();
 
+    if ( !ValidCloneDelete( clone_delete, "CutGeomToClipboard" ) )
+    {
+        return;
+    }
+
+    int n_errors_before = ErrorMgr.GetNumTotalErrors();
+    std::vector< std::string > clone_vec = veh->FindClonesOf( { geom_id } );
+
     veh->SetActiveGeom( geom_id );
-    veh->CutActiveGeomVec();
+    veh->CutActiveGeomVec( clone_delete );
+
+    ReportClonesOf( veh, clone_vec, n_errors_before );
+}
+
+std::vector< std::string > FindGeomClones( const std::vector< std::string > & geom_id_vec )
+{
+    Vehicle* veh = GetVehicle();
+
+    std::vector< std::string > clone_vec = veh->FindClonesOf( geom_id_vec );
 
     ErrorMgr.NoError();
+    return clone_vec;
 }
 
 /// Copy geometry and place it in the clipboard.  The clipboard is cleared before

@@ -991,8 +991,7 @@ def testACloneWhoseOriginalIsDeletedSaysSoWithItsOwnCode():
     clone = vsp.CloneGeomVec( [ wing ] )[0]
     vsp.Update()
 
-    # Drained before the delete, not after: the complaint is raised by the very update that
-    # finds the original gone, so draining afterwards would throw away the thing being tested.
+    # Drain before the delete, which raises the error under test.
     drop_errors()
     vsp.DeleteGeom( wing )
     vsp.Update()
