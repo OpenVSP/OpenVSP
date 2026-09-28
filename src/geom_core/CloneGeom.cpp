@@ -317,6 +317,35 @@ bool CloneGeom::IsCloneAncestor( const string &id ) const
     return false;
 }
 
+void CloneGeom::ReleaseOriginal()
+{
+    // An original that still exists still lists this Geom as a step child.
+    Geom* original_geom = m_Vehicle->FindGeom( m_OriginalID );
+    if ( original_geom )
+    {
+        original_geom->RemoveStepChildID( GetID() );
+    }
+
+    m_OriginalID.clear();
+
+    // The current name becomes the user's; otherwise it could not be edited and would be
+    // overwritten as soon as a new original was chosen.
+    m_AutoName = false;
+
+    m_XFormDirty = true;
+    m_SurfDirty = true;
+    m_AppearanceDirty = true;
+    m_NameDirty = true;
+    m_SubSurfDirty = true;
+}
+
+string CloneGeom::GetOriginalLostMessage() const
+{
+    return GetName() +
+        " has lost the Geom it was copying, and has been cleared.  Choose an original for it"
+        " again.";
+}
+
 // Safe to call before the original exists; it is looked up by ID.
 void CloneGeom::ResolveOriginal()
 {
@@ -343,9 +372,6 @@ void CloneGeom::ResolveOriginal()
 
     if ( original_geom && ( IsCloneAncestor( m_OriginalID ) || IsDescendant( m_OriginalID ) ) )
     {
-        // It is there, it just cannot be copied.  Let go of it properly: the Geom is still
-        // holding this one in its step-child list.
-        original_geom->RemoveStepChildID( GetID() );
         original_geom = nullptr;
         circular = true;
     }
@@ -354,7 +380,7 @@ void CloneGeom::ResolveOriginal()
     {
         // Deleted, pasted without its original, or circular.  Go empty rather than silently
         // switch to copying the parent.
-        m_OriginalID.clear();
+        ReleaseOriginal();
 
         // Tell the user; only they can fix a circular case, by moving the Clone.
         string message;
@@ -367,9 +393,7 @@ void CloneGeom::ResolveOriginal()
         }
         else
         {
-            message = GetName() +
-                " has lost the Geom it was copying, and has been cleared.  Choose an original"
-                " for it again.";
+            message = GetOriginalLostMessage();
         }
 
         // Reaches both the GUI (ScreenMgr message box) and scripts (ErrorMgr error stack).
@@ -378,20 +402,6 @@ void CloneGeom::ResolveOriginal()
         errMsgData.m_IntVec.push_back( vsp::VSP_CLONE_ORIGINAL_LOST );
         errMsgData.m_StringVec.push_back( "Error:  " + message );
         MessageMgr::getInstance().SendAll( errMsgData );
-
-        // The name was being written from a Geom that is gone, so it stops being written at
-        // all: the switch goes off, and what is on the Geom now is the user's to keep or to
-        // change.  Leaving the switch on would leave a name nobody can edit and nothing
-        // maintains -- and would throw the user's replacement away the moment a new original
-        // was chosen.
-        m_AutoName = false;
-
-        // Whatever was copied came from a Geom this one no longer follows.
-        m_XFormDirty = true;
-        m_SurfDirty = true;
-        m_AppearanceDirty = true;
-        m_NameDirty = true;
-        m_SubSurfDirty = true;
         return;
     }
 

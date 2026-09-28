@@ -277,6 +277,13 @@ public:
     // Whether following the chain of originals from id arrives back here.
     virtual bool IsCloneAncestor( const string &id ) const;
 
+    // Drops the original for good, keeping the current name.  Unlike having no original yet,
+    // the parent is not then taken as the original.
+    virtual void ReleaseOriginal();
+
+    // Message reported when the original is gone.
+    virtual string GetOriginalLostMessage() const;
+
     // The Geom at the end of the chain of originals, or null.  Bounded, since a file may
     // contain a cycle.
     virtual Geom* FollowOriginals() const;
