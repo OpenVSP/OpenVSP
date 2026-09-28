@@ -1117,7 +1117,7 @@ void HumanGeom::UpdateDrawObj()
     m_FeatureDrawObj_vec[1].m_LineWidth = 3.0;
     m_FeatureDrawObj_vec[1].m_LineColor = vec3d( 0.0, 0.0, 1.0 );
 
-    if( m_GuiDraw.GetDispFeatureFlag() )
+    if( m_GuiDraw.GetDispFeatureFlag() && !m_TransMatVec.empty() )
     {
         m_FeatureDrawObj_vec[0].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
         m_FeatureDrawObj_vec[1].m_PntVec.resize( ( NUM_SKEL - 1 ) * 2 );
@@ -1134,6 +1134,11 @@ void HumanGeom::UpdateDrawObj()
             m_FeatureDrawObj_vec[1].m_PntVec[ (i - 1) * 2 ] = m_PoseSkelVerts[iprev];
             m_FeatureDrawObj_vec[1].m_PntVec[ (i - 1) * 2 + 1 ] = m_PoseSkelVerts[i];
         }
+
+        // The skeleton is held in the Human's own frame, like the body; place it where the
+        // body is.
+        m_TransMatVec[0].xformvec( m_FeatureDrawObj_vec[0].m_PntVec );
+        m_TransMatVec[0].xformvec( m_FeatureDrawObj_vec[1].m_PntVec );
     }
 
     //=== Axis ===//
