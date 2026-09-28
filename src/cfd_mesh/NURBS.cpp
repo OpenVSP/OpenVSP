@@ -450,7 +450,7 @@ SdaiEdge_curve* NURBS_Curve::WriteSTEPEdge( STEPutil* step, SdaiVertex_point* st
 
     if ( label.size() > 0 )
     {
-        edge_crv->name_( "'" + ( "Edge_" + label ) + "'" );
+        edge_crv->name_( STEPString( "Edge_" + label ) );
     }
     else
     {

@@ -13,6 +13,7 @@
 #include "FileUtil.h"
 #include "main.h"
 #include <float.h>
+#include <ctime>
 
 //===================================================================//
 //=================        STEP Functions         ===================//
@@ -23,6 +24,8 @@ STEPutil::STEPutil( const int & len, const double & tol )
     context = nullptr;
     shape_rep = nullptr;
     pshape = nullptr;
+    file_name = nullptr;
+    product = nullptr;
 
     // The registry contains information about types present in the current schema; SchemaInit is a function in the schema-specific SDAI library
     registry = new Registry( SchemaInit );
@@ -495,23 +498,47 @@ SdaiAxis2_placement_3d * STEPutil::DefaultAxis( )
 
 SdaiDate_and_time * STEPutil::DateTime( )
 {
+    // The local time, and its offset from UTC
+    std::time_t now = std::time( nullptr );
+    std::tm loc = std::tm();
+    std::tm utc = std::tm();
+#ifdef _WIN32
+    localtime_s( &loc, &now );
+    gmtime_s( &utc, &now );
+#else
+    localtime_r( &now, &loc );
+    gmtime_r( &now, &utc );
+#endif
+
+    // mktime reads the UTC time as local, so it trails now by the offset
+    utc.tm_isdst = loc.tm_isdst;
+    int offset = ( int ) std::difftime( now, std::mktime( &utc ) );
+
     SdaiCalendar_date * caldate = ( SdaiCalendar_date * ) registry->ObjCreate( "CALENDAR_DATE" );
     instance_list->Append( ( SDAI_Application_instance * ) caldate, completeSE );
-    caldate->year_component_( 2000 );
-    caldate->month_component_( 1 );
-    caldate->day_component_( 1 );
+    caldate->year_component_( loc.tm_year + 1900 );
+    caldate->month_component_( loc.tm_mon + 1 );
+    caldate->day_component_( loc.tm_mday );
 
     SdaiCoordinated_universal_time_offset * tzone = ( SdaiCoordinated_universal_time_offset * ) registry->ObjCreate( "COORDINATED_UNIVERSAL_TIME_OFFSET" );
     instance_list->Append( ( SDAI_Application_instance * ) tzone, completeSE );
-    tzone->hour_offset_( 0 );
-    tzone->minute_offset_( 0 );
-    tzone->sense_( Ahead_or_behind__behind );
+    if ( offset < 0 )
+    {
+        tzone->sense_( Ahead_or_behind__behind );
+        offset = -offset;
+    }
+    else
+    {
+        tzone->sense_( Ahead_or_behind__ahead );
+    }
+    tzone->hour_offset_( offset / 3600 );
+    tzone->minute_offset_( ( offset % 3600 ) / 60 );
 
     SdaiLocal_time * loctime = ( SdaiLocal_time * ) registry->ObjCreate( "LOCAL_TIME" );
     instance_list->Append( ( SDAI_Application_instance * ) loctime, completeSE );
-    loctime->hour_component_( 12 );
-    loctime->minute_component_( 0 );
-    loctime->second_component_( 0 );
+    loctime->hour_component_( loc.tm_hour );
+    loctime->minute_component_( loc.tm_min );
+    loctime->second_component_( loc.tm_sec );
     loctime->zone_( tzone );
 
     SdaiDate_and_time * date_time = ( SdaiDate_and_time * ) registry->ObjCreate( "DATE_AND_TIME" );
@@ -572,20 +599,22 @@ void  STEPutil::STEPBoilerplate( const vsp::LEN_UNITS & len, const char * tolstr
     registry->ResetSchemas();
     registry->ResetEntities();
 
+    // STEPfile stamps the time as it writes
     SdaiFile_name * fn = ( SdaiFile_name * ) sfile->HeaderDefaultFileName();
     header_instances->Append( ( SDAI_Application_instance * ) fn, completeSE );
-    fn->name_( "'outfile.stp'" );
+    fn->name_( "''" );
     fn->time_stamp_( "''" );
     fn->author_()->AddNode( new StringNode( "''" ) );
     fn->organization_()->AddNode( new StringNode( "''" ) );
     fn->preprocessor_version_( "''" );
-    fn->originating_system_( "''" );
+    fn->originating_system_( "'" + string( VSPVERSION4 ) + "'" );
     fn->authorization_( "''" );
+    file_name = fn;
 
     SdaiFile_description * fd = ( SdaiFile_description * ) sfile->HeaderDefaultFileDescription();
     header_instances->Append( ( SDAI_Application_instance * ) fd, completeSE );
     fd->description_()->AddNode( new StringNode( "''" ) );
-    fd->implementation_level_( "'1'" );
+    fd->implementation_level_( "'2;1'" );
 
     SdaiFile_schema * fs = ( SdaiFile_schema * ) sfile->HeaderDefaultFileSchema();
     header_instances->Append( ( SDAI_Application_instance * ) fs, completeSE );
@@ -596,7 +625,7 @@ void  STEPutil::STEPBoilerplate( const vsp::LEN_UNITS & len, const char * tolstr
     // references a later entity.  This is not required, but has been done to give a logical
     // flow to the source and the resulting STEP file.
 
-    // Stand-in date and time.
+    // Date and time of writing.
     SdaiDate_and_time * date_time = DateTime( );
 
     // Global units and tolerance.
@@ -632,8 +661,9 @@ void  STEPutil::STEPBoilerplate( const vsp::LEN_UNITS & len, const char * tolstr
     SdaiProduct * prod = ( SdaiProduct * ) registry->ObjCreate( "PRODUCT" );
     instance_list->Append( ( SDAI_Application_instance * ) prod, completeSE );
     prod->id_( "''" );
-    prod->name_( "'prodname'" );
+    prod->name_( "''" );
     prod->description_( "''" );
+    product = prod;
     prod->frame_of_reference_()->AddNode( new EntityNode( ( SDAI_Application_instance * ) mech_context ) );
 
     SdaiProduct_related_product_category * prodcat = ( SdaiProduct_related_product_category * ) registry->ObjCreate( "PRODUCT_RELATED_PRODUCT_CATEGORY" );
@@ -775,8 +805,93 @@ void  STEPutil::STEPBoilerplate( const vsp::LEN_UNITS & len, const char * tolstr
     ownerpersonorg->role_( owner_role );
 }
 
+// Text as a STEP string, quotes included: a quote or backslash doubled, a control character
+// written as its code in a \X\ escape, and anything past ASCII as its Unicode code point in a
+// \X2\ or \X4\ escape
+string STEPString( const string &text )
+{
+    string out = "'";
+
+    size_t i = 0;
+    while ( i < text.size() )
+    {
+        unsigned char c = ( unsigned char ) text[i];
+
+        if ( c < 0x20 || c == 0x7F )
+        {
+            char esc[8];
+            snprintf( esc, sizeof( esc ), "\\X\\%02X", ( unsigned int ) c );
+            out += esc;
+            i++;
+            continue;
+        }
+
+        if ( c < 0x80 )
+        {
+            out.push_back( ( char ) c );
+            if ( c == '\'' || c == '\\' )
+            {
+                out.push_back( ( char ) c );
+            }
+            i++;
+            continue;
+        }
+
+        // UTF-8: the lead byte gives the length
+        int nextra = 0;
+        unsigned int code = 0;
+        if ( ( c & 0xE0 ) == 0xC0 )
+        {
+            nextra = 1;
+            code = c & 0x1F;
+        }
+        else if ( ( c & 0xF0 ) == 0xE0 )
+        {
+            nextra = 2;
+            code = c & 0x0F;
+        }
+        else if ( ( c & 0xF8 ) == 0xF0 )
+        {
+            nextra = 3;
+            code = c & 0x07;
+        }
+        else
+        {
+            code = c;
+        }
+
+        i++;
+        for ( int k = 0; k < nextra && i < text.size(); k++ )
+        {
+            code = ( code << 6 ) | ( ( unsigned char ) text[i] & 0x3F );
+            i++;
+        }
+
+        char buf[32];
+        if ( code <= 0xFFFF )
+        {
+            snprintf( buf, sizeof( buf ), "\\X2\\%04X\\X0\\", code );
+        }
+        else
+        {
+            snprintf( buf, sizeof( buf ), "\\X4\\%08X\\X0\\", code );
+        }
+        out.append( buf );
+    }
+
+    out.push_back( '\'' );
+    return out;
+}
+
 void STEPutil::WriteFile( const string &fname )
 {
+    string path, file;
+    GetPathFile( fname, path, file );
+
+    file_name->name_( STEPString( file ) );
+    product->id_( STEPString( GetBasename( file ) ) );
+    product->name_( STEPString( GetBasename( file ) ) );
+
     sfile->WriteExchangeFile( fname.c_str() );
     if( sfile->Error().severity() < SEVERITY_USERMSG )
     {
@@ -803,7 +918,7 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label,
 
     if ( label.size() > 0 )
     {
-        surf->name_( "'" + ( "Surf_" + label ) + "'" );
+        surf->name_( STEPString( "Surf_" + label ) );
     }
     else
     {
@@ -942,7 +1057,7 @@ SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( const vector < vec3d > &cp_v
 
     if ( label.size() > 0 )
     {
-        curve->name_( "'" + ( "Curve_" + label ) + "'" );
+        curve->name_( STEPString( "Curve_" + label ) );
     }
     else
     {
@@ -1071,7 +1186,7 @@ void STEPutil::MakeSurfaceCurve( const vector < vec3d > &cp_vec, int deg, const 
 
     if ( label.size() > 0 )
     {
-        trimmed_curve->name_( "'" + ( "TrimSurf_" + label ) + "'" );
+        trimmed_curve->name_( STEPString( "TrimSurf_" + label ) );
     }
     else
     {
@@ -1173,7 +1288,7 @@ void STEPutil::RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_
 
     if ( label.size() > 0 )
     {
-        adv_brep->name_( "'" + ( "BREP_" + label ) + "'" );
+        adv_brep->name_( STEPString( "BREP_" + label ) );
     }
     else
     {
@@ -1238,7 +1353,7 @@ void STEPutil::RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > 
 
     if ( label.size() > 0 )
     {
-        man_surf->name_( "'" + ( "ManShell_" + label ) + "'" );
+        man_surf->name_( STEPString( "ManShell_" + label ) );
     }
     else
     {
@@ -1270,7 +1385,7 @@ void STEPutil::RepresentUntrimmedSurfs( const vector < SdaiB_spline_surface_with
 {
     SdaiGeometric_set* gset = (SdaiGeometric_set*)registry->ObjCreate( "GEOMETRIC_SET" );
     instance_list->Append( (SDAI_Application_instance*)gset, completeSE );
-    gset->name_( "'" + label + "'" );
+    gset->name_( STEPString( label ) );
 
     for ( int i = 0; i < surf_vec.size(); ++i )
     {

@@ -92,6 +92,10 @@ protected:
     STEPfile * sfile;
     InstMgr * header_instances;
 
+    // Named after the file when it is written
+    SdaiFile_name * file_name;
+    SdaiProduct * product;
+
     STEPcomplex * context;
     SdaiShape_representation * shape_rep;
     SdaiProduct_definition_shape* pshape;
@@ -166,6 +170,9 @@ protected:
 
 // Extract the control points and patch data from a surface so that an equivalent NURBS
 // surface can be defined.
+// Text as a STEP string, quoted and escaped
+string STEPString( const string &text );
+
 void ExtractCPts( piecewise_surface_type& s, vector< vector< int > >& ptindxs, vector< vec3d >& allPntVec, 
                   piecewise_surface_type::index_type& maxu, piecewise_surface_type::index_type& maxv,
                   piecewise_surface_type::index_type& nupatch, piecewise_surface_type::index_type& nvpatch,
