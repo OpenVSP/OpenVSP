@@ -214,6 +214,9 @@ public:
     bool m_BorderFlag;
     int m_SSIntersectIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
 
+    // A crease where two pieces were joined into one patch, not a subsurface the user drew
+    bool m_PatchJoinFlag;
+
     // The parameter line of each parent the chain runs along, where it is one
     ParmLine m_ALine;
     ParmLine m_BLine;

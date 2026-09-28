@@ -2091,6 +2091,13 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
     int icurve = 0;
     for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
     {
+        // A patch join is a crease for the mesher inside one surface, which the surface
+        // carries exactly already
+        if ( ( *i_seg )->m_PatchJoinFlag )
+        {
+            continue;
+        }
+
         bool internal_flag = false, ss_flag = false, wake_flag = false;
 
         // Check if the curve is interenal or external
@@ -3403,12 +3410,19 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
         // the patch it belongs to and drops it from the rest.
         const vector < pair < vec3d, vec3d > > &jvec = surf->GetJoinLines();
 
+        int njoin_start = ( int )ss_vec.size();
+
+        vector < ParmLine > jline_vec( jvec.size() );
+
         for ( int i = 0 ; i < ( int )jvec.size() ; i++ )
         {
             SimpleSubSurface ss;
             ss.SetAsFiniteLine( surf->GetGeomID(), surf->GetMainSurfID(),
                                 surf->GetName() + "_PatchJoin", jvec[i].first, jvec[i].second );
             ss_vec.push_back( ss );
+
+            jline_vec[i] = ParmLine::Between( jvec[i].first.x(), jvec[i].first.y(),
+                                              jvec[i].second.x(), jvec[i].second.y() );
         }
 
         // A patch is not always a plain piece of the Geom's surface -- an end cap or a
@@ -3469,6 +3483,22 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                         chain = new ISegChain;
                         chain->m_SurfA = surf;
                         chain->m_SurfB = surf;
+                        chain->m_PatchJoinFlag = ( ss >= njoin_start );
+                        if ( chain->m_PatchJoinFlag )
+                        {
+                            // The seam's line, in the patch's parameters
+                            ParmLine line = jline_vec[ ss - njoin_start ];
+                            if ( line.m_Kind == ParmLine::U_CONST )
+                            {
+                                line.m_Val = reg.ToPatchU( line.m_Val );
+                            }
+                            else if ( line.m_Kind == ParmLine::W_CONST )
+                            {
+                                line.m_Val = reg.ToPatchW( line.m_Val );
+                            }
+                            chain->m_ALine = line;
+                            chain->m_BLine = line;
+                        }
                         if ( !is_poly )
                         {
                             new_chain = false;

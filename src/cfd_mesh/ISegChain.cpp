@@ -589,6 +589,7 @@ ISegChain::ISegChain()
     m_BorderFlag = false;
     m_WakeAttachChain = nullptr;
     m_SSIntersectIndex = -1;
+    m_PatchJoinFlag = false;
 }
 
 ISegChain::~ISegChain()
@@ -1092,6 +1093,7 @@ vector< ISegChain* > ISegChain::SortAndSplit( SurfaceIntersectionSingleton *Mesh
             ISegChain* nc = new ISegChain();
             nc->m_SurfA = m_SurfA;
             nc->m_SurfB = m_SurfB;
+            nc->m_PatchJoinFlag = m_PatchJoinFlag;
             nc->m_ALine = m_ALine;
             nc->m_BLine = m_BLine;
             nc->m_ISegDeque.push_back( new_seg );
