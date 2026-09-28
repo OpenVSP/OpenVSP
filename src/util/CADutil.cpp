@@ -1010,25 +1010,29 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label,
 
     piecewise_surface_type::index_type ip, jp;
 
+    // The knots are the surface's own parameters, so a point has the same (u, v) in the file
+    vector < double > upmap, vpmap;
+    s.get_pmap_uv( upmap, vpmap );
+
     surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
-    surf->u_knots_()->AddNode( new RealNode( 0.0 ) );
+    surf->u_knots_()->AddNode( new RealNode( upmap[0] ) );
     for ( ip = 1; ip < nupatch; ++ip )
     {
         surf->u_multiplicities_()->AddNode( new IntNode( maxu ) );
-        surf->u_knots_()->AddNode( new RealNode( ip ) );
+        surf->u_knots_()->AddNode( new RealNode( upmap[ip] ) );
     }
     surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
-    surf->u_knots_()->AddNode( new RealNode( nupatch ) );
+    surf->u_knots_()->AddNode( new RealNode( upmap[nupatch] ) );
 
     surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
-    surf->v_knots_()->AddNode( new RealNode( 0.0 ) );
+    surf->v_knots_()->AddNode( new RealNode( vpmap[0] ) );
     for ( jp = 1; jp < nvpatch; ++jp )
     {
         surf->v_multiplicities_()->AddNode( new IntNode( maxv ) );
-        surf->v_knots_()->AddNode( new RealNode( jp ) );
+        surf->v_knots_()->AddNode( new RealNode( vpmap[jp] ) );
     }
     surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
-    surf->v_knots_()->AddNode( new RealNode( nvpatch ) );
+    surf->v_knots_()->AddNode( new RealNode( vpmap[nvpatch] ) );
 
     surf->knot_spec_( Knot_type__piecewise_bezier_knots );
 
@@ -1488,10 +1492,14 @@ DLL_IGES_ENTITY_128 IGESutil::MakeSurf( piecewise_surface_type& s, const string&
         }
     }
 
+    // The knots are the surface's own parameters, so a point has the same (u, v) in the file
+    vector < double > upmap, vpmap;
+    s.get_pmap_uv( upmap, vpmap );
+
     vector< double > knotu, knotv;
 
-    IGESKnots( maxu, nupatch, knotu );
-    IGESKnots( maxv, nvpatch, knotv );
+    IGESKnots( maxu, upmap, knotu );
+    IGESKnots( maxv, vpmap, knotv );
 
     if ( !isurf.SetNURBSData( nupts, nvpts, maxu + 1, maxv + 1,
                               knotu.data(), knotv.data(), coeff.data(),
@@ -1631,29 +1639,6 @@ void IGESutil::AddLabel( DLL_IGES_ENTITY& entity, const string& label )
     }
     entity.AddOptionalEntity( e406.GetRawPtr() );
     e406.Detach();
-}
-
-void IGESutil::IGESKnots( int deg, int npatch, vector< double >& knot )
-{
-    int i, j;
-
-    knot.clear();
-
-    for ( i = 0; i <= deg; i++ )
-    {
-        knot.push_back( 0.0 );
-    }
-    for ( i = 1; i < npatch; ++i )
-    {
-        for ( j = 0; j < deg; j++ )
-        {
-            knot.push_back( 1.0 * i );
-        }
-    }
-    for ( i = 0; i <= deg; i++ )
-    {
-        knot.push_back( 1.0 * npatch );
-    }
 }
 
 void IGESutil::IGESKnots( int deg, const vector < double > &break_vec, vector< double >& knot )

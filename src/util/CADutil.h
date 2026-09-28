@@ -128,11 +128,8 @@ public:
 
     void WriteFile( const string &fname, bool overwrite = true );
 
-    // Identify the NURBS knot vector for a curve or direction of a surface given its degree and number of patches
-    void IGESKnots( int deg, int npatch, vector< double >& knot );
-
-    // Identify the NURBS knot vector for a piecewise Bezier curve given its degree and the parameter at
-    // each segment end
+    // Identify the NURBS knot vector for a piecewise Bezier curve, or one direction of a piecewise
+    // Bezier surface, given its degree and the parameter at each segment end
     void IGESKnots( int deg, const vector < double > &break_vec, vector< double >& knot );
 
     // Write a Bezier surface to the IGES model by extracting the Bezier parameters and converting to a NURBS surface
