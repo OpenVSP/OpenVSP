@@ -68,9 +68,6 @@ public:
     void RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label = "" );
     void RepresentUntrimmedSurfs( const vector < SdaiB_spline_surface_with_knots* > &surf_vec, const string& label = "" );
 
-    // Create a STEP planar surface. The surface will extend infinitely if it is not bounded
-    SdaiSurface* MakePlane( const vec3d &center, const vec3d &norm, const vec3d &tangent, const string& label );
-
     // Convert a piecewise Bezier surface to a NURBS surface and add it to the STEP file. Additional options
     // are included to use Nanoflann to merge points that are close together
     SdaiSurface* MakeSurf( piecewise_surface_type& s, const string& label = "", bool mergepts = false, double merge_tol = 1e-8 );

@@ -302,7 +302,6 @@ NURBS_Surface::NURBS_Surface()
 {
     m_SurfID = -1;
     m_Surf = nullptr;
-    m_IsPlanar = false;
     m_SurfType = vsp::CFD_NORMAL;
     m_Label = string();
     m_WakeFlag = false;
@@ -314,28 +313,6 @@ void NURBS_Surface::InitNURBSSurf( Surf* surface )
     m_BBox = surface->GetBBox();
 
     m_Surf = surface->GetSurfCore()->GetSurf();
-
-    // Check if the surface is planar (simplified representation)
-    double u_mid = ( m_Surf->get_u0() + m_Surf->get_umax() ) / 2;
-    double w_mid = ( m_Surf->get_v0() + m_Surf->get_vmax() ) / 2;
-
-    // Check if the surface is planar:
-    double ka, kg, k1, k2;
-
-    surface->GetSurfCore()->CompCurvature( u_mid, w_mid, ka, kg, k1, k2 );
-
-    if ( std::abs( k1 ) < FLT_EPSILON && std::abs( k2 ) < FLT_EPSILON )
-    {
-        // Both principal curvatures are 0
-        m_IsPlanar = true;
-    }
-
-    m_Center = surface->GetSurfCore()->CompPnt( u_mid, w_mid );
-    m_Norm = surface->GetSurfCore()->CompNorm( u_mid, w_mid );
-    m_Tangent = surface->GetSurfCore()->CompTanU( u_mid, w_mid );
-
-    m_Tangent.normalize();
-    m_Norm.normalize();
 }
 
 DLL_IGES_ENTITY_128 NURBS_Surface::WriteIGESSurf( IGESutil* iges, const string& label )
@@ -351,32 +328,21 @@ DLL_IGES_ENTITY_128 NURBS_Surface::WriteIGESSurf( IGESutil* iges, const string& 
 
 SdaiSurface* NURBS_Surface::WriteSTEPSurf( STEPutil* step, const string& label, bool mergepts )
 {
-    SdaiSurface* ret_surf = nullptr;
-
     string new_label = label;
     if ( m_WakeFlag && label.size() > 0 )
     {
         new_label = "Wake_" + label;
     }
 
-    if ( m_IsPlanar )
-    {
-        ret_surf = step->MakePlane( m_Center, m_Norm, m_Tangent, new_label );
-    }
-    else
-    {
-        //==== Compute Tol ====//
-        double merge_tol = m_BBox.DiagDist() * 1.0e-10;
+    //==== Compute Tol ====//
+    double merge_tol = m_BBox.DiagDist() * 1.0e-10;
 
-        if ( merge_tol < 1.0e-10 )
-        {
-            merge_tol = 1.0e-10;
-        }
-
-        ret_surf = step->MakeSurf( *m_Surf, new_label, mergepts, merge_tol );
+    if ( merge_tol < 1.0e-10 )
+    {
+        merge_tol = 1.0e-10;
     }
 
-    return ret_surf;
+    return step->MakeSurf( *m_Surf, new_label, mergepts, merge_tol );
 }
 
 unordered_map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::BuildOrderedChains( vector < NURBS_Curve > chain_vec )

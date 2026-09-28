@@ -784,36 +784,6 @@ void STEPutil::WriteFile( const string &fname )
     }
 }
 
-SdaiSurface* STEPutil::MakePlane( const vec3d &center, const vec3d &norm, const vec3d &tangent, const string& label )
-{
-    SdaiPlane* plane = (SdaiPlane*)registry->ObjCreate( "PLANE" );
-    instance_list->Append( (SDAI_Application_instance*)plane, completeSE );
-
-    SdaiCartesian_point* origin2 = MakePoint( center.x(), center.y(), center.z() );
-    SdaiDirection* axis2 = MakeDirection( norm.x(), norm.y(), norm.z() );
-    SdaiDirection* refd2 = MakeDirection( tangent.x(), tangent.y(), tangent.z() );
-
-    SdaiAxis2_placement_3d* placement2 = (SdaiAxis2_placement_3d*)registry->ObjCreate( "AXIS2_PLACEMENT_3D" );
-    placement2->name_( "''" );
-    placement2->location_( origin2 );
-    placement2->axis_( axis2 );
-    placement2->ref_direction_( refd2 );
-    instance_list->Append( (SDAI_Application_instance*)placement2, completeSE );
-
-    plane->position_( placement2 );
-
-    if ( label.size() > 0 )
-    {
-        plane->name_( "'" + ( "Plane_" + label ) + "'" );
-    }
-    else
-    {
-        plane->name_( "''" );
-    }
-
-    return (SdaiSurface*)plane;
-}
-
 SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label, bool mergepts, double merge_tol )
 {
     // Surface control points and 2D indexes

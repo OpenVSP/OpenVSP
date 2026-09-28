@@ -233,12 +233,6 @@ protected:
     // NURBS Surface definition
     piecewise_surface_type* m_Surf;
 
-    // Variables for representing the NURBS surface as a simplified planar surface if possible 
-    bool m_IsPlanar;
-    vec3d m_Tangent;
-    vec3d m_Norm;
-    vec3d m_Center;
-
     // Bounding box of the surface, used to scale tolerances appropriately
     BndBox m_BBox;
 
