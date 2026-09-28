@@ -1,3 +1,26 @@
+# [OpenVSP 3.53.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.53.1)
+
+2026-09-28
+
+OpenVSP 3.53.1
+
+Two quick fixes here, one important and one not so much.
+
+The important fix -- Conformals of Wings got broken and their spanwise extent
+was not being done right.
+
+The other one -- fix how WireGeom's feature lines were drawn.  Nobody uses
+WireGeom and if they did, they probably didn't notice that the feature lines
+were drawn wrong.  So this one is just because it is the right thing to do.
+
+Bug Fixes:
+- Conformal Geoms of Wings had wrong spanwise extent
+- WireGeom feature lines not drawing correctly
+
+
+---
+
+
 # [OpenVSP 3.53.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.53.0)
 
 2026-09-25
