@@ -1834,17 +1834,6 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 {
     STEPutil step( len_unit, tol );
 
-    // Identify the SdaiB_spline_curve_with_knots. This must come before BuildNURBSSurfMap for STEP files, or the 
-    // edge pointer will not be transferred between surfaces
-    for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
-    {
-        // Don't write subsurface or structural entity intersections as STEP edges (surface splitting along these curve types not supported)
-        if ( !m_NURBSCurveVec[i].m_SubSurfFlag && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_STRUCTURE )
-        {
-            m_NURBSCurveVec[i].WriteSTEPEdge( &step, to_string(i), merge_pnts ); // TODO: Improve STEP Edge Naming
-        }
-    }
-
     BuildNURBSSurfMap();
 
     if ( m_NURBSSurfVec.size() == 0 )
@@ -1852,6 +1841,8 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         addOutputText( "Error: Can't Export STEP - No Valid Surfaces\n" );
         return;
     }
+
+    STEP_Topology topo( m_NURBSCurveVec, m_NURBSSurfVec );
 
     // Identify the unique sets of intersected components
     vector < vector < int > > comp_id_group_vec = GetCompIDGroupVec();
@@ -1914,10 +1905,18 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         {
             if ( std::count( comp_id_group_vec[j].begin(), comp_id_group_vec[j].end(), comp_id ) )
             {
-                vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, surf, label, merge_pnts );
+                vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, &topo, surf, label, merge_pnts );
                 adv_vec[j].insert( adv_vec[j].end(), adv.begin(), adv.end() );
             }
         }
+    }
+
+    if ( topo.GetMaxEndGap() > tol )
+    {
+        char str[256];
+        snprintf( str, sizeof( str ), "Warning: STEP curve ends lie up to %g from their shared vertex, more than the tolerance %g\n",
+                  topo.GetMaxEndGap(), tol );
+        addOutputText( str );
     }
 
     // TODO: Don't include transparent and structure surfaces in BREP?
@@ -2011,6 +2010,7 @@ void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
 
         nurbs_surf.m_SurfType = m_SurfVec[si]->GetSurfaceCfdType();
         nurbs_surf.m_WakeFlag = m_SurfVec[si]->GetWakeFlag();
+        nurbs_surf.m_FlipFlag = m_SurfVec[si]->GetFlipFlag();
 
         // Identify all border and intersection NURBS curves on the surface
         vector < NURBS_Curve > nurbs_curve_vec = nurbs_surf.MatchNURBSCurves( m_NURBSCurveVec );

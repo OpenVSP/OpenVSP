@@ -19,6 +19,8 @@
 #include "SCurve.h"
 #include "CADutil.h"
 
+class STEP_Topology;
+
 
 // Describes a NURBS curve, formed from a Bezier surface curve (SCurve). Can be of border 
 // or intersection type.
@@ -45,8 +47,9 @@ public:
     // Run the CAD curve the other way
     void ReverseCAD();
 
-    // Define the NURBS curve as a SdaiEdge_curve
-    void WriteSTEPEdge( STEPutil* step, const string& label = "", bool mergepnts = false );
+    // Write the NURBS curve as a SdaiEdge_curve running between the given vertices
+    SdaiEdge_curve* WriteSTEPEdge( STEPutil* step, SdaiVertex_point* start_vert, SdaiVertex_point* end_vert,
+                                   const string& label = "", bool mergepnts = false ) const;
 
     // Defines m_IGES_Edge by as an IGES type 126 entity
     void WriteIGESEdge( IGESutil* iges, const string& label = "" );
@@ -83,11 +86,6 @@ public:
 
     // Flag that indicates one of the parent surfaces of the curve is a wake
     bool m_WakeFlag;
-
-    // Pointers for the STEP representation of the NURBS curve
-    SdaiVertex_point* m_STEP_Start_Vert;
-    SdaiVertex_point* m_STEP_End_Vert;
-    SdaiEdge_curve* m_STEP_Edge;
 
     // Pointer for the IGES representation of the NURBS curve
     std::shared_ptr < DLL_IGES_ENTITY_126 > m_IGES_Edge;
@@ -155,8 +153,12 @@ public:
     // Add a cutout or hole to a boundedor trimmed surface
     void WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const string& label = "" );
 
-    // Write the NURBS loop to STEP
-    SdaiEdge_loop* WriteSTEPLoop( STEPutil* step, const string& label = "", bool mergepts = false );
+    // Write the NURBS loop to STEP, taking its edges from the file's topology
+    SdaiEdge_loop* WriteSTEPLoop( STEPutil* step, STEP_Topology* topo, bool mergepts = false );
+
+    // Write the NURBS loop to STEP as a bound of a face on the given surface
+    SdaiFace_bound* WriteSTEPBound( STEPutil* step, STEP_Topology* topo, int surf_id, bool cutout_flag,
+                                    bool flip_flag, bool mergepts = false );
 
     // Based on all control points for theloop, get the bounding box
     BndBox GetBndBox();
@@ -226,7 +228,7 @@ public:
 
     // Write the NURBS loops for this NURBS surface to STEP, trimming the parent surface
     // in the process. 
-    vector < SdaiAdvanced_face* > WriteSTEPLoops( STEPutil* step, SdaiSurface* surf, const string& label = "", bool mergepts = false );
+    vector < SdaiAdvanced_face* > WriteSTEPLoops( STEPutil* step, STEP_Topology* topo, SdaiSurface* surf, const string& label = "", bool mergepts = false );
 
     // Identifies the internal and external NURBS curves on the surface, organizes
     // them into connected chains, and forms loops.  
@@ -253,6 +255,9 @@ public:
     // Identifies if the surface is a wake or not
     bool m_WakeFlag;
 
+    // Set when the surface's parametric normal points into the body rather than out of it
+    bool m_FlipFlag;
+
     // All NURBS curves associated with the surface
     vector < NURBS_Curve > m_NURBSCurveVec;
 
@@ -277,6 +282,55 @@ protected:
     // Bounding box of the surface, used to scale tolerances appropriately
     BndBox m_BBox;
 
+};
+
+// The vertices and edges of a trimmed STEP file.  Each curve is written once, as one edge,
+// however many faces it bounds.  Curve ends that some loop walks straight between share a
+// vertex, so the faces meet in the file as they do in the model, whatever small gap the
+// intersection left between the curves.
+class STEP_Topology
+{
+public:
+
+    STEP_Topology( const vector < NURBS_Curve > &curve_vec, const vector < NURBS_Surface > &surf_vec );
+
+    // The edge for a curve, written the first time it is asked for
+    SdaiEdge_curve* GetEdge( STEPutil* step, int curve_id, bool mergepts );
+
+    // Largest distance from a curve end to the vertex it was given, over every edge written
+    double GetMaxEndGap() const
+    {
+        return m_MaxEndGap;
+    }
+
+protected:
+
+    // Index of one end of a curve in m_EndVertVec
+    static int EndIndex( int curve_id, bool end_flag )
+    {
+        if ( end_flag )
+        {
+            return 2 * curve_id + 1;
+        }
+        return 2 * curve_id;
+    }
+
+    int FindRoot( int i );
+
+    SdaiVertex_point* GetVertex( STEPutil* step, int vert );
+
+    const vector < NURBS_Curve > &m_CurveVec;
+
+    // Vertex number for each end of each curve, start then end
+    vector < int > m_EndVertVec;
+
+    // Position of each vertex: the mean of the curve ends that share it
+    vector < vec3d > m_VertPntVec;
+
+    vector < SdaiVertex_point* > m_VertVec;
+    vector < SdaiEdge_curve* > m_EdgeVec;
+
+    double m_MaxEndGap;
 };
 
 #endif

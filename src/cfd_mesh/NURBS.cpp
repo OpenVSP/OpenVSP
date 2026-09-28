@@ -25,12 +25,10 @@ NURBS_Curve::NURBS_Curve()
     m_InsideNegativeFlag = false;
     m_SurfA_ID = -1;
     m_SurfB_ID = -1;
+    m_CurveID = -1;
     m_MergeTol = 0;
     m_CADDeg = 1;
     m_CADUWDeg = 1;
-    m_STEP_Start_Vert = nullptr;
-    m_STEP_End_Vert = nullptr;
-    m_STEP_Edge = nullptr;
     m_BBox = BndBox();
     m_Label = string();
     m_WakeFlag = false;
@@ -195,32 +193,22 @@ void NURBS_Curve::WriteIGESEdge( IGESutil* iges, const string& label )
     m_IGES_Edge.reset( new DLL_IGES_ENTITY_126( iges->MakeCurve( m_CADPntVec, m_CADDeg, m_CADBreakVec, label ) ) );
 }
 
-void NURBS_Curve::WriteSTEPEdge( STEPutil* step, const string& label, bool mergepnts )
+SdaiEdge_curve* NURBS_Curve::WriteSTEPEdge( STEPutil* step, SdaiVertex_point* start_vert, SdaiVertex_point* end_vert,
+                                            const string& label, bool mergepnts ) const
 {
-    // Identify the start and end vertex points
-    m_STEP_Start_Vert = step->MakeVertex( m_PntVec[0] );
-
-    Logical closed_curve;
-
-    if ( dist( m_PntVec[0], m_PntVec.back() ) < ( m_BBox.DiagDist() * 1.0e-6 ) )
+    Logical closed_curve = LFalse;
+    if ( start_vert == end_vert )
     {
-        m_STEP_End_Vert = m_STEP_Start_Vert;
         closed_curve = LTrue;
     }
-    else
-    {
-        m_STEP_End_Vert = step->MakeVertex( m_PntVec.back() );
-        closed_curve = LFalse;
-    }
 
-    // Identify the edge
     SdaiB_spline_curve_with_knots* curve = step->MakeCurve( m_CADPntVec, m_CADDeg, m_CADBreakVec, label, closed_curve, mergepnts, m_MergeTol );
 
     SdaiEdge_curve* edge_crv = (SdaiEdge_curve*)step->registry->ObjCreate( "EDGE_CURVE" );
     step->instance_list->Append( (SDAI_Application_instance*)edge_crv, completeSE );
     edge_crv->edge_geometry_( curve );
-    edge_crv->edge_start_( m_STEP_Start_Vert );
-    edge_crv->edge_end_( m_STEP_End_Vert );
+    edge_crv->edge_start_( start_vert );
+    edge_crv->edge_end_( end_vert );
     edge_crv->same_sense_( BTrue ); // direction set by oriented edge
 
     if ( label.size() > 0 )
@@ -232,7 +220,7 @@ void NURBS_Curve::WriteSTEPEdge( STEPutil* step, const string& label, bool merge
         edge_crv->name_( "''" );
     }
 
-    m_STEP_Edge = edge_crv;
+    return edge_crv;
 }
 
 //////////////////////////////////////////////////////
@@ -329,7 +317,7 @@ void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_su
     iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec, IGESCurveCreation(), label );
 }
 
-SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, const string& label, bool mergepts )
+SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, STEP_Topology* topo, bool mergepts )
 {
     if ( !m_ClosedFlag )
     {
@@ -341,16 +329,12 @@ SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, const string& label, b
 
     for ( size_t i = 0; i < m_OrderedCurves.size(); i++ )
     {
-        if ( !m_OrderedCurves[i].first.m_STEP_Edge )
-        {
-            // Create the edge if it has not yet been defined
-            m_OrderedCurves[i].first.WriteSTEPEdge( step, label, mergepts );
-        }
+        SdaiEdge_curve* edge = topo->GetEdge( step, m_OrderedCurves[i].first.m_CurveID, mergepts );
 
         // Created oriented edge from NURBS_Curve edge
         SdaiOriented_edge* or_edge = (SdaiOriented_edge*)step->registry->ObjCreate( "ORIENTED_EDGE" );
         step->instance_list->Append( (SDAI_Application_instance*)or_edge, completeSE );
-        or_edge->edge_element_( m_OrderedCurves[i].first.m_STEP_Edge );
+        or_edge->edge_element_( edge );
         //TODO: Add edge start and end?
 
         Boolean orient = BTrue;
@@ -393,6 +377,42 @@ SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, const string& label, b
     e_loop_path->edge_list_()->AddNode( new GenericAggrNode( loop_ss.str().c_str() ) );
 
     return loop;
+}
+
+SdaiFace_bound* NURBS_Loop::WriteSTEPBound( STEPutil* step, STEP_Topology* topo, int surf_id, bool cutout_flag,
+                                            bool flip_flag, bool mergepts )
+{
+    SdaiEdge_loop* loop = WriteSTEPLoop( step, topo, mergepts );
+
+    if ( !loop )
+    {
+        return nullptr;
+    }
+
+    SdaiFace_bound* face = nullptr;
+    if ( cutout_flag )
+    {
+        face = (SdaiFace_bound*)step->registry->ObjCreate( "FACE_BOUND" );
+    }
+    else
+    {
+        face = (SdaiFace_bound*)step->registry->ObjCreate( "FACE_OUTER_BOUND" );
+    }
+    step->instance_list->Append( (SDAI_Application_instance*)face, completeSE );
+    face->bound_( loop );
+    face->name_( "''" );
+
+    // The face is written facing out of the body, so its bounds run with the face on their left
+    if ( Sense( surf_id, cutout_flag, flip_flag ) < 0 )
+    {
+        face->orientation_( BFalse );
+    }
+    else
+    {
+        face->orientation_( BTrue );
+    }
+
+    return face;
 }
 
 BndBox NURBS_Loop::GetBndBox()
@@ -479,6 +499,7 @@ NURBS_Surface::NURBS_Surface()
     m_SurfType = vsp::CFD_NORMAL;
     m_Label = string();
     m_WakeFlag = false;
+    m_FlipFlag = false;
 }
 
 void NURBS_Surface::InitNURBSSurf( Surf* surface )
@@ -495,6 +516,14 @@ DLL_IGES_ENTITY_128 NURBS_Surface::WriteIGESSurf( IGESutil* iges, const string& 
     if ( m_WakeFlag && label.size() > 0 )
     {
         new_label = "Wake_" + label;
+    }
+
+    // Facing out of the body
+    if ( m_FlipFlag )
+    {
+        piecewise_surface_type flipped = *m_Surf;
+        flipped.reverse_v();
+        return iges->MakeSurf( flipped, new_label.c_str() );
     }
 
     return iges->MakeSurf( *m_Surf, new_label.c_str() );
@@ -568,6 +597,15 @@ unordered_map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::Build
             }
 
             vector < vec3d > chain_cp_vec = chain_vec[chain_ind].m_PntVec;
+
+            // A chain that closes nearer than the nearest curve it could take next is a loop, and
+            // takes no more.  One that closes where another curve starts goes on, and is split
+            // there later.  One curve is a loop only where its own ends meet.
+            double closing = dist( curr_front_pnt, curr_back_pnt );
+            if ( ( return_curve_map[map_ind].size() > 1 || closing <= m_BBox.DiagDist() * 1e-8 ) && closing < closest_dist )
+            {
+                break;
+            }
 
             if ( closest_dist < tol )
             {
@@ -825,7 +863,7 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
     }
 }
 
-vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, SdaiSurface* surf, const string& label, bool mergepts )
+vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STEP_Topology* topo, SdaiSurface* surf, const string& label, bool mergepts )
 {
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
@@ -839,144 +877,79 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
         }
     }
 
+    // The loops that bound a face, and the holes cut in one
+    vector < NURBS_Loop > ext_loop_vec, cutout_vec;
+
+    MakeExtLoopVec( ext_loop_vec, cutout_vec );
+
+    // One face per external loop, all on the same parent surface.  Holes go on the first.
+    vector < vector < SdaiFace_bound* > > face_bound_vec;
+
+    for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
+    {
+        SdaiFace_bound* bound = ext_loop_vec[i].WriteSTEPBound( step, topo, m_SurfID, false, m_FlipFlag, mergepts );
+
+        if ( bound )
+        {
+            face_bound_vec.push_back( vector < SdaiFace_bound* > ( 1, bound ) );
+        }
+    }
+
+    if ( face_bound_vec.empty() )
+    {
+        face_bound_vec.resize( 1 );
+    }
+
+    for ( size_t i = 0; i < cutout_vec.size(); i++ )
+    {
+        SdaiFace_bound* bound = cutout_vec[i].WriteSTEPBound( step, topo, m_SurfID, true, m_FlipFlag, mergepts );
+
+        if ( bound )
+        {
+            face_bound_vec[0].push_back( bound );
+        }
+    }
+
     vector < SdaiAdvanced_face* > adv_vec;
-    vector < SdaiFace_bound* > face_vec;
-    vector < SdaiFace_outer_bound* > outer_face_vec;
 
-    // Identify if there are multiple external loops
-    vector < NURBS_Loop > ext_loop_vec;
-
-    for ( size_t i = 0; i < m_NURBSLoopVec.size(); i++ )
+    for ( size_t i = 0; i < face_bound_vec.size(); i++ )
     {
-        if ( m_NURBSLoopVec[i].m_IntersectLoopFlag )
+        if ( face_bound_vec[i].empty() )
         {
-            if ( m_SurfType == vsp::CFD_STRUCTURE || ( m_SurfType == vsp::CFD_NEGATIVE && m_NURBSLoopVec[i].m_InternalLoopFlag ) )
-            {
-                // Opposite trimming behavior for structures and negative surfaces when the loop is inside another surface
-                // This case applies to FEA slices, which are a single surface. Domes
-                // are more than 1 surface, so the bounding loop is not a single intersection
-                // chain, but a combination of intersections and border curves
-                ext_loop_vec.push_back( m_NURBSLoopVec[i] );
-            }
-            else if ( m_SurfType != vsp::CFD_NEGATIVE )
-            {
-                SdaiEdge_loop* loop = m_NURBSLoopVec[i].WriteSTEPLoop( step, label, mergepts );
-
-                if ( loop ) // TODO: Identify if the interior loop is on a surface that will be split
-                {
-                    SdaiFace_bound* face = (SdaiFace_bound*)step->registry->ObjCreate( "FACE_BOUND" );
-                    step->instance_list->Append( (SDAI_Application_instance*)face, completeSE );
-                    face->bound_( loop );
-                    face->name_( "''" );
-                    face->orientation_( BTrue );
-
-                    face_vec.push_back( face );
-                }
-            }
+            continue;
         }
-        else if ( !m_NURBSLoopVec[i].m_InternalLoopFlag && m_SurfType != vsp::CFD_STRUCTURE && m_SurfType != vsp::CFD_NEGATIVE )
+
+        SdaiAdvanced_face* adv_face = (SdaiAdvanced_face*)step->registry->ObjCreate( "ADVANCED_FACE" );
+        step->instance_list->Append( (SDAI_Application_instance*)adv_face, completeSE );
+        adv_face->face_geometry_( surf );
+        adv_face->name_( "''" );
+
+        // Face out of the body
+        if ( m_FlipFlag )
         {
-            ext_loop_vec.push_back( m_NURBSLoopVec[i] );
+            adv_face->same_sense_( BFalse );
         }
-        else if ( m_NURBSLoopVec[i].m_InternalLoopFlag && ( m_SurfType == vsp::CFD_STRUCTURE || m_SurfType == vsp::CFD_NEGATIVE ) )
+        else
         {
-            ext_loop_vec.push_back( m_NURBSLoopVec[i] );
+            adv_face->same_sense_( BTrue );
         }
-    }
 
-    if ( ext_loop_vec.size() == 1 )
-    {
-        SdaiEdge_loop* loop = ext_loop_vec[0].WriteSTEPLoop( step, label, mergepts );
+        std::ostringstream face_ss;
 
-        if ( loop )
+        for ( size_t j = 0; j < face_bound_vec[i].size(); j++ )
         {
-            SdaiFace_outer_bound* face = (SdaiFace_outer_bound*)step->registry->ObjCreate( "FACE_OUTER_BOUND" );
-            step->instance_list->Append( (SDAI_Application_instance*)face, completeSE );
-            face->bound_( loop );
-            face->name_( "''" );
-            face->orientation_( BTrue );
+            face_ss << "#" << face_bound_vec[i][j]->GetFileId();
 
-            outer_face_vec.push_back( face );
-        }
-    }
-    else if ( ext_loop_vec.size() > 1 )
-    {
-        // If more than 1 external loop, reference the same parent surface,
-        // but define new loops.
-        for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
-        {
-            SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step, label, mergepts );
-
-            if ( !loop )
+            if ( j < face_bound_vec[i].size() - 1 )
             {
-                continue;
-            }
-
-            SdaiFace_outer_bound* face = (SdaiFace_outer_bound*)step->registry->ObjCreate( "FACE_OUTER_BOUND" );
-            step->instance_list->Append( (SDAI_Application_instance*)face, completeSE );
-            face->bound_( loop );
-            face->name_( "''" );
-            face->orientation_( BTrue );
-
-            if ( i == 0 )
-            {
-                outer_face_vec.push_back( face );
-            }
-            else
-            {
-                // Create new advanced face
-                SdaiAdvanced_face* adv_face = (SdaiAdvanced_face*)step->registry->ObjCreate( "ADVANCED_FACE" );
-                step->instance_list->Append( (SDAI_Application_instance*)adv_face, completeSE );
-                adv_face->face_geometry_( surf );
-                adv_face->name_( "''" );
-                adv_face->same_sense_( BTrue );
-
-                std::ostringstream face_ss;
-                face_ss << '#' << face->GetFileId();
-
-                adv_face->bounds_()->AddNode( new GenericAggrNode( face_ss.str().c_str() ) );
-
-                adv_vec.push_back( adv_face );
+                face_ss << ", ";
             }
         }
+
+        adv_face->bounds_()->AddNode( new GenericAggrNode( face_ss.str().c_str() ) );
+
+        adv_vec.push_back( adv_face );
     }
-
-    SdaiAdvanced_face* adv_face = (SdaiAdvanced_face*)step->registry->ObjCreate( "ADVANCED_FACE" );
-    step->instance_list->Append( (SDAI_Application_instance*)adv_face, completeSE );
-    adv_face->face_geometry_( surf );
-    adv_face->name_( "''" );
-    adv_face->same_sense_( BTrue );
-
-    std::ostringstream face_ss;
-
-    for ( size_t i = 0; i < outer_face_vec.size(); i++ )
-    {
-        face_ss << "#" << outer_face_vec[i]->GetFileId();
-
-        if ( i < outer_face_vec.size() - 1 )
-        {
-            face_ss << ", ";
-        }
-    }
-
-    if ( face_vec.size() > 0 && outer_face_vec.size() > 0 )
-    {
-        face_ss << ", ";
-    }
-
-    for ( size_t i = 0; i < face_vec.size(); i++ )
-    {
-        face_ss << "#" << face_vec[i]->GetFileId();
-
-        if ( i < face_vec.size() - 1 )
-        {
-            face_ss << ", ";
-        }
-    }
-
-    adv_face->bounds_()->AddNode( new GenericAggrNode( face_ss.str().c_str() ) );
-
-    adv_vec.push_back( adv_face );
 
     return adv_vec;
 }
@@ -994,4 +967,133 @@ vector < NURBS_Curve > NURBS_Surface::MatchNURBSCurves( const vector < NURBS_Cur
     }
 
     return return_vec;
+}
+
+//////////////////////////////////////////////////////
+//================ STEP_Topology ===================//
+//////////////////////////////////////////////////////
+
+STEP_Topology::STEP_Topology( const vector < NURBS_Curve > &curve_vec, const vector < NURBS_Surface > &surf_vec ) :
+    m_CurveVec( curve_vec )
+{
+    m_MaxEndGap = 0.0;
+
+    int nend = 2 * ( int )m_CurveVec.size();
+
+    // Union-find over the curve ends; m_EndVertVec holds each end's parent until the end
+    m_EndVertVec.resize( nend );
+    for ( int i = 0; i < nend; i++ )
+    {
+        m_EndVertVec[i] = i;
+    }
+
+    for ( size_t si = 0; si < surf_vec.size(); si++ )
+    {
+        const vector < NURBS_Loop > &loop_vec = surf_vec[si].m_NURBSLoopVec;
+
+        for ( size_t li = 0; li < loop_vec.size(); li++ )
+        {
+            if ( !loop_vec[li].m_ClosedFlag )
+            {
+                continue;
+            }
+
+            const vector < pair < NURBS_Curve, bool > > &oc = loop_vec[li].m_OrderedCurves;
+            int n = ( int )oc.size();
+
+            for ( int k = 0; k < n; k++ )
+            {
+                const pair < NURBS_Curve, bool > &next = oc[ ( k + 1 ) % n ];
+
+                // A curve walked backwards leaves from its end and arrives at its start
+                int arrive = EndIndex( oc[k].first.m_CurveID, oc[k].second );
+                int leave = EndIndex( next.first.m_CurveID, !next.second );
+
+                int ra = FindRoot( arrive );
+                int rl = FindRoot( leave );
+                if ( ra != rl )
+                {
+                    m_EndVertVec[ rl ] = ra;
+                }
+            }
+        }
+    }
+
+    vector < int > root_vert( nend, -1 );
+    vector < int > nmember;
+
+    for ( int i = 0; i < nend; i++ )
+    {
+        int r = FindRoot( i );
+
+        if ( root_vert[r] < 0 )
+        {
+            root_vert[r] = ( int )m_VertPntVec.size();
+            m_VertPntVec.push_back( vec3d() );
+            nmember.push_back( 0 );
+        }
+
+        const vector < vec3d > &pnt_vec = m_CurveVec[ i / 2 ].m_CADPntVec;
+        if ( i % 2 == 0 )
+        {
+            m_VertPntVec[ root_vert[r] ] = m_VertPntVec[ root_vert[r] ] + pnt_vec.front();
+        }
+        else
+        {
+            m_VertPntVec[ root_vert[r] ] = m_VertPntVec[ root_vert[r] ] + pnt_vec.back();
+        }
+        nmember[ root_vert[r] ]++;
+    }
+
+    vector < int > end_vert( nend );
+    for ( int i = 0; i < nend; i++ )
+    {
+        end_vert[i] = root_vert[ FindRoot( i ) ];
+    }
+    m_EndVertVec = end_vert;
+
+    for ( size_t v = 0; v < m_VertPntVec.size(); v++ )
+    {
+        m_VertPntVec[v] = m_VertPntVec[v] / ( double )nmember[v];
+    }
+
+    m_VertVec.resize( m_VertPntVec.size(), nullptr );
+    m_EdgeVec.resize( m_CurveVec.size(), nullptr );
+}
+
+int STEP_Topology::FindRoot( int i )
+{
+    while ( m_EndVertVec[i] != i )
+    {
+        m_EndVertVec[i] = m_EndVertVec[ m_EndVertVec[i] ];
+        i = m_EndVertVec[i];
+    }
+    return i;
+}
+
+SdaiVertex_point* STEP_Topology::GetVertex( STEPutil* step, int vert )
+{
+    if ( !m_VertVec[vert] )
+    {
+        m_VertVec[vert] = step->MakeVertex( m_VertPntVec[vert] );
+    }
+    return m_VertVec[vert];
+}
+
+SdaiEdge_curve* STEP_Topology::GetEdge( STEPutil* step, int curve_id, bool mergepts )
+{
+    if ( !m_EdgeVec[curve_id] )
+    {
+        const NURBS_Curve &crv = m_CurveVec[curve_id];
+
+        int vstart = m_EndVertVec[ EndIndex( curve_id, false ) ];
+        int vend = m_EndVertVec[ EndIndex( curve_id, true ) ];
+
+        m_MaxEndGap = std::max( m_MaxEndGap, dist( crv.m_CADPntVec.front(), m_VertPntVec[vstart] ) );
+        m_MaxEndGap = std::max( m_MaxEndGap, dist( crv.m_CADPntVec.back(), m_VertPntVec[vend] ) );
+
+        m_EdgeVec[curve_id] = crv.WriteSTEPEdge( step, GetVertex( step, vstart ), GetVertex( step, vend ),
+                                                 to_string( curve_id ), mergepts );
+    }
+    return m_EdgeVec[curve_id];
 }

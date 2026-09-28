@@ -3512,24 +3512,6 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
 
 
 
-    int ncrv = m_NURBSCurveVec.size();
-    for ( int i = 0 ; i < ( int )ncrv ; i++ )
-    {
-        NURBS_Curve& nurbs_curve = m_NURBSCurveVec[i];
-
-        int surfA_indx = FindSurfIndx( nurbs_curve.m_SurfA_ID );
-        int surfB_indx = FindSurfIndx( nurbs_curve.m_SurfB_ID );
-
-        // Identify the SdaiB_spline_curve_with_knots. This must come before BuildNURBSSurfMap for STEP files, or the
-        // edge pointer will not be transferred between surfaces
-
-        // Don't write subsurface or structural entity intersections as STEP edges (surface splitting along these curve types not supported)
-        if ( !nurbs_curve.m_SubSurfFlag && nurbs_curve.m_SurfA_Type != vsp::CFD_STRUCTURE )
-        {
-            // nurbs_curve.WriteSTEPEdge( &step, to_string(i), merge_pnts ); // TODO: Improve STEP Edge Naming
-         }
-    }
-
     int nsrf = m_NURBSSurfVec.size();
 
     std::set < int > used_curve_set;
