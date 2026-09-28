@@ -39,6 +39,7 @@ BEMOptionsScreen.cpp
 BORScreen.cpp
 CfdMeshScreen.cpp
 ClippingScreen.cpp
+CloneDeleteDialog.cpp
 CloneNameSuffixScreen.cpp
 CloneScreen.cpp
 CobraScreen.cpp
@@ -136,6 +137,7 @@ BEMOptionsScreen.h
 BORScreen.h
 CfdMeshScreen.h
 ClippingScreen.h
+CloneDeleteDialog.h
 CloneNameSuffixScreen.h
 CloneScreen.h
 CobraScreen.h

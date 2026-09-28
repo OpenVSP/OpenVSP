@@ -27,6 +27,7 @@
 #include "Viewport.h"
 #include "Background.h"
 #include <FL/fl_ask.H>
+#include "CloneDeleteDialog.h"
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageViewScreen.h"
@@ -532,7 +533,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_CutMenuItem )
     {
-        VehicleMgr.GetVehicle()->CutActiveGeomVec();
+        DeleteOrCutActiveGeomVec( VehicleMgr.GetVehicle(), true );
     }
     else if ( data == &m_CopyMenuItem )
     {
@@ -544,7 +545,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_DeleteMenuItem )
     {
-        VehicleMgr.GetVehicle()->DeleteActiveGeomVec();
+        DeleteOrCutActiveGeomVec( VehicleMgr.GetVehicle(), false );
     }
     else if ( data == &m_SelAllMenuItem )
     {

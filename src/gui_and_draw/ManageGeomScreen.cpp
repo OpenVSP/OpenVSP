@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ManageGeomScreen.h"
+#include "CloneDeleteDialog.h"
 #include "CloneNameSuffixScreen.h"
 #include "ScreenMgr.h"
 #include "StlHelper.h"
@@ -1217,11 +1218,11 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CutButton )
     {
-        m_VehiclePtr->CutActiveGeomVec();
+        DeleteOrCutActiveGeomVec( m_VehiclePtr, true );
     }
     else if ( device == &m_DeleteButton )
     {
-        m_VehiclePtr->DeleteActiveGeomVec();
+        DeleteOrCutActiveGeomVec( m_VehiclePtr, false );
     }
     else if ( device == &m_CloneButton )
     {
