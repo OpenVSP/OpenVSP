@@ -560,6 +560,14 @@ void WireGeom::UpdateDrawObj()
             m_FeatureDrawObj_vec[1].m_LineColor = vec3d( 0, 1, 0 );
             m_FeatureDrawObj_vec[1].m_LineWidth = 3.0;
             m_FeatureDrawObj_vec[1].m_GeomChanged = true;
+
+            // Each is named and drawn as the point pairs it holds.
+            for ( int k = 0; k < 2; k++ )
+            {
+                m_FeatureDrawObj_vec[k].m_GeomID = m_ID + "Feature_" + std::to_string( k );
+                m_FeatureDrawObj_vec[k].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+                m_FeatureDrawObj_vec[k].m_Type = DrawObj::VSP_LINES;
+            }
         }
     }
 }
