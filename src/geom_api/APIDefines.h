@@ -341,6 +341,16 @@ enum CHEVRON_W01_MODES { CHEVRON_W01_SE,	/*!< Start and End */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for what becomes of a Clone when the Geom it copies is deleted or cut. */
+enum CLONE_DELETE_TYPE { CLONE_DELETE_LEAVE_EMPTY,	/*!< Leave each Clone in place, copying nothing */
+                         CLONE_DELETE_WITH_ORIGINAL,	/*!< Delete or cut each Clone along with the Geom it copies */
+                         CLONE_DELETE_REPLACE,	/*!< Replace each Clone with a full copy of the Geom it copies */
+                         CLONE_DELETE_NUM_TYPES	/*!< Number of Clone delete types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for Snap To collision error types. */
 enum COLLISION_ERRORS { COLLISION_OK,	/*!< No Error. */
                         COLLISION_INTERSECT_NO_SOLUTION,	/*!< Touching, no solution */

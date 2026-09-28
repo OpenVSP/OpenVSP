@@ -147,6 +147,18 @@ public:
     void CopyActiveGeomVec();
     void DeleteGeomVec( const vector<string> & del_vec );
 
+    // As above, first handling each Clone of the removed Geoms per clone_delete
+    // (vsp::CLONE_DELETE_TYPE) while the originals still exist.
+    void CutActiveGeomVec( int clone_delete );
+    void DeleteActiveGeomVec( int clone_delete );
+    void DeleteGeomVec( const vector<string> & del_vec, int clone_delete );
+
+    // Clones of these Geoms that are not themselves in the list.
+    vector< string > FindClonesOf( const vector<string> & geom_id_vec );
+
+    // FindClonesOf, followed recursively through Clones of Clones.
+    vector< string > FindAllClonesOf( const vector<string> & geom_id_vec );
+
     // A Clone of each, keeping the hierarchy among them.  Returns the new IDs.
     vector< string > CloneGeomVec( const vector<string> & geom_id_vec, const string & name_suffix = "_Clone" );
 
@@ -156,6 +168,7 @@ public:
     void AddTopGeomID( const string & geom_id, const string &insert_after_id = string() );
     void RemoveTopGeomID( const string & geom_id );
     void CutGeomVec( const vector<string> & cut_vec );
+    void CutGeomVec( const vector<string> & cut_vec, int clone_delete );
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
     vector< string > PasteClipboard();
@@ -714,6 +727,10 @@ private:
     // Erase and free a Geom without touching the hierarchy.  Only DeleteGeomVec calls this,
     // after RemoveGeomVecFromHierarchy has detached it.
     void DeleteGeom( const string & geom_id );
+
+    // Handles each Clone of these Geoms per clone_delete.  Returns these plus any Clones to
+    // delete with them.
+    vector< string > SettleClonesOf( const vector<string> & geom_id_vec, int clone_delete );
 
 
     void Wype();

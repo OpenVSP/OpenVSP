@@ -1694,6 +1694,89 @@ void Vehicle::DeleteGeomVec( const vector< string > & del_vec )
     }
 }
 
+void Vehicle::DeleteGeomVec( const vector< string > & del_vec, int clone_delete )
+{
+    DeleteGeomVec( SettleClonesOf( del_vec, clone_delete ) );
+}
+
+void Vehicle::CutGeomVec( const vector< string > & cut_vec, int clone_delete )
+{
+    CutGeomVec( SettleClonesOf( cut_vec, clone_delete ) );
+}
+
+vector< string > Vehicle::FindClonesOf( const vector< string > & geom_id_vec )
+{
+    vector< string > clone_vec;
+
+    vector< string > all_vec = GetGeomVec();
+    for ( int i = 0; i < ( int )all_vec.size(); i++ )
+    {
+        CloneGeom* clone = dynamic_cast < CloneGeom* > ( FindGeom( all_vec[i] ) );
+        if ( clone && !vector_contains_val( geom_id_vec, clone->GetID() ) &&
+             vector_contains_val( geom_id_vec, clone->GetOriginalID() ) )
+        {
+            clone_vec.push_back( clone->GetID() );
+        }
+    }
+
+    return clone_vec;
+}
+
+vector< string > Vehicle::FindAllClonesOf( const vector< string > & geom_id_vec )
+{
+    vector< string > all_vec;
+    vector< string > going_vec = geom_id_vec;
+
+    // Follow Clones of Clones.
+    vector< string > clone_vec = FindClonesOf( going_vec );
+    while ( !clone_vec.empty() )
+    {
+        all_vec.insert( all_vec.end(), clone_vec.begin(), clone_vec.end() );
+        going_vec.insert( going_vec.end(), clone_vec.begin(), clone_vec.end() );
+        clone_vec = FindClonesOf( going_vec );
+    }
+
+    return all_vec;
+}
+
+vector< string > Vehicle::SettleClonesOf( const vector< string > & geom_id_vec, int clone_delete )
+{
+    vector< string > gone_vec = geom_id_vec;
+
+    if ( clone_delete == vsp::CLONE_DELETE_WITH_ORIGINAL )
+    {
+        vector< string > clone_vec = FindAllClonesOf( gone_vec );
+        gone_vec.insert( gone_vec.end(), clone_vec.begin(), clone_vec.end() );
+        return gone_vec;
+    }
+
+    // ReplaceCloneGeom changes the selection; restore it afterwards.
+    vector< string > active_store = GetActiveGeomVec();
+
+    vector< string > clone_vec = FindClonesOf( geom_id_vec );
+    for ( int i = 0; i < ( int )clone_vec.size(); i++ )
+    {
+        // A replacement that cannot be made leaves the Clone to be emptied.
+        if ( clone_delete == vsp::CLONE_DELETE_REPLACE && !ReplaceCloneGeom( clone_vec[i] ).empty() )
+        {
+            UpdateGeom( clone_vec[i] );
+            continue;
+        }
+
+        CloneGeom* clone = dynamic_cast < CloneGeom* > ( FindGeom( clone_vec[i] ) );
+        if ( clone )
+        {
+            clone->ReleaseOriginal();
+
+            clone->Update();
+        }
+    }
+
+    SetActiveGeomVec( active_store );
+
+    return gone_vec;
+}
+
 void Vehicle::CutGeomVec( const vector< string > & cut_vec )
 {
     RemoveGeomVecFromHierarchy( cut_vec );
@@ -2243,6 +2326,19 @@ void Vehicle::DeleteActiveGeomVec()
     ClearActiveGeom();
 }
 
+void Vehicle::DeleteActiveGeomVec( int clone_delete )
+{
+    vector< string > sel_vec = GetActiveGeomVec();
+    if ( sel_vec.size() == 0 )
+    {
+        return;
+    }
+
+    DeleteGeomVec( sel_vec, clone_delete );
+
+    ClearActiveGeom();
+}
+
 //==== Cut Active Geom and Place in Clipboard ====//
 void Vehicle::CutActiveGeomVec()
 {
@@ -2254,6 +2350,20 @@ void Vehicle::CutActiveGeomVec()
 
     DeleteClipBoard();
     CutGeomVec( sel_vec );
+
+    ClearActiveGeom();
+}
+
+void Vehicle::CutActiveGeomVec( int clone_delete )
+{
+    vector< string > sel_vec = GetActiveGeomVec();
+    if ( sel_vec.size() == 0 )
+    {
+        return;
+    }
+
+    DeleteClipBoard();
+    CutGeomVec( sel_vec, clone_delete );
 
     ClearActiveGeom();
 }
