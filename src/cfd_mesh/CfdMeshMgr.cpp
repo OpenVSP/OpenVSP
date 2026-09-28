@@ -2639,44 +2639,6 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
     }
 }
 
-// Signed area of a NURBS loop in the parameter space of one of its parent surfaces.
-// A loop is stored as an ordered walk, but the direction of that walk is seeded by
-// whichever curve happened to start the chain, so it carries no orientation on its
-// own.  The sign of this area supplies the missing half: it says which way the walk
-// goes around the region the loop bounds.
-static double LoopSignedAreaUW( const NURBS_Loop &loop, int surf_id )
-{
-    vector < vec3d > uw_vec;
-
-    for ( int i = 0; i < ( int )loop.m_OrderedCurves.size(); i++ )
-    {
-        const NURBS_Curve &nurbs_curve = loop.m_OrderedCurves[i].first;
-
-        // The curve is stored in the parameter space of both its parents; take the
-        // copy belonging to the surface this loop lies on.
-        if ( nurbs_curve.m_SurfA_ID == surf_id )
-        {
-            uw_vec.insert( uw_vec.end(), nurbs_curve.m_UWPntVec_A.begin(), nurbs_curve.m_UWPntVec_A.end() );
-        }
-        else if ( nurbs_curve.m_SurfB_ID == surf_id )
-        {
-            uw_vec.insert( uw_vec.end(), nurbs_curve.m_UWPntVec_B.begin(), nurbs_curve.m_UWPntVec_B.end() );
-        }
-    }
-
-    double area = 0.0;
-
-    for ( int i = 0; i < ( int )uw_vec.size(); i++ )
-    {
-        const vec3d &p0 = uw_vec[i];
-        const vec3d &p1 = uw_vec[( i + 1 ) % uw_vec.size()];
-
-        area += p0.x() * p1.y() - p1.x() * p0.y();
-    }
-
-    return 0.5 * area;
-}
-
 // How much of a surface's parameter space the mesh actually covers.  Which of a face's
 // loops bounds it is decided against this.
 static double MeshAreaUW( Surf* srf )
@@ -2719,35 +2681,14 @@ static double MeshAreaUW( Surf* srf )
 // Sense of every curve of a loop as that loop's face sees it, in the convention the
 // topology file wants: +1 when the face lies to the left of the curve walked in its
 // own direction, -1 when it lies to the right.
-//
-// Walking a loop so that the face is always on the left makes an outer boundary run
-// counter-clockwise and a hole run clockwise, so the area sign settles the direction
-// of the stored walk once the loop is known to be one or the other.  A surface whose
-// parametric normal points inward reverses the whole picture.
 static void AccumulateLoopSense( const NURBS_Loop &loop, int surf_id, bool cutout_flag, bool flip_flag,
                                  std::map < int, std::map < int, int > > &curve_face_sense )
 {
-    double area = LoopSignedAreaUW( loop, surf_id );
+    int loop_sense = loop.Sense( surf_id, cutout_flag, flip_flag );
 
-    if ( area == 0.0 )
+    if ( loop_sense == 0 )
     {
         return;
-    }
-
-    int loop_sense = 1;
-    if ( area < 0.0 )
-    {
-        loop_sense = -1;
-    }
-
-    if ( cutout_flag )
-    {
-        loop_sense = -loop_sense;
-    }
-
-    if ( flip_flag )
-    {
-        loop_sense = -loop_sense;
     }
 
     for ( int i = 0; i < ( int )loop.m_OrderedCurves.size(); i++ )
@@ -3673,7 +3614,7 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
 
         for ( int j = 0; j < ( int )loop_ptr.size(); j++ )
         {
-            double area = std::fabs( LoopSignedAreaUW( *loop_ptr[j], nurbs_surf.m_SurfID ) );
+            double area = std::fabs( loop_ptr[j]->SignedAreaUW( nurbs_surf.m_SurfID ) );
 
             if ( ilargest < 0 || area > area_largest )
             {

@@ -294,6 +294,67 @@ BndBox NURBS_Loop::GetBndBox()
     return bbox;
 }
 
+double NURBS_Loop::SignedAreaUW( int surf_id ) const
+{
+    vector < vec3d > uw_vec;
+
+    for ( int i = 0; i < ( int )m_OrderedCurves.size(); i++ )
+    {
+        const NURBS_Curve &nurbs_curve = m_OrderedCurves[i].first;
+
+        // The curve is stored in the parameter space of both its parents; take the
+        // copy belonging to the surface this loop lies on.
+        if ( nurbs_curve.m_SurfA_ID == surf_id )
+        {
+            uw_vec.insert( uw_vec.end(), nurbs_curve.m_UWPntVec_A.begin(), nurbs_curve.m_UWPntVec_A.end() );
+        }
+        else if ( nurbs_curve.m_SurfB_ID == surf_id )
+        {
+            uw_vec.insert( uw_vec.end(), nurbs_curve.m_UWPntVec_B.begin(), nurbs_curve.m_UWPntVec_B.end() );
+        }
+    }
+
+    double area = 0.0;
+
+    for ( int i = 0; i < ( int )uw_vec.size(); i++ )
+    {
+        const vec3d &p0 = uw_vec[i];
+        const vec3d &p1 = uw_vec[( i + 1 ) % uw_vec.size()];
+
+        area += p0.x() * p1.y() - p1.x() * p0.y();
+    }
+
+    return 0.5 * area;
+}
+
+int NURBS_Loop::Sense( int surf_id, bool cutout_flag, bool flip_flag ) const
+{
+    double area = SignedAreaUW( surf_id );
+
+    if ( area == 0.0 )
+    {
+        return 0;
+    }
+
+    int loop_sense = 1;
+    if ( area < 0.0 )
+    {
+        loop_sense = -1;
+    }
+
+    if ( cutout_flag )
+    {
+        loop_sense = -loop_sense;
+    }
+
+    if ( flip_flag )
+    {
+        loop_sense = -loop_sense;
+    }
+
+    return loop_sense;
+}
+
 //////////////////////////////////////////////////////
 //================ NURBS_Surface ===================//
 //////////////////////////////////////////////////////

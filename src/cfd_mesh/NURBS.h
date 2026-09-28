@@ -130,6 +130,16 @@ public:
     // Based on all control points for theloop, get the bounding box
     BndBox GetBndBox();
 
+    // Signed area of the loop in the parameter space of one of its parent surfaces: positive
+    // where the loop runs counter-clockwise there
+    double SignedAreaUW( int surf_id ) const;
+
+    // Which way the loop runs as the face sees it: +1 when the face lies to its left, -1 when
+    // to its right, and 0 when the loop encloses no area to tell by.  An outer boundary with
+    // the face on its left runs counter-clockwise and a hole clockwise; flip_flag reverses
+    // both, for a surface whose normal points into the body.
+    int Sense( int surf_id, bool cutout_flag, bool flip_flag ) const;
+
     // Flag is true if the loop is composed of intersection curves only
     bool m_IntersectLoopFlag;
 
