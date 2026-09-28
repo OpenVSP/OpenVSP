@@ -1542,10 +1542,22 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
     step.WriteFile( filename );
 }
 
+// The group a component belongs to, followed to its root.
+static int FindCompRoot( std::map < int, int > &parent, int c )
+{
+    while ( parent[c] != c )
+    {
+        parent[c] = parent[ parent[c] ];
+        c = parent[c];
+    }
+    return c;
+}
+
 vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
 {
-    // Identify the unique sets of intersected components
-    unordered_map < int, vector < int > > intersection_comp_id_map;
+    // Components are grouped by what connects them: two share a group when a chain runs
+    // between them, directly or through others.  Each component is in one group.
+    std::map < int, int > parent;
     list< ISegChain* >::iterator i_seg;
 
     for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
@@ -1553,55 +1565,38 @@ vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
         int comp_A_id = ( *i_seg )->m_SurfA->GetCompID();
         int comp_B_id = ( *i_seg )->m_SurfB->GetCompID();
 
-        if ( !std::count( intersection_comp_id_map[comp_A_id].begin(), intersection_comp_id_map[comp_A_id].end(), comp_B_id ) )
+        if ( parent.find( comp_A_id ) == parent.end() )
         {
-            intersection_comp_id_map[comp_A_id].push_back( comp_B_id );
+            parent[ comp_A_id ] = comp_A_id;
+        }
+        if ( parent.find( comp_B_id ) == parent.end() )
+        {
+            parent[ comp_B_id ] = comp_B_id;
         }
 
-        if ( !std::count( intersection_comp_id_map[comp_B_id].begin(), intersection_comp_id_map[comp_B_id].end(), comp_A_id ) )
+        int ra = FindCompRoot( parent, comp_A_id );
+        int rb = FindCompRoot( parent, comp_B_id );
+        if ( ra != rb )
         {
-            intersection_comp_id_map[comp_B_id].push_back( comp_A_id );
+            parent[ rb ] = ra;
         }
     }
 
-    unordered_map< int, vector < int > >::iterator i_map;
+    std::map < int, int > root_group;
     vector < vector < int > > comp_id_group_vec;
 
-    for ( i_map = intersection_comp_id_map.begin(); i_map != intersection_comp_id_map.end(); ++i_map )
+    std::map < int, int >::iterator it;
+    for ( it = parent.begin(); it != parent.end(); ++it )
     {
-        if ( comp_id_group_vec.size() == 0 )
+        int r = FindCompRoot( parent, it->first );
+
+        if ( root_group.find( r ) == root_group.end() )
         {
-            comp_id_group_vec.push_back( i_map->second );
-            continue;
+            root_group[ r ] = ( int )comp_id_group_vec.size();
+            comp_id_group_vec.push_back( vector < int > () );
         }
 
-        bool matched = false;
-        int group_index = -1;
-
-        for ( size_t i = 0; i < i_map->second.size(); ++i )
-        {
-            if ( !matched )
-            {
-                for ( size_t j = 0; j < comp_id_group_vec.size(); ++j )
-                {
-                    if ( std::count( comp_id_group_vec[j].begin(), comp_id_group_vec[j].end(), i_map->second[i] ) )
-                    {
-                        matched = true;
-                        group_index = j;
-                        break;
-                    }
-                }
-            }
-            else if ( !std::count( comp_id_group_vec[group_index].begin(), comp_id_group_vec[group_index].end(), i_map->second[i] ) )
-            {
-                comp_id_group_vec[group_index].push_back( i_map->second[i] );
-            }
-        }
-
-        if ( !matched )
-        {
-            comp_id_group_vec.push_back( i_map->second );
-        }
+        comp_id_group_vec[ root_group[ r ] ].push_back( it->first );
     }
 
     return comp_id_group_vec;
