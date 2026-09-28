@@ -1002,16 +1002,26 @@ double ConformalGeom::FindEndUOffsetCurve( VspSurf & surf, double offset, bool s
     double u = 0.0;
     VspCurve vsp_crv;
 
+    // A wing's end rib is a whole section, moved along the span by the offset.  The walls
+    // beside it are already the offset away, since every section is offset, so measuring
+    // clearance there measures the section's thickness -- which a tapered wing never gains
+    // going inward, and the end would be walked most of the way to the middle.
     if ( start_flag )
     {
         u = cs.FindUGivenDist( offset );
-        u = AdjustForSurfaceDist( surf, cs, u, offset, false );
+        if ( !m_WingParentFlag )
+        {
+            u = AdjustForSurfaceDist( surf, cs, u, offset, false );
+        }
     }
     else
     {
         double max_d = cs.GetMaxDist();
         u = cs.FindUGivenDist( max_d - offset );
-        u = AdjustForSurfaceDist( surf, cs, u, offset, true );
+        if ( !m_WingParentFlag )
+        {
+            u = AdjustForSurfaceDist( surf, cs, u, offset, true );
+        }
     }
 
     surf.GetUConstCurve( vsp_crv, u );
