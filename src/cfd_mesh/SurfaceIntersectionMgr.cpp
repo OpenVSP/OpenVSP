@@ -1651,30 +1651,53 @@ void SurfaceIntersectionSingleton::BuildGrid()
         xyzcrvs[i].GetBBox( crvboxes[i] );
     }
 
-    for ( i = 0 ; i < nsc ; i++ )
+    // A border curve is matched once.  The first pass pieces each surface of the model back
+    // together from the patches it was split into.  The second pairs what is left across
+    // surfaces, which is where coincident surfaces were deleted and two bodies close each
+    // other off; bodies that only touch, like the two root caps of a symmetric wing, stay
+    // closed on their own.
+    for ( int pass = 0 ; pass < 2 ; pass++ )
     {
-        for ( j = i + 1 ; j < nsc ; j++ )
+        for ( i = 0 ; i < nsc ; i++ )
         {
-            if ( !Compare( crvboxes[i], crvboxes[j], 1.0e-5 ) )
+            for ( j = i + 1 ; j < nsc ; j++ )
             {
-                continue;
-            }
+                if ( scurve_vec[i]->GetICurve() )
+                {
+                    break;
+                }
 
-            ICurve* icrv = new ICurve;
-            if ( icrv->Match( scurve_vec[i], scurve_vec[j], xyzcrvs[i], xyzcrvs[j] ) )
-            {
-                m_ICurveVec.push_back( icrv );
+                if ( scurve_vec[j]->GetICurve() )
+                {
+                    continue;
+                }
 
-                // A backwards match turns the second curve around, so the copy held for it is
-                // no longer the curve it names.  Take it again before it is compared to
-                // anything else.
-                xyzcrvs[j] = scurve_vec[j]->GetUWCrv();
-                xyzcrvs[j].UWCurveToXYZCurve( scurve_vec[j]->GetSurf() );
-                xyzcrvs[j].GetBBox( crvboxes[j] );
-            }
-            else
-            {
-                delete icrv;
+                if ( pass == 0 && scurve_vec[i]->GetSurf()->GetUnmergedCompID() != scurve_vec[j]->GetSurf()->GetUnmergedCompID() )
+                {
+                    continue;
+                }
+
+                if ( !Compare( crvboxes[i], crvboxes[j], 1.0e-5 ) )
+                {
+                    continue;
+                }
+
+                ICurve* icrv = new ICurve;
+                if ( icrv->Match( scurve_vec[i], scurve_vec[j], xyzcrvs[i], xyzcrvs[j] ) )
+                {
+                    m_ICurveVec.push_back( icrv );
+
+                    // A backwards match turns the second curve around, so the copy held for it is
+                    // no longer the curve it names.  Take it again before it is compared to
+                    // anything else.
+                    xyzcrvs[j] = scurve_vec[j]->GetUWCrv();
+                    xyzcrvs[j].UWCurveToXYZCurve( scurve_vec[j]->GetSurf() );
+                    xyzcrvs[j].GetBBox( crvboxes[j] );
+                }
+                else
+                {
+                    delete icrv;
+                }
             }
         }
     }
