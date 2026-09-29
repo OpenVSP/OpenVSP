@@ -369,6 +369,13 @@ public:
 
     double ComputeStructuresScaleFactor();
 
+    // The length unit of the structures' analysis unit system, or -1.
+    int GetStructLenUnit();
+
+    // The length unit the structures' own geometry is in: the model's, when it is known, and
+    // otherwise the analysis unit, which the structures then take the model to be in.
+    int GetStructGeomLenUnit();
+
     // ===== Getter for Blank NameValData ==== //
     NameValData* GetBlankNvd()
     {

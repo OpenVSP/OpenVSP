@@ -4800,31 +4800,8 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
 
     fea_struct->Update();
 
-    int len = UNIT_FOOT;
-    switch ( m_StructUnit() )
-    {
-        case vsp::SI_UNIT:
-            len = UNIT_METER;
-            break;
-
-        case vsp::CGS_UNIT:
-            len =  UNIT_CENTIMETER;
-            break;
-
-        case vsp::MPA_UNIT:
-            len =  UNIT_MM;
-            break;
-
-        case vsp::BFT_UNIT:
-            len = UNIT_FOOT;
-            break;
-
-        case vsp::BIN_UNIT:
-            len =  UNIT_IN;
-            break;
-    }
-
-    STEPutil step( len, m_STEPStructureTol() );
+    // The parts' surfaces are written as they are, unscaled.
+    STEPutil step( GetStructGeomLenUnit(), m_STEPStructureTol() );
 
     string delim = StringUtil::get_delim( m_STEPStructureLabelDelim() );
 
@@ -5006,7 +4983,8 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
 
     string delim = StringUtil::get_delim( delimType );
 
-    IGESutil iges( m_StructUnit() );
+    // The parts' surfaces are written as they are, unscaled.
+    IGESutil iges( GetStructGeomLenUnit() );
 
     vector < double > usplit;
     vector < double > wsplit;
@@ -7673,35 +7651,46 @@ double Vehicle::ComputeStructuresScaleFactor()
         return 1.0;
     }
 
-    int to_unit = -1;
-    switch ( m_StructUnit() )
+    int to_unit = GetStructLenUnit();
+    if ( to_unit < 0 )
     {
-        case vsp::SI_UNIT:
-            to_unit = vsp::LEN_M;
-            break;
-
-        case vsp::CGS_UNIT:
-            to_unit = vsp::LEN_CM;
-            break;
-
-        case vsp::MPA_UNIT:
-            to_unit = vsp::LEN_MM;
-            break;
-
-        case vsp::BFT_UNIT:
-            to_unit = vsp::LEN_FT;
-            break;
-
-        case vsp::BIN_UNIT:
-            to_unit = vsp::LEN_IN;
-            break;
-
-        default:
-            return 1.0;
-            break;
+        return 1.0;
     }
 
     return ConvertLength( 1.0, m_StructModelUnit(), to_unit );
+}
+
+int Vehicle::GetStructLenUnit()
+{
+    switch ( m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            return vsp::LEN_M;
+
+        case vsp::CGS_UNIT:
+            return vsp::LEN_CM;
+
+        case vsp::MPA_UNIT:
+            return vsp::LEN_MM;
+
+        case vsp::BFT_UNIT:
+            return vsp::LEN_FT;
+
+        case vsp::BIN_UNIT:
+            return vsp::LEN_IN;
+    }
+
+    return -1;
+}
+
+int Vehicle::GetStructGeomLenUnit()
+{
+    if ( m_StructModelUnit() != vsp::LEN_UNITLESS )
+    {
+        return m_StructModelUnit();
+    }
+
+    return GetStructLenUnit();
 }
 
 void Vehicle::SetExportPropMainSurf( bool b )
