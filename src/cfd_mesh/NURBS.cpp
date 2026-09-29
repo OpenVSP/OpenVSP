@@ -1067,9 +1067,22 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
     }
 
     // Identify if there are multiple external loops
-    vector < NURBS_Loop > ext_loop_vec, cutout_vec;
+    vector < NURBS_Loop > all_ext_loop_vec, ext_loop_vec, cutout_vec;
 
-    MakeExtLoopVec( ext_loop_vec,  cutout_vec );
+    MakeExtLoopVec( all_ext_loop_vec,  cutout_vec );
+
+    // An incomplete loop bounds nothing, as in STEP
+    for ( size_t i = 0; i < all_ext_loop_vec.size(); i++ )
+    {
+        if ( all_ext_loop_vec[i].m_ClosedFlag )
+        {
+            ext_loop_vec.push_back( all_ext_loop_vec[i] );
+        }
+        else
+        {
+            printf( "ERROR: Incomplete IGES Loop \n" );
+        }
+    }
 
     if ( ext_loop_vec.size() == 1 )
     {
