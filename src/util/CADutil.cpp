@@ -1453,7 +1453,7 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg
     // Get knot vector
     vector< double > knot;
     int order = deg + 1;
-    int nseg = npts - 2;
+    int nseg = ( npts - 1 ) / deg;
 
     IGESKnots( deg, nseg, knot );
 
@@ -1531,7 +1531,7 @@ void IGESutil::IGESKnots( int deg, int npatch, vector< double >& knot )
     {
         knot.push_back( 0.0 );
     }
-    for ( i = 1; i <= npatch; ++i )
+    for ( i = 1; i < npatch; ++i )
     {
         for ( j = 0; j < deg; j++ )
         {
