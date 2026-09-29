@@ -29,7 +29,6 @@ NURBS_Curve::NURBS_Curve()
     m_STEP_Start_Vert = nullptr;
     m_STEP_End_Vert = nullptr;
     m_STEP_Edge = nullptr;
-    m_IGES_Edge = nullptr;
     m_BBox = BndBox();
     m_Label = string();
     m_WakeFlag = false;
@@ -56,7 +55,7 @@ void NURBS_Curve::InitNURBSCurve( SCurve curve, double curve_tol )
 
 void NURBS_Curve::WriteIGESEdge( IGESutil* iges, const string& label )
 {
-    m_IGES_Edge = new DLL_IGES_ENTITY_126( iges->MakeCurve( m_PntVec, m_Deg, label ) );
+    m_IGES_Edge.reset( new DLL_IGES_ENTITY_126( iges->MakeCurve( m_PntVec, m_Deg, label ) ) );
 }
 
 void NURBS_Curve::WriteSTEPEdge( STEPutil* step, const string& label, bool mergepnts )
@@ -134,7 +133,7 @@ vector < DLL_IGES_ENTITY_126* > NURBS_Loop::GetIGESEdges( IGESutil* iges )
 
         // Note: No need to reverse vectors -> already done when building loops and IGES import
         // should automatically identify proper orientation for the type 102 composite entity
-        nurbs_vec[i] = m_OrderedCurves[i].first.m_IGES_Edge;
+        nurbs_vec[i] = m_OrderedCurves[i].first.m_IGES_Edge.get();
     }
 
     return nurbs_vec;

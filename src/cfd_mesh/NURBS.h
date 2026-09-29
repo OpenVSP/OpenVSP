@@ -71,7 +71,7 @@ public:
     SdaiEdge_curve* m_STEP_Edge;
 
     // Pointer for the IGES representation of the NURBS curve
-    DLL_IGES_ENTITY_126* m_IGES_Edge;
+    std::shared_ptr < DLL_IGES_ENTITY_126 > m_IGES_Edge;
 
     // Relative tolerance for merging points through nanoflann based on parent surface bounding box
     double m_MergeTol;
