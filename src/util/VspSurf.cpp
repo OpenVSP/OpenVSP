@@ -3590,7 +3590,8 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil *step, vector < SdaiB_spline_surfac
     {
         piecewise_surface_type s = surfvec[isurf];
 
-        if( !m_FlipNormal )
+        // Face out of the body, as the surface does unless its normal is flipped
+        if( m_FlipNormal )
         {
             s.reverse_v();
         }
@@ -3693,7 +3694,8 @@ void VspSurf::ToIGES( IGESutil *iges, bool splitsurf, bool tocubic, double tol, 
     {
         piecewise_surface_type s = surfvec[is];
 
-        if( !m_FlipNormal )
+        // Face out of the body, as the surface does unless its normal is flipped
+        if( m_FlipNormal )
         {
             s.reverse_v();
         }
