@@ -1691,14 +1691,14 @@ DLL_IGES_ENTITY_128 IGESutil::MakeSurf( piecewise_surface_type& s, const string&
     return isurf;
 }
 
-DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
-                                        const string& label )
+DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec,
+                                        const vector < DLL_IGES_ENTITY_126* > &uv_vec, CURVE_CREATION creation, const string& label )
 {
     // Create the Trimmed Parametric Surface (TPS)
     DLL_IGES_ENTITY_144 trim_surf( model, true );
 
-    // Define the 1st surface boundary in model space
-    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, creation, label );
+    // Define the 1st surface boundary
+    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, uv_vec, creation, label );
 
     if ( !trim_surf.SetBoundCurve( bound ) )
     {
@@ -1715,10 +1715,10 @@ DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const 
 }
 
 void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec,
-                           CURVE_CREATION creation, const string& label )
+                           const vector < DLL_IGES_ENTITY_126* > &uv_vec, CURVE_CREATION creation, const string& label )
 {
-    // Define the 1st surface boundary in model space
-    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, creation, label );
+    // Define the hole's boundary
+    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, uv_vec, creation, label );
 
     // The surface stands without the hole rather than not at all
     if ( !trimmed_surf.AddCutout( bound ) )
@@ -1777,8 +1777,37 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg
     return nc;
 }
 
-DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
-                                         const string& label )
+DLL_IGES_ENTITY_126 IGESutil::MakeCurve2D( const vector < vec3d > &uv_vec, int deg, const vector < double > &break_vec )
+{
+    int npts = (int)uv_vec.size();
+
+    vector< double > coeff( npts * 3 );
+
+    for ( int n = 0; n < npts; ++n )
+    {
+        coeff[3 * n] = uv_vec[n].x();
+        coeff[3 * n + 1] = uv_vec[n].y();
+        coeff[3 * n + 2] = 0.0;
+    }
+
+    vector< double > knot;
+    IGESKnots( deg, break_vec, knot );
+
+    DLL_IGES_ENTITY_126 nc( model, true );
+    if ( !nc.SetNURBSData( npts, deg + 1, knot.data(), coeff.data(), false, knot[0], knot.back() ) )
+    {
+        printf( "Error: IGES parameter space curve could not be written\n" );
+        model.DelEntity( &nc );
+        return nc;
+    }
+
+    nc.SetEntityUse( STAT_USE_2D_PARAMETRIC );
+
+    return nc;
+}
+
+DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec,
+                                         const vector < DLL_IGES_ENTITY_126* > &uv_vec, CURVE_CREATION creation, const string& label )
 {
     // Create a compound curve.  A curve it will not take is left out of the boundary, and
     // reported, but stays in the file.
@@ -1792,13 +1821,31 @@ DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, const
         }
     }
 
-    // Define the 1st surface boundary in model space
+    // The boundary in model space
     DLL_IGES_ENTITY_142 bound( model, true );
     bound.SetModelSpaceBound( compound );
-    // Note, the curve creation and preference flag do not seem to have an effect on the import
     bound.SetCurveCreationFlag( creation );
     bound.SetCurvePreference( BOUND_PREF_MODELSPACE );
     bound.SetSurface( parent_surf );
+
+    // The same boundary in the surface's parameters, held to the same tolerance, so neither is
+    // preferred
+    if ( !uv_vec.empty() )
+    {
+        DLL_IGES_ENTITY_102 uv_compound( model, true );
+        uv_compound.SetEntityUse( STAT_USE_2D_PARAMETRIC );
+
+        for ( size_t i = 0; i < uv_vec.size(); i++ )
+        {
+            if ( !uv_compound.AddSegment( *uv_vec[i] ) )
+            {
+                printf( "Error: IGES boundary %s is missing a parameter space curve\n", label.c_str() );
+            }
+        }
+
+        bound.SetParameterSpaceBound( uv_compound );
+        bound.SetCurvePreference( BOUND_PREF_ANY );
+    }
 
     if ( label.size() > 0 )
     {

@@ -155,25 +155,28 @@ public:
     // Write a Bezier surface to the IGES model by extracting the Bezier parameters and converting to a NURBS surface
     DLL_IGES_ENTITY_128 MakeSurf( piecewise_surface_type& s, const string& label );
 
-    // Bound a parent NURBS surface (entity 128) with an input control point vector.  creation
-    // says how its curves were made.
-    DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
-                                  const string& label );
+    // Bound a parent NURBS surface (entity 128) with a loop of curves, in model space and, where
+    // uv_vec is not empty, in the surface's parameters
+    DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec,
+                                  const vector < DLL_IGES_ENTITY_126* > &uv_vec, CURVE_CREATION creation, const string& label );
 
     // Write a piecewise Bezier curve as a NURBS curve, laid out as STEPutil::MakeCurve takes it
     DLL_IGES_ENTITY_126 MakeCurve( const vector < vec3d > &cp_vec, int deg, const vector < double > &break_vec, const string& label );
 
-    // Create a hole in a trimmed IGES surface (entity 144) at the given control point vector, as
-    // MakeLoop bounds a surface
+    // Write a curve in the parameter space of a surface: a piecewise Bezier curve of degree deg
+    // through the (u, v) held in the x and y of uv_vec, laid out as MakeCurve takes a curve
+    DLL_IGES_ENTITY_126 MakeCurve2D( const vector < vec3d > &uv_vec, int deg, const vector < double > &break_vec );
+
+    // Create a hole in a trimmed IGES surface (entity 144), bounded as MakeLoop bounds it
     void MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec,
-                     CURVE_CREATION creation, const string& label );
+                     const vector < DLL_IGES_ENTITY_126* > &uv_vec, CURVE_CREATION creation, const string& label );
 
 protected:
 
-    // Add an IGES bounding curve (entity 142) to a parent NURBS surface at the given control point
-    // vector.  creation says how its curves were made.
-    DLL_IGES_ENTITY_142 MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
-                                   const string& label );
+    // Add an IGES bounding curve (entity 142) to a parent NURBS surface, as MakeLoop bounds it.
+    // creation says how its curves were made.
+    DLL_IGES_ENTITY_142 MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec,
+                                   const vector < DLL_IGES_ENTITY_126* > &uv_vec, CURVE_CREATION creation, const string& label );
 
     // Add a label to any DLL_IGES_ENTITY
     void AddLabel( DLL_IGES_ENTITY& entity, const string& label );

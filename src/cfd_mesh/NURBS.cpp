@@ -529,7 +529,133 @@ CURVE_CREATION NURBS_Loop::IGESCurveCreation() const
     return CURVE_CREATE_UNSPECIFIED;
 }
 
-DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label )
+// A point of a surface, its parameters clamped into it
+static vec3d SurfPntClamped( const piecewise_surface_type &surf, double u, double w )
+{
+    u = std::min( std::max( u, surf.get_u0() ), surf.get_umax() );
+    w = std::min( std::max( w, surf.get_v0() ), surf.get_vmax() );
+    surface_point_type p = surf.f( u, w );
+    return vec3d( p.x(), p.y(), p.z() );
+}
+
+vector < DLL_IGES_ENTITY_126 > NURBS_Loop::GetIGESUWEdges( IGESutil* iges, int surf_id, const piecewise_surface_type &surf,
+                                                           bool flip_flag ) const
+{
+    int n = ( int )m_OrderedCurves.size();
+
+    // Each curve's image on this surface.  A curve on it on both sides, along a seam, takes the
+    // one that carries on from the curve before.
+    vector < const vector < vec3d >* > uw_vec( n );
+    vector < const vector < double >* > break_vec( n );
+    vector < int > deg_vec( n );
+
+    for ( int i = 0; i < n; i++ )
+    {
+        const NURBS_Curve &crv = m_OrderedCurves[i].first;
+
+        bool on_a = ( crv.m_SurfA_ID == surf_id && !crv.m_CADUWPntVec_A.empty() );
+        bool on_b = ( crv.m_SurfB_ID == surf_id && !crv.m_CADUWPntVec_B.empty() );
+
+        if ( !on_a && !on_b )
+        {
+            return vector < DLL_IGES_ENTITY_126 > ();
+        }
+
+        bool use_a = on_a;
+        if ( on_a && on_b && i > 0 )
+        {
+            const vec3d &prev = uw_vec[i - 1]->back();
+            use_a = dist( crv.m_CADUWPntVec_A.front(), prev ) <= dist( crv.m_CADUWPntVec_B.front(), prev );
+        }
+
+        if ( use_a )
+        {
+            uw_vec[i] = &crv.m_CADUWPntVec_A;
+            break_vec[i] = &crv.m_CADUWBreakVec_A;
+        }
+        else
+        {
+            uw_vec[i] = &crv.m_CADUWPntVec_B;
+            break_vec[i] = &crv.m_CADUWBreakVec_B;
+        }
+        deg_vec[i] = crv.m_CADUWDeg;
+    }
+
+    // A flipped surface is written reversed in w, so its parameters are mirrored to match
+    double wsum = surf.get_v0() + surf.get_vmax();
+    vector < vector < vec3d > > flipped;
+    if ( flip_flag )
+    {
+        flipped.resize( n );
+        for ( int i = 0; i < n; i++ )
+        {
+            flipped[i] = *uw_vec[i];
+            for ( size_t j = 0; j < flipped[i].size(); j++ )
+            {
+                flipped[i][j].set_y( wsum - flipped[i][j].y() );
+            }
+            uw_vec[i] = &flipped[i];
+        }
+    }
+
+    vector < DLL_IGES_ENTITY_126 > edge_vec;
+
+    for ( int i = 0; i < n; i++ )
+    {
+        edge_vec.push_back( iges->MakeCurve2D( *uw_vec[i], deg_vec[i], *break_vec[i] ) );
+
+        const vec3d &end = uw_vec[i]->back();
+        const vec3d &next = uw_vec[ ( i + 1 ) % n ]->front();
+
+        // libIGES takes ends within about 1.7e-8 of each other as one point, so only a wider gap
+        // needs a line across it
+        if ( dist( end, next ) > 2.0e-8 )
+        {
+            // At a pole both ends are the same point, and the line runs along the collapsed edge
+            piecewise_surface_type::bounding_box_type bb;
+            surf.get_bounding_box( bb );
+            double res = 1.0e-10 * ( bb.get_max() - bb.get_min() ).norm();
+            double wend = end.y();
+            double wnext = next.y();
+            if ( flip_flag )
+            {
+                wend = wsum - wend;
+                wnext = wsum - wnext;
+            }
+            double gap = dist( SurfPntClamped( surf, end.x(), wend ), SurfPntClamped( surf, next.x(), wnext ) );
+            if ( gap > res )
+            {
+                printf( "ERROR: IGES boundary on surface %d jumps %g between curves, bridged in its parameters\n", surf_id, gap );
+            }
+
+            vector < vec3d > line_vec( 2 );
+            line_vec[0] = end;
+            line_vec[1] = next;
+
+            vector < double > line_break_vec( 2 );
+            line_break_vec[0] = 0.0;
+            line_break_vec[1] = 1.0;
+
+            edge_vec.push_back( iges->MakeCurve2D( line_vec, 1, line_break_vec ) );
+        }
+    }
+
+    return edge_vec;
+}
+
+// Pointers to the curves of a loop, for the writer
+static vector < DLL_IGES_ENTITY_126* > IGESEdgePtrs( vector < DLL_IGES_ENTITY_126 > &edge_vec )
+{
+    vector < DLL_IGES_ENTITY_126* > ptr_vec( edge_vec.size() );
+    for ( size_t i = 0; i < edge_vec.size(); i++ )
+    {
+        ptr_vec[i] = &edge_vec[i];
+    }
+    return ptr_vec;
+}
+
+DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, int surf_id, const piecewise_surface_type &surf,
+                                               bool flip_flag, const string& label )
 {
     if ( !m_ClosedFlag )
     {
@@ -538,10 +664,13 @@ DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_1
 
     vector < DLL_IGES_ENTITY_126* > nurbs_vec = GetIGESEdges( iges );
 
-    return iges->MakeLoop( parent_surf, nurbs_vec, IGESCurveCreation(), label );
+    vector < DLL_IGES_ENTITY_126 > uw_vec = GetIGESUWEdges( iges, surf_id, surf, flip_flag );
+
+    return iges->MakeLoop( parent_surf, nurbs_vec, IGESEdgePtrs( uw_vec ), IGESCurveCreation(), label );
 }
 
-void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const string& label )
+void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, int surf_id,
+                                  const piecewise_surface_type &surf, bool flip_flag, const string& label )
 {
     if ( !m_ClosedFlag )
     {
@@ -551,7 +680,9 @@ void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_su
 
     vector < DLL_IGES_ENTITY_126* > nurbs_vec = GetIGESEdges( iges );
 
-    iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec, IGESCurveCreation(), label );
+    vector < DLL_IGES_ENTITY_126 > uw_vec = GetIGESUWEdges( iges, surf_id, surf, flip_flag );
+
+    iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec, IGESEdgePtrs( uw_vec ), IGESCurveCreation(), label );
 }
 
 SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, STEP_Topology* topo, bool mergepts )
@@ -1086,11 +1217,11 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
 
     if ( ext_loop_vec.size() == 1 )
     {
-        DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[0].WriteIGESLoop( iges, parent_surf, label );
+        DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[0].WriteIGESLoop( iges, parent_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
 
         for ( size_t i = 0; i < cutout_vec.size(); i++ )
         {
-            cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf, label );
+            cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
         }
     }
     else if ( ext_loop_vec.size() > 1 )
@@ -1099,14 +1230,14 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
         // with separate loop bounds.
         for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
         {
-            DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf, label );
+            DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
 
             // Check if for any cutouts on the trimmed surface
             for ( size_t j = 0; j < cutout_vec.size(); j++ )
             {
                 if ( Compare( ext_loop_vec[i].GetBndBox(), cutout_vec[j].GetBndBox() ) ) // TODO: Improve this comparison
                 {
-                    cutout_vec[j].WriteIGESCutout( iges, parent_surf, trimmed_surf, label );
+                    cutout_vec[j].WriteIGESCutout( iges, parent_surf, trimmed_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
                 }
             }
         }

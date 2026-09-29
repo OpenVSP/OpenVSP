@@ -162,12 +162,21 @@ public:
     // or a mix
     CURVE_CREATION IGESCurveCreation() const;
 
-    // Write the NURBS loop to IGES and trim the parent 128 type entity to form a
-    // type 144 entity. 
-    DLL_IGES_ENTITY_144 WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label = "" );
+    // The loop in the parameters of surface surf_id, whose surface is surf: each ordered curve's
+    // image there, and a straight line across each gap between them, where the loop leaves out a
+    // curve that collapses to a point.  A gap whose ends are not one point in space is reported.
+    // Empty where a curve has no image on the surface.  flip_flag mirrors w, for a surface
+    // written reversed in w.
+    vector < DLL_IGES_ENTITY_126 > GetIGESUWEdges( IGESutil* iges, int surf_id, const piecewise_surface_type &surf, bool flip_flag ) const;
+
+    // Write the NURBS loop to IGES and trim the parent 128 type entity, surface surf_id, to form
+    // a type 144 entity.
+    DLL_IGES_ENTITY_144 WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, int surf_id, const piecewise_surface_type &surf,
+                                       bool flip_flag, const string& label = "" );
 
     // Add a cutout or hole to a boundedor trimmed surface
-    void WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const string& label = "" );
+    void WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, int surf_id,
+                          const piecewise_surface_type &surf, bool flip_flag, const string& label = "" );
 
     // Write the NURBS loop to STEP, taking its edges from the file's topology
     SdaiEdge_loop* WriteSTEPLoop( STEPutil* step, STEP_Topology* topo, bool mergepts = false );
