@@ -1387,45 +1387,63 @@ void STEPutil::MakeSurfaceCurve( const vector < vec3d > &cp_vec, int deg, const 
     sdr->used_representation_( shape_rep );
 }
 
-void STEPutil::RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label )
+// The faces of a shell as a STEP list
+static string FaceList( const vector < SdaiAdvanced_face* > &face_vec )
+{
+    std::ostringstream ss;
+
+    for ( size_t i = 0; i < face_vec.size(); i++ )
+    {
+        ss << "#" << face_vec[i]->GetFileId();
+
+        if ( i < face_vec.size() - 1 )
+        {
+            ss << ", ";
+        }
+    }
+    return ss.str();
+}
+
+void STEPutil::RepresentBREPSolid( const vector < vector < SdaiAdvanced_face* > > &adv_vec, const vector < bool > &closed_vec,
+                                   const string& label )
 {
     vector < SdaiManifold_solid_brep* > brep_vec;
+    vector < vector < SdaiAdvanced_face* > > open_vec;
 
     for ( size_t j = 0; j < adv_vec.size(); j++ )
     {
-        std::ostringstream adv_ss;
-
-        for ( size_t i = 0; i < adv_vec[j].size(); i++ )
+        if ( adv_vec[j].empty() )
         {
-            adv_ss << "#" << adv_vec[j][i]->GetFileId();
+            continue;
+        }
 
-            if ( i < adv_vec[j].size() - 1 )
-            {
-                adv_ss << ", ";
-            }
+        if ( !closed_vec[j] )
+        {
+            open_vec.push_back( adv_vec[j] );
+            continue;
         }
 
         SdaiClosed_shell* shell = (SdaiClosed_shell*)registry->ObjCreate( "CLOSED_SHELL" );
         instance_list->Append( (SDAI_Application_instance*)shell, completeSE );
         shell->name_( "''" );
-        shell->cfs_faces_()->AddNode( new GenericAggrNode( adv_ss.str().c_str() ) );
-
-        SdaiCartesian_point* origin2 = MakePoint( 0.0, 0.0, 0.0 );
-        SdaiDirection* axis2 = MakeDirection( 0.0, 0.0, 1.0 );
-        SdaiDirection* refd2 = MakeDirection( 1.0, 0.0, 0.0 );
-
-        SdaiAxis2_placement_3d* placement2 = (SdaiAxis2_placement_3d*)registry->ObjCreate( "AXIS2_PLACEMENT_3D" );
-        placement2->name_( "''" );
-        placement2->location_( origin2 );
-        placement2->axis_( axis2 );
-        placement2->ref_direction_( refd2 );
-        instance_list->Append( (SDAI_Application_instance*)placement2, completeSE );
+        shell->cfs_faces_()->AddNode( new GenericAggrNode( FaceList( adv_vec[j] ).c_str() ) );
 
         SdaiManifold_solid_brep* brep = (SdaiManifold_solid_brep*)registry->ObjCreate( "MANIFOLD_SOLID_BREP" );
         instance_list->Append( (SDAI_Application_instance*)brep, completeSE );
         brep->name_( "''" );
         brep->outer_( shell );
         brep_vec.push_back( brep );
+    }
+
+    // What bounds no solid is written as a surface model beside the solids
+    if ( !open_vec.empty() )
+    {
+        RepresentManifoldShell( open_vec, vector < bool > ( open_vec.size(), false ), label );
+    }
+
+    if ( brep_vec.empty() )
+    {
+        return;
     }
 
     std::ostringstream brep_ss;
@@ -1459,30 +1477,37 @@ void STEPutil::RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_
     shape_def_rep->used_representation_( adv_brep );
 }
 
-void STEPutil::RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label )
+void STEPutil::RepresentManifoldShell( const vector < vector < SdaiAdvanced_face* > > &adv_vec, const vector < bool > &closed_vec,
+                                       const string& label )
 {
-    vector < SdaiOpen_shell* > shell_vec;
+    vector < SdaiConnected_face_set* > shell_vec;
 
     for ( size_t j = 0; j < adv_vec.size(); j++ )
     {
-        std::ostringstream adv_ss;
-
-        for ( size_t i = 0; i < adv_vec[j].size(); i++ )
+        if ( adv_vec[j].empty() )
         {
-            adv_ss << "#" << adv_vec[j][i]->GetFileId();
-
-            if ( i < adv_vec[j].size() - 1 )
-            {
-                adv_ss << ", ";
-            }
+            continue;
         }
 
-        SdaiOpen_shell* shell = (SdaiOpen_shell*)registry->ObjCreate( "OPEN_SHELL" );
+        SdaiConnected_face_set* shell = nullptr;
+        if ( closed_vec[j] )
+        {
+            shell = (SdaiConnected_face_set*)registry->ObjCreate( "CLOSED_SHELL" );
+        }
+        else
+        {
+            shell = (SdaiConnected_face_set*)registry->ObjCreate( "OPEN_SHELL" );
+        }
         instance_list->Append( (SDAI_Application_instance*)shell, completeSE );
         shell->name_( "''" );
-        shell->cfs_faces_()->AddNode( new GenericAggrNode( adv_ss.str().c_str() ) );
+        shell->cfs_faces_()->AddNode( new GenericAggrNode( FaceList( adv_vec[j] ).c_str() ) );
 
         shell_vec.push_back( shell );
+    }
+
+    if ( shell_vec.empty() )
+    {
+        return;
     }
 
     SdaiShell_based_surface_model* shell_surf = (SdaiShell_based_surface_model*)registry->ObjCreate( "SHELL_BASED_SURFACE_MODEL" );

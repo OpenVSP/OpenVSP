@@ -67,8 +67,13 @@ public:
     InstMgr * instance_list;
 
     // Functions for STEP file representation
-    void RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label = "" );
-    void RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label = "" );
+    // Each shell of faces as a solid where closed_vec says it is closed, and in a surface model where not
+    void RepresentBREPSolid( const vector < vector < SdaiAdvanced_face* > > &adv_vec, const vector < bool > &closed_vec,
+                             const string& label = "" );
+
+    // Each shell of faces in a surface model, closed where closed_vec says so
+    void RepresentManifoldShell( const vector < vector < SdaiAdvanced_face* > > &adv_vec, const vector < bool > &closed_vec,
+                                 const string& label = "" );
     void RepresentUntrimmedSurfs( const vector < SdaiB_spline_surface_with_knots* > &surf_vec, const string& label = "" );
 
     // Convert a piecewise Bezier surface to a NURBS surface and add it to the STEP file. Additional options

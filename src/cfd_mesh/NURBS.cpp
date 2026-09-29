@@ -1100,7 +1100,8 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
     }
 }
 
-vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STEP_Topology* topo, SdaiSurface* surf, const string& label, bool mergepts )
+vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STEP_Topology* topo, SdaiSurface* surf, vector < int > &face_ids,
+                                                             const string& label, bool mergepts )
 {
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
@@ -1121,9 +1122,11 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STE
 
     // One face per external loop, all on the same parent surface.  Holes go on the first.
     vector < vector < SdaiFace_bound* > > face_bound_vec;
+    int first_face = topo->NewFaces( ( int )ext_loop_vec.size() );
 
     for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
     {
+        topo->SetFace( first_face + ( int )i );
         SdaiFace_bound* bound = ext_loop_vec[i].WriteSTEPBound( step, topo, m_SurfID, false, m_FlipFlag, mergepts );
 
         if ( bound )
@@ -1139,6 +1142,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STE
 
     for ( size_t i = 0; i < cutout_vec.size(); i++ )
     {
+        topo->SetFace( first_face );
         SdaiFace_bound* bound = cutout_vec[i].WriteSTEPBound( step, topo, m_SurfID, true, m_FlipFlag, mergepts );
 
         if ( bound )
@@ -1148,6 +1152,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STE
     }
 
     vector < SdaiAdvanced_face* > adv_vec;
+    face_ids.clear();
 
     for ( size_t i = 0; i < face_bound_vec.size(); i++ )
     {
@@ -1186,6 +1191,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STE
         adv_face->bounds_()->AddNode( new GenericAggrNode( face_ss.str().c_str() ) );
 
         adv_vec.push_back( adv_face );
+        face_ids.push_back( first_face + ( int )i );
     }
 
     return adv_vec;
@@ -1296,6 +1302,110 @@ STEP_Topology::STEP_Topology( const vector < NURBS_Curve > &curve_vec, const vec
 
     m_VertVec.resize( m_VertPntVec.size(), nullptr );
     m_EdgeVec.resize( m_CurveVec.size(), nullptr );
+    m_NumFace = 0;
+    m_Face = -1;
+}
+
+void STEP_Topology::Shells( const vector < int > &face_vec, vector < vector < int > > &shell_vec, vector < bool > &closed_vec ) const
+{
+    shell_vec.clear();
+    closed_vec.clear();
+
+    // Faces joined through a shared curve, as a union-find over positions in face_vec
+    int nface = ( int )face_vec.size();
+    vector < int > parent( nface );
+    for ( int i = 0; i < nface; i++ )
+    {
+        parent[i] = i;
+    }
+
+    unordered_map < int, int > first_user;
+    for ( int i = 0; i < nface; i++ )
+    {
+        unordered_map < int, vector < int > >::const_iterator it = m_FaceCurveMap.find( face_vec[i] );
+        if ( it == m_FaceCurveMap.end() )
+        {
+            continue;
+        }
+        for ( size_t k = 0; k < it->second.size(); k++ )
+        {
+            int curve_id = it->second[k];
+            unordered_map < int, int >::iterator f = first_user.find( curve_id );
+            if ( f == first_user.end() )
+            {
+                first_user[ curve_id ] = i;
+                continue;
+            }
+
+            int a = i;
+            while ( parent[a] != a )
+            {
+                a = parent[a];
+            }
+            int b = f->second;
+            while ( parent[b] != b )
+            {
+                b = parent[b];
+            }
+            if ( a < b )
+            {
+                parent[b] = a;
+            }
+            else if ( b < a )
+            {
+                parent[a] = b;
+            }
+        }
+    }
+
+    // Each root is its shell's first face, so going through the faces in order makes the shells
+    // in the order of their first faces
+    unordered_map < int, int > shell_of_root;
+    for ( int i = 0; i < nface; i++ )
+    {
+        int r = i;
+        while ( parent[r] != r )
+        {
+            r = parent[r];
+        }
+        unordered_map < int, int >::iterator s = shell_of_root.find( r );
+        if ( s == shell_of_root.end() )
+        {
+            shell_of_root[ r ] = ( int )shell_vec.size();
+            shell_vec.push_back( vector < int > ( 1, i ) );
+        }
+        else
+        {
+            shell_vec[ s->second ].push_back( i );
+        }
+    }
+
+    for ( size_t s = 0; s < shell_vec.size(); s++ )
+    {
+        unordered_map < int, int > use;
+        for ( size_t k = 0; k < shell_vec[s].size(); k++ )
+        {
+            unordered_map < int, vector < int > >::const_iterator it = m_FaceCurveMap.find( face_vec[ shell_vec[s][k] ] );
+            if ( it == m_FaceCurveMap.end() )
+            {
+                continue;
+            }
+            for ( size_t c = 0; c < it->second.size(); c++ )
+            {
+                use[ it->second[c] ]++;
+            }
+        }
+
+        bool closed = true;
+        for ( unordered_map < int, int >::const_iterator u = use.begin(); u != use.end(); ++u )
+        {
+            if ( u->second != 2 )
+            {
+                closed = false;
+            }
+        }
+        closed_vec.push_back( closed );
+    }
 }
 
 int STEP_Topology::FindRoot( int i )
@@ -1319,6 +1429,8 @@ SdaiVertex_point* STEP_Topology::GetVertex( STEPutil* step, int vert )
 
 SdaiEdge_curve* STEP_Topology::GetEdge( STEPutil* step, int curve_id, bool mergepts )
 {
+    m_FaceCurveMap[ m_Face ].push_back( curve_id );
+
     if ( !m_EdgeVec[curve_id] )
     {
         const NURBS_Curve &crv = m_CurveVec[curve_id];

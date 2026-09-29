@@ -1872,11 +1872,6 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 
     STEP_Topology topo( m_NURBSCurveVec, m_NURBSSurfVec );
 
-    // Identify the unique sets of intersected components
-    vector < vector < int > > comp_id_group_vec = GetCompIDGroupVec();
-
-    vector < vector < SdaiAdvanced_face* > > adv_vec( comp_id_group_vec.size() );
-
     // Every surface is written before any face, so an edge can be placed on both of its surfaces
     // whichever face asks for it first
     vector < SdaiSurface* > surf_vec( m_NURBSSurfVec.size() );
@@ -1936,19 +1931,52 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         topo.SetSurf( m_NURBSSurfVec[si].m_SurfID, surf_vec[si] );
     }
 
+    // The faces of normal and negative surfaces, which can bound a solid, and the rest
+    vector < SdaiAdvanced_face* > adv_vec[2];
+    vector < int > face_vec[2];
+
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
-        Surf* current_surf = FindSurf( m_NURBSSurfVec[si].m_SurfID );
-
-        int comp_id = current_surf->GetCompID();
-
-        for ( size_t j = 0; j < comp_id_group_vec.size(); j++ )
+        int type = m_NURBSSurfVec[si].m_SurfType;
+        int ikind = 1;
+        if ( type == vsp::CFD_NORMAL || type == vsp::CFD_NEGATIVE )
         {
-            if ( std::count( comp_id_group_vec[j].begin(), comp_id_group_vec[j].end(), comp_id ) )
+            ikind = 0;
+        }
+
+        vector < int > ids;
+        vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, &topo, surf_vec[si], ids, label_vec[si], merge_pnts );
+        adv_vec[ikind].insert( adv_vec[ikind].end(), adv.begin(), adv.end() );
+        face_vec[ikind].insert( face_vec[ikind].end(), ids.begin(), ids.end() );
+    }
+
+    // Each kind in shells of faces joined through the edges they share: one body is one shell,
+    // however its components were grouped, and bodies that do not touch are shells apart
+    vector < vector < SdaiAdvanced_face* > > shell_vec;
+    vector < bool > closed_vec;
+    int nopen = 0;
+
+    for ( int ikind = 0; ikind < 2; ikind++ )
+    {
+        vector < vector < int > > shells;
+        vector < bool > closed;
+        topo.Shells( face_vec[ikind], shells, closed );
+
+        for ( size_t s = 0; s < shells.size(); s++ )
+        {
+            vector < SdaiAdvanced_face* > shell;
+            for ( size_t k = 0; k < shells[s].size(); k++ )
             {
-                vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, &topo, surf_vec[si], label_vec[si], merge_pnts );
-                adv_vec[j].insert( adv_vec[j].end(), adv.begin(), adv.end() );
+                shell.push_back( adv_vec[ikind][ shells[s][k] ] );
             }
+
+            if ( ikind == 0 && !closed[s] )
+            {
+                nopen++;
+            }
+
+            shell_vec.push_back( shell );
+            closed_vec.push_back( closed[s] );
         }
     }
 
@@ -1960,78 +1988,23 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         addOutputText( str );
     }
 
-    // TODO: Don't include transparent and structure surfaces in BREP?
-
     if ( representation == vsp::STEP_SHELL )
     {
-        step.RepresentManifoldShell( adv_vec );
+        step.RepresentManifoldShell( shell_vec, closed_vec );
     }
     else
     {
-        step.RepresentBREPSolid( adv_vec );
+        if ( nopen > 0 )
+        {
+            char str[256];
+            snprintf( str, sizeof( str ), "Warning: %d STEP shells are not closed, and are written as surfaces instead of solids\n", nopen );
+            addOutputText( str );
+        }
+
+        step.RepresentBREPSolid( shell_vec, closed_vec );
     }
 
     step.WriteFile( filename );
-}
-
-// The group a component belongs to, followed to its root.
-static int FindCompRoot( std::map < int, int > &parent, int c )
-{
-    while ( parent[c] != c )
-    {
-        parent[c] = parent[ parent[c] ];
-        c = parent[c];
-    }
-    return c;
-}
-
-vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
-{
-    // Components are grouped by what connects them: two share a group when a chain runs
-    // between them, directly or through others.  Each component is in one group.
-    std::map < int, int > parent;
-    list< ISegChain* >::iterator i_seg;
-
-    for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
-    {
-        int comp_A_id = ( *i_seg )->m_SurfA->GetCompID();
-        int comp_B_id = ( *i_seg )->m_SurfB->GetCompID();
-
-        if ( parent.find( comp_A_id ) == parent.end() )
-        {
-            parent[ comp_A_id ] = comp_A_id;
-        }
-        if ( parent.find( comp_B_id ) == parent.end() )
-        {
-            parent[ comp_B_id ] = comp_B_id;
-        }
-
-        int ra = FindCompRoot( parent, comp_A_id );
-        int rb = FindCompRoot( parent, comp_B_id );
-        if ( ra != rb )
-        {
-            parent[ rb ] = ra;
-        }
-    }
-
-    std::map < int, int > root_group;
-    vector < vector < int > > comp_id_group_vec;
-
-    std::map < int, int >::iterator it;
-    for ( it = parent.begin(); it != parent.end(); ++it )
-    {
-        int r = FindCompRoot( parent, it->first );
-
-        if ( root_group.find( r ) == root_group.end() )
-        {
-            root_group[ r ] = ( int )comp_id_group_vec.size();
-            comp_id_group_vec.push_back( vector < int > () );
-        }
-
-        comp_id_group_vec[ root_group[ r ] ].push_back( it->first );
-    }
-
-    return comp_id_group_vec;
 }
 
 void SurfaceIntersectionSingleton::BuildNURBSSurfMap()

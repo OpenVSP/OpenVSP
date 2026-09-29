@@ -244,7 +244,9 @@ public:
 
     // Write the NURBS loops for this NURBS surface to STEP, trimming the parent surface
     // in the process. 
-    vector < SdaiAdvanced_face* > WriteSTEPLoops( STEPutil* step, STEP_Topology* topo, SdaiSurface* surf, const string& label = "", bool mergepts = false );
+    // Write the faces of this surface, and in face_ids the number topo gave each
+    vector < SdaiAdvanced_face* > WriteSTEPLoops( STEPutil* step, STEP_Topology* topo, SdaiSurface* surf, vector < int > &face_ids,
+                                                  const string& label = "", bool mergepts = false );
 
     // Identifies the internal and external NURBS curves on the surface, organizes
     // them into connected chains, and forms loops.  
@@ -325,6 +327,25 @@ public:
         return m_MaxEndGap;
     }
 
+    // Numbers for n new faces, the first of them returned
+    int NewFaces( int n )
+    {
+        int first = m_NumFace;
+        m_NumFace += n;
+        return first;
+    }
+
+    // Count the edges the bounds written from here on use against a face
+    void SetFace( int face )
+    {
+        m_Face = face;
+    }
+
+    // The faces given, in shells of faces joined through the edges they share, each in face order
+    // and the shells in the order of their first faces; a shell is closed where every edge its
+    // faces use is used by exactly two of them
+    void Shells( const vector < int > &face_vec, vector < vector < int > > &shell_vec, vector < bool > &closed_vec ) const;
+
 protected:
 
     // Index of one end of a curve in m_EndVertVec
@@ -351,6 +372,11 @@ protected:
 
     vector < SdaiVertex_point* > m_VertVec;
     vector < SdaiEdge_curve* > m_EdgeVec;
+
+    // The curves each face's bounds use, once for each use
+    int m_NumFace;
+    int m_Face;
+    unordered_map < int, vector < int > > m_FaceCurveMap;
 
     unordered_map < int, SdaiSurface* > m_SurfMap;
 
