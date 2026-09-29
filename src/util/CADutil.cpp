@@ -1471,7 +1471,9 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg
     if ( !nc.SetNURBSData( npts, order, knot.data(),
                            coeff.data(), false, knot[0], knot.back() ) )
     {
+        printf( "Error: IGES curve %s could not be written\n", label.c_str() );
         model.DelEntity( &nc );
+        return nc;
     }
 
     // Every curve is drawn in one custom color (magenta)
@@ -1492,14 +1494,15 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg
 
 DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label )
 {
-    // Create a compound curve
+    // Create a compound curve.  A curve it will not take is left out of the boundary, and
+    // reported, but stays in the file.
     DLL_IGES_ENTITY_102 compound( model, true );
 
     for ( size_t i = 0; i < nurbs_vec.size(); i++ )
     {
         if ( !compound.AddSegment( *nurbs_vec[i] ) )
         {
-            model.DelEntity( nurbs_vec[i] );
+            printf( "Error: IGES boundary %s is missing a curve\n", label.c_str() );
         }
     }
 
