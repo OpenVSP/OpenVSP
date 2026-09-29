@@ -3834,7 +3834,7 @@ VspSurf::PrepCADSurfs( bool splitsurf, bool tocubic, double tol, bool trimTE, bo
         s.degree_u( minu, maxu );
         s.degree_v( minv, maxv );
 
-        if ( maxv > 3 )
+        if ( maxu > 3 )
         {
             s.to_cubic_u( tol );
         }
