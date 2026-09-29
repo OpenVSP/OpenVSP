@@ -10,6 +10,7 @@
 #include "CADutil.h"
 #include "VspSurf.h"
 #include "PntNodeMerge.h"
+#include "FileUtil.h"
 #include "main.h"
 #include <float.h>
 
@@ -1344,6 +1345,14 @@ IGESutil::~IGESutil()
 
 void IGESutil::WriteFile( const string &fname, const bool overwrite )
 {
+    string path, file;
+    GetPathFile( fname, path, file );
+
+    // The product is the file written, without its extension
+    string product = GetBasename( file );
+    model.SetProductID_SendingSystem( product.c_str() );
+    model.SetProductID_ReceivingSystem( product.c_str() );
+
     model.Write( fname.c_str(), overwrite );
 }
 
