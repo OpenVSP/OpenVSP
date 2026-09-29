@@ -104,6 +104,10 @@ public:
     // If the Type 126 entity is not yet defined, WriteIGESEdge is called.
     vector < DLL_IGES_ENTITY_126* > GetIGESEdges( IGESutil* iges );
 
+    // How the loop's curves were made: by intersection, as parameter lines of their surfaces,
+    // or a mix
+    CURVE_CREATION IGESCurveCreation() const;
+
     // Write the NURBS loop to IGES and trim the parent 128 type entity to form a
     // type 144 entity. 
     DLL_IGES_ENTITY_144 WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label = "" );

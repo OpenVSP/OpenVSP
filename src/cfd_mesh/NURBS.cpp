@@ -139,6 +139,34 @@ vector < DLL_IGES_ENTITY_126* > NURBS_Loop::GetIGESEdges( IGESutil* iges )
     return nurbs_vec;
 }
 
+CURVE_CREATION NURBS_Loop::IGESCurveCreation() const
+{
+    bool border = false;
+    bool isect = false;
+
+    for ( size_t i = 0; i < m_OrderedCurves.size(); i++ )
+    {
+        if ( m_OrderedCurves[i].first.m_BorderFlag )
+        {
+            border = true;
+        }
+        else
+        {
+            isect = true;
+        }
+    }
+
+    if ( border && !isect )
+    {
+        return CURVE_CREATE_PARAMETRIC;
+    }
+    if ( isect && !border )
+    {
+        return CURVE_CREATE_INTERSECTION;
+    }
+    return CURVE_CREATE_UNSPECIFIED;
+}
+
 DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label )
 {
     if ( !m_ClosedFlag )
@@ -148,7 +176,7 @@ DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_1
 
     vector < DLL_IGES_ENTITY_126* > nurbs_vec = GetIGESEdges( iges );
 
-    return iges->MakeLoop( parent_surf, nurbs_vec, label );
+    return iges->MakeLoop( parent_surf, nurbs_vec, IGESCurveCreation(), label );
 }
 
 void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const string& label )
@@ -161,7 +189,7 @@ void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_su
 
     vector < DLL_IGES_ENTITY_126* > nurbs_vec = GetIGESEdges( iges );
 
-    iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec, label );
+    iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec, IGESCurveCreation(), label );
 }
 
 SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, const string& label, bool mergepts )

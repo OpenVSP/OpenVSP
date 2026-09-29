@@ -1409,13 +1409,14 @@ DLL_IGES_ENTITY_128 IGESutil::MakeSurf( piecewise_surface_type& s, const string&
     return isurf;
 }
 
-DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label )
+DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
+                                        const string& label )
 {
     // Create the Trimmed Parametric Surface (TPS)
     DLL_IGES_ENTITY_144 trim_surf( model, true );
 
     // Define the 1st surface boundary in model space
-    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, label );
+    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, creation, label );
 
     if ( !trim_surf.SetBoundCurve( bound ) )
     {
@@ -1429,10 +1430,11 @@ DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const 
     return trim_surf;
 }
 
-void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label )
+void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec,
+                           CURVE_CREATION creation, const string& label )
 {
     // Define the 1st surface boundary in model space
-    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, label );
+    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, creation, label );
 
     if ( !trimmed_surf.AddCutout( bound ) )
     {
@@ -1492,7 +1494,8 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg
     return nc;
 }
 
-DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label )
+DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
+                                         const string& label )
 {
     // Create a compound curve.  A curve it will not take is left out of the boundary, and
     // reported, but stays in the file.
@@ -1510,7 +1513,7 @@ DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, const
     DLL_IGES_ENTITY_142 bound( model, true );
     bound.SetModelSpaceBound( compound );
     // Note, the curve creation and preference flag do not seem to have an effect on the import
-    bound.SetCurveCreationFlag( CURVE_CREATE_PROJECTION );
+    bound.SetCurveCreationFlag( creation );
     bound.SetCurvePreference( BOUND_PREF_MODELSPACE );
     bound.SetSurface( parent_surf );
 

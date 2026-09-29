@@ -127,18 +127,24 @@ public:
     // Write a Bezier surface to the IGES model by extracting the Bezier parameters and converting to a NURBS surface
     DLL_IGES_ENTITY_128 MakeSurf( piecewise_surface_type& s, const string& label );
 
-    // Bound a parent NURBS surface (entity 128) with an input control point vector
-    DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label );
+    // Bound a parent NURBS surface (entity 128) with an input control point vector.  creation
+    // says how its curves were made.
+    DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
+                                  const string& label );
 
     DLL_IGES_ENTITY_126 MakeCurve( const vector < vec3d > &cp_vec, int deg, const string& label );
 
-    // Create a hole in a trimmed IGES surface (entity 144) at the given control point vector
-    void MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label );
+    // Create a hole in a trimmed IGES surface (entity 144) at the given control point vector, as
+    // MakeLoop bounds a surface
+    void MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec,
+                     CURVE_CREATION creation, const string& label );
 
 protected:
 
-    // Add an IGES bounding curve (entity 142) to a parent NURBS surface at the given control point vector
-    DLL_IGES_ENTITY_142 MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, const string& label );
+    // Add an IGES bounding curve (entity 142) to a parent NURBS surface at the given control point
+    // vector.  creation says how its curves were made.
+    DLL_IGES_ENTITY_142 MakeBound( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
+                                   const string& label );
 
     // Add a label to any DLL_IGES_ENTITY
     void AddLabel( DLL_IGES_ENTITY& entity, const string& label );
