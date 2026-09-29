@@ -434,8 +434,6 @@ void APITestSuiteCFDMesh::FEAMeshAnalysisTest()
     analysis_name = "FeaMeshExport";
     vsp::SetAnalysisInputDefaults( analysis_name );
 
-    vector < double > relCurveTolNums{ 0.01 };
-    vsp::SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
     vector < double > sTEPTolNums{ 1e-06 };
     vsp::SetDoubleAnalysisInput( analysis_name, "STEPTol", sTEPTolNums, 0 );
 

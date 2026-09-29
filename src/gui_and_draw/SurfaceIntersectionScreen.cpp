@@ -77,9 +77,6 @@ void SurfaceIntersectionScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddDividerBox( "Geometry Control" );
     m_GlobalTabLayout.AddYGap();
 
-    m_GlobalTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 0.01, "%7.5f" );
-    m_GlobalTabLayout.AddYGap();
-
     m_GlobalTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
     m_GlobalTabLayout.AddYGap();
 
@@ -230,7 +227,7 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     //m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
     //m_OutputTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
     //m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddSlider( m_STEPTolSlider, "STEP Tolerance", 10, "%5.4g", 0, true );
+    m_OutputTabLayout.AddSlider( m_STEPTolSlider, "Tolerance", 10, "%5.4g", 0, true );
     //m_OutputTabLayout.SetFitWidthFlag( false );
     //m_OutputTabLayout.ForceNewLine();
 
@@ -363,8 +360,6 @@ bool SurfaceIntersectionScreen::Update()
 
 void SurfaceIntersectionScreen::UpdateGlobalTab()
 {
-    m_RelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_RelCurveTol.GetID() );
-
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.GetID() );
 
@@ -424,13 +419,11 @@ void SurfaceIntersectionScreen::UpdateOutputTab()
     if ( !m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get() )
     {
         //m_STEPMergePointsToggle.Deactivate();
-        m_STEPTolSlider.Deactivate();
         m_STEPRepGroup.Deactivate();
     }
     else
     {
         //m_STEPMergePointsToggle.Activate();
-        m_STEPTolSlider.Activate();
         m_STEPRepGroup.Activate();
     }
 

@@ -1101,7 +1101,8 @@ void CfdMeshMgrSingleton::ExportFiles()
     {
         addOutputText( "Building POGS Surfaces\n" );
 
-        BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
+        // The POGS files are polylines, so the curves are only adapted that far
+        BuildNURBSCurvesVec( false ); // Note: Must be called before BuildNURBSSurfMap
 
         BuildNURBSSurfMap();
 

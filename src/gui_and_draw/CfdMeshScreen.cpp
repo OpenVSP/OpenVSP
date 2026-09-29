@@ -148,8 +148,6 @@ void CfdMeshScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddButton(m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting");
     m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 0.01, "%7.5f" );
-    m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddDividerBox("Global Source Control");
     m_GlobalTabLayout.AddYGap();
 
@@ -451,6 +449,14 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPogsFile, "...");
     m_OutputTabLayout.ForceNewLine();
+
+    // Only the POGS curves are adapted
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.SetSameLineFlag( false );
+    m_OutputTabLayout.SetButtonWidth( 2 * typebuttonw );
+    m_OutputTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Relative Tol.", 0.01, "%7.5f" );
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.SetSameLineFlag( true );
 
 
     m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - typebuttonw - 30 );
@@ -1005,8 +1011,6 @@ void CfdMeshScreen::UpdateGlobalTab()
     m_GrowthRatio.Update( m_Vehicle->GetCfdGridDensityPtr()->m_GrowRatio.GetID() );
     m_Rig3dGrowthLimit.Update( m_Vehicle->GetCfdGridDensityPtr()->m_RigorLimit.GetID() );
 
-    m_RelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_RelCurveTol.GetID() );
-
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetCfdSettingsPtr()->m_IntersectSubSurfs.GetID() );
 
@@ -1096,14 +1100,17 @@ void CfdMeshScreen::UpdateOutputTab()
     m_VspgeomFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME )->GetID() );
     m_PogsFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POGS_FILE_NAME )->GetID() );
     m_PogsNRefCounter.Update( m_Vehicle->GetCfdSettingsPtr()->m_POGSNRef.GetID() );
+    m_RelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_RelCurveTol.GetID() );
 
     if ( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POGS_FILE_NAME )->Get() )
     {
         m_PogsNRefCounter.Activate();
+        m_RelCurveTolSlider.Activate();
     }
     else
     {
         m_PogsNRefCounter.Deactivate();
+        m_RelCurveTolSlider.Deactivate();
     }
 
 }

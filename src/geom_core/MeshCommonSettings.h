@@ -50,8 +50,6 @@ public:
     BoolParm m_DrawCurveFlag;
     BoolParm m_DrawPntsFlag;
 
-    Parm m_RelCurveTol;
-
     BoolParm m_IntersectSubSurfs;
 
     BoolParm m_FarMeshFlag;
@@ -178,6 +176,7 @@ public:
     BoolParm m_DrawWakeFlag;
 
     IntParm m_POGSNRef;
+    Parm m_RelCurveTol;
 
     IntParm m_SelectedSetIndex;
     IntParm m_SelectedDegenSetIndex;

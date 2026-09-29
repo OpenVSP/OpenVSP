@@ -2043,7 +2043,7 @@ void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
     }
 }
 
-void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
+void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
 {
     // Only define the NURBS curves once to help avoid tolerance errors
     m_NURBSCurveVec.clear();
@@ -2182,7 +2182,14 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
         nurbs_curve.m_CurveID = icurve;
         icurve++;
 
-        nurbs_curve.InitNURBSCurve( ( *i_seg )->m_ACurve, ( *i_seg )->m_BCurve, GetSettingsPtr()->m_RelCurveTol );
+        if ( cad )
+        {
+            nurbs_curve.InitCAD( ( *i_seg )->m_ACurve, ( *i_seg )->m_BCurve, GetSettingsPtr()->m_STEPTol );
+        }
+        else
+        {
+            nurbs_curve.InitPolyline( ( *i_seg )->m_ACurve, ( *i_seg )->m_BCurve, GetSettingsPtr()->m_RelCurveTol );
+        }
 
         m_NURBSCurveVec.push_back( nurbs_curve );
     }

@@ -590,7 +590,6 @@ private:
     ToggleButton m_DrawIsect;
     ToggleButton m_DrawBorder;
 
-    SliderAdjRangeInput m_RelCurveTolSlider;
 
     ToggleButton m_ShowCurve;
     ToggleButton m_ShowPts;

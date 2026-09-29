@@ -37,7 +37,7 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
     m_DrawCurveFlag = false;
     m_DrawPntsFlag = false;
 
-    m_RelCurveTol = 1e-6;
+    m_RelCurveTol = 0.005;
 
     m_IntersectSubSurfs = true;
 
@@ -90,9 +90,6 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
     m_DrawIsectFlag = settings->m_DrawIsectFlag.Get();
     m_DrawCurveFlag = settings->m_DrawCurveFlag.Get();
     m_DrawPntsFlag = settings->m_DrawPntsFlag.Get();
-
-    m_RelCurveTol = settings->m_RelCurveTol.Get();
-
 
     m_IntersectSubSurfs = settings->m_IntersectSubSurfs.Get();
 
@@ -215,6 +212,7 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
     m_FarAbsSizeFlag = settings->m_FarAbsSizeFlag.Get();
 
     m_POGSNRef = settings->m_POGSNRef.Get();
+    m_RelCurveTol = settings->m_RelCurveTol.Get();
 
     m_FarGeomID = settings->m_FarGeomID;
 
@@ -323,9 +321,6 @@ void SimpleFeaMeshSettings::CopyPostOpFrom( StructSettings* settings )
     m_CADLabelSurfNo = settings->m_CADLabelSurfNo.Get();
     m_CADLabelDelim = settings->m_CADLabelDelim.Get();
     m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
-
-    // Copied in SimpleMeshCommonSettings, but needed here also.
-    m_RelCurveTol = settings->m_RelCurveTol.Get();
 }
 
 

@@ -29,10 +29,21 @@ public:
     NURBS_Curve();
     virtual ~NURBS_Curve() {};
 
-    // Initialize the NURBS curve from the SCurves of its two parent surfaces.  Control
-    // points are extracted and saved to m_control_pnts_xyz, and the curve is kept in the
-    // parameter space of both parents alongside them.
-    void InitNURBSCurve( SCurve curveA, SCurve curveB, double curve_tol );
+    // Initialize the curve from the SCurves of its two parent surfaces as a polyline only:
+    // m_PntVec adapted to within curve_tol of the intersection, relative to a segment's
+    // length, and the same points in the parameter space of both parents alongside them.
+    void InitPolyline( SCurve curveA, SCurve curveB, double curve_tol );
+
+    // Initialize the curve as it is written to trimmed CAD: the CAD curve, and m_PntVec and
+    // the parameters of both parents as points along it and along its image on each.  tol
+    // bounds how far the CAD curve may stray from either parent.
+    void InitCAD( SCurve curveA, SCurve curveB, double tol );
+
+    // Run the curve the other way
+    void Reverse();
+
+    // Run the CAD curve the other way
+    void ReverseCAD();
 
     // Define the NURBS curve as a SdaiEdge_curve
     void WriteSTEPEdge( STEPutil* step, const string& label = "", bool mergepnts = false );
@@ -49,7 +60,7 @@ public:
     // Flag indicating the curve is a sub-surface curve
     bool m_SubSurfFlag;
 
-    // Vector of points describing the curve
+    // Vector of points describing the curve, which the loops are built from
     vector < vec3d > m_PntVec;
 
     // The curve in the parametric space of each of its two parent surfaces, one entry
@@ -84,14 +95,34 @@ public:
     // Relative tolerance for merging points through nanoflann based on parent surface bounding box
     double m_MergeTol;
 
-    // Degree of the curve to define the NURBS curve
-    int m_Deg;
+    // The curve as it is written to a CAD file: a piecewise Bezier curve of degree m_CADDeg
+    // through m_CADPntVec, the segments sharing their end points, with m_CADBreakVec the
+    // parameter at each segment end.  An intersection curve is written adapted: a cubic
+    // through points put on both parents.
+    vector < vec3d > m_CADPntVec;
+    vector < double > m_CADBreakVec;
+    int m_CADDeg;
+
+    // The CAD curve in the parameter space of each parent: a piecewise Bezier curve of degree
+    // m_CADUWDeg through the (u, w) held in x and y, with the break vector the curve's
+    // parameter at each segment end.
+    int m_CADUWDeg;
+    vector < vec3d > m_CADUWPntVec_A;
+    vector < vec3d > m_CADUWPntVec_B;
+    vector < double > m_CADUWBreakVec_A;
+    vector < double > m_CADUWBreakVec_B;
 
     // Label for the NURBS curve
     string m_Label;
 
     int m_CurveID;
 protected:
+
+    // The bounding box of curveA's surface, and the point merge tolerance taken from it
+    void SetMergeTol( SCurve &curveA );
+
+    // Run breakpoints from the other end over the same range
+    static void ReverseBreakVec( vector < double > &break_vec );
 
     // Bounding box of curve. Used to identify relative tolerances
     BndBox m_BBox;

@@ -521,7 +521,9 @@ protected:
     // Convert each ISegChain into a NURBS curve. The curves are labeled as border 
     // curves or intersection curves. For border curves, a test is performed to 
     // determine if they are outside or inside another surface.
-    void BuildNURBSCurvesVec();
+    // cad builds each curve as it is written to trimmed CAD; otherwise each is only an
+    // adapted polyline.
+    void BuildNURBSCurvesVec( bool cad = true );
 
     // Function to get all groups of component IDs. Components that are joined by intersection
     // curves make up a group. 

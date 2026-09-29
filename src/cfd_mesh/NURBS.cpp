@@ -26,7 +26,8 @@ NURBS_Curve::NURBS_Curve()
     m_SurfA_ID = -1;
     m_SurfB_ID = -1;
     m_MergeTol = 0;
-    m_Deg = 1;
+    m_CADDeg = 1;
+    m_CADUWDeg = 1;
     m_STEP_Start_Vert = nullptr;
     m_STEP_End_Vert = nullptr;
     m_STEP_Edge = nullptr;
@@ -35,7 +36,7 @@ NURBS_Curve::NURBS_Curve()
     m_WakeFlag = false;
 }
 
-void NURBS_Curve::InitNURBSCurve( SCurve curveA, SCurve curveB, double curve_tol )
+void NURBS_Curve::InitPolyline( SCurve curveA, SCurve curveB, double curve_tol )
 {
     Bezier_curve uwcrvA = curveA.GetUWCrv();
     Bezier_curve uwcrvB = curveB.GetUWCrv();
@@ -55,6 +56,90 @@ void NURBS_Curve::InitNURBSCurve( SCurve curveA, SCurve curveB, double curve_tol
         m_UWPntVec_B[i] = poly.m_Pnts[i].m_UW[1];
     }
 
+    SetMergeTol( curveA );
+}
+
+// A piecewise Bezier curve of degree deg through cp, the segments sharing their end points, with
+// breaks the parameter at each segment end, at parameter t
+static vec3d PiecewisePnt( const vector < vec3d > &cp, int deg, const vector < double > &breaks, double t )
+{
+    int nseg = ( int )breaks.size() - 1;
+
+    int iseg = 0;
+    while ( iseg < nseg - 1 && t > breaks[ iseg + 1 ] )
+    {
+        iseg++;
+    }
+
+    double dt = breaks[ iseg + 1 ] - breaks[ iseg ];
+    double s = 0.0;
+    if ( dt != 0.0 )
+    {
+        s = ( t - breaks[ iseg ] ) / dt;
+    }
+
+    // de Casteljau
+    vector < vec3d > work( cp.begin() + deg * iseg, cp.begin() + deg * iseg + deg + 1 );
+    for ( int r = 1; r <= deg; r++ )
+    {
+        for ( int j = 0; j <= deg - r; j++ )
+        {
+            work[j] = work[j] * ( 1.0 - s ) + work[j + 1] * s;
+        }
+    }
+    return work[0];
+}
+
+void NURBS_Curve::InitCAD( SCurve curveA, SCurve curveB, double tol )
+{
+    Bezier_curve uwcrvA = curveA.GetUWCrv();
+    Bezier_curve uwcrvB = curveB.GetUWCrv();
+
+    // An intersection is the cubic adapted onto both parents.  A border runs where two patches
+    // meet, often tangent to each other, and is adapted on its own surface alone.
+    IsectAdaptCurve adapt;
+    adapt.Adapt( uwcrvA, uwcrvB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, true, 0.0, tol );
+    adapt.GetBezier( m_CADPntVec, m_CADUWPntVec_A, m_CADUWPntVec_B, m_CADBreakVec, m_CADDeg );
+
+    if ( adapt.m_NumMiss > 0 )
+    {
+        printf( "WARNING: Surfaces %d and %d do not meet to within tolerance along %d segments of their intersection, apart by up to %g\n",
+                m_SurfA_ID, m_SurfB_ID, adapt.m_NumMiss, adapt.m_MaxMiss );
+    }
+
+    m_CADUWDeg = m_CADDeg;
+    m_CADUWBreakVec_A = m_CADBreakVec;
+    m_CADUWBreakVec_B = m_CADBreakVec;
+
+    // The polyline the loops are built from is the CAD curve itself, and its image on each parent,
+    // taken at the same points along it
+    const int nsamp = 8;
+
+    vector < double > t_vec;
+    for ( size_t i = 0; i + 1 < m_CADBreakVec.size(); i++ )
+    {
+        for ( int n = 0; n < nsamp; n++ )
+        {
+            t_vec.push_back( m_CADBreakVec[i] + ( m_CADBreakVec[i + 1] - m_CADBreakVec[i] ) * n / nsamp );
+        }
+    }
+    t_vec.push_back( m_CADBreakVec.back() );
+
+    m_PntVec.resize( t_vec.size() );
+    m_UWPntVec_A.resize( t_vec.size() );
+    m_UWPntVec_B.resize( t_vec.size() );
+    for ( size_t i = 0; i < t_vec.size(); i++ )
+    {
+        m_PntVec[i] = PiecewisePnt( m_CADPntVec, m_CADDeg, m_CADBreakVec, t_vec[i] );
+        m_UWPntVec_A[i] = PiecewisePnt( m_CADUWPntVec_A, m_CADUWDeg, m_CADUWBreakVec_A, t_vec[i] );
+        m_UWPntVec_B[i] = PiecewisePnt( m_CADUWPntVec_B, m_CADUWDeg, m_CADUWBreakVec_B, t_vec[i] );
+    }
+
+    SetMergeTol( curveA );
+}
+
+void NURBS_Curve::SetMergeTol( SCurve &curveA )
+{
     m_BBox = curveA.GetSurf()->GetBBox();
 
     m_MergeTol = m_BBox.DiagDist() * 1.0e-10;
@@ -69,9 +154,45 @@ void NURBS_Curve::InitNURBSCurve( SCurve curveA, SCurve curveB, double curve_tol
     }
 }
 
+void NURBS_Curve::Reverse()
+{
+    reverse( m_PntVec.begin(), m_PntVec.end() );
+    reverse( m_UWPntVec_A.begin(), m_UWPntVec_A.end() );
+    reverse( m_UWPntVec_B.begin(), m_UWPntVec_B.end() );
+
+    ReverseCAD();
+}
+
+void NURBS_Curve::ReverseCAD()
+{
+    reverse( m_CADPntVec.begin(), m_CADPntVec.end() );
+    ReverseBreakVec( m_CADBreakVec );
+
+    reverse( m_CADUWPntVec_A.begin(), m_CADUWPntVec_A.end() );
+    ReverseBreakVec( m_CADUWBreakVec_A );
+    reverse( m_CADUWPntVec_B.begin(), m_CADUWPntVec_B.end() );
+    ReverseBreakVec( m_CADUWBreakVec_B );
+}
+
+void NURBS_Curve::ReverseBreakVec( vector < double > &break_vec )
+{
+    // The same breakpoints, run from the other end over the same range
+    int nbreak = ( int )break_vec.size();
+    if ( nbreak > 0 )
+    {
+        double tsum = break_vec.front() + break_vec.back();
+        vector < double > rev_vec( nbreak );
+        for ( int i = 0; i < nbreak; i++ )
+        {
+            rev_vec[i] = tsum - break_vec[ nbreak - 1 - i ];
+        }
+        break_vec = rev_vec;
+    }
+}
+
 void NURBS_Curve::WriteIGESEdge( IGESutil* iges, const string& label )
 {
-    m_IGES_Edge.reset( new DLL_IGES_ENTITY_126( iges->MakeCurve( m_PntVec, m_Deg, label ) ) );
+    m_IGES_Edge.reset( new DLL_IGES_ENTITY_126( iges->MakeCurve( m_CADPntVec, m_CADDeg, m_CADBreakVec, label ) ) );
 }
 
 void NURBS_Curve::WriteSTEPEdge( STEPutil* step, const string& label, bool mergepnts )
@@ -93,7 +214,7 @@ void NURBS_Curve::WriteSTEPEdge( STEPutil* step, const string& label, bool merge
     }
 
     // Identify the edge
-    SdaiB_spline_curve_with_knots* curve = step->MakeCurve( m_PntVec, m_Deg, label, closed_curve, mergepnts, m_MergeTol );
+    SdaiB_spline_curve_with_knots* curve = step->MakeCurve( m_CADPntVec, m_CADDeg, m_CADBreakVec, label, closed_curve, mergepnts, m_MergeTol );
 
     SdaiEdge_curve* edge_crv = (SdaiEdge_curve*)step->registry->ObjCreate( "EDGE_CURVE" );
     step->instance_list->Append( (SDAI_Application_instance*)edge_crv, completeSE );
@@ -452,9 +573,7 @@ unordered_map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::Build
             {
                 if ( !orientation )
                 {
-                    reverse( chain_vec[chain_ind].m_PntVec.begin(), chain_vec[chain_ind].m_PntVec.end() );
-                    reverse( chain_vec[chain_ind].m_UWPntVec_A.begin(), chain_vec[chain_ind].m_UWPntVec_A.end() );
-                    reverse( chain_vec[chain_ind].m_UWPntVec_B.begin(), chain_vec[chain_ind].m_UWPntVec_B.end() );
+                    chain_vec[chain_ind].Reverse();
                 }
 
                 return_curve_map[map_ind].insert( return_curve_map[map_ind].begin(), make_pair( chain_vec[chain_ind], orientation ) );
@@ -668,7 +787,7 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
              ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) ||
              ( m_SurfType == vsp::CFD_TRANSPARENT && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NORMAL && m_NURBSCurveVec[i].m_SurfB_Type != vsp::CFD_NORMAL && !m_NURBSCurveVec[i].m_BorderFlag && !m_NURBSCurveVec[i].m_InternalFlag ) )
         {
-            iges->MakeCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, label );
+            iges->MakeCurve( m_NURBSCurveVec[i].m_CADPntVec, m_NURBSCurveVec[i].m_CADDeg, m_NURBSCurveVec[i].m_CADBreakVec, label );
         }
     }
 
@@ -715,7 +834,8 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
              ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) ||
              ( m_SurfType == vsp::CFD_TRANSPARENT && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NORMAL && m_NURBSCurveVec[i].m_SurfB_Type != vsp::CFD_NORMAL && !m_NURBSCurveVec[i].m_BorderFlag && !m_NURBSCurveVec[i].m_InternalFlag ) )
         {
-            step->MakeSurfaceCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, label, mergepts, m_NURBSCurveVec[i].m_MergeTol );
+            step->MakeSurfaceCurve( m_NURBSCurveVec[i].m_CADPntVec, m_NURBSCurveVec[i].m_CADDeg, m_NURBSCurveVec[i].m_CADBreakVec, label,
+                                    mergepts, m_NURBSCurveVec[i].m_MergeTol );
         }
     }
 

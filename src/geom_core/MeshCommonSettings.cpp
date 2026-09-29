@@ -43,10 +43,6 @@ void MeshCommonSettings::InitCommonParms( bool curveFlagDefault )
     m_DrawCurveFlag.Init( "DrawCurveFlag", "DrawMesh", this, true, 0, 1 );
     m_DrawPntsFlag.Init( "DrawPntsFlag", "DrawMesh", this, true, 0, 1 );
 
-    m_RelCurveTol.Init( "RelCurveTol", "Global", this, 0.005, 1e-5, 1.0 );
-    m_RelCurveTol.SetDescript( "Relative tolerance on the adapted intersection curves of trimmed CAD "
-                               "and POGS files, as a fraction of a segment's length" );
-
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
     m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
 
@@ -90,6 +86,7 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_CADLenUnit.Init( "CADLenUnit", "ExportIntersect", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
     m_STEPTol.Init( "STEPTol", "ExportIntersect", this, 1e-6, 1e-12, 1e12 );
+    m_STEPTol.SetDescript( "Tolerance written to STEP files, and the tolerance trimmed CAD curves are built to" );
     m_STEPMergePoints.Init( "STEPMergePoints", "ExportIntersect", this, false, 0, 1 );
     m_STEPRepresentation.Init( "STEPRepresentation", "ExportIntersect", this, vsp::STEP_BREP, vsp::STEP_SHELL, vsp::STEP_BREP );
 
@@ -257,6 +254,10 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
 
     m_POGSNRef.Init( "POGSNRef", "Global", this, 0, 0, 6 );
     m_POGSNRef.SetDescript( "Number of tessellation refinements for POGS surface output" );
+
+    m_RelCurveTol.Init( "RelCurveTol", "Global", this, 0.005, 1e-5, 1.0 );
+    m_RelCurveTol.SetDescript( "Relative tolerance on the intersection curves of POGS files, as a "
+                               "fraction of a segment's length" );
 
     m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
@@ -444,6 +445,7 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_ExportFileFlags[vsp::FEA_STEP_FILE_NAME].Init( "STEP_Export", "ExportFEA", this, true, 0, 1 );
 
     m_STEPTol.Init( "STEPTol", "ExportFEA", this, 1e-6, 1e-12, 1e12 );
+    m_STEPTol.SetDescript( "Tolerance written to STEP files, and the tolerance trimmed CAD curves are built to" );
     m_STEPMergePoints.Init( "STEP", "ExportFEA", this, false, 0, 1 );
     m_STEPRepresentation.Init( "STEPRepresentation", "ExportFEA", this, vsp::STEP_BREP, vsp::STEP_SHELL, vsp::STEP_BREP );
 

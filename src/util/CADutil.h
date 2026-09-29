@@ -76,13 +76,16 @@ public:
     // of STEP edge curves.
     SdaiVertex_point* MakeVertex( const vec3d &vertex );
 
-    // Convert a set of input control points to a NURBS curve and write to the STEP file. Additional options
-    // are included to use Nanoflann to merge points that are close together
-    SdaiB_spline_curve_with_knots* MakeCurve( const vector < vec3d > &cp_vec, const int& deg, const string& label = "", bool closed_curve = false, bool mergepnts = false, double merge_tol = 1e-8 );
+    // Write a piecewise Bezier curve to the STEP file as a B-spline: cp_vec holds the control points of
+    // every segment, sharing the points where segments meet, and break_vec the parameter at each
+    // segment end.  Additional options are included to use Nanoflann to merge points that are close together
+    SdaiB_spline_curve_with_knots* MakeCurve( const vector < vec3d > &cp_vec, int deg, const vector < double > &break_vec, const string& label = "",
+                                              bool closed_curve = false, bool mergepnts = false, double merge_tol = 1e-8 );
 
     // Write a curve defined from the given control points to the STEP file. This function is mainly
     // available for sub-surface lines and the intersection of FEA Parts with each other.
-    void MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, const string& label = "", bool mergepnts = false, double merge_tol = 1e-8 );
+    void MakeSurfaceCurve( const vector < vec3d > &cp_vec, int deg, const vector < double > &break_vec, const string& label = "",
+                           bool mergepnts = false, double merge_tol = 1e-8 );
 
 protected:
 
@@ -94,6 +97,9 @@ protected:
     SdaiProduct_definition_shape* pshape;
 
     STEPcomplex * Geometric_Context( const vsp::LEN_UNITS & len, const vsp::ANG_UNITS & angle, const char * tolstr );
+
+    // Knots of a clamped piecewise Bezier curve of degree deg, from the parameter at each segment end
+    void SetKnots( SdaiB_spline_curve_with_knots* curve, int deg, const vector < double > &break_vec );
 
 
     SdaiDirection * MakeDirection( const double & x, const double & y, const double & z );
@@ -121,6 +127,10 @@ public:
     // Identify the NURBS knot vector for a curve or direction of a surface given its degree and number of patches
     void IGESKnots( int deg, int npatch, vector< double >& knot );
 
+    // Identify the NURBS knot vector for a piecewise Bezier curve given its degree and the parameter at
+    // each segment end
+    void IGESKnots( int deg, const vector < double > &break_vec, vector< double >& knot );
+
     // Write a Bezier surface to the IGES model by extracting the Bezier parameters and converting to a NURBS surface
     DLL_IGES_ENTITY_128 MakeSurf( piecewise_surface_type& s, const string& label );
 
@@ -129,7 +139,8 @@ public:
     DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const vector < DLL_IGES_ENTITY_126* > &nurbs_vec, CURVE_CREATION creation,
                                   const string& label );
 
-    DLL_IGES_ENTITY_126 MakeCurve( const vector < vec3d > &cp_vec, int deg, const string& label );
+    // Write a piecewise Bezier curve as a NURBS curve, laid out as STEPutil::MakeCurve takes it
+    DLL_IGES_ENTITY_126 MakeCurve( const vector < vec3d > &cp_vec, int deg, const vector < double > &break_vec, const string& label );
 
     // Create a hole in a trimmed IGES surface (entity 144) at the given control point vector, as
     // MakeLoop bounds a surface

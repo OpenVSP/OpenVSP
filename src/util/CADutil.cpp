@@ -930,9 +930,9 @@ SdaiVertex_point* STEPutil::MakeVertex( const vec3d &vertex )
     return vert_pnt;
 }
 
-SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( const vector < vec3d > &cp_vec, const int& deg, const string& label, bool closed_curve, bool mergepnts, double merge_tol )
+SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( const vector < vec3d > &cp_vec, int deg, const vector < double > &break_vec, const string& label,
+                                                    bool closed_curve, bool mergepnts, double merge_tol )
 {
-    // Identify the edge
     int npts = (int)cp_vec.size();
 
     SdaiB_spline_curve_with_knots* curve = (SdaiB_spline_curve_with_knots*)registry->ObjCreate( "B_SPLINE_CURVE_WITH_KNOTS" );
@@ -949,62 +949,55 @@ SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( const vector < vec3d > &cp_v
         curve->name_( "''" );
     }
 
-    piecewise_surface_type::index_type ip;
-
     curve->self_intersect_( SDAI_LOGICAL( LFalse ) );
-    curve->curve_form_( B_spline_curve_form__polyline_form );
 
-    PntNodeCloud pnCloud;
-    vector < SdaiCartesian_point* > usedPts;
+    if ( deg == 1 )
+    {
+        curve->curve_form_( B_spline_curve_form__polyline_form );
+    }
+    else
+    {
+        curve->curve_form_( B_spline_curve_form__unspecified );
+    }
+
+    // Coincident control points share one CARTESIAN_POINT when merging
+    vector < SdaiCartesian_point* > pt_vec( npts );
 
     if ( mergepnts )
     {
-        //==== Build Map ====//
+        PntNodeCloud pnCloud;
         pnCloud.AddPntNodes( cp_vec );
-
-        //==== Use NanoFlann to Find Close Points and Group ====//
         IndexPntNodes( pnCloud, merge_tol );
 
-        //==== Load Used Points ====//
-        for ( size_t j = 0; j < cp_vec.size(); j++ )
+        vector < SdaiCartesian_point* > usedPts;
+        for ( int j = 0; j < npts; j++ )
         {
-            if ( pnCloud.UsedNode( j ) || j == cp_vec.size() - 1 )
+            if ( pnCloud.UsedNode( j ) )
             {
                 const vec3d& p = cp_vec[j];
-                SdaiCartesian_point* pt = MakePoint( p.x(), p.y(), p.z() );
-                usedPts.push_back( pt );
+                usedPts.push_back( MakePoint( p.x(), p.y(), p.z() ) );
             }
+        }
+
+        for ( int j = 0; j < npts; j++ )
+        {
+            pt_vec[j] = usedPts[ pnCloud.GetNodeUsedIndex( j ) ];
         }
     }
     else
     {
-        for ( int j = 0; j < (int)cp_vec.size(); j++ )
+        for ( int j = 0; j < npts; j++ )
         {
             const vec3d& p = cp_vec[j];
-            SdaiCartesian_point* pt = MakePoint( p.x(), p.y(), p.z() );
-            usedPts.push_back( pt );
+            pt_vec[j] = MakePoint( p.x(), p.y(), p.z() );
         }
     }
-
-    npts = (int)usedPts.size();
 
     std::ostringstream point_ss;
 
     for ( int j = 0; j < npts; ++j )
     {
-        int pindx = j;
-
-        SdaiCartesian_point* pt;
-
-        if ( mergepnts )
-        {
-            pt = usedPts[pnCloud.GetNodeUsedIndex( pindx )];
-        }
-        else
-        {
-            pt = usedPts[pindx];
-        }
-        point_ss << "#" << pt->GetFileId();
+        point_ss << "#" << pt_vec[j]->GetFileId();
 
         if ( j < npts - 1 )
         {
@@ -1014,24 +1007,41 @@ SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( const vector < vec3d > &cp_v
 
     curve->control_points_list_()->AddNode( new GenericAggrNode( point_ss.str().c_str() ) );
 
-    int num_intermediate_knot = npts - ( deg + 1 );
-
-    curve->knot_multiplicities_()->AddNode( new IntNode( deg + 1 ) );
-    curve->knots_()->AddNode( new RealNode( 0.0 ) );
-    for ( ip = 1; ip <= num_intermediate_knot; ++ip )
-    {
-        curve->knot_multiplicities_()->AddNode( new IntNode( 1 ) );
-        curve->knots_()->AddNode( new RealNode( ip ) );
-    }
-    curve->knot_multiplicities_()->AddNode( new IntNode( deg + 1 ) );
-    curve->knots_()->AddNode( new RealNode( num_intermediate_knot + 1 ) );
-
-    curve->knot_spec_( Knot_type__uniform_knots );
+    SetKnots( curve, deg, break_vec );
 
     return curve;
 }
 
-void STEPutil::MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, const string& label, bool mergepnts, double merge_tol )
+void STEPutil::SetKnots( SdaiB_spline_curve_with_knots* curve, int deg, const vector < double > &break_vec )
+{
+    // Clamped at the ends, and a knot of multiplicity deg where segments meet
+    int nbreak = (int)break_vec.size();
+
+    for ( int i = 0; i < nbreak; i++ )
+    {
+        int mult = deg;
+        if ( i == 0 || i == nbreak - 1 )
+        {
+            mult = deg + 1;
+        }
+
+        curve->knot_multiplicities_()->AddNode( new IntNode( mult ) );
+        curve->knots_()->AddNode( new RealNode( break_vec[i] ) );
+    }
+
+    curve->knot_spec_( Knot_type__piecewise_bezier_knots );
+}
+
+// A number as a STEP real, all its digits and its decimal point
+static string STEPReal( double val )
+{
+    char str[64];
+    snprintf( str, sizeof( str ), "%.17E", val );
+    return string( str );
+}
+
+void STEPutil::MakeSurfaceCurve( const vector < vec3d > &cp_vec, int deg, const vector < double > &break_vec, const string& label,
+                                 bool mergepnts, double merge_tol )
 {
     // Check for closure (i.e. ellipse sub-surface)
     bool closed_curve = false;
@@ -1040,7 +1050,7 @@ void STEPutil::MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, const 
         closed_curve = true;
     }
 
-    SdaiB_spline_curve_with_knots* curve = MakeCurve( cp_vec, deg, label, closed_curve, mergepnts, merge_tol );
+    SdaiB_spline_curve_with_knots* curve = MakeCurve( cp_vec, deg, break_vec, label, closed_curve, mergepnts, merge_tol );
 
     // Identify the start and end control point node numbers
     string cp_vec_str;
@@ -1070,13 +1080,11 @@ void STEPutil::MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, const 
 
     // Identify the start and end control points along with the parameterization (complete knot vector)
     std::ostringstream trim_1;
-    trim_1 << cp_vec_str_vec.front() << "PARAMETER_VALUE(0.E+000)"; // Note, comma included in all elements of cp_vec_str_vec except the last
+    trim_1 << cp_vec_str_vec.front() << "PARAMETER_VALUE(" << STEPReal( break_vec.front() ) << ")"; // Note, comma included in all elements of cp_vec_str_vec except the last
     trimmed_curve->trim_1_()->AddNode( new GenericAggrNode( trim_1.str().c_str() ) );
     std::ostringstream trim_2;
 
-    int num_knot = cp_vec.size() - ( deg + 1 );
-
-    trim_2 << cp_vec_str_vec.back() << ",PARAMETER_VALUE(" << to_string( num_knot + 1 ) << ".)";
+    trim_2 << cp_vec_str_vec.back() << ",PARAMETER_VALUE(" << STEPReal( break_vec.back() ) << ")";
     trimmed_curve->trim_2_()->AddNode( new GenericAggrNode( trim_2.str().c_str() ) );
     trimmed_curve->master_representation_( Trimming_preference::Trimming_preference__parameter );
 
@@ -1417,7 +1425,7 @@ void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144
     }
 }
 
-DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg, const string& label )
+DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg, const vector < double > &break_vec, const string& label )
 {
     int npts = (int)cp_vec.size();
 
@@ -1438,9 +1446,8 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg
     // Get knot vector
     vector< double > knot;
     int order = deg + 1;
-    int nseg = ( npts - 1 ) / deg;
 
-    IGESKnots( deg, nseg, knot );
+    IGESKnots( deg, break_vec, knot );
 
     // Create a NURBS curve to add to the
     DLL_IGES_ENTITY_126 nc( model, true );
@@ -1531,6 +1538,27 @@ void IGESutil::IGESKnots( int deg, int npatch, vector< double >& knot )
     for ( i = 0; i <= deg; i++ )
     {
         knot.push_back( 1.0 * npatch );
+    }
+}
+
+void IGESutil::IGESKnots( int deg, const vector < double > &break_vec, vector< double >& knot )
+{
+    knot.clear();
+
+    int nbreak = (int)break_vec.size();
+
+    for ( int i = 0; i < nbreak; i++ )
+    {
+        int mult = deg;
+        if ( i == 0 || i == nbreak - 1 )
+        {
+            mult = deg + 1;
+        }
+
+        for ( int j = 0; j < mult; j++ )
+        {
+            knot.push_back( break_vec[i] );
+        }
     }
 }
 

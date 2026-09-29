@@ -429,8 +429,7 @@ void FeaMeshExportAnalysis::SetDefaults()
 
     if ( struct_settings )
     {
-        m_Inputs.Add( new NameValData( "RelCurveTol", struct_settings->m_RelCurveTol(), "Relative tolerance on the intersection curves of trimmed CAD (STEP and IGES) files, as a fraction of a segment's length." ) );
-        m_Inputs.Add( new NameValData( "STEPTol", struct_settings->m_STEPTol(), "Tolerance output to STEP files." ) );
+        m_Inputs.Add( new NameValData( "STEPTol", struct_settings->m_STEPTol(), "Tolerance output to STEP files, and the tolerance trimmed CAD (STEP and IGES) curves are built to." ) );
 
         m_Inputs.Add( new NameValData( "CADLabelID", struct_settings->m_CADLabelID(), "Flag to include GeomID in CAD surface label." ) );
         m_Inputs.Add( new NameValData( "CADLabelName", struct_settings->m_CADLabelName(), "Flag to include Geom name in CAD surface label." ) );
@@ -476,10 +475,6 @@ string FeaMeshExportAnalysis::Execute()
     if( curr_struct )
     {
         NameValData* nvd = nullptr;
-
-        double relCurveTolOrig = curr_struct->GetStructSettingsPtr()->m_RelCurveTol();
-        nvd = m_Inputs.FindPtr( "RelCurveTol", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( nvd->GetDouble( 0 ) );
 
         double sTEPTolOrig = curr_struct->GetStructSettingsPtr()->m_STEPTol();
         nvd = m_Inputs.FindPtr( "STEPTol", 0 );
@@ -601,7 +596,6 @@ string FeaMeshExportAnalysis::Execute()
         // ==== Restore original values that were overwritten by analysis inputs ==== //
 
         //Input Sliders
-        curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
         curr_struct->GetStructSettingsPtr()->m_STEPTol.Set( sTEPTolOrig );
 
         //Input Triggers
@@ -663,7 +657,6 @@ void SurfaceIntersectionAnalysis::SetDefaults()
     if( veh )
     {
         m_Inputs.Add( new NameValData( "IntersectSubSurfs", veh->GetISectSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
-        m_Inputs.Add( new NameValData( "RelCurveTol", veh->GetISectSettingsPtr()->m_RelCurveTol(), "Relative tolerance on the intersection curves of trimmed CAD (STEP and IGES) files, as a fraction of a segment's length." ) );
         m_Inputs.Add( new NameValData( "SelectedSetIndex", veh->GetISectSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
         m_Inputs.Add( new NameValData( "SelectedDegenSetIndex", veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex(), "Degen (thin) geometry set for analysis." ) );
 
@@ -679,7 +672,7 @@ void SurfaceIntersectionAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "CADLenUnit", veh->GetISectSettingsPtr()->m_CADLenUnit(), "Model length unit enum included in CAD file export." ) );
         //m_Inputs.Add( new NameValData( "STEPMergePoints", veh->GetISectSettingsPtr()->m_STEPMergePoints(), "Flag to merge points on STEP export. ) );
         m_Inputs.Add( new NameValData( "STEPRepresentation", veh->GetISectSettingsPtr()->m_STEPRepresentation(), "Flag to control whether STEP representation is shell or BREP solid." ) );
-        m_Inputs.Add( new NameValData( "STEPTol", veh->GetISectSettingsPtr()->m_STEPTol(), "Tolerance output to STEP files." ) );
+        m_Inputs.Add( new NameValData( "STEPTol", veh->GetISectSettingsPtr()->m_STEPTol(), "Tolerance output to STEP files, and the tolerance trimmed CAD (STEP and IGES) curves are built to." ) );
 
         // File Outputs
         m_Inputs.Add( new NameValData( "IGESFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->Get(), "Flag to enable IGES file export." ) );
@@ -705,10 +698,6 @@ string SurfaceIntersectionAnalysis::Execute()
         bool intersectSubSurfsOrig = veh->GetISectSettingsPtr()->m_IntersectSubSurfs();
         nvd = m_Inputs.FindPtr( "IntersectSubSurfs", 0 );
         if( nvd ) veh->GetISectSettingsPtr()->m_IntersectSubSurfs.Set( nvd->GetInt( 0 ) );
-
-        double relCurveTolOrig = veh->GetISectSettingsPtr()->m_RelCurveTol();
-        nvd = m_Inputs.FindPtr( "RelCurveTol", 0 );
-        if( nvd ) veh->GetISectSettingsPtr()->m_RelCurveTol.Set( nvd->GetDouble( 0 ) );
 
         int selectedSetIndexOrig = veh->GetISectSettingsPtr()->m_SelectedSetIndex();
         nvd = m_Inputs.FindPtr( "SelectedSetIndex", 0 );
@@ -787,7 +776,6 @@ string SurfaceIntersectionAnalysis::Execute()
 
         // ==== Restore original values that were overwritten by analysis inputs ==== //
         veh->GetISectSettingsPtr()->m_IntersectSubSurfs.Set( intersectSubSurfsOrig );
-        veh->GetISectSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
         veh->GetISectSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
         veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex.Set( selectedDegenSetIndexOrig );
 

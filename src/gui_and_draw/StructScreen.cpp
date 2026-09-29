@@ -1766,8 +1766,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_MeshTabLayout.AddButton( m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting" );
     m_MeshTabLayout.AddYGap();
-    m_MeshTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 0.01, "%7.5f" );
-    m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_SplitJoinSurfs, "Split and Join Surfaces" );
@@ -2040,7 +2038,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     //m_CadTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
     //m_CadTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
     //m_CadTabLayout.SetFitWidthFlag( true );
-    m_CadTabLayout.AddSlider( m_STEPTolSlider, "STEP Tolerance", 10, "%5.4g", 0, true );
+    m_CadTabLayout.AddSlider( m_STEPTolSlider, "Tolerance", 10, "%5.4g", 0, true );
     //m_CadTabLayout.SetFitWidthFlag( false );
     //m_CadTabLayout.ForceNewLine();
 
@@ -3593,8 +3591,6 @@ bool StructScreen::Update()
             m_GrowthRatio.Update( curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.GetID() );
             m_Rig3dGrowthLimit.Update( curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );
 
-            m_RelCurveTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_RelCurveTol.GetID() );
-
             //===== Geometry Control =====//
             m_HalfMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
 
@@ -3707,19 +3703,18 @@ bool StructScreen::Update()
             if ( !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get() )
             {
                 //m_STEPMergePointsToggle.Deactivate();
-                m_STEPTolSlider.Deactivate();
                 m_STEPRepGroup.Deactivate();
             }
             else
             {
                 //m_STEPMergePointsToggle.Activate();
-                m_STEPTolSlider.Activate();
                 m_STEPRepGroup.Activate();
             }
 
             if ( !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get() &&
                  !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get() )
             {
+                m_STEPTolSlider.Deactivate();
                 m_LabelIDToggle.Deactivate();
                 m_LabelNameToggle.Deactivate();
                 m_LabelSurfNoToggle.Deactivate();
@@ -3728,6 +3723,7 @@ bool StructScreen::Update()
             }
             else
             {
+                m_STEPTolSlider.Activate();
                 m_LabelIDToggle.Activate();
                 m_LabelNameToggle.Activate();
                 m_LabelSurfNoToggle.Activate();
