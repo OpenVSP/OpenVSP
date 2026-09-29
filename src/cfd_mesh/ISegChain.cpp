@@ -36,12 +36,14 @@ IPnt::IPnt()
 {
     m_UsedFlag = false;
     m_GroupedFlag = false;
+    m_Partner = nullptr;
 }
 
 IPnt::IPnt( Puw* p0, Puw* p1 )
 {
     m_UsedFlag = false;
     m_GroupedFlag = false;
+    m_Partner = nullptr;
     m_Puws.push_back( p0 );
     m_Puws.push_back( p1 );
 }

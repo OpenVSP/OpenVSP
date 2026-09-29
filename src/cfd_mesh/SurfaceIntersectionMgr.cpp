@@ -2364,7 +2364,106 @@ void SurfaceIntersectionSingleton::Intersect()
     // DebugWriteChains( "BuildCurves", false );
 }
 
-void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1 )
+// The edge of triangle tri of patch p, corners q, that point pnt is nearest, and how near it is
+static double NearestEdge( const vec3d &pnt, const SurfPatch &p, const vec3d q[4], int tri, IPntEdge &edge )
+{
+    // Tri 1 is corners 0 2 3, tri 2 is corners 0 1 2.  Corner 0 is (umin, wmin), 1 (umax, wmin),
+    // 2 (umax, wmax), 3 (umin, wmax); the diagonal runs from 0 to 2.
+    const int tri1[3][2] = { { 0, 2 }, { 2, 3 }, { 3, 0 } };
+    const int tri2[3][2] = { { 0, 1 }, { 1, 2 }, { 0, 2 } };
+    const int ( *ends )[2] = tri1;
+    if ( tri == 2 )
+    {
+        ends = tri2;
+    }
+
+    double best = 1.0e300;
+    for ( int i = 0; i < 3; i++ )
+    {
+        const vec3d &c0 = q[ ends[i][0] ];
+        const vec3d &c1 = q[ ends[i][1] ];
+        vec3d d = c1 - c0;
+        double dd = dot( d, d );
+        double t = 0.0;
+        if ( dd > 0.0 )
+        {
+            t = std::min( std::max( dot( pnt - c0, d ) / dd, 0.0 ), 1.0 );
+        }
+        double dst = dist( pnt, c0 + d * t );
+
+        if ( dst >= best )
+        {
+            continue;
+        }
+        best = dst;
+
+        edge = IPntEdge();
+        edge.m_SurfID = p.get_surf_ptr()->GetSurfID();
+
+        int a = ends[i][0];
+        int b = ends[i][1];
+        double du = p.get_u_max() - p.get_u_min();
+        double dw = p.get_w_max() - p.get_w_min();
+
+        if ( a == 0 && b == 2 )
+        {
+            edge.m_Kind = IPntEdge::DIAGONAL;
+            edge.m_Val[0] = p.get_u_min();
+            edge.m_Val[1] = p.get_u_max();
+            edge.m_Val[2] = p.get_w_min();
+            edge.m_Val[3] = p.get_w_max();
+            edge.m_Side = tri;
+            edge.m_Along = t;
+        }
+        else if ( a == 0 && b == 1 )
+        {
+            edge.m_Kind = IPntEdge::W_LINE;
+            edge.m_Val[0] = p.get_w_min();
+            edge.m_Side = 1;
+            edge.m_Along = p.get_u_min() + t * du;
+        }
+        else if ( a == 2 && b == 3 )
+        {
+            edge.m_Kind = IPntEdge::W_LINE;
+            edge.m_Val[0] = p.get_w_max();
+            edge.m_Side = -1;
+            edge.m_Along = p.get_u_max() - t * du;
+        }
+        else if ( a == 1 && b == 2 )
+        {
+            edge.m_Kind = IPntEdge::U_LINE;
+            edge.m_Val[0] = p.get_u_max();
+            edge.m_Side = -1;
+            edge.m_Along = p.get_w_min() + t * dw;
+        }
+        else
+        {
+            edge.m_Kind = IPntEdge::U_LINE;
+            edge.m_Val[0] = p.get_u_min();
+            edge.m_Side = 1;
+            edge.m_Along = p.get_w_max() - t * dw;
+        }
+    }
+    return best;
+}
+
+// The edge a segment's end lies on: of the two triangles it was found between, the edge nearest it
+static IPntEdge FindEdge( const vec3d &pnt, const SurfPatch &pA, const vec3d qa[4], int triA,
+                          const SurfPatch &pB, const vec3d qb[4], int triB )
+{
+    IPntEdge ea, eb;
+    double da = NearestEdge( pnt, pA, qa, triA, ea );
+    double db = NearestEdge( pnt, pB, qb, triB, eb );
+
+    if ( da <= db )
+    {
+        return ea;
+    }
+    return eb;
+}
+
+void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1,
+                                                       const vec3d qa[4], const vec3d qb[4], int triA, int triB )
 {
     double d = dist_squared( ip0, ip1 );
     if ( d < DBL_EPSILON )
@@ -2466,6 +2565,7 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
 
     IPnt* ipnt0 = new IPnt( puwA0, puwB0 );
     ipnt0->m_Pnt = ip0;
+    ipnt0->m_Edge = FindEdge( ip0, pA, qa, triA, pB, qb, triB );
     tl_isect_out->m_IPnts.push_back( ipnt0 );
 
     Puw* puwA1 = new Puw( pA.get_surf_ptr(), proj_uwA1 );
@@ -2476,6 +2576,7 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
 
     IPnt* ipnt1 = new IPnt( puwA1, puwB1 );
     ipnt1->m_Pnt = ip1;
+    ipnt1->m_Edge = FindEdge( ip1, pA, qa, triA, pB, qb, triB );
     tl_isect_out->m_IPnts.push_back( ipnt1 );
 
     // Identify rectangles to represent final patches
@@ -2560,8 +2661,106 @@ void SurfaceIntersectionSingleton::WriteISegs()
 #endif
 }
 
+// Partner each intersection point with the one across the triangle edge it lies on.  Points are
+// taken by the two surfaces they are on and by their edge, in order along it: each crossing of
+// the edge by the curve leaves one point on either side, which are partners.
+struct IPntEdgeEntry
+{
+    int m_SurfLo, m_SurfHi;
+    IPnt* m_IPnt;
+
+    bool SameEdge( const IPntEdgeEntry &o ) const
+    {
+        const IPntEdge &a = m_IPnt->m_Edge;
+        const IPntEdge &b = o.m_IPnt->m_Edge;
+        return m_SurfLo == o.m_SurfLo && m_SurfHi == o.m_SurfHi && a.m_SurfID == b.m_SurfID && a.m_Kind == b.m_Kind &&
+               a.m_Val[0] == b.m_Val[0] && a.m_Val[1] == b.m_Val[1] && a.m_Val[2] == b.m_Val[2] && a.m_Val[3] == b.m_Val[3];
+    }
+
+    bool operator<( const IPntEdgeEntry &o ) const
+    {
+        const IPntEdge &a = m_IPnt->m_Edge;
+        const IPntEdge &b = o.m_IPnt->m_Edge;
+        if ( m_SurfLo != o.m_SurfLo ) return m_SurfLo < o.m_SurfLo;
+        if ( m_SurfHi != o.m_SurfHi ) return m_SurfHi < o.m_SurfHi;
+        if ( a.m_SurfID != b.m_SurfID ) return a.m_SurfID < b.m_SurfID;
+        if ( a.m_Kind != b.m_Kind ) return a.m_Kind < b.m_Kind;
+        for ( int k = 0; k < 4; k++ )
+        {
+            if ( a.m_Val[k] != b.m_Val[k] ) return a.m_Val[k] < b.m_Val[k];
+        }
+        return a.m_Along < b.m_Along;
+    }
+};
+
+void SurfaceIntersectionSingleton::LinkIPntPartners()
+{
+    vector< IPntEdgeEntry > entries;
+    entries.reserve( m_AllIPnts.size() );
+
+    for ( size_t i = 0; i < m_AllIPnts.size(); i++ )
+    {
+        IPnt* ip = m_AllIPnts[i];
+        ip->m_Partner = nullptr;
+
+        if ( ip->m_Edge.m_Kind == IPntEdge::NONE || ip->m_Puws.size() != 2 )
+        {
+            continue;
+        }
+
+        int sa = ip->m_Puws[0]->m_Surf->GetSurfID();
+        int sb = ip->m_Puws[1]->m_Surf->GetSurfID();
+
+        IPntEdgeEntry e;
+        e.m_SurfLo = std::min( sa, sb );
+        e.m_SurfHi = std::max( sa, sb );
+        e.m_IPnt = ip;
+        entries.push_back( e );
+    }
+
+    std::sort( entries.begin(), entries.end() );
+
+    // Neighbors along an edge on opposite sides of it, close enough together for one crossing of
+    // the edge: within ten times the longer of their segments.  Anything else is left to the
+    // search.
+    size_t i = 0;
+    while ( i + 1 < entries.size() )
+    {
+        IPnt* a = entries[i].m_IPnt;
+        IPnt* b = entries[i + 1].m_IPnt;
+
+        bool partners = false;
+        if ( entries[i].SameEdge( entries[i + 1] ) && a->m_Edge.m_Side != b->m_Edge.m_Side )
+        {
+            double seglen = 0.0;
+            if ( !a->m_Segs.empty() )
+            {
+                seglen = std::max( seglen, dist( a->m_Segs[0]->m_IPnt[0]->m_Pnt, a->m_Segs[0]->m_IPnt[1]->m_Pnt ) );
+            }
+            if ( !b->m_Segs.empty() )
+            {
+                seglen = std::max( seglen, dist( b->m_Segs[0]->m_IPnt[0]->m_Pnt, b->m_Segs[0]->m_IPnt[1]->m_Pnt ) );
+            }
+            partners = dist( a->m_Pnt, b->m_Pnt ) <= 10.0 * seglen;
+        }
+
+        if ( partners )
+        {
+            a->m_Partner = b;
+            b->m_Partner = a;
+            i += 2;
+        }
+        else
+        {
+            i++;
+        }
+    }
+}
+
 void SurfaceIntersectionSingleton::BuildChains()
 {
+    LinkIPntPartners();
+
     PntNodeCloud i_pnt_cloud;
 
     for ( size_t i = 0; i < m_AllIPnts.size(); i++ )
@@ -2956,12 +3155,27 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
 
         IPnt* matchIPnt = nullptr;
 
+        // The point across the edge this one lies on is the next along the curve, however far
+        // the two patches' flat approximations of it put them apart
+        bool by_partner = false;
+        IPnt* partner = testIPnt->m_Partner;
+        if ( partner && !partner->m_UsedFlag && partner->m_Puws.size() == 2 &&
+             partner->m_Puws[0]->m_Surf == testIPnt->m_Puws[0]->m_Surf &&
+             partner->m_Puws[1]->m_Surf == testIPnt->m_Puws[1]->m_Surf )
+        {
+            matchIPnt = partner;
+            by_partner = true;
+        }
+
         const double query_pt[3] = { testIPnt->m_Pnt.x(), testIPnt->m_Pnt.y(), testIPnt->m_Pnt.z() };
         size_t ret_index[num_results];
         double out_dist_sqr[num_results];
         nanoflann::KNNResultSet < double > resultSet( num_results );
         resultSet.init( ret_index, out_dist_sqr );
-        PN_tree->findNeighbors( resultSet, query_pt, nanoflann::SearchParams() );
+        if ( !by_partner )
+        {
+            PN_tree->findNeighbors( resultSet, query_pt, nanoflann::SearchParams() );
+        }
 
         for ( size_t i = 0; i < resultSet.size(); ++i )
         {
@@ -2988,7 +3202,7 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
         }
         else
         {
-            if ( firstIter && expandFront && ( dist( chain->m_ISegDeque.front()->m_IPnt[0]->m_Pnt, matchIPnt->m_Pnt ) > dist( chain->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, matchIPnt->m_Pnt ) ) )
+            if ( firstIter && expandFront && !by_partner && ( dist( chain->m_ISegDeque.front()->m_IPnt[0]->m_Pnt, matchIPnt->m_Pnt ) > dist( chain->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, matchIPnt->m_Pnt ) ) )
             {
                 // This segment's orientation needs to be reversed because expandFront was set true on the first iteration,
                 // but the back point is closer. 

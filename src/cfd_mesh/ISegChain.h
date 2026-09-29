@@ -56,6 +56,40 @@ public:
     vec2d m_UW;
 };
 
+//==== Triangle edge an intersection point lies on ====//
+// A segment of an intersection curve is found between two flat triangles, one from each
+// surface's patch, and each of its ends lies on an edge of one of them.  The segment next along
+// the curve lies in the triangle on the other side of that edge, so the two share it.
+struct IPntEdge
+{
+    enum { NONE, U_LINE, W_LINE, DIAGONAL };
+
+    IPntEdge()
+    {
+        m_Kind = NONE;
+        m_SurfID = -1;
+        m_Val[0] = m_Val[1] = m_Val[2] = m_Val[3] = 0.0;
+        m_Side = 0;
+        m_Along = 0.0;
+    }
+
+    int m_Kind;
+
+    // The surface the edge is on
+    int m_SurfID;
+
+    // A patch border: the u or w it runs along.  A patch's diagonal: the patch's u and w bounds.
+    double m_Val[4];
+
+    // Which side of the edge the segment is on: for a border, +1 where its patch lies above the
+    // line and -1 below; for a diagonal, which of the patch's two triangles
+    int m_Side;
+
+    // Where along the edge the point is: the other parameter on a border, the fraction of the
+    // way from the patch's first corner to its opposite one on a diagonal
+    double m_Along;
+};
+
 //==== Shared Intersection Point ====//
 class IPnt
 {
@@ -83,6 +117,10 @@ public:
     vec3d m_Pnt;
     deque< Puw* >  m_Puws;
     deque< ISeg* > m_Segs;
+
+    // The edge the point lies on, and the point of the segment across it, where there is one
+    IPntEdge m_Edge;
+    IPnt* m_Partner;
 };
 
 //==== Intersection Segment ====//

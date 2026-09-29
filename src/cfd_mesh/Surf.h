@@ -159,7 +159,7 @@ public:
     {
         m_SurfID = id;
     }
-    int  GetSurfID()
+    int  GetSurfID() const
     {
         return m_SurfID;
     }

@@ -359,11 +359,17 @@ public:
     virtual void Intersect();
 
 //  virtual void AddISeg( Surf* sA, Surf* sB, vec2d & sAuw0, vec2d & sAuw1,  vec2d & sBuw0, vec2d & sBuw1 );
-    virtual void AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1 );
+    // A segment of the intersection of patches pA and pB, found between triangle triA of pA's
+    // corners qa and triangle triB of pB's corners qb (1 is corners 0 2 3, 2 is corners 0 1 2)
+    virtual void AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1,
+                                     const vec3d qa[4], const vec3d qb[4], int triA, int triB );
 //  virtual ISeg* CreateSurfaceSeg( Surf* sPtr, vec3d & p0, vec3d & p1, vec2d & uw0, vec2d & uw1 );
     virtual ISeg* CreateSurfaceSeg( Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1  );
 
     virtual void WriteISegs();
+    // Partner each intersection point with the one across the triangle edge it lies on
+    virtual void LinkIPntPartners();
+
     virtual void BuildChains();
     virtual void CleanChains();
     virtual void CleanChain( ISegChain* c );
