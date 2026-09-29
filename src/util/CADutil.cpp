@@ -1474,12 +1474,13 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( const vector < vec3d > &cp_vec, int deg
         model.DelEntity( &nc );
     }
 
-    // Create a custom color (magenta)
-    // TODO: Cycle through various colors
-    DLL_IGES_ENTITY_314 color( model, true );
-    color.SetColor( 100.0, 0.0, 100.0 );
-    // Attach the color to the NURBS curve
-    nc.SetColor( color );
+    // Every curve is drawn in one custom color (magenta)
+    if ( !curve_color )
+    {
+        curve_color.reset( new DLL_IGES_ENTITY_314( model, true ) );
+        curve_color->SetColor( 100.0, 0.0, 100.0 );
+    }
+    nc.SetColor( *curve_color );
 
     if ( label.size() > 0 )
     {

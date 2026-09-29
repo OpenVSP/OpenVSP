@@ -27,6 +27,7 @@
 #include <SdaiHeaderSchema.h>
 #include <schema.h>
 #include "SdaiCONFIG_CONTROL_DESIGN.h"
+#include <memory>
 #include <string>
 
 #include <api/dll_iges.h>
@@ -143,6 +144,9 @@ protected:
     void AddLabel( DLL_IGES_ENTITY& entity, const string& label );
 
     DLL_IGES model;
+
+    // The color every model space curve is drawn in, made with the first
+    std::unique_ptr < DLL_IGES_ENTITY_314 > curve_color;
 
 };
 
