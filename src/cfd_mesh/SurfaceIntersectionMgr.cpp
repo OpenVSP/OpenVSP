@@ -1575,9 +1575,12 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
                             continue;
                         }
 
-                        vec3d uw0 = cva[a]->CompPntUW( 0.0 );
-                        vec3d uwt = cva[a]->CompPntUW( t );
-                        vec3d uw1 = cva[a]->CompPntUW( 1.0 );
+                        // Both pieces stay on the line the curve was on
+                        const ParmLine line = cva[a]->GetParmLine();
+
+                        vec3d uw0 = line.OnLine( cva[a]->CompPntUW( 0.0 ) );
+                        vec3d uwt = line.OnLine( cva[a]->CompPntUW( t ) );
+                        vec3d uw1 = line.OnLine( cva[a]->CompPntUW( 1.0 ) );
 
                         vector< vec3d > pnts( 2 );
                         SCurve* c0 = new SCurve( m_SurfVec[i] );
@@ -1585,12 +1588,14 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
                         pnts[1] = uwt;
                         c0->InterpolateLinear( pnts );
                         c0->PromoteTo( 3 );
+                        c0->SetParmLine( line );
 
                         SCurve* c1 = new SCurve( m_SurfVec[i] );
                         pnts[0] = uwt;
                         pnts[1] = uw1;
                         c1->InterpolateLinear( pnts );
                         c1->PromoteTo( 3 );
+                        c1->SetParmLine( line );
 
                         delete cva[a];
                         cva[a] = c0;
@@ -3309,6 +3314,8 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
 
         chain->m_SurfA = surfA;
         chain->m_SurfB = surfB;
+        chain->m_ALine = m_ICurveVec[i]->m_SCurve_A->GetParmLine();
+        chain->m_BLine = m_ICurveVec[i]->m_SCurve_B->GetParmLine();
 
         vector< vec3d > uwA = m_ICurveVec[i]->m_SCurve_A->GetUWTessPnts();
         vector< vec3d > uwB = m_ICurveVec[i]->m_SCurve_B->GetUWTessPnts();

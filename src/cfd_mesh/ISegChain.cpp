@@ -1092,6 +1092,8 @@ vector< ISegChain* > ISegChain::SortAndSplit( SurfaceIntersectionSingleton *Mesh
             ISegChain* nc = new ISegChain();
             nc->m_SurfA = m_SurfA;
             nc->m_SurfB = m_SurfB;
+            nc->m_ALine = m_ALine;
+            nc->m_BLine = m_BLine;
             nc->m_ISegDeque.push_back( new_seg );
             for ( int j = s->m_Index + 1 ; j < ( int )m_ISegDeque.size() ; j++ )
             {
@@ -1200,6 +1202,7 @@ void ISegChain::BuildCurves( )
 
     m_ACurve.SetSurf( m_SurfA );
     m_ACurve.InterpolateLinear( auw_pnts );
+    m_ACurve.SetParmLine( m_ALine );
 
     //==== B SCurve ====//
     vector< vec3d > buw_pnts( m_ISegDeque.size() + 1 );
@@ -1213,6 +1216,7 @@ void ISegChain::BuildCurves( )
 
     m_BCurve.SetSurf( m_SurfB );
     m_BCurve.InterpolateLinear( buw_pnts );
+    m_BCurve.SetParmLine( m_BLine );
 }
 
 void ISegChain::TransferTess( )

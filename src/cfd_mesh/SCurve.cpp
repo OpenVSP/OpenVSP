@@ -9,6 +9,41 @@
 
 #include "SCurve.h"
 
+ParmLine ParmLine::Between( double ua, double wa, double ub, double wb )
+{
+    if ( ua == ub && wa != wb )
+    {
+        return ParmLine( U_CONST, ua );
+    }
+    if ( wa == wb && ua != ub )
+    {
+        return ParmLine( W_CONST, wa );
+    }
+    return ParmLine();
+}
+
+vec3d ParmLine::OnLine( const vec3d &uw ) const
+{
+    if ( m_Kind == U_CONST )
+    {
+        return vec3d( m_Val, uw.y(), uw.z() );
+    }
+    if ( m_Kind == W_CONST )
+    {
+        return vec3d( uw.x(), m_Val, uw.z() );
+    }
+    return uw;
+}
+
+double ParmLine::Along( const vec3d &uw ) const
+{
+    if ( m_Kind == U_CONST )
+    {
+        return uw.y();
+    }
+    return uw.x();
+}
+
 SCurve::SCurve()
 {
     m_Surf = nullptr;

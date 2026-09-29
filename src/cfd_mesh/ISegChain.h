@@ -214,6 +214,10 @@ public:
     bool m_BorderFlag;
     int m_SSIntersectIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
 
+    // The parameter line of each parent the chain runs along, where it is one
+    ParmLine m_ALine;
+    ParmLine m_BLine;
+
     ISegChain* m_WakeAttachChain;
 
     deque < ISeg* > m_ISegDeque;

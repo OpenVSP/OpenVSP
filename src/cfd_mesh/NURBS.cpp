@@ -93,21 +93,24 @@ void NURBS_Curve::InitCAD( SCurve curveA, SCurve curveB, double tol )
     Bezier_curve uwcrvA = curveA.GetUWCrv();
     Bezier_curve uwcrvB = curveB.GetUWCrv();
 
-    // An intersection is the cubic adapted onto both parents.  A border runs where two patches
-    // meet, often tangent to each other, and is adapted on its own surface alone.
-    IsectAdaptCurve adapt;
-    adapt.Adapt( uwcrvA, uwcrvB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, true, 0.0, tol );
-    adapt.GetBezier( m_CADPntVec, m_CADUWPntVec_A, m_CADUWPntVec_B, m_CADBreakVec, m_CADDeg );
-
-    if ( adapt.m_NumMiss > 0 )
+    // A border is the parameter line of its surface it runs along, and an intersection the cubic
+    // adapted onto both parents
+    if ( !m_BorderFlag || !BuildBorderCADCurve( curveA, curveB, tol ) )
     {
-        printf( "WARNING: Surfaces %d and %d do not meet to within tolerance along %d segments of their intersection, apart by up to %g\n",
-                m_SurfA_ID, m_SurfB_ID, adapt.m_NumMiss, adapt.m_MaxMiss );
-    }
+        IsectAdaptCurve adapt;
+        adapt.Adapt( uwcrvA, uwcrvB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, true, 0.0, tol );
+        adapt.GetBezier( m_CADPntVec, m_CADUWPntVec_A, m_CADUWPntVec_B, m_CADBreakVec, m_CADDeg );
 
-    m_CADUWDeg = m_CADDeg;
-    m_CADUWBreakVec_A = m_CADBreakVec;
-    m_CADUWBreakVec_B = m_CADBreakVec;
+        if ( adapt.m_NumMiss > 0 )
+        {
+            printf( "WARNING: Surfaces %d and %d do not meet to within tolerance along %d segments of their intersection, apart by up to %g\n",
+                    m_SurfA_ID, m_SurfB_ID, adapt.m_NumMiss, adapt.m_MaxMiss );
+        }
+
+        m_CADUWDeg = m_CADDeg;
+        m_CADUWBreakVec_A = m_CADBreakVec;
+        m_CADUWBreakVec_B = m_CADBreakVec;
+    }
 
     // The polyline the loops are built from is the CAD curve itself, and its image on each parent,
     // taken at the same points along it
@@ -150,6 +153,240 @@ void NURBS_Curve::SetMergeTol( SCurve &curveA )
     {
         m_MergeTol = 1.0e-10;
     }
+}
+
+// Where a border runs across the surface on the other side of it: points added between
+// ( t0, uv0 ) and ( t1, uv1 ) until the straight line between each pair in that surface's
+// parameters stays within tol of the border.  The border is the parameter line of surfA at
+// cval, in u where ucon and in w otherwise, and t is the parameter along it.
+static void RefineBorderPCurve( const Surf &surfA, bool ucon, double cval, const Surf &surfB, double t0, const vec3d &uv0,
+                                double t1, const vec3d &uv1, double tol, int nlimit,
+                                vector < double > &t_vec, vector < vec3d > &uv_vec )
+{
+    double tm = 0.5 * ( t0 + t1 );
+    vec3d uvm = ( uv0 + uv1 ) * 0.5;
+
+    vec3d p;
+    if ( ucon )
+    {
+        p = surfA.CompPnt( cval, tm );
+    }
+    else
+    {
+        p = surfA.CompPnt( tm, cval );
+    }
+
+    if ( nlimit <= 0 || dist( surfB.CompPnt( uvm.x(), uvm.y() ), p ) <= tol )
+    {
+        return;
+    }
+
+    vec2d uvp = surfB.ClosestUW( p, uvm.x(), uvm.y() );
+    vec3d uvn( uvp.x(), uvp.y(), 0.0 );
+
+    // Where the border is not on the surface, there is nothing nearer to follow
+    if ( dist( surfB.CompPnt( uvn.x(), uvn.y() ), p ) > tol )
+    {
+        return;
+    }
+
+    RefineBorderPCurve( surfA, ucon, cval, surfB, t0, uv0, tm, uvn, tol, nlimit - 1, t_vec, uv_vec );
+    t_vec.push_back( tm );
+    uv_vec.push_back( uvn );
+    RefineBorderPCurve( surfA, ucon, cval, surfB, tm, uvn, t1, uv1, tol, nlimit - 1, t_vec, uv_vec );
+}
+
+bool ParameterLineCurve( SCurve &crv, vector < vec3d > &cp_vec, vector < double > &break_vec, int &deg,
+                         bool &ucon, double &cval, double &ta, double &tb )
+{
+    Bezier_curve uwcrv = crv.GetUWCrv();
+
+    vector < vec3d > uw_vec;
+    uwcrv.GetControlPoints( uw_vec );
+
+    if ( uw_vec.size() < 2 )
+    {
+        return false;
+    }
+
+    const ParmLine &line = crv.GetParmLine();
+    if ( !line.IsLine() )
+    {
+        return false;
+    }
+
+    const piecewise_surface_type* surf = crv.GetSurf()->GetSurfCore()->GetSurf();
+
+    piecewise_curve_type pc;
+
+    ucon = ( line.m_Kind == ParmLine::U_CONST );
+    cval = line.m_Val;
+    if ( ucon )
+    {
+        cval = clamp( cval, surf->get_u0(), surf->get_umax() );
+        surf->get_uconst_curve( pc, cval );
+    }
+    else
+    {
+        cval = clamp( cval, surf->get_v0(), surf->get_vmax() );
+        surf->get_vconst_curve( pc, cval );
+    }
+    ta = line.Along( uw_vec.front() );
+    tb = line.Along( uw_vec.back() );
+
+    double tlo = clamp( std::min( ta, tb ), pc.get_t0(), pc.get_tmax() );
+    double thi = clamp( std::max( ta, tb ), pc.get_t0(), pc.get_tmax() );
+
+    if ( thi <= tlo )
+    {
+        return false;
+    }
+
+    pc.split( tlo );
+    pc.split( thi );
+
+    vector < piecewise_curve_type::curve_type > seg_vec;
+    break_vec.clear();
+    deg = 0;
+
+    for ( piecewise_curve_type::index_type i = 0; i < pc.number_segments(); i++ )
+    {
+        piecewise_curve_type::curve_type seg;
+        double t, dt;
+        pc.get( seg, t, dt, i );
+
+        double tmid = t + 0.5 * dt;
+        if ( tmid > tlo && tmid < thi )
+        {
+            if ( break_vec.empty() )
+            {
+                break_vec.push_back( t );
+            }
+            break_vec.push_back( t + dt );
+            seg_vec.push_back( seg );
+            deg = std::max( deg, ( int )seg.degree() );
+        }
+    }
+
+    if ( seg_vec.empty() )
+    {
+        return false;
+    }
+
+    cp_vec.clear();
+    for ( size_t i = 0; i < seg_vec.size(); i++ )
+    {
+        seg_vec[i].degree_promote_to( deg );
+
+        // Segments share their end points
+        int j0 = 0;
+        if ( i > 0 )
+        {
+            j0 = 1;
+        }
+
+        for ( int j = j0; j <= deg; j++ )
+        {
+            piecewise_curve_type::curve_type::control_point_type cp = seg_vec[i].get_control_point( j );
+            cp_vec.push_back( vec3d( cp.x(), cp.y(), cp.z() ) );
+        }
+    }
+
+    return true;
+}
+
+bool NURBS_Curve::BuildBorderCADCurve( SCurve &crvA, SCurve &crvB, double tol )
+{
+    // The side the border is a parameter line of, and the side across it
+    SCurve* lcrv = &crvA;
+    SCurve* ocrv = &crvB;
+    vector < vec3d >* lcad = &m_CADUWPntVec_A;
+    vector < vec3d >* ocad = &m_CADUWPntVec_B;
+    vector < double >* lbreak = &m_CADUWBreakVec_A;
+    vector < double >* obreak = &m_CADUWBreakVec_B;
+
+    if ( !crvA.GetParmLine().IsLine() )
+    {
+        std::swap( lcrv, ocrv );
+        std::swap( lcad, ocad );
+        std::swap( lbreak, obreak );
+    }
+
+    vector < double > break_vec;
+    int deg;
+    bool ucon;
+    double cval, ta, tb;
+
+    if ( !ParameterLineCurve( *lcrv, m_CADPntVec, break_vec, deg, ucon, cval, ta, tb ) )
+    {
+        return false;
+    }
+
+    const ParmLine &line = lcrv->GetParmLine();
+    const ParmLine &oline = ocrv->GetParmLine();
+
+    m_CADDeg = deg;
+    m_CADBreakVec = break_vec;
+
+    // On its own surface the curve is the parameter line itself
+    lcad->resize( break_vec.size() );
+    for ( size_t i = 0; i < break_vec.size(); i++ )
+    {
+        if ( ucon )
+        {
+            ( *lcad )[i] = vec3d( cval, break_vec[i], 0.0 );
+        }
+        else
+        {
+            ( *lcad )[i] = vec3d( break_vec[i], cval, 0.0 );
+        }
+    }
+    m_CADUWDeg = 1;
+    *lbreak = break_vec;
+
+    // On the surface across the border, its ends, which are where the curve it was matched with
+    // ends, and more between them where the border bends away from the line through them there
+    Bezier_curve luwcrv = lcrv->GetUWCrv();
+    Bezier_curve ouwcrv = ocrv->GetUWCrv();
+
+    vector < vec3d > ouw( 2 );
+    ouw[0] = ouwcrv.FirstPnt();
+    ouw[1] = ouwcrv.LastPnt();
+
+    vector < double > t_vec( 2 );
+    t_vec[0] = line.Along( luwcrv.FirstPnt() );
+    t_vec[1] = line.Along( luwcrv.LastPnt() );
+
+    ocad->clear();
+    obreak->clear();
+    obreak->push_back( t_vec[0] );
+    ocad->push_back( ouw[0] );
+    RefineBorderPCurve( *lcrv->GetSurf(), ucon, cval, *ocrv->GetSurf(), t_vec[0], ouw[0], t_vec[1], ouw[1],
+                        0.5 * tol, 16, *obreak, *ocad );
+    obreak->push_back( t_vec[1] );
+    ocad->push_back( ouw[1] );
+
+    // Where the border is a parameter line of that surface too, the pcurve is on it exactly
+    for ( size_t i = 0; i < ocad->size(); i++ )
+    {
+        ( *ocad )[i] = oline.OnLine( ( *ocad )[i] );
+    }
+
+    // Run with the curve as it was built, from tlo to thi, over exactly its range
+    if ( tb < ta )
+    {
+        reverse( ocad->begin(), ocad->end() );
+        reverse( obreak->begin(), obreak->end() );
+    }
+    obreak->front() = break_vec.front();
+    obreak->back() = break_vec.back();
+
+    if ( tb < ta )
+    {
+        ReverseCAD();
+    }
+
+    return true;
 }
 
 void NURBS_Curve::Reverse()

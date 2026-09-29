@@ -950,6 +950,7 @@ void Surf::AddBorderCurve( double ua, double wa, double ub, double wb )
 
         SCurve* scrv = new SCurve( this );
         scrv->InterpolateLinear( pnts );
+        scrv->SetParmLine( ParmLine::Between( ua, wa, ub, wb ) );
         scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
 
         if ( scrv->Length( 10 ) > degen_tol )

@@ -22,6 +22,13 @@
 class STEP_Topology;
 
 
+// The exact curve of the parameter line of its surface that crv runs along: the control points of
+// a piecewise Bezier curve of degree deg, and the line's parameter at each segment end.  ucon says
+// the line is one of constant u, cval is that constant, and ta and tb are where crv starts and
+// ends along it.  Returns false where crv is not on a parameter line.
+bool ParameterLineCurve( SCurve &crv, vector < vec3d > &cp_vec, vector < double > &break_vec, int &deg,
+                         bool &ucon, double &cval, double &ta, double &tb );
+
 // Describes a NURBS curve, formed from a Bezier surface curve (SCurve). Can be of border 
 // or intersection type.
 class NURBS_Curve
@@ -97,6 +104,8 @@ public:
     // through m_CADPntVec, the segments sharing their end points, with m_CADBreakVec the
     // parameter at each segment end.  An intersection curve is written adapted: a cubic
     // through points put on both parents.
+    //
+    // A border curve is a parameter line of its surface, and is written as exactly that.
     vector < vec3d > m_CADPntVec;
     vector < double > m_CADBreakVec;
     int m_CADDeg;
@@ -115,6 +124,13 @@ public:
 
     int m_CurveID;
 protected:
+
+    // Make the CAD curve the exact parameter line of the surface a border curve runs along --
+    // crvA's, or crvB's where crvA is not on one -- and its pcurve on the surface across the
+    // border straight between points close enough that it keeps within half tol of the
+    // border.  Returns false, leaving the CAD curve alone, where neither curve is on a
+    // parameter line.
+    bool BuildBorderCADCurve( SCurve &crvA, SCurve &crvB, double tol );
 
     // The bounding box of curveA's surface, and the point merge tolerance taken from it
     void SetMergeTol( SCurve &curveA );

@@ -28,6 +28,43 @@ using namespace std;
 
 class ICurve;
 
+//==== Parameter line of a surface a curve runs along ====//
+// A patch border, or the seam where split and join put two pieces of a surface back together,
+// is a line of constant u or w.  It is recorded where the curve is made.
+class ParmLine
+{
+public:
+    enum { NONE, U_CONST, W_CONST };
+
+    ParmLine()
+    {
+        m_Kind = NONE;
+        m_Val = 0.0;
+    }
+    ParmLine( int kind, double val )
+    {
+        m_Kind = kind;
+        m_Val = val;
+    }
+
+    // A line of the patch between ( ua, wa ) and ( ub, wb ), or NONE where neither is held
+    static ParmLine Between( double ua, double wa, double ub, double wb );
+
+    bool IsLine() const
+    {
+        return m_Kind != NONE;
+    }
+
+    // uw with its constant parameter set to the line's
+    vec3d OnLine( const vec3d &uw ) const;
+
+    // The parameter that runs along the line
+    double Along( const vec3d &uw ) const;
+
+    int m_Kind;
+    double m_Val;
+};
+
 //////////////////////////////////////////////////////////////////////
 class SCurve
 {
@@ -110,6 +147,15 @@ public:
 
     void FlipDir();
 
+    void SetParmLine( const ParmLine &line )
+    {
+        m_ParmLine = line;
+    }
+    const ParmLine & GetParmLine() const
+    {
+        return m_ParmLine;
+    }
+
     // void Draw();
 
     vec3d CompPntUW( double u );
@@ -123,6 +169,9 @@ protected:
 
 
     Bezier_curve m_UWCrv;       // UW Curve
+
+    // The parameter line of m_Surf the curve lies on, where it is one
+    ParmLine m_ParmLine;
 
     vector< double > m_UTess;   // Tess Curve Pnts in U Space
     vector< vec3d > m_UWTess;   // Tess Curve Pnts in UW Space
