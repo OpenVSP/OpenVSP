@@ -380,6 +380,15 @@ def _iges_records( path ):
     return { de: ( types[de], "".join( params[de] ).split( ";" )[0].split( "," ) ) for de in params if de in types }
 
 
+def _iges_untrimmed_surfaces( path ):
+    """The rational B-spline surfaces (128) of an IGES file that no trimmed surface (144) is
+    built on, left whole and untrimmed."""
+    recs = _iges_records( path )
+    surfs = set( de for de, ( t, p ) in recs.items() if t == 128 )
+    trimmed = set( int( p[1] ) for de, ( t, p ) in recs.items() if t == 144 )
+    return sorted( surfs - trimmed )
+
+
 def _num( field ):
     return float( field.replace( "D", "E" ) )
 
@@ -739,6 +748,9 @@ def test_TrimmedIGESMatchesSTEP( model, split, demote, unit ):
     # OCCT splits a trimmed IGES surface where it is only C0, so the faces are counted in the files
     nface = _count( r[ "stp_path" ], "ADVANCED_FACE" )
     assert _iges_count( r[ "igs_path" ], 144 ) == nface
+
+    # Every surface is trimmed; one no loop bounds is left out, as STEP leaves out its face
+    assert _iges_untrimmed_surfaces( r[ "igs_path" ] ) == []
 
     # Its curves share one color, and every flag the file sets is true
     assert _iges_count( r[ "igs_path" ], 314 ) <= 1

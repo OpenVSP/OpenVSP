@@ -1862,8 +1862,16 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
             label.append( to_string( m_NURBSSurfVec[si].m_SurfID ) );
         }
 
+        // A surface no complete loop bounds is no face, as in STEP; written anyway it would be
+        // a whole untrimmed surface
+        if ( !m_NURBSSurfVec[si].HasClosedExtLoop() )
+        {
+            printf( "ERROR: No complete IGES boundary on surface %d, which is left out\n", m_NURBSSurfVec[si].m_SurfID );
+            continue;
+        }
+
         DLL_IGES_ENTITY_128 isurf = m_NURBSSurfVec[si].WriteIGESSurf( &iges, label.c_str() );
-        
+
         m_NURBSSurfVec[si].WriteIGESLoops( &iges, isurf, label.c_str() );
     }
 

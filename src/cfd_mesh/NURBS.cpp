@@ -1270,6 +1270,21 @@ int NURBS_Surface::CutoutOwner( const vector < NURBS_Loop > & ext_loop_vec, cons
     return owner;
 }
 
+bool NURBS_Surface::HasClosedExtLoop()
+{
+    vector < NURBS_Loop > ext_loop_vec, cutout_vec;
+    MakeExtLoopVec( ext_loop_vec, cutout_vec );
+
+    for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
+    {
+        if ( ext_loop_vec[i].m_ClosedFlag )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label )
 {
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)

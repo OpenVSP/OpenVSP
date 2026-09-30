@@ -250,6 +250,9 @@ public:
 
     void MakeExtLoopVec( vector < NURBS_Loop > & ext_loop_vec, vector < NURBS_Loop > & cutout_vec );
 
+    // Whether any external loop is complete, so the surface bounds a face at all
+    bool HasClosedExtLoop();
+
     // The external loop a cutout lies in, the innermost where they nest; -1 where none holds it
     int CutoutOwner( const vector < NURBS_Loop > & ext_loop_vec, const NURBS_Loop & cutout ) const;
 
