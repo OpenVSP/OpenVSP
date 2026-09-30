@@ -1469,6 +1469,19 @@ void WingGeom::ApplyScale( double currentScale )
     {
         //==== Adjust Sections Area ====//
         vector< WingSect* > ws_vec = GetWingSectVec();
+
+        // Taken before any section changes, since forcing one updates its neighbor's root chord
+        vector< double > span( ws_vec.size() ), rc( ws_vec.size() ), tc( ws_vec.size() );
+        for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
+        {
+            if ( ws_vec[i] )
+            {
+                span[i] = ws_vec[i]->m_Span() * currentScale;
+                rc[i] = ws_vec[i]->m_RootChord() * currentScale;
+                tc[i] = ws_vec[i]->m_TipChord() * currentScale;
+            }
+        }
+
         for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
         {
             WingSect* ws = ws_vec[i];
@@ -1476,12 +1489,11 @@ void WingGeom::ApplyScale( double currentScale )
             {
                 if (i > 0) // Don't operate on 0th section.
                 {
-                    double area = ws->m_Area() * currentScale * currentScale;
-                    ws->ForceAspectTaperArea(ws->m_Aspect(), ws->m_Taper(), area);
+                    ws->ForceSpanRcTc( span[i], rc[i], tc[i] );
                 }
                 else
                 {
-                    ws->ForceChordVal( ws->m_TipChord() * currentScale, false );
+                    ws->ForceChordVal( tc[i], false );
                 }
 
                 // Operate on all sections.
@@ -2987,13 +2999,25 @@ void WingGeom::UpdateTotalArea()
         fract = m_TotalArea()/ta;
 
     //==== Adjust Sections Area ====//
+    // Each section keeps its shape: its span and chords scale by the square root of the area
+    // ratio.
     if ( fract > 1.0e-08 )
     {
+        double lfract = sqrt( fract );
         vector< WingSect* > ws_vec = GetWingSectVec();
+
+        // Taken before any section changes, since forcing one updates its neighbor's root chord
+        vector< double > span( ws_vec.size() ), rc( ws_vec.size() ), tc( ws_vec.size() );
+        for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
+        {
+            span[i] = ws_vec[i]->m_Span() * lfract;
+            rc[i] = ws_vec[i]->m_RootChord() * lfract;
+            tc[i] = ws_vec[i]->m_TipChord() * lfract;
+        }
+
         for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
         {
-            double area = ws_vec[i]->m_Area()*fract;
-            ws_vec[i]->ForceAspectTaperArea( ws_vec[i]->m_Aspect(), ws_vec[i]->m_Taper(), area );
+            ws_vec[i]->ForceSpanRcTc( span[i], rc[i], tc[i] );
         }
     }
 }
