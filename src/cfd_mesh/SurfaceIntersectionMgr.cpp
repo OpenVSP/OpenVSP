@@ -1691,8 +1691,6 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
         vec3d yep = cp + vec3d( 1.0e-4, y_dist, 1.0e-4 );
         vec3d zep = cp + vec3d( 1.0e-4, 1.0e-4, z_dist );
 
-        vector< double > x_vec, y_vec, z_vec;
-
         // Check if the curve is inside any component by checking the number of intersections from 3 vectors
         // beginning at the midpoint of the curve. Checking 3 vectors prevents a false positive or negative
         // from a vector that exactly aligns with another curve
@@ -1702,6 +1700,9 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
             {
                 continue;
             }
+
+            // Each component's crossings are counted on their own
+            vector< double > x_vec, y_vec, z_vec;
 
             for ( size_t i = 0; i < m_SurfVec.size(); i++ )
             {
@@ -1730,10 +1731,6 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
 
         if ( internal_flag )
         {
-            x_vec.clear();
-            y_vec.clear();
-            z_vec.clear();
-
             // Check if inside a negative component
             for ( size_t j = 0; j < m_NumComps; j++ )
             {
@@ -1741,6 +1738,8 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
                 {
                     continue;
                 }
+
+                vector< double > x_vec, y_vec, z_vec;
 
                 for ( size_t i = 0; i < m_SurfVec.size(); i++ )
                 {
