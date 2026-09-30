@@ -192,6 +192,12 @@ public:
     // where the loop runs counter-clockwise there
     double SignedAreaUW( int surf_id ) const;
 
+    // The loop as a polygon in the parameter space of one of its parent surfaces
+    void GetUWPolygon( int surf_id, vector < vec3d > &uw_vec ) const;
+
+    // Whether a point of that parameter space is inside the loop
+    bool ContainsUW( int surf_id, const vec3d &uw ) const;
+
     // Which way the loop runs as the face sees it: +1 when the face lies to its left, -1 when
     // to its right, and 0 when the loop encloses no area to tell by.  An outer boundary with
     // the face on its left runs counter-clockwise and a hole clockwise; flip_flag reverses
@@ -243,6 +249,9 @@ public:
     DLL_IGES_ENTITY_128 WriteIGESSurf( IGESutil* iges, const string& label = "" );
 
     void MakeExtLoopVec( vector < NURBS_Loop > & ext_loop_vec, vector < NURBS_Loop > & cutout_vec );
+
+    // The external loop a cutout lies in, the innermost where they nest; -1 where none holds it
+    int CutoutOwner( const vector < NURBS_Loop > & ext_loop_vec, const NURBS_Loop & cutout ) const;
 
     // Write the NURBS loops for this NURBS surface to IGES, trimming the parent surface
     // in the process. 

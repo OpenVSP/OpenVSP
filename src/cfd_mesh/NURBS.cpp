@@ -795,9 +795,9 @@ BndBox NURBS_Loop::GetBndBox()
     return bbox;
 }
 
-double NURBS_Loop::SignedAreaUW( int surf_id ) const
+void NURBS_Loop::GetUWPolygon( int surf_id, vector < vec3d > &uw_vec ) const
 {
-    vector < vec3d > uw_vec;
+    uw_vec.clear();
 
     for ( int i = 0; i < ( int )m_OrderedCurves.size(); i++ )
     {
@@ -814,6 +814,12 @@ double NURBS_Loop::SignedAreaUW( int surf_id ) const
             uw_vec.insert( uw_vec.end(), nurbs_curve.m_UWPntVec_B.begin(), nurbs_curve.m_UWPntVec_B.end() );
         }
     }
+}
+
+double NURBS_Loop::SignedAreaUW( int surf_id ) const
+{
+    vector < vec3d > uw_vec;
+    GetUWPolygon( surf_id, uw_vec );
 
     double area = 0.0;
 
@@ -826,6 +832,30 @@ double NURBS_Loop::SignedAreaUW( int surf_id ) const
     }
 
     return 0.5 * area;
+}
+
+bool NURBS_Loop::ContainsUW( int surf_id, const vec3d &uw ) const
+{
+    vector < vec3d > uw_vec;
+    GetUWPolygon( surf_id, uw_vec );
+
+    // Crossings of a ray from uw toward +u
+    bool inside = false;
+    for ( int i = 0; i < ( int )uw_vec.size(); i++ )
+    {
+        const vec3d &p0 = uw_vec[i];
+        const vec3d &p1 = uw_vec[( i + 1 ) % uw_vec.size()];
+
+        if ( ( p0.y() > uw.y() ) != ( p1.y() > uw.y() ) )
+        {
+            double u = p0.x() + ( uw.y() - p0.y() ) * ( p1.x() - p0.x() ) / ( p1.y() - p0.y() );
+            if ( uw.x() < u )
+            {
+                inside = !inside;
+            }
+        }
+    }
+    return inside;
 }
 
 int NURBS_Loop::Sense( int surf_id, bool cutout_flag, bool flip_flag ) const
@@ -1184,6 +1214,57 @@ void NURBS_Surface::MakeExtLoopVec( vector < NURBS_Loop > & ext_loop_vec, vector
     }
 }
 
+int NURBS_Surface::CutoutOwner( const vector < NURBS_Loop > & ext_loop_vec, const NURBS_Loop & cutout ) const
+{
+    vector < vec3d > uw_vec;
+    cutout.GetUWPolygon( m_SurfID, uw_vec );
+    if ( uw_vec.empty() )
+    {
+        return -1;
+    }
+
+    // Points along the cutout, between its polygon's corners, since a corner can lie on the outer
+    // loop itself.  The owner holds the most of them, and is the innermost where loops tie.
+    vector < vec3d > test_vec;
+    for ( size_t k = 0; k + 1 < uw_vec.size(); k++ )
+    {
+        test_vec.push_back( 0.5 * ( uw_vec[k] + uw_vec[k + 1] ) );
+    }
+    if ( test_vec.empty() )
+    {
+        test_vec.push_back( uw_vec[0] );
+    }
+
+    int owner = -1;
+    int owner_count = 0;
+    double owner_area = 0.0;
+    for ( int i = 0; i < ( int )ext_loop_vec.size(); i++ )
+    {
+        int count = 0;
+        for ( size_t k = 0; k < test_vec.size(); k++ )
+        {
+            if ( ext_loop_vec[i].ContainsUW( m_SurfID, test_vec[k] ) )
+            {
+                count++;
+            }
+        }
+
+        if ( count == 0 )
+        {
+            continue;
+        }
+
+        double area = std::abs( ext_loop_vec[i].SignedAreaUW( m_SurfID ) );
+        if ( owner < 0 || count > owner_count || ( count == owner_count && area < owner_area ) )
+        {
+            owner = i;
+            owner_count = count;
+            owner_area = area;
+        }
+    }
+    return owner;
+}
+
 void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label )
 {
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
@@ -1215,30 +1296,27 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
         }
     }
 
-    if ( ext_loop_vec.size() == 1 )
+    // Each cutout on the trimmed surface of the loop it lies in
+    vector < int > owner_vec( cutout_vec.size() );
+    for ( size_t j = 0; j < cutout_vec.size(); j++ )
     {
-        DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[0].WriteIGESLoop( iges, parent_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
-
-        for ( size_t i = 0; i < cutout_vec.size(); i++ )
+        owner_vec[j] = CutoutOwner( ext_loop_vec, cutout_vec[j] );
+        if ( owner_vec[j] < 0 )
         {
-            cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
+            printf( "ERROR: IGES cutout lies in no loop of surface %d\n", m_SurfID );
         }
     }
-    else if ( ext_loop_vec.size() > 1 )
-    {
-        // If more than 1 external loop, create a new trimmed surface for each
-        // with separate loop bounds.
-        for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
-        {
-            DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
 
-            // Check if for any cutouts on the trimmed surface
-            for ( size_t j = 0; j < cutout_vec.size(); j++ )
+    // A trimmed surface for each external loop
+    for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
+    {
+        DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
+
+        for ( size_t j = 0; j < cutout_vec.size(); j++ )
+        {
+            if ( owner_vec[j] == ( int )i )
             {
-                if ( Compare( ext_loop_vec[i].GetBndBox(), cutout_vec[j].GetBndBox() ) ) // TODO: Improve this comparison
-                {
-                    cutout_vec[j].WriteIGESCutout( iges, parent_surf, trimmed_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
-                }
+                cutout_vec[j].WriteIGESCutout( iges, parent_surf, trimmed_surf, m_SurfID, *m_Surf, m_FlipFlag, label );
             }
         }
     }
@@ -1264,8 +1342,8 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STE
 
     MakeExtLoopVec( ext_loop_vec, cutout_vec );
 
-    // One face per external loop, all on the same parent surface.  Holes go on the first.
-    vector < vector < SdaiFace_bound* > > face_bound_vec;
+    // One face per external loop, all on the same parent surface
+    vector < vector < SdaiFace_bound* > > face_bound_vec( ext_loop_vec.size() );
     int first_face = topo->NewFaces( ( int )ext_loop_vec.size() );
 
     for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
@@ -1275,23 +1353,27 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, STE
 
         if ( bound )
         {
-            face_bound_vec.push_back( vector < SdaiFace_bound* > ( 1, bound ) );
+            face_bound_vec[i].push_back( bound );
         }
     }
 
-    if ( face_bound_vec.empty() )
-    {
-        face_bound_vec.resize( 1 );
-    }
-
+    // Each hole on the face of the loop it lies in
     for ( size_t i = 0; i < cutout_vec.size(); i++ )
     {
-        topo->SetFace( first_face );
+        int owner = CutoutOwner( ext_loop_vec, cutout_vec[i] );
+
+        if ( owner < 0 || face_bound_vec[owner].empty() )
+        {
+            printf( "ERROR: STEP cutout lies in no face of surface %d\n", m_SurfID );
+            continue;
+        }
+
+        topo->SetFace( first_face + owner );
         SdaiFace_bound* bound = cutout_vec[i].WriteSTEPBound( step, topo, m_SurfID, true, m_FlipFlag, mergepts );
 
         if ( bound )
         {
-            face_bound_vec[0].push_back( bound );
+            face_bound_vec[owner].push_back( bound );
         }
     }
 
