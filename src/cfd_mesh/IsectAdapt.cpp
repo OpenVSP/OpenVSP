@@ -614,6 +614,13 @@ void IsectAdaptCurve::AdaptSeg( const IsectAdaptPnt &p0_in, const IsectAdaptPnt 
             p0.m_Straight = true;
         }
 
+        // Count a segment left over the tolerance, and how far over it is as written
+        if ( err > tol )
+        {
+            m_NumLimit++;
+            m_MaxLimitErr = std::max( m_MaxLimitErr, SegErr( p0, p1, pm, p0.m_Straight ) );
+        }
+
         m_Pnts.push_back( p0 );
 
         // A polyline keeps the point it was measured at, halving its segments again.  A
@@ -640,6 +647,8 @@ void IsectAdaptCurve::Adapt( const Bezier_curve &uwcrvA, const Bezier_curve &uwc
     m_Pnts.clear();
     m_NumMiss = 0;
     m_MaxMiss = 0.0;
+    m_NumLimit = 0;
+    m_MaxLimitErr = 0.0;
 
     // A copy of the raw curve, made once
     piecewise_curve_type raw_crv = uwcrvA.GetCurve();

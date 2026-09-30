@@ -106,6 +106,11 @@ void NURBS_Curve::InitCAD( SCurve curveA, SCurve curveB, double tol )
             printf( "WARNING: Surfaces %d and %d do not meet to within tolerance along %d segments of their intersection, apart by up to %g\n",
                     m_SurfA_ID, m_SurfB_ID, adapt.m_NumMiss, adapt.m_MaxMiss );
         }
+        if ( adapt.m_NumLimit > 0 )
+        {
+            printf( "WARNING: The intersection of surfaces %d and %d is written %d segments over tolerance, off by up to %g\n",
+                    m_SurfA_ID, m_SurfB_ID, adapt.m_NumLimit, adapt.m_MaxLimitErr );
+        }
 
         m_CADUWDeg = m_CADDeg;
         m_CADUWBreakVec_A = m_CADBreakVec;

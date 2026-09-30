@@ -87,6 +87,10 @@ public:
     int m_NumMiss;
     double m_MaxMiss;
 
+    // Segments kept over the tolerance because they ran out of halvings, and the worst of them
+    int m_NumLimit;
+    double m_MaxLimitErr;
+
 protected:
 
     void AdaptSeg( const IsectAdaptPnt &p0, const IsectAdaptPnt &p1, int Nlimit );
