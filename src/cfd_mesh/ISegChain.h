@@ -223,6 +223,9 @@ public:
 
     void AddSeg( ISeg* seg, bool frontFlag );
 
+    // Add seg at the front or back, turned so its end joinIPnt is next to the chain
+    void AddSeg( ISeg* seg, bool frontFlag, IPnt* joinIPnt );
+
     double MatchDist( ISeg* s );
     double ChainDist( ISegChain* B );
     bool Match( ISegChain* B );

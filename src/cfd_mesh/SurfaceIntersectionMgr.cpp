@@ -3249,7 +3249,15 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
             firstIter = false;
 
             ISeg* seg = matchIPnt->m_Segs[0];
-            chain->AddSeg( seg, expandFront );
+            if ( by_partner )
+            {
+                // Joined through the partner, which is the end next to the chain
+                chain->AddSeg( seg, expandFront, matchIPnt );
+            }
+            else
+            {
+                chain->AddSeg( seg, expandFront );
+            }
             seg->m_IPnt[0]->m_UsedFlag = true;
             seg->m_IPnt[1]->m_UsedFlag = true;
         }

@@ -879,6 +879,26 @@ bool ISegChain::Match( ISegChain* B )
     return false;
 }
 
+void ISegChain::AddSeg( ISeg* seg, bool frontFlag, IPnt* joinIPnt )
+{
+    if ( frontFlag )
+    {
+        if ( seg->m_IPnt[0] == joinIPnt )
+        {
+            seg->FlipDir();
+        }
+        m_ISegDeque.push_front( seg );
+    }
+    else
+    {
+        if ( seg->m_IPnt[1] == joinIPnt )
+        {
+            seg->FlipDir();
+        }
+        m_ISegDeque.push_back( seg );
+    }
+}
+
 void ISegChain::AddSeg( ISeg* seg, bool frontFlag )
 {
     if ( frontFlag )
