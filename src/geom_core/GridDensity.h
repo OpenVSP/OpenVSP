@@ -203,6 +203,10 @@ public:
     virtual void Show( bool flag ) = 0;
     virtual void Highlight( bool flag ) = 0;
 
+    // Name the draw objects after id.  The same source rebuilt keeps the same name, so the
+    // renderer updates its objects instead of making new ones.
+    void SetDrawObjID( const string & id );
+
     double m_Len;
     double m_Rad;
 
@@ -210,6 +214,9 @@ public:
     string m_OrigSourceID;
 
 protected:
+
+    // Name each draw object from m_DrawObjID
+    virtual void NameDrawObjs() = 0;
 
     BndBox m_Box;
 
@@ -237,6 +244,8 @@ public:
     double m_WLoc;
 
 protected:
+
+    virtual void NameDrawObjs();
 
     vec3d m_Loc;
 
@@ -275,6 +284,8 @@ public:
     double m_Rad2;
 
 protected:
+
+    virtual void NameDrawObjs();
 
     vec3d m_Pnt1;
     vec3d m_Pnt2;
@@ -319,6 +330,8 @@ public:
 
 protected:
 
+    virtual void NameDrawObjs();
+
     vec3d m_MinPnt;
     vec3d m_MaxPnt;
 
@@ -353,6 +366,8 @@ public:
     double m_Val;
 
 protected:
+
+    virtual void NameDrawObjs();
 
     Geom * m_GeomPtr;
 

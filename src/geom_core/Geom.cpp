@@ -6363,6 +6363,7 @@ void Geom::UpdateSources()
             m_SimpSourceVec.push_back( CreateSimpleSource( m_MainSourceVec[i]->GetType() ) );
             int k = m_SimpSourceVec.size() - 1;
             m_SimpSourceVec[k]->CopyFrom( m_MainSourceVec[i] );
+            m_SimpSourceVec[k]->SetDrawObjID( m_MainSourceVec[i]->GetID() + "_" + to_string( j ) );
             m_SimpSourceVec[k]->m_SurfIndx = m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx.Get() ][j];
             m_SimpSourceVec[k]->Update( this );
         }
