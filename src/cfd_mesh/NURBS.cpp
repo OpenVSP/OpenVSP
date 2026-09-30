@@ -482,8 +482,14 @@ void NURBS_Loop::SetPntVec( const vector < vec3d >& pnt_vec )
 {
     m_PntVec = pnt_vec;
 
-    // Check for closure
-    m_ClosedFlag = dist( m_PntVec.back(), m_PntVec.front() ) < FLT_EPSILON;
+    // Closed where its ends meet, to the rounding of a loop its size
+    BndBox box;
+    for ( size_t i = 0; i < m_PntVec.size(); i++ )
+    {
+        box.Update( m_PntVec[i] );
+    }
+    double tol = std::max( ( double ) FLT_EPSILON, 1.0e-8 * box.DiagDist() );
+    m_ClosedFlag = !m_PntVec.empty() && dist( m_PntVec.back(), m_PntVec.front() ) < tol;
 }
 
 vector < DLL_IGES_ENTITY_126* > NURBS_Loop::GetIGESEdges( IGESutil* iges )
@@ -1045,6 +1051,48 @@ unordered_map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::Build
     return return_curve_map;
 }
 
+// Split each chain where it comes back to a point it already passed, so every loop is simple.
+// Two holes that touch at a point are two loops.
+unordered_map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::SplitPinchedChains( const unordered_map< int, vector < pair < NURBS_Curve, bool > > > &chain_map ) const
+{
+    double tol = m_BBox.DiagDist() * 1e-8;
+
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > > split_map;
+    int map_ind = 0;
+
+    for ( int ichain = 0; ichain < (int)chain_map.size(); ichain++ )
+    {
+        vector < pair < NURBS_Curve, bool > > curves = chain_map.at( ichain );
+
+        bool found = true;
+        while ( found )
+        {
+            found = false;
+
+            for ( size_t i = 1; i < curves.size() && !found; i++ )
+            {
+                for ( size_t j = 0; j < i; j++ )
+                {
+                    double d = dist( curves[i].first.m_PntVec.front(), curves[j].first.m_PntVec.front() );
+                    if ( d < tol )
+                    {
+                        split_map[map_ind].assign( curves.begin() + j, curves.begin() + i );
+                        map_ind++;
+                        curves.erase( curves.begin() + j, curves.begin() + i );
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        split_map[map_ind] = curves;
+        map_ind++;
+    }
+
+    return split_map;
+}
+
 vector < NURBS_Loop > NURBS_Surface::MergeOrderedChains( unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_chain_map )
 {
     vector < NURBS_Loop > loop_vec( ordered_chain_map.size() );
@@ -1169,8 +1217,8 @@ void NURBS_Surface::BuildNURBSLoopMap()
         }
     }
 
-    unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_internal_curve_map = BuildOrderedChains( internal_curve_vec );
-    unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_external_curve_map = BuildOrderedChains( external_curve_vec );
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_internal_curve_map = SplitPinchedChains( BuildOrderedChains( internal_curve_vec ) );
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_external_curve_map = SplitPinchedChains( BuildOrderedChains( external_curve_vec ) );
 
     vector < NURBS_Loop > internal_loop_vec = MergeOrderedChains( ordered_internal_curve_map );
     for ( size_t i = 0; i < internal_loop_vec.size(); i++ )

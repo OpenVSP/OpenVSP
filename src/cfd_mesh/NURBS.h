@@ -312,7 +312,10 @@ protected:
     // for a map index are connected.
     unordered_map< int, vector < pair < NURBS_Curve, bool > > > BuildOrderedChains( vector < NURBS_Curve > chain_vec );
 
-    // Transform vectors of connected NURBS curves into individual NURBS loops.  
+    // Split each chain where it comes back to a point it already passed, so every loop is simple
+    unordered_map< int, vector < pair < NURBS_Curve, bool > > > SplitPinchedChains( const unordered_map< int, vector < pair < NURBS_Curve, bool > > > &chain_map ) const;
+
+    // Transform vectors of connected NURBS curves into individual NURBS loops.
     vector < NURBS_Loop > MergeOrderedChains( unordered_map< int, vector < pair < NURBS_Curve, bool > > > ordered_chain_map );
 
     // NURBS Surface definition
