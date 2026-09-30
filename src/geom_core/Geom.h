@@ -765,6 +765,12 @@ public:
     {
         return m_MainSourceVec;
     }
+    // A number no other update of any Geom has had, taken at the Geom's last update
+    long long GetUpdateStamp() const
+    {
+        return m_UpdateStamp;
+    }
+
     virtual vector< BaseSimpleSource* > GetCfdMeshSimpSourceVec()
     {
         return m_SimpSourceVec;
@@ -839,6 +845,7 @@ public:
 protected:
 
     bool m_UpdateBlock;
+    long long m_UpdateStamp;
 
     virtual void UpdateSurf() = 0;
     // Cap the first ncap main surfaces (ncap < 0 means all of them).  Capping fewer than all is

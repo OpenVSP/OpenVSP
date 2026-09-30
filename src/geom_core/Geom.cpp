@@ -22,6 +22,7 @@
 #include "VspUtil.h"
 using namespace vsp;
 
+#include <atomic>
 #include <float.h>
 
 //==== Constructor ====//
@@ -1583,6 +1584,7 @@ void GeomXForm::BuildRigidAttachedDescendantList( vector< string > &descendant )
 Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 {
     m_UpdateBlock = false;
+    m_UpdateStamp = 0;
 
     m_Name = "Geom";
     m_Type.m_Type = GEOM_GEOM_TYPE;
@@ -2008,6 +2010,10 @@ void Geom::Update( bool fullupdate )
     UpdateStepChildren( fullupdate );
 
     m_UpdatedParmVec.clear();
+
+    static std::atomic < long long > update_stamp( 0 );
+    m_UpdateStamp = ++update_stamp;
+
     m_UpdateBlock = false;
 }
 

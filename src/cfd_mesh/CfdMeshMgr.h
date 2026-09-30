@@ -144,6 +144,10 @@ public:
     virtual void UpdateSourcesAndWakes();
     virtual void UpdateDomain();
 
+    // Everything the sources and wakes are built from: the sets and mode, and each Geom's
+    // updates and sources
+    string SourcesAndWakesState();
+
     virtual void UpdateDrawObjs() override;
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 
@@ -242,6 +246,11 @@ protected:
     vector< ISegChain* > m_DegenCornerChains;
 
 private:
+
+    // What the sources and wakes were last built from
+    string m_SourcesAndWakesState;
+
+
     DrawObj m_MeshBadEdgeDO;
     DrawObj m_MeshBadTriDO;
     DrawObj m_MeshBadQuadDO;

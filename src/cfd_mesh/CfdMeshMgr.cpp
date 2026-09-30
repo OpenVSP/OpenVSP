@@ -485,14 +485,55 @@ void CfdMeshMgrSingleton::DeleteAllSources()
 
 void CfdMeshMgrSingleton::Update()
 {
+    // The screen updates on every change anywhere, a rotation of the view among them, and the
+    // sources and wakes only need building again when what they are built from has changed
     if ( !GetMeshInProgress() )
     {
-        UpdateSourcesAndWakes();
+        string state = SourcesAndWakesState();
+        if ( state != m_SourcesAndWakesState )
+        {
+            m_SourcesAndWakesState = state;
+            UpdateSourcesAndWakes();
+        }
     }
 
     UpdateDomain();
 
     m_Vehicle->GetCfdGridDensityPtr()->Update( 1.0 );
+}
+
+string CfdMeshMgrSingleton::SourcesAndWakesState()
+{
+    string state = to_string( GetCfdSettingsPtr()->m_SelectedSetIndex ) + " " +
+                   to_string( GetCfdSettingsPtr()->m_SelectedDegenSetIndex ) + " " +
+                   to_string( ( int )GetCfdSettingsPtr()->m_UseMode ) + " " +
+                   GetCfdSettingsPtr()->m_ModeID;
+
+    if ( GetCfdSettingsPtr()->m_UseMode )
+    {
+        Mode *m = ModeMgr.GetMode( GetCfdSettingsPtr()->m_ModeID );
+        if ( m )
+        {
+            state += " " + to_string( m->m_NormalSet() ) + " " + to_string( m->m_DegenSet() );
+        }
+    }
+
+    vector<string> geomVec = m_Vehicle->GetGeomVec();
+    for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
+    {
+        Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
+        if ( geom )
+        {
+            state += " " + geomVec[g] + " " + to_string( geom->GetUpdateStamp() );
+
+            vector< BaseSource* > sVec = geom->GetCfdMeshMainSourceVec();
+            for ( int s = 0 ; s < ( int )sVec.size() ; s++ )
+            {
+                state += " " + sVec[s]->GetID() + " " + to_string( sVec[s]->GetLatestChangeCnt() );
+            }
+        }
+    }
+    return state;
 }
 
 void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
