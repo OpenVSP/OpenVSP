@@ -35,6 +35,7 @@ using namespace std;
 class ISegChain;
 class SharedPnt;
 class ISeg;
+class ISegSplit;
 class IPntBin;
 class SurfaceIntersectionSingleton;
 class Ipnt;
@@ -142,7 +143,7 @@ public:
     double MinDist( IPnt* ip  );
     void JoinBack( ISeg* seg );
     void JoinFront( ISeg* seg );
-    ISeg* Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr );
+    ISeg* Split( const ISegSplit &split, SurfaceIntersectionSingleton *MeshMgr );
 
     bool Match( ISeg* seg );
 
@@ -155,11 +156,23 @@ class ISegSplit
 {
 public:
 
+    ISegSplit()
+    {
+        m_Index = 0;
+        m_Fract = 0.0;
+        m_Surf = nullptr;
+        m_OtherFlag = false;
+    }
+
     int m_Index;
     double m_Fract;
     Surf* m_Surf;
     vec2d m_UW;
     vec3d m_Pnt;
+
+    // The split in the parameters of the chain's other surface, where they are known
+    bool m_OtherFlag;
+    vec2d m_UWOther;
 };
 
 //==== Bound Box Surrounding ISeg Chains ====//
@@ -217,6 +230,9 @@ public:
     void Intersect( Surf* surfPtr, ISegChain* B );
 
     void AddSplit( Surf* surfPtr, int index, const vec2d &int_pnt, double t );
+
+    // A split whose parameters on the chain's other surface are known too
+    void AddSplit( Surf* surfPtr, int index, const vec2d &int_pnt, double t, const vec2d &uw_other );
     bool AddBorderSplit( Puw* uw ); // Return true if split successfully added
 
     void MergeSplits();

@@ -10,6 +10,10 @@
 #include "ISegChain.h"
 #include "CfdMeshMgr.h"
 
+#include <Eigen/Dense>
+
+#include <algorithm>
+
 //////////////////////////////////////////////////////////////////////
 //==== UW Point on Surface ====//
 //////////////////////////////////////////////////////////////////////
@@ -355,8 +359,11 @@ void ISeg::JoinFront( ISeg* seg )
     }
 }
 
-ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr )
+ISeg* ISeg::Split( const ISegSplit &split, SurfaceIntersectionSingleton *MeshMgr )
 {
+    Surf* sPtr = split.m_Surf;
+    const vec2d &uw = split.m_UW;
+
     vec2d uwa, uwb;
     if ( sPtr == m_SurfA )
     {
@@ -370,6 +377,10 @@ ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr
         uwa = uw;
         uwb = m_IPnt[0]->GetPuw( m_SurfB )->m_UW +
               ( m_IPnt[1]->GetPuw( m_SurfB )->m_UW - m_IPnt[0]->GetPuw( m_SurfB )->m_UW ) * fract;
+        if ( split.m_OtherFlag )
+        {
+            uwb = split.m_UWOther;
+        }
     }
     else
     {
@@ -383,6 +394,10 @@ ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr
         uwb = uw;
         uwa = m_IPnt[0]->GetPuw( m_SurfA )->m_UW +
               ( m_IPnt[1]->GetPuw( m_SurfA )->m_UW - m_IPnt[0]->GetPuw( m_SurfA )->m_UW ) * fract;
+        if ( split.m_OtherFlag )
+        {
+            uwa = split.m_UWOther;
+        }
     }
 
     if ( m_SurfA->ValidUW( uwa ) && m_SurfB->ValidUW( uwb ) )
@@ -461,6 +476,127 @@ void ISegBox::BuildSubDivide()
 
 }
 
+// The surface of a segment that is not s
+static Surf* OtherSurf( ISeg* seg, Surf* s )
+{
+    if ( seg->m_SurfA == s )
+    {
+        return seg->m_SurfB;
+    }
+    return seg->m_SurfA;
+}
+
+// A segment's parameters on one of its surfaces, a fraction t of the way along
+static vec2d LerpUW( ISeg* seg, Surf* s, double t )
+{
+    vec2d uw0 = seg->m_IPnt[0]->GetPuw( s )->m_UW;
+    vec2d uw1 = seg->m_IPnt[1]->GetPuw( s )->m_UW;
+    return uw0 + ( uw1 - uw0 ) * t;
+}
+
+// Parameters within a surface
+static void ClampUW( Surf* s, vec2d &uw )
+{
+    const SurfCore *core = s->GetSurfCore();
+    uw[0] = std::min( std::max( uw[0], core->GetMinU() ), core->GetMaxU() );
+    uw[1] = std::min( std::max( uw[1], core->GetMinW() ), core->GetMaxW() );
+}
+
+// The point on three surfaces nearest the guesses: a Newton solve of Sa = Sb = Sc in their six
+// parameters.  Returns false, leaving the guesses, where it does not converge or lands farther
+// than reach from where it started.
+static bool IntersectThree( Surf* sa, vec2d &uwa, Surf* sb, vec2d &uwb, Surf* sc, vec2d &uwc, double reach )
+{
+    Surf* surfs[3] = { sa, sb, sc };
+    vec2d uw[3] = { uwa, uwb, uwc };
+
+    double size = std::max( sa->GetBBox().DiagDist(), std::max( sb->GetBBox().DiagDist(), sc->GetBBox().DiagDist() ) );
+    double ftol = 1.0e-12 * size;
+
+    for ( int k = 0; k < 3; k++ )
+    {
+        ClampUW( surfs[k], uw[k] );
+    }
+    vec3d start = sa->CompPnt( uw[0][0], uw[0][1] );
+
+    bool converged = false;
+    for ( int iter = 0; iter < 30 && !converged; iter++ )
+    {
+        vec3d p[3], du[3], dw[3];
+        for ( int k = 0; k < 3; k++ )
+        {
+            p[k] = surfs[k]->CompPnt( uw[k][0], uw[k][1] );
+            du[k] = surfs[k]->GetSurfCore()->CompTanU( uw[k][0], uw[k][1] );
+            dw[k] = surfs[k]->GetSurfCore()->CompTanW( uw[k][0], uw[k][1] );
+        }
+
+        Eigen::Matrix < double, 6, 1 > f;
+        Eigen::Matrix < double, 6, 6 > jac;
+        jac.setZero();
+        for ( int r = 0; r < 3; r++ )
+        {
+            f( r ) = p[0][r] - p[1][r];
+            f( r + 3 ) = p[1][r] - p[2][r];
+
+            jac( r, 0 ) = du[0][r];
+            jac( r, 1 ) = dw[0][r];
+            jac( r, 2 ) = -du[1][r];
+            jac( r, 3 ) = -dw[1][r];
+
+            jac( r + 3, 2 ) = du[1][r];
+            jac( r + 3, 3 ) = dw[1][r];
+            jac( r + 3, 4 ) = -du[2][r];
+            jac( r + 3, 5 ) = -dw[2][r];
+        }
+
+        if ( f.lpNorm < Eigen::Infinity > () <= ftol )
+        {
+            converged = true;
+            break;
+        }
+
+        Eigen::FullPivLU < Eigen::Matrix < double, 6, 6 > > lu( jac );
+        if ( !lu.isInvertible() )
+        {
+            return false;
+        }
+        Eigen::Matrix < double, 6, 1 > dx = lu.solve( -f );
+
+        for ( int k = 0; k < 3; k++ )
+        {
+            uw[k][0] += dx( 2 * k );
+            uw[k][1] += dx( 2 * k + 1 );
+            ClampUW( surfs[k], uw[k] );
+        }
+    }
+
+    if ( !converged || dist( sa->CompPnt( uw[0][0], uw[0][1] ), start ) > reach )
+    {
+        return false;
+    }
+
+    uwa = uw[0];
+    uwb = uw[1];
+    uwc = uw[2];
+    return true;
+}
+
+// The fraction of the way from a to b at which uw projects onto the segment between them, and
+// whether it falls within it
+static bool FractionOnSeg( const vec2d &uw, const vec2d &a, const vec2d &b, double &frac )
+{
+    vec2d ab = b - a;
+    double len2 = dot( ab, ab );
+    if ( len2 <= 0.0 )
+    {
+        return false;
+    }
+
+    frac = dot( uw - a, ab ) / len2;
+
+    return frac >= 0.0 && frac <= 1.0;
+}
+
 void ISegBox::Intersect( ISegBox* box )
 {
     int i, j;
@@ -495,8 +631,38 @@ void ISegBox::Intersect( ISegBox* box )
                 double t0, t1;
                 if ( seg_seg_intersect( p0, p1, p2, p3, int_pnt, t0, t1 ) )
                 {
-                    m_ChainPtr->AddSplit( m_Surf, i, int_pnt, t0 );
-                    box->m_ChainPtr->AddSplit( box->m_Surf, j, int_pnt, t1 );
+                    ISeg* seg0 = m_ChainPtr->m_ISegDeque[i];
+                    ISeg* seg1 = box->m_ChainPtr->m_ISegDeque[j];
+
+                    // Each chain's other surface.  Two curves on one surface cross where it
+                    // meets both of the others, so where the three are different surfaces the
+                    // crossing is the point on all three, and each chain ends on it exactly.
+                    Surf* sx = OtherSurf( seg0, m_Surf );
+                    Surf* sy = OtherSurf( seg1, m_Surf );
+
+                    vec2d uws = int_pnt;
+                    vec2d uwx = LerpUW( seg0, sx, t0 );
+                    vec2d uwy = LerpUW( seg1, sy, t1 );
+
+                    double reach = dist( seg0->m_IPnt[0]->m_Pnt, seg0->m_IPnt[1]->m_Pnt ) +
+                                   dist( seg1->m_IPnt[0]->m_Pnt, seg1->m_IPnt[1]->m_Pnt );
+
+                    // The point on all three is used only where it lies on both segments, each
+                    // split at the fraction along its segment the point falls at
+                    double s0 = 0.0;
+                    double s1 = 0.0;
+                    if ( sx != m_Surf && sy != m_Surf && sx != sy &&
+                         IntersectThree( m_Surf, uws, sx, uwx, sy, uwy, reach ) &&
+                         FractionOnSeg( uws, p0, p1, s0 ) && FractionOnSeg( uws, p2, p3, s1 ) )
+                    {
+                        m_ChainPtr->AddSplit( m_Surf, i, uws, s0, uwx );
+                        box->m_ChainPtr->AddSplit( box->m_Surf, j, uws, s1, uwy );
+                    }
+                    else
+                    {
+                        m_ChainPtr->AddSplit( m_Surf, i, int_pnt, t0 );
+                        box->m_ChainPtr->AddSplit( box->m_Surf, j, int_pnt, t1 );
+                    }
                 }
             }
         }
@@ -830,6 +996,13 @@ void ISegChain::AddSplit( Surf* surfPtr, int index, const vec2d &int_pnt, double
     m_SplitVec.push_back( split );
 
 }
+
+void ISegChain::AddSplit( Surf* surfPtr, int index, const vec2d &int_pnt, double t, const vec2d &uw_other )
+{
+    AddSplit( surfPtr, index, int_pnt, t );
+    m_SplitVec.back()->m_OtherFlag = true;
+    m_SplitVec.back()->m_UWOther = uw_other;
+}
 bool ISegChain::AddBorderSplit( Puw* uw )
 {
 
@@ -991,10 +1164,20 @@ void ISegChain::MergeSplits()
         }
     }
 
+    // A group's split is one whose other surface's parameters are known, where there is one
     vector< ISegSplit* > newVec;
     for (  j = 0 ; j < ( int )mergedVec.size() ; j++ )
     {
-        newVec.push_back( mergedVec[j][0] );
+        ISegSplit* keep = mergedVec[j][0];
+        for ( int k = 0 ; k < ( int )mergedVec[j].size() ; k++ )
+        {
+            if ( mergedVec[j][k]->m_OtherFlag )
+            {
+                keep = mergedVec[j][k];
+                break;
+            }
+        }
+        newVec.push_back( keep );
 //9/22 jrg
         //for ( k = 1 ; k < (int)mergedVec[j].size() ; k++ )            // Remove Unused Splits
         //  delete mergedVec[j][k];
@@ -1088,7 +1271,7 @@ vector< ISegChain* > ISegChain::SortAndSplit( SurfaceIntersectionSingleton *Mesh
     for ( int i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
     {
         ISegSplit* s = m_SplitVec[i];
-        ISeg* new_seg = m_ISegDeque[s->m_Index]->Split( s->m_Surf, s->m_UW, MeshMgr );
+        ISeg* new_seg = m_ISegDeque[s->m_Index]->Split( *s, MeshMgr );
 
         if ( new_seg )
         {
