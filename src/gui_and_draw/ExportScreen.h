@@ -68,6 +68,8 @@ protected:
     TriggerButton m_STEPStructureButton;
     TriggerButton m_IGESButton;
     TriggerButton m_IGESStructureButton;
+    TriggerButton m_STEPStitchButton;
+    TriggerButton m_IGESStitchButton;
     TriggerButton m_BEMButton;
     TriggerButton m_DXFButton;
     TriggerButton m_SVGButton;

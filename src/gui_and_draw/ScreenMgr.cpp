@@ -60,6 +60,7 @@
 #include "SetEditorScreen.h"
 #include "STEPOptionsScreen.h"
 #include "STEPStructureOptionsScreen.h"
+#include "SplitStitchOptionsScreen.h"
 #include "STLOptionsScreen.h"
 #include "StructScreen.h"
 #include "StructAssemblyScreen.h"
@@ -970,6 +971,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );
     m_ScreenVec[vsp::VSP_STEP_OPTIONS_SCREEN] = new STEPOptionsScreen( this );
     m_ScreenVec[vsp::VSP_STEP_STRUCTURE_OPTIONS_SCREEN] = new STEPStructureOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_SPLIT_STITCH_OPTIONS_SCREEN] = new SplitStitchOptionsScreen( this );
     m_ScreenVec[vsp::VSP_STL_OPTIONS_SCREEN] = new STLOptionsScreen( this );
     m_ScreenVec[vsp::VSP_STRUCT_SCREEN] = new StructScreen( this );
     m_ScreenVec[vsp::VSP_STRUCT_ASSEMBLY_SCREEN] = new StructAssemblyScreen( this );

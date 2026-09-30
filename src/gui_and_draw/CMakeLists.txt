@@ -105,6 +105,7 @@ StructScreen.cpp
 StructAssemblyScreen.cpp
 STEPOptionsScreen.cpp
 STEPStructureOptionsScreen.cpp
+SplitStitchOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
 SurfaceIntersectionScreen.cpp
@@ -199,6 +200,7 @@ StructScreen.h
 StructAssemblyScreen.h
 STEPOptionsScreen.h
 STEPStructureOptionsScreen.h
+SplitStitchOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
 SurfaceIntersectionScreen.h

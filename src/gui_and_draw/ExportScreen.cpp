@@ -9,6 +9,9 @@
 #include "ScreenMgr.h"
 #include "STEPOptionsScreen.h"
 #include "STEPStructureOptionsScreen.h"
+#include "SplitStitchOptionsScreen.h"
+#include "SurfaceIntersectionMgr.h"
+#include <FL/fl_ask.H>
 #include "IGESOptionsScreen.h"
 #include "IGESStructureOptionsScreen.h"
 #include "STLOptionsScreen.h"
@@ -21,7 +24,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 200, 25 + 4*20 + 22*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 200, 25 + 4*20 + 24*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = DEFAULT_SET;
     m_DegenSetIndex = vsp::SET_NONE;
@@ -85,6 +88,8 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 200, 25 + 4*20 
     m_GenLayout.AddButton( m_STEPStructureButton, "Untrimmed STEP Struct (.stp)" );
     m_GenLayout.AddButton( m_IGESButton, "Untrimmed IGES (.igs)" );
     m_GenLayout.AddButton( m_IGESStructureButton, "Untrimmed IGES Struct (.igs)" );
+    m_GenLayout.AddButton( m_STEPStitchButton, "Split and Stitch STEP (.stp)" );
+    m_GenLayout.AddButton( m_IGESStitchButton, "Split and Stitch IGES (.igs)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
     m_GenLayout.AddButton( m_DXFButton, "AutoCAD (.dxf)" );
     m_GenLayout.AddButton( m_SVGButton, "SVG (.svg)" );
@@ -241,6 +246,20 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int degen_set, in
             newfile = m_ScreenMgr->FileChooser( "Write IGES Structures File?", "*.igs", vsp::SAVE );
         }
     }
+    else if ( type == EXPORT_STEP_STITCH )
+    {
+        if ( (( SplitStitchOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_SPLIT_STITCH_OPTIONS_SCREEN ))->ShowSplitStitchOptionsScreen( true ) )
+        {
+            newfile = m_ScreenMgr->FileChooser( "Write Split and Stitched STEP File?", "*.stp", vsp::SAVE );
+        }
+    }
+    else if ( type == EXPORT_IGES_STITCH )
+    {
+        if ( (( SplitStitchOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_SPLIT_STITCH_OPTIONS_SCREEN ))->ShowSplitStitchOptionsScreen( false ) )
+        {
+            newfile = m_ScreenMgr->FileChooser( "Write Split and Stitched IGES File?", "*.igs", vsp::SAVE );
+        }
+    }
     else if ( type == EXPORT_BEM )
     {
         if ( (( BEMOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_BEM_OPTIONS_SCREEN ))->ShowBEMOptionsScreen() )
@@ -292,7 +311,19 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int degen_set, in
 
     if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
     {
-        veh->ExportFile( newfile, write_set, degen_set, intSubsFlag, type, useMode, modeID );
+        if ( type == EXPORT_STEP_STITCH || type == EXPORT_IGES_STITCH )
+        {
+            string err = SurfaceIntersectionMgr.SplitStitchSurfaces( newfile, type == EXPORT_STEP_STITCH, write_set, degen_set,
+                                                                     useMode, modeID );
+            if ( !err.empty() )
+            {
+                fl_alert( "%s, %s not written", err.c_str(), newfile.c_str() );
+            }
+        }
+        else
+        {
+            veh->ExportFile( newfile, write_set, degen_set, intSubsFlag, type, useMode, modeID );
+        }
     }
 
 }
@@ -372,6 +403,14 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_IGESStructureButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, m_DegenSetIndex, intSubsFlag, EXPORT_IGES_STRUCTURE, useMode, modeID );
+    }
+    else if ( device == &m_STEPStitchButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, m_DegenSetIndex, intSubsFlag, EXPORT_STEP_STITCH, useMode, modeID );
+    }
+    else if ( device == &m_IGESStitchButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, m_DegenSetIndex, intSubsFlag, EXPORT_IGES_STITCH, useMode, modeID );
     }
     else if ( device == &m_BEMButton )
     {
