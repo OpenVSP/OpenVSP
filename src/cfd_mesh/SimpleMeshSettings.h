@@ -41,7 +41,9 @@ public:
 
     bool m_DrawBorderFlag;
     bool m_DrawIsectFlag;
+    bool m_DrawJoinFlag;
     bool m_DrawRawFlag;
+    bool m_DrawCubicFlag;
     bool m_DrawCurveFlag;
     bool m_DrawPntsFlag;
 

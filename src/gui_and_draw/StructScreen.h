@@ -589,6 +589,7 @@ private:
 
     ToggleButton m_DrawIsect;
     ToggleButton m_DrawBorder;
+    ToggleButton m_DrawJoin;
 
 
     ToggleButton m_ShowCurve;

@@ -695,6 +695,9 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
 
     RecordIntCurves();
 
+    addOutputText( "Adapt Curves for Trimmed CAD\n" );
+    BuildChainCADCurves();
+
     addOutputText( "Exporting Files\n" );
     ExportFiles();
 
@@ -962,9 +965,17 @@ void SurfaceIntersectionSingleton::CleanUp()
     m_IPatchADrawLines.clear();
     m_IPatchBDrawLines.clear();
 
+    m_ChainCADVec.clear();
+
     // Clean up DrawObj's
     m_RawIsectCurveDO = DrawObj();
     m_RawIsectPtsDO = DrawObj();
+    for ( int k = 0; k < NUM_CUBIC; k++ )
+    {
+        m_CubicCurveDO[k] = DrawObj();
+        m_CubicEndPtsDO[k] = DrawObj();
+        m_CubicCtrlPtsDO[k] = DrawObj();
+    }
     m_RawBorderCurveDO = DrawObj();
     m_RawBorderPtsDO = DrawObj();
 
@@ -973,6 +984,9 @@ void SurfaceIntersectionSingleton::CleanUp()
     // of the next mesh.
     m_RawNonManifoldCurveDO = DrawObj();
     m_RawNonManifoldPtsDO = DrawObj();
+
+    m_RawPatchJoinCurveDO = DrawObj();
+    m_RawPatchJoinPtsDO = DrawObj();
 
     m_ApproxPlanesDO = DrawObj();
 
@@ -2074,9 +2088,14 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
 
     list< ISegChain* >::iterator i_seg;
 
+    bool cached = cad && m_ChainCADVec.size() == m_ISegChainList.size();
+
     int icurve = 0;
+    int ichain = -1;
     for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
     {
+        ichain++;
+
         // A patch join is a crease for the mesher inside one surface, which the surface
         // carries exactly already
         if ( ( *i_seg )->m_PatchJoinFlag )
@@ -2190,6 +2209,10 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
         }
 
         NURBS_Curve nurbs_curve;
+        if ( cached )
+        {
+            nurbs_curve = m_ChainCADVec[ ichain ];
+        }
 
         nurbs_curve.m_BorderFlag = ( *i_seg )->m_BorderFlag;
         nurbs_curve.m_InternalFlag = internal_flag;
@@ -2203,7 +2226,11 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
         nurbs_curve.m_CurveID = icurve;
         icurve++;
 
-        if ( cad )
+        if ( cached )
+        {
+            // Built already, for drawing
+        }
+        else if ( cad )
         {
             nurbs_curve.InitCAD( ( *i_seg )->m_ACurve, ( *i_seg )->m_BCurve, GetSettingsPtr()->m_STEPTol );
         }
@@ -4518,12 +4545,14 @@ void SurfaceIntersectionSingleton::RecordIntCurves()
     m_RawCurveAVec.clear();
     m_RawCurveBVec.clear();
     m_BorderCurveFlagVec.clear();
+    m_PatchJoinFlagVec.clear();
     m_NonManifoldCurveFlagVec.clear();
 
     list<ISegChain *>::iterator c;
     for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         m_BorderCurveFlagVec.push_back( (*c)->m_BorderFlag );
+        m_PatchJoinFlagVec.push_back( (*c)->m_PatchJoinFlag );
 
         // Valence: two distinct parents is a curve between two patches; the same surface
         // on both sides means it bounds only one, and the mesh is not manifold along it.
@@ -4547,12 +4576,35 @@ void SurfaceIntersectionSingleton::RecordIntCurves()
     }
 }
 
+void SurfaceIntersectionSingleton::BuildChainCADCurves()
+{
+    m_ChainCADVec.clear();
+    m_ChainCADVec.resize( m_ISegChainList.size() );
+
+    int ichain = 0;
+    list<ISegChain *>::iterator c;
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+    {
+        NURBS_Curve &crv = m_ChainCADVec[ ichain ];
+        ichain++;
+
+        // A patch join runs along a parameter line of its surface, as a border does, and is
+        // drawn as that line
+        crv.m_BorderFlag = ( *c )->m_BorderFlag || ( *c )->m_PatchJoinFlag;
+        crv.m_SurfA_ID = ( *c )->m_SurfA->GetSurfID();
+        crv.m_SurfB_ID = ( *c )->m_SurfB->GetSurfID();
+
+        crv.InitCAD( ( *c )->m_ACurve, ( *c )->m_BCurve, GetSettingsPtr()->m_STEPTol );
+    }
+}
+
 void SurfaceIntersectionSingleton::UpdateDrawObjs()
 {
     // One color for each kind of curve, from the Okabe-Ito palette: each dark enough to read on
     // white, and told apart with red-green color blindness
     vec3d isect_color( 0.84, 0.37, 0 );
     vec3d border_color( 0, 0.45, 0.70 );
+    vec3d join_color( 0, 0.62, 0.45 );
 
     // Draw ISegChains
     m_RawIsectCurveDO.m_GeomID = GetID() + "RAWISECTCURVE";
@@ -4582,6 +4634,74 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
     m_RawNonManifoldPtsDO.m_PointColor = vec3d( 0, 0, 0 );
     m_RawNonManifoldPtsDO.m_PointSize = 12.0;
 
+    m_RawPatchJoinCurveDO.m_GeomID = GetID() + "RAWPATCHJOINCURVE";
+    m_RawPatchJoinCurveDO.m_Type = DrawObj::VSP_LINES;
+    m_RawPatchJoinCurveDO.m_LineColor = join_color;
+    m_RawPatchJoinCurveDO.m_LineWidth = 2.0;
+
+    m_RawPatchJoinPtsDO.m_GeomID = GetID() + "RAWPATCHJOINPTS";
+    m_RawPatchJoinPtsDO.m_Type = DrawObj::VSP_POINTS;
+    m_RawPatchJoinPtsDO.m_PointColor = vec3d( 0.5, 0.5, 0.5 );
+    m_RawPatchJoinPtsDO.m_PointSize = 10.0;
+
+    const char* cubic_name[ NUM_CUBIC ] = { "ISECT", "BORDER", "JOIN" };
+    vec3d cubic_color[ NUM_CUBIC ] = { isect_color, border_color, join_color };
+
+    for ( int k = 0; k < NUM_CUBIC; k++ )
+    {
+        m_CubicCurveDO[k].m_GeomID = GetID() + "CUBICCURVE" + cubic_name[k];
+        m_CubicCurveDO[k].m_Type = DrawObj::VSP_LINES;
+        m_CubicCurveDO[k].m_LineColor = cubic_color[k];
+        m_CubicCurveDO[k].m_LineWidth = 2.0;
+
+        m_CubicEndPtsDO[k].m_GeomID = GetID() + "CUBICENDPTS" + cubic_name[k];
+        m_CubicEndPtsDO[k].m_Type = DrawObj::VSP_POINTS;
+        m_CubicEndPtsDO[k].m_PointColor = vec3d( 0, 0, 0 );
+        m_CubicEndPtsDO[k].m_PointSize = 10.0;
+
+        m_CubicCtrlPtsDO[k].m_GeomID = GetID() + "CUBICCTRLPTS" + cubic_name[k];
+        m_CubicCtrlPtsDO[k].m_Type = DrawObj::VSP_POINTS;
+        m_CubicCtrlPtsDO[k].m_PointColor = vec3d( 0.5, 0.5, 0.5 );
+        m_CubicCtrlPtsDO[k].m_PointSize = 7.0;
+    }
+
+    // Each curve drawn as the polyline its trimming loops are built from, with the ends of its
+    // segments and its inner control points
+    for ( size_t c = 0; c < m_ChainCADVec.size(); c++ )
+    {
+        const NURBS_Curve &crv = m_ChainCADVec[c];
+        const vector < vec3d > &cp = crv.m_CADPntVec;
+        int deg = crv.m_CADDeg;
+
+        int k = CUBIC_ISECT;
+        if ( m_PatchJoinFlagVec[c] )
+        {
+            k = CUBIC_JOIN;
+        }
+        else if ( m_BorderCurveFlagVec[c] )
+        {
+            k = CUBIC_BORDER;
+        }
+
+        for ( size_t i = 1; i < crv.m_PntVec.size(); i++ )
+        {
+            m_CubicCurveDO[k].m_PntVec.push_back( crv.m_PntVec[i - 1] );
+            m_CubicCurveDO[k].m_PntVec.push_back( crv.m_PntVec[i] );
+        }
+
+        for ( size_t i = 0; i < cp.size(); i++ )
+        {
+            if ( i % deg == 0 )
+            {
+                m_CubicEndPtsDO[k].m_PntVec.push_back( cp[i] );
+            }
+            else
+            {
+                m_CubicCtrlPtsDO[k].m_PntVec.push_back( cp[i] );
+            }
+        }
+    }
+
     m_RawBorderPtsDO.m_GeomID = GetID() + "RAWBORDERPTS";
     m_RawBorderPtsDO.m_Type = DrawObj::VSP_POINTS;
     m_RawBorderPtsDO.m_PointColor = vec3d(0.5, 0.5, 0.5);
@@ -4592,7 +4712,12 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
         DrawObj *rawcurveDO;
         DrawObj *rawptsDO;
 
-        if ( indx < ( int )m_NonManifoldCurveFlagVec.size() && m_NonManifoldCurveFlagVec[indx] )
+        if ( m_PatchJoinFlagVec[indx] )
+        {
+            rawcurveDO = &m_RawPatchJoinCurveDO;
+            rawptsDO = &m_RawPatchJoinPtsDO;
+        }
+        else if ( m_NonManifoldCurveFlagVec[indx] )
         {
             rawcurveDO = &m_RawNonManifoldCurveDO;
             rawptsDO = &m_RawNonManifoldPtsDO;
@@ -4630,6 +4755,16 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
     m_RawBorderCurveDO.m_NormVec = m_RawBorderCurveDO.m_PntVec;
     m_RawBorderPtsDO.m_NormVec = m_RawBorderPtsDO.m_PntVec;
 
+    for ( int k = 0; k < NUM_CUBIC; k++ )
+    {
+        m_CubicCurveDO[k].m_NormVec = m_CubicCurveDO[k].m_PntVec;
+        m_CubicEndPtsDO[k].m_NormVec = m_CubicEndPtsDO[k].m_PntVec;
+        m_CubicCtrlPtsDO[k].m_NormVec = m_CubicCtrlPtsDO[k].m_PntVec;
+    }
+
+    m_RawPatchJoinCurveDO.m_NormVec = m_RawPatchJoinCurveDO.m_PntVec;
+    m_RawPatchJoinPtsDO.m_NormVec = m_RawPatchJoinPtsDO.m_PntVec;
+
     m_RawNonManifoldCurveDO.m_NormVec = m_RawNonManifoldCurveDO.m_PntVec;
     m_RawNonManifoldPtsDO.m_NormVec = m_RawNonManifoldPtsDO.m_PntVec;
 
@@ -4637,6 +4772,16 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
     m_RawIsectPtsDO.m_GeomChanged = true;
     m_RawBorderCurveDO.m_GeomChanged = true;
     m_RawBorderPtsDO.m_GeomChanged = true;
+
+    for ( int k = 0; k < NUM_CUBIC; k++ )
+    {
+        m_CubicCurveDO[k].m_GeomChanged = true;
+        m_CubicEndPtsDO[k].m_GeomChanged = true;
+        m_CubicCtrlPtsDO[k].m_GeomChanged = true;
+    }
+
+    m_RawPatchJoinCurveDO.m_GeomChanged = true;
+    m_RawPatchJoinPtsDO.m_GeomChanged = true;
 
     m_RawNonManifoldCurveDO.m_GeomChanged = true;
     m_RawNonManifoldPtsDO.m_GeomChanged = true;
@@ -4738,6 +4883,31 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
                                    GetSettingsPtr()->m_DrawCurveFlag &&
                                    GetSettingsPtr()->m_DrawRawFlag;
 
+    bool kind_flag[ NUM_CUBIC ] = { GetSettingsPtr()->m_DrawIsectFlag,
+                                    GetSettingsPtr()->m_DrawBorderFlag,
+                                    GetSettingsPtr()->m_DrawJoinFlag };
+
+    for ( int k = 0; k < NUM_CUBIC; k++ )
+    {
+        m_CubicCurveDO[k].m_Visible = kind_flag[k] &&
+                                      GetSettingsPtr()->m_DrawCurveFlag &&
+                                      GetSettingsPtr()->m_DrawCubicFlag;
+
+        m_CubicEndPtsDO[k].m_Visible = kind_flag[k] &&
+                                       GetSettingsPtr()->m_DrawPntsFlag &&
+                                       GetSettingsPtr()->m_DrawCubicFlag;
+
+        m_CubicCtrlPtsDO[k].m_Visible = m_CubicEndPtsDO[k].m_Visible;
+    }
+
+    m_RawPatchJoinCurveDO.m_Visible = GetSettingsPtr()->m_DrawJoinFlag &&
+                                      GetSettingsPtr()->m_DrawCurveFlag &&
+                                      GetSettingsPtr()->m_DrawRawFlag;
+
+    m_RawPatchJoinPtsDO.m_Visible = GetSettingsPtr()->m_DrawJoinFlag &&
+                                    GetSettingsPtr()->m_DrawPntsFlag &&
+                                    GetSettingsPtr()->m_DrawRawFlag;
+
     m_RawBorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
                                  GetSettingsPtr()->m_DrawPntsFlag &&
                                  GetSettingsPtr()->m_DrawRawFlag;
@@ -4755,10 +4925,18 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
                                       GetSettingsPtr()->m_DrawRawFlag;
 
     draw_obj_vec.push_back( &m_RawIsectCurveDO );
+    for ( int k = 0; k < NUM_CUBIC; k++ )
+    {
+        draw_obj_vec.push_back( &m_CubicCurveDO[k] );
+        draw_obj_vec.push_back( &m_CubicEndPtsDO[k] );
+        draw_obj_vec.push_back( &m_CubicCtrlPtsDO[k] );
+    }
     draw_obj_vec.push_back( &m_RawIsectPtsDO );
     draw_obj_vec.push_back( &m_RawBorderCurveDO );
     draw_obj_vec.push_back( &m_RawNonManifoldCurveDO );
     draw_obj_vec.push_back( &m_RawNonManifoldPtsDO );
+    draw_obj_vec.push_back( &m_RawPatchJoinCurveDO );
+    draw_obj_vec.push_back( &m_RawPatchJoinPtsDO );
     draw_obj_vec.push_back( &m_RawBorderPtsDO );
 
     //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//
@@ -4869,7 +5047,9 @@ void SurfaceIntersectionSingleton::UpdateDisplaySettings()
 
         GetSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.Get();
         GetSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawIsectFlag.Get();
+        GetSettingsPtr()->m_DrawJoinFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawJoinFlag.Get();
         GetSettingsPtr()->m_DrawRawFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawRawFlag.Get();
+        GetSettingsPtr()->m_DrawCubicFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawCubicFlag.Get();
         GetSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.Get();
         GetSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.Get();
 

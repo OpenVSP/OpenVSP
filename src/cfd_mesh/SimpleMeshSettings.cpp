@@ -32,8 +32,10 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
 
     m_DrawBorderFlag = false;
     m_DrawIsectFlag = false;
+    m_DrawJoinFlag = false;
     // Set by Trimmed Surfaces; the meshers always draw their raw curves
     m_DrawRawFlag = true;
+    m_DrawCubicFlag = false;
     m_DrawCurveFlag = false;
     m_DrawPntsFlag = false;
 
@@ -88,6 +90,7 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
 
     m_DrawBorderFlag = settings->m_DrawBorderFlag.Get();
     m_DrawIsectFlag = settings->m_DrawIsectFlag.Get();
+    m_DrawJoinFlag = settings->m_DrawJoinFlag.Get();
     m_DrawCurveFlag = settings->m_DrawCurveFlag.Get();
     m_DrawPntsFlag = settings->m_DrawPntsFlag.Get();
 
@@ -165,6 +168,7 @@ void SimpleIntersectSettings::CopyFrom( IntersectSettings* settings )
     m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
 
     m_DrawRawFlag = settings->m_DrawRawFlag.Get();
+    m_DrawCubicFlag = settings->m_DrawCubicFlag.Get();
 
     SimpleMeshCommonSettings::CopyFrom( settings );
 }

@@ -2064,11 +2064,14 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_CadTabLayout.SetFitWidthFlag( false );
     m_CadTabLayout.SetSameLineFlag( true );
 
-    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetW() / 2 );
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetW() / 3 );
 
     m_CadTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
     m_CadTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
+    m_CadTabLayout.AddButton( m_DrawJoin, "Show Patch Join Curves");
     m_CadTabLayout.ForceNewLine();
+
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetW() / 2 );
 
     m_CadTabLayout.AddButton( m_ShowCurve, "Show Curves");
     m_CadTabLayout.AddButton( m_ShowPts, "Show Points");
@@ -3637,6 +3640,7 @@ bool StructScreen::Update()
 
             m_DrawIsect.Update( curr_struct->GetStructSettingsPtr()->m_DrawIsectFlag.GetID() );
             m_DrawBorder.Update( curr_struct->GetStructSettingsPtr()->m_DrawBorderFlag.GetID() );
+            m_DrawJoin.Update( curr_struct->GetStructSettingsPtr()->m_DrawJoinFlag.GetID() );
 
             m_ShowCurve.Update( curr_struct->GetStructSettingsPtr()->m_DrawCurveFlag.GetID() );
             m_ShowPts.Update( curr_struct->GetStructSettingsPtr()->m_DrawPntsFlag.GetID() );

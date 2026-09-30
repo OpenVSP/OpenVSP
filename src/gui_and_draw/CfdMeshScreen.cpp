@@ -300,9 +300,13 @@ void CfdMeshScreen::CreateDisplayTab()
     m_DisplayTabLayout.SetFitWidthFlag( false );
     m_DisplayTabLayout.SetSameLineFlag( true );
 
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 3.0 );
     m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
     m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
+    m_DisplayTabLayout.AddButton( m_DrawJoin, "Show Patch Join Curves");
     m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2.0 );
     m_DisplayTabLayout.AddButton( m_ShowCurve, "Show Curves");
     m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
     m_DisplayTabLayout.ForceNewLine();
@@ -1050,6 +1054,7 @@ void CfdMeshScreen::UpdateDisplayTab()
 
     m_DrawIsect.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawIsectFlag.GetID() );
     m_DrawBorder.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawBorderFlag.GetID() );
+    m_DrawJoin.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawJoinFlag.GetID() );
 
     m_ShowCurve.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawCurveFlag.GetID() );
     m_ShowPts.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.GetID() );

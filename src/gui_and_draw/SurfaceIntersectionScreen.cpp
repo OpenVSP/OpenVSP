@@ -148,11 +148,13 @@ void SurfaceIntersectionScreen::CreateDisplayTab()
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
     m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
+    m_DisplayTabLayout.AddButton( m_DrawJoin, "Show Patch Join Curves");
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowCurve, "Show Curves");
     m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
+    m_DisplayTabLayout.AddButton( m_ShowCubic, "Show Adapted Cubic");
 
     displayTab->show();
 }
@@ -386,8 +388,10 @@ void SurfaceIntersectionScreen::UpdateDisplayTab()
 
     m_DrawIsect.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawIsectFlag.GetID() );
     m_DrawBorder.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.GetID() );
+    m_DrawJoin.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawJoinFlag.GetID() );
 
     m_ShowRaw.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawRawFlag.GetID() );
+    m_ShowCubic.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawCubicFlag.GetID() );
 
     m_ShowCurve.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.GetID() );
     m_ShowPts.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.GetID() );

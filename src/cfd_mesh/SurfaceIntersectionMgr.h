@@ -388,6 +388,9 @@ public:
     // Keep each chain's raw points and what kind of curve it is
     virtual void RecordIntCurves();
 
+    // Build each chain's curve as it is written to trimmed CAD, once, for drawing and export
+    virtual void BuildChainCADCurves();
+
     virtual void MergeInteriorChainIPnts();
 
     virtual void LoadBorderCurves();
@@ -529,6 +532,7 @@ protected:
     // determine if they are outside or inside another surface.
     // cad builds each curve as it is written to trimmed CAD; otherwise each is only an
     // adapted polyline.
+    // Where m_ChainCADVec holds the chains, cad reuses their curves.
     void BuildNURBSCurvesVec( bool cad = true );
 
     Vehicle* m_Vehicle;
@@ -564,6 +568,7 @@ protected:
     vector < vector < vec3d > > m_RawCurveAVec;
     vector < vector < vec3d > > m_RawCurveBVec;
     vector < bool > m_BorderCurveFlagVec;
+    vector < bool > m_PatchJoinFlagVec;
 
     SimpleIntersectSettings m_IntersectSettings;
 
@@ -577,6 +582,10 @@ protected:
 
     // m_ISegChainList translated to a vector of NURBS curves
     vector < NURBS_Curve > m_NURBSCurveVec;
+
+    // Each chain of m_ISegChainList as it is written to trimmed CAD, patch joins included, built
+    // by BuildChainCADCurves for as long as the chains last
+    vector < NURBS_Curve > m_ChainCADVec;
 
     unordered_map < int, string > m_CompIDNameMap;
 
@@ -593,6 +602,17 @@ private:
 
     DrawObj m_RawNonManifoldCurveDO;
     DrawObj m_RawNonManifoldPtsDO;
+
+    // The creases left inside a patch where split and join put pieces together
+    DrawObj m_RawPatchJoinCurveDO;
+    DrawObj m_RawPatchJoinPtsDO;
+
+    // The exact curves, the ends of their segments, and their inner control points, for each
+    // kind of curve: intersection, border, and patch join
+    enum { CUBIC_ISECT, CUBIC_BORDER, CUBIC_JOIN, NUM_CUBIC };
+    DrawObj m_CubicCurveDO[ NUM_CUBIC ];
+    DrawObj m_CubicEndPtsDO[ NUM_CUBIC ];
+    DrawObj m_CubicCtrlPtsDO[ NUM_CUBIC ];
 
     DrawObj m_ApproxPlanesDO;
 

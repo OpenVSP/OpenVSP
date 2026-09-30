@@ -6469,6 +6469,7 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
 
         GetCfdSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawBorderFlag.Get();
         GetCfdSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawIsectFlag.Get();
+        GetCfdSettingsPtr()->m_DrawJoinFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawJoinFlag.Get();
         GetCfdSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawCurveFlag.Get();
         GetCfdSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.Get();
     }

@@ -127,6 +127,7 @@ protected:
 
     ToggleButton m_DrawIsect;
     ToggleButton m_DrawBorder;
+    ToggleButton m_DrawJoin;
 
     SliderAdjRangeInput m_RelCurveTolSlider;
 

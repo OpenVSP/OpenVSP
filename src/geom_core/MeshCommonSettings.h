@@ -47,6 +47,10 @@ public:
 
     BoolParm m_DrawBorderFlag;
     BoolParm m_DrawIsectFlag;
+
+    // Draw the creases left inside a patch where split and join put pieces together
+    BoolParm m_DrawJoinFlag;
+
     BoolParm m_DrawCurveFlag;
     BoolParm m_DrawPntsFlag;
 
@@ -108,6 +112,10 @@ public:
 
     // Draw the raw intersection curves; the meshers always draw theirs
     BoolParm m_DrawRawFlag;
+
+    // Draw each curve as it is written to trimmed CAD, with the ends and control points of its
+    // segments
+    BoolParm m_DrawCubicFlag;
 
 protected:
 

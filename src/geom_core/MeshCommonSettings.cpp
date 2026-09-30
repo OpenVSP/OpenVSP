@@ -39,6 +39,8 @@ void MeshCommonSettings::InitCommonParms( bool curveFlagDefault )
 
     m_DrawBorderFlag.Init( "DrawBorderFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
     m_DrawIsectFlag.Init( "DrawIsectFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
+    m_DrawJoinFlag.Init( "DrawJoinFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
+    m_DrawJoinFlag.SetDescript( "Draw the creases left inside a patch where split and join put pieces together" );
 
     m_DrawCurveFlag.Init( "DrawCurveFlag", "DrawMesh", this, true, 0, 1 );
     m_DrawPntsFlag.Init( "DrawPntsFlag", "DrawMesh", this, true, 0, 1 );
@@ -102,7 +104,9 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_ExportFileNames.resize( vsp::INTERSECT_NUM_FILE_NAMES );
 
-    m_DrawRawFlag.Init( "DrawRawFlag", "DrawMesh", this, true, 0, 1 );
+    m_DrawRawFlag.Init( "DrawRawFlag", "DrawMesh", this, false, 0, 1 );
+    m_DrawCubicFlag.Init( "DrawCubicFlag", "DrawMesh", this, true, 0, 1 );
+    m_DrawCubicFlag.SetDescript( "Draw intersection curves as the cubics written to trimmed CAD files" );
 
     InitCommonParms( true );
 

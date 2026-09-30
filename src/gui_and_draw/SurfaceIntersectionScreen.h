@@ -81,8 +81,10 @@ protected:
 
     ToggleButton m_DrawIsect;
     ToggleButton m_DrawBorder;
+    ToggleButton m_DrawJoin;
 
     ToggleButton m_ShowRaw;
+    ToggleButton m_ShowCubic;
 
     ToggleButton m_ShowCurve;
     ToggleButton m_ShowPts;
