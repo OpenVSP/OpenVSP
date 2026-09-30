@@ -249,12 +249,18 @@ BUILT = {
 
 
 def _survey():
+    """Each model under the survey directory, named after its folder, or after its file where
+    the folder holds more than one.  None without --cad-survey-dir."""
     found = {}
     if not SURVEY_DIR:
         return found
-    for path in sorted( glob.glob( os.path.join( SURVEY_DIR, "*", "*.vsp3" ) ) ):
-        name = "survey_" + os.path.basename( os.path.dirname( path ) )
-        found[ name ] = path
+    for folder in sorted( glob.glob( os.path.join( SURVEY_DIR, "*" ) ) ):
+        paths = sorted( glob.glob( os.path.join( folder, "*.vsp3" ) ) )
+        for path in paths:
+            name = "survey_" + os.path.basename( folder )
+            if len( paths ) > 1:
+                name = "survey_" + os.path.splitext( os.path.basename( path ) )[0]
+            found[ name ] = path
     return found
 
 
