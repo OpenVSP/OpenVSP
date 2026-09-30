@@ -1136,6 +1136,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_STEP_STRUCTURE", EXPORT_STEP_STRUCTURE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_STEP_STITCH", EXPORT_STEP_STITCH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXPORT_TYPE", "EXPORT_IGES_STITCH", EXPORT_IGES_STITCH );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "FEA_BC_MODE" );
     assert( r >= 0 );

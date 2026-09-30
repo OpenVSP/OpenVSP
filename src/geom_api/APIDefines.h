@@ -586,7 +586,9 @@ enum EXPORT_TYPE {  EXPORT_FELISA,	/*!< FELISA export type (NOT IMPLEMENTED) */ 
                     EXPORT_SELIG_AIRFOIL,	/*!< Airfoil points (\\*.dat) export type */
                     EXPORT_BEZIER_AIRFOIL,	/*!< Airfoil curves (\\*.bz) export type */
                     EXPORT_IGES_STRUCTURE,	/*!< IGES structure (\\*.igs) export type */
-                    EXPORT_STEP_STRUCTURE	/*!< STEP structure (\\*.stp) export type */
+                    EXPORT_STEP_STRUCTURE,	/*!< STEP structure (\\*.stp) export type */
+                    EXPORT_STEP_STITCH,	/*!< Split and stitched STEP (\\*.stp) export type: each body's surfaces split along their feature lines and stitched back together, not intersected */
+                    EXPORT_IGES_STITCH	/*!< Split and stitched IGES (\\*.igs) export type: each body's surfaces split along their feature lines and stitched back together, not intersected */
 };
 
 /*!

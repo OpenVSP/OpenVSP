@@ -287,6 +287,14 @@ public:
 
     virtual void IntersectSurfaces();
 
+    // Split each surface along its feature lines, leave out the degenerate pieces, stitch the
+    // pieces back together along their matched borders, and write the bodies to STEP (or IGES)
+    // without intersecting them.  Uses the Surface Intersection settings for units, tolerances,
+    // labels and demotion; the sets and mode are given, split and join is off, and there are no
+    // wakes.  Returns why nothing was written, or an empty string.
+    virtual string SplitStitchSurfaces( const string &file_name, bool step_flag, int set, int degen_set,
+                                        bool use_mode, const string &mode_id );
+
     // What the last run produced, for a caller that wants the numbers rather than the files.
     int GetNumSurfs() const
     {
@@ -353,6 +361,9 @@ public:
     virtual void DeleteDuplicateSurfs();
     virtual void SplitBordersToMatch();
     virtual void BuildGrid();
+
+    // Match each border curve with the one it meets, stitching the surfaces' pieces together
+    void MatchBorderCurves();
 
     enum { QUIET_OUTPUT, VOCAL_OUTPUT, };
 
@@ -529,11 +540,11 @@ protected:
 
     // Convert each ISegChain into a NURBS curve. The curves are labeled as border 
     // curves or intersection curves. For border curves, a test is performed to 
-    // determine if they are outside or inside another surface.
+    // determine if they are outside or inside another surface, unless classify is false.
     // cad builds each curve as it is written to trimmed CAD; otherwise each is only an
     // adapted polyline.
     // Where m_ChainCADVec holds the chains, cad reuses their curves.
-    void BuildNURBSCurvesVec( bool cad = true );
+    void BuildNURBSCurvesVec( bool classify = true, bool cad = true );
 
     Vehicle* m_Vehicle;
 

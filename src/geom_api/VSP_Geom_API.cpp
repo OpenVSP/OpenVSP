@@ -335,6 +335,20 @@ std::string ImportFile( const std::string & file_name, int file_type, const std:
 
 std::string ExportFile( const std::string & file_name, int thick_set, int file_type, int subsFlag, int thin_set, bool useMode, const std::string &modeID )
 {
+    if ( file_type == EXPORT_STEP_STITCH || file_type == EXPORT_IGES_STITCH )
+    {
+        std::string err = SurfaceIntersectionMgr.SplitStitchSurfaces( file_name, file_type == EXPORT_STEP_STITCH, thick_set, thin_set,
+                                                                      useMode, modeID );
+        if ( !err.empty() )
+        {
+            ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "ExportFile::" + err + ", " + file_name + " not written" );
+            return std::string();
+        }
+
+        ErrorMgr.NoError();
+        return std::string();
+    }
+
     std::string mesh_id = GetVehicle()->ExportFile( file_name, thick_set, thin_set, subsFlag, file_type, useMode, modeID );
 
     ErrorMgr.NoError();

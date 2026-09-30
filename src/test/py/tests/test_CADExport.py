@@ -837,6 +837,90 @@ def test_TrimmedLabels():
     assert labels <= { "Surf_WingGeom_0", "Surf_WingGeom_1", "Surf_PodGeom_0" }
 
 
+#==== Split and stitch ====#
+
+def stitched( model, demote, unit = vsp.LEN_MM ):
+    """File > Export's split and stitched STEP and IGES, measured, in model units, with what it
+    put on the error stack and the files' paths."""
+    return _stitched( model, demote, unit )
+
+
+@functools.lru_cache( maxsize = None )
+def _stitched( model, demote, unit ):
+    load( model )
+    _isect_parm( "DemoteSurfsCubicFlag", demote )
+    c = vsp.FindContainer( "SurfaceIntersectSettings", 0 )
+    vsp.SetParmVal( vsp.FindParm( c, "CADLenUnit", "ExportIntersect" ), unit )
+    vsp.Update()
+
+    tag = "%s_stitch_c%d_u%d" % ( model, demote, unit )
+    stp = os.path.join( OUT, tag + ".stp" )
+    igs = os.path.join( OUT, tag + ".igs" )
+    vsp.ExportFile( stp, vsp.SET_ALL, vsp.EXPORT_STEP_STITCH )
+    vsp.ExportFile( igs, vsp.SET_ALL, vsp.EXPORT_IGES_STITCH )
+    errors = testhelp.pop_errors()
+
+    return { "stp": _in_model_units( occthelp.measure( stp ), unit ),
+             "igs": _in_model_units( occthelp.measure( igs, topology = False ), unit ),
+             "errors": errors, "stp_path": stp, "igs_path": igs }
+
+
+STITCH_OPTS = [ ( 0, vsp.LEN_MM ), ( 1, vsp.LEN_MM ), ( 0, vsp.LEN_FT ) ]
+STITCH_IDS = [ "demote%d_%s" % ( o[0], { vsp.LEN_MM: "mm", vsp.LEN_FT: "ft" }[ o[1] ] ) for o in STITCH_OPTS ]
+
+
+@pytest.mark.parametrize( "demote, unit", STITCH_OPTS, ids = STITCH_IDS )
+@pytest.mark.parametrize( "model", MODELS )
+def test_StitchedSTEP( model, demote, unit ):
+    """The split and stitched STEP reads as valid bodies, each closed but the transparent ones,
+    each the whole of its components: nothing is intersected."""
+    r = stitched( model, demote, unit )
+    stp = r[ "stp" ]
+    ref = facts( model )
+
+    assert r[ "errors" ] == []
+    assert stp is not None, "no readable STEP file"
+    assert stp[ "faces" ] > 0
+
+    assert stp[ "valid" ], "OCCT rejects %d faces" % stp[ "bad_faces" ]
+    assert stp[ "max_tol" ] <= MAX_TOL_FACTOR * STEP_TOL, "OCCT needs a tolerance of %g" % stp[ "max_tol" ]
+    assert max( stp[ "edge_use" ] ) <= 2, "an edge bounds more than two faces: %s" % stp[ "edge_use" ]
+    assert stp[ "solids" ] > 0
+
+    # Every body is closed but the transparent ones, each an open shell of its own
+    assert _count( r[ "stp_path" ], "OPEN_SHELL" ) == ref[ "transparent" ], \
+        "faces per edge %s, %d solids of %d shells" % ( stp[ "edge_use" ], stp[ "solids" ], stp[ "shells" ] )
+
+    if ref[ "solid" ]:
+        assert _closed( stp ), "faces per edge %s" % stp[ "edge_use" ]
+
+        # Demoting to cubic approximates the surfaces
+        if _separate( model ):
+            tol = EXACT_TOL
+            if demote:
+                tol = 1.0e-4
+            base = untrimmed( model, 1, 0 )[ "stp" ]
+            assert _rel( stp[ "area" ], base[ "area" ] ) < tol, "area %.12g, untrimmed %.12g" % ( stp[ "area" ], base[ "area" ] )
+
+        assert _rel( stp[ "area" ], ref[ "theo_area" ] ) < AREA_TOL, "area %g, CompGeom %g" % ( stp[ "area" ], ref[ "theo_area" ] )
+        assert _rel( stp[ "volume" ], ref[ "theo_vol_whole" ] ) < VOLUME_TOL, \
+            "volume %g, CompGeom %g" % ( stp[ "volume" ], ref[ "theo_vol_whole" ] )
+
+
+@pytest.mark.parametrize( "demote, unit", STITCH_OPTS, ids = STITCH_IDS )
+@pytest.mark.parametrize( "model", MODELS )
+def test_StitchedIGESMatchesSTEP( model, demote, unit ):
+    """The split and stitched IGES holds the same faces and area as its STEP, facing the same way."""
+    r = stitched( model, demote, unit )
+    stp, igs = r[ "stp" ], r[ "igs" ]
+
+    assert igs is not None, "no readable IGES file"
+    assert igs[ "valid" ]
+    assert igs[ "faces" ] == stp[ "faces" ]
+    assert _rel( igs[ "area" ], stp[ "area" ] ) < 1.0e-6, "area %g, STEP %g" % ( igs[ "area" ], stp[ "area" ] )
+    _same_facing( r )
+
+
 UNTRIM_OPTS = [ ( 0, 0 ), ( 1, 0 ), ( 0, 1 ), ( 1, 1 ) ]
 UNTRIM_IDS = [ "split%d_cubic%d" % o for o in UNTRIM_OPTS ]
 

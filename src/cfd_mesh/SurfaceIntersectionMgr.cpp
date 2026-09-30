@@ -711,6 +711,91 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
+string SurfaceIntersectionSingleton::SplitStitchSurfaces( const string &file_name, bool step_flag, int set, int degen_set,
+                                                          bool use_mode, const string &mode_id )
+{
+    // The run in progress owns the surfaces and curves
+    if ( m_MeshInProgress )
+    {
+        return "Surface Intersection is running";
+    }
+
+    m_MeshInProgress = true;
+
+    TransferMeshSettings();
+
+    // The sets asked for, in place of those the Surface Intersection settings hold
+    m_IntersectSettings.m_SelectedSetIndex = set;
+    m_IntersectSettings.m_SelectedDegenSetIndex = degen_set;
+    m_IntersectSettings.m_UseMode = use_mode;
+    m_IntersectSettings.m_ModeID = mode_id;
+
+    // Every piece of each surface kept apart.  Split and join rejoins a wing's round tip cap
+    // into one patch whose border meets itself, which cannot be stitched.
+    m_IntersectSettings.m_SplitJoinSurfsFlag = false;
+
+    vector< XferSurf > xfersurfs;
+    FetchSurfs( xfersurfs );
+
+    // A negative component cuts nothing here, so it is a body like any other, facing out
+    for ( int i = 0 ; i < ( int )xfersurfs.size() ; i++ )
+    {
+        if ( xfersurfs[i].m_SurfCfdType == vsp::CFD_NEGATIVE )
+        {
+            xfersurfs[i].m_SurfCfdType = vsp::CFD_NORMAL;
+        }
+    }
+
+    CleanUp();
+
+    LoadSurfs( xfersurfs );
+
+    CleanMergeSurfs( /* skip_duplicate_removal */ false );
+
+    IdentifyCompIDNames();
+
+    if ( m_SurfVec.size() == 0 )
+    {
+        CleanUp();
+        m_MeshInProgress = false;
+        return "No surfaces to export";
+    }
+
+    // Match the border curves, which stitches each body back together from its pieces.  No
+    // wakes: the bodies are written as they are.
+    MatchBorderCurves();
+
+    // The borders are the only curves
+    LoadBorderCurves();
+    SplitBorderCurves();
+    BuildCurves();
+
+    // Nothing is intersected, so no curve lies inside another body
+    BuildNURBSCurvesVec( false );
+
+    string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
+
+    if ( step_flag )
+    {
+        WriteSTEPFile( file_name, GetSettingsPtr()->m_CADLenUnit, GetSettingsPtr()->m_STEPTol,
+                       GetSettingsPtr()->m_STEPMergePoints, GetSettingsPtr()->m_CADLabelID,
+                       GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                       GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
+    }
+    else
+    {
+        WriteIGESFile( file_name, GetSettingsPtr()->m_CADLenUnit, GetSettingsPtr()->m_CADLabelID,
+                       GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                       GetSettingsPtr()->m_CADLabelName, delim );
+    }
+
+    CleanUp();
+
+    m_MeshInProgress = false;
+
+    return string();
+}
+
 void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < string > & geomvec, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains )
 {
     addOutputText( "CLEAR_TERMINAL" );
@@ -1639,7 +1724,15 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
 
 void SurfaceIntersectionSingleton::BuildGrid()
 {
+    MatchBorderCurves();
 
+    //==== Build Wake Surfaces (If Defined) ====//
+    WakeMgr.CreateWakesAppendBorderCurves( m_ICurveVec, GetGridDensityPtr() );
+    WakeMgr.AppendWakeSurfs( m_SurfVec );
+}
+
+void SurfaceIntersectionSingleton::MatchBorderCurves()
+{
     int i, j;
     vector< SCurve* > scurve_vec;
 
@@ -1735,12 +1828,8 @@ void SurfaceIntersectionSingleton::BuildGrid()
         }
     }
 
-    //==== Build Wake Surfaces (If Defined) ====//
-    WakeMgr.CreateWakesAppendBorderCurves( m_ICurveVec, GetGridDensityPtr() );
-    WakeMgr.AppendWakeSurfs( m_SurfVec );
-
 #ifdef DEBUG_CFD_MESH
-    fprintf( m_DebugFile, "SurfaceIntersectionSingleton::BuildGrid \n" );
+    fprintf( m_DebugFile, "SurfaceIntersectionSingleton::MatchBorderCurves \n" );
     fprintf( m_DebugFile, "  Num unmatched SCurves = %d \n", num_unmatched );
 
     for ( i = 0 ; i < ( int )m_ICurveVec.size() ; i++ )
@@ -2079,7 +2168,7 @@ void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
     }
 }
 
-void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
+void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad )
 {
     // Only define the NURBS curves once to help avoid tolerance errors
     m_NURBSCurveVec.clear();
@@ -2112,67 +2201,32 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
         }
 
         bool internal_flag = false, ss_flag = false, wake_flag = false;
-
-        // Check if the curve is interenal or external
-        // Identify test point
-        vec3d cp;
-        if ( ( *i_seg )->m_ISegDeque.size() <= 2 )
-        {
-            // Take midpoint of first segment
-            cp = ( ( *i_seg )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt + ( *i_seg )->m_ISegDeque[0]->m_IPnt[1]->m_Pnt ) / 2.0;
-        }
-        else
-        {
-            // Identify point approximately halfway on border curve
-            cp = ( *i_seg )->m_ISegDeque[( *i_seg )->m_ISegDeque.size() / 2]->m_IPnt[0]->m_Pnt;
-        }
-
-        // Check 3 directions and take majority result
-        vec3d xep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
-        vec3d yep = cp + vec3d( 1.0e-4, y_dist, 1.0e-4 );
-        vec3d zep = cp + vec3d( 1.0e-4, 1.0e-4, z_dist );
-
-        // Check if the curve is inside any component by checking the number of intersections from 3 vectors
-        // beginning at the midpoint of the curve. Checking 3 vectors prevents a false positive or negative
-        // from a vector that exactly aligns with another curve
-        for ( size_t j = 0; j < m_NumComps; j++ )
-        {
-            if ( j == ( *i_seg )->m_SurfA->GetCompID() || j == ( *i_seg )->m_SurfB->GetCompID() )
-            {
-                continue;
-            }
-
-            // Each component's crossings are counted on their own
-            vector< double > x_vec, y_vec, z_vec;
-
-            for ( size_t i = 0; i < m_SurfVec.size(); i++ )
-            {
-                if ( ( m_SurfVec[i]->GetCompID() == j ) && ( m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NORMAL || 
-                                                             m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE ) )
-                {
-                    m_SurfVec[i]->IntersectLineSeg( cp, xep, x_vec );
-                    m_SurfVec[i]->IntersectLineSeg( cp, yep, y_vec );
-                    m_SurfVec[i]->IntersectLineSeg( cp, zep, z_vec );
-                }
-            }
-
-            bool x_in = x_vec.size() % 2 == 1;
-            bool y_in = y_vec.size() % 2 == 1;
-            bool z_in = z_vec.size() % 2 == 1;
-
-            if ( ( x_in && y_in ) || ( x_in && z_in ) || ( y_in && z_in ) )
-            {
-                // Odd -> curve is inside
-                internal_flag = true;
-                break;
-            }
-        }
-
         bool in_negative = false;
 
-        if ( internal_flag )
+        if ( classify )
         {
-            // Check if inside a negative component
+            // Check if the curve is interenal or external
+            // Identify test point
+            vec3d cp;
+            if ( ( *i_seg )->m_ISegDeque.size() <= 2 )
+            {
+                // Take midpoint of first segment
+                cp = ( ( *i_seg )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt + ( *i_seg )->m_ISegDeque[0]->m_IPnt[1]->m_Pnt ) / 2.0;
+            }
+            else
+            {
+                // Identify point approximately halfway on border curve
+                cp = ( *i_seg )->m_ISegDeque[( *i_seg )->m_ISegDeque.size() / 2]->m_IPnt[0]->m_Pnt;
+            }
+
+            // Check 3 directions and take majority result
+            vec3d xep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
+            vec3d yep = cp + vec3d( 1.0e-4, y_dist, 1.0e-4 );
+            vec3d zep = cp + vec3d( 1.0e-4, 1.0e-4, z_dist );
+
+            // Check if the curve is inside any component by checking the number of intersections from 3 vectors
+            // beginning at the midpoint of the curve. Checking 3 vectors prevents a false positive or negative
+            // from a vector that exactly aligns with another curve
             for ( size_t j = 0; j < m_NumComps; j++ )
             {
                 if ( j == ( *i_seg )->m_SurfA->GetCompID() || j == ( *i_seg )->m_SurfB->GetCompID() )
@@ -2180,11 +2234,13 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
                     continue;
                 }
 
+                // Each component's crossings are counted on their own
                 vector< double > x_vec, y_vec, z_vec;
 
                 for ( size_t i = 0; i < m_SurfVec.size(); i++ )
                 {
-                    if ( ( m_SurfVec[i]->GetCompID() == j ) && m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE )
+                    if ( ( m_SurfVec[i]->GetCompID() == j ) && ( m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NORMAL || 
+                                                                 m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE ) )
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, xep, x_vec );
                         m_SurfVec[i]->IntersectLineSeg( cp, yep, y_vec );
@@ -2199,8 +2255,43 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool cad )
                 if ( ( x_in && y_in ) || ( x_in && z_in ) || ( y_in && z_in ) )
                 {
                     // Odd -> curve is inside
-                    in_negative = true;
+                    internal_flag = true;
                     break;
+                }
+            }
+
+            if ( internal_flag )
+            {
+                // Check if inside a negative component
+                for ( size_t j = 0; j < m_NumComps; j++ )
+                {
+                    if ( j == ( *i_seg )->m_SurfA->GetCompID() || j == ( *i_seg )->m_SurfB->GetCompID() )
+                    {
+                        continue;
+                    }
+
+                    vector< double > x_vec, y_vec, z_vec;
+
+                    for ( size_t i = 0; i < m_SurfVec.size(); i++ )
+                    {
+                        if ( ( m_SurfVec[i]->GetCompID() == j ) && m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE )
+                        {
+                            m_SurfVec[i]->IntersectLineSeg( cp, xep, x_vec );
+                            m_SurfVec[i]->IntersectLineSeg( cp, yep, y_vec );
+                            m_SurfVec[i]->IntersectLineSeg( cp, zep, z_vec );
+                        }
+                    }
+
+                    bool x_in = x_vec.size() % 2 == 1;
+                    bool y_in = y_vec.size() % 2 == 1;
+                    bool z_in = z_vec.size() % 2 == 1;
+
+                    if ( ( x_in && y_in ) || ( x_in && z_in ) || ( y_in && z_in ) )
+                    {
+                        // Odd -> curve is inside
+                        in_negative = true;
+                        break;
+                    }
                 }
             }
         }
