@@ -46,7 +46,7 @@ void GroupLayout::Init()
 {
     m_FitWidthFlag = true;
     m_SameLineFlag = false;
-    m_X = m_X = m_W = m_H = 0;
+    m_X = m_Y = m_W = m_H = 0;
     m_StartX = m_StartY = 0;
     InitWidthHeightVals();
 }

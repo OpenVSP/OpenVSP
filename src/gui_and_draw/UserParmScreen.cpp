@@ -47,7 +47,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
 
     m_PredefGroup.AddSubGroupLayout( m_PredefResizeGroup,
         m_PredefGroup.GetW(),
-        m_PredefResizeGroup.GetRemainY() );
+        m_PredefGroup.GetRemainY() );
 
     //===== Create ====//
     m_CreateGroup.SetGroupAndScreen( create_group, this );
