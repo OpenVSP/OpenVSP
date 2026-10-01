@@ -30,7 +30,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615 + 
     m_GenLayout.AddX( m_GenLayout.GetW() / 2 - 49 );
     m_GenLayout.AddSubGroupLayout( m_LinkGroup, 100, 80 );
     m_GenLayout.AddX( 102 );
-    m_GenLayout.AddSubGroupLayout( m_ParmBGroup, m_GenLayout.GetW() / 2 - 52, 75 );
+    m_GenLayout.AddSubGroupLayout( m_ParmBGroup, m_GenLayout.GetRemainX(), 75 );
 
     // Add content to Parameter Picker subgroups
     m_ParmAGroup.AddDividerBox( "Parm A" );

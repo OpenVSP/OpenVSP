@@ -335,7 +335,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_MaterialEditSubGroup.AddYGap();
 
-    m_MaterialEditSubGroup.SetButtonWidth( -1 );
+    m_MaterialEditSubGroup.SetButtonWidth( 0 );
     m_MaterialEditSubGroup.AddInput( m_FeaMaterialDescriptionInput, "", 0, 2 );
     m_FeaMaterialDescriptionInput.SetType( FL_MULTILINE_INPUT_WRAP );
 
@@ -543,7 +543,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_OrthoSubGroup.SetButtonWidth( 0 );
     m_OrthoSubGroup.AddOutput( m_OrthoMatDensity_FEMOutput, "", "%5.3g" );
 
-    m_OrthoSubGroup.SetButtonWidth( choicew );
+    m_OrthoSubGroup.SetButtonWidth( 2 * little );
     m_OrthoSubGroup.AddButton( m_OrthoMatDensityUnit_FEM, "" );
     m_OrthoMatDensityUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
     m_OrthoMatDensityUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
@@ -852,7 +852,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_LaminateEditGroup.AddYGap();
 
-    m_LaminateEditGroup.SetButtonWidth( -1 );
+    m_LaminateEditGroup.SetButtonWidth( 0 );
     m_LaminateEditGroup.AddInput( m_LaminateDescriptionInput, "", 0, 2 );
     m_LaminateDescriptionInput.SetType( FL_MULTILINE_INPUT_WRAP );
 

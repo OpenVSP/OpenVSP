@@ -67,7 +67,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Execute
     m_ConstantAreaLayout.AddY( m_ConsoleLayout.GetH() );
     int execute_height = 3 * m_ConstantAreaLayout.GetStdHeight();
-    m_ConstantAreaLayout.AddSubGroupLayout( m_ExecuteLayout, m_ConstantAreaLayout.GetW(), execute_height );
+    m_ConstantAreaLayout.AddSubGroupLayout( m_ExecuteLayout, m_ConstantAreaLayout.GetRemainX() - window_border_width, execute_height );
 
     m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
 
@@ -151,7 +151,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.SetFitWidthFlag( true );
     m_CaseSetupLayout.AddChoice( m_GeomThinSetChoice, "", bw + m_CaseSetupLayout.GetW() * 0.5 );
     m_CaseSetupLayout.SetChoiceButtonWidth( bw );
-    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "Thick Set", m_CaseSetupLayout.GetW() * 0.5 );
+    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "Thick Set", m_CaseSetupLayout.GetX() - m_CaseSetupLayout.GetStartX() );
     m_CaseSetupLayout.ForceNewLine();
 
     m_CaseSetupLayout.SetSameLineFlag( true );
@@ -362,7 +362,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_MomentRefLayout.AddChoice( m_CGSetChoice, "", bw + m_MomentRefLayout.GetW() * 0.5 );
 
     m_MomentRefLayout.SetChoiceButtonWidth( bw );
-    m_MomentRefLayout.AddChoice( m_CGDegenSetChoice, "Thin Set:", m_MomentRefLayout.GetW() * 0.5 );
+    m_MomentRefLayout.AddChoice( m_CGDegenSetChoice, "Thin Set:", m_MomentRefLayout.GetX() - m_MomentRefLayout.GetStartX() );
     m_MomentRefLayout.SetChoiceButtonWidth( 0 );
 
     m_MomentRefLayout.ForceNewLine();

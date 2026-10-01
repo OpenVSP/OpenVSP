@@ -212,7 +212,9 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_RibEditLayout.SetInputWidth( m_RibEditLayout.GetRemainX() / 12 );
 
     int labelwidth = m_RibEditLayout.GetRemainX() / 9;
-    int gap = m_RibEditLayout.GetRemainX() / 34;
+    // The gap between the two selectors takes what the labels and selectors leave, an index
+    // selector being four arrow buttons, each 5/6 of the button width, and the input
+    int gap = m_RibEditLayout.GetRemainX() - 2 * ( labelwidth + 4 * ( 5 * m_RibEditLayout.GetButtonWidth() / 6 ) + m_RibEditLayout.GetInputWidth() );
 
     m_RibEditLayout.AddLabel( "Start:", labelwidth );
     m_RibEditLayout.AddIndexSelector( m_RibStartSectIndexSelector );
@@ -287,7 +289,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_SparEditLayout.SetInputWidth( m_SparEditLayout.GetRemainX() / 12 );
 
     labelwidth = m_SparEditLayout.GetRemainX() / 9;
-    gap = m_SparEditLayout.GetRemainX() / 34;
+    gap = m_SparEditLayout.GetRemainX() - 2 * ( labelwidth + 4 * ( 5 * m_SparEditLayout.GetButtonWidth() / 6 ) + m_SparEditLayout.GetInputWidth() );
 
     m_SparEditLayout.AddLabel( "Start:", labelwidth );
     m_SparEditLayout.AddIndexSelector( m_SparStartSectIndexSelector );
@@ -673,7 +675,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_RibArrayEditLayout.SetInputWidth( m_RibArrayEditLayout.GetRemainX() / 12 );
 
     labelwidth = m_RibArrayEditLayout.GetRemainX() / 9;
-    gap = m_RibArrayEditLayout.GetRemainX() / 34;
+    gap = m_RibArrayEditLayout.GetRemainX() - 2 * ( labelwidth + 4 * ( 5 * m_RibArrayEditLayout.GetButtonWidth() / 6 ) + m_RibArrayEditLayout.GetInputWidth() );
 
     m_RibArrayEditLayout.AddLabel( "Start:", labelwidth );
     m_RibArrayEditLayout.AddIndexSelector( m_RibArrayStartSectIndexSelector );

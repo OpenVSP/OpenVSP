@@ -1310,7 +1310,7 @@ void GroupLayout::AddColorPicker( ColorPicker& picker )
     int ch = 2 * m_StdHeight / 3;
     int cw = m_StdHeight;
 
-    int sw = FitWidth( m_ButtonWidth + m_ButtonWidth / 2 + 2 + 4 * cw, m_SliderWidth );
+    int sw = FitWidth( m_ButtonWidth + m_ButtonWidth / 2 + 2 + 2 + 4 * cw, m_SliderWidth );
     Fl_Slider* sliders[3];
     for ( int i = 0 ; i < 3 ; i++ )
     {
@@ -1343,7 +1343,7 @@ void GroupLayout::AddColorPicker( ColorPicker& picker )
             color_index++;
         }
     }
-    AddX( 3 * cw );
+    AddX( 4 * cw );
 
     picker.Init( m_Screen, colorButton, primColorButton, cvec, sliders );
 

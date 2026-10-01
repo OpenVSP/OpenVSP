@@ -80,7 +80,7 @@ VarPresetEditorScreen::VarPresetEditorScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_GroupsLayout.SetSameLineFlag( true );
     m_GroupsLayout.SetFitWidthFlag( false );
-    m_GroupsLayout.SetButtonWidth( m_GroupsLayout.GetW() / 2.0 );
+    m_GroupsLayout.SetButtonWidth( m_GroupsLayout.GetW() / 3.0 );
 
     m_GroupsLayout.AddButton( m_AddVarButton, "Add" );
     m_GroupsLayout.AddButton( m_DelVarButton, "Delete" );

@@ -303,7 +303,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
 
     m_RSTProbeLayout.AddGeomPicker( m_RSTProbeGeom, 2.0 * m_RSTProbeLayout.GetW() / 3, "Geom" );
     m_RSTProbeLayout.AddChoice( m_RSTProbeSurfChoice, "Surface", 2.0 * m_RSTProbeLayout.GetW() / 3 );
-    m_RSTProbeLayout.AddButton( m_VisibleRSTProbeButton, "Visible", 2.0 * m_RSTProbeLayout.GetW() / 3 );
+    m_RSTProbeLayout.AddButton( m_VisibleRSTProbeButton, "Visible", m_RSTProbeLayout.GetX() - m_RSTProbeLayout.GetStartX() );
     m_RSTProbeLayout.ForceNewLine();
 
     m_RSTProbeLayout.AddYGap();

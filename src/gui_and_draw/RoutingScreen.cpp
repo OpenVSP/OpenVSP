@@ -238,12 +238,12 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
 
     m_DesignLayout.SetSameLineFlag( true );
     m_DesignLayout.AddOutput( m_LengthOutput, "Length", " %7.6f", m_DesignLayout.GetW() * 0.5 );
-    m_DesignLayout.AddOutput( m_SymmLengthOutput, "Symm Length", " %7.6f" );
+    m_DesignLayout.AddOutput( m_SymmLengthOutput, "Symm Length", " %7.6f", m_DesignLayout.GetX() - m_DesignLayout.GetStartX() );
 
     m_DesignLayout.ForceNewLine();
 
     m_DesignLayout.AddOutput( m_MassOutput, "Mass", " %7.6f", m_DesignLayout.GetW() * 0.5 );
-    m_DesignLayout.AddOutput( m_SymmMassOutput, "Symm Mass", " %7.6f" );
+    m_DesignLayout.AddOutput( m_SymmMassOutput, "Symm Mass", " %7.6f", m_DesignLayout.GetX() - m_DesignLayout.GetStartX() );
 
     m_SelectionFlag = false;
     m_AddMultipleFlag = false;
