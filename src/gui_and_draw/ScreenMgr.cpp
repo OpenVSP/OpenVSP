@@ -987,6 +987,29 @@ void ScreenMgr::Init()
 
     //==== Init Main Screen last as it checks for other screens' sizes to set its own size ====//
     m_ScreenVec[vsp::VSP_MAIN_SCREEN] = new MainVSPScreen( this  );
+
+    // Report any widget a window holds outside the group it is in, the Geom screens included
+    vector< VspScreen* > screens = m_ScreenVec;
+    ManageGeomScreen* geom_screen = dynamic_cast< ManageGeomScreen* >( m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN] );
+    if ( geom_screen )
+    {
+        vector< VspScreen* > geom_screens = geom_screen->GetGeomScreenVec();
+        screens.insert( screens.end(), geom_screens.begin(), geom_screens.end() );
+    }
+
+    for ( int i = 0; i < ( int )screens.size(); i++ )
+    {
+        if ( screens[i] )
+        {
+            string title = "Main";
+            BasicScreen* basic = dynamic_cast< BasicScreen* >( screens[i] );
+            if ( basic )
+            {
+                title = basic->GetTitle();
+            }
+            GroupLayout::CheckInsideGroups( screens[i]->GetFlWindow(), title );
+        }
+    }
 }
 
 void ScreenMgr::FirstShow()

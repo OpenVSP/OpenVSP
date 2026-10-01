@@ -202,6 +202,11 @@ public:
     //==== Standard Non-Parm Components ====//
     Fl_Check_Browser* AddCheckBrowser( int h );
 
+    // Print a line for each widget in the window that does not lie inside the group that holds
+    // it.  FLTK draws such a widget but passes it no event outside the group, so it cannot be
+    // clicked there.  Run once the window is built: a group may be resized after it is filled.
+    static void CheckInsideGroups( Fl_Window* win, const string& title );
+
 private:
 
     void Init();

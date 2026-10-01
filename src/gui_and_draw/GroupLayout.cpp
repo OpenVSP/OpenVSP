@@ -8,6 +8,13 @@
 #include "GroupLayout.h"
 #include "ScreenBase.h"
 #include <FL/Fl_Value_Slider.H>
+#include <typeinfo>
+#include <FL/Fl_Tabs.H>
+#include <FL/Fl_Browser_.H>
+#include <FL/Fl_Tree.H>
+#include <FL/Fl_Table.H>
+#include <FL/Fl_Input_Choice.H>
+#include <FL/Fl_Spinner.H>
 
 // #define DEBUG_LABEL_SIZE
 
@@ -163,6 +170,150 @@ int GroupLayout::FitWidth( int used_w, int default_w )
     return w;
 }
 
+
+//==== Check Every Widget Lies Inside Its Group ====//
+
+// The label that names a device: its own, or the nearest one before it in the group.  Arrows --
+// the "<" and ">" of a range button or an index selector, or an FLTK "@" symbol -- name nothing.
+static string DeviceLabel( Fl_Group* g, int i, const string& outer )
+{
+    for ( int k = i; k >= 0; k-- )
+    {
+        const char* label = g->child( k )->label();
+        if ( label && label[0] != '\0' && label[0] != '@' && strspn( label, "<>" ) != strlen( label ) )
+        {
+            return string( label );
+        }
+    }
+    return outer;
+}
+
+// A group that only holds other widgets, as against a widget built from parts -- a browser,
+// tree, table or text display -- that sizes its own parts, or a scroll, whose contents lie
+// outside it by design
+static bool IsContainer( Fl_Group* g )
+{
+    return !dynamic_cast< Fl_Browser_* >( g ) && !dynamic_cast< Fl_Tree* >( g ) &&
+           !dynamic_cast< Fl_Table* >( g ) && !dynamic_cast< Fl_Text_Display* >( g ) &&
+           !dynamic_cast< Fl_Scroll* >( g ) && !dynamic_cast< Fl_Input_Choice* >( g ) &&
+           !dynamic_cast< Fl_Spinner* >( g ) && !dynamic_cast< Fl_Color_Chooser* >( g );
+}
+
+// A group's rectangle in its children's coordinates: a window's children are placed relative to
+// the window itself, whose own x and y are its place on the screen
+static void Rect( Fl_Widget* g, int& x, int& y )
+{
+    x = g->x();
+    y = g->y();
+    if ( g->as_window() )
+    {
+        x = 0;
+        y = 0;
+    }
+}
+
+static bool Inside( Fl_Widget* w, Fl_Widget* g )
+{
+    int gx, gy;
+    Rect( g, gx, gy );
+    return w->x() >= gx && w->y() >= gy &&
+           w->x() + w->w() <= gx + g->w() &&
+           w->y() + w->h() <= gy + g->h();
+}
+
+static bool Overlaps( Fl_Widget* w, Fl_Widget* g )
+{
+    int gx, gy;
+    Rect( g, gx, gy );
+    return w->x() < gx + g->w() && gx < w->x() + w->w() &&
+           w->y() < gy + g->h() && gy < w->y() + w->h();
+}
+
+// FLTK passes an event down only through groups that contain it, so a widget can be clicked
+// only where it lies inside every group above it.  ancestors runs from the window down.
+static void CheckGroup( Fl_Group* g, const string& path, const string& outer, vector< Fl_Group* >& ancestors,
+                        string& last_warned )
+{
+    ancestors.push_back( g );
+
+    for ( int i = 0; i < g->children(); i++ )
+    {
+        Fl_Widget* w = g->child( i );
+        string label = DeviceLabel( g, i, outer );
+
+        // A widget with no area, a plain box, a plot axis or an output-only widget takes no click
+        if ( w->w() <= 0 || w->h() <= 0 || w->output() || typeid( *w ) == typeid( Fl_Box ) || dynamic_cast< Ca_Axis_* >( w ) )
+        {
+            continue;
+        }
+
+        Fl_Group* sub = w->as_group();
+        if ( sub && sub->children() > 0 && IsContainer( sub ) )
+        {
+            // A tab's label names it in the path
+            string subpath = path;
+            if ( dynamic_cast< Fl_Tabs* >( g ) && sub->label() )
+            {
+                subpath = path + " > " + sub->label();
+            }
+            CheckGroup( sub, subpath, label, ancestors, last_warned );
+            continue;
+        }
+
+        // The innermost group that cuts the widget off, and whether any of it is left
+        Fl_Group* clip = nullptr;
+        bool reachable = true;
+        for ( int k = ( int )ancestors.size() - 1; k >= 0; k-- )
+        {
+            if ( !Inside( w, ancestors[k] ) )
+            {
+                if ( !clip )
+                {
+                    clip = ancestors[k];
+                }
+                if ( !Overlaps( w, ancestors[k] ) )
+                {
+                    reachable = false;
+                }
+            }
+
+            // Groups above a window are placed in another frame
+            if ( ancestors[k]->as_window() )
+            {
+                break;
+            }
+        }
+
+        // One line per device, though a device is several widgets
+        if ( clip && label != last_warned )
+        {
+            const char* what = "part of it cannot be clicked";
+            if ( !reachable )
+            {
+                what = "it cannot be clicked";
+            }
+            int cx, cy;
+            Rect( clip, cx, cy );
+            printf( "Screen %s: widget '%s' at (%d, %d, %d, %d) reaches outside group (%d, %d, %d, %d), so %s.\n",
+                    path.c_str(), label.c_str(), w->x(), w->y(), w->w(), w->h(),
+                    cx, cy, clip->w(), clip->h(), what );
+            last_warned = label;
+        }
+    }
+
+    ancestors.pop_back();
+}
+
+void GroupLayout::CheckInsideGroups( Fl_Window* win, const string& title )
+{
+    if ( win )
+    {
+        vector< Fl_Group* > ancestors;
+        string last_warned;
+        CheckGroup( win, title, string(), ancestors, last_warned );
+        fflush( stdout );
+    }
+}
 
 //==== Set Group Ptr ====//
 void GroupLayout::SetGroup( Fl_Group* group )
