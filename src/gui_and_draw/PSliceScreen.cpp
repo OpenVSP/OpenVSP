@@ -74,7 +74,7 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 510, "Plan
     m_BorderLayout.SetFitWidthFlag( true );
     m_BorderLayout.SetSameLineFlag( false );
 
-    m_TextDisplay = m_BorderLayout.AddFlTextDisplay( 180 );
+    m_TextDisplay = m_BorderLayout.AddFlTextDisplay( 179 );
     m_TextDisplay->color( 23 );
     m_TextDisplay->textcolor( 32 );
     m_TextDisplay->textfont( 4 );

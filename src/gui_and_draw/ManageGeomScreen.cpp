@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 645, "Geom Browser" )
+ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 660, "Geom Browser" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     ((VSP_Window*)m_FLTK_Window)->SetKeyCallback( staticScreenCB, this );

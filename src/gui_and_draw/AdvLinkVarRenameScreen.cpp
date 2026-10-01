@@ -32,7 +32,7 @@ AdvLinkVarRenameScreen::AdvLinkVarRenameScreen( ScreenMgr* mgr ) : BasicScreen( 
 
     m_BorderLayout.AddInput( m_VarNameInput, "Name" );
 
-    m_BorderLayout.AddY( 25 );
+    m_BorderLayout.AddY( 24 );
 
     m_BorderLayout.SetSameLineFlag( true );
     m_BorderLayout.SetFitWidthFlag( false );

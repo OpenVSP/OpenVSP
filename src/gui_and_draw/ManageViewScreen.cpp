@@ -14,7 +14,7 @@
 #include "GraphicEngine.h"
 #include "Display.h"
 
-ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 445 + 45 + 45, "Adjust View" )
+ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 445 + 45 + 45 + 28, "Adjust View" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );

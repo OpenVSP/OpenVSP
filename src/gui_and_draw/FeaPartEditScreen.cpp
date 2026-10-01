@@ -14,7 +14,7 @@
 #include "StlHelper.h"
 #include "CurveEditScreen.h"
 
-FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 475 + 80 + 60, "FEA Part Edit" )
+FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 475 + 80 + 60 + 25, "FEA Part Edit" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
