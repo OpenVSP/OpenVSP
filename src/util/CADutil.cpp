@@ -1422,7 +1422,9 @@ DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, const 
 
     if ( !trim_surf.SetBoundCurve( bound ) )
     {
+        printf( "Error: IGES boundary %s could not bound its surface, which is left out\n", label.c_str() );
         model.DelEntity( &trim_surf );
+        return DLL_IGES_ENTITY_144( model, false );
     }
 
     trim_surf.SetSurface( parent_surf );
@@ -1438,10 +1440,10 @@ void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144
     // Define the 1st surface boundary in model space
     DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, creation, label );
 
+    // The surface stands without the hole rather than not at all
     if ( !trimmed_surf.AddCutout( bound ) )
     {
-        model.DelEntity( &trimmed_surf );
-        return;
+        printf( "Error: IGES hole %s could not be cut from its surface\n", label.c_str() );
     }
 }
 
