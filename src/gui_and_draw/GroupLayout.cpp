@@ -675,6 +675,7 @@ void GroupLayout::AddLabel( const char* label, int width, int bgcolor )
     button->labelcolor( FL_BLACK );
     button->align( FL_ALIGN_NOWRAP );
     button->color( bgcolor );
+    button->set_output();
     m_Group->add( button );
     DebugLabelSize( button );
     AddX( width );
