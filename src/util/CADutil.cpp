@@ -36,9 +36,11 @@ STEPutil::STEPutil( const int & len, const double & tol )
     // Build file header
     header_instances = sfile->HeaderInstances();
 
-    string tolstr = std::to_string( tol );
+    // A STEP real, which needs its decimal point
+    char tolstr[64];
+    snprintf( tolstr, sizeof( tolstr ), "%.17E", tol );
 
-    STEPBoilerplate( (vsp::LEN_UNITS) len, tolstr.c_str() );
+    STEPBoilerplate( (vsp::LEN_UNITS) len, tolstr );
 }
 
 STEPutil::~STEPutil()
