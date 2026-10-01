@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-NGonMeshScreen::NGonMeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "NGon Mesh", string(""), false )
+NGonMeshScreen::NGonMeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "NGon Mesh", string(""), false )
 {
 
     Fl_Group* other_tab = AddTab( "Other" );
