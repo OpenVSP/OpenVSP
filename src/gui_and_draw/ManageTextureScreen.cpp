@@ -98,6 +98,10 @@ ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 
     m_GlWin = new VSPGUI::VspSubGlWindow( w->x(), w->y(), w->w(), w->h(), mgr, DrawObj::VSP_TEX_PREVIEW );
     texGLGroup->end();
 
+    // It is drawn in the space left above "Add...", so it belongs to the border group, not to the
+    // group made last
+    m_BorderLayout.GetGroup()->add( texGLGroup );
+
 }
 
 ManageTextureScreen::~ManageTextureScreen()

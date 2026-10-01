@@ -29,10 +29,10 @@ VehNotesScreen::VehNotesScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 125, "
     m_NotesScreenLayout.ForceNewLine();
     m_NotesScreenLayout.AddYGap();
 
+    m_NotesScreenLayout.AddX( buffer );
     m_NotesScreenLayout.AddSubGroupLayout( m_NotesLayout, m_NotesScreenLayout.GetW() - buffer * 2, m_NotesScreenLayout.GetRemainY() - buffer );
     m_NotesScreenLayout.GetGroup()->resizable( m_NotesLayout.GetGroup() );
 
-    m_NotesLayout.SetX( m_NotesScreenLayout.GetStartX() + buffer );
     //==== Toggle Bool Parm for Show Notes on File Open ====//
     m_NotesLayout.AddYGap();
     m_NotesLayout.SetSameLineFlag( true );
@@ -56,13 +56,12 @@ VehNotesScreen::VehNotesScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 125, "
     m_ShowDataToggleIn.SetWidth( toggle_btn_width );
     m_ShowToggleField.SetWidth( m_NotesLayout.GetW() - toggle_label_width - toggle_btn_width );
 
-    m_ShowDataToggleIn.SetX( toggle_label_width + buffer );
-    m_ShowToggleField.SetX( toggle_label_width + buffer + toggle_btn_width );
+    m_ShowDataToggleIn.SetX( m_NotesLayout.GetStartX() + toggle_label_width );
+    m_ShowToggleField.SetX( m_NotesLayout.GetStartX() + toggle_label_width + toggle_btn_width );
     m_NotesLayout.SetSameLineFlag( false );
     m_NotesLayout.ForceNewLine();
 
     // create text editor, and tie its widget callbacks to the staticScreenCB for updating the attribute when called
-    m_NotesLayout.SetX( m_NotesScreenLayout.GetStartX() + buffer );
 
     bool resizable = true;
     m_DataBuffer = new Fl_Text_Buffer;
