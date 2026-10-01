@@ -27,9 +27,9 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 800, "Ad
     m_BigGroup.SetGroupAndScreen( m_FLTK_Window, this );
     m_BigGroup.AddY( 25 );
 
-    m_BigGroup.AddSubGroupLayout( m_LinkAddDelGroup, 100 - 2, 80 );
+    m_BigGroup.AddSubGroupLayout( m_LinkAddDelGroup, 100 - 2, 90 );
     m_BigGroup.AddX( 100 + 2 );
-    m_BigGroup.AddSubGroupLayout( m_LinkBrowserGroup, m_BigGroup.GetW() - 100 - 2, 80 );
+    m_BigGroup.AddSubGroupLayout( m_LinkBrowserGroup, m_BigGroup.GetW() - 100 - 2, 90 );
 
     m_LinkAddDelGroup.AddButton( m_AddLink, "Add" );
     m_LinkAddDelGroup.AddYGap();

@@ -30,7 +30,7 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 66
 
     m_MainLayout.AddX( 5 );
     m_MainLayout.AddY( 25 );
-    m_MainLayout.AddSubGroupLayout( m_HeadLayout, m_MainLayout.GetRemainX() - 5, 50 );
+    m_MainLayout.AddSubGroupLayout( m_HeadLayout, m_MainLayout.GetRemainX() - 5, 70 );
     m_MainLayout.AddY( 70 );
     m_MainLayout.SetX( 0 );
     m_MainLayout.AddSubGroupLayout( m_BodyLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );

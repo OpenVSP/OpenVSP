@@ -425,7 +425,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Other Setup Parms Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_OtherParmsLayout,
         m_AdvancedLeftLayout.GetW(),
-        13 * m_AdvancedLeftLayout.GetStdHeight() +
+        14 * m_AdvancedLeftLayout.GetStdHeight() +
          5 * m_AdvancedLeftLayout.GetDividerHeight() +
          4 * m_AdvancedLeftLayout.GetGapHeight() );
     m_AdvancedLeftLayout.AddY( m_OtherParmsLayout.GetH() );

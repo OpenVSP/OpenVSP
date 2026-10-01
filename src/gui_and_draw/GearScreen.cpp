@@ -504,10 +504,10 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     int buttonw = ( m_StowLayout.GetW() - labelw ) / 6;
     m_StowLayout.AddSubGroupLayout( m_StowAttachLayout, m_StowLayout.GetW(), 11 * m_StowAttachLayout.GetStdHeight() + 5 * m_StowAttachLayout.GetGapHeight() );
     m_StowAttachLayout.AddSubGroupLayout( m_StowAttachLayoutSelections, m_StowAttachLayout.GetW(), 11 * m_StowAttachLayout.GetStdHeight() + 5 * m_StowAttachLayout.GetGapHeight() );
-    m_StowAttachLayout.AddSubGroupLayout( m_StowAttachLayoutTransHeader, buttonw + labelw, m_StowAttachLayout.GetStdHeight() );
+    m_StowAttachLayout.AddSubGroupLayout( m_StowAttachLayoutTransHeader, buttonw + 10 + labelw, m_StowAttachLayout.GetStdHeight() );
     m_StowAttachLayout.ForceNewLine();
     m_StowAttachLayout.AddYGap();
-    m_StowAttachLayout.AddSubGroupLayout( m_StowAttachLayoutRotHeader, buttonw + labelw, m_StowAttachLayout.GetStdHeight() );
+    m_StowAttachLayout.AddSubGroupLayout( m_StowAttachLayoutRotHeader, buttonw + 10 + labelw, m_StowAttachLayout.GetStdHeight() );
 
     m_StowAttachLayoutTransHeader.SetButtonWidth( buttonw + 10 );
     m_StowAttachLayoutTransHeader.SetFitWidthFlag( false );
@@ -705,8 +705,8 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     labelw = 74;
     buttonw = ( m_MechanismLayout.GetW() - labelw ) / 6;
     m_MechanismLayout.AddSubGroupLayout( m_MechAttachLayout, m_MechanismLayout.GetW(), 10 * m_MechAttachLayout.GetStdHeight() + 3 * m_MechAttachLayout.GetGapHeight() );
-    m_MechAttachLayout.AddSubGroupLayout( m_MechAttachLayoutTransHeader, buttonw + labelw, m_MechAttachLayout.GetStdHeight() );
-    m_MechAttachLayout.AddSubGroupLayout( m_MechAttachLayoutSelections, m_MechAttachLayout.GetW(), 9 * m_MechAttachLayout.GetStdHeight() + 3 * m_MechAttachLayout.GetGapHeight() );
+    m_MechAttachLayout.AddSubGroupLayout( m_MechAttachLayoutTransHeader, buttonw + 10 + labelw, m_MechAttachLayout.GetStdHeight() );
+    m_MechAttachLayout.AddSubGroupLayout( m_MechAttachLayoutSelections, m_MechAttachLayout.GetW(), 10 * m_MechAttachLayout.GetStdHeight() + 3 * m_MechAttachLayout.GetGapHeight() );
 
     m_MechAttachLayout.ForceNewLine();
     m_MechAttachLayout.AddYGap();

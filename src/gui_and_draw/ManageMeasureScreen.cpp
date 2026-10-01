@@ -313,10 +313,10 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_RSTProbeLayout.SetFitWidthFlag( true );
     m_RSTProbeLayout.SetSameLineFlag( false );
 
-    m_RSTProbeLayout.AddSubGroupLayout( m_RSTProbeCol1Layout, col2w, 105 );
+    m_RSTProbeLayout.AddSubGroupLayout( m_RSTProbeCol1Layout, col2w, 106 );
     m_RSTProbeLayout.AddX( col2w + 5 );
 
-    m_RSTProbeLayout.AddSubGroupLayout( m_RSTProbeCol2Layout, col2w, 105 );
+    m_RSTProbeLayout.AddSubGroupLayout( m_RSTProbeCol2Layout, col2w, 106 );
 
 
 
@@ -340,7 +340,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 90
     m_ProbeRSTLMNToggle.AddButton( m_ProbeLMNToggle.GetFlButton() );
 
     m_RSTProbeLayout.ForceNewLine();
-    m_RSTProbeLayout.AddY( 85 );
+    m_RSTProbeLayout.AddY( 86 );
 
     m_RSTProbeLayout.SetFitWidthFlag( true );
     m_RSTProbeLayout.SetSameLineFlag( false );

@@ -72,7 +72,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_PersistenceLayout.AddY( m_OptionsLayout.GetY() );
 
     // Set up Slot for Component Label Layout in top left corner of Persistent Space to the Right
-    m_PersistenceLayout.AddSubGroupLayout( m_ComponentLabelLayout, TYPICAL_INPUT_WIDTH * 2 + 20, m_PersistenceLayout.GetStdHeight() );
+    m_PersistenceLayout.AddSubGroupLayout( m_ComponentLabelLayout, TYPICAL_INPUT_WIDTH * 2 + 20, m_PersistenceLayout.GetStdHeight() * 2 );
 
     // Create Scroll Group for Component Label
     m_ComponentLabelScrollGroup = m_ComponentLabelLayout.AddFlScroll( m_PersistenceLayout.GetStdHeight() * 2 );

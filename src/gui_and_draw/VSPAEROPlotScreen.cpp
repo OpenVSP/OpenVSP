@@ -53,8 +53,13 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     int yDataSelectHeight = 11 * rowHeight;
     int legendHeight = 6 * rowHeight;
     int actionButtonHeight = 6 * rowHeight;          //space reserved for action buttons at the bottom
-    //  remaining space is used for the flow condition browser
-    int flowConditionSelectHeight = m_ConvergenceLayout.GetH() - 2 * groupBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - groupBorderWidth;
+    //  remaining space is used for the flow condition browser: what is left of the control layout
+    //  after the y-data group, the space below it and the flow condition group, the legend's
+    //  divider, scroll and gap, and the action buttons, a divider and five rows
+    int convergenceActionHeight = m_ConvergenceControlLayout.GetDividerHeight() + 5 * rowHeight;
+    int flowConditionSelectHeight = m_ConvergenceControlLayout.GetH() - yDataSelectHeight - 4 * groupBorderWidth -
+                                    m_ConvergenceControlLayout.GetDividerHeight() - ( legendHeight - rowHeight ) -
+                                    m_ConvergenceControlLayout.GetGapHeight() - convergenceActionHeight;
 
     GroupLayout convergenceYDataSelectLayout;
     m_ConvergenceControlLayout.AddSubGroupLayout( convergenceYDataSelectLayout, m_ConvergenceControlLayout.GetW(), yDataSelectHeight );
@@ -80,7 +85,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     // Action buttons
     GroupLayout convergenceActionLayout;
-    m_ConvergenceControlLayout.AddSubGroupLayout( convergenceActionLayout, m_ConvergenceControlLayout.GetW(), actionButtonHeight );
+    m_ConvergenceControlLayout.AddSubGroupLayout( convergenceActionLayout, m_ConvergenceControlLayout.GetW(), convergenceActionHeight );
     convergenceActionLayout.AddDividerBox( "Actions:" );
     convergenceActionLayout.AddButton( m_ConvergenceYDataResidualToggle, "Residual log10(|Y(i)-Y(i-1) |)" );
     m_ConvergenceYDataResidualToggle.GetFlButton()->set();      //turn this on by default
@@ -153,6 +158,21 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     // layout the heights of the control layout
     yDataSelectHeight = 8 * rowHeight;
 
+    // The rotor selection and flow condition browsers share what the control layout leaves after
+    // the y-data and data type groups, the space below each group, the time step divider, selector,
+    // output and gap, the legend's divider, scroll and gap, and the action buttons.  The rotor
+    // selection group is the flow condition height less one row plus two borders.
+    int dataTypeHeight = 2 * m_LoadDistLayout.GetStdHeight() - 2 * groupBorderWidth;
+    int timeStepHeight = m_LoadDistControlLayout.GetDividerHeight() + 2 * m_LoadDistControlLayout.GetStdHeight() +
+                         m_LoadDistControlLayout.GetGapHeight();
+    int legendBlockHeight = m_LoadDistControlLayout.GetDividerHeight() + ( legendHeight - rowHeight ) +
+                            m_LoadDistControlLayout.GetGapHeight();
+    int loadDistActionHeight = m_LoadDistControlLayout.GetDividerHeight() + 4 * rowHeight;
+    int loadDistFlowHeight = ( m_LoadDistControlLayout.GetH() - yDataSelectHeight - dataTypeHeight - 8 * groupBorderWidth -
+                               ( 2 * windowBorderWidth - m_LoadDistLayout.GetStdHeight() ) - timeStepHeight -
+                               legendBlockHeight - loadDistActionHeight ) / 2;
+
+    // The tabs after this one size their browsers from this
     flowConditionSelectHeight = m_LoadDistLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 10 * m_LoadDistLayout.GetStdHeight();
 
     GroupLayout yDataSelectLayout;
@@ -182,7 +202,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_LoadDistControlLayout.AddY( loadChoiceLayout.GetH() + 2 * groupBorderWidth );
 
     GroupLayout loadDistSelectLayout;
-    m_LoadDistControlLayout.AddSubGroupLayout( loadDistSelectLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight - m_LoadDistLayout.GetStdHeight() + 2 * windowBorderWidth );
+    m_LoadDistControlLayout.AddSubGroupLayout( loadDistSelectLayout, m_LoadDistControlLayout.GetW(), loadDistFlowHeight - m_LoadDistLayout.GetStdHeight() + 2 * windowBorderWidth );
     loadDistSelectLayout.AddDividerBox( "Group/Rotor Selection" );
     m_LoadDistSelectBrowser = loadDistSelectLayout.AddVspBrowser( loadDistSelectLayout.GetRemainY() );
     m_LoadDistSelectBrowser->callback( staticScreenCB, this );
@@ -190,7 +210,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_LoadDistControlLayout.AddY( loadDistSelectLayout.GetH() + 2 * groupBorderWidth );
 
     GroupLayout flowConditionLayout;
-    m_LoadDistControlLayout.AddSubGroupLayout( flowConditionLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight );
+    m_LoadDistControlLayout.AddSubGroupLayout( flowConditionLayout, m_LoadDistControlLayout.GetW(), loadDistFlowHeight );
     flowConditionLayout.AddDividerBox( "Flow Condition" );
     m_LoadDistFlowConditionBrowser = flowConditionLayout.AddVspBrowser( flowConditionLayout.GetRemainY() );
     m_LoadDistFlowConditionBrowser->callback( staticScreenCB, this );
@@ -213,7 +233,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
 
     // Action buttons
     GroupLayout loadDistActionLayout;
-    m_LoadDistControlLayout.AddSubGroupLayout( loadDistActionLayout, m_LoadDistControlLayout.GetW(), actionButtonHeight );
+    m_LoadDistControlLayout.AddSubGroupLayout( loadDistActionLayout, m_LoadDistControlLayout.GetW(), loadDistActionHeight );
     loadDistActionLayout.AddDividerBox( "Actions:" );
 
     loadDistActionLayout.SetSameLineFlag( true );
