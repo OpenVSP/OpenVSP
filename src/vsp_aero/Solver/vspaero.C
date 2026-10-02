@@ -2369,6 +2369,10 @@ void ApplyControlDeflections()
  
     Found = 0;
  
+    // Start from zero so a surface in several groups gets the sum of their deflections
+
+    for ( k = 1 ; k <= VSPAERO().VSPGeom().NumberOfControlSurfaces() ; k++ ) VSPAERO().VSPGeom().ControlSurface(k).DeflectionAngle() = 0.;
+
     for ( i = 1; i <= NumberOfControlGroups_; i++ ) {
 
        for ( j = 1 ; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces(); j++ ) {
@@ -2381,7 +2385,7 @@ void ApplyControlDeflections()
 
                  Found = 1;
             
-                 VSPAERO().VSPGeom().ControlSurface(k).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
+                 VSPAERO().VSPGeom().ControlSurface(k).DeflectionAngle() += ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
 
              }
  
@@ -3114,7 +3118,7 @@ void FiniteDifference_StabilityAndControlSolve(void)
                
                          Found = 1;
                       
-                         VSPAERO().VSPGeom().ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
+                         VSPAERO().VSPGeom().ControlSurface(p).DeflectionAngle() += ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * Delta_Control_ * TORAD;
 
                       }
                       
