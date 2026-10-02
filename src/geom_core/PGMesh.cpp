@@ -3929,7 +3929,25 @@ void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
     }
 }
 
-void PGMesh::WriteVSPGeomFaces( FILE* file_id )
+// A face's nodes in reverse order, keeping the first node (and its repeat at the end) in place.
+static void ReverseFaceNodes( vector < PGNode* > &nodVec )
+{
+    if ( nodVec.size() > 2 )
+    {
+        std::reverse( nodVec.begin() + 1, nodVec.end() - 1 );
+    }
+}
+
+// A face's triangles, each with reversed winding.
+static void ReverseTriNodes( vector < PGNode* > &nodVec )
+{
+    for ( int i = 0; i + 2 < ( int )nodVec.size(); i += 3 )
+    {
+        std::swap( nodVec[ i + 1 ], nodVec[ i + 2 ] );
+    }
+}
+
+void PGMesh::WriteVSPGeomFaces( FILE* file_id, bool flipnormal )
 {
     fprintf( file_id, "%d\n", (int)m_FaceList.size() );
 
@@ -3941,6 +3959,10 @@ void PGMesh::WriteVSPGeomFaces( FILE* file_id )
         bool faceError = false;
         vector < PGNode* > nodVec;
         ( *f )->GetNodes( nodVec );
+        if ( flipnormal )
+        {
+            ReverseFaceNodes( nodVec );
+        }
 
         if ( nodVec.size() > 0 )
         {
@@ -3980,7 +4002,7 @@ void PGMesh::WriteVSPGeomFaces( FILE* file_id )
     }
 }
 
-void PGMesh::WriteVSPGeomParts( FILE* file_id )
+void PGMesh::WriteVSPGeomParts( FILE* file_id, bool flipnormal )
 {
     //==== Write Component IDs for each Tri =====//
     int tag;
@@ -3990,6 +4012,10 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
     {
         vector < PGNode* > nodVec;
         ( *f )->GetNodes( nodVec );
+        if ( flipnormal )
+        {
+            ReverseFaceNodes( nodVec );
+        }
 
         // index to size-1 because first/last point is repeated.
         int npt = nodVec.size() - 1;
@@ -4095,7 +4121,7 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id ) const
     }
 }
 
-void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
+void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id, bool flipnormal )
 {
     //==== Write Out Tris ====//
     list< PGFace* >::iterator f;
@@ -4103,6 +4129,10 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
     {
         vector < PGNode* > nodVec;
         ( *f )->GetNodesAsTris( nodVec );
+        if ( flipnormal )
+        {
+            ReverseTriNodes( nodVec );
+        }
 
         int npt = nodVec.size();
 
@@ -4122,7 +4152,7 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
     }
 }
 
-void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
+void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id, bool flipnormal )
 {
     //==== Write Component IDs for each Tri =====//
     int tag;
@@ -4132,6 +4162,10 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
     {
         vector < PGNode* > nodVec;
         ( *f )->GetNodesAsTris( nodVec );
+        if ( flipnormal )
+        {
+            ReverseTriNodes( nodVec );
+        }
 
         int npt = nodVec.size();
 
@@ -4769,7 +4803,7 @@ fnalt pnalt tnalt un1 vn2...unn vnn              // Last face then part then tag
                                               // Loop to next mesh
 */
 
-void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
+void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat, bool flipnormal )
 {
     fprintf( file_id, "# vspgeom v3\n" );
 
@@ -4789,12 +4823,12 @@ void PGMulti::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
     {
         PGMesh *pgm = m_MeshVec[imesh];
 
-        pgm->WriteVSPGeomFaces( file_id );
-        pgm->WriteVSPGeomParts( file_id );
+        pgm->WriteVSPGeomFaces( file_id, flipnormal );
+        pgm->WriteVSPGeomParts( file_id, flipnormal );
         pgm->WriteVSPGeomParents( file_id );
         pgm->WriteVSPGeomWakes( file_id );
-        pgm->WriteVSPGeomAlternateTris( file_id );
-        pgm->WriteVSPGeomAlternateParts( file_id );
+        pgm->WriteVSPGeomAlternateTris( file_id, flipnormal );
+        pgm->WriteVSPGeomAlternateParts( file_id, flipnormal );
 
     }
 }

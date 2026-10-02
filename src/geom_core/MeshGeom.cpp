@@ -848,6 +848,7 @@ void MeshGeom::WritePovRay( FILE* fid, int comp_num )
     string name = GetName();
     StringUtil::change_space_to_underscore( name );
     Matrix4d transMat = GetTotalTransMat();
+    bool flipnormal = GetFlipReversesNormal();
 
     fprintf( fid, "#declare %s_%d = mesh { \n", name.c_str(), comp_num );
 
@@ -862,6 +863,10 @@ void MeshGeom::WritePovRay( FILE* fid, int comp_num )
             v0 = transMat.xform( tri->m_N0->m_Pnt );
             v1 = transMat.xform( tri->m_N1->m_Pnt );
             v2 = transMat.xform( tri->m_N2->m_Pnt );
+            if ( flipnormal )
+            {
+                std::swap( v1, v2 );
+            }
             d21 = v2 - v1;
 
             if ( d21.mag() > 0.000001 )
@@ -884,6 +889,7 @@ void MeshGeom::WriteX3D( xmlNodePtr node )
     xmlSetProp( set_node, BAD_CAST "solid", BAD_CAST "true" );
     xmlSetProp( set_node, BAD_CAST "creaseAngle", BAD_CAST "0.5"  );
     Matrix4d transMat = GetTotalTransMat();
+    bool flipnormal = GetFlipReversesNormal();
 
     string indstr, crdstr;
     int offset = 0;
@@ -900,6 +906,10 @@ void MeshGeom::WriteX3D( xmlNodePtr node )
             v0 = transMat.xform( tri->m_N0->m_Pnt );
             v1 = transMat.xform( tri->m_N1->m_Pnt );
             v2 = transMat.xform( tri->m_N2->m_Pnt );
+            if ( flipnormal )
+            {
+                std::swap( v1, v2 );
+            }
             d21 = v2 - v1;
 
             if ( d21.mag() > 0.000001 )
@@ -973,15 +983,16 @@ vector< TMesh* > TMeshRole::BuildTMeshVec( const Geom* geom_ptr ) const
 {
     const vector< TMesh* > &tmesh_vec = GetTMeshVecInSelf();
 
-    // Placed as it is copied.
+    // Placed as it is copied, so a flip gets the winding right in one pass.
     Matrix4d mat = GetTMeshTransMat();
+    bool flipnormal = GetRoleShapeFlipNormal();
 
     vector< TMesh* > ret_tmesh_vec;
     ret_tmesh_vec.resize( tmesh_vec.size() );
     for ( int i = 0 ; i < ( int )tmesh_vec.size() ; i++ )
     {
         ret_tmesh_vec[i] = new TMesh();
-        ret_tmesh_vec[i]->copyPlaced( tmesh_vec[i], mat );
+        ret_tmesh_vec[i]->copyPlaced( tmesh_vec[i], mat, flipnormal );
         ret_tmesh_vec[i]->LoadGeomAttributes( geom_ptr );
     }
 
@@ -1437,13 +1448,22 @@ void MeshGeom::CreateGeomResults( Results* res )
         vector< int > id0_vec;
         vector< int > id1_vec;
         vector< int > id2_vec;
+        bool flipnormal = GetFlipReversesNormal();
         for ( int t = 0 ; t < ( int )trivec.size() ; t++ )
         {
             TTri* ttri = trivec[t];
 
             id0_vec.push_back( ttri->m_N0->m_ID );
-            id1_vec.push_back( ttri->m_N1->m_ID );
-            id2_vec.push_back( ttri->m_N2->m_ID );
+            if ( flipnormal )
+            {
+                id1_vec.push_back( ttri->m_N2->m_ID );
+                id2_vec.push_back( ttri->m_N1->m_ID );
+            }
+            else
+            {
+                id1_vec.push_back( ttri->m_N1->m_ID );
+                id2_vec.push_back( ttri->m_N2->m_ID );
+            }
         }
         res->Add( new NameValData( "Num_Tris", ( int )trivec.size(), "Number of indexed tris." ) );
         res->Add( new NameValData( "Tri_Index0", id0_vec, "Index of triangle node zero." ) );
@@ -2405,6 +2425,7 @@ Matrix4d MeshGeom::GetTotalTransMat() const
 {
     Matrix4d retMat;
     retMat.initMat( m_ScaleMatrix );
+    retMat.postMult( GetFlipMat() );
     retMat.postMult( m_ModelMatrix );
 
     return retMat;

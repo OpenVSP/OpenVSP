@@ -56,6 +56,7 @@ Matrix4d NGonMeshGeom::GetTotalTransMat() const
 {
     Matrix4d retMat;
     retMat.initMat( m_ScaleMatrix );
+    retMat.postMult( GetFlipMat() );
     retMat.postMult( m_ModelMatrix );
 
     return retMat;
@@ -209,7 +210,7 @@ void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
     if ( file_id )
     {
         all_fnames.push_back( fname );
-        m_PGMulti.WriteVSPGeom( file_id, trans );
+        m_PGMulti.WriteVSPGeom( file_id, trans, GetFlipReversesNormal() );
 
         fclose ( file_id );
 
@@ -754,8 +755,9 @@ vector< TMesh* > PGMeshRole::BuildPGTMeshVec( const Geom* geom_ptr ) const
 //    retTMeshVec[0]->m_Wmin = uw_pnts[0][0].y();
 
 
-    // Placed as each triangle is built.
+    // Placed as each triangle is built; a flip swaps two corners to keep the winding.
     Matrix4d TransMat = GetPGTransMat();
+    bool flipnormal = GetRoleShapeFlipNormal();
 
     for ( list< PGFace* >::const_iterator f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end(); ++f )
     {
@@ -769,9 +771,16 @@ vector< TMesh* > PGMeshRole::BuildPGTMeshVec( const Geom* geom_ptr ) const
         for ( int i = 0; i < ntri; i++ )
         {
             int inod = 3 * i;
+            int i1 = inod + 1;
+            int i2 = inod + 2;
+            if ( flipnormal )
+            {
+                std::swap( i1, i2 );
+            }
+
             vec3d v0 = TransMat.xform( nodVec[ inod ]->m_Pt->m_Pnt );
-            vec3d v1 = TransMat.xform( nodVec[ inod + 1 ]->m_Pt->m_Pnt );
-            vec3d v2 = TransMat.xform( nodVec[ inod + 2 ]->m_Pt->m_Pnt );
+            vec3d v1 = TransMat.xform( nodVec[ i1 ]->m_Pt->m_Pnt );
+            vec3d v2 = TransMat.xform( nodVec[ i2 ]->m_Pt->m_Pnt );
             retTMeshVec[0]->AddTri( v0, v1, v2, norm, (*f)->m_iQuad, (*f)->m_jref, (*f)->m_kref );
         }
     }

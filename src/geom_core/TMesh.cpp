@@ -3448,8 +3448,10 @@ void TMesh::copy( TMesh* m )
     }
 }
 
-// A copy of another mesh with a matrix applied as it is copied.
-void TMesh::copyPlaced( TMesh* m, const Matrix4d &mat )
+// A copy of another mesh with a matrix applied as it is copied.  When flipnormal is set (the
+// matrix reflects), two corners of each triangle are swapped so the winding agrees with the
+// outward normal.  The caller passes flipnormal rather than it being read off the determinant.
+void TMesh::copyPlaced( TMesh* m, const Matrix4d &mat, bool flipnormal )
 {
     CopyAttributes( m );
     m_TVec.clear();
@@ -3473,13 +3475,21 @@ void TMesh::copyPlaced( TMesh* m, const Matrix4d &mat )
         tri->m_GeomID = m->m_TVec[i]->m_GeomID;
         tri->m_Density = m->m_TVec[i]->m_Density;
 
+        // Swap two corners when the matrix reflects; UW pairs move with their corners.
+        TNode* src1 = m->m_TVec[i]->m_N1;
+        TNode* src2 = m->m_TVec[i]->m_N2;
+        if ( flipnormal )
+        {
+            std::swap( src1, src2 );
+        }
+
         tri->m_N0->m_Pnt = mat.xform( m->m_TVec[i]->m_N0->m_Pnt );
-        tri->m_N1->m_Pnt = mat.xform( m->m_TVec[i]->m_N1->m_Pnt );
-        tri->m_N2->m_Pnt = mat.xform( m->m_TVec[i]->m_N2->m_Pnt );
+        tri->m_N1->m_Pnt = mat.xform( src1->m_Pnt );
+        tri->m_N2->m_Pnt = mat.xform( src2->m_Pnt );
 
         tri->m_N0->m_UWPnt = m->m_TVec[i]->m_N0->m_UWPnt;
-        tri->m_N1->m_UWPnt = m->m_TVec[i]->m_N1->m_UWPnt;
-        tri->m_N2->m_UWPnt = m->m_TVec[i]->m_N2->m_UWPnt;
+        tri->m_N1->m_UWPnt = src1->m_UWPnt;
+        tri->m_N2->m_UWPnt = src2->m_UWPnt;
 
         m_TVec.push_back( tri );
         m_NVec.push_back( tri->m_N0 );

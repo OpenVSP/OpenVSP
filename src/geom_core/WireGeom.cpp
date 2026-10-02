@@ -597,6 +597,7 @@ Matrix4d WireGeom::GetTotalTransMat() const
 {
     Matrix4d retMat;
     retMat.initMat( m_ScaleMatrix );
+    retMat.postMult( GetFlipMat() );
     retMat.postMult( m_ModelMatrix );
 
     return retMat;

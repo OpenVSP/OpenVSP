@@ -144,9 +144,10 @@ public:
     {
         return m_ScaleMatrix;
     }
+    // A flip reverses the normals worked out from the placed points.
     virtual bool GetWireInvert() const override
     {
-        return m_InvertFlag() ^ m_OtherInvertFlag;
+        return ( m_InvertFlag() ^ m_OtherInvertFlag ) != GetFlipReversesNormal();
     }
     virtual int GetWireDegenType() const override
     {

@@ -469,7 +469,7 @@ public:
     void copy( TMesh* m );
 
     // The same, placed by a matrix as it is copied.
-    void copyPlaced( TMesh* m, const Matrix4d &mat );
+    void copyPlaced( TMesh* m, const Matrix4d &mat, bool flipnormal );
 
     void copyFewerNodes( TMesh* m );
     void CopyFlatten( TMesh* m );

@@ -415,12 +415,13 @@ public:
     void WriteVSPGeom( const string & fname );
     void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
-    void WriteVSPGeomFaces( FILE* file_id );
-    void WriteVSPGeomParts( FILE* file_id );
+    // flipnormal reverses each face's winding, for a flipped mesh.
+    void WriteVSPGeomFaces( FILE* file_id, bool flipnormal = false );
+    void WriteVSPGeomParts( FILE* file_id, bool flipnormal = false );
     void WriteVSPGeomEdgeWakes( FILE* file_id, const vector < vector < PGEdge* > > &ewake, const vector < int > &partvec, int wingbodyflag ) const;
     void WriteVSPGeomWakes( FILE* file_id ) const;
-    void WriteVSPGeomAlternateTris( FILE* file_id );
-    void WriteVSPGeomAlternateParts( FILE* file_id );
+    void WriteVSPGeomAlternateTris( FILE* file_id, bool flipnormal = false );
+    void WriteVSPGeomAlternateParts( FILE* file_id, bool flipnormal = false );
 
     void WriteVSPGeomParents( FILE* file_id );
 
@@ -471,7 +472,7 @@ public:
     bool Check();
     void ResetPointNumbers();
 
-    void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  );
+    void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat, bool flipnormal = false );
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
     void WriteTagFiles( const string& file_name, vector < string > &all_fnames );
     void WriteVSPGEOMKeyFile(const string & file_name, vector < string > &all_fnames );
