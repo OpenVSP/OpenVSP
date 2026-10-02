@@ -487,3 +487,31 @@ def testAFileSectionRefusesPointsItCannotShape( points ):
     vsp.Update()
     assert em.GetNumTotalErrors() == 0
     assert vsp.GetParmVal( vsp.GetXSecParm( xs, "Width" ) ) == pytest.approx( 1.0 )
+
+
+def testAHumanWithAxialSymmetryOnAReflectedCopyIsNotInsideOut():
+    """Axial copies of a reflected Human keep the reflection's winding, so planar plus axial
+    symmetry gives twice the volume of axial alone."""
+    vsp.VSPRenew()
+    drop_errors()
+    scratch = tempfile.mkdtemp()
+    vsp.SetComputationFileName( vsp.COMP_GEOM_TXT_TYPE, os.path.join( scratch, "cg.txt" ) )
+    vsp.SetComputationFileName( vsp.COMP_GEOM_CSV_TYPE, os.path.join( scratch, "cg.csv" ) )
+
+    def volume( planar ):
+        vsp.VSPRenew()
+        human = vsp.AddGeom( "HUMAN" )
+        for parm, val in ( ( "Y_Rel_Location", 5.0 ), ( "Z_Rel_Location", 5.0 ) ):
+            vsp.SetParmVal( vsp.FindParm( human, parm, "XForm" ), val )
+        vsp.SetParmVal( vsp.FindParm( human, "Sym_Planar_Flag", "Sym" ), planar )
+        vsp.SetParmVal( vsp.FindParm( human, "Sym_Axial_Flag", "Sym" ), vsp.SYM_ROT_X )
+        vsp.SetParmVal( vsp.FindParm( human, "Sym_Rot_N", "Sym" ), 2 )
+        vsp.Update()
+        vsp.ComputeCompGeom( vsp.SET_ALL, False, 0 )
+        res = vsp.FindLatestResultsID( "Comp_Geom" )
+        return sum( vsp.GetDoubleResults( res, "Theo_Vol" ) )
+
+    axial = volume( 0 )
+    assert axial > 0.0
+    assert volume( vsp.SYM_XZ ) == pytest.approx( 2.0 * axial )
+    drop_errors()

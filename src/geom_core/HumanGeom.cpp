@@ -930,6 +930,7 @@ void HumanGeom::UpdateSymmAttach()
                     for ( int k = 0 ; k < m_SymRotN() - 1 ; k++ )
                     {
                         m_Verts[j + k * numAddSurfs] = m_Verts[j - currentIndex];
+                        m_FlipNormal[j + k * numAddSurfs] = m_FlipNormal[j - currentIndex];
 
                         m_MainSurfIndxVec[j + k * numAddSurfs] = m_MainSurfIndxVec[j - currentIndex];
                         m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_MainSurfIndxVec[j + k * numAddSurfs] ].size();
