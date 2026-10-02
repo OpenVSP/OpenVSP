@@ -258,6 +258,7 @@ public:
     GroupLayout m_MassPropLayout;
 
     GroupLayout m_SymmLayout;
+    GroupLayout m_FlipLayout;
     GroupLayout m_AttachLayout;
     GroupLayout m_AttachLayoutTransHeader;
     GroupLayout m_AttachLayoutRotHeader;
@@ -304,6 +305,10 @@ public:
     CheckButtonBit m_XYSymToggle;
     CheckButtonBit m_XZSymToggle;
     CheckButtonBit m_YZSymToggle;
+
+    CheckButtonBit m_XYFlipToggle;
+    CheckButtonBit m_XZFlipToggle;
+    CheckButtonBit m_YZFlipToggle;
 
     ToggleButton m_AxialNoneToggle;
     ToggleButton m_AxialXToggle;

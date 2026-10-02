@@ -551,6 +551,28 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_XFormLayout.AddSlider( m_RotOriginSlider, "Rot Origin(X)", 1.0, "%5.3f" );
     m_XFormLayout.AddYGap();
 
+    // Flip reflects the shape itself across these planes, rather than adding a copy.
+    m_XFormLayout.AddDividerBox( "Flip" );
+
+    m_XFormLayout.AddSubGroupLayout( m_FlipLayout, m_XFormLayout.GetW(), m_FlipLayout.GetStdHeight() + m_FlipLayout.GetGapHeight() );
+
+    m_FlipLayout.SetFitWidthFlag( false );
+    m_FlipLayout.SetSameLineFlag( true );
+
+    m_FlipLayout.AddLabel( "Planes:", 74 );
+    m_FlipLayout.SetButtonWidth( m_FlipLayout.GetRemainX() / 3 );
+    m_FlipLayout.AddButton( m_XYFlipToggle, "XY", vsp::SYM_XY );
+    m_FlipLayout.AddButton( m_XZFlipToggle, "XZ", vsp::SYM_XZ );
+    m_FlipLayout.AddButton( m_YZFlipToggle, "YZ", vsp::SYM_YZ );
+    m_FlipLayout.ForceNewLine();
+    m_FlipLayout.AddYGap();
+
+    m_XFormLayout.AddY( m_FlipLayout.GetH() );
+
+    m_XFormLayout.InitWidthHeightVals();
+    m_XFormLayout.SetFitWidthFlag( true );
+    m_XFormLayout.SetSameLineFlag( false );
+
     m_XFormLayout.AddDividerBox( "Symmetry" );
 
     m_XFormLayout.AddSubGroupLayout( m_SymmLayout, m_XFormLayout.GetW(), 4 * m_SymmLayout.GetStdHeight() + 3 * m_SymmLayout.GetGapHeight() );
@@ -1819,6 +1841,9 @@ bool GeomScreen::Update()
     m_XYSymToggle.Update( geom_ptr->m_SymPlanFlag.GetID() );
     m_XZSymToggle.Update( geom_ptr->m_SymPlanFlag.GetID() );
     m_YZSymToggle.Update( geom_ptr->m_SymPlanFlag.GetID() );
+    m_XYFlipToggle.Update( geom_ptr->m_FlipFlag.GetID() );
+    m_XZFlipToggle.Update( geom_ptr->m_FlipFlag.GetID() );
+    m_YZFlipToggle.Update( geom_ptr->m_FlipFlag.GetID() );
     m_AxialToggleGroup.Update( geom_ptr->m_SymAxFlag.GetID() );
     m_AxialNSlider.Update( geom_ptr->m_SymRotN.GetID() );
 
