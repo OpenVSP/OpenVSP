@@ -658,6 +658,27 @@ public:
 
     virtual int GetSymFlag() const;
 
+    // Reflection about the coordinate planes of the shape's own frame, applied before placement
+    // and symmetry, so the shape flips while the Geom stays put.  Planes use m_SymPlanFlag bits.
+    virtual Matrix4d GetFlipMat() const;
+
+    // Whether the flip reverses the shape (an odd number of planes).
+    virtual bool GetFlipReversesNormal() const;
+
+    // Planes the shape is reflected about.  A Clone adds its original's.
+    virtual int GetFlipFlag() const;
+
+    // How many of the three planes the flip reflects about.
+    int GetNumFlipPlanes() const;
+
+    // False for a Blank, which only places its children, and a route, which runs through
+    // points on other Geoms.
+    virtual bool FlipApplies() const;
+
+    // The placement with the flip applied.  Use it to take shape-frame results to world; the
+    // model matrix places the Geom and its children and has no flip.
+    Matrix4d GetShapeMatrix() const;
+
     // Surface tessellation.  Public so a Clone can defer to its original's scheme.
     virtual void GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref = 0 ) const;
 
@@ -787,6 +808,9 @@ public:
     IntParm m_SymPlanFlag;
     IntParm m_SymAxFlag;
     IntParm m_SymRotN; // Number Axial Symmetric Objects
+
+    // Which planes the shape is shown reflected about.
+    IntParm m_FlipFlag;
 
     //==== Mass Properties ====//
     IntParm  m_MassPrior;
@@ -991,10 +1015,17 @@ protected:
         dest.resize( num_surf );
         if ( m_TransMatVec.size() == num_surf )
         {
+            // Symmetry reverses each copy relative to the main one; a flip reverses every copy.
+            bool reversed = GetFlipReversesNormal();
+
             for ( int i = 0; i < num_surf; ++i )
             {
                 dest[ i ] = source[ m_MainSurfIndxVec[i] ];
                 if ( m_FlipNormalVec[ i ] != m_FlipNormalVec[ m_MainSurfIndxVec[ i ] ] )
+                {
+                    dest[ i ].FlipNormal();
+                }
+                if ( reversed )
                 {
                     dest[ i ].FlipNormal();
                 }

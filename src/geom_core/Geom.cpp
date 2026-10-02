@@ -1269,6 +1269,17 @@ void GeomXForm::ComposeAttachMatrix()
             }
         }
 
+        // On a flipped shape the RST normal points inward; reverse it and the second axis so it
+        // points outward, as in the UW frame.
+        bool rst_frame = m_RotAttachFlag() == vsp::ATTACH_ROT_RST || m_RotAttachFlag() == vsp::ATTACH_ROT_LMN ||
+                         m_RotAttachFlag() == vsp::ATTACH_ROT_EtaMN;
+        if ( rst_frame && !revertCompRot && parent->GetFlipReversesNormal() )
+        {
+            vec3d xdir, ydir, zdir;
+            rotMat.getBasis( xdir, ydir, zdir );
+            rotMat.setBasis( xdir, -1.0 * ydir, -1.0 * zdir );
+        }
+
         if ( m_RotAttachFlag() == vsp::ATTACH_ROT_COMP || revertCompRot )
         {
             // Only take rotation matrix from parent so set translation part to zero
@@ -1638,6 +1649,9 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_SymAxFlag.Init( "Sym_Axial_Flag", "Sym", this, 0, 0, SYM_ROT_Z );
     m_SymRotN.Init( "Sym_Rot_N", "Sym", this, 2, 2, 1000 );
 
+    m_FlipFlag.Init( "Flip_Flag", "Sym", this, 0, 0, SYM_XY | SYM_XZ | SYM_YZ );
+    m_FlipFlag.SetDescript( "Flags for which planes the shape is flipped about" );
+
     // Mass Properties
     m_Density.Init( "Density", "Mass_Props", this, 1, 0.0, 1e12 );
     m_Density.SetDescript("Volumetric density (mass/len^3)");
@@ -1886,6 +1900,16 @@ void Geom::Update( bool fullupdate )
 
     if ( m_XFormDirty )
         UpdateCopyXFormParms();
+
+    // Deactivated where the flip does not apply.
+    if ( FlipApplies() )
+    {
+        m_FlipFlag.Activate();
+    }
+    else
+    {
+        m_FlipFlag.Deactivate();
+    }
 
     if ( m_SurfDirty )
         UpdateCopySurfParms();
@@ -2257,6 +2281,9 @@ void Geom::UpdateSymmAttach( int num_main )
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
 
+    // The flip goes innermost, so the shape is reflected in place before it is placed.  It is
+    // kept out of the model matrix, which children hang off and position is read back from.
+    relTrans.matMult( GetFlipMat().data() );
 
     for ( int i = 0 ; i < ( int )m_TransMatVec.size() ; i++ )
     {
@@ -4940,13 +4967,110 @@ bool Geom::GetFlipNormal( int indx ) const
     return false;
 }
 
+// The flip's reversal is applied here rather than to the surfaces, so a Clone copies the
+// surfaces unreversed.
 bool Geom::GetMainFlipNormal( int indx ) const
 {
+    bool flip = false;
     if ( indx >=0 && indx < m_MainSurfVec.size() )
     {
-        return m_MainSurfVec[indx].GetFlipNormal();
+        flip = m_MainSurfVec[indx].GetFlipNormal();
     }
-    return false;
+
+    // Applied even without a surface, for meshes and vertex sets.
+    return flip != GetFlipReversesNormal();
+}
+
+int Geom::GetFlipFlag() const
+{
+    if ( !FlipApplies() )
+    {
+        return 0;
+    }
+    return m_FlipFlag();
+}
+
+bool Geom::FlipApplies() const
+{
+    int type = GetBehaviorType();
+    return type != BLANK_GEOM_TYPE && type != ROUTING_GEOM_TYPE;
+}
+
+int Geom::GetNumFlipPlanes() const
+{
+    int n = 0;
+
+    // Off where the flip does not apply, even if Flip_Flag is set.
+    if ( !FlipApplies() )
+    {
+        return n;
+    }
+
+    int flag = GetFlipFlag();
+
+    if ( flag & SYM_XY )
+    {
+        n++;
+    }
+
+    if ( flag & SYM_XZ )
+    {
+        n++;
+    }
+
+    if ( flag & SYM_YZ )
+    {
+        n++;
+    }
+
+    return n;
+}
+
+// An odd number of planes reverses the shape.
+bool Geom::GetFlipReversesNormal() const
+{
+    return ( GetNumFlipPlanes() % 2 ) == 1;
+}
+
+// Built like the symmetry reflections.  Reflections about coordinate planes commute.
+Matrix4d Geom::GetFlipMat() const
+{
+    Matrix4d flip_mat;
+    Matrix4d Ref;
+
+    if ( !FlipApplies() )
+    {
+        return flip_mat;
+    }
+
+    int flag = GetFlipFlag();
+
+    if ( flag & SYM_XY )
+    {
+        Ref.loadXYRef();
+        flip_mat.matMult( Ref );
+    }
+
+    if ( flag & SYM_XZ )
+    {
+        Ref.loadXZRef();
+        flip_mat.matMult( Ref );
+    }
+
+    if ( flag & SYM_YZ )
+    {
+        Ref.loadYZRef();
+        flip_mat.matMult( Ref );
+    }
+
+    return flip_mat;
+}
+
+Matrix4d Geom::GetShapeMatrix() const
+{
+    Matrix4d mat = GetFlipMat();
+    mat.postMult( m_ModelMatrix );
+    return mat;
 }
 
 double Geom::GetUMax( int indx ) const
@@ -7026,6 +7150,9 @@ void GeomXSec::UpdateDrawObj()
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( m_AttachMatrix.data() );
 
+    // The shape's placement, so the flip goes innermost.
+    relTrans.matMult( GetFlipMat().data() );
+
     unsigned int nxsec = m_XSecSurf.NumXSec();
     m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
 
@@ -7051,6 +7178,9 @@ void GeomXSec::UpdateHighlightDrawObj()
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( m_AttachMatrix.data() );
+
+    // The shape's placement, so the flip goes innermost.
+    relTrans.matMult( GetFlipMat().data() );
 
     XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec() );
     if ( axs )

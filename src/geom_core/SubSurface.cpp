@@ -617,19 +617,19 @@ void SubSurface::UpdateOrientation()
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_COMP_X )
     {
         orient = vec3d( 1.0, 0, 0 );
-        Matrix4d model_matrix = geom->getModelMatrix();
+        Matrix4d model_matrix = geom->GetShapeMatrix();
         orient = model_matrix.xformnorm( orient );
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_COMP_Y )
     {
         orient = vec3d( 0, 1.0, 0 );
-        Matrix4d model_matrix = geom->getModelMatrix();
+        Matrix4d model_matrix = geom->GetShapeMatrix();
         orient = model_matrix.xformnorm( orient );
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_COMP_Z )
     {
         orient = vec3d( 0, 0, 1.0 );
-        Matrix4d model_matrix = geom->getModelMatrix();
+        Matrix4d model_matrix = geom->GetShapeMatrix();
         orient = model_matrix.xformnorm( orient );
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_R )

@@ -29995,6 +29995,22 @@ extern double SetParmVal( const std::string & parm_id, double val );
     SetParmVal( wid, 23.0 );
 
     if ( abs( GetParmVal( wid ) - 23 ) > 1e-6 )                { Print( "---> Error: API Parm Val Set/Get " ); __failure++; }
+
+    //==== Flip a Pod's shape about its own XZ plane; its child does not move ====//
+    string pod = AddGeom( "POD" );
+    SetParmVal( pod, "Y_Rel_Location", "XForm", 3.0 );
+    string child = AddGeom( "POD", pod );
+    Update();
+
+    vec3d p0 = CompPnt01( pod, 0, 0.5, 0.25 );
+    vec3d c0 = CompPnt01( child, 0, 0.5, 0.25 );
+
+    SetParmVal( pod, "Flip_Flag", "Sym", SYM_XZ );
+    Update();
+
+    vec3d p1 = CompPnt01( pod, 0, 0.5, 0.25 );
+    if ( abs( ( p1.y() - 3.0 ) + ( p0.y() - 3.0 ) ) > 1e-9 ) { Print( "---> Error: Flip_Flag did not reflect the shape" ); __failure++; }
+    if ( dist( c0, CompPnt01( child, 0, 0.5, 0.25 ) ) > 1e-9 ) { Print( "---> Error: Flip_Flag moved a child" ); __failure++; }
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -30016,9 +30032,25 @@ extern double SetParmVal( const std::string & parm_id, double val );
         print( "---> Error: API Parm Val Set/Get " )
         assert False, "---> Error: API Parm Val Set/Get"
 
+    #==== Flip a Pod's shape about its own XZ plane; its child does not move ====#
+    pod = AddGeom( "POD" )
+    SetParmVal( pod, "Y_Rel_Location", "XForm", 3.0 )
+    child = AddGeom( "POD", pod )
+    Update()
+
+    p0 = CompPnt01( pod, 0, 0.5, 0.25 )
+    c0 = CompPnt01( child, 0, 0.5, 0.25 )
+
+    SetParmVal( pod, "Flip_Flag", "Sym", SYM_XZ )
+    Update()
+
+    p1 = CompPnt01( pod, 0, 0.5, 0.25 )
+    assert abs( ( p1.y() - 3.0 ) + ( p0.y() - 3.0 ) ) < 1e-9, "Flip_Flag did not reflect the shape"
+    assert dist( c0, CompPnt01( child, 0, 0.5, 0.25 ) ) < 1e-9, "Flip_Flag moved a child"
+
     \endcode
     \endPythonOnly
-    \sa SetParmValUpdate
+    \sa SetParmValUpdate, SYM_FLAG
     \param [in] geom_id string Geom ID
     \param [in] name string Parm name
     \param [in] group string Parm group name

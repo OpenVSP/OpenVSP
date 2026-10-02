@@ -34,8 +34,19 @@ class GeomInterface
 public:
     virtual ~GeomInterface()   {}
 
-    // The Geom's model matrix (a Clone's own).
+    // The Geom's model matrix (a Clone's own).  Excludes the flip, since other Geoms attach
+    // to this frame and must not be reflected.
     Matrix4d GetRoleModelMatrix() const;
+
+    // The model matrix with the flip applied.  Use it to take shape-frame results to world.
+    Matrix4d GetRoleShapeMatrix() const;
+
+    // Whether the flip reverses the shape (an odd number of planes).  Separate from the matrix
+    // because some writers that need it never see one.
+    bool GetRoleShapeFlipNormal() const;
+
+    // The flip alone, in the Geom's own frame.
+    Matrix4d GetRoleFlipMat() const;
 };
 
 #endif // !defined(VSPGEOMINTERFACE__INCLUDED_)

@@ -1514,7 +1514,11 @@ enum SUBSURF_TYPE { SS_LINE,	/*!< Line sub-surface type */
 /*!
 	\ingroup Enumerations
 */
-/*! Enum that represents various symmetry types. */
+/*! Enum that represents various symmetry types (Sym_Planar_Flag, Sym_Axial_Flag in group Sym).
+    SYM_XY, SYM_XZ and SYM_YZ also name the planes in Flip_Flag (group Sym), which reflects a
+    Geom's shape about its own coordinate planes.  Its placement and its children are unchanged.
+    Flip_Flag has no effect on a Blank or Routing Geom; Conformal and Auxiliary Geoms take their
+    parent's.  See SetGeomCloneOriginal for how a Clone combines flips. */
 enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),    /*!< XY planar symmetry. */
                  SYM_XZ = ( 1 << 1 ),	/*!< XZ planar symmetry. */
                  SYM_YZ = ( 1 << 2 ),	/*!< YZ planar symmetry. */

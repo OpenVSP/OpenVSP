@@ -2549,6 +2549,9 @@ void WingGeom::UpdateHighlightDrawObj()
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( m_AttachMatrix.data() );
 
+    // The flip goes innermost.
+    relTrans.matMult( GetFlipMat().data() );
+
     // The Sections tab drives m_ActiveWingSection, the Blending tab m_ActiveXSec.  The
     // latter is also the index the highlighted XSec itself uses.
     UpdateSectBBoxDrawObj( relTrans, m_ActiveWingSection() );
