@@ -1016,6 +1016,9 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                 // control surface too.
                 if ( Geom::CastTo< JointRole >( g ) )
                 {
+                    // All-moving control surfaces need VSPAERO support, so only with -exp for now.
+                    if ( veh->GetExperimental() )
+                    {
                     // Create New CS Parm Container
                     VspAeroControlSurf newSurf;
                     newSurf.SSID = "";
@@ -1027,6 +1030,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                     newSurf.isHinge = true;
 
                     m_CompleteControlSurfaceVec.push_back( newSurf );
+                    }
                 }
                 else
                 {
