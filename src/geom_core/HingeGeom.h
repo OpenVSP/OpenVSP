@@ -37,10 +37,13 @@ public:
     // The joint motion for a given deflection.
     virtual Matrix4d BuildJointMatrix( double translate, double rotate, const Matrix4d &model_matrix ) const = 0;
 
+    // The same motion seen through a flip; the frame stays unreflected.
+    Matrix4d BuildFlippedJointMatrix( double translate, double rotate, const Matrix4d &model_matrix, const Matrix4d &flip_mat ) const;
+
     // Where the joint has carried its children, from this Geom's own deflection and placement.
     virtual Matrix4d GetJointMatrix() const;
 
-    // The line the joint moves along, in world coordinates.
+    // The line the joint moves along, in world coordinates.  See the definition.
     vec3d GetJointAxis() const;
 };
 

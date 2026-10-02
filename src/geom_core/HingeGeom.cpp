@@ -340,7 +340,7 @@ void HingeGeom::UpdateXForm()
     // Update m_ModelMatrix again -- rotations included this time.
     Geom::UpdateXForm();
 
-    m_JointMatrix = BuildJointMatrix( m_JointTranslate(), m_JointRotate(), m_ModelMatrix );
+    m_JointMatrix = BuildFlippedJointMatrix( m_JointTranslate(), m_JointRotate(), m_ModelMatrix, GetFlipMat() );
 
 
     vector < vec3d > dirs(3);
@@ -672,23 +672,45 @@ void HingeGeom::SetJointParmLimits( Parm &translate, Parm &rotate )
                    m_JointRotMax, m_JointRotMaxFlag );
 }
 
-// The frame children of this joint hang off.
+// The frame children of this joint hang off.  Built without the flip, which would turn a
+// child's shape inside out.
 Matrix4d JointRole::GetJointMatrix() const
 {
     return BuildJointMatrix( GetJointTranslate(), GetJointRotate(), GetRoleModelMatrix() );
 }
 
-// The direction the joint translates along, in world coordinates.
+// The joint motion seen through the flip: reflect, move, reflect back.  The result is still
+// rigid, so the frame stays unreflected; only the motion is flipped.  A plane containing the axis reverses
+// the rotation; a plane normal to the axis reverses the translation.
+Matrix4d JointRole::BuildFlippedJointMatrix( double translate, double rotate, const Matrix4d &model_matrix, const Matrix4d &flip_mat ) const
+{
+    Matrix4d frame = model_matrix;
+    frame.matMult( flip_mat );
+
+    Matrix4d joint_matrix = BuildJointMatrix( translate, rotate, frame );
+
+    // Each reflection is its own inverse and they commute, so the same matrix undoes it.
+    joint_matrix.matMult( flip_mat );
+
+    return joint_matrix;
+}
+
+// The direction the joint translates along, in world coordinates, reflected by the flip to
+// match BuildFlippedJointMatrix.  Under an odd number of reflections the joint rotates the
+// opposite way about this axis.
 vec3d JointRole::GetJointAxis() const
 {
     Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d flip_mat = GetRoleFlipMat();
 
     vec3d pt( 0.0, 0.0, 0.0 );
     pt.v[ GetJointPrimaryDir() ] = 1.0;
 
+    vec3d local = flip_mat.xform( pt ) - flip_mat.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
     vec3d origin = mat.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
-    vec3d axis = mat.xform( pt ) - origin;
+    vec3d axis = mat.xform( local ) - origin;
     axis.normalize();
 
     return axis;
