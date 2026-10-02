@@ -2639,6 +2639,15 @@ void SetGeomDisplayType(const std::string &geom_id, int type)
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDisplayType::Can't Find Geom " + geom_id );
         return;
     }
+
+    CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_ptr );
+    if ( clone_ptr && clone_ptr->GetOriginalGeom() )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetGeomDisplayType::Geom " + geom_id +
+                           " is a Clone -- it is shown the way the Geom it copies is" );
+        return;
+    }
+
     geom_ptr->m_GuiDraw.SetDisplayType( type );
     geom_ptr->SetDirtyFlag( GeomBase::TESS );
     geom_ptr->SetLateUpdateFlag( true );

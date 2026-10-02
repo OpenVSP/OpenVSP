@@ -7,6 +7,7 @@
 
 #include "ManageGeomScreen.h"
 #include "CloneDeleteDialog.h"
+#include "CloneGeom.h"
 #include "CloneNameSuffixScreen.h"
 #include "ScreenMgr.h"
 #include "StlHelper.h"
@@ -926,6 +927,13 @@ void ManageGeomScreen::SetGeomDisplayChoice( int type )
     vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
     for ( int i = 0; i < (int)geom_vec.size(); i++ )
     {
+        // A Clone with an original takes its display type from it.
+        CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( geom_vec[i] );
+        if ( clone_ptr && clone_ptr->GetOriginalGeom() )
+        {
+            continue;
+        }
+
         if ( geom_vec[i] && type <= vsp::DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER )
         {
             geom_vec[i]->m_GuiDraw.SetDisplayType( type );

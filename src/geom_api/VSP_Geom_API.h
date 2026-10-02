@@ -10239,7 +10239,8 @@ extern void SetGeomWireColor( const std::string &geom_id, int r, int g, int b );
     \ingroup Visualization
 */
 /*!
-    Set the display type of the specified geometry
+    Set the display type of the specified geometry.  Refused for a Clone that has an original,
+    which is shown the way its original is.
     \forcpponly
     \code{.cpp}
     string pid = AddGeom( "POD" );                             // Add Pod for testing
@@ -10258,6 +10259,21 @@ extern void SetGeomWireColor( const std::string &geom_id, int r, int g, int b );
     }
 
     // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+
+    //==== A Clone is shown the way its original is ====//
+    array< string > one;
+    one.push_back( pid );
+    array< string > clones = CloneGeomVec( one );
+    SetGeomDisplayType( clones[0], DISPLAY_BEZIER );
+    if ( GetNumTotalErrors() == 0 )
+    {
+        Print( "ERROR: SetGeomDisplayType accepted a Clone" );
+        __failure++;
+    }
     while ( GetNumTotalErrors() > 0 )
     {
         ErrorObj err = PopLastError();
@@ -10281,6 +10297,13 @@ extern void SetGeomWireColor( const std::string &geom_id, int r, int g, int b );
     assert err_mgr.GetNumTotalErrors() > 0, "SetGeomDisplayType accepted a bad Geom ID"
 
     # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0 :
+        err = err_mgr.PopLastError()
+
+    #==== A Clone is shown the way its original is ====#
+    clones = CloneGeomVec( [ pid ] )
+    SetGeomDisplayType( clones[0], DISPLAY_BEZIER )
+    assert err_mgr.GetNumTotalErrors() > 0, "SetGeomDisplayType accepted a Clone"
     while err_mgr.GetNumTotalErrors() > 0 :
         err = err_mgr.PopLastError()
 

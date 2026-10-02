@@ -1458,6 +1458,43 @@ def testATextureOnACloneShowingItsOriginalsIsKept():
     drop_errors()
 
 
+def testTheDisplayTypeOfACloneWithAnOriginalIsRefused():
+    """A Clone with an original is displayed the way its original is, so setting its display
+    type is refused with VSP_WRONG_GEOM_TYPE and leaves it unchanged."""
+    vsp.VSPRenew()
+    drop_errors()
+    pod = vsp.AddGeom( "POD" )
+    clone = vsp.CloneGeomVec( [ pod ] )[0]
+    vsp.Update()
+    before = vsp.GetGeomDisplayType( clone )
+    assert before != vsp.DISPLAY_DEGEN_SURF, "the type asked for is the one it has"
+
+    vsp.SetGeomDisplayType( clone, vsp.DISPLAY_DEGEN_SURF )
+    vsp.Update()
+    assert vsp.GetGeomDisplayType( clone ) == before
+
+    mgr = vsp.ErrorMgrSingleton.getInstance()
+    codes = [ mgr.PopLastError().m_ErrorCode for _ in range( mgr.GetNumTotalErrors() ) ]
+    assert codes == [ vsp.VSP_WRONG_GEOM_TYPE ]
+
+
+def testTheDisplayTypeOfACloneWithNoOriginalCanBeSet():
+    """A Clone with no original has no display type to follow, so its own can be set."""
+    vsp.VSPRenew()
+    drop_errors()
+    clone = vsp.AddGeom( "CLONE" )
+    vsp.SetGeomCloneOriginal( clone, "" )
+    vsp.Update()
+    drop_errors()
+    assert vsp.GetGeomDisplayType( clone ) != vsp.DISPLAY_DEGEN_SURF, \
+           "the type asked for is the one it has"
+
+    vsp.SetGeomDisplayType( clone, vsp.DISPLAY_DEGEN_SURF )
+    vsp.Update()
+    assert vsp.GetGeomDisplayType( clone ) == vsp.DISPLAY_DEGEN_SURF
+    assert_no_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
