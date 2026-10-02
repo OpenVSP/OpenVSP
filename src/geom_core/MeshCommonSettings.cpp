@@ -450,7 +450,6 @@ StructSettings::StructSettings() : MeshCommonSettings()
 
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportFEA", this, false, 0, 1 );
 
-    m_CADLenUnit.Init( "CADLenUnit", "ExportFEA", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
     m_STEPTol.Init( "STEPTol", "ExportFEA", this, 1e-6, 1e-12, 1e12 );
     m_STEPMergePoints.Init( "STEP", "ExportFEA", this, false, 0, 1 );
     m_STEPRepresentation.Init( "STEPRepresentation", "ExportFEA", this, vsp::STEP_BREP, vsp::STEP_SHELL, vsp::STEP_BREP );

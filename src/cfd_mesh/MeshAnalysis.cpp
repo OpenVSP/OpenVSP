@@ -419,7 +419,6 @@ void FeaMeshExportAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "CADLabelSplitNo", struct_settings->m_CADLabelSplitNo(), "Flag to include surface split number in CAD surface label." ) );
         m_Inputs.Add( new NameValData( "STEPRepresentation", struct_settings->m_STEPRepresentation(), "Flag to control whether STEP representation is shell or BREP solid." ) );
 
-        m_Inputs.Add( new NameValData( "CADLenUnit", struct_settings->m_CADLenUnit(), "Model length unit enum included in CAD file export." ) );
         m_Inputs.Add( new NameValData( "CADLabelDelim", struct_settings->m_CADLabelDelim(), "Delimiter enum to separate components of CAD surface label." ) );
 
         // File Outputs
@@ -499,10 +498,6 @@ string FeaMeshExportAnalysis::Execute()
         bool sTEPRepGroupOrig = curr_struct->GetStructSettingsPtr()->m_STEPRepresentation();
         nvd = m_Inputs.FindPtr( "STEPRepresentation", 0 );
         if( nvd ) curr_struct->GetStructSettingsPtr()->m_STEPRepresentation.Set( nvd->GetInt( 0 ) );
-
-        int lenUnitChoiceOrig = curr_struct->GetStructSettingsPtr()->m_CADLenUnit();
-        nvd = m_Inputs.FindPtr( "CADLenUnit", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->m_CADLenUnit.Set( nvd->GetInt( 0 ) );
 
         int labelDelimChoiceOrig = curr_struct->GetStructSettingsPtr()->m_CADLabelDelim();
         nvd = m_Inputs.FindPtr( "CADLabelDelim", 0 );
@@ -636,7 +631,6 @@ string FeaMeshExportAnalysis::Execute()
         curr_struct->GetStructSettingsPtr()->m_STEPRepresentation.Set( sTEPRepGroupOrig );
 
         //Input DropDowns
-        curr_struct->GetStructSettingsPtr()->m_CADLenUnit.Set( lenUnitChoiceOrig );
         curr_struct->GetStructSettingsPtr()->m_CADLabelDelim.Set( labelDelimChoiceOrig );
 
         // File Outputs

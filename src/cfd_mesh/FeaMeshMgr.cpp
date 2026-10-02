@@ -707,7 +707,8 @@ void FeaMeshMgrSingleton::ExportCADFiles()
     {
         string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteIGESFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
+        // The surfaces were scaled into the structures' analysis unit for meshing.
+        WriteIGESFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME ), m_Vehicle->GetStructLenUnit(),
                        GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
                        GetSettingsPtr()->m_CADLabelName, delim );
     }
@@ -716,7 +717,8 @@ void FeaMeshMgrSingleton::ExportCADFiles()
     {
         string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteSTEPFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
+        // The surfaces were scaled into the structures' analysis unit for meshing.
+        WriteSTEPFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME ), m_Vehicle->GetStructLenUnit(),
                        GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
                        GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
                        GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );

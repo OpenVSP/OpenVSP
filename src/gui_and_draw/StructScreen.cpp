@@ -2031,13 +2031,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_LabelDelimChoice.AddItem( "None" );
     m_CadTabLayout.AddChoice( m_LabelDelimChoice, "Delimiter" );
 
-    m_LenUnitChoice.AddItem( "MM" );
-    m_LenUnitChoice.AddItem( "CM" );
-    m_LenUnitChoice.AddItem( "M" );
-    m_LenUnitChoice.AddItem( "IN" );
-    m_LenUnitChoice.AddItem( "FT" );
-    m_LenUnitChoice.AddItem( "YD" );
-    m_CadTabLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
     m_CadTabLayout.ForceNewLine();
     m_CadTabLayout.AddYGap();
 
@@ -3744,7 +3737,6 @@ bool StructScreen::Update()
             //m_STEPMergePointsToggle.Update( curr_struct->GetStructSettingsPtr()->m_STEPMergePoints.GetID() );
             m_STEPTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_STEPTol.GetID() );
             m_STEPRepGroup.Update( curr_struct->GetStructSettingsPtr()->m_STEPRepresentation.GetID() );
-            m_LenUnitChoice.Update( curr_struct->GetStructSettingsPtr()->m_CADLenUnit.GetID() );
             m_LabelIDToggle.Update( curr_struct->GetStructSettingsPtr()->m_CADLabelID.GetID() );
             m_LabelNameToggle.Update( curr_struct->GetStructSettingsPtr()->m_CADLabelName.GetID() );
             m_LabelSurfNoToggle.Update( curr_struct->GetStructSettingsPtr()->m_CADLabelSurfNo.GetID() );
@@ -3774,7 +3766,6 @@ bool StructScreen::Update()
                 m_LabelIDToggle.Deactivate();
                 m_LabelNameToggle.Deactivate();
                 m_LabelSurfNoToggle.Deactivate();
-                m_LenUnitChoice.Deactivate();
                 m_LabelSplitNoToggle.Deactivate();
                 m_LabelDelimChoice.Deactivate();
             }
@@ -3783,7 +3774,6 @@ bool StructScreen::Update()
                 m_LabelIDToggle.Activate();
                 m_LabelNameToggle.Activate();
                 m_LabelSurfNoToggle.Activate();
-                m_LenUnitChoice.Activate();
                 m_LabelSplitNoToggle.Activate();
                 m_LabelDelimChoice.Activate();
             }

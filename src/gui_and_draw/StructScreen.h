@@ -592,7 +592,6 @@ private:
     ToggleButton m_STEPShell;
     ToggleButton m_STEPBREP;
 
-    Choice m_LenUnitChoice;
     ToggleButton m_LabelIDToggle;
     ToggleButton m_LabelNameToggle;
     ToggleButton m_LabelSurfNoToggle;

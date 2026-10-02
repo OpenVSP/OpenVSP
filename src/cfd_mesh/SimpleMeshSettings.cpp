@@ -317,7 +317,6 @@ void SimpleFeaMeshSettings::CopyPostOpFrom( StructSettings* settings )
     m_STEPMergePoints = settings->m_STEPMergePoints.Get();
     m_STEPRepresentation = settings->m_STEPRepresentation.Get();
 
-    m_CADLenUnit = settings->m_CADLenUnit.Get();
     m_CADLabelID = settings->m_CADLabelID.Get();
     m_CADLabelName = settings->m_CADLabelName.Get();
     m_CADLabelSurfNo = settings->m_CADLabelSurfNo.Get();

@@ -58,7 +58,6 @@ public:
     BoolParm m_STEPMergePoints;
     IntParm m_STEPRepresentation;
 
-    IntParm m_CADLenUnit;
     BoolParm m_CADLabelID;
     BoolParm m_CADLabelName;
     BoolParm m_CADLabelSurfNo;
@@ -95,6 +94,9 @@ public:
 
     BoolParm m_UseMode;
     string m_ModeID;
+
+    // Trimmed CAD files are written in model units, so the unit is the user's to declare.
+    IntParm m_CADLenUnit;
 
     BoolParm m_XYZIntCurveFlag;
 
