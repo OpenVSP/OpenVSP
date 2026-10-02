@@ -567,6 +567,9 @@ void PropGeom::UpdateDrawObj()
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( m_AttachMatrix.data() );
 
+    // The flip goes innermost.
+    relTrans.matMult( GetFlipMat().data() );
+
     Matrix4d invRelTrans = relTrans;
     invRelTrans.affineInverse();
 
@@ -678,6 +681,9 @@ void PropGeom::UpdateHighlightDrawObj()
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( m_AttachMatrix.data() );
+
+    // The flip goes innermost.
+    relTrans.matMult( GetFlipMat().data() );
 
     Matrix4d invRelTrans = relTrans;
     invRelTrans.affineInverse();
@@ -2609,9 +2615,10 @@ void PropGeom::UpdatePreTess()
 
 string PropGeom::BuildBEMResults()
 {
-    // Calculate prop center and normal vector
-    vec3d cen = m_ModelMatrix.xform( vec3d( 0, 0, 0 ) );
-    vec3d norm = m_ModelMatrix.xform( vec3d( -1.0, 0, 0 ) ) - cen;
+    // Calculate prop center and normal vector, where the shape is
+    Matrix4d shape_mat = GetShapeMatrix();
+    vec3d cen = shape_mat.xform( vec3d( 0, 0, 0 ) );
+    vec3d norm = shape_mat.xform( vec3d( -1.0, 0, 0 ) ) - cen;
 
     int n = m_TessU();
 
