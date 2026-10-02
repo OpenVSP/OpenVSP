@@ -5873,15 +5873,31 @@ void Geom::WritePovRay( FILE* fid, int comp_num )
                 v2 = pnts[xs + 1][p + 1];
                 v3 = pnts[xs][p + 1];
 
-                fprintf( fid, "smooth_triangle { \n" );
-                WritePovRayTri( fid, v0, n0 );
-                WritePovRayTri( fid, v2, n2 );
-                WritePovRayTri( fid, v1, n1, false );
+                // A surface whose normal is flipped is wound the other way round.
+                if ( GetFlipNormal( i ) )
+                {
+                    fprintf( fid, "smooth_triangle { \n" );
+                    WritePovRayTri( fid, v0, n0 );
+                    WritePovRayTri( fid, v1, n1 );
+                    WritePovRayTri( fid, v2, n2, false );
 
-                fprintf( fid, "smooth_triangle { \n" );
-                WritePovRayTri( fid, v0, n0 );
-                WritePovRayTri( fid, v3, n3 );
-                WritePovRayTri( fid, v2, n2, false );
+                    fprintf( fid, "smooth_triangle { \n" );
+                    WritePovRayTri( fid, v0, n0 );
+                    WritePovRayTri( fid, v2, n2 );
+                    WritePovRayTri( fid, v3, n3, false );
+                }
+                else
+                {
+                    fprintf( fid, "smooth_triangle { \n" );
+                    WritePovRayTri( fid, v0, n0 );
+                    WritePovRayTri( fid, v2, n2 );
+                    WritePovRayTri( fid, v1, n1, false );
+
+                    fprintf( fid, "smooth_triangle { \n" );
+                    WritePovRayTri( fid, v0, n0 );
+                    WritePovRayTri( fid, v3, n3 );
+                    WritePovRayTri( fid, v2, n2, false );
+                }
             }
         }
     }

@@ -515,3 +515,38 @@ def testAHumanWithAxialSymmetryOnAReflectedCopyIsNotInsideOut():
     assert axial > 0.0
     assert volume( vsp.SYM_XZ ) == pytest.approx( 2.0 * axial )
     drop_errors()
+
+
+def _pov_signed_volume( path ):
+    """Signed volume of the triangles in a POV-Ray include file."""
+    import re
+    total = 0.0
+    for block in re.findall( r'smooth_triangle \{(.*?)\}', open( path ).read(), re.S ):
+        vecs = re.findall( r'<([^>]*)>', block )
+        a, b, c = ( tuple( float( t ) for t in vecs[i].split( ',' ) ) for i in ( 0, 2, 4 ) )
+        total += ( a[0] * ( b[1] * c[2] - b[2] * c[1] )
+                 - a[1] * ( b[0] * c[2] - b[2] * c[0] )
+                 + a[2] * ( b[0] * c[1] - b[1] * c[0] ) ) / 6.0
+    return total
+
+
+def testAPovRayFileWindsAReflectedCopyTheWayItsNormalsPoint():
+    """A POV-Ray export winds a symmetric copy outward, so it adds to the volume."""
+    vsp.VSPRenew()
+    drop_errors()
+    scratch = tempfile.mkdtemp()
+
+    def written( planar ):
+        vsp.VSPRenew()
+        pod = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( vsp.FindParm( pod, "Sym_Planar_Flag", "Sym" ), planar )
+        vsp.SetParmVal( vsp.FindParm( pod, "Y_Rel_Location", "XForm" ), 3.0 )
+        vsp.Update()
+        path = os.path.join( scratch, "pod_%d.pov" % planar )
+        vsp.ExportFile( path, vsp.SET_ALL, vsp.EXPORT_POVRAY )
+        return _pov_signed_volume( path.replace( ".pov", ".inc" ) )
+
+    one = written( 0 )
+    assert one > 0.0
+    assert written( vsp.SYM_XZ ) == pytest.approx( 2.0 * one, rel = 1e-9 )
+    drop_errors()
