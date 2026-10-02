@@ -1253,7 +1253,12 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 {
     string retStr = string();
 
-    Update(); // Ensure correct control surface and rotor groups when this function is called through the API
+    // Ensure correct control surface and rotor groups when this function is called through the API.
+    // The GUI updated the manager before launching the solver thread, which must not mutate it.
+    if ( !m_SolverThreadActive )
+    {
+        Update();
+    }
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
