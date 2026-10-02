@@ -10757,7 +10757,7 @@ void VSP_SOLVER::CalculateControlSurfaceDerivatives(void)
        
        VSPGeom().ControlSurface(k).pCLi_pDelta()  =  -VSPGeom().ControlSurface(k).pCFix_pDelta() * SA + VSPGeom().ControlSurface(k).pCFiz_pDelta() * CA;
        VSPGeom().ControlSurface(k).pCDi_pDelta()  = ( VSPGeom().ControlSurface(k).pCFix_pDelta() * CA + VSPGeom().ControlSurface(k).pCFiz_pDelta() * SA ) * CB - VSPGeom().ControlSurface(k).pCFiy_pDelta() * SB;
-       VSPGeom().ControlSurface(k).pCSi_pDelta()  = ( VSPGeom().ControlSurface(k).pCFix_pDelta() * CA + VSPGeom().ControlSurface(k).pCFiz_pDelta() * SA ) * CB + VSPGeom().ControlSurface(k).pCFiy_pDelta() * SB; 
+       VSPGeom().ControlSurface(k).pCSi_pDelta()  = ( VSPGeom().ControlSurface(k).pCFix_pDelta() * CA + VSPGeom().ControlSurface(k).pCFiz_pDelta() * SA ) * SB + VSPGeom().ControlSurface(k).pCFiy_pDelta() * CB; 
      
        VSPGeom().ControlSurface(k).pCMli_pDelta() = -VSPGeom().ControlSurface(k).pCMix_pDelta();
        VSPGeom().ControlSurface(k).pCMmi_pDelta() =  VSPGeom().ControlSurface(k).pCMiy_pDelta(); 
@@ -10765,7 +10765,7 @@ void VSP_SOLVER::CalculateControlSurfaceDerivatives(void)
      
        VSPGeom().ControlSurface(k).pCLo_pDelta()  =  -VSPGeom().ControlSurface(k).pCFox_pDelta() * SA + VSPGeom().ControlSurface(k).pCFoz_pDelta() * CA;
        VSPGeom().ControlSurface(k).pCDo_pDelta()  = ( VSPGeom().ControlSurface(k).pCFox_pDelta() * CA + VSPGeom().ControlSurface(k).pCFoz_pDelta() * SA ) * CB - VSPGeom().ControlSurface(k).pCFoy_pDelta() * SB;
-       VSPGeom().ControlSurface(k).pCSo_pDelta()  = ( VSPGeom().ControlSurface(k).pCFox_pDelta() * CA + VSPGeom().ControlSurface(k).pCFoz_pDelta() * SA ) * CB + VSPGeom().ControlSurface(k).pCFoy_pDelta() * SB; 
+       VSPGeom().ControlSurface(k).pCSo_pDelta()  = ( VSPGeom().ControlSurface(k).pCFox_pDelta() * CA + VSPGeom().ControlSurface(k).pCFoz_pDelta() * SA ) * SB + VSPGeom().ControlSurface(k).pCFoy_pDelta() * CB; 
 
        VSPGeom().ControlSurface(k).pCMlo_pDelta() = -VSPGeom().ControlSurface(k).pCMox_pDelta();
        VSPGeom().ControlSurface(k).pCMmo_pDelta() =  VSPGeom().ControlSurface(k).pCMoy_pDelta(); 
