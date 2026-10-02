@@ -122,6 +122,18 @@ public:
     virtual std::string GetContactPt2ID() const           { return m_ContactPt2_ID; }
     virtual std::string GetContactPt3ID() const           { return m_ContactPt3_ID; }
 
+    // The shape is built in the parent's frame, and the attachment carries no flip, so the
+    // parent's flip is applied here.
+    virtual Matrix4d GetFlipMat() const;
+    virtual bool GetFlipReversesNormal() const;
+    virtual int GetFlipFlag() const;
+
+    // Its parent's flip, not one of its own.
+    virtual bool FlipApplies() const
+    {
+        return false;
+    }
+
     //==== The gear-frame halves of the interface ====//
     virtual GearContactRole* GetContactGear() const;
     virtual int GetAuxiliaryMode() const

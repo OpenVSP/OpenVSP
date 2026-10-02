@@ -34,6 +34,7 @@ public:
     void DeactivateMechXForms();
     void ComposeStowAttachMatrix();
     void ComposeMechAttachMatrix();
+    void FlipAttachMatrix( Matrix4d &attach_mat ) const;
     void BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_ax, double k, int isymm ) const;
     void UpdateRetract();
     void BackCalculateRetract();
@@ -245,6 +246,7 @@ public:
     Matrix4d m_MechSymmTransform;
     Matrix4d m_MechAttachMatrix;
     Matrix4d m_GearModelMatrix;
+    Matrix4d m_GearFlipMat;
 
     VspCurve m_TireProfile;
     VspSurf m_TireSurface;

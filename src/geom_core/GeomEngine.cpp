@@ -270,10 +270,16 @@ void GeomEngine::Extend( VspSurf &surf, const double & u, bool extbefore )
     if ( m_RotExtensionFlag() )
     {
         Matrix4d model_matrix;
-        model_matrix = getModelMatrix();
+        model_matrix = GetShapeMatrix();
         model_matrix.affineInverse();
         vec3d ydir, zdir;
         model_matrix.getBasis( xdir, ydir, zdir );
+
+        // A flip that turns the shape round in x turns the face round with it.
+        if ( GetFlipMat().xformnorm( vec3d( 1.0, 0.0, 0.0 ) ).x() < 0.0 )
+        {
+            xdir = -1.0 * xdir;
+        }
     }
 
     if ( extbefore )

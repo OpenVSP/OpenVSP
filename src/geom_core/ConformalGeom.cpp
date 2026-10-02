@@ -1143,6 +1143,39 @@ void ConformalGeom::SetWingTrimParms(  VspSurf & surf )
 
 }
 
+Matrix4d ConformalGeom::GetFlipMat() const
+{
+    Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );
+    if ( !parent_geom )
+    {
+        return Matrix4d();
+    }
+
+    return parent_geom->GetFlipMat();
+}
+
+int ConformalGeom::GetFlipFlag() const
+{
+    Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );
+    if ( !parent_geom )
+    {
+        return 0;
+    }
+
+    return parent_geom->GetFlipFlag();
+}
+
+bool ConformalGeom::GetFlipReversesNormal() const
+{
+    Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );
+    if ( !parent_geom )
+    {
+        return false;
+    }
+
+    return parent_geom->GetFlipReversesNormal();
+}
+
 void ConformalGeom::UpdateParms( VspSurf & surf )
 {
     Geom* parent_geom = m_Vehicle->FindGeom( GetConformalParent() );

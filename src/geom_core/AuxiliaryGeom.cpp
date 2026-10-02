@@ -2519,6 +2519,39 @@ bool AuxiliaryGeom::GetSpreadTriInSelf( vec3d &pt, vec3d &axis, vector < vec3d >
     return true;
 }
 
+Matrix4d AuxiliaryGeom::GetFlipMat() const
+{
+    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    if ( !parent_geom )
+    {
+        return Matrix4d();
+    }
+
+    return parent_geom->GetFlipMat();
+}
+
+int AuxiliaryGeom::GetFlipFlag() const
+{
+    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    if ( !parent_geom )
+    {
+        return 0;
+    }
+
+    return parent_geom->GetFlipFlag();
+}
+
+bool AuxiliaryGeom::GetFlipReversesNormal() const
+{
+    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    if ( !parent_geom )
+    {
+        return false;
+    }
+
+    return parent_geom->GetFlipReversesNormal();
+}
+
 // The gear this auxiliary is measured against is the Geom it hangs off.
 GearContactRole* AuxiliaryGeom::GetContactGear() const
 {
@@ -2530,7 +2563,7 @@ Matrix4d AuxiliaryRole::GetContactGearMatrix() const
     GearContactRole* gear = GetContactGear();
     if ( gear )
     {
-        return gear->GetRoleModelMatrix();
+        return gear->GetRoleShapeMatrix();
     }
 
     return Matrix4d();
@@ -2566,6 +2599,23 @@ bool AuxiliaryRole::GetPtNormal( vec3d &pt, vec3d &normal ) const
     return ret;
 }
 
+// Transform an axis a rotation is measured about.  A reflection also reverses the sense of
+// rotation, so the axis is flipped to keep angles about it those of the flipped shape.
+static vec3d XFormRotationAxis( const Matrix4d &mat, const vec3d &axis )
+{
+    vec3d ax = mat.xformnorm( axis );
+
+    vec3d xdir = mat.xformnorm( vec3d( 1.0, 0.0, 0.0 ) );
+    vec3d ydir = mat.xformnorm( vec3d( 0.0, 1.0, 0.0 ) );
+    vec3d zdir = mat.xformnorm( vec3d( 0.0, 0.0, 1.0 ) );
+    if ( dot( cross( xdir, ydir ), zdir ) < 0.0 )
+    {
+        ax = -1.0 * ax;
+    }
+
+    return ax;
+}
+
 bool AuxiliaryRole::GetPtPivotAxis( vec3d &ptaxis, vec3d &axis )
 {
     bool ret = GetPtPivotAxisInGear( ptaxis, axis );
@@ -2576,7 +2626,7 @@ bool AuxiliaryRole::GetPtPivotAxis( vec3d &ptaxis, vec3d &axis )
 
     Matrix4d mat = GetContactGearMatrix();
     ptaxis = mat.xform( ptaxis );
-    axis = mat.xformnorm( axis );
+    axis = XFormRotationAxis( mat, axis );
 
     return ret;
 }
@@ -2593,7 +2643,7 @@ bool AuxiliaryRole::GetPtNormalMeanContactPtPivotAxis( vec3d &pt, vec3d &normal,
     pt = mat.xform( pt );
     normal = mat.xformnorm( normal );
     ptaxis = mat.xform( ptaxis );
-    axis = mat.xformnorm( axis );
+    axis = XFormRotationAxis( mat, axis );
 
     return ret;
 }
@@ -2608,8 +2658,17 @@ bool AuxiliaryRole::GetSideContactPtRollAxisNormal( vec3d &pt, vec3d &axis, vec3
 
     Matrix4d mat = GetContactGearMatrix();
     pt = mat.xform( pt );
-    axis = mat.xformnorm( axis );
+    axis = XFormRotationAxis( mat, axis );
     normal = mat.xformnorm( normal );
+
+    // A flip that reverses the gear's y puts the contact on the other side; reverse the side and
+    // the axis together.
+    GearContactRole* gear = GetContactGear();
+    if ( gear && gear->GetRoleFlipMat().xformnorm( vec3d( 0.0, 1.0, 0.0 ) ).y() < 0.0 )
+    {
+        ysign = -ysign;
+        axis = -1.0 * axis;
+    }
 
     return ret;
 }
@@ -2626,7 +2685,7 @@ bool AuxiliaryRole::GetPtNormalAftAxleAxis( double thetabogie, vec3d &pt, vec3d 
     pt = mat.xform( pt );
     normal = mat.xformnorm( normal );
     ptaxis = mat.xform( ptaxis );
-    axis = mat.xformnorm( axis );
+    axis = XFormRotationAxis( mat, axis );
 
     return ret;
 }
@@ -2643,7 +2702,7 @@ bool AuxiliaryRole::GetPtNormalFwdAxleAxis( double thetabogie, vec3d &pt, vec3d 
     pt = mat.xform( pt );
     normal = mat.xformnorm( normal );
     ptaxis = mat.xform( ptaxis );
-    axis = mat.xformnorm( axis );
+    axis = XFormRotationAxis( mat, axis );
 
     return ret;
 }
@@ -2702,7 +2761,7 @@ bool AuxiliaryRole::GetSpreadTri( vec3d &pt, vec3d &axis, vector < vec3d > &t, i
         return false;
     }
 
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
     pt = mat.xform( pt );
     axis = mat.xformnorm( axis );
     mat.xformvec( t );

@@ -1211,19 +1211,19 @@ void FeaPart::UpdateOrientation()
         else if ( m_OrientationType() == vsp::FEA_ORIENT_COMP_X )
         {
             orient = vec3d( 1.0, 0, 0 );
-            Matrix4d model_matrix = parent_geom->getModelMatrix();
+            Matrix4d model_matrix = parent_geom->GetShapeMatrix();
             orient = model_matrix.xformnorm( orient );
         }
         else if ( m_OrientationType() == vsp::FEA_ORIENT_COMP_Y )
         {
             orient = vec3d( 0, 1.0, 0 );
-            Matrix4d model_matrix = parent_geom->getModelMatrix();
+            Matrix4d model_matrix = parent_geom->GetShapeMatrix();
             orient = model_matrix.xformnorm( orient );
         }
         else if ( m_OrientationType() == vsp::FEA_ORIENT_COMP_Z )
         {
             orient = vec3d( 0, 0, 1.0 );
-            Matrix4d model_matrix = parent_geom->getModelMatrix();
+            Matrix4d model_matrix = parent_geom->GetShapeMatrix();
             orient = model_matrix.xformnorm( orient );
         }
         else if ( m_OrientationType() == vsp::FEA_ORIENT_OML_R ||
@@ -1697,7 +1697,7 @@ void FeaSlice::UpdateParmLimits()
         }
 
         // Determine BndBox dimensions prior to rotating and translating
-        Matrix4d model_matrix = current_geom->getModelMatrix();
+        Matrix4d model_matrix = current_geom->GetShapeMatrix();
         model_matrix.affineInverse();
 
         if ( RefFrameIsBody( m_OrientationPlane() ) )
@@ -1811,7 +1811,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
         slice_surf = VspSurf(); // Create primary VspSurf
 
         // Determine BndBox dimensions prior to rotating and translating
-        Matrix4d model_matrix = current_geom->getModelMatrix();
+        Matrix4d model_matrix = current_geom->GetShapeMatrix();
         model_matrix.affineInverse();
 
         VspSurf orig_surf = *( current_geom->GetSurfPtr( m_MainSurfIndx ) );
@@ -2376,7 +2376,7 @@ void FeaSpar::ComputePlanarSurf()
         assert( wing );
 
         // Get surface prior to rotating and translating
-        Matrix4d model_matrix = current_wing->getModelMatrix();
+        Matrix4d model_matrix = current_wing->GetShapeMatrix();
         model_matrix.affineInverse();
 
         VspSurf orig_surf = *( current_wing->GetSurfPtr( m_MainSurfIndx ) );
@@ -2923,7 +2923,7 @@ void FeaPolySpar::ComputePlanarSurf()
         }
 
         // Get surface prior to rotating and translating
-        Matrix4d model_matrix = current_wing->getModelMatrix();
+        Matrix4d model_matrix = current_wing->GetShapeMatrix();
         model_matrix.affineInverse();
 
         VspSurf orig_surf = *( current_wing->GetSurfPtr( m_MainSurfIndx ) );
@@ -3336,7 +3336,7 @@ double FeaRib::GetRibTotalRotation( )
         if ( current_wing )
         {
             // Get surface prior to rotating and translating
-            Matrix4d model_matrix = current_wing->getModelMatrix();
+            Matrix4d model_matrix = current_wing->GetShapeMatrix();
             model_matrix.affineInverse();
 
             VspSurf orig_surf = *( current_wing->GetSurfPtr( m_MainSurfIndx ) );
@@ -4733,7 +4733,7 @@ void FeaDome::BuildDomeSurf()
         m_MainFeaPartSurfVec[0].OffsetZ( m_ZLoc() );
 
         // Transform to parent geom body coordinate frame
-        Matrix4d model_matrix = curr_geom->getModelMatrix();
+        Matrix4d model_matrix = curr_geom->GetShapeMatrix();
         m_MainFeaPartSurfVec[0].Transform( model_matrix );
 
         if ( m_SpineAttachFlag() )
@@ -5292,7 +5292,7 @@ void FeaSliceArray::CalcNumSlices()
         }
 
         // Determine BndBox dimensions prior to rotating and translating
-        Matrix4d model_matrix = current_geom->getModelMatrix();
+        Matrix4d model_matrix = current_geom->GetShapeMatrix();
         model_matrix.affineInverse();
 
         VspSurf orig_surf = *( current_geom->GetSurfPtr( m_MainSurfIndx ) );

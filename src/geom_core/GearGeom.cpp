@@ -1373,6 +1373,7 @@ void Bogie::ComposeStowAttachMatrix()
             gmm.affineInverse();
 
             m_StowAttachMatrix.postMult( gmm.data() );
+            FlipAttachMatrix( m_StowAttachMatrix );
             return;
         }
     }
@@ -1528,6 +1529,18 @@ void Bogie::ComposeStowAttachMatrix()
     gmm.affineInverse();
 
     m_StowAttachMatrix.postMult( gmm.data() );
+    FlipAttachMatrix( m_StowAttachMatrix );
+}
+
+// The gear's flip is applied innermost, so a frame taken from another Geom is reflected on
+// both sides to keep the bogie at that frame.
+void Bogie::FlipAttachMatrix( Matrix4d &attach_mat ) const
+{
+    Matrix4d flip_mat = m_GearFlipMat;
+    Matrix4d mat = flip_mat;
+    mat.matMult( attach_mat.data() );
+    mat.matMult( flip_mat.data() );
+    attach_mat = mat;
 }
 
 void Bogie::ComposeMechAttachMatrix()
@@ -1548,6 +1561,7 @@ void Bogie::ComposeMechAttachMatrix()
             gmm.affineInverse();
 
             m_MechAttachMatrix.postMult( gmm.data() );
+            FlipAttachMatrix( m_MechAttachMatrix );
             return;
         }
     }
@@ -1631,6 +1645,7 @@ void Bogie::ComposeMechAttachMatrix()
     gmm.affineInverse();
 
     m_MechAttachMatrix.postMult( gmm.data() );
+    FlipAttachMatrix( m_MechAttachMatrix );
 }
 
 void Bogie::BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_ax, double k, int isymm ) const
@@ -2811,6 +2826,9 @@ void GearGeom::UpdateSurf()
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( m_AttachMatrix.data() );
 
+    // The flip goes innermost.
+    relTrans.matMult( GetFlipMat().data() );
+
     // Set local based on global.
     if ( !m_CGLocalFlag() )
     {
@@ -2957,6 +2975,7 @@ void GearGeom::UpdateXForm()
         if ( m_Bogies[i] )
         {
             m_Bogies[i]->m_GearModelMatrix = m_ModelMatrix;
+            m_Bogies[i]->m_GearFlipMat = GetFlipMat();
         }
     }
 }
@@ -4073,7 +4092,7 @@ bool GearContactRole::GetTwoPtPivotInWorld( const string &cp1, int isymm1, int s
                                      const string &cp2, int isymm2, int suspension2,
                                      vec3d &ptaxis, vec3d &axis ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     bool ret = GetTwoPtPivot( cp1, isymm1, suspension1, cp2, isymm2, suspension2, ptaxis, axis );
     ptaxis = mat.xform( ptaxis );
@@ -4085,7 +4104,7 @@ bool GearContactRole::GetTwoPtAftAxleAxisInWorld( const string &cp1, int isymm1,
                                            const string &cp2, int isymm2, int suspension2,
                                            double thetabogie, vec3d &ptaxis, vec3d &axis ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     bool ret = GetTwoPtAftAxleAxis( cp1, isymm1, suspension1, cp2, isymm2, suspension2, thetabogie, ptaxis, axis );
     ptaxis = mat.xform( ptaxis );
@@ -4097,7 +4116,7 @@ bool GearContactRole::GetTwoPtFwdAxleAxisInWorld( const string &cp1, int isymm1,
                                            const string &cp2, int isymm2, int suspension2,
                                            double thetabogie, vec3d &ptaxis, vec3d &axis ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     bool ret = GetTwoPtFwdAxleAxis( cp1, isymm1, suspension1, cp2, isymm2, suspension2, thetabogie, ptaxis, axis );
     ptaxis = mat.xform( ptaxis );
@@ -4109,7 +4128,7 @@ bool GearContactRole::GetTwoPtMeanContactPtNormalInWorld( const string &cp1, int
                                                    const string &cp2, int isymm2, int suspension2, int tire2,
                                                    double thetabogie, vec3d &pt, vec3d &normal, bool &usepivot, double &mintheta, double &maxtheta ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     vec3d p1, p2;
     bool ret = GetTwoPtMeanContactPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, pt, normal, p1, p2, usepivot, mintheta, maxtheta );
@@ -4122,7 +4141,7 @@ bool GearContactRole::GetTwoPtAftContactPtNormalInWorld( const string &cp1, int 
                                                   const string &cp2, int isymm2, int suspension2, int tire2,
                                                   double thetabogie, double thetawheel, vec3d &pt, vec3d &normal ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     vec3d p1, p2;
     bool ret = GetTwoPtAftContactPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, thetawheel, pt, normal, p1, p2 );
@@ -4135,7 +4154,7 @@ bool GearContactRole::GetTwoPtFwdContactPtNormalInWorld( const string &cp1, int 
                                                   const string &cp2, int isymm2, int suspension2, int tire2,
                                                   double thetabogie, double thetawheel, vec3d &pt, vec3d &normal ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     vec3d p1, p2;
     bool ret = GetTwoPtFwdContactPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, thetabogie, thetawheel, pt, normal, p1, p2 );
@@ -4148,7 +4167,7 @@ bool GearContactRole::GetTwoPtSideContactPtsNormalInWorld( const string &cp1, in
                                                     const string &cp2, int isymm2, int suspension2, int tire2,
                                                     vec3d &p1, vec3d &p2, vec3d &normal ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     bool ret = GetTwoPtSideContactPtsNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, p1, p2, normal );
     p1 = mat.xform( p1 );
@@ -4160,7 +4179,7 @@ bool GearContactRole::GetTwoPtSideContactPtsNormalInWorld( const string &cp1, in
 bool GearContactRole::GetOnePtSideContactPtAxisNormalInWorld( const string &cp1, int isymm1, int suspension1, int tire1,
                                                        double thetabogie, double thetawheel, double thetaroll, vec3d &p1, vec3d &axis, vec3d &normal, int &ysign ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     bool ret = GetOnePtSideContactPtAxisNormal( cp1, isymm1, suspension1, tire1, thetabogie, thetawheel, thetaroll, p1, axis, normal, ysign);
     p1 = mat.xform( p1 );
@@ -4174,7 +4193,7 @@ bool GearContactRole::GetPtNormalInWorld( const string &cp1, int isymm1, int sus
                                    const string &cp3, int isymm3, int suspension3, int tire3,
                                    vec3d &pt, vec3d &normal ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     bool ret = GetPtNormal( cp1, isymm1, suspension1, tire1, cp2, isymm2, suspension2, tire2, cp3, isymm3, suspension3, tire3, pt, normal );
     pt = mat.xform( pt );
@@ -4184,7 +4203,7 @@ bool GearContactRole::GetPtNormalInWorld( const string &cp1, int isymm1, int sus
 
 void GearContactRole::GetNominalPtNormalInWorld( vec3d &pt, vec3d &normal ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     GetNominalPtNormal( pt, normal );
     pt = mat.xform( pt );
@@ -4193,7 +4212,7 @@ void GearContactRole::GetNominalPtNormalInWorld( vec3d &pt, vec3d &normal ) cons
 
 void GearContactRole::GetCGInWorld( vec3d &cgnom, vector < vec3d > &cgbounds ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     GetCG( cgnom, cgbounds );
     cgnom = mat.xform( cgnom );
@@ -4205,7 +4224,7 @@ bool GearContactRole::GetContactPointVecNormalInWorld( const string &cp1, int is
                                                 const string &cp3, int isymm3, int suspension3, int tire3,
                                                 vector < vec3d > &ptvec, vec3d &normal ) const
 {
-    Matrix4d mat = GetRoleModelMatrix();
+    Matrix4d mat = GetRoleShapeMatrix();
 
     bool ret = GetContactPointVecNormal( cp1,  isymm1,  suspension1,  tire1,
                                          cp2,  isymm2,  suspension2, tire2,

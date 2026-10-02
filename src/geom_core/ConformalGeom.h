@@ -35,7 +35,19 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    string GetConformalParent() { return m_ConformalParentID; }
+    string GetConformalParent() const { return m_ConformalParentID; }
+
+    // The shape is an inset built in the parent's frame, and the attachment carries no flip,
+    // so the parent's flip is applied here.
+    virtual Matrix4d GetFlipMat() const;
+    virtual bool GetFlipReversesNormal() const;
+    virtual int GetFlipFlag() const;
+
+    // Its parent's flip, not one of its own.
+    virtual bool FlipApplies() const
+    {
+        return false;
+    }
 
     bool SetConformalParent ( const string &parent );
 
