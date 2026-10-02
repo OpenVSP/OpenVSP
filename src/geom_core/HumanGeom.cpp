@@ -834,7 +834,7 @@ void HumanGeom::UpdateSymmAttach()
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
         m_Verts[i] = m_MainVerts;
-        m_FlipNormal[i] = false;                      // Assume main mesh is properly oriented.
+        m_FlipNormal[i] = GetFlipReversesNormal();     // Main mesh is properly oriented unless flipped.
         m_MainSurfIndxVec[i] = i;
         m_SurfSymmMap[ m_MainSurfIndxVec[i] ].push_back( i );
         m_SurfCopyIndx[i] = 0;
@@ -855,6 +855,9 @@ void HumanGeom::UpdateSymmAttach()
     relTrans = symmOriginMat;
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
+
+    // The flip goes innermost.
+    relTrans.matMult( GetFlipMat().data() );
 
     for ( int i = 0 ; i < ( int )m_TransMatVec.size() ; i++ )
     {
