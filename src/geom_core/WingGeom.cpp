@@ -842,27 +842,6 @@ void WingSect::ForceSpanRcTc(  double span, double rc, double tc )
     Update();
 }
 
-void WingSect::ForceAspectTaperArea( double aspect, double taper, double area )
-{
-    vector<int> aspect_taper_area;
-    aspect_taper_area.push_back( vsp::AR_WSECT_DRIVER );
-    aspect_taper_area.push_back( vsp::TAPER_WSECT_DRIVER );
-    aspect_taper_area.push_back( vsp::AREA_WSECT_DRIVER );
-
-    vector< int > save_choice_vec = m_DriverGroup.GetChoices();
-    m_DriverGroup.SetChoices( aspect_taper_area );
-
-    m_Aspect = aspect;
-    m_Taper  = taper;
-    m_Area   = area;
-
-    m_DriverGroup.UpdateGroup( GetDriverParms() );
-    m_DriverGroup.SetChoices( save_choice_vec );
-    m_DriverGroup.UpdateGroup( GetDriverParms() );
-
-    Update();
-}
-
 double CalcTanSweepAt( double loc, double sweep, double baseloc, double aspect, double taper )
 {
     double tan_sweep = tan( sweep * ( M_PI / 180.0 ) );

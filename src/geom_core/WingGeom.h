@@ -76,7 +76,6 @@ public:
     virtual vector< string > GetDriverParms();
     virtual void ForceChordVal( double val, bool root_chord_flag );
     virtual void ForceSpanRcTc( double span, double rc, double tc );
-    virtual void ForceAspectTaperArea( double aspect, double taper, double area );
     virtual double GetTanSweepAt( double sweep, double loc  );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
