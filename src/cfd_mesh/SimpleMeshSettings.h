@@ -40,12 +40,10 @@ public:
     bool m_DrawBorderFlag;
     bool m_DrawIsectFlag;
     bool m_DrawRawFlag;
-    bool m_DrawBinAdaptFlag;
     bool m_DrawCurveFlag;
     bool m_DrawPntsFlag;
 
     double m_RelCurveTol;
-    double m_ExportRelCurveTol;
 
     bool m_IntersectSubSurfs;
 

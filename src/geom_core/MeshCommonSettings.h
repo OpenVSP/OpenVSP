@@ -34,8 +34,6 @@ public:
 
     BoolParm m_DrawBorderFlag;
     BoolParm m_DrawIsectFlag;
-    BoolParm m_DrawRawFlag;
-    BoolParm m_DrawBinAdaptFlag;
     BoolParm m_DrawCurveFlag;
     BoolParm m_DrawPntsFlag;
 
@@ -96,6 +94,9 @@ public:
 
     // Trimmed CAD files are written in model units, so the unit is the user's to declare.
     IntParm m_CADLenUnit;
+
+    // Draw the raw intersection curves; the meshers always draw theirs
+    BoolParm m_DrawRawFlag;
 
 protected:
 

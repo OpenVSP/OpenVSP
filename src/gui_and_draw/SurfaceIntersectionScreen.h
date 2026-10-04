@@ -81,7 +81,6 @@ protected:
     ToggleButton m_DrawBorder;
 
     ToggleButton m_ShowRaw;
-    ToggleButton m_ShowBinAdapt;
     SliderAdjRangeInput m_RelCurveTolSlider;
 
     ToggleButton m_ShowCurve;

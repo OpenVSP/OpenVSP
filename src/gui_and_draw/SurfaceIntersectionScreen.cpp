@@ -148,7 +148,6 @@ void SurfaceIntersectionScreen::CreateDisplayTab()
     m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
-    m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
 
     displayTab->show();
 }
@@ -384,7 +383,6 @@ void SurfaceIntersectionScreen::UpdateDisplayTab()
     m_DrawBorder.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.GetID() );
 
     m_ShowRaw.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawRawFlag.GetID() );
-    m_ShowBinAdapt.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag.GetID() );
 
     m_ShowCurve.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.GetID() );
     m_ShowPts.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.GetID() );

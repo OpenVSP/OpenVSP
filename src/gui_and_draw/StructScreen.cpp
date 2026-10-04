@@ -2067,10 +2067,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_CadTabLayout.AddButton( m_ShowPts, "Show Points");
     m_CadTabLayout.ForceNewLine();
 
-    m_CadTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
-    m_CadTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
-    m_CadTabLayout.ForceNewLine();
-
     // Set initial values
     m_FeaCurrMainSurfIndx = 0;
     m_SelectedFeaPartChoice = 0;
@@ -3634,9 +3630,6 @@ bool StructScreen::Update()
 
             m_DrawIsect.Update( curr_struct->GetStructSettingsPtr()->m_DrawIsectFlag.GetID() );
             m_DrawBorder.Update( curr_struct->GetStructSettingsPtr()->m_DrawBorderFlag.GetID() );
-
-            m_ShowRaw.Update( curr_struct->GetStructSettingsPtr()->m_DrawRawFlag.GetID() );
-            m_ShowBinAdapt.Update( curr_struct->GetStructSettingsPtr()->m_DrawBinAdaptFlag.GetID() );
 
             m_ShowCurve.Update( curr_struct->GetStructSettingsPtr()->m_DrawCurveFlag.GetID() );
             m_ShowPts.Update( curr_struct->GetStructSettingsPtr()->m_DrawPntsFlag.GetID() );

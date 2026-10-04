@@ -2576,8 +2576,6 @@ void FeaMesh::UpdateDisplaySettings()
 
         GetStructSettingsPtr()->m_DrawBorderFlag = fea_struct->GetStructSettingsPtr()->m_DrawBorderFlag.Get();
         GetStructSettingsPtr()->m_DrawIsectFlag = fea_struct->GetStructSettingsPtr()->m_DrawIsectFlag.Get();
-        GetStructSettingsPtr()->m_DrawRawFlag = fea_struct->GetStructSettingsPtr()->m_DrawRawFlag.Get();
-        GetStructSettingsPtr()->m_DrawBinAdaptFlag = fea_struct->GetStructSettingsPtr()->m_DrawBinAdaptFlag.Get();
         GetStructSettingsPtr()->m_DrawCurveFlag = fea_struct->GetStructSettingsPtr()->m_DrawCurveFlag.Get();
         GetStructSettingsPtr()->m_DrawPntsFlag = fea_struct->GetStructSettingsPtr()->m_DrawPntsFlag.Get();
     }

@@ -267,7 +267,6 @@ void FeaMeshAnalysis::SetDefaults()
 
     if ( struct_settings )
     {
-        m_Inputs.Add( new NameValData( "RelCurveTol", struct_settings->m_RelCurveTol(), "Tolerance used when constructing binary adapted curves." ) );
 
         m_Inputs.Add( new NameValData( "HalfMeshFlag", struct_settings->m_HalfMeshFlag(), "Flag to generate a half mesh in +Y domain." ) );
     }
@@ -303,10 +302,6 @@ string FeaMeshAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "GrowRatio", 0 );
         if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.Set( nvd->GetDouble( 0 ) );
 
-        double relCurveTolOrig = curr_struct->GetStructSettingsPtr()->m_RelCurveTol();
-        nvd = m_Inputs.FindPtr( "RelCurveTol", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( nvd->GetDouble( 0 ) );
-
         bool rigorLimitOrig = curr_struct->GetFeaGridDensityPtr()->m_RigorLimit();
         nvd = m_Inputs.FindPtr( "RigorLimit", 0 );
         if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.Set( nvd->GetInt( 0 ) );
@@ -328,7 +323,6 @@ string FeaMeshAnalysis::Execute()
         curr_struct->GetFeaGridDensityPtr()->m_MaxGap.Set( maxGapOrig );
         curr_struct->GetFeaGridDensityPtr()->m_NCircSeg.Set( nCircSegOrig );
         curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.Set( growRatioOrig );
-        curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
 
         //Input Triggers
         curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.Set( rigorLimitOrig );
@@ -389,6 +383,7 @@ void FeaMeshExportAnalysis::SetDefaults()
 
     if ( struct_settings )
     {
+        m_Inputs.Add( new NameValData( "RelCurveTol", struct_settings->m_RelCurveTol(), "Relative tolerance on the intersection curves of trimmed CAD (STEP and IGES) files, as a fraction of a segment's length." ) );
         m_Inputs.Add( new NameValData( "STEPTol", struct_settings->m_STEPTol(), "Tolerance output to STEP files." ) );
 
         m_Inputs.Add( new NameValData( "CADLabelID", struct_settings->m_CADLabelID(), "Flag to include GeomID in CAD surface label." ) );
@@ -435,6 +430,10 @@ string FeaMeshExportAnalysis::Execute()
     if( curr_struct )
     {
         NameValData* nvd = nullptr;
+
+        double relCurveTolOrig = curr_struct->GetStructSettingsPtr()->m_RelCurveTol();
+        nvd = m_Inputs.FindPtr( "RelCurveTol", 0 );
+        if( nvd ) curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( nvd->GetDouble( 0 ) );
 
         double sTEPTolOrig = curr_struct->GetStructSettingsPtr()->m_STEPTol();
         nvd = m_Inputs.FindPtr( "STEPTol", 0 );
@@ -556,6 +555,7 @@ string FeaMeshExportAnalysis::Execute()
         // ==== Restore original values that were overwritten by analysis inputs ==== //
 
         //Input Sliders
+        curr_struct->GetStructSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
         curr_struct->GetStructSettingsPtr()->m_STEPTol.Set( sTEPTolOrig );
 
         //Input Triggers
@@ -617,7 +617,7 @@ void SurfaceIntersectionAnalysis::SetDefaults()
     if( veh )
     {
         m_Inputs.Add( new NameValData( "IntersectSubSurfs", veh->GetISectSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
-        m_Inputs.Add( new NameValData( "RelCurveTol", veh->GetISectSettingsPtr()->m_RelCurveTol(), "Tolerance used when constructing binary adapted curves." ) );
+        m_Inputs.Add( new NameValData( "RelCurveTol", veh->GetISectSettingsPtr()->m_RelCurveTol(), "Relative tolerance on the intersection curves of trimmed CAD (STEP and IGES) files, as a fraction of a segment's length." ) );
         m_Inputs.Add( new NameValData( "SelectedSetIndex", veh->GetISectSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
         m_Inputs.Add( new NameValData( "SelectedDegenSetIndex", veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex(), "Degen (thin) geometry set for analysis." ) );
 

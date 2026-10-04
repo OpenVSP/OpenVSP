@@ -425,8 +425,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     // addOutputText( "Intersect\n" ); // Output in intersect() itself.
     Intersect();
 
-    addOutputText( "Binary Adaptation Curve Approximation\n" );
-    BinaryAdaptIntCurves();
+    RecordIntCurves();
 
     addOutputText( "Exporting Files\n" );
     ExportFiles();
@@ -564,11 +563,6 @@ void SurfaceIntersectionSingleton::CleanUp()
     m_IPatchBDrawLines.clear();
 
     // Clean up DrawObj's
-    m_IsectCurveDO = DrawObj();
-    m_IsectPtsDO = DrawObj();
-    m_BorderCurveDO = DrawObj();
-    m_BorderPtsDO = DrawObj();
-
     m_RawIsectCurveDO = DrawObj();
     m_RawIsectPtsDO = DrawObj();
     m_RawBorderCurveDO = DrawObj();
@@ -3487,10 +3481,8 @@ void SurfaceIntersectionSingleton::BuildIntChain( const string &id, vector < vec
     uwchains = keepuwvec;
 }
 
-void SurfaceIntersectionSingleton::BinaryAdaptIntCurves()
+void SurfaceIntersectionSingleton::RecordIntCurves()
 {
-    m_BinAdaptCurveAVec.clear();
-    m_BinAdaptCurveBVec.clear();
     m_RawCurveAVec.clear();
     m_RawCurveBVec.clear();
     m_BorderCurveFlagVec.clear();
@@ -3500,58 +3492,26 @@ void SurfaceIntersectionSingleton::BinaryAdaptIntCurves()
     {
         m_BorderCurveFlagVec.push_back( (*c)->m_BorderFlag );
 
-        vector<vec3d> ptvec;
         vector<vec3d> rawptvec;
 
         Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
-        xyzcrvA.TessAdaptXYZ( *(*c)->m_ACurve.GetSurf(), ptvec, GetSettingsPtr()->m_RelCurveTol, 16 );
-
-        m_BinAdaptCurveAVec.push_back( ptvec );
-
         xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
         xyzcrvA.GetControlPoints( rawptvec );
 
         m_RawCurveAVec.push_back( rawptvec );
 
-
-        ptvec.clear();
         rawptvec.clear();
         Bezier_curve xyzcrvB = (*c)->m_BCurve.GetUWCrv();
-        xyzcrvB.TessAdaptXYZ( *(*c)->m_BCurve.GetSurf(), ptvec, GetSettingsPtr()->m_RelCurveTol, 16 );
-
-        m_BinAdaptCurveBVec.push_back( ptvec );
-
         xyzcrvB.UWCurveToXYZCurve( (*c)->m_BCurve.GetSurf() );
         xyzcrvB.GetControlPoints( rawptvec );
 
         m_RawCurveBVec.push_back( rawptvec );
-
     }
 }
 
 void SurfaceIntersectionSingleton::UpdateDrawObjs()
 {
     // Draw ISegChains
-    m_IsectCurveDO.m_GeomID = GetID() + "ISECTCURVE";
-    m_IsectCurveDO.m_Type = DrawObj::VSP_LINES;
-    m_IsectCurveDO.m_LineColor = vec3d(0, 0, 1);
-    m_IsectCurveDO.m_LineWidth = 2.0;
-
-    m_IsectPtsDO.m_GeomID = GetID() + "ISECTPTS";
-    m_IsectPtsDO.m_Type = DrawObj::VSP_POINTS;
-    m_IsectPtsDO.m_PointColor = vec3d(0, 0, 0);
-    m_IsectPtsDO.m_PointSize = 10.0;
-
-    m_BorderCurveDO.m_GeomID = GetID() + "BORDERCURVE";
-    m_BorderCurveDO.m_Type = DrawObj::VSP_LINES;
-    m_BorderCurveDO.m_LineColor = vec3d(0, 1, 0);
-    m_BorderCurveDO.m_LineWidth = 2.0;
-
-    m_BorderPtsDO.m_GeomID = GetID() + "BORDERPTS";
-    m_BorderPtsDO.m_Type = DrawObj::VSP_POINTS;
-    m_BorderPtsDO.m_PointColor = vec3d(0, 0, 0);
-    m_BorderPtsDO.m_PointSize = 10.0;
-
     m_RawIsectCurveDO.m_GeomID = GetID() + "RAWISECTCURVE";
     m_RawIsectCurveDO.m_Type = DrawObj::VSP_LINES;
     m_RawIsectCurveDO.m_LineColor = vec3d(1, 0, 1);
@@ -3574,65 +3534,27 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
 
     for ( int indx = 0; indx < m_RawCurveAVec.size(); indx++ )
     {
-        DrawObj *curveDO;
-        DrawObj *ptsDO;
         DrawObj *rawcurveDO;
         DrawObj *rawptsDO;
 
         if ( m_BorderCurveFlagVec[indx] )
         {
-            curveDO = &m_BorderCurveDO;
-            ptsDO = &m_BorderPtsDO;
-            rawcurveDO = & m_RawBorderCurveDO;
+            rawcurveDO = &m_RawBorderCurveDO;
             rawptsDO = &m_RawBorderPtsDO;
         }
         else
         {
-            curveDO = &m_IsectCurveDO;
-            ptsDO = &m_IsectPtsDO;
             rawcurveDO = &m_RawIsectCurveDO;
-            rawptsDO = & m_RawIsectPtsDO;
+            rawptsDO = &m_RawIsectPtsDO;
         }
 
+        const vector < vec3d > *rawcrv[2] = { &m_RawCurveAVec[ indx ], &m_RawCurveBVec[ indx ] };
+
+        for ( int k = 0; k < 2; k++ )
         {
-            vector<vec3d> ptvec;
-            vector<vec3d> rawptvec;
+            const vector < vec3d > &rawptvec = *rawcrv[k];
 
-            ptvec = m_BinAdaptCurveAVec[ indx ];
-
-            rawptvec = m_RawCurveAVec[ indx ];
-
-            ptsDO->m_PntVec.insert( ptsDO->m_PntVec.end(), ptvec.begin(), ptvec.end() );
             rawptsDO->m_PntVec.insert( rawptsDO->m_PntVec.end(), rawptvec.begin(), rawptvec.end() );
-
-            for ( int j = 1; j < ptvec.size(); j++ )
-            {
-                curveDO->m_PntVec.push_back( ptvec[j - 1] );
-                curveDO->m_PntVec.push_back( ptvec[j] );
-            }
-
-            for ( int j = 1; j < rawptvec.size(); j++ )
-            {
-                rawcurveDO->m_PntVec.push_back( rawptvec[j - 1] );
-                rawcurveDO->m_PntVec.push_back( rawptvec[j] );
-            }
-
-
-            ptvec.clear();
-            rawptvec.clear();
-
-            ptvec = m_BinAdaptCurveBVec[ indx ];
-
-            rawptvec = m_RawCurveBVec[ indx ];
-
-            ptsDO->m_PntVec.insert( ptsDO->m_PntVec.end(), ptvec.begin(), ptvec.end() );
-            rawptsDO->m_PntVec.insert( rawptsDO->m_PntVec.end(), rawptvec.begin(), rawptvec.end() );
-
-            for ( int j = 1; j < ptvec.size(); j++ )
-            {
-                curveDO->m_PntVec.push_back( ptvec[j - 1] );
-                curveDO->m_PntVec.push_back( ptvec[j] );
-            }
 
             for ( int j = 1; j < rawptvec.size(); j++ )
             {
@@ -3643,20 +3565,10 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
     }
 
     // Normal Vec is not required, load placeholder.
-    m_IsectCurveDO.m_NormVec = m_IsectCurveDO.m_PntVec;
-    m_IsectPtsDO.m_NormVec = m_IsectPtsDO.m_PntVec;
-    m_BorderCurveDO.m_NormVec = m_BorderCurveDO.m_PntVec;
-    m_BorderPtsDO.m_NormVec = m_BorderPtsDO.m_PntVec;
-
     m_RawIsectCurveDO.m_NormVec = m_RawIsectCurveDO.m_PntVec;
     m_RawIsectPtsDO.m_NormVec = m_RawIsectPtsDO.m_PntVec;
     m_RawBorderCurveDO.m_NormVec = m_RawBorderCurveDO.m_PntVec;
     m_RawBorderPtsDO.m_NormVec = m_RawBorderPtsDO.m_PntVec;
-
-    m_IsectCurveDO.m_GeomChanged = true;
-    m_IsectPtsDO.m_GeomChanged = true;
-    m_BorderCurveDO.m_GeomChanged = true;
-    m_BorderPtsDO.m_GeomChanged = true;
 
     m_RawIsectCurveDO.m_GeomChanged = true;
     m_RawIsectPtsDO.m_GeomChanged = true;
@@ -3748,22 +3660,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
         return;
     }
 
-    m_IsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
-                               GetSettingsPtr()->m_DrawCurveFlag &&
-                               GetSettingsPtr()->m_DrawBinAdaptFlag;
-
-    m_IsectPtsDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
-                             GetSettingsPtr()->m_DrawPntsFlag &&
-                             GetSettingsPtr()->m_DrawBinAdaptFlag;
-
-    m_BorderCurveDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
-                                GetSettingsPtr()->m_DrawCurveFlag &&
-                                GetSettingsPtr()->m_DrawBinAdaptFlag;
-
-    m_BorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
-                              GetSettingsPtr()->m_DrawPntsFlag &&
-                              GetSettingsPtr()->m_DrawBinAdaptFlag;
-
     m_RawIsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
                                   GetSettingsPtr()->m_DrawCurveFlag &&
                                   GetSettingsPtr()->m_DrawRawFlag;
@@ -3779,11 +3675,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     m_RawBorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
                                  GetSettingsPtr()->m_DrawPntsFlag &&
                                  GetSettingsPtr()->m_DrawRawFlag;
-
-    draw_obj_vec.push_back( &m_IsectCurveDO );
-    draw_obj_vec.push_back( &m_IsectPtsDO );
-    draw_obj_vec.push_back( &m_BorderCurveDO );
-    draw_obj_vec.push_back( &m_BorderPtsDO );
 
     draw_obj_vec.push_back( &m_RawIsectCurveDO );
     draw_obj_vec.push_back( &m_RawIsectPtsDO );
@@ -3899,7 +3790,6 @@ void SurfaceIntersectionSingleton::UpdateDisplaySettings()
         GetSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.Get();
         GetSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawIsectFlag.Get();
         GetSettingsPtr()->m_DrawRawFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawRawFlag.Get();
-        GetSettingsPtr()->m_DrawBinAdaptFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag.Get();
         GetSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.Get();
         GetSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.Get();
 

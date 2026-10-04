@@ -32,15 +32,13 @@ void MeshCommonSettings::InitCommonParms( bool curveFlagDefault )
 
     m_DrawBorderFlag.Init( "DrawBorderFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
     m_DrawIsectFlag.Init( "DrawIsectFlag", "DrawMesh", this, curveFlagDefault, 0, 1 );
-    m_DrawRawFlag.Init( "DrawRawFlag", "DrawMesh", this, false, 0, 1 );
-    m_DrawBinAdaptFlag.Init( "DrawBinAdaptFlag", "DrawMesh", this, true, 0, 1 );
 
     m_DrawCurveFlag.Init( "DrawCurveFlag", "DrawMesh", this, true, 0, 1 );
     m_DrawPntsFlag.Init( "DrawPntsFlag", "DrawMesh", this, true, 0, 1 );
 
     m_RelCurveTol.Init( "RelCurveTol", "Global", this, 0.005, 1e-5, 1.0 );
-    m_RelCurveTol.SetDescript( "Binary Adaptive Tolerance for Trimmed CAD Intersection Curves "
-                               "and Realtime Intersection Curve Display" );
+    m_RelCurveTol.SetDescript( "Relative tolerance on the adapted intersection curves of trimmed CAD "
+                               "files, as a fraction of a segment's length" );
 
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
     m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
@@ -99,6 +97,8 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
     m_ExportFileFlags[vsp::INTERSECT_STEP_FILE_NAME].Init( "STEP_Export", "ExportIntersect", this, true, 0, 1 );
 
     m_ExportFileNames.resize( vsp::INTERSECT_NUM_FILE_NAMES );
+
+    m_DrawRawFlag.Init( "DrawRawFlag", "DrawMesh", this, true, 0, 1 );
 
     InitCommonParms( true );
 

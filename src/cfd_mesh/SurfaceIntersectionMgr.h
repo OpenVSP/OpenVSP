@@ -280,7 +280,8 @@ public:
 
     virtual void BuildIntChain( const string &id, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains );
 
-    virtual void BinaryAdaptIntCurves();
+    // Keep each chain's raw points and what kind of curve it is
+    virtual void RecordIntCurves();
 
     virtual void MergeInteriorChainIPnts();
 
@@ -408,8 +409,6 @@ protected:
 
     vector< vector< vec3d > > debugRayIsect;
 
-    vector < vector < vec3d > > m_BinAdaptCurveAVec;
-    vector < vector < vec3d > > m_BinAdaptCurveBVec;
     vector < vector < vec3d > > m_RawCurveAVec;
     vector < vector < vec3d > > m_RawCurveBVec;
     vector < bool > m_BorderCurveFlagVec;
@@ -432,11 +431,6 @@ protected:
     string m_WakeGeomID;
 
 private:
-
-    DrawObj m_IsectCurveDO;
-    DrawObj m_IsectPtsDO;
-    DrawObj m_BorderCurveDO;
-    DrawObj m_BorderPtsDO;
 
     DrawObj m_RawIsectCurveDO;
     DrawObj m_RawIsectPtsDO;

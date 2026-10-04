@@ -143,10 +143,6 @@ void NewFEAMeshAnalysisExample( string struct_id )
 	growthRatioNums.push_back( 1.3 );
     SetDoubleAnalysisInput( analysis_name, "GrowthRatio", growthRatioNums, 0 );
 	
-    array < double > relCurveTolNums;
-	relCurveTolNums.push_back( 0.01 );
-    SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
-	
 	// list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );
 	
@@ -158,6 +154,10 @@ void NewFEAMeshAnalysisExample( string struct_id )
     Print( analysis_name );
 
     SetAnalysisInputDefaults( analysis_name );
+	
+    array < double > relCurveTolNums;
+	relCurveTolNums.push_back( 0.01 );
+    SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
 	
     array < double > sTEPTolNums;
 	sTEPTolNums.push_back( 1e-06 );

@@ -577,8 +577,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     AddDegenCornerChains();
     }
 
-    addOutputText( "Binary Adaptation Curve Approximation\n" );
-    BinaryAdaptIntCurves();
+    RecordIntCurves();
 
     m_IntersectComplete = true;
 

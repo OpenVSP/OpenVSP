@@ -30,13 +30,12 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
 
     m_DrawBorderFlag = false;
     m_DrawIsectFlag = false;
-    m_DrawRawFlag = false;
-    m_DrawBinAdaptFlag = false;
+    // Set by Trimmed Surfaces; the meshers always draw their raw curves
+    m_DrawRawFlag = true;
     m_DrawCurveFlag = false;
     m_DrawPntsFlag = false;
 
     m_RelCurveTol = 1e-6;
-    m_ExportRelCurveTol = 1e-6;
 
     m_IntersectSubSurfs = true;
 
@@ -85,8 +84,6 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
 
     m_DrawBorderFlag = settings->m_DrawBorderFlag.Get();
     m_DrawIsectFlag = settings->m_DrawIsectFlag.Get();
-    m_DrawRawFlag = settings->m_DrawRawFlag.Get();
-    m_DrawBinAdaptFlag = settings->m_DrawBinAdaptFlag.Get();
     m_DrawCurveFlag = settings->m_DrawCurveFlag.Get();
     m_DrawPntsFlag = settings->m_DrawPntsFlag.Get();
 
@@ -165,6 +162,8 @@ void SimpleIntersectSettings::CopyFrom( IntersectSettings* settings )
     m_CADLabelSurfNo = settings->m_CADLabelSurfNo.Get();
     m_CADLabelDelim = settings->m_CADLabelDelim.Get();
     m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
+
+    m_DrawRawFlag = settings->m_DrawRawFlag.Get();
 
     SimpleMeshCommonSettings::CopyFrom( settings );
 }
