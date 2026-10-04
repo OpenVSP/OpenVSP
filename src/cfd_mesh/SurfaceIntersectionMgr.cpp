@@ -902,7 +902,7 @@ void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
         delflag[i] = false;
     }
 
-    for ( int s = 0 ; s < nsurf - 1 ; s++ )
+    for ( int s = 0 ; s + 1 < nsurf ; s++ )
     {
         for ( int t = s + 1 ; t < nsurf ; t++ )
         {
