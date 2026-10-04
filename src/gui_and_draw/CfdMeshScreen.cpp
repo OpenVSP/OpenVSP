@@ -212,8 +212,16 @@ void CfdMeshScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.SetButtonWidth( 175.0 );
 
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetW() / 3 );
+    m_GlobalTabLayout.SetSameLineFlag( true );
+    m_GlobalTabLayout.SetFitWidthFlag( false );
     m_GlobalTabLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
-    m_GlobalTabLayout.AddSlider( m_ToCubicTolSlider, "Cubic Tolerance", 10, "%5.4g", 0, true );
+    m_GlobalTabLayout.SetFitWidthFlag( true );
+    m_GlobalTabLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
+    m_GlobalTabLayout.ForceNewLine();
+
+    m_GlobalTabLayout.SetSameLineFlag( false );
+    m_GlobalTabLayout.SetFitWidthFlag( true );
 
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddButton( m_ConvertToQuadsToggle, "Convert to Quads" );

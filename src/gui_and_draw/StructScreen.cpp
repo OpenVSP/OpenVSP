@@ -1770,8 +1770,18 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
     m_MeshTabLayout.AddYGap();
+    m_MeshTabLayout.SetButtonWidth( m_MeshTabLayout.GetW() / 3 );
+    m_MeshTabLayout.SetSameLineFlag( true );
+    m_MeshTabLayout.SetFitWidthFlag( false );
+
     m_MeshTabLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
-    m_MeshTabLayout.AddSlider( m_ToCubicTolSlider, "Cubic Tolerance", 10, "%5.4g", 0, true );
+    m_MeshTabLayout.SetFitWidthFlag( true );
+    m_MeshTabLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
+
+    m_MeshTabLayout.ForceNewLine();
+
+    m_MeshTabLayout.SetSameLineFlag( false );
+    m_MeshTabLayout.SetFitWidthFlag( true );
 
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddDividerBox( "Element Type" );
@@ -1862,9 +1872,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 6.0 );
 
-    m_FemTabLayout.AddButton( m_ColorElementsButton, "Color" );
-    m_FemTabLayout.AddButton( m_ColorByTag, "By Tag" );
-    m_FemTabLayout.AddButton( m_ColorByReason, "By Reason" );
+    m_FemTabLayout.AddButton( m_ColorElementsButton, "Color By:" );
+    m_FemTabLayout.AddButton( m_ColorByTag, "Tag" );
+    m_FemTabLayout.AddButton( m_ColorByReason, "Reason" );
     m_FemTabLayout.ForceNewLine();
 
     m_ColorByToggleGroup.Init( this );
