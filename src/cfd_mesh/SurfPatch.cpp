@@ -22,9 +22,6 @@ SurfPatch::SurfPatch()
     u_max = w_max = 1.0;
     m_SurfPtr = nullptr;
     sub_depth = 0;
-
-    m_wasplanar = false;
-    m_checkedplanar = false;
 }
 
 SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
@@ -33,9 +30,6 @@ SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
     u_max = w_max = 1.0;
     m_SurfPtr = nullptr;
     sub_depth = d;
-
-    m_wasplanar = false;
-    m_checkedplanar = false;
 }
 
 SurfPatch::~SurfPatch()
@@ -130,23 +124,12 @@ bool SurfPatch::test_planar( double tol ) const
 //===== Test If Patch Is Planar (within relative tol)  =====//
 bool SurfPatch::test_planar_rel( double reltol ) const
 {
-    if ( m_checkedplanar )
-    {
-        return m_wasplanar;
-    }
-
     surface_patch_type approx = m_Patch;
     approx.planar_approx();
 
     double dst = m_Patch.simple_eqp_distance_bound( approx );
 
-    // These variables are mutable -- to allow this to still be a const method.
-    // Set m_lastreltol after setting m_wasplanar as a defense against any future race
-    // condition.
-    m_wasplanar = dst < ( reltol * bnd_box.DiagDist() );
-    m_checkedplanar = true;
-
-    return m_wasplanar;
+    return dst < ( reltol * bnd_box.DiagDist() );
 }
 
 //===== Find Closest UW On Patch to Given Point with Initial Guess  =====//

@@ -132,13 +132,11 @@ public:
     // resize() sizes the control-point grid to degree (n,m) -- std::vector::resize is a no-op, so
     // no reallocation, when the degree is unchanged -- and also invalidates the Bezier derivative
     // cache, which matters because the planar test can leave a cached derivative behind that would
-    // otherwise be stale for the new geometry.  Reset the depth and planar-test cache.
+    // otherwise be stale for the new geometry.  Reset the depth.
     void PrepareForReuse( int n, int m, int d )
     {
         m_Patch.resize( n, m );
         sub_depth = d;
-        m_checkedplanar = false;
-        m_wasplanar = false;
     }
 
     friend void intersect_quads( const SurfPatch&  bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
@@ -157,9 +155,6 @@ protected:
     BndBox bnd_box;
 
     int sub_depth;
-
-    mutable bool m_wasplanar;
-    mutable bool m_checkedplanar; // Flag to indicate if test_planar or test_planar_rel has been called for the patch
 
 };
 
