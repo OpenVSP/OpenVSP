@@ -89,27 +89,14 @@ protected:
 
     //===== Output Tab Items =====//
 
-    ToggleButton m_CurvFile;
-    ToggleButton m_Plot3DFile;
     ToggleButton m_IGESFile;
     ToggleButton m_STEPFile;
 
-    ToggleButton m_SrfFile;
-    ToggleButton m_XYZIntCurves;
-
-    TriggerButton m_SelectCurvFile;
-    TriggerButton m_SelectPlot3DFile;
-    TriggerButton m_SelectSrfFile;
     TriggerButton m_SelectIGESFile;
     TriggerButton m_SelectSTEPFile;
 
-    StringOutput m_CurvOutput;
-    StringOutput m_Plot3DOutput;
-    StringOutput m_SrfOutput;
     StringOutput m_IGESOutput;
     StringOutput m_STEPOutput;
-
-    ToggleButton m_ExportRaw;
 
     SliderAdjRangeInput m_STEPTolSlider;
     //ToggleButton m_SplitSubSurfsToggle;

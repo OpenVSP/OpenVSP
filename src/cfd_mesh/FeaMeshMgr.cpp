@@ -679,23 +679,6 @@ void FeaMeshMgrSingleton::ExportCADFiles()
         GetMeshPtr()->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr());
     }
 
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
-    {
-        WriteSurfsIntCurves( GetSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
-    }
-
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
-    {
-        WriteGridToolCurvFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
-                               GetSettingsPtr()->m_ExportRawFlag );
-    }
-
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
-    {
-        WritePlot3DFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
-                         GetSettingsPtr()->m_ExportRawFlag );
-    }
-
     if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) || GetSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
     {
         BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap

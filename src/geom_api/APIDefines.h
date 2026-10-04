@@ -239,7 +239,6 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,	/*!< Minimum mesh edge length */
                             CFD_FAR_LOC_X,	/*!< Far field X location */
                             CFD_FAR_LOC_Y,	/*!< Far field Y location */
                             CFD_FAR_LOC_Z,	/*!< Far field Z location */
-                            CFD_SRF_XYZ_FLAG,	/*!< Flag to include X,Y,Z intersection curves in export files */
 };
 
 /*!
@@ -627,9 +626,6 @@ enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,	/*!< FEA Mesh mass export type */
                        FEA_CALCULIX_FILE_NAME,	/*!< FEA Mesh Calculix export type */
                        FEA_STL_FILE_NAME,	/*!< FEA Mesh STL export type */
                        FEA_GMSH_FILE_NAME,	/*!< FEA Mesh GMSH export type */
-                       FEA_SRF_FILE_NAME,	/*!< FEA Mesh SRF export type */
-                       FEA_CURV_FILE_NAME,	/*!< FEA Mesh CURV export type */
-                       FEA_PLOT3D_FILE_NAME,	/*!< FEA Mesh PLOT3D export type */
                        FEA_IGES_FILE_NAME,	/*!< FEA Mesh trimmed IGES export type */
                        FEA_STEP_FILE_NAME,	/*!< FEA Mesh trimmed STEP export type */
                        FEA_NUM_FILE_NAMES	/*!< Number of FEA Mesh export type. */
@@ -1080,10 +1076,7 @@ enum IMPORT_TYPE {  IMPORT_STL,	/*!< Stereolith (\\*.stl) import */
 	\ingroup Enumerations
 */
 /*! Enum for Surface Intersection export file types. */
-enum INTERSECT_EXPORT_TYPE { INTERSECT_SRF_FILE_NAME,	/*!< SRF intersection file type */
-                             INTERSECT_CURV_FILE_NAME,	/*!< CURV intersection file type */
-                             INTERSECT_PLOT3D_FILE_NAME,	/*!< PLOT3D intersection file type */
-                             INTERSECT_IGES_FILE_NAME,	/*!< IGES intersection file type */
+enum INTERSECT_EXPORT_TYPE { INTERSECT_IGES_FILE_NAME,	/*!< IGES intersection file type */
                              INTERSECT_STEP_FILE_NAME,	/*!< STEP intersection file type */
                              INTERSECT_NUM_FILE_NAMES	/*!< Number of surface intersection file types */
 };

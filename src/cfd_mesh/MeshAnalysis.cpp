@@ -40,8 +40,6 @@ void CfdMeshAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "RigorLimit", veh->GetCfdGridDensityPtr()->m_RigorLimit(), "Flag to enable rigorous growth limiting across 3D space." ) );
         m_Inputs.Add( new NameValData( "IntersectSubSurfs", veh->GetCfdSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
         m_Inputs.Add( new NameValData( "TaggedMultiSolid", veh->m_STLMultiSolid(), "Flag to enable non-standard tagged multi-solid STL file export." ) );
-        m_Inputs.Add( new NameValData( "XYZIntCurveFlag", veh->GetCfdSettingsPtr()->m_XYZIntCurveFlag(), "Flag to include X,Y,Z intersection curves in *.srf file." ) );
-        m_Inputs.Add( new NameValData( "ExportRawFlag", veh->GetCfdSettingsPtr()->m_ExportRawFlag(), "Flag to export raw intersection points."  ) );
         m_Inputs.Add( new NameValData( "GenerateHalfMesh", veh->GetCfdSettingsPtr()->m_HalfMeshFlag(), "Flag to generate a half mesh in +Y domain." ) );
 
         m_Inputs.Add( new NameValData( "SelectedSetIndex", veh->GetCfdSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
@@ -114,14 +112,6 @@ string CfdMeshAnalysis::Execute()
         bool taggedMultiSolidOrig = veh->m_STLMultiSolid();
         nvd = m_Inputs.FindPtr( "TaggedMultiSolid", 0 );
         if( nvd ) veh->m_STLMultiSolid.Set( nvd->GetInt( 0 ) );
-
-        bool xYZIntCurveOrig = veh->GetCfdSettingsPtr()->m_XYZIntCurveFlag();
-        nvd = m_Inputs.FindPtr( "XYZIntCurve", 0 );
-        if( nvd ) veh->GetCfdSettingsPtr()->m_XYZIntCurveFlag.Set( nvd->GetInt( 0 ) );
-
-        bool exportRawOrig = veh->GetCfdSettingsPtr()->m_ExportRawFlag();
-        nvd = m_Inputs.FindPtr( "ExportRawFlag", 0 );
-        if( nvd ) veh->GetCfdSettingsPtr()->m_ExportRawFlag.Set( nvd->GetInt( 0 ) );
 
         bool generateHalfMeshOrig = veh->GetCfdSettingsPtr()->m_HalfMeshFlag();
         nvd = m_Inputs.FindPtr( "GenerateHalfMesh", 0 );
@@ -207,8 +197,6 @@ string CfdMeshAnalysis::Execute()
         veh->GetCfdGridDensityPtr()->m_RigorLimit.Set( rigorLimitOrig );
         veh->GetCfdSettingsPtr()->m_IntersectSubSurfs.Set( intersectSubSurfsOrig );
         veh->m_STLMultiSolid.Set( taggedMultiSolidOrig );
-        veh->GetCfdSettingsPtr()->m_XYZIntCurveFlag.Set( xYZIntCurveOrig );
-        veh->GetCfdSettingsPtr()->m_ExportRawFlag.Set( exportRawOrig );
         veh->GetCfdSettingsPtr()->m_HalfMeshFlag.Set( generateHalfMeshOrig );
 
         veh->GetCfdSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
@@ -371,16 +359,8 @@ static void SendExportError( const string &msg )
 // Whether any of the files written from the intersection data rather than the mesh is asked for.
 static bool CADFileRequested( StructSettings* settings )
 {
-    int types[] = { vsp::FEA_SRF_FILE_NAME, vsp::FEA_CURV_FILE_NAME, vsp::FEA_PLOT3D_FILE_NAME,
-                    vsp::FEA_IGES_FILE_NAME, vsp::FEA_STEP_FILE_NAME };
-    for ( int i = 0; i < 5; i++ )
-    {
-        if ( settings->GetExportFileFlag( types[i] )->Get() )
-        {
-            return true;
-        }
-    }
-    return false;
+    return settings->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get() ||
+           settings->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get();
 }
 
 FeaMeshExportAnalysis::FeaMeshExportAnalysis() : Analysis( "FeaMeshExport", "Write the files of the current structure's finite element mesh." )
@@ -411,8 +391,6 @@ void FeaMeshExportAnalysis::SetDefaults()
     {
         m_Inputs.Add( new NameValData( "STEPTol", struct_settings->m_STEPTol(), "Tolerance output to STEP files." ) );
 
-        m_Inputs.Add( new NameValData( "ExportRawFlag", struct_settings->m_ExportRawFlag(), "Flag to export raw intersection points." ) );
-        m_Inputs.Add( new NameValData( "XYZIntCurveFlag", struct_settings->m_XYZIntCurveFlag(), "Flag to include X,Y,Z intersection curves in *.srf file." ) );
         m_Inputs.Add( new NameValData( "CADLabelID", struct_settings->m_CADLabelID(), "Flag to include GeomID in CAD surface label." ) );
         m_Inputs.Add( new NameValData( "CADLabelName", struct_settings->m_CADLabelName(), "Flag to include Geom name in CAD surface label." ) );
         m_Inputs.Add( new NameValData( "CADLabelSurfNo", struct_settings->m_CADLabelSurfNo(), "Flag to include surface number in CAD surface label." ) );
@@ -440,15 +418,6 @@ void FeaMeshExportAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "CALCULIXFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME )->Get(), "Flag to enable CalculiX file export." ) );
         m_Inputs.Add( new NameValData( "CALCULIXFileName", struct_settings->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME ), "File name for CalculiX file export." ) );
 
-        m_Inputs.Add( new NameValData( "CURVFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME )->Get(), "Flag to enable CURV file export." ) );
-        m_Inputs.Add( new NameValData( "CURVFileName", struct_settings->GetExportFileName( vsp::FEA_CURV_FILE_NAME ), "File name for CURV file export." ) );
-
-        m_Inputs.Add( new NameValData( "P3DFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->Get(), "Flag to enable Plot3D file export." ) );
-        m_Inputs.Add( new NameValData( "P3DFileName", struct_settings->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ), "File name for Plot3D file export." ) );
-
-        m_Inputs.Add( new NameValData( "SRFFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME )->Get(), "Flag to enable SRF file export." ) );
-        m_Inputs.Add( new NameValData( "SRFFileName", struct_settings->GetExportFileName( vsp::FEA_SRF_FILE_NAME ), "File name for SRF file export." ) );
-
         m_Inputs.Add( new NameValData( "IGESFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get(), "Flag to enable IGES file export." ) );
         m_Inputs.Add( new NameValData( "IGESFileName", struct_settings->GetExportFileName( vsp::FEA_IGES_FILE_NAME ), "File name for IGES file export." ) );
 
@@ -470,14 +439,6 @@ string FeaMeshExportAnalysis::Execute()
         double sTEPTolOrig = curr_struct->GetStructSettingsPtr()->m_STEPTol();
         nvd = m_Inputs.FindPtr( "STEPTol", 0 );
         if( nvd ) curr_struct->GetStructSettingsPtr()->m_STEPTol.Set( nvd->GetDouble( 0 ) );
-
-        bool exportRawFlagOrig = curr_struct->GetStructSettingsPtr()->m_ExportRawFlag();
-        nvd = m_Inputs.FindPtr( "ExportRawFlag", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.Set( nvd->GetInt( 0 ) );
-
-        bool xYZIntCurveFlagOrig = curr_struct->GetStructSettingsPtr()->m_XYZIntCurveFlag();
-        nvd = m_Inputs.FindPtr( "XYZIntCurveFlag", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->m_XYZIntCurveFlag.Set( nvd->GetInt( 0 ) );
 
         bool cADLabelIDOrig = curr_struct->GetStructSettingsPtr()->m_CADLabelID();
         nvd = m_Inputs.FindPtr( "CADLabelID", 0 );
@@ -552,30 +513,6 @@ string FeaMeshExportAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "CALCULIXFileName", 0 );
         if( nvd ) curr_struct->GetStructSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::FEA_CALCULIX_FILE_NAME );
 
-        bool cURVFileFlagOrig = curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME )->Get();
-        nvd = m_Inputs.FindPtr( "CURVFileFlag", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_CURV_FILE_NAME, nvd->GetInt( 0 ) );
-
-        string cURVFileNameOrig = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME );
-        nvd = m_Inputs.FindPtr( "CURVFileName", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::FEA_CURV_FILE_NAME );
-
-        bool p3DFileFlagOrig = curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->Get();
-        nvd = m_Inputs.FindPtr( "P3DFileFlag", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_PLOT3D_FILE_NAME, nvd->GetInt( 0 ) );
-
-        string p3DFileNameOrig = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME );
-        nvd = m_Inputs.FindPtr( "P3DFileName", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::FEA_PLOT3D_FILE_NAME );
-
-        bool sRFFileFlagOrig = curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME )->Get();
-        nvd = m_Inputs.FindPtr( "SRFFileFlag", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_SRF_FILE_NAME, nvd->GetInt( 0 ) );
-
-        string sRFFileNameOrig = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME );
-        nvd = m_Inputs.FindPtr( "SRFFileName", 0 );
-        if( nvd ) curr_struct->GetStructSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::FEA_SRF_FILE_NAME );
-
         bool iGESFileFlagOrig = curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get();
         nvd = m_Inputs.FindPtr( "IGESFileFlag", 0 );
         if( nvd ) curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_IGES_FILE_NAME, nvd->GetInt( 0 ) );
@@ -622,8 +559,6 @@ string FeaMeshExportAnalysis::Execute()
         curr_struct->GetStructSettingsPtr()->m_STEPTol.Set( sTEPTolOrig );
 
         //Input Triggers
-        curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.Set( exportRawFlagOrig );
-        curr_struct->GetStructSettingsPtr()->m_XYZIntCurveFlag.Set( xYZIntCurveFlagOrig );
         curr_struct->GetStructSettingsPtr()->m_CADLabelID.Set( cADLabelIDOrig );
         curr_struct->GetStructSettingsPtr()->m_CADLabelName.Set( cADLabelNameOrig );
         curr_struct->GetStructSettingsPtr()->m_CADLabelSurfNo.Set( cADLabelSurfNoOrig );
@@ -651,15 +586,6 @@ string FeaMeshExportAnalysis::Execute()
 
         curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_CALCULIX_FILE_NAME, cALCULIXFileFlagOrig );
         curr_struct->GetStructSettingsPtr()->SetExportFileName( cALCULIXFileNameOrig, vsp::FEA_CALCULIX_FILE_NAME );
-
-        curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_CURV_FILE_NAME, cURVFileFlagOrig );
-        curr_struct->GetStructSettingsPtr()->SetExportFileName( cURVFileNameOrig, vsp::FEA_CURV_FILE_NAME );
-
-        curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_PLOT3D_FILE_NAME, p3DFileFlagOrig );
-        curr_struct->GetStructSettingsPtr()->SetExportFileName( p3DFileNameOrig, vsp::FEA_PLOT3D_FILE_NAME );
-
-        curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_SRF_FILE_NAME, sRFFileFlagOrig );
-        curr_struct->GetStructSettingsPtr()->SetExportFileName( sRFFileNameOrig, vsp::FEA_SRF_FILE_NAME );
 
         curr_struct->GetStructSettingsPtr()->SetFileExportFlag( vsp::FEA_IGES_FILE_NAME, iGESFileFlagOrig );
         curr_struct->GetStructSettingsPtr()->SetExportFileName( iGESFileNameOrig, vsp::FEA_IGES_FILE_NAME );
@@ -690,7 +616,6 @@ void SurfaceIntersectionAnalysis::SetDefaults()
 
     if( veh )
     {
-        m_Inputs.Add( new NameValData( "ExportRawFlag", veh->GetISectSettingsPtr()->m_ExportRawFlag(), "Flag to export raw intersection points." ) );
         m_Inputs.Add( new NameValData( "IntersectSubSurfs", veh->GetISectSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
         m_Inputs.Add( new NameValData( "RelCurveTol", veh->GetISectSettingsPtr()->m_RelCurveTol(), "Tolerance used when constructing binary adapted curves." ) );
         m_Inputs.Add( new NameValData( "SelectedSetIndex", veh->GetISectSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
@@ -711,12 +636,6 @@ void SurfaceIntersectionAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "STEPTol", veh->GetISectSettingsPtr()->m_STEPTol(), "Tolerance output to STEP files." ) );
 
         // File Outputs
-        m_Inputs.Add( new NameValData( "CURVFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->Get(), "Flag to enable CURV file export." ) );
-        m_Inputs.Add( new NameValData( "CURVFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ), "File name for CURV file export." ) );
-        m_Inputs.Add( new NameValData( "SRFFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->Get(), "Flag to enable SRF file export." ) );
-        m_Inputs.Add( new NameValData( "SRFFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ), "File name for SRF file export." ) );
-        m_Inputs.Add( new NameValData( "P3DFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME )->Get(), "Flag to enable Plot3D file export." ) );
-        m_Inputs.Add( new NameValData( "P3DFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ), "File name for Plot3D file export." ) );
         m_Inputs.Add( new NameValData( "IGESFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->Get(), "Flag to enable IGES file export." ) );
         m_Inputs.Add( new NameValData( "IGESFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ), "File name for IGES file export." ) );
         m_Inputs.Add( new NameValData( "STEPFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get(), "Flag to enable STEP file export." ) );
@@ -736,10 +655,6 @@ string SurfaceIntersectionAnalysis::Execute()
     if( veh )
     {
         NameValData* nvd = nullptr;
-
-        bool exportRawFlagOrig = veh->GetISectSettingsPtr()->m_ExportRawFlag();
-        nvd = m_Inputs.FindPtr( "ExportRawFlag", 0 );
-        if( nvd ) veh->GetISectSettingsPtr()->m_ExportRawFlag.Set( nvd->GetInt( 0 ) );
 
         bool intersectSubSurfsOrig = veh->GetISectSettingsPtr()->m_IntersectSubSurfs();
         nvd = m_Inputs.FindPtr( "IntersectSubSurfs", 0 );
@@ -803,30 +718,6 @@ string SurfaceIntersectionAnalysis::Execute()
         if( nvd ) veh->GetISectSettingsPtr()->m_STEPTol.Set( nvd->GetDouble( 0 ) );
 
         // File Outputs
-        bool curvFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->Get();
-        nvd = m_Inputs.FindPtr( "CURVFileFlag", 0 );
-        if( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_CURV_FILE_NAME, nvd->GetInt( 0 ) );
-
-        string curvFileNameOrig = veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME );
-        nvd = m_Inputs.FindPtr( "CURVFileName", 0 );
-        if( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_CURV_FILE_NAME );
-
-        bool srfFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->Get();
-        nvd = m_Inputs.FindPtr( "SRFFileFlag", 0 );
-        if( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_SRF_FILE_NAME, nvd->GetInt( 0 ) );
-
-        string srfFileNameOrig = veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME );
-        nvd = m_Inputs.FindPtr( "SRFFileName", 0 );
-        if( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_SRF_FILE_NAME );
-
-        bool p3dFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME )->Get();
-        nvd = m_Inputs.FindPtr( "P3DFileFlag", 0 );
-        if( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_PLOT3D_FILE_NAME, nvd->GetInt( 0 ) );
-
-        string p3dFileNameOrig = veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME );
-        nvd = m_Inputs.FindPtr( "P3DFileName", 0 );
-        if( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_PLOT3D_FILE_NAME );
-
         bool igesFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->Get();
         nvd = m_Inputs.FindPtr( "IGESFileFlag", 0 );
         if( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_IGES_FILE_NAME, nvd->GetInt( 0 ) );
@@ -847,7 +738,6 @@ string SurfaceIntersectionAnalysis::Execute()
         SurfaceIntersectionMgr.IntersectSurfaces(); // TODO: Add results
 
         // ==== Restore original values that were overwritten by analysis inputs ==== //
-        veh->GetISectSettingsPtr()->m_ExportRawFlag.Set( exportRawFlagOrig );
         veh->GetISectSettingsPtr()->m_IntersectSubSurfs.Set( intersectSubSurfsOrig );
         veh->GetISectSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
         veh->GetISectSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
@@ -868,12 +758,6 @@ string SurfaceIntersectionAnalysis::Execute()
         veh->GetISectSettingsPtr()->m_STEPTol.Set( stepTolOrig );
 
         // File Outputs
-        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_CURV_FILE_NAME, curvFileFlagOrig );
-        veh->GetISectSettingsPtr()->SetExportFileName( curvFileNameOrig, vsp::INTERSECT_CURV_FILE_NAME );
-        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_SRF_FILE_NAME, srfFileFlagOrig );
-        veh->GetISectSettingsPtr()->SetExportFileName( srfFileNameOrig, vsp::INTERSECT_SRF_FILE_NAME );
-        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_PLOT3D_FILE_NAME, p3dFileFlagOrig );
-        veh->GetISectSettingsPtr()->SetExportFileName( p3dFileNameOrig, vsp::INTERSECT_PLOT3D_FILE_NAME );
         veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_IGES_FILE_NAME, igesFileFlagOrig );
         veh->GetISectSettingsPtr()->SetExportFileName( igesFileNameOrig, vsp::INTERSECT_IGES_FILE_NAME );
         veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_STEP_FILE_NAME, stepFileFlagOrig );

@@ -41,9 +41,6 @@ void AnalysisExample()
     // Set some analysis inputs
     array < int > no_flag;
     no_flag.push_back( 0 );
-    SetIntAnalysisInput( analysis_name, "CURVFileFlag", no_flag, 0 );
-    SetIntAnalysisInput( analysis_name, "SRFFileFlag", no_flag, 0 );
-    SetIntAnalysisInput( analysis_name, "P3DFileFlag", no_flag, 0 );
 
     array < string > iges_name;
     iges_name.push_back( "Example_Trimmed_IGES.igs" );

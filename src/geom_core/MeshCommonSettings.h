@@ -40,7 +40,6 @@ public:
     BoolParm m_DrawPntsFlag;
 
     Parm m_RelCurveTol;
-    BoolParm m_ExportRawFlag;
 
     BoolParm m_IntersectSubSurfs;
 
@@ -97,8 +96,6 @@ public:
 
     // Trimmed CAD files are written in model units, so the unit is the user's to declare.
     IntParm m_CADLenUnit;
-
-    BoolParm m_XYZIntCurveFlag;
 
 protected:
 
@@ -173,7 +170,6 @@ public:
     string m_ModeID;
 
     BoolParm m_ExportFileFlags[vsp::CFD_NUM_FILE_NAMES];
-    BoolParm m_XYZIntCurveFlag;
 
 protected:
 
@@ -211,7 +207,6 @@ public:
     BoolParm m_DrawNodesFlag;
     BoolParm m_DrawBCNodesFlag;
     BoolParm m_DrawElementOrientVecFlag;
-    BoolParm m_XYZIntCurveFlag;
 
     IntParm m_NodeOffset;
     IntParm m_ElementOffset;

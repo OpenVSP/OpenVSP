@@ -74,8 +74,6 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_DrawSourceWakeFlag.Init( "DrawSourceWake", "DrawMesh", this, true, 0, 1 );
 
-    m_ExportRawFlag.Init( "ExportRawFlag", "ExportIntersect", this, false, 0, 1 );
-
     m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 
@@ -84,8 +82,6 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_UseMode.Init( "UseMode", "Global", this, false, false, true );
     m_UseMode.SetDescript( "Flag to control whether modes are used instead of sets." );
-
-    m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportIntersect", this, false, 0, 1 );
 
     m_CADLenUnit.Init( "CADLenUnit", "ExportIntersect", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
     m_STEPTol.Init( "STEPTol", "ExportIntersect", this, 1e-6, 1e-12, 1e12 );
@@ -99,9 +95,6 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
     m_CADLabelSplitNo.Init( "CADLabelSplitNo", "ExportIntersect", this, true, 0, 1 );
 
     m_ExportFileFlags.resize( vsp::INTERSECT_NUM_FILE_NAMES );
-    m_ExportFileFlags[ vsp::INTERSECT_SRF_FILE_NAME ].Init( "SRF_Export", "ExportIntersect", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::INTERSECT_CURV_FILE_NAME ].Init( "CURV_Export", "ExportIntersect", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::INTERSECT_PLOT3D_FILE_NAME ].Init( "PLOT3D_Export", "ExportIntersect", this, true, 0, 1 );
     m_ExportFileFlags[vsp::INTERSECT_IGES_FILE_NAME].Init( "IGES_Export", "ExportIntersect", this, true, 0, 1 );
     m_ExportFileFlags[vsp::INTERSECT_STEP_FILE_NAME].Init( "STEP_Export", "ExportIntersect", this, true, 0, 1 );
 
@@ -176,7 +169,7 @@ void IntersectSettings::ResetExportFileNames( const string& basename )
         base.erase( pos, base.length() - 1 );
     }
 
-    const char *suffix[] = {".srf", ".curv", ".p3d", ".igs", ".stp" };
+    const char *suffix[] = { ".igs", ".stp" };
 
     for ( int i = 0 ; i < vsp::INTERSECT_NUM_FILE_NAMES; i++ )
     {
@@ -274,10 +267,6 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_ExportFileFlags[ vsp::CFD_TKEY_FILE_NAME ].Init( "TKEY_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_FACET_FILE_NAME ].Init( "FACET_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_VSPGEOM_FILE_NAME ].Init( "VSPGEOM_Export", "ExportCFD", this, true, 0, 1 );
-
-    m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportCFD", this, false, 0, 1 );
-
-    m_ExportRawFlag.Init( "ExportRawFlag", "ExportCFD", this, false, 0, 1 );
 
     InitCommonParms( false );
 
@@ -440,15 +429,8 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_ExportFileFlags[ vsp::FEA_CALCULIX_FILE_NAME ].Init( "CALCULIX_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_STL_FILE_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_GMSH_FILE_NAME].Init( "GMSH_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::FEA_SRF_FILE_NAME ].Init( "SRF_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::FEA_CURV_FILE_NAME ].Init( "CURV_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::FEA_PLOT3D_FILE_NAME ].Init( "PLOT3D_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[vsp::FEA_IGES_FILE_NAME].Init( "IGES_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[vsp::FEA_STEP_FILE_NAME].Init( "STEP_Export", "ExportFEA", this, true, 0, 1 );
-
-    m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportFEA", this, false, 0, 1 );
-
-    m_ExportRawFlag.Init( "ExportRawFlag", "ExportFEA", this, false, 0, 1 );
 
     m_STEPTol.Init( "STEPTol", "ExportFEA", this, 1e-6, 1e-12, 1e12 );
     m_STEPMergePoints.Init( "STEP", "ExportFEA", this, false, 0, 1 );
@@ -553,7 +535,7 @@ void StructSettings::ResetExportFileNames( const string& structname )
     }
     base.append( "_" + structname );
 
-    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.inp", ".stl", ".msh", ".srf", ".curv", ".p3d", ".igs", ".stp" };
+    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.inp", ".stl", ".msh", ".igs", ".stp" };
 
     for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {
@@ -604,9 +586,6 @@ AssemblySettings::AssemblySettings() : ParmContainer()
     m_ExportFileFlags[ vsp::FEA_CALCULIX_FILE_NAME ].Init( "CALCULIX_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_STL_FILE_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_GMSH_FILE_NAME].Init( "GMSH_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::FEA_SRF_FILE_NAME ].Init( "SRF_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::FEA_CURV_FILE_NAME ].Init( "CURV_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::FEA_PLOT3D_FILE_NAME ].Init( "PLOT3D_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[vsp::FEA_IGES_FILE_NAME].Init( "IGES_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[vsp::FEA_STEP_FILE_NAME].Init( "STEP_Export", "ExportFEA", this, true, 0, 1 );
 
@@ -683,7 +662,7 @@ void AssemblySettings::ResetExportFileNames( const string& structname )
     }
     base.append( "_" + structname );
 
-    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.inp", ".stl", ".msh", ".srf", ".curv", ".p3d", ".igs", ".stp" };
+    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.inp", ".stl", ".msh", ".igs", ".stp" };
 
     for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {

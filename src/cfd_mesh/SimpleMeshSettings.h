@@ -45,7 +45,6 @@ public:
     bool m_DrawPntsFlag;
 
     double m_RelCurveTol;
-    bool m_ExportRawFlag;
     double m_ExportRelCurveTol;
 
     bool m_IntersectSubSurfs;
@@ -64,8 +63,6 @@ public:
     int m_SelectedDegenSetIndex;
     bool m_UseMode;
     string m_ModeID;
-
-    bool m_XYZIntCurveFlag;
 
     double m_STEPTol;
     bool m_STEPMergePoints;

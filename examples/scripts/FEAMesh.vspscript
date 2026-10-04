@@ -188,18 +188,6 @@ void NewFEAMeshAnalysisExample( string struct_id )
 	calculix_file_name.push_back( "Example_Test_CALCULIX.dat" );
     SetStringAnalysisInput( analysis_name, "CALCULIXFileName", calculix_file_name );
 
-    array < string > curve_file_name;
-	curve_file_name.push_back( "Example_Test_CURVE.curv" );
-    SetStringAnalysisInput( analysis_name, "CURVFileName", curve_file_name );
-
-    array < string > p3d_file_name;
-	p3d_file_name.push_back( "Example_Test_P3D.p3d" );
-    SetStringAnalysisInput( analysis_name, "P3DFileName", p3d_file_name );
-
-    array < string > srf_file_name;
-	srf_file_name.push_back( "Example_Test_SRF.srf" );
-    SetStringAnalysisInput( analysis_name, "SRFFileName", srf_file_name );
-
     array < int > iges_file_flag;
 	iges_file_flag.push_back( 0 );
     SetIntAnalysisInput( analysis_name, "IGESFileFlag", iges_file_flag );

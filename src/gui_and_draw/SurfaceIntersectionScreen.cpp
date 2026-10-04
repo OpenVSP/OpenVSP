@@ -160,63 +160,13 @@ void SurfaceIntersectionScreen::CreateOutputTab()
 
     m_OutputTabLayout.SetGroupAndScreen( outputTabGroup, this );
 
-    m_OutputTabLayout.AddDividerBox("Export Options");
+    int button_width = 55;
+    int input_width = 280;
+
+    m_OutputTabLayout.AddDividerBox( "Trimmed CAD Options" );
     m_OutputTabLayout.AddYGap();
-
-    m_OutputTabLayout.SetButtonWidth( 175 );
-
-    m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-
-    m_OutputTabLayout.AddYGap();
-
-    m_OutputTabLayout.AddDividerBox("Export File Names");
-    m_OutputTabLayout.AddYGap();
-
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
-
-    int button_width = 55;
-    m_OutputTabLayout.SetButtonWidth( button_width );
-    int input_width = 280;
-    m_OutputTabLayout.SetInputWidth( input_width );
-
-    m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
-    m_OutputTabLayout.AddOutput(m_CurvOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
-
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( button_width );
-    m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
-    m_OutputTabLayout.AddOutput(m_Plot3DOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
-
-    m_OutputTabLayout.AddYGap();
-
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
-
-    m_OutputTabLayout.SetButtonWidth( button_width );
-    m_OutputTabLayout.AddButton(m_SrfFile, ".srf");
-    m_OutputTabLayout.AddOutput(m_SrfOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectSrfFile, "...");
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves");
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.AddYGap();
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox( "Trimmed CAD Options" );
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.InitWidthHeightVals();
 
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 4 );
@@ -444,26 +394,14 @@ void SurfaceIntersectionScreen::UpdateDisplayTab()
 
 void SurfaceIntersectionScreen::UpdateOutputTab()
 {
-    string curvname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME );
-    m_CurvOutput.Update( StringUtil::truncateFileName( curvname, 40 ).c_str() );
-    string plot3dname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME );
-    m_Plot3DOutput.Update( StringUtil::truncateFileName( plot3dname, 40 ).c_str() );
-    string srfname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME );
-    m_SrfOutput.Update( StringUtil::truncateFileName( srfname, 40 ).c_str() );
     string igsname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME );
     m_IGESOutput.Update( StringUtil::truncateFileName( igsname, 40 ).c_str() );
     string stpname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME );
     m_STEPOutput.Update( StringUtil::truncateFileName( stpname, 40 ).c_str() );
 
     //==== Update File Output Flags ====//
-    m_CurvFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->GetID() );
-    m_Plot3DFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME )->GetID() );
-    m_SrfFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->GetID() );
     m_IGESFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->GetID() );
     m_STEPFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->GetID() );
-
-    m_ExportRaw.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag.GetID() );
-    m_XYZIntCurves.Update( m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.GetID() );
 
     //m_STEPMergePointsToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPMergePoints.GetID() );
     m_STEPTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPTol.GetID() );
@@ -702,31 +640,7 @@ void SurfaceIntersectionScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
 
 void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
 {
-    if ( device == &m_SelectSrfFile )
-    {
-        string newfile = m_ScreenMgr->FileChooser( "Select .srf file.", "*.srf", vsp::SAVE );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_SRF_FILE_NAME );
-        }
-    }
-    else if ( device == &m_SelectCurvFile )
-    {
-        string newfile = m_ScreenMgr->FileChooser( "Select GridTool .curv file.", "*.curv", vsp::SAVE );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_CURV_FILE_NAME );
-        }
-    }
-    else if ( device == &m_SelectPlot3DFile )
-    {
-        string newfile = m_ScreenMgr->FileChooser( "Select Plot3D .p3d file.", "*.p3d", vsp::SAVE );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_PLOT3D_FILE_NAME );
-        }
-    }
-    else if ( device == &m_SelectIGESFile )
+    if ( device == &m_SelectIGESFile )
     {
         string newfile = m_ScreenMgr->FileChooser( "Select IGES .igs file.", "*.igs", vsp::SAVE );
         if ( newfile.compare( "" ) != 0 )

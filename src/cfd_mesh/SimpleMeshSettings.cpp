@@ -36,7 +36,6 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
     m_DrawPntsFlag = false;
 
     m_RelCurveTol = 1e-6;
-    m_ExportRawFlag = false;
     m_ExportRelCurveTol = 1e-6;
 
     m_IntersectSubSurfs = true;
@@ -56,7 +55,6 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
     m_UseMode = false;
     m_ModeID = "";
 
-    m_XYZIntCurveFlag = false;
 
     m_STEPTol = 1e-6;
     m_STEPMergePoints = false;
@@ -94,7 +92,6 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
 
     m_RelCurveTol = settings->m_RelCurveTol.Get();
 
-    m_ExportRawFlag = settings->m_ExportRawFlag.Get();
 
     m_IntersectSubSurfs = settings->m_IntersectSubSurfs.Get();
 
@@ -246,7 +243,6 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
         m_ExportFileFlags[i] = settings->m_ExportFileFlags[i].Get();
     }
 
-    m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
 
     m_ExportFileNames = settings->GetExportFileNames();
 
@@ -263,7 +259,6 @@ SimpleFeaMeshSettings::SimpleFeaMeshSettings()
     m_DrawNodesFlag = false;
     m_DrawBCNodesFlag = false;
     m_DrawElementOrientVecFlag = false;
-    m_XYZIntCurveFlag = false;
 
     m_BeamPerElementNormal = true;
 
@@ -311,7 +306,6 @@ void SimpleFeaMeshSettings::CopyPostOpFrom( StructSettings* settings )
     m_BeamPerElementNormal = settings->m_BeamPerElementNormal.Get();
 
     // Allow CAD output settings to be included as Post-Op for Structures
-    m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
 
     m_STEPTol = settings->m_STEPTol.Get();
     m_STEPMergePoints = settings->m_STEPMergePoints.Get();
@@ -324,7 +318,6 @@ void SimpleFeaMeshSettings::CopyPostOpFrom( StructSettings* settings )
     m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
 
     // Copied in SimpleMeshCommonSettings, but needed here also.
-    m_ExportRawFlag = settings->m_ExportRawFlag.Get();
     m_RelCurveTol = settings->m_RelCurveTol.Get();
 }
 

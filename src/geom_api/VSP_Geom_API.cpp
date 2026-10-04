@@ -681,8 +681,6 @@ double GetCFDMeshVal( int type )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation();
     else if ( type == CFD_FAR_LOC_Z )
         ret = GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation();
-    else if ( type == CFD_SRF_XYZ_FLAG )
-        ret = GetVehicle()->GetCfdSettingsPtr()->m_XYZIntCurveFlag();
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "GetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
@@ -741,8 +739,6 @@ void SetCFDMeshVal( int type, double val )
         GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation = val;
     else if ( type == CFD_FAR_LOC_Z )
         GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation = val;
-    else if ( type == CFD_SRF_XYZ_FLAG )
-        GetVehicle()->GetCfdSettingsPtr()->m_XYZIntCurveFlag = ToBool(val);
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );

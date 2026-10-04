@@ -564,27 +564,14 @@ private:
     TriggerButton m_GrowLimitSourcesLabel;
 
     //===== CAD Items =====//
-    ToggleButton m_SrfFile;
-    ToggleButton m_XYZIntCurves;
-    TriggerButton m_SelectSrfFile;
-    StringOutput m_SrfOutput;
-
-    ToggleButton m_CurvFile;
-    ToggleButton m_Plot3DFile;
     ToggleButton m_IGESFile;
     ToggleButton m_STEPFile;
 
-    TriggerButton m_SelectCurvFile;
-    TriggerButton m_SelectPlot3DFile;
     TriggerButton m_SelectIGESFile;
     TriggerButton m_SelectSTEPFile;
 
-    StringOutput m_CurvOutput;
-    StringOutput m_Plot3DOutput;
     StringOutput m_IGESOutput;
     StringOutput m_STEPOutput;
-
-    ToggleButton m_ExportRaw;
 
     SliderAdjRangeInput m_STEPTolSlider;
     //ToggleButton m_STEPMergePointsToggle;

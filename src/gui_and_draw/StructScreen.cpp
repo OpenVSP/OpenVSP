@@ -1978,46 +1978,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_CadTabLayout.SetSameLineFlag( false );
     m_CadTabLayout.InitWidthHeightVals();
 
-    m_CadTabLayout.AddDividerBox("Surface and Curve Export");
-
-    m_CadTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-
-    m_CadTabLayout.InitWidthHeightVals();
-    m_CadTabLayout.SetInputWidth( m_CadTabLayout.GetW() - 75 - 55 );
-    m_CadTabLayout.SetFitWidthFlag( false );
-    m_CadTabLayout.SetSameLineFlag( true );
-
-    m_CadTabLayout.SetButtonWidth( 75 );
-    m_CadTabLayout.AddButton(m_CurvFile, ".curv");
-    m_CadTabLayout.AddOutput(m_CurvOutput);
-    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() );
-    m_CadTabLayout.AddButton(m_SelectCurvFile, "...");
-    m_CadTabLayout.ForceNewLine();
-
-    m_CadTabLayout.SetButtonWidth( 75 );
-    m_CadTabLayout.AddButton(m_Plot3DFile, ".p3d");
-    m_CadTabLayout.AddOutput(m_Plot3DOutput);
-    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() );
-    m_CadTabLayout.AddButton(m_SelectPlot3DFile, "...");
-    m_CadTabLayout.ForceNewLine();
-
-    m_CadTabLayout.AddYGap();
-
-    m_CadTabLayout.SetButtonWidth( 75 );
-    m_CadTabLayout.AddButton( m_SrfFile, ".srf" );
-    m_CadTabLayout.AddOutput( m_SrfOutput );
-    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() );
-    m_CadTabLayout.AddButton( m_SelectSrfFile, "..." );
-    m_CadTabLayout.ForceNewLine();
-
-    m_CadTabLayout.SetSameLineFlag( false );
-    m_CadTabLayout.SetFitWidthFlag( true );
-    m_CadTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves" );
-
-    m_CadTabLayout.AddYGap();
-    m_CadTabLayout.SetFitWidthFlag( true );
-    m_CadTabLayout.SetSameLineFlag( false );
-
     m_CadTabLayout.AddDividerBox( "Trimmed CAD Export" );
 
     m_CadTabLayout.InitWidthHeightVals();
@@ -3719,23 +3679,6 @@ bool StructScreen::Update()
                 m_SelectNkeyFile.Activate();
             }
 
-            string srfname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME );
-            m_SrfOutput.Update( StringUtil::truncateFileName( srfname, 40 ).c_str() );
-
-            m_SrfFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME )->GetID() );
-            m_XYZIntCurves.Update( curr_struct->GetStructSettingsPtr()->m_XYZIntCurveFlag.GetID() );
-
-            string curvname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME );
-            m_CurvOutput.Update( StringUtil::truncateFileName( curvname, 40 ).c_str() );
-            string plot3dname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME );
-            m_Plot3DOutput.Update( StringUtil::truncateFileName( plot3dname, 40 ).c_str() );
-
-            //==== Update File Output Flags ====//
-            m_CurvFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME )->GetID() );
-            m_Plot3DFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->GetID() );
-
-            m_ExportRaw.Update( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.GetID() );
-
             string igsname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME );
             m_IGESOutput.Update( StringUtil::truncateFileName( igsname, 40 ).c_str() );
             m_IGESFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->GetID() );
@@ -5040,45 +4983,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_GMSH_FILE_NAME );
-            }
-        }
-    }
-    else if ( device == &m_SelectSrfFile )
-    {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
-            string newfile = m_ScreenMgr->FileChooser( "Select .srf file.", "*.srf", vsp::SAVE );
-            if ( newfile.compare( "" ) != 0 )
-            {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_SRF_FILE_NAME );
-            }
-        }
-    }
-    else if ( device == &m_SelectCurvFile )
-    {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
-            string newfile = m_ScreenMgr->FileChooser( "Select GridTool .curv file.", "*.curv", vsp::SAVE );
-            if ( newfile.compare( "" ) != 0 )
-            {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_CURV_FILE_NAME );
-            }
-        }
-    }
-    else if ( device == &m_SelectPlot3DFile )
-    {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
-            string newfile = m_ScreenMgr->FileChooser( "Select Plot3D .p3d file.", "*.p3d", vsp::SAVE );
-            if ( newfile.compare( "" ) != 0 )
-            {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_PLOT3D_FILE_NAME );
             }
         }
     }
