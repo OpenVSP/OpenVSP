@@ -3976,15 +3976,17 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
         {
             for ( int i = 0 ; i < ( int )splitPnts.size() ; i++ )
             {
-                Puw* uwA = splitPnts[i]->GetPuw( ( *c )->m_SurfA );
-                Puw* uwB = splitPnts[i]->GetPuw( ( *c )->m_SurfB );
-                if ( uwA )
+                Puw* uw = splitPnts[i]->GetPuw( ( *c )->m_SurfA );
+                if ( !uw )
                 {
-                    ( *c )->AddBorderSplit( uwA );
+                    uw = splitPnts[i]->GetPuw( ( *c )->m_SurfB );
                 }
-                else if ( uwB )
+
+                // Only a chain end on this surface's border splits it.  An end on the border of
+                // the other surface the chain meets can lie within reach of this one.
+                if ( uw && uw->m_Surf->GetSurfCore()->UWPointOnBorder( uw->m_UW[0], uw->m_UW[1], 1.0e-4 ) != SurfCore::NOBNDY )
                 {
-                    ( *c )->AddBorderSplit( uwB );
+                    ( *c )->AddBorderSplit( uw );
                 }
             }
         }
