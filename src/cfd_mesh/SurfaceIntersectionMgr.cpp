@@ -3867,9 +3867,10 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                     if ( ((std::abs( uw_pnt0[0]-max_u ) < tol && std::abs( uw_pnt1[0]-max_u ) < tol) ||
                             (std::abs( uw_pnt0[1]-max_w ) < tol && std::abs( uw_pnt1[1]-max_w ) < tol) ||
                             (std::abs( uw_pnt0[0]-min_u ) < tol && std::abs( uw_pnt1[0]-min_u ) < tol) ||
-                            (std::abs( uw_pnt0[1]-min_w ) < tol && std::abs( uw_pnt1[1]-min_w ) < tol))
-                            && is_poly  )
+                            (std::abs( uw_pnt0[1]-min_w ) < tol && std::abs( uw_pnt1[1]-min_w ) < tol)) )
                     {
+                        // A segment along the patch's own edge repeats the border curve there,
+                        // and two curves on one line cannot both be held by the triangulator.
                         new_chain = true;
                         continue; // Skip if both end points are on the same edge of the surface
                     }
