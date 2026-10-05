@@ -1591,7 +1591,7 @@ EditCurveXSec* SSXSecCurve::ConvertToEdit()
 }
 
 //==== Change IDs =====//
-void SSXSecCurve::ChangeID( string id )
+void SSXSecCurve::ChangeID( const string &id )
 {
     SubSurface::ChangeID( id );
     if ( m_XSCurve )

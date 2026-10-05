@@ -170,7 +170,7 @@ void BORGeom::UpdateSurf()
 }
 
 //==== Change IDs =====//
-void BORGeom::ChangeID( string id )
+void BORGeom::ChangeID( const string &id )
 {
     Geom::ChangeID( id );
     if ( m_XSCurve )

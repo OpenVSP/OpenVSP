@@ -302,7 +302,7 @@ public:
     IntParm m_Tess; // Number of line segments to break shape into
 
 protected:
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
 
     XSecCurve *m_XSCurve;
 

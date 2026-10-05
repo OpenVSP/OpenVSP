@@ -61,7 +61,7 @@ public:
 
 protected:
     virtual void UpdateSurf();
-    virtual void ChangeID( string id );
+    virtual void ChangeID( const string &id );
 
     virtual void UpdatePreTess();
 
