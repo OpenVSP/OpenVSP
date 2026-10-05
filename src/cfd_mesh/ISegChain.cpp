@@ -1525,6 +1525,16 @@ void ISegChain::SpreadDensity( )
     m_ACurve.SpreadDensity( &m_BCurve );
 }
 
+void ISegChain::SpreadDensityA( )
+{
+    m_ACurve.SpreadDensityA();
+}
+
+void ISegChain::SpreadDensityB( )
+{
+    m_ACurve.SpreadDensityB( &m_BCurve );
+}
+
 void ISegChain::CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources )
 {
     m_ACurve.CalcDensity( grid_den, &m_BCurve, splitSources );

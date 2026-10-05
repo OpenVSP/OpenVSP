@@ -256,6 +256,8 @@ public:
     void BuildDistTableGeom();
     void BuildDistTableGeomB();
     void SpreadDensity( );
+    void SpreadDensityA( );
+    void SpreadDensityB( );
     void CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources );
     void Tessellate();
     void TessEndPts();

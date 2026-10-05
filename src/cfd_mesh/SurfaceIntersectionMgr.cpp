@@ -972,6 +972,18 @@ void SurfaceIntersectionSingleton::StepProgress( int output_type )
     DrawProgress( m_ProgressDone, '\r', output_type );
 }
 
+// Count one finished piece of work, and redraw only on every stride'th, for a stage with too
+// many pieces to draw each one.
+void SurfaceIntersectionSingleton::StepProgressEvery( int stride, int output_type )
+{
+    int done = ++m_ProgressDone;
+
+    if ( done % stride == 0 )
+    {
+        StepProgress( output_type );
+    }
+}
+
 void SurfaceIntersectionSingleton::EndProgress( int output_type )
 {
     if ( output_type == QUIET_OUTPUT || m_ProgressTotal <= 0 )

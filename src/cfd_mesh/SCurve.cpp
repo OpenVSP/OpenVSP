@@ -888,6 +888,35 @@ void SCurve::SpreadDensity( SCurve* BCurve )
     }
 }
 
+// The half of SpreadDensity that lands on this curve's surface.  Where the two curves lie on
+// different surfaces the halves touch different maps, and give what SpreadDensity does.
+void SCurve::SpreadDensityA()
+{
+    if ( ( int )m_TablePnt.size() != num_segs || ( int )m_TablePntB.size() != num_segs )
+    {
+        return;
+    }
+
+    for ( int i = 0 ; i < num_segs ; i++ )
+    {
+        ApplyESAtUW( m_TableUW[i], m_TablePnt[i], target_vec[i], reason_vec[i] );
+    }
+}
+
+// The half of SpreadDensity that lands on the partner curve's surface.
+void SCurve::SpreadDensityB( SCurve* BCurve )
+{
+    if ( ( int )m_TablePnt.size() != num_segs || ( int )m_TablePntB.size() != num_segs )
+    {
+        return;
+    }
+
+    for ( int i = 0 ; i < num_segs ; i++ )
+    {
+        BCurve->ApplyESAtUW( m_TableUWB[i], m_TablePntB[i], target_vec[i], reason_vec[i] );
+    }
+}
+
 void SCurve::CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
 {
     BuildDistTable( grid_den, BCurve, splitSources );

@@ -105,6 +105,8 @@ public:
     void DoubleTess();
     void UWTess();
     void SpreadDensity( SCurve* BCurve );
+    void SpreadDensityA();
+    void SpreadDensityB( SCurve* BCurve );
     void CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
     void ApplyESAtUW( const vec3d &uw, const vec3d &p, double t, int reason );
     void Tesselate();

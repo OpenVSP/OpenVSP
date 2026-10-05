@@ -488,6 +488,7 @@ public:
 
     void BeginProgress( const string &label, int n, int output_type );
     void StepProgress( int output_type );
+    void StepProgressEvery( int stride, int output_type );
     void EndProgress( int output_type );
 
     string m_ProgressLabel;

@@ -20,6 +20,10 @@
 
 #include <algorithm>
 #include <functional>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <deque>
 
 #include "StringUtil.h"
 
@@ -840,14 +844,33 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
     // Number of times to propagate intersection edges through surfaces
     int nedgeprop = 4;
 
-    for ( i = 0; i < nedgeprop; i ++ )
+    int nthread = StageThreadCount( nsurf );
+
+    // A chain is counted as it is taken up, and the bar redrawn some two hundred times in all.
+    int nspread = nedgeprop * ( int )m_ISegChainList.size();
+    int stride = std::max( 1, nspread / 200 );
+
+    BeginProgress( "Chain Density", nspread, output_type );
+
+    if ( nthread > 1 )
     {
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+        SpreadChainDensity( nedgeprop, nthread, splitSources, stride, output_type );
+    }
+    else
+    {
+        for ( i = 0; i < nedgeprop; i ++ )
         {
-            ( *c )->CalcDensity( GetGridDensityPtr(), splitSources );
-            ( *c )->SpreadDensity();
+            for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+            {
+                ( *c )->CalcDensity( GetGridDensityPtr(), splitSources );
+                ( *c )->SpreadDensity();
+
+                StepProgressEvery( stride, output_type );
+            }
         }
     }
+
+    EndProgress( output_type );
 
     if( GetGridDensityPtr()->m_RigorLimit )
     {
@@ -902,6 +925,223 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
     }
 
     splitSources.clear();
+}
+
+// Runs work on worker threads, one queue per surface.  A surface's work is done in the order it
+// was added, one piece at a time; work on different surfaces runs side by side.
+class SurfWorkQueue
+{
+public:
+
+    SurfWorkQueue( int nsurf, int nworker ) : m_Queue( nsurf ), m_Busy( nsurf, false ), m_Stop( false )
+    {
+        for ( int t = 0 ; t < nworker ; t++ )
+        {
+            m_Pool.push_back( std::thread( [this]() { Work(); } ) );
+        }
+    }
+
+    ~SurfWorkQueue()
+    {
+        {
+            std::lock_guard< std::mutex > lock( m_Mutex );
+            m_Stop = true;
+        }
+        m_WorkCV.notify_all();
+
+        for ( int t = 0 ; t < ( int )m_Pool.size() ; t++ )
+        {
+            m_Pool[t].join();
+        }
+    }
+
+    void Add( int isurf, const std::function< void() > &f )
+    {
+        std::lock_guard< std::mutex > lock( m_Mutex );
+
+        m_Queue[ isurf ].push_back( f );
+
+        // A surface already waiting or being worked on is picked up again when its work is done.
+        if ( !m_Busy[ isurf ] && m_Queue[ isurf ].size() == 1 )
+        {
+            m_Ready.push_back( isurf );
+            m_WorkCV.notify_one();
+        }
+    }
+
+    // Wait until nothing is queued or running on surface isurf.
+    void WaitSurf( int isurf )
+    {
+        std::unique_lock< std::mutex > lock( m_Mutex );
+        m_DoneCV.wait( lock, [&]() { return m_Queue[ isurf ].empty() && !m_Busy[ isurf ]; } );
+    }
+
+    // Wait until every surface is idle, then hand on the first exception any work threw.
+    void WaitAll()
+    {
+        std::unique_lock< std::mutex > lock( m_Mutex );
+        m_DoneCV.wait( lock, [&]() { return m_Ready.empty() && m_NumBusy == 0; } );
+
+        if ( m_Err )
+        {
+            std::exception_ptr err = m_Err;
+            m_Err = nullptr;
+            std::rethrow_exception( err );
+        }
+    }
+
+protected:
+
+    void Work()
+    {
+        std::unique_lock< std::mutex > lock( m_Mutex );
+
+        while ( true )
+        {
+            m_WorkCV.wait( lock, [&]() { return m_Stop || !m_Ready.empty(); } );
+
+            if ( m_Ready.empty() )
+            {
+                return;
+            }
+
+            int isurf = m_Ready.front();
+            m_Ready.pop_front();
+
+            std::function< void() > f = m_Queue[ isurf ].front();
+            m_Queue[ isurf ].pop_front();
+            m_Busy[ isurf ] = true;
+            m_NumBusy++;
+
+            lock.unlock();
+
+            try
+            {
+                f();
+            }
+            catch ( ... )
+            {
+                std::lock_guard< std::mutex > errlock( m_ErrMutex );
+                if ( !m_Err )
+                {
+                    m_Err = std::current_exception();
+                }
+            }
+
+            lock.lock();
+
+            m_Busy[ isurf ] = false;
+            m_NumBusy--;
+
+            if ( !m_Queue[ isurf ].empty() )
+            {
+                m_Ready.push_back( isurf );
+                m_WorkCV.notify_one();
+            }
+
+            m_DoneCV.notify_all();
+        }
+    }
+
+    vector < std::deque < std::function< void() > > > m_Queue;
+    vector < bool > m_Busy;
+    std::deque < int > m_Ready;
+    int m_NumBusy = 0;
+    bool m_Stop;
+
+    std::mutex m_Mutex;
+    std::condition_variable m_WorkCV;
+    std::condition_variable m_DoneCV;
+
+    std::mutex m_ErrMutex;
+    std::exception_ptr m_Err;
+
+    vector < std::thread > m_Pool;
+};
+
+// Density is worked out along each chain from the maps of the two surfaces it lies on, and then
+// spread back onto those maps, chain after chain.  Working a chain out reads its two maps and the
+// split sources, and spreading writes only its two maps, so a chain's spreading can run while
+// later chains on other surfaces are worked out.  Chains are worked out here in order, each once
+// its surfaces are idle, and spreading is queued on each surface in that same order, so every
+// map is read and written in the order the serial loop would.  The two sides of a chain are
+// separate maps unless the chain lies on one surface, and are spread separately.
+void CfdMeshMgrSingleton::SpreadChainDensity( int nedgeprop, int nthread, list< MapSource* > &splitSources, int stride, int output_type )
+{
+    int nsurf = ( int )m_SurfVec.size();
+
+    std::map< Surf*, int > surfindex;
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        surfindex[ m_SurfVec[i] ] = i;
+    }
+
+    int nchain = ( int )m_ISegChainList.size();
+    vector < ISegChain* > chains( nchain );
+    vector < int > surfa( nchain, -1 );
+    vector < int > surfb( nchain, -1 );
+
+    int k = 0;
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        chains[k] = *c;
+
+        std::map< Surf*, int >::iterator it = surfindex.find( ( *c )->m_ACurve.GetSurf() );
+        if ( it != surfindex.end() )
+        {
+            surfa[k] = it->second;
+        }
+
+        it = surfindex.find( ( *c )->m_BCurve.GetSurf() );
+        if ( it != surfindex.end() )
+        {
+            surfb[k] = it->second;
+        }
+
+        k++;
+    }
+
+    SurfWorkQueue queue( nsurf, nthread - 1 );
+
+    for ( int ipass = 0; ipass < nedgeprop; ipass++ )
+    {
+        for ( k = 0 ; k < nchain ; k++ )
+        {
+            ISegChain* chain = chains[k];
+            int ia = surfa[k];
+            int ib = surfb[k];
+
+            // A chain on a surface the mesher does not hold is done here, once everything is idle.
+            if ( ia < 0 || ib < 0 )
+            {
+                queue.WaitAll();
+                chain->CalcDensity( GetGridDensityPtr(), splitSources );
+                chain->SpreadDensity();
+                StepProgressEvery( stride, output_type );
+                continue;
+            }
+
+            queue.WaitSurf( ia );
+            queue.WaitSurf( ib );
+
+            chain->CalcDensity( GetGridDensityPtr(), splitSources );
+
+            if ( ia == ib )
+            {
+                queue.Add( ia, [chain]() { chain->SpreadDensity(); } );
+            }
+            else
+            {
+                queue.Add( ia, [chain]() { chain->SpreadDensityA(); } );
+                queue.Add( ib, [chain]() { chain->SpreadDensityB(); } );
+            }
+
+            StepProgressEvery( stride, output_type );
+        }
+    }
+
+    queue.WaitAll();
 }
 
 // Lay out every chain's distance table before density is spread along the chains.  The table is
