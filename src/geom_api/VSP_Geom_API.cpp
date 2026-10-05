@@ -8062,7 +8062,8 @@ void WriteBezierAirfoil( const std::string & file_name, const std::string & geom
         return;
     }
 
-    geom_ptr->WriteBezierAirfoil( file_name, foilsurf_u );
+    // Airfoils carry no placement, so a Clone's are its original's.
+    geom_ptr->GetBehaviorGeom()->WriteBezierAirfoil( file_name, foilsurf_u );
     ErrorMgr.NoError();
 }
 
@@ -8082,7 +8083,8 @@ void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_
         return;
     }
 
-    geom_ptr->WriteSeligAirfoil( file_name, foilsurf_u );
+    // Airfoils carry no placement, so a Clone's are its original's.
+    geom_ptr->GetBehaviorGeom()->WriteSeligAirfoil( file_name, foilsurf_u );
     ErrorMgr.NoError();
 }
 
@@ -8103,7 +8105,8 @@ std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const 
         return ordered_vec;
     }
 
-    ordered_vec = geom_ptr->GetAirfoilCoordinates( foilsurf_u );
+    // Airfoils carry no placement, so a Clone's are its original's.
+    ordered_vec = geom_ptr->GetBehaviorGeom()->GetAirfoilCoordinates( foilsurf_u );
     ErrorMgr.NoError();
     return ordered_vec;
 }

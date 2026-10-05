@@ -717,6 +717,25 @@ def testABorrowingCloneIsReplacedWithTheOriginalsTextures():
            vsp.GetGeomTextureFileName( pod, vsp.GetGeomTextureIDVec( pod )[0] )
 
 
+def testACloneGivesTheAirfoilCoordinatesOfWhatItShows():
+    """The Clone's own tessellation Parms are unused, so the original's must decide the points."""
+    vsp.VSPRenew()
+    drop_errors()
+    scratch_output()
+    wing = a_wing( 12.0 )
+    clone = vsp.CloneGeomVec( [ wing ] )[0]
+    vsp.SetParmVal( vsp.FindParm( wing, "Tess_W", "Shape" ), 41 )
+    vsp.Update()
+
+    orig = vsp.GetAirfoilCoordinates( wing, 0.5 )
+    copy = vsp.GetAirfoilCoordinates( clone, 0.5 )
+    assert len( orig ) > 0
+    assert len( copy ) == len( orig )
+    for a, b in zip( orig, copy ):
+        assert ( b.x(), b.y(), b.z() ) == pytest.approx( ( a.x(), a.y(), a.z() ), abs = 1e-12 )
+    assert_no_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
