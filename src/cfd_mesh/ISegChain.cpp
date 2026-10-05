@@ -1508,6 +1508,18 @@ void ISegChain::SplitTessSeg( int j, SurfaceIntersectionSingleton *MeshMgr )
     m_BCurve.Tesselate( utess );
 }
 
+// The A curve's table stations, which evaluate only the A curve and surface A.
+void ISegChain::BuildDistTableGeom()
+{
+    m_ACurve.BuildDistTableGeom();
+}
+
+// Where the B curve sits at those stations, which evaluates only the B curve and surface B.
+void ISegChain::BuildDistTableGeomB()
+{
+    m_ACurve.BuildDistTableGeomB( &m_BCurve );
+}
+
 void ISegChain::SpreadDensity( )
 {
     m_ACurve.SpreadDensity( &m_BCurve );

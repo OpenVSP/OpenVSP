@@ -334,7 +334,10 @@ void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, d
     reason = reason_vec[ round( ifloor + ifrac ) ];
 }
 
-void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
+// Where the distance table's stations are and the points they land on.  The curve does not move
+// while density is spread along it, so this is worked out once.  Each entry costs a curve
+// evaluation and a surface evaluation, which is most of what BuildDistTable does.
+void SCurve::BuildDistTableGeom()
 {
     assert( m_Surf );
 
@@ -352,10 +355,6 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
         num_segs = nref * m_UWCrv.GetNumSections() + 1;
     }
 
-    // Density is spread along the curve in several passes and the curve does not move between
-    // them, so where the table's entries are is worked out on the first pass only.  Each
-    // entry costs a curve evaluation and a surface evaluation, which is most of what this
-    // routine does.
     if ( ( int )m_TablePnt.size() != num_segs )
     {
         CleanupDistTable();
@@ -386,10 +385,13 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
             last_p = p;
         }
     }
+}
 
-    // Where the partner curve sits at each of this table's stations.  Spreading walks the two
-    // curves in step, so every pass asked the partner for the same points and asked its
-    // surface where they land; neither moves between passes.
+// Where the partner curve sits at each of this table's stations.  Spreading walks the two
+// curves in step, so every pass asked the partner for the same points and asked its
+// surface where they land; neither moves between passes.  Needs BuildDistTableGeom first.
+void SCurve::BuildDistTableGeomB( SCurve* BCurve )
+{
     if ( BCurve && ( m_TableBCurve != BCurve || ( int )m_TableUWB.size() != num_segs ) )
     {
         m_TableBCurve = BCurve;
@@ -405,6 +407,12 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
             m_TablePntB.push_back( BCurve->m_Surf->CompPnt( uwB.x(), uwB.y() ) );
         }
     }
+}
+
+void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
+{
+    BuildDistTableGeom();
+    BuildDistTableGeomB( BCurve );
 
     target_vec.clear();
     reason_vec.clear();

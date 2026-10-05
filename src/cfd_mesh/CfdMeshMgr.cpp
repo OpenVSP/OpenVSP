@@ -835,6 +835,8 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
         }
     }
 
+    BuildChainDistTables();
+
     // Number of times to propagate intersection edges through surfaces
     int nedgeprop = 4;
 
@@ -900,6 +902,56 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
     }
 
     splitSources.clear();
+}
+
+// Lay out every chain's distance table before density is spread along the chains.  The table is
+// fixed by the curves alone, so this changes nothing but when it is done.  The A side evaluates
+// surface A and the B side surface B, so each side is grouped by its surface and the groups run
+// side by side, one surface to a thread.
+void CfdMeshMgrSingleton::BuildChainDistTables()
+{
+    int nsurf = ( int )m_SurfVec.size();
+
+    std::map< Surf*, int > surfindex;
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        surfindex[ m_SurfVec[i] ] = i;
+    }
+
+    vector < vector < ISegChain* > > bysurfa( nsurf );
+    vector < vector < ISegChain* > > bysurfb( nsurf );
+
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        std::map< Surf*, int >::iterator ita = surfindex.find( ( *c )->m_ACurve.GetSurf() );
+        std::map< Surf*, int >::iterator itb = surfindex.find( ( *c )->m_BCurve.GetSurf() );
+
+        // A chain on a surface the mesher does not hold is left to build its table when first used.
+        if ( ita != surfindex.end() && itb != surfindex.end() )
+        {
+            bysurfa[ ita->second ].push_back( *c );
+            bysurfb[ itb->second ].push_back( *c );
+        }
+    }
+
+    int nthread = StageThreadCount( nsurf );
+
+    RunIndexed( nsurf, nthread, [&]( int i )
+    {
+        for ( int k = 0 ; k < ( int )bysurfa[i].size() ; k++ )
+        {
+            bysurfa[i][k]->BuildDistTableGeom();
+        }
+    } );
+
+    RunIndexed( nsurf, nthread, [&]( int i )
+    {
+        for ( int k = 0 ; k < ( int )bysurfb[i].size() ; k++ )
+        {
+            bysurfb[i][k]->BuildDistTableGeomB();
+        }
+    } );
 }
 
 // Remesh one surface.  Everything here reaches the model only through that surface's own

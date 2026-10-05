@@ -253,6 +253,8 @@ public:
     // points are kept, so the chains they are merged with are untouched.
     void SplitTessSeg( int j, SurfaceIntersectionSingleton *MeshMgr );
 
+    void BuildDistTableGeom();
+    void BuildDistTableGeomB();
     void SpreadDensity( );
     void CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources );
     void Tessellate();

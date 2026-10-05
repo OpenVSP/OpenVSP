@@ -90,6 +90,8 @@ public:
     void CheapTesselate( );
     void ProjectTessToSurf( SCurve* sca );
     void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi, int &reason );
+    void BuildDistTableGeom();
+    void BuildDistTableGeomB( SCurve* BCurve );
     void BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
     void CleanupDistTable();
     void LimitTarget( SimpleGridDensity* grid_den );
