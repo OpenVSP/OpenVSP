@@ -1949,7 +1949,111 @@ void Vehicle::ReparentActiveGeom( int action )
     }
 }
 
-//==== \Delete Active Geom ====//
+//==== Clone Geoms ====//
+// One Clone per Geom, keeping the hierarchy among them.  Each top Clone is a sibling of its
+// original and places itself; the Clones below it copy their relative placement.
+vector< string > Vehicle::CloneGeomVec( const vector<string> & geom_id_vec, const string & name_suffix )
+{
+    vector< string > clone_vec;
+
+    map < string, string > clone_of_id;
+
+    vector< string > active_store = GetActiveGeomVec();
+
+    // Hierarchy order, so a parent's Clone is made before its children's.
+    vector< string > ordered_vec = GetGeomVec();
+
+    for ( int i = 0 ; i < ( int )ordered_vec.size() ; i++ )
+    {
+        if ( !vector_contains_val( geom_id_vec, ordered_vec[i] ) )
+        {
+            continue;
+        }
+
+        Geom* orig_geom = FindGeom( ordered_vec[i] );
+        if ( !orig_geom )
+        {
+            continue;
+        }
+
+        // The nearest ancestor that is also being cloned, if any.
+        string clone_parent_id = "NONE";
+        string walk_id = orig_geom->GetParentID();
+        while ( walk_id != "NONE" && !walk_id.empty() )
+        {
+            map < string, string >::iterator iclone = clone_of_id.find( walk_id );
+            if ( iclone != clone_of_id.end() )
+            {
+                clone_parent_id = iclone->second;
+                break;
+            }
+
+            Geom* walk_geom = FindGeom( walk_id );
+            if ( !walk_geom )
+            {
+                break;
+            }
+            walk_id = walk_geom->GetParentID();
+        }
+
+        // None, so it goes beside the original.
+        bool top_flag = false;
+        if ( clone_parent_id == "NONE" )
+        {
+            clone_parent_id = orig_geom->GetParentID();
+            top_flag = true;
+        }
+
+        // AddGeom parents to the active Geom.
+        vector< string > parent_vec;
+        if ( clone_parent_id != "NONE" && !clone_parent_id.empty() )
+        {
+            parent_vec.push_back( clone_parent_id );
+        }
+        SetActiveGeomVec( parent_vec );
+
+        GeomType clone_type( CLONE_GEOM_TYPE, "CLONE", true );
+        string clone_id = AddGeom( clone_type );
+
+        CloneGeom* clone_geom = dynamic_cast < CloneGeom* > ( FindGeom( clone_id ) );
+        if ( !clone_geom )
+        {
+            continue;
+        }
+
+        clone_geom->SetNameSuffix( name_suffix );
+
+        clone_geom->SetOriginalID( orig_geom->GetID() );
+
+        // The top starts at the original's placement and is free to move; the rest copy theirs.
+        clone_geom->m_CloneXForm.Set( !top_flag );
+        if ( top_flag )
+        {
+            CloneGeom::CopyXFormParms( orig_geom, clone_geom );
+        }
+
+        // Display settings are not Parms, so copy them here.  A Clone added from the Add menu
+        // keeps the defaults.
+        clone_geom->m_GuiDraw.CopyDisplaySettings( orig_geom->m_GuiDraw );
+
+        clone_of_id[ orig_geom->GetID() ] = clone_id;
+        clone_vec.push_back( clone_id );
+    }
+
+    if ( clone_vec.empty() )
+    {
+        SetActiveGeomVec( active_store );
+    }
+    else
+    {
+        SetActiveGeomVec( clone_vec );
+    }
+
+    Update();
+
+    return clone_vec;
+}
+
 void Vehicle::DeleteActiveGeomVec()
 {
     vector< string > sel_vec = GetActiveGeomVec();

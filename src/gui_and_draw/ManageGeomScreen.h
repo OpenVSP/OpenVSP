@@ -131,6 +131,7 @@ protected:
     TreeWithIcons* m_GeomBrowser;
 
     TriggerButton m_DeleteButton;
+    TriggerButton m_CloneButton;
     TriggerButton m_CopyButton;
     TriggerButton m_PasteButton;
     TriggerButton m_CutButton;

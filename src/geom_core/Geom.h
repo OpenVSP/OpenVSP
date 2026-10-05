@@ -124,6 +124,17 @@ public:
     void SetMaterial( const std::string &name, double ambi[], double diff[], double spec[], double emis[], double shin );
     void SetMaterial( const std::string &name );
 
+    // Display state, as opposed to appearance.  Not Parms and mostly not saved, so a Geom
+    // replacing another copies them here.  Colour, material and textures are copied elsewhere.
+    void CopyDisplaySettings( GeomGuiDraw & from )
+    {
+        m_DisplayType = from.GetDisplayType();
+        m_DrawType = from.GetDrawType();
+        m_DisplayChildrenFlag = from.GetDisplayChildrenFlag();
+        m_DispSubSurfFlag = from.GetDispSubSurfFlag();
+        m_DispFeatureFlag = from.GetDispFeatureFlag();
+    }
+
     void SetDisplayChildrenFlag( bool f )
     {
         m_DisplayChildrenFlag = f;

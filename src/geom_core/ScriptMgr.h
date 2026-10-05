@@ -245,6 +245,7 @@ private:
     void SetEditXSecFixedUVec( const string & xsec_id, CScriptArray* fixed_u_vec );
 
     void DeleteGeomVec( CScriptArray* del_arr );
+    CScriptArray* CloneGeomVec( CScriptArray* geom_arr, const string & name_suffix );
 
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
     void SetAirfoilUpperPnts( const string& xsec_id, CScriptArray* up_pnt_arr );

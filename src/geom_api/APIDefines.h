@@ -1000,6 +1000,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_BEM_OPTIONS_SCREEN,	/*!< Blade element method options screen */
                       VSP_CFD_MESH_SCREEN,	/*!< CFD Mesh screen */
                       VSP_CLIPPING_SCREEN,	/*!< Clipping screen */
+                      VSP_CLONE_NAME_SUFFIX_SCREEN,	/*!< Clone name suffix screen */
                       VSP_COMP_GEOM_SCREEN,	/*!< CompGeom screen */
                       VSP_COR_SCREEN,	/*!< Center of rotation screen */
                       VSP_CURVE_EDIT_SCREEN,	/*!< Curve edit screen */

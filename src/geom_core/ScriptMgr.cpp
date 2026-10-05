@@ -1714,6 +1714,9 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_CLIPPING_SCREEN", VSP_CLIPPING_SCREEN );
     assert( r >= 0 );
+
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_CLONE_NAME_SUFFIX_SCREEN", VSP_CLONE_NAME_SUFFIX_SCREEN );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_COMP_GEOM_SCREEN", VSP_COMP_GEOM_SCREEN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_COR_SCREEN", VSP_COR_SCREEN );
@@ -4624,6 +4627,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "string GetGeomCloneNameSuffix( const string & in clone_id )", asFUNCTION( vsp::GetGeomCloneNameSuffix ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@+ CloneGeomVec( array<string>@+ geom_arr, const string & in name_suffix = \"_Clone\" )", asMETHOD( ScriptMgrSingleton, CloneGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetGeomName( const string & in geom_id, const string & in name )", asFUNCTION( vsp::SetGeomName ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -7309,6 +7314,15 @@ void ScriptMgrSingleton::DeleteGeomVec( CScriptArray* del_arr )
     FillSTLVector( del_arr, del_vec );
 
     vsp::DeleteGeomVec( del_vec );
+}
+
+CScriptArray* ScriptMgrSingleton::CloneGeomVec( CScriptArray* geom_arr, const string & name_suffix )
+{
+    vector < string > geom_vec;
+    FillSTLVector( geom_arr, geom_vec );
+
+    m_ProxyStringArray = vsp::CloneGeomVec( geom_vec, name_suffix );
+    return GetProxyStringArray();
 }
 
 void ScriptMgrSingleton::SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr )

@@ -146,6 +146,9 @@ public:
     void DeleteActiveGeomVec();
     void CopyActiveGeomVec();
     void DeleteGeomVec( const vector<string> & del_vec );
+
+    // A Clone of each, keeping the hierarchy among them.  Returns the new IDs.
+    vector< string > CloneGeomVec( const vector<string> & geom_id_vec, const string & name_suffix = "_Clone" );
     void AddTopGeomID( const string & geom_id, const string &insert_after_id = string() );
     void RemoveTopGeomID( const string & geom_id );
     void CutGeomVec( const vector<string> & cut_vec );

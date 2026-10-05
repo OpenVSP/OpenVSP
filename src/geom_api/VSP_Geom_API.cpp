@@ -3270,6 +3270,30 @@ std::string GetGeomCloneNameSuffix( const std::string & clone_id )
     return clone_ptr->GetNameSuffix();
 }
 
+std::vector< std::string > CloneGeomVec( const std::vector< std::string > & geom_id_vec, const std::string & name_suffix )
+{
+    Vehicle* veh = GetVehicle();
+
+    for ( int i = 0 ; i < ( int )geom_id_vec.size() ; i++ )
+    {
+        if ( !veh->FindGeom( geom_id_vec[i] ) )
+        {
+            ErrorMgr.AddError( VSP_INVALID_PTR, "CloneGeomVec::Can't Find Geom " + geom_id_vec[i] );
+            return std::vector< std::string >();
+        }
+    }
+
+    // Vehicle::CloneGeomVec selects the new Clones; keep the script's selection.
+    std::vector< std::string > active_store = veh->GetActiveGeomVec();
+
+    std::vector< std::string > clone_vec = veh->CloneGeomVec( geom_id_vec, name_suffix );
+
+    veh->SetActiveGeomVec( active_store );
+
+    ErrorMgr.NoError();
+    return clone_vec;
+}
+
 // Get the VSP Surface type for the specified Geom (i.e DISK_SURF)
 int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind )
 {

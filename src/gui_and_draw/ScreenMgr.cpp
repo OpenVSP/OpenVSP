@@ -22,7 +22,7 @@
 #include "BEMOptionsScreen.h"
 #include "CfdMeshScreen.h"
 #include "ClippingScreen.h"
-#include "CloneScreen.h"
+#include "CloneNameSuffixScreen.h"
 #include "CompGeomScreen.h"
 #include "CurveEditScreen.h"
 #include "DegenGeomScreen.h"
@@ -934,6 +934,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_BEM_OPTIONS_SCREEN] = new BEMOptionsScreen( this );
     m_ScreenVec[vsp::VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
     m_ScreenVec[vsp::VSP_CLIPPING_SCREEN] = new ClippingScreen( this );
+    m_ScreenVec[vsp::VSP_CLONE_NAME_SUFFIX_SCREEN] = new CloneNameSuffixScreen( this );
     m_ScreenVec[vsp::VSP_COMP_GEOM_SCREEN] = new CompGeomScreen( this );
     m_ScreenVec[vsp::VSP_COR_SCREEN] = new ManageCORScreen( this );
     m_ScreenVec[vsp::VSP_CURVE_EDIT_SCREEN] = new CurveEditScreen( this );

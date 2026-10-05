@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ManageGeomScreen.h"
+#include "CloneNameSuffixScreen.h"
 #include "ScreenMgr.h"
 #include "StlHelper.h"
 #include "HingeGeom.h"
@@ -14,7 +15,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 660, "Geom Browser" )
+ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 671, "Geom Browser" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     ((VSP_Window*)m_FLTK_Window)->SetKeyCallback( staticScreenCB, this );
@@ -92,6 +93,8 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 275, 66
     m_GeomBrowser->item_labelsize( fontsize );
 
     m_RightLayout.AddButton( m_DeleteButton, "Delete" );
+    m_RightLayout.AddYGap();
+    m_RightLayout.AddButton( m_CloneButton, "Clone" );
     m_RightLayout.AddYGap();
     m_RightLayout.AddDividerBox( "Clipboard" );
     m_RightLayout.AddButton( m_CopyButton, "Copy" );
@@ -1219,6 +1222,20 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_DeleteButton )
     {
         m_VehiclePtr->DeleteActiveGeomVec();
+    }
+    else if ( device == &m_CloneButton )
+    {
+        // Ask for one name suffix for the whole selection before cloning.
+        vector< string > sel_vec = m_VehiclePtr->GetActiveGeomVec();
+        if ( !sel_vec.empty() )
+        {
+            CloneNameSuffixScreen* suffix_screen =
+                dynamic_cast< CloneNameSuffixScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_CLONE_NAME_SUFFIX_SCREEN ) );
+            if ( suffix_screen )
+            {
+                suffix_screen->SetupAndShow( sel_vec );
+            }
+        }
     }
     else if ( device == &m_CopyButton )
     {

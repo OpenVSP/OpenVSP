@@ -12064,9 +12064,129 @@ extern std::string GetGeomCloneOriginal( const std::string & clone_id );
     \ingroup Geom
 */
 /*!
-    Set the suffix automatic naming appends to the original's name.  A Clone with automatic
-    naming on is called the original's name followed by this suffix, so changing it renames the
-    Clone on the next update.  The suffix is saved with the model.
+    Make a Clone Geom of each Geom in a group, keeping the hierarchy among them.  The top Clone
+    of each hierarchy is a sibling of its original, starts at the original's placement, and has
+    CloneXForm off so it can be moved.  The Clones below it have CloneXForm on, so they keep
+    their originals' relative placement.
+    The Clones are returned in model hierarchy order, not the order passed in; use
+    GetGeomCloneOriginal to match them up.
+    \forcpponly
+    \code{.cpp}
+    string pod = AddGeom( "POD" );
+
+    string wing = AddGeom( "WING", pod );
+
+    Update();
+
+    //==== Clone both at once ====//
+    array< string > group;
+    group.push_back( pod );
+    group.push_back( wing );
+
+    array< string > clones = CloneGeomVec( group );
+
+    if ( clones.size() != 2 )
+    {
+        Print( "ERROR: CloneGeomVec did not make a Clone of each Geom" );
+        __failure++;
+    }
+
+    //==== Match each Clone to its original ====//
+    string pod_clone;
+    string wing_clone;
+
+    for ( int i = 0; i < int( clones.size() ); i++ )
+    {
+        if ( GetGeomCloneOriginal( clones[i] ) == pod )
+        {
+            pod_clone = clones[i];
+        }
+        else if ( GetGeomCloneOriginal( clones[i] ) == wing )
+        {
+            wing_clone = clones[i];
+        }
+    }
+
+    if ( pod_clone == "" || wing_clone == "" )
+    {
+        Print( "ERROR: CloneGeomVec did not make a Clone of each Geom" );
+        __failure++;
+    }
+
+    //==== The hierarchy is kept ====//
+    if ( GetGeomParent( wing_clone ) != pod_clone )
+    {
+        Print( "ERROR: CloneGeomVec did not keep the hierarchy" );
+        __failure++;
+    }
+
+    //==== The pod's Clone sits beside the pod, not under it ====//
+    if ( GetGeomParent( pod_clone ) != GetGeomParent( pod ) )
+    {
+        Print( "ERROR: CloneGeomVec did not put the top of the group beside the original" );
+        __failure++;
+    }
+
+    //==== Only the top Clone places itself ====//
+    if ( GetParmVal( FindParm( pod_clone, "CloneXForm", "Behavior" ) ) != 0.0 )
+    {
+        Print( "ERROR: CloneGeomVec did not leave the top of the group free to be placed" );
+        __failure++;
+    }
+
+    if ( GetParmVal( FindParm( wing_clone, "CloneXForm", "Behavior" ) ) != 1.0 )
+    {
+        Print( "ERROR: CloneGeomVec did not have the rest of the group copy its placement" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod = AddGeom( "POD" )
+
+    wing = AddGeom( "WING", pod )
+
+    Update()
+
+    #==== Clone both at once ====#
+    clones = CloneGeomVec( [pod, wing] )
+
+    assert len( clones ) == 2, "CloneGeomVec did not make a Clone of each Geom"
+
+    #==== Match each Clone to its original ====#
+    by_original = { GetGeomCloneOriginal( c ) : c for c in clones }
+
+    assert pod in by_original and wing in by_original, "CloneGeomVec did not make a Clone of each Geom"
+
+    #==== The hierarchy is kept ====#
+    assert GetGeomParent( by_original[wing] ) == by_original[pod], "CloneGeomVec did not keep the hierarchy"
+
+    #==== The pod's Clone sits beside the pod, not under it ====#
+    assert GetGeomParent( by_original[pod] ) == GetGeomParent( pod ), "CloneGeomVec did not put the top of the group beside the original"
+
+    #==== Only the top Clone places itself ====#
+    assert GetParmVal( FindParm( by_original[pod], "CloneXForm", "Behavior" ) ) == 0.0, "CloneGeomVec did not leave the top of the group free to be placed"
+
+    assert GetParmVal( FindParm( by_original[wing], "CloneXForm", "Behavior" ) ) == 1.0, "CloneGeomVec did not have the rest of the group copy its placement"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeomCloneOriginal, SetGeomCloneNameSuffix
+    \param [in] geom_id_vec vector<string> Vector of Geom IDs to clone
+    \param [in] name_suffix string Suffix automatic naming appends to each original's name
+    \return vector<string> Vector of the new Clone Geom IDs
+*/
+
+extern std::vector< std::string > CloneGeomVec( const std::vector< std::string > & geom_id_vec, const std::string & name_suffix = "_Clone" );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Set the suffix automatic naming appends to the original's name.  With AutoName on, the Clone
+    is renamed on the next update.  The suffix is saved with the model.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geom and a Clone of it ====//
