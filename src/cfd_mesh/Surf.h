@@ -527,6 +527,9 @@ protected:
     vector< unsigned int > m_WalkVisited;
     unsigned int m_WalkVisitID;
 
+    // Cells waiting to be looked at by WalkMap, kept so each walk does not allocate.
+    vector < pair < int, int > > m_WalkStack;
+
     void UtoIndexFrac( const double &u, int &indx, double &frac );
 
     vector < vector < vec2d > > m_STMap;

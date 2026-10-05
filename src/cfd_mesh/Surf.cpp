@@ -380,17 +380,32 @@ bool indxcompare( const pair < double, pair < int, int > > &a, const pair < doub
 
 void Surf::WalkMap( int istart, int jstart, int kstart )
 {
-    static int iadd[] = { -1, 1,  0, 0 };
-    static int jadd[] = {  0, 0, -1, 1 };
+    static const int iadd[] = { -1, 1,  0, 0 };
+    static const int jadd[] = {  0, 0, -1, 1 };
 
-    vector < pair < int, int > > v;
+    const int nmapu = ( int )m_SrcMap.size();
+    const int nmapw = ( int )m_SrcMap[0].size();
+
+    // The seed cannot improve itself, so what is measured from it holds for the whole walk.
+    const vec3d pstart = m_SrcMap[istart][jstart].m_pt;
+    const double strstart = m_SrcMap[istart][jstart].m_str;
+    const double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
+
+    int reason = m_SrcMap[istart][jstart].m_reason;
+    if ( reason < vsp::MIN_GROW_LIMIT )
+    {
+        reason += vsp::GROW_LIMIT_INCREMENT;
+    }
+
+    vector < pair < int, int > > &v = m_WalkStack;
+    v.clear();
 
     for( int i = 0; i < 4; i++ )
     {
         int inext = istart + iadd[i];
         int jnext = jstart + jadd[i];
 
-        if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
+        if( inext < nmapu && inext >= 0 && jnext < nmapw && jnext >= 0 )
         {
             v.push_back( make_pair( inext, jnext ) );
         }
@@ -398,40 +413,31 @@ void Surf::WalkMap( int istart, int jstart, int kstart )
 
     while ( !v.empty() )
     {
-        pair < int, int > p = v.back();
+        int icurrent = v.back().first;
+        int jcurrent = v.back().second;
         v.pop_back();
-        int icurrent = p.first;
-        int jcurrent = p.second;
 
-        if( m_SrcMap[ icurrent ][ jcurrent ].m_maxvisited < kstart )
+        MapSource &cell = m_SrcMap[ icurrent ][ jcurrent ];
+
+        if( cell.m_maxvisited < kstart )
         {
-            m_SrcMap[ icurrent ][ jcurrent ].m_maxvisited = kstart;
+            cell.m_maxvisited = kstart;
 
-            double targetstr = m_SrcMap[istart][jstart].m_str +
-                    ( m_SrcMap[ icurrent ][ jcurrent ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
-                    (m_GridDensityPtr->m_GrowRatio - 1.0);
+            double targetstr = strstart + ( cell.m_pt - pstart ).mag() * grm1;
 
-            if( m_SrcMap[ icurrent ][ jcurrent ].m_str > targetstr )
+            if( cell.m_str > targetstr )
             {
                 // Mark dominated as progress is made
-                m_SrcMap[ icurrent ][ jcurrent ].m_dominated = true;
-                m_SrcMap[ icurrent ][ jcurrent ].m_str = targetstr;
-
-                if ( m_SrcMap[istart][jstart].m_reason < vsp::MIN_GROW_LIMIT )
-                {
-                    m_SrcMap[ icurrent ][ jcurrent ].m_reason = m_SrcMap[istart][jstart].m_reason + vsp::GROW_LIMIT_INCREMENT;
-                }
-                else
-                {
-                    m_SrcMap[ icurrent ][ jcurrent ].m_reason = m_SrcMap[istart][jstart].m_reason;
-                }
+                cell.m_dominated = true;
+                cell.m_str = targetstr;
+                cell.m_reason = reason;
 
                 for( int i = 0; i < 4; i++ )
                 {
                     int inext = icurrent + iadd[i];
                     int jnext = jcurrent + jadd[i];
 
-                    if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
+                    if( inext < nmapu && inext >= 0 && jnext < nmapw && jnext >= 0 )
                     {
                         v.push_back( make_pair( inext, jnext ) );
                     }
@@ -454,8 +460,9 @@ void Surf::WalkMap( int istart, int jstart )
     // the four neighbours of every improved cell were pushed unconditionally,
     // so cells were popped and re-measured many times over.  The overload that
     // LimitTargetMap uses has always had this guard by way of m_maxvisited.
-    const size_t nmapw = m_SrcMap[0].size();
-    const size_t ncell = m_SrcMap.size() * nmapw;
+    const int nmapu = ( int )m_SrcMap.size();
+    const int nmapw = ( int )m_SrcMap[0].size();
+    const size_t ncell = ( size_t )nmapu * ( size_t )nmapw;
 
     if( m_WalkVisited.size() != ncell )
     {
@@ -470,55 +477,59 @@ void Surf::WalkMap( int istart, int jstart )
         m_WalkVisitID = 1;
     }
 
-    vector < pair < int, int > > v;
+    const unsigned int visitid = m_WalkVisitID;
+    unsigned int *visited = m_WalkVisited.data();
+
+    const vec3d pstart = m_SrcMap[istart][jstart].m_pt;
+    const double strstart = m_SrcMap[istart][jstart].m_str;
+    const double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
+
+    int reason = m_SrcMap[istart][jstart].m_reason;
+    if ( reason < vsp::MIN_GROW_LIMIT )
+    {
+        reason += vsp::GROW_LIMIT_INCREMENT;
+    }
+
+    vector < pair < int, int > > &v = m_WalkStack;
+    v.clear();
 
     for( int i = 0; i < 4; i++ )
     {
         int inext = istart + iadd[i];
         int jnext = jstart + jadd[i];
 
-        if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
+        if( inext < nmapu && inext >= 0 && jnext < nmapw && jnext >= 0 )
         {
-            m_WalkVisited[ inext * nmapw + jnext ] = m_WalkVisitID;
+            visited[ ( size_t )inext * nmapw + jnext ] = visitid;
             v.push_back( make_pair( inext, jnext ) );
         }
     }
 
     while ( !v.empty() )
     {
-        pair < int, int > p = v.back();
+        int icurrent = v.back().first;
+        int jcurrent = v.back().second;
         v.pop_back();
-        int icurrent = p.first;
-        int jcurrent = p.second;
 
-        double targetstr = m_SrcMap[istart][jstart].m_str +
-                ( m_SrcMap[ icurrent ][ jcurrent ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
-                (m_GridDensityPtr->m_GrowRatio - 1.0);
+        MapSource &cell = m_SrcMap[ icurrent ][ jcurrent ];
 
+        double targetstr = strstart + ( cell.m_pt - pstart ).mag() * grm1;
 
-        if( m_SrcMap[ icurrent ][ jcurrent ].m_str > targetstr )
+        if( cell.m_str > targetstr )
         {
-            m_SrcMap[ icurrent ][ jcurrent ].m_str = targetstr;
-
-            if ( m_SrcMap[istart][jstart].m_reason < vsp::MIN_GROW_LIMIT )
-            {
-                m_SrcMap[ icurrent ][ jcurrent ].m_reason = m_SrcMap[istart][jstart].m_reason + vsp::GROW_LIMIT_INCREMENT;
-            }
-            else
-            {
-                m_SrcMap[ icurrent ][ jcurrent ].m_reason = m_SrcMap[istart][jstart].m_reason;
-            }
+            cell.m_str = targetstr;
+            cell.m_reason = reason;
 
             for( int i = 0; i < 4; i++ )
             {
                 int inext = icurrent + iadd[i];
                 int jnext = jcurrent + jadd[i];
 
-                if( inext < m_SrcMap.size() && inext >= 0 && jnext < m_SrcMap[0].size() && jnext >= 0 )
+                if( inext < nmapu && inext >= 0 && jnext < nmapw && jnext >= 0 )
                 {
-                    if( m_WalkVisited[ inext * nmapw + jnext ] != m_WalkVisitID )
+                    if( visited[ ( size_t )inext * nmapw + jnext ] != visitid )
                     {
-                        m_WalkVisited[ inext * nmapw + jnext ] = m_WalkVisitID;
+                        visited[ ( size_t )inext * nmapw + jnext ] = visitid;
                         v.push_back( make_pair( inext, jnext ) );
                     }
                 }
