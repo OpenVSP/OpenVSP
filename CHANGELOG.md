@@ -1,3 +1,139 @@
+# [OpenVSP 3.54.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.54.0)
+
+2026-10-05
+
+OpenVSP 3.54.0
+
+I thought this was going to be a small release with one main feature,
+but it turns out it is actually pretty huge.
+
+The big main new feature is Clone.  Clone is what you need when you
+want to duplicate components, but symmetry isn't doing it for you.
+So all of you DEP enthusiasts, this one is for you.
+
+Clone is a new Geom type that gets its shape and behavior from
+another Original Geom.  By default, the Clone also gets its basic
+Parms and other settings from the Original - Set membership, color,
+mass properties, attachment, symmetry, etc.  If you want to set
+those things separately, there is an option for that.  By default,
+a clone has its own transformation (XForm) Parms, so you can move
+it around the model.
+
+You can clone a group of components at once with the Clone button
+on the Geom Browser.  In a hierarchy, it will make the top-level
+Clone's XForm independent, but all the children will get their
+XForm from their original.  That way, if you have a group of
+components that are attached together with certain offsets, those
+offsets will be cloned while the top level entity can be used
+to reposition the whole clone hierarchy.
+
+The tricky part of Clone was not the shape, it was the behavior.
+A Clone of a wing needs to act like a wing, a propeller needs
+to act like a prop, landing gear like landing gear.  Any place
+OpenVSP 'knows' what kind of Geometry it is, a Clone must pretend
+to be that kind.  There is a lot of this.
+
+A Clone can be replaced with a copy of the original, so if you
+decide their shape needs to diverge, it is a quick operation.
+OpenVSP will do everything it can to preserve the ID's through
+this operation, so if your Clone used Parmameter linking, it
+should mostly work after being replaced.
+
+A lot was done to make Clone very efficient, so it should be
+really fast.  The Update speed is trivial compared to the user time
+it previously took to maintain two identical components (or to
+link everything in them), but now both should be great.
+
+Clones can be flipped/mirrored copies, so all Geom's gained that
+capability so a flipped clone replaced with a native Geom would
+still work out right.  If you're into making asymmetrical
+aircraft, then flipping a wing will be a nice change.
+
+OpenVSP's meshing stuff got a lot of attention.  This improves
+CFDMesh, FEAMesh, and the trimmed CAD export (though I'll speak
+about it in terms of CFDMesh).  CFDMesh is faster on a single
+thread.  CFDMesh is now also multi-threaded.  CFDMesh is more
+robust.  CFDMesh will produce higher quality output.  If you
+use any of the meshing stuff in OpenVSP, you'll like the
+changes.
+
+CFDMesh can now write out POGS (Pre-processor for Overset
+Grid Sumulations) files.  POGS is an automation
+tool for NASA's Chimera Grid Tools (CGT) being developed
+by William Chan at NASA Ames.  POGS output is accessed through
+CFDMesh.  I expect this capability to continue to evolve.
+
+POGS prefers fewer surface patches where possible (but not
+too few).  So there is now an option that will merge together
+the top/bottom patches of wing trailing edges and tip caps
+and the top/bottom patches of bodies.  This option will not
+work properly with the extended tip cap types, but should
+otherwise work pretty well.
+
+STEP and IGES export got a lot of attention.  This entails both
+fixes as well as improvements.  Intersection curves are now
+piecewise cubic and should be more accurate with fewer
+segments.  If you use an OpenVSP to CAD (or preprocessor)
+workflow, give it another try, I'm optimistic
+that things will be a lot better.
+
+There is a new STEP/IGES export mode -- split and stitch.  In
+this mode, surface patches are split apart, degenerate patches
+are discarded, and then the patches are stitched back together
+into watertight BREPs.  Those BREPs are not intersected or
+trimmed.  This should be an interesting option for tools that
+didn't like our monolithic quilts with embedded degenerate
+patches, or the hassle with dealign with a large number of
+split patches, and where our trimmed BREP didn't work for you
+(do try it again though). Every CAD export path is now tested
+by reading the file back with OpenCASCADE.
+
+Hinges can now be passed to CBAERO as all-moving control surfaces
+through CFDMesh.
+
+The Design Variable capability now lets the user specify min/max
+bounds for the DVs.  OpenVSP doesn't do anything with them, but
+external tools that use the *.des file now have an easy for
+the user to put limits on the vars.
+
+Structures and Trimmed Surfaces now write only meshes and STEP/IGES.
+The *.srf, *.curv, and *.p3d outputs and their options are gone.  From
+the API, FeaMeshAnalysis only meshes; use the new FeaMeshExport analysis
+to write the files.
+
+Features:
+- Clone Geom
+- Flip for every Geom
+- Split and stitched STEP and IGES export (File -> Export)
+- POGS output from CFDMesh
+- CFDMesh faster single threaded
+- CFDMesh multi-threaded
+- CFDMesh more robust
+- CFDMesh higher quality
+- STEP/IGES Export greatly improved
+- Hinges as all-moving control surfaces for CBAERO via CFDMesh
+- Design variables have user determined bounds
+
+Build System:
+- Move Mac Aarch64 build to MacOS-15
+- Code-Eli updates
+- Triangle updates
+- libIGES update
+
+Bug Fixes:
+- Many STEP and IGES export fixes (units, surface orientation, trim
+  curves, tolerances)
+- VSPAERO viscous forces used a point just behind the leading edge,
+  tilting them toward one surface
+- VSPAERO control groups and adjoint side force derivatives
+- VSPAERO launch race condition
+- GUI layout cleanup -- widgets that spilled outside their groups
+- Many other bugs
+
+
+---
+
+
 # [OpenVSP 3.53.1](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.53.1)
 
 2026-09-28
