@@ -1286,17 +1286,28 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
     unordered_map< IPnt*, int > pntindex;
     pntindex.reserve( ipnts.size() );
 
+    // A point is taken to be one already numbered only where the two are close in 3D as well as
+    // in u,w, to the tolerance MergeBorderEndPoints joins chain ends with.
+    double tol3d = -1.0;
+    SimpleGridDensity* gd = MeshMgr->GetGridDensityPtr();
+    if ( gd )
+    {
+        tol3d = gd->m_MinLen / 100.0;
+    }
+    vector < vec3d > pntVec;
+
     for ( int k = 0 ; k < ( int )ipnts.size() ; k++ )
     {
         vec2d uw = ipnts[k].first;
         IPnt *ipt = ipnts[k].second;
+        vec3d p = CompPnt( uw[0], uw[1] );
 
         int min_id = -1;
         double min_dist = 1.0;
         for ( int i = 0 ; i < ( int )uwPntVec.size() ; i++ )
         {
             double d = dist( uwPntVec[i], uw );
-            if ( d < min_dist )
+            if ( d < min_dist && ( tol3d < 0.0 || dist( pntVec[i], p ) < tol3d ) )
             {
                 min_dist = d;
                 min_id = i;
@@ -1310,6 +1321,7 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
         else
         {
             uwPntVec.push_back( uw );
+            pntVec.push_back( p );
             pntindex[ ipt ] = ( int )uwPntVec.size() - 1;
         }
     }
