@@ -251,6 +251,7 @@ public:
 
     virtual void MergeBorderEndPoints();
     virtual void MergeEndPointCloud( IPntCloud &cloud, double tol );
+    virtual void MergeCoincidentTessPnts();
     virtual void TessellateChains();
     virtual void SetWakeAttachChain( ISegChain* c );
     virtual void MatchWakes();

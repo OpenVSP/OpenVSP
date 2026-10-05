@@ -4500,6 +4500,8 @@ void CfdMeshMgrSingleton::InitMesh( )
     addOutputText( "MergeBorderEndPoints\n" );
     MergeBorderEndPoints();
 
+    MergeCoincidentTessPnts();
+
     AddWakeCoPlanarSurfaceChains();
 
     // addOutputText( "BuildMesh\n" );  Output in BuildMesh
@@ -4844,6 +4846,155 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
         if ( mit != mergedOf.end() )
         {
             ( *c )->m_TessVec.back() = mit->second;
+        }
+    }
+}
+
+// Where two curves run on top of one another for a stretch -- an intersection curve along a
+// surface's border, say -- their points lie a hair apart.  A surface that has both curves has to
+// make them one point, and a surface that has only one of the curves cannot follow it.  So the
+// points handed to the triangulator that lie within the chain end tolerance of each other, on a
+// surface they share, are made one point here, for every surface at once.  Two points next to
+// each other on one chain are never made one.
+static bool ShareSurf( IPnt* a, IPnt* b )
+{
+    for ( int i = 0 ; i < ( int )a->m_Puws.size() ; i++ )
+    {
+        for ( int j = 0 ; j < ( int )b->m_Puws.size() ; j++ )
+        {
+            if ( a->m_Puws[i]->m_Surf == b->m_Puws[j]->m_Surf )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void CfdMeshMgrSingleton::MergeCoincidentTessPnts()
+{
+    IPntCloud cloud;
+    std::unordered_map< IPnt*, int > cloudIndex;
+    std::set< std::pair< IPnt*, IPnt* > > neighbours;
+
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        deque< IPnt* > &tv = ( *c )->m_TessVec;
+        for ( int j = 0 ; j < ( int )tv.size() ; j += 2 )
+        {
+            if ( !cloudIndex.count( tv[j] ) )
+            {
+                cloudIndex[ tv[j] ] = ( int )cloud.m_IPnts.size();
+                cloud.m_IPnts.push_back( tv[j] );
+            }
+            if ( j >= 2 )
+            {
+                neighbours.insert( std::make_pair( tv[j - 2], tv[j] ) );
+                neighbours.insert( std::make_pair( tv[j], tv[j - 2] ) );
+            }
+        }
+    }
+
+    if ( cloud.m_IPnts.empty() )
+    {
+        return;
+    }
+
+    double tol = GetGridDensityPtr()->m_MinLen / 100.0;
+    tol = tol * tol;
+
+    IPntTree index( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+    index.buildIndex();
+
+    vector< int > parent( cloud.m_IPnts.size() );
+    for ( size_t i = 0 ; i < parent.size() ; i++ )
+    {
+        parent[i] = ( int )i;
+    }
+
+    for ( size_t i = 0 ; i < cloud.m_IPnts.size() ; i++ )
+    {
+        std::vector < std::pair < unsigned int, double > > ret_matches;
+        nanoflann::SearchParams params;
+        index.radiusSearch( &cloud.m_IPnts[i]->m_Pnt[0], tol, ret_matches, params );
+
+        for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
+        {
+            IPnt* a = cloud.m_IPnts[i];
+            IPnt* b = cloud.m_IPnts[ ret_matches[j].first ];
+            if ( a != b && !neighbours.count( std::make_pair( a, b ) ) && ShareSurf( a, b ) )
+            {
+                UnionPnts( parent, ( int )i, ( int )ret_matches[j].first );
+            }
+        }
+    }
+
+    // Each set of more than one point, in the order its first point was met
+    vector< vector< int > > groups;
+    std::unordered_map< int, int > groupOf;
+    for ( size_t i = 0 ; i < cloud.m_IPnts.size() ; i++ )
+    {
+        int r = FindPnt( parent, ( int )i );
+        if ( !groupOf.count( r ) )
+        {
+            groupOf[r] = ( int )groups.size();
+            groups.push_back( vector< int >() );
+        }
+        groups[ groupOf[r] ].push_back( ( int )i );
+    }
+
+    std::unordered_map< IPnt*, IPnt* > mergedOf;
+    for ( int g = 0 ; g < ( int )groups.size() ; g++ )
+    {
+        vector< int > &grp = groups[g];
+        if ( grp.size() < 2 )
+        {
+            continue;
+        }
+
+        // A set reached through a third point can still hold two neighbours
+        bool ok = true;
+        for ( int i = 0 ; i < ( int )grp.size() && ok ; i++ )
+        {
+            for ( int j = i + 1 ; j < ( int )grp.size() && ok ; j++ )
+            {
+                if ( neighbours.count( std::make_pair( cloud.m_IPnts[ grp[i] ], cloud.m_IPnts[ grp[j] ] ) ) )
+                {
+                    ok = false;
+                }
+            }
+        }
+        if ( !ok )
+        {
+            continue;
+        }
+
+        IPnt* mip = new IPnt();
+        m_DelIPntVec.push_back( mip );
+        for ( int i = 0 ; i < ( int )grp.size() ; i++ )
+        {
+            mip->AddPuws( cloud.m_IPnts[ grp[i] ] );
+            mergedOf[ cloud.m_IPnts[ grp[i] ] ] = mip;
+        }
+        mip->CompPnt();
+    }
+
+    if ( mergedOf.empty() )
+    {
+        return;
+    }
+
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        deque< IPnt* > &tv = ( *c )->m_TessVec;
+        for ( int j = 0 ; j < ( int )tv.size() ; j += 2 )
+        {
+            std::unordered_map< IPnt*, IPnt* >::iterator mit = mergedOf.find( tv[j] );
+            if ( mit != mergedOf.end() )
+            {
+                tv[j] = mit->second;
+            }
         }
     }
 }
