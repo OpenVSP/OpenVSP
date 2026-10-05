@@ -259,6 +259,14 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac, int &rea
     return len;
 }
 
+// The number of points BuildTargetMap will lay on this surface.
+int Surf::GetTargetMapSize() const
+{
+    int nmapu = m_SurfCore.GetNumUPatches() * ( m_NumMap - 1 ) + 1;
+    int nmapw = m_SurfCore.GetNumWPatches() * ( m_NumMap - 1 ) + 1;
+    return nmapu * nmapw;
+}
+
 void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 {
     int npatchu = m_SurfCore.GetNumUPatches();

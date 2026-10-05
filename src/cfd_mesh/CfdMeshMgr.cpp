@@ -757,17 +757,55 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 
     int i;
 
-    // Serial.  A constant U or W line source evaluates the *Geom's* surface to find its target
-    // length, not the mesher's private copy, and several of this vector's Surfs can share one Geom
-    // surface (symmetric copies, and the strips one surface is split into all keep the same main
-    // index).  Two threads would then evaluate one Bezier patch at once, and Code-Eli's evaluator
-    // keeps its scratch buffers in the patch.
+    // Each surface's map is built and limited from that surface alone, so surfaces run side by
+    // side.  The one shared thing evaluated is a constant U or W line source's Geom surface, and
+    // that source locks around it.
     int nsurf = ( int )m_SurfVec.size();
+
+    vector < vector < MapSource* > > surfsources( nsurf );
+
+    // Biggest maps first, so the run does not end on one large surface with every other thread
+    // idle.  Surfaces are independent, so the order they are taken in changes none of them.
+    vector < pair < int, int > > order( nsurf );
 
     for ( i = 0 ; i < nsurf ; i++ )
     {
-        m_SurfVec[i]->BuildTargetMap( allsources, i );
-        m_SurfVec[i]->LimitTargetMap();
+        order[i] = pair< int, int >( m_SurfVec[i]->GetTargetMapSize(), i );
+    }
+
+    sort( order.begin(), order.end(), std::greater< pair < int, int > >() );
+
+    BeginProgress( "Surface Maps", nsurf, output_type );
+
+    RunIndexed( nsurf, StageThreadCount( nsurf ), [&]( int k )
+    {
+        int isurf = order[k].second;
+
+        m_SurfVec[isurf]->BuildTargetMap( surfsources[isurf], isurf );
+        m_SurfVec[isurf]->LimitTargetMap();
+
+        m_ProgressDone++;
+        StepProgress( output_type );
+    } );
+
+    EndProgress( output_type );
+
+    // Only rigorous limiting looks at every surface's map points together.  Each surface's list is
+    // let go once copied, so the two are not both held in full.
+    if ( GetGridDensityPtr()->m_RigorLimit )
+    {
+        size_t ntotal = 0;
+        for ( i = 0 ; i < nsurf ; i++ )
+        {
+            ntotal += surfsources[i].size();
+        }
+        allsources.reserve( ntotal );
+
+        for ( i = 0 ; i < nsurf ; i++ )
+        {
+            allsources.insert( allsources.end(), surfsources[i].begin(), surfsources[i].end() );
+            vector< MapSource* >().swap( surfsources[i] );
+        }
     }
 
     // Set up split sources to provide a source at the endpoint of curves where
@@ -816,6 +854,8 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
             addOutputText( " Rigorous 3D Limiting\n", output_type );
         }
 
+        BeginProgress( "Rigorous Limit", ( int )m_SurfVec.size(), output_type );
+
         for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
             ms_cloud.sources.clear();
@@ -839,7 +879,12 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
             ms_tree.buildIndex();
 
             m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree, minmap );
+
+            m_ProgressDone++;
+            StepProgress( output_type );
         }
+
+        EndProgress( output_type );
 
         for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
         {

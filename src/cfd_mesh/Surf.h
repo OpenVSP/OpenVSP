@@ -76,6 +76,7 @@ public:
 
     double TargetLen( double u, double w, double gap, double radfrac, int &reason );
     void BuildTargetMap( vector< MapSource* > &sources, int sid );
+    int GetTargetMapSize() const;
     void WalkMap( int istart, int jstart, int kstart );
     void WalkMap( int istart, int jstart );
 

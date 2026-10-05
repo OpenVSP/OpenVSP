@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <cmath>
+#include <mutex>
 
 #include "GridDensity.h"
 #include "Geom.h"
@@ -942,6 +943,10 @@ void ConstLineSimpleSource::AdjustLen( double val )
     m_Len = m_Len * val;
 }
 
+// Code-Eli keeps scratch space in each patch, so a surface may only be evaluated by one
+// thread at a time.
+static std::mutex s_ConstLineEvalMutex;
+
 double ConstLineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const string & geomid, const int & surfindx, const double & u, const double &w )
 {
     double dmin2 = std::numeric_limits<double>::max();
@@ -989,7 +994,13 @@ double ConstLineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const 
 
                 uw = m_UWPts[imatch] + t * ( m_UWPts[imatch + 1] - m_UWPts[imatch] );
 
-                vec3d p = m_GeomPtr->CompPnt01( m_SurfIndx, uw.x(), uw.y() );
+                vec3d p;
+                {
+                    // The mesher asks for target lengths from several threads at once, and every
+                    // one of them lands on this one Geom surface.
+                    std::lock_guard< std::mutex > lock( s_ConstLineEvalMutex );
+                    p = m_GeomPtr->CompPnt01( m_SurfIndx, uw.x(), uw.y() );
+                }
 
                 double d2 = dist_squared( pos, p );
 
