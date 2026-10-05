@@ -5583,7 +5583,6 @@ void VSP_GEOM::StoreWakeKuttaEdges(void)
                          
                       //   printf("k,j %d, %d --> Length: %f --> Vec: %f %f ... U1,2: %f %f ... U*: %f ... V3,4: %f %f \n",k,j,Length,Vec[0],Vec[1],U1,U2,0.5*(U3+U4),V3,V4);
                          
-                         Length *= (V3+V4);  // At leading edge V3+V4 = 1.                    
                    
                          if ( Length > VortexSheet(k).TrailingVortex(j).LocalChord() ) {
                       
