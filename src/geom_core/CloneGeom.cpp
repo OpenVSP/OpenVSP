@@ -923,9 +923,23 @@ void CloneGeom::ComputeCenter()
     m_Center = original_geom->m_Center;
 }
 
-// A Clone has no cross sections and no shape of its own to put a mesh source on.
+// Have the original build its default sources, then take ownership of them.
 void CloneGeom::AddDefaultSources( double base_len )
 {
+    Geom* original_geom = GetOriginalGeom();
+    if ( !original_geom )
+    {
+        return;
+    }
+
+    // Sources are appended to the original's list, so take the new ones off the end.
+    int nbefore = original_geom->GetCfdMeshMainSourceVec().size();
+
+    original_geom->AddDefaultSources( base_len );
+
+    original_geom->TakeCfdMeshSourcesAfter( nbefore, m_MainSourceVec );
+
+    SetCurrSourceID( ( int )m_MainSourceVec.size() - 1 );
 }
 
 //==== Encode Data Into XML Data Struct ====//

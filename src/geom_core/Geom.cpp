@@ -6679,6 +6679,27 @@ bool Geom::ValidGeomFeaStructInd( int index )
     return false;
 }
 
+void Geom::TakeCfdMeshSourcesAfter( int n, vector< BaseSource* > & source_vec )
+{
+    if ( n < 0 )
+    {
+        n = 0;
+    }
+
+    for ( int i = n ; i < ( int )m_MainSourceVec.size() ; i++ )
+    {
+        source_vec.push_back( m_MainSourceVec[i] );
+    }
+
+    m_MainSourceVec.resize( n );
+
+    // Move the selection only if the current source was removed.
+    if ( GetCurrSourceID() >= ( int )m_MainSourceVec.size() )
+    {
+        SetCurrSourceID( ( int )m_MainSourceVec.size() - 1 );
+    }
+}
+
 void Geom::DelAllSources()
 {
     for ( int i = 0 ; i < ( int )m_MainSourceVec.size() ; i++ )

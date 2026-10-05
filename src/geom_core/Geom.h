@@ -950,6 +950,9 @@ public:
         return m_UpdateStamp;
     }
 
+    // Removes the sources past index n and returns them.  Lets a Clone take the default sources
+    // its original adds.
+    virtual void TakeCfdMeshSourcesAfter( int n, vector< BaseSource* > & source_vec );
     virtual vector< BaseSimpleSource* > GetCfdMeshSimpSourceVec()
     {
         return m_SimpSourceVec;
