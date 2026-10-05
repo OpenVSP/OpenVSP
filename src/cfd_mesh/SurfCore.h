@@ -50,6 +50,7 @@ public:
     vec3d CompPnt01( double u, double w ) const;
 
     void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
+    void CompPntCurvature( double u, double w, vec3d &pnt, double& k1, double& k2, double& ka, double& kg ) const;
 
     int UWPointOnBorder( double u, double w, double tol ) const;
 

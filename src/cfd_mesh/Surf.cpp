@@ -193,7 +193,8 @@ bool Surf::ToPatchUW( double uo, double wo, double &u, double &w ) const
     return false;
 }
 
-double Surf::TargetLen( double u, double w, double gap, double radfrac, int &reason )
+// Also gives the point at u, w, which comes from the same surface evaluation.
+double Surf::TargetLen( double u, double w, double gap, double radfrac, int &reason, vec3d &pnt )
 {
     double k1, k2, ka, kg;
 
@@ -207,7 +208,7 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac, int &rea
     double umin = m_SurfCore.GetMinU();
     double wmin = m_SurfCore.GetMinW();
 
-    m_SurfCore.CompCurvature( u, w, k1, k2, ka, kg );
+    m_SurfCore.CompPntCurvature( u, w, pnt, k1, k2, ka, kg );
 
     if( std::abs( k1 ) < tol ) // If zero curvature
     {
@@ -314,7 +315,8 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 
             int reason = vsp::NO_REASON;
             // apply curvature based limits
-            double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap( limitFlag ), m_GridDensityPtr->GetRadFrac( limitFlag ), reason );
+            vec3d p;
+            double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap( limitFlag ), m_GridDensityPtr->GetRadFrac( limitFlag ), reason, p );
             len = min( len, curv_len );
 
             // apply minimum edge length as safety on curvature
@@ -331,8 +333,6 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
             len = max( len, m_GridDensityPtr->m_MinLen );
 
             // apply sources
-            vec3d p = m_SurfCore.CompPnt( u, w );
-
             // The last four parameters passed here (m_GeomID, m_MainSurfID, u, w)
             // represent a significant layering violation.  This is needed to allow
             // constant U/W line sources to do some evaluation in u,w space instead

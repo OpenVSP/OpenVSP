@@ -74,7 +74,7 @@ public:
         return &m_SurfCore;
     }
 
-    double TargetLen( double u, double w, double gap, double radfrac, int &reason );
+    double TargetLen( double u, double w, double gap, double radfrac, int &reason, vec3d &pnt );
     void BuildTargetMap( vector< MapSource* > &sources, int sid );
     int GetTargetMapSize() const;
     void WalkMap( int istart, int jstart, int kstart );

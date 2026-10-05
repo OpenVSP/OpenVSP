@@ -177,6 +177,16 @@ vec3d SurfCore::CompPnt( double u, double w ) const
 //===== Compute Surface Curvature Metrics Given  U W =====//
 void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const
 {
+    vec3d pnt;
+    CompPntCurvature( u, w, pnt, k1, k2, ka, kg );
+}
+
+//===== Compute Point And Surface Curvature Metrics Given  U W =====//
+// The patch is found once for the point and all five derivatives, where asking for each one on
+// its own finds it six times over.  Where a parameter direction degenerates the derivatives are
+// taken a little way in from the edge, as CompCurvature always has; the point is not moved.
+void SurfCore::CompPntCurvature( double u, double w, vec3d &pnt, double& k1, double& k2, double& ka, double& kg ) const
+{
     double umn = m_Surface.get_u0();
     double wmn = m_Surface.get_v0();
 
@@ -206,12 +216,19 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
 
     double bump = 1e-3;
 
+    surface_point_type p, p_u, p_w, p_uu, p_uw, p_ww;
+    m_Surface.f_pt_derivs2( u, w, p, p_u, p_w, p_uu, p_uw, p_ww );
+
+    pnt.set_xyz( p.x(), p.y(), p.z() );
+
     // First derivative vectors
-    vec3d S_u = CompTanU( u, w );
-    vec3d S_w = CompTanW( u, w );
+    vec3d S_u( p_u.x(), p_u.y(), p_u.z() );
+    vec3d S_w( p_w.x(), p_w.y(), p_w.z() );
 
     double E = dot( S_u, S_u );
     double G = dot( S_w, S_w );
+
+    bool moved = false;
 
     if( E < tol && G < tol )
     {
@@ -220,40 +237,36 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
 
         u = u + ( umid - u ) * bump;
         w = w + ( wmid - w ) * bump;
-
-        S_u = CompTanU( u, w );
-        S_w = CompTanW( u, w );
-
-        E = dot( S_u, S_u );
-        G = dot( S_w, S_w );
+        moved = true;
     }
     else if( E < tol ) // U direction degenerate
     {
         double wmid = GetMidW();
         w = w + ( wmid - w ) * bump;
-
-        S_u = CompTanU( u, w );
-        S_w = CompTanW( u, w );
-
-        E = dot( S_u, S_u );
-        G = dot( S_w, S_w );
+        moved = true;
     }
     else if( G < tol ) // W direction degenerate
     {
         double umid = GetMidU();
         u = u + ( umid - u ) * bump;
+        moved = true;
+    }
 
-        S_u = CompTanU( u, w );
-        S_w = CompTanW( u, w );
+    if ( moved )
+    {
+        m_Surface.f_pt_derivs2( u, w, p, p_u, p_w, p_uu, p_uw, p_ww );
+
+        S_u.set_xyz( p_u.x(), p_u.y(), p_u.z() );
+        S_w.set_xyz( p_w.x(), p_w.y(), p_w.z() );
 
         E = dot( S_u, S_u );
         G = dot( S_w, S_w );
     }
 
     // Second derivative vectors
-    vec3d S_uu = CompTanUU( u, w );
-    vec3d S_uw = CompTanUW( u, w );
-    vec3d S_ww = CompTanWW( u, w );
+    vec3d S_uu( p_uu.x(), p_uu.y(), p_uu.z() );
+    vec3d S_uw( p_uw.x(), p_uw.y(), p_uw.z() );
+    vec3d S_ww( p_ww.x(), p_ww.y(), p_ww.z() );
 
     // Unit normal vector
     vec3d Q = cross( S_u, S_w );
