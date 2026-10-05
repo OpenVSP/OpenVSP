@@ -187,6 +187,35 @@ def testAChoiceThatIsNotOneDeletesNothing( remove ):
     assert_refused( "CLONE_DELETE_TYPE" )
 
 
+def circle_diameters():
+    return [ p for c in vsp.FindContainers() for p in vsp.FindContainerParmIDs( c )
+             if vsp.GetParmName( p ) == "Circle_Diameter" ]
+
+
+def testAReplacedBodyOfRevolutionFollowsItsCrossSection():
+    """The Geom that takes a Clone's place takes over its cross section along with its ID."""
+    vsp.VSPRenew()
+    drop_errors()
+    bor = vsp.AddGeom( "BODYOFREVOLUTION" )
+    vsp.Update()
+    clone = vsp.CloneGeomVec( [ bor ] )[0]
+    vsp.Update()
+
+    vsp.DeleteGeom( bor, vsp.CLONE_DELETE_REPLACE )
+    vsp.Update()
+    assert_no_errors()
+    assert vsp.GetGeomTypeName( clone ) == "BodyOfRevolution"
+
+    diameters = circle_diameters()
+    assert len( diameters ) == 1, "expected the one cross section of the replacement"
+    before = box( clone )
+
+    vsp.SetParmValUpdate( diameters[0], 2.0 * vsp.GetParmVal( diameters[0] ) )
+    vsp.Update()
+    assert box( clone ) != pytest.approx( before ), "the replacement ignored its cross section"
+    assert_no_errors()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
