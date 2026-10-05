@@ -661,7 +661,7 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
         iter = iter + 1;
     }
 
-    if( std::abs( s - starget ) > tol ) // Failed to converge.  Reset to start point and return failure.
+    if( std::abs( s - starget ) / ds > tol ) // Failed to converge.  Reset to start point and return failure.
     {
         ireal = irorig;
         InterpDistTable( ireal, t, u, s, dsdi, reason );
