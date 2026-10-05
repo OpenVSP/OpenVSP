@@ -386,7 +386,7 @@ public:
     virtual void CleanChain( ISegChain* c );
     virtual void RefineChains();
 
-    void RefineISegChainSeg( ISegChain* c, IPnt* ipnt );
+    void RefineISegChainSeg( ISegChain* c, IPnt* ipnt, bool endpnt );
     void RefineISegChain( ISegChain* c );
 
     virtual void ExpandChain( ISegChain* chain, PNTree* PN_tree );

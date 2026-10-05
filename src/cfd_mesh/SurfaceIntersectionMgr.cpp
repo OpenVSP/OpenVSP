@@ -3081,7 +3081,7 @@ void SurfaceIntersectionSingleton::RefineChains()
     }
 }
 
-void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt )
+void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt, bool endpnt )
 {
     Puw* auw = ipnt->GetPuw( c->m_SurfA );
     Puw* buw = ipnt->GetPuw( c->m_SurfB );
@@ -3114,6 +3114,16 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
         double uwtol = 1e-4;
         borderA = c->m_SurfA->GetSurfCore()->UWPointOnBorder( uA, wA, uwtol );
         borderB = c->m_SurfB->GetSurfCore()->UWPointOnBorder( uB, wB, uwtol );
+
+        // Only a chain's ends lie on a border.  Solved against the border, every interior point
+        // near one lands on the one place the border crosses the other surface, and a curve
+        // running into a border at a shallow angle collapses there into a run of points with
+        // the same u,w on both surfaces.
+        if ( !endpnt )
+        {
+            borderA = SurfCore::NOBNDY;
+            borderB = SurfCore::NOBNDY;
+        }
 
         if ( borderA == SurfCore::NOBNDY && borderB == SurfCore::NOBNDY )
         {
@@ -3249,11 +3259,13 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
 void SurfaceIntersectionSingleton::RefineISegChain( ISegChain* c )
 {
 
-    RefineISegChainSeg( c, c->m_ISegDeque[0]->m_IPnt[0] );
+    int nseg = c->m_ISegDeque.size();
 
-    for ( int i = 0; i < (int)c->m_ISegDeque.size(); i++ )
+    RefineISegChainSeg( c, c->m_ISegDeque[0]->m_IPnt[0], true );
+
+    for ( int i = 0; i < nseg; i++ )
     {
-        RefineISegChainSeg( c, c->m_ISegDeque[i]->m_IPnt[1] );
+        RefineISegChainSeg( c, c->m_ISegDeque[i]->m_IPnt[1], i == nseg - 1 );
     }
 }
 
