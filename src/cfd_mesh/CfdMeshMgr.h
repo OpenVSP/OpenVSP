@@ -257,6 +257,7 @@ public:
     virtual void AddWakeCoPlanarSurfaceChains();
     virtual void AddSurfaceChain( Surf* sPtr, ISegChain* chainIn );
     virtual void BuildMesh();
+    virtual void RemoveCrossingTessSegs( const vector < vector < ISegChain* > > &surf_chains, int nthread );
 
     virtual void ForceSurfaceFixPoints( int surf_indx, vector < vec2d > &adduw ) {}; // used by FEAMesh Only.
 

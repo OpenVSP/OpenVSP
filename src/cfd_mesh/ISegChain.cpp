@@ -1469,6 +1469,45 @@ void ISegChain::ApplyTess( SurfaceIntersectionSingleton *MeshMgr )
 //printf("Tess Chain Size = %d %f\n", m_TessVec.size(), d );
 }
 
+void ISegChain::SplitTessSeg( int j, SurfaceIntersectionSingleton *MeshMgr )
+{
+    vector< double > utess = m_ACurve.GetUTessPnts();
+
+    if ( utess.size() != m_TessVec.size() || j < 0 || 2 * j + 2 >= ( int )m_TessVec.size() )
+    {
+        return;
+    }
+
+    double uq[2];
+    uq[0] = 0.5 * ( utess[ 2 * j ] + utess[ 2 * j + 1 ] );
+    uq[1] = 0.5 * ( utess[ 2 * j + 1 ] + utess[ 2 * j + 2 ] );
+
+    IPnt* ip[2];
+    for ( int k = 0; k < 2; k++ )
+    {
+        vec3d uwa = m_ACurve.CompPntUW( uq[k] );
+        vec3d uwb = m_BCurve.CompPntUW( uq[k] );
+
+        Puw* puwa = new Puw( m_SurfA, vec2d( uwa[0], uwa[1] ) );
+        MeshMgr->AddDelPuw( puwa );
+        Puw* puwb = new Puw( m_SurfB, vec2d( uwb[0], uwb[1] ) );
+        MeshMgr->AddDelPuw( puwb );
+
+        ip[k] = new IPnt( puwa, puwb );
+        m_CreatedIPnts.push_back( ip[k] );
+        ip[k]->CompPnt();
+    }
+
+    m_TessVec.insert( m_TessVec.begin() + 2 * j + 2, ip[1] );
+    m_TessVec.insert( m_TessVec.begin() + 2 * j + 1, ip[0] );
+
+    utess.insert( utess.begin() + 2 * j + 2, uq[1] );
+    utess.insert( utess.begin() + 2 * j + 1, uq[0] );
+
+    m_ACurve.Tesselate( utess );
+    m_BCurve.Tesselate( utess );
+}
+
 void ISegChain::SpreadDensity( )
 {
     m_ACurve.SpreadDensity( &m_BCurve );

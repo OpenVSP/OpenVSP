@@ -4848,6 +4848,66 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
     }
 }
 
+// Two curves that run close together can cross once each is cut into straight segments and
+// taken to the parameters the triangulator works in, though the curves themselves do not.
+// The triangulator cannot hold two constraints that cross.  Split the segments involved, on
+// the chains themselves, until none do: a chain belongs to the surfaces on both sides of it, so
+// both are given the same points.
+void CfdMeshMgrSingleton::RemoveCrossingTessSegs( const vector < vector < ISegChain* > > &surf_chains, int nthread )
+{
+    int n = m_SurfVec.size();
+    int nsplit = 0;
+    int npass = 0;
+    const int maxpass = 8;
+
+    for ( npass = 0; npass < maxpass; npass++ )
+    {
+        vector < vector < pair < ISegChain*, int > > > found( n );
+
+        RunIndexed( n, nthread, [&]( int s )
+        {
+            m_SurfVec[s]->FindCrossingTessSegs( surf_chains[s], found[s] );
+        } );
+
+        map < ISegChain*, set < int > > tosplit;
+        for ( int s = 0; s < n; s++ )
+        {
+            for ( int i = 0; i < ( int )found[s].size(); i++ )
+            {
+                tosplit[ found[s][i].first ].insert( found[s][i].second );
+            }
+        }
+
+        if ( tosplit.empty() )
+        {
+            break;
+        }
+
+        map < ISegChain*, set < int > >::iterator it;
+        for ( it = tosplit.begin(); it != tosplit.end(); ++it )
+        {
+            // From the end, so the indices still to be split do not move.
+            set < int >::reverse_iterator j;
+            for ( j = it->second.rbegin(); j != it->second.rend(); ++j )
+            {
+                it->first->SplitTessSeg( *j, this );
+                nsplit++;
+            }
+        }
+    }
+
+    if ( nsplit > 0 )
+    {
+        const char *left = "";
+        if ( npass == maxpass )
+        {
+            left = ", and some still cross";
+        }
+        printf( "Split %d mesh constraint segments that crossed, in %d passes%s.\n", nsplit, npass, left );
+        fflush( stdout );
+    }
+}
+
 void CfdMeshMgrSingleton::BuildMesh()
 {
     int n = m_SurfVec.size();
@@ -4888,6 +4948,8 @@ void CfdMeshMgrSingleton::BuildMesh()
 #ifndef DEBUG_CFD_MESH
     nthread = StageThreadCount( n );
 #endif
+
+    RemoveCrossingTessSegs( surf_chains, nthread );
 
     BeginProgress( "InitMesh", n, VOCAL_OUTPUT );
 

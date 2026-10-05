@@ -236,6 +236,10 @@ public:
 
     void BuildDistMap();
     void CleanupDistMap();
+
+    // The segments InitMesh would hand the triangulator from these chains that cross once taken
+    // to the parameters it works in.  Each is named as ( chain, segment index ) for SplitTessSeg.
+    void FindCrossingTessSegs( const vector< ISegChain* > &chains, vector< pair< ISegChain*, int > > &segs );
     vec2d GetST( const vec2d &uw );
     vec2d GetUW( const vec2d &st );
 
@@ -496,6 +500,9 @@ protected:
     int m_CopyIndex;
 
     double m_PlanarUWAspect;
+
+    // Whether BuildDistMap has run since CleanupDistMap.
+    bool m_DistMapBuilt;
 
     double LinearSTAspect() const;
 

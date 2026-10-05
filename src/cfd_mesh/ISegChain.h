@@ -248,6 +248,11 @@ public:
     void TransferTess();
     void ApplyTess( SurfaceIntersectionSingleton *MeshMgr );
 
+    // Splits the j'th segment the mesher is given, m_TessVec[ 2j ] to m_TessVec[ 2j + 2 ], in
+    // two.  Its midpoint becomes a vertex and a midpoint is added to each half.  The end
+    // points are kept, so the chains they are merged with are untouched.
+    void SplitTessSeg( int j, SurfaceIntersectionSingleton *MeshMgr );
+
     void SpreadDensity( );
     void CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources );
     void Tessellate();

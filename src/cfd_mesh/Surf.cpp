@@ -70,6 +70,7 @@ Surf::Surf()
     m_FeaSymmIndex = -1;
     m_IgnoreSurfFlag = false;
     m_PlanarUWAspect = -1;
+    m_DistMapBuilt = false;
 }
 
 Surf::~Surf()
@@ -1408,6 +1409,12 @@ void Surf::BuildDistMap()
     static int cnt = 0;
 #endif
 
+    if ( m_DistMapBuilt )
+    {
+        return;
+    }
+    m_DistMapBuilt = true;
+
     if ( m_PlanarUWAspect > 0 )
     {
 #ifdef DEBUG_CFD_MESH
@@ -1883,6 +1890,8 @@ vec2d Surf::GetUW( const vec2d &st )
 
 void Surf::CleanupDistMap()
 {
+    m_DistMapBuilt = false;
+
     if ( m_PlanarUWAspect > 0 )
     {
         return;
@@ -1890,6 +1899,101 @@ void Surf::CleanupDistMap()
 
     m_UWMap.Cleanup();
     m_STMap.clear();
+}
+
+// Twice the signed area of a, b, c.
+static double Orient2D( const vec2d &a, const vec2d &b, const vec2d &c )
+{
+    return ( b.x() - a.x() ) * ( c.y() - a.y() ) - ( b.y() - a.y() ) * ( c.x() - a.x() );
+}
+
+void Surf::FindCrossingTessSegs( const vector< ISegChain* > &chains, vector< pair< ISegChain*, int > > &segs )
+{
+    BuildDistMap();
+
+    struct TSeg
+    {
+        vec2d m_A, m_B;          // In the triangulator's parameters
+        vec2d m_UWA, m_UWB;      // In this surface's, where InitMesh merges points
+        double m_XMin, m_XMax, m_YMin, m_YMax;
+        ISegChain* m_Chain;
+        int m_Index;
+    };
+
+    vector< TSeg > tsegs;
+    for ( int i = 0 ; i < ( int )chains.size() ; i++ )
+    {
+        const deque< IPnt* > &tv = chains[i]->m_TessVec;
+        int n = tv.size();
+        int nhalf = 0.5 * ( n - 1 ) + 1;
+        for ( int j = 0 ; j < nhalf - 1; j++ )
+        {
+            TSeg s;
+            s.m_UWA = tv[ 2 * j ]->GetPuw( this )->m_UW;
+            s.m_UWB = tv[ 2 * ( j + 1 ) ]->GetPuw( this )->m_UW;
+            s.m_A = GetST( s.m_UWA );
+            s.m_B = GetST( s.m_UWB );
+            s.m_XMin = min( s.m_A.x(), s.m_B.x() );
+            s.m_XMax = max( s.m_A.x(), s.m_B.x() );
+            s.m_YMin = min( s.m_A.y(), s.m_B.y() );
+            s.m_YMax = max( s.m_A.y(), s.m_B.y() );
+            s.m_Chain = chains[i];
+            s.m_Index = j;
+            tsegs.push_back( s );
+        }
+    }
+
+    sort( tsegs.begin(), tsegs.end(), []( const TSeg &a, const TSeg &b ) { return a.m_XMin < b.m_XMin; } );
+
+    // InitMesh treats two points this close in u,w as one.
+    const double mergetol = 1.0e-4;
+
+    set< pair< ISegChain*, int > > found;
+
+    for ( int i = 0 ; i < ( int )tsegs.size() ; i++ )
+    {
+        const TSeg &p = tsegs[i];
+        for ( int k = i + 1 ; k < ( int )tsegs.size() && tsegs[k].m_XMin <= p.m_XMax ; k++ )
+        {
+            const TSeg &q = tsegs[k];
+            if ( q.m_YMin > p.m_YMax || q.m_YMax < p.m_YMin )
+            {
+                continue;
+            }
+
+            // Which ends the two segments share, as InitMesh will number them.
+            bool aa = dist( p.m_UWA, q.m_UWA ) < mergetol;
+            bool ab = dist( p.m_UWA, q.m_UWB ) < mergetol;
+            bool ba = dist( p.m_UWB, q.m_UWA ) < mergetol;
+            bool bb = dist( p.m_UWB, q.m_UWB ) < mergetol;
+            int nshared = aa + ab + ba + bb;
+
+            // Only a proper crossing: the triangulator handles a segment that touches or runs
+            // along another, by splitting it at the vertex it meets.
+            bool bad = false;
+
+            if ( nshared == 0 )
+            {
+                double d1 = Orient2D( p.m_A, p.m_B, q.m_A );
+                double d2 = Orient2D( p.m_A, p.m_B, q.m_B );
+                double d3 = Orient2D( q.m_A, q.m_B, p.m_A );
+                double d4 = Orient2D( q.m_A, q.m_B, p.m_B );
+
+                if ( d1 * d2 < 0.0 && d3 * d4 < 0.0 )
+                {
+                    bad = true;
+                }
+            }
+
+            if ( bad )
+            {
+                found.insert( pair< ISegChain*, int >( p.m_Chain, p.m_Index ) );
+                found.insert( pair< ISegChain*, int >( q.m_Chain, q.m_Index ) );
+            }
+        }
+    }
+
+    segs.assign( found.begin(), found.end() );
 }
 
 bool Surf::ValidUW( vec2d & uw, double slop ) const
