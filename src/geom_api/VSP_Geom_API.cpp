@@ -856,6 +856,12 @@ void AddCFDSource( int type, const std::string & geom_id, int surf_index,
         return;
     }
 
+    if ( surf_index < 0 || surf_index >= geom_ptr->GetNumMainSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddCFDSource::Geom " + geom_id + " has no main surface " + to_string( surf_index ) );
+        return;
+    }
+
     CfdMeshMgr.SetCurrSourceGeomID( geom_id );
     CfdMeshMgr.SetCurrMainSurfIndx( surf_index );
     BaseSource* source =  CfdMeshMgr.AddSource( type );

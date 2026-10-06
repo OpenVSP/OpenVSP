@@ -6771,7 +6771,13 @@ void Geom::UpdateSources()
 
     for ( int i = 0 ; i < nmain ; i++ )
     {
-        assert( ncopy == m_SurfSymmMap[ m_MainSourceVec[i]->m_MainSurfIndx.Get() ].size() );
+        int imain = m_MainSourceVec[i]->m_MainSurfIndx.Get();
+
+        // A source on a surface the Geom does not have -- a Blank has none -- is left out.
+        if ( imain < 0 || imain >= ( int )m_SurfSymmMap.size() || ( int )m_SurfSymmMap[ imain ].size() < ncopy )
+        {
+            continue;
+        }
 
         for ( int j = 0; j < ncopy; j++ )
         {

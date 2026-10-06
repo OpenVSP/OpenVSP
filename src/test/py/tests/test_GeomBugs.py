@@ -282,6 +282,61 @@ def testATexturesPlacementSurvivesAFile():
     assert_no_errors()
 
 
+def testAMeshSourceNeedsASurfaceToSitOn():
+    """A source on a Geom with no surface crashed the mesher.
+
+    AddCFDSource took any surface index, including one on a Blank, which has no surfaces at
+    all.  Geom::UpdateSources then looked up the symmetric copies of a surface that was not
+    there and read through an empty list -- a segfault on every mesh of the model, which is
+    what adding a source to every Geom of sbw or x57 did.  The API now refuses the index, and
+    a source that names a surface the Geom does not have, however it got there, is left out.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+
+    blank = vsp.AddGeom( "BLANK" )
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+
+    mgr = vsp.ErrorMgrSingleton.getInstance()
+    for src in ( vsp.ULINE_SOURCE, vsp.WLINE_SOURCE, vsp.POINT_SOURCE ):
+        before = mgr.GetNumTotalErrors()
+        vsp.AddCFDSource( src, blank, 0, 0.1, 0.2, 0.5, 0.5 )
+        assert mgr.GetNumTotalErrors() == before + 1
+        assert mgr.PopLastError().GetErrorCode() == vsp.VSP_INDEX_OUT_RANGE
+
+    before = mgr.GetNumTotalErrors()
+    vsp.AddCFDSource( vsp.ULINE_SOURCE, pod, 1, 0.1, 0.2, 0.5, 0.0 )
+    assert mgr.GetNumTotalErrors() == before + 1
+    assert mgr.PopLastError().GetErrorCode() == vsp.VSP_INDEX_OUT_RANGE
+
+    vsp.AddCFDSource( vsp.ULINE_SOURCE, pod, 0, 0.1, 0.2, 0.5, 0.0 )
+    vsp.AddCFDSource( vsp.WLINE_SOURCE, pod, 0, 0.1, 0.2, 0.0, 0.5 )
+    assert_no_errors()
+
+    out = tempfile.mkdtemp()
+    vsp.SetVSP3FileName( os.path.join( out, "source.vsp3" ) )
+    vsp.SetCFDMeshVal( vsp.CFD_MAX_EDGE_LEN, 0.5 )
+    vsp.SetCFDMeshVal( vsp.CFD_MIN_EDGE_LEN, 0.1 )
+    vsp.ComputeCFDMesh( vsp.SET_ALL, vsp.SET_NONE, vsp.CFD_TRI_TYPE )
+    assert os.path.getsize( os.path.join( out, "source.tri" ) ) > 0
+
+    # A source whose surface index is out of range by the time it is meshed -- here, edited in
+    # the file -- is left out rather than read through.
+    path = os.path.join( out, "bad.vsp3" )
+    vsp.WriteVSPFile( path )
+    text = open( path ).read()
+    assert text.count( '<MainSurfIndx Value="0' ) >= 2
+    open( path, "w" ).write( text.replace( '<MainSurfIndx Value="0', '<MainSurfIndx Value="7' ) )
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( path )
+    vsp.Update()
+    drop_errors()
+    vsp.SetVSP3FileName( os.path.join( out, "bad.vsp3" ) )
+    vsp.ComputeCFDMesh( vsp.SET_ALL, vsp.SET_NONE, vsp.CFD_TRI_TYPE )
+    assert os.path.getsize( os.path.join( out, "bad.tri" ) ) > 0
+
+
 def a_texture_file():
     """An image from the repo, by a path that does not depend on the working directory."""
     here = os.path.dirname( os.path.abspath( __file__ ) )
