@@ -57,9 +57,9 @@ class NBndBox;
 class TMesh;
 class PGMesh;
 
-// Below this a triangle encloses nothing worth keeping.  An area, in the model's own units.
-// See TMesh::AddTri for how the number was arrived at.
-const double TRI_AREA_TOL = 1.0e-7;
+// Below this a triangle encloses nothing worth keeping.  Its area over the square of its
+// longest edge, so the test does not depend on the model's size.  See TMesh::AddTri.
+const double TRI_AREA_TOL = 1.0e-6;
 
 struct dba_point
 {

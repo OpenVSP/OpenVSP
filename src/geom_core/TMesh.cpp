@@ -5099,11 +5099,13 @@ bool TMesh::AddTri( const vec3d &v0, const vec3d &v1, const vec3d &v2, const vec
     // Kahan's arrangement of Heron's formula, in Vec3d.cpp -- which keeps the cancellation
     // that the naive form loses on a needle.
     //
-    // The cutoff is an area in the model's own units.  Turning a twenty unit model to an
-    // arbitrary angle leaves the triangles meant here below 1e-8 and the smallest triangle
-    // actually wanted at 1e-6; this sits between.  Being an absolute area it travels with the
-    // size of the model, so a model built at a very different scale deserves a fresh look.
-    if ( area( v0, v1, v2 ) < TRI_AREA_TOL )
+    // The cutoff is meant to catch only triangles that are degenerate to within the precision
+    // of the surface evaluation -- three corners in a line -- whatever the size of the model.
+    // So it is put as the area over the square of the longest edge.  Over models from 0.001 to
+    // 1000 times their default size, turned to arbitrary angles, degenerate triangles measure
+    // below 1e-8 and real ones above 1e-4.
+    double lmax = std::max( dist( v0, v1 ), std::max( dist( v1, v2 ), dist( v2, v0 ) ) );
+    if ( area( v0, v1, v2 ) <= TRI_AREA_TOL * lmax * lmax )
     {
         return false;
     }

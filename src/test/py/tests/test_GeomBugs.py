@@ -394,6 +394,56 @@ def testPrepareGeometryWithNothingToMeshFinishes():
     drop_errors()
 
 
+@pytest.mark.parametrize( "scale, cap_tess", [ ( 1.0, 15 ), ( 1000.0, 6 ) ] )
+def testAFinelyCappedBluntWingMakesAClosedPanelMesh( scale, cap_tess ):
+    """Every edge of a blunt wing's panel mesh is shared by two faces, whatever its size or cap.
+
+    A round tip cap on a blunt trailing edge is built from small but real triangles where it
+    wraps the trailing edge base.  Refining the cap shrinks them below the area AddTri used to
+    take for no area at all, so they were left out and the mesh opened there.  Made a thousand
+    times larger and turned, the same wing grows triangles with three corners in a line past
+    any fixed area, and kept they leave edges with more than two faces.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    vsp.SetVSP3FileName( os.path.join( out, "blunt.vsp3" ) )
+    wing = vsp.AddGeom( "WING" )
+    xsurf = vsp.GetXSecSurf( wing, 0 )
+    for i in range( vsp.GetNumXSec( xsurf ) ):
+        xsec = vsp.GetXSec( xsurf, i )
+        vsp.SetParmVal( vsp.GetXSecParm( xsec, "TE_Trim_Type" ), 1 )
+        vsp.SetParmVal( vsp.GetXSecParm( xsec, "TE_Trim_X" ), 0.1 )
+    vsp.SetParmVal( vsp.FindParm( wing, "CapUMaxOption", "EndCap" ), vsp.ROUND_END_CAP )
+    vsp.SetParmVal( vsp.FindParm( wing, "CapUMinTess", "EndCap" ), cap_tess )
+    if scale != 1.0:
+        vsp.SetParmVal( vsp.FindParm( wing, "Scale", "XForm" ), scale )
+        for name, angle in ( ( "X_Rel_Rotation", 23.0 ), ( "Y_Rel_Rotation", 41.0 ), ( "Z_Rel_Rotation", 67.0 ) ):
+            vsp.SetParmVal( vsp.FindParm( wing, name, "XForm" ), angle )
+    vsp.Update()
+
+    vsp.SetAnalysisInputDefaults( "VSPAEROComputeGeometry" )
+    vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "GeomSet", [ vsp.SET_ALL ] )
+    vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "ThinGeomSet", [ vsp.SET_NONE ] )
+    vsp.ExecAnalysis( "VSPAEROComputeGeometry" )
+
+    # One mesh: a comment, the mesh count, 'nnode nface nwake', the nodes, the face count, and
+    # one line per face -- its node count followed by its 1-based node indices.
+    lines = [ l for l in open( os.path.join( out, "blunt.vspgeom" ) ).read().split( "\n" ) if not l.startswith( "#" ) ]
+    nnode, nface = [ int( x ) for x in lines[1].split()[:2] ]
+    first = 2 + nnode + 1
+    used = {}
+    for line in lines[first:first + nface]:
+        p = [ int( x ) for x in line.split() ]
+        loop = p[1:1 + p[0]]
+        for a, b in zip( loop, loop[1:] + loop[:1] ):
+            key = ( min( a, b ), max( a, b ) )
+            used[ key ] = used.get( key, 0 ) + 1
+    open_edges = [ e for e, n in used.items() if n != 2 ]
+    assert open_edges == [], "%d edges are not shared by two faces" % len( open_edges )
+    drop_errors()
+
+
 def a_texture_file():
     """An image from the repo, by a path that does not depend on the working directory."""
     here = os.path.dirname( os.path.abspath( __file__ ) )
