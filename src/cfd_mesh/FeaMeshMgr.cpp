@@ -1950,17 +1950,10 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                                 addOutputText( message );
                                 split = true;
                             }
-                            else // Free memory
-                            {
-                                if ( p0 )
-                                {
-                                    delete p0;
-                                }
-                                if ( p1 )
-                                {
-                                    delete p1;
-                                }
-                            }
+
+                            // AddBorderSplit copies the u,w, so the Puws are freed either way.
+                            delete p0;
+                            delete p1;
                         }
 
                         if ( split )
@@ -2143,17 +2136,10 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                 addOutputText( message );
                                 split = true;
                             }
-                            else // Free memory
-                            {
-                                if ( p0 )
-                                {
-                                    delete p0;
-                                }
-                                if ( p1 )
-                                {
-                                    delete p1;
-                                }
-                            }
+
+                            // AddBorderSplit copies the u,w, so the Puws are freed either way.
+                            delete p0;
+                            delete p1;
                         }
 
                         if ( split )
@@ -2718,29 +2704,11 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                                                             success1 = ( *c2 )->AddBorderSplit( skin_p1 );
                                                         }
 
-                                                        // Free memory
-                                                        if ( !success0 )
-                                                        {
-                                                            if ( part_p0 )
-                                                            {
-                                                                delete part_p0;
-                                                            }
-                                                            if ( skin_p0 )
-                                                            {
-                                                                delete skin_p0;
-                                                            }
-                                                        }
-                                                        if ( !success1 )
-                                                        {
-                                                            if ( part_p1 )
-                                                            {
-                                                                delete part_p1;
-                                                            }
-                                                            if ( skin_p1 )
-                                                            {
-                                                                delete skin_p1;
-                                                            }
-                                                        }
+                                                        // AddBorderSplit copies the u,w, so the Puws are freed either way.
+                                                        delete part_p0;
+                                                        delete skin_p0;
+                                                        delete part_p1;
+                                                        delete skin_p1;
                                                     }
                                                 }
                                             }
@@ -2804,6 +2772,7 @@ void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
 
         if ( delj )
         {
+            GetMeshPtr()->m_FeaElementVec[ j ]->DeleteAllNodes();
             delete GetMeshPtr()->m_FeaElementVec[ j ];
         }
         else
