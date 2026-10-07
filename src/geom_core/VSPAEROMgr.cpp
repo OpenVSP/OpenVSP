@@ -1390,6 +1390,18 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     res->Add( new NameValData( "VSPGeomFileName", m_VSPGeomFileFull, "CompGeom *.vspgeom file name." ) );
     res->Add( new NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId, "MeshGeom GeomID of mesh created in process." ) );
 
+    int n_one = -1;
+    int n_many = -1;
+    int n_dup = -1;
+    NGonMeshGeom* panel_mesh = dynamic_cast< NGonMeshGeom* >( veh->FindGeom( m_LastPanelMeshGeomId ) );
+    if ( panel_mesh && panel_mesh->m_PGMulti.GetActiveMesh() )
+    {
+        panel_mesh->m_PGMulti.GetActiveMesh()->CountNonManifoldEdges( n_one, n_many, n_dup );
+    }
+    res->Add( new NameValData( "Num_Edges_One_Face", n_one, "Panel mesh edges with fewer than two faces; -1 when there is no panel mesh." ) );
+    res->Add( new NameValData( "Num_Edges_Many_Faces", n_many, "Panel mesh edges with more than two faces; -1 when there is no panel mesh." ) );
+    res->Add( new NameValData( "Num_Duplicate_Edges", n_dup, "Panel mesh node pairs joined by more than one edge; -1 when there is no panel mesh." ) );
+
     return res->GetID();
 
 }

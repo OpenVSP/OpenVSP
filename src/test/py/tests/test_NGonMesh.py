@@ -306,6 +306,55 @@ def testThePanelMeshHasNoMalformedFaces():
     assert len( repeated ) == 0, "%d faces naming a node twice" % len( repeated )
 
 
+def _edge_health( merge = False, clean = False, thin = False ):
+    """The panel mesh's own edge counts, as Prepare Geometry reports them.
+
+    The .vspgeom is written by node, so two edges joining the same pair of nodes -- each holding
+    one face -- read as one closed edge there.  Only the mesh can say.
+    """
+    _wing_over_fuselage()
+    vsp.SetAnalysisInputDefaults( "VSPAEROComputeGeometry" )
+    if thin:
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "GeomSet", [ vsp.SET_NONE ] )
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "ThinGeomSet", [ vsp.SET_ALL ] )
+    else:
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "GeomSet", [ vsp.SET_ALL ] )
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "ThinGeomSet", [ vsp.SET_NONE ] )
+    vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "MergeDegenTriRegionsFlag", [ int( merge ) ] )
+    vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "CleanIntersectionsFlag", [ int( clean ) ] )
+    vsp.ExecAnalysis( "VSPAEROComputeGeometry" )
+    res = vsp.FindLatestResultsID( "VSPAERO_Geom" )
+    return tuple( vsp.GetIntResults( res, k )[0]
+                  for k in ( "Num_Edges_One_Face", "Num_Edges_Many_Faces", "Num_Duplicate_Edges" ) )
+
+
+@pytest.mark.parametrize( "merge, clean", [ ( False, False ), ( True, False ), ( False, True ), ( True, True ) ] )
+def testAllThickGeometryMakesAManifoldMesh( merge, clean ):
+    """A wing grazing a fuselage, all thick, closes on itself: every edge has exactly two faces.
+
+    Edges with one face or more than two belong where thin surfaces end or meet thick ones;
+    here there are none.  The thin set is none: a body in both sets is meshed as its thin
+    plates too, and those split its skin where they meet it.  (A control surface grouped for
+    VSPAERO still leaves doubled edges along its outline; that is not covered here.)
+    """
+    one, many, dup = _edge_health( merge, clean )
+    assert ( one, many, dup ) == ( 0, 0, 0 ), \
+           "one-face edges %d, many-face edges %d, duplicated edges %d" % ( one, many, dup )
+
+
+@pytest.mark.parametrize( "merge, clean", [ ( False, True ), ( True, True ) ] )
+def testThinGeometryIsCleaned( merge, clean ):
+    """Thin surfaces end in free edges; cleaning a mesh of them completes and leaves them there."""
+    one, many, dup = _edge_health( merge, clean, thin = True )
+    assert one > 0 and many >= 0 and dup >= 0
+
+
+def testPrepareGeometryReportsTheEdgeCounts():
+    """The counts are reported for the panel mesh, never the -1 that means there is none."""
+    one, many, dup = _edge_health()
+    assert one >= 0 and many >= 0 and dup >= 0
+
+
 #==== Which triangles merge ====#
 
 def _read_levels( path ):

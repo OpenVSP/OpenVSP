@@ -346,6 +346,7 @@ public:
     void RemoveNodeMergeEdges( PGNode* n );
 
     bool Check();
+    void CountNonManifoldEdges( int &n_one, int &n_many, int &n_dup ) const;
 
     PGMulti *m_PGMulti;
     list < PGFace* > m_FaceList;

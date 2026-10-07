@@ -2939,6 +2939,43 @@ void PGMesh::RemoveNodeMergeEdges( PGNode* n )
     }
 }
 
+// Edges with fewer than two faces, edges with more than two, and node pairs joined by more than
+// one edge.  A closed mesh of thick surfaces should have none.  A duplicated edge splits the faces
+// either side of it, each edge holding one, while a file written by node looks closed.
+void PGMesh::CountNonManifoldEdges( int &n_one, int &n_many, int &n_dup ) const
+{
+    n_one = 0;
+    n_many = 0;
+    n_dup = 0;
+
+    std::set< std::pair< const PGNode*, const PGNode* > > seen;
+
+    list< PGEdge* >::const_iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        int nface = ( *e )->m_FaceVec.size();
+        if ( nface < 2 )
+        {
+            n_one++;
+        }
+        else if ( nface > 2 )
+        {
+            n_many++;
+        }
+
+        const PGNode* a = ( *e )->m_N0;
+        const PGNode* b = ( *e )->m_N1;
+        if ( b < a )
+        {
+            std::swap( a, b );
+        }
+        if ( !seen.insert( std::make_pair( a, b ) ).second )
+        {
+            n_dup++;
+        }
+    }
+}
+
 bool PGMesh::Check()
 {
     list< PGFace* >::iterator f;
