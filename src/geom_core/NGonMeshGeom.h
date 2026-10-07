@@ -91,10 +91,8 @@ public:
 
     IntParm m_ActiveMesh;
 
-    // The markers after the wakes: the mesh's defects.
+    // The markers after the wakes: the mesh's defects.  The debug face labels, when drawn, follow.
     enum { NGON_BAD_EDGE_FEW, NGON_BAD_EDGE_MANY, NGON_COLINEAR_LOOP, NGON_DOUBLE_BACK_NODE, NUM_NGON_DEFECT_MARKERS };
-
-    vector<DrawObj> m_LabelDO_vec;
 
     virtual PGMulti* GetPGMulti() const override
     {

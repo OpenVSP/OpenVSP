@@ -343,8 +343,11 @@ void NGonMeshGeom::UpdateDrawObj()
     }
 }
 
+// Debug labels at each face's center: jref, kref and region.  Set true to draw them.
+static const bool DRAW_FACE_LABELS = false;
+
 // The wakes and the mesh defects (edges with too few or too many faces, co-linear loops,
-// nodes that double back), placed by placer.
+// nodes that double back), placed by placer, and the debug face labels when they are drawn.
 void NGonMeshGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
 {
     PGMeshRole* source = Geom::CastTo< PGMeshRole >( placer );
@@ -362,7 +365,13 @@ void NGonMeshGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_
     int nbwake = pgm->m_BodyWakeVec.size();
     int nbpwake = pgm->m_BodyNodeWakeVec.size();
 
-    marker_vec.resize( nwwake + nbwake + nbpwake + NUM_NGON_DEFECT_MARKERS );
+    int nlabel = 0;
+    if ( DRAW_FACE_LABELS )
+    {
+        nlabel = pgm->m_FaceList.size();
+    }
+
+    marker_vec.resize( nwwake + nbwake + nbpwake + NUM_NGON_DEFECT_MARKERS + nlabel );
 
     // Calculate constants for color sequence.
     const int ncgrp = nwwake + nbwake + nbpwake; // Number of basic colors
@@ -520,13 +529,44 @@ void NGonMeshGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_
         double_back.m_PntVec.push_back( trans.xform( pgm->m_DoubleBackNode[i]->m_Pt->m_Pnt ) );
     }
     double_back.m_GeomChanged = true;
+
+    int ilabel = iwake + NUM_NGON_DEFECT_MARKERS;
+    for ( list< PGFace* >::iterator f = pgm->m_FaceList.begin() ; f != pgm->m_FaceList.end() && ilabel < ( int )marker_vec.size(); ++f, ++ilabel )
+    {
+        DrawObj &label = marker_vec[ ilabel ];
+        vec3d norm = trans.xformnorm( ( *f )->m_Nvec );
+
+        label.m_GeomID = placer->GetID() + "_Probe_" + to_string( ilabel );
+        label.m_Type = DrawObj::VSP_PROBE;
+        label.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        label.m_TextColor = vec3d( 0, 0, 0 );
+        label.m_TextSize = 1;
+
+        label.m_VisibleDirFlag = true;
+        label.m_VisibleDirBothFlag = false;
+        label.m_VisTol = 89.0;
+        label.m_VisibleDir = norm;
+
+        label.m_Probe.Step = DrawObj::VSP_PROBE_STEP_COMPLETE;
+        label.m_Probe.Pt = trans.xform( ( *f )->ComputeCenter() );
+        label.m_Probe.Norm = norm;
+        label.m_Probe.Len = 0.01;
+        label.m_GeomChanged = true;
+
+        char str[255];
+        snprintf( str, sizeof( str ), "j%d, k%d, %d", ( *f )->m_jref, ( *f )->m_kref, ( *f )->m_Region );
+        label.m_Probe.Label = string( str );
+    }
 }
 
-// The wakes, or the defects in their place -- this Geom's switch says which.
+// The wakes, or the defects in their place -- this Geom's switch says which.  The debug face
+// labels show whenever the Geom does.
 void NGonMeshGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )
 {
     bool visible = placer->GetSetFlag( vsp::SET_SHOWN );
-    int nwake = ( int )marker_vec.size() - NUM_NGON_DEFECT_MARKERS;
+
+    PGMesh *pgm = m_PGMulti.GetActiveMesh();
+    int nwake = pgm->m_WingWakeVec.size() + pgm->m_BodyWakeVec.size() + pgm->m_BodyNodeWakeVec.size();
 
     for ( int i = 0; i < ( int )marker_vec.size(); i++ )
     {
@@ -534,9 +574,13 @@ void NGonMeshGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_
         {
             marker_vec[i].m_Visible = !m_ShowNonManifoldEdges() && visible;
         }
-        else
+        else if ( i < nwake + NUM_NGON_DEFECT_MARKERS )
         {
             marker_vec[i].m_Visible = m_ShowNonManifoldEdges() && visible;
+        }
+        else
+        {
+            marker_vec[i].m_Visible = visible;
         }
     }
 }
@@ -652,12 +696,6 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     Geom::LoadDrawObjs( draw_obj_vec );
 
     LoadPGDrawObjs( m_WireShadeDrawObj_vec, m_GuiDraw.GetDrawType(), visible );
-
-    for ( int i = 0; i < m_LabelDO_vec.size(); i++ )
-    {
-        m_LabelDO_vec[i].m_Visible = visible;
-        draw_obj_vec.push_back( &m_LabelDO_vec[i] );
-    }
 }
 
 vector< TMesh* > PGMeshRole::BuildPGTMeshVec( const Geom* geom_ptr ) const
