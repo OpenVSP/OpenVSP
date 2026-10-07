@@ -90,6 +90,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FindBodyWakesFlag.Init( "FindBodyWakesFlag", groupname, this, false, false, true );
     m_FindBodyWakesFlag.SetDescript( "Flag to control whether body wakes are detected." );
 
+    m_MergeDegenTriRegionsFlag.Init( "MergeDegenTriRegions", groupname, this, false, false, true );
+    m_MergeDegenTriRegionsFlag.SetDescript( "Flag to control whether merge degenerate triangle regions." );
+
     m_LastPanelMeshGeomId = string();
 
     m_Sref.Init( "Sref", groupname, this, 100.0, 0.0, 1e12 );
@@ -1327,7 +1330,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     if ( mesh_geom )
     {
-        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_NRef(), m_FindBodyWakesFlag() );
+        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_NRef(), m_FindBodyWakesFlag(), m_MergeDegenTriRegionsFlag() );
 
         NGonMeshGeom* ngon_mesh_geom = ( NGonMeshGeom * ) veh->FindGeom( m_LastPanelMeshGeomId );
 

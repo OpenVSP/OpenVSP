@@ -244,10 +244,14 @@ public:
     int m_Tag;
     int m_jref;
     int m_kref;
+    int m_FanID; // Collapsed-quad fan this face came from; -1 if its quad did not collapse.
 
     int m_ID;
 
     int m_Region;
+    int m_RegionDir; // -1 = not a region, 0 = J-type (constant kref), 1 = K-type (constant jref)
+    int m_kref_max;  // max kref of K-type region span; -1 if not a K-type region
+    int m_jref_max;  // max jref of J-type region span; -1 if not a J-type region
 
     vector< PGEdge* > m_EdgeVec;
     vector < PGNode* > m_TriNodeVec;
@@ -264,9 +268,13 @@ public:
 
 void QuadFaceMergeProps( PGFace *f0, PGFace *f1 );
 
+void RegionMergeProps( PGFace *f0, PGFace *f1 );
+
 void JrefMergeProps( PGFace *f0, PGFace *f1 );
 
 void KrefMergeProps( PGFace *f0, PGFace *f1 );
+
+bool RegionMatch( PGFace *f0, PGFace *f1 );
 
 bool QuadTagMatch( PGFace *f0, PGFace *f1 );
 
@@ -307,7 +315,7 @@ public:
     PGFace* AddFace();
     PGFace* AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
                              const vec2d &uw0, const vec2d &uw1, const vec2d &uw2,
-                             const vec3d & norm, int iQuad, int tag, int jref, int kref );
+                             const vec3d & norm, int iQuad, int tag, int jref, int kref, int fanid );
 
     void  RemoveFace( PGFace* fptr );
 
@@ -394,8 +402,11 @@ public:
     void SplitFace( PGFace *f0, PGEdge *e );
 
     void MakeManifoldRegions();
+    void MakeTriangleRegions();
     void MakeRegions();
     void PrintRegions();
+    void DumpDiagnostic( const string & fname ) const;
+    void DumpTriDiagnostic( const string & fname ) const;
     void CullOrphanThinRegions( double tol );
 
     void CullMinorRegions();
@@ -413,6 +424,7 @@ public:
 
     void MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 ) = &QuadFaceMergeProps  );
 
+    void MergeRegions();
     void PolygonizeMesh();
     void CleanColinearVerts();
 

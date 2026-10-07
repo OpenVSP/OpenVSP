@@ -460,6 +460,7 @@ TTri::TTri( TMesh* tmesh )
     m_ID = -1;
     m_jref = 0;
     m_kref = 0;
+    m_FanID = -1;
 }
 
 TTri::~TTri()
@@ -534,6 +535,7 @@ void TTri::CopyFrom( const TTri* tri )
     m_iQuad = tri->m_iQuad;
     m_jref = tri->m_jref;
     m_kref = tri->m_kref;
+    m_FanID = tri->m_FanID;
     m_ID = tri->m_ID;
 }
 
@@ -1407,6 +1409,7 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
             t->m_iQuad = m_iQuad;
             t->m_jref = m_jref;
             t->m_kref = m_kref;
+            // m_FanID stays -1: a piece of a fan triangle is not part of the fan.
             t->m_ID = m_ID;
             m_SplitVec.push_back( t );
         }
@@ -3465,6 +3468,7 @@ void TMesh::copy( TMesh* m )
         tri->m_iQuad    = m->m_TVec[i]->m_iQuad;
         tri->m_jref     = m->m_TVec[i]->m_jref;
         tri->m_kref     = m->m_TVec[i]->m_kref;
+        tri->m_FanID    = m->m_TVec[i]->m_FanID;
         tri->m_ID    = m->m_TVec[i]->m_ID;
         tri->m_Tags = m->m_TVec[i]->m_Tags;
         tri->m_GeomID = m->m_TVec[i]->m_GeomID;
@@ -3507,6 +3511,7 @@ void TMesh::copyPlaced( TMesh* m, const Matrix4d &mat, bool flipnormal )
         tri->m_iQuad    = m->m_TVec[i]->m_iQuad;
         tri->m_jref     = m->m_TVec[i]->m_jref;
         tri->m_kref     = m->m_TVec[i]->m_kref;
+        tri->m_FanID    = m->m_TVec[i]->m_FanID;
         tri->m_ID    = m->m_TVec[i]->m_ID;
         tri->m_Tags = m->m_TVec[i]->m_Tags;
         tri->m_GeomID = m->m_TVec[i]->m_GeomID;
@@ -3563,6 +3568,7 @@ void TMesh::copyFewerNodes( TMesh* m )
         tri->m_iQuad = m->m_TVec[i]->m_iQuad;
         tri->m_jref = m->m_TVec[i]->m_jref;
         tri->m_kref = m->m_TVec[i]->m_kref;
+        tri->m_FanID = m->m_TVec[i]->m_FanID;
         tri->m_ID = m->m_TVec[i]->m_ID;
         tri->m_Tags = m->m_TVec[i]->m_Tags;
         tri->m_GeomID = m->m_TVec[i]->m_GeomID;
@@ -3593,6 +3599,7 @@ void TMesh::CopyFlatten( TMesh* m )
                     m_TVec.back()->m_Tags = s_tri->m_Tags;
                     m_TVec.back()->m_jref = s_tri->m_jref;
                     m_TVec.back()->m_kref = s_tri->m_kref;
+                    m_TVec.back()->m_FanID = s_tri->m_FanID;
                     m_TVec.back()->m_ID = s_tri->m_ID;
                     m_TVec.back()->m_GeomID = s_tri->m_GeomID;
                     m_TVec.back()->m_Density = s_tri->m_Density;
@@ -3607,6 +3614,7 @@ void TMesh::CopyFlatten( TMesh* m )
                 m_TVec.back()->m_Tags = orig_tri->m_Tags;
                 m_TVec.back()->m_jref = orig_tri->m_jref;
                 m_TVec.back()->m_kref = orig_tri->m_kref;
+                m_TVec.back()->m_FanID = orig_tri->m_FanID;
                 m_TVec.back()->m_ID = orig_tri->m_ID;
                 m_TVec.back()->m_GeomID = orig_tri->m_GeomID;
                 m_TVec.back()->m_Density = orig_tri->m_Density;
@@ -3692,6 +3700,7 @@ void TMesh::FlattenInPlace()
                     m_TVec.back()->m_Tags = s_tri->m_Tags;
                     m_TVec.back()->m_jref = s_tri->m_jref;
                     m_TVec.back()->m_kref = s_tri->m_kref;
+                    m_TVec.back()->m_FanID = s_tri->m_FanID;
                     m_TVec.back()->m_ID = s_tri->m_ID;
                     m_TVec.back()->m_GeomID = s_tri->m_GeomID;
                     m_TVec.back()->m_Density = s_tri->m_Density;
@@ -3706,6 +3715,7 @@ void TMesh::FlattenInPlace()
                 m_TVec.back()->m_Tags = orig_tri->m_Tags;
                 m_TVec.back()->m_jref = orig_tri->m_jref;
                 m_TVec.back()->m_kref = orig_tri->m_kref;
+                m_TVec.back()->m_FanID = orig_tri->m_FanID;
                 m_TVec.back()->m_ID = orig_tri->m_ID;
                 m_TVec.back()->m_GeomID = orig_tri->m_GeomID;
                 m_TVec.back()->m_Density = orig_tri->m_Density;
@@ -4230,6 +4240,7 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
             TTri* tri = m_TVec.back();
 
             tri->m_Tags = tags;
+            tri->m_FanID = ( *f )->m_FanID;
         }
     }
 }
@@ -4309,6 +4320,7 @@ void TMesh::SubMesh( int imesh, TMesh *tm )
             t->m_iQuad = torig->m_iQuad;
             t->m_jref = torig->m_jref;
             t->m_kref = torig->m_kref;
+            t->m_FanID = torig->m_FanID;
             t->m_ID = torig->m_ID;
 
             m_TVec.push_back( t );
@@ -4360,6 +4372,7 @@ void TMesh::MakeUWTMesh( TMesh & tm )
         t->m_iQuad = ti->m_iQuad;
         t->m_jref = ti->m_jref;
         t->m_kref = ti->m_kref;
+        t->m_FanID = ti->m_FanID;
 
         tm.m_TVec.push_back( t );
     }

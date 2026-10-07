@@ -748,7 +748,10 @@ vector< TMesh* > PGMeshRole::BuildPGTMeshVec( const Geom* geom_ptr ) const
             vec3d v0 = TransMat.xform( nodVec[ inod ]->m_Pt->m_Pnt );
             vec3d v1 = TransMat.xform( nodVec[ i1 ]->m_Pt->m_Pnt );
             vec3d v2 = TransMat.xform( nodVec[ i2 ]->m_Pt->m_Pnt );
-            retTMeshVec[0]->AddTri( v0, v1, v2, norm, (*f)->m_iQuad, (*f)->m_jref, (*f)->m_kref );
+            if ( retTMeshVec[0]->AddTri( v0, v1, v2, norm, (*f)->m_iQuad, (*f)->m_jref, (*f)->m_kref ) )
+            {
+                retTMeshVec[0]->m_TVec.back()->m_FanID = (*f)->m_FanID;
+            }
         }
     }
 

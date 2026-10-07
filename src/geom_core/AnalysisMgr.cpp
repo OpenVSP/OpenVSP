@@ -2064,6 +2064,8 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "CullFrac", VSPAEROMgr.m_CullFrac.Get(), "Area fraction of thin orphan regions to cull." ) );
         m_Inputs.Add( new NameValData( "CullFracFlag", VSPAEROMgr.m_CullFracFlag.Get(), "Flag to enable orphan culling." ) );
         m_Inputs.Add( new NameValData( "FindBodyWakesFlag", VSPAEROMgr.m_FindBodyWakesFlag.Get(), "Flag to control whether body wakes are detected." ) );
+
+        m_Inputs.Add( new NameValData( "MergeDegenTriRegionsFlag", VSPAEROMgr.m_MergeDegenTriRegionsFlag.Get(), "Flag to control whether merge degenerate triangle regions." ) );
     }
     else
     {
@@ -2152,6 +2154,13 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_FindBodyWakesFlag.Set( nvd->GetInt( 0 ) );
         }
 
+        bool mergeDegenTriRegionsFlagOrig = VSPAEROMgr.m_MergeDegenTriRegionsFlag.Get();
+        nvd = m_Inputs.FindPtr( "MergeDegenTriRegionsFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_MergeDegenTriRegionsFlag.Set( nvd->GetInt( 0 ) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeGeometry();
 
@@ -2166,6 +2175,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_CullFrac.Set( cullfracOrig );
         VSPAEROMgr.m_CullFracFlag.Set( cullfracflagOrig );
         VSPAEROMgr.m_FindBodyWakesFlag.Set( findbodywakesflagOrig );
+        VSPAEROMgr.m_MergeDegenTriRegionsFlag.Set( mergeDegenTriRegionsFlagOrig );
     }
 
     return resId;

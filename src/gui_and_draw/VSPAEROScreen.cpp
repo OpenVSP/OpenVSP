@@ -935,6 +935,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_ExperimentalLayout.AddButton( m_FindBodyWakesButton, "Find Body Wakes" );
 
+    m_ExperimentalLayout.AddButton( m_MergeDegenTriRegionsButton, "Merge Degen Tri Regions" );
+
+
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
@@ -1648,6 +1651,7 @@ void VSPAEROScreen::UpdateCaseSetup()
     m_CullFracSlider.Update( VSPAEROMgr.m_CullFrac.GetID() );
     m_CullFracButton.Update( VSPAEROMgr.m_CullFracFlag.GetID() );
     m_FindBodyWakesButton.Update( VSPAEROMgr.m_FindBodyWakesFlag.GetID() );
+    m_MergeDegenTriRegionsButton.Update( VSPAEROMgr.m_MergeDegenTriRegionsFlag.GetID() );
 
     if ( VSPAEROMgr.m_ThinGeomSet() == vsp::SET_NONE )
     {

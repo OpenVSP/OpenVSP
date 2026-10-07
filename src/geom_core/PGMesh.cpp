@@ -941,8 +941,12 @@ PGFace::PGFace()
     m_iQuad = -1;
     m_Tag = -1;
     m_Region = -1;
+    m_RegionDir = -1;
+    m_kref_max = -1;
+    m_jref_max = -1;
     m_jref = 0;
     m_kref = 0;
+    m_FanID = -1;
 
     m_Parent = this;
 }
@@ -1963,18 +1967,70 @@ void QuadFaceMergeProps( PGFace *f0, PGFace *f1 )
 {
 }
 
+void RegionMergeProps( PGFace *f0, PGFace *f1 )
+{
+    // Both faces lie in one fan block, so the merged face spans the union of their index ranges.
+    if ( f0->m_RegionDir == 1 )
+    {
+        f0->m_kref_max = std::max( f0->m_kref_max, f1->m_kref_max );
+    }
+    else
+    {
+        f0->m_jref_max = std::max( f0->m_jref_max, f1->m_jref_max );
+    }
+
+    f0->m_jref = std::min( f0->m_jref, f1->m_jref );
+    f0->m_kref = std::min( f0->m_kref, f1->m_kref );
+}
+
 void JrefMergeProps( PGFace *f0, PGFace *f1 )
 {
-    f0->m_jref = f0->m_jref / 2;
-    f0->m_ID = -f0->m_ID;
+    // Preserve the K-type region's own jref so JrefTagMatch keeps working across the full row.
+    if ( f1->m_RegionDir == 1 )
+    {
+        f0->m_jref = f1->m_jref;
+        f0->m_kref_max = f1->m_kref_max;
+    }
+    else if ( f0->m_RegionDir != 1 )
+    {
+        f0->m_jref = std::min( f0->m_jref, f1->m_jref );
+    }
+    f0->m_kref = std::min( f0->m_kref, f1->m_kref );
+
+    if ( f1->m_RegionDir != -1 )
+    {
+        f0->m_Region = f1->m_Region;
+        f0->m_RegionDir = f1->m_RegionDir;
+    }
     f0->m_ChildVec.insert( f0->m_ChildVec.end(), f1->m_ChildVec.begin(), f1->m_ChildVec.end() );
 }
 
 void KrefMergeProps( PGFace *f0, PGFace *f1 )
 {
-    f0->m_kref = f0->m_kref / 2;
-    f0->m_ID = -f0->m_ID;
+    // Preserve the J-type region's own kref so KrefTagMatch keeps working across the full row.
+    if ( f1->m_RegionDir == 0 )
+    {
+        f0->m_kref = f1->m_kref;
+        f0->m_jref_max = f1->m_jref_max;
+    }
+    else if ( f0->m_RegionDir != 0 )
+    {
+        f0->m_kref = std::min( f0->m_kref, f1->m_kref );
+    }
+    f0->m_jref = std::min( f0->m_jref, f1->m_jref );
+
+    if ( f1->m_RegionDir != -1 )
+    {
+        f0->m_Region = f1->m_Region;
+        f0->m_RegionDir = f1->m_RegionDir;
+    }
     f0->m_ChildVec.insert( f0->m_ChildVec.end(), f1->m_ChildVec.begin(), f1->m_ChildVec.end() );
+}
+
+bool RegionMatch( PGFace *f0, PGFace *f1 )
+{
+    return f0->m_Region != -1 &&
+           f0->m_Region == f1->m_Region;
 }
 
 bool QuadTagMatch( PGFace *f0, PGFace *f1 )
@@ -1986,20 +2042,78 @@ bool QuadTagMatch( PGFace *f0, PGFace *f1 )
 
 bool JrefTagMatch( PGFace *f0, PGFace *f1 )
 {
-    return f0->m_Tag ==       f1->m_Tag &&
+    // K-type regions (dir=1) absorb J-row quads within their k-span; J-type regions block J merges entirely.
+    bool has_k_region = ( f0->m_RegionDir == 1 ) || ( f1->m_RegionDir == 1 );
+    bool has_j_region = ( f0->m_RegionDir == 0 ) || ( f1->m_RegionDir == 0 );
+    bool both_region  = ( f0->m_RegionDir != -1 ) && ( f1->m_RegionDir != -1 );
+
+    bool kref_ok;
+    if ( has_k_region )
+    {
+        PGFace *reg;
+        PGFace *quad;
+        if ( f0->m_RegionDir == 1 )
+        {
+            reg  = f0;
+            quad = f1;
+        }
+        else
+        {
+            reg  = f1;
+            quad = f0;
+        }
+        kref_ok = ( quad->m_kref >= reg->m_kref && quad->m_kref <= reg->m_kref_max );
+    }
+    else
+    {
+        kref_ok = ( f0->m_kref == f1->m_kref );
+    }
+
+    return !has_j_region &&
+           !both_region  &&
+           f0->m_Tag ==       f1->m_Tag &&
            f0->m_jref >= 1 && f1->m_jref >= 1 &&
            f0->m_jref !=      f1->m_jref &&
            f0->m_jref / 2 ==  f1->m_jref / 2 &&
-           f0->m_ID > 0 &&    f1->m_ID > 0;
+           kref_ok;
 }
 
 bool KrefTagMatch( PGFace *f0, PGFace *f1 )
 {
-    return f0->m_Tag ==       f1->m_Tag &&
+    // J-type regions (dir=0) absorb K-row quads within their j-span; K-type regions block K merges entirely.
+    bool has_j_region = ( f0->m_RegionDir == 0 ) || ( f1->m_RegionDir == 0 );
+    bool has_k_region = ( f0->m_RegionDir == 1 ) || ( f1->m_RegionDir == 1 );
+    bool both_region  = ( f0->m_RegionDir != -1 ) && ( f1->m_RegionDir != -1 );
+
+    bool jref_ok;
+    if ( has_j_region )
+    {
+        PGFace *reg;
+        PGFace *quad;
+        if ( f0->m_RegionDir == 0 )
+        {
+            reg  = f0;
+            quad = f1;
+        }
+        else
+        {
+            reg  = f1;
+            quad = f0;
+        }
+        jref_ok = ( quad->m_jref >= reg->m_jref && quad->m_jref <= reg->m_jref_max );
+    }
+    else
+    {
+        jref_ok = ( f0->m_jref == f1->m_jref );
+    }
+
+    return !has_k_region &&
+           !both_region  &&
+           f0->m_Tag ==       f1->m_Tag &&
            f0->m_kref >= 1 && f1->m_kref >= 1 &&
            f0->m_kref !=      f1->m_kref &&
            f0->m_kref / 2 ==  f1->m_kref / 2 &&
-           f0->m_ID > 0 &&    f1->m_ID > 0;
+           jref_ok;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2455,7 +2569,7 @@ PGFace* PGMesh::AddFace()
 
 PGFace* PGMesh::AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
                          const vec2d &uw0, const vec2d &uw1, const vec2d &uw2,
-                         const vec3d & norm, const int iQuad, const int tag, const int jref, const int kref )
+                         const vec3d & norm, const int iQuad, const int tag, const int jref, const int kref, const int fanid )
 {
     PGFace *f = AddFace( );
     f->m_Nvec = norm;
@@ -2463,6 +2577,7 @@ PGFace* PGMesh::AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
     f->m_Tag = tag;
     f->m_jref = jref;
     f->m_kref = kref;
+    f->m_FanID = fanid;
 
     PGEdge *e1 = AddEdge( n0, n1 );
     PGEdge *e2 = AddEdge( n1, n2 );
@@ -2847,6 +2962,7 @@ void PGMesh::CopyFaces( const vector < PGFace* > &faces, const vector < PGNode* 
             f->m_Tag = forig->m_Tag;
             f->m_jref = forig->m_jref;
             f->m_kref = forig->m_kref;
+            f->m_FanID = forig->m_FanID;
 
             e0->AddConnectFace( f );
             e1->AddConnectFace( f );
@@ -3476,6 +3592,7 @@ void PGMesh::SplitFace( PGFace *f0, PGEdge *e )
     f1->m_Tag = f0->m_Tag;
     f1->m_jref = f0->m_jref;
     f1->m_kref = f0->m_kref;
+    f1->m_FanID = f0->m_FanID;
 
     // Build two new edge vectors.
     vector < PGEdge * > ev0;
@@ -3528,6 +3645,51 @@ void PGMesh::MakeManifoldRegions()
     }
 }
 
+void PGMesh::MakeTriangleRegions()
+{
+    m_Regions.clear();
+
+    // One region per fan block and tag.  Faces outside every fan are in no region.
+    map < pair < int, int >, int > fanregion;
+
+    list< PGFace* >::iterator fit;
+    for ( fit = m_FaceList.begin() ; fit != m_FaceList.end(); ++fit )
+    {
+        PGFace *f = *fit;
+        f->m_Region = -1;
+        f->m_RegionDir = -1;
+
+        if ( f->m_FanID >= 0 )
+        {
+            pair < int, int > key( f->m_FanID, f->m_Tag );
+            map < pair < int, int >, int >::iterator it = fanregion.find( key );
+            if ( it == fanregion.end() )
+            {
+                int reg = m_Regions.size();
+                m_Regions.push_back( f );
+                fanregion[ key ] = reg;
+                f->m_Region = reg;
+            }
+            else
+            {
+                f->m_Region = it->second;
+            }
+
+            // Codes 0 and 1 collapsed a K edge, so the fan runs along K; 2 and 3 run along J.
+            if ( f->m_FanID % 4 < 2 )
+            {
+                f->m_RegionDir = 1;
+                f->m_kref_max = f->m_kref;
+            }
+            else
+            {
+                f->m_RegionDir = 0;
+                f->m_jref_max = f->m_jref;
+            }
+        }
+    }
+}
+
 void PGMesh::MakeRegions()
 {
     m_Regions.clear();
@@ -3570,6 +3732,79 @@ void PGMesh::PrintRegions()
         }
         printf( "\n\n" );
     }
+}
+
+void PGMesh::DumpTriDiagnostic( const string & fname ) const
+{
+    FILE *fp = fopen( fname.c_str(), "w" );
+    if ( !fp )
+    {
+        return;
+    }
+
+    fprintf( fp, "tag,jref,kref,region,u0,w0,u1,w1,u2,w2\n" );
+
+    list< PGFace* >::const_iterator f;
+    for ( f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
+    {
+        if ( (*f)->m_EdgeVec.size() != 3 )
+        {
+            continue;
+        }
+
+        int tag = (*f)->m_Tag;
+
+        // Gather nodes from the edge loop.
+        vector< PGNode* > nodVec;
+        (*f)->GetNodes( nodVec );
+        if ( nodVec.size() < 3 )
+        {
+            continue;
+        }
+
+        vec2d uw0, uw1, uw2;
+        nodVec[0]->GetUW( tag, uw0 );
+        nodVec[1]->GetUW( tag, uw1 );
+        nodVec[2]->GetUW( tag, uw2 );
+
+        fprintf( fp, "%d,%d,%d,%d,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\n",
+                 tag,
+                 (*f)->m_jref,
+                 (*f)->m_kref,
+                 (*f)->m_Region,
+                 uw0.x(), uw0.y(),
+                 uw1.x(), uw1.y(),
+                 uw2.x(), uw2.y() );
+    }
+
+    fclose( fp );
+}
+
+void PGMesh::DumpDiagnostic( const string & fname ) const
+{
+    FILE *fp = fopen( fname.c_str(), "w" );
+    if ( !fp )
+    {
+        return;
+    }
+
+    fprintf( fp, "n_edges,tag,jref,kref,region,region_dir,kref_max,jref_max\n" );
+
+    list< PGFace* >::const_iterator f;
+    for ( f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
+    {
+        fprintf( fp, "%d,%d,%d,%d,%d,%d,%d,%d\n",
+                 (int)(*f)->m_EdgeVec.size(),
+                 (*f)->m_Tag,
+                 (*f)->m_jref,
+                 (*f)->m_kref,
+                 (*f)->m_Region,
+                 (*f)->m_RegionDir,
+                 (*f)->m_kref_max,
+                 (*f)->m_jref_max );
+    }
+
+    fclose( fp );
 }
 
 void PGMesh::CullOrphanThinRegions( const double tol )
@@ -3702,6 +3937,7 @@ void PGMesh::Triangulate()
                 f->m_Tag = fpoly->m_Tag;
                 f->m_jref = fpoly->m_jref;
                 f->m_kref = fpoly->m_kref;
+                f->m_FanID = fpoly->m_FanID;
 
                 PGEdge *e1 = AddEdge( nodVec [ inod ], nodVec[ inod + 1 ] );
                 PGEdge *e2 = AddEdge( nodVec [ inod + 1 ], nodVec[ inod + 2 ] );
@@ -3937,40 +4173,63 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
 
 void PGMesh::Coarsen1()
 {
-    ResetFaceNumbers();
     MergeFaces( &JrefTagMatch, &JrefMergeProps );
 
     for ( list< PGFace* >::iterator f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
     {
-        if ( ( *f )->m_ID > 0 )
+        ( *f )->m_jref = ( *f )->m_jref / 2;
+        if ( ( *f )->m_jref_max >= 0 )
         {
-            ( *f )->m_jref = ( *f )->m_jref / 2;
-            ( *f )->m_ID = -( *f )->m_ID;
+            ( *f )->m_jref_max = ( *f )->m_jref_max / 2;
         }
     }
 
     CleanColinearVerts();
     DumpGarbage();
-    ResetFaceNumbers();
 }
 
 void PGMesh::Coarsen2()
 {
-    ResetFaceNumbers();
     MergeFaces( &KrefTagMatch, &KrefMergeProps );
 
     for ( list< PGFace* >::iterator f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
     {
-        if ( ( *f )->m_ID > 0 )
+        ( *f )->m_kref = ( *f )->m_kref / 2;
+        if ( ( *f )->m_kref_max >= 0 )
         {
-            ( *f )->m_kref = ( *f )->m_kref / 2;
-            ( *f )->m_ID = -( *f )->m_ID;
+            ( *f )->m_kref_max = ( *f )->m_kref_max / 2;
         }
     }
 
     CleanColinearVerts();
     DumpGarbage();
-    ResetFaceNumbers();
+}
+
+void PGMesh::MergeRegions()
+{
+    MergeFaces( &RegionMatch, &RegionMergeProps );
+
+    // Coarsening takes a region to be one face.  A region left in pieces -- a degenerate face
+    // inside the fan, from a row of zero width, blocks a merge -- is coarsened as plain faces.
+    map < int, int > nface;
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
+    {
+        if ( ( *f )->m_Region >= 0 )
+        {
+            nface[ ( *f )->m_Region ]++;
+        }
+    }
+    for ( f = m_FaceList.begin(); f != m_FaceList.end(); ++f )
+    {
+        if ( ( *f )->m_Region >= 0 && nface[ ( *f )->m_Region ] > 1 )
+        {
+            ( *f )->m_Region = -1;
+            ( *f )->m_RegionDir = -1;
+            ( *f )->m_jref_max = -1;
+            ( *f )->m_kref_max = -1;
+        }
+    }
 }
 
 void PGMesh::PolygonizeMesh()
@@ -4531,7 +4790,8 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
                              ts->m_iQuad,
                              tag,
                              ts->m_jref,
-                             ts->m_kref );
+                             ts->m_kref,
+                             ts->m_FanID );
                 }
             }
         }
@@ -4550,7 +4810,8 @@ void PGMesh::BuildFromTMesh( const TMesh* tmi )
                          tj->m_iQuad,
                          tag,
                          tj->m_jref,
-                         tj->m_kref  );
+                         tj->m_kref,
+                         tj->m_FanID );
             }
         }
     }
@@ -4612,7 +4873,8 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
                                  ts->m_iQuad,
                                  tag,
                                  ts->m_jref,
-                                 ts->m_kref );
+                                 ts->m_kref,
+                                 ts->m_FanID );
                     }
                 }
             }
@@ -4631,7 +4893,8 @@ void PGMesh::BuildFromTMeshVec( const vector< TMesh* > &tmv )
                              tj->m_iQuad,
                              tag,
                              tj->m_jref,
-                             tj->m_kref );
+                             tj->m_kref,
+                             tj->m_FanID );
                 }
             }
         }
@@ -4689,7 +4952,11 @@ void PGMesh::BuildFromPGMesh( const PGMesh* pgm )
         fnew->m_Tag = (*f)->m_Tag;
         fnew->m_jref = (*f)->m_jref;
         fnew->m_kref = (*f)->m_kref;
+        fnew->m_FanID = (*f)->m_FanID;
         fnew->m_Region = (*f)->m_Region;
+        fnew->m_RegionDir = (*f)->m_RegionDir;
+        fnew->m_kref_max = (*f)->m_kref_max;
+        fnew->m_jref_max = (*f)->m_jref_max;
         fnew->m_ChildVec.push_back( (*f) );
 
         vector < PGEdge * >::iterator ei;

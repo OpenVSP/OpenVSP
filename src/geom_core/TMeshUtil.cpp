@@ -258,13 +258,28 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
     vector< vector<vec3d> > *pnts = &(tmesh->m_XYZPnts);
     vector< vector<vec3d> > *uw_pnts = &(tmesh->m_UWPnts);
 
+    // Two points meant to coincide can differ in the last bits of their coordinates, so far from
+    // the origin the tolerance grows with them.  A fuselage 30000 long puts its tail point an
+    // ULP of 3.6e-12 from where its last ring of points collapses.
+    double maxcoord = 0.0;
+    for ( int j = 0; j < (*pnts).size(); j++ )
+    {
+        for ( int k = 0; k < (*pnts)[j].size(); k++ )
+        {
+            vec3d p = (*pnts)[j][k];
+            maxcoord = std::max( maxcoord, std::max( std::abs( p.x() ), std::max( std::abs( p.y() ), std::abs( p.z() ) ) ) );
+        }
+    }
+    edgetol = std::max( edgetol, 64.0 * DBL_EPSILON * maxcoord );
+
     vec3d norm;
     vec3d v0, v1, v2, v3;
     vec3d uw0, uw1, uw2, uw3;
     vec3d d21, d01, d03, d23, d20, d31;
 
-    int ref_start = 1 << ( n_ref + 2 ); // Offset n_ref by 2 to prevent collisions
-    int ref_end = ref_start * 2;
+    // jref and kref count quads from ref_start without wrapping, so a run of them is a plain
+    // interval.  ref_start is a multiple of 2^n_ref, so halving keeps every coarsening pair aligned.
+    int ref_start = 1 << ( n_ref + 2 );
 
     int nj = (*pnts).size();
     int nk = (*pnts)[0].size();
@@ -422,6 +437,52 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
         }
     }
 
+    // A fan is the run of triangles left where a row of quads collapses onto one point.  It
+    // never crosses a boundary line: either end of the parameter domain, a line at an integer
+    // parameter (a patch boundary), or the middle W line (wing leading edge, body top).
+    vector < bool > jbound( nj, false );
+    for ( int j = 0; j < nj; j++ )
+    {
+        double u = (*uw_pnts)[ j ][ 0 ].x();
+        jbound[ j ] = ( j == 0 || j == nj - 1 || std::abs( u - std::round( u ) ) < 1.0e-9 );
+    }
+
+    vector < bool > kbound( nk, false );
+    for ( int k = 0; k < nk; k++ )
+    {
+        double w = (*uw_pnts)[ 0 ][ k ].y();
+        kbound[ k ] = ( k == 0 || k == nk - 1 || 2 * k == nk - 1 || std::abs( w - std::round( w ) ) < 1.0e-9 );
+    }
+
+    // First line of the block of quads each quad sits in, between consecutive boundary lines.
+    vector < int > jblock( nj - 1, 0 );
+    for ( int j = 1; j < nj - 1; j++ )
+    {
+        if ( jbound[ j ] )
+        {
+            jblock[ j ] = j;
+        }
+        else
+        {
+            jblock[ j ] = jblock[ j - 1 ];
+        }
+    }
+
+    vector < int > kblock( nk - 1, 0 );
+    for ( int k = 1; k < nk - 1; k++ )
+    {
+        if ( kbound[ k ] )
+        {
+            kblock[ k ] = k;
+        }
+        else
+        {
+            kblock[ k ] = kblock[ k - 1 ];
+        }
+    }
+
+    int iQuad0 = iQuad;
+
     int jref = ref_start;
     for ( int j = 0; j < nj - 1; j++ )
     {
@@ -449,6 +510,10 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                 evencorners = !evencorners;
             }
 
+            // Which of the quad's two triangles were built.
+            bool built_a = false;
+            bool built_b = false;
+
             if ( evencorners )
             {
                 d20 = v2 - v0;
@@ -458,11 +523,11 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1, iQuad, jref, kref );
+                        built_a = tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1, iQuad, jref, kref );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad, jref, kref );
+                        built_a = tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad, jref, kref );
                     }
                 }
 
@@ -478,11 +543,11 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2, iQuad, jref, kref );
+                        built_b = tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2, iQuad, jref, kref );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3, iQuad, jref, kref );
+                        built_b = tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3, iQuad, jref, kref );
                     }
                 }
             }
@@ -495,11 +560,11 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1, iQuad, jref, kref );
+                        built_a = tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1, iQuad, jref, kref );
                     }
                     else
                     {
-                        tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3, iQuad, jref, kref );
+                        built_a = tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3, iQuad, jref, kref );
                     }
                 }
 
@@ -515,29 +580,68 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2, iQuad, jref, kref );
+                        built_b = tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2, iQuad, jref, kref );
                     }
                     else
                     {
-                        tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3, iQuad, jref, kref );
+                        built_b = tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3, iQuad, jref, kref );
                     }
                 }
+            }
+
+            // A quad with exactly one zero length edge keeps one triangle: a fan triangle.
+            // 0, 1: the K edge at j, j + 1 collapsed.  2, 3: the J edge at k, k + 1 collapsed.
+            int collapsed = -1;
+            if ( built_a != built_b )
+            {
+                bool c03 = d03.mag() <= edgetol;
+                bool c21 = d21.mag() <= edgetol;
+                bool c01 = d01.mag() <= edgetol;
+                bool c23 = d23.mag() <= edgetol;
+                int ncollapsed = ( int ) c03 + ( int ) c21 + ( int ) c01 + ( int ) c23;
+                if ( ncollapsed == 1 )
+                {
+                    if ( c03 )
+                    {
+                        collapsed = 0;
+                    }
+                    else if ( c21 )
+                    {
+                        collapsed = 1;
+                    }
+                    else if ( c01 )
+                    {
+                        collapsed = 2;
+                    }
+                    else
+                    {
+                        collapsed = 3;
+                    }
+                }
+            }
+
+            // Every triangle of one fan block shares an ID: its first quad, and which edge collapsed.
+            if ( collapsed >= 0 )
+            {
+                int jrep = j;
+                int krep = k;
+                if ( collapsed < 2 )
+                {
+                    krep = kblock[ k ];
+                }
+                else
+                {
+                    jrep = jblock[ j ];
+                }
+                tmesh->m_TVec.back()->m_FanID = 4 * ( iQuad0 + jrep * ( nk - 1 ) + krep ) + collapsed;
             }
 
             iQuad++;
 
             kref++;
-            if ( kref >= ref_end )
-            {
-                kref = ref_start;
-            }
         }
 
         jref++;
-        if ( jref >= ref_end )
-        {
-            jref = ref_start;
-        }
     }
 
     return true;
@@ -3281,7 +3385,7 @@ TMesh* MakeCutter( TMesh *tm, const vec3d &norm )
         TTri *t = tm->m_TVec[i];
         pgm->AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
                      t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
-                     t->m_Norm, t->m_iQuad, 0, t->m_jref, t->m_kref );
+                     t->m_Norm, t->m_iQuad, 0, t->m_jref, t->m_kref, t->m_FanID );
     }
 
     // Merge Nodes and Edges to make topologically correct.

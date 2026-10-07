@@ -352,6 +352,8 @@ protected:
     SliderAdjRangeInput m_NRefCounter;
     ToggleButton m_FindBodyWakesButton;
 
+    ToggleButton m_MergeDegenTriRegionsButton;
+
     // Additional thread handling stuff
     ProcessUtil m_SolverProcess;
     ProcessUtil m_ViewerProcess;

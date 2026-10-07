@@ -403,6 +403,7 @@ public:
     int m_ID;
     int m_jref;
     int m_kref;
+    int m_FanID; // Collapsed-quad fan this tri belongs to; -1 if its quad did not collapse.
 
     TEdge* m_E0;
     TEdge* m_E1;

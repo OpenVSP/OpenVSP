@@ -1644,7 +1644,7 @@ void MeshGeom::CreatePtCloudGeom()
     }
 }
 
-string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_ref, bool FindBodyWakes )
+string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_ref, bool FindBodyWakes, bool mergeDegenTriRegionsFlag )
 {
     GeomType type = GeomType( NGON_GEOM_TYPE, "NGON", true );
     string id = m_Vehicle->AddGeom( type );
@@ -1685,6 +1685,19 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_r
 
         pgm->SplitLEGeom();
 
+        if ( mergeDegenTriRegionsFlag )
+        {
+            // A face a zero width tessellation row left with two nodes would split a fan.
+            pgm->RemoveDegenFaces();
+            // pgm->DumpTriDiagnostic( "pgmesh_00_pre_make_tri_regions.csv" );
+            pgm->MakeTriangleRegions();
+            // pgm->DumpTriDiagnostic( "pgmesh_00_post_make_tri_regions.csv" );
+            pgm->ClearTris();
+            pgm->MergeRegions();
+        }
+
+        // pgm->DumpDiagnostic( "pgmesh_00_after_merge_regions.csv" );
+
         if ( cullfracflag )
         {
             pgm->MakeRegions();
@@ -1708,8 +1721,13 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_r
 
             pgmi->BuildFromPGMesh( pgm_prev );
 
+            // pgmi->DumpDiagnostic( "pgmesh_" + to_string( iref + 1 ) + "_before_coarsen.csv" );
+
             pgmi->Coarsen1();
+            // pgmi->DumpDiagnostic( "pgmesh_" + to_string( iref + 1 ) + "_after_coarsen1.csv" );
+
             pgmi->Coarsen2();
+            // pgmi->DumpDiagnostic( "pgmesh_" + to_string( iref + 1 ) + "_after_coarsen2.csv" );
 
             pgmi->CleanUnused();
 
@@ -2457,6 +2475,7 @@ void MeshGeom::WaterTightCheck( FILE* fid )
                     {
                         TTri* tri = mesh->m_TVec[t]->m_SplitVec[i];
                         oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, mesh->m_TVec[t]->m_Norm, mesh->m_TVec[t]->m_iQuad, mesh->m_TVec[t]->m_jref, mesh->m_TVec[t]->m_kref );
+                        oneMesh->m_TVec.back()->m_FanID = mesh->m_TVec[t]->m_FanID;
                     }
                 }
             }
@@ -2464,6 +2483,7 @@ void MeshGeom::WaterTightCheck( FILE* fid )
             {
                 TTri* tri = mesh->m_TVec[t];
                 oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, tri->m_Norm, tri->m_iQuad, tri->m_jref, tri->m_kref );
+                oneMesh->m_TVec.back()->m_FanID = tri->m_FanID;
             }
         }
     }

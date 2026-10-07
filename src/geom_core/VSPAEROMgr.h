@@ -400,6 +400,8 @@ public:
     BoolParm m_ContinueCoPlanarWakesFlag;
     BoolParm m_FindBodyWakesFlag;
 
+    BoolParm m_MergeDegenTriRegionsFlag;
+
     // Reference Area Parms
     Parm m_Sref;
     Parm m_bref;
