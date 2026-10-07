@@ -413,6 +413,14 @@ void PGNode::SealDoubleBackNode( PGMesh *pgm )
         pointLineDistSquared( ni->m_Pt->m_Pnt, m_Pt->m_Pnt, nj->m_Pt->m_Pnt, tj, pi );
         pointLineDistSquared( nj->m_Pt->m_Pnt, m_Pt->m_Pnt, ni->m_Pt->m_Pnt, ti, pj );
 
+        // A split at either end of the edge would put the new node on an existing one, and the
+        // two nodes would hand the double back to each other without end.
+        double t = std::min( ti, tj );
+        if ( t <= 1.0e-9 || t >= 1.0 - 1.0e-9 )
+        {
+            return;
+        }
+
         if ( ti < tj )
         {
             PGEdge *newedge = pgm->SplitEdge( ei, ti, this );

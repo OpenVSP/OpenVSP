@@ -613,6 +613,31 @@ def testNoCoarsePanelLosesItsShape():
     drop_errors()
 
 
+def testARodIntoATipCapNearItsLeadingEdgeFinishes():
+    """Sealing a node where the panel mesh doubles back must not chase itself without end.
+
+    A rod entering a flat tip cap half a percent of chord behind the leading edge split an edge
+    at its very end, so the new node sat on the old one and the two handed the double back to
+    each other until the stack ran out.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    wing = vsp.AddGeom( "WING" )
+    vsp.SetParmVal( vsp.FindParm( wing, "Tess_W", "Shape" ), 17 )
+    vsp.SetParmVal( vsp.FindParm( wing, "CapUMaxOption", "EndCap" ), vsp.FLAT_END_CAP )
+    rod = vsp.AddGeom( "POD" )
+    for name, group, value in ( ( "Length", "Design", 0.6 ), ( "FineRatio", "Design", 20.0 ),
+                                ( "Z_Rel_Rotation", "XForm", 90.0 ), ( "X_Rel_Location", "XForm", 5.20115242270663 ),
+                                ( "Y_Rel_Location", "XForm", 8.7 ) ):
+        vsp.SetParmVal( vsp.FindParm( rod, name, group ), value )
+    vsp.Update()
+
+    text = _prepare_with_refinement( out, "tip", 3 )
+    assert text.count( "FACE ERROR" ) == 0
+    drop_errors()
+
+
 def a_texture_file():
     """An image from the repo, by a path that does not depend on the working directory."""
     here = os.path.dirname( os.path.abspath( __file__ ) )
