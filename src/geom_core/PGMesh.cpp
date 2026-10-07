@@ -2584,10 +2584,8 @@ int PGMesh::MergeCoincidentNodes()
 
     ClearTris();
 
-    // This mesh is garbage the moment its last face goes: PGMulti::CleanUnused hands it to
-    // the garbage vector and DumpGarbage deletes it.  Everything this mesh owns has to be
-    // finished with before that sweep runs, because nothing may touch this afterwards.
-    m_PGMulti->CleanUnused();
+    // Points only -- this mesh stays in the multi even if it is now empty.
+    m_PGMulti->CleanUnusedPoints();
     m_PGMulti->DumpGarbage();
 
     return nmerge;
@@ -2933,10 +2931,8 @@ void PGMesh::SealDoubleBackNodes()
 
     ClearTris();
 
-    // This mesh is garbage the moment its last face goes: PGMulti::CleanUnused hands it to
-    // the garbage vector and DumpGarbage deletes it.  Everything this mesh owns has to be
-    // finished with before that sweep runs, because nothing may touch this afterwards.
-    m_PGMulti->CleanUnused();
+    // Points only -- this mesh stays in the multi even if it is now empty.
+    m_PGMulti->CleanUnusedPoints();
     m_PGMulti->DumpGarbage();
 }
 
@@ -3800,10 +3796,8 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
 
     ClearTris();
 
-    // This mesh is garbage the moment its last face goes: PGMulti::CleanUnused hands it to
-    // the garbage vector and DumpGarbage deletes it.  Everything this mesh owns has to be
-    // finished with before that sweep runs, because nothing may touch this afterwards.
-    m_PGMulti->CleanUnused();
+    // Points only -- this mesh stays in the multi even if it is now empty.
+    m_PGMulti->CleanUnusedPoints();
     m_PGMulti->DumpGarbage();
 }
 
@@ -3879,10 +3873,8 @@ void PGMesh::CleanColinearVerts()
 
     ClearTris();
 
-    // This mesh is garbage the moment its last face goes: PGMulti::CleanUnused hands it to
-    // the garbage vector and DumpGarbage deletes it.  Everything this mesh owns has to be
-    // finished with before that sweep runs, because nothing may touch this afterwards.
-    m_PGMulti->CleanUnused();
+    // Points only -- this mesh stays in the multi even if it is now empty.
+    m_PGMulti->CleanUnusedPoints();
     m_PGMulti->DumpGarbage();
 }
 
@@ -4696,6 +4688,11 @@ void PGMulti::CleanUnused()
         }
     }
 
+    CleanUnusedPoints();
+}
+
+void PGMulti::CleanUnusedPoints()
+{
     // Copy list to vector because removal from list will corrupt list in-use.
     vector< PGPoint* > pVec( m_PointList.begin(), m_PointList.end() );
     for ( int i = 0; i < pVec.size(); i++ )

@@ -385,8 +385,9 @@ TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const std::vector < v
         }
 
         // The shadowed side of the original mesh and the non-shadowed side of the end-point
-        // mesh each result in unused points / nodes.
-        pgmulti.CleanUnused();
+        // mesh each result in unused points / nodes.  Points only -- pgm is used below even if
+        // it is now empty.
+        pgmulti.CleanUnusedPoints();
         pgmulti.DumpGarbage();
     }
 

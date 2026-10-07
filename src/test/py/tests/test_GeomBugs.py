@@ -373,6 +373,27 @@ def testAGeomInBothSetsIsReported():
     assert warnings( vsp.SET_NONE ) == []
 
 
+def testPrepareGeometryWithNothingToMeshFinishes():
+    """Prepare Geometry on a model with no surfaces leaves an empty mesh, not a deleted one.
+
+    The polygon mesh's clean-up routines used to throw away a mesh with no faces from inside
+    the mesh's own routines, and the routine and its caller then carried on using it.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    vsp.SetVSP3FileName( os.path.join( out, "blank.vsp3" ) )
+    vsp.AddGeom( "BLANK" )
+    vsp.Update()
+    for nref in ( 0, 1 ):
+        vsp.SetAnalysisInputDefaults( "VSPAEROComputeGeometry" )
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "GeomSet", [ vsp.SET_ALL ] )
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "ThinGeomSet", [ vsp.SET_NONE ] )
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "NRef", [ nref ] )
+        vsp.ExecAnalysis( "VSPAEROComputeGeometry" )
+    drop_errors()
+
+
 def a_texture_file():
     """An image from the repo, by a path that does not depend on the working directory."""
     here = os.path.dirname( os.path.abspath( __file__ ) )

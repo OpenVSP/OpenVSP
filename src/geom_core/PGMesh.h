@@ -459,6 +459,7 @@ public:
     void Clear();
 
     void CleanUnused();
+    void CleanUnusedPoints();
 
     void DumpGarbage();
 
