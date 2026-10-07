@@ -259,9 +259,14 @@ bool PGNode::ColinearNode() const
                 PGFace *f0 = e0->m_FaceVec[0];
                 PGFace *f1 = e0->m_FaceVec[1];
 
-                // Faces originate from same iQuad, but different tags.
-                if ( f0->m_iQuad == f1->m_iQuad &&
-                     f0->m_Tag != f1->m_Tag )
+                // Removing a corner of a triangle would leave it with two nodes.
+                if ( f0->m_EdgeVec.size() <= 3 || f1->m_EdgeVec.size() <= 3 )
+                {
+                    return false;
+                }
+
+                // On a boundary between tags, only a straight run may lose a node.
+                if ( f0->m_Tag != f1->m_Tag )
                 {
                     PGNode *n0 = e0->OtherNode( this );
                     PGNode *n1 = e1->OtherNode( this );

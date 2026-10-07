@@ -497,6 +497,122 @@ def testAHoleInsideOnePanelLeavesTwoFaces():
     drop_errors()
 
 
+def _prepare_with_refinement( out, name, nref ):
+    """Prepare Geometry with nref coarse levels, thick set All and thin set none; the .vspgeom text.
+
+    The refinement count is set on the VSPAERO Parm, which is what reaches the mesher.
+    """
+    vsp.SetVSP3FileName( os.path.join( out, name + ".vsp3" ) )
+    settings = vsp.FindContainer( "VSPAEROSettings", 0 )
+    vsp.SetParmVal( vsp.FindParm( settings, "NRef", "VSPAERO" ), nref )
+    vsp.SetAnalysisInputDefaults( "VSPAEROComputeGeometry" )
+    vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "GeomSet", [ vsp.SET_ALL ] )
+    vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "ThinGeomSet", [ vsp.SET_NONE ] )
+    vsp.ExecAnalysis( "VSPAEROComputeGeometry" )
+    return open( os.path.join( out, name + ".vspgeom" ) ).read()
+
+
+def _face_sets( text ):
+    """Each level's faces from .vspgeom text, as a set of loops each started at its least node.
+
+    Per level the file holds: the face count, one loop per face, per face its part, tag and a uw
+    per node, per face its index and parent, the wakes, and two blocks of triangulation data.
+    """
+    tokens = []
+    for line in text.split( "\n" )[1:]:
+        tokens.extend( line.split( "#" )[0].split() )
+    it = iter( tokens )
+    nxt = lambda: next( it )
+    nmesh = int( nxt() )
+    heads = [ ( int( nxt() ), int( nxt() ), int( nxt() ) ) for m in range( nmesh ) ]
+    for k in range( 3 * max( h[0] for h in heads ) ):
+        nxt()
+    levels = []
+    for m in range( nmesh ):
+        faces = []
+        for k in range( int( nxt() ) ):
+            n = int( nxt() )
+            faces.append( [ int( nxt() ) for q in range( n ) ] )
+        for f in faces:
+            for q in range( 2 + 2 * len( f ) ):
+                nxt()
+        for f in faces:
+            nxt(); nxt()
+        for k in range( int( nxt() ) ):
+            for q in range( abs( int( nxt() ) ) + 1 ):
+                nxt()
+        ntri = []
+        for f in faces:
+            nxt()
+            ntri.append( int( nxt() ) )
+            for q in range( 3 * ntri[-1] ):
+                nxt()
+        for n in ntri:
+            for q in range( 3 + 6 * n ):
+                nxt()
+        loops = set()
+        for f in faces:
+            i = f.index( min( f ) )
+            loops.add( tuple( f[i:] + f[:i] ) )
+        levels.append( loops )
+    return levels
+
+
+def testCoarseLevelsAreTheSameEveryRun():
+    """Preparing the same model twice gives the same coarse panel meshes.
+
+    Coarsening dropped a node between two faces of different tags whenever the faces came from
+    different tessellation quads, with no look at the shape.  Which quad a merged coarse face
+    remembers depends on the order faces were merged in, so control surface corners came and
+    went from one run to the next.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    wing = vsp.AddGeom( "WING" )
+    vsp.SetParmVal( vsp.FindParm( wing, "Sweep", "XSec_1" ), 50.0 )
+    vsp.SetParmVal( vsp.FindParm( wing, "Tess_W", "Shape" ), 21 )
+    vsp.Update()
+    for eta0, eta1 in ( ( 0.1, 0.35 ), ( 0.4, 0.62 ), ( 0.66, 0.93 ) ):
+        ss = vsp.AddSubSurf( wing, vsp.SS_CONTROL )
+        vsp.Update()
+        vsp.SetParmVal( vsp.FindParm( ss, "EtaFlag", "SS_Control" ), 1 )
+        vsp.SetParmVal( vsp.FindParm( ss, "EtaStart", "SS_Control" ), eta0 )
+        vsp.SetParmVal( vsp.FindParm( ss, "EtaEnd", "SS_Control" ), eta1 )
+        vsp.Update()
+    vsp.AutoGroupVSPAEROControlSurfaces()
+    vsp.Update()
+
+    first = _face_sets( _prepare_with_refinement( out, "cs", 1 ) )
+    for i in range( 3 ):
+        again = _face_sets( _prepare_with_refinement( out, "cs", 1 ) )
+        assert again == first, "run %d gave different faces" % ( i + 2 )
+    drop_errors()
+
+
+def testNoCoarsePanelLosesItsShape():
+    """Coarsening never leaves a face of two nodes, which the writer can only record as an error.
+
+    A rod along a pod's axis through its nose pole leaves slivers at the pole whose coarse faces
+    are triangles; taking a corner off one left two nodes.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    pod = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( vsp.FindParm( pod, "Tess_W", "Shape" ), 5 )
+    vsp.SetParmVal( vsp.FindParm( pod, "Tess_U", "Shape" ), 5 )
+    rod = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( vsp.FindParm( rod, "Length", "Design" ), 2.0 )
+    vsp.SetParmVal( vsp.FindParm( rod, "FineRatio", "Design" ), 10.0 )
+    vsp.SetParmVal( vsp.FindParm( rod, "X_Rel_Location", "XForm" ), -1.0 )
+    vsp.Update()
+
+    text = _prepare_with_refinement( out, "pole", 3 )
+    assert text.count( "FACE ERROR" ) == 0, "%d faces written as errors" % text.count( "FACE ERROR" )
+    drop_errors()
+
+
 def a_texture_file():
     """An image from the repo, by a path that does not depend on the working directory."""
     here = os.path.dirname( os.path.abspath( __file__ ) )
