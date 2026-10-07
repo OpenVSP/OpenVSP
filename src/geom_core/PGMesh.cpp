@@ -3741,6 +3741,38 @@ void PGMesh::DumpGarbage()
     m_GarbageFaceVec.clear();
 }
 
+// Two faces may merge only where all they have in common is one unbroken run of edges.  Two
+// disks joined along one arc make a disk.  Joined along two runs they ring whatever lies between
+// them -- an intersection hole, say -- and joined at a further node they pinch there.
+static bool MergeMakesOneLoop( const PGFace *f0, const PGFace *f1, const vector < vector < PGEdge * > > &sharedvec )
+{
+    if ( sharedvec.size() != 1 )
+    {
+        return false;
+    }
+
+    vector < PGNode * > runnodes;
+    for ( int i = 0; i < sharedvec[0].size(); i++ )
+    {
+        runnodes.push_back( sharedvec[0][i]->m_N0 );
+        runnodes.push_back( sharedvec[0][i]->m_N1 );
+    }
+
+    for ( int i = 0; i < f0->m_EdgeVec.size(); i++ )
+    {
+        PGEdge *e = f0->m_EdgeVec[i];
+        PGNode *ends[2] = { e->m_N0, e->m_N1 };
+        for ( int j = 0; j < 2; j++ )
+        {
+            if ( f1->Contains( ends[j] ) && !vector_contains_val( runnodes, ends[j] ) )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), void ( * facemergeproperties ) ( PGFace *f0, PGFace *f1 )  )
 {
     // Make vector copy of list so edges can be removed from list without invalidating active list iterator.
@@ -3759,6 +3791,12 @@ void PGMesh::MergeFaces( bool ( * facemergetest ) ( PGFace *f0, PGFace *f1 ), vo
             if ( facemergetest( f0, f1 ) )
             {
                 vector < vector < PGEdge * > > sharedvec = f0->SharedEdges( f1 );
+
+                if ( !MergeMakesOneLoop( f0, f1, sharedvec ) )
+                {
+                    continue;
+                }
+
                 for ( int j = 0; j < sharedvec.size(); j++ )
                 {
                     vector < PGEdge * > shared = sharedvec[j];

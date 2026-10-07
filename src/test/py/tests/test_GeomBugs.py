@@ -444,6 +444,59 @@ def testAFinelyCappedBluntWingMakesAClosedPanelMesh( scale, cap_tess ):
     drop_errors()
 
 
+def testAHoleInsideOnePanelLeavesTwoFaces():
+    """A small hole cut inside one panel leaves the panel in two faces, not one ringing it.
+
+    The polygon mesh joins the pieces an intersection cuts a panel into back up.  Around a hole
+    the last join would make a face whose loop runs round the hole and back, naming nodes twice
+    and leaving the edges along the cut with one face each.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    vsp.SetVSP3FileName( os.path.join( out, "rod.vsp3" ) )
+    pod = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( vsp.FindParm( pod, "Tess_W", "Shape" ), 5 )
+    vsp.SetParmVal( vsp.FindParm( pod, "Tess_U", "Shape" ), 5 )
+    rod = vsp.AddGeom( "POD" )
+    for name, group, value in ( ( "Length", "Design", 2.0 ), ( "FineRatio", "Design", 100.0 ),
+                                ( "Z_Rel_Rotation", "XForm", 90.0 ), ( "X_Rel_Location", "XForm", 2.0 ),
+                                ( "Y_Rel_Location", "XForm", -1.0 ), ( "Z_Rel_Location", "XForm", 0.066 ) ):
+        vsp.SetParmVal( vsp.FindParm( rod, name, group ), value )
+    vsp.Update()
+
+    vsp.SetAnalysisInputDefaults( "VSPAEROComputeGeometry" )
+    vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "GeomSet", [ vsp.SET_ALL ] )
+    vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "ThinGeomSet", [ vsp.SET_NONE ] )
+    vsp.ExecAnalysis( "VSPAEROComputeGeometry" )
+
+    # One mesh: a comment, the mesh count, 'nnode nface nwake', the nodes, the face count, and
+    # one line per face -- its node count followed by its 1-based node indices.
+    lines = [ l for l in open( os.path.join( out, "rod.vspgeom" ) ).read().split( "\n" ) if not l.startswith( "#" ) ]
+    nnode, nface = [ int( x ) for x in lines[1].split()[:2] ]
+    first = 2 + nnode + 1
+    used = {}
+    pinched = 0
+    unwritten = 0
+    for line in lines[first:first + nface]:
+        if "#" in line:
+            # A face the writer could not close is written as a comment.
+            unwritten += 1
+            continue
+        p = [ int( x ) for x in line.split() ]
+        loop = p[1:1 + p[0]]
+        if len( set( loop ) ) != len( loop ):
+            pinched += 1
+        for a, b in zip( loop, loop[1:] + loop[:1] ):
+            key = ( min( a, b ), max( a, b ) )
+            used[ key ] = used.get( key, 0 ) + 1
+    assert unwritten == 0, "the writer could not close %d faces" % unwritten
+    assert pinched == 0, "%d faces name a node twice" % pinched
+    wrong = [ e for e, n in used.items() if n != 2 ]
+    assert wrong == [], "%d edges are not shared by two faces" % len( wrong )
+    drop_errors()
+
+
 def a_texture_file():
     """An image from the repo, by a path that does not depend on the working directory."""
     here = os.path.dirname( os.path.abspath( __file__ ) )
