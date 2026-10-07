@@ -3044,6 +3044,22 @@ vector< string > Vehicle::GetGeomSet( int index )
     return geom_id_vec;
 }
 
+// The Geoms that belong to both sets.
+vector< string > Vehicle::GetGeomsInBothSets( int set_a, int set_b )
+{
+    vector< string > geom_id_vec;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( set_a ) && geom_vec[i]->GetSetFlag( set_b ) )
+        {
+            geom_id_vec.push_back( geom_vec[i]->GetID() );
+        }
+    }
+    return geom_id_vec;
+}
+
 string Vehicle::GetGeomSetAttrColl( int index )
 {
     string ac_id = string();

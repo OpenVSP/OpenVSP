@@ -337,6 +337,42 @@ def testAMeshSourceNeedsASurfaceToSitOn():
     assert os.path.getsize( os.path.join( out, "bad.tri" ) ) > 0
 
 
+def testAGeomInBothSetsIsReported():
+    """A Geom in both Prepare Geometry's thick and thin sets is meshed twice, and that is said.
+
+    Its thin surfaces lie inside it and cut its skin where they meet it, leaving the panel mesh
+    with doubled edges and broken wakes and nothing to say why.  The thin set defaults to Shown,
+    so setting only the thick set to All does this to every Geom.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    vsp.SetVSP3FileName( os.path.join( out, "both.vsp3" ) )
+    vsp.AddGeom( "FUSELAGE" )
+    vsp.AddGeom( "WING" )
+    vsp.Update()
+    em = vsp.ErrorMgrSingleton.getInstance()
+
+    def warnings( thin ):
+        vsp.SetAnalysisInputDefaults( "VSPAEROComputeGeometry" )
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "GeomSet", [ vsp.SET_ALL ] )
+        vsp.SetIntAnalysisInput( "VSPAEROComputeGeometry", "ThinGeomSet", [ thin ] )
+        drop_errors()
+        vsp.ExecAnalysis( "VSPAEROComputeGeometry" )
+        found = []
+        while em.GetNumTotalErrors() > 0:
+            e = em.PopLastError()
+            if e.GetErrorCode() == vsp.VSP_GEOM_IN_BOTH_SETS:
+                found.append( e.GetErrorString() )
+        return found
+
+    both = warnings( vsp.SET_SHOWN )
+    assert len( both ) == 1, "expected one warning, got %r" % both
+    assert "FuselageGeom" in both[0] and "WingGeom" in both[0], both[0]
+
+    assert warnings( vsp.SET_NONE ) == []
+
+
 def a_texture_file():
     """An image from the repo, by a path that does not depend on the working directory."""
     here = os.path.dirname( os.path.abspath( __file__ ) )

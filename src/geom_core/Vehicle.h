@@ -189,6 +189,7 @@ public:
     void NoShowSet( int index );
     void ShowSet( int index );
     vector< string > GetGeomSet( int index );
+    vector< string > GetGeomsInBothSets( int set_a, int set_b );
     string GetGeomSetAttrColl( int index );
 
     void SetNormalDisplayType( int index );

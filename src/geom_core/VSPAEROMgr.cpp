@@ -1214,6 +1214,35 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         }
     }
 
+    // A Geom in both sets is meshed twice, whole and as its own thin surfaces, and those cut its
+    // skin where they meet it.  Reaches both the GUI and scripts.
+    if ( m_SingleGeomID.empty() )
+    {
+        vector< string > both = veh->GetGeomsInBothSets( set, degenset );
+        string names;
+        for ( int i = 0; i < ( int )both.size(); i++ )
+        {
+            Geom* g = veh->FindGeom( both[i] );
+            if ( g && g->GetNumMainSurfs() > 0 )
+            {
+                if ( !names.empty() )
+                {
+                    names += ", ";
+                }
+                names += g->GetName();
+            }
+        }
+
+        if ( !names.empty() )
+        {
+            MessageData errMsgData;
+            errMsgData.m_String = "Error";
+            errMsgData.m_IntVec.push_back( vsp::VSP_GEOM_IN_BOTH_SETS );
+            errMsgData.m_StringVec.push_back( "Warning: In both the thick and the thin geometry set, so meshed twice: " + names + "\n" );
+            MessageMgr::getInstance().SendAll( errMsgData );
+        }
+    }
+
     // Cleanup previously created meshGeom IDs created from VSPAEROMgr
     Geom* last_mesh = veh->FindGeom( m_LastPanelMeshGeomId );
 

@@ -1080,6 +1080,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_CLONE_ORIGINAL_LOST", vsp::VSP_CLONE_ORIGINAL_LOST );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_GEOM_IN_BOTH_SETS", vsp::VSP_GEOM_IN_BOTH_SETS );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_NUM_ERROR_CODE", vsp::VSP_NUM_ERROR_CODE );
     assert( r >= 0 );
 
