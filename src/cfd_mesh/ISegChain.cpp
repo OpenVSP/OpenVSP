@@ -1174,6 +1174,8 @@ void ISegChain::MergeSplits()
             {
                 merge_flag = true;
                 mergedVec[j].push_back( m_SplitVec[i] );
+                // A split joins one group only, so it is freed at most once below.
+                break;
             }
         }
         if ( !merge_flag )
@@ -1198,9 +1200,14 @@ void ISegChain::MergeSplits()
             }
         }
         newVec.push_back( keep );
-//9/22 jrg
-        //for ( k = 1 ; k < (int)mergedVec[j].size() ; k++ )            // Remove Unused Splits
-        //  delete mergedVec[j][k];
+
+        for ( int k = 0 ; k < ( int )mergedVec[j].size() ; k++ )
+        {
+            if ( mergedVec[j][k] != keep )
+            {
+                delete mergedVec[j][k];
+            }
+        }
     }
     m_SplitVec = newVec;
 }
@@ -1255,6 +1262,10 @@ void ISegChain::RemoveChainEndSplits()
         if ( close_dist > tol )
         {
             newVec.push_back( split );
+        }
+        else
+        {
+            delete split;
         }
 
     }
