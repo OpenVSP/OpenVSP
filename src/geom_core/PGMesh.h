@@ -108,6 +108,7 @@ public:
 
     bool FaceRemoveNodeTest( PGFace* f ) const;
     bool ColinearNode() const;
+    int IntersectionEdgeCount() const;
     bool Check() const;
     bool BodyWakeNode( const PGMesh *m, int &part ) const;
 
@@ -171,6 +172,7 @@ public:
 
     void PrintWingWakeEdgeData( const PGMesh *m ) const;
     bool SilouetteEdge( const PGMesh *m, const vec3d &v ) const;
+    bool IntersectionEdge() const;
     bool WingWakeEdge( const PGMesh *m, int &part ) const;
     bool BodyWakeEdge( const PGMesh *m, int &part ) const;
 };
@@ -382,6 +384,9 @@ public:
     void ExtendSilhouette( vector < PGEdge * > & silhouette, PGEdge *e, const PGNode *n, const vec3d &v );
     void IdentifySilhouettes( vector < vector < PGEdge * > > &silhouetteLoopVec, const vec3d &v );
 
+    void ExtendIntersection( vector < PGEdge * > & intersection, PGEdge *e, const PGNode *n );
+    void IdentifyIntersections( vector < vector < PGEdge * > > &intersectionVec );
+
     void ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n );
     void IdentifyWingWakes();
     void ExtendBodyWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n );
@@ -400,6 +405,10 @@ public:
     void SplitLEGeom();
 
     void SplitFace( PGFace *f0, PGEdge *e );
+
+    void CleanIntersections( double lenratio );
+    int CleanIntersectionChain( const vector < PGEdge * > &chain, double lenratio, const set < PGNode * > &junctions );
+    bool CollapseKeepsFaces( const PGNode *nkeep, const PGNode *ngone, const PGEdge *e ) const;
 
     void MakeManifoldRegions();
     void MakeTriangleRegions();
@@ -461,6 +470,16 @@ protected:
 
 PGNode* FindEndNode( const vector < PGEdge* > & eVec );
 void GetNodes( const vector < PGEdge* > & eVec, vector< PGNode* > & nodVec );
+bool ShortIntersectionEdge( double lprev, double l, double lnext, double lenratio );
+
+// Degrees.  Where an intersection curve turns by more than this, its node is a corner and
+// cleaning keeps it.  Intersection nodes cleaning removes turn by up to about 27.
+const double CLEAN_CORNER_ANGLE = 30.0;
+
+// Degrees.  The same for a subsurface outline, which runs straight between its corners to
+// within a degree.  A control surface corner turns by 90 less the hinge sweep, or by the angle
+// between hinge and side edge, so it can be well under CLEAN_CORNER_ANGLE.
+const double CLEAN_SUBSURF_CORNER_ANGLE = 10.0;
 
 //////////////////////////////////////////////////////////////////////
 

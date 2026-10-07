@@ -296,6 +296,23 @@ bool PGNode::ColinearNode() const
     return false;
 }
 
+// Count the number of intersection edges that use this node.  Interior nodes of an
+// intersection curve will have exactly two.  Other counts indicate curve end points
+// or junctions between multiple intersection curves.
+int PGNode::IntersectionEdgeCount() const
+{
+    int cnt = 0;
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        PGEdge *e = m_EdgeVec[i];
+        if ( e && e->IntersectionEdge() )
+        {
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
 bool PGNode::Check() const
 {
     if ( m_DeleteMeFlag )
@@ -850,6 +867,24 @@ bool PGEdge::SilouetteEdge( const PGMesh *m, const vec3d &v ) const
         PGFace *f1 = m_FaceVec[ 1 ];
 
         if ( sgn( dot( f0->m_Nvec, v ) ) != sgn( dot( f1->m_Nvec, v ) ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool PGEdge::IntersectionEdge() const
+{
+    int nface = m_FaceVec.size();
+
+    if ( nface == 2 )
+    {
+        PGFace *f0 = m_FaceVec[ 0 ];
+        PGFace *f1 = m_FaceVec[ 1 ];
+
+        if ( f0->m_Tag != f1->m_Tag )
         {
             return true;
         }
@@ -3222,6 +3257,66 @@ void PGMesh::IdentifySilhouettes( vector < vector < PGEdge * > > &silhouetteLoop
     ResetEdgeLoopFlags();
 }
 
+void PGMesh::ExtendIntersection( vector < PGEdge * > & intersection, PGEdge *e, const PGNode *n )
+{
+    e->m_InCurrentLoopFlag = true;
+
+    // A curve ends at a junction, so which curve it would carry on into does not matter.
+    if ( n->IntersectionEdgeCount() != 2 )
+    {
+        e->m_InCurrentLoopFlag = false;
+        return;
+    }
+
+    int nedg = n->m_EdgeVec.size();
+
+    for ( int i = 0; i < nedg; i++ )
+    {
+        PGEdge * ei = n->m_EdgeVec[ i ];
+        if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
+        {
+            if ( ei->IntersectionEdge() )
+            {
+                PGNode * ni = ei->OtherNode( n );
+
+                intersection.push_back( ei );
+                ei->m_InLoopFlag = true;
+
+                ExtendIntersection( intersection, ei, ni );
+                return;
+            }
+        }
+    }
+
+    e->m_InCurrentLoopFlag = false;
+}
+
+void PGMesh::IdentifyIntersections( vector < vector < PGEdge * > > &intersectionVec )
+{
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->IntersectionEdge() )
+        {
+            (*e)->m_InLoopFlag = true;
+
+            vector < PGEdge * > intersection;
+            intersection.push_back( *e );
+
+            ExtendIntersection( intersection, (*e), (*e)->m_N0 );
+
+            std::reverse( intersection.begin(), intersection.end() );
+
+            ExtendIntersection( intersection, (*e), (*e)->m_N1 );
+
+            intersectionVec.push_back( intersection );
+        }
+    }
+
+    ResetEdgeLoopFlags();
+}
+
 void PGMesh::ExtendWingWake( vector < PGEdge * > & wake, PGEdge *e, const PGNode *n )
 {
     e->m_InCurrentLoopFlag = true;
@@ -3619,6 +3714,398 @@ void PGMesh::SplitFace( PGFace *f0, PGEdge *e )
 
     e->AddConnectFace( f0 );
     e->AddConnectFace( f1 );
+}
+
+// Test whether an edge of length l is short relative to its neighbors along an
+// intersection curve.  CSG intersection curves pick up sliver edges where the curve
+// passes close to a vertex of the underlying structured mesh -- the curve's natural
+// segment length is set by the mesh spacing, so a segment much shorter than both of
+// its neighbors is a sliver.  Comparing against the shorter neighbor prevents
+// cascading collapses where the mesh is legitimately fine.  A negative neighbor
+// length indicates no neighbor (end of an open curve).
+bool ShortIntersectionEdge( double lprev, double l, double lnext, double lenratio )
+{
+    double lref = DBL_MAX;
+    if ( lprev >= 0 )
+    {
+        lref = min( lref, lprev );
+    }
+    if ( lnext >= 0 )
+    {
+        lref = min( lref, lnext );
+    }
+
+    if ( lref == DBL_MAX ) // Isolated edge, no neighbors to compare against.
+    {
+        return false;
+    }
+
+    return l < lenratio * lref;
+}
+
+// Find the nearest surviving chain edge before/after index i, wrapping around for
+// closed loops so the loop's start/end edge pair is also checked.  Returns -1 if
+// there is no surviving neighbor in that direction.
+static int PrevAliveEdge( const vector < bool > &alive, int i, bool closed )
+{
+    int ne = alive.size();
+    if ( closed )
+    {
+        for ( int k = 1; k < ne; k++ )
+        {
+            int j = ( i - k + ne ) % ne;
+            if ( alive[j] )
+            {
+                return j;
+            }
+        }
+    }
+    else
+    {
+        for ( int j = i - 1; j >= 0; j-- )
+        {
+            if ( alive[j] )
+            {
+                return j;
+            }
+        }
+    }
+    return -1;
+}
+
+static int NextAliveEdge( const vector < bool > &alive, int i, bool closed )
+{
+    int ne = alive.size();
+    if ( closed )
+    {
+        for ( int k = 1; k < ne; k++ )
+        {
+            int j = ( i + k ) % ne;
+            if ( alive[j] )
+            {
+                return j;
+            }
+        }
+    }
+    else
+    {
+        for ( int j = i + 1; j < ne; j++ )
+        {
+            if ( alive[j] )
+            {
+                return j;
+            }
+        }
+    }
+    return -1;
+}
+
+// Collapse edges that are short compared to their neighbors along an intersection
+// chain, shortest first, so the result does not depend on where the chain starts.
+// Returns the number of edges collapsed.  Housekeeping of the degenerate topology left
+// behind by MergeNodes is deferred to the caller -- deleted objects are flagged but not
+// dumped, so pointers remain safe to test throughout.  junctions holds every node that
+// joined more or fewer than two intersection edges before any collapse.
+int PGMesh::CleanIntersectionChain( const vector < PGEdge * > &chain, double lenratio, const set < PGNode * > &junctions )
+{
+    int ne = chain.size();
+    if ( ne < 2 ) // Single edge chain has no neighbors to compare against.
+    {
+        return 0;
+    }
+
+    vector < PGNode* > nodVec;
+    GetNodes( chain, nodVec );
+
+    if ( nodVec.size() != ne + 1 ) // Chain walk failed.
+    {
+        return 0;
+    }
+
+    bool closed = ( nodVec.front() == nodVec.back() );
+
+    // Working copies updated as collapses modify the chain.  Edge ie spans
+    // nodVec[ie] to nodVec[ie+1].
+    vector < PGEdge* > eVec = chain;
+    vector < double > len( ne );
+    vector < bool > alive( ne, true );
+
+    // An edge between two tags of one part is a subsurface boundary.
+    vector < bool > subsurf( ne, false );
+
+    for ( int ie = 0; ie < ne; ie++ )
+    {
+        len[ie] = dist( nodVec[ie]->m_Pt->m_Pnt, nodVec[ie + 1]->m_Pt->m_Pnt );
+        PGEdge *e = chain[ie];
+        subsurf[ie] = m_PGMulti->GetPart( e->m_FaceVec[0]->m_Tag ) == m_PGMulti->GetPart( e->m_FaceVec[1]->m_Tag );
+    }
+
+    int ntotal = 0;
+    bool collapsed = true;
+    while ( collapsed )
+    {
+        collapsed = false;
+
+        // Every short edge, shortest relative to its neighbors first.
+        vector < pair < double, int > > order;
+        for ( int ie = 0; ie < ne; ie++ )
+        {
+            if ( !alive[ie] )
+            {
+                continue;
+            }
+
+            // An edge deleted by a collapse elsewhere (e.g. merged away through a
+            // shared junction) is dead -- do not let its stale length serve as a
+            // neighbor reference.
+            if ( eVec[ie]->m_DeleteMeFlag )
+            {
+                alive[ie] = false;
+                continue;
+            }
+
+            int iprev = PrevAliveEdge( alive, ie, closed );
+            int inxt = NextAliveEdge( alive, ie, closed );
+
+            double lprev = -1.0;
+            double lnxt = -1.0;
+            double lref = DBL_MAX;
+            if ( iprev >= 0 )
+            {
+                lprev = len[iprev];
+                lref = min( lref, lprev );
+            }
+            if ( inxt >= 0 )
+            {
+                lnxt = len[inxt];
+                lref = min( lref, lnxt );
+            }
+
+            if ( ShortIntersectionEdge( lprev, len[ie], lnxt, lenratio ) )
+            {
+                order.push_back( make_pair( len[ie] / lref, ie ) );
+            }
+        }
+        std::sort( order.begin(), order.end() );
+
+        for ( int io = 0; io < order.size() && !collapsed; io++ )
+        {
+            int ie = order[io].second;
+            int iprev = PrevAliveEdge( alive, ie, closed );
+            int inxt = NextAliveEdge( alive, ie, closed );
+
+            PGNode * na = nodVec[ie];
+            PGNode * nb = nodVec[ie + 1];
+
+            // A node must be preserved if it terminates an open intersection curve,
+            // joins more or fewer than two intersection edges (a junction with
+            // another intersection curve), or is a corner of the curve.  A missing
+            // neighbor (defensive, should not happen here) reads as a corner.
+            vec3d vab = nb->m_Pt->m_Pnt - na->m_Pt->m_Pnt;
+            double cosa = -1.0;
+            double cosb = -1.0;
+            bool asub = subsurf[ie];
+            bool bsub = subsurf[ie];
+            if ( iprev >= 0 )
+            {
+                cosa = cos_angle( na->m_Pt->m_Pnt - nodVec[iprev]->m_Pt->m_Pnt, vab );
+                asub = asub || subsurf[iprev];
+            }
+            if ( inxt >= 0 )
+            {
+                cosb = cos_angle( vab, nodVec[inxt + 1]->m_Pt->m_Pnt - nb->m_Pt->m_Pnt );
+                bsub = bsub || subsurf[inxt];
+            }
+
+            double cosacorner = cos( CLEAN_CORNER_ANGLE * M_PI / 180.0 );
+            if ( asub )
+            {
+                cosacorner = cos( CLEAN_SUBSURF_CORNER_ANGLE * M_PI / 180.0 );
+            }
+            double cosbcorner = cos( CLEAN_CORNER_ANGLE * M_PI / 180.0 );
+            if ( bsub )
+            {
+                cosbcorner = cos( CLEAN_SUBSURF_CORNER_ANGLE * M_PI / 180.0 );
+            }
+
+            bool afixed = junctions.count( na ) > 0 || cosa < cosacorner;
+            bool bfixed = junctions.count( nb ) > 0 || cosb < cosbcorner;
+            if ( !closed )
+            {
+                if ( na == nodVec.front() )
+                {
+                    afixed = true;
+                }
+                if ( nb == nodVec.back() )
+                {
+                    bfixed = true;
+                }
+            }
+
+            if ( afixed && bfixed ) // Both nodes must survive, can not collapse.
+            {
+                continue;
+            }
+
+            PGNode * nkeep = na;
+            PGNode * ngone = nb;
+            if ( bfixed )
+            {
+                nkeep = nb;
+                ngone = na;
+            }
+            else if ( !afixed )
+            {
+                // Neither node is required.  Keep the one more edges meet at, so a node
+                // that only lies on the curve drops out and no mesh line moves.  Between
+                // equals, keep the node where the curve turns more sharply -- removing
+                // the straighter one changes the geometry least.
+                int na_edges = na->m_EdgeVec.size();
+                int nb_edges = nb->m_EdgeVec.size();
+                if ( na_edges < nb_edges || ( na_edges == nb_edges && cosa > cosb ) )
+                {
+                    nkeep = nb;
+                    ngone = na;
+                }
+            }
+
+            if ( !CollapseKeepsFaces( nkeep, ngone, eVec[ie] ) )
+            {
+                continue;
+            }
+
+            MergeNodes( nkeep, ngone );
+            alive[ie] = false;
+            collapsed = true;
+            ntotal++;
+
+            for ( int j = 0; j < nodVec.size(); j++ )
+            {
+                if ( nodVec[j] == ngone )
+                {
+                    nodVec[j] = nkeep;
+                }
+            }
+
+            // Refresh the surviving neighbors.  The neighbor on the removed node's
+            // side changed length, and was merged into the third edge of any
+            // triangle it shared with the collapsed edge -- recover the surviving
+            // edge from the updated node chain.
+            int sides[2] = { iprev, inxt };
+            for ( int is = 0; is < 2; is++ )
+            {
+                int j = sides[is];
+                if ( j >= 0 )
+                {
+                    eVec[j] = FindEdge( nodVec[j], nodVec[j + 1] );
+                    if ( eVec[j] )
+                    {
+                        len[j] = dist( nodVec[j]->m_Pt->m_Pnt, nodVec[j + 1]->m_Pt->m_Pnt );
+                    }
+                    else
+                    {
+                        alive[j] = false;
+                    }
+                }
+            }
+        }
+    }
+
+    return ntotal;
+}
+
+// Normal of a face's loop with node from replaced by node to.
+static vec3d LoopNormal( const vector < PGNode* > &loop, const PGNode *from, const PGNode *to )
+{
+    vec3d n;
+    int nn = loop.size();
+    for ( int i = 0; i < nn; i++ )
+    {
+        const PGNode *a = loop[i];
+        const PGNode *b = loop[( i + 1 ) % nn];
+        if ( a == from )
+        {
+            a = to;
+        }
+        if ( b == from )
+        {
+            b = to;
+        }
+        n = n + cross( a->m_Pt->m_Pnt, b->m_Pt->m_Pnt );
+    }
+    return n;
+}
+
+// True when merging ngone into nkeep leaves every face a simple loop facing the way it did.
+// A face holding both must hold the edge between them, or nkeep would appear in it twice.  A
+// face that gains nkeep in ngone's place must not turn over.
+bool PGMesh::CollapseKeepsFaces( const PGNode *nkeep, const PGNode *ngone, const PGEdge *e ) const
+{
+    vector < PGFace* > fvec;
+    ngone->GetConnectFaces( fvec );
+
+    for ( int i = 0; i < fvec.size(); i++ )
+    {
+        if ( fvec[i]->Contains( nkeep ) )
+        {
+            if ( !fvec[i]->Contains( e ) )
+            {
+                return false;
+            }
+        }
+        else
+        {
+            vector < PGNode* > loop;
+            fvec[i]->GetNodes( loop );
+            // A face whose edges do not form a closed loop is left as it is.
+            if ( loop.size() < 2 || loop.front() != loop.back() || vector_contains_val( loop, ( PGNode* ) NULL ) )
+            {
+                return false;
+            }
+            loop.pop_back();
+            vec3d before = LoopNormal( loop, ngone, ngone );
+            vec3d after = LoopNormal( loop, ngone, nkeep );
+            if ( dot( before, after ) <= 0.0 )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void PGMesh::CleanIntersections( double lenratio )
+{
+    vector < vector < PGEdge * > > intersectionVec;
+    IdentifyIntersections( intersectionVec );
+
+    // Junctions are found once, before any collapse.  Part way through, a collapsed edge
+    // can leave a degenerate face that hides an intersection edge from the count.
+    set < PGNode * > junctions;
+    list< PGNode* >::iterator n;
+    for ( n = m_NodeList.begin(); n != m_NodeList.end(); ++n )
+    {
+        int cnt = ( *n )->IntersectionEdgeCount();
+        if ( cnt > 0 && cnt != 2 )
+        {
+            junctions.insert( *n );
+        }
+    }
+
+    int ncollapse = 0;
+    for ( int i = 0; i < intersectionVec.size(); i++ )
+    {
+        ncollapse += CleanIntersectionChain( intersectionVec[ i ], lenratio, junctions );
+    }
+
+    if ( ncollapse > 0 )
+    {
+        // Collapses leave degenerate topology behind -- a triangle bounded by a
+        // collapsed edge becomes a two-edge face with both slots holding the same
+        // edge.  Housekeeping is deferred until all chains are processed.
+        RemoveDegenEdges();
+        RemoveDegenFaces();
+    }
 }
 
 void PGMesh::MakeManifoldRegions()

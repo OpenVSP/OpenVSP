@@ -354,6 +354,9 @@ protected:
 
     ToggleButton m_MergeDegenTriRegionsButton;
 
+    SliderAdjRangeInput m_LenRatioSlider;
+    ToggleButton m_CleanIntersectionsButton;
+
     // Additional thread handling stuff
     ProcessUtil m_SolverProcess;
     ProcessUtil m_ViewerProcess;

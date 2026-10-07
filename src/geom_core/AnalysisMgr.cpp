@@ -2066,6 +2066,9 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "FindBodyWakesFlag", VSPAEROMgr.m_FindBodyWakesFlag.Get(), "Flag to control whether body wakes are detected." ) );
 
         m_Inputs.Add( new NameValData( "MergeDegenTriRegionsFlag", VSPAEROMgr.m_MergeDegenTriRegionsFlag.Get(), "Flag to control whether merge degenerate triangle regions." ) );
+
+        m_Inputs.Add( new NameValData( "CleanIntersectionsFlag", VSPAEROMgr.m_CleanIntersectionsFlag.Get(), "Flag to clean intersections." ) );
+        m_Inputs.Add( new NameValData( "CleanIntersectionsLenRatio", VSPAEROMgr.m_CleanIntersectionsLenRatio.Get(), "Length ratio of intersection segments to clean." ) );
     }
     else
     {
@@ -2161,6 +2164,20 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_MergeDegenTriRegionsFlag.Set( nvd->GetInt( 0 ) );
         }
 
+        bool cleanIntersectionsFlagOrig = VSPAEROMgr.m_CleanIntersectionsFlag.Get();
+        nvd = m_Inputs.FindPtr( "CleanIntersectionsFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CleanIntersectionsFlag.Set( nvd->GetInt( 0 ) );
+        }
+
+        double cleanIntersectionsLenRatioOrig = VSPAEROMgr.m_CleanIntersectionsLenRatio.Get();
+        nvd = m_Inputs.FindPtr( "CleanIntersectionsLenRatio", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_CleanIntersectionsLenRatio.Set( nvd->GetDouble(0) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeGeometry();
 
@@ -2176,6 +2193,8 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_CullFracFlag.Set( cullfracflagOrig );
         VSPAEROMgr.m_FindBodyWakesFlag.Set( findbodywakesflagOrig );
         VSPAEROMgr.m_MergeDegenTriRegionsFlag.Set( mergeDegenTriRegionsFlagOrig );
+        VSPAEROMgr.m_CleanIntersectionsFlag.Set( cleanIntersectionsFlagOrig );
+        VSPAEROMgr.m_CleanIntersectionsLenRatio.Set( cleanIntersectionsLenRatioOrig );
     }
 
     return resId;

@@ -930,6 +930,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_ExperimentalLayout.SetGroupAndScreen( experimental_group, this );
 
     m_ExperimentalLayout.AddDividerBox( "Experimental Mesh Processing Options" );
+    m_ExperimentalLayout.SetButtonWidth( bw );
 
     m_ExperimentalLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
 
@@ -937,6 +938,16 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_ExperimentalLayout.AddButton( m_MergeDegenTriRegionsButton, "Merge Degen Tri Regions" );
 
+    m_ExperimentalLayout.AddYGap();
+    m_ExperimentalLayout.AddDividerBox( "Clean Intersections" );
+
+    m_ExperimentalLayout.SetSameLineFlag( true );
+    m_ExperimentalLayout.SetFitWidthFlag( false );
+    m_ExperimentalLayout.SetButtonWidth( 15 );
+    m_ExperimentalLayout.AddButton( m_CleanIntersectionsButton, "" );
+    m_ExperimentalLayout.SetButtonWidth( bw );
+    m_ExperimentalLayout.SetFitWidthFlag( true );
+    m_ExperimentalLayout.AddSlider( m_LenRatioSlider, "Length Ratio", 1.0, "%5.3f" );
 
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1652,6 +1663,18 @@ void VSPAEROScreen::UpdateCaseSetup()
     m_CullFracButton.Update( VSPAEROMgr.m_CullFracFlag.GetID() );
     m_FindBodyWakesButton.Update( VSPAEROMgr.m_FindBodyWakesFlag.GetID() );
     m_MergeDegenTriRegionsButton.Update( VSPAEROMgr.m_MergeDegenTriRegionsFlag.GetID() );
+
+    m_LenRatioSlider.Update( VSPAEROMgr.m_CleanIntersectionsLenRatio.GetID() );
+    m_CleanIntersectionsButton.Update( VSPAEROMgr.m_CleanIntersectionsFlag.GetID() );
+
+    if ( VSPAEROMgr.m_CleanIntersectionsFlag() )
+    {
+        m_LenRatioSlider.Activate();
+    }
+    else
+    {
+        m_LenRatioSlider.Deactivate();
+    }
 
     if ( VSPAEROMgr.m_ThinGeomSet() == vsp::SET_NONE )
     {

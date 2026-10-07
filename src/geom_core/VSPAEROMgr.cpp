@@ -93,6 +93,12 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_MergeDegenTriRegionsFlag.Init( "MergeDegenTriRegions", groupname, this, false, false, true );
     m_MergeDegenTriRegionsFlag.SetDescript( "Flag to control whether merge degenerate triangle regions." );
 
+    m_CleanIntersectionsFlag.Init( "CleanIntersections", groupname, this, false, false, true );
+    m_CleanIntersectionsFlag.SetDescript( "Flag to clean intersections." );
+
+    m_CleanIntersectionsLenRatio.Init( "CleanIntersectionsLenRatio", groupname, this, 0.1, 0.0, 0.5 );
+    m_CleanIntersectionsLenRatio.SetDescript( "Length ratio of intersection segments to clean." );
+
     m_LastPanelMeshGeomId = string();
 
     m_Sref.Init( "Sref", groupname, this, 100.0, 0.0, 1e12 );
@@ -1330,7 +1336,12 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     if ( mesh_geom )
     {
-        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(), m_NRef(), m_FindBodyWakesFlag(), m_MergeDegenTriRegionsFlag() );
+        m_LastPanelMeshGeomId = mesh_geom->CreateNGonMeshGeom( m_CullFracFlag(), m_CullFrac(),
+                                                               m_NRef(),
+                                                               m_FindBodyWakesFlag(),
+                                                               m_MergeDegenTriRegionsFlag(),
+                                                               m_CleanIntersectionsFlag(),
+                                                               m_CleanIntersectionsLenRatio() );
 
         NGonMeshGeom* ngon_mesh_geom = ( NGonMeshGeom * ) veh->FindGeom( m_LastPanelMeshGeomId );
 

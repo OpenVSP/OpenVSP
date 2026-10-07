@@ -402,6 +402,9 @@ public:
 
     BoolParm m_MergeDegenTriRegionsFlag;
 
+    BoolParm m_CleanIntersectionsFlag;
+    Parm m_CleanIntersectionsLenRatio;
+
     // Reference Area Parms
     Parm m_Sref;
     Parm m_bref;

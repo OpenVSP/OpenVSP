@@ -1644,7 +1644,8 @@ void MeshGeom::CreatePtCloudGeom()
     }
 }
 
-string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_ref, bool FindBodyWakes, bool mergeDegenTriRegionsFlag )
+string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_ref, bool FindBodyWakes, bool mergeDegenTriRegionsFlag, bool
+                                     cleanIntersectionsFlag, double lenRatio )
 {
     GeomType type = GeomType( NGON_GEOM_TYPE, "NGON", true );
     string id = m_Vehicle->AddGeom( type );
@@ -1684,6 +1685,11 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_r
         pgm->SealDoubleBackNodes();
 
         pgm->SplitLEGeom();
+
+        if ( cleanIntersectionsFlag )
+        {
+            pgm->CleanIntersections( lenRatio );
+        }
 
         if ( mergeDegenTriRegionsFlag )
         {
