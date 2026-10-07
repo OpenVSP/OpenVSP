@@ -3741,24 +3741,25 @@ void Mesh::ConvertToQuads()
             continue;
         }
 
-        // Construct triangle center point and add node.  Center point could possibly be weighted based on target
-        // edge lengths.
-        vec3d pcen;
-        vec2d uwcen;
-        ( *f )->ComputeCenterPnt( m_Surf, pcen, uwcen );
-        Node* ncen  = AddNode( pcen, uwcen );
-
         // Get existing triangle nodes.  These are in cw order.
         Node* n0 = ( *f )->n0;
         Node* n1 = ( *f )->n1;
         Node* n2 = ( *f )->n2;
 
         // Get existing triangle edges.  Lookup edges by nodes because they aren't stored in any particular order.
+        // Found before the center node is added, so a face that is skipped adds none.
         Edge* e0 = ( *f )->FindEdge( n0, n1 );
         Edge* e1 = ( *f )->FindEdge( n1, n2 );
         Edge* e2 = ( *f )->FindEdge( n2, n0 );
 
         if ( !e0 || !e1 || !e2 ) continue;
+
+        // Construct triangle center point and add node.  Center point could possibly be weighted based on target
+        // edge lengths.
+        vec3d pcen;
+        vec2d uwcen;
+        ( *f )->ComputeCenterPnt( m_Surf, pcen, uwcen );
+        Node* ncen  = AddNode( pcen, uwcen );
 
         // Get split data for existing edges.
         splitData sd0 = splitEdgeMap[ e0 ];
