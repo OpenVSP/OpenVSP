@@ -638,6 +638,31 @@ def testARodIntoATipCapNearItsLeadingEdgeFinishes():
     drop_errors()
 
 
+def testAPanelMeshSavedOnACoarseLevelReloads():
+    """Reading back a model whose polygon mesh was showing a coarse level does not crash.
+
+    The level shown is a Parm and is saved; the levels themselves are not, so the reloaded mesh
+    has one, and the saved index pointed past it.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    vsp.AddGeom( "POD" )
+    vsp.Update()
+    _prepare_with_refinement( out, "levels", 1 )
+    ngon = [ g for g in vsp.FindGeoms() if vsp.GetGeomTypeName( g ) == "NGonMesh" ][0]
+    vsp.SetParmVal( vsp.FindParm( ngon, "ActiveMesh", "RefMesh" ), 1 )
+    vsp.Update()
+    path = os.path.join( out, "saved.vsp3" )
+    vsp.WriteVSPFile( path )
+
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( path )
+    vsp.Update()
+    assert [ g for g in vsp.FindGeoms() if vsp.GetGeomTypeName( g ) == "NGonMesh" ]
+    drop_errors()
+
+
 def a_texture_file():
     """An image from the repo, by a path that does not depend on the working directory."""
     here = os.path.dirname( os.path.abspath( __file__ ) )

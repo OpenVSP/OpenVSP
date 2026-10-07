@@ -4839,7 +4839,10 @@ void PGMulti::DumpGarbage()
 
 PGMesh* PGMulti::GetActiveMesh() const
 {
-    return m_MeshVec[ m_ActiveMesh ];
+    // The index can outlast the meshes: a saved NGon mesh reloads its active level, but not
+    // the levels themselves.
+    int i = std::min( std::max( m_ActiveMesh, 0 ), ( int ) m_MeshVec.size() - 1 );
+    return m_MeshVec[ i ];
 }
 
 bool PGMulti::Check()
