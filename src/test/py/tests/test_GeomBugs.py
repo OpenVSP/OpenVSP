@@ -945,3 +945,51 @@ def testAStackOrFuselageEndCapStopsAtSharp():
             assert vsp.GetParmVal( parm ) == vsp.SHARP_END_CAP
     vsp.Update()
     assert_no_errors()
+
+
+def _vspgeom_parts( path ):
+    """The part and tag numbers of every triangle in a one-mesh vspgeom file."""
+    lines = open( path ).read().split( "\n" )
+    npnt, ntri = ( int( t ) for t in lines[2].split()[:2] )
+    first = 3 + npnt + 1 + ntri
+    return [ tuple( int( t ) for t in lines[first + i].split()[:2] ) for i in range( ntri ) ]
+
+
+@pytest.mark.parametrize( "before", [ "stl", "massprops", "planeslice", "projection", "stale", "import" ] )
+def testAVSPGEOMExportWritesWhateverMeshIsThere( before ):
+    """A VSPGEOM export writes an existing mesh in its set, and looks its triangles up in the
+    tag tables.  Those describe the last mesh tagged, so a mesh made untagged, read from a file,
+    or tagged before another mesh crashed the export."""
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    vsp.SetVSP3FileName( os.path.join( out, "m.vsp3" ) )
+    pod = vsp.AddGeom( "POD" )
+    wing = vsp.AddGeom( "WING" )
+    vsp.Update()
+
+    if before == "stl":
+        vsp.ExportFile( os.path.join( out, "m.stl" ), vsp.SET_ALL, vsp.EXPORT_STL )
+    elif before == "massprops":
+        vsp.ComputeMassProps( vsp.SET_ALL, 10, vsp.X_DIR )
+    elif before == "planeslice":
+        vsp.ComputePlaneSlice( vsp.SET_ALL, 10, vsp.vec3d( 1, 0, 0 ), True )
+    elif before == "projection":
+        vsp.SetAnalysisInputDefaults( "Projection" )
+        vsp.ExecAnalysis( "Projection" )
+    elif before == "stale":
+        vsp.ExportFile( os.path.join( out, "m.stl" ), vsp.SET_ALL, vsp.EXPORT_STL )
+        vsp.SetSetFlag( pod, vsp.SET_FIRST_USER, True )
+        vsp.ComputeCompGeom( vsp.SET_FIRST_USER, False, 0 )
+    elif before == "import":
+        vsp.ExportFile( os.path.join( out, "m.tri" ), vsp.SET_ALL, vsp.EXPORT_CART3D )
+        vsp.DeleteGeomVec( [ g for g in vsp.FindGeoms() if vsp.GetGeomTypeName( g ) == "Mesh" ] )
+        vsp.ImportFile( os.path.join( out, "m.tri" ), vsp.IMPORT_CART3D_TRI, "" )
+
+    path = os.path.join( out, "m.vspgeom" )
+    vsp.ExportFile( path, vsp.SET_ALL, vsp.EXPORT_VSPGEOM )
+    parts = _vspgeom_parts( path )
+    assert parts
+    assert min( p for p, t in parts ) >= 1
+    assert min( t for p, t in parts ) >= 1
+    drop_errors()

@@ -898,6 +898,21 @@ void RefreshTagMaps( vector<TMesh*> &tmv )
     SubSurfaceMgr.BuildSingleTagMap();
 }
 
+// True when the tag tables hold every tri's part and tag combination.
+bool TagMapsCover( const vector< TTri* > &trivec )
+{
+    int ncomp = ( int )SubSurfaceMgr.m_CompUscale.size();
+    for ( int i = 0 ; i < ( int )trivec.size() ; i++ )
+    {
+        int part = SubSurfaceMgr.GetPart( trivec[i]->m_Tags );
+        if ( part < 1 || part > ncomp || SubSurfaceMgr.GetTag( trivec[i]->m_Tags ) < 0 )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 //===== Vectors of TMeshs with Bounding Boxes Already Set Up ====//
 bool CheckIntersect( const vector<TMesh*> & tmesh_vec, const vector<TMesh*> & other_tmesh_vec )

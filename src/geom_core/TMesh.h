@@ -734,6 +734,7 @@ vector< double > GetTMeshWscale( vector<TMesh*> &tmv );
 set< string > GetTMeshPtrIDs( const vector<TMesh*> &tmv );
 void SubTagTris( bool tag_subs, vector<TMesh*> &tmv, const vector < string > & sub_vec = vector < string > () );
 void RefreshTagMaps( vector<TMesh*> &tmv );
+bool TagMapsCover( const vector< TTri* > &trivec );
 
 double FindMinDistance(const vector< TMesh* > & tmesh_vec, const vector< TMesh* > & other_tmesh_vec, bool & intersect_flag );
 double FindMaxMinDistance( const vector< TMesh* > & mesh_1, const vector< TMesh* > & mesh_2 );

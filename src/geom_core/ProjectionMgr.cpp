@@ -2063,6 +2063,7 @@ string ProjectionMgrSingleton::MakeMeshGeom( const vector < TMesh* > &tmv, const
         mesh_geom->m_PolyVec = solutionPolyVec3d;
 
         mesh_geom->m_TMeshVec = tmv;
+        SubTagTris( false, mesh_geom->m_TMeshVec );
         mesh_geom->m_SurfDirty = true;
         mesh_geom->Update();
 

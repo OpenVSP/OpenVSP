@@ -215,7 +215,7 @@ void GeomCoreTestSuite::MeshIOTest()
     veh.CutActiveGeomVec();
 
     out_file = "stl_test.stl";
-    veh.WriteSTLFile( out_file, 0, useMode, modeID);
+    veh.WriteSTLFile( out_file, 0, 1, useMode, modeID);
     string mesh_stl = veh.ImportFile( out_file, vsp::IMPORT_STL );
     TEST_ASSERT( mesh_stl.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_stl );

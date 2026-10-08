@@ -3759,7 +3759,7 @@ vector < string > Vehicle::GetPtCloudGeoms()
 }
 
 //==== Write STL File ====//
-string Vehicle::WriteSTLFile( const string & file_name, int write_set, bool useMode, const string &modeID )
+string Vehicle::WriteSTLFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID )
 {
     if ( useMode )
     {
@@ -3788,6 +3788,8 @@ string Vehicle::WriteSTLFile( const string & file_name, int write_set, bool useM
             Geom* gPtr = FindGeom( mesh_id );
             if ( gPtr )
             {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
+                SubTagTris( subsFlag, mg->m_TMeshVec );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
@@ -4390,6 +4392,52 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             }
         }
 
+        // The tag tables describe the last mesh tagged, which may not be these.  Retag them for
+        // writing, and give them their own tags back after.
+        vector< TTri* > saved_tris;
+        vector< vector< int > > saved_tags;
+        bool covered = true;
+        for ( i = 0; i < ( int ) mg_vec.size(); i++ )
+        {
+            if ( !TagMapsCover( trivec_vec[i] ) )
+            {
+                covered = false;
+            }
+        }
+
+        if ( !covered )
+        {
+            vector< TMesh* > tag_tmv;
+            for ( i = 0; i < ( int ) mg_vec.size(); i++ )
+            {
+                if ( mg_vec[i]->GetTMeshViewMeshFlag() )
+                {
+                    const vector< TMesh* > &tmv = mg_vec[i]->GetTMeshVecInSelf();
+                    tag_tmv.insert( tag_tmv.end(), tmv.begin(), tmv.end() );
+                }
+                if ( mg_vec[i]->GetTMeshViewSliceFlag() )
+                {
+                    const vector< TMesh* > &svec = mg_vec[i]->GetTMeshSliceVec();
+                    tag_tmv.insert( tag_tmv.end(), svec.begin(), svec.end() );
+                }
+            }
+            for ( i = 0; i < ( int ) tag_tmv.size(); i++ )
+            {
+                for ( int t = 0; t < ( int ) tag_tmv[i]->m_TVec.size(); t++ )
+                {
+                    TTri* tri = tag_tmv[i]->m_TVec[t];
+                    saved_tris.push_back( tri );
+                    saved_tags.push_back( tri->m_Tags );
+                    for ( int st = 0; st < ( int ) tri->m_SplitVec.size(); st++ )
+                    {
+                        saved_tris.push_back( tri->m_SplitVec[st] );
+                        saved_tags.push_back( tri->m_SplitVec[st]->m_Tags );
+                    }
+                }
+            }
+            SubTagTris( subsFlag, tag_tmv );
+        }
+
         fprintf( file_id, "%d %d %d\n", num_pnts,
                                         num_tris,
                                         num_wakes );
@@ -4723,6 +4771,10 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         vector < string > all_files;
         WriteControlSurfaceFile( file_name, gidvec, partvec2, surfvec, all_files );
 
+        for ( i = 0; i < ( int ) saved_tris.size(); i++ )
+        {
+            saved_tris[i]->m_Tags = saved_tags[i];
+        }
     }
     return mesh_id;
 
@@ -7188,6 +7240,8 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
         return id;
     }
 
+    SubTagTris( false, mesh_ptr->m_TMeshVec );
+
     //==== Load Point Mass Properties From Blank Geom ====//
     // Add RoutingGeoms as point masses.
     vector< TetraMassProp* > mpv = CreateTetraMassPropVec( set );
@@ -7261,6 +7315,8 @@ string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoun
     {
         return id;
     }
+
+    SubTagTris( false, mesh_ptr->m_TMeshVec );
 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
@@ -7993,7 +8049,7 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
 
         if ( !m_STLMultiSolid() )
         {
-            mesh_id = WriteSTLFile( file_name, write_set, useMode, modeID );
+            mesh_id = WriteSTLFile( file_name, write_set, subsFlag, useMode, modeID );
         }
         else
         {

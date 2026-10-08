@@ -265,7 +265,7 @@ public:
     bool WriteXMLFile( const string & file_name, int set );
     void WriteXSecFile( const string & file_name, int write_set, bool useMode, const string& modeID );
     void WritePLOT3DFile( const string & file_name, int write_set, bool useMode, const string &modeID );
-    string WriteSTLFile( const string & file_name, int write_set, bool useMode, const string &modeID );
+    string WriteSTLFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
     string WriteTaggedMSSTLFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
     string WriteFacetFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
     string WriteTRIFile( const string & file_name, int write_set, int subsFlag, bool useMode, const string &modeID );
