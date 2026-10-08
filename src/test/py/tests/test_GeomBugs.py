@@ -670,6 +670,51 @@ def testASlenderRodThroughAWingLeavesNoHole():
     drop_errors()
 
 
+@pytest.mark.parametrize( "cap", [ vsp.ROUND_EXT_END_CAP_LE, vsp.ROUND_EXT_END_CAP_TE, vsp.ROUND_EXT_END_CAP_BOTH ] )
+def testAnExtendedTipCapLeavesNoPillowInThePanelMesh( cap ):
+    """Every edge of an extended tip cap's panel mesh is shared by two faces of three or more nodes.
+
+    With two cap tessellation steps, an extended round tip cap tessellates one sliver at the
+    edge it extends twice, once from each side.  The two triangles share their three nodes and
+    wind opposite ways, so they enclose nothing and give one edge four faces.  Taking the third
+    corner off them instead leaves two faces of two nodes.  Splitting both quads on their other
+    diagonal closes the cap and keeps the point it extends to.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    wing = vsp.AddGeom( "WING" )
+    for name, group, value in ( ( "CapUMaxOption", "EndCap", cap ), ( "CapUMinTess", "EndCap", 2 ),
+                                ( "Sym_Planar_Flag", "Sym", 0 ), ( "Tess_W", "Shape", 5 ),
+                                ( "SectTess_U", "XSec_1", 2 ) ):
+        vsp.SetParmVal( vsp.FindParm( wing, name, group ), value )
+    vsp.Update()
+
+    text = _prepare_with_refinement( out, "cap", 0 )
+    loops = _face_sets( text )[0]
+    short = [ loop for loop in loops if len( set( loop ) ) < 3 ]
+    assert short == [], "%d faces have fewer than three nodes" % len( short )
+    used = {}
+    for loop in loops:
+        for a, b in zip( loop, loop[1:] + loop[:1] ):
+            key = ( min( a, b ), max( a, b ) )
+            used[ key ] = used.get( key, 0 ) + 1
+    wrong = [ e for e, n in used.items() if n != 2 ]
+    assert wrong == [], "%d edges are not shared by two faces" % len( wrong )
+
+    # The panel mesh reaches as far as the tessellation, so the cap keeps its extension.
+    lines = text.split( "\n" )
+    npnt = int( lines[2].split()[0] )
+    mesh = [ [ float( t ) for t in line.split()[:3] ] for line in lines[3:3 + npnt] ]
+    stl = os.path.join( out, "cap.stl" )
+    vsp.ExportFile( stl, vsp.SET_ALL, vsp.EXPORT_STL )
+    tess = [ [ float( t ) for t in line.split()[1:4] ] for line in open( stl ) if line.strip().startswith( "vertex" ) ]
+    for i in range( 3 ):
+        assert min( p[i] for p in mesh ) == pytest.approx( min( p[i] for p in tess ), abs = 1e-6 )
+        assert max( p[i] for p in mesh ) == pytest.approx( max( p[i] for p in tess ), abs = 1e-6 )
+    drop_errors()
+
+
 def testAPanelMeshSavedOnACoarseLevelReloads():
     """Reading back a model whose polygon mesh was showing a coarse level does not crash.
 

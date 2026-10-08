@@ -333,6 +333,95 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
     double umax = (*uw_pnts)[ lastj + 1 ][ nk - 1 ].x();
     double umid = 0.5 * ( umin + umax );
 
+    // Pick the diagonal of each quad.
+    vector< vector< bool > > evenvec( nj - 1, vector< bool >( nk - 1 ) );
+    for ( int j = 0; j < nj - 1; j++ )
+    {
+        for ( int k = 0; k < nk - 1; k++ )
+        {
+            uw0 = (*uw_pnts)[j][k];
+            uw1 = (*uw_pnts)[j + 1][k];
+            uw2 = (*uw_pnts)[j + 1][k + 1];
+            uw3 = (*uw_pnts)[j][k + 1];
+
+            double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / wmax; // * 4 * 0.25 canceled.
+            double uave = ( uw0.x() + uw1.x() + uw2.x() + uw3.x() ) / 4.0;
+
+            // Set up evencorners based on quadrants 0 and 2.
+            bool evencorners = ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) );
+
+            // Flip evencorners for second half of u.
+            if ( uave > umid )
+            {
+                evencorners = !evencorners;
+            }
+
+            // Flip evencorners for every other degenerate plate (handles cruciform).
+            if ( platenum % 2 )
+            {
+                evencorners = !evencorners;
+            }
+
+            evenvec[ j ][ k ] = evencorners;
+        }
+    }
+
+    // Where a row collapses, two neighboring quads can split into the same triangle, wound
+    // opposite ways.  Split both on their other diagonal instead.
+    BndBox box;
+    box.Update( *pnts );
+    double ptol = 1.0e-9 * box.GetLargestDist();
+    double ptol2 = ptol * ptol;
+
+    vector< vector< bool > > swapvec( nj - 1, vector< bool >( nk - 1, false ) );
+    for ( int j = 0; j < nj - 1; j++ )
+    {
+        for ( int ka = 0; ka < nk - 1; ka++ )
+        {
+            int kb = ka + 1;
+            if ( kb == nk - 1 )
+            {
+                // Pair the last quad with the first across the seam of a closed surface.
+                if ( dist_squared( (*pnts)[j][0], (*pnts)[j][nk - 1] ) > ptol2 ||
+                     dist_squared( (*pnts)[j + 1][0], (*pnts)[j + 1][nk - 1] ) > ptol2 )
+                {
+                    continue;
+                }
+                kb = 0;
+            }
+
+            if ( kb == ka )
+            {
+                continue;
+            }
+
+            // A collapsed shared edge leaves each quad one triangle, apart from the other.
+            if ( dist_squared( (*pnts)[j][ka + 1], (*pnts)[j + 1][ka + 1] ) <= ptol2 )
+            {
+                continue;
+            }
+
+            // Third corner of each quad's triangle on the edge the two share.
+            vec3d pa = (*pnts)[j + 1][ka];
+            if ( evenvec[ j ][ ka ] )
+            {
+                pa = (*pnts)[j][ka];
+            }
+
+            vec3d pb = (*pnts)[j][kb + 1];
+            if ( evenvec[ j ][ kb ] )
+            {
+                pb = (*pnts)[j + 1][kb + 1];
+            }
+
+            if ( dist_squared( pa, pb ) <= ptol2 )
+            {
+                swapvec[ j ][ ka ] = true;
+                swapvec[ j ][ kb ] = true;
+            }
+        }
+    }
+
     int jref = ref_start;
     for ( int j = 0; j < nj - 1; j++ )
     {
@@ -354,20 +443,8 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
             d03 = v0 - v3;
             d23 = v2 - v3;
 
-            double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / wmax; // * 4 * 0.25 canceled.
-            double uave = ( uw0.x() + uw1.x() + uw2.x() + uw3.x() ) / 4.0;
-
-            // Set up evencorners based on quadrants 0 and 2.
-            bool evencorners = ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) );
-
-            // Flip evencorners for second half of u.
-            if ( uave > umid )
-            {
-                evencorners = !evencorners;
-            }
-
-            // Flip evencorners for every other degenerate plate (handles cruciform).
-            if ( platenum % 2 )
+            bool evencorners = evenvec[ j ][ k ];
+            if ( swapvec[ j ][ k ] )
             {
                 evencorners = !evencorners;
             }
@@ -387,6 +464,12 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     {
                         tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad, jref, kref );
                     }
+                }
+
+                // Keep a re-split quad's triangles from merging back into it.
+                if ( swapvec[ j ][ k ] )
+                {
+                    iQuad++;
                 }
 
                 if ( d03.mag() > edgetol && d23.mag() > edgetol && d20.mag() > edgetol )
@@ -418,6 +501,12 @@ bool BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum, i
                     {
                         tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3, iQuad, jref, kref );
                     }
+                }
+
+                // Keep a re-split quad's triangles from merging back into it.
+                if ( swapvec[ j ][ k ] )
+                {
+                    iQuad++;
                 }
 
                 if ( d21.mag() > edgetol && d23.mag() > edgetol && d31.mag() > edgetol )
