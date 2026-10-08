@@ -394,7 +394,7 @@ def testPrepareGeometryWithNothingToMeshFinishes():
     drop_errors()
 
 
-@pytest.mark.parametrize( "scale, cap_tess", [ ( 1.0, 15 ), ( 1000.0, 6 ) ] )
+@pytest.mark.parametrize( "scale, cap_tess", [ ( 1.0, 15 ), ( 1000.0, 6 ), ( 0.001, 15 ) ] )
 def testAFinelyCappedBluntWingMakesAClosedPanelMesh( scale, cap_tess ):
     """Every edge of a blunt wing's panel mesh is shared by two faces, whatever its size or cap.
 
@@ -402,7 +402,8 @@ def testAFinelyCappedBluntWingMakesAClosedPanelMesh( scale, cap_tess ):
     wraps the trailing edge base.  Refining the cap shrinks them below the area AddTri used to
     take for no area at all, so they were left out and the mesh opened there.  Made a thousand
     times larger and turned, the same wing grows triangles with three corners in a line past
-    any fixed area, and kept they leave edges with more than two faces.
+    any fixed area, and kept they leave edges with more than two faces.  Made a thousand times
+    smaller, its distinct nodes came within the fixed distance that merges coincident ones.
     """
     vsp.VSPRenew()
     drop_errors()

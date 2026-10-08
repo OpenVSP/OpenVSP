@@ -2557,24 +2557,21 @@ int PGMesh::MergeCoincidentNodes()
     // Make vector copy of list so nodes can be removed from list without invalidating active list iterator.
     vector< PGNode* > nVec( m_NodeList.begin(), m_NodeList.end() );
 
+    BndBox box;
     for ( int i = 0; i < nVec.size(); i++ )
     {
         PGNode *n = nVec[ i ];
         allPntVec[ i ] = n->m_Pt->m_Pnt;
+        box.Update( allPntVec[ i ] );
     }
 
     PntNodeCloud pnCloud;
     pnCloud.AddPntNodes( allPntVec );
 
-    // m_BBox.GetLargestDist() *
-    double tol = 1.0e-10;
+    // Nodes closer than this fraction of the model size are one node.
+    double tol = 5.5e-7 * box.GetLargestDist();
 
-    if ( tol < 1.0e-10 )
-    {
-        tol = 1.0e-10;
-    }
-
-    IndexPntNodes( pnCloud, tol );
+    IndexPntNodes( pnCloud, tol * tol );
 
     int nmerge = 0;
 
