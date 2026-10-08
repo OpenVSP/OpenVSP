@@ -29,9 +29,11 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     //==== rename capping controls for stack specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Stack Nose");
     m_CapUMinOption.Parm::Set(NO_END_CAP);
+    m_CapUMinOption.SetUpperLimit( SHARP_END_CAP );
     m_CapUMinTess.SetDescript("Number of tessellated curves on Stack Nose and Tail");
     m_CapUMaxOption.SetDescript("Type of End Cap on Stack Tail");
     m_CapUMaxOption.Parm::Set(NO_END_CAP);
+    m_CapUMaxOption.SetUpperLimit( SHARP_END_CAP );
 
     //==== Init Parms ====//
     m_TessU = 16;

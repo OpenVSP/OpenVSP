@@ -931,3 +931,17 @@ def testAPovRayFileWindsAReflectedCopyTheWayItsNormalsPoint():
     assert one > 0.0
     assert written( vsp.SYM_XZ ) == pytest.approx( 2.0 * one, rel = 1e-9 )
     drop_errors()
+
+
+def testAStackOrFuselageEndCapStopsAtSharp():
+    """The extended round caps are wing caps; on a Stack they crashed Update."""
+    vsp.VSPRenew()
+    drop_errors()
+    for gtype in ( "STACK", "FUSELAGE" ):
+        geom = vsp.AddGeom( gtype )
+        for name in ( "CapUMinOption", "CapUMaxOption" ):
+            parm = vsp.FindParm( geom, name, "EndCap" )
+            vsp.SetParmVal( parm, vsp.ROUND_EXT_END_CAP_BOTH )
+            assert vsp.GetParmVal( parm ) == vsp.SHARP_END_CAP
+    vsp.Update()
+    assert_no_errors()

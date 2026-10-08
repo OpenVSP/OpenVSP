@@ -35,9 +35,11 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     //==== rename capping controls for fuselage specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Fuselage Nose");
     m_CapUMinOption.Parm::Set(NO_END_CAP);
+    m_CapUMinOption.SetUpperLimit( SHARP_END_CAP );
     m_CapUMinTess.SetDescript("Number of tessellated curves on Fuselage Nose and Tail");
     m_CapUMaxOption.SetDescript("Type of End Cap on Fuselage Tail");
     m_CapUMaxOption.Parm::Set(NO_END_CAP);
+    m_CapUMaxOption.SetUpperLimit( SHARP_END_CAP );
 
     m_ActiveXSec = 0;
 
