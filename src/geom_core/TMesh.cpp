@@ -906,49 +906,56 @@ bool TTri::SplitTri( bool dumpCase )
     //==== Add Edge Nodes ====//
     for ( i = 0 ; i < ( int )pVec.size() ; i++ )
     {
+        vec3d p = pVec[i];
+        if ( uwflag )
+        {
+            p = uwVec[i];
+        }
+
+        // Near a sharp corner both edges can be within tolerance, so split the nearest.
+        int jnear = -1;
+        double dnear = 0.0;
         for ( j = 0 ; j < ( int )m_EVec.size() ; j++ )
         {
-            bool onEdgeFlag = false;
-
-            if ( uwflag )
+            double t;
+            if ( OnEdge( p, m_EVec[j], onEdgeTol, t ) )
             {
-                double t;
-                onEdgeFlag = !!OnEdge( uwVec[i], m_EVec[j], onEdgeTol, t );
+                vec3d pon;
+                double d = pointSegDistSquared( p, m_EVec[j]->m_N0->m_Pnt, m_EVec[j]->m_N1->m_Pnt, t, pon );
+                if ( jnear < 0 || d < dnear )
+                {
+                    jnear = j;
+                    dnear = d;
+                }
             }
-            else
-            {
-                double t;
-                onEdgeFlag = !!OnEdge( pVec[i], m_EVec[j], onEdgeTol, t );
-            }
+        }
 
-            if ( onEdgeFlag )
-            {
-                //==== SplitEdge ====//
-                TNode* sn = new TNode();        // New node
-                sn->m_IsectFlag = 1;
-                m_NVec.push_back( sn );
-                matchNodeIndex[i] = m_NVec.size() - 1;
-                sn->SetXYZPnt( pVec[i] );
+        if ( jnear >= 0 )
+        {
+            //==== SplitEdge ====//
+            TNode* sn = new TNode();        // New node
+            sn->m_IsectFlag = 1;
+            m_NVec.push_back( sn );
+            matchNodeIndex[i] = m_NVec.size() - 1;
+            sn->SetXYZPnt( pVec[i] );
 
 #ifdef DEBUG_TMESH
-                if ( !PtInTri( m_NVec[0]->m_Pnt, m_NVec[1]->m_Pnt, m_NVec[2]->m_Pnt, sn->m_Pnt ) )
-                {
-                    printf( "Outlier point added %s : %d.\n", __FILE__, __LINE__ );
-                }
+            if ( !PtInTri( m_NVec[0]->m_Pnt, m_NVec[1]->m_Pnt, m_NVec[2]->m_Pnt, sn->m_Pnt ) )
+            {
+                printf( "Outlier point added %s : %d.\n", __FILE__, __LINE__ );
+            }
 #endif
 
-                sn->SetUWPnt( uwVec[i] );
-                if ( uwflag )
-                {
-                    sn->MakePntUW();
-                }
-                TEdge* se = new TEdge();        // New Edge
-                se->m_N0 = m_EVec[j]->m_N0;
-                se->m_N1 = sn;
-                m_EVec[j]->m_N0 = sn;               // Change Split Edge
-                m_EVec.push_back( se );
-                break;
+            sn->SetUWPnt( uwVec[i] );
+            if ( uwflag )
+            {
+                sn->MakePntUW();
             }
+            TEdge* se = new TEdge();        // New Edge
+            se->m_N0 = m_EVec[jnear]->m_N0;
+            se->m_N1 = sn;
+            m_EVec[jnear]->m_N0 = sn;               // Change Split Edge
+            m_EVec.push_back( se );
         }
     }
 

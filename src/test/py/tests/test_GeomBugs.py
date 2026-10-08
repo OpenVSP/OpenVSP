@@ -638,6 +638,37 @@ def testARodIntoATipCapNearItsLeadingEdgeFinishes():
     drop_errors()
 
 
+def testASlenderRodThroughAWingLeavesNoHole():
+    """Splitting a triangle puts each cut point on the nearest of its edges.
+
+    A rod triangle is a long sliver, and the wing cut it close to its tip, where both long edges
+    were within the on-edge tolerance of each cut point.  Each point went on the first edge
+    tried, the two cut segments crossed, and the triangulator dropped the part below the cut,
+    leaving a hole in the rod.
+    """
+    vsp.VSPRenew()
+    drop_errors()
+    out = tempfile.mkdtemp()
+    wing = vsp.AddGeom( "WING" )
+    vsp.SetParmVal( vsp.FindParm( wing, "Tess_W", "Shape" ), 17 )
+    vsp.SetParmVal( vsp.FindParm( wing, "CapUMaxOption", "EndCap" ), vsp.FLAT_END_CAP )
+    rod = vsp.AddGeom( "POD" )
+    for name, group, value in ( ( "Length", "Design", 2.0 ), ( "FineRatio", "Design", 500.0 ),
+                                ( "Y_Rel_Rotation", "XForm", 90.0 ), ( "X_Rel_Location", "XForm", 2.764400457138084 ),
+                                ( "Y_Rel_Location", "XForm", 2.7 ), ( "Z_Rel_Location", "XForm", 1.0 ) ):
+        vsp.SetParmVal( vsp.FindParm( rod, name, group ), value )
+    vsp.Update()
+
+    for loops in _face_sets( _prepare_with_refinement( out, "rod", 3 ) ):
+        used = {}
+        for loop in loops:
+            for a, b in zip( loop, loop[1:] + loop[:1] ):
+                key = ( min( a, b ), max( a, b ) )
+                used[ key ] = used.get( key, 0 ) + 1
+        assert [ e for e, n in used.items() if n != 2 ] == []
+    drop_errors()
+
+
 def testAPanelMeshSavedOnACoarseLevelReloads():
     """Reading back a model whose polygon mesh was showing a coarse level does not crash.
 
