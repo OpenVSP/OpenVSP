@@ -330,6 +330,55 @@ def testRoughnessHeightIsInTheModelLengthUnit():
         assert abs( cf - expect ) < 1e-9, "unit %d: Cf %g, expected %g" % ( unit, cf, expect )
 
 
+def testRoughCfOverTheLaminarRunUsesItsLength():
+    """The turbulent Cf removed over the laminar run used the whole length's L/k."""
+    fresh()
+    p = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( p, "Roughness", "ParasiteDragProps", 0.001 )
+    vsp.SetParmVal( p, "PercLam", "ParasiteDragProps", 30.0 )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG ] )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    lref = vsp.GetDoubleResults( rid, "Comp_Lref" )[0]
+    re = vsp.GetDoubleResults( rid, "Comp_Re" )[0]
+    cf = vsp.GetDoubleResults( rid, "Comp_Cf" )[0]
+
+    def rough( length ):
+        return ( 1.89 + 1.62 * math.log10( length / 0.001 ) ) ** -2.5
+    x = 0.3
+    expect = rough( lref ) - x * rough( x * lref ) + x * 1.32824 / math.sqrt( x * re )
+    assert abs( cf - expect ) < 1e-9, "Cf %g, expected %g" % ( cf, expect )
+
+
+def testAShortLaminarRunBarelyChangesCf():
+    """A laminar run of a few thousandths of a percent put the turbulent fits at Re near their poles."""
+    eqns = ( vsp.CF_TURB_EXPLICIT_FIT_SPALDING, vsp.CF_TURB_EXPLICIT_FIT_SPALDING_CHI, vsp.CF_TURB_EXPLICIT_FIT_SCHOENHERR,
+             vsp.CF_TURB_IMPLICIT_SCHOENHERR, vsp.CF_TURB_IMPLICIT_KARMAN_SCHOENHERR, vsp.CF_TURB_POWER_LAW_BLASIUS,
+             vsp.CF_TURB_POWER_LAW_PRANDTL_LOW_RE, vsp.CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE,
+             vsp.CF_TURB_POWER_LAW_PRANDTL_HIGH_RE, vsp.CF_TURB_SCHLICHTING_COMPRESSIBLE,
+             vsp.CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR )
+    for eq in eqns:
+        cfs = []
+        for perclam in ( 0.0, 0.0001, 0.002, 0.005, 0.01, 100.0 ):
+            fresh()
+            p = vsp.AddGeom( "POD" )
+            vsp.SetParmVal( p, "PercLam", "ParasiteDragProps", perclam )
+            vsp.Update()
+            vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+            vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ eq ] )
+            vsp.SetIntAnalysisInput( "ParasiteDrag", "FreestreamPropChoice", [ vsp.ATMOS_TYPE_MANUAL_RE_L ] )
+            vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Re_L", [ 1.0e5 ] )
+            rid = vsp.ExecAnalysis( "ParasiteDrag" )
+            drop_errors()
+            cfs.append( vsp.GetDoubleResults( rid, "Comp_Cf" )[0] )
+            re = vsp.GetDoubleResults( rid, "Comp_Re" )[0]
+        for cf in cfs[ 1:-1 ]:
+            assert math.isfinite( cf ) and abs( cf / cfs[0] - 1.0 ) < 1e-3, "equation %d: %s" % ( eq, cfs )
+        assert abs( cfs[-1] - 1.32824 / math.sqrt( re ) ) < 1e-12, "equation %d all laminar: %g" % ( eq, cfs[-1] )
+
+
 def testARoughnessEquationOnASmoothPlateUsesTheDefault():
     """With no roughness height, L/k was infinite and the roughness equations gave Cf = 0; a nearly
     smooth plate got a third of the smooth friction."""
@@ -376,6 +425,32 @@ def testRoughnessFlowCorrectionUsesMachSquared():
     assert abs( ratio - expect ) < 1e-9, "ratio %g, expected %g" % ( ratio, expect )
 
 
+def testCfIsContinuousAsTheLaminarRunGrows():
+    """Below Re_lam 1e3 the laminar run was dropped; above it, it added friction: a 2-3% step."""
+    for eq in ( vsp.CF_TURB_SCHLICHTING_COMPRESSIBLE, vsp.CF_TURB_POWER_LAW_BLASIUS, vsp.CF_TURB_EXPLICIT_FIT_SPALDING ):
+        cfs = []
+        turb = None
+        for perclam in [ 0.0 ] + [ 0.5 + 0.1 * k for k in range( 20 ) ]:
+            fresh()
+            p = vsp.AddGeom( "POD" )
+            vsp.SetParmVal( p, "PercLam", "ParasiteDragProps", perclam )
+            vsp.Update()
+            vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+            vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ eq ] )
+            vsp.SetIntAnalysisInput( "ParasiteDrag", "FreestreamPropChoice", [ vsp.ATMOS_TYPE_MANUAL_RE_L ] )
+            vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Re_L", [ 1.0e4 ] )
+            rid = vsp.ExecAnalysis( "ParasiteDrag" )
+            drop_errors()
+            cf = vsp.GetDoubleResults( rid, "Comp_Cf" )[0]
+            if turb is None:
+                turb = cf
+            else:
+                cfs.append( cf )
+        assert max( cfs ) <= turb * ( 1.0 + 1e-12 ), "equation %d: laminar flow raised Cf %s over %g" % ( eq, cfs, turb )
+        for a, b in zip( cfs, cfs[ 1: ] ):
+            assert abs( b - a ) < 2e-3 * turb, "equation %d: step %g" % ( eq, b - a )
+
+
 def testTheSmoothFloorIsCorrectedForMachToo():
     """The smooth floor had no Mach factor, so at M 4 it overrode the corrected rough Cf for k up to 1e-3."""
     def cf( eq, k ):
@@ -397,3 +472,23 @@ def testTheSmoothFloorIsCorrectedForMachToo():
         corrected = cf( vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION, k )
         plain = cf( vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG, k )
         assert abs( corrected / plain - factor ) < 1e-9, ( k, corrected, plain )
+
+
+def testBelowTheCrossoverCfIsLaminar():
+    """Where the turbulent fit falls under Blasius, % laminar was ignored up to 100%, then Cf stepped."""
+    cfs = []
+    for perclam in ( 0.0, 50.0, 99.9, 100.0 ):
+        fresh()
+        p = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( p, "PercLam", "ParasiteDragProps", perclam )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "FreestreamPropChoice", [ vsp.ATMOS_TYPE_MANUAL_RE_L ] )
+        vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Re_L", [ 1.0e3 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        cfs.append( vsp.GetDoubleResults( rid, "Comp_Cf" )[0] )
+        re = vsp.GetDoubleResults( rid, "Comp_Re" )[0]
+    blasius = 1.32824 / math.sqrt( re )
+    for cf in cfs:
+        assert abs( cf - blasius ) < 1e-12, ( cfs, blasius )

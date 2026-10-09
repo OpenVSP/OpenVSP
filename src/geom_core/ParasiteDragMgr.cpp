@@ -852,20 +852,34 @@ double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double r
     {
         // Prevent dividing by 0 in some equations
         double LamPerc = ( perclam / 100 );
-        double CffullTurb = CalcTurbCf( re, lref, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat );
+
+        // At low Re the turbulent fits fall below the laminar Cf, where they no longer hold
+        double CffullTurb = max( CalcTurbCf( re, lref, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat ),
+                                 CalcLamCf( re, m_LamCfEqnType() ) );
         double CffullLam = CalcLamCf( re, m_LamCfEqnType.Get() ); // WARNING: Not used
 
         double LamPercRefLen = LamPerc * lref;
 
         double ReLam = reqL * LamPercRefLen;
 
-        double CfpartLam = CalcLamCf( ReLam, m_LamCfEqnType() );
-        double CfpartTurb = CalcTurbCf( ReLam, lref, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat );
-
         m_TurbCfEqnName = AssignTurbCfEqnName( m_TurbCfEqnType() );
         m_LamCfEqnName = AssignLamCfEqnName( m_LamCfEqnType() );
 
-        cf = CffullTurb - ( CfpartTurb * LamPerc ) + ( CfpartLam * LamPerc );
+        cf = CffullTurb;
+        if ( LamPerc >= 1.0 )
+        {
+            cf = CalcLamCf( re, m_LamCfEqnType() );
+        }
+        else if ( ReLam >= 1.0e3 )
+        {
+            // Below this the turbulent fits fail; the laminar Cf is above them there, so the
+            // laminar run's correction is zero either side
+            double CfpartLam = CalcLamCf( ReLam, m_LamCfEqnType() );
+            double CfpartTurb = max( CalcTurbCf( ReLam, LamPercRefLen, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat ),
+                                     CfpartLam );
+
+            cf = CffullTurb - ( CfpartTurb * LamPerc ) + ( CfpartLam * LamPerc );
+        }
     }
     return cf;
 }
@@ -1454,7 +1468,10 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         CfGuess = pow( ( 1.0 / ( ( 3.46 * log10( ReyIn ) ) - 5.6 ) ), 2.0 );
 
         nrm.set_initial_guess( CfGuess );
-        nrm.find_root( CfOut, sfun, sfunprm, 0.0 );
+        if ( nrm.find_root( CfOut, sfun, sfunprm, 0.0 ) != eli::mutil::nls::newton_raphson_method < double >::converged )
+        {
+            CfOut = CfGuess;
+        }
         break;
 
     case vsp::DO_NOT_USE_CF_TURB_IMPLICIT_KARMAN:
@@ -1479,7 +1496,10 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         CfGuess = pow( ( 1.0 / ( ( 3.46 * log10( ReyIn ) ) - 5.6 ) ), 2.0 );
 
         nrm.set_initial_guess( CfGuess );
-        nrm.find_root( CfOut, ksfun, ksfunprm, 0.0 );
+        if ( nrm.find_root( CfOut, ksfun, ksfunprm, 0.0 ) != eli::mutil::nls::newton_raphson_method < double >::converged )
+        {
+            CfOut = CfGuess;
+        }
         break;
 
     case vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_WHITE:
