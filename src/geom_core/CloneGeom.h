@@ -91,6 +91,8 @@ public:
     static void CopyAttachParms( Geom* from, Geom* to );
     static void CopyMassPropParms( Geom* from, Geom* to );
     static void CopyParasiteDragParms( Geom* from, Geom* to );
+    static void CopyEndCapParms( Geom* from, Geom* to );
+    static void CopyTessParms( Geom* from, Geom* to );
     static void CopyNegativeVolumeParm( Geom* from, Geom* to );
     static void CopySetFlags( Geom* from, Geom* to );
     static void CopyAppearance( Geom* from, Geom* to );
@@ -355,6 +357,7 @@ protected:
 
     // Copies negative volume and mass properties alongside the surfaces.
     virtual void UpdateCopySurfParms() override;
+    virtual void UpdateCopyTessParms() override;
 
     // While negative volume is copied, the copied surfaces already carry their CFD types.
     virtual void UpdateFlags() override;

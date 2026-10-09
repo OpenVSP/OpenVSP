@@ -512,6 +512,29 @@ if __name__ == "__main__":
             fn()
 
 
+def testCloneTakesItsOriginalsEndCapsAndTessellation():
+    """The surface is always copied, so the end cap and tessellation settings that build it are too."""
+    vsp.VSPRenew()
+    drop_errors()
+    wing = vsp.AddGeom( "WING" )
+    vsp.Update()
+    clone = vsp.CloneGeomVec( [ wing ] )[0]
+    vsp.Update()
+
+    names = ( ( "CapUMinOption", "EndCap" ), ( "CapUMaxOption", "EndCap" ), ( "CapUMinTess", "EndCap" ),
+              ( "Tess_U", "Shape" ), ( "Tess_W", "Shape" ) )
+    for name, group in names:
+        assert vsp.GetParmVal( clone, name, group ) == vsp.GetParmVal( wing, name, group ), name
+
+    vsp.SetParmVal( wing, "CapUMinOption", "EndCap", vsp.ROUND_END_CAP )
+    vsp.SetParmVal( wing, "CapUMinLength", "EndCap", 2.0 )
+    vsp.SetParmVal( wing, "Tess_W", "Shape", 21 )
+    vsp.Update()
+    for name, group in names + ( ( "CapUMinLength", "EndCap" ), ):
+        assert vsp.GetParmVal( clone, name, group ) == vsp.GetParmVal( wing, name, group ), name
+    assert_no_errors()
+
+
 def testACloneReferenceWingHasItsOwnSymmetryInVSPAERO():
     """VSPAERO took a Clone reference wing's area and span from its original, symmetric or not."""
     for clone_sym in ( True, False ):

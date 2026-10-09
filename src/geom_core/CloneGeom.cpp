@@ -67,9 +67,16 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_JointRotate.Init( "JointRotate", "Hinge", this, 0.0, -360.0, 360.0 );
     m_JointRotate.SetDescript( "Joint rotation, when the original is a hinge" );
 
-    // Tessellation comes from the original.
+    // Tessellation and end caps come from the original, as the surface does.
     m_TessU.Deactivate();
     m_TessW.Deactivate();
+    vector < Parm* > cap_parms = { &m_CapUMinOption, &m_CapUMinLength, &m_CapUMinOffset, &m_CapUMinStrength,
+                                   &m_CapUMinSweepFlag, &m_CapUMinTess, &m_CapUMaxOption, &m_CapUMaxLength,
+                                   &m_CapUMaxOffset, &m_CapUMaxStrength, &m_CapUMaxSweepFlag };
+    for ( size_t i = 0; i < cap_parms.size(); i++ )
+    {
+        cap_parms[i]->Deactivate();
+    }
 
     // Keep the base class's empty surface: AddSubSurf needs one, and a file is read before the
     // first update.
@@ -377,6 +384,7 @@ void CloneGeom::ReleaseOriginal()
     m_AppearanceDirty = true;
     m_NameDirty = true;
     m_SubSurfDirty = true;
+    m_TessDirty = true;
 }
 
 string CloneGeom::GetOriginalLostMessage() const
@@ -456,6 +464,7 @@ void CloneGeom::ResolveOriginal()
         m_AppearanceDirty = true;
         m_NameDirty = true;
         m_SubSurfDirty = true;
+        m_TessDirty = true;
     }
 }
 
@@ -720,6 +729,27 @@ void CloneGeom::CopyParasiteDragParms( Geom* from, Geom* to )
     to->m_TawTwRatio.Set( from->m_TawTwRatio() );
 }
 
+void CloneGeom::CopyEndCapParms( Geom* from, Geom* to )
+{
+    to->m_CapUMinOption.Set( from->m_CapUMinOption() );
+    to->m_CapUMinLength.Set( from->m_CapUMinLength() );
+    to->m_CapUMinOffset.Set( from->m_CapUMinOffset() );
+    to->m_CapUMinStrength.Set( from->m_CapUMinStrength() );
+    to->m_CapUMinSweepFlag.Set( from->m_CapUMinSweepFlag() );
+    to->m_CapUMinTess.Set( from->m_CapUMinTess() );
+    to->m_CapUMaxOption.Set( from->m_CapUMaxOption() );
+    to->m_CapUMaxLength.Set( from->m_CapUMaxLength() );
+    to->m_CapUMaxOffset.Set( from->m_CapUMaxOffset() );
+    to->m_CapUMaxStrength.Set( from->m_CapUMaxStrength() );
+    to->m_CapUMaxSweepFlag.Set( from->m_CapUMaxSweepFlag() );
+}
+
+void CloneGeom::CopyTessParms( Geom* from, Geom* to )
+{
+    to->m_TessU.Set( from->m_TessU() );
+    to->m_TessW.Set( from->m_TessW() );
+}
+
 void CloneGeom::CopyNegativeVolumeParm( Geom* from, Geom* to )
 {
     to->m_NegativeVolumeFlag.Set( from->m_NegativeVolumeFlag() );
@@ -940,6 +970,9 @@ void CloneGeom::UpdateCopySurfParms()
         return;
     }
 
+    // The end caps are part of the copied surface, so the options never differ from it
+    CopyEndCapParms( original_geom, this );
+
     if ( m_CloneNegativeVolume() )
     {
         CopyNegativeVolumeParm( original_geom, this );
@@ -1002,6 +1035,16 @@ void CloneGeom::UpdateCopySurfParms()
         {
             drag_parms[i]->Activate();
         }
+    }
+}
+
+// The tessellation shown is the original's, so its settings are too
+void CloneGeom::UpdateCopyTessParms()
+{
+    Geom* original_geom = GetOriginalGeom();
+    if ( original_geom )
+    {
+        CopyTessParms( original_geom, this );
     }
 }
 
@@ -1368,6 +1411,7 @@ bool CloneGeom::SetOriginalID( const string &id )
     m_AppearanceDirty = true;
     m_NameDirty = true;
     m_SubSurfDirty = true;
+    m_TessDirty = true;
 
     Update();
 
