@@ -1550,7 +1550,7 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
     m_MainTableLabelsLayout.AddButton( m_PercLamLabel, "% Lam" );
     m_PercLamLabel.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PercLamLabel.GetFlButton()->labelcolor( FL_BLACK );
-    m_PercLamLabel.GetFlButton()->copy_tooltip( "Percentage of Flow that is Turbulent \n Values should be input from 0 - 100" );
+    m_PercLamLabel.GetFlButton()->copy_tooltip( "Percentage of Flow that is Laminar \n Values should be input from 0 - 100" );
 
     m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH );
     m_MainTableLabelsLayout.AddButton( m_CfLabel, "C_f (1e-3)" );
