@@ -234,3 +234,24 @@ def testExcrescencesSurviveAFile():
     fresh()
     vsp.ReadVSPFile( fname )
     assert excres_inputs() == want
+
+
+def testThePressureUnitIsSaved():
+    """The unit was not a registered Parm, so a file kept the pressure but not its unit."""
+    fresh()
+    vsp.AddGeom( "WING" )
+    vsp.Update()
+    cid = vsp.FindContainer( "ParasiteDragSettings", 0 )
+    unit = vsp.FindParm( cid, "PresUnit", "ParasiteDrag" )
+    assert unit, "no PresUnit Parm"
+    vsp.SetParmVal( cid, "FreestreamType", "ParasiteDrag", vsp.ATMOS_TYPE_MANUAL_P_T )
+    vsp.SetParmVal( unit, vsp.PRES_UNIT_PA )
+    vsp.SetParmVal( cid, "Pres", "ParasiteDrag", 90000.0 )
+    vsp.Update()
+    fname = os.path.join( tempfile.mkdtemp(), "pres.vsp3" )
+    vsp.WriteVSPFile( fname )
+    fresh()
+    vsp.ReadVSPFile( fname )
+    cid = vsp.FindContainer( "ParasiteDragSettings", 0 )
+    assert vsp.GetParmVal( vsp.FindParm( cid, "PresUnit", "ParasiteDrag" ) ) == vsp.PRES_UNIT_PA
+    assert vsp.GetParmVal( cid, "Pres", "ParasiteDrag" ) == 90000.0

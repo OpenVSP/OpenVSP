@@ -60,6 +60,9 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_TempUnit.Init( "TempUnit", groupname, this, vsp::TEMP_UNIT_F, vsp::TEMP_UNIT_K, vsp::TEMP_UNIT_R );
     m_TempUnit.SetDescript( "Temperature Units" );
 
+    m_PresUnit.Init( "PresUnit", groupname, this, vsp::PRES_UNIT_PSF, vsp::PRES_UNIT_PSF, vsp::PRES_UNIT_ATM );
+    m_PresUnit.SetDescript( "Pressure Units" );
+
     // Air Qualities Parms
     m_FreestreamType.Init( "FreestreamType", groupname, this, vsp::ATMOS_TYPE_US_STANDARD_1976,
                            vsp::ATMOS_TYPE_US_STANDARD_1976, vsp::ATMOS_TYPE_MANUAL_RE_L );
