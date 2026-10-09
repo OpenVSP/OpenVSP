@@ -124,3 +124,36 @@ def testAHumanWithManySurfaces():
     vsp.SetGeomName( w, "TheWing" )
     place( w, 50.0 )
     assert_same( build_up(), want, [ "TheWing" ] )
+
+
+def a_prop_with_a_subsurface():
+    p = vsp.AddGeom( "PROP" )
+    vsp.Update()
+    vsp.AddSubSurf( p, vsp.SS_RECTANGLE, 0 )
+    return p
+
+
+def testAMultiBladePropWithASubsurface():
+    """The row count took one row per symmetry copy for each subsurface, the rows made one per
+    surface: the Geoms after a three-blade Prop lost their rows."""
+    want = alone( a_pod )
+    fresh()
+    a_prop_with_a_subsurface()
+    pod = vsp.AddGeom( "POD" )
+    vsp.SetGeomName( pod, "ThePod" )
+    place( pod, 20.0 )
+    got = build_up()
+    assert_same( got, want, [ "ThePod" ] )
+    assert abs( got["ThePod"]["Comp_Swet"] - want["ThePod"]["Comp_Swet"] ) < 1e-6 * want["ThePod"]["Comp_Swet"]
+
+
+def testACloneOfAPropWithASubsurface():
+    want = alone( a_pod )
+    fresh()
+    p = a_prop_with_a_subsurface()
+    vsp.Update()
+    vsp.CloneGeomVec( [ p ] )
+    pod = vsp.AddGeom( "POD" )
+    vsp.SetGeomName( pod, "ThePod" )
+    place( pod, 20.0 )
+    assert_same( build_up(), want, [ "ThePod" ] )

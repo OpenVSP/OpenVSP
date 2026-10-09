@@ -88,6 +88,7 @@ public:
     // Calculation Methods
     void SetupFullCalculation();
     int CalcRowSize();
+    static int CalcGeomRowSize( Geom* geom );
     void Calculate_Swet();
     void Calculate_Lref();
     double CalcReferenceLength( int index );

@@ -503,25 +503,30 @@ int ParasiteDragMgrSingleton::CalcRowSize()
         Geom* geom = veh->FindGeom( m_PDGeomIDVec[i] );
         if ( geom )
         {
-            m_RowSize += geom->GetNumTotalSurfs() + 1; // +1 for Master Geom Row that keeps track of totals
-
-            // Add Row / SubSurface
-            for ( size_t j = 0; j < geom->GetSubSurfVec().size(); ++j )
-            {
-                for ( size_t k = 0; k < geom->GetNumSymmCopies(); ++k )
-                {
-                    ++m_RowSize;
-                }
-
-                // Subsurfaces are essentially separate geometries and as such get their own master row
-                if ( geom->GetSubSurfVec()[j]->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
-                {
-                    ++m_RowSize;
-                }
-            }
+            m_RowSize += CalcGeomRowSize( geom ) + 1; // +1 for Master Geom Row that keeps track of totals
         }
     }
     return m_RowSize;
+}
+
+// Rows LoadMainTableUserInputs makes for a Geom, less its master row
+int ParasiteDragMgrSingleton::CalcGeomRowSize( Geom* geom )
+{
+    int nsurf = geom->GetNumTotalSurfs();
+    int nrow = nsurf;
+
+    // One row per surface for each subsurface
+    for ( size_t j = 0; j < geom->GetSubSurfVec().size(); ++j )
+    {
+        nrow += nsurf;
+
+        // Subsurfaces are essentially separate geometries and as such get their own master row
+        if ( geom->GetSubSurfVec()[j]->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
+        {
+            ++nrow;
+        }
+    }
+    return nrow;
 }
 
 void ParasiteDragMgrSingleton::Calculate_Swet()
@@ -1111,6 +1116,9 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     ClearOutputVectors();
     ClearInputVectors();
     LoadMainTableUserInputs(); // Load User Input Values
+
+    // Every per-row vector is sized from these
+    m_RowSize = m_geo_masterRow.size();
 
     // Calculate All Necessary Values
     Calculate_Swet();
@@ -3679,20 +3687,7 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
         Geom* geom = veh->FindGeom( newVecToCompare[i] );
         if ( geom )
         {
-            temprowsize += geom->GetNumTotalSurfs();
-            for ( size_t j = 0; j < geom->GetSubSurfVec().size(); ++j )
-            {
-                for ( size_t k = 0; k < geom->GetNumSymmCopies(); ++k )
-                {
-                    ++temprowsize;
-                }
-
-                // Subsurfaces are essentially separate geometries and as such get their own master row
-                if ( geom->GetSubSurfVec()[j]->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
-                {
-                    ++temprowsize;
-                }
-            }
+            temprowsize += CalcGeomRowSize( geom );
         }
     }
 
