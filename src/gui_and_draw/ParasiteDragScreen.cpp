@@ -1297,222 +1297,176 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
     // Clause for Updating Table Values on FF Choice Switch ( Must go last )
     else if ( !m_ffType.empty() )
     {
-        // Setting FF Eqn Choice for Selected Row
-        for ( int i = 0; i < m_ffType.size(); i++ )
+        if ( device->GetType() != vsp::GDEV_CHOICE && device->GetType() != vsp::GDEV_TRIGGER_BUTTON &&
+             device->GetType() != vsp::GDEV_STRING_INPUT )
         {
-            if ( device->GetType() == vsp::GDEV_CHOICE || device->GetType() == vsp::GDEV_TRIGGER_BUTTON ||
-                    device->GetType() == vsp::GDEV_STRING_INPUT )
-            {
-                break;
-            }
-            else
-            {
-                return;
-            }
+            return;
         }
 
         vector < ParasiteDragTableRow > rowVec = ParasiteDragMgr.GetMainTableVec();
-        for ( size_t i = 0; i < rowVec.size(); ++i )
+        for ( size_t i = 0; i < rowVec.size() && i < m_ffType.size(); ++i )
         {
+            if ( device != &m_ffType[i] && device != &m_grouped[i] && device != &m_labels[i] &&
+                 device != &m_subsurfinclude[i] && device != &m_ffIn[i] && device != &m_percLam[i] &&
+                 device != &m_Q[i] && device != &m_TawTwRatio[i] && device != &m_TeTwRatio[i] &&
+                 device != &m_Roughness[i] )
+            {
+                continue;
+            }
+
+            // The row's Geom or subsurface may be gone since the table was built
+            Geom* geom = vptr->FindGeom( rowVec[i].GeomID );
+            if ( !geom )
+            {
+                break;
+            }
+            SubSurface* ssurf = nullptr;
+            if ( rowVec[i].SubSurfID.compare( "" ) != 0 )
+            {
+                ssurf = geom->GetSubSurf( rowVec[i].SubSurfID );
+                if ( !ssurf )
+                {
+                    break;
+                }
+            }
+
             if ( device == &m_ffType[i] )
             {
-                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                if ( rowVec[i].GeomShapeType == vsp::NORMAL_SURF )
                 {
-                    if ( rowVec[i].GeomShapeType == vsp::NORMAL_SURF )
+                    if ( ssurf )
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->m_FFBodyEqnType.Set( m_ffType[i].GetVal() );
+                        ssurf->m_FFBodyEqnType.Set( m_ffType[i].GetVal() );
                     }
-                    else if ( rowVec[i].GeomShapeType == vsp::WING_SURF )
+                    else
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->m_FFWingEqnType.Set( m_ffType[i].GetVal() );
+                        geom->m_FFBodyEqnType.Set( m_ffType[i].GetVal() );
                     }
                 }
-                else
+                else if ( rowVec[i].GeomShapeType == vsp::WING_SURF )
                 {
-                    if ( rowVec[i].GeomShapeType == vsp::NORMAL_SURF )
+                    if ( ssurf )
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_FFBodyEqnType.Set( m_ffType[i].GetVal() );
+                        ssurf->m_FFWingEqnType.Set( m_ffType[i].GetVal() );
                     }
-                    else if ( rowVec[i].GeomShapeType == vsp::WING_SURF )
+                    else
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_FFWingEqnType.Set( m_ffType[i].GetVal() );
+                        geom->m_FFWingEqnType.Set( m_ffType[i].GetVal() );
                     }
                 }
             }
-            if ( device == &m_grouped[i] )
+            else if ( device == &m_grouped[i] )
             {
-                vptr->FindGeom( rowVec[i].GeomID )->m_GroupedAncestorGen.Set( m_grouped[i].GetVal() ); // Zero Value is SELF
+                geom->m_GroupedAncestorGen.Set( m_grouped[i].GetVal() ); // Zero Value is SELF
             }
-            if ( device == &m_labels[i] )
+            else if ( device == &m_labels[i] )
             {
-                bool expandflag = vptr->FindGeom( rowVec[i].GeomID )->m_ExpandedListFlag();
-                vptr->FindGeom( rowVec[i].GeomID )->m_ExpandedListFlag.Set( !expandflag );
+                geom->m_ExpandedListFlag.Set( !geom->m_ExpandedListFlag() );
             }
-            if ( device == &m_subsurfinclude[i] )
+            else if ( device == &m_subsurfinclude[i] )
             {
-                if ( m_subsurfinclude[i].GetVal() == vsp::SS_INC_SEPARATE_TREATMENT && ParasiteDragMgr.IsCaclualted() )
+                if ( ssurf )
                 {
-                    vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType.Set( m_subsurfinclude[i].GetVal() );
-                    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
-                    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
-                    ParasiteDragMgr.RefreshBaseDataVectors();
-                    RebuildBuildUpTable();
-                    ParasiteDragMgr.RenewDegenGeomVec();
+                    // Separate treatment adds or removes a row, so the table and geometry are rebuilt
+                    int newinc = m_subsurfinclude[i].GetVal();
+                    bool rebuild = ( newinc == vsp::SS_INC_SEPARATE_TREATMENT ||
+                                     ssurf->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT ) &&
+                                   ParasiteDragMgr.IsCaclualted();
+
+                    ssurf->m_IncludeType.Set( newinc );
+
+                    if ( rebuild )
+                    {
+                        m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
+                        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+                        ParasiteDragMgr.RefreshBaseDataVectors();
+                        RebuildBuildUpTable();
+                        ParasiteDragMgr.RenewDegenGeomVec();
+                    }
+                }
+            }
+            else
+            {
+                double val;
+                try
+                {
+                    val = stod( static_cast < StringInput* > ( device )->GetString() );
+                }
+                catch ( const std::exception& )
+                {
+                    break;
                 }
 
-                if ( vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT &&
-                        ParasiteDragMgr.IsCaclualted() )
+                if ( device == &m_ffIn[i] )
                 {
-                    vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_IncludeType.Set( m_subsurfinclude[i].GetVal() );
-                    m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
-                    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
-                    ParasiteDragMgr.RefreshBaseDataVectors();
-                    RebuildBuildUpTable();
-                    ParasiteDragMgr.RenewDegenGeomVec();
-                }
-                else
-                {
-                    vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType.Set(m_subsurfinclude[i].GetVal());
-                }
-            }
-            if ( device == &m_ffIn[i] )
-            {
-                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
-                {
-                    try
+                    if ( ssurf )
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->m_FFUser.Set( stod( m_ffIn[i].GetString() ) );
+                        ssurf->m_FFUser.Set( val );
                     }
-                    catch ( const std::exception& )
+                    else
                     {
+                        geom->m_FFUser.Set( val );
                     }
                 }
-                else
+                else if ( device == &m_percLam[i] )
                 {
-                    try
+                    if ( ssurf )
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_FFUser.Set( stod( m_ffIn[i].GetString() ) );
+                        ssurf->m_PercLam.Set( val );
                     }
-                    catch ( const std::exception& )
+                    else
                     {
+                        geom->m_PercLam.Set( val );
                     }
                 }
-            }
-            if ( device == &m_percLam[i] )
-            {
-                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                else if ( device == &m_Q[i] )
                 {
-                    try
+                    if ( ssurf )
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->m_PercLam.Set( stod( m_percLam[i].GetString() ) );
+                        ssurf->m_Q.Set( val );
                     }
-                    catch ( const std::exception& )
+                    else
                     {
+                        geom->m_Q.Set( val );
                     }
                 }
-                else
+                else if ( device == &m_TawTwRatio[i] )
                 {
-                    try
+                    if ( ssurf )
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_PercLam.Set( stod( m_percLam[i].GetString() ) );
+                        ssurf->m_TawTwRatio.Set( val );
                     }
-                    catch ( const std::exception& )
+                    else
                     {
+                        geom->m_TawTwRatio.Set( val );
                     }
                 }
-            }
-            if ( device == &m_Q[i] )
-            {
-                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                else if ( device == &m_TeTwRatio[i] )
                 {
-                    try
+                    if ( ssurf )
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->m_Q.Set( stod( m_Q[i].GetString() ) );
+                        ssurf->m_TeTwRatio.Set( val );
                     }
-                    catch ( const std::exception& )
+                    else
                     {
+                        geom->m_TeTwRatio.Set( val );
                     }
                 }
-                else
+                else if ( device == &m_Roughness[i] )
                 {
-                    try
+                    if ( ssurf )
                     {
-                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_Q.Set( stod( m_Q[i].GetString() ) );
+                        ssurf->m_Roughness.Set( val );
                     }
-                    catch ( const std::exception& )
+                    else
                     {
+                        geom->m_Roughness.Set( val );
                     }
                 }
             }
-            if ( device == &m_TawTwRatio[i] )
-            {
-                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
-                {
-                    try
-                    {
-                        vptr->FindGeom( rowVec[i].GeomID )->m_TawTwRatio.Set( stod( m_TawTwRatio[i].GetString() ) );
-                    }
-                    catch ( const std::exception& )
-                    {
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_TawTwRatio.Set( stod( m_TawTwRatio[i].GetString() ) );
-                    }
-                    catch ( const std::exception& )
-                    {
-                    }
-                }
-            }
-            if ( device == &m_TeTwRatio[i] )
-            {
-                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
-                {
-                    try
-                    {
-                        vptr->FindGeom( rowVec[i].GeomID )->m_TeTwRatio.Set( stod( m_TeTwRatio[i].GetString() ) );
-                    }
-                    catch ( const std::exception& )
-                    {
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_TeTwRatio.Set( stod( m_TeTwRatio[i].GetString() ) );
-                    }
-                    catch ( const std::exception& )
-                    {
-                    }
-                }
-            }
-            if ( device == &m_Roughness[i] )
-            {
-                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
-                {
-                    try
-                    {
-                        vptr->FindGeom( rowVec[i].GeomID )->m_Roughness.Set( stod( m_Roughness[i].GetString() ) );
-                    }
-                    catch ( const std::exception& )
-                    {
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_Roughness.Set( stod( m_Roughness[i].GetString() ) );
-                    }
-                    catch ( const std::exception& )
-                    {
-                    }
-                }
-            }
+
+            // The table may have been rebuilt; the device vectors are not this row's any more
+            break;
         }
     }
     else
