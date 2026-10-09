@@ -260,6 +260,8 @@ public:
     void RefreshBaseDataVectors();
     void RenewDegenGeomVec();
     void SetDegenGeomVec( const vector < DegenGeom > & degen_vec );
+    void ComputeWetAreas( int set );
+    double FindWetArea( const string & tag );
     bool HasSameNames();
     bool IsCaclualted();
 
@@ -332,7 +334,7 @@ private:
     vector <string> m_PDGeomIDVec;
     vector <DegenGeom> m_DegenGeomVec;
     map < string, int > m_DegenIndexMap; // Geom ID to its first non-disk DegenGeom
-    Results* m_CompGeomResults;
+    map < string, double > m_TagWetAreaMap; // CompGeom wetted area by tag, copied when computed
 
     // Miscellaneous Variables
     int m_ReynoldsPowerDivisor; // Used to create a fluid reynolds number display

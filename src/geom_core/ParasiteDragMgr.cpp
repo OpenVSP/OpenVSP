@@ -32,7 +32,6 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_RefGeomID = "";
     m_ModeID = "";
     m_CurrentExcresIndex = -1;
-    m_CompGeomResults = nullptr;
 
     // ==== Parm Initialize and Description Setting ==== //
     // Reference Qualities Parms
@@ -152,7 +151,7 @@ void ParasiteDragMgrSingleton::Renew()
     m_ExcresRowVec.clear();
 
     SetDegenGeomVec( vector < DegenGeom > () );
-    m_CompGeomResults = nullptr;
+    m_TagWetAreaMap.clear();
 
     SetDefaultStruct();
 
@@ -441,7 +440,7 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
         }
     }
 
-    if ( veh && (m_RecomputeGeom || (m_DegenGeomVec.size() == 0 && !m_CompGeomResults)))
+    if ( veh && ( m_RecomputeGeom || m_DegenGeomVec.empty() ) )
     {
         veh->ClearDegenGeom();
 
@@ -452,8 +451,7 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
 
         // Don't pass mode parameters here as they've already been applied to 'set'.
         veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
-        string meshID = veh->CompGeomAndFlatten( set, 0 );
-        veh->DeleteGeomVec( { meshID } );
+        ComputeWetAreas( set );
 
         // Restore set visibility. At this point, all geoms in the set will only be in the 
         //  Not_Shown set. We want the Parasite Drag table to contain the same geoms before 
@@ -483,10 +481,59 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
         SetDegenGeomVec( veh->GetDegenGeomVec() );
-
-        // First Assignment of CompGeon, Will Carry Through to Rest of Calculate_X
-        m_CompGeomResults = ResultsMgr.FindResultsPtr( ResultsMgr.FindLatestResultsID( "Comp_Geom" ) );
     }
+}
+
+// Runs CompGeom on the set and keeps a copy of its wetted area by tag
+void ParasiteDragMgrSingleton::ComputeWetAreas( int set )
+{
+    m_TagWetAreaMap.clear();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    string before_id = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
+    string meshID = veh->CompGeomAndFlatten( set, 0 );
+    veh->DeleteGeomVec( { meshID } );
+
+    // An empty CompGeom makes no results; an older one is not this model's
+    string res_id = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
+    if ( res_id == before_id )
+    {
+        return;
+    }
+
+    Results* res = ResultsMgr.FindResultsPtr( res_id );
+    if ( !res )
+    {
+        return;
+    }
+
+    NameValData* tag_nvd = res->FindPtr( "Tag_ID" );
+    NameValData* area_nvd = res->FindPtr( "Tag_Wet_Area" );
+    if ( !tag_nvd || !area_nvd )
+    {
+        return;
+    }
+
+    vector < string > tagvec = tag_nvd->GetStringData();
+    for ( int i = 0; i < ( int )tagvec.size(); i++ )
+    {
+        m_TagWetAreaMap[ tagvec[i] ] = area_nvd->GetDouble( i );
+    }
+}
+
+double ParasiteDragMgrSingleton::FindWetArea( const string & tag )
+{
+    map < string, double >::const_iterator it = m_TagWetAreaMap.find( tag );
+    if ( it == m_TagWetAreaMap.end() )
+    {
+        return 0;
+    }
+    return it->second;
 }
 
 int ParasiteDragMgrSingleton::CalcRowSize()
@@ -533,64 +580,34 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     char str[256];
-    string newstr;
-    int searchIndex;
 
     if ( !veh )
     {
         return;
     }
 
-    int iSurf = 0;
     for ( int i = 0; i < m_RowSize; ++i )
     {
         if ( !m_DegenGeomVec.empty() )
         {
             Geom* geom = veh->FindGeom( m_geo_geomID[i] );
-            if (geom)
+            if ( geom && !m_geo_masterRow[i] )
             {
                 // If DegenGeom Exists Pull Swet
-                if ( !m_geo_masterRow[i] )
+                if ( m_geo_subsurfID[i].compare( "" ) == 0 )
                 {
-                    NameValData * nvd = m_CompGeomResults->FindPtr( "Tag_ID" );
-                    vector < string > tagidvec;
-                    if ( nvd )
-                    {
-                        tagidvec = nvd->GetStringData();
-                    }
-                    if ( m_geo_subsurfID[i].compare( "" ) == 0 )
-                    {
-                        snprintf( str, sizeof( str ),  "%s_Surf%i", geom->GetID().c_str(), m_geo_surfNum[i] );
-                        newstr = str;
-                        searchIndex = vector_find_val( tagidvec, newstr );
-                        nvd = m_CompGeomResults->FindPtr( "Tag_Wet_Area" );
-                        if ( nvd )
-                        {
-                            m_geo_swet.push_back( nvd->GetDouble( searchIndex ) );
-                        }
-                        ++iSurf;
-                    }
-                    else
-                    {
-                        snprintf( str, sizeof( str ),  "%s_Surf%i,%s", geom->GetID().c_str(), m_geo_surfNum[i],
-                             m_geo_subsurfID[i].c_str() );
-                        newstr = str;
-                        searchIndex = vector_find_val( tagidvec, newstr );
-                        nvd = m_CompGeomResults->FindPtr( "Tag_Wet_Area" );
-                        if ( nvd )
-                        {
-                            m_geo_swet.push_back( nvd->GetDouble( searchIndex ) );
-                        }
-                    }
+                    snprintf( str, sizeof( str ),  "%s_Surf%i", geom->GetID().c_str(), m_geo_surfNum[i] );
                 }
                 else
                 {
-                    m_geo_swet.push_back( 0.0 ); // Master Geom Swet is 0 until updated by UpdateWettedAreaTotals()
+                    snprintf( str, sizeof( str ),  "%s_Surf%i,%s", geom->GetID().c_str(), m_geo_surfNum[i],
+                         m_geo_subsurfID[i].c_str() );
                 }
+                m_geo_swet.push_back( FindWetArea( str ) );
             }
             else
             {
-                m_geo_swet.push_back( 0.0 );
+                m_geo_swet.push_back( 0.0 ); // Master Geom Swet is 0 until updated by UpdateWettedAreaTotals()
             }
         }
         else
@@ -3790,6 +3807,7 @@ void ParasiteDragMgrSingleton::RefreshBaseDataVectors()
         // Reset Geo Vecs & Clear Degen Geom
         veh->ClearDegenGeom();
         SetDegenGeomVec( vector < DegenGeom > () );
+        m_TagWetAreaMap.clear();
 
         ClearInputVectors();
         ClearOutputVectors();
@@ -3819,8 +3837,7 @@ void ParasiteDragMgrSingleton::RenewDegenGeomVec()
     {
         // Don't pass mode parameters here as they've already been applied to 'set'.
         veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
-        string meshID = veh->CompGeomAndFlatten( set, 0);
-        veh->DeleteGeomVec( { meshID } );
+        ComputeWetAreas( set );
         veh->ShowOnlySet( set );
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X

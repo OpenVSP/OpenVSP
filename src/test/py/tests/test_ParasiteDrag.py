@@ -157,3 +157,34 @@ def testACloneOfAPropWithASubsurface():
     vsp.SetGeomName( pod, "ThePod" )
     place( pod, 20.0 )
     assert_same( build_up(), want, [ "ThePod" ] )
+
+
+def testAnAuxiliaryAlone():
+    """CompGeom makes no results for an Auxiliary alone; the wetted areas were read from them."""
+    fresh()
+    vsp.AddGeom( "AUXILIARY" )
+    build_up()
+
+
+def testDeletingTheResultsBeforeReusingTheGeometry():
+    """The wetted areas were read from the CompGeom results each time, so deleting the results
+    and then reusing the geometry read freed memory."""
+    want = alone( a_pod )
+    vsp.DeleteAllResults()
+    vsp.SetIntAnalysisInput( "ParasiteDrag", "RecomputeGeom", [ 0 ] )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    swet = vsp.GetDoubleResults( rid, "Comp_Swet" )
+    assert abs( swet[0] - want["ThePod"]["Comp_Swet"] ) < 1e-9 * want["ThePod"]["Comp_Swet"]
+
+
+def testAnOlderCompGeomIsNotUsed():
+    """A CompGeom that makes nothing must not pick up the last one that did."""
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    vsp.SetGeomName( w, "TheWing" )
+    vsp.Update()
+    assert build_up()["TheWing"]["Comp_Swet"] > 0.0
+    vsp.SetParmVal( w, "Span", "XSec_1", 0.0 )
+    vsp.Update()
+    swet = build_up()["TheWing"]["Comp_Swet"]
+    assert swet == 0.0, "a wing of no span has wetted area %g from the older CompGeom" % swet
