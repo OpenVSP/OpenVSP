@@ -554,6 +554,42 @@ def testDatcomFormFactorDoesNotDependOnTessellation():
     assert max( ffs ) - min( ffs ) < 2e-3, ffs
 
 
+def testWingThicknessDoesNotDependOnDihedral():
+    """The sampled t/c is measured off the tessellated section, which dihedral stretches by 1/cos."""
+    tocs = []
+    for dihedral in ( 0.0, 30.0, 60.0 ):
+        fresh()
+        w = vsp.AddGeom( "WING" )
+        vsp.SetParmVal( w, "Dihedral", "XSec_1", dihedral )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        tocs.append( vsp.GetDoubleResults( rid, "Comp_FineRat" )[0] )
+    assert max( tocs ) - min( tocs ) < 1e-6, tocs
+    assert abs( tocs[0] - 0.1 ) < 1e-3, tocs
+
+
+def testWingThicknessIsTheAreaWeightedMean():
+    """The span maximum was used: a prop's elliptical root section made its blade t/c 0.5."""
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    for name, val in ( ( "Root_Chord", 4.0 ), ( "Tip_Chord", 2.0 ), ( "Span", 10.0 ), ( "Sweep", 0.0 ) ):
+        vsp.SetParmVal( w, name, "XSec_1", val )
+    xs = vsp.GetXSecSurf( w, 0 )
+    for i, toc in ( ( 0, 0.18 ), ( 1, 0.08 ) ):
+        vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xs, i ), "ThickChord" ), toc )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+
+    # integral( c t/c ) / integral( c ) with c = 4 - 0.2 y and t/c = 0.18 - 0.01 y over y in [ 0, 10 ]
+    expect = ( 0.72 * 10.0 - ( 0.04 + 0.036 ) * 50.0 + 0.002 * 1000.0 / 3.0 ) / 30.0
+    toc = vsp.GetDoubleResults( rid, "Comp_FineRat" )[0]
+    assert abs( toc - expect ) < 1e-3, "t/c %g, expected %g" % ( toc, expect )
+
+
 def testTheSmoothFloorIsCorrectedForMachToo():
     """The smooth floor had no Mach factor, so at M 4 it overrode the corrected rough Cf for k up to 1e-3."""
     def cf( eq, k ):

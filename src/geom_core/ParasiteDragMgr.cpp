@@ -915,11 +915,38 @@ double ParasiteDragMgrSingleton::CalculateFinessRatioAndTOC( int isurf, int irow
     // Grab Degen Sticks for Appropriate Geom
     vector <DegenStick> degenSticks = m_DegenGeomVec[isurf].getDegenSticks();
 
-    if ( m_DegenGeomVec[isurf].getType() == DegenGeom::SURFACE_TYPE && !degenSticks[0].toc.empty() )
+    if ( m_DegenGeomVec[isurf].getType() == DegenGeom::SURFACE_TYPE && !degenSticks[0].toc2.empty() )
     {
-        // Wing Type
-        it = max_element( degenSticks[0].toc.begin(), degenSticks[0].toc.end() );
-        finerat = *it;
+        // Wing Type: planform area weighted t/c, found on the section curve where there is one,
+        // with t/c and chord linear across each strip
+        const DegenStick &stick = degenSticks[0];
+        double area_sum = 0;
+        double toc_sum = 0;
+        for ( size_t j = 0; j + 1 < stick.toc2.size() && j + 1 < stick.chord.size(); j++ )
+        {
+            vec3d dle = stick.xle[j + 1] - stick.xle[j];
+            vec3d cdir = ( stick.xte[j] - stick.xle[j] ) + ( stick.xte[j + 1] - stick.xle[j + 1] );
+            cdir.normalize();
+            double width = ( dle - cdir * dot( dle, cdir ) ).mag();
+
+            double c0 = stick.chord[j];
+            double c1 = stick.chord[j + 1];
+            double t0 = stick.toc2[j];
+            double t1 = stick.toc2[j + 1];
+
+            area_sum += width * 0.5 * ( c0 + c1 );
+            toc_sum += width * ( 2.0 * c0 * t0 + c0 * t1 + c1 * t0 + 2.0 * c1 * t1 ) / 6.0;
+        }
+
+        if ( area_sum > 0 )
+        {
+            finerat = toc_sum / area_sum;
+        }
+        else
+        {
+            it = max_element( stick.toc2.begin(), stick.toc2.end() );
+            finerat = *it;
+        }
     }
     else if ( m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE && !degenSticks[0].sectarea.empty() )
     {
