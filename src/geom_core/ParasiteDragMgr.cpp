@@ -3287,42 +3287,36 @@ void ParasiteDragMgrSingleton::UpdateExcres()
         if ( i == m_CurrentExcresIndex )
         {
             m_ExcresRowVec[i].Input = m_ExcresValue();
-
-            if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_CD )
-            {
-                m_ExcresRowVec[i].Amount = m_ExcresValue();
-            }
-            else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_COUNT )
-            {
-                m_ExcresRowVec[i].Amount = m_ExcresValue() / 10000.0;
-            }
-            else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_PERCENT_GEOM )
-            {
-                m_ExcresRowVec[i].Amount = CalcPercentageGeomCD( m_ExcresValue() );
-            }
-            else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_MARGIN )
-            {
-                m_ExcresRowVec[i].Amount = CalcPercentageTotalCD( m_ExcresValue() );
-            }
-            else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_DRAGAREA )
-            {
-                m_ExcresRowVec[i].Amount = CalcDragAreaCD( m_ExcresValue() );
-            }
         }
-        else
+
+        if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_CD )
         {
-            if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_PERCENT_GEOM )
-            {
-                m_ExcresRowVec[i].Amount = CalcPercentageGeomCD( m_ExcresRowVec[i].Input );
-            }
-            else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_MARGIN )
-            {
-                m_ExcresRowVec[i].Amount = CalcPercentageTotalCD( m_ExcresRowVec[i].Input );
-            }
-            else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_DRAGAREA )
-            {
-                m_ExcresRowVec[i].Amount = CalcDragAreaCD( m_ExcresRowVec[i].Input );
-            }
+            m_ExcresRowVec[i].Amount = m_ExcresRowVec[i].Input;
+        }
+        else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_COUNT )
+        {
+            m_ExcresRowVec[i].Amount = m_ExcresRowVec[i].Input / 10000.0;
+        }
+        else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_PERCENT_GEOM )
+        {
+            m_ExcresRowVec[i].Amount = CalcPercentageGeomCD( m_ExcresRowVec[i].Input );
+        }
+        else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_DRAGAREA )
+        {
+            m_ExcresRowVec[i].Amount = CalcDragAreaCD( m_ExcresRowVec[i].Input );
+        }
+        else if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_MARGIN )
+        {
+            m_ExcresRowVec[i].Amount = 0;
+        }
+    }
+
+    // The margin is a share of the total, so it follows every other excrescence
+    for ( size_t i = 0; i < m_ExcresRowVec.size(); ++i )
+    {
+        if ( m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_MARGIN )
+        {
+            m_ExcresRowVec[i].Amount = CalcPercentageTotalCD( m_ExcresRowVec[i].Input );
         }
     }
 
@@ -3361,7 +3355,8 @@ void ParasiteDragMgrSingleton::SetExcresValueLimits( int type )
     }
     else if ( type == vsp::EXCRESCENCE_MARGIN )
     {
-        m_ExcresValue.SetLowerUpperLimits( 0.0, 1000.0 );
+        // A share of the total, so below 100%
+        m_ExcresValue.SetLowerUpperLimits( 0.0, 99.0 );
     }
     else if ( type == vsp::EXCRESCENCE_DRAGAREA )
     {

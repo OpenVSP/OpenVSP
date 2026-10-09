@@ -726,6 +726,42 @@ def testAreaWhereSubsurfacesOverlapIsCountedOnce():
     assert abs( rows[ "PodGeom" ] - ( total - in_a ) ) < 1e-6, ( rows, total, in_a )
 
 
+def testTheMarginIsItsShareOfTheTotal():
+    """A margin ahead of a % of CD_Geom or drag area excrescence was taken before they were updated."""
+    for order in ( ( 0, 1, 2 ), ( 1, 2, 0 ) ):
+        fresh()
+        vsp.AddGeom( "POD" )
+        vsp.Update()
+        ex = ( ( "m", vsp.EXCRESCENCE_MARGIN, 5.0 ), ( "g", vsp.EXCRESCENCE_PERCENT_GEOM, 10.0 ),
+               ( "d", vsp.EXCRESCENCE_DRAGAREA, 0.2 ) )
+        for k in order:
+            vsp.AddExcrescence( *ex[k] )
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        labels = list( vsp.GetStringResults( rid, "Excres_Label" ) )
+        perc = vsp.GetDoubleResults( rid, "Excres_PercTotalCD" )
+        assert abs( perc[ labels.index( "m" ) ] - 0.05 ) < 1e-9, ( order, list( perc ) )
+        t = totals( rid )
+        sref = t[ "Total_f_Total" ] / t[ "Total_CD_Total" ]
+        excf = vsp.GetDoubleResults( rid, "Excres_f_Total" )[0]
+        excd = vsp.GetDoubleResults( rid, "Excres_CD_Total" )[0]
+        assert abs( excf - excd * sref ) < 1e-9, ( order, excf, excd * sref )
+
+
+def testAMarginCannotReachTheWholeTotal():
+    """A margin of 100% made the total infinite, above it negative."""
+    fresh()
+    vsp.AddGeom( "POD" )
+    vsp.Update()
+    vsp.AddExcrescence( "m", vsp.EXCRESCENCE_MARGIN, 150.0 )
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    total = vsp.GetDoubleResults( rid, "Total_CD_Total" )[0]
+    assert math.isfinite( total ) and total > 0, total
+
+
 def testWingReferenceLengthIsTheMeanAerodynamicChord():
     """The strips were weighted by their length along the leading edge, so a swept panel counted extra."""
     for sweep in ( 0.0, 60.0 ):
