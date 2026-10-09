@@ -3368,6 +3368,7 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
         // Decode label information.
         MeasureMgr.DecodeXml( vehicle_node );
 
+        vector< Geom* > add_geom_vec;
         int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
         for ( int i = 0 ; i < num ; i++ )
         {
@@ -3390,10 +3391,16 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
 
                     if ( geom->GetParentID().compare( "NONE" ) == 0 )
                     {
-                        AddGeom( geom );
+                        add_geom_vec.push_back( geom );
                     }
                 }
             }
+        }
+
+        // AddGeom can update Geoms, so it waits until every child in the file exists
+        for ( int i = 0 ; i < ( int )add_geom_vec.size() ; i++ )
+        {
+            AddGeom( add_geom_vec[i] );
         }
     }
 
