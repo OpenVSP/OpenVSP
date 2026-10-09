@@ -452,6 +452,15 @@ def testRoughnessFlowCorrectionUsesMachSquared():
     assert abs( ratio - expect ) < 1e-9, "ratio %g, expected %g" % ( ratio, expect )
 
 
+def testTheCfTableHasEveryEquationInUse():
+    """The table stopped at White-Christoph compressible, before the two roughness equations."""
+    fname = os.path.join( tempfile.mkdtemp(), "cf.csv" )
+    vsp.WriteCfEqnCSVFile( fname )
+    text = open( fname ).read()
+    for name in ( "Schlichting Avg Roughness", "Schlichting Avg Roughness w Flow Correction" ):
+        assert ( name + "," ) in text, name
+
+
 def testCfIsContinuousAsTheLaminarRunGrows():
     """Below Re_lam 1e3 the laminar run was dropped; above it, it added friction: a 2-3% step."""
     for eq in ( vsp.CF_TURB_SCHLICHTING_COMPRESSIBLE, vsp.CF_TURB_POWER_LAW_BLASIUS, vsp.CF_TURB_EXPLICIT_FIT_SPALDING ):

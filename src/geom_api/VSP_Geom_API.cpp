@@ -13133,7 +13133,7 @@ void WriteCfEqnCSVFile(const std::string & file_name)
     te_tw_ratio.push_back(1.0);
     ref_leng.push_back(1.0);
 
-    for (size_t cf_case = 0; cf_case <= vsp::DO_NOT_USE_CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE; ++cf_case )
+    for (size_t cf_case = 0; cf_case <= vsp::DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH; ++cf_case )
     {
         if ( !ParasiteDragMgr.IsTurbBlacklisted(cf_case ) ) {
             for ( size_t j = 0; j < ReyIn_array.size(); ++j )
