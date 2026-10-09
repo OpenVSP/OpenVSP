@@ -819,9 +819,6 @@ void ParasiteDragMgrSingleton::ReynoldsNumCalc( int index )
 
 void ParasiteDragMgrSingleton::Calculate_Cf()
 {
-    // Initialize Variables
-    double lref, rho, kineVisc, vinf;
-
     for ( int i = 0; i < m_RowSize; ++i )
     {
         if ( !m_DegenGeomVec.empty() )
@@ -830,11 +827,6 @@ void ParasiteDragMgrSingleton::Calculate_Cf()
             if ( m_geo_subsurfID[i].compare( "" ) == 0 ||
                     VehicleMgr.GetVehicle()->FindGeom( m_geo_geomID[i] )->GetSubSurf( m_geo_subsurfID[i] )->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
             {
-                vinf = ConvertVelocity( m_Vinf(), m_VinfUnitType.Get(), vsp::V_UNIT_M_S );
-                rho = ConvertDensity( m_Atmos.GetDensity(), m_AltLengthUnit(), vsp::RHO_UNIT_KG_M3 ); // lb/ft3 to kg/m3
-                lref = ConvertLength( m_geo_lref[i], m_LengthUnit(), vsp::LEN_M );
-                kineVisc = m_Atmos.GetDynaVisc() / rho;
-
                 // Will calculate full turbulence
                 m_geo_cf.push_back( CalcPartialTurbulence( m_geo_percLam[i], m_geo_Re[i], m_geo_lref[i], m_ReqL(),
                    m_geo_Roughness[i], m_geo_TawTwRatio[i], m_geo_TeTwRatio[i] ) );
@@ -865,7 +857,6 @@ double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double r
         // At low Re the turbulent fits fall below the laminar Cf, where they no longer hold
         double CffullTurb = max( CalcTurbCf( re, lref, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat ),
                                  CalcLamCf( re, m_LamCfEqnType() ) );
-        double CffullLam = CalcLamCf( re, m_LamCfEqnType.Get() ); // WARNING: Not used
 
         double LamPercRefLen = LamPerc * lref;
 
