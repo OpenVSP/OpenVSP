@@ -227,6 +227,8 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
     char str[256];
     string lastGeomID = "";
     string lastSSID = "";
+    int igeom = 0;
+    int issmaster = 0;
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( !veh )
@@ -242,6 +244,8 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
             if ( geom->GetID().compare( lastGeomID ) != 0 )
             {
                 // Create Master Geom Row
+                igeom = m_geo_masterRow.size();
+                m_geo_sourceRow.push_back( igeom );
                 m_geo_masterRow.push_back( true );
                 m_geo_name.push_back( geom->GetName() );
                 m_geo_groupedAncestorGen.push_back( geom->m_GroupedAncestorGen() );
@@ -296,6 +300,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     // Custom Geom Check: if surf type is the same, apply same qualities
                     if ( j > 0 && geom->GetSurfType(j) == geom->GetSurfType(j - 1) )
                     {
+                        m_geo_sourceRow.push_back( igeom );
                         m_geo_masterRow.push_back( false );
                         m_geo_name.push_back( geom->GetName() );
                         m_geo_groupedAncestorGen.push_back( geom->m_GroupedAncestorGen() );
@@ -328,6 +333,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                             snprintf( str, sizeof( str ),  "%s_%i", geom->GetName().c_str(), j );
                             m_geo_surfNum.push_back( 0 );
                         }
+                        m_geo_sourceRow.push_back( igeom );
                         m_geo_masterRow.push_back( false );
                         m_geo_name.push_back( geom->GetName() );
                         m_geo_groupedAncestorGen.push_back( geom->m_GroupedAncestorGen() );
@@ -365,6 +371,8 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     {
                         if ( surf->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT && lastSSID.compare( surf->GetID() ) != 0 )
                         {
+                            issmaster = m_geo_masterRow.size();
+                            m_geo_sourceRow.push_back( issmaster );
                             m_geo_masterRow.push_back( true );
                             m_geo_name.push_back( surf->GetName() );
                             m_geo_percLam.push_back( surf->m_PercLam() );
@@ -393,16 +401,27 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                         }
                         else
                         {
+                            // A Separate subsurface's surfaces follow its row, any other its Geom's
+                            int isrc = igeom;
+                            if ( surf->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
+                            {
+                                isrc = issmaster;
+                            }
+                            m_geo_sourceRow.push_back( isrc );
                             m_geo_masterRow.push_back( false );
                             m_geo_name.push_back( surf->GetName() );
-                            m_geo_percLam.push_back( m_geo_percLam[m_geo_percLam.size() - 1] );
-                            m_geo_ffIn.push_back( m_geo_ffIn[m_geo_ffIn.size() - 1] );
-                            m_geo_Q.push_back( m_geo_Q[m_geo_Q.size() - 1] );
-                            m_geo_Roughness.push_back( m_geo_Roughness[m_geo_Roughness.size() - 1] );
-                            m_geo_TeTwRatio.push_back( m_geo_TeTwRatio[m_geo_TeTwRatio.size() - 1] );
-                            m_geo_TawTwRatio.push_back( m_geo_TawTwRatio[m_geo_TawTwRatio.size() - 1] );
+                            m_geo_percLam.push_back( m_geo_percLam[isrc] );
+                            m_geo_ffIn.push_back( m_geo_ffIn[isrc] );
+                            m_geo_Q.push_back( m_geo_Q[isrc] );
+                            m_geo_Roughness.push_back( m_geo_Roughness[isrc] );
+                            m_geo_TeTwRatio.push_back( m_geo_TeTwRatio[isrc] );
+                            m_geo_TawTwRatio.push_back( m_geo_TawTwRatio[isrc] );
 
-                            if ( geom->GetSurfType(k) == vsp::NORMAL_SURF )
+                            if ( isrc == igeom )
+                            {
+                                m_geo_ffType.push_back( m_geo_ffType[igeom] );
+                            }
+                            else if ( geom->GetSurfType(k) == vsp::NORMAL_SURF )
                             {
                                 m_geo_ffType.push_back( surf->m_FFBodyEqnType() );
                             }
@@ -847,7 +866,7 @@ void ParasiteDragMgrSingleton::Calculate_Cf()
             }
             else
             {
-                m_geo_cf.push_back( m_geo_cf[m_geo_cf.size() - 1] );
+                m_geo_cf.push_back( m_geo_cf[ m_geo_sourceRow[i] ] );
             }
         }
         else
@@ -1003,12 +1022,12 @@ void ParasiteDragMgrSingleton::Calculate_FF()
         }
         else if ( !m_geo_ffOut.empty() )
         {
-            m_geo_ffOut.push_back( m_geo_ffOut.back() );
+            m_geo_ffOut.push_back( m_geo_ffOut[ m_geo_sourceRow[i] ] );
             if ( m_geo_ffType[i] == vsp::FF_W_JENKINSON_TAIL )
             {
                 m_geo_Q[i] = 1.2;
             }
-            m_geo_ffName.push_back( m_geo_ffName.back() );
+            m_geo_ffName.push_back( m_geo_ffName[ m_geo_sourceRow[i] ] );
         }
         else
         {
@@ -3403,6 +3422,7 @@ string ParasiteDragMgrSingleton::ExportToCSV( const string & file_name )
 void ParasiteDragMgrSingleton::ClearInputVectors()
 {
     m_geo_masterRow.clear();
+    m_geo_sourceRow.clear();
     m_geo_geomID.clear();
     m_geo_subsurfID.clear();
     m_geo_name.clear();

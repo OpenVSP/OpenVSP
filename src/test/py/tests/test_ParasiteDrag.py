@@ -585,6 +585,32 @@ def testTheGeometryTotalsAgree():
         assert abs( t[ "Total_Perc_Total" ] - 1.0 ) < 1e-12, ( build.__name__, t )
 
 
+def testASubsurfaceTreatedAsParentShowsItsParentsValues():
+    """Its row copied the row before it, which could be a Separate subsurface with its own Q and Cf."""
+    fresh()
+    p = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( p, "FFBodyEqnType", "ParasiteDragProps", vsp.FF_B_TORENBEEK )
+    vsp.Update()
+    for name, u, inc in ( ( "A", 0.25, vsp.SS_INC_SEPARATE_TREATMENT ), ( "B", 0.75, vsp.SS_INC_TREAT_AS_PARENT ) ):
+        s = vsp.AddSubSurf( p, vsp.SS_RECTANGLE, 0 )
+        vsp.SetSubSurfName( s, name )
+        vsp.SetParmVal( vsp.GetParm( s, "Center_U", "SS_Rectangle" ), u )
+        vsp.SetParmVal( vsp.GetParm( s, "IncludeFlag", "SubSurface" ), inc )
+        vsp.SetParmVal( vsp.GetParm( s, "Q", "ParasiteDragProps" ), 3.0 )
+        vsp.SetParmVal( vsp.GetParm( s, "PercLam", "ParasiteDragProps" ), 50.0 )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ 1 ] )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    labels = list( vsp.GetStringResults( rid, "Comp_Label" ) )
+    pod = labels.index( "PodGeom" )
+    b = labels.index( "[ss] B_0" )
+    for name in ( "Comp_Q", "Comp_Cf", "Comp_FFOut", "Comp_PercLam" ):
+        vals = vsp.GetDoubleResults( rid, name )
+        assert vals[ b ] == vals[ pod ], "%s: %g, parent %g" % ( name, vals[ b ], vals[ pod ] )
+
+
 def testWingReferenceLengthIsTheMeanAerodynamicChord():
     """The strips were weighted by their length along the leading edge, so a swept panel counted extra."""
     for sweep in ( 0.0, 60.0 ):

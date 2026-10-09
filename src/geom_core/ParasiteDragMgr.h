@@ -349,6 +349,7 @@ private:
 
     // Main Build Up Table Variables
     vector <bool> m_geo_masterRow;
+    vector <int> m_geo_sourceRow; // The master row whose properties a row uses
     vector <string> m_geo_geomID;
     vector <string> m_geo_subsurfID;
     vector <string> m_geo_name;
