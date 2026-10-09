@@ -38,6 +38,7 @@ public:
         TEST_ADD( UtilTestSuite::FormatWidthTest )
         TEST_ADD( UtilTestSuite::NumbersTest )
         TEST_ADD( UtilTestSuite::UnformattedFileTest )
+        TEST_ADD( UtilTestSuite::ViscosityConversionTest )
     }
 
 private:
@@ -53,6 +54,7 @@ private:
     void BilinearInterpTest();
     void FormatWidthTest();
     void NumbersTest();
+    void ViscosityConversionTest();
 
     static void WritePntVecs( const vector< vector< vec3d > > & pnt_vecs, const string &file_name );
     void WriteCurve( VspCurve& crv, const string &file_name );

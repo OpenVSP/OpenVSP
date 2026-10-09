@@ -479,10 +479,10 @@ double ConvertKineVisToM2_S( double kinevis, int cur_unit )
     switch ( cur_unit )
     {
     case vsp::PD_UNITS_IMPERIAL:
+        kinevis /= 10.7639; // ft2/s --> m2/s
         break;
 
     case vsp::PD_UNITS_METRIC:
-        kinevis /= 10.7639;
         break;
 
     }
@@ -520,10 +520,10 @@ double ConvertDynaVisToKG_M_S( double dynavis, int cur_unit )
     switch ( cur_unit )
     {
     case vsp::PD_UNITS_IMPERIAL:
+        dynavis *= 47.8803; // slug/ft-s --> kg/m-s
         break;
 
     case vsp::PD_UNITS_METRIC:
-        dynavis *= 47.8803; // slug/ft-s --> kg/m-s
         break;
     }
     return dynavis;
