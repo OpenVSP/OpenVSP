@@ -316,7 +316,7 @@ enum CF_TURB_EQN { CF_TURB_EXPLICIT_FIT_SPALDING = 0,	/*!< Explicit Fit of Spald
                    DO_NOT_USE_CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL,	/*!< Roughness Schlichting Local turbulent Cf equation (DO NOT USE) */
                    DO_NOT_USE_CF_TURB_ROUGHNESS_WHITE,	/*!< Roughness White turbulent Cf equation (DO NOT USE) */
                    CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION,	/*!< Roughness Schlichting Avg Compressible turbulent Cf equation. */
-                   CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH	/*!< Heat Transfer White-Christoph turbulent Cf equation. */
+                   DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH	/*!< Heat Transfer White-Christoph turbulent Cf equation (DO NOT USE) */
 };
 
 /*!

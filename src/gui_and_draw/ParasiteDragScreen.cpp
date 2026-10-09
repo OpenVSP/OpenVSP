@@ -270,8 +270,6 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_TurbCfEqnChoice.AddItem( "Roughness Schlichting Avg", vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG );
     m_TurbCfEqnChoice.SetFlagByVal( vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG, FL_MENU_DIVIDER );
     m_TurbCfEqnChoice.AddItem( "Roughness Schlichting Avg Compressible", vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION );
-    m_TurbCfEqnChoice.SetFlagByVal( vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION, FL_MENU_DIVIDER );
-    m_TurbCfEqnChoice.AddItem( "Heat Transfer White-Christoph", vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH );
     m_TurbCfEqnChoice.UpdateItems();
 
 
@@ -1336,7 +1334,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             if ( device != &m_ffType[i] && device != &m_grouped[i] && device != &m_labels[i] &&
                  device != &m_subsurfinclude[i] && device != &m_ffIn[i] && device != &m_percLam[i] &&
-                 device != &m_Q[i] && device != &m_TawTwRatio[i] && device != &m_TeTwRatio[i] &&
+                 device != &m_Q[i] &&
                  device != &m_Roughness[i] )
             {
                 continue;
@@ -1458,28 +1456,6 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                         geom->m_Q.Set( val );
                     }
                 }
-                else if ( device == &m_TawTwRatio[i] )
-                {
-                    if ( ssurf )
-                    {
-                        ssurf->m_TawTwRatio.Set( val );
-                    }
-                    else
-                    {
-                        geom->m_TawTwRatio.Set( val );
-                    }
-                }
-                else if ( device == &m_TeTwRatio[i] )
-                {
-                    if ( ssurf )
-                    {
-                        ssurf->m_TeTwRatio.Set( val );
-                    }
-                    else
-                    {
-                        geom->m_TeTwRatio.Set( val );
-                    }
-                }
                 else if ( device == &m_Roughness[i] )
                 {
                     if ( ssurf )
@@ -1564,21 +1540,7 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
     m_ReLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_ReLabel.GetFlButton()->copy_tooltip( "Unitless Reynolds Number" );
 
-    if ( ParasiteDragMgr.m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
-    {
-        m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH - 20 );
-        m_MainTableLabelsLayout.AddButton( m_TeTwLabel, "Te/Tw" );
-        m_TeTwLabel.GetFlButton()->box( FL_THIN_UP_BOX );
-        m_TeTwLabel.GetFlButton()->labelcolor( FL_BLACK );
-        m_TeTwLabel.GetFlButton()->copy_tooltip( "Freestream Temperature over Wall Temperature" );
-
-        m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH - 10 );
-        m_MainTableLabelsLayout.AddButton( m_TawTwLabel, "Taw/Tw" );
-        m_TawTwLabel.GetFlButton()->box( FL_THIN_UP_BOX );
-        m_TawTwLabel.GetFlButton()->labelcolor( FL_BLACK );
-        m_TawTwLabel.GetFlButton()->copy_tooltip( "Adiabatic Wall Temperature over Wall Temperature" );
-    }
-    else if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG &&
+    if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG &&
               ParasiteDragMgr.m_TurbCfEqnType() <= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION )
     {
         AddRoughnessLabel();
@@ -1853,8 +1815,6 @@ void ParasiteDragScreen::ClearGUIElements()
     m_lref.clear();
     m_Re.clear();
     m_Roughness.clear();
-    m_TeTwRatio.clear();
-    m_TawTwRatio.clear();
     m_percLam.clear();
     m_Cf.clear();
     m_fineRatorToC.clear();
@@ -1890,8 +1850,6 @@ void ParasiteDragScreen::DeactivateRow( int index, int grayFlag )
         m_grouped[index].Deactivate();
         m_Re[index].Deactivate();
         m_Roughness[index].Deactivate();
-        m_TeTwRatio[index].Deactivate();
-        m_TawTwRatio[index].Deactivate();
         m_percLam[index].Deactivate();
         m_Cf[index].Deactivate();
         m_fineRatorToC[index].Deactivate();
@@ -1914,8 +1872,6 @@ void ParasiteDragScreen::ResizeDeviceVectors( int geomSize, int excresSize )
     m_lref.resize( geomSize );
     m_Re.resize( geomSize );
     m_Roughness.resize( geomSize );
-    m_TeTwRatio.resize( geomSize );
-    m_TawTwRatio.resize( geomSize );
     m_percLam.resize( geomSize );
     m_Cf.resize( geomSize );
     m_fineRatorToC.resize( geomSize );
@@ -1980,7 +1936,6 @@ void ParasiteDragScreen::AddGeomsToTable()
                 SetupFineRatorToC( i, rowVec[i].fineRatorToC );
                 SetupReyNum( i, rowVec[i].Re );
                 SetupRoughness( i, rowVec[i].Roughness );
-                SetupHeatTransfer( i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio );
                 SetupPercLaminar( i, rowVec[i].PercLam );
                 SetupCf( i, rowVec[i].Cf );
                 SetupQ( i, rowVec[i].Q, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
@@ -2023,7 +1978,6 @@ void ParasiteDragScreen::AddGeomsToTable()
                         SetupFineRatorToC( i, rowVec[i].fineRatorToC );
                         SetupReyNum( i, rowVec[i].Re );
                         SetupRoughness( i, rowVec[i].Roughness );
-                        SetupHeatTransfer( i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio );
                         SetupPercLaminar( i, rowVec[i].PercLam );
                         SetupCf( i, rowVec[i].Cf );
                         SetupQ( i, rowVec[i].Q, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
@@ -2281,7 +2235,7 @@ void ParasiteDragScreen::SetupReyNum( int index, double reynum )
 
 void ParasiteDragScreen::SetupRoughness( int index, double roughness )
 {
-    if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG && ParasiteDragMgr.m_TurbCfEqnType() < vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
+    if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG && ParasiteDragMgr.m_TurbCfEqnType() <= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION )
     {
         if ( m_AddTableDevices )
         {
@@ -2289,25 +2243,6 @@ void ParasiteDragScreen::SetupRoughness( int index, double roughness )
             m_TableLayout.AddInput( m_Roughness[index], "" );
         }
         UpdateTableValue( m_Roughness[index], roughness, 2 );
-    }
-}
-
-void ParasiteDragScreen::SetupHeatTransfer( int index, double tetwratio, double tawtwratio )
-{
-    if ( ParasiteDragMgr.m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
-    {
-        if ( m_AddTableDevices )
-        {
-            // Set up of Te/Tw Input
-            m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
-            m_TableLayout.AddInput( m_TeTwRatio[index], "" );
-
-            // Set up of Taw/Tw Input
-            m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 10 );
-            m_TableLayout.AddInput( m_TawTwRatio[index], "" );
-        }
-        UpdateTableValue( m_TeTwRatio[index], tetwratio, 2 );
-        UpdateTableValue( m_TawTwRatio[index], tawtwratio, 2 );
     }
 }
 

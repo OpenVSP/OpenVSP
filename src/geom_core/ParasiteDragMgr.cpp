@@ -48,7 +48,7 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_LamCfEqnType.SetDescript( "Laminar Cf Equation Choice" );
 
     m_TurbCfEqnType.Init( "TurbCfEqnType", groupname, this, m_TurbTypeDefault, vsp::CF_TURB_EXPLICIT_FIT_SPALDING,
-                          vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH );
+                          vsp::DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH );
     m_TurbCfEqnType.SetDescript( "Turbulent Cf Equation Choice" );
 
     m_AltLengthUnit.Init( "AltLengthUnit", groupname, this, vsp::PD_UNITS_IMPERIAL, vsp::PD_UNITS_IMPERIAL, vsp::PD_UNITS_METRIC );
@@ -130,7 +130,8 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
                   vsp::DO_NOT_USE_CF_TURB_SCHULTZ_GRUNOW_HIGH_RE,
                   vsp::DO_NOT_USE_CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE,
                   vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL,
-                  vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_WHITE };
+                  vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_WHITE,
+                  vsp::DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH };
     m_TurbBlackList.insert( m_TurbBlackList.begin(), tmp, &tmp[ sizeof( tmp ) / sizeof( *tmp ) ] );
 
     // Populate list of alternate equations for black-listed ones.
@@ -140,7 +141,8 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
                    vsp::CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR,
                    m_TurbTypeDefault,
                    m_TurbTypeDefault,
-                   vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG };
+                   vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG,
+                   m_TurbTypeDefault };
     m_TurbAlternateList.insert( m_TurbAlternateList.begin(), tmp2, &tmp2[ sizeof( tmp2 ) / sizeof( *tmp2 ) ] );
 
 }
@@ -1511,7 +1513,7 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
                 ( pow( ( 1.0 + ( ( gamma - 1.0 ) / 2.0 ) * m_Mach() ), 0.467 ) );
         break;
 
-    case vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
+    case vsp::DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
         f = ( 1 + ( 0.22 * r * ( ( roughness_h  - 1.0 ) / 2.0 ) *
                     m_Mach() * m_Mach() * te_tw_ratio ) ) /
             ( 1 + ( 0.3 * ( taw_tw_ratio - 1.0 ) ) );
@@ -1649,8 +1651,8 @@ string ParasiteDragMgrSingleton::AssignTurbCfEqnName( int cf_case )
         m_TurbCfEqnName = "Schlichting Avg Roughness w Flow Correctioin";
         break;
 
-    case vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
-        eqn_name = "White-Christoph w Heat Transfer";
+    case vsp::DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
+        eqn_name = "(Do Not Use) White-Christoph w Heat Transfer";
         break;
 
     default:
@@ -2852,8 +2854,7 @@ void ParasiteDragMgrSingleton::UpdateParmActivity()
         m_SpecificHeatRatio.Activate();
     }
 
-    if ( m_TurbCfEqnType() == vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION ||
-         m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
+    if ( m_TurbCfEqnType() == vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION )
     {
         m_SpecificHeatRatio.Activate();
     }

@@ -8,7 +8,7 @@ import openvsp as vsp
 import os
 import tempfile
 
-from testhelp import ( drop_errors )
+from testhelp import ( drop_errors, pop_errors )
 
 
 GEOM_RESULTS = ( "Comp_Lref", "Comp_FineRat", "Comp_FFOut" )
@@ -278,3 +278,21 @@ def testEveryComponentResultHasOneValuePerComponent():
                     vals = vsp.GetStringResults( rid, name )
                 assert len( vals ) == n, "%s has %d values for %d components" % ( name, len( vals ), n )
         drop_errors()
+
+
+def testWhiteChristophHeatTransferIsReplacedByTheDefault():
+    """It is a local skin friction equation, not a flat plate average, so it is DO_NOT_USE."""
+    cfs = []
+    errs = []
+    for eq in ( vsp.DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH, None ):
+        fresh()
+        vsp.AddGeom( "WING" )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        if eq is not None:
+            vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ eq ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        cfs.append( vsp.GetDoubleResults( rid, "Comp_Cf" )[0] )
+        errs.append( pop_errors() )
+    assert errs[0], "choosing the DO_NOT_USE equation raised no error"
+    assert cfs[0] == cfs[1], "Cf %g, default equation %g" % tuple( cfs )

@@ -89,7 +89,6 @@ protected:
     void SetupFFValue( int index, double formfactor, int eqnchoice );
     void SetupReyNum( int index, double reynum );
     void SetupRoughness( int index, double roughness );
-    void SetupHeatTransfer( int index, double tetwratio, double tawtwratio );
     void SetupPercLaminar( int index, double perclam );
     void SetupCf( int index, double cf );
     void SetupQ( int index, double Q, int shapetype, int eqnchoice );
@@ -218,8 +217,6 @@ protected:
     TriggerButton m_FFLabel;
     TriggerButton m_ReLabel;
     TriggerButton m_RoughnessLabel;
-    TriggerButton m_TeTwLabel;
-    TriggerButton m_TawTwLabel;
     TriggerButton m_PercLamLabel;
     TriggerButton m_CfLabel;
     TriggerButton m_QLabel;
@@ -235,8 +232,6 @@ protected:
     vector <StringOutput> m_lref;
     vector <StringOutput> m_Re;
     vector <StringInput> m_Roughness;
-    vector <StringInput> m_TeTwRatio;
-    vector <StringInput> m_TawTwRatio;
     vector <StringInput> m_percLam;
     vector <StringOutput> m_Cf;
     vector <StringOutput> m_fineRatorToC;
