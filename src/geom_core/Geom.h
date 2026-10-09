@@ -272,6 +272,8 @@ public:
         return m_ParentID;
     }
     void ChangeParentID( const string &id, const string &sibling_id = string() );
+    bool DependsOn( const string &id );
+    virtual void GetDependencyIDs( vector< string > &ids );
     virtual string GetAncestorID( int gen );
     virtual void BuildAncestorList( vector< string > &ancestors );
     virtual void AddChildID( const string &id, const string &insert_after_id = string() );

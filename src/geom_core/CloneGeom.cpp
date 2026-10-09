@@ -276,6 +276,13 @@ void CloneGeom::CollectDescendantIDs( set < string > &ids ) const
     }
 }
 
+// A Clone is built from its original as well as its parent.
+void CloneGeom::GetDependencyIDs( vector< string > &ids )
+{
+    Geom::GetDependencyIDs( ids );
+    ids.push_back( m_OriginalID );
+}
+
 bool CloneGeom::IsDescendant( const string &id ) const
 {
     // A descendant updates inside this Geom's update, so copying it would lag one pass behind.

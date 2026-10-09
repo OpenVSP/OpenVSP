@@ -419,6 +419,12 @@ void GeomBase::ChangeParentID( const string& reparent_id, const string& sibling_
         return;
     }
 
+    // A Geom cannot become a child of a Geom that depends on it
+    if ( reparent_geom && reparent_geom->DependsOn( GetID() ) )
+    {
+        return;
+    }
+
     // get the existing parent geom or veh
     Geom* old_parent_geom = veh->FindGeom( GetParentID() );
     Vehicle* old_parent_veh = nullptr;
@@ -460,6 +466,44 @@ void GeomBase::ChangeParentID( const string& reparent_id, const string& sibling_
 
         Update();
     }
+}
+
+//==== Is id this Geom, or reached through its parents and Clone originals? ====//
+bool GeomBase::DependsOn( const string &id )
+{
+    // The visited set stops a cycle already in the model from looping forever
+    set < string > visited;
+    vector < GeomBase* > todo;
+    todo.push_back( this );
+
+    while ( !todo.empty() )
+    {
+        GeomBase* gPtr = todo.back();
+        todo.pop_back();
+
+        if ( !gPtr || !visited.insert( gPtr->GetID() ).second )
+        {
+            continue;
+        }
+        if ( gPtr->GetID() == id )
+        {
+            return true;
+        }
+
+        vector< string > dep_vec;
+        gPtr->GetDependencyIDs( dep_vec );
+        for ( int i = 0 ; i < ( int )dep_vec.size() ; i++ )
+        {
+            todo.push_back( m_Vehicle->FindGeom( dep_vec[i] ) );
+        }
+    }
+    return false;
+}
+
+//==== The Geoms this one is built from; each derived class adds its own ====//
+void GeomBase::GetDependencyIDs( vector< string > &ids )
+{
+    ids.push_back( GetParentID() );
 }
 
 string GeomBase::GetAncestorID( int gen )

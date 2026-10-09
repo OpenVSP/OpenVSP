@@ -3639,7 +3639,21 @@ void SetGeomParent( const std::string& geom_id, const std::string& new_parent_id
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomParent::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    Geom* parent_ptr = veh->FindGeom( new_parent_id );
+    if ( parent_ptr && parent_ptr->DependsOn( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomParent::Geom " + geom_id + " can't be a child of " + new_parent_id + ", which depends on it" );
+        return;
+    }
+
     geom_ptr->ChangeParentID( new_parent_id );
+    ErrorMgr.NoError();
 }
 
 // Get the parent of a Geom

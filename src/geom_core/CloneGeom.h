@@ -66,6 +66,7 @@ public:
     {
         return m_OriginalID;
     }
+    virtual void GetDependencyIDs( vector< string > &ids ) override;
 
     // Suffix that automatic naming appends to the original's name.
     virtual string GetNameSuffix() const
