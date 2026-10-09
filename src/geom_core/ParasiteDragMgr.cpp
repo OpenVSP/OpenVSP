@@ -1343,6 +1343,7 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
 {
     double CfOut = 0;
     double CfGuess, f, heightRatio, multiBy = 1.0;
+    double lnterm;
     double r = 0.89; // Recovery Factor
     double n = 0.67; // Viscosity Power-Law Exponent
 
@@ -1514,12 +1515,12 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         break;
 
     case vsp::DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
-        f = ( 1 + ( 0.22 * r * ( ( roughness_h  - 1.0 ) / 2.0 ) *
+        f = ( 1 + ( 0.22 * r * ( ( gamma - 1.0 ) / 2.0 ) *
                     m_Mach() * m_Mach() * te_tw_ratio ) ) /
             ( 1 + ( 0.3 * ( taw_tw_ratio - 1.0 ) ) );
 
-        CfOut = ( 0.451 * f * f * te_tw_ratio ) /
-                ( log( 0.056 * f * pow( te_tw_ratio, 1.0 + n ) * ReyIn ) );
+        lnterm = log( 0.056 * f * pow( te_tw_ratio, 1.0 + n ) * ReyIn );
+        CfOut = ( 0.451 * f * f * te_tw_ratio ) / ( lnterm * lnterm );
 
         break;
 
