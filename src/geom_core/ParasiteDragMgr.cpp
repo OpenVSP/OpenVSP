@@ -151,7 +151,7 @@ void ParasiteDragMgrSingleton::Renew()
     m_TableRowVec.clear();
     m_ExcresRowVec.clear();
 
-    m_DegenGeomVec.clear();
+    SetDegenGeomVec( vector < DegenGeom > () );
     m_CompGeomResults = nullptr;
 
     SetDefaultStruct();
@@ -482,7 +482,7 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
         }
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
-        m_DegenGeomVec = veh->GetDegenGeomVec();
+        SetDegenGeomVec( veh->GetDegenGeomVec() );
 
         // First Assignment of CompGeon, Will Carry Through to Rest of Calculate_X
         m_CompGeomResults = ResultsMgr.FindResultsPtr( ResultsMgr.FindLatestResultsID( "Comp_Geom" ) );
@@ -600,66 +600,22 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
 
 void ParasiteDragMgrSingleton::Calculate_Lref()
 {
-    // Initialize Variablse
-    int iSurf = 0;
-
     for ( int i = 0; i < m_RowSize; ++i )
     {
-        if ( !m_DegenGeomVec.empty() )
+        double lref = -1;
+        if ( m_geo_masterRow[i] )
         {
-            Geom* geom = VehicleMgr.GetVehicle()->FindGeom(m_geo_geomID[i]);
-            if ( geom )
+            int idegen = FindDegenIndex( m_geo_geomID[i] );
+            if ( idegen >= 0 )
             {
-                // If DegenGeom Exists Calculate Lref
-                if ( m_geo_masterRow[i] )
-                {
-                    if ( m_geo_subsurfID[i].compare( "" ) == 0 )
-                    {
-                        if ( m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE )
-                        {
-                            m_geo_lref.push_back( CalcReferenceLength( iSurf ) );
-
-                            if (geom->GetBehaviorType() != PROP_GEOM_TYPE)
-                            {
-                                iSurf += geom->GetNumSymmCopies();
-                            }
-                            else
-                            {
-                                string numBladesID = geom->FindParm("NumBlade", "Design");
-                                IntParm* tNumBladeParm = (IntParm*)ParmMgr.FindParm(numBladesID);
-                                if (tNumBladeParm)
-                                {
-                                    iSurf += tNumBladeParm->Get() * geom->GetNumSymmCopies();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            --i;
-                            iSurf += geom->GetNumSymmCopies();
-                        }
-                    }
-                    else
-                    {
-                        m_geo_lref.push_back( CalcReferenceLength( iSurf - 1 ) );
-                    }
-                }
-                else
-                {
-                    m_geo_lref.push_back( m_geo_lref[m_geo_lref.size() - 1] );
-                }
-            }
-            else
-            {
-                // Else Push Back Default Val
-                m_geo_lref.push_back( -1 );
+                lref = CalcReferenceLength( idegen );
             }
         }
-        else
+        else if ( !m_geo_lref.empty() )
         {
-            // Else Push Back Default Val
-            m_geo_lref.push_back( -1 );
+            lref = m_geo_lref.back();
         }
+        m_geo_lref.push_back( lref );
     }
 }
 
@@ -701,6 +657,10 @@ double ParasiteDragMgrSingleton::CalcReferenceBodyLength( int index )
     // TODO: Improve Reference Length Calculations
     double delta_x, delta_y, delta_z, lref;
     vector <DegenStick> m_DegenStick = m_DegenGeomVec[index].getDegenSticks();
+    if ( m_DegenStick.empty() || m_DegenStick[0].xle.empty() )
+    {
+        return 0;
+    }
     delta_x = abs( m_DegenStick[0].xle.front().x() - m_DegenStick[0].xle.back().x() );
     delta_y = abs( m_DegenStick[0].xle.front().y() - m_DegenStick[0].xle.back().y() );
     delta_z = abs( m_DegenStick[0].xle.front().z() - m_DegenStick[0].xle.back().z() );
@@ -716,7 +676,11 @@ double ParasiteDragMgrSingleton::CalcReferenceChord( int index )
     vector <DegenStick> m_DegenStick = m_DegenGeomVec[index].getDegenSticks();
     double secArea, totalArea = 0, weightedChordSum = 0;
     double delta_x, delta_y, delta_z, section_span;
-    for ( size_t j = 0; j <= m_DegenStick[0].areaTop.size() - 1; ++j )
+    if ( m_DegenStick.empty() )
+    {
+        return 0;
+    }
+    for ( size_t j = 0; j < m_DegenStick[0].areaTop.size(); ++j )
     {
         delta_x = abs( m_DegenStick[0].xle[j].x() - m_DegenStick[0].xle[j + 1].x() );
         delta_y = abs( m_DegenStick[0].xle[j].y() - m_DegenStick[0].xle[j + 1].y() );
@@ -729,6 +693,10 @@ double ParasiteDragMgrSingleton::CalcReferenceChord( int index )
         weightedChordSum += ( ( 0.5 * ( m_DegenStick[0].chord[j] + m_DegenStick[0].chord[j + 1] ) ) * secArea );
     }
 
+    if ( totalArea <= 0 )
+    {
+        return 0;
+    }
     return weightedChordSum / totalArea;
 }
 
@@ -876,71 +844,22 @@ double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double r
 
 void ParasiteDragMgrSingleton::Calculate_fineRat_and_toc()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( !veh )
-    {
-        return;
-    }
-
-    int iSurf = 0;
-
     for ( int i = 0; i < m_RowSize; ++i )
     {
-        if ( !m_DegenGeomVec.empty() )
+        double finerat = -1;
+        if ( m_geo_masterRow[i] )
         {
-            Geom* geom = veh->FindGeom( m_geo_geomID[i] );
-            if (geom)
+            int idegen = FindDegenIndex( m_geo_geomID[i] );
+            if ( idegen >= 0 )
             {
-                // If DegenGeom Exists Calculate Fineness Ratio
-                if ( m_geo_masterRow[i] )
-                {
-                    if ( m_geo_subsurfID[i].compare( "" ) == 0 )
-                    {
-                        if ( m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE )
-                        {
-                            m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf, i) );
-
-                            if ( geom->GetBehaviorType() != PROP_GEOM_TYPE )
-                            {
-                                iSurf += geom->GetNumSymmCopies();
-                            }
-                            else
-                            {
-                                string numBladesID = geom->FindParm( "NumBlade", "Design" );
-                                IntParm* tNumBladeParm = (IntParm*) ParmMgr.FindParm( numBladesID );
-                                if ( tNumBladeParm )
-                                {
-                                    iSurf += tNumBladeParm->Get() * geom->GetNumSymmCopies();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            --i;
-                            iSurf += geom->GetNumSymmCopies();
-                        }
-                    }
-                    else
-                    {
-                        m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf - 1, i) );
-                    }
-                }
-                else
-                {
-                    m_geo_fineRat_or_toc.push_back( m_geo_fineRat_or_toc[m_geo_fineRat_or_toc.size() - 1] );
-                }
-            }
-            else
-            {
-                m_geo_fineRat_or_toc.push_back( -1 );
+                finerat = CalculateFinessRatioAndTOC( idegen, i );
             }
         }
-        else
+        else if ( !m_geo_fineRat_or_toc.empty() )
         {
-            // Else Push Back Default Val
-            m_geo_fineRat_or_toc.push_back( -1 );
+            finerat = m_geo_fineRat_or_toc.back();
         }
+        m_geo_fineRat_or_toc.push_back( finerat );
     }
 }
 
@@ -954,13 +873,13 @@ double ParasiteDragMgrSingleton::CalculateFinessRatioAndTOC( int isurf, int irow
     // Grab Degen Sticks for Appropriate Geom
     vector <DegenStick> degenSticks = m_DegenGeomVec[isurf].getDegenSticks();
 
-    if ( m_DegenGeomVec[isurf].getType() == DegenGeom::SURFACE_TYPE )
+    if ( m_DegenGeomVec[isurf].getType() == DegenGeom::SURFACE_TYPE && !degenSticks[0].toc.empty() )
     {
         // Wing Type
         it = max_element( degenSticks[0].toc.begin(), degenSticks[0].toc.end() );
         finerat = *it;
     }
-    else if ( m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE )
+    else if ( m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE && !degenSticks[0].sectarea.empty() )
     {
         it = max_element( degenSticks[0].sectarea.begin(), degenSticks[0].sectarea.end() );
         max_xsecarea = *it;
@@ -976,77 +895,39 @@ double ParasiteDragMgrSingleton::CalculateFinessRatioAndTOC( int isurf, int irow
 
 void ParasiteDragMgrSingleton::Calculate_FF()
 {
-    int iSurf = 0;
-
     for ( int i = 0; i < m_RowSize; ++i )
     {
-        if ( !m_DegenGeomVec.empty() )
+        if ( m_geo_masterRow[i] )
         {
-            // If DegenGeom Exists Calculate Form Factor
-            if ( m_geo_masterRow[i] )
+            int idegen = FindDegenIndex( m_geo_geomID[i] );
+            if ( idegen >= 0 )
             {
-                if ( m_geo_subsurfID[i].compare( "" ) == 0 )
+                m_geo_ffOut.push_back( CalculateFormFactor( idegen, i ) );
+
+                if ( m_DegenGeomVec[idegen].getType() == DegenGeom::SURFACE_TYPE )
                 {
-                    if ( m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE )
-                    {
-                        m_geo_ffOut.push_back( CalculateFormFactor( iSurf, i ) );
-
-                        if ( m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE )
-                        {
-                            m_geo_ffName.push_back( AssignFFWingEqnName( m_geo_ffType[i] ) );
-                        }
-                        else
-                        {
-                            m_geo_ffName.push_back( AssignFFBodyEqnName( m_geo_ffType[i] ) );
-                        }
-                    }
-                    else
-                    {
-                        --i;
-                    }
-
-                    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_geo_geomID[i] );
-                    if (geom)
-                    {
-                        if ( geom->GetBehaviorType() != PROP_GEOM_TYPE )
-                        {
-                            iSurf += geom->GetNumSymmCopies();
-                        }
-                        else
-                        {
-                            string numBladesID = geom->FindParm( "NumBlade", "Design" );
-                            IntParm* tNumBladeParm = (IntParm*) ParmMgr.FindParm( numBladesID );
-                            if ( tNumBladeParm )
-                            {
-                                iSurf += tNumBladeParm->Get() * geom->GetNumSymmCopies();
-                            }
-                        }
-                    }
+                    m_geo_ffName.push_back( AssignFFWingEqnName( m_geo_ffType[i] ) );
                 }
                 else
                 {
-                    m_geo_ffOut.push_back( CalculateFormFactor( iSurf - 1, i ) );
-                    if ( m_DegenGeomVec[iSurf - 1].getType() == DegenGeom::SURFACE_TYPE )
-                    {
-                        m_geo_ffName.push_back( AssignFFWingEqnName( m_geo_ffType[i] ) );
-                    }
-                    else
-                    {
-                        m_geo_ffName.push_back( AssignFFBodyEqnName( m_geo_ffType[i] ) );
-                    }
+                    m_geo_ffName.push_back( AssignFFBodyEqnName( m_geo_ffType[i] ) );
                 }
             }
             else
             {
-                m_geo_ffOut.push_back( m_geo_ffOut[m_geo_ffOut.size() - 1] );
-                if ( m_geo_ffType[i] == vsp::FF_W_JENKINSON_TAIL )
-                {
-                    m_geo_Q[i] = 1.2;
-                }
-                m_geo_ffName.push_back( m_geo_ffName[m_geo_ffName.size() - 1] );
+                m_geo_ffOut.push_back( -1 );
+                m_geo_ffName.push_back( "" );
             }
         }
-        // Else Push Back Default Val
+        else if ( !m_geo_ffOut.empty() )
+        {
+            m_geo_ffOut.push_back( m_geo_ffOut.back() );
+            if ( m_geo_ffType[i] == vsp::FF_W_JENKINSON_TAIL )
+            {
+                m_geo_Q[i] = 1.2;
+            }
+            m_geo_ffName.push_back( m_geo_ffName.back() );
+        }
         else
         {
             m_geo_ffOut.push_back( -1 );
@@ -1091,6 +972,12 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep( const vector<DegenStick> &deg
 {
     // Find Quarter Chord Using Derived Eqn from Geometry
     double width, secSweep25, secSweep50, secArea, weighted25Sum = 0, weighted50Sum = 0, totalArea = 0;
+    m_Sweep25 = 0;
+    m_Sweep50 = 0;
+    if ( degenSticks.empty() )
+    {
+        return;
+    }
     for ( int j = 0; j < degenSticks[0].areaTop.size(); j++ )
     {
         width = degenSticks[0].areaTop[j] /
@@ -1115,6 +1002,11 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep( const vector<DegenStick> &deg
 
         // Continue to sum up Total Area
         totalArea += secArea;
+    }
+
+    if ( totalArea <= 0 )
+    {
+        return;
     }
 
     // Calculate Sweep @ c/4 & c/2
@@ -3902,7 +3794,7 @@ void ParasiteDragMgrSingleton::RefreshBaseDataVectors()
     {
         // Reset Geo Vecs & Clear Degen Geom
         veh->ClearDegenGeom();
-        m_DegenGeomVec.clear();
+        SetDegenGeomVec( vector < DegenGeom > () );
 
         ClearInputVectors();
         ClearOutputVectors();
@@ -3937,8 +3829,41 @@ void ParasiteDragMgrSingleton::RenewDegenGeomVec()
         veh->ShowOnlySet( set );
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
-        m_DegenGeomVec = veh->GetDegenGeomVec();
+        SetDegenGeomVec( veh->GetDegenGeomVec() );
     }
+}
+
+void ParasiteDragMgrSingleton::SetDegenGeomVec( const vector < DegenGeom > & degen_vec )
+{
+    m_DegenGeomVec = degen_vec;
+
+    // Keyed by ID now, while the parent pointers are still good
+    m_DegenIndexMap.clear();
+    for ( int i = 0; i < ( int )m_DegenGeomVec.size(); i++ )
+    {
+        Geom* parent = m_DegenGeomVec[i].getParentGeom();
+        if ( parent && m_DegenGeomVec[i].getType() != DegenGeom::DISK_TYPE &&
+             m_DegenIndexMap.find( parent->GetID() ) == m_DegenIndexMap.end() )
+        {
+            m_DegenIndexMap[ parent->GetID() ] = i;
+        }
+    }
+}
+
+int ParasiteDragMgrSingleton::FindDegenIndex( const string & geom_id )
+{
+    map < string, int >::const_iterator it = m_DegenIndexMap.find( geom_id );
+    if ( it == m_DegenIndexMap.end() )
+    {
+        return -1;
+    }
+
+    if ( m_DegenGeomVec[ it->second ].getDegenSticks().empty() )
+    {
+        return -1;
+    }
+
+    return it->second;
 }
 
 bool ParasiteDragMgrSingleton::HasSameNames()

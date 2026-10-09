@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 // Structure containing all main table data
 struct ParasiteDragTableRow
@@ -102,6 +103,7 @@ public:
     double CalculateFinessRatioAndTOC( int isurf, int irow );
     void Calculate_FF();
     double CalculateFormFactor( int isurf, int irow );
+    int FindDegenIndex( const string & geom_id );
     void Calculate_AvgSweep( const vector <DegenStick> &degenSticks );
     void Calculate_f();
     void Calculate_CD();
@@ -256,6 +258,7 @@ public:
     bool IsNotZeroLineItem( int index );
     void RefreshBaseDataVectors();
     void RenewDegenGeomVec();
+    void SetDegenGeomVec( const vector < DegenGeom > & degen_vec );
     bool HasSameNames();
     bool IsCaclualted();
 
@@ -327,6 +330,7 @@ private:
     // Main Table Geom Related Vectors
     vector <string> m_PDGeomIDVec;
     vector <DegenGeom> m_DegenGeomVec;
+    map < string, int > m_DegenIndexMap; // Geom ID to its first non-disk DegenGeom
     Results* m_CompGeomResults;
 
     // Miscellaneous Variables
