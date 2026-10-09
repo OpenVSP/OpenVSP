@@ -1802,10 +1802,16 @@ double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
         break;
 
     case vsp::FF_W_KROO:
+        // No supervelocity from thickness once the normal Mach reaches 1
+        if ( pow( mach, 2.0 ) * pow( cos( sweep25 ), 2.0 ) >= 1.0 )
+        {
+            ff = 1.0;
+            break;
+        }
         double part1A, part1B, part2A, part2B;
         part1A = ( 2.2 * pow( cos( sweep25 ), 2.0 ) * toc );
         part1B = ( sqrt( 1.0 - ( pow( mach, 2.0 ) * pow( cos( sweep25 ), 2.0 ) ) ) );
-        part2A = ( 4.84 * pow( cos( sweep25 ), 2.0 ) * ( 1.0 + 5.0 * pow( cos( sweep25 ), 2.0 ) ) * pow( toc, 2.0 ) );
+        part2A = ( 1.21 * pow( cos( sweep25 ), 2.0 ) * ( 1.0 + 5.0 * pow( cos( sweep25 ), 2.0 ) ) * pow( toc, 2.0 ) );
         part2B = ( 2.0 * ( 1.0 - ( pow( mach, 2.0 ) * pow( cos( sweep25 ), 2.0 ) ) ) );
         ff = 1.0 + ( part1A / part1B ) + ( part2A / part2B );
         break;

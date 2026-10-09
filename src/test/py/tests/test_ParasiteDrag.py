@@ -631,3 +631,31 @@ def testBelowTheCrossoverCfIsLaminar():
     blasius = 1.32824 / math.sqrt( re )
     for cf in cfs:
         assert abs( cf - blasius ) < 1e-12, ( cfs, blasius )
+
+
+def testKrooFormFactorMatchesKroo():
+    """Kroo's second term has C^2 = 1.21, and no supervelocity once M cos(sweep) reaches 1."""
+    def ff( mach ):
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "VelocityUnit", [ vsp.V_UNIT_MACH ] )
+        vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Vinf", [ mach ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return vsp.GetDoubleResults( rid, "Comp_FFOut" )[0], vsp.GetDoubleResults( rid, "Comp_FineRat" )[0]
+
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    for name, val in ( ( "Sweep", 30.0 ), ( "Root_Chord", 2.0 ), ( "Tip_Chord", 2.0 ) ):
+        vsp.SetParmVal( w, name, "XSec_1", val )
+    vsp.SetParmVal( w, "FFWingEqnType", "ParasiteDragProps", vsp.FF_W_KROO )
+    vsp.Update()
+
+    # Kroo, AA241 "Form Factor for Lifting Surfaces", with C = 1.1
+    got, tc = ff( 0.5 )
+    cs2 = math.cos( math.radians( 30.0 ) ) ** 2
+    beta2 = 1.0 - 0.25 * cs2
+    expect = 1.0 + 2.0 * 1.1 * cs2 * tc / math.sqrt( beta2 ) + 1.1 * 1.1 * ( 1.0 + 5.0 * cs2 ) * cs2 * tc * tc / beta2 / 2.0
+    assert abs( got - expect ) < 1e-9, "FF %g, expected %g" % ( got, expect )
+
+    got, tc = ff( 1.5 )
+    assert got == 1.0, "FF %g past M cos(sweep) = 1" % got
