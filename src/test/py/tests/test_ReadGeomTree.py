@@ -4,12 +4,16 @@
 # not been read yet.  A Wing under an Auxiliary, with a custom Geom earlier in the file, was
 # lost from the tree; its Clone then copied an original that was never built, and DegenGeom
 # read past the end of the Clone's cap flags.
+#
+# A file can also name a detached conformal's surface Geom that is built from the conformal,
+# which the flip followed around until the stack ran out.
 
 import openvsp as vsp
 import os
+import re
 import tempfile
 
-from testhelp import ( drop_errors, assert_no_errors )
+from testhelp import ( pop_errors, drop_errors, assert_no_errors )
 
 
 def testAChildReadAfterItsParentIsKept():
@@ -35,5 +39,51 @@ def testAChildReadAfterItsParentIsKept():
     # A Clone is made beside its original
     assert sorted( vsp.GetGeomName( c ) for c in vsp.GetGeomChildren( aux ) ) == [ "WingGeom", "WingGeom_Clone" ]
 
+    vsp.ComputeDegenGeom( vsp.SET_ALL, vsp.DEGEN_GEOM_CSV_TYPE )
+    assert_no_errors()
+
+
+def read_with_conformal_parent( conformal, conformal_parent ):
+    # Only the GUI sets a detached conformal's surface Geom, so it is set in the file
+    fname = os.path.join( tempfile.mkdtemp(), "conformal.vsp3" )
+    vsp.WriteVSPFile( fname, vsp.SET_ALL )
+    with open( fname ) as f:
+        text = f.read()
+    text, n = re.subn( r"(<ID>%s</ID>.*?<ConformalParentID>)[^<]*(</ConformalParentID>)" % conformal,
+                       r"\g<1>%s\g<2>" % conformal_parent, text, count=1, flags=re.S )
+    assert n == 1
+    with open( fname, "w" ) as f:
+        f.write( text )
+    vsp.VSPRenew()
+    drop_errors()
+    vsp.ReadVSPFile( fname )
+    vsp.Update()
+
+
+def testAConformalBuiltOnItsOwnCloneIsPutBackOnItsParent():
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    conformal = vsp.AddGeom( "CONFORMAL", pod )
+    vsp.SetParmVal( conformal, "DetachFlag", "Design", 1 )
+    vsp.Update()
+    clone = vsp.CloneGeomVec( [ conformal ] )[0]
+    vsp.Update()
+
+    read_with_conformal_parent( conformal, clone )
+    assert pop_errors(), "a conformal built on its own Clone raised no error"
+    vsp.ComputeDegenGeom( vsp.SET_ALL, vsp.DEGEN_GEOM_CSV_TYPE )
+    assert_no_errors()
+
+
+def testAConformalBuiltOnItsOwnAuxiliaryIsPutBackOnItsParent():
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    conformal = vsp.AddGeom( "CONFORMAL", pod )
+    vsp.SetParmVal( conformal, "DetachFlag", "Design", 1 )
+    aux = vsp.AddGeom( "AUXILIARY", conformal )
+    vsp.Update()
+
+    read_with_conformal_parent( conformal, aux )
+    assert pop_errors(), "a conformal built on its own Auxiliary raised no error"
     vsp.ComputeDegenGeom( vsp.SET_ALL, vsp.DEGEN_GEOM_CSV_TYPE )
     assert_no_errors()

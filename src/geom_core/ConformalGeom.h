@@ -38,6 +38,8 @@ public:
     string GetConformalParent() const { return m_ConformalParentID; }
     virtual void GetDependencyIDs( vector< string > &ids );
 
+    virtual void Update( bool fullupdate = true );
+
     // The shape is an inset built in the parent's frame, and the attachment carries no flip,
     // so the parent's flip is applied here.
     virtual Matrix4d GetFlipMat() const;
