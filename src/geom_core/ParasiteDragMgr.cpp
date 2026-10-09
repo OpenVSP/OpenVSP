@@ -3421,9 +3421,10 @@ string ParasiteDragMgrSingleton::ExportToCSV()
             new_geo_f, new_geo_CD, new_geo_percTotalCD;
         vector <int> new_geo_ffType, new_geo_surfNum;
 
+        // A component is a master row: a Geom, or a subsurface given separate treatment
         for ( size_t i = 0; i < m_geo_geomID.size(); i++ )
         {
-            if ( std::find( new_ID_vec.begin(), new_ID_vec.end(), m_geo_geomID[i] ) == new_ID_vec.end() )
+            if ( m_geo_masterRow[i] )
             {
                 new_ID_vec.push_back( m_geo_geomID[i] );
                 new_geo_label.push_back( m_geo_label[i] );

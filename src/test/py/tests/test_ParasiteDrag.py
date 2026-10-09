@@ -762,6 +762,24 @@ def testAMarginCannotReachTheWholeTotal():
     assert math.isfinite( total ) and total > 0, total
 
 
+def testASeparateSubsurfaceIsAComponentOfTheResults():
+    """Without sub-components the results kept one row per Geom ID, dropping a Separate subsurface."""
+    fresh()
+    p = vsp.AddGeom( "POD" )
+    vsp.Update()
+    s = vsp.AddSubSurf( p, vsp.SS_RECTANGLE, 0 )
+    vsp.SetSubSurfName( s, "A" )
+    vsp.SetParmVal( vsp.GetParm( s, "IncludeFlag", "SubSurface" ), vsp.SS_INC_SEPARATE_TREATMENT )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ 0 ] )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    assert list( vsp.GetStringResults( rid, "Comp_Label" ) ) == [ "PodGeom", "[ss] A" ]
+    f = sum( vsp.GetDoubleResults( rid, "Comp_f" ) )
+    assert abs( f - vsp.GetDoubleResults( rid, "Geom_f_Total" )[0] ) < 1e-12
+
+
 def testWingReferenceLengthIsTheMeanAerodynamicChord():
     """The strips were weighted by their length along the leading edge, so a swept panel counted extra."""
     for sweep in ( 0.0, 60.0 ):
