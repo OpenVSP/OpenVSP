@@ -148,26 +148,31 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
     }
 
     // Using Herrington 1966 Model
-    if ( alt < 36089 )
+    double Tstd;
+    if ( alt < K3 )
     {
-        T = ( m_T0 + m_DeltaT ) * ( 1 - K1 * alt );
+        Tstd = m_T0 * ( 1 - K1 * alt );
         P = m_P0 * pow( ( 1 - K1 * alt ), 5.2561 );
         rho = m_RHO0 * pow( ( 1 - K1 * alt ), 4.2561 );
     }
-    else if ( alt > 36089 && alt < 82021 )
+    else if ( alt < 82021 )
     {
         // T = 216.66; // Kelvin
-        T = ( m_T0 + m_DeltaT ) * ( 1 - K1 * K3 );
+        Tstd = m_T0 * ( 1 - K1 * K3 );
         P = m_P0 * ( 0.223358 * exp( -1 * K2 * ( alt - K3 ) ) );
         rho = m_RHO0 * ( 0.29707 * exp( -1 * K2 * ( alt - K3 ) ) );
     }
-    else // Less than 0, Greater than 82021
+    else // Greater than 82021
     {
         alt = 82021;
-        T = ( m_T0 + m_DeltaT ) * ( 1 - K1 * K3 );
+        Tstd = m_T0 * ( 1 - K1 * K3 );
         P = m_P0 * ( 0.223358 * exp( -1 * K2 * ( alt - K3 ) ) );
         rho = m_RHO0 * ( 0.29707 * exp( -1 * K2 * ( alt - K3 ) ) );
     }
+
+    // A hotter or colder day at the same pressure: the gas law takes the density with it
+    T = Tstd + m_DeltaT;
+    rho = rho * Tstd / T;
 
     m_DensityRatio = rho / m_RHO0;
     m_PressureRatio = P / m_P0;
