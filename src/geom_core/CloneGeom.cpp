@@ -47,6 +47,9 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_CloneMassProps.Init( "CloneMassProps", "Behavior", this, true, false, true );
     m_CloneMassProps.SetDescript( "Flag to copy the original's mass properties" );
 
+    m_CloneParasiteDrag.Init( "CloneParasiteDrag", "Behavior", this, true, false, true );
+    m_CloneParasiteDrag.SetDescript( "Flag to use the original's Parasite Drag settings" );
+
     m_CloneSubSurfs.Init( "CloneSubSurfs", "Behavior", this, true, false, true );
     m_CloneSubSurfs.SetDescript( "Flag to copy the original's subsurfaces" );
 
@@ -127,6 +130,25 @@ double CloneGeom::ComputeMAC()
         return behavior->ComputeMAC();
     }
     return 0.0;
+}
+
+// Through each Clone that uses its original's settings; a ring from a file stops at its start
+Geom* CloneGeom::GetParasiteDragGeom()
+{
+    Geom* source = this;
+    set < Geom* > visited;
+    CloneGeom* clone = this;
+    while ( clone && clone->m_CloneParasiteDrag() && visited.insert( clone ).second )
+    {
+        Geom* original_geom = clone->GetOriginalGeom();
+        if ( !original_geom )
+        {
+            break;
+        }
+        source = original_geom;
+        clone = dynamic_cast < CloneGeom* > ( original_geom );
+    }
+    return source;
 }
 
 Geom* CloneGeom::GetBehaviorGeom()
@@ -686,6 +708,18 @@ void CloneGeom::CopyMassPropParms( Geom* from, Geom* to )
     to->m_Iyz.Set( from->m_Iyz() );
 }
 
+void CloneGeom::CopyParasiteDragParms( Geom* from, Geom* to )
+{
+    to->m_PercLam.Set( from->m_PercLam() );
+    to->m_FFBodyEqnType.Set( from->m_FFBodyEqnType() );
+    to->m_FFWingEqnType.Set( from->m_FFWingEqnType() );
+    to->m_FFUser.Set( from->m_FFUser() );
+    to->m_Q.Set( from->m_Q() );
+    to->m_Roughness.Set( from->m_Roughness() );
+    to->m_TeTwRatio.Set( from->m_TeTwRatio() );
+    to->m_TawTwRatio.Set( from->m_TawTwRatio() );
+}
+
 void CloneGeom::CopyNegativeVolumeParm( Geom* from, Geom* to )
 {
     to->m_NegativeVolumeFlag.Set( from->m_NegativeVolumeFlag() );
@@ -953,6 +987,21 @@ void CloneGeom::UpdateCopySurfParms()
         m_Ixy.Activate();
         m_Ixz.Activate();
         m_Iyz.Activate();
+    }
+
+    // Parasite Drag reads the original's settings, so this Geom's own are not used
+    vector < Parm* > drag_parms = { &m_PercLam, &m_FFBodyEqnType, &m_FFWingEqnType, &m_FFUser, &m_Q,
+                                    &m_Roughness, &m_TeTwRatio, &m_TawTwRatio };
+    for ( size_t i = 0; i < drag_parms.size(); i++ )
+    {
+        if ( m_CloneParasiteDrag() )
+        {
+            drag_parms[i]->Deactivate();
+        }
+        else
+        {
+            drag_parms[i]->Activate();
+        }
     }
 }
 

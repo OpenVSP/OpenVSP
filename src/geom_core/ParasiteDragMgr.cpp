@@ -267,6 +267,9 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
         geom = veh->FindGeom( m_PDGeomIDVec[i] );
         if ( geom )
         {
+            // A Clone may use its original's drag settings
+            Geom* dragGeom = geom->GetParasiteDragGeom();
+
             if ( geom->GetID().compare( lastGeomID ) != 0 )
             {
                 // Create Master Geom Row, typed by the surface its DegenGeom comes from
@@ -276,12 +279,12 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                 m_geo_masterRow.push_back( true );
                 m_geo_name.push_back( geom->GetName() );
                 m_geo_groupedAncestorGen.push_back( geom->m_GroupedAncestorGen() );
-                m_geo_percLam.push_back( geom->m_PercLam() );
-                m_geo_ffIn.push_back( geom->m_FFUser() );
-                m_geo_Q.push_back( geom->m_Q() );
-                m_geo_Roughness.push_back( geom->m_Roughness() );
-                m_geo_TeTwRatio.push_back( geom->m_TeTwRatio() );
-                m_geo_TawTwRatio.push_back( geom->m_TawTwRatio() );
+                m_geo_percLam.push_back( dragGeom->m_PercLam() );
+                m_geo_ffIn.push_back( dragGeom->m_FFUser() );
+                m_geo_Q.push_back( dragGeom->m_Q() );
+                m_geo_Roughness.push_back( dragGeom->m_Roughness() );
+                m_geo_TeTwRatio.push_back( dragGeom->m_TeTwRatio() );
+                m_geo_TawTwRatio.push_back( dragGeom->m_TawTwRatio() );
                 m_geo_surfNum.push_back( 0 );
                 m_geo_expandedList.push_back( geom->m_ExpandedListFlag() );
 
@@ -306,11 +309,11 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 
                 if ( geom->GetSurfType( iref ) == vsp::NORMAL_SURF )
                 {
-                    m_geo_ffType.push_back( geom->m_FFBodyEqnType() );
+                    m_geo_ffType.push_back( dragGeom->m_FFBodyEqnType() );
                 }
                 else
                 {
-                    m_geo_ffType.push_back( geom->m_FFWingEqnType() );
+                    m_geo_ffType.push_back( dragGeom->m_FFWingEqnType() );
                 }
                 m_geo_geomID.push_back( geom->GetID() );
                 m_geo_subsurfID.push_back( "" );
@@ -379,11 +382,11 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 
                     if ( geom->GetSurfType(j) == vsp::NORMAL_SURF )
                     {
-                        m_geo_ffType.push_back( geom->m_FFBodyEqnType() );
+                        m_geo_ffType.push_back( dragGeom->m_FFBodyEqnType() );
                     }
                     else
                     {
-                        m_geo_ffType.push_back( geom->m_FFWingEqnType() );
+                        m_geo_ffType.push_back( dragGeom->m_FFWingEqnType() );
                     }
                     m_geo_geomID.push_back( geom->GetID() );
                     m_geo_subsurfID.push_back( "" );
@@ -411,7 +414,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                             // A subsurface's roughness defaults to -1, unset: use its Geom's
                             if ( surf->m_Roughness() < 0 )
                             {
-                                m_geo_Roughness.push_back( geom->m_Roughness() );
+                                m_geo_Roughness.push_back( dragGeom->m_Roughness() );
                             }
                             else
                             {

@@ -1669,7 +1669,7 @@ string ParasiteDragScreen::BuildUpTableKey()
         Geom* geom = veh->FindGeom( row.GeomID );
         if ( geom )
         {
-            key << " " << geom->GetName() << " " << geom->m_ExpandedListFlag();
+            key << " " << geom->GetName() << " " << geom->m_ExpandedListFlag() << " " << ( geom->GetParasiteDragGeom() != geom );
             SubSurface* ssurf = geom->GetSubSurf( row.SubSurfID );
             if ( ssurf )
             {
@@ -1956,6 +1956,17 @@ void ParasiteDragScreen::AddGeomsToTable()
                     if ( rowVec[i].MasterRow )
                     {
                         m_grouped[i].Activate();
+
+                        // A Clone using its original's settings shows them; they are set there
+                        Geom* geom = veh->FindGeom( rowVec[i].GeomID );
+                        if ( geom->GetParasiteDragGeom() != geom )
+                        {
+                            m_Roughness[i].Deactivate();
+                            m_percLam[i].Deactivate();
+                            m_ffType[i].Deactivate();
+                            m_ffIn[i].Deactivate();
+                            m_Q[i].Deactivate();
+                        }
                     }
                 }
                 lastID = rowVec[i].GeomID;

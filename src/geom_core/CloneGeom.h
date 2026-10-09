@@ -90,6 +90,7 @@ public:
     static void CopyXFormParms( Geom* from, Geom* to );
     static void CopyAttachParms( Geom* from, Geom* to );
     static void CopyMassPropParms( Geom* from, Geom* to );
+    static void CopyParasiteDragParms( Geom* from, Geom* to );
     static void CopyNegativeVolumeParm( Geom* from, Geom* to );
     static void CopySetFlags( Geom* from, Geom* to );
     static void CopyAppearance( Geom* from, Geom* to );
@@ -113,6 +114,7 @@ public:
     virtual int GetBehaviorType() const override;
     virtual Geom* GetBehaviorGeom() override;
     virtual double ComputeMAC() override;
+    virtual Geom* GetParasiteDragGeom() override;
 
     //==== Standing in for a landing gear ====//
     // Answered by the original in the gear's own frame; this Geom's matrix places the result.
@@ -319,6 +321,7 @@ public:
     BoolParm m_CloneAppearance;
     BoolParm m_CloneNegativeVolume;
     BoolParm m_CloneMassProps;
+    BoolParm m_CloneParasiteDrag;
     BoolParm m_CloneSubSurfs;
     BoolParm m_CloneJoint;
     BoolParm m_AutoName;

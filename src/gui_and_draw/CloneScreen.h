@@ -48,6 +48,7 @@ protected:
     ToggleButton m_CloneAppearanceButton;
     ToggleButton m_CloneNegativeVolumeButton;
     ToggleButton m_CloneMassPropsButton;
+    ToggleButton m_CloneParasiteDragButton;
     ToggleButton m_CloneSubSurfsButton;
     ToggleButton m_CloneJointButton;
     ToggleButton m_AutoNameButton;

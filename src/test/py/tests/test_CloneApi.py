@@ -550,6 +550,7 @@ def testASwitchLeftOnLeavesTheOriginalsValue():
 
     vsp.SetParmVal( vsp.FindParm( pod, "Y_Rel_Location", "XForm" ), 3.0 )
     vsp.SetParmVal( vsp.FindParm( pod, "Density", "Mass_Props" ), 7.0 )
+    vsp.SetParmVal( vsp.FindParm( pod, "Q", "ParasiteDragProps" ), 1.3 )
     vsp.Update()
 
     assert abs( vsp.GetParmVal( vsp.FindParm( clone, "Y_Rel_Location", "XForm" ) ) - 3.0 ) < 1e-6, \
@@ -560,6 +561,7 @@ def testASwitchLeftOnLeavesTheOriginalsValue():
 
     assert abs( vsp.GetParmVal( vsp.FindParm( real, "Y_Rel_Location", "XForm" ) ) - 3.0 ) < 1e-6
     assert abs( vsp.GetParmVal( vsp.FindParm( real, "Density", "Mass_Props" ) ) - 7.0 ) < 1e-6
+    assert abs( vsp.GetParmVal( vsp.FindParm( real, "Q", "ParasiteDragProps" ) ) - 1.3 ) < 1e-6, "Parasite Drag"
     assert_no_errors()
 
 
@@ -581,12 +583,13 @@ def testEverySwitchTurnedOffCarriesTheClonesOwnValue():
 
     clone = vsp.CloneGeomVec( [ pod ] )[0]
     for name in ( "CloneXForm", "CloneSym", "CloneMassProps", "CloneNegativeVolume",
-                  "CloneSets", "CloneAppearance" ):
+                  "CloneSets", "CloneAppearance", "CloneParasiteDrag" ):
         switch( clone, name, False )
 
     vsp.SetParmVal( vsp.FindParm( clone, "Y_Rel_Location", "XForm" ), -5.0 )
     vsp.SetParmVal( vsp.FindParm( clone, "Z_Rel_Rotation", "XForm" ), 42.0 )
     vsp.SetParmVal( vsp.FindParm( clone, "Density", "Mass_Props" ), 2.0 )
+    vsp.SetParmVal( vsp.FindParm( clone, "Q", "ParasiteDragProps" ), 1.7 )
     vsp.SetParmVal( vsp.FindParm( clone, "Sym_Planar_Flag", "Sym" ), 0.0 )
     vsp.SetParmVal( vsp.FindParm( clone, "Negative_Volume_Flag", "Negative_Volume_Props" ), 1.0 )
     vsp.SetSetFlag( clone, 4, False )
@@ -600,6 +603,7 @@ def testEverySwitchTurnedOffCarriesTheClonesOwnValue():
     assert abs( vsp.GetParmVal( vsp.FindParm( real, "Y_Rel_Location", "XForm" ) ) + 5.0 ) < 1e-6, "transform"
     assert abs( vsp.GetParmVal( vsp.FindParm( real, "Z_Rel_Rotation", "XForm" ) ) - 42.0 ) < 1e-6, "rotation"
     assert abs( vsp.GetParmVal( vsp.FindParm( real, "Density", "Mass_Props" ) ) - 2.0 ) < 1e-6, "mass properties"
+    assert abs( vsp.GetParmVal( vsp.FindParm( real, "Q", "ParasiteDragProps" ) ) - 1.7 ) < 1e-6, "Parasite Drag"
     assert abs( vsp.GetParmVal( vsp.FindParm( real, "Sym_Planar_Flag", "Sym" ) ) ) < 1e-6, "symmetry"
     assert abs( vsp.GetParmVal( vsp.FindParm( real, "Negative_Volume_Flag", "Negative_Volume_Props" ) ) - 1.0 ) < 1e-6, "negative volume"
     assert vsp.GetSetFlag( real, 4 ) == False and vsp.GetSetFlag( real, 5 ) == True, "set membership"

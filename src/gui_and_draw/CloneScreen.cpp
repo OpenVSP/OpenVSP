@@ -40,6 +40,7 @@ CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone" 
     m_CloneLayout.AddButton( m_CloneAppearanceButton, "Color and Material" );
     m_CloneLayout.AddButton( m_CloneNegativeVolumeButton, "Negative Volume" );
     m_CloneLayout.AddButton( m_CloneMassPropsButton, "Mass Properties" );
+    m_CloneLayout.AddButton( m_CloneParasiteDragButton, "Parasite Drag" );
     m_CloneLayout.AddButton( m_CloneSubSurfsButton, "Subsurfaces" );
     m_CloneLayout.AddButton( m_CloneJointButton, "Joint Deflection" );
     m_CloneLayout.AddYGap();
@@ -109,6 +110,7 @@ bool CloneScreen::Update()
     m_CloneAppearanceButton.Update( clone_ptr->m_CloneAppearance.GetID() );
     m_CloneNegativeVolumeButton.Update( clone_ptr->m_CloneNegativeVolume.GetID() );
     m_CloneMassPropsButton.Update( clone_ptr->m_CloneMassProps.GetID() );
+    m_CloneParasiteDragButton.Update( clone_ptr->m_CloneParasiteDrag.GetID() );
     m_CloneSubSurfsButton.Update( clone_ptr->m_CloneSubSurfs.GetID() );
     m_CloneJointButton.Update( clone_ptr->m_CloneJoint.GetID() );
     m_AutoNameButton.Update( clone_ptr->m_AutoName.GetID() );

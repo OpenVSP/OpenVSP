@@ -1207,3 +1207,42 @@ def testACloneReferenceWingHasItsOwnSymmetry():
             area *= 0.5
         sref = vsp.GetDoubleResults( rid, "FC_Sref" )[0]
         assert abs( sref - area ) < 1e-9, "CloneSym %s: S_ref %g, area %g" % ( clone_sym, sref, area )
+
+
+def testACloneTakesItsOriginalsDragSettings():
+    """A Clone used its own default Q, % laminar, roughness and form factor choices, not its original's."""
+    names = ( "Comp_Swet", "Comp_Lref", "Comp_FineRat", "Comp_FFOut", "Comp_Re", "Comp_Cf", "Comp_Q", "Comp_PercLam", "Comp_f" )
+
+    def rows( geom_type, clone_drag ):
+        fresh()
+        g = vsp.AddGeom( geom_type )
+        if geom_type == "PROP":
+            vsp.SetParmVal( g, "PropMode", "Design", vsp.PROP_BOTH )
+        for name, val in ( ( "Q", 1.3 ), ( "PercLam", 20.0 ), ( "Roughness", 1e-5 ),
+                           ( "FFBodyEqnType", vsp.FF_B_JENKINSON_FUSE ), ( "FFWingEqnType", vsp.FF_W_TORENBEEK ) ):
+            vsp.SetParmVal( g, name, "ParasiteDragProps", val )
+        s = vsp.AddSubSurf( g, vsp.SS_RECTANGLE, 0 )
+        vsp.SetParmVal( vsp.GetParm( s, "IncludeFlag", "SubSurface" ), vsp.SS_INC_SEPARATE_TREATMENT )
+        vsp.SetParmVal( vsp.GetParm( s, "Q", "ParasiteDragProps" ), 1.5 )
+        vsp.Update()
+        k = vsp.CloneGeomVec( [ g ] )[0]
+        vsp.SetParmVal( k, "CloneParasiteDrag", "Behavior", clone_drag )
+        vsp.SetParmVal( k, "X_Rel_Location", "XForm", 1000.0 )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ 1 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        table = [ vsp.GetDoubleResults( rid, n ) for n in names ]
+        n = len( table[0] ) // 2
+        return [ col[:n] for col in table ], [ col[n:] for col in table ]
+
+    for geom_type in ( "POD", "WING", "PROP", "BODYOFREVOLUTION" ):
+        original, clone = rows( geom_type, 1 )
+        for name, a, b in zip( names, original, clone ):
+            for x, y in zip( a, b ):
+                assert abs( x - y ) <= 1e-9 * max( 1.0, abs( x ) ), "%s %s: original %g, Clone %g" % ( geom_type, name, x, y )
+
+        original, clone = rows( geom_type, 0 )
+        q = names.index( "Comp_Q" )
+        assert clone[q][0] == 1.0 and original[q][0] == 1.3, ( geom_type, original[q], clone[q] )

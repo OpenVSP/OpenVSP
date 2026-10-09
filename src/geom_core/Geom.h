@@ -772,6 +772,12 @@ public:
         return m_BBox != m_ScaleIndependentBBox;
     }
 
+    // The Geom whose Parasite Drag settings this one uses
+    virtual Geom* GetParasiteDragGeom()
+    {
+        return this;
+    }
+
     virtual Geom* GetBehaviorGeom()
     {
         return this;

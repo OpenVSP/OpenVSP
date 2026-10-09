@@ -2209,6 +2209,11 @@ string Vehicle::ReplaceCloneGeom( const string & clone_id )
     CloneGeom::CopySetFlags( clone, replacement );
     CloneGeom::CopyMassPropParms( clone, replacement );
     CloneGeom::CopyNegativeVolumeParm( clone, replacement );
+
+    // The drag settings the Clone used, and its own grouping in the tree
+    CloneGeom::CopyParasiteDragParms( clone->GetParasiteDragGeom(), replacement );
+    replacement->m_GroupedAncestorGen.Set( clone->m_GroupedAncestorGen() );
+    replacement->m_ExpandedListFlag.Set( clone->m_ExpandedListFlag() );
     CloneGeom::CopyAppearance( clone, replacement );
 
     // Display settings are not Parms, so copy them explicitly.
