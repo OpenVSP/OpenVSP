@@ -1477,6 +1477,7 @@ string ParasiteDragFullAnalysis::Execute()
         if ( nvd )
         {
             ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt( 0 ) );
+            ParasiteDragMgr.UpdateTempLimits();
         }
         nvd = m_Inputs.FindPtr( "AltLengthUnit", 0 );
         if ( nvd )
@@ -1631,6 +1632,7 @@ string ParasiteDragFullAnalysis::Execute()
         ParasiteDragMgr.m_LengthUnit.Set( lengthUnitChoiceOrig );
         ParasiteDragMgr.m_VinfUnitType.Set( velocityUnitChoiceOrig );
         ParasiteDragMgr.m_TempUnit.Set( tempUnitChoiceOrig );
+        ParasiteDragMgr.UpdateTempLimits();
         ParasiteDragMgr.m_AltLengthUnit.Set( altLengthUnitOrig );
         ParasiteDragMgr.m_PresUnit.Set( presUnitOrig );
 

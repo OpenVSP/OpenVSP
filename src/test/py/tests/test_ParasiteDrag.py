@@ -501,6 +501,25 @@ def testRoughnessFlowCorrectionUsesMachSquared():
     assert abs( ratio - expect ) < 1e-9, "ratio %g, expected %g" % ( ratio, expect )
 
 
+def testATemperatureBelowZeroCelsiusIsKept():
+    """The analysis set the unit but left the lower limit of the previous one, so -17.5 C became 0 C."""
+    def re( unit, temp ):
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "FreestreamPropChoice", [ vsp.ATMOS_TYPE_MANUAL_P_T ] )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "TempUnit", [ unit ] )
+        vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Temperature", [ temp ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return vsp.GetDoubleResults( rid, "Comp_Re" )[0]
+
+    fresh()
+    vsp.AddGeom( "POD" )
+    vsp.Update()
+    kelvin = re( vsp.TEMP_UNIT_K, 273.15 - 17.5 )
+    celsius = re( vsp.TEMP_UNIT_C, -17.5 )
+    assert abs( celsius / kelvin - 1.0 ) < 1e-6, "Re %g in C, %g in K" % ( celsius, kelvin )
+
+
 def testAFormFactorOutsideItsRangeIsReported():
     """Shevell's form factor has sqrt( 1 - M^2 cos^2 ); above Mach 1 it is NaN and the wing silently had no drag."""
     fresh()
