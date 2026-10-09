@@ -92,6 +92,7 @@ public:
     {
         return m_MechParentID;
     }
+    virtual string GetActiveParentID();
 
     // T must have methods .FlipNormal() and .Transform( Matrix4d ) and must be default constructible and
     // copy assignable.  Copies of source are written to dest starting at index idest, growing dest only when
@@ -614,6 +615,7 @@ public:
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void ChangeID( const string &id );
     virtual void UpdateParents();
+    virtual void GetDependencyIDs( vector< string > &ids );
 
     void SetCurrBogieIndex( int i )             { m_CurrBogieIndex = i; }
     int GetCurrBogieIndex()                     { return m_CurrBogieIndex; }

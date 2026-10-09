@@ -222,6 +222,14 @@ vec3d RoutingPoint::GetPt()
 
 void RoutingPoint::SetParentID( const string &id )
 {
+    // A point cannot lie on a Geom built from this route
+    RoutingGeom * route = dynamic_cast< RoutingGeom* >( GetParentContainerPtr() );
+    Geom* parent = VehicleMgr.GetVehicle()->FindGeom( id );
+    if ( route && parent && parent->DependsOn( route->GetID() ) )
+    {
+        return;
+    }
+
     m_ParentID = id;
 
     //==== Notify Parent Container (XSecSurf) ====//
@@ -661,6 +669,16 @@ void RoutingGeom::ChangeID( const string &id )
     for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
     {
         m_RoutingPointVec[i]->SetParentContainer( id );
+    }
+}
+
+// A route is built from the surfaces its points lie on.
+void RoutingGeom::GetDependencyIDs( vector< string > &ids )
+{
+    Geom::GetDependencyIDs( ids );
+    for ( int i = 0; i < m_RoutingPointVec.size(); i++ )
+    {
+        ids.push_back( m_RoutingPointVec[i]->GetParentID() );
     }
 }
 

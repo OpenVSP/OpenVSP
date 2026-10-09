@@ -2082,6 +2082,16 @@ void Bogie::BackCalculateRetract()
     }
 }
 
+// The retract mode picks which attach Geom places the retracted bogie.
+string Bogie::GetActiveParentID()
+{
+    if ( m_RetMode() == vsp::GEAR_STOWED_POSITION )
+    {
+        return m_StowParentID;
+    }
+    return m_MechParentID;
+}
+
 void Bogie::Update()
 {
     UpdateParms();
@@ -2417,6 +2427,14 @@ xmlNodePtr Bogie::DecodeXml( xmlNodePtr & node )
 
 void Bogie::SetStowParentID( const string &id )
 {
+    // The bogie cannot attach to a Geom built from its gear
+    GearGeom * gear = dynamic_cast< GearGeom* >( GetParentContainerPtr() );
+    Geom* parent = VehicleMgr.GetVehicle()->FindGeom( id );
+    if ( gear && parent && parent->DependsOn( gear->GetID() ) )
+    {
+        return;
+    }
+
     m_StowParentID = id ;
 
     ParmContainer* pc = GetParentContainerPtr();
@@ -2433,6 +2451,14 @@ void Bogie::SetStowParentID( const string &id )
 
 void Bogie::SetMechParentID( const string &id )
 {
+    // The bogie cannot attach to a Geom built from its gear
+    GearGeom * gear = dynamic_cast< GearGeom* >( GetParentContainerPtr() );
+    Geom* parent = VehicleMgr.GetVehicle()->FindGeom( id );
+    if ( gear && parent && parent->DependsOn( gear->GetID() ) )
+    {
+        return;
+    }
+
     m_MechParentID = id ;
 
     ParmContainer* pc = GetParentContainerPtr();
@@ -3346,6 +3372,16 @@ void GearGeom::ChangeID( const string &id )
     for ( int i = 0; i < m_Bogies.size(); i++ )
     {
         m_Bogies[i]->SetParentContainer( id );
+    }
+}
+
+// A bogie's retracted position is built from the surface it attaches to, stow or mechanism.
+void GearGeom::GetDependencyIDs( vector< string > &ids )
+{
+    Geom::GetDependencyIDs( ids );
+    for ( int i = 0; i < m_Bogies.size(); i++ )
+    {
+        ids.push_back( m_Bogies[i]->GetActiveParentID() );
     }
 }
 

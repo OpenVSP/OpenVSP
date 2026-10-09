@@ -178,12 +178,26 @@ xmlNodePtr ConformalGeom::DecodeXml( xmlNodePtr & node )
     return child_node;
 }
 
+// A detached conformal is built on its conformal parent as well as placed by its parent.
+void ConformalGeom::GetDependencyIDs( vector< string > &ids )
+{
+    Geom::GetDependencyIDs( ids );
+    ids.push_back( m_ConformalParentID );
+}
+
 bool ConformalGeom::SetConformalParent( const string &parent )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     bool parentchanged = false;
     if ( !veh )
+    {
+        return parentchanged;
+    }
+
+    // A conformal parent cannot be built from this Geom
+    Geom* new_parent = veh->FindGeom( parent );
+    if ( new_parent && new_parent->DependsOn( m_ID ) )
     {
         return parentchanged;
     }

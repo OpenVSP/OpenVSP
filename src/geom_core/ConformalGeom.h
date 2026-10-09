@@ -36,6 +36,7 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     string GetConformalParent() const { return m_ConformalParentID; }
+    virtual void GetDependencyIDs( vector< string > &ids );
 
     // The shape is an inset built in the parent's frame, and the attachment carries no flip,
     // so the parent's flip is applied here.

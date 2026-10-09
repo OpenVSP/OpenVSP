@@ -8576,6 +8576,11 @@ void SetRoutingPtParentID( const std::string & pt_id, const std::string &parent_
     }
 
     rpt->SetParentID( parent_id );
+    if ( rpt->GetParentID() != parent_id )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetRoutingPtParentID::Geom " + parent_id + " depends on the routing Geom" );
+        return;
+    }
 
     ErrorMgr.NoError();
     return;
