@@ -696,6 +696,24 @@ void DegenGeom::augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf
         double tloc;
         double t = c.CalculateThick( tloc );
 
+        // CalculateThick works in the curve's units; the section shrinks with the chord, e.g.
+        // toward a point tip, so divide by its own chord, leading edge to trailing edge midpoint
+        double tmin = c.GetCurve().get_parameter_min();
+        double tmax = c.GetCurve().get_parameter_max();
+        vec3d le = c.CompPnt( 0.5 * ( tmin + tmax ) );
+        vec3d te = ( c.CompPnt( tmin ) + c.CompPnt( tmax ) ) * 0.5;
+        double foil_chord = dist( le, te );
+        if ( foil_chord > 1e-12 )
+        {
+            t = t / foil_chord;
+            tloc = ( tloc - le.x() ) / foil_chord;
+        }
+        else
+        {
+            t = 0;
+            tloc = 0;
+        }
+
         double te_angle = c.Angle( TMAGIC, VspCurve::AFTER, 4.0 - TMAGIC, VspCurve::BEFORE, true ) * 180.0 / M_PI;
         double le_angle = c.Angle( 2.0 + TMAGIC, VspCurve::AFTER, 2.0-TMAGIC, VspCurve::BEFORE, true ) * 180.0 / M_PI;
 
