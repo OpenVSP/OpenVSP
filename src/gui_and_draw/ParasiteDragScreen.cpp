@@ -657,7 +657,7 @@ bool ParasiteDragScreen::Update()
     {
         m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
 
-        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, ParasiteDragMgr.m_ModeID );
 
         m_ModeSetToggleGroup.Update( ParasiteDragMgr.m_UseMode.GetID() );
 
@@ -680,7 +680,13 @@ bool ParasiteDragScreen::Update()
             m_ModeChoice.Activate();
             m_SetChoice.Deactivate();
 
-            Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+            // An unset or deleted mode falls back to the first, as the choice shows
+            if ( !ModeMgr.GetMode( ParasiteDragMgr.m_ModeID ) && !m_ModeIDs.empty() )
+            {
+                ParasiteDragMgr.m_ModeID = m_ModeIDs[0];
+            }
+
+            Mode *m = ModeMgr.GetMode( ParasiteDragMgr.m_ModeID );
             if ( m )
             {
                 if ( ParasiteDragMgr.m_SetChoice() != m->m_NormalSet() )
@@ -1214,7 +1220,15 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ModeChoice )
     {
-        m_SelectedModeChoice = m_ModeChoice.GetVal();
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0 && indx < ( int )m_ModeIDs.size() )
+        {
+            ParasiteDragMgr.m_ModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            ParasiteDragMgr.m_ModeID = "";
+        }
     }
     else if ( device == &m_LamCfEqnChoice )
     {
@@ -1378,7 +1392,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                     if ( rebuild )
                     {
                         m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
-                        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+                        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, ParasiteDragMgr.m_ModeID );
                         ParasiteDragMgr.RefreshBaseDataVectors();
                         RebuildBuildUpTable();
                         ParasiteDragMgr.RenewDegenGeomVec();

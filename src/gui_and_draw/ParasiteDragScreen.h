@@ -118,7 +118,6 @@ protected:
     ToggleRadioGroup m_ModeSetToggleGroup;
     ToggleButton m_ModeToggle;
     Choice m_ModeChoice;
-    int m_SelectedModeChoice;
     vector < string > m_ModeIDs;
 
     //---- Table Options ----//
