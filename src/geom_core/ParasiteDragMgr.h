@@ -91,9 +91,9 @@ public:
     static int CalcGeomRowSize( Geom* geom );
     void Calculate_Swet();
     void Calculate_Lref();
-    double CalcReferenceLength( int index );
+    double CalcReferenceLength( int index, const string & geom_id );
     double CalcReferenceBodyLength( int index );
-    double CalcReferenceChord( int index );
+    double CalcReferenceChord( int index, const string & geom_id );
     void Calculate_Re();
     void CalcRePowerDivisor();
     void ReynoldsNumCalc( int index );

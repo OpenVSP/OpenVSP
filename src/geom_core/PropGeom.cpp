@@ -3204,6 +3204,22 @@ bool PropGeom::GetRotorHubDiameter( double &hubdia ) const
     return true;
 }
 
+// A blade's chord curve is c/R over r/R, so its MAC is R integral( c^2 ) / integral( c ) from the root
+double PropGeom::ComputeMAC()
+{
+    double rfirst = GetR0();
+
+    Vsp1DCurve csq;
+    csq.product( *m_ChordCurve.GetCurve(), *m_ChordCurve.GetCurve() );
+
+    double cint = m_ChordCurve.IntegrateCrv( rfirst );
+    if ( cint <= 0 )
+    {
+        return 0.0;
+    }
+    return 0.5 * m_Diameter() * csq.IntegrateCrv( rfirst ) / cint;
+}
+
 double PropGeom::GetR0()
 {
     if (  PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( 0 ) )

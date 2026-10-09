@@ -544,6 +544,83 @@ def testReLModeFormFactorUsesItsOwnMach():
     assert abs( got - expect ) < 1e-12, "FF %g, expected %g" % ( got, expect )
 
 
+def testWingReferenceLengthIsTheMeanAerodynamicChord():
+    """The strips were weighted by their length along the leading edge, so a swept panel counted extra."""
+    for sweep in ( 0.0, 60.0 ):
+        fresh()
+        w = vsp.AddGeom( "WING" )
+        vsp.InsertXSec( w, 1, vsp.XS_FOUR_SERIES )
+        vsp.Update()
+        for sec, span, root, tip, swp in ( ( 1, 2.0, 4.0, 4.0, 0.0 ), ( 2, 8.0, 4.0, 1.0, sweep ) ):
+            g = "XSec_%d" % sec
+            for name, val in ( ( "Sweep_Location", 0.0 ), ( "Span", span ), ( "Root_Chord", root ),
+                               ( "Tip_Chord", tip ), ( "Sweep", swp ) ):
+                vsp.SetParmVal( w, name, g, val )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+
+        # integral( c^2 ) / integral( c ): inner 2 * 16 and 2 * 4, outer 8 * 21 / 3 and 8 * 2.5
+        mac = ( 32.0 + 56.0 ) / ( 8.0 + 20.0 )
+        lref = vsp.GetDoubleResults( rid, "Comp_Lref" )[0]
+        assert abs( lref - mac ) < 1e-6, "sweep %g: L_ref %g, MAC %g" % ( sweep, lref, mac )
+
+
+def lref_of_the_first_component():
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    return vsp.GetDoubleResults( rid, "Comp_Lref" )[0]
+
+
+def testACurvedWingTakesItsOwnMeanAerodynamicChord():
+    """Straight strips across a curved leading edge missed the MAC the wing integrates exactly; a Clone has its original's."""
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    vsp.InsertXSec( w, 1, vsp.XS_FOUR_SERIES )
+    vsp.Update()
+    for sec, span, root, tip, swp in ( ( 1, 2.0, 4.0, 4.0, 0.0 ), ( 2, 8.0, 4.0, 1.0, 40.0 ) ):
+        g = "XSec_%d" % sec
+        for name, val in ( ( "Span", span ), ( "Root_Chord", root ), ( "Tip_Chord", tip ), ( "Sweep", swp ) ):
+            vsp.SetParmVal( w, name, g, val )
+    vsp.SetParmVal( w, "InLEMode", "XSec_2", vsp.BLEND_MATCH_IN_LE_TRAP )
+    vsp.SetParmVal( w, "OutLEMode", "XSec_1", vsp.BLEND_MATCH_IN_LE_TRAP )
+    vsp.SetParmVal( w, "InLEStrength", "XSec_2", 1.0 )
+    vsp.Update()
+    vsp.CloneGeomVec( [ w ] )
+    vsp.Update()
+    mac = vsp.GetParmVal( w, "MAC", "WingGeom" )
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    # The wing, then its Clone
+    for lref in vsp.GetDoubleResults( rid, "Comp_Lref" ):
+        assert abs( lref - mac ) < 1e-9, "L_ref %g, MAC %g" % ( lref, mac )
+
+
+def testAPropBladeTakesItsMeanAerodynamicChord():
+    """A blade is treated as a wing: integral( c^2 ) / integral( c ) over r/R from the root."""
+    fresh()
+    p = vsp.AddGeom( "PROP" )
+    vsp.SetPCurve( p, vsp.PROP_CHORD, [ 0.2, 1.0 ], [ 0.2, 0.1 ], vsp.LINEAR )
+    vsp.Update()
+    radius = 0.5 * vsp.GetParmVal( p, "Diameter", "Design" )
+    c0, c1 = 0.2, 0.1
+    mac = radius * 2.0 * ( c0 * c0 + c0 * c1 + c1 * c1 ) / ( 3.0 * ( c0 + c1 ) )
+    lref = lref_of_the_first_component()
+    assert abs( lref - mac ) < 1e-6, "L_ref %g, MAC %g" % ( lref, mac )
+
+
+def testABodyOfRevolutionTakesItsSectionChord():
+    fresh()
+    b = vsp.AddGeom( "BODYOFREVOLUTION" )
+    vsp.SetParmVal( b, "Circle_Diameter", "XSecCurve", 2.5 )
+    vsp.Update()
+    lref = lref_of_the_first_component()
+    assert abs( lref - 2.5 ) < 1e-9, "L_ref %g" % lref
+
+
 def testAFormFactorOutsideItsRangeIsReported():
     """Shevell's form factor has sqrt( 1 - M^2 cos^2 ); above Mach 1 it is NaN and the wing silently had no drag."""
     fresh()

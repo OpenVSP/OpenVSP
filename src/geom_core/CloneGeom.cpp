@@ -118,6 +118,17 @@ int CloneGeom::GetBehaviorType() const
     return Geom::GetBehaviorType();
 }
 
+// A Clone cannot be scaled apart from its original, so it has the original's MAC
+double CloneGeom::ComputeMAC()
+{
+    Geom* behavior = GetBehaviorGeom();
+    if ( behavior && behavior != this )
+    {
+        return behavior->ComputeMAC();
+    }
+    return 0.0;
+}
+
 Geom* CloneGeom::GetBehaviorGeom()
 {
     Geom* original_geom = FollowOriginals();

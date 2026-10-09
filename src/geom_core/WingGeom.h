@@ -188,6 +188,7 @@ public:
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void ApplyScale( double currentScale );
     virtual void AddDefaultSources( double base_len = 1.0 );
+    virtual double ComputeMAC()                           { return m_MAC(); }
 
     //==== Override Geom Cut/Copy/Paste/Insert ====//
     virtual void CutXSec( int index );

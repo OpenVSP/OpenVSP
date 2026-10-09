@@ -168,6 +168,7 @@ public:
     virtual void ResetThickness();
 
     virtual double GetR0();
+    virtual double ComputeMAC();
 
     virtual double GetRotorDiameter() const
     {

@@ -68,6 +68,16 @@ BORGeom::~BORGeom()
 
 }
 
+// One section is revolved, so the chord is constant: the section's width
+double BORGeom::ComputeMAC()
+{
+    if ( !m_XSCurve )
+    {
+        return 0.0;
+    }
+    return m_XSCurve->GetWidth();
+}
+
 void BORGeom::UpdateSurf()
 {
     if ( !m_XSCurve )

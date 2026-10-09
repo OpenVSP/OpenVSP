@@ -644,7 +644,7 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
             int idegen = FindDegenIndex( m_geo_geomID[i] );
             if ( idegen >= 0 )
             {
-                lref = CalcReferenceLength( idegen );
+                lref = CalcReferenceLength( idegen, m_geo_geomID[i] );
             }
         }
         else if ( !m_geo_lref.empty() )
@@ -655,7 +655,7 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
     }
 }
 
-double ParasiteDragMgrSingleton::CalcReferenceLength( int index )
+double ParasiteDragMgrSingleton::CalcReferenceLength( int index, const string & geom_id )
 {
     double lref = 0;
     if ( m_DegenGeomVec[index].getType() == DegenGeom::BODY_TYPE )
@@ -664,12 +664,12 @@ double ParasiteDragMgrSingleton::CalcReferenceLength( int index )
 
         if ( lref <= 1e-6 )
         {
-            lref = CalcReferenceChord( index );
+            lref = CalcReferenceChord( index, geom_id );
         }
     }
     else if ( m_DegenGeomVec[index].getType() == DegenGeom::SURFACE_TYPE )
     {
-        lref = CalcReferenceChord( index );
+        lref = CalcReferenceChord( index, geom_id );
 
         if ( lref <= 1e-6 )
         {
@@ -706,34 +706,47 @@ double ParasiteDragMgrSingleton::CalcReferenceBodyLength( int index )
 }
 
 // Use weighted average to approximate reference chord
-double ParasiteDragMgrSingleton::CalcReferenceChord( int index )
+double ParasiteDragMgrSingleton::CalcReferenceChord( int index, const string & geom_id )
 {
-    // TODO: Improve Reference Length Calculations
+    // A wing-like Geom computes its own mean aerodynamic chord
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( geom_id );
+    if ( geom )
+    {
+        double mac = geom->ComputeMAC();
+        if ( mac > 0 )
+        {
+            return mac;
+        }
+    }
+
+    // Otherwise integral( c^2 ) / integral( c ) along the span, with the chord linear across
+    // each strip
     vector <DegenStick> m_DegenStick = m_DegenGeomVec[index].getDegenSticks();
-    double secArea, totalArea = 0, weightedChordSum = 0;
-    double delta_x, delta_y, delta_z, section_span;
+    double totalArea = 0, chordSqSum = 0;
     if ( m_DegenStick.empty() )
     {
         return 0;
     }
     for ( size_t j = 0; j < m_DegenStick[0].areaTop.size(); ++j )
     {
-        delta_x = abs( m_DegenStick[0].xle[j].x() - m_DegenStick[0].xle[j + 1].x() );
-        delta_y = abs( m_DegenStick[0].xle[j].y() - m_DegenStick[0].xle[j + 1].y() );
-        delta_z = abs( m_DegenStick[0].xle[j].z() - m_DegenStick[0].xle[j + 1].z() );
-        section_span = sqrt( pow( delta_x, 2.0 ) + pow( delta_y, 2.0 ) + pow( delta_z, 2.0 ) );
-        secArea = section_span * ( 0.5 * ( m_DegenStick[0].chord[j] + m_DegenStick[0].chord[j + 1] ) );
+        double c0 = m_DegenStick[0].chord[j];
+        double c1 = m_DegenStick[0].chord[j + 1];
 
-        totalArea += secArea;
+        // Strip width across the chord, so sweep does not stretch it
+        vec3d dle = m_DegenStick[0].xle[j + 1] - m_DegenStick[0].xle[j];
+        vec3d cdir = ( m_DegenStick[0].xte[j] - m_DegenStick[0].xle[j] ) + ( m_DegenStick[0].xte[j + 1] - m_DegenStick[0].xle[j + 1] );
+        cdir.normalize();
+        double width = ( dle - cdir * dot( dle, cdir ) ).mag();
 
-        weightedChordSum += ( ( 0.5 * ( m_DegenStick[0].chord[j] + m_DegenStick[0].chord[j + 1] ) ) * secArea );
+        totalArea += width * 0.5 * ( c0 + c1 );
+        chordSqSum += width * ( c0 * c0 + c0 * c1 + c1 * c1 ) / 3.0;
     }
 
     if ( totalArea <= 0 )
     {
         return 0;
     }
-    return weightedChordSum / totalArea;
+    return chordSqSum / totalArea;
 }
 
 void ParasiteDragMgrSingleton::Calculate_Re()

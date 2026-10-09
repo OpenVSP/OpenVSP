@@ -347,6 +347,9 @@ public:
 
     virtual bool IsModelScaleSensitive() { return false; }
 
+    // Mean aerodynamic chord of a wing-like Geom; 0 where the Geom has none of its own
+    virtual double ComputeMAC() { return 0.0; }
+
     // Whether this Geom's origin belongs in its placed bounding box.  True for a landing gear,
     // whose ground plane is sized from the model box, so the origin stands in for it.
     virtual bool PlacedBBoxIncludesOrigin() const

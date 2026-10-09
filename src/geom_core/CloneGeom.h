@@ -111,6 +111,7 @@ public:
     // Behaves as the original; GetType still returns Clone.
     virtual int GetBehaviorType() const override;
     virtual Geom* GetBehaviorGeom() override;
+    virtual double ComputeMAC() override;
 
     //==== Standing in for a landing gear ====//
     // Answered by the original in the gear's own frame; this Geom's matrix places the result.

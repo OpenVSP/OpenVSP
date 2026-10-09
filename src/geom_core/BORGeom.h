@@ -37,6 +37,8 @@ public:
 
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 
+    virtual double ComputeMAC();
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
