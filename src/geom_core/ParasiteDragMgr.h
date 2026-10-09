@@ -232,7 +232,6 @@ public:
     void UpdateTempLimits();
     void UpdatePres( int newunit );
     void UpdatePercentageCD();
-    void UpdateMasterPercCD();
     void UpdateParmActivity();
     void UpdateExportLabels();
     void UpdateExcres();

@@ -544,6 +544,47 @@ def testReLModeFormFactorUsesItsOwnMach():
     assert abs( got - expect ) < 1e-12, "FF %g, expected %g" % ( got, expect )
 
 
+def totals( rid ):
+    names = ( "Geom_f_Total", "Geom_CD_Total", "Geom_Perc_Total", "Total_f_Total", "Total_CD_Total", "Total_Perc_Total" )
+    return dict( ( n, vsp.GetDoubleResults( rid, n )[0] ) for n in names )
+
+
+def testTheGeometryTotalsAgree():
+    """The f total and percentages summed the non-master rows, the CD total the master rows."""
+    def run( build ):
+        fresh()
+        build()
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "RefFlag", [ vsp.MANUAL_REF ] )
+        vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Sref", [ 1.0 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return totals( rid )
+
+    def grouped():
+        a = vsp.AddGeom( "POD" )
+        b = vsp.AddGeom( "POD", a )
+        vsp.SetParmVal( b, "Y_Rel_Location", "XForm", 5.0 )
+        vsp.SetParmVal( b, "IncorporatedGen", "ParasiteDragProps", 1 )
+
+    def separate_first():
+        p = vsp.AddGeom( "POD" )
+        vsp.Update()
+        for name, u, inc in ( ( "A", 0.25, vsp.SS_INC_SEPARATE_TREATMENT ), ( "B", 0.75, vsp.SS_INC_TREAT_AS_PARENT ) ):
+            s = vsp.AddSubSurf( p, vsp.SS_RECTANGLE, 0 )
+            vsp.SetParmVal( vsp.GetParm( s, "Center_U", "SS_Rectangle" ), u )
+            vsp.SetParmVal( vsp.GetParm( s, "IncludeFlag", "SubSurface" ), inc )
+            vsp.SetParmVal( vsp.GetParm( s, "Q", "ParasiteDragProps" ), 3.0 )
+
+    for build in ( grouped, separate_first ):
+        t = run( build )
+        assert abs( t[ "Geom_f_Total" ] - t[ "Geom_CD_Total" ] ) < 1e-12, ( build.__name__, t )
+        assert abs( t[ "Total_f_Total" ] - t[ "Total_CD_Total" ] ) < 1e-12, ( build.__name__, t )
+        assert abs( t[ "Geom_Perc_Total" ] - 1.0 ) < 1e-12, ( build.__name__, t )
+        assert abs( t[ "Total_Perc_Total" ] - 1.0 ) < 1e-12, ( build.__name__, t )
+
+
 def testWingReferenceLengthIsTheMeanAerodynamicChord():
     """The strips were weighted by their length along the leading edge, so a swept panel counted extra."""
     for sweep in ( 0.0, 60.0 ):

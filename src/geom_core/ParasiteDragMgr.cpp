@@ -2886,24 +2886,21 @@ void ParasiteDragMgrSingleton::UpdatePercentageCD()
     double ftotal = 0;
     double percTotal = 0;
 
+    // The master rows carry the geometry's drag, as in GetGeometryCD; the other rows show their
+    // own share and are not summed.
     for ( int i = 0; i < m_geo_CD.size(); i++ )
     {
-        if ( !m_DegenGeomVec.empty() )
+        double perc = 0;
+        if ( !m_DegenGeomVec.empty() && totalCD0 > 0 )
         {
-            if ( !m_geo_masterRow[i] )
-            {
-                m_geo_percTotalCD.push_back( m_geo_CD[i] / totalCD0 );
-                percTotal += m_geo_CD[i] / totalCD0;
-                ftotal += m_geo_f[i];
-            }
-            else
-            {
-                m_geo_percTotalCD.push_back( 0.0 );
-            }
+            perc = m_geo_CD[i] / totalCD0;
         }
-        else
+        m_geo_percTotalCD.push_back( perc );
+
+        if ( !m_DegenGeomVec.empty() && m_geo_masterRow[i] && m_geo_CD[i] > 0.0 )
         {
-            m_geo_percTotalCD.push_back( 0 );
+            percTotal += perc;
+            ftotal += m_geo_f[i];
         }
     }
 
@@ -2914,7 +2911,7 @@ void ParasiteDragMgrSingleton::UpdatePercentageCD()
     percTotal = 0;
     for ( size_t i = 0; i < m_ExcresRowVec.size(); ++i )
     {
-        if ( !m_DegenGeomVec.empty() )
+        if ( !m_DegenGeomVec.empty() && totalCD0 > 0 )
         {
             m_ExcresRowVec[i].PercTotalCD = m_ExcresRowVec[i].Amount / totalCD0;
             percTotal += m_ExcresRowVec[i].Amount / totalCD0;
@@ -2928,38 +2925,7 @@ void ParasiteDragMgrSingleton::UpdatePercentageCD()
 
     m_ExcresfTotal = ftotal;
     m_ExcresPercTotal = percTotal;
-
-    UpdateMasterPercCD();
 }
-
-void ParasiteDragMgrSingleton::UpdateMasterPercCD()
-{
-    if ( !m_DegenGeomVec.empty() )
-    {
-        for ( size_t i = 0; i < m_RowSize; ++i )
-        {
-            for ( size_t j = 0; j < m_RowSize; ++j )
-            {
-                if ( ShouldAddSubSurfToMasterGeom( i, j ) )
-                {
-                    m_geo_percTotalCD[i] += m_geo_percTotalCD[j];
-                }
-            }
-        }
-
-        for ( size_t i = 0; i < m_RowSize; ++i )
-        {
-            for ( size_t j = 0; j < m_RowSize; ++j )
-            {
-                if ( ShouldAddGeomToMasterGeom( i, j ) )
-                {
-                    m_geo_percTotalCD[i] += m_geo_percTotalCD[j];
-                }
-            }
-        }
-    }
-}
-
 
 void ParasiteDragMgrSingleton::UpdateParmActivity()
 {
