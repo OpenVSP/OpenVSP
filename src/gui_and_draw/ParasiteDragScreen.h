@@ -13,6 +13,7 @@
 #include "ScreenMgr.h"
 #include "ScreenBase.h"
 #include "Vehicle.h"
+#include "ParasiteDragMgr.h"
 
 class ParasiteDragScreen;
 
@@ -56,7 +57,10 @@ protected:
     // Table Functions
     void RebuildBuildUpTableLabels();
     void InitSortToggleGroup();
+    void GetGroupedItems( const ParasiteDragTableRow &row, vector < string > &items, vector < int > &flags );
     void UpdateIncorporateDropDowns();
+    string BuildUpTableKey();
+    void UpdateBuildUpTable();
     void AddRoughnessLabel();
     void UpdateReynoldsLabel();
     void RebuildBuildUpTable();
@@ -96,6 +100,13 @@ protected:
 
     void SetupExcresType( int index, const string &type );
     void SetupExcresInput( int index, double input );
+
+    static void UpdateTableValue( StringOutput &output, double val, int precision );
+    static void UpdateTableValue( StringInput &input, double val, int precision );
+
+    // The table's widgets are built only when this key changes
+    string m_TableKey;
+    bool m_AddTableDevices;
 
     // Screen Variables
     vector < string > m_WingGeomVec;

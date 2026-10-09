@@ -51,6 +51,8 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     // Inputs
     int layoutHeight = 600;
 
+    m_AddTableDevices = false;
+
     // Add Tabs
     Fl_Group* overview_tab = AddTab( "Overview" );
     Fl_Group* excrescence_tab = AddTab( "Excrescence" );
@@ -708,8 +710,7 @@ bool ParasiteDragScreen::Update()
 
         ParasiteDragMgr.Update();     // Update Atmos, Excres & Activate Correct GUI Elements
 
-        RebuildBuildUpTable();
-        UpdateIncorporateDropDowns();
+        UpdateBuildUpTable();
 
         UpdateExcresTab();
 
@@ -840,8 +841,8 @@ void ParasiteDragScreen::UpdateSrefChoice()
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     // Adding Items to Rerefence Wing Choice Setting Val if Necessary
-    m_RefWingChoice.ClearItems();
     m_WingGeomVec.clear();
+    vector < string > wingNames;
     unordered_map <string, int> WingCompIDMap;
     int iwing = 0;
 
@@ -865,14 +866,24 @@ void ParasiteDragScreen::UpdateSrefChoice()
 
                 if ( geom->GetBehaviorType() == MS_WING_GEOM_TYPE )
                 {
-                    m_RefWingChoice.AddItem( str );
+                    wingNames.push_back( str );
                     WingCompIDMap[g_IDs[i]] = iwing;
                     m_WingGeomVec.push_back( g_IDs[i] );
                     iwing++;
                 }
             }
         }
-        m_RefWingChoice.UpdateItems();
+
+        // Repopulating frees the items an open pulldown is showing
+        if ( wingNames != m_RefWingChoice.GetItems() )
+        {
+            m_RefWingChoice.ClearItems();
+            for ( size_t i = 0; i < wingNames.size(); i++ )
+            {
+                m_RefWingChoice.AddItem( wingNames[i] );
+            }
+            m_RefWingChoice.UpdateItems();
+        }
     }
 
     // Setting the Wing to Pull Reference Area from
@@ -993,22 +1004,22 @@ void ParasiteDragScreen::UpdateExcresTab()
     m_ExcresBrowser->hposition( h_pos );
     m_ExcresBrowser->vposition( v_pos );
 
+    // Only one Margin excrescence is allowed
+    int marginFlag = 0;
     for ( size_t i = 0; i < excresVec.size(); ++i )
     {
         if ( excresVec[i].Type == vsp::EXCRESCENCE_MARGIN )
         {
-            m_excresTypeChoice.SetFlagByVal( vsp::EXCRESCENCE_MARGIN, FL_MENU_INACTIVE );
+            marginFlag = FL_MENU_INACTIVE;
             break;
         }
-        m_excresTypeChoice.SetFlagByVal( vsp::EXCRESCENCE_MARGIN, 0 );
     }
 
-    if ( excresVec.size() == 0 )
+    if ( m_excresTypeChoice.GetFlagByVal( vsp::EXCRESCENCE_MARGIN ) != marginFlag )
     {
-        m_excresTypeChoice.SetFlagByVal( vsp::EXCRESCENCE_MARGIN, 0 );
+        m_excresTypeChoice.SetFlagByVal( vsp::EXCRESCENCE_MARGIN, marginFlag );
+        m_excresTypeChoice.UpdateItems();
     }
-
-    m_excresTypeChoice.UpdateItems();
     m_excresTypeChoice.SetVal( ParasiteDragMgr.m_ExcresType() );
 
     // Select Current Excres
@@ -1397,7 +1408,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                         m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, {ParasiteDragMgr.m_SetChoice.GetID()} );
                         m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, ParasiteDragMgr.m_ModeID );
                         ParasiteDragMgr.RefreshBaseDataVectors();
-                        RebuildBuildUpTable();
+                        UpdateBuildUpTable();
                         ParasiteDragMgr.RenewDegenGeomVec();
                     }
                 }
@@ -1618,51 +1629,137 @@ void ParasiteDragScreen::InitSortToggleGroup()
     m_SortToggle.AddButton( m_PercTotalLabel.GetFlButton() );
 }
 
+void ParasiteDragScreen::GetGroupedItems( const ParasiteDragTableRow &row, vector < string > &items, vector < int > &flags )
+{
+    items.clear();
+    flags.clear();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    Geom* geom = veh->FindGeom( row.GeomID );
+    if ( !geom )
+    {
+        return;
+    }
+
+    char str[256];
+    vector < string > ancestorNames;
+    geom->BuildAncestorList( ancestorNames );
+
+    items.push_back( "SELF" );
+    flags.push_back( 0 );
+    for ( size_t j = 1; j < ancestorNames.size(); ++j )
+    {
+        snprintf( str, sizeof( str ),  "%zu %s", j, ancestorNames[j].c_str() );
+        items.push_back( str );
+
+        int flag = FL_MENU_INACTIVE;
+        Geom* ancestor = veh->FindGeom( geom->GetAncestorID( j ) );
+        if ( ancestor && ancestor->GetBehaviorType() != HINGE_GEOM_TYPE && ancestor->GetBehaviorType() != BLANK_GEOM_TYPE &&
+             row.GeomShapeType == ancestor->GetSurfType( 0 ) )
+        {
+            flag = 0;
+        }
+        flags.push_back( flag );
+    }
+}
+
 void ParasiteDragScreen::UpdateIncorporateDropDowns()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
+    vector < ParasiteDragTableRow > rowVec = ParasiteDragMgr.GetMainTableVec();
+    for ( size_t i = 0; i < rowVec.size() && i < m_grouped.size(); ++i )
     {
-        char str[256];
-        vector < string > ancestorNames;
-        vector < ParasiteDragTableRow > rowVec = ParasiteDragMgr.GetMainTableVec();
-        for ( size_t i = 0; i < rowVec.size(); ++i )
+        if ( m_grouped[i].GetFlChoice() )
         {
-            if ( m_grouped[i].GetFlChoice() )
+            if ( m_AddTableDevices )
             {
-                // Incorporate Drop Downs
+                vector < string > items;
+                vector < int > flags;
+                GetGroupedItems( rowVec[i], items, flags );
+
                 m_grouped[i].ClearItems();
-
-                m_grouped[i].AddItem( "SELF" );
-                veh->FindGeom( rowVec[i].GeomID )->BuildAncestorList( ancestorNames );
-                for ( size_t j = 1; j < ancestorNames.size(); ++j )
+                for ( size_t j = 0; j < items.size(); ++j )
                 {
-                    snprintf( str, sizeof( str ),  "%zu %s", j, ancestorNames[j].c_str() );
-                    m_grouped[i].AddItem( str );
-                }
-                ancestorNames.clear();
-
-                for ( size_t j = 1; j < m_grouped[i].GetItems().size(); ++j )
-                {
-                    if ( veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetBehaviorType() != HINGE_GEOM_TYPE &&
-                        veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetBehaviorType() != BLANK_GEOM_TYPE)
-                    {
-                        if ( rowVec[i].GeomShapeType !=
-                                veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetSurfType(0) )
-                        {
-                            m_grouped[ i ].SetFlagByVal( j, FL_MENU_INACTIVE );
-                        }
-                    }
-                    else
-                    {
-                        m_grouped[ i ].SetFlagByVal( j, FL_MENU_INACTIVE );
-                    }
+                    m_grouped[i].AddItem( items[j] );
+                    m_grouped[i].SetFlagByVal( j, flags[j] );
                 }
                 m_grouped[i].UpdateItems();
-                m_grouped[i].SetVal( rowVec[i].GroupedAncestorGen );
             }
+            m_grouped[i].SetVal( rowVec[i].GroupedAncestorGen );
         }
     }
+}
+
+string ParasiteDragScreen::BuildUpTableKey()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    ostringstream key;
+
+    // Columns
+    key << ParasiteDragMgr.m_TurbCfEqnType() << " " << ParasiteDragMgr.m_LengthUnit() << "\n";
+
+    vector < ParasiteDragTableRow > rowVec = ParasiteDragMgr.GetMainTableVec();
+    for ( size_t i = 0; i < rowVec.size(); ++i )
+    {
+        const ParasiteDragTableRow &row = rowVec[i];
+        key << row.GeomID << " " << row.SubSurfID << " " << row.MasterRow << " " << row.GroupedAncestorGen << " "
+            << row.GeomShapeType << " " << row.FFEqnChoice << " " << row.SurfNum << " " << row.ExpandedList << " " << row.Label;
+
+        Geom* geom = veh->FindGeom( row.GeomID );
+        if ( geom )
+        {
+            key << " " << geom->GetName() << " " << geom->m_ExpandedListFlag();
+            SubSurface* ssurf = geom->GetSubSurf( row.SubSurfID );
+            if ( ssurf )
+            {
+                key << " " << ssurf->m_IncludeType();
+            }
+        }
+
+        vector < string > items;
+        vector < int > flags;
+        GetGroupedItems( row, items, flags );
+        for ( size_t j = 0; j < items.size(); ++j )
+        {
+            key << " " << items[j] << " " << flags[j];
+        }
+        key << "\n";
+    }
+
+    vector < ExcrescenceTableRow > excresVec = ParasiteDragMgr.GetExcresVec();
+    for ( size_t i = 0; i < excresVec.size(); ++i )
+    {
+        key << excresVec[i].Label << " " << excresVec[i].TypeString << "\n";
+    }
+
+    return key.str();
+}
+
+void ParasiteDragScreen::UpdateBuildUpTable()
+{
+    ParasiteDragMgr.Calculate_ALL();
+    ParasiteDragMgr.SortMap();
+    ParasiteDragMgr.UpdateExcres();
+
+    // Deleting the table's widgets would free a Choice whose pulldown is open, so they are
+    // rebuilt only when the rows or columns change
+    string key = BuildUpTableKey();
+    if ( key != m_TableKey )
+    {
+        m_TableKey = key;
+        m_AddTableDevices = true;
+        RebuildBuildUpTable();
+        m_AddTableDevices = false;
+    }
+    else
+    {
+        AddGeomsToTable();
+        AddSimpleExcresToTable();
+        UpdateIncorporateDropDowns();
+    }
+
+    UpdateReynoldsLabel();
+    UpdateFinalValues();
+    UpdateTableLabels();
 }
 
 void ParasiteDragScreen::RebuildBuildUpTable()
@@ -1682,17 +1779,11 @@ void ParasiteDragScreen::RebuildBuildUpTable()
     ResizeDeviceVectors( ParasiteDragMgr.CalcRowSize(),
                          ParasiteDragMgr.GetExcresVec().size() );
 
-    ParasiteDragMgr.Calculate_ALL();
-
-    UpdateReynoldsLabel();
-
     AddGeomsToTable();
 
     AddSimpleExcresToTable();
 
-    UpdateFinalValues();
-
-    UpdateTableLabels();
+    UpdateIncorporateDropDowns();
 
     RevertScrollbarPositions();
 }
@@ -1848,32 +1939,39 @@ void ParasiteDragScreen::AddGeomsToTable()
     string lastID = "";
     string lastIncorporatedID = "";
 
-    ParasiteDragMgr.SortMap();
-
     vector < ParasiteDragTableRow > rowVec = ParasiteDragMgr.GetMainTableVec();
 
     m_GeomOrderInTableVec.clear();
-    for ( size_t i = 0; i < rowVec.size(); ++i )
+    for ( size_t i = 0; i < rowVec.size() && i < m_swet.size(); ++i )
     {
         m_GeomOrderInTableVec.push_back( rowVec[i].GeomID );
 
         GetTableFlags( i, lastID, lastIncorporatedID, lastShape,
                        OUT skipFlag, OUT subsurfFlag, OUT grayFlag );
 
-        m_TableLayout.SetSameLineFlag( true );
-        m_ConstantViewLayout.SetSameLineFlag( true );
+        if ( m_AddTableDevices )
+        {
+            m_TableLayout.SetSameLineFlag( true );
+            m_ConstantViewLayout.SetSameLineFlag( true );
+        }
 
         if ( !skipFlag )
         {
             // ---- These two components are the same regardless of subsurfFlag ---- //
-            SetupRowLabel( subsurfFlag, lastID, i );
+            if ( m_AddTableDevices )
+            {
+                SetupRowLabel( subsurfFlag, lastID, i );
+            }
             SetupSwet( i, rowVec[i].Swet );
 
             if ( !subsurfFlag )
             {
                 // Set Up of Incorporate Choice
-                m_TableLayout.SetSliderWidth( TYPICAL_INPUT_WIDTH ); // Sets Drop Down Menu Width
-                m_TableLayout.AddChoice( m_grouped[i], "" ); // Is updated later in UpdateIncorporatedDropDowns()
+                if ( m_AddTableDevices )
+                {
+                    m_TableLayout.SetSliderWidth( TYPICAL_INPUT_WIDTH ); // Sets Drop Down Menu Width
+                    m_TableLayout.AddChoice( m_grouped[i], "" ); // Is updated later in UpdateIncorporatedDropDowns()
+                }
 
                 // Setup Rest of Row
                 SetupFFType( i, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
@@ -1890,29 +1988,25 @@ void ParasiteDragScreen::AddGeomsToTable()
                 SetupCD( i, rowVec[i].CD );
                 SetupPercCD( i, rowVec[i].PercTotalCD );
 
-                m_TableLayout.SetSameLineFlag( false );
-                m_TableLayout.ForceNewLine();
-
-                m_ConstantViewLayout.SetSameLineFlag( false );
-                m_ConstantViewLayout.ForceNewLine();
-
-                DeactivateRow( i, grayFlag );
-
-                if ( rowVec[i].MasterRow )
+                if ( m_AddTableDevices )
                 {
-                    m_grouped[i].Activate();
+                    m_TableLayout.SetSameLineFlag( false );
+                    m_TableLayout.ForceNewLine();
+
+                    m_ConstantViewLayout.SetSameLineFlag( false );
+                    m_ConstantViewLayout.ForceNewLine();
+
+                    DeactivateRow( i, grayFlag );
+
+                    if ( rowVec[i].MasterRow )
+                    {
+                        m_grouped[i].Activate();
+                    }
                 }
                 lastID = rowVec[i].GeomID;
                 lastShape = rowVec[i].GeomShapeType;
 
-                if ( m_grouped[i].GetVal() == 0 )
-                {
-                    lastIncorporatedID = lastID;
-                }
-                else
-                {
-                    lastIncorporatedID = VehicleMgr.GetVehicle()->FindGeom( rowVec[i].GeomID )->GetAncestorID( rowVec[i].GroupedAncestorGen );
-                }
+                lastIncorporatedID = veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( rowVec[i].GroupedAncestorGen );
             }
             else
             {
@@ -1938,13 +2032,16 @@ void ParasiteDragScreen::AddGeomsToTable()
                     SetupCD( i, rowVec[i].CD );
                     SetupPercCD( i, rowVec[i].PercTotalCD );
 
-                    m_TableLayout.SetSameLineFlag( false );
-                    m_TableLayout.ForceNewLine();
+                    if ( m_AddTableDevices )
+                    {
+                        m_TableLayout.SetSameLineFlag( false );
+                        m_TableLayout.ForceNewLine();
 
-                    m_ConstantViewLayout.SetSameLineFlag( false );
-                    m_ConstantViewLayout.ForceNewLine();
+                        m_ConstantViewLayout.SetSameLineFlag( false );
+                        m_ConstantViewLayout.ForceNewLine();
 
-                    DeactivateRow( i, grayFlag );
+                        DeactivateRow( i, grayFlag );
+                    }
                     lastID = rowVec[i].GeomID;
                 }
             }
@@ -1952,7 +2049,7 @@ void ParasiteDragScreen::AddGeomsToTable()
     }
 
     // This solves a UI issues causing the geometries to start much lower than immediately below labels
-    if ( rowVec.size() > 0 )
+    if ( rowVec.size() > 0 && m_AddTableDevices )
     {
         m_TableLayout.AddYGap();
         m_TableCompNamesLayout.AddYGap();
@@ -2014,7 +2111,8 @@ void ParasiteDragScreen::GetTableFlags( int index, const string &lastID, const s
         }
 
         if ( lastID.compare( rowVec[index].GeomID ) != 0 &&
-                lastIncorporatedID.compare( veh->FindGeom( rowVec[index].GeomID )->GetAncestorID( rowVec[index].GroupedAncestorGen ) ) != 0 )
+                lastIncorporatedID.compare( veh->FindGeom( rowVec[index].GeomID )->GetAncestorID( rowVec[index].GroupedAncestorGen ) ) != 0 &&
+                m_AddTableDevices )
         {
             m_TableLayout.AddYGap();
             m_TableCompNamesLayout.AddYGap();
@@ -2075,283 +2173,280 @@ void ParasiteDragScreen::SetupRowLabel( int subsurfFlag, const string &lastID, i
 
 void ParasiteDragScreen::SetupSwet( int index, double swet )
 {
-    m_TableLayout.SetButtonWidth( 0 );
-    ostringstream strs;
-    int precision = 2;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 20 );
-    m_TableLayout.AddOutput( m_swet[index], "" );
-    if ( swet != -1 )
+    if ( m_AddTableDevices )
     {
-        strs << setprecision( precision ) << fixed << swet;
-        m_swet[index].Update( strs.str() );
+        m_TableLayout.SetButtonWidth( 0 );
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 20 );
+        m_TableLayout.AddOutput( m_swet[index], "" );
     }
+    UpdateTableValue( m_swet[index], swet, 2 );
 }
 
 void ParasiteDragScreen::SetupLref( int index, double lref )
 {
-    ostringstream strs;
-    int precision = ParasiteDragMgr.GetLrefSigFig();
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 5 );
-    m_TableLayout.AddOutput( m_lref[index], "" );
-    if ( lref != -1 )
+    if ( m_AddTableDevices )
     {
-        strs << setprecision( precision ) << fixed << lref;
-        m_lref[index].Update( strs.str() );
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 5 );
+        m_TableLayout.AddOutput( m_lref[index], "" );
     }
+    UpdateTableValue( m_lref[index], lref, ParasiteDragMgr.GetLrefSigFig() );
 }
 
 void ParasiteDragScreen::SetupFineRatorToC( int index, double finerat )
 {
-    ostringstream strs;
-    int precision = 3;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 10 );
-    m_TableLayout.AddOutput( m_fineRatorToC[index], "" );
-    if ( finerat != -1 )
+    if ( m_AddTableDevices )
     {
-        strs << setprecision( precision ) << fixed << finerat;
-        m_fineRatorToC[index].Update( strs.str() );
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 10 );
+        m_TableLayout.AddOutput( m_fineRatorToC[index], "" );
     }
+    UpdateTableValue( m_fineRatorToC[index], finerat, 3 );
 }
 
 void ParasiteDragScreen::SetupFFType( int index, int shapetype, int eqnchoice )
 {
-    m_TableLayout.SetSliderWidth( TYPICAL_INPUT_WIDTH + 30 );
-    m_TableLayout.AddChoice( m_ffType[index], "" );
-    m_ffType[index].ClearItems();
-    if ( shapetype == vsp::NORMAL_SURF )
+    if ( m_AddTableDevices )
     {
-        m_ffType[index].AddItem( "Manual" );
-        m_ffType[index].AddItem( "Schemensky DATCOM RAND Fuselage" );
-        m_ffType[index].AddItem( "Schemensky DATCOM RAND Nacelle" );
-        m_ffType[index].AddItem( "Hoerner Streamlined Body" );
-        m_ffType[index].AddItem( "Torenbeek" );
-        m_ffType[index].AddItem( "Shevell" );
-        m_ffType[index].AddItem( "Covert" );
-        m_ffType[index].AddItem( "Jenkinson Fuselage" );
-        m_ffType[index].AddItem( "Jenkinson Wing Mounted Nacelle" );
-        m_ffType[index].AddItem( "Jenkinson Aft Fuse Mounted Nacelle" );
+        m_TableLayout.SetSliderWidth( TYPICAL_INPUT_WIDTH + 30 );
+        m_TableLayout.AddChoice( m_ffType[index], "" );
+        m_ffType[index].ClearItems();
+        if ( shapetype == vsp::NORMAL_SURF )
+        {
+            m_ffType[index].AddItem( "Manual" );
+            m_ffType[index].AddItem( "Schemensky DATCOM RAND Fuselage" );
+            m_ffType[index].AddItem( "Schemensky DATCOM RAND Nacelle" );
+            m_ffType[index].AddItem( "Hoerner Streamlined Body" );
+            m_ffType[index].AddItem( "Torenbeek" );
+            m_ffType[index].AddItem( "Shevell" );
+            m_ffType[index].AddItem( "Covert" );
+            m_ffType[index].AddItem( "Jenkinson Fuselage" );
+            m_ffType[index].AddItem( "Jenkinson Wing Mounted Nacelle" );
+            m_ffType[index].AddItem( "Jenkinson Aft Fuse Mounted Nacelle" );
+        }
+        else
+        {
+            m_ffType[index].AddItem( "Manual" );
+            m_ffType[index].AddItem( "EDET Conventional" );
+            m_ffType[index].AddItem( "EDET Advanced" );
+            m_ffType[index].AddItem( "Hoerner" );
+            m_ffType[index].AddItem( "Covert" );
+            m_ffType[index].AddItem( "Williams" );
+            m_ffType[index].AddItem( "Kroo" );
+            m_ffType[index].AddItem( "Torenbeek" );
+            m_ffType[index].AddItem( "DATCOM" );
+            m_ffType[index].AddItem( "Schemensky 6 Series AF" );
+            m_ffType[index].AddItem( "Schemensky 4 Series AF" );
+            m_ffType[index].AddItem( "Jenkinson Wing" );
+            m_ffType[index].AddItem( "Jenkinson Tail" );
+        }
+        m_ffType[index].UpdateItems();
     }
-    else
-    {
-        m_ffType[index].AddItem( "Manual" );
-        m_ffType[index].AddItem( "EDET Conventional" );
-        m_ffType[index].AddItem( "EDET Advanced" );
-        m_ffType[index].AddItem( "Hoerner" );
-        m_ffType[index].AddItem( "Covert" );
-        m_ffType[index].AddItem( "Williams" );
-        m_ffType[index].AddItem( "Kroo" );
-        m_ffType[index].AddItem( "Torenbeek" );
-        m_ffType[index].AddItem( "DATCOM" );
-        m_ffType[index].AddItem( "Schemensky 6 Series AF" );
-        m_ffType[index].AddItem( "Schemensky 4 Series AF" );
-        m_ffType[index].AddItem( "Jenkinson Wing" );
-        m_ffType[index].AddItem( "Jenkinson Tail" );
-    }
-    m_ffType[index].UpdateItems();
     m_ffType[index].SetVal( eqnchoice );
 }
 
 void ParasiteDragScreen::SetupFFValue( int index, double formfactor, int eqnchoice )
 {
-    ostringstream strs;
-    int precision = 2;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
     if ( eqnchoice == 0 )
     {
-        m_TableLayout.AddInput( m_ffIn[index], "" );
-        if ( formfactor != -1 )
+        if ( m_AddTableDevices )
         {
-            strs << setprecision( precision ) << fixed << formfactor;
-            m_ffIn[index].Update( strs.str() );
+            m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
+            m_TableLayout.AddInput( m_ffIn[index], "" );
         }
+        UpdateTableValue( m_ffIn[index], formfactor, 2 );
     }
     else
     {
-        m_TableLayout.AddOutput( m_ffOut[index], "" );
-        if ( formfactor != -1 )
+        if ( m_AddTableDevices )
         {
-            strs << setprecision( precision ) << fixed << formfactor;
-            m_ffOut[index].Update( strs.str() );
+            m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
+            m_TableLayout.AddOutput( m_ffOut[index], "" );
         }
+        UpdateTableValue( m_ffOut[index], formfactor, 2 );
     }
 }
 
 void ParasiteDragScreen::SetupReyNum( int index, double reynum )
 {
-    ostringstream strs;
-    int precision = 2;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH );
-    m_TableLayout.AddOutput( m_Re[index], "" );
+    if ( m_AddTableDevices )
+    {
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH );
+        m_TableLayout.AddOutput( m_Re[index], "" );
+    }
     if ( reynum != -1 )
     {
-        strs << setprecision( precision ) << fixed << reynum / pow( 10.0, ParasiteDragMgr.GetReynoldsDivisor() );
-        m_Re[index].Update( strs.str() );
+        reynum = reynum / pow( 10.0, ParasiteDragMgr.GetReynoldsDivisor() );
     }
+    UpdateTableValue( m_Re[index], reynum, 2 );
 }
 
 void ParasiteDragScreen::SetupRoughness( int index, double roughness )
 {
-    ostringstream strs;
-    int precision = 2;
     if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG && ParasiteDragMgr.m_TurbCfEqnType() < vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
-        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 30 );
-        m_TableLayout.AddInput( m_Roughness[index], "" );
-        if ( roughness != -1 )
+        if ( m_AddTableDevices )
         {
-            strs << setprecision( precision ) << fixed << roughness;
-            m_Roughness[index].Update( strs.str() );
+            m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 30 );
+            m_TableLayout.AddInput( m_Roughness[index], "" );
         }
+        UpdateTableValue( m_Roughness[index], roughness, 2 );
     }
 }
 
 void ParasiteDragScreen::SetupHeatTransfer( int index, double tetwratio, double tawtwratio )
 {
-    int precision = 2;
     if ( ParasiteDragMgr.m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
-        // Set up of Te/Tw Input
-        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
-        m_TableLayout.AddInput( m_TeTwRatio[index], "" );
-        if ( tetwratio != -1 )
+        if ( m_AddTableDevices )
         {
-            ostringstream strs;
-            strs << setprecision( precision ) << fixed << tetwratio;
-            m_TeTwRatio[index].Update( strs.str() );
-        }
+            // Set up of Te/Tw Input
+            m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
+            m_TableLayout.AddInput( m_TeTwRatio[index], "" );
 
-        // Set up of Taw/Tw Input
-        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 10 );
-        m_TableLayout.AddInput( m_TawTwRatio[index], "" );
-        if ( tawtwratio != -1 )
-        {
-            ostringstream strs;
-            strs << setprecision( precision ) << fixed << tawtwratio;
-            m_TawTwRatio[index].Update( strs.str() );
+            // Set up of Taw/Tw Input
+            m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 10 );
+            m_TableLayout.AddInput( m_TawTwRatio[index], "" );
         }
+        UpdateTableValue( m_TeTwRatio[index], tetwratio, 2 );
+        UpdateTableValue( m_TawTwRatio[index], tawtwratio, 2 );
     }
 }
 
 void ParasiteDragScreen::SetupPercLaminar( int index, double perclam )
 {
-    ostringstream strs;
-    int precision = 1;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
-    m_TableLayout.AddInput( m_percLam[index], "" );
-    if ( perclam != -1 )
+    if ( m_AddTableDevices )
     {
-        strs << setprecision( precision ) << fixed << perclam;
-        m_percLam[index].Update( strs.str() );
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
+        m_TableLayout.AddInput( m_percLam[index], "" );
     }
+    UpdateTableValue( m_percLam[index], perclam, 1 );
 }
 
 void ParasiteDragScreen::SetupCf( int index, double cf )
 {
-    ostringstream strs;
-    int precision = 2;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH );
-    m_TableLayout.AddOutput( m_Cf[index], "" );
+    if ( m_AddTableDevices )
+    {
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH );
+        m_TableLayout.AddOutput( m_Cf[index], "" );
+    }
     if ( cf != -1 )
     {
-        strs << setprecision( precision ) << fixed << cf / 1e-3;
-        m_Cf[index].Update( strs.str() );
+        cf = cf / 1e-3;
     }
+    UpdateTableValue( m_Cf[index], cf, 2 );
 }
 
 void ParasiteDragScreen::SetupQ( int index, double Q, int shapetype, int eqnchoice )
 {
     // TODO: Update to use output GUI element for Jenkinson Tail
-    ostringstream strs;
-    int precision = 2;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
-    m_TableLayout.AddInput( m_Q[index], "" );
-    if ( Q != -1 )
+    if ( m_AddTableDevices )
     {
-        if ( shapetype == vsp::WING_SURF && eqnchoice == vsp::FF_W_JENKINSON_TAIL )
-        {
-            Q = 1.2;
-        }
-
-        strs << setprecision( precision ) << fixed << Q;
-        m_Q[index].Update( strs.str() );
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
+        m_TableLayout.AddInput( m_Q[index], "" );
     }
+    if ( Q != -1 && shapetype == vsp::WING_SURF && eqnchoice == vsp::FF_W_JENKINSON_TAIL )
+    {
+        Q = 1.2;
+    }
+    UpdateTableValue( m_Q[index], Q, 2 );
 }
 
 void ParasiteDragScreen::Setupf( int index, double f )
 {
-    ostringstream strs;
-    int precision = 4;
-    m_ConstantViewLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 10 );
-    m_ConstantViewLayout.AddOutput( m_f[index], "" );
-    if ( f != -1 )
+    if ( m_AddTableDevices )
     {
-        strs << setprecision( precision ) << fixed << f;
-        m_f[index].Update( strs.str() );
+        m_ConstantViewLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 10 );
+        m_ConstantViewLayout.AddOutput( m_f[index], "" );
     }
+    UpdateTableValue( m_f[index], f, 4 );
 }
 
 void ParasiteDragScreen::SetupCD( int index, double CD )
 {
-    ostringstream strs;
-    int precision = 5;
-    m_ConstantViewLayout.AddOutput( m_cd[index], "" );
-    if ( CD != -1 )
+    if ( m_AddTableDevices )
     {
-        strs << setprecision( precision ) << fixed << CD;
-        m_cd[index].Update( strs.str() );
+        m_ConstantViewLayout.AddOutput( m_cd[index], "" );
     }
+    UpdateTableValue( m_cd[index], CD, 5 );
 }
 
 void ParasiteDragScreen::SetupPercCD( int index, double percCD )
 {
-    ostringstream strs;
-    int precision = 2;
-    m_ConstantViewLayout.AddOutput( m_percTotal[index], "" );
+    if ( m_AddTableDevices )
+    {
+        m_ConstantViewLayout.AddOutput( m_percTotal[index], "" );
+    }
     if ( percCD != -1 )
     {
-        strs << setprecision( precision ) << fixed << percCD * 100;
-        m_percTotal[index].Update( strs.str() );
+        percCD = percCD * 100;
     }
+    UpdateTableValue( m_percTotal[index], percCD, 2 );
 }
 
 void ParasiteDragScreen::SetupSubSurfInclude( int index, const string &geomid, const string &subsurfid )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    m_TableLayout.SetSliderWidth( TYPICAL_INPUT_WIDTH );
-    m_TableLayout.AddChoice( m_subsurfinclude[index], "" );
-    m_subsurfinclude[index].ClearItems();
+    if ( m_AddTableDevices )
+    {
+        m_TableLayout.SetSliderWidth( TYPICAL_INPUT_WIDTH );
+        m_TableLayout.AddChoice( m_subsurfinclude[index], "" );
+        m_subsurfinclude[index].ClearItems();
 
-    m_subsurfinclude[index].AddItem( "Same as Parent" );
-    m_subsurfinclude[index].AddItem( "Separate Treatment" );
-    m_subsurfinclude[index].AddItem( "Zero Drag" );
-    m_subsurfinclude[index].UpdateItems();
+        m_subsurfinclude[index].AddItem( "Same as Parent" );
+        m_subsurfinclude[index].AddItem( "Separate Treatment" );
+        m_subsurfinclude[index].AddItem( "Zero Drag" );
+        m_subsurfinclude[index].UpdateItems();
+    }
     m_subsurfinclude[index].SetVal( veh->FindGeom( geomid )->GetSubSurf( subsurfid )->m_IncludeType() );
 }
 
 void ParasiteDragScreen::SetupExcresType( int index, const string &type )
 {
-    ostringstream strs;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 45 );
-    m_TableLayout.AddOutput( m_excresType[index], "" );
-    strs << type;
-    m_excresType[index].Update( strs.str() );
+    if ( m_AddTableDevices )
+    {
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 45 );
+        m_TableLayout.AddOutput( m_excresType[index], "" );
+    }
+    m_excresType[index].Update( type );
 }
 
 void ParasiteDragScreen::SetupExcresInput( int index, double input )
 {
+    if ( m_AddTableDevices )
+    {
+        m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH );
+        m_TableLayout.AddOutput( m_excresOutput[index], "" );
+    }
     ostringstream strs;
-    int precision = 5;
-    m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH );
-    m_TableLayout.AddOutput( m_excresOutput[index], "" );
-    strs << setprecision( precision ) << fixed << input;
+    strs << setprecision( 5 ) << fixed << input;
     m_excresOutput[index].Update( strs.str() );
+}
+
+void ParasiteDragScreen::UpdateTableValue( StringOutput &output, double val, int precision )
+{
+    ostringstream strs;
+    if ( val != -1 )
+    {
+        strs << setprecision( precision ) << fixed << val;
+    }
+    output.Update( strs.str() );
+}
+
+void ParasiteDragScreen::UpdateTableValue( StringInput &input, double val, int precision )
+{
+    ostringstream strs;
+    if ( val != -1 )
+    {
+        strs << setprecision( precision ) << fixed << val;
+    }
+    input.Update( strs.str() );
 }
 
 void ParasiteDragScreen::AddSimpleExcresToTable()
 {
-    RebuildExcresTableLabels();
-
-    ParasiteDragMgr.UpdateExcres();
+    if ( m_AddTableDevices )
+    {
+        RebuildExcresTableLabels();
+    }
 
     vector < ExcrescenceTableRow > excresRowVec = ParasiteDragMgr.GetExcresVec();
 
@@ -2360,11 +2455,14 @@ void ParasiteDragScreen::AddSimpleExcresToTable()
 
     for ( size_t i = 0; i < excresRowVec.size() && i < m_excresType.size(); ++i )
     {
-        m_TableLayout.SetButtonWidth( 0 );
-        m_TableLayout.SetSameLineFlag( true );
-        m_ConstantViewLayout.SetSameLineFlag( true );
+        if ( m_AddTableDevices )
+        {
+            m_TableLayout.SetButtonWidth( 0 );
+            m_TableLayout.SetSameLineFlag( true );
+            m_ConstantViewLayout.SetSameLineFlag( true );
 
-        m_TableCompNamesLayout.AddLabel( excresRowVec[i].Label.c_str(), TYPICAL_INPUT_WIDTH * 2 - 15 );
+            m_TableCompNamesLayout.AddLabel( excresRowVec[i].Label.c_str(), TYPICAL_INPUT_WIDTH * 2 - 15 );
+        }
 
         SetupExcresType( i, excresRowVec[i].TypeString );
         SetupExcresInput( i, excresRowVec[i].Input );
@@ -2373,13 +2471,16 @@ void ParasiteDragScreen::AddSimpleExcresToTable()
         SetupCD( ioff + i, excresRowVec[i].Amount );
         SetupPercCD( ioff + i, excresRowVec[i].PercTotalCD );
 
-        m_TableCompNamesLayout.ForceNewLine();
+        if ( m_AddTableDevices )
+        {
+            m_TableCompNamesLayout.ForceNewLine();
 
-        m_TableLayout.SetSameLineFlag( false );
-        m_TableLayout.ForceNewLine();
+            m_TableLayout.SetSameLineFlag( false );
+            m_TableLayout.ForceNewLine();
 
-        m_ConstantViewLayout.SetSameLineFlag( false );
-        m_ConstantViewLayout.ForceNewLine();
+            m_ConstantViewLayout.SetSameLineFlag( false );
+            m_ConstantViewLayout.ForceNewLine();
+        }
 
         m_CurrentRowIndex++;
     }
