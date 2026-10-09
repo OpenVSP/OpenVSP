@@ -509,37 +509,9 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
         ClearInputVectors();
         ClearOutputVectors();
 
-        vector < string > geomIDVec = veh->GetGeomSet( set );
-
         // Don't pass mode parameters here as they've already been applied to 'set'.
         veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
         ComputeWetAreas( set );
-
-        // Restore set visibility. At this point, all geoms in the set will only be in the 
-        //  Not_Shown set. We want the Parasite Drag table to contain the same geoms before 
-        //  and after tool execution.
-        if ( set == vsp::SET_NOT_SHOWN )
-        {
-            veh->ShowSet( 0 ); // show all
-        }
-
-        for ( size_t i = 0; i < geomIDVec.size(); i++ )
-        {
-            Geom* geom = veh->FindGeom( geomIDVec[i] );
-            if ( geom )
-            {
-                if ( set == vsp::SET_NOT_SHOWN ) // Place back in Not_Shown set
-                {
-                    geom->SetSetFlag( vsp::SET_SHOWN, false );
-                    geom->SetSetFlag( vsp::SET_NOT_SHOWN, true );
-                }
-                else // Show only indicated set
-                {
-                    geom->SetSetFlag( vsp::SET_SHOWN, true );
-                    geom->SetSetFlag( vsp::SET_NOT_SHOWN, false );
-                }
-            }
-        }
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
         SetDegenGeomVec( veh->GetDegenGeomVec() );
@@ -558,7 +530,8 @@ void ParasiteDragMgrSingleton::ComputeWetAreas( int set )
     }
 
     string before_id = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
-    string meshID = veh->CompGeomAndFlatten( set, 0 );
+    // Without hiding the set, so the model's Shown and NotShown sets are left as they were
+    string meshID = veh->CompGeomAndFlatten( set, 0, 1, vsp::SET_NONE, false );
     veh->DeleteGeomVec( { meshID } );
 
     // An empty CompGeom makes no results; an older one is not this model's
@@ -4113,7 +4086,6 @@ void ParasiteDragMgrSingleton::RenewDegenGeomVec()
         // Don't pass mode parameters here as they've already been applied to 'set'.
         veh->CreateDegenGeom( set, /* useMode */ false, /* modeID */ "" );
         ComputeWetAreas( set );
-        veh->ShowOnlySet( set );
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
         SetDegenGeomVec( veh->GetDegenGeomVec() );

@@ -969,6 +969,32 @@ def testDatcomFormFactorDoesNotDependOnTessellation():
     assert max( ffs ) - min( ffs ) < 2e-3, ffs
 
 
+def testRunningTheAnalysisLeavesWhatIsShown():
+    """CompGeom hid the set and the analysis then showed it all, so a hidden Geom came back and one
+    outside the set stayed hidden; a later run on the Shown set then left Geoms out."""
+    fresh()
+    f = vsp.AddGeom( "FUSELAGE" )
+    w = vsp.AddGeom( "WING" )
+    p = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( p, "Z_Rel_Location", "XForm", 10.0 )
+    vsp.SetSetFlag( p, vsp.SET_SHOWN, False )
+    vsp.SetSetFlag( p, vsp.SET_NOT_SHOWN, True )
+    for gid in ( w, p ):
+        vsp.SetSetFlag( gid, vsp.SET_FIRST_USER, True )
+    vsp.Update()
+
+    def shown():
+        return [ vsp.GetSetFlag( g, vsp.SET_SHOWN ) for g in ( f, w, p ) ]
+
+    before = shown()
+    for geomset in ( vsp.SET_ALL, vsp.SET_FIRST_USER, vsp.SET_SHOWN, vsp.SET_NOT_SHOWN ):
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "GeomSet", [ geomset ] )
+        vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        assert shown() == before, "set %d: %s became %s" % ( geomset, before, shown() )
+
+
 def testTheReferenceWingDefaultsToTheModels():
     """The analysis defaulted WingID to empty, which left S_ref at whatever it last was, silently."""
     fresh()
