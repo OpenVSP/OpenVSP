@@ -2352,7 +2352,10 @@ void ParasiteDragScreen::AddSimpleExcresToTable()
 
     vector < ExcrescenceTableRow > excresRowVec = ParasiteDragMgr.GetExcresVec();
 
-    for ( size_t i = 0; i < excresRowVec.size(); ++i )
+    // The f, CD and % columns hold the Geom rows first
+    size_t ioff = m_f.size() - m_excresType.size();
+
+    for ( size_t i = 0; i < excresRowVec.size() && i < m_excresType.size(); ++i )
     {
         m_TableLayout.SetButtonWidth( 0 );
         m_TableLayout.SetSameLineFlag( true );
@@ -2363,9 +2366,9 @@ void ParasiteDragScreen::AddSimpleExcresToTable()
         SetupExcresType( i, excresRowVec[i].TypeString );
         SetupExcresInput( i, excresRowVec[i].Input );
 
-        Setupf( i, excresRowVec[i].f );
-        SetupCD( i, excresRowVec[i].Amount );
-        SetupPercCD( i, excresRowVec[i].PercTotalCD );
+        Setupf( ioff + i, excresRowVec[i].f );
+        SetupCD( ioff + i, excresRowVec[i].Amount );
+        SetupPercCD( ioff + i, excresRowVec[i].PercTotalCD );
 
         m_TableCompNamesLayout.ForceNewLine();
 
