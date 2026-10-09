@@ -23,12 +23,13 @@
 #include "WireGeom.h"
 #include "NGonMeshGeom.h"
 #include "RoutingGeom.h"
+#include "WingGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole, public PGMeshRole, public RouteRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole, public PGMeshRole, public RouteRole, public WingRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -235,6 +236,13 @@ public:
     virtual double GetRouteLinearDensity() const override;
     virtual int GetNumRoutePts() const override;
     virtual RouteRole* GetOriginalRoute() const;
+
+    //==== Standing in for a wing ====//
+    virtual double GetWingTotalArea() const override;
+    virtual double GetWingCurvedArea() const override;
+    virtual double GetWingTotalSpan() const override;
+    virtual double GetWingMAC() const override;
+    virtual double GetWingTotalChord() const override;
 
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;

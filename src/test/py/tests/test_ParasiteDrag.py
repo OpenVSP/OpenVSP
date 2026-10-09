@@ -1182,3 +1182,28 @@ def testKrooFormFactorMatchesKroo():
 
     got, tc = ff( 1.5 )
     assert got == 1.0, "FF %g past M cos(sweep) = 1" % got
+
+
+def testACloneReferenceWingHasItsOwnSymmetry():
+    """A Clone reference wing took its original's area, symmetric even when the Clone is not."""
+    for clone_sym in ( True, False ):
+        fresh()
+        w = vsp.AddGeom( "WING" )
+        vsp.Update()
+        k = vsp.CloneGeomVec( [ w ] )[0]
+        vsp.SetParmVal( k, "X_Rel_Location", "XForm", 100.0 )
+        if not clone_sym:
+            vsp.SetParmVal( k, "CloneSym", "Behavior", 0 )
+            vsp.Update()
+            vsp.SetParmVal( k, "Sym_Planar_Flag", "Sym", 0 )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "RefFlag", [ vsp.COMPONENT_REF ] )
+        vsp.SetStringAnalysisInput( "ParasiteDrag", "WingID", [ k ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        area = vsp.GetParmVal( w, "TotalArea", "WingGeom" )
+        if not clone_sym:
+            area *= 0.5
+        sref = vsp.GetDoubleResults( rid, "FC_Sref" )[0]
+        assert abs( sref - area ) < 1e-9, "CloneSym %s: S_ref %g, area %g" % ( clone_sym, sref, area )

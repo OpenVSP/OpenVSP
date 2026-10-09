@@ -13,6 +13,7 @@
 
 
 #include "Geom.h"
+#include "GeomInterface.h"
 #include "StackGeom.h"
 #include "XSec.h"
 #include "XSecSurf.h"
@@ -162,8 +163,24 @@ protected:
 
 };
 
+//==== A Geom that is a wing ====//
+// Implemented by WingGeom and by a Clone standing in for one.  The reference quantities, each at
+// this Geom's own symmetry.
+class WingRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return MS_WING_GEOM_TYPE; }
+
+    virtual double GetWingTotalArea() const = 0;
+    virtual double GetWingCurvedArea() const = 0;
+    virtual double GetWingTotalSpan() const = 0;
+    virtual double GetWingMAC() const = 0;
+    virtual double GetWingTotalChord() const = 0;
+};
+
 //==== Wing Geom ====//
-class WingGeom : public GeomXSec
+class WingGeom : public GeomXSec, public WingRole
 {
 public:
 
@@ -189,6 +206,11 @@ public:
     virtual void ApplyScale( double currentScale );
     virtual void AddDefaultSources( double base_len = 1.0 );
     virtual double ComputeMAC()                           { return m_MAC(); }
+    virtual double GetWingTotalArea() const               { return m_TotalArea(); }
+    virtual double GetWingCurvedArea() const              { return m_CurvedArea(); }
+    virtual double GetWingTotalSpan() const               { return m_TotalSpan(); }
+    virtual double GetWingMAC() const                     { return m_MAC(); }
+    virtual double GetWingTotalChord() const              { return m_TotalChord(); }
 
     //==== Override Geom Cut/Copy/Paste/Insert ====//
     virtual void CutXSec( int index );

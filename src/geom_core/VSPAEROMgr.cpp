@@ -594,34 +594,28 @@ void VSPAEROMgrSingleton::UpdateSref()
 
         if( refgeom )
         {
-            if( refgeom->GetBehaviorType() == MS_WING_GEOM_TYPE )
+            // A Clone of a wing has its original's shape at its own symmetry
+            WingRole* wing = Geom::CastTo< WingRole >( refgeom );
+            if( wing )
             {
-                // The reference area comes from the shape, so from the Geom copied.
-                WingGeom* behavior_wing = dynamic_cast< WingGeom* >( refgeom->GetBehaviorGeom() );
-
-                if ( !behavior_wing )
-                {
-                    return;
-                }
-
                 if ( m_SCurveFlag() )
                 {
-                    m_Sref.Set( behavior_wing->m_CurvedArea() );
+                    m_Sref.Set( wing->GetWingCurvedArea() );
                 }
                 else
                 {
-                    m_Sref.Set( behavior_wing->m_TotalArea() );
+                    m_Sref.Set( wing->GetWingTotalArea() );
                 }
 
-                m_bref.Set( behavior_wing->m_TotalSpan() );
+                m_bref.Set( wing->GetWingTotalSpan() );
 
                 if ( m_MACFlag() )
                 {
-                    m_cref.Set( behavior_wing->m_MAC() );
+                    m_cref.Set( wing->GetWingMAC() );
                 }
                 else
                 {
-                    m_cref.Set( behavior_wing->m_TotalChord() );
+                    m_cref.Set( wing->GetWingTotalChord() );
                 }
 
                 m_Sref.Deactivate();

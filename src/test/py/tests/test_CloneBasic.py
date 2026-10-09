@@ -510,3 +510,36 @@ if __name__ == "__main__":
         if name.startswith( "test" ) and callable( fn ):
             print( name )
             fn()
+
+
+def testACloneReferenceWingHasItsOwnSymmetryInVSPAERO():
+    """VSPAERO took a Clone reference wing's area and span from its original, symmetric or not."""
+    for clone_sym in ( True, False ):
+        vsp.VSPRenew()
+        drop_errors()
+        wing = vsp.AddGeom( "WING" )
+        vsp.Update()
+        clone = vsp.CloneGeomVec( [ wing ] )[0]
+        vsp.SetParmVal( clone, "X_Rel_Location", "XForm", 100.0 )
+        if not clone_sym:
+            switch( clone, "CloneSym", False )
+            vsp.SetParmVal( clone, "Sym_Planar_Flag", "Sym", 0 )
+        vsp.Update()
+
+        vsp.SetVSPAERORefWingID( clone )
+        settings = vsp.FindContainer( "VSPAEROSettings", 0 )
+        vsp.SetParmVal( vsp.FindParm( settings, "RefFlag", "VSPAERO" ), vsp.COMPONENT_REF )
+        scale = 1.0
+        if not clone_sym:
+            scale = 0.5
+        for curved, area in ( ( False, "TotalArea" ), ( True, "CurvedArea" ) ):
+            vsp.SetParmVal( vsp.FindParm( settings, "SCurveFlag", "VSPAERO" ), curved )
+            vsp.Update()
+            sref = vsp.GetParmVal( vsp.FindParm( settings, "Sref", "VSPAERO" ) )
+            want = scale * vsp.GetParmVal( wing, area, "WingGeom" )
+            assert abs( sref - want ) < 1e-9, ( clone_sym, area, sref, want )
+        bref = vsp.GetParmVal( vsp.FindParm( settings, "bref", "VSPAERO" ) )
+        assert abs( bref - scale * vsp.GetParmVal( wing, "TotalSpan", "WingGeom" ) ) < 1e-9, ( clone_sym, bref )
+        cref = vsp.GetParmVal( vsp.FindParm( settings, "cref", "VSPAERO" ) )
+        assert abs( cref - vsp.GetParmVal( wing, "TotalChord", "WingGeom" ) ) < 1e-9, ( clone_sym, cref )
+        assert_no_errors()

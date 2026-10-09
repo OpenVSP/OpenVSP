@@ -1699,6 +1699,72 @@ bool CloneGeom::CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<double> &
 
 //==== Standing in for a rotor ====//
 
+// The original's area and span are for its own symmetry: halve them for one side, and double
+// them again when this Clone is symmetric.  The MAC and the chord are per side.
+static double WingSymmetryScale( const Geom* clone, const Geom* original )
+{
+    double scale = 1.0;
+    if ( original->GetSymFlag() != 0 )
+    {
+        scale *= 0.5;
+    }
+    if ( clone->GetSymFlag() != 0 )
+    {
+        scale *= 2.0;
+    }
+    return scale;
+}
+
+double CloneGeom::GetWingTotalArea() const
+{
+    WingRole* wing = Geom::CastTo< WingRole >( GetOriginalGeom() );
+    if ( !wing )
+    {
+        return 0.0;
+    }
+    return wing->GetWingTotalArea() * WingSymmetryScale( this, GetOriginalGeom() );
+}
+
+double CloneGeom::GetWingCurvedArea() const
+{
+    WingRole* wing = Geom::CastTo< WingRole >( GetOriginalGeom() );
+    if ( !wing )
+    {
+        return 0.0;
+    }
+    return wing->GetWingCurvedArea() * WingSymmetryScale( this, GetOriginalGeom() );
+}
+
+double CloneGeom::GetWingTotalSpan() const
+{
+    WingRole* wing = Geom::CastTo< WingRole >( GetOriginalGeom() );
+    if ( !wing )
+    {
+        return 0.0;
+    }
+    return wing->GetWingTotalSpan() * WingSymmetryScale( this, GetOriginalGeom() );
+}
+
+double CloneGeom::GetWingMAC() const
+{
+    WingRole* wing = Geom::CastTo< WingRole >( GetOriginalGeom() );
+    if ( !wing )
+    {
+        return 0.0;
+    }
+    return wing->GetWingMAC();
+}
+
+double CloneGeom::GetWingTotalChord() const
+{
+    WingRole* wing = Geom::CastTo< WingRole >( GetOriginalGeom() );
+    if ( !wing )
+    {
+        return 0.0;
+    }
+    return wing->GetWingTotalChord();
+}
+
 double CloneGeom::GetRotorDiameter() const
 {
     RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );
