@@ -829,6 +829,7 @@ void ParasiteDragMgrSingleton::Calculate_Cf()
                 // Will calculate full turbulence
                 m_geo_cf.push_back( CalcPartialTurbulence( m_geo_percLam[i], m_geo_Re[i], m_geo_lref[i], m_ReqL(),
                    m_geo_Roughness[i], m_geo_TawTwRatio[i], m_geo_TeTwRatio[i] ) );
+
             }
             else
             {
@@ -1342,7 +1343,7 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         double roughness_h = 0, double gamma = 1.4, double taw_tw_ratio = 0, double te_tw_ratio = 0 )
 {
     double CfOut = 0;
-    double CfGuess, f, heightRatio, multiBy = 1.0;
+    double CfGuess, f, heightRatio;
     double lnterm;
     double r = 0.89; // Recovery Factor
     double n = 0.67; // Viscosity Power-Law Exponent
@@ -1353,15 +1354,6 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
     }
 
     eli::mutil::nls::newton_raphson_method < double > nrm;
-
-    if ( m_LengthUnit.Get() == vsp::LEN_FT )
-    {
-        multiBy = 12.0;
-    }
-    else if ( m_LengthUnit.Get() == vsp::LEN_M )
-    {
-        multiBy = 39.3701;
-    }
 
     // Unfortunately, there is substantial opportunity for confusion around these equations.  The primary source of
     // confusion is inconsistent nomenclature in the literature around two related quantities -- the local skin friction
@@ -1504,14 +1496,26 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         break;
 
     case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG:
-        heightRatio = ref_leng / ( roughness_h * multiBy );
-        CfOut = pow( ( 1.89 + ( 1.62 * log10( heightRatio ) ) ), -2.5 );    // White 6-84b, Schlicting 21.38
+        if ( roughness_h > 0 )
+        {
+            heightRatio = ref_leng / roughness_h;
+            CfOut = pow( ( 1.89 + ( 1.62 * log10( heightRatio ) ) ), -2.5 );    // White 6-84b, Schlicting 21.38
+        }
+
+        // Fully rough friction; a smoother plate has at least the smooth turbulent friction
+        CfOut = max( CfOut, CalcTurbCf( ReyIn, ref_leng, m_TurbTypeDefault, roughness_h, gamma, taw_tw_ratio, te_tw_ratio ) );
         break;
 
     case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION:
-        heightRatio = ref_leng / ( roughness_h * multiBy );
-        CfOut = pow( ( 1.89 + ( 1.62 * log10( heightRatio ) ) ), -2.5 ) /
-                ( pow( ( 1.0 + ( ( gamma - 1.0 ) / 2.0 ) * m_Mach() ), 0.467 ) );
+        if ( roughness_h > 0 )
+        {
+            heightRatio = ref_leng / roughness_h;
+            CfOut = pow( ( 1.89 + ( 1.62 * log10( heightRatio ) ) ), -2.5 );
+        }
+        CfOut = max( CfOut, CalcTurbCf( ReyIn, ref_leng, m_TurbTypeDefault, roughness_h, gamma, taw_tw_ratio, te_tw_ratio ) );
+
+        // The compressibility correction applies to the smooth floor as well
+        CfOut /= pow( ( 1.0 + ( ( gamma - 1.0 ) / 2.0 ) * m_Mach() * m_Mach() ), 0.467 );
         break;
 
     case vsp::DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:

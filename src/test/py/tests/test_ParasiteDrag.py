@@ -310,3 +310,90 @@ def testEveryTurbulentCfEquationHasAName():
         name = vsp.GetStringResults( rid, "TurbCfEqnName" )[0]
         drop_errors()
         assert name != "", "equation %d has no name" % eq
+
+
+def testRoughnessHeightIsInTheModelLengthUnit():
+    """The roughness height, labelled in the model unit like L_ref, was scaled by 12 in ft and 39.37 in m."""
+    for unit in ( vsp.LEN_IN, vsp.LEN_FT, vsp.LEN_M ):
+        fresh()
+        p = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( p, "Roughness", "ParasiteDragProps", 0.001 )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "LengthUnit", [ unit ] )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        lref = vsp.GetDoubleResults( rid, "Comp_Lref" )[0]
+        cf = vsp.GetDoubleResults( rid, "Comp_Cf" )[0]
+        expect = ( 1.89 + 1.62 * math.log10( lref / 0.001 ) ) ** -2.5
+        assert abs( cf - expect ) < 1e-9, "unit %d: Cf %g, expected %g" % ( unit, cf, expect )
+
+
+def testARoughnessEquationOnASmoothPlateUsesTheDefault():
+    """With no roughness height, L/k was infinite and the roughness equations gave Cf = 0; a nearly
+    smooth plate got a third of the smooth friction."""
+    def cf( eq, k ):
+        fresh()
+        p = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( p, "Roughness", "ParasiteDragProps", k )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ eq ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        mach = vsp.GetDoubleResults( rid, "FC_Mach" )[0]
+        if eq == vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION:
+            return vsp.GetDoubleResults( rid, "Comp_Cf" )[0] * ( 1.0 + 0.2 * mach * mach ) ** 0.467
+        return vsp.GetDoubleResults( rid, "Comp_Cf" )[0]
+
+    # The flow corrected equation's Mach factor is taken out to compare
+    smooth = cf( vsp.CF_TURB_SCHLICHTING_COMPRESSIBLE, 0.0 )
+    for eq in ( vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG, vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION ):
+        assert abs( cf( eq, 0.0 ) - smooth ) < 1e-12, "equation %d on a smooth plate" % eq
+        assert abs( cf( eq, 1e-9 ) - smooth ) < 1e-12, "equation %d on a nearly smooth plate" % eq
+        assert cf( eq, 0.01 ) > smooth, "equation %d on a rough plate" % eq
+
+
+def testRoughnessFlowCorrectionUsesMachSquared():
+    """The correction is built on the temperature ratio 1 + (gamma - 1)/2 M^2; the code used M."""
+    def cf( eq ):
+        fresh()
+        p = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( p, "Roughness", "ParasiteDragProps", 0.001 )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ eq ] )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "FreestreamPropChoice", [ vsp.ATMOS_TYPE_MANUAL_RE_L ] )
+        vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Re_L", [ 1.0e6 ] )
+        vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Mach", [ 2.0 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return vsp.GetDoubleResults( rid, "Comp_Cf" )[0]
+
+    ratio = cf( vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION ) / cf( vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG )
+    expect = ( 1.0 + 0.2 * 2.0 * 2.0 ) ** -0.467
+    assert abs( ratio - expect ) < 1e-9, "ratio %g, expected %g" % ( ratio, expect )
+
+
+def testTheSmoothFloorIsCorrectedForMachToo():
+    """The smooth floor had no Mach factor, so at M 4 it overrode the corrected rough Cf for k up to 1e-3."""
+    def cf( eq, k ):
+        fresh()
+        p = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( p, "Roughness", "ParasiteDragProps", k )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ eq ] )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "FreestreamPropChoice", [ vsp.ATMOS_TYPE_MANUAL_RE_L ] )
+        vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Re_L", [ 1.0e6 ] )
+        vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Mach", [ 4.0 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return vsp.GetDoubleResults( rid, "Comp_Cf" )[0]
+
+    factor = ( 1.0 + 0.2 * 16.0 ) ** -0.467
+    for k in ( 0.0, 1e-4, 1e-3 ):
+        corrected = cf( vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION, k )
+        plain = cf( vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG, k )
+        assert abs( corrected / plain - factor ) < 1e-9, ( k, corrected, plain )
