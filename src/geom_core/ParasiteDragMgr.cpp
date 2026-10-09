@@ -1159,7 +1159,7 @@ void ParasiteDragMgrSingleton::Calculate_CD()
             if ( !m_DegenGeomVec.empty() )
             {
                 // If DegenGeom Exists Calculate CD
-                if ( ! ( m_geo_f[i] != m_geo_f[i] ) )
+                if ( std::isfinite( m_geo_f[i] ) )
                 {
                     m_geo_CD.push_back( m_geo_f[i] / m_Sref.Get() );
                 }
@@ -1289,12 +1289,36 @@ string ParasiteDragMgrSingleton::ComputeBuildUp()
         Update();
 
         Calculate_ALL();
+        ReportNoDragRows();
 
         UpdateExportLabels();
 
         return ExportToCSV();
     }
     return "";
+}
+
+//==== Calculate_CD counts a component whose f is not finite as no drag; say so ====//
+// Not from Calculate_ALL: the screen runs that on every update, and an error is a dialog there.
+void ParasiteDragMgrSingleton::ReportNoDragRows()
+{
+    string invalid;
+    for ( int i = 0; i < m_RowSize; i++ )
+    {
+        if ( m_geo_masterRow[i] && IsNotZeroLineItem( i ) && !std::isfinite( m_geo_f[i] ) )
+        {
+            invalid += " " + m_geo_label[i];
+        }
+    }
+    if ( !invalid.empty() )
+    {
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_CF_EQN );
+        errMsgData.m_StringVec.push_back( "Error:  No drag for" + invalid +
+                                          "; a form factor or Cf equation is not valid at these conditions." );
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
 }
 
 void ParasiteDragMgrSingleton::OverwritePropertiesFromAncestorGeom()

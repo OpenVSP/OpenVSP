@@ -501,6 +501,19 @@ def testRoughnessFlowCorrectionUsesMachSquared():
     assert abs( ratio - expect ) < 1e-9, "ratio %g, expected %g" % ( ratio, expect )
 
 
+def testAFormFactorOutsideItsRangeIsReported():
+    """Shevell's form factor has sqrt( 1 - M^2 cos^2 ); above Mach 1 it is NaN and the wing silently had no drag."""
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    vsp.SetParmVal( w, "FFWingEqnType", "ParasiteDragProps", vsp.FF_W_SHEVELL )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    vsp.SetIntAnalysisInput( "ParasiteDrag", "VelocityUnit", [ vsp.V_UNIT_MACH ] )
+    vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Vinf", [ 1.5 ] )
+    vsp.ExecAnalysis( "ParasiteDrag" )
+    assert any( "No drag for" in e for e in pop_errors() )
+
+
 def testTheCfTableHasEveryEquationInUse():
     """The table stopped at White-Christoph compressible, before the two roughness equations."""
     fname = os.path.join( tempfile.mkdtemp(), "cf.csv" )
@@ -508,6 +521,22 @@ def testTheCfTableHasEveryEquationInUse():
     text = open( fname ).read()
     for name in ( "Schlichting Avg Roughness", "Schlichting Avg Roughness w Flow Correction" ):
         assert ( name + "," ) in text, name
+
+
+def testAnInfiniteFormFactorIsNoDragToo():
+    """Calculate_CD zeroed a NaN f but kept an infinite one as infinite drag."""
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    vsp.SetParmVal( w, "FFWingEqnType", "ParasiteDragProps", vsp.FF_W_SHEVELL )
+    vsp.SetParmVal( w, "Sweep", "XSec_1", 0.0 )
+    vsp.SetParmVal( w, "Tip_Chord", "XSec_1", vsp.GetParmVal( w, "Root_Chord", "XSec_1" ) )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    vsp.SetIntAnalysisInput( "ParasiteDrag", "VelocityUnit", [ vsp.V_UNIT_MACH ] )
+    vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Vinf", [ 1.0 ] )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    assert math.isfinite( vsp.GetDoubleResults( rid, "Total_CD_Total" )[0] )
 
 
 def testCfIsContinuousAsTheLaminarRunGrows():
