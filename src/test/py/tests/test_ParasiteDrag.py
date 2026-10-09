@@ -520,6 +520,30 @@ def testATemperatureBelowZeroCelsiusIsKept():
     assert abs( celsius / kelvin - 1.0 ) < 1e-6, "Re %g in C, %g in K" % ( celsius, kelvin )
 
 
+def testReLModeFormFactorUsesItsOwnMach():
+    """In Re/L mode the form factors kept the Mach of the previous run."""
+    def ff( mode, mach ):
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "FreestreamPropChoice", [ mode ] )
+        if mode == vsp.ATMOS_TYPE_MANUAL_RE_L:
+            vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Mach", [ mach ] )
+        else:
+            vsp.SetIntAnalysisInput( "ParasiteDrag", "VelocityUnit", [ vsp.V_UNIT_MACH ] )
+            vsp.SetDoubleAnalysisInput( "ParasiteDrag", "Vinf", [ mach ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return vsp.GetDoubleResults( rid, "Comp_FFOut" )[0]
+
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    vsp.SetParmVal( w, "FFWingEqnType", "ParasiteDragProps", vsp.FF_W_KROO )
+    vsp.Update()
+    expect = ff( vsp.ATMOS_TYPE_US_STANDARD_1976, 0.2 )
+    ff( vsp.ATMOS_TYPE_US_STANDARD_1976, 0.7 )
+    got = ff( vsp.ATMOS_TYPE_MANUAL_RE_L, 0.2 )
+    assert abs( got - expect ) < 1e-12, "FF %g, expected %g" % ( got, expect )
+
+
 def testAFormFactorOutsideItsRangeIsReported():
     """Shevell's form factor has sqrt( 1 - M^2 cos^2 ); above Mach 1 it is NaN and the wing silently had no drag."""
     fresh()

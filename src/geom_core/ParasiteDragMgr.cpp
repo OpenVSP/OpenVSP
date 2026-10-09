@@ -2668,6 +2668,9 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
     else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_RE_L )
     {
         UpdateVinf( m_VinfUnitType() );
+
+        // The form factors read the Mach from the atmosphere
+        m_Atmos.SetMach( m_Mach() );
     }
 
     if ( m_FreestreamType() != vsp::ATMOS_TYPE_MANUAL_RE_L )
