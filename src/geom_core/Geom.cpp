@@ -202,6 +202,10 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
     {
         // Don't dirty anything, BBox Parms are output Parms and should not trigger updates.
     }
+    else if ( gname == string("ParasiteDragProps") )
+    {
+        // Don't dirty anything, Parasite Drag reads these Parms directly; they shape no surface.
+    }
     else if ( gname == string("Index") )
     {
         m_HighlightDirty = true;
