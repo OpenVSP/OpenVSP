@@ -194,6 +194,7 @@ void ParasiteDragMgrSingleton::SetDefaultStruct()
     m_DefaultStruct.PercTotalCD = -1;
     m_DefaultStruct.SurfNum = 0;
     m_DefaultStruct.GroupedAncestorGen = 0;
+    m_DefaultStruct.Grouped = false;
     m_DefaultStruct.ExpandedList = false;
 }
 
@@ -1314,6 +1315,7 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     {
         tempStruct.MasterRow = m_geo_masterRow[i];
         tempStruct.GroupedAncestorGen = m_geo_groupedAncestorGen[i];
+        tempStruct.Grouped = m_geo_groupRow[i] >= 0;
         tempStruct.GeomID = m_geo_geomID[i];
         tempStruct.SubSurfID = m_geo_subsurfID[i];
         tempStruct.Label = m_geo_label[i];

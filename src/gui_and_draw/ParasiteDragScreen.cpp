@@ -1663,7 +1663,7 @@ string ParasiteDragScreen::BuildUpTableKey()
     for ( size_t i = 0; i < rowVec.size(); ++i )
     {
         const ParasiteDragTableRow &row = rowVec[i];
-        key << row.GeomID << " " << row.SubSurfID << " " << row.MasterRow << " " << row.GroupedAncestorGen << " "
+        key << row.GeomID << " " << row.SubSurfID << " " << row.MasterRow << " " << row.GroupedAncestorGen << " " << row.Grouped << " "
             << row.GeomShapeType << " " << row.FFEqnChoice << " " << row.SurfNum << " " << row.ExpandedList << " " << row.Label;
 
         Geom* geom = veh->FindGeom( row.GeomID );
@@ -2045,7 +2045,7 @@ void ParasiteDragScreen::GetTableFlags( int index, const string &lastID, const s
                 grayFlag = 1;
             }
         }
-        else if ( rowVec[index].GroupedAncestorGen > 0 && rowVec[index].MasterRow )
+        else if ( rowVec[index].Grouped && rowVec[index].MasterRow )
         {
             skipFlag = 0;
             grayFlag = 1;

@@ -44,6 +44,7 @@ struct ParasiteDragTableRow
     double CD;
     double PercTotalCD;
     int GroupedAncestorGen;
+    bool Grouped; // Its drag is in the Geom it is grouped into
     int SurfNum;
     bool ExpandedList;
 };
