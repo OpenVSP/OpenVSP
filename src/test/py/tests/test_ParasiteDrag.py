@@ -188,3 +188,49 @@ def testAnOlderCompGeomIsNotUsed():
     vsp.Update()
     swet = build_up()["TheWing"]["Comp_Swet"]
     assert swet == 0.0, "a wing of no span has wetted area %g from the older CompGeom" % swet
+
+
+def excres_inputs():
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    return dict( zip( vsp.GetStringResults( rid, "Excres_Label" ), vsp.GetDoubleResults( rid, "Excres_Input" ) ) )
+
+
+def testDeletingAnExcrescenceKeepsTheOthersValues():
+    """The deleted one's value used to land on the one after it."""
+    fresh()
+    vsp.AddGeom( "WING" )
+    vsp.Update()
+    vsp.AddExcrescence( "A", vsp.EXCRESCENCE_COUNT, 5.0 )
+    vsp.AddExcrescence( "B", vsp.EXCRESCENCE_CD, 0.001 )
+    vsp.AddExcrescence( "C", vsp.EXCRESCENCE_COUNT, 20.0 )
+    excres_inputs()
+    vsp.DeleteExcrescence( 0 )
+    assert excres_inputs() == { "B": 0.001, "C": 20.0 }
+
+
+def testAnExcrescenceIsNotClampedByTheLastOnesType():
+    fresh()
+    vsp.AddGeom( "WING" )
+    vsp.Update()
+    vsp.AddExcrescence( "cd", vsp.EXCRESCENCE_CD, 0.001 )
+    vsp.AddExcrescence( "cd2", vsp.EXCRESCENCE_CD, 0.002 )
+    vsp.DeleteExcrescence( 1 )
+    vsp.AddExcrescence( "count", vsp.EXCRESCENCE_COUNT, 300.0 )
+    assert excres_inputs() == { "cd": 0.001, "count": 300.0 }
+
+
+def testExcrescencesSurviveAFile():
+    fresh()
+    vsp.AddGeom( "WING" )
+    vsp.Update()
+    vsp.AddExcrescence( "cd", vsp.EXCRESCENCE_CD, 0.001 )
+    vsp.AddExcrescence( "count", vsp.EXCRESCENCE_COUNT, 50.0 )
+    vsp.AddExcrescence( "area", vsp.EXCRESCENCE_DRAGAREA, 0.5 )
+    want = excres_inputs()
+    fname = os.path.join( tempfile.mkdtemp(), "excres.vsp3" )
+    vsp.WriteVSPFile( fname )
+    fresh()
+    vsp.ReadVSPFile( fname )
+    assert excres_inputs() == want

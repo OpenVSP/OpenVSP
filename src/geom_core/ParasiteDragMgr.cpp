@@ -2233,8 +2233,9 @@ void ParasiteDragMgrSingleton::AddExcrescence()
 
 void ParasiteDragMgrSingleton::AddExcrescence( const std::string & excresName, int excresType, double excresVal )
 {
-    m_ExcresValue.Set( excresVal );
     m_ExcresType.Set( excresType );
+    SetExcresValueLimits( m_ExcresType() );
+    m_ExcresValue.Set( excresVal );
     m_ExcresName = excresName;
 
     AddExcrescence();
@@ -2242,20 +2243,26 @@ void ParasiteDragMgrSingleton::AddExcrescence( const std::string & excresName, i
 
 void ParasiteDragMgrSingleton::DeleteExcrescence()
 {
-    if ( m_CurrentExcresIndex != -1 )
+    if ( m_CurrentExcresIndex < 0 || m_CurrentExcresIndex >= ( int )m_ExcresRowVec.size() )
     {
-        m_ExcresRowVec.erase( m_ExcresRowVec.begin() + m_CurrentExcresIndex );
+        return;
     }
 
-    if ( m_CurrentExcresIndex > m_ExcresRowVec.size() -1 )
-    {
-        m_CurrentExcresIndex = m_ExcresRowVec.size() -1;
-        UpdateCurrentExcresVal();
-    }
-    else if ( m_ExcresRowVec.empty() )
+    m_ExcresRowVec.erase( m_ExcresRowVec.begin() + m_CurrentExcresIndex );
+
+    if ( m_ExcresRowVec.empty() )
     {
         m_CurrentExcresIndex = -1;
+        return;
     }
+
+    if ( m_CurrentExcresIndex >= ( int )m_ExcresRowVec.size() )
+    {
+        m_CurrentExcresIndex = m_ExcresRowVec.size() - 1;
+    }
+
+    // m_ExcresValue still holds the deleted one's value; UpdateExcres would give it to this one
+    UpdateCurrentExcresVal();
 }
 
 void ParasiteDragMgrSingleton::DeleteExcrescence( int index )
@@ -3080,27 +3087,32 @@ void ParasiteDragMgrSingleton::UpdateExcres()
 void ParasiteDragMgrSingleton::UpdateCurrentExcresVal()
 {
     m_ExcresType.Set( m_ExcresRowVec[m_CurrentExcresIndex].Type );
-    if ( m_ExcresType() == vsp::EXCRESCENCE_CD )
+    SetExcresValueLimits( m_ExcresType() );
+    m_ExcresValue.Set( m_ExcresRowVec[m_CurrentExcresIndex].Input );
+}
+
+void ParasiteDragMgrSingleton::SetExcresValueLimits( int type )
+{
+    if ( type == vsp::EXCRESCENCE_CD )
     {
         m_ExcresValue.SetLowerUpperLimits( 0.0, 10.0 );
     }
-    else if ( m_ExcresType() == vsp::EXCRESCENCE_COUNT )
+    else if ( type == vsp::EXCRESCENCE_COUNT )
     {
         m_ExcresValue.SetLowerUpperLimits( 0.0, 100000.0 );
     }
-    else if ( m_ExcresType() == vsp::EXCRESCENCE_PERCENT_GEOM )
+    else if ( type == vsp::EXCRESCENCE_PERCENT_GEOM )
     {
         m_ExcresValue.SetLowerUpperLimits( 0.0, 1000.0 );
     }
-    else if ( m_ExcresType() == vsp::EXCRESCENCE_MARGIN )
+    else if ( type == vsp::EXCRESCENCE_MARGIN )
     {
         m_ExcresValue.SetLowerUpperLimits( 0.0, 1000.0 );
     }
-    else if ( m_ExcresType() == vsp::EXCRESCENCE_DRAGAREA )
+    else if ( type == vsp::EXCRESCENCE_DRAGAREA )
     {
         m_ExcresValue.SetLowerUpperLimits( 0.0, 10000.0 );
     }
-    m_ExcresValue.Set( m_ExcresRowVec[m_CurrentExcresIndex].Input );
 }
 
 string ParasiteDragMgrSingleton::ExportToCSV()
@@ -3353,12 +3365,14 @@ xmlNodePtr ParasiteDragMgrSingleton::DecodeXml( xmlNodePtr & node )
         {
             snprintf( str, sizeof( str ),  "Excres_%i", i );
             xmlNodePtr excresqualnode = XmlUtil::GetNode( ExcresDragnode, str, 0 );
+            if ( !excresqualnode )
+            {
+                break;
+            }
 
-            m_ExcresType.Set( XmlUtil::FindInt( excresqualnode, "Type", 0 ) );
-            m_ExcresValue.Set( XmlUtil::FindDouble( excresqualnode, "Input", 0.0 ) );
-            m_ExcresName = XmlUtil::FindString(excresqualnode, "Label", "");
-
-            AddExcrescence();
+            AddExcrescence( XmlUtil::FindString( excresqualnode, "Label", "" ),
+                            XmlUtil::FindInt( excresqualnode, "Type", 0 ),
+                            XmlUtil::FindDouble( excresqualnode, "Input", 0.0 ) );
         }
     }
 
@@ -3534,6 +3548,7 @@ void ParasiteDragMgrSingleton::SortExcresByPercTotalCD()
 {
     vector < ExcrescenceTableRow > tempExcres;
     vector < bool > isSortedExcres( m_ExcresRowVec.size(), false );
+    int new_current = m_CurrentExcresIndex;
     int cur_max_ind = 0;
     int i = 0;
 
@@ -3555,6 +3570,12 @@ void ParasiteDragMgrSingleton::SortExcresByPercTotalCD()
             }
             isSortedExcres[cur_max_ind] = true;
             tempExcres.push_back( m_ExcresRowVec[cur_max_ind] );
+
+            // The current excrescence moves with its row
+            if ( cur_max_ind == m_CurrentExcresIndex )
+            {
+                new_current = tempExcres.size() - 1;
+            }
         }
 
         // Increase until max reached, then go back through to make sure everything is in its place
@@ -3569,6 +3590,7 @@ void ParasiteDragMgrSingleton::SortExcresByPercTotalCD()
     }
 
     m_ExcresRowVec = tempExcres;
+    m_CurrentExcresIndex = new_current;
 }
 
 void ParasiteDragMgrSingleton::SortMainTableVecByGroupedAncestorGeoms()

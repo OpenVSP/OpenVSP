@@ -235,6 +235,7 @@ public:
     void UpdateExportLabels();
     void UpdateExcres();
     void UpdateCurrentExcresVal();
+    void SetExcresValueLimits( int type );
 
     // Export Methods
     string ExportToCSV();
