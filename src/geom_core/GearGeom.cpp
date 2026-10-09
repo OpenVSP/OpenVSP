@@ -676,8 +676,15 @@ void Bogie::UpdateStowAttachParms()
         // Only EtatoU is used; it depends on shape alone, so a Clone of a wing works too.
         WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
+        // Not built yet; the parent updates this gear again once it is.
+        const VspSurf* surf = parent->GetSurfPtr( m_StowSurfIndx() );
+        if ( !surf )
+        {
+            return;
+        }
+
         double umax = parent->GetUMapMax( m_StowSurfIndx() );
-        double lmax = parent->GetSurfPtr( m_StowSurfIndx() )->GetLMax();
+        double lmax = surf->GetLMax();
 
         m_StowU0NLoc.SetUpperLimit( umax );
         m_StowR0NLoc.SetUpperLimit( umax );
@@ -952,8 +959,15 @@ void Bogie::UpdateMechAttachParms()
         // Only EtatoU is used; it depends on shape alone, so a Clone of a wing works too.
         WingGeom* behavior_wing = dynamic_cast < WingGeom * > ( parent->GetBehaviorGeom() );
 
+        // Not built yet; the parent updates this gear again once it is.
+        const VspSurf* surf = parent->GetSurfPtr( m_MechSurfIndx() );
+        if ( !surf )
+        {
+            return;
+        }
+
         double umax = parent->GetUMapMax( m_MechSurfIndx() );
-        double lmax = parent->GetSurfPtr( m_MechSurfIndx() )->GetLMax();
+        double lmax = surf->GetLMax();
 
         m_MechU0NLoc.SetUpperLimit( umax );
         m_MechR0NLoc.SetUpperLimit( umax );
