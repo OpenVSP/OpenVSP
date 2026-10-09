@@ -294,8 +294,6 @@ void SubSurface::UpdateDrawObjs()
                 vector < int > symms;
                 geom->GetSymmIndexs( isurf, symms );
 
-                assert( ncopy == symms.size() );
-
                 for ( int s = 0; s < symms.size(); s++ )
                 {
                     if ( geom->GetSurfPtr( symms[s] ) )
@@ -650,9 +648,12 @@ void SubSurface::UpdateOrientation()
         UpdatePolygonPnts();
 
         // Control surface subsurfaces can have more than one polygon.  Use the first one either way.
-        vec2d centroid = poly_centroid( m_PolyPntsVec[0] );
+        if ( !m_PolyPntsVec.empty() )
+        {
+            vec2d centroid = poly_centroid( m_PolyPntsVec[0] );
 
-        orient = geom->CompTanU( isurf, centroid.x(), centroid.y() );
+            orient = geom->CompTanU( isurf, centroid.x(), centroid.y() );
+        }
     }
     else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_V ||
               m_FeaOrientationType() == vsp::FEA_ORIENT_PART_V )
@@ -660,9 +661,12 @@ void SubSurface::UpdateOrientation()
         UpdatePolygonPnts();
 
         // Control surface subsurfaces can have more than one polygon.  Use the first one either way.
-        vec2d centroid = poly_centroid( m_PolyPntsVec[0] );
+        if ( !m_PolyPntsVec.empty() )
+        {
+            vec2d centroid = poly_centroid( m_PolyPntsVec[0] );
 
-        orient = geom->CompTanW( isurf, centroid.x(), centroid.y() );
+            orient = geom->CompTanW( isurf, centroid.x(), centroid.y() );
+        }
     }
 
     orient.normalize();
@@ -1955,6 +1959,21 @@ void SSControlSurf::Scale( double currentScale )
     m_EndLength.Set( m_EndLength() * currentScale );
 }
 
+bool SSControlSurf::IsValidParent( Geom* geom )
+{
+    if ( !geom )
+    {
+        return false;
+    }
+
+    Geom* behavior = geom->GetBehaviorGeom();
+    if ( dynamic_cast< WingGeom* > ( behavior ) || dynamic_cast< PropGeom* > ( behavior ) )
+    {
+        return true;
+    }
+    return false;
+}
+
 //==== Update Method ===//
 void SSControlSurf::Update()
 {
@@ -1977,6 +1996,18 @@ void SSControlSurf::Update()
 
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom ) { return; }
+
+    if ( !IsValidParent( geom ) )
+    {
+        m_UWStart01.clear();
+        m_UWEnd01.clear();
+        m_UWStart.clear();
+        m_UWEnd.clear();
+        m_LVec.clear();
+        m_SepIndex = 0;
+        SubSurface::Update();
+        return;
+    }
 
     double umax = geom->GetUMax(0);
 
@@ -2922,8 +2953,6 @@ void SSControlSurf::UpdateDrawObjs()
     Geom* geom = veh->FindGeom( m_CompID );
     if ( geom )
     {
-        int ncopy = geom->GetNumSymmCopies();
-
         m_HingeDO.m_PntVec.clear();
         m_HingeDO.m_LineWidth = 2.0;
         m_HingeDO.m_Type = DrawObj::VSP_LINES;
@@ -2972,13 +3001,19 @@ void SSControlSurf::UpdateDrawObjs()
             vector < int > symms;
             geom->GetSymmIndexs( isurf, symms );
 
-            assert( ncopy == symms.size() );
-
             int npt = m_UWStart01.size();
+            if ( npt == 0 )
+            {
+                continue;
+            }
 
-            for ( int s = 0 ; s < ncopy ; s++ )
+            for ( int s = 0 ; s < symms.size() ; s++ )
             {
                 const VspSurf* surf = geom->GetSurfPtr( symms[ s ] );
+                if ( !surf )
+                {
+                    continue;
+                }
 
                 vec3d pst, pend;
                 for ( int i = 0; i < npt; i++ )
@@ -3050,6 +3085,13 @@ void SSControlSurf::UpdatePolygonPnts()
 {
     if ( m_PolyPntsReadyFlag )
     {
+        return;
+    }
+
+    if ( m_LVec.empty() )
+    {
+        m_PolyPntsVec.clear();
+        m_PolyPntsReadyFlag = true;
         return;
     }
 

@@ -3848,6 +3848,18 @@ std::string AddSubSurf( const std::string & geom_id, int type, int surfindex )
         return std::string();
     }
 
+    if ( type == SS_CONTROL && !SSControlSurf::IsValidParent( geom_ptr ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddSubSurf::Control surfaces need a Wing or Prop, not " + geom_ptr->GetType().m_Name );
+        return std::string();
+    }
+
+    if ( surfindex < -1 || surfindex >= geom_ptr->GetNumMainSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddSubSurf::Main surface index " + to_string( surfindex ) + " out of range" );
+        return std::string();
+    }
+
     SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->AddSubSurf( type, surfindex );
     if ( !ssurf )
@@ -4806,6 +4818,12 @@ std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_ind, int 
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaSubSurf::Invalid FeaStructure Ptr at index " + to_string( (long long)fea_struct_ind ) );
+        return std::string();
+    }
+
+    if ( type == SS_CONTROL && !SSControlSurf::IsValidParent( geom_ptr ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddFeaSubSurf::Control surfaces need a Wing or Prop, not " + geom_ptr->GetType().m_Name );
         return std::string();
     }
 
