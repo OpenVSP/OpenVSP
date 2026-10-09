@@ -313,6 +313,35 @@ def testEveryTurbulentCfEquationHasAName():
         assert name != "", "equation %d has no name" % eq
 
 
+def testASeparateSubsurfaceRowHoldsOnlyItsOwnArea():
+    """A Separate subsurface's row also took in the Geom's other subsurfaces that were treated as parent."""
+    def rows( separate ):
+        fresh()
+        p = vsp.AddGeom( "POD" )
+        vsp.Update()
+        ss = []
+        for name, u in ( ( "A", 0.25 ), ( "B", 0.75 ) ):
+            s = vsp.AddSubSurf( p, vsp.SS_RECTANGLE, 0 )
+            vsp.SetSubSurfName( s, name )
+            vsp.SetParmVal( vsp.GetParm( s, "Center_U", "SS_Rectangle" ), u )
+            vsp.SetParmVal( vsp.GetParm( s, "U_Length", "SS_Rectangle" ), 0.2 )
+            ss.append( s )
+        for i in separate:
+            vsp.SetParmVal( vsp.GetParm( ss[i], "IncludeFlag", "SubSurface" ), vsp.SS_INC_SEPARATE_TREATMENT )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ 1 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return dict( zip( vsp.GetStringResults( rid, "Comp_Label" ), vsp.GetDoubleResults( rid, "Comp_Swet" ) ) )
+
+    whole = rows( () )[ "PodGeom" ]
+    both = rows( ( 0, 1 ) )
+    one = rows( ( 0, ) )
+    assert abs( one[ "[ss] A" ] - both[ "[ss] A" ] ) < 1e-6, "Separate row %g, alone it is %g" % ( one[ "[ss] A" ], both[ "[ss] A" ] )
+    assert abs( one[ "PodGeom" ] + one[ "[ss] A" ] - whole ) < 1e-6, ( one, whole )
+
+
 def testQuarterAndHalfChordSweepFollowTheTaper():
     """The chord change along the span was subtracted, so taper raised the c/4 and c/2 sweep."""
     fresh()
@@ -611,6 +640,92 @@ def testASubsurfaceTreatedAsParentShowsItsParentsValues():
         assert vals[ b ] == vals[ pod ], "%s: %g, parent %g" % ( name, vals[ b ], vals[ pod ] )
 
 
+def testGroupedAreaReachesADragCarryingRow():
+    """A grouped Geom's area was lost when its ancestor was grouped too, not in the set, or of
+    another shape type."""
+    def run( group, geomset = vsp.SET_ALL ):
+        fresh()
+        f = vsp.AddGeom( "FUSELAGE" )
+        p = vsp.AddGeom( "POD", f )
+        vsp.SetParmVal( p, "Z_Rel_Location", "XForm", 10.0 )
+        g = vsp.AddGeom( "POD", p )
+        vsp.SetParmVal( g, "Z_Rel_Location", "XForm", 10.0 )
+        w = vsp.AddGeom( "WING", g )
+        vsp.SetParmVal( w, "Z_Rel_Location", "XForm", 10.0 )
+        group( f, p, g, w )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "GeomSet", [ geomset ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        swet = vsp.GetDoubleResults( rid, "Comp_Swet" )
+        cd = vsp.GetDoubleResults( rid, "Comp_CD" )
+        return sum( a for a, c in zip( swet, cd ) if c > 0 )
+
+    def gen( gid, n ):
+        vsp.SetParmVal( gid, "IncorporatedGen", "ParasiteDragProps", n )
+
+    whole = run( lambda f, p, g, w: None )
+
+    # Pod into its parent pod, which goes into the fuselage
+    chained = run( lambda f, p, g, w: ( gen( p, 1 ), gen( g, 1 ) ) )
+    assert abs( chained - whole ) < 1e-6, ( chained, whole )
+
+    # A wing grouped into a pod keeps its own drag
+    mixed = run( lambda f, p, g, w: gen( w, 1 ) )
+    assert abs( mixed - whole ) < 1e-6, ( mixed, whole )
+
+    # A pod grouped into a fuselage outside the set keeps its own drag
+    def outside( f, p, g, w ):
+        gen( p, 1 )
+        for gid in ( p, g, w ):
+            vsp.SetSetFlag( gid, vsp.SET_FIRST_USER, True )
+    alone = run( lambda f, p, g, w: [ vsp.SetSetFlag( gid, vsp.SET_FIRST_USER, True ) for gid in ( p, g, w ) ], vsp.SET_FIRST_USER )
+    assert abs( run( outside, vsp.SET_FIRST_USER ) - alone ) < 1e-6
+
+
+def testAreaWhereSubsurfacesOverlapIsCountedOnce():
+    """CompGeom tags a region inside two subsurfaces with both; no row read that tag, so it was lost."""
+    def run( inca, incb ):
+        fresh()
+        p = vsp.AddGeom( "POD" )
+        vsp.Update()
+        ids = []
+        for name, u, inc in ( ( "A", 0.4, inca ), ( "B", 0.5, incb ) ):
+            s = vsp.AddSubSurf( p, vsp.SS_RECTANGLE, 0 )
+            vsp.SetSubSurfName( s, name )
+            vsp.SetParmVal( vsp.GetParm( s, "Center_U", "SS_Rectangle" ), u )
+            vsp.SetParmVal( vsp.GetParm( s, "IncludeFlag", "SubSurface" ), inc )
+            ids.append( s )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ 1 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        rows = dict( zip( vsp.GetStringResults( rid, "Comp_Label" ), vsp.GetDoubleResults( rid, "Comp_Swet" ) ) )
+        cg = vsp.ExecAnalysis( "CompGeom" )
+        tags = dict( zip( vsp.GetStringResults( cg, "Tag_ID" ), vsp.GetDoubleResults( cg, "Tag_Wet_Area" ) ) )
+        total = sum( tags.values() )
+        in_a = sum( a for t, a in tags.items() if ids[0] in t )
+        return rows, total, in_a
+
+    parent = vsp.SS_INC_TREAT_AS_PARENT
+    separate = vsp.SS_INC_SEPARATE_TREATMENT
+
+    rows, total, in_a = run( parent, parent )
+    assert abs( rows[ "PodGeom" ] - total ) < 1e-6, ( rows, total )
+
+    rows, total, in_a = run( separate, parent )
+    assert abs( rows[ "PodGeom" ] + rows[ "[ss] A" ] - total ) < 1e-6, ( rows, total )
+    assert abs( rows[ "[ss] A" ] - in_a ) < 1e-6, ( rows, in_a )
+
+    rows, total, in_a = run( separate, separate )
+    assert abs( rows[ "PodGeom" ] + rows[ "[ss] A" ] + rows[ "[ss] B" ] - total ) < 1e-6, ( rows, total )
+
+    rows, total, in_a = run( vsp.SS_INC_ZERO_DRAG, parent )
+    assert abs( rows[ "PodGeom" ] - ( total - in_a ) ) < 1e-6, ( rows, total, in_a )
+
+
 def testWingReferenceLengthIsTheMeanAerodynamicChord():
     """The strips were weighted by their length along the leading edge, so a swept panel counted extra."""
     for sweep in ( 0.0, 60.0 ):
@@ -710,6 +825,36 @@ def testTheCfTableHasEveryEquationInUse():
         assert ( name + "," ) in text, name
 
 
+def testAPropDiskCarriesNoDrag():
+    """A PROP_BOTH disk row read the blades' area, showed drag in no total, and went into an ancestor."""
+    carried = []
+    for gen in ( 0, 1 ):
+        fresh()
+        w = vsp.AddGeom( "WING" )
+        p = vsp.AddGeom( "PROP", w )
+        vsp.SetParmVal( p, "Z_Rel_Location", "XForm", 20.0 )
+        vsp.SetParmVal( p, "PropMode", "Design", vsp.PROP_BOTH )
+        vsp.SetParmVal( p, "IncorporatedGen", "ParasiteDragProps", gen )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        swet = vsp.GetDoubleResults( rid, "Comp_Swet" )
+        cd = vsp.GetDoubleResults( rid, "Comp_CD" )
+        carried.append( sum( a for a, c in zip( swet, cd ) if c > 0 ) )
+        t = totals( rid )
+        assert abs( t[ "Geom_Perc_Total" ] - 1.0 ) < 1e-12, t
+
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ 1 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        perc = vsp.GetDoubleResults( rid, "Comp_PercTotalCD" )
+        master = [ l for l in vsp.GetStringResults( rid, "Comp_Label" ) ]
+        rows = sum( pc for l, pc in zip( master, perc ) if l.startswith( "PropGeom_" ) or l.startswith( "WingGeom_" ) )
+        assert rows <= 1.0 + 1e-9, "row shares sum to %g" % rows
+    assert abs( carried[0] - carried[1] ) < 1e-6, carried
+
+
 def testAnInfiniteFormFactorIsNoDragToo():
     """Calculate_CD zeroed a NaN f but kept an infinite one as infinite drag."""
     fresh()
@@ -806,6 +951,27 @@ def testTheReferenceWingDefaultsToTheModels():
     assert not pop_errors()
 
 
+def testAGearGroundPlaneHasNoDrag():
+    """The gear's ground plane, a surface CFD sees through, was 3700 of the gear's 3737 wetted area
+    and set the tires' L_ref and form factor."""
+    def run( plane ):
+        fresh()
+        vsp.AddGeom( "FUSELAGE" )
+        g = vsp.AddGeom( "GEAR" )
+        vsp.CreateAndAddBogie( g )
+        vsp.SetParmVal( g, "ShowNominalGroundPlane", "GroundPlane", plane )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return [ vsp.GetDoubleResults( rid, n ) for n in ( "Comp_Swet", "Comp_Lref", "Comp_FFOut", "Comp_f" ) ]
+
+    with_plane = run( 1 )
+    without = run( 0 )
+    for a, b in zip( with_plane, without ):
+        assert max( abs( x - y ) for x, y in zip( a, b ) ) < 1e-9 * max( 1.0, max( abs( y ) for y in b ) ), ( with_plane, without )
+
+
 def testWingThicknessDoesNotDependOnDihedral():
     """The sampled t/c is measured off the tessellated section, which dihedral stretches by 1/cos."""
     tocs = []
@@ -840,6 +1006,31 @@ def testWingThicknessIsTheAreaWeightedMean():
     expect = ( 0.72 * 10.0 - ( 0.04 + 0.036 ) * 50.0 + 0.002 * 1000.0 / 3.0 ) / 30.0
     toc = vsp.GetDoubleResults( rid, "Comp_FineRat" )[0]
     assert abs( toc - expect ) < 1e-3, "t/c %g, expected %g" % ( toc, expect )
+
+
+def testASubsurfaceOnADiskHasNoArea():
+    """A disk row showed its area, and a subsurface on the disk still added it to the prop."""
+    def run( subsurf ):
+        fresh()
+        p = vsp.AddGeom( "PROP" )
+        vsp.SetParmVal( p, "PropMode", "Design", vsp.PROP_BOTH )
+        vsp.Update()
+        if subsurf:
+            s = vsp.AddSubSurf( p, vsp.SS_RECTANGLE, vsp.GetNumMainSurfs( p ) - 1 )
+            vsp.SetParmVal( vsp.GetParm( s, "IncludeFlag", "SubSurface" ), subsurf )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ 1 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return dict( zip( vsp.GetStringResults( rid, "Comp_Label" ), vsp.GetDoubleResults( rid, "Comp_Swet" ) ) ), \
+            vsp.GetDoubleResults( rid, "Geom_f_Total" )[0]
+
+    plain, f = run( None )
+    assert plain[ "PropGeom_%d" % ( len( [ k for k in plain if k.startswith( "PropGeom_" ) ] ) - 1 ) ] == 0.0, plain
+    for inc in ( vsp.SS_INC_TREAT_AS_PARENT, vsp.SS_INC_SEPARATE_TREATMENT ):
+        rows, f2 = run( inc )
+        assert abs( f2 - f ) < 1e-12, ( inc, f, f2 )
 
 
 def testTheSmoothFloorIsCorrectedForMachToo():

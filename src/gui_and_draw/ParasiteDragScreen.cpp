@@ -2051,7 +2051,7 @@ void ParasiteDragScreen::GetTableFlags( int index, const string &lastID, const s
             grayFlag = 1;
             subsurfFlag = 0;
         }
-        else if ( lastID == rowVec[index].GeomID && lastShape == rowVec[index].GeomShapeType )
+        else if ( lastID == rowVec[index].GeomID )
         {
             skipFlag = !veh->FindGeom( rowVec[index].GeomID )->m_ExpandedListFlag();
             grayFlag = 1;

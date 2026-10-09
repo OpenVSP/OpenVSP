@@ -224,6 +224,8 @@ public:
     void UpdateWettedAreaTotals();
     bool ShouldAddSubSurfToMasterGeom( const size_t &i, const size_t &j );
     bool ShouldAddGeomToMasterGeom( const size_t &i, const size_t &j );
+    int GroupMasterRow( int irow );
+    int GeomMasterRow( const string &geom_id );
     void UpdateRefWing();
     void UpdateAtmos();
     void UpdateVinf( int newunit );
@@ -350,6 +352,8 @@ private:
     // Main Build Up Table Variables
     vector <bool> m_geo_masterRow;
     vector <int> m_geo_sourceRow; // The master row whose properties a row uses
+    vector <bool> m_geo_noArea; // A disk or CFD transparent surface
+    vector <int> m_geo_groupRow; // The master row a grouped Geom's drag goes to, or -1
     vector <string> m_geo_geomID;
     vector <string> m_geo_subsurfID;
     vector <string> m_geo_name;

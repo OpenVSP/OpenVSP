@@ -16,6 +16,7 @@
 #include "WingGeom.h"
 #include "ParasiteDragMgr.h"
 #include "ModeMgr.h"
+#include "StringUtil.h"
 
 #include <numeric>
 
@@ -221,6 +222,30 @@ void ParasiteDragMgrSingleton::InitTableVec()
     }
 }
 
+//==== A disk, or a surface CFD sees through (a prop disk, a gear's ground plane), has no skin ====//
+static bool NoWettedArea( Geom* geom, int isurf )
+{
+    if ( geom->GetSurfType( isurf ) == vsp::DISK_SURF )
+    {
+        return true;
+    }
+    const VspSurf* surf = geom->GetSurfPtr( isurf );
+    return surf && surf->GetSurfCfdType() == vsp::CFD_TRANSPARENT;
+}
+
+//==== The first surface with wetted area, whose DegenGeom gives a Geom its references ====//
+static int FirstAreaSurf( Geom* geom )
+{
+    for ( int j = 0; j < geom->GetNumTotalSurfs(); j++ )
+    {
+        if ( !NoWettedArea( geom, j ) )
+        {
+            return j;
+        }
+    }
+    return 0;
+}
+
 void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 {
     Geom* geom;
@@ -243,7 +268,8 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
         {
             if ( geom->GetID().compare( lastGeomID ) != 0 )
             {
-                // Create Master Geom Row
+                // Create Master Geom Row, typed by the surface its DegenGeom comes from
+                int iref = FirstAreaSurf( geom );
                 igeom = m_geo_masterRow.size();
                 m_geo_sourceRow.push_back( igeom );
                 m_geo_masterRow.push_back( true );
@@ -260,7 +286,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 
                 if ( geom->GetBehaviorType() == CUSTOM_GEOM_TYPE )
                 {
-                    if ( geom->GetSurfType(0) == vsp::NORMAL_SURF )
+                    if ( geom->GetSurfType( iref ) == vsp::NORMAL_SURF )
                     {
                         snprintf( str, sizeof( str ),  "[B] %s", geom->GetName().c_str() );
                     }
@@ -274,9 +300,10 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     snprintf( str, sizeof( str ),  "%s", geom->GetName().c_str() );
                 }
 
-                m_geo_shapeType.push_back( geom->GetSurfType(0) ); // Form Factor Shape Type
+                m_geo_shapeType.push_back( geom->GetSurfType( iref ) ); // Form Factor Shape Type
+                m_geo_noArea.push_back( false );
 
-                if ( geom->GetSurfType(0) == vsp::NORMAL_SURF )
+                if ( geom->GetSurfType( iref ) == vsp::NORMAL_SURF )
                 {
                     m_geo_ffType.push_back( geom->m_FFBodyEqnType() );
                 }
@@ -331,7 +358,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                         else
                         {
                             snprintf( str, sizeof( str ),  "%s_%i", geom->GetName().c_str(), j );
-                            m_geo_surfNum.push_back( 0 );
+                            m_geo_surfNum.push_back( j );
                         }
                         m_geo_sourceRow.push_back( igeom );
                         m_geo_masterRow.push_back( false );
@@ -347,6 +374,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     }
 
                     m_geo_shapeType.push_back( geom->GetSurfType(j) ); // Form Factor Shape Type
+                    m_geo_noArea.push_back( NoWettedArea( geom, j ) );
 
                     if ( geom->GetSurfType(j) == vsp::NORMAL_SURF )
                     {
@@ -434,6 +462,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                         m_geo_groupedAncestorGen.push_back( -1 );
                         m_geo_surfNum.push_back( k );
                         m_geo_shapeType.push_back( geom->GetSurfType(k) ); // Form Factor Shape Type
+                        m_geo_noArea.push_back( NoWettedArea( geom, k ) );
                         m_geo_expandedList.push_back( false );
                         m_geo_geomID.push_back( geom->GetID() );
                         m_geo_subsurfID.push_back( surf->GetID() );
@@ -619,6 +648,53 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
         return;
     }
 
+    // A region inside several subsurfaces has its own tag listing them all; one of them takes its
+    // area: a zero drag one, else the first Separate one, else the first.
+    map < string, double > overlap_area;
+    for ( map < string, double >::const_iterator it = m_TagWetAreaMap.begin(); it != m_TagWetAreaMap.end(); ++it )
+    {
+        vector < string > parts = StringUtil::csv_to_vecstr( it->first.c_str() );
+        if ( parts.size() > 2 )
+        {
+            Geom* geom = veh->FindGeom( parts[0].substr( 0, parts[0].find( "_Surf" ) ) );
+            if ( geom )
+            {
+                string zero, separate, first;
+                vector < SubSurface* > ssvec = geom->GetSubSurfVec();
+                for ( size_t j = 0; j < ssvec.size(); j++ )
+                {
+                    if ( std::find( parts.begin() + 1, parts.end(), ssvec[j]->GetID() ) == parts.end() )
+                    {
+                        continue;
+                    }
+                    if ( first.empty() )
+                    {
+                        first = ssvec[j]->GetID();
+                    }
+                    if ( separate.empty() && ssvec[j]->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
+                    {
+                        separate = ssvec[j]->GetID();
+                    }
+                    if ( zero.empty() && ssvec[j]->m_IncludeType() == vsp::SS_INC_ZERO_DRAG )
+                    {
+                        zero = ssvec[j]->GetID();
+                    }
+                }
+
+                string owner = first;
+                if ( !zero.empty() )
+                {
+                    owner = zero;
+                }
+                else if ( !separate.empty() )
+                {
+                    owner = separate;
+                }
+                overlap_area[ parts[0] + "," + owner ] += it->second;
+            }
+        }
+    }
+
     for ( int i = 0; i < m_RowSize; ++i )
     {
         if ( !m_DegenGeomVec.empty() )
@@ -636,7 +712,17 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
                     snprintf( str, sizeof( str ),  "%s_Surf%i,%s", geom->GetID().c_str(), m_geo_surfNum[i],
                          m_geo_subsurfID[i].c_str() );
                 }
-                m_geo_swet.push_back( FindWetArea( str ) );
+                double area = 0;
+                if ( !m_geo_noArea[i] )
+                {
+                    area = FindWetArea( str );
+                    map < string, double >::const_iterator it = overlap_area.find( str );
+                    if ( it != overlap_area.end() )
+                    {
+                        area += it->second;
+                    }
+                }
+                m_geo_swet.push_back( area );
             }
             else
             {
@@ -1229,6 +1315,11 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     // Every per-row vector is sized from these
     m_RowSize = m_geo_masterRow.size();
 
+    for ( int i = 0; i < m_RowSize; i++ )
+    {
+        m_geo_groupRow.push_back( GroupMasterRow( i ) );
+    }
+
     // Calculate All Necessary Values
     Calculate_Swet();
     Calculate_Lref();
@@ -1380,26 +1471,19 @@ void ParasiteDragMgrSingleton::OverwritePropertiesFromAncestorGeom()
     {
         for ( size_t i = 0; i < m_RowSize; ++i )
         {
-            Geom *geom = veh->FindGeom( m_geo_geomID[i] );
-            if ( geom )
+            if ( m_geo_subsurfID[i].compare( "" ) == 0 )
             {
-                if ( m_geo_groupedAncestorGen[i] > 0 )
+                int j = m_geo_groupRow[i];
+                if ( j >= 0 )
                 {
-                    for ( size_t j = 0; j < m_RowSize; ++j )
-                    {
-                        if ( m_geo_geomID[j].compare( geom->GetAncestorID( m_geo_groupedAncestorGen[i] ) ) == 0 &&
-                                m_geo_surfNum[j] == 0 )
-                        {
-                            m_geo_lref[i] = m_geo_lref[j];
-                            m_geo_Re[i] = m_geo_Re[j];
-                            m_geo_fineRat_or_toc[i] = m_geo_fineRat_or_toc[j];
-                            m_geo_ffOut[i] = m_geo_ffOut[j];
-                            m_geo_ffType[i] = m_geo_ffType[j];
-                            m_geo_percLam[i] = m_geo_percLam[j];
-                            m_geo_Q[i] = m_geo_Q[j];
-                            m_geo_cf[i] = m_geo_cf[j];
-                        }
-                    }
+                    m_geo_lref[i] = m_geo_lref[j];
+                    m_geo_Re[i] = m_geo_Re[j];
+                    m_geo_fineRat_or_toc[i] = m_geo_fineRat_or_toc[j];
+                    m_geo_ffOut[i] = m_geo_ffOut[j];
+                    m_geo_ffType[i] = m_geo_ffType[j];
+                    m_geo_percLam[i] = m_geo_percLam[j];
+                    m_geo_Q[i] = m_geo_Q[j];
+                    m_geo_cf[i] = m_geo_cf[j];
                 }
             }
         }
@@ -2583,9 +2667,11 @@ bool ParasiteDragMgrSingleton::ShouldAddSubSurfToMasterGeom( const size_t &i, co
                 Geom *geom = veh->FindGeom(m_geo_geomID[j]);
                 if (geom)
                 {
-                    return ((m_geo_geomID[i].compare(m_geo_geomID[j]) == 0 &&
+                    // Only a Geom's own master row takes the subsurfaces treated as its parent
+                    bool geomMaster = m_geo_subsurfID[i].compare( "" ) == 0;
+                    return ((geomMaster && m_geo_geomID[i].compare(m_geo_geomID[j]) == 0 &&
                              geom->GetSubSurf(m_geo_subsurfID[j])->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT) ||
-                            (m_geo_geomID[i].compare(geom->GetAncestorID(m_geo_groupedAncestorGen[j])) == 0 &&
+                            (geomMaster && (int)i == m_geo_groupRow[j] &&
                              geom->GetSubSurf(m_geo_subsurfID[j])->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT) ||
                             (geom->GetSubSurf(m_geo_subsurfID[j])->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT &&
                              m_geo_subsurfID[i].compare(m_geo_subsurfID[j]) == 0));
@@ -2616,30 +2702,63 @@ bool ParasiteDragMgrSingleton::ShouldAddGeomToMasterGeom( const size_t &i, const
         return false;
     }
 
-    // IF
-    // ==========
-    // Same Geom AND Geom[i] is main surface
-    // OR
-    // Not the same Geom AND Ancestor of Geom[j] is Geom[i] AND Geom[i] is 0th surface AND Geom[j] not an expanded list
-    // OR
-    // is custom geom (TODO: this could use some work)
-    // ==========
-    // AND
-    // ==========
-    // Shape types are the same AND
-    if ( i != j ) // If not the same geom
+    // A Geom's surface rows go to its own master row, and to the master row of the Geom it is
+    // grouped into.  Only surface rows move area, so the result does not depend on row order.
+    if ( i != j && m_geo_masterRow[i] && !m_geo_masterRow[j] && !m_geo_noArea[j] &&
+         m_geo_subsurfID[j].compare( "" ) == 0 && m_geo_subsurfID[i].compare( "" ) == 0 )
     {
-        if ( m_geo_masterRow[i] && m_geo_subsurfID[j].compare( "" ) == 0 && m_geo_subsurfID[i].compare( "" ) == 0 )
-        {
-            return ( ( m_geo_geomID[i].compare( m_geo_geomID[j] ) == 0 ) ||
-                     ( m_geo_geomID[i].compare( m_geo_geomID[j] ) != 0 &&
-                       m_geo_geomID[i].compare( geom->GetAncestorID( m_geo_groupedAncestorGen[j] ) ) == 0 ) ||
-                     ( ( m_geo_label[i].substr( 0, 3 ).compare( "[W]" ) == 0 || m_geo_label[i].substr( 0, 3 ).compare( "[B]" ) == 0 ) &&
-                       ( m_geo_geomID[i].compare( m_geo_geomID[j] ) == 0 ) ) ) &&
-                   ( m_geo_shapeType[i] == m_geo_shapeType[j] );
-        }
+        return m_geo_geomID[i].compare( m_geo_geomID[j] ) == 0 || (int)i == m_geo_groupRow[j];
     }
     return false;
+}
+
+//==== Master row of the Geom whose drag takes row irow's Geom, or -1 ====//
+// Follows groupings up to a Geom that is not grouped; stops at an ancestor not in the set or of
+// another shape type, which leaves the Geom with its own drag.
+int ParasiteDragMgrSingleton::GroupMasterRow( int irow )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return -1;
+    }
+
+    int target = -1;
+    int imaster = GeomMasterRow( m_geo_geomID[irow] );
+
+    // Bounded by the row count, so a ring of groupings ends
+    for ( int n = 0; n < m_RowSize && imaster >= 0; n++ )
+    {
+        Geom* geom = veh->FindGeom( m_geo_geomID[imaster] );
+        int gen = m_geo_groupedAncestorGen[imaster];
+        if ( !geom || gen <= 0 )
+        {
+            break;
+        }
+
+        int ianc = GeomMasterRow( geom->GetAncestorID( gen ) );
+        if ( ianc < 0 || ianc == imaster || m_geo_shapeType[ianc] != m_geo_shapeType[imaster] )
+        {
+            break;
+        }
+
+        target = ianc;
+        imaster = ianc;
+    }
+    return target;
+}
+
+//==== Master row of a Geom, not of one of its subsurfaces, or -1 ====//
+int ParasiteDragMgrSingleton::GeomMasterRow( const string &geom_id )
+{
+    for ( int i = 0; i < m_RowSize; i++ )
+    {
+        if ( m_geo_masterRow[i] && m_geo_subsurfID[i].compare( "" ) == 0 && m_geo_geomID[i].compare( geom_id ) == 0 )
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void ParasiteDragMgrSingleton::UpdateRefWing()
@@ -3422,7 +3541,9 @@ string ParasiteDragMgrSingleton::ExportToCSV( const string & file_name )
 void ParasiteDragMgrSingleton::ClearInputVectors()
 {
     m_geo_masterRow.clear();
+    m_geo_noArea.clear();
     m_geo_sourceRow.clear();
+    m_geo_groupRow.clear();
     m_geo_geomID.clear();
     m_geo_subsurfID.clear();
     m_geo_name.clear();
@@ -3926,7 +4047,7 @@ bool ParasiteDragMgrSingleton::IsNotZeroLineItem( int index )
 
     if ( m_geo_subsurfID[index].compare( "" ) == 0 )
     {
-        if ( m_geo_groupedAncestorGen[index] == 0 )
+        if ( m_geo_groupRow[index] < 0 && !m_geo_noArea[index] )
         {
             return true;
         }
@@ -4013,6 +4134,7 @@ void ParasiteDragMgrSingleton::SetDegenGeomVec( const vector < DegenGeom > & deg
     {
         Geom* parent = m_DegenGeomVec[i].getParentGeom();
         if ( parent && m_DegenGeomVec[i].getType() != DegenGeom::DISK_TYPE &&
+             m_DegenGeomVec[i].getCfdSurfType() != vsp::CFD_TRANSPARENT &&
              m_DegenIndexMap.find( parent->GetID() ) == m_DegenIndexMap.end() )
         {
             m_DegenIndexMap[ parent->GetID() ] = i;
