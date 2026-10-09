@@ -5,6 +5,7 @@
 # in the model.
 
 import openvsp as vsp
+import math
 import os
 import tempfile
 
@@ -310,6 +311,27 @@ def testEveryTurbulentCfEquationHasAName():
         name = vsp.GetStringResults( rid, "TurbCfEqnName" )[0]
         drop_errors()
         assert name != "", "equation %d has no name" % eq
+
+
+def testQuarterAndHalfChordSweepFollowTheTaper():
+    """The chord change along the span was subtracted, so taper raised the c/4 and c/2 sweep."""
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    for name, val in ( ( "Sweep_Location", 0.0 ), ( "Sweep", 45.0 ), ( "Root_Chord", 6.0 ), ( "Tip_Chord", 1.5 ), ( "Span", 10.0 ) ):
+        vsp.SetParmVal( w, name, "XSec_1", val )
+    vsp.SetParmVal( w, "FFWingEqnType", "ParasiteDragProps", vsp.FF_W_JENKINSON_WING )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    drop_errors()
+    ff = vsp.GetDoubleResults( rid, "Comp_FFOut" )[0]
+    t = vsp.GetDoubleResults( rid, "Comp_FineRat" )[0]
+
+    # Jenkinson wing form factor with the half chord sweep of this planform
+    sweep50 = math.atan( math.tan( math.radians( 45.0 ) ) + 0.5 * ( 1.5 - 6.0 ) / 10.0 )
+    fstar = 1.0 + 3.3 * t - 0.008 * t * t + 27.0 * t ** 3
+    expect = ( fstar - 1.0 ) * math.cos( sweep50 ) ** 2 + 1.0
+    assert abs( ff - expect ) < 1e-3, "FF %g, expected %g" % ( ff, expect )
 
 
 def testRoughnessHeightIsInTheModelLengthUnit():

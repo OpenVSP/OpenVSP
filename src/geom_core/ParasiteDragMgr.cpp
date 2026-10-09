@@ -1027,16 +1027,16 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep( const vector<DegenStick> &deg
 
         // Section Quarter Chord Sweep
         secSweep25 = atan( tan( degenSticks[0].sweeple[j] * M_PI / 180.0 ) +
-                           ( 0.25 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1] ) / width ) ) ) *
+                           ( 0.25 * ( ( degenSticks[0].chord[j + 1] - degenSticks[0].chord[j] ) / width ) ) ) *
                      180.0 / M_PI;
 
         // Section Half Chord Sweep
         secSweep50 = atan( tan( degenSticks[0].sweeple[j] * M_PI / 180.0 ) +
-                           ( 0.50 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1] ) / width ) ) ) *
+                           ( 0.50 * ( ( degenSticks[0].chord[j + 1] - degenSticks[0].chord[j] ) / width ) ) ) *
                      180.0 / M_PI;
 
         // Section Area
-        secArea = degenSticks[0].chord[j] * width;
+        secArea = 0.5 * ( degenSticks[0].chord[j] + degenSticks[0].chord[j + 1] ) * width;
 
         // Add Weighted Value to Weighted Sum
         weighted25Sum += secArea * secSweep25;
