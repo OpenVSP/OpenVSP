@@ -3224,7 +3224,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
         res->Add( new NameValData( "Comp_f", new_geo_f, "Drag area." ) );
         res->Add( new NameValData( "Comp_CD", new_geo_CD, "Drag coefficient." ) );
         res->Add( new NameValData( "Comp_PercTotalCD", new_geo_percTotalCD, "Percent of total CD." ) );
-        res->Add( new NameValData( "Comp_SurfNum", m_geo_surfNum, "Geom surf number" ) );
+        res->Add( new NameValData( "Comp_SurfNum", new_geo_surfNum, "Geom surf number" ) );
     }
     else
     {

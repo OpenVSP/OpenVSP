@@ -255,3 +255,26 @@ def testThePressureUnitIsSaved():
     cid = vsp.FindContainer( "ParasiteDragSettings", 0 )
     assert vsp.GetParmVal( vsp.FindParm( cid, "PresUnit", "ParasiteDrag" ) ) == vsp.PRES_UNIT_PA
     assert vsp.GetParmVal( cid, "Pres", "ParasiteDrag" ) == 90000.0
+
+
+def testEveryComponentResultHasOneValuePerComponent():
+    for sub in ( 0, 1 ):
+        fresh()
+        vsp.AddGeom( "WING" )
+        vsp.AddGeom( "POD" )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ sub ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        n = vsp.GetIntResults( rid, "Num_Comp" )[0]
+        for name in vsp.GetAllDataNames( rid ):
+            if name.startswith( "Comp_" ):
+                t = vsp.GetResultsType( rid, name )
+                if t == vsp.DOUBLE_DATA:
+                    vals = vsp.GetDoubleResults( rid, name )
+                elif t == vsp.INT_DATA:
+                    vals = vsp.GetIntResults( rid, name )
+                else:
+                    vals = vsp.GetStringResults( rid, name )
+                assert len( vals ) == n, "%s has %d values for %d components" % ( name, len( vals ), n )
+        drop_errors()
