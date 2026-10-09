@@ -1391,7 +1391,7 @@ void ParasiteDragFullAnalysis::SetDefaults()
 
         // Reference Area
         m_Inputs.Add( new NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get(), "Flag to control how reference quantities are set." ) );
-        m_Inputs.Add( new NameValData( "WingID",  string( "" ), "Reference wing GeomID." ) );
+        m_Inputs.Add( new NameValData( "WingID",  ParasiteDragMgr.m_RefGeomID, "Reference wing GeomID." ) );
         m_Inputs.Add( new NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get(), "Reference area." ) );
 
         // Use previous Degen Geom
@@ -1585,6 +1585,17 @@ string ParasiteDragFullAnalysis::Execute()
         if ( nvd )
         {
             ParasiteDragMgr.m_RefGeomID = nvd->GetString( 0 );
+
+            // An ID of no Geom is dropped for the first wing; ReportRefWing reports the rest
+            if ( ParasiteDragMgr.m_RefFlag() == vsp::COMPONENT_REF && !ParasiteDragMgr.m_RefGeomID.empty() &&
+                 !VehicleMgr.GetVehicle()->FindGeom( ParasiteDragMgr.m_RefGeomID ) )
+            {
+                MessageData errMsgData;
+                errMsgData.m_String = "Error";
+                errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_ID );
+                errMsgData.m_StringVec.push_back( "Error:  No reference wing '" + ParasiteDragMgr.m_RefGeomID + "'; using the first wing." );
+                MessageMgr::getInstance().SendAll( errMsgData );
+            }
         }
 
         if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::MANUAL_REF )

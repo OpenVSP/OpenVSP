@@ -114,6 +114,7 @@ public:
     // Grouped Geom Overwrite methods
     void OverwritePropertiesFromAncestorGeom();
     void ReportNoDragRows();
+    void ReportRefWing();
 
     // Switch Case Methods For Friction Coefficient Selections
     double CalcTurbCf( double ReyIn, double ref_leng, int cf_case, double roughness_h,

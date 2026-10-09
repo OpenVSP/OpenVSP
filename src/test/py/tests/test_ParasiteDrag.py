@@ -703,6 +703,42 @@ def testDatcomFormFactorDoesNotDependOnTessellation():
     assert max( ffs ) - min( ffs ) < 2e-3, ffs
 
 
+def testTheReferenceWingDefaultsToTheModels():
+    """The analysis defaulted WingID to empty, which left S_ref at whatever it last was, silently."""
+    fresh()
+    w = vsp.AddGeom( "WING" )
+    vsp.Update()
+    cid = vsp.FindContainer( "ParasiteDragSettings", 0 )
+    vsp.SetParmVal( cid, "RefFlag", "ParasiteDrag", vsp.COMPONENT_REF )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    vsp.SetIntAnalysisInput( "ParasiteDrag", "RefFlag", [ vsp.COMPONENT_REF ] )
+    rid = vsp.ExecAnalysis( "ParasiteDrag" )
+    assert not pop_errors()
+    sref = vsp.GetDoubleResults( rid, "FC_Sref" )[0]
+    assert abs( sref - vsp.GetParmVal( w, "TotalArea", "WingGeom" ) ) < 1e-9, sref
+
+    vsp.SetStringAnalysisInput( "ParasiteDrag", "WingID", [ "NOTAGEOMID" ] )
+    vsp.ExecAnalysis( "ParasiteDrag" )
+    assert len( [ e for e in pop_errors() if "reference wing" in e ] ) == 1
+
+    # A Geom that is not a wing, reported once
+    p = vsp.AddGeom( "POD" )
+    vsp.Update()
+    vsp.SetStringAnalysisInput( "ParasiteDrag", "WingID", [ p ] )
+    vsp.ExecAnalysis( "ParasiteDrag" )
+    assert len( [ e for e in pop_errors() if "reference wing" in e ] ) == 1
+
+    # The default input on a fresh run, with no wing chosen yet, is not an error
+    fresh()
+    vsp.AddGeom( "WING" )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+    vsp.SetIntAnalysisInput( "ParasiteDrag", "RefFlag", [ vsp.COMPONENT_REF ] )
+    vsp.ExecAnalysis( "ParasiteDrag" )
+    assert not pop_errors()
+
+
 def testWingThicknessDoesNotDependOnDihedral():
     """The sampled t/c is measured off the tessellated section, which dihedral stretches by 1/cos."""
     tocs = []

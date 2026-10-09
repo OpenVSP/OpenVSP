@@ -1303,6 +1303,7 @@ string ParasiteDragMgrSingleton::ComputeBuildUp()
 
         Calculate_ALL();
         ReportNoDragRows();
+        ReportRefWing();
 
         UpdateExportLabels();
 
@@ -1330,6 +1331,25 @@ void ParasiteDragMgrSingleton::ReportNoDragRows()
         errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_CF_EQN );
         errMsgData.m_StringVec.push_back( "Error:  No drag for" + invalid +
                                           "; a form factor or Cf equation is not valid at these conditions." );
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
+}
+
+//==== A reference wing that is not a wing leaves S_ref as it was; say so ====//
+void ParasiteDragMgrSingleton::ReportRefWing()
+{
+    if ( m_RefFlag() != vsp::COMPONENT_REF )
+    {
+        return;
+    }
+
+    Geom* refgeom = VehicleMgr.GetVehicle()->FindGeom( m_RefGeomID );
+    if ( !refgeom || refgeom->GetBehaviorType() != MS_WING_GEOM_TYPE )
+    {
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_ID );
+        errMsgData.m_StringVec.push_back( "Error:  The reference wing '" + m_RefGeomID + "' is not a wing; S_ref was not updated." );
         MessageMgr::getInstance().SendAll( errMsgData );
     }
 }
@@ -2613,8 +2633,23 @@ void ParasiteDragMgrSingleton::UpdateRefWing()
     }
     else
     {
-        // Pull from existing geometry
-        Geom* refgeom = VehicleMgr.GetVehicle()->FindGeom( m_RefGeomID );
+        // Pull from existing geometry; with none chosen, the first wing, as the screen does
+        Vehicle* veh = VehicleMgr.GetVehicle();
+        if ( m_RefGeomID.empty() )
+        {
+            vector < string > geom_ids = veh->GetGeomVec();
+            for ( size_t i = 0; i < geom_ids.size(); i++ )
+            {
+                Geom* geom = veh->FindGeom( geom_ids[i] );
+                if ( geom && geom->GetBehaviorType() == MS_WING_GEOM_TYPE )
+                {
+                    m_RefGeomID = geom_ids[i];
+                    break;
+                }
+            }
+        }
+
+        Geom* refgeom = veh->FindGeom( m_RefGeomID );
 
         if ( refgeom )
         {
