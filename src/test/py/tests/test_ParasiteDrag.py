@@ -379,6 +379,33 @@ def testAShortLaminarRunBarelyChangesCf():
         assert abs( cfs[-1] - 1.32824 / math.sqrt( re ) ) < 1e-12, "equation %d all laminar: %g" % ( eq, cfs[-1] )
 
 
+def testASeparateSubsurfaceUsesItsGeomsRoughnessUntilSet():
+    """A subsurface's roughness starts at -1, unset, and went into the roughness Cf as is: NaN."""
+    def cfs( ssrough ):
+        fresh()
+        p = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( p, "Roughness", "ParasiteDragProps", 0.001 )
+        vsp.Update()
+        s = vsp.AddSubSurf( p, vsp.SS_RECTANGLE, 0 )
+        vsp.SetSubSurfName( s, "A" )
+        vsp.SetParmVal( vsp.GetParm( s, "IncludeFlag", "SubSurface" ), vsp.SS_INC_SEPARATE_TREATMENT )
+        if ssrough is not None:
+            vsp.SetParmVal( vsp.GetParm( s, "Roughness", "ParasiteDragProps" ), ssrough )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG ] )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", [ 1 ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return dict( zip( vsp.GetStringResults( rid, "Comp_Label" ), vsp.GetDoubleResults( rid, "Comp_Cf" ) ) )
+
+    unset = cfs( None )
+    assert math.isfinite( unset[ "[ss] A" ] ), unset
+    assert abs( unset[ "[ss] A" ] - unset[ "PodGeom" ] ) < 1e-12, unset
+    rougher = cfs( 0.01 )
+    assert rougher[ "[ss] A" ] > rougher[ "PodGeom" ], rougher
+
+
 def testARoughnessEquationOnASmoothPlateUsesTheDefault():
     """With no roughness height, L/k was infinite and the roughness equations gave Cf = 0; a nearly
     smooth plate got a third of the smooth friction."""

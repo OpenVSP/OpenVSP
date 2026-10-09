@@ -370,7 +370,16 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                             m_geo_percLam.push_back( surf->m_PercLam() );
                             m_geo_ffIn.push_back( surf->m_FFUser() );
                             m_geo_Q.push_back( surf->m_Q() );
-                            m_geo_Roughness.push_back( surf->m_Roughness() );
+
+                            // A subsurface's roughness defaults to -1, unset: use its Geom's
+                            if ( surf->m_Roughness() < 0 )
+                            {
+                                m_geo_Roughness.push_back( geom->m_Roughness() );
+                            }
+                            else
+                            {
+                                m_geo_Roughness.push_back( surf->m_Roughness() );
+                            }
                             m_geo_TeTwRatio.push_back( surf->m_TeTwRatio() );
                             m_geo_TawTwRatio.push_back( surf->m_TawTwRatio() );
                             if ( geom->GetSurfType(k) == vsp::NORMAL_SURF )
