@@ -334,6 +334,33 @@ def testQuarterAndHalfChordSweepFollowTheTaper():
     assert abs( ff - expect ) < 1e-3, "FF %g, expected %g" % ( ff, expect )
 
 
+def testDatcomFormFactorFollowsTheMaximumThicknessLocation():
+    """DATCOM's L was chosen from the percent laminar flow instead of where the section is thickest."""
+    def datcom( thickloc, perclam ):
+        fresh()
+        w = vsp.AddGeom( "WING" )
+        xs = vsp.GetXSecSurf( w, 0 )
+        for i in range( vsp.GetNumXSec( xs ) ):
+            vsp.ChangeXSecShape( xs, i, vsp.XS_FOUR_DIGIT_MOD )
+            vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xs, i ), "ThickLoc" ), thickloc )
+        vsp.SetParmVal( w, "FFWingEqnType", "ParasiteDragProps", vsp.FF_W_DATCOM )
+        vsp.SetParmVal( w, "PercLam", "ParasiteDragProps", perclam )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        return vsp.GetDoubleResults( rid, "Comp_FFOut" )[0], vsp.GetDoubleResults( rid, "Comp_FineRat" )[0]
+
+    aft, t = datcom( 0.5, 0.0 )
+    assert abs( datcom( 0.5, 50.0 )[0] - aft ) < 1e-9, "laminar flow changed the DATCOM form factor"
+    fwd, t2 = datcom( 0.2, 0.0 )
+    assert abs( t - t2 ) < 2e-3
+
+    # L is 1.2 when the maximum thickness is at or aft of 30% chord, 2.0 ahead of it
+    expect = ( 1.0 + 1.2 * t + 100.0 * t ** 4 ) / ( 1.0 + 2.0 * t + 100.0 * t ** 4 )
+    assert abs( aft / fwd - expect ) < 2e-3, "FF ratio %g, expected %g" % ( aft / fwd, expect )
+
+
 def testRoughnessHeightIsInTheModelLengthUnit():
     """The roughness height, labelled in the model unit like L_ref, was scaled by 12 in ft and 39.37 in m."""
     for unit in ( vsp.LEN_IN, vsp.LEN_FT, vsp.LEN_M ):
@@ -507,6 +534,24 @@ def testCfIsContinuousAsTheLaminarRunGrows():
         assert max( cfs ) <= turb * ( 1.0 + 1e-12 ), "equation %d: laminar flow raised Cf %s over %g" % ( eq, cfs, turb )
         for a, b in zip( cfs, cfs[ 1: ] ):
             assert abs( b - a ) < 2e-3 * turb, "equation %d: step %g" % ( eq, b - a )
+
+
+def testDatcomFormFactorDoesNotDependOnTessellation():
+    """The sampled thickest point of a NACA 0010, thickest at 30%, read 0.22 to 0.32 with Tess_W, so L flipped."""
+    ffs = []
+    for tess in ( 13, 21, 33, 41 ):
+        fresh()
+        w = vsp.AddGeom( "WING" )
+        vsp.SetParmVal( w, "Tess_W", "Shape", tess )
+        vsp.SetParmVal( w, "FFWingEqnType", "ParasiteDragProps", vsp.FF_W_DATCOM )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        drop_errors()
+        ff = vsp.GetDoubleResults( rid, "Comp_FFOut" )[0]
+        t = vsp.GetDoubleResults( rid, "Comp_FineRat" )[0]
+        ffs.append( ff / ( 1.0 + 1.2 * t + 100.0 * t ** 4 ) )
+    assert max( ffs ) - min( ffs ) < 2e-3, ffs
 
 
 def testTheSmoothFloorIsCorrectedForMachToo():

@@ -996,7 +996,20 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
 
         Calculate_AvgSweep( degenSticks );
 
-        formfactor = CalcFFWing( toc, m_geo_ffType[irow], m_geo_percLam[irow], m_Sweep25, m_Sweep50 );
+        // Chord weighted location of maximum thickness, found on the section curve where there is one
+        double toc_loc = 0;
+        double chord_sum = 0;
+        for ( size_t j = 0; j < degenSticks[0].tLoc2.size() && j < degenSticks[0].chord.size(); j++ )
+        {
+            toc_loc += degenSticks[0].chord[j] * degenSticks[0].tLoc2[j];
+            chord_sum += degenSticks[0].chord[j];
+        }
+        if ( chord_sum > 0 )
+        {
+            toc_loc /= chord_sum;
+        }
+
+        formfactor = CalcFFWing( toc, m_geo_ffType[irow], toc_loc, m_Sweep25, m_Sweep50 );
         if ( m_geo_ffType[irow] == vsp::FF_W_JENKINSON_TAIL )
         {
             m_geo_Q[irow] = 1.2;
@@ -1722,7 +1735,7 @@ int ParasiteDragMgrSingleton::FindAlternateTurb( int cf_case )
 }
 
 double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
-        double perc_lam = 0, double sweep25 = 0, double sweep50 = 0 )
+        double toc_loc = 0, double sweep25 = 0, double sweep50 = 0 )
 {
     // Values recreated using Plot Digitizer and fitted to a 3rd power polynomial
     double Interval[] = { 0.25, 0.6, 0.8, 0.9 };
@@ -1777,8 +1790,8 @@ double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
     case vsp::FF_W_DATCOM:
         double L, x, RLS_Low, RLS_High;
 
-        // L value Decided based on xtrans/c
-        if ( perc_lam <= 30.0 )
+        // L from the chordwise location of maximum thickness
+        if ( toc_loc < 0.3 )
         { L = 2.0; }
         else
         { L = 1.2; }

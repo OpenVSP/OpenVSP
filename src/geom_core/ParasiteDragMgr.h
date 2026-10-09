@@ -126,7 +126,7 @@ public:
     void CorrectTurbEquation();
 
     // Switch Case Methods for Form Factor Selections
-    double CalcFFWing( double toc, int ff_case, double perc_lam,
+    double CalcFFWing( double toc, int ff_case, double toc_loc,
                        double sweep25, double sweep50 );
     double CalcFFBody(double FR, int ff_case );
     static string AssignFFWingEqnName( int ff_case );

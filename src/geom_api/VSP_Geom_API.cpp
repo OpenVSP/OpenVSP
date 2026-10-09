@@ -13101,8 +13101,8 @@ void WriteWingFFCSVFile(const std::string & file_name)
     char str[256];
     std::vector < double > wing_ff_vec;
     std::vector < double > toc_array = linspace( 0.0, 0.205, 200 );
-    std::vector < double > perc_lam, sweep25, sweep50;
-    perc_lam.push_back(0.0);
+    std::vector < double > toc_loc, sweep25, sweep50;
+    toc_loc.push_back(0.25);
     sweep25.push_back(30.0 * M_PI / 180.0);
     sweep50.push_back(30.0 * M_PI / 180.0);
     ParasiteDragMgr.m_Atmos.SetMach(0.8);
@@ -13111,7 +13111,7 @@ void WriteWingFFCSVFile(const std::string & file_name)
     {
         for (size_t j = 0; j < toc_array.size(); ++j )
         {
-            wing_ff_vec.push_back( ParasiteDragMgr.CalcFFWing( toc_array[j], wing_ff_case, perc_lam[0], sweep25[0], sweep50[0]) );
+            wing_ff_vec.push_back( ParasiteDragMgr.CalcFFWing( toc_array[j], wing_ff_case, toc_loc[0], sweep25[0], sweep50[0]) );
         }
         snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignFFWingEqnName( wing_ff_case ).c_str() );
         res->Add( new NameValData( str, wing_ff_vec, "Form factor." ) );
