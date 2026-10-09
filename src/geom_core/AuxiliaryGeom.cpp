@@ -150,8 +150,13 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     pnt_vec.push_back( vec3d( 1000.0, 0.0, 0.0 ) );
     SetPnts( pnt_vec );
 
-    m_XSCurve = nullptr;
-    SetXSecCurveType( vsp::XS_AC25_773 );
+    // Not SetXSecCurveType, which updates the Geom; it is updated once it is added.
+    m_XSCurve = XSecSurf::CreateXSecCurve( vsp::XS_AC25_773 );
+    if ( m_XSCurve )
+    {
+        m_XSCurve->SetParentContainer( m_ID );
+        m_XSCurve->SetWidthHeight( 1, 1 );
+    }
 }
 
 //==== Destructor ====//

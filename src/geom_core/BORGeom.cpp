@@ -52,8 +52,13 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_Xoff = 0.0;
 
-    m_XSCurve = nullptr;
-    SetXSecCurveType( vsp::XS_CIRCLE );
+    // Not SetXSecCurveType, which updates the Geom; it is updated once it is added.
+    m_XSCurve = XSecSurf::CreateXSecCurve( vsp::XS_CIRCLE );
+    if ( m_XSCurve )
+    {
+        m_XSCurve->SetParentContainer( m_ID );
+        m_XSCurve->SetWidthHeight( 1, 1 );
+    }
 
 }
 
