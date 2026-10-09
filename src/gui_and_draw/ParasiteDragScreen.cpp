@@ -1216,7 +1216,10 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         // Reference Wing Choice
         int id = m_RefWingChoice.GetVal();
-        ParasiteDragMgr.m_RefGeomID = m_WingGeomVec[id];
+        if ( id >= 0 && id < ( int )m_WingGeomVec.size() )
+        {
+            ParasiteDragMgr.m_RefGeomID = m_WingGeomVec[id];
+        }
     }
     else if ( device == &m_ModeChoice )
     {
