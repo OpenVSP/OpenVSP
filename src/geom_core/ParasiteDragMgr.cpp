@@ -1649,7 +1649,7 @@ string ParasiteDragMgrSingleton::AssignTurbCfEqnName( int cf_case )
         break;
 
     case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION:
-        m_TurbCfEqnName = "Schlichting Avg Roughness w Flow Correctioin";
+        eqn_name = "Schlichting Avg Roughness w Flow Correction";
         break;
 
     case vsp::DO_NOT_USE_CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:

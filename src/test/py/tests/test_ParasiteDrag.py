@@ -296,3 +296,17 @@ def testWhiteChristophHeatTransferIsReplacedByTheDefault():
         errs.append( pop_errors() )
     assert errs[0], "choosing the DO_NOT_USE equation raised no error"
     assert cfs[0] == cfs[1], "Cf %g, default equation %g" % tuple( cfs )
+
+
+def testEveryTurbulentCfEquationHasAName():
+    """The Schlichting roughness flow correction case set a member, so its name came back empty."""
+    for eq in ( vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG, vsp.CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION ):
+        fresh()
+        vsp.AddGeom( "WING" )
+        vsp.Update()
+        vsp.SetAnalysisInputDefaults( "ParasiteDrag" )
+        vsp.SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", [ eq ] )
+        rid = vsp.ExecAnalysis( "ParasiteDrag" )
+        name = vsp.GetStringResults( rid, "TurbCfEqnName" )[0]
+        drop_errors()
+        assert name != "", "equation %d has no name" % eq
