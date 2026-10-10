@@ -1261,7 +1261,7 @@ public:
 
     virtual void OffsetXSecs( double off );
 
-    virtual void ClearSkinning( const int & i_xs = -1 );
+    virtual int ClearSkinning( const int & i_xs = -1 );
 
     //==== User defined skinning spines ====//
     // A spine runs the length of the body, so its position and symmetry are the same on

@@ -14989,9 +14989,9 @@ void PasteAirfoil( const std::string & geom_id, int index )
     ErrorMgr.NoError();
 }
 
-void ClearSkinning( const std::string & geom_id, int index )
+static void ClearSkinningImpl( const std::string & geom_id, int index, const std::string & caller )
 {
-    Geom* geom_ptr = FindGeomForOp( geom_id, "ClearSkinning" );
+    Geom* geom_ptr = FindGeomForOp( geom_id, caller );
     if ( !geom_ptr )
     {
         return;
@@ -15000,14 +15000,29 @@ void ClearSkinning( const std::string & geom_id, int index )
     GeomXSec* gxs = dynamic_cast< GeomXSec* >( geom_ptr );
     if ( !gxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "ClearSkinning::Geom " + geom_id + " does not carry skinning" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " does not carry skinning" );
         return;
     }
 
-    gxs->ClearSkinning( index );
+    if ( index != -1 && !gxs->GetXSec( index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
+    if ( gxs->ClearSkinning( index ) == 0 )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " has no skinned section at index " + to_string( index ) );
+        return;
+    }
     Update();
 
     ErrorMgr.NoError();
+}
+
+void ClearSkinning( const std::string & geom_id, int index )
+{
+    ClearSkinningImpl( geom_id, index, "ClearSkinning" );
 }
 
 void ResetGeomScale( const std::string & geom_id )

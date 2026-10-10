@@ -47371,7 +47371,8 @@ extern void PasteAirfoil( const std::string & geom_id, int index );
 */
 /*!
     Clear the skinning of one cross section, or of every cross section when the index is left at -1.
-    This is the Skinning tab's Clear and Clear All buttons.
+    This is the Skinning tab's Clear and Clear All buttons. A Geom whose cross sections are not skinned, or an index
+    past the last cross section, is an error.
     \forcpponly
     \code{.cpp}
     string sid = AddGeom( "STACK", "" );

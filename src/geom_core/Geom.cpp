@@ -8158,20 +8158,23 @@ void GeomXSec::OffsetXSecs( double off )
     }
 }
 
-void GeomXSec::ClearSkinning( const int & i_xs )
+int GeomXSec::ClearSkinning( const int & i_xs )
 {
+    int ncleared = 0;
     for ( int i = 0; GetXSec( i ); i++ )
     {
-        SkinXSec* xs = (SkinXSec*) GetXSec( i );
+        SkinXSec* xs = dynamic_cast < SkinXSec* > ( GetXSec( i ) );
         if ( xs )
         {
             if ( ( i_xs == -1 ) || ( i == i_xs ) )
             {
                 xs->ClearSkinning();
+                ncleared++;
             }
         }
     }
     Update();
+    return ncleared;
 }
 
 void GeomXSec::NormalizeFlaps()
