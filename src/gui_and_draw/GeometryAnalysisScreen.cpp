@@ -816,6 +816,12 @@ bool GeometryAnalysisScreen::Update()
                 m_PrimarySetChoice.Deactivate();
                 m_PrimaryGeomPicker.Deactivate();
 
+                // An unset or deleted mode falls back to the first, as the choice shows
+                if ( !ModeMgr.GetMode( gcase->m_PrimaryModeID ) && !m_ModeIDs.empty() )
+                {
+                    gcase->m_PrimaryModeID = m_ModeIDs[0];
+                }
+
                 Mode *m = ModeMgr.GetMode( gcase->m_PrimaryModeID );
                 if ( m )
                 {

@@ -59,3 +59,22 @@ def testTheModeEachVehicleAnalysisUsesIsKeptInTheFile():
             vsp.SetAnalysisInputDefaults( analysis )
             assert vsp.GetStringAnalysisInput( analysis, "ModeID" )[0] == mid, analysis
         vsp.WriteVSPFile( fname )
+
+
+def geometry_analysis_result( primary_type ):
+    vsp.VSPRenew()
+    vsp.AddGeom( "POD" )
+    vsp.Update()
+    ga = vsp.AddGeometryAnalysis()
+    vsp.SetParmVal( vsp.FindParm( ga, "PrimaryType", "InterferenceCase" ), primary_type )
+    vsp.SetParmVal( vsp.FindParm( ga, "PrimarySet", "InterferenceCase" ), vsp.SET_ALL )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "GeometryAnalysis" )
+    vsp.SetStringAnalysisInput( "GeometryAnalysis", "CaseID", [ ga ] )
+    return list( vsp.GetDoubleResults( vsp.ExecAnalysis( "GeometryAnalysis" ), "Result" ) )
+
+
+def testAGeometryAnalysisWithoutItsModeUsesItsPrimarySet():
+    by_set = geometry_analysis_result( vsp.SET_TARGET )
+    assert len( by_set ) == 1
+    assert geometry_analysis_result( vsp.MODE_TARGET ) == by_set

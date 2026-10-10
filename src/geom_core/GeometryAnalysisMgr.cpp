@@ -341,7 +341,9 @@ void GeometryAnalysisCase::RenameParms()
 
 string GeometryAnalysisCase::GetPrimaryName() const
 {
-    if ( m_PrimaryType() == vsp::SET_TARGET )
+    // A Mode that is gone falls back to the primary set
+    if ( m_PrimaryType() == vsp::SET_TARGET ||
+         ( m_PrimaryType() == vsp::MODE_TARGET && !ModeMgr.GetMode( m_PrimaryModeID ) ) )
     {
         Vehicle *veh = VehicleMgr.GetVehicle();
         if ( veh )
@@ -444,13 +446,10 @@ vector< TMesh* > GeometryAnalysisCase::GetPrimaryTMeshVec( BndBox & bbox )
     {
         if ( m_PrimaryType() == vsp::SET_TARGET || m_PrimaryType() == vsp::MODE_TARGET )
         {
-            int set = vsp::SET_NONE;
+            // A Mode that is gone falls back to the primary set
+            int set = m_PrimarySet();
 
-            if ( m_PrimaryType() == vsp::SET_TARGET )
-            {
-                set = m_PrimarySet();
-            }
-            else
+            if ( m_PrimaryType() == vsp::MODE_TARGET )
             {
                 Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
                 if ( m )
@@ -479,13 +478,10 @@ vector< TetraMassProp* > GeometryAnalysisCase::GetPrimaryTetraMassPropVec()
     {
         if ( m_PrimaryType() == vsp::SET_TARGET || m_PrimaryType() == vsp::MODE_TARGET )
         {
-            int set = vsp::SET_NONE;
+            // A Mode that is gone falls back to the primary set
+            int set = m_PrimarySet();
 
-            if ( m_PrimaryType() == vsp::SET_TARGET )
-            {
-                set = m_PrimarySet();
-            }
-            else
+            if ( m_PrimaryType() == vsp::MODE_TARGET )
             {
                 Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
                 if ( m )
@@ -572,13 +568,10 @@ BndBox GeometryAnalysisCase::GetPrimaryScaleIndependentBBox() const
     {
         if ( m_PrimaryType() == vsp::SET_TARGET || m_PrimaryType() == vsp::MODE_TARGET )
         {
-            int set = vsp::SET_NONE;
+            // A Mode that is gone falls back to the primary set
+            int set = m_PrimarySet();
 
-            if ( m_PrimaryType() == vsp::SET_TARGET )
-            {
-                set = m_PrimarySet();
-            }
-            else
+            if ( m_PrimaryType() == vsp::MODE_TARGET )
             {
                 Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
                 if ( m )
@@ -642,13 +635,10 @@ AuxiliaryRole* GeometryAnalysisCase::GetPrimaryAuxiliaryGeom() const
     {
         if ( m_PrimaryType() == vsp::SET_TARGET || m_PrimaryType() == vsp::MODE_TARGET )
         {
-            int set = vsp::SET_NONE;
+            // A Mode that is gone falls back to the primary set
+            int set = m_PrimarySet();
 
-            if ( m_PrimaryType() == vsp::SET_TARGET )
-            {
-                set = m_PrimarySet();
-            }
-            else
+            if ( m_PrimaryType() == vsp::MODE_TARGET )
             {
                 Mode *m = ModeMgr.GetMode( m_PrimaryModeID );
                 if ( m )
@@ -2829,7 +2819,9 @@ void GeometryAnalysisCase::ShowPrimary()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        if ( m_PrimaryType() == vsp::SET_TARGET )
+        // A Mode that is gone falls back to the primary set
+        if ( m_PrimaryType() == vsp::SET_TARGET ||
+             ( m_PrimaryType() == vsp::MODE_TARGET && !ModeMgr.GetMode( m_PrimaryModeID ) ) )
         {
             veh->ShowSet( m_PrimarySet() );
         }
