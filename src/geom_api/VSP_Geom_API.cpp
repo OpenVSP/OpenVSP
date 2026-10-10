@@ -1289,11 +1289,61 @@ void AutoGroupVSPAEROControlSurfaces()
     ErrorMgr.NoError();
 }
 
-void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )
+//==== The index of a control surface group by ID, reporting through the named caller ====//
+int FindControlSurfaceGroupIndex( const std::string & group_id, const std::string & caller )
+{
+    std::vector < ControlSurfaceGroup* > cs_vec = VSPAEROMgr.GetControlSurfaceGroupVec();
+    for ( int i = 0; i < ( int )cs_vec.size(); i++ )
+    {
+        if ( cs_vec[i] && cs_vec[i]->GetID() == group_id )
+        {
+            return i;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Control Surface Group " + group_id );
+    return -1;
+}
+
+//==== The position of a control surface in a list, or -1 ====//
+int FindControlSurface( const std::vector < VspAeroControlSurf > & cs_vec, const std::string & ss_id, int reflect_index )
+{
+    for ( int i = 0; i < ( int )cs_vec.size(); i++ )
+    {
+        if ( cs_vec[i].SSID == ss_id && ( int )cs_vec[i].iReflect == reflect_index )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+//==== The subsurface IDs and reflection indexes of a list of control surfaces ====//
+std::vector < std::string > ControlSurfaceSubSurfIDs( const std::vector < VspAeroControlSurf > & cs_vec )
+{
+    std::vector < std::string > ret_vec( cs_vec.size() );
+    for ( size_t i = 0; i < cs_vec.size(); i++ )
+    {
+        ret_vec[i] = cs_vec[i].SSID;
+    }
+    return ret_vec;
+}
+
+std::vector < int > ControlSurfaceReflects( const std::vector < VspAeroControlSurf > & cs_vec )
+{
+    std::vector < int > ret_vec( cs_vec.size() );
+    for ( size_t i = 0; i < cs_vec.size(); i++ )
+    {
+        ret_vec[i] = cs_vec[i].iReflect;
+    }
+    return ret_vec;
+}
+
+static void DeleteVSPAEROControlSurfaceGroupImpl( int CSGroupIndex, const std::string & caller )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex >= GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteVSPAEROControlSurfaceGroup::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -1301,6 +1351,22 @@ void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )
     VSPAEROMgr.RemoveControlSurfaceGroup();
 
     ErrorMgr.NoError();
+}
+
+void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )
+{
+    DeleteVSPAEROControlSurfaceGroupImpl( CSGroupIndex, "DeleteVSPAEROControlSurfaceGroup" );
+}
+
+void DeleteVSPAEROControlSurfaceGroupByID( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "DeleteVSPAEROControlSurfaceGroupByID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    DeleteVSPAEROControlSurfaceGroupImpl( index, "DeleteVSPAEROControlSurfaceGroupByID" );
 }
 
 std::string AddCpSlice( int cut_type, double location )
@@ -1340,17 +1406,48 @@ std::string GetCpSliceID( int slice_index )
     return VSPAEROMgr.GetCpSlice( slice_index )->GetID();
 }
 
-void DelCpSlice( int slice_index )
+std::vector < std::string > GetCpSliceIDVec()
+{
+    std::vector < std::string > ret_vec;
+
+    std::vector < CpSlice* > slice_vec = VSPAEROMgr.GetCpSliceVec();
+    for ( size_t i = 0; i < slice_vec.size(); i++ )
+    {
+        ret_vec.push_back( slice_vec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+static void DelCpSliceImpl( int slice_index, const std::string & caller )
 {
     if ( !VSPAEROMgr.ValidCpSliceInd( slice_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelCpSlice::Slice Index " + to_string( slice_index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Slice Index " + to_string( slice_index ) + " Out of Range" );
         return;
     }
 
     VSPAEROMgr.DelCpSlice( slice_index );
 
     ErrorMgr.NoError();
+}
+
+void DelCpSlice( int slice_index )
+{
+    DelCpSliceImpl( slice_index, "DelCpSlice" );
+}
+
+void DelCpSliceByID( const std::string & slice_id )
+{
+    int index = VSPAEROMgr.GetCpSliceIndex( slice_id );
+    if ( !VSPAEROMgr.ValidCpSliceInd( index ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelCpSliceByID::Can't Find Cp Slice " + slice_id );
+        return;
+    }
+
+    DelCpSliceImpl( index, "DelCpSliceByID" );
 }
 
 void DeleteAllCpSlices()
@@ -1388,11 +1485,16 @@ int CreateVSPAEROControlSurfaceGroup()
     return VSPAEROMgr.GetCurrentCSGroupIndex();
 }
 
-void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )
+std::string AddVSPAEROControlSurfaceGroup()
+{
+    return FindControlSurfaceGroup( CreateVSPAEROControlSurfaceGroup() );
+}
+
+static void AddAllToVSPAEROControlSurfaceGroupImpl( int CSGroupIndex, const std::string & caller )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex >= GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddAllToVSPAEROControlSurfaceGroup::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -1405,11 +1507,27 @@ void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )
     ErrorMgr.NoError();
 }
 
-void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )
+void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )
+{
+    AddAllToVSPAEROControlSurfaceGroupImpl( CSGroupIndex, "AddAllToVSPAEROControlSurfaceGroup" );
+}
+
+void AddAllToVSPAEROControlSurfaceGroupByID( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "AddAllToVSPAEROControlSurfaceGroupByID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    AddAllToVSPAEROControlSurfaceGroupImpl( index, "AddAllToVSPAEROControlSurfaceGroupByID" );
+}
+
+static void RemoveAllFromVSPAEROControlSurfaceGroupImpl( int CSGroupIndex, const std::string & caller )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex >= GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "RemoveAllFromVSPAEROControlSurfaceGroup::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -1422,11 +1540,27 @@ void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )
     ErrorMgr.NoError();
 }
 
-std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
+void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )
+{
+    RemoveAllFromVSPAEROControlSurfaceGroupImpl( CSGroupIndex, "RemoveAllFromVSPAEROControlSurfaceGroup" );
+}
+
+void RemoveAllFromVSPAEROControlSurfaceGroupByID( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "RemoveAllFromVSPAEROControlSurfaceGroupByID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    RemoveAllFromVSPAEROControlSurfaceGroupImpl( index, "RemoveAllFromVSPAEROControlSurfaceGroupByID" );
+}
+
+static std::vector < std::string > GetActiveCSNameVecImpl( int CSGroupIndex, const std::string & caller )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex >= GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetActiveCSNameVec::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return {};
     }
 
@@ -1436,7 +1570,7 @@ std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
 
     if ( !VSPAEROMgr.GetActiveCSVecPtr() )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetActiveCSNameVec::invalid group index" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Active Control Surfaces of Group " + to_string( CSGroupIndex ) );
         return std::vector < std::string >();
     }
 
@@ -1450,6 +1584,50 @@ std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
 
     ErrorMgr.NoError();
     return return_vec;
+}
+
+std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
+{
+    return GetActiveCSNameVecImpl( CSGroupIndex, "GetActiveCSNameVec" );
+}
+
+std::vector < std::string > GetActiveCSNameVecByID( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "GetActiveCSNameVecByID" );
+    if ( index < 0 )
+    {
+        return std::vector < std::string > ();
+    }
+
+    return GetActiveCSNameVecImpl( index, "GetActiveCSNameVecByID" );
+}
+
+std::vector < std::string > GetActiveCSSubSurfIDVec( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "GetActiveCSSubSurfIDVec" );
+    if ( index < 0 )
+    {
+        return std::vector < std::string > ();
+    }
+
+    VSPAEROMgr.Update();
+
+    ErrorMgr.NoError();
+    return ControlSurfaceSubSurfIDs( VSPAEROMgr.GetControlSurfaceGroupVec()[ index ]->m_ControlSurfVec );
+}
+
+std::vector < int > GetActiveCSReflectVec( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "GetActiveCSReflectVec" );
+    if ( index < 0 )
+    {
+        return std::vector < int > ();
+    }
+
+    VSPAEROMgr.Update();
+
+    ErrorMgr.NoError();
+    return ControlSurfaceReflects( VSPAEROMgr.GetControlSurfaceGroupVec()[ index ]->m_ControlSurfVec );
 }
 
 std::vector < std::string > GetCompleteCSNameVec( )
@@ -1468,11 +1646,27 @@ std::vector < std::string > GetCompleteCSNameVec( )
     return return_vec;
 }
 
-std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex )
+std::vector < std::string > GetCompleteCSSubSurfIDVec()
+{
+    VSPAEROMgr.Update();
+
+    ErrorMgr.NoError();
+    return ControlSurfaceSubSurfIDs( VSPAEROMgr.GetCompleteCSVec() );
+}
+
+std::vector < int > GetCompleteCSReflectVec()
+{
+    VSPAEROMgr.Update();
+
+    ErrorMgr.NoError();
+    return ControlSurfaceReflects( VSPAEROMgr.GetCompleteCSVec() );
+}
+
+static std::vector < std::string > GetAvailableCSNameVecImpl( int CSGroupIndex, const std::string & caller )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex >= GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAvailableCSNameVec::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return {};
     }
 
@@ -1492,11 +1686,57 @@ std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex )
     return return_vec;
 }
 
-void SetVSPAEROControlGroupName(const std::string & name, int CSGroupIndex)
+std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex )
+{
+    return GetAvailableCSNameVecImpl( CSGroupIndex, "GetAvailableCSNameVec" );
+}
+
+std::vector < std::string > GetAvailableCSNameVecByID( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "GetAvailableCSNameVecByID" );
+    if ( index < 0 )
+    {
+        return std::vector < std::string > ();
+    }
+
+    return GetAvailableCSNameVecImpl( index, "GetAvailableCSNameVecByID" );
+}
+
+std::vector < std::string > GetAvailableCSSubSurfIDVec( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "GetAvailableCSSubSurfIDVec" );
+    if ( index < 0 )
+    {
+        return std::vector < std::string > ();
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( index );
+    VSPAEROMgr.Update();
+
+    ErrorMgr.NoError();
+    return ControlSurfaceSubSurfIDs( VSPAEROMgr.GetAvailableCSVec() );
+}
+
+std::vector < int > GetAvailableCSReflectVec( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "GetAvailableCSReflectVec" );
+    if ( index < 0 )
+    {
+        return std::vector < int > ();
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( index );
+    VSPAEROMgr.Update();
+
+    ErrorMgr.NoError();
+    return ControlSurfaceReflects( VSPAEROMgr.GetAvailableCSVec() );
+}
+
+static void SetVSPAEROControlGroupNameImpl( const std::string & name, int CSGroupIndex, const std::string & caller )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex >= GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetVSPAEROControlGroupName::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -1509,11 +1749,27 @@ void SetVSPAEROControlGroupName(const std::string & name, int CSGroupIndex)
     ErrorMgr.NoError();
 }
 
-std::string GetVSPAEROControlGroupName( int CSGroupIndex )
+void SetVSPAEROControlGroupName( const std::string & name, int CSGroupIndex )
+{
+    SetVSPAEROControlGroupNameImpl( name, CSGroupIndex, "SetVSPAEROControlGroupName" );
+}
+
+void SetVSPAEROControlGroupNameByID( const std::string & name, const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "SetVSPAEROControlGroupNameByID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    SetVSPAEROControlGroupNameImpl( name, index, "SetVSPAEROControlGroupNameByID" );
+}
+
+static std::string GetVSPAEROControlGroupNameImpl( int CSGroupIndex, const std::string & caller )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex >= GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetVSPAEROControlGroupName::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return std::string();
     }
 
@@ -1523,6 +1779,22 @@ std::string GetVSPAEROControlGroupName( int CSGroupIndex )
 
     ErrorMgr.NoError();
     return VSPAEROMgr.GetCurrentCSGGroupName();
+}
+
+std::string GetVSPAEROControlGroupName( int CSGroupIndex )
+{
+    return GetVSPAEROControlGroupNameImpl( CSGroupIndex, "GetVSPAEROControlGroupName" );
+}
+
+std::string GetVSPAEROControlGroupNameByID( const std::string & group_id )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "GetVSPAEROControlGroupNameByID" );
+    if ( index < 0 )
+    {
+        return std::string();
+    }
+
+    return GetVSPAEROControlGroupNameImpl( index, "GetVSPAEROControlGroupNameByID" );
 }
 
 void AddSelectedToCSGroup( const std::vector <int> &selected, int CSGroupIndex)
@@ -1602,6 +1874,49 @@ void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CSGroupIn
     ErrorMgr.NoError();
 }
 
+void AddSubSurfToCSGroup( const std::string & group_id, const std::string & ss_id, int reflect_index )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "AddSubSurfToCSGroup" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( index );
+    VSPAEROMgr.Update();
+
+    int pos = FindControlSurface( VSPAEROMgr.GetAvailableCSVec(), ss_id, reflect_index );
+    if ( pos < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddSubSurfToCSGroup::SubSurface " + ss_id + " reflection " + to_string( reflect_index ) + " is not a control surface outside group " + group_id );
+        return;
+    }
+
+    std::vector < int > selected( 1, pos + 1 );
+    AddSelectedToCSGroup( selected, index );
+}
+
+void RemoveSubSurfFromCSGroup( const std::string & group_id, const std::string & ss_id, int reflect_index )
+{
+    int index = FindControlSurfaceGroupIndex( group_id, "RemoveSubSurfFromCSGroup" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    VSPAEROMgr.Update();
+
+    int pos = FindControlSurface( VSPAEROMgr.GetControlSurfaceGroupVec()[ index ]->m_ControlSurfVec, ss_id, reflect_index );
+    if ( pos < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveSubSurfFromCSGroup::SubSurface " + ss_id + " reflection " + to_string( reflect_index ) + " is not in group " + group_id );
+        return;
+    }
+
+    std::vector < int > selected( 1, pos + 1 );
+    RemoveSelectedFromCSGroup( selected, index );
+}
+
 int GetNumControlSurfaceGroups()
 {
     ErrorMgr.NoError();
@@ -1630,10 +1945,41 @@ std::string FindControlSurfaceGroup( int group_index )
     return cs_vec[ group_index ]->GetID();
 }
 
+std::vector < std::string > GetControlSurfaceGroupIDVec()
+{
+    std::vector < std::string > ret_vec;
+
+    std::vector < ControlSurfaceGroup* > cs_vec = VSPAEROMgr.GetControlSurfaceGroupVec();
+    for ( size_t i = 0; i < cs_vec.size(); i++ )
+    {
+        if ( cs_vec[i] )
+        {
+            ret_vec.push_back( cs_vec[i]->GetID() );
+        }
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
 
 //===================================================================//
 //=========       VSPAERO Unsteady Group Functions        ===========//
 //===================================================================//
+//==== The index of an unsteady group by ID, reporting through the named caller ====//
+int FindUnsteadyGroupIndex( const std::string & group_id, const std::string & caller )
+{
+    VSPAEROMgr.UpdateUnsteadyGroups();
+
+    int index = VSPAEROMgr.GetUnsteadyGroupIndex( group_id );
+    if ( !VSPAEROMgr.ValidUnsteadyGroupInd( index ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Unsteady Group " + group_id );
+        return -1;
+    }
+    return index;
+}
+
 std::string FindUnsteadyGroup( int group_index )
 {
     VSPAEROMgr.UpdateUnsteadyGroups();
@@ -1650,13 +1996,13 @@ std::string FindUnsteadyGroup( int group_index )
     return group->GetID();
 }
 
-std::string GetUnsteadyGroupName( int group_index )
+static std::string GetUnsteadyGroupNameImpl( int group_index, const std::string & caller )
 {
     VSPAEROMgr.UpdateUnsteadyGroups();
 
     if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupName::group_index " + to_string( group_index ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::group_index " + to_string( group_index ) + " out of range" );
         return std::string();
     }
 
@@ -1666,14 +2012,30 @@ std::string GetUnsteadyGroupName( int group_index )
     return group->GetName();
 }
 
-std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index )
+std::string GetUnsteadyGroupName( int group_index )
+{
+    return GetUnsteadyGroupNameImpl( group_index, "GetUnsteadyGroupName" );
+}
+
+std::string GetUnsteadyGroupNameByID( const std::string & group_id )
+{
+    int index = FindUnsteadyGroupIndex( group_id, "GetUnsteadyGroupNameByID" );
+    if ( index < 0 )
+    {
+        return std::string();
+    }
+
+    return GetUnsteadyGroupNameImpl( index, "GetUnsteadyGroupNameByID" );
+}
+
+static std::vector < std::string > GetUnsteadyGroupCompIDsImpl( int group_index, const std::string & caller )
 {
     std::vector < std::string > ret_vec;
     VSPAEROMgr.UpdateUnsteadyGroups();
 
     if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupCompIDs::group_index " + to_string( group_index ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::group_index " + to_string( group_index ) + " out of range" );
         return ret_vec;
     }
 
@@ -1692,14 +2054,30 @@ std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index )
     return ret_vec;
 }
 
-std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index )
+std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index )
+{
+    return GetUnsteadyGroupCompIDsImpl( group_index, "GetUnsteadyGroupCompIDs" );
+}
+
+std::vector < std::string > GetUnsteadyGroupCompIDsByID( const std::string & group_id )
+{
+    int index = FindUnsteadyGroupIndex( group_id, "GetUnsteadyGroupCompIDsByID" );
+    if ( index < 0 )
+    {
+        return std::vector < std::string > ();
+    }
+
+    return GetUnsteadyGroupCompIDsImpl( index, "GetUnsteadyGroupCompIDsByID" );
+}
+
+static std::vector < int > GetUnsteadyGroupSurfIndexesImpl( int group_index, const std::string & caller )
 {
     std::vector < int > ret_vec;
     VSPAEROMgr.UpdateUnsteadyGroups();
 
     if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupSurfIndexes::group_index " + to_string( group_index ) + " out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::group_index " + to_string( group_index ) + " out of range" );
         return ret_vec;
     }
 
@@ -1718,12 +2096,43 @@ std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index )
     return ret_vec;
 }
 
+std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index )
+{
+    return GetUnsteadyGroupSurfIndexesImpl( group_index, "GetUnsteadyGroupSurfIndexes" );
+}
+
+std::vector < int > GetUnsteadyGroupSurfIndexesByID( const std::string & group_id )
+{
+    int index = FindUnsteadyGroupIndex( group_id, "GetUnsteadyGroupSurfIndexesByID" );
+    if ( index < 0 )
+    {
+        return std::vector < int > ();
+    }
+
+    return GetUnsteadyGroupSurfIndexesImpl( index, "GetUnsteadyGroupSurfIndexesByID" );
+}
+
 int GetNumUnsteadyGroups()
 {
     VSPAEROMgr.UpdateUnsteadyGroups();
 
     ErrorMgr.NoError();
     return VSPAEROMgr.NumUnsteadyGroups();
+}
+
+std::vector < std::string > GetUnsteadyGroupIDVec()
+{
+    std::vector < std::string > ret_vec;
+
+    VSPAEROMgr.UpdateUnsteadyGroups();
+
+    for ( int i = 0; i < VSPAEROMgr.NumUnsteadyGroups(); i++ )
+    {
+        ret_vec.push_back( VSPAEROMgr.GetUnsteadyGroupID( i ) );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 int GetNumUnsteadyRotorGroups()
@@ -1752,12 +2161,67 @@ std::string FindActuatorDisk( int disk_index )
     return disk->GetID();
 }
 
+std::string FindActuatorDiskByGeom( const std::string & geom_id, int surf_index )
+{
+    if ( !GetVehicle()->FindGeom( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "FindActuatorDiskByGeom::Can't Find Geom " + geom_id );
+        return std::string();
+    }
+
+    VSPAEROMgr.UpdateRotorDisks();
+
+    std::vector < RotorDisk* > disk_vec = VSPAEROMgr.GetRotorDiskVec();
+    for ( size_t i = 0; i < disk_vec.size(); i++ )
+    {
+        if ( disk_vec[i]->GetParentID() == geom_id && ( int )disk_vec[i]->GetSurfNum() == surf_index )
+        {
+            ErrorMgr.NoError();
+            return disk_vec[i]->GetID();
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "FindActuatorDiskByGeom::No Actuator Disk For Geom " + geom_id + " Surface " + to_string( surf_index ) );
+    return std::string();
+}
+
+std::string GetActuatorDiskGeomID( const std::string & disk_id )
+{
+    VSPAEROMgr.UpdateRotorDisks();
+
+    RotorDisk* disk = dynamic_cast < RotorDisk* > ( ParmMgr.FindParmContainer( disk_id ) );
+    if ( !disk )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetActuatorDiskGeomID::Can't Find Actuator Disk " + disk_id );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return disk->GetParentID();
+}
+
 int GetNumActuatorDisks()
 {
     VSPAEROMgr.UpdateRotorDisks();
 
     ErrorMgr.NoError();
     return VSPAEROMgr.GetRotorDiskVec().size();
+}
+
+std::vector < std::string > GetActuatorDiskIDVec()
+{
+    std::vector < std::string > ret_vec;
+
+    VSPAEROMgr.UpdateRotorDisks();
+
+    std::vector < RotorDisk* > disk_vec = VSPAEROMgr.GetRotorDiskVec();
+    for ( size_t i = 0; i < disk_vec.size(); i++ )
+    {
+        ret_vec.push_back( disk_vec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 //===================================================================//

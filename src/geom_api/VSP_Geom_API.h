@@ -43857,6 +43857,42 @@ extern std::string GetCpSliceID( int slice_index );
     \ingroup CSGroup
 */
 /*!
+    Get the IDs of the Cp slices, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    DeleteAllCpSlices();
+
+    string slice_id = AddCpSlice( X_DIR, 0.5 );
+
+    array< string > @ids = GetCpSliceIDVec();
+
+    if ( ids.size() != 1 || ids[0] != slice_id )
+    {
+        Print( "ERROR: GetCpSliceIDVec did not return the slice" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    DeleteAllCpSlices()
+
+    slice_id = AddCpSlice( X_DIR, 0.5 )
+
+    assert list( GetCpSliceIDVec() ) == [ slice_id ], "GetCpSliceIDVec did not return the slice"
+
+    \endcode
+    \endPythonOnly
+    \sa GetCpSliceID
+    \return array<string> Array of Cp slice IDs
+*/
+
+extern std::vector < std::string > GetCpSliceIDVec();
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
     Delete a single Cp slice from the VSPAERO Cp Slicer
     \forcpponly
     \code{.cpp}
@@ -43917,11 +43953,47 @@ extern std::string GetCpSliceID( int slice_index );
 
     \endcode
     \endPythonOnly
-    \sa AddCpSlice, DeleteAllCpSlices
+    \sa AddCpSlice, DeleteAllCpSlices, DelCpSliceByID
     \param [in] slice_index int Cp slice index
 */
 
 extern void DelCpSlice( int slice_index );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Delete a Cp slice, by slice ID.
+    \forcpponly
+    \code{.cpp}
+    string slice_id = AddCpSlice( X_DIR, 0.5 );
+
+    DelCpSliceByID( slice_id );
+
+    array< string > @ids = GetCpSliceIDVec();
+
+    if ( ids.find( slice_id ) >= 0 )
+    {
+        Print( "ERROR: DelCpSliceByID did not delete the slice" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    slice_id = AddCpSlice( X_DIR, 0.5 )
+
+    DelCpSliceByID( slice_id )
+
+    assert slice_id not in GetCpSliceIDVec(), "DelCpSliceByID did not delete the slice"
+
+    \endcode
+    \endPythonOnly
+    \sa AddCpSlice, DeleteAllCpSlices, DelCpSlice
+    \param [in] slice_id string Cp slice ID
+*/
+
+extern void DelCpSliceByID( const std::string & slice_id );
 
 /*!
     \ingroup CSGroup
@@ -44006,11 +44078,59 @@ extern void DeleteAllCpSlices();
 
     \endcode
     \endPythonOnly
-    \sa CreateVSPAEROControlSurfaceGroup
+    \sa CreateVSPAEROControlSurfaceGroup, DeleteVSPAEROControlSurfaceGroupByID
     \param [in] CSGroupIndex int Index of the control surface group to delete
 */
 
 extern void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Delete a VSPAERO control surface group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    DeleteVSPAEROControlSurfaceGroupByID( group_id );
+
+    array< string > @ids = GetControlSurfaceGroupIDVec();
+
+    if ( ids.find( group_id ) >= 0 )
+    {
+        Print( "ERROR: DeleteVSPAEROControlSurfaceGroupByID did not delete the group" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    DeleteVSPAEROControlSurfaceGroupByID( group_id )
+
+    assert group_id not in GetControlSurfaceGroupIDVec(), "DeleteVSPAEROControlSurfaceGroupByID did not delete the group"
+
+    \endcode
+    \endPythonOnly
+    \sa CreateVSPAEROControlSurfaceGroup, DeleteVSPAEROControlSurfaceGroup
+    \param [in] group_id string Control surface group ID
+*/
+
+extern void DeleteVSPAEROControlSurfaceGroupByID( const std::string & group_id );
 
 /*!
     \ingroup CSGroup
@@ -44040,11 +44160,43 @@ extern void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
     \endcode
     \endPythonOnly
-    \sa DeleteVSPAEROControlSurfaceGroup, GetNumControlSurfaceGroups
+    \sa DeleteVSPAEROControlSurfaceGroup, GetNumControlSurfaceGroups, AddVSPAEROControlSurfaceGroup
     \return int Index of the new control surface group
 */
 
 extern int CreateVSPAEROControlSurfaceGroup();
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Add an empty VSPAERO control surface group and return its ID.
+    \forcpponly
+    \code{.cpp}
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    array< string > @ids = GetControlSurfaceGroupIDVec();
+
+    if ( ids.find( group_id ) < 0 )
+    {
+        Print( "ERROR: AddVSPAEROControlSurfaceGroup did not add the group" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    assert group_id in GetControlSurfaceGroupIDVec(), "AddVSPAEROControlSurfaceGroup did not add the group"
+
+    \endcode
+    \endPythonOnly
+    \sa CreateVSPAEROControlSurfaceGroup, DeleteVSPAEROControlSurfaceGroup
+    \return string Control surface group ID
+*/
+
+extern std::string AddVSPAEROControlSurfaceGroup();
 
 /*!
     \ingroup CSGroup
@@ -44122,10 +44274,57 @@ extern int CreateVSPAEROControlSurfaceGroup();
 
     \endcode
     \endPythonOnly
+    \sa AddAllToVSPAEROControlSurfaceGroupByID
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Add every available control surface to a group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddAllToVSPAEROControlSurfaceGroupByID( group_id );
+
+    if ( GetAvailableCSNameVecByID( group_id ).size() != 0 )
+    {
+        Print( "ERROR: AddAllToVSPAEROControlSurfaceGroupByID left control surfaces available" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddAllToVSPAEROControlSurfaceGroupByID( group_id )
+
+    assert len( GetAvailableCSNameVecByID( group_id ) ) == 0, "AddAllToVSPAEROControlSurfaceGroupByID left control surfaces available"
+
+    \endcode
+    \endPythonOnly
+    \sa RemoveAllFromVSPAEROControlSurfaceGroup, AddAllToVSPAEROControlSurfaceGroup
+    \param [in] group_id string Control surface group ID
+*/
+
+extern void AddAllToVSPAEROControlSurfaceGroupByID( const std::string & group_id );
 
 /*!
     \ingroup CSGroup
@@ -44188,10 +44387,61 @@ extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
     \endcode
     \endPythonOnly
+    \sa RemoveAllFromVSPAEROControlSurfaceGroupByID
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Remove every control surface from a group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddAllToVSPAEROControlSurfaceGroupByID( group_id );
+
+    RemoveAllFromVSPAEROControlSurfaceGroupByID( group_id );
+
+    if ( GetActiveCSNameVecByID( group_id ).size() != 0 )
+    {
+        Print( "ERROR: RemoveAllFromVSPAEROControlSurfaceGroupByID left control surfaces in the group" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddAllToVSPAEROControlSurfaceGroupByID( group_id )
+
+    RemoveAllFromVSPAEROControlSurfaceGroupByID( group_id )
+
+    assert len( GetActiveCSNameVecByID( group_id ) ) == 0, "RemoveAllFromVSPAEROControlSurfaceGroupByID left control surfaces in the group"
+
+    \endcode
+    \endPythonOnly
+    \sa AddAllToVSPAEROControlSurfaceGroup, RemoveAllFromVSPAEROControlSurfaceGroup
+    \param [in] group_id string Control surface group ID
+*/
+
+extern void RemoveAllFromVSPAEROControlSurfaceGroupByID( const std::string & group_id );
 
 /*!
     \ingroup CSGroup
@@ -44246,11 +44496,157 @@ extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
     \endcode
     \endPythonOnly
+    \sa GetActiveCSNameVecByID
     \param [in] CSGroupIndex int Index of the control surface group
     \return vector \<string\> Array of active control surface names
 */
 
 extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the names of the control surfaces in a group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 );
+
+    if ( GetActiveCSNameVecByID( group_id ).size() != 1 )
+    {
+        Print( "ERROR: GetActiveCSNameVecByID did not return the control surface" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 )
+
+    assert len( GetActiveCSNameVecByID( group_id ) ) == 1, "GetActiveCSNameVecByID did not return the control surface"
+
+    \endcode
+    \endPythonOnly
+    \sa GetActiveCSSubSurfIDVec, GetActiveCSNameVec
+    \param [in] group_id string Control surface group ID
+    \return array<string> Array of control surface names
+*/
+
+extern std::vector < std::string > GetActiveCSNameVecByID( const std::string & group_id );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the subsurface IDs of the control surfaces in a group. A control surface is a subsurface and the index of one of its symmetric reflections; GetActiveCSReflectVec gives the reflections.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddSubSurfToCSGroup( group_id, ss_id, 1 );
+
+    array< string > @ids = GetActiveCSSubSurfIDVec( group_id );
+
+    if ( ids.size() != 1 || ids[0] != ss_id )
+    {
+        Print( "ERROR: GetActiveCSSubSurfIDVec did not return the subsurface" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddSubSurfToCSGroup( group_id, ss_id, 1 )
+
+    assert list( GetActiveCSSubSurfIDVec( group_id ) ) == [ ss_id ], "GetActiveCSSubSurfIDVec did not return the subsurface"
+
+    \endcode
+    \endPythonOnly
+    \sa GetActiveCSReflectVec, GetActiveCSNameVec
+    \param [in] group_id string Control surface group ID
+    \return array<string> Array of subsurface IDs
+*/
+
+extern std::vector < std::string > GetActiveCSSubSurfIDVec( const std::string & group_id );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the reflection indexes of the control surfaces in a group, in the order of GetActiveCSSubSurfIDVec.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddSubSurfToCSGroup( group_id, ss_id, 1 );
+
+    array< int > @refl = GetActiveCSReflectVec( group_id );
+
+    if ( refl.size() != 1 || refl[0] != 1 )
+    {
+        Print( "ERROR: GetActiveCSReflectVec did not return the reflection" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddSubSurfToCSGroup( group_id, ss_id, 1 )
+
+    assert list( GetActiveCSReflectVec( group_id ) ) == [ 1 ], "GetActiveCSReflectVec did not return the reflection"
+
+    \endcode
+    \endPythonOnly
+    \sa GetActiveCSSubSurfIDVec
+    \param [in] group_id string Control surface group ID
+    \return array<int> Array of reflection indexes
+*/
+
+extern std::vector < int > GetActiveCSReflectVec( const std::string & group_id );
 
 /*!
     \ingroup CSGroup
@@ -44303,6 +44699,88 @@ extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
 */
 
 extern std::vector < std::string > GetCompleteCSNameVec();
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the subsurface IDs of every control surface, grouped or not, in the order of GetCompleteCSNameVec.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    array< string > @ids = GetCompleteCSSubSurfIDVec();
+
+    // A symmetric wing holds the control surface twice, once on each side.
+    if ( ids.size() != 2 || ids[0] != ss_id || ids[1] != ss_id )
+    {
+        Print( "ERROR: GetCompleteCSSubSurfIDVec did not return both reflections" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    # A symmetric wing holds the control surface twice, once on each side.
+    assert list( GetCompleteCSSubSurfIDVec() ) == [ ss_id, ss_id ], "GetCompleteCSSubSurfIDVec did not return both reflections"
+
+    \endcode
+    \endPythonOnly
+    \sa GetCompleteCSReflectVec, GetCompleteCSNameVec
+    \return array<string> Array of subsurface IDs
+*/
+
+extern std::vector < std::string > GetCompleteCSSubSurfIDVec();
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the reflection indexes of every control surface, in the order of GetCompleteCSSubSurfIDVec.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    array< int > @refl = GetCompleteCSReflectVec();
+
+    if ( refl.size() != 2 || refl[0] != 0 || refl[1] != 1 )
+    {
+        Print( "ERROR: GetCompleteCSReflectVec did not return both reflections" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    assert list( GetCompleteCSReflectVec() ) == [ 0, 1 ], "GetCompleteCSReflectVec did not return both reflections"
+
+    \endcode
+    \endPythonOnly
+    \sa GetCompleteCSSubSurfIDVec
+    \return array<int> Array of reflection indexes
+*/
+
+extern std::vector < int > GetCompleteCSReflectVec();
 
 /*!
     \ingroup CSGroup
@@ -44369,11 +44847,157 @@ extern std::vector < std::string > GetCompleteCSNameVec();
 
     \endcode
     \endPythonOnly
+    \sa GetAvailableCSNameVecByID
     \param [in] CSGroupIndex int Index of the control surface group
     \return vector \<string\> Array of active control surface names
 */
 
 extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the names of the control surfaces not in a group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 );
+
+    if ( GetAvailableCSNameVecByID( group_id ).size() != 1 )
+    {
+        Print( "ERROR: GetAvailableCSNameVecByID did not return the other reflection" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 )
+
+    assert len( GetAvailableCSNameVecByID( group_id ) ) == 1, "GetAvailableCSNameVecByID did not return the other reflection"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAvailableCSSubSurfIDVec, GetAvailableCSNameVec
+    \param [in] group_id string Control surface group ID
+    \return array<string> Array of control surface names
+*/
+
+extern std::vector < std::string > GetAvailableCSNameVecByID( const std::string & group_id );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the subsurface IDs of the control surfaces not in a group, in the order of GetAvailableCSNameVec.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 );
+
+    array< string > @ids = GetAvailableCSSubSurfIDVec( group_id );
+
+    if ( ids.size() != 1 || ids[0] != ss_id )
+    {
+        Print( "ERROR: GetAvailableCSSubSurfIDVec did not return the other reflection" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 )
+
+    assert list( GetAvailableCSSubSurfIDVec( group_id ) ) == [ ss_id ], "GetAvailableCSSubSurfIDVec did not return the other reflection"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAvailableCSReflectVec
+    \param [in] group_id string Control surface group ID
+    \return array<string> Array of subsurface IDs
+*/
+
+extern std::vector < std::string > GetAvailableCSSubSurfIDVec( const std::string & group_id );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the reflection indexes of the control surfaces not in a group, in the order of GetAvailableCSSubSurfIDVec.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 );
+
+    array< int > @refl = GetAvailableCSReflectVec( group_id );
+
+    if ( refl.size() != 1 || refl[0] != 1 )
+    {
+        Print( "ERROR: GetAvailableCSReflectVec did not return the other reflection" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 )
+
+    assert list( GetAvailableCSReflectVec( group_id ) ) == [ 1 ], "GetAvailableCSReflectVec did not return the other reflection"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAvailableCSSubSurfIDVec
+    \param [in] group_id string Control surface group ID
+    \return array<int> Array of reflection indexes
+*/
+
+extern std::vector < int > GetAvailableCSReflectVec( const std::string & group_id );
 
 /*!
     \ingroup CSGroup
@@ -44444,11 +45068,59 @@ extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
 
     \endcode
     \endPythonOnly
+    \sa SetVSPAEROControlGroupNameByID
     \param [in] name string Name to set for the control surface group
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern void SetVSPAEROControlGroupName(const std::string & name, int CSGroupIndex);
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Set the name of a control surface group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    SetVSPAEROControlGroupNameByID( "Ailerons", group_id );
+
+    if ( GetVSPAEROControlGroupNameByID( group_id ) != "Ailerons" )
+    {
+        Print( "ERROR: SetVSPAEROControlGroupNameByID did not name the group" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    SetVSPAEROControlGroupNameByID( "Ailerons", group_id )
+
+    assert GetVSPAEROControlGroupNameByID( group_id ) == "Ailerons", "SetVSPAEROControlGroupNameByID did not name the group"
+
+    \endcode
+    \endPythonOnly
+    \sa GetVSPAEROControlGroupName, SetVSPAEROControlGroupName
+    \param [in] name string New name for the group
+    \param [in] group_id string Control surface group ID
+*/
+
+extern void SetVSPAEROControlGroupNameByID( const std::string & name, const std::string & group_id );
 
 /*!
     \ingroup CSGroup
@@ -44513,10 +45185,58 @@ extern void SetVSPAEROControlGroupName(const std::string & name, int CSGroupInde
 
     \endcode
     \endPythonOnly
+    \sa GetVSPAEROControlGroupNameByID
     \param [in] CSGroupIndex int Index of the control surface group
 */
 
 extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the name of a control surface group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    SetVSPAEROControlGroupName( "Ailerons", 0 );
+
+    if ( GetVSPAEROControlGroupNameByID( group_id ) != "Ailerons" )
+    {
+        Print( "ERROR: GetVSPAEROControlGroupNameByID did not return the name set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    SetVSPAEROControlGroupName( "Ailerons", 0 )
+
+    assert GetVSPAEROControlGroupNameByID( group_id ) == "Ailerons", "GetVSPAEROControlGroupNameByID did not return the name set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetVSPAEROControlGroupName, GetVSPAEROControlGroupName
+    \param [in] group_id string Control surface group ID
+    \return string Group name
+*/
+
+extern std::string GetVSPAEROControlGroupNameByID( const std::string & group_id );
 
 /*!
     \ingroup CSGroup
@@ -44689,6 +45409,110 @@ extern void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CS
     \ingroup CSGroup
 */
 /*!
+    Add a control surface to a group, by its subsurface ID and the index of its symmetric reflection.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 );
+
+    array< string > @ids = GetActiveCSSubSurfIDVec( group_id );
+
+    if ( ids.size() != 1 || ids[0] != ss_id )
+    {
+        Print( "ERROR: AddSubSurfToCSGroup did not add the control surface" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddSubSurfToCSGroup( group_id, ss_id, 0 )
+
+    assert list( GetActiveCSSubSurfIDVec( group_id ) ) == [ ss_id ], "AddSubSurfToCSGroup did not add the control surface"
+
+    \endcode
+    \endPythonOnly
+    \sa RemoveSubSurfFromCSGroup, GetAvailableCSSubSurfIDVec
+    \param [in] group_id string Control surface group ID
+    \param [in] ss_id string Control surface subsurface ID
+    \param [in] reflect_index int Index of the symmetric reflection of the subsurface
+*/
+
+extern void AddSubSurfToCSGroup( const std::string & group_id, const std::string & ss_id, int reflect_index );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Remove a control surface from a group, by its subsurface ID and the index of its symmetric reflection.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    AddAllToVSPAEROControlSurfaceGroupByID( group_id );
+
+    RemoveSubSurfFromCSGroup( group_id, ss_id, 1 );
+
+    array< int > @refl = GetActiveCSReflectVec( group_id );
+
+    if ( refl.size() != 1 || refl[0] != 0 )
+    {
+        Print( "ERROR: RemoveSubSurfFromCSGroup did not remove the reflection" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    AddAllToVSPAEROControlSurfaceGroupByID( group_id )
+
+    RemoveSubSurfFromCSGroup( group_id, ss_id, 1 )
+
+    assert list( GetActiveCSReflectVec( group_id ) ) == [ 0 ], "RemoveSubSurfFromCSGroup did not remove the reflection"
+
+    \endcode
+    \endPythonOnly
+    \sa AddSubSurfToCSGroup, GetActiveCSSubSurfIDVec
+    \param [in] group_id string Control surface group ID
+    \param [in] ss_id string Control surface subsurface ID
+    \param [in] reflect_index int Index of the symmetric reflection of the subsurface
+*/
+
+extern void RemoveSubSurfFromCSGroup( const std::string & group_id, const std::string & ss_id, int reflect_index );
+
+/*!
+    \ingroup CSGroup
+*/
+/*!
     Get the total number of control surface groups
     \forcpponly
     \code{.cpp}
@@ -44829,6 +45653,52 @@ extern int GetNumControlSurfaceGroups();
 
 extern std::string FindControlSurfaceGroup( int group_index );
 
+/*!
+    \ingroup CSGroup
+*/
+/*!
+    Get the IDs of the VSPAERO control surface groups, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_CONTROL );
+
+    Update();
+
+    string group_id = AddVSPAEROControlSurfaceGroup();
+
+    array< string > @ids = GetControlSurfaceGroupIDVec();
+
+    if ( ids.size() != uint( GetNumControlSurfaceGroups() ) || ids.find( group_id ) < 0 )
+    {
+        Print( "ERROR: GetControlSurfaceGroupIDVec did not return the group" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_CONTROL )
+
+    Update()
+
+    group_id = AddVSPAEROControlSurfaceGroup()
+
+    ids = GetControlSurfaceGroupIDVec()
+
+    assert len( ids ) == GetNumControlSurfaceGroups() and group_id in ids, "GetControlSurfaceGroupIDVec did not return the group"
+
+    \endcode
+    \endPythonOnly
+    \sa FindControlSurfaceGroup
+    \return array<string> Array of control surface group IDs
+*/
+
+extern std::vector < std::string > GetControlSurfaceGroupIDVec();
+
 
 //================ VSPAERO Actuator Disk and Unsteady Functions ==============//
 /*!
@@ -44880,12 +45750,91 @@ extern std::string FindControlSurfaceGroup( int group_index );
 
     \endcode
     \endPythonOnly
-    \sa PROP_MODE
+    \sa PROP_MODE, FindActuatorDiskByGeom
     \param [in] disk_index int Actuator disk index for the current VSPAERO set
     \return string Actuator disk ID
 */
 
 extern std::string FindActuatorDisk( int disk_index );
+
+/*!
+    \ingroup VSPAERODiskAndProp
+*/
+/*!
+    Find the actuator disk of a propeller surface.
+    \forcpponly
+    \code{.cpp}
+    string prop_id = AddGeom( "PROP" );
+
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+
+    Update();
+
+    if ( FindActuatorDiskByGeom( prop_id, 0 ) != FindActuatorDisk( 0 ) )
+    {
+        Print( "ERROR: FindActuatorDiskByGeom did not find the propeller's disk" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    prop_id = AddGeom( "PROP" )
+
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK )
+
+    Update()
+
+    assert FindActuatorDiskByGeom( prop_id, 0 ) == FindActuatorDisk( 0 ), "FindActuatorDiskByGeom did not find the propeller's disk"
+
+    \endcode
+    \endPythonOnly
+    \sa GetActuatorDiskGeomID, FindActuatorDisk
+    \param [in] geom_id string Propeller Geom ID
+    \param [in] surf_index int Surface index of the propeller
+    \return string Actuator disk ID
+*/
+
+extern std::string FindActuatorDiskByGeom( const std::string & geom_id, int surf_index );
+
+/*!
+    \ingroup VSPAERODiskAndProp
+*/
+/*!
+    Get the ID of the propeller an actuator disk belongs to.
+    \forcpponly
+    \code{.cpp}
+    string prop_id = AddGeom( "PROP" );
+
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+
+    Update();
+
+    if ( GetActuatorDiskGeomID( FindActuatorDisk( 0 ) ) != prop_id )
+    {
+        Print( "ERROR: GetActuatorDiskGeomID did not return the propeller" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    prop_id = AddGeom( "PROP" )
+
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK )
+
+    Update()
+
+    assert GetActuatorDiskGeomID( FindActuatorDisk( 0 ) ) == prop_id, "GetActuatorDiskGeomID did not return the propeller"
+
+    \endcode
+    \endPythonOnly
+    \sa FindActuatorDisk
+    \param [in] disk_id string Actuator disk ID
+    \return string Propeller Geom ID
+*/
+
+extern std::string GetActuatorDiskGeomID( const std::string & disk_id );
 
 /*!
     \ingroup VSPAERODiskAndProp
@@ -44960,6 +45909,48 @@ extern std::string FindActuatorDisk( int disk_index );
 */
 
 extern int GetNumActuatorDisks();
+
+/*!
+    \ingroup VSPAERODiskAndProp
+*/
+/*!
+    Get the IDs of the actuator disks, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string prop_id = AddGeom( "PROP" );
+
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+
+    Update();
+
+    array< string > @ids = GetActuatorDiskIDVec();
+
+    if ( ids.size() != uint( GetNumActuatorDisks() ) || ids[0] != FindActuatorDisk( 0 ) )
+    {
+        Print( "ERROR: GetActuatorDiskIDVec did not return the disks in order" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    prop_id = AddGeom( "PROP" )
+
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK )
+
+    Update()
+
+    ids = GetActuatorDiskIDVec()
+
+    assert len( ids ) == GetNumActuatorDisks() and ids[0] == FindActuatorDisk( 0 ), "GetActuatorDiskIDVec did not return the disks in order"
+
+    \endcode
+    \endPythonOnly
+    \sa FindActuatorDisk
+    \return array<string> Array of actuator disk IDs
+*/
+
+extern std::vector < std::string > GetActuatorDiskIDVec();
 
 /*!
     \ingroup VSPAERODiskAndProp
@@ -45094,11 +46085,59 @@ extern std::string FindUnsteadyGroup( int group_index );
 
     \endcode
     \endPythonOnly
+    \sa GetUnsteadyGroupNameByID
     \param [in] group_index int Unsteady group index for the current VSPAERO set
     \return string Unsteady group name
 */
 
 extern std::string GetUnsteadyGroupName( int group_index );
+
+/*!
+    \ingroup VSPAERODiskAndProp
+*/
+/*!
+    Get the name of a VSPAERO unsteady group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string prop_id = AddGeom( "PROP" );
+
+    Update();
+
+    array< string > @groups = GetUnsteadyGroupIDVec();
+
+    // Fixed components are in group 0, the propeller in group 1
+    string group_id = groups[1];
+
+    if ( GetUnsteadyGroupNameByID( group_id ) != GetUnsteadyGroupName( 1 ) )
+    {
+        Print( "ERROR: GetUnsteadyGroupNameByID did not find the group" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    prop_id = AddGeom( "PROP" )
+
+    Update()
+
+    # Fixed components are in group 0, the propeller in group 1
+    group_id = GetUnsteadyGroupIDVec()[1]
+
+    assert GetUnsteadyGroupNameByID( group_id ) == GetUnsteadyGroupName( 1 ), "GetUnsteadyGroupNameByID did not find the group"
+
+    \endcode
+    \endPythonOnly
+    \sa GetUnsteadyGroupIDVec, GetUnsteadyGroupName
+    \param [in] group_id string Unsteady group ID
+    \return string Unsteady group name
+*/
+
+extern std::string GetUnsteadyGroupNameByID( const std::string & group_id );
 
 /*!
     \ingroup VSPAERODiskAndProp
@@ -45140,12 +46179,61 @@ extern std::string GetUnsteadyGroupName( int group_index );
 
     \endcode
     \endPythonOnly
-    \sa GetUnsteadyGroupSurfIndexes
+    \sa GetUnsteadyGroupSurfIndexes, GetUnsteadyGroupCompIDsByID
     \param [in] group_index int Unsteady group index for the current VSPAERO set
     \return vector \<string\> Array of component IDs
 */
 
 extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
+
+/*!
+    \ingroup VSPAERODiskAndProp
+*/
+/*!
+    Get the IDs of the components in a VSPAERO unsteady group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string prop_id = AddGeom( "PROP" );
+
+    Update();
+
+    array< string > @groups = GetUnsteadyGroupIDVec();
+
+    // Fixed components are in group 0, the propeller in group 1
+    string group_id = groups[1];
+
+    array< string > @comps = GetUnsteadyGroupCompIDsByID( group_id );
+
+    if ( comps.size() != 1 || comps[0] != prop_id )
+    {
+        Print( "ERROR: GetUnsteadyGroupCompIDsByID did not return the propeller" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    prop_id = AddGeom( "PROP" )
+
+    Update()
+
+    # Fixed components are in group 0, the propeller in group 1
+    group_id = GetUnsteadyGroupIDVec()[1]
+
+    assert list( GetUnsteadyGroupCompIDsByID( group_id ) ) == [ prop_id ], "GetUnsteadyGroupCompIDsByID did not return the propeller"
+
+    \endcode
+    \endPythonOnly
+    \sa GetUnsteadyGroupSurfIndexes, GetUnsteadyGroupCompIDs
+    \param [in] group_id string Unsteady group ID
+    \return array<string> Array of component Geom IDs
+*/
+
+extern std::vector < std::string > GetUnsteadyGroupCompIDsByID( const std::string & group_id );
 
 /*!
     \ingroup VSPAERODiskAndProp
@@ -45187,12 +46275,63 @@ extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
 
     \endcode
     \endPythonOnly
-    \sa GetUnsteadyGroupCompIDs
+    \sa GetUnsteadyGroupCompIDs, GetUnsteadyGroupSurfIndexesByID
     \param [in] group_index int Unsteady group index for the current VSPAERO set
     \return vector \<int\> Array of surface indexes
 */
 
 extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
+
+/*!
+    \ingroup VSPAERODiskAndProp
+*/
+/*!
+    Get the surface indexes of the components in a VSPAERO unsteady group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string prop_id = AddGeom( "PROP" );
+
+    Update();
+
+    array< string > @groups = GetUnsteadyGroupIDVec();
+
+    // Fixed components are in group 0, the propeller in group 1
+    string group_id = groups[1];
+
+    array< int > @surfs = GetUnsteadyGroupSurfIndexesByID( group_id );
+
+    array< int > @by_index = GetUnsteadyGroupSurfIndexes( 1 );
+
+    if ( surfs.size() != 1 || surfs[0] != by_index[0] )
+    {
+        Print( "ERROR: GetUnsteadyGroupSurfIndexesByID did not return the propeller's surface" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    prop_id = AddGeom( "PROP" )
+
+    Update()
+
+    # Fixed components are in group 0, the propeller in group 1
+    group_id = GetUnsteadyGroupIDVec()[1]
+
+    assert list( GetUnsteadyGroupSurfIndexesByID( group_id ) ) == list( GetUnsteadyGroupSurfIndexes( 1 ) ), "GetUnsteadyGroupSurfIndexesByID did not return the propeller's surface"
+
+    \endcode
+    \endPythonOnly
+    \sa GetUnsteadyGroupCompIDs, GetUnsteadyGroupSurfIndexes
+    \param [in] group_id string Unsteady group ID
+    \return array<int> Array of surface indexes
+*/
+
+extern std::vector < int > GetUnsteadyGroupSurfIndexesByID( const std::string & group_id );
 
 /*!
     \ingroup VSPAERODiskAndProp
@@ -45280,6 +46419,48 @@ extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
 */
 
 extern int GetNumUnsteadyGroups();
+
+/*!
+    \ingroup VSPAERODiskAndProp
+*/
+/*!
+    Get the IDs of the VSPAERO unsteady groups, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string prop_id = AddGeom( "PROP" );
+
+    Update();
+
+    array< string > @groups = GetUnsteadyGroupIDVec();
+
+    if ( groups.size() != uint( GetNumUnsteadyGroups() ) || groups[1] != FindUnsteadyGroup( 1 ) )
+    {
+        Print( "ERROR: GetUnsteadyGroupIDVec did not return the groups in order" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    prop_id = AddGeom( "PROP" )
+
+    Update()
+
+    groups = GetUnsteadyGroupIDVec()
+
+    assert len( groups ) == GetNumUnsteadyGroups() and groups[1] == FindUnsteadyGroup( 1 ), "GetUnsteadyGroupIDVec did not return the groups in order"
+
+    \endcode
+    \endPythonOnly
+    \sa FindUnsteadyGroup
+    \return array<string> Array of unsteady group IDs
+*/
+
+extern std::vector < std::string > GetUnsteadyGroupIDVec();
 
 /*!
     \ingroup VSPAERODiskAndProp

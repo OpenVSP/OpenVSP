@@ -4847,13 +4847,22 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetCpSliceID( int slice_index )", asFUNCTION( vsp::GetCpSliceID ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetCpSliceIDVec()", asMETHOD( ScriptMgrSingleton, GetCpSliceIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void DelCpSlice( int slice_index )", asFUNCTION( vsp::DelCpSlice ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelCpSliceByID( const string & in slice_id )", asFUNCTION( vsp::DelCpSliceByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void DeleteAllCpSlices()", asFUNCTION( vsp::DeleteAllCpSlices ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction("void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::DeleteVSPAEROControlSurfaceGroup), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteVSPAEROControlSurfaceGroupByID( const string & in group_id )", asFUNCTION( vsp::DeleteVSPAEROControlSurfaceGroupByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction("int CreateVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::CreateVSPAEROControlSurfaceGroup), asCALL_CDECL );
@@ -4863,28 +4872,73 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction("void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::AddAllToVSPAEROControlSurfaceGroup ), asCALL_CDECL );
     assert(r >= 0);
 
+    r = se->RegisterGlobalFunction( "string AddVSPAEROControlSurfaceGroup()", asFUNCTION( vsp::AddVSPAEROControlSurfaceGroup ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddAllToVSPAEROControlSurfaceGroupByID( const string & in group_id )", asFUNCTION( vsp::AddAllToVSPAEROControlSurfaceGroupByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction("void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::RemoveAllFromVSPAEROControlSurfaceGroup ), asCALL_CDECL );
     assert(r >= 0);
 
+    r = se->RegisterGlobalFunction( "void RemoveAllFromVSPAEROControlSurfaceGroupByID( const string & in group_id )", asFUNCTION( vsp::RemoveAllFromVSPAEROControlSurfaceGroupByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetActiveCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetActiveCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetActiveCSNameVecByID( const string & in group_id )", asMETHOD( ScriptMgrSingleton, GetActiveCSNameVecByID ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetActiveCSSubSurfIDVec( const string & in group_id )", asMETHOD( ScriptMgrSingleton, GetActiveCSSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<int>@+ GetActiveCSReflectVec( const string & in group_id )", asMETHOD( ScriptMgrSingleton, GetActiveCSReflectVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetCompleteCSNameVec( )", asMETHOD( ScriptMgrSingleton, GetCompleteCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetCompleteCSSubSurfIDVec()", asMETHOD( ScriptMgrSingleton, GetCompleteCSSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<int>@+ GetCompleteCSReflectVec()", asMETHOD( ScriptMgrSingleton, GetCompleteCSReflectVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetAvailableCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetAvailableCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAvailableCSNameVecByID( const string & in group_id )", asMETHOD( ScriptMgrSingleton, GetAvailableCSNameVecByID ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAvailableCSSubSurfIDVec( const string & in group_id )", asMETHOD( ScriptMgrSingleton, GetAvailableCSSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<int>@+ GetAvailableCSReflectVec( const string & in group_id )", asMETHOD( ScriptMgrSingleton, GetAvailableCSReflectVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction("void SetVSPAEROControlGroupName( const string & in name, int CSGroupIndex )", asFUNCTION(vsp::SetVSPAEROControlGroupName), asCALL_CDECL );
     assert(r >= 0);
 
+    r = se->RegisterGlobalFunction( "void SetVSPAEROControlGroupNameByID( const string & in name, const string & in group_id )", asFUNCTION( vsp::SetVSPAEROControlGroupNameByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "string GetVSPAEROControlGroupName( int CSGroupIndex )", asFUNCTION( vsp::GetVSPAEROControlGroupName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetVSPAEROControlGroupNameByID( const string & in group_id )", asFUNCTION( vsp::GetVSPAEROControlGroupNameByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddSubSurfToCSGroup( const string & in group_id, const string & in ss_id, int reflect_index )", asFUNCTION( vsp::AddSubSurfToCSGroup ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void RemoveSubSurfFromCSGroup( const string & in group_id, const string & in ss_id, int reflect_index )", asFUNCTION( vsp::RemoveSubSurfFromCSGroup ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4909,6 +4963,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string FindActuatorDisk( int disk_index )", asFUNCTION( vsp::FindActuatorDisk ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string FindActuatorDiskByGeom( const string & in geom_id, int surf_index )", asFUNCTION( vsp::FindActuatorDiskByGeom ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetActuatorDiskGeomID( const string & in disk_id )", asFUNCTION( vsp::GetActuatorDiskGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "int GetNumLights()", asFUNCTION( vsp::GetNumLights ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -4916,6 +4976,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string FindControlSurfaceGroup( int group_index )", asFUNCTION( vsp::FindControlSurfaceGroup ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetControlSurfaceGroupIDVec()", asMETHOD( ScriptMgrSingleton, GetControlSurfaceGroupIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string GetFeaAssemblyConnectionID( const string & in assembly_id, int connection_index )", asFUNCTION( vsp::GetFeaAssemblyConnectionID ), asCALL_CDECL );
@@ -4937,6 +5000,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int GetNumActuatorDisks()", asFUNCTION( vsp::GetNumActuatorDisks ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetActuatorDiskIDVec()", asMETHOD( ScriptMgrSingleton, GetActuatorDiskIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "string FindUnsteadyGroup( int group_index )", asFUNCTION( vsp::FindUnsteadyGroup ), asCALL_CDECL );
     assert( r >= 0 );
@@ -4945,16 +5011,28 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetUnsteadyGroupName( int group_index )", asFUNCTION( vsp::GetUnsteadyGroupName ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string GetUnsteadyGroupNameByID( const string & in group_id )", asFUNCTION( vsp::GetUnsteadyGroupNameByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetUnsteadyGroupCompIDs( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupCompIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetUnsteadyGroupCompIDsByID( const string & in group_id )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupCompIDsByID ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "array<int>@+ GetUnsteadyGroupSurfIndexes( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupSurfIndexes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<int>@+ GetUnsteadyGroupSurfIndexesByID( const string & in group_id )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupSurfIndexesByID ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "int GetNumUnsteadyGroups()", asFUNCTION( vsp::GetNumUnsteadyGroups ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetUnsteadyGroupIDVec()", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -7092,9 +7170,63 @@ CScriptArray* ScriptMgrSingleton::GetActiveCSNameVec( int CSGroupIndex )
     return GetProxyStringArray();
 }
 
+CScriptArray* ScriptMgrSingleton::GetActiveCSNameVecByID( const string & group_id )
+{
+    m_ProxyStringArray = vsp::GetActiveCSNameVecByID( group_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetActiveCSSubSurfIDVec( const string & group_id )
+{
+    m_ProxyStringArray = vsp::GetActiveCSSubSurfIDVec( group_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetActiveCSReflectVec( const string & group_id )
+{
+    m_ProxyIntArray = vsp::GetActiveCSReflectVec( group_id );
+    return GetProxyIntArray();
+}
+
 CScriptArray* ScriptMgrSingleton::GetCompleteCSNameVec( )
 {
     m_ProxyStringArray = vsp::GetCompleteCSNameVec( );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetCompleteCSSubSurfIDVec()
+{
+    m_ProxyStringArray = vsp::GetCompleteCSSubSurfIDVec();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetCompleteCSReflectVec()
+{
+    m_ProxyIntArray = vsp::GetCompleteCSReflectVec();
+    return GetProxyIntArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetControlSurfaceGroupIDVec()
+{
+    m_ProxyStringArray = vsp::GetControlSurfaceGroupIDVec();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetActuatorDiskIDVec()
+{
+    m_ProxyStringArray = vsp::GetActuatorDiskIDVec();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupIDVec()
+{
+    m_ProxyStringArray = vsp::GetUnsteadyGroupIDVec();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetCpSliceIDVec()
+{
+    m_ProxyStringArray = vsp::GetCpSliceIDVec();
     return GetProxyStringArray();
 }
 
@@ -7102,6 +7234,24 @@ CScriptArray* ScriptMgrSingleton::GetAvailableCSNameVec( int CSGroupIndex )
 {
     m_ProxyStringArray = vsp::GetAvailableCSNameVec( CSGroupIndex );
     return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAvailableCSNameVecByID( const string & group_id )
+{
+    m_ProxyStringArray = vsp::GetAvailableCSNameVecByID( group_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAvailableCSSubSurfIDVec( const string & group_id )
+{
+    m_ProxyStringArray = vsp::GetAvailableCSSubSurfIDVec( group_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAvailableCSReflectVec( const string & group_id )
+{
+    m_ProxyIntArray = vsp::GetAvailableCSReflectVec( group_id );
+    return GetProxyIntArray();
 }
 
 void ScriptMgrSingleton::AddSelectedToCSGroup( CScriptArray* selected, int CSGroupIndex )
@@ -7123,6 +7273,12 @@ void ScriptMgrSingleton::RemoveSelectedFromCSGroup( CScriptArray* selected, int 
 CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupCompIDs( int group_index )
 {
     m_ProxyStringArray = vsp::GetUnsteadyGroupCompIDs( group_index );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupCompIDsByID( const string & group_id )
+{
+    m_ProxyStringArray = vsp::GetUnsteadyGroupCompIDsByID( group_id );
     return GetProxyStringArray();
 }
 
@@ -7189,6 +7345,12 @@ CScriptArray* ScriptMgrSingleton::GetDriverGroupByID( const string & xsec_id )
 CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupSurfIndexes( int group_index )
 {
     m_ProxyIntArray = vsp::GetUnsteadyGroupSurfIndexes( group_index );
+    return GetProxyIntArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupSurfIndexesByID( const string & group_id )
+{
+    m_ProxyIntArray = vsp::GetUnsteadyGroupSurfIndexesByID( group_id );
     return GetProxyIntArray();
 }
 
