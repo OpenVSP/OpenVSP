@@ -181,7 +181,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     // string lenTxt = TargetLengthReport();
     // addOutputText( lenTxt );
 
-    UpdateDrawObjs();
+    m_DrawObjsStale = true;
 
     m_MeshInProgress = false;
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );

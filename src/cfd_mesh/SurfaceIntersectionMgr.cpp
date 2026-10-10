@@ -351,6 +351,7 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
     m_NumComps = -10;
 
     m_MeshInProgress = false;
+    m_DrawObjsStale = false;
 
     m_MessageName = "SurfIntersectMessage";
 
@@ -710,7 +711,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
 
     RecordResults();
 
-    UpdateDrawObjs();
+    m_DrawObjsStale = true;
 
     addOutputText( "Done\n" );
 
@@ -1007,6 +1008,8 @@ void SurfaceIntersectionSingleton::EndProgress( int output_type )
 
 void SurfaceIntersectionSingleton::CleanUp()
 {
+    m_DrawObjsStale = false;
+
     int i;
     //==== Delete Old Surfs ====//
     for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -5033,6 +5036,12 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     if ( m_MeshInProgress )
     {
         return;
+    }
+
+    if ( m_DrawObjsStale )
+    {
+        m_DrawObjsStale = false;
+        UpdateDrawObjs();
     }
 
     m_RawIsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&

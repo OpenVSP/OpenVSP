@@ -551,6 +551,10 @@ protected:
 
     bool m_MeshInProgress;
 
+    // The draw objects are out of date with the last run.  They are built when they are first
+    // drawn rather than at the end of every run, so a run nothing will draw does not pay for them.
+    bool m_DrawObjsStale;
+
     vector< Surf* > m_SurfVec;
     vector < SimpleSubSurface > m_SimpleSubSurfaceVec;
 
