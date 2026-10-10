@@ -1371,10 +1371,7 @@ vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, SurfaceIntersect
         nc->m_BorderFlag = true;
         new_chains.push_back( nc );
 
-        for ( int i = 0 ; i < ( int )ipnt_vec.size() ; i++ )
-        {
-            nc->m_TessVec.push_back( ipnt_vec[i] );
-        }
+        nc->m_TessVec = ipnt_vec;
     }
 
     return new_chains;
@@ -1452,6 +1449,8 @@ void ISegChain::ApplyTess( SurfaceIntersectionSingleton *MeshMgr )
     vector< vec3d > tuwa = m_ACurve.GetUWTessPnts();
     vector< vec3d > tuwb = m_BCurve.GetUWTessPnts();
     assert( tuwa.size() == tuwb.size() );
+
+    m_TessVec.reserve( tuwa.size() );
 
     //==== Add Other IPnts ====//
     for ( int i = 0 ; i < ( int )tuwa.size() ; i++ )

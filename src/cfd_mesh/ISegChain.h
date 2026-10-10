@@ -302,7 +302,7 @@ public:
     SCurve m_ACurve;                // UW Curve for Surf A
     SCurve m_BCurve;
 
-    deque< IPnt* > m_TessVec;
+    vector< IPnt* > m_TessVec;
 
     vector< IPnt* > m_CreatedIPnts;
 

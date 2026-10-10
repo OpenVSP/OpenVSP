@@ -5220,7 +5220,7 @@ void CfdMeshMgrSingleton::MergeCoincidentTessPnts()
     list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        deque< IPnt* > &tv = ( *c )->m_TessVec;
+        vector< IPnt* > &tv = ( *c )->m_TessVec;
         for ( int j = 0 ; j < ( int )tv.size() ; j += 2 )
         {
             if ( !cloudIndex.count( tv[j] ) )
@@ -5327,7 +5327,7 @@ void CfdMeshMgrSingleton::MergeCoincidentTessPnts()
 
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        deque< IPnt* > &tv = ( *c )->m_TessVec;
+        vector< IPnt* > &tv = ( *c )->m_TessVec;
         for ( int j = 0 ; j < ( int )tv.size() ; j += 2 )
         {
             std::unordered_map< IPnt*, IPnt* >::iterator mit = mergedOf.find( tv[j] );
