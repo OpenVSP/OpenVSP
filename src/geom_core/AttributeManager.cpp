@@ -1397,6 +1397,10 @@ vector < string > AttributeMgrSingleton::PasteAttribute( const string &obj_id, b
     if ( !ac )
     {
         ac = GetCollectionFromParentID( obj_id );
+        if ( !ac )
+        {
+            return vector < string >();
+        }
         coll_id = ac->GetID();
     }
     return PasteAttributeUtil( coll_id, updateFlag );

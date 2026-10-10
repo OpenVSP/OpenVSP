@@ -254,6 +254,19 @@ def testASectionCopiedAgainAndAgainPastesOneCopyOfItsAttributes():
     pop_errors()
 
 
+def testPastingAttributesOntoAnUnknownIDPastesNothing():
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    attr = vsp.AddAttributeString( vsp.GetChildCollection( pod ), "Supplier", "Acme" )
+    vsp.CopyAttribute( attr )
+
+    assert len( vsp.PasteAttribute( "BADID" ) ) == 0
+
+    mgr = vsp.ErrorMgrSingleton.getInstance()
+    while mgr.GetNumTotalErrors() > 0:
+        mgr.PopLastError()
+
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
