@@ -4932,25 +4932,6 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
         }
     }
 
-    // Normal Vec is not required, load placeholder.
-    m_RawIsectCurveDO.m_NormVec = m_RawIsectCurveDO.m_PntVec;
-    m_RawIsectPtsDO.m_NormVec = m_RawIsectPtsDO.m_PntVec;
-    m_RawBorderCurveDO.m_NormVec = m_RawBorderCurveDO.m_PntVec;
-    m_RawBorderPtsDO.m_NormVec = m_RawBorderPtsDO.m_PntVec;
-
-    for ( int k = 0; k < NUM_CUBIC; k++ )
-    {
-        m_CubicCurveDO[k].m_NormVec = m_CubicCurveDO[k].m_PntVec;
-        m_CubicEndPtsDO[k].m_NormVec = m_CubicEndPtsDO[k].m_PntVec;
-        m_CubicCtrlPtsDO[k].m_NormVec = m_CubicCtrlPtsDO[k].m_PntVec;
-    }
-
-    m_RawPatchJoinCurveDO.m_NormVec = m_RawPatchJoinCurveDO.m_PntVec;
-    m_RawPatchJoinPtsDO.m_NormVec = m_RawPatchJoinPtsDO.m_PntVec;
-
-    m_RawNonManifoldCurveDO.m_NormVec = m_RawNonManifoldCurveDO.m_PntVec;
-    m_RawNonManifoldPtsDO.m_NormVec = m_RawNonManifoldPtsDO.m_PntVec;
-
     m_RawIsectCurveDO.m_GeomChanged = true;
     m_RawIsectPtsDO.m_GeomChanged = true;
     m_RawBorderCurveDO.m_GeomChanged = true;
