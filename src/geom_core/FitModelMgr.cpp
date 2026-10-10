@@ -535,14 +535,14 @@ void FitModelMgrSingleton::CheckVars()
 
     check_links_stamp = ParmMgr.GetNumParmChanges();
 
-    deque< int > del_indices;
+    vector< int > del_indices;
     for ( int i = 0 ; i < ( int )m_VarVec.size() ; i++ )
     {
         Parm* pA = ParmMgr.FindParm( m_VarVec[i] );
 
         if ( !pA )
         {
-            del_indices.push_front( i );
+            del_indices.push_back( i );
         }
     }
 
@@ -551,7 +551,8 @@ void FitModelMgrSingleton::CheckVars()
         m_CurrVarIndex = -1;
     }
 
-    for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
+    // Last first, so each index still names the element it found
+    for ( int i = ( int )del_indices.size() - 1 ; i >= 0 ; i-- )
     {
         m_VarVec.erase( m_VarVec.begin() + del_indices[i] );
     }

@@ -207,14 +207,14 @@ void DesignVarMgrSingleton::CheckVars()
 
     check_links_stamp = ParmMgr.GetNumParmChanges();
 
-    deque< int > del_indices;
+    vector< int > del_indices;
     for ( int i = 0 ; i < ( int )m_VarVec.size() ; i++ )
     {
         Parm* pA = ParmMgr.FindParm( m_VarVec[i]->m_ParmID );
 
         if ( !pA )
         {
-            del_indices.push_front( i );
+            del_indices.push_back( i );
         }
     }
 
@@ -223,7 +223,8 @@ void DesignVarMgrSingleton::CheckVars()
         m_CurrVarIndex = -1;
     }
 
-    for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
+    // Last first, so each index still names the element it found
+    for ( int i = ( int )del_indices.size() - 1 ; i >= 0 ; i-- )
     {
         delete m_VarVec[ del_indices[i] ];
         m_VarVec.erase( m_VarVec.begin() + del_indices[i] );
