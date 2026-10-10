@@ -6240,13 +6240,13 @@ std::vector < int > GetDriverGroup( const std::string & geom_id, int section_ind
     return choices;
 }
 
-void SetDriverGroup( const std::string & geom_id, int section_index, int driver_0, int driver_1, int driver_2 )
+static void SetDriverGroupImpl( const std::string & geom_id, int section_index, int driver_0, int driver_1, int driver_2, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -6256,7 +6256,7 @@ void SetDriverGroup( const std::string & geom_id, int section_index, int driver_
         WingSect* ws = wg->GetWingSect( section_index );
         if ( !ws )
         {
-            ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
             return;
         }
 
@@ -6269,7 +6269,7 @@ void SetDriverGroup( const std::string & geom_id, int section_index, int driver_
         bool valid = ws->m_DriverGroup.ValidDrivers( ws->m_DriverGroup.GetChoices() );
         if ( !valid )
         {
-            ErrorMgr.AddError( VSP_INVALID_DRIVERS, "SetDriverGroup::Invalid wing drivers." );
+            ErrorMgr.AddError( VSP_INVALID_DRIVERS, caller + "::Invalid wing drivers." );
             ws->m_DriverGroup.SetChoices( prevchoices );
             return;
         }
@@ -6284,7 +6284,13 @@ void SetDriverGroup( const std::string & geom_id, int section_index, int driver_
         XSecCurve* xsc = nullptr;
         if ( gxs ) // Proceed as GeomXSec
         {
-            xsc = gxs->GetXSec( section_index )->GetXSecCurve();
+            XSec* xs = gxs->GetXSec( section_index );
+            if ( !xs )
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Invalid XSec Index " + to_string( ( long long )section_index ) );
+                return;
+            }
+            xsc = xs->GetXSecCurve();
         }
         else
         {
@@ -6309,7 +6315,7 @@ void SetDriverGroup( const std::string & geom_id, int section_index, int driver_
             bool valid = xsc->m_DriverGroup->ValidDrivers( xsc->m_DriverGroup->GetChoices() );
             if ( !valid )
             {
-                ErrorMgr.AddError( VSP_INVALID_DRIVERS, "SetDriverGroup::Invalid XSecCurve drivers." );
+                ErrorMgr.AddError( VSP_INVALID_DRIVERS, caller + "::Invalid XSecCurve drivers." );
                 xsc->m_DriverGroup->SetChoices( prevchoices );
                 return;
             }
@@ -6318,8 +6324,13 @@ void SetDriverGroup( const std::string & geom_id, int section_index, int driver_
         }
 
     }
-    ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Geom Type " + geom_id );
+    ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Invalid Geom Type " + geom_id );
     return;
+}
+
+void SetDriverGroup( const std::string & geom_id, int section_index, int driver_0, int driver_1, int driver_2 )
+{
+    SetDriverGroupImpl( geom_id, section_index, driver_0, driver_1, driver_2, "SetDriverGroup" );
 }
 
 //===================================================================//

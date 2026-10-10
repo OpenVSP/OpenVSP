@@ -36,3 +36,13 @@ def testAnAliasForAMissingXSecIsAnError():
     assert pop_errors(), "SetXSecAlias accepted a missing XSec"
     vsp.SetXSecCurveAlias( "no such xsec", "A" )
     assert pop_errors(), "SetXSecCurveAlias accepted a missing XSec"
+
+
+def testADriverGroupPastTheLastSectionIsAnError():
+    """SetDriverGroup reports a fuselage section index past the last."""
+    vsp.VSPRenew()
+    fid = vsp.AddGeom( "FUSELAGE" )
+    vsp.Update()
+    drop_errors()
+    vsp.SetDriverGroup( fid, 99, vsp.WIDTH_XSEC_DRIVER, vsp.HEIGHT_XSEC_DRIVER )
+    assert pop_errors(), "SetDriverGroup accepted a section past the last"
