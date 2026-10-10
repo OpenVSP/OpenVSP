@@ -225,6 +225,7 @@ void DesignVarMgrSingleton::CheckVars()
 
     for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
     {
+        delete m_VarVec[ del_indices[i] ];
         m_VarVec.erase( m_VarVec.begin() + del_indices[i] );
     }
 
