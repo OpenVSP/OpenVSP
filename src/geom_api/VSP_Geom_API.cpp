@@ -6082,34 +6082,72 @@ static bool RefuseOnClone( Geom* geom_ptr, const std::string &fname )
     return true;
 }
 
-void CutXSec( const std::string & geom_id, int index )
+//==== Whether an index names one of a Geom's XSecs that the cut, copy, paste, insert and
+//==== split calls may change, reporting through the named caller ====//
+bool GeomXSecIndexInRange( Geom* geom_ptr, int index, const std::string & caller )
+{
+    // A wing's root XSec has no section to cut, copy, paste, insert after or split
+    int first = 0;
+    if ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE )
+    {
+        first = 1;
+    }
+
+    XSecSurf* xsec_surf = geom_ptr->GetXSecSurf( 0 );
+    if ( !xsec_surf || index < first || index >= xsec_surf->NumXSec() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index " + to_string( index ) + " Out of Range" );
+        return false;
+    }
+    return true;
+}
+
+static void CutXSecImpl( const std::string & geom_id, int index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return;
     }
 
-    if ( RefuseOnClone( geom_ptr, "CutXSec" ) )
+    if ( RefuseOnClone( geom_ptr, caller ) || !GeomXSecIndexInRange( geom_ptr, index, caller ) )
     {
         return;
     }
+
+    int nxsec = geom_ptr->GetXSecSurf( 0 )->NumXSec();
 
     geom_ptr->CutXSec( index );
     Update();
 
+    if ( geom_ptr->GetXSecSurf( 0 )->NumXSec() == nxsec )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, caller + "::Geom " + geom_id + " has no XSec to spare" );
+        return;
+    }
+
     ErrorMgr.NoError();
 }
 
-void CopyXSec( const std::string & geom_id, int index )
+void CutXSec( const std::string & geom_id, int index )
+{
+    CutXSecImpl( geom_id, index, "CutXSec" );
+}
+
+static void CopyXSecImpl( const std::string & geom_id, int index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CopyXSec::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( !GeomXSecIndexInRange( geom_ptr, index, caller ) )
+    {
         return;
     }
 
@@ -6117,17 +6155,22 @@ void CopyXSec( const std::string & geom_id, int index )
     ErrorMgr.NoError();
 }
 
-void PasteXSec( const std::string & geom_id, int index )
+void CopyXSec( const std::string & geom_id, int index )
+{
+    CopyXSecImpl( geom_id, index, "CopyXSec" );
+}
+
+static void PasteXSecImpl( const std::string & geom_id, int index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PasteXSec::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return;
     }
 
-    if ( RefuseOnClone( geom_ptr, "PasteXSec" ) )
+    if ( RefuseOnClone( geom_ptr, caller ) || !GeomXSecIndexInRange( geom_ptr, index, caller ) )
     {
         return;
     }
@@ -6136,23 +6179,42 @@ void PasteXSec( const std::string & geom_id, int index )
     ErrorMgr.NoError();
 }
 
-void InsertXSec( const std::string & geom_id, int index, int type )
+void PasteXSec( const std::string & geom_id, int index )
+{
+    PasteXSecImpl( geom_id, index, "PasteXSec" );
+}
+
+static void InsertXSecImpl( const std::string & geom_id, int index, int type, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertXSec::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return;
     }
 
-    if ( RefuseOnClone( geom_ptr, "InsertXSec" ) )
+    if ( RefuseOnClone( geom_ptr, caller ) || !GeomXSecIndexInRange( geom_ptr, index, caller ) )
     {
         return;
     }
 
+    int nxsec = geom_ptr->GetXSecSurf( 0 )->NumXSec();
+
     geom_ptr->InsertXSec( index, type );
+
+    if ( geom_ptr->GetXSecSurf( 0 )->NumXSec() == nxsec )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, caller + "::No XSec Inserted After Index " + to_string( index ) );
+        return;
+    }
+
     ErrorMgr.NoError();
+}
+
+void InsertXSec( const std::string & geom_id, int index, int type )
+{
+    InsertXSecImpl( geom_id, index, type, "InsertXSec" );
 }
 
 
@@ -6160,25 +6222,35 @@ void InsertXSec( const std::string & geom_id, int index, int type )
 //===============       Wing Section Functions     ==================//
 //===================================================================//
 
-void SplitWingXSec( const std::string & wing_id, int section_index )
+static void SplitWingXSecImpl( const std::string & wing_id, int section_index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( wing_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SplitWingXSec::Can't Find Geom " + wing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + wing_id );
         return;
     }
 
     WingGeom* wg = dynamic_cast<WingGeom*>( geom_ptr );
     if ( !wg )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SplitWingXSec::Geom not a WingGeom" + wing_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + wing_id + " is not a Wing" );
+        return;
+    }
+
+    if ( !GeomXSecIndexInRange( geom_ptr, section_index, caller ) )
+    {
         return;
     }
 
     wg->SplitWingSect( section_index );
     ErrorMgr.NoError();
+}
+
+void SplitWingXSec( const std::string & wing_id, int section_index )
+{
+    SplitWingXSecImpl( wing_id, section_index, "SplitWingXSec" );
 }
 
 std::vector < int > GetDriverGroup( const std::string & geom_id, int section_index )
@@ -8132,18 +8204,18 @@ void DemoteCSTLower( const std::string& xsec_id )
     cst_xs->DemoteLower();
 }
 
-void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg )
+static void FitAfCSTImpl( const std::string & xsec_surf_id, int xsec_index, int deg, const std::string & caller )
 {
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find XSecSurf " + xsec_surf_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find XSecSurf " + xsec_surf_id );
         return;
     }
     XSec* xsec = xsec_surf->FindXSec( xsec_index );
     if ( !xsec )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
@@ -8155,21 +8227,21 @@ void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg )
          ( xsec->GetXSecCurve()->GetType() != XS_ONE_SIX_SERIES ) &&
          ( xsec->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL ) )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not Fittable Airfoil Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, caller + "::XSec Not Fittable Airfoil Type " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
     XSecCurve* xsc = xsec->GetXSecCurve();
     if ( !xsc )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Get XSecCurve" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Get XSecCurve" );
         return;
     }
 
     Airfoil* af_xs = dynamic_cast< Airfoil* >( xsc );
     if ( !af_xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Get Airfoil" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Get Airfoil" );
         return;
     }
 
@@ -8180,20 +8252,20 @@ void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg )
     XSec* newxsec = xsec_surf->FindXSec( xsec_index );
     if ( !newxsec )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find New XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find New XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
     XSecCurve* newxsc = newxsec->GetXSecCurve();
     if ( !newxsc )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Get New XSecCurve" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Get New XSecCurve" );
         return;
     }
 
     if ( newxsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, caller + "::XSec Not XS_CST_AIRFOIL Type" );
         return;
     }
 
@@ -8203,6 +8275,11 @@ void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg )
     cst_xs->FitCurve( c, deg );
 
     ErrorMgr.NoError();
+}
+
+void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg )
+{
+    FitAfCSTImpl( xsec_surf_id, xsec_index, deg, "FitAfCST" );
 }
 
 void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u )

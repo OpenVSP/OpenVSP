@@ -46,3 +46,27 @@ def testADriverGroupPastTheLastSectionIsAnError():
     drop_errors()
     vsp.SetDriverGroup( fid, 99, vsp.WIDTH_XSEC_DRIVER, vsp.HEIGHT_XSEC_DRIVER )
     assert pop_errors(), "SetDriverGroup accepted a section past the last"
+
+
+def testCutCopyPasteInsertAndSplitCheckTheIndex():
+    vsp.VSPRenew()
+    wid = vsp.AddGeom( "WING" )
+    fid = vsp.AddGeom( "FUSELAGE" )
+    vsp.Update()
+    wsurf = vsp.GetXSecSurf( wid, 0 )
+    n = vsp.GetNumXSec( wsurf )
+    drop_errors()
+    for call in ( lambda: vsp.CutXSec( fid, 99 ), lambda: vsp.CopyXSec( fid, 99 ), lambda: vsp.PasteXSec( fid, 99 ),
+                  lambda: vsp.InsertXSec( fid, 99, vsp.XS_ELLIPSE ), lambda: vsp.SplitWingXSec( wid, 99 ) ):
+        call()
+        assert pop_errors(), "an index past the last XSec raised no error"
+    # A wing's root has no section to change
+    vsp.SplitWingXSec( wid, 0 )
+    assert pop_errors(), "SplitWingXSec split the root"
+    vsp.CutXSec( wid, 0 )
+    assert pop_errors(), "CutXSec cut the root"
+    assert vsp.GetNumXSec( wsurf ) == n
+    # Nor can a wing give up its only section
+    vsp.CutXSec( wid, 1 )
+    assert pop_errors(), "CutXSec cut a wing's only section"
+    assert vsp.GetNumXSec( wsurf ) == n
