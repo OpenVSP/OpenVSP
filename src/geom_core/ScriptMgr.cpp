@@ -6542,7 +6542,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@+ GetFeaAssemblyStructureIDVec( const string & in assembly_id )", asMETHOD( ScriptMgrSingleton, GetFeaAssemblyStructureIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void AddFeaAssemblyConnection( const string & in assembly_id, const string & in start_fix_pt_id, const string & in start_struct_id, int start_index, const string & in end_fix_pt_id, const string & in end_struct_id, int end_index )", asFUNCTION( vsp::AddFeaAssemblyConnection ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddFeaAssemblyConnection( const string & in assembly_id, const string & in start_fix_pt_id, const string & in start_struct_id, int start_index, const string & in end_fix_pt_id, const string & in end_struct_id, int end_index )", asFUNCTION( vsp::AddFeaAssemblyConnection ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void DeleteFeaAssemblyConnection( const string & in assembly_id, int connection_index )", asFUNCTION( vsp::DeleteFeaAssemblyConnection ), asCALL_CDECL );

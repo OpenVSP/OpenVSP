@@ -17859,7 +17859,13 @@ extern std::vector < std::string > GetFeaAssemblyStructureIDVec( const std::stri
         __failure++;
     }
 
-    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+    string conn_id = AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+
+    if ( GetFeaAssemblyConnectionID( assembly_id, 0 ) != conn_id )
+    {
+        Print( "ERROR: AddFeaAssemblyConnection did not return the new connection" );
+        __failure++;
+    }
 
     if ( NumFeaAssemblyConnections( assembly_id ) != 1 )
     {
@@ -17911,7 +17917,9 @@ extern std::vector < std::string > GetFeaAssemblyStructureIDVec( const std::stri
 
     assert NumFeaAssemblyConnections( assembly_id ) == 0, "a new assembly already holds connections"
 
-    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+    conn_id = AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+
+    assert GetFeaAssemblyConnectionID( assembly_id, 0 ) == conn_id, "AddFeaAssemblyConnection did not return the new connection"
 
     assert NumFeaAssemblyConnections( assembly_id ) == 1, "AddFeaAssemblyConnection did not add a connection"
 
@@ -17939,11 +17947,12 @@ extern std::vector < std::string > GetFeaAssemblyStructureIDVec( const std::stri
     \param [in] end_fix_pt_id string FEA Fixed Point ID at the end of the connection
     \param [in] end_struct_id string FEA Structure ID the end Fixed Point belongs to
     \param [in] end_index int Surface index of the end Fixed Point
+    \return string FEA Connection ID
 */
 
-extern void AddFeaAssemblyConnection( const std::string & assembly_id,
-                                      const std::string & start_fix_pt_id, const std::string & start_struct_id, int start_index,
-                                      const std::string & end_fix_pt_id, const std::string & end_struct_id, int end_index );
+extern std::string AddFeaAssemblyConnection( const std::string & assembly_id,
+                                             const std::string & start_fix_pt_id, const std::string & start_struct_id, int start_index,
+                                             const std::string & end_fix_pt_id, const std::string & end_struct_id, int end_index );
 
 /*!
     \ingroup FEAMesh

@@ -5583,20 +5583,49 @@ std::vector < std::string > GetFeaAssemblyStructureIDVec( const std::string & as
     return assy->m_StructIDVec;
 }
 
-void AddFeaAssemblyConnection( const std::string & assembly_id,
-                               const std::string & start_fix_pt_id, const std::string & start_struct_id, int start_index,
-                               const std::string & end_fix_pt_id, const std::string & end_struct_id, int end_index )
+//==== Whether a fixed point lies in a Structure, reporting through the
+//==== named caller when it does not ====//
+bool FeaStructHoldsFixPoint( const std::string & fix_pt_id, const std::string & struct_id, const std::string & caller )
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_id );
+    FeaPart* part = StructureMgr.GetFeaPart( fix_pt_id );
+    if ( !feastruct || !part || part->GetType() != FEA_FIX_POINT || feastruct->GetFeaPartIndex( fix_pt_id ) < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::" + fix_pt_id + " is not a fixed point of FeaStructure " + struct_id );
+        return false;
+    }
+    return true;
+}
+
+std::string AddFeaAssemblyConnection( const std::string & assembly_id,
+                                      const std::string & start_fix_pt_id, const std::string & start_struct_id, int start_index,
+                                      const std::string & end_fix_pt_id, const std::string & end_struct_id, int end_index )
 {
     FeaAssembly* assy = FindFeaAssembly( assembly_id, "AddFeaAssemblyConnection" );
     if ( !assy )
     {
-        return;
+        return std::string();
     }
+
+    if ( !FeaStructHoldsFixPoint( start_fix_pt_id, start_struct_id, "AddFeaAssemblyConnection" ) ||
+         !FeaStructHoldsFixPoint( end_fix_pt_id, end_struct_id, "AddFeaAssemblyConnection" ) )
+    {
+        return std::string();
+    }
+
+    size_t nconn = assy->m_ConnectionVec.size();
 
     assy->AddConnection( start_fix_pt_id, start_struct_id, start_index,
                          end_fix_pt_id, end_struct_id, end_index );
 
+    if ( assy->m_ConnectionVec.size() == nconn )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddFeaAssemblyConnection::A connection needs two different fixed points" );
+        return std::string();
+    }
+
     ErrorMgr.NoError();
+    return assy->m_ConnectionVec.back()->GetID();
 }
 
 void DeleteFeaAssemblyConnection( const std::string & assembly_id, int connection_index )
