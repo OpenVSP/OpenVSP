@@ -13441,7 +13441,7 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
     \ingroup Geom
 */
 /*!
-    Get the the maximum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
+    Get the maximum coordinate of the bounding box of a Geom with given surface index. The Geom bounding
     box may be specified in absolute or body reference frame.
 
     A Geom with no surfaces -- a mesh, a point cloud, a wireframe -- answers out of its own bounding box, and
@@ -13489,7 +13489,7 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
     \endPythonOnly
     \sa GetGeomBBoxMin
     \param [in] geom_id string Geom ID
-    \param [in] main_surf_ind int Main surface index
+    \param [in] main_surf_ind int Index of the surface of that Geom, counting symmetric copies, from 0 to GetTotalNumSurfs() - 1 (the name is kept for scripts that pass it by keyword)
     \param [in] ref_frame_is_absolute bool Flag to specify absolute or body reference frame
     \return vec3d Maximum coordinate of the bounding box
 */
@@ -13500,7 +13500,7 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
     \ingroup Geom
 */
 /*!
-    Get the the minimum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
+    Get the minimum coordinate of the bounding box of a Geom with given surface index. The Geom bounding
     box may be specified in absolute or body reference frame.
 
     A Geom with no surfaces -- a mesh, a point cloud, a wireframe -- answers out of its own bounding box, and
@@ -13548,7 +13548,7 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
     \endPythonOnly
     \sa GetGeomBBoxMax
     \param [in] geom_id string Geom ID
-    \param [in] main_surf_ind int Main surface index
+    \param [in] main_surf_ind int Index of the surface of that Geom, counting symmetric copies, from 0 to GetTotalNumSurfs() - 1 (the name is kept for scripts that pass it by keyword)
     \param [in] ref_frame_is_absolute bool Flag to specify absolute or body reference frame
     \return vec3d Minimum coordinate of the bounding box
 */
