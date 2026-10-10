@@ -22458,12 +22458,60 @@ extern std::string GetXSecCurveAlias( const std::string & id );
 
     \endcode
     \endPythonOnly
-    \sa PasteXSec
+    \sa PasteXSec, CutXSecByID
     \param [in] geom_id string Geom ID
     \param [in] index int XSec index
 */
 
 extern void CutXSec( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Cut a cross-section from its Geom, by XSec ID, and put it on the clipboard.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    int n = GetNumXSec( xsec_surf );
+
+    CutXSecByID( xsec_1 );
+
+    array< string > @ids = GetXSecIDVec( xsec_surf );
+
+    if ( GetNumXSec( xsec_surf ) != n - 1 || ids.find( xsec_1 ) >= 0 )
+    {
+        Print( "ERROR: CutXSecByID did not remove the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    n = GetNumXSec( xsec_surf )
+
+    CutXSecByID( xsec_1 )
+
+    assert GetNumXSec( xsec_surf ) == n - 1 and xsec_1 not in GetXSecIDVec( xsec_surf ), "CutXSecByID did not remove the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa CopyXSec, PasteXSec, CutXSec
+    \param [in] xsec_id string XSec ID
+*/
+
+extern void CutXSecByID( const std::string & xsec_id );
 
 /*!
     \ingroup XSec
@@ -22546,12 +22594,64 @@ extern void CutXSec( const std::string & geom_id, int index );
 
     \endcode
     \endPythonOnly
-    \sa PasteXSec
+    \sa PasteXSec, CopyXSecByID
     \param [in] geom_id string Geom ID
     \param [in] index int XSec index
 */
 
 extern void CopyXSec( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Copy a cross-section to the clipboard, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+    string xsec_2 = GetXSec( xsec_surf, 2 );
+
+    ChangeXSecShapeByID( xsec_1, XS_ELLIPSE );
+
+    CopyXSecByID( xsec_1 );
+
+    PasteXSecByID( xsec_2 );
+
+    if ( GetXSecShape( xsec_2 ) != XS_ELLIPSE )
+    {
+        Print( "ERROR: CopyXSecByID did not copy the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
+
+    ChangeXSecShapeByID( xsec_1, XS_ELLIPSE )
+
+    CopyXSecByID( xsec_1 )
+
+    PasteXSecByID( xsec_2 )
+
+    assert GetXSecShape( xsec_2 ) == XS_ELLIPSE, "CopyXSecByID did not copy the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa PasteXSec, CutXSec, CopyXSec
+    \param [in] xsec_id string XSec ID
+*/
+
+extern void CopyXSecByID( const std::string & xsec_id );
 
 /*!
     \ingroup XSec
@@ -22634,12 +22734,64 @@ extern void CopyXSec( const std::string & geom_id, int index );
 
     \endcode
     \endPythonOnly
-    \sa CutXSec, CopyXSec
+    \sa CutXSec, CopyXSec, PasteXSecByID
     \param [in] geom_id string Geom ID
     \param [in] index int XSec index
 */
 
 extern void PasteXSec( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Paste the cross-section on the clipboard over a cross-section, by XSec ID. The cross-section keeps its ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+    string xsec_2 = GetXSec( xsec_surf, 2 );
+
+    ChangeXSecShapeByID( xsec_1, XS_ELLIPSE );
+
+    CopyXSecByID( xsec_1 );
+
+    PasteXSecByID( xsec_2 );
+
+    if ( GetXSec( xsec_surf, 2 ) != xsec_2 || GetXSecShape( xsec_2 ) != XS_ELLIPSE )
+    {
+        Print( "ERROR: PasteXSecByID did not paste over the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
+
+    ChangeXSecShapeByID( xsec_1, XS_ELLIPSE )
+
+    CopyXSecByID( xsec_1 )
+
+    PasteXSecByID( xsec_2 )
+
+    assert GetXSec( xsec_surf, 2 ) == xsec_2 and GetXSecShape( xsec_2 ) == XS_ELLIPSE, "PasteXSecByID did not paste over the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa CopyXSec, CutXSec, PasteXSec
+    \param [in] xsec_id string XSec ID
+*/
+
+extern void PasteXSecByID( const std::string & xsec_id );
 
 /*!
     \ingroup XSec
@@ -22692,13 +22844,57 @@ extern void PasteXSec( const std::string & geom_id, int index );
 
     \endcode
     \endPythonOnly
-    \sa XSEC_CRV_TYPE
+    \sa XSEC_CRV_TYPE, InsertXSecByID
     \param [in] geom_id string Geom ID
     \param [in] index int XSec index
     \param [in] type int XSec type enum (i.e. XS_GENERAL_FUSE)
 */
 
 extern void InsertXSec( const std::string & geom_id, int index, int type );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Insert a cross-section after the one with the given ID, and return the new cross-section's ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    string new_id = InsertXSecByID( xsec_1, XS_ELLIPSE );
+
+    if ( GetXSec( xsec_surf, 2 ) != new_id )
+    {
+        Print( "ERROR: InsertXSecByID did not put the XSec after xsec_1" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    new_id = InsertXSecByID( xsec_1, XS_ELLIPSE )
+
+    assert GetXSec( xsec_surf, 2 ) == new_id, "InsertXSecByID did not put the XSec after xsec_1"
+
+    \endcode
+    \endPythonOnly
+    \sa XSEC_CRV_TYPE, InsertXSec
+    \param [in] xsec_id string ID of the XSec the new one follows
+    \param [in] type int XSec type enum (i.e. XS_ELLIPSE)
+    \return string ID of the new XSec
+*/
+
+extern std::string InsertXSecByID( const std::string & xsec_id, int type );
 
 
 //======================== Wing Section Functions ===================//
@@ -22768,12 +22964,59 @@ extern void InsertXSec( const std::string & geom_id, int index, int type );
     assert abs( ( span_1 + span_2 ) - span_start ) < 1e-6, "SplitWingXSec changed the span of the wing"
     \endcode
     \endPythonOnly
-    \sa WING_DRIVERS, XSEC_DRIVERS
+    \sa WING_DRIVERS, XSEC_DRIVERS, SplitWingXSecByID
     \param [in] wing_id string Geom ID
     \param [in] section_index int Wing section index
 */
 
 extern void SplitWingXSec( const std::string & wing_id, int section_index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Split a wing section in two, by XSec ID, and return the ID of the new outboard section.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "WING" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    int n = GetNumXSec( xsec_surf );
+
+    string new_id = SplitWingXSecByID( xsec_1 );
+
+    if ( GetNumXSec( xsec_surf ) != n + 1 || GetXSec( xsec_surf, 2 ) != new_id )
+    {
+        Print( "ERROR: SplitWingXSecByID did not split the section" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "WING" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    n = GetNumXSec( xsec_surf )
+
+    new_id = SplitWingXSecByID( xsec_1 )
+
+    assert GetNumXSec( xsec_surf ) == n + 1 and GetXSec( xsec_surf, 2 ) == new_id, "SplitWingXSecByID did not split the section"
+
+    \endcode
+    \endPythonOnly
+    \sa InsertXSec, GetXSecIDVec, SplitWingXSec
+    \param [in] xsec_id string Wing section XSec ID
+    \return string ID of the new outboard section
+*/
+
+extern std::string SplitWingXSecByID( const std::string & xsec_id );
 
 /*!
     \ingroup Geom
@@ -22938,13 +23181,58 @@ extern void SplitWingXSec( const std::string & wing_id, int section_index );
 
     \endcode
     \endPythonOnly
-    \sa WING_DRIVERS, XSEC_DRIVERS, SetDriverGroup
+    \sa WING_DRIVERS, XSEC_DRIVERS, SetDriverGroup, GetDriverGroupByID
     \param [in] geom_id string Geom ID
     \param [in] section_index int Wing section or XSec index
     \return vector\<int\> Array of driver enums
 */
 
 extern std::vector < int > GetDriverGroup( const std::string & geom_id, int section_index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the driver group of a wing section or XSecCurve, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "WING" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    SetDriverGroupByID( xsec_1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+
+    array< int > @drivers = GetDriverGroupByID( xsec_1 );
+
+    if ( drivers.size() != 3 || drivers[0] != AR_WSECT_DRIVER || drivers[1] != ROOTC_WSECT_DRIVER || drivers[2] != TIPC_WSECT_DRIVER )
+    {
+        Print( "ERROR: GetDriverGroupByID did not return the drivers set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "WING" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    SetDriverGroupByID( xsec_1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER )
+
+    assert list( GetDriverGroupByID( xsec_1 ) ) == [ AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER ], "GetDriverGroupByID did not return the drivers set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetDriverGroupByID, WING_DRIVERS, XSEC_DRIVERS, GetDriverGroup
+    \param [in] xsec_id string XSec ID
+    \return array<int> Array of driver enums
+*/
+
+extern std::vector < int > GetDriverGroupByID( const std::string & xsec_id );
 
 /*!
     \ingroup XSec
@@ -22971,7 +23259,7 @@ extern std::vector < int > GetDriverGroup( const std::string & geom_id, int sect
 
     \endcode
     \endPythonOnly
-    \sa WING_DRIVERS
+    \sa WING_DRIVERS, SetDriverGroupByID
     \param [in] geom_id string Geom ID
     \param [in] section_index int Wing section index
     \param [in] driver_0 int Wing driver enum (i.e. SPAN_WSECT_DRIVER)
@@ -22980,6 +23268,53 @@ extern std::vector < int > GetDriverGroup( const std::string & geom_id, int sect
 */
 
 extern void SetDriverGroup( const std::string & geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1 );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set the driver group of a wing section or XSecCurve, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "WING" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    SetDriverGroupByID( xsec_1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+
+    array< int > @drivers = GetDriverGroup( gid, 1 );
+
+    if ( drivers[0] != AR_WSECT_DRIVER || drivers[1] != ROOTC_WSECT_DRIVER || drivers[2] != TIPC_WSECT_DRIVER )
+    {
+        Print( "ERROR: SetDriverGroupByID did not set the drivers" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "WING" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    SetDriverGroupByID( xsec_1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER )
+
+    assert list( GetDriverGroup( gid, 1 ) ) == [ AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER ], "SetDriverGroupByID did not set the drivers"
+
+    \endcode
+    \endPythonOnly
+    \sa GetDriverGroupByID, WING_DRIVERS, XSEC_DRIVERS, SetDriverGroup
+    \param [in] xsec_id string XSec ID
+    \param [in] driver_0 int First driver enum (i.e. SPAN_WSECT_DRIVER)
+    \param [in] driver_1 int Second driver enum (i.e. ROOTC_WSECT_DRIVER)
+    \param [in] driver_2 int Third driver enum (i.e. TIPC_WSECT_DRIVER)
+*/
+
+extern void SetDriverGroupByID( const std::string & xsec_id, int driver_0, int driver_1 = -1, int driver_2 = -1 );
 
 
 //======================== XSecSurf ================================//
@@ -23019,6 +23354,43 @@ extern void SetDriverGroup( const std::string & geom_id, int section_index, int 
 */
 
 extern std::string GetXSecSurf( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSecSurf
+*/
+/*!
+    Get the IDs of the XSecSurfs of a Geom, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    array< string > @ids = GetXSecSurfIDVec( gid );
+
+    if ( ids.size() != 1 || ids[0] != xsec_surf )
+    {
+        Print( "ERROR: GetXSecSurfIDVec did not return the XSecSurf" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    assert list( GetXSecSurfIDVec( gid ) ) == [ xsec_surf ], "GetXSecSurfIDVec did not return the XSecSurf"
+
+    \endcode
+    \endPythonOnly
+    \sa GetXSecSurf, GetNumXSecSurfs
+    \param [in] geom_id string Geom ID
+    \return array<string> Array of XSecSurf IDs
+*/
+
+extern std::vector < std::string > GetXSecSurfIDVec( const std::string & geom_id );
 
 /*!
     \ingroup XSecSurf
@@ -23154,6 +23526,49 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
     \ingroup XSecSurf
 */
 /*!
+    Get the IDs of the XSecs of an XSecSurf, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    array< string > @ids = GetXSecIDVec( xsec_surf );
+
+    if ( ids.size() != uint( GetNumXSec( xsec_surf ) ) || ids[1] != xsec_1 )
+    {
+        Print( "ERROR: GetXSecIDVec did not return the XSecs in order" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    ids = GetXSecIDVec( xsec_surf )
+
+    assert len( ids ) == GetNumXSec( xsec_surf ) and ids[1] == xsec_1, "GetXSecIDVec did not return the XSecs in order"
+
+    \endcode
+    \endPythonOnly
+    \sa GetXSec, GetNumXSec
+    \param [in] xsec_surf_id string XSecSurf ID
+    \return array<string> Array of XSec IDs
+*/
+
+extern std::vector < std::string > GetXSecIDVec( const std::string & xsec_surf_id );
+
+/*!
+    \ingroup XSecSurf
+*/
+/*!
     Change the shape of a particular XSec, identified by an XSecSurf ID and XSec index
     \forcpponly
     \code{.cpp}
@@ -23196,13 +23611,56 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
 
     \endcode
     \endPythonOnly
-    \sa XSEC_CRV_TYPE
+    \sa XSEC_CRV_TYPE, ChangeXSecShapeByID
     \param [in] xsec_surf_id string XSecSurf ID
     \param [in] xsec_index int Xsec index
     \param [in] type int Xsec type enum (i.e. XS_ELLIPSE)
 */
 
 extern void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, int type );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Change the shape of a cross-section, by XSec ID. The cross-section keeps its ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    ChangeXSecShapeByID( xsec_1, XS_ELLIPSE );
+
+    if ( GetXSecShape( xsec_1 ) != XS_ELLIPSE )
+    {
+        Print( "ERROR: ChangeXSecShapeByID did not change the shape" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    ChangeXSecShapeByID( xsec_1, XS_ELLIPSE )
+
+    assert GetXSecShape( xsec_1 ) == XS_ELLIPSE, "ChangeXSecShapeByID did not change the shape"
+
+    \endcode
+    \endPythonOnly
+    \sa XSEC_CRV_TYPE, ChangeXSecShape
+    \param [in] xsec_id string XSec ID
+    \param [in] type int XSec type enum (i.e. XS_ELLIPSE)
+*/
+
+extern void ChangeXSecShapeByID( const std::string & xsec_id, int type );
 
 /*!
     \ingroup XSec
@@ -23267,13 +23725,56 @@ extern void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, i
 
     \endcode
     \endPythonOnly
-    \sa ChangeXSecShape, GetUpperCSTCoefs, PromoteCSTUpper
+    \sa ChangeXSecShape, GetUpperCSTCoefs, PromoteCSTUpper, FitCSTAirfoilByID
     \param [in] xsec_surf_id string XSecSurf ID
     \param [in] xsec_index int XSec index
     \param [in] deg int Degree to fit the CST airfoil at
 */
 
 extern void FitCSTAirfoil( const std::string & xsec_surf_id, int xsec_index, int deg );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Convert an airfoil cross-section to a CST airfoil fit to its shape, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "WING" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    FitCSTAirfoilByID( xsec_1, 8 );
+
+    if ( GetXSecShape( xsec_1 ) != XS_CST_AIRFOIL )
+    {
+        Print( "ERROR: FitCSTAirfoilByID did not convert the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "WING" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    FitCSTAirfoilByID( xsec_1, 8 )
+
+    assert GetXSecShape( xsec_1 ) == XS_CST_AIRFOIL, "FitCSTAirfoilByID did not convert the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa FitAfCST, FitCSTAirfoil
+    \param [in] xsec_id string XSec ID
+    \param [in] deg int CST degree
+*/
+
+extern void FitCSTAirfoilByID( const std::string & xsec_id, int deg );
 
 /*!
     \ingroup XSecSurf
@@ -24110,12 +24611,64 @@ extern std::vector< vec3d > GetXSecPnts( const std::string& xsec_id );
 
     \endcode
     \endPythonOnly
-    \sa PasteXSecCurve, CopyXSec, CopyAirfoil
+    \sa PasteXSecCurve, CopyXSec, CopyAirfoil, CopyXSecCurveByID
     \param [in] geom_id string Geom ID
     \param [in] index int XSec index, ignored for a body of revolution
 */
 
 extern void CopyXSecCurve( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Copy the XSecCurve of a cross-section to the clipboard, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+    string xsec_2 = GetXSec( xsec_surf, 2 );
+
+    ChangeXSecShapeByID( xsec_1, XS_ELLIPSE );
+
+    CopyXSecCurveByID( xsec_1 );
+
+    PasteXSecCurveByID( xsec_2 );
+
+    if ( GetXSecShape( xsec_2 ) != XS_ELLIPSE )
+    {
+        Print( "ERROR: CopyXSecCurveByID did not copy the curve" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
+
+    ChangeXSecShapeByID( xsec_1, XS_ELLIPSE )
+
+    CopyXSecCurveByID( xsec_1 )
+
+    PasteXSecCurveByID( xsec_2 )
+
+    assert GetXSecShape( xsec_2 ) == XS_ELLIPSE, "CopyXSecCurveByID did not copy the curve"
+
+    \endcode
+    \endPythonOnly
+    \sa PasteXSecCurve, CopyXSecCurve
+    \param [in] xsec_id string XSec ID
+*/
+
+extern void CopyXSecCurveByID( const std::string & xsec_id );
 
 /*!
     \ingroup XSec
@@ -24195,12 +24748,64 @@ extern void CopyXSecCurve( const std::string & geom_id, int index );
 
     \endcode
     \endPythonOnly
-    \sa CopyXSecCurve, PasteXSec, PasteAirfoil
+    \sa CopyXSecCurve, PasteXSec, PasteAirfoil, PasteXSecCurveByID
     \param [in] geom_id string Geom ID
     \param [in] index int XSec index, ignored for a body of revolution
 */
 
 extern void PasteXSecCurve( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Paste the XSecCurve on the clipboard into a cross-section, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+    string xsec_2 = GetXSec( xsec_surf, 2 );
+
+    ChangeXSecShapeByID( xsec_2, XS_ELLIPSE );
+
+    CopyXSecCurveByID( xsec_2 );
+
+    PasteXSecCurveByID( xsec_1 );
+
+    if ( GetXSecShape( xsec_1 ) != XS_ELLIPSE )
+    {
+        Print( "ERROR: PasteXSecCurveByID did not paste the curve" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
+
+    ChangeXSecShapeByID( xsec_2, XS_ELLIPSE )
+
+    CopyXSecCurveByID( xsec_2 )
+
+    PasteXSecCurveByID( xsec_1 )
+
+    assert GetXSecShape( xsec_1 ) == XS_ELLIPSE, "PasteXSecCurveByID did not paste the curve"
+
+    \endcode
+    \endPythonOnly
+    \sa CopyXSecCurve, PasteXSecCurve
+    \param [in] xsec_id string XSec ID
+*/
+
+extern void PasteXSecCurveByID( const std::string & xsec_id );
 
 /*!
     \ingroup XSec
@@ -24731,6 +25336,7 @@ extern int AddSkinSpine( const std::string& geom_id, double w01 );
 */
 /*!
     Delete a user defined skinning spine from every cross section of a Geom.
+    \sa DelSkinSpineByID
     \param [in] geom_id string Geom ID
     \forcpponly
     \code{.cpp}
@@ -24760,6 +25366,52 @@ extern int AddSkinSpine( const std::string& geom_id, double w01 );
     \param [in] index int Spine index
 */
 extern void DelSkinSpine( const std::string& geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Delete a skin spine from every cross-section of its Geom, by the ID of the spine on any one of them.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "STACK" );
+
+    int spine_index = AddSkinSpine( gid, 0.15 );
+
+    string xsec = GetXSec( GetXSecSurf( gid, 0 ), 1 );
+
+    array< string > @spines = GetSkinSpineIDVec( xsec );
+
+    DelSkinSpineByID( spines[ spine_index ] );
+
+    if ( GetNumSkinSpines( gid ) != 0 )
+    {
+        Print( "ERROR: DelSkinSpineByID did not delete the spine" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "STACK" )
+
+    spine_index = AddSkinSpine( gid, 0.15 )
+
+    xsec = GetXSec( GetXSecSurf( gid, 0 ), 1 )
+
+    spines = GetSkinSpineIDVec( xsec )
+
+    DelSkinSpineByID( spines[ spine_index ] )
+
+    assert GetNumSkinSpines( gid ) == 0, "DelSkinSpineByID did not delete the spine"
+
+    \endcode
+    \endPythonOnly
+    \sa AddSkinSpine, GetSkinSpineIDVec, DelSkinSpine
+    \param [in] spine_id string Skin spine ID
+*/
+
+extern void DelSkinSpineByID( const std::string & spine_id );
 
 /*!
     \ingroup XSec
@@ -24864,13 +25516,60 @@ extern int GetNumSkinSpines( const std::string& geom_id );
 
     \endcode
     \endPythonOnly
-    \sa SetSkinSpineName, AddSkinSpine
+    \sa SetSkinSpineName, AddSkinSpine, GetSkinSpineNameByID
     \param [in] geom_id string Geom ID
     \param [in] index int Spine index
     \return string Spine name
 */
 
 extern std::string GetSkinSpineName( const std::string& geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the name of a skin spine, by the ID of the spine on any one cross-section.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "STACK" );
+
+    int spine_index = AddSkinSpine( gid, 0.15 );
+
+    string xsec = GetXSec( GetXSecSurf( gid, 0 ), 1 );
+
+    array< string > @spines = GetSkinSpineIDVec( xsec );
+
+    SetSkinSpineName( gid, spine_index, "Chine" );
+
+    if ( GetSkinSpineNameByID( spines[ spine_index ] ) != "Chine" )
+    {
+        Print( "ERROR: GetSkinSpineNameByID did not return the name set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "STACK" )
+
+    spine_index = AddSkinSpine( gid, 0.15 )
+
+    xsec = GetXSec( GetXSecSurf( gid, 0 ), 1 )
+
+    spines = GetSkinSpineIDVec( xsec )
+
+    SetSkinSpineName( gid, spine_index, "Chine" )
+
+    assert GetSkinSpineNameByID( spines[ spine_index ] ) == "Chine", "GetSkinSpineNameByID did not return the name set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetSkinSpineName, GetSkinSpineName
+    \param [in] spine_id string Skin spine ID
+    \return string Spine name
+*/
+
+extern std::string GetSkinSpineNameByID( const std::string & spine_id );
 
 /*!
     \ingroup XSec
@@ -24905,13 +25604,60 @@ extern std::string GetSkinSpineName( const std::string& geom_id, int index );
 
     \endcode
     \endPythonOnly
-    \sa GetSkinSpineName
+    \sa GetSkinSpineName, SetSkinSpineNameByID
     \param [in] geom_id string Geom ID
     \param [in] index int Spine index
     \param [in] name string Spine name
 */
 
 extern void SetSkinSpineName( const std::string& geom_id, int index, const std::string& name );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set the name of a skin spine, by the ID of the spine on any one cross-section.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "STACK" );
+
+    int spine_index = AddSkinSpine( gid, 0.15 );
+
+    string xsec = GetXSec( GetXSecSurf( gid, 0 ), 1 );
+
+    array< string > @spines = GetSkinSpineIDVec( xsec );
+
+    SetSkinSpineNameByID( spines[ spine_index ], "Chine" );
+
+    if ( GetSkinSpineName( gid, spine_index ) != "Chine" )
+    {
+        Print( "ERROR: SetSkinSpineNameByID did not name the spine" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "STACK" )
+
+    spine_index = AddSkinSpine( gid, 0.15 )
+
+    xsec = GetXSec( GetXSecSurf( gid, 0 ), 1 )
+
+    spines = GetSkinSpineIDVec( xsec )
+
+    SetSkinSpineNameByID( spines[ spine_index ], "Chine" )
+
+    assert GetSkinSpineName( gid, spine_index ) == "Chine", "SetSkinSpineNameByID did not name the spine"
+
+    \endcode
+    \endPythonOnly
+    \sa GetSkinSpineName, SetSkinSpineName
+    \param [in] spine_id string Skin spine ID
+    \param [in] name string New name for the spine
+*/
+
+extern void SetSkinSpineNameByID( const std::string & spine_id, const std::string & name );
 
 /*!
     \ingroup XSec
@@ -24970,6 +25716,49 @@ extern void SetSkinSpineName( const std::string& geom_id, int index, const std::
     \return string Spine Parm container ID
 */
 extern std::string GetSkinSpineID( const std::string& xsec_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the IDs of the skin spines of one cross-section, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "STACK" );
+
+    AddSkinSpine( gid, 0.15 );
+
+    string xsec = GetXSec( GetXSecSurf( gid, 0 ), 1 );
+
+    array< string > @spines = GetSkinSpineIDVec( xsec );
+
+    if ( spines.size() != 1 || spines[0] != GetSkinSpineID( xsec, 0 ) )
+    {
+        Print( "ERROR: GetSkinSpineIDVec did not return the spine" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "STACK" )
+
+    AddSkinSpine( gid, 0.15 )
+
+    xsec = GetXSec( GetXSecSurf( gid, 0 ), 1 )
+
+    spines = GetSkinSpineIDVec( xsec )
+
+    assert list( spines ) == [ GetSkinSpineID( xsec, 0 ) ], "GetSkinSpineIDVec did not return the spine"
+
+    \endcode
+    \endPythonOnly
+    \sa GetSkinSpineID, AddSkinSpine
+    \param [in] xsec_id string XSec ID
+    \return array<string> Array of skin spine IDs
+*/
+
+extern std::vector < std::string > GetSkinSpineIDVec( const std::string & xsec_id );
 
 /*!
     \ingroup XSec
@@ -27467,12 +28256,56 @@ extern void DemoteCSTLower( const std::string& xsec_id );
 
     \endcode
     \endPythonOnly
+    \sa FitAfCSTByID
     \param [in] xsec_surf_id string XsecSurf ID
     \param [in] xsec_index int XSec index
     \param [in] deg int CST degree
 */
 
 extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Convert an analytic or file airfoil cross-section to a CST airfoil fit to its shape, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "WING" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    FitAfCSTByID( xsec_1, 8 );
+
+    if ( GetXSecShape( xsec_1 ) != XS_CST_AIRFOIL )
+    {
+        Print( "ERROR: FitAfCSTByID did not convert the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "WING" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    FitAfCSTByID( xsec_1, 8 )
+
+    assert GetXSecShape( xsec_1 ) == XS_CST_AIRFOIL, "FitAfCSTByID did not convert the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa FitCSTAirfoil, FitAfCST
+    \param [in] xsec_id string XSec ID
+    \param [in] deg int CST degree
+*/
+
+extern void FitAfCSTByID( const std::string & xsec_id, int deg );
 
 //======================== Background3D Functions ======================//
 
@@ -31879,11 +32712,54 @@ extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, cons
 
     \endcode
     \endPythonOnly
+    \sa ConvertXSecToEditByID
     \param [in] geom_id string Geom ID
     \param [in] indx int XSec index
 */
 
 extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0 );
+
+/*!
+    \ingroup EditCurveXSec
+*/
+/*!
+    Convert a cross-section to an edit curve that holds its shape, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "FUSELAGE" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    ConvertXSecToEditByID( xsec_1 );
+
+    if ( GetXSecShape( xsec_1 ) != XS_EDIT_CURVE )
+    {
+        Print( "ERROR: ConvertXSecToEditByID did not convert the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "FUSELAGE" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    ConvertXSecToEditByID( xsec_1 )
+
+    assert GetXSecShape( xsec_1 ) == XS_EDIT_CURVE, "ConvertXSecToEditByID did not convert the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa ConvertXSecToEdit
+    \param [in] xsec_id string XSec ID
+*/
+
+extern void ConvertXSecToEditByID( const std::string & xsec_id );
 
 /*!
     \ingroup EditCurveXSec
@@ -49420,12 +50296,64 @@ extern void DeleteAllProbes();
 
     \endcode
     \endPythonOnly
-    \sa PasteAirfoil, CopyXSec
+    \sa PasteAirfoil, CopyXSec, CopyAirfoilByID
     \param [in] geom_id string Wing Geom ID
     \param [in] index int Wing section index
 */
 
 extern void CopyAirfoil( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Copy the airfoil of a wing section to the clipboard, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "WING" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_0 = GetXSec( xsec_surf, 0 );
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    ChangeXSecShapeByID( xsec_1, XS_SIX_SERIES );
+
+    CopyAirfoilByID( xsec_1 );
+
+    PasteAirfoilByID( xsec_0 );
+
+    if ( GetXSecShape( xsec_0 ) != XS_SIX_SERIES )
+    {
+        Print( "ERROR: CopyAirfoilByID did not copy the airfoil" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "WING" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_0 = GetXSec( xsec_surf, 0 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    ChangeXSecShapeByID( xsec_1, XS_SIX_SERIES )
+
+    CopyAirfoilByID( xsec_1 )
+
+    PasteAirfoilByID( xsec_0 )
+
+    assert GetXSecShape( xsec_0 ) == XS_SIX_SERIES, "CopyAirfoilByID did not copy the airfoil"
+
+    \endcode
+    \endPythonOnly
+    \sa PasteAirfoil, CopyAirfoil
+    \param [in] xsec_id string Wing section XSec ID
+*/
+
+extern void CopyAirfoilByID( const std::string & xsec_id );
 
 /*!
     \ingroup Geom
@@ -49461,12 +50389,64 @@ extern void CopyAirfoil( const std::string & geom_id, int index );
 
     \endcode
     \endPythonOnly
-    \sa CopyAirfoil, PasteXSec
+    \sa CopyAirfoil, PasteXSec, PasteAirfoilByID
     \param [in] geom_id string Wing Geom ID
     \param [in] index int Wing section index
 */
 
 extern void PasteAirfoil( const std::string & geom_id, int index );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Paste the airfoil on the clipboard into a wing section, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string gid = AddGeom( "WING" );
+
+    string xsec_surf = GetXSecSurf( gid, 0 );
+
+    string xsec_0 = GetXSec( xsec_surf, 0 );
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    ChangeXSecShapeByID( xsec_0, XS_SIX_SERIES );
+
+    CopyAirfoilByID( xsec_0 );
+
+    PasteAirfoilByID( xsec_1 );
+
+    if ( GetXSecShape( xsec_1 ) != XS_SIX_SERIES )
+    {
+        Print( "ERROR: PasteAirfoilByID did not paste the airfoil" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    gid = AddGeom( "WING" )
+
+    xsec_surf = GetXSecSurf( gid, 0 )
+
+    xsec_0 = GetXSec( xsec_surf, 0 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
+
+    ChangeXSecShapeByID( xsec_0, XS_SIX_SERIES )
+
+    CopyAirfoilByID( xsec_0 )
+
+    PasteAirfoilByID( xsec_1 )
+
+    assert GetXSecShape( xsec_1 ) == XS_SIX_SERIES, "PasteAirfoilByID did not paste the airfoil"
+
+    \endcode
+    \endPythonOnly
+    \sa CopyAirfoil, PasteAirfoil
+    \param [in] xsec_id string Wing section XSec ID
+*/
+
+extern void PasteAirfoilByID( const std::string & xsec_id );
 
 /*!
     \ingroup Geom
@@ -49560,12 +50540,62 @@ extern void PasteAirfoil( const std::string & geom_id, int index );
 
     \endcode
     \endPythonOnly
-    \sa ResetXSecSkinParms
+    \sa ResetXSecSkinParms, ClearSkinningByID
     \param [in] geom_id string Geom ID
     \param [in] index int Cross section index, or -1 for every section
 */
 
 extern void ClearSkinning( const std::string & geom_id, int index = -1 );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Release the skinning controls of one cross-section, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec = GetXSec( GetXSecSurf( sid, 0 ), 1 );
+
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 15.0, -1.0e12, -1.0e12, -1.0e12 );
+
+    Update();
+
+    ClearSkinningByID( xsec );
+
+    Update();
+
+    if ( abs( GetParmVal( GetXSecParm( xsec, "TopLAngleSet" ) ) ) > 1e-12 )
+    {
+        Print( "ERROR: ClearSkinningByID did not release the section" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec = GetXSec( GetXSecSurf( sid, 0 ), 1 )
+
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 15.0, -1.0e12, -1.0e12, -1.0e12 )
+
+    Update()
+
+    ClearSkinningByID( xsec )
+
+    Update()
+
+    assert abs( GetParmVal( GetXSecParm( xsec, "TopLAngleSet" ) ) ) < 1e-12, "ClearSkinningByID did not release the section"
+
+    \endcode
+    \endPythonOnly
+    \sa ClearSkinning, ResetXSecSkinParms
+    \param [in] xsec_id string XSec ID
+*/
+
+extern void ClearSkinningByID( const std::string & xsec_id );
 
 /*!
     \ingroup Geom

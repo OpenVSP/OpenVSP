@@ -3470,10 +3470,19 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void CopyAirfoil( const string & in geom_id, int index )", asFUNCTION( vsp::CopyAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void CopyAirfoilByID( const string & in xsec_id )", asFUNCTION( vsp::CopyAirfoilByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void PasteAirfoil( const string & in geom_id, int index )", asFUNCTION( vsp::PasteAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void PasteAirfoilByID( const string & in xsec_id )", asFUNCTION( vsp::PasteAirfoilByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void ClearSkinning( const string & in geom_id, int index = -1 )", asFUNCTION( vsp::ClearSkinning ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ClearSkinningByID( const string & in xsec_id )", asFUNCTION( vsp::ClearSkinningByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void ResetGeomScale( const string & in geom_id )", asFUNCTION( vsp::ResetGeomScale ), asCALL_CDECL );
@@ -4715,11 +4724,20 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SplitWingXSec( const string & in wing_id, int section_index )", asFUNCTION( vsp::SplitWingXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string SplitWingXSecByID( const string & in xsec_id )", asFUNCTION( vsp::SplitWingXSecByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "array<int>@+ GetDriverGroup( const string & in geom_id, int section_index )", asMETHOD( ScriptMgrSingleton, GetDriverGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void SetDriverGroup( const string & in geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1)", asFUNCTION( vsp::SetDriverGroup ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetDriverGroupByID( const string & in xsec_id, int driver_0, int driver_1 = -1, int driver_2 = -1 )", asFUNCTION( vsp::SetDriverGroupByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<int>@+ GetDriverGroupByID( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetDriverGroupByID ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     //==== SubSurface Functions ====//
@@ -4937,6 +4955,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetXSecSurf( const string & in geom_id, int index )", asFUNCTION( vsp::GetXSecSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetXSecSurfIDVec( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetXSecSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "int GetNumXSec( const string & in xsec_surf_id )", asFUNCTION( vsp::GetNumXSec ), asCALL_CDECL );
     assert( r >= 0 );
@@ -4945,11 +4966,20 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetXSec( const string & in xsec_surf_id, int xsec_index )", asFUNCTION( vsp::GetXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetXSecIDVec( const string & in xsec_surf_id )", asMETHOD( ScriptMgrSingleton, GetXSecIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void ChangeXSecShape( const string & in xsec_surf_id, int xsec_index, int type )", asFUNCTION( vsp::ChangeXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void ChangeXSecShapeByID( const string & in xsec_id, int type )", asFUNCTION( vsp::ChangeXSecShapeByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void FitCSTAirfoil( const string & in xsec_surf_id, int xsec_index, int deg )", asFUNCTION( vsp::FitCSTAirfoil ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void FitCSTAirfoilByID( const string & in xsec_id, int deg )", asFUNCTION( vsp::FitCSTAirfoilByID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4981,16 +5011,28 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void CutXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CutXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void CutXSecByID( const string & in xsec_id )", asFUNCTION( vsp::CutXSecByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void CopyXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CopyXSec ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void CopyXSecByID( const string & in xsec_id )", asFUNCTION( vsp::CopyXSecByID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void PasteXSec( const string & in geom_id, int index )", asFUNCTION( vsp::PasteXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void PasteXSecByID( const string & in xsec_id )", asFUNCTION( vsp::PasteXSecByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void InsertXSec( const string & in geom_id, int index, int type )", asFUNCTION( vsp::InsertXSec ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string InsertXSecByID( const string & in xsec_id, int type )", asFUNCTION( vsp::InsertXSecByID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -5036,7 +5078,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void CopyXSecCurve( const string & in geom_id, int index )", asFUNCTION( vsp::CopyXSecCurve ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void CopyXSecCurveByID( const string & in xsec_id )", asFUNCTION( vsp::CopyXSecCurveByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void PasteXSecCurve( const string & in geom_id, int index )", asFUNCTION( vsp::PasteXSecCurve ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void PasteXSecCurveByID( const string & in xsec_id )", asFUNCTION( vsp::PasteXSecCurveByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void SetXSecPnts( const string& in xsec_id, array<vec3d>@+ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -5068,6 +5116,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DelSkinSpine( const string& in geom_id, int index )", asFUNCTION( vsp::DelSkinSpine ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void DelSkinSpineByID( const string & in spine_id )", asFUNCTION( vsp::DelSkinSpineByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void DelAllSkinSpines( const string& in geom_id )", asFUNCTION( vsp::DelAllSkinSpines ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -5077,11 +5128,20 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetSkinSpineName( const string& in geom_id, int index )", asFUNCTION( vsp::GetSkinSpineName ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string GetSkinSpineNameByID( const string & in spine_id )", asFUNCTION( vsp::GetSkinSpineNameByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void SetSkinSpineName( const string& in geom_id, int index, const string& in name )", asFUNCTION( vsp::SetSkinSpineName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetSkinSpineNameByID( const string & in spine_id, const string & in name )", asFUNCTION( vsp::SetSkinSpineNameByID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "string GetSkinSpineID( const string& in xsec_id, int index )", asFUNCTION( vsp::GetSkinSpineID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetSkinSpineIDVec( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetSkinSpineIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string GetSkinSpineParm( const string& in spine_id, const string& in name )", asFUNCTION( vsp::GetSkinSpineParm ), asCALL_CDECL );
@@ -5214,6 +5274,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void FitAfCST( const string& in xsec_surf_id, int xsec_index, int deg )", asFUNCTION( vsp::FitAfCST ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
+    r = se->RegisterGlobalFunction( "void FitAfCSTByID( const string & in xsec_id, int deg )", asFUNCTION( vsp::FitAfCSTByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void WriteBezierAirfoil( const string& in file_name, const string& in geom_id, const double& in foilsurf_u )", asFUNCTION( vsp::WriteBezierAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
@@ -5260,6 +5323,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     r = se->RegisterGlobalFunction( "void ConvertXSecToEdit( const string& in geom_id, const int& in indx = 0 )", asFUNCTION( vsp::ConvertXSecToEdit ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void ConvertXSecToEditByID( const string & in xsec_id )", asFUNCTION( vsp::ConvertXSecToEditByID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -7060,6 +7126,30 @@ CScriptArray* ScriptMgrSingleton::GetXSecCurvatures( const string& xsec_id, int 
 CScriptArray* ScriptMgrSingleton::GetDriverGroup( const string & geom_id, int section_index )
 {
     m_ProxyIntArray = vsp::GetDriverGroup( geom_id, section_index );
+    return GetProxyIntArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetSkinSpineIDVec( const string & xsec_id )
+{
+    m_ProxyStringArray = vsp::GetSkinSpineIDVec( xsec_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetXSecIDVec( const string & xsec_surf_id )
+{
+    m_ProxyStringArray = vsp::GetXSecIDVec( xsec_surf_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetXSecSurfIDVec( const string & geom_id )
+{
+    m_ProxyStringArray = vsp::GetXSecSurfIDVec( geom_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetDriverGroupByID( const string & xsec_id )
+{
+    m_ProxyIntArray = vsp::GetDriverGroupByID( xsec_id );
     return GetProxyIntArray();
 }
 

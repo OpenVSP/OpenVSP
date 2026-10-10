@@ -6902,6 +6902,48 @@ static bool RefuseOnClone( Geom* geom_ptr, const std::string &fname )
     return true;
 }
 
+//==== The XSecSurf an XSec is on and the XSec's index there, reporting through the
+//==== named caller when it cannot be found. ====//
+XSecSurf* FindXSecSurfOf( const std::string & xsec_id, int & index, const std::string & caller )
+{
+    XSecSurf* xsec_surf = nullptr;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( xs )
+    {
+        xsec_surf = dynamic_cast < XSecSurf* > ( xs->GetParentContainerPtr() );
+    }
+
+    if ( !xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, caller + "::Can't Find XSec " + xsec_id );
+        return nullptr;
+    }
+
+    index = xsec_surf->FindXSecIndex( xsec_id );
+    return xsec_surf;
+}
+
+//==== The Geom an XSec is on and the XSec's index among the Geom's own XSecs,
+//==== reporting through the named caller when it cannot be found. ====//
+Geom* FindXSecGeom( const std::string & xsec_id, int & index, const std::string & caller )
+{
+    XSecSurf* xsec_surf = FindXSecSurfOf( xsec_id, index, caller );
+    if ( !xsec_surf )
+    {
+        return nullptr;
+    }
+
+    Geom* geom_ptr = dynamic_cast < Geom* > ( xsec_surf->GetParentContainerPtr() );
+    if ( !geom_ptr || geom_ptr->GetXSecSurf( 0 ) != xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::XSec " + xsec_id + " is not one of its Geom's own XSecs" );
+        return nullptr;
+    }
+
+    return geom_ptr;
+}
+
 //==== Whether an index names one of a Geom's XSecs that the cut, copy, paste, insert and
 //==== split calls may change, reporting through the named caller ====//
 bool GeomXSecIndexInRange( Geom* geom_ptr, int index, const std::string & caller )
@@ -6956,6 +6998,18 @@ void CutXSec( const std::string & geom_id, int index )
     CutXSecImpl( geom_id, index, "CutXSec" );
 }
 
+void CutXSecByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "CutXSecByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    CutXSecImpl( geom_ptr->GetID(), index, "CutXSecByID" );
+}
+
 static void CopyXSecImpl( const std::string & geom_id, int index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
@@ -6980,6 +7034,18 @@ void CopyXSec( const std::string & geom_id, int index )
     CopyXSecImpl( geom_id, index, "CopyXSec" );
 }
 
+void CopyXSecByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "CopyXSecByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    CopyXSecImpl( geom_ptr->GetID(), index, "CopyXSecByID" );
+}
+
 static void PasteXSecImpl( const std::string & geom_id, int index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
@@ -7002,6 +7068,18 @@ static void PasteXSecImpl( const std::string & geom_id, int index, const std::st
 void PasteXSec( const std::string & geom_id, int index )
 {
     PasteXSecImpl( geom_id, index, "PasteXSec" );
+}
+
+void PasteXSecByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "PasteXSecByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    PasteXSecImpl( geom_ptr->GetID(), index, "PasteXSecByID" );
 }
 
 static void InsertXSecImpl( const std::string & geom_id, int index, int type, const std::string & caller )
@@ -7035,6 +7113,34 @@ static void InsertXSecImpl( const std::string & geom_id, int index, int type, co
 void InsertXSec( const std::string & geom_id, int index, int type )
 {
     InsertXSecImpl( geom_id, index, type, "InsertXSec" );
+}
+
+std::string InsertXSecByID( const std::string & xsec_id, int type )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "InsertXSecByID" );
+    if ( !geom_ptr )
+    {
+        return std::string();
+    }
+
+    XSecSurf* xsec_surf = geom_ptr->GetXSecSurf( 0 );
+    int nxsec = xsec_surf->NumXSec();
+
+    InsertXSecImpl( geom_ptr->GetID(), index, type, "InsertXSecByID" );
+    if ( ErrorMgr.GetErrorLastCallFlag() )
+    {
+        return std::string();
+    }
+
+    XSec* xs = xsec_surf->FindXSec( index + 1 );
+    if ( xsec_surf->NumXSec() == nxsec || !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "InsertXSecByID::No XSec Inserted After " + xsec_id );
+        return std::string();
+    }
+
+    return xs->GetID();
 }
 
 
@@ -7073,7 +7179,35 @@ void SplitWingXSec( const std::string & wing_id, int section_index )
     SplitWingXSecImpl( wing_id, section_index, "SplitWingXSec" );
 }
 
-std::vector < int > GetDriverGroup( const std::string & geom_id, int section_index )
+std::string SplitWingXSecByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "SplitWingXSecByID" );
+    if ( !geom_ptr )
+    {
+        return std::string();
+    }
+
+    XSecSurf* xsec_surf = geom_ptr->GetXSecSurf( 0 );
+    int nxsec = xsec_surf->NumXSec();
+
+    SplitWingXSecImpl( geom_ptr->GetID(), index, "SplitWingXSecByID" );
+    if ( ErrorMgr.GetErrorLastCallFlag() )
+    {
+        return std::string();
+    }
+
+    XSec* xs = xsec_surf->FindXSec( index + 1 );
+    if ( xsec_surf->NumXSec() == nxsec || !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SplitWingXSecByID::Section " + xsec_id + " Was Not Split" );
+        return std::string();
+    }
+
+    return xs->GetID();
+}
+
+static std::vector < int > GetDriverGroupImpl( const std::string & geom_id, int section_index, const std::string & caller )
 {
     std::vector < int > choices;
 
@@ -7081,7 +7215,7 @@ std::vector < int > GetDriverGroup( const std::string & geom_id, int section_ind
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDriverGroup::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return choices;
     }
 
@@ -7092,7 +7226,7 @@ std::vector < int > GetDriverGroup( const std::string & geom_id, int section_ind
         WingSect* ws = behavior_wing->GetWingSect( section_index );
         if ( !ws )
         {
-            ErrorMgr.AddError( VSP_INVALID_PTR, "GetDriverGroup::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
             return choices;
         }
 
@@ -7108,7 +7242,7 @@ std::vector < int > GetDriverGroup( const std::string & geom_id, int section_ind
         XSec* xs = gxs->GetXSec( section_index );
         if ( !xs )
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetDriverGroup::Invalid XSec Index " + to_string( ( long long )section_index ) );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Invalid XSec Index " + to_string( ( long long )section_index ) );
             return choices;
         }
         xsc = xs->GetXSecCurve();
@@ -7128,8 +7262,25 @@ std::vector < int > GetDriverGroup( const std::string & geom_id, int section_ind
         return xsc->m_DriverGroup->GetChoices();
     }
 
-    ErrorMgr.AddError( VSP_INVALID_PTR, "GetDriverGroup::Invalid Geom Type " + geom_id );
+    ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Invalid Geom Type " + geom_id );
     return choices;
+}
+
+std::vector < int > GetDriverGroup( const std::string & geom_id, int section_index )
+{
+    return GetDriverGroupImpl( geom_id, section_index, "GetDriverGroup" );
+}
+
+std::vector < int > GetDriverGroupByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "GetDriverGroupByID" );
+    if ( !geom_ptr )
+    {
+        return std::vector < int > ();
+    }
+
+    return GetDriverGroupImpl( geom_ptr->GetID(), index, "GetDriverGroupByID" );
 }
 
 static void SetDriverGroupImpl( const std::string & geom_id, int section_index, int driver_0, int driver_1, int driver_2, const std::string & caller )
@@ -7225,6 +7376,18 @@ void SetDriverGroup( const std::string & geom_id, int section_index, int driver_
     SetDriverGroupImpl( geom_id, section_index, driver_0, driver_1, driver_2, "SetDriverGroup" );
 }
 
+void SetDriverGroupByID( const std::string & xsec_id, int driver_0, int driver_1, int driver_2 )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "SetDriverGroupByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    SetDriverGroupImpl( geom_ptr->GetID(), index, driver_0, driver_1, driver_2, "SetDriverGroupByID" );
+}
+
 //===================================================================//
 //===============       XSecSurf Functions         ==================//
 //===================================================================//
@@ -7248,6 +7411,26 @@ std::string GetXSecSurf( const std::string & geom_id, int index )
 
     ErrorMgr.NoError();
     return xsec_surf->GetID();
+}
+
+std::vector < std::string > GetXSecSurfIDVec( const std::string & geom_id )
+{
+    std::vector < std::string > ret_vec;
+
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetXSecSurfIDVec::Can't Find Geom " + geom_id );
+        return ret_vec;
+    }
+
+    for ( int i = 0; i < geom_ptr->GetNumXSecSurfs(); i++ )
+    {
+        ret_vec.push_back( geom_ptr->GetXSecSurf( i )->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 /// Get the number of XSecs in the XSecSurf
@@ -7284,38 +7467,58 @@ std::string GetXSec( const std::string & xsec_surf_id, int xsec_index )
     return xsec->GetID();
 }
 
+std::vector < std::string > GetXSecIDVec( const std::string & xsec_surf_id )
+{
+    std::vector < std::string > ret_vec;
+
+    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
+    if ( !xsec_surf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetXSecIDVec::Can't Find XSecSurf " + xsec_surf_id );
+        return ret_vec;
+    }
+
+    for ( int i = 0; i < xsec_surf->NumXSec(); i++ )
+    {
+        ret_vec.push_back( xsec_surf->FindXSec( i )->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
 /// Change the shape of a particular XSec
-void FitCSTAirfoil( const std::string & xsec_surf_id, int xsec_index, int deg )
+static void FitCSTAirfoilImpl( const std::string & xsec_surf_id, int xsec_index, int deg, const std::string & caller )
 {
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitCSTAirfoil::Can't Find XSecSurf " + xsec_surf_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find XSecSurf " + xsec_surf_id );
         return;
     }
     if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FitCSTAirfoil::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
     if ( deg < 1 )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "FitCSTAirfoil::Fit Degree Must Be Positive" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, caller + "::Fit Degree " + to_string( deg ) + " Must Be Positive" );
         return;
     }
 
     XSec* xs = xsec_surf->FindXSec( xsec_index );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitCSTAirfoil::Can't Find XSec" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find XSec" );
         return;
     }
 
     Airfoil* af = dynamic_cast< Airfoil* >( xs->GetXSecCurve() );
     if ( !af )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitCSTAirfoil::XSec Is Not An Airfoil" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, caller + "::XSec Is Not An Airfoil " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
@@ -7327,14 +7530,14 @@ void FitCSTAirfoil( const std::string & xsec_surf_id, int xsec_index, int deg )
     XSec* newxs = xsec_surf->FindXSec( xsec_index );
     if ( !newxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitCSTAirfoil::Can't Find XSec" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find XSec" );
         return;
     }
 
     CSTAirfoil* cst_xs = dynamic_cast< CSTAirfoil* >( newxs->GetXSecCurve() );
     if ( !cst_xs )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitCSTAirfoil::XSec Did Not Convert To XS_CST_AIRFOIL" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, caller + "::XSec Did Not Convert To XS_CST_AIRFOIL" );
         return;
     }
 
@@ -7345,22 +7548,56 @@ void FitCSTAirfoil( const std::string & xsec_surf_id, int xsec_index, int deg )
     ErrorMgr.NoError();
 }
 
-void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, int type )
+void FitCSTAirfoil( const std::string & xsec_surf_id, int xsec_index, int deg )
+{
+    FitCSTAirfoilImpl( xsec_surf_id, xsec_index, deg, "FitCSTAirfoil" );
+}
+
+void FitCSTAirfoilByID( const std::string & xsec_id, int deg )
+{
+    int index = -1;
+    XSecSurf* xsec_surf = FindXSecSurfOf( xsec_id, index, "FitCSTAirfoilByID" );
+    if ( !xsec_surf )
+    {
+        return;
+    }
+
+    FitCSTAirfoilImpl( xsec_surf->GetID(), index, deg, "FitCSTAirfoilByID" );
+}
+
+static void ChangeXSecShapeImpl( const std::string & xsec_surf_id, int xsec_index, int type, const std::string & caller )
 {
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeXSecShape::Can't Find XSecSurf " + xsec_surf_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find XSecSurf " + xsec_surf_id );
         return;
     }
     if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ChangeXSecShape::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
     ErrorMgr.NoError();
     xsec_surf->ChangeXSecShape( xsec_index, type );
+}
+
+void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, int type )
+{
+    ChangeXSecShapeImpl( xsec_surf_id, xsec_index, type, "ChangeXSecShape" );
+}
+
+void ChangeXSecShapeByID( const std::string & xsec_id, int type )
+{
+    int index = -1;
+    XSecSurf* xsec_surf = FindXSecSurfOf( xsec_id, index, "ChangeXSecShapeByID" );
+    if ( !xsec_surf )
+    {
+        return;
+    }
+
+    ChangeXSecShapeImpl( xsec_surf->GetID(), index, type, "ChangeXSecShapeByID" );
 }
 
 /// Set The Global XForm Matrix For This XSec Surf
@@ -7751,20 +7988,50 @@ int AddSkinSpine( const string& geom_id, double w )
     return index;
 }
 
-void DelSkinSpine( const string& geom_id, int index )
+//==== The Geom a skin spine is on and the spine's index there, reporting through the
+//==== named caller when it cannot be found. ====//
+Geom* FindSkinSpineGeom( const std::string & spine_id, int & index, const std::string & caller )
+{
+    SkinSpine* sp = dynamic_cast < SkinSpine* > ( ParmMgr.FindParmContainer( spine_id ) );
+    SkinXSec* sxs = nullptr;
+    if ( sp )
+    {
+        sxs = dynamic_cast < SkinXSec* > ( sp->GetParentContainerPtr() );
+    }
+
+    if ( !sxs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Spine " + spine_id );
+        return nullptr;
+    }
+
+    index = -1;
+    for ( int i = 0; i < sxs->NumSpines(); i++ )
+    {
+        if ( sxs->GetSpine( i ) == sp )
+        {
+            index = i;
+        }
+    }
+
+    int xsec_index = -1;
+    return FindXSecGeom( sxs->GetID(), xsec_index, caller );
+}
+
+static void DelSkinSpineImpl( const string& geom_id, int index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelSkinSpine::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return;
     }
 
     GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
     if ( !SkinnableGeom( gxs ) )
     {
-        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DelSkinSpine::Geom does not support skinning " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom does not support skinning " + geom_id );
         return;
     }
 
@@ -7772,7 +8039,7 @@ void DelSkinSpine( const string& geom_id, int index )
     // return quietly having done nothing.
     if ( index < 0 || index >= gxs->NumSkinSpines() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelSkinSpine::Index " + to_string( index ) + " is out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Index " + to_string( index ) + " is out of range" );
         return;
     }
 
@@ -7780,6 +8047,23 @@ void DelSkinSpine( const string& geom_id, int index )
     geom_ptr->Update();
 
     ErrorMgr.NoError();
+}
+
+void DelSkinSpine( const string& geom_id, int index )
+{
+    DelSkinSpineImpl( geom_id, index, "DelSkinSpine" );
+}
+
+void DelSkinSpineByID( const std::string & spine_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindSkinSpineGeom( spine_id, index, "DelSkinSpineByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    DelSkinSpineImpl( geom_ptr->GetID(), index, "DelSkinSpineByID" );
 }
 
 void DelAllSkinSpines( const string& geom_id )
@@ -7805,26 +8089,26 @@ void DelAllSkinSpines( const string& geom_id )
     ErrorMgr.NoError();
 }
 
-string GetSkinSpineName( const string& geom_id, int index )
+static string GetSkinSpineNameImpl( const string& geom_id, int index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSkinSpineName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return string();
     }
 
     GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
     if ( !SkinnableGeom( gxs ) )
     {
-        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetSkinSpineName::Geom does not support skinning " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom does not support skinning " + geom_id );
         return string();
     }
 
     if ( index < 0 || index >= gxs->NumSkinSpines() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetSkinSpineName::Index " + to_string( index ) + " is out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Index " + to_string( index ) + " is out of range" );
         return string();
     }
 
@@ -7832,26 +8116,43 @@ string GetSkinSpineName( const string& geom_id, int index )
     return gxs->GetSkinSpineName( index );
 }
 
-void SetSkinSpineName( const string& geom_id, int index, const string& name )
+string GetSkinSpineName( const string& geom_id, int index )
+{
+    return GetSkinSpineNameImpl( geom_id, index, "GetSkinSpineName" );
+}
+
+std::string GetSkinSpineNameByID( const std::string & spine_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindSkinSpineGeom( spine_id, index, "GetSkinSpineNameByID" );
+    if ( !geom_ptr )
+    {
+        return std::string();
+    }
+
+    return GetSkinSpineNameImpl( geom_ptr->GetID(), index, "GetSkinSpineNameByID" );
+}
+
+static void SetSkinSpineNameImpl( const string& geom_id, int index, const string& name, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSkinSpineName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return;
     }
 
     GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
     if ( !SkinnableGeom( gxs ) )
     {
-        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetSkinSpineName::Geom does not support skinning " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom does not support skinning " + geom_id );
         return;
     }
 
     if ( index < 0 || index >= gxs->NumSkinSpines() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetSkinSpineName::Index " + to_string( index ) + " is out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Index " + to_string( index ) + " is out of range" );
         return;
     }
 
@@ -7859,6 +8160,23 @@ void SetSkinSpineName( const string& geom_id, int index, const string& name )
     geom_ptr->Update();
 
     ErrorMgr.NoError();
+}
+
+void SetSkinSpineName( const string& geom_id, int index, const string& name )
+{
+    SetSkinSpineNameImpl( geom_id, index, name, "SetSkinSpineName" );
+}
+
+void SetSkinSpineNameByID( const std::string & spine_id, const std::string & name )
+{
+    int index = -1;
+    Geom* geom_ptr = FindSkinSpineGeom( spine_id, index, "SetSkinSpineNameByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    SetSkinSpineNameImpl( geom_ptr->GetID(), index, name, "SetSkinSpineNameByID" );
 }
 
 int GetNumSkinSpines( const string& geom_id )
@@ -7929,6 +8247,33 @@ string GetSkinSpineID( const string& xsec_id, int index )
 
     ErrorMgr.NoError();
     return sp->GetID();
+}
+
+std::vector < std::string > GetSkinSpineIDVec( const std::string & xsec_id )
+{
+    std::vector < std::string > ret_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetSkinSpineIDVec::Can't Find XSec " + xsec_id );
+        return ret_vec;
+    }
+
+    SkinXSec* sxs = dynamic_cast < SkinXSec* > ( xs );
+    if ( !sxs )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetSkinSpineIDVec::XSec " + xsec_id + " is on a Geom without skinning" );
+        return ret_vec;
+    }
+
+    for ( int i = 0; i < sxs->NumSpines(); i++ )
+    {
+        ret_vec.push_back( sxs->GetSpine( i )->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 void SetXSecContinuity( const std::string& xsec_id, int cx )
@@ -9100,6 +9445,18 @@ static void FitAfCSTImpl( const std::string & xsec_surf_id, int xsec_index, int 
 void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg )
 {
     FitAfCSTImpl( xsec_surf_id, xsec_index, deg, "FitAfCST" );
+}
+
+void FitAfCSTByID( const std::string & xsec_id, int deg )
+{
+    int index = -1;
+    XSecSurf* xsec_surf = FindXSecSurfOf( xsec_id, index, "FitAfCSTByID" );
+    if ( !xsec_surf )
+    {
+        return;
+    }
+
+    FitAfCSTImpl( xsec_surf->GetID(), index, deg, "FitAfCSTByID" );
 }
 
 void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u )
@@ -11158,13 +11515,13 @@ void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d
     ErrorMgr.NoError();
 }
 
-void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
+static void ConvertXSecToEditImpl( const std::string & geom_id, const int & indx, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ConvertXSecToEdit::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -11173,7 +11530,7 @@ void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
         BORGeom* bor_ptr = dynamic_cast<BORGeom*> ( geom_ptr );
         if ( !bor_ptr )
         {
-            ErrorMgr.AddError( VSP_INVALID_TYPE, "ConvertXSecToEdit::Geom " + geom_id + " is not a body of revolution" );
+            ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " is not a body of revolution" );
             return;
         }
 
@@ -11186,7 +11543,7 @@ void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
         GeomXSec* geom_xsec = dynamic_cast <GeomXSec*> ( geom_ptr );
         if ( !geom_xsec )
         {
-            ErrorMgr.AddError( VSP_INVALID_TYPE, "ConvertXSecToEdit::Geom " + geom_id + " is not a GeomXSec" );
+            ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " is not a GeomXSec" );
             return;
         }
 
@@ -11194,7 +11551,7 @@ void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
 
         if ( !xs )
         {
-            ErrorMgr.AddError( VSP_INVALID_PTR, "ConvertXSecToEdit::Can't Find XSec " + to_string( ( long long )indx ) );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index " + to_string( ( long long )indx ) + " Out of Range" );
             return;
         }
 
@@ -11202,6 +11559,23 @@ void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
         ErrorMgr.NoError();
         return;
     }
+}
+
+void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
+{
+    ConvertXSecToEditImpl( geom_id, indx, "ConvertXSecToEdit" );
+}
+
+void ConvertXSecToEditByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "ConvertXSecToEditByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    ConvertXSecToEditImpl( geom_ptr->GetID(), index, "ConvertXSecToEditByID" );
 }
 
 std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id )
@@ -16028,9 +16402,9 @@ Geom* FindGeomForOp( const std::string & geom_id, const std::string & caller )
     return geom_ptr;
 }
 
-void CopyAirfoil( const std::string & geom_id, int index )
+static void CopyAirfoilImpl( const std::string & geom_id, int index, const std::string & caller )
 {
-    Geom* geom_ptr = FindGeomForOp( geom_id, "CopyAirfoil" );
+    Geom* geom_ptr = FindGeomForOp( geom_id, caller );
     if ( !geom_ptr )
     {
         return;
@@ -16039,13 +16413,13 @@ void CopyAirfoil( const std::string & geom_id, int index )
     WingGeom* wg = dynamic_cast< WingGeom* >( geom_ptr );
     if ( !wg )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "CopyAirfoil::Geom " + geom_id + " is not a wing" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " is not a wing" );
         return;
     }
 
     if ( index < 0 || index >= wg->NumXSec() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CopyAirfoil::Section Index " + to_string( index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Section Index " + to_string( index ) + " Out of Range" );
         return;
     }
 
@@ -16054,9 +16428,26 @@ void CopyAirfoil( const std::string & geom_id, int index )
     ErrorMgr.NoError();
 }
 
-void PasteAirfoil( const std::string & geom_id, int index )
+void CopyAirfoil( const std::string & geom_id, int index )
 {
-    Geom* geom_ptr = FindGeomForOp( geom_id, "PasteAirfoil" );
+    CopyAirfoilImpl( geom_id, index, "CopyAirfoil" );
+}
+
+void CopyAirfoilByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "CopyAirfoilByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    CopyAirfoilImpl( geom_ptr->GetID(), index, "CopyAirfoilByID" );
+}
+
+static void PasteAirfoilImpl( const std::string & geom_id, int index, const std::string & caller )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, caller );
     if ( !geom_ptr )
     {
         return;
@@ -16065,13 +16456,13 @@ void PasteAirfoil( const std::string & geom_id, int index )
     WingGeom* wg = dynamic_cast< WingGeom* >( geom_ptr );
     if ( !wg )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "PasteAirfoil::Geom " + geom_id + " is not a wing" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " is not a wing" );
         return;
     }
 
     if ( index < 0 || index >= wg->NumXSec() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "PasteAirfoil::Section Index " + to_string( index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Section Index " + to_string( index ) + " Out of Range" );
         return;
     }
 
@@ -16079,6 +16470,23 @@ void PasteAirfoil( const std::string & geom_id, int index )
     Update();
 
     ErrorMgr.NoError();
+}
+
+void PasteAirfoil( const std::string & geom_id, int index )
+{
+    PasteAirfoilImpl( geom_id, index, "PasteAirfoil" );
+}
+
+void PasteAirfoilByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "PasteAirfoilByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    PasteAirfoilImpl( geom_ptr->GetID(), index, "PasteAirfoilByID" );
 }
 
 static void ClearSkinningImpl( const std::string & geom_id, int index, const std::string & caller )
@@ -16115,6 +16523,18 @@ static void ClearSkinningImpl( const std::string & geom_id, int index, const std
 void ClearSkinning( const std::string & geom_id, int index )
 {
     ClearSkinningImpl( geom_id, index, "ClearSkinning" );
+}
+
+void ClearSkinningByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "ClearSkinningByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    ClearSkinningImpl( geom_ptr->GetID(), index, "ClearSkinningByID" );
 }
 
 void ResetGeomScale( const std::string & geom_id )
@@ -16358,9 +16778,9 @@ void ShowOnlySet( int set_index )
 
 //============ XSecCurve Clipboard Functions =========================//
 
-void CopyXSecCurve( const std::string & geom_id, int index )
+static void CopyXSecCurveImpl( const std::string & geom_id, int index, const std::string & caller )
 {
-    Geom* geom_ptr = FindGeomForOp( geom_id, "CopyXSecCurve" );
+    Geom* geom_ptr = FindGeomForOp( geom_id, caller );
     if ( !geom_ptr )
     {
         return;
@@ -16380,13 +16800,13 @@ void CopyXSecCurve( const std::string & geom_id, int index )
     GeomXSec* gxs = dynamic_cast< GeomXSec* >( geom_ptr );
     if ( !gxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "CopyXSecCurve::Geom " + geom_id + " carries no XSecCurve" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " carries no XSecCurve" );
         return;
     }
 
     if ( index < 0 || index >= gxs->GetXSecSurf( 0 )->NumXSec() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CopyXSecCurve::XSec Index " + to_string( index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index " + to_string( index ) + " Out of Range" );
         return;
     }
 
@@ -16395,9 +16815,26 @@ void CopyXSecCurve( const std::string & geom_id, int index )
     ErrorMgr.NoError();
 }
 
-void PasteXSecCurve( const std::string & geom_id, int index )
+void CopyXSecCurve( const std::string & geom_id, int index )
 {
-    Geom* geom_ptr = FindGeomForOp( geom_id, "PasteXSecCurve" );
+    CopyXSecCurveImpl( geom_id, index, "CopyXSecCurve" );
+}
+
+void CopyXSecCurveByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "CopyXSecCurveByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    CopyXSecCurveImpl( geom_ptr->GetID(), index, "CopyXSecCurveByID" );
+}
+
+static void PasteXSecCurveImpl( const std::string & geom_id, int index, const std::string & caller )
+{
+    Geom* geom_ptr = FindGeomForOp( geom_id, caller );
     if ( !geom_ptr )
     {
         return;
@@ -16416,13 +16853,13 @@ void PasteXSecCurve( const std::string & geom_id, int index )
     GeomXSec* gxs = dynamic_cast< GeomXSec* >( geom_ptr );
     if ( !gxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "PasteXSecCurve::Geom " + geom_id + " carries no XSecCurve" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " carries no XSecCurve" );
         return;
     }
 
     if ( index < 0 || index >= gxs->GetXSecSurf( 0 )->NumXSec() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "PasteXSecCurve::XSec Index " + to_string( index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index " + to_string( index ) + " Out of Range" );
         return;
     }
 
@@ -16430,6 +16867,23 @@ void PasteXSecCurve( const std::string & geom_id, int index )
     Update();
 
     ErrorMgr.NoError();
+}
+
+void PasteXSecCurve( const std::string & geom_id, int index )
+{
+    PasteXSecCurveImpl( geom_id, index, "PasteXSecCurve" );
+}
+
+void PasteXSecCurveByID( const std::string & xsec_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, "PasteXSecCurveByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    PasteXSecCurveImpl( geom_ptr->GetID(), index, "PasteXSecCurveByID" );
 }
 
 //============ FEA Laminate Layer Functions =========================//

@@ -158,6 +158,10 @@ private:
     CScriptArray* GetXSecTanStrengths( const string& xsec_id, int side );
     CScriptArray* GetXSecCurvatures( const string& xsec_id, int side );
     CScriptArray* GetDriverGroup( const string & geom_id, int section_index );
+    CScriptArray* GetSkinSpineIDVec( const string & xsec_id );
+    CScriptArray* GetXSecIDVec( const string & xsec_surf_id );
+    CScriptArray* GetXSecSurfIDVec( const string & geom_id );
+    CScriptArray* GetDriverGroupByID( const string & xsec_id );
     CScriptArray* GetUnsteadyGroupSurfIndexes( int group_index );
     CScriptArray* GetXSecParmIDs( const string & xsec_id );
     CScriptArray* GetXSecPnts( const string& xsec_id );
