@@ -200,16 +200,6 @@ void SnapToScreen::Show()
 
     if ( snap->m_UseMode() )
     {
-        int indx = m_ModeChoice.GetVal();
-        if ( indx >= 0  && indx < m_ModeIDs.size() )
-        {
-            snap->m_ModeID = m_ModeIDs[ indx ];
-        }
-        else
-        {
-            snap->m_ModeID = "";
-        }
-
         Mode *m = ModeMgr.GetMode( snap->m_ModeID );
         if ( m )
         {
