@@ -5392,13 +5392,22 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string InsertRoutingPt( const string & in routing_id, int index, const string & in geom_id, int surf_index )", asFUNCTION( vsp::InsertRoutingPt ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string InsertRoutingPtByID( const string & in routing_id, const string & in before_pt_id, const string & in geom_id, int surf_index )", asFUNCTION( vsp::InsertRoutingPtByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void DelRoutingPt( const string & in routing_id, int index  )", asFUNCTION( vsp::DelRoutingPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelRoutingPtByID( const string & in routing_id, const string & in pt_id )", asFUNCTION( vsp::DelRoutingPtByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void DelAllRoutingPt( const string & in routing_id )", asFUNCTION( vsp::DelAllRoutingPt ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "int MoveRoutingPt( const string & in routing_id, int index, int reorder_type )", asFUNCTION( vsp::MoveRoutingPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "int MoveRoutingPtByID( const string & in routing_id, const string & in pt_id, int reorder_type )", asFUNCTION( vsp::MoveRoutingPtByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string GetRoutingPtID( const string & in routing_id, int index )", asFUNCTION( vsp::GetRoutingPtID ), asCALL_CDECL );
@@ -5417,6 +5426,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "vec3d GetRoutingPtCoord( const string & in routing_id, int index, int symm_index )", asFUNCTION( vsp::GetRoutingPtCoord ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "vec3d GetRoutingPtCoordByID( const string & in routing_id, const string & in pt_id, int symm_index )", asFUNCTION( vsp::GetRoutingPtCoordByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "array<vec3d>@+ GetAllRoutingPtCoords( const string & in routing_id, int symm_index )", asMETHOD( ScriptMgrSingleton, GetAllRoutingPtCoords ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );

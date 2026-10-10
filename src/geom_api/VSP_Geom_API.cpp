@@ -9724,7 +9724,33 @@ std::string AddRoutingPt( const std::string &routing_id, const std::string &geom
     return ret_id;
 }
 
-std::string InsertRoutingPt( const std::string &routing_id, int index, const std::string &geom_id, int surf_index )
+//==== The index of a routing point by ID, reporting through the named caller ====//
+int FindRoutingPtIndex( const std::string & routing_id, const std::string & pt_id, const std::string & caller )
+{
+    Geom* rgeom_ptr = GetVehicle()->FindGeom( routing_id );
+    if ( !rgeom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + routing_id );
+        return -1;
+    }
+
+    // A Clone's points are its original's.
+    RoutingGeom* behavior_route = dynamic_cast< RoutingGeom* > ( rgeom_ptr->GetBehaviorGeom() );
+    if ( !behavior_route || rgeom_ptr->GetBehaviorType() != ROUTING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + routing_id + " is not a RoutingGeom" );
+        return -1;
+    }
+
+    int index = vector_find_val( behavior_route->GetAllPtIds(), pt_id );
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Routing Point " + pt_id + " in " + routing_id );
+    }
+    return index;
+}
+
+static std::string InsertRoutingPtImpl( const std::string &routing_id, int index, const std::string &geom_id, int surf_index, const std::string & caller )
 {
     std::string ret_id;
 
@@ -9732,7 +9758,7 @@ std::string InsertRoutingPt( const std::string &routing_id, int index, const std
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertRoutingPt::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + routing_id );
         return ret_id;
     }
 
@@ -9740,27 +9766,27 @@ std::string InsertRoutingPt( const std::string &routing_id, int index, const std
 
     if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "InsertRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_id;
     }
 
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertRoutingPt::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return ret_id;
     }
 
     if ( index < 0 || index > routing_ptr->GetNumPt() ) // Note index can == size() for Insert
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "InsertRoutingPt::index " + to_string( index ) + " is out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::index " + to_string( index ) + " is out of range" );
         return ret_id;
     }
 
     RoutingPoint *rpt = routing_ptr->InsertPt( index );
     if ( !rpt )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertRoutingPt::Could not insert routing point." );
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Could not insert routing point." );
         return ret_id;
     }
 
@@ -9773,13 +9799,29 @@ std::string InsertRoutingPt( const std::string &routing_id, int index, const std
     return ret_id;
 }
 
-void DelRoutingPt( const std::string &routing_id, int index )
+std::string InsertRoutingPt( const std::string &routing_id, int index, const std::string &geom_id, int surf_index )
+{
+    return InsertRoutingPtImpl( routing_id, index, geom_id, surf_index, "InsertRoutingPt" );
+}
+
+std::string InsertRoutingPtByID( const std::string &routing_id, const std::string &before_pt_id, const std::string &geom_id, int surf_index )
+{
+    int index = FindRoutingPtIndex( routing_id, before_pt_id, "InsertRoutingPtByID" );
+    if ( index < 0 )
+    {
+        return std::string();
+    }
+
+    return InsertRoutingPtImpl( routing_id, index, geom_id, surf_index, "InsertRoutingPtByID" );
+}
+
+static void DelRoutingPtImpl( const std::string &routing_id, int index, const std::string & caller )
 {
     Vehicle* veh = GetVehicle();
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelRoutingPt::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + routing_id );
         return;
     }
 
@@ -9787,13 +9829,13 @@ void DelRoutingPt( const std::string &routing_id, int index )
 
     if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + routing_id + " is not a RoutingGeom" );
         return;
     }
 
     if ( index < 0 || index >= routing_ptr->GetNumPt() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelRoutingPt::index " + to_string( index ) + " is out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::index " + to_string( index ) + " is out of range" );
         return;
     }
 
@@ -9801,6 +9843,22 @@ void DelRoutingPt( const std::string &routing_id, int index )
 
     ErrorMgr.NoError();
     return;
+}
+
+void DelRoutingPt( const std::string &routing_id, int index )
+{
+    DelRoutingPtImpl( routing_id, index, "DelRoutingPt" );
+}
+
+void DelRoutingPtByID( const std::string &routing_id, const std::string &pt_id )
+{
+    int index = FindRoutingPtIndex( routing_id, pt_id, "DelRoutingPtByID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    DelRoutingPtImpl( routing_id, index, "DelRoutingPtByID" );
 }
 
 void DelAllRoutingPt( const std::string &routing_id )
@@ -9827,14 +9885,14 @@ void DelAllRoutingPt( const std::string &routing_id )
     return;
 }
 
-int MoveRoutingPt( const std::string &routing_id, int index, int reorder_type )
+static int MoveRoutingPtImpl( const std::string &routing_id, int index, int reorder_type, const std::string & caller )
 {
     int newindex = index;
     Vehicle* veh = GetVehicle();
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "MoveRoutingPt::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + routing_id );
         return newindex;
     }
 
@@ -9842,13 +9900,13 @@ int MoveRoutingPt( const std::string &routing_id, int index, int reorder_type )
 
     if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "MoveRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + routing_id + " is not a RoutingGeom" );
         return newindex;
     }
 
     if ( index < 0 || index >= routing_ptr->GetNumPt() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "MoveRoutingPt::index " + to_string( index ) + " is out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::index " + to_string( index ) + " is out of range" );
         return newindex;
     }
 
@@ -9856,6 +9914,22 @@ int MoveRoutingPt( const std::string &routing_id, int index, int reorder_type )
 
     ErrorMgr.NoError();
     return newindex;
+}
+
+int MoveRoutingPt( const std::string &routing_id, int index, int reorder_type )
+{
+    return MoveRoutingPtImpl( routing_id, index, reorder_type, "MoveRoutingPt" );
+}
+
+int MoveRoutingPtByID( const std::string &routing_id, const std::string &pt_id, int reorder_type )
+{
+    int index = FindRoutingPtIndex( routing_id, pt_id, "MoveRoutingPtByID" );
+    if ( index < 0 )
+    {
+        return -1;
+    }
+
+    return MoveRoutingPtImpl( routing_id, index, reorder_type, "MoveRoutingPtByID" );
 }
 
 std::string GetRoutingPtID( const std::string &routing_id, int index )
@@ -9978,7 +10052,7 @@ vec3d GetMainRoutingPtCoord( const std::string &pt_id )
     return ret;
 }
 
-vec3d GetRoutingPtCoord( const std::string &routing_id, int index, int symm_index )
+static vec3d GetRoutingPtCoordImpl( const std::string &routing_id, int index, int symm_index, const std::string & caller )
 {
     vec3d ret;
 
@@ -9986,7 +10060,7 @@ vec3d GetRoutingPtCoord( const std::string &routing_id, int index, int symm_inde
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingPtCoord::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + routing_id );
         return ret;
     }
 
@@ -9995,19 +10069,19 @@ vec3d GetRoutingPtCoord( const std::string &routing_id, int index, int symm_inde
 
     if ( !route_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingPtCoord::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + routing_id + " is not a RoutingGeom" );
         return ret;
     }
 
     if ( index < 0 || index >= route_ptr->GetNumRoutePts() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingPtCoord::index " + to_string( index ) + " is out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::index " + to_string( index ) + " is out of range" );
         return ret;
     }
 
     if ( symm_index < 0 || symm_index >= rgeom_ptr->GetNumSymmCopies() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetRoutingPtCoord::symm_index " + to_string( symm_index ) + " is out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::symm_index " + to_string( symm_index ) + " is out of range" );
         return ret;
     }
 
@@ -10015,6 +10089,22 @@ vec3d GetRoutingPtCoord( const std::string &routing_id, int index, int symm_inde
 
     ErrorMgr.NoError();
     return ret;
+}
+
+vec3d GetRoutingPtCoord( const std::string &routing_id, int index, int symm_index )
+{
+    return GetRoutingPtCoordImpl( routing_id, index, symm_index, "GetRoutingPtCoord" );
+}
+
+vec3d GetRoutingPtCoordByID( const std::string &routing_id, const std::string &pt_id, int symm_index )
+{
+    int index = FindRoutingPtIndex( routing_id, pt_id, "GetRoutingPtCoordByID" );
+    if ( index < 0 )
+    {
+        return vec3d();
+    }
+
+    return GetRoutingPtCoordImpl( routing_id, index, symm_index, "GetRoutingPtCoordByID" );
 }
 
 std::vector < vec3d > GetAllRoutingPtCoords( const std::string &routing_id, int symm_index )

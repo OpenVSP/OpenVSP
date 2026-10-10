@@ -29555,7 +29555,7 @@ extern std::string AddRoutingPt( const std::string &routing_id, const std::strin
     vsp.SetParmVal(uPre2, 0.)
     \endcode
     \endPythonOnly
-    \sa AddRoutingPt, DelRoutingPt
+    \sa AddRoutingPt, DelRoutingPt, InsertRoutingPtByID
     \param [in] routing_id string RoutingGeom Geom ID
     \param [in] index int Index of routing point to insert new point before
     \param [in] geom_id string Geom ID of geom to anchor new routing point to
@@ -29564,6 +29564,64 @@ extern std::string AddRoutingPt( const std::string &routing_id, const std::strin
 */
 
 extern std::string InsertRoutingPt( const std::string &routing_id, int index, const std::string &geom_id, int surf_index );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Insert a routing point before the point with the given ID, and return the new point's ID.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD" );
+
+    SetParmVal( pod2, "Y_Rel_Location", "XForm", 2.0 );
+
+    string routing_id = AddGeom( "ROUTING" );
+
+    string rpt0 = AddRoutingPt( routing_id, pod1, 0 );
+    string rpt1 = AddRoutingPt( routing_id, pod2, 0 );
+
+    Update();
+
+    string mid = InsertRoutingPtByID( routing_id, rpt1, pod1, 0 );
+
+    if ( GetRoutingPtID( routing_id, 1 ) != mid )
+    {
+        Print( "ERROR: InsertRoutingPtByID did not put the point before rpt1" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD" )
+
+    SetParmVal( pod2, "Y_Rel_Location", "XForm", 2.0 )
+
+    routing_id = AddGeom( "ROUTING" )
+
+    rpt0 = AddRoutingPt( routing_id, pod1, 0 )
+    rpt1 = AddRoutingPt( routing_id, pod2, 0 )
+
+    Update()
+
+    mid = InsertRoutingPtByID( routing_id, rpt1, pod1, 0 )
+
+    assert GetRoutingPtID( routing_id, 1 ) == mid, "InsertRoutingPtByID did not put the point before rpt1"
+
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelRoutingPt, InsertRoutingPt
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] before_pt_id string ID of the routing point the new one goes before
+    \param [in] geom_id string ID of the Geom the new point is attached to
+    \param [in] surf_index int Main surface index of that Geom
+    \return string ID of the new routing point
+*/
+
+extern std::string InsertRoutingPtByID( const std::string &routing_id, const std::string &before_pt_id, const std::string &geom_id, int surf_index );
 
 /*!
     \ingroup RoutingGeom
@@ -29626,12 +29684,67 @@ extern std::string InsertRoutingPt( const std::string &routing_id, int index, co
 
     \endcode
     \endPythonOnly
-    \sa AddRoutingPt, DelAllRoutingPt
+    \sa AddRoutingPt, DelAllRoutingPt, DelRoutingPtByID
     \param [in] routing_id string RoutingGeom Geom ID
     \param [in] index int Index of routing point to delete
 */
 
 extern void DelRoutingPt( const std::string &routing_id, int index );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Delete a routing point, by point ID.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD" );
+
+    SetParmVal( pod2, "Y_Rel_Location", "XForm", 2.0 );
+
+    string routing_id = AddGeom( "ROUTING" );
+
+    string rpt0 = AddRoutingPt( routing_id, pod1, 0 );
+    string rpt1 = AddRoutingPt( routing_id, pod2, 0 );
+
+    Update();
+
+    DelRoutingPtByID( routing_id, rpt0 );
+
+    if ( GetNumRoutingPts( routing_id ) != 1 || GetRoutingPtID( routing_id, 0 ) != rpt1 )
+    {
+        Print( "ERROR: DelRoutingPtByID did not delete the point" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD" )
+
+    SetParmVal( pod2, "Y_Rel_Location", "XForm", 2.0 )
+
+    routing_id = AddGeom( "ROUTING" )
+
+    rpt0 = AddRoutingPt( routing_id, pod1, 0 )
+    rpt1 = AddRoutingPt( routing_id, pod2, 0 )
+
+    Update()
+
+    DelRoutingPtByID( routing_id, rpt0 )
+
+    assert GetNumRoutingPts( routing_id ) == 1 and GetRoutingPtID( routing_id, 0 ) == rpt1, "DelRoutingPtByID did not delete the point"
+
+    \endcode
+    \endPythonOnly
+    \sa AddRoutingPt, DelAllRoutingPt, DelRoutingPt
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] pt_id string ID of the routing point to delete
+*/
+
+extern void DelRoutingPtByID( const std::string &routing_id, const std::string &pt_id );
 
 /*!
     \ingroup RoutingGeom
@@ -29781,13 +29894,70 @@ extern void DelAllRoutingPt( const std::string &routing_id );
     assert after_ids[1] == before_ids[2], "MoveRoutingPt did not swap the two points"
     \endcode
     \endPythonOnly
-    \sa AddRoutingPt, DelRoutingPt, REORDER_TYPE
+    \sa AddRoutingPt, DelRoutingPt, REORDER_TYPE, MoveRoutingPtByID
     \param [in] routing_id string RoutingGeom Geom ID
     \param [in] index int Index of routing point to move
     \param [in] reorder_type int Enum specifying reordering type (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
 */
 
 extern int MoveRoutingPt( const std::string &routing_id, int index, int reorder_type );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Move a routing point within its route, by point ID, and return its new index.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD" );
+
+    SetParmVal( pod2, "Y_Rel_Location", "XForm", 2.0 );
+
+    string routing_id = AddGeom( "ROUTING" );
+
+    string rpt0 = AddRoutingPt( routing_id, pod1, 0 );
+    string rpt1 = AddRoutingPt( routing_id, pod2, 0 );
+
+    Update();
+
+    int newindx = MoveRoutingPtByID( routing_id, rpt1, REORDER_MOVE_TOP );
+
+    if ( newindx != 0 || GetRoutingPtID( routing_id, 0 ) != rpt1 )
+    {
+        Print( "ERROR: MoveRoutingPtByID did not move the point to the top" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD" )
+
+    SetParmVal( pod2, "Y_Rel_Location", "XForm", 2.0 )
+
+    routing_id = AddGeom( "ROUTING" )
+
+    rpt0 = AddRoutingPt( routing_id, pod1, 0 )
+    rpt1 = AddRoutingPt( routing_id, pod2, 0 )
+
+    Update()
+
+    newindx = MoveRoutingPtByID( routing_id, rpt1, REORDER_MOVE_TOP )
+
+    assert newindx == 0 and GetRoutingPtID( routing_id, 0 ) == rpt1, "MoveRoutingPtByID did not move the point to the top"
+
+    \endcode
+    \endPythonOnly
+    \sa REORDER_TYPE, MoveRoutingPt
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] pt_id string ID of the routing point to move
+    \param [in] reorder_type int Enum specifying reordering type (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
+    \return int New index of the point
+*/
+
+extern int MoveRoutingPtByID( const std::string &routing_id, const std::string &pt_id, int reorder_type );
 
 /*!
     \ingroup RoutingGeom
@@ -30204,7 +30374,7 @@ extern vec3d GetMainRoutingPtCoord( const std::string &pt_id );
 
     \endcode
     \endPythonOnly
-    \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetAllRoutingPtCoords, GetRoutingCurve
+    \sa AddRoutingPt, DelRoutingPt, GetMainRoutingPtCoord, GetAllRoutingPtCoords, GetRoutingCurve, GetRoutingPtCoordByID
     \param [in] routing_id string RoutingGeom Geom ID
     \param [in] index int Index of routing point to get cordinate of
     \param [in] symm_index int Symmetry index to get coordinate of
@@ -30212,6 +30382,63 @@ extern vec3d GetMainRoutingPtCoord( const std::string &pt_id );
 */
 
 extern vec3d GetRoutingPtCoord( const std::string &routing_id, int index, int symm_index );
+
+/*!
+    \ingroup RoutingGeom
+*/
+/*!
+    Get the coordinates of a routing point as a route places it, by point ID.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD" );
+
+    SetParmVal( pod2, "Y_Rel_Location", "XForm", 2.0 );
+
+    string routing_id = AddGeom( "ROUTING" );
+
+    string rpt0 = AddRoutingPt( routing_id, pod1, 0 );
+    string rpt1 = AddRoutingPt( routing_id, pod2, 0 );
+
+    Update();
+
+    vec3d p = GetRoutingPtCoordByID( routing_id, rpt1, 0 );
+
+    if ( dist( p, GetRoutingPtCoord( routing_id, 1, 0 ) ) > 1e-12 )
+    {
+        Print( "ERROR: GetRoutingPtCoordByID did not find the point" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD" )
+
+    SetParmVal( pod2, "Y_Rel_Location", "XForm", 2.0 )
+
+    routing_id = AddGeom( "ROUTING" )
+
+    rpt0 = AddRoutingPt( routing_id, pod1, 0 )
+    rpt1 = AddRoutingPt( routing_id, pod2, 0 )
+
+    Update()
+
+    p = GetRoutingPtCoordByID( routing_id, rpt1, 0 )
+
+    assert dist( p, GetRoutingPtCoord( routing_id, 1, 0 ) ) < 1e-12, "GetRoutingPtCoordByID did not find the point"
+
+    \endcode
+    \endPythonOnly
+    \sa GetMainRoutingPtCoord, GetRoutingPtCoord
+    \param [in] routing_id string RoutingGeom Geom ID
+    \param [in] pt_id string Routing point ID
+    \param [in] symm_index int Symmetric copy index
+    \return vec3d Coordinates of the point
+*/
+
+extern vec3d GetRoutingPtCoordByID( const std::string &routing_id, const std::string &pt_id, int symm_index );
 
 /*!
     \ingroup RoutingGeom
