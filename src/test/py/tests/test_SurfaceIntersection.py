@@ -240,3 +240,57 @@ def testTheAnalysisReportsTheSameRun():
     assert rid, "SurfaceIntersection returned no results"
     assert rid == vsp.FindLatestResultsID( "SurfaceIntersection" ), \
            "the analysis returned something other than the run's own results"
+
+
+def _nested_pods( rotation ):
+    """A pod inside a copy of itself a thousandth larger, turned by rotation degrees about Z.
+
+    Turned, the two cross at a shallow angle along a long curve; not turned, they never meet.
+    Either way they run a hair apart over their whole area, where every pair of patches still
+    has overlapping bounding boxes long after the surfaces themselves are clearly apart.
+    """
+    vsp.VSPRenew()
+    vsp.AddGeom( "POD", "" )
+    outer = vsp.AddGeom( "POD", "" )
+    scale = 1.001
+    vsp.SetParmVal( vsp.FindParm( outer, "Scale", "XForm" ), scale )
+    vsp.SetParmVal( vsp.FindParm( outer, "X_Rel_Location", "XForm" ),
+                    -0.5 * ( scale - 1.0 ) * vsp.GetParmVal( vsp.FindParm( outer, "Length", "Design" ) ) )
+    vsp.SetParmVal( vsp.FindParm( outer, "Z_Rel_Rotation", "XForm" ), rotation )
+    vsp.Update()
+
+
+def _cpu_seconds():
+    """The processor time the last run took, summed over its threads."""
+    rid = vsp.FindLatestResultsID( "SurfaceIntersection" )
+    return vsp.GetDoubleResults( rid, "Analysis_Duration_Sec" )[0]
+
+
+def testPodsThatNeverMeetAreToldApartQuickly():
+    """Surfaces a hair apart are parted along their normal, not refined to the bottom.
+
+    Refined until their bounding boxes part, this took 22 processor seconds; parted along each
+    patch's normal it takes 0.05.
+    """
+    _nested_pods( 0.0 )
+
+    chains = _intersect()
+
+    assert len( chains ) == 24, "expected the 24 border chains alone, got %d" % len( chains )
+    assert _cpu_seconds() < 2.0, "two pods that never meet took %g s" % _cpu_seconds()
+
+
+def testPodsCrossingAtAShallowAngleKeepTheirIntersection():
+    """Parting patches along their normal loses none of the intersection.
+
+    The chains are the ones the intersector found before it parted patches that way, to the
+    point, in 0.5 processor seconds rather than 8.
+    """
+    _nested_pods( 0.5 )
+
+    chains = _intersect()
+
+    assert len( chains ) == 40, "expected 40 chains, got %d" % len( chains )
+    assert sum( len( c ) for c in chains ) == 31236, \
+           "expected 31236 chain points, got %d" % sum( len( c ) for c in chains )
+    assert _cpu_seconds() < 3.0, "two pods crossing at a shallow angle took %g s" % _cpu_seconds()

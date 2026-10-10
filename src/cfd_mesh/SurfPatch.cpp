@@ -132,6 +132,55 @@ bool SurfPatch::test_planar_rel( double reltol ) const
     return dst < ( reltol * bnd_box.DiagDist() );
 }
 
+//===== Test If Two Patches Are Apart Along This Patch's Normal =====//
+// Each patch lies inside the hull of its control points, so where their control points' extents
+// along a direction do not overlap, neither do the patches.  The direction is normal to this
+// patch's diagonals.  That parts two nearly parallel surfaces as soon as each patch is thinner
+// across than the gap between them, long before their bounding boxes do: the box of a patch
+// that runs at an angle to the axes is as deep as the patch is wide.
+bool SurfPatch::test_separated( const SurfPatch& other ) const
+{
+    int n = m_Patch.degree_u();
+    int m = m_Patch.degree_v();
+
+    vec3d norm = cross( vec3d( m_Patch.get_control_point( n, m ) ) - vec3d( m_Patch.get_control_point( 0, 0 ) ),
+                        vec3d( m_Patch.get_control_point( 0, m ) ) - vec3d( m_Patch.get_control_point( n, 0 ) ) );
+    if ( norm.mag() <= 0.0 )
+    {
+        return false;
+    }
+    norm.normalize();
+
+    double amin = DBL_MAX;
+    double amax = -DBL_MAX;
+    for ( int i = 0; i <= n; i++ )
+    {
+        for ( int j = 0; j <= m; j++ )
+        {
+            double h = dot( vec3d( m_Patch.get_control_point( i, j ) ), norm );
+            amin = std::min( amin, h );
+            amax = std::max( amax, h );
+        }
+    }
+
+    int on = other.m_Patch.degree_u();
+    int om = other.m_Patch.degree_v();
+
+    double bmin = DBL_MAX;
+    double bmax = -DBL_MAX;
+    for ( int i = 0; i <= on; i++ )
+    {
+        for ( int j = 0; j <= om; j++ )
+        {
+            double h = dot( vec3d( other.m_Patch.get_control_point( i, j ) ), norm );
+            bmin = std::min( bmin, h );
+            bmax = std::max( bmax, h );
+        }
+    }
+
+    return bmin > amax || amin > bmax;
+}
+
 //===== Find Closest UW On Patch to Given Point with Initial Guess  =====//
 void SurfPatch::find_closest_uw( const vec3d& pnt_in, const double guess_uw[2], double uw[2] ) const
 {

@@ -25,6 +25,11 @@ void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionS
         return;
     }
 
+    if ( bp1.test_separated( bp2 ) || bp2.test_separated( bp1 ) )
+    {
+        return;
+    }
+
     // This test uses a relative tolerance.
     const double tol = 1.0e-3;
 

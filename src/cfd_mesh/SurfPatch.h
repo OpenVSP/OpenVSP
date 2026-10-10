@@ -105,6 +105,7 @@ public:
     void split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, SurfPatch& bp11 ) const;
     bool test_planar( double tol ) const;
     bool test_planar_rel( double reltol ) const;
+    bool test_separated( const SurfPatch& other ) const;
 
     const BndBox* get_bbox() const
     {
