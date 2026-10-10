@@ -17443,13 +17443,63 @@ extern std::string AddFeaPolySparPt( const std::string & pspar_id );
 
     \endcode
     \endPythonOnly
-    \sa AddFeaPolySparPt, DelFeaPolySparPt, GetFeaPolySparNumPt
+    \sa AddFeaPolySparPt, DelFeaPolySparPt, GetFeaPolySparNumPt, InsertFeaPolySparPtByID
     \param [in] pspar_id string FEA Poly Spar part ID
     \param [in] index int Index before which the new point is inserted
     \return string ID of the newly inserted Poly Spar point
 */
 
 extern std::string InsertFeaPolySparPt( const std::string & pspar_id, int index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Insert a point into an FEA Poly Spar before the point with the given ID and return the new point's ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR );
+
+    // A new Poly Spar has two points, root and tip
+    array< string > @pts = GetAllFeaPolySparPtIDVec( pspar_id );
+
+    string pt_id = InsertFeaPolySparPtByID( pspar_id, pts[1] );
+
+    if ( GetFeaPolySparPtID( pspar_id, 1 ) != pt_id )
+    {
+        Print( "ERROR: InsertFeaPolySparPtByID did not put the point before the tip" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR )
+
+    # A new Poly Spar has two points, root and tip
+    pts = GetAllFeaPolySparPtIDVec( pspar_id )
+
+    pt_id = InsertFeaPolySparPtByID( pspar_id, pts[1] )
+
+    assert GetFeaPolySparPtID( pspar_id, 1 ) == pt_id, "InsertFeaPolySparPtByID did not put the point before the tip"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaPolySparPt, DelFeaPolySparPt, InsertFeaPolySparPt
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] before_pt_id string ID of the point the new point goes before
+    \return string ID of the newly inserted Poly Spar point
+*/
+
+extern std::string InsertFeaPolySparPtByID( const std::string & pspar_id, const std::string & before_pt_id );
 
 /*!
     \ingroup FEAMesh
@@ -17497,12 +17547,65 @@ extern std::string InsertFeaPolySparPt( const std::string & pspar_id, int index 
 
     \endcode
     \endPythonOnly
-    \sa DelAllFeaPolySparPt, AddFeaPolySparPt, GetFeaPolySparNumPt
+    \sa DelAllFeaPolySparPt, AddFeaPolySparPt, GetFeaPolySparNumPt, DelFeaPolySparPtByID
     \param [in] pspar_id string FEA Poly Spar part ID
     \param [in] index int Index of the point to delete
 */
 
 extern void DelFeaPolySparPt( const std::string & pspar_id, int index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete a point of an FEA Poly Spar, by point ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR );
+
+    // A new Poly Spar has two points, root and tip
+    array< string > @pts = GetAllFeaPolySparPtIDVec( pspar_id );
+
+    string pt_id = InsertFeaPolySparPtByID( pspar_id, pts[1] );
+
+    DelFeaPolySparPtByID( pspar_id, pt_id );
+
+    if ( GetFeaPolySparNumPt( pspar_id ) != 2 )
+    {
+        Print( "ERROR: DelFeaPolySparPtByID did not remove the point" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR )
+
+    # A new Poly Spar has two points, root and tip
+    pts = GetAllFeaPolySparPtIDVec( pspar_id )
+
+    pt_id = InsertFeaPolySparPtByID( pspar_id, pts[1] )
+
+    DelFeaPolySparPtByID( pspar_id, pt_id )
+
+    assert GetFeaPolySparNumPt( pspar_id ) == 2, "DelFeaPolySparPtByID did not remove the point"
+
+    \endcode
+    \endPythonOnly
+    \sa InsertFeaPolySparPt, DelFeaPolySparPt
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] pt_id string ID of the point to delete
+*/
+
+extern void DelFeaPolySparPtByID( const std::string & pspar_id, const std::string & pt_id );
 
 /*!
     \ingroup FEAMesh
@@ -17598,7 +17701,7 @@ extern void DelAllFeaPolySparPt( const std::string & pspar_id );
 
     \endcode
     \endPythonOnly
-    \sa REORDER_TYPE, AddFeaPolySparPt, GetFeaPolySparNumPt
+    \sa REORDER_TYPE, AddFeaPolySparPt, GetFeaPolySparNumPt, MoveFeaPolySparPtByID
     \param [in] pspar_id string FEA Poly Spar part ID
     \param [in] index int Index of the point to move
     \param [in] reorder_type int Reorder type enum (i.e. REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM)
@@ -17606,6 +17709,57 @@ extern void DelAllFeaPolySparPt( const std::string & pspar_id );
 */
 
 extern int MoveFeaPolySparPt( const std::string & pspar_id, int index, int reorder_type );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Move a point of an FEA Poly Spar within its list, by point ID, and return its new index.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR );
+
+    // A new Poly Spar has two points, root and tip
+    array< string > @pts = GetAllFeaPolySparPtIDVec( pspar_id );
+
+    int index = MoveFeaPolySparPtByID( pspar_id, pts[1], REORDER_MOVE_TOP );
+
+    if ( index != 0 || GetFeaPolySparPtID( pspar_id, 0 ) != pts[1] )
+    {
+        Print( "ERROR: MoveFeaPolySparPtByID did not move the point to the top" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR )
+
+    # A new Poly Spar has two points, root and tip
+    pts = GetAllFeaPolySparPtIDVec( pspar_id )
+
+    index = MoveFeaPolySparPtByID( pspar_id, pts[1], REORDER_MOVE_TOP )
+
+    assert index == 0 and GetFeaPolySparPtID( pspar_id, 0 ) == pts[1], "MoveFeaPolySparPtByID did not move the point to the top"
+
+    \endcode
+    \endPythonOnly
+    \sa REORDER_TYPE, MoveFeaPolySparPt
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] pt_id string ID of the point to move
+    \param [in] reorder_type int Reorder type enum (i.e. REORDER_MOVE_UP)
+    \return int New index of the point
+*/
+
+extern int MoveFeaPolySparPtByID( const std::string & pspar_id, const std::string & pt_id, int reorder_type );
 
 /*!
     \ingroup FEAMesh
@@ -17647,13 +17801,63 @@ extern int MoveFeaPolySparPt( const std::string & pspar_id, int index, int reord
 
     \endcode
     \endPythonOnly
-    \sa GetFeaPolySparPtName
+    \sa GetFeaPolySparPtName, SetFeaPolySparPtNameByID
     \param [in] pspar_id string FEA Poly Spar part ID
     \param [in] index int Index of the point
     \param [in] name string New name for the point
 */
 
 extern void SetFeaPolySparPtName( const std::string & pspar_id, int index, const std::string & name );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the name of a point of an FEA Poly Spar, by point ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR );
+
+    // A new Poly Spar has two points, root and tip
+    array< string > @pts = GetAllFeaPolySparPtIDVec( pspar_id );
+
+    SetFeaPolySparPtNameByID( pspar_id, pts[1], "Tip" );
+
+    if ( GetFeaPolySparPtName( pspar_id, 1 ) != "Tip" )
+    {
+        Print( "ERROR: SetFeaPolySparPtNameByID did not name the point" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR )
+
+    # A new Poly Spar has two points, root and tip
+    pts = GetAllFeaPolySparPtIDVec( pspar_id )
+
+    SetFeaPolySparPtNameByID( pspar_id, pts[1], "Tip" )
+
+    assert GetFeaPolySparPtName( pspar_id, 1 ) == "Tip", "SetFeaPolySparPtNameByID did not name the point"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaPolySparPtName, SetFeaPolySparPtName
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] pt_id string Point ID
+    \param [in] name string New name for the point
+*/
+
+extern void SetFeaPolySparPtNameByID( const std::string & pspar_id, const std::string & pt_id, const std::string & name );
 
 /*!
     \ingroup FEAMesh
@@ -17697,13 +17901,63 @@ extern void SetFeaPolySparPtName( const std::string & pspar_id, int index, const
 
     \endcode
     \endPythonOnly
-    \sa SetFeaPolySparPtName
+    \sa SetFeaPolySparPtName, GetFeaPolySparPtNameByID
     \param [in] pspar_id string FEA Poly Spar part ID
     \param [in] index int Index of the point
     \return string Name of the point
 */
 
 extern std::string GetFeaPolySparPtName( const std::string & pspar_id, int index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the name of a point of an FEA Poly Spar, by point ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR );
+
+    // A new Poly Spar has two points, root and tip
+    array< string > @pts = GetAllFeaPolySparPtIDVec( pspar_id );
+
+    SetFeaPolySparPtName( pspar_id, 0, "Root" );
+
+    if ( GetFeaPolySparPtNameByID( pspar_id, pts[0] ) != "Root" )
+    {
+        Print( "ERROR: GetFeaPolySparPtNameByID did not return the name set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    pspar_id = AddFeaPartByID( struct_id, FEA_POLY_SPAR )
+
+    # A new Poly Spar has two points, root and tip
+    pts = GetAllFeaPolySparPtIDVec( pspar_id )
+
+    SetFeaPolySparPtName( pspar_id, 0, "Root" )
+
+    assert GetFeaPolySparPtNameByID( pspar_id, pts[0] ) == "Root", "GetFeaPolySparPtNameByID did not return the name set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaPolySparPtName, GetFeaPolySparPtName
+    \param [in] pspar_id string FEA Poly Spar part ID
+    \param [in] pt_id string Point ID
+    \return string Name of the point
+*/
+
+extern std::string GetFeaPolySparPtNameByID( const std::string & pspar_id, const std::string & pt_id );
 
 /*!
     \ingroup FEAMesh
@@ -18059,12 +18313,63 @@ extern void AddFeaTrimPart( const std::string & trim_id, const std::string & par
 
     \endcode
     \endPythonOnly
-    \sa AddFeaTrimPart, GetFeaTrimPartIDVec
+    \sa AddFeaTrimPart, GetFeaTrimPartIDVec, DeleteFeaTrimPartByID
     \param [in] trim_id string FEA Trim part ID
     \param [in] index int Trim entry index
 */
 
 extern void DeleteFeaTrimPart( const std::string & trim_id, int index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Stop an FEA Part from trimming a Trim part, by the trimming part's ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    string trim_id = AddFeaPartByID( struct_id, FEA_TRIM );
+
+    AddFeaTrimPart( trim_id, slice_id );
+
+    DeleteFeaTrimPartByID( trim_id, slice_id );
+
+    if ( GetFeaTrimPartIDVec( trim_id ).size() != 0 )
+    {
+        Print( "ERROR: DeleteFeaTrimPartByID did not remove the part" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    trim_id = AddFeaPartByID( struct_id, FEA_TRIM )
+
+    AddFeaTrimPart( trim_id, slice_id )
+
+    DeleteFeaTrimPartByID( trim_id, slice_id )
+
+    assert len( GetFeaTrimPartIDVec( trim_id ) ) == 0, "DeleteFeaTrimPartByID did not remove the part"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaTrimPart, GetFeaTrimPartIDVec, DeleteFeaTrimPart
+    \param [in] trim_id string FEA Trim part ID
+    \param [in] part_id string FEA Part ID of the trimming part
+*/
+
+extern void DeleteFeaTrimPartByID( const std::string & trim_id, const std::string & part_id );
 
 /*!
     \ingroup FEAMesh
@@ -18895,12 +19200,73 @@ extern std::string AddFeaAssemblyConnection( const std::string & assembly_id,
 
     \endcode
     \endPythonOnly
-    \sa AddFeaAssemblyConnection, NumFeaAssemblyConnections
+    \sa AddFeaAssemblyConnection, NumFeaAssemblyConnections, DeleteFeaAssemblyConnectionByID
     \param [in] assembly_id string FEA Assembly ID
     \param [in] connection_index int Connection index
 */
 
 extern void DeleteFeaAssemblyConnection( const std::string & assembly_id, int connection_index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete a connection from an FEA Assembly, by connection ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id_1 = AddFeaStructure( pod_id );
+    string struct_id_2 = AddFeaStructure( pod_id );
+
+    string fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT );
+    string fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    string conn_id = AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+
+    DeleteFeaAssemblyConnectionByID( assembly_id, conn_id );
+
+    if ( NumFeaAssemblyConnections( assembly_id ) != 0 )
+    {
+        Print( "ERROR: DeleteFeaAssemblyConnectionByID did not remove the connection" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id_1 = AddFeaStructure( pod_id )
+    struct_id_2 = AddFeaStructure( pod_id )
+
+    fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT )
+    fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    conn_id = AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+
+    DeleteFeaAssemblyConnectionByID( assembly_id, conn_id )
+
+    assert NumFeaAssemblyConnections( assembly_id ) == 0, "DeleteFeaAssemblyConnectionByID did not remove the connection"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaAssemblyConnection, GetFeaAssemblyConnectionIDVec, DeleteFeaAssemblyConnection
+    \param [in] assembly_id string FEA Assembly ID
+    \param [in] connection_id string FEA Connection ID
+*/
+
+extern void DeleteFeaAssemblyConnectionByID( const std::string & assembly_id, const std::string & connection_id );
 
 /*!
     \ingroup FEAMesh
@@ -19047,6 +19413,65 @@ extern int NumFeaAssemblyConnections( const std::string & assembly_id );
 */
 
 extern std::string GetFeaAssemblyConnectionID( const std::string & assembly_id, int connection_index );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the IDs of the connections of an FEA Assembly, in order.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id_1 = AddFeaStructure( pod_id );
+    string struct_id_2 = AddFeaStructure( pod_id );
+
+    string fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT );
+    string fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    string conn_id = AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+
+    array< string > @ids = GetFeaAssemblyConnectionIDVec( assembly_id );
+
+    if ( ids.size() != 1 || ids[0] != conn_id )
+    {
+        Print( "ERROR: GetFeaAssemblyConnectionIDVec did not return the connection" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id_1 = AddFeaStructure( pod_id )
+    struct_id_2 = AddFeaStructure( pod_id )
+
+    fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT )
+    fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    conn_id = AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+
+    assert list( GetFeaAssemblyConnectionIDVec( assembly_id ) ) == [ conn_id ], "GetFeaAssemblyConnectionIDVec did not return the connection"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaAssemblyConnectionID, AddFeaAssemblyConnection
+    \param [in] assembly_id string FEA Assembly ID
+    \return array<string> Array of FEA Connection IDs
+*/
+
+extern std::vector < std::string > GetFeaAssemblyConnectionIDVec( const std::string & assembly_id );
 
 /*!
     \ingroup FEAMesh

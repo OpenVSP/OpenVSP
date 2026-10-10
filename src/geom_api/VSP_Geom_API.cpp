@@ -5402,25 +5402,51 @@ std::string AddFeaPolySparPt( const std::string & pspar_id )
     return pt->GetID();
 }
 
-std::string InsertFeaPolySparPt( const std::string & pspar_id, int index )
+//==== Look up a FEA Poly Spar by ID, reporting through the named caller ====//
+FeaPolySpar* FindFeaPolySpar( const std::string & pspar_id, const std::string & caller )
+{
+    FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( StructureMgr.GetFeaPart( pspar_id ) );
+    if ( !pspar )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Poly Spar " + pspar_id );
+    }
+    return pspar;
+}
+
+//==== The index of a Poly Spar point by ID, reporting through the named caller ====//
+int FindFeaPolySparPtIndex( FeaPolySpar* pspar, const std::string & pt_id, const std::string & caller )
+{
+    for ( int i = 0; i < pspar->GetNumPt(); i++ )
+    {
+        if ( pspar->GetPt( i )->GetID() == pt_id )
+        {
+            return i;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Point " + pt_id + " in FEA Poly Spar " + pspar->GetID() );
+    return -1;
+}
+
+static std::string InsertFeaPolySparPtImpl( const std::string & pspar_id, int index, const std::string & caller )
 {
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Part " + pspar_id );
         return std::string();
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertFeaPolySparPt::Part is not a poly spar" + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Part " + pspar_id + " is not a poly spar" );
         return std::string();
     }
 
     if ( !pspar->ValidPtIndex( index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "InsertFeaPolySparPt::Point index out of range " + to_string( index )  );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Point index out of range " + to_string( index )  );
         return std::string();
     }
 
@@ -5430,25 +5456,47 @@ std::string InsertFeaPolySparPt( const std::string & pspar_id, int index )
     return pt->GetID();
 }
 
-void DelFeaPolySparPt( const std::string & pspar_id, int index )
+std::string InsertFeaPolySparPt( const std::string & pspar_id, int index )
+{
+    return InsertFeaPolySparPtImpl( pspar_id, index, "InsertFeaPolySparPt" );
+}
+
+std::string InsertFeaPolySparPtByID( const std::string & pspar_id, const std::string & before_pt_id )
+{
+    FeaPolySpar* pspar = FindFeaPolySpar( pspar_id, "InsertFeaPolySparPtByID" );
+    if ( !pspar )
+    {
+        return std::string();
+    }
+
+    int index = FindFeaPolySparPtIndex( pspar, before_pt_id, "InsertFeaPolySparPtByID" );
+    if ( index < 0 )
+    {
+        return std::string();
+    }
+
+    return InsertFeaPolySparPtImpl( pspar_id, index, "InsertFeaPolySparPtByID" );
+}
+
+static void DelFeaPolySparPtImpl( const std::string & pspar_id, int index, const std::string & caller )
 {
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Part " + pspar_id );
         return;
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelFeaPolySparPt::Part is not a poly spar" + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Part " + pspar_id + " is not a poly spar" );
         return;
     }
 
     if ( !pspar->ValidPtIndex( index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelFeaPolySparPt::Point index out of range " + to_string( index )  );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Point index out of range " + to_string( index )  );
         return;
     }
 
@@ -5456,6 +5504,28 @@ void DelFeaPolySparPt( const std::string & pspar_id, int index )
 
     ErrorMgr.NoError();
     return;
+}
+
+void DelFeaPolySparPt( const std::string & pspar_id, int index )
+{
+    DelFeaPolySparPtImpl( pspar_id, index, "DelFeaPolySparPt" );
+}
+
+void DelFeaPolySparPtByID( const std::string & pspar_id, const std::string & pt_id )
+{
+    FeaPolySpar* pspar = FindFeaPolySpar( pspar_id, "DelFeaPolySparPtByID" );
+    if ( !pspar )
+    {
+        return;
+    }
+
+    int index = FindFeaPolySparPtIndex( pspar, pt_id, "DelFeaPolySparPtByID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    DelFeaPolySparPtImpl( pspar_id, index, "DelFeaPolySparPtByID" );
 }
 
 void DelAllFeaPolySparPt( const std::string & pspar_id )
@@ -5480,25 +5550,25 @@ void DelAllFeaPolySparPt( const std::string & pspar_id )
     return;
 }
 
-int MoveFeaPolySparPt( const std::string & pspar_id, int index, int reorder_type )
+static int MoveFeaPolySparPtImpl( const std::string & pspar_id, int index, int reorder_type, const std::string & caller )
 {
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "MoveFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Part " + pspar_id );
         return index;
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "MoveFeaPolySparPt::Part is not a poly spar " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Part " + pspar_id + " is not a poly spar" );
         return index;
     }
 
     if ( !pspar->ValidPtIndex( index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "MoveFeaPolySparPt::Point index out of range " + to_string( index )  );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Point index out of range " + to_string( index )  );
         return index;
     }
 
@@ -5506,25 +5576,47 @@ int MoveFeaPolySparPt( const std::string & pspar_id, int index, int reorder_type
     return pspar->MovePt( index, reorder_type );
 }
 
-void SetFeaPolySparPtName( const std::string & pspar_id, int index, const std::string & name )
+int MoveFeaPolySparPt( const std::string & pspar_id, int index, int reorder_type )
+{
+    return MoveFeaPolySparPtImpl( pspar_id, index, reorder_type, "MoveFeaPolySparPt" );
+}
+
+int MoveFeaPolySparPtByID( const std::string & pspar_id, const std::string & pt_id, int reorder_type )
+{
+    FeaPolySpar* pspar = FindFeaPolySpar( pspar_id, "MoveFeaPolySparPtByID" );
+    if ( !pspar )
+    {
+        return -1;
+    }
+
+    int index = FindFeaPolySparPtIndex( pspar, pt_id, "MoveFeaPolySparPtByID" );
+    if ( index < 0 )
+    {
+        return -1;
+    }
+
+    return MoveFeaPolySparPtImpl( pspar_id, index, reorder_type, "MoveFeaPolySparPtByID" );
+}
+
+static void SetFeaPolySparPtNameImpl( const std::string & pspar_id, int index, const std::string & name, const std::string & caller )
 {
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPolySparPtName::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Part " + pspar_id );
         return;
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPolySparPtName::Part is not a poly spar " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Part " + pspar_id + " is not a poly spar" );
         return;
     }
 
     if ( !pspar->ValidPtIndex( index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetFeaPolySparPtName::Point index out of range " + to_string( index )  );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Point index out of range " + to_string( index )  );
         return;
     }
 
@@ -5539,25 +5631,47 @@ void SetFeaPolySparPtName( const std::string & pspar_id, int index, const std::s
     return;
 }
 
-std::string GetFeaPolySparPtName( const std::string & pspar_id, int index )
+void SetFeaPolySparPtName( const std::string & pspar_id, int index, const std::string & name )
+{
+    SetFeaPolySparPtNameImpl( pspar_id, index, name, "SetFeaPolySparPtName" );
+}
+
+void SetFeaPolySparPtNameByID( const std::string & pspar_id, const std::string & pt_id, const std::string & name )
+{
+    FeaPolySpar* pspar = FindFeaPolySpar( pspar_id, "SetFeaPolySparPtNameByID" );
+    if ( !pspar )
+    {
+        return;
+    }
+
+    int index = FindFeaPolySparPtIndex( pspar, pt_id, "SetFeaPolySparPtNameByID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    SetFeaPolySparPtNameImpl( pspar_id, index, name, "SetFeaPolySparPtNameByID" );
+}
+
+static std::string GetFeaPolySparPtNameImpl( const std::string & pspar_id, int index, const std::string & caller )
 {
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparPtName::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Part " + pspar_id );
         return std::string();
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparPtName::Part is not a poly spar " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Part " + pspar_id + " is not a poly spar" );
         return std::string();
     }
 
     if ( !pspar->ValidPtIndex( index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFeaPolySparPtName::Point index out of range " + to_string( index )  );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Point index out of range " + to_string( index )  );
         return std::string();
     }
 
@@ -5571,6 +5685,28 @@ std::string GetFeaPolySparPtName( const std::string & pspar_id, int index )
 
 
     return std::string();
+}
+
+std::string GetFeaPolySparPtName( const std::string & pspar_id, int index )
+{
+    return GetFeaPolySparPtNameImpl( pspar_id, index, "GetFeaPolySparPtName" );
+}
+
+std::string GetFeaPolySparPtNameByID( const std::string & pspar_id, const std::string & pt_id )
+{
+    FeaPolySpar* pspar = FindFeaPolySpar( pspar_id, "GetFeaPolySparPtNameByID" );
+    if ( !pspar )
+    {
+        return std::string();
+    }
+
+    int index = FindFeaPolySparPtIndex( pspar, pt_id, "GetFeaPolySparPtNameByID" );
+    if ( index < 0 )
+    {
+        return std::string();
+    }
+
+    return GetFeaPolySparPtNameImpl( pspar_id, index, "GetFeaPolySparPtNameByID" );
 }
 
 std::string GetFeaPolySparPtID( const std::string & pspar_id, int index )
@@ -6139,6 +6275,27 @@ void DeleteFeaAssemblyConnection( const std::string & assembly_id, int connectio
     ErrorMgr.NoError();
 }
 
+void DeleteFeaAssemblyConnectionByID( const std::string & assembly_id, const std::string & connection_id )
+{
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "DeleteFeaAssemblyConnectionByID" );
+    if ( !assy )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < ( int )assy->m_ConnectionVec.size(); i++ )
+    {
+        if ( assy->m_ConnectionVec[i] && assy->m_ConnectionVec[i]->GetID() == connection_id )
+        {
+            assy->DelConnection( i );
+            ErrorMgr.NoError();
+            return;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaAssemblyConnectionByID::Can't Find Connection " + connection_id + " in FEA Assembly " + assembly_id );
+}
+
 int NumFeaAssemblyConnections( const std::string & assembly_id )
 {
     FeaAssembly* assy = FindFeaAssembly( assembly_id, "NumFeaAssemblyConnections" );
@@ -6175,6 +6332,28 @@ std::string GetFeaAssemblyConnectionID( const std::string & assembly_id, int con
 
     ErrorMgr.NoError();
     return assy->m_ConnectionVec[ connection_index ]->GetID();
+}
+
+std::vector < std::string > GetFeaAssemblyConnectionIDVec( const std::string & assembly_id )
+{
+    std::vector < std::string > ret_vec;
+
+    FeaAssembly* assy = FindFeaAssembly( assembly_id, "GetFeaAssemblyConnectionIDVec" );
+    if ( !assy )
+    {
+        return ret_vec;
+    }
+
+    for ( size_t i = 0; i < assy->m_ConnectionVec.size(); i++ )
+    {
+        if ( assy->m_ConnectionVec[i] )
+        {
+            ret_vec.push_back( assy->m_ConnectionVec[i]->GetID() );
+        }
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 //==== Look up a FEA connection by ID, reporting through the named caller ====//
@@ -15792,6 +15971,26 @@ void DeleteFeaTrimPart( const std::string & trim_id, int index )
     if ( index < 0 || index >= ( int )trim->m_TrimFeaPartIDVec.size() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteFeaTrimPart::Trim Part Index " + to_string( index ) + " Out of Range" );
+        return;
+    }
+
+    trim->DeleteTrimPart( index );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteFeaTrimPartByID( const std::string & trim_id, const std::string & part_id )
+{
+    FeaPartTrim* trim = FindFeaPartTrim( trim_id, "DeleteFeaTrimPartByID" );
+    if ( !trim )
+    {
+        return;
+    }
+
+    int index = vector_find_val( trim->m_TrimFeaPartIDVec, part_id );
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaTrimPartByID::FEA Part " + part_id + " does not trim " + trim_id );
         return;
     }
 

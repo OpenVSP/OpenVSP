@@ -6468,8 +6468,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string InsertFeaPolySparPt( const string & in pspar_id, int index )", asFUNCTION( vsp::InsertFeaPolySparPt ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string InsertFeaPolySparPtByID( const string & in pspar_id, const string & in before_pt_id )", asFUNCTION( vsp::InsertFeaPolySparPtByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void DelFeaPolySparPt( const string & in pspar_id, int index )", asFUNCTION( vsp::DelFeaPolySparPt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DelFeaPolySparPtByID( const string & in pspar_id, const string & in pt_id )", asFUNCTION( vsp::DelFeaPolySparPtByID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -6480,12 +6486,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int MoveFeaPolySparPt( const string & in pspar_id, int index, int reorder_type )", asFUNCTION( vsp::MoveFeaPolySparPt ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "int MoveFeaPolySparPtByID( const string & in pspar_id, const string & in pt_id, int reorder_type )", asFUNCTION( vsp::MoveFeaPolySparPtByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void SetFeaPolySparPtName( const string & in pspar_id, int index, const string & in name )", asFUNCTION( vsp::SetFeaPolySparPtName ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetFeaPolySparPtNameByID( const string & in pspar_id, const string & in pt_id, const string & in name )", asFUNCTION( vsp::SetFeaPolySparPtNameByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "string GetFeaPolySparPtName( const string & in pspar_id, int index )", asFUNCTION( vsp::GetFeaPolySparPtName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaPolySparPtNameByID( const string & in pspar_id, const string & in pt_id )", asFUNCTION( vsp::GetFeaPolySparPtNameByID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -6605,6 +6620,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteFeaTrimPart( const string & in trim_id, int index )", asFUNCTION( vsp::DeleteFeaTrimPart ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void DeleteFeaTrimPartByID( const string & in trim_id, const string & in part_id )", asFUNCTION( vsp::DeleteFeaTrimPartByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "array<string>@+ GetFeaTrimPartIDVec( const string & in trim_id )", asMETHOD( ScriptMgrSingleton, GetFeaTrimPartIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
@@ -6647,7 +6665,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteFeaAssemblyConnection( const string & in assembly_id, int connection_index )", asFUNCTION( vsp::DeleteFeaAssemblyConnection ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void DeleteFeaAssemblyConnectionByID( const string & in assembly_id, const string & in connection_id )", asFUNCTION( vsp::DeleteFeaAssemblyConnectionByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "int NumFeaAssemblyConnections( const string & in assembly_id )", asFUNCTION( vsp::NumFeaAssemblyConnections ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaAssemblyConnectionIDVec( const string & in assembly_id )", asMETHOD( ScriptMgrSingleton, GetFeaAssemblyConnectionIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string GetFeaAssemblyFileName( const string & in assembly_id, int file_type )", asFUNCTION( vsp::GetFeaAssemblyFileName ), asCALL_CDECL );
@@ -7815,6 +7839,12 @@ CScriptArray* ScriptMgrSingleton::GetGeomTextureIDVec( const string & geom_id )
 CScriptArray* ScriptMgrSingleton::GetFeaTrimPartIDVec( const string & trim_id )
 {
     m_ProxyStringArray = vsp::GetFeaTrimPartIDVec( trim_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetFeaAssemblyConnectionIDVec( const string & assembly_id )
+{
+    m_ProxyStringArray = vsp::GetFeaAssemblyConnectionIDVec( assembly_id );
     return GetProxyStringArray();
 }
 

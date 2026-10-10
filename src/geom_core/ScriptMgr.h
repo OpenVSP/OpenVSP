@@ -302,6 +302,7 @@ private:
     CScriptArray* GetFeaLayerIDVec( const string & material_id );
     CScriptArray* GetGeomTextureIDVec( const string & geom_id );
     CScriptArray* GetFeaTrimPartIDVec( const string & trim_id );
+    CScriptArray* GetFeaAssemblyConnectionIDVec( const string & assembly_id );
     CScriptArray* GetFitModelVarVec();
     void AddFitModelTargetPts( const string & geom_id, int surf_indx, CScriptArray* pt_arr );
     void AddFitModelTargetPtsFixedU( const string & geom_id, int surf_indx, CScriptArray* pt_arr, double u );
