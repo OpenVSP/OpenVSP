@@ -4888,6 +4888,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetFeaAssemblyConnectionID( const string & in assembly_id, int connection_index )", asFUNCTION( vsp::GetFeaAssemblyConnectionID ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string GetFeaConnectionStartFixPtID( const string & in connection_id )", asFUNCTION( vsp::GetFeaConnectionStartFixPtID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaConnectionStartStructID( const string & in connection_id )", asFUNCTION( vsp::GetFeaConnectionStartStructID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaConnectionEndFixPtID( const string & in connection_id )", asFUNCTION( vsp::GetFeaConnectionEndFixPtID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaConnectionEndStructID( const string & in connection_id )", asFUNCTION( vsp::GetFeaConnectionEndStructID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "int GetNumActuatorDisks()", asFUNCTION( vsp::GetNumActuatorDisks ), asCALL_CDECL );
     assert( r >= 0 );
@@ -6512,6 +6524,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetFeaPartPerpendicularSparID( const string & in part_id )", asFUNCTION( vsp::GetFeaPartPerpendicularSparID ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetFeaPartPropertyID( const string & in part_id, const string & in property_id )", asFUNCTION( vsp::SetFeaPartPropertyID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaPartPropertyID( const string & in part_id )", asFUNCTION( vsp::GetFeaPartPropertyID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFeaPartCapPropertyID( const string & in part_id, const string & in property_id )", asFUNCTION( vsp::SetFeaPartCapPropertyID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaPartCapPropertyID( const string & in part_id )", asFUNCTION( vsp::GetFeaPartCapPropertyID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFeaFixPointParentID( const string & in fixpt_id, const string & in part_id )", asFUNCTION( vsp::SetFeaFixPointParentID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaFixPointParentID( const string & in fixpt_id )", asFUNCTION( vsp::GetFeaFixPointParentID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFeaFixPointOtherGeomID( const string & in fixpt_id, const string & in geom_id )", asFUNCTION( vsp::SetFeaFixPointOtherGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaFixPointOtherGeomID( const string & in fixpt_id )", asFUNCTION( vsp::GetFeaFixPointOtherGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void SetFeaSubSurfName( const string & in subsurf_id, const string & in name )", asFUNCTION( vsp::SetFeaSubSurfName ), asCALL_CDECL );
     assert( r >= 0 );
@@ -6548,6 +6584,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     r = se->RegisterGlobalFunction( "int NumFeaBCs( const string & in fea_struct_id )", asFUNCTION( vsp::NumFeaBCs ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFeaBCPartID( const string & in bc_id, const string & in part_id )", asFUNCTION( vsp::SetFeaBCPartID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaBCPartID( const string & in bc_id )", asFUNCTION( vsp::GetFeaBCPartID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFeaBCSubSurfID( const string & in bc_id, const string & in ss_id )", asFUNCTION( vsp::SetFeaBCSubSurfID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaBCSubSurfID( const string & in bc_id )", asFUNCTION( vsp::GetFeaBCSubSurfID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -6623,6 +6671,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@+ GetFeaLayerIDVec( const string & in material_id )", asMETHOD( ScriptMgrSingleton, GetFeaLayerIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetFeaLayerMaterialID( const string & in layer_id, const string & in material_id )", asFUNCTION( vsp::SetFeaLayerMaterialID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaLayerMaterialID( const string & in layer_id )", asFUNCTION( vsp::GetFeaLayerMaterialID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "array<string>@+ GetFeaMaterialIDVec()", asMETHOD( ScriptMgrSingleton, GetFeaMaterialIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
@@ -6640,6 +6694,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string AddFeaProperty( int property_type = 0 )", asFUNCTION( vsp::AddFeaProperty ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFeaPropertyMaterialID( const string & in property_id, const string & in material_id )", asFUNCTION( vsp::SetFeaPropertyMaterialID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaPropertyMaterialID( const string & in property_id )", asFUNCTION( vsp::GetFeaPropertyMaterialID ), asCALL_CDECL );
     assert( r >= 0 );
 }
 

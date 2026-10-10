@@ -16592,6 +16592,368 @@ extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
     \ingroup FEAMesh
 */
 /*!
+    Set the shell property of an FEA Part or FEA SubSurface, by property ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    string prop_id = AddFeaProperty( FEA_SHELL );
+
+    SetFeaPartPropertyID( slice_id, prop_id );
+
+    if ( GetFeaPartPropertyID( slice_id ) != prop_id )
+    {
+        Print( "ERROR: SetFeaPartPropertyID did not set the property" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    prop_id = AddFeaProperty( FEA_SHELL )
+
+    SetFeaPartPropertyID( slice_id, prop_id )
+
+    assert GetFeaPartPropertyID( slice_id ) == prop_id, "SetFeaPartPropertyID did not set the property"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaPartPropertyID, SetFeaPartCapPropertyID
+    \param [in] part_id string FEA Part or FEA SubSurface ID
+    \param [in] property_id string FEA Property ID
+*/
+
+extern void SetFeaPartPropertyID( const std::string & part_id, const std::string & property_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the shell property of an FEA Part or FEA SubSurface.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string line_id = AddFeaSubSurfByID( struct_id, SS_LINE );
+
+    string prop_id = AddFeaProperty( FEA_SHELL );
+
+    SetFeaPartPropertyID( line_id, prop_id );
+
+    if ( GetFeaPartPropertyID( line_id ) != prop_id )
+    {
+        Print( "ERROR: GetFeaPartPropertyID did not return the property set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    line_id = AddFeaSubSurfByID( struct_id, SS_LINE )
+
+    prop_id = AddFeaProperty( FEA_SHELL )
+
+    SetFeaPartPropertyID( line_id, prop_id )
+
+    assert GetFeaPartPropertyID( line_id ) == prop_id, "GetFeaPartPropertyID did not return the property set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaPartPropertyID
+    \param [in] part_id string FEA Part or FEA SubSurface ID
+    \return string FEA Property ID
+*/
+
+extern std::string GetFeaPartPropertyID( const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the cap (beam) property of an FEA Part or FEA SubSurface, by property ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    string prop_id = AddFeaProperty( FEA_BEAM );
+
+    SetFeaPartCapPropertyID( slice_id, prop_id );
+
+    if ( GetFeaPartCapPropertyID( slice_id ) != prop_id )
+    {
+        Print( "ERROR: SetFeaPartCapPropertyID did not set the property" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    prop_id = AddFeaProperty( FEA_BEAM )
+
+    SetFeaPartCapPropertyID( slice_id, prop_id )
+
+    assert GetFeaPartCapPropertyID( slice_id ) == prop_id, "SetFeaPartCapPropertyID did not set the property"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaPartCapPropertyID, SetFeaPartPropertyID
+    \param [in] part_id string FEA Part or FEA SubSurface ID
+    \param [in] property_id string FEA Property ID
+*/
+
+extern void SetFeaPartCapPropertyID( const std::string & part_id, const std::string & property_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the cap (beam) property of an FEA Part or FEA SubSurface.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string line_id = AddFeaSubSurfByID( struct_id, SS_LINE );
+
+    string prop_id = AddFeaProperty( FEA_BEAM );
+
+    SetFeaPartCapPropertyID( line_id, prop_id );
+
+    if ( GetFeaPartCapPropertyID( line_id ) != prop_id )
+    {
+        Print( "ERROR: GetFeaPartCapPropertyID did not return the property set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    line_id = AddFeaSubSurfByID( struct_id, SS_LINE )
+
+    prop_id = AddFeaProperty( FEA_BEAM )
+
+    SetFeaPartCapPropertyID( line_id, prop_id )
+
+    assert GetFeaPartCapPropertyID( line_id ) == prop_id, "GetFeaPartCapPropertyID did not return the property set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaPartCapPropertyID
+    \param [in] part_id string FEA Part or FEA SubSurface ID
+    \return string FEA Property ID
+*/
+
+extern std::string GetFeaPartCapPropertyID( const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the FEA Part a fixed point lies on. The part must be a surface in the fixed point's Structure.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    string fixpt_id = AddFeaPartByID( struct_id, FEA_FIX_POINT );
+
+    SetFeaFixPointParentID( fixpt_id, slice_id );
+
+    if ( GetFeaFixPointParentID( fixpt_id ) != slice_id )
+    {
+        Print( "ERROR: SetFeaFixPointParentID did not set the parent" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    fixpt_id = AddFeaPartByID( struct_id, FEA_FIX_POINT )
+
+    SetFeaFixPointParentID( fixpt_id, slice_id )
+
+    assert GetFeaFixPointParentID( fixpt_id ) == slice_id, "SetFeaFixPointParentID did not set the parent"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaFixPointParentID
+    \param [in] fixpt_id string FEA Fixed Point ID
+    \param [in] part_id string FEA Part ID of the surface the point lies on
+*/
+
+extern void SetFeaFixPointParentID( const std::string & fixpt_id, const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the FEA Part a fixed point lies on.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string fixpt_id = AddFeaPartByID( struct_id, FEA_FIX_POINT );
+
+    // A new fixed point lies on the skin, the Structure's first part.
+    if ( GetFeaFixPointParentID( fixpt_id ) != GetFeaPartID( struct_id, 0 ) )
+    {
+        Print( "ERROR: GetFeaFixPointParentID did not return the skin" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    fixpt_id = AddFeaPartByID( struct_id, FEA_FIX_POINT )
+
+    # A new fixed point lies on the skin, the Structure's first part.
+    assert GetFeaFixPointParentID( fixpt_id ) == GetFeaPartID( struct_id, 0 ), "GetFeaFixPointParentID did not return the skin"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaFixPointParentID
+    \param [in] fixpt_id string FEA Fixed Point ID
+    \return string FEA Part ID
+*/
+
+extern std::string GetFeaFixPointParentID( const std::string & fixpt_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the other Geom a fixed point refers to, or an empty string for none.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string other_id = AddGeom( "POD" );
+
+    string fixpt_id = AddFeaPartByID( struct_id, FEA_FIX_POINT );
+
+    SetFeaFixPointOtherGeomID( fixpt_id, other_id );
+
+    if ( GetFeaFixPointOtherGeomID( fixpt_id ) != other_id )
+    {
+        Print( "ERROR: SetFeaFixPointOtherGeomID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    other_id = AddGeom( "POD" )
+
+    fixpt_id = AddFeaPartByID( struct_id, FEA_FIX_POINT )
+
+    SetFeaFixPointOtherGeomID( fixpt_id, other_id )
+
+    assert GetFeaFixPointOtherGeomID( fixpt_id ) == other_id, "SetFeaFixPointOtherGeomID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaFixPointOtherGeomID
+    \param [in] fixpt_id string FEA Fixed Point ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetFeaFixPointOtherGeomID( const std::string & fixpt_id, const std::string & geom_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the other Geom a fixed point refers to.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string fixpt_id = AddFeaPartByID( struct_id, FEA_FIX_POINT );
+
+    if ( GetFeaFixPointOtherGeomID( fixpt_id ) != "" )
+    {
+        Print( "ERROR: a new fixed point refers to another Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    fixpt_id = AddFeaPartByID( struct_id, FEA_FIX_POINT )
+
+    assert GetFeaFixPointOtherGeomID( fixpt_id ) == "", "a new fixed point refers to another Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaFixPointOtherGeomID
+    \param [in] fixpt_id string FEA Fixed Point ID
+    \return string Geom ID, or an empty string for none
+*/
+
+extern std::string GetFeaFixPointOtherGeomID( const std::string & fixpt_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
     Set the name of an FEA SubSurface
     \forcpponly
     \code{.cpp}
@@ -18690,6 +19052,250 @@ extern std::string GetFeaAssemblyConnectionID( const std::string & assembly_id, 
     \ingroup FEAMesh
 */
 /*!
+    Get the fixed point at the start of an FEA Assembly connection.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id_1 = AddFeaStructure( pod_id );
+    string struct_id_2 = AddFeaStructure( pod_id );
+
+    string fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT );
+    string fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+
+    string conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 );
+
+    if ( GetFeaConnectionStartFixPtID( conn_id ) != fix_pt_1 )
+    {
+        Print( "ERROR: GetFeaConnectionStartFixPtID did not return the fixed point" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id_1 = AddFeaStructure( pod_id )
+    struct_id_2 = AddFeaStructure( pod_id )
+
+    fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT )
+    fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+
+    conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 )
+
+    assert GetFeaConnectionStartFixPtID( conn_id ) == fix_pt_1, "GetFeaConnectionStartFixPtID did not return the fixed point"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaConnectionStartStructID, AddFeaAssemblyConnection
+    \param [in] connection_id string FEA Connection ID
+    \return string FEA Fixed Point ID
+*/
+
+extern std::string GetFeaConnectionStartFixPtID( const std::string & connection_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the Structure of the fixed point at the start of an FEA Assembly connection.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id_1 = AddFeaStructure( pod_id );
+    string struct_id_2 = AddFeaStructure( pod_id );
+
+    string fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT );
+    string fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+
+    string conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 );
+
+    if ( GetFeaConnectionStartStructID( conn_id ) != struct_id_1 )
+    {
+        Print( "ERROR: GetFeaConnectionStartStructID did not return the Structure" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id_1 = AddFeaStructure( pod_id )
+    struct_id_2 = AddFeaStructure( pod_id )
+
+    fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT )
+    fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+
+    conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 )
+
+    assert GetFeaConnectionStartStructID( conn_id ) == struct_id_1, "GetFeaConnectionStartStructID did not return the Structure"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaConnectionStartFixPtID, AddFeaAssemblyConnection
+    \param [in] connection_id string FEA Connection ID
+    \return string FEA Structure ID
+*/
+
+extern std::string GetFeaConnectionStartStructID( const std::string & connection_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the fixed point at the end of an FEA Assembly connection.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id_1 = AddFeaStructure( pod_id );
+    string struct_id_2 = AddFeaStructure( pod_id );
+
+    string fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT );
+    string fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+
+    string conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 );
+
+    if ( GetFeaConnectionEndFixPtID( conn_id ) != fix_pt_2 )
+    {
+        Print( "ERROR: GetFeaConnectionEndFixPtID did not return the fixed point" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id_1 = AddFeaStructure( pod_id )
+    struct_id_2 = AddFeaStructure( pod_id )
+
+    fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT )
+    fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+
+    conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 )
+
+    assert GetFeaConnectionEndFixPtID( conn_id ) == fix_pt_2, "GetFeaConnectionEndFixPtID did not return the fixed point"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaConnectionEndStructID, AddFeaAssemblyConnection
+    \param [in] connection_id string FEA Connection ID
+    \return string FEA Fixed Point ID
+*/
+
+extern std::string GetFeaConnectionEndFixPtID( const std::string & connection_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the Structure of the fixed point at the end of an FEA Assembly connection.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id_1 = AddFeaStructure( pod_id );
+    string struct_id_2 = AddFeaStructure( pod_id );
+
+    string fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT );
+    string fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT );
+
+    string assembly_id = AddFeaAssembly();
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 );
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 );
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 );
+
+    string conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 );
+
+    if ( GetFeaConnectionEndStructID( conn_id ) != struct_id_2 )
+    {
+        Print( "ERROR: GetFeaConnectionEndStructID did not return the Structure" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id_1 = AddFeaStructure( pod_id )
+    struct_id_2 = AddFeaStructure( pod_id )
+
+    fix_pt_1 = AddFeaPartByID( struct_id_1, FEA_FIX_POINT )
+    fix_pt_2 = AddFeaPartByID( struct_id_2, FEA_FIX_POINT )
+
+    assembly_id = AddFeaAssembly()
+
+    AddFeaStructureToAssembly( assembly_id, struct_id_1 )
+    AddFeaStructureToAssembly( assembly_id, struct_id_2 )
+
+    AddFeaAssemblyConnection( assembly_id, fix_pt_1, struct_id_1, 0, fix_pt_2, struct_id_2, 0 )
+
+    conn_id = GetFeaAssemblyConnectionID( assembly_id, 0 )
+
+    assert GetFeaConnectionEndStructID( conn_id ) == struct_id_2, "GetFeaConnectionEndStructID did not return the Structure"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaConnectionEndFixPtID, AddFeaAssemblyConnection
+    \param [in] connection_id string FEA Connection ID
+    \return string FEA Structure ID
+*/
+
+extern std::string GetFeaConnectionEndStructID( const std::string & connection_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
     Mesh and write out an FEA Assembly.  Any Structure in the assembly that has not been meshed yet
     is meshed first.
     \forcpponly
@@ -19289,6 +19895,194 @@ extern int NumFeaBCs( const std::string & fea_struct_id );
     \ingroup FEAMesh
 */
 /*!
+    Set the FEA Part a part boundary condition applies to. The part must be in the boundary condition's Structure.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    string bc_id = AddFeaBC( struct_id, FEA_BC_PART );
+
+    SetFeaBCPartID( bc_id, slice_id );
+
+    if ( GetFeaBCPartID( bc_id ) != slice_id )
+    {
+        Print( "ERROR: SetFeaBCPartID did not set the part" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    bc_id = AddFeaBC( struct_id, FEA_BC_PART )
+
+    SetFeaBCPartID( bc_id, slice_id )
+
+    assert GetFeaBCPartID( bc_id ) == slice_id, "SetFeaBCPartID did not set the part"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaBCPartID, FEA_BC_TYPE
+    \param [in] bc_id string FEA BC ID
+    \param [in] part_id string FEA Part ID
+*/
+
+extern void SetFeaBCPartID( const std::string & bc_id, const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the FEA Part a part boundary condition applies to.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    string bc_id = AddFeaBC( struct_id, FEA_BC_PART );
+
+    SetFeaBCPartID( bc_id, slice_id );
+
+    if ( GetFeaBCPartID( bc_id ) != slice_id )
+    {
+        Print( "ERROR: GetFeaBCPartID did not return the part set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    bc_id = AddFeaBC( struct_id, FEA_BC_PART )
+
+    SetFeaBCPartID( bc_id, slice_id )
+
+    assert GetFeaBCPartID( bc_id ) == slice_id, "GetFeaBCPartID did not return the part set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaBCPartID
+    \param [in] bc_id string FEA BC ID
+    \return string FEA Part ID
+*/
+
+extern std::string GetFeaBCPartID( const std::string & bc_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the FEA SubSurface a subsurface boundary condition applies to. The subsurface must be in the boundary condition's Structure.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string line_id = AddFeaSubSurfByID( struct_id, SS_LINE );
+
+    string bc_id = AddFeaBC( struct_id, FEA_BC_SUBSURF );
+
+    SetFeaBCSubSurfID( bc_id, line_id );
+
+    if ( GetFeaBCSubSurfID( bc_id ) != line_id )
+    {
+        Print( "ERROR: SetFeaBCSubSurfID did not set the subsurface" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    line_id = AddFeaSubSurfByID( struct_id, SS_LINE )
+
+    bc_id = AddFeaBC( struct_id, FEA_BC_SUBSURF )
+
+    SetFeaBCSubSurfID( bc_id, line_id )
+
+    assert GetFeaBCSubSurfID( bc_id ) == line_id, "SetFeaBCSubSurfID did not set the subsurface"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaBCSubSurfID, FEA_BC_TYPE
+    \param [in] bc_id string FEA BC ID
+    \param [in] ss_id string FEA SubSurface ID
+*/
+
+extern void SetFeaBCSubSurfID( const std::string & bc_id, const std::string & ss_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the FEA SubSurface a subsurface boundary condition applies to.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string line_id = AddFeaSubSurfByID( struct_id, SS_LINE );
+
+    string bc_id = AddFeaBC( struct_id, FEA_BC_SUBSURF );
+
+    SetFeaBCSubSurfID( bc_id, line_id );
+
+    if ( GetFeaBCSubSurfID( bc_id ) != line_id )
+    {
+        Print( "ERROR: GetFeaBCSubSurfID did not return the subsurface set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    line_id = AddFeaSubSurfByID( struct_id, SS_LINE )
+
+    bc_id = AddFeaBC( struct_id, FEA_BC_SUBSURF )
+
+    SetFeaBCSubSurfID( bc_id, line_id )
+
+    assert GetFeaBCSubSurfID( bc_id ) == line_id, "GetFeaBCSubSurfID did not return the subsurface set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaBCSubSurfID
+    \param [in] bc_id string FEA BC ID
+    \return string FEA SubSurface ID
+*/
+
+extern std::string GetFeaBCSubSurfID( const std::string & bc_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
     Add an FEA Material the FEA Mesh material library. Materials are available across all Geoms and Structures.
     \forcpponly
     \code{.cpp}
@@ -19707,6 +20501,102 @@ extern std::vector < std::string > GetFeaLayerIDVec( const std::string & materia
     \ingroup FEAMesh
 */
 /*!
+    Set the material of an FEA Layer, by material ID.
+    \forcpponly
+    \code{.cpp}
+    string lam_id = AddFeaMaterial();
+
+    SetParmVal( FindParm( lam_id, "FeaMaterialType", "FeaMaterial" ), FEA_LAMINATE );
+
+    Update();
+
+    string layer_id = AddFeaLayer( lam_id );
+
+    string mat_id = AddFeaMaterial();
+
+    SetFeaLayerMaterialID( layer_id, mat_id );
+
+    if ( GetFeaLayerMaterialID( layer_id ) != mat_id )
+    {
+        Print( "ERROR: SetFeaLayerMaterialID did not set the material" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    lam_id = AddFeaMaterial()
+
+    SetParmVal( FindParm( lam_id, "FeaMaterialType", "FeaMaterial" ), FEA_LAMINATE )
+
+    Update()
+
+    layer_id = AddFeaLayer( lam_id )
+
+    mat_id = AddFeaMaterial()
+
+    SetFeaLayerMaterialID( layer_id, mat_id )
+
+    assert GetFeaLayerMaterialID( layer_id ) == mat_id, "SetFeaLayerMaterialID did not set the material"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaLayerMaterialID
+    \param [in] layer_id string FEA Layer ID
+    \param [in] material_id string FEA Material ID
+*/
+
+extern void SetFeaLayerMaterialID( const std::string & layer_id, const std::string & material_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the material of an FEA Layer.
+    \forcpponly
+    \code{.cpp}
+    string lam_id = AddFeaMaterial();
+
+    SetParmVal( FindParm( lam_id, "FeaMaterialType", "FeaMaterial" ), FEA_LAMINATE );
+
+    Update();
+
+    string layer_id = AddFeaLayer( lam_id );
+
+    array< string > @mat_ids = GetFeaMaterialIDVec();
+
+    if ( mat_ids.find( GetFeaLayerMaterialID( layer_id ) ) < 0 )
+    {
+        Print( "ERROR: GetFeaLayerMaterialID did not return a material" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    lam_id = AddFeaMaterial()
+
+    SetParmVal( FindParm( lam_id, "FeaMaterialType", "FeaMaterial" ), FEA_LAMINATE )
+
+    Update()
+
+    layer_id = AddFeaLayer( lam_id )
+
+    assert GetFeaLayerMaterialID( layer_id ) in GetFeaMaterialIDVec(), "GetFeaLayerMaterialID did not return a material"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaLayerMaterialID
+    \param [in] layer_id string FEA Layer ID
+    \return string FEA Material ID
+*/
+
+extern std::string GetFeaLayerMaterialID( const std::string & layer_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
     Get the IDs of every FEA material, the built in ones as well as any added.
     \forcpponly
     \code{.cpp}
@@ -20023,6 +20913,78 @@ extern void DeleteFeaProperty( const std::string &id );
 */
 
 extern std::string AddFeaProperty( int property_type = 0 );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the material of an FEA Property, by material ID. A beam property needs an isotropic material.
+    \forcpponly
+    \code{.cpp}
+    string prop_id = AddFeaProperty( FEA_SHELL );
+
+    string mat_id = AddFeaMaterial();
+
+    SetFeaPropertyMaterialID( prop_id, mat_id );
+
+    if ( GetFeaPropertyMaterialID( prop_id ) != mat_id )
+    {
+        Print( "ERROR: SetFeaPropertyMaterialID did not set the material" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    prop_id = AddFeaProperty( FEA_SHELL )
+
+    mat_id = AddFeaMaterial()
+
+    SetFeaPropertyMaterialID( prop_id, mat_id )
+
+    assert GetFeaPropertyMaterialID( prop_id ) == mat_id, "SetFeaPropertyMaterialID did not set the material"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaPropertyMaterialID
+    \param [in] property_id string FEA Property ID
+    \param [in] material_id string FEA Material ID
+*/
+
+extern void SetFeaPropertyMaterialID( const std::string & property_id, const std::string & material_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the material of an FEA Property.
+    \forcpponly
+    \code{.cpp}
+    string prop_id = AddFeaProperty( FEA_BEAM );
+
+    array< string > @mat_ids = GetFeaMaterialIDVec();
+
+    if ( mat_ids.find( GetFeaPropertyMaterialID( prop_id ) ) < 0 )
+    {
+        Print( "ERROR: GetFeaPropertyMaterialID did not return a material" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    prop_id = AddFeaProperty( FEA_BEAM )
+
+    assert GetFeaPropertyMaterialID( prop_id ) in GetFeaMaterialIDVec(), "GetFeaPropertyMaterialID did not return a material"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaPropertyMaterialID
+    \param [in] property_id string FEA Property ID
+    \return string FEA Material ID
+*/
+
+extern std::string GetFeaPropertyMaterialID( const std::string & property_id );
 
 /*!
     \ingroup FEAMesh

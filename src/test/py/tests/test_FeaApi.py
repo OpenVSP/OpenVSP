@@ -90,3 +90,110 @@ def testTheIndexFormRefusesAPartFromAnotherStructure():
     assert_no_errors()
     assert slice2 not in vsp.GetFeaPartIDVec( s2 )
 
+
+def testABoundaryConditionTakesOnlyItsOwnStructuresParts():
+    pod, s1, s2 = two_structures()
+    slice2 = vsp.AddFeaPartByID( s2, vsp.FEA_SLICE )
+    line2 = vsp.AddFeaSubSurfByID( s2, vsp.SS_LINE )
+    bc = vsp.AddFeaBC( s1, vsp.FEA_BC_PART )
+    vsp.SetFeaBCPartID( bc, slice2 )
+    assert pop_errors(), "a boundary condition took another structure's part"
+    vsp.SetFeaBCSubSurfID( bc, line2 )
+    assert pop_errors(), "a boundary condition took another structure's subsurface"
+    vsp.SetFeaBCSubSurfID( bc, vsp.GetFeaPartID( s1, 0 ) )
+    assert pop_errors(), "a boundary condition took a part as a subsurface"
+
+
+def testAFixedPointLiesOnlyOnASurfaceOfItsOwnStructure():
+    pod, s1, s2 = two_structures()
+    fix1 = vsp.AddFeaPartByID( s1, vsp.FEA_FIX_POINT )
+    fix1b = vsp.AddFeaPartByID( s1, vsp.FEA_FIX_POINT )
+    slice2 = vsp.AddFeaPartByID( s2, vsp.FEA_SLICE )
+    drop_errors()
+    vsp.SetFeaFixPointParentID( fix1, slice2 )
+    assert pop_errors(), "a fixed point took another structure's part"
+    vsp.SetFeaFixPointParentID( fix1, fix1b )
+    assert pop_errors(), "a fixed point took another fixed point as its surface"
+    vsp.SetFeaFixPointOtherGeomID( fix1, "no such geom" )
+    assert pop_errors(), "a fixed point took a missing Geom"
+
+
+def testABeamPropertyNeedsAnIsotropicMaterial():
+    vsp.VSPRenew()
+    drop_errors()
+    beam = vsp.AddFeaProperty( vsp.FEA_BEAM )
+    before = vsp.GetFeaPropertyMaterialID( beam )
+    mat = vsp.AddFeaMaterial()
+    vsp.SetParmVal( vsp.FindParm( mat, "FeaMaterialType", "FeaMaterial" ), vsp.FEA_ENG_ORTHO )
+    vsp.Update()
+    drop_errors()
+    vsp.SetFeaPropertyMaterialID( beam, mat )
+    assert pop_errors(), "a beam property took an orthotropic material"
+    assert vsp.GetFeaPropertyMaterialID( beam ) == before
+
+
+def testSettingAPropertyByIDOutlastsAPendingLegacyIndex():
+    """A property set by ID survives the next Update, even with a legacy index pending."""
+    pod, s1, s2 = two_structures()
+    sl = vsp.AddFeaPartByID( s1, vsp.FEA_SLICE )
+    vsp.SetParmVal( vsp.FindParm( sl, "FeaPropertyIndex", "FeaPart" ), 0 )
+    prop = vsp.AddFeaProperty( vsp.FEA_SHELL )
+    vsp.SetFeaPartPropertyID( sl, prop )
+    vsp.Update()
+    assert vsp.GetFeaPartPropertyID( sl ) == prop
+
+
+def testReadingAPropertyKeepsAPendingLegacyIndex():
+    pod, s1, s2 = two_structures()
+    sl = vsp.AddFeaPartByID( s1, vsp.FEA_SLICE )
+    props = vsp.GetFeaPropertyIDVec()
+    vsp.SetParmVal( vsp.FindParm( sl, "FeaPropertyIndex", "FeaPart" ), 1 )
+    assert vsp.GetFeaPartPropertyID( sl ) == props[1]
+    vsp.AddFeaPartByID( s1, vsp.FEA_RIB )
+    vsp.Update()
+    assert vsp.GetFeaPartPropertyID( sl ) == props[1]
+    assert_no_errors()
+
+
+def testAPropertySlotTakesOnlyItsOwnKindOfProperty():
+    pod, s1, s2 = two_structures()
+    sl = vsp.AddFeaPartByID( s1, vsp.FEA_SLICE )
+    shell = vsp.AddFeaProperty( vsp.FEA_SHELL )
+    beam = vsp.AddFeaProperty( vsp.FEA_BEAM )
+    drop_errors()
+    vsp.SetFeaPartPropertyID( sl, beam )
+    assert pop_errors(), "the shell slot took a beam property"
+    vsp.SetFeaPartCapPropertyID( sl, shell )
+    assert pop_errors(), "the cap slot took a shell property"
+
+
+def testReadingAMaterialKeepsAPendingLegacyIndex():
+    vsp.VSPRenew()
+    prop = vsp.AddFeaProperty( vsp.FEA_SHELL )
+    vsp.SetParmVal( vsp.FindParm( prop, "FeaMaterialIndex", "FeaProperty" ), 3 )
+    mat = vsp.GetFeaPropertyMaterialID( prop )
+    vsp.Update()
+    assert vsp.GetFeaPropertyMaterialID( prop ) == mat
+    assert mat != ""
+
+
+def testABoundaryConditionTakesOnlyTheReferenceItsTypeUses():
+    pod, s1, s2 = two_structures()
+    sl = vsp.AddFeaPartByID( s1, vsp.FEA_SLICE )
+    line = vsp.AddFeaSubSurfByID( s1, vsp.SS_LINE )
+    part_bc = vsp.AddFeaBC( s1, vsp.FEA_BC_PART )
+    ss_bc = vsp.AddFeaBC( s1, vsp.FEA_BC_SUBSURF )
+    drop_errors()
+    vsp.SetFeaBCSubSurfID( part_bc, line )
+    assert pop_errors(), "a part boundary condition took a subsurface"
+    vsp.SetFeaBCPartID( ss_bc, sl )
+    assert pop_errors(), "a subsurface boundary condition took a part"
+
+
+def testAFixedPointRefusesAGeomWithNoSurface():
+    pod, s1, s2 = two_structures()
+    fix = vsp.AddFeaPartByID( s1, vsp.FEA_FIX_POINT )
+    blank = vsp.AddGeom( "BLANK" )
+    drop_errors()
+    vsp.SetFeaFixPointOtherGeomID( fix, blank )
+    assert pop_errors(), "a fixed point took a Blank Geom"

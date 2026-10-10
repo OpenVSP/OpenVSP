@@ -5013,6 +5013,204 @@ std::string GetFeaPartPerpendicularSparID( const std::string& part_id )
     return ret_str;
 }
 
+//==== The shell or cap property ID a FeaPart or FEA SubSurface holds, and the legacy
+//==== index Parm that overrides it while set ====//
+bool FindFeaPartProperty( const std::string & part_id, bool cap, std::string* & id, IntParm* & legacy, const std::string & caller )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    SubSurface* ssurf = StructureMgr.GetFeaSubSurf( part_id );
+
+    if ( part && cap )
+    {
+        id = &part->m_CapFeaPropertyID;
+        legacy = &part->m_CapFeaPropertyIndex;
+    }
+    else if ( part )
+    {
+        id = &part->m_FeaPropertyID;
+        legacy = &part->m_FeaPropertyIndex;
+    }
+    else if ( ssurf && cap )
+    {
+        id = &ssurf->m_CapFeaPropertyID;
+        legacy = &ssurf->m_CapFeaPropertyIndex;
+    }
+    else if ( ssurf )
+    {
+        id = &ssurf->m_FeaPropertyID;
+        legacy = &ssurf->m_FeaPropertyIndex;
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Part or SubSurface " + part_id );
+        return false;
+    }
+    return true;
+}
+
+//==== Set the shell or cap property of a FeaPart or FEA SubSurface ====//
+void SetFeaPartPropertyIDOf( const std::string & part_id, const std::string & property_id, bool cap, const std::string & caller )
+{
+    FeaProperty* prop = StructureMgr.GetFeaProperty( property_id );
+    if ( !prop )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Property " + property_id );
+        return;
+    }
+
+    int type = vsp::FEA_SHELL;
+    std::string type_name = "shell";
+    if ( cap )
+    {
+        type = vsp::FEA_BEAM;
+        type_name = "beam";
+    }
+    if ( prop->m_FeaPropertyType() != type )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Property " + property_id + " is not a " + type_name + " property" );
+        return;
+    }
+
+    std::string* id = nullptr;
+    IntParm* legacy = nullptr;
+    if ( !FindFeaPartProperty( part_id, cap, id, legacy, caller ) )
+    {
+        return;
+    }
+
+    *id = property_id;
+    legacy->Set( -1 );
+    ErrorMgr.NoError();
+}
+
+//==== The shell or cap property of a FeaPart or FEA SubSurface, or the one a legacy
+//==== index names while it is set ====//
+std::string GetFeaPartPropertyIDOf( const std::string & part_id, bool cap, const std::string & caller )
+{
+    std::string* id = nullptr;
+    IntParm* legacy = nullptr;
+    if ( !FindFeaPartProperty( part_id, cap, id, legacy, caller ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+
+    std::vector < FeaProperty* > prop_vec = StructureMgr.GetFeaPropertyVec();
+    if ( legacy->Get() >= 0 && legacy->Get() < ( int )prop_vec.size() )
+    {
+        return prop_vec[ legacy->Get() ]->GetID();
+    }
+    return *id;
+}
+
+void SetFeaPartPropertyID( const std::string & part_id, const std::string & property_id )
+{
+    SetFeaPartPropertyIDOf( part_id, property_id, false, "SetFeaPartPropertyID" );
+}
+
+std::string GetFeaPartPropertyID( const std::string & part_id )
+{
+    return GetFeaPartPropertyIDOf( part_id, false, "GetFeaPartPropertyID" );
+}
+
+void SetFeaPartCapPropertyID( const std::string & part_id, const std::string & property_id )
+{
+    SetFeaPartPropertyIDOf( part_id, property_id, true, "SetFeaPartCapPropertyID" );
+}
+
+std::string GetFeaPartCapPropertyID( const std::string & part_id )
+{
+    return GetFeaPartPropertyIDOf( part_id, true, "GetFeaPartCapPropertyID" );
+}
+
+//==== Look up a FEA fixed point by ID, reporting through the named caller ====//
+FeaFixPoint* FindFeaFixPoint( const std::string & fixpt_id, const std::string & caller )
+{
+    FeaFixPoint* fixpt = dynamic_cast < FeaFixPoint* > ( StructureMgr.GetFeaPart( fixpt_id ) );
+    if ( !fixpt )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Fixed Point " + fixpt_id );
+    }
+    return fixpt;
+}
+
+void SetFeaFixPointParentID( const std::string & fixpt_id, const std::string & part_id )
+{
+    FeaFixPoint* fixpt = FindFeaFixPoint( fixpt_id, "SetFeaFixPointParentID" );
+    if ( !fixpt )
+    {
+        return;
+    }
+
+    FeaPart* parent = StructureMgr.GetFeaPart( part_id );
+    if ( !parent || parent->GetType() == FEA_FIX_POINT || FindFeaPartStruct( part_id ) != FindFeaPartStruct( fixpt_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaFixPointParentID::FEA Part " + part_id + " is not a surface in the fixed point's Structure" );
+        return;
+    }
+
+    fixpt->m_ParentFeaPartID = part_id;
+    fixpt->m_SurfDirty = true;
+    ErrorMgr.NoError();
+}
+
+std::string GetFeaFixPointParentID( const std::string & fixpt_id )
+{
+    FeaFixPoint* fixpt = FindFeaFixPoint( fixpt_id, "GetFeaFixPointParentID" );
+    if ( !fixpt )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return fixpt->m_ParentFeaPartID;
+}
+
+void SetFeaFixPointOtherGeomID( const std::string & fixpt_id, const std::string & geom_id )
+{
+    FeaFixPoint* fixpt = FindFeaFixPoint( fixpt_id, "SetFeaFixPointOtherGeomID" );
+    if ( !fixpt )
+    {
+        return;
+    }
+
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_id.empty() && !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetFeaFixPointOtherGeomID::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    // The Geoms the GUI does not offer have no surface to place a point on
+    if ( geom_ptr )
+    {
+        int type = geom_ptr->GetType().m_Type;
+        if ( type == MESH_GEOM_TYPE || type == HUMAN_GEOM_TYPE || type == PT_CLOUD_GEOM_TYPE ||
+             type == WIRE_FRAME_GEOM_TYPE || type == BLANK_GEOM_TYPE )
+        {
+            ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetFeaFixPointOtherGeomID::Geom " + geom_id + " has no surface for a fixed point" );
+            return;
+        }
+    }
+
+    fixpt->m_OtherGeomID = geom_id;
+    fixpt->m_SurfDirty = true;
+    ErrorMgr.NoError();
+}
+
+std::string GetFeaFixPointOtherGeomID( const std::string & fixpt_id )
+{
+    FeaFixPoint* fixpt = FindFeaFixPoint( fixpt_id, "GetFeaFixPointOtherGeomID" );
+    if ( !fixpt )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return fixpt->m_OtherGeomID;
+}
+
 void SetFeaSubSurfName( const std::string & subsurf_id, const std::string & name )
 {
     SubSurface* ssurf = StructureMgr.GetFeaSubSurf( subsurf_id );
@@ -5590,6 +5788,101 @@ int NumFeaBCs( const std::string & fea_struct_id )
     return n;
 }
 
+//==== Look up a FEA boundary condition and its Structure by ID ====//
+FeaBC* FindFeaBC( const std::string & bc_id, FeaStructure* & feastruct, const std::string & caller )
+{
+    std::vector < FeaStructure* > struct_vec = StructureMgr.GetAllFeaStructs();
+    for ( size_t i = 0; i < struct_vec.size(); i++ )
+    {
+        int indx = struct_vec[i]->GetFeaBCIndex( bc_id );
+        if ( struct_vec[i]->ValidFeaBCInd( indx ) )
+        {
+            feastruct = struct_vec[i];
+            return struct_vec[i]->GetFeaBC( indx );
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FeaBC " + bc_id );
+    feastruct = nullptr;
+    return nullptr;
+}
+
+void SetFeaBCPartID( const std::string & bc_id, const std::string & part_id )
+{
+    FeaStructure* feastruct = nullptr;
+    FeaBC* bc = FindFeaBC( bc_id, feastruct, "SetFeaBCPartID" );
+    if ( !bc )
+    {
+        return;
+    }
+
+    if ( bc->m_FeaBCType() != FEA_BC_PART )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetFeaBCPartID::FeaBC " + bc_id + " is not a part boundary condition" );
+        return;
+    }
+
+    if ( feastruct->GetFeaPartIndex( part_id ) < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaBCPartID::Can't Find FEA Part " + part_id + " in FeaStructure " + feastruct->GetID() );
+        return;
+    }
+
+    bc->SetPartID( part_id );
+    ErrorMgr.NoError();
+}
+
+std::string GetFeaBCPartID( const std::string & bc_id )
+{
+    FeaStructure* feastruct = nullptr;
+    FeaBC* bc = FindFeaBC( bc_id, feastruct, "GetFeaBCPartID" );
+    if ( !bc )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return bc->GetPartID();
+}
+
+void SetFeaBCSubSurfID( const std::string & bc_id, const std::string & ss_id )
+{
+    FeaStructure* feastruct = nullptr;
+    FeaBC* bc = FindFeaBC( bc_id, feastruct, "SetFeaBCSubSurfID" );
+    if ( !bc )
+    {
+        return;
+    }
+
+    if ( bc->m_FeaBCType() != FEA_BC_SUBSURF )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetFeaBCSubSurfID::FeaBC " + bc_id + " is not a subsurface boundary condition" );
+        return;
+    }
+
+    if ( FindFeaPartStruct( ss_id ) != feastruct || feastruct->GetFeaPartIndex( ss_id ) >= 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaBCSubSurfID::Can't Find FEA SubSurface " + ss_id + " in FeaStructure " + feastruct->GetID() );
+        return;
+    }
+
+    bc->SetSubSurfID( ss_id );
+    ErrorMgr.NoError();
+}
+
+std::string GetFeaBCSubSurfID( const std::string & bc_id )
+{
+    FeaStructure* feastruct = nullptr;
+    FeaBC* bc = FindFeaBC( bc_id, feastruct, "GetFeaBCSubSurfID" );
+    if ( !bc )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return bc->GetSubSurfID();
+}
+
 /// Add an FeaMaterial, return FeaMaterial ID
 //==== Look up an FEA Assembly by ID, reporting through the named caller. ====//
 FeaAssembly* FindFeaAssembly( const std::string & assembly_id, const std::string & caller )
@@ -5884,6 +6177,65 @@ std::string GetFeaAssemblyConnectionID( const std::string & assembly_id, int con
     return assy->m_ConnectionVec[ connection_index ]->GetID();
 }
 
+//==== Look up a FEA connection by ID, reporting through the named caller ====//
+FeaConnection* FindFeaConnection( const std::string & connection_id, const std::string & caller )
+{
+    FeaConnection* conn = dynamic_cast < FeaConnection* > ( ParmMgr.FindParmContainer( connection_id ) );
+    if ( !conn )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Connection " + connection_id );
+    }
+    return conn;
+}
+
+std::string GetFeaConnectionStartFixPtID( const std::string & connection_id )
+{
+    FeaConnection* conn = FindFeaConnection( connection_id, "GetFeaConnectionStartFixPtID" );
+    if ( !conn )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return conn->m_StartFixPtID;
+}
+
+std::string GetFeaConnectionStartStructID( const std::string & connection_id )
+{
+    FeaConnection* conn = FindFeaConnection( connection_id, "GetFeaConnectionStartStructID" );
+    if ( !conn )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return conn->m_StartStructID;
+}
+
+std::string GetFeaConnectionEndFixPtID( const std::string & connection_id )
+{
+    FeaConnection* conn = FindFeaConnection( connection_id, "GetFeaConnectionEndFixPtID" );
+    if ( !conn )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return conn->m_EndFixPtID;
+}
+
+std::string GetFeaConnectionEndStructID( const std::string & connection_id )
+{
+    FeaConnection* conn = FindFeaConnection( connection_id, "GetFeaConnectionEndStructID" );
+    if ( !conn )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return conn->m_EndStructID;
+}
+
 std::string GetFeaAssemblyFileName( const std::string & assembly_id, int file_type )
 {
     FeaAssembly* assy = FindFeaAssembly( assembly_id, "GetFeaAssemblyFileName" );
@@ -6019,6 +6371,61 @@ std::string AddFeaProperty( int property_type )
     }
     ErrorMgr.NoError();
     return feaprop->GetID();
+}
+
+//==== Look up a FEA property by ID, reporting through the named caller ====//
+FeaProperty* FindFeaProperty( const std::string & property_id, const std::string & caller )
+{
+    FeaProperty* prop = StructureMgr.GetFeaProperty( property_id );
+    if ( !prop )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Property " + property_id );
+    }
+    return prop;
+}
+
+void SetFeaPropertyMaterialID( const std::string & property_id, const std::string & material_id )
+{
+    FeaProperty* prop = FindFeaProperty( property_id, "SetFeaPropertyMaterialID" );
+    if ( !prop )
+    {
+        return;
+    }
+
+    FeaMaterial* mat = StructureMgr.GetFeaMaterial( material_id );
+    if ( !mat )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaPropertyMaterialID::Can't Find FEA Material " + material_id );
+        return;
+    }
+
+    if ( prop->m_FeaPropertyType() == FEA_BEAM && mat->m_FeaMaterialType() != FEA_ISOTROPIC )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetFeaPropertyMaterialID::FEA Material " + material_id + " is not isotropic, which a beam property needs" );
+        return;
+    }
+
+    prop->m_FeaMaterialIndex = -1;
+    prop->m_FeaMaterialID = material_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetFeaPropertyMaterialID( const std::string & property_id )
+{
+    FeaProperty* prop = FindFeaProperty( property_id, "GetFeaPropertyMaterialID" );
+    if ( !prop )
+    {
+        return std::string();
+    }
+
+    // A legacy material index, while set, decides the material on the next Update
+    if ( prop->m_FeaMaterialIndex() != -1 )
+    {
+        prop->Update();
+    }
+
+    ErrorMgr.NoError();
+    return prop->m_FeaMaterialID;
 }
 
 static double GetFeaMeshValImpl( FeaStructure* feastruct, int type, const std::string & caller )
@@ -15957,6 +16364,47 @@ std::vector < std::string > GetFeaLayerIDVec( const std::string & material_id )
 
     ErrorMgr.NoError();
     return ret;
+}
+
+//==== Look up a FEA layer by ID, reporting through the named caller ====//
+FeaLayer* FindFeaLayer( const std::string & layer_id, const std::string & caller )
+{
+    FeaLayer* layer = dynamic_cast < FeaLayer* > ( ParmMgr.FindParmContainer( layer_id ) );
+    if ( !layer )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Layer " + layer_id );
+    }
+    return layer;
+}
+
+void SetFeaLayerMaterialID( const std::string & layer_id, const std::string & material_id )
+{
+    FeaLayer* layer = FindFeaLayer( layer_id, "SetFeaLayerMaterialID" );
+    if ( !layer )
+    {
+        return;
+    }
+
+    if ( !StructureMgr.GetFeaMaterial( material_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaLayerMaterialID::Can't Find FEA Material " + material_id );
+        return;
+    }
+
+    layer->m_FeaMaterialID = material_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetFeaLayerMaterialID( const std::string & layer_id )
+{
+    FeaLayer* layer = FindFeaLayer( layer_id, "GetFeaLayerMaterialID" );
+    if ( !layer )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return layer->m_FeaMaterialID;
 }
 
 //======================= Parm Link Functions ============================//
