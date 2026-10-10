@@ -3354,13 +3354,52 @@ extern int GetNumCFDSources( const std::string & geom_id );
 
     \endcode
     \endPythonOnly
-    \sa GetNumCFDSources, GetCFDSourceType
+    \sa GetNumCFDSources, GetCFDSourceType, GetCFDSourceNameByID
     \param [in] geom_id string Geom ID
     \param [in] source_index int Source index
     \return string Source name
 */
 
 extern std::string GetCFDSourceName( const std::string & geom_id, int source_index );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the name of a CFD Mesh source, by source ID.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );
+
+    SetCFDSourceName( pid, 0, "Nose" );
+
+    if ( GetCFDSourceNameByID( src_id ) != "Nose" )
+    {
+        Print( "ERROR: GetCFDSourceNameByID did not return the name set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )
+
+    SetCFDSourceName( pid, 0, "Nose" )
+
+    assert GetCFDSourceNameByID( src_id ) == "Nose", "GetCFDSourceNameByID did not return the name set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetCFDSourceName, GetCFDSourceName
+    \param [in] source_id string CFD Mesh source ID
+    \return string Source name
+*/
+
+extern std::string GetCFDSourceNameByID( const std::string & source_id );
 
 /*!
     \ingroup CFDMesh
@@ -3500,13 +3539,52 @@ extern std::string GetCFDSourceName( const std::string & geom_id, int source_ind
 
     \endcode
     \endPythonOnly
-    \sa GetCFDSourceName, GetNumCFDSources
+    \sa GetCFDSourceName, GetNumCFDSources, SetCFDSourceNameByID
     \param [in] geom_id string Geom ID
     \param [in] source_index int Source index
     \param [in] name string Source name
 */
 
 extern void SetCFDSourceName( const std::string & geom_id, int source_index, const std::string & name );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Set the name of a CFD Mesh source, by source ID.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );
+
+    SetCFDSourceNameByID( src_id, "Nose" );
+
+    if ( GetCFDSourceName( pid, 0 ) != "Nose" )
+    {
+        Print( "ERROR: SetCFDSourceNameByID did not name the source" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )
+
+    SetCFDSourceNameByID( src_id, "Nose" )
+
+    assert GetCFDSourceName( pid, 0 ) == "Nose", "SetCFDSourceNameByID did not name the source"
+
+    \endcode
+    \endPythonOnly
+    \sa GetCFDSourceName, SetCFDSourceName
+    \param [in] source_id string CFD Mesh source ID
+    \param [in] name string New name for the source
+*/
+
+extern void SetCFDSourceNameByID( const std::string & source_id, const std::string & name );
 
 /*!
     \ingroup CFDMesh
@@ -3536,13 +3614,48 @@ extern void SetCFDSourceName( const std::string & geom_id, int source_index, con
 
     \endcode
     \endPythonOnly
-    \sa CFD_MESH_SOURCE_TYPE, AddCFDSource
+    \sa CFD_MESH_SOURCE_TYPE, AddCFDSource, GetCFDSourceTypeByID
     \param [in] geom_id string Geom ID
     \param [in] source_index int Index of the source on that Geom
     \return int CFD mesh source type enum (i.e. POINT_SOURCE)
 */
 
 extern int GetCFDSourceType( const std::string & geom_id, int source_index );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the type of a CFD Mesh source, by source ID.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );
+
+    if ( GetCFDSourceTypeByID( src_id ) != POINT_SOURCE )
+    {
+        Print( "ERROR: GetCFDSourceTypeByID did not return the source's type" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )
+
+    assert GetCFDSourceTypeByID( src_id ) == POINT_SOURCE, "GetCFDSourceTypeByID did not return the source's type"
+
+    \endcode
+    \endPythonOnly
+    \sa CFD_MESH_SOURCE_TYPE, GetCFDSourceType
+    \param [in] source_id string CFD Mesh source ID
+    \return int Source type enum (i.e. POINT_SOURCE)
+*/
+
+extern int GetCFDSourceTypeByID( const std::string & source_id );
 
 /*!
     \ingroup CFDMesh
@@ -3618,12 +3731,50 @@ extern int GetCFDSourceType( const std::string & geom_id, int source_index );
 
     \endcode
     \endPythonOnly
-    \sa AddCFDSource, AddDefaultSources, DeleteAllCFDSources, GetNumCFDSources
+    \sa AddCFDSource, AddDefaultSources, DeleteAllCFDSources, GetNumCFDSources, DeleteCFDSourceByID
     \param [in] geom_id string Geom ID
     \param [in] source_index int Source index
 */
 
 extern void DeleteCFDSource( const std::string & geom_id, int source_index );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Delete a CFD Mesh source, by source ID.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );
+
+    DeleteCFDSourceByID( src_id );
+
+    if ( GetNumCFDSources( pid ) != 0 )
+    {
+        Print( "ERROR: DeleteCFDSourceByID did not delete the source" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )
+
+    DeleteCFDSourceByID( src_id )
+
+    assert GetNumCFDSources( pid ) == 0, "DeleteCFDSourceByID did not delete the source"
+
+    \endcode
+    \endPythonOnly
+    \sa AddCFDSource, DeleteAllCFDSources, DeleteCFDSource
+    \param [in] source_id string CFD Mesh source ID
+*/
+
+extern void DeleteCFDSourceByID( const std::string & source_id );
 
 /*!
     \ingroup CFDMesh
@@ -3719,6 +3870,43 @@ extern void DeleteAllCFDSources();
 */
 
 extern std::string GetCFDSourceID( const std::string & geom_id, int source_index );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the IDs of the CFD Mesh sources of a Geom, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+
+    string src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );
+
+    array< string > @ids = GetCFDSourceIDVec( pid );
+
+    if ( ids.size() != 1 || ids[0] != src_id )
+    {
+        Print( "ERROR: GetCFDSourceIDVec did not return the source" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+
+    src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )
+
+    assert list( GetCFDSourceIDVec( pid ) ) == [ src_id ], "GetCFDSourceIDVec did not return the source"
+
+    \endcode
+    \endPythonOnly
+    \sa GetCFDSourceID, GetNumCFDSources
+    \param [in] geom_id string Geom ID
+    \return array<string> Array of CFD Mesh source IDs
+*/
+
+extern std::vector < std::string > GetCFDSourceIDVec( const std::string & geom_id );
 
 /*!
     \ingroup CFDMesh
@@ -3884,10 +4072,10 @@ extern void AddDefaultSources();
     //==== Add Pod Geom ====//
     string pid = AddGeom( "POD", "" );
 
-    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
+    string src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
 
     // The source lands on the Geom it was given, as the type it was given.
-    if ( GetNumCFDSources( pid ) != 1 || GetCFDSourceType( pid, 0 ) != POINT_SOURCE )
+    if ( GetNumCFDSources( pid ) != 1 || GetCFDSourceTypeByID( src_id ) != POINT_SOURCE )
     {
         Print( "ERROR: AddCFDSource did not add a point source" );
         __failure++;
@@ -3914,11 +4102,11 @@ extern void AddDefaultSources();
     #==== Add Pod Geom ====//
     pid = AddGeom( "POD", "" )
 
-    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
+    src_id = AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
 
     # The source lands on the Geom it was given, as the type it was given.
     assert GetNumCFDSources( pid ) == 1, "AddCFDSource did not add a point source"
-    assert GetCFDSourceType( pid, 0 ) == POINT_SOURCE, "AddCFDSource did not add a point source"
+    assert GetCFDSourceTypeByID( src_id ) == POINT_SOURCE, "AddCFDSource did not add a point source"
 
     # A source attached to a Geom that does not exist has to be rejected.  The
     # error queue is reached through the error manager singleton in Python.
@@ -3946,12 +4134,12 @@ extern void AddDefaultSources();
     \param [in] r2 double Source second radius
     \param [in] u2 double Source second U location
     \param [in] w2 double Source second W location
+    \return string ID of the new source
 */
 
-extern void AddCFDSource( int type, const std::string & geom_id, int surf_index,
-
-                          double l1, double r1, double u1, double w1,
-                          double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
+extern std::string AddCFDSource( int type, const std::string & geom_id, int surf_index,
+                                 double l1, double r1, double u1, double w1,
+                                 double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
 
 /*!
     \ingroup VSPAERO

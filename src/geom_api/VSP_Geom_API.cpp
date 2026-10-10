@@ -847,22 +847,22 @@ string GetCFDFarFieldGeomID()
 }
 
 /// Add A CFD Source
-void AddCFDSource( int type, const std::string & geom_id, int surf_index,
-                   double l1, double r1, double u1, double w1,
-                   double l2, double r2, double u2, double w2 )
+std::string AddCFDSource( int type, const std::string & geom_id, int surf_index,
+                          double l1, double r1, double u1, double w1,
+                          double l2, double r2, double u2, double w2 )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Geom " + geom_id );
-        return;
+        return std::string();
     }
 
     if ( surf_index < 0 || surf_index >= geom_ptr->GetNumMainSurfs() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddCFDSource::Geom " + geom_id + " has no main surface " + to_string( surf_index ) );
-        return;
+        return std::string();
     }
 
     CfdMeshMgr.SetCurrSourceGeomID( geom_id );
@@ -872,7 +872,7 @@ void AddCFDSource( int type, const std::string & geom_id, int surf_index,
     if ( !source )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Type" );
-        return;
+        return std::string();
     }
 
     source->m_Len = l1;
@@ -912,7 +912,7 @@ void AddCFDSource( int type, const std::string & geom_id, int surf_index,
         bs->m_Val = w1;
     }
     ErrorMgr.NoError();
-
+    return source->GetID();
 }
 
 /// Delete All CFD Sources
@@ -927,6 +927,48 @@ Geom* FindGeomForSources( const std::string & geom_id, const std::string & calle
         return nullptr;
     }
     return geom_ptr;
+}
+
+//==== The Geom a CFD source is on and the source's index there, reporting through
+//==== the named caller when it cannot be found. ====//
+Geom* FindCFDSourceGeom( const std::string & source_id, int & index, const std::string & caller )
+{
+    std::vector< Geom* > geom_vec = GetVehicle()->GetGeomStoreVec();
+    for ( size_t i = 0; i < geom_vec.size(); i++ )
+    {
+        std::vector< BaseSource* > source_vec = geom_vec[i]->GetCfdMeshMainSourceVec();
+        for ( int j = 0; j < ( int )source_vec.size(); j++ )
+        {
+            if ( source_vec[j]->GetID() == source_id )
+            {
+                index = j;
+                return geom_vec[i];
+            }
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find CFD Source " + source_id );
+    return nullptr;
+}
+
+std::vector < std::string > GetCFDSourceIDVec( const std::string & geom_id )
+{
+    std::vector < std::string > ret_vec;
+
+    Geom* geom_ptr = FindGeomForSources( geom_id, "GetCFDSourceIDVec" );
+    if ( !geom_ptr )
+    {
+        return ret_vec;
+    }
+
+    std::vector< BaseSource* > source_vec = geom_ptr->GetCfdMeshMainSourceVec();
+    for ( size_t i = 0; i < source_vec.size(); i++ )
+    {
+        ret_vec.push_back( source_vec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 int GetNumCFDSources( const std::string & geom_id )
@@ -961,9 +1003,9 @@ std::string GetCFDSourceID( const std::string & geom_id, int source_index )
     return source_vec[ source_index ]->GetID();
 }
 
-std::string GetCFDSourceName( const std::string & geom_id, int source_index )
+static std::string GetCFDSourceNameImpl( const std::string & geom_id, int source_index, const std::string & caller )
 {
-    Geom* geom_ptr = FindGeomForSources( geom_id, "GetCFDSourceName" );
+    Geom* geom_ptr = FindGeomForSources( geom_id, caller );
     if ( !geom_ptr )
     {
         return std::string();
@@ -973,7 +1015,7 @@ std::string GetCFDSourceName( const std::string & geom_id, int source_index )
 
     if ( source_index < 0 || source_index >= ( int )source_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetCFDSourceName::Source Index " + to_string( source_index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Source Index " + to_string( source_index ) + " Out of Range" );
         return std::string();
     }
 
@@ -981,9 +1023,26 @@ std::string GetCFDSourceName( const std::string & geom_id, int source_index )
     return source_vec[ source_index ]->GetName();
 }
 
-void SetCFDSourceName( const std::string & geom_id, int source_index, const std::string & name )
+std::string GetCFDSourceName( const std::string & geom_id, int source_index )
 {
-    Geom* geom_ptr = FindGeomForSources( geom_id, "SetCFDSourceName" );
+    return GetCFDSourceNameImpl( geom_id, source_index, "GetCFDSourceName" );
+}
+
+std::string GetCFDSourceNameByID( const std::string & source_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindCFDSourceGeom( source_id, index, "GetCFDSourceNameByID" );
+    if ( !geom_ptr )
+    {
+        return std::string();
+    }
+
+    return GetCFDSourceNameImpl( geom_ptr->GetID(), index, "GetCFDSourceNameByID" );
+}
+
+static void SetCFDSourceNameImpl( const std::string & geom_id, int source_index, const std::string & name, const std::string & caller )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, caller );
     if ( !geom_ptr )
     {
         return;
@@ -993,7 +1052,7 @@ void SetCFDSourceName( const std::string & geom_id, int source_index, const std:
 
     if ( source_index < 0 || source_index >= ( int )source_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetCFDSourceName::Source Index " + to_string( source_index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Source Index " + to_string( source_index ) + " Out of Range" );
         return;
     }
 
@@ -1002,9 +1061,26 @@ void SetCFDSourceName( const std::string & geom_id, int source_index, const std:
     ErrorMgr.NoError();
 }
 
-int GetCFDSourceType( const std::string & geom_id, int source_index )
+void SetCFDSourceName( const std::string & geom_id, int source_index, const std::string & name )
 {
-    Geom* geom_ptr = FindGeomForSources( geom_id, "GetCFDSourceType" );
+    SetCFDSourceNameImpl( geom_id, source_index, name, "SetCFDSourceName" );
+}
+
+void SetCFDSourceNameByID( const std::string & source_id, const std::string & name )
+{
+    int index = -1;
+    Geom* geom_ptr = FindCFDSourceGeom( source_id, index, "SetCFDSourceNameByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    SetCFDSourceNameImpl( geom_ptr->GetID(), index, name, "SetCFDSourceNameByID" );
+}
+
+static int GetCFDSourceTypeImpl( const std::string & geom_id, int source_index, const std::string & caller )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, caller );
     if ( !geom_ptr )
     {
         return -1;
@@ -1014,7 +1090,7 @@ int GetCFDSourceType( const std::string & geom_id, int source_index )
 
     if ( source_index < 0 || source_index >= ( int )source_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetCFDSourceType::Source Index " + to_string( source_index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Source Index " + to_string( source_index ) + " Out of Range" );
         return -1;
     }
 
@@ -1022,9 +1098,26 @@ int GetCFDSourceType( const std::string & geom_id, int source_index )
     return source_vec[ source_index ]->GetType();
 }
 
-void DeleteCFDSource( const std::string & geom_id, int source_index )
+int GetCFDSourceType( const std::string & geom_id, int source_index )
 {
-    Geom* geom_ptr = FindGeomForSources( geom_id, "DeleteCFDSource" );
+    return GetCFDSourceTypeImpl( geom_id, source_index, "GetCFDSourceType" );
+}
+
+int GetCFDSourceTypeByID( const std::string & source_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindCFDSourceGeom( source_id, index, "GetCFDSourceTypeByID" );
+    if ( !geom_ptr )
+    {
+        return -1;
+    }
+
+    return GetCFDSourceTypeImpl( geom_ptr->GetID(), index, "GetCFDSourceTypeByID" );
+}
+
+static void DeleteCFDSourceImpl( const std::string & geom_id, int source_index, const std::string & caller )
+{
+    Geom* geom_ptr = FindGeomForSources( geom_id, caller );
     if ( !geom_ptr )
     {
         return;
@@ -1032,7 +1125,7 @@ void DeleteCFDSource( const std::string & geom_id, int source_index )
 
     if ( source_index < 0 || source_index >= ( int )geom_ptr->GetCfdMeshMainSourceVec().size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteCFDSource::Source Index " + to_string( source_index ) + " Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Source Index " + to_string( source_index ) + " Out of Range" );
         return;
     }
 
@@ -1043,6 +1136,23 @@ void DeleteCFDSource( const std::string & geom_id, int source_index )
     geom_ptr->SetCurrSourceID( prev_curr );
 
     ErrorMgr.NoError();
+}
+
+void DeleteCFDSource( const std::string & geom_id, int source_index )
+{
+    DeleteCFDSourceImpl( geom_id, source_index, "DeleteCFDSource" );
+}
+
+void DeleteCFDSourceByID( const std::string & source_id )
+{
+    int index = -1;
+    Geom* geom_ptr = FindCFDSourceGeom( source_id, index, "DeleteCFDSourceByID" );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    DeleteCFDSourceImpl( geom_ptr->GetID(), index, "DeleteCFDSourceByID" );
 }
 
 void AdjustAllCFDSourceLen( double mult )

@@ -4097,13 +4097,25 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetCFDSourceName( const string & in geom_id, int source_index )", asFUNCTION( vsp::GetCFDSourceName ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string GetCFDSourceNameByID( const string & in source_id )", asFUNCTION( vsp::GetCFDSourceNameByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void SetCFDSourceName( const string & in geom_id, int source_index, const string & in name )", asFUNCTION( vsp::SetCFDSourceName ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetCFDSourceNameByID( const string & in source_id, const string & in name )", asFUNCTION( vsp::SetCFDSourceNameByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "int GetCFDSourceType( const string & in geom_id, int source_index )", asFUNCTION( vsp::GetCFDSourceType ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "int GetCFDSourceTypeByID( const string & in source_id )", asFUNCTION( vsp::GetCFDSourceTypeByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void DeleteCFDSource( const string & in geom_id, int source_index )", asFUNCTION( vsp::DeleteCFDSource ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteCFDSourceByID( const string & in source_id )", asFUNCTION( vsp::DeleteCFDSourceByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void SetCFDFarFieldGeomID( const string & in geom_id )", asFUNCTION( vsp::SetCFDFarFieldGeomID ), asCALL_CDECL );
@@ -4119,6 +4131,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetCFDSourceID( const string & in geom_id, int source_index )", asFUNCTION( vsp::GetCFDSourceID ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetCFDSourceIDVec( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetCFDSourceIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void AdjustAllCFDSourceLen( double mult )", asFUNCTION( vsp::AdjustAllCFDSourceLen ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -4131,7 +4146,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     r = se->RegisterGlobalFunction(
-        "void AddCFDSource( int type, const string & in geom_id, int surf_index, double l1, double r1, double u1, double w1, double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 )",
+        "string AddCFDSource( int type, const string & in geom_id, int surf_index, double l1, double r1, double u1, double w1, double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 )",
         asFUNCTION( vsp::AddCFDSource ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -7139,6 +7154,12 @@ CScriptArray* ScriptMgrSingleton::GetDriverGroup( const string & geom_id, int se
 {
     m_ProxyIntArray = vsp::GetDriverGroup( geom_id, section_index );
     return GetProxyIntArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetCFDSourceIDVec( const string & geom_id )
+{
+    m_ProxyStringArray = vsp::GetCFDSourceIDVec( geom_id );
+    return GetProxyStringArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetSkinSpineIDVec( const string & xsec_id )
