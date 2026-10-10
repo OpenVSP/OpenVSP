@@ -4874,6 +4874,7 @@ void CfdMeshMgrSingleton::TessellateChains()
         {
             vector< double > u = ( *c )->GetWakeAttachChain()->m_ACurve.GetUTessPnts();
             ( *c )->m_ACurve.Tesselate( u ); // Copy tessellation from matching chain.
+            ( *c )->m_ACurve.CleanupDistTable();
             ( *c )->TransferTess();
             ( *c )->ApplyTess( this );
         }

@@ -485,17 +485,18 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
     }
 }
 
+// Swapping with an empty vector gives the memory back, where clear() would keep it.
 void SCurve::CleanupDistTable()
 {
-    u_vec.clear();
-    dist_vec.clear();
-    target_vec.clear();
-    reason_vec.clear();
-    m_TableUW.clear();
-    m_TablePnt.clear();
+    vector< double >().swap( u_vec );
+    vector< double >().swap( dist_vec );
+    vector< double >().swap( target_vec );
+    vector< double >().swap( reason_vec );
+    vector< vec3d >().swap( m_TableUW );
+    vector< vec3d >().swap( m_TablePnt );
     m_TableBCurve = nullptr;
-    m_TableUWB.clear();
-    m_TablePntB.clear();
+    vector< vec3d >().swap( m_TableUWB );
+    vector< vec3d >().swap( m_TablePntB );
 }
 
 void SCurve::LimitTarget( SimpleGridDensity* grid_den )
