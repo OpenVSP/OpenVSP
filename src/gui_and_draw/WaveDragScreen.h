@@ -48,7 +48,6 @@ public:
 
 protected:
 
-    int m_SelectedModeChoice;
     vector < string > m_ModeIDs;
 
     //==== Run Tab ====//

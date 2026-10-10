@@ -363,7 +363,7 @@ bool WaveDragScreen::Update()
 
         m_ScreenMgr->LoadSetChoice( {&m_SelectedSetChoice}, {WaveDragMgr.m_SelectedSetIndex.GetID()} );
 
-        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+        m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, WaveDragMgr.m_ModeID );
 
         m_ModeSetToggleGroup.Update( WaveDragMgr.m_UseMode.GetID() );
 
@@ -386,7 +386,13 @@ bool WaveDragScreen::Update()
             m_ModeChoice.Activate();
             m_SelectedSetChoice.Deactivate();
 
-            Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+            // An unset or deleted mode falls back to the first, as the choice shows
+            if ( !ModeMgr.GetMode( WaveDragMgr.m_ModeID ) && !m_ModeIDs.empty() )
+            {
+                WaveDragMgr.m_ModeID = m_ModeIDs[0];
+            }
+
+            Mode *m = ModeMgr.GetMode( WaveDragMgr.m_ModeID );
             if ( m )
             {
                 if ( WaveDragMgr.m_SelectedSetIndex() != m->m_NormalSet() )
@@ -547,7 +553,15 @@ void WaveDragScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ModeChoice )
     {
-        m_SelectedModeChoice = m_ModeChoice.GetVal();
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0 && indx < ( int )m_ModeIDs.size() )
+        {
+            WaveDragMgr.m_ModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            WaveDragMgr.m_ModeID = "";
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
