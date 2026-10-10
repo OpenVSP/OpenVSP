@@ -116,8 +116,8 @@ public:
     bool m_UsedFlag;
     bool m_GroupedFlag;
     vec3d m_Pnt;
-    deque< Puw* >  m_Puws;
-    deque< ISeg* > m_Segs;
+    vector< Puw* >  m_Puws;
+    vector< ISeg* > m_Segs;
 
     // The edge the point lies on, and the point of the segment across it, where there is one
     IPntEdge m_Edge;
