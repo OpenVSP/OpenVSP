@@ -475,6 +475,12 @@ void Vehicle::Init()
 
     m_BEMPropID = string();
 
+    m_CompGeomModeID = string();
+    m_MassPropModeID = string();
+    m_DegenGeomModeID = string();
+    m_PlanarSlicesModeID = string();
+    m_ExportModeID = string();
+
     m_AFFileDir = string();
 
     m_UpdatingBBox = false;
@@ -657,6 +663,12 @@ void Vehicle::Wype()
     m_AFFileDir = string();
 
     m_BEMPropID = string();
+
+    m_CompGeomModeID = string();
+    m_MassPropModeID = string();
+    m_DegenGeomModeID = string();
+    m_PlanarSlicesModeID = string();
+    m_ExportModeID = string();
 
     // Named a Geom that the loop below deletes.
     m_LastMassMeshID = string();
@@ -3252,6 +3264,16 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     AeroStructMgr.EncodeXml( node );
     Background3DMgr.EncodeXml( node );
 
+    xmlNodePtr modenode = xmlNewChild( node, nullptr, BAD_CAST"VehicleModes", nullptr );
+    if ( modenode )
+    {
+        XmlUtil::AddStringNode( modenode, "CompGeomModeID", m_CompGeomModeID );
+        XmlUtil::AddStringNode( modenode, "MassPropModeID", m_MassPropModeID );
+        XmlUtil::AddStringNode( modenode, "DegenGeomModeID", m_DegenGeomModeID );
+        XmlUtil::AddStringNode( modenode, "PlanarSlicesModeID", m_PlanarSlicesModeID );
+        XmlUtil::AddStringNode( modenode, "ExportModeID", m_ExportModeID );
+    }
+
     xmlNodePtr setnamenode = xmlNewChild( node, nullptr, BAD_CAST"SetNames", nullptr );
     if ( setnamenode )
     {
@@ -3319,6 +3341,16 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     ParasiteDragMgr.DecodeXml( node );
     AeroStructMgr.DecodeXml( node );
     Background3DMgr.DecodeXml( node );
+
+    xmlNodePtr modenode = XmlUtil::GetNode( node, "VehicleModes", 0 );
+    if ( modenode )
+    {
+        m_CompGeomModeID = IDMgr.RemapRefID( XmlUtil::FindString( modenode, "CompGeomModeID", m_CompGeomModeID ) );
+        m_MassPropModeID = IDMgr.RemapRefID( XmlUtil::FindString( modenode, "MassPropModeID", m_MassPropModeID ) );
+        m_DegenGeomModeID = IDMgr.RemapRefID( XmlUtil::FindString( modenode, "DegenGeomModeID", m_DegenGeomModeID ) );
+        m_PlanarSlicesModeID = IDMgr.RemapRefID( XmlUtil::FindString( modenode, "PlanarSlicesModeID", m_PlanarSlicesModeID ) );
+        m_ExportModeID = IDMgr.RemapRefID( XmlUtil::FindString( modenode, "ExportModeID", m_ExportModeID ) );
+    }
 
     ParasiteDragMgr.CorrectTurbEquation();
 

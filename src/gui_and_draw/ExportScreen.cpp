@@ -111,7 +111,7 @@ bool ExportScreen::Update()
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     m_ScreenMgr->LoadSetChoice( {&m_ExportSetChoice, &m_DegenSetChoice}, {m_SelectedSetIndex, m_DegenSetIndex}, true );
-    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, vehiclePtr->m_ExportModeID );
 
     m_ModeSetToggleGroup.Update( vehiclePtr->m_UseModeExportFlag.GetID() );
 
@@ -135,7 +135,13 @@ bool ExportScreen::Update()
         m_ExportSetChoice.Deactivate();
         m_DegenSetChoice.Deactivate();
 
-        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        // An unset or deleted mode falls back to the first, as the choice shows
+        if ( !ModeMgr.GetMode( vehiclePtr->m_ExportModeID ) && !m_ModeIDs.empty() )
+        {
+            vehiclePtr->m_ExportModeID = m_ModeIDs[0];
+        }
+
+        Mode *m = ModeMgr.GetMode( vehiclePtr->m_ExportModeID );
         if ( m )
         {
             if ( m_SelectedSetIndex != m->m_NormalSet() ||
@@ -342,11 +348,7 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     int intSubsFlag = m_Subsurfs.GetFlButton()->value();
 
     bool useMode = veh->m_UseModeExportFlag();
-    string modeID;
-    if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
-    {
-        modeID = m_ModeIDs[ m_SelectedModeChoice ];
-    }
+    string modeID = veh->m_ExportModeID;
 
     if ( device == &m_XSecButton )
     {
@@ -463,7 +465,15 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ModeChoice )
     {
-        m_SelectedModeChoice = m_ModeChoice.GetVal();
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0 && indx < ( int )m_ModeIDs.size() )
+        {
+            veh->m_ExportModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            veh->m_ExportModeID = "";
+        }
     }
     else if ( device == &m_CustomScriptButton )
     {

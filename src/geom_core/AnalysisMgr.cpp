@@ -836,12 +836,12 @@ void CompGeomAnalysis::SetDefaults()
     m_Inputs.Add( new NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
     m_Inputs.Add( new NameValData( "HalfMeshFlag", 0, "Flag to control whether Y >= 0 half mesh is generated." ) );
     m_Inputs.Add( new NameValData( "SubSurfFlag", 1, "Flag to control whether subsurfaces are used in analysis." ) );
-    m_Inputs.Add( new NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {
+        m_Inputs.Add( new NameValData( "ModeID", veh->m_CompGeomModeID, "ID for Mode to use for analysis." ) );
         m_Inputs.Add( new NameValData( "WriteTXTFlag", veh->getExportCompGeomTxtFile(), "Flag to control whether TXT file is written." ) );
         m_Inputs.Add( new NameValData( "WriteCSVFlag", veh->getExportCompGeomCsvFile(), "Flag to control whether CSV file is written." ) );
         m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModeCompGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
@@ -1008,12 +1008,12 @@ void DegenGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
     m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
-    m_Inputs.Add( new NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {
+        m_Inputs.Add( new NameValData( "ModeID", veh->m_DegenGeomModeID, "ID for Mode to use for analysis." ) );
         m_Inputs.Add( new NameValData( "WriteCSVFlag", veh->getExportDegenGeomCsvFile(), "Flag to control whether CSV file is written." ) );
         m_Inputs.Add( new NameValData( "WriteMFileFlag", veh->getExportDegenGeomMFile(), "Flag to control whether Matlab file is written." ) );
         m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModeDegenGeomFlag(), "Flag to control whether Modes are used instead of Sets." ) );
@@ -1263,11 +1263,11 @@ void MassPropAnalysis::SetDefaults()
     m_Inputs.Clear();
     m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
     m_Inputs.Add( new NameValData( "DegenSet", vsp::SET_NONE, "Degenerate geometry Set for analysis." ) );
-    m_Inputs.Add( new NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
+        m_Inputs.Add( new NameValData( "ModeID", veh->m_MassPropModeID, "ID for Mode to use for analysis." ) );
         m_Inputs.Add( new NameValData( "NumMassSlices", veh->m_NumMassSlices.Get(), "Number of slices." ) );
         m_Inputs.Add( new NameValData( "MassSliceDir", veh->m_MassSliceDir.Get(), "Direction for mass property slicing." ) );
         m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModeMassFlag(), "Flag to control whether Modes are used instead of Sets." ) );
@@ -1696,7 +1696,7 @@ void PlanarSliceAnalysis::SetDefaults()
 
     m_Inputs.Add( new NameValData( "Set", vsp::SET_ALL, "Geometry Set for analysis." ) );
     m_Inputs.Add( new NameValData( "NumSlices", veh->m_NumPlanerSlices.Get(), "Number of slices." ) );
-    m_Inputs.Add( new NameValData( "ModeID", string( "" ), "ID for Mode to use for analysis." ) );
+    m_Inputs.Add( new NameValData( "ModeID", veh->m_PlanarSlicesModeID, "ID for Mode to use for analysis." ) );
     m_Inputs.Add( new NameValData( "UseModeFlag", veh->m_UseModePlanarSlicesFlag(), "Flag to control whether Modes are used instead of Sets." ) );
 
     vec3d norm;

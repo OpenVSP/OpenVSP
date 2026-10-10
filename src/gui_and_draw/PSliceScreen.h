@@ -69,7 +69,6 @@ protected:
 private :
 
     int m_SelectedSetIndex;
-    int m_SelectedModeChoice;
     vector < string > m_ModeIDs;
 };
 

@@ -107,7 +107,6 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "
 
     m_SelectedSetIndex = DEFAULT_SET;
     m_DegenSelectedSetIndex = vsp::SET_NONE;
-    m_SelectedModeChoice = 0;
 
     m_Subsurfs.GetFlButton()->value( 1 );
 }
@@ -138,7 +137,7 @@ bool CompGeomScreen::Update()
 
     m_ScreenMgr->LoadSetChoice( {&m_UseSet, &m_DegenSet}, {m_SelectedSetIndex, m_DegenSelectedSetIndex}, true );
 
-    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, vehiclePtr->m_CompGeomModeID );
 
     //===== Update File Toggle Buttons =====//
     m_TxtToggle.Update( vehiclePtr->m_exportCompGeomTxtFile.GetID() );
@@ -170,7 +169,13 @@ bool CompGeomScreen::Update()
         m_UseSet.Deactivate();
         m_DegenSet.Deactivate();
 
-        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        // An unset or deleted mode falls back to the first, as the choice shows
+        if ( !ModeMgr.GetMode( vehiclePtr->m_CompGeomModeID ) && !m_ModeIDs.empty() )
+        {
+            vehiclePtr->m_CompGeomModeID = m_ModeIDs[0];
+        }
+
+        Mode *m = ModeMgr.GetMode( vehiclePtr->m_CompGeomModeID );
         if ( m )
         {
             if ( m_SelectedSetIndex != m->m_NormalSet() ||
@@ -223,7 +228,15 @@ void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ModeChoice )
     {
-        m_SelectedModeChoice = m_ModeChoice.GetVal();
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0 && indx < ( int )m_ModeIDs.size() )
+        {
+            vehiclePtr->m_CompGeomModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            vehiclePtr->m_CompGeomModeID = "";
+        }
     }
     else if ( device == &m_UseSet )
     {
@@ -236,11 +249,7 @@ void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_Execute )
     {
         bool useMode = vehiclePtr->m_UseModeCompGeomFlag();
-        string modeID;
-        if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
-        {
-            modeID = m_ModeIDs[ m_SelectedModeChoice ];
-        }
+        string modeID = vehiclePtr->m_CompGeomModeID;
 
         bool hideset = true;
         bool suppressdisks = false;

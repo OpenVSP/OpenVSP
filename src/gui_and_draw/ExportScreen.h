@@ -81,7 +81,6 @@ protected:
 
     int m_SelectedSetIndex;
     int m_DegenSetIndex;
-    int m_SelectedModeChoice;
     vector < string > m_ModeIDs;
 };
 

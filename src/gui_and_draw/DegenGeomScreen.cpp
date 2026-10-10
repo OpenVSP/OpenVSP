@@ -132,7 +132,7 @@ bool DegenGeomScreen::Update()
 
     m_ScreenMgr->LoadSetChoice( {&m_UseSet}, vector < int >( { m_SelectedSetIndex } ) );
 
-    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, vehiclePtr->m_DegenGeomModeID );
 
     m_ModeSetToggleGroup.Update( vehiclePtr->m_UseModeDegenGeomFlag.GetID() );
 
@@ -155,7 +155,13 @@ bool DegenGeomScreen::Update()
         m_ModeChoice.Activate();
         m_UseSet.Deactivate();
 
-        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        // An unset or deleted mode falls back to the first, as the choice shows
+        if ( !ModeMgr.GetMode( vehiclePtr->m_DegenGeomModeID ) && !m_ModeIDs.empty() )
+        {
+            vehiclePtr->m_DegenGeomModeID = m_ModeIDs[0];
+        }
+
+        Mode *m = ModeMgr.GetMode( vehiclePtr->m_DegenGeomModeID );
         if ( m )
         {
             if ( m_SelectedSetIndex != m->m_NormalSet() )
@@ -221,7 +227,15 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ModeChoice )
     {
-        m_SelectedModeChoice = m_ModeChoice.GetVal();
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0 && indx < ( int )m_ModeIDs.size() )
+        {
+            vehiclePtr->m_DegenGeomModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            vehiclePtr->m_DegenGeomModeID = "";
+        }
     }
     else if ( device == &m_Execute )
     {
@@ -230,12 +244,7 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
         Fl::flush();
 
         bool useMode = vehiclePtr->m_UseModeDegenGeomFlag();
-        string modeID;
-
-        if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
-        {
-            modeID = m_ModeIDs[m_SelectedModeChoice];
-        }
+        string modeID = vehiclePtr->m_DegenGeomModeID;
 
         vehiclePtr->CreateDegenGeom( m_SelectedSetIndex, useMode, modeID );
         m_TextDisplay->buffer()->append("Done!\n");
@@ -255,7 +264,7 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( vehiclePtr->m_UseModeDegenGeomFlag() )
         {
-            Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+            Mode *m = ModeMgr.GetMode( vehiclePtr->m_DegenGeomModeID );
             if ( m )
             {
                 m->ApplySettings();

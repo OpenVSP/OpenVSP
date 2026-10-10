@@ -130,7 +130,7 @@ bool PSliceScreen::Update()
 
     m_ScreenMgr->LoadSetChoice( {&m_SetChoice}, vector<int>({m_SelectedSetIndex}) );
 
-    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, veh->m_PlanarSlicesModeID );
 
     m_ModeSetToggleGroup.Update( veh->m_UseModePlanarSlicesFlag.GetID() );
 
@@ -153,7 +153,13 @@ bool PSliceScreen::Update()
         m_ModeChoice.Activate();
         m_SetChoice.Deactivate();
 
-        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        // An unset or deleted mode falls back to the first, as the choice shows
+        if ( !ModeMgr.GetMode( veh->m_PlanarSlicesModeID ) && !m_ModeIDs.empty() )
+        {
+            veh->m_PlanarSlicesModeID = m_ModeIDs[0];
+        }
+
+        Mode *m = ModeMgr.GetMode( veh->m_PlanarSlicesModeID );
         if ( m )
         {
             if ( m_SelectedSetIndex != m->m_NormalSet() )
@@ -255,11 +261,7 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_StartSlicingTrigger )
     {
         bool useMode = veh->m_UseModePlanarSlicesFlag();
-        string modeID;
-        if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
-        {
-            modeID = m_ModeIDs[ m_SelectedModeChoice ];
-        }
+        string modeID = veh->m_PlanarSlicesModeID;
 
         string id = veh->PSliceAndFlatten( m_SelectedSetIndex, veh->m_NumPlanerSlices.Get(), m_Norm,
                                            !!veh->m_AutoBoundsFlag.Get(),
@@ -276,7 +278,15 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ModeChoice )
     {
-        m_SelectedModeChoice = m_ModeChoice.GetVal();
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0 && indx < ( int )m_ModeIDs.size() )
+        {
+            veh->m_PlanarSlicesModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            veh->m_PlanarSlicesModeID = "";
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

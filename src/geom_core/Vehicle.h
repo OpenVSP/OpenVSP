@@ -622,6 +622,13 @@ public:
     BoolParm m_UseModeExportFlag;
     BoolParm m_UseModeDegenGeomFlag;
 
+    // The Mode each of the UseMode flags selects
+    string m_CompGeomModeID;
+    string m_MassPropModeID;
+    string m_DegenGeomModeID;
+    string m_PlanarSlicesModeID;
+    string m_ExportModeID;
+
     BoolParm m_exportCompGeomTxtFile;
     BoolParm m_exportCompGeomCsvFile;
     BoolParm m_exportDegenGeomCsvFile;

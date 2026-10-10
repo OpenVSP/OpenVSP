@@ -21,7 +21,6 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440+40
 
     m_SelectedSetIndex = DEFAULT_SET;
     m_DegenSelectedSetIndex = vsp::SET_NONE;
-    m_SelectedModeChoice = 0;
 
     m_MainLayout.ForceNewLine();
     m_MainLayout.AddY( yPadding );
@@ -136,7 +135,7 @@ bool MassPropScreen::Update()
 
     m_ScreenMgr->LoadSetChoice( {&m_SetChoice, &m_DegenSet}, {m_SelectedSetIndex, m_DegenSelectedSetIndex}, true );
 
-    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, m_SelectedModeChoice );
+    m_ScreenMgr->LoadModeChoice( m_ModeChoice, m_ModeIDs, veh->m_MassPropModeID );
 
     m_ModeSetToggleGroup.Update( veh->m_UseModeMassFlag.GetID() );
 
@@ -160,7 +159,13 @@ bool MassPropScreen::Update()
         m_SetChoice.Deactivate();
         m_DegenSet.Deactivate();
 
-        Mode *m = ModeMgr.GetMode( m_ModeIDs[m_SelectedModeChoice] );
+        // An unset or deleted mode falls back to the first, as the choice shows
+        if ( !ModeMgr.GetMode( veh->m_MassPropModeID ) && !m_ModeIDs.empty() )
+        {
+            veh->m_MassPropModeID = m_ModeIDs[0];
+        }
+
+        Mode *m = ModeMgr.GetMode( veh->m_MassPropModeID );
         if ( m )
         {
             if ( m_SelectedSetIndex != m->m_NormalSet() ||
@@ -266,16 +271,20 @@ void MassPropScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ModeChoice )
     {
-        m_SelectedModeChoice = m_ModeChoice.GetVal();
+        int indx = m_ModeChoice.GetVal();
+        if ( indx >= 0 && indx < ( int )m_ModeIDs.size() )
+        {
+            veh->m_MassPropModeID = m_ModeIDs[ indx ];
+        }
+        else
+        {
+            veh->m_MassPropModeID = "";
+        }
     }
     else if ( device == &m_ComputeButton )
     {
         bool useMode = veh->m_UseModeMassFlag();
-        string modeID;
-        if ( m_SelectedModeChoice >= 0 && m_SelectedModeChoice < m_ModeIDs.size() )
-        {
-            modeID = m_ModeIDs[ m_SelectedModeChoice ];
-        }
+        string modeID = veh->m_MassPropModeID;
 
         bool hidegeom = true;
         bool writefile = true;
