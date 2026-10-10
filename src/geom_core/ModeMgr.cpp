@@ -89,7 +89,10 @@ void Mode::ApplySettings()
 
         SettingGroup * sg = VarPresetMgr.FindSettingGroup( gid );
 
-        sg->ApplySetting( sid );
+        if ( sg )
+        {
+            sg->ApplySetting( sid );
+        }
     }
 
     Vehicle* veh = VehicleMgr.GetVehicle();
