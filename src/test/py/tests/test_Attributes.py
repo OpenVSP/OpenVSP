@@ -268,6 +268,15 @@ def testAttributesFoundByNameComeInAStableOrder():
         assert vsp.FindAttributeByName( "Weight", i ) == attr
 
 
+def testListingAMissingCollectionIsAnError():
+    vsp.VSPRenew()
+    pop_errors()
+    vsp.FindAttributesInCollection( "no such collection" )
+    assert pop_errors(), "FindAttributesInCollection accepted a missing collection"
+    vsp.FindAttributeNamesInCollection( "no such collection" )
+    assert pop_errors(), "FindAttributeNamesInCollection accepted a missing collection"
+
+
 def testPastingAttributesOntoAnUnknownIDPastesNothing():
     vsp.VSPRenew()
     pod = vsp.AddGeom( "POD" )

@@ -2030,11 +2030,25 @@ std::string FindAttributeInCollection( const std::string & obj_id, const std::st
 
 std::vector< std::string > FindAttributeNamesInCollection( const std::string & collID )
 {
+    if ( !AttributeMgr.GetCollectionPtr( collID ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindAttributeNamesInCollection::Can't Find Attribute Collection " + collID );
+        return std::vector< std::string >();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.FindAttributeNamesInCollection( collID );
 }
 
 std::vector< std::string > FindAttributesInCollection( const std::string & collID )
 {
+    if ( !AttributeMgr.GetCollectionPtr( collID ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindAttributesInCollection::Can't Find Attribute Collection " + collID );
+        return std::vector< std::string >();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.FindAttributesInCollection( collID );
 }
 
