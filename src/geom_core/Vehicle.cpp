@@ -3266,6 +3266,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     ParasiteDragMgr.EncodeXml( node );
     AeroStructMgr.EncodeXml( node );
     Background3DMgr.EncodeXml( node );
+    ProjectionMgr.EncodeXml( node );
 
     xmlNodePtr modenode = xmlNewChild( node, nullptr, BAD_CAST"VehicleModes", nullptr );
     if ( modenode )
@@ -3344,6 +3345,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     ParasiteDragMgr.DecodeXml( node );
     AeroStructMgr.DecodeXml( node );
     Background3DMgr.DecodeXml( node );
+    ProjectionMgr.DecodeXml( node );
 
     xmlNodePtr modenode = XmlUtil::GetNode( node, "VehicleModes", 0 );
     if ( modenode )

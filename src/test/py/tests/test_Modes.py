@@ -61,6 +61,31 @@ def testTheModeEachVehicleAnalysisUsesIsKeptInTheFile():
         vsp.WriteVSPFile( fname )
 
 
+def testTheProjectionChoicesAreKeptInTheFile():
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    mid = vsp.CreateAndAddMode( "Mode", vsp.SET_ALL, vsp.SET_NONE )
+    fname = os.path.join( tempfile.mkdtemp(), "projection.vsp3" )
+    vsp.WriteVSPFile( fname )
+
+    # Only the GUI sets these, so they are set in the file
+    choices = { "TargetSetIndex": "3", "BoundarySetIndex": "4", "ModeID": mid,
+                "TargetGeomID": pod, "BoundaryGeomID": pod, "DirectionGeomID": pod }
+    tree = xml.etree.ElementTree.parse( fname )
+    node = tree.getroot().find( "ProjectionMgr" )
+    for name, val in choices.items():
+        node.find( name ).text = val
+    tree.write( fname )
+
+    for i in range( 2 ):
+        vsp.ClearVSPModel()
+        vsp.ReadVSPFile( fname )
+        vsp.WriteVSPFile( fname )
+        node = xml.etree.ElementTree.parse( fname ).getroot().find( "ProjectionMgr" )
+        for name, val in choices.items():
+            assert node.find( name ).text == val, name
+
+
 def geometry_analysis_result( primary_type ):
     vsp.VSPRenew()
     vsp.AddGeom( "POD" )

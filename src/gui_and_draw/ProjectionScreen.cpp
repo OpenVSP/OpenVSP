@@ -245,6 +245,10 @@ bool ProjectionScreen::Update()
     m_TargetTypeGroup.Update( vehiclePtr->m_TargetType.GetID() );
     m_DirectionTypeGroup.Update( vehiclePtr->m_DirectionType.GetID() );
 
+    m_BoundaryGeom.SetGeomChoice( ProjectionMgr.m_BoundaryGeomID );
+    m_TargetGeom.SetGeomChoice( ProjectionMgr.m_TargetGeomID );
+    m_DirectionGeom.SetGeomChoice( ProjectionMgr.m_DirectionGeomID );
+
     m_BoundaryGeom.Update();
     m_TargetGeom.Update();
     m_DirectionGeom.Update();
@@ -417,6 +421,10 @@ void ProjectionScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_BoundarySet )
     {
         ProjectionMgr.m_BoundarySetIndex = m_BoundarySet.GetVal();
+    }
+    else if ( device == &m_TargetGeom || device == &m_BoundaryGeom || device == &m_DirectionGeom )
+    {
+        ProjectionMgr.SetGeomIDs( m_TargetGeom.GetGeomChoice(), m_BoundaryGeom.GetGeomChoice(), m_DirectionGeom.GetGeomChoice() );
     }
     else if ( device == &m_FileTrigger  )
     {

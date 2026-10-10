@@ -46,6 +46,9 @@ public:
 
     virtual void Renew();
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual Results* Project( );

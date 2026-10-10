@@ -16,6 +16,7 @@
 #include "MeshGeom.h"
 #include "ModeMgr.h"
 #include "MessageMgr.h"
+#include "IDMgr.h"
 #include "PGMesh.h"
 
 #include "triangle.h"
@@ -58,6 +59,40 @@ void ProjectionMgrSingleton::Renew()
     m_TargetGeomID = string();
     m_BoundaryGeomID = string();
     m_DirectionGeomID = string();
+}
+
+xmlNodePtr ProjectionMgrSingleton::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr projnode = xmlNewChild( node, nullptr, BAD_CAST"ProjectionMgr", nullptr );
+
+    if ( projnode )
+    {
+        XmlUtil::AddIntNode( projnode, "TargetSetIndex", m_TargetSetIndex );
+        XmlUtil::AddIntNode( projnode, "BoundarySetIndex", m_BoundarySetIndex );
+        XmlUtil::AddStringNode( projnode, "ModeID", m_ModeID );
+        XmlUtil::AddStringNode( projnode, "TargetGeomID", m_TargetGeomID );
+        XmlUtil::AddStringNode( projnode, "BoundaryGeomID", m_BoundaryGeomID );
+        XmlUtil::AddStringNode( projnode, "DirectionGeomID", m_DirectionGeomID );
+    }
+
+    return projnode;
+}
+
+xmlNodePtr ProjectionMgrSingleton::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr projnode = XmlUtil::GetNode( node, "ProjectionMgr", 0 );
+
+    if ( projnode )
+    {
+        m_TargetSetIndex = XmlUtil::FindInt( projnode, "TargetSetIndex", m_TargetSetIndex );
+        m_BoundarySetIndex = XmlUtil::FindInt( projnode, "BoundarySetIndex", m_BoundarySetIndex );
+        m_ModeID = IDMgr.RemapRefID( XmlUtil::FindString( projnode, "ModeID", m_ModeID ) );
+        m_TargetGeomID = IDMgr.RemapRefID( XmlUtil::FindString( projnode, "TargetGeomID", m_TargetGeomID ) );
+        m_BoundaryGeomID = IDMgr.RemapRefID( XmlUtil::FindString( projnode, "BoundaryGeomID", m_BoundaryGeomID ) );
+        m_DirectionGeomID = IDMgr.RemapRefID( XmlUtil::FindString( projnode, "DirectionGeomID", m_DirectionGeomID ) );
+    }
+
+    return projnode;
 }
 
 void ProjectionMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
