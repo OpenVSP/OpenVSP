@@ -722,7 +722,7 @@ void WriteVSPGeomParents( FILE* file_id, int &tcount, const vector< TTri* > &tri
 }
 
 
-int WriteVSPGeomWakes( FILE* file_id, int offset, const vector< deque< TEdge > > &wakes, const vector< TNode* > &nodvec )
+int WriteVSPGeomWakes( FILE* file_id, int offset, const vector< vector< TEdge > > &wakes, const vector< TNode* > &nodvec )
 {
     int nwake = wakes.size();
 

@@ -4490,7 +4490,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         {
             // A Clone of a mesh has no wakes, but the offset must still step over its nodes.
             MeshGeom* wake_mesh = dynamic_cast< MeshGeom* >( mg_geom_vec[i] );
-            vector < deque < TEdge > > no_wakes;
+            vector < vector < TEdge > > no_wakes;
 
             if ( wake_mesh )
             {

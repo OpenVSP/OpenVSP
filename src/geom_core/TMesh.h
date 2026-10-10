@@ -29,14 +29,12 @@
 #include <string>
 #include <set>
 #include <unordered_map>
-#include <deque>
 #include <list>
 
 using std::vector;
 using std::string;
 using std::set;
 using std::unordered_map;
-using std::deque;
 using std::list;
 
 
@@ -570,8 +568,8 @@ public:
     virtual void WriteVSPGeomAlternateParts( FILE* file_id );
     virtual int WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag );
     virtual int CountVSPGeomPartTagTris( int part, int tag );
-    virtual void IdentifyWakes( vector < deque < TEdge > > &wakes );
-    virtual void WriteVSPGeomWakes( FILE* file_id, vector < deque < TEdge > > &wakes );
+    virtual void IdentifyWakes( vector < vector < TEdge > > &wakes );
+    virtual void WriteVSPGeomWakes( FILE* file_id, vector < vector < TEdge > > &wakes );
 
     virtual vec3d GetVertex( int index );
     virtual int   NumVerts();
@@ -844,8 +842,8 @@ int  CountVSPGeomParts( const vector < int > &parts, const vector< TTri* > &triv
 
 void WriteVSPGeomParents( FILE* file_id, int &tcount, const vector< TTri* > &trivec );
 
-void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wakes, vector< vector< vec3d > > &polyvec );
-int  WriteVSPGeomWakes( FILE* file_id, int offset, const vector< deque< TEdge > > &wakes, const vector< TNode* > &nodvec );
+void IdentifyWakes( const vector< TTri* > &trivec, vector< vector< TEdge > > &wakes, vector< vector< vec3d > > &polyvec );
+int  WriteVSPGeomWakes( FILE* file_id, int offset, const vector< vector< TEdge > > &wakes, const vector< TNode* > &nodvec );
 
 //=============================================================================
 // Mesh Analysis

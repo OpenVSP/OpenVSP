@@ -5632,7 +5632,7 @@ void TMesh::WriteTRI( string fname, double scale )
 
 void TMesh::WriteVSPGeom( const string file_name )
 {
-    vector < deque < TEdge > > wakes;
+    vector < vector < TEdge > > wakes;
     IdentifyWakes( wakes );
 
     //==== Open file ====//
@@ -5822,7 +5822,7 @@ static bool AboutEqualWakeEdges( const TEdge &a, const TEdge &b )
 }
 
 // Called from: void TMesh::WriteVSPGeom( const string file_name )
-void TMesh::IdentifyWakes( vector < deque < TEdge > > &wakes )
+void TMesh::IdentifyWakes( vector < vector < TEdge > > &wakes )
 {
     vector < TEdge > wakeedges;
 
@@ -5862,38 +5862,35 @@ void TMesh::IdentifyWakes( vector < deque < TEdge > > &wakes )
 
 
     wakes.clear();
-    int iwake = 0;
 
     while ( !wlist.empty() )
     {
         list < TEdge >::iterator wit = wlist.begin();
 
-        iwake = wakes.size();
-        wakes.resize( iwake + 1 );
-        wakes[iwake].push_back( *wit );
+        TwoEndedVector < TEdge > wake( *wit );
         wit = wlist.erase( wit );
 
         while ( wit != wlist.end() )
         {
-            if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            if ( AboutEqualWakeNodes( wake.back().m_N1, (*wit).m_N0 ) )
             {
-                wakes[iwake].push_back( *wit );
+                wake.push_back( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            else if ( AboutEqualWakeNodes( wake.front().m_N0, (*wit).m_N1 ) )
             {
-                wakes[iwake].push_front( *wit );
+                wake.push_front( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
             wit++;
         }
-    }
 
-    int nwake = wakes.size();
+        wakes.push_back( wake.GetVector() );
+    }
 }
 
 // IdentifyWakes -- standalone version for pre-built indexed meshes (Indexed Mesh API)
@@ -5906,7 +5903,7 @@ void TMesh::IdentifyWakes( vector < deque < TEdge > > &wakes )
 //   - Populates polyvec with the XYZ vertex coordinates of each assembled wake polyline.
 //
 // Called by: MeshGeom::WriteVSPGeom, Vehicle::WriteVSPGeomFile
-void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wakes, vector< vector< vec3d > > &polyvec )
+void IdentifyWakes( const vector< TTri* > &trivec, vector< vector< TEdge > > &wakes, vector< vector< vec3d > > &polyvec )
 {
     vector < TEdge > wakeedges;
 
@@ -5944,57 +5941,56 @@ void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wak
     list < TEdge > wlist( wakeedges.begin(), wakeedges.end() );
 
     wakes.clear();
-    int iwake = 0;
 
     while ( !wlist.empty() )
     {
         list < TEdge >::iterator wit = wlist.begin();
 
-        iwake = wakes.size();
-        wakes.resize( iwake + 1 );
-        wakes[iwake].push_back( *wit );
+        TwoEndedVector < TEdge > wake( *wit );
         wit = wlist.erase( wit );
 
         while ( wit != wlist.end() )
         {
-            if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            if ( AboutEqualWakeNodes( wake.back().m_N1, (*wit).m_N0 ) )
             {
-                wakes[iwake].push_back( *wit );
+                wake.push_back( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            else if ( AboutEqualWakeNodes( wake.front().m_N0, (*wit).m_N1 ) )
             {
-                wakes[iwake].push_front( *wit );
+                wake.push_front( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N1 ) )
+            else if ( AboutEqualWakeNodes( wake.back().m_N1, (*wit).m_N1 ) )
             {
                 (*wit).SwapEdgeDirection();
-                wakes[iwake].push_back( *wit );
+                wake.push_back( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N0 ) )
+            else if ( AboutEqualWakeNodes( wake.front().m_N0, (*wit).m_N0 ) )
             {
                 (*wit).SwapEdgeDirection();
-                wakes[iwake].push_front( *wit );
+                wake.push_front( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
             wit++;
         }
+
+        wakes.push_back( wake.GetVector() );
     }
 
     int nwake = wakes.size();
     polyvec.resize( nwake );
 
-    for ( iwake = 0; iwake < nwake; iwake++ )
+    for ( int iwake = 0; iwake < nwake; iwake++ )
     {
         int iwe;
         int nwe = wakes[iwake].size();
@@ -6008,7 +6004,7 @@ void IdentifyWakes( const vector< TTri* > &trivec, vector< deque< TEdge > > &wak
     }
 }
 
-void TMesh::WriteVSPGeomWakes( FILE* file_id, vector < deque < TEdge > > &wakes )
+void TMesh::WriteVSPGeomWakes( FILE* file_id, vector < vector < TEdge > > &wakes )
 {
     int nwake = wakes.size();
 

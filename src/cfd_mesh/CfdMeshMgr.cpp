@@ -2014,35 +2014,35 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
     list < pair < int, int > > wlist( wedges.begin(), wedges.end() );
 
-    vector < deque < pair < int, int > > > wakes;
+    vector < vector < pair < int, int > > > wakes;
 
     while ( !wlist.empty() )
     {
         list < pair < int, int > >::iterator wit = wlist.begin();
 
-        int iwake = wakes.size();
-        wakes.resize( iwake + 1 );
-        wakes[iwake].push_back( *wit );
+        TwoEndedVector < pair < int, int > > wake( *wit );
         wit = wlist.erase( wit );
 
         while ( wit != wlist.end() )
         {
-            if ( wakes[iwake].back().second == (*wit).first )
+            if ( wake.back().second == (*wit).first )
             {
-                wakes[iwake].push_back( *wit );
+                wake.push_back( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( wakes[iwake].begin()->first == (*wit).second )
+            else if ( wake.front().first == (*wit).second )
             {
-                wakes[iwake].push_front( *wit );
+                wake.push_front( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
             wit++;
         }
+
+        wakes.push_back( wake.GetVector() );
     }
 
 

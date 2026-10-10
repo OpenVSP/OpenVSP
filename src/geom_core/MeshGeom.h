@@ -101,7 +101,7 @@ public:
     vector < TMesh* > m_TMeshVec;
     vector < TMesh* > m_SliceVec;
     vector < vector < vec3d > > m_PolyVec;
-    vector < deque < TEdge > > m_Wakes;
+    vector < vector < TEdge > > m_Wakes;
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
