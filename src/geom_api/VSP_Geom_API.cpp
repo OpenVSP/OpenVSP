@@ -6021,6 +6021,7 @@ void SetXSecAlias( const std::string & id, const std::string & alias )
     if ( !xs )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecAlias::Can't Find XSec " + id );
+        return;
     }
 
     ErrorMgr.NoError();
@@ -6046,6 +6047,7 @@ void SetXSecCurveAlias( const std::string & id, const std::string & alias )
     if ( !xs )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurveAlias::Can't Find XSec " + id );
+        return;
     }
     XSecCurve* xsc = xs->GetXSecCurve();
 

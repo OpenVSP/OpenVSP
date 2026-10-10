@@ -26,3 +26,13 @@ def testClearingSkinningPastTheLastSectionIsRefused():
     assert_no_errors()
     vsp.ClearSkinning( sid, 99 )
     assert pop_errors(), "ClearSkinning accepted a section past the last"
+
+
+def testAnAliasForAMissingXSecIsAnError():
+    """SetXSecAlias and SetXSecCurveAlias report a missing XSec and stop."""
+    vsp.VSPRenew()
+    drop_errors()
+    vsp.SetXSecAlias( "no such xsec", "A" )
+    assert pop_errors(), "SetXSecAlias accepted a missing XSec"
+    vsp.SetXSecCurveAlias( "no such xsec", "A" )
+    assert pop_errors(), "SetXSecCurveAlias accepted a missing XSec"
