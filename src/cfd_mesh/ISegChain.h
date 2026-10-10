@@ -28,7 +28,6 @@
 #include <cassert>
 
 #include <vector>
-#include <deque>
 #include <list>
 using namespace std;
 
@@ -221,11 +220,6 @@ public:
 
     void FlipDir();
 
-    void AddSeg( ISeg* seg, bool frontFlag );
-
-    // Add seg at the front or back, turned so its end joinIPnt is next to the chain
-    void AddSeg( ISeg* seg, bool frontFlag, IPnt* joinIPnt );
-
     double MatchDist( ISeg* s );
     double ChainDist( ISegChain* B );
     bool Match( ISegChain* B );
@@ -289,7 +283,7 @@ public:
 
     ISegChain* m_WakeAttachChain;
 
-    deque < ISeg* > m_ISegDeque;
+    vector< ISeg* > m_ISegVec;
 
     ISegBox m_ISegBoxA;
     ISegBox m_ISegBoxB;

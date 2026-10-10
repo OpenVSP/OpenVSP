@@ -6194,10 +6194,10 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
         ISegChain* dchain = m_DegenCornerChains[i];
 
         // Add points
-        for ( int j = 0; j < dchain->m_ISegDeque.size(); j++ )
+        for ( int j = 0; j < dchain->m_ISegVec.size(); j++ )
         {
-            m_DegenCornerPointDO.m_PntVec.push_back( dchain->m_ISegDeque[j]->m_IPnt[0]->m_Pnt );
-            m_DegenCornerPointDO.m_PntVec.push_back( dchain->m_ISegDeque[j]->m_IPnt[1]->m_Pnt );
+            m_DegenCornerPointDO.m_PntVec.push_back( dchain->m_ISegVec[j]->m_IPnt[0]->m_Pnt );
+            m_DegenCornerPointDO.m_PntVec.push_back( dchain->m_ISegVec[j]->m_IPnt[1]->m_Pnt );
         }
 
         for ( int j = 0; j < dchain->m_TessVec.size() - 1; j++ )
@@ -7045,19 +7045,19 @@ void CfdMeshMgrSingleton::FindDegenCorners()
                     if (((( *c )->m_SurfA == ( *d )->m_SurfA ) || (( *c )->m_SurfA == ( *d )->m_SurfB )) &&
                         ((( *c )->m_SurfB == ( *d )->m_SurfA ) || (( *c )->m_SurfB == ( *d )->m_SurfB )))
                     {
-                        ISeg* frontSegC = ( *c )->m_ISegDeque.front();
+                        ISeg* frontSegC = ( *c )->m_ISegVec.front();
                         frontSegC->m_IPnt[0]->CompPnt();
                         vec3d pC0 = frontSegC->m_IPnt[0]->m_Pnt;
 
-                        ISeg* frontSegD = ( *d )->m_ISegDeque.front();
+                        ISeg* frontSegD = ( *d )->m_ISegVec.front();
                         frontSegD->m_IPnt[0]->CompPnt();
                         vec3d pD0 = frontSegD->m_IPnt[0]->m_Pnt;
 
-                        ISeg* backSegC = ( *c )->m_ISegDeque.back();
+                        ISeg* backSegC = ( *c )->m_ISegVec.back();
                         backSegC->m_IPnt[1]->CompPnt();
                         vec3d pC1 = backSegC->m_IPnt[1]->m_Pnt;
 
-                        ISeg* backSegD = ( *d )->m_ISegDeque.back();
+                        ISeg* backSegD = ( *d )->m_ISegVec.back();
                         backSegD->m_IPnt[1]->CompPnt();
                         vec3d pD1 = backSegD->m_IPnt[1]->m_Pnt;
 
@@ -7154,7 +7154,7 @@ void CfdMeshMgrSingleton::AddDegenCornerChains()
             ISegChain* chain = new ISegChain;           // Create New Chain
             chain->m_SurfA = s;
             chain->m_SurfB = s;
-            chain->m_ISegDeque.push_back( seg1 );
+            chain->m_ISegVec.push_back( seg1 );
 
             chain->m_BorderFlag = false;
 
