@@ -53339,7 +53339,7 @@ extern std::vector < vec3d > ControlSurfaceHingeLine( const std::string & id, in
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 );
 
-    string rid = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
+    string rid = AddRuler( pid1, 0, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
 
     SetParmVal( FindParm( rid, "X_Offset", "Measure" ), 6.0 );
 
@@ -53360,7 +53360,7 @@ extern std::vector < vec3d > ControlSurfaceHingeLine( const std::string & id, in
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 )
 
-    rid = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
+    rid = AddRuler( pid1, 0, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
 
     SetParmVal( FindParm( rid, "X_Offset", "Measure" ), 6.0 )
 
@@ -54462,9 +54462,9 @@ extern std::string AddRuler( const std::string & startgeomid, int startsurfindx,
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 );
 
-    string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
+    string rid1 = AddRuler( pid1, 0, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
 
-    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
+    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 0, 0.8, 0.9, "Ruler 2" );
 
     array< string > @ruler_array = GetAllRulers();
     if ( ruler_array.length() == 0 )
@@ -54491,9 +54491,9 @@ extern std::string AddRuler( const std::string & startgeomid, int startsurfindx,
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 )
 
-    rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
+    rid1 = AddRuler( pid1, 0, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
 
-    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
+    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 0, 0.8, 0.9, "Ruler 2" )
 
     ruler_array = GetAllRulers()
     assert len( ruler_array ) > 0, "GetAllRulers returned nothing"
@@ -54526,9 +54526,9 @@ extern std::vector < std::string > GetAllRulers();
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 );
 
-    string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
+    string rid1 = AddRuler( pid1, 0, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
 
-    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
+    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 0, 0.8, 0.9, "Ruler 2" );
 
     array< string > @ruler_array = GetAllRulers();
 
@@ -54552,9 +54552,9 @@ extern std::vector < std::string > GetAllRulers();
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 )
 
-    rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
+    rid1 = AddRuler( pid1, 0, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
 
-    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
+    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 0, 0.8, 0.9, "Ruler 2" )
 
     ruler_array = GetAllRulers()
 
@@ -54585,9 +54585,9 @@ extern void DelRuler( const std::string &id );
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 );
 
-    string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
+    string rid1 = AddRuler( pid1, 0, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
 
-    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
+    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 0, 0.8, 0.9, "Ruler 2" );
 
     DeleteAllRulers();
     if ( GetAllRulers().length() != 0 )
@@ -54608,9 +54608,9 @@ extern void DelRuler( const std::string &id );
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 )
 
-    rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
+    rid1 = AddRuler( pid1, 0, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
 
-    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
+    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 0, 0.8, 0.9, "Ruler 2" )
 
     DeleteAllRulers()
     assert len( GetAllRulers() ) == 0, "DeleteAllRulers left something behind"

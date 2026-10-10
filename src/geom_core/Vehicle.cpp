@@ -3099,7 +3099,7 @@ string Vehicle::GetGeomSetAttrColl( int index )
 {
     string ac_id = string();
 
-    if ( index > -1 && index <= m_SetAttrCollVec.size() )
+    if ( index > -1 && index < m_SetAttrCollVec.size() )
     {
         ac_id = m_SetAttrCollVec[ index ]->GetID();
     }

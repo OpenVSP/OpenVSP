@@ -147,3 +147,197 @@ def testABadIDIsReportedUnderTheCallsNameWithItsCode():
         if not all( msg.startswith( name + "::" ) for code, msg in errs ) or errs[0][0] not in codes_for( name, ids ):
             wrong.append( ( name, ids, errs ) )
     assert not wrong, wrong
+
+
+# Calls that may be handed an ID that names nothing
+QUIET = {
+    "ValidParm",    # it asks whether the ID names a Parm
+    "ExportFile",   # it reads the Mode ID only when the Mode flag is on
+}
+
+
+def testACallHandedABadIDReportsIt():
+    silent = [ name for name, ids, flagged, errs in bad_id_reports() if name not in QUIET and not ( flagged and errs ) ]
+    assert not silent, silent
+
+
+def last_error():
+    mgr = vsp.ErrorMgrSingleton.getInstance()
+    errs = [ mgr.PopLastError() for _ in range( mgr.GetNumTotalErrors() ) ]
+    assert errs, "the call reported nothing"
+    return errs[0].GetErrorCode(), errs[0].GetErrorString()
+
+
+def assert_refused( code, name ):
+    got = last_error()
+    assert got[0] == code and got[1].startswith( name + "::" ), got
+
+
+def testASetIndexPastTheLastSetIsRefused():
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    n = vsp.GetNumSets()
+    drop_errors()
+
+    vsp.GetSetFlag( pod, n )
+    assert_refused( vsp.VSP_INDEX_OUT_RANGE, "GetSetFlag" )
+    vsp.SetSetName( n, "Extra" )
+    assert_refused( vsp.VSP_INDEX_OUT_RANGE, "SetSetName" )
+    vsp.GetGeomSetAtIndex( -1 )
+    assert_refused( vsp.VSP_INDEX_OUT_RANGE, "GetGeomSetAtIndex" )
+    vsp.ScaleSet( n, 2.0 )
+    assert_refused( vsp.VSP_INDEX_OUT_RANGE, "ScaleSet" )
+    vsp.RotateSet( n, 1.0, 2.0, 3.0 )
+    assert_refused( vsp.VSP_INDEX_OUT_RANGE, "RotateSet" )
+    vsp.TranslateSet( n, vsp.vec3d( 1.0, 2.0, 3.0 ) )
+    assert_refused( vsp.VSP_INDEX_OUT_RANGE, "TranslateSet" )
+    vsp.TransformSet( n, vsp.vec3d( 1.0, 2.0, 3.0 ), 1.0, 2.0, 3.0, 2.0, True )
+    assert_refused( vsp.VSP_INDEX_OUT_RANGE, "TransformSet" )
+    vsp.CopyPasteSet( vsp.SET_ALL, vsp.SET_FIRST_USER )
+    assert_refused( vsp.VSP_INVALID_INPUT_VAL, "CopyPasteSet" )
+
+
+def testAnArgumentOutsideItsEnumIsRefused():
+    vsp.VSPRenew()
+    wing = vsp.AddGeom( "WING" )
+    vsp.Update()
+    xsec_surf = vsp.GetXSecSurf( wing, 0 )
+    xsec = vsp.GetXSec( xsec_surf, 1 )
+    drop_errors()
+
+    vsp.ChangeXSecShape( xsec_surf, 1, vsp.XS_NUM_TYPES )
+    assert_refused( vsp.VSP_INVALID_TYPE, "ChangeXSecShape" )
+    vsp.SetXSecTanAngles( xsec, 7, 1.0, 1.0, 1.0, 1.0 )
+    assert_refused( vsp.VSP_INVALID_TYPE, "SetXSecTanAngles" )
+    vsp.SetXSecTanSlews( xsec, 7, 1.0, 1.0, 1.0, 1.0 )
+    assert_refused( vsp.VSP_INVALID_TYPE, "SetXSecTanSlews" )
+    vsp.SetXSecTanStrengths( xsec, 7, 1.0, 1.0, 1.0, 1.0 )
+    assert_refused( vsp.VSP_INVALID_TYPE, "SetXSecTanStrengths" )
+    vsp.SetXSecCurvatures( xsec, 7, 1.0, 1.0, 1.0, 1.0 )
+    assert_refused( vsp.VSP_INVALID_TYPE, "SetXSecCurvatures" )
+    vsp.AddExcrescence( "Bump", 99, 1.0 )
+    assert_refused( vsp.VSP_INVALID_TYPE, "AddExcrescence" )
+    vsp.CalcAtmosphere( 0.0, 0.0, vsp.ATMOS_TYPE_MANUAL_P_R )
+    assert_refused( vsp.VSP_INVALID_TYPE, "CalcAtmosphere" )
+    vsp.AxisProjPnt01( wing, 0, 3, vsp.vec3d( 0.0, 0.0, 0.0 ) )
+    assert_refused( vsp.VSP_INVALID_TYPE, "AxisProjPnt01" )
+    vsp.AxisProjPnt01I( wing, 3, vsp.vec3d( 0.0, 0.0, 0.0 ) )
+    assert_refused( vsp.VSP_INVALID_TYPE, "AxisProjPnt01I" )
+    vsp.AxisProjPnt01Guess( wing, 0, 3, vsp.vec3d( 0.0, 0.0, 0.0 ), 0.5, 0.5 )
+    assert_refused( vsp.VSP_INVALID_TYPE, "AxisProjPnt01Guess" )
+    vsp.AxisProjVecPnt01( wing, 0, 3, [ vsp.vec3d( 0.0, 0.0, 0.0 ) ] )
+    assert_refused( vsp.VSP_INVALID_TYPE, "AxisProjVecPnt01" )
+    vsp.AxisProjVecPnt01Guess( wing, 0, 3, [ vsp.vec3d( 0.0, 0.0, 0.0 ) ], [ 0.5 ], [ 0.5 ] )
+    assert_refused( vsp.VSP_INVALID_TYPE, "AxisProjVecPnt01Guess" )
+
+
+def testAValueACallCanNotUseIsRefused():
+    vsp.VSPRenew()
+    wing = vsp.AddGeom( "WING" )
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+    xsec_surf = vsp.GetXSecSurf( wing, 0 )
+    drop_errors()
+
+    vsp.FitAfCST( xsec_surf, 1, 0 )
+    assert_refused( vsp.VSP_INVALID_INPUT_VAL, "FitAfCST" )
+    vsp.GetBoolParmVal( vsp.GetParm( pod, "X_Rel_Location", "XForm" ) )
+    assert_refused( vsp.VSP_INVALID_TYPE, "GetBoolParmVal" )
+    vsp.AddRuler( pod, 1, 0.2, 0.0, pod, 0, 0.8, 0.0, "R" )
+    assert_refused( vsp.VSP_INDEX_OUT_RANGE, "AddRuler" )
+    vsp.SetGeomParent( pod, "BADID" )
+    assert_refused( vsp.VSP_INVALID_GEOM_ID, "SetGeomParent" )
+    vsp.AddAdvLink( "Link" )
+    vsp.AddAdvLinkInput( 0, "BADID", "x" )
+    assert_refused( vsp.VSP_CANT_FIND_PARM, "AddAdvLinkInput" )
+    vsp.AddAdvLinkOutput( 0, "BADID", "y" )
+    assert_refused( vsp.VSP_CANT_FIND_PARM, "AddAdvLinkOutput" )
+
+
+def testAMissingParentStopsTheInsert():
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    vsp.CopyGeomToClipboard( pod )
+    n = len( vsp.FindGeoms() )
+    drop_errors()
+
+    assert len( vsp.PasteGeomClipboard( "BADID" ) ) == 0
+    assert_refused( vsp.VSP_INVALID_GEOM_ID, "PasteGeomClipboard" )
+    assert len( vsp.FindGeoms() ) == n
+
+
+def assert_succeeded():
+    mgr = vsp.ErrorMgrSingleton.getInstance()
+    assert not mgr.GetErrorLastCallFlag(), [ mgr.PopLastError().GetErrorString() for _ in range( mgr.GetNumTotalErrors() ) ]
+
+
+def testTheChecksLetAGoodInputThrough():
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+
+    # An FEA Part has attributes, but no object type of its own
+    struct_ind = vsp.AddFeaStruct( pod )
+    part_id = vsp.AddFeaPart( pod, struct_ind, vsp.FEA_SLICE )
+    vsp.AddAttributeString( vsp.GetChildCollection( part_id ), "Note", "x" )
+    drop_errors()
+    vsp.GetObjectName( part_id )
+    assert_succeeded()
+    vsp.GetObjectParent( part_id )
+    assert_succeeded()
+
+    # A measure on a Geom with no surface sits at its origin
+    blank_a = vsp.AddGeom( "BLANK" )
+    blank_b = vsp.AddGeom( "BLANK" )
+    vsp.SetParmVal( blank_a, "X_Rel_Location", "XForm", 3.0 )
+    vsp.SetParmVal( blank_b, "Y_Rel_Location", "XForm", 4.0 )
+    vsp.Update()
+    drop_errors()
+    rid = vsp.AddRuler( blank_a, 0, 0.0, 0.0, blank_b, 0, 0.0, 0.0, "R" )
+    assert_succeeded()
+    vsp.Update()
+    assert abs( vsp.GetParmVal( vsp.FindParm( rid, "Distance", "Measure" ) ) - 5.0 ) < 1e-9
+
+    # A top level parent can be named "", "NONE" or the Vehicle
+    child = vsp.AddGeom( "POD", pod )
+    for parent in ( "", "NONE", vsp.GetVehicleID() ):
+        vsp.SetGeomParent( child, pod )
+        drop_errors()
+        vsp.SetGeomParent( child, parent )
+        assert_succeeded()
+        assert vsp.GetGeomParent( child ) == "NONE", parent
+        assert vsp.AddGeom( "POD", parent ) != ""
+        assert_succeeded()
+
+    # A routing point can be unparented with a top level parent too
+    routing = vsp.AddGeom( "ROUTING" )
+    pt = vsp.AddRoutingPt( routing, pod, 0 )
+    for parent in ( "", "NONE", vsp.GetVehicleID() ):
+        drop_errors()
+        vsp.SetRoutingPtParentID( pt, parent )
+        assert_succeeded()
+
+
+def testDeletingSomeGeomsThatAreGoneStillDeletesTheRest():
+    vsp.VSPRenew()
+    live = vsp.AddGeom( "POD" )
+    vsp.AddGeom( "POD" )
+    n = len( vsp.FindGeoms() )
+    drop_errors()
+
+    vsp.DeleteGeomVec( [ "BADID", live ] )
+    assert_refused( vsp.VSP_INVALID_GEOM_ID, "DeleteGeomVec" )
+    assert len( vsp.FindGeoms() ) == n - 1
+
+
+def testARefusedCallStillSetsItsOutputs():
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+    drop_errors()
+
+    assert list( vsp.CalcAtmosphere( 0.0, 0.0, vsp.ATMOS_TYPE_MANUAL_P_R ) ) == [ 0.0, 0.0, 0.0, 0.0 ]
+    drop_errors()
+    d, u, w = vsp.AxisProjPnt01( pod, 0, 3, vsp.vec3d( 0.0, 0.0, 0.0 ) )
+    assert ( u, w ) == ( 0.0, 0.0 )
+    drop_errors()

@@ -436,7 +436,7 @@ int TestAPIScript()
     string mass_res_id = FindLatestResultsID( "Mass_Properties" );
     double_arr = GetDoubleResults( mass_res_id, "Total_Mass" );
     if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeMassProps" ); failure++; }
-    CutGeomToClipboard( mass_res_id );
+    CutGeomToClipboard( sliced_id );
 
     ClearVSPModel();
 

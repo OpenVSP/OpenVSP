@@ -281,17 +281,24 @@ void ClearVSPModel()
     ErrorMgr.NoError();
 }
 
+// The IDs a script uses for a parent that is the Vehicle itself.
+static bool TopLevelParentID( const std::string & id )
+{
+    return id.empty() || id == "NONE" || id == GetVehicle()->GetID();
+}
+
 void InsertVSPFile( const std::string & file_name, const std::string & parent )
 {
     Vehicle* veh = GetVehicle();
 
     Geom* parent_geom = nullptr;
-    if ( parent.size() > 0 )
+    if ( !TopLevelParentID( parent ) )
     {
         parent_geom = veh->FindGeom( parent );
         if ( !parent_geom )
         {
             ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "InsertVSPFile::Can't Find Parent " + parent );
+            return;
         }
     }
 
@@ -317,12 +324,13 @@ std::string ImportFile( const std::string & file_name, int file_type, const std:
 {
     Vehicle* veh = GetVehicle();
     Geom* parent_geom = nullptr;
-    if ( parent.size() > 0 )
+    if ( !TopLevelParentID( parent ) )
     {
         parent_geom = veh->FindGeom( parent );
         if ( !parent_geom )
         {
             ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ImportFile::Can't Find Parent " + parent );
+            return std::string();
         }
     }
 
@@ -437,12 +445,24 @@ int GetNumDesignVars()
 
 void AddDesignVar( const std::string & parm_id, int type )
 {
+    if ( !ParmMgr.FindParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddDesignVar::Can't Find Parm " + parm_id );
+        return;
+    }
+
     DesignVarMgr.AddVar( parm_id, type );
     ErrorMgr.NoError();
 }
 
 void AddDesignVarLimits( const string & parm_id, int type, double lowerlimit, double upperlimit )
 {
+    if ( !ParmMgr.FindParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddDesignVarLimits::Can't Find Parm " + parm_id );
+        return;
+    }
+
     DesignVarMgr.AddVar( parm_id, type, lowerlimit, upperlimit );
     ErrorMgr.NoError();
 }
@@ -2666,6 +2686,7 @@ void PrintAnalysisInputs( const std::string & analysis_name )
     if ( !AnalysisMgr.ValidAnalysisName( analysis_name ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "PrintAnalysisInputs::Invalid Analysis ID " + analysis_name );
+        return;
     }
 
     AnalysisMgr.PrintAnalysisInputs( analysis_name );
@@ -2677,6 +2698,7 @@ void PrintAnalysisDocs( const std::string & analysis_name )
     if ( !AnalysisMgr.ValidAnalysisName( analysis_name ) )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "PrintAnalysisDocs::Invalid Analysis ID " + analysis_name );
+        return;
     }
 
     AnalysisMgr.PrintAnalysisDocs( analysis_name );
@@ -2693,6 +2715,12 @@ std::string AddGeometryAnalysis()
 
 void DeleteGeometryAnalysis( const std::string &id )
 {
+    if ( !GeometryAnalysisMgr.GetGeometryAnalysis( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteGeometryAnalysis::Can't Find Geometry Analysis " + id );
+        return;
+    }
+
     GeometryAnalysisMgr.DeleteGeometryAnalysis( id );
     ErrorMgr.NoError();
 }
@@ -2752,6 +2780,50 @@ std::string MakeMeshGeom( const std::string &ga_id )
 //===============       Attributes Functions         ===================//
 //===================================================================//
 
+// Report an ID that names no attribute.
+static bool AttributeFound( const std::string & attr_id, const std::string & caller )
+{
+    if ( !AttributeMgr.GetAttributePtr( attr_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Attribute " + attr_id );
+        return false;
+    }
+    return true;
+}
+
+// Report an ID that names no attribute collection.
+static bool AttributeCollectionFound( const std::string & coll_id, const std::string & caller )
+{
+    if ( !AttributeMgr.GetCollectionPtr( coll_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Attribute Collection " + coll_id );
+        return false;
+    }
+    return true;
+}
+
+// Report an ID that names neither an attribute collection nor an object that has one.
+static bool AttributeParentFound( const std::string & id, const std::string & caller )
+{
+    if ( !AttributeMgr.GetCollectionPtr( id ) && !AttributeMgr.GetCollectionFromParentID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Attribute Collection For " + id );
+        return false;
+    }
+    return true;
+}
+
+// Report an ID that names nothing the attribute calls know.
+static bool AttributeObjectFound( const std::string & id, const std::string & caller )
+{
+    if ( AttributeMgr.GetObjectType( id ) == vsp::ATTROBJ_FREE && !ParmMgr.FindParmContainer( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Object " + id );
+        return false;
+    }
+    return true;
+}
+
 std::string SummarizeAttributes()
 {
     ErrorMgr.NoError();
@@ -2784,6 +2856,10 @@ std::string FindAttributeByName( const std::string & search_str, int index )
 
 std::string FindAttributeInCollection( const std::string & obj_id, const std::string & search_str, int index )
 {
+    if ( AttributeParentFound( obj_id, "FindAttributeInCollection" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.FindAttributeInCollection( obj_id, search_str, index );
 }
 
@@ -2831,42 +2907,77 @@ std::vector< std::string > FindAttributedObjects()
 
 int GetObjectType( const std::string & id )
 {
+    if ( AttributeObjectFound( id, "GetObjectType" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetObjectType( id );
 }
 
 std::string GetObjectTypeName( const std::string & id )
 {
+    if ( AttributeObjectFound( id, "GetObjectTypeName" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetObjectTypeName( id );
 }
 
 std::string GetObjectName( const std::string & id )
 {
+    if ( AttributeObjectFound( id, "GetObjectName" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetObjectName( id );
 }
 
 std::string GetObjectParent( const std::string & id )
 {
+    if ( AttributeObjectFound( id, "GetObjectParent" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetObjectParent( id );
 }
 
 std::string GetChildCollection( const std::string & id )
 {
+    if ( AttributeParentFound( id, "GetChildCollection" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetChildCollection( id );
 }
 
 std::string GetGeomSetCollection( const int & index )
 {
+    std::string coll_id = AttributeMgr.GetGeomSetCollection( index );
+    if ( coll_id.empty() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomSetCollection::User Set Index " + to_string( index ) + " Out of Range" );
+        return coll_id;
+    }
+
     ErrorMgr.NoError();
-    return AttributeMgr.GetGeomSetCollection( index );
+    return coll_id;
 }
 
 std::string GetAttributeName( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeName" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeName( attrID );
 }
 
 std::string GetAttributeID( const std::string & collID, const std::string & attributeName, int index )
 {
+    if ( AttributeCollectionFound( collID, "GetAttributeID" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeID( collID, attributeName, index );
 }
 
@@ -2892,181 +3003,345 @@ std::vector< std::string > GetAttributeIDVec( const std::string & collID, const 
 
 std::string GetAttributeDoc( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeDoc" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeDoc( attrID );
 }
 
 int GetAttributeType( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeType" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeType( attrID );
 }
 
 std::string GetAttributeTypeName( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeTypeName" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeTypeName( attrID );
 }
 
 std::vector< int > GetAttributeBoolVal( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeBoolVal" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeBoolVal( attrID );
 }
 
 std::vector< int > GetAttributeIntVal( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeIntVal" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeIntVal( attrID );
 }
 
 std::vector< double > GetAttributeDoubleVal( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeDoubleVal" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeDoubleVal( attrID );
 }
 
 std::vector< std::string > GetAttributeStringVal( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeStringVal" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeStringVal( attrID );
 }
 
 std::vector< std::string >  GetAttributeParmID( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeParmID" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeParmID( attrID );
 }
 
 std::vector< double > GetAttributeParmVal( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeParmVal" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeParmVal( attrID );
 }
 
 std::vector< std::string > GetAttributeParmName( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeParmName" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeParmName( attrID );
 }
 
 std::vector< vec3d > GetAttributeVec3dVal( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeVec3dVal" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeVec3dVal( attrID );
 }
 
 std::vector< std::vector < int > > GetAttributeIntMatrixVal( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeIntMatrixVal" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeIntMatrixVal( attrID );
 }
 
 std::vector< std::vector < double > > GetAttributeDoubleMatrixVal( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "GetAttributeDoubleMatrixVal" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.GetAttributeDoubleMatrixVal( attrID );
 }
 
 void SetAttributeName( const std::string &attrID, const std::string &name )
 {
-    return AttributeMgr.SetAttributeName( attrID, name );
+    if ( AttributeFound( attrID, "SetAttributeName" ) )
+    {
+        ErrorMgr.NoError();
+    }
+    AttributeMgr.SetAttributeName( attrID, name );
 }
 
 void SetAttributeDoc( const std::string & attrID, const std::string & doc )
 {
+    if ( AttributeFound( attrID, "SetAttributeDoc" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeDoc( attrID, doc );
 }
 
 void SetAttributeBool( const std::string & attrID, bool value )
 {
+    if ( AttributeFound( attrID, "SetAttributeBool" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeBool( attrID, value );
 }
 
 void SetAttributeInt( const std::string & attrID, int value )
 {
+    if ( AttributeFound( attrID, "SetAttributeInt" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeInt( attrID, value );
 }
 
 void SetAttributeDouble( const std::string & attrID, double value )
 {
+    if ( AttributeFound( attrID, "SetAttributeDouble" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeDouble( attrID, value );
 }
 
 void SetAttributeString( const std::string & attrID, const std::string & value )
 {
+    if ( AttributeFound( attrID, "SetAttributeString" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeString( attrID, value );
 }
 
 void SetAttributeParmID( const std::string & attrID, const std::string & value )
 {
+    if ( AttributeFound( attrID, "SetAttributeParmID" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeParmID( attrID, value );
 }
 
 void SetAttributeVec3d( const std::string & attrID, const std::vector < vec3d > & value )
 {
+    if ( AttributeFound( attrID, "SetAttributeVec3d" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeVec3d( attrID, value );
 }
 
 void SetAttributeIntMatrix( const std::string & attrID, const std::vector < std::vector < int > > &value )
 {
+    if ( AttributeFound( attrID, "SetAttributeIntMatrix" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeIntMatrix( attrID, value );
 }
 
 void SetAttributeDoubleMatrix( const std::string & attrID, const std::vector< std::vector< double > > & value )
 {
+    if ( AttributeFound( attrID, "SetAttributeDoubleMatrix" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.SetAttributeDoubleMatrix( attrID, value );
 }
 
 void DeleteAttribute( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "DeleteAttribute" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.DeleteAttribute( attrID );
 }
 
 std::string AddAttributeBool( const std::string & collID, const std::string & attributeName, bool value )
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeBool" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeBool( collID, attributeName, value );
 }
 
 std::string AddAttributeInt( const std::string & collID, const std::string & attributeName, int value )
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeInt" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeInt( collID, attributeName, value );
 }
 
 std::string AddAttributeDouble( const std::string & collID, const std::string & attributeName, double value)
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeDouble" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeDouble( collID, attributeName, value );
 }
 
 std::string AddAttributeString( const std::string & collID, const std::string & attributeName, const std::string & value )
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeString" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeString( collID, attributeName, value );
 }
 
 std::string AddAttributeParm( const std::string & collID, const std::string & attributeName, const std::string & parmID )
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeParm" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeParm( collID, attributeName, parmID );
 }
 
 std::string AddAttributeVec3d( const std::string & collID, const std::string & attributeName, const std::vector < vec3d > & value )
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeVec3d" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeVec3d( collID, attributeName, value );
 }
 
 std::string AddAttributeIntMatrix( const std::string & collID, const std::string & attributeName, const std::vector < std::vector < int > > & value )
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeIntMatrix" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeIntMatrix( collID, attributeName, value );
 }
 
 std::string AddAttributeDoubleMatrix( const std::string & collID, const std::string & attributeName, const std::vector < std::vector < double > > & value )
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeDoubleMatrix" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeDoubleMatrix( collID, attributeName, value );
 }
 
 std::string AddAttributeGroup( const std::string & collID, const std::string & attributeName )
 {
+    if ( !AttributeCollectionFound( collID, "AddAttributeGroup" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.AddAttributeGroup( collID, attributeName );
 }
 
 int CopyAttribute( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "CopyAttribute" ) )
+    {
+        ErrorMgr.NoError();
+    }
     return AttributeMgr.CopyAttribute( attrID );
 }
 
 void CutAttribute( const std::string & attrID )
 {
+    if ( AttributeFound( attrID, "CutAttribute" ) )
+    {
+        ErrorMgr.NoError();
+    }
     AttributeMgr.CutAttribute( attrID );
 }
 
 std::vector < std::string > PasteAttribute( const std::string & objID )
 {
+    if ( !AttributeParentFound( objID, "PasteAttribute" ) )
+    {
+        return std::vector < std::string >();
+    }
+
+    ErrorMgr.NoError();
     return AttributeMgr.PasteAttribute( objID );
 }
 
@@ -3381,12 +3656,24 @@ void WriteResultsCSVFile( const std::string & id, const std::string & file_name 
 
 void PrintResults( const std::string &results_id )
 {
+    if ( !ResultsMgr.FindResultsPtr( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PrintResults::Invalid ID " + results_id );
+        return;
+    }
+
     ResultsMgr.PrintResults( results_id );
     ErrorMgr.NoError();
 }
 
 void PrintResultsDocs( const std::string &results_id )
 {
+    if ( !ResultsMgr.FindResultsPtr( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PrintResultsDocs::Invalid ID " + results_id );
+        return;
+    }
+
     ResultsMgr.PrintResultsDocs( results_id );
     ErrorMgr.NoError();
 }
@@ -3856,7 +4143,7 @@ std::string AddGeom( const std::string & type, const std::string & parent  )
     }
 
     Geom* parent_geom = nullptr;
-    if ( parent.size() > 0 )
+    if ( !TopLevelParentID( parent ) )
     {
         parent_geom = veh->FindGeom( parent );
         if ( !parent_geom )
@@ -3892,6 +4179,12 @@ std::string AddGeom( const std::string & type, const std::string & parent  )
 void UpdateGeom( const std::string & geom_id )
 {
     Vehicle* veh = GetVehicle();
+
+    if ( !veh->FindGeom( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "UpdateGeom::Can't Find Geom " + geom_id );
+        return;
+    }
 
     veh->UpdateGeom( geom_id );
 
@@ -3938,12 +4231,31 @@ static void DeleteGeoms( const std::vector< std::string > & del_vec, int clone_d
         return;
     }
 
-    int n_errors_before = ErrorMgr.GetNumTotalErrors();
-    std::vector< std::string > clone_vec = veh->FindClonesOf( del_vec );
+    std::vector< std::string > found_vec;
+    std::vector< std::string > missing_vec;
+    for ( int i = 0; i < ( int )del_vec.size(); i++ )
+    {
+        if ( veh->FindGeom( del_vec[i] ) )
+        {
+            found_vec.push_back( del_vec[i] );
+        }
+        else
+        {
+            missing_vec.push_back( del_vec[i] );
+        }
+    }
 
-    veh->DeleteGeomVec( del_vec, clone_delete );
+    int n_errors_before = ErrorMgr.GetNumTotalErrors();
+    std::vector< std::string > clone_vec = veh->FindClonesOf( found_vec );
+
+    veh->DeleteGeomVec( found_vec, clone_delete );
 
     ReportClonesOf( veh, clone_vec, n_errors_before, caller );
+
+    for ( int i = 0; i < ( int )missing_vec.size(); i++ )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + missing_vec[i] );
+    }
 }
 
 void DeleteGeom( const std::string & geom_id, int clone_delete )
@@ -3964,6 +4276,12 @@ void CutGeomToClipboard( const std::string & geom_id, int clone_delete )
 
     if ( !ValidCloneDelete( clone_delete, "CutGeomToClipboard" ) )
     {
+        return;
+    }
+
+    if ( !veh->FindGeom( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CutGeomToClipboard::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -3992,6 +4310,12 @@ void CopyGeomToClipboard( const std::string & geom_id )
 {
     Vehicle* veh = GetVehicle();
 
+    if ( !veh->FindGeom( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CopyGeomToClipboard::Can't Find Geom " + geom_id );
+        return;
+    }
+
     veh->SetActiveGeom( geom_id );
     veh->CopyActiveGeomVec();
 
@@ -4005,12 +4329,13 @@ std::vector< std::string > PasteGeomClipboard( const std::string & parent )
     Vehicle* veh = GetVehicle();
 
     Geom* parent_geom = nullptr;
-    if ( parent.size() > 0 )
+    if ( !TopLevelParentID( parent ) )
     {
         parent_geom = veh->FindGeom( parent );
         if ( !parent_geom )
         {
             ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PasteGeomClipboard::Can't Find Parent " + parent );
+            return std::vector< std::string >();
         }
     }
 
@@ -4560,13 +4885,26 @@ void SetGeomParent( const std::string& geom_id, const std::string& new_parent_id
     }
 
     Geom* parent_ptr = veh->FindGeom( new_parent_id );
+    if ( !parent_ptr && !TopLevelParentID( new_parent_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomParent::Can't Find Parent " + new_parent_id );
+        return;
+    }
+
     if ( parent_ptr && parent_ptr->DependsOn( geom_id ) )
     {
         ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetGeomParent::Geom " + geom_id + " can't be a child of " + new_parent_id + ", which depends on it" );
         return;
     }
 
-    geom_ptr->ChangeParentID( new_parent_id );
+    if ( parent_ptr )
+    {
+        geom_ptr->ChangeParentID( new_parent_id );
+    }
+    else
+    {
+        geom_ptr->ChangeParentID( veh->GetID() );
+    }
     ErrorMgr.NoError();
 }
 
@@ -5540,11 +5878,23 @@ std::string GetFeaStructID( const std::string & geom_id, int fea_struct_ind )
 
 int GetFeaStructIndex( const std::string & struct_id )
 {
+    if ( !FindFeaStruct( struct_id, "GetFeaStructIndex" ) )
+    {
+        return -1;
+    }
+
+    ErrorMgr.NoError();
     return StructureMgr.GetGeomFeaStructIndex( struct_id );
 }
 
 std::string GetFeaStructParentGeomID( const std::string & struct_id )
 {
+    if ( !FindFeaStruct( struct_id, "GetFeaStructParentGeomID" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return StructureMgr.GetFeaStructParentID( struct_id );
 }
 
@@ -5905,7 +6255,11 @@ void SetFeaPartPerpendicularSparID( const std::string& part_id, const std::strin
     FeaPart* spar = StructureMgr.GetFeaPart( perpendicular_spar_id );
     if ( !spar || spar->GetType() != FEA_SPAR )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartPerpendicularSparID::Can't Find FEA Spar " + perpendicular_spar_id + ". ID will still be set." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaPartPerpendicularSparID::Can't Find FEA Spar " + perpendicular_spar_id + ". ID will still be set." );
+    }
+    else
+    {
+        ErrorMgr.NoError();
     }
 
     if ( rib_type )
@@ -8756,6 +9110,11 @@ static void ChangeXSecShapeImpl( const std::string & xsec_surf_id, int xsec_inde
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
+    if ( type < 0 || type >= vsp::XS_NUM_TYPES )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::Invalid XSec Type " + to_string( type ) );
+        return;
+    }
 
     ErrorMgr.NoError();
     xsec_surf->ChangeXSecShape( xsec_index, type );
@@ -9602,6 +9961,11 @@ void SetXSecTanAngles( const std::string& xsec_id, int side, double top, double 
         ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecTanAngles::Can't Find XSec " + xsec_id );
         return;
     }
+    if ( side != XSEC_BOTH_SIDES && side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetXSecTanAngles::Side Must Be XSEC_BOTH_SIDES, XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE, Not " + to_string( side ) );
+        return;
+    }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
@@ -9620,6 +9984,11 @@ void SetXSecTanSlews( const std::string& xsec_id, int side, double top, double r
     if ( !xs )
     {
         ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecTanSlews::Can't Find XSec " + xsec_id );
+        return;
+    }
+    if ( side != XSEC_BOTH_SIDES && side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetXSecTanSlews::Side Must Be XSEC_BOTH_SIDES, XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE, Not " + to_string( side ) );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
@@ -9642,6 +10011,11 @@ void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, doub
         ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecTanStrengths::Can't Find XSec " + xsec_id );
         return;
     }
+    if ( side != XSEC_BOTH_SIDES && side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetXSecTanStrengths::Side Must Be XSEC_BOTH_SIDES, XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE, Not " + to_string( side ) );
+        return;
+    }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
@@ -9660,6 +10034,11 @@ void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double
     if ( !xs )
     {
         ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecCurvatures::Can't Find XSec " + xsec_id );
+        return;
+    }
+    if ( side != XSEC_BOTH_SIDES && side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetXSecCurvatures::Side Must Be XSEC_BOTH_SIDES, XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE, Not " + to_string( side ) );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
@@ -10562,6 +10941,12 @@ static void FitAfCSTImpl( const std::string & xsec_surf_id, int xsec_index, int 
         return;
     }
 
+    if ( deg < 1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, caller + "::Fit Degree " + to_string( deg ) + " Must Be Positive" );
+        return;
+    }
+
     if ( ( xsec->GetXSecCurve()->GetType() != XS_FOUR_SERIES ) &&
          ( xsec->GetXSecCurve()->GetType() != XS_SIX_SERIES ) &&
          ( xsec->GetXSecCurve()->GetType() != XS_FOUR_DIGIT_MOD ) &&
@@ -11197,6 +11582,12 @@ void SetRoutingPtParentID( const std::string & pt_id, const std::string &parent_
     if ( !rpt )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "SetRoutingPtParentID::Can't Find Routing Point " + pt_id );
+        return;
+    }
+
+    if ( !TopLevelParentID( parent_id ) && !veh->FindGeom( parent_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetRoutingPtParentID::Can't Find Geom " + parent_id );
         return;
     }
 
@@ -13028,9 +13419,25 @@ int GetNumSets()
     return veh->GetSetNameVec().size();
 }
 
+// Report a set index past the last set.
+static bool SetIndexInRange( int set_index, const std::string & caller )
+{
+    if ( set_index < 0 || set_index >= ( int )GetVehicle()->GetSetNameVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Set Index " + to_string( set_index ) + " Out of Range" );
+        return false;
+    }
+    return true;
+}
+
 /// Set the set name at the provided index. Index between 0 and NumSets.
 void SetSetName( int index, const std::string& name )
 {
+    if ( !SetIndexInRange( index, "SetSetName" ) )
+    {
+        return;
+    }
+
     Vehicle* veh = GetVehicle();
     veh->SetSetName( index, name );
     ErrorMgr.NoError();
@@ -13053,6 +13460,11 @@ std::string GetSetName( int index )
 /// Get the set of geom ids at the given set index
 std::vector< std::string > GetGeomSetAtIndex( int index )
 {
+    if ( !SetIndexInRange( index, "GetGeomSetAtIndex" ) )
+    {
+        return std::vector< std::string >();
+    }
+
     Vehicle* veh = GetVehicle();
     ErrorMgr.NoError();
     return veh->GetGeomSet( index );
@@ -13114,6 +13526,10 @@ bool GetSetFlag( const std::string & geom_id, int set_index )
         ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetSetFlag::Can't Find Geom " + geom_id );
         return false;
     }
+    if ( !SetIndexInRange( set_index, "GetSetFlag" ) )
+    {
+        return false;
+    }
     ErrorMgr.NoError();
     return geom_ptr->GetSetFlag( set_index );
 }
@@ -13161,6 +13577,10 @@ void CopyPasteSet( int copy_index, int paste_index )
         ErrorMgr.NoError();
 
         veh->CopyPasteSet(copy_index, paste_index);
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "CopyPasteSet::Sets up to SET_NOT_SHOWN can be neither copied nor pasted over" );
     }
 
 }
@@ -13222,6 +13642,11 @@ void ScaleSet( int set_index, double scale )
         return;
     }
 
+    if ( !SetIndexInRange( set_index, "ScaleSet" ) )
+    {
+        return;
+    }
+
     std::vector < std::string > geom_id_vec = veh->GetGeomSet( set_index );
 
     veh->ClearActiveGeom();
@@ -13243,6 +13668,11 @@ void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_
     if ( !group_trans )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "RotateSet::Can't Get Group Transformation Pointer" );
+        return;
+    }
+
+    if ( !SetIndexInRange( set_index, "RotateSet" ) )
+    {
         return;
     }
 
@@ -13272,6 +13702,11 @@ void TranslateSet( int set_index, const vec3d &translation_vec )
         return;
     }
 
+    if ( !SetIndexInRange( set_index, "TranslateSet" ) )
+    {
+        return;
+    }
+
     std::vector < std::string > geom_id_vec = veh->GetGeomSet( set_index );
 
     veh->ClearActiveGeom();
@@ -13295,6 +13730,11 @@ void TransformSet( int set_index, const vec3d &translation_vec, double x_rot_deg
     if ( !group_trans )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "TransformSet::Can't Get Group Transformation Pointer" );
+        return;
+    }
+
+    if ( !SetIndexInRange( set_index, "TransformSet" ) )
+    {
         return;
     }
 
@@ -13462,6 +13902,7 @@ bool GetBoolParmVal( const std::string & parm_id )
     }
     if ( p->GetType() != PARM_BOOL_TYPE )
     {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBoolParmVal::Parm " + parm_id + " is not a BoolParm" );
         return false;
     }
     ErrorMgr.NoError();
@@ -13891,6 +14332,12 @@ double ComputeMinClearanceDistance( const std::string & geom_id, int set, bool u
 {
     Vehicle* veh = GetVehicle();
 
+    if ( !veh->FindGeom( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ComputeMinClearanceDistance::Can't Find Geom " + geom_id );
+        return 0.0;
+    }
+
     int old_set = veh->GetSnapToPtr()->m_CollisionSet;
     veh->GetSnapToPtr()->m_CollisionSet = set;
 
@@ -13919,6 +14366,12 @@ double ComputeMinClearanceDistance( const std::string & geom_id, int set, bool u
 double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_flag, int set, bool useMode, const std::string &modeID )
 {
     Vehicle* veh = GetVehicle();
+
+    if ( !ParmMgr.FindParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SnapParm::Can't Find Parm " + parm_id );
+        return 0.0;
+    }
 
     int old_set = veh->GetSnapToPtr()->m_CollisionSet;
     veh->GetSnapToPtr()->m_CollisionSet = set;
@@ -14940,12 +15393,30 @@ void AddVarPresetParm( const std::string &group_id, const std::string &parm_id )
 
 void DeleteVarPresetGroup( const std::string &group_id )
 {
+    if ( !VarPresetMgr.FindSettingGroup( group_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteVarPresetGroup::Unable to find var preset group " + group_id );
+        return;
+    }
+
     VarPresetMgr.DeleteSettingGroup( group_id );
     ErrorMgr.NoError();
 }
 
 void DeleteVarPresetSetting( const std::string &group_id, const std::string &setting_id )
 {
+    if ( !VarPresetMgr.FindSettingGroup( group_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteVarPresetSetting::Unable to find var preset group " + group_id );
+        return;
+    }
+
+    if ( !VarPresetMgr.FindSetting( setting_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteVarPresetSetting::Unable to find var preset setting " + setting_id );
+        return;
+    }
+
     VarPresetMgr.DeleteSetting( group_id, setting_id );
     ErrorMgr.NoError();
 }
@@ -15139,6 +15610,12 @@ void SaveVarPresetParmVals( const std::string &group_id, const std::string &sett
 
     if ( sg )
     {
+        if ( !VarPresetMgr.FindSetting( setting_id ) )
+        {
+            ErrorMgr.AddError( VSP_INVALID_ID, "SaveVarPresetParmVals::Unable to find var preset setting " + setting_id );
+            return;
+        }
+
         sg->SaveSetting( setting_id );
         ErrorMgr.NoError();
         return;
@@ -15152,6 +15629,12 @@ void ApplyVarPresetSetting( const std::string &group_id, const std::string &sett
 
     if ( sg )
     {
+        if ( !VarPresetMgr.FindSetting( setting_id ) )
+        {
+            ErrorMgr.AddError( VSP_INVALID_ID, "ApplyVarPresetSetting::Unable to find var preset setting " + setting_id );
+            return;
+        }
+
         sg->ApplySetting( setting_id );
         ErrorMgr.NoError();
         return;
@@ -15195,7 +15678,12 @@ std::vector < std::string > GetAllModes()
 
 void DelMode( const std::string &mid )
 {
-    ErrorMgr.NoError();
+    if ( !ModeMgr.GetMode( mid ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelMode::Could not find mode " + mid );
+        return;
+    }
+
     ModeMgr.DelMode( mid );
     ErrorMgr.NoError();
 }
@@ -15269,7 +15757,19 @@ void ModeAddGroupSetting( const std::string &mid, const std::string &gid, const 
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeAddGroupSetting::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeAddGroupSetting::Could not find mode " + mid );
+        return;
+    }
+
+    if ( !VarPresetMgr.FindSettingGroup( gid ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeAddGroupSetting::Unable to find var preset group " + gid );
+        return;
+    }
+
+    if ( !VarPresetMgr.FindSetting( sid ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeAddGroupSetting::Unable to find var preset setting " + sid );
         return;
     }
 
@@ -15792,6 +16292,12 @@ void ResetPropellerThicknessCurve( const std::string & geom_id )
 
 void AddExcrescence(const std::string &excresName, const int & excresType, const double & excresVal)
 {
+    if ( excresType < vsp::EXCRESCENCE_COUNT || excresType > vsp::EXCRESCENCE_DRAGAREA )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddExcrescence::Invalid Excrescence Type " + to_string( excresType ) );
+        return;
+    }
+
     ParasiteDragMgr.AddExcrescence(excresName,excresType,excresVal);
 
     ErrorMgr.NoError();
@@ -16070,7 +16576,12 @@ void CalcAtmosphere(const double & alt, const double & delta_temp, const int & a
         break;
 
     default:
-        break;
+        temp = 0.0;
+        pres = 0.0;
+        pres_ratio = 0.0;
+        rho_ratio = 0.0;
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "CalcAtmosphere::Invalid Atmosphere Type " + to_string( atmos_type ) );
+        return;
     }
 
     temp = atmos.GetTemp();
@@ -16450,6 +16961,9 @@ double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const ve
 
 double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out)
 {
+    u_out = 0.0;
+    w_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -16467,6 +16981,11 @@ double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int
         return idmin;
     }
 
+    if ( !CheckDirIndex( iaxis, "AxisProjPnt01" ) )
+    {
+        return idmin;
+    }
+
     idmin = geom->GetSurfPtr( surf_indx )->ProjectPt01( pt, iaxis, u_out, w_out );
 
     ErrorMgr.NoError();
@@ -16476,6 +16995,10 @@ double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int
 
 double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out)
 {
+    surf_indx_out = -1;
+    u_out = 0.0;
+    w_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -16484,6 +17007,11 @@ double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d 
     if ( !geom )
     {
         ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AxisProjPnt01I::Can't Find Geom " + geom_id );
+        return idmin;
+    }
+
+    if ( !CheckDirIndex( iaxis, "AxisProjPnt01I" ) )
+    {
         return idmin;
     }
 
@@ -16496,6 +17024,9 @@ double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d 
 
 double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out)
 {
+    u_out = 0.0;
+    w_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -16510,6 +17041,11 @@ double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, cons
     if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AxisProjPnt01Guess::Invalid Surface Index " + to_string( surf_indx ) );
+        return idmin;
+    }
+
+    if ( !CheckDirIndex( iaxis, "AxisProjPnt01Guess" ) )
+    {
         return idmin;
     }
 
@@ -17055,6 +17591,11 @@ void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const in
     {
         const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
+        if ( !CheckDirIndex( iaxis, "AxisProjVecPnt01" ) )
+        {
+            return;
+        }
+
         if ( surf )
         {
             u_out_vec.resize( pts.size() );
@@ -17092,6 +17633,11 @@ void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, con
 
     if ( geom_ptr )
     {
+        if ( !CheckDirIndex( iaxis, "AxisProjVecPnt01Guess" ) )
+        {
+            return;
+        }
+
         if ( pts.size() == u0s.size() && pts.size() == w0s.size() )
         {
             const VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
@@ -17417,10 +17963,38 @@ void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::vector <
     return;
 }
 
+// Report a Geom or surface a measure can't be placed on.
+static bool MeasureSurfFound( const std::string & geom_id, int surf_indx, const std::string & caller )
+{
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
+        return false;
+    }
+
+    // A Geom with no surface places the measure at its origin
+    if ( surf_indx < 0 || ( geom_ptr->GetNumTotalSurfs() > 0 && surf_indx >= geom_ptr->GetNumTotalSurfs() ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Surface Index " + to_string( surf_indx ) + " Out of Range for Geom " + geom_id );
+        return false;
+    }
+
+    return true;
+}
+
 std::string AddProtractor( const std::string & startgeomid, int startsurfindx, double startu, double startw,
                      const std::string & midgeomid, int midsurfindx, double midu, double midw,
                      const std::string & endgeomid, int endsurfindx, double endu, double endw, const std::string & name )
 {
+    if ( !MeasureSurfFound( startgeomid, startsurfindx, "AddProtractor" ) ||
+         !MeasureSurfFound( midgeomid, midsurfindx, "AddProtractor" ) ||
+         !MeasureSurfFound( endgeomid, endsurfindx, "AddProtractor" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return MeasureMgr.CreateAndAddProtractor( startgeomid, startsurfindx, startu, startw,
                                               midgeomid, midsurfindx, midu, midw,
                                               endgeomid, endsurfindx, endu, endw, name );
@@ -17434,6 +18008,12 @@ std::vector < std::string > GetAllProtractors()
 
 void DelProtractor( const std::string &id )
 {
+    if ( !MeasureMgr.GetProtractor( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelProtractor::Can't Find Protractor " + id );
+        return;
+    }
+
     MeasureMgr.DelProtractor( id );
     ErrorMgr.NoError();
 }
@@ -17571,6 +18151,12 @@ std::string GetMeasureEndGeomID( const std::string & measure_id )
 
 std::string AddRSTProbe( const std::string & geomid, int surfindx, double r, double s, double t, const std::string & name )
 {
+    if ( !MeasureSurfFound( geomid, surfindx, "AddRSTProbe" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return MeasureMgr.CreateAndAddRSTProbe( geomid, surfindx, r, s, t, name );
 }
 
@@ -17582,6 +18168,12 @@ std::vector < std::string > GetAllRSTProbes()
 
 void DelRSTProbe( const std::string &id )
 {
+    if ( !MeasureMgr.GetRSTProbe( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelRSTProbe::Can't Find RST Probe " + id );
+        return;
+    }
+
     MeasureMgr.DelRSTProbe( id );
     ErrorMgr.NoError();
 }
@@ -17638,6 +18230,13 @@ std::vector < vec3d > ControlSurfaceHingeLine( const std::string & id, int surf_
 std::string AddRuler( const std::string & startgeomid, int startsurfindx, double startu, double startw,
                  const std::string & endgeomid, int endsurfindx, double endu, double endw, const std::string & name )
 {
+    if ( !MeasureSurfFound( startgeomid, startsurfindx, "AddRuler" ) ||
+         !MeasureSurfFound( endgeomid, endsurfindx, "AddRuler" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return MeasureMgr.CreateAndAddRuler( startgeomid, startsurfindx, startu, startw,
                                          endgeomid, endsurfindx, endu, endw, name );
 }
@@ -17650,6 +18249,12 @@ std::vector < std::string > GetAllRulers()
 
 void DelRuler( const std::string &id )
 {
+    if ( !MeasureMgr.GetRuler( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelRuler::Can't Find Ruler " + id );
+        return;
+    }
+
     MeasureMgr.DelRuler( id );
     ErrorMgr.NoError();
 }
@@ -17662,6 +18267,12 @@ void DeleteAllRulers()
 
 std::string AddProbe( const std::string & geomid, int surfindx, double u, double w, const std::string & name )
 {
+    if ( !MeasureSurfFound( geomid, surfindx, "AddProbe" ) )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
     return MeasureMgr.CreateAndAddProbe( geomid, surfindx, u, w, name );
 }
 
@@ -17673,6 +18284,12 @@ std::vector < std::string > GetAllProbes()
 
 void DelProbe( const std::string &id )
 {
+    if ( !MeasureMgr.GetProbe( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelProbe::Can't Find Probe " + id );
+        return;
+    }
+
     MeasureMgr.DelProbe( id );
     ErrorMgr.NoError();
 }
@@ -17770,6 +18387,7 @@ std::string GetVSPExePath()
         ErrorMgr.NoError();
         return veh->GetExePath();
     }
+    ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPExePath::Can't Find Vehicle" );
     return std::string();
 }
 
@@ -17781,6 +18399,7 @@ bool SetVSPAEROPath( const std::string & path )
         ErrorMgr.NoError();
         return veh->SetVSPAEROPath( path );
     }
+    ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSPAEROPath::Can't Find Vehicle" );
     return false;
 }
 
@@ -17792,6 +18411,7 @@ std::string GetVSPAEROPath()
         ErrorMgr.NoError();
         return veh->GetVSPAEROPath();
     }
+    ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPAEROPath::Can't Find Vehicle" );
     return std::string();
 }
 
@@ -17803,6 +18423,7 @@ bool CheckForVSPAERO( const std::string & path )
         ErrorMgr.NoError();
         return veh->CheckForVSPAERO( path );
     }
+    ErrorMgr.AddError( VSP_INVALID_PTR, "CheckForVSPAERO::Can't Find Vehicle" );
     return false;
 }
 
@@ -17814,6 +18435,7 @@ bool SetVSPHelpPath( const std::string & path )
         ErrorMgr.NoError();
         return veh->SetHelpPath( path );
     }
+    ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSPHelpPath::Can't Find Vehicle" );
     return false;
 }
 
@@ -17825,6 +18447,7 @@ std::string GetVSPHelpPath()
         ErrorMgr.NoError();
         return veh->GetHelpPath();
     }
+    ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPHelpPath::Can't Find Vehicle" );
     return std::string();
 }
 
@@ -17836,6 +18459,7 @@ bool CheckForVSPHelp( const std::string & path )
         ErrorMgr.NoError();
         return veh->CheckForHelp( path );
     }
+    ErrorMgr.AddError( VSP_INVALID_PTR, "CheckForVSPHelp::Can't Find Vehicle" );
     return false;
 }
 
@@ -19412,6 +20036,12 @@ void AddAdvLinkInput( int index, const std::string & parm_id, const std::string 
         return;
     }
 
+    if ( !ParmMgr.FindParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddAdvLinkInput::Can't Find Parm " + parm_id );
+        return;
+    }
+
     adv_link->AddVar( parm_id, var_name, true );
 
     ErrorMgr.NoError();
@@ -19430,7 +20060,13 @@ void AddAdvLinkOutput( int index, const std::string & parm_id, const std::string
 
     if ( adv_link->DuplicateVarName( var_name ) )
     {
-        ErrorMgr.AddError( VSP_DUPLICATE_NAME, "AddAdvLinkInput::Duplicate advanced link output name " + var_name );
+        ErrorMgr.AddError( VSP_DUPLICATE_NAME, "AddAdvLinkOutput::Duplicate advanced link output name " + var_name );
+        return;
+    }
+
+    if ( !ParmMgr.FindParm( parm_id ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddAdvLinkOutput::Can't Find Parm " + parm_id );
         return;
     }
 

@@ -290,6 +290,17 @@ def testPastingAttributesOntoAnUnknownIDPastesNothing():
         mgr.PopLastError()
 
 
+def testASetCollectionPastTheLastUserSetIsRefused():
+    vsp.VSPRenew()
+    n_user = vsp.GetNumSets() - vsp.SET_FIRST_USER
+    assert vsp.GetGeomSetCollection( n_user - 1 ) != ""
+
+    assert vsp.GetGeomSetCollection( n_user ) == ""
+
+    mgr = vsp.ErrorMgrSingleton.getInstance()
+    while mgr.GetNumTotalErrors() > 0:
+        mgr.PopLastError()
+
 if __name__ == "__main__":
     for name, fn in sorted( list( globals().items() ) ):
         if name.startswith( "test" ) and callable( fn ):
