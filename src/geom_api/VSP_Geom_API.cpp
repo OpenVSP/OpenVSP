@@ -4839,6 +4839,20 @@ std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_ind, int 
     return feasubsurf->GetID();
 }
 
+//==== The position of a subsurface among a Structure's own subsurfaces, or -1 ====//
+int FindFeaSubSurfIndex( FeaStructure* feastruct, const std::string & ss_id )
+{
+    vector < SubSurface* > ss_vec = feastruct->GetFeaSubSurfVec();
+    for ( int i = 0; i < ( int )ss_vec.size(); i++ )
+    {
+        if ( ss_vec[i]->GetID() == ss_id )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, const std::string & ss_id )
 {
     Vehicle* veh = GetVehicle();
@@ -4862,10 +4876,10 @@ void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, const st
         return;
     }
 
-    int index = StructureMgr.GetFeaSubSurfIndex( ss_id );
+    int index = FindFeaSubSurfIndex( feastruct, ss_id );
     if ( index == -1 )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Can't Find FeaSubSurf " + ss_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaSubSurf::Can't Find FeaSubSurf " + ss_id + " in FeaStructure " + feastruct->GetID() );
         return;
     }
     feastruct->DelFeaSubSurf( index );
