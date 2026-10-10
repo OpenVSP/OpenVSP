@@ -4240,10 +4240,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "string AddGeometryAnalysis( )", asFUNCTION( vsp::AddGeometryAnalysis ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void AddGeometryAnalysisAzEl( const string & in geom_analysis_id, double azimuth, double elevation )", asFUNCTION( vsp::AddGeometryAnalysisAzEl ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddGeometryAnalysisAzEl( const string & in geom_analysis_id, double azimuth, double elevation )", asFUNCTION( vsp::AddGeometryAnalysisAzEl ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void DeleteGeometryAnalysisAzEl( const string & in geom_analysis_id, int index )", asFUNCTION( vsp::DeleteGeometryAnalysisAzEl ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteGeometryAnalysisAzElByID( const string & in geom_analysis_id, const string & in azimuth_parm_id )", asFUNCTION( vsp::DeleteGeometryAnalysisAzElByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void DeleteAllGeometryAnalysisAzEl( const string & in geom_analysis_id )", asFUNCTION( vsp::DeleteAllGeometryAnalysisAzEl ), asCALL_CDECL );
@@ -4256,6 +4259,45 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "string GetGeometryAnalysisElevationParm( const string & in geom_analysis_id, int index )", asFUNCTION( vsp::GetGeometryAnalysisElevationParm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeometryAnalysisAzimuthParmVec( const string & in geom_analysis_id )", asMETHOD( ScriptMgrSingleton, GetGeometryAnalysisAzimuthParmVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeometryAnalysisElevationParmVec( const string & in geom_analysis_id )", asMETHOD( ScriptMgrSingleton, GetGeometryAnalysisElevationParmVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetGeometryAnalysisPrimaryModeID( const string & in geom_analysis_id, const string & in mode_id )", asFUNCTION( vsp::SetGeometryAnalysisPrimaryModeID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeometryAnalysisPrimaryModeID( const string & in geom_analysis_id )", asFUNCTION( vsp::GetGeometryAnalysisPrimaryModeID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetGeometryAnalysisPrimaryGeomID( const string & in geom_analysis_id, const string & in geom_id )", asFUNCTION( vsp::SetGeometryAnalysisPrimaryGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeometryAnalysisPrimaryGeomID( const string & in geom_analysis_id )", asFUNCTION( vsp::GetGeometryAnalysisPrimaryGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetGeometryAnalysisSecondaryGeomID( const string & in geom_analysis_id, const string & in geom_id )", asFUNCTION( vsp::SetGeometryAnalysisSecondaryGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeometryAnalysisSecondaryGeomID( const string & in geom_analysis_id )", asFUNCTION( vsp::GetGeometryAnalysisSecondaryGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetGeometryAnalysisDirectionGeomID( const string & in geom_analysis_id, const string & in geom_id )", asFUNCTION( vsp::SetGeometryAnalysisDirectionGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeometryAnalysisDirectionGeomID( const string & in geom_analysis_id )", asFUNCTION( vsp::GetGeometryAnalysisDirectionGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void AddGeometryAnalysisCutout( const string & in geom_analysis_id, const string & in ss_id )", asFUNCTION( vsp::AddGeometryAnalysisCutout ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteGeometryAnalysisCutout( const string & in geom_analysis_id, const string & in ss_id )", asFUNCTION( vsp::DeleteGeometryAnalysisCutout ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeometryAnalysisCutoutVec( const string & in geom_analysis_id )", asMETHOD( ScriptMgrSingleton, GetGeometryAnalysisCutoutVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -4297,6 +4339,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     r = se->RegisterGlobalFunction( "void DelAllBogies( const string & in gear_id )", asFUNCTION( vsp::DelAllBogies ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetBogieStowParentID( const string & in bogie_id, const string & in geom_id )", asFUNCTION( vsp::SetBogieStowParentID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetBogieStowParentID( const string & in bogie_id )", asFUNCTION( vsp::GetBogieStowParentID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetBogieMechParentID( const string & in bogie_id, const string & in geom_id )", asFUNCTION( vsp::SetBogieMechParentID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetBogieMechParentID( const string & in bogie_id )", asFUNCTION( vsp::GetBogieMechParentID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void SetAuxiliaryGeomContactPtID( const string & in geom_id, int index, const string & in bogie_id )", asFUNCTION( vsp::SetAuxiliaryGeomContactPtID ), asCALL_CDECL );
@@ -6471,6 +6525,24 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void DeleteAllProtractors()", asFUNCTION( vsp::DeleteAllProtractors ), asCALL_CDECL);
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetMeasureOriginGeomID( const string & in measure_id, const string & in geom_id )", asFUNCTION( vsp::SetMeasureOriginGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetMeasureOriginGeomID( const string & in measure_id )", asFUNCTION( vsp::GetMeasureOriginGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetMeasureMidGeomID( const string & in measure_id, const string & in geom_id )", asFUNCTION( vsp::SetMeasureMidGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetMeasureMidGeomID( const string & in measure_id )", asFUNCTION( vsp::GetMeasureMidGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetMeasureEndGeomID( const string & in measure_id, const string & in geom_id )", asFUNCTION( vsp::SetMeasureEndGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetMeasureEndGeomID( const string & in measure_id )", asFUNCTION( vsp::GetMeasureEndGeomID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "string AddRSTProbe( const string & in geomid, int surfindx, double r, double s, double t, const string & in name )", asFUNCTION( vsp::AddRSTProbe ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -7248,6 +7320,24 @@ CScriptArray* ScriptMgrSingleton::GetCpSliceIDVec()
 CScriptArray* ScriptMgrSingleton::GetDesignVarVec()
 {
     m_ProxyStringArray = vsp::GetDesignVarVec();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetGeometryAnalysisAzimuthParmVec( const string & geom_analysis_id )
+{
+    m_ProxyStringArray = vsp::GetGeometryAnalysisAzimuthParmVec( geom_analysis_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetGeometryAnalysisElevationParmVec( const string & geom_analysis_id )
+{
+    m_ProxyStringArray = vsp::GetGeometryAnalysisElevationParmVec( geom_analysis_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetGeometryAnalysisCutoutVec( const string & geom_analysis_id )
+{
+    m_ProxyStringArray = vsp::GetGeometryAnalysisCutoutVec( geom_analysis_id );
     return GetProxyStringArray();
 }
 

@@ -159,6 +159,9 @@ private:
     CScriptArray* GetUnsteadyGroupIDVec();
     CScriptArray* GetCpSliceIDVec();
     CScriptArray* GetDesignVarVec();
+    CScriptArray* GetGeometryAnalysisAzimuthParmVec( const string & geom_analysis_id );
+    CScriptArray* GetGeometryAnalysisElevationParmVec( const string & geom_analysis_id );
+    CScriptArray* GetGeometryAnalysisCutoutVec( const string & geom_analysis_id );
     CScriptArray* GetAvailableCSNameVec( int CSGroupIndex );
     CScriptArray* GetAvailableCSNameVecByID( const string & group_id );
     CScriptArray* GetAvailableCSSubSurfIDVec( const string & group_id );

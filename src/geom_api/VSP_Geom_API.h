@@ -5436,7 +5436,13 @@ extern std::string AddGeometryAnalysis();
         __failure++;
     }
 
-    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 );
+    string az_id = AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 );
+
+    if ( az_id != GetGeometryAnalysisAzimuthParm( ga_id, 0 ) )
+    {
+        Print( "ERROR: AddGeometryAnalysisAzEl did not return the new pair's azimuth Parm" );
+        __failure++;
+    }
 
     if ( GetNumGeometryAnalysisAzEl( ga_id ) != 1 )
     {
@@ -5475,7 +5481,9 @@ extern std::string AddGeometryAnalysis();
 
     assert GetNumGeometryAnalysisAzEl( ga_id ) == 0, "a new Geometry Analysis already carries az/el pairs"
 
-    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 )
+    az_id = AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 )
+
+    assert az_id == GetGeometryAnalysisAzimuthParm( ga_id, 0 ), "AddGeometryAnalysisAzEl did not return the new pair's azimuth Parm"
 
     assert GetNumGeometryAnalysisAzEl( ga_id ) == 1, "AddGeometryAnalysisAzEl did not add a pair"
 
@@ -5502,9 +5510,10 @@ extern std::string AddGeometryAnalysis();
     \param [in] geom_analysis_id string Geometry Analysis case ID
     \param [in] azimuth double Azimuth angle (degrees, -180 to 180)
     \param [in] elevation double Elevation angle (degrees, -90 to 90)
+    \return string ID of the azimuth Parm of the new pair
 */
 
-extern void AddGeometryAnalysisAzEl( const std::string & geom_analysis_id, double azimuth, double elevation );
+extern std::string AddGeometryAnalysisAzEl( const std::string & geom_analysis_id, double azimuth, double elevation );
 
 /*!
     \ingroup Analysis
@@ -5575,12 +5584,55 @@ extern void AddGeometryAnalysisAzEl( const std::string & geom_analysis_id, doubl
 
     \endcode
     \endPythonOnly
-    \sa AddGeometryAnalysisAzEl, DeleteAllGeometryAnalysisAzEl
+    \sa AddGeometryAnalysisAzEl, DeleteAllGeometryAnalysisAzEl, DeleteGeometryAnalysisAzElByID
     \param [in] geom_analysis_id string Geometry Analysis case ID
     \param [in] index int Az/El pair index
 */
 
 extern void DeleteGeometryAnalysisAzEl( const std::string & geom_analysis_id, int index );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Delete an azimuth/elevation pair from a Geometry Analysis, by the ID of its azimuth Parm.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string az_id = AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 );
+
+    AddGeometryAnalysisAzEl( ga_id, 60.0, 5.0 );
+
+    DeleteGeometryAnalysisAzElByID( ga_id, az_id );
+
+    if ( GetNumGeometryAnalysisAzEl( ga_id ) != 1 || abs( GetParmVal( GetGeometryAnalysisAzimuthParm( ga_id, 0 ) ) - 60.0 ) > 1e-6 )
+    {
+        Print( "ERROR: DeleteGeometryAnalysisAzElByID deleted the wrong pair" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    az_id = AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 )
+
+    AddGeometryAnalysisAzEl( ga_id, 60.0, 5.0 )
+
+    DeleteGeometryAnalysisAzElByID( ga_id, az_id )
+
+    assert GetNumGeometryAnalysisAzEl( ga_id ) == 1 and abs( GetParmVal( GetGeometryAnalysisAzimuthParm( ga_id, 0 ) ) - 60.0 ) < 1e-6, "DeleteGeometryAnalysisAzElByID deleted the wrong pair"
+
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysisAzEl, GetGeometryAnalysisAzimuthParmVec, DeleteGeometryAnalysisAzEl
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] azimuth_parm_id string ID of the azimuth Parm of the pair
+*/
+
+extern void DeleteGeometryAnalysisAzElByID( const std::string & geom_analysis_id, const std::string & azimuth_parm_id );
 
 /*!
     \ingroup Analysis
@@ -5740,6 +5792,525 @@ extern std::string GetGeometryAnalysisAzimuthParm( const std::string & geom_anal
 */
 
 extern std::string GetGeometryAnalysisElevationParm( const std::string & geom_analysis_id, int index );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the IDs of the azimuth Parms of a Geometry Analysis, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string az_id = AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 );
+
+    array< string > @ids = GetGeometryAnalysisAzimuthParmVec( ga_id );
+
+    if ( ids.size() != 1 || ids[0] != az_id )
+    {
+        Print( "ERROR: GetGeometryAnalysisAzimuthParmVec did not return the Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    az_id = AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 )
+
+    assert list( GetGeometryAnalysisAzimuthParmVec( ga_id ) ) == [ az_id ], "GetGeometryAnalysisAzimuthParmVec did not return the Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeometryAnalysisElevationParmVec
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \return array<string> Array of azimuth Parm IDs
+*/
+
+extern std::vector < std::string > GetGeometryAnalysisAzimuthParmVec( const std::string & geom_analysis_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the IDs of the elevation Parms of a Geometry Analysis, in the order of GetGeometryAnalysisAzimuthParmVec.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 );
+
+    array< string > @ids = GetGeometryAnalysisElevationParmVec( ga_id );
+
+    if ( ids.size() != 1 || ids[0] != GetGeometryAnalysisElevationParm( ga_id, 0 ) )
+    {
+        Print( "ERROR: GetGeometryAnalysisElevationParmVec did not return the Parm" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    AddGeometryAnalysisAzEl( ga_id, 30.0, 15.0 )
+
+    assert list( GetGeometryAnalysisElevationParmVec( ga_id ) ) == [ GetGeometryAnalysisElevationParm( ga_id, 0 ) ], "GetGeometryAnalysisElevationParmVec did not return the Parm"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeometryAnalysisAzimuthParmVec
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \return array<string> Array of elevation Parm IDs
+*/
+
+extern std::vector < std::string > GetGeometryAnalysisElevationParmVec( const std::string & geom_analysis_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Set the mode a Geometry Analysis uses for its primary target when that target is a mode, or an empty string for none.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetGeometryAnalysisPrimaryModeID( ga_id, mid );
+
+    if ( GetGeometryAnalysisPrimaryModeID( ga_id ) != mid )
+    {
+        Print( "ERROR: SetGeometryAnalysisPrimaryModeID did not set the mode" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetGeometryAnalysisPrimaryModeID( ga_id, mid )
+
+    assert GetGeometryAnalysisPrimaryModeID( ga_id ) == mid, "SetGeometryAnalysisPrimaryModeID did not set the mode"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeometryAnalysisPrimaryModeID
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] mode_id string Mode ID, or an empty string
+*/
+
+extern void SetGeometryAnalysisPrimaryModeID( const std::string & geom_analysis_id, const std::string & mode_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the mode a Geometry Analysis uses for its primary target when that target is a mode.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    if ( GetGeometryAnalysisPrimaryModeID( ga_id ) != "" )
+    {
+        Print( "ERROR: a new Geometry Analysis names a mode" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    assert GetGeometryAnalysisPrimaryModeID( ga_id ) == "", "a new Geometry Analysis names a mode"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeometryAnalysisPrimaryModeID
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \return string Mode ID, or an empty string for none
+*/
+
+extern std::string GetGeometryAnalysisPrimaryModeID( const std::string & geom_analysis_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Set the Geom a Geometry Analysis uses for its primary target when that is a Geom, or an empty string for none.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string pod_id = AddGeom( "POD" );
+
+    SetGeometryAnalysisPrimaryGeomID( ga_id, pod_id );
+
+    if ( GetGeometryAnalysisPrimaryGeomID( ga_id ) != pod_id )
+    {
+        Print( "ERROR: SetGeometryAnalysisPrimaryGeomID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    pod_id = AddGeom( "POD" )
+
+    SetGeometryAnalysisPrimaryGeomID( ga_id, pod_id )
+
+    assert GetGeometryAnalysisPrimaryGeomID( ga_id ) == pod_id, "SetGeometryAnalysisPrimaryGeomID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeometryAnalysisPrimaryGeomID
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetGeometryAnalysisPrimaryGeomID( const std::string & geom_analysis_id, const std::string & geom_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the Geom a Geometry Analysis uses for its primary target when that is a Geom.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string pod_id = AddGeom( "POD" );
+
+    SetGeometryAnalysisPrimaryGeomID( ga_id, pod_id );
+
+    if ( GetGeometryAnalysisPrimaryGeomID( ga_id ) != pod_id )
+    {
+        Print( "ERROR: GetGeometryAnalysisPrimaryGeomID did not return the Geom set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    pod_id = AddGeom( "POD" )
+
+    SetGeometryAnalysisPrimaryGeomID( ga_id, pod_id )
+
+    assert GetGeometryAnalysisPrimaryGeomID( ga_id ) == pod_id, "GetGeometryAnalysisPrimaryGeomID did not return the Geom set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeometryAnalysisPrimaryGeomID
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \return string Geom ID, or an empty string for none
+*/
+
+extern std::string GetGeometryAnalysisPrimaryGeomID( const std::string & geom_analysis_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Set the Geom a Geometry Analysis uses for its secondary target when that is a Geom, or an empty string for none.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string pod_id = AddGeom( "POD" );
+
+    SetGeometryAnalysisSecondaryGeomID( ga_id, pod_id );
+
+    if ( GetGeometryAnalysisSecondaryGeomID( ga_id ) != pod_id )
+    {
+        Print( "ERROR: SetGeometryAnalysisSecondaryGeomID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    pod_id = AddGeom( "POD" )
+
+    SetGeometryAnalysisSecondaryGeomID( ga_id, pod_id )
+
+    assert GetGeometryAnalysisSecondaryGeomID( ga_id ) == pod_id, "SetGeometryAnalysisSecondaryGeomID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeometryAnalysisSecondaryGeomID
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetGeometryAnalysisSecondaryGeomID( const std::string & geom_analysis_id, const std::string & geom_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the Geom a Geometry Analysis uses for its secondary target when that is a Geom.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string pod_id = AddGeom( "POD" );
+
+    SetGeometryAnalysisSecondaryGeomID( ga_id, pod_id );
+
+    if ( GetGeometryAnalysisSecondaryGeomID( ga_id ) != pod_id )
+    {
+        Print( "ERROR: GetGeometryAnalysisSecondaryGeomID did not return the Geom set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    pod_id = AddGeom( "POD" )
+
+    SetGeometryAnalysisSecondaryGeomID( ga_id, pod_id )
+
+    assert GetGeometryAnalysisSecondaryGeomID( ga_id ) == pod_id, "GetGeometryAnalysisSecondaryGeomID did not return the Geom set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeometryAnalysisSecondaryGeomID
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \return string Geom ID, or an empty string for none
+*/
+
+extern std::string GetGeometryAnalysisSecondaryGeomID( const std::string & geom_analysis_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Set the Geom a Geometry Analysis uses for its direction when that is a Geom, or an empty string for none.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string pod_id = AddGeom( "POD" );
+
+    SetGeometryAnalysisDirectionGeomID( ga_id, pod_id );
+
+    if ( GetGeometryAnalysisDirectionGeomID( ga_id ) != pod_id )
+    {
+        Print( "ERROR: SetGeometryAnalysisDirectionGeomID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    pod_id = AddGeom( "POD" )
+
+    SetGeometryAnalysisDirectionGeomID( ga_id, pod_id )
+
+    assert GetGeometryAnalysisDirectionGeomID( ga_id ) == pod_id, "SetGeometryAnalysisDirectionGeomID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeometryAnalysisDirectionGeomID
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetGeometryAnalysisDirectionGeomID( const std::string & geom_analysis_id, const std::string & geom_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the Geom a Geometry Analysis uses for its direction when that is a Geom.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string pod_id = AddGeom( "POD" );
+
+    SetGeometryAnalysisDirectionGeomID( ga_id, pod_id );
+
+    if ( GetGeometryAnalysisDirectionGeomID( ga_id ) != pod_id )
+    {
+        Print( "ERROR: GetGeometryAnalysisDirectionGeomID did not return the Geom set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    pod_id = AddGeom( "POD" )
+
+    SetGeometryAnalysisDirectionGeomID( ga_id, pod_id )
+
+    assert GetGeometryAnalysisDirectionGeomID( ga_id ) == pod_id, "GetGeometryAnalysisDirectionGeomID did not return the Geom set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetGeometryAnalysisDirectionGeomID
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \return string Geom ID, or an empty string for none
+*/
+
+extern std::string GetGeometryAnalysisDirectionGeomID( const std::string & geom_analysis_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Add a subsurface to the cutouts of a Geometry Analysis.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_RECTANGLE );
+
+    AddGeometryAnalysisCutout( ga_id, ss_id );
+
+    array< string > @ids = GetGeometryAnalysisCutoutVec( ga_id );
+
+    if ( ids.size() != 1 || ids[0] != ss_id )
+    {
+        Print( "ERROR: AddGeometryAnalysisCutout did not add the cutout" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_RECTANGLE )
+
+    AddGeometryAnalysisCutout( ga_id, ss_id )
+
+    assert list( GetGeometryAnalysisCutoutVec( ga_id ) ) == [ ss_id ], "AddGeometryAnalysisCutout did not add the cutout"
+
+    \endcode
+    \endPythonOnly
+    \sa DeleteGeometryAnalysisCutout, GetGeometryAnalysisCutoutVec
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] ss_id string SubSurface ID
+*/
+
+extern void AddGeometryAnalysisCutout( const std::string & geom_analysis_id, const std::string & ss_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Remove a subsurface from the cutouts of a Geometry Analysis.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_RECTANGLE );
+
+    AddGeometryAnalysisCutout( ga_id, ss_id );
+
+    DeleteGeometryAnalysisCutout( ga_id, ss_id );
+
+    if ( GetGeometryAnalysisCutoutVec( ga_id ).size() != 0 )
+    {
+        Print( "ERROR: DeleteGeometryAnalysisCutout did not remove the cutout" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_RECTANGLE )
+
+    AddGeometryAnalysisCutout( ga_id, ss_id )
+
+    DeleteGeometryAnalysisCutout( ga_id, ss_id )
+
+    assert len( GetGeometryAnalysisCutoutVec( ga_id ) ) == 0, "DeleteGeometryAnalysisCutout did not remove the cutout"
+
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysisCutout
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \param [in] ss_id string SubSurface ID
+*/
+
+extern void DeleteGeometryAnalysisCutout( const std::string & geom_analysis_id, const std::string & ss_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the subsurface IDs of the cutouts of a Geometry Analysis.
+    \forcpponly
+    \code{.cpp}
+    string ga_id = AddGeometryAnalysis();
+
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_RECTANGLE );
+
+    AddGeometryAnalysisCutout( ga_id, ss_id );
+
+    array< string > @ids = GetGeometryAnalysisCutoutVec( ga_id );
+
+    if ( ids.size() != 1 || ids[0] != ss_id )
+    {
+        Print( "ERROR: GetGeometryAnalysisCutoutVec did not return the cutout" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ga_id = AddGeometryAnalysis()
+
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_RECTANGLE )
+
+    AddGeometryAnalysisCutout( ga_id, ss_id )
+
+    assert list( GetGeometryAnalysisCutoutVec( ga_id ) ) == [ ss_id ], "GetGeometryAnalysisCutoutVec did not return the cutout"
+
+    \endcode
+    \endPythonOnly
+    \sa AddGeometryAnalysisCutout
+    \param [in] geom_analysis_id string Geometry Analysis case ID
+    \return array<string> Array of SubSurface IDs
+*/
+
+extern std::vector < std::string > GetGeometryAnalysisCutoutVec( const std::string & geom_analysis_id );
 
 /*!
     \ingroup Analysis
@@ -29427,6 +29998,190 @@ extern void DelBogie( const std::string &gear_id, const std::string &bogie_id );
 
 extern void DelAllBogies( const std::string &gear_id );
 
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Set the Geom a bogie stows into, or an empty string for none.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string gear_id = AddGeom( "GEAR" );
+
+    string bogie_id = CreateAndAddBogie( gear_id );
+
+    SetBogieStowParentID( bogie_id, pod_id );
+
+    if ( GetBogieStowParentID( bogie_id ) != pod_id )
+    {
+        Print( "ERROR: SetBogieStowParentID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    gear_id = AddGeom( "GEAR" )
+
+    bogie_id = CreateAndAddBogie( gear_id )
+
+    SetBogieStowParentID( bogie_id, pod_id )
+
+    assert GetBogieStowParentID( bogie_id ) == pod_id, "SetBogieStowParentID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetBogieStowParentID
+    \param [in] bogie_id string Bogie ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetBogieStowParentID( const std::string & bogie_id, const std::string & geom_id );
+
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Get the Geom a bogie stows into.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string gear_id = AddGeom( "GEAR" );
+
+    string bogie_id = CreateAndAddBogie( gear_id );
+
+    SetBogieStowParentID( bogie_id, pod_id );
+
+    if ( GetBogieStowParentID( bogie_id ) != pod_id )
+    {
+        Print( "ERROR: GetBogieStowParentID did not return the Geom set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    gear_id = AddGeom( "GEAR" )
+
+    bogie_id = CreateAndAddBogie( gear_id )
+
+    SetBogieStowParentID( bogie_id, pod_id )
+
+    assert GetBogieStowParentID( bogie_id ) == pod_id, "GetBogieStowParentID did not return the Geom set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetBogieStowParentID
+    \param [in] bogie_id string Bogie ID
+    \return string Geom ID, or an empty string for none
+*/
+
+extern std::string GetBogieStowParentID( const std::string & bogie_id );
+
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Set the Geom a bogie retracts on, or an empty string for none.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string gear_id = AddGeom( "GEAR" );
+
+    string bogie_id = CreateAndAddBogie( gear_id );
+
+    // A bogie only keeps a mechanism parent while it retracts by mechanism
+    SetParmVal( bogie_id, "RetMode", "Retract", GEAR_MECHANISM );
+
+    SetBogieMechParentID( bogie_id, pod_id );
+
+    if ( GetBogieMechParentID( bogie_id ) != pod_id )
+    {
+        Print( "ERROR: SetBogieMechParentID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    gear_id = AddGeom( "GEAR" )
+
+    bogie_id = CreateAndAddBogie( gear_id )
+
+    # A bogie only keeps a mechanism parent while it retracts by mechanism
+    SetParmVal( bogie_id, "RetMode", "Retract", GEAR_MECHANISM )
+
+    SetBogieMechParentID( bogie_id, pod_id )
+
+    assert GetBogieMechParentID( bogie_id ) == pod_id, "SetBogieMechParentID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetBogieMechParentID
+    \param [in] bogie_id string Bogie ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetBogieMechParentID( const std::string & bogie_id, const std::string & geom_id );
+
+/*!
+    \ingroup GearGeom
+*/
+/*!
+    Get the Geom a bogie retracts on.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string gear_id = AddGeom( "GEAR" );
+
+    string bogie_id = CreateAndAddBogie( gear_id );
+
+    // A bogie only keeps a mechanism parent while it retracts by mechanism
+    SetParmVal( bogie_id, "RetMode", "Retract", GEAR_MECHANISM );
+
+    SetBogieMechParentID( bogie_id, pod_id );
+
+    if ( GetBogieMechParentID( bogie_id ) != pod_id )
+    {
+        Print( "ERROR: GetBogieMechParentID did not return the Geom set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    gear_id = AddGeom( "GEAR" )
+
+    bogie_id = CreateAndAddBogie( gear_id )
+
+    # A bogie only keeps a mechanism parent while it retracts by mechanism
+    SetParmVal( bogie_id, "RetMode", "Retract", GEAR_MECHANISM )
+
+    SetBogieMechParentID( bogie_id, pod_id )
+
+    assert GetBogieMechParentID( bogie_id ) == pod_id, "GetBogieMechParentID did not return the Geom set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetBogieMechParentID
+    \param [in] bogie_id string Bogie ID
+    \return string Geom ID, or an empty string for none
+*/
+
+extern std::string GetBogieMechParentID( const std::string & bogie_id );
+
 
 //====================== AuxiliaryGeom Functions ======================//
 /*!
@@ -51314,6 +52069,270 @@ extern void DelProtractor( const std::string &id );
 */
 
 extern void DeleteAllProtractors();
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Set the Geom the origin of a ruler, probe, RST probe or protractor lies on.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD" );
+
+    Update();
+
+    string rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" );
+    string tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" );
+
+    SetMeasureOriginGeomID( rid, pod2 );
+
+    if ( GetMeasureOriginGeomID( rid ) != pod2 )
+    {
+        Print( "ERROR: SetMeasureOriginGeomID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD" )
+
+    Update()
+
+    rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" )
+    tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" )
+
+    SetMeasureOriginGeomID( rid, pod2 )
+
+    assert GetMeasureOriginGeomID( rid ) == pod2, "SetMeasureOriginGeomID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetMeasureOriginGeomID
+    \param [in] measure_id string Measure ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetMeasureOriginGeomID( const std::string & measure_id, const std::string & geom_id );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Get the Geom the origin of a ruler, probe, RST probe or protractor lies on.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+
+    Update();
+
+    string rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" );
+    string tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" );
+
+    if ( GetMeasureOriginGeomID( rid ) != pod1 )
+    {
+        Print( "ERROR: GetMeasureOriginGeomID did not return the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+
+    Update()
+
+    rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" )
+    tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" )
+
+    assert GetMeasureOriginGeomID( rid ) == pod1, "GetMeasureOriginGeomID did not return the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa SetMeasureOriginGeomID
+    \param [in] measure_id string Measure ID
+    \return string Geom ID
+*/
+
+extern std::string GetMeasureOriginGeomID( const std::string & measure_id );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Set the Geom the middle point of a protractor lies on.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD" );
+
+    Update();
+
+    string rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" );
+    string tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" );
+
+    SetMeasureMidGeomID( tid, pod2 );
+
+    if ( GetMeasureMidGeomID( tid ) != pod2 )
+    {
+        Print( "ERROR: SetMeasureMidGeomID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD" )
+
+    Update()
+
+    rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" )
+    tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" )
+
+    SetMeasureMidGeomID( tid, pod2 )
+
+    assert GetMeasureMidGeomID( tid ) == pod2, "SetMeasureMidGeomID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetMeasureMidGeomID
+    \param [in] measure_id string Measure ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetMeasureMidGeomID( const std::string & measure_id, const std::string & geom_id );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Get the Geom the middle point of a protractor lies on.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+
+    Update();
+
+    string rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" );
+    string tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" );
+
+    if ( GetMeasureMidGeomID( tid ) != pod1 )
+    {
+        Print( "ERROR: GetMeasureMidGeomID did not return the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+
+    Update()
+
+    rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" )
+    tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" )
+
+    assert GetMeasureMidGeomID( tid ) == pod1, "GetMeasureMidGeomID did not return the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa SetMeasureMidGeomID
+    \param [in] measure_id string Measure ID
+    \return string Geom ID
+*/
+
+extern std::string GetMeasureMidGeomID( const std::string & measure_id );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Set the Geom the end of a ruler or protractor lies on.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+    string pod2 = AddGeom( "POD" );
+
+    Update();
+
+    string rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" );
+    string tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" );
+
+    SetMeasureEndGeomID( rid, pod2 );
+
+    if ( GetMeasureEndGeomID( rid ) != pod2 )
+    {
+        Print( "ERROR: SetMeasureEndGeomID did not set the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+    pod2 = AddGeom( "POD" )
+
+    Update()
+
+    rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" )
+    tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" )
+
+    SetMeasureEndGeomID( rid, pod2 )
+
+    assert GetMeasureEndGeomID( rid ) == pod2, "SetMeasureEndGeomID did not set the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa GetMeasureEndGeomID
+    \param [in] measure_id string Measure ID
+    \param [in] geom_id string Geom ID, or an empty string
+*/
+
+extern void SetMeasureEndGeomID( const std::string & measure_id, const std::string & geom_id );
+
+/*!
+    \ingroup Measure
+*/
+/*!
+    Get the Geom the end of a ruler or protractor lies on.
+    \forcpponly
+    \code{.cpp}
+    string pod1 = AddGeom( "POD" );
+
+    Update();
+
+    string rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" );
+    string tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" );
+
+    if ( GetMeasureEndGeomID( rid ) != pod1 )
+    {
+        Print( "ERROR: GetMeasureEndGeomID did not return the Geom" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod1 = AddGeom( "POD" )
+
+    Update()
+
+    rid = AddRuler( pod1, 0, 0.2, 0.0, pod1, 0, 0.8, 0.0, "Span" )
+    tid = AddProtractor( pod1, 0, 0.2, 0.0, pod1, 0, 0.5, 0.0, pod1, 0, 0.8, 0.0, "Angle" )
+
+    assert GetMeasureEndGeomID( rid ) == pod1, "GetMeasureEndGeomID did not return the Geom"
+
+    \endcode
+    \endPythonOnly
+    \sa SetMeasureEndGeomID
+    \param [in] measure_id string Measure ID
+    \return string Geom ID
+*/
+
+extern std::string GetMeasureEndGeomID( const std::string & measure_id );
 
 /*!
     \ingroup Measure

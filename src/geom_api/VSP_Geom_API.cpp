@@ -11080,6 +11080,100 @@ void DelAllBogies( const std::string &gear_id )
     return;
 }
 
+//==== Whether a Geom ID names a Geom or is empty, reporting through the named caller ====//
+bool GeomIDOrNone( const std::string & geom_id, const std::string & caller )
+{
+    if ( !geom_id.empty() && !GetVehicle()->FindGeom( geom_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
+        return false;
+    }
+    return true;
+}
+
+//==== Look up a bogie by ID, reporting through the named caller ====//
+Bogie* FindBogie( const std::string & bogie_id, const std::string & caller )
+{
+    Bogie* bogie = dynamic_cast < Bogie* > ( ParmMgr.FindParmContainer( bogie_id ) );
+    if ( !bogie )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Bogie " + bogie_id );
+    }
+    return bogie;
+}
+
+void SetBogieStowParentID( const std::string & bogie_id, const std::string & geom_id )
+{
+    Bogie* bogie = FindBogie( bogie_id, "SetBogieStowParentID" );
+    if ( !bogie || !GeomIDOrNone( geom_id, "SetBogieStowParentID" ) )
+    {
+        return;
+    }
+
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( geom_ptr && geom_ptr->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBogieStowParentID::Geom " + geom_id + " is a point cloud" );
+        return;
+    }
+
+    bogie->SetStowParentID( geom_id );
+    if ( bogie->GetStowParentID() != geom_id )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetBogieStowParentID::Geom " + geom_id + " is built from the bogie's gear" );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+std::string GetBogieStowParentID( const std::string & bogie_id )
+{
+    Bogie* bogie = FindBogie( bogie_id, "GetBogieStowParentID" );
+    if ( !bogie )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return bogie->GetStowParentID();
+}
+
+void SetBogieMechParentID( const std::string & bogie_id, const std::string & geom_id )
+{
+    Bogie* bogie = FindBogie( bogie_id, "SetBogieMechParentID" );
+    if ( !bogie || !GeomIDOrNone( geom_id, "SetBogieMechParentID" ) )
+    {
+        return;
+    }
+
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( geom_ptr && geom_ptr->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBogieMechParentID::Geom " + geom_id + " is a point cloud" );
+        return;
+    }
+
+    bogie->SetMechParentID( geom_id );
+    if ( bogie->GetMechParentID() != geom_id )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetBogieMechParentID::Geom " + geom_id + " is built from the bogie's gear" );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+std::string GetBogieMechParentID( const std::string & bogie_id )
+{
+    Bogie* bogie = FindBogie( bogie_id, "GetBogieMechParentID" );
+    if ( !bogie )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return bogie->GetMechParentID();
+}
+
 //===================================================================//
 //==================      BOR Functions        ======================//
 //===================================================================//
@@ -16626,6 +16720,131 @@ void DeleteAllProtractors()
     ErrorMgr.NoError();
 }
 
+//==== The Geom ID a measure keeps for one of its points, reporting through the named
+//==== caller when the measure has no such point.  The point is 0 for the origin, 1
+//==== for the middle and 2 for the end. ====//
+std::string* FindMeasureGeomID( const std::string & measure_id, int which, const std::string & caller )
+{
+    ParmContainer* pc = ParmMgr.FindParmContainer( measure_id );
+
+    Ruler* ruler = dynamic_cast < Ruler* > ( pc );
+    Probe* probe = dynamic_cast < Probe* > ( pc );
+    RSTProbe* rst_probe = dynamic_cast < RSTProbe* > ( pc );
+    Protractor* protractor = dynamic_cast < Protractor* > ( pc );
+
+    if ( !ruler && !probe && !rst_probe && !protractor )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Measure " + measure_id );
+        return nullptr;
+    }
+
+    if ( which == 0 )
+    {
+        if ( ruler )
+        {
+            return &ruler->m_OriginGeomID;
+        }
+        if ( probe )
+        {
+            return &probe->m_OriginGeomID;
+        }
+        if ( rst_probe )
+        {
+            return &rst_probe->m_OriginGeomID;
+        }
+        return &protractor->m_OriginGeomID;
+    }
+
+    if ( which == 1 && protractor )
+    {
+        return &protractor->m_MidGeomID;
+    }
+
+    if ( which == 2 && ruler )
+    {
+        return &ruler->m_EndGeomID;
+    }
+    if ( which == 2 && protractor )
+    {
+        return &protractor->m_EndGeomID;
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::Measure " + measure_id + " has no such point" );
+    return nullptr;
+}
+
+void SetMeasureOriginGeomID( const std::string & measure_id, const std::string & geom_id )
+{
+    std::string* id = FindMeasureGeomID( measure_id, 0, "SetMeasureOriginGeomID" );
+    if ( !id || !GeomIDOrNone( geom_id, "SetMeasureOriginGeomID" ) )
+    {
+        return;
+    }
+
+    *id = geom_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetMeasureOriginGeomID( const std::string & measure_id )
+{
+    std::string* id = FindMeasureGeomID( measure_id, 0, "GetMeasureOriginGeomID" );
+    if ( !id )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return *id;
+}
+
+void SetMeasureMidGeomID( const std::string & measure_id, const std::string & geom_id )
+{
+    std::string* id = FindMeasureGeomID( measure_id, 1, "SetMeasureMidGeomID" );
+    if ( !id || !GeomIDOrNone( geom_id, "SetMeasureMidGeomID" ) )
+    {
+        return;
+    }
+
+    *id = geom_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetMeasureMidGeomID( const std::string & measure_id )
+{
+    std::string* id = FindMeasureGeomID( measure_id, 1, "GetMeasureMidGeomID" );
+    if ( !id )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return *id;
+}
+
+void SetMeasureEndGeomID( const std::string & measure_id, const std::string & geom_id )
+{
+    std::string* id = FindMeasureGeomID( measure_id, 2, "SetMeasureEndGeomID" );
+    if ( !id || !GeomIDOrNone( geom_id, "SetMeasureEndGeomID" ) )
+    {
+        return;
+    }
+
+    *id = geom_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetMeasureEndGeomID( const std::string & measure_id )
+{
+    std::string* id = FindMeasureGeomID( measure_id, 2, "GetMeasureEndGeomID" );
+    if ( !id )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return *id;
+}
+
 std::string AddRSTProbe( const std::string & geomid, int surfindx, double r, double s, double t, const std::string & name )
 {
     return MeasureMgr.CreateAndAddRSTProbe( geomid, surfindx, r, s, t, name );
@@ -16912,17 +17131,18 @@ GeometryAnalysisCase* FindGeometryAnalysis( const std::string & geom_analysis_id
     return gcase;
 }
 
-void AddGeometryAnalysisAzEl( const std::string & geom_analysis_id, double azimuth, double elevation )
+std::string AddGeometryAnalysisAzEl( const std::string & geom_analysis_id, double azimuth, double elevation )
 {
     GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "AddGeometryAnalysisAzEl" );
     if ( !gcase )
     {
-        return;
+        return std::string();
     }
 
     gcase->AddAzEl( azimuth, elevation );
 
     ErrorMgr.NoError();
+    return gcase->m_VizAzimuthVec.back()->GetID();
 }
 
 void DeleteGeometryAnalysisAzEl( const std::string & geom_analysis_id, int index )
@@ -16942,6 +17162,27 @@ void DeleteGeometryAnalysisAzEl( const std::string & geom_analysis_id, int index
     gcase->RemoveAzEl( index );
 
     ErrorMgr.NoError();
+}
+
+void DeleteGeometryAnalysisAzElByID( const std::string & geom_analysis_id, const std::string & azimuth_parm_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "DeleteGeometryAnalysisAzElByID" );
+    if ( !gcase )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < ( int )gcase->m_VizAzimuthVec.size(); i++ )
+    {
+        if ( gcase->m_VizAzimuthVec[i]->GetID() == azimuth_parm_id )
+        {
+            gcase->RemoveAzEl( i );
+            ErrorMgr.NoError();
+            return;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, "DeleteGeometryAnalysisAzElByID::Parm " + azimuth_parm_id + " is not an azimuth of " + geom_analysis_id );
 }
 
 void DeleteAllGeometryAnalysisAzEl( const std::string & geom_analysis_id )
@@ -17003,6 +17244,197 @@ std::string GetGeometryAnalysisElevationParm( const std::string & geom_analysis_
 
     ErrorMgr.NoError();
     return gcase->m_VizElevationVec[ index ]->GetID();
+}
+
+std::vector < std::string > GetGeometryAnalysisAzimuthParmVec( const std::string & geom_analysis_id )
+{
+    std::vector < std::string > ret_vec;
+
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisAzimuthParmVec" );
+    if ( !gcase )
+    {
+        return ret_vec;
+    }
+
+    for ( size_t i = 0; i < gcase->m_VizAzimuthVec.size(); i++ )
+    {
+        ret_vec.push_back( gcase->m_VizAzimuthVec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+std::vector < std::string > GetGeometryAnalysisElevationParmVec( const std::string & geom_analysis_id )
+{
+    std::vector < std::string > ret_vec;
+
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisElevationParmVec" );
+    if ( !gcase )
+    {
+        return ret_vec;
+    }
+
+    for ( size_t i = 0; i < gcase->m_VizElevationVec.size(); i++ )
+    {
+        ret_vec.push_back( gcase->m_VizElevationVec[i]->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+void SetGeometryAnalysisPrimaryModeID( const std::string & geom_analysis_id, const std::string & mode_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "SetGeometryAnalysisPrimaryModeID" );
+    if ( !gcase )
+    {
+        return;
+    }
+
+    if ( !mode_id.empty() && !ModeMgr.GetMode( mode_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeometryAnalysisPrimaryModeID::Can't Find Mode " + mode_id );
+        return;
+    }
+
+    gcase->m_PrimaryModeID = mode_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetGeometryAnalysisPrimaryModeID( const std::string & geom_analysis_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisPrimaryModeID" );
+    if ( !gcase )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return gcase->m_PrimaryModeID;
+}
+
+void SetGeometryAnalysisPrimaryGeomID( const std::string & geom_analysis_id, const std::string & geom_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "SetGeometryAnalysisPrimaryGeomID" );
+    if ( !gcase || !GeomIDOrNone( geom_id, "SetGeometryAnalysisPrimaryGeomID" ) )
+    {
+        return;
+    }
+
+    gcase->m_PrimaryGeomID = geom_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetGeometryAnalysisPrimaryGeomID( const std::string & geom_analysis_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisPrimaryGeomID" );
+    if ( !gcase )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return gcase->m_PrimaryGeomID;
+}
+
+void SetGeometryAnalysisSecondaryGeomID( const std::string & geom_analysis_id, const std::string & geom_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "SetGeometryAnalysisSecondaryGeomID" );
+    if ( !gcase || !GeomIDOrNone( geom_id, "SetGeometryAnalysisSecondaryGeomID" ) )
+    {
+        return;
+    }
+
+    gcase->m_SecondaryGeomID = geom_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetGeometryAnalysisSecondaryGeomID( const std::string & geom_analysis_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisSecondaryGeomID" );
+    if ( !gcase )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return gcase->m_SecondaryGeomID;
+}
+
+void SetGeometryAnalysisDirectionGeomID( const std::string & geom_analysis_id, const std::string & geom_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "SetGeometryAnalysisDirectionGeomID" );
+    if ( !gcase || !GeomIDOrNone( geom_id, "SetGeometryAnalysisDirectionGeomID" ) )
+    {
+        return;
+    }
+
+    gcase->m_DirectionGeomID = geom_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetGeometryAnalysisDirectionGeomID( const std::string & geom_analysis_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisDirectionGeomID" );
+    if ( !gcase )
+    {
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return gcase->m_DirectionGeomID;
+}
+
+void AddGeometryAnalysisCutout( const std::string & geom_analysis_id, const std::string & ss_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "AddGeometryAnalysisCutout" );
+    if ( !gcase )
+    {
+        return;
+    }
+
+    if ( !SubSurfaceMgr.GetSubSurf( ss_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddGeometryAnalysisCutout::Can't Find SubSurface " + ss_id );
+        return;
+    }
+
+    if ( !vector_contains_val( gcase->m_CutoutVec, ss_id ) )
+    {
+        gcase->m_CutoutVec.push_back( ss_id );
+    }
+    ErrorMgr.NoError();
+}
+
+void DeleteGeometryAnalysisCutout( const std::string & geom_analysis_id, const std::string & ss_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "DeleteGeometryAnalysisCutout" );
+    if ( !gcase )
+    {
+        return;
+    }
+
+    if ( !vector_contains_val( gcase->m_CutoutVec, ss_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteGeometryAnalysisCutout::SubSurface " + ss_id + " is not a cutout of " + geom_analysis_id );
+        return;
+    }
+
+    vector_remove_val( gcase->m_CutoutVec, ss_id );
+    ErrorMgr.NoError();
+}
+
+std::vector < std::string > GetGeometryAnalysisCutoutVec( const std::string & geom_analysis_id )
+{
+    GeometryAnalysisCase* gcase = FindGeometryAnalysis( geom_analysis_id, "GetGeometryAnalysisCutoutVec" );
+    if ( !gcase )
+    {
+        return std::vector < std::string > ();
+    }
+
+    ErrorMgr.NoError();
+    return gcase->m_CutoutVec;
 }
 
 //================ Measure Tool Display Functions ====================//
