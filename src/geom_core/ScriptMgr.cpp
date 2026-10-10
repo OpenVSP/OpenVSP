@@ -4047,6 +4047,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int GetDesignVarType( int index )", asFUNCTION( vsp::GetDesignVarType ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
+    r = se->RegisterGlobalFunction( "int GetDesignVarTypeByID( const string & in parm_id )", asFUNCTION( vsp::GetDesignVarTypeByID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void DeleteDesignVar( const string & in parm_id )", asFUNCTION( vsp::DeleteDesignVar ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetDesignVarVec()", asMETHOD( ScriptMgrSingleton, GetDesignVarVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     //==== Computations ====//
 
     r = se->RegisterGlobalFunction( "string ComputeMassProps( int set, int num_slices, int idir = X_DIR )", asFUNCTION( vsp::ComputeMassProps ), asCALL_CDECL );
@@ -6175,6 +6184,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string ModeGetSetting( const string & in mode_id, int indx )", asFUNCTION( vsp::ModeGetSetting ), asCALL_CDECL);
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string ModeGetGroupSetting( const string & in mode_id, const string & in gid )", asFUNCTION( vsp::ModeGetGroupSetting ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "array<string>@+ ModeGetAllGroups( const string & in mode_id )", asMETHOD( ScriptMgrSingleton, ModeGetAllGroups ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
@@ -6182,6 +6194,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void RemoveGroupSetting( const string & in mode_id, int indx )", asFUNCTION( vsp::RemoveGroupSetting ), asCALL_CDECL);
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void RemoveGroupSettingByID( const string & in mode_id, const string & in gid )", asFUNCTION( vsp::RemoveGroupSettingByID ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void RemoveAllGroupSettings( const string & in mode_id )", asFUNCTION( vsp::RemoveAllGroupSettings ), asCALL_CDECL);
@@ -7227,6 +7242,12 @@ CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupIDVec()
 CScriptArray* ScriptMgrSingleton::GetCpSliceIDVec()
 {
     m_ProxyStringArray = vsp::GetCpSliceIDVec();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetDesignVarVec()
+{
+    m_ProxyStringArray = vsp::GetDesignVarVec();
     return GetProxyStringArray();
 }
 

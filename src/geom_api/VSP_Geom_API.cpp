@@ -468,7 +468,7 @@ std::string GetDesignVar( int index )
     return parm_id;
 }
 
-int GetDesignVarType( int index )
+static int GetDesignVarTypeImpl( int index, const std::string & caller )
 {
     int dvtype = -1;
 
@@ -476,7 +476,7 @@ int GetDesignVarType( int index )
 
     if ( !dv )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDesignVarType::Design variable index " + to_string( index ) + " out of range." );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Design variable index " + to_string( index ) + " out of range." );
         return dvtype;
     }
 
@@ -484,6 +484,64 @@ int GetDesignVarType( int index )
 
     ErrorMgr.NoError();
     return dvtype;
+}
+
+int GetDesignVarType( int index )
+{
+    return GetDesignVarTypeImpl( index, "GetDesignVarType" );
+}
+
+//==== The index of a design variable by Parm ID, reporting through the named caller ====//
+int FindDesignVarIndex( const std::string & parm_id, const std::string & caller )
+{
+    for ( int i = 0; i < ( int )DesignVarMgr.GetNumVars(); i++ )
+    {
+        if ( DesignVarMgr.GetVar( i )->m_ParmID == parm_id )
+        {
+            return i;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Parm " + parm_id + " is not a design variable" );
+    return -1;
+}
+
+int GetDesignVarTypeByID( const std::string & parm_id )
+{
+    int index = FindDesignVarIndex( parm_id, "GetDesignVarTypeByID" );
+    if ( index < 0 )
+    {
+        return -1;
+    }
+
+    return GetDesignVarTypeImpl( index, "GetDesignVarTypeByID" );
+}
+
+void DeleteDesignVar( const std::string & parm_id )
+{
+    int index = FindDesignVarIndex( parm_id, "DeleteDesignVar" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    DesignVarMgr.SetCurrVarIndex( index );
+    DesignVarMgr.DelCurrVar();
+
+    ErrorMgr.NoError();
+}
+
+std::vector < std::string > GetDesignVarVec()
+{
+    std::vector < std::string > ret_vec;
+
+    for ( int i = 0; i < ( int )DesignVarMgr.GetNumVars(); i++ )
+    {
+        ret_vec.push_back( DesignVarMgr.GetVar( i )->m_ParmID );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 //===================================================================//
@@ -14676,6 +14734,48 @@ static void RemoveGroupSettingImpl( const std::string &mid, int indx, const std:
 void RemoveGroupSetting( const std::string &mid, int indx )
 {
     RemoveGroupSettingImpl( mid, indx, "RemoveGroupSetting" );
+}
+
+//==== The index of a variable preset group's setting in a mode, reporting through the
+//==== named caller when the mode or the group's setting cannot be found ====//
+int FindModeGroupIndex( const std::string & mid, const std::string & gid, const std::string & caller )
+{
+    Mode *mod = ModeMgr.GetMode( mid );
+    if ( !mod )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Could not find mode " + mid );
+        return -1;
+    }
+
+    std::vector < std::string > gids = mod->GetAllGroups();
+    int index = vector_find_val( gids, gid );
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Mode " + mid + " has no setting for group " + gid );
+    }
+    return index;
+}
+
+void RemoveGroupSettingByID( const std::string &mid, const std::string &gid )
+{
+    int index = FindModeGroupIndex( mid, gid, "RemoveGroupSettingByID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    RemoveGroupSettingImpl( mid, index, "RemoveGroupSettingByID" );
+}
+
+std::string ModeGetGroupSetting( const std::string &mid, const std::string &gid )
+{
+    int index = FindModeGroupIndex( mid, gid, "ModeGetGroupSetting" );
+    if ( index < 0 )
+    {
+        return std::string();
+    }
+
+    return ModeGetSettingImpl( mid, index, "ModeGetGroupSetting" );
 }
 
 void RemoveAllGroupSettings( const std::string &mid )

@@ -2303,12 +2303,133 @@ extern std::string GetDesignVar( int index );
 
     \endcode
     \endPythonOnly
-    \sa XDDM_QUANTITY_TYPE
+    \sa XDDM_QUANTITY_TYPE, GetDesignVarTypeByID
     \param [in] index int Index of design variable
     \return int XDDM type enum (XDDM_VAR or XDDM_CONST)
 */
 
 extern int GetDesignVarType( int index );
+
+/*!
+    \ingroup DesignFile
+*/
+/*!
+    Get the XDDM type of a design variable, by its Parm ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string length_id = FindParm( pod_id, "Length", "Design" );
+
+    AddDesignVar( length_id, XDDM_CONST );
+
+    if ( GetDesignVarTypeByID( length_id ) != XDDM_CONST )
+    {
+        Print( "ERROR: GetDesignVarTypeByID did not return the type" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    length_id = FindParm( pod_id, "Length", "Design" )
+
+    AddDesignVar( length_id, XDDM_CONST )
+
+    assert GetDesignVarTypeByID( length_id ) == XDDM_CONST, "GetDesignVarTypeByID did not return the type"
+
+    \endcode
+    \endPythonOnly
+    \sa XDDM_QUANTITY_TYPE, GetDesignVarType
+    \param [in] parm_id string Parm ID of the design variable
+    \return int XDDM type enum (i.e. XDDM_VAR)
+*/
+
+extern int GetDesignVarTypeByID( const std::string & parm_id );
+
+/*!
+    \ingroup DesignFile
+*/
+/*!
+    Delete a design variable, by its Parm ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string length_id = FindParm( pod_id, "Length", "Design" );
+
+    AddDesignVar( length_id, XDDM_CONST );
+
+    DeleteDesignVar( length_id );
+
+    if ( GetNumDesignVars() != 0 )
+    {
+        Print( "ERROR: DeleteDesignVar did not delete the variable" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    length_id = FindParm( pod_id, "Length", "Design" )
+
+    AddDesignVar( length_id, XDDM_CONST )
+
+    DeleteDesignVar( length_id )
+
+    assert GetNumDesignVars() == 0, "DeleteDesignVar did not delete the variable"
+
+    \endcode
+    \endPythonOnly
+    \sa AddDesignVar, DeleteAllDesignVars
+    \param [in] parm_id string Parm ID of the design variable
+*/
+
+extern void DeleteDesignVar( const std::string & parm_id );
+
+/*!
+    \ingroup DesignFile
+*/
+/*!
+    Get the Parm IDs of the design variables, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string length_id = FindParm( pod_id, "Length", "Design" );
+
+    AddDesignVar( length_id, XDDM_CONST );
+
+    array< string > @ids = GetDesignVarVec();
+
+    if ( ids.size() != 1 || ids[0] != length_id )
+    {
+        Print( "ERROR: GetDesignVarVec did not return the variable" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    length_id = FindParm( pod_id, "Length", "Design" )
+
+    AddDesignVar( length_id, XDDM_CONST )
+
+    assert list( GetDesignVarVec() ) == [ length_id ], "GetDesignVarVec did not return the variable"
+
+    \endcode
+    \endPythonOnly
+    \sa GetDesignVar, GetNumDesignVars
+    \return array<string> Array of Parm IDs
+*/
+
+extern std::vector < std::string > GetDesignVarVec();
 
 
 //======================== Computations ================================//
@@ -42149,6 +42270,58 @@ extern std::string ModeGetSetting( const std::string &mid, int indx );
     \ingroup Mode
 */
 /*!
+    Get the setting a mode applies for a variable preset group, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    AddVarPresetParm( gid, FindParm( pod_id, "Tess_U", "Shape" ) );
+
+    string sid = AddVarPresetSetting( gid, "Coarse" );
+
+    string mid = CreateAndAddMode( "Quick", SET_ALL, SET_NONE );
+
+    ModeAddGroupSetting( mid, gid, sid );
+
+    if ( ModeGetGroupSetting( mid, gid ) != sid )
+    {
+        Print( "ERROR: ModeGetGroupSetting did not return the group's setting" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    AddVarPresetParm( gid, FindParm( pod_id, "Tess_U", "Shape" ) )
+
+    sid = AddVarPresetSetting( gid, "Coarse" )
+
+    mid = CreateAndAddMode( "Quick", SET_ALL, SET_NONE )
+
+    ModeAddGroupSetting( mid, gid, sid )
+
+    assert ModeGetGroupSetting( mid, gid ) == sid, "ModeGetGroupSetting did not return the group's setting"
+
+    \endcode
+    \endPythonOnly
+    \sa ModeAddGroupSetting, ModeGetSetting
+    \param [in] mid string Mode ID
+    \param [in] gid string Variable preset group ID
+    \return string Variable preset setting ID
+*/
+
+extern std::string ModeGetGroupSetting( const std::string &mid, const std::string &gid );
+
+/*!
+    \ingroup Mode
+*/
+/*!
     Get all var preset group IDs in model.
     \forcpponly
     \code{.cpp}
@@ -42667,11 +42840,67 @@ extern std::vector < std::string >  ModeGetAllSettings( const std::string &mid )
 
     \endcode
     \endPythonOnly
+    \sa RemoveGroupSettingByID
     \param [in] mid string Mode ID to remove varible preset group and setting from
     \param [in] indx int Index of Variable preset to remove
 */
 
 extern void RemoveGroupSetting( const std::string &mid, int indx );
+
+/*!
+    \ingroup Mode
+*/
+/*!
+    Remove a variable preset group and its setting from a mode, by group ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string gid = AddVarPresetGroup( "Tess" );
+
+    AddVarPresetParm( gid, FindParm( pod_id, "Tess_U", "Shape" ) );
+
+    string sid = AddVarPresetSetting( gid, "Coarse" );
+
+    string mid = CreateAndAddMode( "Quick", SET_ALL, SET_NONE );
+
+    ModeAddGroupSetting( mid, gid, sid );
+
+    RemoveGroupSettingByID( mid, gid );
+
+    if ( ModeGetAllGroups( mid ).size() != 0 )
+    {
+        Print( "ERROR: RemoveGroupSettingByID did not remove the group" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    gid = AddVarPresetGroup( "Tess" )
+
+    AddVarPresetParm( gid, FindParm( pod_id, "Tess_U", "Shape" ) )
+
+    sid = AddVarPresetSetting( gid, "Coarse" )
+
+    mid = CreateAndAddMode( "Quick", SET_ALL, SET_NONE )
+
+    ModeAddGroupSetting( mid, gid, sid )
+
+    RemoveGroupSettingByID( mid, gid )
+
+    assert len( ModeGetAllGroups( mid ) ) == 0, "RemoveGroupSettingByID did not remove the group"
+
+    \endcode
+    \endPythonOnly
+    \sa ModeAddGroupSetting, RemoveAllGroupSettings, RemoveGroupSetting
+    \param [in] mid string Mode ID
+    \param [in] gid string Variable preset group ID
+*/
+
+extern void RemoveGroupSettingByID( const std::string &mid, const std::string &gid );
 
 /*!
     \ingroup Mode

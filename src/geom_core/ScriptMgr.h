@@ -158,6 +158,7 @@ private:
     CScriptArray* GetActuatorDiskIDVec();
     CScriptArray* GetUnsteadyGroupIDVec();
     CScriptArray* GetCpSliceIDVec();
+    CScriptArray* GetDesignVarVec();
     CScriptArray* GetAvailableCSNameVec( int CSGroupIndex );
     CScriptArray* GetAvailableCSNameVecByID( const string & group_id );
     CScriptArray* GetAvailableCSSubSurfIDVec( const string & group_id );
