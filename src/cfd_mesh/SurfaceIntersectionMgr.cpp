@@ -3909,6 +3909,20 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
 
 }
 
+// Whether the line where a region's original U parameter is uo is an edge of the patch, where
+// the patch has a border curve, rather than a seam inside it between two joined pieces
+static bool RegionEdgeOnPatchEdgeU( const UWRegion &reg, double uo, const SurfCore* core, double tol )
+{
+    double up = reg.ToPatchU( uo );
+    return std::abs( up - core->GetMinU() ) < tol || std::abs( up - core->GetMaxU() ) < tol;
+}
+
+static bool RegionEdgeOnPatchEdgeW( const UWRegion &reg, double wo, const SurfCore* core, double tol )
+{
+    double wp = reg.ToPatchW( wo );
+    return std::abs( wp - core->GetMinW() ) < tol || std::abs( wp - core->GetMaxW() ) < tol;
+}
+
 void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
 {
     // Adds subsurface intersection chains
@@ -4061,15 +4075,18 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                         new_chain = true;
                         continue; // Skip if either point has a value not on this surface
                     }
-                    if ( ((std::abs( uw_pnt0[0]-max_u ) < tol && std::abs( uw_pnt1[0]-max_u ) < tol) ||
-                            (std::abs( uw_pnt0[1]-max_w ) < tol && std::abs( uw_pnt1[1]-max_w ) < tol) ||
-                            (std::abs( uw_pnt0[0]-min_u ) < tol && std::abs( uw_pnt1[0]-min_u ) < tol) ||
-                            (std::abs( uw_pnt0[1]-min_w ) < tol && std::abs( uw_pnt1[1]-min_w ) < tol)) )
+                    // A segment along the patch's own edge repeats the border curve there, and two
+                    // curves on one line cannot both be held by the triangulator.  An edge of this
+                    // region inside the patch -- the seam between two pieces joined into one -- has
+                    // no border curve, so a segment along it, such as the join line, stays.
+                    const SurfCore* core = surf->GetSurfCore();
+                    if ( ( std::abs( uw_pnt0[0]-max_u ) < tol && std::abs( uw_pnt1[0]-max_u ) < tol && RegionEdgeOnPatchEdgeU( reg, max_u, core, tol ) ) ||
+                         ( std::abs( uw_pnt0[1]-max_w ) < tol && std::abs( uw_pnt1[1]-max_w ) < tol && RegionEdgeOnPatchEdgeW( reg, max_w, core, tol ) ) ||
+                         ( std::abs( uw_pnt0[0]-min_u ) < tol && std::abs( uw_pnt1[0]-min_u ) < tol && RegionEdgeOnPatchEdgeU( reg, min_u, core, tol ) ) ||
+                         ( std::abs( uw_pnt0[1]-min_w ) < tol && std::abs( uw_pnt1[1]-min_w ) < tol && RegionEdgeOnPatchEdgeW( reg, min_w, core, tol ) ) )
                     {
-                        // A segment along the patch's own edge repeats the border curve there,
-                        // and two curves on one line cannot both be held by the triangulator.
                         new_chain = true;
-                        continue; // Skip if both end points are on the same edge of the surface
+                        continue; // Skip if both end points are on the same border edge of the surface
                     }
 
                     double delta_u = ( uw_pnt1[0] - uw_pnt0[0] ) / num_sects;

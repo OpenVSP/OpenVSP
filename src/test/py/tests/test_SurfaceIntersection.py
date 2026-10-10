@@ -294,3 +294,34 @@ def testPodsCrossingAtAShallowAngleKeepTheirIntersection():
     assert sum( len( c ) for c in chains ) == 31236, \
            "expected 31236 chain points, got %d" % sum( len( c ) for c in chains )
     assert _cpu_seconds() < 3.0, "two pods crossing at a shallow angle took %g s" % _cpu_seconds()
+
+
+def _wing_with_extended_tip_cap( split ):
+    """A wing whose tip cap runs past the trailing edge, intersected with its surfaces split and
+    joined or not.  Joined, the cap's two halves become one patch, and the line between them is
+    kept as a seam the patch must still carry."""
+    vsp.VSPRenew()
+    wing = vsp.AddGeom( "WING", "" )
+    vsp.SetParmVal( vsp.FindParm( wing, "CapUMaxOption", "EndCap" ), vsp.ROUND_EXT_END_CAP_TE )
+    vsp.Update()
+
+    settings = vsp.FindContainer( "SurfaceIntersectSettings", 0 )
+    vsp.SetParmVal( vsp.FindParm( settings, "SplitJoinSurfsFlag", "Global" ), float( split ) )
+    chains = _intersect()
+    vsp.SetParmVal( vsp.FindParm( settings, "SplitJoinSurfsFlag", "Global" ), 0.0 )
+    return chains
+
+
+def testAJoinedTipCapKeepsTheSeamBetweenItsHalves():
+    """The seam lies on the edge of each half, but inside the joined patch, so it is not a
+    border curve and must not be left out as one: joined, the cap has as many chains as split,
+    and every chain end still meets another."""
+    split = _wing_with_extended_tip_cap( False )
+    joined = _wing_with_extended_tip_cap( True )
+
+    assert len( joined ) == len( split ), \
+           "joined, the cap has %d chains rather than the %d it has split" % ( len( joined ), len( split ) )
+
+    counts = _end_clusters( joined )
+    lonely = [ n for n in counts if n < 2 ]
+    assert not lonely, "%d chain ends meet nothing: %s" % ( len( lonely ), counts )
