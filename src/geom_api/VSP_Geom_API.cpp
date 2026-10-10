@@ -235,7 +235,7 @@ void ReadVSPFile( const std::string & file_name )
     int err = veh->ReadXMLFile( file_name );
     if( err != 0 )
     {
-        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "ReadVSPFile::Error" );
+        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "ReadVSPFile::Error Reading File " + file_name );
         return;
     }
     veh->SetVSP3FileName( file_name );
@@ -307,7 +307,7 @@ void InsertVSPFile( const std::string & file_name, const std::string & parent )
     int err = veh->ReadXMLFileGeomsOnly( file_name );
     if( err != 0 )
     {
-        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "InsertVSPFile::Error" + file_name );
+        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "InsertVSPFile::Error Reading File " + file_name );
         return;
     }
     ErrorMgr.NoError();
@@ -380,12 +380,12 @@ void SetBEMPropID( const std::string & prop_id )
     Geom* geom_ptr = veh->FindGeom( prop_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBEMPropID::Can't Find Geom " + prop_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetBEMPropID::Can't Find Geom " + prop_id );
         return;
     }
     else if ( geom_ptr->GetBehaviorType() != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBEMPropID::Geom is not a propeller " + prop_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBEMPropID::Geom " + prop_id + " is not a propeller" );
         return;
     }
 
@@ -461,7 +461,7 @@ std::string GetDesignVar( int index )
 
     if ( !dv )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDesignVar::Design variable " + to_string( index ) + " out of range." );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetDesignVar::Design variable " + to_string( index ) + " out of range." );
         return parm_id;
     }
 
@@ -852,7 +852,7 @@ bool GetCFDWakeFlag( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetCFDWakeFlag::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetCFDWakeFlag::Can't Find Geom " + geom_id );
         return false;
     }
 
@@ -866,7 +866,7 @@ void SetCFDWakeFlag( const std::string & geom_id, bool flag )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetCFDWakeFlag::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetCFDWakeFlag::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -874,7 +874,7 @@ void SetCFDWakeFlag( const std::string & geom_id, bool flag )
 
     if ( !geom_ptr->HasWingTypeSurfs() )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetCFDWakeFlag::Geom is not a wing-type surface" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetCFDWakeFlag::Geom " + geom_id + " is not a wing-type surface" );
     }
     else
     {
@@ -916,7 +916,7 @@ std::string AddCFDSource( int type, const std::string & geom_id, int surf_index,
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddCFDSource::Can't Find Geom " + geom_id );
         return std::string();
     }
 
@@ -932,7 +932,7 @@ std::string AddCFDSource( int type, const std::string & geom_id, int surf_index,
 
     if ( !source )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Type" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddCFDSource::Invalid Source Type " + to_string( type ) );
         return std::string();
     }
 
@@ -984,7 +984,7 @@ Geom* FindGeomForSources( const std::string & geom_id, const std::string & calle
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return nullptr;
     }
     return geom_ptr;
@@ -1220,7 +1220,7 @@ void AdjustAllCFDSourceLen( double mult )
 {
     if ( mult <= 0.0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "AdjustAllCFDSourceLen::Multiplier Must Be Positive" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AdjustAllCFDSourceLen::Multiplier " + to_string( mult ) + " Must Be Positive" );
         return;
     }
 
@@ -1233,7 +1233,7 @@ void AdjustAllCFDSourceRad( double mult )
 {
     if ( mult <= 0.0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "AdjustAllCFDSourceRad::Multiplier Must Be Positive" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AdjustAllCFDSourceRad::Multiplier " + to_string( mult ) + " Must Be Positive" );
         return;
     }
 
@@ -1435,7 +1435,7 @@ std::string GetVSPAERORefWingID()
     Geom* geom_ptr = veh->FindGeom( VSPAEROMgr.m_RefGeomID );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPAERORefWingID::Can't Find Geom" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetVSPAERORefWingID::Can't Find Geom " + VSPAEROMgr.m_RefGeomID );
         return std::string();
     }
 
@@ -1455,7 +1455,7 @@ std::string SetVSPAERORefWingID( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSPAERORefWingID::Can't Find Geom" );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetVSPAERORefWingID::Can't Find Geom " + geom_id );
         return  std::string();
     }
 
@@ -2003,7 +2003,7 @@ void AddSelectedToCSGroup( const std::vector <int> &selected, int CSGroupIndex)
     {
         if ( selected[i] <= 0 || selected[i] > max_cs_index )
         {
-            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddSelectedToCSGroup::component of selected out of range (indexing must be one based)" );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddSelectedToCSGroup::Selected Index " + to_string( selected[i] ) + " Out of Range (indexing must be one based)" );
             return;
         }
     }
@@ -2029,7 +2029,7 @@ void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CSGroupIn
 
     if ( !VSPAEROMgr.GetActiveCSVecPtr() )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "RemoveSelectedFromCSGroup::invalid group index" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "RemoveSelectedFromCSGroup::Can't Find Active Control Surfaces of Group " + to_string( CSGroupIndex ) );
         return;
     }
 
@@ -2045,7 +2045,7 @@ void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CSGroupIn
     {
         if ( selected[i] <= 0 || selected[i] > max_cs_index )
         {
-            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "RemoveSelectedFromCSGroup::component of selected out of range (indexing must be one based)" );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "RemoveSelectedFromCSGroup::Selected Index " + to_string( selected[i] ) + " Out of Range (indexing must be one based)" );
             return;
         }
     }
@@ -2511,7 +2511,7 @@ const std::vector< int > & GetIntAnalysisInput( const std::string & analysis, co
     }
     else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetIntAnalysisInput::Can't Find Name " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetIntAnalysisInput::Can't Find Name " + name + " Index " + to_string( index ) );
     }
     else
     {
@@ -2529,7 +2529,7 @@ const std::vector< double > & GetDoubleAnalysisInput( const std::string & analys
     }
     else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleAnalysisInput::Can't Find Name " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleAnalysisInput::Can't Find Name " + name + " Index " + to_string( index ) );
     }
     else
     {
@@ -2547,7 +2547,7 @@ const std::vector< std::string > & GetStringAnalysisInput( const std::string & a
     }
     else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetStringAnalysisInput::Can't Find Name " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetStringAnalysisInput::Can't Find Name " + name + " Index " + to_string( index ) );
     }
     else
     {
@@ -2565,7 +2565,7 @@ const std::vector< vec3d > & GetVec3dAnalysisInput( const std::string & analysis
     }
     else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetVec3dAnalysisInput::Can't Find Name " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetVec3dAnalysisInput::Can't Find Name " + name + " Index " + to_string( index ) );
     }
     else
     {
@@ -2597,7 +2597,7 @@ void SetIntAnalysisInput( const std::string & analysis, const std::string & name
     }
     else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetIntAnalysisInput::Can't Find Name " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetIntAnalysisInput::Can't Find Name " + name + " Index " + to_string( index ) );
     }
     else
     {
@@ -2615,7 +2615,7 @@ void SetDoubleAnalysisInput( const std::string & analysis, const std::string & n
     }
     else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetDoubleAnalysisInput::Can't Find Name " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetDoubleAnalysisInput::Can't Find Name " + name + " Index " + to_string( index ) );
     }
     else
     {
@@ -2633,7 +2633,7 @@ void SetStringAnalysisInput( const std::string & analysis, const std::string & n
     }
     else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetStringAnalysisInput::Can't Find Name " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetStringAnalysisInput::Can't Find Name " + name + " Index " + to_string( index ) );
     }
     else
     {
@@ -2651,7 +2651,7 @@ void SetVec3dAnalysisInput( const std::string & analysis, const std::string & na
     }
     else if ( !AnalysisMgr.ValidAnalysisInputDataIndex( analysis, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetVec3dAnalysisInput::Can't Find Name " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "SetVec3dAnalysisInput::Can't Find Name " + name + " Index " + to_string( index ) );
     }
     else
     {
@@ -3105,7 +3105,7 @@ std::string GetResultsName( const std::string & results_id )
 {
     if ( !ResultsMgr.ValidResultsID( results_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultName::Invalid ID " + results_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsName::Invalid ID " + results_id );
         std::string ret_str;
         return  ret_str;
     }
@@ -3524,7 +3524,7 @@ void SetGeomDrawType(const std::string &geom_id, int type)
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDrawType::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomDrawType::Can't Find Geom " + geom_id );
         return;
     }
     geom_ptr->m_GuiDraw.SetDrawType( type );
@@ -3538,7 +3538,7 @@ void SetGeomWireColor( const std::string &geom_id, int r, int g, int b )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomWireColor::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomWireColor::Can't Find Geom " + geom_id );
         return;
     }
     geom_ptr->SetColor( r, g, b );
@@ -3552,7 +3552,7 @@ void SetGeomDisplayType(const std::string &geom_id, int type)
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDisplayType::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomDisplayType::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -3577,7 +3577,7 @@ int GetGeomDrawType( const std::string &geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomDrawType::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomDrawType::Can't Find Geom " + geom_id );
         return GEOM_DRAW_WIRE;
     }
 
@@ -3591,7 +3591,7 @@ int GetGeomDisplayType( const std::string &geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomDisplayType::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomDisplayType::Can't Find Geom " + geom_id );
         return DISPLAY_BEZIER;
     }
 
@@ -3605,7 +3605,7 @@ vec3d GetGeomWireColor( const std::string &geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomWireColor::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomWireColor::Can't Find Geom " + geom_id );
         return vec3d();
     }
 
@@ -3619,7 +3619,7 @@ std::string GetGeomMaterialName( const std::string &geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetGeomMaterialName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomMaterialName::Can't Find Geom " + geom_id );
         return std::string();
     }
 
@@ -3640,7 +3640,7 @@ void SetGeomMaterialName( const std::string &geom_id, const std::string &name )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomMaterialName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomMaterialName::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -3904,7 +3904,7 @@ static bool ValidCloneDelete( int clone_delete, const std::string & caller )
 {
     if ( clone_delete < 0 || clone_delete >= CLONE_DELETE_NUM_TYPES )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, caller + "::Clone delete type " + to_string( clone_delete ) + " is not a CLONE_DELETE_TYPE" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::Clone delete type " + to_string( clone_delete ) + " is not a CLONE_DELETE_TYPE" );
         return false;
     }
     return true;
@@ -3912,14 +3912,14 @@ static bool ValidCloneDelete( int clone_delete, const std::string & caller )
 
 // Reports VSP_CLONE_ORIGINAL_LOST for each Clone left empty, including failed replacements.
 // Leaves the call flagged if anything else was reported.
-static void ReportClonesOf( Vehicle* veh, const std::vector< std::string > & clone_vec, int n_errors_before )
+static void ReportClonesOf( Vehicle* veh, const std::vector< std::string > & clone_vec, int n_errors_before, const std::string & caller )
 {
     for ( int i = 0; i < ( int )clone_vec.size(); i++ )
     {
         CloneGeom* clone_ptr = dynamic_cast< CloneGeom* >( veh->FindGeom( clone_vec[i] ) );
         if ( clone_ptr && clone_ptr->GetOriginalID().empty() )
         {
-            ErrorMgr.AddError( VSP_CLONE_ORIGINAL_LOST, "Error:  " + clone_ptr->GetOriginalLostMessage() );
+            ErrorMgr.AddError( VSP_CLONE_ORIGINAL_LOST, caller + "::" + clone_ptr->GetOriginalLostMessage() );
         }
     }
 
@@ -3943,7 +3943,7 @@ static void DeleteGeoms( const std::vector< std::string > & del_vec, int clone_d
 
     veh->DeleteGeomVec( del_vec, clone_delete );
 
-    ReportClonesOf( veh, clone_vec, n_errors_before );
+    ReportClonesOf( veh, clone_vec, n_errors_before, caller );
 }
 
 void DeleteGeom( const std::string & geom_id, int clone_delete )
@@ -3973,7 +3973,7 @@ void CutGeomToClipboard( const std::string & geom_id, int clone_delete )
     veh->SetActiveGeom( geom_id );
     veh->CutActiveGeomVec( clone_delete );
 
-    ReportClonesOf( veh, clone_vec, n_errors_before );
+    ReportClonesOf( veh, clone_vec, n_errors_before, "CutGeomToClipboard" );
 }
 
 std::vector< std::string > FindGeomClones( const std::vector< std::string > & geom_id_vec )
@@ -4035,7 +4035,7 @@ std::string ConvertFuselageToStack( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ConvertFuselageToStack::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertFuselageToStack::Can't Find Geom " + geom_id );
         return std::string();
     }
 
@@ -4104,7 +4104,7 @@ std::string FindGeom( const std::string & name, int index )
 
     if ( index < 0 || index >= ( int )id_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "FindGeom::Can't Find Name " + name + " or Index" + to_string( ( long long )index ) );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "FindGeom::Can't Find Name " + name + " at Index " + to_string( index ) );
         return std::string();
     }
     ErrorMgr.NoError();
@@ -4118,14 +4118,14 @@ void SetGeomName( const std::string & geom_id, const std::string & name )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomName::Can't Find Geom " + geom_id );
         return;
     }
 
     // A self-naming Geom would overwrite this on its next update, so refuse, as the GUI does.
     if ( geom_ptr->NameIsAutomatic() )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomName::Geom " + geom_id +
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetGeomName::Geom " + geom_id +
                            " names itself and would write over this on its next update" );
         return;
     }
@@ -4146,7 +4146,7 @@ std::string GetGeomName( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomName::Can't Find Geom " + geom_id );
         return std::string();
     }
     ret_name = geom_ptr->GetName();
@@ -4160,7 +4160,7 @@ void SetGeomCloneOriginal( const std::string & clone_id, const std::string & ori
     Geom* geom_ptr = veh->FindGeom( clone_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomCloneOriginal::Can't Find Geom " + clone_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomCloneOriginal::Can't Find Geom " + clone_id );
         return;
     }
 
@@ -4182,26 +4182,26 @@ void SetGeomCloneOriginal( const std::string & clone_id, const std::string & ori
     Geom* original_ptr = veh->FindGeom( original_id );
     if ( !original_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomCloneOriginal::Can't Find Geom " + original_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomCloneOriginal::Can't Find Geom " + original_id );
         return;
     }
 
     if ( original_id == clone_id )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::A Clone cannot be a Clone of itself" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetGeomCloneOriginal::A Clone cannot be a Clone of itself" );
         return;
     }
 
     if ( clone_ptr->IsCloneAncestor( original_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::Geom " + original_id +
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetGeomCloneOriginal::Geom " + original_id +
                            " already copies Clone " + clone_id + ", so this would close a ring of Clones" );
         return;
     }
 
     if ( clone_ptr->IsDescendant( original_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomCloneOriginal::Geom " + original_id +
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetGeomCloneOriginal::Geom " + original_id +
                            " hangs off Clone " + clone_id + ", so it updates after it and would always be a pass behind" );
         return;
     }
@@ -4222,7 +4222,7 @@ std::string GetGeomCloneOriginal( const std::string & clone_id )
     Geom* geom_ptr = veh->FindGeom( clone_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomCloneOriginal::Can't Find Geom " + clone_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomCloneOriginal::Can't Find Geom " + clone_id );
         return std::string();
     }
 
@@ -4249,7 +4249,7 @@ void SetGeomCloneNameSuffix( const std::string & clone_id, const std::string & n
     Geom* geom_ptr = veh->FindGeom( clone_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomCloneNameSuffix::Can't Find Geom " + clone_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomCloneNameSuffix::Can't Find Geom " + clone_id );
         return;
     }
 
@@ -4272,7 +4272,7 @@ std::string GetGeomCloneNameSuffix( const std::string & clone_id )
     Geom* geom_ptr = veh->FindGeom( clone_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomCloneNameSuffix::Can't Find Geom " + clone_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomCloneNameSuffix::Can't Find Geom " + clone_id );
         return std::string();
     }
 
@@ -4293,7 +4293,7 @@ std::string ReplaceCloneGeom( const std::string & clone_id )
     Geom* geom_ptr = veh->FindGeom( clone_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReplaceCloneGeom::Can't Find Geom " + clone_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ReplaceCloneGeom::Can't Find Geom " + clone_id );
         return std::string();
     }
 
@@ -4335,7 +4335,7 @@ std::vector< std::string > CloneGeomVec( const std::vector< std::string > & geom
     {
         if ( !veh->FindGeom( geom_id_vec[i] ) )
         {
-            ErrorMgr.AddError( VSP_INVALID_PTR, "CloneGeomVec::Can't Find Geom " + geom_id_vec[i] );
+            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CloneGeomVec::Can't Find Geom " + geom_id_vec[i] );
             return std::vector< std::string >();
         }
     }
@@ -4358,7 +4358,7 @@ int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomVSPSurfType::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomVSPSurfType::Can't Find Geom " + geom_id );
         return -1;
     }
 
@@ -4381,7 +4381,7 @@ int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomVSPSurfCfdType::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomVSPSurfCfdType::Can't Find Geom " + geom_id );
         return -1;
     }
 
@@ -4404,7 +4404,7 @@ std::vector< std::string > GetGeomParmIDs( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomParmIDs::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomParmIDs::Can't Find Geom " + geom_id );
         return parm_vec;
     }
 
@@ -4421,7 +4421,7 @@ std::string GetGeomTypeName( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GeomGeomTypeName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomTypeName::Can't Find Geom " + geom_id );
         return std::string();
     }
 
@@ -4430,10 +4430,12 @@ std::string GetGeomTypeName( const std::string & geom_id )
     return typ;
 }
 
+static std::string FindParmImpl( const std::string & parm_container_id, const std::string& parm_name, const std::string& group_name, const std::string & caller );
+
 /// Get the parm id given container id, parm name, and group name
 std::string GetParm( const std::string & container_id, const std::string & name, const std::string & group )
 {
-    return FindParm( container_id, name, group );
+    return FindParmImpl( container_id, name, group, "GetParm" );
 }
 
 // Set the parent of a Geom; new_parent_id can be either the Vehicle's ID or another Geom's ID
@@ -4447,7 +4449,7 @@ std::string AttachGeomTexture( const std::string & geom_id, const std::string & 
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AttachGeomTexture::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AttachGeomTexture::Can't Find Geom " + geom_id );
         return std::string();
     }
 
@@ -4469,7 +4471,7 @@ void RemoveGeomTexture( const std::string & geom_id, const std::string & texture
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "RemoveGeomTexture::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "RemoveGeomTexture::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -4494,7 +4496,7 @@ std::vector < std::string > GetGeomTextureIDVec( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomTextureIDVec::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomTextureIDVec::Can't Find Geom " + geom_id );
         return ret;
     }
 
@@ -4510,7 +4512,7 @@ std::string GetGeomTextureFileName( const std::string & geom_id, const std::stri
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomTextureFileName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomTextureFileName::Can't Find Geom " + geom_id );
         return std::string();
     }
 
@@ -4531,7 +4533,7 @@ void ReorderGeom( const std::string & geom_id, int reorder_type )
     Vehicle* veh = GetVehicle();
     if ( !veh->FindGeom( geom_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReorderGeom::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ReorderGeom::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -4553,14 +4555,14 @@ void SetGeomParent( const std::string& geom_id, const std::string& new_parent_id
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomParent::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomParent::Can't Find Geom " + geom_id );
         return;
     }
 
     Geom* parent_ptr = veh->FindGeom( new_parent_id );
     if ( parent_ptr && parent_ptr->DependsOn( geom_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetGeomParent::Geom " + geom_id + " can't be a child of " + new_parent_id + ", which depends on it" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetGeomParent::Geom " + geom_id + " can't be a child of " + new_parent_id + ", which depends on it" );
         return;
     }
 
@@ -4575,7 +4577,7 @@ std::string GetGeomParent( const std::string& geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomParent::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomParent::Can't Find Geom " + geom_id );
         return std::string();
     }
 
@@ -4694,7 +4696,7 @@ std::vector< std::string > GetGeomChildren( const std::string& geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomChildren::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomChildren::Can't Find Geom " + geom_id );
         return std::vector < std::string > {};
     }
 
@@ -4709,7 +4711,7 @@ int GetNumXSecSurfs( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumXSecSurfs::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetNumXSecSurfs::Can't Find Geom " + geom_id );
         return 0;
     }
 
@@ -4724,7 +4726,7 @@ int GetNumMainSurfs( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumMainSurfs::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetNumMainSurfs::Can't Find Geom " + geom_id );
         return 0;
     }
 
@@ -4739,7 +4741,7 @@ int GetTotalNumSurfs( const std::string& geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetTotalNumSurfs::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetTotalNumSurfs::Can't Find Geom " + geom_id );
         return 0;
     }
 
@@ -4754,7 +4756,7 @@ vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind, bool ref_fr
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomBBoxMax::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomBBoxMax::Can't Find Geom " + geom_id );
         return vec3d();
     }
 
@@ -4812,7 +4814,7 @@ vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind, bool ref_fr
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomBBoxMin::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomBBoxMin::Can't Find Geom " + geom_id );
         return vec3d();
     }
 
@@ -4866,7 +4868,7 @@ std::string AddSubSurf( const std::string & geom_id, int type, int surfindex )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurf::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddSubSurf::Can't Find Geom " + geom_id );
         return std::string();
     }
 
@@ -4901,14 +4903,14 @@ std::string GetSubSurf( const std::string & geom_id, int index )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetSubSurf::Can't Find Geom " + geom_id  );
         return std::string();
     }
     SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->GetSubSurf( index );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Invalid Sub Surface Ptr " );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetSubSurf::Sub Surface Index " + to_string( index ) + " Out of Range" );
         return std::string();
     }
     ErrorMgr.NoError();
@@ -4923,7 +4925,7 @@ std::vector<std::string> GetSubSurf( const std::string & geom_id, const std::str
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetSubSurf::Can't Find Geom " + geom_id );
         return ID_vec;
     }
     std::vector<SubSurface*> ss_vec = geom_ptr->GetSubSurfVec();
@@ -4950,7 +4952,7 @@ void ReorderSubSurf( const std::string & geom_id, const std::string & sub_id, in
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReorderSubSurf::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ReorderSubSurf::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -4977,13 +4979,13 @@ void DeleteSubSurf( const std::string & geom_id, const std::string & sub_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "DeleteSubSurf::Can't Find Geom " + geom_id );
         return;
     }
     int index = geom_ptr->GetSubSurfIndex( sub_id );
     if ( index == -1 )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
     }
 
@@ -5007,7 +5009,7 @@ void DeleteSubSurf( const std::string & sub_id )
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
     }
     Vehicle* veh = GetVehicle();
@@ -5020,7 +5022,7 @@ void DeleteSubSurf( const std::string & sub_id )
     int index = geom_ptr->GetSubSurfIndex( sub_id );
     if ( index == -1 )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
     }
 
@@ -5045,14 +5047,14 @@ void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, co
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetSubSurfName::Can't Find Geom " + geom_id );
         return;
     }
     SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->GetSubSurf( sub_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetSubSurfName::Can't Find Sub Surface " + sub_id );
         return;
     }
     ssurf->SetName( name );
@@ -5065,7 +5067,7 @@ void SetSubSurfName( const std::string & sub_id, const std::string & name )
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetSubSurfName::Can't Find Sub Surface " + sub_id );
         return;
     }
     ss_ptr->SetName( name );
@@ -5079,14 +5081,14 @@ std::string GetSubSurfName( const std::string & geom_id, const std::string & sub
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetSubSurfName::Can't Find Geom " + geom_id );
         return std::string();
     }
     SubSurface* ssurf = nullptr;
     ssurf = geom_ptr->GetSubSurf( sub_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetSubSurfName::Can't Find Sub Surface " + sub_id );
         return std::string();
     }
     ErrorMgr.NoError();
@@ -5098,7 +5100,7 @@ std::string GetSubSurfName( const std::string & sub_id )
     SubSurface* ssurf = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetSubSurfName::Can't Find Sub Surface " + sub_id );
         return std::string();
     }
     ErrorMgr.NoError();
@@ -5111,7 +5113,7 @@ int GetSubSurfIndex( const std::string & sub_id )
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIndex::Invalid Sub Surface Ptr " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetSubSurfIndex::Can't Find Sub Surface " + sub_id );
         return -1;
     }
     Vehicle* veh = GetVehicle();
@@ -5135,7 +5137,7 @@ std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIDVec::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetSubSurfIDVec::Can't Find Geom " + geom_id );
         return std::vector<std::string>();
     }
 
@@ -5175,7 +5177,7 @@ int GetNumSubSurf( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumSubSurf::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetNumSubSurf::Can't Find Geom " + geom_id );
         return -1;
     }
     ErrorMgr.NoError();
@@ -5188,7 +5190,7 @@ int GetSubSurfType( const std::string & sub_id )
     SubSurface* ssurf = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfType::Invalid Sub Surface Ptr " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetSubSurfType::Can't Find Sub Surface " + sub_id );
         return -1;
     }
     ErrorMgr.NoError();
@@ -5204,7 +5206,7 @@ std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id )
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfParmIDs::Can't Find SubSurface " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetSubSurfParmIDs::Can't Find SubSurface " + sub_id );
         return parm_vec;
     }
 
@@ -5219,7 +5221,7 @@ void IntersectSubSurf( const std::string & sub_id )
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "IntersectSubSurf::Can't Find SubSurface " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "IntersectSubSurf::Can't Find SubSurface " + sub_id );
         return;
     }
 
@@ -5239,7 +5241,7 @@ std::string GetIntersectSubSurfGeomID( const std::string & sub_id )
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetIntersectSubSurfGeomID::Can't Find SubSurface " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetIntersectSubSurfGeomID::Can't Find SubSurface " + sub_id );
         return std::string();
     }
 
@@ -5259,7 +5261,7 @@ void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::string & 
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetIntersectSubSurfGeomID::Can't Find SubSurface " + sub_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetIntersectSubSurfGeomID::Can't Find SubSurface " + sub_id );
         return;
     }
 
@@ -5274,7 +5276,7 @@ void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::string & 
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetIntersectSubSurfGeomID::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetIntersectSubSurfGeomID::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -5438,7 +5440,7 @@ void SetFeaMeshStructIndex( int struct_index )
     }
     else
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetFeaMeshStructIndex::Index Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetFeaMeshStructIndex::FeaStructure Index " + to_string( struct_index ) + " Out of Range" );
     }
 }
 
@@ -5479,12 +5481,12 @@ void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "DeleteFeaStruct::Can't Find Geom " + geom_id );
         return;
     }
     if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_ind ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find FeaStructure at index " + to_string( fea_struct_ind ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DeleteFeaStruct::FeaStructure Index " + to_string( fea_struct_ind ) + " Out of Range" );
         return;
     }
     geom_ptr->DeleteFeaStruct( fea_struct_ind );
@@ -5522,14 +5524,14 @@ std::string GetFeaStructID( const std::string & geom_id, int fea_struct_ind )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructID::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetFeaStructID::Can't Find Geom " + geom_id );
         return std::string();
     }
 
     FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !struct_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructID::Can't Find FeaStructure " + to_string( ( long long ) fea_struct_ind ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFeaStructID::FeaStructure Index " + to_string( fea_struct_ind ) + " Out of Range" );
         return std::string();
     }
     ErrorMgr.NoError();
@@ -5607,7 +5609,7 @@ void SetFeaPartName( const std::string & part_id, const std::string & name )
     FeaPart* part = StructureMgr.GetFeaPart( part_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartName::Can't Find FEA Part " + part_id + " to name " + name );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaPartName::Can't Find FEA Part " + part_id + " to name " + name );
         return;
     }
 
@@ -5839,7 +5841,7 @@ std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part_index 
     feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartID::Invalid FeaStructure ID" );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartID::Can't Find FeaStructure " + fea_struct_id );
         return std::string();
     }
 
@@ -5847,7 +5849,7 @@ std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part_index 
 
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFeaPartID::Invalid FeaPart Index" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFeaPartID::FeaPart Index " + to_string( fea_part_index ) + " Out of Range" );
         return std::string();
     }
 
@@ -5860,7 +5862,7 @@ std::string GetFeaPartName( const std::string & part_id )
     FeaPart* part = StructureMgr.GetFeaPart( part_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPartName::Can't Find FEA Part " + part_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartName::Can't Find FEA Part " + part_id );
         return std::string();
     }
 
@@ -5873,7 +5875,7 @@ int GetFeaPartType( const std::string & part_id )
     FeaPart* part = StructureMgr.GetFeaPart( part_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPartType::Can't Find FEA Part " + part_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartType::Can't Find FEA Part " + part_id );
         return - 1;
     }
 
@@ -5886,7 +5888,7 @@ void SetFeaPartPerpendicularSparID( const std::string& part_id, const std::strin
     FeaPart* part = StructureMgr.GetFeaPart( part_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartPerpendicularSparID::Can't Find FEA Part " + part_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaPartPerpendicularSparID::Can't Find FEA Part " + part_id );
         return;
     }
 
@@ -5895,7 +5897,7 @@ void SetFeaPartPerpendicularSparID( const std::string& part_id, const std::strin
 
     if ( !( rib_type || rib_array_type ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetFeaPartPerpendicularSparID::FEA Part is not Rib or Rib Array Type" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetFeaPartPerpendicularSparID::FEA Part " + part_id + " is not a Rib or Rib Array" );
         return;
     }
 
@@ -5928,7 +5930,7 @@ std::string GetFeaPartPerpendicularSparID( const std::string& part_id )
     std::string ret_str = std::string();
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPartPerpendicularSparID::Can't Find FEA Part " + part_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartPerpendicularSparID::Can't Find FEA Part " + part_id );
         return ret_str;
     }
 
@@ -5937,7 +5939,7 @@ std::string GetFeaPartPerpendicularSparID( const std::string& part_id )
 
     if ( !( rib_type || rib_array_type ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetFeaPartPerpendicularSparID::FEA Part is not Rib or Rib Array Type" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetFeaPartPerpendicularSparID::FEA Part " + part_id + " is not a Rib or Rib Array" );
         return ret_str;
     }
 
@@ -6162,7 +6164,7 @@ void SetFeaSubSurfName( const std::string & subsurf_id, const std::string & name
 
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaSubSurfName::Can't Find FEA Sub Surface " + subsurf_id + " to name " + name );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetFeaSubSurfName::Can't Find FEA Sub Surface " + subsurf_id + " to name " + name );
         return;
     }
 
@@ -6176,7 +6178,7 @@ std::string GetFeaSubSurfName( const std::string & subsurf_id )
     SubSurface* ssurf = StructureMgr.GetFeaSubSurf( subsurf_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaSubSurfName::Can't Find FEA SubSurf " + subsurf_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaSubSurfName::Can't Find FEA SubSurf " + subsurf_id );
         return std::string();
     }
 
@@ -6298,7 +6300,7 @@ int GetFeaSubSurfIndex( const std::string & ss_id )
     int index = StructureMgr.GetFeaSubSurfIndex( ss_id );
     if ( index < 0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaSubSurfIndex::Can't Find FeaSubSurf " + ss_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaSubSurfIndex::Can't Find FeaSubSurf " + ss_id );
         return index;
     }
     ErrorMgr.NoError();
@@ -6310,14 +6312,14 @@ int GetFeaPolySparNumPt( const std::string & pspar_id )
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparNumPt::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPolySparNumPt::Can't Find FEA Part " + pspar_id );
         return -1;
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparNumPt::Part is not a poly spar" + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetFeaPolySparNumPt::FEA Part " + pspar_id + " is not a poly spar" );
         return -1;
     }
 
@@ -6330,14 +6332,14 @@ std::string AddFeaPolySparPt( const std::string & pspar_id )
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddFeaPolySparPt::Can't Find FEA Part " + pspar_id );
         return std::string();
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPolySparPt::Part is not a poly spar" + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddFeaPolySparPt::FEA Part " + pspar_id + " is not a poly spar" );
         return std::string();
     }
 
@@ -6478,14 +6480,14 @@ void DelAllFeaPolySparPt( const std::string & pspar_id )
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllFeaPolySparPt::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelAllFeaPolySparPt::Can't Find FEA Part " + pspar_id );
         return;
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllFeaPolySparPt::Part is not a poly spar" + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelAllFeaPolySparPt::FEA Part " + pspar_id + " is not a poly spar" );
         return;
     }
 
@@ -6659,14 +6661,14 @@ std::string GetFeaPolySparPtID( const std::string & pspar_id, int index )
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparPtID::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPolySparPtID::Can't Find FEA Part " + pspar_id );
         return std::string();
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPolySparPtID::Part is not a poly spar " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetFeaPolySparPtID::Part is not a poly spar " + pspar_id );
         return std::string();
     }
 
@@ -6693,14 +6695,14 @@ std::vector < std::string > GetAllFeaPolySparPtIDVec( const std::string & pspar_
     FeaPart* part = StructureMgr.GetFeaPart( pspar_id );
     if ( !part )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllFeaPolySparPtIDVec::Can't Find FEA Part " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAllFeaPolySparPtIDVec::Can't Find FEA Part " + pspar_id );
         return ret;
     }
 
     FeaPolySpar* pspar = dynamic_cast< FeaPolySpar* >( part );
     if( !pspar )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllFeaPolySparPtIDVec::Part is not a poly spar " + pspar_id );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllFeaPolySparPtIDVec::Part is not a poly spar " + pspar_id );
         return ret;
     }
 
@@ -6748,7 +6750,7 @@ std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struct_id )
     FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartIDVec::Invalid FeaStructure ID" );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartIDVec::Invalid FeaStructure ID " + fea_struct_id );
         return ret_vec;
     }
 
@@ -6798,7 +6800,7 @@ std::string AddFeaBC( const std::string & fea_struct_id, int type )
     FeaBC* bc = feastruct->AddFeaBC( type );
     if ( !bc )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaBC::Invalid FeaPart Ptr" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaBC::Invalid FeaBC Ptr" );
         return std::string();
     }
 
@@ -6821,7 +6823,7 @@ void DelFeaBC( const std::string & fea_struct_id, const std::string &bc_id )
 
     if ( !feastruct->ValidFeaBCInd( indx ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelFeaBC::Can't Find FeaBC " + bc_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelFeaBC::Can't Find FeaBC " + bc_id );
         return;
     }
 
@@ -6836,7 +6838,7 @@ std::vector< std::string > GetFeaBCIDVec( const std::string & fea_struct_id )
     FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaBCVec::Invalid FeaStructure ID " + fea_struct_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaBCIDVec::Invalid FeaStructure ID " + fea_struct_id );
         return ret_vec;
     }
 
@@ -7114,7 +7116,7 @@ void AddFeaAssemblyStructure( const std::string & assembly_id, const std::string
 
     if ( vector_contains_val( assy->m_StructIDVec, struct_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "AddFeaAssemblyStructure::Structure Already In Assembly " + struct_id );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddFeaAssemblyStructure::Structure Already In Assembly " + struct_id );
         return;
     }
 
@@ -7434,7 +7436,7 @@ void DeleteFeaMaterial( const std::string &id )
     // The built in materials belong to the library and are refused.
     if ( !StructureMgr.DeleteFeaMaterial( id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteFeaMaterial::Can't Delete FeaMaterial " + id );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "DeleteFeaMaterial::Can't Delete FeaMaterial " + id );
         return;
     }
 
@@ -7657,7 +7659,7 @@ static void SetFeaMeshValImpl( FeaStructure* feastruct, int type, double val, co
         feastruct->GetStructSettingsPtr()->m_ParallelMeshFlag = ToBool( val );
     else
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetFEAMeshVal::Can't Find Type " + to_string( (long long)type ) );
+        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, caller + "::Can't Find Type " + to_string( (long long)type ) );
         return;
     }
 
@@ -7728,14 +7730,14 @@ void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int file_t
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ComputeFeaMesh::Can't Find Geom " + geom_id );
         return;
     }
 
     FeaStructure* feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Invalid FeaStructure Ptr at index " + to_string( (long long)fea_struct_ind ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ComputeFeaMesh::FeaStructure Index " + to_string( (long long)fea_struct_ind ) + " Out of Range" );
         return;
     }
 
@@ -7761,7 +7763,7 @@ void ComputeFeaMesh( const std::string & struct_id, int file_type )
     FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_id );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Can't Find Structure " + struct_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ComputeFeaMesh::Can't Find Structure " + struct_id );
         return;
     }
 
@@ -7785,7 +7787,7 @@ void SetXSecAlias( const std::string & id, const std::string & alias )
     XSec* xs = FindXSec( id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecAlias::Can't Find XSec " + id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecAlias::Can't Find XSec " + id );
         return;
     }
 
@@ -7798,7 +7800,7 @@ std::string GetXSecAlias( const std::string & id )
     XSec* xs = FindXSec( id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecAlias::Can't Find XSec " + id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecAlias::Can't Find XSec " + id );
         return std::string();
     }
 
@@ -7811,7 +7813,7 @@ void SetXSecCurveAlias( const std::string & id, const std::string & alias )
     XSec* xs = FindXSec( id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurveAlias::Can't Find XSec " + id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecCurveAlias::Can't Find XSec " + id );
         return;
     }
     XSecCurve* xsc = xs->GetXSecCurve();
@@ -7825,7 +7827,7 @@ std::string GetXSecCurveAlias( const std::string & id )
     XSec* xs = FindXSec( id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecCurveAlias::Can't Find XSec " + id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecCurveAlias::Can't Find XSec " + id );
         return std::string();
     }
     XSecCurve* xsc = xs->GetXSecCurve();
@@ -8343,14 +8345,14 @@ std::string GetXSecSurf( const std::string & geom_id, int index )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurf::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetXSecSurf::Can't Find Geom " + geom_id );
         return std::string();
     }
     XSecSurf* xsec_surf = geom_ptr->GetXSecSurf( index );
 
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurf::Can't Find XSecSurf " + geom_id + ":" + to_string( ( long long )index ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetXSecSurf::XSecSurf Index " + to_string( ( long long )index ) + " Out of Range for Geom " + geom_id );
         return std::string();
     }
 
@@ -8384,7 +8386,7 @@ int GetNumXSec( const std::string & xsec_surf_id )
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumXSec::Can't Find XSecSurf " + xsec_surf_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetNumXSec::Can't Find XSecSurf " + xsec_surf_id );
         return 0;
     }
 
@@ -8398,13 +8400,13 @@ std::string GetXSec( const std::string & xsec_surf_id, int xsec_index )
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSec::Can't Find XSecSurf " + xsec_surf_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetXSec::Can't Find XSecSurf " + xsec_surf_id );
         return std::string();
     }
     XSec* xsec = xsec_surf->FindXSec( xsec_index );
     if ( !xsec )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSec::Can't Find XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetXSec::XSec Index " + to_string( ( long long )xsec_index ) + " Out of Range in XSecSurf " + xsec_surf_id );
         return std::string();
     }
 
@@ -8782,7 +8784,7 @@ void SetXSecSurfGlobalXForm( const std::string & xsec_surf_id, const Matrix4d & 
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id );
         return;
     }
     xsec_surf->SetGlobalXForm( mat );
@@ -8795,7 +8797,7 @@ Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id )
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id );
         return Matrix4d();
     }
     ErrorMgr.NoError();
@@ -8811,7 +8813,7 @@ int GetXSecShape( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecShape::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecShape::Can't Find XSec " + xsec_id );
         return XS_UNDEFINED;
     }
 
@@ -8825,7 +8827,7 @@ double GetXSecWidth( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecWidth::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecWidth::Can't Find XSec " + xsec_id );
         return 0;
     }
     ErrorMgr.NoError();
@@ -8838,7 +8840,7 @@ double GetXSecHeight( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecHeight::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecHeight::Can't Find XSec " + xsec_id );
         return 0;
     }
     ErrorMgr.NoError();
@@ -8851,7 +8853,7 @@ void SetXSecWidthHeight( const std::string& xsec_id, double w, double h )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecWidthHeight::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecWidthHeight::Can't Find XSec " + xsec_id );
         return;
     }
     xs->GetXSecCurve()->SetWidthHeight( w, h );
@@ -8864,7 +8866,7 @@ void SetXSecWidth( const std::string& xsec_id, double w )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecWidth::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecWidth::Can't Find XSec " + xsec_id );
         return;
     }
     Parm* width_parm = ParmMgr.FindParm( xs->GetXSecCurve()->GetWidthParmID() );
@@ -8882,13 +8884,13 @@ void SetXSecHeight( const std::string& xsec_id, double h )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecHeight::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecHeight::Can't Find XSec " + xsec_id );
         return;
     }
     Parm* height_parm = ParmMgr.FindParm( xs->GetXSecCurve()->GetHeightParmID() );
     if ( !height_parm )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecHeight::Can't Find Width Parm " + xs->GetXSecCurve()->GetHeightParmID() );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecHeight::Can't Find Height Parm " + xs->GetXSecCurve()->GetHeightParmID() );
         return;
     }
     height_parm->SetFromDevice( h );
@@ -8903,7 +8905,7 @@ std::vector< std::string > GetXSecParmIDs( const std::string & xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParmIDs::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecParmIDs::Can't Find XSec " + xsec_id );
         return parm_vec;
     }
 
@@ -8920,7 +8922,7 @@ std::string GetXSecParm( const std::string& xsec_id, const std::string& name )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParm::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecParm::Can't Find XSec " + xsec_id );
         return std::string();
     }
 
@@ -8947,7 +8949,7 @@ std::string GetXSecParm( const std::string& xsec_id, const std::string& name )
         return xscparm;
     }
 
-    ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetXSecParm::Can't Find Parm " + name );
+    ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetXSecParm::Can't Find Parm " + name );
     return std::string();
 }
 
@@ -8958,7 +8960,7 @@ std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::string& 
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadFileXSec::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "ReadFileXSec::Can't Find XSec " + xsec_id );
         return pnt_vec;
     }
 
@@ -8973,7 +8975,7 @@ std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::string& 
         }
         else
         {
-            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileXSec::Error reading fuselage file " + file_name );
+            ErrorMgr.AddError( VSP_FILE_READ_FAILURE, "ReadFileXSec::Error reading fuselage file " + file_name );
             return pnt_vec;
         }
     }
@@ -8990,12 +8992,12 @@ std::vector< vec3d > GetXSecPnts( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecPnts::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecPnts::Can't Find XSec " + xsec_id );
         return pnt_vec;
     }
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_FUSE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetXSecPnts::Wrong XSec Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetXSecPnts::Wrong XSec Type " + xsec_id );
         return pnt_vec;
     }
 
@@ -9011,12 +9013,12 @@ void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_vec )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecPnts::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecPnts::Can't Find XSec " + xsec_id );
         return;
     }
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_FUSE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetXSecPnts::Wrong XSec Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetXSecPnts::Wrong XSec Type " + xsec_id );
         return;
     }
 
@@ -9036,7 +9038,7 @@ vec3d ComputeXSecPnt( const std::string& xsec_id, double fract )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputePnt::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "ComputeXSecPnt::Can't Find XSec " + xsec_id );
         return vec3d();
     }
 
@@ -9052,7 +9054,7 @@ vec3d ComputeXSecTan( const std::string& xsec_id, double fract )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeTan::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "ComputeXSecTan::Can't Find XSec " + xsec_id );
         return vec3d();
     }
 
@@ -9068,13 +9070,13 @@ void ResetXSecSkinParms( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetXSecSkinParms::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "ResetXSecSkinParms::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetXSecSkinParms::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ResetXSecSkinParms::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -9088,13 +9090,13 @@ int GetXSecContinuity( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecContinuity::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecContinuity::Can't Find XSec " + xsec_id );
         return -1;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecContinuity::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetXSecContinuity::Can't Convert To Skin XSec " + xsec_id );
         return -1;
     }
 
@@ -9125,7 +9127,7 @@ int AddSkinSpine( const string& geom_id, double w )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSkinSpine::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddSkinSpine::Can't Find Geom " + geom_id );
         return -1;
     }
 
@@ -9248,7 +9250,7 @@ void DelAllSkinSpines( const string& geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllSkinSpines::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "DelAllSkinSpines::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -9361,7 +9363,7 @@ int GetNumSkinSpines( const string& geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumSkinSpines::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetNumSkinSpines::Can't Find Geom " + geom_id );
         return 0;
     }
 
@@ -9383,7 +9385,7 @@ string GetSkinSpineParm( const string& spine_id, const string& name )
     SkinSpine* sp = dynamic_cast < SkinSpine* > ( pc );
     if ( !sp )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSkinSpineParm::Can't Find Spine " + spine_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetSkinSpineParm::Can't Find Spine " + spine_id );
         return string();
     }
 
@@ -9403,21 +9405,21 @@ string GetSkinSpineID( const string& xsec_id, int index )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSkinSpineID::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetSkinSpineID::Can't Find XSec " + xsec_id );
         return string();
     }
 
     SkinXSec* sxs = dynamic_cast < SkinXSec* > ( xs );
     if ( !sxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSkinSpineID::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetSkinSpineID::Can't Convert To Skin XSec " + xsec_id );
         return string();
     }
 
     SkinSpine* sp = sxs->GetSpine( index );
     if ( !sp )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetSkinSpineID::Spine index out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetSkinSpineID::Spine Index " + to_string( index ) + " Out of Range" );
         return string();
     }
 
@@ -9457,13 +9459,13 @@ void SetXSecContinuity( const std::string& xsec_id, int cx )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecContinuity::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecContinuity::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecContinuity::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetXSecContinuity::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -9479,13 +9481,13 @@ std::vector < double > GetXSecTanAngles( const std::string& xsec_id, int side )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanAngles::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecTanAngles::Can't Find XSec " + xsec_id );
         return ret;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanAngles::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetXSecTanAngles::Can't Convert To Skin XSec " + xsec_id );
         return ret;
     }
 
@@ -9493,7 +9495,7 @@ std::vector < double > GetXSecTanAngles( const std::string& xsec_id, int side )
     // single answer.
     if ( side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanAngles::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanAngles::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE, Not " + to_string( side ) );
         return ret;
     }
 
@@ -9509,13 +9511,13 @@ std::vector < double > GetXSecTanSlews( const std::string& xsec_id, int side )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanSlews::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecTanSlews::Can't Find XSec " + xsec_id );
         return ret;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanSlews::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetXSecTanSlews::Can't Convert To Skin XSec " + xsec_id );
         return ret;
     }
 
@@ -9523,7 +9525,7 @@ std::vector < double > GetXSecTanSlews( const std::string& xsec_id, int side )
     // single answer.
     if ( side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanSlews::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanSlews::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE, Not " + to_string( side ) );
         return ret;
     }
 
@@ -9539,13 +9541,13 @@ std::vector < double > GetXSecTanStrengths( const std::string& xsec_id, int side
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanStrengths::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecTanStrengths::Can't Find XSec " + xsec_id );
         return ret;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecTanStrengths::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetXSecTanStrengths::Can't Convert To Skin XSec " + xsec_id );
         return ret;
     }
 
@@ -9553,7 +9555,7 @@ std::vector < double > GetXSecTanStrengths( const std::string& xsec_id, int side
     // single answer.
     if ( side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanStrengths::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecTanStrengths::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE, Not " + to_string( side ) );
         return ret;
     }
 
@@ -9569,13 +9571,13 @@ std::vector < double > GetXSecCurvatures( const std::string& xsec_id, int side )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecCurvatures::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetXSecCurvatures::Can't Find XSec " + xsec_id );
         return ret;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecCurvatures::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetXSecCurvatures::Can't Convert To Skin XSec " + xsec_id );
         return ret;
     }
 
@@ -9583,7 +9585,7 @@ std::vector < double > GetXSecCurvatures( const std::string& xsec_id, int side )
     // single answer.
     if ( side != XSEC_LEFT_SIDE && side != XSEC_RIGHT_SIDE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecCurvatures::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetXSecCurvatures::Side Must Be XSEC_LEFT_SIDE Or XSEC_RIGHT_SIDE, Not " + to_string( side ) );
         return ret;
     }
 
@@ -9597,13 +9599,13 @@ void SetXSecTanAngles( const std::string& xsec_id, int side, double top, double 
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanAngles::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecTanAngles::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanAngles::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetXSecTanAngles::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -9617,13 +9619,13 @@ void SetXSecTanSlews( const std::string& xsec_id, int side, double top, double r
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanSlews::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecTanSlews::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanSlews::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetXSecTanSlews::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -9637,13 +9639,13 @@ void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, doub
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanStrengths::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecTanStrengths::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanStrengths::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetXSecTanStrengths::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -9657,13 +9659,13 @@ void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurvatures::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetXSecCurvatures::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurvatures::Can't Convert To Skin XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetXSecCurvatures::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -9676,7 +9678,7 @@ void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadFileAirfoil::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "ReadFileAirfoil::Can't Find XSec " + xsec_id );
         return;
     }
 
@@ -9691,7 +9693,7 @@ void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name )
         }
         else
         {
-            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileAirfoil::Error reading airfoil file " + file_name );
+            ErrorMgr.AddError( VSP_FILE_READ_FAILURE, "ReadFileAirfoil::Error reading airfoil file " + file_name );
             return;
         }
     }
@@ -9705,13 +9707,13 @@ void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< vec3d >
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetAirfoilUpperPnts::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetAirfoilUpperPnts::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type " + xsec_id );
         return;
     }
 
@@ -9726,13 +9728,13 @@ void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< vec3d >
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetAirfoilLowerPnts::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetAirfoilLowerPnts::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type " + xsec_id );
         return;
     }
 
@@ -9747,13 +9749,13 @@ void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d > & up
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetAirfoilPnts::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetAirfoilPnts::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilPnts::XSec Not XS_FILE_AIRFOIL Type " + xsec_id );
         return;
     }
 
@@ -9773,7 +9775,7 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, const std::vector<
     FILE* af = fopen( file_name.c_str(), "w" );
     if ( !af )
     {
-        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteSeligAirfoilFile::Error writing airfoil file " + airfoil_name );
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteSeligAirfoilFile::Error writing airfoil file " + file_name );
         return;
     }
 
@@ -9967,7 +9969,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, cons
 
     if ( ( ell * kappa / a ) > 1.0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetVKTAirfoilPnts: Camber parameter, kappa, is too large" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetVKTAirfoilPnts::Camber parameter, kappa, " + to_string( kappa ) + " is too large" );
         return xyzdata;
     }
 
@@ -10037,7 +10039,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsi
 
     if ( ( ell * kappa / a ) > 1.0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetVKTAirfoilCpDist: Camber parameter, kappa, is too large" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetVKTAirfoilCpDist::Camber parameter, kappa, " + to_string( kappa ) + " is too large" );
         return cpdata;
     }
 
@@ -10147,7 +10149,7 @@ std::vector<vec3d> GetFeatureLinePnts( const std::string& geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeatureLinePnts::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetFeatureLinePnts::Can't Find Geom " + geom_id );
         return pnt_vec;
     }
 
@@ -10272,13 +10274,13 @@ std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilUpperPnts::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetAirfoilUpperPnts::Can't Find XSec " + xsec_id );
         return pnt_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type " + xsec_id );
         return pnt_vec;
     }
 
@@ -10296,13 +10298,13 @@ std::vector<vec3d> GetAirfoilLowerPnts( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilLowerPnts::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetAirfoilLowerPnts::Can't Find XSec " + xsec_id );
         return pnt_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type " + xsec_id );
         return pnt_vec;
     }
 
@@ -10320,13 +10322,13 @@ std::vector<double> GetUpperCSTCoefs( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUpperCSTCoefs::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetUpperCSTCoefs::Can't Find XSec " + xsec_id );
         return ret_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTCoefs::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTCoefs::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return ret_vec;
     }
 
@@ -10345,13 +10347,13 @@ std::vector<double> GetLowerCSTCoefs( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetLowerCSTCoefs::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetLowerCSTCoefs::Can't Find XSec " + xsec_id );
         return ret_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTCoefs::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTCoefs::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return ret_vec;
     }
 
@@ -10370,13 +10372,13 @@ int GetUpperCSTDegree( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUpperCSTDegree::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetUpperCSTDegree::Can't Find XSec " + xsec_id );
         return deg;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTDegree::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTDegree::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return deg;
     }
 
@@ -10395,13 +10397,13 @@ int GetLowerCSTDegree( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetLowerCSTDegree::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetLowerCSTDegree::Can't Find XSec " + xsec_id );
         return deg;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTDegree::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTDegree::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return deg;
     }
 
@@ -10418,13 +10420,13 @@ void SetUpperCST( const std::string& xsec_id, int deg, const std::vector<double>
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetUpperCST::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetUpperCST::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetUpperCST::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetUpperCST::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return;
     }
 
@@ -10440,13 +10442,13 @@ void SetLowerCST( const std::string& xsec_id, int deg, const std::vector<double>
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetLowerCST::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetLowerCST::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetLowerCST::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetLowerCST::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return;
     }
 
@@ -10462,13 +10464,13 @@ void PromoteCSTUpper( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteCSTUpper::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "PromoteCSTUpper::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTUpper::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTUpper::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return;
     }
 
@@ -10484,13 +10486,13 @@ void PromoteCSTLower( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteCSTLower::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "PromoteCSTLower::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTLower::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTLower::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return;
     }
 
@@ -10506,13 +10508,13 @@ void DemoteCSTUpper( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteCSTUpper::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "DemoteCSTUpper::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteCSTUpper::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteCSTUpper::XSec Not XS_CST_AIRFOIL Type " + xsec_id  );
         return;
     }
 
@@ -10528,13 +10530,13 @@ void DemoteCSTLower( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteCSTLower::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "DemoteCSTLower::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteCSTLower::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteCSTLower::XSec Not XS_CST_AIRFOIL Type " + xsec_id );
         return;
     }
 
@@ -10641,7 +10643,7 @@ void WriteBezierAirfoil( const std::string & file_name, const std::string & geom
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "WriteBezierAirfoil::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "WriteBezierAirfoil::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -10662,7 +10664,7 @@ void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "WriteSeligAirfoil::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "WriteSeligAirfoil::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -10684,7 +10686,7 @@ std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const 
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilCoordinates::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetAirfoilCoordinates::Can't Find Geom " + geom_id );
         return ordered_vec;
     }
 
@@ -10840,7 +10842,7 @@ int GetNumRoutingPts( const std::string &routing_id )
     Geom* geom_ptr = veh->FindGeom( routing_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumRoutingPts::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetNumRoutingPts::Can't Find Geom " + routing_id );
         return -1;
     }
 
@@ -10849,7 +10851,7 @@ int GetNumRoutingPts( const std::string &routing_id )
 
     if ( !route_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetNumRoutingPts::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetNumRoutingPts::Geom " + routing_id + " is not a RoutingGeom" );
         return -1;
     }
 
@@ -10865,7 +10867,7 @@ std::string AddRoutingPt( const std::string &routing_id, const std::string &geom
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddRoutingPt::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddRoutingPt::Can't Find Geom " + routing_id );
         return ret_id;
     }
 
@@ -10873,14 +10875,14 @@ std::string AddRoutingPt( const std::string &routing_id, const std::string &geom
 
     if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "AddRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_id;
     }
 
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddRoutingPt::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddRoutingPt::Can't Find Geom " + geom_id );
         return ret_id;
     }
 
@@ -11043,7 +11045,7 @@ void DelAllRoutingPt( const std::string &routing_id )
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllRoutingPt::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "DelAllRoutingPt::Can't Find Geom " + routing_id );
         return;
     }
 
@@ -11051,7 +11053,7 @@ void DelAllRoutingPt( const std::string &routing_id )
 
     if ( !routing_ptr || rgeom_ptr->GetType().m_Type != ROUTING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelAllRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DelAllRoutingPt::Geom " + routing_id + " is not a RoutingGeom" );
         return;
     }
 
@@ -11116,7 +11118,7 @@ std::string GetRoutingPtID( const std::string &routing_id, int index )
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingPtID::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetRoutingPtID::Can't Find Geom " + routing_id );
         return ret_id;
     }
 
@@ -11125,7 +11127,7 @@ std::string GetRoutingPtID( const std::string &routing_id, int index )
 
     if ( !behavior_route || rgeom_ptr->GetBehaviorType() != ROUTING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingPtID::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetRoutingPtID::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_id;
     }
 
@@ -11149,7 +11151,7 @@ std::vector < std::string > GetAllRoutingPtIds( const std::string &routing_id )
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllRoutingPtIds::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetAllRoutingPtIds::Can't Find Geom " + routing_id );
         return ret_vec;
     }
 
@@ -11158,7 +11160,7 @@ std::vector < std::string > GetAllRoutingPtIds( const std::string &routing_id )
 
     if ( !behavior_route || rgeom_ptr->GetBehaviorType() != ROUTING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllRoutingPtIds::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetAllRoutingPtIds::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_vec;
     }
 
@@ -11177,7 +11179,7 @@ std::string GetRoutingPtParentID( const std::string & pt_id )
     RoutingPoint *rpt = dynamic_cast< RoutingPoint* > ( pc );
     if ( !rpt )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingPtParentID::Could not find routing point." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetRoutingPtParentID::Can't Find Routing Point " + pt_id );
         return ret_id;
     }
 
@@ -11194,14 +11196,14 @@ void SetRoutingPtParentID( const std::string & pt_id, const std::string &parent_
     RoutingPoint *rpt = dynamic_cast< RoutingPoint* > ( pc );
     if ( !rpt )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetRoutingPtParentID::Could not find routing point." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetRoutingPtParentID::Can't Find Routing Point " + pt_id );
         return;
     }
 
     rpt->SetParentID( parent_id );
     if ( rpt->GetParentID() != parent_id )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetRoutingPtParentID::Geom " + parent_id + " depends on the routing Geom" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetRoutingPtParentID::Geom " + parent_id + " depends on the routing Geom" );
         return;
     }
 
@@ -11218,7 +11220,7 @@ vec3d GetMainRoutingPtCoord( const std::string &pt_id )
     RoutingPoint *rpt = dynamic_cast< RoutingPoint* > ( pc );
     if ( !rpt )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingPtCoord::Could not find routing point." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetMainRoutingPtCoord::Can't Find Routing Point " + pt_id );
         return ret;
     }
 
@@ -11291,7 +11293,7 @@ std::vector < vec3d > GetAllRoutingPtCoords( const std::string &routing_id, int 
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllRoutingPtCoords::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetAllRoutingPtCoords::Can't Find Geom " + routing_id );
         return ret_vec;
     }
 
@@ -11300,7 +11302,7 @@ std::vector < vec3d > GetAllRoutingPtCoords( const std::string &routing_id, int 
 
     if ( !route_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllRoutingPtCoords::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetAllRoutingPtCoords::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_vec;
     }
 
@@ -11324,7 +11326,7 @@ std::vector < vec3d > GetRoutingCurve( const std::string &routing_id, int symm_i
     Geom* rgeom_ptr = veh->FindGeom( routing_id );
     if ( !rgeom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetRoutingCurve::Can't Find Geom " + routing_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetRoutingCurve::Can't Find Geom " + routing_id );
         return ret_vec;
     }
 
@@ -11333,7 +11335,7 @@ std::vector < vec3d > GetRoutingCurve( const std::string &routing_id, int symm_i
 
     if ( !route_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetRoutingCurve::Geom " + routing_id + " is not a RoutingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetRoutingCurve::Geom " + routing_id + " is not a RoutingGeom" );
         return ret_vec;
     }
 
@@ -11364,7 +11366,7 @@ static AuxiliaryGeom* FindAuxiliaryGeom( const std::string &geom_id, const std::
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return nullptr;
     }
 
@@ -11372,7 +11374,7 @@ static AuxiliaryGeom* FindAuxiliaryGeom( const std::string &geom_id, const std::
 
     if ( !aux_ptr || geom_ptr->GetType().m_Type != AUXILIARY_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::Geom " + geom_id + " is not an AuxiliaryGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom " + geom_id + " is not an AuxiliaryGeom" );
         return nullptr;
     }
 
@@ -11470,7 +11472,7 @@ void InitStackPreset( const std::string &geom_id, int preset )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InitStackPreset::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "InitStackPreset::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -11478,7 +11480,7 @@ void InitStackPreset( const std::string &geom_id, int preset )
 
     if ( !stack_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "InitStackPreset::Geom " + geom_id + " is not a StackGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "InitStackPreset::Geom " + geom_id + " is not a StackGeom" );
         return;
     }
 
@@ -11502,7 +11504,7 @@ std::string CreateAndAddBogie( const std::string &gear_id )
     Geom* geom_ptr = veh->FindGeom( gear_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "CreateAndAddBogie::Can't Find Geom " + gear_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CreateAndAddBogie::Can't Find Geom " + gear_id );
         return ret_id;
     }
 
@@ -11510,7 +11512,7 @@ std::string CreateAndAddBogie( const std::string &gear_id )
 
     if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreateAndAddBogie::Geom " + gear_id + " is not a GearGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "CreateAndAddBogie::Geom " + gear_id + " is not a GearGeom" );
         return ret_id;
     }
 
@@ -11526,7 +11528,7 @@ int GetNumBogies( const std::string &gear_id )
     Geom* geom_ptr = veh->FindGeom( gear_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumBogies::Can't Find Geom " + gear_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetNumBogies::Can't Find Geom " + gear_id );
         return -1;
     }
 
@@ -11535,7 +11537,7 @@ int GetNumBogies( const std::string &gear_id )
 
     if ( !behavior_gear || geom_ptr->GetBehaviorType() != GEAR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetNumBogies::Geom " + gear_id + " is not a GearGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetNumBogies::Geom " + gear_id + " is not a GearGeom" );
         return -1;
     }
 
@@ -11551,7 +11553,7 @@ std::vector < std::string > GetAllBogies( const std::string &gear_id )
     Geom* geom_ptr = veh->FindGeom( gear_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAllBogies::Can't Find Geom " + gear_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetAllBogies::Can't Find Geom " + gear_id );
         return ret_vec;
     }
 
@@ -11560,7 +11562,7 @@ std::vector < std::string > GetAllBogies( const std::string &gear_id )
 
     if ( !behavior_gear || geom_ptr->GetBehaviorType() != GEAR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetAllBogies::Geom " + gear_id + " is not a GearGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetAllBogies::Geom " + gear_id + " is not a GearGeom" );
         return ret_vec;
     }
 
@@ -11576,7 +11578,7 @@ void DelBogie( const std::string &gear_id, const std::string &bogie_id )
     Geom* geom_ptr = veh->FindGeom( gear_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelBogie::Can't Find Geom " + gear_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "DelBogie::Can't Find Geom " + gear_id );
         return;
     }
 
@@ -11584,13 +11586,13 @@ void DelBogie( const std::string &gear_id, const std::string &bogie_id )
 
     if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelBogie::Geom " + gear_id + " is not a GearGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DelBogie::Geom " + gear_id + " is not a GearGeom" );
         return;
     }
 
     if ( !gear_ptr->GetBogie( bogie_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelBogie::Can't Find Bogie " + bogie_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DelBogie::Can't Find Bogie " + bogie_id );
         return;
     }
 
@@ -11606,7 +11608,7 @@ void DelAllBogies( const std::string &gear_id )
     Geom* geom_ptr = veh->FindGeom( gear_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DelAllBogies::Can't Find Geom " + gear_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "DelAllBogies::Can't Find Geom " + gear_id );
         return;
     }
 
@@ -11614,7 +11616,7 @@ void DelAllBogies( const std::string &gear_id )
 
     if ( !gear_ptr || geom_ptr->GetType().m_Type != GEAR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "DelAllBogies::Geom " + gear_id + " is not a GearGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DelAllBogies::Geom " + gear_id + " is not a GearGeom" );
         return;
     }
 
@@ -11729,12 +11731,12 @@ void ChangeBORXSecShape( const std::string & geom_id, int type )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeBORXSecShape::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ChangeBORXSecShape::Can't Find Geom " + geom_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "ChangeBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ChangeBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
         return;
     }
 
@@ -11750,12 +11752,12 @@ int GetBORXSecShape( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecShape::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetBORXSecShape::Can't Find Geom " + geom_id );
         return XS_UNDEFINED;
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
         return XS_UNDEFINED;
     }
 
@@ -11774,12 +11776,12 @@ std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std::string
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadBORFileXSec::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ReadBORFileXSec::Can't Find Geom " + bor_id );
         return pnt_vec;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "ReadBORFileXSec::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ReadBORFileXSec::Geom " + bor_id + " is not a body of revolution" );
         return pnt_vec;
     }
 
@@ -11804,12 +11806,12 @@ std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std::string
         }
         else
         {
-            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadBORFileXSec::Error reading fuselage file " + file_name );
+            ErrorMgr.AddError( VSP_FILE_READ_FAILURE, "ReadBORFileXSec::Error reading fuselage file " + file_name );
             return pnt_vec;
         }
     }
 
-    ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadBORFileXSec::XSec Not XS_FILE_FUSE Type " );
+    ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadBORFileXSec::XSec Not XS_FILE_FUSE Type " + bor_id );
     return pnt_vec;
 }
 
@@ -11822,12 +11824,12 @@ std::vector< vec3d > GetBORXSecPnts( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecPnts::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetBORXSecPnts::Can't Find Geom " + bor_id );
         return pnt_vec;
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORXSecPnts::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetBORXSecPnts::Geom " + bor_id + " is not a body of revolution" );
         return pnt_vec;
     }
 
@@ -11844,7 +11846,7 @@ std::vector< vec3d > GetBORXSecPnts( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_FILE_FUSE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORXSecPnts::Wrong XSec Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORXSecPnts::XSec Not XS_FILE_FUSE Type " + bor_id );
         return pnt_vec;
     }
 
@@ -11861,12 +11863,12 @@ void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pnt_vec )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORXSecPnts::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetBORXSecPnts::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetBORXSecPnts::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBORXSecPnts::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -11882,7 +11884,7 @@ void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pnt_vec )
 
     if ( xsc->GetType() != XS_FILE_FUSE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORXSecPnts::Wrong XSec Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORXSecPnts::XSec Not XS_FILE_FUSE Type " + bor_id );
         return;
     }
 
@@ -11903,12 +11905,12 @@ vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeBORXSecPnt::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ComputeBORXSecPnt::Can't Find Geom " + bor_id );
         return vec3d();
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "ComputeBORXSecPnt::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ComputeBORXSecPnt::Geom " + bor_id + " is not a body of revolution" );
         return vec3d();
     }
 
@@ -11936,12 +11938,12 @@ vec3d ComputeBORXSecTan( const std::string& bor_id, double fract )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeBORXSecTan::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ComputeBORXSecTan::Can't Find Geom " + bor_id );
         return vec3d();
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "ComputeBORXSecTan::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ComputeBORXSecTan::Geom " + bor_id + " is not a body of revolution" );
         return vec3d();
     }
 
@@ -11968,12 +11970,12 @@ void ReadBORFileAirfoil( const std::string& bor_id, const std::string& file_name
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadBORFileAirfoil::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ReadBORFileAirfoil::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "ReadBORFileAirfoil::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ReadBORFileAirfoil::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -11998,7 +12000,7 @@ void ReadBORFileAirfoil( const std::string& bor_id, const std::string& file_name
         }
         else
         {
-            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadBORFileAirfoil::Error reading airfoil file " + file_name );
+            ErrorMgr.AddError( VSP_FILE_READ_FAILURE, "ReadBORFileAirfoil::Error reading airfoil file " + file_name );
             return;
         }
     }
@@ -12013,12 +12015,12 @@ void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector< vec3d
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORAirfoilUpperPnts::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetBORAirfoilUpperPnts::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetBORAirfoilUpperPnts::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBORAirfoilUpperPnts::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12034,7 +12036,7 @@ void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector< vec3d
 
     if ( xsc->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12050,12 +12052,12 @@ void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector< vec3d
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORAirfoilLowerPnts::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetBORAirfoilLowerPnts::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetBORAirfoilLowerPnts::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBORAirfoilLowerPnts::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12071,7 +12073,7 @@ void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector< vec3d
 
     if ( xsc->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12087,12 +12089,12 @@ void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec3d > & 
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORAirfoilPnts::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetBORAirfoilPnts::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetBORAirfoilPnts::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBORAirfoilPnts::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12108,7 +12110,7 @@ void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec3d > & 
 
     if ( xsc->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORAirfoilPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORAirfoilPnts::XSec Not XS_FILE_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12125,12 +12127,12 @@ std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORAirfoilUpperPnts::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetBORAirfoilUpperPnts::Can't Find Geom " + bor_id );
         return pnt_vec;
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORAirfoilUpperPnts::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetBORAirfoilUpperPnts::Geom " + bor_id + " is not a body of revolution" );
         return pnt_vec;
     }
 
@@ -12147,7 +12149,7 @@ std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type " + bor_id );
         return pnt_vec;
     }
 
@@ -12166,12 +12168,12 @@ std::vector<vec3d> GetBORAirfoilLowerPnts( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORAirfoilLowerPnts::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetBORAirfoilLowerPnts::Can't Find Geom " + bor_id );
         return pnt_vec;
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORAirfoilLowerPnts::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetBORAirfoilLowerPnts::Geom " + bor_id + " is not a body of revolution" );
         return pnt_vec;
     }
 
@@ -12188,7 +12190,7 @@ std::vector<vec3d> GetBORAirfoilLowerPnts( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type " + bor_id );
         return pnt_vec;
     }
 
@@ -12207,12 +12209,12 @@ std::vector<double> GetBORUpperCSTCoefs( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORUpperCSTCoefs::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetBORUpperCSTCoefs::Can't Find Geom " + bor_id );
         return ret_vec;
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORUpperCSTCoefs::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetBORUpperCSTCoefs::Geom " + bor_id + " is not a body of revolution" );
         return ret_vec;
     }
 
@@ -12230,7 +12232,7 @@ std::vector<double> GetBORUpperCSTCoefs( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORUpperCSTCoefs::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORUpperCSTCoefs::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return ret_vec;
     }
 
@@ -12250,12 +12252,12 @@ std::vector<double> GetBORLowerCSTCoefs( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORLowerCSTCoefs::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetBORLowerCSTCoefs::Can't Find Geom " + bor_id );
         return ret_vec;
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORLowerCSTCoefs::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetBORLowerCSTCoefs::Geom " + bor_id + " is not a body of revolution" );
         return ret_vec;
     }
 
@@ -12272,7 +12274,7 @@ std::vector<double> GetBORLowerCSTCoefs( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORLowerCSTCoefs::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORLowerCSTCoefs::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return ret_vec;
     }
 
@@ -12292,12 +12294,12 @@ int GetBORUpperCSTDegree( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORUpperCSTDegree::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetBORUpperCSTDegree::Can't Find Geom " + bor_id );
         return deg;
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORUpperCSTDegree::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetBORUpperCSTDegree::Geom " + bor_id + " is not a body of revolution" );
         return deg;
     }
 
@@ -12314,7 +12316,7 @@ int GetBORUpperCSTDegree( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORUpperCSTDegree::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORUpperCSTDegree::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return deg;
     }
 
@@ -12334,12 +12336,12 @@ int GetBORLowerCSTDegree( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORLowerCSTDegree::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetBORLowerCSTDegree::Can't Find Geom " + bor_id );
         return deg;
     }
     else if ( geom_ptr->GetBehaviorType() != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORLowerCSTDegree::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetBORLowerCSTDegree::Geom " + bor_id + " is not a body of revolution" );
         return deg;
     }
 
@@ -12356,7 +12358,7 @@ int GetBORLowerCSTDegree( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORLowerCSTDegree::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetBORLowerCSTDegree::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return deg;
     }
 
@@ -12375,12 +12377,12 @@ void SetBORUpperCST( const std::string& bor_id, int deg, const std::vector<doubl
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORUpperCST::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetBORUpperCST::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetBORUpperCST::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBORUpperCST::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12396,7 +12398,7 @@ void SetBORUpperCST( const std::string& bor_id, int deg, const std::vector<doubl
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORUpperCST::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORUpperCST::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12413,12 +12415,12 @@ void SetBORLowerCST( const std::string& bor_id, int deg, const std::vector<doubl
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORLowerCST::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetBORLowerCST::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetBORLowerCST::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetBORLowerCST::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12434,7 +12436,7 @@ void SetBORLowerCST( const std::string& bor_id, int deg, const std::vector<doubl
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORLowerCST::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORLowerCST::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12451,12 +12453,12 @@ void PromoteBORCSTUpper( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteBORCSTUpper::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PromoteBORCSTUpper::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "PromoteBORCSTUpper::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "PromoteBORCSTUpper::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12472,7 +12474,7 @@ void PromoteBORCSTUpper( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteBORCSTUpper::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteBORCSTUpper::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12489,12 +12491,12 @@ void PromoteBORCSTLower( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteBORCSTLower::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PromoteBORCSTLower::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "PromoteBORCSTLower::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "PromoteBORCSTLower::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12510,7 +12512,7 @@ void PromoteBORCSTLower( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteBORCSTLower::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteBORCSTLower::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12527,12 +12529,12 @@ void DemoteBORCSTUpper( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteBORCSTUpper::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "DemoteBORCSTUpper::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "DemoteBORCSTUpper::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DemoteBORCSTUpper::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12548,7 +12550,7 @@ void DemoteBORCSTUpper( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteBORCSTUpper::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteBORCSTUpper::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12565,12 +12567,12 @@ void DemoteBORCSTLower( const std::string& bor_id )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteBORCSTLower::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "DemoteBORCSTLower::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "DemoteBORCSTLower::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "DemoteBORCSTLower::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12586,7 +12588,7 @@ void DemoteBORCSTLower( const std::string& bor_id )
 
     if ( xsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteBORCSTLower::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteBORCSTLower::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12603,12 +12605,12 @@ void FitBORAfCST( const std::string & bor_id, int deg )
     Geom* geom_ptr = veh->FindGeom( bor_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitBORAfCST::Can't Find Geom " + bor_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "FitBORAfCST::Can't Find Geom " + bor_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "FitBORAfCST::Geom " + bor_id + " is not a body of revolution" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "FitBORAfCST::Geom " + bor_id + " is not a body of revolution" );
         return;
     }
 
@@ -12630,7 +12632,7 @@ void FitBORAfCST( const std::string & bor_id, int deg )
          ( xsc->GetType() != XS_ONE_SIX_SERIES ) &&
          ( xsc->GetType() != XS_FILE_AIRFOIL ) )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitBORAfCST::XSec Not Fittable Airfoil Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitBORAfCST::XSec Not Fittable Airfoil Type " + bor_id );
         return;
     }
 
@@ -12654,7 +12656,7 @@ void FitBORAfCST( const std::string & bor_id, int deg )
 
     if ( newxsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitBORAfCST::XSec Not XS_CST_AIRFOIL Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitBORAfCST::XSec Not XS_CST_AIRFOIL Type " + bor_id );
         return;
     }
 
@@ -12675,13 +12677,13 @@ void EditXSecInitShape( const std::string & xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "EditXSecInitShape::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "EditXSecInitShape::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecInitShape::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecInitShape::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return;
     }
 
@@ -12698,19 +12700,19 @@ void EditXSecConvertTo( const std::string & xsec_id, const int & newtype )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "EditXSecConvertTo::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "EditXSecConvertTo::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecConvertTo::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecConvertTo::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return;
     }
 
     if ( newtype < 0 || newtype > vsp::CEDIT )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "EditXSecConvertTo::Invalid PCURV_TYPE" );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "EditXSecConvertTo::Invalid PCURV_TYPE " + to_string( newtype ) );
         return;
     }
 
@@ -12729,13 +12731,13 @@ std::vector < double > GetEditXSecUVec( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetEditXSecUVec::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetEditXSecUVec::Can't Find XSec " + xsec_id );
         return ret_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetEditXSecUVec::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetEditXSecUVec::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return ret_vec;
     }
 
@@ -12754,13 +12756,13 @@ std::vector < vec3d > GetEditXSecCtrlVec( const std::string& xsec_id, bool non_d
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetEditXSecCtrlVec::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetEditXSecCtrlVec::Can't Find XSec " + xsec_id );
         return ret_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetEditXSecCtrlVec::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetEditXSecCtrlVec::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return ret_vec;
     }
 
@@ -12777,13 +12779,13 @@ void SetEditXSecPnts( const std::string & xsec_id, const std::vector < double > 
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetEditXSecPnts::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetEditXSecPnts::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetEditXSecPnts::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetEditXSecPnts::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return;
     }
 
@@ -12800,13 +12802,13 @@ void EditXSecDelPnt( const std::string & xsec_id, const int & indx )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "EditXSecDelPnt::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "EditXSecDelPnt::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecDelPnt::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecDelPnt::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return;
     }
 
@@ -12823,13 +12825,13 @@ int EditXSecSplit01( const std::string & xsec_id, const double & u )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "EditXSecSplit01::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "EditXSecSplit01::Can't Find XSec " + xsec_id );
         return -1;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecSplit01::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecSplit01::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return -1;
     }
 
@@ -12846,13 +12848,13 @@ void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "MoveEditXSecPnt::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "MoveEditXSecPnt::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "MoveEditXSecPnt::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "MoveEditXSecPnt::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return;
     }
 
@@ -12943,13 +12945,13 @@ std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetEditXSecFixedUVec::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "GetEditXSecFixedUVec::Can't Find XSec " + xsec_id );
         return std::vector < bool > {};
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetEditXSecFixedUVec::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetEditXSecFixedUVec::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return std::vector < bool > {};
     }
 
@@ -12965,13 +12967,13 @@ void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool > fixe
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetEditXSecFixedUVec::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "SetEditXSecFixedUVec::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetEditXSecFixedUVec::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetEditXSecFixedUVec::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return;
     }
 
@@ -12980,7 +12982,7 @@ void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool > fixe
 
     if ( edit_xs->GetNumPts() != fixed_u_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetEditXSecFixedUVec:Size of fixed_u_vec Not Equal to Number of Control Points" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "SetEditXSecFixedUVec::Size of fixed_u_vec " + to_string( ( int )fixed_u_vec.size() ) + " Not Equal to Number of Control Points " + to_string( edit_xs->GetNumPts() ) );
         return;
     }
 
@@ -12996,13 +12998,13 @@ void ReparameterizeEditXSec( const std::string & xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReparameterizeEditXSec::Can't Find XSec " + xsec_id );
+        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "ReparameterizeEditXSec::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReparameterizeEditXSec::XSec Not XS_EDIT_CURVE Type" );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReparameterizeEditXSec::XSec Not XS_EDIT_CURVE Type " + xsec_id );
         return;
     }
 
@@ -13109,7 +13111,7 @@ bool GetSetFlag( const std::string & geom_id, int set_index )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSetFlag::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetSetFlag::Can't Find Geom " + geom_id );
         return false;
     }
     ErrorMgr.NoError();
@@ -13123,7 +13125,7 @@ void SetSetFlag( const std::string & geom_id, int set_index, bool flag )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSetFlag::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetSetFlag::Can't Find Geom " + geom_id );
         return;
     }
     if ( set_index < 0 || set_index >= ( int )veh->GetSetNameVec().size() )
@@ -13189,7 +13191,7 @@ bool GetScaleIndependentBBoxSet( int set, double & xmin_out, double & ymin_out, 
     Vehicle* veh = GetVehicle();
     if ( !veh )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetScaleIndependentBBox::Can't Find Vehicle." );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetScaleIndependentBBoxSet::Can't Find Vehicle." );
 
         xmin_out = 0.0;
         ymin_out = 0.0;
@@ -13353,7 +13355,7 @@ double SetParmVal( const std::string & parm_id, double val )
 /// The final value of parm is returned.
 double SetParmVal( const std::string & container_id, const std::string & name, const std::string & group, double val )
 {
-    std::string parm_id = GetParm( container_id, name, group );
+    std::string parm_id = FindParmImpl( container_id, name, group, "SetParmVal" );
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
@@ -13398,7 +13400,7 @@ double SetParmValUpdate( const std::string & parm_id, double val )
 /// The final value of parm is returned.
 double SetParmValUpdate( const std::string & container_id, const std::string & parm_name, const std::string & parm_group_name, double val )
 {
-    std::string parm_id = GetParm( container_id, parm_name, parm_group_name );
+    std::string parm_id = FindParmImpl( container_id, parm_name, parm_group_name, "SetParmValUpdate" );
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
@@ -13425,7 +13427,7 @@ double GetParmVal( const std::string & parm_id )
 /// Get the value of parm
 double GetParmVal( const std::string & container_id, const std::string & name, const std::string & group )
 {
-    std::string parm_id = GetParm( container_id, name, group );
+    std::string parm_id = FindParmImpl( container_id, name, group, "GetParmVal" );
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
@@ -13616,7 +13618,7 @@ std::string GetParmDescript( const std::string & parm_id )
 }
 
 ///  Find a parm id given parm container, name and group
-std::string FindParm( const std::string & parm_container_id, const std::string& parm_name, const std::string& group_name )
+static std::string FindParmImpl( const std::string & parm_container_id, const std::string& parm_name, const std::string& group_name, const std::string & caller )
 {
     if ( ParmMgr.GetDirtyFlag() )
     {
@@ -13627,7 +13629,7 @@ std::string FindParm( const std::string & parm_container_id, const std::string& 
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "FindParm::Can't Find Parm Container " + parm_container_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find Parm Container " + parm_container_id );
         return std::string();
     }
 
@@ -13635,12 +13637,17 @@ std::string FindParm( const std::string & parm_container_id, const std::string& 
    Parm* p = ParmMgr.FindParm( parm_id );
    if ( !p )
    {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "FindParm::Can't Find Parm " + parm_name + " " + group_name );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, caller + "::Can't Find Parm " + parm_name + " " + group_name );
         return std::string();
    }
    ErrorMgr.NoError();
 
    return parm_id;
+}
+
+std::string FindParm( const std::string & parm_container_id, const std::string& parm_name, const std::string& group_name )
+{
+    return FindParmImpl( parm_container_id, parm_name, group_name, "FindParm" );
 }
 
 
@@ -13706,7 +13713,7 @@ std::string FindContainer( const std::string & name, int index )
 
     if ( index < 0 || index >= ( int )id_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "FindContainer::Can't Find Name " + name + " or Index" + to_string( ( long long )index ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindContainer::Index " + to_string( ( long long )index ) + " Out of Range for " + to_string( ( int )id_vec.size() ) + " Containers Named " + name );
         return std::string();
     }
     ErrorMgr.NoError();
@@ -13719,7 +13726,7 @@ void SetContainerName( const std::string & parm_container_id, const std::string 
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetContainerName::Can't Find Parm Container " + parm_container_id );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetContainerName::Can't Find Parm Container " + parm_container_id );
         return;
     }
 
@@ -13727,7 +13734,7 @@ void SetContainerName( const std::string & parm_container_id, const std::string 
     Geom* geom_ptr = dynamic_cast< Geom* >( pc );
     if ( geom_ptr && geom_ptr->NameIsAutomatic() )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetContainerName::Geom " + parm_container_id +
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetContainerName::Geom " + parm_container_id +
                            " names itself and would write over this on its next update" );
         return;
     }
@@ -13861,7 +13868,7 @@ void DeleteUserParm( const std::string & id )
 
     if ( indx < 0 )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "DeleteUserParm::Invalid UserParm ID " );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "DeleteUserParm::Can't Find User Parm " + id );
         return;
     }
 
@@ -13979,7 +13986,7 @@ static Geom * FindFitModelMatchGeom( const std::string & geom_id, int surf_indx,
 
     if ( geom_ptr->GetNumTotalSurfs() < 1 )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, routine + "::Geom Has No Surface " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, routine + "::Geom Has No Surface " + geom_id );
         return nullptr;
     }
 
@@ -14439,7 +14446,7 @@ void AddFitModelVar( const std::string & parm_id )
 
     if ( !FitModelMgr.AddVar( parm_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "AddFitModelVar::Duplicate Variable " + parm_id );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddFitModelVar::Duplicate Variable " + parm_id );
         return;
     }
 
@@ -14613,7 +14620,7 @@ static bool CheckPtsTol( double tol, const std::string & routine )
 {
     if ( tol < 0.0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, routine + "::Negative Tolerance" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, routine + "::Negative Tolerance " + to_string( tol ) );
         return false;
     }
     return true;
@@ -14623,7 +14630,7 @@ static bool CheckDirIndex( int dir_index, const std::string & routine )
 {
     if ( dir_index < vsp::X_DIR || dir_index > vsp::Z_DIR )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, routine + "::Invalid Direction Index " + to_string( dir_index ) );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, routine + "::Invalid Direction Index " + to_string( dir_index ) );
         return false;
     }
     return true;
@@ -14655,7 +14662,7 @@ std::string CreatePtCloudGeomFromPts( const std::vector < vec3d > & pt_vec, cons
     PtCloudGeom* pt_cloud = dynamic_cast< PtCloudGeom* >( geom_ptr );
     if ( !pt_cloud )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreatePtCloudGeomFromPts::Geom Is Not A Point Cloud" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "CreatePtCloudGeomFromPts::Geom Is Not A Point Cloud" );
         return std::string();
     }
 
@@ -14887,7 +14894,7 @@ std::string AddVarPresetGroup( const std::string &group_name )
 
     delete sg;
 
-    ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetGroup::Unable to create var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_PTR, "AddVarPresetGroup::Unable to create var preset group." );
     return std::string();
 }
 
@@ -14909,7 +14916,7 @@ std::string AddVarPresetSetting( const std::string &group_id, const std::string 
         delete s;
     }
 
-    ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetSetting::Unable to create var preset setting." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetSetting::Unable to create var preset setting in group " + group_id );
     return std::string();
 }
 
@@ -14924,11 +14931,11 @@ void AddVarPresetParm( const std::string &group_id, const std::string &parm_id )
             ErrorMgr.NoError();
             return;
         }
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddVarPresetParm::Unable to add parm to var preset group." );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "AddVarPresetParm::Unable to add Parm " + parm_id + " to var preset group " + group_id );
         return;
     }
 
-    ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Unable to find var preset group " + group_id );
 }
 
 void DeleteVarPresetGroup( const std::string &group_id )
@@ -14953,7 +14960,7 @@ void DeleteVarPresetParm( const std::string &group_id, const std::string &parm_i
         ErrorMgr.NoError();
         return;
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "DeleteVarPresetParm::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "DeleteVarPresetParm::Unable to find var preset group " + group_id );
 }
 
 void SetVarPresetParmVal( const std::string &group_id, const std::string &setting_id, const std::string &parm_id, double parm_val )
@@ -14977,11 +14984,11 @@ void SetVarPresetParmVal( const std::string &group_id, const std::string &settin
             }
         }
 
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetVarPresetParmVal::Unable to find Parm in var preset group." );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetVarPresetParmVal::Unable to find Parm " + parm_id + " in var preset group, or Setting " + setting_id );
         return;
     }
 
-    ErrorMgr.AddError( VSP_INVALID_ID, "SetVarPresetParmVal::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "SetVarPresetParmVal::Unable to find var preset group " + group_id );
 }
 
 double GetVarPresetParmVal( const std::string &group_id, const std::string &setting_id, const std::string &parm_id )
@@ -15002,15 +15009,15 @@ double GetVarPresetParmVal( const std::string &group_id, const std::string &sett
                 ErrorMgr.NoError();
                 return s->GetParmVal( index );
             }
-            ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVal::Unable to find var preset setting." );
+            ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVal::Unable to find var preset setting " + setting_id );
             return 0.0;
         }
 
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetVarPresetParmVal::Unable to find Parm in var preset group." );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetVarPresetParmVal::Unable to find Parm " + parm_id + " in var preset group " + group_id );
         return 0.0;
     }
 
-    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVal::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVal::Unable to find var preset group " + group_id );
     return 0.0;
 }
 
@@ -15023,7 +15030,7 @@ std::string GetGroupName( const std::string &group_id )
         ErrorMgr.NoError();
         return sg->GetName();
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "GetGroupName::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetGroupName::Unable to find var preset group " + group_id );
     return std::string();
 }
 
@@ -15035,7 +15042,7 @@ std::string GetSettingName( const std::string &setting_id )
         ErrorMgr.NoError();
         return s->GetName();
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "GetSettingName::Unable to find var preset setting." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetSettingName::Unable to find var preset setting " + setting_id );
     return std::string();
 }
 
@@ -15049,7 +15056,7 @@ void SetGroupName( const std::string &group_id, const std::string &group_name )
         ErrorMgr.NoError();
         return;
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "SetGroupName::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "SetGroupName::Unable to find var preset group " + group_id );
 }
 
 void SetSettingName( const std::string &setting_id, const std::string &setting_name )
@@ -15061,7 +15068,7 @@ void SetSettingName( const std::string &setting_id, const std::string &setting_n
         ErrorMgr.NoError();
         return;
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "SetSettingName::Unable to find var preset setting." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "SetSettingName::Unable to find var preset setting " + setting_id );
     return;
 }
 
@@ -15081,7 +15088,7 @@ std::vector< std::string > GetVarPresetSettings( const std::string &group_id )
         return sg->GetSettingIDVec();
     }
 
-    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetSettings::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetSettings::Unable to find var preset group " + group_id );
     std::vector < std::string > ret;
     return ret;
 }
@@ -15096,7 +15103,7 @@ std::vector< std::string > GetVarPresetParmIDs( const std::string &group_id )
         return sg->GetParmIDVec();
     }
 
-    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmIDs::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmIDs::Unable to find var preset group " + group_id );
     std::vector < std::string > ret;
     return ret;
 }
@@ -15109,7 +15116,7 @@ std::vector< double > GetVarPresetParmVals( const std::string &setting_id )
         ErrorMgr.NoError();
         return s->GetParmValVec();
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVals::Unable to find var preset setting." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "GetVarPresetParmVals::Unable to find var preset setting " + setting_id );
     std::vector < double > ret;
     return ret;
 }
@@ -15123,7 +15130,7 @@ void SetVarPresetParmVals( const std::string &setting_id, const std::vector< dou
         ErrorMgr.NoError();
         return;
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "SetVarPresetParmVals::Unable to find var preset setting." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "SetVarPresetParmVals::Unable to find var preset setting " + setting_id );
 }
 
 void SaveVarPresetParmVals( const std::string &group_id, const std::string &setting_id )
@@ -15136,7 +15143,7 @@ void SaveVarPresetParmVals( const std::string &group_id, const std::string &sett
         ErrorMgr.NoError();
         return;
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "SaveVarPresetParmVals::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "SaveVarPresetParmVals::Unable to find var preset group " + group_id );
 }
 
 void ApplyVarPresetSetting( const std::string &group_id, const std::string &setting_id )
@@ -15149,7 +15156,7 @@ void ApplyVarPresetSetting( const std::string &group_id, const std::string &sett
         ErrorMgr.NoError();
         return;
     }
-    ErrorMgr.AddError( VSP_INVALID_ID, "ApplyVarPresetSetting::Unable to find var preset group." );
+    ErrorMgr.AddError( VSP_INVALID_ID, "ApplyVarPresetSetting::Unable to find var preset group " + group_id );
 }
 
 //===================================================================//
@@ -15205,7 +15212,7 @@ std::string GetModeName( const std::string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetModeName::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetModeName::Could not find mode " + mid );
         return std::string();
     }
 
@@ -15219,7 +15226,7 @@ void SetModeName( const std::string &mid, const std::string &name )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetModeName::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetModeName::Could not find mode " + mid );
         return;
     }
 
@@ -15234,7 +15241,7 @@ void ApplyModeSettings( const std::string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ApplyModeSettings::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ApplyModeSettings::Could not find mode " + mid );
         return;
     }
 
@@ -15248,7 +15255,7 @@ void ShowOnlyMode( const std::string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ShowOnlyMode::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ShowOnlyMode::Could not find mode " + mid );
         return;
     }
 
@@ -15276,7 +15283,7 @@ std::string ModeGetGroup( const std::string &mid, int indx )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetGroup::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetGroup::Could not find mode " + mid );
         return std::string();
     }
 
@@ -15324,7 +15331,7 @@ std::vector < std::string > ModeGetAllGroups( const std::string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllGroups::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllGroups::Could not find mode " + mid );
         return ret;
     }
 
@@ -15340,7 +15347,7 @@ std::vector < std::string > ModeGetAllSettings( const std::string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllSettings::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetAllSettings::Could not find mode " + mid );
         return ret;
     }
 
@@ -15422,7 +15429,7 @@ void RemoveAllGroupSettings( const std::string &mid )
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveAllGroupSettings::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveAllGroupSettings::Could not find mode " + mid );
         return;
     }
 
@@ -15441,12 +15448,12 @@ void SetPCurve( const std::string & geom_id, const int & pcurveid, const std::ve
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetPCurve::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetPCurve::Can't Find Geom " + geom_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetPCurve::Geom doesn't support PCurves " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetPCurve::Geom doesn't support PCurves " + geom_id );
         return;
     }
 
@@ -15460,7 +15467,7 @@ void SetPCurve( const std::string & geom_id, const int & pcurveid, const std::ve
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetPCurve::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetPCurve::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
         return;
     }
 
@@ -15475,12 +15482,12 @@ void PCurveConvertTo( const std::string & geom_id, const int & pcurveid, const i
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveConvertTo::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PCurveConvertTo::Can't Find Geom " + geom_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveConvertTo::Geom doesn't support PCurves " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "PCurveConvertTo::Geom doesn't support PCurves " + geom_id );
         return;
     }
 
@@ -15494,7 +15501,7 @@ void PCurveConvertTo( const std::string & geom_id, const int & pcurveid, const i
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveConvertTo::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "PCurveConvertTo::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
         return;
     }
 
@@ -15509,12 +15516,12 @@ int PCurveGetType( const std::string & geom_id, const int & pcurveid )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PCurveGetType::Can't Find Geom " + geom_id );
         return -1;
     }
     else if ( geom_ptr->GetBehaviorType() != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Geom doesn't support PCurves " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "PCurveGetType::Geom doesn't support PCurves " + geom_id );
         return -1;
     }
 
@@ -15529,7 +15536,7 @@ int PCurveGetType( const std::string & geom_id, const int & pcurveid )
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetType::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "PCurveGetType::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
         return -1;
     }
 
@@ -15546,12 +15553,12 @@ std::vector < double > PCurveGetTVec( const std::string & geom_id, const int & p
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PCurveGetTVec::Can't Find Geom " + geom_id );
         return retvec;
     }
     else if ( geom_ptr->GetBehaviorType() != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Geom doesn't support PCurves " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "PCurveGetTVec::Geom doesn't support PCurves " + geom_id );
         return retvec;
     }
 
@@ -15566,7 +15573,7 @@ std::vector < double > PCurveGetTVec( const std::string & geom_id, const int & p
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetTVec::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "PCurveGetTVec::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
         return retvec;
     }
 
@@ -15585,12 +15592,12 @@ std::vector < double > PCurveGetValVec( const std::string & geom_id, const int &
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PCurveGetValVec::Can't Find Geom " + geom_id );
         return retvec;
     }
     else if ( geom_ptr->GetBehaviorType() != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Geom doesn't support PCurves " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "PCurveGetValVec::Geom doesn't support PCurves " + geom_id );
         return retvec;
     }
 
@@ -15605,7 +15612,7 @@ std::vector < double > PCurveGetValVec( const std::string & geom_id, const int &
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveGetValVec::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "PCurveGetValVec::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
         return retvec;
     }
 
@@ -15622,12 +15629,12 @@ void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const in
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveDeletePt::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PCurveDeletePt::Can't Find Geom " + geom_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveDeletePt::Geom doesn't support PCurves " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "PCurveDeletePt::Geom doesn't support PCurves " + geom_id );
         return;
     }
 
@@ -15641,7 +15648,7 @@ void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const in
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveDeletePt::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "PCurveDeletePt::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
         return;
     }
 
@@ -15668,12 +15675,12 @@ int PCurveSplit( const std::string & geom_id, const int & pcurveid, const double
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PCurveSplit::Can't Find Geom " + geom_id );
         return -1;
     }
     else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Geom doesn't support PCurves " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "PCurveSplit::Geom doesn't support PCurves " + geom_id );
         return -1;
     }
 
@@ -15687,7 +15694,7 @@ int PCurveSplit( const std::string & geom_id, const int & pcurveid, const double
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "PCurveSplit::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "PCurveSplit::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
         return -1;
     }
 
@@ -15702,14 +15709,14 @@ void ResetPropellerThickness( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetPropellerThickness::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ResetPropellerThickness::Can't Find Geom " + geom_id );
         return;
     }
 
     PropGeom* prop_ptr = dynamic_cast< PropGeom* >( geom_ptr );
     if ( !prop_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "ResetPropellerThickness::Geom " + geom_id + " is not a propeller" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ResetPropellerThickness::Geom " + geom_id + " is not a propeller" );
         return;
     }
 
@@ -15725,12 +15732,12 @@ void ApproximateAllPropellerPCurves( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ApproximateAllPropellerPCurves::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ApproximateAllPropellerPCurves::Can't Find Geom " + geom_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ApproximateAllPropellerPCurves::Geom not a propeller " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ApproximateAllPropellerPCurves::Geom not a propeller " + geom_id );
         return;
     }
 
@@ -15742,7 +15749,7 @@ void ApproximateAllPropellerPCurves( const std::string & geom_id )
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ApproximateAllPropellerPCurves::Geom not a propeller " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ApproximateAllPropellerPCurves::Geom not a propeller " + geom_id );
         return;
     }
 
@@ -15755,12 +15762,12 @@ void ResetPropellerThicknessCurve( const std::string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetPropellerThicknessCurve::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ResetPropellerThicknessCurve::Can't Find Geom " + geom_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetPropellerThicknessCurve::Geom not a propeller " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ResetPropellerThicknessCurve::Geom not a propeller " + geom_id );
         return;
     }
 
@@ -15772,7 +15779,7 @@ void ResetPropellerThicknessCurve( const std::string & geom_id )
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetPropellerThicknessCurve::Geom not a propeller " + geom_id );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ResetPropellerThicknessCurve::Geom not a propeller " + geom_id );
         return;
     }
 
@@ -16593,13 +16600,13 @@ double FindRSTGuess( const std::string &geom_id, const int &surf_indx, const vec
 
     if ( !geom )
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "FindRST::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "FindRSTGuess::Can't Find Geom " + geom_id );
         return dist;
     }
 
     if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindRST::Invalid Surface Index " + to_string( surf_indx ) );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindRSTGuess::Invalid Surface Index " + to_string( surf_indx ) );
         return dist;
     }
 
@@ -16724,7 +16731,7 @@ void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta_out
 
     if ( geom->GetBehaviorType() != MS_WING_GEOM_TYPE || !behavior_wing )
     {
-        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertUtoEta::Geom is not a WingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertUtoEta::Geom " + geom_id + " is not a WingGeom" );
         return;
     }
 
@@ -16753,7 +16760,7 @@ void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u_out
 
     if ( geom->GetBehaviorType() != MS_WING_GEOM_TYPE || !behavior_wing )
     {
-        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertEtatoU::Geom is not a WingGeom" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertEtatoU::Geom " + geom_id + " is not a WingGeom" );
         return;
     }
 
@@ -16796,7 +16803,7 @@ std::vector < vec3d > CompVecPnt01( const std::string &geom_id, const int &surf_
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompVecPnt01::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "CompVecPnt01::Input size mismatch." );
             return pts;
         }
     }
@@ -16841,7 +16848,7 @@ std::vector < vec3d > CompVecDegenPnt01( const std::string &geom_id, const int &
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompVecDegenPnt01::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "CompVecDegenPnt01::Input size mismatch." );
             return pts;
         }
     }
@@ -16880,19 +16887,19 @@ std::vector < vec3d > CompVecNorm01( const std::string &geom_id, const int &surf
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompNorm01::Invalid surf index " + to_string( surf_indx ) );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompVecNorm01::Invalid surf index " + to_string( surf_indx ) );
                 return norms;
             }
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompNorm01::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "CompVecNorm01::Input size mismatch." );
             return norms;
         }
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompNorm01::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompVecNorm01::Can't Find Geom " + geom_id );
         return norms;
     }
     ErrorMgr.NoError();
@@ -16930,19 +16937,19 @@ void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompCurvature01::Invalid surf index " + to_string( surf_indx ) );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompVecCurvature01::Invalid surf index " + to_string( surf_indx ) );
                 return;
             }
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompCurvature01::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "CompVecCurvature01::Input size mismatch." );
             return;
         }
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompCurvature01::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompVecCurvature01::Can't Find Geom " + geom_id );
         return;
     }
     ErrorMgr.NoError();
@@ -17022,7 +17029,7 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjVecPnt01Guess::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "ProjVecPnt01Guess::Input size mismatch." );
             return;
         }
     }
@@ -17108,7 +17115,7 @@ void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, con
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AxisProjVecPnt01Guess::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AxisProjVecPnt01Guess::Input size mismatch." );
             return;
         }
     }
@@ -17189,7 +17196,7 @@ std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const int &surf
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompVecPntRST::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "CompVecPntRST::Input size mismatch." );
             return pts;
         }
     }
@@ -17277,7 +17284,7 @@ void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, const st
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindRSTVecGuess::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "FindRSTVecGuess::Input size mismatch." );
             return;
         }
     }
@@ -17320,19 +17327,19 @@ void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx,
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertRSTtoLMN::Invalid surf index " + to_string( surf_indx ) );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertRSTtoLMNVec::Invalid surf index " + to_string( surf_indx ) );
                 return;
             }
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertRSTtoLMN::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "ConvertRSTtoLMNVec::Input size mismatch." );
             return;
         }
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertRSTtoLMN::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertRSTtoLMNVec::Can't Find Geom " + geom_id );
         return;
     }
     ErrorMgr.NoError();
@@ -17369,19 +17376,19 @@ void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx,
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertLMNtoRST::Invalid surf index " + to_string( surf_indx ) );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertLMNtoRSTVec::Invalid surf index " + to_string( surf_indx ) );
                 return;
             }
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertLMNtoRST::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "ConvertLMNtoRSTVec::Input size mismatch." );
             return;
         }
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertLMNtoRST::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertLMNtoRSTVec::Can't Find Geom " + geom_id );
         return;
     }
     ErrorMgr.NoError();
@@ -17617,7 +17624,7 @@ std::vector < vec3d > ControlSurfaceHingeLine( const std::string & id, int surf_
         }
         else
         {
-            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ControlSurfaceHingeLine::Control surface parent geom ID invalid " + gid );
+            ErrorMgr.AddError( VSP_INVALID_PTR, "ControlSurfaceHingeLine::Control surface parent geom ID invalid " + gid );
             return pts;
         }
     }
@@ -18309,7 +18316,7 @@ Geom* FindGeomForOp( const std::string & geom_id, const std::string & caller )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
         return nullptr;
     }
     return geom_ptr;
@@ -18491,7 +18498,7 @@ std::vector < vec3d > GetPtCloudPnts( const std::string & geom_id )
     PtCloudGeom* pg = dynamic_cast< PtCloudGeom* >( geom_ptr );
     if ( !pg )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetPtCloudPnts::Geom " + geom_id + " is not a point cloud" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetPtCloudPnts::Geom " + geom_id + " is not a point cloud" );
         return ret;
     }
 
@@ -18510,7 +18517,7 @@ std::string CreatePtCloudGeom( const std::string & geom_id )
     MeshGeom* mg = dynamic_cast< MeshGeom* >( geom_ptr );
     if ( !mg )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreatePtCloudGeom::Geom " + geom_id + " is not a mesh" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "CreatePtCloudGeom::Geom " + geom_id + " is not a mesh" );
         return std::string();
     }
 
@@ -18548,7 +18555,7 @@ std::string CreateNGonMeshGeom( const std::string & geom_id )
     MeshGeom* mg = dynamic_cast< MeshGeom* >( geom_ptr );
     if ( !mg )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreateNGonMeshGeom::Geom " + geom_id + " is not a mesh" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "CreateNGonMeshGeom::Geom " + geom_id + " is not a mesh" );
         return std::string();
     }
 
@@ -18576,7 +18583,7 @@ void ProjectPtCloudPts( const std::string & geom_id, const std::string & target_
     PtCloudGeom* pt_cloud = dynamic_cast< PtCloudGeom* >( geom_ptr );
     if ( !pt_cloud )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "ProjectPtCloudPts::Geom " + geom_id + " is not a point cloud" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ProjectPtCloudPts::Geom " + geom_id + " is not a point cloud" );
         return;
     }
 
@@ -18584,7 +18591,7 @@ void ProjectPtCloudPts( const std::string & geom_id, const std::string & target_
     Geom* target_ptr = veh->FindGeom( target_geom_id );
     if ( !target_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ProjectPtCloudPts::Can't Find Geom " + target_geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjectPtCloudPts::Can't Find Geom " + target_geom_id );
         return;
     }
 
@@ -18617,7 +18624,7 @@ std::string CreateConvexHull( const std::string & geom_id )
     PtCloudGeom* pg = dynamic_cast< PtCloudGeom* >( geom_ptr );
     if ( !pg )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "CreateConvexHull::Geom " + geom_id + " is not a point cloud" );
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "CreateConvexHull::Geom " + geom_id + " is not a point cloud" );
         return std::string();
     }
 
@@ -19008,7 +19015,7 @@ std::string AddParmLink( const std::string & parm_a_id, const std::string & parm
     // AddLink refuses a pairing it already holds.
     if ( !LinkMgr.AddLink( parm_a_id, parm_b_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "AddParmLink::Can't Link " + parm_a_id + " To " + parm_b_id );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddParmLink::Can't Link " + parm_a_id + " To " + parm_b_id );
         return std::string();
     }
 
@@ -19173,7 +19180,7 @@ bool LinkAllComp( const std::string & parm_a_id, const std::string & parm_b_id )
 {
     if ( !ParmMgr.FindParm( parm_a_id ) || !ParmMgr.FindParm( parm_b_id ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "LinkAllComp::Can't Find Parm" );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "LinkAllComp::Can't Find Parm " + parm_a_id + " or " + parm_b_id );
         return false;
     }
 
@@ -19190,7 +19197,7 @@ bool LinkAllGroup( const std::string & parm_a_id, const std::string & parm_b_id 
 {
     if ( !ParmMgr.FindParm( parm_a_id ) || !ParmMgr.FindParm( parm_b_id ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "LinkAllGroup::Can't Find Parm" );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "LinkAllGroup::Can't Find Parm " + parm_a_id + " or " + parm_b_id );
         return false;
     }
 
@@ -19480,7 +19487,7 @@ void DelAdvLinkInput( int index, const std::string & var_name )
     // happened to sit at that index.
     if ( !adv_link->DeleteVar( var_name, true ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "DelAdvLinkInput::Can't Find Input Variable " + var_name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "DelAdvLinkInput::Can't Find Input Variable " + var_name );
         return;
     }
 
@@ -19501,7 +19508,7 @@ void DelAdvLinkOutput( int index, const std::string & var_name )
     // Same fix as DelAdvLinkInput above.
     if ( !adv_link->DeleteVar( var_name, false ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "DelAdvLinkOutput::Can't Find Output Variable " + var_name );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "DelAdvLinkOutput::Can't Find Output Variable " + var_name );
         return;
     }
 
