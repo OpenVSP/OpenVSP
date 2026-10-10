@@ -218,6 +218,7 @@ void VSPCrash( int crash_type )
 
 int GetAndResetUpdateCount()
 {
+    ErrorMgr.NoError();
     return (int) UpdateCountMgr.GetAndResetUpdateCount();
 }
 
@@ -393,6 +394,7 @@ void SetBEMPropID( const std::string & prop_id )
     }
 
     veh->m_BEMPropID = prop_id;
+    ErrorMgr.NoError();
 }
 
 //===================================================================//
@@ -493,30 +495,31 @@ std::string GetComputationFileName( int file_type )
     // The CFD Mesh outputs are kept by the CFD settings under their own
     // enumeration; everything else lives in the Vehicle's own table.  Mirror
     // the routing SetComputationFileName does.
+    std::string ret;
     if ( file_type == CFD_STL_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_STL_FILE_NAME );
-    if ( file_type == CFD_POLY_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_POLY_FILE_NAME );
-    if ( file_type == CFD_TRI_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_TRI_FILE_NAME );
-    if ( file_type == CFD_FACET_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_FACET_FILE_NAME );
-    if ( file_type == CFD_OBJ_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_OBJ_FILE_NAME );
-    if ( file_type == CFD_DAT_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_DAT_FILE_NAME );
-    if ( file_type == CFD_KEY_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_KEY_FILE_NAME );
-    if ( file_type == CFD_GMSH_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_GMSH_FILE_NAME );
-    if ( file_type == CFD_TKEY_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_TKEY_FILE_NAME );
-    if ( file_type == CFD_VSPGEOM_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_VSPGEOM_FILE_NAME );
-    if ( file_type == CFD_POGS_TYPE )
-        return GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_POGS_FILE_NAME );
-
-    std::string ret = GetVehicle()->getExportFileName( file_type );
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_STL_FILE_NAME );
+    else if ( file_type == CFD_POLY_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_POLY_FILE_NAME );
+    else if ( file_type == CFD_TRI_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_TRI_FILE_NAME );
+    else if ( file_type == CFD_FACET_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_FACET_FILE_NAME );
+    else if ( file_type == CFD_OBJ_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_OBJ_FILE_NAME );
+    else if ( file_type == CFD_DAT_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_DAT_FILE_NAME );
+    else if ( file_type == CFD_KEY_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_KEY_FILE_NAME );
+    else if ( file_type == CFD_GMSH_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_GMSH_FILE_NAME );
+    else if ( file_type == CFD_TKEY_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_TKEY_FILE_NAME );
+    else if ( file_type == CFD_VSPGEOM_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_VSPGEOM_FILE_NAME );
+    else if ( file_type == CFD_POGS_TYPE )
+        ret = GetVehicle()->GetCfdSettingsPtr()->GetExportFileName( CFD_POGS_FILE_NAME );
+    else
+        ret = GetVehicle()->getExportFileName( file_type );
 
     ErrorMgr.NoError();
     return ret;
@@ -1130,6 +1133,7 @@ std::string GetVSPAERORefWingID()
 
     if ( VSPAEROMgr.m_RefFlag.Get() != vsp::COMPONENT_REF )
     {
+        ErrorMgr.NoError();
         return std::string();
     }
 
@@ -1140,6 +1144,7 @@ std::string GetVSPAERORefWingID()
         return std::string();
     }
 
+    ErrorMgr.NoError();
     return VSPAEROMgr.m_RefGeomID;
 }
 
@@ -1171,6 +1176,7 @@ void AutoGroupVSPAEROControlSurfaces()
 {
     VSPAEROMgr.Update();
     VSPAEROMgr.InitControlSurfaceGroups();
+    ErrorMgr.NoError();
 }
 
 void DeleteVSPAEROControlSurfaceGroup( int CSGroupIndex )
@@ -1268,6 +1274,7 @@ int CreateVSPAEROControlSurfaceGroup()
 {
     VSPAEROMgr.Update();
     VSPAEROMgr.AddControlSurfaceGroup();
+    ErrorMgr.NoError();
     return VSPAEROMgr.GetCurrentCSGroupIndex();
 }
 
@@ -1284,6 +1291,8 @@ void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )
     VSPAEROMgr.Update();
 
     VSPAEROMgr.AddAllToCSGroup();
+
+    ErrorMgr.NoError();
 }
 
 void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )
@@ -1299,6 +1308,8 @@ void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )
     VSPAEROMgr.Update();
 
     VSPAEROMgr.RemoveAllFromCSGroup();
+
+    ErrorMgr.NoError();
 }
 
 std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
@@ -1327,6 +1338,7 @@ std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
         return_vec[i] = active_cs_vec[i].fullName;
     }
 
+    ErrorMgr.NoError();
     return return_vec;
 }
 
@@ -1342,6 +1354,7 @@ std::vector < std::string > GetCompleteCSNameVec( )
         return_vec[i] = complete_cs_vec[i].fullName;
     }
 
+    ErrorMgr.NoError();
     return return_vec;
 }
 
@@ -1365,6 +1378,7 @@ std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex )
         return_vec[i] = avail_cs_vec[i].fullName;
     }
 
+    ErrorMgr.NoError();
     return return_vec;
 }
 
@@ -1381,6 +1395,8 @@ void SetVSPAEROControlGroupName(const std::string & name, int CSGroupIndex)
     VSPAEROMgr.Update();
 
     VSPAEROMgr.SetCurrentCSGroupName(name);
+
+    ErrorMgr.NoError();
 }
 
 std::string GetVSPAEROControlGroupName( int CSGroupIndex )
@@ -1395,6 +1411,7 @@ std::string GetVSPAEROControlGroupName( int CSGroupIndex )
 
     VSPAEROMgr.Update();
 
+    ErrorMgr.NoError();
     return VSPAEROMgr.GetCurrentCSGGroupName();
 }
 
@@ -1429,6 +1446,8 @@ void AddSelectedToCSGroup( const std::vector <int> &selected, int CSGroupIndex)
     VSPAEROMgr.Update();
 
     VSPAEROMgr.AddSelectedToCSGroup();
+
+    ErrorMgr.NoError();
 }
 
 void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CSGroupIndex)
@@ -1469,10 +1488,13 @@ void RemoveSelectedFromCSGroup( const std::vector <int> &selected, int CSGroupIn
     VSPAEROMgr.Update();
 
     VSPAEROMgr.RemoveSelectedFromCSGroup();
+
+    ErrorMgr.NoError();
 }
 
 int GetNumControlSurfaceGroups()
 {
+    ErrorMgr.NoError();
     return VSPAEROMgr.GetControlSurfaceGroupVec().size();
 }
 
@@ -1514,6 +1536,7 @@ std::string FindUnsteadyGroup( int group_index )
 
     UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( group_index );
     VSPAEROMgr.SetCurrentUnsteadyGroupIndex( group_index ); // Need if RPM is uniform
+    ErrorMgr.NoError();
     return group->GetID();
 }
 
@@ -1529,6 +1552,7 @@ std::string GetUnsteadyGroupName( int group_index )
 
     UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( group_index );
     VSPAEROMgr.SetCurrentUnsteadyGroupIndex( group_index ); // Need if RPM is uniform
+    ErrorMgr.NoError();
     return group->GetName();
 }
 
@@ -1554,6 +1578,7 @@ std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index )
     }
 
     VSPAEROMgr.SetCurrentUnsteadyGroupIndex( group_index ); // Need if RPM is uniform
+    ErrorMgr.NoError();
     return ret_vec;
 }
 
@@ -1579,6 +1604,7 @@ std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index )
     }
 
     VSPAEROMgr.SetCurrentUnsteadyGroupIndex( group_index ); // Need if RPM is uniform
+    ErrorMgr.NoError();
     return ret_vec;
 }
 
@@ -1586,6 +1612,7 @@ int GetNumUnsteadyGroups()
 {
     VSPAEROMgr.UpdateUnsteadyGroups();
 
+    ErrorMgr.NoError();
     return VSPAEROMgr.NumUnsteadyGroups();
 }
 
@@ -1593,6 +1620,7 @@ int GetNumUnsteadyRotorGroups()
 {
     VSPAEROMgr.UpdateUnsteadyGroups();
 
+    ErrorMgr.NoError();
     return VSPAEROMgr.NumUnsteadyRotorGroups();
 }
 
@@ -1610,6 +1638,7 @@ std::string FindActuatorDisk( int disk_index )
     }
 
     RotorDisk* disk = VSPAEROMgr.GetRotorDisk( disk_index );
+    ErrorMgr.NoError();
     return disk->GetID();
 }
 
@@ -1617,6 +1646,7 @@ int GetNumActuatorDisks()
 {
     VSPAEROMgr.UpdateRotorDisks();
 
+    ErrorMgr.NoError();
     return VSPAEROMgr.GetRotorDiskVec().size();
 }
 
@@ -1626,11 +1656,13 @@ int GetNumActuatorDisks()
 
 int GetNumAnalysis()
 {
+  ErrorMgr.NoError();
   return AnalysisMgr.GetNumAnalysis();
 }
 
 std::vector < std::string > ListAnalysis()
 {
+    ErrorMgr.NoError();
     return AnalysisMgr.ListAnalysis();
 }
 
@@ -1645,6 +1677,7 @@ std::vector < std::string > GetAnalysisInputNames( const std::string & analysis 
 
     Analysis *a = AnalysisMgr.FindAnalysis( analysis );
 
+    ErrorMgr.NoError();
     return a->m_Inputs.GetAllDataNames();
 }
 
@@ -1658,6 +1691,7 @@ std::string GetAnalysisDoc( const std::string & analysis )
 
     Analysis *a = AnalysisMgr.FindAnalysis( analysis );
 
+    ErrorMgr.NoError();
     return a->m_Inputs.GetDoc();
 }
 
@@ -1682,6 +1716,7 @@ std::string ExecAnalysis( const std::string & analysis )
         return ret;
     }
 
+    ErrorMgr.NoError();
     return AnalysisMgr.ExecAnalysis( analysis );
 }
 
@@ -1875,6 +1910,7 @@ void PrintAnalysisInputs( const std::string & analysis_name )
     }
 
     AnalysisMgr.PrintAnalysisInputs( analysis_name );
+    ErrorMgr.NoError();
 }
 
 void PrintAnalysisDocs( const std::string & analysis_name )
@@ -1885,6 +1921,7 @@ void PrintAnalysisDocs( const std::string & analysis_name )
     }
 
     AnalysisMgr.PrintAnalysisDocs( analysis_name );
+    ErrorMgr.NoError();
 }
 
 std::string AddGeometryAnalysis()
@@ -1958,26 +1995,31 @@ std::string MakeMeshGeom( const std::string &ga_id )
 
 std::string SummarizeAttributes()
 {
+    ErrorMgr.NoError();
     return AttributeMgr.SummarizeAttributes();
 }
 
 std::string SummarizeAttributesAsTree()
 {
+    ErrorMgr.NoError();
     return AttributeMgr.SummarizeAttributesAsTree();
 }
 
 std::vector < std::string > FindAllAttributes()
 {
+    ErrorMgr.NoError();
     return AttributeMgr.FindAllAttributes();
 }
 
 std::vector < std::string > FindAttributesByName( const std::string & search_str )
 {
+    ErrorMgr.NoError();
     return AttributeMgr.FindAttributesByName( search_str );
 }
 
 std::string FindAttributeByName( const std::string & search_str, int index )
 {
+    ErrorMgr.NoError();
     return AttributeMgr.FindAttributeByName( search_str, index );
 }
 
@@ -1998,6 +2040,7 @@ std::vector< std::string > FindAttributesInCollection( const std::string & collI
 
 std::vector< std::string > FindAttributedObjects()
 {
+    ErrorMgr.NoError();
     return AttributeMgr.FindAttributedObjects();
 }
 
@@ -2028,6 +2071,7 @@ std::string GetChildCollection( const std::string & id )
 
 std::string GetGeomSetCollection( const int & index )
 {
+    ErrorMgr.NoError();
     return AttributeMgr.GetGeomSetCollection( index );
 }
 
@@ -2227,6 +2271,7 @@ std::vector < std::string > PasteAttribute( const std::string & objID )
 /// Get all results names available
 std::vector<std::string> GetAllResultsNames()
 {
+    ErrorMgr.NoError();
     return ResultsMgr.GetAllResultsNames();
 }
 
@@ -2239,12 +2284,14 @@ std::vector< std::string > GetAllDataNames( const std::string & results_id )
         std::vector<std::string> ret_vec;
         return ret_vec;
     }
+    ErrorMgr.NoError();
     return ResultsMgr.GetAllDataNames( results_id );
 }
 
 /// Get the number of results with the given name.
 int GetNumResults( const std::string & name )
 {
+    ErrorMgr.NoError();
     return ResultsMgr.GetNumResults( name );
 }
 
@@ -2258,6 +2305,7 @@ std::string GetResultsName( const std::string & results_id )
         return  ret_str;
     }
 
+    ErrorMgr.NoError();
     return ResultsMgr.FindResultsPtr( results_id )->GetName();
 }
 
@@ -2269,6 +2317,7 @@ std::string GetResultsSetDoc( const std::string & results_id )
         return  "";
     }
 
+    ErrorMgr.NoError();
     return ResultsMgr.FindResultsPtr( results_id )->GetDoc();
 }
 
@@ -2495,16 +2544,19 @@ void WriteResultsCSVFile( const std::string & id, const std::string & file_name 
 void PrintResults( const std::string &results_id )
 {
     ResultsMgr.PrintResults( results_id );
+    ErrorMgr.NoError();
 }
 
 void PrintResultsDocs( const std::string &results_id )
 {
     ResultsMgr.PrintResultsDocs( results_id );
+    ErrorMgr.NoError();
 }
 
 void WriteTestResults()
 {
     ResultsMgr.WriteTestResults();
+    ErrorMgr.NoError();
 }
 
 //===================================================================//
@@ -3460,8 +3512,10 @@ int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind )
     if ( main_surf_ind < 0 || main_surf_ind >= nms )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfType::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
+        return -1;
     }
 
+    ErrorMgr.NoError();
     return geom_ptr->GetMainSurfType(main_surf_ind);
 }
 
@@ -3479,8 +3533,10 @@ int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind )
     if ( main_surf_ind < 0 || main_surf_ind >= geom_ptr->GetNumMainSurfs() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfCfdType::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
+        return -1;
     }
 
+    ErrorMgr.NoError();
     return geom_ptr->GetMainCFDSurfType( main_surf_ind );
 }
 
@@ -3515,6 +3571,7 @@ std::string GetGeomTypeName( const std::string & geom_id )
     }
 
     std::string typ = std::string( geom_ptr->GetType().m_Name );
+    ErrorMgr.NoError();
     return typ;
 }
 
@@ -3667,6 +3724,7 @@ std::string GetGeomParent( const std::string& geom_id )
         return std::string();
     }
 
+    ErrorMgr.NoError();
     return geom_ptr->GetParentID();
 }
 
@@ -3681,6 +3739,7 @@ std::vector< std::string > GetGeomChildren( const std::string& geom_id )
         return std::vector < std::string > {};
     }
 
+    ErrorMgr.NoError();
     return geom_ptr->GetChildIDVec();
 }
 
@@ -3760,6 +3819,7 @@ vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind, bool ref_fr
             bbox.Transform( model_matrix );
         }
 
+        ErrorMgr.NoError();
         return bbox.GetMax();
     }
 
@@ -3782,6 +3842,7 @@ vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind, bool ref_fr
         geom_ptr->GetSurfPtr( main_surf_ind )->GetBoundingBox( bbox );
     }
 
+    ErrorMgr.NoError();
     return bbox.GetMax();
 }
 
@@ -3812,6 +3873,7 @@ vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind, bool ref_fr
             bbox.Transform( model_matrix );
         }
 
+        ErrorMgr.NoError();
         return bbox.GetMin();
     }
 
@@ -3834,6 +3896,7 @@ vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind, bool ref_fr
         geom_ptr->GetSurfPtr( main_surf_ind )->GetBoundingBox( bbox );
     }
 
+    ErrorMgr.NoError();
     return bbox.GetMin();
 }
 
@@ -4766,6 +4829,7 @@ std::string GetFeaPartPerpendicularSparID( const std::string& part_id )
         ret_str = rib_array->GetPerpendicularEdgeID();
     }
 
+    ErrorMgr.NoError();
     return ret_str;
 }
 
@@ -5170,6 +5234,7 @@ std::vector < std::string > GetAllFeaPolySparPtIDVec( const std::string & pspar_
 
 int NumFeaStructures()
 {
+    ErrorMgr.NoError();
     return StructureMgr.NumFeaStructures();
 }
 
@@ -6403,6 +6468,7 @@ void SetXSecSurfGlobalXForm( const std::string & xsec_surf_id, const Matrix4d & 
         return;
     }
     xsec_surf->SetGlobalXForm( mat );
+    ErrorMgr.NoError();
 }
 
 /// Get The Global XForm Matrix For This XSec Surf
@@ -6414,6 +6480,7 @@ Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id );
         return Matrix4d();
     }
+    ErrorMgr.NoError();
     return xsec_surf->GetGlobalXForm();
 }
 
@@ -7411,6 +7478,7 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &alpha, 
     }
 
 
+    ErrorMgr.NoError();
     return y_cl_vec;
 }
 
@@ -7449,6 +7517,7 @@ std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &alpha, 
         std::reverse( y_cd_vec.begin(), y_cd_vec.end() );
     }
 
+    ErrorMgr.NoError();
     return y_cd_vec;
 }
 
@@ -7515,6 +7584,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, cons
         xyzdata[j] = xyzdata[j] / scale;
     }
 
+    ErrorMgr.NoError();
     return xyzdata;
 }
 
@@ -7591,6 +7661,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsi
         cpdata[p] = 1.0 - ( pow( u, 2.0 ) + ( pow( v, 2.0 ) ) );
     }
 
+    ErrorMgr.NoError();
     return cpdata;
 }
 
@@ -7638,6 +7709,7 @@ std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d &abc_r
         }
     }
 
+    ErrorMgr.NoError();
     return surf_pnt_vec;
 }
 
@@ -7739,6 +7811,7 @@ std::vector <double> GetEllipsoidCpDist( const std::vector<vec3d> &surf_pnt_vec,
         cp_vec[i] = 1.0 - pow( ( uvw_vec[i].mag() / V_inf.mag() ), 2.0 );
     }
 
+    ErrorMgr.NoError();
     return cp_vec;
 }
 
@@ -7762,6 +7835,7 @@ double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index )
 
     eli::mutil::quad::simpson< double > quad;
 
+    ErrorMgr.NoError();
     return quad( fun, 0.0, 1.0e8 ); // Integrate from 0 to inf (Note: an upper limit greater than 1.0e8 will produce errors)
 }
 
@@ -10304,6 +10378,7 @@ void ReparameterizeEditXSec( const std::string & xsec_id )
 int GetNumSets()
 {
     Vehicle* veh = GetVehicle();
+    ErrorMgr.NoError();
     return veh->GetSetNameVec().size();
 }
 
@@ -10312,6 +10387,7 @@ void SetSetName( int index, const std::string& name )
 {
     Vehicle* veh = GetVehicle();
     veh->SetSetName( index, name );
+    ErrorMgr.NoError();
 }
 
 /// Get the set name at the provided index
@@ -10332,6 +10408,7 @@ std::string GetSetName( int index )
 std::vector< std::string > GetGeomSetAtIndex( int index )
 {
     Vehicle* veh = GetVehicle();
+    ErrorMgr.NoError();
     return veh->GetGeomSet( index );
 }
 
@@ -10510,6 +10587,7 @@ void ScaleSet( int set_index, double scale )
 
     veh->ClearActiveGeom();
     group_trans->ReInitialize();
+    ErrorMgr.NoError();
 }
 
 void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg )
@@ -10535,6 +10613,7 @@ void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_
 
     veh->ClearActiveGeom();
     group_trans->ReInitialize();
+    ErrorMgr.NoError();
 }
 
 void TranslateSet( int set_index, const vec3d &translation_vec )
@@ -10560,6 +10639,7 @@ void TranslateSet( int set_index, const vec3d &translation_vec )
 
     veh->ClearActiveGeom();
     group_trans->ReInitialize();
+    ErrorMgr.NoError();
 }
 
 void TransformSet( int set_index, const vec3d &translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )
@@ -10590,6 +10670,7 @@ void TransformSet( int set_index, const vec3d &translation_vec, double x_rot_deg
 
     veh->ClearActiveGeom();
     group_trans->ReInitialize();
+    ErrorMgr.NoError();
 }
 
 //===================================================================//
@@ -10599,6 +10680,8 @@ void TransformSet( int set_index, const vec3d &translation_vec, double x_rot_deg
 /// Check if the given parm id is valid
 bool ValidParm( const std::string & parm_id )
 {
+    ErrorMgr.NoError();
+
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
@@ -11178,6 +11261,7 @@ double ComputeMinClearanceDistance( const std::string & geom_id, int set, bool u
     veh->GetSnapToPtr()->m_ModeID = old_modeID;
     veh->SetActiveGeomVec( old_active_geom );
 
+    ErrorMgr.NoError();
     return min_clearance_dist;
 }
 
@@ -11206,6 +11290,7 @@ double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_f
     veh->GetSnapToPtr()->m_ModeID = old_modeID;
     veh->GetSnapToPtr()->m_CollisionTargetDist = old_min_dist;
 
+    ErrorMgr.NoError();
     return min_clearance_dist;
 }
 
@@ -12461,6 +12546,7 @@ void DelMode( const std::string &mid )
 {
     ErrorMgr.NoError();
     ModeMgr.DelMode( mid );
+    ErrorMgr.NoError();
 }
 
 void DelAllModes()
@@ -12550,24 +12636,41 @@ std::string ModeGetGroup( const std::string &mid, int indx )
         return std::string();
     }
 
+    if ( indx < 0 || indx >= ( int )mod->GetAllGroupSettings().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ModeGetGroup::Setting index " + to_string( indx ) + " out of range" );
+        return std::string();
+    }
+
     pair < std::string, std::string > set = mod->GetSetting( indx );
     ErrorMgr.NoError();
     return set.first;
 }
 
-std::string ModeGetSetting( const std::string &mid, int indx )
+static std::string ModeGetSettingImpl( const std::string &mid, int indx, const std::string & caller )
 {
     Mode *mod = ModeMgr.GetMode( mid );
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "ModeGetSetting::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Could not find mode " + mid );
+        return std::string();
+    }
+
+    if ( indx < 0 || indx >= ( int )mod->GetAllGroupSettings().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Setting index " + to_string( indx ) + " out of range" );
         return std::string();
     }
 
     pair < std::string, std::string > set = mod->GetSetting( indx );
     ErrorMgr.NoError();
     return set.second;
+}
+
+std::string ModeGetSetting( const std::string &mid, int indx )
+{
+    return ModeGetSettingImpl( mid, indx, "ModeGetSetting" );
 }
 
 std::vector < std::string > ModeGetAllGroups( const std::string &mid )
@@ -12602,18 +12705,29 @@ std::vector < std::string > ModeGetAllSettings( const std::string &mid )
     return ret;
 }
 
-void RemoveGroupSetting( const std::string &mid, int indx )
+static void RemoveGroupSettingImpl( const std::string &mid, int indx, const std::string & caller )
 {
     Mode *mod = ModeMgr.GetMode( mid );
 
     if ( !mod )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "RemoveGroupSetting::Could not find mode." );
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Could not find mode " + mid );
+        return;
+    }
+
+    if ( indx < 0 || indx >= ( int )mod->GetAllGroupSettings().size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Setting index " + to_string( indx ) + " out of range" );
         return;
     }
 
     mod->RemoveSetting( indx );
     ErrorMgr.NoError();
+}
+
+void RemoveGroupSetting( const std::string &mid, int indx )
+{
+    RemoveGroupSettingImpl( mid, indx, "RemoveGroupSetting" );
 }
 
 void RemoveAllGroupSettings( const std::string &mid )
@@ -12845,7 +12959,19 @@ void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const in
         return;
     }
 
-    return pc->DeletePt( indx );
+    if ( indx <= 0 || indx >= pc->GetNumPts() - 1 )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "PCurveDeletePt::Point index " + to_string( indx ) + " is an end point or out of range" );
+        return;
+    }
+
+    if ( pc->m_CurveType() == vsp::CEDIT && ( indx % 3 ) != 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "PCurveDeletePt::Point index " + to_string( indx ) + " is a CEDIT control point" );
+        return;
+    }
+
+    pc->DeletePt( indx );
 
     ErrorMgr.NoError();
 }
@@ -13059,6 +13185,7 @@ void WriteAtmosphereCSVFile(const std::string & file_name, const int &atmos_type
     res->Add( new NameValData( "Pres_Ratio", pres_ratio_vec, "Pressure ratio." ) );
     res->Add( new NameValData( "Rho_Ratio", rho_ratio_vec, "Density ratio." ) );
     res->WriteCSVFile( file_name );
+    ErrorMgr.NoError();
 }
 
 void CalcAtmosphere(const double & alt, const double & delta_temp, const int & atmos_type,
@@ -13107,6 +13234,7 @@ void WriteBodyFFCSVFile(const std::string & file_name)
         body_ff_vec.clear();
     }
     res->WriteCSVFile( file_name );
+    ErrorMgr.NoError();
 }
 
 void WriteWingFFCSVFile(const std::string & file_name)
@@ -13132,6 +13260,7 @@ void WriteWingFFCSVFile(const std::string & file_name)
         wing_ff_vec.clear();
     }
     res->WriteCSVFile( file_name );
+    ErrorMgr.NoError();
 }
 
 void WriteCfEqnCSVFile(const std::string & file_name)
@@ -13174,6 +13303,7 @@ void WriteCfEqnCSVFile(const std::string & file_name)
     res->Add( new NameValData( "ReyIn", ReyIn_array, "Reynolds number." ) );
     res->Add( new NameValData( "Ref_Leng", ref_leng, "Reference length." ) );
     res->WriteCSVFile( file_name );
+    ErrorMgr.NoError();
 }
 
 void WritePartialCfMethodCSVFile(const std::string & file_name)
@@ -13205,6 +13335,7 @@ void WritePartialCfMethodCSVFile(const std::string & file_name)
     res->Add( new NameValData( "Taw/Tw", taw_tw_ratio, "Taw/Tw temperature ratio." ) );
     res->Add( new NameValData( "Te/Tw", te_tw_ratio, "Te/Tw temperature ratio." ) );
     res->WriteCSVFile( file_name );
+    ErrorMgr.NoError();
 }
 
 //============================================================================//
@@ -14431,17 +14562,20 @@ std::string AddProtractor( const std::string & startgeomid, int startsurfindx, d
 
 std::vector < std::string > GetAllProtractors()
 {
+    ErrorMgr.NoError();
     return MeasureMgr.GetAllProtractors();
 }
 
 void DelProtractor( const std::string &id )
 {
     MeasureMgr.DelProtractor( id );
+    ErrorMgr.NoError();
 }
 
 void DeleteAllProtractors()
 {
     MeasureMgr.DelAllProtractors();
+    ErrorMgr.NoError();
 }
 
 std::string AddRSTProbe( const std::string & geomid, int surfindx, double r, double s, double t, const std::string & name )
@@ -14451,17 +14585,20 @@ std::string AddRSTProbe( const std::string & geomid, int surfindx, double r, dou
 
 std::vector < std::string > GetAllRSTProbes()
 {
+    ErrorMgr.NoError();
     return MeasureMgr.GetAllRSTProbes();
 }
 
 void DelRSTProbe( const std::string &id )
 {
     MeasureMgr.DelRSTProbe( id );
+    ErrorMgr.NoError();
 }
 
 void DeleteAllRSTProbes()
 {
     MeasureMgr.DelAllRSTProbes();
+    ErrorMgr.NoError();
 }
 
 std::vector < vec3d > ControlSurfaceHingeLine( const std::string & id, int surf_indx )
@@ -14516,17 +14653,20 @@ std::string AddRuler( const std::string & startgeomid, int startsurfindx, double
 
 std::vector < std::string > GetAllRulers()
 {
+    ErrorMgr.NoError();
     return MeasureMgr.GetAllRulers();
 }
 
 void DelRuler( const std::string &id )
 {
     MeasureMgr.DelRuler( id );
+    ErrorMgr.NoError();
 }
 
 void DeleteAllRulers()
 {
     MeasureMgr.DelAllRulers();
+    ErrorMgr.NoError();
 }
 
 std::string AddProbe( const std::string & geomid, int surfindx, double u, double w, const std::string & name )
@@ -14536,17 +14676,20 @@ std::string AddProbe( const std::string & geomid, int surfindx, double u, double
 
 std::vector < std::string > GetAllProbes()
 {
+    ErrorMgr.NoError();
     return MeasureMgr.GetAllProbes();
 }
 
 void DelProbe( const std::string &id )
 {
     MeasureMgr.DelProbe( id );
+    ErrorMgr.NoError();
 }
 
 void DeleteAllProbes()
 {
     MeasureMgr.DelAllProbes();
+    ErrorMgr.NoError();
 }
 
 //===================================================================//
@@ -14559,60 +14702,72 @@ void DeleteAllProbes()
 void Print( const std::string & data, bool new_line )
 {
     ::Print( data, new_line );
+    ErrorMgr.NoError();
 }
 
 void Print( const vec3d & data, bool new_line )
 {
     ::Print( data, new_line );
+    ErrorMgr.NoError();
 }
 
 void Print( double data, bool new_line )
 {
     ::Print( data, new_line );
+    ErrorMgr.NoError();
 }
 
 void Print( int data, bool new_line )
 {
     ::Print( data, new_line );
+    ErrorMgr.NoError();
 }
 
 double Min( double x, double y )
 {
+    ErrorMgr.NoError();
     return ::Min( x, y );
 }
 
 double Max( double x, double y )
 {
+    ErrorMgr.NoError();
     return ::Max( x, y );
 }
 
 double Rad2Deg( double r )
 {
+    ErrorMgr.NoError();
     return ::Rad2Deg( r );
 }
 
 double Deg2Rad( double d )
 {
+    ErrorMgr.NoError();
     return ::Deg2Rad( d );
 }
 
 std::string GetVSPVersion()
 {
+    ErrorMgr.NoError();
     return std::string( VSPVERSION4 );
 }
 
 int GetVSPVersionMajor()
 {
+    ErrorMgr.NoError();
     return VSP_VERSION_MAJOR;
 }
 
 int GetVSPVersionMinor()
 {
+    ErrorMgr.NoError();
     return VSP_VERSION_MINOR;
 }
 
 int GetVSPVersionChange()
 {
+    ErrorMgr.NoError();
     return VSP_VERSION_CHANGE;
 }
 
@@ -14621,6 +14776,7 @@ std::string GetVSPExePath()
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
+        ErrorMgr.NoError();
         return veh->GetExePath();
     }
     return std::string();
@@ -14631,6 +14787,7 @@ bool SetVSPAEROPath( const std::string & path )
     Vehicle* veh = VehicleMgr.GetVehicle();
     if( veh )
     {
+        ErrorMgr.NoError();
         return veh->SetVSPAEROPath( path );
     }
     return false;
@@ -14641,6 +14798,7 @@ std::string GetVSPAEROPath()
     Vehicle* veh = VehicleMgr.GetVehicle();
     if( veh )
     {
+        ErrorMgr.NoError();
         return veh->GetVSPAEROPath();
     }
     return std::string();
@@ -14651,6 +14809,7 @@ bool CheckForVSPAERO( const std::string & path )
     Vehicle* veh = VehicleMgr.GetVehicle();
     if( veh )
     {
+        ErrorMgr.NoError();
         return veh->CheckForVSPAERO( path );
     }
     return false;
@@ -14661,6 +14820,7 @@ bool SetVSPHelpPath( const std::string & path )
     Vehicle* veh = VehicleMgr.GetVehicle();
     if( veh )
     {
+        ErrorMgr.NoError();
         return veh->SetHelpPath( path );
     }
     return false;
@@ -14671,6 +14831,7 @@ std::string GetVSPHelpPath()
     Vehicle* veh = VehicleMgr.GetVehicle();
     if( veh )
     {
+        ErrorMgr.NoError();
         return veh->GetHelpPath();
     }
     return std::string();
@@ -14681,6 +14842,7 @@ bool CheckForVSPHelp( const std::string & path )
     Vehicle* veh = VehicleMgr.GetVehicle();
     if( veh )
     {
+        ErrorMgr.NoError();
         return veh->CheckForHelp( path );
     }
     return false;

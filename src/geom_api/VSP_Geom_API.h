@@ -13396,7 +13396,7 @@ extern int GetTotalNumSurfs( const std::string& geom_id );
     \sa VSP_SURF_TYPE
     \param [in] geom_id string Geom ID
     \param [in] main_surf_ind int Main surface index
-    \return int VSP surface type enum (i.e. DISK_SURF)
+    \return int VSP surface type enum (i.e. DISK_SURF), or -1 if the Geom or index is invalid
 */
 
 extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0 );
@@ -13432,7 +13432,7 @@ extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0
     \sa VSP_SURF_CFD_TYPE
     \param [in] geom_id string Geom ID
     \param [in] main_surf_ind int Main surface index
-    \return int VSP surface CFD type enum (i.e. CFD_TRANSPARENT)
+    \return int VSP surface CFD type enum (i.e. CFD_TRANSPARENT), or -1 if the Geom or index is invalid
 */
 
 extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind = 0 );
@@ -39661,7 +39661,8 @@ extern std::vector < double > PCurveGetValVec( const std::string & geom_id, cons
     \ingroup PCurve
 */
 /*!
-    Delete a propeller blade curve (P Curve) point
+    Delete a propeller blade curve (P Curve) point. An end point cannot be deleted, nor, on a CEDIT curve, a control point
+    between two end points of a segment.
     \forcpponly
     \code{.cpp}
     string prop_id = AddGeom( "PROP" );
