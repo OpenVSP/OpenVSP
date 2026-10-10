@@ -2653,7 +2653,7 @@ extern void ComputeDegenGeom( int set, int file_export_types );
     \ingroup CFDMesh
 */
 /*!
-    Create a CFD Mesh for the components in the set. This analysis cannot be run through the Analysis Manager.
+    Create a CFD Mesh for the components in the set. This analysis cannot be run through the Analysis Manager. When the CFD Mesh UseMode flag is on, the sets of its mode replace set and degenset.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
