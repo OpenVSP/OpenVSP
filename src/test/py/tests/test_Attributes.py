@@ -254,6 +254,20 @@ def testASectionCopiedAgainAndAgainPastesOneCopyOfItsAttributes():
     pop_errors()
 
 
+def testAttributesFoundByNameComeInAStableOrder():
+    """FindAttributesByName returns its matches sorted by name, and FindAttributeByName indexes that order."""
+    fresh()
+    for i in range( 12 ):
+        pod = vsp.AddGeom( "POD" )
+        vsp.AddAttributeDouble( vsp.GetChildCollection( pod ), "Weight %02d" % ( 11 - i ), float( i ) )
+    vsp.Update()
+    found = list( vsp.FindAttributesByName( "Weight" ) )
+    names = [ vsp.GetAttributeName( a ) for a in found ]
+    assert names == sorted( names ), names
+    for i, attr in enumerate( found ):
+        assert vsp.FindAttributeByName( "Weight", i ) == attr
+
+
 def testPastingAttributesOntoAnUnknownIDPastesNothing():
     vsp.VSPRenew()
     pod = vsp.AddGeom( "POD" )

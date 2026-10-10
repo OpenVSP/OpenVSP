@@ -5820,7 +5820,7 @@ extern std::vector < std::string > FindAllAttributes();
     \ingroup Attributes
 */
 /*!
-    Returns all attributes that contain the string search_str within their name, case insensitive
+    Returns all attributes that contain the string search_str within their name, case insensitive, sorted by name and then by ID
     \forcpponly
     \code{.cpp}
     //==== Attributes: FindAttributesByName ====//
@@ -5857,7 +5857,7 @@ extern std::vector < std::string > FindAttributesByName( const std::string & sea
     \ingroup Attributes
 */
 /*!
-    Searches all attributes that contain the search string, case insensitive, and returns the user-specified index
+    Searches all attributes that contain the search string, case insensitive, and returns the user-specified index into them, sorted by name and then by ID as FindAttributesByName returns them
     \forcpponly
     \code{.cpp}
     //==== Attributes: FindAttributeByName ====//

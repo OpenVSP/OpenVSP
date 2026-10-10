@@ -28,6 +28,7 @@
 
 #include "IDMgr.h"
 
+#include <algorithm>
 #include <iomanip>
 #include <sstream>
 
@@ -388,6 +389,18 @@ vector < string > AttributeMgrSingleton::FindAttributesByName( const string & se
                 attribute_ids.push_back( attrIter->first );
             }
     }
+
+    // The map is unordered; sort by name, then ID, so FindAttributeByName's index is stable
+    std::sort( attribute_ids.begin(), attribute_ids.end(), [this]( const string & a, const string & b )
+    {
+        const string & na = m_AttrPtrMap[ a ]->GetName();
+        const string & nb = m_AttrPtrMap[ b ]->GetName();
+        if ( na != nb )
+        {
+            return na < nb;
+        }
+        return a < b;
+    } );
     return attribute_ids;
 }
 
