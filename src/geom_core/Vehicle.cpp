@@ -669,6 +669,7 @@ void Vehicle::Wype()
     m_DegenGeomModeID = string();
     m_PlanarSlicesModeID = string();
     m_ExportModeID = string();
+    m_SnapTo.m_ModeID = string();
 
     // Named a Geom that the loop below deletes.
     m_LastMassMeshID = string();
@@ -718,7 +719,6 @@ void Vehicle::Wype()
     AdvLinkMgr.Renew();
     DesignVarMgr.Renew();
     FitModelMgr.Renew();
-    AnalysisMgr.Renew();
     VarPresetMgr.Renew();
     OldVarPresetMgr.Renew();
     ModeMgr.Renew();
@@ -730,6 +730,9 @@ void Vehicle::Wype()
     Background3DMgr.Renew();
     StructureMgr.Renew();
     GeometryAnalysisMgr.Renew();
+
+    // The analyses take their defaults from the managers above
+    AnalysisMgr.Renew();
 
     ResultsMgr.DeleteAllResults();
 

@@ -128,6 +128,9 @@ void WaveDragSingleton::Renew()
     m_SSFlow_vec.clear();
     m_CompIDVec.clear();
 
+    // Named a Mode that Renew deletes.
+    m_ModeID = string();
+
     // What the last slice left behind.  Setup sizes most of this again on the next run,
     // but until then the plot screen is drawing the model that is gone.
     m_NTheta = 0;

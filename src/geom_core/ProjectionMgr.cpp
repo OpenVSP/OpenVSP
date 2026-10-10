@@ -50,6 +50,14 @@ void ProjectionMgrSingleton::Renew()
 {
     Wype();
     Init();
+
+    m_TargetSetIndex = DEFAULT_SET;
+    m_BoundarySetIndex = DEFAULT_SET;
+
+    m_ModeID = string();
+    m_TargetGeomID = string();
+    m_BoundaryGeomID = string();
+    m_DirectionGeomID = string();
 }
 
 void ProjectionMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )

@@ -78,3 +78,23 @@ def testAGeometryAnalysisWithoutItsModeUsesItsPrimarySet():
     by_set = geometry_analysis_result( vsp.SET_TARGET )
     assert len( by_set ) == 1
     assert geometry_analysis_result( vsp.MODE_TARGET ) == by_set
+
+
+def testFileNewForgetsTheWaveDragMode():
+    vsp.VSPRenew()
+    vsp.AddGeom( "POD" )
+    mid = vsp.CreateAndAddMode( "Mode", vsp.SET_ALL, vsp.SET_NONE )
+
+    # The file names Wave Drag's Mode
+    fname = os.path.join( tempfile.mkdtemp(), "wavedrag_mode.vsp3" )
+    vsp.WriteVSPFile( fname )
+    tree = xml.etree.ElementTree.parse( fname )
+    tree.getroot().find( "WaveDragMgr" ).find( "ModeID" ).text = mid
+    tree.write( fname )
+    vsp.ClearVSPModel()
+    vsp.ReadVSPFile( fname )
+    vsp.SetAnalysisInputDefaults( "WaveDrag" )
+    assert vsp.GetStringAnalysisInput( "WaveDrag", "ModeID" )[0] == mid
+
+    vsp.VSPRenew()
+    assert vsp.GetStringAnalysisInput( "WaveDrag", "ModeID" )[0] == ""
