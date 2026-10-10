@@ -13,11 +13,9 @@
 
 #include "Link.h"
 #include "UserParmContainer.h"
-#include <deque>
 #include <set>
 using std::string;
 using std::vector;
-using std::deque;
 using std::set;
 
 //==== Parm Link Manager ====//

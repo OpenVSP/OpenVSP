@@ -12,10 +12,8 @@
 #define ADVLINKMGR__INCLUDED_
 
 #include "AdvLink.h"
-#include <deque>
 using std::string;
 using std::vector;
-using std::deque;
 
 
 //==== Adv Link Manager ====//

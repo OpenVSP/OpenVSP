@@ -22,7 +22,6 @@
 #include <cassert>
 
 #include <vector>
-#include <deque>
 #include <list>
 using namespace std;
 
