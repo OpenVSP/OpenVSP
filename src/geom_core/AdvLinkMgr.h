@@ -58,6 +58,7 @@ public:
     vector< string > GetLinkNames();
 
     bool DuplicateLinkName( const string & name );
+    bool SetLinkName( AdvLink* link_ptr, const string & name );
 
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );

@@ -49771,7 +49771,7 @@ extern std::string GetAdvLinkName( int index );
     \ingroup AdvancedLink
 */
 /*!
-    Set the name of an advanced link.
+    Set the name of an advanced link. Links are found by name, so a name another link already has is refused with an error.
     \forcpponly
     \code{.cpp}
     AddAdvLink( "ExampleLink" );
@@ -49841,7 +49841,7 @@ extern void SetAdvLinkName( int index, const std::string & name );
     \ingroup AdvancedLink
 */
 /*!
-    Delete one advanced link, by index.
+    Delete one advanced link, by index. An index out of range is an error.
     \forcpponly
     \code{.cpp}
     AddAdvLink( "TestLink" );

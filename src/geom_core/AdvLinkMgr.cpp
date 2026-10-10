@@ -57,6 +57,21 @@ bool AdvLinkMgrSingleton::DuplicateLinkName( const string & name )
     return false;
 }
 
+//==== Rename a link, refusing a name another link has ====//
+bool AdvLinkMgrSingleton::SetLinkName( AdvLink* link_ptr, const string & name )
+{
+    if ( !link_ptr )
+    {
+        return false;
+    }
+    if ( link_ptr->GetName() != name && DuplicateLinkName( name ) )
+    {
+        return false;
+    }
+    link_ptr->SetName( name );
+    return true;
+}
+
 //==== Add A Link =====//
 AdvLink* AdvLinkMgrSingleton::AddLink( const string & name )
 {

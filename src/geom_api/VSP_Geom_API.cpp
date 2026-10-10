@@ -15817,13 +15817,24 @@ void SetAdvLinkName( int index, const std::string & name )
         return;
     }
 
-    adv_link->SetName( name );
+    // Links are found by name, so a name another link has is refused
+    if ( !AdvLinkMgr.SetLinkName( adv_link, name ) )
+    {
+        ErrorMgr.AddError( VSP_DUPLICATE_NAME, "SetAdvLinkName::Another Advanced Link is named " + name );
+        return;
+    }
 
     ErrorMgr.NoError();
 }
 
 void DelAdvLink( int index )
 {
+    if ( !AdvLinkMgr.GetLink( index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelAdvLink::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
     AdvLinkMgr.DelLink( index );
 
     ErrorMgr.NoError();
