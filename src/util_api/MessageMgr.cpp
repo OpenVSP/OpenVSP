@@ -9,7 +9,7 @@
 
 using std::unordered_map;
 using std::string;
-using std::deque;
+using std::vector;
 
 //==== Message Data ====//
 MessageData::MessageData()
@@ -87,11 +87,11 @@ void MessageMgr::Register( MessageBase* msg_base )
  */
 void MessageMgr::UnRegister( MessageBase* msg_base )
 {
-    unordered_map< string, deque< MessageBase* > >::iterator iter = m_MessageRegMap.begin();
+    unordered_map< string, vector< MessageBase* > >::iterator iter = m_MessageRegMap.begin();
 
     while ( iter != m_MessageRegMap.end() )
     {
-        deque< MessageBase* > & listeners = iter->second;
+        vector< MessageBase* > & listeners = iter->second;
 
         listeners.erase( std::remove( listeners.begin(), listeners.end(), msg_base ), listeners.end() );
 
@@ -136,7 +136,7 @@ void MessageMgr::Send( const string& to_name, const MessageData& data )
  */
 void MessageMgr::Send( const string& to_name, const MessageBase* from_base, const MessageData& data  )
 {
-    unordered_map< string, deque< MessageBase* > >::iterator iter;
+    unordered_map< string, vector< MessageBase* > >::iterator iter;
 
     iter = m_MessageRegMap.find( to_name );
     if ( iter != m_MessageRegMap.end() )
@@ -175,7 +175,7 @@ void MessageMgr::SendAll( const MessageData& data )
  */
 void MessageMgr::SendAll( const MessageBase* from_base, const MessageData& data  )
 {
-    unordered_map< string, deque< MessageBase* > >::iterator iter;
+    unordered_map< string, vector< MessageBase* > >::iterator iter;
 
     for ( iter = m_MessageRegMap.begin(); iter != m_MessageRegMap.end(); ++iter )
     {

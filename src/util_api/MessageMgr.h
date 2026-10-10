@@ -35,7 +35,6 @@
 
 #include <string>
 #include <vector>
-#include <deque>
 #include <unordered_map>
 
 using std::string;
@@ -113,7 +112,7 @@ private:
     MessageMgr( MessageMgr const& copy ) = delete;          // Not Implemented
     MessageMgr& operator=( MessageMgr const& copy ) = delete; // Not Implemented
 
-    std::unordered_map< string, std::deque< MessageBase* > > m_MessageRegMap;
+    std::unordered_map< string, std::vector< MessageBase* > > m_MessageRegMap;
 
 public:
     /** @brief Get common instance of MessageMgr.
