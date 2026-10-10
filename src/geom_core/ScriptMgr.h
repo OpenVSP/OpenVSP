@@ -163,6 +163,11 @@ private:
     CScriptArray* GetGeometryAnalysisElevationParmVec( const string & geom_analysis_id );
     CScriptArray* GetGeometryAnalysisCutoutVec( const string & geom_analysis_id );
     CScriptArray* GetWaveDragFlowSubSurfVec();
+    CScriptArray* GetLightIDVec();
+    CScriptArray* GetAllParmLinks();
+    CScriptArray* FindResultsIDs( const string & name );
+    CScriptArray* GetAllResultsIDs();
+    CScriptArray* GetAttributeIDVec( const string & collID, const string & attributeName );
     CScriptArray* GetAvailableCSNameVec( int CSGroupIndex );
     CScriptArray* GetAvailableCSNameVecByID( const string & group_id );
     CScriptArray* GetAvailableCSSubSurfIDVec( const string & group_id );
@@ -215,6 +220,7 @@ private:
     CScriptArray* FindAttributesByName( const string & search_str );
     CScriptArray* FindAttributeNamesInCollection( const string & collID );
     CScriptArray* FindAttributesInCollection( const string & collID );
+    CScriptArray* FindAttributesInCollectionByName( const string & obj_id, const string & search_str );
 
     CScriptArray* GetAttributeBoolVal( const string & attrID );
     CScriptArray* GetAttributeIntVal( const string & attrID );

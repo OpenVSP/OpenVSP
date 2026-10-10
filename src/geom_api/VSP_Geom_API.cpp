@@ -40,6 +40,7 @@
 #include "RoutingGeom.h"
 #include "AuxiliaryGeom.h"
 #include "GearGeom.h"
+#include "GeomEngine.h"
 #include "StackGeom.h"
 #include "StructureMgr.h"
 #include "SubSurfaceMgr.h"
@@ -2810,6 +2811,18 @@ std::vector< std::string > FindAttributesInCollection( const std::string & collI
     return AttributeMgr.FindAttributesInCollection( collID );
 }
 
+std::vector< std::string > FindAttributesInCollectionByName( const std::string & obj_id, const std::string & search_str )
+{
+    if ( !AttributeMgr.GetCollectionPtr( obj_id ) && !AttributeMgr.GetCollectionFromParentID( obj_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindAttributesInCollectionByName::Can't Find Attribute Collection " + obj_id );
+        return std::vector< std::string >();
+    }
+
+    ErrorMgr.NoError();
+    return AttributeMgr.FindAttributesInCollection( obj_id, search_str );
+}
+
 std::vector< std::string > FindAttributedObjects()
 {
     ErrorMgr.NoError();
@@ -2855,6 +2868,26 @@ std::string GetAttributeName( const std::string & attrID )
 std::string GetAttributeID( const std::string & collID, const std::string & attributeName, int index )
 {
     return AttributeMgr.GetAttributeID( collID, attributeName, index );
+}
+
+std::vector< std::string > GetAttributeIDVec( const std::string & collID, const std::string & attributeName )
+{
+    std::vector< std::string > ret_vec;
+
+    AttributeCollection* coll = AttributeMgr.GetCollectionPtr( collID );
+    if ( !coll )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAttributeIDVec::Can't Find Attribute Collection " + collID );
+        return ret_vec;
+    }
+
+    for ( int i = 0; coll->FindPtr( attributeName, i ); i++ )
+    {
+        ret_vec.push_back( coll->FindPtr( attributeName, i )->GetID() );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 std::string GetAttributeDoc( const std::string & attrID )
@@ -3116,6 +3149,39 @@ std::string FindResultsID( const std::string & name, int index )
     }
     ErrorMgr.NoError();
     return id;
+}
+
+std::vector < std::string > FindResultsIDs( const std::string & name )
+{
+    std::vector < std::string > ret_vec;
+
+    for ( int i = 0; i < ResultsMgr.GetNumResults( name ); i++ )
+    {
+        ret_vec.push_back( ResultsMgr.FindResultsID( name, i ) );
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+std::vector < std::string > GetAllResultsIDs()
+{
+    std::vector < std::string > ret_vec;
+
+    // The names come from an unordered map; sort them so the IDs come in a stable order
+    std::vector < std::string > names = ResultsMgr.GetAllResultsNames();
+    std::sort( names.begin(), names.end() );
+
+    for ( size_t i = 0; i < names.size(); i++ )
+    {
+        for ( int j = 0; j < ResultsMgr.GetNumResults( names[i] ); j++ )
+        {
+            ret_vec.push_back( ResultsMgr.FindResultsID( names[i], j ) );
+        }
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 /// Return the id of the latest results with the given results name
@@ -3647,6 +3713,23 @@ std::string FindLight( int index )
 
     ErrorMgr.NoError();
     return lights[ index ]->GetID();
+}
+
+std::vector < std::string > GetLightIDVec()
+{
+    std::vector < std::string > ret_vec;
+
+    vector < Light* > lights = LightMgr.GetVec();
+    for ( size_t i = 0; i < lights.size(); i++ )
+    {
+        if ( lights[i] )
+        {
+            ret_vec.push_back( lights[i]->GetID() );
+        }
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 void SetBackground( double r, double g, double b )
@@ -4498,6 +4581,110 @@ std::string GetGeomParent( const std::string& geom_id )
 
     ErrorMgr.NoError();
     return geom_ptr->GetParentID();
+}
+
+//==== An ancestor's ID, or an empty string past the top of the tree ====//
+std::string AncestorIDOrNone( Geom* geom_ptr, int gen )
+{
+    std::string id = geom_ptr->GetAncestorID( gen );
+    if ( id == "NONE" )
+    {
+        return std::string();
+    }
+    return id;
+}
+
+std::string GetGeomSymAncestorID( const std::string & geom_id )
+{
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomSymAncestorID::Can't Find Geom " + geom_id );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return AncestorIDOrNone( geom_ptr, geom_ptr->m_SymAncestor() - 1 );
+}
+
+std::string GetGeomIncorporatedAncestorID( const std::string & geom_id )
+{
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomIncorporatedAncestorID::Can't Find Geom " + geom_id );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return AncestorIDOrNone( geom_ptr, geom_ptr->m_GroupedAncestorGen() );
+}
+
+//==== The generation of a Geom's ancestor by ID, reporting through the named caller
+//==== when it is not one ====//
+int FindAncestorGen( Geom* geom_ptr, const std::string & ancestor_id, const std::string & caller )
+{
+    for ( int gen = 0; ; gen++ )
+    {
+        std::string id = geom_ptr->GetAncestorID( gen );
+        if ( id.empty() || id == "NONE" )
+        {
+            break;
+        }
+        if ( id == ancestor_id )
+        {
+            return gen;
+        }
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, caller + "::Geom " + ancestor_id + " is not an ancestor of " + geom_ptr->GetID() );
+    return -1;
+}
+
+void SetGeomSymAncestorID( const std::string & geom_id, const std::string & ancestor_id )
+{
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomSymAncestorID::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    // Generation 0 is the global origin, 1 the Geom itself
+    if ( ancestor_id.empty() )
+    {
+        geom_ptr->m_SymAncestor = 0;
+        ErrorMgr.NoError();
+        return;
+    }
+
+    int gen = FindAncestorGen( geom_ptr, ancestor_id, "SetGeomSymAncestorID" );
+    if ( gen < 0 )
+    {
+        return;
+    }
+
+    geom_ptr->m_SymAncestor = gen + 1;
+    ErrorMgr.NoError();
+}
+
+void SetGeomIncorporatedAncestorID( const std::string & geom_id, const std::string & ancestor_id )
+{
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetGeomIncorporatedAncestorID::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    int gen = FindAncestorGen( geom_ptr, ancestor_id, "SetGeomIncorporatedAncestorID" );
+    if ( gen < 0 )
+    {
+        return;
+    }
+
+    geom_ptr->m_GroupedAncestorGen = gen;
+    ErrorMgr.NoError();
 }
 
 // Get all children of a Geom
@@ -8243,6 +8430,237 @@ std::vector < std::string > GetXSecIDVec( const std::string & xsec_surf_id )
 
     ErrorMgr.NoError();
     return ret_vec;
+}
+
+//==== One of an engine Geom's face or lip index Parms, reporting through the named caller ====//
+IntParm* FindEngineXSecIndex( const std::string & geom_id, int which, const std::string & caller )
+{
+    GeomEngine* eng = dynamic_cast < GeomEngine* > ( GetVehicle()->FindGeom( geom_id ) );
+    if ( !eng )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Engine Geom " + geom_id );
+        return nullptr;
+    }
+
+    if ( which == 0 )
+    {
+        return &eng->m_EngineInFaceIndex;
+    }
+    if ( which == 1 )
+    {
+        return &eng->m_EngineInLipIndex;
+    }
+    if ( which == 2 )
+    {
+        return &eng->m_EngineOutFaceIndex;
+    }
+    return &eng->m_EngineOutLipIndex;
+}
+
+//==== Set an engine face or lip index Parm from an XSec ID ====//
+void SetEngineXSecID( const std::string & geom_id, int which, const std::string & xsec_id, const std::string & caller )
+{
+    IntParm* indx = FindEngineXSecIndex( geom_id, which, caller );
+    if ( !indx )
+    {
+        return;
+    }
+
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, caller );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    if ( geom_ptr->GetID() != geom_id )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::XSec " + xsec_id + " is not on Geom " + geom_id );
+        return;
+    }
+
+    indx->Set( index );
+    ErrorMgr.NoError();
+}
+
+//==== The XSec ID an engine face or lip index Parm names ====//
+std::string GetEngineXSecID( const std::string & geom_id, int which, const std::string & caller )
+{
+    IntParm* indx = FindEngineXSecIndex( geom_id, which, caller );
+    if ( !indx )
+    {
+        return std::string();
+    }
+
+    XSec* xs = GetVehicle()->FindGeom( geom_id )->GetXSecSurf( 0 )->FindXSec( indx->Get() );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find XSec " + to_string( indx->Get() ) );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return xs->GetID();
+}
+
+void SetEngineInletFaceXSecID( const std::string & geom_id, const std::string & xsec_id )
+{
+    SetEngineXSecID( geom_id, 0, xsec_id, "SetEngineInletFaceXSecID" );
+}
+
+std::string GetEngineInletFaceXSecID( const std::string & geom_id )
+{
+    return GetEngineXSecID( geom_id, 0, "GetEngineInletFaceXSecID" );
+}
+
+void SetEngineInletLipXSecID( const std::string & geom_id, const std::string & xsec_id )
+{
+    SetEngineXSecID( geom_id, 1, xsec_id, "SetEngineInletLipXSecID" );
+}
+
+std::string GetEngineInletLipXSecID( const std::string & geom_id )
+{
+    return GetEngineXSecID( geom_id, 1, "GetEngineInletLipXSecID" );
+}
+
+void SetEngineOutletFaceXSecID( const std::string & geom_id, const std::string & xsec_id )
+{
+    SetEngineXSecID( geom_id, 2, xsec_id, "SetEngineOutletFaceXSecID" );
+}
+
+std::string GetEngineOutletFaceXSecID( const std::string & geom_id )
+{
+    return GetEngineXSecID( geom_id, 2, "GetEngineOutletFaceXSecID" );
+}
+
+void SetEngineOutletLipXSecID( const std::string & geom_id, const std::string & xsec_id )
+{
+    SetEngineXSecID( geom_id, 3, xsec_id, "SetEngineOutletLipXSecID" );
+}
+
+std::string GetEngineOutletLipXSecID( const std::string & geom_id )
+{
+    return GetEngineXSecID( geom_id, 3, "GetEngineOutletLipXSecID" );
+}
+
+//==== A spar's, rib's or rib array's start or end wing section Parm, reporting through
+//==== the named caller when the part has none ====//
+IntParm* FindFeaPartWingSection( const std::string & part_id, bool end, const std::string & caller )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FEA Part " + part_id );
+        return nullptr;
+    }
+
+    FeaSpar* spar = dynamic_cast < FeaSpar* > ( part );
+    FeaRib* rib = dynamic_cast < FeaRib* > ( part );
+    FeaRibArray* rib_array = dynamic_cast < FeaRibArray* > ( part );
+
+    if ( spar )
+    {
+        if ( end )
+        {
+            return &spar->m_EndWingSection;
+        }
+        return &spar->m_StartWingSection;
+    }
+    if ( rib )
+    {
+        if ( end )
+        {
+            return &rib->m_EndWingSection;
+        }
+        return &rib->m_StartWingSection;
+    }
+    if ( rib_array )
+    {
+        if ( end )
+        {
+            return &rib_array->m_EndWingSection;
+        }
+        return &rib_array->m_StartWingSection;
+    }
+
+    ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::FEA Part " + part_id + " is not a spar, rib or rib array" );
+    return nullptr;
+}
+
+//==== Set a wing section Parm of a FEA part from the section's XSec ID ====//
+void SetFeaPartWingSectionID( const std::string & part_id, const std::string & xsec_id, bool end, const std::string & caller )
+{
+    IntParm* sect = FindFeaPartWingSection( part_id, end, caller );
+    if ( !sect )
+    {
+        return;
+    }
+
+    int index = -1;
+    Geom* geom_ptr = FindXSecGeom( xsec_id, index, caller );
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    if ( geom_ptr->GetID() != StructureMgr.GetFeaPart( part_id )->GetParentGeomID() || index < 1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::XSec " + xsec_id + " is not a section of the part's wing" );
+        return;
+    }
+
+    // The part's own limits tie start and end together; open them to the whole wing so one
+    // can move past the other, and the part's next Update ties them again
+    sect->SetLowerUpperLimits( 1, geom_ptr->GetXSecSurf( 0 )->NumXSec() - 1 );
+    sect->Set( index );
+
+    ErrorMgr.NoError();
+}
+
+//==== The XSec ID of a wing section Parm of a FEA part ====//
+std::string GetFeaPartWingSectionID( const std::string & part_id, bool end, const std::string & caller )
+{
+    IntParm* sect = FindFeaPartWingSection( part_id, end, caller );
+    if ( !sect )
+    {
+        return std::string();
+    }
+
+    Geom* geom_ptr = GetVehicle()->FindGeom( StructureMgr.GetFeaPart( part_id )->GetParentGeomID() );
+    XSec* xs = nullptr;
+    if ( geom_ptr && geom_ptr->GetXSecSurf( 0 ) )
+    {
+        xs = geom_ptr->GetXSecSurf( 0 )->FindXSec( sect->Get() );
+    }
+
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, caller + "::Can't Find Wing Section " + to_string( sect->Get() ) );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return xs->GetID();
+}
+
+void SetFeaPartStartWingSectionID( const std::string & part_id, const std::string & xsec_id )
+{
+    SetFeaPartWingSectionID( part_id, xsec_id, false, "SetFeaPartStartWingSectionID" );
+}
+
+std::string GetFeaPartStartWingSectionID( const std::string & part_id )
+{
+    return GetFeaPartWingSectionID( part_id, false, "GetFeaPartStartWingSectionID" );
+}
+
+void SetFeaPartEndWingSectionID( const std::string & part_id, const std::string & xsec_id )
+{
+    SetFeaPartWingSectionID( part_id, xsec_id, true, "SetFeaPartEndWingSectionID" );
+}
+
+std::string GetFeaPartEndWingSectionID( const std::string & part_id )
+{
+    return GetFeaPartWingSectionID( part_id, true, "GetFeaPartEndWingSectionID" );
 }
 
 /// Change the shape of a particular XSec
@@ -18630,6 +19048,23 @@ std::string GetParmLinkID( int index )
 
     ErrorMgr.NoError();
     return lnk->GetID();
+}
+
+std::vector < std::string > GetAllParmLinks()
+{
+    std::vector < std::string > ret_vec;
+
+    for ( int i = 0; i < LinkMgr.GetNumLinks(); i++ )
+    {
+        Link* lnk = LinkMgr.GetLink( i );
+        if ( lnk )
+        {
+            ret_vec.push_back( lnk->GetID() );
+        }
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 std::string GetParmLinkAParm( const std::string & link_id )

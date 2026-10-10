@@ -417,7 +417,7 @@ string AttributeMgrSingleton::FindAttributeByName( const string & search_str, in
     return attribute_id;
 }
 
-string AttributeMgrSingleton::FindAttributeInCollection( const string & obj_id, const string & search_str, int index )
+vector< string > AttributeMgrSingleton::FindAttributesInCollection( const string & obj_id, const string & search_str )
 {
     // if collection id,  search collection
     // if object id, search its collection
@@ -426,8 +426,6 @@ string AttributeMgrSingleton::FindAttributeInCollection( const string & obj_id, 
 
     string lower_str = ToLower( search_str );
     string lower_aname;
-
-    string attribute_id = "ID_ERROR";
 
     AttributeCollection* coll;
     AttributeCollection* coll_from_obj;
@@ -461,11 +459,18 @@ string AttributeMgrSingleton::FindAttributeInCollection( const string & obj_id, 
         }
     }
 
+    return attribute_ids;
+}
+
+string AttributeMgrSingleton::FindAttributeInCollection( const string & obj_id, const string & search_str, int index )
+{
+    vector< string > attribute_ids = FindAttributesInCollection( obj_id, search_str );
+
     if ( index >-1 && index < attribute_ids.size() )
     {
-        attribute_id = attribute_ids.at( index );
+        return attribute_ids.at( index );
     }
-    return attribute_id;
+    return "ID_ERROR";
 }
 
 vector< string > AttributeMgrSingleton::FindAttributedObjects()

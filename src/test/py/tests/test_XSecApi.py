@@ -70,3 +70,34 @@ def testCutCopyPasteInsertAndSplitCheckTheIndex():
     vsp.CutXSec( wid, 1 )
     assert pop_errors(), "CutXSec cut a wing's only section"
     assert vsp.GetNumXSec( wsurf ) == n
+
+
+def testASparsWingSectionsCanPassEachOther():
+    vsp.VSPRenew()
+    wid = vsp.AddGeom( "WING" )
+    vsp.InsertXSec( wid, 1, vsp.XS_FOUR_SERIES )
+    surf = vsp.GetXSecSurf( wid, 0 )
+    sid = vsp.AddFeaStructure( wid )
+    spar = vsp.AddFeaPartByID( sid, vsp.FEA_SPAR )
+    vsp.Update()
+    drop_errors()
+    vsp.SetFeaPartStartWingSectionID( spar, vsp.GetXSec( surf, 2 ) )
+    vsp.SetFeaPartEndWingSectionID( spar, vsp.GetXSec( surf, 2 ) )
+    assert_no_errors()
+    assert vsp.GetFeaPartStartWingSectionID( spar ) == vsp.GetXSec( surf, 2 )
+    assert vsp.GetFeaPartEndWingSectionID( spar ) == vsp.GetXSec( surf, 2 )
+
+
+def testAnAncestorSetterTakesOnlyAnAncestor():
+    vsp.VSPRenew()
+    parent = vsp.AddGeom( "POD" )
+    child = vsp.AddGeom( "POD", parent )
+    other = vsp.AddGeom( "POD" )
+    drop_errors()
+    vsp.SetGeomSymAncestorID( child, other )
+    assert pop_errors(), "a Geom that is not an ancestor was taken"
+    vsp.SetGeomIncorporatedAncestorID( child, other )
+    assert pop_errors(), "a Geom that is not an ancestor was taken"
+    vsp.SetGeomSymAncestorID( child, "" )
+    assert_no_errors()
+    assert vsp.GetGeomSymAncestorID( child ) == ""

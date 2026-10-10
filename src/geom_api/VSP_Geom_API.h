@@ -7271,11 +7271,58 @@ extern std::vector< std::string > FindAttributeNamesInCollection(const std::stri
 
     \endcode
     \endPythonOnly
+    \sa FindAttributesInCollectionByName
     \return vector\<string\> Vector of attribute IDs in an attribute collection.
     \param [in] collID string ID of an attribute collection
 */
 
 extern std::vector< std::string > FindAttributesInCollection(const std::string & collID );
+
+/*!
+    \ingroup Attributes
+*/
+/*!
+    Get the IDs of the attributes of an object or collection whose names contain a search string, ignoring case.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string coll_id = GetChildCollection( pod_id );
+
+    string attr_id = AddAttributeString( coll_id, "Supplier", "Acme" );
+
+    AddAttributeString( coll_id, "Finish", "Matte" );
+
+    array< string > @ids = FindAttributesInCollectionByName( pod_id, "supp" );
+
+    if ( ids.size() != 1 || ids[0] != attr_id )
+    {
+        Print( "ERROR: FindAttributesInCollectionByName did not find the attribute" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    coll_id = GetChildCollection( pod_id )
+
+    attr_id = AddAttributeString( coll_id, "Supplier", "Acme" )
+
+    AddAttributeString( coll_id, "Finish", "Matte" )
+
+    assert list( FindAttributesInCollectionByName( pod_id, "supp" ) ) == [ attr_id ], "FindAttributesInCollectionByName did not find the attribute"
+
+    \endcode
+    \endPythonOnly
+    \sa FindAttributeInCollection, FindAttributesInCollection
+    \param [in] obj_id string ID of an object or of its attribute collection
+    \param [in] search_str string Text the attribute names must contain
+    \return array<string> Array of attribute IDs
+*/
+
+extern std::vector< std::string > FindAttributesInCollectionByName( const std::string & obj_id, const std::string & search_str );
 
 /*!
     \ingroup Attributes
@@ -7675,6 +7722,48 @@ extern std::string GetAttributeName( const std::string & attrID );
 */
 
 extern std::string GetAttributeID(const std::string & collID, const std::string & attributeName, int index);
+
+/*!
+    \ingroup Attributes
+*/
+/*!
+    Get the IDs of every attribute in a collection with a given name, in the order of the index GetAttributeID takes.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string coll_id = GetChildCollection( pod_id );
+
+    string attr_id = AddAttributeString( coll_id, "Supplier", "Acme" );
+
+    array< string > @ids = GetAttributeIDVec( coll_id, "Supplier" );
+
+    if ( ids.size() != 1 || ids[0] != attr_id || ids[0] != GetAttributeID( coll_id, "Supplier", 0 ) )
+    {
+        Print( "ERROR: GetAttributeIDVec did not return the attribute" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    coll_id = GetChildCollection( pod_id )
+
+    attr_id = AddAttributeString( coll_id, "Supplier", "Acme" )
+
+    assert list( GetAttributeIDVec( coll_id, "Supplier" ) ) == [ attr_id ], "GetAttributeIDVec did not return the attribute"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAttributeID
+    \param [in] collID string Attribute collection ID
+    \param [in] attributeName string Attribute name
+    \return array<string> Array of attribute IDs
+*/
+
+extern std::vector< std::string > GetAttributeIDVec( const std::string & collID, const std::string & attributeName );
 
 /*!
     \ingroup Attributes
@@ -10083,6 +10172,117 @@ extern std::string FindResultsID( const std::string & name, int index = 0 );
     \ingroup Results
 */
 /*!
+    Get the IDs of every result with a given name, oldest first.
+    \forcpponly
+    \code{.cpp}
+    DeleteAllResults();
+
+    WriteTestResults();
+
+    array< string > @ids = FindResultsIDs( "Test_Results" );
+
+    if ( ids.size() != uint( GetNumResults( "Test_Results" ) ) || ids[0] != FindResultsID( "Test_Results", 0 ) )
+    {
+        Print( "ERROR: FindResultsIDs did not return the results in order" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    DeleteAllResults()
+
+    WriteTestResults()
+
+    ids = FindResultsIDs( "Test_Results" )
+
+    assert len( ids ) == GetNumResults( "Test_Results" ) and ids[0] == FindResultsID( "Test_Results", 0 ), "FindResultsIDs did not return the results in order"
+
+    \endcode
+    \endPythonOnly
+    \sa FindResultsID, GetAllResultsIDs
+    \param [in] name string Results name
+    \return array<string> Array of results IDs
+*/
+
+extern std::vector < std::string > FindResultsIDs( const std::string & name );
+
+/*!
+    \ingroup Results
+*/
+/*!
+    Get the IDs of every result, grouped by name with the names in sorted order, oldest first within a name.
+    \forcpponly
+    \code{.cpp}
+    DeleteAllResults();
+
+    WriteTestResults();
+
+    AddGeom( "POD" );
+
+    ComputeCompGeom( SET_ALL, false, 0 );
+
+    array< string > @names = GetAllResultsNames();
+    names.sortAsc();
+
+    array< string > expected;
+    for ( uint i = 0; i < names.size(); i++ )
+    {
+        array< string > @ids = FindResultsIDs( names[i] );
+        for ( uint j = 0; j < ids.size(); j++ )
+        {
+            expected.insertLast( ids[j] );
+        }
+    }
+
+    array< string > @all_ids = GetAllResultsIDs();
+
+    if ( all_ids.size() != expected.size() )
+    {
+        Print( "ERROR: GetAllResultsIDs did not return every result" );
+        __failure++;
+    }
+    else
+    {
+        for ( uint i = 0; i < expected.size(); i++ )
+        {
+            if ( all_ids[i] != expected[i] )
+            {
+                Print( "ERROR: GetAllResultsIDs did not sort the results by name" );
+                __failure++;
+            }
+        }
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    DeleteAllResults()
+
+    WriteTestResults()
+
+    AddGeom( "POD" )
+
+    ComputeCompGeom( SET_ALL, False, 0 )
+
+    expected = []
+    for name in sorted( GetAllResultsNames() ):
+        expected += list( FindResultsIDs( name ) )
+
+    assert list( GetAllResultsIDs() ) == expected, "GetAllResultsIDs did not return every result, sorted by name"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAllResultsNames, FindResultsIDs
+    \return array<string> Array of results IDs
+*/
+
+extern std::vector < std::string > GetAllResultsIDs();
+
+/*!
+    \ingroup Results
+*/
+/*!
     Find the latest results ID for particular result name
     \forcpponly
     \code{.cpp}
@@ -12169,6 +12369,36 @@ extern int GetNumLights();
 */
 
 extern std::string FindLight( int index );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Get the IDs of the lights, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    array< string > @ids = GetLightIDVec();
+
+    if ( ids.size() != uint( GetNumLights() ) || ids[0] != FindLight( 0 ) )
+    {
+        Print( "ERROR: GetLightIDVec did not return the lights in order" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    ids = GetLightIDVec()
+
+    assert len( ids ) == GetNumLights() and ids[0] == FindLight( 0 ), "GetLightIDVec did not return the lights in order"
+
+    \endcode
+    \endPythonOnly
+    \sa FindLight, GetNumLights
+    \return array<string> Array of light IDs
+*/
+
+extern std::vector < std::string > GetLightIDVec();
 
 /*!
     \ingroup Visualization
@@ -14447,6 +14677,162 @@ extern std::string GetGeomTextureFileName( const std::string & geom_id, const st
 */
 
 extern std::string GetGeomParent( const std::string& geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the ID of the Geom whose frame a Geom's symmetry is about, which its Sym_Ancestor Parm names by generation. An empty string means the global origin.
+    \forcpponly
+    \code{.cpp}
+    string parent_id = AddGeom( "POD" );
+
+    string child_id = AddGeom( "POD", parent_id );
+
+    SetParmVal( child_id, "Sym_Ancestor", "Sym", 2 );
+
+    if ( GetGeomSymAncestorID( child_id ) != parent_id )
+    {
+        Print( "ERROR: GetGeomSymAncestorID did not return the parent" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    parent_id = AddGeom( "POD" )
+
+    child_id = AddGeom( "POD", parent_id )
+
+    SetParmVal( child_id, "Sym_Ancestor", "Sym", 2 )
+
+    assert GetGeomSymAncestorID( child_id ) == parent_id, "GetGeomSymAncestorID did not return the parent"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeomParent
+    \param [in] geom_id string Geom ID
+    \return string Geom ID, or an empty string for the global origin
+*/
+
+extern std::string GetGeomSymAncestorID( const std::string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the ID of the Geom whose Parasite Drag row a Geom is incorporated into, which its IncorporatedGen Parm names by generation.
+    \forcpponly
+    \code{.cpp}
+    string parent_id = AddGeom( "POD" );
+
+    string child_id = AddGeom( "POD", parent_id );
+
+    SetParmVal( child_id, "IncorporatedGen", "ParasiteDragProps", 1 );
+
+    if ( GetGeomIncorporatedAncestorID( child_id ) != parent_id )
+    {
+        Print( "ERROR: GetGeomIncorporatedAncestorID did not return the parent" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    parent_id = AddGeom( "POD" )
+
+    child_id = AddGeom( "POD", parent_id )
+
+    SetParmVal( child_id, "IncorporatedGen", "ParasiteDragProps", 1 )
+
+    assert GetGeomIncorporatedAncestorID( child_id ) == parent_id, "GetGeomIncorporatedAncestorID did not return the parent"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeomParent
+    \param [in] geom_id string Geom ID
+    \return string Geom ID
+*/
+
+extern std::string GetGeomIncorporatedAncestorID( const std::string & geom_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Set the Geom whose frame a Geom's symmetry is about, by ID, which sets its Sym_Ancestor Parm. The Geom must be the Geom itself or one of its ancestors; an empty string means the global origin.
+    \forcpponly
+    \code{.cpp}
+    string parent_id = AddGeom( "POD" );
+
+    string child_id = AddGeom( "POD", parent_id );
+
+    SetGeomSymAncestorID( child_id, parent_id );
+
+    if ( GetGeomSymAncestorID( child_id ) != parent_id )
+    {
+        Print( "ERROR: SetGeomSymAncestorID did not set the parent" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    parent_id = AddGeom( "POD" )
+
+    child_id = AddGeom( "POD", parent_id )
+
+    SetGeomSymAncestorID( child_id, parent_id )
+
+    assert GetGeomSymAncestorID( child_id ) == parent_id, "SetGeomSymAncestorID did not set the parent"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeomSymAncestorID
+    \param [in] geom_id string Geom ID
+    \param [in] ancestor_id string ID of the Geom or one of its ancestors, or an empty string
+*/
+
+extern void SetGeomSymAncestorID( const std::string & geom_id, const std::string & ancestor_id );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Set the Geom whose Parasite Drag row a Geom is incorporated into, by ID, which sets its IncorporatedGen Parm. The Geom must be the Geom itself or one of its ancestors.
+    \forcpponly
+    \code{.cpp}
+    string parent_id = AddGeom( "POD" );
+
+    string child_id = AddGeom( "POD", parent_id );
+
+    SetGeomIncorporatedAncestorID( child_id, parent_id );
+
+    if ( GetGeomIncorporatedAncestorID( child_id ) != parent_id )
+    {
+        Print( "ERROR: SetGeomIncorporatedAncestorID did not set the parent" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    parent_id = AddGeom( "POD" )
+
+    child_id = AddGeom( "POD", parent_id )
+
+    SetGeomIncorporatedAncestorID( child_id, parent_id )
+
+    assert GetGeomIncorporatedAncestorID( child_id ) == parent_id, "SetGeomIncorporatedAncestorID did not set the parent"
+
+    \endcode
+    \endPythonOnly
+    \sa GetGeomIncorporatedAncestorID
+    \param [in] geom_id string Geom ID
+    \param [in] ancestor_id string ID of the Geom or one of its ancestors
+*/
+
+extern void SetGeomIncorporatedAncestorID( const std::string & geom_id, const std::string & ancestor_id );
 
 /*!
     \ingroup Geom
@@ -17859,6 +18245,202 @@ extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std
 */
 
 extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the wing section a spar, rib or rib array starts at, by the section's XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    InsertXSec( wing_id, 1, XS_FOUR_SERIES );
+
+    string xsec_surf = GetXSecSurf( wing_id, 0 );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string spar_id = AddFeaPartByID( struct_id, FEA_SPAR );
+
+    SetFeaPartStartWingSectionID( spar_id, GetXSec( xsec_surf, 1 ) );
+
+    if ( GetFeaPartStartWingSectionID( spar_id ) != GetXSec( xsec_surf, 1 ) )
+    {
+        Print( "ERROR: SetFeaPartStartWingSectionID did not set the section" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    InsertXSec( wing_id, 1, XS_FOUR_SERIES )
+
+    xsec_surf = GetXSecSurf( wing_id, 0 )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    spar_id = AddFeaPartByID( struct_id, FEA_SPAR )
+
+    SetFeaPartStartWingSectionID( spar_id, GetXSec( xsec_surf, 1 ) )
+
+    assert GetFeaPartStartWingSectionID( spar_id ) == GetXSec( xsec_surf, 1 ), "SetFeaPartStartWingSectionID did not set the section"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaPartStartWingSectionID
+    \param [in] part_id string FEA spar, rib or rib array ID
+    \param [in] xsec_id string XSec ID of a section of the part's wing
+*/
+
+extern void SetFeaPartStartWingSectionID( const std::string & part_id, const std::string & xsec_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the XSec ID of the wing section a spar, rib or rib array starts at.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    InsertXSec( wing_id, 1, XS_FOUR_SERIES );
+
+    string xsec_surf = GetXSecSurf( wing_id, 0 );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string spar_id = AddFeaPartByID( struct_id, FEA_SPAR );
+
+    if ( GetFeaPartStartWingSectionID( spar_id ) != GetXSec( xsec_surf, 1 ) )
+    {
+        Print( "ERROR: GetFeaPartStartWingSectionID did not return the first section" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    InsertXSec( wing_id, 1, XS_FOUR_SERIES )
+
+    xsec_surf = GetXSecSurf( wing_id, 0 )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    spar_id = AddFeaPartByID( struct_id, FEA_SPAR )
+
+    assert GetFeaPartStartWingSectionID( spar_id ) == GetXSec( xsec_surf, 1 ), "GetFeaPartStartWingSectionID did not return the first section"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaPartStartWingSectionID
+    \param [in] part_id string FEA spar, rib or rib array ID
+    \return string XSec ID
+*/
+
+extern std::string GetFeaPartStartWingSectionID( const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the wing section a spar, rib or rib array ends at, by the section's XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    InsertXSec( wing_id, 1, XS_FOUR_SERIES );
+
+    string xsec_surf = GetXSecSurf( wing_id, 0 );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string spar_id = AddFeaPartByID( struct_id, FEA_SPAR );
+
+    SetFeaPartEndWingSectionID( spar_id, GetXSec( xsec_surf, 2 ) );
+
+    if ( GetFeaPartEndWingSectionID( spar_id ) != GetXSec( xsec_surf, 2 ) )
+    {
+        Print( "ERROR: SetFeaPartEndWingSectionID did not set the section" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    InsertXSec( wing_id, 1, XS_FOUR_SERIES )
+
+    xsec_surf = GetXSecSurf( wing_id, 0 )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    spar_id = AddFeaPartByID( struct_id, FEA_SPAR )
+
+    SetFeaPartEndWingSectionID( spar_id, GetXSec( xsec_surf, 2 ) )
+
+    assert GetFeaPartEndWingSectionID( spar_id ) == GetXSec( xsec_surf, 2 ), "SetFeaPartEndWingSectionID did not set the section"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaPartEndWingSectionID
+    \param [in] part_id string FEA spar, rib or rib array ID
+    \param [in] xsec_id string XSec ID of a section of the part's wing
+*/
+
+extern void SetFeaPartEndWingSectionID( const std::string & part_id, const std::string & xsec_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the XSec ID of the wing section a spar, rib or rib array ends at.
+    \forcpponly
+    \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+
+    InsertXSec( wing_id, 1, XS_FOUR_SERIES );
+
+    string xsec_surf = GetXSecSurf( wing_id, 0 );
+
+    string struct_id = AddFeaStructure( wing_id );
+
+    string spar_id = AddFeaPartByID( struct_id, FEA_SPAR );
+
+    if ( GetFeaPartEndWingSectionID( spar_id ) != GetXSec( xsec_surf, 1 ) )
+    {
+        Print( "ERROR: GetFeaPartEndWingSectionID did not return the first section" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wing_id = AddGeom( "WING" )
+
+    InsertXSec( wing_id, 1, XS_FOUR_SERIES )
+
+    xsec_surf = GetXSecSurf( wing_id, 0 )
+
+    struct_id = AddFeaStructure( wing_id )
+
+    spar_id = AddFeaPartByID( struct_id, FEA_SPAR )
+
+    assert GetFeaPartEndWingSectionID( spar_id ) == GetXSec( xsec_surf, 1 ), "GetFeaPartEndWingSectionID did not return the first section"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaPartEndWingSectionID
+    \param [in] part_id string FEA spar, rib or rib array ID
+    \return string XSec ID
+*/
+
+extern std::string GetFeaPartEndWingSectionID( const std::string & part_id );
 
 /*!
     \ingroup FEAMesh
@@ -24836,6 +25418,318 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
 */
 
 extern std::vector < std::string > GetXSecIDVec( const std::string & xsec_surf_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set the cross-section an engine Geom models its inlet face at, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 );
+
+    SetEngineInletFaceXSecID( sid, xsec_2 );
+
+    if ( GetEngineInletFaceXSecID( sid ) != xsec_2 )
+    {
+        Print( "ERROR: SetEngineInletFaceXSecID did not set the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 )
+
+    SetEngineInletFaceXSecID( sid, xsec_2 )
+
+    assert GetEngineInletFaceXSecID( sid ) == xsec_2, "SetEngineInletFaceXSecID did not set the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa GetEngineInletFaceXSecID
+    \param [in] geom_id string Engine Geom ID (a stack, fuselage or other engine Geom)
+    \param [in] xsec_id string XSec ID on that Geom
+*/
+
+extern void SetEngineInletFaceXSecID( const std::string & geom_id, const std::string & xsec_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the cross-section an engine Geom models its inlet face at.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 );
+
+    SetEngineInletFaceXSecID( sid, xsec_2 );
+
+    if ( GetEngineInletFaceXSecID( sid ) != xsec_2 )
+    {
+        Print( "ERROR: GetEngineInletFaceXSecID did not return the XSec set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 )
+
+    SetEngineInletFaceXSecID( sid, xsec_2 )
+
+    assert GetEngineInletFaceXSecID( sid ) == xsec_2, "GetEngineInletFaceXSecID did not return the XSec set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetEngineInletFaceXSecID
+    \param [in] geom_id string Engine Geom ID
+    \return string XSec ID
+*/
+
+extern std::string GetEngineInletFaceXSecID( const std::string & geom_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set the cross-section an engine Geom models its inlet lip at, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 );
+
+    SetEngineInletLipXSecID( sid, xsec_2 );
+
+    if ( GetEngineInletLipXSecID( sid ) != xsec_2 )
+    {
+        Print( "ERROR: SetEngineInletLipXSecID did not set the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 )
+
+    SetEngineInletLipXSecID( sid, xsec_2 )
+
+    assert GetEngineInletLipXSecID( sid ) == xsec_2, "SetEngineInletLipXSecID did not set the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa GetEngineInletLipXSecID
+    \param [in] geom_id string Engine Geom ID (a stack, fuselage or other engine Geom)
+    \param [in] xsec_id string XSec ID on that Geom
+*/
+
+extern void SetEngineInletLipXSecID( const std::string & geom_id, const std::string & xsec_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the cross-section an engine Geom models its inlet lip at.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 );
+
+    SetEngineInletLipXSecID( sid, xsec_2 );
+
+    if ( GetEngineInletLipXSecID( sid ) != xsec_2 )
+    {
+        Print( "ERROR: GetEngineInletLipXSecID did not return the XSec set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 )
+
+    SetEngineInletLipXSecID( sid, xsec_2 )
+
+    assert GetEngineInletLipXSecID( sid ) == xsec_2, "GetEngineInletLipXSecID did not return the XSec set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetEngineInletLipXSecID
+    \param [in] geom_id string Engine Geom ID
+    \return string XSec ID
+*/
+
+extern std::string GetEngineInletLipXSecID( const std::string & geom_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set the cross-section an engine Geom models its outlet face at, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 );
+
+    SetEngineOutletFaceXSecID( sid, xsec_2 );
+
+    if ( GetEngineOutletFaceXSecID( sid ) != xsec_2 )
+    {
+        Print( "ERROR: SetEngineOutletFaceXSecID did not set the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 )
+
+    SetEngineOutletFaceXSecID( sid, xsec_2 )
+
+    assert GetEngineOutletFaceXSecID( sid ) == xsec_2, "SetEngineOutletFaceXSecID did not set the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa GetEngineOutletFaceXSecID
+    \param [in] geom_id string Engine Geom ID (a stack, fuselage or other engine Geom)
+    \param [in] xsec_id string XSec ID on that Geom
+*/
+
+extern void SetEngineOutletFaceXSecID( const std::string & geom_id, const std::string & xsec_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the cross-section an engine Geom models its outlet face at.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 );
+
+    SetEngineOutletFaceXSecID( sid, xsec_2 );
+
+    if ( GetEngineOutletFaceXSecID( sid ) != xsec_2 )
+    {
+        Print( "ERROR: GetEngineOutletFaceXSecID did not return the XSec set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 )
+
+    SetEngineOutletFaceXSecID( sid, xsec_2 )
+
+    assert GetEngineOutletFaceXSecID( sid ) == xsec_2, "GetEngineOutletFaceXSecID did not return the XSec set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetEngineOutletFaceXSecID
+    \param [in] geom_id string Engine Geom ID
+    \return string XSec ID
+*/
+
+extern std::string GetEngineOutletFaceXSecID( const std::string & geom_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Set the cross-section an engine Geom models its outlet lip at, by XSec ID.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 );
+
+    SetEngineOutletLipXSecID( sid, xsec_2 );
+
+    if ( GetEngineOutletLipXSecID( sid ) != xsec_2 )
+    {
+        Print( "ERROR: SetEngineOutletLipXSecID did not set the XSec" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 )
+
+    SetEngineOutletLipXSecID( sid, xsec_2 )
+
+    assert GetEngineOutletLipXSecID( sid ) == xsec_2, "SetEngineOutletLipXSecID did not set the XSec"
+
+    \endcode
+    \endPythonOnly
+    \sa GetEngineOutletLipXSecID
+    \param [in] geom_id string Engine Geom ID (a stack, fuselage or other engine Geom)
+    \param [in] xsec_id string XSec ID on that Geom
+*/
+
+extern void SetEngineOutletLipXSecID( const std::string & geom_id, const std::string & xsec_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
+    Get the cross-section an engine Geom models its outlet lip at.
+    \forcpponly
+    \code{.cpp}
+    string sid = AddGeom( "STACK" );
+
+    string xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 );
+
+    SetEngineOutletLipXSecID( sid, xsec_2 );
+
+    if ( GetEngineOutletLipXSecID( sid ) != xsec_2 )
+    {
+        Print( "ERROR: GetEngineOutletLipXSecID did not return the XSec set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    sid = AddGeom( "STACK" )
+
+    xsec_2 = GetXSec( GetXSecSurf( sid, 0 ), 2 )
+
+    SetEngineOutletLipXSecID( sid, xsec_2 )
+
+    assert GetEngineOutletLipXSecID( sid ) == xsec_2, "GetEngineOutletLipXSecID did not return the XSec set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetEngineOutletLipXSecID
+    \param [in] geom_id string Engine Geom ID
+    \return string XSec ID
+*/
+
+extern std::string GetEngineOutletLipXSecID( const std::string & geom_id );
 
 /*!
     \ingroup XSecSurf
@@ -55272,6 +56166,46 @@ extern int GetNumParmLinks();
 */
 
 extern std::string GetParmLinkID( int index );
+
+/*!
+    \ingroup ParmLink
+*/
+/*!
+    Get the IDs of the Parm links, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    DelAllParmLinks();
+
+    string link_id = AddParmLink( FindParm( pod_id, "Length", "Design" ), FindParm( pod_id, "FineRatio", "Design" ) );
+
+    array< string > @ids = GetAllParmLinks();
+
+    if ( ids.size() != 1 || ids[0] != link_id )
+    {
+        Print( "ERROR: GetAllParmLinks did not return the link" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    DelAllParmLinks()
+
+    link_id = AddParmLink( FindParm( pod_id, "Length", "Design" ), FindParm( pod_id, "FineRatio", "Design" ) )
+
+    assert list( GetAllParmLinks() ) == [ link_id ], "GetAllParmLinks did not return the link"
+
+    \endcode
+    \endPythonOnly
+    \sa GetParmLinkID, GetNumParmLinks
+    \return array<string> Array of Parm link IDs
+*/
+
+extern std::vector < std::string > GetAllParmLinks();
 
 /*!
     \ingroup ParmLink

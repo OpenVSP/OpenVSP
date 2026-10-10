@@ -63,6 +63,7 @@ public:
     vector < string > FindAllAttributes();
     vector < string > FindAttributesByName( const string & search_str );
     string FindAttributeByName( const string & search_str, int index );
+    vector< string > FindAttributesInCollection( const string & obj_id, const string & search_str );
     string FindAttributeInCollection( const string & obj_id, const string & search_str, int index );
     vector < string > FindAttributeNamesInCollection( const string &collID );
     vector < string > FindAttributesInCollection( const string &collID );

@@ -3521,6 +3521,9 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetParmLinkID( int index )", asFUNCTION( vsp::GetParmLinkID ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllParmLinks()", asMETHOD( ScriptMgrSingleton, GetAllParmLinks ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "string GetParmLinkAParm( const string & in link_id )", asFUNCTION( vsp::GetParmLinkAParm ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -4423,6 +4426,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string FindResultsID( const string & in name, int index = 0 )", asFUNCTION( vsp::FindResultsID ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ FindResultsIDs( const string & in name )", asMETHOD( ScriptMgrSingleton, FindResultsIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllResultsIDs()", asMETHOD( ScriptMgrSingleton, GetAllResultsIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "string FindLatestResultsID( const string & in name )", asFUNCTION( vsp::FindLatestResultsID ), asCALL_CDECL );
     assert( r >= 0 );
@@ -4467,6 +4476,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@+ FindAttributesInCollection( const string & in collID )", asMETHOD( ScriptMgrSingleton, FindAttributesInCollection ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ FindAttributesInCollectionByName( const string & in obj_id, const string & in search_str )", asMETHOD( ScriptMgrSingleton, FindAttributesInCollectionByName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "array<string>@+ FindAttributedObjects()", asMETHOD( ScriptMgrSingleton, FindAttributedObjects ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
@@ -4501,6 +4513,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     r = se->RegisterGlobalFunction( "string GetAttributeID( const string & in collID, const string & in attributeName, int index )", asFUNCTION( vsp::GetAttributeID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAttributeIDVec( const string & in collID, const string & in attributeName )", asMETHOD( ScriptMgrSingleton, GetAttributeIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -4824,6 +4839,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetGeomParent( const string & in geom_id )", asFUNCTION( vsp::GetGeomParent ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "string GetGeomSymAncestorID( const string & in geom_id )", asFUNCTION( vsp::GetGeomSymAncestorID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetGeomIncorporatedAncestorID( const string & in geom_id )", asFUNCTION( vsp::GetGeomIncorporatedAncestorID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetGeomSymAncestorID( const string & in geom_id, const string & in ancestor_id )", asFUNCTION( vsp::SetGeomSymAncestorID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetGeomIncorporatedAncestorID( const string & in geom_id, const string & in ancestor_id )", asFUNCTION( vsp::SetGeomIncorporatedAncestorID ), asCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetGeomChildren( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomChildren ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
@@ -5068,6 +5095,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string FindLight( int index )", asFUNCTION( vsp::FindLight ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "array<string>@+ GetLightIDVec()", asMETHOD( ScriptMgrSingleton, GetLightIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "string FindControlSurfaceGroup( int group_index )", asFUNCTION( vsp::FindControlSurfaceGroup ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -5153,6 +5183,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "array<string>@+ GetXSecIDVec( const string & in xsec_surf_id )", asMETHOD( ScriptMgrSingleton, GetXSecIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetEngineInletFaceXSecID( const string & in geom_id, const string & in xsec_id )", asFUNCTION( vsp::SetEngineInletFaceXSecID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetEngineInletFaceXSecID( const string & in geom_id )", asFUNCTION( vsp::GetEngineInletFaceXSecID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetEngineInletLipXSecID( const string & in geom_id, const string & in xsec_id )", asFUNCTION( vsp::SetEngineInletLipXSecID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetEngineInletLipXSecID( const string & in geom_id )", asFUNCTION( vsp::GetEngineInletLipXSecID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetEngineOutletFaceXSecID( const string & in geom_id, const string & in xsec_id )", asFUNCTION( vsp::SetEngineOutletFaceXSecID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetEngineOutletFaceXSecID( const string & in geom_id )", asFUNCTION( vsp::GetEngineOutletFaceXSecID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetEngineOutletLipXSecID( const string & in geom_id, const string & in xsec_id )", asFUNCTION( vsp::SetEngineOutletLipXSecID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetEngineOutletLipXSecID( const string & in geom_id )", asFUNCTION( vsp::GetEngineOutletLipXSecID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -6872,6 +6926,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string GetFeaPartPerpendicularSparID( const string & in part_id )", asFUNCTION( vsp::GetFeaPartPerpendicularSparID ), asCALL_CDECL );
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "void SetFeaPartStartWingSectionID( const string & in part_id, const string & in xsec_id )", asFUNCTION( vsp::SetFeaPartStartWingSectionID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaPartStartWingSectionID( const string & in part_id )", asFUNCTION( vsp::GetFeaPartStartWingSectionID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void SetFeaPartEndWingSectionID( const string & in part_id, const string & in xsec_id )", asFUNCTION( vsp::SetFeaPartEndWingSectionID ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "string GetFeaPartEndWingSectionID( const string & in part_id )", asFUNCTION( vsp::GetFeaPartEndWingSectionID ), asCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void SetFeaPartPropertyID( const string & in part_id, const string & in property_id )", asFUNCTION( vsp::SetFeaPartPropertyID ), asCALL_CDECL );
     assert( r >= 0 );
 
@@ -7422,6 +7488,36 @@ CScriptArray* ScriptMgrSingleton::GetWaveDragFlowSubSurfVec()
     return GetProxyStringArray();
 }
 
+CScriptArray* ScriptMgrSingleton::GetLightIDVec()
+{
+    m_ProxyStringArray = vsp::GetLightIDVec();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllParmLinks()
+{
+    m_ProxyStringArray = vsp::GetAllParmLinks();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::FindResultsIDs( const string & name )
+{
+    m_ProxyStringArray = vsp::FindResultsIDs( name );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAllResultsIDs()
+{
+    m_ProxyStringArray = vsp::GetAllResultsIDs();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAttributeIDVec( const string & collID, const string & attributeName )
+{
+    m_ProxyStringArray = vsp::GetAttributeIDVec( collID, attributeName );
+    return GetProxyStringArray();
+}
+
 CScriptArray* ScriptMgrSingleton::GetAvailableCSNameVec( int CSGroupIndex )
 {
     m_ProxyStringArray = vsp::GetAvailableCSNameVec( CSGroupIndex );
@@ -7693,6 +7789,12 @@ CScriptArray* ScriptMgrSingleton::FindAttributedObjects()
 CScriptArray* ScriptMgrSingleton::FindAttributesInCollection( const string &collID )
 {
     m_ProxyStringArray = vsp::FindAttributesInCollection( collID );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::FindAttributesInCollectionByName( const string & obj_id, const string & search_str )
+{
+    m_ProxyStringArray = vsp::FindAttributesInCollectionByName( obj_id, search_str );
     return GetProxyStringArray();
 }
 
