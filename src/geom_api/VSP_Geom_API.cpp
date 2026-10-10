@@ -32,6 +32,8 @@
 #include "main.h"
 #include "MeasureMgr.h"
 #include "ParasiteDragMgr.h"
+#include "WaveDragMgr.h"
+#include "AeroStructMgr.h"
 #include "ParmMgr.h"
 #include "PntNodeMerge.h"
 #include "PropGeom.h"
@@ -1287,6 +1289,130 @@ void ComputeCFDMesh( int set, int degenset, int file_export_types )
     veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex = degenset;
     CfdMeshMgr.GenerateMesh();
     ErrorMgr.NoError();
+}
+
+void SetCFDMeshModeID( const std::string & mode_id )
+{
+    if ( !mode_id.empty() && !ModeMgr.GetMode( mode_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetCFDMeshModeID::Can't Find Mode " + mode_id );
+        return;
+    }
+
+    GetVehicle()->GetCfdSettingsPtr()->m_ModeID = mode_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetCFDMeshModeID()
+{
+    ErrorMgr.NoError();
+    return GetVehicle()->GetCfdSettingsPtr()->m_ModeID;
+}
+
+void SetIntersectModeID( const std::string & mode_id )
+{
+    if ( !mode_id.empty() && !ModeMgr.GetMode( mode_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetIntersectModeID::Can't Find Mode " + mode_id );
+        return;
+    }
+
+    GetVehicle()->GetISectSettingsPtr()->m_ModeID = mode_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetIntersectModeID()
+{
+    ErrorMgr.NoError();
+    return GetVehicle()->GetISectSettingsPtr()->m_ModeID;
+}
+
+//==== The total index of a Structure by ID, reporting through the named caller ====//
+int FindTotalFeaStructIndex( const std::string & struct_id, const std::string & caller )
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, caller + "::Can't Find FeaStructure " + struct_id );
+        return -1;
+    }
+    return StructureMgr.GetTotFeaStructIndex( feastruct );
+}
+
+//==== The ID of the Structure at a total index, or an empty string ====//
+std::string TotalFeaStructID( int index )
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( index );
+    if ( !feastruct )
+    {
+        return std::string();
+    }
+    return feastruct->GetID();
+}
+
+void SetSTEPStructureExportID( const std::string & struct_id )
+{
+    int index = FindTotalFeaStructIndex( struct_id, "SetSTEPStructureExportID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    GetVehicle()->m_STEPStructureExportIndex = index;
+    ErrorMgr.NoError();
+}
+
+std::string GetSTEPStructureExportID()
+{
+    ErrorMgr.NoError();
+    return TotalFeaStructID( GetVehicle()->m_STEPStructureExportIndex() );
+}
+
+void SetIGESStructureExportID( const std::string & struct_id )
+{
+    int index = FindTotalFeaStructIndex( struct_id, "SetIGESStructureExportID" );
+    if ( index < 0 )
+    {
+        return;
+    }
+
+    GetVehicle()->m_IGESStructureExportIndex = index;
+    ErrorMgr.NoError();
+}
+
+std::string GetIGESStructureExportID()
+{
+    ErrorMgr.NoError();
+    return TotalFeaStructID( GetVehicle()->m_IGESStructureExportIndex() );
+}
+
+void SetAeroStructTargetID( const std::string & id )
+{
+    AeroStructMgr.Update();
+
+    int index = vector_find_val( AeroStructMgr.m_StructAssyIDVec, id );
+    if ( index < 0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetAeroStructTargetID::Can't Find FEA Structure or Assembly " + id );
+        return;
+    }
+
+    AeroStructMgr.m_CurrStructAssyIndex = index;
+    AeroStructMgr.Update();
+    ErrorMgr.NoError();
+}
+
+std::string GetAeroStructTargetID()
+{
+    AeroStructMgr.Update();
+
+    int index = AeroStructMgr.m_CurrStructAssyIndex();
+    ErrorMgr.NoError();
+    if ( index < 0 || index >= ( int )AeroStructMgr.m_StructAssyIDVec.size() )
+    {
+        return std::string();
+    }
+    return AeroStructMgr.m_StructAssyIDVec[ index ];
 }
 
 /// Get/Set reference wing
@@ -15298,6 +15424,179 @@ std::string ExportParasiteDragToCSV( const std::string & file_name )
 
     ErrorMgr.NoError();
     return res_id;
+}
+
+void SetParasiteDragRefWingID( const std::string & geom_id )
+{
+    if ( geom_id.empty() )
+    {
+        ParasiteDragMgr.m_RefGeomID = geom_id;
+        ParasiteDragMgr.m_RefFlag = vsp::MANUAL_REF;
+        ErrorMgr.NoError();
+        return;
+    }
+
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetParasiteDragRefWingID::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( geom_ptr->GetBehaviorType() != MS_WING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetParasiteDragRefWingID::Geom " + geom_id + " is not a wing" );
+        return;
+    }
+
+    ParasiteDragMgr.m_RefGeomID = geom_id;
+    ParasiteDragMgr.m_RefFlag = vsp::COMPONENT_REF;
+    ErrorMgr.NoError();
+}
+
+std::string GetParasiteDragRefWingID()
+{
+    ErrorMgr.NoError();
+    return ParasiteDragMgr.m_RefGeomID;
+}
+
+void SetParasiteDragModeID( const std::string & mode_id )
+{
+    if ( !mode_id.empty() && !ModeMgr.GetMode( mode_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetParasiteDragModeID::Can't Find Mode " + mode_id );
+        return;
+    }
+
+    ParasiteDragMgr.m_ModeID = mode_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetParasiteDragModeID()
+{
+    ErrorMgr.NoError();
+    return ParasiteDragMgr.m_ModeID;
+}
+
+void SetWaveDragRefWingID( const std::string & geom_id )
+{
+    if ( geom_id.empty() )
+    {
+        WaveDragMgr.m_RefGeomID = geom_id;
+        WaveDragMgr.m_RefFlag = vsp::MANUAL_REF;
+        ErrorMgr.NoError();
+        return;
+    }
+
+    Geom* geom_ptr = GetVehicle()->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "SetWaveDragRefWingID::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( geom_ptr->GetBehaviorType() != MS_WING_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "SetWaveDragRefWingID::Geom " + geom_id + " is not a wing" );
+        return;
+    }
+
+    WaveDragMgr.m_RefGeomID = geom_id;
+    WaveDragMgr.m_RefFlag = vsp::COMPONENT_REF;
+    ErrorMgr.NoError();
+}
+
+std::string GetWaveDragRefWingID()
+{
+    ErrorMgr.NoError();
+    return WaveDragMgr.m_RefGeomID;
+}
+
+void SetWaveDragModeID( const std::string & mode_id )
+{
+    if ( !mode_id.empty() && !ModeMgr.GetMode( mode_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetWaveDragModeID::Can't Find Mode " + mode_id );
+        return;
+    }
+
+    WaveDragMgr.m_ModeID = mode_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetWaveDragModeID()
+{
+    ErrorMgr.NoError();
+    return WaveDragMgr.m_ModeID;
+}
+
+void SetVSPAEROModeID( const std::string & mode_id )
+{
+    if ( !mode_id.empty() && !ModeMgr.GetMode( mode_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetVSPAEROModeID::Can't Find Mode " + mode_id );
+        return;
+    }
+
+    VSPAEROMgr.m_ModeID = mode_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetVSPAEROModeID()
+{
+    ErrorMgr.NoError();
+    return VSPAEROMgr.m_ModeID;
+}
+
+void SetVSPAEROCGModeID( const std::string & mode_id )
+{
+    if ( !mode_id.empty() && !ModeMgr.GetMode( mode_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetVSPAEROCGModeID::Can't Find Mode " + mode_id );
+        return;
+    }
+
+    VSPAEROMgr.m_CGModeID = mode_id;
+    ErrorMgr.NoError();
+}
+
+std::string GetVSPAEROCGModeID()
+{
+    ErrorMgr.NoError();
+    return VSPAEROMgr.m_CGModeID;
+}
+
+void AddWaveDragFlowSubSurf( const std::string & ss_id )
+{
+    if ( !SubSurfaceMgr.GetSubSurf( ss_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddWaveDragFlowSubSurf::Can't Find SubSurface " + ss_id );
+        return;
+    }
+
+    if ( !vector_contains_val( WaveDragMgr.m_SSFlow_vec, ss_id ) )
+    {
+        WaveDragMgr.m_SSFlow_vec.push_back( ss_id );
+    }
+    ErrorMgr.NoError();
+}
+
+void DeleteWaveDragFlowSubSurf( const std::string & ss_id )
+{
+    if ( !vector_contains_val( WaveDragMgr.m_SSFlow_vec, ss_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteWaveDragFlowSubSurf::SubSurface " + ss_id + " is not a Wave Drag flow face" );
+        return;
+    }
+
+    vector_remove_val( WaveDragMgr.m_SSFlow_vec, ss_id );
+    ErrorMgr.NoError();
+}
+
+std::vector < std::string > GetWaveDragFlowSubSurfVec()
+{
+    ErrorMgr.NoError();
+    return WaveDragMgr.m_SSFlow_vec;
 }
 
 void WriteAtmosphereCSVFile(const std::string & file_name, const int &atmos_type)

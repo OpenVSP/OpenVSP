@@ -2850,6 +2850,398 @@ extern void ComputeCFDMesh( int set, int degenset, int file_export_types );
     \ingroup CFDMesh
 */
 /*!
+    Set the mode CFD Mesh uses when its UseMode flag is on, or an empty string for none. The flag is the "UseMode" Parm, group "Global", of the "CFDMeshSettings" container.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetCFDMeshModeID( mid );
+
+    if ( GetCFDMeshModeID() != mid )
+    {
+        Print( "ERROR: SetCFDMeshModeID did not set the mode" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetCFDMeshModeID( mid )
+
+    assert GetCFDMeshModeID() == mid, "SetCFDMeshModeID did not set the mode"
+
+    \endcode
+    \endPythonOnly
+    \sa GetCFDMeshModeID
+    \param [in] mode_id string Mode ID, or an empty string
+*/
+
+extern void SetCFDMeshModeID( const std::string & mode_id );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the mode CFD Mesh uses when its UseMode flag is on.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetCFDMeshModeID( mid );
+
+    if ( GetCFDMeshModeID() != mid )
+    {
+        Print( "ERROR: GetCFDMeshModeID did not return the mode set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetCFDMeshModeID( mid )
+
+    assert GetCFDMeshModeID() == mid, "GetCFDMeshModeID did not return the mode set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetCFDMeshModeID
+    \return string Mode ID, or an empty string for none
+*/
+
+extern std::string GetCFDMeshModeID();
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Set the mode Surface Intersection uses when its UseMode flag is on, or an empty string for none. The flag is the "UseMode" Parm, group "Global", of the "SurfaceIntersectSettings" container.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetIntersectModeID( mid );
+
+    if ( GetIntersectModeID() != mid )
+    {
+        Print( "ERROR: SetIntersectModeID did not set the mode" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetIntersectModeID( mid )
+
+    assert GetIntersectModeID() == mid, "SetIntersectModeID did not set the mode"
+
+    \endcode
+    \endPythonOnly
+    \sa GetIntersectModeID
+    \param [in] mode_id string Mode ID, or an empty string
+*/
+
+extern void SetIntersectModeID( const std::string & mode_id );
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
+    Get the mode Surface Intersection uses when its UseMode flag is on.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetIntersectModeID( mid );
+
+    if ( GetIntersectModeID() != mid )
+    {
+        Print( "ERROR: GetIntersectModeID did not return the mode set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetIntersectModeID( mid )
+
+    assert GetIntersectModeID() == mid, "GetIntersectModeID did not return the mode set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetIntersectModeID
+    \return string Mode ID, or an empty string for none
+*/
+
+extern std::string GetIntersectModeID();
+
+/*!
+    \ingroup FileIO
+*/
+/*!
+    Set the FEA Structure that STEP structure export writes. The model keeps it as a position in the list of Structures, so deleting an earlier one moves it to the next.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    AddFeaStruct( pod_id );
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetSTEPStructureExportID( struct_id );
+
+    if ( GetSTEPStructureExportID() != struct_id )
+    {
+        Print( "ERROR: SetSTEPStructureExportID did not set the Structure" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    AddFeaStruct( pod_id )
+    struct_id = AddFeaStructure( pod_id )
+
+    SetSTEPStructureExportID( struct_id )
+
+    assert GetSTEPStructureExportID() == struct_id, "SetSTEPStructureExportID did not set the Structure"
+
+    \endcode
+    \endPythonOnly
+    \sa GetSTEPStructureExportID, EXPORT_STEP_STRUCTURE
+    \param [in] struct_id string FEA Structure ID
+*/
+
+extern void SetSTEPStructureExportID( const std::string & struct_id );
+
+/*!
+    \ingroup FileIO
+*/
+/*!
+    Get the FEA Structure that STEP structure export writes.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    AddFeaStruct( pod_id );
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetSTEPStructureExportID( struct_id );
+
+    if ( GetSTEPStructureExportID() != struct_id )
+    {
+        Print( "ERROR: GetSTEPStructureExportID did not return the Structure set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    AddFeaStruct( pod_id )
+    struct_id = AddFeaStructure( pod_id )
+
+    SetSTEPStructureExportID( struct_id )
+
+    assert GetSTEPStructureExportID() == struct_id, "GetSTEPStructureExportID did not return the Structure set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetSTEPStructureExportID
+    \return string FEA Structure ID, or an empty string when there is none
+*/
+
+extern std::string GetSTEPStructureExportID();
+
+/*!
+    \ingroup FileIO
+*/
+/*!
+    Set the FEA Structure that IGES structure export writes. The model keeps it as a position in the list of Structures, so deleting an earlier one moves it to the next.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    AddFeaStruct( pod_id );
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetIGESStructureExportID( struct_id );
+
+    if ( GetIGESStructureExportID() != struct_id )
+    {
+        Print( "ERROR: SetIGESStructureExportID did not set the Structure" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    AddFeaStruct( pod_id )
+    struct_id = AddFeaStructure( pod_id )
+
+    SetIGESStructureExportID( struct_id )
+
+    assert GetIGESStructureExportID() == struct_id, "SetIGESStructureExportID did not set the Structure"
+
+    \endcode
+    \endPythonOnly
+    \sa GetIGESStructureExportID, EXPORT_IGES_STRUCTURE
+    \param [in] struct_id string FEA Structure ID
+*/
+
+extern void SetIGESStructureExportID( const std::string & struct_id );
+
+/*!
+    \ingroup FileIO
+*/
+/*!
+    Get the FEA Structure that IGES structure export writes.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    AddFeaStruct( pod_id );
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetIGESStructureExportID( struct_id );
+
+    if ( GetIGESStructureExportID() != struct_id )
+    {
+        Print( "ERROR: GetIGESStructureExportID did not return the Structure set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    AddFeaStruct( pod_id )
+    struct_id = AddFeaStructure( pod_id )
+
+    SetIGESStructureExportID( struct_id )
+
+    assert GetIGESStructureExportID() == struct_id, "GetIGESStructureExportID did not return the Structure set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetIGESStructureExportID
+    \return string FEA Structure ID, or an empty string when there is none
+*/
+
+extern std::string GetIGESStructureExportID();
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Set the FEA Structure or FEA Assembly the aero-structural analysis loads. The model keeps it as a position in the list of Structures and Assemblies, so deleting an earlier one moves it to the next.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    AddFeaStruct( pod_id );
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetAeroStructTargetID( struct_id );
+
+    if ( GetAeroStructTargetID() != struct_id )
+    {
+        Print( "ERROR: SetAeroStructTargetID did not set the target" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    AddFeaStruct( pod_id )
+    struct_id = AddFeaStructure( pod_id )
+
+    SetAeroStructTargetID( struct_id )
+
+    assert GetAeroStructTargetID() == struct_id, "SetAeroStructTargetID did not set the target"
+
+    \endcode
+    \endPythonOnly
+    \sa GetAeroStructTargetID
+    \param [in] id string FEA Structure or FEA Assembly ID
+*/
+
+extern void SetAeroStructTargetID( const std::string & id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the FEA Structure or FEA Assembly the aero-structural analysis loads.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    AddFeaStruct( pod_id );
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetAeroStructTargetID( struct_id );
+
+    if ( GetAeroStructTargetID() != struct_id )
+    {
+        Print( "ERROR: GetAeroStructTargetID did not return the target set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    AddFeaStruct( pod_id )
+    struct_id = AddFeaStructure( pod_id )
+
+    SetAeroStructTargetID( struct_id )
+
+    assert GetAeroStructTargetID() == struct_id, "GetAeroStructTargetID did not return the target set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetAeroStructTargetID
+    \return string FEA Structure or FEA Assembly ID, or an empty string for none
+*/
+
+extern std::string GetAeroStructTargetID();
+
+/*!
+    \ingroup CFDMesh
+*/
+/*!
     Set the value of a specific CFD Mesh option
     \forcpponly
     \code{.cpp}
@@ -47897,6 +48289,568 @@ extern void UpdateParasiteDrag();
 */
 
 extern std::string ExportParasiteDragToCSV( const std::string & file_name );
+
+/*!
+    \ingroup ParasiteDrag
+*/
+/*!
+    Set the Parasite Drag reference wing, kept with the model, and use it for the reference quantities, as SetVSPAERORefWingID does. An empty string goes back to manual reference quantities. The WingID analysis input overrides the wing for one run.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    SetParasiteDragRefWingID( wid );
+
+    if ( GetParasiteDragRefWingID() != wid )
+    {
+        Print( "ERROR: SetParasiteDragRefWingID did not set the reference wing" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    SetParasiteDragRefWingID( wid )
+
+    assert GetParasiteDragRefWingID() == wid, "SetParasiteDragRefWingID did not set the reference wing"
+
+    \endcode
+    \endPythonOnly
+    \sa GetParasiteDragRefWingID
+    \param [in] geom_id string Wing Geom ID, or an empty string
+*/
+
+extern void SetParasiteDragRefWingID( const std::string & geom_id );
+
+/*!
+    \ingroup ParasiteDrag
+*/
+/*!
+    Get the Parasite Drag reference wing the analysis uses, kept with the model.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    SetParasiteDragRefWingID( wid );
+
+    if ( GetParasiteDragRefWingID() != wid )
+    {
+        Print( "ERROR: GetParasiteDragRefWingID did not return the reference wing set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    SetParasiteDragRefWingID( wid )
+
+    assert GetParasiteDragRefWingID() == wid, "GetParasiteDragRefWingID did not return the reference wing set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetParasiteDragRefWingID
+    \return string Geom ID, or an empty string for none
+*/
+
+extern std::string GetParasiteDragRefWingID();
+
+/*!
+    \ingroup ParasiteDrag
+*/
+/*!
+    Set the Parasite Drag mode the analysis uses when its use-mode flag is on, kept with the model. The ModeID analysis input overrides it for one run. The flag is the "UseModeMassFlag" Parm, group "ParasiteDrag", of the "ParasiteDragSettings" container.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetParasiteDragModeID( mid );
+
+    if ( GetParasiteDragModeID() != mid )
+    {
+        Print( "ERROR: SetParasiteDragModeID did not set the mode" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetParasiteDragModeID( mid )
+
+    assert GetParasiteDragModeID() == mid, "SetParasiteDragModeID did not set the mode"
+
+    \endcode
+    \endPythonOnly
+    \sa GetParasiteDragModeID
+    \param [in] mode_id string Mode ID, or an empty string
+*/
+
+extern void SetParasiteDragModeID( const std::string & mode_id );
+
+/*!
+    \ingroup ParasiteDrag
+*/
+/*!
+    Get the Parasite Drag mode the analysis uses, kept with the model.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetParasiteDragModeID( mid );
+
+    if ( GetParasiteDragModeID() != mid )
+    {
+        Print( "ERROR: GetParasiteDragModeID did not return the mode set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetParasiteDragModeID( mid )
+
+    assert GetParasiteDragModeID() == mid, "GetParasiteDragModeID did not return the mode set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetParasiteDragModeID
+    \return string Mode ID, or an empty string for none
+*/
+
+extern std::string GetParasiteDragModeID();
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Set the Wave Drag reference wing, kept with the model, and use it for the reference quantities, as SetVSPAERORefWingID does. An empty string goes back to manual reference quantities. The WingID analysis input overrides the wing for one run.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    SetWaveDragRefWingID( wid );
+
+    if ( GetWaveDragRefWingID() != wid )
+    {
+        Print( "ERROR: SetWaveDragRefWingID did not set the reference wing" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    SetWaveDragRefWingID( wid )
+
+    assert GetWaveDragRefWingID() == wid, "SetWaveDragRefWingID did not set the reference wing"
+
+    \endcode
+    \endPythonOnly
+    \sa GetWaveDragRefWingID
+    \param [in] geom_id string Wing Geom ID, or an empty string
+*/
+
+extern void SetWaveDragRefWingID( const std::string & geom_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the Wave Drag reference wing the analysis uses, kept with the model.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    SetWaveDragRefWingID( wid );
+
+    if ( GetWaveDragRefWingID() != wid )
+    {
+        Print( "ERROR: GetWaveDragRefWingID did not return the reference wing set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    SetWaveDragRefWingID( wid )
+
+    assert GetWaveDragRefWingID() == wid, "GetWaveDragRefWingID did not return the reference wing set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetWaveDragRefWingID
+    \return string Geom ID, or an empty string for none
+*/
+
+extern std::string GetWaveDragRefWingID();
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Set the Wave Drag mode the analysis uses when its use-mode flag is on, kept with the model. The ModeID analysis input overrides it for one run. The flag is the "UseMode" Parm, group "WaveDrag", of the "WaveDragSettings" container.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetWaveDragModeID( mid );
+
+    if ( GetWaveDragModeID() != mid )
+    {
+        Print( "ERROR: SetWaveDragModeID did not set the mode" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetWaveDragModeID( mid )
+
+    assert GetWaveDragModeID() == mid, "SetWaveDragModeID did not set the mode"
+
+    \endcode
+    \endPythonOnly
+    \sa GetWaveDragModeID
+    \param [in] mode_id string Mode ID, or an empty string
+*/
+
+extern void SetWaveDragModeID( const std::string & mode_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the Wave Drag mode the analysis uses, kept with the model.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetWaveDragModeID( mid );
+
+    if ( GetWaveDragModeID() != mid )
+    {
+        Print( "ERROR: GetWaveDragModeID did not return the mode set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetWaveDragModeID( mid )
+
+    assert GetWaveDragModeID() == mid, "GetWaveDragModeID did not return the mode set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetWaveDragModeID
+    \return string Mode ID, or an empty string for none
+*/
+
+extern std::string GetWaveDragModeID();
+
+/*!
+    \ingroup VSPAERO
+*/
+/*!
+    Set the mode the VSPAERO analysis uses when its use-mode flag is on, kept with the model, or an empty string for none. The analysis input overrides it for one run. The flag is the "UseMode" Parm, group "VSPAERO", of the "VSPAEROSettings" container.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetVSPAEROModeID( mid );
+
+    if ( GetVSPAEROModeID() != mid )
+    {
+        Print( "ERROR: SetVSPAEROModeID did not set the mode" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetVSPAEROModeID( mid )
+
+    assert GetVSPAEROModeID() == mid, "SetVSPAEROModeID did not set the mode"
+
+    \endcode
+    \endPythonOnly
+    \sa GetVSPAEROModeID
+    \param [in] mode_id string Mode ID, or an empty string
+*/
+
+extern void SetVSPAEROModeID( const std::string & mode_id );
+
+/*!
+    \ingroup VSPAERO
+*/
+/*!
+    Get the mode the VSPAERO analysis uses, kept with the model.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetVSPAEROModeID( mid );
+
+    if ( GetVSPAEROModeID() != mid )
+    {
+        Print( "ERROR: GetVSPAEROModeID did not return the mode set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetVSPAEROModeID( mid )
+
+    assert GetVSPAEROModeID() == mid, "GetVSPAEROModeID did not return the mode set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetVSPAEROModeID
+    \return string Mode ID, or an empty string for none
+*/
+
+extern std::string GetVSPAEROModeID();
+
+/*!
+    \ingroup VSPAERO
+*/
+/*!
+    Set the mode the VSPAERO screen's Mass Prop button uses to find the CG when its CG use-mode flag is on, kept with the model, or an empty string for none. Only that button uses it: the CGModeID input of the VSPAEROSweep analysis has no effect. The flag is the "CGUseMode" Parm, group "VSPAERO", of the "VSPAEROSettings" container.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetVSPAEROCGModeID( mid );
+
+    if ( GetVSPAEROCGModeID() != mid )
+    {
+        Print( "ERROR: SetVSPAEROCGModeID did not set the mode" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetVSPAEROCGModeID( mid )
+
+    assert GetVSPAEROCGModeID() == mid, "SetVSPAEROCGModeID did not set the mode"
+
+    \endcode
+    \endPythonOnly
+    \sa GetVSPAEROCGModeID
+    \param [in] mode_id string Mode ID, or an empty string
+*/
+
+extern void SetVSPAEROCGModeID( const std::string & mode_id );
+
+/*!
+    \ingroup VSPAERO
+*/
+/*!
+    Get the mode the VSPAERO mass properties (CG) analysis uses, kept with the model.
+    \forcpponly
+    \code{.cpp}
+    AddGeom( "POD" );
+
+    string mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE );
+
+    SetVSPAEROCGModeID( mid );
+
+    if ( GetVSPAEROCGModeID() != mid )
+    {
+        Print( "ERROR: GetVSPAEROCGModeID did not return the mode set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    AddGeom( "POD" )
+
+    mid = CreateAndAddMode( "Clean", SET_ALL, SET_NONE )
+
+    SetVSPAEROCGModeID( mid )
+
+    assert GetVSPAEROCGModeID() == mid, "GetVSPAEROCGModeID did not return the mode set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetVSPAEROCGModeID
+    \return string Mode ID, or an empty string for none
+*/
+
+extern std::string GetVSPAEROCGModeID();
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Add a subsurface to the faces the Wave Drag analysis treats as flow through.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_RECTANGLE );
+
+    AddWaveDragFlowSubSurf( ss_id );
+
+    array< string > @ids = GetWaveDragFlowSubSurfVec();
+
+    if ( ids.size() != 1 || ids[0] != ss_id )
+    {
+        Print( "ERROR: AddWaveDragFlowSubSurf did not add the face" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_RECTANGLE )
+
+    AddWaveDragFlowSubSurf( ss_id )
+
+    assert list( GetWaveDragFlowSubSurfVec() ) == [ ss_id ], "AddWaveDragFlowSubSurf did not add the face"
+
+    \endcode
+    \endPythonOnly
+    \sa DeleteWaveDragFlowSubSurf, GetWaveDragFlowSubSurfVec
+    \param [in] ss_id string SubSurface ID
+*/
+
+extern void AddWaveDragFlowSubSurf( const std::string & ss_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Remove a subsurface from the faces the Wave Drag analysis treats as flow through.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_RECTANGLE );
+
+    AddWaveDragFlowSubSurf( ss_id );
+
+    DeleteWaveDragFlowSubSurf( ss_id );
+
+    if ( GetWaveDragFlowSubSurfVec().size() != 0 )
+    {
+        Print( "ERROR: DeleteWaveDragFlowSubSurf did not remove the face" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_RECTANGLE )
+
+    AddWaveDragFlowSubSurf( ss_id )
+
+    DeleteWaveDragFlowSubSurf( ss_id )
+
+    assert len( GetWaveDragFlowSubSurfVec() ) == 0, "DeleteWaveDragFlowSubSurf did not remove the face"
+
+    \endcode
+    \endPythonOnly
+    \sa AddWaveDragFlowSubSurf
+    \param [in] ss_id string SubSurface ID
+*/
+
+extern void DeleteWaveDragFlowSubSurf( const std::string & ss_id );
+
+/*!
+    \ingroup Analysis
+*/
+/*!
+    Get the IDs of the subsurfaces the Wave Drag analysis treats as flow through, kept with the model. The SSFlow_vec analysis input overrides them for one run.
+    \forcpponly
+    \code{.cpp}
+    string wid = AddGeom( "WING" );
+
+    string ss_id = AddSubSurf( wid, SS_RECTANGLE );
+
+    AddWaveDragFlowSubSurf( ss_id );
+
+    array< string > @ids = GetWaveDragFlowSubSurfVec();
+
+    if ( ids.size() != 1 || ids[0] != ss_id )
+    {
+        Print( "ERROR: GetWaveDragFlowSubSurfVec did not return the face" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    wid = AddGeom( "WING" )
+
+    ss_id = AddSubSurf( wid, SS_RECTANGLE )
+
+    AddWaveDragFlowSubSurf( ss_id )
+
+    assert list( GetWaveDragFlowSubSurfVec() ) == [ ss_id ], "GetWaveDragFlowSubSurfVec did not return the face"
+
+    \endcode
+    \endPythonOnly
+    \sa AddWaveDragFlowSubSurf
+    \return array<string> Array of SubSurface IDs
+*/
+
+extern std::vector < std::string > GetWaveDragFlowSubSurfVec();
 
 /*!
     \ingroup ParasiteDrag

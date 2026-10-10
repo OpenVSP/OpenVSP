@@ -63,3 +63,19 @@ def testABogieRefusesAGeomBuiltFromItsGear():
     vsp.SetBogieStowParentID( bogie, child )
     assert pop_errors(), "a bogie took a Geom built from its gear"
     assert vsp.GetBogieStowParentID( bogie ) != child
+
+
+def testADragReferenceWingIsAWingAndIsUsed():
+    vsp.VSPRenew()
+    wid = vsp.AddGeom( "WING" )
+    pod = vsp.AddGeom( "POD" )
+    drop_errors()
+    for setter, getter, group in ( ( vsp.SetParasiteDragRefWingID, vsp.GetParasiteDragRefWingID, "ParasiteDrag" ),
+                                   ( vsp.SetWaveDragRefWingID, vsp.GetWaveDragRefWingID, "WaveDrag" ) ):
+        setter( pod )
+        assert pop_errors(), "a Pod was taken as a reference wing"
+        setter( wid )
+        assert_no_errors()
+        assert getter() == wid
+        flag = vsp.FindParm( vsp.FindContainer( group + "Settings", 0 ), "RefFlag", group )
+        assert vsp.GetIntParmVal( flag ) == vsp.COMPONENT_REF, "setting a reference wing left the reference manual"
