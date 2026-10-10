@@ -17,6 +17,7 @@
 #include "FileUtil.h"
 #include "HingeGeom.h"
 #include "StlHelper.h"
+#include "StringUtil.h"
 
 #include <algorithm>
 #include <functional>
@@ -3557,7 +3558,9 @@ bool CfdMeshMgrSingleton::WritePOGSCompFile( const string &fn, const vector < in
                 // The surface's number within its Geom, which counts symmetry copies
                 // separately -- the main surface id does not, so a symmetric pair would
                 // otherwise share a name.
-                name = srf->GetName() + "_" + to_string( srf->GetFeaPartSurfNum() ) + "_" + srf->GetGeomID();
+                string srf_name = srf->GetName();
+                StringUtil::change_space_to_underscore( srf_name );
+                name = srf_name + "_" + to_string( srf->GetFeaPartSurfNum() ) + "_" + srf->GetGeomID();
             }
             else if ( srf->GetFarFlag() )
             {
