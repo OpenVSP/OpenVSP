@@ -14870,6 +14870,7 @@ extern void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::st
 
     \endcode
     \endPythonOnly
+    \sa AddFeaStructure
     \param [in] geom_id string Parent Geom ID
     \param [in] init_skin bool Flag to initialize the FEA Structure by creating an FEA Skin from the parent Geom's OML at surfindex
     \param [in] surfindex int Main surface index for the FEA Structure
@@ -14877,6 +14878,43 @@ extern void SetIntersectSubSurfGeomID( const std::string & sub_id, const std::st
 */
 
 extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int surfindex = 0 );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Add an FEA Structure to a Geom and return its ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    if ( GetFeaStructID( pod_id, 0 ) != struct_id )
+    {
+        Print( "ERROR: AddFeaStructure did not return the new Structure" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    assert GetFeaStructID( pod_id, 0 ) == struct_id, "AddFeaStructure did not return the new Structure"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaStruct, DeleteFeaStruct
+    \param [in] geom_id string Parent Geom ID
+    \param [in] init_skin bool Flag to initialize the FEA Skin
+    \param [in] surfindex int Main surface index for the FEA Structure
+    \return string FEA Structure ID
+*/
+
+extern std::string AddFeaStructure( const std::string & geom_id, bool init_skin = true, int surfindex = 0 );
 
 /*!
     \ingroup FEAMesh
@@ -15014,6 +15052,84 @@ extern void SetFeaMeshStructIndex( int struct_index );
     \ingroup FEAMesh
 */
 /*!
+    Get the ID of the FEA Structure that FEA Mesh works on.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetFeaMeshStructID( struct_id );
+
+    if ( GetFeaMeshStructID() != struct_id )
+    {
+        Print( "ERROR: GetFeaMeshStructID did not return the Structure set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    SetFeaMeshStructID( struct_id )
+
+    assert GetFeaMeshStructID() == struct_id, "GetFeaMeshStructID did not return the Structure set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaMeshStructID, GetFeaMeshStructIndex
+    \return string FEA Structure ID, or an empty string when no Structure is current
+*/
+
+extern std::string GetFeaMeshStructID();
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the FEA Structure that FEA Mesh works on, by ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    AddFeaStruct( pod_id );
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetFeaMeshStructID( struct_id );
+
+    if ( GetFeaMeshStructIndex() != GetFeaStructIndex( struct_id ) )
+    {
+        Print( "ERROR: SetFeaMeshStructID did not make the Structure current" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    AddFeaStruct( pod_id )
+    struct_id = AddFeaStructure( pod_id )
+
+    SetFeaMeshStructID( struct_id )
+
+    assert GetFeaMeshStructIndex() == GetFeaStructIndex( struct_id ), "SetFeaMeshStructID did not make the Structure current"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaMeshStructID, SetFeaMeshStructIndex
+    \param [in] struct_id string FEA Structure ID
+*/
+
+extern void SetFeaMeshStructID( const std::string & struct_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
     Delete an FEA Structure and all FEA Parts and FEA SubSurfaces associated with it
     \forcpponly
     \code{.cpp}
@@ -15073,11 +15189,54 @@ extern void SetFeaMeshStructIndex( int struct_index );
 
     \endcode
     \endPythonOnly
+    \sa DeleteFeaStructByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
 */
 
 extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete an FEA Structure, by ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id_1 = AddFeaStructure( pod_id );
+    string struct_id_2 = AddFeaStructure( pod_id );
+
+    DeleteFeaStructByID( struct_id_1 );
+
+    array< string > @ids = GetFeaStructIDVecByGeom( pod_id );
+
+    if ( ids.size() != 1 || ids[0] != struct_id_2 )
+    {
+        Print( "ERROR: DeleteFeaStructByID removed the wrong structure" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id_1 = AddFeaStructure( pod_id )
+    struct_id_2 = AddFeaStructure( pod_id )
+
+    DeleteFeaStructByID( struct_id_1 )
+
+    assert list( GetFeaStructIDVecByGeom( pod_id ) ) == [ struct_id_2 ], "DeleteFeaStructByID removed the wrong structure"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaStructure, GetFeaStructIDVec, DeleteFeaStruct
+    \param [in] struct_id string FEA Structure ID
+*/
+
+extern void DeleteFeaStructByID( const std::string & struct_id );
 
 /*!
     \ingroup FEAMesh
@@ -15299,13 +15458,52 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
 
     \endcode
     \endPythonOnly
-    \sa FindContainer, SetFeaStructName
+    \sa FindContainer, SetFeaStructName, GetFeaStructNameByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \return string Name for the FEA Structure
 */
 
 extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct_ind );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the name of an FEA Structure, by ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetFeaStructNameByID( struct_id, "Spine" );
+
+    if ( GetFeaStructNameByID( struct_id ) != "Spine" )
+    {
+        Print( "ERROR: GetFeaStructNameByID did not return the name set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    SetFeaStructNameByID( struct_id, "Spine" )
+
+    assert GetFeaStructNameByID( struct_id ) == "Spine", "GetFeaStructNameByID did not return the name set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaStructName, GetFeaStructName
+    \param [in] struct_id string FEA Structure ID
+    \return string FEA Structure name
+*/
+
+extern std::string GetFeaStructNameByID( const std::string & struct_id );
 
 /*!
     \ingroup FEAMesh
@@ -15357,13 +15555,54 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
 
     \endcode
     \endPythonOnly
-    \sa GetFeaStructName
+    \sa GetFeaStructName, SetFeaStructNameByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] name string New name for the FEA Structure
 */
 
 extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, const std::string & name );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the name of an FEA Structure, by ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind = AddFeaStruct( pod_id );
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    SetFeaStructNameByID( struct_id, "Spine" );
+
+    if ( GetFeaStructName( pod_id, struct_ind ) != "Spine" )
+    {
+        Print( "ERROR: SetFeaStructNameByID did not rename the Structure" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_ind = AddFeaStruct( pod_id )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    SetFeaStructNameByID( struct_id, "Spine" )
+
+    assert GetFeaStructName( pod_id, struct_ind ) == "Spine", "SetFeaStructNameByID did not rename the Structure"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaStructName, SetFeaStructName
+    \param [in] struct_id string FEA Structure ID
+    \param [in] name string New name for the FEA Structure
+*/
+
+extern void SetFeaStructNameByID( const std::string & struct_id, const std::string & name );
 
 /*!
     \ingroup FEAMesh
@@ -15403,11 +15642,52 @@ extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, c
 
     \endcode
     \endPythonOnly
-    \sa NumFeaStructures
+    \sa NumFeaStructures, GetFeaStructIDVecByGeom
     \return vector\<string\> Array of FEA Structure IDs
 */
 
 extern std::vector< std::string > GetFeaStructIDVec();
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the IDs of the FEA Structures of one Geom, in the order of their indexes.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+    string other_id = AddGeom( "POD" );
+
+    AddFeaStruct( other_id );
+    string struct_id = AddFeaStructure( pod_id );
+
+    array< string > @ids = GetFeaStructIDVecByGeom( pod_id );
+
+    if ( ids.size() != 1 || ids[0] != struct_id )
+    {
+        Print( "ERROR: GetFeaStructIDVecByGeom did not return the Geom's Structures" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+    other_id = AddGeom( "POD" )
+
+    AddFeaStruct( other_id )
+    struct_id = AddFeaStructure( pod_id )
+
+    assert list( GetFeaStructIDVecByGeom( pod_id ) ) == [ struct_id ], "GetFeaStructIDVecByGeom did not return the Geom's Structures"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaStructID, AddFeaStructure, GetFeaStructIDVec
+    \param [in] geom_id string Parent Geom ID
+    \return array<string> Array of FEA Structure IDs
+*/
+
+extern std::vector< std::string > GetFeaStructIDVecByGeom( const std::string & geom_id );
 
 /*!
     \ingroup FEAMesh
@@ -15502,7 +15782,7 @@ extern void SetFeaPartName( const std::string & part_id, const std::string & nam
 
     \endcode
     \endPythonOnly
-    \sa FEA_PART_TYPE
+    \sa FEA_PART_TYPE, AddFeaPartByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] type int FEA Part type enum (i.e. FEA_RIB)
@@ -15510,6 +15790,46 @@ extern void SetFeaPartName( const std::string & part_id, const std::string & nam
 */
 
 extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, int type );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Add an FEA Part to a Structure, by Structure ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    if ( GetFeaPartType( slice_id ) != FEA_SLICE )
+    {
+        Print( "ERROR: AddFeaPartByID did not add a slice" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    assert GetFeaPartType( slice_id ) == FEA_SLICE, "AddFeaPartByID did not add a slice"
+
+    \endcode
+    \endPythonOnly
+    \sa FEA_PART_TYPE, AddFeaPart
+    \param [in] struct_id string FEA Structure ID
+    \param [in] type int FEA Part type enum (i.e. FEA_RIB)
+    \return string FEA Part ID
+*/
+
+extern std::string AddFeaPartByID( const std::string & struct_id, int type );
 
 /*!
     \ingroup FEAMesh
@@ -15588,12 +15908,59 @@ extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, 
 
     \endcode
     \endPythonOnly
+    \sa DeleteFeaPartByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] part_id string FEA Part ID
 */
 
 extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete an FEA Part, by ID alone.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    int n = NumFeaParts( struct_id );
+
+    DeleteFeaPartByID( slice_id );
+
+    if ( NumFeaParts( struct_id ) != n - 1 )
+    {
+        Print( "ERROR: DeleteFeaPartByID did not remove the part" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    n = NumFeaParts( struct_id )
+
+    DeleteFeaPartByID( slice_id )
+
+    assert NumFeaParts( struct_id ) == n - 1, "DeleteFeaPartByID did not remove the part"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaPart, GetFeaPartIDVec, DeleteFeaPart
+    \param [in] part_id string FEA Part ID
+*/
+
+extern void DeleteFeaPartByID( const std::string & part_id );
 
 /*!
     \ingroup FEAMesh
@@ -15650,7 +16017,7 @@ extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, cons
 
     \endcode
     \endPythonOnly
-    \sa AddFeaPart, DeleteFeaPart, GetFeaPartIDVec
+    \sa AddFeaPart, DeleteFeaPart, GetFeaPartIDVec, ReorderFeaPartByID
     \param [in] geom_id string Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] part_id string FEA Part ID
@@ -15658,6 +16025,49 @@ extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, cons
 */
 
 extern void ReorderFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id, int reorder_type );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Move an FEA Part within its Structure's list, by ID alone.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string slice_id = AddFeaPartByID( struct_id, FEA_SLICE );
+
+    ReorderFeaPartByID( slice_id, REORDER_MOVE_TOP );
+
+    if ( GetFeaPartID( struct_id, 0 ) != slice_id )
+    {
+        Print( "ERROR: ReorderFeaPartByID did not move the part to the top" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    slice_id = AddFeaPartByID( struct_id, FEA_SLICE )
+
+    ReorderFeaPartByID( slice_id, REORDER_MOVE_TOP )
+
+    assert GetFeaPartID( struct_id, 0 ) == slice_id, "ReorderFeaPartByID did not move the part to the top"
+
+    \endcode
+    \endPythonOnly
+    \sa REORDER_TYPE, ReorderFeaPart
+    \param [in] part_id string FEA Part ID
+    \param [in] reorder_type int Reorder type enum (i.e. REORDER_MOVE_UP)
+*/
+
+extern void ReorderFeaPartByID( const std::string & part_id, int reorder_type );
 
 /*!
     \ingroup FEAMesh
@@ -15715,13 +16125,59 @@ extern void ReorderFeaPart( const std::string & geom_id, int fea_struct_ind, con
 
     \endcode
     \endPythonOnly
-    \sa AddFeaPart, AddFeaSubSurf, NumFeaParts
+    \sa AddFeaPart, AddFeaSubSurf, NumFeaParts, IndividualizeFeaPartByID
     \param [in] geom_id string Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] part_id string FEA Part or FEA Sub-Surface ID of an array part
 */
 
 extern void IndividualizeFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Break a rib array, slice array or line array into its individual members, by ID alone.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string array_id = AddFeaPartByID( struct_id, FEA_SLICE_ARRAY );
+
+    int n = NumFeaParts( struct_id );
+
+    IndividualizeFeaPartByID( array_id );
+
+    if ( NumFeaParts( struct_id ) <= n )
+    {
+        Print( "ERROR: IndividualizeFeaPartByID did not break up the array" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    array_id = AddFeaPartByID( struct_id, FEA_SLICE_ARRAY )
+
+    n = NumFeaParts( struct_id )
+
+    IndividualizeFeaPartByID( array_id )
+
+    assert NumFeaParts( struct_id ) > n, "IndividualizeFeaPartByID did not break up the array"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaPart, IndividualizeFeaPart
+    \param [in] part_id string FEA Part ID of a rib array, slice array or line array
+*/
+
+extern void IndividualizeFeaPartByID( const std::string & part_id );
 
 /*!
     \ingroup FEAMesh
@@ -16277,7 +16733,7 @@ extern std::string GetFeaSubSurfName( const std::string & subsurf_id );
 
     \endcode
     \endPythonOnly
-    \sa SUBSURF_TYPE
+    \sa SUBSURF_TYPE, AddFeaSubSurfByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] type int FEA SubSurface type enum (i.e. SS_ELLIPSE)
@@ -16285,6 +16741,48 @@ extern std::string GetFeaSubSurfName( const std::string & subsurf_id );
 */
 
 extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_ind, int type );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Add an FEA SubSurface to a Structure, by Structure ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string line_id = AddFeaSubSurfByID( struct_id, SS_LINE );
+
+    array< string > @ids = GetFeaSubSurfIDVec( struct_id );
+
+    if ( ids.size() != 1 || ids[0] != line_id )
+    {
+        Print( "ERROR: AddFeaSubSurfByID did not add the line" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    line_id = AddFeaSubSurfByID( struct_id, SS_LINE )
+
+    assert list( GetFeaSubSurfIDVec( struct_id ) ) == [ line_id ], "AddFeaSubSurfByID did not add the line"
+
+    \endcode
+    \endPythonOnly
+    \sa SUBSURF_TYPE, AddFeaSubSurf
+    \param [in] struct_id string FEA Structure ID
+    \param [in] type int FEA SubSurface type enum (i.e. SS_ELLIPSE)
+    \return string FEA SubSurface ID
+*/
+
+extern std::string AddFeaSubSurfByID( const std::string & struct_id, int type );
 
 /*!
     \ingroup FEAMesh
@@ -16344,12 +16842,55 @@ extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_in
 
     \endcode
     \endPythonOnly
+    \sa DeleteFeaSubSurfByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] ss_id string FEA SubSurface ID
 */
 
 extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, const std::string & ss_id );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Delete an FEA SubSurface, by ID alone.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    string line_id = AddFeaSubSurfByID( struct_id, SS_LINE );
+
+    DeleteFeaSubSurfByID( line_id );
+
+    if ( NumFeaSubSurfs( struct_id ) != 0 )
+    {
+        Print( "ERROR: DeleteFeaSubSurfByID did not remove the line" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    line_id = AddFeaSubSurfByID( struct_id, SS_LINE )
+
+    DeleteFeaSubSurfByID( line_id )
+
+    assert NumFeaSubSurfs( struct_id ) == 0, "DeleteFeaSubSurfByID did not remove the line"
+
+    \endcode
+    \endPythonOnly
+    \sa AddFeaSubSurf, GetFeaSubSurfIDVec, DeleteFeaSubSurf
+    \param [in] ss_id string FEA SubSurface ID
+*/
+
+extern void DeleteFeaSubSurfByID( const std::string & ss_id );
 
 /*!
     \ingroup FEAMesh
@@ -19629,7 +20170,7 @@ extern std::string AddFeaProperty( int property_type = 0 );
 
     \endcode
     \endPythonOnly
-    \sa CFD_CONTROL_TYPE, SetFeaMeshVal
+    \sa CFD_CONTROL_TYPE, SetFeaMeshVal, GetFeaMeshValByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] type int FEA Mesh option type enum (i.e. CFD_MAX_EDGE_LEN)
@@ -19637,6 +20178,46 @@ extern std::string AddFeaProperty( int property_type = 0 );
 */
 
 extern double GetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get an FEA Mesh setting of a Structure, by Structure ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetFeaMeshValByID( struct_id, CFD_MAX_EDGE_LEN, 0.75 );
+
+    if ( abs( GetFeaMeshValByID( struct_id, CFD_MAX_EDGE_LEN ) - 0.75 ) > 1e-12 )
+    {
+        Print( "ERROR: GetFeaMeshValByID did not return the value set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    SetFeaMeshValByID( struct_id, CFD_MAX_EDGE_LEN, 0.75 )
+
+    assert abs( GetFeaMeshValByID( struct_id, CFD_MAX_EDGE_LEN ) - 0.75 ) < 1e-12, "GetFeaMeshValByID did not return the value set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaMeshVal, CFD_CONTROL_TYPE, GetFeaMeshVal
+    \param [in] struct_id string FEA Structure ID
+    \param [in] type int FEA Mesh setting type enum (i.e. CFD_MAX_EDGE_LEN)
+    \return double Value of the setting
+*/
+
+extern double GetFeaMeshValByID( const std::string & struct_id, int type );
 
 /*!
     \ingroup FEAMesh
@@ -19666,7 +20247,7 @@ extern double GetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, in
 
     \endcode
     \endPythonOnly
-    \sa CFD_CONTROL_TYPE, ComputeFeaMesh
+    \sa CFD_CONTROL_TYPE, ComputeFeaMesh, SetFeaMeshValByID
     \param [in] geom_id string Geom ID the structure is on
     \param [in] fea_struct_ind int Index of the structure on that Geom
     \param [in] type int CFD mesh setting enum (i.e. CFD_MAX_EDGE_LEN)
@@ -19674,6 +20255,48 @@ extern double GetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, in
 */
 
 extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type, double val );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set an FEA Mesh setting of a Structure, by Structure ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind = AddFeaStruct( pod_id );
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    SetFeaMeshValByID( struct_id, CFD_MAX_EDGE_LEN, 0.75 );
+
+    if ( abs( GetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN ) - 0.75 ) > 1e-12 )
+    {
+        Print( "ERROR: SetFeaMeshValByID did not set the value" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_ind = AddFeaStruct( pod_id )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    SetFeaMeshValByID( struct_id, CFD_MAX_EDGE_LEN, 0.75 )
+
+    assert abs( GetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN ) - 0.75 ) < 1e-12, "SetFeaMeshValByID did not set the value"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaMeshVal, CFD_CONTROL_TYPE, SetFeaMeshVal
+    \param [in] struct_id string FEA Structure ID
+    \param [in] type int FEA Mesh setting type enum (i.e. CFD_MAX_EDGE_LEN)
+    \param [in] val double Value to set
+*/
+
+extern void SetFeaMeshValByID( const std::string & struct_id, int type, double val );
 
 /*!
     \ingroup FEAMesh
@@ -19819,7 +20442,7 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
 
     \endcode
     \endPythonOnly
-    \sa FEA_EXPORT_TYPE, SetFeaMeshFileName
+    \sa FEA_EXPORT_TYPE, SetFeaMeshFileName, GetFeaMeshFileNameByID
     \param [in] geom_id string Parent Geom ID
     \param [in] fea_struct_ind int FEA Structure index
     \param [in] file_type int FEA output file type enum (i.e. FEA_EXPORT_TYPE)
@@ -19827,6 +20450,46 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
 */
 
 extern std::string GetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Get the name of an FEA Mesh output file of a Structure, by Structure ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = AddFeaStructure( pod_id );
+
+    SetFeaMeshFileNameByID( struct_id, FEA_CALCULIX_FILE_NAME, "spine_calculix.dat" );
+
+    if ( GetFeaMeshFileNameByID( struct_id, FEA_CALCULIX_FILE_NAME ).findFirst( "spine_calculix.dat" ) < 0 )
+    {
+        Print( "ERROR: GetFeaMeshFileNameByID did not return the name set" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_id = AddFeaStructure( pod_id )
+
+    SetFeaMeshFileNameByID( struct_id, FEA_CALCULIX_FILE_NAME, "spine_calculix.dat" )
+
+    assert "spine_calculix.dat" in GetFeaMeshFileNameByID( struct_id, FEA_CALCULIX_FILE_NAME ), "GetFeaMeshFileNameByID did not return the name set"
+
+    \endcode
+    \endPythonOnly
+    \sa SetFeaMeshFileName, FEA_EXPORT_TYPE, GetFeaMeshFileName
+    \param [in] struct_id string FEA Structure ID
+    \param [in] file_type int FEA output file type enum (i.e. FEA_EXPORT_TYPE)
+    \return string File name
+*/
+
+extern std::string GetFeaMeshFileNameByID( const std::string & struct_id, int file_type );
 
 /*!
     \ingroup FEAMesh
@@ -19856,7 +20519,7 @@ extern std::string GetFeaMeshFileName( const std::string & geom_id, int fea_stru
 
     \endcode
     \endPythonOnly
-    \sa FEA_EXPORT_TYPE, ComputeFeaMesh
+    \sa FEA_EXPORT_TYPE, ComputeFeaMesh, SetFeaMeshFileNameByID
     \param [in] geom_id string Geom ID the structure is on
     \param [in] fea_struct_ind int Index of the structure on that Geom
     \param [in] file_type int FEA export type enum (i.e. FEA_MASS_FILE_NAME)
@@ -19864,6 +20527,48 @@ extern std::string GetFeaMeshFileName( const std::string & geom_id, int fea_stru
 */
 
 extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type, const std::string & file_name );
+
+/*!
+    \ingroup FEAMesh
+*/
+/*!
+    Set the name of an FEA Mesh output file of a Structure, by Structure ID.
+    \forcpponly
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    int struct_ind = AddFeaStruct( pod_id );
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+
+    SetFeaMeshFileNameByID( struct_id, FEA_CALCULIX_FILE_NAME, "spine_calculix.dat" );
+
+    if ( GetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME ).findFirst( "spine_calculix.dat" ) < 0 )
+    {
+        Print( "ERROR: SetFeaMeshFileNameByID did not set the name" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pod_id = AddGeom( "POD" )
+
+    struct_ind = AddFeaStruct( pod_id )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    SetFeaMeshFileNameByID( struct_id, FEA_CALCULIX_FILE_NAME, "spine_calculix.dat" )
+
+    assert "spine_calculix.dat" in GetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME ), "SetFeaMeshFileNameByID did not set the name"
+
+    \endcode
+    \endPythonOnly
+    \sa GetFeaMeshFileName, FEA_EXPORT_TYPE, SetFeaMeshFileName
+    \param [in] struct_id string FEA Structure ID
+    \param [in] file_type int FEA output file type enum (i.e. FEA_EXPORT_TYPE)
+    \param [in] file_name string Name for the output file
+*/
+
+extern void SetFeaMeshFileNameByID( const std::string & struct_id, int file_type, const std::string & file_name );
 
 /*!
     \ingroup FEAMesh

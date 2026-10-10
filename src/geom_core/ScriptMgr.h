@@ -333,6 +333,7 @@ private:
     CScriptArray* GetFeaMaterialIDVec();
     CScriptArray* GetFeaPropertyIDVec();
     CScriptArray* GetFeaStructIDVec();
+    CScriptArray* GetFeaStructIDVecByGeom( const string & geom_id );
     CScriptArray* GetAllFeaPolySparPtIDVec( const string & pspar_id );
     CScriptArray* GetFeaPartIDVec( const std::string & fea_struct_id );
     CScriptArray* GetFeaSubSurfIDVec( const std::string & fea_struct_id );

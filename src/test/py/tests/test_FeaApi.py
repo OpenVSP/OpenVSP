@@ -69,3 +69,24 @@ def testAConnectionNeedsFixedPointsOfItsStructures():
     conn = vsp.AddFeaAssemblyConnection( assy, fix1, s1, 0, fix2, s2, 0 )
     assert_no_errors()
     assert vsp.GetFeaAssemblyConnectionID( assy, 0 ) == conn
+
+
+def two_structures():
+    vsp.VSPRenew()
+    drop_errors()
+    pod = vsp.AddGeom( "POD" )
+    s1 = vsp.AddFeaStructure( pod )
+    s2 = vsp.AddFeaStructure( pod )
+    return pod, s1, s2
+
+
+def testTheIndexFormRefusesAPartFromAnotherStructure():
+    pod, s1, s2 = two_structures()
+    slice2 = vsp.AddFeaPartByID( s2, vsp.FEA_SLICE )
+    vsp.DeleteFeaPart( pod, 0, slice2 )
+    assert pop_errors(), "DeleteFeaPart took a part from another structure"
+    assert slice2 in vsp.GetFeaPartIDVec( s2 )
+    vsp.DeleteFeaPartByID( slice2 )
+    assert_no_errors()
+    assert slice2 not in vsp.GetFeaPartIDVec( s2 )
+
