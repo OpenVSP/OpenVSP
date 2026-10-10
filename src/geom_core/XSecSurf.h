@@ -16,10 +16,10 @@
 #include "Airfoil.h"
 
 #include <string>
-#include <deque>
+#include <vector>
 
 using std::string;
-using std::deque;
+using std::vector;
 
 class XSecSurf : public ParmContainer
 {
@@ -85,7 +85,7 @@ public:
 
     int NumXSec() const
     {
-        return m_XSecIDDeque.size();
+        return m_XSecIDVec.size();
     }
 
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
@@ -101,7 +101,7 @@ protected:
     XSec* CreateXSec( int type );
 
     vector< XSec* > m_XSecPtrVec;
-    deque< string > m_XSecIDDeque;
+    vector< string > m_XSecIDVec;
 
     int m_XSecType;
 

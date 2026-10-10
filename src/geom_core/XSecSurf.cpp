@@ -88,9 +88,9 @@ const XSec* XSecSurf::FindConstXSec( int index ) const
 //==== Find XSec Index Given ID ====//
 int XSecSurf::FindXSecIndex( const string &ID ) const
 {
-    for( int i = 0; i < static_cast<int>( m_XSecIDDeque.size() ); i++ )
+    for( int i = 0; i < static_cast<int>( m_XSecIDVec.size() ); i++ )
     {
-        if( m_XSecIDDeque[i] == ID )
+        if( m_XSecIDVec[i] == ID )
         {
             return i;
         }
@@ -102,9 +102,9 @@ int XSecSurf::FindXSecIndex( const string &ID ) const
 string XSecSurf::GetXSecID( int index ) const
 {
     string id;
-    if ( index >= 0 && index < ( int )m_XSecIDDeque.size() )
+    if ( index >= 0 && index < ( int )m_XSecIDVec.size() )
     {
-        id = m_XSecIDDeque[index];
+        id = m_XSecIDVec[index];
     }
     return id;
 }
@@ -112,11 +112,11 @@ string XSecSurf::GetXSecID( int index ) const
 //==== Change XSecID ====//
 void XSecSurf::ChangeXSecID( const string &oldID, const string &newID )
 {
-    for( int i = 0; i < static_cast<int>( m_XSecIDDeque.size() ); i++ )
+    for( int i = 0; i < static_cast<int>( m_XSecIDVec.size() ); i++ )
     {
-        if( m_XSecIDDeque[i] == oldID )
+        if( m_XSecIDVec[i] == oldID )
         {
-            m_XSecIDDeque[i] = newID;
+            m_XSecIDVec[i] = newID;
         }
     }
 }
@@ -258,7 +258,7 @@ void XSecSurf::DeleteAllXSecs()
     }
     m_XSecPtrVec.clear();
 
-    m_XSecIDDeque.clear();
+    m_XSecIDVec.clear();
 }
 
 //==== Insert XSec After Index ====//
@@ -273,13 +273,13 @@ string XSecSurf::InsertXSec( int type, int index )
         m_XSecPtrVec.push_back( xs );
 
         id = xs->GetID();
-        if ( index < ( int )m_XSecIDDeque.size() )
+        if ( index < ( int )m_XSecIDVec.size() )
         {
-            m_XSecIDDeque.insert( m_XSecIDDeque.begin() + index + 1, xs->GetID() );
+            m_XSecIDVec.insert( m_XSecIDVec.begin() + index + 1, xs->GetID() );
         }
         else
         {
-            m_XSecIDDeque.push_back( xs->GetID() );
+            m_XSecIDVec.push_back( xs->GetID() );
         }
     }
     return id;
@@ -296,7 +296,7 @@ string XSecSurf::AddXSec( int type )
         m_XSecPtrVec.push_back( xs );
 
         id = xs->GetID();
-        m_XSecIDDeque.push_back( id );
+        m_XSecIDVec.push_back( id );
     }
     return id;
 }
@@ -316,7 +316,7 @@ string XSecSurf::AddXSecCopy( XSec* copy_xs )
             xs->CopyFrom( copy_xs );
             xs->SetParentContainer( GetID() );
             id = xs->GetID();
-            m_XSecIDDeque.push_back( id );
+            m_XSecIDVec.push_back( id );
         }
     }
     return id;
@@ -325,7 +325,7 @@ string XSecSurf::AddXSecCopy( XSec* copy_xs )
 //==== Cut XSec ====//
 void XSecSurf::CutXSec( int index )
 {
-    if ( (int)m_XSecIDDeque.size() <= m_CutMinNumXSecs )
+    if ( (int)m_XSecIDVec.size() <= m_CutMinNumXSecs )
     {
         return;
     }
@@ -339,7 +339,7 @@ void XSecSurf::CutXSec( int index )
     CopyXSec( index );
 
     vector_remove_val( m_XSecPtrVec, xs );
-    m_XSecIDDeque.erase( m_XSecIDDeque.begin() + index );
+    m_XSecIDVec.erase( m_XSecIDVec.begin() + index );
     delete xs;
 }
 
@@ -365,7 +365,7 @@ void XSecSurf::CopyXSec( int index )
     if ( !veh->GetSavedXSec() )
     {
         veh->SetSavedXSec( CreateXSec( xs->GetXSecCurve()->GetType() ) );
-        // Do not add to m_XSecPtrVec or add ID to m_XSecIDDeque
+        // Do not add to m_XSecPtrVec or add ID to m_XSecIDVec
     }
 
     //==== Copy Data ====//
@@ -543,7 +543,7 @@ void XSecSurf::PasteXSec( int index )
             HandPastedAttributes( xs, new_xs );
             ReleaseParmRefs( refs );
 
-            deque_remove_val( m_XSecIDDeque, xs->GetID() );
+            vector_remove_val( m_XSecIDVec, xs->GetID() );
             vector_remove_val( m_XSecPtrVec, xs );
 
             delete xs;
@@ -668,10 +668,10 @@ void XSecSurf::ChangeXSecShape( int index, int type )
         nxs->DeleteAttributes();
         nxs->TakeIdentityOf( xs );
 
-        m_XSecIDDeque.insert( m_XSecIDDeque.begin() + index, nxs->GetID() );
+        m_XSecIDVec.insert( m_XSecIDVec.begin() + index, nxs->GetID() );
 
         //==== Remove Old XSec ====//
-        m_XSecIDDeque.erase( m_XSecIDDeque.begin() + index + 1 );
+        m_XSecIDVec.erase( m_XSecIDVec.begin() + index + 1 );
         vector_remove_val( m_XSecPtrVec, xs );
         delete xs;
         

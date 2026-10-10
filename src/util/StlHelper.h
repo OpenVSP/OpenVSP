@@ -8,13 +8,11 @@
 
 #include <string>
 #include <vector>
-#include <deque>
 #include <map>
 #include <algorithm>
 #include <limits>
 #include <unordered_set>
 using std::vector;
-using std::deque;
 #include <APIDefines.h>
 
 
@@ -73,38 +71,6 @@ bool vector_contains_val_approx( const vector< T > & vec, T const & val, T const
         }
     }
     return false;
-}
-
-//==== Check If Deque Contains Val =====//
-template <class T>
-bool deque_contains_val( const deque< T > & deque, T const & val )
-{
-    for ( int i = 0 ; i < ( int )deque.size() ; i++ )
-    {
-        if ( val == deque[i] )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-//==== Delete All Items From Deque Matching Val ====//
-template<class T>
-void deque_remove_val( deque< T > & val_deque, T const & val )
-{
-    deque< int > del_indices;
-    for ( int i = 0 ; i < ( int )val_deque.size() ; i++ )
-    {
-        if ( val == val_deque[i] )
-        {
-            del_indices.push_front( i );
-        }
-    }
-    for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
-    {
-        val_deque.erase( val_deque.begin() + del_indices[i] );
-    }
 }
 
 //==== Delete All Items From Vector Matching Val ====//
