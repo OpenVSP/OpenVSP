@@ -13,6 +13,7 @@
 #include <functional>
 #include <atomic>
 #include <exception>
+#include <iterator>
 #include "SurfaceIntersectionMgr.h"
 #include "ResultsMgr.h"
 #include "VspUtil.h"
@@ -455,6 +456,11 @@ SurfaceIntersectionSingleton::~SurfaceIntersectionSingleton()
 #endif
 
 }
+
+// Set true to build and show the draw objects for debugging the intersector: the planes each
+// chain is approximated by, the points that were deleted, and the two patches every
+// intersection segment was found between.  Off, none of it is gathered.
+static const bool DEBUG_ISECT_DRAW = false;
 
 // Where AddIntersectionSeg puts what it makes.  Set for the length of one piece of the
 // intersection, so a piece's output stays together whichever thread ran it.
@@ -2447,8 +2453,8 @@ void SurfaceIntersectionSingleton::IntersectPairs()
         m_DelPuwVec.insert( m_DelPuwVec.end(), out[k].m_Puws.begin(), out[k].m_Puws.end() );
         m_DelIPntVec.insert( m_DelIPntVec.end(), out[k].m_IPnts.begin(), out[k].m_IPnts.end() );
         m_AllIPnts.insert( m_AllIPnts.end(), out[k].m_IPnts.begin(), out[k].m_IPnts.end() );
-        m_IPatchADrawLines.insert( m_IPatchADrawLines.end(), out[k].m_PatchADraw.begin(), out[k].m_PatchADraw.end() );
-        m_IPatchBDrawLines.insert( m_IPatchBDrawLines.end(), out[k].m_PatchBDraw.begin(), out[k].m_PatchBDraw.end() );
+        m_IPatchADrawLines.insert( m_IPatchADrawLines.end(), std::make_move_iterator( out[k].m_PatchADraw.begin() ), std::make_move_iterator( out[k].m_PatchADraw.end() ) );
+        m_IPatchBDrawLines.insert( m_IPatchBDrawLines.end(), std::make_move_iterator( out[k].m_PatchBDraw.begin() ), std::make_move_iterator( out[k].m_PatchBDraw.end() ) );
     }
 }
 
@@ -2719,8 +2725,11 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     tl_isect_out->m_IPnts.push_back( ipnt1 );
 
     // Identify rectangles to represent final patches
-    tl_isect_out->m_PatchADraw.push_back( pA.GetPatchDrawLines() );
-    tl_isect_out->m_PatchBDraw.push_back( pB.GetPatchDrawLines() );
+    if ( DEBUG_ISECT_DRAW )
+    {
+        tl_isect_out->m_PatchADraw.push_back( pA.GetPatchDrawLines() );
+        tl_isect_out->m_PatchBDraw.push_back( pB.GetPatchDrawLines() );
+    }
 
     new ISeg( pA.get_surf_ptr(), pB.get_surf_ptr(), ipnt0, ipnt1 );
 }
@@ -4961,7 +4970,7 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
     m_RawNonManifoldPtsDO.m_GeomChanged = true;
 
     //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//
-    if ( false ) // Set to true to turn visualization tools ON
+    if ( DEBUG_ISECT_DRAW )
     {
         // Set each DrawObj "m_Visible" to true to turn ON
         m_ApproxPlanesDO.m_PntVec.clear();
@@ -5114,7 +5123,7 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     draw_obj_vec.push_back( &m_RawBorderPtsDO );
 
     //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//
-    if ( false ) // Set to true to turn visualization tools ON
+    if ( DEBUG_ISECT_DRAW )
     {
         m_ApproxPlanesDO.m_Visible = false;
         draw_obj_vec.push_back( &m_ApproxPlanesDO );
