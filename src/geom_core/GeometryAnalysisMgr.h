@@ -33,6 +33,7 @@ public:
     void UpdateTargetTypes();
     void UpdateExtentType();
     void GetExtentTypes( vector < int > &types ) const;
+    void UpdateDirection();
 
     void AddAzEl( double az, double el );
     void RemoveAzEl( int indx );

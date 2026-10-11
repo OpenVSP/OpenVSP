@@ -149,19 +149,7 @@ void GeometryAnalysisCase::Update()
 
     if ( m_GeometryAnalysisType() == vsp::PROJ_AREA )
     {
-        vec3d dir = ProjectionMgr.GetDirection( m_DirectionType(), m_DirectionGeomID );
-
-        switch ( m_DirectionType() )
-        {
-            case vsp::X_PROJ:
-            case vsp::Y_PROJ:
-            case vsp::Z_PROJ:
-            case vsp::GEOM_PROJ:
-                m_DispX = dir.x();
-                m_DispY = dir.y();
-                m_DispZ = dir.z();
-                break;
-        }
+        UpdateDirection();
     }
 
     if ( m_AutoBoundsFlag() )
@@ -266,6 +254,23 @@ void GeometryAnalysisCase::UpdateExtentType()
     if ( !vector_contains_val( types, m_ExtentType() ) )
     {
         m_ExtentType = types[ 0 ];
+    }
+}
+
+void GeometryAnalysisCase::UpdateDirection()
+{
+    vec3d dir = ProjectionMgr.GetDirection( m_DirectionType(), m_DirectionGeomID );
+
+    switch ( m_DirectionType() )
+    {
+        case vsp::X_PROJ:
+        case vsp::Y_PROJ:
+        case vsp::Z_PROJ:
+        case vsp::GEOM_PROJ:
+            m_DispX = dir.x();
+            m_DispY = dir.y();
+            m_DispZ = dir.z();
+            break;
     }
 }
 
@@ -2310,6 +2315,9 @@ string GeometryAnalysisCase::Evaluate()
             }
             case vsp::PROJ_AREA:
             {
+                // After the Mode, which can move the direction Geom.
+                UpdateDirection();
+
                 primary_tmv = GetPrimaryTMeshVec();
 
                 if ( !primary_tmv.empty() )
