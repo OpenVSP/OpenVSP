@@ -8,6 +8,49 @@
 
 #include "Matrix4d.h"
 
+// Sine and cosine of an angle in degrees.  The angle is first reduced, exactly, to within 45
+// degrees of a quarter turn, so whole and quarter turns give exact zeros and ones.
+static void sincos_deg( const double &deg, double &s, double &c )
+{
+    double r = deg;
+    if ( r > 180.0 || r < -180.0 )
+    {
+        r = std::remainder( deg, 360.0 );
+    }
+
+    double q = 0.0;
+    double a = r;
+    if ( r > 45.0 || r < -45.0 )
+    {
+        q = std::nearbyint( r / 90.0 );
+        a = r - q * 90.0;
+    }
+    double rang = a * M_PI / 180.0;
+    double sa = sin( rang );
+    double ca = cos( rang );
+
+    if ( q == 1.0 )
+    {
+        s = ca;
+        c = -sa;
+    }
+    else if ( q == -1.0 )
+    {
+        s = -ca;
+        c = sa;
+    }
+    else if ( q == 2.0 || q == -2.0 )
+    {
+        s = -sa;
+        c = -ca;
+    }
+    else
+    {
+        s = sa;
+        c = ca;
+    }
+}
+
 Matrix4d::Matrix4d()
 {
     loadIdentity();
@@ -73,9 +116,8 @@ void Matrix4d::translatev( const vec3d &v )
 void Matrix4d::rotateX( const double &ang )
 {
     double tmat[16];
-    double rang = ang * ( double )M_PI / 180.0f;
-    double ca = ( double )cos( rang );
-    double sa = ( double )sin( rang );
+    double ca, sa;
+    sincos_deg( ang, sa, ca );
 
     setIdentity( tmat );
     tmat[5] = ca;
@@ -89,9 +131,8 @@ void Matrix4d::rotateX( const double &ang )
 void Matrix4d::rotateY( const double &ang )
 {
     double tmat[16];
-    double rang = ang * ( double )M_PI / 180.0f;
-    double ca = ( double )cos( rang );
-    double sa = ( double )sin( rang );
+    double ca, sa;
+    sincos_deg( ang, sa, ca );
 
     setIdentity( tmat );
     tmat[0] = ca;
@@ -105,9 +146,8 @@ void Matrix4d::rotateY( const double &ang )
 void Matrix4d::rotateZ( const double &ang )
 {
     double tmat[16];
-    double rang = ang * ( double )M_PI / 180.0f;
-    double ca = ( double )cos( rang );
-    double sa = ( double )sin( rang );
+    double ca, sa;
+    sincos_deg( ang, sa, ca );
 
     setIdentity( tmat );
     tmat[0] = ca;
