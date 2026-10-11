@@ -2925,6 +2925,7 @@ void SurfaceIntersectionSingleton::BuildChains()
     LinkIPntPartners();
 
     PntNodeCloud i_pnt_cloud;
+    i_pnt_cloud.ReserveMorePntNodes( m_AllIPnts.size() );
 
     for ( size_t i = 0; i < m_AllIPnts.size(); i++ )
     {
