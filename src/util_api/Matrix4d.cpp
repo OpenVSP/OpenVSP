@@ -396,25 +396,24 @@ vec3d Matrix4d::getArcballAngles() const
     vec3d angles;
 
     // Operates transpose to ArcballCam's getRotationEulerAngles
-    // ArcballCam assumes matrix is transposed before operating, elements here are swapped accordingly
-    if ( mat[9] >= 1 )
+    // R = Ry Rx Rz.  Its second row is ( cos_x sin_z, cos_x cos_z, -sin_x ).
+    double cos_x = sqrt( mat[1] * mat[1] + mat[5] * mat[5] );
+    angles.set_x( atan2( -mat[9], cos_x ) );
+
+    if ( cos_x > 0.0 )
     {
-        angles.set_y( atan2( -mat[2], mat[0] ) );
-        angles.set_x( - 0.5 * M_PI );
-        angles.set_z( 0 );
+        angles.set_z( atan2( mat[1], mat[5] ) );
     }
-    else if ( mat[9] <= -1 )
+    else
     {
-        angles.set_y( atan2( -mat[2], mat[0] ) );
-        angles.set_x( 0.5 * M_PI );
-        angles.set_z( 0 );
+        angles.set_z( 0.0 );
     }
-    else // Nominal case.
-    {
-        angles.set_y( atan2( mat[8], mat[10] ) );
-        angles.set_x( - asin( mat[9] ) );
-        angles.set_z( atan2( mat[1], mat[5]) );
-    }
+
+    // Take Y from R Rz^T = Ry Rx, whose first column is ( cos_y, 0, -sin_y ), so Y absorbs
+    // whatever Z left over when X is near +-90 degrees.
+    double sin_z = sin( angles.z() );
+    double cos_z = cos( angles.z() );
+    angles.set_y( atan2( sin_z * mat[6] - cos_z * mat[2], cos_z * mat[0] - sin_z * mat[4] ) );
 
     // Return angles in radians
     return angles;
