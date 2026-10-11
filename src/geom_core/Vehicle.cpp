@@ -5082,7 +5082,7 @@ void Vehicle::WriteX3DViewpoints( xmlNodePtr node )
         view_axis.normalize();
 
         vec3d rot_axis = cross( k, view_axis );
-        double angle = asin( rot_axis.mag() );
+        double angle = atan2( rot_axis.mag(), dot( k, view_axis ) );
         rot_axis.normalize();
 
         // if rotating view again combine rotations using quaternions //

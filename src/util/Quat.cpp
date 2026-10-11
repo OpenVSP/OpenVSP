@@ -42,7 +42,18 @@ quat hamilton( const quat& a, const quat& b )
 // Axis is where the rotation axis will be stored, and angle is where the angle will be stored //
 void quat::quat2axisangle( vec3d& axis, double& angle ) const
 {
-    double denom = sqrt( 1 - q[0] * q[0] );
-    angle = 2 * acos( q[0] );
-    axis = vec3d( q[1] / denom, q[2] / denom, q[3] / denom );
+    // The vector part is sin( angle / 2 ) axis and the scalar part cos( angle / 2 ); atan2 of the two
+    // keeps its digits near 0 and 2 pi, where acos and sqrt( 1 - w^2 ) lose them.
+    double s = sqrt( q[1] * q[1] + q[2] * q[2] + q[3] * q[3] );
+    angle = 2 * atan2( s, q[0] );
+
+    if ( s > 0.0 )
+    {
+        axis = vec3d( q[1] / s, q[2] / s, q[3] / s );
+    }
+    else
+    {
+        // No rotation
+        axis = vec3d( 0, 0, 1 );
+    }
 }
