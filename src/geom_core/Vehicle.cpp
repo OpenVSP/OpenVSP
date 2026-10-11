@@ -6906,8 +6906,6 @@ void Vehicle::UpdateBBox()
 
     if( ngeom > 0 && ( scale_independent_box != m_ScaleIndependentBBox ) )
     {
-        m_ScaleIndependentBBox = scale_independent_box;
-
         double xlen = scale_independent_box.GetMax( 0 ) - scale_independent_box.GetMin( 0 );
         double ylen = scale_independent_box.GetMax( 1 ) - scale_independent_box.GetMin( 1 );
         double zlen = scale_independent_box.GetMax( 2 ) - scale_independent_box.GetMin( 2 );
@@ -6915,10 +6913,14 @@ void Vehicle::UpdateBBox()
         // Every scale-sensitive consumer (gear auto ground plane, auxiliary geom reference
         // lengths, engine auto extension) depends only on the box size, which is invariant
         // under pure translation.  Only re-update those Geoms when the size changes, so
-        // moving geometry around does not force a second full update pass.
-        bool size_changed = ( xlen != m_ScaleIndependentBbXLen() ) ||
-                            ( ylen != m_ScaleIndependentBbYLen() ) ||
-                            ( zlen != m_ScaleIndependentBbZLen() );
+        // moving geometry around does not force a second full update pass.  The size is
+        // compared with the box last computed, not with the length Parms, which a file
+        // read restores before any box exists.
+        bool size_changed = ( xlen != m_ScaleIndependentBBox.GetMax( 0 ) - m_ScaleIndependentBBox.GetMin( 0 ) ) ||
+                            ( ylen != m_ScaleIndependentBBox.GetMax( 1 ) - m_ScaleIndependentBBox.GetMin( 1 ) ) ||
+                            ( zlen != m_ScaleIndependentBBox.GetMax( 2 ) - m_ScaleIndependentBBox.GetMin( 2 ) );
+
+        m_ScaleIndependentBBox = scale_independent_box;
 
         m_ScaleIndependentBbXLen = xlen;
         m_ScaleIndependentBbYLen = ylen;
