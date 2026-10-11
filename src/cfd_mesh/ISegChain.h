@@ -96,7 +96,7 @@ class IPnt
 public:
     IPnt();
     IPnt( Puw* p0, Puw* p1 );
-    virtual ~IPnt();
+    ~IPnt();
 
     void CompPnt();
 
@@ -114,13 +114,13 @@ public:
 
     bool m_UsedFlag;
     bool m_GroupedFlag;
+
+    // Where the point is in SurfaceIntersectionSingleton::m_AllIPnts, or -1 if it is not there
+    int m_AllIndex;
+
     vec3d m_Pnt;
     vector< Puw* >  m_Puws;
     vector< ISeg* > m_Segs;
-
-    // The edge the point lies on, and the point of the segment across it, where there is one
-    IPntEdge m_Edge;
-    IPnt* m_Partner;
 };
 
 //==== Intersection Segment ====//
