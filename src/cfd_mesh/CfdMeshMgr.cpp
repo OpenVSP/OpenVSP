@@ -30,6 +30,10 @@
 
 
 
+// Set true to gather, and report after every mesh, how far the edges came out from the
+// length they were sized to.  Off, none of it is gathered.
+static const bool TARGET_LENGTH_REPORT = false;
+
 CfdMeshMgrSingleton::CfdMeshMgrSingleton() : SurfaceIntersectionSingleton()
 {
     m_Vehicle = VehicleMgr.GetVehicle();
@@ -178,8 +182,11 @@ void CfdMeshMgrSingleton::GenerateMesh()
 
     RecordResults();
 
-    // string lenTxt = TargetLengthReport();
-    // addOutputText( lenTxt );
+    if ( TARGET_LENGTH_REPORT )
+    {
+        string lenTxt = TargetLengthReport();
+        addOutputText( lenTxt );
+    }
 
     m_DrawObjsStale = true;
 
@@ -1289,22 +1296,26 @@ void CfdMeshMgrSingleton::PostMesh()
     RunIndexed( nsurf, nthread, [&]( int i )
     {
         m_SurfVec[ i ]->GetMesh()->LoadSimpFaces();
-        m_SurfVec[ i ]->GetMesh()->AccumLengthRatios( lenratio[i] );
 
-        // The same misses counted per face instead of per edge, which is what the coloured
-        // picture shows: a face is as bad as its worst edge, so the share of bad faces is
-        // always larger than the share of bad edges and the two must not be confused.
-        const vector< SimpFace > &sfv = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
-
-        for ( int f = 0 ; f < ( int )sfv.size() ; f++ )
+        if ( TARGET_LENGTH_REPORT )
         {
-            if ( sfv[f].m_WorstLenRatio > 0.0 )
-            {
-                faceratio[i].push_back( sfv[f].m_WorstLenRatio );
+            m_SurfVec[ i ]->GetMesh()->AccumLengthRatios( lenratio[i] );
 
-                if ( sfv[f].m_OffBorder )
+            // The same misses counted per face instead of per edge, which is what the coloured
+            // picture shows: a face is as bad as its worst edge, so the share of bad faces is
+            // always larger than the share of bad edges and the two must not be confused.
+            const vector< SimpFace > &sfv = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+
+            for ( int f = 0 ; f < ( int )sfv.size() ; f++ )
+            {
+                if ( sfv[f].m_WorstLenRatio > 0.0 )
                 {
-                    borderratio[i].push_back( sfv[f].m_WorstLenRatio );
+                    faceratio[i].push_back( sfv[f].m_WorstLenRatio );
+
+                    if ( sfv[f].m_OffBorder )
+                    {
+                        borderratio[i].push_back( sfv[f].m_WorstLenRatio );
+                    }
                 }
             }
         }
