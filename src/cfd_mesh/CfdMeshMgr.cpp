@@ -1466,7 +1466,16 @@ void CfdMeshMgrSingleton::ExportFiles()
 void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
 {
     //==== Find All Points and Tri Counts ====//
+    size_t npnt = 0;
+    size_t nallface = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        npnt += m_SurfVec[i]->GetMesh()->GetSimpPntVec().size();
+        nallface += m_SurfVec[i]->GetMesh()->GetSimpFaceVec().size();
+    }
+
     vector< vec3d > allPntVec;
+    allPntVec.reserve( npnt );
     vector < vector < int > > allPntKey;
     allPntKey.resize( m_SurfVec.size() );
     int k = 0;
@@ -1492,6 +1501,7 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
 
     //==== Assemble Normal Tris ====//
     vector< SimpFace > allFaceVec;
+    allFaceVec.reserve( nallface );
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
@@ -1519,6 +1529,7 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
     }
     //==== Assemble All Used Points ====//
     vector< vec3d > allUsedPntVec;
+    allUsedPntVec.reserve( pnCloud.m_NumUsedPts );
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
     {
         if ( pnCloud.UsedNode( i ) )
@@ -1526,6 +1537,11 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
             allUsedPntVec.push_back( allPntVec[i] );
         }
     }
+
+    // The faces are numbered now, so the map and the points it was built from are done with.
+    pnCloud.Cleanup();
+    vector< vec3d >().swap( allPntVec );
+    vector < vector < int > >().swap( allPntKey );
 
     FILE* file_id = fopen( filename.c_str(), "w" );
     if ( file_id )
@@ -1650,7 +1666,14 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     }
 
     int face_cnt = 0;
+    size_t npnt = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        npnt += m_SurfVec[i]->GetMesh()->GetSimpPntVec().size();
+    }
+
     vector< vec3d > allPntVec;
+    allPntVec.reserve( npnt );
     vector < vector < int > > allPntKey;
     allPntKey.resize( m_SurfVec.size() );
     int k = 0;
@@ -1839,8 +1862,26 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     double tol = 1e-12;
 
     //==== Find All Points and Tri Counts ====//
+    size_t npnt = 0;
+    size_t nwpnt = 0;
+    size_t nallface = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        if ( m_SurfVec[i]->GetWakeFlag() )
+        {
+            nwpnt += m_SurfVec[i]->GetMesh()->GetSimpPntVec().size();
+        }
+        else
+        {
+            npnt += m_SurfVec[i]->GetMesh()->GetSimpPntVec().size();
+        }
+        nallface += m_SurfVec[i]->GetMesh()->GetSimpFaceVec().size();
+    }
+
     vector< vec3d > allPntVec;
+    allPntVec.reserve( npnt );
     vector< vec3d > wakeAllPntVec;
+    wakeAllPntVec.reserve( nwpnt );
     vector < vector < int > > allPntKey;
     allPntKey.resize( m_SurfVec.size() );
     vector < vector < int > > allWPntKey;
@@ -1887,11 +1928,15 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
     //==== Assemble Normal Tris ====//
     vector< SimpFace > allFaceVec;
+    allFaceVec.reserve( nallface );
     int ntristrict = 0;
-    vector< int > allSurfIDVec;
     // Four parameter pairs per face, laid end to end.  A vector per face is an allocation
-    // per face, and a mesh has a million of them.
+    // per face, and a mesh has a million of them.  Only the VSPGEOM file reads them.
     vector< vec2d > allUWVec;
+    if ( !vspgeom_fn.empty() )
+    {
+        allUWVec.reserve( 4 * nallface );
+    }
     vector < pair < int, int > > wedges;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -1917,7 +1962,6 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 sface.m_Tags = sFaceVec[t].m_Tags;
                 ntristrict++;
                 allFaceVec.push_back( sface );
-                allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
 
                 vec2d uwFace[4];
                 uwFace[0] = sUWVec[ sFaceVec[t].ind0 ];
@@ -1927,7 +1971,10 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 {
                     uwFace[3] = sUWVec[ sFaceVec[t].ind3 ];
                 }
-                allUWVec.insert( allUWVec.end(), uwFace, uwFace + 4 );
+                if ( !vspgeom_fn.empty() )
+                {
+                    allUWVec.insert( allUWVec.end(), uwFace, uwFace + 4 );
+                }
 
                 if ( m_SurfVec[i]->GetSurfaceVSPType() == vsp::WING_SURF )
                 {
@@ -2059,6 +2106,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
     //==== Assemble All Used Points ====//
     vector< vec3d > allUsedPntVec;
+    allUsedPntVec.reserve( pnCloud.m_NumUsedPts + wakepnCloud.m_NumUsedPts );
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
     {
         if ( pnCloud.UsedNode( i ) )
@@ -2098,7 +2146,6 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 sface.m_Tags = sFaceVec[f].m_Tags;
                 ntristrict++;
                 allFaceVec.push_back( sface );
-                allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
 
                 vec2d uwFace[4];
                 uwFace[0] = sUWVec[ sFaceVec[f].ind0 ];
@@ -2108,7 +2155,10 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 {
                     uwFace[3] = sUWVec[ sFaceVec[f].ind3 ];
                 }
-                allUWVec.insert( allUWVec.end(), uwFace, uwFace + 4 );
+                if ( !vspgeom_fn.empty() )
+                {
+                    allUWVec.insert( allUWVec.end(), uwFace, uwFace + 4 );
+                }
 
             }
         }
@@ -2122,6 +2172,14 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             allUsedPntVec.push_back( wakeAllPntVec[i] );
         }
     }
+
+    // The faces are numbered now, so the maps and the points they were built from are done with.
+    pnCloud.Cleanup();
+    wakepnCloud.Cleanup();
+    vector< vec3d >().swap( allPntVec );
+    vector< vec3d >().swap( wakeAllPntVec );
+    vector < vector < int > >().swap( allPntKey );
+    vector < vector < int > >().swap( allWPntKey );
 
     //=====================================================================================//
     //==== Write NASCART File =================================================================//
@@ -3002,7 +3060,16 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
     // Note: Wake mesh not included in Facet export
 
     //==== Find All Points and Tri Counts ====//
+    size_t npnt = 0;
+    size_t nallface = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        npnt += m_SurfVec[i]->GetMesh()->GetSimpPntVec().size();
+        nallface += m_SurfVec[i]->GetMesh()->GetSimpFaceVec().size();
+    }
+
     vector< vec3d > allPntVec;
+    allPntVec.reserve( npnt );
     vector < vector < int > > allPntKey;
     allPntKey.resize( m_SurfVec.size() );
     int k = 0;
@@ -3031,6 +3098,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
 
     //==== Assemble Normal Tris ====//
     vector< SimpFace > allFaceVec;
+    allFaceVec.reserve( nallface );
     for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
     {
         if ( !m_SurfVec[i]->GetWakeFlag() )
@@ -3059,6 +3127,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
     }
     //==== Assemble All Used Points ====//
     vector< vec3d > allUsedPntVec;
+    allUsedPntVec.reserve( pnCloud.m_NumUsedPts );
     for ( int i = 0; i < (int)allPntVec.size(); i++ )
     {
         if ( pnCloud.UsedNode( i ) )
@@ -3066,6 +3135,11 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
             allUsedPntVec.push_back( allPntVec[i] );
         }
     }
+
+    // The faces are numbered now, so the map and the points it was built from are done with.
+    pnCloud.Cleanup();
+    vector< vec3d >().swap( allPntVec );
+    vector < vector < int > >().swap( allPntKey );
 
     //=====================================================================================//
     //==== Write Facet File for Xpatch ====================================================//
