@@ -905,17 +905,7 @@ bool GeometryAnalysisScreen::Update()
         }
 
         // Single-geometry cases.
-        if ( gcase->m_GeometryAnalysisType() == vsp::EXTERNAL_SELF_INTERFERENCE ||
-             gcase->m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
-             gcase->m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
-             gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS ||
-             gcase->m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS ||
-             gcase->m_GeometryAnalysisType() == vsp::COMP_GEOM ||
-             gcase->m_GeometryAnalysisType() == vsp::PLANAR_SLICE ||
-             gcase->m_GeometryAnalysisType() == vsp::MASS_PROP ||
-             gcase->m_GeometryAnalysisType() == vsp::AERO_CENTER ||
-           ( gcase->m_GeometryAnalysisType() == vsp::PROJ_AREA &&
-            !gcase->m_BoundaryEnableFlag() ) )
+        if ( !gcase->UsesSecondary() )
         {
             m_SecondaryLayout.GetGroup()->deactivate();
         }
@@ -1084,15 +1074,7 @@ void GeometryAnalysisScreen::UpdateGeometryAnalysisBrowser()
     for ( int i = 0 ; i < (int)gcases.size() ; i++ )
     {
         string secondary;
-        if ( gcases[i]->m_GeometryAnalysisType() != vsp::EXTERNAL_SELF_INTERFERENCE &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_CG_TIPBACK_ANALYSIS &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::GEAR_TIPOVER_ANALYSIS &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::VISIBLE_AT_SURF_ANALYSIS &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::COMP_GEOM &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::PLANAR_SLICE &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::MASS_PROP &&
-             gcases[i]->m_GeometryAnalysisType() != vsp::AERO_CENTER )
+        if ( gcases[i]->UsesSecondary() )
         {
             secondary = gcases[i]->GetSecondaryName();
         }

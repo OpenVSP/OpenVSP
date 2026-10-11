@@ -41,6 +41,7 @@ public:
 
     string GetPrimaryName() const;
     string GetSecondaryName() const;
+    bool UsesSecondary() const;
 
     vector< TMesh* > GetPrimaryTMeshVec();
     vector< TMesh* > GetPrimaryTMeshVec( BndBox & bbox );

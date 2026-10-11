@@ -404,6 +404,26 @@ string GeometryAnalysisCase::GetSecondaryName() const
     return string();
 }
 
+// Whether the analysis reads the secondary at all.
+bool GeometryAnalysisCase::UsesSecondary() const
+{
+    if ( m_GeometryAnalysisType() == vsp::EXTERNAL_SELF_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::VISIBLE_AT_SURF_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::COMP_GEOM ||
+         m_GeometryAnalysisType() == vsp::PLANAR_SLICE ||
+         m_GeometryAnalysisType() == vsp::MASS_PROP ||
+         m_GeometryAnalysisType() == vsp::AERO_CENTER ||
+       ( m_GeometryAnalysisType() == vsp::PROJ_AREA &&
+        !m_BoundaryEnableFlag() ) )
+    {
+        return false;
+    }
+    return true;
+}
+
 vector< TMesh* > GeometryAnalysisCase::GetPrimaryTMeshVec()
 {
     BndBox bbox;
