@@ -1710,7 +1710,7 @@ void CSTAirfoil::FitCurve( const VspCurve &c, int deg )
     cst_fitter.create( cst, transform_out, translate_out, actual_leading_edge_t );
 
     m_Scale = 1.0 / transform_out(2,2);
-    m_Theta = std::asin( -transform_out(1,0) * m_Scale() ) * 180.0 / M_PI;
+    m_Theta = std::atan2( -transform_out(1,0), transform_out(0,0) ) * 180.0 / M_PI;
 
     translate_out = (translate_out*m_Scale())*transform_out*m_Scale();
     m_DeltaX = -translate_out.x();
