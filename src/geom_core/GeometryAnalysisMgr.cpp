@@ -2318,6 +2318,11 @@ string GeometryAnalysisCase::Evaluate()
                 // After the Mode, which can move the direction Geom.
                 UpdateDirection();
 
+                if ( !ProjectionMgr.CheckDirection( m_DirectionType(), m_DirectionGeomID, vec3d( m_DispX(), m_DispY(), m_DispZ() ) ) )
+                {
+                    break;
+                }
+
                 primary_tmv = GetPrimaryTMeshVec();
 
                 if ( !primary_tmv.empty() )

@@ -1949,6 +1949,11 @@ string ProjectionAnalysis::Execute()
         dir = ProjectionMgr.GetDirection( directionType, directionGeomID );
     }
 
+    if ( !ProjectionMgr.CheckDirection( directionType, directionGeomID, dir ) )
+    {
+        return string();
+    }
+
     Results* res = nullptr;
 
     switch ( boundaryType )

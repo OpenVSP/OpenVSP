@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <cfloat>
 #include <cmath>
 
 #include "ProjectionMgr.h"
@@ -14,6 +15,7 @@
 #include "Vehicle.h"
 #include "MeshGeom.h"
 #include "ModeMgr.h"
+#include "MessageMgr.h"
 #include "PGMesh.h"
 
 #include "triangle.h"
@@ -102,6 +104,38 @@ vec3d ProjectionMgrSingleton::GetDirection( int dirtype, const string &dirid )
     return dir;
 }
 
+// Report a missing direction Geom or a direction of zero length, which would project to no area.
+bool ProjectionMgrSingleton::CheckDirection( int dirtype, const string &dirid, const vec3d &dir )
+{
+    MessageData errMsgData;
+    errMsgData.m_String = "Error";
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( dirtype == vsp::GEOM_PROJ && ( !veh || !veh->FindGeom( dirid ) ) )
+    {
+        errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_GEOM_ID );
+        errMsgData.m_StringVec.push_back( "Error:  No projection direction Geom '" + dirid + "'." );
+    }
+    else if ( dir.mag() <= DBL_EPSILON )
+    {
+        errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_INPUT_VAL );
+        if ( dirtype == vsp::GEOM_PROJ )
+        {
+            errMsgData.m_StringVec.push_back( "Error:  Projection direction Geom '" + dirid + "' has no normal at u = 0, w = 0 of its first surface." );
+        }
+        else
+        {
+            errMsgData.m_StringVec.push_back( "Error:  Projection direction has zero length." );
+        }
+    }
+    else
+    {
+        return true;
+    }
+
+    MessageMgr::getInstance().SendAll( errMsgData );
+    return false;
+}
 
 void ProjectionMgrSingleton::UpdateDirection()
 {
@@ -153,6 +187,11 @@ Results* ProjectionMgrSingleton::Project( )
     // After the Mode, which can move the direction Geom.
     UpdateDirection();
     vec3d dir = GetDirection();
+
+    if ( !CheckDirection( veh->m_DirectionType(), m_DirectionGeomID, dir ) )
+    {
+        return nullptr;
+    }
 
     switch ( veh->m_BoundaryType() )
     {
