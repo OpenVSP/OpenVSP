@@ -36,13 +36,10 @@ NURBS_Curve::NURBS_Curve()
 
 void NURBS_Curve::InitPolyline( SCurve curveA, SCurve curveB, double curve_tol )
 {
-    Bezier_curve uwcrvA = curveA.GetUWCrv();
-    Bezier_curve uwcrvB = curveB.GetUWCrv();
-
     // At the same points in the parameters of both parents.  A border runs where two patches
     // meet, often tangent to each other, so only an intersection is put on both.
     IsectAdaptCurve poly;
-    poly.Adapt( uwcrvA, uwcrvB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, false, curve_tol, 0.0 );
+    poly.Adapt( curveA, curveB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, false, curve_tol, 0.0 );
 
     m_PntVec.resize( poly.m_Pnts.size() );
     m_UWPntVec_A.resize( poly.m_Pnts.size() );
@@ -90,15 +87,12 @@ static vec3d PiecewisePnt( const vector < vec3d > &cp, int deg, const vector < d
 
 void NURBS_Curve::InitCAD( SCurve curveA, SCurve curveB, double tol )
 {
-    Bezier_curve uwcrvA = curveA.GetUWCrv();
-    Bezier_curve uwcrvB = curveB.GetUWCrv();
-
     // A border is the parameter line of its surface it runs along, and an intersection the cubic
     // adapted onto both parents
     if ( !m_BorderFlag || !BuildBorderCADCurve( curveA, curveB, tol ) )
     {
         IsectAdaptCurve adapt;
-        adapt.Adapt( uwcrvA, uwcrvB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, true, 0.0, tol );
+        adapt.Adapt( curveA, curveB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, true, 0.0, tol );
         adapt.GetBezier( m_CADPntVec, m_CADUWPntVec_A, m_CADUWPntVec_B, m_CADBreakVec, m_CADDeg );
 
         if ( adapt.m_NumMiss > 0 )

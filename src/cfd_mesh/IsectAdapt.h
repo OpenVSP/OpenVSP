@@ -23,6 +23,7 @@
 #include <vector>
 
 class Surf;
+class SCurve;
 
 // One point of an adapted intersection curve.
 struct IsectAdaptPnt
@@ -59,7 +60,7 @@ class IsectAdaptCurve
 {
 public:
 
-    // Adapt the curve the raw points uwcrvA and uwcrvB describe on surfA and surfB.
+    // Adapt the curve the raw points of crvA and crvB describe on surfA and surfB.
     //
     // refine     put every point the adaptation adds on both surfaces
     // cubic      make each segment a cubic from the points and tangents at its ends
@@ -71,7 +72,7 @@ public:
     // a cubic curve, which is written with its pcurves, also from each surface's image of the
     // segment in its own parameters.  Unrefined, the points are on the first surface only,
     // and it alone is measured.
-    void Adapt( const Bezier_curve &uwcrvA, const Bezier_curve &uwcrvB, const Surf &surfA, const Surf &surfB,
+    void Adapt( const SCurve &crvA, const SCurve &crvB, const Surf &surfA, const Surf &surfB,
                 bool refine, bool cubic, double rel_tol, double abs_tol, int Nlimit = 16 );
 
     // The adapted curve as a piecewise Bezier curve of degree 1 or 3: control points in
@@ -123,8 +124,8 @@ protected:
     // How far apart the two surfaces are at a point's parameters on each
     double SurfGap( const IsectAdaptPnt &p ) const;
 
-    const Bezier_curve *m_CrvA;
-    const Bezier_curve *m_CrvB;
+    const SCurve *m_CrvA;
+    const SCurve *m_CrvB;
 
     // Parameter range of the raw curves, and the ends of their segments
     double m_T0;

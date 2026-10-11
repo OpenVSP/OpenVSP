@@ -103,20 +103,9 @@ Bezier_curve SCurve::GetUWCrv() const
 
 // Evaluate the polyline as Code-Eli evaluates the curve InterpolateLinear builds: segment i
 // spans parameter [i, i+1], and a parameter out of range lands on the last segment.
-vec3d SCurve::UWCompPnt01( double u ) const
+vec3d SCurve::UWPolylinePnt( double t ) const
 {
-    if ( m_UWPolyline.empty() )
-    {
-        return m_UWCrv.CompPnt01( u );
-    }
-
-    if ( u > 1.0 )
-    {
-        u = 1.0;
-    }
-
     int nseg = ( int )m_UWPolyline.size() - 1;
-    double t = u * nseg;
 
     int i = nseg - 1;
     double tt;
@@ -141,6 +130,52 @@ vec3d SCurve::UWCompPnt01( double u ) const
     const vec3d &p1 = m_UWPolyline[i + 1];
     double omt = 1.0 - tt;
     return vec3d( omt * p0.x() + tt * p1.x(), omt * p0.y() + tt * p1.y(), omt * p0.z() + tt * p1.z() );
+}
+
+vec3d SCurve::UWCompPnt01( double u ) const
+{
+    if ( m_UWPolyline.empty() )
+    {
+        return m_UWCrv.CompPnt01( u );
+    }
+
+    if ( u > 1.0 )
+    {
+        u = 1.0;
+    }
+
+    int nseg = ( int )m_UWPolyline.size() - 1;
+    return UWPolylinePnt( u * nseg );
+}
+
+vec3d SCurve::UWCompPnt( double t ) const
+{
+    if ( m_UWPolyline.empty() )
+    {
+        return m_UWCrv.CompPnt( t );
+    }
+
+    int nseg = ( int )m_UWPolyline.size() - 1;
+    if ( t > nseg )
+    {
+        t = nseg;
+    }
+    return UWPolylinePnt( t );
+}
+
+void SCurve::GetUWParms( vector< double > &parms ) const
+{
+    if ( m_UWPolyline.empty() )
+    {
+        m_UWCrv.GetCurve().get_pmap( parms );
+        return;
+    }
+
+    parms.resize( m_UWPolyline.size() );
+    for ( size_t i = 0; i < parms.size(); i++ )
+    {
+        parms[i] = ( double )i;
+    }
 }
 
 vec3d SCurve::UWFirstPnt() const

@@ -10,6 +10,7 @@
 #include "IsectAdapt.h"
 #include "IntersectPatch.h"
 #include "Surf.h"
+#include "SCurve.h"
 
 #include <algorithm>
 #include <cmath>
@@ -113,7 +114,7 @@ vec3d IsectAdaptCurve::RawDir( double t ) const
         double ta = std::max( t - dt, t0 );
         double tb = std::min( t + dt, t1 );
 
-        dir = SurfPnt( *m_SurfA, m_CrvA->CompPnt( tb ) ) - SurfPnt( *m_SurfA, m_CrvA->CompPnt( ta ) );
+        dir = SurfPnt( *m_SurfA, m_CrvA->UWCompPnt( tb ) ) - SurfPnt( *m_SurfA, m_CrvA->UWCompPnt( ta ) );
 
         if ( dir.mag() > m_DirTol )
         {
@@ -442,7 +443,7 @@ void IsectAdaptCurve::FindBreakPnts( const IsectAdaptPnt &p0, const IsectAdaptPn
     m_SurfA->GetSurfCore()->GetSurf()->get_pmap_uv( pmap[0], pmap[1] );
     m_SurfB->GetSurfCore()->GetSurf()->get_pmap_uv( pmap[2], pmap[3] );
 
-    const Bezier_curve *crvs[2] = { m_CrvA, m_CrvB };
+    const SCurve *crvs[2] = { m_CrvA, m_CrvB };
 
     // Each raw segment's crossings of a break, put on both surfaces with that parameter held on it
     for ( int j = 1; j < ( int )m_RawT.size(); j++ )
@@ -455,8 +456,8 @@ void IsectAdaptCurve::FindBreakPnts( const IsectAdaptPnt &p0, const IsectAdaptPn
             int isurf = k / 2;
             int icomp = k % 2;
 
-            double va = crvs[isurf]->CompPnt( ta )[icomp];
-            double vb = crvs[isurf]->CompPnt( tb )[icomp];
+            double va = crvs[isurf]->UWCompPnt( ta )[icomp];
+            double vb = crvs[isurf]->UWCompPnt( tb )[icomp];
             double lo = std::min( va, vb );
             double hi = std::max( va, vb );
 
@@ -470,12 +471,12 @@ void IsectAdaptCurve::FindBreakPnts( const IsectAdaptPnt &p0, const IsectAdaptPn
 
                 IsectAdaptPnt q;
                 q.m_T = ta + ( tb - ta ) * ( b - va ) / ( vb - va );
-                q.m_UW[0] = ClampUW( *m_SurfA, m_CrvA->CompPnt( q.m_T ) );
-                q.m_UW[1] = ClampUW( *m_SurfB, m_CrvB->CompPnt( q.m_T ) );
+                q.m_UW[0] = ClampUW( *m_SurfA, m_CrvA->UWCompPnt( q.m_T ) );
+                q.m_UW[1] = ClampUW( *m_SurfB, m_CrvB->UWCompPnt( q.m_T ) );
                 q.m_UW[isurf][icomp] = b;
                 q.m_Pnt = SurfPnt( *m_SurfA, q.m_UW[0] );
 
-                double reach = dist( SurfPnt( *m_SurfA, m_CrvA->CompPnt( ta ) ), SurfPnt( *m_SurfA, m_CrvA->CompPnt( tb ) ) );
+                double reach = dist( SurfPnt( *m_SurfA, m_CrvA->UWCompPnt( ta ) ), SurfPnt( *m_SurfA, m_CrvA->UWCompPnt( tb ) ) );
                 double gap = SurfGap( q );
 
                 vec2d a( q.m_UW[0].x(), q.m_UW[0].y() );
@@ -531,8 +532,8 @@ void IsectAdaptCurve::AdaptSeg( const IsectAdaptPnt &p0_in, const IsectAdaptPnt 
     // The raw intersection halfway along, moved onto both surfaces
     IsectAdaptPnt pm;
     pm.m_T = 0.5 * ( p0.m_T + p1.m_T );
-    pm.m_UW[0] = m_CrvA->CompPnt( pm.m_T );
-    pm.m_UW[1] = m_CrvB->CompPnt( pm.m_T );
+    pm.m_UW[0] = m_CrvA->UWCompPnt( pm.m_T );
+    pm.m_UW[1] = m_CrvB->UWCompPnt( pm.m_T );
     pm.m_Pnt = SurfPnt( *m_SurfA, pm.m_UW[0] );
 
     double chord = dist( p0.m_Pnt, p1.m_Pnt );
@@ -632,11 +633,11 @@ void IsectAdaptCurve::AdaptSeg( const IsectAdaptPnt &p0_in, const IsectAdaptPnt 
     }
 }
 
-void IsectAdaptCurve::Adapt( const Bezier_curve &uwcrvA, const Bezier_curve &uwcrvB, const Surf &surfA, const Surf &surfB,
+void IsectAdaptCurve::Adapt( const SCurve &crvA, const SCurve &crvB, const Surf &surfA, const Surf &surfB,
                              bool refine, bool cubic, double rel_tol, double abs_tol, int Nlimit )
 {
-    m_CrvA = &uwcrvA;
-    m_CrvB = &uwcrvB;
+    m_CrvA = &crvA;
+    m_CrvB = &crvB;
     m_SurfA = &surfA;
     m_SurfB = &surfB;
     m_Refine = refine;
@@ -650,11 +651,9 @@ void IsectAdaptCurve::Adapt( const Bezier_curve &uwcrvA, const Bezier_curve &uwc
     m_NumLimit = 0;
     m_MaxLimitErr = 0.0;
 
-    // A copy of the raw curve, made once
-    piecewise_curve_type raw_crv = uwcrvA.GetCurve();
-    m_T0 = raw_crv.get_t0();
-    m_T1 = raw_crv.get_tmax();
-    raw_crv.get_pmap( m_RawT );
+    crvA.GetUWParms( m_RawT );
+    m_T0 = m_RawT.front();
+    m_T1 = m_RawT.back();
 
     // Points nearer each other than this are the same place, rounded, however small the curve.
     // Raw points are only that close by rounding, so directions between them are measured over
@@ -671,8 +670,8 @@ void IsectAdaptCurve::Adapt( const Bezier_curve &uwcrvA, const Bezier_curve &uwc
     IsectAdaptPnt *pends[2] = { &p0, &p1 };
     for ( int k = 0; k < 2; k++ )
     {
-        pends[k]->m_UW[0] = uwcrvA.CompPnt( ends[k]->m_T );
-        pends[k]->m_UW[1] = uwcrvB.CompPnt( ends[k]->m_T );
+        pends[k]->m_UW[0] = crvA.UWCompPnt( ends[k]->m_T );
+        pends[k]->m_UW[1] = crvB.UWCompPnt( ends[k]->m_T );
         pends[k]->m_Pnt = SurfPnt( surfA, pends[k]->m_UW[0] );
     }
 
