@@ -581,11 +581,13 @@ void Matrix4d::toQuat( double &qw, double &qx, double &qy, double &qz, double &t
     ty = mat[13];
     tz = mat[14];
 
-    float trace = mat[0] + mat[5] + mat[10]; // I removed + 1.0f; see discussion with Ethan
-    if( trace > 0 )    // I changed M_EPSILON to 0
+    // Divide by a part of the quaternion that is at least 1/2: qw when the trace is positive, else
+    // the part on the largest diagonal entry.
+    double trace = mat[0] + mat[5] + mat[10];
+    if( trace > 0 )
     {
-        float s = 0.5f / sqrtf( trace + 1.0f );
-        qw = 0.25f / s;
+        double s = 0.5 / sqrt( trace + 1.0 );
+        qw = 0.25 / s;
         qx = ( mat[6] - mat[9] ) * s;
         qy = ( mat[8] - mat[2] ) * s;
         qz = ( mat[1] - mat[4] ) * s;
@@ -594,27 +596,27 @@ void Matrix4d::toQuat( double &qw, double &qx, double &qy, double &qz, double &t
     {
         if ( mat[0] > mat[5] && mat[0] > mat[10] )
         {
-            float s = 2.0f * sqrtf( 1.0f + mat[0] - mat[5] - mat[10] );
+            double s = 2.0 * sqrt( 1.0 + mat[0] - mat[5] - mat[10] );
             qw = ( mat[6] - mat[9] ) / s;
-            qx = 0.25f * s;
+            qx = 0.25 * s;
             qy = ( mat[4] + mat[1] ) / s;
             qz = ( mat[8] + mat[2] ) / s;
         }
         else if ( mat[5] > mat[10])
         {
-            float s = 2.0f * sqrtf( 1.0f + mat[5] - mat[0] - mat[10] );
+            double s = 2.0 * sqrt( 1.0 + mat[5] - mat[0] - mat[10] );
             qw = ( mat[8] - mat[2] ) / s;
             qx = ( mat[4] + mat[1] ) / s;
-            qy = 0.25f * s;
+            qy = 0.25 * s;
             qz = ( mat[9] + mat[6] ) / s;
         }
         else
         {
-            float s = 2.0f * sqrtf( 1.0f + mat[10] - mat[0] - mat[5] );
+            double s = 2.0 * sqrt( 1.0 + mat[10] - mat[0] - mat[5] );
             qw = ( mat[1] - mat[4] ) / s;
             qx = ( mat[8] + mat[2] ) / s;
             qy = ( mat[9] + mat[6] ) / s;
-            qz = 0.25f * s;
+            qz = 0.25 * s;
         }
     }
 }
