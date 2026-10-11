@@ -210,6 +210,12 @@ void GeometryAnalysisCase::UpdateTargetTypes()
             m_SecondaryType = vsp::GEOM_TARGET;
         }
     }
+    // Only Plane Min/Max Distance takes a Z plane and only From Point Visibility a point.
+    else if ( m_SecondaryType() == vsp::Z_TARGET ||
+              ( m_SecondaryType() == vsp::XYZ_TARGET && m_GeometryAnalysisType() != vsp::VISIBLE_FROM_POINT_ANALYSIS ) )
+    {
+        m_SecondaryType = vsp::SET_TARGET;
+    }
 }
 
 void GeometryAnalysisCase::AddAzEl( double az, double el )
