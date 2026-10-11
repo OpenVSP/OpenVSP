@@ -56,8 +56,8 @@ void Mesh::Clear()
 {
     // These hold raw pointers into what is about to be deleted, and unlike DumpGarbage this
     // deletes the live lists rather than the flagged ones, so there is nothing to filter on.
-    m_ScanEdges.clear();
-    m_ActiveEdges.clear();
+    vector< Edge* >().swap( m_ScanEdges );
+    vector< Edge* >().swap( m_ActiveEdges );
 
     list< Face* >::iterator f;
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
@@ -406,8 +406,10 @@ void Mesh::CondenseSimpFaces()
         }
     }
 
-    simpPntVec = rePntVec;
-    simpUWPntVec = reUWVec;
+    // Swapped rather than copied, so the corner lists, sized for every corner of every face,
+    // go with rePntVec and reUWVec instead of staying behind as spare capacity.
+    simpPntVec.swap( rePntVec );
+    simpUWPntVec.swap( reUWVec );
 }
 
 void Mesh::StretchSimpPnts( double start_x, double end_x, double scale, double angle )
