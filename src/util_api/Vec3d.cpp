@@ -1069,16 +1069,14 @@ vec3d proj_pnt_to_plane( const vec3d& org, const vec3d& plane_ln1, const vec3d& 
 
 vec3d proj_vec_to_plane( const vec3d& vec, const vec3d& norm )
 {
-    double ca = cos_angle( vec, norm );
-
-    if ( std::abs( ca ) == 1.0 )
+    // A vector along the normal has no direction in the plane.
+    if ( std::abs( cos_angle( vec, norm ) ) == 1.0 )
     {
         return vec3d();
     }
 
-    vec3d along = ca * norm;
-
-    return vec - along;
+    // Remove the part of vec along norm; neither needs to be a unit vector.
+    return vec - norm * ( dot( vec, norm ) / norm.magsq() );
 }
 
 //******* Find The Point On Line AB nearest to Line CD******//
