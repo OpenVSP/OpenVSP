@@ -2207,11 +2207,16 @@ void TBndBox::SplitBox()
             m_SBoxVec[cnt]->AddTri( m_TriVec[i] );
         }
 
+        // The children hold the triangles now, and every search goes to them once they
+        // exist, so this box's own list is never read again.
+        size_t ntri = m_TriVec.size();
+        vector< TTri* >().swap( m_TriVec );
+
         int contSplitFlag = 1;
 
         for ( i = 0 ; i < 8 ; i++ )
         {
-            if ( m_TriVec.size() == m_SBoxVec[i]->m_TriVec.size() )
+            if ( ntri == m_SBoxVec[i]->m_TriVec.size() )
             {
                 contSplitFlag = 0;
                 break;
@@ -5270,6 +5275,7 @@ void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, c
 void TMesh::LoadBndBox()
 {
     m_TBox.Reset();
+    m_TBox.m_TriVec.reserve( m_TVec.size() );
 
     for ( int i = 0 ; i < ( int )m_TVec.size() ; i++ )
     {
