@@ -2260,7 +2260,7 @@ void SSControlSurf::Update()
             vec3d vdir;
             vdir = ( te - le ) / 2.0;
             vdir.normalize();
-            m_StartAngle = acos( dot( udir, vdir ) ) * 180.0 / M_PI;
+            m_StartAngle = angle( udir, vdir ) * 180.0 / M_PI;
         }
         else
         {
@@ -2269,7 +2269,7 @@ void SSControlSurf::Update()
             vec3d vdir;
             vdir = ( le - te ) / 2.0;
             vdir.normalize();
-            m_StartAngle = acos( dot( udir, vdir ) ) * 180.0 / M_PI;
+            m_StartAngle = angle( udir, vdir ) * 180.0 / M_PI;
         }
     }
 
@@ -2452,7 +2452,7 @@ void SSControlSurf::Update()
             vec3d vdir;
             vdir = ( te - le ) / 2.0;
             vdir.normalize();
-            m_EndAngle = acos( dot( udir, vdir ) ) * 180.0 / M_PI;
+            m_EndAngle = angle( udir, vdir ) * 180.0 / M_PI;
         }
         else
         {
@@ -2461,7 +2461,7 @@ void SSControlSurf::Update()
             vec3d vdir;
             vdir = ( le - te ) / 2.0;
             vdir.normalize();
-            m_EndAngle = acos( dot( udir, vdir ) ) * 180.0 / M_PI;
+            m_EndAngle = angle( udir, vdir ) * 180.0 / M_PI;
         }
     }
 
