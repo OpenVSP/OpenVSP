@@ -6085,11 +6085,11 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        vector < SimpFace > fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+        const vector< vec3d >& pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        const vector< SimpFace >& fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
         for ( int f = 0 ; f < ( int ) fVec.size() ; f++ )
         {
-            SimpFace* sface = &fVec[f];
+            const SimpFace* sface = &fVec[f];
 
             if ( sface->m_reason >= 0 && sface->m_reason < num_reason )
             {
@@ -6151,11 +6151,11 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        vector < SimpFace > fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+        const vector< vec3d >& pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        const vector< SimpFace >& fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
         for ( int f = 0 ; f < ( int ) fVec.size() ; f++ )
         {
-            SimpFace* sface = &fVec[f];
+            const SimpFace* sface = &fVec[f];
             if ( sface->m_isQuad )
             {
                 dmit = tag_quad_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
@@ -6571,10 +6571,10 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
         if ( m_SurfVec[ i ]->GetWakeFlag() )
         {
-            vector < SimpFace > fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+            const vector< SimpFace >& fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
             if ( fVec.size() > 0 )
             {
-                SimpFace *sface = &fVec[ 0 ];
+                const SimpFace *sface = &fVec[ 0 ];
 
                 dmit = tag_tri_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
@@ -6587,10 +6587,10 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         }
         else if ( m_SurfVec[ i ]->GetFarFlag() )
         {
-            vector < SimpFace > fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+            const vector< SimpFace >& fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
             if ( fVec.size() > 0 )
             {
-                SimpFace *sface = &fVec[ 0 ];
+                const SimpFace *sface = &fVec[ 0 ];
 
                 dmit = tag_tri_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
@@ -6603,10 +6603,10 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         }
         else if ( m_SurfVec[ i ]->GetSymPlaneFlag() )
         {
-            vector < SimpFace > fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+            const vector< SimpFace >& fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
             if ( fVec.size() > 0 )
             {
-                SimpFace *sface = &fVec[ 0 ];
+                const SimpFace *sface = &fVec[ 0 ];
 
                 dmit = tag_tri_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
                 obj = dmit->second;
