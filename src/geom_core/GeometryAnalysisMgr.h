@@ -20,6 +20,7 @@
 #include "AuxiliaryGeom.h"
 
 class AuxiliaryGeom;
+class JointRole;
 
 class GeometryAnalysisCase : public ParmContainer
 {
@@ -30,6 +31,8 @@ public:
 
     void Update();
     void UpdateTargetTypes();
+    void UpdateExtentType();
+    void GetExtentTypes( vector < int > &types ) const;
 
     void AddAzEl( double az, double el );
     void RemoveAzEl( int indx );
@@ -54,6 +57,7 @@ public:
     bool GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt, vec3d &normal, vec3d &ptaxis, vec3d &axis, bool &usepivot, double &mintheta, double &maxtheta, vec3d &cgnom, vector < vec3d > &cgbounds ) const;
 
 
+    JointRole* GetSecondaryTranslatingJoint( bool &min_set, double &start, bool &max_set, double &end ) const;
     bool GetDisplacement( double dist, vec3d &dstart, vec3d &disp );
     void HandleDispersion( const vec3d &disp, vector < vec3d > & dispvec );
     bool GetSecondaryPt( vector < vec3d > &pt_vec, vector < TMesh* > & fov_vec );

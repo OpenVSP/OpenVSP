@@ -16,7 +16,29 @@
 #include "ModeMgr.h"
 #include "StlHelper.h"
 #include "SubSurfaceMgr.h"
-#include "HingeGeom.h"
+
+// Swept volume extent names for the Extent choice.
+static string ExtentName( int extent_type )
+{
+    switch ( extent_type )
+    {
+        case vsp::EXTENT_FORWARD_INF:
+            return "Forward Direction";
+        case vsp::EXTENT_REVERSE_INF:
+            return "Reverse Direction";
+        case vsp::EXTENT_SLIDER_FULL:
+            return "Full Range";
+        case vsp::EXTENT_SLIDER_BEFORE:
+            return "Before";
+        case vsp::EXTENT_SLIDER_AFTER:
+            return "After";
+        case vsp::EXTENT_FORWARD_FINITE:
+            return "Forward Displacement";
+        case vsp::EXTENT_REVERSE_FINITE:
+            return "Reverse Displacement";
+    }
+    return string();
+}
 
 //==== Constructor ====//
 GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 700, 800, "Geometry Analyses", "GeometryAnalysis.html" )
@@ -593,53 +615,12 @@ bool GeometryAnalysisScreen::Update()
 
         m_ExtentChoice.ClearItems();
 
-        m_ExtentChoice.AddItem( "Forward Direction", vsp::EXTENT_FORWARD_INF );
-        m_ExtentChoice.AddItem( "Reverse Direction", vsp::EXTENT_REVERSE_INF );
-
-        bool transhinge = false;
-        if ( gcase->m_GeometryAnalysisType() == vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
+        vector < int > extent_types;
+        gcase->GetExtentTypes( extent_types );
+        for ( int i = 0; i < ( int )extent_types.size(); i++ )
         {
-            if ( gcase->m_SecondaryType() == vsp::GEOM_TARGET )
-            {
-                Geom* geom = veh->FindGeom( gcase->m_SecondaryGeomID );
-
-                if ( geom )
-                {
-                    HingeGeom* behavior_hinge = dynamic_cast< HingeGeom* >( geom->GetBehaviorGeom() );
-
-                    if ( behavior_hinge )
-                    {
-                        transhinge = true;
-                        if ( behavior_hinge->m_JointTranslateFlag() )
-                        {
-
-                            if ( behavior_hinge->m_JointTransMinFlag() &&
-                                 behavior_hinge->m_JointTransMaxFlag() )
-                            {
-                                m_ExtentChoice.AddItem( "Full Range", vsp::EXTENT_SLIDER_FULL );
-                            }
-
-                            if ( behavior_hinge->m_JointTransMinFlag() )
-                            {
-                                m_ExtentChoice.AddItem( "Before", vsp::EXTENT_SLIDER_BEFORE );
-                            }
-
-                            if ( behavior_hinge->m_JointTransMaxFlag() )
-                            {
-                                m_ExtentChoice.AddItem( "After", vsp::EXTENT_SLIDER_AFTER );
-                            }
-                        }
-                    }
-                }
-            }
+            m_ExtentChoice.AddItem( ExtentName( extent_types[ i ] ), extent_types[ i ] );
         }
-
-        if ( !transhinge )
-        {
-            m_ExtentChoice.AddItem( "Forward Displacement", vsp::EXTENT_FORWARD_FINITE );
-            m_ExtentChoice.AddItem( "Reverse Displacement", vsp::EXTENT_REVERSE_FINITE );
-        }
-
 
         m_ExtentChoice.UpdateItems();
 
@@ -964,24 +945,16 @@ bool GeometryAnalysisScreen::Update()
             m_RotYnSlider.Activate();
             m_RotZnSlider.Activate();
 
-            if ( gcase->m_SecondaryType() == vsp::GEOM_TARGET )
+            // A translating joint sets the direction and distance itself.
+            bool min_set;
+            bool max_set;
+            double start;
+            double end;
+            if ( gcase->GetSecondaryTranslatingJoint( min_set, start, max_set, end ) )
             {
-                Geom* geom = veh->FindGeom( gcase->m_SecondaryGeomID );
-
-                if ( geom )
-                {
-                    HingeGeom* behavior_hinge = dynamic_cast< HingeGeom* >( geom->GetBehaviorGeom() );
-
-                    if ( behavior_hinge )
-                    {
-                        if ( behavior_hinge->m_JointTranslateFlag() )
-                        {
-                            m_DispXSlider.Deactivate();
-                            m_DispYSlider.Deactivate();
-                            m_DispZSlider.Deactivate();
-                        }
-                    }
-                }
+                m_DispXSlider.Deactivate();
+                m_DispYSlider.Deactivate();
+                m_DispZSlider.Deactivate();
             }
 
             if ( gcase->m_SymmRotX() )

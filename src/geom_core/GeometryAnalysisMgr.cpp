@@ -132,6 +132,7 @@ GeometryAnalysisCase::~GeometryAnalysisCase()
 void GeometryAnalysisCase::Update()
 {
     UpdateTargetTypes();
+    UpdateExtentType();
 
     if ( m_SymmRotX() )
     {
@@ -215,6 +216,56 @@ void GeometryAnalysisCase::UpdateTargetTypes()
               ( m_SecondaryType() == vsp::XYZ_TARGET && m_GeometryAnalysisType() != vsp::VISIBLE_FROM_POINT_ANALYSIS ) )
     {
         m_SecondaryType = vsp::SET_TARGET;
+    }
+}
+
+// The extents a swept volume can take: a translating joint secondary slides between its limits,
+// anything else moves by the displacement.
+void GeometryAnalysisCase::GetExtentTypes( vector < int > &types ) const
+{
+    types.clear();
+    types.push_back( vsp::EXTENT_FORWARD_INF );
+    types.push_back( vsp::EXTENT_REVERSE_INF );
+
+    bool min_set;
+    bool max_set;
+    double start;
+    double end;
+    if ( GetSecondaryTranslatingJoint( min_set, start, max_set, end ) )
+    {
+        if ( min_set && max_set )
+        {
+            types.push_back( vsp::EXTENT_SLIDER_FULL );
+        }
+        if ( min_set )
+        {
+            types.push_back( vsp::EXTENT_SLIDER_BEFORE );
+        }
+        if ( max_set )
+        {
+            types.push_back( vsp::EXTENT_SLIDER_AFTER );
+        }
+    }
+    else
+    {
+        types.push_back( vsp::EXTENT_FORWARD_FINITE );
+        types.push_back( vsp::EXTENT_REVERSE_FINITE );
+    }
+}
+
+// An extent the secondary no longer offers falls back to the first one.
+void GeometryAnalysisCase::UpdateExtentType()
+{
+    if ( m_GeometryAnalysisType() != vsp::LINEAR_SWEPT_VOLUME_ANALYSIS )
+    {
+        return;
+    }
+
+    vector < int > types;
+    GetExtentTypes( types );
+    if ( !vector_contains_val( types, m_ExtentType() ) )
+    {
+        m_ExtentType = types[ 0 ];
     }
 }
 
@@ -624,61 +675,68 @@ bool GeometryAnalysisCase::GetPrimaryPtNormalMeanContactPtPivotAxisCG( vec3d &pt
     return false;
 }
 
-bool GeometryAnalysisCase::GetDisplacement( double dist, vec3d &dstart, vec3d &disp )
+// The secondary Geom's joint, when it translates, with its limits.
+JointRole* GeometryAnalysisCase::GetSecondaryTranslatingJoint( bool &min_set, double &start, bool &max_set, double &end ) const
 {
     if ( m_SecondaryType() == vsp::GEOM_TARGET )
     {
         Vehicle *veh = VehicleMgr.GetVehicle();
         if ( veh )
         {
-            Geom* geom = veh->FindGeom( m_SecondaryGeomID );
+            JointRole* joint = Geom::CastTo< JointRole >( veh->FindGeom( m_SecondaryGeomID ) );
 
-            if ( geom )
+            if ( joint && joint->GetJointTransMotion( min_set, start, max_set, end ) )
             {
-                // Axis and deflection from this Geom; limits from the joint.
-                bool min_set;
-                bool max_set;
-                double start;
-                double end;
-
-                JointRole* joint = Geom::CastTo< JointRole >( geom );
-
-                if ( joint && joint->GetJointTransMotion( min_set, start, max_set, end ) )
-                {
-                    vec3d dir = joint->GetJointAxis();
-
-                    const double pos = joint->GetJointTranslate();
-
-                    if ( m_ExtentType() == vsp::EXTENT_FORWARD_INF )
-                    {
-                        dstart.set_xyz( 0, 0, 0 );
-                        disp = dist * dir;
-                    }
-                    else if ( m_ExtentType() == vsp::EXTENT_REVERSE_INF )
-                    {
-                        dstart.set_xyz( 0, 0, 0 );
-                        disp = -dist * dir;
-                    }
-                    else if ( m_ExtentType() == vsp::EXTENT_SLIDER_FULL )
-                    {
-                        dstart = ( start - pos ) * dir;
-                        disp = ( end - start ) * dir;
-                    }
-                    else if ( m_ExtentType() == vsp::EXTENT_SLIDER_BEFORE )
-                    {
-                        dstart.set_xyz( 0, 0, 0 );
-                        disp = ( start - pos ) * dir;
-                    }
-                    else if ( m_ExtentType() == vsp::EXTENT_SLIDER_AFTER )
-                    {
-                        dstart.set_xyz( 0, 0, 0 );
-                        disp = ( end - pos ) * dir;
-                    }
-
-                    return true;
-                }
+                return joint;
             }
         }
+    }
+    return nullptr;
+}
+
+bool GeometryAnalysisCase::GetDisplacement( double dist, vec3d &dstart, vec3d &disp )
+{
+    // Axis and deflection from this Geom; limits from the joint.
+    bool min_set;
+    bool max_set;
+    double start;
+    double end;
+
+    JointRole* joint = GetSecondaryTranslatingJoint( min_set, start, max_set, end );
+
+    if ( joint )
+    {
+        vec3d dir = joint->GetJointAxis();
+
+        const double pos = joint->GetJointTranslate();
+
+        if ( m_ExtentType() == vsp::EXTENT_FORWARD_INF )
+        {
+            dstart.set_xyz( 0, 0, 0 );
+            disp = dist * dir;
+        }
+        else if ( m_ExtentType() == vsp::EXTENT_REVERSE_INF )
+        {
+            dstart.set_xyz( 0, 0, 0 );
+            disp = -dist * dir;
+        }
+        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_FULL )
+        {
+            dstart = ( start - pos ) * dir;
+            disp = ( end - start ) * dir;
+        }
+        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_BEFORE )
+        {
+            dstart.set_xyz( 0, 0, 0 );
+            disp = ( start - pos ) * dir;
+        }
+        else if ( m_ExtentType() == vsp::EXTENT_SLIDER_AFTER )
+        {
+            dstart.set_xyz( 0, 0, 0 );
+            disp = ( end - pos ) * dir;
+        }
+
+        return true;
     }
 
     vec3d dir( m_DispX(), m_DispY(), m_DispZ() );
@@ -1060,6 +1118,7 @@ string GeometryAnalysisCase::Evaluate()
     m_PointsVec.clear();
 
     UpdateTargetTypes();
+    UpdateExtentType();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
