@@ -2451,6 +2451,18 @@ void SurfaceIntersectionSingleton::IntersectPairs()
 
     EndProgress( VOCAL_OUTPUT );
 
+    // The pieces' output is gathered in one go, so each list is sized once for all of it.
+    size_t npuw = m_DelPuwVec.size();
+    size_t nipnt = 0;
+    for ( int k = 0 ; k < nwork ; k++ )
+    {
+        npuw += out[k].m_Puws.size();
+        nipnt += out[k].m_IPnts.size();
+    }
+    m_DelPuwVec.reserve( npuw );
+    m_DelIPntVec.reserve( m_DelIPntVec.size() + nipnt );
+    m_AllIPnts.reserve( m_AllIPnts.size() + nipnt );
+
     for ( int k = 0 ; k < nwork ; k++ )
     {
         m_DelPuwVec.insert( m_DelPuwVec.end(), out[k].m_Puws.begin(), out[k].m_Puws.end() );
