@@ -5576,34 +5576,32 @@ void CfdMeshMgrSingleton::RunRayCastStage( const string &label, int n,
 // One surface's share of the interior/exterior test.  It casts a ray from each of its own
 // triangles against every other surface and writes the verdict onto its own faces, so the
 // surfaces are independent of each other here.
-void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist )
+// Face k of surface s is inside component c where inside[ k * ncross + c ], and count holds the
+// votes of its neighbours the same way.
+void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int ncross, vector< bool > &inside, vector< int > &count )
 {
     int s_comp_id = m_SurfVec[s]->GetCompID();
 
     // A reference.  The list is only walked here, and copying it would copy a node per triangle.
     const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
 
+    inside.assign( faceList.size() * ncross, false );
+    count.assign( faceList.size() * ncross, 0 );
+
     // Built once and emptied per triangle.  It is a vector of vectors as wide as the model has
     // components.
-    int ncross = m_NumComps + 6;
-
-    if ( GetSettingsPtr()->m_SymSplittingOnFlag )
-    {
-        ncross = m_NumComps + 10;   // room for the outer domain and the symmetry plane
-    }
-
     vector< vector< double > > t_vec_vec( ncross );
 
+    int k = 0;
     list< Face* >::const_iterator f;
-    for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every triangle
+    for ( f = faceList.begin() ; f != faceList.end(); ++f, ++k ) // every triangle
     {
+        ( *f )->m_Index = k;
+
         for ( int i = 0 ; i < ncross ; i++ )
         {
             t_vec_vec[i].clear();
         }
-
-        ( *f )->insideSurf.resize( ncross );
-        ( *f )->insideCount.resize( ncross );
 
         vec3d cp = ( *f )->ComputeCenterPnt( m_SurfVec[s] );
         vec3d ep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
@@ -5638,14 +5636,14 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist )
         {
             int c = m_SurfVec[i]->GetCompID();
 
-            if ( c >= 0 && c < ( *f )->insideSurf.size() )
+            if ( c >= 0 && c < ncross )
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
                      GetSettingsPtr()->m_FarCompFlag )
                 {
                     if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
                     {
-                        ( *f )->insideSurf[c] = true;
+                        inside[ k * ncross + c ] = true;
                     }
                 }
                 else
@@ -5653,7 +5651,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist )
 
                     if ( ( int )t_vec_vec[c].size() % 2 == 1)
                     {
-                        ( *f )->insideSurf[c] = true;
+                        inside[ k * ncross + c ] = true;
                     }
                 }
             }
@@ -5671,18 +5669,18 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist )
         for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
         {
             int c = m_SurfVec[i]->GetCompID();
-            if ( c >= 0 && c < ( *f )->insideSurf.size() )
+            if ( c >= 0 && c < ncross )
             {
 
                 for ( sf = faceSet.begin() ; sf != faceSet.end() ; ++sf )
                 {
-                    if ( ( *f )->insideSurf[c] )
+                    if ( inside[ ( *f )->m_Index * ncross + c ] )
                     {
-                        ( *sf )->insideCount[c]++;
+                        count[ ( *sf )->m_Index * ncross + c ]++;
                     }
                     else
                     {
-                        ( *sf )->insideCount[c]--;
+                        count[ ( *sf )->m_Index * ncross + c ]--;
                     }
                 }
             }
@@ -5703,10 +5701,21 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
     double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
 
+    int ncross = m_NumComps + 6;
+
+    if ( GetSettingsPtr()->m_SymSplittingOnFlag )
+    {
+        ncross = m_NumComps + 10;   // room for the outer domain and the symmetry plane
+    }
+
+    // Each surface's inside flags and neighbour votes, held only while they are worked out
+    vector< vector< bool > > inside( m_SurfVec.size() );
+    vector< vector< int > > count( m_SurfVec.size() );
+
     //==== Count Number of Component Crossings for Each Component =====//
     RunRayCastStage( "Inside/outside", ( int )m_SurfVec.size(), [&]( int is )
     {
-        RemoveInteriorTrisOneSurf( is, x_dist );
+        RemoveInteriorTrisOneSurf( is, x_dist, ncross, inside[is], count[is] );
     } );
 
     list< Face* >::const_iterator f;
@@ -5717,20 +5726,21 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
         for ( f = faceList.begin() ; f != faceList.end(); ++f )
         {
+            int k = ( *f )->m_Index;
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
                 int c = m_SurfVec[i]->GetCompID();
 
-                if ( c >= 0 && c < ( *f )->insideSurf.size() )
+                if ( c >= 0 && c < ncross )
                 {
 
-                    if (( *f )->insideCount[c] > 0 )
+                    if ( count[s][ k * ncross + c ] > 0 )
                     {
-                        ( *f )->insideSurf[c] = true;
+                        inside[s][ k * ncross + c ] = true;
                     }
-                    else if (( *f )->insideCount[c] < 0 )
+                    else if ( count[s][ k * ncross + c ] < 0 )
                     {
-                        ( *f )->insideSurf[c] = false;
+                        inside[s][ k * ncross + c ] = false;
                     }
                     else // Can't determine if Tri is inside or outside based on neighbor votes
                     {
@@ -5742,6 +5752,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         }
     }
 
+    vector< bool > faceinside( ncross );
     for ( int a = 0 ; a < ( int )m_SurfVec.size() ; a++ )
     {
         const list< Face * > &faceList = m_SurfVec[ a ]->GetMesh()->GetFaceList();
@@ -5754,9 +5765,17 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             }
             else
             {
-                ( *f )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), m_SurfVec[a]->GetSymPlaneFlag(), ( *f )->insideSurf );
+                int k = ( *f )->m_Index;
+                for ( int c = 0 ; c < ncross ; c++ )
+                {
+                    faceinside[c] = inside[a][ k * ncross + c ];
+                }
+                ( *f )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), m_SurfVec[a]->GetSymPlaneFlag(), faceinside );
             }
         }
+
+        vector< bool >().swap( inside[a] );
+        vector< int >().swap( count[a] );
     }
 
     //==== Check For Half Mesh ====//

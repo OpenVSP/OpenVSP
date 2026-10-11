@@ -249,6 +249,9 @@ public:
     list< Face* >::iterator list_ptr;
     bool m_DeleteMeFlag;
 
+    // Its place in its mesh's face list, where a pass has numbered them
+    int m_Index = -1;
+
     Node* n0;
     Node* n1;
     Node* n2;
@@ -264,11 +267,6 @@ public:
     // Which round last measured this face's shape, so a face reached from two of its edges is
     // only measured once.  See Mesh::Collapse.
     int m_ShapeStamp = -1;
-
-    // true if inside surface with a cid corresponding to an index.
-    vector< bool > insideSurf;
-
-    vector< int > insideCount;
 
     // Set to true if face should be removed
     bool deleteFlag;
