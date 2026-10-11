@@ -9,6 +9,8 @@
 
 #include "SCurve.h"
 
+#include <algorithm>
+
 ParmLine ParmLine::Between( double ua, double wa, double ub, double wb )
 {
     if ( ua == ub && wa != wb )
@@ -64,14 +66,108 @@ SCurve::~SCurve()
 
 void SCurve::InterpolateLinear( const vector<vec3d> &pnts_to_interpolate )
 {
-    m_UWCrv.InterpolateLinear( pnts_to_interpolate );
+    if ( pnts_to_interpolate.size() >= 2 )
+    {
+        m_UWPolyline = pnts_to_interpolate;
+        m_UWCrv = Bezier_curve();
+    }
+    else
+    {
+        vector< vec3d >().swap( m_UWPolyline );
+        m_UWCrv.InterpolateLinear( pnts_to_interpolate );
+    }
     CleanupDistTable();
 }
 
 void SCurve::PromoteTo( int deg )
 {
+    if ( !m_UWPolyline.empty() )
+    {
+        m_UWCrv.InterpolateLinear( m_UWPolyline );
+        vector< vec3d >().swap( m_UWPolyline );
+    }
     m_UWCrv.PromoteTo( deg );
     CleanupDistTable();
+}
+
+Bezier_curve SCurve::GetUWCrv() const
+{
+    if ( !m_UWPolyline.empty() )
+    {
+        Bezier_curve crv;
+        crv.InterpolateLinear( m_UWPolyline );
+        return crv;
+    }
+    return m_UWCrv;
+}
+
+// Evaluate the polyline as Code-Eli evaluates the curve InterpolateLinear builds: segment i
+// spans parameter [i, i+1], and a parameter out of range lands on the last segment.
+vec3d SCurve::UWCompPnt01( double u ) const
+{
+    if ( m_UWPolyline.empty() )
+    {
+        return m_UWCrv.CompPnt01( u );
+    }
+
+    if ( u > 1.0 )
+    {
+        u = 1.0;
+    }
+
+    int nseg = ( int )m_UWPolyline.size() - 1;
+    double t = u * nseg;
+
+    int i = nseg - 1;
+    double tt;
+    if ( t == nseg )
+    {
+        tt = 1.0;
+    }
+    else if ( t < 0.0 )
+    {
+        tt = -1.0;
+    }
+    else
+    {
+        if ( t < nseg )
+        {
+            i = ( int )t;
+        }
+        tt = t - i;
+    }
+
+    const vec3d &p0 = m_UWPolyline[i];
+    const vec3d &p1 = m_UWPolyline[i + 1];
+    double omt = 1.0 - tt;
+    return vec3d( omt * p0.x() + tt * p1.x(), omt * p0.y() + tt * p1.y(), omt * p0.z() + tt * p1.z() );
+}
+
+vec3d SCurve::UWFirstPnt() const
+{
+    if ( m_UWPolyline.empty() )
+    {
+        return m_UWCrv.FirstPnt();
+    }
+    return m_UWPolyline.front();
+}
+
+vec3d SCurve::UWLastPnt() const
+{
+    if ( m_UWPolyline.empty() )
+    {
+        return m_UWCrv.LastPnt();
+    }
+    return m_UWPolyline.back();
+}
+
+int SCurve::UWNumSections() const
+{
+    if ( m_UWPolyline.empty() )
+    {
+        return m_UWCrv.GetNumSections();
+    }
+    return ( int )m_UWPolyline.size() - 1;
 }
 
 double SCurve::Length( int num_segs )
@@ -79,12 +175,12 @@ double SCurve::Length( int num_segs )
     assert ( m_Surf );
 
     double total_dist = 0;
-    vec3d uw = m_UWCrv.CompPnt01( 0 );
+    vec3d uw = UWCompPnt01( 0 );
     vec3d last_p = m_Surf->CompPnt( uw.x(), uw.y() );
     for ( int i = 1 ; i < num_segs ; i++ )
     {
         double u = ( double )i / ( double )( num_segs - 1 );
-        uw = m_UWCrv.CompPnt01( u );
+        uw = UWCompPnt01( u );
         vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
         total_dist += dist( p, last_p );
     }
@@ -95,8 +191,8 @@ double SCurve::Length( int num_segs )
 
 void SCurve::GetBorderCurve( Bezier_curve & crv ) const
 {
-    vec3d uw0 = m_UWCrv.FirstPnt();
-    vec3d uw1 = m_UWCrv.LastPnt();
+    vec3d uw0 = UWFirstPnt();
+    vec3d uw1 = UWLastPnt();
     m_Surf->GetBorderCurve( uw0, uw1, crv );
 }
 
@@ -173,8 +269,8 @@ void SCurve::BorderTesselate( )
     m_UTess.clear();
     m_UWTess.clear();
 
-    vec3d uwstart = m_UWCrv.FirstPnt();
-    vec3d uwend = m_UWCrv.LastPnt();
+    vec3d uwstart = UWFirstPnt();
+    vec3d uwend = UWLastPnt();
 
     double ust = uwstart[0];
     double wst = uwstart[1];
@@ -203,8 +299,8 @@ void SCurve::BorderTesselate( int npt )
     m_UTess.clear();
     m_UWTess.clear();
 
-    vec3d uwstart = m_UWCrv.FirstPnt();
-    vec3d uwend = m_UWCrv.LastPnt();
+    vec3d uwstart = UWFirstPnt();
+    vec3d uwend = UWLastPnt();
 
     double ust = uwstart[0];
     double wst = uwstart[1];
@@ -344,15 +440,15 @@ void SCurve::BuildDistTableGeom()
     //==== Build U to Dist Table ====//
     int nref = 10;
     int nseglim = 10000;
-    num_segs = nref * m_UWCrv.GetNumSections() + 1;
+    num_segs = nref * UWNumSections() + 1;
     if( num_segs > nseglim )
     {
-        nref = nseglim / m_UWCrv.GetNumSections();
+        nref = nseglim / UWNumSections();
         if( nref < 1 )
         {
             nref = 1;
         }
-        num_segs = nref * m_UWCrv.GetNumSections() + 1;
+        num_segs = nref * UWNumSections() + 1;
     }
 
     if ( ( int )m_TablePnt.size() != num_segs )
@@ -365,14 +461,14 @@ void SCurve::BuildDistTableGeom()
         m_TablePnt.reserve( num_segs );
 
         double total_dist = 0.0;
-        vec3d uw0 = m_UWCrv.CompPnt01( 0 );
+        vec3d uw0 = UWCompPnt01( 0 );
         vec3d last_p = m_Surf->CompPnt( uw0.x(), uw0.y() );
 
         for ( int i = 0 ; i < num_segs ; i++ )
         {
             double u = ( double )i / ( double )( num_segs - 1 );
 
-            vec3d uw = m_UWCrv.CompPnt01( u );
+            vec3d uw = UWCompPnt01( u );
             vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
 
             u_vec.push_back( u );
@@ -402,7 +498,7 @@ void SCurve::BuildDistTableGeomB( SCurve* BCurve )
 
         for ( int i = 0 ; i < num_segs ; i++ )
         {
-            vec3d uwB = BCurve->m_UWCrv.CompPnt01( u_vec[i] );
+            vec3d uwB = BCurve->UWCompPnt01( u_vec[i] );
             m_TableUWB.push_back( uwB );
             m_TablePntB.push_back( BCurve->m_Surf->CompPnt( uwB.x(), uwB.y() ) );
         }
@@ -867,7 +963,7 @@ void SCurve::UWTess()
     for ( int i = 0 ; i < n ; i++ )
     {
         double u = m_UTess[i];
-        uw = m_UWCrv.CompPnt01( u );
+        uw = UWCompPnt01( u );
         m_UWTess[i] = uw;
     }
 }
@@ -993,13 +1089,20 @@ void SCurve::Tesselate( const vector< double > & u_tess )
 
 void SCurve::FlipDir()
 {
-    m_UWCrv.FlipCurve();
+    if ( m_UWPolyline.empty() )
+    {
+        m_UWCrv.FlipCurve();
+    }
+    else
+    {
+        std::reverse( m_UWPolyline.begin(), m_UWPolyline.end() );
+    }
     CleanupDistTable();
 }
 
 vec3d SCurve::CompPntUW( double u )
 {
-    return m_UWCrv.CompPnt01( u );
+    return UWCompPnt01( u );
 }
 
 /*
