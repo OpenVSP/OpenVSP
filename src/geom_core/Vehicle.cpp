@@ -1831,6 +1831,9 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
         }
     }
 
+    // Set when a Geom left in the tree is moved or a top level entry goes.
+    bool hierarchy_changed = false;
+
     //=== All Geoms To Be Cut ====//
     for ( int c = 0 ; c < ( int )cut_vec.size() ; c++ )
     {
@@ -1847,6 +1850,7 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
                 {
                     gPtr->SetParentID( "NONE" );            // Reassign Parent
                     parentPtr->RemoveChildID( id );         // Remove From Parents Child Vec
+                    hierarchy_changed = true;
                 }
             }
 
@@ -1863,6 +1867,7 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
                     {
                         ancestPtr->AddChildID( child_id );
                         childPtr->SetParentID( ancestPtr->GetID() );
+                        hierarchy_changed = true;
                     }
                     else                                                // No ancestor
                     {
@@ -1870,6 +1875,7 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
                         {
                             childPtr->SetParentID( "NONE" );
                             m_TopGeom.push_back( child_id );
+                            hierarchy_changed = true;
                         }
                     }
                     gPtr->RemoveChildID( child_id );
@@ -1878,10 +1884,19 @@ void Vehicle::RemoveGeomVecFromHierarchy( const vector< string > & cut_vec )
         }
 
         //==== Remove From Top Geom Deque ====//
-        vector_remove_val( m_TopGeom, id );
+        if ( vector_contains_val( m_TopGeom, id ) )
+        {
+            vector_remove_val( m_TopGeom, id );
+            hierarchy_changed = true;
+        }
     }
 
-    Update();
+    // Update only when the tree changed.  Removing a Geom that was never placed in it, such
+    // as a Conformal's working copy, changes nothing.
+    if ( hierarchy_changed )
+    {
+        Update();
+    }
 }
 
 //==== Reorder Active Geom  ====//
