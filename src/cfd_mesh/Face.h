@@ -286,9 +286,6 @@ public:
         m_isQuad = false;
         ind0 = ind1 = ind2 = ind3 = -1;
         m_reason = -1;
-        m_MinAngle = -1.0;
-        m_LenRatio = -1.0;
-        m_TargetLen = -1.0;
         m_WorstLenRatio = -1.0;
         m_OffBorder = false;
     }
@@ -303,13 +300,6 @@ public:
     vector<int> m_Tags;
     int m_iSurf;
     int m_reason;
-
-    // Filled in by CfdMeshMgrSingleton::Subtag, which already visits every face and already
-    // asks the target length map about it.
-    double m_MinAngle;      // Smallest angle of the face, in degrees.
-    double m_LenRatio;      // Mean edge length over the target length at the face's centre.
-    double m_TargetLen;     // The target length at the face's centre, so a per-corner ratio
-                            // can be formed from it.
 
     // Worst of this face's own edges, each measured against the target length that edge was
     // built to, expressed so that 1.0 is on target and larger is worse whichever way the edge

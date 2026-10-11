@@ -278,7 +278,6 @@ public:
     virtual void Subtag( Surf* surf, std::set< std::vector< int > > &combo );
 
     // The smallest angle and the realized-over-target edge length of one face.
-    virtual void SetFaceQuality( SimpFace &face, const vector< vec3d > &xyz, double tgt );
 
     virtual bool SetDeleteTriFlag( int aType, bool symPlane, const vector < bool > &aInB );
 

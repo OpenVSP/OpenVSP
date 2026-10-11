@@ -6939,71 +6939,10 @@ void CfdMeshMgrSingleton::SetSimpSubSurfTags( int tag_offset )
     }
 }
 
-// How good a face is, by the two measures the mesher can be judged on.
-//
-// The smallest angle says whether it is a usable triangle.  The mean edge length over the
-// target length says whether it is the size that was asked for -- which the angle cannot
-// say, because a triangle can be a perfect equilateral at twice the size it should be.
-void CfdMeshMgrSingleton::SetFaceQuality( SimpFace &face, const vector< vec3d > &xyz, double tgt )
-{
-    int n = 3;
-    int ind[4] = { face.ind0, face.ind1, face.ind2, face.ind3 };
-
-    if ( face.m_isQuad )
-    {
-        n = 4;
-    }
-
-    double lsum = 0.0;
-    double mincos = -1.0;
-
-    for ( int i = 0 ; i < n ; i++ )
-    {
-        const vec3d &a = xyz[ ind[ ( i + n - 1 ) % n ] ];
-        const vec3d &b = xyz[ ind[i] ];
-        const vec3d &c = xyz[ ind[ ( i + 1 ) % n ] ];
-
-        double lab = dist( a, b );
-        double lbc = dist( b, c );
-
-        lsum += lbc;
-
-        if ( lab > 0.0 && lbc > 0.0 )
-        {
-            // Cosine of the corner at b.  The largest cosine is the smallest angle.
-            double cosb = dot( a - b, c - b ) / ( lab * lbc );
-
-            if ( cosb > mincos )
-            {
-                mincos = cosb;
-            }
-        }
-    }
-
-    if ( mincos > 1.0 )
-    {
-        mincos = 1.0;
-    }
-    if ( mincos < -1.0 )
-    {
-        mincos = -1.0;
-    }
-
-    face.m_MinAngle = acos( mincos ) * 180.0 / M_PI;
-
-    face.m_TargetLen = tgt;
-
-    if ( tgt > 0.0 )
-    {
-        face.m_LenRatio = ( lsum / ( double )n ) / tgt;
-    }
-}
-
 void CfdMeshMgrSingleton::Subtag( Surf* surf, std::set< std::vector< int > > &combo )
 {
     vector< SimpFace >& face_vec = surf->GetMesh()->GetSimpFaceVec();
     const vector< vec2d >& pnts = surf->GetMesh()->GetSimpUWPntVec();
-    const vector< vec3d >& xyz = surf->GetMesh()->GetSimpPntVec();
     vector< SimpleSubSurface > simp_s_surfs = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() , surf->GetCompID() );
 
     for ( int f = 0; f < (int)face_vec.size(); f++ )
@@ -7020,11 +6959,9 @@ void CfdMeshMgrSingleton::Subtag( Surf* surf, std::set< std::vector< int > > &co
             center = ( pnts[face.ind0] + pnts[face.ind1] + pnts[face.ind2] ) * 1 / 3.0;
         }
 
-        double tgt = surf->InterpTargetMap( center.x(), center.y(), face.m_reason );
-
-        // The two quality measures, taken here because this is already a pass over every
-        // face and the target length at its centre is already being asked for.
-        SetFaceQuality( face, xyz, tgt );
+        // Sets the reason the target length at the face's centre is what it is, which the mesh
+        // is colored by.
+        surf->InterpTargetMap( center.x(), center.y(), face.m_reason );
 
         // The centre is in this patch's parameters.  Subsurfaces are drawn in the Geom's,
         // so a patch built from two pieces of the surface has to say which piece this face
