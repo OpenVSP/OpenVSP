@@ -734,6 +734,7 @@ bool GeometryAnalysisCase::GetSecondaryPt( vector < vec3d > &pt_vec, vector < TM
     if ( m_SecondaryType() == vsp::XYZ_TARGET )
     {
         pt_vec.push_back( vec3d( m_SecondaryX(), m_SecondaryY(), m_SecondaryZ() ) );
+        fov_vec.resize( pt_vec.size(), nullptr );
         return true;
     }
     else
