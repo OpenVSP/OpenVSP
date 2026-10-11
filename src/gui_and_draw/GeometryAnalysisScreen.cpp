@@ -947,7 +947,8 @@ bool GeometryAnalysisScreen::Update()
              gcase->m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
              gcase->m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
-             gcase->m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE )
+             gcase->m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE ||
+             gcase->m_GeometryAnalysisType() == vsp::RISK_ANGLE )
         {
             m_SecondarySetToggle.Deactivate();
             m_SecondarySetChoice.Deactivate();
