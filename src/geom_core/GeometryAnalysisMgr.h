@@ -29,6 +29,7 @@ public:
     ~GeometryAnalysisCase();
 
     void Update();
+    void UpdateTargetTypes();
 
     void AddAzEl( double az, double el );
     void RemoveAzEl( int indx );

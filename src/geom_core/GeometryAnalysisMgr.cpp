@@ -131,15 +131,7 @@ GeometryAnalysisCase::~GeometryAnalysisCase()
 
 void GeometryAnalysisCase::Update()
 {
-    // Dual-geometry analyses that require special geometry for secondary
-    if ( m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
-         m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
-         m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
-         m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE ||
-         m_GeometryAnalysisType() == vsp::RISK_ANGLE )
-    {
-        m_SecondaryType = vsp::GEOM_TARGET;
-    }
+    UpdateTargetTypes();
 
     if ( m_SymmRotX() )
     {
@@ -183,6 +175,34 @@ void GeometryAnalysisCase::Update()
     }
 
     UpdateDrawObj_Live();
+}
+
+// Force the primary and secondary target types the analysis type allows.  Evaluate calls this too,
+// so a case set up through the API follows the same rules as one set up in the GUI.
+void GeometryAnalysisCase::UpdateTargetTypes()
+{
+    // Primary must be singular geometry type -- no Set or Mode allowed.
+    if ( m_GeometryAnalysisType() == vsp::GEAR_CG_TIPBACK_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::GEAR_WEIGHT_DISTRIBUTION_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::AERO_CENTER )
+    {
+        m_PrimaryType = vsp::GEOM_TARGET;
+    }
+    else if ( m_PrimaryType() == vsp::MODE_TARGET && ModeMgr.GetNumModes() == 0 )
+    {
+        m_PrimaryType = vsp::SET_TARGET;
+    }
+
+    // Dual-geometry analyses that require special geometry for secondary
+    if ( m_GeometryAnalysisType() == vsp::PLANE_2PT_ANGLE_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::PLANE_1PT_ANGLE_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::GEAR_TURN_ANALYSIS ||
+         m_GeometryAnalysisType() == vsp::CCE_INTERFERENCE ||
+         m_GeometryAnalysisType() == vsp::RISK_ANGLE )
+    {
+        m_SecondaryType = vsp::GEOM_TARGET;
+    }
 }
 
 void GeometryAnalysisCase::AddAzEl( double az, double el )
@@ -1025,6 +1045,8 @@ string GeometryAnalysisCase::Evaluate()
     DeleteTMeshVec( m_SliceTMeshVec );
     m_LinePtsVec.clear();
     m_PointsVec.clear();
+
+    UpdateTargetTypes();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )

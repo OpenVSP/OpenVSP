@@ -808,8 +808,6 @@ bool GeometryAnalysisScreen::Update()
              gcase->m_GeometryAnalysisType() == vsp::GEAR_TIPOVER_ANALYSIS ||
              gcase->m_GeometryAnalysisType() == vsp::AERO_CENTER )
         {
-            gcase->m_PrimaryType = vsp::GEOM_TARGET;
-
             m_PrimaryModeToggle.Deactivate();
             m_PrimarySetToggle.Deactivate();
 
@@ -824,11 +822,6 @@ bool GeometryAnalysisScreen::Update()
 
             if ( ModeMgr.GetNumModes() == 0 )
             {
-                if ( gcase->m_PrimaryType() == vsp::MODE_TARGET )
-                {
-                    gcase->m_PrimaryType = vsp::SET_TARGET;
-                    m_ScreenMgr->SetUpdateFlag( true );
-                }
                 m_PrimaryModeToggle.Deactivate();
             }
             else
