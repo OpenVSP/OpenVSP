@@ -1069,7 +1069,9 @@ public:
     \ingroup Matrix4d
 */
 /*!
-    Reduce the matrix to a single rotation about an axis: the direction of the axis, a point on it, and the angle turned through in radians.
+    Reduce the matrix to a single rotation about an axis: the direction of the axis, the point on it nearest the origin, and the
+    angle turned through in radians, from 0 to pi and right handed about the axis.  A translation along the axis has no part in
+    the result.
     \beginPythonOnly
     \code{.py}
     import math
@@ -1092,7 +1094,7 @@ public:
     \endPythonOnly
     \sa toQuat, getAngles
     \param [out] axis_dir vec3d Direction of the rotation axis
-    \param [out] axis_pnt vec3d A point on the rotation axis
+    \param [out] axis_pnt vec3d The point on the rotation axis nearest the origin
     \param [out] angle_out double Angle turned through, in radians
 */
 

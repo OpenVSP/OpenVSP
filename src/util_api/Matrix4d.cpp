@@ -514,24 +514,14 @@ void Matrix4d::setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir
 void Matrix4d::getRotationAxis( vec3d &axis_dir, vec3d &axis_pnt, double &angle ) const
 {
     // 1. Extract rotation angle and direction from the 3x3 part
-    // cos( theta ) = ( tr( R ) - 1 ) / 2
-    double trace = mat[0] + mat[5] + mat[10];
-    double cos_theta = ( trace - 1.0 ) * 0.5;
+    // The skew part of R is 2 sin( theta ) axis, and tr( R ) = 1 + 2 cos( theta ).
+    vec3d skew( mat[6] - mat[9], mat[8] - mat[2], mat[1] - mat[4] );
+    double sin_theta = 0.5 * skew.mag();
+    double cos_theta = 0.5 * ( mat[0] + mat[5] + mat[10] - 1.0 );
 
-    // Clamp for safety
-    if ( cos_theta > 1.0 )
-    {
-        cos_theta = 1.0;
-    }
+    angle = atan2( sin_theta, cos_theta );
 
-    if ( cos_theta < -1.0 )
-    {
-        cos_theta = -1.0;
-    }
-
-    angle = acos( cos_theta );
-
-    if ( std::abs( angle ) < 1e-9 )
+    if ( angle < 1e-12 )
     {
         // No rotation
         axis_dir.set_xyz( 0, 0, 1 );
@@ -540,53 +530,46 @@ void Matrix4d::getRotationAxis( vec3d &axis_dir, vec3d &axis_pnt, double &angle 
         return;
     }
 
-    if ( std::abs( angle - M_PI ) < 1e-9 )
+    if ( cos_theta < 0.0 )
     {
-        // 180 degree rotation case
-        double xx = ( mat[0] + 1.0 ) * 0.5;
-        double yy = ( mat[5] + 1.0 ) * 0.5;
-        double zz = ( mat[10] + 1.0 ) * 0.5;
-        double xy = ( mat[4] + mat[1] ) * 0.25;
-        double xz = ( mat[8] + mat[2] ) * 0.25;
-        double yz = ( mat[9] + mat[6] ) * 0.25;
+        // Past 90 degrees the skew part shrinks to nothing.  The symmetric part less cos( theta ) I
+        // is ( 1 - cos( theta ) ) axis axis^T; take its column on the largest diagonal and sign it
+        // by the skew part.
+        int imax = 0;
+        if ( mat[5] > mat[0] )
+        {
+            imax = 1;
+        }
+        if ( mat[10] > mat[imax * 5] )
+        {
+            imax = 2;
+        }
 
-        if ( ( xx >= yy ) && ( xx >= zz ) )
+        for ( int i = 0; i < 3; i++ )
         {
-            axis_dir.set_x( sqrt( xx ) );
-            axis_dir.set_y( xy / axis_dir.x() );
-            axis_dir.set_z( xz / axis_dir.x() );
+            axis_dir[i] = 0.5 * ( mat[imax * 4 + i] + mat[i * 4 + imax] );
         }
-        else if ( yy >= zz )
+        axis_dir[imax] -= cos_theta;
+
+        if ( dot( axis_dir, skew ) < 0.0 )
         {
-            axis_dir.set_y( sqrt( yy ) );
-            axis_dir.set_x( xy / axis_dir.y() );
-            axis_dir.set_z( yz / axis_dir.y() );
-        }
-        else
-        {
-            axis_dir.set_z( sqrt( zz ) );
-            axis_dir.set_x( xz / axis_dir.z() );
-            axis_dir.set_y( yz / axis_dir.z() );
+            axis_dir = -1.0 * axis_dir;
         }
     }
     else
     {
         // Standard case
-        axis_dir.set_xyz( mat[6] - mat[9], mat[8] - mat[2], mat[1] - mat[4] );
+        axis_dir = skew;
     }
     axis_dir.normalize();
 
-    // 2. Find a point on the axis
-    // For a transformation M = T * R, the fixed point P satisfies ( R - I ) P = -T_perp
+    // 2. Find the point on the axis nearest the origin
+    // For a transformation M = T * R, the fixed point P satisfies ( I - R ) P = T_perp
     // where T_perp is the component of translation perpendicular to the axis.
     vec3d t = getTranslation();
     vec3d parallel_t = axis_dir * dot( t, axis_dir );
     vec3d perp_t = t - parallel_t;
 
-    // Using the formula for the center of rotation: P = ( axis x perp_t ) / ( 2 * tan( angle / 2 ) ) + axis_pnt_at_origin
-    // We can find the point closest to origin: axis_dir.cross( t ) / ( 2 * sin( angle ) ) ... for simple rotation
-    // A more robust way: axis_pnt = 0.5 * ( t + axis_dir.cross( t ) / tan( angle / 2 ) ) projected?
-    // Let's use the cross product method:
     double tan_half = tan( angle * 0.5 );
     axis_pnt = cross( axis_dir, perp_t ) * ( 0.5 / tan_half ) + perp_t * 0.5;
 }
