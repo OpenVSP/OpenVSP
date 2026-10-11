@@ -219,8 +219,6 @@ public:
     vector< TTri* > m_TriVec;               // For WaterTight Check
     vector< TEdge* > m_EdgeVec;         // For WaterTight Check
 
-    vector< TNode* > m_MergeVec;
-
 //  TNode* mapNode;
 
     int m_IsectFlag;

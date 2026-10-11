@@ -6488,7 +6488,6 @@ void TMesh::BuildNodeMaps()
 
     for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
     {
-        m_NVec[n]->m_MergeVec.clear();
         pnCloud.AddPntNode( m_NVec[n]->m_Pnt );
     }
 
@@ -6512,7 +6511,6 @@ void TMesh::BuildNodeMaps()
         if ( !(pnCloud.UsedNode( islave )) ) // This point is a NanoFlann slave.
         {
             int imaster = pnCloud.GetNodeBaseIndex( islave );
-            m_NVec[imaster]->m_MergeVec.push_back( m_NVec[islave] );
             m_NAMap[m_NVec[imaster]].push_back( m_NVec[islave] ); // Add node islave to imaster's list of aliases
             m_NSMMap[m_NVec[islave]] = m_NVec[imaster]; // Set islave's master to be imaster
         }
@@ -6578,7 +6576,6 @@ void TMesh::DeleteDupNodes()
             delete *lit;
         }
 
-        nk->m_MergeVec.clear();
         nk->m_TriVec.clear();
         m_NVec.push_back( nk );
     }
