@@ -226,7 +226,6 @@ public:
     // The subset sitting against a border, to test whether the row of triangles next to an
     // intersection curve misses its target worse than the field does.
     vector < double > m_BorderFaceLengthRatios;
-    virtual Edge* FindAddEdge( unordered_map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
 
     virtual void BuildDomain();
     void BuildGrid() override;

@@ -4482,17 +4482,58 @@ void CfdMeshMgrSingleton::RecordResults()
     res->Add( new NameValData( "Water_Tight", tight, "Flag set when the mesh is closed." ) );
 }
 
+// A face's corners as merged point indices, and how many it has
+static int CheckFaceCorners( const SimpFace &face, const vector < int > &key, PntNodeCloud &cloud, int ind[4] )
+{
+    ind[0] = cloud.GetNodeUsedIndex( key[ face.ind0 ] );
+    ind[1] = cloud.GetNodeUsedIndex( key[ face.ind1 ] );
+    ind[2] = cloud.GetNodeUsedIndex( key[ face.ind2 ] );
+    if ( face.m_isQuad )
+    {
+        ind[3] = cloud.GetNodeUsedIndex( key[ face.ind3 ] );
+        return 4;
+    }
+    return 3;
+}
+
+// The Node at merged point ind, made the first time it is asked for and kept in store
+static Node* CheckNodeAt( int ind, const vector < vec3d > &pnts, unordered_map < int, Node* > &nodes, vector < Node* > &store )
+{
+    unordered_map < int, Node* >::const_iterator it = nodes.find( ind );
+    if ( it != nodes.end() )
+    {
+        return it->second;
+    }
+    Node* nd = new Node();
+    nd->pnt = pnts[ ind ];
+    store.push_back( nd );
+    nodes[ ind ] = nd;
+    return nd;
+}
+
+// Count the edges of the mesh with one face, and the faces past the second on an edge.  Only
+// the edges and faces found wrong are kept, as Nodes, Edges and Faces, to be drawn.
 string CfdMeshMgrSingleton::CheckWaterTight()
 {
-    vector< Face* > faceVec;
+    vector < bool > checked( m_SurfVec.size(), false );
+    size_t npnt = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        if( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT || m_SurfVec[i]->GetFarFlag() || m_SurfVec[i]->GetSymPlaneFlag() )
+        {
+            checked[i] = true;
+            npnt += m_SurfVec[i]->GetMesh()->GetSimpPntVec().size();
+        }
+    }
 
     vector< vec3d > allPntVec;
+    allPntVec.reserve( npnt );
     vector < vector < int > > allPntKey;
     allPntKey.resize( m_SurfVec.size() );
     int k = 0;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        if( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT || m_SurfVec[i]->GetFarFlag() || m_SurfVec[i]->GetSymPlaneFlag() )
+        if ( checked[i] )
         {
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
             allPntKey[i].resize( sPntVec.size() );
@@ -4513,123 +4554,117 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
 
-    //==== Create Nodes ====//
+    // Every side of every face, as the merged indices of its ends, lowest first, packed in
+    // one integer, beside the face's place in the order the faces are visited.  Sorted, the
+    // faces on one edge come together in that order: an edge with one face is a border, and
+    // every face past the second on an edge is one too many.
+    vector < pair < unsigned long long, int > > sides;
+    int nface = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        if ( checked[i] )
+        {
+            const vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+            for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
+            {
+                int ind[4];
+                int n = CheckFaceCorners( sFaceVec[f], allPntKey[i], pnCloud, ind );
+                for ( int c = 0 ; c < n ; c++ )
+                {
+                    unsigned long long a = ind[c];
+                    unsigned long long b = ind[ ( c + 1 ) % n ];
+                    if ( b < a )
+                    {
+                        std::swap( a, b );
+                    }
+                    sides.push_back( pair < unsigned long long, int >( ( a << 32 ) | b, nface ) );
+                }
+                nface++;
+            }
+        }
+    }
+
+    std::sort( sides.begin(), sides.end() );
+
+    int num_border_edges = 0;
+    int moreThanTwoTriPerEdge = 0;
+    vector < bool > badface( nface, false );
+    vector < pair < int, int > > border;
+
+    for ( size_t j = 0 ; j < sides.size() ; )
+    {
+        size_t r = j;
+        while ( r < sides.size() && sides[r].first == sides[j].first )
+        {
+            r++;
+        }
+
+        if ( r - j == 1 )
+        {
+            num_border_edges++;
+            border.push_back( pair < int, int >( ( int )( sides[j].first >> 32 ), ( int )( sides[j].first & 0xffffffffULL ) ) );
+        }
+
+        for ( size_t q = j + 2 ; q < r ; q++ )
+        {
+            printf( "Edge: More Than 2 Faces\n" );
+            moreThanTwoTriPerEdge++;
+            badface[ sides[q].second ] = true;
+        }
+
+        j = r;
+    }
+    vector < pair < unsigned long long, int > >().swap( sides );
+
+    //==== Keep what is wrong, to be drawn ====//
+    vector < vec3d > usedPnt;
+    usedPnt.reserve( pnCloud.m_NumUsedPts );
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
     {
         if ( pnCloud.UsedNode( i ) )
         {
-            Node* n = new Node();
-            n->pnt = allPntVec[i];
-            m_nodeStore.push_back( n );
+            usedPnt.push_back( allPntVec[i] );
         }
     }
 
-    //==== Create Edges and Tris ====//
-    int moreThanTwoTriPerEdge = 0;
-    unordered_map< int, vector<Edge*> > edgeMap;
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    unordered_map < int, Node* > nodes;
+
+    for ( int j = 0 ; j < ( int )border.size() ; j++ )
     {
-        if( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT || m_SurfVec[i]->GetFarFlag() || m_SurfVec[i]->GetSymPlaneFlag() )
+        Edge* e = new Edge( CheckNodeAt( border[j].first, usedPnt, nodes, m_nodeStore ), CheckNodeAt( border[j].second, usedPnt, nodes, m_nodeStore ) );
+        e->debugFlag = true;
+        m_BadEdges.push_back( e );
+    }
+
+    if ( moreThanTwoTriPerEdge )
+    {
+        int iface = 0;
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
-            vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
-            vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-            for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
+            if ( checked[i] )
             {
-                int ind1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind0] );
-                int ind2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind1] );
-                int ind3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind2] );
-
-                Edge *e0 = nullptr, *e1 = nullptr, *e2 = nullptr, *e3 = nullptr;
-
-                Face* face = nullptr;
-                if ( sFaceVec[f].m_isQuad )
+                const vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+                for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
                 {
-                    int ind4 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind3] );
-
-                    e0 = FindAddEdge( edgeMap, m_nodeStore, ind1, ind2 );
-                    e1 = FindAddEdge( edgeMap, m_nodeStore, ind2, ind3 );
-                    e2 = FindAddEdge( edgeMap, m_nodeStore, ind3, ind4 );
-                    e3 = FindAddEdge( edgeMap, m_nodeStore, ind4, ind1 );
-
-                    face = new Face( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3],  m_nodeStore[ind4], e0, e1, e2, e3 );
-                }
-                else
-                {
-                    e0 = FindAddEdge( edgeMap, m_nodeStore, ind1, ind2 );
-                    e1 = FindAddEdge( edgeMap, m_nodeStore, ind2, ind3 );
-                    e2 = FindAddEdge( edgeMap, m_nodeStore, ind3, ind1 );
-                    face = new Face( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3], e0, e1, e2 );
-                }
-
-                if ( !e0->SetFace( face ) )
-                {
-                    face->debugFlag = true;
-                    moreThanTwoTriPerEdge++;
-                }
-                if ( !e1->SetFace( face ) )
-                {
-                    face->debugFlag = true;
-                    moreThanTwoTriPerEdge++;
-                }
-                if ( !e2->SetFace( face ) )
-                {
-                    face->debugFlag = true;
-                    moreThanTwoTriPerEdge++;
-                }
-
-                if ( sFaceVec[f].m_isQuad )
-                {
-                    if ( !e3->SetFace( face ) )
+                    if ( badface[ iface ] )
                     {
+                        int ind[4];
+                        Face* face;
+                        if ( CheckFaceCorners( sFaceVec[f], allPntKey[i], pnCloud, ind ) == 4 )
+                        {
+                            face = new Face( CheckNodeAt( ind[0], usedPnt, nodes, m_nodeStore ), CheckNodeAt( ind[1], usedPnt, nodes, m_nodeStore ), CheckNodeAt( ind[2], usedPnt, nodes, m_nodeStore ), CheckNodeAt( ind[3], usedPnt, nodes, m_nodeStore ),
+                                             nullptr, nullptr, nullptr, nullptr );
+                        }
+                        else
+                        {
+                            face = new Face( CheckNodeAt( ind[0], usedPnt, nodes, m_nodeStore ), CheckNodeAt( ind[1], usedPnt, nodes, m_nodeStore ), CheckNodeAt( ind[2], usedPnt, nodes, m_nodeStore ), nullptr, nullptr, nullptr );
+                        }
                         face->debugFlag = true;
-                        moreThanTwoTriPerEdge++;
+                        m_BadFaces.push_back( face );
                     }
-                }
-
-                faceVec.push_back( face );
-
-                if ( face->debugFlag )
-                {
-                    m_BadFaces.push_back( face );
+                    iface++;
                 }
             }
-        }
-    }
-
-    //==== Find Border Edges ====//
-    int num_border_edges = 0;
-    unordered_map<int, vector<Edge*> >::const_iterator iter;
-    for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; ++iter )
-    {
-        for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
-        {
-            Edge* e = iter->second[i];
-            if ( !( e->f0 && e->f1 ) )
-            {
-                m_BadEdges.push_back( e );
-                e->debugFlag = true;
-                num_border_edges++;
-            }
-
-        }
-    }
-
-    //==== Clean Up ====//
-    for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; ++iter )
-    {
-        for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
-        {
-            if ( ! iter->second[i]->debugFlag )
-            {
-                delete iter->second[i];
-            }
-        }
-    }
-    for ( int i = 0 ; i < ( int )faceVec.size() ; i++ )
-    {
-        if ( ! faceVec[i]->debugFlag )
-        {
-            delete faceVec[i];
         }
     }
 
@@ -4649,32 +4684,6 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
     return string( resultStr );
 
-}
-
-Edge* CfdMeshMgrSingleton::FindAddEdge( unordered_map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 )
-{
-    Edge* e = nullptr;
-    unordered_map<int, vector<Edge*> >::const_iterator iter;
-    int combind = ind1 + ind2;
-    iter = edgeMap.find( combind );
-
-    if ( iter != edgeMap.end() )    // Found Edge Vec so Check
-    {
-        const vector<Edge*> &eVec = iter->second;
-        for ( int i = 0 ; i < ( int )eVec.size() ; i++ )
-        {
-            if ( eVec[i]->ContainsNodes( nodeVec[ind1], nodeVec[ind2] ) )
-            {
-                return eVec[i];
-            }
-        }
-    }
-
-    //==== No Edge Found so Create
-    e = new Edge( nodeVec[ind1], nodeVec[ind2] );
-    edgeMap[combind].push_back( e );
-
-    return e;
 }
 
 vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
