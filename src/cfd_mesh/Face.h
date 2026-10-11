@@ -45,15 +45,15 @@ public:
         fixed = m_DeleteMeFlag = false;
         edgeVec.reserve( 6 );
     }
-    virtual ~Node();
+    ~Node();
 
     list< Node* >::iterator list_ptr;
 
     bool m_DeleteMeFlag;
+    bool fixed;             // Dont move or delete
 
     vec3d pnt;              // Position
     vec2d uw;               // Parametric
-    bool fixed;             // Dont move or delete
 
     vector< Edge* >  edgeVec;       // All Edges Which Use This Node
 
@@ -103,11 +103,9 @@ public:
         target_len = 0;
         m_Length = 0;
     }
-    virtual ~Edge()                         {}
+    ~Edge()                         {}
 
     list< Edge* >::iterator list_ptr;
-
-    bool m_DeleteMeFlag;
 
     Node* n0;
     Node* n1;
@@ -119,14 +117,17 @@ public:
     Face* f0;
     Face* f1;
 
+    bool m_DeleteMeFlag;
+
     bool ridge;             // Dont Remove but Can Split
     bool border;            // Dont remove or split
 
     bool debugFlag;         // Flag for testing
 
+    bool m_LengthDirty = true;  // m_Length needs working out again
+
     double target_len;
     double m_Length;
-    bool m_LengthDirty = true;
 
     // Which pass last offered this edge to the collapse.  Collapse gathers its candidates
     // from two places -- edges that are too short, then faces that are the wrong shape --
@@ -194,7 +195,7 @@ public:
     Face();
     Face( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
     Face( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 );
-    virtual ~Face();
+    ~Face();
 
     static void ComputeCosAngles( Node* nn0, Node* nn1, Node* nn2, double* ang0, double* ang1, double* ang2 );
     static void ComputeCosAngles( Node* nn0, Node* nn1, Node* nn2, Node* nn3, double* ang0, double* ang1, double* ang2, double* ang3 );
