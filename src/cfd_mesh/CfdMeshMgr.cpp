@@ -3871,33 +3871,37 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     double tol = 1e-12;
 
     //==== Find All Points and Tri Counts ====//
-    vector< vec3d > allPntVec;
-    vector< vec3d > wakeAllPntVec;
-    vector < vector < int > > allPntKey;
-    allPntKey.resize( m_SurfVec.size() );
-    vector < vector < int > > allWPntKey;
-    allWPntKey.resize( m_SurfVec.size() );
-    int k = 0;
-    int wk = 0;
+    // Wakes are kept out of the triangulation, so their points are left out too.
+    size_t npnt = 0;
+    size_t nallface = 0;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        if ( !m_SurfVec[i]->GetWakeFlag() )
+        {
+            npnt += m_SurfVec[i]->GetMesh()->GetSimpPntVec().size();
+            nallface += m_SurfVec[i]->GetMesh()->GetSimpFaceVec().size();
+        }
+    }
+
+    vector< vec3d > allPntVec;
+    allPntVec.reserve( npnt );
+    vector < vector < int > > allPntKey;
+    allPntKey.resize( m_SurfVec.size() );
+    int k = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        if ( m_SurfVec[i]->GetWakeFlag() )
+        {
+            continue;
+        }
+
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         allPntKey[i].resize( sPntVec.size() );
-        allWPntKey[i].resize( sPntVec.size() );
         for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
         {
-            if ( m_SurfVec[i]->GetWakeFlag() )
-            {
-                wakeAllPntVec.push_back( sPntVec[v] );
-                allWPntKey[i][v] = wk;
-                wk++;
-            }
-            else
-            {
-                allPntVec.push_back( sPntVec[v] );
-                allPntKey[i][v] = k;
-                k++;
-            }
+            allPntVec.push_back( sPntVec[v] );
+            allPntKey[i][v] = k;
+            k++;
         }
     }
 
@@ -3909,27 +3913,15 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol2 );
 
-    // //==== Build Wake Map If Available ====//
-    // PntNodeCloud wakepnCloud;
-    // if ( wakeAllPntVec.size() )
-    // {
-    //     wakepnCloud.AddPntNodes( wakeAllPntVec );
-    //     IndexPntNodes( wakepnCloud, tol2 );
-    // }
-
     //==== Assemble Normal Tris ====//
     vector< SimpFace > allFaceVec;
+    allFaceVec.reserve( nallface );
     int ntristrict = 0;
-    vector< int > allSurfIDVec;
-    vector< vector< vec2d > > allUWVec;
-    vector < pair < int, int > > wedges;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         if ( !m_SurfVec[i]->GetWakeFlag() )
         {
             vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
-            vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-            vector< vec2d >& sUWVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
             for ( int t = 0 ; t <  ( int )sFaceVec.size() ; t++ )
             {
                 SimpFace sface;
@@ -3948,18 +3940,6 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
                 sface.m_iSurf = i;
                 ntristrict++;
                 allFaceVec.push_back( sface );
-                allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
-
-                vector< vec2d > uwFace( 4 );
-                uwFace[0] = sUWVec[ sFaceVec[t].ind0 ];
-                uwFace[1] = sUWVec[ sFaceVec[t].ind1 ];
-                uwFace[2] = sUWVec[ sFaceVec[t].ind2 ];
-                if( sFaceVec[t].m_isQuad )
-                {
-                    uwFace[3] = sUWVec[ sFaceVec[t].ind3 ];
-                }
-                allUWVec.push_back( uwFace );
-
             }
 
         }
@@ -3968,6 +3948,7 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
 
     //==== Assemble All Used Points ====//
     vector< vec3d > allUsedPntVec;
+    allUsedPntVec.reserve( pnCloud.m_NumUsedPts );
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
     {
         if ( pnCloud.UsedNode( i ) )
@@ -3975,6 +3956,11 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
             allUsedPntVec.push_back( allPntVec[i] );
         }
     }
+
+    // The faces are numbered now, so the map and the points it was built from are done with.
+    pnCloud.Cleanup();
+    vector< vec3d >().swap( allPntVec );
+    vector < vector < int > >().swap( allPntKey );
 
 
     //=====================================================================================//

@@ -25,9 +25,10 @@ PntNodeCloud::~PntNodeCloud()
     Cleanup();
 }
 
+// Swapping with an empty vector gives the memory back, where clear() would keep it.
 void PntNodeCloud::Cleanup()
 {
-    m_PntNodes.clear();
+    vector< PntNode >().swap( m_PntNodes );
     if ( m_index )
     {
         delete m_index;
