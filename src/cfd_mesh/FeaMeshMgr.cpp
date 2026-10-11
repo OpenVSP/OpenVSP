@@ -595,7 +595,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     if ( m_CADOnlyFlag )
     {
-        UpdateDrawObjs();
+        m_DrawObjsStale = true;
 
         addOutputText( "Finished\n" );
 
@@ -655,7 +655,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     RecordResults();
 
-    UpdateDrawObjs();
+    GetMeshPtr()->m_MeshDOUpToDate = false;
+    m_DrawObjsStale = true;
 
     addOutputText( "Finished\n" );
 

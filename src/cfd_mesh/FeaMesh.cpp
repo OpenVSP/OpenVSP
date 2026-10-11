@@ -583,7 +583,12 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
 {
     if ( !m_MeshDOUpToDate )
     {
-        return;
+        UpdateDrawObjs();
+
+        if ( !m_MeshDOUpToDate )
+        {
+            return;
+        }
     }
 
     // m_FeaSpiderNodeDO.m_Type = DrawObj::VSP_POINTS;
