@@ -129,7 +129,7 @@ class ISeg
 public:
     ISeg();
     ISeg( Surf* sA, Surf* sB, IPnt* ip0, IPnt* ip1 );
-    virtual ~ISeg();
+    ~ISeg();
 
     IPnt* m_IPnt[2];            // End Points of Seg
 
@@ -187,7 +187,7 @@ public:
         m_ChainPtr = nullptr;
         m_Surf = nullptr;
     }
-    virtual ~ISegBox();
+    ~ISegBox();
 
     int m_BeginInd;
     int m_EndInd;
