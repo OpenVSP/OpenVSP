@@ -1489,7 +1489,7 @@ vec3d cross( const vec3d& a, const vec3d& b );
 	\ingroup vec3d
 */
 /*!
-    Calculate the angle between two vec3d inputs (dot product divided by their magnitudes multiplied)
+    Calculate the angle between two vec3d inputs, from 0 to pi (the arctangent of their cross product's magnitude over their dot product)
     \forcpponly
     \code{.cpp}
     //==== Test Vec3d ====//
@@ -1528,7 +1528,7 @@ double angle( const vec3d& a, const vec3d& b );
 	\ingroup vec3d
 */
 /*!
-    Calculate the signed angle between two vec3d inputs (dot product divided by their magnitudes multiplied) and an input reference axis
+    Calculate the signed angle between two vec3d inputs, from -pi to pi, positive when their cross product points along an input reference axis
     \forcpponly
     \code{.cpp}
     //==== Test Vec3d ====//

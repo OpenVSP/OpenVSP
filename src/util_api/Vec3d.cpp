@@ -518,20 +518,17 @@ vec3d cross( const vec3d& a, const vec3d& b )
 //******* Angle Between Vectors ******//
 double angle( const vec3d& a, const vec3d& b )
 {
-    double angle = dot( a, b ) / ( a.mag() * b.mag() );
+    // atan2 keeps its digits near 0 and pi, where acos of the cosine loses half of them.
+    double s = cross( a, b ).mag();
+    double c = dot( a, b );
 
-    if ( angle >= -1.0 && angle <= 1.0 )
+    // A zero vector is at no angle, even when its dot product is -0, which atan2 reads as pi.
+    if ( s == 0.0 && c == 0.0 )
     {
-        return( acos( angle ) );
+        return 0.0;
     }
-    else if ( angle < 0.0 )
-    {
-        return M_PI;
-    }
-    else
-    {
-        return( 0.0 );
-    }
+
+    return atan2( s, c );
 }
 
 double signed_angle( const vec3d& a, const vec3d& b, const vec3d& ref )
@@ -2034,13 +2031,7 @@ vec3d slerp( const vec3d& a, const vec3d& b, const double &t )
     vec3d an = a / a.mag();
     vec3d bn = b / b.mag();
 
-    double dp = dot( an, bn );
-
-    double theta = 0.0;
-    if ( dp >= -1.0 && dp <= 1.0 )
-    {
-        theta = acos( dp );
-    }
+    double theta = angle( an, bn );
 
     // Initialize retvec as a-direction.
     vec3d retvec = an;
