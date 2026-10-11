@@ -54,7 +54,6 @@ struct PntNode
     vec3d m_Pnt;
     long long int m_Index;
     long long int m_UsedIndex;
-    vector < long long int > m_Matches;
 };
 
 // The data source fed into the KD-tree library must adhere to an interface.  The following
@@ -72,6 +71,12 @@ struct PntNodeCloud
     PNTree *m_index;
 
     long long int m_NumUsedPts;
+
+    // The points IndexPntNodes found within tolerance of each group's base point, kept only
+    // when it is asked to: those of the group with used index u are m_MatchVec[ m_MatchStart[u] ]
+    // up to m_MatchVec[ m_MatchStart[u + 1] ].
+    vector< long long int > m_MatchStart;
+    vector< long long int > m_MatchVec;
 
     // Must return the number of data points
     inline size_t kdtree_get_point_count() const
@@ -113,7 +118,9 @@ struct PntNodeCloud
 // tolsq is a SQUARED distance: the search underneath works in squared distance, so points
 // closer together than sqrt( tolsq ) are merged.  Callers have not always read it that way --
 // see the note on PT_MERGE_TOL in Surf.h.
-void IndexPntNodes( PntNodeCloud & cloud, double tolsq );
+//
+// keep_matches keeps the points of every group for GetMatches, which few callers need.
+void IndexPntNodes( PntNodeCloud & cloud, double tolsq, bool keep_matches = false );
 
 class VspSurf;
 

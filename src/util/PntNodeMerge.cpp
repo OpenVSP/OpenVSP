@@ -29,6 +29,8 @@ PntNodeCloud::~PntNodeCloud()
 void PntNodeCloud::Cleanup()
 {
     vector< PntNode >().swap( m_PntNodes );
+    vector< long long int >().swap( m_MatchStart );
+    vector< long long int >().swap( m_MatchVec );
     if ( m_index )
     {
         delete m_index;
@@ -82,10 +84,11 @@ long long int PntNodeCloud::GetNodeBaseIndex( long long int i )
 vector < long long int > PntNodeCloud::GetMatches( long long int i )
 {
     assert ( i >= 0 && i < ( long long int )m_PntNodes.size() );
+    assert ( !m_MatchStart.empty() );   // IndexPntNodes was not asked to keep them
 
-    long long int ind = m_PntNodes[i].m_Index;
+    long long int u = m_PntNodes[ m_PntNodes[i].m_Index ].m_UsedIndex;
 
-    return m_PntNodes[ ind ].m_Matches;
+    return vector < long long int >( m_MatchVec.begin() + m_MatchStart[u], m_MatchVec.begin() + m_MatchStart[u + 1] );
 }
 
 long long int PntNodeCloud::LookupPntUsed( const vec3d & pnt )
@@ -156,10 +159,17 @@ long long int PntNodeCloud::LookupPntBase( const vec3d & pnt )
     return -1;
 }
 
-void IndexPntNodes( PntNodeCloud & cloud, double tolsq )
+void IndexPntNodes( PntNodeCloud & cloud, double tolsq, bool keep_matches )
 {
     cloud.m_index = new PNTree( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 )  );
     cloud.m_index->buildIndex();
+
+    vector< long long int >().swap( cloud.m_MatchStart );
+    vector< long long int >().swap( cloud.m_MatchVec );
+    if ( keep_matches )
+    {
+        cloud.m_MatchVec.reserve( cloud.m_PntNodes.size() );
+    }
 
     //==== Find Close Point Groups ====//
     int cnt = 0;
@@ -174,17 +184,30 @@ void IndexPntNodes( PntNodeCloud & cloud, double tolsq )
             // radiusSearch is squared.
             cloud.m_index->radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tolsq, ret_matches, params );
 
+            if ( keep_matches )
+            {
+                cloud.m_MatchStart.push_back( ( long long int )cloud.m_MatchVec.size() );
+            }
+
             for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
             {
                 unsigned int m_ind = ret_matches[j].first;
                 cloud.m_PntNodes[ m_ind ].m_Index = i;
-                cloud.m_PntNodes[ i ].m_Matches.push_back( m_ind );
+                if ( keep_matches )
+                {
+                    cloud.m_MatchVec.push_back( m_ind );
+                }
             }
             cloud.m_PntNodes[i].m_UsedIndex = cnt;
             cnt++;
         }
     }
     cloud.m_NumUsedPts = cnt;
+
+    if ( keep_matches )
+    {
+        cloud.m_MatchStart.push_back( ( long long int )cloud.m_MatchVec.size() );
+    }
 }
 
 

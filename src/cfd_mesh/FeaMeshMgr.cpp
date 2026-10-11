@@ -2821,7 +2821,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
     double tol = PT_MERGE_TOL;
     //==== Use NanoFlann to Find Close Points and Group ====//
-    IndexPntNodes( pnCloud, tol );
+    IndexPntNodes( pnCloud, tol, true );
 
     GetMeshPtr()->m_FeaNodeVecUsed.resize( GetMeshPtr()->m_FeaNodeVec.size() );
     for ( int i = 0; i < (int)GetMeshPtr()->m_FeaNodeVec.size(); i++ )

@@ -5864,7 +5864,7 @@ void CfdMeshMgrSingleton::MatchBorderNodes( const vector< Node* > & nodeVec )
 
     double tol = PT_MERGE_TOL;
     //==== Use NanoFlann to Find Close Points and Group ====//
-    IndexPntNodes( pnCloud, tol );
+    IndexPntNodes( pnCloud, tol, true );
 
     for ( int i = 0; i < ptVec.size(); i++ )
     {
