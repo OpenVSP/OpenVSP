@@ -366,25 +366,26 @@ void Matrix4d::xformnormmat( std::vector < std::vector < vec3d > > & in ) const
 vec3d Matrix4d::getAngles() const
 {
     vec3d angles;
-    if ( std::abs( mat[8] ) != 1 )
+
+    // R = Rx Ry Rz.  Its first row is ( cos_y cos_z, -cos_y sin_z, sin_y ).
+    double cos_y = sqrt( mat[0] * mat[0] + mat[4] * mat[4] );
+    angles.set_y( atan2( mat[8], cos_y ) );
+
+    if ( cos_y > 0.0 )
     {
-        angles.set_y( asin( mat[8] ) );
-        double cos_y = cos( angles.y() );
-        angles.set_x( -atan2( mat[9] / cos_y, mat[10] / cos_y ) );
-        angles.set_z( -atan2( mat[4] / cos_y, mat[0] / cos_y ) );
+        angles.set_z( -atan2( mat[4], mat[0] ) );
     }
-    else if ( mat[8] == 1 )
+    else
     {
-        angles.set_y( M_PI / 2 );
-        angles.set_x( atan2( mat[1], mat[5] ) );
-        angles.set_z( 0 );
+        angles.set_z( 0.0 );
     }
-    else if ( mat[8] == -1 )
-    {
-        angles.set_y( -M_PI / 2 );
-        angles.set_x( atan2( mat[6], mat[2] ) );
-        angles.set_z( 0 );
-    }
+
+    // Take X from R Rz^T = Rx Ry, whose second column is ( 0, cos_x, sin_x ), so X absorbs
+    // whatever Z left over when Y is near +-90 degrees.
+    double sin_z = sin( angles.z() );
+    double cos_z = cos( angles.z() );
+    angles.set_x( atan2( sin_z * mat[2] + cos_z * mat[6], sin_z * mat[1] + cos_z * mat[5] ) );
+
     return angles * ( 180.0 / M_PI );
 }
 
