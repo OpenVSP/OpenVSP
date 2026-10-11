@@ -1927,13 +1927,16 @@ void Bogie::BackCalculateRetract()
 
         SimpleFeatureTess sample_pts;
         sample_pts.m_ptline.push_back( { vec3d(0, 0, 0), vec3d( 0, 1, 0) } );
-        vector <SimpleFeatureTess> out;
-        TireToBogie( sample_pts, out, 0, vsp::GEAR_CONFIGURATION_UP_AND_DOWN );
+        // The first tire of the main copy, deployed and stowed.
+        vector <SimpleFeatureTess> down;
+        vector <SimpleFeatureTess> up;
+        TireToBogie( sample_pts, down, 0, 0, vsp::GEAR_SUSPENSION_NOMINAL, 0.0, false );
+        TireToBogie( sample_pts, up, 0, 0, vsp::GEAR_SUSPENSION_NOMINAL, 0.0, true );
 
-        vec3d a = out[0].m_ptline[0][0];
-        vec3d b = out[0].m_ptline[0][1];
-        vec3d aprm = out[1].m_ptline[0][0];
-        vec3d bprm = out[1].m_ptline[0][1];
+        vec3d a = down[0].m_ptline[0][0];
+        vec3d b = down[0].m_ptline[0][1];
+        vec3d aprm = up[0].m_ptline[0][0];
+        vec3d bprm = up[0].m_ptline[0][1];
 
         vec3d u = b - a;
         vec3d uprm = bprm - aprm;
