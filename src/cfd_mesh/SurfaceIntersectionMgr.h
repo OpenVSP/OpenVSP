@@ -404,6 +404,8 @@ public:
     virtual void BuildChainCADCurves();
 
     virtual void MergeInteriorChainIPnts();
+    void DeleteUnusedIPnts();
+    void KeepIPnt( IPnt* ip );
 
     virtual void LoadBorderCurves();
     virtual void SplitBorderCurves();

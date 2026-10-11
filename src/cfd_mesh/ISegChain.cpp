@@ -20,12 +20,14 @@
 Puw::Puw()
 {
     m_Surf = nullptr;
+    m_KeepFlag = false;
 }
 
 Puw::Puw( Surf* s, const vec2d &uw )
 {
     m_Surf = s;
     m_UW = uw;
+    m_KeepFlag = false;
 }
 
 Puw::~Puw()
@@ -40,6 +42,7 @@ IPnt::IPnt()
 {
     m_UsedFlag = false;
     m_GroupedFlag = false;
+    m_KeepFlag = false;
     m_AllIndex = -1;
 }
 
@@ -47,6 +50,7 @@ IPnt::IPnt( Puw* p0, Puw* p1 )
 {
     m_UsedFlag = false;
     m_GroupedFlag = false;
+    m_KeepFlag = false;
     m_AllIndex = -1;
     m_Puws.reserve( 2 );
     m_Puws.push_back( p0 );

@@ -2533,6 +2533,93 @@ void SurfaceIntersectionSingleton::Intersect()
     addOutputText( "BuildCurves\n" );
     BuildCurves();
     // DebugWriteChains( "BuildCurves", false );
+
+    DeleteUnusedIPnts();
+}
+
+// Delete the intersection points, and the surface points, that no chain uses.  Merging a chain's
+// interior points keeps one of each pair that meet, and the chains that were cleaned away leave
+// theirs; nothing reaches either again.
+void SurfaceIntersectionSingleton::DeleteUnusedIPnts()
+{
+    for ( list< ISegChain* >::const_iterator c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+    {
+        const vector< ISeg* > &segs = ( *c )->m_ISegVec;
+        for ( size_t i = 0; i < segs.size(); i++ )
+        {
+            KeepIPnt( segs[i]->m_IPnt[0] );
+            KeepIPnt( segs[i]->m_IPnt[1] );
+        }
+        const vector< IPnt* > &tess = ( *c )->m_TessVec;
+        for ( size_t i = 0; i < tess.size(); i++ )
+        {
+            KeepIPnt( tess[i] );
+        }
+    }
+
+    size_t nkeep = 0;
+    for ( size_t i = 0; i < m_DelIPntVec.size(); i++ )
+    {
+        if ( m_DelIPntVec[i]->m_KeepFlag )
+        {
+            nkeep++;
+        }
+    }
+    vector< IPnt* > keepipnt;
+    keepipnt.reserve( nkeep );
+    for ( size_t i = 0; i < m_DelIPntVec.size(); i++ )
+    {
+        if ( m_DelIPntVec[i]->m_KeepFlag )
+        {
+            keepipnt.push_back( m_DelIPntVec[i] );
+        }
+        else
+        {
+            delete m_DelIPntVec[i];
+        }
+    }
+    m_DelIPntVec.swap( keepipnt );
+
+    nkeep = 0;
+    for ( size_t i = 0; i < m_DelPuwVec.size(); i++ )
+    {
+        if ( m_DelPuwVec[i]->m_KeepFlag )
+        {
+            nkeep++;
+        }
+    }
+    vector< Puw* > keeppuw;
+    keeppuw.reserve( nkeep );
+    for ( size_t i = 0; i < m_DelPuwVec.size(); i++ )
+    {
+        if ( m_DelPuwVec[i]->m_KeepFlag )
+        {
+            keeppuw.push_back( m_DelPuwVec[i] );
+        }
+        else
+        {
+            delete m_DelPuwVec[i];
+        }
+    }
+    m_DelPuwVec.swap( keeppuw );
+
+    // It held every point the patches found, and only building the chains reads it
+    vector< IPnt* >().swap( m_AllIPnts );
+}
+
+// Mark a point a chain uses, and its surface points.  Only building the chains reads its segments.
+void SurfaceIntersectionSingleton::KeepIPnt( IPnt* ip )
+{
+    if ( ip->m_KeepFlag )
+    {
+        return;
+    }
+    ip->m_KeepFlag = true;
+    for ( size_t i = 0; i < ip->m_Puws.size(); i++ )
+    {
+        ip->m_Puws[i]->m_KeepFlag = true;
+    }
+    vector< ISeg* >().swap( ip->m_Segs );
 }
 
 // The edge of triangle tri of patch p, corners q, that point pnt is nearest, and how near it is

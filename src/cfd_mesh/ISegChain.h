@@ -51,9 +51,12 @@ public:
 
     Puw();
     Puw( Surf* s, const vec2d &uw );
-    virtual ~Puw();
+    ~Puw();
     Surf* m_Surf;
     vec2d m_UW;
+
+    // A point a chain uses holds it
+    bool m_KeepFlag;
 };
 
 //==== Triangle edge an intersection point lies on ====//
@@ -114,6 +117,9 @@ public:
 
     bool m_UsedFlag;
     bool m_GroupedFlag;
+
+    // A chain uses it
+    bool m_KeepFlag;
 
     // Where the point is in SurfaceIntersectionSingleton::m_AllIPnts, or -1 if it is not there
     int m_AllIndex;
