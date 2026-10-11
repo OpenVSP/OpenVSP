@@ -400,7 +400,7 @@ GeometryAnalysisScreen::GeometryAnalysisScreen( ScreenMgr* mgr ) : BasicScreen( 
 
 
     m_PlanarSliceLayout.SetButtonWidth( m_PlanarSliceLayout.GetChoiceButtonWidth() );
-    m_PlanarSliceLayout.AddSlider( m_PlanarNumSlicesSlider, "Num Slice", 100, "%6.0f" );
+    m_PlanarSliceLayout.AddSlider( m_PlanarNumSlicesSlider, "Num Slice", 200, "%6.0f" );
     m_PlanarSliceLayout.AddYGap();
 
     m_PlanarDirChoice.AddItem( "X-Axis", vsp::X_DIR );

@@ -93,7 +93,7 @@ GeometryAnalysisCase::GeometryAnalysisCase()
     m_UseSubSurfFlag.Init( "UseSubSurfFlag", m_GroupName, this, true, false, true );
 
     // Area Slice and Mass Prop
-    m_NumSlices.Init( "NumSlices", m_GroupName, this, 10, 1, 100 );
+    m_NumSlices.Init( "NumSlices", m_GroupName, this, 10, 1, 200 );
     m_NumSlices.SetDescript( "Number of slices used in computation" );
 
     m_SliceDir.Init( "SliceDir", m_GroupName, this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
