@@ -2075,6 +2075,25 @@ void Bogie::BackCalculateRetract()
             m_MechYLoc = tempMat[13];
             m_MechZLoc = tempMat[14];
         }
+
+        // The hinge carries the axle but not a turn about it, which moves tires in tandem.  The
+        // bogie angle takes that turn.
+        Matrix4d hinge;
+        if ( theta != 0.0 )
+        {
+            hinge.translatev( p );
+            hinge.rotate( -theta, k );
+            hinge.translatev( -p );
+            hinge.affineInverse();
+        }
+
+        Matrix4d rest;
+        rest.translatev( -pivot );
+        rest.matMult( hinge.data() );
+        rest.matMult( m_StowTransform.data() );
+
+        vec3d x = rest.xformnorm( vec3d( 1, 0, 0 ) );
+        m_MechBogieAngle = atan2( x.z(), x.x() ) * 180.0 / M_PI;
     }
     else // vsp::GEAR_MECHANISM
     {
