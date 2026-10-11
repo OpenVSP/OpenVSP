@@ -1933,12 +1933,6 @@ string ProjectionAnalysis::Execute()
         dir = nvd->GetVec3d( 0 );
     }
 
-    if ( directionType != vsp::VEC_PROJ)
-    {
-        dir = ProjectionMgr.GetDirection( directionType, directionGeomID );
-    }
-
-
     if ( targetType == vsp::MODE_TARGET )
     {
         Mode *m = ModeMgr.GetMode( targetModeID );
@@ -1947,6 +1941,12 @@ string ProjectionAnalysis::Execute()
             m->ApplySettings();
             targetSet = m->m_NormalSet();
         }
+    }
+
+    // After the Mode, which can move the direction Geom.
+    if ( directionType != vsp::VEC_PROJ)
+    {
+        dir = ProjectionMgr.GetDirection( directionType, directionGeomID );
     }
 
     Results* res = nullptr;

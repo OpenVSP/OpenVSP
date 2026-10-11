@@ -150,6 +150,8 @@ Results* ProjectionMgrSingleton::Project( )
         }
     }
 
+    // After the Mode, which can move the direction Geom.
+    UpdateDirection();
     vec3d dir = GetDirection();
 
     switch ( veh->m_BoundaryType() )
