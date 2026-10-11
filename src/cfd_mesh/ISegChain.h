@@ -266,6 +266,7 @@ public:
     }
 
     void BuildBoxes();
+    void ClearBoxes();
 
     // void Draw();
 

@@ -920,6 +920,19 @@ void ISegChain::BuildBoxes()
 
 }
 
+// Free the boxes BuildBoxes made below the two top ones.
+void ISegChain::ClearBoxes()
+{
+    ISegBox* boxes[2] = { &m_ISegBoxA, &m_ISegBoxB };
+    for ( int i = 0 ; i < 2 ; i++ )
+    {
+        delete boxes[i]->m_SubBox[0];
+        delete boxes[i]->m_SubBox[1];
+        boxes[i]->m_SubBox[0] = nullptr;
+        boxes[i]->m_SubBox[1] = nullptr;
+    }
+}
+
 void ISegChain::Intersect( Surf* surfPtr, ISegChain* B )
 {
     ISegBox* box1;

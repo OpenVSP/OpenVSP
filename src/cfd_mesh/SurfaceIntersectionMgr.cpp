@@ -4215,6 +4215,15 @@ void SurfaceIntersectionSingleton::IntersectSplitChains()
     // DebugWriteChainVec( "IntersectChainVec", chains );
     // WriteChainSplits( "IntersectChainVec", chains );
 
+    // The boxes have done their work; only the debugging draw objects look at them again.
+    if ( !DEBUG_ISECT_DRAW )
+    {
+        for ( int i = 0 ; i < ( int )chains.size() ; i++ )
+        {
+            chains[i]->ClearBoxes();
+        }
+    }
+
     //==== Merge Splits ====//
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
     {
