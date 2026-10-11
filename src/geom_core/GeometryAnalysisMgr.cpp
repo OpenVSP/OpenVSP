@@ -203,6 +203,13 @@ void GeometryAnalysisCase::UpdateTargetTypes()
     {
         m_SecondaryType = vsp::GEOM_TARGET;
     }
+    else if ( m_GeometryAnalysisType() == vsp::PLANE_STATIC_DISTANCE_INTERFERENCE )
+    {
+        if ( m_SecondaryType() != vsp::Z_TARGET )
+        {
+            m_SecondaryType = vsp::GEOM_TARGET;
+        }
+    }
 }
 
 void GeometryAnalysisCase::AddAzEl( double az, double el )
