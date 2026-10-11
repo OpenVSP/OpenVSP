@@ -743,7 +743,7 @@ public:
 */
 /*!
     Calculate the cosine of the angle between two vec2d.  Cheaper than angle, which has to take an
-    arc cosine, and enough on its own when the angle is only being compared.
+    arc tangent, and enough on its own when the angle is only being compared.
     \forcpponly
     \code{.cpp}
     vec2d a( 1.0, 0.0 );

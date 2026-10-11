@@ -229,16 +229,17 @@ double dot( const vec2d& a, const vec2d& b )
 //******* Angle Between Vectors ******//
 double angle( const vec2d& a, const vec2d& b )
 {
-    double angle = dot( a, b ) / ( a.mag() * b.mag() );
+    // atan2 keeps its digits near 0 and pi, where acos of the cosine loses half of them.
+    double s = std::abs( cross( a, b ) );
+    double c = dot( a, b );
 
-    if ( angle >= -1.0 && angle <= 1.0 )
+    // A zero vector is at no angle, even when its dot product is -0, which atan2 reads as pi.
+    if ( s == 0.0 && c == 0.0 )
     {
-        return( acos( angle ) );
+        return 0.0;
     }
-    else
-    {
-        return( 0.0 );
-    }
+
+    return atan2( s, c );
 }
 
 
@@ -247,14 +248,21 @@ double cos_angle( const vec2d& a, const vec2d& b )
 {
     double angle = dot( a, b ) / ( a.mag() * b.mag() );
 
-    if ( angle >= -1.0 && angle <= 1.0 )
+    if ( angle < -1.0 )
     {
-        return( angle );
+        return -1.0;
     }
-    else
+    else if ( angle > 1.0 )
     {
-        return( 0.0 );
+        return 1.0;
     }
+    else if ( angle >= -1.0 )
+    {
+        return angle;
+    }
+
+    // A zero vector, or NaN
+    return 0.0;
 }
 
 //******* Encode Segment Points To Rectangle  Boundaries ******//
