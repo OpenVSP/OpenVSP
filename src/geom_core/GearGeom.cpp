@@ -3009,7 +3009,9 @@ void GearGeom::UpdateSurf()
     {
         if ( m_Bogies[i] )
         {
-            if ( !m_GlobalScaleDirty )
+            // A scale-only update leaves the bogies alone, but a bogie whose tire was never
+            // built still needs its update.
+            if ( !m_GlobalScaleDirty || m_Bogies[i]->m_TireDirty )
             {
                 m_Bogies[i]->Update();
             }

@@ -48,3 +48,23 @@ def testRotorBurstDiameterSurvivesReadBack():
         assert burst_diameter() == diameter
 
     assert_no_errors()
+
+
+def testNewBogieHasItsTireWhenTheModelGrows():
+    # Adding a Geom resizes the model; the gear's scale-only update must still build a new bogie.
+    vsp.VSPRenew()
+    drop_errors()
+
+    gear = vsp.AddGeom( "GEAR" )
+    vsp.CreateAndAddBogie( gear )
+
+    fuse = vsp.AddGeom( "FUSELAGE" )
+    vsp.SetParmVal( fuse, "Length", "Design", 30.0 )
+    vsp.Update()
+
+    # The tire is a surface of revolution about the axle, not a point at the origin.
+    p = vsp.CompPnt01( gear, vsp.GetNumMainSurfs( gear ) - 1, 0.5, 0.25 )
+    q = vsp.CompPnt01( gear, vsp.GetNumMainSurfs( gear ) - 1, 0.5, 0.75 )
+    assert ( p - q ).mag() > 0.1
+
+    assert_no_errors()
