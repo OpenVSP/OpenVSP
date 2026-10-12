@@ -78,3 +78,78 @@ def testAGroundPlaneAddsNoVolume():
         assert abs( total_theo - pod_theo ) < 1e-9 * pod_theo, ( z, total_theo )
 
     assert_no_errors()
+
+
+def testAllTheVolumeIsSharedOut():
+    # A small pod mostly inside a large one: the large pod's share would pass its own volume, so it
+    # is held there and the rest goes to the small pod.  All of the trimmed volume is shared out.
+    def build():
+        big = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( big, "Length", "Design", 20.0 )
+        vsp.SetParmVal( big, "FineRatio", "Design", 3.0 )
+        small = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( small, "X_Rel_Location", "XForm", -3.0 )
+        vsp.SetParmVal( small, "Length", "Design", 4.0 )
+        vsp.SetParmVal( small, "FineRatio", "Design", 2.0 )
+
+    theo, wet, total_theo, total_wet = comp_geom_volumes( build )
+
+    assert abs( sum( wet ) - total_wet ) < 1e-12 * total_wet, ( wet, total_wet )
+    assert wet[0] == theo[0], ( wet, theo )
+    assert 0.0 <= wet[1] <= theo[1], ( wet, theo )
+
+    assert_no_errors()
+
+
+def testSharingWithOverlappingPositiveAndNegativeComponents():
+    # A large pod, three small pods overlapping its nose and a negative pod across its tail.  The
+    # large pod's share would pass its own volume, so it is held there, and the rest is shared
+    # among the small pods and the negative one.  Every share stays between zero and its own
+    # theoretical volume, a negative one below zero, and all of the trimmed volume is shared out.
+    def pod( x, z, length, fine, negative = False ):
+        p = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( p, "X_Rel_Location", "XForm", x )
+        vsp.SetParmVal( p, "Z_Rel_Location", "XForm", z )
+        vsp.SetParmVal( p, "Length", "Design", length )
+        vsp.SetParmVal( p, "FineRatio", "Design", fine )
+        if negative:
+            vsp.SetParmVal( p, "Negative_Volume_Flag", "Negative_Volume_Props", 1 )
+
+    def build():
+        pod( 0.0, 0.0, 20.0, 3.0 )
+        pod( -2.61, 0.21, 3.87, 2.92 )
+        pod( -3.89, -0.14, 3.6, 2.69 )
+        pod( -1.5, 0.2, 4.53, 2.9 )
+        pod( 17.69, 0.43, 3.16, 2.64, True )
+
+    theo, wet, total_theo, total_wet = comp_geom_volumes( build )
+
+    assert abs( sum( wet ) - total_wet ) < 1e-12 * total_wet, ( wet, total_wet )
+    assert wet[0] == theo[0], ( wet, theo )
+    for i in [ 1, 2, 3 ]:
+        assert 0.0 < wet[i] < theo[i], ( i, wet, theo )
+    assert theo[4] < wet[4] < 0.0, ( wet, theo )
+
+    assert_no_errors()
+
+
+def testANegativeRemainderGoesToTheNegativeComponent():
+    # A negative pod poking out of a large pod's nose.  Holding the large pod at its own volume
+    # leaves less than nothing to share, which belongs to the negative pod.
+    def build():
+        big = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( big, "Length", "Design", 20.0 )
+        vsp.SetParmVal( big, "FineRatio", "Design", 3.0 )
+        neg = vsp.AddGeom( "POD" )
+        vsp.SetParmVal( neg, "X_Rel_Location", "XForm", -3.0 )
+        vsp.SetParmVal( neg, "Length", "Design", 4.0 )
+        vsp.SetParmVal( neg, "FineRatio", "Design", 2.0 )
+        vsp.SetParmVal( neg, "Negative_Volume_Flag", "Negative_Volume_Props", 1 )
+
+    theo, wet, total_theo, total_wet = comp_geom_volumes( build )
+
+    assert abs( sum( wet ) - total_wet ) < 1e-12 * total_wet, ( wet, total_wet )
+    assert wet[0] == theo[0], ( wet, theo )
+    assert theo[1] < wet[1] < 0.0, ( wet, theo )
+
+    assert_no_errors()

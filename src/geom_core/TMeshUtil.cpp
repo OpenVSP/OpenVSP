@@ -3846,48 +3846,73 @@ void PostIntersectTrim( vector<TMesh*> &tmv, vector<DegenGeom> &degenGeom, bool 
         guessTotalWetVol += tmv[i]->m_GuessVol;
     }
 
-    // With no volume to share out, every component keeps none.
+    // Share the trimmed volume out in proportion to the guesses, each share kept between zero and
+    // the component's own theoretical volume (a negative component's lies below zero).  A component
+    // whose share would leave that range gets the end it would pass and drops out, and what is
+    // left, of either sign, is shared again among the rest; so this ends within one round per
+    // component.  With no volume to share out, every component keeps none.
+    vector < bool > full( tmv.size(), false );
     double leftOver = totalWetVol;
-    int leftOverCnt = 20;
-    if ( guessTotalWetVol == 0.0 )
+    bool sharing = ( guessTotalWetVol != 0.0 );
+    while ( sharing )
     {
-        leftOverCnt = 0;
-    }
-    while ( leftOverCnt > 0 )
-    {
-        leftOverCnt--;
-
-        double sumWetVol = 0.0;
+        double guessFree = 0.0;
         for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
         {
-            double perWetVol = tmv[i]->m_GuessVol / guessTotalWetVol;
-            tmv[i]->m_WetVol += perWetVol * ( leftOver );
-
-            int neg_vol_mult = 1; // Negative volume multiplier
-            if ( tmv[i]->m_SurfCfdType == vsp::CFD_NEGATIVE )
+            if ( !full[i] )
             {
-                neg_vol_mult = -1;
+                guessFree += tmv[i]->m_GuessVol;
             }
+        }
 
-            if ( neg_vol_mult * tmv[i]->m_WetVol > neg_vol_mult * tmv[i]->m_TheoVol )
+        if ( guessFree == 0.0 )
+        {
+            break;
+        }
+
+        // Every share in a round comes from the same remainder; what the full ones take comes off after.
+        bool filled = false;
+        double taken = 0.0;
+        for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+        {
+            if ( !full[i] )
             {
-                tmv[i]->m_WetVol = tmv[i]->m_TheoVol;
+                double wet = tmv[i]->m_WetVol + tmv[i]->m_GuessVol / guessFree * leftOver;
+
+                double lo = 0.0;
+                double hi = tmv[i]->m_TheoVol;
+                if ( hi < lo )
+                {
+                    lo = tmv[i]->m_TheoVol;
+                    hi = 0.0;
+                }
+
+                if ( wet > hi || wet < lo )
+                {
+                    double end = lo;
+                    if ( wet > hi )
+                    {
+                        end = hi;
+                    }
+                    taken += end - tmv[i]->m_WetVol;
+                    tmv[i]->m_WetVol = end;
+                    full[i] = true;
+                    filled = true;
+                }
             }
-            sumWetVol += tmv[i]->m_WetVol;
         }
+        leftOver -= taken;
 
-        if ( sumWetVol < totalWetVol )
+        if ( !filled )
         {
-            leftOver = totalWetVol - sumWetVol;
-        }
-        else
-        {
-            leftOver = 0.0;
-        }
-
-        if ( leftOver < 0.00001 )
-        {
-            leftOverCnt = 0;
+            for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+            {
+                if ( !full[i] )
+                {
+                    tmv[i]->m_WetVol += tmv[i]->m_GuessVol / guessFree * leftOver;
+                }
+            }
+            sharing = false;
         }
     }
 
