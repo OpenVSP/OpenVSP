@@ -287,6 +287,9 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
                 printf( "execv error\n" );
             }
         }
+
+        // Only reached when exec failed; the copy of this process must not carry on.
+        _exit( 127 );
     }
     else if (childPid < 0)
     {
