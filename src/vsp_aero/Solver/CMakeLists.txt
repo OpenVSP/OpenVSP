@@ -209,7 +209,7 @@ INSTALL( TARGETS vspaero RUNTIME DESTINATION . )
 add_custom_command(TARGET vspaero POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:vspaero>
-        ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspaero> )
+        ${VSP_BINARY_DIR}/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspaero> )
 
 IF( NOT VSP_NO_VSPAERO_OPT )
   INSTALL( TARGETS vspaero_opt RUNTIME DESTINATION . )
@@ -217,5 +217,5 @@ IF( NOT VSP_NO_VSPAERO_OPT )
   add_custom_command(TARGET vspaero_opt POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy
           $<TARGET_FILE:vspaero_opt>
-          ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspaero_opt> )
+          ${VSP_BINARY_DIR}/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspaero_opt> )
 ENDIF()

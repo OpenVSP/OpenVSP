@@ -56,4 +56,4 @@ endif()
 add_custom_command(TARGET vsploads POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:vsploads>
-        ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}$<TARGET_FILE_NAME:vsploads> )
+        ${VSP_BINARY_DIR}/vsp/${conf_suffix}$<TARGET_FILE_NAME:vsploads> )

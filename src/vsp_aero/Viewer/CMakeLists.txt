@@ -128,6 +128,6 @@ IF( NOT VSP_NO_GRAPHICS )
   add_custom_command(TARGET vspviewer POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy
           $<TARGET_FILE:vspviewer>
-          ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspviewer> )
+          ${VSP_BINARY_DIR}/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspviewer> )
 
 ENDIF()
