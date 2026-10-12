@@ -40,3 +40,41 @@ def testNoVolumeToShareGivesEveryComponentNone():
     assert total_wet == 0.0
 
     assert_no_errors()
+
+
+def testADiskAddsNoVolume():
+    # An open disk's triangles sum to its area times its distance from the origin over three, so
+    # where the disk sat used to decide the totals and, through the shares, every component's.
+    pod_only = comp_geom_volumes( lambda: vsp.AddGeom( "POD" ) )
+    pod_theo = pod_only[0][0]
+    pod_wet = pod_only[1][0]
+
+    for x in [ 5.0, 20.0, -20.0, -1.0 ]:
+        theo, wet, total_theo, total_wet = comp_geom_volumes( lambda: ( vsp.AddGeom( "POD" ), add_disk( x ) ) )
+
+        assert theo[1] == 0.0 and wet[1] == 0.0, ( x, theo, wet )
+        assert abs( theo[0] - pod_theo ) < 1e-9 * pod_theo, ( x, theo )
+        assert abs( wet[0] - pod_wet ) < 1e-9 * pod_theo, ( x, wet )
+        assert abs( total_theo - pod_theo ) < 1e-9 * pod_theo, ( x, total_theo )
+        assert abs( total_wet - pod_wet ) < 1e-9 * pod_theo, ( x, total_wet )
+
+    assert_no_errors()
+
+
+def testAGroundPlaneAddsNoVolume():
+    # A gear with no bogie is only its ground plane, an open transparent sheet like a disk.
+    pod_only = comp_geom_volumes( lambda: vsp.AddGeom( "POD" ) )
+    pod_theo = pod_only[0][0]
+
+    for z in [ -5.0, -50.0 ]:
+        def build():
+            vsp.AddGeom( "POD" )
+            gear = vsp.AddGeom( "GEAR" )
+            vsp.SetParmVal( gear, "Z_Rel_Location", "XForm", z )
+
+        theo, wet, total_theo, total_wet = comp_geom_volumes( build )
+
+        assert theo[1] == 0.0 and wet[1] == 0.0, ( z, theo, wet )
+        assert abs( total_theo - pod_theo ) < 1e-9 * pod_theo, ( z, total_theo )
+
+    assert_no_errors()

@@ -4953,6 +4953,13 @@ double TMesh::ComputeWaveDragArea( const std::unordered_map< string, int > &idma
 double TMesh::ComputeTheoVol()
 {
     m_TheoVol = 0.0;
+
+    // A thin or transparent surface -- a propeller disk, a ground plane -- encloses nothing.
+    if ( !m_ThickSurf || m_SurfCfdType == vsp::CFD_TRANSPARENT )
+    {
+        return m_TheoVol;
+    }
+
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
         TTri* tri = m_TVec[t];
@@ -4966,6 +4973,12 @@ double TMesh::ComputeTheoVol()
 double TMesh::ComputeTrimVol()
 {
     double trimVol = 0;
+
+    // A thin or transparent surface -- a propeller disk, a ground plane -- encloses nothing.
+    if ( !m_ThickSurf || m_SurfCfdType == vsp::CFD_TRANSPARENT )
+    {
+        return trimVol;
+    }
 
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
