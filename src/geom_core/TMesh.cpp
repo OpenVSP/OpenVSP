@@ -3271,6 +3271,31 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag, bool checkSharedEdges )
     }
 }
 
+//==== The tris of every leaf box within tol of pnt ====//
+void TBndBox::FindTrisNear( const vec3d & pnt, double tol, vector < TTri* > & triVec ) const
+{
+    // An empty box has its min above its max, so no point is near it.
+    const vec3d lo = m_Box.GetMin();
+    const vec3d hi = m_Box.GetMax();
+    if ( pnt.x() < lo.x() - tol || pnt.x() > hi.x() + tol ||
+         pnt.y() < lo.y() - tol || pnt.y() > hi.y() + tol ||
+         pnt.z() < lo.z() - tol || pnt.z() > hi.z() + tol )
+    {
+        return;
+    }
+
+    if ( m_SBoxVec[0] )
+    {
+        for ( int i = 0 ; i < 8 ; i++ )
+        {
+            m_SBoxVec[i]->FindTrisNear( pnt, tol, triVec );
+        }
+        return;
+    }
+
+    triVec.insert( triVec.end(), m_TriVec.begin(), m_TriVec.end() );
+}
+
 void  TBndBox::RayCast( const vec3d & orig, const vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const
 {
     if ( m_Box.IsEmpty() )

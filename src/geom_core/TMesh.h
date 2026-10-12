@@ -429,6 +429,7 @@ public:
     void AddTri( TTri* t );
     virtual void Intersect( TBndBox* iBox, bool UWFlag = false, bool checkSharedEdges = false );
     virtual void RayCast( const vec3d & orig, const vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const;
+    virtual void FindTrisNear( const vec3d & pnt, double tol, vector < TTri* > & triVec ) const;
 
     virtual bool CheckIntersect( TBndBox* iBox );
     virtual double MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec3d &p2 );
