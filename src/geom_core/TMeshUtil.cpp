@@ -3837,13 +3837,22 @@ void PostIntersectTrim( vector<TMesh*> &tmv, vector<DegenGeom> &degenGeom, bool 
     double guessTotalWetVol = 0;
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
-        tmv[i]->m_GuessVol = tmv[i]->m_TheoVol * tmv[i]->m_WetArea / tmv[i]->m_TheoArea;      // Guess
+        tmv[i]->m_GuessVol = 0.0;
+        if ( tmv[i]->m_TheoArea > 0.0 )
+        {
+            tmv[i]->m_GuessVol = tmv[i]->m_TheoVol * tmv[i]->m_WetArea / tmv[i]->m_TheoArea;      // Guess
+        }
         tmv[i]->m_WetVol = 0.0;
         guessTotalWetVol += tmv[i]->m_GuessVol;
     }
 
+    // With no volume to share out, every component keeps none.
     double leftOver = totalWetVol;
     int leftOverCnt = 20;
+    if ( guessTotalWetVol == 0.0 )
+    {
+        leftOverCnt = 0;
+    }
     while ( leftOverCnt > 0 )
     {
         leftOverCnt--;
