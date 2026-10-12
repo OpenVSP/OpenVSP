@@ -400,6 +400,8 @@ extern void VSPRenew();
 
     \endcode
     \endPythonOnly
+    \note A child Geom in absolute mode loses an absolute location or rotation set with SetParmVal
+    when Update() runs, unless that Geom is updated first; see UpdateGeom().
     \param update_managers bool Flag to indicate if managers should be updated
 */
 
@@ -12702,7 +12704,14 @@ extern std::string AddGeom( const std::string & type, const std::string & parent
     \ingroup Geom
 */
 /*!
-    Perform an update for the specified Geom
+    Perform an update for the specified Geom.
+
+    Update() rebuilds the model from the top of the tree down and places each child Geom from
+    its relative location, so a child stays attached when its parent moves.  A child Geom in
+    absolute mode ( Abs_Or_Relitive_flag set to ABS ) therefore loses an X_Location, Y_Location,
+    Z_Location or X/Y/Z_Rotation set with SetParmVal when Update() runs.  Call UpdateGeom on
+    that Geom before Update(): it updates the Geom by itself and works out the relative location
+    from the new absolute one.  SetParmValUpdate does both in one call.
     \forcpponly
     \code{.cpp}
     //==== Add Wing Geometry ====//
@@ -36428,6 +36437,8 @@ extern bool ValidParm( const std::string & id );
 
     \endcode
     \endPythonOnly
+    \note Setting the absolute location or rotation of a child Geom in absolute mode needs UpdateGeom()
+    or SetParmValUpdate() before Update(); see UpdateGeom().
     \sa SetParmValUpdate
     \param [in] parm_id string Parm ID
     \param [in] val double Parm value to set
@@ -36512,6 +36523,8 @@ extern double SetParmVal( const std::string & parm_id, double val );
 
     \endcode
     \endPythonOnly
+    \note Setting the absolute location or rotation of a child Geom in absolute mode needs UpdateGeom()
+    or SetParmValUpdate() before Update(); see UpdateGeom().
     \sa SetParmValUpdate, SYM_FLAG
     \param [in] geom_id string Geom ID
     \param [in] name string Parm name
