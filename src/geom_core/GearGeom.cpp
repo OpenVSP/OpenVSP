@@ -1691,10 +1691,18 @@ void Bogie::BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_a
     orientKnee.rotate( -m_MechKneeElevationAngle() * M_PI / 180.0, n );
     vec3d w = orientKnee.xformnorm( v );
 
-    // SSA calculation for knee position
+    // SSA calculation for knee position.  The angle at the pivot is asin( beta ), taken with atan2,
+    // with 1 - beta and 1 + beta formed without cancellation from 1 -+ sin( alpha ) = 2 sin^2( t )
+    // and 2 cos^2( t ), t = pi/4 - alpha/2, so it keeps its digits as beta nears -+1.
     double alpha = m_MechKneeDownAngle() * M_PI / 180.0;
-    double beta = ( 1.0 - m_MechKneePos() ) * std::sin( alpha );
-    double gamma = M_PI - alpha - std::asin( beta );
+    double kpos = m_MechKneePos();
+    double beta = ( 1.0 - kpos ) * std::sin( alpha );
+    double t = 0.25 * M_PI - 0.5 * alpha;
+    double st = std::sin( t );
+    double ct = std::cos( t );
+    double one_minus_beta = kpos + ( 1.0 - kpos ) * 2.0 * st * st;
+    double one_plus_beta = kpos + ( 1.0 - kpos ) * 2.0 * ct * ct;
+    double gamma = M_PI - alpha - std::atan2( beta, std::sqrt( one_minus_beta * one_plus_beta ) );
 
     Matrix4d knee_bend;
     knee_bend.translatev( trunnion );
