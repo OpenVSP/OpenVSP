@@ -765,7 +765,18 @@ TMesh* OctantSplitMesh( TMesh* tm );
 
 TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec );
 
+// Around each mesh, the box within which a point may lie on one of its faces, and the distance
+// that counts as on a face.
+struct TMeshFaceZone
+{
+    vec3d m_Lo;
+    vec3d m_Hi;
+    double m_Tol;
+};
+void BuildFaceZones( const vector< TMesh* >& meshVec, vector< TMeshFaceZone > & zones );
+
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir );
+void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir, int own, const vector< TMeshFaceZone > & zones );
 bool DeterIntExtTri( TTri* tri, TMesh* mesh, const vec3d &dir = vec3d( 1.0, 0.000001, 0.000001 )  );
 
 void WriteStl( const string &file_name, const vector< TMesh* >& meshVec );

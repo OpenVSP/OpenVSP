@@ -4743,6 +4743,18 @@ void TMesh::IgnoreNone()
 
 void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
 {
+    vector< TMeshFaceZone > zones;
+    BuildFaceZones( meshVec, zones );
+
+    int own = -1;
+    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    {
+        if ( meshVec[m] == this )
+        {
+            own = m;
+        }
+    }
+
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
         TTri* tri = m_TVec[t];
@@ -4752,12 +4764,12 @@ void TMesh::DeterIntExt( const vector< TMesh* >& meshVec, const vec3d &dir )
         {
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
-                DeterIntExtTri( tri->m_SplitVec[s], meshVec, dir );
+                DeterIntExtTri( tri->m_SplitVec[s], meshVec, dir, own, zones );
             }
         }
         else
         {
-            DeterIntExtTri( tri, meshVec, dir );
+            DeterIntExtTri( tri, meshVec, dir, own, zones );
         }
     }
 }

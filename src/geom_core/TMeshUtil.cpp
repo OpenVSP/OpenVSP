@@ -2714,7 +2714,148 @@ TMesh* MakeConvexHull(const vector< TMesh* > & tmesh_vec )
     return tMesh;
 }
 
+// Whether a tri lies on a face of meshVec[m], two normal surfaces touching or overlapping there.  A
+// ray from a point on the face decides by rounding, so the faces decide instead: opposed faces are
+// inside each other.  Of two that face the same way, the later mesh's copy is inside, so one copy is
+// kept -- except between copies of one Geom, such as mirror halves overlapping across their plane,
+// where the copy farther from its mesh's box center is inside, so the halves share the overlap alike.
+static bool CoincidentInside( TTri* tri, const vec3d &cen, const vector< TMesh* >& meshVec, int own, int m,
+                              const TMeshFaceZone &zone, bool &inside )
+{
+    // Most tris are nowhere near the mesh; its zone turns them away first.
+    if ( cen.x() < zone.m_Lo.x() || cen.x() > zone.m_Hi.x() ||
+         cen.y() < zone.m_Lo.y() || cen.y() > zone.m_Hi.y() ||
+         cen.z() < zone.m_Lo.z() || cen.z() > zone.m_Hi.z() )
+    {
+        return false;
+    }
+
+    if ( own < 0 || meshVec[own]->m_SurfCfdType != vsp::CFD_NORMAL || meshVec[m]->m_SurfCfdType != vsp::CFD_NORMAL )
+    {
+        return false;
+    }
+
+    double tol = zone.m_Tol;
+
+    // Kept from call to call, so it is not allocated for every tri.
+    thread_local vector < TTri* > triVec;
+    triVec.clear();
+    meshVec[m]->m_TBox.FindTrisNear( cen, tol, triVec );
+
+    // The nearest face the normal through cen crosses within tol of it.  The normal is found only
+    // once a face is near enough to be crossed.
+    vec3d norm;
+    vec3d orig;
+    bool have_norm = false;
+    TTri* face = nullptr;
+    double best = tol;
+    for ( int i = 0; i < ( int )triVec.size(); i++ )
+    {
+        TTri* t = triVec[i];
+
+        // The crossing lies within tol of cen and inside the face, so cen is within tol of its box.
+        const vec3d &p0 = t->m_N0->m_Pnt;
+        const vec3d &p1 = t->m_N1->m_Pnt;
+        const vec3d &p2 = t->m_N2->m_Pnt;
+        if ( cen.x() < std::min( p0.x(), std::min( p1.x(), p2.x() ) ) - tol || cen.x() > std::max( p0.x(), std::max( p1.x(), p2.x() ) ) + tol ||
+             cen.y() < std::min( p0.y(), std::min( p1.y(), p2.y() ) ) - tol || cen.y() > std::max( p0.y(), std::max( p1.y(), p2.y() ) ) + tol ||
+             cen.z() < std::min( p0.z(), std::min( p1.z(), p2.z() ) ) - tol || cen.z() > std::max( p0.z(), std::max( p1.z(), p2.z() ) ) + tol )
+        {
+            continue;
+        }
+
+        if ( !have_norm )
+        {
+            norm = cross( tri->m_N1->m_Pnt - tri->m_N0->m_Pnt, tri->m_N2->m_Pnt - tri->m_N0->m_Pnt );
+            if ( norm.mag() == 0.0 )
+            {
+                return false;
+            }
+            norm.normalize();
+            orig = cen - tol * norm;
+            have_norm = true;
+        }
+
+        double tparm, uparm, vparm;
+        if ( intersect_triangle( orig.v, norm.v, p0.v, p1.v, p2.v, &tparm, &uparm, &vparm ) )
+        {
+            double d = std::abs( tparm - tol );
+            if ( d <= best )
+            {
+                best = d;
+                face = t;
+            }
+        }
+    }
+
+    if ( !face )
+    {
+        return false;
+    }
+
+    vec3d fnorm = cross( face->m_N1->m_Pnt - face->m_N0->m_Pnt, face->m_N2->m_Pnt - face->m_N0->m_Pnt );
+    if ( dot( norm, fnorm ) < 0.0 )
+    {
+        inside = true;
+    }
+    else
+    {
+        inside = own > m;
+        if ( meshVec[own]->m_OriginGeomID == meshVec[m]->m_OriginGeomID )
+        {
+            double d_own = dist( cen, meshVec[own]->m_TBox.m_Box.GetCenter() );
+            double d_m = dist( cen, meshVec[m]->m_TBox.m_Box.GetCenter() );
+            if ( std::abs( d_own - d_m ) > tol )
+            {
+                inside = d_own > d_m;
+            }
+        }
+    }
+    return true;
+}
+
+void BuildFaceZones( const vector< TMesh* >& meshVec, vector< TMeshFaceZone > & zones )
+{
+    zones.resize( meshVec.size() );
+    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    {
+        const BndBox &box = meshVec[m]->m_TBox.m_Box;
+        if ( box.IsEmpty() )
+        {
+            // A zone no point is in.
+            zones[m].m_Lo = vec3d( 1.0, 1.0, 1.0 );
+            zones[m].m_Hi = vec3d( -1.0, -1.0, -1.0 );
+            zones[m].m_Tol = 0.0;
+            continue;
+        }
+
+        // Faces closer than m_Tol, against the size of the mesh, are the same face.  The zone is the
+        // box grown by more than that.
+        zones[m].m_Tol = 1e-10 * box.DiagDist();
+        double margin = 2e-10 * box.GetLargestDist();
+        zones[m].m_Lo = box.GetMin() - vec3d( margin, margin, margin );
+        zones[m].m_Hi = box.GetMax() + vec3d( margin, margin, margin );
+    }
+}
+
 void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir )
+{
+    vector< TMeshFaceZone > zones;
+    BuildFaceZones( meshVec, zones );
+
+    int own = -1;
+    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
+    {
+        if ( meshVec[m] == tri->GetTMeshPtr() )
+        {
+            own = m;
+        }
+    }
+
+    DeterIntExtTri( tri, meshVec, dir, own, zones );
+}
+
+void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &dir, int own, const vector< TMeshFaceZone > & zones )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) / 3.0;
     tri->m_IgnoreTriFlag = false;
@@ -2728,10 +2869,15 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec, const vec3d &di
     {
         if ( meshVec[m] != tri->GetTMeshPtr() && meshVec[m]->m_ThickSurf )
         {
-            vector<double > tParmVec;
-            vector <TTri*> triVec;
-            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec, triVec );
-            if ( tParmVec.size() % 2 )
+            bool inside = false;
+            if ( !CoincidentInside( tri, orig, meshVec, own, m, zones[m], inside ) )
+            {
+                vector<double > tParmVec;
+                vector <TTri*> triVec;
+                meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec, triVec );
+                inside = ( tParmVec.size() % 2 ) == 1;
+            }
+            if ( inside )
             {
                 tri->m_insideSurf[m] = true;
 
