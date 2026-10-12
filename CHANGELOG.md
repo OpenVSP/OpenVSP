@@ -1,3 +1,132 @@
+# [OpenVSP 3.55.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.55.0)
+
+2026-10-11
+
+OpenVSP 3.55.0
+
+This was going to be a .1 fix release, but along the way it gained
+a bunch of API extensions that I think warrant a .0 release.
+After that, it grew.  And grew.  And wouldn't stop growing.  No
+shiny features here, it is pretty much fixes across the board.
+However, it is a ton of stuff.
+
+Typically OpenVSP work is driven by features identified by my
+sponsors.  This works out pretty well for everyone.  However,
+every once in a while, I like to take a chunk of time and hit
+issues identified by community users.  This release is the
+result of one of those sprints.
+
+The inspiration for this sprint was the Parasite Drag tool.  As I
+experiment using AI to help with my side projects and more recently
+OpenVSP, I am always worried about introducing AI Slop.  The truth
+is, Human Slop is also a thing.  The Parasite Drag tool is one
+such example.  It was developed many years ago by someone without
+a ton of experience.  I clearly should have done a lot more
+code review of it (and ended up rewriting a lot of it), but I
+didn't.  I'm sure bitrot has made the situation worse, but there
+were a lot of problems that have clearly been there from the
+start.
+
+Recently, a friend was trying to use it and was hitting many
+frustrating obstacles.  The tool was unusable.
+
+I don't have time to go down this particular rabbit hole, so I
+threw AI at it.  I didn't quite say "Claude, here is a dumpster
+fire, fix it", but it was pretty close to that.  I gave some
+guidance along the way.  I reviewed all the changes (but
+without reviewing the original or resulting code overall).
+So, here is the result.  I'm optimistic, but not naive.  I'm sure
+it isn't perfect, but I'm also counting on the fact that it can't
+possibly be worse than what it was.  Hopefully it is now in a
+good enough place that people can use it, make bug reports, and
+we can converge to something of the standard that we expect.
+
+The API changes that drove the .0 release were driven by the
+observation that there were many methods that accessed other
+entities by index (position in an array) when they could instead
+access them by ID.  For example, setting the material properties
+for a part in a structure.
+
+So, we did a big audit to search out anything in the API that
+accessed things by index and added new ID based versions alongside.
+No existing calls were changed or removed, but there are a bunch
+new API calls alongside your old favorites.
+
+While we were there, we made another pass at API consistency, this
+time in the name of error messages.  Now the error numbers
+returned should match the failure and the messages should all
+match the offending API function.
+
+A certain pathological case for surface-surface intersection
+was incredibly slow.  One example file went from 13.5 minutes
+to 40 seconds.  Most models aren't pathologically bad, but
+still benefit nicely from the fix.
+
+While we were there, we noticed that memory usage
+was surprisingly high.  Changing two std::deque
+to std::vector in one place (none of the deque capabilities
+were being used) took peak memory usage from 52GB to 10GB.
+A bunch more work reduced it to 6GB (and it got faster too).
+
+The back calculation of a simple retraction mechanism for
+a stowed gear was broken, it should be fixed and improved.
+
+That led to some esoteric trigonometry floating point
+accuracy fixes that nobody will ever notice or need, but
+they're there now.
+
+Some Geometry Analysis GUI features were not behaving
+consistently.  Options that should be deactivated were
+active (but of course didn't work).  Things should be
+consistent now.
+
+A problem with geom placement driven by RoutingGeom
+messing with the update path has been fixed.
+
+Some problems with Projected Area not accepting projection
+direction in the expected way have been resolved.
+
+POGS gcomp files now replace spaces in component names with
+underscores.
+
+A seam in the mesh when splitting and joining tip caps was
+being dropped.  Now it isn't.
+
+The CompGeom wetted volume calculation would sometimes fail to
+allocate all the volume.  A new algorithm is faster and more
+accurate.
+
+CompGeom also now does a better job classifying inside/outside
+for coincident tris.
+
+There were a lot of other fixes in there, but this seems like
+enough.
+
+Features:
+- API: everything reachable by ID; consistent error reporting
+
+Build System:
+- Intel Mac VSPAERO no longer needs libomp installed
+- libIGES updated
+
+Bug Fixes:
+- Parasite Drag overhaul
+- Large memory reduction in CFDMesh, FEAMesh and trimmed CAD export
+- Much faster surface intersection on thin, tilted surfaces
+- Landing gear stowed position converts to an equivalent mechanism
+- More accurate angle and transformation calculations throughout
+- Geometry Analysis: API and GUI apply the same settings; up to 200 slices
+- Mode, set and Projection choices kept in the file and across screens
+- A Routing Geom could move the Geoms its points sit on
+- Projected Area direction from a Geom was stale or applied before the Mode
+- From Point Visibility crashed with a point secondary
+- A Geom can no longer be made a child of something that depends on it
+- CompGeom: no garbage volumes from propeller disks and ground planes;
+
+
+---
+
+
 # [OpenVSP 3.54.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.54.0)
 
 2026-10-05
