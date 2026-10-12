@@ -50,6 +50,50 @@ def testRotorBurstDiameterSurvivesReadBack():
     assert_no_errors()
 
 
+def round_trip( count ):
+    tmpdir = tempfile.mkdtemp()
+    for i in range( count ):
+        fname = os.path.join( tmpdir, "scale%d.vsp3" % i )
+        vsp.WriteVSPFile( fname, vsp.SET_ALL )
+        vsp.ClearVSPModel()
+        vsp.ReadVSPFile( fname )
+        vsp.Update()
+        yield i
+
+
+def testGroundPlaneAndEngineExtensionSurviveReadBack():
+    # Ahead of the fuselage in the tree, so they update before the rest of the box is known.
+    vsp.VSPRenew()
+    drop_errors()
+
+    gear = vsp.AddGeom( "GEAR" )
+    vsp.CreateAndAddBogie( gear )
+    vsp.SetParmVal( gear, "AutoPlaneFlag", "GroundPlane", 1 )
+
+    engine = vsp.AddGeom( "STACK" )
+    vsp.SetParmVal( engine, "X_Rel_Location", "XForm", 12.0 )
+    vsp.SetParmVal( engine, "GeomIOType", "EngineModel", vsp.ENGINE_GEOM_INLET_OUTLET )
+    vsp.SetParmVal( engine, "AutoExtensionFlag", "EngineModel", 1 )
+
+    fuse = vsp.AddGeom( "FUSELAGE" )
+    vsp.SetParmVal( fuse, "Length", "Design", 30.0 )
+    vsp.Update()
+
+    plane = vsp.GetParmVal( gear, "PlaneSize", "GroundPlane" )
+    extension = vsp.GetParmVal( engine, "ExtensionDistance", "EngineModel" )
+
+    # The engine extends by the length of the model, not its own.
+    assert extension > 30.0
+
+    for i in round_trip( 3 ):
+        gear = vsp.FindGeomsWithName( "GearGeom" )[0]
+        engine = vsp.FindGeomsWithName( "StackGeom" )[0]
+        assert vsp.GetParmVal( gear, "PlaneSize", "GroundPlane" ) == plane
+        assert vsp.GetParmVal( engine, "ExtensionDistance", "EngineModel" ) == extension
+
+    assert_no_errors()
+
+
 def testNewBogieHasItsTireWhenTheModelGrows():
     # Adding a Geom resizes the model; the gear's scale-only update must still build a new bogie.
     vsp.VSPRenew()
