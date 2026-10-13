@@ -125,7 +125,8 @@ public:
     \ingroup Matrix4d
     */
     /*!
-        Rotate the Matrix4d about the X axis
+        Rotate the Matrix4d about the X axis.  A positive angle turns right-handed about +X, so 90 degrees
+        takes +Y to +Z.
         \forcpponly
         \code{.cpp}
         //==== Test Matrix4d ====//
@@ -134,6 +135,10 @@ public:
         m.loadIdentity();
 
         m.rotateX( 90.0 );
+
+        vec3d p = m.xform( vec3d( 0.0, 1.0, 0.0 ) );
+
+        if ( abs( p.z() - 1.0 ) > 1e-9 )                     { Print( "ERROR: rotateX" ); __failure++; }
         \endcode
         \endforcpponly
         \beginPythonOnly
@@ -144,6 +149,10 @@ public:
     m.loadIdentity()
 
     m.rotateX( 90.0 )
+
+    p = m.xform( vec3d( 0.0, 1.0, 0.0 ) )
+
+    assert abs( p.z() - 1.0 ) < 1e-9, "rotateX did not turn right-handed"
     \endcode
         \endPythonOnly
         \param [in] ang Angle of rotation (degrees)
@@ -155,7 +164,8 @@ public:
     \ingroup Matrix4d
     */
     /*!
-        Rotate the Matrix4d about the Y axis
+        Rotate the Matrix4d about the Y axis.  A positive angle turns right-handed about +Y, so 90 degrees
+        takes +Z to +X.
         \forcpponly
         \code{.cpp}
         //==== Test Matrix4d ====//
@@ -164,6 +174,10 @@ public:
         m.loadIdentity();
 
         m.rotateY( 90.0 );
+
+        vec3d p = m.xform( vec3d( 0.0, 0.0, 1.0 ) );
+
+        if ( abs( p.x() - 1.0 ) > 1e-9 )                     { Print( "ERROR: rotateY" ); __failure++; }
         \endcode
         \endforcpponly
         \beginPythonOnly
@@ -174,6 +188,10 @@ public:
     m.loadIdentity()
 
     m.rotateY( 90.0 )
+
+    p = m.xform( vec3d( 0.0, 0.0, 1.0 ) )
+
+    assert abs( p.x() - 1.0 ) < 1e-9, "rotateY did not turn right-handed"
     \endcode
         \endPythonOnly
         \param [in] ang Angle of rotation (degrees)
@@ -185,7 +203,8 @@ public:
     \ingroup Matrix4d
     */
     /*!
-        Rotate the Matrix4d about the Z axis
+        Rotate the Matrix4d about the Z axis.  A positive angle turns right-handed about +Z, so 90 degrees
+        takes +X to +Y.
         \forcpponly
         \code{.cpp}
         //==== Test Matrix4d ====//
@@ -194,6 +213,10 @@ public:
         m.loadIdentity();
 
         m.rotateZ( 90.0 );
+
+        vec3d p = m.xform( vec3d( 1.0, 0.0, 0.0 ) );
+
+        if ( abs( p.y() - 1.0 ) > 1e-9 )                     { Print( "ERROR: rotateZ" ); __failure++; }
         \endcode
         \endforcpponly
         \beginPythonOnly
@@ -204,6 +227,10 @@ public:
     m.loadIdentity()
 
     m.rotateZ( 90.0 )
+
+    p = m.xform( vec3d( 1.0, 0.0, 0.0 ) )
+
+    assert abs( p.y() - 1.0 ) < 1e-9, "rotateZ did not turn right-handed"
     \endcode
         \endPythonOnly
         \param [in] ang Angle of rotation (degrees)
@@ -215,7 +242,9 @@ public:
     \ingroup Matrix4d
     */
     /*!
-        Rotate the Matrix4d about an arbitrary axis
+        Rotate the Matrix4d about an arbitrary axis through the origin.  Unlike rotateX, rotateY and rotateZ, the angle
+        is in radians and a positive angle turns left-handed about the axis (right-handed about its negative), so a
+        quarter turn about +Z takes +X to -Y.  rotateAbout turns right-handed, in degrees, about any line.
         \forcpponly
         \code{.cpp}
         //==== Test Matrix4d ====//
@@ -225,6 +254,14 @@ public:
         m.loadIdentity();
 
         m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) );      // Radians
+
+        m.loadIdentity();
+
+        m.rotate( 3.14159265358979 / 2, vec3d( 0.0, 0.0, 1.0 ) );
+
+        vec3d p = m.xform( vec3d( 1.0, 0.0, 0.0 ) );
+
+        if ( abs( p.y() + 1.0 ) > 1e-9 )                     { Print( "ERROR: rotate" ); __failure++; }
         \endcode
         \endforcpponly
         \beginPythonOnly
@@ -236,6 +273,14 @@ public:
     m.loadIdentity()
 
     m.rotate( PI / 4, vec3d( 0.0, 0.0, 1.0 ) )                                # Radians
+
+    m.loadIdentity()
+
+    m.rotate( 3.14159265358979 / 2, vec3d( 0.0, 0.0, 1.0 ) )
+
+    p = m.xform( vec3d( 1.0, 0.0, 0.0 ) )
+
+    assert abs( p.y() + 1.0 ) < 1e-9, "rotate did not turn left-handed"
     \endcode
         \endPythonOnly
         \param [in] angle Angle of rotation (rad)
