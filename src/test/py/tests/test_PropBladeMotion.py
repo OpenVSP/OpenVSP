@@ -233,6 +233,39 @@ def test_other_blades_follow_lag():
     assert vsp.GetParmVal( pid, "LagAngle_2", "Articulation" ) == 4.0
 
 
+def test_lag_is_aft():
+    for rev in ( False, True ):
+        aft = -1.0 if rev else 1.0
+        pid = new_prop( 2, {}, rev )
+        before = tip( pid )
+        set_parms( pid, { "LagAngle": 10.0 } )
+        assert aft * ( tip( pid )[2] - before[2] ) > 1.0, rev
+
+
+def test_lag_azimuth_pitches_the_hinge_like_the_blade():
+    # The hinge axis, turned 30 degrees nose up, carries a lagging tip downstream as it goes aft.
+    for rev in ( False, True ):
+        aft = -1.0 if rev else 1.0
+        pid = new_prop( 2, { "AzLagDir": 30.0, "RLagAx": 0.0 }, rev )
+        before = tip( pid )
+        set_parms( pid, { "LagAngle": 1.0 } )
+        after = tip( pid )
+        back = aft * ( after[2] - before[2] )
+        down = after[0] - before[0]
+        assert back > 0.0 and down > 0.0, rev
+        assert abs( down / back - math.tan( math.radians( 30.0 ) ) ) < 0.02, rev
+
+
+def test_lag_cant_is_alpha1():
+    # tan( alpha_1 ) is the pitch-lag coupling, positive for lag back, pitch down.
+    for rev in ( False, True ):
+        pid = new_prop( 2, { "LagAngle": 10.0 }, rev )
+        plain = pitch( pid )
+        set_parms( pid, { "CantLagDir": 30.0 } )
+        coupled = pitch( pid )
+        assert abs( ( coupled - plain ) + 10.0 * math.sin( math.radians( 30.0 ) ) ) < 0.5, rev
+
+
 def turn_about( pts, origin, axis, deg ):
     """Right-handed turn of points about the line through origin along a unit axis."""
     c = math.cos( math.radians( deg ) )
@@ -417,3 +450,22 @@ def test_active_blade_kept_while_any_blade_motion_is_individual():
     assert vsp.GetParmVal( pid, "ActiveBlade", "Index" ) == 3
     set_parms( pid, { "IndividualBladeFlapFlag": 0.0 } )
     assert vsp.GetParmVal( pid, "ActiveBlade", "Index" ) == 1
+
+
+def test_senses_on_other_blades_and_turned_rotor():
+    # A positive flap lifts every blade's tip toward the thrust, and a positive lag moves it aft,
+    # with the rotor turned.
+    for rev in ( False, True ):
+        sgn = -1.0 if rev else 1.0
+        for surf in ( 1, 2 ):
+            pid = new_prop( 3, { "Rotate": 40.0 }, rev )
+            p0 = vsp.CompPnt01( pid, surf, 1.0, 0.25 )
+            set_parms( pid, { "FlapAngle": 10.0 } )
+            p1 = vsp.CompPnt01( pid, surf, 1.0, 0.25 )
+            assert p1.x() < p0.x() - 1.0, ( rev, surf )
+            set_parms( pid, { "FlapAngle": 0.0, "LagAngle": 10.0 } )
+            p2 = vsp.CompPnt01( pid, surf, 1.0, 0.25 )
+            # Aft is against the rotation: the tip turns about +X by -sgn, the way BladeAz turns.
+            r0 = math.atan2( p0.z(), p0.y() )
+            r2 = math.atan2( p2.z(), p2.y() )
+            assert sgn * math.remainder( r2 - r0, 2.0 * math.pi ) > 0.01, ( rev, surf )
