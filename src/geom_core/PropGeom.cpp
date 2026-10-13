@@ -397,6 +397,8 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_BladeCapUMinSuccess = false;
     m_BladeCapUMaxSuccess = false;
+    m_BladeTessDirty = true;
+    m_BladeDegenDirty = true;
 
     m_XSecSurf.SetXSecType( XSEC_PROP );
 
@@ -1617,8 +1619,12 @@ void PropGeom::UpdateMainTessVec()
     {
         // Tessellate the single blade into reusable scratch members, then copy it into each
         // blade slot in place.  Resize to nmain (not nblade) so a trailing disk slot, if any,
-        // is retained for reuse below rather than destroyed and rebuilt.
-        UpdateTess( m_BladeSurf, m_CapUMinSuccess[ 0 ], m_CapUMaxSuccess[ 0 ], m_BladeTess, m_BladeFeatureTess );
+        // is retained for reuse below rather than destroyed and rebuilt.  Moving the blades
+        // leaves the blade's own tessellation as it was.
+        if ( m_BladeTessDirty )
+        {
+            UpdateTess( m_BladeSurf, m_BladeCapUMinSuccess, m_BladeCapUMaxSuccess, m_BladeTess, m_BladeFeatureTess );
+        }
 
         m_MainTessVec.resize( nmain );
         m_MainFeatureTessVec.resize( nmain );
@@ -1644,17 +1650,29 @@ void PropGeom::UpdateMainTessVec()
         m_MainTessVec.resize( nmain );
         m_MainFeatureTessVec.resize( nmain );
 
-        UpdateTess( m_MainSurfVec[idisk], false, false, m_MainTessVec[idisk], m_MainFeatureTessVec[idisk] );
+        // The disk does not move with the blades, but its slot follows them.
+        if ( m_BladeTessDirty )
+        {
+            UpdateTess( m_DiskSurf, false, false, m_DiskTess, m_DiskFeatureTess );
+        }
+        m_MainTessVec[idisk] = m_DiskTess;
+        m_MainFeatureTessVec[idisk] = m_DiskFeatureTess;
     }
+
+    m_BladeTessDirty = false;
 }
 
 void PropGeom::UpdateMainDegenGeomPreview()
 {
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
-
-        DegenGeom degenGeom;
-        CreateDegenGeom( m_BladeSurf, 0, degenGeom, true, 1 );
+        // Moving the blades leaves the blade's own preview as it was.
+        if ( m_BladeDegenDirty )
+        {
+            m_BladeDegenGeom = DegenGeom();
+            CreateDegenGeom( m_BladeSurf, 0, m_BladeDegenGeom, true, 1 );
+            m_BladeDegenDirty = false;
+        }
 
         int nblade = m_Nblade();
 
@@ -1663,7 +1681,7 @@ void PropGeom::UpdateMainDegenGeomPreview()
         m_MainDegenGeomPreviewVec.resize( nblade );
         for ( int i = 0; i < nblade; i++ )
         {
-            m_MainDegenGeomPreviewVec[i] = degenGeom;
+            m_MainDegenGeomPreviewVec[i] = m_BladeDegenGeom;
         }
 
         Matrix4d rigid;
@@ -2745,6 +2763,10 @@ void PropGeom::UpdateSplitTesselate( const VspSurf &surf, bool
 
 void PropGeom::UpdatePreTess()
 {
+    // The surface or its tessellation changed, so the blade is tessellated again.
+    m_BladeTessDirty = true;
+    m_BladeDegenDirty = true;
+
     // Update clustering before symmetry is applied for m_SurfVec
     m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
     m_BladeSurf.SetClustering( m_LECluster(), m_TECluster() );

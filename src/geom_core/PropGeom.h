@@ -338,10 +338,17 @@ protected:
     bool m_BladeCapUMinSuccess;
     bool m_BladeCapUMaxSuccess;
 
-    // Tessellation of the single computed blade, kept across updates so the per-blade duplicate
-    // tessellations can be assigned into existing buffers rather than cleared and reallocated.
+    // Tessellation of the single computed blade and of the disk, kept across updates so the per-blade
+    // duplicate tessellations can be assigned into existing buffers rather than cleared and reallocated.
     SimpleTess m_BladeTess;
     SimpleFeatureTess m_BladeFeatureTess;
+    SimpleTess m_DiskTess;
+    SimpleFeatureTess m_DiskFeatureTess;
+    bool m_BladeTessDirty;
+
+    // Preview of the single computed blade, kept for the same reason.
+    DegenGeom m_BladeDegenGeom;
+    bool m_BladeDegenDirty;
 
     vector < double > m_UPseudo;
 
