@@ -24,6 +24,9 @@ public:
     virtual ~PropScreen();
 
     virtual void RedrawBladeAzimuthSliders( int num_sliders );
+    virtual void AddSliderPair( GroupLayout & layout, SliderAdjRangeInput & a, const string & alabel, double arange,
+                                SliderAdjRangeInput & b, const string & blabel, double brange );
+    virtual void AddHingePlace( SliderAdjRangeInput & rad, SliderAdjRangeInput & ax, SliderAdjRangeInput & off );
 
     virtual void Show();
     virtual bool Update();
@@ -150,18 +153,19 @@ protected:
 
     PCurveEditor m_CurveEditor;
 
-    GroupLayout m_MoreLayout;
+    GroupLayout m_HingeLayout;
 
+    IndexSelector m_ActiveBladeIndexSelector;
+
+    ToggleButton m_IndividualBladeFoldToggle;
+    SliderAdjRangeInput m_FoldAngleSlider;
     SliderAdjRangeInput m_RFoldSlider;
     SliderAdjRangeInput m_AxFoldSlider;
     SliderAdjRangeInput m_OffFoldSlider;
     SliderAdjRangeInput m_AzFoldSlider;
     SliderAdjRangeInput m_ElFoldSlider;
-    SliderAdjRangeInput m_FoldAngleSlider;
 
-    ToggleButton m_IndividualBladeFoldToggle;
-    Counter m_ActiveBladeIndexSelector;
-
+    GroupLayout m_MoreLayout;
 
     Choice m_BladeAziModeChoice;
     ToggleButton m_BladeAziDeltaButton;

@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 800, "Propeller", string(), string(), "Airfoil Alias", false ) // combine xsec and xseccurve name controls
+PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller", string(), string(), "Airfoil Alias", false ) // combine xsec and xseccurve name controls
 {
     m_CurrDisplayGroup = nullptr;
 
@@ -426,6 +426,45 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 800, "Propeller
     m_ModifyLayout.AddSlider( m_FlapTEYSlider, "Y/T", 10.0, "%6.5f" );
     m_ModifyLayout.AddSlider( m_FlapTEDeflectionSlider, "Deflection", 10.0, "%6.5f" );
 
+    Fl_Group* hinge_tab = AddTab( "Motion" );
+    Fl_Group* hinge_group = AddSubGroup( hinge_tab, 5 );
+
+    m_HingeLayout.SetGroupAndScreen( hinge_group, this );
+
+    // The blade the per-blade angles below are shown for, when a toggle gives blades their own.
+    m_HingeLayout.AddDividerBox( "Active Blade" );
+    m_HingeLayout.AddIndexSelector( m_ActiveBladeIndexSelector );
+
+    m_HingeLayout.SetButtonWidth( 100 );
+    m_HingeLayout.SetChoiceButtonWidth( 100 );
+    m_HingeLayout.SetInputWidth( 55 );
+
+    // Width of the toggle that gives each blade its own angle.
+    int indw = 40;
+
+    m_HingeLayout.AddYGap();
+
+    m_HingeLayout.AddDividerBox( "Folding", 0, DrawObjKeyColor( PropGeom::HingeDrawColor( PropGeom::FOLD_HINGE ) ) );
+
+    AddHingePlace( m_RFoldSlider, m_AxFoldSlider, m_OffFoldSlider );
+    AddSliderPair( m_HingeLayout, m_AzFoldSlider, "Azimuth", 100, m_ElFoldSlider, "Elevation", 100 );
+    m_HingeLayout.AddYGap();
+
+    m_HingeLayout.SetFitWidthFlag( false );
+    m_HingeLayout.SetSameLineFlag( true );
+
+    m_HingeLayout.SetButtonWidth( indw );
+    m_HingeLayout.AddButton( m_IndividualBladeFoldToggle, "Ind." );
+
+    m_HingeLayout.SetButtonWidth( 100 - indw );
+    m_HingeLayout.SetFitWidthFlag( true );
+
+    m_HingeLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
+    m_HingeLayout.ForceNewLine();
+
+    m_HingeLayout.SetButtonWidth( 100 );
+    m_HingeLayout.SetSameLineFlag( false );
+
     Fl_Group* more_tab = AddTab("More" );
     Fl_Group* more_group = AddSubGroup(more_tab, 5 );
 
@@ -433,40 +472,6 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 800, "Propeller
 
     m_MoreLayout.SetButtonWidth(100 );
     m_MoreLayout.SetChoiceButtonWidth(100 );
-
-    m_MoreLayout.AddDividerBox("Folding" );
-
-    m_MoreLayout.SetFitWidthFlag( false );
-    m_MoreLayout.SetSameLineFlag( true );
-
-    m_MoreLayout.SetButtonWidth( 15 );
-    m_MoreLayout.AddButton( m_IndividualBladeFoldToggle, "");
-
-    m_MoreLayout.SetButtonWidth( 50 );
-    m_MoreLayout.SetSliderWidth( 50 );
-    m_MoreLayout.AddCounter( m_ActiveBladeIndexSelector, "Blade" );
-
-
-    m_MoreLayout.SetButtonWidth( 100 );
-    m_MoreLayout.SetFitWidthFlag( true );
-
-    m_MoreLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
-    m_MoreLayout.ForceNewLine();
-
-
-    m_MoreLayout.SetFitWidthFlag( true );
-    m_MoreLayout.SetSameLineFlag( false );
-
-
-    m_MoreLayout.AddSlider(m_RFoldSlider, "Radial/R", 1, "%5.3f" );
-    m_MoreLayout.AddSlider(m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
-    m_MoreLayout.AddSlider(m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
-    m_MoreLayout.AddSlider(m_AzFoldSlider, "Azimuth", 100, "%5.3f" );
-    m_MoreLayout.AddSlider(m_ElFoldSlider, "Elevation", 100, "%5.3f" );
-
-    m_MoreLayout.SetButtonWidth(100 );
-
-    m_MoreLayout.AddYGap();
 
     m_MoreLayout.AddDividerBox( "Blade Spacing" );
 
@@ -588,12 +593,56 @@ void PropScreen::RedrawBladeAzimuthSliders( int num_sliders )
     }
 }
 
+// Two sliders side by side, half the column each with a small gutter between, inside a scroll box's
+// scroll bar if it has one.
+void PropScreen::AddSliderPair( GroupLayout & layout, SliderAdjRangeInput & a, const string & alabel, double arange,
+                                SliderAdjRangeInput & b, const string & blabel, double brange )
+{
+    int gutter = 3;
+
+    int w = layout.GetW();
+    if ( dynamic_cast< Fl_Scroll* >( layout.GetGroup() ) )
+    {
+        w -= Fl::scrollbar_size();
+    }
+    int half = ( w - gutter ) / 2;
+
+    layout.SetSameLineFlag( true );
+    layout.AddSlider( a, alabel.c_str(), arange, "%5.3f", w - half );
+    layout.AddX( gutter );
+    layout.AddSlider( b, blabel.c_str(), brange, "%5.3f" );
+    layout.ForceNewLine();
+    layout.SetSameLineFlag( false );
+}
+
+// A hinge's radial place on a line of its own, then its axial and offset place side by side.
+void PropScreen::AddHingePlace( SliderAdjRangeInput & rad, SliderAdjRangeInput & ax, SliderAdjRangeInput & off )
+{
+    m_HingeLayout.AddSlider( rad, "Radial/R", 1, "%5.3f" );
+    AddSliderPair( m_HingeLayout, ax, "Axial/R", 1, off, "Offset/R", 1 );
+}
+
 //==== Show Pod Screen ====//
 void PropScreen::Show()
 {
     if ( Update() )
     {
         XSecScreen::Show();
+    }
+}
+
+// Show the active blade's own parm when blades have their own, the propeller's otherwise.
+static void UpdateBladeSlider( SliderAdjRangeInput & slider, Parm & master, const vector< Parm* > & blade_parms,
+                               bool individual, int active_blade )
+{
+    int index = active_blade - 2;
+    if ( individual && index >= 0 && index < ( int )blade_parms.size() && blade_parms[ index ] )
+    {
+        slider.Update( blade_parms[ index ]->GetID() );
+    }
+    else
+    {
+        slider.Update( master.GetID() );
     }
 }
 
@@ -671,17 +720,11 @@ bool PropScreen::Update()
     m_IndividualBladeFoldToggle.Update( propeller_ptr->m_IndividualBladeFoldFlag.GetID() );
     m_ActiveBladeIndexSelector.Update( propeller_ptr->m_ActiveBlade.GetID() );
 
-    if ( propeller_ptr->m_ActiveBlade() > 1 && propeller_ptr->m_ActiveBlade() <= propeller_ptr->m_Nblade() )
-    {
-        int index = propeller_ptr->m_ActiveBlade() - 2;
-        m_FoldAngleSlider.Update( propeller_ptr->m_FoldAngleParmVec[ index ]->GetID() );
-    }
-    else
-    {
-        m_FoldAngleSlider.Update( propeller_ptr->m_FoldAngle.GetID() );
-    }
+    UpdateBladeSlider( m_FoldAngleSlider, propeller_ptr->m_FoldAngle, propeller_ptr->m_FoldAngleParmVec,
+                       propeller_ptr->m_IndividualBladeFoldFlag(), propeller_ptr->m_ActiveBlade() );
 
-    if ( propeller_ptr->m_IndividualBladeFoldFlag() )
+    if ( propeller_ptr->m_IndividualBladeFlapFlag() || propeller_ptr->m_IndividualBladeLagFlag() ||
+         propeller_ptr->m_IndividualBladeFoldFlag() || propeller_ptr->IndividualBladeFeather() )
     {
         m_ActiveBladeIndexSelector.Activate();
     }
