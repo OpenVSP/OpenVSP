@@ -320,6 +320,7 @@ protected:
 
     virtual void ReserveBlades( int n );
     virtual void AddBlade();
+    virtual void AddBladeParm( vector< Parm* > & vec, const string & name, const string & group, int num, double val, double lower, double upper, const string & descript );
 
     virtual void CalculateMeshMetrics();
 

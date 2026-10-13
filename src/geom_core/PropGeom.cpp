@@ -163,6 +163,16 @@ static vec3d BladeAxisToProp( const vec3d & a, double rev )
     return BladeToProp( a, rev ) * rev;
 }
 
+// Delete the parms past the first n.
+static void TrimParmVec( vector< Parm* > & vec, int n )
+{
+    while ( ( int )vec.size() > n )
+    {
+        delete vec.back();
+        vec.pop_back();
+    }
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -558,23 +568,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 //==== Destructor ====//
 PropGeom::~PropGeom()
 {
-    for ( int i = 0; i < m_FoldAngleParmVec.size(); i++ )
-    {
-        delete m_FoldAngleParmVec[i];
-    }
-    m_FoldAngleParmVec.clear();
-
-    for ( int i = 0; i < m_BladeAzimuthParmVec.size(); i++ )
-    {
-        delete m_BladeAzimuthParmVec[i];
-    }
-    m_BladeAzimuthParmVec.clear();
-
-    for ( int i = 0; i < m_BladeDeltaAzimuthParmVec.size(); i++ )
-    {
-        delete m_BladeDeltaAzimuthParmVec[i];
-    }
-    m_BladeDeltaAzimuthParmVec.clear();
+    TrimParmVec( m_FoldAngleParmVec, 0 );
+    TrimParmVec( m_BladeAzimuthParmVec, 0 );
+    TrimParmVec( m_BladeDeltaAzimuthParmVec, 0 );
 }
 
 void PropGeom::UpdateDrawObj()
@@ -2108,26 +2104,9 @@ void PropGeom::ReserveBlades( int n ) // Note:  n is m_Nblade() - 1
 
     if ( n < m_FoldAngleParmVec.size() )
     {
-        vector< Parm* > faparms( n );
-        vector< Parm* > baparms( n );
-        vector< Parm* > badparms( n );
-
-        int i;
-        for ( i = 0; i < n; i++ )
-        {
-            faparms[i] = m_FoldAngleParmVec[i];
-            baparms[i] = m_BladeAzimuthParmVec[i];
-            badparms[i] = m_BladeDeltaAzimuthParmVec[i];
-        }
-        for ( ; i < m_FoldAngleParmVec.size(); i++ )
-        {
-            delete m_FoldAngleParmVec[i];
-            delete m_BladeAzimuthParmVec[i];
-            delete m_BladeDeltaAzimuthParmVec[i];
-        }
-        m_FoldAngleParmVec = faparms;
-        m_BladeAzimuthParmVec = baparms;
-        m_BladeDeltaAzimuthParmVec = badparms;
+        TrimParmVec( m_FoldAngleParmVec, n );
+        TrimParmVec( m_BladeAzimuthParmVec, n );
+        TrimParmVec( m_BladeDeltaAzimuthParmVec, n );
     }
     else
     {
@@ -2143,42 +2122,32 @@ void PropGeom::ReserveBlades( int n ) // Note:  n is m_Nblade() - 1
     m_BladeAzimuthDeltaFlag.Set( flag_before );
 }
 
+// Add the parm name_num, in group, to vec.
+void PropGeom::AddBladeParm( vector< Parm* > & vec, const string & name, const string & group, int num, double val, double lower, double upper, const string & descript )
+{
+    Parm *p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        char str[255];
+        snprintf( str, sizeof( str ), "%s_%d", name.c_str(), num );
+        p->Init( string( str ), group, this, val, lower, upper );
+        p->SetDescript( descript );
+        vec.push_back( p );
+    }
+}
+
 void PropGeom::AddBlade()
 {
-    Parm *p;
-    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
-    if ( p )
-    {
-        int i = m_FoldAngleParmVec.size();
-        char str[255];
-        snprintf( str, sizeof( str ),  "FoldAngle_%d", i+1 );
-        p->Init( string( str ), "Design", this, m_FoldAngle(), -180, 180 );
-        p->SetDescript( "Propeller fold angle" );
-        m_FoldAngleParmVec.push_back( p );
-    }
+    int i = m_FoldAngleParmVec.size();
 
-    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
-    if ( p )
-    {
-        int i = m_BladeAzimuthParmVec.size();
-        double theta_nom = 360.0 * i / ( double )m_Nblade();
-        char str[255];
-        snprintf( str, sizeof( str ),  "BladeAz_%d", i + 2 );
-        p->Init( string( str ), "Design", this, theta_nom, 0, 360 );
-        p->SetDescript( "Propeller blade azimuth" );
-        m_BladeAzimuthParmVec.push_back( p );
-    }
+    // The parms of blade i + 2, named _( i + 1 ) except for the azimuths.
+    char str[255];
+    snprintf( str, sizeof( str ), " of blade %d", i + 2 );
+    string blade( str );
 
-    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
-    if ( p )
-    {
-        int i = m_BladeDeltaAzimuthParmVec.size();
-        char str[255];
-        snprintf( str, sizeof( str ),  "DeltaAz_%d", i + 2 );
-        p->Init( string( str ), "Design", this, 0, -180, 180 );
-        p->SetDescript( "Propeller blade azimuth delta" );
-        m_BladeDeltaAzimuthParmVec.push_back( p );
-    }
+    AddBladeParm( m_FoldAngleParmVec, "FoldAngle", "Design", i + 1, m_FoldAngle(), -180, 180, "Fold angle" + blade );
+    AddBladeParm( m_BladeAzimuthParmVec, "BladeAz", "Design", i + 2, 360.0 * i / ( double )m_Nblade(), 0, 360, "Propeller blade azimuth" );
+    AddBladeParm( m_BladeDeltaAzimuthParmVec, "DeltaAz", "Design", i + 2, 0, -180, 180, "Propeller blade azimuth delta" );
 }
 
 void PropGeom::CalculateMeshMetrics()
