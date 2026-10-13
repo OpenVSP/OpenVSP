@@ -277,7 +277,8 @@ protected:
 
     virtual void CheckBalance();
 
-    virtual void RigidBladeMotion( Matrix4d & mat, double foldangle );
+    virtual double GetBladeFoldAngle( int iblade );
+    virtual void RigidBladeMotion( Matrix4d & mat, int iblade );
 
     virtual void EnforceOrder( PropXSec* xs, int indx );
     virtual void EnforcePCurveOrder( double rfirst, double rlast );

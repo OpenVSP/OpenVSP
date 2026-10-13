@@ -588,7 +588,7 @@ void PropGeom::UpdateDrawObj()
     invRelTrans.affineInverse();
 
     Matrix4d rigid;
-    RigidBladeMotion( rigid, m_FoldAngle() );
+    RigidBladeMotion( rigid, 0 );
     for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
     {
         invRelTrans.xformvec( m_XSecDrawObj_vec[ i ].m_PntVec );
@@ -761,7 +761,7 @@ void PropGeom::UpdateHighlightDrawObj()
     invRelTrans.affineInverse();
 
     Matrix4d rigid;
-    RigidBladeMotion( rigid, m_FoldAngle() );
+    RigidBladeMotion( rigid, 0 );
 
     invRelTrans.xformvec( m_HighlightXSecDrawObj.m_PntVec );
     rigid.xformvec( m_HighlightXSecDrawObj.m_PntVec );
@@ -777,14 +777,7 @@ void PropGeom::UpdateHighlightDrawObj()
     m_HighlightBladeDrawObj.m_PntVec = m_MainBladeBBox.GetBBoxDrawLines();
 
     int i = m_ActiveBlade() - 1;
-    if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
-    {
-        RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
-    }
-    else
-    {
-        RigidBladeMotion( rigid, m_FoldAngle() );
-    }
+    RigidBladeMotion( rigid, m_ActiveBlade() - 1 );
 
     rigid.xformvec( m_HighlightBladeDrawObj.m_PntVec );
 
@@ -1430,14 +1423,7 @@ void PropGeom::UpdateSurf()
         Matrix4d rot;
         for ( int i = 0; i < m_Nblade(); i++ )
         {
-            if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
-            {
-                RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
-            }
-            else
-            {
-                RigidBladeMotion( rigid, m_FoldAngle() );
-            }
+            RigidBladeMotion( rigid, i );
             m_MainSurfVec[i].Transform( rigid );
 
             if ( i > 0 )
@@ -1546,14 +1532,7 @@ void PropGeom::UpdateMainTessVec()
         Matrix4d rot;
         for ( int i = 0; i < nblade; i++ )
         {
-            if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
-            {
-                RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
-            }
-            else
-            {
-                RigidBladeMotion( rigid, m_FoldAngle() );
-            }
+            RigidBladeMotion( rigid, i );
             m_MainTessVec[i].Transform( rigid );
             m_MainFeatureTessVec[i].Transform( rigid );
 
@@ -1608,14 +1587,7 @@ void PropGeom::UpdateMainDegenGeomPreview()
         Matrix4d rot;
         for ( int i = 0; i < nblade; i++ )
         {
-            if ( m_IndividualBladeFoldFlag() && ( i > 0 ) && m_FoldAngleParmVec[ i - 1 ] )
-            {
-                RigidBladeMotion( rigid, m_FoldAngleParmVec[ i - 1 ]->Get() );
-            }
-            else
-            {
-                RigidBladeMotion( rigid, m_FoldAngle() );
-            }
+            RigidBladeMotion( rigid, i );
             m_MainDegenGeomPreviewVec[i].Transform( rigid );
 
             if ( i > 0 )
@@ -1971,7 +1943,22 @@ void PropGeom::CheckBalance()
     m_BalanceX2.Set( s / n );
 }
 
-void PropGeom::RigidBladeMotion( Matrix4d & mat, double foldangle )
+// Blade iblade's own value with individual on, counting blades from zero; master otherwise.
+static double GetBladeValue( const vector< Parm* > & vec, bool individual, int iblade, double master )
+{
+    if ( individual && iblade > 0 && iblade <= ( int )vec.size() && vec[ iblade - 1 ] )
+    {
+        return vec[ iblade - 1 ]->Get();
+    }
+    return master;
+}
+
+double PropGeom::GetBladeFoldAngle( int iblade )
+{
+    return GetBladeValue( m_FoldAngleParmVec, m_IndividualBladeFoldFlag(), iblade, m_FoldAngle() );
+}
+
+void PropGeom::RigidBladeMotion( Matrix4d & mat, int iblade )
 {
     double rev = 1.0;
     if ( m_ReverseFlag() )
@@ -1986,6 +1973,7 @@ void PropGeom::RigidBladeMotion( Matrix4d & mat, double foldangle )
 
     mat.rotateZ( m_Precone() );
 
+    double foldangle = GetBladeFoldAngle( iblade );
     mat.rotateAbout( foldangle, m_FoldAxDirection, m_FoldAxOrigin );
 
 }
