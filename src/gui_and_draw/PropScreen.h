@@ -157,6 +157,14 @@ protected:
 
     IndexSelector m_ActiveBladeIndexSelector;
 
+    ToggleButton m_IndividualBladeFlapToggle;
+    SliderAdjRangeInput m_FlapAngleSlider;
+    SliderAdjRangeInput m_RFlapSlider;
+    SliderAdjRangeInput m_AxFlapSlider;
+    SliderAdjRangeInput m_OffFlapSlider;
+    SliderAdjRangeInput m_AzFlapSlider;
+    SliderAdjRangeInput m_ElFlapSlider;
+
     ToggleButton m_IndividualBladeFeatherToggle;
     SliderAdjRangeInput m_HingeFeatherSlider;
     SliderAdjRangeInput m_RFeatherSlider;

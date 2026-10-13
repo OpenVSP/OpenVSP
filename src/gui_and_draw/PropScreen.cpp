@@ -138,6 +138,16 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
     indx += fl_utf8encode( 952, &theta[ indx ] ); // Greek character theta
     theta[ indx ] = 0;
 
+    char delta[5];
+    indx = 0;
+    indx += fl_utf8encode( 948, &delta[ indx ] ); // Greek character delta
+    delta[ indx ] = 0;
+
+    char beta[5];
+    indx = 0;
+    indx += fl_utf8encode( 946, &beta[ indx ] ); // Greek character beta
+    beta[ indx ] = 0;
+
     m_DesignLayout.ForceNewLine();
     m_DesignLayout.SetFitWidthFlag( true );
     m_DesignLayout.SetSameLineFlag( false );
@@ -449,6 +459,30 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
 
     m_HingeLayout.AddYGap();
 
+    m_HingeLayout.AddDividerBox( "Flap", 0, DrawObjKeyColor( PropGeom::HingeDrawColor( PropGeom::FLAP_HINGE ) ) );
+    AddHingePlace( m_RFlapSlider, m_AxFlapSlider, m_OffFlapSlider );
+    // The axis angles carry their rotor notation in Greek.
+    AddSliderPair( m_HingeLayout, m_AzFlapSlider, string( "Azimuth (" ) + theta + "_F)", 100,
+                   m_ElFlapSlider, string( "Elevation (" ) + delta + "_3)", 100 );
+    m_HingeLayout.AddYGap();
+
+    m_HingeLayout.SetFitWidthFlag( false );
+    m_HingeLayout.SetSameLineFlag( true );
+
+    m_HingeLayout.SetButtonWidth( indw );
+    m_HingeLayout.AddButton( m_IndividualBladeFlapToggle, "Ind." );
+
+    m_HingeLayout.SetButtonWidth( 100 - indw );
+    m_HingeLayout.SetFitWidthFlag( true );
+
+    m_HingeLayout.AddSlider( m_FlapAngleSlider, ( string( "Angle (" ) + beta + ")" ).c_str(), 100, "%5.3f" );
+    m_HingeLayout.ForceNewLine();
+
+    m_HingeLayout.SetButtonWidth( 100 );
+    m_HingeLayout.SetSameLineFlag( false );
+
+    m_HingeLayout.AddYGap();
+
     m_HingeLayout.AddDividerBox( "Feather", 0, DrawObjKeyColor( PropGeom::HingeDrawColor( PropGeom::FEATHER_HINGE ) ) );
     m_HingeLayout.AddSlider( m_RFeatherSlider, "Radial/R", 1, "%5.3f" );
     m_HingeLayout.AddYGap();
@@ -748,6 +782,15 @@ bool PropScreen::Update()
 
     UpdateBladeSlider( m_FoldAngleSlider, propeller_ptr->m_FoldAngle, propeller_ptr->m_FoldAngleParmVec,
                        propeller_ptr->m_IndividualBladeFoldFlag(), propeller_ptr->m_ActiveBlade() );
+
+    m_IndividualBladeFlapToggle.Update( propeller_ptr->m_IndividualBladeFlapFlag.GetID() );
+    UpdateBladeSlider( m_FlapAngleSlider, propeller_ptr->m_FlapAngle, propeller_ptr->m_FlapAngleParmVec,
+                       propeller_ptr->m_IndividualBladeFlapFlag(), propeller_ptr->m_ActiveBlade() );
+    m_RFlapSlider.Update( propeller_ptr->m_RadFlapAxis.GetID() );
+    m_AxFlapSlider.Update( propeller_ptr->m_AxialFlapAxis.GetID() );
+    m_OffFlapSlider.Update( propeller_ptr->m_OffsetFlapAxis.GetID() );
+    m_AzFlapSlider.Update( propeller_ptr->m_AzimuthFlapDir.GetID() );
+    m_ElFlapSlider.Update( propeller_ptr->m_ElevationFlapDir.GetID() );
 
     m_IndividualBladeFeatherToggle.Update( propeller_ptr->m_IndividualBladeFeatherFlag.GetID() );
     UpdateBladeSlider( m_HingeFeatherSlider, propeller_ptr->m_Feather, propeller_ptr->m_FeatherParmVec,
