@@ -165,6 +165,14 @@ protected:
     SliderAdjRangeInput m_AzFlapSlider;
     SliderAdjRangeInput m_ElFlapSlider;
 
+    ToggleButton m_IndividualBladeLagToggle;
+    SliderAdjRangeInput m_LagAngleSlider;
+    SliderAdjRangeInput m_RLagSlider;
+    SliderAdjRangeInput m_AxLagSlider;
+    SliderAdjRangeInput m_OffLagSlider;
+    SliderAdjRangeInput m_AzLagSlider;
+    SliderAdjRangeInput m_CantLagSlider;
+
     ToggleButton m_IndividualBladeFeatherToggle;
     SliderAdjRangeInput m_HingeFeatherSlider;
     SliderAdjRangeInput m_RFeatherSlider;
