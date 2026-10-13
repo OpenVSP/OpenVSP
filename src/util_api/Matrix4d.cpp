@@ -255,6 +255,14 @@ void Matrix4d::rotate( const double &angle, const vec3d & axis )
     matMult( tmat );
 }
 
+// rotate turns left-handed in radians, so turn it by the negated angle.
+void Matrix4d::rotateAbout( const double &ang, const vec3d & axis, const vec3d & pnt )
+{
+    translatev( pnt );
+    rotate( -ang * M_PI / 180.0, axis );
+    translatev( pnt * -1.0 );
+}
+
 void Matrix4d::rotatealongX( const vec3d & dir )
 {
     vec3d dir1, dir2, dir3;

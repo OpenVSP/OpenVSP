@@ -3509,6 +3509,10 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateAbout( const double & in ang, const vec3d & in axis, const vec3d & in pnt )", asMETHOD( Matrix4d, rotateAbout ), asCALL_THISCALL );
+    assert( r >= 0 );
+
+
     r = se->RegisterObjectMethod( "Matrix4d", "void scale( const double & in scale )", asMETHOD( Matrix4d, scale ), asCALL_THISCALL );
     assert( r >= 0 );
 

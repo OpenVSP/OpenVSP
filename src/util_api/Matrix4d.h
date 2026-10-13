@@ -244,6 +244,50 @@ public:
 
     void rotate( const double &angle, const vec3d &axis );
 
+    /*!
+    \ingroup Matrix4d
+    */
+    /*!
+        Rotate the Matrix4d about a line through a point.  A positive angle turns right-handed about the axis, as
+        rotateX, rotateY and rotateZ do, so 90 degrees about +Z takes +X to +Y.
+        \forcpponly
+        \code{.cpp}
+        Matrix4d m;
+
+        m.loadIdentity();
+
+        m.rotateAbout( 90.0, vec3d( 0.0, 0.0, 1.0 ), vec3d( 1.0, 0.0, 0.0 ) );
+
+        vec3d p = m.xform( vec3d( 2.0, 0.0, 0.0 ) );
+
+        if ( abs( p.x() - 1.0 ) > 1e-9 )                     { Print( "ERROR: rotateAbout" ); __failure++; }
+
+        if ( abs( p.y() - 1.0 ) > 1e-9 )                     { Print( "ERROR: rotateAbout" ); __failure++; }
+        \endcode
+        \endforcpponly
+        \beginPythonOnly
+        \code{.py}
+    m = Matrix4d()
+
+    m.loadIdentity()
+
+    m.rotateAbout( 90.0, vec3d( 0.0, 0.0, 1.0 ), vec3d( 1.0, 0.0, 0.0 ) )
+
+    p = m.xform( vec3d( 2.0, 0.0, 0.0 ) )
+
+    assert abs( p.x() - 1.0 ) < 1e-9, "rotateAbout did not keep the point on its line"
+
+    assert abs( p.y() - 1.0 ) < 1e-9, "rotateAbout did not turn right-handed"
+    \endcode
+        \endPythonOnly
+        \sa rotate, rotateX, rotateY, rotateZ
+        \param [in] ang Angle of rotation (degrees)
+        \param [in] axis Direction of the line to rotate about
+        \param [in] pnt A point on the line
+    */
+
+    void rotateAbout( const double &ang, const vec3d &axis, const vec3d &pnt );
+
 
 /*!
     \ingroup Matrix4d
