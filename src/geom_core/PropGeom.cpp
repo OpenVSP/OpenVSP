@@ -127,7 +127,7 @@ void PropPositioner::Update()
     mat.loadIdentity();  // Reset to handle rigid body motion of lofted prop sections.
 
 
-    mat.translatef( 0, 0, m_RootChord * m_FeatherOffset );
+    mat.translatef( 0, 0, m_Reverse * m_RootChord * m_FeatherOffset );
 
     mat.rotateY( m_Reverse * m_Feather );
 
