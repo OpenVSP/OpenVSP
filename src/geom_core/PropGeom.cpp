@@ -149,6 +149,20 @@ VspCurve PropPositioner::GetCurve()
     return m_TransformedCurve;
 }
 
+// Blade axes: x aft (toward the trailing edge), y radial, z toward the thrust.  With reverse
+// rotation (rev -1) the map to propeller axes is a reflection, so anything given in blade axes
+// mirrors with the propeller.
+static vec3d BladeToProp( const vec3d & b, double rev )
+{
+    return vec3d( -b.z(), b.y(), rev * b.x() );
+}
+
+// An axis of rotation also changes sign under the reflection.
+static vec3d BladeAxisToProp( const vec3d & a, double rev )
+{
+    return BladeToProp( a, rev ) * rev;
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -655,15 +669,26 @@ void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec 
         thrustdir = trans_mat.xform( thrustdir ) - cen;
         refdir = trans_mat.xform( refdir ) - cen;
 
+        // The blades turn by Rotate the other way with reverse rotation.
+        double proprev = 1.0;
+        if ( m_ReverseFlag() )
+        {
+            proprev = -1.0;
+        }
+
         Matrix4d mat;
         mat.loadIdentity();
-        mat.rotateX( -1 * m_Rotate() );
+        mat.rotateX( -proprev * m_Rotate() );
         mat.rotateZ( m_Precone() );
         mat.postMult( trans_mat );
 
+        // The fold turns the blade the same way about its axis with either rotation direction, so
+        // its arrow takes the copy's own mirror, which rev holds, without the reverse rotation.
+        double hrev = rev * proprev;
+
         vec3d pmid = mat.xform( m_FoldAxOrigin );
-        vec3d ptstart = mat.xform( m_FoldAxOrigin + rev * m_FoldAxDirection * axlen / 2.0 );
-        vec3d ptend = mat.xform( m_FoldAxOrigin - rev * m_FoldAxDirection * axlen / 2.0 );
+        vec3d ptstart = mat.xform( m_FoldAxOrigin - hrev * m_FoldAxDirection * axlen / 2.0 );
+        vec3d ptend = mat.xform( m_FoldAxOrigin + hrev * m_FoldAxDirection * axlen / 2.0 );
 
         vec3d dir = ptend - ptstart;
         dir.normalize();
@@ -1047,13 +1072,12 @@ void PropGeom::UpdateSurf()
         m_Feather.Activate();
     }
 
-    // Set up fold axis & store for visualization.
-    Matrix4d fold, foldrot;
-    fold.loadIdentity();
+    // Fold hinge.  Its vector starts forward (-x).
+    Matrix4d fold;
     fold.rotateY( m_AzimuthFoldDir() );
-    fold.rotateX( m_ElevationFoldDir() );
-    m_FoldAxDirection = fold.xform( vec3d( 0, 0, 1 ) );
-    m_FoldAxOrigin = vec3d( m_AxialFoldAxis() * radius, m_RadFoldAxis() * radius, m_OffsetFoldAxis() * radius );
+    fold.rotateZ( -m_ElevationFoldDir() );
+    m_FoldAxDirection = BladeAxisToProp( fold.xform( vec3d( -1, 0, 0 ) ), rev );
+    m_FoldAxOrigin = BladeToProp( vec3d( m_OffsetFoldAxis(), m_RadFoldAxis(), -m_AxialFoldAxis() ) * radius, rev );
 
 
     //==== Cross Section Curves & joint info ====//
@@ -1962,9 +1986,7 @@ void PropGeom::RigidBladeMotion( Matrix4d & mat, double foldangle )
 
     mat.rotateZ( m_Precone() );
 
-    mat.translatef( m_FoldAxOrigin.x(), m_FoldAxOrigin.y(), m_FoldAxOrigin.z() );
-    mat.rotate( foldangle * M_PI / 180.0, m_FoldAxDirection );
-    mat.translatef( -m_FoldAxOrigin.x(), -m_FoldAxOrigin.y(), -m_FoldAxOrigin.z() );
+    mat.rotateAbout( foldangle, m_FoldAxDirection, m_FoldAxOrigin );
 
 }
 

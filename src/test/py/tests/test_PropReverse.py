@@ -3,6 +3,9 @@ and blade, of the same propeller turning the normal way.
 """
 
 import math
+import os
+import re
+import tempfile
 
 import openvsp as vsp
 
@@ -52,3 +55,46 @@ def test_feather_offset_mirrors():
     for parms in ( { "FeatherOffsetXoC": 0.2 },
                    { "FeatherOffsetXoC": -0.3, "FeatherAxisXoC": 0.3, "Feather": 15.0 } ):
         assert reverse_mirror_error( parms ) < TOL, parms
+
+
+def test_fold_axis_mirrors():
+    for parms in ( { "FoldAngle": 30.0, "ElFoldDir": 20.0 },
+                   { "FoldAngle": 30.0, "AzFoldDir": 20.0 },
+                   { "FoldAngle": -40.0, "AzFoldDir": 15.0, "ElFoldDir": -25.0, "OffFoldAx": 0.1,
+                     "AxFoldAx": 0.05, "Feather": 10.0, "Precone": 5.0 } ):
+        assert reverse_mirror_error( parms ) < TOL, parms
+
+
+def test_individual_fold_mirrors():
+    parms = { "NumBlade": 3, "IndividualBladeFoldFlag": 1.0, "FoldAngle_1": 50.0,
+              "AzFoldDir": 15.0, "ElFoldDir": -25.0, "OffFoldAx": 0.1 }
+    for surf in range( 3 ):
+        assert reverse_mirror_error( parms, surf ) < TOL, surf
+    pid = new_prop( parms, False )
+    assert vsp.GetParmVal( pid, "FoldAngle_1", "Design" ) == 50.0
+
+
+def test_current_file_unchanged():
+    parms = { "FeatherOffsetXoC": 0.2, "Feather": 10.0, "FoldAngle": 30.0, "AzFoldDir": 15.0,
+              "ElFoldDir": -25.0, "OffFoldAx": 0.1 }
+    want = blade( new_prop( parms, True ) )
+    path = os.path.join( tempfile.mkdtemp(), "current.vsp3" )
+    vsp.WriteVSPFile( path )
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( path )
+    vsp.Update()
+    got = blade( vsp.FindGeoms()[0] )
+    assert max( math.dist( p, q ) for p, q in zip( got, want ) ) < TOL
+
+
+def test_paste_keeps_geometry():
+    # A pasted propeller keeps its blades where they were.
+    parms = { "NumBlade": 3, "FoldAngle": 30.0, "AzFoldDir": 15.0, "ElFoldDir": -25.0, "OffFoldAx": 0.1,
+              "Feather": 10.0, "FeatherOffsetXoC": 0.2 }
+    pid = new_prop( parms, True )
+    want = [ blade( pid, s ) for s in range( 3 ) ]
+    vsp.CopyGeomToClipboard( pid )
+    new = vsp.PasteGeomClipboard()[0]
+    vsp.Update()
+    assert vsp.GetParmVal( new, "OffFoldAx", "Design" ) == 0.1
+    assert max( math.dist( p, q ) for s in range( 3 ) for p, q in zip( blade( new, s ), want[s] ) ) < TOL
