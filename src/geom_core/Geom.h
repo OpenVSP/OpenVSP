@@ -310,6 +310,9 @@ public:
     bool m_XFormDirty;
     bool m_UpdateXForm;
     bool m_SurfDirty;
+    // The surfaces are built but must be placed again by UpdatePostSurf.
+    bool m_PostSurfDirty;
+    // The surfaces changed, by either pass.
     bool m_UpdateSurf;
     bool m_TessDirty;
     bool m_UpdateTess;
@@ -1161,6 +1164,9 @@ protected:
     virtual void LoadMarkerDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void UpdatePreTess()   {};
+    // Moves the finished main surfaces.  It runs after every pass that builds them, whenever
+    // m_SurfDirty or m_PostSurfDirty is set, so it can run alone.
+    virtual void UpdatePostSurf()   {};
 
     virtual void UpdateMainTessVec();
     virtual void UpdateTessVec();

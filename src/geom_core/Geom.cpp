@@ -109,6 +109,7 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
 
     m_XFormDirty = true;
     m_SurfDirty = true;
+    m_PostSurfDirty = true;
     m_TessDirty = true;
     m_HighlightDirty = true;
     m_MarkerDirty = true;
@@ -142,6 +143,7 @@ GeomBase::~GeomBase()
 // Surf - everything else (requires re-lofting m_MainSurfVec)
 // Tess - tessellation resolution (requires re-tessellation)
 // Highlight - active section highlighting
+// PostSurf - placing the finished surfaces again (set by subclasses, e.g. moving propeller blades)
 //
 // This works in conjunction with strategic caching.  m_MainSurfVec, m_SurfVec, m_MainTessVec, m_TessVec are all
 // cached to allow minimal updates according to the classified dirty flags.
@@ -2023,7 +2025,13 @@ void Geom::Update( bool fullupdate )
         UpdatePreTess();
     }
 
-    if ( m_XFormDirty || m_SurfDirty )
+    // The surface passes above do not run for m_PostSurfDirty alone, so this comes after them.
+    if ( m_SurfDirty || m_PostSurfDirty )
+    {
+        UpdatePostSurf();
+    }
+
+    if ( m_XFormDirty || m_SurfDirty || m_PostSurfDirty )
     {
         UpdateSymmAttach();  // Needs to happen for both XForm and Surf updates.
 
@@ -2039,7 +2047,7 @@ void Geom::Update( bool fullupdate )
 
     if ( fullupdate ) // Option to make FitModel and similar things faster.
     {
-        if ( m_XFormDirty || m_SurfDirty || m_SubSurfDirty ) // Everything except m_TessDirty
+        if ( m_XFormDirty || m_SurfDirty || m_PostSurfDirty || m_SubSurfDirty ) // Everything except m_TessDirty
         {
             for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
             {
@@ -2047,7 +2055,7 @@ void Geom::Update( bool fullupdate )
             }
         }
 
-        if ( m_XFormDirty || m_SurfDirty ) // Everything except m_TessDirty
+        if ( m_XFormDirty || m_SurfDirty || m_PostSurfDirty ) // Everything except m_TessDirty
         {
             for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
             {
@@ -2059,7 +2067,7 @@ void Geom::Update( bool fullupdate )
     if ( fullupdate )
     {
         // Tessellate MainSurfVec
-        if ( m_SurfDirty || m_TessDirty )
+        if ( m_SurfDirty || m_PostSurfDirty || m_TessDirty )
         {
             if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
             {
@@ -2072,7 +2080,7 @@ void Geom::Update( bool fullupdate )
         }
 
         // Copy Tessellation for symmetry and XForm
-        if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
+        if ( m_XFormDirty || m_SurfDirty || m_PostSurfDirty || m_TessDirty )
         {
             if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
             {
@@ -2085,14 +2093,14 @@ void Geom::Update( bool fullupdate )
         }
     }
 
-    if ( m_XFormDirty || m_SurfDirty )
+    if ( m_XFormDirty || m_SurfDirty || m_PostSurfDirty )
     {
         UpdateBBox();  // Needs to happen for both XForm and Surf updates.
     }
 
     if ( fullupdate )
     {
-        if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
+        if ( m_XFormDirty || m_SurfDirty || m_PostSurfDirty || m_TessDirty )
         {
             UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
             UpdateMarkerDrawObj();
@@ -2102,7 +2110,7 @@ void Geom::Update( bool fullupdate )
             UpdateMarkerDrawObj();
         }
 
-        if ( m_XFormDirty || m_SurfDirty || m_HighlightDirty )
+        if ( m_XFormDirty || m_SurfDirty || m_PostSurfDirty || m_HighlightDirty )
         {
             UpdateHighlightDrawObj();
         }
@@ -2114,9 +2122,10 @@ void Geom::Update( bool fullupdate )
     m_XFormDirty = false;
 
     m_UpdateSurf = false;
-    if ( m_SurfDirty )
+    if ( m_SurfDirty || m_PostSurfDirty )
         m_UpdateSurf = true;
     m_SurfDirty = false;
+    m_PostSurfDirty = false;
 
     m_UpdateTess = false;
     if ( m_TessDirty )
