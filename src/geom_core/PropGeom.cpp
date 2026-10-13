@@ -606,7 +606,7 @@ void PropGeom::UpdateDrawObj()
     }
 }
 
-// The thrust, rotation direction and fold axis at each of placer's symmetric copies.  The
+// The thrust, rotation direction and blade hinges at each of placer's symmetric copies.  The
 // rotation direction follows each copy's orientation, flip included.
 void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec )
 {
@@ -625,6 +625,13 @@ void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec 
 
     arrow_lines.m_GeomChanged = true;
     arrow_heads.m_GeomChanged = true;
+
+    for ( int i = PROP_MARKER_HINGES; i < NUM_PROP_MARKERS; i++ )
+    {
+        marker_vec[i].m_PntVec.clear();
+        marker_vec[i].m_NormVec.clear();
+        marker_vec[i].m_GeomChanged = true;
+    }
 
     double axlen = 1.0;
     double rot_axlen = 1.0;
@@ -669,34 +676,44 @@ void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec 
         thrustdir = trans_mat.xform( thrustdir ) - cen;
         refdir = trans_mat.xform( refdir ) - cen;
 
-        // The blades turn by Rotate the other way with reverse rotation.
-        double proprev = 1.0;
-        if ( m_ReverseFlag() )
-        {
-            proprev = -1.0;
-        }
-
-        Matrix4d mat;
-        mat.loadIdentity();
-        mat.rotateX( -proprev * m_Rotate() );
-        mat.rotateZ( m_Precone() );
-        mat.postMult( trans_mat );
-
-        // The fold turns the blade the same way about its axis with either rotation direction, so
-        // its arrow takes the copy's own mirror, which rev holds, without the reverse rotation.
-        double hrev = rev * proprev;
-
-        vec3d pmid = mat.xform( m_FoldAxOrigin );
-        vec3d ptstart = mat.xform( m_FoldAxOrigin - hrev * m_FoldAxDirection * axlen / 2.0 );
-        vec3d ptend = mat.xform( m_FoldAxOrigin + hrev * m_FoldAxDirection * axlen / 2.0 );
-
-        vec3d dir = ptend - ptstart;
-        dir.normalize();
-
+        // Each hinge of the active blade where the hinges inboard of it carry it.
         if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
         {
-            arrow_lines.m_PntVec.push_back( ptstart );
-            arrow_lines.m_PntVec.push_back( ptend );
+            int iblade = m_ActiveBlade() - 1;
+            Matrix4d mat;
+            BladeRootMotion( mat, iblade );
+
+            // The hinge axes already mirror with reverse rotation, so their arrows turn with the
+            // copy's own mirror alone.
+            double hrev = rev;
+            if ( m_ReverseFlag() )
+            {
+                hrev = -rev;
+            }
+
+            vector< BladeHinge > hinges = GetBladeHinges( iblade );
+            for ( int j = 0; j < ( int )hinges.size(); j++ )
+            {
+                const BladeHinge & h = hinges[j];
+                DrawObj &hinge_lines = marker_vec[ PROP_MARKER_HINGES + 2 * h.m_Type ];
+                DrawObj &hinge_heads = marker_vec[ PROP_MARKER_HINGES + 2 * h.m_Type + 1 ];
+
+                Matrix4d hmat = mat;
+                hmat.postMult( trans_mat );
+
+                vec3d pmid = hmat.xform( h.m_Origin );
+                vec3d ptstart = hmat.xform( h.m_Origin - h.m_Axis * hrev * axlen / 2.0 );
+                vec3d ptend = hmat.xform( h.m_Origin + h.m_Axis * hrev * axlen / 2.0 );
+
+                vec3d dir = ptend - ptstart;
+                dir.normalize();
+
+                hinge_lines.m_PntVec.push_back( ptstart );
+                hinge_lines.m_PntVec.push_back( ptend );
+                MakeCircleArrow( pmid, dir, 0.5 * axlen, 0.5 * axlen, hinge_lines, hinge_heads );
+
+                mat.rotateAbout( h.m_Angle, h.m_Axis, h.m_Origin );
+            }
         }
 
         arrow_lines.m_PntVec.push_back( cen );
@@ -705,11 +722,6 @@ void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec 
         arrow_lines.m_PntVec.push_back( cen + thrustdir * axlen );
         MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, arrow_heads.m_PntVec, arrow_heads.m_NormVec );
         MakeCircleArrow( cen, rotdir, rot_axlen, axlen, arrow_lines, arrow_heads );
-
-        if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
-        {
-            MakeCircleArrow( pmid, dir, 0.5 * axlen, 0.5 * axlen, arrow_lines, arrow_heads );
-        }
 
 
 
@@ -734,6 +746,52 @@ void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec 
     arrow_lines.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     arrow_lines.m_LineWidth = 2.0;
     arrow_lines.m_Type = DrawObj::VSP_LINES;
+
+    // Each hinge type in its own colour, heads shaded to match their lines.
+    for ( int t = 0; t < NUM_HINGE_TYPES; t++ )
+    {
+        DrawObj &hinge_lines = marker_vec[ PROP_MARKER_HINGES + 2 * t ];
+        DrawObj &hinge_heads = marker_vec[ PROP_MARKER_HINGES + 2 * t + 1 ];
+        vec3d c = DrawObj::Color( HingeDrawColor( t ) );
+
+        char str[32];
+        snprintf( str, sizeof( str ), "%d", t );
+
+        hinge_lines.m_GeomID = placer->GetID() + "HingeLines" + str;
+        hinge_lines.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        hinge_lines.m_LineWidth = 2.0;
+        hinge_lines.m_LineColor = c;
+        hinge_lines.m_Type = DrawObj::VSP_LINES;
+
+        hinge_heads.m_GeomID = placer->GetID() + "HingeArrows" + str;
+        hinge_heads.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        hinge_heads.m_LineWidth = 1.0;
+        hinge_heads.m_Type = DrawObj::VSP_SHADED_TRIS;
+
+        for ( int i = 0; i < 3; i++ )
+        {
+            hinge_heads.m_MaterialInfo.Ambient[i] = 0.2f * ( float )c.v[i];
+            hinge_heads.m_MaterialInfo.Diffuse[i] = ( float )c.v[i];
+            hinge_heads.m_MaterialInfo.Specular[i] = 0.7f;
+            hinge_heads.m_MaterialInfo.Emission[i] = 0.0f;
+        }
+        hinge_heads.m_MaterialInfo.Ambient[3] = 0.2f;
+        hinge_heads.m_MaterialInfo.Diffuse[3] = 0.5f;
+        hinge_heads.m_MaterialInfo.Specular[3] = 0.7f;
+        hinge_heads.m_MaterialInfo.Emission[3] = 0.0f;
+        hinge_heads.m_MaterialInfo.Shininess = 5.0f;
+    }
+}
+
+int PropGeom::HingeDrawColor( int type )
+{
+    switch ( type )
+    {
+        case FOLD_HINGE:
+            return DrawObj::MEDIUM_ORCHID;
+    }
+
+    return DrawObj::BLACK;
 }
 
 void PropGeom::SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec )
@@ -1460,6 +1518,17 @@ void PropGeom::UpdateSurf()
             SubSurfaceMgr.SetCurrSubSurfInd( -1 ); // unselect current sub-surface
         }
     }
+}
+
+void PropGeom::SetDirtyFlags( Parm* parm_ptr )
+{
+    // The hinge markers are drawn on the active blade.
+    if ( parm_ptr == &m_ActiveBlade )
+    {
+        m_MarkerDirty = true;
+    }
+
+    GeomXSec::SetDirtyFlags( parm_ptr );
 }
 
 void PropGeom::UpdateMainTessVec()

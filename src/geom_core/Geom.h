@@ -314,6 +314,9 @@ public:
     bool m_TessDirty;
     bool m_UpdateTess;
     bool m_HighlightDirty;
+    // The markers change though the geometry does not.
+    bool m_MarkerDirty;
+    bool m_UpdateMarker;
     bool m_FeaDirty;
     bool m_GlobalScaleDirty;
 

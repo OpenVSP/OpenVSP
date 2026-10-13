@@ -111,6 +111,8 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
     m_SurfDirty = true;
     m_TessDirty = true;
     m_HighlightDirty = true;
+    m_MarkerDirty = true;
+    m_UpdateMarker = false;
     m_FeaDirty = true;
     m_AppearanceDirty = true;
     m_UpdateAppearance = false;
@@ -2095,6 +2097,10 @@ void Geom::Update( bool fullupdate )
             UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
             UpdateMarkerDrawObj();
         }
+        else if ( m_MarkerDirty )
+        {
+            UpdateMarkerDrawObj();
+        }
 
         if ( m_XFormDirty || m_SurfDirty || m_HighlightDirty )
         {
@@ -2118,6 +2124,11 @@ void Geom::Update( bool fullupdate )
     m_TessDirty = false;
 
     m_HighlightDirty = false;
+
+    m_UpdateMarker = false;
+    if ( m_MarkerDirty )
+        m_UpdateMarker = true;
+    m_MarkerDirty = false;
 
     m_GlobalScaleDirty = false;
 
@@ -2649,6 +2660,11 @@ void Geom::UpdateStepChildren( bool fullupdate )
                 if ( m_UpdateTess )
                 {
                     child->m_TessDirty = true;
+                }
+                // A Clone draws the markers this Geom builds for it.
+                if ( m_UpdateMarker )
+                {
+                    child->m_MarkerDirty = true;
                 }
                 // Name, colours and subsurfaces are not Parms, so they are flagged explicitly.
                 if ( m_UpdateAppearance )

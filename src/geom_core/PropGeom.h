@@ -136,7 +136,12 @@ public:
     enum
     {
         FOLD_HINGE,
+        NUM_HINGE_TYPES
     };
+
+    // The DrawObj colour each hinge type's marker is drawn in.  Shared with the Motion tab, which
+    // keys its dividers with the same answer.
+    static int HingeDrawColor( int type );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -283,6 +288,7 @@ protected:
     virtual void ChangeID( const string &id );
 
     virtual void UpdateSurf();
+    virtual void SetDirtyFlags( Parm* parm_ptr );
     virtual void UpdateMainTessVec();
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateBladeAzimuth();
@@ -311,7 +317,9 @@ protected:
 
     virtual void CalculateMeshMetrics();
 
-    enum { PROP_MARKER_LINES, PROP_MARKER_HEADS, NUM_PROP_MARKERS };
+    // The thrust and rotation markers, then the lines and heads of each hinge type in turn.
+    enum { PROP_MARKER_LINES, PROP_MARKER_HEADS, PROP_MARKER_HINGES,
+           NUM_PROP_MARKERS = PROP_MARKER_HINGES + 2 * NUM_HINGE_TYPES };
     BndBox m_MainBladeBBox;
     DrawObj m_HighlightBladeDrawObj;
 
