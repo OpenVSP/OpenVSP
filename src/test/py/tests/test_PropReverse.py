@@ -81,6 +81,14 @@ def test_flap_hinge_mirrors():
         assert reverse_mirror_error( parms ) < TOL, parms
 
 
+def test_lag_hinge_mirrors():
+    for parms in ( { "LagAngle": 6.0 },
+                   { "LagAngle": -9.0, "AzLagDir": 10.0, "CantLagDir": 20.0, "OffLagAx": 0.02,
+                     "AxLagAx": -0.01, "RLagAx": 0.12, "FlapAngle": 5.0, "Feather": 10.0,
+                     "Precone": 3.0, "FoldAngle": 20.0 } ):
+        assert reverse_mirror_error( parms ) < TOL, parms
+
+
 def test_current_file_unchanged():
     parms = { "FeatherOffsetXoC": 0.2, "Feather": 10.0, "FoldAngle": 30.0, "AzFoldDir": 15.0,
               "ElFoldDir": -25.0, "OffFoldAx": 0.1 }

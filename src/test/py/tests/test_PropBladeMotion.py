@@ -204,6 +204,35 @@ def test_flap_elevation_is_delta3():
         assert abs( ( coupled - plain ) + 10.0 * math.sin( math.radians( 30.0 ) ) ) < 0.5, rev
 
 
+def test_lag_turns_about_its_hinge():
+    radius = 15.0
+    hinge = { "RLagAx": 0.12, "OffLagAx": 0.02, "AxLagAx": 0.03 }
+    pid = new_prop( 3, dict( hinge, Feather = 10.0 ) )
+    unlagged = blade( pid, 0 )
+    set_parms( pid, { "LagAngle": 15.0 } )
+    origin = ( 0.03 * radius, 0.12 * radius, 0.02 * radius )
+    assert hinge_turn_error( pid, unlagged, origin, ( 1.0, 0.0, 0.0 ) ) < TOL
+    assert max( math.dist( p, q ) for p, q in zip( blade( pid, 0 ), unlagged ) ) > 1.0
+
+
+def test_individual_lag():
+    common = { "LagAngle": 2.0, "RLagAx": 0.1, "CantLagDir": 12.0, "AzLagDir": 5.0,
+               "FlapAngle": 3.0, "Feather": 7.0, "FoldAngle": 12.0 }
+    own = ( { "IndividualBladeLagFlag": 1.0, "LagAngle_2": -7.0,
+              "IndividualBladeFlapFlag": 1.0, "FlapAngle_2": 6.0 },
+            { "LagAngle": -7.0, "FlapAngle": 6.0 } )
+    for rev in ( False, True ):
+        assert blade_as_first( 4, 3, common, own, rev ) < TOL, rev
+
+
+def test_other_blades_follow_lag():
+    pid = new_prop( 3, { "IndividualBladeLagFlag": 1.0, "LagAngle_1": 9.0 } )
+    assert vsp.GetParmVal( pid, "LagAngle_2", "Articulation" ) == 0.0
+    set_parms( pid, { "IndividualBladeLagFlag": 0.0, "LagAngle": 4.0 } )
+    assert vsp.GetParmVal( pid, "LagAngle_1", "Articulation" ) == 4.0
+    assert vsp.GetParmVal( pid, "LagAngle_2", "Articulation" ) == 4.0
+
+
 def turn_about( pts, origin, axis, deg ):
     """Right-handed turn of points about the line through origin along a unit axis."""
     c = math.cos( math.radians( deg ) )
@@ -227,6 +256,20 @@ def test_inboard_hinge_carries_outboard_hinge():
     set_parms( pid, { "Feather": 20.0 } )
     want = turn_about( folded, ( 0.0, 0.0, 0.0 ), ( 0.0, 1.0, 0.0 ), 20.0 )
     assert furthest( blade( pid, 0 ), want ) < TOL
+
+
+def test_hinges_at_one_place_flap_first():
+    # Flap and lag hinges at the same radius: the flap is inboard of the lag.
+    radius = 15.0
+    hinge = { "RFlapAx": 0.1, "RLagAx": 0.1, "OffFlapAx": 0.01, "OffLagAx": -0.02 }
+    pid = new_prop( 2, dict( hinge, LagAngle = 12.0 ) )
+    lagged = blade( pid, 0 )
+    set_parms( pid, { "FlapAngle": 9.0 } )
+    want = turn_about( lagged, ( 0.0, 0.1 * radius, 0.01 * radius ), ( 0.0, 0.0, 1.0 ), 9.0 )
+    assert furthest( blade( pid, 0 ), want ) < TOL
+    # Moving the lag inboard reverses the order.
+    set_parms( pid, { "RLagAx": 0.05 } )
+    assert furthest( blade( pid, 0 ), want ) > 1e-3
 
 
 # Points on blades 1 and 2, ( surf, u, w, x, y, z ), written by OpenVSP 3.55.0 for propellers made
@@ -256,6 +299,25 @@ def test_matches_3_55_0():
         for s, u, w, x, y, z in pts:
             p = vsp.CompPnt01( pid, s, u, w )
             assert math.dist( ( p.x(), p.y(), p.z() ), ( x, y, z ) ) < 1e-9, ( name, s, u, w )
+
+
+def turn_z( pts, deg ):
+    """Turn points right-handed about the propeller's z axis, the way Precone does."""
+    c = math.cos( math.radians( deg ) )
+    s = math.sin( math.radians( deg ) )
+    return [ ( c * x - s * y, s * x + c * y, z ) for x, y, z in pts ]
+
+
+def test_hinges_ride_on_the_precone():
+    # Precone turns the blade at the hub before any hinge, so a coned blade is the blade without
+    # precone, hinges and all, turned about the propeller's z axis.
+    hinges = { "FlapAngle": 6.0, "RFlapAx": 0.1, "OffFlapAx": 0.02, "AxFlapAx": 0.03, "ElFlapDir": 15.0,
+               "LagAngle": -4.0, "RLagAx": 0.15, "CantLagDir": 10.0, "AzLagDir": 5.0, "Feather": 8.0,
+               "FoldAngle": 12.0, "RFoldAx": 0.3 }
+    for rev in ( False, True ):
+        flat = blade( new_prop( 2, hinges, rev ), 0 )
+        coned = blade( new_prop( 2, dict( hinges, Precone = 7.0 ), rev ), 0 )
+        assert furthest( coned, turn_z( flat, 7.0 ) ) < TOL, rev
 
 
 def test_feather_turns_about_its_line():
@@ -291,6 +353,61 @@ def test_skewed_flap_hinge():
     origin = ( 0.03 * radius, 0.1 * radius, 0.02 * radius )
     want = turn_about( unflapped, origin, tuple( -c for c in vec ), 25.0 )
     assert furthest( blade( pid, 0 ), want ) < TOL
+
+
+def test_skewed_lag_hinge():
+    # Lag: vector toward the thrust (-X), canted by -Cant about the chord (blade x, +Z), then Az
+    # about y; the blade turns right-handed about minus that vector by LagAngle.
+    radius = 15.0
+    hinge = { "RLagAx": 0.12, "OffLagAx": 0.02, "AxLagAx": 0.03, "AzLagDir": 30.0, "CantLagDir": 20.0 }
+    pid = new_prop( 2, hinge )
+    unlagged = blade( pid, 0 )
+    set_parms( pid, { "LagAngle": 15.0 } )
+    vec = skewed_axis( 30.0, -20.0, ( -1.0, 0.0, 0.0 ), ( 0.0, 0.0, 1.0 ) )
+    origin = ( 0.03 * radius, 0.12 * radius, 0.02 * radius )
+    want = turn_about( unlagged, origin, tuple( -c for c in vec ), 15.0 )
+    assert furthest( blade( pid, 0 ), want ) < TOL
+
+
+def test_blades_removed_and_added():
+    # Blades removed take their own angles with them; blades added back start at the propeller's.
+    masters = { "FlapAngle": 4.0, "LagAngle": -2.0, "FoldAngle": 7.0, "Feather": 5.0 }
+    pid = new_prop( 4, masters )
+    set_parms( pid, { "IndividualBladeFlapFlag": 1.0, "IndividualBladeLagFlag": 1.0,
+                      "IndividualBladeFoldFlag": 1.0, "IndividualBladeFeatherFlag": 1.0 } )
+    own = {}
+    for name in ( "FlapAngle", "LagAngle", "FoldAngle", "Feather" ):
+        for i in range( 1, 4 ):
+            own[ "%s_%d" % ( name, i ) ] = 3.0 * i
+    set_parms( pid, own )
+    set_parms( pid, { "NumBlade": 2 } )
+    set_parms( pid, { "NumBlade": 4 } )
+    names = [ vsp.GetParmName( p ) for p in vsp.GetGeomParmIDs( pid )
+              if vsp.GetParmGroupName( p ) in ( "Design", "Articulation" ) ]
+    assert len( names ) == len( set( names ) )
+    for name in ( "FlapAngle", "LagAngle", "FoldAngle", "Feather" ):
+        assert vsp.GetParmVal( pid, name + "_1", group( name + "_1" ) ) == 3.0
+        assert vsp.GetParmVal( pid, name + "_2", group( name + "_2" ) ) == masters[ name ]
+    # Blade 3, added back, sits as blade 1 does, turned to its azimuth.
+    az = vsp.GetParmVal( pid, "BladeAz_3", "Design" )
+    assert furthest( blade( pid, 2 ), turn( blade( pid, 0 ), az ) ) < TOL
+
+
+def test_hinges_at_one_place_lag_before_fold():
+    # Lag and fold hinges at the same radius: the lag is inboard of the fold.
+    radius = 15.0
+    hinge = { "RLagAx": 0.2, "RFoldAx": 0.2 }
+    pid = new_prop( 2, dict( hinge, FoldAngle = 30.0 ) )
+    folded = blade( pid, 0 )
+    set_parms( pid, { "LagAngle": 12.0 } )
+    want = turn_about( folded, ( 0.0, 0.2 * radius, 0.0 ), ( 1.0, 0.0, 0.0 ), 12.0 )
+    assert furthest( blade( pid, 0 ), want ) < TOL
+
+
+def test_default_hinge_places():
+    pid = new_prop( 2, {} )
+    for name, val in ( ( "RFlapAx", 0.05 ), ( "RLagAx", 0.1 ), ( "RFeatherAx", 0.15 ), ( "RFoldAx", 0.2 ) ):
+        assert vsp.GetParmVal( pid, name, group( name ) ) == val, name
 
 
 def test_active_blade_kept_while_any_blade_motion_is_individual():

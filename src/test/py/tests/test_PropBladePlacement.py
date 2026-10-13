@@ -22,14 +22,20 @@ STEPS = [
     { "Rotate": 25.0, "Precone": 4.0 },
     { "Tess_W": 25 },
     { "NumBlade": 4 },
+    { "LagAngle": -3.0 },
     { "FeatherOffsetXoC": 0.1, "ConstructXoC": 0.4 },
+    # Each blade's own angle is given: one never synced to the master keeps its first value.
+    { "IndividualBladeLagFlag": 1.0, "LagAngle_1": 5.0, "LagAngle_2": -3.0, "LagAngle_3": 2.0 },
     { "UseBeta34Flag": 1.0, "Beta34": 25.0 },
     { "FoldAngle": 20.0, "AzFoldDir": 10.0 },
     { "PropMode": vsp.PROP_BOTH },
     { "NumBlade": 2 },
     { "Feather": 3.0, "UseBeta34Flag": 0.0 },
     { "ReverseFlag": 1.0 },
+    # A blade added back starts from the propeller's angle, here zero; then each is given its own.
+    { "LagAngle": 0.0 },
     { "NumBlade": 5 },
+    { "LagAngle_2": 1.0, "LagAngle_3": -2.0, "LagAngle_4": 4.0 },
     { "RFlapAx": 0.12, "ElFlapDir": 15.0 },
     { "NumBlade": 3, "Tess_W": 21 },
 ]
@@ -131,6 +137,11 @@ def steps_match_fresh_build( steps, display = vsp.DISPLAY_BEZIER ):
     parms = {}
     for i, step in enumerate( steps ):
         set_parms( pid, step )
+        # A removed blade's own parms go with it.
+        if "NumBlade" in step:
+            for name in list( parms ):
+                if "_" in name and name.split( "_" )[-1].isdigit() and int( name.split( "_" )[-1] ) >= step["NumBlade"]:
+                    del parms[name]
         parms.update( step )
         other = fresh( parms, display )
         got = state( pid )

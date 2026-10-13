@@ -135,6 +135,7 @@ public:
     enum
     {
         FLAP_HINGE,
+        LAG_HINGE,
         FOLD_HINGE,
         FEATHER_HINGE,
         NUM_HINGE_TYPES
@@ -237,6 +238,16 @@ public:
     BoolParm m_IndividualBladeFlapFlag;
     vector< Parm* > m_FlapAngleParmVec;
 
+    Parm m_RadLagAxis;
+    Parm m_AxialLagAxis;
+    Parm m_OffsetLagAxis;
+    Parm m_AzimuthLagDir;
+    Parm m_CantLagDir;
+    Parm m_LagAngle;
+
+    BoolParm m_IndividualBladeLagFlag;
+    vector< Parm* > m_LagAngleParmVec;
+
     Parm m_RadFoldAxis;
     Parm m_AxialFoldAxis;
     Parm m_OffsetFoldAxis;
@@ -253,6 +264,9 @@ public:
 
     vec3d m_FlapAxOrigin;
     vec3d m_FlapAxDirection;
+
+    vec3d m_LagAxOrigin;
+    vec3d m_LagAxDirection;
 
     vec3d m_FoldAxOrigin;
     vec3d m_FoldAxDirection;
@@ -328,6 +342,7 @@ protected:
     virtual void CheckBalance();
 
     virtual double GetBladeFlapAngle( int iblade );
+    virtual double GetBladeLagAngle( int iblade );
     virtual double GetBladeFoldAngle( int iblade );
     virtual double GetBladeFeather( int iblade );
     virtual void BladeRootMotion( Matrix4d & mat, int iblade );

@@ -6,10 +6,12 @@
 ARTICULATION = (
     "RFeatherAx", "IndividualBladeFeatherFlag",
     "RFlapAx", "AxFlapAx", "OffFlapAx", "AzFlapDir", "ElFlapDir", "FlapAngle", "IndividualBladeFlapFlag",
+    "RLagAx", "AxLagAx", "OffLagAx", "AzLagDir", "CantLagDir", "LagAngle", "IndividualBladeLagFlag",
 )
 ARTICULATION_PER_BLADE = (
     "Feather_",
     "FlapAngle_",
+    "LagAngle_",
 )
 
 
