@@ -158,6 +158,52 @@ def test_other_blades_follow_flap():
     assert vsp.GetParmVal( pid, "FlapAngle_2", "Articulation" ) == 4.0
 
 
+def pitch( pid, surf = 0, u = 0.6 ):
+    """Pitch of a section, degrees: how far its chord, trailing edge to leading edge, points
+    toward the thrust (-x)."""
+    le = vsp.CompPnt01( pid, surf, u, 0.5 )
+    te = vsp.CompPnt01( pid, surf, u, 0.0 )
+    c = ( le.x() - te.x(), le.y() - te.y(), le.z() - te.z() )
+    return math.degrees( math.asin( -c[0] / math.hypot( *c ) ) )
+
+
+def tip( pid ):
+    p = vsp.CompPnt01( pid, 0, 1.0, 0.25 )
+    return ( p.x(), p.y(), p.z() )
+
+
+def test_flap_up_is_toward_thrust():
+    for rev in ( False, True ):
+        pid = new_prop( 2, {}, rev )
+        before = tip( pid )
+        set_parms( pid, { "FlapAngle": 10.0 } )
+        assert tip( pid )[0] < before[0] - 1.0, rev
+
+
+def test_flap_azimuth_pitches_the_hinge_like_the_blade():
+    # The hinge axis, turned 30 degrees nose up, carries a flapping tip aft as it rises.
+    for rev in ( False, True ):
+        aft = -1.0 if rev else 1.0
+        pid = new_prop( 2, { "AzFlapDir": 30.0, "RFlapAx": 0.0 }, rev )
+        before = tip( pid )
+        set_parms( pid, { "FlapAngle": 1.0 } )
+        after = tip( pid )
+        rise = before[0] - after[0]
+        back = aft * ( after[2] - before[2] )
+        assert rise > 0.0 and back > 0.0, rev
+        assert abs( back / rise - math.tan( math.radians( 30.0 ) ) ) < 0.02, rev
+
+
+def test_flap_elevation_is_delta3():
+    # tan( delta_3 ) is the pitch-flap coupling, positive for flap up, pitch down.
+    for rev in ( False, True ):
+        pid = new_prop( 2, { "FlapAngle": 10.0 }, rev )
+        plain = pitch( pid )
+        set_parms( pid, { "ElFlapDir": 30.0 } )
+        coupled = pitch( pid )
+        assert abs( ( coupled - plain ) + 10.0 * math.sin( math.radians( 30.0 ) ) ) < 0.5, rev
+
+
 def turn_about( pts, origin, axis, deg ):
     """Right-handed turn of points about the line through origin along a unit axis."""
     c = math.cos( math.radians( deg ) )
