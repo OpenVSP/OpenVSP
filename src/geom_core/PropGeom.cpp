@@ -767,29 +767,11 @@ void PropGeom::UpdateHighlightDrawObj()
     rigid.xformvec( m_HighlightXSecDrawObj.m_PntVec );
     relTrans.xformvec( m_HighlightXSecDrawObj.m_PntVec );
 
-
-    double rev = 1.0;
-    if ( m_ReverseFlag() )
-    {
-        rev = -1.0;
-    }
-
     m_HighlightBladeDrawObj.m_PntVec = m_MainBladeBBox.GetBBoxDrawLines();
 
-    int i = m_ActiveBlade() - 1;
     RigidBladeMotion( rigid, m_ActiveBlade() - 1 );
 
     rigid.xformvec( m_HighlightBladeDrawObj.m_PntVec );
-
-    Matrix4d rot;
-    rot.loadIdentity();
-
-    if ( i > 0 )
-    {
-        rot.rotateX( -rev * m_BladeAzimuthParmVec[  i - 1  ]->Get() );
-    }
-
-    rot.xformvec( m_HighlightBladeDrawObj.m_PntVec );
 
     relTrans.xformvec( m_HighlightBladeDrawObj.m_PntVec );
 
@@ -1420,19 +1402,10 @@ void PropGeom::UpdateSurf()
 
 
         Matrix4d rigid;
-        Matrix4d rot;
         for ( int i = 0; i < m_Nblade(); i++ )
         {
             RigidBladeMotion( rigid, i );
             m_MainSurfVec[i].Transform( rigid );
-
-            if ( i > 0 )
-            {
-                rot.loadIdentity();
-                rot.rotateX( -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get() );
-
-                m_MainSurfVec[i].Transform( rot );
-            }
         }
     }
     else
@@ -1522,29 +1495,12 @@ void PropGeom::UpdateMainTessVec()
             m_MainFeatureTessVec[i] = m_BladeFeatureTess;
         }
 
-        double rev = 1.0;
-        if ( m_ReverseFlag() )
-        {
-            rev = -1.0;
-        }
-
         Matrix4d rigid;
-        Matrix4d rot;
         for ( int i = 0; i < nblade; i++ )
         {
             RigidBladeMotion( rigid, i );
             m_MainTessVec[i].Transform( rigid );
             m_MainFeatureTessVec[i].Transform( rigid );
-
-            if ( i > 0 )
-            {
-                double theta = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get();
-                rot.loadIdentity();
-                rot.rotateX( theta );
-
-                m_MainTessVec[i].Transform( rot );
-                m_MainFeatureTessVec[i].Transform( rot );
-            }
         }
     }
 
@@ -1577,27 +1533,11 @@ void PropGeom::UpdateMainDegenGeomPreview()
             m_MainDegenGeomPreviewVec[i] = degenGeom;
         }
 
-        double rev = 1.0;
-        if ( m_ReverseFlag() )
-        {
-            rev = -1.0;
-        }
-
         Matrix4d rigid;
-        Matrix4d rot;
         for ( int i = 0; i < nblade; i++ )
         {
             RigidBladeMotion( rigid, i );
             m_MainDegenGeomPreviewVec[i].Transform( rigid );
-
-            if ( i > 0 )
-            {
-                double theta = -rev * m_BladeAzimuthParmVec[ i - 1 ]->Get();
-                rot.loadIdentity();
-                rot.rotateX( theta );
-
-                m_MainDegenGeomPreviewVec[i].Transform( rot );
-            }
         }
 
     }
@@ -1958,7 +1898,8 @@ double PropGeom::GetBladeFoldAngle( int iblade )
     return GetBladeValue( m_FoldAngleParmVec, m_IndividualBladeFoldFlag(), iblade, m_FoldAngle() );
 }
 
-void PropGeom::RigidBladeMotion( Matrix4d & mat, int iblade )
+// The blade's azimuth, the propeller rotation and the precone: the motion inboard of the hinges.
+void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade )
 {
     double rev = 1.0;
     if ( m_ReverseFlag() )
@@ -1966,12 +1907,21 @@ void PropGeom::RigidBladeMotion( Matrix4d & mat, int iblade )
         rev = -1.0;
     }
 
-    mat.loadIdentity();  // Reset to handle rigid body motion of lofted prop sections.
+    mat.loadIdentity();
 
-    // Propeller rotation first because order is reversed.
+    if ( iblade > 0 && iblade <= ( int )m_BladeAzimuthParmVec.size() )
+    {
+        mat.rotateX( -rev * m_BladeAzimuthParmVec[ iblade - 1 ]->Get() );
+    }
+
     mat.rotateX( -rev * m_Rotate() );
 
     mat.rotateZ( m_Precone() );
+}
+
+void PropGeom::RigidBladeMotion( Matrix4d & mat, int iblade )
+{
+    BladeRootMotion( mat, iblade );
 
     double foldangle = GetBladeFoldAngle( iblade );
     mat.rotateAbout( foldangle, m_FoldAxDirection, m_FoldAxOrigin );
