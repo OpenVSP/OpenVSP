@@ -82,9 +82,9 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
         {
             geom_group_width = std::max( geom_group_width, geomscreen_vec[i]->GetFlWindow()->w() );
         }
+        // Add ManageGeomScreen's width
+        geom_group_width += mgs->GetFlWindow()->w();
     }
-    // Add ManageGeomScreen's width
-    geom_group_width += mgs->GetFlWindow()->w();
 
     //==== Figure out which is smaller, remaining width or the height ====//
     // Window frames lie outside these client sizes.  Leave a frame's width, enough at 200% scaling on
