@@ -133,6 +133,11 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
     buf[ indx + 1 ] = 'P';
     m_DesignLayout.AddOutput( m_PSolidityOutput, buf, "%7.4f" );
 
+    char theta[5];
+    indx = 0;
+    indx += fl_utf8encode( 952, &theta[ indx ] ); // Greek character theta
+    theta[ indx ] = 0;
+
     m_DesignLayout.ForceNewLine();
     m_DesignLayout.SetFitWidthFlag( true );
     m_DesignLayout.SetSameLineFlag( false );
@@ -444,6 +449,27 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
 
     m_HingeLayout.AddYGap();
 
+    m_HingeLayout.AddDividerBox( "Feather", 0, DrawObjKeyColor( PropGeom::HingeDrawColor( PropGeom::FEATHER_HINGE ) ) );
+    m_HingeLayout.AddSlider( m_RFeatherSlider, "Radial/R", 1, "%5.3f" );
+    m_HingeLayout.AddYGap();
+
+    m_HingeLayout.SetFitWidthFlag( false );
+    m_HingeLayout.SetSameLineFlag( true );
+
+    m_HingeLayout.SetButtonWidth( indw );
+    m_HingeLayout.AddButton( m_IndividualBladeFeatherToggle, "Ind." );
+
+    m_HingeLayout.SetButtonWidth( 100 - indw );
+    m_HingeLayout.SetFitWidthFlag( true );
+
+    m_HingeLayout.AddSlider( m_HingeFeatherSlider, ( string( "Angle (" ) + theta + ")" ).c_str(), 100, "%5.3f" );
+    m_HingeLayout.ForceNewLine();
+
+    m_HingeLayout.SetButtonWidth( 100 );
+    m_HingeLayout.SetSameLineFlag( false );
+
+    m_HingeLayout.AddYGap();
+
     m_HingeLayout.AddDividerBox( "Folding", 0, DrawObjKeyColor( PropGeom::HingeDrawColor( PropGeom::FOLD_HINGE ) ) );
 
     AddHingePlace( m_RFoldSlider, m_AxFoldSlider, m_OffFoldSlider );
@@ -722,6 +748,23 @@ bool PropScreen::Update()
 
     UpdateBladeSlider( m_FoldAngleSlider, propeller_ptr->m_FoldAngle, propeller_ptr->m_FoldAngleParmVec,
                        propeller_ptr->m_IndividualBladeFoldFlag(), propeller_ptr->m_ActiveBlade() );
+
+    m_IndividualBladeFeatherToggle.Update( propeller_ptr->m_IndividualBladeFeatherFlag.GetID() );
+    UpdateBladeSlider( m_HingeFeatherSlider, propeller_ptr->m_Feather, propeller_ptr->m_FeatherParmVec,
+                       propeller_ptr->IndividualBladeFeather(), propeller_ptr->m_ActiveBlade() );
+    m_RFeatherSlider.Update( propeller_ptr->m_RadFeatherAxis.GetID() );
+
+    // Blades feather here only while the feather angle drives Beta34.
+    if ( propeller_ptr->m_UseBeta34Flag() == 1 )
+    {
+        m_HingeFeatherSlider.Deactivate();
+        m_IndividualBladeFeatherToggle.Deactivate();
+    }
+    else
+    {
+        m_HingeFeatherSlider.Activate();
+        m_IndividualBladeFeatherToggle.Activate();
+    }
 
     if ( propeller_ptr->m_IndividualBladeFlapFlag() || propeller_ptr->m_IndividualBladeLagFlag() ||
          propeller_ptr->m_IndividualBladeFoldFlag() || propeller_ptr->IndividualBladeFeather() )
