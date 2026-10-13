@@ -34,6 +34,10 @@ class ScreenMgr;
 class Vehicle;
 class Geom;
 
+// The Fl_Color matching one of DrawObj's, so a divider can key the controls beneath it to
+// the vectors drawn in the 3D view.
+Fl_Color DrawObjKeyColor( int drawobjcolor );
+
 //====VspScreen ====//
 class  VspScreen
 {

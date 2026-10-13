@@ -5136,9 +5136,7 @@ void XSecScreen::RebuildCSTGroup( CSTAirfoil* cst_xs )
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
-// The Fl_Color matching one of DrawObj's, so a divider can key the controls beneath it to
-// the vectors drawn in the 3D view.
-static Fl_Color SkinKeyColor( int drawobjcolor )
+Fl_Color DrawObjKeyColor( int drawobjcolor )
 {
     vec3d c = 255 * DrawObj::Color( drawobjcolor );
 
@@ -5262,7 +5260,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SpineLayout.AddYGap();
     m_SpineLayout.AddDividerBox( "Spine Skinning", 0,
-                                 SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_ACTIVE_SPINE ) ) );
+                                 DrawObjKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_ACTIVE_SPINE ) ) );
 
     m_SpineLayout.SetChoiceButtonWidth( 55 );
     m_SpineLayout.SetInputWidth( 45 );
@@ -5286,7 +5284,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SkinLayout.SetSameLineFlag( true );
     m_SkinLayout.AddDividerBox( "Top Side", m_SkinLayout.GetButtonWidth(),
-                                SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_TOP ) ) );
+                                DrawObjKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_TOP ) ) );
     m_SkinLayout.SetFitWidthFlag( false );
     m_SkinLayout.AddButton( m_AllSymButton, "All Sym" );
     m_SkinLayout.ForceNewLine();
@@ -5305,7 +5303,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
 
     m_SkinLayout.AddYGap();
     m_SkinLayout.AddDividerBox( "Right Side", 0,
-                                SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_RIGHT ) ) );
+                                DrawObjKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_RIGHT ) ) );
 
     m_SkinLayout.AddSkinHeader( m_RightHeader );
     m_SkinLayout.AddSkinControl( m_RightAngleSkinControl, "Angle", angleRng, angleFmt);
@@ -5316,7 +5314,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.AddYGap();
     m_SkinLayout.SetSameLineFlag( true );
     m_SkinLayout.AddDividerBox( "Bottom Side", m_SkinLayout.GetButtonWidth(),
-                                SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_BOTTOM ) ) );
+                                DrawObjKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_BOTTOM ) ) );
     m_SkinLayout.SetFitWidthFlag( false );
     m_SkinLayout.AddButton( m_TBSymButton, "T/B Sym" );
     m_SkinLayout.ForceNewLine();
@@ -5332,7 +5330,7 @@ SkinScreen::SkinScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SkinLayout.AddYGap();
     m_SkinLayout.SetSameLineFlag( true );
     m_SkinLayout.AddDividerBox( "Left Side", m_SkinLayout.GetButtonWidth(),
-                                SkinKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_LEFT ) ) );
+                                DrawObjKeyColor( GeomXSec::SkinDrawColor( GeomXSec::SKIN_DRAW_LEFT ) ) );
     m_SkinLayout.SetFitWidthFlag( false );
     m_SkinLayout.AddButton( m_RLSymButton, "R/L Sym" );
     m_SkinLayout.ForceNewLine();
