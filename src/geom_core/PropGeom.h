@@ -42,7 +42,6 @@ public:
     double m_RootTwist;
 
     double m_Twist;
-    double m_Feather;
     double m_ZRotate;
 
     bool m_CurveSection;
@@ -136,6 +135,7 @@ public:
     enum
     {
         FOLD_HINGE,
+        FEATHER_HINGE,
         NUM_HINGE_TYPES
     };
 
@@ -205,6 +205,7 @@ public:
     }
     virtual bool GetRotorHubDiameter( double &hubdia ) const;
     virtual double UtoEta( const double &u, bool ignoreCap = false );
+    virtual bool IndividualBladeFeather();
     virtual double EtatoU( const double &eta, bool ignoreCap = false );
 
     Parm m_Diameter;
@@ -221,6 +222,7 @@ public:
 
     Parm m_FeatherOffset;
     Parm m_FeatherAxis;
+    Parm m_RadFeatherAxis;
 
     BoolParm m_ReverseFlag;
 
@@ -233,10 +235,16 @@ public:
 
     BoolParm m_IndividualBladeFoldFlag;
     vector< Parm* > m_FoldAngleParmVec;
+
+    BoolParm m_IndividualBladeFeatherFlag;
+    vector< Parm* > m_FeatherParmVec;
     IntParm m_ActiveBlade;
 
     vec3d m_FoldAxOrigin;
     vec3d m_FoldAxDirection;
+
+    vec3d m_FeatherAxOrigin;
+    vec3d m_FeatherAxDirection;
 
     IntParm m_Nblade;
 
@@ -306,6 +314,7 @@ protected:
     virtual void CheckBalance();
 
     virtual double GetBladeFoldAngle( int iblade );
+    virtual double GetBladeFeather( int iblade );
     virtual void BladeRootMotion( Matrix4d & mat, int iblade );
     virtual vector< BladeHinge > GetBladeHinges( int iblade );
     virtual void RigidBladeMotion( Matrix4d & mat, int iblade );
@@ -338,6 +347,10 @@ protected:
     VspSurf m_DiskSurf;
     bool m_BladeCapUMinSuccess;
     bool m_BladeCapUMaxSuccess;
+
+    // Twist at 3/4 of radius, or zero for a blade that starts outboard of it.
+    double m_Twist34;
+    double m_BladeRootChord;
 
     // Tessellation of the single computed blade and of the disk, kept across updates so the per-blade
     // duplicate tessellations can be assigned into existing buffers rather than cleared and reallocated.

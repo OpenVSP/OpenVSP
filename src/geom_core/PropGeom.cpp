@@ -45,7 +45,6 @@ PropPositioner::PropPositioner()
     m_RootTwist = 0.0;
 
     m_Twist = 0.0;
-    m_Feather = 0.0;
     m_ZRotate = 0.0;
 
     m_CurveSection = false;
@@ -124,12 +123,10 @@ void PropPositioner::Update()
         m_TransformedCurve.ProjectOntoCylinder( m_Radius, true, 1e-6 * m_Chord );
     }
 
-    mat.loadIdentity();  // Reset to handle rigid body motion of lofted prop sections.
+    mat.loadIdentity();
 
-
+    // Offset the blade from its feather axis.  Feathering itself is rigid motion of the blade.
     mat.translatef( 0, 0, m_Reverse * m_RootChord * m_FeatherOffset );
-
-    mat.rotateY( m_Reverse * m_Feather );
 
     m_TransformedCurve.Transform( mat );
 }
@@ -312,6 +309,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_FeatherOffset.Init( "FeatherOffsetXoC", "Design", this, 0.0, -100.0, 100.0 );
     m_FeatherOffset.SetDescript( "Offset of feather axis line." );
 
+    m_RadFeatherAxis.Init( "RFeatherAx", "Articulation", this, 0.15, 0.0, 1.0 );
+    m_RadFeatherAxis.SetDescript( "Radial position of feather bearing as fraction of radius; orders it among the hinges" );
+
     m_RadFoldAxis.Init( "RFoldAx", "Design", this, 0.2, 0.0, 1.0 );
     m_RadFoldAxis.SetDescript( "Radial position of fold axis as fraction of radius" );
 
@@ -333,10 +333,13 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_IndividualBladeFoldFlag.Init( "IndividualBladeFoldFlag", "Design", this, false, 0, 1 );
     m_IndividualBladeFoldFlag.SetDescript( "Flag to enable individual blade fold angles" );
 
-    m_Beta34.Init( "Beta34", "Design", this, 20.0, -400.0, 400.0 );
+    m_IndividualBladeFeatherFlag.Init( "IndividualBladeFeatherFlag", "Articulation", this, false, 0, 1 );
+    m_IndividualBladeFeatherFlag.SetDescript( "Flag to enable individual blade feather angles" );
+
+    m_Beta34.Init( "Beta34", "Design", this, 20.0, -1.0e12, 1.0e12 );
     m_Beta34.SetDescript( "Blade pitch at 3/4 of radius" );
 
-    m_Feather.Init( "Feather", "Design", this, 0.0, -400.0, 400.0 );
+    m_Feather.Init( "Feather", "Design", this, 0.0, -1.0e12, 1.0e12 );
     m_Feather.SetDescript( "Blade feather angle" );
 
     m_UseBeta34Flag.Init( "UseBeta34Flag", "Design", this, 1, 0, 1 );
@@ -405,6 +408,8 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_ActiveXSec = 0;
 
+    m_Twist34 = 0.0;
+    m_BladeRootChord = 0.0;
     m_BladeCapUMinSuccess = false;
     m_BladeCapUMaxSuccess = false;
     m_BladeTessDirty = true;
@@ -569,6 +574,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 PropGeom::~PropGeom()
 {
     TrimParmVec( m_FoldAngleParmVec, 0 );
+    TrimParmVec( m_FeatherParmVec, 0 );
     TrimParmVec( m_BladeAzimuthParmVec, 0 );
     TrimParmVec( m_BladeDeltaAzimuthParmVec, 0 );
 }
@@ -790,6 +796,8 @@ int PropGeom::HingeDrawColor( int type )
     {
         case FOLD_HINGE:
             return DrawObj::MEDIUM_ORCHID;
+        case FEATHER_HINGE:
+            return DrawObj::LIME_GREEN;
     }
 
     return DrawObj::BLACK;
@@ -1056,33 +1064,11 @@ void PropGeom::UpdateSurf()
     m_TChord.Set( 3.0 * m_ChordCurve.IntegrateCrv_rsq( rfirst ) / ( 1.0 - r03 ) );
     m_PChord.Set( 4.0 * m_ChordCurve.IntegrateCrv_rcub( rfirst ) / ( 1.0 - r04 ) );
 
-    if ( m_UseBeta34Flag() == 1 )
+    // Beta34 less the feather angle.
+    m_Twist34 = 0.0;
+    if ( rfirst <= 0.75 )
     {
-        if ( rfirst <= 0.75 )
-        {
-            double theta34 = m_TwistCurve.Comp( 0.75 );
-            m_Feather = m_Beta34() - theta34;
-        }
-        else
-        {
-            m_Feather = m_Beta34();
-        }
-        m_Beta34.Activate();
-        m_Feather.Deactivate();
-    }
-    else
-    {
-        if ( rfirst <= 0.75 )
-        {
-            double theta34 = m_TwistCurve.Comp( 0.75 );
-            m_Beta34 = m_Feather() + theta34;
-        }
-        else
-        {
-            m_Beta34 = m_Feather();
-        }
-        m_Beta34.Deactivate();
-        m_Feather.Activate();
+        m_Twist34 = m_TwistCurve.Comp( 0.75 );
     }
 
 
@@ -1239,6 +1225,8 @@ void PropGeom::UpdateSurf()
             twroot = m_TwistCurve.Comp( r );
         }
 
+        m_BladeRootChord = croot;
+
         //==== Update XSec Prop Positioner for highlight curves ====//
         for ( int i = 0 ; i < nxsec ; i++ )
         {
@@ -1270,7 +1258,6 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_Sweep = m_SweepCurve.Comp( r );
                 xs->m_PropPos.m_Axial = m_AxialCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_Tangential = m_TangentialCurve.Comp( r ) * radius;
-                xs->m_PropPos.m_Feather = m_Feather();
 
                 xs->m_PropPos.m_Reverse = rev;
             }
@@ -1349,8 +1336,6 @@ void PropGeom::UpdateSurf()
 
             pp.m_Axial = m_AxialCurve.Comp( r ) * radius;
             pp.m_Tangential = m_TangentialCurve.Comp( r ) * radius;
-
-            pp.m_Feather = m_Feather();
 
             pp.m_Reverse = rev;
 
@@ -1500,8 +1485,41 @@ void PropGeom::UpdatePostSurf()
         }
     }
 
+    if ( m_UseBeta34Flag() == 1 )
+    {
+        m_Feather = m_Beta34() - m_Twist34;
+        m_Beta34.Activate();
+        m_Feather.Deactivate();
+    }
+    else
+    {
+        m_Beta34 = m_Feather() + m_Twist34;
+        m_Beta34.Deactivate();
+        m_Feather.Activate();
+    }
+
+    // Blades feather individually only while the feather angle drives Beta34.  While Beta34
+    // drives, the flag and the blades' own angles are kept but not used.
+    if ( m_UseBeta34Flag() )
+    {
+        m_IndividualBladeFeatherFlag.Deactivate();
+    }
+    else
+    {
+        m_IndividualBladeFeatherFlag.Activate();
+    }
+
+    if ( !m_IndividualBladeFeatherFlag() )
+    {
+        for ( int i = 0; i < m_FeatherParmVec.size(); i++ )
+        {
+            m_FeatherParmVec[i]->Set( m_Feather() );
+        }
+    }
+
     // The Blade counter goes back to the first blade while no blade has its own angles.
     bool individual = m_IndividualBladeFoldFlag();
+    individual = individual || IndividualBladeFeather();
     if ( !individual )
     {
         m_ActiveBlade.Set( 1 );
@@ -1521,6 +1539,11 @@ void PropGeom::UpdatePostSurf()
     fold.rotateZ( -m_ElevationFoldDir() );
     m_FoldAxDirection = BladeAxisToProp( fold.xform( vec3d( -1, 0, 0 ) ), rev );
     m_FoldAxOrigin = BladeToProp( vec3d( m_OffsetFoldAxis(), m_RadFoldAxis(), -m_AxialFoldAxis() ) * radius, rev );
+
+    // The feather axis is radial, at the feather offset from the blade; the bearing sits on it
+    // at its radial place.  Its vector is +y.
+    m_FeatherAxOrigin = BladeToProp( vec3d( m_BladeRootChord * m_FeatherOffset(), m_RadFeatherAxis() * radius, 0 ), rev );
+    m_FeatherAxDirection = BladeAxisToProp( vec3d( 0, 1, 0 ), rev );
 
     // A slot for each blade, then the disk, if any.  The slots that stay keep their storage, so
     // copying into them does not allocate.
@@ -1573,7 +1596,14 @@ void PropGeom::UpdatePostSurf()
 // The parms that only move the finished blades.
 bool PropGeom::MovesBladesOnly( Parm* parm_ptr )
 {
+    // The articulation parms have their own group.
+    if ( parm_ptr->GetGroupName() == string( "Articulation" ) )
+    {
+        return true;
+    }
+
     vector< Parm* > movers = { &m_Nblade, &m_Rotate, &m_Precone,
+                               &m_Feather, &m_Beta34, &m_UseBeta34Flag,
                                &m_FoldAngle, &m_IndividualBladeFoldFlag, &m_RadFoldAxis, &m_AxialFoldAxis,
                                &m_OffsetFoldAxis, &m_AzimuthFoldDir, &m_ElevationFoldDir,
                                &m_BladeAzimuthMode, &m_BladeAzimuthDeltaFlag, &m_BalanceX1, &m_BalanceX2 };
@@ -2045,6 +2075,17 @@ double PropGeom::GetBladeFoldAngle( int iblade )
     return GetBladeValue( m_FoldAngleParmVec, m_IndividualBladeFoldFlag(), iblade, m_FoldAngle() );
 }
 
+// Whether the blades feather individually: the flag, while the feather angle drives Beta34.
+bool PropGeom::IndividualBladeFeather()
+{
+    return m_IndividualBladeFeatherFlag() && !m_UseBeta34Flag();
+}
+
+double PropGeom::GetBladeFeather( int iblade )
+{
+    return GetBladeValue( m_FeatherParmVec, IndividualBladeFeather(), iblade, m_Feather() );
+}
+
 // The blade's azimuth, the propeller rotation and the precone: the motion inboard of the hinges.
 void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade )
 {
@@ -2071,6 +2112,7 @@ vector< BladeHinge > PropGeom::GetBladeHinges( int iblade )
 {
     vector< BladeHinge > hinges;
     hinges.push_back( { m_RadFoldAxis(), FOLD_HINGE, m_FoldAxOrigin, m_FoldAxDirection, GetBladeFoldAngle( iblade ) } );
+    hinges.push_back( { m_RadFeatherAxis(), FEATHER_HINGE, m_FeatherAxOrigin, m_FeatherAxDirection, GetBladeFeather( iblade ) } );
 
     std::sort( hinges.begin(), hinges.end(), []( const BladeHinge & a, const BladeHinge & b )
     {
@@ -2105,6 +2147,7 @@ void PropGeom::ReserveBlades( int n ) // Note:  n is m_Nblade() - 1
     if ( n < m_FoldAngleParmVec.size() )
     {
         TrimParmVec( m_FoldAngleParmVec, n );
+        TrimParmVec( m_FeatherParmVec, n );
         TrimParmVec( m_BladeAzimuthParmVec, n );
         TrimParmVec( m_BladeDeltaAzimuthParmVec, n );
     }
@@ -2146,6 +2189,7 @@ void PropGeom::AddBlade()
     string blade( str );
 
     AddBladeParm( m_FoldAngleParmVec, "FoldAngle", "Design", i + 1, m_FoldAngle(), -180, 180, "Fold angle" + blade );
+    AddBladeParm( m_FeatherParmVec, "Feather", "Articulation", i + 1, m_Feather(), -1.0e12, 1.0e12, "Feather angle" + blade );
     AddBladeParm( m_BladeAzimuthParmVec, "BladeAz", "Design", i + 2, 360.0 * i / ( double )m_Nblade(), 0, 360, "Propeller blade azimuth" );
     AddBladeParm( m_BladeDeltaAzimuthParmVec, "DeltaAz", "Design", i + 2, 0, -180, 180, "Propeller blade azimuth delta" );
 }

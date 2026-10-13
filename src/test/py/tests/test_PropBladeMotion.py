@@ -1,0 +1,180 @@
+"""Propeller blade hinges.  Each turns the blade about its own line, and a blade given its own
+angle is placed exactly as blade 1 would be with that angle, turned to its azimuth.
+"""
+
+import math
+import os
+import tempfile
+
+import openvsp as vsp
+
+from prophelp import group
+
+UW = [ ( u, w ) for u in ( 0.05, 0.3, 0.6, 0.95 ) for w in ( 0.0, 0.2, 0.5, 0.7, 0.9 ) ]
+TOL = 1e-9
+
+
+def new_prop( nblade, parms, rev = False ):
+    vsp.VSPRenew()
+    pid = vsp.AddGeom( "PROP" )
+    vsp.SetParmVal( pid, "UseBeta34Flag", "Design", 0.0 )
+    vsp.SetParmVal( pid, "ReverseFlag", "Design", float( rev ) )
+    vsp.SetParmVal( pid, "NumBlade", "Design", nblade )
+    vsp.Update()
+    set_parms( pid, parms )
+    return pid
+
+
+def set_parms( pid, parms ):
+    for name, val in parms.items():
+        assert vsp.FindParm( pid, name, group( name ) ), name
+        vsp.SetParmVal( pid, name, group( name ), val )
+    vsp.Update()
+
+
+def blade( pid, surf ):
+    pts = []
+    for u, w in UW:
+        p = vsp.CompPnt01( pid, surf, u, w )
+        pts.append( ( p.x(), p.y(), p.z() ) )
+    return pts
+
+
+def turn( pts, deg ):
+    """Turn points about the propeller axis the way blade azimuth does."""
+    c = math.cos( math.radians( deg ) )
+    s = math.sin( math.radians( deg ) )
+    return [ ( x, c * y + s * z, -s * y + c * z ) for x, y, z in pts ]
+
+
+def furthest( a, b ):
+    return max( math.dist( p, q ) for p, q in zip( a, b ) )
+
+
+def blade_as_first( nblade, iblade, common, own, rev = False ):
+    """Distance between blade iblade (from 1) given its own angles and blade 1 given them."""
+    sgn = -1.0 if rev else 1.0
+    pid = new_prop( nblade, dict( common, **own[0] ), rev )
+    got = blade( pid, iblade - 1 )
+    az = vsp.GetParmVal( pid, "BladeAz_%d" % iblade, "Design" )
+    pid = new_prop( nblade, dict( common, **own[1] ), rev )
+    want = turn( blade( pid, 0 ), sgn * az )
+    return furthest( got, want )
+
+
+def test_individual_feather():
+    common = { "Feather": 5.0, "FeatherAxisXoC": 0.3, "FeatherOffsetXoC": 0.1, "Precone": 4.0 }
+    for rev in ( False, True ):
+        d = blade_as_first( 3, 2, common,
+                            ( { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0 }, { "Feather": 17.0 } ),
+                            rev )
+        assert d < TOL, rev
+
+
+def test_individual_feather_and_fold():
+    common = { "Feather": 5.0, "FoldAngle": 10.0, "AzFoldDir": 12.0, "ElFoldDir": -8.0, "OffFoldAx": 0.05 }
+    own = ( { "IndividualBladeFeatherFlag": 1.0, "Feather_2": -9.0,
+              "IndividualBladeFoldFlag": 1.0, "FoldAngle_2": 40.0 },
+            { "Feather": -9.0, "FoldAngle": 40.0 } )
+    assert blade_as_first( 4, 3, common, own ) < TOL
+
+
+def test_other_blades_follow_feather():
+    pid = new_prop( 3, { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0 } )
+    assert vsp.GetParmVal( pid, "Feather_2", "Articulation" ) == 0.0
+    set_parms( pid, { "IndividualBladeFeatherFlag": 0.0, "Feather": 8.0 } )
+    assert vsp.GetParmVal( pid, "Feather_1", "Articulation" ) == 8.0
+    assert vsp.GetParmVal( pid, "Feather_2", "Articulation" ) == 8.0
+
+
+def test_beta34_drives_all_blades():
+    # While Beta34 drives, every blade takes the feather Beta34 gives; the blades' own angles
+    # are kept for when the feather angle drives again.
+    assert blade_as_first( 3, 2, { "UseBeta34Flag": 1.0 },
+                           ( { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0 }, {} ) ) < TOL
+    pid = new_prop( 3, { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0, "Feather": 4.0 } )
+    own = blade( pid, 1 )
+    set_parms( pid, { "UseBeta34Flag": 1.0 } )
+    assert vsp.GetParmVal( pid, "IndividualBladeFeatherFlag", "Articulation" ) == 1.0
+    assert vsp.GetParmVal( pid, "Feather_1", "Articulation" ) == 17.0
+    set_parms( pid, { "UseBeta34Flag": 0.0 } )
+    assert furthest( blade( pid, 1 ), own ) < TOL
+
+
+def test_individual_feather_round_trip():
+    pid = new_prop( 3, { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0, "Feather_2": -3.0 } )
+    want = [ blade( pid, s ) for s in range( 3 ) ]
+    path = os.path.join( tempfile.mkdtemp(), "feather.vsp3" )
+    vsp.WriteVSPFile( path )
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( path )
+    vsp.Update()
+    pid = vsp.FindGeoms()[0]
+    assert vsp.GetParmVal( pid, "Feather_2", "Articulation" ) == -3.0
+    assert max( furthest( blade( pid, s ), want[s] ) for s in range( 3 ) ) < TOL
+
+
+def turn_about( pts, origin, axis, deg ):
+    """Right-handed turn of points about the line through origin along a unit axis."""
+    c = math.cos( math.radians( deg ) )
+    s = math.sin( math.radians( deg ) )
+    out = []
+    for p in pts:
+        v = [ a - o for a, o in zip( p, origin ) ]
+        k = axis
+        kxv = ( k[1] * v[2] - k[2] * v[1], k[2] * v[0] - k[0] * v[2], k[0] * v[1] - k[1] * v[0] )
+        kv = sum( a * b for a, b in zip( k, v ) )
+        r = [ v[i] * c + kxv[i] * s + k[i] * kv * ( 1.0 - c ) for i in range( 3 ) ]
+        out.append( tuple( a + o for a, o in zip( r, origin ) ) )
+    return out
+
+
+def test_inboard_hinge_carries_outboard_hinge():
+    # Feather at 15% is inboard of fold at 20%, so the feather turns the folded blade, fold
+    # hinge and all, about the radial axis.
+    pid = new_prop( 2, { "FoldAngle": 30.0, "RFeatherAx": 0.15, "RFoldAx": 0.2 } )
+    folded = blade( pid, 0 )
+    set_parms( pid, { "Feather": 20.0 } )
+    want = turn_about( folded, ( 0.0, 0.0, 0.0 ), ( 0.0, 1.0, 0.0 ), 20.0 )
+    assert furthest( blade( pid, 0 ), want ) < TOL
+
+
+# Points on blades 1 and 2, ( surf, u, w, x, y, z ), written by OpenVSP 3.55.0 for propellers made
+# by the API with the parms in golden_case.
+GOLDEN_355 = {
+    'folded' : [(0, 0.1, 0.0, 0.102068687788, 3.018107222716, -0.474788340638), (0, 0.5, 0.25, 1.656669496648, 8.144322324634, -3.241483313763), (0, 0.9, 0.5, 3.365604326194, 13.01710766814, -6.445782368072), (0, 1.0, 0.8, 3.592971548255, 13.43416522963, -5.386769546626), (1, 0.1, 0.0, 0.304381804099, -2.10257858117, -2.381041830175), (1, 0.5, 0.25, -2.72199022689, -5.863032844569, -5.993454055169), (1, 0.9, 0.5, -5.789719877441, -9.99227121414, -9.229261985713), (1, 1.0, 0.8, -5.205272801517, -9.504396210717, -10.105355939423)] ,
+    'reversed' : [(0, 0.1, 0.0, -0.252769215708, 2.616872624342, -1.19062207651), (0, 0.5, 0.25, 1.358260914804, 8.310992331167, -2.344332916919), (0, 0.9, 0.5, 3.042213656354, 14.114835094232, -2.986002637898), (0, 1.0, 0.8, 3.442239445262, 13.718962495754, -4.001091438561), (1, 0.1, 0.0, -0.252769215708, -0.277327347607, 2.861589209403), (1, 0.5, 0.25, 1.358260914804, -2.125244304603, 8.369696947908), (1, 0.9, 0.5, 3.042213656354, -4.471463406929, 13.716807080782), (1, 1.0, 0.8, 3.442239445262, -3.394434419219, 13.88151575417)] ,
+}
+
+
+def golden_case( name ):
+    if name == "folded":
+        return False, { "Precone": 8.0, "Rotate": 20.0, "FoldAngle": 30.0, "AzFoldDir": 15.0,
+                        "ElFoldDir": -25.0, "AxFoldAx": 0.05, "OffFoldAx": 0.1, "RFoldAx": 0.25,
+                        "Feather": 12.0, "FeatherOffsetXoC": 0.1, "FeatherAxisXoC": 0.35,
+                        "IndividualBladeFoldFlag": 1.0, "FoldAngle_1": -20.0 }
+    return True, { "Precone": 5.0, "Rotate": -15.0, "FoldAngle": 25.0, "RFoldAx": 0.3,
+                   "Feather": 9.0, "FeatherAxisXoC": 0.3 }
+
+
+def test_matches_3_55_0():
+    # With the feather bearing at the tip, outboard of the fold as in 3.55.0, a propeller is
+    # placed exactly as 3.55.0 placed it.  The reversed case keeps to the parms 3.55.0 mirrored.
+    for name, pts in GOLDEN_355.items():
+        rev, parms = golden_case( name )
+        pid = new_prop( 3, dict( parms, RFeatherAx = 1.0 ), rev )
+        for s, u, w, x, y, z in pts:
+            p = vsp.CompPnt01( pid, s, u, w )
+            assert math.dist( ( p.x(), p.y(), p.z() ), ( x, y, z ) ) < 1e-9, ( name, s, u, w )
+
+
+def test_feather_turns_about_its_line():
+    # The feather axis is the radial line at the feather offset, FeatherOffsetXoC root chords aft.
+    pid = new_prop( 2, { "FeatherOffsetXoC": 0.2, "FeatherAxisXoC": 0.3 } )
+    unfeathered = blade( pid, 0 )
+    le = vsp.CompPnt01( pid, 0, 0.0, 0.5 )
+    te = vsp.CompPnt01( pid, 0, 0.0, 0.0 )
+    croot = math.dist( ( le.x(), le.y(), le.z() ), ( te.x(), te.y(), te.z() ) )
+    set_parms( pid, { "Feather": 20.0 } )
+    want = turn_about( unfeathered, ( 0.0, 0.0, 0.2 * croot ), ( 0.0, 1.0, 0.0 ), 20.0 )
+    assert furthest( blade( pid, 0 ), want ) < 1e-6
