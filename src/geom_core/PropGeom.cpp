@@ -312,6 +312,27 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_RadFeatherAxis.Init( "RFeatherAx", "Articulation", this, 0.15, 0.0, 1.0 );
     m_RadFeatherAxis.SetDescript( "Radial position of feather bearing as fraction of radius; orders it among the hinges" );
 
+    m_RadFlapAxis.Init( "RFlapAx", "Articulation", this, 0.05, 0.0, 1.0 );
+    m_RadFlapAxis.SetDescript( "Radial position of flap axis as fraction of radius" );
+
+    m_AxialFlapAxis.Init( "AxFlapAx", "Articulation", this, 0, -1.0, 1.0 );
+    m_AxialFlapAxis.SetDescript( "Axial position of flap axis as fraction of radius" );
+
+    m_OffsetFlapAxis.Init( "OffFlapAx", "Articulation", this, 0, -1.0, 1.0 );
+    m_OffsetFlapAxis.SetDescript( "Offset position of flap axis as fraction of radius" );
+
+    m_AzimuthFlapDir.Init( "AzFlapDir", "Articulation", this, 0.0, -90.0, 90.0 );
+    m_AzimuthFlapDir.SetDescript( "Azimuth angle of flap axis direction vector, theta_F" );
+
+    m_ElevationFlapDir.Init( "ElFlapDir", "Articulation", this, 0.0, -90.0, 90.0 );
+    m_ElevationFlapDir.SetDescript( "Elevation angle of flap axis direction vector, delta_3" );
+
+    m_FlapAngle.Init( "FlapAngle", "Articulation", this, 0.0, -1.0e12, 1.0e12 );
+    m_FlapAngle.SetDescript( "Blade flap angle" );
+
+    m_IndividualBladeFlapFlag.Init( "IndividualBladeFlapFlag", "Articulation", this, false, 0, 1 );
+    m_IndividualBladeFlapFlag.SetDescript( "Flag to enable individual blade flap angles" );
+
     m_RadFoldAxis.Init( "RFoldAx", "Design", this, 0.2, 0.0, 1.0 );
     m_RadFoldAxis.SetDescript( "Radial position of fold axis as fraction of radius" );
 
@@ -573,6 +594,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 //==== Destructor ====//
 PropGeom::~PropGeom()
 {
+    TrimParmVec( m_FlapAngleParmVec, 0 );
     TrimParmVec( m_FoldAngleParmVec, 0 );
     TrimParmVec( m_FeatherParmVec, 0 );
     TrimParmVec( m_BladeAzimuthParmVec, 0 );
@@ -794,6 +816,8 @@ int PropGeom::HingeDrawColor( int type )
 {
     switch ( type )
     {
+        case FLAP_HINGE:
+            return DrawObj::DODGER_BLUE;
         case FOLD_HINGE:
             return DrawObj::MEDIUM_ORCHID;
         case FEATHER_HINGE:
@@ -1477,6 +1501,14 @@ void PropGeom::UpdatePostSurf()
 
     CheckBalance();
 
+    if ( !m_IndividualBladeFlapFlag() )
+    {
+        for ( int i = 0; i < m_FlapAngleParmVec.size(); i++ )
+        {
+            m_FlapAngleParmVec[i]->Set( m_FlapAngle() );
+        }
+    }
+
     if ( !m_IndividualBladeFoldFlag() )
     {
         for ( int i = 0; i < m_FoldAngleParmVec.size(); i++ )
@@ -1520,6 +1552,7 @@ void PropGeom::UpdatePostSurf()
     // The Blade counter goes back to the first blade while no blade has its own angles.
     bool individual = m_IndividualBladeFoldFlag();
     individual = individual || IndividualBladeFeather();
+    individual = individual || m_IndividualBladeFlapFlag();
     if ( !individual )
     {
         m_ActiveBlade.Set( 1 );
@@ -1532,6 +1565,14 @@ void PropGeom::UpdatePostSurf()
     {
         rev = -1.0;
     }
+
+    // Flap hinge.  Its vector starts aft (+x); azimuth then elevation turn it, as for the fold
+    // hinge.
+    Matrix4d flap;
+    flap.rotateY( m_AzimuthFlapDir() );
+    flap.rotateZ( -m_ElevationFlapDir() );
+    m_FlapAxDirection = BladeAxisToProp( flap.xform( vec3d( 1, 0, 0 ) ), rev );
+    m_FlapAxOrigin = BladeToProp( vec3d( m_OffsetFlapAxis(), m_RadFlapAxis(), -m_AxialFlapAxis() ) * radius, rev );
 
     // Fold hinge.  Its vector starts forward (-x).
     Matrix4d fold;
@@ -2070,6 +2111,11 @@ static double GetBladeValue( const vector< Parm* > & vec, bool individual, int i
     return master;
 }
 
+double PropGeom::GetBladeFlapAngle( int iblade )
+{
+    return GetBladeValue( m_FlapAngleParmVec, m_IndividualBladeFlapFlag(), iblade, m_FlapAngle() );
+}
+
 double PropGeom::GetBladeFoldAngle( int iblade )
 {
     return GetBladeValue( m_FoldAngleParmVec, m_IndividualBladeFoldFlag(), iblade, m_FoldAngle() );
@@ -2111,6 +2157,7 @@ void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade )
 vector< BladeHinge > PropGeom::GetBladeHinges( int iblade )
 {
     vector< BladeHinge > hinges;
+    hinges.push_back( { m_RadFlapAxis(), FLAP_HINGE, m_FlapAxOrigin, m_FlapAxDirection, GetBladeFlapAngle( iblade ) } );
     hinges.push_back( { m_RadFoldAxis(), FOLD_HINGE, m_FoldAxOrigin, m_FoldAxDirection, GetBladeFoldAngle( iblade ) } );
     hinges.push_back( { m_RadFeatherAxis(), FEATHER_HINGE, m_FeatherAxOrigin, m_FeatherAxDirection, GetBladeFeather( iblade ) } );
 
@@ -2146,6 +2193,7 @@ void PropGeom::ReserveBlades( int n ) // Note:  n is m_Nblade() - 1
 
     if ( n < m_FoldAngleParmVec.size() )
     {
+        TrimParmVec( m_FlapAngleParmVec, n );
         TrimParmVec( m_FoldAngleParmVec, n );
         TrimParmVec( m_FeatherParmVec, n );
         TrimParmVec( m_BladeAzimuthParmVec, n );
@@ -2188,6 +2236,7 @@ void PropGeom::AddBlade()
     snprintf( str, sizeof( str ), " of blade %d", i + 2 );
     string blade( str );
 
+    AddBladeParm( m_FlapAngleParmVec, "FlapAngle", "Articulation", i + 1, m_FlapAngle(), -1.0e12, 1.0e12, "Flap angle" + blade );
     AddBladeParm( m_FoldAngleParmVec, "FoldAngle", "Design", i + 1, m_FoldAngle(), -180, 180, "Fold angle" + blade );
     AddBladeParm( m_FeatherParmVec, "Feather", "Articulation", i + 1, m_Feather(), -1.0e12, 1.0e12, "Feather angle" + blade );
     AddBladeParm( m_BladeAzimuthParmVec, "BladeAz", "Design", i + 2, 360.0 * i / ( double )m_Nblade(), 0, 360, "Propeller blade azimuth" );

@@ -134,6 +134,7 @@ public:
     // Blade hinge types, in their order where hinges share a radial place.
     enum
     {
+        FLAP_HINGE,
         FOLD_HINGE,
         FEATHER_HINGE,
         NUM_HINGE_TYPES
@@ -226,6 +227,16 @@ public:
 
     BoolParm m_ReverseFlag;
 
+    Parm m_RadFlapAxis;
+    Parm m_AxialFlapAxis;
+    Parm m_OffsetFlapAxis;
+    Parm m_AzimuthFlapDir;
+    Parm m_ElevationFlapDir;
+    Parm m_FlapAngle;
+
+    BoolParm m_IndividualBladeFlapFlag;
+    vector< Parm* > m_FlapAngleParmVec;
+
     Parm m_RadFoldAxis;
     Parm m_AxialFoldAxis;
     Parm m_OffsetFoldAxis;
@@ -239,6 +250,9 @@ public:
     BoolParm m_IndividualBladeFeatherFlag;
     vector< Parm* > m_FeatherParmVec;
     IntParm m_ActiveBlade;
+
+    vec3d m_FlapAxOrigin;
+    vec3d m_FlapAxDirection;
 
     vec3d m_FoldAxOrigin;
     vec3d m_FoldAxDirection;
@@ -313,6 +327,7 @@ protected:
 
     virtual void CheckBalance();
 
+    virtual double GetBladeFlapAngle( int iblade );
     virtual double GetBladeFoldAngle( int iblade );
     virtual double GetBladeFeather( int iblade );
     virtual void BladeRootMotion( Matrix4d & mat, int iblade );

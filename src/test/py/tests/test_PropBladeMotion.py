@@ -114,6 +114,50 @@ def test_individual_feather_round_trip():
     assert max( furthest( blade( pid, s ), want[s] ) for s in range( 3 ) ) < TOL
 
 
+def hinge_turn_error( pid, unflapped, origin, axis ):
+    """How far the blade is from a rigid turn of unflapped about the line through origin along
+    axis: every point must keep its distance from the line and its place along it."""
+    n = math.sqrt( sum( a * a for a in axis ) )
+    axis = [ a / n for a in axis ]
+    worst = 0.0
+    for p, q in zip( blade( pid, 0 ), unflapped ):
+        dp = [ a - o for a, o in zip( p, origin ) ]
+        dq = [ a - o for a, o in zip( q, origin ) ]
+        along_p = sum( a * b for a, b in zip( dp, axis ) )
+        along_q = sum( a * b for a, b in zip( dq, axis ) )
+        worst = max( worst, abs( along_p - along_q ), abs( math.hypot( *dp ) - math.hypot( *dq ) ) )
+    return worst
+
+
+def test_flap_turns_about_its_hinge():
+    radius = 15.0
+    hinge = { "RFlapAx": 0.1, "OffFlapAx": 0.02, "AxFlapAx": 0.03 }
+    pid = new_prop( 3, dict( hinge, Feather = 10.0 ) )
+    unflapped = blade( pid, 0 )
+    set_parms( pid, { "FlapAngle": 25.0 } )
+    origin = ( 0.03 * radius, 0.1 * radius, 0.02 * radius )
+    assert hinge_turn_error( pid, unflapped, origin, ( 0.0, 0.0, 1.0 ) ) < TOL
+    assert max( math.dist( p, q ) for p, q in zip( blade( pid, 0 ), unflapped ) ) > 1.0
+
+
+def test_individual_flap():
+    common = { "FlapAngle": 3.0, "RFlapAx": 0.08, "ElFlapDir": 15.0, "AzFlapDir": -5.0,
+               "Feather": 7.0, "FoldAngle": 12.0 }
+    own = ( { "IndividualBladeFlapFlag": 1.0, "FlapAngle_2": -6.0,
+              "IndividualBladeFeatherFlag": 1.0, "Feather_2": 11.0 },
+            { "FlapAngle": -6.0, "Feather": 11.0 } )
+    for rev in ( False, True ):
+        assert blade_as_first( 4, 3, common, own, rev ) < TOL, rev
+
+
+def test_other_blades_follow_flap():
+    pid = new_prop( 3, { "IndividualBladeFlapFlag": 1.0, "FlapAngle_1": 9.0 } )
+    assert vsp.GetParmVal( pid, "FlapAngle_2", "Articulation" ) == 0.0
+    set_parms( pid, { "IndividualBladeFlapFlag": 0.0, "FlapAngle": 4.0 } )
+    assert vsp.GetParmVal( pid, "FlapAngle_1", "Articulation" ) == 4.0
+    assert vsp.GetParmVal( pid, "FlapAngle_2", "Articulation" ) == 4.0
+
+
 def turn_about( pts, origin, axis, deg ):
     """Right-handed turn of points about the line through origin along a unit axis."""
     c = math.cos( math.radians( deg ) )
@@ -178,3 +222,35 @@ def test_feather_turns_about_its_line():
     set_parms( pid, { "Feather": 20.0 } )
     want = turn_about( unfeathered, ( 0.0, 0.0, 0.2 * croot ), ( 0.0, 1.0, 0.0 ), 20.0 )
     assert furthest( blade( pid, 0 ), want ) < 1e-6
+
+
+def skewed_axis( az, skew, base, about ):
+    """A hinge vector: base turned by skew about axis about (0 x, 2 z), then by az about y, in
+    propeller axes for normal rotation (blade x aft = +Z, z thrust = -X)."""
+    def rot( v, axis, deg ):
+        return turn_about( [ v ], ( 0.0, 0.0, 0.0 ), axis, deg )[0]
+    v = rot( base, about, skew )
+    return rot( v, ( 0.0, 1.0, 0.0 ), az )
+
+
+def test_skewed_flap_hinge():
+    # Flap: vector forward (-Z), skewed by -El about the shaft (blade z, -X), then Az about y;
+    # the blade turns right-handed about minus that vector by FlapAngle.
+    radius = 15.0
+    hinge = { "RFlapAx": 0.1, "OffFlapAx": 0.02, "AxFlapAx": 0.03, "AzFlapDir": 30.0, "ElFlapDir": 20.0 }
+    pid = new_prop( 2, hinge )
+    unflapped = blade( pid, 0 )
+    set_parms( pid, { "FlapAngle": 25.0 } )
+    vec = skewed_axis( 30.0, -20.0, ( 0.0, 0.0, -1.0 ), ( -1.0, 0.0, 0.0 ) )
+    origin = ( 0.03 * radius, 0.1 * radius, 0.02 * radius )
+    want = turn_about( unflapped, origin, tuple( -c for c in vec ), 25.0 )
+    assert furthest( blade( pid, 0 ), want ) < TOL
+
+
+def test_active_blade_kept_while_any_blade_motion_is_individual():
+    pid = new_prop( 4, { "IndividualBladeFlapFlag": 1.0 } )
+    vsp.SetParmVal( pid, "ActiveBlade", "Index", 3 )
+    set_parms( pid, { "FlapAngle": 4.0 } )
+    assert vsp.GetParmVal( pid, "ActiveBlade", "Index" ) == 3
+    set_parms( pid, { "IndividualBladeFlapFlag": 0.0 } )
+    assert vsp.GetParmVal( pid, "ActiveBlade", "Index" ) == 1

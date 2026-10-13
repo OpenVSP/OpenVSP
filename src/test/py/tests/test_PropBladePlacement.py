@@ -16,6 +16,7 @@ TOL = 1e-9
 
 # Each step changes blade motion only, the blade's shape, or its tessellation, or a mix.
 STEPS = [
+    { "FlapAngle": 6.0 },
     { "Diameter": 24.0 },
     { "LECluster": 0.1 },
     { "Rotate": 25.0, "Precone": 4.0 },
@@ -29,6 +30,7 @@ STEPS = [
     { "Feather": 3.0, "UseBeta34Flag": 0.0 },
     { "ReverseFlag": 1.0 },
     { "NumBlade": 5 },
+    { "RFlapAx": 0.12, "ElFlapDir": 15.0 },
     { "NumBlade": 3, "Tess_W": 21 },
 ]
 

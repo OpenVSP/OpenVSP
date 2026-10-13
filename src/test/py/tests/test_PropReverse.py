@@ -74,6 +74,13 @@ def test_individual_fold_mirrors():
     assert vsp.GetParmVal( pid, "FoldAngle_1", "Design" ) == 50.0
 
 
+def test_flap_hinge_mirrors():
+    for parms in ( { "FlapAngle": 12.0 },
+                   { "FlapAngle": -8.0, "AzFlapDir": 10.0, "ElFlapDir": 20.0, "OffFlapAx": 0.02,
+                     "AxFlapAx": -0.01, "RFlapAx": 0.1, "Feather": 10.0, "Precone": 3.0, "FoldAngle": 20.0 } ):
+        assert reverse_mirror_error( parms ) < TOL, parms
+
+
 def test_current_file_unchanged():
     parms = { "FeatherOffsetXoC": 0.2, "Feather": 10.0, "FoldAngle": 30.0, "AzFoldDir": 15.0,
               "ElFoldDir": -25.0, "OffFoldAx": 0.1 }
