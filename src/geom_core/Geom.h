@@ -1072,6 +1072,9 @@ protected:
     virtual void UpdateFeatureLines();
     virtual void UpdateLCurve();
     virtual void UpdateFlags();
+    void CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success );
+    void UpdateCapParms();
+    void UpdateSurfFlags( VspSurf & surf );
     virtual void UpdateSymmAttach( int num_main );
     virtual void UpdateSymmAttach();
     virtual void UpdateSurfVec();

@@ -2243,15 +2243,26 @@ void Geom::UpdateEndCaps( int ncap )
     // cycle through the first ncap vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
     for ( int i = 0; i < ncap; i++ )
     {
-        m_CapUMinSuccess[i] = false;
-        m_CapUMaxSuccess[i] = false;
-
-        vec3d ptoff;
-        // NOTE: These return a bool that is true if it modified the surface to create a cap
-        m_CapUMinSuccess[i] = m_MainSurfVec[i].CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag());
-        m_CapUMaxSuccess[i] = m_MainSurfVec[i].CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag());
+        bool umin, umax;
+        CapSurf( m_MainSurfVec[i], umin, umax );
+        m_CapUMinSuccess[i] = umin;
+        m_CapUMaxSuccess[i] = umax;
     }
 
+    UpdateCapParms();
+}
+
+// Cap one surface by the end cap parms.  Each flag is true where the surface was given a cap.
+void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success )
+{
+    vec3d ptoff;
+    umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag());
+    umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag());
+}
+
+// Set the end cap parms each cap option fixes.
+void Geom::UpdateCapParms()
+{
     switch( m_CapUMinOption() ){
         case NO_END_CAP:
         case FLAT_END_CAP:
@@ -2806,20 +2817,26 @@ void Geom::UpdateFlags( )
 
     for( int i = 0; i < (int)m_MainSurfVec.size(); i++ )
     {
-        if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_TRANSPARENT )
-        {
-            // Transparent surfaces (actuator disks) can't be negative
-            continue;
-        }
+        UpdateSurfFlags( m_MainSurfVec[i] );
+    }
+}
 
-        if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_NORMAL && m_NegativeVolumeFlag.Get() )
-        {
-            m_MainSurfVec[i].SetSurfCfdType( vsp::CFD_NEGATIVE );
-        }
-        else if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_NEGATIVE && !m_NegativeVolumeFlag.Get() )
-        {
-            m_MainSurfVec[i].SetSurfCfdType( vsp::CFD_NORMAL );
-        }
+// Make a surface negative or normal by the negative volume flag.
+void Geom::UpdateSurfFlags( VspSurf & surf )
+{
+    if ( surf.GetSurfCfdType() == vsp::CFD_TRANSPARENT )
+    {
+        // Transparent surfaces (actuator disks) can't be negative
+        return;
+    }
+
+    if ( surf.GetSurfCfdType() == vsp::CFD_NORMAL && m_NegativeVolumeFlag.Get() )
+    {
+        surf.SetSurfCfdType( vsp::CFD_NEGATIVE );
+    }
+    else if ( surf.GetSurfCfdType() == vsp::CFD_NEGATIVE && !m_NegativeVolumeFlag.Get() )
+    {
+        surf.SetSurfCfdType( vsp::CFD_NORMAL );
     }
 }
 
