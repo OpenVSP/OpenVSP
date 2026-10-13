@@ -1919,13 +1919,33 @@ void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade )
     mat.rotateZ( m_Precone() );
 }
 
+// The blade's hinges, hub to tip by radial place; hinges at one place go in the order of their types.
+vector< BladeHinge > PropGeom::GetBladeHinges( int iblade )
+{
+    vector< BladeHinge > hinges;
+    hinges.push_back( { m_RadFoldAxis(), FOLD_HINGE, m_FoldAxOrigin, m_FoldAxDirection, GetBladeFoldAngle( iblade ) } );
+
+    std::sort( hinges.begin(), hinges.end(), []( const BladeHinge & a, const BladeHinge & b )
+    {
+        if ( a.m_Radius != b.m_Radius )
+        {
+            return a.m_Radius < b.m_Radius;
+        }
+        return a.m_Type < b.m_Type;
+    } );
+
+    return hinges;
+}
+
 void PropGeom::RigidBladeMotion( Matrix4d & mat, int iblade )
 {
     BladeRootMotion( mat, iblade );
 
-    double foldangle = GetBladeFoldAngle( iblade );
-    mat.rotateAbout( foldangle, m_FoldAxDirection, m_FoldAxOrigin );
-
+    vector< BladeHinge > hinges = GetBladeHinges( iblade );
+    for ( int i = 0; i < ( int )hinges.size(); i++ )
+    {
+        mat.rotateAbout( hinges[i].m_Angle, hinges[i].m_Axis, hinges[i].m_Origin );
+    }
 }
 
 void PropGeom::ReserveBlades( int n ) // Note:  n is m_Nblade() - 1

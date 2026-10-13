@@ -107,6 +107,16 @@ public:
     virtual bool GetRotorHubDiameter( double &hubdia ) const = 0;
 };
 
+//==== A hinge between a propeller's hub and blade ====//
+struct BladeHinge
+{
+    double m_Radius;    // Radial place, fraction of radius.
+    int m_Type;         // One of PropGeom's hinge types.
+    vec3d m_Origin;     // A point on the hinge line, all hinges undeflected.
+    vec3d m_Axis;
+    double m_Angle;     // Turns right-handed about m_Axis, as Matrix4d::rotateAbout does.
+};
+
 //==== Propeller Geom ====//
 class PropGeom : public GeomXSec, public RotorRole
 {
@@ -121,6 +131,12 @@ public:
     virtual void SetMarkerVisibility( Geom* placer, vector< DrawObj > &marker_vec );
 
     virtual void ComputeCenter();
+
+    // Blade hinge types, in their order where hinges share a radial place.
+    enum
+    {
+        FOLD_HINGE,
+    };
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -279,6 +295,7 @@ protected:
 
     virtual double GetBladeFoldAngle( int iblade );
     virtual void BladeRootMotion( Matrix4d & mat, int iblade );
+    virtual vector< BladeHinge > GetBladeHinges( int iblade );
     virtual void RigidBladeMotion( Matrix4d & mat, int iblade );
 
     virtual void EnforceOrder( PropXSec* xs, int indx );
