@@ -1198,7 +1198,7 @@ void CloneGeom::UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, 
     Geom::UpdateSplitTesselate( surf, capUMinSuccess, capUMaxSuccess, pnts, norms );
 }
 
-void CloneGeom::UpdateEndCaps( int ncap )
+void CloneGeom::UpdateEndCaps()
 {
     if ( m_CappingDone )
     {

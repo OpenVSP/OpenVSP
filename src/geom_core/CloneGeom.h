@@ -52,7 +52,7 @@ public:
                                        vector< vector< vector< vec3d > > > &norms ) const override;
 
     // The copied surfaces are already capped; take the original's results.
-    virtual void UpdateEndCaps( int ncap = -1 ) override;
+    virtual void UpdateEndCaps() override;
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node ) override;
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node ) override;

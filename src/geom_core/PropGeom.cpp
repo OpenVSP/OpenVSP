@@ -395,6 +395,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_ActiveXSec = 0;
 
+    m_BladeCapUMinSuccess = false;
+    m_BladeCapUMaxSuccess = false;
+
     m_XSecSurf.SetXSecType( XSEC_PROP );
 
     m_XSecSurf.AddXSec( XS_ELLIPSE );
@@ -975,24 +978,7 @@ void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const doubl
 //==== Update Fuselage And Cross Section Placement ====//
 void PropGeom::UpdateSurf()
 {
-    ReserveBlades( m_Nblade() - 1 );
-
-    UpdateBladeAzimuth();
-
-    CheckBalance();
-
     NormalizeFlaps();
-
-    if ( !m_IndividualBladeFoldFlag() )
-    {
-        m_ActiveBlade.Set( 1 );
-        for ( int i = 0; i < m_FoldAngleParmVec.size(); i++ )
-        {
-            m_FoldAngleParmVec[i]->Set( m_FoldAngle() );
-        }
-    }
-
-    m_ActiveBlade.SetUpperLimit( m_Nblade() );
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
 
@@ -1072,10 +1058,6 @@ void PropGeom::UpdateSurf()
     m_TChord.Set( 3.0 * m_ChordCurve.IntegrateCrv_rsq( rfirst ) / ( 1.0 - r03 ) );
     m_PChord.Set( 4.0 * m_ChordCurve.IntegrateCrv_rcub( rfirst ) / ( 1.0 - r04 ) );
 
-    m_Solidity.Set( m_Chord() * m_Nblade() / M_PI );
-    m_TSolidity.Set( m_TChord() * m_Nblade() / M_PI );
-    m_PSolidity.Set( m_PChord() * m_Nblade() / M_PI );
-
     if ( m_UseBeta34Flag() == 1 )
     {
         if ( rfirst <= 0.75 )
@@ -1104,13 +1086,6 @@ void PropGeom::UpdateSurf()
         m_Beta34.Deactivate();
         m_Feather.Activate();
     }
-
-    // Fold hinge.  Its vector starts forward (-x).
-    Matrix4d fold;
-    fold.rotateY( m_AzimuthFoldDir() );
-    fold.rotateZ( -m_ElevationFoldDir() );
-    m_FoldAxDirection = BladeAxisToProp( fold.xform( vec3d( -1, 0, 0 ) ), rev );
-    m_FoldAxOrigin = BladeToProp( vec3d( m_OffsetFoldAxis(), m_RadFoldAxis(), -m_AxialFoldAxis() ) * radius, rev );
 
 
     //==== Cross Section Curves & joint info ====//
@@ -1197,10 +1172,6 @@ void PropGeom::UpdateSurf()
             }
         }
     }
-
-    // Do not clear m_MainSurfVec.  The blades below are duplicates of a single computed blade;
-    // assigning into the existing surfaces reuses their control-point storage across updates
-    // instead of freeing and rebuilding it.  Disk-only mode (no blades) is reset in the else.
 
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
@@ -1401,98 +1372,49 @@ void PropGeom::UpdateSurf()
         m_FoilSurf = VspSurf();
         m_FoilSurf.SkinC0Uniform(crv_vec, m_UPseudo, false );
 
-        m_MainSurfVec.reserve( m_Nblade() + 1 );
+        // Build the one blade.  UpdatePostSurf makes a copy of it for each blade.
+        m_BladeSurf = VspSurf();
 
-        // Build blade 0 in a clean surface in slot 0, keeping any existing duplicate slots alive
-        // for reuse below.  Slot 0 is skinned from scratch regardless, so resetting it is free.
-        if ( m_MainSurfVec.empty() )
-        {
-            m_MainSurfVec.resize( 1 );
-        }
-        m_MainSurfVec[0] = VspSurf();
+        m_BladeSurf.SetMagicVParm( false );
+        m_BladeSurf.SkinCubicSpline(rib_vec, m_UPseudo, tdisc, false );
 
-        m_MainSurfVec[0].SetMagicVParm( false );
-        m_MainSurfVec[0].SkinCubicSpline(rib_vec, m_UPseudo, tdisc, false );
-
-        m_MainSurfVec[0].SetMagicVParm( true );
-        m_MainSurfVec[0].SetSurfType( WING_SURF );
-        m_MainSurfVec[0].SetSurfCfdType( vsp::CFD_NORMAL );  // Make sure set to default, can be updated later.
+        m_BladeSurf.SetMagicVParm( true );
+        m_BladeSurf.SetSurfType( WING_SURF );
+        m_BladeSurf.SetSurfCfdType( vsp::CFD_NORMAL );  // Make sure set to default, can be updated later.
 
         m_FoilSurf.SetMagicVParm( true );
 
-        m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
+        m_BladeSurf.SetFoilSurf( &m_FoilSurf );
 
         if ( m_XSecSurf.GetFlipUD() )
         {
-            m_MainSurfVec[0].FlipNormal();
+            m_BladeSurf.FlipNormal();
         }
 
         if ( this->m_ReverseFlag() )
         {
-            m_MainSurfVec[0].FlipNormal();
+            m_BladeSurf.FlipNormal();
         }
 
-        // Cap only blade 0 here so we only have to cap one blade; the copies inherit its caps.
-        UpdateEndCaps( 1 );
-
-        m_BladeSurf = m_MainSurfVec[0];
-
-        // Duplicate blade 0 into the remaining blade slots, assigning in place so the existing
-        // surface storage is reused rather than reallocated.
-        m_MainSurfVec.resize( m_Nblade() );
-        for ( int i = 1; i < m_Nblade(); i++ )
-        {
-            m_MainSurfVec[i] = m_BladeSurf;
-        }
-
-        // Duplicate capping variables (all blades share blade 0's cap result).
-        m_CapUMinSuccess.resize( m_Nblade() );
-        m_CapUMaxSuccess.resize( m_Nblade() );
-        for ( int i = 1; i < m_Nblade(); i++ )
-        {
-            m_CapUMinSuccess[i] = m_CapUMinSuccess[0];
-            m_CapUMaxSuccess[i] = m_CapUMaxSuccess[0];
-        }
+        // Cap the one blade; the copies inherit its caps.
+        UpdateEndCaps();
 
         m_MainBladeBBox.Reset();
         m_BladeSurf.GetBoundingBox( m_MainBladeBBox );
-
-
-
-        Matrix4d rigid;
-        for ( int i = 0; i < m_Nblade(); i++ )
-        {
-            RigidBladeMotion( rigid, i );
-            m_MainSurfVec[i].Transform( rigid );
-        }
-    }
-    else
-    {
-        // Disk-only mode: no blades.  Reset so the disk becomes the sole main surface below.
-        m_MainSurfVec.resize( 0 );
     }
 
     // Build disk surface.
     if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
     {
-        unsigned int nsurf = m_MainSurfVec.size() + 1;
-        unsigned int idisk = nsurf - 1;
-
-        m_MainSurfVec.resize( nsurf );
-        m_CapUMinSuccess.resize( nsurf );
-        m_CapUMaxSuccess.resize( nsurf );
-
-        m_MainSurfVec[ idisk ].CreateDisk( m_Diameter(), Y_DIR, Z_DIR );
-        m_MainSurfVec[ idisk ].SetSurfType( vsp::DISK_SURF );
-        m_MainSurfVec[ idisk ].SetSurfCfdType( vsp::CFD_TRANSPARENT );
-        m_MainSurfVec[ idisk ].SetMagicVParm( false );
-
-        m_CapUMinSuccess[ idisk ] = false;
-        m_CapUMaxSuccess[ idisk ] = false;
+        m_DiskSurf = VspSurf();
+        m_DiskSurf.CreateDisk( m_Diameter(), Y_DIR, Z_DIR );
+        m_DiskSurf.SetSurfType( vsp::DISK_SURF );
+        m_DiskSurf.SetSurfCfdType( vsp::CFD_TRANSPARENT );
+        m_DiskSurf.SetMagicVParm( false );
 
         if ( !m_ReverseFlag() )
         {
-            m_MainSurfVec[idisk].FlipNormal();
+            m_DiskSurf.FlipNormal();
         }
 
         if ( m_PropMode() == PROP_MODE::PROP_DISK )
@@ -1504,9 +1426,139 @@ void PropGeom::UpdateSurf()
             m_CappingDone = true;
         }
     }
-    
-    //When props blades are removed we need to remove its sub-surface from list of sub-surfaces
-    //If sub-surface index is greater then amount of GetNumMainSurfs(), we remove sub-surface 
+}
+
+// Cap the one blade; its copies take its caps.
+void PropGeom::UpdateEndCaps()
+{
+    if ( m_CappingDone )
+    {
+        return;
+    }
+    m_CappingDone = true;
+
+    CapSurf( m_BladeSurf, m_BladeCapUMinSuccess, m_BladeCapUMaxSuccess );
+    UpdateCapParms();
+}
+
+void PropGeom::UpdateFeatureLines()
+{
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+    {
+        m_BladeSurf.BuildFeatureLines( m_ForceXSecFlag );
+    }
+    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
+    {
+        m_DiskSurf.BuildFeatureLines( m_ForceXSecFlag );
+    }
+}
+
+void PropGeom::UpdateLCurve()
+{
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+    {
+        m_BladeSurf.InitUMapping();
+        m_BladeSurf.BuildLCurve();
+    }
+    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
+    {
+        m_DiskSurf.InitUMapping();
+        m_DiskSurf.BuildLCurve();
+    }
+}
+
+void PropGeom::UpdateFlags()
+{
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+    {
+        UpdateSurfFlags( m_BladeSurf );
+    }
+    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
+    {
+        UpdateSurfFlags( m_DiskSurf );
+    }
+}
+
+// Make and place the blades: the per-blade values, the hinges, then each blade's rigid motion.
+void PropGeom::UpdatePostSurf()
+{
+    ReserveBlades( m_Nblade() - 1 );
+
+    m_ActiveBlade.SetUpperLimit( m_Nblade() );
+
+    m_Solidity.Set( m_Chord() * m_Nblade() / M_PI );
+    m_TSolidity.Set( m_TChord() * m_Nblade() / M_PI );
+    m_PSolidity.Set( m_PChord() * m_Nblade() / M_PI );
+
+    UpdateBladeAzimuth();
+
+    CheckBalance();
+
+    if ( !m_IndividualBladeFoldFlag() )
+    {
+        for ( int i = 0; i < m_FoldAngleParmVec.size(); i++ )
+        {
+            m_FoldAngleParmVec[i]->Set( m_FoldAngle() );
+        }
+    }
+
+    // The Blade counter goes back to the first blade while no blade has its own angles.
+    bool individual = m_IndividualBladeFoldFlag();
+    if ( !individual )
+    {
+        m_ActiveBlade.Set( 1 );
+    }
+
+    double radius = m_Diameter() / 2.0;
+
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
+
+    // Fold hinge.  Its vector starts forward (-x).
+    Matrix4d fold;
+    fold.rotateY( m_AzimuthFoldDir() );
+    fold.rotateZ( -m_ElevationFoldDir() );
+    m_FoldAxDirection = BladeAxisToProp( fold.xform( vec3d( -1, 0, 0 ) ), rev );
+    m_FoldAxOrigin = BladeToProp( vec3d( m_OffsetFoldAxis(), m_RadFoldAxis(), -m_AxialFoldAxis() ) * radius, rev );
+
+    // A slot for each blade, then the disk, if any.  The slots that stay keep their storage, so
+    // copying into them does not allocate.
+    int nblade = 0;
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+    {
+        nblade = m_Nblade();
+    }
+    int nsurf = nblade;
+    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
+    {
+        nsurf++;
+    }
+
+    m_MainSurfVec.resize( nsurf );
+    m_CapUMinSuccess.resize( nsurf );
+    m_CapUMaxSuccess.resize( nsurf );
+
+    Matrix4d rigid;
+    for ( int i = 0; i < nblade; i++ )
+    {
+        m_MainSurfVec[i] = m_BladeSurf;
+        RigidBladeMotion( rigid, i );
+        m_MainSurfVec[i].Transform( rigid );
+        m_CapUMinSuccess[i] = m_BladeCapUMinSuccess;
+        m_CapUMaxSuccess[i] = m_BladeCapUMaxSuccess;
+    }
+
+    if ( nsurf > nblade )
+    {
+        m_MainSurfVec[ nblade ] = m_DiskSurf;
+        m_CapUMinSuccess[ nblade ] = false;
+        m_CapUMaxSuccess[ nblade ] = false;
+    }
+
+    // Remove the sub-surfaces of blades that are gone.
     int count = 0;
     vector<SubSurface*> subsurf_vec_temp = GetSubSurfVec();
     for ( int i = 0; i < subsurf_vec_temp.size(); i++ )
@@ -1520,8 +1572,28 @@ void PropGeom::UpdateSurf()
     }
 }
 
+// The parms that only move the finished blades.
+bool PropGeom::MovesBladesOnly( Parm* parm_ptr )
+{
+    vector< Parm* > movers = { &m_Nblade, &m_Rotate, &m_Precone,
+                               &m_FoldAngle, &m_IndividualBladeFoldFlag, &m_RadFoldAxis, &m_AxialFoldAxis,
+                               &m_OffsetFoldAxis, &m_AzimuthFoldDir, &m_ElevationFoldDir,
+                               &m_BladeAzimuthMode, &m_BladeAzimuthDeltaFlag, &m_BalanceX1, &m_BalanceX2 };
+    movers.insert( movers.end(), m_FoldAngleParmVec.begin(), m_FoldAngleParmVec.end() );
+    movers.insert( movers.end(), m_BladeAzimuthParmVec.begin(), m_BladeAzimuthParmVec.end() );
+    movers.insert( movers.end(), m_BladeDeltaAzimuthParmVec.begin(), m_BladeDeltaAzimuthParmVec.end() );
+
+    return std::find( movers.begin(), movers.end(), parm_ptr ) != movers.end();
+}
+
 void PropGeom::SetDirtyFlags( Parm* parm_ptr )
 {
+    if ( parm_ptr && MovesBladesOnly( parm_ptr ) )
+    {
+        m_PostSurfDirty = true;
+        return;
+    }
+
     // The hinge markers are drawn on the active blade.
     if ( parm_ptr == &m_ActiveBlade )
     {
@@ -1543,14 +1615,6 @@ void PropGeom::UpdateMainTessVec()
 
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
-        // Copy non-surface data from m_MainSurfVec.  Geom::Update() does various 'things' to m_MainSurfVec
-        // between UpdateSurf() (when it is copied to m_BladeSurf) and here (UpdateMainTessVec).
-        // Some of these need to be applied to m_BladeSurf before the calls to UpdateSplitTesselate and
-        // TessU/WFeatureLine.  These include: VspSurf::InitUMapping(); and
-        // VspSurf::BuildFeatureLines( m_ForceXSecFlag );.  Rather than attempting to only copy exactly the
-        // required information, CopyNonSurfaceData takes an everything-but-the-kitchen-sink approach.
-        m_BladeSurf.CopyNonSurfaceData( m_MainSurfVec[ 0 ] );
-
         // Tessellate the single blade into reusable scratch members, then copy it into each
         // blade slot in place.  Resize to nmain (not nblade) so a trailing disk slot, if any,
         // is retained for reuse below rather than destroyed and rebuilt.
@@ -2101,12 +2165,19 @@ void PropGeom::AddBlade()
 
 void PropGeom::CalculateMeshMetrics()
 {
+    // The blade, or the disk in disk-only mode.
+    const VspSurf * surf = &m_BladeSurf;
+    if ( m_PropMode() == PROP_MODE::PROP_DISK )
+    {
+        surf = &m_DiskSurf;
+    }
+
     std::vector<double> vcheck( 8 );
 
     double vmin, vmax, vle, vlelow, vleup, vtruemax;
 
     vmin = 0.0;
-    vmax = GetMainWMax(0);
+    vmax = surf->GetWMax();
     vtruemax = vmax;
 
     vle = ( vmin + vmax ) * 0.5;
@@ -2142,7 +2213,7 @@ void PropGeom::CalculateMeshMetrics()
         {
             double u = m_UPseudo[ j ];
 
-            double d = dist( m_MainSurfVec[0].CompPnt( u, v1 ), m_MainSurfVec[0].CompPnt( u, v2 ) );
+            double d = dist( surf->CompPnt( u, v1 ), surf->CompPnt( u, v2 ) );
             mind = min( mind, d );
         }
     }
@@ -2676,6 +2747,8 @@ void PropGeom::UpdatePreTess()
 {
     // Update clustering before symmetry is applied for m_SurfVec
     m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
+    m_BladeSurf.SetClustering( m_LECluster(), m_TECluster() );
+    m_DiskSurf.SetClustering( m_LECluster(), m_TECluster() );
 
     int nsurf = GetNumMainSurfs();
     for ( int i = 0; i < nsurf; i++ )

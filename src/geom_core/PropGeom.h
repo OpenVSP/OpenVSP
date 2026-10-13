@@ -288,7 +288,13 @@ protected:
     virtual void ChangeID( const string &id );
 
     virtual void UpdateSurf();
+    virtual void UpdateEndCaps();
+    virtual void UpdateFeatureLines();
+    virtual void UpdateLCurve();
+    virtual void UpdateFlags();
+    virtual void UpdatePostSurf();
     virtual void SetDirtyFlags( Parm* parm_ptr );
+    virtual bool MovesBladesOnly( Parm* parm_ptr );
     virtual void UpdateMainTessVec();
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateBladeAzimuth();
@@ -325,7 +331,12 @@ protected:
 
     Vsp1DCurve m_rtou;
     VspSurf m_FoilSurf;
+    // The one blade and the disk.  UpdateSurf builds them and the finishing passes work on them;
+    // UpdatePostSurf copies them into the main surfaces.
     VspSurf m_BladeSurf;
+    VspSurf m_DiskSurf;
+    bool m_BladeCapUMinSuccess;
+    bool m_BladeCapUMaxSuccess;
 
     // Tessellation of the single computed blade, kept across updates so the per-blade duplicate
     // tessellations can be assigned into existing buffers rather than cleared and reallocated.

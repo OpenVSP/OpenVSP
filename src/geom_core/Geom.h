@@ -1067,10 +1067,7 @@ protected:
     long long m_UpdateStamp;
 
     virtual void UpdateSurf() = 0;
-    // Cap the first ncap main surfaces (ncap < 0 means all of them).  Capping fewer than all is
-    // used by Geoms whose main surfaces are copies of one computed surface (e.g. prop blades),
-    // so only the single source surface needs capping before it is duplicated.
-    virtual void UpdateEndCaps( int ncap = -1 );
+    virtual void UpdateEndCaps();
     virtual void UpdateEngine()   {};
     virtual void UpdateFeatureLines();
     virtual void UpdateLCurve();
