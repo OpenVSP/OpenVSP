@@ -600,6 +600,9 @@ public:
          degen_vec = m_MainDegenGeomPreviewVec;
     }
 
+    // The points of surface isurf, symmetric copies included, as the display type shows it.
+    virtual bool GetDisplayTessPnts( int isurf, vector< vec3d > & pnts );
+
     // Whether capping changed each main surface.  A Clone copies these with the capped surfaces.
     virtual void GetCapSuccessCopy( vector< bool > & umin_vec, vector< bool > & umax_vec ) const
     {

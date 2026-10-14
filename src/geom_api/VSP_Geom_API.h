@@ -12015,6 +12015,77 @@ extern int GetGeomDisplayType( const std::string &geom_id );
     \ingroup Visualization
 */
 /*!
+    Get the points of one surface of a Geom as its display type sets them.  In Bezier display these are the points of
+    its tessellation, patch by patch and row by row.  In the degen display types they are the points of the surface's
+    DegenGeom preview, row by row, from which the plate and camber displays are drawn too; a surface without a
+    preview, such as a propeller's disk, gives none.  The surfaces include the symmetric copies, numbered as for the
+    Geom's other surface queries.  The points reflect the last Update, which makes the tessellation of the display
+    type that is set.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "POD" );
+    Update();
+
+    // The tessellation spans the pod's length, in either display.
+    double len = GetParmVal( FindParm( pid, "Length", "Design" ) );
+
+    for ( int i = 0; i < 2; i++ )
+    {
+        if ( i == 1 )
+        {
+            SetGeomDisplayType( pid, DISPLAY_DEGEN_SURF );
+            Update();
+        }
+
+        array < vec3d > @pnts = GetGeomDisplayTessPnts( pid, 0 );
+
+        double xmin = 1e12;
+        double xmax = -1e12;
+        for ( int j = 0; j < int( pnts.size() ); j++ )
+        {
+            xmin = Min( xmin, pnts[j].x() );
+            xmax = Max( xmax, pnts[j].x() );
+        }
+
+        if ( pnts.size() == 0 || abs( xmax - xmin - len ) > 1e-9 )
+        {
+            Print( "ERROR: GetGeomDisplayTessPnts did not span the pod" );
+            __failure++;
+        }
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "POD" )
+    Update()
+
+    # The tessellation spans the pod's length, in either display.
+    length = GetParmVal( FindParm( pid, "Length", "Design" ) )
+
+    for display in ( DISPLAY_BEZIER, DISPLAY_DEGEN_SURF ):
+        SetGeomDisplayType( pid, display )
+        Update()
+
+        pnts = GetGeomDisplayTessPnts( pid, 0 )
+        xs = [ p.x() for p in pnts ]
+
+        assert len( xs ) > 0 and abs( max( xs ) - min( xs ) - length ) < 1e-9, "GetGeomDisplayTessPnts did not span the pod"
+
+    \endcode
+    \endPythonOnly
+    \sa DISPLAY_TYPE, SetGeomDisplayType, GetTotalNumSurfs
+    \param [in] geom_id string Geom ID
+    \param [in] surf_index int Index of the surface, from 0 to the total number of surfaces - 1
+    \return vector\<vec3d\> Points of the surface, or an empty vector on an error
+*/
+
+extern std::vector< vec3d > GetGeomDisplayTessPnts( const std::string &geom_id, int surf_index );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
     Get the wireframe color of the specified geometry.  The color components are returned in the
     X, Y and Z members of the vector as red, green and blue over the range [0, 255].
     \forcpponly

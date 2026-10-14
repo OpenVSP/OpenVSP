@@ -294,6 +294,7 @@ private:
     CScriptArray* GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, CScriptArray* xyz_data );
     CScriptArray* GetEllipsoidSurfPnts( const vec3d& center, const vec3d& abc_rad, int u_npts = 20, int w_npts = 20 );
     CScriptArray* GetFeatureLinePnts( const string & geom_id );
+    CScriptArray* GetGeomDisplayTessPnts( const string & geom_id, int surf_index );
     CScriptArray* GetEllipsoidCpDist( CScriptArray* surf_pnt_vec, const vec3d& abc_rad, const vec3d& V_inf );
 
     CScriptArray* GetAirfoilCoordinates( const string & geom_id, const double &foilsurf_u );

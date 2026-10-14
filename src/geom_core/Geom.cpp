@@ -3988,6 +3988,58 @@ void Geom::UpdateDegenGeomPreview()
     ApplySymm( m_MainDegenGeomPreviewVec, m_DegenGeomPreviewVec );
 }
 
+// The tessellation in Bezier display, patch by patch and row by row; the surface of the DegenGeom
+// preview in the degen displays, row by row, and none for a surface without a preview.  False if
+// isurf is out of range.
+bool Geom::GetDisplayTessPnts( int isurf, vector< vec3d > & pnts )
+{
+    pnts.clear();
+
+    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
+    {
+        if ( isurf < 0 || isurf >= ( int )m_TessVec.size() )
+        {
+            return false;
+        }
+
+        const vector< vector< vector< vec3d > > > & patches = m_TessVec[ isurf ].m_pnts;
+        for ( int i = 0; i < ( int )patches.size(); i++ )
+        {
+            for ( int j = 0; j < ( int )patches[i].size(); j++ )
+            {
+                pnts.insert( pnts.end(), patches[i][j].begin(), patches[i][j].end() );
+            }
+        }
+        return true;
+    }
+
+    if ( isurf < 0 || isurf >= ( int )m_MainSurfIndxVec.size() )
+    {
+        return false;
+    }
+
+    // A preview with fewer main surfaces than the Geom holds their copies main by main, as ApplySymm
+    // makes them.
+    int idegen = isurf;
+    if ( m_DegenGeomPreviewVec.size() != m_MainSurfIndxVec.size() )
+    {
+        int ncopy = GetNumSymmCopies();
+        int imain = m_MainSurfIndxVec[ isurf ];
+        if ( ncopy < 1 || imain >= ( int )m_DegenGeomPreviewVec.size() / ncopy )
+        {
+            return true;
+        }
+        idegen = imain * ncopy + m_SurfCopyIndx[ isurf ];
+    }
+
+    const vector< vector< vec3d > > & rows = m_DegenGeomPreviewVec[ idegen ].getDegenSurf().x;
+    for ( int i = 0; i < ( int )rows.size(); i++ )
+    {
+        pnts.insert( pnts.end(), rows[i].begin(), rows[i].end() );
+    }
+    return true;
+}
+
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
 {

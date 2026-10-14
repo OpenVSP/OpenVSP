@@ -4153,6 +4153,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction("int GetGeomDisplayType( const string & in geom_id )", asFUNCTION(vsp::GetGeomDisplayType), asCALL_CDECL);
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetGeomDisplayTessPnts( const string & in geom_id, int surf_index )", asMETHOD( ScriptMgrSingleton, GetGeomDisplayTessPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction("void SetGeomDisplayType( const string & in geom_id, int type )", asFUNCTION(vsp::SetGeomDisplayType), asCALL_CDECL);
     assert( r >= 0 );
@@ -8481,6 +8483,13 @@ CScriptArray* ScriptMgrSingleton::GetEllipsoidSurfPnts( const vec3d& center, con
 CScriptArray* ScriptMgrSingleton::GetFeatureLinePnts( const string & geom_id )
 {
     m_ProxyVec3dArray = vsp::GetFeatureLinePnts( geom_id );
+
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetGeomDisplayTessPnts( const string & geom_id, int surf_index )
+{
+    m_ProxyVec3dArray = vsp::GetGeomDisplayTessPnts( geom_id, surf_index );
 
     return GetProxyVec3dArray();
 }

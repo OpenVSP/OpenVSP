@@ -3920,6 +3920,28 @@ int GetGeomDisplayType( const std::string &geom_id )
     return geom_ptr->m_GuiDraw.GetDisplayType();
 }
 
+std::vector< vec3d > GetGeomDisplayTessPnts( const std::string &geom_id, int surf_index )
+{
+    std::vector< vec3d > pnts;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetGeomDisplayTessPnts::Can't Find Geom " + geom_id );
+        return pnts;
+    }
+
+    if ( !geom_ptr->GetDisplayTessPnts( surf_index, pnts ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomDisplayTessPnts::Surface Index " + to_string( surf_index ) + " Out of Range" );
+        return pnts;
+    }
+
+    ErrorMgr.NoError();
+    return pnts;
+}
+
 vec3d GetGeomWireColor( const std::string &geom_id )
 {
     Vehicle* veh = GetVehicle();
