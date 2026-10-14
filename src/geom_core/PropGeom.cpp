@@ -658,7 +658,7 @@ void PropGeom::UpdateDrawObj()
     invRelTrans.affineInverse();
 
     Matrix4d rigid;
-    RigidBladeMotion( rigid, 0 );
+    RigidBladeMotion( rigid, 0, m_Rotate() );
     for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
     {
         invRelTrans.xformvec( m_XSecDrawObj_vec[ i ].m_PntVec );
@@ -749,9 +749,11 @@ void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec 
         // Each hinge of the active blade where the hinges inboard of it carry it.
         if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
         {
+            double rotate = m_Rotate();
+
             int iblade = m_ActiveBlade() - 1;
             Matrix4d mat;
-            BladeRootMotion( mat, iblade );
+            BladeRootMotion( mat, iblade, rotate );
 
             // The hinge axes already mirror with reverse rotation, so their arrows turn with the
             // copy's own mirror alone.
@@ -761,7 +763,7 @@ void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec 
                 hrev = -rev;
             }
 
-            vector< BladeHinge > hinges = GetBladeHinges( iblade );
+            vector< BladeHinge > hinges = GetBladeHinges( iblade, rotate );
             for ( int j = 0; j < ( int )hinges.size(); j++ )
             {
                 const BladeHinge & h = hinges[j];
@@ -895,7 +897,7 @@ void PropGeom::UpdateHighlightDrawObj()
     invRelTrans.affineInverse();
 
     Matrix4d rigid;
-    RigidBladeMotion( rigid, 0 );
+    RigidBladeMotion( rigid, 0, m_Rotate() );
 
     invRelTrans.xformvec( m_HighlightXSecDrawObj.m_PntVec );
     rigid.xformvec( m_HighlightXSecDrawObj.m_PntVec );
@@ -903,7 +905,7 @@ void PropGeom::UpdateHighlightDrawObj()
 
     m_HighlightBladeDrawObj.m_PntVec = m_MainBladeBBox.GetBBoxDrawLines();
 
-    RigidBladeMotion( rigid, m_ActiveBlade() - 1 );
+    RigidBladeMotion( rigid, m_ActiveBlade() - 1, m_Rotate() );
 
     rigid.xformvec( m_HighlightBladeDrawObj.m_PntVec );
 
@@ -1646,38 +1648,17 @@ void PropGeom::UpdatePostSurf()
     m_FeatherAxOrigin = BladeToProp( vec3d( m_BladeRootChord * m_FeatherOffset(), m_RadFeatherAxis() * radius, 0 ), rev );
     m_FeatherAxDirection = BladeAxisToProp( vec3d( 0, 1, 0 ), rev );
 
-    // A slot for each blade, then the disk, if any.  The slots that stay keep their storage, so
-    // copying into them does not allocate.
-    int nblade = 0;
-    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
-    {
-        nblade = m_Nblade();
-    }
-    int nsurf = nblade;
-    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
-    {
-        nsurf++;
-    }
+    GetMainSurfVecAtRotate( m_Rotate(), m_MainSurfVec );
 
-    m_MainSurfVec.resize( nsurf );
+    // The blades take the blade's caps; the disk has none.
+    int nblade = NumPlacedBlades();
+    int nsurf = m_MainSurfVec.size();
     m_CapUMinSuccess.resize( nsurf );
     m_CapUMaxSuccess.resize( nsurf );
-
-    Matrix4d rigid;
-    for ( int i = 0; i < nblade; i++ )
+    for ( int i = 0; i < nsurf; i++ )
     {
-        m_MainSurfVec[i] = m_BladeSurf;
-        RigidBladeMotion( rigid, i );
-        m_MainSurfVec[i].Transform( rigid );
-        m_CapUMinSuccess[i] = m_BladeCapUMinSuccess;
-        m_CapUMaxSuccess[i] = m_BladeCapUMaxSuccess;
-    }
-
-    if ( nsurf > nblade )
-    {
-        m_MainSurfVec[ nblade ] = m_DiskSurf;
-        m_CapUMinSuccess[ nblade ] = false;
-        m_CapUMaxSuccess[ nblade ] = false;
+        m_CapUMinSuccess[i] = i < nblade && m_BladeCapUMinSuccess;
+        m_CapUMaxSuccess[i] = i < nblade && m_BladeCapUMaxSuccess;
     }
 
     // Remove the sub-surfaces of blades that are gone.
@@ -1732,98 +1713,119 @@ void PropGeom::SetDirtyFlags( Parm* parm_ptr )
     GeomXSec::SetDirtyFlags( parm_ptr );
 }
 
-void PropGeom::UpdateMainTessVec()
+// The blades placed as main surfaces: none in disk-only mode.
+int PropGeom::NumPlacedBlades()
 {
-    int nmain = GetNumMainSurfs();
-    int nblade = m_Nblade();
-
-    // Do not clear m_MainTessVec / m_MainFeatureTessVec.  Resizing and assigning into the
-    // existing SimpleTess elements lets their nested point/normal/texture buffers be reused
-    // across updates instead of being freed and reallocated every time.  The blades are all
-    // copies of a single computed blade, and the disk (if any) is handled below.
-
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
-        // Tessellate the single blade into reusable scratch members, then copy it into each
-        // blade slot in place.  Resize to nmain (not nblade) so a trailing disk slot, if any,
-        // is retained for reuse below rather than destroyed and rebuilt.  Moving the blades
-        // leaves the blade's own tessellation as it was.
-        if ( m_BladeTessDirty )
+        return m_Nblade();
+    }
+    return 0;
+}
+
+// A copy of the blade for each blade, turned into place, then the disk, if any.  The surfaces
+// that stay keep their storage, so copying into them does not allocate.
+void PropGeom::GetMainSurfVecAtRotate( double rotate, vector< VspSurf > &surfs )
+{
+    int nblade = NumPlacedBlades();
+    int nsurf = nblade;
+    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
+    {
+        nsurf++;
+    }
+
+    surfs.resize( nsurf );
+
+    Matrix4d rigid;
+    for ( int i = 0; i < nblade; i++ )
+    {
+        surfs[i] = m_BladeSurf;
+        RigidBladeMotion( rigid, i, rotate );
+        surfs[i].Transform( rigid );
+    }
+
+    if ( nsurf > nblade )
+    {
+        surfs[ nblade ] = m_DiskSurf;
+    }
+}
+
+// The blade's tessellation copied and turned into place for each blade, then the disk's, assigned
+// into the existing elements so their buffers are reused.
+void PropGeom::GetMainTessVecAtRotate( double rotate, vector< SimpleTess > &tess, vector< SimpleFeatureTess > &ftess )
+{
+    int nblade = NumPlacedBlades();
+    int nmain = nblade;
+    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
+    {
+        nmain++;
+    }
+
+    tess.resize( nmain );
+    ftess.resize( nmain );
+
+    Matrix4d rigid;
+    for ( int i = 0; i < nblade; i++ )
+    {
+        tess[i] = m_BladeTess;
+        ftess[i] = m_BladeFeatureTess;
+        RigidBladeMotion( rigid, i, rotate );
+        tess[i].Transform( rigid );
+        ftess[i].Transform( rigid );
+    }
+
+    if ( nmain > nblade )
+    {
+        tess[ nblade ] = m_DiskTess;
+        ftess[ nblade ] = m_DiskFeatureTess;
+    }
+}
+
+// The blade's preview copied and turned into place for each blade.  The disk has none.
+void PropGeom::GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen )
+{
+    int nblade = NumPlacedBlades();
+    degen.resize( nblade );
+
+    Matrix4d rigid;
+    for ( int i = 0; i < nblade; i++ )
+    {
+        degen[i] = m_BladeDegenGeom;
+        RigidBladeMotion( rigid, i, rotate );
+        degen[i].Transform( rigid );
+    }
+}
+
+// Moving the blades leaves the blade's and the disk's own tessellations as they were.
+void PropGeom::UpdateMainTessVec()
+{
+    if ( m_BladeTessDirty )
+    {
+        if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
         {
             UpdateTess( m_BladeSurf, m_BladeCapUMinSuccess, m_BladeCapUMaxSuccess, m_BladeTess, m_BladeFeatureTess );
         }
-
-        m_MainTessVec.resize( nmain );
-        m_MainFeatureTessVec.resize( nmain );
-        for ( int i = 0; i < nblade; i++ )
-        {
-            m_MainTessVec[i] = m_BladeTess;
-            m_MainFeatureTessVec[i] = m_BladeFeatureTess;
-        }
-
-        Matrix4d rigid;
-        for ( int i = 0; i < nblade; i++ )
-        {
-            RigidBladeMotion( rigid, i );
-            m_MainTessVec[i].Transform( rigid );
-            m_MainFeatureTessVec[i].Transform( rigid );
-        }
-    }
-
-    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
-    {
-        unsigned int idisk = nmain - 1;
-
-        m_MainTessVec.resize( nmain );
-        m_MainFeatureTessVec.resize( nmain );
-
-        // The disk does not move with the blades, but its slot follows them.
-        if ( m_BladeTessDirty )
+        if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
         {
             UpdateTess( m_DiskSurf, false, false, m_DiskTess, m_DiskFeatureTess );
         }
-        m_MainTessVec[idisk] = m_DiskTess;
-        m_MainFeatureTessVec[idisk] = m_DiskFeatureTess;
+        m_BladeTessDirty = false;
     }
 
-    m_BladeTessDirty = false;
+    GetMainTessVecAtRotate( m_Rotate(), m_MainTessVec, m_MainFeatureTessVec );
 }
 
+// Moving the blades leaves the blade's own preview as it was.
 void PropGeom::UpdateMainDegenGeomPreview()
 {
-    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH && m_BladeDegenDirty )
     {
-        // Moving the blades leaves the blade's own preview as it was.
-        if ( m_BladeDegenDirty )
-        {
-            m_BladeDegenGeom = DegenGeom();
-            CreateDegenGeom( m_BladeSurf, 0, m_BladeDegenGeom, true, 1 );
-            m_BladeDegenDirty = false;
-        }
-
-        int nblade = m_Nblade();
-
-        // Reuse existing preview buffers: resize and assign into the existing elements rather
-        // than clearing and rebuilding.  The blades are all copies of the single computed blade.
-        m_MainDegenGeomPreviewVec.resize( nblade );
-        for ( int i = 0; i < nblade; i++ )
-        {
-            m_MainDegenGeomPreviewVec[i] = m_BladeDegenGeom;
-        }
-
-        Matrix4d rigid;
-        for ( int i = 0; i < nblade; i++ )
-        {
-            RigidBladeMotion( rigid, i );
-            m_MainDegenGeomPreviewVec[i].Transform( rigid );
-        }
-
+        m_BladeDegenGeom = DegenGeom();
+        CreateDegenGeom( m_BladeSurf, 0, m_BladeDegenGeom, true, 1 );
+        m_BladeDegenDirty = false;
     }
-    else
-    {
-        // Disk-only mode has no blade previews.
-        m_MainDegenGeomPreviewVec.clear();
-    }
+
+    GetMainDegenGeomPreviewAtRotate( m_Rotate(), m_MainDegenGeomPreviewVec );
 }
 
 void PropGeom::UpdateBladeAzimuth()
@@ -2198,7 +2200,7 @@ double PropGeom::GetBladeFeather( int iblade )
 }
 
 // The blade's azimuth, the propeller rotation and the precone: the motion inboard of the hinges.
-void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade )
+void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade, double rotate )
 {
     double rev = 1.0;
     if ( m_ReverseFlag() )
@@ -2213,13 +2215,13 @@ void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade )
         mat.rotateX( -rev * m_BladeAzimuthParmVec[ iblade - 1 ]->Get() );
     }
 
-    mat.rotateX( -rev * m_Rotate() );
+    mat.rotateX( -rev * rotate );
 
     mat.rotateZ( m_Precone() );
 }
 
 // The blade's hinges, hub to tip by radial place; hinges at one place go in the order of their types.
-vector< BladeHinge > PropGeom::GetBladeHinges( int iblade )
+vector< BladeHinge > PropGeom::GetBladeHinges( int iblade, double rotate )
 {
     vector< BladeHinge > hinges;
     hinges.push_back( { m_RadFlapAxis(), FLAP_HINGE, m_FlapAxOrigin, m_FlapAxDirection, GetBladeFlapAngle( iblade ) } );
@@ -2239,11 +2241,11 @@ vector< BladeHinge > PropGeom::GetBladeHinges( int iblade )
     return hinges;
 }
 
-void PropGeom::RigidBladeMotion( Matrix4d & mat, int iblade )
+void PropGeom::RigidBladeMotion( Matrix4d & mat, int iblade, double rotate )
 {
-    BladeRootMotion( mat, iblade );
+    BladeRootMotion( mat, iblade, rotate );
 
-    vector< BladeHinge > hinges = GetBladeHinges( iblade );
+    vector< BladeHinge > hinges = GetBladeHinges( iblade, rotate );
     for ( int i = 0; i < ( int )hinges.size(); i++ )
     {
         mat.rotateAbout( hinges[i].m_Angle, hinges[i].m_Axis, hinges[i].m_Origin );

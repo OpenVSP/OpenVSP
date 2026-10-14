@@ -209,6 +209,10 @@ public:
         return m_ReverseFlag();
     }
     virtual bool GetRotorHubDiameter( double &hubdia ) const;
+    virtual void GetMainSurfVecAtRotate( double rotate, vector< VspSurf > &surfs );
+    virtual void GetMainTessVecAtRotate( double rotate, vector< SimpleTess > &tess, vector< SimpleFeatureTess > &ftess );
+    virtual void GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen );
+    virtual int NumPlacedBlades();
     virtual double UtoEta( const double &u, bool ignoreCap = false );
     virtual bool IndividualBladeFeather();
     virtual double EtatoU( const double &eta, bool ignoreCap = false );
@@ -348,9 +352,10 @@ protected:
     virtual double GetBladeLagAngle( int iblade );
     virtual double GetBladeFoldAngle( int iblade );
     virtual double GetBladeFeather( int iblade );
-    virtual void BladeRootMotion( Matrix4d & mat, int iblade );
-    virtual vector< BladeHinge > GetBladeHinges( int iblade );
-    virtual void RigidBladeMotion( Matrix4d & mat, int iblade );
+    // Each places blade iblade, counting from zero, as it sits with the propeller turned to rotate.
+    virtual void BladeRootMotion( Matrix4d & mat, int iblade, double rotate );
+    virtual vector< BladeHinge > GetBladeHinges( int iblade, double rotate );
+    virtual void RigidBladeMotion( Matrix4d & mat, int iblade, double rotate );
 
     virtual void EnforceOrder( PropXSec* xs, int indx );
     virtual void EnforcePCurveOrder( double rfirst, double rlast );
