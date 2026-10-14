@@ -3117,11 +3117,13 @@ string PropGeom::BuildBEMResults()
     double rspan = rlast - rfirst;
     for ( int i = 0; i < n; i++ )
     {
+        // The foil surface's u runs linearly from the root to the tip, so the section at radius r is at u.
         double t = static_cast < double > ( i ) / ( n - 1 );
-        double r = rfirst + rspan * Cluster( t, m_RootCluster(), m_TipCluster() );
+        double u = Cluster( t, m_RootCluster(), m_TipCluster() );
+        double r = rfirst + rspan * u;
 
         VspCurve c;
-        m_FoilSurf.GetUConstCurve( c, t );
+        m_FoilSurf.GetUConstCurve( c, u );
         vec3d v = c.CompPnt( 0 );
         c.OffsetZ( -v.z() );
 
