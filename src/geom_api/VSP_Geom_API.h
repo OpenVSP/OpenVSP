@@ -45867,6 +45867,135 @@ extern void InitPropPreset( const std::string & geom_id, int preset );
 
 extern void ResetPropellerThicknessCurve( const std::string & geom_id );
 
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the matrix that places one blade of a propeller, or of a Clone of one, at a rotation angle.  It maps a
+    point of the blade as built -- in the propeller's own axes, before the blade is turned to its azimuth, rotated,
+    preconed or moved by any hinge -- to where that point sits in the model at the given rotation angle, after the
+    Geom's own placement and the given symmetric copy.
+
+    The rotation angle plays the part of Rotate, so it is psi, the azimuth of blade 1 from PsiRef, and may be any
+    value, not just one within Rotate's limits.  Harmonic blade motion is evaluated at it.  Rotate itself and the
+    propeller's geometry are left alone.  The blades, their hinges and the symmetric copies are those of the last
+    Update, and the hinge angles are read as they stand, so call Update after changing the propeller.
+
+    A program that moves its own mesh of the blades with time asks for the matrix at each step.  GetPropBladeMotionXForm
+    gives the motion from where the blade sits at psi = 0 instead, for a mesh made around the placed blade.
+    \forcpponly
+    \code{.cpp}
+    // A two-bladed propeller
+    string pid = AddGeom( "PROP" );
+    SetParmVal( FindParm( pid, "NumBlade", "Design" ), 2 );
+    Update();
+
+    // Blade 2 at psi = 0 sits where blade 1 sits half a turn later.
+    Matrix4d a = GetPropBladeXForm( pid, 1, 0, 0.0 );
+    Matrix4d b = GetPropBladeXForm( pid, 0, 0, 180.0 );
+
+    vec3d pa = a.xform( vec3d( 0.1, 2.0, 0.3 ) );
+    vec3d pb = b.xform( vec3d( 0.1, 2.0, 0.3 ) );
+
+    if ( abs( pa.x() - pb.x() ) > 1e-9 || abs( pa.y() - pb.y() ) > 1e-9 || abs( pa.z() - pb.z() ) > 1e-9 )
+    {
+        Print( "ERROR: GetPropBladeXForm did not place blade 2 where blade 1 goes half a turn later" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # A two-bladed propeller
+    pid = AddGeom( "PROP" )
+    SetParmVal( FindParm( pid, "NumBlade", "Design" ), 2 )
+    Update()
+
+    # Blade 2 at psi = 0 sits where blade 1 sits half a turn later.
+    a = GetPropBladeXForm( pid, 1, 0, 0.0 )
+    b = GetPropBladeXForm( pid, 0, 0, 180.0 )
+
+    pa = a.xform( vec3d( 0.1, 2.0, 0.3 ) )
+    pb = b.xform( vec3d( 0.1, 2.0, 0.3 ) )
+
+    assert abs( pa.x() - pb.x() ) < 1e-9 and abs( pa.y() - pb.y() ) < 1e-9 and abs( pa.z() - pb.z() ) < 1e-9, "GetPropBladeXForm did not place blade 2 where blade 1 goes half a turn later"
+
+    \endcode
+    \endPythonOnly
+    \sa GetPropBladeMotionXForm
+    \param [in] geom_id string ID of a propeller, or of a Clone of one
+    \param [in] blade_index int Index of the blade, from 0 to the number of blades - 1; the blade's main surface index
+    \param [in] symm_index int Index of the symmetric copy, from 0 to the number of symmetric copies - 1, numbered as DegenGeom's sym_copy_index
+    \param [in] rotate double Rotation angle psi (degrees), any value
+    \return Matrix4d From the blade as built to where it sits in the model, or the identity on an error
+*/
+
+extern Matrix4d GetPropBladeXForm( const std::string & geom_id, int blade_index, int symm_index, double rotate );
+
+/*!
+    \ingroup Geom
+*/
+/*!
+    Get the matrix that moves one blade of a propeller, or of a Clone of one, from where it sits at psi = 0 to where
+    it sits at a rotation angle.  It maps a point of the blade as placed in the model with the rotation angle zero to
+    where that point sits at the given rotation angle, the given symmetric copy throughout.  It is
+    GetPropBladeXForm at the angle times the inverse of GetPropBladeXForm at zero.
+
+    This suits a mesh made around the blade as the model places it at psi = 0 -- one exported from OpenVSP, or a
+    structured overset mesh grown around one blade -- moved with time by a program that knows psi at each step.  The
+    rotation angle may be any value, and harmonic blade motion is evaluated at it, so the motion carries the blade's
+    flap, lag and feather as well as its rotation.
+    \forcpponly
+    \code{.cpp}
+    string pid = AddGeom( "PROP" );
+    SetParmVal( FindParm( pid, "FlapAngle", "Articulation" ), 5.0 );
+    Update();
+
+    // Move a point of blade 1 from psi = 0 to psi = 60, then turn the propeller there.
+    vec3d p0 = CompPnt01( pid, 0, 0.5, 0.25 );
+    Matrix4d m = GetPropBladeMotionXForm( pid, 0, 0, 60.0 );
+    vec3d p = m.xform( p0 );
+
+    SetParmVal( FindParm( pid, "Rotate", "Design" ), 60.0 );
+    Update();
+    vec3d want = CompPnt01( pid, 0, 0.5, 0.25 );
+
+    if ( abs( p.x() - want.x() ) > 1e-9 || abs( p.y() - want.y() ) > 1e-9 || abs( p.z() - want.z() ) > 1e-9 )
+    {
+        Print( "ERROR: GetPropBladeMotionXForm did not move the blade where Rotate puts it" );
+        __failure++;
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    pid = AddGeom( "PROP" )
+    SetParmVal( FindParm( pid, "FlapAngle", "Articulation" ), 5.0 )
+    Update()
+
+    # Move a point of blade 1 from psi = 0 to psi = 60, then turn the propeller there.
+    p0 = CompPnt01( pid, 0, 0.5, 0.25 )
+    m = GetPropBladeMotionXForm( pid, 0, 0, 60.0 )
+    p = m.xform( p0 )
+
+    SetParmVal( FindParm( pid, "Rotate", "Design" ), 60.0 )
+    Update()
+    want = CompPnt01( pid, 0, 0.5, 0.25 )
+
+    assert abs( p.x() - want.x() ) < 1e-9 and abs( p.y() - want.y() ) < 1e-9 and abs( p.z() - want.z() ) < 1e-9, "GetPropBladeMotionXForm did not move the blade where Rotate puts it"
+
+    \endcode
+    \endPythonOnly
+    \sa GetPropBladeXForm
+    \param [in] geom_id string ID of a propeller, or of a Clone of one
+    \param [in] blade_index int Index of the blade, from 0 to the number of blades - 1; the blade's main surface index
+    \param [in] symm_index int Index of the symmetric copy, from 0 to the number of symmetric copies - 1, numbered as DegenGeom's sym_copy_index
+    \param [in] rotate double Rotation angle psi (degrees), any value
+    \return Matrix4d From the blade at psi = 0 to the blade at the rotation angle, or the identity on an error
+*/
+
+extern Matrix4d GetPropBladeMotionXForm( const std::string & geom_id, int blade_index, int symm_index, double rotate );
+
 
 //======================== VSPAERO Functions ======================//
 /*!

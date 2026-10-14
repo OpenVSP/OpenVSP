@@ -2357,6 +2357,13 @@ vector< BladeHinge > PropGeom::GetBladeHinges( int iblade, double rotate )
     return hinges;
 }
 
+Matrix4d PropGeom::GetBladePlacement( int iblade, double rotate )
+{
+    Matrix4d mat;
+    RigidBladeMotion( mat, iblade, rotate );
+    return mat;
+}
+
 void PropGeom::RigidBladeMotion( Matrix4d & mat, int iblade, double rotate )
 {
     BladeRootMotion( mat, iblade, rotate );

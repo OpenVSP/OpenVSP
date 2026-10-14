@@ -113,6 +113,11 @@ public:
     virtual void GetMainSurfVecAtRotate( double rotate, vector< VspSurf > &surfs ) = 0;
     virtual void GetMainTessVecAtRotate( double rotate, vector< SimpleTess > &tess, vector< SimpleFeatureTess > &ftess ) = 0;
     virtual void GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen ) = 0;
+
+    // The blades placed as main surfaces, and blade iblade's placement at rotate: from the blade as
+    // built to where it sits, before the Geom's own placement.
+    virtual int NumPlacedBlades() = 0;
+    virtual Matrix4d GetBladePlacement( int iblade, double rotate ) = 0;
 };
 
 //==== A hinge between a propeller's hub and blade ====//
@@ -230,6 +235,7 @@ public:
     virtual void GetMainTessVecAtRotate( double rotate, vector< SimpleTess > &tess, vector< SimpleFeatureTess > &ftess );
     virtual void GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen );
     virtual int NumPlacedBlades();
+    virtual Matrix4d GetBladePlacement( int iblade, double rotate );
     virtual double UtoEta( const double &u, bool ignoreCap = false );
     virtual int FeatherMode();
     virtual double EtatoU( const double &eta, bool ignoreCap = false );

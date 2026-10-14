@@ -6666,6 +6666,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ResetPropellerThicknessCurve( const string & in geom_id )", asFUNCTION( vsp::ResetPropellerThicknessCurve ), asCALL_CDECL);
     assert( r >= 0 );
 
+    r = se->RegisterGlobalFunction( "Matrix4d GetPropBladeXForm( const string & in geom_id, int blade_index, int symm_index, double rotate )", asFUNCTION( vsp::GetPropBladeXForm ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "Matrix4d GetPropBladeMotionXForm( const string & in geom_id, int blade_index, int symm_index, double rotate )", asFUNCTION( vsp::GetPropBladeMotionXForm ), asCALL_CDECL );
+    assert( r >= 0 );
+
     //=== Register ParasiteDragTool Functions ====//
 
     r = se->RegisterGlobalFunction( "void AddExcrescence(const string & in excresName, const int & in excresType, const double & in excresVal)", asFUNCTION( vsp::AddExcrescence ), asCALL_CDECL );

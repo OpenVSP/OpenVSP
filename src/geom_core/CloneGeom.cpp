@@ -1943,6 +1943,28 @@ void CloneGeom::GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeo
     rotor->GetMainDegenGeomPreviewAtRotate( rotate, degen );
 }
 
+int CloneGeom::NumPlacedBlades()
+{
+    RotorRole* rotor = GetOriginalRotor();
+    if ( !rotor )
+    {
+        return 0;
+    }
+
+    return rotor->NumPlacedBlades();
+}
+
+Matrix4d CloneGeom::GetBladePlacement( int iblade, double rotate )
+{
+    RotorRole* rotor = GetOriginalRotor();
+    if ( !rotor )
+    {
+        return Matrix4d();
+    }
+
+    return rotor->GetBladePlacement( iblade, rotate );
+}
+
 double CloneGeom::GetRotorDiameter() const
 {
     RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );

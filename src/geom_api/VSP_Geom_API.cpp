@@ -16370,6 +16370,87 @@ void ResetPropellerThicknessCurve( const std::string & geom_id )
     ErrorMgr.NoError();
 }
 
+// Blade blade_index of a rotor at rotate, from the blade as built to the model: the Geom's placement
+// of that symmetric copy after the blade's own placement.  False, with an error, on a bad argument.
+static bool PropBladeXForm( const string & caller, const std::string & geom_id, int blade_index, int symm_index,
+                            double rotate, Matrix4d & mat )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, caller + "::Can't Find Geom " + geom_id );
+        return false;
+    }
+
+    RotorRole* rotor = Geom::CastTo< RotorRole >( geom_ptr );
+    if ( !rotor )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, caller + "::Geom not a propeller or a Clone of one " + geom_id );
+        return false;
+    }
+
+    // The blades the last Update built, which the symmetric copies describe.
+    int nbuilt = 0;
+    for ( int i = 0; i < geom_ptr->GetNumMainSurfs(); i++ )
+    {
+        if ( geom_ptr->GetMainSurfType( i ) != vsp::DISK_SURF )
+        {
+            nbuilt++;
+        }
+    }
+
+    if ( blade_index < 0 || blade_index >= rotor->NumPlacedBlades() || blade_index >= nbuilt )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Blade Index " + to_string( blade_index ) + " Out of Range" );
+        return false;
+    }
+
+    // The Geom's own numbering of the copies, which DegenGeom reports as sym_copy_index.
+    vector< int > surfs;
+    geom_ptr->GetSymmIndexs( blade_index, surfs );
+    vector< Matrix4d > trans_vec = geom_ptr->GetTransMatVec();
+    if ( symm_index < 0 || symm_index >= ( int )surfs.size() || surfs[ symm_index ] >= ( int )trans_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, caller + "::Symmetric Copy Index " + to_string( symm_index ) + " Out of Range" );
+        return false;
+    }
+
+    mat = trans_vec[ surfs[ symm_index ] ];
+    mat.matMult( rotor->GetBladePlacement( blade_index, rotate ) );
+    return true;
+}
+
+Matrix4d GetPropBladeXForm( const std::string & geom_id, int blade_index, int symm_index, double rotate )
+{
+    Matrix4d mat;
+    if ( !PropBladeXForm( "GetPropBladeXForm", geom_id, blade_index, symm_index, rotate, mat ) )
+    {
+        return Matrix4d();
+    }
+
+    ErrorMgr.NoError();
+    return mat;
+}
+
+Matrix4d GetPropBladeMotionXForm( const std::string & geom_id, int blade_index, int symm_index, double rotate )
+{
+    Matrix4d mat;
+    Matrix4d mat0;
+    if ( !PropBladeXForm( "GetPropBladeMotionXForm", geom_id, blade_index, symm_index, rotate, mat ) ||
+         !PropBladeXForm( "GetPropBladeMotionXForm", geom_id, blade_index, symm_index, 0.0, mat0 ) )
+    {
+        return Matrix4d();
+    }
+
+    // The motion from the blade's place at psi = 0.
+    mat0.affineInverse();
+    mat.matMult( mat0 );
+
+    ErrorMgr.NoError();
+    return mat;
+}
+
 //===================================================================//
 //===============    Parasite Drag Tool Functions      ==============//
 //===================================================================//

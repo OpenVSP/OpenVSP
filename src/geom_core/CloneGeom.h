@@ -267,6 +267,8 @@ public:
     virtual void GetMainSurfVecAtRotate( double rotate, vector< VspSurf > &surfs ) override;
     virtual void GetMainTessVecAtRotate( double rotate, vector< SimpleTess > &tess, vector< SimpleFeatureTess > &ftess ) override;
     virtual void GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen ) override;
+    virtual int NumPlacedBlades() override;
+    virtual Matrix4d GetBladePlacement( int iblade, double rotate ) override;
 
     // The original as a rotor, if it is one.
     virtual RotorRole* GetOriginalRotor() const;
