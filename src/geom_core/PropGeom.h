@@ -104,6 +104,15 @@ public:
 
     // The hub, if this rotor describes one; false otherwise.
     virtual bool GetRotorHubDiameter( double &hubdia ) const = 0;
+
+    // The angle the blades are turned to.
+    virtual double GetRotorRotate() const = 0;
+    virtual void SetRotorRotate( double rotate ) = 0;
+
+    // The main surfaces, their tessellation and their preview with the blades turned to rotate.
+    virtual void GetMainSurfVecAtRotate( double rotate, vector< VspSurf > &surfs ) = 0;
+    virtual void GetMainTessVecAtRotate( double rotate, vector< SimpleTess > &tess, vector< SimpleFeatureTess > &ftess ) = 0;
+    virtual void GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen ) = 0;
 };
 
 //==== A hinge between a propeller's hub and blade ====//
@@ -209,6 +218,14 @@ public:
         return m_ReverseFlag();
     }
     virtual bool GetRotorHubDiameter( double &hubdia ) const;
+    virtual double GetRotorRotate() const
+    {
+        return m_Rotate();
+    }
+    virtual void SetRotorRotate( double rotate )
+    {
+        m_Rotate.Set( rotate );
+    }
     virtual void GetMainSurfVecAtRotate( double rotate, vector< VspSurf > &surfs );
     virtual void GetMainTessVecAtRotate( double rotate, vector< SimpleTess > &tess, vector< SimpleFeatureTess > &ftess );
     virtual void GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen );

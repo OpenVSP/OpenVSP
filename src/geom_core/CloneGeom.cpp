@@ -56,6 +56,9 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_CloneJoint.Init( "CloneJoint", "Behavior", this, true, false, true );
     m_CloneJoint.SetDescript( "Flag to copy the original's joint deflection" );
 
+    m_CloneRotate.Init( "CloneRotate", "Behavior", this, true, false, true );
+    m_CloneRotate.SetDescript( "Flag to copy the original rotor's rotation angle" );
+
     m_AutoName.Init( "AutoName", "Behavior", this, true, false, true );
     m_AutoName.SetDescript( "Flag to name this Geom after the original with the suffix appended" );
 
@@ -66,6 +69,9 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_JointRotate.Init( "JointRotate", "Hinge", this, 0.0, -360.0, 360.0 );
     m_JointRotate.SetDescript( "Joint rotation, when the original is a hinge" );
+
+    m_RotorRotate.Init( "Rotate", "Rotor", this, 0.0, -360.0, 360.0 );
+    m_RotorRotate.SetDescript( "Rotation of the first blade, when the original is a rotor" );
 
     // Tessellation and end caps come from the original, as the surface does.
     m_TessU.Deactivate();
@@ -208,6 +214,13 @@ void CloneGeom::UpdateMainBBox()
         return;
     }
 
+    // A rotor Clone turned apart has its own blades, which the original's box does not hold.
+    if ( GetOriginalRotor() && !m_CloneRotate() )
+    {
+        Geom::UpdateMainBBox();
+        return;
+    }
+
     original_geom->GetMainBBoxes( m_MainBBox, m_ScaleIndependentMainBBox );
 }
 
@@ -237,6 +250,11 @@ int CloneGeom::GetJointPrimaryDir(  ) const
 JointRole* CloneGeom::GetOriginalJoint() const
 {
     return Geom::CastTo< JointRole >( GetOriginalGeom() );
+}
+
+RotorRole* CloneGeom::GetOriginalRotor() const
+{
+    return Geom::CastTo< RotorRole >( GetOriginalGeom() );
 }
 
 // Uses the hinge at the end of the chain, posed through this Geom's flip like its shape.
@@ -1120,6 +1138,20 @@ void CloneGeom::UpdateSurf()
         return;
     }
 
+    // A rotor Clone turned apart from its original has the original place the blades at its angle.
+    RotorRole* rotor = GetOriginalRotor();
+    if ( rotor && m_CloneRotate() )
+    {
+        m_RotorRotate.Set( rotor->GetRotorRotate() );
+    }
+    if ( rotor && !m_CloneRotate() )
+    {
+        m_RotorRotate.Activate();
+        rotor->GetMainSurfVecAtRotate( m_RotorRotate(), m_MainSurfVec );
+        return;
+    }
+    m_RotorRotate.Deactivate();
+
     // Assigned in place to reuse storage.  Includes the skinning inputs a conformal lofts from.
     original_geom->GetMainSurfVecCopy( m_MainSurfVec );
 }
@@ -1229,6 +1261,13 @@ void CloneGeom::UpdateMainTessVec()
         return;
     }
 
+    RotorRole* rotor = GetOriginalRotor();
+    if ( rotor && !m_CloneRotate() )
+    {
+        rotor->GetMainTessVecAtRotate( m_RotorRotate(), m_MainTessVec, m_MainFeatureTessVec );
+        return;
+    }
+
     original_geom->GetMainTessVecCopy( m_MainTessVec );
     original_geom->GetMainFeatureTessVecCopy( m_MainFeatureTessVec );
 }
@@ -1251,6 +1290,13 @@ void CloneGeom::UpdateMainDegenGeomPreview()
     if ( !original_geom )
     {
         m_MainDegenGeomPreviewVec.clear();
+        return;
+    }
+
+    RotorRole* rotor = GetOriginalRotor();
+    if ( rotor && !m_CloneRotate() )
+    {
+        rotor->GetMainDegenGeomPreviewAtRotate( m_RotorRotate(), m_MainDegenGeomPreviewVec );
         return;
     }
 
@@ -1857,6 +1903,44 @@ double CloneGeom::GetWingTotalChord() const
         return 0.0;
     }
     return wing->GetWingTotalChord();
+}
+
+// Placed by the original, so a Clone of a Clone reaches the propeller.
+void CloneGeom::GetMainSurfVecAtRotate( double rotate, vector< VspSurf > &surfs )
+{
+    RotorRole* rotor = GetOriginalRotor();
+    if ( !rotor )
+    {
+        surfs.clear();
+        return;
+    }
+
+    rotor->GetMainSurfVecAtRotate( rotate, surfs );
+}
+
+void CloneGeom::GetMainTessVecAtRotate( double rotate, vector< SimpleTess > &tess, vector< SimpleFeatureTess > &ftess )
+{
+    RotorRole* rotor = GetOriginalRotor();
+    if ( !rotor )
+    {
+        tess.clear();
+        ftess.clear();
+        return;
+    }
+
+    rotor->GetMainTessVecAtRotate( rotate, tess, ftess );
+}
+
+void CloneGeom::GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen )
+{
+    RotorRole* rotor = GetOriginalRotor();
+    if ( !rotor )
+    {
+        degen.clear();
+        return;
+    }
+
+    rotor->GetMainDegenGeomPreviewAtRotate( rotate, degen );
 }
 
 double CloneGeom::GetRotorDiameter() const

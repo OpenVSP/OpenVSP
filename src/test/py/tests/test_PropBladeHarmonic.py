@@ -256,3 +256,111 @@ def test_large_harmonic_angles_are_not_clamped():
     want = blades( pid, 3 )
     set_parms( pid, { "BladeMotionMode": vsp.PROP_BLADE_INDIVIDUAL } )
     assert blades_error( blades( pid, 3 ), want ) < TOL
+
+
+def clone_of( pid ):
+    clone = vsp.CloneGeomVec( [ pid ] )[0]
+    vsp.Update()
+    return clone
+
+
+def test_clone_takes_the_original_rotation():
+    pid = new_prop( 3, MOTION )
+    clone = clone_of( pid )
+    set_parms( pid, { "Rotate": 70.0 } )
+    assert vsp.GetParmVal( clone, "Rotate", "Rotor" ) == 70.0
+    assert blades_error( blades( clone, 3 ), blades( pid, 3 ) ) == 0.0
+
+
+def test_clone_turned_apart():
+    # A Clone with its own rotation places the original's blades as the original would at that
+    # angle, harmonic motion and all, and leaves the original alone.
+    pid = new_prop( 3, dict( MOTION, Rotate = 10.0 ) )
+    original = blades( pid, 3 )
+    clone = clone_of( pid )
+    vsp.SetParmVal( clone, "CloneRotate", "Behavior", 0.0 )
+    vsp.SetParmVal( clone, "Rotate", "Rotor", 55.0 )
+    vsp.Update()
+    got = blades( clone, 3 )
+    assert blades_error( blades( pid, 3 ), original ) == 0.0
+    set_parms( pid, { "Rotate": 55.0 } )
+    assert blades_error( got, blades( pid, 3 ) ) == 0.0
+
+
+def test_clone_turned_apart_follows_the_original_shape():
+    pid = new_prop( 3, MOTION )
+    clone = clone_of( pid )
+    vsp.SetParmVal( clone, "CloneRotate", "Behavior", 0.0 )
+    vsp.SetParmVal( clone, "Rotate", "Rotor", 25.0 )
+    vsp.Update()
+    set_parms( pid, { "FlapCos_1": 6.0, "Diameter": 9.0 } )
+    got = blades( clone, 3 )
+    set_parms( pid, { "Rotate": 25.0 } )
+    assert blades_error( got, blades( pid, 3 ) ) == 0.0
+
+
+def test_clone_of_clone_turned_apart():
+    pid = new_prop( 3, MOTION )
+    inner = clone_of( pid )
+    vsp.SetParmVal( inner, "CloneRotate", "Behavior", 0.0 )
+    vsp.SetParmVal( inner, "Rotate", "Rotor", 40.0 )
+    outer = clone_of( inner )
+    assert blades_error( blades( outer, 3 ), blades( inner, 3 ) ) == 0.0
+    vsp.SetParmVal( outer, "CloneRotate", "Behavior", 0.0 )
+    vsp.SetParmVal( outer, "Rotate", "Rotor", 80.0 )
+    vsp.Update()
+    got = blades( outer, 3 )
+    set_parms( pid, { "Rotate": 80.0 } )
+    assert blades_error( got, blades( pid, 3 ) ) == 0.0
+
+
+def test_clone_rotation_round_trip():
+    pid = new_prop( 3, MOTION )
+    clone = clone_of( pid )
+    vsp.SetParmVal( clone, "CloneRotate", "Behavior", 0.0 )
+    vsp.SetParmVal( clone, "Rotate", "Rotor", 33.0 )
+    vsp.Update()
+    want = blades( clone, 3 )
+    path = os.path.join( tempfile.mkdtemp(), "clone.vsp3" )
+    vsp.WriteVSPFile( path )
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( path )
+    vsp.Update()
+    clone = [ g for g in vsp.FindGeoms() if vsp.GetGeomTypeName( g ) == "Clone" ][0]
+    assert vsp.GetParmVal( clone, "Rotate", "Rotor" ) == 33.0
+    assert blades_error( blades( clone, 3 ), want ) < TOL
+
+
+def bbox( gid ):
+    # The Geom's own box, as the model's box for a set holding only it.
+    vsp.SetSetFlag( gid, vsp.SET_FIRST_USER, True )
+    ok, x0, y0, z0, dx, dy, dz = vsp.GetBBoxSet( vsp.SET_FIRST_USER )
+    vsp.SetSetFlag( gid, vsp.SET_FIRST_USER, False )
+    assert ok
+    return ( x0, y0, z0, x0 + dx, y0 + dy, z0 + dz )
+
+
+def test_clone_turned_apart_has_its_own_box():
+    # Two blades, so the box swings with Rotate.
+    pid = new_prop( 2, MOTION )
+    clone = clone_of( pid )
+    vsp.SetParmVal( clone, "CloneRotate", "Behavior", 0.0 )
+    vsp.SetParmVal( clone, "Rotate", "Rotor", 90.0 )
+    vsp.Update()
+    got = bbox( clone )
+    set_parms( pid, { "Rotate": 90.0 } )
+    want = bbox( pid )
+    assert max( abs( a - b ) for a, b in zip( got, want ) ) < TOL
+
+
+def test_replaced_clone_keeps_its_rotation():
+    pid = new_prop( 3, MOTION )
+    clone = clone_of( pid )
+    vsp.SetParmVal( clone, "CloneRotate", "Behavior", 0.0 )
+    vsp.SetParmVal( clone, "Rotate", "Rotor", 55.0 )
+    vsp.Update()
+    want = blades( clone, 3 )
+    real = vsp.ReplaceCloneGeom( clone )
+    vsp.Update()
+    assert vsp.GetParmVal( real, "Rotate", "Design" ) == 55.0
+    assert blades_error( blades( real, 3 ), want ) < TOL

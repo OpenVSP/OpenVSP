@@ -767,7 +767,13 @@ void PropGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec 
         // Each hinge of the active blade where the hinges inboard of it carry it.
         if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
         {
+            // A Clone may be turned apart from its original.
             double rotate = m_Rotate();
+            RotorRole* rotor = Geom::CastTo< RotorRole >( placer );
+            if ( rotor )
+            {
+                rotate = rotor->GetRotorRotate();
+            }
 
             int iblade = m_ActiveBlade() - 1;
             Matrix4d mat;

@@ -43,6 +43,7 @@ CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone" 
     m_CloneLayout.AddButton( m_CloneParasiteDragButton, "Parasite Drag" );
     m_CloneLayout.AddButton( m_CloneSubSurfsButton, "Subsurfaces" );
     m_CloneLayout.AddButton( m_CloneJointButton, "Joint Deflection" );
+    m_CloneLayout.AddButton( m_CloneRotateButton, "Rotor Rotation" );
     m_CloneLayout.AddYGap();
 
     // Used only when the original has a joint.  The original decides which motions are allowed;
@@ -73,6 +74,11 @@ CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone" 
     m_CloneLayout.SetSameLineFlag( false );
     m_CloneLayout.SetFitWidthFlag( true );
     m_CloneLayout.SetButtonWidth( bw );
+    m_CloneLayout.AddYGap();
+
+    // Used only when the original is a rotor, so Clones of one rotor can turn apart.
+    m_CloneLayout.AddDividerBox( "Rotor" );
+    m_CloneLayout.AddSlider( m_RotorRotateSlider, "Rotate", 100, "%6.2f" );
     m_CloneLayout.AddYGap();
 }
 
@@ -113,6 +119,7 @@ bool CloneScreen::Update()
     m_CloneParasiteDragButton.Update( clone_ptr->m_CloneParasiteDrag.GetID() );
     m_CloneSubSurfsButton.Update( clone_ptr->m_CloneSubSurfs.GetID() );
     m_CloneJointButton.Update( clone_ptr->m_CloneJoint.GetID() );
+    m_CloneRotateButton.Update( clone_ptr->m_CloneRotate.GetID() );
     m_AutoNameButton.Update( clone_ptr->m_AutoName.GetID() );
     m_NameSuffixInput.Update( clone_ptr->GetNameSuffix() );
 
@@ -127,10 +134,16 @@ bool CloneScreen::Update()
 
     m_JointTranslateSlider.Update( clone_ptr->m_JointTranslate.GetID() );
     m_JointRotateSlider.Update( clone_ptr->m_JointRotate.GetID() );
+    m_RotorRotateSlider.Update( clone_ptr->m_RotorRotate.GetID() );
 
     if ( !clone_ptr->GetOriginalJoint() )
     {
         m_CloneJointButton.Deactivate();
+    }
+
+    if ( !clone_ptr->GetOriginalRotor() )
+    {
+        m_CloneRotateButton.Deactivate();
     }
 
     // Rng needs a limit to range to.

@@ -2268,6 +2268,13 @@ string Vehicle::ReplaceCloneGeom( const string & clone_id )
         joint->SetJointRotate( clone->GetJointRotate() );
     }
 
+    // Rotor angle, if the replacement is a rotor; a Clone may be turned apart from its original.
+    RotorRole* rotor = Geom::CastTo< RotorRole >( replacement );
+    if ( rotor )
+    {
+        rotor->SetRotorRotate( clone->GetRotorRotate() );
+    }
+
     // Drop the Clone's step-child entry on its original before the ID swap; the replacement
     // takes the ID, so the stale entry would never be pruned.
     Geom* registered_on = clone->GetOriginalGeom();

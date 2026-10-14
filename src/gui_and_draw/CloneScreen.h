@@ -41,6 +41,8 @@ protected:
     SliderAdjRangeInput m_JointRotateSlider;
     TriggerButton m_JointRotateRngButton;
 
+    SliderAdjRangeInput m_RotorRotateSlider;
+
     ToggleButton m_CloneSetsButton;
     ToggleButton m_CloneSymButton;
     ToggleButton m_CloneXFormButton;
@@ -51,6 +53,7 @@ protected:
     ToggleButton m_CloneParasiteDragButton;
     ToggleButton m_CloneSubSurfsButton;
     ToggleButton m_CloneJointButton;
+    ToggleButton m_CloneRotateButton;
     ToggleButton m_AutoNameButton;
     StringInput m_NameSuffixInput;
     TriggerButton m_ReplaceButton;
