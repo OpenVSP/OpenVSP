@@ -45686,6 +45686,7 @@ extern void ResetPropellerThickness( const std::string & geom_id );
     PROP_PRESET_PROPELLER restores the default propeller, with Y rotation 0.  PROP_PRESET_HELICOPTER
     gives a helicopter main rotor: NACA 0012 sections, constant chord, linear twist, the pitch driven
     by Feather, and Y rotation 90 so the thrust points up.
+    PROP_PRESET_HELICOPTER also sets PsiRef 270, so that psi = 0 lies over the tail.
     The geometry reflects the change after the next Update.
     \forcpponly
     \code{.cpp}
@@ -45701,6 +45702,12 @@ extern void ResetPropellerThickness( const std::string & geom_id );
     if ( GetNumXSec( xsec_surf ) != 2 )
     {
         Print( "ERROR: InitPropPreset did not rebuild the sections" );
+        __failure++;
+    }
+
+    if ( GetParmVal( prop_id, "PsiRef", "Articulation" ) != 270.0 )
+    {
+        Print( "ERROR: InitPropPreset did not set PsiRef" );
         __failure++;
     }
 
@@ -45724,6 +45731,8 @@ extern void ResetPropellerThickness( const std::string & geom_id );
     xsec_surf = GetXSecSurf( prop_id, 0 )
 
     assert GetNumXSec( xsec_surf ) == 2, "InitPropPreset did not rebuild the sections"
+
+    assert GetParmVal( prop_id, "PsiRef", "Articulation" ) == 270.0, "InitPropPreset did not set PsiRef"
 
     assert GetParmVal( prop_id, "Y_Rel_Rotation", "XForm" ) == 90.0, "InitPropPreset did not turn the rotor thrust up"
 

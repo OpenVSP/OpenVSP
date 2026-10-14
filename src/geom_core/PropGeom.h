@@ -214,7 +214,7 @@ public:
     virtual void GetMainDegenGeomPreviewAtRotate( double rotate, vector< DegenGeom > &degen );
     virtual int NumPlacedBlades();
     virtual double UtoEta( const double &u, bool ignoreCap = false );
-    virtual bool IndividualBladeFeather();
+    virtual int FeatherMode();
     virtual double EtatoU( const double &eta, bool ignoreCap = false );
 
     Parm m_Diameter;
@@ -242,8 +242,10 @@ public:
     Parm m_ElevationFlapDir;
     Parm m_FlapAngle;
 
-    BoolParm m_IndividualBladeFlapFlag;
     vector< Parm* > m_FlapAngleParmVec;
+    Parm m_FlapMean;
+    vector< Parm* > m_FlapCosParmVec;
+    vector< Parm* > m_FlapSinParmVec;
 
     Parm m_RadLagAxis;
     Parm m_AxialLagAxis;
@@ -252,8 +254,10 @@ public:
     Parm m_CantLagDir;
     Parm m_LagAngle;
 
-    BoolParm m_IndividualBladeLagFlag;
     vector< Parm* > m_LagAngleParmVec;
+    Parm m_LagMean;
+    vector< Parm* > m_LagCosParmVec;
+    vector< Parm* > m_LagSinParmVec;
 
     Parm m_RadFoldAxis;
     Parm m_AxialFoldAxis;
@@ -265,9 +269,16 @@ public:
     BoolParm m_IndividualBladeFoldFlag;
     vector< Parm* > m_FoldAngleParmVec;
 
-    BoolParm m_IndividualBladeFeatherFlag;
     vector< Parm* > m_FeatherParmVec;
+    Parm m_FeatherMean;
+    vector< Parm* > m_FeatherCosParmVec;
+    vector< Parm* > m_FeatherSinParmVec;
     IntParm m_ActiveBlade;
+    Parm m_PsiRef;
+
+    // How the blades take the flap, lag and feather angles, and the harmonics of the harmonic mode.
+    IntParm m_BladeMotionMode;
+    IntParm m_NumHarmonics;
 
     vec3d m_FlapAxOrigin;
     vec3d m_FlapAxDirection;
@@ -348,10 +359,13 @@ protected:
 
     virtual void CheckBalance();
 
-    virtual double GetBladeFlapAngle( int iblade );
-    virtual double GetBladeLagAngle( int iblade );
+    virtual double GetBladeFlapAngle( int iblade, double rotate );
+    virtual double GetBladeLagAngle( int iblade, double rotate );
     virtual double GetBladeFoldAngle( int iblade );
-    virtual double GetBladeFeather( int iblade );
+    virtual double GetBladeFeather( int iblade, double rotate );
+    virtual double GetBladePsi( int iblade, double rotate );
+    virtual void UpdateBladeMotion( int mode, Parm & angle, vector< Parm* > & bladevec, Parm & mean,
+                                    vector< Parm* > & cosvec, vector< Parm* > & sinvec );
     // Each places blade iblade, counting from zero, as it sits with the propeller turned to rotate.
     virtual void BladeRootMotion( Matrix4d & mat, int iblade, double rotate );
     virtual vector< BladeHinge > GetBladeHinges( int iblade, double rotate );
@@ -367,6 +381,9 @@ protected:
 
     virtual void ReserveBlades( int n );
     virtual void AddBlade();
+    virtual void ReserveHarmonics();
+    virtual void ReserveHarmonicParms( vector< Parm* > & cosvec, vector< Parm* > & sinvec, const string & name,
+                                       const string & angle, int n );
     virtual void AddBladeParm( vector< Parm* > & vec, const string & name, const string & group, int num, double val, double lower, double upper, const string & descript );
 
     virtual void CalculateMeshMetrics();

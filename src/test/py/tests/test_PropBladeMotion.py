@@ -66,23 +66,23 @@ def test_individual_feather():
     common = { "Feather": 5.0, "FeatherAxisXoC": 0.3, "FeatherOffsetXoC": 0.1, "Precone": 4.0 }
     for rev in ( False, True ):
         d = blade_as_first( 3, 2, common,
-                            ( { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0 }, { "Feather": 17.0 } ),
+                            ( { "BladeMotionMode": 1.0, "Feather_1": 17.0 }, { "Feather": 17.0 } ),
                             rev )
         assert d < TOL, rev
 
 
 def test_individual_feather_and_fold():
     common = { "Feather": 5.0, "FoldAngle": 10.0, "AzFoldDir": 12.0, "ElFoldDir": -8.0, "OffFoldAx": 0.05 }
-    own = ( { "IndividualBladeFeatherFlag": 1.0, "Feather_2": -9.0,
+    own = ( { "BladeMotionMode": 1.0, "Feather_2": -9.0,
               "IndividualBladeFoldFlag": 1.0, "FoldAngle_2": 40.0 },
             { "Feather": -9.0, "FoldAngle": 40.0 } )
     assert blade_as_first( 4, 3, common, own ) < TOL
 
 
 def test_other_blades_follow_feather():
-    pid = new_prop( 3, { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0 } )
+    pid = new_prop( 3, { "BladeMotionMode": 1.0, "Feather_1": 17.0 } )
     assert vsp.GetParmVal( pid, "Feather_2", "Articulation" ) == 0.0
-    set_parms( pid, { "IndividualBladeFeatherFlag": 0.0, "Feather": 8.0 } )
+    set_parms( pid, { "BladeMotionMode": 0.0, "Feather": 8.0 } )
     assert vsp.GetParmVal( pid, "Feather_1", "Articulation" ) == 8.0
     assert vsp.GetParmVal( pid, "Feather_2", "Articulation" ) == 8.0
 
@@ -91,18 +91,18 @@ def test_beta34_drives_all_blades():
     # While Beta34 drives, every blade takes the feather Beta34 gives; the blades' own angles
     # are kept for when the feather angle drives again.
     assert blade_as_first( 3, 2, { "UseBeta34Flag": 1.0 },
-                           ( { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0 }, {} ) ) < TOL
-    pid = new_prop( 3, { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0, "Feather": 4.0 } )
+                           ( { "BladeMotionMode": 1.0, "Feather_1": 17.0 }, {} ) ) < TOL
+    pid = new_prop( 3, { "BladeMotionMode": 1.0, "Feather_1": 17.0, "Feather": 4.0 } )
     own = blade( pid, 1 )
     set_parms( pid, { "UseBeta34Flag": 1.0 } )
-    assert vsp.GetParmVal( pid, "IndividualBladeFeatherFlag", "Articulation" ) == 1.0
+    assert vsp.GetParmVal( pid, "BladeMotionMode", "Articulation" ) == 1.0
     assert vsp.GetParmVal( pid, "Feather_1", "Articulation" ) == 17.0
     set_parms( pid, { "UseBeta34Flag": 0.0 } )
     assert furthest( blade( pid, 1 ), own ) < TOL
 
 
 def test_individual_feather_round_trip():
-    pid = new_prop( 3, { "IndividualBladeFeatherFlag": 1.0, "Feather_1": 17.0, "Feather_2": -3.0 } )
+    pid = new_prop( 3, { "BladeMotionMode": 1.0, "Feather_1": 17.0, "Feather_2": -3.0 } )
     want = [ blade( pid, s ) for s in range( 3 ) ]
     path = os.path.join( tempfile.mkdtemp(), "feather.vsp3" )
     vsp.WriteVSPFile( path )
@@ -143,17 +143,16 @@ def test_flap_turns_about_its_hinge():
 def test_individual_flap():
     common = { "FlapAngle": 3.0, "RFlapAx": 0.08, "ElFlapDir": 15.0, "AzFlapDir": -5.0,
                "Feather": 7.0, "FoldAngle": 12.0 }
-    own = ( { "IndividualBladeFlapFlag": 1.0, "FlapAngle_2": -6.0,
-              "IndividualBladeFeatherFlag": 1.0, "Feather_2": 11.0 },
+    own = ( { "BladeMotionMode": 1.0, "FlapAngle_2": -6.0, "Feather_2": 11.0 },
             { "FlapAngle": -6.0, "Feather": 11.0 } )
     for rev in ( False, True ):
         assert blade_as_first( 4, 3, common, own, rev ) < TOL, rev
 
 
 def test_other_blades_follow_flap():
-    pid = new_prop( 3, { "IndividualBladeFlapFlag": 1.0, "FlapAngle_1": 9.0 } )
+    pid = new_prop( 3, { "BladeMotionMode": 1.0, "FlapAngle_1": 9.0 } )
     assert vsp.GetParmVal( pid, "FlapAngle_2", "Articulation" ) == 0.0
-    set_parms( pid, { "IndividualBladeFlapFlag": 0.0, "FlapAngle": 4.0 } )
+    set_parms( pid, { "BladeMotionMode": 0.0, "FlapAngle": 4.0 } )
     assert vsp.GetParmVal( pid, "FlapAngle_1", "Articulation" ) == 4.0
     assert vsp.GetParmVal( pid, "FlapAngle_2", "Articulation" ) == 4.0
 
@@ -218,17 +217,17 @@ def test_lag_turns_about_its_hinge():
 def test_individual_lag():
     common = { "LagAngle": 2.0, "RLagAx": 0.1, "CantLagDir": 12.0, "AzLagDir": 5.0,
                "FlapAngle": 3.0, "Feather": 7.0, "FoldAngle": 12.0 }
-    own = ( { "IndividualBladeLagFlag": 1.0, "LagAngle_2": -7.0,
-              "IndividualBladeFlapFlag": 1.0, "FlapAngle_2": 6.0 },
+    # One mode gives every hinge its own angles, so blade 3's feather is given as well.
+    own = ( { "BladeMotionMode": 1.0, "LagAngle_2": -7.0, "FlapAngle_2": 6.0, "Feather_2": 7.0 },
             { "LagAngle": -7.0, "FlapAngle": 6.0 } )
     for rev in ( False, True ):
         assert blade_as_first( 4, 3, common, own, rev ) < TOL, rev
 
 
 def test_other_blades_follow_lag():
-    pid = new_prop( 3, { "IndividualBladeLagFlag": 1.0, "LagAngle_1": 9.0 } )
+    pid = new_prop( 3, { "BladeMotionMode": 1.0, "LagAngle_1": 9.0 } )
     assert vsp.GetParmVal( pid, "LagAngle_2", "Articulation" ) == 0.0
-    set_parms( pid, { "IndividualBladeLagFlag": 0.0, "LagAngle": 4.0 } )
+    set_parms( pid, { "BladeMotionMode": 0.0, "LagAngle": 4.0 } )
     assert vsp.GetParmVal( pid, "LagAngle_1", "Articulation" ) == 4.0
     assert vsp.GetParmVal( pid, "LagAngle_2", "Articulation" ) == 4.0
 
@@ -406,8 +405,7 @@ def test_blades_removed_and_added():
     # Blades removed take their own angles with them; blades added back start at the propeller's.
     masters = { "FlapAngle": 4.0, "LagAngle": -2.0, "FoldAngle": 7.0, "Feather": 5.0 }
     pid = new_prop( 4, masters )
-    set_parms( pid, { "IndividualBladeFlapFlag": 1.0, "IndividualBladeLagFlag": 1.0,
-                      "IndividualBladeFoldFlag": 1.0, "IndividualBladeFeatherFlag": 1.0 } )
+    set_parms( pid, { "BladeMotionMode": 1.0, "IndividualBladeFoldFlag": 1.0 } )
     own = {}
     for name in ( "FlapAngle", "LagAngle", "FoldAngle", "Feather" ):
         for i in range( 1, 4 ):
@@ -444,11 +442,11 @@ def test_default_hinge_places():
 
 
 def test_active_blade_kept_while_any_blade_motion_is_individual():
-    pid = new_prop( 4, { "IndividualBladeFlapFlag": 1.0 } )
+    pid = new_prop( 4, { "BladeMotionMode": 1.0 } )
     vsp.SetParmVal( pid, "ActiveBlade", "Index", 3 )
     set_parms( pid, { "FlapAngle": 4.0 } )
     assert vsp.GetParmVal( pid, "ActiveBlade", "Index" ) == 3
-    set_parms( pid, { "IndividualBladeFlapFlag": 0.0 } )
+    set_parms( pid, { "BladeMotionMode": 0.0 } )
     assert vsp.GetParmVal( pid, "ActiveBlade", "Index" ) == 1
 
 

@@ -2341,6 +2341,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "PROP_BLADE_MOTION_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_BLADE_MOTION_MODE", "PROP_BLADE_COLLECTIVE", PROP_BLADE_COLLECTIVE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_BLADE_MOTION_MODE", "PROP_BLADE_INDIVIDUAL", PROP_BLADE_INDIVIDUAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_BLADE_MOTION_MODE", "PROP_BLADE_HARMONIC", PROP_BLADE_HARMONIC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_BLADE_MOTION_MODE", "NUM_PROP_BLADE_MOTION", NUM_PROP_BLADE_MOTION );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "PROP_BLADE_MODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_BLADE_MODE", "PROP_BLADE_TRADITIONAL", PROP_BLADE_TRADITIONAL );

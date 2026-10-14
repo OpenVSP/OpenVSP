@@ -4,14 +4,16 @@
 
 # The parms in the Articulation group; every other propeller parm the tests set is in Design.
 ARTICULATION = (
-    "RFeatherAx", "IndividualBladeFeatherFlag",
-    "RFlapAx", "AxFlapAx", "OffFlapAx", "AzFlapDir", "ElFlapDir", "FlapAngle", "IndividualBladeFlapFlag",
-    "RLagAx", "AxLagAx", "OffLagAx", "AzLagDir", "CantLagDir", "LagAngle", "IndividualBladeLagFlag",
+    "RFeatherAx",
+    "RFlapAx", "AxFlapAx", "OffFlapAx", "AzFlapDir", "ElFlapDir", "FlapAngle",
+    "RLagAx", "AxLagAx", "OffLagAx", "AzLagDir", "CantLagDir", "LagAngle",
+    "FlapMean", "LagMean", "FeatherMean", "PsiRef", "BladeMotionMode", "NumHarmonics",
 )
 ARTICULATION_PER_BLADE = (
     "Feather_",
     "FlapAngle_",
     "LagAngle_",
+    "FlapCos_", "FlapSin_", "LagCos_", "LagSin_", "FeatherCos_", "FeatherSin_",
 )
 
 

@@ -25,12 +25,13 @@ STEPS = [
     { "LagAngle": -3.0 },
     { "FeatherOffsetXoC": 0.1, "ConstructXoC": 0.4 },
     # Each blade's own angle is given: one never synced to the master keeps its first value.
-    { "IndividualBladeLagFlag": 1.0, "LagAngle_1": 5.0, "LagAngle_2": -3.0, "LagAngle_3": 2.0 },
+    { "BladeMotionMode": 1.0, "LagAngle_1": 5.0, "LagAngle_2": -3.0, "LagAngle_3": 2.0 },
     { "UseBeta34Flag": 1.0, "Beta34": 25.0 },
     { "FoldAngle": 20.0, "AzFoldDir": 10.0 },
     { "PropMode": vsp.PROP_BOTH },
     { "NumBlade": 2 },
-    { "Feather": 3.0, "UseBeta34Flag": 0.0 },
+    # The feather drives again; blade 2 has its own feather in this mode, so it is given.
+    { "Feather": 3.0, "UseBeta34Flag": 0.0, "Feather_1": 3.0 },
     { "ReverseFlag": 1.0 },
     # A blade added back starts from the propeller's angle, here zero; then each is given its own.
     { "LagAngle": 0.0 },
@@ -114,12 +115,22 @@ def furthest( a, b ):
     return max( math.dist( p, q ) for p, q in zip( a, b ) )
 
 
+# The parms that give blades their own angles.
+MODES = ( "BladeMotionMode", "IndividualBladeFoldFlag" )
+
+
+def own_angle( name ):
+    return name in MODES or name.split( "_" )[-1].isdigit()
+
+
 def fresh( parms, display = vsp.DISPLAY_BEZIER ):
-    """A propeller given parms all at once, beside any already in the model."""
+    """A propeller given parms all at once, beside any already in the model: the shared ones, then
+    the modes and each blade's own angles, as a propeller is set up by hand."""
     pid = vsp.AddGeom( "PROP" )
     # The per-blade parms are made by an Update.
     set_parms( pid, { "NumBlade": parms.get( "NumBlade", 3 ) } )
-    set_parms( pid, parms )
+    set_parms( pid, { k: v for k, v in parms.items() if not own_angle( k ) } )
+    set_parms( pid, { k: v for k, v in parms.items() if own_angle( k ) } )
     # A pasted propeller is new, so its first Update tessellates it with every parm set; the one
     # set up step by step could have kept a stale tessellation as the one under test may.
     vsp.CopyGeomToClipboard( pid )

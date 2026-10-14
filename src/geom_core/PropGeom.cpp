@@ -330,8 +330,8 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_FlapAngle.Init( "FlapAngle", "Articulation", this, 0.0, -1.0e12, 1.0e12 );
     m_FlapAngle.SetDescript( "Blade flap angle" );
 
-    m_IndividualBladeFlapFlag.Init( "IndividualBladeFlapFlag", "Articulation", this, false, 0, 1 );
-    m_IndividualBladeFlapFlag.SetDescript( "Flag to enable individual blade flap angles" );
+    m_FlapMean.Init( "FlapMean", "Articulation", this, 0.0, -180.0, 180.0 );
+    m_FlapMean.SetDescript( "Mean flap angle of the harmonic blade motion" );
 
     m_RadLagAxis.Init( "RLagAx", "Articulation", this, 0.1, 0.0, 1.0 );
     m_RadLagAxis.SetDescript( "Radial position of lag axis as fraction of radius" );
@@ -351,8 +351,8 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_LagAngle.Init( "LagAngle", "Articulation", this, 0.0, -1.0e12, 1.0e12 );
     m_LagAngle.SetDescript( "Blade lag angle" );
 
-    m_IndividualBladeLagFlag.Init( "IndividualBladeLagFlag", "Articulation", this, false, 0, 1 );
-    m_IndividualBladeLagFlag.SetDescript( "Flag to enable individual blade lag angles" );
+    m_LagMean.Init( "LagMean", "Articulation", this, 0.0, -180.0, 180.0 );
+    m_LagMean.SetDescript( "Mean lag angle of the harmonic blade motion" );
 
     m_RadFoldAxis.Init( "RFoldAx", "Design", this, 0.2, 0.0, 1.0 );
     m_RadFoldAxis.SetDescript( "Radial position of fold axis as fraction of radius" );
@@ -375,8 +375,18 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_IndividualBladeFoldFlag.Init( "IndividualBladeFoldFlag", "Design", this, false, 0, 1 );
     m_IndividualBladeFoldFlag.SetDescript( "Flag to enable individual blade fold angles" );
 
-    m_IndividualBladeFeatherFlag.Init( "IndividualBladeFeatherFlag", "Articulation", this, false, 0, 1 );
-    m_IndividualBladeFeatherFlag.SetDescript( "Flag to enable individual blade feather angles" );
+    m_PsiRef.Init( "PsiRef", "Articulation", this, 0.0, -360.0, 360.0 );
+    m_PsiRef.SetDescript( "Azimuth where psi is zero, in the direction of rotation; Rotate turns blade 1 from it" );
+
+    m_BladeMotionMode.Init( "BladeMotionMode", "Articulation", this, vsp::PROP_BLADE_COLLECTIVE, vsp::PROP_BLADE_COLLECTIVE,
+                            vsp::NUM_PROP_BLADE_MOTION - 1 );
+    m_BladeMotionMode.SetDescript( "How the blades take the flap, lag and feather angles" );
+
+    m_NumHarmonics.Init( "NumHarmonics", "Articulation", this, 1, 0, 20 );
+    m_NumHarmonics.SetDescript( "Number of harmonics of the flap, lag and feather angles" );
+
+    m_FeatherMean.Init( "FeatherMean", "Articulation", this, 0.0, -400.0, 400.0 );
+    m_FeatherMean.SetDescript( "Mean feather angle of the harmonic blade motion" );
 
     m_Beta34.Init( "Beta34", "Design", this, 20.0, -1.0e12, 1.0e12 );
     m_Beta34.SetDescript( "Blade pitch at 3/4 of radius" );
@@ -554,6 +564,7 @@ void PropGeom::InitPreset( int preset )
 
         m_UseBeta34Flag.Set( 0 );
         m_Feather.Set( 8.0 );
+        m_PsiRef.Set( 270.0 );
 
         // Thrust up.
         yrot = 90.0;
@@ -598,6 +609,7 @@ void PropGeom::InitPreset( int preset )
         m_UseBeta34Flag.Set( 1 );
         m_Beta34.Set( 20.0 );
         m_Feather.Set( 0.0 );
+        m_PsiRef.Set( 0.0 );
     }
 
     m_RakeCurve.SetCurve( t3, zero, vsp::LINEAR );
@@ -638,6 +650,12 @@ PropGeom::~PropGeom()
     TrimParmVec( m_LagAngleParmVec, 0 );
     TrimParmVec( m_FoldAngleParmVec, 0 );
     TrimParmVec( m_FeatherParmVec, 0 );
+    TrimParmVec( m_FlapCosParmVec, 0 );
+    TrimParmVec( m_FlapSinParmVec, 0 );
+    TrimParmVec( m_LagCosParmVec, 0 );
+    TrimParmVec( m_LagSinParmVec, 0 );
+    TrimParmVec( m_FeatherCosParmVec, 0 );
+    TrimParmVec( m_FeatherSinParmVec, 0 );
     TrimParmVec( m_BladeAzimuthParmVec, 0 );
     TrimParmVec( m_BladeDeltaAzimuthParmVec, 0 );
 }
@@ -1535,6 +1553,7 @@ void PropGeom::UpdateFlags()
 void PropGeom::UpdatePostSurf()
 {
     ReserveBlades( m_Nblade() - 1 );
+    ReserveHarmonics();
 
     m_ActiveBlade.SetUpperLimit( m_Nblade() );
 
@@ -1546,20 +1565,19 @@ void PropGeom::UpdatePostSurf()
 
     CheckBalance();
 
-    if ( !m_IndividualBladeFlapFlag() )
-    {
-        for ( int i = 0; i < m_FlapAngleParmVec.size(); i++ )
-        {
-            m_FlapAngleParmVec[i]->Set( m_FlapAngle() );
-        }
-    }
+    UpdateBladeMotion( m_BladeMotionMode(), m_FlapAngle, m_FlapAngleParmVec, m_FlapMean, m_FlapCosParmVec,
+                       m_FlapSinParmVec );
 
-    if ( !m_IndividualBladeLagFlag() )
+    UpdateBladeMotion( m_BladeMotionMode(), m_LagAngle, m_LagAngleParmVec, m_LagMean, m_LagCosParmVec,
+                       m_LagSinParmVec );
+
+    if ( m_BladeMotionMode() == vsp::PROP_BLADE_HARMONIC )
     {
-        for ( int i = 0; i < m_LagAngleParmVec.size(); i++ )
-        {
-            m_LagAngleParmVec[i]->Set( m_LagAngle() );
-        }
+        m_NumHarmonics.Activate();
+    }
+    else
+    {
+        m_NumHarmonics.Deactivate();
     }
 
     if ( !m_IndividualBladeFoldFlag() )
@@ -1573,40 +1591,35 @@ void PropGeom::UpdatePostSurf()
     if ( m_UseBeta34Flag() == 1 )
     {
         m_Feather = m_Beta34() - m_Twist34;
+    }
+
+    // While Beta34 drives every blade takes its feather, but blades given their own keep them.
+    int feather_mode = FeatherMode();
+    if ( m_BladeMotionMode() == vsp::PROP_BLADE_INDIVIDUAL )
+    {
+        feather_mode = vsp::PROP_BLADE_INDIVIDUAL;
+    }
+    UpdateBladeMotion( feather_mode, m_Feather, m_FeatherParmVec, m_FeatherMean, m_FeatherCosParmVec,
+                       m_FeatherSinParmVec );
+
+    if ( m_UseBeta34Flag() == 1 )
+    {
         m_Beta34.Activate();
         m_Feather.Deactivate();
+        for ( int i = 0; i < ( int )m_FeatherParmVec.size(); i++ )
+        {
+            m_FeatherParmVec[i]->Deactivate();
+        }
     }
     else
     {
         m_Beta34 = m_Feather() + m_Twist34;
         m_Beta34.Deactivate();
-        m_Feather.Activate();
     }
 
-    // Blades feather individually only while the feather angle drives Beta34.  While Beta34
-    // drives, the flag and the blades' own angles are kept but not used.
-    if ( m_UseBeta34Flag() )
-    {
-        m_IndividualBladeFeatherFlag.Deactivate();
-    }
-    else
-    {
-        m_IndividualBladeFeatherFlag.Activate();
-    }
-
-    if ( !m_IndividualBladeFeatherFlag() )
-    {
-        for ( int i = 0; i < m_FeatherParmVec.size(); i++ )
-        {
-            m_FeatherParmVec[i]->Set( m_Feather() );
-        }
-    }
-
-    // The Blade counter goes back to the first blade while no blade has its own angles.
+    // The Blade counter goes back to the first blade while no blade is given its own angles.
     bool individual = m_IndividualBladeFoldFlag();
-    individual = individual || IndividualBladeFeather();
-    individual = individual || m_IndividualBladeFlapFlag();
-    individual = individual || m_IndividualBladeLagFlag();
+    individual = individual || m_BladeMotionMode() == vsp::PROP_BLADE_INDIVIDUAL;
     if ( !individual )
     {
         m_ActiveBlade.Set( 1 );
@@ -2173,14 +2186,102 @@ static double GetBladeValue( const vector< Parm* > & vec, bool individual, int i
     return master;
 }
 
-double PropGeom::GetBladeFlapAngle( int iblade )
+// mean plus the harmonics at azimuth psi, degrees: cos_n cos( n psi ) + sin_n sin( n psi ).
+static double HarmonicValue( double mean, const vector< Parm* > & cosvec, const vector< Parm* > & sinvec, double psi )
 {
-    return GetBladeValue( m_FlapAngleParmVec, m_IndividualBladeFlapFlag(), iblade, m_FlapAngle() );
+    double val = mean;
+    double p = psi * M_PI / 180.0;
+    for ( int n = 1; n <= ( int )cosvec.size() && n <= ( int )sinvec.size(); n++ )
+    {
+        val += cosvec[ n - 1 ]->Get() * cos( n * p ) + sinvec[ n - 1 ]->Get() * sin( n * p );
+    }
+    return val;
 }
 
-double PropGeom::GetBladeLagAngle( int iblade )
+// Blade iblade's azimuth psi with the propeller turned to rotate: rotate plus the blade's azimuth, in
+// the direction of rotation.  PsiRef turns psi's zero with the blades.
+double PropGeom::GetBladePsi( int iblade, double rotate )
 {
-    return GetBladeValue( m_LagAngleParmVec, m_IndividualBladeLagFlag(), iblade, m_LagAngle() );
+    double psi = rotate;
+    if ( iblade > 0 && iblade <= ( int )m_BladeAzimuthParmVec.size() )
+    {
+        psi += m_BladeAzimuthParmVec[ iblade - 1 ]->Get();
+    }
+    return psi;
+}
+
+// Set the angles a mode makes outputs: in harmonic mode blade 1's and the other blades', from the
+// harmonics at Rotate, greyed; in collective mode the other blades', to blade 1's.  The harmonic parms
+// are greyed in the other modes.
+void PropGeom::UpdateBladeMotion( int mode, Parm & angle, vector< Parm* > & bladevec, Parm & mean,
+                                  vector< Parm* > & cosvec, vector< Parm* > & sinvec )
+{
+    bool harmonic = ( mode == vsp::PROP_BLADE_HARMONIC );
+    if ( harmonic )
+    {
+        angle.Set( HarmonicValue( mean(), cosvec, sinvec, GetBladePsi( 0, m_Rotate() ) ) );
+    }
+
+    for ( int i = 0; i < ( int )bladevec.size(); i++ )
+    {
+        if ( harmonic )
+        {
+            bladevec[i]->Set( HarmonicValue( mean(), cosvec, sinvec, GetBladePsi( i + 1, m_Rotate() ) ) );
+        }
+        else if ( mode == vsp::PROP_BLADE_COLLECTIVE )
+        {
+            bladevec[i]->Set( angle() );
+        }
+    }
+
+    vector< Parm* > outputs = bladevec;
+    outputs.push_back( &angle );
+
+    vector< Parm* > inputs = cosvec;
+    inputs.insert( inputs.end(), sinvec.begin(), sinvec.end() );
+    inputs.push_back( &mean );
+
+    for ( int i = 0; i < ( int )outputs.size(); i++ )
+    {
+        if ( harmonic )
+        {
+            outputs[i]->Deactivate();
+        }
+        else
+        {
+            outputs[i]->Activate();
+        }
+    }
+
+    for ( int i = 0; i < ( int )inputs.size(); i++ )
+    {
+        if ( harmonic )
+        {
+            inputs[i]->Activate();
+        }
+        else
+        {
+            inputs[i]->Deactivate();
+        }
+    }
+}
+
+double PropGeom::GetBladeFlapAngle( int iblade, double rotate )
+{
+    if ( m_BladeMotionMode() == vsp::PROP_BLADE_HARMONIC )
+    {
+        return HarmonicValue( m_FlapMean(), m_FlapCosParmVec, m_FlapSinParmVec, GetBladePsi( iblade, rotate ) );
+    }
+    return GetBladeValue( m_FlapAngleParmVec, m_BladeMotionMode() == vsp::PROP_BLADE_INDIVIDUAL, iblade, m_FlapAngle() );
+}
+
+double PropGeom::GetBladeLagAngle( int iblade, double rotate )
+{
+    if ( m_BladeMotionMode() == vsp::PROP_BLADE_HARMONIC )
+    {
+        return HarmonicValue( m_LagMean(), m_LagCosParmVec, m_LagSinParmVec, GetBladePsi( iblade, rotate ) );
+    }
+    return GetBladeValue( m_LagAngleParmVec, m_BladeMotionMode() == vsp::PROP_BLADE_INDIVIDUAL, iblade, m_LagAngle() );
 }
 
 double PropGeom::GetBladeFoldAngle( int iblade )
@@ -2188,18 +2289,26 @@ double PropGeom::GetBladeFoldAngle( int iblade )
     return GetBladeValue( m_FoldAngleParmVec, m_IndividualBladeFoldFlag(), iblade, m_FoldAngle() );
 }
 
-// Whether the blades feather individually: the flag, while the feather angle drives Beta34.
-bool PropGeom::IndividualBladeFeather()
+// The feather's mode in use: collective while Beta34 drives, whatever the mode is set to.
+int PropGeom::FeatherMode()
 {
-    return m_IndividualBladeFeatherFlag() && !m_UseBeta34Flag();
+    if ( m_UseBeta34Flag() )
+    {
+        return vsp::PROP_BLADE_COLLECTIVE;
+    }
+    return m_BladeMotionMode();
 }
 
-double PropGeom::GetBladeFeather( int iblade )
+double PropGeom::GetBladeFeather( int iblade, double rotate )
 {
-    return GetBladeValue( m_FeatherParmVec, IndividualBladeFeather(), iblade, m_Feather() );
+    if ( FeatherMode() == vsp::PROP_BLADE_HARMONIC )
+    {
+        return HarmonicValue( m_FeatherMean(), m_FeatherCosParmVec, m_FeatherSinParmVec, GetBladePsi( iblade, rotate ) );
+    }
+    return GetBladeValue( m_FeatherParmVec, FeatherMode() == vsp::PROP_BLADE_INDIVIDUAL, iblade, m_Feather() );
 }
 
-// The blade's azimuth, the propeller rotation and the precone: the motion inboard of the hinges.
+// The blade's azimuth, the propeller rotation from PsiRef and the precone: the motion inboard of the hinges.
 void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade, double rotate )
 {
     double rev = 1.0;
@@ -2215,6 +2324,7 @@ void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade, double rotate )
         mat.rotateX( -rev * m_BladeAzimuthParmVec[ iblade - 1 ]->Get() );
     }
 
+    mat.rotateX( -rev * m_PsiRef() );
     mat.rotateX( -rev * rotate );
 
     mat.rotateZ( m_Precone() );
@@ -2224,10 +2334,10 @@ void PropGeom::BladeRootMotion( Matrix4d & mat, int iblade, double rotate )
 vector< BladeHinge > PropGeom::GetBladeHinges( int iblade, double rotate )
 {
     vector< BladeHinge > hinges;
-    hinges.push_back( { m_RadFlapAxis(), FLAP_HINGE, m_FlapAxOrigin, m_FlapAxDirection, GetBladeFlapAngle( iblade ) } );
-    hinges.push_back( { m_RadLagAxis(), LAG_HINGE, m_LagAxOrigin, m_LagAxDirection, GetBladeLagAngle( iblade ) } );
+    hinges.push_back( { m_RadFlapAxis(), FLAP_HINGE, m_FlapAxOrigin, m_FlapAxDirection, GetBladeFlapAngle( iblade, rotate ) } );
+    hinges.push_back( { m_RadLagAxis(), LAG_HINGE, m_LagAxOrigin, m_LagAxDirection, GetBladeLagAngle( iblade, rotate ) } );
     hinges.push_back( { m_RadFoldAxis(), FOLD_HINGE, m_FoldAxOrigin, m_FoldAxDirection, GetBladeFoldAngle( iblade ) } );
-    hinges.push_back( { m_RadFeatherAxis(), FEATHER_HINGE, m_FeatherAxOrigin, m_FeatherAxDirection, GetBladeFeather( iblade ) } );
+    hinges.push_back( { m_RadFeatherAxis(), FEATHER_HINGE, m_FeatherAxOrigin, m_FeatherAxDirection, GetBladeFeather( iblade, rotate ) } );
 
     std::sort( hinges.begin(), hinges.end(), []( const BladeHinge & a, const BladeHinge & b )
     {
@@ -2293,6 +2403,34 @@ void PropGeom::AddBladeParm( vector< Parm* > & vec, const string & name, const s
         p->Init( string( str ), group, this, val, lower, upper );
         p->SetDescript( descript );
         vec.push_back( p );
+    }
+}
+
+// The coefficient parms each harmonic count asks for.
+void PropGeom::ReserveHarmonics()
+{
+    ReserveHarmonicParms( m_FlapCosParmVec, m_FlapSinParmVec, "Flap", "flap angle", m_NumHarmonics() );
+    ReserveHarmonicParms( m_LagCosParmVec, m_LagSinParmVec, "Lag", "lag angle", m_NumHarmonics() );
+    ReserveHarmonicParms( m_FeatherCosParmVec, m_FeatherSinParmVec, "Feather", "feather angle", m_NumHarmonics() );
+}
+
+// Make or delete the parms nameCos_k and nameSin_k so there are n harmonics.
+void PropGeom::ReserveHarmonicParms( vector< Parm* > & cosvec, vector< Parm* > & sinvec, const string & name,
+                                     const string & angle, int n )
+{
+    TrimParmVec( cosvec, n );
+    TrimParmVec( sinvec, n );
+    while ( ( int )cosvec.size() < n )
+    {
+        int k = cosvec.size() + 1;
+        char str[255];
+        snprintf( str, sizeof( str ), " of harmonic %d of the %s", k, angle.c_str() );
+        AddBladeParm( cosvec, name + "Cos", "Articulation", k, 0.0, -180.0, 180.0, string( "Cosine coefficient" ) + str );
+        AddBladeParm( sinvec, name + "Sin", "Articulation", k, 0.0, -180.0, 180.0, string( "Sine coefficient" ) + str );
+        if ( ( int )cosvec.size() < k || ( int )sinvec.size() < k )
+        {
+            break;
+        }
     }
 }
 
@@ -2445,6 +2583,18 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
                 ReserveBlades( (int) nblade - 1 );
             }
         }
+
+        // The harmonic count, so the coefficient parms exist to be read.
+        gnode = XmlUtil::GetNode( child_node, "Articulation", 0 );
+        if ( gnode )
+        {
+            xmlNodePtr n = XmlUtil::GetNode( gnode, "NumHarmonics", 0 );
+            if ( n )
+            {
+                m_NumHarmonics.Set( XmlUtil::FindDoubleProp( n, "Value", m_NumHarmonics() ) );
+            }
+        }
+        ReserveHarmonics();
     }
 
     Geom::DecodeXml( node );

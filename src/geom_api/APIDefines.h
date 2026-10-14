@@ -1304,6 +1304,16 @@ enum PROP_AZIMUTH_MODE { PROP_AZI_UNIFORM,	/*!< Propeller blades are uniformly s
 /*!
 	\ingroup Enumerations
 */
+/*! Enum used to specify how the blades of a propeller take a hinge's angle. */
+enum PROP_BLADE_MOTION_MODE { PROP_BLADE_COLLECTIVE,	/*!< Every blade takes the same angle */
+                              PROP_BLADE_INDIVIDUAL,	/*!< Each blade has its own angle */
+                              PROP_BLADE_HARMONIC,	/*!< Each blade's angle is a mean plus harmonics of its azimuth */
+                              NUM_PROP_BLADE_MOTION,	/*!< Number of propeller blade motion modes */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum used to identify thrown blade type for AC 25.905-1. */
 enum PROP_BLADE_MODE { PROP_BLADE_TRADITIONAL,	/*!< Traditional straight blades */
                        PROP_BLADE_NONTRADITIONAL,	/*!< Non-traditional blades */
