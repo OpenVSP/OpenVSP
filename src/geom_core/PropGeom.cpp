@@ -415,22 +415,22 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_CLi.Init( "CLi", "Design", this, 0.5, 0, 1e12 );
     m_CLi.SetDescript( "Integrated design lift coefficient" );
 
-    m_Solidity.Init( "Solidity", "Design", this, 0.5, 0, 1.0 );
+    m_Solidity.Init( "Solidity", "Design", this, 0.5, 0, 1.0e12 );
     m_Solidity.SetDescript( "Geometric blade solidity" );
 
-    m_TSolidity.Init( "TSolidity", "Design", this, 0.5, 0, 1.0 );
+    m_TSolidity.Init( "TSolidity", "Design", this, 0.5, 0, 1.0e12 );
     m_TSolidity.SetDescript( "Thrust weighted blade solidity" );
 
-    m_PSolidity.Init( "PSolidity", "Design", this, 0.5, 0, 1.0 );
+    m_PSolidity.Init( "PSolidity", "Design", this, 0.5, 0, 1.0e12 );
     m_PSolidity.SetDescript( "Power weighted blade solidity" );
 
-    m_Chord.Init( "Chord", "Design", this, 0.5, 0, 1.0 );
+    m_Chord.Init( "Chord", "Design", this, 0.5, 0, 1.0e12 );
     m_Chord.SetDescript( "Geometric blade chord" );
 
-    m_TChord.Init( "TChord", "Design", this, 0.5, 0, 1.0 );
+    m_TChord.Init( "TChord", "Design", this, 0.5, 0, 1.0e12 );
     m_TChord.SetDescript( "Thrust weighted blade chord" );
 
-    m_PChord.Init( "PChord", "Design", this, 0.5, 0, 1.0 );
+    m_PChord.Init( "PChord", "Design", this, 0.5, 0, 1.0e12 );
     m_PChord.SetDescript( "Power weighted blade chord" );
 
     m_LECluster.Init( "LECluster", "Design", this, 0.25, 1e-4, 10.0 );
