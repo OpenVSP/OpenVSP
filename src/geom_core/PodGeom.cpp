@@ -22,7 +22,7 @@ PodGeom::PodGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Length.Init( "Length", "Design", this, 10.0, 1.0e-8, 1.0e12 );
     m_Length.SetDescript( "Length of pod" );
     m_FineRatio.Init( "FineRatio", "Design", this, 15.0, 1.0, 1000.0 );
-    m_FineRatio.SetDescript( "The ratio of the length to diameter" );
+    m_FineRatio.SetDescript( "The ratio of the length to the greatest radius" );
 
     m_Xoff = 0.0;
 
