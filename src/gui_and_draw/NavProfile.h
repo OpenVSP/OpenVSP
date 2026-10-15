@@ -25,6 +25,7 @@ enum NavAction
     NAV_ROLL,
     NAV_PAN,
     NAV_ZOOM,
+    NAV_ZOOM_BOX,       // Drag a rectangle; on release it fills the view.
     NAV_BOX_SELECT,     // Drag a rectangle; on release the Fit Model points in it are selected.
 };
 

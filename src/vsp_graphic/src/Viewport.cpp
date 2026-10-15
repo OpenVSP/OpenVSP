@@ -22,6 +22,22 @@
 
 namespace VSPGraphic
 {
+// The outline of a selection or zoom box, dashed in dark grey.
+static void DrawBox( float x0, float y0, float x1, float y1, float width )
+{
+    glLineWidth( width );
+    glEnable( GL_LINE_STIPPLE );
+    glLineStipple( 2, 0x5555 );
+    glColor4f( 0.2f, 0.2f, 0.2f, 1.0f );
+    glBegin( GL_LINE_LOOP );
+    glVertex2f( x0, y0 );
+    glVertex2f( x1, y0 );
+    glVertex2f( x1, y1 );
+    glVertex2f( x0, y1 );
+    glEnd();
+    glDisable( GL_LINE_STIPPLE );
+}
+
 Viewport::Viewport( int x, int y, int width, int height )
 {
     _x = x;
@@ -45,6 +61,12 @@ Viewport::Viewport( int x, int y, int width, int height )
     _showGrid = false;
 
     _showWatermark = false;
+
+    _showOverlayBox = false;
+    for ( int i = 0; i < 4; i++ )
+    {
+        _overlayBox[i] = 0;
+    }
 }
 Viewport::~Viewport()
 {
@@ -570,25 +592,70 @@ void Viewport::drawRectangle( int startx, int starty, int x, int y )
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
-    glColor4f( 1.0f, 0.0f, 0.0f, 1.0f );
-    glLineWidth( 1.0f * _screenSizeDiffRatio );
-
     float sstartx = 2.0f*(float)startx/(float)_vWidth - 1.0f;
     float sstarty = 2.0f*(float)starty/(float)_vHeight - 1.0f;
     float sx = 2.0f*(float)x/(float)_vWidth - 1.0f;
     float sy = 2.0f*(float)y/(float)_vHeight - 1.0f;
 
-    glLineWidth( BORDER_LINEWIDTH * _screenSizeDiffRatio );
-    glBegin( GL_LINE_LOOP );
-    glVertex2f( sstartx , sstarty );
-    glVertex2f( sx , sstarty );
-    glVertex2f( sx , sy );
-    glVertex2f( sstartx , sy );
-    glEnd();
+    DrawBox( sstartx, sstarty, sx, sy, BORDER_LINEWIDTH * _screenSizeDiffRatio );
 
     glMatrixMode( GL_PROJECTION );
     glPopMatrix();
 
     glMatrixMode( GL_MODELVIEW );
+}
+
+void Viewport::setOverlayBox( bool show, int x0, int y0, int x1, int y1 )
+{
+    _showOverlayBox = show;
+    _overlayBox[0] = x0;
+    _overlayBox[1] = y0;
+    _overlayBox[2] = x1;
+    _overlayBox[3] = y1;
+}
+
+void Viewport::drawOverlay()
+{
+    if ( !_showOverlayBox )
+    {
+        return;
+    }
+
+    GLboolean depthTest = glIsEnabled( GL_DEPTH_TEST );
+
+    // Window pixels relative to this viewport.
+    glm::mat4 pixels = glm::ortho( 0.0f, ( float )_vWidth, 0.0f, ( float )_vHeight, -1.0f, 1.0f );
+
+    glMatrixMode( GL_PROJECTION );
+    glPushMatrix();
+    glLoadMatrixf( &pixels[0][0] );
+
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    glLoadIdentity();
+
+    glDisable( GL_DEPTH_TEST );
+    glLineWidth( 1.0f * _screenSizeDiffRatio );
+
+    if ( _showOverlayBox )
+    {
+        float x0 = _overlayBox[0] - _x + 0.5f;
+        float y0 = _overlayBox[1] - _y + 0.5f;
+        float x1 = _overlayBox[2] - _x + 0.5f;
+        float y1 = _overlayBox[3] - _y + 0.5f;
+
+        DrawBox( x0, y0, x1, y1, BORDER_LINEWIDTH * _screenSizeDiffRatio );
+    }
+
+    if ( depthTest )
+    {
+        glEnable( GL_DEPTH_TEST );
+    }
+
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
 }
 }

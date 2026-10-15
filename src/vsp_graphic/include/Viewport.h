@@ -153,6 +153,16 @@ public:
 
     void drawRectangle( int sx, int sy, int x, int y );
 
+    /*!
+    * A rectangle drawn over the scene, such as a zoom box.  Corners are in window pixels.
+    */
+    void setOverlayBox( bool show, int x0, int y0, int x1, int y1 );
+
+    /*!
+    * Draw the overlays set on this viewport.
+    */
+    void drawOverlay();
+
 public:
     /*
     * Show / hide Borders.
@@ -210,6 +220,9 @@ private:
 
     std::vector < double > _xGridVec;
     std::vector < double > _yGridVec;
+
+    bool _showOverlayBox;
+    int _overlayBox[4];
 
     Camera* _camera;
     Background * _background;

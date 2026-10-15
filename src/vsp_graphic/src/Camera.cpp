@@ -163,6 +163,17 @@ void Camera::zoomToward( float zoomChange, int x, int y )
     relativePan( pan.x + mousePosAfterX - mousePosBeforeX , pan.y + mousePosAfterY - mousePosBeforeY );
 }
 
+void Camera::centerAt( float x, float y )
+{
+    // Offset from the viewport center in eye units.
+    float zoom = getRelativeZoomValue();
+    float ex = zoom * ( x - _vx - 0.5f * _vWidth );
+    float ey = zoom * ( y - _vy - 0.5f * _vHeight );
+
+    glm::vec2 pan = getPanValues();
+    relativePan( pan.x - ex, pan.y - ey );
+}
+
 void Camera::_calculateProjection()
 {
     float range = 0;
