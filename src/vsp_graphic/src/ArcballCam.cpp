@@ -223,6 +223,24 @@ glm::vec4 ArcballCam::_matrixToQuat ( glm::mat4 mat )
     q.y *= sgn( q.y * ( mat[0][2] - mat[2][0] ) );
     q.z *= sgn( q.z * ( mat[1][0] - mat[0][1] ) );
 
+    // An off-diagonal difference of exactly zero zeroes its component above.  When that
+    // gives a different rotation, use glm's conversion; _toMatrix builds the transpose.
+    glm::mat4 check = _toMatrix( q );
+    float err = 0.0f;
+    for ( int i = 0; i < 3; i++ )
+    {
+        for ( int j = 0; j < 3; j++ )
+        {
+            err = std::max( err, std::abs( check[i][j] - mat[i][j] ) );
+        }
+    }
+
+    if ( err > 1.0e-4f )
+    {
+        glm::quat t = glm::quat_cast( glm::mat3( mat ) );
+        q = glm::vec4( -t.x, -t.y, -t.z, t.w );
+    }
+
     return q;
 }
 
