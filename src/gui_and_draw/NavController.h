@@ -26,6 +26,13 @@ namespace VSPGUI
 {
 class VspGlWindow;
 
+// Which rotation a rotate gesture uses.  The quick switch on the main window changes it.
+enum NavRotateMode
+{
+    NAV_ROTATE_BALL,
+    NAV_ROTATE_TURNTABLE
+};
+
 // What the Ball does.
 enum NavBallType
 {
@@ -43,10 +50,12 @@ struct NavSettings
     void Load();
     void Save() const;
 
+    int m_StartupRotateMode;    // NavRotateMode the main window starts in.
     int m_BallType;             // NavBallType.
     double m_BallSize;          // Ball diameter, fraction of the smaller viewport dimension.
     double m_BallBorder;        // Fillet width, fraction of the ball radius.
     double m_BallSpeed;         // Multiplier on each ball type's turn, 0.1 to 2.
+    double m_TurntableGain;     // Degrees per screen point.
 
     NavProfile m_Profile;       // The mouse bindings.
 };
@@ -63,6 +72,15 @@ public:
     const NavSettings & GetSettings() const
     {
         return m_Settings;
+    }
+
+    void SetRotateMode( int mode )
+    {
+        m_RotateMode = mode;
+    }
+    int GetRotateMode() const
+    {
+        return m_RotateMode;
     }
 
     NavAction GetAction() const
@@ -96,10 +114,12 @@ private:
 
     VspGlWindow * m_Win;
     NavSettings m_Settings;
+    int m_RotateMode;
 
     VSPGraphic::ClassicBall m_ClassicBall;
     VSPGraphic::Trackball m_Trackball;
     VSPGraphic::RoundedArcball m_RoundedArcball;
+    VSPGraphic::Turntable m_Turntable;
     VSPGraphic::RotationMethod * m_Rotation;
 
     std::set < int > m_HeldKeys;

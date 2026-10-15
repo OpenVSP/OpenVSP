@@ -185,6 +185,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RearMenuItem.Init( this, m_MenuBar, "View/Rear", FL_F + 10 );
     m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right", FL_F + 11 );
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
+    m_TurntableMenuItem.Init( this, m_MenuBar, "View/Turntable Rotation", 't' );
+    m_BallMenuItem.Init( this, m_MenuBar, "View/Ball Rotation", 'b' );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_SetVNMenuItem.Init( this, m_MenuBar, "View/View Normal To", 'n' );
     m_AlignGeomMenuItem.Init( this, m_MenuBar, "View/View Front Of", 'x' );
@@ -260,6 +262,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     VSPGUI::NavSettings nav_settings;
     nav_settings.Load();
     m_GlWin->GetNav().SetSettings( nav_settings );
+    m_GlWin->GetNav().SetRotateMode( nav_settings.m_StartupRotateMode );
 
     int filew = m_GenLayout.GetW() * .6;
 
@@ -359,6 +362,8 @@ bool MainVSPScreen::Update()
     m_AxisMenuItem.Update( m_ShowXYZArrow );
     m_BorderMenuItem.Update( m_ShowBorder );
 
+    SetRotateMode( m_GlWin->GetNav().GetRotateMode() );
+
     m_FLTK_Window->redraw();
     return true;
 }
@@ -392,9 +397,25 @@ void MainVSPScreen::CallBack( Fl_Widget* w )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void MainVSPScreen::SetRotateMode( int mode )
+{
+    m_GlWin->GetNav().SetRotateMode( mode );
+
+    m_TurntableMenuItem.Update( mode == VSPGUI::NAV_ROTATE_TURNTABLE );
+    m_BallMenuItem.Update( mode == VSPGUI::NAV_ROTATE_BALL );
+}
+
 void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
 {
+    int old_startup = m_GlWin->GetNav().GetSettings().m_StartupRotateMode;
+
     m_GlWin->GetNav().SetSettings( settings );
+
+    // The rotation mode changes with the startup mode, and only then.
+    if ( settings.m_StartupRotateMode != old_startup )
+    {
+        SetRotateMode( settings.m_StartupRotateMode );
+    }
 }
 
 void MainVSPScreen::GuiDeviceCallBack( GuiDevice* device )
@@ -683,6 +704,14 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_RightIsoMenuItem )
     {
         SetView( VSPGraphic::Common::VSP_CAM_RIGHT_ISO );
+    }
+    else if ( data == &m_TurntableMenuItem )
+    {
+        SetRotateMode( VSPGUI::NAV_ROTATE_TURNTABLE );
+    }
+    else if ( data == &m_BallMenuItem )
+    {
+        SetRotateMode( VSPGUI::NAV_ROTATE_BALL );
     }
     else if ( data == &m_CenterMenuItem )
     {

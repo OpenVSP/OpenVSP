@@ -68,11 +68,13 @@ protected:
     // 3D View tab.
     GroupLayout m_ViewLayout;
 
+    Choice m_RotateModeChoice;
     Choice m_BallTypeChoice;
     Choice m_BallSizeChoice;
     VspButton * m_BallSpeedLabel;
     VspSlider * m_BallSpeedSlider;
     Fl_Input * m_BallSpeedInput;
+    Choice m_TurntableSpeedChoice;
 
     // Bottom of the window.
     GroupLayout m_BottomLayout;

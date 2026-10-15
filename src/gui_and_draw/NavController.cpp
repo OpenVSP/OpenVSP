@@ -29,10 +29,12 @@ static const int NAV_MODIFIERS = FL_SHIFT | FL_CTRL | FL_ALT | FL_META;
 
 NavSettings::NavSettings()
 {
+    m_StartupRotateMode = NAV_ROTATE_BALL;
     m_BallType = NAV_BALL_TRACKBALL;
     m_BallSize = 0.9;
     m_BallBorder = 0.5;
     m_BallSpeed = 0.5;
+    m_TurntableGain = 0.4;
 
     m_Profile = NavProfile::Classic();
 }
@@ -56,6 +58,13 @@ void NavSettings::Load()
 
     char buf[64];
 
+    grp.get( "StartupRotate", buf, "Ball", sizeof( buf ) );
+    m_StartupRotateMode = NAV_ROTATE_BALL;
+    if ( strcmp( buf, "Turntable" ) == 0 )
+    {
+        m_StartupRotateMode = NAV_ROTATE_TURNTABLE;
+    }
+
     grp.get( "BallType", buf, "Trackball", sizeof( buf ) );
     m_BallType = NAV_BALL_TRACKBALL;
     if ( strcmp( buf, "RoundedArcball" ) == 0 )
@@ -74,10 +83,12 @@ void NavSettings::Load()
     double angle_scale = 2.0 * def.m_BallSpeed;
     grp.get( "BallAngleScale", angle_scale, angle_scale );
     grp.get( "BallSpeed", m_BallSpeed, 0.5 * angle_scale );
+    grp.get( "TurntableGain", m_TurntableGain, def.m_TurntableGain );
 
     m_BallSize = Checked( m_BallSize, 0.2, 1.5, def.m_BallSize );
     m_BallBorder = Checked( m_BallBorder, 0.0, 1.0, def.m_BallBorder );
     m_BallSpeed = Checked( m_BallSpeed, 0.1, 2.0, def.m_BallSpeed );
+    m_TurntableGain = Checked( m_TurntableGain, 0.01, 5.0, def.m_TurntableGain );
 }
 
 // Only values that differ from the defaults are stored, so a later change of a default
@@ -114,6 +125,9 @@ void NavSettings::Save() const
 
     grp.set( "FormatVersion", 1 );
 
+    const char * rotate_names[] = { "Ball", "Turntable" };
+    SaveName( grp, "StartupRotate", rotate_names[ m_StartupRotateMode ], rotate_names[ def.m_StartupRotateMode ] );
+
     const char * ball_names[] = { "RoundedArcball", "Classic", "Trackball" };
     SaveName( grp, "BallType", ball_names[ m_BallType ], ball_names[ def.m_BallType ] );
 
@@ -121,6 +135,7 @@ void NavSettings::Save() const
     SaveDouble( grp, "BallBorder", m_BallBorder, def.m_BallBorder );
     SaveDouble( grp, "BallSpeed", m_BallSpeed, def.m_BallSpeed );
     grp.deleteEntry( "BallAngleScale" );
+    SaveDouble( grp, "TurntableGain", m_TurntableGain, def.m_TurntableGain );
 
     prefs.flush();
 }
@@ -128,6 +143,7 @@ void NavSettings::Save() const
 NavController::NavController( VspGlWindow * win )
 {
     m_Win = win;
+    m_RotateMode = m_Settings.m_StartupRotateMode;
     m_Rotation = nullptr;
     m_Action = NAV_NONE;
     m_PressX = 0;
@@ -154,6 +170,15 @@ void NavController::SetSettings( const NavSettings & settings )
 
 VSPGraphic::RotationMethod * NavController::CurrentRotation()
 {
+    // The gain is per screen point; mouse locations are in pixels.
+    double gain = m_Settings.m_TurntableGain * M_PI / 180.0 / m_Win->pixels_per_unit();
+
+    if ( m_RotateMode == NAV_ROTATE_TURNTABLE )
+    {
+        m_Turntable.setParams( gain, glm::dvec3( 0.0, 0.0, 1.0 ) );
+        return &m_Turntable;
+    }
+
     if ( m_Settings.m_BallType == NAV_BALL_CLASSIC )
     {
         return &m_ClassicBall;

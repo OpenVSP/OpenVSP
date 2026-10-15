@@ -75,6 +75,9 @@ public:
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
 
+    // Rotation used by the next rotate gesture: NAV_ROTATE_BALL or NAV_ROTATE_TURNTABLE.
+    void SetRotateMode( int mode );
+
     // Apply new 3D interaction preferences.
     void SetNavSettings( const VSPGUI::NavSettings & settings );
 
@@ -137,6 +140,8 @@ protected:
     ActionMenuItem m_RearMenuItem;
     ActionMenuItem m_RightSideMenuItem;
     ActionMenuItem m_RightIsoMenuItem;
+    VSPCheckMenuItem m_TurntableMenuItem;
+    VSPCheckMenuItem m_BallMenuItem;
     ActionMenuItem m_CenterMenuItem;
     ActionMenuItem m_CenterAllMenuItem;
     ScreenMenuItem m_AdjustMenuItem;
