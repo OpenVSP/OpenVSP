@@ -26,3 +26,4 @@ particular purpose and can be added to a model as needed.
 ### Geometry
 
 - [Stack Presets](StackPresets.md)
+- [Propeller](Propeller.md)

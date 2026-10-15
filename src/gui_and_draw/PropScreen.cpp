@@ -23,7 +23,7 @@ static void AddBladeMotionItems( Choice & choice )
 }
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller", string(), string(), "Airfoil Alias", false ) // combine xsec and xseccurve name controls
+PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller", "Propeller.html", string(), "Airfoil Alias", false ) // combine xsec and xseccurve name controls
 {
     m_CurrDisplayGroup = nullptr;
 
