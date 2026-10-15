@@ -110,6 +110,14 @@ public:
     // True if a binding needs to know whether the press is on geometry.
     bool NeedsWhere() const;
 
+    // The bindings as text, one per line: "Rotate: Buttons=Middle Mods=Ctrl ...".  Fields at
+    // their NavBind() values are left out.
+    std::string BindingsText() const;
+
+    // Replace the bindings with those in text from BindingsText().  On any error, return false
+    // and leave them as they were.
+    bool SetBindingsText( const std::string & text );
+
     std::vector < NavBinding > m_Bindings;
 
     // Screen points a press must move before it is a drag.  At 0 a drag starts at the press,

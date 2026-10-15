@@ -7,6 +7,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <cstdlib>
+
 #include <FL/Enumerations.H>
 
 #include "NavProfile.h"
@@ -252,6 +254,349 @@ bool NavProfile::NeedsWhere() const
         }
     }
     return false;
+}
+
+// Names for the text form.  These are stored, so they never change.
+static const char * const ACTION_NAMES[] = { "None", "Rotate", "Roll", "Pan", "Zoom", "ZoomBox", "BoxSelect", "SetPivot", "Select" };
+static const int NUM_ACTIONS = 9;
+
+struct NavBit
+{
+    int m_Bit;
+    const char * m_Name;
+};
+
+static const NavBit BUTTON_BITS[] = { { FL_BUTTON1, "Left" }, { FL_BUTTON2, "Middle" }, { FL_BUTTON3, "Right" } };
+static const NavBit MODIFIER_BITS[] = { { FL_SHIFT, "Shift" }, { FL_CTRL, "Ctrl" }, { FL_ALT, "Alt" }, { FL_META, "Meta" } };
+static const NavBit CONDITION_BITS[] = { { NAV_COND_FIT_MODEL, "FitModel" }, { NAV_COND_SELECT_BOX, "SelectBox" } };
+
+// "Left+Middle" for those bits.
+static std::string BitsText( int bits, const NavBit * set, int n )
+{
+    std::string t;
+    for ( int i = 0; i < n; i++ )
+    {
+        if ( bits & set[i].m_Bit )
+        {
+            if ( !t.empty() )
+            {
+                t += "+";
+            }
+            t += set[i].m_Name;
+        }
+    }
+    return t;
+}
+
+// As BitsText, but "Any" stands for every bit of the set but the required ones in except.
+static std::string OtherBitsText( int bits, const NavBit * set, int n, int except )
+{
+    int all = 0;
+    for ( int i = 0; i < n; i++ )
+    {
+        all |= set[i].m_Bit;
+    }
+    if ( bits != 0 && bits == ( all & ~except ) )
+    {
+        return "Any";
+    }
+    return BitsText( bits, set, n );
+}
+
+static bool ParseBits( const std::string & text, const NavBit * set, int n, int & bits )
+{
+    bits = 0;
+    if ( text.empty() )
+    {
+        return true;
+    }
+
+    size_t start = 0;
+    while ( start <= text.size() )
+    {
+        size_t end = text.find( '+', start );
+        if ( end == std::string::npos )
+        {
+            end = text.size();
+        }
+        std::string name = text.substr( start, end - start );
+
+        bool found = false;
+        for ( int i = 0; i < n && !found; i++ )
+        {
+            if ( name == set[i].m_Name )
+            {
+                bits |= set[i].m_Bit;
+                found = true;
+            }
+        }
+        if ( !found )
+        {
+            return false;
+        }
+        start = end + 1;
+    }
+    return true;
+}
+
+static bool ParseOtherBits( const std::string & text, const NavBit * set, int n, int except, int & bits )
+{
+    if ( text == "Any" )
+    {
+        bits = 0;
+        for ( int i = 0; i < n; i++ )
+        {
+            bits |= set[i].m_Bit;
+        }
+        bits &= ~except;
+        return true;
+    }
+    return ParseBits( text, set, n, bits );
+}
+
+static std::string Trim( const std::string & s )
+{
+    size_t a = s.find_first_not_of( " \t\r\n" );
+    if ( a == std::string::npos )
+    {
+        return std::string();
+    }
+    size_t b = s.find_last_not_of( " \t\r\n" );
+    return s.substr( a, b - a + 1 );
+}
+
+std::string NavProfile::BindingsText() const
+{
+    std::string t;
+    for ( int i = 0; i < ( int )m_Bindings.size(); i++ )
+    {
+        const NavBinding & b = m_Bindings[i];
+        NavBinding def = NavBind( b.m_Buttons, b.m_Modifiers, b.m_Action );
+
+        t += ACTION_NAMES[ b.m_Action ];
+        t += ": Buttons=" + BitsText( b.m_Buttons, BUTTON_BITS, 3 );
+        if ( b.m_Modifiers != 0 )
+        {
+            t += " Mods=" + BitsText( b.m_Modifiers, MODIFIER_BITS, 4 );
+        }
+        if ( b.m_OtherButtons != def.m_OtherButtons )
+        {
+            t += " OtherButtons=" + OtherBitsText( b.m_OtherButtons, BUTTON_BITS, 3, b.m_Buttons );
+        }
+        if ( b.m_OtherModifiers != def.m_OtherModifiers )
+        {
+            t += " OtherMods=" + OtherBitsText( b.m_OtherModifiers, MODIFIER_BITS, 4, b.m_Modifiers );
+        }
+        if ( b.m_HeldKey != 0 )
+        {
+            t += " Key=" + std::to_string( b.m_HeldKey );
+        }
+        if ( b.m_PressedButton != 0 )
+        {
+            t += " Press=" + BitsText( b.m_PressedButton, BUTTON_BITS, 3 );
+        }
+        if ( b.m_Trigger == NAV_ON_CLICK )
+        {
+            t += " Trigger=Click";
+        }
+        if ( b.m_Where == NAV_ON_GEOMETRY )
+        {
+            t += " Where=Geometry";
+        }
+        else if ( b.m_Where == NAV_ON_BACKGROUND )
+        {
+            t += " Where=Background";
+        }
+        if ( b.m_Conditions != 0 )
+        {
+            t += " When=" + BitsText( b.m_Conditions, CONDITION_BITS, 2 );
+        }
+        if ( b.m_PickFirst )
+        {
+            t += " PickFirst";
+        }
+        t += "\n";
+    }
+    return t;
+}
+
+bool NavProfile::SetBindingsText( const std::string & text )
+{
+    std::vector < NavBinding > bindings;
+
+    size_t start = 0;
+    while ( start < text.size() )
+    {
+        size_t end = text.find( '\n', start );
+        if ( end == std::string::npos )
+        {
+            end = text.size();
+        }
+        std::string line = Trim( text.substr( start, end - start ) );
+        start = end + 1;
+        if ( line.empty() )
+        {
+            continue;
+        }
+
+        size_t colon = line.find( ':' );
+        if ( colon == std::string::npos )
+        {
+            return false;
+        }
+        std::string action = Trim( line.substr( 0, colon ) );
+        int ia = -1;
+        for ( int i = 0; i < NUM_ACTIONS; i++ )
+        {
+            if ( action == ACTION_NAMES[i] )
+            {
+                ia = i;
+            }
+        }
+        if ( ia < 0 )
+        {
+            return false;
+        }
+
+        // Read the fields first: the defaults of the "other" masks depend on the required ones.
+        std::string buttons, mods, other_buttons, other_mods, key, press, trigger, where, when;
+        bool pick = false;
+        bool has_other_buttons = false;
+        bool has_other_mods = false;
+
+        std::string rest = line.substr( colon + 1 );
+        size_t f = 0;
+        while ( f < rest.size() )
+        {
+            size_t g = rest.find( ' ', f );
+            if ( g == std::string::npos )
+            {
+                g = rest.size();
+            }
+            std::string field = rest.substr( f, g - f );
+            f = g + 1;
+            if ( field.empty() )
+            {
+                continue;
+            }
+            if ( field == "PickFirst" )
+            {
+                pick = true;
+                continue;
+            }
+
+            size_t eq = field.find( '=' );
+            if ( eq == std::string::npos )
+            {
+                return false;
+            }
+            std::string k = field.substr( 0, eq );
+            std::string v = field.substr( eq + 1 );
+            if ( k == "Buttons" )
+            {
+                buttons = v;
+            }
+            else if ( k == "Mods" )
+            {
+                mods = v;
+            }
+            else if ( k == "OtherButtons" )
+            {
+                other_buttons = v;
+                has_other_buttons = true;
+            }
+            else if ( k == "OtherMods" )
+            {
+                other_mods = v;
+                has_other_mods = true;
+            }
+            else if ( k == "Key" )
+            {
+                key = v;
+            }
+            else if ( k == "Press" )
+            {
+                press = v;
+            }
+            else if ( k == "Trigger" )
+            {
+                trigger = v;
+            }
+            else if ( k == "Where" )
+            {
+                where = v;
+            }
+            else if ( k == "When" )
+            {
+                when = v;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        int ib = 0;
+        int im = 0;
+        if ( !ParseBits( buttons, BUTTON_BITS, 3, ib ) || ib == 0 || !ParseBits( mods, MODIFIER_BITS, 4, im ) )
+        {
+            return false;
+        }
+        NavBinding b = NavBind( ib, im, ( NavAction )ia );
+
+        if ( has_other_buttons && !ParseOtherBits( other_buttons, BUTTON_BITS, 3, ib, b.m_OtherButtons ) )
+        {
+            return false;
+        }
+        if ( has_other_mods && !ParseOtherBits( other_mods, MODIFIER_BITS, 4, im, b.m_OtherModifiers ) )
+        {
+            return false;
+        }
+        if ( !key.empty() )
+        {
+            char * stop = nullptr;
+            long k = strtol( key.c_str(), &stop, 10 );
+            if ( *stop != '\0' || k <= 0 || k > 0xffff )
+            {
+                return false;
+            }
+            b.m_HeldKey = ( int )k;
+        }
+        if ( !press.empty() && !ParseBits( press, BUTTON_BITS, 3, b.m_PressedButton ) )
+        {
+            return false;
+        }
+        if ( trigger == "Click" )
+        {
+            b.m_Trigger = NAV_ON_CLICK;
+        }
+        else if ( !trigger.empty() && trigger != "Drag" )
+        {
+            return false;
+        }
+        if ( where == "Geometry" )
+        {
+            b.m_Where = NAV_ON_GEOMETRY;
+        }
+        else if ( where == "Background" )
+        {
+            b.m_Where = NAV_ON_BACKGROUND;
+        }
+        else if ( !where.empty() && where != "Anywhere" )
+        {
+            return false;
+        }
+        if ( !when.empty() && !ParseBits( when, CONDITION_BITS, 2, b.m_Conditions ) )
+        {
+            return false;
+        }
+        b.m_PickFirst = pick;
+
+        bindings.push_back( b );
+    }
+
+    m_Bindings = bindings;
+    return true;
 }
 
 }

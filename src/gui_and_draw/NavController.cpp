@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 
 #include <FL/Fl.H>
@@ -168,6 +169,23 @@ void NavSettings::Load()
     m_Pivot = GetChoice( grp, "Pivot", PIVOT_NAMES, 2, def.m_Pivot );
 
     m_EmulateMiddle = GetFlag( grp, "EmulateMiddle", def.m_EmulateMiddle );
+
+    grp.get( "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
+    if ( m_Profile.m_ClickDistance < 0 || m_Profile.m_ClickDistance > 50 )
+    {
+        m_Profile.m_ClickDistance = def.m_Profile.m_ClickDistance;
+    }
+    m_Profile.m_ChordEnds = GetFlag( grp, "ChordEnds", def.m_Profile.m_ChordEnds );
+
+    // Bindings that do not read give the default profile whole.
+    m_Profile.m_Bindings = def.m_Profile.m_Bindings;
+    char * text = nullptr;
+    grp.get( "Bindings", text, "" );
+    if ( text && grp.entryExists( "Bindings" ) && !m_Profile.SetBindingsText( text ) )
+    {
+        m_Profile = def.m_Profile;
+    }
+    free( text );
 }
 
 // Only values that differ from the defaults are stored, so a later change of a default
@@ -185,6 +203,18 @@ static void SaveName( Fl_Preferences & grp, const char * key, const char * val, 
 }
 
 static void SaveDouble( Fl_Preferences & grp, const char * key, double val, double def )
+{
+    if ( val == def )
+    {
+        grp.deleteEntry( key );
+    }
+    else
+    {
+        grp.set( key, val );
+    }
+}
+
+static void SaveInt( Fl_Preferences & grp, const char * key, int val, int def )
 {
     if ( val == def )
     {
@@ -238,6 +268,9 @@ void NavSettings::Save() const
     SaveFlag( grp, "ShowBallOutline", m_ShowBallOutline, def.m_ShowBallOutline );
     SaveName( grp, "Pivot", PIVOT_NAMES[ m_Pivot ], PIVOT_NAMES[ def.m_Pivot ] );
     SaveFlag( grp, "EmulateMiddle", m_EmulateMiddle, def.m_EmulateMiddle );
+    SaveName( grp, "Bindings", m_Profile.BindingsText().c_str(), def.m_Profile.BindingsText().c_str() );
+    SaveInt( grp, "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
+    SaveFlag( grp, "ChordEnds", m_Profile.m_ChordEnds, def.m_Profile.m_ChordEnds );
 
     prefs.flush();
 }
