@@ -44,3 +44,14 @@ def test_a_flowpath_in_negative_only_mode_is_negative():
         vsp.Update()
         assert vsp.GetNumMainSurfs( sid ) == 1, mode
         assert vsp.GetGeomVSPSurfCfdType( sid, 0 ) == vsp.CFD_NEGATIVE, mode
+
+
+def test_the_flowpath_presets_are_the_duct_as_drawn():
+    for preset in ( vsp.STACK_PRESET_FLOWPATH_IN, vsp.STACK_PRESET_FLOWPATH_OUT, vsp.STACK_PRESET_FLOWPATH_BOTH ):
+        sid, surf = new_stack()
+        vsp.InitStackPreset( sid, preset )
+        vsp.Update()
+        assert vsp.GetParmVal( sid, "InletModeType", "EngineModel" ) == vsp.ENGINE_MODE_TO_LIP, preset
+        assert vsp.GetParmVal( sid, "OutletModeType", "EngineModel" ) == vsp.ENGINE_MODE_TO_LIP, preset
+        assert vsp.GetNumMainSurfs( sid ) == 1, preset
+        assert vsp.GetGeomVSPSurfCfdType( sid, 0 ) == vsp.CFD_NORMAL, preset
