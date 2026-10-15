@@ -40,6 +40,27 @@ enum NavBallType
     NAV_BALL_CLASSIC
 };
 
+// Where a zoom is centered: the world point there stays put on screen.
+enum NavZoomAnchor
+{
+    NAV_ANCHOR_POINTER,     // The wheel's cursor, or a drag's press point.
+    NAV_ANCHOR_CENTER       // The viewport center.
+};
+
+// How the wheel's zoom step is sized.
+enum NavWheelStep
+{
+    NAV_WHEEL_PER_EVENT,    // A fixed step per event, whatever its size.
+    NAV_WHEEL_PROPORTIONAL  // A step per unit of scroll, for trackpads.
+};
+
+// How a drag zooms.
+enum NavZoomLaw
+{
+    NAV_ZOOM_PER_EVENT,     // 10% per mouse event, by the sign of the motion only.
+    NAV_ZOOM_CONTINUOUS     // A factor that depends only on the distance moved.
+};
+
 // The user's 3D interaction preferences.
 struct NavSettings
 {
@@ -55,6 +76,14 @@ struct NavSettings
     double m_BallBorder;        // Fillet width, fraction of the ball radius.
     double m_BallAngleScale;    // 2 turns 360 degrees per crossing of the ball, 1 turns 180.
     double m_TurntableGain;     // Degrees per screen point.
+
+    bool m_WheelReverse;        // Wheel forward zooms out instead of in.
+    int m_WheelAnchor;          // NavZoomAnchor.
+    int m_WheelStep;            // NavWheelStep.
+    bool m_DragZoomReverse;     // Drag down zooms out instead of in.
+    int m_DragZoomAnchor;       // NavZoomAnchor.
+    int m_DragZoomLaw;          // NavZoomLaw.
+    double m_ZoomSpeed;         // Scales the continuous drag zoom and the proportional wheel.
 
     NavProfile m_Profile;       // The mouse bindings.
 };
@@ -109,8 +138,14 @@ private:
     // Start a drag action at a mouse location.
     void Start( NavAction action, int x, int y );
 
+    void DragZoom( int x, int y );
+
     // A zoom factor reduced to keep the camera within the window's zoom limits.
     double LimitZoom( VSPGraphic::Camera * camera, double factor );
+
+    // Zoom a camera holding still the world point under a mouse location, or at the exact
+    // viewport center when anchor is NAV_ANCHOR_CENTER.
+    void ZoomAt( VSPGraphic::Camera * camera, double factor, int anchor, int x, int y );
 
     VSPGraphic::RotationMethod * CurrentRotation();
 

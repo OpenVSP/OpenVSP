@@ -36,6 +36,14 @@ NavSettings::NavSettings()
     m_BallAngleScale = 2.0;
     m_TurntableGain = 0.4;
 
+    m_WheelReverse = false;
+    m_WheelAnchor = NAV_ANCHOR_POINTER;
+    m_WheelStep = NAV_WHEEL_PER_EVENT;
+    m_DragZoomReverse = false;
+    m_DragZoomAnchor = NAV_ANCHOR_CENTER;
+    m_DragZoomLaw = NAV_ZOOM_PER_EVENT;
+    m_ZoomSpeed = 1.0;
+
     m_Profile = NavProfile::Classic();
 }
 
@@ -49,6 +57,37 @@ static double Checked( double v, double lo, double hi, double def )
     }
     return v;
 }
+
+// A choice stored by name.  names[i] is the name of value i; an unknown name gives def.
+static int GetChoice( Fl_Preferences & grp, const char * key, const char * const * names, int n, int def )
+{
+    char buf[64];
+    grp.get( key, buf, names[def], sizeof( buf ) );
+    for ( int i = 0; i < n; i++ )
+    {
+        if ( strcmp( buf, names[i] ) == 0 )
+        {
+            return i;
+        }
+    }
+    return def;
+}
+
+static bool GetFlag( Fl_Preferences & grp, const char * key, bool def )
+{
+    int defval = 0;
+    if ( def )
+    {
+        defval = 1;
+    }
+    int v = defval;
+    grp.get( key, v, defval );
+    return v != 0;
+}
+
+static const char * const ANCHOR_NAMES[] = { "Pointer", "Center" };
+static const char * const WHEEL_STEP_NAMES[] = { "PerEvent", "Proportional" };
+static const char * const ZOOM_LAW_NAMES[] = { "PerEvent", "Continuous" };
 
 // USER_L writes and reads numbers in the C locale, so a decimal comma never gets into the file.
 void NavSettings::Load()
@@ -82,6 +121,15 @@ void NavSettings::Load()
     m_BallBorder = Checked( m_BallBorder, 0.0, 1.0, def.m_BallBorder );
     m_BallAngleScale = Checked( m_BallAngleScale, 0.25, 4.0, def.m_BallAngleScale );
     m_TurntableGain = Checked( m_TurntableGain, 0.01, 5.0, def.m_TurntableGain );
+
+    m_WheelReverse = GetFlag( grp, "WheelReverse", def.m_WheelReverse );
+    m_WheelAnchor = GetChoice( grp, "WheelAnchor", ANCHOR_NAMES, 2, def.m_WheelAnchor );
+    m_WheelStep = GetChoice( grp, "WheelStep", WHEEL_STEP_NAMES, 2, def.m_WheelStep );
+    m_DragZoomReverse = GetFlag( grp, "DragZoomReverse", def.m_DragZoomReverse );
+    m_DragZoomAnchor = GetChoice( grp, "DragZoomAnchor", ANCHOR_NAMES, 2, def.m_DragZoomAnchor );
+    m_DragZoomLaw = GetChoice( grp, "DragZoomLaw", ZOOM_LAW_NAMES, 2, def.m_DragZoomLaw );
+    grp.get( "ZoomSpeed", m_ZoomSpeed, def.m_ZoomSpeed );
+    m_ZoomSpeed = Checked( m_ZoomSpeed, 0.1, 10.0, def.m_ZoomSpeed );
 }
 
 // Only values that differ from the defaults are stored, so a later change of a default
@@ -110,6 +158,18 @@ static void SaveDouble( Fl_Preferences & grp, const char * key, double val, doub
     }
 }
 
+static void SaveFlag( Fl_Preferences & grp, const char * key, bool val, bool def )
+{
+    if ( val == def )
+    {
+        grp.deleteEntry( key );
+    }
+    else
+    {
+        grp.set( key, ( int )val );
+    }
+}
+
 void NavSettings::Save() const
 {
     Fl_Preferences prefs( Fl_Preferences::USER_L, "openvsp.org", "VSP" );
@@ -128,6 +188,14 @@ void NavSettings::Save() const
     SaveDouble( grp, "BallBorder", m_BallBorder, def.m_BallBorder );
     SaveDouble( grp, "BallAngleScale", m_BallAngleScale, def.m_BallAngleScale );
     SaveDouble( grp, "TurntableGain", m_TurntableGain, def.m_TurntableGain );
+
+    SaveFlag( grp, "WheelReverse", m_WheelReverse, def.m_WheelReverse );
+    SaveName( grp, "WheelAnchor", ANCHOR_NAMES[ m_WheelAnchor ], ANCHOR_NAMES[ def.m_WheelAnchor ] );
+    SaveName( grp, "WheelStep", WHEEL_STEP_NAMES[ m_WheelStep ], WHEEL_STEP_NAMES[ def.m_WheelStep ] );
+    SaveFlag( grp, "DragZoomReverse", m_DragZoomReverse, def.m_DragZoomReverse );
+    SaveName( grp, "DragZoomAnchor", ANCHOR_NAMES[ m_DragZoomAnchor ], ANCHOR_NAMES[ def.m_DragZoomAnchor ] );
+    SaveName( grp, "DragZoomLaw", ZOOM_LAW_NAMES[ m_DragZoomLaw ], ZOOM_LAW_NAMES[ def.m_DragZoomLaw ] );
+    SaveDouble( grp, "ZoomSpeed", m_ZoomSpeed, def.m_ZoomSpeed );
 
     prefs.flush();
 }
@@ -291,8 +359,7 @@ void NavController::Drag( int x, int y )
         break;
 
     case NAV_ZOOM:
-        display->zoom( m_PrevX, m_PrevY, x, y );
-        m_Win->UpdateZoomParms();
+        DragZoom( x, y );
         break;
 
     default:
@@ -333,6 +400,49 @@ void NavController::Release( int x, int y )
     }
 }
 
+void NavController::DragZoom( int x, int y )
+{
+    VSPGraphic::Display * display = m_Win->getGraphicEngine()->getDisplay();
+    VSPGraphic::Camera * camera = display->getCamera();
+    if ( !camera )
+    {
+        return;
+    }
+
+    int dy = y - m_PrevY;
+    if ( m_Settings.m_DragZoomReverse )
+    {
+        dy = -dy;
+    }
+
+    if ( m_Settings.m_DragZoomLaw == NAV_ZOOM_PER_EVENT && m_Settings.m_DragZoomAnchor == NAV_ANCHOR_CENTER )
+    {
+        // OpenVSP's drag zoom as it was.
+        display->zoom( m_PrevX, m_PrevY, x, m_PrevY + dy );
+        m_Win->UpdateZoomParms();
+        return;
+    }
+
+    // Moving up zooms out, as above.
+    double factor = 1.0;
+    if ( m_Settings.m_DragZoomLaw == NAV_ZOOM_CONTINUOUS )
+    {
+        factor = std::exp( 0.02 * m_Settings.m_ZoomSpeed * dy / m_Win->pixels_per_unit() );
+    }
+    else if ( dy > 0 )
+    {
+        factor = 1.1;
+    }
+    else if ( dy < 0 )
+    {
+        factor = 0.9;
+    }
+
+    ZoomAt( camera, factor, m_Settings.m_DragZoomAnchor, m_PressX, m_PressY );
+    m_Win->UpdateZoomParms();
+    m_Win->UpdatePanParms();
+}
+
 double NavController::LimitZoom( VSPGraphic::Camera * camera, double factor )
 {
     // Stop at the limits rather than let a clamp put the zoom back after the pan has moved.
@@ -350,12 +460,37 @@ double NavController::LimitZoom( VSPGraphic::Camera * camera, double factor )
     return factor;
 }
 
+void NavController::ZoomAt( VSPGraphic::Camera * camera, double factor, int anchor, int x, int y )
+{
+    factor = LimitZoom( camera, factor );
+
+    if ( anchor == NAV_ANCHOR_CENTER )
+    {
+        // The pan is measured from the viewport center, so it stays as it is.  A center pixel
+        // would be half a pixel off in a viewport of odd size.
+        camera->relativeZoom( camera->getRelativeZoomValue() * factor );
+    }
+    else
+    {
+        camera->zoomToward( factor, x, y );
+    }
+}
+
 void NavController::Wheel( int dx, int dy, int x, int y )
 {
+    if ( m_Settings.m_WheelReverse )
+    {
+        dy = -dy;
+    }
+
     float zoomChange = 1;
     float zoomSpeed = 1.15; // size increase when zooming in
 
-    if ( dy > 0 ) // wheel pulled toward user
+    if ( m_Settings.m_WheelStep == NAV_WHEEL_PROPORTIONAL )
+    {
+        zoomChange = std::pow( ( double )zoomSpeed, m_Settings.m_ZoomSpeed * dy );
+    }
+    else if ( dy > 0 ) // wheel pulled toward user
     {
         zoomChange = zoomSpeed;
     }
@@ -382,7 +517,7 @@ void NavController::Wheel( int dx, int dy, int x, int y )
     VSPGraphic::Viewport * viewport = layout->getViewports()[ ivp ];
     VSPGraphic::Camera * camera = viewport->getCamera();
 
-    camera->zoomToward( LimitZoom( camera, zoomChange ), x, y );
+    ZoomAt( camera, zoomChange, m_Settings.m_WheelAnchor, x, y );
 
     if ( viewport == display->getViewport() )
     {
