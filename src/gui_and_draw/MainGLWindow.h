@@ -159,6 +159,12 @@ public:
     void UpdateAllViewParms();
 
     /*!
+    * The zoom values the view can hold.  For the main window these are the Zoom Parm's
+    * limits, since the camera's zoom is written to it.
+    */
+    void GetZoomLimits( double & lo, double & hi );
+
+    /*!
     * The VSPGUI::NavCondition bits that hold now.
     */
     int GetNavConditions();

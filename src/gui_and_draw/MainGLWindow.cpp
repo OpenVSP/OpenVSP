@@ -688,6 +688,24 @@ void VspGlWindow::UpdateAllViewParms()
     UpdateRotationParms();
 }
 
+void VspGlWindow::GetZoomLimits( double & lo, double & hi )
+{
+    lo = 0.0;
+    hi = 1.0e12;
+
+    MainVSPScreen* main = dynamic_cast< MainVSPScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+
+    if ( main && main->GetGLWindow() == this )
+    {
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            lo = veh->m_ZoomValue.GetLowerLimit();
+            hi = veh->m_ZoomValue.GetUpperLimit();
+        }
+    }
+}
+
 void VspGlWindow::_initGLEW()
 {
     if( !m_initialized )

@@ -333,6 +333,23 @@ void NavController::Release( int x, int y )
     }
 }
 
+double NavController::LimitZoom( VSPGraphic::Camera * camera, double factor )
+{
+    // Stop at the limits rather than let a clamp put the zoom back after the pan has moved.
+    double lo, hi;
+    m_Win->GetZoomLimits( lo, hi );
+    double zoom = camera->getRelativeZoomValue();
+    if ( zoom * factor > hi )
+    {
+        factor = hi / zoom;
+    }
+    else if ( zoom * factor < lo )
+    {
+        factor = lo / zoom;
+    }
+    return factor;
+}
+
 void NavController::Wheel( int dx, int dy, int x, int y )
 {
     float zoomChange = 1;
@@ -358,7 +375,7 @@ void NavController::Wheel( int dx, int dy, int x, int y )
         return;
     }
 
-    camera->zoomToward( zoomChange, x, y );
+    camera->zoomToward( LimitZoom( camera, zoomChange ), x, y );
     m_Win->UpdateZoomParms();
     m_Win->UpdatePanParms();
 }

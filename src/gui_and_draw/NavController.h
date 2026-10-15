@@ -109,6 +109,9 @@ private:
     // Start a drag action at a mouse location.
     void Start( NavAction action, int x, int y );
 
+    // A zoom factor reduced to keep the camera within the window's zoom limits.
+    double LimitZoom( VSPGraphic::Camera * camera, double factor );
+
     VSPGraphic::RotationMethod * CurrentRotation();
 
     VspGlWindow * m_Win;
