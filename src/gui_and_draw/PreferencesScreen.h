@@ -14,6 +14,7 @@
 #include "ScreenBase.h"
 #include "Vehicle.h"
 #include "GuiDevice.h"
+#include "NavController.h"
 
 using namespace std;
 
@@ -40,12 +41,32 @@ public:
 
 protected:
 
+    // Show m_Nav in the controls.
+    void ShowNav();
+
+    // Read a changed control into m_Nav.  False if it is not one of m_Nav's.
+    bool ReadNav( GuiDevice * device );
+
+    // Save m_Nav and use it in the main window now.
+    void ApplyNav();
+
+    // The 3D interaction settings being edited.
+    VSPGUI::NavSettings m_Nav;
+
     // The settings when the window opened, for Revert.
+    VSPGUI::NavSettings m_NavAtShow;
     int m_FCTypeAtShow;
 
     // General tab.
     GroupLayout m_GenLayout;
     Choice m_FCTypeChoice;
+
+    // 3D View tab.
+    GroupLayout m_ViewLayout;
+
+    Choice m_BallTypeChoice;
+    Choice m_BallSizeChoice;
+    Choice m_BallAngleChoice;
 
     // Bottom of the window.
     GroupLayout m_BottomLayout;

@@ -20,6 +20,7 @@
 namespace VSPGUI
 {
 class VspGlWindow;
+struct NavSettings;
 }
 
 class SelectFileScreen;
@@ -67,6 +68,9 @@ public:
     void SetViewAxis( bool vaxis );
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
+
+    // Apply new 3D interaction preferences.
+    void SetNavSettings( const VSPGUI::NavSettings & settings );
 
     void EnableStopGUIMenuItem();
     void DisableStopGUIMenuItem();

@@ -207,6 +207,10 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_GenLayout.GetGroup()->resizable( m_GlWin );
     m_GenLayout.AddY( glh );
 
+    VSPGUI::NavSettings nav_settings;
+    nav_settings.Load();
+    m_GlWin->GetNav().SetSettings( nav_settings );
+
     int filew = m_GenLayout.GetW() * .6;
 
     m_FileNameBox = new Fl_Box(m_GenLayout.GetX(), m_GenLayout.GetY(), filew, 20, "File Name:");
@@ -336,6 +340,11 @@ void MainVSPScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
+{
+    m_GlWin->GetNav().SetSettings( settings );
 }
 
 void MainVSPScreen::GuiDeviceCallBack( GuiDevice* device )

@@ -8,6 +8,26 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "PreferencesScreen.h"
+#include "MainVSPScreen.h"
+#include "NavController.h"
+
+// Values offered for the numeric 3D interaction preferences.
+static const double BALL_SIZES[] = { 0.6, 0.75, 0.9, 1.0 };
+static const double BALL_ANGLE_SCALES[] = { 2.0, 1.0 };
+
+// Index of the offered value nearest a stored one.
+static int NearestIndex( const double * vals, int n, double v )
+{
+    int best = 0;
+    for ( int i = 1; i < n; i++ )
+    {
+        if ( std::abs( vals[i] - v ) < std::abs( vals[best] - v ) )
+        {
+            best = i;
+        }
+    }
+    return best;
+}
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -31,6 +51,31 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
 
     m_GenLayout.AddChoice( m_FCTypeChoice, "File Chooser" );
 
+    //==== 3D View ====//
+    Fl_Group * view_tab = AddTab( "3D View" );
+    Fl_Group * view_group = AddSubGroup( view_tab, 5 );
+    m_ViewLayout.SetGroupAndScreen( view_group, this );
+
+    m_ViewLayout.AddDividerBox( "Rotation" );
+    m_ViewLayout.AddYGap();
+
+    m_BallTypeChoice.AddItem( "Rounded Arcball", VSPGUI::NAV_BALL_ROUNDED_ARCBALL );
+    m_BallTypeChoice.AddItem( "OpenVSP Classic", VSPGUI::NAV_BALL_CLASSIC );
+    m_BallTypeChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_BallTypeChoice, "Ball" );
+
+    m_BallSizeChoice.AddItem( "60% of view", 0 );
+    m_BallSizeChoice.AddItem( "75% of view", 1 );
+    m_BallSizeChoice.AddItem( "90% of view", 2 );
+    m_BallSizeChoice.AddItem( "100% of view", 3 );
+    m_BallSizeChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_BallSizeChoice, "Ball Size" );
+
+    m_BallAngleChoice.AddItem( "360 deg across", 0 );
+    m_BallAngleChoice.AddItem( "180 deg across", 1 );
+    m_BallAngleChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_BallAngleChoice, "Ball Speed" );
+
     //==== Bottom ====//
     m_BottomLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_BottomLayout.SetY( m_FLTK_Window->h() - 27 );
@@ -48,6 +93,8 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
 
     m_DefaultsButton.GetFlButton()->tooltip( "Set every preference to OpenVSP's default.  Revert undoes it." );
     m_RevertButton.GetFlButton()->tooltip( "Changes take effect and are kept as they are made.  Revert puts back the preferences as they were when this window opened." );
+
+    view_tab->show();
 }
 
 PreferencesScreen::~PreferencesScreen()
@@ -69,12 +116,44 @@ void PreferencesScreen::Show()
     if ( !IsShown() )
     {
         m_FCTypeAtShow = GetFCType();
+        m_NavAtShow.Load();
     }
 
     m_FCTypeChoice.SetVal( GetFCType() );
 
+    m_Nav.Load();
+    ShowNav();
+
     m_ScreenMgr->SetUpdateFlag( true );
     TabScreen::Show();
+}
+
+void PreferencesScreen::ShowNav()
+{
+    m_BallTypeChoice.SetVal( m_Nav.m_BallType );
+    m_BallSizeChoice.SetVal( NearestIndex( BALL_SIZES, 4, m_Nav.m_BallSize ) );
+    m_BallAngleChoice.SetVal( NearestIndex( BALL_ANGLE_SCALES, 2, m_Nav.m_BallAngleScale ) );
+}
+
+bool PreferencesScreen::ReadNav( GuiDevice * device )
+{
+    if ( device == &m_BallTypeChoice )
+    {
+        m_Nav.m_BallType = m_BallTypeChoice.GetVal();
+    }
+    else if ( device == &m_BallSizeChoice )
+    {
+        m_Nav.m_BallSize = BALL_SIZES[ m_BallSizeChoice.GetVal() ];
+    }
+    else if ( device == &m_BallAngleChoice )
+    {
+        m_Nav.m_BallAngleScale = BALL_ANGLE_SCALES[ m_BallAngleChoice.GetVal() ];
+    }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 void PreferencesScreen::Hide()
@@ -100,18 +179,39 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         SetFCType( vsp::FC_OPENVSP );
         m_FCTypeChoice.SetVal( vsp::FC_OPENVSP );
+        m_Nav = VSPGUI::NavSettings();
+        ShowNav();
+        ApplyNav();
     }
     else if ( device == &m_RevertButton )
     {
         SetFCType( m_FCTypeAtShow );
         m_FCTypeChoice.SetVal( m_FCTypeAtShow );
+        m_Nav = m_NavAtShow;
+        ShowNav();
+        ApplyNav();
     }
     else if ( device == &m_CloseButton )
     {
         Hide();
     }
+    else if ( ReadNav( device ) )
+    {
+        ApplyNav();
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void PreferencesScreen::ApplyNav()
+{
+    m_Nav.Save();
+
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    if ( main )
+    {
+        main->SetNavSettings( m_Nav );
+    }
 }
 
 int PreferencesScreen::GetFCType()
