@@ -163,6 +163,14 @@ public:
     virtual void relativeZoom( float zoomvalue ) = 0;
 
     /*!
+    * Zoom by a factor, keeping the world point under a mouse location fixed on screen.
+    *
+    * zoomChange - factor applied to the zoom value.  Greater than one zooms out.
+    * x, y - mouse location in window pixels.
+    */
+    void zoomToward( float zoomChange, int x, int y );
+
+    /*!
     * Move Geometry to center.
     */
     virtual void center() = 0;

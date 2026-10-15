@@ -129,6 +129,40 @@ void Camera::changeView( Common::VSPenum type )
     }
 }
 
+void Camera::zoomToward( float zoomChange, int x, int y )
+{
+    float width = _vWidth;
+    float height = _vHeight;
+    int mx = x - _vx;
+    int my = y - _vy;
+
+    float zoom = getRelativeZoomValue();
+    glm::vec2 pan = getPanValues();
+
+    float mousePosBeforeX, mousePosBeforeY;
+    mousePosBeforeX = ( ( ( zoom * width ) * ( ( mx / width ) - 0.5 ) - pan.x ) );
+    mousePosBeforeY = ( ( ( zoom * height ) * ( ( my / height ) - 0.5 ) - pan.y ) );
+
+    float target = zoom * zoomChange;
+    relativeZoom( target );
+
+    // Scale the pan by the zoom actually applied, which the limit may have changed.
+    if ( getRelativeZoomValue() != target )
+    {
+        zoomChange = getRelativeZoomValue() / zoom;
+    }
+
+    zoom *= zoomChange;
+    pan *= zoomChange;
+
+    float mousePosAfterX, mousePosAfterY;
+    mousePosAfterX = ( ( ( zoom * width ) * ( ( mx / width ) - 0.5 ) - pan.x ) );
+    mousePosAfterY = ( ( ( zoom * height ) * ( ( my / height ) - 0.5 ) - pan.y )  );
+
+    // Cancel out any effect the zoom had on pan position, so that the same location remains under the mouse.
+    relativePan( pan.x + mousePosAfterX - mousePosBeforeX , pan.y + mousePosAfterY - mousePosBeforeY );
+}
+
 void Camera::_calculateProjection()
 {
     float range = 0;
