@@ -80,6 +80,13 @@ public:
     */
     virtual void load( int index ) = 0;
 
+    /*!
+    * Remember the view -- rotation, pan, center of rotation and zoom -- and put it back
+    * exactly.  One view is held; holding again replaces it.
+    */
+    virtual void holdView() = 0;
+    virtual void restoreView() = 0;
+
 public:
     /*!
     * Rotate the scene.
