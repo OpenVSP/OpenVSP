@@ -15,6 +15,7 @@
 
 #include "DrawObj.h"
 #include "NavController.h"
+#include "DepthProbe.h"
 
 namespace VSPGraphic
 {
@@ -168,6 +169,14 @@ public:
     void GetZoomLimits( double & lo, double & hi );
 
     /*!
+    * The world point of the nearest surface within a few pixels of an FLTK mouse location
+    * (screen points, origin at the upper left), in the viewport there.  False if none.  When
+    * geomId is given, it is set to the ID of the Geom hit, or emptied if the surface hit is
+    * not a Geom's.
+    */
+    bool ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * geomId = nullptr );
+
+    /*!
     * Whether a left press with these modifiers starts a Fit Model box selection: Fit Model is
     * shown, and Shift is down or its box selection mode is on.
     */
@@ -264,6 +273,8 @@ protected:
     int m_mouse_y;
 
     NavController m_Nav;
+
+    VSPGraphic::DepthProbe m_Probe;
 
 };
 
