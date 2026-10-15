@@ -45,6 +45,11 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TessW.Deactivate();
     m_Origin.Deactivate();
 
+    // A mesh makes no symmetric copies.
+    m_SymPlanFlag.Deactivate();
+    m_SymAxFlag.Deactivate();
+    m_SymRotN.Deactivate();
+
     m_BBox.Update( vec3d( 0, 0, 0 ) );
 
     //==== Test Big/Little Endian ====//
