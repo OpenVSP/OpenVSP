@@ -3256,7 +3256,7 @@ static bool CutterTMeshCompare( TMesh* a, TMesh* b )
     if ( a->m_OriginGeomID < b->m_OriginGeomID )
         return true;
 
-    if ( b->m_OriginGeomID < b->m_OriginGeomID )
+    if ( b->m_OriginGeomID < a->m_OriginGeomID )
         return false;
 
     return ( a->m_SurfNum < b->m_SurfNum );
