@@ -824,6 +824,7 @@ void RoutingScreen::Set( const vec3d &placement, const std::string &targetGeomId
                     uprm = u;
                 }
 
+                rpt->m_CoordType = vsp::ROUTE_PT_UV;
                 rpt->m_U = uprm;
                 rpt->m_W = w;
 
