@@ -1409,7 +1409,10 @@ void WingGeom::Update( bool fullupdate )
     // m_SurfDirty update after the m_XForDirty update
     if ( xform_dirty )
     {
+        // Setting the totals leaves the list of edited Parms as it was.
+        vector< string > updated_parms = m_UpdatedParmVec;
         UpdateTotalParameters();
+        m_UpdatedParmVec = updated_parms;
     }
 }
 

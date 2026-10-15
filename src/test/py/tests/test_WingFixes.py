@@ -68,3 +68,16 @@ def test_blending_matched_to_inboard_angles_is_smooth():
     left = ( p0.z() - pm.z() ) / ( p0.y() - pm.y() )
     right = ( pp.z() - p0.z() ) / ( pp.y() - p0.y() )
     assert abs( left - right ) < 1e-3, ( left, right )
+
+
+def test_a_section_edit_after_a_symmetry_change_is_kept():
+    vsp.VSPRenew()
+    wid = vsp.AddGeom( "WING" )
+    vsp.Update()
+    vsp.SetParmVal( wid, "Sym_Planar_Flag", "Sym", 0.0 )
+    vsp.Update()
+    vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( vsp.GetXSecSurf( wid, 0 ), 1 ), "Tip_Chord" ), 0.5 )
+    vsp.Update()
+    assert abs( sect( wid, 1, "Span" ) - 9.0 ) < 1e-9
+    assert abs( sect( wid, 1, "Root_Chord" ) - 4.0 ) < 1e-9
+    assert abs( sect( wid, 1, "Tip_Chord" ) - 0.5 ) < 1e-9
