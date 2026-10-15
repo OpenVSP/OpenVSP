@@ -34,6 +34,7 @@
 #include "ManageViewScreen.h"
 #include "UnitConversion.h"
 #include "FileUtil.h"
+#include "GesturePlayer.h"
 
 #include "CfdMeshScreen.h"
 #include "GeometryAnalysisScreen.h"
@@ -332,6 +333,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     strip->end();
 
     UpdateDeviceButton();
+
+    StartGesturePlayer( this );
 }
 
 MainVSPScreen::~MainVSPScreen()
