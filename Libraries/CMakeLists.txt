@@ -81,6 +81,14 @@ IF( NOT VSP_NO_GRAPHICS )
 	IF( NOT VSP_USE_SYSTEM_GLM )
 		INCLUDE( External_GLM )
 	ENDIF()
+
+	# The Rotatrix trackball.  Everything it needs is bundled.
+	IF( NOT DEFINED VSP_ENABLE_OPENAXIS OR "${VSP_ENABLE_OPENAXIS}" STREQUAL "" )
+		SET( VSP_ENABLE_OPENAXIS ON )
+	ENDIF()
+	IF( VSP_ENABLE_OPENAXIS )
+		INCLUDE( External_OpenAxis )
+	ENDIF()
 ENDIF()
 
 # Set targeted variables in file to be read by VSP's CMake
