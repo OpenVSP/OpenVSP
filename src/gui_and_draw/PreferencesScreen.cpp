@@ -101,6 +101,12 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ViewLayout.AddChoice( m_PivotChoice, "Rotate About" );
     m_PivotChoice.GetFlChoice()->tooltip( "Point under cursor: each drag turns about the surface under the press, or the rotation center if there is none.  The rotation center is kept." );
 
+    m_EmulateMiddleChoice.AddItem( "As bound", 0 );
+    m_EmulateMiddleChoice.AddItem( "Middle button", 1 );
+    m_EmulateMiddleChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_EmulateMiddleChoice, "Alt + Left" );
+    m_EmulateMiddleChoice.GetFlChoice()->tooltip( "Middle button: Alt (Option) with the left button acts as the middle button, for mice and trackpads without one.  Not where the mouse buttons bind Alt + left themselves, as OpenVSP's own do.  Some Linux desktops take Alt + drag to move windows." );
+
     m_ViewLayout.AddYGap();
     m_ViewLayout.AddDividerBox( "Zoom" );
     m_ViewLayout.AddYGap();
@@ -202,6 +208,7 @@ void PreferencesScreen::ShowNav()
     m_BallAngleChoice.SetVal( NearestIndex( BALL_ANGLE_SCALES, 2, m_Nav.m_BallAngleScale ) );
     m_BallOutlineChoice.SetVal( ( int )m_Nav.m_ShowBallOutline );
     m_PivotChoice.SetVal( m_Nav.m_Pivot );
+    m_EmulateMiddleChoice.SetVal( ( int )m_Nav.m_EmulateMiddle );
     m_TurntableSpeedChoice.SetVal( NearestIndex( TURNTABLE_GAINS, 4, m_Nav.m_TurntableGain ) );
 
     m_WheelDirChoice.SetVal( ( int )m_Nav.m_WheelReverse );
@@ -238,6 +245,10 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_PivotChoice )
     {
         m_Nav.m_Pivot = m_PivotChoice.GetVal();
+    }
+    else if ( device == &m_EmulateMiddleChoice )
+    {
+        m_Nav.m_EmulateMiddle = ( m_EmulateMiddleChoice.GetVal() != 0 );
     }
     else if ( device == &m_TurntableSpeedChoice )
     {

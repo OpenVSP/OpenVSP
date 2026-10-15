@@ -51,7 +51,31 @@ NavSettings::NavSettings()
 
     m_Pivot = NAV_PIVOT_FIXED;
 
+    m_EmulateMiddle = false;
+
     m_Profile = NavProfile::Classic();
+}
+
+NavPress NavSettings::Effective( const NavPress & press ) const
+{
+    // A press that only reaches the tool picks counts as free.
+    NavPress p = press;
+    const NavBinding * drag = m_Profile.Match( p, NAV_ON_DRAG );
+    if ( ( drag && drag->m_Action != NAV_NONE ) || m_Profile.Match( p, NAV_ON_CLICK ) )
+    {
+        return p;
+    }
+
+    if ( m_EmulateMiddle && ( p.m_Buttons & FL_BUTTON1 ) && !( p.m_Buttons & FL_BUTTON2 ) && ( p.m_Modifiers & FL_ALT ) )
+    {
+        p.m_Buttons = ( p.m_Buttons & ~FL_BUTTON1 ) | FL_BUTTON2;
+        p.m_Modifiers &= ~FL_ALT;
+        if ( p.m_PressedButton == FL_BUTTON1 )
+        {
+            p.m_PressedButton = FL_BUTTON2;
+        }
+    }
+    return p;
 }
 
 // Choices are stored by name so that reordering the enums never reinterprets a saved value.
@@ -142,6 +166,8 @@ void NavSettings::Load()
     m_ShowBallOutline = GetFlag( grp, "ShowBallOutline", def.m_ShowBallOutline );
 
     m_Pivot = GetChoice( grp, "Pivot", PIVOT_NAMES, 2, def.m_Pivot );
+
+    m_EmulateMiddle = GetFlag( grp, "EmulateMiddle", def.m_EmulateMiddle );
 }
 
 // Only values that differ from the defaults are stored, so a later change of a default
@@ -211,6 +237,7 @@ void NavSettings::Save() const
 
     SaveFlag( grp, "ShowBallOutline", m_ShowBallOutline, def.m_ShowBallOutline );
     SaveName( grp, "Pivot", PIVOT_NAMES[ m_Pivot ], PIVOT_NAMES[ def.m_Pivot ] );
+    SaveFlag( grp, "EmulateMiddle", m_EmulateMiddle, def.m_EmulateMiddle );
 
     prefs.flush();
 }
@@ -377,6 +404,8 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
     press.m_HeldKeys = m_HeldKeys;
     press.m_PressedButton = pressed;
     press.m_Conditions = m_Win->GetNavConditions();
+
+    press = m_Settings.Effective( press );
 
     if ( CountButtons( press.m_Buttons ) > 1 )
     {

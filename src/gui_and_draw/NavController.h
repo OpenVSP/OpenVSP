@@ -96,7 +96,13 @@ struct NavSettings
 
     int m_Pivot;                // NavPivot.
 
+    bool m_EmulateMiddle;       // Alt + left button acts as the middle button.
+
     NavProfile m_Profile;       // The mouse bindings.
+
+    // The press as the bindings take it: Alt + left is the middle button when that is on and
+    // no binding acts on the press as it is.
+    NavPress Effective( const NavPress & press ) const;
 };
 
 // Follows one gesture from press to release.  The gesture is chosen at press and kept until the
