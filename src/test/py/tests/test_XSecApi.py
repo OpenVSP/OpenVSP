@@ -101,3 +101,16 @@ def testAnAncestorSetterTakesOnlyAnAncestor():
     vsp.SetGeomSymAncestorID( child, "" )
     assert_no_errors()
     assert vsp.GetGeomSymAncestorID( child ) == ""
+
+
+def testSixSeriesTakesOnlyTheSeriesThereAre():
+    """The Six Series Series Parm stops at 65A, the last series."""
+    vsp.VSPRenew()
+    drop_errors()
+    wid = vsp.AddGeom( "WING" )
+    surf = vsp.GetXSecSurf( wid, 0 )
+    vsp.ChangeXSecShape( surf, 0, vsp.XS_SIX_SERIES )
+    xs = vsp.GetXSec( surf, 0 )
+    series = vsp.GetXSecParm( xs, "Series" )
+    vsp.SetParmVal( series, 8 )
+    assert vsp.GetParmVal( series ) == 7
