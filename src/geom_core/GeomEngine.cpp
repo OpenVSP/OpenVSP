@@ -507,10 +507,6 @@ void GeomEngine::UpdateEngine()
 
             if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ) )
             {
-                if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
-                {
-                    usesurf = false;
-                }
                 uroll = inlipu;
                 surf2.RollU( uroll );
 
