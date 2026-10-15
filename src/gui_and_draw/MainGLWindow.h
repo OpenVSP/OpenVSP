@@ -14,6 +14,7 @@
 #include "Common.h"
 
 #include "DrawObj.h"
+#include "NavController.h"
 
 namespace VSPGraphic
 {
@@ -28,6 +29,8 @@ namespace VSPGUI
 {
 class VspGlWindow : public Fl_Gl_Window
 {
+    friend class NavController;
+
 public:
     /*
     * Constructor.
@@ -66,6 +69,14 @@ public:
     VSPGraphic::GraphicEngine * getGraphicEngine()
     {
         return m_GEngine;
+    }
+
+    /*!
+    * Mouse and key handling for the view.
+    */
+    NavController & GetNav()
+    {
+        return m_Nav;
     }
 
 public:
@@ -147,6 +158,18 @@ public:
     void UpdateRotationParms();
     void UpdateAllViewParms();
 
+    /*!
+    * The VSPGUI::NavCondition bits that hold now.
+    */
+    int GetNavConditions();
+
+    /*!
+    * The Fit Model box selection: start a rectangle at a mouse location, and end it, selecting
+    * the points inside when apply is set.
+    */
+    void BeginBoxSelect( int x, int y );
+    void EndBoxSelect( bool apply );
+
 // Private helper functions.
 private:
     void _initGLEW();
@@ -173,6 +196,7 @@ private:
     void _sendFeedback( const std::vector<VSPGraphic::Selectable *> &listOfSelected );
 
     void OnPush( int x, int y );
+    bool PickAtPress();
     void OnDrag( int x, int y );
     void OnRelease( int x, int y );
     int OnKeyup( int x, int y );
@@ -217,18 +241,6 @@ private:
 
     int m_prevViewport;
 
-    glm::vec2 m_prevLB;
-    glm::vec2 m_prevMB;
-    glm::vec2 m_prevRB;
-    glm::vec2 m_prevAltLB;
-    glm::vec2 m_prevCtrlLB;
-    glm::vec2 m_prevZLB;
-    glm::vec2 m_prevMetaLB;
-    glm::vec2 m_startShiftLB;
-    glm::vec2 m_prevLBRB;
-
-    unsigned m_prevKey;
-
 protected:
 
     void _update( const std::vector<DrawObj*> & objects );
@@ -237,7 +249,8 @@ protected:
     ScreenMgr* m_ScreenMgr;
     int m_mouse_x;
     int m_mouse_y;
-    bool m_noRotate; // Flag to enable/disable rotations
+
+    NavController m_Nav;
 
 };
 

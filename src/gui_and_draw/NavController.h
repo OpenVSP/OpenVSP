@@ -1,0 +1,102 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+// NavController.h: turns mouse and key events in a GL window into view changes.
+//
+//////////////////////////////////////////////////////////////////////
+
+#ifndef VSP_GUI_NAV_CONTROLLER_H
+#define VSP_GUI_NAV_CONTROLLER_H
+
+#include <set>
+#include <string>
+#include <vector>
+
+#include "NavProfile.h"
+#include "RotationMethod.h"
+
+namespace VSPGraphic
+{
+class Camera;
+}
+
+namespace VSPGUI
+{
+class VspGlWindow;
+
+// The user's 3D interaction preferences.
+struct NavSettings
+{
+    NavSettings();
+
+    NavProfile m_Profile;       // The mouse bindings.
+};
+
+// Follows one gesture from press to release.  The gesture is chosen at press and kept until the
+// buttons change, so modifiers pressed or released during a drag do not change what it does.
+class NavController
+{
+public:
+
+    NavController( VspGlWindow * win );
+
+    void SetSettings( const NavSettings & settings );
+    const NavSettings & GetSettings() const
+    {
+        return m_Settings;
+    }
+
+    NavAction GetAction() const
+    {
+        return m_Action;
+    }
+
+    void SetRotateEnabled( bool flag )
+    {
+        m_RotateEnabled = flag;
+    }
+
+    void Push( int x, int y );
+    void Drag( int x, int y );
+    void Release( int x, int y );
+    void Wheel( int dx, int dy, int x, int y );
+
+    void KeyDown( int key );
+    void KeyUp( int key );
+    void ClearKeys();
+
+private:
+
+    // Choose what a press, or the buttons left after a release (pressed 0), will do.
+    void Begin( int buttons, int pressed, int x, int y, bool allow_pick );
+
+    // Start a drag action at a mouse location.
+    void Start( NavAction action, int x, int y );
+
+    VSPGraphic::RotationMethod * CurrentRotation();
+
+    VspGlWindow * m_Win;
+    NavSettings m_Settings;
+
+    VSPGraphic::ClassicBall m_ClassicBall;
+    VSPGraphic::RotationMethod * m_Rotation;
+
+    std::set < int > m_HeldKeys;
+
+    // What was going on when a box selection started, so its end resumes only that.
+    NavAction m_ActionBeforeBox;
+
+    NavAction m_Action;
+
+    int m_PressX;
+    int m_PressY;
+    int m_PrevX;
+    int m_PrevY;
+
+    bool m_RotateEnabled;
+};
+}
+
+#endif

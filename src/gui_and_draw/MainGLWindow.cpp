@@ -67,7 +67,7 @@ using namespace VSPGraphic;
 namespace VSPGUI
 {
 VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::ScreenEnum drawObjScreen )
-    : Fl_Gl_Window( x, y, w, h, "VSP GL Window" )
+    : Fl_Gl_Window( x, y, w, h, "VSP GL Window" ), m_Nav( this )
 {
     mode( FL_RGB | FL_ALPHA | FL_DEPTH | FL_DOUBLE | FL_MULTISAMPLE );
     m_GEngine = new VSPGraphic::GraphicEngine();
@@ -86,14 +86,10 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
     m_initialized = false;
 
     m_prevViewport = -1;
-    m_prevLB = m_prevRB = m_prevMB = glm::vec2( fNAN );
-    m_prevAltLB = m_prevCtrlLB = m_prevMetaLB = m_prevZLB = glm::vec2( fNAN );
-    m_prevLBRB = glm::vec2( fNAN );
 
     m_ScreenMgr = mgr;
 
     m_hasSetSize = false;
-    m_noRotate = false;
 
 #ifdef __APPLE__
 #if FL_API_VERSION >= 10304
@@ -207,6 +203,8 @@ int VspGlWindow::handle( int fl_event )
 
     case FL_LEAVE:
         cursor( FL_CURSOR_DEFAULT );
+        // A key released while the pointer is elsewhere, e.g. over an open menu, is never seen here.
+        m_Nav.ClearKeys();
         return 1;
 
     case FL_PUSH:
@@ -242,6 +240,7 @@ int VspGlWindow::handle( int fl_event )
         return 1;
 
     case FL_UNFOCUS:
+        m_Nav.ClearKeys();
         return 1;
     }
     return Fl_Gl_Window::handle( fl_event );
@@ -2402,9 +2401,14 @@ void VspGlWindow::_setClipping( DrawObj * drawObj )
 
 void VspGlWindow::OnPush( int x, int y )
 {
+    // Other buttons do nothing during a box selection, not even select a viewport.
+    if ( m_Nav.GetAction() == NAV_BOX_SELECT )
+    {
+        return;
+    }
+
     VSPGraphic::Display * display = m_GEngine->getDisplay();
     int ivp = display->selectViewport( x, y );
-    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if ( ivp != m_prevViewport )
     {
@@ -2412,250 +2416,84 @@ void VspGlWindow::OnPush( int x, int y )
         m_prevViewport = ivp;
     }
 
-    if( Fl::event_button1() && Fl::event_button3() )
-    {
-        // LB + RB 
-        m_prevLBRB = glm::vec2( x, y );
-    }
-    else if( Fl::event_button1() )
-    {
-        bool alltrue = false;
-
-        if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
-        {
-            FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
-                ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
-            if ( fitModelScreen )
-            {
-                if (fitModelScreen->IsShown() )
-                {
-                    m_startShiftLB = glm::vec2( x, y );
-                    display->getLayoutMgr()->setStartXY( x, y );
-                    alltrue = true;
-                }
-            }
-        }
-
-        if( alltrue )
-        {
-        }
-        else if( m_prevKey == 'z' )
-        {
-            // z
-            m_prevZLB = glm::vec2( x, y );
-        }
-        else if( Fl::event_alt() )
-        {
-            // Alt + LB
-            m_prevAltLB = glm::vec2( x, y );
-        }
-        else if( Fl::event_ctrl() )
-        {
-            // Ctrl + LB
-            m_prevCtrlLB = glm::vec2( x, y );
-        }
-        else if( Fl::event_state( FL_META ) )
-        {
-            // Meta + LB
-            m_prevMetaLB = glm::vec2( x, y );
-        }
-        else
-        {
-            // LB
-            glm::vec3 mouseInWorld = glm::vec3( fNAN );
-
-            // Getting mouse location in world space.  This is for selectLocation().
-            Viewport * vp = m_GEngine->getDisplay()->getViewport();
-            if( vp )
-            {
-                mouseInWorld = vp->screenToWorld( glm::vec2( m_mouse_x, m_mouse_y ) );
-            }
-
-            // Select highlighted.
-            if( m_GEngine->getScene()->selectHighlight() )
-            {
-                Selectable * selected = m_GEngine->getScene()->getLastSelected();
-                _sendFeedback( selected );
-            }
-            // Select location in world.
-            else if( !glm::any(glm::isnan(mouseInWorld)) &&
-                m_GEngine->getScene()->selectLocation( mouseInWorld.x, mouseInWorld.y, mouseInWorld.z ) )
-            {
-                Selectable * selected = m_GEngine->getScene()->getLastSelected();
-                _sendFeedback( selected );
-            }
-            // Rotation.
-            else
-            {
-                m_prevLB = glm::vec2( x, y );
-            }
-        }
-    }
-    else if( Fl::event_button2() )
-    {
-        // MB
-        m_prevMB = glm::vec2( x, y );
-    }
-    else if( Fl::event_button3() )
-    {
-        // RB
-        m_prevRB = glm::vec2( x, y );
-    }
+    m_Nav.Push( x, y );
     redraw();
+}
+
+int VspGlWindow::GetNavConditions()
+{
+    int conditions = 0;
+
+    FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
+    if ( fitModelScreen && fitModelScreen->IsShown() )
+    {
+        conditions |= NAV_COND_FIT_MODEL;
+    }
+
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    if ( vPtr && vPtr->m_SelectBoxFlag() )
+    {
+        conditions |= NAV_COND_SELECT_BOX;
+    }
+
+    return conditions;
+}
+
+void VspGlWindow::BeginBoxSelect( int x, int y )
+{
+    m_GEngine->getDisplay()->getLayoutMgr()->setStartXY( x, y );
+}
+
+void VspGlWindow::EndBoxSelect( bool apply )
+{
+    if( apply && m_GEngine->getScene()->selectBox() )
+    {
+        _sendFeedback( m_GEngine->getScene()->getSelected() );
+    }
+    m_GEngine->getDisplay()->getLayoutMgr()->setStartXY( -1, -1 );
+}
+
+bool VspGlWindow::PickAtPress()
+{
+    glm::vec3 mouseInWorld = glm::vec3( fNAN );
+
+    // Getting mouse location in world space.  This is for selectLocation().
+    Viewport * vp = m_GEngine->getDisplay()->getViewport();
+    if( vp )
+    {
+        mouseInWorld = vp->screenToWorld( glm::vec2( m_mouse_x, m_mouse_y ) );
+    }
+
+    // Select highlighted.
+    if( m_GEngine->getScene()->selectHighlight() )
+    {
+        Selectable * selected = m_GEngine->getScene()->getLastSelected();
+        _sendFeedback( selected );
+        return true;
+    }
+
+    // Select location in world.
+    if( !glm::any(glm::isnan(mouseInWorld)) &&
+        m_GEngine->getScene()->selectLocation( mouseInWorld.x, mouseInWorld.y, mouseInWorld.z ) )
+    {
+        Selectable * selected = m_GEngine->getScene()->getLastSelected();
+        _sendFeedback( selected );
+        return true;
+    }
+
+    return false;
 }
 
 void VspGlWindow::OnDrag( int x, int y )
 {
-    VSPGraphic::Display * display = m_GEngine->getDisplay();
-    Vehicle* vPtr = VehicleMgr.GetVehicle();
-
-    if( Fl::event_button1() && Fl::event_button3() )
-    {
-        // LB + RB 
-        if( !glm::any(glm::isnan(m_prevLBRB)) )
-        {
-            display->zoom( ( int )m_prevLBRB.x, ( int )m_prevLBRB.y, x, y );
-            UpdateZoomParms();
-        }
-        m_prevLBRB = glm::vec2( x, y );
-    }
-    else if( Fl::event_button1() )
-    {
-        bool alltrue = false;
-        if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
-        {
-            FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
-                ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
-            if ( fitModelScreen )
-            {
-                if (fitModelScreen->IsShown() )
-                {
-                    if( glm::any(glm::isnan(m_startShiftLB)) )
-                    {
-                        m_startShiftLB = glm::vec2( x, y );
-                        display->getLayoutMgr()->setStartXY( x, y );
-                    }
-                    alltrue = true;
-                }
-            }
-        }
-
-        if( alltrue )
-        {
-        }
-        else if( m_prevKey == 'z' )
-        {
-            // z
-            if( !glm::any(glm::isnan(m_prevZLB)) )
-            {
-                display->rotateZ( ( int )m_prevZLB.x, ( int )m_prevZLB.y, x, y );
-                UpdateRotationParms();
-            }
-            m_prevZLB = glm::vec2( x, y );
-        }
-        else if( Fl::event_alt() )
-        {
-            // Alt + LB
-            if( !glm::any(glm::isnan(m_prevAltLB)) )
-            {
-                display->pan( ( int )m_prevAltLB.x, ( int )m_prevAltLB.y, x, y );
-                UpdatePanParms();
-            }
-            m_prevAltLB = glm::vec2( x, y );
-        }
-        else if( Fl::event_ctrl() )
-        {
-            // Ctrl + LB
-            if( !glm::any(glm::isnan(m_prevCtrlLB)) )
-            {
-                display->zoom( ( int )m_prevCtrlLB.x, ( int )m_prevCtrlLB.y, x, y );
-                UpdateZoomParms();
-            }
-            m_prevCtrlLB = glm::vec2( x, y );
-        }
-        else if( Fl::event_state( FL_META ) )
-        {
-            if( !glm::any(glm::isnan(m_prevMetaLB)) )
-            {
-                display->zoom( ( int )m_prevMetaLB.x, ( int )m_prevMetaLB.y, x, y );
-                UpdateZoomParms();
-            }
-            m_prevMetaLB = glm::vec2( x, y );
-        }
-        else if ( !m_noRotate )
-        {
-            // LB
-            if( !glm::any(glm::isnan(m_prevLB)) )
-            {
-                display->rotate( ( int )m_prevLB.x, ( int )m_prevLB.y, x, y );
-                UpdateRotationParms();
-            }
-            m_prevLB = glm::vec2( x, y );
-        }
-    }
-    else if( Fl::event_button2() )
-    {
-        // MB
-        if( !glm::any(glm::isnan(m_prevMB)) )
-        {
-            display->zoom( ( int )m_prevMB.x, ( int )m_prevMB.y, x, y );
-            UpdateZoomParms();
-        }
-        m_prevMB = glm::vec2( x, y );
-    }
-    else if( Fl::event_button3() )
-    {
-        // RB
-        if( !glm::any(glm::isnan(m_prevRB)) )
-        {
-            display->pan( ( int )m_prevRB.x, ( int )m_prevRB.y, x, y );
-            UpdatePanParms();
-        }
-        m_prevRB = glm::vec2( x, y );
-    }
+    m_Nav.Drag( x, y );
     redraw();
 }
 
 void VspGlWindow::OnRelease( int x, int y )
 {
-    VSPGraphic::Display * display = m_GEngine->getDisplay();
-    Vehicle* vPtr = VehicleMgr.GetVehicle();
-
-    // Reset buttons positions.
-    switch( Fl::event_button() )
-    {
-    case FL_LEFT_MOUSE:
-        m_prevLB = m_prevAltLB = m_prevCtrlLB = m_prevZLB = glm::vec2( fNAN );
-        m_prevMetaLB = glm::vec2( fNAN );
-        if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
-        {
-            FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
-                ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
-            if ( fitModelScreen )
-            {
-                if (fitModelScreen->IsShown() )
-                {
-
-                    if( m_GEngine->getScene()->selectBox() )
-                    {
-                        _sendFeedback( m_GEngine->getScene()->getSelected() );
-                    }
-                }
-            }
-        }
-        m_startShiftLB = glm::vec2( fNAN );
-        display->getLayoutMgr()->setStartXY( -1, -1 );
-
-        break;
-
-    case FL_RIGHT_MOUSE:
-        m_prevRB = glm::vec2( fNAN );
-        break;
-
-    case FL_MIDDLE_MOUSE:
-        m_prevMB = glm::vec2( fNAN );
-        break;
-    }
+    m_Nav.Release( x, y );
     redraw();
 }
 
@@ -2667,7 +2505,7 @@ int VspGlWindow::OnKeyup( int x, int y )
     unsigned key = Fl::event_key();
     key = tolower(key);  // not utf-8 safe, but oh well...
 
-    m_prevKey = '\0';
+    m_Nav.KeyUp( key );
 
     switch( key )
     {
@@ -2741,78 +2579,6 @@ int VspGlWindow::OnKeyup( int x, int y )
         }
         handled = 1;
         break;
-
-    case FL_Alt_L:
-    case FL_Alt_R:
-
-        // If mouse still pressed, start perform mouse action.
-        if( Fl::event_button1() )
-        {
-            m_prevLB = glm::vec2( x, y );
-
-            // Stop Alt+B control.
-            m_prevAltLB = glm::vec2( fNAN );
-        }
-        if( Fl::event_button2() )
-        {
-            m_prevMB = glm::vec2( x, y );
-        }
-        if( Fl::event_button3() )
-        {
-            m_prevRB = glm::vec2( x, y );
-        }
-        break;
-
-    case FL_Control_L:
-    case FL_Control_R:
-
-        // If mouse still pressed, start perform mouse action.
-        if( Fl::event_button1() )
-        {
-            m_prevLB = glm::vec2( x, y );
-
-            // Stop Alt+B control.
-            m_prevCtrlLB = glm::vec2( fNAN );
-        }
-        if( Fl::event_button2() )
-        {
-            m_prevMB = glm::vec2( x, y );
-        }
-        if( Fl::event_button3() )
-        {
-            m_prevRB = glm::vec2( x, y );
-        }
-        break;
-
-    case FL_Meta_L:
-    case FL_Meta_R:
-
-        // If mouse still pressed, start perform mouse action.
-        if( Fl::event_button1() )
-        {
-            m_prevLB = glm::vec2( x, y );
-
-            // Stop Alt+B control.
-            m_prevCtrlLB = glm::vec2( fNAN );
-        }
-        if( Fl::event_button2() )
-        {
-            m_prevMB = glm::vec2( x, y );
-        }
-        if( Fl::event_button3() )
-        {
-            m_prevRB = glm::vec2( x, y );
-        }
-        break;
-
-    case int('z'):
-        m_prevLB = glm::vec2( x, y );
-        m_prevMB = glm::vec2( x, y );
-        m_prevRB = glm::vec2( x, y );
-        m_prevCtrlLB = glm::vec2( x, y );
-        m_prevAltLB = glm::vec2( x, y );
-        m_prevZLB = glm::vec2( fNAN );
-        break;
     }
     redraw();
 
@@ -2826,12 +2592,8 @@ int VspGlWindow::OnKeydown()
     unsigned key = Fl::event_key();
     key = tolower(key);  // not utf-8 safe, but oh well...
 
-    switch( key )
-    {
-        default:
-            m_prevKey = key;
-            break;
-    }
+    m_Nav.KeyDown( key );
+
     redraw();
 
     return handled;
@@ -2839,54 +2601,10 @@ int VspGlWindow::OnKeydown()
 
 int VspGlWindow::OnWheelScroll( int dx, int dy, int x, int y )
 {
-    int handled = 1;
+    m_Nav.Wheel( dx, dy, x, y );
+    redraw();
 
-    float zoomChange = 1;
-    float zoomSpeed = 1.15; // size increase when zooming in
-
-    if ( dy > 0 ) // wheel pulled toward user
-    {
-        zoomChange = zoomSpeed;
-    }
-    else if ( dy < 0 ) // wheel pushed away from user
-    {
-        zoomChange = 1 / zoomSpeed;
-    }
-
-    if ( zoomChange != 1 )
-    {
-        Viewport* viewport = m_GEngine->getDisplay()->getViewport();
-        float width = viewport->width();
-        float height = viewport->height();
-        int mx = x - viewport->x();
-        int my = y - viewport->y();
-
-        float zoom = getRelativeZoomValue();
-        glm::vec2 pan = getPanValues();
-
-        float mousePosBeforeX, mousePosBeforeY;
-        mousePosBeforeX = ( ( ( zoom * width ) * ( ( mx / width ) - 0.5 ) - pan.x ) );
-        mousePosBeforeY = ( ( ( zoom * height ) * ( ( my / height ) - 0.5 ) - pan.y ) );
-
-        relativeZoom( getRelativeZoomValue() * zoomChange );
-
-        zoom *= zoomChange;
-        pan *= zoomChange;
-
-        float mousePosAfterX, mousePosAfterY;
-        mousePosAfterX = ( ( ( zoom * width ) * ( ( mx / width ) - 0.5 ) - pan.x ) );
-        mousePosAfterY = ( ( ( zoom * height ) * ( ( my / height ) - 0.5 ) - pan.y )  );
-
-        // cancel out any effect the zoom had on pan position, so that the same location remains under the mouse
-        relativePan( pan.x + mousePosAfterX - mousePosBeforeX , pan.y + mousePosAfterY - mousePosBeforeY );
-
-        UpdateZoomParms();
-        UpdatePanParms();
-
-        redraw();
-    }
-
-    return handled;
+    return 1;
 }
 
 void VspGlWindow::_sendFeedback( Selectable * selected )
@@ -3128,7 +2846,7 @@ EditXSecWindow::EditXSecWindow( int x, int y, int w, int h, ScreenMgr* mgr )
     : VspGlWindow( x, y, w, h, mgr, DrawObj::VSP_EDIT_CURVE_SCREEN )
 {
     m_LastHit = -1;
-    m_noRotate = true;
+    m_Nav.SetRotateEnabled( false );
 }
 
 void EditXSecWindow::update()
