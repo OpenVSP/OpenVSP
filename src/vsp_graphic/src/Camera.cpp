@@ -174,6 +174,19 @@ void Camera::centerAt( float x, float y )
     relativePan( pan.x - ex, pan.y - ey );
 }
 
+void Camera::setCORKeepView( float x, float y, float z )
+{
+    // Eye coordinates are pan + R ( p + c ) for a world point p and setCOR() value c.
+    // Keeping them for every p needs pan + R c unchanged in x and y.
+    glm::dvec3 c0( getCOR() );
+    glm::dvec3 c1( x, y, z );
+    glm::dvec3 d = glm::dquat( getViewRotation() ) * ( c0 - c1 );
+
+    glm::vec2 pan = getPanValues();
+    setCOR( x, y, z );
+    relativePan( pan.x + d.x, pan.y + d.y );
+}
+
 void Camera::_calculateProjection()
 {
     float range = 0;

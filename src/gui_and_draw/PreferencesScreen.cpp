@@ -66,6 +66,11 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_RotateModeChoice.UpdateItems();
     m_ViewLayout.AddChoice( m_RotateModeChoice, "Start With" );
 
+    m_PivotChoice.AddItem( "Rotation center", VSPGUI::NAV_PIVOT_FIXED );
+    m_PivotChoice.AddItem( "Point under cursor", VSPGUI::NAV_PIVOT_UNDER_CURSOR );
+    m_PivotChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_PivotChoice, "Rotate About" );
+    m_PivotChoice.GetFlChoice()->tooltip( "Point under cursor: each drag turns about the surface under the press, or the rotation center if there is none.  The rotation center is kept." );
     m_ViewLayout.AddYGap();
 
     m_ViewLayout.AddDividerBox( "Ball" );
@@ -216,6 +221,7 @@ void PreferencesScreen::ShowNav()
     m_BallSizeChoice.SetVal( NearestIndex( BALL_SIZES, 4, m_Nav.m_BallSize ) );
     ShowBallSpeed();
     m_BallOutlineChoice.SetVal( ( int )m_Nav.m_ShowBallOutline );
+    m_PivotChoice.SetVal( m_Nav.m_Pivot );
     m_TurntableSpeedChoice.SetVal( NearestIndex( TURNTABLE_GAINS, 4, m_Nav.m_TurntableGain ) );
 
     m_WheelDirChoice.SetVal( ( int )m_Nav.m_WheelReverse );
@@ -292,6 +298,10 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_BallOutlineChoice )
     {
         m_Nav.m_ShowBallOutline = ( m_BallOutlineChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_PivotChoice )
+    {
+        m_Nav.m_Pivot = m_PivotChoice.GetVal();
     }
     else if ( device == &m_TurntableSpeedChoice )
     {

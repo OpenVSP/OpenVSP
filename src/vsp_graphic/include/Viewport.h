@@ -165,6 +165,11 @@ public:
     void setOverlayCircles( float cx, float cy, const std::vector < float > & radii );
 
     /*!
+    * A marker drawn over the scene at a point, such as a pivot.  Window pixels.
+    */
+    void setOverlayMarker( bool show, float x, float y );
+
+    /*!
     * Draw the overlays set on this viewport.
     */
     void drawOverlay();
@@ -233,6 +238,10 @@ private:
     float _overlayCircleX;
     float _overlayCircleY;
     std::vector < float > _overlayRadii;
+
+    bool _showOverlayMarker;
+    float _overlayMarkerX;
+    float _overlayMarkerY;
 
     Camera* _camera;
     Background * _background;
