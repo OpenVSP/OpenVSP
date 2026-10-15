@@ -165,8 +165,8 @@ HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Hinge",
 
     m_SecVecLayout.SetButtonWidth( m_SecVecLayout.GetRemainX() / 3 );
     m_SecVecLayout.AddLabel( "Reference Vec", m_SecVecLayout.GetButtonWidth() );
-    m_SecVecLayout.AddButton( m_SecVecAbsToggle, "Rel" );
-    m_SecVecLayout.AddButton( m_SecVecRelToggle, "Abs" );
+    m_SecVecLayout.AddButton( m_SecVecRelToggle, "Rel" );
+    m_SecVecLayout.AddButton( m_SecVecAbsToggle, "Abs" );
     m_SecVecLayout.ForceNewLine();
 
     m_SecVecAbsRelToggle.Init( this );
