@@ -84,6 +84,7 @@ ModeEditorScreen.cpp
 MultTransScreen.cpp
 NavController.cpp
 NavDevice.cpp
+NavIcons.cpp
 NavProfile.cpp
 NerfManageGeomScreen.cpp
 NGonMeshScreen.cpp
@@ -187,6 +188,7 @@ ModeEditorScreen.h
 MultTransScreen.h
 NavController.h
 NavDevice.h
+NavIcons.h
 NavProfile.h
 NerfManageGeomScreen.h
 NGonMeshScreen.h

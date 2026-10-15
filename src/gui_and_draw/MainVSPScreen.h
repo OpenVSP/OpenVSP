@@ -17,6 +17,8 @@
 #include "GuiDevice.h"
 #include "NavDevice.h"
 #include "FL/Fl_Box.H"
+#include "FL/Fl_Button.H"
+#include "FL/Fl_SVG_Image.H"
 
 namespace VSPGUI
 {
@@ -91,6 +93,11 @@ public:
     // The 3D input device's status changed.
     static void NavDeviceStatusCB( void * data );
 
+    // Show the device's status on its bottom strip button and in the View menu.
+    void UpdateDeviceButton();
+
+    static Fl_SVG_Image * MakeIcon( const char * svg );
+
     void EnableStopGUIMenuItem();
     void DisableStopGUIMenuItem();
     void EnableExitMenuItem();
@@ -152,6 +159,7 @@ protected:
     ActionMenuItem m_RightIsoMenuItem;
     VSPCheckMenuItem m_TurntableMenuItem;
     VSPCheckMenuItem m_BallMenuItem;
+    VSPCheckMenuItem m_DeviceMenuItem;
     ActionMenuItem m_ZoomBoxMenuItem;
     ActionMenuItem m_CenterMenuItem;
     ActionMenuItem m_CenterAllMenuItem;
@@ -210,6 +218,10 @@ protected:
     VSPGUI::NavDevice * m_NavDevice;
     Fl_Box * m_TitleBox;
     Fl_Box * m_FileNameBox;
+    Fl_Button * m_DeviceButton;
+    Fl_SVG_Image * m_DeviceIconOn;
+    Fl_Image * m_DeviceIconOff;
+    std::string m_DeviceTip;
 
     bool m_ShowXYZArrow;
     bool m_ShowBorder;
