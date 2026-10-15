@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "glm/glm.hpp"
+#include "glm/gtc/quaternion.hpp"
 #include "Common.h"
 
 #define PERSPECTIVE_ZOOM_INIT 60.0f
@@ -105,6 +106,16 @@ public:
     virtual void rotateSphere( float angleX, float angleY, float angleZ ) = 0;
 
     virtual glm::vec3 getRotationEulerAngles() = 0;
+
+    /*!
+    * Rotation from world to eye coordinates, as a unit quaternion.
+    */
+    virtual glm::quat getViewRotation() = 0;
+
+    /*!
+    * Set the rotation from world to eye coordinates.  The rotation is about the center of rotation.
+    */
+    virtual void setViewRotation( const glm::quat & rot ) = 0;
 
     /*!
     * Panning the scene.

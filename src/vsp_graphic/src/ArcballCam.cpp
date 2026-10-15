@@ -210,6 +210,24 @@ glm::vec3 ArcballCam::getRotationEulerAngles()
     return glm::vec3( y, x, z );
 }
 
+// From _rMat, the rotation the view is drawn with.  After rotateSphere(), _globalQuat comes from
+// _matrixToQuat() and can differ from _rMat by up to 1e-4, which the first move from it would
+// show as a jump.
+glm::quat ArcballCam::getViewRotation()
+{
+    return glm::normalize( glm::quat_cast( glm::mat3( _rMat ) ) );
+}
+
+void ArcballCam::setViewRotation( const glm::quat & rot )
+{
+    glm::quat n = glm::normalize( rot );
+
+    _globalQuat = glm::vec4( -n.x, -n.y, -n.z, n.w );
+
+    _rMat = _toMatrix( _globalQuat );
+    _modelviewMatrix = _tMat * _rMat * _cMat;
+}
+
 glm::vec4 ArcballCam::_matrixToQuat ( glm::mat4 mat )
 {
     glm::vec4 q;
