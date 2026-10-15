@@ -7,7 +7,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <cmath>
+#include <cstring>
+
 #include <FL/Fl.H>
+#include <FL/Fl_Preferences.H>
 
 #include "NavController.h"
 #include "MainGLWindow.h"
@@ -25,7 +29,100 @@ static const int NAV_MODIFIERS = FL_SHIFT | FL_CTRL | FL_ALT | FL_META;
 
 NavSettings::NavSettings()
 {
+    m_BallType = NAV_BALL_TRACKBALL;
+    m_BallSize = 0.9;
+    m_BallBorder = 0.5;
+    m_BallSpeed = 0.5;
+
     m_Profile = NavProfile::Classic();
+}
+
+// Choices are stored by name so that reordering the enums never reinterprets a saved value.
+// Replace a stored number that is not finite or is out of range with the default.
+static double Checked( double v, double lo, double hi, double def )
+{
+    if ( !std::isfinite( v ) || v < lo || v > hi )
+    {
+        return def;
+    }
+    return v;
+}
+
+// USER_L writes and reads numbers in the C locale, so a decimal comma never gets into the file.
+void NavSettings::Load()
+{
+    Fl_Preferences prefs( Fl_Preferences::USER_L, "openvsp.org", "VSP" );
+    Fl_Preferences grp( prefs, "Interaction" );
+
+    char buf[64];
+
+    grp.get( "BallType", buf, "Trackball", sizeof( buf ) );
+    m_BallType = NAV_BALL_TRACKBALL;
+    if ( strcmp( buf, "RoundedArcball" ) == 0 )
+    {
+        m_BallType = NAV_BALL_ROUNDED_ARCBALL;
+    }
+    else if ( strcmp( buf, "Classic" ) == 0 )
+    {
+        m_BallType = NAV_BALL_CLASSIC;
+    }
+
+    NavSettings def;
+    grp.get( "BallSize", m_BallSize, def.m_BallSize );
+    grp.get( "BallBorder", m_BallBorder, def.m_BallBorder );
+    // Before Ball Speed, the Rounded Arcball's speed was an angle scale: 2 is a speed of 1.
+    double angle_scale = 2.0 * def.m_BallSpeed;
+    grp.get( "BallAngleScale", angle_scale, angle_scale );
+    grp.get( "BallSpeed", m_BallSpeed, 0.5 * angle_scale );
+
+    m_BallSize = Checked( m_BallSize, 0.2, 1.5, def.m_BallSize );
+    m_BallBorder = Checked( m_BallBorder, 0.0, 1.0, def.m_BallBorder );
+    m_BallSpeed = Checked( m_BallSpeed, 0.1, 2.0, def.m_BallSpeed );
+}
+
+// Only values that differ from the defaults are stored, so a later change of a default
+// reaches everyone who never changed that setting.
+static void SaveName( Fl_Preferences & grp, const char * key, const char * val, const char * def )
+{
+    if ( strcmp( val, def ) == 0 )
+    {
+        grp.deleteEntry( key );
+    }
+    else
+    {
+        grp.set( key, val );
+    }
+}
+
+static void SaveDouble( Fl_Preferences & grp, const char * key, double val, double def )
+{
+    if ( val == def )
+    {
+        grp.deleteEntry( key );
+    }
+    else
+    {
+        grp.set( key, val );
+    }
+}
+
+void NavSettings::Save() const
+{
+    Fl_Preferences prefs( Fl_Preferences::USER_L, "openvsp.org", "VSP" );
+    Fl_Preferences grp( prefs, "Interaction" );
+    NavSettings def;
+
+    grp.set( "FormatVersion", 1 );
+
+    const char * ball_names[] = { "RoundedArcball", "Classic", "Trackball" };
+    SaveName( grp, "BallType", ball_names[ m_BallType ], ball_names[ def.m_BallType ] );
+
+    SaveDouble( grp, "BallSize", m_BallSize, def.m_BallSize );
+    SaveDouble( grp, "BallBorder", m_BallBorder, def.m_BallBorder );
+    SaveDouble( grp, "BallSpeed", m_BallSpeed, def.m_BallSpeed );
+    grp.deleteEntry( "BallAngleScale" );
+
+    prefs.flush();
 }
 
 NavController::NavController( VspGlWindow * win )
@@ -46,11 +143,26 @@ NavController::NavController( VspGlWindow * win )
 void NavController::SetSettings( const NavSettings & settings )
 {
     m_Settings = settings;
+
+    m_RoundedArcball.setShape( m_Settings.m_BallSize, m_Settings.m_BallBorder );
+    m_RoundedArcball.setAngleScale( 2.0 * m_Settings.m_BallSpeed );
+    // At a Ball Speed of 1 the classic ball and the trackball turn twice as fast as OpenVSP's
+    // classic ball always has, about as fast as the Rounded Arcball; 0.5 is the classic speed.
+    m_ClassicBall.setSpeed( 2.0 * m_Settings.m_BallSpeed );
+    m_Trackball.setSpeed( 2.0 * m_Settings.m_BallSpeed );
 }
 
 VSPGraphic::RotationMethod * NavController::CurrentRotation()
 {
-    return &m_ClassicBall;
+    if ( m_Settings.m_BallType == NAV_BALL_CLASSIC )
+    {
+        return &m_ClassicBall;
+    }
+    if ( m_Settings.m_BallType == NAV_BALL_TRACKBALL )
+    {
+        return &m_Trackball;
+    }
+    return &m_RoundedArcball;
 }
 
 // The mouse button bit for the button of the current event.

@@ -8,6 +8,27 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "PreferencesScreen.h"
+#include "MainVSPScreen.h"
+#include "NavController.h"
+
+// Values offered for the numeric 3D interaction preferences.
+static const double BALL_SIZES[] = { 0.6, 0.75, 0.9, 1.0 };
+static const double BALL_SPEED_MIN = 0.1;
+static const double BALL_SPEED_MAX = 2.0;
+
+// Index of the offered value nearest a stored one.
+static int NearestIndex( const double * vals, int n, double v )
+{
+    int best = 0;
+    for ( int i = 1; i < n; i++ )
+    {
+        if ( std::abs( vals[i] - v ) < std::abs( vals[best] - v ) )
+        {
+            best = i;
+        }
+    }
+    return best;
+}
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -30,6 +51,41 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_FCTypeChoice.UpdateItems();
 
     m_GenLayout.AddChoice( m_FCTypeChoice, "File Chooser" );
+
+    //==== 3D View ====//
+    Fl_Group * view_tab = AddTab( "3D View" );
+    Fl_Group * view_group = AddSubGroup( view_tab, 5 );
+    m_ViewLayout.SetGroupAndScreen( view_group, this );
+
+    m_ViewLayout.AddDividerBox( "Ball" );
+
+    m_BallTypeChoice.AddItem( "Rounded Arcball", VSPGUI::NAV_BALL_ROUNDED_ARCBALL );
+    m_BallTypeChoice.AddItem( "OpenVSP Classic", VSPGUI::NAV_BALL_CLASSIC );
+    m_BallTypeChoice.AddItem( "Trackball", VSPGUI::NAV_BALL_TRACKBALL );
+    m_BallTypeChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_BallTypeChoice, "Type" );
+
+    // A SliderInput's widgets, as Ball Speed is a preference rather than a Parm; the label as wide as
+    // the choices' on this tab.
+    int ball_button_w = m_ViewLayout.GetButtonWidth();
+    m_ViewLayout.SetButtonWidth( m_ViewLayout.GetChoiceButtonWidth() );
+    m_ViewLayout.AddSliderInputWidgets( "Speed", &m_BallSpeedLabel, &m_BallSpeedSlider, &m_BallSpeedInput );
+    m_ViewLayout.SetButtonWidth( ball_button_w );
+    m_BallSpeedSlider->bounds( BALL_SPEED_MIN, BALL_SPEED_MAX );
+    m_BallSpeedSlider->callback( staticScreenCB, this );
+    m_BallSpeedInput->callback( staticScreenCB, this );
+    m_BallSpeedSlider->tooltip( "How fast the ball turns, as a multiple." );
+    m_BallSpeedInput->tooltip( "How fast the ball turns, as a multiple." );
+
+    m_BallSizeChoice.AddItem( "60% of view", 0 );
+    m_BallSizeChoice.AddItem( "75% of view", 1 );
+    m_BallSizeChoice.AddItem( "90% of view", 2 );
+    m_BallSizeChoice.AddItem( "100% of view", 3 );
+    m_BallSizeChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_BallSizeChoice, "Size" );
+    m_BallSizeChoice.GetFlChoice()->tooltip( "Rounded Arcball only" );
+
+    m_ViewLayout.AddYGap();
 
     //==== Bottom ====//
     m_BottomLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -72,12 +128,63 @@ void PreferencesScreen::Show()
     if ( !IsShown() )
     {
         m_FCTypeAtShow = GetFCType();
+        m_NavAtShow.Load();
     }
 
     m_FCTypeChoice.SetVal( GetFCType() );
 
+    m_Nav.Load();
+    ShowNav();
+
     m_ScreenMgr->SetUpdateFlag( true );
     TabScreen::Show();
+}
+
+void PreferencesScreen::ShowNav()
+{
+    m_BallTypeChoice.SetVal( m_Nav.m_BallType );
+    m_BallSizeChoice.SetVal( NearestIndex( BALL_SIZES, 4, m_Nav.m_BallSize ) );
+    ShowBallSpeed();
+    ShowActive();
+}
+
+void PreferencesScreen::ShowBallSpeed()
+{
+    m_BallSpeedSlider->value( m_Nav.m_BallSpeed );
+    char str[32];
+    snprintf( str, sizeof( str ), "%5.3f", m_Nav.m_BallSpeed );
+    m_BallSpeedInput->value( str );
+}
+
+void PreferencesScreen::ShowActive()
+{
+    // The ball's other settings shape the rounded arcball alone.
+    if ( m_Nav.m_BallType == VSPGUI::NAV_BALL_ROUNDED_ARCBALL )
+    {
+        m_BallSizeChoice.Activate();
+    }
+    else
+    {
+        m_BallSizeChoice.Deactivate();
+    }
+
+}
+
+bool PreferencesScreen::ReadNav( GuiDevice * device )
+{
+    if ( device == &m_BallTypeChoice )
+    {
+        m_Nav.m_BallType = m_BallTypeChoice.GetVal();
+    }
+    else if ( device == &m_BallSizeChoice )
+    {
+        m_Nav.m_BallSize = BALL_SIZES[ m_BallSizeChoice.GetVal() ];
+    }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 
 void PreferencesScreen::Hide()
@@ -88,6 +195,17 @@ void PreferencesScreen::Hide()
 
 void PreferencesScreen::CallBack( Fl_Widget* w )
 {
+    if ( w == m_BallSpeedSlider || w == m_BallSpeedInput )
+    {
+        double speed = m_BallSpeedSlider->value();
+        if ( w == m_BallSpeedInput )
+        {
+            speed = atof( m_BallSpeedInput->value() );
+        }
+        m_Nav.m_BallSpeed = std::max( BALL_SPEED_MIN, std::min( BALL_SPEED_MAX, speed ) );
+        ShowBallSpeed();
+        ApplyNav();
+    }
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -103,18 +221,40 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         SetFCType( vsp::FC_OPENVSP );
         m_FCTypeChoice.SetVal( vsp::FC_OPENVSP );
+        m_Nav = VSPGUI::NavSettings();
+        ShowNav();
+        ApplyNav();
     }
     else if ( device == &m_RevertButton )
     {
         SetFCType( m_FCTypeAtShow );
         m_FCTypeChoice.SetVal( m_FCTypeAtShow );
+        m_Nav = m_NavAtShow;
+        ShowNav();
+        ApplyNav();
     }
     else if ( device == &m_CloseButton )
     {
         Hide();
     }
+    else if ( ReadNav( device ) )
+    {
+        ShowActive();
+        ApplyNav();
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void PreferencesScreen::ApplyNav()
+{
+    m_Nav.Save();
+
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    if ( main )
+    {
+        main->SetNavSettings( m_Nav );
+    }
 }
 
 int PreferencesScreen::GetFCType()

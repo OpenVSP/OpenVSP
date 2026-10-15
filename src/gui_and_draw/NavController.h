@@ -26,10 +26,27 @@ namespace VSPGUI
 {
 class VspGlWindow;
 
+// What the Ball does.
+enum NavBallType
+{
+    NAV_BALL_ROUNDED_ARCBALL,
+    NAV_BALL_CLASSIC,
+    NAV_BALL_TRACKBALL
+};
+
 // The user's 3D interaction preferences.
 struct NavSettings
 {
     NavSettings();
+
+    // Read from and write to the user's FLTK preferences, group "Interaction".
+    void Load();
+    void Save() const;
+
+    int m_BallType;             // NavBallType.
+    double m_BallSize;          // Ball diameter, fraction of the smaller viewport dimension.
+    double m_BallBorder;        // Fillet width, fraction of the ball radius.
+    double m_BallSpeed;         // Multiplier on each ball type's turn, 0.1 to 2.
 
     NavProfile m_Profile;       // The mouse bindings.
 };
@@ -81,6 +98,8 @@ private:
     NavSettings m_Settings;
 
     VSPGraphic::ClassicBall m_ClassicBall;
+    VSPGraphic::Trackball m_Trackball;
+    VSPGraphic::RoundedArcball m_RoundedArcball;
     VSPGraphic::RotationMethod * m_Rotation;
 
     std::set < int > m_HeldKeys;
