@@ -191,7 +191,10 @@ void GeomEngine::ValidateParms()
         }
     }
 
-    if ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+    // A flowthrough inlet mode sets the outlet too, but not on a flowpath.
+    if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET &&
+         m_EngineGeomInType() != ENGINE_GEOM_FLOWPATH && m_EngineGeomOutType() != ENGINE_GEOM_FLOWPATH &&
+         ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ) )
     {
         m_EngineOutModeType.Deactivate();
     }
