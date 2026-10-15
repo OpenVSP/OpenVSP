@@ -153,6 +153,95 @@ const NavBinding * NavProfile::Match( const NavPress & press, int trigger ) cons
     return nullptr;
 }
 
+const char * NavModifierName( int bit )
+{
+#ifdef __APPLE__
+    const char * meta = "Cmd";
+    const char * alt = "Option";
+#elif defined( _WIN32 )
+    const char * meta = "Win";
+    const char * alt = "Alt";
+#else
+    const char * meta = "Super";
+    const char * alt = "Alt";
+#endif
+
+    if ( bit == FL_SHIFT )
+    {
+        return "Shift";
+    }
+    if ( bit == FL_CTRL )
+    {
+        return "Ctrl";
+    }
+    if ( bit == FL_ALT )
+    {
+        return alt;
+    }
+    if ( bit == FL_META )
+    {
+        return meta;
+    }
+    return "";
+}
+
+static std::string DescribeKeys( int buttons, int modifiers, int key )
+{
+    std::string d;
+    if ( key != 0 )
+    {
+        d += ( char )key;
+        d += "+";
+    }
+
+    const int mods[] = { FL_SHIFT, FL_CTRL, FL_ALT, FL_META };
+    for ( int i = 0; i < 4; i++ )
+    {
+        if ( modifiers & mods[i] )
+        {
+            d += NavModifierName( mods[i] );
+            d += "+";
+        }
+    }
+
+    std::vector < std::string > names;
+    if ( buttons & FL_BUTTON1 )
+    {
+        names.push_back( "Left" );
+    }
+    if ( buttons & FL_BUTTON2 )
+    {
+        names.push_back( "Middle" );
+    }
+    if ( buttons & FL_BUTTON3 )
+    {
+        names.push_back( "Right" );
+    }
+    for ( int i = 0; i < ( int )names.size(); i++ )
+    {
+        if ( i > 0 )
+        {
+            d += "+";
+        }
+        d += names[i];
+    }
+    return d;
+}
+
+std::string NavDescribe( const NavBinding & b )
+{
+    std::string d = DescribeKeys( b.m_Buttons, b.m_Modifiers, b.m_HeldKey );
+    if ( b.m_Trigger == NAV_ON_CLICK )
+    {
+        d += " click";
+    }
+    else
+    {
+        d += " drag";
+    }
+    return d;
+}
+
 bool NavProfile::NeedsWhere() const
 {
     for ( int i = 0; i < ( int )m_Bindings.size(); i++ )

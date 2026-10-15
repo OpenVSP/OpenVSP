@@ -75,6 +75,12 @@ NavBinding NavBind( int buttons, int modifiers, NavAction action );
 // A binding for at least these buttons and modifiers: any others may also be down.
 NavBinding NavBindAtLeast( int buttons, int modifiers, NavAction action );
 
+// A modifier bit's name on this platform: "Cmd" for FL_META on macOS, "Option" for FL_ALT, ...
+const char * NavModifierName( int bit );
+
+// What a binding's press is, for people: "Ctrl+Left drag", "z+Left drag", "Middle click".
+std::string NavDescribe( const NavBinding & b );
+
 // A press, or the buttons left down after a release, as bindings see it.
 struct NavPress
 {
