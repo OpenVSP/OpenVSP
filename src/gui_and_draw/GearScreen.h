@@ -87,8 +87,6 @@ protected:
     TriggerButton m_RemoveBogieButton;
     TriggerButton m_RemoveAllBogiesButton;
 
-    TriggerButton m_ShowAllBogiesButton;
-    TriggerButton m_HideAllBogiesButton;
 
     StringInput m_BogieNameInput;
 

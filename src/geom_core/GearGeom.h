@@ -241,7 +241,6 @@ public:
 
     void AppendMainSurf( vector < VspSurf > &surfvec, int gear_config ) const;
 
-    bool m_Visible;
     Matrix4d m_StowTransform;
     Matrix4d m_StowSymmTransform;
     Matrix4d m_StowAttachMatrix;
@@ -620,8 +619,6 @@ public:
     void SetCurrBogieIndex( int i )             { m_CurrBogieIndex = i; }
     int GetCurrBogieIndex()                     { return m_CurrBogieIndex; }
     void DelAllBogies();
-    void ShowAllBogies();
-    void HideAllBogies();
     Bogie *  GetBogie( const string &id ) const;
     vector < string > GetAllBogies();
     void DelBogie( const int &i );

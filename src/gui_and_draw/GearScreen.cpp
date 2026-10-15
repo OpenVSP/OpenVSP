@@ -136,11 +136,6 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
 
     m_BogieLayout.ForceNewLine();
 
-    m_BogieLayout.AddButton( m_ShowAllBogiesButton, "Show All" );
-    m_BogieLayout.AddButton( m_HideAllBogiesButton, "Hide All" );
-
-    m_BogieLayout.ForceNewLine();
-
     m_BogieLayout.SetSameLineFlag( false );
     m_BogieLayout.SetFitWidthFlag( true );
 
@@ -1856,14 +1851,10 @@ bool GearScreen::Update()
     if ( !bogies.empty() )
     {
         m_RemoveAllBogiesButton.Activate();
-        m_ShowAllBogiesButton.Activate();
-        m_HideAllBogiesButton.Activate();
     }
     else
     {
         m_RemoveAllBogiesButton.Deactivate();
-        m_ShowAllBogiesButton.Deactivate();
-        m_HideAllBogiesButton.Deactivate();
     }
 
     return true;
@@ -2074,14 +2065,6 @@ void GearScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         gear_ptr->DelAllBogies();
         gear_ptr->Update();
-    }
-    else if ( device == &m_ShowAllBogiesButton )
-    {
-        gear_ptr->ShowAllBogies();
-    }
-    else if ( device == &m_HideAllBogiesButton )
-    {
-        gear_ptr->HideAllBogies();
     }
     else if ( device == &m_BogieNameInput )
     {

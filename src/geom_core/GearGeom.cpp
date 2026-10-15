@@ -3543,22 +3543,6 @@ void GearGeom::DelAllBogies()
     UpdateParents();
 }
 
-void GearGeom::ShowAllBogies()
-{
-    for( int i = 0; i < ( int )m_Bogies.size(); i++ )
-    {
-        m_Bogies[i]->m_Visible = true;
-    }
-}
-
-void GearGeom::HideAllBogies()
-{
-    for( int i = 0; i < ( int )m_Bogies.size(); i++ )
-    {
-        m_Bogies[i]->m_Visible = false;
-    }
-}
-
 Bogie * GearGeom::GetBogie( const string &id ) const
 {
     for( int i = 0; i < ( int )m_Bogies.size(); i++ )
