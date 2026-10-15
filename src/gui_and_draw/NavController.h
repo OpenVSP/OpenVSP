@@ -157,6 +157,12 @@ public:
     void Release( int x, int y );
     void Wheel( int dx, int dy, int x, int y );
 
+    // Motion from a six-axis device, already integrated over its frame: rotation and
+    // translation of the device's ball in radians, in eye axes (+x right, +y up, +z toward
+    // the viewer).  The model follows the ball.  In Turntable mode eye-y turns about the world
+    // up axis and roll is ignored.  Translation x and y pan, z zooms (toward the viewer is in).
+    void ApplyAxes( const glm::dvec3 & rotation, const glm::dvec3 & translation );
+
     // Esc: end the gesture in progress and put the view back as it was at the press, or
     // disarm a zoom box.  Returns true if there was something to cancel.
     bool Cancel();

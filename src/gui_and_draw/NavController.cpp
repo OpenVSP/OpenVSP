@@ -1094,6 +1094,54 @@ void NavController::Wheel( int dx, int dy, int x, int y )
     }
 }
 
+void NavController::ApplyAxes( const glm::dvec3 & rotation, const glm::dvec3 & translation )
+{
+    VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
+    if ( !camera )
+    {
+        return;
+    }
+
+    if ( m_RotateMode == NAV_ROTATE_TURNTABLE )
+    {
+        // Tip about the screen's horizontal axis, then turn about world up, the way that moves
+        // the near side with the ball, as the mouse turntable does.
+        glm::dquat r0( camera->getViewRotation() );
+        glm::dvec3 up( 0.0, 0.0, 1.0 );
+        double yaw = rotation.y;
+        if ( ( r0 * up ).y < 0.0 )
+        {
+            yaw = -yaw;
+        }
+        glm::dquat r = glm::angleAxis( rotation.x, glm::dvec3( 1.0, 0.0, 0.0 ) ) * r0 * glm::angleAxis( yaw, up );
+        camera->setViewRotation( glm::quat( r ) );
+    }
+    else
+    {
+        camera->rotateEye( rotation );
+    }
+
+    // A radian of ball travel pans half the view height, and zooms by a factor of e.
+    const double panGain = 0.5;
+    const double zoomGain = 1.0;
+
+    double height = camera->viewportHeight() * camera->getRelativeZoomValue();
+    glm::vec2 pan = camera->getPanValues();
+    camera->relativePan( pan.x + panGain * height * translation.x, pan.y + panGain * height * translation.y );
+
+    if ( translation.z != 0.0 )
+    {
+        ZoomAt( camera, std::exp( -zoomGain * translation.z ), NAV_ANCHOR_CENTER, 0, 0 );
+    }
+
+    FollowPivot( camera );
+
+    m_Win->UpdateRotationParms();
+    m_Win->UpdatePanParms();
+    m_Win->UpdateZoomParms();
+    m_Win->redraw();
+}
+
 void NavController::KeyDown( int key )
 {
     m_HeldKeys.insert( key );
