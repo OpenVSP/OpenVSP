@@ -75,6 +75,7 @@ protected:
     VspSlider * m_BallSpeedSlider;
     Fl_Input * m_BallSpeedInput;
     Choice m_TurntableSpeedChoice;
+    Choice m_BallOutlineChoice;
 
     Choice m_WheelDirChoice;
     Choice m_WheelAnchorChoice;

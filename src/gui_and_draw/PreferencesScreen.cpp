@@ -97,6 +97,11 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ViewLayout.AddChoice( m_BallSizeChoice, "Size" );
     m_BallSizeChoice.GetFlChoice()->tooltip( "Rounded Arcball only" );
 
+    m_BallOutlineChoice.AddItem( "Show while rotating", 1 );
+    m_BallOutlineChoice.AddItem( "Hide", 0 );
+    m_BallOutlineChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_BallOutlineChoice, "Outline" );
+    m_BallOutlineChoice.GetFlChoice()->tooltip( "Rounded Arcball only" );
     m_ViewLayout.AddYGap();
 
     m_ViewLayout.AddDividerBox( "Turntable and Tumbler" );
@@ -210,6 +215,7 @@ void PreferencesScreen::ShowNav()
     m_BallTypeChoice.SetVal( m_Nav.m_BallType );
     m_BallSizeChoice.SetVal( NearestIndex( BALL_SIZES, 4, m_Nav.m_BallSize ) );
     ShowBallSpeed();
+    m_BallOutlineChoice.SetVal( ( int )m_Nav.m_ShowBallOutline );
     m_TurntableSpeedChoice.SetVal( NearestIndex( TURNTABLE_GAINS, 4, m_Nav.m_TurntableGain ) );
 
     m_WheelDirChoice.SetVal( ( int )m_Nav.m_WheelReverse );
@@ -236,10 +242,12 @@ void PreferencesScreen::ShowActive()
     if ( m_Nav.m_BallType == VSPGUI::NAV_BALL_ROUNDED_ARCBALL )
     {
         m_BallSizeChoice.Activate();
+        m_BallOutlineChoice.Activate();
     }
     else
     {
         m_BallSizeChoice.Deactivate();
+        m_BallOutlineChoice.Deactivate();
     }
 
     // The Tumbler's speed is the one it shares with the Turntable.
@@ -280,6 +288,10 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_RotateModeChoice )
     {
         m_Nav.m_StartupRotateMode = m_RotateModeChoice.GetVal();
+    }
+    else if ( device == &m_BallOutlineChoice )
+    {
+        m_Nav.m_ShowBallOutline = ( m_BallOutlineChoice.GetVal() != 0 );
     }
     else if ( device == &m_TurntableSpeedChoice )
     {
