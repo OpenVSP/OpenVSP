@@ -52,6 +52,9 @@ public:
     openaxis::WriteResult apply_pose( const openaxis::NavigationContext & context, const openaxis::NavigationPose & pose,
                                       const openaxis::Value & navigation, std::optional < openaxis::Vec3 > pivot ) override;
 
+    // Mark the host's pivot on the view, or clear the mark when there is no point.
+    void show_pivot( const openaxis::NavigationContext & context, std::optional < openaxis::Vec3 > point ) override;
+
     // The camera's pose, if the context is still current.
     std::optional < openaxis::Pose > ReadCamera( const openaxis::NavigationContext & context );
 
@@ -66,10 +69,17 @@ protected:
     // An eye far enough back to see the whole model.
     double EyeDistance();
 
+    // Put the pivot's mark where the pivot now is on screen, or take it away.
+    void PlacePivot();
+
     VspGlWindow * m_Win;
 
     // How far behind the center of the view the reported eye is.
     double m_EyeDistance;
+
+    // The host's pivot, and the camera it is shown in.
+    std::optional < openaxis::Vec3 > m_Pivot;
+    VSPGraphic::Camera * m_PivotCamera;
 };
 }
 

@@ -18,9 +18,13 @@
 #include "Camera.h"
 #include "Display.h"
 #include "GraphicEngine.h"
+#include "LayoutMgr.h"
 #include "MainGLWindow.h"
 #include "Vehicle.h"
 #include "VehicleMgr.h"
+#include "Viewport.h"
+
+#include "glm/ext.hpp"
 
 namespace VSPGUI
 {
@@ -237,6 +241,7 @@ NavViewAdapter::NavViewAdapter( VspGlWindow * win )
 {
     m_Win = win;
     m_EyeDistance = 1.0;
+    m_PivotCamera = nullptr;
 }
 
 VSPGraphic::Camera * NavViewAdapter::CurrentCamera()
@@ -327,6 +332,7 @@ openaxis::WriteResult NavViewAdapter::apply_pose( const openaxis::NavigationCont
     m_Win->UpdateRotationParms();
     m_Win->UpdatePanParms();
     m_Win->UpdateZoomParms();
+    PlacePivot();
     m_Win->redraw();
 
     if ( m_OnMotion )
@@ -336,6 +342,42 @@ openaxis::WriteResult NavViewAdapter::apply_pose( const openaxis::NavigationCont
     return result;
 }
 
+
+void NavViewAdapter::show_pivot( const openaxis::NavigationContext & context, std::optional < openaxis::Vec3 > point )
+{
+    if ( point && !is_current( context ) )
+    {
+        return;
+    }
+    m_Pivot = point;
+    m_PivotCamera = nullptr;
+    if ( point )
+    {
+        m_PivotCamera = CurrentCamera();
+    }
+    PlacePivot();
+    m_Win->redraw();
+}
+
+void NavViewAdapter::PlacePivot()
+{
+    std::vector < VSPGraphic::Viewport * > viewports = m_Win->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+    for ( int i = 0; i < ( int )viewports.size(); i++ )
+    {
+        VSPGraphic::Camera * camera = viewports[i]->getCamera();
+        if ( !m_Pivot || camera != m_PivotCamera )
+        {
+            viewports[i]->setOverlayMarker( false, 0.0f, 0.0f );
+            continue;
+        }
+
+        // Shown only where it falls in the viewport, in front of the eye.
+        glm::vec4 rect( camera->viewportX(), camera->viewportY(), camera->viewportWidth(), camera->viewportHeight() );
+        glm::vec3 s = glm::project( glm::vec3( m_Pivot->x, m_Pivot->y, m_Pivot->z ), camera->getModelViewMatrix(), camera->getProjectionMatrix(), rect );
+        bool inside = s.x >= rect.x && s.x <= rect.x + rect.z && s.y >= rect.y && s.y <= rect.y + rect.w && s.z >= 0.0f && s.z <= 1.0f;
+        viewports[i]->setOverlayMarker( inside, s.x, s.y );
+    }
+}
 }
 
 #endif
