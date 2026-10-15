@@ -802,6 +802,9 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w ) const
 
     double uprm = m_UMapping.Invert( u * m_UMapMax ) / GetUMax();
 
+    // A surface trimmed by an engine model can be shorter than its mapping; stay on the surface.
+    uprm = clamp( uprm, 0.0, 1.0 );
+
     // Get x,y,z location of u,w coordinate and place in translation matrix
     vec3d cartCoords = CompPnt01( uprm, w );
     retMat.translatef( cartCoords.x(), cartCoords.y(), cartCoords.z() );
@@ -852,6 +855,9 @@ Matrix4d VspSurf::CompTransCoordSysRST( const double &r, const double &s, const 
     Matrix4d retMat; // Return Matrix
 
     double rprm = m_UMapping.Invert( r * m_UMapMax ) / GetUMax();
+
+    // A surface trimmed by an engine model can be shorter than its mapping; stay on the surface.
+    rprm = clamp( rprm, 0.0, 1.0 );
 
     // Get x,y,z location of r, s, t coordinate and place in translation matrix
     vec3d cartCoords = CompPntRST( rprm, s, t );
@@ -4865,7 +4871,8 @@ double VspSurf::InvertUMapping( double u ) const
 {
     if ( m_UMapMax >= 0 )
     {
-        return m_UMapping.Invert( u );
+        // A surface trimmed by an engine model can be shorter than its mapping; stay on the surface.
+        return clamp( m_UMapping.Invert( u ), 0.0, GetUMax() );
     }
     return u;
 }

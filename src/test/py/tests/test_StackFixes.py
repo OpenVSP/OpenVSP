@@ -55,3 +55,27 @@ def test_the_flowpath_presets_are_the_duct_as_drawn():
         assert vsp.GetParmVal( sid, "OutletModeType", "EngineModel" ) == vsp.ENGINE_MODE_TO_LIP, preset
         assert vsp.GetNumMainSurfs( sid ) == 1, preset
         assert vsp.GetGeomVSPSurfCfdType( sid, 0 ) == vsp.CFD_NORMAL, preset
+
+
+def test_a_child_attached_past_a_trimmed_engine_surface_stays_on_it():
+    sid, surf = new_stack()
+    vsp.InitStackPreset( sid, vsp.STACK_PRESET_FLOWTHRU_MID_ORIG )
+    vsp.Update()
+    pod = vsp.AddGeom( "POD", sid )
+    vsp.SetParmVal( pod, "Trans_Attach_Flag", "Attach", vsp.ATTACH_TRANS_UV )
+    vsp.SetParmVal( pod, "Rots_Attach_Flag", "Attach", vsp.ATTACH_ROT_UV )
+    vsp.SetParmVal( pod, "V_Attach_Location", "Attach", 0.75 )
+    for u in ( 0.5, 0.9, 1.0 ):
+        vsp.SetParmVal( pod, "U_Attach_Location", "Attach", u )
+        vsp.Update()
+        p = vsp.CompPnt01( pod, 0, 0.0, 0.0 )
+        assert abs( p.x() ) < 1e3 and abs( p.y() ) < 1e3 and abs( p.z() ) < 1e3, u
+
+
+def test_a_ruler_past_a_trimmed_engine_surface_stays_on_it():
+    sid, surf = new_stack()
+    vsp.InitStackPreset( sid, vsp.STACK_PRESET_FLOWTHRU_MID_ORIG )
+    vsp.Update()
+    rid = vsp.AddRuler( sid, 0, 0.9, 0.75, sid, 0, 0.1, 0.75, "ruler" )
+    vsp.Update()
+    assert rid
