@@ -111,6 +111,7 @@ void VspGlWindow::setWindowLayout( int row, int column )
     m_GEngine->getDisplay()->setDisplayLayout( row, column );
     m_GEngine->getDisplay()->resize( pixel_w(), pixel_h() );
     m_GEngine->getDisplay()->selectViewport( 0 );
+    m_prevViewport = 0;
 }
 
 void VspGlWindow::setView( VSPGraphic::Common::VSPenum type )
