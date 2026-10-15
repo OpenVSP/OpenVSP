@@ -162,6 +162,10 @@ public:
     void Release( int x, int y );
     void Wheel( int dx, int dy, int x, int y );
 
+    // Turn the view about the screen's axis until world Z points up the screen.  Looking along
+    // Z, first tip it a quarter turn about the screen's x axis.  False if Z is already up.
+    bool LevelZUp();
+
     // Esc: end the gesture in progress and put the view back as it was at the press, or
     // disarm a zoom box.  Returns true if there was something to cancel.
     bool Cancel();

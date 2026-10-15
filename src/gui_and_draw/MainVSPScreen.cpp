@@ -188,6 +188,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
     m_TurntableMenuItem.Init( this, m_MenuBar, "View/Turntable Rotation", 't' );
     m_BallMenuItem.Init( this, m_MenuBar, "View/Ball Rotation", 'b' );
+    m_ZUpMenuItem.Init( this, m_MenuBar, "View/Z Up", 'z' );
     m_ZoomBoxMenuItem.Init( this, m_MenuBar, "View/Zoom Box", 'w' );
     if ( VSPGUI::NavDevice::IsBuilt() )
     {
@@ -506,9 +507,24 @@ void MainVSPScreen::CallBack( Fl_Widget* w )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void MainVSPScreen::LevelZUp()
+{
+    if ( m_GlWin->GetNav().LevelZUp() )
+    {
+        m_GlWin->ViewChanged();
+    }
+}
+
 void MainVSPScreen::SetRotateMode( int mode )
 {
+    // Turntable turns about Z, so it starts with Z up.
+    bool level = ( mode == VSPGUI::NAV_ROTATE_TURNTABLE && m_GlWin->GetNav().GetRotateMode() != mode );
+
     m_GlWin->GetNav().SetRotateMode( mode );
+    if ( level )
+    {
+        LevelZUp();
+    }
 
     m_TurntableMenuItem.Update( mode == VSPGUI::NAV_ROTATE_TURNTABLE );
     m_BallMenuItem.Update( mode == VSPGUI::NAV_ROTATE_BALL );
@@ -832,6 +848,10 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_BallMenuItem )
     {
         SetRotateMode( VSPGUI::NAV_ROTATE_BALL );
+    }
+    else if ( data == &m_ZUpMenuItem )
+    {
+        LevelZUp();
     }
     else if ( data == &m_ZoomBoxMenuItem )
     {
