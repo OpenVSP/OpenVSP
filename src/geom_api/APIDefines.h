@@ -1354,6 +1354,14 @@ enum PROP_PCURVE { PROP_CHORD,	/*!< Chord parameterization */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum that identifies a propeller starting design (see InitPropPreset). */
+enum PROP_PRESETS { PROP_PRESET_PROPELLER = 0,	/*!< The default propeller, Y rotation 0 */
+                    PROP_PRESET_HELICOPTER = 1	/*!< A helicopter main rotor: NACA 0012 blades of constant chord and linear twist, Feather driving the pitch, Y rotation 90 */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum used to identify array reordering instructions. */
 enum REORDER_TYPE { REORDER_MOVE_UP,	/*!< Move up one position */
                     REORDER_MOVE_DOWN,	/*!< Move down one position */

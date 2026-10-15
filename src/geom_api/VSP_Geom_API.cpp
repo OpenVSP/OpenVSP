@@ -16282,6 +16282,34 @@ void ResetPropellerThickness( const std::string & geom_id )
     ErrorMgr.NoError();
 }
 
+void InitPropPreset( const std::string & geom_id, int preset )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "InitPropPreset::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast< PropGeom* >( geom_ptr );
+    if ( !prop_ptr )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "InitPropPreset::Geom " + geom_id + " is not a propeller" );
+        return;
+    }
+
+    if ( preset < PROP_PRESET_PROPELLER || preset > PROP_PRESET_HELICOPTER )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "InitPropPreset::Invalid Preset " + to_string( preset ) );
+        return;
+    }
+
+    prop_ptr->InitPreset( preset );
+
+    ErrorMgr.NoError();
+}
+
 void ApproximateAllPropellerPCurves( const std::string & geom_id )
 {
     Vehicle* veh = GetVehicle();

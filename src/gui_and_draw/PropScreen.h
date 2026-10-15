@@ -74,6 +74,8 @@ protected:
     SliderAdjRangeInput m_MarkerScaleSlider;
 
     Choice m_PropModeChoice;
+    Choice m_PresetChoice;
+    TriggerButton m_PresetButton;
 
     TriggerButton m_InsertXSec;
     TriggerButton m_CutXSec;

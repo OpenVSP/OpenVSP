@@ -24,6 +24,24 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 510, 800, "Propeller
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
 
+    m_DesignLayout.AddDividerBox( "Preset" );
+    m_PresetChoice.AddItem( "Propeller", PROP_PRESET_PROPELLER );
+    m_PresetChoice.AddItem( "Helicopter Rotor", PROP_PRESET_HELICOPTER );
+    int std_btn = m_DesignLayout.GetButtonWidth();
+    int std_slider = m_DesignLayout.GetSliderWidth();
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.SetSliderWidth( m_DesignLayout.GetW() - m_DesignLayout.GetChoiceButtonWidth() - 50 );
+    m_DesignLayout.AddChoice( m_PresetChoice, "Preset" );
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetRemainX() );
+    m_DesignLayout.AddButton( m_PresetButton, "Set" );
+    m_DesignLayout.ForceNewLine();
+    m_DesignLayout.SetButtonWidth( std_btn );
+    m_DesignLayout.SetSliderWidth( std_slider );
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetSameLineFlag( false );
+    m_DesignLayout.AddYGap();
+
     m_DesignLayout.AddDividerBox( "Modeling" );
     m_PropModeChoice.AddItem( "Blades" );
     m_PropModeChoice.AddItem( "Both" );
@@ -1301,6 +1319,14 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         propeller_ptr->ResetThickness();
         propeller_ptr->Update();
+    }
+    else if ( gui_device == &m_PresetButton )
+    {
+        if ( fl_choice( "Replace the sections, blade curves, pitch and rotation with the preset?", "Cancel", "Ok", 0 ) == 1 )
+        {
+            propeller_ptr->InitPreset( m_PresetChoice.GetVal() );
+            propeller_ptr->Update();
+        }
     }
     else if ( gui_device == &m_ModXSecCurveNameInput )
     {

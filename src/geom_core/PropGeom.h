@@ -190,6 +190,9 @@ public:
 
     virtual void ResetThickness();
 
+    // Replace the sections, blade curves, pitch and rotation with a starting design (PROP_PRESETS).
+    virtual void InitPreset( int preset );
+
     virtual double GetR0();
     virtual double ComputeMAC();
 

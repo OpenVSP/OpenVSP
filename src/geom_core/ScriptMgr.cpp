@@ -2409,6 +2409,14 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "PROP_PRESETS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PRESETS", "PROP_PRESET_PROPELLER", PROP_PRESET_PROPELLER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PRESETS", "PROP_PRESET_HELICOPTER", PROP_PRESET_HELICOPTER );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "REORDER_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "REORDER_TYPE", "REORDER_MOVE_UP", REORDER_MOVE_UP );
@@ -3948,6 +3956,9 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void ResetPropellerThickness( const string & in geom_id )", asFUNCTION( vsp::ResetPropellerThickness ), asCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void InitPropPreset( const string & in geom_id, int preset )", asFUNCTION( vsp::InitPropPreset ), asCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void ReadAdvLinkCodeFile( int index, const string & in file_name )", asFUNCTION( vsp::ReadAdvLinkCodeFile ), asCALL_CDECL );

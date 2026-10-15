@@ -45676,6 +45676,67 @@ extern void ApproximateAllPropellerPCurves( const std::string & geom_id );
 extern void ResetPropellerThickness( const std::string & geom_id );
 
 /*!
+    \ingroup Geom
+*/
+/*!
+    Replace a propeller's cross sections, blade curves, pitch and rotation with a starting design, the
+    way the Preset Set button on the Prop screen does.  The Y rotation is set in the frame the propeller
+    is placed in, relative or absolute.  The cross sections are made anew, so links to the old ones'
+    parameters are lost.  Every other parameter keeps its value, so a preset is meant for a new propeller.
+    PROP_PRESET_PROPELLER restores the default propeller, with Y rotation 0.  PROP_PRESET_HELICOPTER
+    gives a helicopter main rotor: NACA 0012 sections, constant chord, linear twist, the pitch driven
+    by Feather, and Y rotation 90 so the thrust points up.
+    The geometry reflects the change after the next Update.
+    \forcpponly
+    \code{.cpp}
+    string prop_id = AddGeom( "PROP", "" );
+
+    InitPropPreset( prop_id, PROP_PRESET_HELICOPTER );
+
+    Update();
+
+    // The rotor blade has one section at the root and one at the tip.
+    string xsec_surf = GetXSecSurf( prop_id, 0 );
+
+    if ( GetNumXSec( xsec_surf ) != 2 )
+    {
+        Print( "ERROR: InitPropPreset did not rebuild the sections" );
+        __failure++;
+    }
+
+    if ( GetParmVal( prop_id, "Y_Rel_Rotation", "XForm" ) != 90.0 )
+    {
+        Print( "ERROR: InitPropPreset did not turn the rotor thrust up" );
+        __failure++;
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    prop_id = AddGeom( "PROP", "" )
+
+    InitPropPreset( prop_id, PROP_PRESET_HELICOPTER )
+
+    Update()
+
+    # The rotor blade has one section at the root and one at the tip.
+    xsec_surf = GetXSecSurf( prop_id, 0 )
+
+    assert GetNumXSec( xsec_surf ) == 2, "InitPropPreset did not rebuild the sections"
+
+    assert GetParmVal( prop_id, "Y_Rel_Rotation", "XForm" ) == 90.0, "InitPropPreset did not turn the rotor thrust up"
+
+    \endcode
+    \endPythonOnly
+    \sa PROP_PRESETS
+    \param [in] geom_id string Propeller Geom ID
+    \param [in] preset int Preset enum (see PROP_PRESETS)
+*/
+
+extern void InitPropPreset( const std::string & geom_id, int preset );
+
+/*!
     \ingroup PCurve
 */
 /*!

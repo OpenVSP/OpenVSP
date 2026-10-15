@@ -459,144 +459,59 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_XSecSurf.SetXSecType( XSEC_PROP );
 
-    m_XSecSurf.AddXSec( XS_ELLIPSE );
-    m_XSecSurf.AddXSec( XS_ONE_SIX_SERIES );
-    m_XSecSurf.AddXSec( XS_ONE_SIX_SERIES );
-
-    int j;
-    PropXSec* xs;
-
-    j = 0;
-    xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_RadiusFrac = 0.2;
-
-    ++j;
-    xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_RadiusFrac = 0.4;
-
-    ++j;
-    xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_RadiusFrac = 1.0;
-
     m_ChordCurve.SetParentContainer( GetID() );
     m_ChordCurve.SetDispNames( "r/R", "Chord/R" );
     m_ChordCurve.SetParmNames( "r", "crd" );
     m_ChordCurve.SetCurveName( "Chord" );
     m_ChordCurve.InitParms();
-    m_ChordCurve.m_CurveType = vsp::CEDIT;
-    static const double t1[] = {0.2, 0.2 + 0.4 / 3.0,
-               0.6 - 0.4 / 3.0, 0.6, 0.6 + 0.35 / 3.0,
-               0.95 - 0.35 / 3.0, 0.95, 0.95 + 0.05 / 3.0,
-               1.0 - 0.05 / 3.0, 1.0};
-    static const double v1[] = {0.08, 0.15,
-                           0.2, 0.2, 0.2,
-                           0.2, 0.2, 0.2,
-                           0.2, 0.13};
-    vector < double > tv1( t1, t1 + sizeof( t1 ) / sizeof( t1[0] ) );
-    vector < double > vv1( v1, v1 + sizeof( v1 ) / sizeof( v1[0] ) );
-    m_ChordCurve.InitCurve( tv1, vv1 );
-
-    // Prevent negative values in m_Chord
-    for ( size_t i = 0; i < m_ChordCurve.m_ValParmVec.size(); i++ )
-    {
-        m_ChordCurve.m_ValParmVec[i]->SetLowerLimit( 1e-8 );
-    }
 
     m_TwistCurve.SetParentContainer( GetID() );
     m_TwistCurve.SetDispNames( "r/R", "Twist" );
     m_TwistCurve.SetParmNames( "r", "tw" );
     m_TwistCurve.SetCurveName( "Twist" );
     m_TwistCurve.InitParms();
-    m_TwistCurve.m_CurveType = vsp::PCHIP;
-    static const double t2[] = {0.2, 0.75, 1.0};
-    static const double v2[] = {46.75, 20.0, 13.0};
-    vector < double > tv2( t2, t2 + sizeof( t2 ) / sizeof( t2[0] ) );
-    vector < double > vv2( v2, v2 + sizeof( v2 ) / sizeof( v2[0] ) );
-    m_TwistCurve.InitCurve( tv2, vv2 );
-
-    static const double t3[] = {0.2, 1.0};
-    static const double v3[] = {0.0, 0.0};
-    vector < double > tv3( t3, t3 + sizeof( t3 ) / sizeof( t3[0] ) );
-    vector < double > vv3( v3, v3 + sizeof( v3 ) / sizeof( v3[0] ) );
 
     m_RakeCurve.SetParentContainer( GetID() );
     m_RakeCurve.SetDispNames( "r/R", "Rake/R" );
     m_RakeCurve.SetParmNames( "r", "rak" );
     m_RakeCurve.SetCurveName( "Rake" );
     m_RakeCurve.InitParms();
-    m_RakeCurve.m_CurveType = vsp::LINEAR;
-    m_RakeCurve.InitCurve( tv3, vv3 );
 
     m_SkewCurve.SetParentContainer( GetID() );
     m_SkewCurve.SetDispNames( "r/R", "Skew/R" );
     m_SkewCurve.SetParmNames( "r", "skw" );
     m_SkewCurve.SetCurveName( "Skew" );
     m_SkewCurve.InitParms();
-    m_SkewCurve.m_CurveType = vsp::LINEAR;
-    m_SkewCurve.InitCurve( tv3, vv3 );
 
     m_SweepCurve.SetParentContainer( GetID() );
     m_SweepCurve.SetDispNames( "r/R", "Sweep" );
     m_SweepCurve.SetParmNames( "r", "sw" );
     m_SweepCurve.SetCurveName( "Sweep" );
     m_SweepCurve.InitParms();
-    m_SweepCurve.m_CurveType = vsp::LINEAR;
-    m_SweepCurve.InitCurve( tv3, vv3 );
 
     m_ThickCurve.SetParentContainer( GetID() );
     m_ThickCurve.SetDispNames( "r/R", "Thick/C" );
     m_ThickCurve.SetParmNames( "r", "toc" );
     m_ThickCurve.SetCurveName( "Thick" );
     m_ThickCurve.InitParms();
-    m_ThickCurve.m_CurveType = vsp::CEDIT;
-    static const double t4[] =                    {0.2, 0.2 + 0.1 / 3.0,
-                                  0.3 - 0.1 / 3.0, 0.3, 0.3 + 0.3 / 3.0,
-                                  0.6 - 0.3 / 3.0, 0.6, 0.6 + 0.4 / 3.0,
-                                  1.0 - 0.4 / 3.0, 1.0};
-    static const double v4[] =        {0.50, 0.300,
-                                0.225, 0.20, 0.125,
-                                0.115, 0.10, 0.075,
-                                0.055, 0.03};
-    vector < double > tv4( t4, t4 + sizeof( t4 ) / sizeof( t4[0] ) );
-    vector < double > vv4( v4, v4 + sizeof( v4 ) / sizeof( v4[0] ) );
-    m_ThickCurve.InitCurve( tv4, vv4 );
 
     m_CLICurve.SetParentContainer( GetID() );
     m_CLICurve.SetDispNames( "r/R", "CLi" );
     m_CLICurve.SetParmNames( "r", "cli" );
     m_CLICurve.SetCurveName( "CLI" );
     m_CLICurve.InitParms();
-    m_CLICurve.m_CurveType = vsp::CEDIT;
-    static const double t5[] =                    {0.2, 0.2 + 0.2 / 3.0,
-                                  0.4 - 0.2 / 3.0, 0.4, 0.4 + 0.2 / 3.0,
-                                  0.6 - 0.2 / 3.0, 0.6, 0.6 + 0.4 / 3.0,
-                                  1.0 - 0.4 / 3.0, 1.0};
-    static const double v5[] =       {0.0, 0.7,
-                                 0.7, 0.7, 0.7,
-                                 0.7, 0.7, 0.7,
-                                 0.7, 0.2};
-    vector < double > tv5( t5, t5 + sizeof( t5 ) / sizeof( t5[0] ) );
-    vector < double > vv5( v5, v5 + sizeof( v5 ) / sizeof( v5[0] ) );
-    m_CLICurve.InitCurve( tv5, vv5 );
 
     m_AxialCurve.SetParentContainer( GetID() );
     m_AxialCurve.SetDispNames( "r/R", "Axial/R" );
     m_AxialCurve.SetParmNames( "r", "ax" );
     m_AxialCurve.SetCurveName( "Axial" );
     m_AxialCurve.InitParms();
-    m_AxialCurve.m_CurveType = vsp::LINEAR;
-    m_AxialCurve.InitCurve( tv3, vv3 );
 
     m_TangentialCurve.SetParentContainer(GetID() );
     m_TangentialCurve.SetDispNames("r/R", "Tan/R" );
     m_TangentialCurve.SetParmNames("r", "tan" );
     m_TangentialCurve.SetCurveName("Tangential" );
     m_TangentialCurve.InitParms();
-    m_TangentialCurve.m_CurveType = vsp::LINEAR;
-    m_TangentialCurve.InitCurve(tv3, vv3 );
 
     // Set up vector to allow treatment as a group.
     m_pcurve_vec.resize( NUM_PROP_PCURVE );
@@ -610,6 +525,110 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_pcurve_vec[ PROP_AXIAL ] = &m_AxialCurve;
     m_pcurve_vec[ PROP_TANGENTIAL ] = &m_TangentialCurve;
 
+    InitPreset( PROP_PRESET_PROPELLER );
+}
+
+//==== Replace the sections, the blade curves, the pitch and the Y rotation with a starting design ====//
+void PropGeom::InitPreset( int preset )
+{
+    m_XSecSurf.DeleteAllXSecs();
+    m_ActiveXSec = 0;
+
+    vector < int > xstype;
+    vector < double > xsrad;
+
+    vector < double > t3 = { 0.2, 1.0 };
+    vector < double > zero = { 0.0, 0.0 };
+    double yrot = 0.0;
+
+    if ( preset == PROP_PRESET_HELICOPTER )
+    {
+        // A rotor blade: NACA 0012 from root to tip, constant chord, linear twist.
+        xstype = { XS_FOUR_SERIES, XS_FOUR_SERIES };
+        xsrad = { 0.2, 1.0 };
+
+        m_ChordCurve.SetCurve( t3, { 0.06, 0.06 }, vsp::LINEAR );
+        m_TwistCurve.SetCurve( t3, { 0.0, -8.0 }, vsp::LINEAR );
+        m_ThickCurve.SetCurve( t3, { 0.12, 0.12 }, vsp::LINEAR );
+        m_CLICurve.SetCurve( t3, zero, vsp::LINEAR );
+
+        m_UseBeta34Flag.Set( 0 );
+        m_Feather.Set( 8.0 );
+
+        // Thrust up.
+        yrot = 90.0;
+    }
+    else
+    {
+        xstype = { XS_ELLIPSE, XS_ONE_SIX_SERIES, XS_ONE_SIX_SERIES };
+        xsrad = { 0.2, 0.4, 1.0 };
+
+        vector < double > t1 = { 0.2, 0.2 + 0.4 / 3.0,
+                                 0.6 - 0.4 / 3.0, 0.6, 0.6 + 0.35 / 3.0,
+                                 0.95 - 0.35 / 3.0, 0.95, 0.95 + 0.05 / 3.0,
+                                 1.0 - 0.05 / 3.0, 1.0 };
+        vector < double > v1 = { 0.08, 0.15,
+                                 0.2, 0.2, 0.2,
+                                 0.2, 0.2, 0.2,
+                                 0.2, 0.13 };
+        m_ChordCurve.SetCurve( t1, v1, vsp::CEDIT );
+
+        m_TwistCurve.SetCurve( { 0.2, 0.75, 1.0 }, { 46.75, 20.0, 13.0 }, vsp::PCHIP );
+
+        vector < double > t4 = { 0.2, 0.2 + 0.1 / 3.0,
+                                 0.3 - 0.1 / 3.0, 0.3, 0.3 + 0.3 / 3.0,
+                                 0.6 - 0.3 / 3.0, 0.6, 0.6 + 0.4 / 3.0,
+                                 1.0 - 0.4 / 3.0, 1.0 };
+        vector < double > v4 = { 0.50, 0.300,
+                                 0.225, 0.20, 0.125,
+                                 0.115, 0.10, 0.075,
+                                 0.055, 0.03 };
+        m_ThickCurve.SetCurve( t4, v4, vsp::CEDIT );
+
+        vector < double > t5 = { 0.2, 0.2 + 0.2 / 3.0,
+                                 0.4 - 0.2 / 3.0, 0.4, 0.4 + 0.2 / 3.0,
+                                 0.6 - 0.2 / 3.0, 0.6, 0.6 + 0.4 / 3.0,
+                                 1.0 - 0.4 / 3.0, 1.0 };
+        vector < double > v5 = { 0.0, 0.7,
+                                 0.7, 0.7, 0.7,
+                                 0.7, 0.7, 0.7,
+                                 0.7, 0.2 };
+        m_CLICurve.SetCurve( t5, v5, vsp::CEDIT );
+
+        m_UseBeta34Flag.Set( 1 );
+        m_Beta34.Set( 20.0 );
+        m_Feather.Set( 0.0 );
+    }
+
+    m_RakeCurve.SetCurve( t3, zero, vsp::LINEAR );
+    m_SkewCurve.SetCurve( t3, zero, vsp::LINEAR );
+    m_SweepCurve.SetCurve( t3, zero, vsp::LINEAR );
+    m_AxialCurve.SetCurve( t3, zero, vsp::LINEAR );
+    m_TangentialCurve.SetCurve( t3, zero, vsp::LINEAR );
+
+    // Prevent negative values in m_Chord
+    for ( size_t i = 0; i < m_ChordCurve.m_ValParmVec.size(); i++ )
+    {
+        m_ChordCurve.m_ValParmVec[i]->SetLowerLimit( 1e-8 );
+    }
+
+    // The Y rotation in the frame the propeller is placed in.
+    if ( m_AbsRelFlag() == vsp::REL )
+    {
+        m_YRelRot.Set( yrot );
+    }
+    else
+    {
+        m_YRot.Set( yrot );
+    }
+
+    for ( int j = 0; j < (int) xstype.size(); j++ )
+    {
+        m_XSecSurf.AddXSec( xstype[ j ] );
+        PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
+        xs->SetGroupDisplaySuffix( j );
+        xs->m_RadiusFrac = xsrad[ j ];
+    }
 }
 
 //==== Destructor ====//
