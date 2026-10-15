@@ -13,6 +13,17 @@
 namespace VSPGraphic
 {
 /*!
+* A camera pose in world terms, for navigation devices.  The view is orthographic, so the eye
+* point is synthetic: a point some distance behind the center of the view.
+*/
+struct CameraPose
+{
+    glm::dquat m_Rotation;      // Camera to world.  The camera looks along its -z with +y up.
+    glm::dvec3 m_Eye;           // On the line through the center of the view, behind it.
+    double m_OrthoExtent;       // Visible height of the view in world units.
+};
+
+/*!
 * Camera Base Class.
 */
 class Camera
@@ -189,6 +200,25 @@ public:
     * it.  setCOR() leaves the pan, so the model moves on screen.  x, y, z are as for setCOR().
     */
     void setCORKeepView( float x, float y, float z );
+
+    /*!
+    * The pose, with the eye eyeDistance behind the world point at the center of the view.
+    */
+    CameraPose getPose( double eyeDistance );
+
+    /*!
+    * Set rotation, pan and zoom from a pose, and return the pose that results (the camera's
+    * own zoom floor may limit it; a caller with tighter limits applies them first).  The
+    * center of rotation is kept, and the eye's distance along the view direction has no
+    * effect, as the view is orthographic.
+    */
+    CameraPose setPose( const CameraPose & pose );
+
+    /*!
+    * Turn the view about an axis in eye coordinates (+x right, +y up, +z toward the viewer),
+    * through the center of rotation, by the axis vector's length in radians.
+    */
+    void rotateEye( const glm::dvec3 & rotation );
 
     /*!
     * Move Geometry to center.
