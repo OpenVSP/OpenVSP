@@ -1363,7 +1363,7 @@ void ParasiteDragFullAnalysis::SetDefaults()
 
         // Friction Coefficient Eqn Choice
         m_Inputs.Add( new NameValData( "LamCfEqnChoice",    ParasiteDragMgr.m_LamCfEqnType.Get(), "Laminar skin friction coefficient equation enum." ) );
-        m_Inputs.Add( new NameValData( "TurbCfEqnChoice",   ParasiteDragMgr.m_TurbCfEqnType.Get(), "Trubulent skin friction coefficient equation enum." ) );
+        m_Inputs.Add( new NameValData( "TurbCfEqnChoice",   ParasiteDragMgr.m_TurbCfEqnType.Get(), "Turbulent skin friction coefficient equation enum." ) );
 
         // Unit Choice
         m_Inputs.Add( new NameValData( "LengthUnit",        ParasiteDragMgr.m_LengthUnit.Get(), "Model length unit enum." ) );
@@ -1383,9 +1383,9 @@ void ParasiteDragFullAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "Temperature",          ParasiteDragMgr.m_Temp.Get(), "Temperature." ) );
         m_Inputs.Add( new NameValData( "Pressure",             ParasiteDragMgr.m_Pres.Get(), "Pressure." ) );
         m_Inputs.Add( new NameValData( "Density",              ParasiteDragMgr.m_Rho.Get(), "Density." ) );
-        m_Inputs.Add( new NameValData( "DynaVisc",           ParasiteDragMgr.m_DynaVisc.Get(), "Dynamic viscoscity" ) );
+        m_Inputs.Add( new NameValData( "DynaVisc",           ParasiteDragMgr.m_DynaVisc.Get(), "Dynamic viscosity" ) );
         m_Inputs.Add( new NameValData( "SpecificHeatRatio",  ParasiteDragMgr.m_SpecificHeatRatio.Get(), "Ratio of specific heats" ) );
-        m_Inputs.Add( new NameValData( "KineVisc",           ParasiteDragMgr.m_KineVisc.Get(), "Kinematic viscoscity" ) );
+        m_Inputs.Add( new NameValData( "KineVisc",           ParasiteDragMgr.m_KineVisc.Get(), "Kinematic viscosity" ) );
         m_Inputs.Add( new NameValData( "Mach",               ParasiteDragMgr.m_Mach.Get(), "Mach." ) );
         m_Inputs.Add( new NameValData( "Re_L",               ParasiteDragMgr.m_ReqL.Get(), "Reynolds number per unit length." ) );
 

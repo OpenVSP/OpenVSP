@@ -42,7 +42,7 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Diameter.SetDescript( "Diameter of auxiliary geometry" );
 
     m_FlapRadiusFract.Init( "FlapRadiusFract", "Design", this, 0.0, 0.0, 1.0 );
-    m_FlapRadiusFract.SetDescript( "Radius fraction for the flappling hinge location" );
+    m_FlapRadiusFract.SetDescript( "Radius fraction for the flapping hinge location" );
 
     m_RootLength.Init( "RootLength", "Design", this, 0.0, 0.0, 1.0e12 );
     m_RootLength.SetDescript( "Axial length of rotor at root of burst cone" );

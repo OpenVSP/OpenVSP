@@ -49264,9 +49264,9 @@ extern int GetNumUnsteadyRotorGroups();
     \endcode
     \endPythonOnly
     \sa EXCRES_TYPE
-    \param [in] excresName string Name of the Excressence
-    \param [in] excresType int Excressence type enum (i.e. EXCRESCENCE_PERCENT_GEOM)
-    \param [in] excresVal double Excressence value
+    \param [in] excresName string Name of the Excrescence
+    \param [in] excresType int Excrescence type enum (i.e. EXCRESCENCE_PERCENT_GEOM)
+    \param [in] excresVal double Excrescence value
 */
 
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
@@ -49328,7 +49328,7 @@ extern void AddExcrescence(const std::string & excresName, const int & excresTyp
 
     \endcode
     \endPythonOnly
-    \param [in] index int Index of the Excressence to delete
+    \param [in] index int Index of the Excrescence to delete
 */
 
 /*!
@@ -49476,7 +49476,7 @@ extern void DeleteExcrescence(const int & index);
     \ingroup ParasiteDrag
 */
 /*!
-    Update any reference geometry, atmospheric properties, excressences, etc. in the Parasite Drag Tool
+    Update any reference geometry, atmospheric properties, excrescences, etc. in the Parasite Drag Tool
     \forcpponly
     \code{.cpp}
     string pid = AddGeom( "POD" );

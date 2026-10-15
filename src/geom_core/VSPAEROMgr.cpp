@@ -246,7 +246,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Vref.Init( "Vref", groupname, this, 100, 0, 1e12 );
     m_Vref.SetDescript( "Reference Velocity. Set to Rotor Tip Speed for Hover Analysis (Vinf = 0)" );
     m_ManualVrefFlag.Init( "ManualVrefFlag", groupname, this, false, false, true );
-    m_ManualVrefFlag.SetDescript( "Flag to Set Vref Manually or Automatiacally Equal to Vinf" );
+    m_ManualVrefFlag.SetDescript( "Flag to Set Vref Manually or Automatically Equal to Vinf" );
 
     m_Machref.Init( "Machref", groupname, this, 0.3, 0, 1e12 );
     m_Machref.SetDescript( "Reference Mach Number. Set to Rotor Tip Mach Number for Hover Analysis (Vinf = 0)" );
@@ -5565,16 +5565,16 @@ void VSPAEROMgrSingleton::ReadRotorResFile( const string &filename, vector <stri
                 res->Add( new NameValData( "Diameter", Diameter, "Rotor diameter." ) );
                 res->Add( new NameValData( "RPM", RPM, "Rotation speed, revolutions per minute." ) );
                 res->Add( new NameValData( "TipVel", TipVel, "Rotor tip speed." ) );
-                res->Add( new NameValData( "CNo_H", CNo_H, "Viscous contribution to normal force coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CSo_H", CSo_H, "Viscous contribution to side force coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CTo_H", CTo_H, "Viscous contribution to thrust coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CQo_H", CQo_H, "Viscous contribution to torque coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CPo_H", CPo_H, "Viscous contribution to power coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CN_H", CN_H, "Normal force coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CS_H", CS_H, "Side force coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CT_H", CT_H, "Thrust coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CQ_H", CQ_H, "Torque coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CP_H", CP_H, "Power coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CNo_H", CNo_H, "Viscous contribution to normal force coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CSo_H", CSo_H, "Viscous contribution to side force coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CTo_H", CTo_H, "Viscous contribution to thrust coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CQo_H", CQo_H, "Viscous contribution to torque coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CPo_H", CPo_H, "Viscous contribution to power coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CN_H", CN_H, "Normal force coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CS_H", CS_H, "Side force coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CT_H", CT_H, "Thrust coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CQ_H", CQ_H, "Torque coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CP_H", CP_H, "Power coefficient, helicopter convention." ) );
             }
             else if ( data_string_array.size() == num_load_last_rev_data_col )
             {
@@ -5640,16 +5640,16 @@ void VSPAEROMgrSingleton::ReadRotorResFile( const string &filename, vector <stri
                 res->Add( new NameValData( "Diameter", Diameter, "Rotor diameter" ) );
                 res->Add( new NameValData( "RPM", RPM, "Rotation speed, revolutions per minute." ) );
                 res->Add( new NameValData( "TipVel", TipVel, "Rotor tip speed." ) );
-                res->Add( new NameValData( "CNo_H", CNo_H, "Viscous contribution to normal force coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CSo_H", CSo_H, "Viscous contribution to side force coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CTo_H", CTo_H, "Viscous contribution to thrust coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CQo_H", CQo_H, "Viscous contribution to torque coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CPo_H", CPo_H, "Viscous contribution to power coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CN_H", CN_H, "Normal force coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CS_H", CS_H, "Side force coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CT_H", CT_H, "Thrust coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CQ_H", CQ_H, "Torque coefficient, helicoter convention." ) );
-                res->Add( new NameValData( "CP_H", CP_H, "Power coefficient, helicoter convention." ) );
+                res->Add( new NameValData( "CNo_H", CNo_H, "Viscous contribution to normal force coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CSo_H", CSo_H, "Viscous contribution to side force coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CTo_H", CTo_H, "Viscous contribution to thrust coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CQo_H", CQo_H, "Viscous contribution to torque coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CPo_H", CPo_H, "Viscous contribution to power coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CN_H", CN_H, "Normal force coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CS_H", CS_H, "Side force coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CT_H", CT_H, "Thrust coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CQ_H", CQ_H, "Torque coefficient, helicopter convention." ) );
+                res->Add( new NameValData( "CP_H", CP_H, "Power coefficient, helicopter convention." ) );
             }
         }
     } //end for while !feof(fp)

@@ -3472,7 +3472,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     }
 
     // Excres Related
-    res->Add( new NameValData( "Num_Excres", ( int )m_ExcresRowVec.size(), "Number of excressence contributions." ) );
+    res->Add( new NameValData( "Num_Excres", ( int )m_ExcresRowVec.size(), "Number of excrescence contributions." ) );
     res->Add( new NameValData( "Excres_Label", m_excres_Label, "Name." ) );
     res->Add( new NameValData( "Excres_Type", m_excres_Type, "Type." ) );
     res->Add( new NameValData( "Excres_Input", m_excres_Input, "Input value." ) );
@@ -3484,9 +3484,9 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add( new NameValData( "Geom_f_Total", GetGeomfTotal(), "Geom drag area." ) );
     res->Add( new NameValData( "Geom_CD_Total", GetGeometryCD(), "Geom drag coefficient." ) );
     res->Add( new NameValData( "Geom_Perc_Total", GetGeomPercTotal(), "Geom percent of total CD." ) );
-    res->Add( new NameValData( "Excres_f_Total", GetExcresfTotal(), "Total excressence drag area." ) );
-    res->Add( new NameValData( "Excres_CD_Total", GetTotalExcresCD(), "Total excressence drag coefficient." ) );
-    res->Add( new NameValData( "Excres_Perc_Total", GetExcresPercTotal(), "Total excressence percent of CD." ) );
+    res->Add( new NameValData( "Excres_f_Total", GetExcresfTotal(), "Total excrescence drag area." ) );
+    res->Add( new NameValData( "Excres_CD_Total", GetTotalExcresCD(), "Total excrescence drag coefficient." ) );
+    res->Add( new NameValData( "Excres_Perc_Total", GetExcresPercTotal(), "Total excrescence percent of CD." ) );
     res->Add( new NameValData( "Total_f_Total", GetfTotal(), "Drag area." ) );
     res->Add( new NameValData( "Total_CD_Total", GetTotalCD(), "Drag coefficient." ) );
     res->Add( new NameValData( "Total_Perc_Total", GetPercTotal(), "Total percent of CD (should be 1.0)." ) );

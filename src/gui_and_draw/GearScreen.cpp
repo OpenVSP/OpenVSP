@@ -357,7 +357,7 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_TireLayout.SetFitWidthFlag( false );
     m_TireLayout.SetButtonWidth( inToggleButtonWidth + modelToggleButtonWidth + bw2 );
 
-    m_TireLayout.AddButton( m_DeflectionToggleButton, "Delfection Frac H" );
+    m_TireLayout.AddButton( m_DeflectionToggleButton, "Deflection Frac H" );
     m_TireLayout.SetFitWidthFlag( true );
     m_TireLayout.SetButtonWidth( 0 );
     m_TireLayout.AddSlider( m_DeflectionSlider, "", 1, "%6.5f" );

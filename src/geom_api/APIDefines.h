@@ -562,12 +562,12 @@ enum ERROR_CODE {   VSP_UNKNOWN = -1,	/*!< Unknown error */
 /*!
 	\ingroup Enumerations
 */
-/*! Enum used to indicate Parasite Drag Tool excressence type. */
-enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,	/*!< Drag counts excressence type */
-                   EXCRESCENCE_CD,	/*!< Drag coefficient excressence type */
-                   EXCRESCENCE_PERCENT_GEOM,	/*!< Percent of parent Geom drag coefficient excressence type */
-                   EXCRESCENCE_MARGIN,	/*!< Percent margin excressence type */
-                   EXCRESCENCE_DRAGAREA,	/*!< Drag area (D/q) excressence type */
+/*! Enum used to indicate Parasite Drag Tool excrescence type. */
+enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,	/*!< Drag counts excrescence type */
+                   EXCRESCENCE_CD,	/*!< Drag coefficient excrescence type */
+                   EXCRESCENCE_PERCENT_GEOM,	/*!< Percent of parent Geom drag coefficient excrescence type */
+                   EXCRESCENCE_MARGIN,	/*!< Percent margin excrescence type */
+                   EXCRESCENCE_DRAGAREA,	/*!< Drag area (D/q) excrescence type */
 };
 
 /*!

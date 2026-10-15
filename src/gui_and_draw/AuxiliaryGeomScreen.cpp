@@ -109,7 +109,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_FragmentLayout.AddYGap();
     m_FragmentLayout.AddDividerBox( "Spread Risk Angle" );
-    m_FragmentLayout.AddSlider( m_FragThetaThrustSlider, "Foreward", 10.0, "%5.4f" );
+    m_FragmentLayout.AddSlider( m_FragThetaThrustSlider, "Forward", 10.0, "%5.4f" );
     m_FragmentLayout.AddSlider( m_FragThetaAntiThrustSlider, "Aft", 10.0, "%5.4f" );
 
 
@@ -133,7 +133,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
 
     m_ThrownBladeLayout.AddYGap();
     m_ThrownBladeLayout.AddDividerBox( "Spread Risk Angle" );
-    m_ThrownBladeLayout.AddSlider( m_BladeThetaThrustSlider, "Foreward", 10.0, "%5.4f" );
+    m_ThrownBladeLayout.AddSlider( m_BladeThetaThrustSlider, "Forward", 10.0, "%5.4f" );
     m_ThrownBladeLayout.AddSlider( m_BladeThetaAntiThrustSlider, "Aft", 10.0, "%5.4f" );
 
     m_3ptBogie1SuspensionModeChoice.AddItem( "Nominal", vsp::GEAR_SUSPENSION_NOMINAL );
