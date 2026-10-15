@@ -32,6 +32,13 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_DetachFlag.Init( "DetachFlag", "Design", this, false, false, true );
     m_DetachFlag.SetDescript( "Conformal detachment flag" );
 
+    // Symmetry follows the conformal parent.
+    m_SymAncestor.Deactivate();
+    m_SymAncestOriginFlag.Deactivate();
+    m_SymPlanFlag.Deactivate();
+    m_SymAxFlag.Deactivate();
+    m_SymRotN.Deactivate();
+
     m_HingeConformalPositionFlag.Init( "HingeConformalPositionFlag", "Design", this, true, false, true );
     m_HingeConformalPositionFlag.SetDescript( "Set REL position on hinge based on conformal parent position" );
 
@@ -540,22 +547,6 @@ void ConformalGeom::UpdateCopyXFormParms()
         m_MLoc.Activate();
         m_NLoc.Activate();
         m_EtaLoc.Activate();
-
-        m_SymAncestor = parent_geom->m_SymAncestor();
-        if ( m_SymAncestor() != 0 ) // Not global ancestor.
-        {
-            m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
-        }
-        m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
-        m_SymPlanFlag = parent_geom->m_SymPlanFlag();
-        m_SymAxFlag = parent_geom->m_SymAxFlag();
-        m_SymRotN = parent_geom->m_SymRotN();
-
-        m_SymAncestor.Activate();
-        m_SymAncestOriginFlag.Activate();
-        m_SymPlanFlag.Activate();
-        m_SymAxFlag.Activate();
-        m_SymRotN.Activate();
     }
     else
     {
@@ -577,23 +568,17 @@ void ConformalGeom::UpdateCopyXFormParms()
         m_MLoc.Deactivate();
         m_NLoc.Deactivate();
         m_EtaLoc.Deactivate();
-
-        m_SymAncestor = parent_geom->m_SymAncestor();
-        if ( m_SymAncestor() != 0 ) // Not global ancestor.
-        {
-            m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
-        }
-        m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
-        m_SymPlanFlag = parent_geom->m_SymPlanFlag();
-        m_SymAxFlag = parent_geom->m_SymAxFlag();
-        m_SymRotN = parent_geom->m_SymRotN();
-
-        m_SymAncestor.Deactivate();
-        m_SymAncestOriginFlag.Deactivate();
-        m_SymPlanFlag.Deactivate();
-        m_SymAxFlag.Deactivate();
-        m_SymRotN.Deactivate();
     }
+
+    m_SymAncestor = parent_geom->m_SymAncestor();
+    if ( m_SymAncestor() != 0 ) // Not global ancestor.
+    {
+        m_SymAncestor = m_SymAncestor() + 1;  // + 1 increment for parent
+    }
+    m_SymAncestOriginFlag = parent_geom->m_SymAncestOriginFlag();
+    m_SymPlanFlag = parent_geom->m_SymPlanFlag();
+    m_SymAxFlag = parent_geom->m_SymAxFlag();
+    m_SymRotN = parent_geom->m_SymRotN();
 
 
     if ( ActiveRel )
