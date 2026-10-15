@@ -180,6 +180,26 @@ public:
 
 public:
     /*!
+    * Viewport lower left corner, width and height in window pixels.
+    */
+    int viewportX()
+    {
+        return _vx;
+    }
+    int viewportY()
+    {
+        return _vy;
+    }
+    int viewportWidth()
+    {
+        return _vWidth;
+    }
+    int viewportHeight()
+    {
+        return _vHeight;
+    }
+
+    /*!
     * Count of changes to the view rotation, by any means.  A drag measured from its press
     * compares it to tell when something else turned the view.
     */
