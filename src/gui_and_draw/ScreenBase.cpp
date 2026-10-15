@@ -1939,7 +1939,7 @@ bool GeomScreen::Update()
     }
 
     if ( geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_LMN &&
-         geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_EtaMN && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_TRANS_EtaMN )
+         geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_EtaMN && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_EtaMN )
     {
         m_AttachMSlider.Deactivate();
         m_AttachNSlider.Deactivate();
@@ -1981,7 +1981,7 @@ bool GeomScreen::Update()
         {
             orphaned_trans = true;
         }
-        if ( !parent && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_TRANS_NONE )
+        if ( !parent && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_NONE )
         {
             orphaned_rot = true;
         }
