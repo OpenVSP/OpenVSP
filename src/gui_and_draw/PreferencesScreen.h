@@ -51,6 +51,12 @@ protected:
     // Read a changed control into m_Nav.  False if it is not one of m_Nav's.
     bool ReadNav( GuiDevice * device );
 
+    // Set m_Nav to a NavPreset, or keep it for Custom, and use it.
+    void ApplyScheme( int scheme );
+
+    // Show which preset m_Nav matches, or Custom, and what its buttons do in the tooltip.
+    void ShowScheme();
+
     // Save m_Nav and use it in the main window now.
     void ApplyNav();
 
@@ -68,6 +74,7 @@ protected:
     // 3D View tab.
     GroupLayout m_ViewLayout;
 
+    Choice m_ProfileChoice;
     Choice m_RotateModeChoice;
     Choice m_BallTypeChoice;
     Choice m_BallSizeChoice;
@@ -85,6 +92,8 @@ protected:
     Choice m_DragZoomAnchorChoice;
     Choice m_DragZoomLawChoice;
     Choice m_ZoomSpeedChoice;
+
+    std::string m_ProfileTip;
 
     // Mouse Buttons tab.
     GroupLayout m_ButtonsLayout;

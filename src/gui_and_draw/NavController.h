@@ -102,6 +102,14 @@ struct NavSettings
 
     NavProfile m_Profile;       // The mouse bindings.
 
+    // Set what a preset sets: the bindings, how rotation starts and what it turns about, and
+    // how the wheel and drags zoom.  Every other setting but the 3D device's goes back to its
+    // default.
+    void ApplyPreset( int preset );
+
+    // The NavPreset whose settings these match, or -1 for none.
+    int FindPreset() const;
+
     // The press as the bindings take it: Alt + left is the middle button when that is on and
     // no binding acts on the press as it is.
     NavPress Effective( const NavPress & press ) const;

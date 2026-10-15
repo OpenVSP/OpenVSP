@@ -54,7 +54,77 @@ NavSettings::NavSettings()
 
     m_EmulateMiddle = false;
 
-    m_Profile = NavProfile::Classic();
+    m_Profile = NavProfile::Preset( NAV_PRESET_OPENVSP );
+}
+
+void NavSettings::ApplyPreset( int preset )
+{
+    NavSettings def;
+
+    m_Profile = NavProfile::Preset( preset );
+    m_StartupRotateMode = def.m_StartupRotateMode;
+    m_BallType = def.m_BallType;
+    m_Pivot = def.m_Pivot;
+
+    m_WheelReverse = def.m_WheelReverse;
+    m_WheelAnchor = def.m_WheelAnchor;
+    m_WheelStep = def.m_WheelStep;
+    m_DragZoomReverse = def.m_DragZoomReverse;
+    m_DragZoomAnchor = def.m_DragZoomAnchor;
+    m_DragZoomLaw = def.m_DragZoomLaw;
+
+    m_BallSize = def.m_BallSize;
+    m_BallBorder = def.m_BallBorder;
+    m_BallSpeed = def.m_BallSpeed;
+    m_TurntableGain = def.m_TurntableGain;
+    m_ZoomSpeed = def.m_ZoomSpeed;
+    m_ShowBallOutline = def.m_ShowBallOutline;
+    m_EmulateMiddle = def.m_EmulateMiddle;
+
+    if ( preset == NAV_PRESET_OPENVSP )
+    {
+        return;
+    }
+
+    // As the CAD programs do: the wheel and drags zoom by how far they go.
+    m_WheelStep = NAV_WHEEL_PROPORTIONAL;
+    m_DragZoomLaw = NAV_ZOOM_CONTINUOUS;
+
+    if ( preset == NAV_PRESET_SOLIDWORKS || preset == NAV_PRESET_INVENTOR_FUSION || preset == NAV_PRESET_HYPERWORKS )
+    {
+        m_WheelReverse = true;
+    }
+
+    // ParaView's wheel zooms toward the middle of the view.
+    if ( preset == NAV_PRESET_PARAVIEW )
+    {
+        m_WheelAnchor = NAV_ANCHOR_CENTER;
+    }
+
+    // Maya and Rhino turn about the world's vertical axis.
+    if ( preset == NAV_PRESET_MAYA || preset == NAV_PRESET_RHINO )
+    {
+        m_StartupRotateMode = NAV_ROTATE_TURNTABLE;
+    }
+
+    // ParaView, EnSight, Pointwise and STAR-CCM+ turn about the screen's axes with each move.
+    if ( preset == NAV_PRESET_PARAVIEW || preset == NAV_PRESET_ENSIGHT || preset == NAV_PRESET_POINTWISE ||
+         preset == NAV_PRESET_STARCCM )
+    {
+        m_BallType = NAV_BALL_TUMBLER;
+    }
+
+    // Inventor and Fusion, 3ds Max and Abaqus turn the view inside a circle and roll it outside.
+    if ( preset == NAV_PRESET_INVENTOR_FUSION || preset == NAV_PRESET_3DS_MAX || preset == NAV_PRESET_ABAQUS )
+    {
+        m_BallType = NAV_BALL_ROUNDED_ARCBALL;
+    }
+
+    // Onshape and HyperWorks rotate about the point under the cursor.
+    if ( preset == NAV_PRESET_ONSHAPE || preset == NAV_PRESET_HYPERWORKS )
+    {
+        m_Pivot = NAV_PIVOT_UNDER_CURSOR;
+    }
 }
 
 NavPress NavSettings::Effective( const NavPress & press ) const
@@ -77,6 +147,37 @@ NavPress NavSettings::Effective( const NavPress & press ) const
         }
     }
     return p;
+}
+
+int NavSettings::FindPreset() const
+{
+    for ( int i = 0; i < NAV_NUM_PRESETS; i++ )
+    {
+        NavSettings p = *this;
+        p.ApplyPreset( i );
+
+        if ( p.m_Profile.SameBehavior( m_Profile ) &&
+             p.m_StartupRotateMode == m_StartupRotateMode &&
+             p.m_BallType == m_BallType &&
+             p.m_Pivot == m_Pivot &&
+             p.m_WheelReverse == m_WheelReverse &&
+             p.m_WheelAnchor == m_WheelAnchor &&
+             p.m_WheelStep == m_WheelStep &&
+             p.m_DragZoomReverse == m_DragZoomReverse &&
+             p.m_DragZoomAnchor == m_DragZoomAnchor &&
+             p.m_DragZoomLaw == m_DragZoomLaw &&
+             p.m_BallSize == m_BallSize &&
+             p.m_BallBorder == m_BallBorder &&
+             p.m_BallSpeed == m_BallSpeed &&
+             p.m_TurntableGain == m_TurntableGain &&
+             p.m_ZoomSpeed == m_ZoomSpeed &&
+             p.m_ShowBallOutline == m_ShowBallOutline &&
+             p.m_EmulateMiddle == m_EmulateMiddle )
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 // Choices are stored by name so that reordering the enums never reinterprets a saved value.
@@ -320,6 +421,12 @@ NavController::NavController( VspGlWindow * win )
 
 void NavController::SetSettings( const NavSettings & settings )
 {
+    // New bindings end any gesture.
+    if ( !settings.m_Profile.SameBehavior( m_Settings.m_Profile ) )
+    {
+        Abandon();
+    }
+
     m_Settings = settings;
 
     m_RoundedArcball.setShape( m_Settings.m_BallSize, m_Settings.m_BallBorder );
