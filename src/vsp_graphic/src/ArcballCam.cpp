@@ -83,6 +83,7 @@ void ArcballCam::load( int index )
     _tMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3(_pan.x, _pan.y, 0.0f) );
     _cMat = _saves[index].cor;
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 void ArcballCam::center()
@@ -104,7 +105,7 @@ void ArcballCam::resize( int x, int y, int width, int height )
     _radius = _vHeight < _vWidth ? _vHeight / 2.0f : _vWidth / 2.0f;
 }
 
-void ArcballCam::rotate( int px, int py, int cx, int cy )
+void ArcballCam::rotate( int px, int py, int cx, int cy, float speed )
 {
     if( px == cx && py == cy )
     {
@@ -118,7 +119,7 @@ void ArcballCam::rotate( int px, int py, int cx, int cy )
     // This occur when mouse is dragged outside of the sphere.
     if( pvec.z == 0.f || cvec.z == 0.f )
     {
-        _globalQuat = _multiplyQuats( _mapOutsideSphereToQuat( px, py, cx, cy ), _globalQuat );
+        _globalQuat = _multiplyQuats( _mapOutsideSphereToQuat( px, py, cx, cy, speed ), _globalQuat );
     }
     else
     {
@@ -126,7 +127,7 @@ void ArcballCam::rotate( int px, int py, int cx, int cy )
         glm::vec3 rotAxis = - glm::vec3( glm::inverse( _modelviewMatrix ) * glm::vec4( glm::cross( pvec, cvec ), 0.0 ) );
 
         float dot = glm::dot( pvec, cvec );
-        float angle = R_SENSITIVITY * glm::acos( dot > 1.0f ? 1.0f : dot < -1.0f ? -1.0f : dot );
+        float angle = speed * R_SENSITIVITY * glm::acos( dot > 1.0f ? 1.0f : dot < -1.0f ? -1.0f : dot );
 
         // Quaternion
         _globalQuat = _multiplyQuats( _toQuat( rotAxis, angle ), _globalQuat );
@@ -135,6 +136,7 @@ void ArcballCam::rotate( int px, int py, int cx, int cy )
     //===== Set modelview matrix =====//
     _rMat = _toMatrix( _globalQuat );
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 void ArcballCam::rotateZ( int px, int py, int cx, int cy )
@@ -167,6 +169,7 @@ void ArcballCam::rotateZ( int px, int py, int cx, int cy )
 
     _rMat = _toMatrix( _globalQuat );
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 void ArcballCam::rotateSphere( float angleX, float angleY, float angleZ )
@@ -181,6 +184,7 @@ void ArcballCam::rotateSphere( float angleX, float angleY, float angleZ )
     _globalQuat = _matrixToQuat( _rMat );
 
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 glm::vec3 ArcballCam::getRotationEulerAngles()
@@ -224,6 +228,7 @@ void ArcballCam::setViewRotation( const glm::quat & rot )
 
     _rMat = _toMatrix( _globalQuat );
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 glm::vec4 ArcballCam::_matrixToQuat ( glm::mat4 mat )
@@ -475,7 +480,7 @@ glm::vec2 ArcballCam::_toNDC2f( float x, float y )
     return result;
 }
 
-glm::vec4 ArcballCam::_mapOutsideSphereToQuat( int px, int py, int cx, int cy )
+glm::vec4 ArcballCam::_mapOutsideSphereToQuat( int px, int py, int cx, int cy, float speed )
 {
     glm::vec4 result = glm::vec4( 0.0f, 0.0f, 0.0f, 1.0f );
 
@@ -527,7 +532,7 @@ glm::vec4 ArcballCam::_mapOutsideSphereToQuat( int px, int py, int cx, int cy )
         glm::vec3 rotAxis = - glm::vec3( glm::inverse( _modelviewMatrix ) * glm::vec4( glm::cross( pvec, cvec ), 0.0f ) );
 
         float dot = glm::dot( pvec, cvec );
-        float angle = R_SENSITIVITY * glm::acos( dot > 1.0f ? 1.0f : dot < -1.0f ? -1.0f : dot );
+        float angle = speed * R_SENSITIVITY * glm::acos( dot > 1.0f ? 1.0f : dot < -1.0f ? -1.0f : dot );
 
         result = _toQuat( rotAxis, angle );
     }

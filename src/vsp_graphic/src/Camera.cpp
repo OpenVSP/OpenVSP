@@ -21,6 +21,8 @@ Camera::Camera()
 
     _projectionType = Common::VSP_CAM_ORTHO;
 
+    _rotationVersion = 0;
+
     _projectionMatrix = glm::mat4( 1.0 );
     _modelviewMatrix = glm::mat4( 1.0 );
 }

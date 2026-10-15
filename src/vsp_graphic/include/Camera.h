@@ -86,8 +86,9 @@ public:
     *
     * px, py - previous xy mouse location.
     * cx, cy - current xy mouse location.
+    * speed - multiplier on the angle turned.
     */
-    virtual void rotate( int px, int py, int cx, int cy ) = 0;
+    virtual void rotate( int px, int py, int cx, int cy, float speed = 1.0f ) = 0;
 
     /*!
     * Rotate the scene about camera's look axis.
@@ -178,6 +179,16 @@ public:
      */
     virtual glm::vec3 getCOR() = 0;
 
+public:
+    /*!
+    * Count of changes to the view rotation, by any means.  A drag measured from its press
+    * compares it to tell when something else turned the view.
+    */
+    int rotationVersion()
+    {
+        return _rotationVersion;
+    }
+
 protected:
     virtual void _calculateProjection();
 
@@ -208,6 +219,8 @@ protected:
 
     // Type of Projection.
     Common::VSPenum _projectionType;
+
+    int _rotationVersion;
 };
 }
 #endif

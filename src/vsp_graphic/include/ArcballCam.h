@@ -52,8 +52,9 @@ public:
     *
     * px, py - previous xy mouse location.
     * cx, cy - current xy mouse location.
+    * speed - multiplier on the angle turned.
     */
-    void rotate( int px, int py, int cx, int cy );
+    void rotate( int px, int py, int cx, int cy, float speed = 1.0f );
 
     /*!
     * Rotate the scene about camera's look axis.
@@ -187,7 +188,7 @@ private:
     glm::vec2 _toNDC2f( float x, float y );
 
 private:
-    glm::vec4 _mapOutsideSphereToQuat( int px, int py, int cx, int cy );
+    glm::vec4 _mapOutsideSphereToQuat( int px, int py, int cx, int cy, float speed );
 
 private:
     float _radius;
