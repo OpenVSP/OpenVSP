@@ -100,5 +100,37 @@ private:
     glm::dvec3 _p0;
     glm::dquat _rot0;
 };
+
+/*!
+* Turntable: horizontal motion turns the model about a fixed world axis, vertical motion
+* tips it about a horizontal screen axis.  Measured from the press, so the result depends
+* only on the total motion.  When the up axis points down the screen at press, horizontal
+* motion is reversed for that drag so the near side still follows the mouse.  If something
+* else turns the view during a drag, the drag continues from there.
+*/
+class Turntable : public RotationMethod
+{
+public:
+    Turntable();
+
+    /*!
+    * gain - radians per window pixel.
+    * up - world axis to turn about.
+    */
+    void setParams( double gain, const glm::dvec3 & up );
+
+    virtual void begin( Camera * cam, int x, int y );
+    virtual void drag( Camera * cam, int x, int y );
+
+private:
+    double _gain;
+    glm::dvec3 _up;
+
+    int _x0;
+    int _y0;
+    double _reverse;
+    glm::dvec3 _tipAxis;
+    glm::dquat _rot0;
+};
 }
 #endif

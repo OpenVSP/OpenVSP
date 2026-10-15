@@ -131,4 +131,87 @@ void RoundedArcball::drag( Camera * cam, int x, int y )
     cam->setViewRotation( glm::quat( q * _rot0 ) );
     _version = cam->rotationVersion();
 }
+
+Turntable::Turntable()
+{
+    _gain = 0.4 * M_PI / 180.0;
+    _up = glm::dvec3( 0.0, 0.0, 1.0 );
+    _x0 = 0;
+    _y0 = 0;
+    _reverse = 1.0;
+    _tipAxis = glm::dvec3( 1.0, 0.0, 0.0 );
+    _rot0 = glm::dquat( 1.0, 0.0, 0.0, 0.0 );
+}
+
+void Turntable::setParams( double gain, const glm::dvec3 & up )
+{
+    _gain = gain;
+    _up = glm::normalize( up );
+}
+
+void Turntable::begin( Camera * cam, int x, int y )
+{
+    _x0 = x;
+    _y0 = y;
+    _rot0 = glm::dquat( cam->getViewRotation() );
+
+    glm::dquat inv = glm::conjugate( _rot0 );
+
+    // Reverse horizontal motion for this drag when the up axis points down the screen.
+    glm::dvec3 upEye = _rot0 * _up;
+    _reverse = 1.0;
+    if ( upEye.y < 0.0 )
+    {
+        _reverse = -1.0;
+    }
+
+    // Tip about the screen's horizontal axis, blended toward the world's horizon when the
+    // view is rolled (Blender's turntable).  Looking along the up axis the screen axis is
+    // kept; looking level the horizon is used.
+    glm::dvec3 viewX = inv * glm::dvec3( 1.0, 0.0, 0.0 );
+    glm::dvec3 viewZ = inv * glm::dvec3( 0.0, 0.0, 1.0 );
+    glm::dvec3 horizon = glm::cross( _up, viewZ );
+
+    glm::dvec3 tip = viewX;
+    double hlen = glm::length( horizon );
+    if ( hlen > 1.0e-9 )
+    {
+        horizon = horizon / hlen;
+
+        // Point the horizon along the screen's x.  When the view is rolled 90 degrees they
+        // are perpendicular, and the screen's y decides instead of rounding noise.
+        glm::dvec3 viewY = inv * glm::dvec3( 0.0, 1.0, 0.0 );
+        double side = glm::dot( horizon, viewX );
+        if ( std::fabs( side ) < 1.0e-6 )
+        {
+            side = glm::dot( horizon, viewY );
+        }
+        if ( side < 0.0 )
+        {
+            horizon = -horizon;
+        }
+
+        double cosang = std::max( -1.0, std::min( 1.0, glm::dot( _up, viewZ ) ) );
+        double fac = std::fabs( std::acos( cosang ) / M_PI - 0.5 ) * 2.0;
+        fac = fac * fac;
+
+        tip = glm::normalize( horizon * ( 1.0 - fac ) + viewX * fac );
+    }
+
+    _tipAxis = _rot0 * tip;
+    _version = cam->rotationVersion();
+}
+
+void Turntable::drag( Camera * cam, int x, int y )
+{
+    rebaseIfTurned( cam, x, y );
+
+    double turn = _reverse * _gain * ( x - _x0 );
+    double tip = -_gain * ( y - _y0 );
+
+    glm::dquat rot = glm::angleAxis( tip, _tipAxis ) * _rot0 * glm::angleAxis( turn, _up );
+
+    cam->setViewRotation( glm::quat( rot ) );
+    _version = cam->rotationVersion();
+}
 }
