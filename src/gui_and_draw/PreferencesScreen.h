@@ -16,7 +16,11 @@
 #include "GuiDevice.h"
 #include "NavController.h"
 
+#include <FL/Fl_Multiline_Output.H>
+
 using namespace std;
+
+class NavPressBox;
 
 class PreferencesScreen : public TabScreen
 {
@@ -51,11 +55,21 @@ protected:
     // Read a changed control into m_Nav.  False if it is not one of m_Nav's.
     bool ReadNav( GuiDevice * device );
 
+    // Read a changed control of the selected binding, or of the bindings as a whole, into
+    // m_Nav.  False if it is not one of those.
+    bool ReadBinding( GuiDevice * device );
+
     // Set m_Nav to a NavPreset, or keep it for Custom, and use it.
     void ApplyScheme( int scheme );
 
     // Show which preset m_Nav matches, or Custom, and what its buttons do in the tooltip.
     void ShowScheme();
+
+    // Show the binding list, the selected binding and the notes on the bindings.
+    void ShowBindings();
+
+    // Show what the last press in the try box does with the bindings as they are.
+    void ShowTriedPress();
 
     // Save m_Nav and use it in the main window now.
     void ApplyNav();
@@ -66,6 +80,9 @@ protected:
     // The settings when the window opened, for Revert.
     VSPGUI::NavSettings m_NavAtShow;
     int m_FCTypeAtShow;
+
+    // Index of the selected binding, or -1.
+    int m_SelBinding;
 
     // General tab.
     GroupLayout m_GenLayout;
@@ -98,7 +115,31 @@ protected:
     // Mouse Buttons tab.
     GroupLayout m_ButtonsLayout;
 
+    Choice m_ButtonsProfileChoice;
+    ColResizeBrowser * m_BindingBrowser;
+    TriggerButton m_AddBindingButton;
+    TriggerButton m_DeleteBindingButton;
+    TriggerButton m_UpBindingButton;
+    TriggerButton m_DownBindingButton;
+
+    Choice m_ActionChoice;
+    Choice m_TriggerChoice;
+    Choice m_ButtonChoice;
+    Choice m_WithButtonChoice;
+    Choice m_ModChoice[4];
+    Choice m_OtherButtonsChoice;
+    StringInput m_HeldKeyInput;
+    Choice m_WhereChoice;
+    Choice m_PickFirstChoice;
+
+    NavPressBox * m_PressBox;
+    TriggerButton m_UsePressButton;
+
+    Choice m_ClickDistanceChoice;
+    Choice m_ChordChoice;
     Choice m_EmulateMiddleChoice;
+
+    Fl_Multiline_Output * m_NotesOutput;
 
     // Bottom of the window.
     GroupLayout m_BottomLayout;

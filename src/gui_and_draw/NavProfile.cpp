@@ -605,6 +605,16 @@ std::string NavDescribe( const NavBinding & b )
     return d;
 }
 
+std::string NavDescribe( const NavPress & press )
+{
+    int key = 0;
+    if ( !press.m_HeldKeys.empty() )
+    {
+        key = *press.m_HeldKeys.begin();
+    }
+    return DescribeKeys( press.m_Buttons, press.m_Modifiers, key );
+}
+
 std::string NavProfile::Summary() const
 {
     const NavAction actions[] = { NAV_ROTATE, NAV_PAN, NAV_ZOOM, NAV_ROLL, NAV_ZOOM_BOX, NAV_SET_PIVOT, NAV_SELECT };
@@ -649,6 +659,118 @@ bool NavProfile::NeedsWhere() const
         }
     }
     return false;
+}
+
+// Every press the bindings of a profile can tell apart.
+static std::vector < NavPress > AllPresses( const std::vector < NavBinding > & bindings )
+{
+    std::set < int > keyset;
+    for ( int i = 0; i < ( int )bindings.size(); i++ )
+    {
+        if ( bindings[i].m_HeldKey != 0 )
+        {
+            keyset.insert( bindings[i].m_HeldKey );
+        }
+    }
+    std::vector < int > keys( keyset.begin(), keyset.end() );
+
+    // The three main buttons, and a side button only where a binding names it, so a profile
+    // without them is tried as quickly as before.
+    std::vector < int > pressed = { 0, FL_BUTTON1, FL_BUTTON2, FL_BUTTON3 };
+    const int side[] = { FL_BUTTON4, FL_BUTTON5 };
+    for ( int s = 0; s < 2; s++ )
+    {
+        for ( int i = 0; i < ( int )bindings.size(); i++ )
+        {
+            if ( ( bindings[i].m_Buttons | bindings[i].m_PressedButton ) & side[s] )
+            {
+                pressed.push_back( side[s] );
+                break;
+            }
+        }
+    }
+    int nbuttons = ( int )pressed.size() - 1;
+
+    const int modbits[] = { FL_SHIFT, FL_CTRL, FL_ALT, FL_META };
+    const int wheres[] = { NAV_ANYWHERE, NAV_ON_GEOMETRY, NAV_ON_BACKGROUND };
+
+    std::vector < NavPress > presses;
+    for ( int ib = 1; ib < ( 1 << nbuttons ); ib++ )
+    {
+        int buttons = 0;
+        for ( int j = 0; j < nbuttons; j++ )
+        {
+            if ( ib & ( 1 << j ) )
+            {
+                buttons |= pressed[ j + 1 ];
+            }
+        }
+
+        for ( int im = 0; im < 16; im++ )
+        {
+            int mods = 0;
+            for ( int j = 0; j < 4; j++ )
+            {
+                if ( im & ( 1 << j ) )
+                {
+                    mods |= modbits[j];
+                }
+            }
+
+            for ( int ik = 0; ik < ( 1 << ( int )keys.size() ); ik++ )
+            {
+                for ( int ip = 0; ip < ( int )pressed.size(); ip++ )
+                {
+                    // The button just pressed is one of those down.
+                    if ( pressed[ip] != 0 && ( buttons & pressed[ip] ) == 0 )
+                    {
+                        continue;
+                    }
+
+                    for ( int iw = 0; iw < 3; iw++ )
+                    {
+                        NavPress press;
+                        press.m_Buttons = buttons;
+                        press.m_Modifiers = mods;
+                        for ( int j = 0; j < ( int )keys.size(); j++ )
+                        {
+                            if ( ik & ( 1 << j ) )
+                            {
+                                press.m_HeldKeys.insert( keys[j] );
+                            }
+                        }
+                        press.m_PressedButton = pressed[ip];
+                        press.m_Where = wheres[iw];
+                        presses.push_back( press );
+                    }
+                }
+            }
+        }
+    }
+    return presses;
+}
+
+std::vector < int > NavProfile::Shadowed() const
+{
+    std::vector < NavPress > presses = AllPresses( m_Bindings );
+
+    std::vector < int > shadowed;
+    for ( int i = 0; i < ( int )m_Bindings.size(); i++ )
+    {
+        bool wins = false;
+        for ( int ip = 0; ip < ( int )presses.size() && !wins; ip++ )
+        {
+            if ( Match( presses[ip], m_Bindings[i].m_Trigger ) == &m_Bindings[i] )
+            {
+                wins = true;
+            }
+        }
+        if ( !wins )
+        {
+            shadowed.push_back( i );
+        }
+    }
+    return shadowed;
 }
 
 // Names for the text form.  These are stored, so they never change.
