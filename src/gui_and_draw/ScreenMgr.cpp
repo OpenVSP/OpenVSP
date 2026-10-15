@@ -1020,6 +1020,17 @@ void ScreenMgr::FirstShow()
 {
     m_ScreenVec[vsp::VSP_MAIN_SCREEN]->Show();
 
+    // Windows not yet shown take their coordinates in the scale of the main window's screen.
+    int screen = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->screen_num();
+    for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
+    {
+        if ( m_ScreenVec[i] && m_ScreenVec[i]->GetFlWindow() )
+        {
+            m_ScreenVec[i]->GetFlWindow()->screen_num( screen );
+        }
+    }
+    VSP_Window::SetGeomScreen( screen );
+
     // Set manage geom screen to show up to the main screen as the default.
     int x,y,w,w1,h1,h2,h3;
     x = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->x();

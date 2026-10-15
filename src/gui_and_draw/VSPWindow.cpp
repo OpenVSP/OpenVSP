@@ -33,6 +33,7 @@ bool valid_hotkey( int event_length, int key )
 
 int VSP_Window::m_x = 1;
 int VSP_Window::m_y = 1;
+int VSP_Window::m_screen = -1;
 
 VSP_Window::VSP_Window(int w, int h, const char* title) : Fl_Double_Window( w, h, title )
 {
@@ -112,6 +113,11 @@ void VSP_Window::show()
 {
     if ( m_GeomScreen )
     {
+        // A window not yet shown takes its coordinates in the scale of the screen it is assigned to.
+        if ( !shown() && m_screen >= 0 )
+        {
+            screen_num( m_screen );
+        }
         position( m_x, m_y);
     }
 
@@ -125,6 +131,7 @@ void VSP_Window::resize( int x_in, int y_in, int w_in, int h_in )
     {
         m_x = x_in;
         m_y = y_in;
+        m_screen = screen_num();
     }
 
     bool update_par = ( x_in != x() || y_in != y() || w_in != w() || h_in != h() );
@@ -152,6 +159,7 @@ void VSP_Window::resizeFromParent(int x_in, int y_in, int w_in, int h_in)
     {
         m_x = x_in;
         m_y = y_in;
+        m_screen = screen_num();
     }
 
     Fl_Double_Window::resize( x_in, y_in, w_in, h_in );
@@ -164,6 +172,7 @@ void VSP_Window::resizeFromChild(int x_in, int y_in, int w_in, int h_in, VSP_Win
     {
         m_x = x_in;
         m_y = y_in;
+        m_screen = screen_num();
     }
 
     Fl_Double_Window::resize( x_in, y_in, w_in, h_in );

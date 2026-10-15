@@ -66,6 +66,10 @@ public:
     {
         m_y = Y;
     }
+    static void SetGeomScreen( int n )
+    {
+        m_screen = n;
+    }
 
     void SetResizeCallback( Fl_Callback* cb, void* p );
     void SetKeyCallback( Fl_Callback* cb, void* p );
@@ -75,6 +79,7 @@ protected:
     bool m_GeomScreen;
     static int m_x;
     static int m_y;
+    static int m_screen;
     std::vector< VSP_Window* > m_Children;
     VSP_Window* m_Parent;
 

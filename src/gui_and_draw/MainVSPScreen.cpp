@@ -62,7 +62,14 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_FLTK_Window->resizable( m_FLTK_Window );
     VspScreen::SetFlWindow( m_FLTK_Window );
 
-    Fl::screen_xywh( x, y, w, h );
+    // Lay the windows out on the work area of the screen under the mouse, which leaves out the taskbar
+    // or menu bar.  Before it is shown, a window's coordinates are taken in the scale of its assigned
+    // screen, so the main window is assigned to this one.
+    int mx, my;
+    Fl::get_mouse( mx, my );
+    int screen = Fl::screen_num( mx, my );
+    Fl::screen_work_area( x, y, w, h, screen );
+    m_FLTK_Window->screen_num( screen );
 
     //==== Determine remaining screen width after geombrowser + geomscreen usage ====//
     int geom_group_width = 0;
@@ -79,10 +86,14 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     geom_group_width += mgs->GetFlWindow()->w();
 
     //==== Figure out which is smaller, remaining width or the height ====//
-    int w_allow = w - geom_group_width - 20;
+    // Window frames lie outside these client sizes.  Leave a frame's width, enough at 200% scaling on
+    // Windows, at each end of the row of windows, and the 5 between the main window and the browser,
+    // so no frame reaches past the screen and the windows are not moved to fit another screen.
+    int frame = 16;
+    int w_allow = w - geom_group_width - 2 * frame - 5;
     int h_allow = 0.9 * h;
 
-    m_FLTK_Window->resize( x + 10, y + 30, w_allow, h_allow );
+    m_FLTK_Window->resize( x + frame, y + 30, w_allow, h_allow );
 
     m_FLTK_Window->callback( staticCloseCB, this );
 
