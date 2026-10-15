@@ -67,7 +67,7 @@ bool DepthProbe::_setup( int size )
 }
 
 bool DepthProbe::probe( Scene * scene, Viewport * vp, int x, int y, int radius, glm::vec3 & hit,
-                        unsigned int * objectId )
+                        unsigned int * objectId, const std::set < unsigned int > * only )
 {
     int n = 2 * radius + 1;
 
@@ -134,11 +134,11 @@ bool DepthProbe::probe( Scene * scene, Viewport * vp, int x, int y, int radius, 
     std::vector < SceneObject * > objects;
     if ( objectId )
     {
-        scene->drawDepth( &objects );
+        scene->drawDepth( &objects, only );
     }
     else
     {
-        scene->drawDepth( nullptr );
+        scene->drawDepth( nullptr, only );
     }
 
     std::vector < float > depth( n * n, 1.0f );

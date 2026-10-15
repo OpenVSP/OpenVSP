@@ -170,9 +170,11 @@ public:
     * The world point of the nearest surface within a few pixels of an FLTK mouse location
     * (screen points, origin at the upper left), in the viewport there.  False if none.  When
     * geomId is given, it is set to the ID of the Geom hit, or emptied if the surface hit is
-    * not a Geom's.
+    * not a Geom's.  When onlyGeoms is given, only those Geoms can be hit, and the rest of the
+    * scene does not hide them.
     */
-    bool ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * geomId = nullptr );
+    bool ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * geomId = nullptr,
+                       const std::vector < std::string > * onlyGeoms = nullptr );
 
     /*!
     * Select a Geom from a click: the only one, added (add), or toggled (toggle).  An empty ID

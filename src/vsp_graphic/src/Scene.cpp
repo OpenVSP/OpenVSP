@@ -641,14 +641,14 @@ void Scene::draw()
     _clip->postdraw();
 }
 
-void Scene::drawDepth( std::vector < SceneObject * > * objects )
+void Scene::drawDepth( std::vector < SceneObject * > * objects, const std::set < unsigned int > * only )
 {
     _clip->predraw();
 
     for ( int i = 0; i < ( int )_sceneOrder.size(); i++ )
     {
         Entity * entity = dynamic_cast<Entity*>( _sceneOrder[i] );
-        if ( entity )
+        if ( entity && ( !only || only->count( entity->getID() ) ) )
         {
             unsigned int id = 0;
             if ( objects )

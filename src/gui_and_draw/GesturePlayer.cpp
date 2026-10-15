@@ -43,6 +43,7 @@
 //   navend g                   motion_end
 //   wait                       nothing; one tick
 //   dump                       nothing, but write the camera and Parms
+//   select i                   make Geom i the only one selected, or none for -1
 //   geomstyle i type glass     Geom i's draw type (vsp::GEOM_DRAW_*); glass 1 makes it
 //                              transparent with the "Glass Light" material
 // state is the FLTK event state, e.g. 16777216 = FL_BUTTON1.  After every event but wait,
@@ -187,7 +188,7 @@ bool NavCommand( VSPGUI::VspGlWindow * win, const GestureEvent & e )
                       { "params", { { "gesture_id", e.m_A },
                                     { "values", { "document.id", "world.orientation", "camera.pose", "viewport.aspect",
                                                   "viewport.cursor", "model.bounds", "selection.bounds", "navigation.preferences" } },
-                                    { "first", { "pick.cursor", "pick.viewport_center" } } } } } );
+                                    { "first", { "pick.cursor.selection", "pick.viewport_center.selection", "pick.cursor", "pick.viewport_center" } } } } } );
     }
     else if ( e.m_Cmd == "navstate" )
     {
@@ -371,6 +372,18 @@ void Step( void * )
     }
     else if ( e.m_Cmd == "dump" )
     {
+    }
+    else if ( e.m_Cmd == "select" )
+    {
+        Vehicle * veh = VehicleMgr.GetVehicle();
+        std::vector < std::string > ids = veh->GetGeomVec();
+        std::vector < std::string > active;
+        if ( e.m_A >= 0 && e.m_A < ( int )ids.size() )
+        {
+            active.push_back( ids[ e.m_A ] );
+        }
+        veh->SetActiveGeomVec( active );
+        g_Screen->GetScreenMgr()->SetUpdateFlag( true );
     }
     else if ( e.m_Cmd == "geomstyle" )
     {

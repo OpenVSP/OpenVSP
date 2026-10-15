@@ -148,24 +148,41 @@ public:
             }
             return nullptr;
         }
-        if ( name == "pick.cursor" )
+        // Picks of anything, or of the selected Geoms alone, which the rest of the model does
+        // not hide.
+        std::vector < std::string > selected;
+        const std::vector < std::string > * only = nullptr;
+        if ( name == "pick.cursor.selection" || name == "pick.viewport_center.selection" )
+        {
+            if ( !veh )
+            {
+                return nullptr;
+            }
+            selected = veh->GetActiveGeomVec();
+            if ( selected.empty() )
+            {
+                return nullptr;
+            }
+            only = &selected;
+        }
+        if ( name == "pick.cursor" || name == "pick.cursor.selection" )
         {
             double nx, ny;
             if ( CursorInView( ex, ey, nx, ny ) )
             {
-                return Pick( ex, ey );
+                return Pick( ex, ey, only );
             }
             return nullptr;
         }
-        if ( name == "pick.viewport_center" )
+        if ( name == "pick.viewport_center" || name == "pick.viewport_center.selection" )
         {
             double ppu = m_Win->pixels_per_unit();
             int cx = ( int )std::floor( ( m_Camera->viewportX() + 0.5 * m_Camera->viewportWidth() ) / ppu );
             int cy = m_Win->h() - ( int )std::floor( ( m_Camera->viewportY() + 0.5 * m_Camera->viewportHeight() ) / ppu );
-            return Pick( cx, cy );
+            return Pick( cx, cy, only );
         }
 
-        // Picks among the selected geometry alone, and other facts, are not known.
+        // Other facts are not known.
         return nullptr;
     }
 
@@ -193,12 +210,13 @@ protected:
         return true;
     }
 
-    // The surface point at a place in the window, and the bounds of its Geom.
-    openaxis::Value Pick( int ex, int ey )
+    // The surface point at a place in the window, and the bounds of its Geom.  When only is
+    // given, only those Geoms are looked at.
+    openaxis::Value Pick( int ex, int ey, const std::vector < std::string > * only )
     {
         glm::vec3 hit;
         std::string id;
-        if ( !m_Win->ProbeSurface( ex, ey, hit, &id ) )
+        if ( !m_Win->ProbeSurface( ex, ey, hit, &id, only ) )
         {
             return nullptr;
         }

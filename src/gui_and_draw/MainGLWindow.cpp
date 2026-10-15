@@ -767,7 +767,8 @@ bool VspGlWindow::GetPointer( int & ex, int & ey )
     return ex >= 0 && ey >= 0 && ex < w() && ey < h();
 }
 
-bool VspGlWindow::ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * geomId )
+bool VspGlWindow::ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * geomId,
+                                const std::vector < std::string > * onlyGeoms )
 {
     if ( geomId )
     {
@@ -796,13 +797,36 @@ bool VspGlWindow::ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * g
     // Two screen points either way.
     int radius = ( int )std::ceil( 2.0 * ppu );
 
+    // The draw objects of the Geoms that may be hit.
+    std::set < unsigned int > only;
+    if ( onlyGeoms )
+    {
+        for ( std::unordered_map < std::string, ID >::iterator it = m_idMap.begin(); it != m_idMap.end(); ++it )
+        {
+            std::string base = it->second.geomID.substr( 0, vsp::ID_LENGTH_PARMCONTAINER );
+            if ( std::find( onlyGeoms->begin(), onlyGeoms->end(), base ) != onlyGeoms->end() )
+            {
+                only.insert( it->second.bufferID );
+            }
+        }
+        if ( only.empty() )
+        {
+            return false;
+        }
+    }
+    const std::set < unsigned int > * onlyp = nullptr;
+    if ( onlyGeoms )
+    {
+        onlyp = &only;
+    }
+
     if ( !geomId )
     {
-        return m_Probe.probe( m_GEngine->getScene(), layout->getViewports()[ ivp ], px, py, radius, hit );
+        return m_Probe.probe( m_GEngine->getScene(), layout->getViewports()[ ivp ], px, py, radius, hit, nullptr, onlyp );
     }
 
     unsigned int object = 0xFFFFFFFF;
-    if ( !m_Probe.probe( m_GEngine->getScene(), layout->getViewports()[ ivp ], px, py, radius, hit, &object ) )
+    if ( !m_Probe.probe( m_GEngine->getScene(), layout->getViewports()[ ivp ], px, py, radius, hit, &object, onlyp ) )
     {
         return false;
     }

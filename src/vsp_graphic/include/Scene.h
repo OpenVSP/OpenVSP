@@ -145,9 +145,10 @@ public:
 
     /*!
     * Draw every visible mesh filled, for a depth pass.  Clipping planes apply.  When objects
-    * is given, object i of it is drawn in color i + 1, as 24 bits of red, green and blue.
+    * is given, object i of it is drawn in color i + 1, as 24 bits of red, green and blue.  When
+    * only is given, meshes whose getID() is not in it are left out.
     */
-    void drawDepth( std::vector < SceneObject * > * objects );
+    void drawDepth( std::vector < SceneObject * > * objects, const std::set < unsigned int > * only = nullptr );
 
 public:
     /*!
