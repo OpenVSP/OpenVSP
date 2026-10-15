@@ -1096,6 +1096,8 @@ void StackGeom::InsertXSec( int type )
     StackXSec* xs = ( StackXSec* ) GetXSec( m_ActiveXSec() );
 
     m_XSecSurf.InsertXSec( type, m_ActiveXSec() );
+    // The new section may be past the old last one.
+    m_ActiveXSec.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
     m_ActiveXSec = m_ActiveXSec() + 1;
 
     StackXSec* inserted_xs = ( StackXSec* ) GetXSec( m_ActiveXSec() );
