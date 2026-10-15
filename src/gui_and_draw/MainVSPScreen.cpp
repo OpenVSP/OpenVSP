@@ -18,6 +18,7 @@
 
 #include "main.h"
 #include "MainVSPScreen.h"
+#include "NavIcons.h"
 #include "MainGLWindow.h"
 #include "ScreenMgr.h"
 #include "GraphicEngine.h"
@@ -135,6 +136,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RearMenuItem.Init( this, m_MenuBar, "View/Rear", FL_F + 10 );
     m_RightSideMenuItem.Init( this, m_MenuBar, "View/Right", FL_F + 11 );
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
+    m_TurntableMenuItem.Init( this, m_MenuBar, "View/Turntable Rotation", 't' );
+    m_BallMenuItem.Init( this, m_MenuBar, "View/Ball Rotation", 'b' );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_SetVNMenuItem.Init( this, m_MenuBar, "View/View Normal To", 'n' );
     m_AlignGeomMenuItem.Init( this, m_MenuBar, "View/View Front Of", 'x' );
@@ -210,28 +213,65 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     VSPGUI::NavSettings nav_settings;
     nav_settings.Load();
     m_GlWin->GetNav().SetSettings( nav_settings );
+    m_GlWin->GetNav().SetRotateMode( nav_settings.m_StartupRotateMode );
 
-    int filew = m_GenLayout.GetW() * .6;
+    // The bottom strip: the buttons at the left keep their size; the file name and title take
+    // the rest.
+    int iconw = 30;
+    int stripx = m_GenLayout.GetX();
+    int stripy = m_GenLayout.GetY();
+    int stripw = m_GenLayout.GetW();
+    Fl_Group * strip = new Fl_Group( stripx, stripy, stripw, 20 );
+    m_GenLayout.GetGroup()->add( strip );
 
-    m_FileNameBox = new Fl_Box(m_GenLayout.GetX(), m_GenLayout.GetY(), filew, 20, "File Name:");
+    // Quick switch between the two rotations.  It does not change the preferences.
+    m_TurntableButton = new Fl_Button( stripx, stripy, iconw, 20 );
+    m_TurntableButton->type( FL_RADIO_BUTTON );
+    m_TurntableButton->image( MakeIcon( svg_turntable_icon ) );
+    m_TurntableButton->tooltip( "Turntable: rotate about the vertical axis, keeping the horizon level (t)" );
+    m_TurntableButton->callback( staticCB, this );
+    m_TurntableButton->clear_visible_focus();
+
+    m_BallButton = new Fl_Button( stripx + iconw, stripy, iconw, 20 );
+    m_BallButton->type( FL_RADIO_BUTTON );
+    m_BallButton->image( MakeIcon( svg_ball_icon ) );
+    m_BallButton->callback( staticCB, this );
+    m_BallButton->clear_visible_focus();
+
+    int textx = stripx + 2 * iconw;
+
+    int restw = stripx + stripw - textx;
+    int filew = restw * 0.6;
+    m_FileNameBox = new Fl_Box( textx, stripy, filew, 20, "File Name:" );
     m_FileNameBox->box(FL_EMBOSSED_FRAME);
     m_FileNameBox->labelsize(15);
     m_FileNameBox->align( Fl_Align( FL_ALIGN_CLIP | FL_ALIGN_RIGHT | FL_ALIGN_INSIDE ) );
 
-
-    m_GenLayout.AddX( filew );
-
-    m_TitleBox = new Fl_Box(m_GenLayout.GetX(), m_GenLayout.GetY(), m_GenLayout.GetRemainX(), 20, VSPVERSION3 );
+    m_TitleBox = new Fl_Box( textx + filew, stripy, restw - filew, 20, VSPVERSION3 );
     m_TitleBox->box(FL_EMBOSSED_BOX);
     m_TitleBox->labeltype(FL_EMBOSSED_LABEL);
     m_TitleBox->labelsize(15);
     m_TitleBox->labelcolor(FL_DARK_BLUE);
     m_TitleBox->align(Fl_Align(FL_ALIGN_CLIP));
+
+    // Only the file name and title stretch.
+    Fl_Box * stretch = new Fl_Box( textx, stripy, restw, 20 );
+    stretch->hide();
+    strip->resizable( stretch );
+    strip->end();
 }
 
 MainVSPScreen::~MainVSPScreen()
 {
     delete m_GlWin;
+}
+
+// An SVG icon sized for a bottom strip button.  It lives as long as the program.
+Fl_SVG_Image * MainVSPScreen::MakeIcon( const char * svg )
+{
+    Fl_SVG_Image * icon = new Fl_SVG_Image( nullptr, svg );
+    icon->resize( 18, 18 );
+    return icon;
 }
 
 //==== Show Main VSP Screen ====//
@@ -309,6 +349,16 @@ bool MainVSPScreen::Update()
     m_AxisMenuItem.Update( m_ShowXYZArrow );
     m_BorderMenuItem.Update( m_ShowBorder );
 
+    SetRotateMode( m_GlWin->GetNav().GetRotateMode() );
+    if ( m_GlWin->GetNav().GetSettings().m_BallType == VSPGUI::NAV_BALL_CLASSIC )
+    {
+        m_BallButton->tooltip( "Ball: OpenVSP Classic (b)" );
+    }
+    else
+    {
+        m_BallButton->tooltip( "Ball: Rounded Arcball (b)" );
+    }
+
     m_FLTK_Window->redraw();
     return true;
 }
@@ -339,12 +389,41 @@ void MainVSPScreen::BoldEntries( const string &mpath )
 void MainVSPScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
+
+    if ( w == m_TurntableButton )
+    {
+        SetRotateMode( VSPGUI::NAV_ROTATE_TURNTABLE );
+    }
+    else if ( w == m_BallButton )
+    {
+        SetRotateMode( VSPGUI::NAV_ROTATE_BALL );
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void MainVSPScreen::SetRotateMode( int mode )
+{
+    m_GlWin->GetNav().SetRotateMode( mode );
+
+    m_TurntableButton->value( mode == VSPGUI::NAV_ROTATE_TURNTABLE );
+    m_BallButton->value( mode == VSPGUI::NAV_ROTATE_BALL );
+
+    m_TurntableMenuItem.Update( mode == VSPGUI::NAV_ROTATE_TURNTABLE );
+    m_BallMenuItem.Update( mode == VSPGUI::NAV_ROTATE_BALL );
 }
 
 void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
 {
+    int old_startup = m_GlWin->GetNav().GetSettings().m_StartupRotateMode;
+
     m_GlWin->GetNav().SetSettings( settings );
+
+    // The rotation mode changes with the startup mode, and only then.
+    if ( settings.m_StartupRotateMode != old_startup )
+    {
+        SetRotateMode( settings.m_StartupRotateMode );
+    }
 }
 
 void MainVSPScreen::GuiDeviceCallBack( GuiDevice* device )
@@ -633,6 +712,14 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_RightIsoMenuItem )
     {
         SetView( VSPGraphic::Common::VSP_CAM_RIGHT_ISO );
+    }
+    else if ( data == &m_TurntableMenuItem )
+    {
+        SetRotateMode( VSPGUI::NAV_ROTATE_TURNTABLE );
+    }
+    else if ( data == &m_BallMenuItem )
+    {
+        SetRotateMode( VSPGUI::NAV_ROTATE_BALL );
     }
     else if ( data == &m_CenterMenuItem )
     {

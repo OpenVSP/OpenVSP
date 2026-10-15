@@ -64,9 +64,11 @@ protected:
     // 3D View tab.
     GroupLayout m_ViewLayout;
 
+    Choice m_RotateModeChoice;
     Choice m_BallTypeChoice;
     Choice m_BallSizeChoice;
     Choice m_BallAngleChoice;
+    Choice m_TurntableSpeedChoice;
 
     // Bottom of the window.
     GroupLayout m_BottomLayout;

@@ -16,6 +16,8 @@
 #include "ScreenBase.h"
 #include "GuiDevice.h"
 #include "FL/Fl_Box.H"
+#include "FL/Fl_Button.H"
+#include "FL/Fl_SVG_Image.H"
 
 namespace VSPGUI
 {
@@ -69,8 +71,13 @@ public:
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
 
+    // Rotation used by the next rotate gesture: NAV_ROTATE_BALL or NAV_ROTATE_TURNTABLE.
+    void SetRotateMode( int mode );
+
     // Apply new 3D interaction preferences.
     void SetNavSettings( const VSPGUI::NavSettings & settings );
+
+    static Fl_SVG_Image * MakeIcon( const char * svg );
 
     void EnableStopGUIMenuItem();
     void DisableStopGUIMenuItem();
@@ -130,6 +137,8 @@ protected:
     ActionMenuItem m_RearMenuItem;
     ActionMenuItem m_RightSideMenuItem;
     ActionMenuItem m_RightIsoMenuItem;
+    VSPCheckMenuItem m_TurntableMenuItem;
+    VSPCheckMenuItem m_BallMenuItem;
     ActionMenuItem m_CenterMenuItem;
     ActionMenuItem m_CenterAllMenuItem;
     ScreenMenuItem m_AdjustMenuItem;
@@ -186,6 +195,8 @@ protected:
     VSPGUI::VspGlWindow * m_GlWin;
     Fl_Box * m_TitleBox;
     Fl_Box * m_FileNameBox;
+    Fl_Button * m_TurntableButton;
+    Fl_Button * m_BallButton;
 
     bool m_ShowXYZArrow;
     bool m_ShowBorder;

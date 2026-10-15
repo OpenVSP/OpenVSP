@@ -14,6 +14,7 @@
 // Values offered for the numeric 3D interaction preferences.
 static const double BALL_SIZES[] = { 0.6, 0.75, 0.9, 1.0 };
 static const double BALL_ANGLE_SCALES[] = { 2.0, 1.0 };
+static const double TURNTABLE_GAINS[] = { 0.2, 0.3, 0.4, 0.6 };
 
 // Index of the offered value nearest a stored one.
 static int NearestIndex( const double * vals, int n, double v )
@@ -59,6 +60,11 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ViewLayout.AddDividerBox( "Rotation" );
     m_ViewLayout.AddYGap();
 
+    m_RotateModeChoice.AddItem( "Ball", VSPGUI::NAV_ROTATE_BALL );
+    m_RotateModeChoice.AddItem( "Turntable", VSPGUI::NAV_ROTATE_TURNTABLE );
+    m_RotateModeChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_RotateModeChoice, "Start With" );
+
     m_BallTypeChoice.AddItem( "Rounded Arcball", VSPGUI::NAV_BALL_ROUNDED_ARCBALL );
     m_BallTypeChoice.AddItem( "OpenVSP Classic", VSPGUI::NAV_BALL_CLASSIC );
     m_BallTypeChoice.UpdateItems();
@@ -75,6 +81,13 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_BallAngleChoice.AddItem( "180 deg across", 1 );
     m_BallAngleChoice.UpdateItems();
     m_ViewLayout.AddChoice( m_BallAngleChoice, "Ball Speed" );
+
+    m_TurntableSpeedChoice.AddItem( "0.2 deg/point", 0 );
+    m_TurntableSpeedChoice.AddItem( "0.3 deg/point", 1 );
+    m_TurntableSpeedChoice.AddItem( "0.4 deg/point", 2 );
+    m_TurntableSpeedChoice.AddItem( "0.6 deg/point", 3 );
+    m_TurntableSpeedChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_TurntableSpeedChoice, "Turntable Speed" );
 
     //==== Bottom ====//
     m_BottomLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -130,9 +143,11 @@ void PreferencesScreen::Show()
 
 void PreferencesScreen::ShowNav()
 {
+    m_RotateModeChoice.SetVal( m_Nav.m_StartupRotateMode );
     m_BallTypeChoice.SetVal( m_Nav.m_BallType );
     m_BallSizeChoice.SetVal( NearestIndex( BALL_SIZES, 4, m_Nav.m_BallSize ) );
     m_BallAngleChoice.SetVal( NearestIndex( BALL_ANGLE_SCALES, 2, m_Nav.m_BallAngleScale ) );
+    m_TurntableSpeedChoice.SetVal( NearestIndex( TURNTABLE_GAINS, 4, m_Nav.m_TurntableGain ) );
 }
 
 bool PreferencesScreen::ReadNav( GuiDevice * device )
@@ -148,6 +163,14 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_BallAngleChoice )
     {
         m_Nav.m_BallAngleScale = BALL_ANGLE_SCALES[ m_BallAngleChoice.GetVal() ];
+    }
+    else if ( device == &m_RotateModeChoice )
+    {
+        m_Nav.m_StartupRotateMode = m_RotateModeChoice.GetVal();
+    }
+    else if ( device == &m_TurntableSpeedChoice )
+    {
+        m_Nav.m_TurntableGain = TURNTABLE_GAINS[ m_TurntableSpeedChoice.GetVal() ];
     }
     else
     {
