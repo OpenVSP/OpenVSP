@@ -346,6 +346,9 @@ void ConformalGeom::UpdateSurf()
     copy_geom->Update();
     copy_geom->GetMainSurfVecCopy( m_MainSurfVec );
 
+    // Offset Ends acts only on a ribbed surface of a parent other than a Cobra.
+    bool offset_ends_used = false;
+
     for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
     {
         m_MainSurfVec[i].SetFoilSurf( nullptr );
@@ -382,9 +385,14 @@ void ConformalGeom::UpdateSurf()
                 }
 
                 //==== Offset Ribs ====//
-                if ( m_OffsetEnds() && !COBRA_ParentFlag )
+                if ( !COBRA_ParentFlag )
                 {
-                    OffsetEndRibs(m_MainSurfVec[i], offset);
+                    offset_ends_used = true;
+
+                    if ( m_OffsetEnds() )
+                    {
+                        OffsetEndRibs(m_MainSurfVec[i], offset);
+                    }
                 }
 
                 //==== Adjust Shape By Scaling Fp and Moving End Ribs ====//
@@ -408,6 +416,15 @@ void ConformalGeom::UpdateSurf()
                 TrimV(m_MainSurfVec[i]);
             }
         }
+    }
+
+    if ( offset_ends_used )
+    {
+        m_OffsetEnds.Activate();
+    }
+    else
+    {
+        m_OffsetEnds.Deactivate();
     }
 
     //==== Delete Geom Copy ====//
