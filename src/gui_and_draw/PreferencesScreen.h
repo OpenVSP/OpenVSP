@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class PreferencesScreen : public BasicScreen
+class PreferencesScreen : public TabScreen
 {
 public:
     PreferencesScreen( ScreenMgr* mgr );
@@ -40,14 +40,18 @@ public:
 
 protected:
 
-    GroupLayout m_GenLayout;
-    GroupLayout m_BorderLayout;
+    // The settings when the window opened, for Revert.
+    int m_FCTypeAtShow;
 
+    // General tab.
+    GroupLayout m_GenLayout;
     Choice m_FCTypeChoice;
 
-    TriggerButton m_AcceptButton;
-    TriggerButton m_CancelButton;
-
+    // Bottom of the window.
+    GroupLayout m_BottomLayout;
+    TriggerButton m_DefaultsButton;
+    TriggerButton m_RevertButton;
+    TriggerButton m_CloseButton;
 };
 
 #endif  // PREFERENCESSCREEN_H

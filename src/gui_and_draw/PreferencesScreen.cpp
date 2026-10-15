@@ -13,37 +13,41 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 170, "Preferences" )
+PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 800, "Preferences", "", 30 )
 {
-    m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_FCTypeAtShow = vsp::FC_OPENVSP;
 
-    m_GenLayout.ForceNewLine();
-    m_GenLayout.AddY(7);
-    m_GenLayout.AddX(5);
+    //==== General ====//
+    Fl_Group * gen_tab = AddTab( "General" );
+    Fl_Group * gen_group = AddSubGroup( gen_tab, 5 );
+    m_GenLayout.SetGroupAndScreen( gen_group, this );
 
-    m_GenLayout.AddSubGroupLayout( m_BorderLayout, m_GenLayout.GetRemainX() - 5.0,
-                                   m_GenLayout.GetRemainY() - 5.0);
-
-    m_BorderLayout.AddDividerBox( "File Chooser GUI" );
-    m_BorderLayout.AddYGap();
+    m_GenLayout.AddDividerBox( "File Chooser GUI" );
+    m_GenLayout.AddYGap();
 
     m_FCTypeChoice.AddItem( "OpenVSP Default", vsp::FC_OPENVSP );
     m_FCTypeChoice.AddItem( "Native", vsp::FC_NATIVE );
     m_FCTypeChoice.UpdateItems();
 
-    m_BorderLayout.AddChoice( m_FCTypeChoice, "File Chooser" );
+    m_GenLayout.AddChoice( m_FCTypeChoice, "File Chooser" );
 
-    m_BorderLayout.SetSameLineFlag( true );
-    m_BorderLayout.SetFitWidthFlag( false );
+    //==== Bottom ====//
+    m_BottomLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_BottomLayout.SetY( m_FLTK_Window->h() - 27 );
+    m_BottomLayout.SetSameLineFlag( true );
+    m_BottomLayout.SetFitWidthFlag( false );
 
-    m_BorderLayout.SetY( m_BorderLayout.GetH() );
+    int gap = ( m_BottomLayout.GetW() - 3 * m_BottomLayout.GetButtonWidth() ) / 4;
 
-    int gap = ( m_BorderLayout.GetW() - 2 * m_BorderLayout.GetButtonWidth() ) / 3;
+    m_BottomLayout.AddX( gap );
+    m_BottomLayout.AddButton( m_DefaultsButton, "Defaults" );
+    m_BottomLayout.AddX( gap );
+    m_BottomLayout.AddButton( m_RevertButton, "Revert" );
+    m_BottomLayout.AddX( gap );
+    m_BottomLayout.AddButton( m_CloseButton, "Close" );
 
-    m_BorderLayout.AddX( gap );
-    m_BorderLayout.AddButton( m_AcceptButton, "Accept" );
-    m_BorderLayout.AddX( gap );
-    m_BorderLayout.AddButton( m_CancelButton, "Cancel" );
+    m_DefaultsButton.GetFlButton()->tooltip( "Set every preference to OpenVSP's default.  Revert undoes it." );
+    m_RevertButton.GetFlButton()->tooltip( "Changes take effect and are kept as they are made.  Revert puts back the preferences as they were when this window opened." );
 }
 
 PreferencesScreen::~PreferencesScreen()
@@ -52,28 +56,25 @@ PreferencesScreen::~PreferencesScreen()
 
 bool PreferencesScreen::Update()
 {
-    BasicScreen::Update();
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
-    {
-    }
+    TabScreen::Update();
 
     m_FLTK_Window->redraw();
 
     return false;
 }
 
-
 void PreferencesScreen::Show()
 {
-    int fc = GetFCType();
+    // Opening the window again keeps what it was reverting to.
+    if ( !IsShown() )
+    {
+        m_FCTypeAtShow = GetFCType();
+    }
 
-    m_FCTypeChoice.SetVal( fc );
+    m_FCTypeChoice.SetVal( GetFCType() );
 
     m_ScreenMgr->SetUpdateFlag( true );
-    BasicScreen::Show();
+    TabScreen::Show();
 }
 
 void PreferencesScreen::Hide()
@@ -91,14 +92,21 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
 
-    if ( device == &m_AcceptButton )
+    if ( device == &m_FCTypeChoice )
     {
-        int fc = m_FCTypeChoice.GetVal();
-
-        SetFCType( fc );
-        Hide();
+        SetFCType( m_FCTypeChoice.GetVal() );
     }
-    else if ( device == &m_CancelButton )
+    else if ( device == &m_DefaultsButton )
+    {
+        SetFCType( vsp::FC_OPENVSP );
+        m_FCTypeChoice.SetVal( vsp::FC_OPENVSP );
+    }
+    else if ( device == &m_RevertButton )
+    {
+        SetFCType( m_FCTypeAtShow );
+        m_FCTypeChoice.SetVal( m_FCTypeAtShow );
+    }
+    else if ( device == &m_CloseButton )
     {
         Hide();
     }
