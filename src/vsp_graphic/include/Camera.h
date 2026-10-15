@@ -178,6 +178,16 @@ public:
      */
     virtual glm::vec3 getCOR() = 0;
 
+public:
+    /*!
+    * Count of changes to the view rotation, by any means.  A drag measured from its press
+    * compares it to tell when something else turned the view.
+    */
+    int rotationVersion()
+    {
+        return _rotationVersion;
+    }
+
 protected:
     virtual void _calculateProjection();
 
@@ -208,6 +218,8 @@ protected:
 
     // Type of Projection.
     Common::VSPenum _projectionType;
+
+    int _rotationVersion;
 };
 }
 #endif

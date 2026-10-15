@@ -83,6 +83,7 @@ void ArcballCam::load( int index )
     _tMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3(_pan.x, _pan.y, 0.0f) );
     _cMat = _saves[index].cor;
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 void ArcballCam::center()
@@ -135,6 +136,7 @@ void ArcballCam::rotate( int px, int py, int cx, int cy )
     //===== Set modelview matrix =====//
     _rMat = _toMatrix( _globalQuat );
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 void ArcballCam::rotateZ( int px, int py, int cx, int cy )
@@ -167,6 +169,7 @@ void ArcballCam::rotateZ( int px, int py, int cx, int cy )
 
     _rMat = _toMatrix( _globalQuat );
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 void ArcballCam::rotateSphere( float angleX, float angleY, float angleZ )
@@ -181,6 +184,7 @@ void ArcballCam::rotateSphere( float angleX, float angleY, float angleZ )
     _globalQuat = _matrixToQuat( _rMat );
 
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 glm::vec3 ArcballCam::getRotationEulerAngles()
@@ -226,6 +230,7 @@ void ArcballCam::setViewRotation( const glm::quat & rot )
 
     _rMat = _toMatrix( _globalQuat );
     _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
 }
 
 glm::vec4 ArcballCam::_matrixToQuat ( glm::mat4 mat )
