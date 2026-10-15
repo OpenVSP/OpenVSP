@@ -122,10 +122,10 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ElbowLt.Init( "ElbowLt", "Pose", this, 15.0, 0, 150.0 );
     m_ElbowLt.SetDescript( "Left elbow angle" );
 
-    m_ShoulderABADLt.Init( "ShoulderABADLt", "Pose", this, 15.0, -40, 170.0 );
+    m_ShoulderABADLt.Init( "ShoulderABADLt", "Pose", this, 0, -40, 170.0 );
     m_ShoulderABADLt.SetDescript( "Left shoulder AB/AD angle" );
 
-    m_ShoulderFELt.Init( "ShoulderFELt", "Pose", this, 1.0, -30, 180.0 );
+    m_ShoulderFELt.Init( "ShoulderFELt", "Pose", this, 0, -30, 180.0 );
     m_ShoulderFELt.SetDescript( "Left shoulder FE angle" );
 
     m_ShoulderIELt.Init( "ShoulderIELt", "Pose", this, 0.0, -30, 100.0 );
