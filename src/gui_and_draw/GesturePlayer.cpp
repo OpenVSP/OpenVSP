@@ -37,8 +37,9 @@
 //                              for the camera, bounds, cursor and picks
 //   navstate g                 an orbit navigation.state and the camera.pivot, once the query
 //                              is answered
-//   navorbit g seq mdeg        as the host turns the camera of gesture g's query by mdeg
-//                              millidegrees about world Z through its pick, or the rotation center
+//   navorbit g seq mdeg a      as the host turns the camera of gesture g's query by mdeg
+//                              millidegrees through its pick, or the rotation center, about world
+//                              Z, or world X when a is 1
 //   navend g                   motion_end
 //   wait                       nothing; one tick
 //   dump                       nothing, but write the camera and Parms
@@ -185,7 +186,7 @@ bool NavCommand( VSPGUI::VspGlWindow * win, const GestureEvent & e )
         NavReceive( { { "type", "request" }, { "id", 100 + e.m_A }, { "method", "navigation.query" },
                       { "params", { { "gesture_id", e.m_A },
                                     { "values", { "document.id", "world.orientation", "camera.pose", "viewport.aspect",
-                                                  "viewport.cursor", "model.bounds", "selection.bounds" } },
+                                                  "viewport.cursor", "model.bounds", "selection.bounds", "navigation.preferences" } },
                                     { "first", { "pick.cursor", "pick.viewport_center" } } } } } );
     }
     else if ( e.m_Cmd == "navstate" )
@@ -209,6 +210,10 @@ bool NavCommand( VSPGUI::VspGlWindow * win, const GestureEvent & e )
 
         double a = 1e-3 * e.m_C * 3.14159265358979323846 / 180.0;
         openaxis::Quat turn = openaxis::Quat::from_rotvec( { 0.0, 0.0, a } );
+        if ( e.m_D == 1 )
+        {
+            turn = openaxis::Quat::from_rotvec( { a, 0.0, 0.0 } );
+        }
         openaxis::Vec3 t2 = pivot + turn.rotate( t - pivot );
         openaxis::Vec3 r2 = ( turn * openaxis::Quat::from_rotvec( r ) ).rotvec();
 

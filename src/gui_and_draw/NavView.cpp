@@ -96,6 +96,12 @@ public:
         {
             return WorldOrientation();
         }
+        if ( name == "navigation.preferences" )
+        {
+            // The host keeps a free camera upright when asked; in orbit OpenVSP does it.
+            bool upright = ( m_Win->GetNav().GetRotateMode() == NAV_ROTATE_TURNTABLE );
+            return { { "lock_roll", upright } };
+        }
         if ( name == "viewport.aspect" && m_Camera->viewportHeight() > 0 )
         {
             return ( double )m_Camera->viewportWidth() / m_Camera->viewportHeight();
@@ -313,8 +319,22 @@ openaxis::WriteResult NavViewAdapter::apply_pose( const openaxis::NavigationCont
     }
     VSPGraphic::Camera * camera = CurrentCamera();
 
-    // The zoom the view can hold.
     VSPGraphic::CameraPose c = FromPose( pose );
+
+    // In Turntable mode the view stays upright: the pose turns about its own line of sight
+    // until world Z points up the screen.  Looking along Z there is no up to keep.
+    if ( m_Win->GetNav().GetRotateMode() == NAV_ROTATE_TURNTABLE )
+    {
+        glm::dquat r = glm::conjugate( c.m_Rotation );
+        glm::dvec3 z = r * glm::dvec3( 0.0, 0.0, 1.0 );
+        if ( std::hypot( z.x, z.y ) > 1e-6 )
+        {
+            r = glm::angleAxis( std::atan2( z.x, z.y ), glm::dvec3( 0.0, 0.0, 1.0 ) ) * r;
+            c.m_Rotation = glm::conjugate( r );
+        }
+    }
+
+    // The zoom the view can hold.
     double lo, hi;
     m_Win->GetZoomLimits( lo, hi );
     double zoom = c.m_OrthoExtent / camera->viewportHeight();
