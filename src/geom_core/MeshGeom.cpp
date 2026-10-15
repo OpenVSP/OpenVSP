@@ -1661,6 +1661,13 @@ string MeshGeom::CreateNGonMeshGeom( bool cullfracflag, double cullfrac, int n_r
 
         pgm->BuildFromTMeshVec( m_TMeshVec );
 
+        // The NGon mesh sits at the model origin, so its points are placed by this mesh's XForm.
+        list< PGPoint* >::iterator pit;
+        for ( pit = new_geom->m_PGMulti.m_PointList.begin(); pit != new_geom->m_PGMulti.m_PointList.end(); ++pit )
+        {
+            ( *pit )->m_Pnt = XFormMat.xform( ( *pit )->m_Pnt );
+        }
+
         pgm->MergeCoincidentNodes();
         // pgm->MergeDuplicateEdges();
 
