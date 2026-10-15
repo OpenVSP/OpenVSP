@@ -132,6 +132,10 @@ public:
     void Release( int x, int y );
     void Wheel( int dx, int dy, int x, int y );
 
+    // Esc: end the gesture in progress and put the view back as it was at the press, or
+    // disarm a zoom box.  Returns true if there was something to cancel.
+    bool Cancel();
+
     void KeyDown( int key );
     void KeyUp( int key );
     void ClearKeys();
@@ -145,6 +149,12 @@ private:
     void Start( NavAction action, int x, int y );
 
     void DragZoom( int x, int y );
+
+    // Hold the view of the selected viewport's camera for Cancel, once per gesture.
+    void HoldCurrentCamera();
+
+    // End whatever the gesture has on screen or in progress without applying it.
+    void Abandon();
 
     // Remove the zoom box, and when apply is set, zoom to it.
     void EndZoomBox( bool apply, int x, int y );
@@ -168,6 +178,10 @@ private:
     VSPGraphic::RotationMethod * m_Rotation;
 
     std::set < int > m_HeldKeys;
+
+    // The cameras whose views were held during the gesture, for Cancel: the press's, and
+    // another viewport's if a chord's press selected it.
+    std::vector < VSPGraphic::Camera * > m_HeldCameras;
 
     // What was going on when a box selection started, so its end resumes only that.
     NavAction m_ActionBeforeBox;

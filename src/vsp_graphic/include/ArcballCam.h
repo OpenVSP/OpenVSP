@@ -173,6 +173,9 @@ public:
     */
     virtual void load( int index );
 
+    virtual void holdView();
+    virtual void restoreView();
+
 private:
     static glm::vec4 _normalizeQuat( glm::vec4 quat );
     glm::vec4 _multiplyQuats( glm::vec4 quat1, glm::vec4 quat2 );
@@ -209,6 +212,14 @@ private:
         float perspZoomValue;
     };
     std::vector<camInfo> _saves;
+
+    // The view kept by holdView().
+    glm::vec4 _heldQuat;
+    glm::mat4 _heldRMat;
+    glm::vec2 _heldPan;
+    glm::mat4 _heldCMat;
+    float _heldOZoom;
+    float _heldPZoom;
 };
 }
 #endif

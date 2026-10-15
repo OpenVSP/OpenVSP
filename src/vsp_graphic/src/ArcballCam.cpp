@@ -34,6 +34,8 @@ ArcballCam::ArcballCam() : Camera()
     {
         _saves.push_back( initSave );
     }
+
+    holdView();
 }
 ArcballCam::~ArcballCam()
 {
@@ -82,6 +84,31 @@ void ArcballCam::load( int index )
     _rMat = _toMatrix( _globalQuat );
     _tMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3(_pan.x, _pan.y, 0.0f) );
     _cMat = _saves[index].cor;
+    _modelviewMatrix = _tMat * _rMat * _cMat;
+    _rotationVersion++;
+}
+
+void ArcballCam::holdView()
+{
+    _heldQuat = _globalQuat;
+    _heldRMat = _rMat;
+    _heldPan = _pan;
+    _heldCMat = _cMat;
+    _heldOZoom = _oZoom;
+    _heldPZoom = _pZoom;
+}
+
+void ArcballCam::restoreView()
+{
+    _globalQuat = _heldQuat;
+    _rMat = _heldRMat;
+    _pan = _heldPan;
+    _cMat = _heldCMat;
+    _oZoom = _heldOZoom;
+    _pZoom = _heldPZoom;
+
+    _calculateProjection();
+    _tMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3(_pan.x, _pan.y, 0.0f) );
     _modelviewMatrix = _tMat * _rMat * _cMat;
     _rotationVersion++;
 }

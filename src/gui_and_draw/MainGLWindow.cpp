@@ -86,6 +86,7 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
     m_initialized = false;
 
     m_prevViewport = -1;
+    m_EscCancelled = false;
 
     m_ScreenMgr = mgr;
 
@@ -205,6 +206,7 @@ int VspGlWindow::handle( int fl_event )
         cursor( FL_CURSOR_DEFAULT );
         // A key released while the pointer is elsewhere, e.g. over an open menu, is never seen here.
         m_Nav.ClearKeys();
+        m_EscCancelled = false;
         return 1;
 
     case FL_PUSH:
@@ -253,6 +255,7 @@ int VspGlWindow::handle( int fl_event )
 
     case FL_UNFOCUS:
         m_Nav.ClearKeys();
+        m_EscCancelled = false;
         return 1;
     }
     return Fl_Gl_Window::handle( fl_event );
@@ -2541,6 +2544,14 @@ int VspGlWindow::OnKeyup( int x, int y )
     {
     case FL_Escape:
     {
+        // This Esc ended a gesture; it does not also clear the selection.
+        if ( m_EscCancelled )
+        {
+            m_EscCancelled = false;
+            handled = 1;
+            break;
+        }
+
         Vehicle* vPtr = VehicleMgr.GetVehicle();
         if ( vPtr )
         {
@@ -2582,6 +2593,13 @@ int VspGlWindow::OnKeydown()
     key = tolower(key);  // not utf-8 safe, but oh well...
 
     m_Nav.KeyDown( key );
+
+    if ( key == FL_Escape && m_Nav.Cancel() )
+    {
+        m_EscCancelled = true;
+        UpdateAllViewParms();
+        handled = 1;
+    }
 
     redraw();
 

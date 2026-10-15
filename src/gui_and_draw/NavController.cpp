@@ -274,10 +274,14 @@ void NavController::Push( int x, int y )
     {
         // Another button joined buttons already down; choose again from the new set.  The
         // press may have selected another viewport.
+        HoldCurrentCamera();
         Begin( buttons, pressed, x, y, false );
     }
     else
     {
+        m_HeldCameras.clear();
+        HoldCurrentCamera();
+
         Begin( buttons, pressed, x, y, true );
     }
 }
@@ -331,6 +335,16 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
             m_ActionBeforeBox = before;
         }
         Start( drag->m_Action, x, y );
+    }
+}
+
+void NavController::HoldCurrentCamera()
+{
+    VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
+    if ( camera && std::find( m_HeldCameras.begin(), m_HeldCameras.end(), camera ) == m_HeldCameras.end() )
+    {
+        camera->holdView();
+        m_HeldCameras.push_back( camera );
     }
 }
 
@@ -431,6 +445,46 @@ void NavController::Release( int x, int y )
     {
         m_Action = NAV_NONE;
     }
+
+    if ( buttons == 0 )
+    {
+        m_HeldCameras.clear();
+    }
+}
+
+bool NavController::Cancel()
+{
+    bool armed = m_ZoomBoxArmed;
+    m_ZoomBoxArmed = false;
+
+    if ( m_Action == NAV_NONE )
+    {
+        return armed;
+    }
+
+    Abandon();
+
+    for ( int i = 0; i < ( int )m_HeldCameras.size(); i++ )
+    {
+        m_HeldCameras[i]->restoreView();
+    }
+    return true;
+}
+
+void NavController::Abandon()
+{
+    if ( m_Action == NAV_ZOOM_BOX )
+    {
+        EndZoomBox( false, m_PressX, m_PressY );
+    }
+    else if ( m_Action == NAV_BOX_SELECT )
+    {
+        m_Win->EndBoxSelect( false );
+    }
+
+    // Ignore the rest of the drag; releasing the buttons then ends it.
+    m_Action = NAV_NONE;
+    m_ActionBeforeBox = NAV_NONE;
 }
 
 void NavController::DragZoom( int x, int y )

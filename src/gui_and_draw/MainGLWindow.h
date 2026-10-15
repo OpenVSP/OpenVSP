@@ -247,6 +247,9 @@ private:
 
     int m_prevViewport;
 
+    // True from an Esc that cancelled a gesture until that key's release.
+    bool m_EscCancelled;
+
 protected:
 
     void _update( const std::vector<DrawObj*> & objects );
