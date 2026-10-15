@@ -68,6 +68,12 @@ public:
     virtual int selectViewport( int x, int y );
 
     /*
+    * Index of the Viewport under a mouse location, or -1 if none.
+    * Does not change the selection.
+    */
+    int findViewport( int x, int y );
+
+    /*
     * Get current selected Viewport.
     * If no viewport is selected, return nullptr pointer.
     */
