@@ -1634,6 +1634,8 @@ void WingGeom::InsertXSec( int index, int type )
     if ( index > 0 && index < m_XSecSurf.NumXSec() )
     {
         string ins_id = m_XSecSurf.InsertXSec(type, index);
+        // The new section may be past the old last one.
+        m_ActiveWingSection.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
         m_ActiveWingSection = index + 1;
         PasteWingSect( m_ActiveWingSection() );
     }
@@ -1744,6 +1746,8 @@ void WingGeom::InsertWingSect( int index  )
         int type = xs->GetXSecCurve()->GetType();
 
         string ins_id = m_XSecSurf.InsertXSec(type, index);
+        // The new section may be past the old last one.
+        m_ActiveWingSection.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
         m_ActiveWingSection = index + 1;
         PasteWingSect( m_ActiveWingSection() );
     }
