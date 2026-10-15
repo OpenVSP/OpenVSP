@@ -221,15 +221,23 @@ int PtCloudGeom::ReadPTS( const char* file_name )
     else
     {
         m_Pts.clear();
-        int stopFlag = 0;
-        while ( !stopFlag )
+        char buf[4096];
+        while ( fgets( buf, sizeof( buf ), file_id ) )
         {
-            double x, y, z;
-            if ( EOF == fscanf( file_id, "%lf%*[, ]%lf%*[, ]%lf\n", &x, &y, &z ) )
+            // Commas, spaces and tabs separate the values; a line without three numbers is skipped.
+            for ( int i = 0; buf[i] != '\0'; i++ )
             {
-                break;
+                if ( buf[i] == ',' )
+                {
+                    buf[i] = ' ';
+                }
             }
-            m_Pts.push_back( vec3d( x, y, z ) );
+
+            double x, y, z;
+            if ( sscanf( buf, "%lf %lf %lf", &x, &y, &z ) == 3 )
+            {
+                m_Pts.push_back( vec3d( x, y, z ) );
+            }
         }
         fclose( file_id );
     }
