@@ -16,6 +16,7 @@ static const double BALL_SIZES[] = { 0.6, 0.75, 0.9, 1.0 };
 static const double BALL_SPEED_MIN = 0.1;
 static const double BALL_SPEED_MAX = 2.0;
 static const double TURNTABLE_GAINS[] = { 0.2, 0.3, 0.4, 0.6 };
+static const double ZOOM_SPEEDS[] = { 0.5, 1.0, 2.0 };
 
 // Index of the offered value nearest a stored one.
 static int NearestIndex( const double * vals, int n, double v )
@@ -109,6 +110,47 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_TurntableSpeedChoice.GetFlChoice()->tooltip( "Degrees turned per point of mouse motion" );
     m_ViewLayout.AddYGap();
 
+    m_ViewLayout.AddDividerBox( "Zoom" );
+
+    m_WheelDirChoice.AddItem( "Forward zooms in", 0 );
+    m_WheelDirChoice.AddItem( "Forward zooms out", 1 );
+    m_WheelDirChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_WheelDirChoice, "Wheel Direction" );
+
+    m_WheelAnchorChoice.AddItem( "At pointer", VSPGUI::NAV_ANCHOR_POINTER );
+    m_WheelAnchorChoice.AddItem( "At view center", VSPGUI::NAV_ANCHOR_CENTER );
+    m_WheelAnchorChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_WheelAnchorChoice, "Wheel Zooms" );
+
+    m_WheelStepChoice.AddItem( "Fixed per notch", VSPGUI::NAV_WHEEL_PER_EVENT );
+    m_WheelStepChoice.AddItem( "By scroll amount", VSPGUI::NAV_WHEEL_PROPORTIONAL );
+    m_WheelStepChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_WheelStepChoice, "Wheel Step" );
+    m_ViewLayout.AddYGap();
+
+    m_DragZoomDirChoice.AddItem( "Down zooms in", 0 );
+    m_DragZoomDirChoice.AddItem( "Down zooms out", 1 );
+    m_DragZoomDirChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_DragZoomDirChoice, "Drag Direction" );
+
+    m_DragZoomAnchorChoice.AddItem( "At view center", VSPGUI::NAV_ANCHOR_CENTER );
+    m_DragZoomAnchorChoice.AddItem( "At press point", VSPGUI::NAV_ANCHOR_POINTER );
+    m_DragZoomAnchorChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_DragZoomAnchorChoice, "Drag Zooms" );
+
+    m_DragZoomLawChoice.AddItem( "Classic, per event", VSPGUI::NAV_ZOOM_PER_EVENT );
+    m_DragZoomLawChoice.AddItem( "By distance", VSPGUI::NAV_ZOOM_CONTINUOUS );
+    m_DragZoomLawChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_DragZoomLawChoice, "Drag Step" );
+    m_ViewLayout.AddYGap();
+
+    m_ZoomSpeedChoice.AddItem( "Slow", 0 );
+    m_ZoomSpeedChoice.AddItem( "Normal", 1 );
+    m_ZoomSpeedChoice.AddItem( "Fast", 2 );
+    m_ZoomSpeedChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_ZoomSpeedChoice, "Zoom Speed" );
+    m_ZoomSpeedChoice.GetFlChoice()->tooltip( "Speed of the wheel by scroll amount and of the drag by distance" );
+
     //==== Bottom ====//
     m_BottomLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_BottomLayout.SetY( m_FLTK_Window->h() - 27 );
@@ -169,6 +211,14 @@ void PreferencesScreen::ShowNav()
     m_BallSizeChoice.SetVal( NearestIndex( BALL_SIZES, 4, m_Nav.m_BallSize ) );
     ShowBallSpeed();
     m_TurntableSpeedChoice.SetVal( NearestIndex( TURNTABLE_GAINS, 4, m_Nav.m_TurntableGain ) );
+
+    m_WheelDirChoice.SetVal( ( int )m_Nav.m_WheelReverse );
+    m_WheelAnchorChoice.SetVal( m_Nav.m_WheelAnchor );
+    m_WheelStepChoice.SetVal( m_Nav.m_WheelStep );
+    m_DragZoomDirChoice.SetVal( ( int )m_Nav.m_DragZoomReverse );
+    m_DragZoomAnchorChoice.SetVal( m_Nav.m_DragZoomAnchor );
+    m_DragZoomLawChoice.SetVal( m_Nav.m_DragZoomLaw );
+    m_ZoomSpeedChoice.SetVal( NearestIndex( ZOOM_SPEEDS, 3, m_Nav.m_ZoomSpeed ) );
     ShowActive();
 }
 
@@ -206,6 +256,15 @@ void PreferencesScreen::ShowActive()
         m_BallSpeedInput->activate();
     }
 
+    // The zoom speed scales only the wheel by scroll amount and the drag by distance.
+    if ( m_Nav.m_WheelStep == VSPGUI::NAV_WHEEL_PROPORTIONAL || m_Nav.m_DragZoomLaw == VSPGUI::NAV_ZOOM_CONTINUOUS )
+    {
+        m_ZoomSpeedChoice.Activate();
+    }
+    else
+    {
+        m_ZoomSpeedChoice.Deactivate();
+    }
 }
 
 bool PreferencesScreen::ReadNav( GuiDevice * device )
@@ -225,6 +284,34 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_TurntableSpeedChoice )
     {
         m_Nav.m_TurntableGain = TURNTABLE_GAINS[ m_TurntableSpeedChoice.GetVal() ];
+    }
+    else if ( device == &m_WheelDirChoice )
+    {
+        m_Nav.m_WheelReverse = ( m_WheelDirChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_WheelAnchorChoice )
+    {
+        m_Nav.m_WheelAnchor = m_WheelAnchorChoice.GetVal();
+    }
+    else if ( device == &m_WheelStepChoice )
+    {
+        m_Nav.m_WheelStep = m_WheelStepChoice.GetVal();
+    }
+    else if ( device == &m_DragZoomDirChoice )
+    {
+        m_Nav.m_DragZoomReverse = ( m_DragZoomDirChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_DragZoomAnchorChoice )
+    {
+        m_Nav.m_DragZoomAnchor = m_DragZoomAnchorChoice.GetVal();
+    }
+    else if ( device == &m_DragZoomLawChoice )
+    {
+        m_Nav.m_DragZoomLaw = m_DragZoomLawChoice.GetVal();
+    }
+    else if ( device == &m_ZoomSpeedChoice )
+    {
+        m_Nav.m_ZoomSpeed = ZOOM_SPEEDS[ m_ZoomSpeedChoice.GetVal() ];
     }
     else
     {

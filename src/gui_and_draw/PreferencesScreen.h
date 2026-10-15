@@ -76,6 +76,14 @@ protected:
     Fl_Input * m_BallSpeedInput;
     Choice m_TurntableSpeedChoice;
 
+    Choice m_WheelDirChoice;
+    Choice m_WheelAnchorChoice;
+    Choice m_WheelStepChoice;
+    Choice m_DragZoomDirChoice;
+    Choice m_DragZoomAnchorChoice;
+    Choice m_DragZoomLawChoice;
+    Choice m_ZoomSpeedChoice;
+
     // Bottom of the window.
     GroupLayout m_BottomLayout;
     TriggerButton m_DefaultsButton;
