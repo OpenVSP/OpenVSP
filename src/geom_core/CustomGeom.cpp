@@ -1139,8 +1139,9 @@ void CustomGeom::ComputeCenter()
     if ( m_XSecSurfVec.size() < 1 )
          return;
 
+    // The last section's X is the length.
     int index = m_XSecSurfVec[0]->NumXSec() - 1;
-    CustomXSec* xs = dynamic_cast<CustomXSec*>( m_XSecSurfVec[0]->FindXSec( index - 1 ) );
+    CustomXSec* xs = dynamic_cast<CustomXSec*>( m_XSecSurfVec[0]->FindXSec( index ) );
 
     if ( xs )
     {
