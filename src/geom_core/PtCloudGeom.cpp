@@ -506,8 +506,6 @@ void PtCloudGeom::GetSelectedPoints( vector < vec3d > &selpts )
 
 void PtCloudGeom::CreateConvexHull()
 {
-    WritePTS( "test.pts" );
-
     constexpr int dim = 3;
 
     int npts = m_Pts.size();
