@@ -97,6 +97,9 @@ struct NavPress
     int m_Conditions;           // NavCondition bits that hold.
 };
 
+// A press for people: "Shift+Middle", "z+Left".
+std::string NavDescribe( const NavPress & press );
+
 // The built-in profiles.  Each but the first is like the program it is named for, as far as
 // a binding table can be; none is an exact copy.
 enum NavPreset
@@ -152,6 +155,10 @@ public:
 
     // True if a binding needs to know whether the press is on geometry.
     bool NeedsWhere() const;
+
+    // Indices of bindings that can never act: every press they match, an earlier binding with
+    // the same trigger matches too.
+    std::vector < int > Shadowed() const;
 
     // The bindings as text, one per line: "Rotate: Buttons=Middle Mods=Ctrl ...".  Fields at
     // their NavBind() values are left out.
