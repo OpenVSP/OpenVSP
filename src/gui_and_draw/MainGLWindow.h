@@ -174,6 +174,12 @@ public:
     bool ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * geomId = nullptr );
 
     /*!
+    * Select a Geom from a click: the only one, added (add), or toggled (toggle).  An empty ID
+    * clears the selection unless adding or toggling.
+    */
+    void ClickSelect( const std::string & geomId, bool add, bool toggle );
+
+    /*!
     * The VSPGUI::NavCondition bits that hold now.
     */
     int GetNavConditions();

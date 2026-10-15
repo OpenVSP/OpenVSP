@@ -219,6 +219,8 @@ private:
     // What was going on when a box selection started, so its end resumes only that.
     NavAction m_ActionBeforeBox;
 
+    int m_PressModifiers;   // Modifiers at the press, for clicks.
+
     // The camera turning about a pivot of its own, and its rotation center to go back to.
     VSPGraphic::Camera * m_PivotCamera;
     glm::vec3 m_StickyCOR;

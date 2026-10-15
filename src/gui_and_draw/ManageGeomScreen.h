@@ -98,6 +98,9 @@ public:
     */
     void Set( const std::string &geomID);
 
+    // Make these the active Geoms, as a selection made in the browser does.
+    void SetActiveGeoms( const vector < string > & geomIds );
+
     /*!
     * Push Pick button once.
     */

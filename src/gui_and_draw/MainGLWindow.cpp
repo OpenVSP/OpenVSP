@@ -8,6 +8,7 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#include <algorithm>
 #include <cmath>
 
 #include "MainGLWindow.h"
@@ -779,6 +780,63 @@ bool VspGlWindow::ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * g
         }
     }
     return true;
+}
+
+void VspGlWindow::ClickSelect( const std::string & geomId, bool add, bool toggle )
+{
+    Vehicle * veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    vector < string > active = veh->GetActiveGeomVec();
+    vector < string >::iterator it = std::find( active.begin(), active.end(), geomId );
+
+    if ( geomId.empty() )
+    {
+        if ( add || toggle )
+        {
+            return;
+        }
+        active.clear();
+    }
+    else if ( toggle )
+    {
+        if ( it != active.end() )
+        {
+            active.erase( it );
+        }
+        else
+        {
+            active.push_back( geomId );
+        }
+    }
+    else if ( add )
+    {
+        if ( it == active.end() )
+        {
+            active.push_back( geomId );
+        }
+    }
+    else
+    {
+        active.clear();
+        active.push_back( geomId );
+    }
+
+    // Through the Geom screen, so its browser and the Geom's own screen follow.
+    ManageGeomScreen * geomScreen = dynamic_cast < ManageGeomScreen * >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+    if ( geomScreen )
+    {
+        geomScreen->SetActiveGeoms( active );
+    }
+    else
+    {
+        veh->SetActiveGeomVec( active );
+        m_ScreenMgr->SetUpdateFlag( true );
+    }
 }
 
 void VspGlWindow::_initGLEW()

@@ -238,6 +238,7 @@ NavController::NavController( VspGlWindow * win )
     m_ChordEnded = false;
 
     m_ActionBeforeBox = NAV_NONE;
+    m_PressModifiers = 0;
 
     m_PivotCamera = nullptr;
     m_StickyCOR = glm::vec3( 0.0f );
@@ -355,6 +356,8 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
     m_PrevX = x;
     m_PrevY = y;
 
+    m_PressModifiers = Fl::event_state() & NAV_MODIFIERS;
+
     if ( m_ZoomBoxArmed && pressed != 0 && buttons != FL_BUTTON1 )
     {
         // Any other press gives up the zoom box.
@@ -466,6 +469,17 @@ void NavController::Click( const NavBinding * b, int x, int y )
             m_Win->UpdateCORParms();
             m_Win->UpdatePanParms();
         }
+    }
+    else if ( b->m_Action == NAV_SELECT )
+    {
+        glm::vec3 hit;
+        std::string geom;
+        m_Win->ProbeSurface( m_PressEventX, m_PressEventY, hit, &geom );
+
+        int modifiers = m_PressModifiers;
+        bool toggle = ( modifiers & ( FL_CTRL | FL_META ) ) != 0;
+        bool add = ( modifiers & FL_SHIFT ) != 0 && !toggle;
+        m_Win->ClickSelect( geom, add, toggle );
     }
 }
 

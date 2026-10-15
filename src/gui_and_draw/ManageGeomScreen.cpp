@@ -1382,6 +1382,16 @@ void ManageGeomScreen::Set( const std::string &geomId )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void ManageGeomScreen::SetActiveGeoms( const vector < string > & geomIds )
+{
+    m_GeomBrowser->deselect_all();
+    m_VehiclePtr->SetActiveGeomVec( geomIds );
+    m_SelVec = m_VehiclePtr->GetActiveGeomVec();
+
+    SetNeedsShowHideGeoms();
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
 void ManageGeomScreen::TriggerPickSwitch()
 {
     m_PickButton.GetFlButton()->value( !m_PickButton.GetFlButton()->value() );

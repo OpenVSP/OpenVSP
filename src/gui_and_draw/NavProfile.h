@@ -28,6 +28,7 @@ enum NavAction
     NAV_ZOOM_BOX,       // Drag a rectangle; on release it fills the view.
     NAV_BOX_SELECT,     // Drag a rectangle; on release the Fit Model points in it are selected.
     NAV_SET_PIVOT,      // Click: the surface point there becomes the rotation center, centered.
+    NAV_SELECT          // Click: select the Geom there; Shift adds, Ctrl or Cmd toggles.
 };
 
 // When a binding acts.
