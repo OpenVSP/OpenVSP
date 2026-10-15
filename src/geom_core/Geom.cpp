@@ -2579,6 +2579,11 @@ void Geom::UpdateChildren( bool fullupdate )
                 {
                     child->m_XFormDirty = true;
                 }
+                // A human's design eye point, which a super cone hangs off, moves with its surface.
+                else if ( m_UpdateSurf && Geom::CastTo< HumanVertRole >( this ) )
+                {
+                    child->m_XFormDirty = true;
+                }
             }
 
             // We provide a joint, children are force attached.
