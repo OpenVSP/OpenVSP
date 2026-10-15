@@ -139,6 +139,10 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_TurntableMenuItem.Init( this, m_MenuBar, "View/Turntable Rotation", 't' );
     m_BallMenuItem.Init( this, m_MenuBar, "View/Ball Rotation", 'b' );
     m_ZoomBoxMenuItem.Init( this, m_MenuBar, "View/Zoom Box", 'w' );
+    if ( VSPGUI::NavDevice::IsBuilt() )
+    {
+        m_DeviceMenuItem.Init( this, m_MenuBar, "View/Rotatrix Trackball", 'd' );
+    }
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_SetVNMenuItem.Init( this, m_MenuBar, "View/View Normal To", 'n' );
     m_AlignGeomMenuItem.Init( this, m_MenuBar, "View/View Front Of", 'x' );
@@ -216,6 +220,9 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_GlWin->GetNav().SetSettings( nav_settings );
     m_GlWin->GetNav().SetRotateMode( nav_settings.m_StartupRotateMode );
 
+    m_DeviceButton = nullptr;
+    m_DeviceIconOn = nullptr;
+    m_DeviceIconOff = nullptr;
     m_NavDevice = new VSPGUI::NavDevice( m_GlWin );
     m_NavDevice->SetStatusCallback( NavDeviceStatusCB, this );
     if ( nav_settings.m_UseDevice )
@@ -247,6 +254,19 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_BallButton->clear_visible_focus();
 
     int textx = stripx + 2 * iconw;
+    if ( VSPGUI::NavDevice::IsBuilt() )
+    {
+        // Lit while the device is connected; opens its preferences.
+        m_DeviceIconOn = MakeIcon( svg_trackball_icon );
+        m_DeviceIconOff = m_DeviceIconOn->copy();
+        m_DeviceIconOff->desaturate();
+        m_DeviceIconOff->color_average( FL_BACKGROUND_COLOR, 0.4 );
+        m_DeviceButton = new Fl_Button( textx, stripy, iconw, 20 );
+        m_DeviceButton->image( m_DeviceIconOff );
+        m_DeviceButton->callback( staticCB, this );
+        m_DeviceButton->clear_visible_focus();
+        textx += iconw;
+    }
 
     int restw = stripx + stripw - textx;
     int filew = restw * 0.6;
@@ -267,6 +287,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     stretch->hide();
     strip->resizable( stretch );
     strip->end();
+
+    UpdateDeviceButton();
 }
 
 MainVSPScreen::~MainVSPScreen()
@@ -283,9 +305,31 @@ Fl_SVG_Image * MainVSPScreen::MakeIcon( const char * svg )
     return icon;
 }
 
+void MainVSPScreen::UpdateDeviceButton()
+{
+    if ( !m_DeviceButton )
+    {
+        return;
+    }
+
+    m_DeviceTip = "Rotatrix 3D trackball: " + m_NavDevice->GetStatus() + ".  Click for its preferences.";
+    m_DeviceButton->tooltip( m_DeviceTip.c_str() );
+    if ( m_NavDevice->IsAvailable() )
+    {
+        m_DeviceButton->image( m_DeviceIconOn );
+    }
+    else
+    {
+        m_DeviceButton->image( m_DeviceIconOff );
+    }
+    m_DeviceButton->redraw();
+    m_DeviceMenuItem.Update( m_GlWin->GetNav().GetSettings().m_UseDevice );
+}
+
 void MainVSPScreen::NavDeviceStatusCB( void * data )
 {
     MainVSPScreen * screen = ( MainVSPScreen * )data;
+    screen->UpdateDeviceButton();
 
     // Of the screens, only the preferences show it.
     VspScreen * prefs = screen->m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN );
@@ -418,6 +462,17 @@ void MainVSPScreen::CallBack( Fl_Widget* w )
     else if ( w == m_BallButton )
     {
         SetRotateMode( VSPGUI::NAV_ROTATE_BALL );
+    }
+    else if ( w == m_DeviceButton )
+    {
+        // The preferences, on the tab with the device.
+        m_ScreenMgr->ShowScreen( vsp::VSP_PREFERENCES_SCREEN );
+        TabScreen * prefs = dynamic_cast < TabScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN ) );
+        if ( prefs )
+        {
+            prefs->GetTabs()->value( prefs->GetTab( 1 ) );
+            prefs->GetFlWindow()->redraw();
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -754,6 +809,21 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_ZoomBoxMenuItem )
     {
         m_GlWin->GetNav().ArmZoomBox();
+    }
+    else if ( data == &m_DeviceMenuItem )
+    {
+        // Turning the device on or off is a preference, kept like the others.
+        VSPGUI::NavSettings settings = m_GlWin->GetNav().GetSettings();
+        settings.m_UseDevice = !settings.m_UseDevice;
+        settings.Save();
+        SetNavSettings( settings );
+        UpdateDeviceButton();
+
+        VspScreen * prefs = m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN );
+        if ( prefs && prefs->IsShown() )
+        {
+            prefs->Show();
+        }
     }
     else if ( data == &m_CenterMenuItem )
     {

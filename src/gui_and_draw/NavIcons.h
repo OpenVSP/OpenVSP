@@ -16,4 +16,7 @@ extern const char * svg_turntable_icon;
 // A sphere with an equator and a meridian, and an arrow over it.
 extern const char * svg_ball_icon;
 
+// A trackball's ball on its base.
+extern const char * svg_trackball_icon;
+
 #endif
