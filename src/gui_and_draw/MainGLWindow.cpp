@@ -208,8 +208,20 @@ int VspGlWindow::handle( int fl_event )
         return 1;
 
     case FL_PUSH:
+    {
+        // Taking focus can handle other events first, which replace this one's location and state.
+        int ex = Fl::e_x;
+        int ey = Fl::e_y;
+        int estate = Fl::e_state;
+        int ekey = Fl::e_keysym;
+        take_focus();
+        Fl::e_x = ex;
+        Fl::e_y = ey;
+        Fl::e_state = estate;
+        Fl::e_keysym = ekey;
         OnPush( x, y );
         return 1;
+    }
 
     case FL_DRAG:
         OnDrag( x, y );
