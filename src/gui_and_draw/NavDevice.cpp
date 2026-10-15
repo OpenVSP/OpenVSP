@@ -12,6 +12,8 @@
 #ifdef VSP_OPENAXIS
 
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <functional>
 #include <mutex>
 #include <vector>
@@ -349,6 +351,21 @@ void NavDevice::Start()
             };
             m_Impl->m_Session.reset( new openaxis::NavigationSession( *m_Impl->m_Client, *m_Impl->m_Adapter, nullptr,
                                                                       NavOptions( m_Impl->m_Adapter.get() ) ) );
+
+            // For finding out why a device does nothing: the session's events, to a file.
+            const char * log = getenv( "VSP_NAV_LOG" );
+            if ( log )
+            {
+                FILE * f = fopen( log, "a" );
+                if ( f )
+                {
+                    m_Impl->m_Session->diagnostics = [f]( const openaxis::Diagnostic & d )
+                    {
+                        fprintf( f, "%.3f %s %s %s\n", openaxis::diagnostic_time(), d.event.c_str(), d.target.c_str(), d.detail.c_str() );
+                        fflush( f );
+                    };
+                }
+            }
         }
 
         openaxis::OpenAxisConnectionManagerOptions manager_options;
