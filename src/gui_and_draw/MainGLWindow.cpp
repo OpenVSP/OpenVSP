@@ -2522,57 +2522,16 @@ int VspGlWindow::OnKeyup( int x, int y )
         break;
     }
     case FL_F+1:
-        if( Fl::event_state( FL_SHIFT ) )
-        {
-            display->save( 0 );
-        }
-        else
-        {
-            display->load( 0 );
-
-            //===== Update Adjust View Screen with new values =====//
-            UpdateAllViewParms();
-
-        }
-        handled = 1;
-        break;
-
     case FL_F+2:
-        if( Fl::event_state( FL_SHIFT ) )
-        {
-            display->save( 1 );
-        }
-        else
-        {
-            display->load( 1 );
-
-            UpdateAllViewParms();
-        }
-        handled = 1;
-        break;
-
     case FL_F+3:
-        if( Fl::event_state( FL_SHIFT ) )
-        {
-            display->save( 2 );
-        }
-        else
-        {
-            display->load( 2 );
-
-            UpdateAllViewParms();
-        }
-        handled = 1;
-        break;
-
     case FL_F+4:
         if( Fl::event_state( FL_SHIFT ) )
         {
-            display->save( 3 );
+            display->save( key - ( FL_F + 1 ) );
         }
         else
         {
-            display->load( 3 );
+            display->load( key - ( FL_F + 1 ) );
 
             //===== Update Adjust View Screen with new values =====//
             UpdateAllViewParms();
