@@ -37,6 +37,18 @@ const char * svg_ball_icon =
     "<path d=\"M 18.2 3.4 L 14.8 4.4 L 15.6 0.9 Z\" style=\"fill:#1f5fbf;stroke:none\"/>"
     "</svg>";
 
+const char * svg_zup_icon =
+    "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">"
+    // Roll arrow, around the view's axis.
+    "<path d=\"M 5 19.5 A 8.5 8.5 0 0 1 4.2 8\" style=\"fill:none;stroke:#1f5fbf;stroke-width:1.6\"/>"
+    "<path d=\"M 2.2 9.4 L 5.6 5.6 L 6.4 10.6 Z\" style=\"fill:#1f5fbf;stroke:none\"/>"
+    // Upright axis with its arrowhead.
+    "<path d=\"M 12 22 L 12 6\" style=\"fill:none;stroke:#404040;stroke-width:1.8\"/>"
+    "<path d=\"M 12 1.5 L 8.8 7 L 15.2 7 Z\" style=\"fill:#404040;stroke:none\"/>"
+    // The letter Z.
+    "<path d=\"M 15 10 L 21 10 L 15 17 L 21 17\" style=\"fill:none;stroke:#404040;stroke-width:1.6\"/>"
+    "</svg>";
+
 const char * svg_trackball_icon =
     "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">"
     // Base.

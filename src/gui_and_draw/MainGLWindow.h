@@ -287,6 +287,10 @@ protected:
     int m_mouse_y;
     bool m_PointerInside;
 
+    // z went down with no modifier and no button has been pressed since.
+    bool m_ZTap;
+    bool m_ZDown;
+
     NavController m_Nav;
 
     VSPGraphic::DepthProbe m_Probe;

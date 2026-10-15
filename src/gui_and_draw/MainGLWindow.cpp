@@ -84,6 +84,8 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
 
     m_mouse_x = m_mouse_y = 0xFFFFFFF;
     m_PointerInside = false;
+    m_ZTap = false;
+    m_ZDown = false;
 
     m_initialized = false;
 
@@ -217,11 +219,15 @@ int VspGlWindow::handle( int fl_event )
         cursor( FL_CURSOR_DEFAULT );
         // A key released while the pointer is elsewhere, e.g. over an open menu, is never seen here.
         m_Nav.ClearKeys();
+        m_ZTap = false;
+        m_ZDown = false;
         m_EscCancelled = false;
         return 1;
 
     case FL_PUSH:
     {
+        m_ZTap = false;
+
         // Taking focus can handle other events first, which replace this one's location and state.
         int ex = Fl::e_x;
         int ey = Fl::e_y;
@@ -2705,6 +2711,15 @@ int VspGlWindow::OnKeyup( int x, int y )
 
     switch( key )
     {
+    case 'z':
+        if ( m_ZTap && m_Nav.LevelZUp() )
+        {
+            ViewChanged();
+        }
+        m_ZTap = false;
+        m_ZDown = false;
+        handled = 1;
+        break;
     case FL_Escape:
     {
         // This Esc ended a gesture; it does not also clear the selection.
@@ -2756,6 +2771,19 @@ int VspGlWindow::OnKeydown()
     key = tolower(key);  // not utf-8 safe, but oh well...
 
     m_Nav.KeyDown( key );
+
+    // A tap of z alone levels the view on its release; z held with a drag rolls instead.  The
+    // press is kept from the menu's z shortcut, which would level it at once.
+    if ( key == 'z' && !Fl::event_state( FL_SHIFT | FL_CTRL | FL_ALT | FL_META ) )
+    {
+        // Auto repeat sends more presses; only the first can start a tap.
+        if ( !m_ZDown && !Fl::event_state( FL_BUTTONS ) )
+        {
+            m_ZTap = true;
+        }
+        m_ZDown = true;
+        handled = 1;
+    }
 
     if ( key == FL_Escape && m_Nav.Cancel() )
     {

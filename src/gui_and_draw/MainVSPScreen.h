@@ -81,6 +81,9 @@ public:
     // Rotation used by the next rotate gesture: NAV_ROTATE_BALL or NAV_ROTATE_TURNTABLE.
     void SetRotateMode( int mode );
 
+    // Turn the view about the screen's axis until Z points up.
+    void LevelZUp();
+
     // Apply new 3D interaction preferences.
     void SetNavSettings( const VSPGUI::NavSettings & settings );
 
@@ -153,6 +156,7 @@ protected:
     VSPCheckMenuItem m_TurntableMenuItem;
     VSPCheckMenuItem m_BallMenuItem;
     VSPCheckMenuItem m_DeviceMenuItem;
+    ActionMenuItem m_ZUpMenuItem;
     ActionMenuItem m_ZoomBoxMenuItem;
     ActionMenuItem m_CenterMenuItem;
     ActionMenuItem m_CenterAllMenuItem;
@@ -213,6 +217,7 @@ protected:
     Fl_Box * m_FileNameBox;
     Fl_Button * m_TurntableButton;
     Fl_Button * m_BallButton;
+    Fl_Button * m_ZUpButton;
     Fl_Button * m_DeviceButton;
     Fl_SVG_Image * m_DeviceIconOn;
     Fl_Image * m_DeviceIconOff;

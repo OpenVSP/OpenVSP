@@ -1150,6 +1150,50 @@ void NavController::ApplyAxes( const glm::dvec3 & rotation, const glm::dvec3 & t
     m_Win->redraw();
 }
 
+bool NavController::LevelZUp()
+{
+    VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
+    if ( !camera )
+    {
+        return false;
+    }
+
+    // World Z in eye axes.
+    glm::dvec3 z = glm::dquat( camera->getViewRotation() ) * glm::dvec3( 0.0, 0.0, 1.0 );
+    bool moved = false;
+
+    // Looking along Z, tip the view a quarter turn about the screen's x axis, the way that
+    // brings Z up the screen.
+    if ( std::hypot( z.x, z.y ) < 1e-6 )
+    {
+        double tip = -0.5 * M_PI;
+        if ( z.z < 0.0 )
+        {
+            tip = 0.5 * M_PI;
+        }
+        camera->rotateEye( glm::dvec3( tip, 0.0, 0.0 ) );
+        z = glm::dquat( camera->getViewRotation() ) * glm::dvec3( 0.0, 0.0, 1.0 );
+        moved = true;
+    }
+
+    // Turning about the screen's axis by Z's angle from screen up brings it upright.
+    double angle = std::atan2( z.x, z.y );
+    if ( std::abs( angle ) > 1e-9 )
+    {
+        camera->rotateEye( glm::dvec3( 0.0, 0.0, angle ) );
+        moved = true;
+    }
+    if ( !moved )
+    {
+        return false;
+    }
+
+    m_Win->UpdateRotationParms();
+    m_Win->UpdatePanParms();
+    m_Win->redraw();
+    return true;
+}
+
 void NavController::KeyDown( int key )
 {
     m_HeldKeys.insert( key );
