@@ -1653,14 +1653,28 @@ void WingGeom::SplitWingSect( int index  )
         double rc = ws->m_RootChord();
         double ac = ws->m_AvgChord();
         double tc = ws->m_TipChord();
-        double twist = 0.5*ws->m_Twist();
+
+        // Relative twist splits in half; absolute twist puts the new airfoil halfway between its neighbors.
+        double twist_in = 0.5 * ws->m_Twist();
+        double twist_out = twist_in;
+        if ( !m_RelativeTwistFlag() )
+        {
+            double twist_prev = 0.0;
+            WingSect* prev_ws = GetWingSect( index - 1 );
+            if ( prev_ws )
+            {
+                twist_prev = prev_ws->m_Twist();
+            }
+            twist_in = 0.5 * ( twist_prev + ws->m_Twist() );
+            twist_out = ws->m_Twist();
+        }
 
         int curve_type = ws->GetXSecCurve()->GetType();
 
         string ins_id = m_XSecSurf.InsertXSec( curve_type, index );
 
         ws->ForceSpanRcTc( span*0.5, rc, ac );
-        ws->m_Twist = twist;
+        ws->m_Twist = twist_in;
         ws->Update();
 
         XSec* xs = m_XSecSurf.FindXSec( ins_id );
@@ -1669,7 +1683,7 @@ void WingGeom::SplitWingSect( int index  )
             WingSect* ins_ws = dynamic_cast< WingSect* >(xs);
             ins_ws->CopyFrom( ws );
             ins_ws->ForceSpanRcTc( span*0.5, ac, tc );
-            ins_ws->m_Twist = twist;
+            ins_ws->m_Twist = twist_out;
             ins_ws->Update();
         }
     }
