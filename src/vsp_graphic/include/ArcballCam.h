@@ -85,6 +85,16 @@ public:
     glm::vec3 getRotationEulerAngles();
 
     /*!
+    * Rotation from world to eye coordinates, as a unit quaternion.
+    */
+    glm::quat getViewRotation();
+
+    /*!
+    * Set the rotation from world to eye coordinates.
+    */
+    void setViewRotation( const glm::quat & rot );
+
+    /*!
     * Panning the scene.
     *
     * px, py - previous xy mouse location.
