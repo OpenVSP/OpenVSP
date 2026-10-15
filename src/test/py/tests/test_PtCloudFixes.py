@@ -41,3 +41,13 @@ def test_a_point_that_misses_stays_put( tmp_path ):
     hi = vsp.GetGeomBBoxMax( gid )
     assert abs( lo.z() - 0.5954 ) < 1e-3
     assert abs( hi.x() - 9.0 ) < 1e-12 and abs( hi.z() - 5.0 ) < 1e-12
+
+
+def test_the_convex_hull_is_where_the_cloud_is( tmp_path ):
+    gid = read_cloud( tmp_path, "0 0 0\n1 0 0\n0 1 0\n0 0 1\n1 1 1\n" )
+    vsp.SetParmVal( gid, "X_Rel_Location", "XForm", 10.0 )
+    vsp.Update()
+    hull = vsp.CreateConvexHull( gid )
+    vsp.Update()
+    assert list( vsp.GetGeomBBoxMin( hull ) ) == [ 10.0, 0.0, 0.0 ]
+    assert list( vsp.GetGeomBBoxMax( hull ) ) == [ 11.0, 1.0, 1.0 ]

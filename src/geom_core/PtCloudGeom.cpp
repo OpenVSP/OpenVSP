@@ -510,13 +510,18 @@ void PtCloudGeom::CreateConvexHull()
 
     int npts = m_Pts.size();
 
+    // The hull is a new mesh at the model origin, so it is built from the points placed by the cloud's XForm.
+    Matrix4d transMat = GetTotalTransMat();
+    vector < vec3d > placed( npts );
+
     gte::Vector3 < double > *pts = new gte::Vector3 < double > [ npts ];
 
     for ( int i = 0 ; i < ( int )npts ; i++ )
     {
-        pts[i][0] = m_Pts[i].x();
-        pts[i][1] = m_Pts[i].y();
-        pts[i][2] = m_Pts[i].z();
+        placed[i] = transMat.xform( m_Pts[i] );
+        pts[i][0] = placed[i].x();
+        pts[i][1] = placed[i].y();
+        pts[i][2] = placed[i].z();
     }
 
 
@@ -555,7 +560,7 @@ void PtCloudGeom::CreateConvexHull()
                 if ( vused[i] )
                 {
                     TNode *n = new TNode();
-                    n->m_Pnt = m_Pts[ i ];
+                    n->m_Pnt = placed[ i ];
                     n->m_ID = i;
                     tMesh->m_NVec.push_back( n );
                     vxref[i] = iused;
