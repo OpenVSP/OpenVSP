@@ -116,7 +116,7 @@ XSecCurve::XSecCurve()
     m_LECapStrength.Init( "LE_Cap_Strength", "Cap", this, 0.5, 0, 1);
 
     m_TEFlapType.Init( "TE_Flap_Type", "Flap", this, FLAP_NONE, FLAP_NONE, FLAP_NUM_TYPES - 1 );
-    m_TEFlapAbsRel.Init( "TE_Trim_AbsRel", "Flap", this, REL, ABS, REL );
+    m_TEFlapAbsRel.Init( "TE_Flap_AbsRel", "Flap", this, REL, ABS, REL );
 
     m_TEFlapX.Init( "TE_Flap_X", "Flap", this, 0, 0, 1e12 );
     m_TEFlapX.SetDescript( "X length to lap trailing edge" );
@@ -551,6 +551,26 @@ xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
 xmlNodePtr XSecCurve::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
+
+    //=========================================================================================//
+    // Work-around for buggy files: files written before the flap's Abs/Rel Parm was named
+    // TE_Flap_AbsRel store it as TE_Trim_AbsRel in the Flap group.
+    xmlNodePtr pc_node = XmlUtil::GetNode( node, "ParmContainer", 0 );
+    if ( pc_node )
+    {
+        xmlNodePtr flap_node = XmlUtil::GetNode( pc_node, "Flap", 0 );
+        if ( flap_node && !XmlUtil::GetNode( flap_node, "TE_Flap_AbsRel", 0 ) )
+        {
+            xmlNodePtr old_node = XmlUtil::GetNode( flap_node, "TE_Trim_AbsRel", 0 );
+            if ( old_node )
+            {
+                m_TEFlapAbsRel.DecodeXmlNode( old_node );
+            }
+        }
+    }
+    // End of work-around for buggy files.
+    //=========================================================================================//
+
     m_GroupName = XmlUtil::FindString( node, "GroupName", m_GroupName );
 
     xmlNodePtr xscrv_node = XmlUtil::GetNode( node, "XSecCurve", 0 );

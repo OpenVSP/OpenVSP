@@ -103,6 +103,43 @@ def testAnAncestorSetterTakesOnlyAnAncestor():
     assert vsp.GetGeomSymAncestorID( child ) == ""
 
 
+def testTheFlapAbsRelHasItsOwnName( tmp_path ):
+    """The flap's Abs/Rel is TE_Flap_AbsRel; a file that calls it TE_Trim_AbsRel still reads it."""
+    vsp.VSPRenew()
+    drop_errors()
+    wid = vsp.AddGeom( "WING" )
+    vsp.Update()
+    xs = vsp.GetXSec( vsp.GetXSecSurf( wid, 0 ), 1 )
+
+    flap = vsp.GetXSecParm( xs, "TE_Flap_AbsRel" )
+    trim = vsp.GetXSecParm( xs, "TE_Trim_AbsRel" )
+    assert flap and trim and flap != trim
+    assert vsp.GetParmGroupName( flap ) == "Flap"
+    assert vsp.GetParmGroupName( trim ) == "Trim"
+
+    vsp.SetParmVal( flap, vsp.ABS )
+    vsp.SetParmVal( trim, vsp.REL )
+    vsp.Update()
+
+    fname = str( tmp_path / "flap_absrel.vsp3" )
+    vsp.WriteVSPFile( fname )
+
+    # Write the file as an older version did, with the flap's Parm under the trim's name.
+    with open( fname ) as f:
+        text = f.read()
+    assert "TE_Flap_AbsRel" in text
+    with open( fname, "w" ) as f:
+        f.write( text.replace( "TE_Flap_AbsRel", "TE_Trim_AbsRel" ) )
+
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( fname )
+    vsp.Update()
+    wid = vsp.FindGeoms()[0]
+    xs = vsp.GetXSec( vsp.GetXSecSurf( wid, 0 ), 1 )
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "TE_Flap_AbsRel" ) ) == vsp.ABS
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "TE_Trim_AbsRel" ) ) == vsp.REL
+
+
 def testSixSeriesTakesOnlyTheSeriesThereAre():
     """The Six Series Series Parm stops at 65A, the last series."""
     vsp.VSPRenew()
