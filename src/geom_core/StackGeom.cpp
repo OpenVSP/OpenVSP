@@ -1008,6 +1008,16 @@ xmlNodePtr StackGeom::DecodeXml( xmlNodePtr & node )
 void StackGeom::CutXSec( int index )
 {
     m_XSecSurf.CutXSec( index );
+
+    // Each section is placed from the one before it, so every section after the cut is placed again.
+    for ( int i = index; i < m_XSecSurf.NumXSec(); i++ )
+    {
+        XSec* xs = m_XSecSurf.FindXSec( i );
+        if ( xs )
+        {
+            xs->SetLateUpdateFlag( true );
+        }
+    }
     // Set up flag so Update() knows to regenerate surface.
     // Insert / split cases don't need this because Parms are added,
     // which implicitly triggers this flag.

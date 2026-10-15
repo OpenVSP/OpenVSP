@@ -24,3 +24,12 @@ def test_insert_after_the_last_section_places_it():
     assert vsp.GetNumXSec( surf ) == n + 1
     assert vsp.GetParmVal( vsp.GetXSecParm( vsp.GetXSec( surf, n ), "XDelta" ) ) == last_dx
     assert abs( vsp.GetGeomBBoxMax( sid ).x() - ( before + last_dx ) ) < 1e-9
+
+
+def test_cut_moves_the_later_sections_at_once():
+    sid, surf = new_stack()
+    before = vsp.GetGeomBBoxMax( sid ).x()
+    cut_dx = vsp.GetParmVal( vsp.GetXSecParm( vsp.GetXSec( surf, 1 ), "XDelta" ) )
+    vsp.CutXSec( sid, 1 )
+    vsp.Update()
+    assert abs( vsp.GetGeomBBoxMax( sid ).x() - ( before - cut_dx ) ) < 1e-9
