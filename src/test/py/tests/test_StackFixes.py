@@ -33,3 +33,14 @@ def test_cut_moves_the_later_sections_at_once():
     vsp.CutXSec( sid, 1 )
     vsp.Update()
     assert abs( vsp.GetGeomBBoxMax( sid ).x() - ( before - cut_dx ) ) < 1e-9
+
+
+def test_a_flowpath_in_negative_only_mode_is_negative():
+    sid, surf = new_stack()
+    vsp.InitStackPreset( sid, vsp.STACK_PRESET_FLOWPATH_BOTH )
+    vsp.Update()
+    for mode in ( vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ):
+        vsp.SetParmVal( sid, "InletModeType", "EngineModel", mode )
+        vsp.Update()
+        assert vsp.GetNumMainSurfs( sid ) == 1, mode
+        assert vsp.GetGeomVSPSurfCfdType( sid, 0 ) == vsp.CFD_NEGATIVE, mode

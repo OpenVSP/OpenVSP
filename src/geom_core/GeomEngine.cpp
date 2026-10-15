@@ -604,13 +604,11 @@ void GeomEngine::UpdateEngine()
                     surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, -ptoff, false );
                 }
 
-                if ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG )
+                // The flowpath is the only surface here, so both negative modes make it negative.
+                if ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG ||
+                     m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
                 {
                     surf.SetSurfCfdType( vsp::CFD_NEGATIVE );
-                }
-                else if ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
-                {
-                    surf2.SetSurfCfdType( vsp::CFD_NEGATIVE );
                 }
             }
             else if ( m_EngineGeomIOType() == ENGINE_GEOM_OUTLET ) // Outlet description
