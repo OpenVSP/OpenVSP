@@ -161,6 +161,26 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ViewLayout.AddChoice( m_ZoomSpeedChoice, "Zoom Speed" );
     m_ZoomSpeedChoice.GetFlChoice()->tooltip( "Speed of the wheel by scroll amount and of the drag by distance" );
 
+    //==== Mouse Buttons ====//
+    Fl_Group * buttons_tab = AddTab( "Mouse Buttons" );
+    Fl_Group * buttons_group = AddSubGroup( buttons_tab, 5 );
+    m_ButtonsLayout.SetGroupAndScreen( buttons_group, this );
+
+    int label_w = m_ButtonsLayout.GetChoiceButtonWidth();
+
+    m_ButtonsLayout.AddDividerBox( "All Bindings" );
+
+    m_ButtonsLayout.SetChoiceButtonWidth( 130 );
+
+    m_EmulateMiddleChoice.AddItem( "As bound", 0 );
+    m_EmulateMiddleChoice.AddItem( "Middle button", 1 );
+    m_EmulateMiddleChoice.UpdateItems();
+    m_ButtonsLayout.AddChoice( m_EmulateMiddleChoice, "Alt + Left" );
+    m_EmulateMiddleChoice.GetFlChoice()->tooltip( "Middle button: Alt (Option) with the left button acts as the middle button, for mice and trackpads without one.  Not where the mouse buttons bind Alt + left themselves, as OpenVSP's own do.  Some Linux desktops take Alt + drag to move windows." );
+
+    m_ButtonsLayout.SetChoiceButtonWidth( label_w );
+    m_ButtonsLayout.AddYGap();
+
     //==== Bottom ====//
     m_BottomLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_BottomLayout.SetY( m_FLTK_Window->h() - 27 );
@@ -222,6 +242,7 @@ void PreferencesScreen::ShowNav()
     ShowBallSpeed();
     m_BallOutlineChoice.SetVal( ( int )m_Nav.m_ShowBallOutline );
     m_PivotChoice.SetVal( m_Nav.m_Pivot );
+    m_EmulateMiddleChoice.SetVal( ( int )m_Nav.m_EmulateMiddle );
     m_TurntableSpeedChoice.SetVal( NearestIndex( TURNTABLE_GAINS, 4, m_Nav.m_TurntableGain ) );
 
     m_WheelDirChoice.SetVal( ( int )m_Nav.m_WheelReverse );
@@ -302,6 +323,10 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_PivotChoice )
     {
         m_Nav.m_Pivot = m_PivotChoice.GetVal();
+    }
+    else if ( device == &m_EmulateMiddleChoice )
+    {
+        m_Nav.m_EmulateMiddle = ( m_EmulateMiddleChoice.GetVal() != 0 );
     }
     else if ( device == &m_TurntableSpeedChoice )
     {

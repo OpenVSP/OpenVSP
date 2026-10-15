@@ -86,6 +86,11 @@ protected:
     Choice m_DragZoomLawChoice;
     Choice m_ZoomSpeedChoice;
 
+    // Mouse Buttons tab.
+    GroupLayout m_ButtonsLayout;
+
+    Choice m_EmulateMiddleChoice;
+
     // Bottom of the window.
     GroupLayout m_BottomLayout;
     TriggerButton m_DefaultsButton;
