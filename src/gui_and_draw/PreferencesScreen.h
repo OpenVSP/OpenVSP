@@ -105,6 +105,9 @@ protected:
     Choice m_DragZoomLawChoice;
     Choice m_ZoomSpeedChoice;
 
+    Choice m_DeviceChoice;
+    StringOutput m_DeviceStatus;
+
     std::string m_ProfileTip;
 
     // Mouse Buttons tab.

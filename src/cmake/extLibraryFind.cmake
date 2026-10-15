@@ -74,6 +74,41 @@ IF( NOT VSP_NO_GRAPHICS )
 
     SET( CMAKE_PREFIX_PATH ${GLM_INSTALL_DIR} ${ORIG_CMAKE_PREFIX_PATH} )
     FIND_PACKAGE( GLM )
+
+    # The Rotatrix OpenAxis SDK, linked from its build tree.
+    IF( VSP_ENABLE_OPENAXIS )
+        find_library( OPENAXIS_LIBRARY NAMES openaxis
+                HINTS ${OPENAXIS_BINARY_DIR}
+                PATH_SUFFIXES Release RelWithDebInfo Debug MinSizeRel
+                NO_DEFAULT_PATH
+        )
+        find_library( OPENAXIS_IXWEBSOCKET_LIBRARY NAMES openaxis_ixwebsocket
+                HINTS ${OPENAXIS_BINARY_DIR}/third_party/ixwebsocket
+                PATH_SUFFIXES Release RelWithDebInfo Debug MinSizeRel
+                NO_DEFAULT_PATH
+        )
+        SET( OPENAXIS_INCLUDE_DIRS ${OPENAXIS_SOURCE_DIR}/cpp/include ${NLOHMANN_JSON_INSTALL_DIR}/include )
+
+        FIND_PACKAGE( Threads REQUIRED )
+        SET( OPENAXIS_LIBRARIES ${OPENAXIS_LIBRARY} ${OPENAXIS_IXWEBSOCKET_LIBRARY} Threads::Threads )
+        IF( WIN32 )
+            SET( OPENAXIS_LIBRARIES ${OPENAXIS_LIBRARIES} bcrypt wsock32 ws2_32 shlwapi )
+        ELSE()
+            # The bundled LibreSSL, never the system's.
+            find_library( LIBRESSL_CRYPTO_LIBRARY NAMES crypto
+                    HINTS ${LIBRESSL_INSTALL_DIR}/lib
+                    NO_DEFAULT_PATH
+            )
+            SET( OPENAXIS_LIBRARIES ${OPENAXIS_LIBRARIES} ${LIBRESSL_CRYPTO_LIBRARY} )
+            IF( NOT LIBRESSL_CRYPTO_LIBRARY )
+                MESSAGE( FATAL_ERROR "VSP_ENABLE_OPENAXIS is set, but LibreSSL's libcrypto is not in ${LIBRESSL_INSTALL_DIR}/lib" )
+            ENDIF()
+        ENDIF()
+
+        IF( NOT OPENAXIS_LIBRARY OR NOT OPENAXIS_IXWEBSOCKET_LIBRARY )
+            MESSAGE( FATAL_ERROR "VSP_ENABLE_OPENAXIS is set, but the OpenAxis libraries are not in ${OPENAXIS_BINARY_DIR}" )
+        ENDIF()
+    ENDIF()
 ENDIF()
 
 SET( CMAKE_PREFIX_PATH ${ORIG_CMAKE_PREFIX_PATH} )

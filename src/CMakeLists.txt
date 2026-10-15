@@ -158,6 +158,7 @@ SET( VSP_JUST_G_LIBRARIES
     fltk::gl
     fltk::images
     ${OPENGL_LIBRARIES}
+    ${OPENAXIS_LIBRARIES}
 )
 
 SET( VSP_G_LIBRARIES_API_FIRST
@@ -451,6 +452,16 @@ INSTALL( DIRECTORY ../examples/scripts/ DESTINATION scripts )
 INSTALL( DIRECTORY ../examples/textures/ DESTINATION textures )
 INSTALL( DIRECTORY ../examples/vspaero_ex/ DESTINATION vspaero_ex )
 INSTALL( FILES ../LICENSE DESTINATION . )
+IF( VSP_ENABLE_OPENAXIS AND NOT VSP_NO_GRAPHICS )
+    # Notices for the device support linked into OpenVSP.
+    INSTALL( FILES ${OPENAXIS_SOURCE_DIR}/LICENSE DESTINATION licenses/openaxis )
+    INSTALL( FILES ${OPENAXIS_SOURCE_DIR}/LEGAL.md DESTINATION licenses/openaxis )
+    INSTALL( FILES ${OPENAXIS_SOURCE_DIR}/cpp/third_party/ixwebsocket/LICENSE.txt DESTINATION licenses/ixwebsocket )
+    INSTALL( FILES ${NLOHMANN_JSON_SOURCE_DIR}/LICENSE.MIT DESTINATION licenses/nlohmann_json )
+    IF( NOT WIN32 )
+        INSTALL( FILES ${LIBRESSL_SOURCE_DIR}/COPYING DESTINATION licenses/libressl )
+    ENDIF()
+ENDIF()
 INSTALL( FILES ../README.md DESTINATION . )
 INSTALL( FILES ../CHANGELOG.md DESTINATION . )
 INSTALL( FILES ../vspIcon.png DESTINATION .)

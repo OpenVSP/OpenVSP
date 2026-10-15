@@ -54,6 +54,8 @@ NavSettings::NavSettings()
 
     m_EmulateMiddle = false;
 
+    m_UseDevice = true;
+
     m_Profile = NavProfile::Preset( NAV_PRESET_OPENVSP );
 }
 
@@ -242,6 +244,7 @@ void NavSettings::Load()
     m_Pivot = GetChoice( grp, "Pivot", PIVOT_NAMES, 2, def.m_Pivot );
 
     m_EmulateMiddle = GetFlag( grp, "EmulateMiddle", def.m_EmulateMiddle );
+    m_UseDevice = GetFlag( grp, "UseDevice", def.m_UseDevice );
 
     grp.get( "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
     if ( m_Profile.m_ClickDistance < 0 || m_Profile.m_ClickDistance > 50 )
@@ -341,6 +344,7 @@ void NavSettings::Save() const
     SaveFlag( grp, "ShowBallOutline", m_ShowBallOutline, def.m_ShowBallOutline );
     SaveName( grp, "Pivot", PIVOT_NAMES[ m_Pivot ], PIVOT_NAMES[ def.m_Pivot ] );
     SaveFlag( grp, "EmulateMiddle", m_EmulateMiddle, def.m_EmulateMiddle );
+    SaveFlag( grp, "UseDevice", m_UseDevice, def.m_UseDevice );
     SaveName( grp, "Bindings", m_Profile.BindingsText().c_str(), def.m_Profile.BindingsText().c_str() );
     SaveInt( grp, "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
     SaveFlag( grp, "ChordEnds", m_Profile.m_ChordEnds, def.m_Profile.m_ChordEnds );

@@ -216,6 +216,13 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_GlWin->GetNav().SetSettings( nav_settings );
     m_GlWin->GetNav().SetRotateMode( nav_settings.m_StartupRotateMode );
 
+    m_NavDevice = new VSPGUI::NavDevice( m_GlWin );
+    m_NavDevice->SetStatusCallback( NavDeviceStatusCB, this );
+    if ( nav_settings.m_UseDevice )
+    {
+        m_NavDevice->Start();
+    }
+
     // The bottom strip: the buttons at the left keep their size; the file name and title take
     // the rest.
     int iconw = 30;
@@ -264,6 +271,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
 MainVSPScreen::~MainVSPScreen()
 {
+    delete m_NavDevice;
     delete m_GlWin;
 }
 
@@ -273,6 +281,18 @@ Fl_SVG_Image * MainVSPScreen::MakeIcon( const char * svg )
     Fl_SVG_Image * icon = new Fl_SVG_Image( nullptr, svg );
     icon->resize( 18, 18 );
     return icon;
+}
+
+void MainVSPScreen::NavDeviceStatusCB( void * data )
+{
+    MainVSPScreen * screen = ( MainVSPScreen * )data;
+
+    // Of the screens, only the preferences show it.
+    VspScreen * prefs = screen->m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN );
+    if ( prefs && prefs->IsShown() )
+    {
+        prefs->Update();
+    }
 }
 
 //==== Show Main VSP Screen ====//
@@ -424,6 +444,15 @@ void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
     if ( settings.m_StartupRotateMode != old_startup )
     {
         SetRotateMode( settings.m_StartupRotateMode );
+    }
+
+    if ( settings.m_UseDevice && !m_NavDevice->IsStarted() )
+    {
+        m_NavDevice->Start();
+    }
+    else if ( !settings.m_UseDevice && m_NavDevice->IsStarted() )
+    {
+        m_NavDevice->Stop();
     }
 }
 

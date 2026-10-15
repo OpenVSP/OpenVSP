@@ -98,6 +98,8 @@ struct NavSettings
 
     bool m_EmulateMiddle;       // Alt + left button acts as the middle button.
 
+    bool m_UseDevice;           // Look for a 3D input device and use it when there is one.
+
     NavProfile m_Profile;       // The mouse bindings.
 
     // Set what a preset sets: the bindings, how rotation starts and what it turns about, and
