@@ -550,8 +550,10 @@ void VspGlWindow::UpdateViewportParms()
             Vehicle *veh = VehicleMgr.GetVehicle();
             if ( veh )
             {
+                veh->m_ViewFromCamera = true;
                 veh->m_ViewportSizeXValue.Set( pixel_w() );
                 veh->m_ViewportSizeYValue.Set( pixel_h() );
+                veh->m_ViewFromCamera = false;
             }
         }
     }
@@ -573,9 +575,11 @@ void VspGlWindow::UpdateCORParms()
             {
                 glm::vec3 center = getCOR();
 
+                veh->m_ViewFromCamera = true;
                 veh->m_CORXValue.Set( center.x );
                 veh->m_CORYValue.Set( center.y );
                 veh->m_CORZValue.Set( center.z );
+                veh->m_ViewFromCamera = false;
             }
         }
     }
@@ -596,8 +600,11 @@ void VspGlWindow::UpdatePanParms()
             if ( veh )
             {
                 glm::vec2 currentPan = getPanValues();
+
+                veh->m_ViewFromCamera = true;
                 veh->m_PanXPosValue.Set( currentPan.x );
                 veh->m_PanYPosValue.Set( currentPan.y );
+                veh->m_ViewFromCamera = false;
             }
         }
     }
@@ -617,7 +624,18 @@ void VspGlWindow::UpdateZoomParms()
 
             if ( veh )
             {
-                veh->m_ZoomValue.Set( getRelativeZoomValue() );
+                double zoom = getRelativeZoomValue();
+
+                veh->m_ViewFromCamera = true;
+                veh->m_ZoomValue.Set( zoom );
+                veh->m_ViewFromCamera = false;
+
+                // The Parm's limits are tighter than the camera's, so a clamped value goes back.
+                // The comparison allows for the camera's float, which sits just below the Parm's 1e-6.
+                if ( std::abs( veh->m_ZoomValue.Get() - zoom ) > 1.0e-6 * zoom )
+                {
+                    veh->m_ViewDirty = true;
+                }
             }
         }
     }
@@ -639,9 +657,11 @@ void VspGlWindow::UpdateRotationParms()
             {
                 glm::vec3 eulerValues = getRotationEulerAngles();
 
+                veh->m_ViewFromCamera = true;
                 veh->m_XRotationValue.Set( eulerValues[0] * ( 180.0 / M_PI ) );
                 veh->m_YRotationValue.Set( eulerValues[1] * ( 180.0 / M_PI ) );
                 veh->m_ZRotationValue.Set( eulerValues[2] * ( 180.0 / M_PI ) );
+                veh->m_ViewFromCamera = false;
             }
         }
     }

@@ -583,6 +583,9 @@ public:
 
     bool m_ViewDirty;
 
+    // True while the camera writes its own state to the view Parms, which need not be sent back.
+    bool m_ViewFromCamera;
+
     // ScreenshotScreen
     FractionParm m_NewRatioValue;
     IntParm m_NewWidthValue;

@@ -360,6 +360,7 @@ Vehicle::Vehicle()
     m_ColorCount = 0;
 
     m_ViewDirty = true;
+    m_ViewFromCamera = false;
 
     m_SavedXSec = nullptr;
     m_SavedXSecCurve = nullptr;
@@ -926,7 +927,9 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
         return;
     }
 
-    if ( parm_ptr && parm_ptr->GetGroupName() == string( "AdjustView" ) )
+    // A view Parm the camera writes need not go back to it, but one set by a link does.
+    if ( parm_ptr && parm_ptr->GetGroupName() == string( "AdjustView" ) &&
+         ( !m_ViewFromCamera || type == Parm::SET_FROM_LINK ) )
     {
         m_ViewDirty = true;
     }
