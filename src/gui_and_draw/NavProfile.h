@@ -69,6 +69,9 @@ struct NavBinding
     bool m_PickFirst;       // Offer the press to the scene's picking before starting the gesture.
 };
 
+bool operator==( const NavBinding & a, const NavBinding & b );
+bool operator!=( const NavBinding & a, const NavBinding & b );
+
 // A binding for exactly these buttons and modifiers, acting on drag, anywhere.
 NavBinding NavBind( int buttons, int modifiers, NavAction action );
 
@@ -94,6 +97,31 @@ struct NavPress
     int m_Conditions;           // NavCondition bits that hold.
 };
 
+// The built-in profiles.  Each but the first is like the program it is named for, as far as
+// a binding table can be; none is an exact copy.
+enum NavPreset
+{
+    NAV_PRESET_OPENVSP,
+    NAV_PRESET_SOLIDWORKS,
+    NAV_PRESET_CREO_BLENDER,
+    NAV_PRESET_NX,
+    NAV_PRESET_CATIA,
+    NAV_PRESET_INVENTOR_FUSION,
+    NAV_PRESET_3DS_MAX,
+    NAV_PRESET_MAYA,
+    NAV_PRESET_ABAQUS,
+    NAV_PRESET_RHINO,
+    NAV_PRESET_ONSHAPE,
+    NAV_PRESET_POINTWISE,
+    NAV_PRESET_HYPERMESH,
+    NAV_PRESET_HYPERWORKS,
+    NAV_PRESET_PARAVIEW,
+    NAV_PRESET_ENSIGHT,
+    NAV_PRESET_STARCCM,
+    NAV_PRESET_TECPLOT,
+    NAV_NUM_PRESETS
+};
+
 // An ordered list of bindings and how presses become drags and clicks.
 class NavProfile
 {
@@ -104,8 +132,23 @@ public:
     // OpenVSP's bindings as of 3.55.
     static NavProfile Classic();
 
+    // A built-in profile, by NavPreset.  An unknown value gives Classic.
+    static NavProfile Preset( int preset );
+
+    // The name a preset is stored by, which never changes.
+    static const char * PresetKey( int preset );
+
+    // Other programs whose mouse bindings a preset is also like, for people, or "".
+    static const char * PresetAlsoLike( int preset );
+
+    // A preset's name, followed by the other programs it is like.
+    static std::string PresetLabel( int preset );
+
     // The first binding with this trigger that matches the press, or null.
     const NavBinding * Match( const NavPress & press, int trigger ) const;
+
+    // What the bindings do, for people: "Rotate: Middle; Pan: Ctrl+Middle; ...".
+    std::string Summary() const;
 
     // True if a binding needs to know whether the press is on geometry.
     bool NeedsWhere() const;
@@ -118,6 +161,10 @@ public:
     // and leave them as they were.
     bool SetBindingsText( const std::string & text );
 
+    // Same bindings, click distance and chord rule; the name is not compared.
+    bool SameBehavior( const NavProfile & other ) const;
+
+    std::string m_Name;         // Shown to the user.
     std::vector < NavBinding > m_Bindings;
 
     // Screen points a press must move before it is a drag.  At 0 a drag starts at the press,

@@ -19,6 +19,26 @@ namespace VSPGUI
 static const int NAV_ALL_BUTTONS = FL_BUTTON1 | FL_BUTTON2 | FL_BUTTON3;
 static const int NAV_ALL_MODIFIERS = FL_SHIFT | FL_CTRL | FL_ALT | FL_META;
 
+bool operator==( const NavBinding & a, const NavBinding & b )
+{
+    return a.m_Buttons == b.m_Buttons &&
+           a.m_OtherButtons == b.m_OtherButtons &&
+           a.m_Modifiers == b.m_Modifiers &&
+           a.m_OtherModifiers == b.m_OtherModifiers &&
+           a.m_HeldKey == b.m_HeldKey &&
+           a.m_PressedButton == b.m_PressedButton &&
+           a.m_Trigger == b.m_Trigger &&
+           a.m_Where == b.m_Where &&
+           a.m_Conditions == b.m_Conditions &&
+           a.m_Action == b.m_Action &&
+           a.m_PickFirst == b.m_PickFirst;
+}
+
+bool operator!=( const NavBinding & a, const NavBinding & b )
+{
+    return !( a == b );
+}
+
 NavBinding NavBind( int buttons, int modifiers, NavAction action )
 {
     NavBinding b;
@@ -77,9 +97,372 @@ static void AddBoxSelect( NavProfile & p )
     p.m_Bindings.push_back( box );
 }
 
+// In the presets the left button selects: a click selects the Geom under it.  Its press goes
+// first to the tool picks (rotation center, rulers, probes, ...); a drag does nothing.
+static void AddLeftPick( NavProfile & p )
+{
+    NavBinding pick = NavBind( FL_BUTTON1, 0, NAV_NONE );
+    pick.m_OtherModifiers = FL_SHIFT | FL_CTRL | FL_ALT | FL_META;
+    pick.m_PickFirst = true;
+    p.m_Bindings.push_back( pick );
+
+    NavBinding select = NavBind( FL_BUTTON1, 0, NAV_SELECT );
+    select.m_OtherModifiers = FL_SHIFT | FL_CTRL | FL_META;
+    select.m_Trigger = NAV_ON_CLICK;
+    p.m_Bindings.push_back( select );
+}
+
+// On macOS, where Cmd does much of what Ctrl does elsewhere, a Cmd version of each Ctrl binding
+// whose press is free.
+static void AddCmdVariants( NavProfile & p )
+{
+#ifdef __APPLE__
+    std::vector < NavBinding > bindings;
+    for ( int i = 0; i < ( int )p.m_Bindings.size(); i++ )
+    {
+        const NavBinding & b = p.m_Bindings[i];
+        bindings.push_back( b );
+
+        if ( ( b.m_Modifiers & FL_CTRL ) == 0 || ( b.m_Modifiers & FL_META ) != 0 )
+        {
+            continue;
+        }
+
+        NavBinding cmd = b;
+        cmd.m_Modifiers = ( b.m_Modifiers & ~FL_CTRL ) | FL_META;
+
+        NavPress press;
+        press.m_Buttons = cmd.m_Buttons;
+        press.m_Modifiers = cmd.m_Modifiers;
+        press.m_PressedButton = cmd.m_PressedButton;
+        press.m_Where = cmd.m_Where;
+        press.m_Conditions = cmd.m_Conditions;
+        const NavBinding * taken = p.Match( press, cmd.m_Trigger );
+        if ( !taken || taken->m_Action == NAV_NONE )
+        {
+            bindings.push_back( cmd );
+        }
+    }
+    p.m_Bindings = bindings;
+#endif
+}
+
+// A click on the model with these buttons and modifiers makes the point there the rotation
+// center, and centers it.
+static void AddSetPivotClick( NavProfile & p, int buttons, int modifiers )
+{
+    NavBinding b = NavBind( buttons, modifiers, NAV_SET_PIVOT );
+    b.m_Trigger = NAV_ON_CLICK;
+    p.m_Bindings.push_back( b );
+}
+
+// Common to the presets: clicks are told from drags, and chords end when a button lets go.
+static NavProfile NewPreset( const char * name )
+{
+    NavProfile p;
+    p.m_Name = name;
+    p.m_ClickDistance = 4;
+    p.m_ChordEnds = true;
+    AddBoxSelect( p );
+    return p;
+}
+
+const char * NavProfile::PresetKey( int preset )
+{
+    switch ( preset )
+    {
+    case NAV_PRESET_SOLIDWORKS:
+        return "SolidWorks";
+    case NAV_PRESET_CREO_BLENDER:
+        return "CreoBlender";
+    case NAV_PRESET_NX:
+        return "NX";
+    case NAV_PRESET_CATIA:
+        return "CATIA";
+    case NAV_PRESET_INVENTOR_FUSION:
+        return "InventorFusion";
+    case NAV_PRESET_3DS_MAX:
+        return "3dsMax";
+    case NAV_PRESET_MAYA:
+        return "Maya";
+    case NAV_PRESET_ABAQUS:
+        return "Abaqus";
+    case NAV_PRESET_RHINO:
+        return "Rhino";
+    case NAV_PRESET_ONSHAPE:
+        return "Onshape";
+    case NAV_PRESET_POINTWISE:
+        return "Pointwise";
+    case NAV_PRESET_HYPERMESH:
+        return "HyperMesh";
+    case NAV_PRESET_HYPERWORKS:
+        return "HyperWorks";
+    case NAV_PRESET_PARAVIEW:
+        return "ParaView";
+    case NAV_PRESET_ENSIGHT:
+        return "EnSight";
+    case NAV_PRESET_STARCCM:
+        return "StarCCM";
+    case NAV_PRESET_TECPLOT:
+        return "Tecplot";
+    default:
+        return "OpenVSP";
+    }
+}
+
+const char * NavProfile::PresetAlsoLike( int preset )
+{
+    switch ( preset )
+    {
+    case NAV_PRESET_SOLIDWORKS:
+        return "ANSYS Mechanical, DesignModeler, Femap";
+    case NAV_PRESET_CREO_BLENDER:
+        return "Solid Edge, SketchUp, SpaceClaim, Patran";
+    case NAV_PRESET_NX:
+        return "FreeCAD";
+    case NAV_PRESET_CATIA:
+        return "3DEXPERIENCE CATIA";
+    case NAV_PRESET_MAYA:
+        return "Blender three-button emulation";
+    case NAV_PRESET_HYPERMESH:
+        return "before 2021, or its Legacy setting";
+    case NAV_PRESET_HYPERWORKS:
+        return "HyperMesh 2021 and later";
+    case NAV_PRESET_OPENVSP:
+        return "MATLAB";
+    default:
+        return "";
+    }
+}
+
+std::string NavProfile::PresetLabel( int preset )
+{
+    std::string label = Preset( preset ).m_Name;
+    std::string also = PresetAlsoLike( preset );
+    if ( !also.empty() )
+    {
+        label += "  (" + also + ")";
+    }
+    return label;
+}
+
+NavProfile NavProfile::Preset( int preset )
+{
+    NavProfile p;
+
+    switch ( preset )
+    {
+    case NAV_PRESET_SOLIDWORKS:
+        // Middle button rotates; Ctrl pans, Shift zooms (family A1).
+        p = NewPreset( "SolidWorks-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_SHIFT, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_ALT, NAV_ROLL ) );
+        AddSetPivotClick( p, FL_BUTTON2, 0 );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_CREO_BLENDER:
+        // Middle button rotates; Shift pans, Ctrl zooms (family A2).
+        p = NewPreset( "Creo / Blender-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_SHIFT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL, NAV_ZOOM ) );
+        AddSetPivotClick( p, FL_BUTTON2, FL_ALT );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_NX:
+        // Middle button rotates; a second button with it pans (right) or zooms (left) (family B).
+        p = NewPreset( "NX-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2 | FL_BUTTON3, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2 | FL_BUTTON1, 0, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_SHIFT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL, NAV_ZOOM ) );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_CATIA:
+        // Middle button pans; a second button with it rotates; Ctrl zooms.  A middle click
+        // centers the point there.  Alt+right stands in for the middle button.
+        p = NewPreset( "CATIA-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2 | FL_BUTTON1, 0, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2 | FL_BUTTON3, 0, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3 | FL_BUTTON1, FL_ALT, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_ALT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL | FL_ALT, NAV_ZOOM ) );
+        AddSetPivotClick( p, FL_BUTTON2, 0 );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_INVENTOR_FUSION:
+        // Middle button pans; Shift rotates, Ctrl+Shift zooms (family C).  Inventor's held
+        // F2, F3 and F4 are left out: they are OpenVSP's saved views.
+        p = NewPreset( "Inventor / Fusion-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_SHIFT, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL | FL_SHIFT, NAV_ZOOM ) );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_3DS_MAX:
+        // Middle button pans; Alt rotates, Ctrl+Alt zooms.
+        p = NewPreset( "3ds Max-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_ALT, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL | FL_ALT, NAV_ZOOM ) );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_MAYA:
+        // Alt with each button: left rotates, middle pans, right zooms (family D).  Shift and
+        // Ctrl with Alt+left pan and zoom, as Blender's three-button emulation does.
+        p = NewPreset( "Maya-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1, FL_ALT, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_ALT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_ALT, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1, FL_SHIFT | FL_ALT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1, FL_CTRL | FL_ALT, NAV_ZOOM ) );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_ABAQUS:
+        // Ctrl+Alt with each button: left rotates, middle pans, right zooms (family D).
+        p = NewPreset( "Abaqus-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1, FL_CTRL | FL_ALT, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL | FL_ALT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL | FL_ALT, NAV_ZOOM ) );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_RHINO:
+        // Right button rotates; Shift pans, Ctrl zooms (family E).
+        p = NewPreset( "Rhino-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, 0, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_SHIFT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL, NAV_ZOOM ) );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_ONSHAPE:
+        // Right button rotates; Ctrl+right or the middle button pans (family E).
+        p = NewPreset( "Onshape-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, 0, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_PAN ) );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_POINTWISE:
+        // Ctrl+right rotates, Shift+right pans; the middle button zooms (family E').
+        p = NewPreset( "Pointwise-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_SHIFT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL, NAV_ROLL ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_SHIFT, NAV_ZOOM_BOX ) );
+        AddSetPivotClick( p, FL_BUTTON3, FL_CTRL | FL_SHIFT );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_HYPERMESH:
+        // Ctrl with each button: left rotates, right pans, middle draws a zoom box.  A Ctrl+left
+        // click centers the point there.
+        p = NewPreset( "HyperMesh-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1, FL_CTRL, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL, NAV_ZOOM_BOX ) );
+        AddSetPivotClick( p, FL_BUTTON1, FL_CTRL );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_HYPERWORKS:
+        // Middle button rotates; right, or left and right together, pans; Alt+middle draws a
+        // zoom box.  A Ctrl+middle click centers the point there.
+        p = NewPreset( "HyperWorks-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1 | FL_BUTTON3, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_ALT, NAV_ZOOM_BOX ) );
+        AddSetPivotClick( p, FL_BUTTON2, FL_CTRL );
+        AddLeftPick( p );
+        break;
+
+    case NAV_PRESET_PARAVIEW:
+    {
+        // Left rotates, middle pans, right zooms; Shift and Ctrl give its other defaults (family F).
+        p = NewPreset( "ParaView-like" );
+        NavBinding rotate = NavBind( FL_BUTTON1, 0, NAV_ROTATE );
+        rotate.m_PickFirst = true;
+        p.m_Bindings.push_back( rotate );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, 0, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1, FL_SHIFT, NAV_ROLL ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_SHIFT, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_SHIFT, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL, NAV_ZOOM ) );
+        AddLeftPick( p );
+        break;
+    }
+
+    case NAV_PRESET_ENSIGHT:
+    {
+        // Left rotates, middle pans, right zooms; Ctrl turns each to its third axis or pans.
+        p = NewPreset( "EnSight-like" );
+        NavBinding rotate = NavBind( FL_BUTTON1, 0, NAV_ROTATE );
+        rotate.m_PickFirst = true;
+        p.m_Bindings.push_back( rotate );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1, FL_CTRL, NAV_ROLL ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, FL_CTRL, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, 0, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL, NAV_PAN ) );
+        AddLeftPick( p );
+        break;
+    }
+
+    case NAV_PRESET_STARCCM:
+    {
+        // Left rotates, Ctrl+left rolls, middle zooms, right pans.
+        p = NewPreset( "STAR-CCM+-like" );
+        NavBinding rotate = NavBind( FL_BUTTON1, 0, NAV_ROTATE );
+        rotate.m_PickFirst = true;
+        p.m_Bindings.push_back( rotate );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON1, FL_CTRL, NAV_ROLL ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_ZOOM ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, 0, NAV_PAN ) );
+        AddLeftPick( p );
+        break;
+    }
+
+    case NAV_PRESET_TECPLOT:
+        // As with Tecplot's Selector tool: right pans, Ctrl+right rotates, middle zooms.
+        p = NewPreset( "Tecplot-like" );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, 0, NAV_PAN ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON3, FL_CTRL, NAV_ROTATE ) );
+        p.m_Bindings.push_back( NavBind( FL_BUTTON2, 0, NAV_ZOOM ) );
+        AddLeftPick( p );
+        break;
+
+    default:
+        p = Classic();
+        p.m_Name = "OpenVSP";
+        return p;
+    }
+
+    AddCmdVariants( p );
+    return p;
+}
+
 NavProfile NavProfile::Classic()
 {
     NavProfile p;
+    p.m_Name = "OpenVSP Classic";
 
     // 3.55 tested each binding's buttons and modifiers as a subset of those down, so every
     // binding here allows any others.  Order matters: the first match wins.
@@ -242,6 +625,40 @@ std::string NavDescribe( const NavBinding & b )
         d += " drag";
     }
     return d;
+}
+
+std::string NavProfile::Summary() const
+{
+    const NavAction actions[] = { NAV_ROTATE, NAV_PAN, NAV_ZOOM, NAV_ROLL, NAV_ZOOM_BOX, NAV_SET_PIVOT, NAV_SELECT };
+    const char * labels[] = { "Rotate", "Pan", "Zoom", "Roll", "Zoom box", "Rotation center", "Select" };
+
+    std::string s;
+    for ( int a = 0; a < 7; a++ )
+    {
+        std::string list;
+        for ( int i = 0; i < ( int )m_Bindings.size(); i++ )
+        {
+            if ( m_Bindings[i].m_Action == actions[a] )
+            {
+                if ( !list.empty() )
+                {
+                    list += ", ";
+                }
+                list += NavDescribe( m_Bindings[i] );
+            }
+        }
+        if ( !list.empty() )
+        {
+            if ( !s.empty() )
+            {
+                s += "; ";
+            }
+            s += labels[a];
+            s += ": ";
+            s += list;
+        }
+    }
+    return s;
 }
 
 bool NavProfile::NeedsWhere() const
@@ -597,6 +1014,13 @@ bool NavProfile::SetBindingsText( const std::string & text )
 
     m_Bindings = bindings;
     return true;
+}
+
+bool NavProfile::SameBehavior( const NavProfile & other ) const
+{
+    return m_Bindings == other.m_Bindings &&
+           m_ClickDistance == other.m_ClickDistance &&
+           m_ChordEnds == other.m_ChordEnds;
 }
 
 }

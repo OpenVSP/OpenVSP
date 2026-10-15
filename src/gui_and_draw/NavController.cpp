@@ -54,7 +54,56 @@ NavSettings::NavSettings()
 
     m_EmulateMiddle = false;
 
-    m_Profile = NavProfile::Classic();
+    m_Profile = NavProfile::Preset( NAV_PRESET_OPENVSP );
+}
+
+void NavSettings::ApplyPreset( int preset )
+{
+    NavSettings def;
+
+    m_Profile = NavProfile::Preset( preset );
+    m_StartupRotateMode = def.m_StartupRotateMode;
+    m_BallType = def.m_BallType;
+    m_Pivot = def.m_Pivot;
+
+    m_WheelReverse = def.m_WheelReverse;
+    m_WheelAnchor = def.m_WheelAnchor;
+    m_WheelStep = def.m_WheelStep;
+    m_DragZoomReverse = def.m_DragZoomReverse;
+    m_DragZoomAnchor = def.m_DragZoomAnchor;
+    m_DragZoomLaw = def.m_DragZoomLaw;
+
+    if ( preset == NAV_PRESET_OPENVSP )
+    {
+        return;
+    }
+
+    // As the CAD programs do: the wheel and drags zoom by how far they go.
+    m_WheelStep = NAV_WHEEL_PROPORTIONAL;
+    m_DragZoomLaw = NAV_ZOOM_CONTINUOUS;
+
+    if ( preset == NAV_PRESET_SOLIDWORKS || preset == NAV_PRESET_INVENTOR_FUSION || preset == NAV_PRESET_HYPERWORKS )
+    {
+        m_WheelReverse = true;
+    }
+
+    // ParaView's wheel zooms toward the middle of the view.
+    if ( preset == NAV_PRESET_PARAVIEW )
+    {
+        m_WheelAnchor = NAV_ANCHOR_CENTER;
+    }
+
+    // Maya tumbles and Rhino rotates about the world's vertical axis.
+    if ( preset == NAV_PRESET_MAYA || preset == NAV_PRESET_RHINO )
+    {
+        m_StartupRotateMode = NAV_ROTATE_TURNTABLE;
+    }
+
+    // Onshape and HyperWorks rotate about the point under the cursor.
+    if ( preset == NAV_PRESET_ONSHAPE || preset == NAV_PRESET_HYPERWORKS )
+    {
+        m_Pivot = NAV_PIVOT_UNDER_CURSOR;
+    }
 }
 
 NavPress NavSettings::Effective( const NavPress & press ) const
@@ -77,6 +126,30 @@ NavPress NavSettings::Effective( const NavPress & press ) const
         }
     }
     return p;
+}
+
+int NavSettings::FindPreset() const
+{
+    for ( int i = 0; i < NAV_NUM_PRESETS; i++ )
+    {
+        NavSettings p = *this;
+        p.ApplyPreset( i );
+
+        if ( p.m_Profile.SameBehavior( m_Profile ) &&
+             p.m_StartupRotateMode == m_StartupRotateMode &&
+             p.m_BallType == m_BallType &&
+             p.m_Pivot == m_Pivot &&
+             p.m_WheelReverse == m_WheelReverse &&
+             p.m_WheelAnchor == m_WheelAnchor &&
+             p.m_WheelStep == m_WheelStep &&
+             p.m_DragZoomReverse == m_DragZoomReverse &&
+             p.m_DragZoomAnchor == m_DragZoomAnchor &&
+             p.m_DragZoomLaw == m_DragZoomLaw )
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 // Choices are stored by name so that reordering the enums never reinterprets a saved value.
@@ -308,6 +381,12 @@ NavController::NavController( VspGlWindow * win )
 
 void NavController::SetSettings( const NavSettings & settings )
 {
+    // New bindings end any gesture.
+    if ( !settings.m_Profile.SameBehavior( m_Settings.m_Profile ) )
+    {
+        Abandon();
+    }
+
     m_Settings = settings;
 
     m_RoundedArcball.setShape( m_Settings.m_BallSize, m_Settings.m_BallBorder );

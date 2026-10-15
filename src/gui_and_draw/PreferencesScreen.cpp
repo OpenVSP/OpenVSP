@@ -58,6 +58,18 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     Fl_Group * view_group = AddSubGroup( view_tab, 5 );
     m_ViewLayout.SetGroupAndScreen( view_group, this );
 
+    m_ViewLayout.AddDividerBox( "Scheme" );
+    m_ViewLayout.AddYGap();
+
+    for ( int i = 0; i < VSPGUI::NAV_NUM_PRESETS; i++ )
+    {
+        m_ProfileChoice.AddItem( VSPGUI::NavProfile::PresetLabel( i ), i );
+    }
+    m_ProfileChoice.AddItem( "Custom", VSPGUI::NAV_NUM_PRESETS );
+    m_ProfileChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_ProfileChoice, "Scheme" );
+
+    m_ViewLayout.AddYGap();
     m_ViewLayout.AddDividerBox( "Rotation" );
     m_ViewLayout.AddYGap();
 
@@ -218,6 +230,8 @@ void PreferencesScreen::ShowNav()
     m_DragZoomAnchorChoice.SetVal( m_Nav.m_DragZoomAnchor );
     m_DragZoomLawChoice.SetVal( m_Nav.m_DragZoomLaw );
     m_ZoomSpeedChoice.SetVal( NearestIndex( ZOOM_SPEEDS, 3, m_Nav.m_ZoomSpeed ) );
+
+    ShowScheme();
 }
 
 bool PreferencesScreen::ReadNav( GuiDevice * device )
@@ -328,8 +342,13 @@ void PreferencesScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         Hide();
     }
+    else if ( device == &m_ProfileChoice )
+    {
+        ApplyScheme( m_ProfileChoice.GetVal() );
+    }
     else if ( ReadNav( device ) )
     {
+        ShowScheme();
         ApplyNav();
     }
 
@@ -345,6 +364,30 @@ void PreferencesScreen::ApplyNav()
     {
         main->SetNavSettings( m_Nav );
     }
+}
+
+void PreferencesScreen::ApplyScheme( int scheme )
+{
+    // A preset sets everything it covers; Custom keeps the settings as they are.
+    if ( scheme < VSPGUI::NAV_NUM_PRESETS )
+    {
+        m_Nav.ApplyPreset( scheme );
+    }
+    ShowNav();
+    ApplyNav();
+}
+
+void PreferencesScreen::ShowScheme()
+{
+    int preset = m_Nav.FindPreset();
+    if ( preset < 0 )
+    {
+        preset = VSPGUI::NAV_NUM_PRESETS;
+    }
+    m_ProfileChoice.SetVal( preset );
+
+    m_ProfileTip = m_Nav.m_Profile.Summary();
+    m_ProfileChoice.GetFlChoice()->tooltip( m_ProfileTip.c_str() );
 }
 
 int PreferencesScreen::GetFCType()
