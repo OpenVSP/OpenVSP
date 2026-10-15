@@ -253,6 +253,12 @@ void LayoutMgr::selectViewport( int index )
 int LayoutMgr::selectViewport( int x, int y )
 {
     // Select viewport if push is within a viewport.
+    _selected = findViewport( x, y );
+    return _selected;
+}
+
+int LayoutMgr::findViewport( int x, int y )
+{
     for( int i = 0; i < ( int )_viewportList.size(); i++ )
     {
         int vx = _viewportList[i]->x();
@@ -262,12 +268,10 @@ int LayoutMgr::selectViewport( int x, int y )
 
         if( x > vx && x < vx + width && y > vy && y < vy + height )
         {
-            _selected = i;
-            return _selected;
+            return i;
         }
     }
-    _selected = -1;
-    return _selected;
+    return -1;
 }
 
 Viewport * LayoutMgr::getViewport()
