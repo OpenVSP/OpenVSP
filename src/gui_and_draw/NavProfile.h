@@ -27,6 +27,7 @@ enum NavAction
     NAV_ZOOM,
     NAV_ZOOM_BOX,       // Drag a rectangle; on release it fills the view.
     NAV_BOX_SELECT,     // Drag a rectangle; on release the Fit Model points in it are selected.
+    NAV_SET_PIVOT,      // Click: the surface point there becomes the rotation center, centered.
 };
 
 // When a binding acts.
@@ -81,6 +82,8 @@ class NavProfile
 {
 public:
 
+    NavProfile();
+
     // OpenVSP's bindings as of 3.55.
     static NavProfile Classic();
 
@@ -88,6 +91,10 @@ public:
     const NavBinding * Match( const NavPress & press, int trigger ) const;
 
     std::vector < NavBinding > m_Bindings;
+
+    // Screen points a press must move before it is a drag.  At 0 a drag starts at the press,
+    // and a click is a release with no motion at all.
+    int m_ClickDistance;
 };
 }
 

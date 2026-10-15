@@ -49,6 +49,11 @@ NavPress::NavPress()
     m_Conditions = 0;
 }
 
+NavProfile::NavProfile()
+{
+    m_ClickDistance = 0;
+}
+
 // Fit Model's box selection takes the left button when it is the one pressed: with Shift, or
 // always in box mode, while Fit Model is shown.  3.55 gave left + right to zoom first, so the
 // right button may not be down.

@@ -164,6 +164,9 @@ private:
     // Start a drag action at a mouse location.
     void Start( NavAction action, int x, int y );
 
+    // Do what a click binding does.
+    void Click( const NavBinding * b, int x, int y );
+
     void DragZoom( int x, int y );
 
     // Turn about the surface under the mouse for this drag, if there is one.
@@ -221,6 +224,12 @@ private:
     glm::vec3 m_StickyCOR;
 
     NavAction m_Action;
+
+    // A press waiting to become a click or a drag, and what each would do.
+    bool m_Pending;
+    const NavBinding * m_PendingDrag;
+    const NavBinding * m_PendingClick;
+    bool m_Moved;           // The gesture has had a drag event.
 
     int m_PressEventX;      // The press in FLTK coordinates, for probing the surface there.
     int m_PressEventY;

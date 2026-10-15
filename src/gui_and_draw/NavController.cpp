@@ -229,6 +229,11 @@ NavController::NavController( VspGlWindow * win )
     m_PrevY = 0;
     m_RotateEnabled = true;
     m_ZoomBoxArmed = false;
+
+    m_Pending = false;
+    m_PendingDrag = nullptr;
+    m_PendingClick = nullptr;
+    m_Moved = false;
     m_ActionBeforeBox = NAV_NONE;
 
     m_PivotCamera = nullptr;
@@ -260,6 +265,24 @@ VSPGraphic::RotationMethod * NavController::CurrentRotation()
         return &m_ClassicBall;
     }
     return &m_RoundedArcball;
+}
+
+static int CountButtons( int buttons )
+{
+    int n = 0;
+    if ( buttons & FL_BUTTON1 )
+    {
+        n++;
+    }
+    if ( buttons & FL_BUTTON2 )
+    {
+        n++;
+    }
+    if ( buttons & FL_BUTTON3 )
+    {
+        n++;
+    }
+    return n;
 }
 
 // The mouse button bit for the button of the current event.
@@ -317,6 +340,10 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
     ClearOutline();
 
     m_Action = NAV_NONE;
+    m_Pending = false;
+    m_PendingDrag = nullptr;
+    m_PendingClick = nullptr;
+    m_Moved = false;
     m_PressEventX = Fl::event_x();
     m_PressEventY = Fl::event_y();
     m_PressX = x;
@@ -345,9 +372,19 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
     press.m_Conditions = m_Win->GetNavConditions();
 
     const NavBinding * drag = m_Settings.m_Profile.Match( press, NAV_ON_DRAG );
+    m_PendingClick = m_Settings.m_Profile.Match( press, NAV_ON_CLICK );
 
     if ( drag && drag->m_PickFirst && allow_pick && m_Win->PickAtPress() )
     {
+        m_PendingClick = nullptr;
+        return;
+    }
+
+    if ( m_Settings.m_Profile.m_ClickDistance > 0 && ( m_PendingClick || CountButtons( press.m_Buttons ) == 1 ) )
+    {
+        // Wait to see whether this is a click, or the first button of a chord.
+        m_Pending = true;
+        m_PendingDrag = drag;
         return;
     }
 
@@ -401,9 +438,51 @@ void NavController::Start( NavAction action, int x, int y )
     }
 }
 
+void NavController::Click( const NavBinding * b, int x, int y )
+{
+    if ( !b )
+    {
+        return;
+    }
+
+    if ( b->m_Action == NAV_SET_PIVOT )
+    {
+        VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
+        glm::vec3 hit;
+        if ( camera && m_Win->ProbeSurface( m_PressEventX, m_PressEventY, hit ) )
+        {
+            // As Set Rotation Center does.
+            camera->setCOR( -hit.x, -hit.y, -hit.z );
+            camera->center();
+            m_Win->UpdateCORParms();
+            m_Win->UpdatePanParms();
+        }
+    }
+}
+
 void NavController::Drag( int x, int y )
 {
     VSPGraphic::Display * display = m_Win->getGraphicEngine()->getDisplay();
+
+    if ( m_Pending )
+    {
+        double dx = x - m_PressX;
+        double dy = y - m_PressY;
+        double limit = m_Settings.m_Profile.m_ClickDistance * m_Win->pixels_per_unit();
+        if ( dx * dx + dy * dy <= limit * limit )
+        {
+            return;
+        }
+
+        // A drag after all: start it at the press, then follow the mouse from there.
+        m_Pending = false;
+        m_PendingClick = nullptr;
+        if ( m_PendingDrag )
+        {
+            Start( m_PendingDrag->m_Action, m_PressX, m_PressY );
+        }
+    }
+    m_Moved = true;
 
     switch ( m_Action )
     {
@@ -479,6 +558,16 @@ void NavController::Release( int x, int y )
     EndPivot( true );
     ClearOutline();
 
+    // A release before the press became a drag is a click.
+    if ( m_Pending || ( !m_Moved && m_Settings.m_Profile.m_ClickDistance == 0 ) )
+    {
+        const NavBinding * click = m_PendingClick;
+        m_Pending = false;
+        m_PendingClick = nullptr;
+        Click( click, x, y );
+    }
+    m_PendingClick = nullptr;
+
     if ( buttons != 0 && m_Action != NAV_NONE )
     {
         // Buttons are still down; carry on with whatever they now mean, from here.
@@ -499,6 +588,15 @@ bool NavController::Cancel()
 {
     bool armed = m_ZoomBoxArmed;
     m_ZoomBoxArmed = false;
+
+    if ( m_Pending )
+    {
+        // Nothing has moved yet; just forget the press.
+        m_Pending = false;
+        m_PendingDrag = nullptr;
+        m_PendingClick = nullptr;
+        return true;
+    }
 
     if ( m_Action == NAV_NONE )
     {
@@ -532,6 +630,9 @@ void NavController::Abandon()
     // Ignore the rest of the drag; releasing the buttons then ends it.
     m_Action = NAV_NONE;
     m_ActionBeforeBox = NAV_NONE;
+    m_Pending = false;
+    m_PendingDrag = nullptr;
+    m_PendingClick = nullptr;
 }
 
 void NavController::DragZoom( int x, int y )
