@@ -405,6 +405,16 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
     press.m_PressedButton = pressed;
     press.m_Conditions = m_Win->GetNavConditions();
 
+    // Where the press is, first: a binding for it may take Alt + left before the middle button does.
+    if ( m_Settings.m_Profile.NeedsWhere() )
+    {
+        glm::vec3 hit;
+        press.m_Where = NAV_ON_BACKGROUND;
+        if ( m_Win->ProbeSurface( m_PressEventX, m_PressEventY, hit ) )
+        {
+            press.m_Where = NAV_ON_GEOMETRY;
+        }
+    }
     press = m_Settings.Effective( press );
 
     if ( CountButtons( press.m_Buttons ) > 1 )
