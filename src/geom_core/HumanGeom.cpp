@@ -405,7 +405,8 @@ void HumanGeom::ValidateParms( )
         m_AnkleLt = m_AnkleRt();
     }
 
-    if ( UpdatedParm( m_LenUnit.GetID() ) )
+    // The stature's limits depend on the unit and on the sex.
+    if ( UpdatedParm( m_LenUnit.GetID() ) || UpdatedParm( m_GenderFlag.GetID() ) )
     {
         m_Stature.SetLowerLimit( 0.0 );
         m_Stature.SetUpperLimit( 1e5 );
