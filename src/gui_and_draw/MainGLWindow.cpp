@@ -709,6 +709,60 @@ void VspGlWindow::GetZoomLimits( double & lo, double & hi )
     }
 }
 
+bool VspGlWindow::ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * geomId )
+{
+    if ( geomId )
+    {
+        geomId->clear();
+    }
+
+    if ( !m_initialized || !shown() )
+    {
+        return false;
+    }
+
+    make_current();
+
+    // The framebuffer pixel under the center of the screen point, origin at the lower left.
+    double ppu = pixels_per_unit();
+    int px = ( int )std::floor( ( ex + 0.5 ) * ppu );
+    int py = pixel_h() - 1 - ( int )std::floor( ( ey + 0.5 ) * ppu );
+
+    VSPGraphic::LayoutMgr * layout = m_GEngine->getDisplay()->getLayoutMgr();
+    int ivp = layout->findViewport( px, py );
+    if ( ivp < 0 )
+    {
+        return false;
+    }
+
+    // Two screen points either way.
+    int radius = ( int )std::ceil( 2.0 * ppu );
+
+    if ( !geomId )
+    {
+        return m_Probe.probe( m_GEngine->getScene(), layout->getViewports()[ ivp ], px, py, radius, hit );
+    }
+
+    unsigned int object = 0xFFFFFFFF;
+    if ( !m_Probe.probe( m_GEngine->getScene(), layout->getViewports()[ ivp ], px, py, radius, hit, &object ) )
+    {
+        return false;
+    }
+
+    // A Geom's draw object IDs start with the Geom's ID: "_0", "Degen_Surf_0", "Arrows", ...
+    ID * id = _findID( object );
+    Vehicle * veh = VehicleMgr.GetVehicle();
+    if ( id && veh )
+    {
+        std::string base = id->geomID.substr( 0, vsp::ID_LENGTH_PARMCONTAINER );
+        if ( veh->FindGeom( base ) )
+        {
+            *geomId = base;
+        }
+    }
+    return true;
+}
+
 void VspGlWindow::_initGLEW()
 {
     if( !m_initialized )

@@ -54,6 +54,12 @@ public:
     */
     bool isTransparent();
 
+    /*!
+    * Draw the mesh filled in one color, whatever the render style, with no lighting or
+    * material.  For depth and ID passes.  Draws nothing when hidden.
+    */
+    void drawFilled( float r, float g, float b );
+
 public:
     /*!
     * Get Texture Manager of this Entity.

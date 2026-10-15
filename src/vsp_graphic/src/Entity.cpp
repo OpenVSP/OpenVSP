@@ -60,6 +60,30 @@ bool Entity::isTransparent()
     return _material.diffuse[3] < 1.0;
 }
 
+void Entity::drawFilled( float r, float g, float b )
+{
+    if ( !getVisibility() )
+    {
+        return;
+    }
+
+    // These styles never show their back faces, so nothing behind them is hidden there.
+    bool cull = ( getRenderStyle() == Common::VSP_DRAW_WIRE_FRAME_TRANSPARENT_BACK ||
+                  getRenderStyle() == Common::VSP_DRAW_TEXTURED_TRANSPARENT_BACK );
+    if ( cull )
+    {
+        glEnable( GL_CULL_FACE );
+        glCullFace( GL_BACK );
+    }
+
+    _draw_Mesh( r, g, b, 1.f );
+
+    if ( cull )
+    {
+        glDisable( GL_CULL_FACE );
+    }
+}
+
 void Entity::_predraw()
 {
     switch( getRenderStyle() )

@@ -641,6 +641,28 @@ void Scene::draw()
     _clip->postdraw();
 }
 
+void Scene::drawDepth( std::vector < SceneObject * > * objects )
+{
+    _clip->predraw();
+
+    for ( int i = 0; i < ( int )_sceneOrder.size(); i++ )
+    {
+        Entity * entity = dynamic_cast<Entity*>( _sceneOrder[i] );
+        if ( entity )
+        {
+            unsigned int id = 0;
+            if ( objects )
+            {
+                objects->push_back( entity );
+                id = ( unsigned int )objects->size();
+            }
+            entity->drawFilled( ( id & 0xFF ) / 255.0f, ( ( id >> 8 ) & 0xFF ) / 255.0f, ( ( id >> 16 ) & 0xFF ) / 255.0f );
+        }
+    }
+
+    _clip->postdraw();
+}
+
 void Scene::showSelection()
 {
     _showSelection = true;

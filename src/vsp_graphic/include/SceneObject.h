@@ -33,6 +33,10 @@ public:
     * Set visibility of this object.  True to show, false to hide.
     */
     virtual void setVisibility( bool visible );
+    bool getVisibility()
+    {
+        return _visible;
+    }
 
 public:
     /*!
