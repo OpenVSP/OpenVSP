@@ -1018,7 +1018,7 @@ void WingSect::GetJoints( bool first, bool last,
         case BLEND_MATCH_IN_ANGLES :
         case BLEND_MATCH_LE_ANGLES :
         {
-            GetTanNormVec(tle, -m_InLESweep() * M_PI / 180.0, -m_InLEDihedral() * M_PI / 180.0, tangent, normal);
+            GetTanNormVec(tle, -m_InLESweep() * M_PI / 180.0, m_InLEDihedral() * M_PI / 180.0, tangent, normal);
             tangent = tangent * m_InLEStrength() * le_in_str;
             tangent.get_pnt(tgt);
             le_joint.set_left_fp(tgt);
@@ -1059,7 +1059,7 @@ void WingSect::GetJoints( bool first, bool last,
         case BLEND_MATCH_IN_ANGLES :
         case BLEND_MATCH_LE_ANGLES :
         {
-            GetTanNormVec( tte, m_InTESweep()*M_PI/180.0, m_InTEDihedral()*M_PI/180.0, tangent, normal );
+            GetTanNormVec( tte, m_InTESweep()*M_PI/180.0, -m_InTEDihedral()*M_PI/180.0, tangent, normal );
             tangent = tangent * m_InTEStrength() * te_in_str;
             tangent.get_pnt( tgt );
             te_joint.set_left_fp( tgt );
@@ -1205,10 +1205,10 @@ void WingSect::GetBlendTangents( bool in, vec3d &te_tan, vec3d &le_tan )
 
     if ( in )
     {
-        GetTanNormVec( tle, -m_InLESweep() * M_PI / 180.0, -m_InLEDihedral() * M_PI / 180.0, le_tan, normal );
+        GetTanNormVec( tle, -m_InLESweep() * M_PI / 180.0, m_InLEDihedral() * M_PI / 180.0, le_tan, normal );
         le_tan = le_tan * m_InLEStrength() * m_LEInStr;
 
-        GetTanNormVec( tte, m_InTESweep() * M_PI / 180.0, m_InTEDihedral() * M_PI / 180.0, te_tan, normal );
+        GetTanNormVec( tte, m_InTESweep() * M_PI / 180.0, -m_InTEDihedral() * M_PI / 180.0, te_tan, normal );
         te_tan = te_tan * m_InTEStrength() * m_TEInStr;
     }
     else
@@ -1241,7 +1241,7 @@ void WingSect::SetUnsetParms( int irib, const VspSurf &surf, const double &te_in
     if ( m_InTEMode() != BLEND_ANGLES && m_InTEMode() != BLEND_MATCH_LE_ANGLES )
     {
         m_InTESweep = 180.0-thetaL*180.0/M_PI;
-        m_InTEDihedral = asin ( sin ( phiL ) / cos( m_InTESweep() * M_PI / 180.0 ) ) * 180.0 / M_PI;
+        m_InTEDihedral = -asin ( sin ( phiL ) / cos( m_InTESweep() * M_PI / 180.0 ) ) * 180.0 / M_PI;
     }
 
     if ( m_InTEMode() == BLEND_FREE )
@@ -1268,7 +1268,7 @@ void WingSect::SetUnsetParms( int irib, const VspSurf &surf, const double &te_in
     if ( m_InLEMode() != BLEND_ANGLES )
     {
         m_InLESweep = -(180.0-thetaL*180.0/M_PI);
-        m_InLEDihedral = -asin ( sin ( phiL ) / cos( m_InLESweep() * M_PI / 180.0 ) ) * 180.0 / M_PI;
+        m_InLEDihedral = asin ( sin ( phiL ) / cos( m_InLESweep() * M_PI / 180.0 ) ) * 180.0 / M_PI;
     }
 
     if ( m_InLEMode() == BLEND_FREE )
