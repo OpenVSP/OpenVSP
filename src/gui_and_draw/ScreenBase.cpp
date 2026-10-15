@@ -6052,14 +6052,17 @@ bool EngineModelScreen::Update( )
 
     m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_FLOWTHROUGH, 0 );
     m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_FLOWTHROUGH_NEG, 0 );
+    m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_FLOWTHROUGH_NEG_ONLY, 0 );
     m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_LIP, 0 );
     m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE, 0 );
     m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG, 0 );
+    m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG_ONLY, 0 );
     m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_EXTEND, 0 );
 
     m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_LIP, 0 );
     m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE, 0 );
     m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG, 0 );
+    m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG_ONLY, 0 );
     m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_EXTEND, 0 );
 
     m_EngineGeomIOChoice.Update( geomengine_ptr->m_EngineGeomIOType.GetID() );
@@ -6092,18 +6095,21 @@ bool EngineModelScreen::Update( )
     {
         m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_FLOWTHROUGH, FL_MENU_INACTIVE );
         m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_FLOWTHROUGH_NEG, FL_MENU_INACTIVE );
+        m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_FLOWTHROUGH_NEG_ONLY, FL_MENU_INACTIVE );
     }
 
     if ( geomengine_ptr->m_EngineGeomInType() == ENGINE_GEOM_TO_LIP )
     {
         m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE, FL_MENU_INACTIVE );
         m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG, FL_MENU_INACTIVE );
+        m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG_ONLY, FL_MENU_INACTIVE );
     }
 
     if ( geomengine_ptr->m_EngineGeomOutType() == ENGINE_GEOM_TO_LIP )
     {
         m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE, FL_MENU_INACTIVE );
         m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG, FL_MENU_INACTIVE );
+        m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG_ONLY, FL_MENU_INACTIVE );
     }
 
     if ( geomengine_ptr->m_EngineGeomOutType() == ENGINE_GEOM_FLOWPATH ||
@@ -6118,6 +6124,7 @@ bool EngineModelScreen::Update( )
         if ( geomengine_ptr->m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET )
         {
             m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_FLOWTHROUGH_NEG, 0 );          // Re-activate, order matters!
+            m_EngineInModeChoice.SetFlagByVal( vsp::ENGINE_MODE_FLOWTHROUGH_NEG_ONLY, 0 );
         }
     }
 
@@ -6127,6 +6134,7 @@ bool EngineModelScreen::Update( )
         {
             m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE, 0 );
             m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG, 0 );
+            m_EngineOutModeChoice.SetFlagByVal( vsp::ENGINE_MODE_TO_FACE_NEG_ONLY, 0 );
         }
     }
 
