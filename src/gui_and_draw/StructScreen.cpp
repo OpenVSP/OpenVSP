@@ -5199,9 +5199,7 @@ void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
             glwin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
             glwin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
 
-            glwin->UpdateCORParms();
-            glwin->UpdatePanParms();
-            glwin->UpdateZoomParms();
+            glwin->UpdateAllViewParms();
         }
     }
 }
