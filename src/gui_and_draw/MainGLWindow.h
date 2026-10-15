@@ -162,6 +162,12 @@ public:
     bool WriteVector( const std::string & fname, int filetype, bool autocrop, double scale );
 
     /*!
+    * The zoom values the view can hold.  For the main window these are the Zoom Parm's
+    * limits, since the camera's zoom is written to it.
+    */
+    void GetZoomLimits( double & lo, double & hi );
+
+    /*!
     * Whether a left press with these modifiers starts a Fit Model box selection: Fit Model is
     * shown, and Shift is down or its box selection mode is on.
     */
