@@ -47,6 +47,11 @@ NavPress::NavPress()
     m_PressedButton = 0;
 }
 
+NavProfile::NavProfile()
+{
+    m_ClickDistance = 0;
+}
+
 NavProfile NavProfile::Classic()
 {
     NavProfile p;
