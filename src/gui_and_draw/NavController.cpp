@@ -369,15 +369,26 @@ void NavController::Wheel( int dx, int dy, int x, int y )
         return;
     }
 
-    VSPGraphic::Camera * camera = m_Win->getGraphicEngine()->getDisplay()->getCamera();
-    if ( !camera )
+    // Zoom whichever viewport is under the mouse, selected or not.
+    VSPGraphic::Display * display = m_Win->getGraphicEngine()->getDisplay();
+    VSPGraphic::LayoutMgr * layout = display->getLayoutMgr();
+
+    int ivp = layout->findViewport( x, y );
+    if ( ivp < 0 )
     {
         return;
     }
 
+    VSPGraphic::Viewport * viewport = layout->getViewports()[ ivp ];
+    VSPGraphic::Camera * camera = viewport->getCamera();
+
     camera->zoomToward( LimitZoom( camera, zoomChange ), x, y );
-    m_Win->UpdateZoomParms();
-    m_Win->UpdatePanParms();
+
+    if ( viewport == display->getViewport() )
+    {
+        m_Win->UpdateZoomParms();
+        m_Win->UpdatePanParms();
+    }
 }
 
 void NavController::KeyDown( int key )
