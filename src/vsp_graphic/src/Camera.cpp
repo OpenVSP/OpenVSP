@@ -187,6 +187,55 @@ void Camera::setCORKeepView( float x, float y, float z )
     relativePan( pan.x + d.x, pan.y + d.y );
 }
 
+// The world point at the center of the view: eye coordinates pan + R ( p + c ) have x = y = 0.
+static glm::dvec3 ViewCenter( const glm::dquat & r, const glm::vec2 & pan, const glm::vec3 & cor )
+{
+    return glm::conjugate( r ) * glm::dvec3( -pan.x, -pan.y, 0.0 ) - glm::dvec3( cor );
+}
+
+CameraPose Camera::getPose( double eyeDistance )
+{
+    glm::dquat r( getViewRotation() );
+
+    CameraPose pose;
+    pose.m_Rotation = glm::conjugate( r );
+    pose.m_Eye = ViewCenter( r, getPanValues(), getCOR() ) + eyeDistance * ( pose.m_Rotation * glm::dvec3( 0.0, 0.0, 1.0 ) );
+    pose.m_OrthoExtent = ( double )_vHeight * getRelativeZoomValue();
+    return pose;
+}
+
+CameraPose Camera::setPose( const CameraPose & pose )
+{
+    glm::dquat r = glm::conjugate( glm::normalize( pose.m_Rotation ) );
+    setViewRotation( glm::quat( r ) );
+
+    // Put the eye's line of sight through the center of the view.
+    glm::dvec3 e = r * ( pose.m_Eye + glm::dvec3( getCOR() ) );
+    relativePan( -e.x, -e.y );
+
+    if ( _vHeight > 0 && pose.m_OrthoExtent > 0.0 )
+    {
+        relativeZoom( pose.m_OrthoExtent / _vHeight );
+    }
+
+    // Report the eye at the distance it was given.
+    glm::dvec3 back = glm::conjugate( r ) * glm::dvec3( 0.0, 0.0, 1.0 );
+    double distance = glm::dot( pose.m_Eye - ViewCenter( r, getPanValues(), getCOR() ), back );
+    return getPose( distance );
+}
+
+void Camera::rotateEye( const glm::dvec3 & rotation )
+{
+    double angle = glm::length( rotation );
+    if ( angle <= 0.0 )
+    {
+        return;
+    }
+
+    glm::dquat q = glm::angleAxis( angle, rotation / angle );
+    setViewRotation( glm::quat( q * glm::dquat( getViewRotation() ) ) );
+}
+
 void Camera::_calculateProjection()
 {
     float range = 0;
