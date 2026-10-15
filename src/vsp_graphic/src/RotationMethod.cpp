@@ -39,6 +39,9 @@ RoundedArcball::RoundedArcball()
     _size = 0.9;
     _border = 0.5;
     _angleScale = 2.0;
+    _useCenter = false;
+    _cx = 0.0f;
+    _cy = 0.0f;
     _p0 = glm::dvec3( 0.0, 0.0, 1.0 );
     _rot0 = glm::dquat( 1.0, 0.0, 0.0, 0.0 );
 }
@@ -60,6 +63,11 @@ glm::dvec3 RoundedArcball::ballPoint( Camera * cam, int x, int y )
     double h = cam->viewportHeight();
     double cx = cam->viewportX() + 0.5 * w;
     double cy = cam->viewportY() + 0.5 * h;
+    if ( _useCenter )
+    {
+        cx = _cx;
+        cy = _cy;
+    }
 
     // The ball, fillet included, spans _size of the smaller viewport dimension.  The
     // sphere has unit radius and the fillet ends at radius ra.
@@ -95,12 +103,24 @@ glm::dvec3 RoundedArcball::ballPoint( Camera * cam, int x, int y )
     return p / len;
 }
 
+void RoundedArcball::setCenter( bool use, float cx, float cy )
+{
+    _useCenter = use;
+    _cx = cx;
+    _cy = cy;
+}
+
 void RoundedArcball::outline( Camera * cam, float & cx, float & cy, std::vector < float > & radii )
 {
     double w = cam->viewportWidth();
     double h = cam->viewportHeight();
     cx = cam->viewportX() + 0.5 * w;
     cy = cam->viewportY() + 0.5 * h;
+    if ( _useCenter )
+    {
+        cx = _cx;
+        cy = _cy;
+    }
 
     // As in ballPoint().
     double rb = 0.5 * _size * std::min( w, h );

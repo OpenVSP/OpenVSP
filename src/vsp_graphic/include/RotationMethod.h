@@ -97,6 +97,12 @@ public:
     */
     void setAngleScale( double scale );
 
+    /*!
+    * Center the ball on a window location, such as the screen position of a pivot, instead
+    * of the viewport center.
+    */
+    void setCenter( bool use, float cx, float cy );
+
     virtual void begin( Camera * cam, int x, int y );
     virtual void drag( Camera * cam, int x, int y );
 
@@ -115,6 +121,10 @@ private:
     double _size;
     double _border;
     double _angleScale;
+
+    bool _useCenter;
+    float _cx;
+    float _cy;
 
     glm::dvec3 _p0;
     glm::dquat _rot0;

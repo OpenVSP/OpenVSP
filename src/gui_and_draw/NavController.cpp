@@ -22,6 +22,8 @@
 #include "Viewport.h"
 #include "Camera.h"
 
+#include "glm/ext.hpp"
+
 namespace VSPGUI
 {
 
@@ -46,6 +48,8 @@ NavSettings::NavSettings()
     m_ZoomSpeed = 1.0;
 
     m_ShowBallOutline = true;
+
+    m_Pivot = NAV_PIVOT_FIXED;
 
     m_Profile = NavProfile::Classic();
 }
@@ -91,6 +95,7 @@ static bool GetFlag( Fl_Preferences & grp, const char * key, bool def )
 static const char * const ANCHOR_NAMES[] = { "Pointer", "Center" };
 static const char * const WHEEL_STEP_NAMES[] = { "PerEvent", "Proportional" };
 static const char * const ZOOM_LAW_NAMES[] = { "PerEvent", "Continuous" };
+static const char * const PIVOT_NAMES[] = { "Fixed", "UnderCursor" };
 
 // USER_L writes and reads numbers in the C locale, so a decimal comma never gets into the file.
 void NavSettings::Load()
@@ -135,6 +140,8 @@ void NavSettings::Load()
     m_ZoomSpeed = Checked( m_ZoomSpeed, 0.1, 10.0, def.m_ZoomSpeed );
 
     m_ShowBallOutline = GetFlag( grp, "ShowBallOutline", def.m_ShowBallOutline );
+
+    m_Pivot = GetChoice( grp, "Pivot", PIVOT_NAMES, 2, def.m_Pivot );
 }
 
 // Only values that differ from the defaults are stored, so a later change of a default
@@ -203,6 +210,7 @@ void NavSettings::Save() const
     SaveDouble( grp, "ZoomSpeed", m_ZoomSpeed, def.m_ZoomSpeed );
 
     SaveFlag( grp, "ShowBallOutline", m_ShowBallOutline, def.m_ShowBallOutline );
+    SaveName( grp, "Pivot", PIVOT_NAMES[ m_Pivot ], PIVOT_NAMES[ def.m_Pivot ] );
 
     prefs.flush();
 }
@@ -213,6 +221,8 @@ NavController::NavController( VspGlWindow * win )
     m_RotateMode = m_Settings.m_StartupRotateMode;
     m_Rotation = nullptr;
     m_Action = NAV_NONE;
+    m_PressEventX = 0;
+    m_PressEventY = 0;
     m_PressX = 0;
     m_PressY = 0;
     m_PrevX = 0;
@@ -220,6 +230,9 @@ NavController::NavController( VspGlWindow * win )
     m_RotateEnabled = true;
     m_ZoomBoxArmed = false;
     m_ActionBeforeBox = NAV_NONE;
+
+    m_PivotCamera = nullptr;
+    m_StickyCOR = glm::vec3( 0.0f );
 
     SetSettings( m_Settings );
 }
@@ -300,9 +313,12 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
     {
         EndZoomBox( false, x, y );
     }
+    EndPivot( true );
     ClearOutline();
 
     m_Action = NAV_NONE;
+    m_PressEventX = Fl::event_x();
+    m_PressEventY = Fl::event_y();
     m_PressX = x;
     m_PressY = y;
     m_PrevX = x;
@@ -366,6 +382,7 @@ void NavController::Start( NavAction action, int x, int y )
         m_Rotation = CurrentRotation();
         if ( camera )
         {
+            StartPivot( camera, x, y );
             m_Rotation->begin( camera, x, y );
 
             VSPGraphic::Viewport * viewport = m_Win->getGraphicEngine()->getDisplay()->getViewport();
@@ -395,12 +412,20 @@ void NavController::Drag( int x, int y )
         {
             m_Rotation->drag( display->getCamera(), x, y );
             m_Win->UpdateRotationParms();
+            if ( m_PivotCamera )
+            {
+                m_Win->UpdatePanParms();
+            }
         }
         break;
 
     case NAV_ROLL:
         display->rotateZ( m_PrevX, m_PrevY, x, y );
         m_Win->UpdateRotationParms();
+        if ( m_PivotCamera )
+        {
+            m_Win->UpdatePanParms();
+        }
         break;
 
     case NAV_PAN:
@@ -451,6 +476,7 @@ void NavController::Release( int x, int y )
         EndZoomBox( true, x, y );
         m_Action = NAV_NONE;
     }
+    EndPivot( true );
     ClearOutline();
 
     if ( buttons != 0 && m_Action != NAV_NONE )
@@ -499,6 +525,8 @@ void NavController::Abandon()
         m_Win->EndBoxSelect( false );
     }
 
+    // Cancel puts the whole view back, the pivot's center of rotation included.
+    EndPivot( false );
     ClearOutline();
 
     // Ignore the rest of the drag; releasing the buttons then ends it.
@@ -547,6 +575,108 @@ void NavController::DragZoom( int x, int y )
     ZoomAt( camera, factor, m_Settings.m_DragZoomAnchor, m_PressX, m_PressY );
     m_Win->UpdateZoomParms();
     m_Win->UpdatePanParms();
+}
+
+void NavController::StartPivot( VSPGraphic::Camera * camera, int x, int y )
+{
+    m_RoundedArcball.setCenter( false, 0.0f, 0.0f );
+
+    VSPGraphic::Display * display = m_Win->getGraphicEngine()->getDisplay();
+    VSPGraphic::Viewport * viewport = display->getViewport();
+    if ( m_Settings.m_Pivot != NAV_PIVOT_UNDER_CURSOR || !viewport )
+    {
+        return;
+    }
+
+    // The mouse can be over another viewport when a gesture starts on a button release.
+    int ivp = display->getLayoutMgr()->findViewport( x, y );
+    if ( ivp < 0 || display->getLayoutMgr()->getViewports()[ ivp ] != viewport )
+    {
+        return;
+    }
+
+    glm::vec3 hit;
+    if ( !m_Win->ProbeSurface( m_PressEventX, m_PressEventY, hit ) )
+    {
+        return;
+    }
+
+    m_PivotCamera = camera;
+    m_StickyCOR = camera->getCOR();
+    camera->setCORKeepView( -hit.x, -hit.y, -hit.z );
+
+    // The ball turns about the pivot, so center it there.
+    glm::vec4 rect( camera->viewportX(), camera->viewportY(), camera->viewportWidth(), camera->viewportHeight() );
+    glm::vec3 s = glm::project( hit, camera->getModelViewMatrix(), camera->getProjectionMatrix(), rect );
+    m_RoundedArcball.setCenter( true, s.x, s.y );
+    viewport->setOverlayMarker( true, s.x, s.y );
+
+    m_Win->UpdatePanParms();
+}
+
+void NavController::FollowPivot( VSPGraphic::Camera * camera )
+{
+    if ( m_Action != NAV_ROTATE || !m_Rotation || camera != m_PivotCamera )
+    {
+        return;
+    }
+
+    VSPGraphic::Viewport * viewport = m_Win->getGraphicEngine()->getDisplay()->getViewport();
+    if ( !viewport )
+    {
+        return;
+    }
+
+    // The pivot is the center of rotation, in setCOR() terms the negative of the world point.
+    glm::vec3 pivot = -camera->getCOR();
+    glm::vec4 rect( camera->viewportX(), camera->viewportY(), camera->viewportWidth(), camera->viewportHeight() );
+    glm::vec3 s = glm::project( pivot, camera->getModelViewMatrix(), camera->getProjectionMatrix(), rect );
+
+    m_RoundedArcball.setCenter( true, s.x, s.y );
+    viewport->setOverlayMarker( true, s.x, s.y );
+    if ( m_Settings.m_ShowBallOutline )
+    {
+        float cx, cy;
+        std::vector < float > radii;
+        m_Rotation->outline( camera, cx, cy, radii );
+        viewport->setOverlayCircles( cx, cy, radii );
+    }
+
+    m_Rotation->begin( camera, m_PrevX, m_PrevY );
+}
+
+void NavController::EndPivot( bool restore )
+{
+    if ( !m_PivotCamera )
+    {
+        return;
+    }
+
+    if ( restore )
+    {
+        m_PivotCamera->setCORKeepView( m_StickyCOR.x, m_StickyCOR.y, m_StickyCOR.z );
+    }
+    m_PivotCamera = nullptr;
+    m_RoundedArcball.setCenter( false, 0.0f, 0.0f );
+
+    std::vector < VSPGraphic::Viewport * > viewports = m_Win->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+    for ( int i = 0; i < ( int )viewports.size(); i++ )
+    {
+        viewports[i]->setOverlayMarker( false, 0.0f, 0.0f );
+    }
+
+    m_Win->UpdateCORParms();
+    m_Win->UpdatePanParms();
+}
+
+bool NavController::GetStickyCOR( VSPGraphic::Camera * camera, glm::vec3 & cor ) const
+{
+    if ( !m_PivotCamera || camera != m_PivotCamera )
+    {
+        return false;
+    }
+    cor = m_StickyCOR;
+    return true;
 }
 
 void NavController::ClearOutline()
@@ -672,6 +802,7 @@ void NavController::Wheel( int dx, int dy, int x, int y )
     VSPGraphic::Camera * camera = viewport->getCamera();
 
     ZoomAt( camera, zoomChange, m_Settings.m_WheelAnchor, x, y );
+    FollowPivot( camera );
 
     if ( viewport == display->getViewport() )
     {

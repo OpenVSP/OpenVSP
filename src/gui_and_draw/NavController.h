@@ -61,6 +61,13 @@ enum NavZoomLaw
     NAV_ZOOM_CONTINUOUS     // A factor that depends only on the distance moved.
 };
 
+// What a rotation turns about.
+enum NavPivot
+{
+    NAV_PIVOT_FIXED,        // The rotation center, set by Set Rotation Center, Center, Fit, ...
+    NAV_PIVOT_UNDER_CURSOR  // The surface under the press, for that drag; else the rotation center.
+};
+
 // The user's 3D interaction preferences.
 struct NavSettings
 {
@@ -86,6 +93,8 @@ struct NavSettings
     double m_ZoomSpeed;         // Scales the continuous drag zoom and the proportional wheel.
 
     bool m_ShowBallOutline;     // Draw the ball's outline while it rotates.
+
+    int m_Pivot;                // NavPivot.
 
     NavProfile m_Profile;       // The mouse bindings.
 };
@@ -138,6 +147,11 @@ public:
     // disarm a zoom box.  Returns true if there was something to cancel.
     bool Cancel();
 
+    // While a drag turns about a pivot of its own, the camera's center of rotation is that
+    // pivot.  Returns true and the rotation center to show instead, in setCOR() terms, when
+    // that is so for this camera.
+    bool GetStickyCOR( VSPGraphic::Camera * camera, glm::vec3 & cor ) const;
+
     void KeyDown( int key );
     void KeyUp( int key );
     void ClearKeys();
@@ -151,6 +165,17 @@ private:
     void Start( NavAction action, int x, int y );
 
     void DragZoom( int x, int y );
+
+    // Turn about the surface under the mouse for this drag, if there is one.
+    void StartPivot( VSPGraphic::Camera * camera, int x, int y );
+
+    // After the pan changed during a drag about a pivot, put the ball, its outline and the
+    // marker back on the pivot and continue the drag from there.
+    void FollowPivot( VSPGraphic::Camera * camera );
+
+    // Go back to the rotation center without moving the image, unless restore is false
+    // because the whole view is being put back anyway.
+    void EndPivot( bool restore );
 
     // Remove the rotation method's outline from every viewport.
     void ClearOutline();
@@ -191,8 +216,14 @@ private:
     // What was going on when a box selection started, so its end resumes only that.
     NavAction m_ActionBeforeBox;
 
+    // The camera turning about a pivot of its own, and its rotation center to go back to.
+    VSPGraphic::Camera * m_PivotCamera;
+    glm::vec3 m_StickyCOR;
+
     NavAction m_Action;
 
+    int m_PressEventX;      // The press in FLTK coordinates, for probing the surface there.
+    int m_PressEventY;
     int m_PressX;
     int m_PressY;
     int m_PrevX;

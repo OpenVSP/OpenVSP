@@ -55,6 +55,9 @@ Viewport::Viewport( int x, int y, int width, int height )
     }
     _overlayCircleX = 0.0f;
     _overlayCircleY = 0.0f;
+    _showOverlayMarker = false;
+    _overlayMarkerX = 0.0f;
+    _overlayMarkerY = 0.0f;
 }
 Viewport::~Viewport()
 {
@@ -614,9 +617,16 @@ void Viewport::setOverlayCircles( float cx, float cy, const std::vector < float 
     _overlayRadii = radii;
 }
 
+void Viewport::setOverlayMarker( bool show, float x, float y )
+{
+    _showOverlayMarker = show;
+    _overlayMarkerX = x;
+    _overlayMarkerY = y;
+}
+
 void Viewport::drawOverlay()
 {
-    if ( !_showOverlayBox && _overlayRadii.empty() )
+    if ( !_showOverlayBox && _overlayRadii.empty() && !_showOverlayMarker )
     {
         return;
     }
@@ -671,6 +681,41 @@ void Viewport::drawOverlay()
             glVertex2f( cx + r * std::cos( a ), cy + r * std::sin( a ) );
         }
         glEnd();
+    }
+
+    if ( _showOverlayMarker )
+    {
+        // A ring with a dot, dark over light so it shows on any background.
+        float mx = _overlayMarkerX - _x;
+        float my = _overlayMarkerY - _y;
+        float r = 6.0f * _screenSizeDiffRatio;
+        for ( int pass = 0; pass < 2; pass++ )
+        {
+            if ( pass == 0 )
+            {
+                glLineWidth( 3.0f * _screenSizeDiffRatio );
+                glColor4f( 1.0f, 1.0f, 1.0f, 0.8f );
+            }
+            else
+            {
+                glLineWidth( 1.5f * _screenSizeDiffRatio );
+                glColor4f( 0.8f, 0.1f, 0.1f, 1.0f );
+            }
+
+            glBegin( GL_LINE_LOOP );
+            for ( int j = 0; j < 24; j++ )
+            {
+                float a = 2.0f * ( float )M_PI * j / 24;
+                glVertex2f( mx + r * std::cos( a ), my + r * std::sin( a ) );
+            }
+            glEnd();
+
+            glPointSize( 3.0f * _screenSizeDiffRatio );
+            glBegin( GL_POINTS );
+            glVertex2f( mx, my );
+            glEnd();
+        }
+        glLineWidth( 1.0f * _screenSizeDiffRatio );
     }
 
     if ( depthTest )

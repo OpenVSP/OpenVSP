@@ -590,6 +590,13 @@ void VspGlWindow::UpdateCORParms()
             {
                 glm::vec3 center = getCOR();
 
+                // A drag turning about a pivot of its own shows the rotation center it goes back to.
+                glm::vec3 sticky;
+                if ( m_Nav.GetStickyCOR( m_GEngine->getDisplay()->getCamera(), sticky ) )
+                {
+                    center = -sticky;
+                }
+
                 veh->m_ViewFromCamera = true;
                 veh->m_CORXValue.Set( center.x );
                 veh->m_CORYValue.Set( center.y );
@@ -615,6 +622,17 @@ void VspGlWindow::UpdatePanParms()
             if ( veh )
             {
                 glm::vec2 currentPan = getPanValues();
+
+                // With a pivot of a drag's own, show the pan that gives this image about the
+                // rotation center shown in the COR Parms.
+                VSPGraphic::Camera * camera = m_GEngine->getDisplay()->getCamera();
+                glm::vec3 sticky;
+                if ( camera && m_Nav.GetStickyCOR( camera, sticky ) )
+                {
+                    glm::dvec3 d = glm::dquat( camera->getViewRotation() ) * glm::dvec3( camera->getCOR() - sticky );
+                    currentPan.x += d.x;
+                    currentPan.y += d.y;
+                }
 
                 veh->m_ViewFromCamera = true;
                 veh->m_PanXPosValue.Set( currentPan.x );

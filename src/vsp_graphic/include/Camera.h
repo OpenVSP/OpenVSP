@@ -185,6 +185,12 @@ public:
     void centerAt( float x, float y );
 
     /*!
+    * Set the center of rotation without moving the image: the pan changes to make up for
+    * it.  setCOR() leaves the pan, so the model moves on screen.  x, y, z are as for setCOR().
+    */
+    void setCORKeepView( float x, float y, float z );
+
+    /*!
     * Move Geometry to center.
     */
     virtual void center() = 0;

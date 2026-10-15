@@ -70,6 +70,7 @@ protected:
     Choice m_BallAngleChoice;
     Choice m_TurntableSpeedChoice;
     Choice m_BallOutlineChoice;
+    Choice m_PivotChoice;
 
     Choice m_WheelDirChoice;
     Choice m_WheelAnchorChoice;
