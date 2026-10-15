@@ -152,6 +152,17 @@
    - [nanoflann](http://code.google.com/p/nanoflann) - Fast nearest neighbors
    library.
 
+   - [OpenAxis SDK](https://openaxis.rotatrix.com) - Client library for the
+   Rotatrix trackball's host, used to move the 3D view with the trackball.
+   Optional; VSP_ENABLE_OPENAXIS=OFF leaves it and the libraries below out.
+   GRAPHICS_ONLY
+     - [IXWebSocket](https://github.com/machinezone/IXWebSocket) - WebSocket
+     library, included in the SDK's source.
+     - [nlohmann_json](https://github.com/nlohmann/json) - JSON library, used
+     in the SDK's interface.
+     - [LibreSSL](https://www.libressl.org) - Its libcrypto checks the host's
+     signature on macOS and Linux.  Windows uses the system's bcrypt instead.
+
    - [pcg-cpp](https://github.com/imneme/pcg-cpp) - Random number generator
 
    - sixseries - NASA 6-Series airfoil generation Fortran code released
