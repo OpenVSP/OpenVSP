@@ -230,6 +230,8 @@ private:
     const NavBinding * m_PendingDrag;
     const NavBinding * m_PendingClick;
     bool m_Moved;           // The gesture has had a drag event.
+    bool m_Chord;           // More than one button has been down in this gesture.
+    bool m_ChordEnded;      // A chord's button was released and the profile ends chords so.
 
     int m_PressEventX;      // The press in FLTK coordinates, for probing the surface there.
     int m_PressEventY;

@@ -95,6 +95,10 @@ public:
     // Screen points a press must move before it is a drag.  At 0 a drag starts at the press,
     // and a click is a release with no motion at all.
     int m_ClickDistance;
+
+    // Releasing one button of a chord ends the gesture.  Otherwise the buttons still down start
+    // whatever they are bound to, from there.
+    bool m_ChordEnds;
 };
 }
 

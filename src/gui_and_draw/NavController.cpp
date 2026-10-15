@@ -234,6 +234,9 @@ NavController::NavController( VspGlWindow * win )
     m_PendingDrag = nullptr;
     m_PendingClick = nullptr;
     m_Moved = false;
+    m_Chord = false;
+    m_ChordEnded = false;
+
     m_ActionBeforeBox = NAV_NONE;
 
     m_PivotCamera = nullptr;
@@ -323,6 +326,7 @@ void NavController::Push( int x, int y )
     {
         m_HeldCameras.clear();
         HoldCurrentCamera();
+        m_ChordEnded = false;
 
         Begin( buttons, pressed, x, y, true );
     }
@@ -370,6 +374,11 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
     press.m_HeldKeys = m_HeldKeys;
     press.m_PressedButton = pressed;
     press.m_Conditions = m_Win->GetNavConditions();
+
+    if ( CountButtons( press.m_Buttons ) > 1 )
+    {
+        m_Chord = true;
+    }
 
     const NavBinding * drag = m_Settings.m_Profile.Match( press, NAV_ON_DRAG );
     m_PendingClick = m_Settings.m_Profile.Match( press, NAV_ON_CLICK );
@@ -568,7 +577,13 @@ void NavController::Release( int x, int y )
     }
     m_PendingClick = nullptr;
 
-    if ( buttons != 0 && m_Action != NAV_NONE )
+    if ( m_Chord && m_Settings.m_Profile.m_ChordEnds )
+    {
+        // Releasing a button of a chord ends it; the rest of the buttons do nothing.
+        m_ChordEnded = true;
+    }
+
+    if ( buttons != 0 && m_Action != NAV_NONE && !m_ChordEnded )
     {
         // Buttons are still down; carry on with whatever they now mean, from here.
         Begin( buttons, 0, x, y, false );
@@ -581,6 +596,8 @@ void NavController::Release( int x, int y )
     if ( buttons == 0 )
     {
         m_HeldCameras.clear();
+        m_Chord = false;
+        m_ChordEnded = false;
     }
 }
 

@@ -52,6 +52,7 @@ NavPress::NavPress()
 NavProfile::NavProfile()
 {
     m_ClickDistance = 0;
+    m_ChordEnds = false;
 }
 
 // Fit Model's box selection takes the left button when it is the one pressed: with Shift, or
