@@ -220,3 +220,18 @@ def test_nose_gear_folds_about_the_top_of_its_strut():
     assert abs( axis[0] ) < TOL and abs( abs( axis[1] ) - 1.0 ) < TOL and abs( axis[2] ) < TOL
     assert math.dist( trunnion, [ 0.0, 0.0, length ] ) < TOL
     assert abs( abs( vsp.GetParmVal( b, "Mech_RetAngle", "Retract" ) ) - 90.0 ) < TOL
+
+
+def test_tire_shoulder_in_model_units_stays_in_model_units():
+    vsp.VSPRenew()
+    gear = vsp.AddGeom( "GEAR" )
+    vsp.Update()
+    bogie = vsp.CreateAndAddBogie( gear )
+    vsp.Update()
+    for name in ( "WsMode", "HsMode" ):
+        vsp.SetParmVal( vsp.FindParm( bogie, name, "Tire" ), vsp.TIRE_DIM_MODEL )
+    for name in ( "WsModel", "HsModel" ):
+        vsp.SetParmVal( vsp.FindParm( bogie, name, "Tire" ), 0.123 )
+    vsp.Update()
+    for name in ( "WsModel", "HsModel" ):
+        assert abs( vsp.GetParmVal( vsp.FindParm( bogie, name, "Tire" ) ) - 0.123 ) < 1e-12, name

@@ -449,7 +449,7 @@ void Bogie:: UpdateParms()
         m_WsFrac = m_WsIn() / W;
         m_WsModel = m_WsIn() * in2model;
     }
-    else if ( m_WsMode() == vsp::TIRE_DIM_IN )
+    else if ( m_WsMode() == vsp::TIRE_DIM_MODEL )
     {
         m_WsIn = m_WsModel() * model2in;
         m_WsFrac = m_WsIn() / W;
@@ -465,7 +465,7 @@ void Bogie:: UpdateParms()
         m_HsFrac = m_HsIn() / H;
         m_HsModel = m_HsIn() * in2model;
     }
-    else if ( m_HsMode() == vsp::TIRE_DIM_IN )
+    else if ( m_HsMode() == vsp::TIRE_DIM_MODEL )
     {
         m_HsIn = m_HsModel() * model2in;
         m_HsFrac = m_HsIn() / H;
