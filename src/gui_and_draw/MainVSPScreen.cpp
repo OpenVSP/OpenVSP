@@ -275,6 +275,11 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_DeviceIconOff = nullptr;
     m_NavDevice = new VSPGUI::NavDevice( m_GlWin );
     m_NavDevice->SetStatusCallback( NavDeviceStatusCB, this );
+    VSPGUI::NavDevice * device = m_NavDevice;
+    m_GlWin->m_ViewChangedCB = [device]()
+    {
+        device->ViewChanged();
+    };
     if ( nav_settings.m_UseDevice )
     {
         m_NavDevice->Start();
@@ -329,6 +334,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
 MainVSPScreen::~MainVSPScreen()
 {
+    m_GlWin->m_ViewChangedCB = nullptr;
     delete m_NavDevice;
     delete m_GlWin;
 }
@@ -585,6 +591,7 @@ void MainVSPScreen::NewModel()
     }
 
     VehicleMgr.GetVehicle()->Renew();
+    m_NavDevice->DocumentChanged();
 
     m_GlWin->getGraphicEngine()->getDisplay()->setCOR( 0.0, 0.0, 0.0 );
 }
@@ -631,6 +638,7 @@ void MainVSPScreen::ActionCB( void * data )
         if ( openfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->Renew();
+            m_NavDevice->DocumentChanged();
             VehicleMgr.GetVehicle()->SetVSP3FileName( openfile );
             VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
 

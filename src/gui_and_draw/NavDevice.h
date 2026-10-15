@@ -41,6 +41,12 @@ public:
     // True while connected to a verified host.
     bool IsAvailable() const;
 
+    // Something other than the device moved the view.
+    void ViewChanged();
+
+    // A model was opened or made.  Any gesture ends.
+    void DocumentChanged();
+
     // The connection's state, for people.
     std::string GetStatus() const;
 

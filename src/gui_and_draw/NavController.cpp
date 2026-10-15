@@ -1169,6 +1169,7 @@ void NavController::StepZoom( int action, int x, int y )
 
     m_Win->UpdateZoomParms();
     m_Win->UpdatePanParms();
+    m_Win->ViewChanged();
     m_Win->redraw();
 }
 

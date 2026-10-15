@@ -19,9 +19,11 @@
 
 #include <openaxis/connection_manager.hpp>
 #include <openaxis/diagnostics.hpp>
+#include <openaxis/navigation.hpp>
 
 #include "main.h"
 #include "MainGLWindow.h"
+#include "NavView.h"
 
 namespace VSPGUI
 {
@@ -115,9 +117,17 @@ protected:
     bool m_Woken;
 };
 
+openaxis::Scheduler * NavScheduler()
+{
+    return FltkScheduler::Get();
+}
+
 struct NavDevice::Impl
 {
     VspGlWindow * m_Win;
+    std::unique_ptr < NavViewAdapter > m_Adapter;
+    std::unique_ptr < openaxis::NavigationSession > m_Session;
+    bool m_Moving;              // The device moved the view in the last half second.
     std::unique_ptr < openaxis::OpenAxisClient > m_Client;
     std::unique_ptr < openaxis::OpenAxisConnectionManager > m_Manager;
     bool m_Focused;
@@ -126,6 +136,25 @@ struct NavDevice::Impl
 
     void ( *m_StatusCB )( void * );
     void * m_StatusData;
+
+    // The device moved the view: say so for a moment.
+    static void ClearMoving( void * data )
+    {
+        NavDevice * dev = ( NavDevice * )data;
+        dev->m_Impl->m_Moving = false;
+        dev->StatusChanged();
+    }
+
+    void NoteMotion( NavDevice * dev )
+    {
+        Fl::remove_timeout( ClearMoving, dev );
+        Fl::add_timeout( 0.5, ClearMoving, dev );
+        if ( !m_Moving )
+        {
+            m_Moving = true;
+            dev->StatusChanged();
+        }
+    }
 
     // Whether an OpenVSP window has the keyboard focus, checked twice a second.
     static void PollFocus( void * data )
@@ -152,6 +181,7 @@ NavDevice::NavDevice( VspGlWindow * win ) : m_Impl( new Impl() )
     m_Impl->m_Win = win;
     m_Impl->m_Focused = true;
     m_Impl->m_Failed = false;
+    m_Impl->m_Moving = false;
     m_Impl->m_StatusCB = nullptr;
     m_Impl->m_StatusData = nullptr;
 }
@@ -196,15 +226,27 @@ void NavDevice::Start()
     m_Impl->m_Failed = false;
     try
     {
+        Impl * impl = m_Impl.get();
+        NavDevice * dev = this;
+
         m_Impl->m_Client.reset( new openaxis::OpenAxisClient( options ) );
 
-        Impl * impl = m_Impl.get();
+        // The host computes the motion from what the adapter tells it of the scene.
+        m_Impl->m_Adapter.reset( new NavViewAdapter( m_Impl->m_Win ) );
+        m_Impl->m_Adapter->m_OnMotion = [impl, dev]()
+        {
+            impl->NoteMotion( dev );
+        };
+        m_Impl->m_Session.reset( new openaxis::NavigationSession( *m_Impl->m_Client, *m_Impl->m_Adapter, nullptr,
+                                                                  NavOptions( m_Impl->m_Adapter.get() ) ) );
+
         openaxis::OpenAxisConnectionManagerOptions manager_options;
         manager_options.metadata = [impl]()
         {
             openaxis::ConnectionMetadata metadata;
             // OpenVSP models, and its camera orbits; it has no eye to fly.
             metadata.tags = { "app.openvsp", "workspace.modeling", "navigation.hint.orbit" };
+            metadata.capabilities = { "navigation" };
             metadata.focused = impl->m_Focused;
             return metadata;
         };
@@ -218,6 +260,12 @@ void NavDevice::Start()
     catch ( ... )
     {
         m_Impl->m_Manager.reset();
+        if ( m_Impl->m_Session )
+        {
+            m_Impl->m_Session->close();
+        }
+        m_Impl->m_Session.reset();
+        m_Impl->m_Adapter.reset();
         m_Impl->m_Client.reset();
         m_Impl->m_Failed = true;
         StatusChanged();
@@ -235,17 +283,25 @@ void NavDevice::Stop()
     }
 
     Fl::remove_timeout( Impl::PollFocus, m_Impl.get() );
+    Fl::remove_timeout( Impl::ClearMoving, this );
+    m_Impl->m_Moving = false;
 
     try
     {
         m_Impl->m_Manager->stop();
         m_Impl->m_Manager.reset();
+        if ( m_Impl->m_Session )
+        {
+            m_Impl->m_Session->close();
+        }
         m_Impl->m_Client->disconnect();
     }
     catch ( ... )
     {
     }
     m_Impl->m_Manager.reset();
+    m_Impl->m_Session.reset();
+    m_Impl->m_Adapter.reset();
     m_Impl->m_Client.reset();
 
     StatusChanged();
@@ -261,6 +317,35 @@ bool NavDevice::IsAvailable() const
     return m_Impl->m_Client && m_Impl->m_Client->connected();
 }
 
+void NavDevice::ViewChanged()
+{
+    if ( m_Impl->m_Session )
+    {
+        try
+        {
+            m_Impl->m_Session->native_camera_changed();
+        }
+        catch ( ... )
+        {
+        }
+    }
+}
+
+void NavDevice::DocumentChanged()
+{
+    NavNewDocument();
+    if ( m_Impl->m_Session )
+    {
+        try
+        {
+            m_Impl->m_Session->context_changed();
+        }
+        catch ( ... )
+        {
+        }
+    }
+}
+
 std::string NavDevice::GetStatus() const
 {
     if ( m_Impl->m_Failed )
@@ -270,6 +355,10 @@ std::string NavDevice::GetStatus() const
     if ( !m_Impl->m_Manager )
     {
         return "Off";
+    }
+    if ( IsAvailable() && m_Impl->m_Moving )
+    {
+        return "Connected, moving the view";
     }
     if ( IsAvailable() )
     {
@@ -341,6 +430,14 @@ bool NavDevice::IsStarted() const
 bool NavDevice::IsAvailable() const
 {
     return false;
+}
+
+void NavDevice::ViewChanged()
+{
+}
+
+void NavDevice::DocumentChanged()
+{
 }
 
 std::string NavDevice::GetStatus() const
