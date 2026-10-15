@@ -33,6 +33,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     {
         m_ParentGeomPicker.AddExcludeType( nst[i] );
     }
+    m_ParentGeomPicker.AddExcludeType( GEAR_GEOM_TYPE );
 
     m_ParentGeomPicker.SetIncludeNone( true );
 

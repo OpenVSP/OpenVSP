@@ -1203,7 +1203,8 @@ string Vehicle::AddGeom( const GeomType & type )
             if ( par )
             {
                 if ( par->isNonSurfaceType() ||
-                     par->GetType().m_Type == CONFORMAL_GEOM_TYPE )
+                     par->GetType().m_Type == CONFORMAL_GEOM_TYPE ||
+                     par->GetBehaviorType() == GEAR_GEOM_TYPE )
                 {
                     MessageData errMsgData;
                     errMsgData.m_String = "Error";

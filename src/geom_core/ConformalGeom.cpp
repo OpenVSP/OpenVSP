@@ -202,6 +202,14 @@ bool ConformalGeom::SetConformalParent( const string &parent )
         return parentchanged;
     }
 
+    // Nor be a type a Conformal cannot follow, the same ones AddGeom refuses.
+    if ( new_parent && ( new_parent->isNonSurfaceType() ||
+                         new_parent->GetType().m_Type == CONFORMAL_GEOM_TYPE ||
+                         new_parent->GetBehaviorType() == GEAR_GEOM_TYPE ) )
+    {
+        return parentchanged;
+    }
+
     if ( m_ConformalParentID != parent )
     {
         Geom * g = veh->FindGeom( m_ConformalParentID );
