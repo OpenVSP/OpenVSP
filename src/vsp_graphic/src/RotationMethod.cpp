@@ -95,6 +95,26 @@ glm::dvec3 RoundedArcball::ballPoint( Camera * cam, int x, int y )
     return p / len;
 }
 
+void RoundedArcball::outline( Camera * cam, float & cx, float & cy, std::vector < float > & radii )
+{
+    double w = cam->viewportWidth();
+    double h = cam->viewportHeight();
+    cx = cam->viewportX() + 0.5 * w;
+    cy = cam->viewportY() + 0.5 * h;
+
+    // As in ballPoint().
+    double rb = 0.5 * _size * std::min( w, h );
+    double ra = 1.0 + _border;
+    double ri = 2.0 * ra / ( 1.0 + ra * ra );
+
+    radii.clear();
+    radii.push_back( ri * rb / ra );
+    if ( _border > 0.0 )
+    {
+        radii.push_back( rb );
+    }
+}
+
 void RoundedArcball::begin( Camera * cam, int x, int y )
 {
     _p0 = ballPoint( cam, x, y );

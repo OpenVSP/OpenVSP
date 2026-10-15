@@ -4,6 +4,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/quaternion.hpp"
 
+#include <vector>
+
 namespace VSPGraphic
 {
 class Camera;
@@ -21,6 +23,17 @@ public:
 
     virtual void begin( Camera * cam, int x, int y ) = 0;
     virtual void drag( Camera * cam, int x, int y ) = 0;
+
+    /*!
+    * Circles that show the method's shape on screen, centered at cx, cy, in window pixels.
+    * None by default.
+    */
+    virtual void outline( Camera * cam, float & cx, float & cy, std::vector < float > & radii )
+    {
+        cx = 0.0f;
+        cy = 0.0f;
+        radii.clear();
+    }
 
 protected:
     RotationMethod()
@@ -86,6 +99,12 @@ public:
 
     virtual void begin( Camera * cam, int x, int y );
     virtual void drag( Camera * cam, int x, int y );
+
+    /*!
+    * The edge of the sphere, where the fillet starts, and the outer edge of the fillet.
+    * Outside the outer circle a drag rolls.
+    */
+    virtual void outline( Camera * cam, float & cx, float & cy, std::vector < float > & radii );
 
     /*!
     * Point on the ball under a mouse location, in eye coordinates.

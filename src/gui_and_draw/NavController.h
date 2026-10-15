@@ -85,6 +85,8 @@ struct NavSettings
     int m_DragZoomLaw;          // NavZoomLaw.
     double m_ZoomSpeed;         // Scales the continuous drag zoom and the proportional wheel.
 
+    bool m_ShowBallOutline;     // Draw the ball's outline while it rotates.
+
     NavProfile m_Profile;       // The mouse bindings.
 };
 
@@ -149,6 +151,9 @@ private:
     void Start( NavAction action, int x, int y );
 
     void DragZoom( int x, int y );
+
+    // Remove the rotation method's outline from every viewport.
+    void ClearOutline();
 
     // Hold the view of the selected viewport's camera for Cancel, once per gesture.
     void HoldCurrentCamera();

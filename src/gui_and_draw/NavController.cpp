@@ -45,6 +45,8 @@ NavSettings::NavSettings()
     m_DragZoomLaw = NAV_ZOOM_PER_EVENT;
     m_ZoomSpeed = 1.0;
 
+    m_ShowBallOutline = true;
+
     m_Profile = NavProfile::Classic();
 }
 
@@ -131,6 +133,8 @@ void NavSettings::Load()
     m_DragZoomLaw = GetChoice( grp, "DragZoomLaw", ZOOM_LAW_NAMES, 2, def.m_DragZoomLaw );
     grp.get( "ZoomSpeed", m_ZoomSpeed, def.m_ZoomSpeed );
     m_ZoomSpeed = Checked( m_ZoomSpeed, 0.1, 10.0, def.m_ZoomSpeed );
+
+    m_ShowBallOutline = GetFlag( grp, "ShowBallOutline", def.m_ShowBallOutline );
 }
 
 // Only values that differ from the defaults are stored, so a later change of a default
@@ -197,6 +201,8 @@ void NavSettings::Save() const
     SaveName( grp, "DragZoomAnchor", ANCHOR_NAMES[ m_DragZoomAnchor ], ANCHOR_NAMES[ def.m_DragZoomAnchor ] );
     SaveName( grp, "DragZoomLaw", ZOOM_LAW_NAMES[ m_DragZoomLaw ], ZOOM_LAW_NAMES[ def.m_DragZoomLaw ] );
     SaveDouble( grp, "ZoomSpeed", m_ZoomSpeed, def.m_ZoomSpeed );
+
+    SaveFlag( grp, "ShowBallOutline", m_ShowBallOutline, def.m_ShowBallOutline );
 
     prefs.flush();
 }
@@ -294,6 +300,7 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
     {
         EndZoomBox( false, x, y );
     }
+    ClearOutline();
 
     m_Action = NAV_NONE;
     m_PressX = x;
@@ -360,6 +367,15 @@ void NavController::Start( NavAction action, int x, int y )
         if ( camera )
         {
             m_Rotation->begin( camera, x, y );
+
+            VSPGraphic::Viewport * viewport = m_Win->getGraphicEngine()->getDisplay()->getViewport();
+            if ( m_Settings.m_ShowBallOutline && viewport )
+            {
+                float cx, cy;
+                std::vector < float > radii;
+                m_Rotation->outline( camera, cx, cy, radii );
+                viewport->setOverlayCircles( cx, cy, radii );
+            }
         }
     }
     else if ( m_Action == NAV_BOX_SELECT )
@@ -435,6 +451,7 @@ void NavController::Release( int x, int y )
         EndZoomBox( true, x, y );
         m_Action = NAV_NONE;
     }
+    ClearOutline();
 
     if ( buttons != 0 && m_Action != NAV_NONE )
     {
@@ -482,6 +499,8 @@ void NavController::Abandon()
         m_Win->EndBoxSelect( false );
     }
 
+    ClearOutline();
+
     // Ignore the rest of the drag; releasing the buttons then ends it.
     m_Action = NAV_NONE;
     m_ActionBeforeBox = NAV_NONE;
@@ -528,6 +547,16 @@ void NavController::DragZoom( int x, int y )
     ZoomAt( camera, factor, m_Settings.m_DragZoomAnchor, m_PressX, m_PressY );
     m_Win->UpdateZoomParms();
     m_Win->UpdatePanParms();
+}
+
+void NavController::ClearOutline()
+{
+    std::vector < VSPGraphic::Viewport * > viewports = m_Win->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+    std::vector < float > none;
+    for ( int i = 0; i < ( int )viewports.size(); i++ )
+    {
+        viewports[i]->setOverlayCircles( 0.0f, 0.0f, none );
+    }
 }
 
 void NavController::EndZoomBox( bool apply, int x, int y )

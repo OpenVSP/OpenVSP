@@ -1,5 +1,8 @@
 #include "OpenGLHeaders.h"
 
+#include <algorithm>
+#include <cmath>
+
 #define GLM_FORCE_RADIANS
 #include "glm/ext.hpp"
 
@@ -50,6 +53,8 @@ Viewport::Viewport( int x, int y, int width, int height )
     {
         _overlayBox[i] = 0;
     }
+    _overlayCircleX = 0.0f;
+    _overlayCircleY = 0.0f;
 }
 Viewport::~Viewport()
 {
@@ -602,9 +607,16 @@ void Viewport::setOverlayBox( bool show, int x0, int y0, int x1, int y1 )
     _overlayBox[3] = y1;
 }
 
+void Viewport::setOverlayCircles( float cx, float cy, const std::vector < float > & radii )
+{
+    _overlayCircleX = cx;
+    _overlayCircleY = cy;
+    _overlayRadii = radii;
+}
+
 void Viewport::drawOverlay()
 {
-    if ( !_showOverlayBox )
+    if ( !_showOverlayBox && _overlayRadii.empty() )
     {
         return;
     }
@@ -642,6 +654,23 @@ void Viewport::drawOverlay()
         glVertex2f( x0, y1 );
         glEnd();
         glDisable( GL_LINE_STIPPLE );
+    }
+
+    float cx = _overlayCircleX - _x;
+    float cy = _overlayCircleY - _y;
+    glColor4f( 0.5f, 0.5f, 0.5f, 0.6f );
+    for ( int i = 0; i < ( int )_overlayRadii.size(); i++ )
+    {
+        float r = _overlayRadii[i];
+        int n = std::max( 32, std::min( 360, ( int )( r / 2.0f ) ) );
+
+        glBegin( GL_LINE_LOOP );
+        for ( int j = 0; j < n; j++ )
+        {
+            float a = 2.0f * ( float )M_PI * j / n;
+            glVertex2f( cx + r * std::cos( a ), cy + r * std::sin( a ) );
+        }
+        glEnd();
     }
 
     if ( depthTest )

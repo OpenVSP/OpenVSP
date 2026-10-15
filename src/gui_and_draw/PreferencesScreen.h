@@ -69,6 +69,7 @@ protected:
     Choice m_BallSizeChoice;
     Choice m_BallAngleChoice;
     Choice m_TurntableSpeedChoice;
+    Choice m_BallOutlineChoice;
 
     Choice m_WheelDirChoice;
     Choice m_WheelAnchorChoice;

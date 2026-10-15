@@ -83,6 +83,11 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_BallAngleChoice.UpdateItems();
     m_ViewLayout.AddChoice( m_BallAngleChoice, "Ball Speed" );
 
+    m_BallOutlineChoice.AddItem( "Show while rotating", 1 );
+    m_BallOutlineChoice.AddItem( "Hide", 0 );
+    m_BallOutlineChoice.UpdateItems();
+    m_ViewLayout.AddChoice( m_BallOutlineChoice, "Ball Outline" );
+
     m_TurntableSpeedChoice.AddItem( "0.2 deg/point", 0 );
     m_TurntableSpeedChoice.AddItem( "0.3 deg/point", 1 );
     m_TurntableSpeedChoice.AddItem( "0.4 deg/point", 2 );
@@ -189,6 +194,7 @@ void PreferencesScreen::ShowNav()
     m_BallTypeChoice.SetVal( m_Nav.m_BallType );
     m_BallSizeChoice.SetVal( NearestIndex( BALL_SIZES, 4, m_Nav.m_BallSize ) );
     m_BallAngleChoice.SetVal( NearestIndex( BALL_ANGLE_SCALES, 2, m_Nav.m_BallAngleScale ) );
+    m_BallOutlineChoice.SetVal( ( int )m_Nav.m_ShowBallOutline );
     m_TurntableSpeedChoice.SetVal( NearestIndex( TURNTABLE_GAINS, 4, m_Nav.m_TurntableGain ) );
 
     m_WheelDirChoice.SetVal( ( int )m_Nav.m_WheelReverse );
@@ -217,6 +223,10 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_RotateModeChoice )
     {
         m_Nav.m_StartupRotateMode = m_RotateModeChoice.GetVal();
+    }
+    else if ( device == &m_BallOutlineChoice )
+    {
+        m_Nav.m_ShowBallOutline = ( m_BallOutlineChoice.GetVal() != 0 );
     }
     else if ( device == &m_TurntableSpeedChoice )
     {

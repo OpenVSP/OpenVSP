@@ -159,6 +159,12 @@ public:
     void setOverlayBox( bool show, int x0, int y0, int x1, int y1 );
 
     /*!
+    * Circles drawn over the scene, such as the outline of a trackball.  The center and
+    * radii are in window pixels; no radii draws none.
+    */
+    void setOverlayCircles( float cx, float cy, const std::vector < float > & radii );
+
+    /*!
     * Draw the overlays set on this viewport.
     */
     void drawOverlay();
@@ -223,6 +229,10 @@ private:
 
     bool _showOverlayBox;
     int _overlayBox[4];
+
+    float _overlayCircleX;
+    float _overlayCircleY;
+    std::vector < float > _overlayRadii;
 
     Camera* _camera;
     Background * _background;
