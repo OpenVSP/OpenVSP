@@ -15,6 +15,7 @@
 #include "PreferencesScreen.h"
 #include "MainVSPScreen.h"
 #include "NavController.h"
+#include "NavDevice.h"
 
 // Values offered for the numeric 3D interaction preferences.
 static const double BALL_SIZES[] = { 0.6, 0.75, 0.9, 1.0 };
@@ -304,6 +305,23 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
     m_ViewLayout.AddChoice( m_ZoomSpeedChoice, "Zoom Speed" );
     m_ZoomSpeedChoice.GetFlChoice()->tooltip( "Speed of the wheel by scroll amount and of the drag by distance" );
 
+    if ( VSPGUI::NavDevice::IsBuilt() )
+    {
+        m_ViewLayout.AddYGap();
+        m_ViewLayout.AddDividerBox( "3D Device" );
+
+        m_DeviceChoice.AddItem( "Use when present", 1 );
+        m_DeviceChoice.AddItem( "Off", 0 );
+        m_DeviceChoice.UpdateItems();
+        m_ViewLayout.AddChoice( m_DeviceChoice, "Rotatrix" );
+        m_DeviceChoice.GetFlChoice()->tooltip( "The Rotatrix 3D trackball, through its host application (version 1.6 or later).  OpenVSP uses it once the host is verified." );
+
+        int view_button_w = m_ViewLayout.GetButtonWidth();
+        m_ViewLayout.SetButtonWidth( m_ViewLayout.GetChoiceButtonWidth() );
+        m_ViewLayout.AddOutput( m_DeviceStatus, "Status" );
+        m_ViewLayout.SetButtonWidth( view_button_w );
+    }
+
     //==== Mouse Buttons ====//
     Fl_Group * buttons_tab = AddTab( "Mouse Buttons" );
     Fl_Group * buttons_group = AddSubGroup( buttons_tab, 5 );
@@ -500,6 +518,12 @@ bool PreferencesScreen::Update()
 {
     TabScreen::Update();
 
+    MainVSPScreen * main = dynamic_cast < MainVSPScreen * > ( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
+    if ( main && VSPGUI::NavDevice::IsBuilt() )
+    {
+        m_DeviceStatus.Update( main->GetNavDevice()->GetStatus() );
+    }
+
     m_FLTK_Window->redraw();
 
     return false;
@@ -541,6 +565,10 @@ void PreferencesScreen::ShowNav()
     m_DragZoomAnchorChoice.SetVal( m_Nav.m_DragZoomAnchor );
     m_DragZoomLawChoice.SetVal( m_Nav.m_DragZoomLaw );
     m_ZoomSpeedChoice.SetVal( NearestIndex( ZOOM_SPEEDS, 3, m_Nav.m_ZoomSpeed ) );
+    if ( VSPGUI::NavDevice::IsBuilt() )
+    {
+        m_DeviceChoice.SetVal( ( int )m_Nav.m_UseDevice );
+    }
 
     ShowActive();
     ShowScheme();
@@ -651,6 +679,10 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_ZoomSpeedChoice )
     {
         m_Nav.m_ZoomSpeed = ZOOM_SPEEDS[ m_ZoomSpeedChoice.GetVal() ];
+    }
+    else if ( device == &m_DeviceChoice )
+    {
+        m_Nav.m_UseDevice = ( m_DeviceChoice.GetVal() != 0 );
     }
     else
     {

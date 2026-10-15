@@ -83,6 +83,7 @@ MeshScreen.cpp
 ModeEditorScreen.cpp
 MultTransScreen.cpp
 NavController.cpp
+NavDevice.cpp
 NavProfile.cpp
 NerfManageGeomScreen.cpp
 NGonMeshScreen.cpp
@@ -185,6 +186,7 @@ MeshScreen.h
 ModeEditorScreen.h
 MultTransScreen.h
 NavController.h
+NavDevice.h
 NavProfile.h
 NerfManageGeomScreen.h
 NGonMeshScreen.h
@@ -248,3 +250,8 @@ util
 )
 
 target_link_libraries( gui_and_draw Eigen3::Eigen )
+
+IF( VSP_ENABLE_OPENAXIS )
+    target_compile_definitions( gui_and_draw PRIVATE VSP_OPENAXIS )
+    target_include_directories( gui_and_draw PRIVATE ${OPENAXIS_INCLUDE_DIRS} )
+ENDIF()

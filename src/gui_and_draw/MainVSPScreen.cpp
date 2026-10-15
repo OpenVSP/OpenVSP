@@ -265,6 +265,13 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_GlWin->GetNav().SetSettings( nav_settings );
     m_GlWin->GetNav().SetRotateMode( nav_settings.m_StartupRotateMode );
 
+    m_NavDevice = new VSPGUI::NavDevice( m_GlWin );
+    m_NavDevice->SetStatusCallback( NavDeviceStatusCB, this );
+    if ( nav_settings.m_UseDevice )
+    {
+        m_NavDevice->Start();
+    }
+
     int filew = m_GenLayout.GetW() * .6;
 
     m_FileNameBox = new Fl_Box(m_GenLayout.GetX(), m_GenLayout.GetY(), filew, 20, "File Name:");
@@ -285,7 +292,20 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
 MainVSPScreen::~MainVSPScreen()
 {
+    delete m_NavDevice;
     delete m_GlWin;
+}
+
+void MainVSPScreen::NavDeviceStatusCB( void * data )
+{
+    MainVSPScreen * screen = ( MainVSPScreen * )data;
+
+    // Of the screens, only the preferences show it.
+    VspScreen * prefs = screen->m_ScreenMgr->GetScreen( vsp::VSP_PREFERENCES_SCREEN );
+    if ( prefs && prefs->IsShown() )
+    {
+        prefs->Update();
+    }
 }
 
 //==== Show Main VSP Screen ====//
@@ -416,6 +436,15 @@ void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
     if ( settings.m_StartupRotateMode != old_startup )
     {
         SetRotateMode( settings.m_StartupRotateMode );
+    }
+
+    if ( settings.m_UseDevice && !m_NavDevice->IsStarted() )
+    {
+        m_NavDevice->Start();
+    }
+    else if ( !settings.m_UseDevice && m_NavDevice->IsStarted() )
+    {
+        m_NavDevice->Stop();
     }
 }
 

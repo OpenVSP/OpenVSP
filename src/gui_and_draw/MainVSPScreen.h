@@ -15,6 +15,7 @@
 #include "MenuItem.h"
 #include "ScreenBase.h"
 #include "GuiDevice.h"
+#include "NavDevice.h"
 #include "FL/Fl_Box.H"
 
 namespace VSPGUI
@@ -49,6 +50,12 @@ public:
         return m_GlWin;
     }
 
+    // The 3D input device that moves the main window's view.
+    VSPGUI::NavDevice * GetNavDevice()
+    {
+        return m_NavDevice;
+    }
+
     static int ConvertViewEnums( int v );
     void SetAllViews( int view );
     void SetView( int viewport, int view );
@@ -80,6 +87,9 @@ public:
 
     // Apply new 3D interaction preferences.
     void SetNavSettings( const VSPGUI::NavSettings & settings );
+
+    // The 3D input device's status changed.
+    static void NavDeviceStatusCB( void * data );
 
     void EnableStopGUIMenuItem();
     void DisableStopGUIMenuItem();
@@ -197,6 +207,7 @@ protected:
 
     Fl_Sys_Menu_Bar *m_MenuBar;
     VSPGUI::VspGlWindow * m_GlWin;
+    VSPGUI::NavDevice * m_NavDevice;
     Fl_Box * m_TitleBox;
     Fl_Box * m_FileNameBox;
 
