@@ -50,6 +50,7 @@ NavPress::NavPress()
 NavProfile::NavProfile()
 {
     m_ClickDistance = 0;
+    m_ChordEnds = false;
 }
 
 NavProfile NavProfile::Classic()
