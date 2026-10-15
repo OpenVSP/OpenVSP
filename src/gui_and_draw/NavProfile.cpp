@@ -27,6 +27,7 @@ NavBinding NavBind( int buttons, int modifiers, NavAction action )
     b.m_HeldKey = 0;
     b.m_PressedButton = 0;
     b.m_Trigger = NAV_ON_DRAG;
+    b.m_Where = NAV_ANYWHERE;
     b.m_Action = action;
     b.m_PickFirst = false;
     return b;
@@ -45,6 +46,7 @@ NavPress::NavPress()
     m_Buttons = 0;
     m_Modifiers = 0;
     m_PressedButton = 0;
+    m_Where = NAV_ANYWHERE;
 }
 
 NavProfile::NavProfile()
@@ -102,6 +104,11 @@ static bool Matches( const NavBinding & b, const NavPress & press )
         return false;
     }
 
+    if ( b.m_Where != NAV_ANYWHERE && b.m_Where != press.m_Where )
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -117,6 +124,18 @@ const NavBinding * NavProfile::Match( const NavPress & press, int trigger ) cons
         }
     }
     return nullptr;
+}
+
+bool NavProfile::NeedsWhere() const
+{
+    for ( int i = 0; i < ( int )m_Bindings.size(); i++ )
+    {
+        if ( m_Bindings[i].m_Where != NAV_ANYWHERE )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 }

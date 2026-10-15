@@ -38,6 +38,14 @@ enum NavTrigger
     NAV_ON_CLICK        // At a release before the mouse has moved that far.
 };
 
+// Where the press must be.
+enum NavWhere
+{
+    NAV_ANYWHERE,
+    NAV_ON_GEOMETRY,
+    NAV_ON_BACKGROUND
+};
+
 // One row of a profile: the press that starts a gesture, and what it does.
 struct NavBinding
 {
@@ -48,6 +56,7 @@ struct NavBinding
     int m_HeldKey;          // Lower case key that must be held, or 0.
     int m_PressedButton;    // Button bit whose press must start it, or 0 for any press or release.
     int m_Trigger;          // NavTrigger.
+    int m_Where;            // NavWhere.
     NavAction m_Action;
     bool m_PickFirst;       // Offer the press to the scene's picking before starting the gesture.
 };
@@ -67,6 +76,7 @@ struct NavPress
     int m_Modifiers;            // Modifier bits down.
     std::set < int > m_HeldKeys;
     int m_PressedButton;        // Button bit just pressed, or 0 after a release.
+    int m_Where;                // NAV_ON_GEOMETRY or NAV_ON_BACKGROUND, or NAV_ANYWHERE if not known.
 };
 
 // An ordered list of bindings and how presses become drags and clicks.
@@ -81,6 +91,9 @@ public:
 
     // The first binding with this trigger that matches the press, or null.
     const NavBinding * Match( const NavPress & press, int trigger ) const;
+
+    // True if a binding needs to know whether the press is on geometry.
+    bool NeedsWhere() const;
 
     std::vector < NavBinding > m_Bindings;
 
