@@ -2267,9 +2267,7 @@ void Bogie::UpdateTess()
                      m_TireMode() == vsp::TIRE_FAIR_FLANGE ||
                      m_TireMode() == vsp::TIRE_FAIR_WHEEL )
                 {
-                    m_GrownTireSurface.CopyNonSurfaceData( m_TireSurface );
                     gg->UpdateTess( m_GrownTireSurface, false, false, m_GrownTireTess, m_GrownTireFeatureTess );
-                    m_ClearanceSurface.CopyNonSurfaceData( m_TireSurface );
                     gg->UpdateTess( m_ClearanceSurface, false, false, m_ClearanceTess, m_ClearanceFeatureTess );
                 }
                 else
