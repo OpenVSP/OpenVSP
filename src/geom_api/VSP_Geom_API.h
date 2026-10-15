@@ -70,9 +70,10 @@
 
     \defgroup CustomGeom Custom Geometry Functions
     \brief This functions grouped here are used to create and manipulate Custom Components. Custom components
-    are defined in \\*.vsppart files included in the /"Custom Scripts/" directory. Examples of Custom Components
-    are available in the directory for reference. OpenVSP looks in 3 locations for the /"Custom Scripts/" folder,
-    where Custom Components are loaded: the root directory, the VSP executable directory, and the home directory.
+    are defined in \\*.vsppart files in a CustomScripts directory. Examples of Custom Components are in the
+    CustomScripts directory installed with OpenVSP. OpenVSP reads the CustomScripts folder in three places, in
+    this order, once when it starts: the working directory, the home directory, and the directory of the VSP
+    executable.
     Note, these functions are specific to defining Custom Components and can't be called from standard API scripts
     (i.e. \\*.vspscript). However, a Custom Component can be created as a \\*.vsppart file and then accessed through
     secondary API scripts.
