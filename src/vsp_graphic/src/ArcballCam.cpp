@@ -212,18 +212,14 @@ glm::vec3 ArcballCam::getRotationEulerAngles()
 
 glm::vec4 ArcballCam::_matrixToQuat ( glm::mat4 mat )
 {
-    glm::vec4 q;
-
-    q.w = sqrt( std::max( 0.0, 1.0 + mat[0][0] + mat[1][1] + mat[2][2] ) ) / 2.0;
-    q.x = sqrt( std::max( 0.0, 1.0 + mat[0][0] - mat[1][1] - mat[2][2] ) ) / 2.0;
-    q.y = sqrt( std::max( 0.0, 1.0 - mat[0][0] + mat[1][1] - mat[2][2] ) ) / 2.0;
-    q.z = sqrt( std::max( 0.0, 1.0 - mat[0][0] - mat[1][1] + mat[2][2] ) ) / 2.0;
-
-    q.x *= sgn( q.x * ( mat[2][1] - mat[1][2] ) );
-    q.y *= sgn( q.y * ( mat[0][2] - mat[2][0] ) );
-    q.z *= sgn( q.z * ( mat[1][0] - mat[0][1] ) );
-
-    return q;
+    // _toMatrix builds the transpose of glm's matrix, so the quaternion is conjugated.  w is kept
+    // non-negative.
+    glm::quat q = glm::quat_cast( glm::mat3( mat ) );
+    if ( q.w < 0.0f )
+    {
+        q = -q;
+    }
+    return glm::vec4( -q.x, -q.y, -q.z, q.w );
 }
 
 void ArcballCam::pan( int px, int py, int cx, int cy )
