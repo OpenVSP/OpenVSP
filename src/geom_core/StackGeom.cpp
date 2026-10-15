@@ -571,7 +571,7 @@ void StackGeom::InitParms( int stack_type )
                 m_EngineInLipIndex = 1;
 
                 m_EngineGeomIOType = ENGINE_GEOM_INLET;
-                m_EngineGeomInType = ENGINE_GEOM_INLET;
+                m_EngineGeomInType = ENGINE_GEOM_TO_LIP;
                 m_EngineInModeType = ENGINE_MODE_TO_LIP;
 
                 break;
