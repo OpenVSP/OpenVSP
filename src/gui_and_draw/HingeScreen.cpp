@@ -416,16 +416,15 @@ bool HingeScreen::Update()
     {
         m_VectorLayout.GetGroup()->activate();
         m_SecondaryDirLayout.GetGroup()->activate();
+        m_SecVecLayout.GetGroup()->activate();
 
         if ( hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::VECTOR3D )
         {
             m_PrimVecLayout.GetGroup()->activate();
-            m_SecVecLayout.GetGroup()->activate();
         }
         else
         {
             m_PrimVecLayout.GetGroup()->deactivate();
-            m_SecVecLayout.GetGroup()->deactivate();
         }
 
         if ( hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::POINT3D ||
