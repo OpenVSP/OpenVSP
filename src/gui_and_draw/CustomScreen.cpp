@@ -55,6 +55,9 @@ void CustomScreen::InitGuiDeviceVec( Geom* geom_ptr )
 
     vector< GuiDef > gui_def_vec = CustomGeomMgr.GetGuiDefVec( geom_ptr->GetID() );
 
+    // Each custom type's controls start from the default number format.
+    m_Format = "%7.3f";
+
     for ( int i = 0 ; i < ( int )gui_def_vec.size() ; i++ )
     {
         GuiDevice* gd = AddGuiItem( gui_def_vec[i], i );
