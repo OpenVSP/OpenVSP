@@ -5,7 +5,7 @@ void Init()
 	//==== Add Parm Types  =====//
 	string diameter = AddParm( PARM_DOUBLE_TYPE, "Diameter", "Design" );
 	SetParmValLimits( diameter, 10.0, 0.0, 1.0e12 );
-	SetParmDescript( diameter, "Diameter of Cone" );
+	SetParmDescript( diameter, "Diameter of Disk" );
 
 	//==== Add Cross Sections  =====//
 	string xsec_surf = AddXSecSurf();
