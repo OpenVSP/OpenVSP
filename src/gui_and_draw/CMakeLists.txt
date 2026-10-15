@@ -57,6 +57,7 @@ FitModelScreen.cpp
 FuselageScreen.cpp
 GearScreen.cpp
 GeometryAnalysisScreen.cpp
+GesturePlayer.cpp
 GroupLayout.cpp
 GuiDevice.cpp
 HingeScreen.cpp
@@ -160,6 +161,7 @@ FitModelScreen.h
 FuselageScreen.h
 GearScreen.h
 GeometryAnalysisScreen.h
+GesturePlayer.h
 GroupLayout.h
 GuiDevice.h
 HingeScreen.h
