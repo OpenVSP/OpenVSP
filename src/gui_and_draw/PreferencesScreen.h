@@ -106,6 +106,7 @@ protected:
     Choice m_ZoomSpeedChoice;
 
     Choice m_DeviceChoice;
+    Choice m_DeviceModeChoice;
     StringOutput m_DeviceStatus;
 
     std::string m_ProfileTip;

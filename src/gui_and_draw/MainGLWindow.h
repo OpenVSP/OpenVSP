@@ -1,6 +1,7 @@
 #ifndef VSP_GUI_GL_WINDOW_H
 #define VSP_GUI_GL_WINDOW_H
 
+#include <functional>
 #include <FL/Fl.H>
 #include <FL/Fl_Gl_Window.H>
 #include <vector>
@@ -185,6 +186,17 @@ public:
     int GetNavConditions();
 
     /*!
+    * Where the mouse last was over this window, as for ProbeSurface.  False if it has left.
+    */
+    bool GetPointer( int & ex, int & ey );
+
+    /*!
+    * Called after the mouse may have moved the view.
+    */
+    std::function < void() > m_ViewChangedCB;
+    void ViewChanged();
+
+    /*!
     * The Fit Model box selection: start a rectangle at a mouse location, and end it, selecting
     * the points inside when apply is set.
     */
@@ -273,6 +285,7 @@ protected:
     ScreenMgr* m_ScreenMgr;
     int m_mouse_x;
     int m_mouse_y;
+    bool m_PointerInside;
 
     NavController m_Nav;
 

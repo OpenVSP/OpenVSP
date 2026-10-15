@@ -225,6 +225,11 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_DeviceIconOff = nullptr;
     m_NavDevice = new VSPGUI::NavDevice( m_GlWin );
     m_NavDevice->SetStatusCallback( NavDeviceStatusCB, this );
+    VSPGUI::NavDevice * device = m_NavDevice;
+    m_GlWin->m_ViewChangedCB = [device]()
+    {
+        device->ViewChanged();
+    };
     if ( nav_settings.m_UseDevice )
     {
         m_NavDevice->Start();
@@ -293,6 +298,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
 MainVSPScreen::~MainVSPScreen()
 {
+    m_GlWin->m_ViewChangedCB = nullptr;
     delete m_NavDevice;
     delete m_GlWin;
 }
@@ -499,6 +505,12 @@ void MainVSPScreen::SetNavSettings( const VSPGUI::NavSettings & settings )
     if ( settings.m_StartupRotateMode != old_startup )
     {
         SetRotateMode( settings.m_StartupRotateMode );
+    }
+
+    // A new mode needs a new connection.
+    if ( m_NavDevice->IsStarted() && settings.m_DeviceMode != m_NavDevice->GetMode() )
+    {
+        m_NavDevice->Stop();
     }
 
     if ( settings.m_UseDevice && !m_NavDevice->IsStarted() )

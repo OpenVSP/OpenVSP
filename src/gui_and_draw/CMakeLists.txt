@@ -85,6 +85,7 @@ NavController.cpp
 NavDevice.cpp
 NavIcons.cpp
 NavProfile.cpp
+NavView.cpp
 NerfManageGeomScreen.cpp
 NGonMeshScreen.cpp
 ParasiteDragScreen.cpp
@@ -187,6 +188,7 @@ NavController.h
 NavDevice.h
 NavIcons.h
 NavProfile.h
+NavView.h
 NerfManageGeomScreen.h
 NGonMeshScreen.h
 ParasiteDragScreen.h

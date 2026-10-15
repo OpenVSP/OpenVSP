@@ -297,6 +297,13 @@ PreferencesScreen::PreferencesScreen( ScreenMgr* mgr ) : TabScreen( mgr, 460, 80
         m_DeviceChoice.UpdateItems();
         m_ViewLayout.AddChoice( m_DeviceChoice, "Rotatrix" );
         m_DeviceChoice.GetFlChoice()->tooltip( "The Rotatrix 3D trackball, through its host application (version 1.6 or later).  OpenVSP uses it once the host is verified." );
+
+        m_DeviceModeChoice.AddItem( "Rotatrix moves the view", VSPGUI::NAV_DEVICE_NAVIGATION );
+        m_DeviceModeChoice.AddItem( "OpenVSP moves the view", VSPGUI::NAV_DEVICE_AXES );
+        m_DeviceModeChoice.UpdateItems();
+        m_ViewLayout.AddChoice( m_DeviceModeChoice, "Motion" );
+        m_DeviceModeChoice.GetFlChoice()->tooltip( "Rotatrix moves the view: Rotatrix computes the motion from its own controls and pivot choice; OpenVSP tells it about the view and the model.  "
+                                                   "OpenVSP moves the view: Rotatrix sends the ball's motion and OpenVSP turns, pans and zooms with it, following the Ball or Turntable mode.  This needs a Rotatrix profile for OpenVSP that turns the ball's 3D mode on." );
         m_ViewLayout.AddOutput( m_DeviceStatus, "Status" );
     }
 
@@ -532,6 +539,7 @@ void PreferencesScreen::ShowNav()
     if ( VSPGUI::NavDevice::IsBuilt() )
     {
         m_DeviceChoice.SetVal( ( int )m_Nav.m_UseDevice );
+        m_DeviceModeChoice.SetVal( m_Nav.m_DeviceMode );
     }
 
     ShowScheme();
@@ -603,6 +611,10 @@ bool PreferencesScreen::ReadNav( GuiDevice * device )
     else if ( device == &m_DeviceChoice )
     {
         m_Nav.m_UseDevice = ( m_DeviceChoice.GetVal() != 0 );
+    }
+    else if ( device == &m_DeviceModeChoice )
+    {
+        m_Nav.m_DeviceMode = m_DeviceModeChoice.GetVal();
     }
     else
     {

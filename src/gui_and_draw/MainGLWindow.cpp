@@ -83,6 +83,7 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
     m_GEngine->getDisplay()->selectViewport( 0 );
 
     m_mouse_x = m_mouse_y = 0xFFFFFFF;
+    m_PointerInside = false;
 
     m_initialized = false;
 
@@ -194,6 +195,15 @@ int VspGlWindow::handle( int fl_event )
     m_mouse_x = x;
     m_mouse_y = y;
 
+    if ( fl_event == FL_ENTER || fl_event == FL_MOVE || fl_event == FL_DRAG || fl_event == FL_PUSH )
+    {
+        m_PointerInside = true;
+    }
+    else if ( fl_event == FL_LEAVE )
+    {
+        m_PointerInside = false;
+    }
+
     int dx = Fl::event_dx();
     int dy = Fl::event_dy();
 
@@ -228,14 +238,17 @@ int VspGlWindow::handle( int fl_event )
 
     case FL_DRAG:
         OnDrag( x, y );
+        ViewChanged();
         return 1;
 
     case FL_RELEASE:
         OnRelease( x, y );
+        ViewChanged();
         return 1;
 
     case FL_MOUSEWHEEL:
         OnWheelScroll( dx, dy, x, y );
+        ViewChanged();
         return 1;
 
     case FL_MOVE:
@@ -726,6 +739,26 @@ void VspGlWindow::GetZoomLimits( double & lo, double & hi )
             hi = veh->m_ZoomValue.GetUpperLimit();
         }
     }
+}
+
+void VspGlWindow::ViewChanged()
+{
+    if ( m_ViewChangedCB )
+    {
+        m_ViewChangedCB();
+    }
+}
+
+bool VspGlWindow::GetPointer( int & ex, int & ey )
+{
+    if ( !m_PointerInside )
+    {
+        return false;
+    }
+    double ppu = pixels_per_unit();
+    ex = ( int )std::floor( m_mouse_x / ppu );
+    ey = h() - ( int )std::floor( m_mouse_y / ppu );
+    return ex >= 0 && ey >= 0 && ex < w() && ey < h();
 }
 
 bool VspGlWindow::ProbeSurface( int ex, int ey, glm::vec3 & hit, std::string * geomId )

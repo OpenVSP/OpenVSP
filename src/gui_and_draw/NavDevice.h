@@ -41,6 +41,12 @@ public:
     // True while connected to a verified host.
     bool IsAvailable() const;
 
+    // The NavDeviceMode it was started in.
+    int GetMode() const;
+
+    // Something other than the device moved the view.
+    void ViewChanged();
+
     // The connection's state, for people.
     std::string GetStatus() const;
 

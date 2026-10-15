@@ -68,6 +68,13 @@ enum NavPivot
     NAV_PIVOT_UNDER_CURSOR  // The surface under the press, for that drag; else the rotation center.
 };
 
+// How a 3D input device moves the view.
+enum NavDeviceMode
+{
+    NAV_DEVICE_NAVIGATION,  // The device's host computes the motion; OpenVSP reports the scene.
+    NAV_DEVICE_AXES         // The host sends the device's rates; OpenVSP computes the motion.
+};
+
 // The user's 3D interaction preferences.
 struct NavSettings
 {
@@ -99,6 +106,7 @@ struct NavSettings
     bool m_EmulateMiddle;       // Alt + left button acts as the middle button.
 
     bool m_UseDevice;           // Look for a 3D input device and use it when there is one.
+    int m_DeviceMode;           // NavDeviceMode.
 
     NavProfile m_Profile;       // The mouse bindings.
 

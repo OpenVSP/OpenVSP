@@ -55,6 +55,7 @@ NavSettings::NavSettings()
     m_EmulateMiddle = false;
 
     m_UseDevice = true;
+    m_DeviceMode = NAV_DEVICE_NAVIGATION;
 
     m_Profile = NavProfile::Preset( NAV_PRESET_OPENVSP );
 }
@@ -196,6 +197,7 @@ static const char * const ANCHOR_NAMES[] = { "Pointer", "Center" };
 static const char * const WHEEL_STEP_NAMES[] = { "PerEvent", "Proportional" };
 static const char * const ZOOM_LAW_NAMES[] = { "PerEvent", "Continuous" };
 static const char * const PIVOT_NAMES[] = { "Fixed", "UnderCursor" };
+static const char * const DEVICE_MODE_NAMES[] = { "Navigation", "Axes" };
 
 // USER_L writes and reads numbers in the C locale, so a decimal comma never gets into the file.
 void NavSettings::Load()
@@ -245,6 +247,7 @@ void NavSettings::Load()
 
     m_EmulateMiddle = GetFlag( grp, "EmulateMiddle", def.m_EmulateMiddle );
     m_UseDevice = GetFlag( grp, "UseDevice", def.m_UseDevice );
+    m_DeviceMode = GetChoice( grp, "DeviceMode", DEVICE_MODE_NAMES, 2, def.m_DeviceMode );
 
     grp.get( "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
     if ( m_Profile.m_ClickDistance < 0 || m_Profile.m_ClickDistance > 50 )
@@ -345,6 +348,7 @@ void NavSettings::Save() const
     SaveName( grp, "Pivot", PIVOT_NAMES[ m_Pivot ], PIVOT_NAMES[ def.m_Pivot ] );
     SaveFlag( grp, "EmulateMiddle", m_EmulateMiddle, def.m_EmulateMiddle );
     SaveFlag( grp, "UseDevice", m_UseDevice, def.m_UseDevice );
+    SaveName( grp, "DeviceMode", DEVICE_MODE_NAMES[ m_DeviceMode ], DEVICE_MODE_NAMES[ def.m_DeviceMode ] );
     SaveName( grp, "Bindings", m_Profile.BindingsText().c_str(), def.m_Profile.BindingsText().c_str() );
     SaveInt( grp, "ClickDistance", m_Profile.m_ClickDistance, def.m_Profile.m_ClickDistance );
     SaveFlag( grp, "ChordEnds", m_Profile.m_ChordEnds, def.m_Profile.m_ChordEnds );
