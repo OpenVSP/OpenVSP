@@ -186,12 +186,6 @@ void AuxiliaryGeom::ApplyScale( double currentScale )
     m_BladeRootRadius *= currentScale;
     m_FragLength *= currentScale;
     m_CGRadius *= currentScale;
-
-    // Gear-spray contact geometry (dimensional widths and lengths).
-    m_SprayTireContactWidth *= currentScale;
-    m_SprayTireContactHalfLength *= currentScale;
-    m_SprayCenterWidth *= currentScale;
-
 }
 
 void AuxiliaryGeom::AddDefaultSources( double base_len )
