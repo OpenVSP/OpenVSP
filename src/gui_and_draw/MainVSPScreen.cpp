@@ -1023,6 +1023,8 @@ void MainVSPScreen::SetWindowLayout( int r, int c )
     m_GlWin->setWindowLayout( r, c );
     SetViewAxis( m_ShowXYZArrow );
     SetShowBorders( m_ShowBorder );
+
+    m_GlWin->UpdateAllViewParms();
 }
 
 void MainVSPScreen::ShowReturnToAPIImplementation()
