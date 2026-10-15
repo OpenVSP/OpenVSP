@@ -171,6 +171,13 @@ public:
     void zoomToward( float zoomChange, int x, int y );
 
     /*!
+    * Pan so that the world point under a window location moves to the viewport center.
+    *
+    * x, y - location in window pixels.
+    */
+    void centerAt( float x, float y );
+
+    /*!
     * Move Geometry to center.
     */
     virtual void center() = 0;

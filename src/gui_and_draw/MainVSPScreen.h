@@ -139,6 +139,7 @@ protected:
     ActionMenuItem m_RightIsoMenuItem;
     VSPCheckMenuItem m_TurntableMenuItem;
     VSPCheckMenuItem m_BallMenuItem;
+    ActionMenuItem m_ZoomBoxMenuItem;
     ActionMenuItem m_CenterMenuItem;
     ActionMenuItem m_CenterAllMenuItem;
     ScreenMenuItem m_AdjustMenuItem;

@@ -121,6 +121,12 @@ public:
         m_RotateEnabled = flag;
     }
 
+    // Make the next left button drag a zoom box, whatever it is bound to.
+    void ArmZoomBox()
+    {
+        m_ZoomBoxArmed = true;
+    }
+
     void Push( int x, int y );
     void Drag( int x, int y );
     void Release( int x, int y );
@@ -139,6 +145,9 @@ private:
     void Start( NavAction action, int x, int y );
 
     void DragZoom( int x, int y );
+
+    // Remove the zoom box, and when apply is set, zoom to it.
+    void EndZoomBox( bool apply, int x, int y );
 
     // A zoom factor reduced to keep the camera within the window's zoom limits.
     double LimitZoom( VSPGraphic::Camera * camera, double factor );
@@ -171,6 +180,7 @@ private:
     int m_PrevY;
 
     bool m_RotateEnabled;
+    bool m_ZoomBoxArmed;
 };
 }
 

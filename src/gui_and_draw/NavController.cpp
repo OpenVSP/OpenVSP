@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 
@@ -211,6 +212,7 @@ NavController::NavController( VspGlWindow * win )
     m_PrevX = 0;
     m_PrevY = 0;
     m_RotateEnabled = true;
+    m_ZoomBoxArmed = false;
     m_ActionBeforeBox = NAV_NONE;
 
     SetSettings( m_Settings );
@@ -284,11 +286,29 @@ void NavController::Begin( int buttons, int pressed, int x, int y, bool allow_pi
 {
     NavAction before = m_Action;
 
+    if ( m_Action == NAV_ZOOM_BOX )
+    {
+        EndZoomBox( false, x, y );
+    }
+
     m_Action = NAV_NONE;
     m_PressX = x;
     m_PressY = y;
     m_PrevX = x;
     m_PrevY = y;
+
+    if ( m_ZoomBoxArmed && pressed != 0 && buttons != FL_BUTTON1 )
+    {
+        // Any other press gives up the zoom box.
+        m_ZoomBoxArmed = false;
+    }
+
+    if ( m_ZoomBoxArmed && pressed != 0 && buttons == FL_BUTTON1 )
+    {
+        m_ZoomBoxArmed = false;
+        m_Action = NAV_ZOOM_BOX;
+        return;
+    }
 
     NavPress press;
     press.m_Buttons = buttons;
@@ -362,6 +382,13 @@ void NavController::Drag( int x, int y )
         DragZoom( x, y );
         break;
 
+    case NAV_ZOOM_BOX:
+        if ( display->getViewport() )
+        {
+            display->getViewport()->setOverlayBox( true, m_PressX, m_PressY, x, y );
+        }
+        break;
+
     default:
         break;
     }
@@ -387,6 +414,12 @@ void NavController::Release( int x, int y )
         // Buttons pressed during the box did nothing; resume only a gesture from before it.
         m_Action = m_ActionBeforeBox;
         m_ActionBeforeBox = NAV_NONE;
+    }
+
+    if ( m_Action == NAV_ZOOM_BOX )
+    {
+        EndZoomBox( true, x, y );
+        m_Action = NAV_NONE;
     }
 
     if ( buttons != 0 && m_Action != NAV_NONE )
@@ -439,6 +472,44 @@ void NavController::DragZoom( int x, int y )
     }
 
     ZoomAt( camera, factor, m_Settings.m_DragZoomAnchor, m_PressX, m_PressY );
+    m_Win->UpdateZoomParms();
+    m_Win->UpdatePanParms();
+}
+
+void NavController::EndZoomBox( bool apply, int x, int y )
+{
+    VSPGraphic::Display * display = m_Win->getGraphicEngine()->getDisplay();
+
+    // A chord's press may have selected another viewport since the box began.
+    std::vector < VSPGraphic::Viewport * > viewports = display->getLayoutMgr()->getViewports();
+    for ( int i = 0; i < ( int )viewports.size(); i++ )
+    {
+        viewports[i]->setOverlayBox( false, 0, 0, 0, 0 );
+    }
+
+    VSPGraphic::Viewport * viewport = display->getViewport();
+    if ( !viewport )
+    {
+        return;
+    }
+
+    // A box smaller than this, in screen points, is taken as a click and ignored.
+    double minsize = 4.0 * m_Win->pixels_per_unit();
+    double bw = std::abs( x - m_PressX );
+    double bh = std::abs( y - m_PressY );
+    if ( !apply || ( bw < minsize && bh < minsize ) )
+    {
+        return;
+    }
+
+    VSPGraphic::Camera * camera = viewport->getCamera();
+
+    // The whole box fits in the view.
+    double ratio = std::max( std::max( bw, 1.0 ) / camera->viewportWidth(), std::max( bh, 1.0 ) / camera->viewportHeight() );
+
+    camera->centerAt( 0.5f * ( m_PressX + x ), 0.5f * ( m_PressY + y ) );
+    ZoomAt( camera, ratio, NAV_ANCHOR_CENTER, 0, 0 );
+
     m_Win->UpdateZoomParms();
     m_Win->UpdatePanParms();
 }

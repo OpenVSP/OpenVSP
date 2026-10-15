@@ -138,6 +138,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RightIsoMenuItem.Init( this, m_MenuBar, "View/Right Iso", FL_F + 12 );
     m_TurntableMenuItem.Init( this, m_MenuBar, "View/Turntable Rotation", 't' );
     m_BallMenuItem.Init( this, m_MenuBar, "View/Ball Rotation", 'b' );
+    m_ZoomBoxMenuItem.Init( this, m_MenuBar, "View/Zoom Box", 'w' );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_SetVNMenuItem.Init( this, m_MenuBar, "View/View Normal To", 'n' );
     m_AlignGeomMenuItem.Init( this, m_MenuBar, "View/View Front Of", 'x' );
@@ -720,6 +721,10 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_BallMenuItem )
     {
         SetRotateMode( VSPGUI::NAV_ROTATE_BALL );
+    }
+    else if ( data == &m_ZoomBoxMenuItem )
+    {
+        m_GlWin->GetNav().ArmZoomBox();
     }
     else if ( data == &m_CenterMenuItem )
     {

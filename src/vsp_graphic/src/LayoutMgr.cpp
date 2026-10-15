@@ -216,6 +216,8 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
             _viewportList[i]->drawRectangle( _startx, _starty, x, y );
         }
 
+        _viewportList[i]->drawOverlay();
+
         // Draw border.
         if( i == _selected )
         {
