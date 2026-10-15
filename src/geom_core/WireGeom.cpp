@@ -837,13 +837,16 @@ void WireGeom::ReadXSec( FILE* fp )
     int num_pnts, num_cross;
 
     fgets( name_str, 256, fp );
-    sscanf( name_str, "%s", name_str );
     fscanf( fp, " GROUP NUMBER = %d\n", &group_num );
     fscanf( fp, " TYPE = %d\n", &type );
     fscanf( fp, " CROSS SECTIONS = %d\n", &( num_cross ) );
     fscanf( fp, " PTS/CROSS SECTION = %d\n", &( num_pnts ) );
 
+    // The whole line is the name, without its line ending or surrounding blanks.
     m_Name = string( name_str );
+    StringUtil::remove_trailing( m_Name, '\n' );
+    StringUtil::remove_trailing( m_Name, '\r' );
+    StringUtil::remove_leading_trailing( m_Name, ' ' );
     StringUtil::change_space_to_underscore( m_Name );
     m_WireType = type;
 
