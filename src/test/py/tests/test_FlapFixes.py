@@ -73,6 +73,28 @@ def test_an_absolute_flap_on_a_section_made_shorter():
     assert finite( points( wid ) )
 
 
+def test_a_propeller_flap_follows_a_diameter_change_at_once():
+    vsp.VSPRenew()
+    pid = vsp.AddGeom( "PROP" )
+    surf = vsp.GetXSecSurf( pid, 0 )
+    for i in range( vsp.GetNumXSec( surf ) ):
+        xs = vsp.GetXSec( surf, i )
+        set_flap( xs, 30.0 )
+        # A flap given in model units: its fraction of the chord changes with the diameter.
+        vsp.SetParmVal( vsp.GetXSecParm( xs, "TE_Flap_AbsRel" ), vsp.ABS )
+        vsp.SetParmVal( vsp.GetXSecParm( xs, "TE_Flap_X" ), 0.05 )
+    vsp.Update()
+    diameter = vsp.FindParm( pid, "Diameter", "Design" )
+    vsp.SetParmVal( diameter, 2.0 * vsp.GetParmVal( diameter ) )
+    once = points( pid )
+    # Another Update with nothing changed must not move the blade.
+    vsp.SetParmVal( diameter, 1.000001 * vsp.GetParmVal( diameter ) )
+    vsp.Update()
+    vsp.SetParmVal( diameter, vsp.GetParmVal( diameter ) / 1.000001 )
+    again = points( pid )
+    assert max( vsp.dist( p, q ) for p, q in zip( once, again ) ) < 1e-9
+
+
 def test_a_wing_flap_follows_a_chord_change_at_once():
     vsp.VSPRenew()
     wid = vsp.AddGeom( "WING" )

@@ -1077,8 +1077,6 @@ void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const doubl
 //==== Update Fuselage And Cross Section Placement ====//
 void PropGeom::UpdateSurf()
 {
-    NormalizeFlaps();
-
     unsigned int nxsec = m_XSecSurf.NumXSec();
 
     double radius = m_Diameter() / 2.0;
@@ -1168,6 +1166,8 @@ void PropGeom::UpdateSurf()
     //==== Cross Section Curves & joint info ====//
     vector< XSecCurve* > xsc_vec;
     xsc_vec.resize( nxsec, nullptr );
+    vector< double > w_vec;
+    w_vec.resize( nxsec, 0.0 );
 
     vector< VspCurve > base_crv_vec;
     base_crv_vec.resize( nxsec );
@@ -1187,6 +1187,7 @@ void PropGeom::UpdateSurf()
             double cli = m_CLICurve.Comp( r );
 
             xsc_vec[i] = xsc;
+            w_vec[i] = w;
 
             if ( xsc )
             {
@@ -1240,12 +1241,21 @@ void PropGeom::UpdateSurf()
                     }
 
                 }
+            }
+        }
+    }
 
-                base_crv_vec[i] = xsc->GetCurve();
-                if ( w != 0 )
-                {
-                    base_crv_vec[i].Scale( 1.0 / w );
-                }
+    // The flaps are sized from the section widths just set.
+    NormalizeFlaps();
+
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        if ( xsc_vec[i] )
+        {
+            base_crv_vec[i] = xsc_vec[i]->GetCurve();
+            if ( w_vec[i] != 0 )
+            {
+                base_crv_vec[i].Scale( 1.0 / w_vec[i] );
             }
         }
     }
