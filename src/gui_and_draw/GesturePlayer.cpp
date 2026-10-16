@@ -194,7 +194,8 @@ bool NavCommand( VSPGUI::VspGlWindow * win, const GestureEvent & e )
         NavReceive( { { "type", "request" }, { "id", 100 + e.m_A }, { "method", "navigation.query" },
                       { "params", { { "gesture_id", e.m_A },
                                     { "values", { "document.id", "world.orientation", "camera.pose", "viewport.aspect",
-                                                  "viewport.cursor", "model.bounds", "selection.bounds", "navigation.preferences" } },
+                                                  "viewport.cursor", "model.bounds", "selection.bounds", "navigation.preferences",
+                                                  "camera.view_target" } },
                                     { "first", { "pick.cursor.selection", "pick.viewport_center.selection", "pick.cursor", "pick.viewport_center" } } } } } );
     }
     else if ( e.m_Cmd == "navstate" )

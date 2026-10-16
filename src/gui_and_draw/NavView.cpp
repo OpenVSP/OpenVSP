@@ -135,6 +135,12 @@ public:
         {
             return DocumentId();
         }
+        if ( name == "camera.view_target" )
+        {
+            // What OpenVSP's own rotation turns about.
+            glm::vec3 cor = m_Win->getCOR();
+            return { cor.x, cor.y, cor.z };
+        }
         if ( name == "model.bounds" && veh )
         {
             BndBox b;
