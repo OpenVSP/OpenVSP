@@ -19042,7 +19042,7 @@ extern std::string GetFeaSubSurfName( const std::string & subsurf_id );
     //==== Add LineArray ====//
     string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
 
-    SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ); // Constant W
+    SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), CONST_W );
 
     SetParmVal( FindParm( line_array_id, "Spacing", "SS_LineArray" ), 0.25 );
 
@@ -19064,7 +19064,7 @@ extern std::string GetFeaSubSurfName( const std::string & subsurf_id );
     #==== Add LineArray ====//
     line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
 
-    SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ) # Constant W
+    SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), CONST_W )
 
     SetParmVal( FindParm( line_array_id, "Spacing", "SS_LineArray" ), 0.25 )
 

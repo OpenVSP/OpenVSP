@@ -398,11 +398,6 @@ class SSLineArray : public SubSurface
     SSLineArray( const string& compID, int type = vsp::SS_LINE_ARRAY );
     virtual ~SSLineArray();
 
-    enum
-    {
-        CONST_U, CONST_W
-    };
-
     virtual void Update();
 
     virtual void CalcNumLines();

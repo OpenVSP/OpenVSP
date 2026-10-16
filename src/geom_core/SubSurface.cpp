@@ -3160,7 +3160,7 @@ void SSControlSurf::PrepareSplitVec()
 
 SSLineArray::SSLineArray( const string& comp_id, int type ) : SubSurface( comp_id, type )
 {
-    m_ConstType.Init( "ConstLineType", "SS_LineArray", this, CONST_U, CONST_U, CONST_W );
+    m_ConstType.Init( "ConstLineType", "SS_LineArray", this, vsp::CONST_U, vsp::CONST_U, vsp::CONST_W );
     m_ConstType.SetDescript( "Either Constant U or Constant W SSLines" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "SS_LineArray", this, true, false, true );
@@ -3202,12 +3202,12 @@ void SSLineArray::Update()
 
         double const_val = m_StartLocation() + dir * i * m_Spacing();
 
-        if ( m_ConstType() == CONST_U )
+        if ( m_ConstType() == vsp::CONST_U )
         {
             m_LVec[i].SetSP0( vec3d( const_val, 1, 0 ) );
             m_LVec[i].SetSP1( vec3d( const_val, 0, 0 ) );
         }
-        else if ( m_ConstType() == CONST_W )
+        else if ( m_ConstType() == vsp::CONST_W )
         {
             m_LVec[i].SetSP0( vec3d( 0, const_val, 0 ) );
             m_LVec[i].SetSP1( vec3d( 1, const_val, 0 ) );
@@ -3311,11 +3311,11 @@ SSLine* SSLineArray::AddSSLine( double location, int ind )
 
 int SSLineArray::CompNumDrawPnts( Geom* geom )
 {
-    if ( m_ConstType() == CONST_W )
+    if ( m_ConstType() == vsp::CONST_W )
     {
         return (int)( geom->GetUMax(0) * ( geom->m_TessU() - 2 ) );
     }
-    else if ( m_ConstType() == CONST_U )
+    else if ( m_ConstType() == vsp::CONST_U )
     {
         return (int)( geom->GetWMax(0) * ( geom->m_TessW() - 4 ) );
     }
