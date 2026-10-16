@@ -756,6 +756,45 @@ double XSecCurve::EstimateFlapArcLen()
     return arclen;
 }
 
+// The points where a plain flap of chord xflap leaves each side of an airfoil curve, and its hinge,
+// yfrac of the way from the lower point to the upper.
+static void PlainFlapPoints( const piecewise_curve_type &clow, const piecewise_curve_type &cup, const vec3d &telow,
+                             const vec3d &teup, double xflap, double width, double yfrac, double tmin, double tmax,
+                             double umin, double umid, double umax, double &tslow, double &tsup,
+                             threed_point_type &plow, threed_point_type &pup, threed_point_type &phinge )
+{
+    double s = xflap / width;
+    double tslow0 = tmin + TMAGIC + s * ( umid - ( tmin + TMAGIC ) );
+    double tsup0 = tmax - TMAGIC - s * ( tmax - TMAGIC - umid );
+
+    tslow = tslow0;
+    tsup = tsup0;
+
+    threed_point_type ptelow, pteup;
+    telow.get_pnt( ptelow );
+    eli::geom::intersect::specified_distance( tslow, clow, ptelow, xflap, tslow0 );
+    tslow = clamp( tslow, umin, umid );
+
+    teup.get_pnt( pteup );
+    eli::geom::intersect::specified_distance( tsup, cup, pteup, xflap, tsup0 );
+    tsup = clamp( tsup, umid, umax );
+
+
+    plow = clow.f( tslow );
+    pup = cup.f( tsup );
+
+    phinge = plow + yfrac * ( pup - plow );
+
+
+    eli::geom::intersect::minimum_distance( tslow, clow, phinge, tslow );
+    tslow = clamp( tslow, umin, umid );
+    plow = clow.f( tslow );
+
+    eli::geom::intersect::minimum_distance( tsup, cup, phinge, tsup );
+    tsup = clamp( tsup, umid, umax );
+    pup = cup.f( tsup );
+}
+
 void XSecCurve::DeflectTE( bool wingtype )
 {
     if ( m_Type == XS_POINT || !wingtype || !m_TEFlapFlag() )
@@ -806,39 +845,14 @@ void XSecCurve::DeflectTE( bool wingtype )
     crv = crest;
     crv.split( cup, cteup, tmax - TMAGIC );
 
+    double tslow = 0.0;
+    double tsup = 0.0;
+    threed_point_type plow, pup, phinge;
+
     if ( m_TEFlapType() == FLAP_PLAIN )
     {
-        double s = xflap / GetWidth();
-        double tslow0 = tmin + TMAGIC + s * ( umid - ( tmin + TMAGIC ) );
-        double tsup0 = tmax - TMAGIC - s * ( tmax - TMAGIC - umid );
-
-        double tslow = tslow0;
-        double tsup = tsup0;
-
-        threed_point_type ptelow, pteup;
-        telow.get_pnt( ptelow );
-        eli::geom::intersect::specified_distance( tslow, clow, ptelow, xflap, tslow0 );
-        tslow = clamp( tslow, umin, umid );
-
-        teup.get_pnt( pteup );
-        eli::geom::intersect::specified_distance( tsup, cup, pteup, xflap, tsup0 );
-        tsup = clamp( tsup, umid, umax );
-
-
-        threed_point_type plow = clow.f( tslow );
-        threed_point_type pup = cup.f( tsup );
-
-        threed_point_type phinge = plow + m_TEFlapYFrac() * ( pup - plow );
-
-
-        eli::geom::intersect::minimum_distance( tslow, clow, phinge, tslow );
-        tslow = clamp( tslow, umin, umid );
-        plow = clow.f( tslow );
-
-        eli::geom::intersect::minimum_distance( tsup, cup, phinge, tsup );
-        tsup = clamp( tsup, umid, umax );
-        pup = cup.f( tsup );
-
+        PlainFlapPoints( clow, cup, telow, teup, xflap, GetWidth(), m_TEFlapYFrac(), tmin, tmax, umin, umid, umax,
+                         tslow, tsup, plow, pup, phinge );
 
         piecewise_curve_type clowrear, clowfwd, cupfwd, cuprear;
         clow.split( clowrear, clowfwd, tslow );
