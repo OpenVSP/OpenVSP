@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>NGon Mesh</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">NGon Mesh</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>An NGon Mesh holds a polygon mesh: the surface of the model as faces
+with any number of sides, with the wakes that shed from its trailing
+edges marked. It is the geometry VSPAERO runs on, and it is made from a
+<a href="Mesh.html">Mesh</a>, most often by VSPAERO itself when it
+prepares the geometry. Its job is to be inspected and written to a
+VSPAERO geometry file (.vspgeom); it has no shape parameters, and it is
+not saved with the model.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#where-an-ngon-mesh-comes-from">Where an NGon Mesh Comes
+From</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#how-the-polygons-are-made">How
+the Polygons Are Made</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#checking-the-mesh">Checking the
+Mesh</a></td>
+<td style="text-align: left;">Other</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#coarser-meshes">Coarser
+Meshes</a></td>
+<td style="text-align: left;">Other</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#writing-a-vspgeom-file">Writing
+a VSPGEOM File</a></td>
+<td style="text-align: left;">Other</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#limits">Limits</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p>The Gen, XForm and Mass tabs are the ones every component has; see <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a> and <a
+href="MassTab.html">Mass</a>. An NGon Mesh has no symmetry or
+sub-surfaces, and the Mass tab's density controls are greyed.</p>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Prepare the VSPAERO geometry (<em>Prepare Solver</em>), or click
+<em>Convert</em> under Convert to NGon Mesh on a mesh's Other tab.</li>
+<li>Turn on <em>Show Non Manifold Edges</em> on the NGon mesh's Other
+tab, and fix the model where it shows defects.</li>
+<li>Click <em>Write VSPGEOM</em> to keep the mesh, which the model file
+does not save.</li>
+</ol>
+<h2 id="where-an-ngon-mesh-comes-from">Where an NGon Mesh Comes
+From</h2>
+<p>An NGon mesh is always converted from triangles, in one of three
+places.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">VSPAERO, <em>Prepare Solver</em> or
+<em>Launch Solver</em></td>
+<td style="text-align: left;">CompGeom of the chosen sets (the thin set
+as camber surfaces), converted, then written to the .vspgeom file
+VSPAERO reads. The CompGeom mesh is deleted and the NGon mesh is left in
+the model, shown.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mesh, Other tab, <em>Convert</em> to NGon
+Mesh</td>
+<td style="text-align: left;">Any mesh, converted.</td>
+</tr>
+<tr>
+<td style="text-align: left;">DegenGeom, <em>Make Mesh</em> with
+<em>Type</em> N-Gon</td>
+<td style="text-align: left;">The degenerate geometry (plates and camber
+surfaces), converted.</td>
+</tr>
+</tbody>
+</table>
+<p>The NGon mesh is named after the mesh it came from, with
+<code>_NGon</code> added. Each time VSPAERO prepares the geometry it
+replaces the NGon mesh it made the time before.</p>
+<h2 id="how-the-polygons-are-made">How the Polygons Are Made</h2>
+<p>The conversion starts from the triangles and rebuilds the faces the
+components were tessellated with.</p>
+<ul>
+<li>Points that coincide are merged, so the faces share their
+edges.</li>
+<li>Triangles that came from one quadrilateral of a component's
+tessellation are joined back into it. Where an intersection cut a
+quadrilateral, the pieces left on the surface become polygons of their
+own.</li>
+<li>Points that lie on a straight edge between two others are removed,
+and edges of zero length dropped.</li>
+<li>A face whose boundary doubles back on itself is split at the point
+where it turns.</li>
+<li>The trailing edges of wings are found and marked as wakes. Body
+wakes, behind blunt bases, are found too when VSPAERO's <em>Find Body
+Wakes</em> is on.</li>
+</ul>
+<p><em>Cull Orphans</em> drops small pieces of the thin set's camber
+surfaces left by intersections: each piece whose area is below the set
+fraction (0.03 by default) of the area of its surface. Pieces of thick
+surfaces are never dropped. It is off by default, and greyed when
+VSPAERO has no thin set. The NGon meshes made outside VSPAERO are never
+culled.</p>
+<p><em>Find Body Wakes</em>, and <em>Num Ref.</em> below, are on
+VSPAERO's Experimental tab, which is shown only when OpenVSP runs in
+experimental mode. The settings are saved with the model and can be set
+from a script whether or not the tab is shown.</p>
+<h2 id="checking-the-mesh">Checking the Mesh</h2>
+<p>The 3D view draws the faces with their outlines, colored by tag
+(component and sub-surface), and the wakes as heavy colored lines along
+the edges they shed from.</p>
+<p><em>Show Non Manifold Edges</em> replaces the wakes with the mesh's
+defects:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Drawn as</th>
+<th style="text-align: left;">Defect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Blue lines</td>
+<td style="text-align: left;">Edges with only one face: holes or open
+boundaries in what should be a closed surface.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Red lines</td>
+<td style="text-align: left;">Edges shared by three or more faces:
+surfaces that meet without being joined.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Orange lines</td>
+<td style="text-align: left;">Loops of edges that lie along one straight
+line.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Black points</td>
+<td style="text-align: left;">Points where a face's boundary doubles
+back on itself.</td>
+</tr>
+</tbody>
+</table>
+<p>A closed, clean surface shows none of them. A thin surface, such as a
+camber surface from VSPAERO's thin set, is open by design, and its edges
+show blue. Blue lines inside a closed surface can also be a seam whose
+two sides were not joined: two edges between the same two points, each
+with one face. A VSPGEOM file, which lists faces by their points, shows
+such a seam as closed, so check it here. A component put in both
+VSPAERO's thick set and its thin set makes such seams; put each
+component in one set only.</p>
+<p><em>Report</em> prints the mesh's tables -- tag names and IDs, which
+tags are thick or thin surfaces, and their types -- to the console
+OpenVSP was started from.</p>
+<p><em>Triangulate</em> splits every polygon into triangles. It is for a
+solver that needs triangles; VSPAERO takes the polygons as they are.</p>
+<h2 id="coarser-meshes">Coarser Meshes</h2>
+<p>VSPAERO's <em>Num Ref.</em> asks for coarser versions of the mesh
+along with it, each built by merging the faces of the one before. The
+<em>Mesh</em> counter on the Other tab chooses which one is drawn and
+written: 0 is the finest, the mesh the conversion made, and each step up
+is coarser. A mesh converted from the Mesh screen has only the
+finest.</p>
+<h2 id="writing-a-vspgeom-file">Writing a VSPGEOM File</h2>
+<p><em>Write VSPGEOM</em> writes the mesh, as it is placed, to a VSPAERO
+geometry file, with the files VSPAERO reads beside it:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">File</th>
+<th style="text-align: left;">Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>name.vspgeom</code></td>
+<td style="text-align: left;">The points, faces and wakes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>name.vkey</code></td>
+<td style="text-align: left;">What each tag means: component, surface
+and sub-surface.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>name.csf</code></td>
+<td style="text-align: left;">The control surfaces, from the
+sub-surfaces that are control surfaces.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>name*.tag</code>,
+<code>.taglist</code></td>
+<td style="text-align: left;">The faces of each tag, for VSPAERO's
+per-group results.</td>
+</tr>
+</tbody>
+</table>
+<p>Any of these files already there with the same base name are deleted
+first, so a set of files never mixes two meshes.</p>
+<h2 id="limits">Limits</h2>
+<ul>
+<li>A mesh opened from a model file has lost the tables that say which
+component and surface each triangle came from, so converting it finds no
+wakes. Convert a mesh in the session that made it, or make the mesh
+again first.</li>
+<li>An NGon mesh is not saved with the model. When the file is opened
+again the component is there but empty; write the VSPGEOM file to keep
+the mesh, or make it again from its source.</li>
+<li>Its faces cannot be edited. Change the components, or their
+tessellation, and make it again.</li>
+</ul>
+<h2 id="scripting">Scripting</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><code>CreateNGonMeshGeom( mesh_id )</code></td>
+<td style="text-align: left;">Convert a mesh to an NGon mesh; returns
+the new ID.</td>
+</tr>
+</tbody>
+</table>
+<p>The <em>Mesh</em> counter is the Parm <code>ActiveMesh</code> in the
+group <code>RefMesh</code>, and <em>Show Non Manifold Edges</em> is
+<code>ShowNonManifoldEdges</code> in the group <code>Draw</code>.
+<em>Triangulate</em>, <em>Report</em> and <em>Write VSPGEOM</em> are not
+in the API. <code>ExportFile</code> with <code>EXPORT_VSPGEOM</code>
+writes the files as <em>Write VSPGEOM</em> does when the set it is given
+holds an NGon mesh; otherwise it writes the set's triangles.</p>
+</body>
+</html>
