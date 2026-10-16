@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Custom Components</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Custom Components</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>A custom component is a component type defined by a script rather
+than built into OpenVSP. The script, a .vsppart file, chooses the
+component's parameters, lays out the tabs of its screen, and builds its
+surfaces from cross sections whenever a parameter changes. It lets a
+user give a family of shapes the parameters that suit it -- a seat by
+its back angle, a duct by its width and height -- with a screen that
+shows only those, and share it with others. Once loaded, a custom
+component is placed, saved, analyzed and meshed like any built-in
+one.</p>
+<p>Because a custom component can be anything, its own parameters are
+the script author's to document. This page covers what every custom
+component shares: where OpenVSP finds the scripts, how a model carries
+them, how to get a script back out of a model, and how a script is
+written.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#common-tabs">Common
+Tabs</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#where-scripts-are-found">Where
+Scripts Are Found</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#custom-components-in-a-model">Custom Components in a
+Model</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#exporting-a-script">Exporting a
+Script</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#writing-a-script">Writing a
+Script</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#an-example-cone">An Example:
+Cone</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#building-the-screen">Building
+the Screen</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#building-the-surfaces">Building
+the Surfaces</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#limits">Limits</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="using-a-custom-component">Using a custom component</h3>
+<ol type="1">
+<li>Put its .vsppart file in a folder named CustomScripts in your home
+folder (see <a href="#where-scripts-are-found">Where Scripts Are
+Found</a>).</li>
+<li>Start OpenVSP.</li>
+<li>In the Geom Browser, choose the type, listed by the script's file
+name below the line under the built-in types, and click
+<em>Add</em>.</li>
+<li>Set its parameters on the tabs after Sub, and place it with the
+XForm tab.</li>
+</ol>
+<h3 id="writing-a-custom-component">Writing a custom component</h3>
+<ol type="1">
+<li>Copy one of the example scripts, such as Cone.vsppart, into the
+CustomScripts folder in your home folder, under a new name.</li>
+<li>Edit its four functions (see <a href="#writing-a-script">Writing a
+Script</a>).</li>
+<li>Start OpenVSP, and watch the console it was started from for errors
+in the script.</li>
+<li>Add the new type in the Geom Browser and try its parameters.</li>
+</ol>
+<h2 id="common-tabs">Common Tabs</h2>
+<p>The Gen, XForm, Mass and Sub tabs of a custom component are the ones
+every component has; see <a href="GenTab.html">Gen</a>, <a
+href="XFormTab.html">XForm</a>, <a href="MassTab.html">Mass</a>, <a
+href="SubTab.html">Sub-Surfaces</a> and <a
+href="GenTab.html#attributes">Attributes</a>. The tabs after them come
+from the script.</p>
+<p>Two XForm controls depend on the script. <a
+href="XFormTab.html#scale">Scale</a> changes the shape only if the
+script has a <code>Scale</code> function; without one, the shape keeps
+its size. <em>Rot Origin(X)</em> turns the component about a point the
+script places; a script without a <code>ComputeCenter</code> function
+gets a point that suits a body built along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+(see <a href="#building-the-surfaces">Building the Surfaces</a>).</p>
+<h2 id="where-scripts-are-found">Where Scripts Are Found</h2>
+<p>When OpenVSP starts, it reads every file ending in .vsppart in three
+folders named CustomScripts, in this order:</p>
+<ol type="1">
+<li><code>CustomScripts</code> in the working directory, the folder
+OpenVSP was started from;</li>
+<li><code>CustomScripts</code> in the user's home folder
+(<code>~/CustomScripts</code>; on Windows, in the user profile
+folder);</li>
+<li><code>CustomScripts</code> beside the OpenVSP program, where an
+OpenVSP installation puts the shipped examples.</li>
+</ol>
+<p>Each script that compiles becomes a type, named after its file
+without the extension. The folders are read once per session: a script
+added or changed while OpenVSP runs is not seen until it is started
+again, and <em>File &gt; New</em> does not read them again.</p>
+<p>A script with an error does not become a type; the compiler's
+messages, with line and column, are printed to the console OpenVSP was
+started from. A file whose content is identical to one already read adds
+no type, whatever its name. A file with the name of one already read but
+different content is loaded under that name with a number appended (a
+second <code>Dup.vsppart</code> becomes <code>Dup0</code>), so a folder
+read later never replaces a type from one read earlier.</p>
+<p>The home folder is the place for scripts of one's own: it is read
+whatever folder OpenVSP is started from, and is not replaced when
+OpenVSP is reinstalled. When OpenVSP runs from Python, the program is
+the Python interpreter, so the third folder is beside the interpreter
+rather than the OpenVSP package; use the working directory or home
+folder there.</p>
+<h2 id="custom-components-in-a-model">Custom Components in a Model</h2>
+<p>A model file holds the whole script of every custom component in it,
+so it opens on a computer that does not have the script. When the script
+uses <code>#include</code>, the included files are written into the
+model in place of the directive.</p>
+<p>The copy in the model file is the one used. A component keeps the
+script it was saved with even when the file in CustomScripts has changed
+since: the two are different scripts, and the model's copy is loaded
+under the name with a number appended. A component added from the Geom
+Browser uses the file in CustomScripts. To bring a model up to a newer
+script, add a component of the type and delete the old one.</p>
+<p>A script that arrives only in a model is not added to the Geom
+Browser's list of types. Copy and paste a component of that type to make
+another, or export the script (below) into a CustomScripts folder and
+start OpenVSP again.</p>
+<h2 id="exporting-a-script">Exporting a Script</h2>
+<p><em>File &gt; Export...</em>, then <em>Custom Script (.vsppart)</em>,
+lists every script OpenVSP has loaded, from the CustomScripts folders
+and from the models opened in the session. <em>Save To File</em> writes
+the chosen one to a .vsppart file, offering the CustomScripts folder in
+the working directory and the script's name.</p>
+<p>A model is therefore also a way to share a custom component: send the
+.vsp3 file, or post it to the VSP Hangar, and the recipient exports the
+script from it. A script exported from a model has its included files
+already written into it.</p>
+<h2 id="writing-a-script">Writing a Script</h2>
+<p>A script is written in AngelScript, the C-like language of OpenVSP's
+.vspscript files, and uses the same API -- <code>GetParm</code>,
+<code>SetParmVal</code>, <code>GetXSec</code>,
+<code>SetXSecTanAngles</code> and the rest -- plus functions that act
+only on the custom component being built. Those are listed in the API
+documentation under Custom Geometry Functions; they exist only in
+AngelScript and only inside a .vsppart file, so a custom component
+cannot be written in Python.</p>
+<p>OpenVSP calls the script's functions at set times. A function the
+script does not define is skipped.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Called</th>
+<th style="text-align: left;">Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Init()</code></td>
+<td style="text-align: left;">Once, when a component is made or
+loaded.</td>
+<td style="text-align: left;">Adds the Parms, the cross section surfaces
+and their sections, default CFD sources and starting tessellation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>InitGui()</code></td>
+<td style="text-align: left;">Once, when a component is made or
+loaded.</td>
+<td style="text-align: left;">Describes the controls of the screen
+(<code>AddGui</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>UpdateGui()</code></td>
+<td style="text-align: left;">Each time the screen is redrawn.</td>
+<td style="text-align: left;">Ties controls to Parms
+(<code>UpdateGui( gui_id, parm_id )</code>, or with two Parms for a two
+input slider), or cuts them loose.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>UpdateSurf()</code></td>
+<td style="text-align: left;">Each time the component updates.</td>
+<td style="text-align: left;">Reads the Parms, sizes and places the
+cross sections, and skins them (<code>SkinXSecSurf</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Scale( double s )</code></td>
+<td style="text-align: left;">When the XForm tab's <em>Scale</em>
+changes.</td>
+<td style="text-align: left;">Multiplies the script's lengths by
+<code>s</code>, the ratio of the new scale to the previous one.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ComputeCenter()</code></td>
+<td style="text-align: left;">Each update.</td>
+<td style="text-align: left;">Places the point <em>Rot Origin(X)</em>
+turns about (<code>SetCustomCenter</code>).</td>
+</tr>
+</tbody>
+</table>
+<p>Inside these functions <code>GetCurrCustomGeom()</code> gives the ID
+of the component being worked on, the way into its Parms.</p>
+<p><code>AddParm( type, name, group )</code> adds a Parm of type
+<code>PARM_DOUBLE_TYPE</code>, <code>PARM_INT_TYPE</code>,
+<code>PARM_BOOL_TYPE</code> or <code>PARM_FRACTION_TYPE</code> to the
+component. It starts at 0 with limits of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>±</mi><msup><mn>10</mn><mn>6</mn></msup></mrow><annotation encoding="application/x-tex">\pm 10^6</annotation></semantics></math>;
+set its value, limits and description with <code>SetParmValLimits</code>
+and <code>SetParmDescript</code>. These Parms are saved in the model,
+and can be linked, made design variables and set from other scripts like
+any others.</p>
+<p>A script is loaded once for each type, so its global variables are
+shared by every component of that type. Keep a component's state in its
+Parms, which belong to it alone; the examples keep only the indices
+<code>AddGui</code> returns in globals, and those are the same for every
+component of the type.</p>
+<p>An error that occurs while a function runs is printed to the console,
+and the component is left as far as the function got. An
+<code>#include</code> in a .vsppart file is found relative to the
+working directory, not the script's folder; a script kept in one file
+works from any of the three folders. A model holds a script with its
+included files written in, so a script that uses <code>#include</code>
+never matches its copy in a model, and a model always loads that copy as
+a second type with a number appended (see <a
+href="#custom-components-in-a-model">Custom Components in a
+Model</a>).</p>
+<h2 id="an-example-cone">An Example: Cone</h2>
+<p>The Cone example, abridged here, shows the structure of a script.
+<code>Init</code> adds two Parms and one cross section surface with
+three sections: a point, a circle and a point. Every section starts at
+the origin, so the point and the circle together close the base.</p>
+<pre><code>void Init()
+{
+    string height = AddParm( PARM_DOUBLE_TYPE, &quot;Height&quot;, &quot;Design&quot; );
+    SetParmValLimits( height, 4.0, 0.001, 1.0e12 );
+
+    string diameter = AddParm( PARM_DOUBLE_TYPE, &quot;Diameter&quot;, &quot;Design&quot; );
+    SetParmValLimits( diameter, 8.0, 0.001, 1.0e12 );
+
+    string xsec_surf = AddXSecSurf();
+    AppendCustomXSec( xsec_surf, XS_POINT );
+    AppendCustomXSec( xsec_surf, XS_CIRCLE );
+    AppendCustomXSec( xsec_surf, XS_POINT );
+}</code></pre>
+<p><code>InitGui</code> makes a Design tab with a slider for each Parm
+(Figure 1). Giving each slider the Parm's name and group ties it to the
+Parm, so <code>UpdateGui</code> has nothing to do.</p>
+<p><img src="images/Custom_gui_cone.png"
+title="Figure 1. The Cone&#39;s Design tab"
+alt="Figure 1. The Cone&#39;s Design tab" /></p>
+<p><em>Figure 1. The Cone's screen, with the Design tab made by its
+InitGui after the common tabs, at the default Height 4 and Diameter
+8.</em></p>
+<pre><code>void InitGui()
+{
+    AddGui( GDEV_TAB, &quot;Design&quot; );
+    AddGui( GDEV_DIVIDER_BOX, &quot;Design&quot; );
+    AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, &quot;Height&quot;, &quot;Height&quot;, &quot;Design&quot; );
+    AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, &quot;Diameter&quot;, &quot;Diameter&quot;, &quot;Design&quot; );
+}
+
+void UpdateGui()
+{
+}</code></pre>
+<p><code>UpdateSurf</code> reads the Parms, sizes the circle, moves the
+last point out along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+to make the apex, and skins the sections.</p>
+<pre><code>void UpdateSurf()
+{
+    string geom_id = GetCurrCustomGeom();
+    double dia_val = GetParmVal( GetParm( geom_id, &quot;Diameter&quot;, &quot;Design&quot; ) );
+    double ht_val  = GetParmVal( GetParm( geom_id, &quot;Height&quot;, &quot;Design&quot; ) );
+
+    string xsec_surf = GetXSecSurf( geom_id, 0 );
+    string xsec1 = GetXSec( xsec_surf, 1 );
+    string xsec2 = GetXSec( xsec_surf, 2 );
+
+    SetParmVal( GetXSecParm( xsec1, &quot;Circle_Diameter&quot; ), dia_val );
+    SetCustomXSecLoc( xsec2, vec3d( ht_val, 0, 0 ) );
+
+    SkinXSecSurf();
+}</code></pre>
+<p>The shipped Cone.vsppart also has a <code>Scale</code> function,
+which multiplies Height and Diameter, a <code>ComputeCenter</code> that
+puts <em>Rot Origin(X)</em> at that fraction of the height, and a
+default CFD Mesh point source at the apex. The other examples in the
+CustomScripts folder each show a further technique: Box ties controls in
+<code>UpdateGui</code> and greys them out; OnOffExample changes the
+number of surfaces; BoxGroup copies one surface many times, and
+SeatGroup lays out rows and columns of seats the same way; Seat and
+PodMan place several surfaces with transforms; Duct makes a closed ring;
+TransportFuse shapes a body with tangent angles and strengths; Disk
+makes an actuator disk by setting its surface types.</p>
+<h2 id="building-the-screen">Building the Screen</h2>
+<p><code>InitGui</code> describes the screen as a list of controls,
+added in order with
+<code>AddGui( type, arg1, arg2, arg3, arg4, arg5 )</code>. What each
+argument means depends on <em>type</em>, as the table gives it; most
+controls take a label as <em>arg1</em>, the name and group of the Parm
+they show as <em>arg2</em> and <em>arg3</em>, and, for a slider, its
+range as <em>arg4</em>. Arguments may be left off from the end. To give
+a later argument, pass empty strings for the string arguments before it
+and 10.0, the default range, for <em>arg4</em>:
+<code>AddGui( GDEV_ADD_CHOICE_ITEM, "Abs", "", "", 10.0, "0" )</code>. A
+tab starts a new page, and the controls after it fill that page from the
+top down. The types that make something on a custom component's screen
+are these; the other <code>GDEV_</code> types in the API make nothing
+there.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Arguments</th>
+<th style="text-align: left;">Makes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>GDEV_TAB</code></td>
+<td style="text-align: left;"><em>arg1</em> title</td>
+<td style="text-align: left;">A new tab.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_SCROLL_TAB</code></td>
+<td style="text-align: left;"><em>arg1</em> title</td>
+<td style="text-align: left;">A new tab whose page scrolls, for a long
+list of controls.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_DIVIDER_BOX</code></td>
+<td style="text-align: left;"><em>arg1</em> title</td>
+<td style="text-align: left;">A heading bar.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_YGAP</code></td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">A little vertical space.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>GDEV_SLIDER_ADJ_RANGE_INPUT</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group, <em>arg4</em> range</td>
+<td style="text-align: left;">A slider with a typed value, whose range
+the user can widen; <em>arg4</em> is its starting range.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_SLIDER_ADJ_RANGE</code></td>
+<td style="text-align: left;">as
+<code>GDEV_SLIDER_ADJ_RANGE_INPUT</code></td>
+<td style="text-align: left;">The same as
+<code>GDEV_SLIDER_ADJ_RANGE_INPUT</code>.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>GDEV_SLIDER_ADJ_RANGE_TWO_INPUT</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> first
+Parm, <em>arg3</em> group, <em>arg4</em> range, <em>arg5</em> second
+Parm</td>
+<td style="text-align: left;">A slider with two typed values, such as a
+Fuselage end cap's Rel and Abs length, the second Parm in the same group
+as the first. One input drives the slider and the other is shown greyed.
+It always needs both Parms: <em>arg2</em> without <em>arg5</em> is an
+error, and the slider is left out.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_SLIDER_INPUT</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group, <em>arg4</em> range</td>
+<td style="text-align: left;">A slider with a typed value, of fixed
+range.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_SLIDER</code></td>
+<td style="text-align: left;">as <code>GDEV_SLIDER_INPUT</code></td>
+<td style="text-align: left;">The same as
+<code>GDEV_SLIDER_INPUT</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_INPUT</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group</td>
+<td style="text-align: left;">A typed value alone.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_OUTPUT</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group</td>
+<td style="text-align: left;">A value shown and not editable.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_TOGGLE_BUTTON</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group</td>
+<td style="text-align: left;">An on/off button for a Bool Parm.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_CHECK_BUTTON</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group</td>
+<td style="text-align: left;">A check box for a Bool Parm.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_TOGGLE_RADIO_GROUP</code></td>
+<td style="text-align: left;"><em>arg2</em> Parm, <em>arg3</em>
+group</td>
+<td style="text-align: left;">Toggle buttons that set an Int Parm as
+radio buttons do, like the Rel and Abs buttons beside an end cap's type.
+Its buttons follow as <code>GDEV_ADD_CHOICE_ITEM</code>; the group
+itself shows nothing.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_TRIGGER_BUTTON</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group</td>
+<td style="text-align: left;">A button that acts once when pressed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_PARM_BUTTON</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group</td>
+<td style="text-align: left;">A button that opens its Parm in the Parm
+editor; without a Parm, a label.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_COUNTER</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group</td>
+<td style="text-align: left;">An integer with up and down arrows.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_INDEX_SELECTOR</code></td>
+<td style="text-align: left;"><em>arg2</em> Parm, <em>arg3</em>
+group</td>
+<td style="text-align: left;">An integer with arrow buttons on both
+sides; it shows no label.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_CHOICE</code></td>
+<td style="text-align: left;"><em>arg1</em> label, <em>arg2</em> Parm,
+<em>arg3</em> group</td>
+<td style="text-align: left;">A drop-down choice for an Int Parm; its
+items follow as <code>GDEV_ADD_CHOICE_ITEM</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_ADD_CHOICE_ITEM</code></td>
+<td style="text-align: left;"><em>arg1</em> text, <em>arg5</em>
+value</td>
+<td style="text-align: left;">An item of the last choice or radio group.
+Its value is its place in the list, from 0, unless <em>arg5</em> holds
+an integer, so the values need not run 0, 1, 2 in the order shown.
+<em>arg2</em> and <em>arg3</em> are not used. An <em>arg5</em> that is
+not an integer is an error, and the item keeps its place as its
+value.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_BEGIN_SAME_LINE</code>,
+<code>GDEV_END_SAME_LINE</code></td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;">Put the controls between them side by
+side. They share the width in proportion to their natural widths, unless
+the line uses <code>GDEV_ADD_X</code>; then each keeps the width it was
+given.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_FORCE_WIDTH</code></td>
+<td style="text-align: left;"><em>arg1</em> width</td>
+<td style="text-align: left;">Give the next control the width in
+<em>arg1</em>, a whole number of pixels from 1 to 999. In a line
+stretched to fill the width, it is the control's share of the line
+instead.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_ADD_X</code></td>
+<td style="text-align: left;"><em>arg1</em> width</td>
+<td style="text-align: left;">Move along the line by the width in
+<em>arg1</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_SET_BUTTON_WIDTH</code></td>
+<td style="text-align: left;"><em>arg1</em> width</td>
+<td style="text-align: left;">Set the width in <em>arg1</em> for the
+buttons after it, and for the name buttons of sliders and inputs.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>GDEV_SET_CHOICE_BUTTON_WIDTH</code></td>
+<td style="text-align: left;"><em>arg1</em> width</td>
+<td style="text-align: left;">Set the width in <em>arg1</em> for the
+labels of the choices after it.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GDEV_SET_FORMAT</code></td>
+<td style="text-align: left;"><em>arg1</em> format</td>
+<td style="text-align: left;">Show the numbers of the controls after it
+in the C format in <em>arg1</em>, such as <code>%5.2f</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>GDEV_ADD_X</code>, <code>GDEV_SET_BUTTON_WIDTH</code> and
+<code>GDEV_SET_CHOICE_BUTTON_WIDTH</code> take their width in the
+screen's own terms, which a script cannot know in pixels: a sum of
+terms, each a number of pixels or one of the widths <code>W</code> (the
+whole line), <code>INPUT</code>, <code>BUTTON</code>,
+<code>CHOICE_BUTTON</code> and <code>RANGE_BUTTON</code>, with an
+optional count and <code>*</code>. <code>"W-2*INPUT"</code> is the line
+less two inputs, which puts the next controls over the inputs of a two
+input slider.</p>
+<p>A control given a Parm name and group in <em>arg2</em> and
+<em>arg3</em> drives that Parm from the start. A control added without
+them is tied to a Parm in <code>UpdateGui</code>, using the index
+<code>AddGui</code> returned; tying it to an empty Parm ID leaves it
+greyed, as Box does with Width and Height when its <em>Square Box</em>
+button is on. A two input slider is tied with
+<code>UpdateGui( gui_id, parm_id, parm_id2, input )</code>, where
+<em>input</em>, 1 or 2, chooses the input that drives the slider; one
+tied by AddGui's <em>arg2</em> and <em>arg5</em> is driven by the first.
+It always shows two Parms: tied to one, it is greyed. A trigger button
+tied to a Bool Parm sets it to 1 when pressed; <code>UpdateSurf</code>
+then acts on it and sets it back to 0.
+<code>CheckClearTriggerEvent( gui_id )</code> instead reports, once,
+that a control has been used.</p>
+<p>The screen is built once for each type, from the <code>InitGui</code>
+of the first component of that type that is shown, and every component
+of the type shares it; so <code>InitGui</code> should describe the same
+controls every time. Each type's controls start in the default format,
+<code>%7.3f</code>, until its own <code>GDEV_SET_FORMAT</code>. The
+window is titled with the type's name.</p>
+<h2 id="building-the-surfaces">Building the Surfaces</h2>
+<p>A custom component's surfaces are cross section surfaces: each is a
+list of cross sections, skinned in order. The script adds them in
+<code>Init</code>, or in <code>UpdateSurf</code> when their number can
+change, clearing the old ones first with
+<code>ClearXSecSurfs</code>.</p>
+<ul>
+<li><code>AppendCustomXSec( xsec_surf, type )</code> adds a section of
+any cross section curve type (<code>XS_POINT</code>,
+<code>XS_CIRCLE</code>, <code>XS_ROUNDED_RECTANGLE</code>,
+<code>XS_FOUR_SERIES</code> and the rest; see <a
+href="XSecCurves.html">Cross Section Curves</a>), sized through its
+Parms (<code>GetXSecParm</code>). The sections lie in the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">YZ</annotation></semantics></math>
+plane at the origin, so a component is built along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.
+<code>AppendXSec</code>, which older scripts use, does the same inside a
+.vsppart file.</li>
+<li><code>SetCustomXSecLoc( xsec, loc )</code> moves a section, and
+<code>SetCustomXSecRot( xsec, rot )</code> turns it about that place, in
+degrees about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>.</li>
+<li><code>SetXSecSurfGlobalXForm( xsec_surf, matrix )</code> moves or
+turns a whole surface, sections and all.</li>
+<li><code>SkinXSecSurf( closed )</code> skins every surface through all
+of its sections, in order. With <em>closed</em> true and three or more
+sections, the last section is made exactly the first, for a surface that
+comes back on itself, such as a duct. Tangent angles, strengths and
+continuity set on the sections with the usual API
+(<code>SetXSecTanAngles</code>, <code>SetXSecTanStrengths</code>,
+<code>SetXSecContinuity</code>) shape the skin.</li>
+<li><code>CloneSurf( index, matrix )</code> adds a moved copy of a
+skinned surface, and <code>TransformSurf( index, matrix )</code> moves a
+skinned surface itself. Both act after <code>SkinXSecSurf</code>.</li>
+<li><code>SetVspSurfType( type, index )</code> says what a surface is --
+<code>NORMAL_SURF</code> (a body), <code>WING_SURF</code> (a lifting
+surface) or <code>DISK_SURF</code> (an actuator disk) -- for the
+analyses that treat them differently.
+<code>SetVspSurfCfdType( type, index )</code> says how CFD Mesh treats
+it: <code>CFD_NORMAL</code>, <code>CFD_NEGATIVE</code>,
+<code>CFD_TRANSPARENT</code> (a thin membrane outside a body, such as a
+disk or wake) or <code>CFD_STRUCTURE</code> (a thin membrane inside
+one). An index of -1, the default, sets every surface.
+<code>ClearXSecSurfs</code> returns every surface to
+<code>NORMAL_SURF</code> and <code>CFD_NORMAL</code>, so a script that
+rebuilds its surfaces sets their types again after.</li>
+<li><code>SetupCustomDefaultSource( type, surf_index, ... )</code> gives
+CFD Mesh a source of type <code>POINT_SOURCE</code>,
+<code>LINE_SOURCE</code> or <code>BOX_SOURCE</code>, added when its
+<em>Add Default Sources</em> is pressed, with sizes in absolute
+lengths.</li>
+<li><code>SetCustomCenter( x, y, z )</code>, called from
+<code>ComputeCenter</code>, places the point <em>Rot Origin(X)</em>
+turns about. Without a <code>ComputeCenter</code>, the point is at
+<em>Rot Origin(X)</em> times the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+location of the last section of the first surface, which is the length
+of a body built along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+from the origin; for any other shape, write
+<code>ComputeCenter</code>.</li>
+</ul>
+<h2 id="limits">Limits</h2>
+<ul>
+<li>The skinning takes the top side's tangent angles and strengths at
+each section and applies them all the way round. Different conditions on
+the top, bottom and sides, and a skinning spine, which Fuselage and
+Stack support (see <a
+href="XSecSkinning.html#stations-sides-and-spines">Stations: Sides and
+Spines</a>), do not reach a custom component.</li>
+<li>The cross sections are the script's and have no tab of their own.
+Their Parms can be reached from a script or the Parm editors, but those
+the script sets in <code>UpdateSurf</code> are set again on every
+update, so a change made to them elsewhere does not last.</li>
+</ul>
+<h2 id="scripting">Scripting</h2>
+<p>From any API script or from Python, a custom component is added by
+its type name, <code>AddGeom( "Cone" )</code>, once its script is in one
+of the CustomScripts folders; <code>GetGeomTypes</code> lists the types
+found. Its Parms are found by the names and groups the script gave them,
+<code>GetParm( geom_id, "Height", "Design" )</code>.</p>
+</body>
+</html>

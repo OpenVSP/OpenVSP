@@ -44,6 +44,10 @@ particular purpose and can be added to a model as needed.
 - [Gear](Gear.md)
 - [Human](Human.md)
 
+### Scripted Components
+
+- [Custom](Custom.md)
+
 ### Special Geometry
 
 - [Conformal](Conformal.md)
