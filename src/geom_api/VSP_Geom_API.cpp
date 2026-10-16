@@ -14036,6 +14036,19 @@ int GetParmType( const std::string & parm_id )
     return p->GetType();
 }
 
+/// Get whether the parm is active
+bool GetParmActiveFlag( const std::string & parm_id )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmActiveFlag::Can't Find Parm " + parm_id );
+        return false;
+    }
+    ErrorMgr.NoError();
+    return p->GetActiveFlag();
+}
+
 /// Get the parm name
 std::string GetParmName( const std::string & parm_id )
 {

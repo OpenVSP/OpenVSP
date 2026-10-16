@@ -6191,6 +6191,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "int GetParmType( const string & in parm_id )", asFUNCTION( vsp::GetParmType ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "bool GetParmActiveFlag( const string & in parm_id )", asFUNCTION( vsp::GetParmActiveFlag ), asCALL_CDECL );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "string GetParmName( const string & in parm_id )", asFUNCTION( vsp::GetParmName ), asCALL_CDECL );

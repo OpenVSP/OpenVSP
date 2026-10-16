@@ -37288,6 +37288,61 @@ extern int GetParmType( const std::string & parm_id );
     \ingroup Parm
 */
 /*!
+    Get whether the specified Parm is active.  A Parm that has no effect in its component's current
+    settings is inactive, and is greyed in the GUI; its value can still be set.  The flag reflects the
+    last Update.
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string pid = AddGeom( "POD", "" );
+
+    // A Geom placed relative to its parent takes its relative location; the absolute one is inactive
+    Update();
+
+    if ( GetParmActiveFlag( GetParm( pid, "X_Location", "XForm" ) ) )        { Print( "---> Error: API GetParmActiveFlag " ); __failure++; }
+    if ( !GetParmActiveFlag( GetParm( pid, "X_Rel_Location", "XForm" ) ) )   { Print( "---> Error: API GetParmActiveFlag " ); __failure++; }
+
+    SetParmVal( pid, "Abs_Or_Relitive_flag", "XForm", ABS );
+    Update();
+
+    if ( !GetParmActiveFlag( GetParm( pid, "X_Location", "XForm" ) ) )       { Print( "---> Error: API GetParmActiveFlag " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    pid = AddGeom( "POD", "" )
+
+    # A Geom placed relative to its parent takes its relative location; the absolute one is inactive
+    Update()
+
+    if  GetParmActiveFlag( GetParm( pid, "X_Location", "XForm" ) ) :
+        print( "---> Error: API GetParmActiveFlag " )
+        assert False, "---> Error: API GetParmActiveFlag"
+
+    if  not GetParmActiveFlag( GetParm( pid, "X_Rel_Location", "XForm" ) ) :
+        print( "---> Error: API GetParmActiveFlag " )
+        assert False, "---> Error: API GetParmActiveFlag"
+
+    SetParmVal( pid, "Abs_Or_Relitive_flag", "XForm", ABS )
+    Update()
+
+    if  not GetParmActiveFlag( GetParm( pid, "X_Location", "XForm" ) ) :
+        print( "---> Error: API GetParmActiveFlag " )
+        assert False, "---> Error: API GetParmActiveFlag"
+
+    \endcode
+    \endPythonOnly
+    \param [in] parm_id string Parm ID
+    \return bool True if the Parm is active
+*/
+
+extern bool GetParmActiveFlag( const std::string & parm_id );
+
+/*!
+    \ingroup Parm
+*/
+/*!
     Get the name for the specified Parm
     \forcpponly
     \code{.cpp}
