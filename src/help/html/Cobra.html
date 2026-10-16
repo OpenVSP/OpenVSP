@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Cobra</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Cobra</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Cobra is a forebody described by a handful of dimensions. Its
+nose is a super-ellipse in planform and in profile; its aft body runs
+straight back from the nose, tangent to it, to a flat base; and every
+cross section is a super-ellipse whose upper and lower halves may
+differ, its corners filling out from the nose to the base. It suits
+blunt-based bodies such as missile and hypersonic forebodies, canopies
+and fairings, where a few numbers should set the whole shape.</p>
+<p>The shape is NASA's COBRA (Co-Optimization of Blunt-body Re-entry
+Analysis) body, defined at NASA Ames Research Center as a parametric
+family of lifting entry vehicles and used to optimize mid lift-to-drag
+aeroshells for Mars entry [1, 2].</p>
+<p>The Cobra has one tab of its own, Design. The <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
+described on their own pages.</p>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add a Cobra. A new one is a hemisphere of radius 1 on a cylinder of
+length 1, closed by a flat base.</li>
+<li>Place it with the XForm tab.</li>
+<li>Set the nose's <em>Length</em>, <em>Width</em>, <em>Upper
+Height</em> and <em>Lower Height</em>, and <em>PowX</em> for the
+fullness of the nose.</li>
+<li>Set the aft body's <em>Length</em>, and the <em>Width</em> and
+heights of the base, and the cross section exponents.</li>
+</ol>
+<h2 id="planform-and-profile">Planform and Profile</h2>
+<p>The nose runs from its tip, at the origin, to the station a nose
+<em>Length</em> aft,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>N</mi></msub><annotation encoding="application/x-tex">x_N</annotation></semantics></math>,
+where it reaches its full half-width <em>Width</em> and half-heights
+<em>Upper Height</em> and <em>Lower Height</em> (Figure 1). Seen from
+above its outline is the super-ellipse</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="true" form="prefix">|</mo><mfrac><mrow><mi>x</mi><mo>−</mo><msub><mi>x</mi><mi>N</mi></msub></mrow><msub><mi>x</mi><mi>N</mi></msub></mfrac><mo stretchy="true" form="postfix">|</mo></mrow><msub><mi>p</mi><mi>x</mi></msub></msup><mo>+</mo><msup><mrow><mo stretchy="true" form="prefix">|</mo><mfrac><mi>y</mi><msub><mi>w</mi><mi>N</mi></msub></mfrac><mo stretchy="true" form="postfix">|</mo></mrow><msub><mi>p</mi><mi>x</mi></msub></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+\left|\frac{x - x_N}{x_N}\right|^{p_x} + \left|\frac{y}{w_N}\right|^{p_x} = 1
+</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>N</mi></msub><annotation encoding="application/x-tex">w_N</annotation></semantics></math>
+is the nose <em>Width</em> and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>x</mi></msub><annotation encoding="application/x-tex">p_x</annotation></semantics></math>
+is <em>PowX</em>; seen from the side, its upper and lower outlines are
+the same curve with the heights in place of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>N</mi></msub><annotation encoding="application/x-tex">w_N</annotation></semantics></math>.
+<em>PowX</em> 2 gives an elliptical nose, larger values a blunter one,
+and 1 a pointed one with straight sides. Close to the tip the surface
+lies slightly inside this outline, which gives the tip a small point:
+with the default <em>PowX</em> of 2, by up to 5 percent of the width,
+within the first 5 percent of the nose <em>Length</em> (Figure 1).</p>
+<p>The aft body ends in the base, an aft <em>Length</em> behind the nose
+station, with half-width <em>Width</em> and half-heights <em>Upper
+Height</em> and <em>Lower Height</em>. Its sides, top and bottom are
+straight lines from the edges of the base, each tangent to the nose's
+outline. An aft body narrower than the nose meets the nose just aft of
+its widest station; a wider one, ahead of it; one of the same width runs
+straight back from it. The body is the nose <em>Length</em> plus the aft
+<em>Length</em> long, and <em>Rot Origin(X)</em> on the XForm tab is a
+fraction of that.</p>
+<p><img src="images/Cobra_views.png"
+title="Figure 1. Planform and profile"
+alt="Figure 1. Planform and profile" /></p>
+<p><em>Figure 1. A Cobra from above and from the side: nose Length 2,
+Width 1, Upper Height 0.8, Lower Height 0.5; aft Length 4, Width 0.5,
+Upper Height 0.5, Lower Height 0.2; PowX 2.</em></p>
+<p>Either length may be zero. With no aft length the body is the nose
+alone, closed flat at its widest station. With no nose length it is the
+aft body alone, running straight from the nose's section to the base,
+and its front is left open.</p>
+<h2 id="cross-sections">Cross Sections</h2>
+<p>Each cross section is a super-ellipse, its upper and lower halves
+separate:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="true" form="prefix">|</mo><mfrac><mi>y</mi><mi>w</mi></mfrac><mo stretchy="true" form="postfix">|</mo></mrow><mi>p</mi></msup><mo>+</mo><msup><mrow><mo stretchy="true" form="prefix">|</mo><mfrac><mi>z</mi><mi>h</mi></mfrac><mo stretchy="true" form="postfix">|</mo></mrow><mi>p</mi></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+\left|\frac{y}{w}\right|^{p} + \left|\frac{z}{h}\right|^{p} = 1
+</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+is the half-width and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+the upper or lower half-height at that station, read from the outlines
+above. The exponent
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+is <em>PowNU</em> (upper) or <em>PowNL</em> (lower) over the nose. From
+the farther aft of the two points where the aft body's sides and its top
+(or bottom) leave the nose, or from the nose's widest station if both
+lie ahead of it, it changes smoothly, as a half cosine, to
+<em>PowAU</em> or <em>PowAL</em> at the base (Figure 2). An exponent of
+2 gives an ellipse, larger values fill out the corners toward a
+rectangle, and 1 gives a diamond.</p>
+<p><img src="images/Cobra_sections.png" title="Figure 2. Cross sections"
+alt="Figure 2. Cross sections" /></p>
+<p><em>Figure 2. Cross sections of the Cobra of Figure 1, seen from the
+front: the nose's widest station, with exponent 2, and the base, with
+exponent 4, and stations between them.</em></p>
+<p><em>Nose ULSymm</em> and <em>Aft ULSymm</em> make the lower half the
+same as the upper, taking its height and exponent; the lower controls
+are then greyed. Both are on by default.</p>
+<h2 id="parameters">Parameters</h2>
+<p>Every width and height is measured from the axis: <em>Width</em> is a
+half-width, and the two heights are the extents above and below the
+axis, so a section's full height is their sum.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">Length</td>
+<td style="text-align: left;"><code>XradN</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Length of the nose, tip to widest
+station.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">Width</td>
+<td style="text-align: left;"><code>YradN</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Half-width at the widest station.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">PowX</td>
+<td style="text-align: left;"><code>PowX</code></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Exponent of the nose's planform and
+profile.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">Upper Height</td>
+<td style="text-align: left;"><code>ZradNU</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Height above the axis at the widest
+station.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">PowNU</td>
+<td style="text-align: left;"><code>PowNU</code></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Exponent of the upper cross section.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">Nose ULSymm</td>
+<td style="text-align: left;"><code>NoseULSymm</code></td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">Lower half the same as the upper.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">Lower Height</td>
+<td style="text-align: left;"><code>ZradNL</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Depth below the axis at the widest
+station.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">PowNL</td>
+<td style="text-align: left;"><code>PowNL</code></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Exponent of the lower cross section.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft</td>
+<td style="text-align: left;">Length</td>
+<td style="text-align: left;"><code>XlenA</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Length from the nose's widest station to
+the base.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft</td>
+<td style="text-align: left;">Width</td>
+<td style="text-align: left;"><code>YradA</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Half-width of the base.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft</td>
+<td style="text-align: left;">Upper Height</td>
+<td style="text-align: left;"><code>ZradAU</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Height of the base above the axis.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft</td>
+<td style="text-align: left;">PowAU</td>
+<td style="text-align: left;"><code>PowAU</code></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Exponent of the upper cross section at the
+base.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft</td>
+<td style="text-align: left;">Aft ULSymm</td>
+<td style="text-align: left;"><code>AftULSymm</code></td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">Lower half the same as the upper.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft</td>
+<td style="text-align: left;">Lower Height</td>
+<td style="text-align: left;"><code>ZradAL</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Depth of the base below the axis.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft</td>
+<td style="text-align: left;">PowAL</td>
+<td style="text-align: left;"><code>PowAL</code></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Exponent of the lower cross section at the
+base.</td>
+</tr>
+</tbody>
+</table>
+<p>The exponents run from 1 to 10. All the parms are in the
+<em>Design</em> group.</p>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>Brown, J. L., Garcia, J. A., Kinney, D. J., Bowles, J. V. and
+Mansour, N. N., "Co-optimization of Blunt Body Shapes for Moving
+Vehicles," U.S. Patent 8,725,470 B1, assigned to the National
+Aeronautics and Space Administration, 2014.</li>
+<li>Garcia, J. A., Brown, J. L., Kinney, D. J., et al., "Co-Optimization
+of Mid Lift to Drag Vehicle Concepts for Mars Atmospheric Entry," AIAA
+Paper 2010-5052, 10th AIAA/ASME Joint Thermophysics and Heat Transfer
+Conference, Chicago, IL, 2010.</li>
+</ol>
+</body>
+</html>

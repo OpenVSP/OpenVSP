@@ -10,7 +10,7 @@
 #include "CobraGeom.h"
 
 //==== Constructor ====//
-CobraScreen::CobraScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Cobra" )
+CobraScreen::CobraScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Cobra", "Cobra.html" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );

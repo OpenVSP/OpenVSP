@@ -32,6 +32,7 @@ particular purpose and can be added to a model as needed.
    - [Chevrons](Chevron.md)
 - [Propeller](Propeller.md)
 - [Ellipsoid](Ellipsoid.md)
+- [Cobra](Cobra.md)
 - [Pod](Pod.md)
 - [Body of Revolution](BOR.md)
 
