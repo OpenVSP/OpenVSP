@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Fuselage and Stack</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Fuselage and Stack</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Fuselage and the Stack build a body by skinning a surface through
+a series of cross sections. They share almost everything: the cross
+section shapes, the skinning controls, the end caps, the engine model
+and the chevrons. They differ in how the sections are placed. A Fuselage
+places each section on its own, at a fraction of the Fuselage's length.
+A Stack places each section relative to the one before it, so moving or
+turning one section carries every later section with it. Use a Fuselage
+for a body laid out along a straight axis with a known length; use a
+Stack for nacelles, ducts, inlets and bodies that bend, where each
+section is most easily given as a step from the last.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#what-differs">What
+Differs</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#building-a-body">Building a
+Body</a></td>
+<td style="text-align: left;">XSec, Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#placing-a-fuselages-sections">Placing a Fuselage's
+Sections</a></td>
+<td style="text-align: left;">XSec, Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#placing-a-stacks-sections">Placing a Stack's Sections</a></td>
+<td style="text-align: left;">XSec</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#section-order">Section
+Order</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#inserting-and-cutting-sections">Inserting and Cutting
+Sections</a></td>
+<td style="text-align: left;">XSec</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#tessellation-along-the-body">Tessellation Along the Body</a></td>
+<td style="text-align: left;">XSec, Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#end-caps">End Caps</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#stack-presets">Stack
+Presets</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#converting-a-fuselage-to-a-stack">Converting a Fuselage to a
+Stack</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p>The other tabs are shared with other components. The <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
+described on their own pages. The shape of each section is chosen on the
+XSec tab; the shapes and their parameters are described in <a
+href="XSecCurves.html">Cross Section Curves</a>, and the tab's common
+controls (choosing the active section, copying, pasting, converting a
+section to an editable curve) and the Skinning tab in <a
+href="XSecSkinning.html">Cross Section Skinning</a>. The Engine
+Definition, Engine Representation and Extension groups of the Design tab
+are described in <a href="EngineModel.html">Engine Model</a>, and the
+Chevron controls of the Modify tab in <a
+href="Chevron.html">Chevrons</a>.</p>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="a-fuselage">A fuselage</h3>
+<ol type="1">
+<li>Add a Fuselage. A new one has a point nose, three elliptical
+sections and a point tail, 30 units long.</li>
+<li>Place it with the XForm tab.</li>
+<li>Set <em>Length</em> on the Design tab.</li>
+<li>On the XSec tab choose each section, give it a shape and size, and
+set <em>X</em> as a fraction of the length. Shape the surface between
+sections on the Skinning tab.</li>
+</ol>
+<h3 id="a-nacelle">A nacelle</h3>
+<ol type="1">
+<li>Add a Stack, choose a nacelle under <em>Stack Preset</em> on the
+Design tab and click <em>Set</em> (see <a href="StackPresets.html">Stack
+Presets</a>).</li>
+<li>Place it with the XForm tab.</li>
+<li>On the XSec tab choose each section, give it a size, and set its
+<em>Delta X</em> from the section before.</li>
+<li>Choose how analyses see it under <em>Engine Representation</em> (see
+<a href="EngineModel.html">Engine Model</a>).</li>
+</ol>
+<h2 id="what-differs">What Differs</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Fuselage</th>
+<th style="text-align: left;">Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Section location</td>
+<td style="text-align: left;"><em>X</em>, <em>Y</em>, <em>Z</em> as
+fractions of <em>Length</em></td>
+<td style="text-align: left;"><em>Delta X</em>, <em>Delta Y</em>,
+<em>Delta Z</em> from the section before, or absolute</td>
+</tr>
+<tr>
+<td style="text-align: left;">Section rotation</td>
+<td style="text-align: left;">Turns that section alone</td>
+<td style="text-align: left;">Turns that section and every later
+one</td>
+</tr>
+<tr>
+<td style="text-align: left;">Overall length</td>
+<td style="text-align: left;"><em>Length</em> on the Design tab</td>
+<td style="text-align: left;">No parameter; the sum of the steps</td>
+</tr>
+<tr>
+<td style="text-align: left;">XSec Order policies</td>
+<td style="text-align: left;">MONOTONIC (default), LOOP, FREE</td>
+<td style="text-align: left;">FREE (default), LOOP</td>
+</tr>
+<tr>
+<td style="text-align: left;">Vertical alignment</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><em>V Align</em></td>
+</tr>
+<tr>
+<td style="text-align: left;">Presets</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;"><em>Stack Preset</em></td>
+</tr>
+<tr>
+<td style="text-align: left;">Conversion</td>
+<td style="text-align: left;"><em>Convert to Stack</em></td>
+<td style="text-align: left;">None</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insert</td>
+<td style="text-align: left;">Halfway to the next section; nothing else
+moves</td>
+<td style="text-align: left;">One step on from the active section; later
+sections move on</td>
+</tr>
+<tr>
+<td style="text-align: left;">Cut</td>
+<td style="text-align: left;">Nothing else moves</td>
+<td style="text-align: left;">Later sections close up</td>
+</tr>
+<tr>
+<td style="text-align: left;">Rotation origin (XForm)</td>
+<td style="text-align: left;"><em>Rot Origin</em> is a fraction of
+<em>Length</em></td>
+<td style="text-align: left;"><em>Rot Origin</em> has no effect (see <a
+href="XFormTab.html#location-and-rotation">XForm</a>)</td>
+</tr>
+<tr>
+<td style="text-align: left;">New component</td>
+<td style="text-align: left;">30 long; ellipses 2.5 wide and 3 tall at
+0.25, 0.5, 0.75</td>
+<td style="text-align: left;">4.5 long; ellipses 3 wide and 2.5 tall,
+steps 1, 2, 1 and 0.5</td>
+</tr>
+</tbody>
+</table>
+<p>Everything else is the same: the section shapes, skinning,
+per-section tessellation, end caps, the engine model and chevrons.</p>
+<h2 id="building-a-body">Building a Body</h2>
+<p>A Fuselage or Stack can model almost any body, but it is not always
+the quickest choice. A store, a tank or a placeholder of a standard
+streamlined shape is a <a href="Pod.html">Pod</a>; a round duct or
+nacelle wall made from one airfoil is a <a href="BOR.html">Body of
+Revolution</a>. Use a Fuselage or a Stack when the body is not round,
+when its sections change shape along it, or when a nacelle needs the <a
+href="EngineModel.html">Engine Model</a>.</p>
+<p>Build the body in stages. First set its length and the width and
+height of a few sections, so that its size and proportions are right;
+then give the sections their shapes; and shape the surface between them
+on the Skinning tab last.</p>
+<p>Use as few sections as the shape needs. Put a section where the shape
+changes character -- at a corner or a break in the profile, at an
+inflection, where a constant section begins or ends, where the section's
+shape changes -- and let the skinning carry the surface between them.
+Every extra section is one more to keep in step with its neighbors when
+the body is changed, and each adds a span of <em>Num U</em> points along
+the body, so the tessellation grows with the count.</p>
+<p>Positions along the body given by U count sections, not length: each
+span between two sections takes the same share of U however long it is
+(see <a href="XFormTab.html#attachment-coordinates">Attachment
+Coordinates</a>). A child attached by UW or RST, a sub-surface placed by
+U and an engine station set by U all keep their U when a section is
+inserted or cut, and so move along the body. On the default Fuselage, a
+child attached at U 0.6 moves from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>18</mn></mrow><annotation encoding="application/x-tex">X = 18</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">X = 15</annotation></semantics></math>
+when a section is inserted after section 1. Attach by LMN, a fraction of
+the length, what must stay in place while sections are added or
+removed.</p>
+<h2 id="placing-a-fuselages-sections">Placing a Fuselage's Sections</h2>
+<p>Each Fuselage section has a location <em>X</em>, <em>Y</em>,
+<em>Z</em>, each a fraction of the Fuselage's <em>Length</em>, and a
+rotation <em>Rot X</em>, <em>Rot Y</em>, <em>Rot Z</em> about its own
+center (Figure 1). <em>X</em> runs from 0 at the nose to 1 at the tail;
+<em>Y</em> and <em>Z</em> may be from -1 to 1. Each slider shows the
+fraction and, beside it, the distance it gives; typing a distance sets
+the fraction. Because all three are fractions, changing <em>Length</em>
+moves every section, sideways and vertically as well as along the body,
+but does not change the size of any section.</p>
+<p>The section's rotation turns it about its center, right-handed about
+the body's axes: positive <em>Rot X</em> raises its right side
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>),
+positive <em>Rot Y</em> tilts its top aft, positive <em>Rot Z</em> moves
+its right side forward. It turns that section only (Figure 2); the
+sections before and after keep their places and orientations.</p>
+<p><img src="images/FuselageStack_place.png"
+title="Figure 1. Section placement"
+alt="Figure 1. Section placement" /></p>
+<p><em>Figure 1. One body built both ways. Above, a Fuselage of Length
+4: each section's X is its own fraction of the length. Below, a Stack:
+each section is a step Delta X from the one before.</em></p>
+<h2 id="placing-a-stacks-sections">Placing a Stack's Sections</h2>
+<p>Each Stack section is placed by a step <em>Delta X</em>, <em>Delta
+Y</em>, <em>Delta Z</em> and a turn <em>Rot X</em>, <em>Rot Y</em>,
+<em>Rot Z</em> from the section before it, in that section's own axes.
+The steps are lengths, not fractions. A turn therefore turns the
+direction in which every later section is stepped: a Stack is built like
+a path, each section a step and a turn from the last (Figure 2).
+Positive <em>Rot Y</em> turns the following sections down
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">-Z</annotation></semantics></math>),
+positive <em>Rot Z</em> turns them toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>.
+The first section is placed and turned the same way from the Stack's
+origin, so moving it moves the whole Stack.</p>
+<p><img src="images/FuselageStack_rotate.png"
+title="Figure 2. Section rotation"
+alt="Figure 2. Section rotation" /></p>
+<p><em>Figure 2. Rot Y 30 on section 2 of the body of Figure 1. In the
+Fuselage (above) only section 2 tilts. In the Stack (below) the sections
+after it follow the turn. Dashed, the body without the turn.</em></p>
+<p><em>Coord System</em> chooses, for each section, which set of values
+drives it (Figure 3).</p>
+<ul>
+<li><em>Rel</em> (the default): the steps and turns drive the section,
+and the absolute values are shown greyed.</li>
+<li><em>Abs</em>: the section's location and orientation in the Stack's
+own axes drive it, and the steps and turns are shown greyed. The section
+then stays where it is when earlier sections change, and its steps are
+worked out from the section before. Later sections are still placed from
+it.</li>
+</ul>
+<p>Use <em>Abs</em> to pin a section that must stay put, such as a lip
+or a face that another component is placed against, while the sections
+ahead of it are reshaped.</p>
+<p><img src="images/FuselageStack_gui_coord.png"
+title="Figure 3. Coord System" alt="Figure 3. Coord System" /></p>
+<p><em>Figure 3. Section 2 of a new Stack with Rot Y 10 on section 1, in
+Rel. The steps and turns drive it; the greyed column is its location and
+orientation in the Stack's axes, which the turn on section 1 has
+changed.</em></p>
+<p><em>V Align</em> moves a section up or down, before it is placed, by
+its value times half the section's height: at 1 its top lies on the
+Stack's line through the section centers, at -1 its bottom does. It lets
+sections of different heights share a flat top or bottom without working
+out their offsets (Figure 4). The move is the section's alone: the next
+section is placed from where the section would be at V Align 0.</p>
+<p><img src="images/FuselageStack_valign.png" title="Figure 4. V Align"
+alt="Figure 4. V Align" /></p>
+<p><em>Figure 4. A Stack of three ellipses of heights 0.8, 1.4 and 0.6
+between point ends, every section at V Align 0 (above) and at V Align 1
+(below). At 1 each section's center lies half its height H below the
+Stack's line, and the tops of sections 1 to 3 lie on it.</em></p>
+<p><em>Spin</em>, in both components, slides the start of the section's
+curve around the section by a fraction of the curve's parameter, from -1
+to 1. It changes no shape; it changes which points of neighboring
+sections the skinning joins, which matters when sections of different
+types meet.</p>
+<h2 id="section-order">Section Order</h2>
+<p><em>XSec Order</em> on the Design tab chooses what order the sections
+may come in.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Policy</th>
+<th style="text-align: left;">Fuselage</th>
+<th style="text-align: left;">Stack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">MONOTONIC</td>
+<td style="text-align: left;">First section at <em>X</em> 0, last at 1;
+each other between its neighbors</td>
+<td style="text-align: left;">Not available</td>
+</tr>
+<tr>
+<td style="text-align: left;">FREE</td>
+<td style="text-align: left;">Every <em>X</em> anywhere from 0 to 1, in
+any order</td>
+<td style="text-align: left;">Every section placed freely</td>
+</tr>
+<tr>
+<td style="text-align: left;">LOOP</td>
+<td style="text-align: left;">First and last sections at <em>X</em> 1;
+the last is a copy of the first</td>
+<td style="text-align: left;">The last section is a copy of the first,
+placed on it</td>
+</tr>
+</tbody>
+</table>
+<p>MONOTONIC is the Fuselage's default and suits a body that runs nose
+to tail. Its limits hold as the sections are edited, and switching to it
+from another policy pulls any section that is out of order onto its
+neighbor, losing its <em>X</em>.</p>
+<p>LOOP closes the sections on themselves, for a component whose
+sections run around a closed path, such as a nacelle whose sections run
+forward through the flowpath to the inlet lip and back along the outside
+(Figure 5). The last section is no longer edited: it takes the first
+section's shape and size, and its place. In a Fuselage it takes the
+first section's location, rotation and <em>Spin</em>, and both ends lie
+at <em>X</em> 1, the aft end. In a Stack it is placed exactly on the
+first section, whatever the steps to it, and takes its <em>Spin</em> and
+<em>V Align</em>. Its skinning is not copied, so set it to match if the
+join must be smooth. The Stack's nacelle presets are loops.</p>
+<p><img src="images/FuselageStack_loop.png"
+title="Figure 5. A Stack loop" alt="Figure 5. A Stack loop" /></p>
+<p><em>Figure 5. The Nacelle Flowthrough Mid Origin preset, cut through
+its axis. Its sections run in a loop: from section 0 in the middle of
+the flowpath forward through the inlet to the lip, aft along the outside
+to the outlet lip, and forward through the outlet back to section 6,
+which lies on section 0.</em></p>
+<h2 id="inserting-and-cutting-sections">Inserting and Cutting
+Sections</h2>
+<p><em>Insert</em> adds a copy of the active section after it and makes
+the copy active.</p>
+<ul>
+<li>In a Fuselage the copy goes halfway, in <em>X</em>, between the
+active section and the next one. Nothing else moves. A section cannot be
+inserted after the last one.</li>
+<li>In a Stack the copy takes the active section's steps and turns, so
+it lies one more step on, and every later section moves on by that step.
+A step of zero <em>Delta X</em> becomes 1. In LOOP order a section
+cannot be inserted after the last one. In FREE order it can, and the
+Stack grows by the last section's step.</li>
+</ul>
+<p><em>Cut</em> removes the active section and keeps it for pasting; it
+does nothing when only two sections are left. In a Fuselage nothing else
+moves. In a Stack the sections after it close up, since each is placed
+from the one before.</p>
+<h2 id="tessellation-along-the-body">Tessellation Along the Body</h2>
+<p>The number of points along the body is set section by section. On the
+XSec tab, <em>Num U</em> of a section is the number of points from the
+section before it to this one, and <em>Fwd. Cluster</em> and <em>Aft
+Cluster</em> bunch those points toward the forward and aft ends of that
+span (values below 1 bunch them). The first section has no span before
+it, so its controls are greyed, and the Gen tab's <em>Num U</em> is
+greyed too. <em>Cap Tess</em> on the Design tab sets the points across
+both end caps.</p>
+<h2 id="end-caps">End Caps</h2>
+<p>The <em>Tip Treatment</em> group of the Design tab closes an open end
+of the body: the <em>Nose</em> cap at the first section, the
+<em>Tail</em> cap at the last. An end whose section is a point needs no
+cap; an end whose section has area is left open with <em>None</em>.</p>
+<p>The caps are the Wing's None, Flat, Round, Edge and Sharp tip caps,
+with the same <em>Length</em>, <em>Offset</em>, <em>Strength</em> and
+<em>Sweep Stretch</em>; see <a href="Wing.html#tip-treatment">Tip
+Treatment</a>. The extended round caps are the Wing's alone. A cap is
+built across the section as if it were an airfoil whose chord runs from
+the section's right side
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>)
+to its left, so at each point across the section the cap reaches out by
+half the section's height there (at Length 1). Where the body ends
+straight, a Round cap on a circular section is therefore a hemisphere,
+and on an ellipse it reaches out by half the height, whatever the width
+(Figure 6): a wide, flat section gets a short, blunt cap, and a tall,
+narrow one a long cap. Where the body narrows toward its end, the cap
+continues the surface's direction and reaches out less.</p>
+<p><img src="images/FuselageStack_caps.png" title="Figure 6. Round caps"
+alt="Figure 6. Round caps" /></p>
+<p><em>Figure 6. A Round tail cap of Length 1 on a straight body, from
+above (left) and from the side (right). On a circle of diameter D it is
+a hemisphere. On an ellipse of width W twice its height H it reaches out
+by H/2 in both views, a half circle from the side and a half ellipse
+from above.</em></p>
+<h2 id="stack-presets">Stack Presets</h2>
+<p><em>Stack Preset</em> and <em>Set</em> replace every section of a
+Stack with a ready-made layout: a cylinder, or one of many nacelles,
+each with its XSec Order and its engine definition and representation
+already set. <em>Set</em> asks first, since the existing sections are
+lost. The presets are described in <a href="StackPresets.html">Stack
+Presets</a>.</p>
+<h2 id="converting-a-fuselage-to-a-stack">Converting a Fuselage to a
+Stack</h2>
+<p><em>Convert to Stack</em> on the Fuselage's Design tab replaces the
+Fuselage with a Stack of the same shape, in the same place in the model,
+under the same name, with its children, subsurfaces, structures, mesh
+sources and attributes. Each section is placed where the Fuselage put
+it, as steps and turns from the section before, so the surface does not
+change. The Stack keeps the Fuselage's ID and the IDs of its parameters,
+so links and design variables still find them, but some now mean
+something else. A section's <em>X</em>, <em>Y</em> and <em>Z</em>,
+fractions of the length, become its <em>Delta X</em>, <em>Delta Y</em>
+and <em>Delta Z</em>, lengths from the section before, and its rotations
+become turns from the section before; check any link or design variable
+on them after converting. The Fuselage's <em>Length</em> has no
+counterpart in a Stack. It cannot be undone.</p>
+<p>Convert a Fuselage when it must be reshaped section by section, for
+example to turn its aft body, which a Stack does by turning one
+section.</p>
+<h2 id="scripting">Scripting</h2>
+<p>A script reaches a section's parameters through the XSec it belongs
+to (<code>GetXSecSurf</code>, <code>GetXSec</code>,
+<code>GetXSecParm</code>).</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Fuselage parm</th>
+<th style="text-align: left;">Stack parm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Length</td>
+<td style="text-align: left;"><code>Length</code> (Design)</td>
+<td style="text-align: left;">none</td>
+</tr>
+<tr>
+<td style="text-align: left;">XSec Order</td>
+<td style="text-align: left;"><code>OrderPolicy</code> (Design):
+<code>FUSE_MONOTONIC</code>, <code>FUSE_LOOP</code>,
+<code>FUSE_FREE</code></td>
+<td style="text-align: left;"><code>OrderPolicy</code> (Design):
+<code>STACK_FREE</code>, <code>STACK_LOOP</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Location</td>
+<td style="text-align: left;"><code>XLocPercent</code>,
+<code>YLocPercent</code>, <code>ZLocPercent</code></td>
+<td style="text-align: left;"><code>XDelta</code>, <code>YDelta</code>,
+<code>ZDelta</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Rotation</td>
+<td style="text-align: left;"><code>XRotate</code>,
+<code>YRotate</code>, <code>ZRotate</code></td>
+<td style="text-align: left;"><code>XRotate</code>,
+<code>YRotate</code>, <code>ZRotate</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Absolute</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;"><code>XAbs</code>, <code>YAbs</code>,
+<code>ZAbs</code>, <code>XRotateAbs</code>, <code>YRotateAbs</code>,
+<code>ZRotateAbs</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Coord System</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;"><code>XSAbsRelFlag</code>:
+<code>ABS</code> or <code>REL</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">V Align</td>
+<td style="text-align: left;">none</td>
+<td style="text-align: left;"><code>VAlign</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Spin</td>
+<td style="text-align: left;"><code>Spin</code></td>
+<td style="text-align: left;"><code>Spin</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Num U, clusters</td>
+<td style="text-align: left;"><code>SectTess_U</code>,
+<code>FwdCluster</code>, <code>AftCluster</code></td>
+<td style="text-align: left;"><code>SectTess_U</code>,
+<code>FwdCluster</code>, <code>AftCluster</code></td>
+</tr>
+</tbody>
+</table>
+<p>The two <code>OrderPolicy</code> enums differ: 0 is
+<code>FUSE_MONOTONIC</code> in a Fuselage but <code>STACK_FREE</code> in
+a Stack.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Call</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>InsertXSec</code>,
+<code>CutXSec</code></td>
+<td style="text-align: left;">Insert a section of a given type after an
+index, or cut one, as <em>Insert</em> and <em>Cut</em> do.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>InitStackPreset</code></td>
+<td style="text-align: left;">Replace a Stack's sections with a preset,
+<code>STACK_PRESET_DEFAULT</code> and the others.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ConvertFuselageToStack</code></td>
+<td style="text-align: left;">Replace a Fuselage with a Stack of the
+same shape; returns the same ID.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
