@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Cross Section Curves</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Cross Section Curves</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>A cross section curve is the closed outline that a component is built
+from: a Fuselage or Stack is lofted through a series of them, a Wing or
+Propeller through a series of airfoils, and a Body of Revolution sweeps
+one around an axis. The XSec tab chooses each section's shape with
+<em>Choose Type</em> and sets that shape's parameters. This page covers
+the body shapes; the airfoils, which every one of these components can
+use too, are on <a href="Airfoils.html">Airfoils</a>, and the controls
+for adding, removing and lofting sections are on <a
+href="XSecSkinning.html">Cross Sections and Skinning</a>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Shape</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#how-a-section-is-laid-out">How a
+Section Is Laid Out</a></td>
+<td style="text-align: left;">all</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#choosing-a-shape">Choosing a
+Shape</a></td>
+<td style="text-align: left;">all</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#width-height-area-and-hw-ratio">Width, Height, Area and H/W
+Ratio</a></td>
+<td style="text-align: left;">all but the airfoils</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#point">Point</a></td>
+<td style="text-align: left;">POINT</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#circle-and-ellipse">Circle and
+Ellipse</a></td>
+<td style="text-align: left;">CIRCLE, ELLIPSE</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#super-ellipse">Super
+Ellipse</a></td>
+<td style="text-align: left;">SUPER_ELLIPSE</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#rounded-rectangle">Rounded
+Rectangle</a></td>
+<td style="text-align: left;">ROUNDED_RECTANGLE</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#general-fuse">General
+Fuse</a></td>
+<td style="text-align: left;">GENERAL_FUSE</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#fuse-file">Fuse File</a></td>
+<td style="text-align: left;">FUSE_FILE</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#edit-curve">Edit Curve</a></td>
+<td style="text-align: left;">EDIT_CURVE</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#ac-25773-pilot-vision">AC 25.773
+Pilot Vision</a></td>
+<td style="text-align: left;">AC25_773</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-a-section-is-laid-out">How a Section Is Laid Out</h2>
+<p>Every section is a closed curve in its own plane, sized by a
+<em>Width</em> and a <em>Height</em>. The curve's parameter runs from 0
+to 1 once around it, starting at the right-hand side, down through the
+bottom, around the left and over the top (Figure 1). The four quarter
+points have names that the rest of OpenVSP uses: <em>Right</em> at 0,
+<em>Bottom</em> at 0.25, <em>Left</em> at 0.5 and <em>Top</em> at 0.75.
+The skinning controls act at these four points, the lofted surface's
+seam runs through the Right points, and a Fuselage or Stack section's
+<em>Spin</em> moves where the curve starts.</p>
+<p>On a Fuselage or Stack whose sections are not rotated, the section is
+seen from behind, looking forward: Right is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+and Top is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">+Z</annotation></semantics></math>.
+An airfoil has its own layout, with the chord in place of the width (see
+<a href="Airfoils.html#how-an-airfoil-is-laid-out">Airfoils</a>).</p>
+<p><img src="images/XSecCurves_param.png"
+title="Figure 1. Section layout" alt="Figure 1. Section layout" /></p>
+<p><em>Figure 1. An ellipse 3 wide and 2 high: where the curve starts,
+which way it runs, and the four named points.</em></p>
+<p>Every shape is built from polynomial (Bezier) pieces, and so are the
+surface lofted through it and the STEP and IGES files written from that
+surface. A polynomial cannot draw a circle exactly: a Circle or an
+Ellipse is four cubic pieces, and a Circle departs from a true circle by
+0.02 percent of its radius; a Super Ellipse is fitted with many more
+pieces and is much closer. That is far below anything an analysis can
+see, but a CAD system receives a fitted curve, not a circle or cylinder
+it can recognize as one.</p>
+<h2 id="choosing-a-shape">Choosing a Shape</h2>
+<p><em>Choose Type</em> replaces the active section's curve with a new
+one of the chosen type. The new curve takes the old one's width and
+height, so the section stays about the same size: a Circle takes the
+mean of the two as its diameter, and an airfoil takes the width as its
+chord and the height as its thickness. Everything the two types share by
+name comes across too, such as the Modify tab's settings, and the
+section keeps its position and skinning. Parameters the old type had and
+the new one does not are lost, so changing back does not restore
+them.</p>
+<p><em>Show</em> opens a window that draws the active section on its
+own. <em>Convert CEDIT</em> turns the active section, of whatever type,
+into an <a href="#edit-curve">Edit Curve</a> of the same shape, so a
+standard shape can be the starting point for a custom one. Most shapes
+become a cubic Bezier fitted to the curve; a Rounded Rectangle and the
+AC 25.773 shape become straight lines, with the rectangle's corner radii
+kept as point radii. The new Edit Curve has <em>R-L Symmetry</em>
+off.</p>
+<h2 id="width-height-area-and-hw-ratio">Width, Height, Area and H/W
+Ratio</h2>
+<p>Most body shapes are sized by any two of <em>Width</em>,
+<em>Height</em>, <em>Area</em> and <em>H/W Ratio</em>; choose the two
+that drive with the toggles beside them, and the other two are computed.
+A Circle is sized by its <em>Diameter</em> or its <em>Area</em>.</p>
+<p>The area is the area inside the curve before any Modify operation.
+When it drives, OpenVSP scales the shape until the area matches. A shape
+that scales with its width and height gets there in one pass; corner
+radii given as lengths, as on a Rounded Rectangle or an Edit Curve, take
+a few. Driving by area is the way to lay out a body to an area
+distribution, as in area ruling; holding the H/W ratio as well keeps the
+section's proportions while it does.</p>
+<h2 id="point">Point</h2>
+<p>A section of no size: a point at the section's center. It closes a
+body at its nose or tail. The Propeller does not offer it.</p>
+<h2 id="circle-and-ellipse">Circle and Ellipse</h2>
+<p>A Circle has a single size, its <em>Diameter</em>, so it cannot
+become oval; use it where a section must stay round, such as a duct. An
+Ellipse is the shape of a <a href="#super-ellipse">Super Ellipse</a>
+with both exponents 2 and <em>MaxWLoc</em> 0, drawn with fewer pieces;
+start from a Super Ellipse instead when the section may later need to
+depart from an ellipse.</p>
+<h2 id="super-ellipse">Super Ellipse</h2>
+<p>The super ellipse generalizes the ellipse. With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+the width,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+the height,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+across and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+up from the center, its top half is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="true" form="prefix">|</mo><mfrac><mi>y</mi><mrow><mi>w</mi><mi>/</mi><mn>2</mn></mrow></mfrac><mo stretchy="true" form="postfix">|</mo></mrow><mi>M</mi></msup><mo>+</mo><msup><mrow><mo stretchy="true" form="prefix">|</mo><mfrac><mrow><mi>z</mi><mo>−</mo><msub><mi>z</mi><mn>0</mn></msub></mrow><mrow><mi>h</mi><mi>/</mi><mn>2</mn><mo>−</mo><msub><mi>z</mi><mn>0</mn></msub></mrow></mfrac><mo stretchy="true" form="postfix">|</mo></mrow><mi>N</mi></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+\left|\frac{y}{w/2}\right|^{M} + \left|\frac{z - z_0}{h/2 - z_0}\right|^{N} = 1
+</annotation></semantics></math></p>
+<p>and its bottom half is the same with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mi>/</mi><mn>2</mn><mo>+</mo><msub><mi>z</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">h/2 + z_0</annotation></semantics></math>
+in place of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mi>/</mi><mn>2</mn><mo>−</mo><msub><mi>z</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">h/2 - z_0</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+are 2 for an ellipse. The height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mn>0</mn></msub><annotation encoding="application/x-tex">z_0</annotation></semantics></math>
+of the widest point is <em>MaxWLoc</em> times
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">h/2</annotation></semantics></math>;
+it is 0 by default, the widest point at mid height.</p>
+<p>Raising both exponents squares the section off toward a rectangle
+with rounded corners; lowering them pinches it, to a diamond at 1 and a
+concave diamond below 1 (Figure 2).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
+goes with the width, so raising it alone flattens the top and bottom;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+goes with the height, so raising it alone flattens the sides (Figure 3).
+With <em>T/B Symmetric Exponents</em> off, <em>M Bottom</em> and <em>N
+Bottom</em> shape the bottom half separately.</p>
+<p><img src="images/XSecCurves_super_exp.png"
+title="Figure 2. Super ellipse exponents"
+alt="Figure 2. Super ellipse exponents" /></p>
+<p><em>Figure 2. A square super ellipse with equal exponents.</em></p>
+<p><img src="images/XSecCurves_super_more.png"
+title="Figure 3. Super ellipse, more"
+alt="Figure 3. Super ellipse, more" /></p>
+<p><em>Figure 3. Unequal exponents; MaxWLoc 0.5, with the widest point
+(dashed) above mid height (dotted); and a bottom half with its own
+exponents.</em></p>
+<h2 id="rounded-rectangle">Rounded Rectangle</h2>
+<p>A rectangle <em>Width</em> by <em>Height</em> whose corners are
+rounded to the radii <em>TR Radius</em>, <em>TL Radius</em>, <em>BL
+Radius</em> and <em>BR Radius</em>: top right, top left, bottom left and
+bottom right, with right toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+(Figure 4). The radii are lengths, not fractions. <em>Symmetry</em> ties
+them together: <em>All</em> uses TR for every corner, <em>R/L</em> uses
+TR for both top corners and BR for both bottom ones, and <em>T/B</em>
+uses TR for both right corners and TL for both left ones.</p>
+<p>Three parameters make the rectangle a quadrilateral, and they
+combine:</p>
+<ul>
+<li><em>Keystone</em> sets how the width is shared between top and
+bottom. The top is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">2k</annotation></semantics></math>
+times the width and the bottom
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2(1-k)</annotation></semantics></math>
+times it, so the default 0.5 is a rectangle and larger values widen the
+top.</li>
+<li><em>Skew</em> slides the top toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+and the bottom toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">-Y</annotation></semantics></math>,
+each by Skew times half the width.</li>
+<li><em>VSkew</em> raises the right side and lowers the left, each by
+VSkew times half the height.</li>
+</ul>
+<p><img src="images/XSecCurves_rrect.png"
+title="Figure 4. Rounded rectangle"
+alt="Figure 4. Rounded rectangle" /></p>
+<p><em>Figure 4. A rounded rectangle 1.5 by 1 with every radius 0.2, and
+the effect of Keystone, Skew and VSkew. Dashed, the same with square
+corners.</em></p>
+<p><em>Key Corner</em> decides where each corner falls in the curve's
+parameter. On, the default, each corner sits at the middle of its
+quarter of the curve, whatever the lengths of the sides. Off, the
+corner's position follows the lengths of the two sides beside it. Leave
+it on when lofting between rounded rectangles of different proportions:
+the corners of neighboring sections then match up, and the corner lines
+of the surface run straight between them.</p>
+<h2 id="general-fuse">General Fuse</h2>
+<p>The General Fuse shape is built from two cubic Bezier curves on each
+side: one from the top center down to the widest point, and one from
+there to the bottom center. The left side mirrors the right. Its
+parameters place the Bezier control points (Figure 5):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">MaxWLoc</td>
+<td style="text-align: left;">Height of the widest point, as a fraction
+of half the height.</td>
+</tr>
+<tr>
+<td style="text-align: left;">TopTanAng</td>
+<td style="text-align: left;">Angle of the side above the widest point,
+from the horizontal; 90 is vertical, less leans in.</td>
+</tr>
+<tr>
+<td style="text-align: left;">BotTanAng</td>
+<td style="text-align: left;">Angle of the side below the widest point,
+from the horizontal; 90 is vertical, less leans in.</td>
+</tr>
+<tr>
+<td style="text-align: left;">TopStr</td>
+<td style="text-align: left;">Length of the top's level tangent at the
+centerline, in thirds of the width; more is flatter.</td>
+</tr>
+<tr>
+<td style="text-align: left;">BotStr</td>
+<td style="text-align: left;">The same for the bottom.</td>
+</tr>
+<tr>
+<td style="text-align: left;">UpStr</td>
+<td style="text-align: left;">Length of the side's tangent above the
+widest point, in thirds of the height; more is fuller.</td>
+</tr>
+<tr>
+<td style="text-align: left;">LowStr</td>
+<td style="text-align: left;">The same below the widest point.</td>
+</tr>
+<tr>
+<td style="text-align: left;">CornerRad</td>
+<td style="text-align: left;">Rounds the widest point, as a fraction of
+the height.</td>
+</tr>
+</tbody>
+</table>
+<p>With both angles at 90, the default, the side is smooth through the
+widest point. Any other pair makes a corner there, a chine, unless the
+two add to 180. <em>CornerRad</em> rounds that corner.</p>
+<p><img src="images/XSecCurves_genfuse.png"
+title="Figure 5. General fuse" alt="Figure 5. General fuse" /></p>
+<p><em>Figure 5. The general fuse shape with its control points (dashed
+polygon), at the defaults and with a chine. Both are 2 wide and 2
+high.</em></p>
+<h2 id="fuse-file">Fuse File</h2>
+<p><em>Read File</em> takes a section from a file of points
+(<code>*.fxs</code>). The file starts with the line
+<code>OPENVSP_XSEC_FILE_V1</code> and then lists one point per line,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>:</p>
+<pre><code>OPENVSP_XSEC_FILE_V1
+0.5 0.0
+0.4 -0.3
+...
+0.5 0.0</code></pre>
+<p>The points must go around the section the way the curve does: from
+the right-hand point down through the bottom, around the left and over
+the top. A file whose points run the other way is refused, and the
+section keeps the shape it had. Give them centered on the origin and
+symmetric about the vertical centerline: OpenVSP takes the bottom and
+top to be the points nearest that line, and the left-hand point to be
+twice as far down the list as the bottom. The points are normalized by
+their extent, which becomes the section's Width and Height; changing
+those then stretches the shape. The curve passes through every point, as
+a smooth spline whose parameter follows the arc length between the
+bottom, side and top.</p>
+<h2 id="edit-curve">Edit Curve</h2>
+<p>An Edit Curve is a section drawn by hand, point by point, in the
+<em>Edit Curve</em> window that <em>Edit Curve</em> opens. It is for
+shapes no standard type gives, and is often started from one with
+<em>Convert CEDIT</em> (see <a href="#choosing-a-shape">Choosing a
+Shape</a>).</p>
+<h3 id="curve-types">Curve Types</h3>
+<p>The curve passes through its points in one of three ways, shown as
+<em>Current Type</em>: <em>Linear</em> (straight segments), <em>Spline
+(PCHIP)</em> (a smooth curve that does not overshoot between points) or
+<em>Cubic Bezier</em> (every third point is on the curve and the two
+between are its tangent points). <em>Init Shape</em> starts over from a
+Circle (Bezier), an Ellipse (spline) or a Rectangle (linear).</p>
+<p>Cubic Bezier is the default and the type to use for a smooth shape:
+it is the only type whose tangents can be set, and splitting it adds a
+point without changing the shape. For a shape of straight sides and
+rounded corners, use Linear with corner radii (see <a
+href="#corner-radius">Corner Radius</a>); it takes the fewest points.
+Avoid Spline. It cannot carry corner radii or set a tangent, and the
+shape between two points depends on their neighbors, so adding a point
+changes the curve around it. Its Init Shape Ellipse departs from a true
+ellipse by more than half a percent; the Circle, sized with Width and
+Height, is the better start.</p>
+<p>Converting to Cubic Bezier keeps the shape exactly, adding the
+tangent points that reproduce it, and keeps the corner radii. Converting
+a Bezier to Linear or Spline keeps only its points on the curve, and
+Linear and Spline pass through the same points in different ways, so
+those conversions change the shape between the points.</p>
+<h3 id="points-and-size">Points and Size</h3>
+<p>The points are given as fractions of the section's Width and Height,
+so the Scale XSec controls stretch the curve rather than move its
+points; a curve whose points run from -0.5 to 0.5 is exactly Width wide
+and Height high. <em>View Abs</em> shows the points in model units
+instead. <em>R-L Symmetry</em> mirrors the right half to the left; the
+top and bottom points are held on the centerline, with level tangents if
+they have G1, and the curve must be closed. <em>Close Curve</em> joins
+the last point to the first.</p>
+<h3 id="points-of-a-bezier-curve">Points of a Bezier Curve</h3>
+<p>Each point on a Bezier curve has a tangent point on either side of
+it, joined to it by a line in the window; the curve leaves the point
+toward one and arrives from the other (Figure 6). On a closed curve the
+first point is repeated as the last, so the point at U 0 also has a
+tangent point on each side. Dragging a point on the curve carries its
+two tangent points with it; typing a new coordinate for it does so only
+when it has G1.</p>
+<p><em>G1</em> on a point keeps the curve smooth there. Moving one of
+its tangent points then turns the other to stay in line with it, without
+changing that one's length, so the curve stays smooth while the two
+sides keep their own fullness. Switching G1 on lines up the two tangents
+along their average direction. With G1 off, the point is a corner
+whenever its tangents are not in line. A point made by <em>Split</em> is
+smooth but has G1 off, as is every point of the Init Shape Circle;
+switch G1 on before moving the tangent points of a point that should
+stay smooth.</p>
+<p><img src="images/XSecCurves_cedit_bezier.png"
+title="Figure 6. Bezier points" alt="Figure 6. Bezier points" /></p>
+<p><em>Figure 6. A Cubic Bezier Edit Curve 3 wide and 2 high: its points
+on the curve (black), each with a tangent point (green) on either side,
+and the same tangent point at the Bottom moved with G1 on and off.
+Dashed, the curve before; dotted, the tangents before.</em></p>
+<h3 id="corner-radius">Corner Radius</h3>
+<p>A corner point can carry a radius <em>R</em>, which replaces the
+corner with a circular arc of that radius, tangent to both sides (Figure
+7). Linear points take a radius, and so do the points on a Bezier curve
+that have G1 off. The radius is a length in model units: it does not
+change when Width or Height do, and scales with the component's
+Scale.</p>
+<p>A polygon with corner radii describes a shape in a few numbers that
+each mean something, where a Bezier curve needs two tangent points
+placed by hand for every rounded corner. The shape is easier to set and
+to change, and it stays a polygon with round corners however the points
+move.</p>
+<p><img src="images/XSecCurves_cedit_radius.png"
+title="Figure 7. Corner radius" alt="Figure 7. Corner radius" /></p>
+<p><em>Figure 7. A Linear Edit Curve 3 wide and 2 high with radii at
+four of its eight points; dashed, the same points with no radii. The
+points at the sides and on the centerline have none.</em></p>
+<h3 id="u-parameter">U Parameter</h3>
+<p>Each point has a parameter <em>U</em> from 0 to 1. U 0, 0.25, 0.5 and
+0.75 are the Right, Bottom, Left and Top of the section (Figure 1),
+where skinning acts. Between sections, points of equal U are joined by
+the loft, so give a sharp feature, such as a chine or a corner, the same
+U on every section it runs through; otherwise the feature line twists
+across the surface. On a Bezier curve only the points on the curve have
+a U to set.</p>
+<p><em>Reparameterize by Arc Length</em> keeps the points and resets
+their U to follow the distance along the curve. Use it when a curve with
+many points meshes unevenly round the section. It keeps the U of the
+first and last points, of the Bottom and Top with R-L Symmetry on, and
+of every point marked <em>Fix U</em>, and spaces the rest by length
+between them. Mark Fix U on every point whose U was chosen, including
+the Bottom, Left and Top when R-L Symmetry is off; a point that is not
+fixed moves, and a Top that leaves U 0.75 is no longer where the
+skinning acts.</p>
+<h3 id="depth">Depth</h3>
+<p>The points also have a third coordinate, a fraction of
+<em>Depth</em>, which is a length, so a section need not be flat.
+Positive values move a point along the component: aft on a Fuselage or
+Stack whose sections are not rotated, and outboard on a Wing. The
+<em>View</em> choice edits the curve from the front, the top or the
+left. A curved section can shape an end that no plane section can, such
+as a lip that curves back along the body, but every point then needs a
+third value set by hand and kept consistent with its neighbors; use it
+only where a section must leave its plane.</p>
+<h3 id="editing-the-points">Editing the Points</h3>
+<p>Points can be dragged in the window's plot, or typed in the table
+below it (Figure 8), where the selected point is highlighted. <em>Split
+U</em> adds a point at the U given, and <em>Split Pick</em> where the
+curve is clicked; <em>Delete Selected</em> and <em>Delete Pick</em>
+remove one. On a Bezier curve these act on a point on the curve together
+with its two tangent points.</p>
+<p>In the plot, the points on the curve are black and, on a Bezier
+curve, the tangent points green, each joined to its point on the curve
+by a blue line. The selected point is yellow, or grey when R-L Symmetry
+is on and it lies on the left half, which follows the right. In the
+table the selected point's labels are yellow, and a tangent point's U,
+R, G1 and Fix U are greyed: only points on the curve carry them.</p>
+<p><img src="images/XSecCurves_cedit_window.png"
+title="Figure 8. Edit Curve window"
+alt="Figure 8. Edit Curve window" /></p>
+<p><em>Figure 8. The Edit Curve window on the middle section of a
+Fuselage, a Cubic Bezier curve with R-L Symmetry off and point 0, at the
+Right, selected.</em></p>
+<p>Splitting, converting and Init Shape rebuild the curve's points, and
+so does deleting with R-L Symmetry on, so any Link, Advanced Link or
+Design Variable that used a point's coordinates, U, radius or G1 is
+lost. Settle the number of points before linking them.</p>
+<p>The <em>Display</em> tab sets the curve's color, point size and line
+thickness, and places an image behind the curve for tracing. <em>Lock
+Image</em> keeps the image fixed to the curve as the plot is zoomed and
+panned. <em>Copy Settings to All XSecs</em> gives every section of the
+component the same image, scale and offset, so each section can be
+traced against one drawing.</p>
+<h2 id="ac-25773-pilot-vision">AC 25.773 Pilot Vision</h2>
+<p>The AC25_773 shape is the pilot's vision envelope of FAA Advisory
+Circular 25.773-1, the region a pilot must be able to see through the
+windows. It is laid out in degrees (Figure 9): across, from 20 degrees
+toward the far side to 120 degrees toward the pilot's own side; up, from
+17 degrees below the horizon straight ahead, and 27 below it to the
+side, to 35 above. It has no size parameters: its Width and Height are
+zero, and as a section of a body it spans 140 by 62 model units.
+<em>Pilot Seat</em> mirrors it for a pilot in the left or the right
+seat. It is the default section of the <a
+href="Auxiliary.html">Auxiliary</a> component's Super Cone, which reads
+a section's coordinates as angles in degrees and builds the cone of
+sight from the pilot's eye.</p>
+<p><img src="images/XSecCurves_ac25773.png" title="Figure 9. AC 25.773"
+alt="Figure 9. AC 25.773" /></p>
+<p><em>Figure 9. The AC 25.773 envelope for each seat, in degrees across
+and up. The dot is where the curve starts.</em></p>
+<h2 id="scripting">Scripting</h2>
+<p>The API reaches a section through its Geom's cross section surface
+(<code>GetXSecSurf</code>, then <code>GetXSec</code>), and its
+parameters with <code>GetXSecParm</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Call</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ChangeXSecShape</code>,
+<code>GetXSecShape</code></td>
+<td style="text-align: left;">Set or read a section's type,
+<code>XS_CIRCLE</code>, <code>XS_ELLIPSE</code> and so on.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SetXSecWidthHeight</code>,
+<code>SetXSecWidth</code>, <code>SetXSecHeight</code></td>
+<td style="text-align: left;">Size a section, whatever its type calls
+width and height.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetXSecWidth</code>,
+<code>GetXSecHeight</code></td>
+<td style="text-align: left;">Read its size.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ComputeXSecPnt</code>,
+<code>ComputeXSecTan</code></td>
+<td style="text-align: left;">A point or tangent at a fraction around
+the section.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ReadFileXSec</code>,
+<code>SetXSecPnts</code>, <code>GetXSecPnts</code></td>
+<td style="text-align: left;">Fuse File points.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ConvertXSecToEdit</code></td>
+<td style="text-align: left;">Convert a section to an Edit Curve, as
+<em>Convert CEDIT</em> does.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>EditXSecInitShape</code>,
+<code>SetEditXSecPnts</code>, <code>GetEditXSecCtrlVec</code>,
+<code>GetEditXSecUVec</code>, <code>MoveEditXSecPnt</code>,
+<code>EditXSecSplit01</code>, <code>EditXSecDelPnt</code>,
+<code>EditXSecConvertTo</code>, <code>ReparameterizeEditXSec</code></td>
+<td style="text-align: left;">Edit an Edit Curve.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -35,3 +35,4 @@ particular purpose and can be added to a model as needed.
    - [XForm](XFormTab.md)
    - [Mass](MassTab.md)
    - [Sub](SubTab.md)
+- [Cross Sections](XSecCurves.md)
