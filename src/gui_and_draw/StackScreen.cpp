@@ -26,9 +26,9 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 800, "Stac
     m_StackPresetChoice.AddItem( "Default", STACK_PRESET_DEFAULT );
     m_StackPresetChoice.AddItem( "Cylinder with EndPoints", STACK_PRESET_CYLINDER_ENDPTS );
     m_StackPresetChoice.AddItem( "Cylinder with EndCaps", STACK_PRESET_CYLINDER_ENDCAPS );
-    m_StackPresetChoice.AddItem( "Nacelle Flowthru Outlet Origin", STACK_PRESET_FLOWTHRU_OUTLIP_ORIG );
-    m_StackPresetChoice.AddItem( "Nacelle Flowthru Inlet Origin", STACK_PRESET_FLOWTHRU_INLIP_ORIG );
-    m_StackPresetChoice.AddItem( "Nacelle Flowthru Mid Origin", STACK_PRESET_FLOWTHRU_MID_ORIG );
+    m_StackPresetChoice.AddItem( "Nacelle Flowthrough Outlet Origin", STACK_PRESET_FLOWTHRU_OUTLIP_ORIG );
+    m_StackPresetChoice.AddItem( "Nacelle Flowthrough Inlet Origin", STACK_PRESET_FLOWTHRU_INLIP_ORIG );
+    m_StackPresetChoice.AddItem( "Nacelle Flowthrough Mid Origin", STACK_PRESET_FLOWTHRU_MID_ORIG );
     m_StackPresetChoice.AddItem( "Nacelle Inlet + Outlet to Face", STACK_PRESET_BOTHFACEFACE );
     m_StackPresetChoice.AddItem( "Nacelle Inlet Lip + Outlet Face", STACK_PRESET_BOTHLIPFACE );
     m_StackPresetChoice.AddItem( "Nacelle Inlet Face + Outlet Lip", STACK_PRESET_BOTHFACELIP );

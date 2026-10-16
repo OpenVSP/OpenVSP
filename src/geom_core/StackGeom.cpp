@@ -300,7 +300,9 @@ void StackGeom::InitParms( int stack_type )
 
                 m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
                 m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
-                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
 
                 break;
             }
@@ -325,7 +327,9 @@ void StackGeom::InitParms( int stack_type )
 
                 m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
                 m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
-                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
 
                 break;
             }
@@ -350,7 +354,9 @@ void StackGeom::InitParms( int stack_type )
 
                 m_EngineGeomIOType = ENGINE_GEOM_INLET_OUTLET;
                 m_EngineGeomInType = ENGINE_GEOM_FLOWTHROUGH;
-                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH_NEG;
+                m_EngineGeomOutType = ENGINE_GEOM_TO_LIP;
+                m_EngineInModeType = ENGINE_MODE_FLOWTHROUGH;
+                m_EngineOutModeType = ENGINE_MODE_TO_LIP;
 
                 break;
             }
@@ -688,7 +694,7 @@ void StackGeom::InitParms( int stack_type )
 
                 m_EngineGeomIOType = ENGINE_GEOM_OUTLET;
                 m_EngineGeomInType = ENGINE_GEOM_FLOWPATH;
-                m_EngineGeomOutType = ENGINE_GEOM_TO_FACE;
+                m_EngineGeomOutType = ENGINE_GEOM_FLOWPATH;
                 m_EngineInModeType = ENGINE_MODE_TO_LIP;
                 m_EngineOutModeType = ENGINE_MODE_TO_LIP;
 
