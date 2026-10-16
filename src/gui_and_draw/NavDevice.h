@@ -41,7 +41,8 @@ public:
     // True while connected to a verified host.
     bool IsAvailable() const;
 
-    // Something other than the device moved the view.
+    // The mouse or a key moved the view.  A device gesture goes on from the view as it now is;
+    // any other move of the view ends it.
     void ViewChanged();
 
     // A model was opened or made.  Any gesture ends.
