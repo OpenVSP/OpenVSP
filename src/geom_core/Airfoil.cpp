@@ -1709,23 +1709,38 @@ void CSTAirfoil::FitCurve( const VspCurve &c, int deg )
 
     cst_fitter.create( cst, transform_out, translate_out, actual_leading_edge_t );
 
-    m_Scale = 1.0 / transform_out(2,2);
-    m_Theta = std::atan2( -transform_out(1,0), transform_out(0,0) ) * 180.0 / M_PI;
+    // The fit's scale, rotation and shift carry the CST shape onto the curve fitted.
+    double fit_scale = 1.0 / transform_out(2,2);
+    double fit_theta = std::atan2( -transform_out(1,0), transform_out(0,0) );
 
-    translate_out = (translate_out*m_Scale())*transform_out*m_Scale();
-    m_DeltaX = -translate_out.x();
-    m_DeltaY = -translate_out.y();
+    translate_out = (translate_out*fit_scale)*transform_out*fit_scale;
+    double fit_dx = -translate_out.x();
+    double fit_dy = -translate_out.y();
 
+    double fit_shift;
     if ( actual_leading_edge_t < 0 )
     {
-        m_ShiftLE = -2.0 * sqrt( -actual_leading_edge_t );
+        fit_shift = -2.0 * sqrt( -actual_leading_edge_t );
     }
     else
     {
-        m_ShiftLE = 2.0 * sqrt( actual_leading_edge_t );
+        fit_shift = 2.0 * sqrt( actual_leading_edge_t );
     }
 
-    double dte = cst.get_trailing_edge_thickness() * m_Scale();
+    // The section's own scale, rotation and shift then apply to the fitted curve, as RotTransScale
+    // applies them: x' = scale * R( theta ) * x + delta.
+    double scale = m_Scale();
+    double theta = m_Theta() * M_PI / 180.0;
+    double ct = std::cos( theta );
+    double st = std::sin( theta );
+
+    m_DeltaX = scale * ( ct * fit_dx - st * fit_dy ) + m_DeltaX();
+    m_DeltaY = scale * ( st * fit_dx + ct * fit_dy ) + m_DeltaY();
+    m_Scale = scale * fit_scale;
+    m_Theta = clampCyclic( ( theta + fit_theta ) * 180.0 / M_PI, -180.0, 180.0 );
+    m_ShiftLE = m_ShiftLE() + fit_shift;
+
+    double dte = cst.get_trailing_edge_thickness() * fit_scale;
 
     if ( std::abs( dte ) > 1e-6 )
     {
