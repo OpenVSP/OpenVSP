@@ -484,6 +484,21 @@ void NavDevice::ViewChanged()
     }
 }
 
+void NavDevice::DocumentChanged()
+{
+    NavNewDocument();
+    if ( m_Impl->m_Session )
+    {
+        try
+        {
+            m_Impl->m_Session->context_changed();
+        }
+        catch ( ... )
+        {
+        }
+    }
+}
+
 std::string NavDevice::GetStatus() const
 {
     if ( m_Impl->m_Failed )
@@ -576,6 +591,10 @@ int NavDevice::GetMode() const
 }
 
 void NavDevice::ViewChanged()
+{
+}
+
+void NavDevice::DocumentChanged()
 {
 }
 

@@ -48,6 +48,9 @@ public:
     // any other move of the view ends it.
     void ViewChanged();
 
+    // A model was opened or made.  Any gesture ends.
+    void DocumentChanged();
+
     // The connection's state, for people.
     std::string GetStatus() const;
 

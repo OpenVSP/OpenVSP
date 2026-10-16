@@ -39,6 +39,10 @@ openaxis::PoseDifference NavCompareCamera( const openaxis::Pose & a, const opena
 // Navigation options for a session on this window's view.
 openaxis::NavigationOptions NavOptions( class NavViewAdapter * adapter );
 
+// A model was opened or made: the host forgets what it kept for the last one, such as a locked
+// pivot.
+void NavNewDocument();
+
 // Lets the host's navigation read and move the selected viewport's camera.
 class NavViewAdapter : public openaxis::NavigationAdapter
 {

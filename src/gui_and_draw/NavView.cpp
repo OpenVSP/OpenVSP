@@ -14,6 +14,9 @@
 #include <algorithm>
 #include <any>
 #include <cmath>
+#include <string>
+
+#include <openaxis/process_identity.hpp>
 
 #include "Camera.h"
 #include "Display.h"
@@ -33,6 +36,28 @@ namespace VSPGUI
 static openaxis::Value WorldOrientation()
 {
     return { { "forward", { -1, 0, 0 } }, { "up", { 0, 0, 1 } }, { "handedness", "right" } };
+}
+
+// Which model this is, of those opened or made since OpenVSP started.
+static int s_Document = 0;
+
+void NavNewDocument()
+{
+    s_Document++;
+}
+
+// Names the model for the host, which keeps some things, such as a locked pivot, per model.
+static std::string DocumentId()
+{
+    std::string process;
+    try
+    {
+        process = openaxis::current_process_id();
+    }
+    catch ( ... )
+    {
+    }
+    return "openvsp:" + process + ":" + std::to_string( s_Document );
 }
 
 static openaxis::Value BoundsValue( const BndBox & b )
@@ -106,9 +131,9 @@ public:
         {
             return ( double )m_Camera->viewportWidth() / m_Camera->viewportHeight();
         }
-        if ( name == "document.id" && veh )
+        if ( name == "document.id" )
         {
-            return veh->GetVSP3FileName();
+            return DocumentId();
         }
         if ( name == "model.bounds" && veh )
         {

@@ -610,6 +610,7 @@ void MainVSPScreen::NewModel()
     }
 
     VehicleMgr.GetVehicle()->Renew();
+    m_NavDevice->DocumentChanged();
 
     m_GlWin->getGraphicEngine()->getDisplay()->setCOR( 0.0, 0.0, 0.0 );
 }
@@ -656,6 +657,7 @@ void MainVSPScreen::ActionCB( void * data )
         if ( openfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->Renew();
+            m_NavDevice->DocumentChanged();
             VehicleMgr.GetVehicle()->SetVSP3FileName( openfile );
             VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
 
