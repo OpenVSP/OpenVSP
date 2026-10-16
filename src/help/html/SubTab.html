@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Sub Tab</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Sub Tab</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>Every component (Geom) in OpenVSP is edited in a window whose first
+tabs are the same for all of them: <a href="GenTab.html">Gen</a>, <a
+href="XFormTab.html">XForm</a>, <a href="MassTab.html">Mass</a> and Sub.
+The Sub tab holds the Geom's sub-surfaces. Blank, Hinge, Human, Mesh,
+NGon Mesh, Point Cloud, Routing and Wireframe have no Sub tab.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a
+href="#sub-surfaces">Sub-Surfaces</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#sub-surface-types">Sub-Surface
+Types</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#control-surface">Control
+Surface</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#hinge-line-and-deflection">Hinge
+Line and Deflection</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="sub-surfaces">Sub-Surfaces</h2>
+<p>A sub-surface marks a region, or a line, on a Geom's surface. It does
+not change the shape; it labels part of it so that analyses can treat
+that part apart:</p>
+<ul>
+<li>CompGeom and the mesh exports tag the triangles in the region, so
+their area is reported separately and the exported mesh carries the
+tag.</li>
+<li>VSPAERO deflects control surfaces (the Control_Surf type only); each
+symmetric copy is a separate control surface there.</li>
+<li>Parasite Drag can give the region its own treatment, or no
+drag.</li>
+<li>CFD Mesh and FEA Mesh imprint its boundary into the mesh, when their
+<em>Intersect Sub-Surfaces</em> option is on (the default); FEA
+Structure can turn it into beam elements or remove its shell
+elements.</li>
+<li>STEP and IGES export can split the surface along it, and DegenGeom
+reports it.</li>
+</ul>
+<p>Sub-surfaces are defined in the surface's own parameters, U along the
+Geom and W around it, each from 0 to 1 (see <a
+href="XFormTab.html#attachment-coordinates">Attachment Coordinates</a>
+for where they start). So a sub-surface stays on the same part of the
+surface as the Geom changes shape, and a rectangle in U and W need not
+look rectangular on the surface (Figure 1). Each region tags the side of
+its boundary chosen by <em>Tag</em>, <em>Inside</em> or
+<em>Outside</em>; for a Line, <em>Test</em> <em>Greater</em> tags the
+side of larger U (or W) and <em>Less</em> the other.</p>
+<p><img src="images/SubTab_ss_uw.png"
+title="Figure 1. Sub-surfaces in U and W"
+alt="Figure 1. Sub-surfaces in U and W" /></p>
+<p><em>Figure 1. A Line at U 0.2, a 0.2 by 0.2 Rectangle turned by Theta
+30, and an Ellipse 0.15 by 0.15, in U and W (left) and on a pod
+(right).</em></p>
+<p>Choose the <em>Surface</em> before clicking <em>Add</em>:
+<em>ALL</em> puts the sub-surface on each of the Geom's surfaces (every
+blade of a propeller, for example), <em>Surf_i</em> on that one only
+(Figure 2). The choice applies when the sub-surface is made; the Sub tab
+cannot change it afterward. A sub-surface on a surface is on all of that
+surface's symmetric copies.</p>
+<p><img src="images/SubTab_gui_list.png"
+title="Figure 2. Sub-surface list"
+alt="Figure 2. Sub-surface list" /></p>
+<p><em>Figure 2. The top of the Sub tab of the default Propeller,
+holding a Line added with Surface ALL and a Rectangle added with Surface
+Surf_1. The SURF column shows the surface each sub-surface is
+on.</em></p>
+<p>Each sub-surface has its own name, which becomes part of its tag, and
+its own attributes (see <a
+href="GenTab.html#attributes">Attributes</a>).</p>
+<h2 id="sub-surface-types">Sub-Surface Types</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Defined by</th>
+<th style="text-align: left;">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Line</td>
+<td style="text-align: left;">A line of constant U or constant W across
+the whole surface; tags one side of it.</td>
+<td style="text-align: left;">Split a body at a station, or
+lengthwise.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Rectangle</td>
+<td style="text-align: left;">Center, lengths in U and W, and
+<em>Theta</em>, a turn from the U direction toward W.</td>
+<td style="text-align: left;">A panel or a hatch.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ellipse</td>
+<td style="text-align: left;">Center, lengths (diameters) in U and W,
+<em>Theta</em>, and the number of points on its outline.</td>
+<td style="text-align: left;">A window or an inlet face.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Finite_Line</td>
+<td style="text-align: left;">A straight segment in U and W between two
+points; tags nothing.</td>
+<td style="text-align: left;">A line in a mesh, or an FEA beam.</td>
+</tr>
+<tr>
+<td style="text-align: left;">XSec_Curve</td>
+<td style="text-align: left;">Any cross-section curve shape (circle,
+super ellipse, edit curve and the rest), centered at U and W, with its
+width along U and its height along W.</td>
+<td style="text-align: left;">An outline of any shape.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Intersect</td>
+<td style="text-align: left;">The curve where another Geom meets this
+one.</td>
+<td style="text-align: left;">The footprint of a part on a body.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Control_Surf</td>
+<td style="text-align: left;">Spanwise start and end and a chordwise
+depth from an edge (below); Wing and Propeller only.</td>
+<td style="text-align: left;">Flaps, ailerons, slats.</td>
+</tr>
+</tbody>
+</table>
+<p>The Rectangle and Ellipse lengths and <em>Theta</em> act in the U-W
+plane, so on a long body a "square" of 0.2 by 0.2 is much longer along
+the body than around it, and <em>Theta</em> is not an angle on the
+surface.</p>
+<p>A Line's value is a fraction of the surface's U (or W) range by
+default, <em>[0, 1]</em>. With <em>[0, N]</em> it counts the surface's
+sections instead, so a whole number puts the line exactly on a cross
+section: on a Fuselage, U 2 is its third cross section; on a Wing the
+root and tip caps count as sections, so U 1 is the root airfoil and U 2
+the end of the first panel. W counts the four quarters of each section;
+on a Wing W 2 is the leading edge, and a Line of constant W there splits
+the upper surface from the lower (see <a
+href="XFormTab.html#attachment-coordinates">Attachment Coordinates</a>
+for where W starts on other Geoms). Use [0, N] whenever a line belongs
+on a section: it stays on that section when sections are added behind
+it, where a [0, 1] value moves to a new place among the sections.</p>
+<p>An Ellipse is drawn as a polygon of <em>Num Points</em> corners, so a
+small number gives a polygon: 3 a triangle, 6 a hexagon (Figure 3). The
+first corner lies at <em>Theta</em> from the U direction, so at Theta 0
+a corner points along U. A Theta of 180/N degrees, for N points, turns
+the polygon by half a side, so that a side faces along U instead; the
+value boxes take arithmetic, so 180/6 can be typed as it is. Give the U
+and W lengths equal values for a regular polygon in U and W; as with the
+Rectangle, it is regular on the surface only where U and W are scaled
+alike.</p>
+<p><img src="images/SubTab_ss_polygon.png"
+title="Figure 3. Ellipse polygons"
+alt="Figure 3. Ellipse polygons" /></p>
+<p><em>Figure 3. Ellipse sub-surfaces of Num Points 3 and 6, each at
+Theta 0 and at Theta 180/N, in U and W (left) and on a pod
+(right).</em></p>
+<p>An XSec_Curve sub-surface starts as a circle of diameter 1, which
+spans the whole surface; set its size first. Its width and height are
+fractions of the U and W ranges, from 0 to 1.</p>
+<p>An Intersect sub-surface is computed when <em>Intersect</em> is
+clicked, from the Geom chosen in <em>Intersect Geom</em>, and kept as an
+edit curve. When the two Geoms meet along more than one curve, <em>Curve
+Index</em> chooses which of the <em>Num Curves</em> to use. It does not
+follow later changes to either Geom; click <em>Intersect</em> again
+after changing them. Between clicks the curve is an ordinary XSec_Curve
+outline: edit it, or change its type, to tidy or simplify the
+footprint.</p>
+<h2 id="control-surface">Control Surface</h2>
+<p>The Control_Surf type is offered on Wing and Propeller Geoms (Figure
+4). It marks a region bounded by the trailing edge (or, with <em>Leading
+Edge</em>, the leading edge), two spanwise stations and a hinge line, on
+the <em>Upper</em>, <em>Lower</em> or <em>Both</em> surfaces. Model a
+flap, aileron, elevator or rudder with it rather than with a Rectangle:
+a Rectangle can be made to look like one, but its sides follow U and W
+rather than a depth from the edge, and VSPAERO deflects only a
+Control_Surf.</p>
+<p><img src="images/SubTab_gui_control.png"
+title="Figure 4. Control surface panel"
+alt="Figure 4. Control surface panel" /></p>
+<p><em>Figure 4. The Sub tab's panel for the default control surface on
+the default wing: Start U 0.4 to End U 0.6, a constant depth of 0.25 of
+the chord, on Both surfaces. Controls that the present choices do not
+use are greyed.</em></p>
+<ul>
+<li>The spanwise stations are <em>Start U</em> and <em>End U</em>, or,
+with <em>Use Eta for Spanwise Coordinate</em>, <em>Start Eta</em> and
+<em>End Eta</em>, fractions of the span from root to tip (of the radius,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">r/R</annotation></semantics></math>,
+on a propeller; see <a href="Wing.html#spanwise-coordinate-eta">Spanwise
+Coordinate Eta</a>). U includes a wing's root and tip caps (see <a
+href="XFormTab.html#attachment-coordinates">Attachment Coordinates</a>),
+so the default U of 0.4 to 0.6 on a one-panel wing is 20% to 80% of the
+span (Figure 5).</li>
+<li>The chordwise depth is given at the start and at the end, as a
+fraction of the local chord (<em>L/C</em>) or as a length (<em>L</em>);
+<em>Constant</em> makes the end equal to the start. The hinge line
+passes through the points on the surface that lie that straight-line
+distance from the edge, on each surface.</li>
+<li>The sides follow the wing's sections unless <em>Surface End
+Angle</em> sets the angle each side makes with the edge, in degrees;
+with both angles set, <em>Same Angle</em> makes the end angle equal to
+the start. With an angle not set, its slider shows the angle the section
+makes with the edge.</li>
+<li>Each edge, the two sides and the hinge line, is a smooth curve
+through four points: its ends and its thirds. The depth and the end
+angles are met exactly at those points and blended between them. <em>Num
+Points</em> is the number of points each edge is drawn with, and so how
+closely the tagged region follows that curve; raise it when the outline
+must be smooth, on a long control surface or with end angles set.</li>
+</ul>
+<p><img src="images/SubTab_ss_control.png"
+title="Figure 5. Control surface" alt="Figure 5. Control surface" /></p>
+<p><em>Figure 5. The default control surface on the default wing: Start
+U 0.4 to End U 0.6, 25% of the chord deep, on both surfaces. The hinge
+line is dashed.</em></p>
+<h3 id="hinge-line-and-deflection">Hinge Line and Deflection</h3>
+<p>The 3D view draws each control surface's hinge line, from the Start
+end to the End end, with a curved arrow around it for a positive
+deflection. A positive deflection turns the surface right-handed about
+that line, from Start toward End. On a wing whose Start is at the root,
+that turns a trailing-edge surface down and a leading-edge surface
+up.</p>
+<p>A symmetric copy is a mirror image, so its hinge line also runs from
+root to tip, and the same positive deflection turns its trailing edge up
+(Figure 6). VSPAERO deflects each copy by the control group's deflection
+times that copy's gain. Its automatic grouping puts both copies in one
+group with a gain of 1 each, which deflects them as ailerons; for a flap
+or an elevator, which deflect together, set the gain of the copy to
+-1.</p>
+<p><img src="images/SubTab_ss_hinge.png"
+title="Figure 6. Positive deflection"
+alt="Figure 6. Positive deflection" /></p>
+<p><em>Figure 6. The default control surface on the default wing and its
+symmetric copy, each given the same positive deflection, seen from
+behind with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+to the right. The hinge lines run from Start to End; the curved arrows
+show the positive sense; dashed outlines are the surfaces at
+rest.</em></p>
+<h2 id="scripting">Scripting</h2>
+<p>Every control on this tab is a Parm, set and read with
+<code>SetParmVal</code> and <code>GetParmVal</code> by name and group;
+<code>GetParmActiveFlag</code> tells whether a control is active or
+greyed, as of the last Update. Sub-surfaces are made with
+<code>AddSubSurf( geom_id, type, surfindex )</code>, whose surface index
+defaults to 0, the first surface; pass -1 for all of them, as
+<em>ALL</em> on the Sub tab does. <code>GetSubSurfIDVec</code> lists a
+Geom's sub-surfaces, <code>GetSubSurfParmIDs</code> gives a
+sub-surface's Parms, and <code>IntersectSubSurf</code> does what the
+<em>Intersect</em> button does, with the Geom set by
+<code>SetIntersectSubSurfGeomID</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Group</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Sub-surface Tag</td>
+<td style="text-align: left;"><code>Test_Type</code>:
+<code>INSIDE</code>, <code>OUTSIDE</code> or <code>NONE</code></td>
+<td style="text-align: left;">SS_Rectangle, SS_Ellipse, SS_XsecCurve or
+SS_Control, by type</td>
+</tr>
+<tr>
+<td style="text-align: left;">Line value, [0, 1] or [0, N]</td>
+<td style="text-align: left;"><code>Const_Line_Value</code>,
+<code>Const_Line_Value0N</code>; <code>Value_01</code> 1 for [0, 1], 0
+for [0, N]</td>
+<td style="text-align: left;">SubSurface</td>
+</tr>
+<tr>
+<td style="text-align: left;">Line sub-surface Test</td>
+<td style="text-align: left;"><code>Test_Type</code>:
+<code>SS_LINE_TEST_GREATER</code>, <code>SS_LINE_TEST_LESS</code> or
+<code>SS_LINE_TEST_NONE</code></td>
+<td style="text-align: left;">SubSurface</td>
+</tr>
+<tr>
+<td style="text-align: left;">Control surface sides</td>
+<td style="text-align: left;"><code>Surf_Type</code>:
+<code>SS_CONTROL_UPPER_SURF</code>, <code>SS_CONTROL_LOWER_SURF</code>
+or <code>SS_CONTROL_BOTH_SURF</code></td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+<tr>
+<td style="text-align: left;">Line Type</td>
+<td style="text-align: left;"><code>Const_Line_Type</code>:
+<code>CONST_U</code> or <code>CONST_W</code></td>
+<td style="text-align: left;">SubSurface</td>
+</tr>
+<tr>
+<td style="text-align: left;">Center U, Center W</td>
+<td style="text-align: left;"><code>Center_U</code>,
+<code>Center_W</code></td>
+<td style="text-align: left;">SS_Rectangle, SS_Ellipse or
+SS_XsecCurve</td>
+</tr>
+<tr>
+<td style="text-align: left;">U Length, W Length, Theta</td>
+<td style="text-align: left;"><code>U_Length</code>,
+<code>W_Length</code>, <code>Theta</code></td>
+<td style="text-align: left;">SS_Rectangle or SS_Ellipse</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ellipse Num Points</td>
+<td style="text-align: left;"><code>Tess_Num</code></td>
+<td style="text-align: left;">SS_Ellipse</td>
+</tr>
+<tr>
+<td style="text-align: left;">Finite_Line ends</td>
+<td style="text-align: left;"><code>UStart</code>, <code>UEnd</code>,
+<code>WStart</code>, <code>WEnd</code></td>
+<td style="text-align: left;">SS_FiniteLine</td>
+</tr>
+<tr>
+<td style="text-align: left;">Start U, End U</td>
+<td style="text-align: left;"><code>UStart</code>,
+<code>UEnd</code></td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+<tr>
+<td style="text-align: left;">Use Eta, Start Eta, End Eta</td>
+<td style="text-align: left;"><code>EtaFlag</code>,
+<code>EtaStart</code>, <code>EtaEnd</code></td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+<tr>
+<td style="text-align: left;">Leading Edge</td>
+<td style="text-align: left;"><code>LE_Flag</code></td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+<tr>
+<td style="text-align: left;">Chordwise L/C or L</td>
+<td style="text-align: left;"><code>Abs_Rel_Flag</code>:
+<code>REL</code> or <code>ABS</code></td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+<tr>
+<td style="text-align: left;">Start and End depth</td>
+<td style="text-align: left;"><code>Length_C_Start</code>,
+<code>Length_C_End</code> (L/C); <code>Length_Start</code>,
+<code>Length_End</code> (L)</td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+<tr>
+<td style="text-align: left;">Constant</td>
+<td style="text-align: left;"><code>SE_Const_Flag</code></td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+<tr>
+<td style="text-align: left;">Surface End Angle</td>
+<td style="text-align: left;"><code>StartAngleFlag</code>,
+<code>EndAngleFlag</code>, <code>SameAngleFlag</code>,
+<code>StartAngle</code>, <code>EndAngle</code></td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+<tr>
+<td style="text-align: left;">Control surface Num Points</td>
+<td style="text-align: left;"><code>Tess_Num</code></td>
+<td style="text-align: left;">SS_Control</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -27,3 +27,11 @@ particular purpose and can be added to a model as needed.
 
 - [Stack Presets](StackPresets.md)
 - [Propeller](Propeller.md)
+
+### Shared Capabilities
+
+- Common Component Tabs
+   - [Gen](GenTab.md)
+   - [XForm](XFormTab.md)
+   - [Mass](MassTab.md)
+   - [Sub](SubTab.md)

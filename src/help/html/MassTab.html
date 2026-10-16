@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Mass Tab</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Mass Tab</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>Every component (Geom) in OpenVSP is edited in a window whose first
+tabs are the same for all of them: <a href="GenTab.html">Gen</a>, <a
+href="XFormTab.html">XForm</a>, Mass and <a href="SubTab.html">Sub</a>.
+Hinge, Point Cloud and Wireframe have no Mass tab.</p>
+<p>The Mass tab feeds the <a
+href="GeometryAnalysis.html#mass-properties">Mass Properties</a>
+analysis, which finds the model's mass, center of gravity and inertia by
+adding up what each Geom contributes. It is a bottom-up estimate, made
+the way a CAD system weighs a part: every number comes from the model's
+shapes and the values on this tab, not from statistical weight
+equations, so the result is only as good as the densities and masses
+given.</p>
+<p>Each Geom can make three contributions, one for each box of the tab
+(Figure 1), and they add: a volume mass, a thin shell mass over its
+wetted area, and a specified mass. Use any of them, all of them or none.
+All three use the model's units consistently: a density in mass per
+length cubed gives mass in that mass unit.</p>
+<p><img src="images/MassTab_gui_groups.png"
+title="Figure 1. The Mass tab" alt="Figure 1. The Mass tab" /></p>
+<p><em>Figure 1. The three groups of the Mass tab of a Pod,
+Volume-Based, OML-Based and Specified, with Include Thin Shell
+on.</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#volume">Volume</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#thin-shell">Thin Shell</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#specified-mass">Specified
+Mass</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#routes-humans-and-clones">Routes, Humans and Clones</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="volume">Volume</h2>
+<p><em>Density</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>
+gives the Geom's volume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+a mass
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mi>ρ</mi><mspace width="0.167em"></mspace><mi>V</mi></mrow><annotation encoding="application/x-tex">m = \rho\,V</annotation></semantics></math>.
+It suits a part that is solid through, such as a foam model or a
+casting, and the contents of a volume, such as fuel in a tank or cargo
+in a hold. Set <em>Density</em> to 0 for a Geom that should carry no
+volume mass.</p>
+<p>Where Geoms overlap, the shared volume is counted once, at the
+density of the Geom with the highest <em>Priority</em>; at equal
+priorities the Geom earlier in the Geom Browser wins. The winner takes
+the volume whatever its density, and a Density of 0 does not hand it on.
+A fuselage whose mass is all in its skin (Density 0, with a thin shell)
+that comes before a fuel tank in the Geom Browser at the same Priority
+counts the tank's volume at Density 0, and the fuel weighs nothing
+(Figure 2). Give the contents of a volume a higher Priority than the
+Geom that holds them.</p>
+<p><img src="images/MassTab_priority.png" title="Figure 2. Priority"
+alt="Figure 2. Priority" /></p>
+<p><em>Figure 2. A section through a body whose only mass is its skin
+and a fuel tank inside it. With the higher Priority (top) the tank's
+volume is counted at the tank's Density; at equal Priority the body,
+first in the Geom Browser, takes the shared volume at its own Density of
+0 (bottom).</em></p>
+<h2 id="thin-shell">Thin Shell</h2>
+<p><em>Include Thin Shell</em> adds a mass
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><msub><mi>ρ</mi><mi>A</mi></msub><mspace width="0.167em"></mspace><msub><mi>S</mi><mrow><mi>w</mi><mi>e</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">m = \rho_A\,S_{wet}</annotation></semantics></math>:
+<em>Mass/Area</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ρ</mi><mi>A</mi></msub><annotation encoding="application/x-tex">\rho_A</annotation></semantics></math>
+times the Geom's wetted area. Only the area exposed outside the other
+Geoms counts, so a wing root buried in a fuselage adds nothing, and a
+Geom wholly inside another, such as a tank inside a fuselage, has no
+thin shell mass at all; give such a Geom's walls a specified mass
+instead. The thin shell suits structure that is mostly skin, such as a
+molded shell, alone (with <em>Density</em> 0) or with a volume mass. To
+make a skin weigh a known amount, divide that weight by the Geom's
+wetted area as CompGeom reports it, which is the same exposed area.</p>
+<h2 id="specified-mass">Specified Mass</h2>
+<p>The <em>Specified Mass Properties</em> add a concentrated mass:
+<em>Mass</em> at the point <em>X CG</em>, <em>Y CG</em>, <em>Z CG</em>,
+with moments of inertia <em>Ixx</em>, <em>Iyy</em>, <em>Izz</em> and
+products of inertia <em>Ixy</em>, <em>Ixz</em>, <em>Iyz</em> about that
+point. All are given in the Geom's own axes, so the mass moves and turns
+with the Geom. The products are entered as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mrow><mi>x</mi><mi>y</mi></mrow></msub><mo>=</mo><mo>∫</mo><mi>x</mi><mspace width="0.167em"></mspace><mi>y</mi><mspace width="0.167em"></mspace><mi>d</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">I_{xy} = \int x\,y\,dm</annotation></semantics></math>,
+positive for mass concentrated where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+have the same sign; a data sheet that defines them with a minus sign
+needs its signs changed. Each symmetric copy carries its own: a mirrored
+wing with <em>Mass</em> 10 adds 20 to the model, centered on the plane
+of symmetry. The 3D view marks each such mass.</p>
+<p>The specified mass is the place for an item bought rather than
+designed, such as an engine, whose maker's data sheet gives its weight,
+center of gravity and inertia. Put a Geom at the item's datum with its
+axes along the item's, and the numbers go in as the sheet gives them,
+converted to the model's units. A <a href="Blank.html">Blank</a>, which
+has no volume or area of its own, is the usual Geom for an engine, a
+battery or a payload.</p>
+<h2 id="routes-humans-and-clones">Routes, Humans and Clones</h2>
+<p>A <a href="Routing.html">Routing</a> component has a fourth box,
+<em>Length-Based Mass Properties</em>: the route weighs its length times
+<em>Mass/Len</em>, as a line of mass along it. A <a
+href="Human.html">Human</a> with <em>Auto Density</em> on sets its own
+<em>Density</em> to its mass divided by its volume, so the person weighs
+what the Human's <em>Mass</em> says. On a <a href="Clone.html">Clone</a>
+that copies its original's mass properties, which it does by default,
+the controls are greyed and follow the original.</p>
+<h2 id="scripting">Scripting</h2>
+<p>Every control on this tab is a Parm, set and read with
+<code>SetParmVal</code> and <code>GetParmVal</code> by name and group;
+<code>GetParmActiveFlag</code> tells whether a control is active or
+greyed, as of the last Update.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Group</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Density, Priority</td>
+<td style="text-align: left;"><code>Density</code>,
+<code>Mass_Prior</code></td>
+<td style="text-align: left;">Mass_Props</td>
+</tr>
+<tr>
+<td style="text-align: left;">Include Thin Shell, Mass/Area</td>
+<td style="text-align: left;"><code>Shell_Flag</code>,
+<code>Mass_Area</code></td>
+<td style="text-align: left;">Mass_Props</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mass, X CG, Y CG, Z CG</td>
+<td style="text-align: left;"><code>PointMass</code>, <code>CGx</code>,
+<code>CGy</code>, <code>CGz</code></td>
+<td style="text-align: left;">Mass_Props</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ixx ... Iyz</td>
+<td style="text-align: left;"><code>Ixx</code>, <code>Iyy</code>,
+<code>Izz</code>, <code>Ixy</code>, <code>Ixz</code>,
+<code>Iyz</code></td>
+<td style="text-align: left;">Mass_Props</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mass/Len (Routing)</td>
+<td style="text-align: left;"><code>LinearDensity</code></td>
+<td style="text-align: left;">Mass_Props</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

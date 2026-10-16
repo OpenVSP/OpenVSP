@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>XForm Tab</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">XForm Tab</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>Every component (Geom) in OpenVSP is edited in a window whose first
+tabs are the same for all of them: <a href="GenTab.html">Gen</a>, XForm,
+<a href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a>. The
+XForm tab places the Geom in the model: where it is and how it is
+turned, what it is attached to, whether it is reflected, mirrored or
+repeated, and its overall size. Every Geom is built in its own axes and
+then placed by these settings, which <a
+href="#how-the-placement-is-built">How the Placement Is Built</a> puts
+together.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#location-and-rotation">Location
+and Rotation</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#abs-and-rel">Abs and
+Rel</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#attach-to-parent">Attach to
+Parent</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#flip">Flip</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#symmetry">Symmetry</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#how-the-placement-is-built">How
+the Placement Is Built</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scale">Scale</a></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<p>A part that belongs to another part, such as a wing on a fuselage or
+a nacelle under a wing, is made a child of it and attached to it, so
+that it moves with it. In the Geom Browser, select the parent before you
+click <em>Add</em>: the new Geom becomes its child.</p>
+<h3 id="a-wing-on-a-fuselage">A wing on a fuselage</h3>
+<ol type="1">
+<li>Select the fuselage and add a Wing.</li>
+<li>On the XForm tab, set <em>Attach To Parent</em> to Translate
+<em>Comp</em> and Rotate <em>Comp</em>.</li>
+<li>Place the wing with <em>XLoc</em>, <em>YLoc</em> and <em>ZLoc</em>,
+now measured from the fuselage's origin in the fuselage's axes.</li>
+<li>Leave <em>Symmetry</em> at its default, Planar <em>XZ</em> about the
+wing's attachment: the left wing is the mirror image of the right one in
+the fuselage's center plane, wherever the fuselage is moved.</li>
+</ol>
+<h3 id="a-nacelle-under-a-wing">A nacelle under a wing</h3>
+<ol type="1">
+<li>Select the wing and add a Pod.</li>
+<li>Set Translate to
+<em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+MN</em> and Rotate to <em>Comp</em>, so that the nacelle sits at a
+fraction of the span and keeps the wing's axes.</li>
+<li>Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+to the spanwise station and <em>M</em> 1 for the leading edge (where
+<em>N</em> has no effect), then move the nacelle forward and down with
+<em>XLoc</em> and <em>ZLoc</em>, now measured from that point in the
+wing's axes.</li>
+<li>To repeat it on the other wing, set Symmetry <em>About</em> to the
+wing (2 in the list), keep <em>Attach</em>, and check Planar
+<em>XZ</em>: the nacelle is mirrored in the same plane as the wing (see
+<a href="#symmetry">Symmetry</a>).</li>
+</ol>
+<h2 id="location-and-rotation">Location and Rotation</h2>
+<p><em>XLoc</em>, <em>YLoc</em> and <em>ZLoc</em> move the Geom;
+<em>XRot</em>, <em>YRot</em> and <em>ZRot</em> turn it, in degrees. The
+rotations are applied in the order ZRot, YRot, XRot, each about an axis
+that stays fixed: the shape is first turned about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>,
+the result about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+and that about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.
+The same turn is reached by turning about the Geom's own axes in the
+order X, Y, Z, each turn carrying the axes for the next.</p>
+<p>The Geom turns about its <em>Rot Origin(X)</em>: a point on its own
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis, given as a fraction of its length. For a Fuselage, Pod, Cobra,
+Ellipsoid or BOR this is the fraction of its length along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+from the nose, for a Wing of the root chord of its first section; for
+Stack, Propeller and the Geoms without a length along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+it has no effect. The rotation origin is also the point the location
+refers to: <em>XLoc</em>, <em>YLoc</em>, <em>ZLoc</em> in <em>Abs</em>
+give where the rotation origin lies in the model, while in <em>Rel</em>
+they give how far it has been moved. A 10-unit pod with Rot Origin 0.5
+and nothing else changed shows an absolute <em>XLoc</em> of 5 and a
+relative one of 0.</p>
+<h3 id="placing-a-part-against-others">Placing a Part Against
+Others</h3>
+<p>To put a part a set distance from the rest of the model, such as a
+battery or a tank packed inside a fuselage, use <em>Snap To</em> in the
+Model menu (Figure 1) rather than adjusting by eye. Set the <em>Target
+Min Dist</em> and the Set of components to keep clear of. Then either
+hold Alt (Option) while dragging one of the part's sliders,
+<em>XLoc</em> for example, and the part stops at that clearance instead
+of passing into the others; or pick a parameter in <em>Manual Collision
+Detection</em> and click <em>Increase</em> or <em>Decrease</em> to move
+it until the clearance is reached. <em>Check Clearance</em> reports the
+present minimum distance.</p>
+<p><img src="images/XFormTab_gui_snapto.png" title="Figure 1. Snap To"
+alt="Figure 1. Snap To" /></p>
+<p><em>Figure 1. The Snap To dialog with its default settings.</em></p>
+<h2 id="abs-and-rel">Abs and Rel</h2>
+<p>The location and rotation are kept two ways, absolute (<em>Abs</em>:
+in the model's axes) and relative (<em>Rel</em>: in the axes the Geom is
+attached to, see <a href="#attach-to-parent">Attach to Parent</a>). The
+<em>Coord System</em> buttons choose which of the two the sliders show
+and set; the other is computed from it. A Geom that is not attached to
+anything has the same absolute and relative values, apart from the
+rotation origin's effect above.</p>
+<p>The choice does not change what happens when the parent moves. A
+child always keeps its relative placement when its parent moves, so an
+attached child moves with its parent even while its sliders show
+absolute values; <em>Abs</em> is a way to put a child at a known point
+in the model, not a way to pin it there.</p>
+<p>The choice does matter when the child's own attachment changes. In
+<em>Rel</em>, the child keeps its relative values and jumps to the same
+relative place in the new axes. In <em>Abs</em>, it keeps its place in
+the model and its relative values are recomputed for the new attachment.
+To attach a part that is already where it belongs, switch to
+<em>Abs</em>, change the attachment, and switch back to <em>Rel</em>:
+the part does not move, and from then on it follows its parent.</p>
+<h2 id="attach-to-parent">Attach to Parent</h2>
+<p>A child Geom may be attached to its parent. Attachment chooses the
+axes its relative location and rotation are measured in, separately for
+the two: <em>Translate</em> chooses the origin of those axes and
+<em>Rotate</em> their directions (Figure 2). With both at <em>None</em>,
+the default, the child is placed in the model's axes and stays where it
+is when the parent moves.</p>
+<p><img src="images/XFormTab_gui_attach.png"
+title="Figure 2. Attach To Parent"
+alt="Figure 2. Attach To Parent" /></p>
+<p><em>Figure 2. The Attach To Parent group of a Pod whose parent is the
+default Wing, attached by Translate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+MN and Rotate Comp at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+0.4, M 1 and N 0. The rows of the coordinates not chosen are greyed and
+show where the same point lies in them.</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Choice</th>
+<th style="text-align: left;">Translate: origin at</th>
+<th style="text-align: left;">Rotate: axes along</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">the model's origin</td>
+<td style="text-align: left;">the model's axes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Comp</td>
+<td style="text-align: left;">the parent's origin</td>
+<td style="text-align: left;">the parent's axes</td>
+</tr>
+<tr>
+<td style="text-align: left;">UW</td>
+<td style="text-align: left;">a point on the parent's surface</td>
+<td style="text-align: left;">the surface there (below)</td>
+</tr>
+<tr>
+<td style="text-align: left;">RST</td>
+<td style="text-align: left;">a point inside the parent's volume</td>
+<td style="text-align: left;">the volume coordinates there (below)</td>
+</tr>
+<tr>
+<td style="text-align: left;">LMN</td>
+<td style="text-align: left;">a point inside the parent's volume, by
+distance</td>
+<td style="text-align: left;">as RST</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+MN</td>
+<td style="text-align: left;">a point inside a wing, by fraction of
+span</td>
+<td style="text-align: left;">as RST</td>
+</tr>
+</tbody>
+</table>
+<p>Translate and Rotate are independent: Translate <em>Comp</em> with
+Rotate <em>None</em> follows the parent's moves but not its turns, which
+keeps a part level however the parent is turned (Figure 3).</p>
+<p><img src="images/XFormTab_attach_comp.png"
+title="Figure 3. Attachment" alt="Figure 3. Attachment" /></p>
+<p><em>Figure 3. A fuselage moved and turned by ZRot 20, with a child
+pod at the same relative location (12, -5, 0) attached three ways. Each
+dashed arrow is that location, measured from the origin and along the
+axes the attachment chooses: the model's
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>)
+or the fuselage's
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>X</mi><mi>p</mi></msub><annotation encoding="application/x-tex">X_p</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mi>p</mi></msub><annotation encoding="application/x-tex">Y_p</annotation></semantics></math>).</em></p>
+<p>Changing the attachment moves the child or not depending on
+<em>Abs</em> and <em>Rel</em> (see <a href="#abs-and-rel">Abs and
+Rel</a>). The attachment is computed on the parent's first surface, not
+on its symmetric copies. For a parent without a surface, such as a
+Blank, UW and the others act as Comp. A child of a Hinge is always
+carried by the hinge and its attachment controls are greyed (see <a
+href="Hinge.html">Hinge</a>); a child of a Routing Geom cannot be
+attached.</p>
+<p>While a Geom is selected, the 3D view draws the frame it is attached
+in as dashed axes (red
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+green
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+blue
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>),
+at the point its relative location is measured from. With attachment
+None that is the model's origin and axes. In the Geom Browser, the line
+joining an attached child to its parent is drawn thick, and the lines
+from a Hinge to its children are double. A Geom whose attachment is set
+but which has no parent, for example after it was moved out from under
+its parent, has its name drawn lighter; it is placed as if attached to
+nothing.</p>
+<p>Attachment is the way to keep a model together as it changes. Attach
+each part to the part it is mounted on, so that moving or resizing a
+fuselage carries its wing, and the wing its nacelles; an unattached part
+stays behind and has to be moved by hand every time. Where an assembly
+should not hang off one of its parts, attach it to a <a
+href="Blank.html">Blank</a> and move the Blank.</p>
+<h3 id="attachment-coordinates">Attachment Coordinates</h3>
+<p>UW is a point on the parent's surface. <em>U</em> runs along the
+parent from 0 at its start to 1 at its end, and <em>W</em> around each
+section from 0 to 1. With <em>0N</em> instead of <em>01</em>, U counts
+sections, with each cross section at a whole number; on a Wing the root
+and tip caps count as sections, so a one-panel wing runs U = 0 to 3 and
+its panel lies between U = 1 and 2. Where W starts depends on the Geom:
+on a Wing, W = 0 is the trailing edge, 0.25 the lower surface, 0.5 the
+leading edge and 0.75 the upper surface; on a Fuselage W = 0 is the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+side and W runs down, round the bottom; on a Pod W = 0 is the top and W
+runs toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>.
+The UW axes are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+along the surface in the direction of increasing U,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+the outward normal, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+completing the set (Figure 4).</p>
+<p><img src="images/XFormTab_attach_uw.png"
+title="Figure 4. UW attachment axes"
+alt="Figure 4. UW attachment axes" /></p>
+<p><em>Figure 4. UW attachment axes at two points of a fuselage.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+is the outward normal and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+points along increasing U; the dashed lines are the sections at those
+U.</em></p>
+<p>RST is a point inside the parent. <em>R</em> is the same as U. At
+that station, <em>S</em> picks a pair of points on the surface, one on
+each half of the section: at W = S/2 and W = 1 - S/2. On a wing, S = 0
+is the trailing edge and S = 1 the leading edge. <em>T</em> places the
+point on the straight line between them, from 0 on the first half (a
+wing's lower surface) to 1 on the second (its upper surface); T = 0.5 is
+midway. So T = 0 or 1 lies on the surface, and values between lie inside
+(Figure 5).</p>
+<p><img src="images/XFormTab_attach_rst.png"
+title="Figure 5. RST on a wing section"
+alt="Figure 5. RST on a wing section" /></p>
+<p><em>Figure 5. RST at the root section of a wing of 20% thickness.
+Each S picks a point on each surface (dots, joined by dashed lines); T
+runs along that line from the lower surface to the upper.</em></p>
+<p>LMN is RST measured by distance. <em>L</em> is the fraction of the
+parent's length along its center line (<em>0D</em> gives it as a length
+instead), where R, like U, counts the parent's sections whatever their
+lengths. <em>M</em> is the fraction of the distance from the S = 0 edge
+to the S = 1 edge, along the line midway between the two halves; on a
+wing it is the fraction of the chord from the trailing edge, so M = 0.25
+is at 75% chord. <em>N</em> is the same as T. Use LMN to place something
+at a fraction of a length or a chord.</p>
+<p>The difference between U (or R) and L is large when the cross
+sections are unevenly spaced (Figure 6). Each span between neighboring
+cross sections takes an equal share of U, however long it is: on a
+fuselage of five cross sections, U = 0.25 is always the second and U =
+0.5 the third, wherever they have been placed, while L = 0.5 is always
+half way along. Choose by what the part should stay with when the parent
+is reshaped: U or R to stay at a cross section, such as a wing at a
+fuselage frame; L to stay at a fraction of the length.</p>
+<p><img src="images/XFormTab_u_and_l.png"
+title="Figure 6. U and L along a fuselage"
+alt="Figure 6. U and L along a fuselage" /></p>
+<p><em>Figure 6. A fuselage 30 long with its cross sections at 0, 3,
+7.5, 22.5 and 30. Above, the points U = 0 to 1 on its center line fall
+at the cross sections; below, the points L = 0 to 1 are evenly spaced
+along it.</em></p>
+<p><em><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+MN</em> is offered when the parent is a Wing (or a Clone of one).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+is the fraction of the wing's span from root to tip, measured over its
+sections without the caps, and M and N are as in LMN; see <a
+href="Wing.html#spanwise-coordinate-eta">Spanwise Coordinate Eta</a>. On
+a wing,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+is the spanwise choice that corresponds to L: U and R count the wing's
+sections and caps, so a part placed by U stays with a section when a
+panel's span is changed, while a part placed by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+stays at its fraction of the span. Use
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+MN for nacelles, pylons and stores placed at a fraction of the
+semispan.</p>
+<p>The RST, LMN and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+MN axes are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+along R (along the parent),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+normal to the R and S directions, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+completing the set.</p>
+<p>UW, RST and LMN describe one point, and while one of them is in use
+OpenVSP keeps the others up to date. Switching from one to another
+therefore leaves the attachment point where it was.</p>
+<h2 id="flip">Flip</h2>
+<p><em>Flip</em> reflects the Geom's shape in the chosen planes of its
+own axes, in place: it makes the mirror image of the Geom, not a second
+copy. Use it for one opposite-handed part made from the same definition,
+such as a single left-hand nacelle or a counter-rotating Clone of a
+propeller (see <a
+href="Propeller.html#clones-of-a-propeller">Propeller</a>). It is not
+offered for Blank and Routing Geoms, which have no shape to reflect, nor
+for Auxiliary and Conformal Geoms, which take their parent's flip.</p>
+<p>The reflection happens in the Geom's own axes, before it is turned
+and moved. A wing flipped in its XZ plane becomes a left wing; turned by
+XRot 30 as well, that left wing tips down, not up, because the turn acts
+on the reflected shape. A left wing made by Planar XZ symmetry is the
+mirror image of the turned right wing, so it tips up (Figure 7).</p>
+<p><img src="images/XFormTab_flip.png"
+title="Figure 7. Flip and symmetry"
+alt="Figure 7. Flip and symmetry" /></p>
+<p><em>Figure 7. The default Wing, without its symmetry, turned by XRot
+30 (top), flipped in its XZ plane and turned by XRot 30 (middle), and
+with Planar XZ symmetry and XRot 30 (bottom), seen from the front. The
+dashed line is the model's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+axis.</em></p>
+<p>A flip changes the shape, not the Geom's axes. Children attached by
+<em>Comp</em> follow the parent's unreflected axes; children attached by
+UW, RST, LMN or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+MN follow the reflected surface. Two planes of flip together amount to a
+half turn, not a reflection.</p>
+<h2 id="symmetry">Symmetry</h2>
+<p><em>Symmetry</em> adds copies of the Geom. Each <em>Planar</em> plane
+doubles the number of copies by reflecting all of them in it.
+<em>Axial</em> makes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+copies, each turned
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>360</mn><mi>/</mi><mi>N</mi></mrow><annotation encoding="application/x-tex">360/N</annotation></semantics></math>
+degrees from the last about the chosen axis. Planar symmetry is applied
+first and axial symmetry to its result, so XZ with Axial X and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">N = 3</annotation></semantics></math>
+gives six copies. The copies are part of the Geom: they carry its
+sub-surfaces and its specified mass, and they appear in every analysis,
+but its children are not copied; give each child its own symmetry.</p>
+<p>A new Wing has Planar XZ symmetry. When a wing is turned XRot 90 to
+make a vertical tail on the center plane, its copy lands on top of it.
+Coincident surfaces trouble meshing and the analyses: CFD Mesh leaves
+the tail and its copy out of the mesh altogether, with a warning in its
+console. The wing's total span also counts both. Uncheck XZ for a single
+vertical tail; keep it only for twin tails moved off the center
+plane.</p>
+<p>The planes and the axis belong to a frame chosen by <em>About</em>
+and the two buttons beside it (Figure 8). The list holds the global
+origin (0), the Geom itself (1), its parent (2), its grandparent (3),
+and so on.</p>
+<p><img src="images/XFormTab_gui_sym.png"
+title="Figure 8. Symmetry group" alt="Figure 8. Symmetry group" /></p>
+<p><em>Figure 8. The Symmetry group of the same Pod: About its parent, 2
+WingGeom, with Attach, and Planar XZ.</em></p>
+<ul>
+<li><em>Attach</em> uses the frame that Geom is attached in: its
+parent's origin and axes, or the surface point, if it is attached; the
+model's origin if it is not.</li>
+<li><em>Object</em> uses that Geom's own origin and axes, where it has
+been placed.</li>
+</ul>
+<p>The default, the Geom itself with <em>Attach</em>, mirrors a Geom in
+the frame it is attached in. For a wing attached to its fuselage by
+Comp, that is the fuselage's center plane, wherever the fuselage is
+(Figure 9). When the attachment is a point on the surface (UW, RST, LMN
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+MN), the frame sits at that point, so the default mirrors the wing about
+a plane through the attachment point instead of the fuselage's center:
+choose the fuselage in the list, with <em>Object</em>. To mirror in the
+model's own planes, choose 0, the global origin.</p>
+<p><img src="images/XFormTab_sym_frame.png"
+title="Figure 9. Symmetry frame" alt="Figure 9. Symmetry frame" /></p>
+<p><em>Figure 9. A fuselage moved and turned by ZRot 10, with a wing
+attached by Translate and Rotate Comp and Planar XZ symmetry. Top: the
+default, about the wing's attachment, mirrors it in the fuselage's
+center plane. Bottom: about the global origin, it is mirrored in the
+model's XZ plane.</em></p>
+<h2 id="how-the-placement-is-built">How the Placement Is Built</h2>
+<p>A point
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒑</mi><annotation encoding="application/x-tex">\mathbf{p}</annotation></semantics></math>
+of the Geom as it is built in its own axes is placed in the model at</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒙</mi><mi>k</mi></msub><mo>=</mo><mi>Q</mi><mspace width="0.167em"></mspace><msub><mi>S</mi><mi>k</mi></msub><mspace width="0.167em"></mspace><msup><mi>Q</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mspace width="0.278em"></mspace><mi>A</mi><mspace width="0.278em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒕</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒄</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mi>R</mi><mi>X</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>X</mi></msub><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mi>R</mi><mi>Y</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>Y</mi></msub><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><msub><mi>R</mi><mi>Z</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>Z</mi></msub><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi mathvariant="bold-italic">𝒄</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.278em"></mspace><mi>F</mi><mspace width="0.278em"></mspace><mi mathvariant="bold-italic">𝒑</mi></mrow><annotation encoding="application/x-tex">
+\mathbf{x}_k = Q\,S_k\,Q^{-1}\; A\; T(\mathbf{t})\; T(\mathbf{c})\,
+R_X(\theta_X)\, R_Y(\theta_Y)\, R_Z(\theta_Z)\, T(-\mathbf{c})\; F\;\mathbf{p}
+</annotation></semantics></math></p>
+<p>read right to left:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
+is the flip, a reflection in each checked plane of the Geom's own
+axes;</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒄</mi><annotation encoding="application/x-tex">\mathbf{c}</annotation></semantics></math>
+is the rotation origin,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(\cdot)</annotation></semantics></math>
+a move, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>X</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>X</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">R_X(\theta_X)</annotation></semantics></math>
+etc. the rotations by XRot, YRot, ZRot;</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒕</mi><annotation encoding="application/x-tex">\mathbf{t}</annotation></semantics></math>
+is the relative location;</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+is the attachment: the parent's frame chosen by Translate and Rotate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mi>I</mi></mrow><annotation encoding="application/x-tex">A = I</annotation></semantics></math>
+for None);</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>
+is the symmetry frame chosen by <em>About</em>, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mi>k</mi></msub><annotation encoding="application/x-tex">S_k</annotation></semantics></math>
+the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-th
+symmetric copy, a combination of the planar reflections and axial turns
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mn>0</mn></msub><mo>=</mo><mi>I</mi></mrow><annotation encoding="application/x-tex">S_0 = I</annotation></semantics></math>,
+the Geom itself).</li>
+</ul>
+<p>The absolute location and rotation are the move and turn of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mspace width="0.167em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒕</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒄</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>R</mi><mspace width="0.167em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi mathvariant="bold-italic">𝒄</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">A\,T(\mathbf{t})\,T(\mathbf{c})\,R\,T(-\mathbf{c})</annotation></semantics></math>
+expressed in the model's axes; children attached by Comp hang off this
+same product, without
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>.</p>
+<h2 id="scale">Scale</h2>
+<p><em>Scale</em> multiplies the Geom's dimensions (lengths, diameters,
+chords, spans, and sub-surface and CFD source sizes given as lengths),
+keeping its proportions; the shape grows about the Geom's own origin. It
+does not move the Geom, and it does not scale its children or their
+placement.</p>
+<p>The factor is relative to the size when it was last accepted. Setting
+it back to 1, or <em>Reset</em>, returns the Geom to that size;
+<em>Accept</em> makes the current size the new size at 1. An edit made
+while scaled is scaled back with everything else: a pod scaled by 2
+whose length is then set to 25 is 12.5 long when the scale returns to 1.
+So accept a scale before editing the scaled Geom.</p>
+<h2 id="scripting">Scripting</h2>
+<p>Every control on this tab except the Scale's <em>Reset</em> and
+<em>Accept</em> buttons is a Parm, set and read with
+<code>SetParmVal</code> and <code>GetParmVal</code> by name and group;
+<code>GetParmActiveFlag</code> tells whether a control is active or
+greyed, as of the last Update. <em>Reset</em> is
+<code>ResetGeomScale</code> and <em>Accept</em> is
+<code>AcceptGeomScale</code>. The parent a Geom is attached to is set
+with <code>SetGeomParent</code> (or chosen when the Geom is added with
+<code>AddGeom</code>) and read with <code>GetGeomParent</code>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Group</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">XLoc, YLoc, ZLoc (Rel)</td>
+<td style="text-align: left;"><code>X_Rel_Location</code>,
+<code>Y_Rel_Location</code>, <code>Z_Rel_Location</code></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;">XRot, YRot, ZRot (Rel)</td>
+<td style="text-align: left;"><code>X_Rel_Rotation</code>,
+<code>Y_Rel_Rotation</code>, <code>Z_Rel_Rotation</code></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;">XLoc, YLoc, ZLoc (Abs)</td>
+<td style="text-align: left;"><code>X_Location</code>,
+<code>Y_Location</code>, <code>Z_Location</code></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;">XRot, YRot, ZRot (Abs)</td>
+<td style="text-align: left;"><code>X_Rotation</code>,
+<code>Y_Rotation</code>, <code>Z_Rotation</code></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;">Coord System</td>
+<td style="text-align: left;"><code>Abs_Or_Relitive_flag</code>:
+<code>ABS</code> or <code>REL</code></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;">Rot Origin(X)</td>
+<td style="text-align: left;"><code>Origin</code></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;">Scale</td>
+<td style="text-align: left;"><code>Scale</code></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;">Translate, Rotate</td>
+<td style="text-align: left;"><code>Trans_Attach_Flag</code>,
+<code>Rots_Attach_Flag</code>: <code>ATTACH_TRANS_*</code>,
+<code>ATTACH_ROT_*</code></td>
+<td style="text-align: left;">Attach</td>
+</tr>
+<tr>
+<td style="text-align: left;">U, W</td>
+<td style="text-align: left;"><code>U_Attach_Location</code> (or
+<code>U_Attach_Location0N</code> with <code>U_01</code> 0),
+<code>V_Attach_Location</code></td>
+<td style="text-align: left;">Attach</td>
+</tr>
+<tr>
+<td style="text-align: left;">R, S, T</td>
+<td style="text-align: left;"><code>R_Attach_Location</code> (or
+<code>R_Attach_Location0N</code> with <code>R_01</code> 0),
+<code>S_Attach_Location</code>, <code>T_Attach_Location</code></td>
+<td style="text-align: left;">Attach</td>
+</tr>
+<tr>
+<td style="text-align: left;">L, M, N</td>
+<td style="text-align: left;"><code>L_Attach_Location</code> (or
+<code>L_Attach_Location0Len</code> with <code>L_01</code> 0),
+<code>M_Attach_Location</code>, <code>N_Attach_Location</code></td>
+<td style="text-align: left;">Attach</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math></td>
+<td style="text-align: left;"><code>Eta_Attach_Location</code></td>
+<td style="text-align: left;">Attach</td>
+</tr>
+<tr>
+<td style="text-align: left;">Flip planes</td>
+<td style="text-align: left;"><code>Flip_Flag</code>: a sum of
+<code>SYM_XY</code>, <code>SYM_XZ</code>, <code>SYM_YZ</code></td>
+<td style="text-align: left;">Sym</td>
+</tr>
+<tr>
+<td style="text-align: left;">Symmetry About, Attach/Object</td>
+<td style="text-align: left;"><code>Sym_Ancestor</code> (0 global
+origin, 1 the Geom, 2 its parent, ...),
+<code>Sym_Ancestor_Origin_Flag</code> (1 Attach, 0 Object)</td>
+<td style="text-align: left;">Sym</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planar</td>
+<td style="text-align: left;"><code>Sym_Planar_Flag</code>: a sum of
+<code>SYM_XY</code>, <code>SYM_XZ</code>, <code>SYM_YZ</code></td>
+<td style="text-align: left;">Sym</td>
+</tr>
+<tr>
+<td style="text-align: left;">Axial, N</td>
+<td style="text-align: left;"><code>Sym_Axial_Flag</code>:
+<code>SYM_ROT_X</code>, <code>SYM_ROT_Y</code>, <code>SYM_ROT_Z</code>
+or 0; <code>Sym_Rot_N</code></td>
+<td style="text-align: left;">Sym</td>
+</tr>
+</tbody>
+</table>
+<p>To set a child's absolute location or rotation from a script, call
+<code>UpdateGeom</code> on the child right after setting it, or set it
+with <code>SetParmValUpdate</code>, which sets the Parm and updates the
+Geom in one call. The child then takes its relative values from the new
+absolute ones. <code>Update</code> alone updates the parent first, which
+places the child from its relative values, so the new absolute ones are
+replaced.</p>
+<p>The attachment coordinates can be evaluated and converted without
+attaching anything: <code>CompPnt01</code> gives the point at U, W and
+<code>CompPntRST</code> the point at R, S, T; <code>ProjPnt01</code> and
+<code>FindRST</code> find the coordinates of a point;
+<code>ConvertRSTtoLMN</code> and <code>ConvertLMNtoRST</code> convert
+between volume coordinates, and <code>ConvertUtoEta</code> and
+<code>ConvertEtatoU</code> between U and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+on a wing. All but the last two have vector forms
+(<code>CompVecPnt01</code>, <code>FindRSTVec</code>, ...) for many
+points at once.</p>
+</body>
+</html>
