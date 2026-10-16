@@ -36,6 +36,10 @@ particular purpose and can be added to a model as needed.
 - [Pod](Pod.md)
 - [Body of Revolution](BOR.md)
 
+### Special Geometry
+
+- [Conformal](Conformal.md)
+
 ### Shared Capabilities
 
 - Common Component Tabs
