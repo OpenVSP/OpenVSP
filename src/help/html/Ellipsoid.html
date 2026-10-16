@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Ellipsoid</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Ellipsoid</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Ellipsoid is a closed body with three radii, one along each axis.
+With all three equal it is a sphere; with two equal, a spheroid such as
+a radome, a tank end or a blister. It has one tab of its own, Design.
+The <a href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
+described on their own pages.</p>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add an Ellipsoid. A new one is a sphere of radius 1.</li>
+<li>Place it with the XForm tab.</li>
+<li>Set <em>A Radius</em>, <em>B Radius</em> and <em>C Radius</em>.</li>
+</ol>
+<h2 id="design">Design</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">A Radius</td>
+<td style="text-align: left;"><code>A_Radius</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Semi-axis along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">B Radius</td>
+<td style="text-align: left;"><code>B_Radius</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Semi-axis along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">C Radius</td>
+<td style="text-align: left;"><code>C_Radius</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Semi-axis along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>.</td>
+</tr>
+</tbody>
+</table>
+<p>The surface is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi>x</mi><mo>−</mo><mi>a</mi></mrow><mi>a</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>+</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>y</mi><mi>b</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>+</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>z</mi><mi>c</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">
+\left(\frac{x - a}{a}\right)^2 + \left(\frac{y}{b}\right)^2 + \left(\frac{z}{c}\right)^2 = 1
+</annotation></semantics></math></p>
+<p>so the Ellipsoid's nose, not its center, is at its origin, and it
+runs from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">X = 0</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>2</mn><mi>a</mi></mrow><annotation encoding="application/x-tex">X = 2a</annotation></semantics></math>.
+Changing <em>A Radius</em> keeps the nose in place and moves the center.
+<em>Rot Origin(X)</em> on the XForm tab is a fraction of the length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>a</mi></mrow><annotation encoding="application/x-tex">2a</annotation></semantics></math>,
+so 0.5 turns the Ellipsoid about its center.</p>
+<p>The surface follows this equation closely but not exactly: every
+point lies within 0.04 percent of the radius in its direction from the
+true ellipsoid. A radius may be zero, which flattens the Ellipsoid into
+an elliptical disk.</p>
+</body>
+</html>

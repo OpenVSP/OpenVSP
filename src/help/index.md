@@ -31,6 +31,7 @@ particular purpose and can be added to a model as needed.
    - [Stack Presets](StackPresets.md)
    - [Chevrons](Chevron.md)
 - [Propeller](Propeller.md)
+- [Ellipsoid](Ellipsoid.md)
 - [Pod](Pod.md)
 
 ### Shared Capabilities

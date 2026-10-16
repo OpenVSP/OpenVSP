@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-EllipsoidScreen::EllipsoidScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Ellipsoid" )
+EllipsoidScreen::EllipsoidScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Ellipsoid", "Ellipsoid.html" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
