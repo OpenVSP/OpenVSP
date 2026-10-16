@@ -234,6 +234,7 @@ struct NavDevice::Impl
     std::unique_ptr < openaxis::OpenAxisClient > m_Client;
     std::unique_ptr < openaxis::OpenAxisConnectionManager > m_Manager;
     bool m_Focused;
+    bool m_SettledDue;          // The host is to be told the view has settled.
     bool m_Failed;              // The SDK could not start.
     std::string m_LastStatus;   // As last reported to the status callback.
 
@@ -260,7 +261,7 @@ struct NavDevice::Impl
     }
 
     // Whether an OpenVSP window has the keyboard focus, and whether the view moved under a
-    // still device, checked twice a second.
+    // still device, checked twice a second.  Whether the view has settled is told here too.
     static void PollFocus( void * data )
     {
         Impl * impl = ( Impl * )data;
@@ -269,6 +270,11 @@ struct NavDevice::Impl
             try
             {
                 impl->m_Session->check_context();
+                if ( impl->m_SettledDue )
+                {
+                    impl->m_SettledDue = false;
+                    impl->m_Session->viewport_settled();
+                }
             }
             catch ( ... )
             {
@@ -294,6 +300,7 @@ NavDevice::NavDevice( VspGlWindow * win ) : m_Impl( new Impl() )
 {
     m_Impl->m_Win = win;
     m_Impl->m_Focused = true;
+    m_Impl->m_SettledDue = false;
     m_Impl->m_Failed = false;
     m_Impl->m_Mode = NAV_DEVICE_NAVIGATION;
     m_Impl->m_Moving = false;
@@ -360,8 +367,17 @@ void NavDevice::Start()
             {
                 impl->NoteMotion( dev );
             };
+            // The view settles as each gesture ends.
+            openaxis::NavigationOptions nav_options = NavOptions( m_Impl->m_Adapter.get() );
+            nav_options.on_event = [impl]( const openaxis::NavigationEvent & e )
+            {
+                if ( e.event == "gesture_finished" )
+                {
+                    impl->m_SettledDue = true;
+                }
+            };
             m_Impl->m_Session.reset( new openaxis::NavigationSession( *m_Impl->m_Client, *m_Impl->m_Adapter, nullptr,
-                                                                      NavOptions( m_Impl->m_Adapter.get() ) ) );
+                                                                      nav_options ) );
 
             // For finding out why a device does nothing: the session's events, to a file.
             const char * log = getenv( "VSP_NAV_LOG" );
@@ -396,8 +412,13 @@ void NavDevice::Start()
             return metadata;
         };
         m_Impl->m_Manager.reset( new openaxis::OpenAxisConnectionManager( *m_Impl->m_Client, manager_options ) );
-        m_Impl->m_Manager->on_state = [this]( const openaxis::ConnectionStatus & )
+        m_Impl->m_Manager->on_state = [this, impl]( const openaxis::ConnectionStatus & status )
         {
+            // A host just connected finds the view settled.
+            if ( status.state == "ready" )
+            {
+                impl->m_SettledDue = true;
+            }
             StatusChanged();
         };
         m_Impl->m_Manager->start();
@@ -487,6 +508,7 @@ void NavDevice::ViewChanged()
 void NavDevice::DocumentChanged()
 {
     NavNewDocument();
+    m_Impl->m_SettledDue = true;
     if ( m_Impl->m_Session )
     {
         try
