@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Pod</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Pod</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Pod is the simplest component: a streamlined body of revolution
+set by two numbers, a length and a fineness ratio. Its profile is fixed:
+a full, rounded nose, its greatest diameter at mid-length, and a tail
+that tapers to a point. It is the quickest way to put a store, a tank, a
+fairing or a placeholder body into a model. A body of any other shape is
+a <a href="FuselageStack.html">Fuselage or Stack</a>, or a <a
+href="BOR.html">Body of Revolution</a>.</p>
+<p>The Pod has one tab of its own, Design. The <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
+described on their own pages.</p>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add a Pod. A new one is 10 long, with its nose at its origin and its
+axis along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</li>
+<li>Place it with the XForm tab.</li>
+<li>Set <em>Length</em>.</li>
+<li>Set <em>Fine Ratio</em> to twice the length-to-diameter ratio wanted
+(see below).</li>
+</ol>
+<h2 id="design">Design</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Length</td>
+<td style="text-align: left;"><code>Length</code></td>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">Length,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>,
+from the nose at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">X = 0</annotation></semantics></math>
+to the tail.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fine Ratio</td>
+<td style="text-align: left;"><code>FineRatio</code></td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">The length divided by the greatest radius,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">L / R</annotation></semantics></math>.</td>
+</tr>
+</tbody>
+</table>
+<p><em>Fine Ratio</em> is the length over the greatest radius, not the
+usual fineness ratio of length over diameter, and it keeps that
+definition so that existing models keep their shape. The
+length-to-diameter ratio is half of it: the default Pod, <em>Fine
+Ratio</em> 15, has a diameter of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>L</mi><mi>/</mi><mn>15</mn></mrow><annotation encoding="application/x-tex">2L/15</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>/</mi><mi>D</mi><mo>=</mo><mn>7.5</mn></mrow><annotation encoding="application/x-tex">L/D = 7.5</annotation></semantics></math>.
+For a pod of length-to-diameter ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>/</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">L/D</annotation></semantics></math>,
+set <em>Fine Ratio</em> to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mspace width="0.167em"></mspace><mi>L</mi><mi>/</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">2\,L/D</annotation></semantics></math>.</p>
+<p>The radius is greatest,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mi>L</mi><mi>/</mi><mrow><mi mathvariant="normal">F</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">R</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">o</mi></mrow></mrow><annotation encoding="application/x-tex">R = L / \mathrm{FineRatio}</annotation></semantics></math>,
+at mid-length, and the profile is the same at every size (Figure 1). It
+reaches half of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.05</mn><mi>L</mi></mrow><annotation encoding="application/x-tex">0.05L</annotation></semantics></math>
+and 90 percent of it at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.19</mn><mi>L</mi></mrow><annotation encoding="application/x-tex">0.19L</annotation></semantics></math>;
+aft of mid-length it stays above 90 percent to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.6</mn><mi>L</mi></mrow><annotation encoding="application/x-tex">0.6L</annotation></semantics></math>,
+falls to half at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.82</mn><mi>L</mi></mrow><annotation encoding="application/x-tex">0.82L</annotation></semantics></math>,
+and closes to a point at the tail. Changing either value keeps the nose
+at the origin; <em>Rot Origin(X)</em> on the XForm tab is a fraction of
+the length.</p>
+<p><img src="images/Pod_profile.png" title="Figure 1. Pod profile"
+alt="Figure 1. Pod profile" /></p>
+<p><em>Figure 1. The radius of a Pod along its length, as fractions of
+its greatest radius R and its length L.</em></p>
+</body>
+</html>
