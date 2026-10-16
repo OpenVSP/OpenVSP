@@ -8288,16 +8288,16 @@ void GeomXSec::NormalizeFlaps()
 
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        WingSect* ws = dynamic_cast < WingSect* > ( m_XSecSurf.FindXSec( i ) );
-        if ( ws )
+        XSec* xs = m_XSecSurf.FindXSec( i );
+        if ( xs )
         {
-            XSecCurve* xsc = ws->GetXSecCurve();
+            XSecCurve* xsc = xs->GetXSecCurve();
             if ( xsc )
             {
                 string width_id = xsc->GetWidthParmID();
                 Parm* width_parm = ParmMgr.FindParm( width_id );
 
-                double w = ws->m_TipChord();
+                double w = xsc->GetWidth();
 
                 if ( width_parm && xsc->m_TEFlapType() != vsp::FLAP_NONE )
                 {
@@ -8333,10 +8333,10 @@ void GeomXSec::NormalizeFlaps()
 
     for ( int i = 0 ; i < nxsec ; i++ )
     {
-        WingSect* ws = dynamic_cast < WingSect* > ( m_XSecSurf.FindXSec( i ) );
-        if ( ws )
+        XSec* xs = m_XSecSurf.FindXSec( i );
+        if ( xs )
         {
-            XSecCurve* xsc = ws->GetXSecCurve();
+            XSecCurve* xsc = xs->GetXSecCurve();
             if ( xsc )
             {
                 if ( nflap > 0 )

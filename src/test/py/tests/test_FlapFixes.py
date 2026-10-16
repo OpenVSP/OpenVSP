@@ -14,6 +14,15 @@ def set_flap( xs, deflection, chord = 0.2, hinge = 0.5 ):
         vsp.SetParmVal( vsp.GetXSecParm( xs, name ), v )
 
 
+def test_a_propeller_section_flap_moves_the_blade():
+    vsp.VSPRenew()
+    pid = vsp.AddGeom( "PROP" )
+    before = points( pid )
+    set_flap( vsp.GetXSec( vsp.GetXSecSurf( pid, 0 ), 1 ), 20.0 )
+    after = points( pid )
+    assert max( vsp.dist( p, q ) for p, q in zip( before, after ) ) > 0.05
+
+
 def test_a_wing_flap_follows_a_chord_change_at_once():
     vsp.VSPRenew()
     wid = vsp.AddGeom( "WING" )
