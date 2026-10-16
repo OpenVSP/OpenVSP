@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Airfoils</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Airfoils</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>An airfoil is a cross section curve defined by a chord and a
+thickness, from a family of shapes: the NACA series, simple supersonic
+shapes, a few analytic families, or points read from a file. Wings and
+propellers are built from them, and Fuselages, Stacks and Bodies of
+Revolution can use them too, from the same <em>Choose Type</em> list as
+the body shapes on <a href="XSecCurves.html">Cross Section Curves</a>.
+The Modify tab of the Wing, Propeller and Body of Revolution then
+reshapes an airfoil's edges: it closes, trims, caps and flaps them, and
+shifts, turns and scales the whole section.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#how-an-airfoil-is-laid-out">How
+an Airfoil Is Laid Out</a></td>
+<td style="text-align: left;">XSec, Airfoil</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#controls-every-airfoil-has">Controls Every Airfoil Has</a></td>
+<td style="text-align: left;">XSec, Airfoil</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#design-lift-coefficient">Design
+Lift Coefficient</a></td>
+<td style="text-align: left;">XSec, Airfoil</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#the-airfoil-families">The
+Airfoil Families</a></td>
+<td style="text-align: left;">XSec, Airfoil</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#the-modify-tab">The Modify
+Tab</a></td>
+<td style="text-align: left;">Modify</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#shift-rotate-and-scale">Shift,
+Rotate and Scale</a></td>
+<td style="text-align: left;">Modify</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#closure">Closure</a></td>
+<td style="text-align: left;">Modify</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#trim">Trim</a></td>
+<td style="text-align: left;">Modify</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#plain-flap">Plain Flap</a></td>
+<td style="text-align: left;">Modify</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#caps">Caps</a></td>
+<td style="text-align: left;">Modify</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-an-airfoil-is-laid-out">How an Airfoil Is Laid Out</h2>
+<p>An airfoil's curve starts at the trailing edge, runs forward along
+the lower surface to the leading edge, which it reaches halfway round,
+and returns along the upper surface to the trailing edge (Figure 1). The
+chord runs from the leading edge to the trailing edge. On a Wing the
+airfoil lies in the wing's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">XZ</annotation></semantics></math>
+plane with the chord along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">+X</annotation></semantics></math>;
+on a Fuselage or Stack the chord takes the place of the section's width,
+along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+with the leading edge toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">-Y</annotation></semantics></math>.</p>
+<p><img src="images/Airfoils_param.png" title="Figure 1. Airfoil layout"
+alt="Figure 1. Airfoil layout" /></p>
+<p><em>Figure 1. NACA 2412 on a wing: where its curve starts, which way
+it runs, and its chord.</em></p>
+<h2 id="controls-every-airfoil-has">Controls Every Airfoil Has</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Chord</td>
+<td style="text-align: left;">Length from the leading edge to the
+trailing edge.</td>
+</tr>
+<tr>
+<td style="text-align: left;">T/C</td>
+<td style="text-align: left;">Maximum thickness as a fraction of the
+chord. An output for Karman-Trefftz and CST airfoils, whose shape sets
+it.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Invert Airfoil</td>
+<td style="text-align: left;">Swaps the upper and lower surfaces, so a
+cambered airfoil turns upside down. Not on biconvex airfoils.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sharpen TE</td>
+<td style="text-align: left;">NACA 4- and 5-digit, their modified forms
+and the 16-series: close the trailing edge to a point. Off, it has the
+small thickness of the published definition.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fit CST</td>
+<td style="text-align: left;">Replace the airfoil with a <a
+href="#cst">CST airfoil</a> of the chosen <em>Degree</em>, fitted to it.
+Not on biconvex, wedge or CST airfoils.</td>
+</tr>
+</tbody>
+</table>
+<p>On a Wing the chord comes from the wing's planform, and on a
+Propeller the chord, thickness and design lift coefficient come from the
+blade curves; see <a href="Wing.html">Wing</a> and <a
+href="Propeller.html#cross-sections">Propeller</a>. Between two sections
+of a propeller blade, OpenVSP builds a true airfoil at every radius when
+both are of the same family defined by equations, and otherwise blends
+the two shapes; the Propeller page's <a
+href="Propeller.html#cross-sections">Cross Sections</a> explains this,
+and why to use as few families as possible.</p>
+<p><em>Fit CST</em> fits the airfoil as its family defines it, before
+any Modify operation. The fit comes with the shift, rotation and scale
+that put the fitted shape where the original was, and these are combined
+with the Modify tab's Delta X/C, Delta Y/C, Theta, Scale and Shift LE,
+so the section keeps its shape and place. If the airfoil has a blunt
+trailing edge, the fit also sets a SKEW BOTH trailing edge closure of
+that thickness. The other Modify settings are kept.</p>
+<h2 id="design-lift-coefficient">Design Lift Coefficient</h2>
+<p>The design lift coefficient, or ideal lift coefficient
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><msub><mi>l</mi><mi>i</mi></msub></msub><annotation encoding="application/x-tex">C_{l_i}</annotation></semantics></math>,
+is the lift coefficient at which the flow meets the leading edge
+smoothly; it is set by the camber. The NACA 5-digit, 5-digit modified,
+16-series and 6-series families take it directly, as <em>Ideal CL</em>.
+The NACA 4-digit and 4-digit modified families are defined by their
+maximum camber instead, so for them <em>Camber</em> and <em>Ideal
+CL</em> are alternatives: pick one with the toggle beside it, and the
+other is computed. The relation is thin airfoil theory's</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><msub><mi>l</mi><mi>i</mi></msub></msub><mo>=</mo><mi>π</mi><msub><mi>A</mi><mn>1</mn></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>A</mi><mn>1</mn></msub><mo>=</mo><mfrac><mn>2</mn><mi>π</mi></mfrac><msubsup><mo>∫</mo><mn>0</mn><mi>π</mi></msubsup><mfrac><mrow><mi>d</mi><msub><mi>z</mi><mi>c</mi></msub></mrow><mrow><mi>d</mi><mi>x</mi></mrow></mfrac><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mi>θ</mi><mspace width="0.167em"></mspace><mi>d</mi><mi>θ</mi><mo>,</mo><mspace width="2.0em"></mspace><mi>x</mi><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><mi>θ</mi></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">
+C_{l_i} = \pi A_1, \qquad A_1 = \frac{2}{\pi}\int_0^\pi \frac{dz_c}{dx}\,\cos\theta\,d\theta, \qquad
+x = \frac{1 - \cos\theta}{2}
+</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>c</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z_c(x)</annotation></semantics></math>
+is the mean line. For the 4-digit mean line
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><msub><mi>l</mi><mi>i</mi></msub></msub><annotation encoding="application/x-tex">C_{l_i}</annotation></semantics></math>
+is proportional to the maximum camber
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>,
+with a factor that depends on the camber position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>:
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0.4</mn></mrow><annotation encoding="application/x-tex">p = 0.4</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><msub><mi>l</mi><mi>i</mi></msub></msub><mo>=</mo><mn>12.8</mn><mspace width="0.167em"></mspace><mi>m</mi></mrow><annotation encoding="application/x-tex">C_{l_i} = 12.8\,m</annotation></semantics></math>.
+This is how a propeller's CLi curve sets the camber of these
+families.</p>
+<p>The other families have no design lift coefficient. Biconvex airfoils
+have no camber, and wedge, Karman-Trefftz, CST and file airfoils keep
+the camber their own parameters or points give them.</p>
+<h2 id="the-airfoil-families">The Airfoil Families</h2>
+<p>Figure 2 shows one of each family defined by equations.</p>
+<p><img src="images/Airfoils_families.png"
+title="Figure 2. Airfoil families"
+alt="Figure 2. Airfoil families" /></p>
+<p><em>Figure 2. One airfoil of each family defined by equations, all at
+one scale.</em></p>
+<h3 id="naca-4-digit">NACA 4-Digit</h3>
+<p>FOUR_SERIES. The NACA 4-digit airfoil: <em>Camber</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+(the maximum camber, as a fraction of the chord), <em>CamberLoc</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+(its position along the chord) and <em>T/C</em>. <em>Name</em> shows the
+designation, NACA 2412 for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>0.02</mn></mrow><annotation encoding="application/x-tex">m = 0.02</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0.4</mn></mrow><annotation encoding="application/x-tex">p = 0.4</annotation></semantics></math>,
+T/C 0.12.</p>
+<h3 id="naca-4-digit-modified">NACA 4-Digit Modified</h3>
+<p>FOUR_DIGIT_MOD. The 4-digit airfoil with two more parameters for its
+thickness (Figure 3). <em>T/CLoc</em> places the maximum thickness, from
+0.2 to 0.6 of the chord; the plain 4-digit airfoil has it at 0.3.
+<em>LERadIndx</em> sets the leading edge radius: 6 is the 4-digit
+airfoil's radius, 0 is a sharp leading edge, and the radius grows with
+the square of the index up to 8, then to three times the normal radius
+at 9. The designation adds the two as a suffix: NACA 2412-63 has index 6
+and maximum thickness at 0.3.</p>
+<p><img src="images/Airfoils_fourmod.png"
+title="Figure 3. 4-digit modified"
+alt="Figure 3. 4-digit modified" /></p>
+<p><em>Figure 3. A 12% thick 4-digit modified airfoil with three leading
+edge radius indices (top) and three positions of maximum thickness
+(bottom).</em></p>
+<h3 id="naca-5-digit-and-5-digit-modified">NACA 5-Digit and 5-Digit
+Modified</h3>
+<p>FIVE_DIGIT and FIVE_DIGIT_MOD. The 4-digit thickness with the 5-digit
+(non-reflexed) mean line, set by <em>Ideal CL</em> and
+<em>CamberLoc</em>, the position of maximum camber. NACA 23012 has Ideal
+CL 0.3 and CamberLoc 0.15. The modified form adds <em>T/CLoc</em> and
+<em>LERadIndx</em>, as for the 4-digit modified airfoil.</p>
+<h3 id="naca-16-series">NACA 16-Series</h3>
+<p>16_SERIES. The NACA 16 thickness form, thickest at half the chord,
+with the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = 1</annotation></semantics></math>
+mean line, which loads the chord uniformly. It is set by <em>Ideal
+CL</em> and <em>T/C</em>: NACA 16-212 has Ideal CL 0.2 and T/C 0.12.
+Propellers use it widely.</p>
+<h3 id="naca-6-series">NACA 6-Series</h3>
+<p>SIX_SERIES. The NACA 6-series airfoils, computed by the NACA 6-series
+generation method. <em>Series</em> chooses the thickness form, 63- to
+67- or the A forms 63A to 65A; <em>Ideal CL</em> and <em>a</em> set the
+mean line, where <em>a</em> is the fraction of the chord over which the
+loading is uniform. The A forms always use
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>0.8</mn></mrow><annotation encoding="application/x-tex">a = 0.8</annotation></semantics></math>.
+T/C may be up to 0.5. A script sets <em>Series</em> with
+<code>SIX_SERIES_63</code> ... <code>SIX_SERIES_65A</code>.</p>
+<h3 id="biconvex">Biconvex</h3>
+<p>BICONVEX. Two parabolic arcs, upper and lower, meeting in sharp
+edges:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mi>±</mi><mn>2</mn><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mi>/</mi><mi>c</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z = \pm 2\,(t/c)\,x(1 - x)</annotation></semantics></math>.
+Only <em>T/C</em> shapes it. It is a common supersonic section.</p>
+<h3 id="wedge">Wedge</h3>
+<p>WEDGE. A section of straight lines: a sharp leading and trailing
+edge, and on each surface a corner at the maximum thickness, or a flat
+between two corners (Figure 4).</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Thick X, Thick X Low</td>
+<td style="text-align: left;">Position of the first upper and lower
+corner, as a fraction of the chord.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Flat Up, Flat Low</td>
+<td style="text-align: left;">Length of the flat after it, as a fraction
+of the chord.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Symm Thickness</td>
+<td style="text-align: left;">Use the upper surface's Thick X and Flat
+for the lower surface too.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Camber</td>
+<td style="text-align: left;">Raises the corners, as a fraction of the
+chord, leaving the edges on the chord line.</td>
+</tr>
+<tr>
+<td style="text-align: left;">U Fwd Up, U Fwd Low</td>
+<td style="text-align: left;">Where the first corner of each surface
+falls in the curve's parameter.</td>
+</tr>
+<tr>
+<td style="text-align: left;">dU Flat Up, dU Flat Low</td>
+<td style="text-align: left;">How much of the curve's parameter the flat
+takes.</td>
+</tr>
+</tbody>
+</table>
+<p>The U parameters do not change the shape. They decide which part of
+the curve meets which part of the neighboring sections in the loft, so
+give neighboring wedge sections the same values to make their corners
+line up.</p>
+<p><img src="images/Airfoils_wedge.png" title="Figure 4. Wedge"
+alt="Figure 4. Wedge" /></p>
+<p><em>Figure 4. A wedge with T/C 0.12, Thick X 0.3, Flat Up 0.3, Thick
+X Low 0.4, Flat Low 0.2 and Camber 0.02. The dots are the
+corners.</em></p>
+<h3 id="airfoil-file">Airfoil File</h3>
+<p>AF_FILE. <em>Read File</em> reads an airfoil's coordinates in one of
+three formats:</p>
+<ul>
+<li>Selig (<code>.dat</code>): a name line, then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+pairs from the upper trailing edge forward around the leading edge and
+back along the lower surface.</li>
+<li>Lednicer (<code>.dat</code>): a name line, a line with the number of
+upper and lower points, then the upper surface and the lower surface,
+each from the leading edge.</li>
+<li>OpenVSP (<code>.af</code>): a first line containing
+<code>AIRFOIL FILE</code>, a name line, a symmetry flag, the number of
+points on the upper surface (and on the lower, unless symmetric), then
+the upper points, one line that is skipped (left blank), and the lower
+points (none for a symmetric airfoil).</li>
+</ul>
+<p>OpenVSP splits the airfoil into a mean line and a thickness
+distribution. <em>Base T/C</em> is the file's thickness, and
+<em>T/C</em> scales the thickness about the mean line, so changing it
+keeps the camber.</p>
+<h3 id="cst">CST</h3>
+<p>CST_AIRFOIL. A Class-Shape Transformation airfoil (Kulfan): each
+surface is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msqrt><mi>x</mi></msqrt><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mi>n</mi></munderover><msub><mi>A</mi><mi>i</mi></msub><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mi>n</mi><mi>i</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msup><mi>x</mi><mi>i</mi></msup><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>x</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>n</mi><mo>−</mo><mi>i</mi></mrow></msup></mrow><annotation encoding="application/x-tex">
+z(x) = \sqrt{x}\,(1 - x)\,\sum_{i=0}^{n} A_i\,\binom{n}{i}\,x^i(1 - x)^{n-i}
+</annotation></semantics></math></p>
+<p>with its own <em>Degree</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+and coefficients
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mi>i</mi></msub><annotation encoding="application/x-tex">A_i</annotation></semantics></math>,
+listed under <em>Upper Surface</em> and <em>Lower Surface</em>. The
+first coefficient sets the leading edge radius,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><msubsup><mi>A</mi><mn>0</mn><mn>2</mn></msubsup><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">r = A_0^2/2</annotation></semantics></math>,
+and the last the angle at the trailing edge. <em>Enforce Continuous LE
+Radius</em> makes the lower surface's first coefficient the negative of
+the upper's, so the two surfaces share one leading edge radius.
+<em>Promote</em> raises a surface's degree without changing its shape,
+which gives more coefficients to work with; <em>Demote</em> lowers it
+and approximates the shape. The trailing edge is sharp; use the Modify
+tab to thicken it. <em>T/C</em> is an output.</p>
+<p>CST airfoils are smooth and have few parameters, which suits them to
+optimization (Figure 5). <em>Fit CST</em> on the other families converts
+an airfoil to one.</p>
+<p><img src="images/Airfoils_gui_cst.png" title="Figure 5. CST controls"
+alt="Figure 5. CST controls" /></p>
+<p><em>Figure 5. NACA 2412 as a CST airfoil of degree 5 on each surface,
+on the Airfoil tab of a Wing. Each list of coefficients scrolls; Al_0 is
+greyed because Enforce Continuous LE Radius sets it from Au_0, and T/C
+is shown, not set.</em></p>
+<h3 id="karman-trefftz">Karman-Trefftz</h3>
+<p>KARMAN_TREFFTZ. The conformal map of a circle, from potential flow
+theory (Figure 6). <em>Epsilon</em> moves the circle's center to thicken
+the airfoil, <em>Kappa</em> moves it up to camber it, and <em>Tau</em>
+is the trailing edge angle in degrees; 0 gives a cusp. The chord is
+scaled to <em>Chord</em>, and <em>T/C</em> is an output. The pressure
+distribution of these airfoils is known exactly, which makes them useful
+test cases; the API's <code>GetVKTAirfoilCpDist</code> gives it.</p>
+<p><img src="images/Airfoils_vkt.png" title="Figure 6. Karman-Trefftz"
+alt="Figure 6. Karman-Trefftz" /></p>
+<p><em>Figure 6. Karman-Trefftz airfoils: Epsilon, Kappa and Tau each
+varied from the defaults, Epsilon 0.1, Kappa 0.1 and Tau 10.</em></p>
+<h2 id="the-modify-tab">The Modify Tab</h2>
+<p>The Wing, Propeller and Body of Revolution have a Modify tab that
+reshapes the active airfoil. Its operations are applied in a fixed
+order, each to the result of the one before:</p>
+<ol type="1">
+<li>Trailing edge closure</li>
+<li>Trailing edge trim</li>
+<li>Trailing edge flap</li>
+<li>Leading edge closure</li>
+<li>Leading edge trim</li>
+<li>Trailing edge cap</li>
+<li>Leading edge cap</li>
+<li>Rotate and scale, then shift</li>
+</ol>
+<p>So a cap rounds the face that a closure or trim made, a flap turns
+the trimmed trailing edge, and shifting, rotating and scaling move the
+finished section. The order does not change; to trim and then close, for
+example, is not possible.</p>
+<p>Lengths are given either absolutely, <em>Abs</em>, in model units, or
+relative to the chord, <em>Rel</em>. The one not chosen is shown,
+updated to match. Use Rel on a wing whose sections differ in chord, so
+that a modification keeps its proportion along the span.</p>
+<h2 id="shift-rotate-and-scale">Shift, Rotate and Scale</h2>
+<p><em>Theta</em> turns the section about its leading edge, positive
+moving the trailing edge up, toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">+Z</annotation></semantics></math>
+on a wing. <em>Scale</em> scales it about its leading edge. <em>Delta
+X/C</em> and <em>Delta Y/C</em> then move it along and across the chord,
+in chords (Figure 7).</p>
+<p><img src="images/Airfoils_srs.png"
+title="Figure 7. Shift, rotate and scale"
+alt="Figure 7. Shift, rotate and scale" /></p>
+<p><em>Figure 7. NACA 2412 turned by Theta, moved by Delta X/C and Delta
+Y/C, and scaled; dashed, before. The dot is the leading edge
+before.</em></p>
+<p><em>Shift LE</em> changes where the curve's leading edge falls, not
+the shape: the point halfway round the curve moves onto the upper
+surface for positive values and the lower surface for negative ones
+(Figure 8). The surface's leading edge line, where the wing's upper and
+lower surfaces meet in its parameters, moves with it. It is for airfoils
+whose geometric leading edge is not where their curve puts it, such as a
+drooped or turned airfoil.</p>
+<p><img src="images/Airfoils_shiftle.png" title="Figure 8. Shift LE"
+alt="Figure 8. Shift LE" /></p>
+<p><em>Figure 8. The point halfway round NACA 2412's curve, with three
+values of Shift LE.</em></p>
+<h2 id="closure">Closure</h2>
+<p>A closure shears one or both surfaces so that an edge becomes a flat
+face of thickness <em>T</em>: it opens a sharp edge, or, with T 0,
+closes a blunt one.</p>
+<p>At the trailing edge (Figure 9), <em>SKEW LOWER</em> shears the lower
+surface, <em>SKEW UPPER</em> the upper, and <em>SKEW BOTH</em> each by
+half; each shears the surface across the chord, so the change grows
+linearly from nothing at the leading edge. <em>EXTRAPOLATE</em> instead
+extends both surfaces along their directions at the trailing edge until
+they are T apart; it lengthens the airfoil without changing anything
+ahead of the old trailing edge, and acts only where the two surfaces
+converge. It is the way to close a blunt trailing edge to a point.</p>
+<p><img src="images/Airfoils_teclose.png"
+title="Figure 9. Trailing edge closure"
+alt="Figure 9. Trailing edge closure" /></p>
+<p><em>Figure 9. Trailing edge closures on NACA 2412, aft part; dashed,
+before. EXTRAPOLATE is shown on the same airfoil already cut off where
+it is 0.03 thick, closed to T 0.</em></p>
+<p>At the leading edge (Figure 10) the shear grows from nothing at the
+trailing edge instead, and opens the leading edge into a flat face T
+high.</p>
+<p><img src="images/Airfoils_leclose.png"
+title="Figure 10. Leading edge closure"
+alt="Figure 10. Leading edge closure" /></p>
+<p><em>Figure 10. Leading edge closures on NACA 2412, forward part;
+dashed, before.</em></p>
+<h2 id="trim">Trim</h2>
+<p>A trim cuts an edge off, leaving a flat face (Figure 11). <em>X</em>
+cuts at the points that distance from the edge, <em>THICK</em> where the
+airfoil is T thick. The chord parameter does not change, so a trimmed
+airfoil is shorter than its chord.</p>
+<p><img src="images/Airfoils_trim.png" title="Figure 11. Trim"
+alt="Figure 11. Trim" /></p>
+<p><em>Figure 11. Trailing and leading edge trims on NACA 2412; dashed,
+before.</em></p>
+<h2 id="plain-flap">Plain Flap</h2>
+<p><em>PLAIN</em> deflects the aft part of the airfoil as a plain flap
+(Figure 12). The hinge is <em>X</em> from the trailing edge (the flap's
+chord, Abs or Rel) and <em>Y/T</em> of the way across the airfoil there,
+from the lower surface at 0 to the upper at 1. <em>Deflection</em> is in
+degrees, positive trailing edge down. The side toward which the flap
+turns gets a sharp corner, and the other side an arc about the hinge, so
+the surface stays closed.</p>
+<p>The flap works on a Wing, a Propeller and a Body of Revolution.</p>
+<p><img src="images/Airfoils_flap.png" title="Figure 12. Plain flap"
+alt="Figure 12. Plain flap" /></p>
+<p><em>Figure 12. A plain flap of X/C 0.25 and Y/T 0.5 on NACA 2412,
+deflected 20 degrees each way; dashed, undeflected.</em></p>
+<h2 id="caps">Caps</h2>
+<p>A cap shapes the flat face of a blunt edge, whether it comes from the
+airfoil itself, a closure or a trim (Figure 13). <em>FLAT</em> leaves
+the face flat. <em>ROUND</em> replaces it with an arc tangent to both
+surfaces. <em>EDGE</em> replaces it with two straight lines that meet in
+a point, and <em>SHARP</em> with two curves that meet in a point.</p>
+<p><img src="images/Airfoils_caps.png" title="Figure 13. Caps"
+alt="Figure 13. Caps" /></p>
+<p><em>Figure 13. Trailing edge caps on NACA 2412 cut off where it is
+0.04 thick; dashed, the flat face.</em></p>
+<p>Three parameters adjust a cap (Figure 14):</p>
+<ul>
+<li><em>Length</em> stretches it along the chord: 1 is a circular arc
+for ROUND, and for EDGE and SHARP puts the point half the face's height
+beyond it.</li>
+<li><em>Offset</em> moves the tip across the face, as a fraction of its
+height. Positive is toward the upper surface at the trailing edge and
+toward the lower surface at the leading edge.</li>
+<li><em>Strength</em>, for SHARP only, sets how full the two curves are:
+0 makes them straight, like EDGE, and 1 fullest.</li>
+</ul>
+<p><img src="images/Airfoils_capparms.png"
+title="Figure 14. Cap parameters" alt="Figure 14. Cap parameters" /></p>
+<p><em>Figure 14. ROUND with three Lengths and three Offsets, and SHARP
+at Length 2 with three Strengths, on the same trailing edge.</em></p>
+<h2 id="scripting">Scripting</h2>
+<p>The API reaches an airfoil as it does any cross section (see <a
+href="XSecCurves.html#scripting">Cross Section Curves</a>), and has
+functions of its own for airfoils:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Call</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>ReadFileAirfoil</code>,
+<code>SetAirfoilPnts</code>, <code>SetAirfoilUpperPnts</code>,
+<code>SetAirfoilLowerPnts</code></td>
+<td style="text-align: left;">Give an Airfoil File its points.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetAirfoilUpperPnts</code>,
+<code>GetAirfoilLowerPnts</code>,
+<code>GetAirfoilCoordinates</code></td>
+<td style="text-align: left;">Read an airfoil's points.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SetUpperCST</code>,
+<code>SetLowerCST</code>, <code>GetUpperCSTCoefs</code>,
+<code>GetLowerCSTCoefs</code>, <code>GetUpperCSTDegree</code>,
+<code>GetLowerCSTDegree</code></td>
+<td style="text-align: left;">Set or read CST coefficients.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PromoteCSTUpper</code>,
+<code>PromoteCSTLower</code>, <code>DemoteCSTUpper</code>,
+<code>DemoteCSTLower</code></td>
+<td style="text-align: left;">Change a CST surface's degree.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>FitAfCST</code></td>
+<td style="text-align: left;">Convert an airfoil to CST, as <em>Fit
+CST</em> does.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetVKTAirfoilPnts</code>,
+<code>GetVKTAirfoilCpDist</code></td>
+<td style="text-align: left;">Karman-Trefftz points and pressure
+distribution.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>WriteSeligAirfoil</code>,
+<code>WriteBezierAirfoil</code></td>
+<td style="text-align: left;">Write the airfoil at a span station of a
+Geom.</td>
+</tr>
+</tbody>
+</table>
+<p>The Modify tab's parameters are found by name with
+<code>GetXSecParm</code>: <code>Theta</code>, <code>Scale</code>,
+<code>DeltaX</code>, <code>DeltaY</code>, <code>ShiftLE</code>, and
+<code>TE_Close_Type</code>, <code>TE_Trim_Type</code>,
+<code>TE_Cap_Type</code> and their <code>LE_</code> counterparts, and
+<code>TE_Flap_Type</code>, with the values in the
+<code>XSEC_CLOSE_TYPE</code>, <code>XSEC_TRIM_TYPE</code>,
+<code>XSEC_FLAP_TYPE</code> and end cap enumerations. The Abs/Rel
+toggles are <code>TE_Close_AbsRel</code>, <code>TE_Trim_AbsRel</code>
+and <code>TE_Flap_AbsRel</code> (with <code>ABS</code> or
+<code>REL</code>), and the values they choose between are:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Abs</th>
+<th style="text-align: left;">Rel</th>
+<th style="text-align: left;">Group</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Closure T</td>
+<td style="text-align: left;"><code>TE_Close_Thick</code></td>
+<td style="text-align: left;"><code>TE_Close_Thick_Chord</code></td>
+<td style="text-align: left;">Close</td>
+</tr>
+<tr>
+<td style="text-align: left;">Trim X</td>
+<td style="text-align: left;"><code>TE_Trim_X</code></td>
+<td style="text-align: left;"><code>TE_Trim_X_Chord</code></td>
+<td style="text-align: left;">Trim</td>
+</tr>
+<tr>
+<td style="text-align: left;">Trim T</td>
+<td style="text-align: left;"><code>TE_Trim_Thick</code></td>
+<td style="text-align: left;"><code>TE_Trim_Thick_Chord</code></td>
+<td style="text-align: left;">Trim</td>
+</tr>
+<tr>
+<td style="text-align: left;">Flap X</td>
+<td style="text-align: left;"><code>TE_Flap_X</code></td>
+<td style="text-align: left;"><code>TE_Flap_X_Chord</code></td>
+<td style="text-align: left;">Flap</td>
+</tr>
+</tbody>
+</table>
+<p>The flap's Y/T and Deflection are <code>TE_Flap_Y_Frc</code> and
+<code>TE_Flap_Deflection</code> (Flap), and a cap's Length, Offset and
+Strength are <code>TE_Cap_Length</code>, <code>TE_Cap_Offset</code> and
+<code>TE_Cap_Strength</code> (Cap). The leading edge has the same names
+with <code>LE_</code> in place of <code>TE_</code>, except for the
+flap.</p>
+</body>
+</html>

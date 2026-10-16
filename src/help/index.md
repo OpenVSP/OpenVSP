@@ -36,3 +36,4 @@ particular purpose and can be added to a model as needed.
    - [Mass](MassTab.md)
    - [Sub](SubTab.md)
 - [Cross Sections](XSecCurves.md)
+- [Airfoils](Airfoils.md)
