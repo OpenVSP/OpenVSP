@@ -8327,6 +8327,21 @@ void GeomXSec::NormalizeFlaps()
         flapxchord = round( flapxchord * fac ) / fac;
         double fac2 = 1000;
         arclen = round( arclen * fac2 ) / fac2;
+
+        // The flap and its arc fit within a side's parameter span.
+        if ( flapxchord > 0.95 )
+        {
+            flapxchord = 0.95;
+        }
+        double arcmax = 0.95 - flapxchord;
+        if ( arcmax < 0 )
+        {
+            arcmax = 0;
+        }
+        if ( arclen > arcmax )
+        {
+            arclen = arcmax;
+        }
     }
 
 

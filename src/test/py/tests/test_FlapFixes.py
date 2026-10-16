@@ -50,6 +50,29 @@ def test_a_flap_with_no_chord_leaves_the_wing_as_it_is():
     assert max( vsp.dist( p, q ) for p, q in zip( before, after ) ) < 1e-12
 
 
+def test_a_long_flap_deflected_far_on_a_round_section():
+    vsp.VSPRenew()
+    wid = vsp.AddGeom( "WING" )
+    surf = vsp.GetXSecSurf( wid, 0 )
+    vsp.ChangeXSecShape( surf, 1, vsp.XS_CIRCLE )
+    set_flap( vsp.GetXSec( surf, 1 ), -40.0, 0.9 )
+    assert finite( points( wid ) )
+
+
+def test_an_absolute_flap_on_a_section_made_shorter():
+    vsp.VSPRenew()
+    wid = vsp.AddGeom( "WING" )
+    xs = vsp.GetXSec( vsp.GetXSecSurf( wid, 0 ), 1 )
+    chord = vsp.GetParmVal( vsp.GetXSecParm( xs, "Tip_Chord" ) )
+    for name, v in ( ( "TE_Flap_Type", vsp.FLAP_PLAIN ), ( "TE_Flap_AbsRel", vsp.ABS ), ( "TE_Flap_X", 0.9 * chord ),
+                     ( "TE_Flap_Deflection", -40.0 ) ):
+        vsp.SetParmVal( vsp.GetXSecParm( xs, name ), v )
+    vsp.Update()
+    # The flap is now longer than the section's chord.
+    vsp.SetParmVal( vsp.GetXSecParm( xs, "Tip_Chord" ), 0.3 * chord )
+    assert finite( points( wid ) )
+
+
 def test_a_wing_flap_follows_a_chord_change_at_once():
     vsp.VSPRenew()
     wid = vsp.AddGeom( "WING" )

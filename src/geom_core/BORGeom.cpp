@@ -227,6 +227,21 @@ void BORGeom::NormalizeFlaps()
             double fac2 = 1000;
             arclen = round( arclen * fac2 ) / fac2;
 
+            // The flap and its arc fit within a side's parameter span.
+            if ( flapxchord > 0.95 )
+            {
+                flapxchord = 0.95;
+            }
+            double arcmax = 0.95 - flapxchord;
+            if ( arcmax < 0 )
+            {
+                arcmax = 0;
+            }
+            if ( arclen > arcmax )
+            {
+                arclen = arcmax;
+            }
+
             m_XSCurve->m_TEFlapFlag = flapxchord > 0;
             m_XSCurve->m_TEFlapT = flapxchord;
             m_XSCurve->m_TEFlapDT = arclen;
