@@ -1481,6 +1481,21 @@ enum SET_TYPE { SET_NONE = -1,	/*!< None set */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the NACA 6-series airfoil's series. */
+enum SIX_SERIES_TYPE { SIX_SERIES_63,	/*!< 63 series */
+                       SIX_SERIES_64,	/*!< 64 series */
+                       SIX_SERIES_65,	/*!< 65 series */
+                       SIX_SERIES_66,	/*!< 66 series */
+                       SIX_SERIES_67,	/*!< 67 series */
+                       SIX_SERIES_63A,	/*!< 63A series */
+                       SIX_SERIES_64A,	/*!< 64A series */
+                       SIX_SERIES_65A,	/*!< 65A series */
+                       NUM_SIX_SERIES	/*!< Number of 6-series airfoil series */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that identifies a StackGeom starting point.  Each preset builds a
     different set of cross sections, most of them nacelle layouts. */
 enum STACK_PRESETS { STACK_PRESET_DEFAULT = 0,	/*!< Standard init type */

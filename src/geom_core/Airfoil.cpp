@@ -669,7 +669,7 @@ SixSeries::SixSeries( ) : Airfoil( )
     m_Type = XS_SIX_SERIES;
     m_Name = "SixSeries";
 
-    m_Series.Init( "Series", m_GroupName, this, SERIES_63, SERIES_63, NUM_SERIES - 1 );
+    m_Series.Init( "Series", m_GroupName, this, SIX_SERIES_63, SIX_SERIES_63, NUM_SIX_SERIES - 1 );
     m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 2.0 );
     m_A.Init( "A", m_GroupName, this, 1.0, 0.0, 1.0 );
     m_ThickChord.SetUpperLimit( 0.5 );
@@ -682,12 +682,12 @@ void SixSeries::UpdateCurve( bool updateParms )
     float cli = ( float )m_IdealCl();
     float toc = ( float )m_ThickChord();
     int sixser = 63;
-    if ( m_Series() <= SERIES_67 )
+    if ( m_Series() <= SIX_SERIES_67 )
     {
         sixser = m_Series() + 63;
         m_A.Activate();
     }
-    else if ( m_Series() < NUM_SERIES )
+    else if ( m_Series() < NUM_SIX_SERIES )
     {
         m_A = 0.8;
         m_A.Deactivate();
@@ -785,11 +785,11 @@ string SixSeries::GetAirfoilName()
     float fa = int( m_A() * 10.0 + 0.5f ) / 10.0;
 
     int sixser = 63;
-    if ( m_Series() <= SERIES_67 )
+    if ( m_Series() <= SIX_SERIES_67 )
     {
         sixser = m_Series() + 63;
     }
-    else if ( m_Series() < NUM_SERIES )
+    else if ( m_Series() < NUM_SIX_SERIES )
     {
         sixser = -( m_Series() + 58 );
     }

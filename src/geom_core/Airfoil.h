@@ -275,10 +275,6 @@ public:
     Parm m_IdealCl;
     Parm m_A;                   // % Chord Uniform Pressure Dist
 
-    enum { SERIES_63, SERIES_64, SERIES_65, SERIES_66, SERIES_67,
-           SERIES_63A, SERIES_64A, SERIES_65A, NUM_SERIES
-         };
-
 protected:
 
 };

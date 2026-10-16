@@ -2573,6 +2573,28 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "SIX_SERIES_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "SIX_SERIES_63", SIX_SERIES_63 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "SIX_SERIES_64", SIX_SERIES_64 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "SIX_SERIES_65", SIX_SERIES_65 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "SIX_SERIES_66", SIX_SERIES_66 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "SIX_SERIES_67", SIX_SERIES_67 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "SIX_SERIES_63A", SIX_SERIES_63A );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "SIX_SERIES_64A", SIX_SERIES_64A );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "SIX_SERIES_65A", SIX_SERIES_65A );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SIX_SERIES_TYPE", "NUM_SIX_SERIES", NUM_SIX_SERIES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "STACK_PRESETS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_DEFAULT", STACK_PRESET_DEFAULT );
