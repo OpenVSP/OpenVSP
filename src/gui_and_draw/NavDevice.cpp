@@ -235,6 +235,8 @@ struct NavDevice::Impl
     std::unique_ptr < openaxis::OpenAxisConnectionManager > m_Manager;
     bool m_Focused;
     bool m_SettledDue;          // The host is to be told the view has settled.
+    bool m_PivotLocked;         // The host agreed to hold its pivot.
+    std::shared_ptr < bool > m_Alive;  // False once stopped, for answers that come after.
     bool m_Failed;              // The SDK could not start.
     std::string m_LastStatus;   // As last reported to the status callback.
 
@@ -301,6 +303,7 @@ NavDevice::NavDevice( VspGlWindow * win ) : m_Impl( new Impl() )
     m_Impl->m_Win = win;
     m_Impl->m_Focused = true;
     m_Impl->m_SettledDue = false;
+    m_Impl->m_PivotLocked = false;
     m_Impl->m_Failed = false;
     m_Impl->m_Mode = NAV_DEVICE_NAVIGATION;
     m_Impl->m_Moving = false;
@@ -346,6 +349,7 @@ void NavDevice::Start()
 
     // Any failure to start leaves the device unavailable.
     m_Impl->m_Failed = false;
+    m_Impl->m_Alive = std::make_shared < bool >( true );
     m_Impl->m_Mode = m_Impl->m_Win->GetNav().GetSettings().m_DeviceMode;
     try
     {
@@ -415,10 +419,14 @@ void NavDevice::Start()
         m_Impl->m_Manager.reset( new openaxis::OpenAxisConnectionManager( *m_Impl->m_Client, manager_options ) );
         m_Impl->m_Manager->on_state = [this, impl]( const openaxis::ConnectionStatus & status )
         {
-            // A host just connected finds the view settled.
+            // A host just connected finds the view settled.  One that went away holds no pivot.
             if ( status.state == "ready" )
             {
                 impl->m_SettledDue = true;
+            }
+            else
+            {
+                impl->m_PivotLocked = false;
             }
             StatusChanged();
         };
@@ -453,6 +461,8 @@ void NavDevice::Stop()
     Fl::remove_timeout( Impl::PollFocus, m_Impl.get() );
     Fl::remove_timeout( Impl::ClearMoving, this );
     m_Impl->m_Moving = false;
+    m_Impl->m_PivotLocked = false;
+    *m_Impl->m_Alive = false;
 
     try
     {
@@ -510,6 +520,11 @@ void NavDevice::DocumentChanged()
 {
     NavNewDocument();
     m_Impl->m_SettledDue = true;
+    if ( m_Impl->m_PivotLocked )
+    {
+        m_Impl->m_PivotLocked = false;
+        StatusChanged();
+    }
     if ( m_Impl->m_Session )
     {
         try
@@ -522,6 +537,46 @@ void NavDevice::DocumentChanged()
     }
 }
 
+void NavDevice::SetPivotLocked( bool lock )
+{
+    if ( !m_Impl->m_Session || !IsAvailable() )
+    {
+        return;
+    }
+
+    std::string command = "navigation.pivot.clear";
+    if ( lock )
+    {
+        command = "navigation.pivot.lock";
+    }
+
+    Impl * impl = m_Impl.get();
+    NavDevice * dev = this;
+    std::shared_ptr < bool > alive = m_Impl->m_Alive;
+    try
+    {
+        // Refused when the host has not chosen a pivot yet; then nothing changes.
+        m_Impl->m_Client->execute_command( command, openaxis::Value::object(),
+                                           [impl, dev, alive, lock]( const openaxis::Value & result, const openaxis::Value & )
+        {
+            if ( !*alive || !result.is_object() || !result.value( "accepted", false ) )
+            {
+                return;
+            }
+            impl->m_PivotLocked = lock;
+            dev->StatusChanged();
+        } );
+    }
+    catch ( ... )
+    {
+    }
+}
+
+bool NavDevice::IsPivotLocked() const
+{
+    return m_Impl->m_PivotLocked;
+}
+
 std::string NavDevice::GetStatus() const
 {
     if ( m_Impl->m_Failed )
@@ -532,13 +587,18 @@ std::string NavDevice::GetStatus() const
     {
         return "Off";
     }
-    if ( IsAvailable() && m_Impl->m_Moving )
-    {
-        return "Connected, moving the view";
-    }
     if ( IsAvailable() )
     {
-        return "Connected";
+        std::string status = "Connected";
+        if ( m_Impl->m_Moving )
+        {
+            status += ", moving the view";
+        }
+        if ( m_Impl->m_PivotLocked )
+        {
+            status += ", pivot locked";
+        }
+        return status;
     }
     // An older host refuses the protocol; an unverified one is closed by the SDK.
     return "Looking for Rotatrix 1.6 or later";
@@ -619,6 +679,15 @@ void NavDevice::ViewChanged()
 
 void NavDevice::DocumentChanged()
 {
+}
+
+void NavDevice::SetPivotLocked( bool )
+{
+}
+
+bool NavDevice::IsPivotLocked() const
+{
+    return false;
 }
 
 std::string NavDevice::GetStatus() const

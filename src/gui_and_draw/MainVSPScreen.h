@@ -156,6 +156,7 @@ protected:
     VSPCheckMenuItem m_TurntableMenuItem;
     VSPCheckMenuItem m_BallMenuItem;
     VSPCheckMenuItem m_DeviceMenuItem;
+    VSPCheckMenuItem m_PivotLockMenuItem;
     ActionMenuItem m_ZUpMenuItem;
     ActionMenuItem m_ZoomBoxMenuItem;
     ActionMenuItem m_CenterMenuItem;

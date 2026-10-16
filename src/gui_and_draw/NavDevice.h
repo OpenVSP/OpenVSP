@@ -51,6 +51,13 @@ public:
     // A model was opened or made.  Any gesture ends.
     void DocumentChanged();
 
+    // Ask the host to hold its pivot where it last chose it, or to choose it afresh each
+    // gesture.  The host answers later; until it agrees nothing changes.
+    void SetPivotLocked( bool lock );
+
+    // True while the host holds its pivot.
+    bool IsPivotLocked() const;
+
     // The connection's state, for people.
     std::string GetStatus() const;
 

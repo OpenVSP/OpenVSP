@@ -144,6 +144,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     if ( VSPGUI::NavDevice::IsBuilt() )
     {
         m_DeviceMenuItem.Init( this, m_MenuBar, "View/Rotatrix Trackball", 'd' );
+        m_PivotLockMenuItem.Init( this, m_MenuBar, "View/Lock Rotatrix Pivot", 'l' );
     }
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_SetVNMenuItem.Init( this, m_MenuBar, "View/View Normal To", 'n' );
@@ -341,6 +342,7 @@ void MainVSPScreen::UpdateDeviceButton()
     }
     m_DeviceButton->redraw();
     m_DeviceMenuItem.Update( m_GlWin->GetNav().GetSettings().m_UseDevice );
+    m_PivotLockMenuItem.Update( m_NavDevice->IsPivotLocked() );
 }
 
 void MainVSPScreen::NavDeviceStatusCB( void * data )
@@ -857,6 +859,13 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_ZoomBoxMenuItem )
     {
         m_GlWin->GetNav().ArmZoomBox();
+    }
+    else if ( data == &m_PivotLockMenuItem )
+    {
+        m_NavDevice->SetPivotLocked( !m_NavDevice->IsPivotLocked() );
+
+        // Unchanged until the host agrees.
+        m_PivotLockMenuItem.Update( m_NavDevice->IsPivotLocked() );
     }
     else if ( data == &m_DeviceMenuItem )
     {
