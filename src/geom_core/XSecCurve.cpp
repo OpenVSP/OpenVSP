@@ -165,8 +165,8 @@ XSecCurve::XSecCurve()
 
     m_ChevTopAmplitude.Init( "TopAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
     m_ChevBottomAmplitude.Init( "BottomAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
-    m_ChevRightAmplitude.Init( "LeftAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
-    m_ChevLeftAmplitude.Init( "RightAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
+    m_ChevRightAmplitude.Init( "RightAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
+    m_ChevLeftAmplitude.Init( "LeftAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
 
     m_ChevTopAngle.Init( "Top_Angle", "Chevron", this, 0.0, -360.0, 360.0 );
     m_ChevBottomAngle.Init( "Bottom_Angle", "Chevron", this, 0.0, -360.0, 360.0 );
