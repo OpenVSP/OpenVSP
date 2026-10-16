@@ -3775,23 +3775,24 @@ void GearGeom::BuildThreePtOffAxisBasis( const string &cp1, int isymm1, int susp
         // Find mean of main gear contact points.
         vec3d pmaincen = ( p2 + p3 ) * 0.5;
 
-        // Find wheelbase
-        double wb = dist( p1, pmaincen );
+        // The nominal track runs from the nose gear's contact point through the main gear's center, in the ground
+        // plane; wb is the wheelbase.
+        vec3d xnom = pmaincen - p1;
+        double wb = xnom.mag();
+        xnom.normalize();
 
-        // Trig to resolve specified offset measured perpendicular to nominal track.
-        // delta should be slightly larger than mainoffset
-        // double delta = wb * sin( atan( mainoffset / wb ) );
-        // Alternate equivalent formulation with less trig.
-        double o = mainoffset / wb;
-        double delta = mainoffset / sqrt( 1.0 + o * o );
+        // Square to the nominal track in the ground plane, toward the second main gear.
+        vec3d ynom = cross( normal, xnom );
+        ynom.normalize();
+        if ( dot( ynom, v23 ) < 0 )
+        {
+            ynom = -ynom;
+        }
 
-        // Offset mean main point along the line between the main gear contact points.
-        vec3d pmainoff = pmaincen + v23 * delta;
-
-        // X is in the ground plane by construction.
-        // All points on line between main gear contact points are on ground plane.
-        vec3d x = pmainoff - p1;
-        x.normalize();
+        // Turn the track about the nose gear's contact point so that the main gear's center lies mainoffset from
+        // it, measured square to the track.
+        double s = clamp( mainoffset / wb, -1.0, 1.0 );
+        vec3d x = xnom * std::sqrt( 1.0 - s * s ) + ynom * s;
 
         // Find rotated y direction.
         vec3d y = cross( normal, x );
