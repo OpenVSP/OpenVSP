@@ -10,8 +10,19 @@ There are certain areas where things get more complex and deep-dive documentatio
 warranted.  These in-program help files will be added as needed, but this also presents an
 opportunity for users to contribute.
 
- - [Advanced Parameter Linking](AdvLink.md)
- - [Attribute Explorer](AttributeExplorer.md)
- - [Geometry Analysis](GeometryAnalysis.md)
- - [Set Editor](SetEdit.md)
- - [Stack Presets](StackPresets.md)
+## Tools
+
+- [Advanced Parameter Linking](AdvLink.md)
+- [Attribute Explorer](AttributeExplorer.md)
+- [Geometry Analysis](GeometryAnalysis.md)
+- [Set Editor](SetEdit.md)
+
+## Components
+
+OpenVSP geometry is described via a set of parametric components.  Each serves a
+particular purpose and can be added to a model as needed.
+
+
+### Geometry
+
+- [Stack Presets](StackPresets.md)
