@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Body of Revolution</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Body of Revolution</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Body of Revolution (BOR) sweeps a single cross section once
+around the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis. In <em>Flowthrough</em> mode the section is set off from the axis,
+and the result is an open ring: a duct, a fan shroud, a ring wing or a
+short nacelle, with an airfoil for its wall. In <em>Upper</em> and
+<em>Lower</em> mode the axis runs along the section's chord, and the
+result is a closed, streamlined body whose radius follows the section's
+upper or lower surface.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#flowthrough">Flowthrough</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#upper-and-lower">Upper and
+Lower</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#the-cross-section">The Cross
+Section</a></td>
+<td style="text-align: left;">XSec, Modify</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#tessellation">Tessellation</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>,
+<a href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs
+are described on their own pages.</p>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="a-duct">A duct</h3>
+<ol type="1">
+<li>Add a Body of Revolution. A new one is a torus: a circle of diameter
+1 swept around a circle of diameter 2.</li>
+<li>Place it with the XForm tab.</li>
+<li>Choose an airfoil for the section on the XSec tab, and set its chord
+and <em>T/C</em>.</li>
+<li>Set <em>Diameter</em> and <em>Angle</em> on the Design tab.</li>
+</ol>
+<h3 id="a-streamlined-body">A streamlined body</h3>
+<ol type="1">
+<li>Add a Body of Revolution and set <em>Mode</em> to Upper.</li>
+<li>Place it with the XForm tab.</li>
+<li>Choose a symmetric airfoil for the section on the XSec tab.</li>
+<li>Set the chord to the body's length, and <em>T/C</em> to its diameter
+over its length.</li>
+</ol>
+<h2 id="flowthrough">Flowthrough</h2>
+<p>The section is laid with its chord along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+its leading edge at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">X = 0</annotation></semantics></math>
+and at a radius of half the <em>Diameter</em>, and its upper surface
+outward (Figure 1). <em>Angle</em> then turns the section about its
+leading edge; a positive angle turns its trailing edge toward the axis,
+so the ring narrows toward the back. The section is swept a full turn
+around the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis; its inner surface is the inside of the duct.</p>
+<p><img src="images/BOR_flowthrough.png" title="Figure 1. Flowthrough"
+alt="Figure 1. Flowthrough" /></p>
+<p><em>Figure 1. A Flowthrough BOR cut through its axis, above the axis:
+a NACA 4412 section, chord 1, Diameter 2, at Angle 0 (dashed) and 10
+degrees.</em></p>
+<p>Four areas are reported, each the area of a circle about the
+axis:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Output</th>
+<th style="text-align: left;">Area</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">A0</td>
+<td style="text-align: left;">Enclosed by the leading edge: the capture
+area of a duct,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mi>/</mi><mn>2</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\pi (D/2)^2</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ae</td>
+<td style="text-align: left;">Enclosed by the trailing edge: the exit
+area.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Amin</td>
+<td style="text-align: left;">Enclosed by the point of the section
+nearest the axis: the throat.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Amin W</td>
+<td style="text-align: left;">Where that point lies: the fraction
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+of the way around the section from the trailing edge.</td>
+</tr>
+</tbody>
+</table>
+<p>In Upper and Lower mode they are zero.</p>
+<p>Figure 2 shows the radius behind each area. Once a positive
+<em>Angle</em> turns the trailing edge in far enough, the trailing edge
+is the point nearest the axis, and <em>Amin</em> equals <em>Ae</em>; on
+the section of Figure 1 that happens from an <em>Angle</em> of about 2
+degrees.</p>
+<p><img src="images/BOR_areas.png" title="Figure 2. Areas"
+alt="Figure 2. Areas" /></p>
+<p><em>Figure 2. The section of Figure 1 at Angle -5 degrees, cut
+through the axis above it, with the radii of the circles whose areas are
+A0, Ae and Amin:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mn>0</mn></msub><mo>=</mo><mi>π</mi><msubsup><mi>r</mi><mn>0</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">A_0 = \pi r_0^2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mi>e</mi></msub><mo>=</mo><mi>π</mi><msubsup><mi>r</mi><mi>e</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">A_e = \pi r_e^2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mi>π</mi><msubsup><mi>r</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">A_{min} = \pi r_{min}^2</annotation></semantics></math>.
+The dot is the point nearest the axis, on the inner surface.</em></p>
+<p>A Flowthrough BOR is the quickest model of a round duct or nacelle:
+one airfoil, a diameter and an angle. It is always the open ring,
+though, and always round. When an analysis needs the nacelle closed at
+its lips or faces, a flowpath that cuts through the wing or fuselage it
+is buried in, or an inlet carried upstream to the edge of a CFD domain,
+or when the nacelle is not round, build it as a Stack from a nacelle
+preset (see <a href="StackPresets.html">Stack Presets</a>) and choose
+its representation with the <a href="EngineModel.html">Engine
+Model</a>.</p>
+<h2 id="upper-and-lower">Upper and Lower</h2>
+<p>In <em>Upper</em> mode the section's chord lies on the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis, leading edge at the origin, and its upper surface is swept around
+the axis, so the body's radius at each point along the chord is the
+height of the upper surface there. <em>Lower</em> does the same with the
+lower surface, measured below the chord. The result is closed at both
+ends, and as long as the chord (Figure 3). <em>Diameter</em> and
+<em>Angle</em> are not used, and are greyed.</p>
+<p>The radius of the body is the section's thickness above (or below)
+its chord line, so a symmetric section of thickness ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mi>/</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">t/c</annotation></semantics></math>
+gives a body of diameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and length-to-diameter ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>/</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">c/t</annotation></semantics></math>.
+Camber makes the Upper body fatter and the Lower body thinner.</p>
+<p><img src="images/BOR_upperlower.png"
+title="Figure 3. Upper and Lower" alt="Figure 3. Upper and Lower" /></p>
+<p><em>Figure 3. The Upper (above) and Lower (below) bodies of a NACA
+4412 section of chord 1, cut through their axis, with the section
+(dashed).</em></p>
+<h2 id="the-cross-section">The Cross Section</h2>
+<p>The section may be any of the <a href="XSecCurves.html">Cross Section
+Curves</a> or <a href="Airfoils.html">Airfoils</a>, and the Modify tab
+treats it as it treats a wing's airfoil (see <a
+href="Airfoils.html">Airfoils</a>).</p>
+<p>A new BOR's section is a circle of diameter 1. An airfoil chosen in
+its place keeps its width and height, so it starts with a chord of 1 and
+a <em>T/C</em> of 1: set the thickness straight away.</p>
+<p>In every mode the BOR is a wing-type surface with the section as its
+airfoil, so analyses that reduce wings to thin lifting surfaces
+(DegenGeom, the VSPAERO vortex lattice) treat a Flowthrough BOR as a
+ring wing, and treat an Upper or Lower BOR as a lifting surface too, not
+as a body. Model a streamlined body that such an analysis should see as
+a body with a <a href="FuselageStack.html">Fuselage or Stack</a> or a <a
+href="Pod.html">Pod</a>.</p>
+<h2 id="tessellation">Tessellation</h2>
+<p>The Gen tab's <em>Num_U</em> sets the points around the axis, and
+<em>Num_W</em> the points around the section. <em>LE Clustering</em> and
+<em>TE Clustering</em> on the Design tab bunch the points around the
+section toward its leading and trailing edges (values below 1 bunch
+them). <em>Cap Tess</em> sets the points across the section's trailing
+edge when the Modify tab leaves it blunt.</p>
+<h2 id="scripting">Scripting</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Mode</td>
+<td style="text-align: left;"><code>Mode</code></td>
+<td style="text-align: left;"><code>BOR_FLOWTHROUGH</code>; also
+<code>BOR_UPPER</code>, <code>BOR_LOWER</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Diameter</td>
+<td style="text-align: left;"><code>Diameter</code></td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr>
+<td style="text-align: left;">Angle</td>
+<td style="text-align: left;"><code>Angle</code></td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">A0, Ae, Amin, Amin W</td>
+<td style="text-align: left;"><code>A0</code>, <code>Ae</code>,
+<code>Amin</code>, <code>AminW</code></td>
+<td style="text-align: left;">outputs</td>
+</tr>
+<tr>
+<td style="text-align: left;">LE, TE Clustering</td>
+<td style="text-align: left;"><code>LECluster</code>,
+<code>TECluster</code></td>
+<td style="text-align: left;">0.25</td>
+</tr>
+</tbody>
+</table>
+<p>All are in the <em>Design</em> group. The section is changed with
+<code>ChangeBORXSecShape</code> and read with
+<code>GetBORXSecShape</code>; its parameters are in the BOR's
+<em>XSecCurve</em> group. <code>ReadBORFileXSec</code>,
+<code>ReadBORFileAirfoil</code>, <code>SetBORXSecPnts</code>,
+<code>SetBORAirfoilPnts</code> and the <code>...BORCST...</code> calls
+set a section from a file, from points, or as a CST airfoil.</p>
+</body>
+</html>

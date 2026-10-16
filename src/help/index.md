@@ -33,6 +33,7 @@ particular purpose and can be added to a model as needed.
 - [Propeller](Propeller.md)
 - [Ellipsoid](Ellipsoid.md)
 - [Pod](Pod.md)
+- [Body of Revolution](BOR.md)
 
 ### Shared Capabilities
 
