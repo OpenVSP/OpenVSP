@@ -2607,6 +2607,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "STACK_ORDER_POLICY" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_ORDER_POLICY", "STACK_FREE", STACK_FREE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_ORDER_POLICY", "STACK_LOOP", STACK_LOOP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STACK_ORDER_POLICY", "NUM_STACK_POLICY", NUM_STACK_POLICY );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "STACK_PRESETS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "STACK_PRESETS", "STACK_PRESET_DEFAULT", STACK_PRESET_DEFAULT );

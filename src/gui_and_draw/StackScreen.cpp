@@ -274,7 +274,7 @@ bool StackScreen::Update()
             m_AftClusterSlider.Deactivate();
         }
 
-        if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP)
+        if ( lastxs && stackgeom_ptr->m_OrderPolicy() == STACK_LOOP)
         {
             m_XSecAbsRelToggle.Deactivate();
             m_XSecXDeltaSlider.Deactivate();
@@ -291,7 +291,7 @@ bool StackScreen::Update()
         if ( xsc )
         {
             // Special considerations for loop policy
-            if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP )
+            if ( lastxs && stackgeom_ptr->m_OrderPolicy() == STACK_LOOP )
             {
                 m_XSecTypeChoice.Deactivate();
                 m_ShowXSecButton.Deactivate();
@@ -304,7 +304,7 @@ bool StackScreen::Update()
                 m_ConvertCEDITButton.Activate();
             }
 
-            if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP )
+            if ( lastxs && stackgeom_ptr->m_OrderPolicy() == STACK_LOOP )
             {
                 DisplayGroup ( nullptr);
             }

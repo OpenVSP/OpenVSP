@@ -1506,6 +1506,15 @@ enum SIX_SERIES_TYPE { SIX_SERIES_63,	/*!< 63 series */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the limits a Stack puts on its cross sections' placement. */
+enum STACK_ORDER_POLICY { STACK_FREE,	/*!< Every cross section placed freely (default) */
+                          STACK_LOOP,	/*!< The last cross section a copy of the first, placed on it */
+                          NUM_STACK_POLICY	/*!< Number of Stack cross section order policies */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that identifies a StackGeom starting point.  Each preset builds a
     different set of cross sections, most of them nacelle layouts. */
 enum STACK_PRESETS { STACK_PRESET_DEFAULT = 0,	/*!< Standard init type */

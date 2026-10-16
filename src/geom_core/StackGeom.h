@@ -20,7 +20,6 @@
 class StackGeom : public GeomEngine
 {
 public:
-    enum {STACK_FREE, STACK_LOOP, NUM_STACK_POLICY};
 
     StackGeom( Vehicle* vehicle_ptr );
     virtual ~StackGeom();

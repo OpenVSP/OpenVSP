@@ -2458,9 +2458,9 @@ static int StackOrderPolicy( int fuse_policy )
 {
     if ( fuse_policy == FUSE_LOOP )
     {
-        return StackGeom::STACK_LOOP;
+        return STACK_LOOP;
     }
-    return StackGeom::STACK_FREE;
+    return STACK_FREE;
 }
 
 // A Stack places each cross section relative to the one before it, where a Fuselage places

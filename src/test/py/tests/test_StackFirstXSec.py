@@ -67,7 +67,7 @@ def testTheFirstSectionCanBePlacedAbsolutely():
 def testALoopClosesOntoAMovedFirstSection():
     vsp.VSPRenew()
     sid = vsp.AddGeom( "STACK" )
-    vsp.SetParmVal( sid, "OrderPolicy", "Design", 1 )  # STACK_LOOP
+    vsp.SetParmVal( sid, "OrderPolicy", "Design", vsp.STACK_LOOP )
     vsp.Update()
     xss = vsp.GetXSecSurf( sid, 0 )
     for i in range( 5 ):
@@ -92,7 +92,7 @@ def testALoopClosesInAbsoluteModeOntoAMovedFirstSection():
     loop, so it is that which has to follow the first section."""
     vsp.VSPRenew()
     sid = vsp.AddGeom( "STACK" )
-    vsp.SetParmVal( sid, "OrderPolicy", "Design", 1 )  # STACK_LOOP
+    vsp.SetParmVal( sid, "OrderPolicy", "Design", vsp.STACK_LOOP )
     vsp.Update()
     xss = vsp.GetXSecSurf( sid, 0 )
     for i in range( 5 ):
