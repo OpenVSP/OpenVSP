@@ -1684,6 +1684,11 @@ void WingGeom::SplitWingSect( int index  )
             ins_ws->CopyFrom( ws );
             ins_ws->ForceSpanRcTc( span*0.5, ac, tc );
             ins_ws->m_Twist = twist_out;
+            // Relative dihedral is the change from the section before, and the halves lie in one plane.
+            if ( m_RelativeDihedralFlag() )
+            {
+                ins_ws->m_Dihedral = 0.0;
+            }
             ins_ws->Update();
         }
     }
