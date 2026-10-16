@@ -35,6 +35,7 @@ public:
     void ComposeStowAttachMatrix();
     void ComposeMechAttachMatrix();
     void FlipAttachMatrix( Matrix4d &attach_mat ) const;
+    void KneeFrame( vec3d &axis, vec3d &u, vec3d &u_dir, vec3d &n, vec3d &v, double &gamma ) const;
     void BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_ax, double k, int isymm ) const;
     void UpdateRetract();
     void BackCalculateRetract();

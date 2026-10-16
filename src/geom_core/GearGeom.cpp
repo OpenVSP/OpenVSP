@@ -1667,29 +1667,26 @@ void Bogie::ComposeMechAttachMatrix()
     FlipAttachMatrix( m_MechAttachMatrix );
 }
 
-void Bogie::BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_ax, double k, int isymm ) const
+// The retraction axis, the unbent strut from pivot to trunnion with its frame u_dir, n, v, and the
+// angle gamma the knee bend turns the upper strut about the axis.
+void Bogie::KneeFrame( vec3d &axis, vec3d &u, vec3d &u_dir, vec3d &n, vec3d &v, double &gamma ) const
 {
-    vec3d axis = vec3d( m_MechXAxis(), m_MechYAxis(), m_MechZAxis() );
+    axis = vec3d( m_MechXAxis(), m_MechYAxis(), m_MechZAxis() );
     axis.normalize();
 
     vec3d trunnion = vec3d( m_MechXLoc(), m_MechYLoc(), m_MechZLoc() );
 
     vec3d pivot = GetNominalPivotPoint( 0 );
 
-    vec3d u = trunnion - pivot;
+    u = trunnion - pivot;
 
-    vec3d u_dir = u;
+    u_dir = u;
     u_dir.normalize();
-    vec3d n = cross( axis, u_dir );
+    n = cross( axis, u_dir );
     n.normalize();
 
-    vec3d v = cross( u_dir, n );
+    v = cross( u_dir, n );
     v.normalize();
-
-    Matrix4d orientKnee;
-    orientKnee.rotate( m_MechKneeAzimuthAngle() * M_PI / 180.0, u_dir );
-    orientKnee.rotate( -m_MechKneeElevationAngle() * M_PI / 180.0, n );
-    vec3d w = orientKnee.xformnorm( v );
 
     // SSA calculation for knee position.  The angle at the pivot is asin( beta ), taken with atan2,
     // with 1 - beta and 1 + beta formed without cancellation from 1 -+ sin( alpha ) = 2 sin^2( t )
@@ -1702,8 +1699,25 @@ void Bogie::BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_a
     double ct = std::cos( t );
     double one_minus_beta = kpos + ( 1.0 - kpos ) * 2.0 * st * st;
     double one_plus_beta = kpos + ( 1.0 - kpos ) * 2.0 * ct * ct;
-    double gamma = M_PI - alpha - std::atan2( beta, std::sqrt( one_minus_beta * one_plus_beta ) );
+    gamma = M_PI - alpha - std::atan2( beta, std::sqrt( one_minus_beta * one_plus_beta ) );
+}
 
+void Bogie::BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_ax, double k, int isymm ) const
+{
+    vec3d axis, u, u_dir, n, v;
+    double gamma;
+    KneeFrame( axis, u, u_dir, n, v, gamma );
+
+    vec3d trunnion = vec3d( m_MechXLoc(), m_MechYLoc(), m_MechZLoc() );
+
+    vec3d pivot = GetNominalPivotPoint( 0 );
+
+    Matrix4d orientKnee;
+    orientKnee.rotate( m_MechKneeAzimuthAngle() * M_PI / 180.0, u_dir );
+    orientKnee.rotate( -m_MechKneeElevationAngle() * M_PI / 180.0, n );
+    vec3d w = orientKnee.xformnorm( v );
+
+    // The knee hinge is fixed to the upper strut, which the knee bend turns.
     Matrix4d knee_bend;
     knee_bend.translatev( trunnion );
     knee_bend.rotate( -gamma, axis ); // Negative is to match right hand rule
@@ -1720,7 +1734,7 @@ void Bogie::BuildRetractMatrix( Matrix4d &ret_mat, vec3d &knee_pt, vec3d &knee_a
     knee_ax = ret_mat.xformnorm( k_ax );
 
     ret_mat.translatev( k_pt );
-    ret_mat.rotate( -k * m_MechKneeAngle() * M_PI / 180.0, w ); // Negative is to match right hand rule
+    ret_mat.rotate( -k * m_MechKneeAngle() * M_PI / 180.0, k_ax ); // Negative is to match right hand rule
     ret_mat.translatev( -k_pt );
 
     ret_mat.translatev( GetContinuiousPivotPoint( 0, -k * m_MechStrutDL() ) );
