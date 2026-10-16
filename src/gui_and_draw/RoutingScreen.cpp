@@ -12,7 +12,7 @@
 #include "APIDefines.h"
 
 //==== Constructor ====//
-RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Routing", string(""), false )
+RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Routing", "Routing.html", false )
 {
 
     m_MassPropLayout.AddYGap();

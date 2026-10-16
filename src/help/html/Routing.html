@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Routing</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Routing</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Routing component is a path through a series of points on other
+components: the run of a wire harness, a hydraulic, pneumatic, fuel or
+oxygen line, an air-conditioning duct, a control cable or pushrod, or a
+drive shaft. Each point lies on a component, so the route follows when
+that component moves or changes shape. The route reports its length and,
+given a mass per unit length, its mass, which Mass Properties includes.
+A route is a curve, not a surface: it is drawn as a line, and it is not
+meshed or exported.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#routing-points">Routing
+Points</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#placing-a-point">Placing a
+Point</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#offset">Offset</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#rounded-corners">Rounded
+Corners</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#length-and-mass">Length and
+Mass</a></td>
+<td style="text-align: left;">Design, Mass</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#symmetry">Symmetry</a></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#shared-tabs">Shared
+Tabs</a></td>
+<td style="text-align: left;">Gen, XForm, Mass</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add a Routing component.</li>
+<li>On the Design tab, click <em>Add Multiple</em>, then click on the
+components in the 3D view at each point of the route in turn. Click
+<em>Stop Adding</em> when done.</li>
+<li>Choose a point in the list to adjust it: its <em>Parent</em>, its
+coordinates, an <em>Offset</em>, and a <em>Radius</em> to round the
+corner there.</li>
+<li>Give <em>Mass/Len</em> on the Mass tab to weigh the route.</li>
+</ol>
+<h2 id="routing-points">Routing Points</h2>
+<p>The route runs through its points in the order of the list (Figure
+1); the arrows beside the list reorder them.</p>
+<p>Most components follow only their parent. A route follows every
+component it has a point on, wherever those are in the model's tree, and
+its own place in the tree does not matter. So one route can run from the
+fuselage, along the wing, and into a nacelle that tilts on a <a
+href="Hinge.html">Hinge</a>, and it stretches and bends as the nacelle
+turns.</p>
+<p><img src="images/Routing_route.png" title="Figure 1. A route"
+alt="Figure 1. A route" /></p>
+<p><em>Figure 1. A route over a pod and onto a wing through four points.
+Point 1 is set off above the pod; the corner at point 3 is
+rounded.</em></p>
+<p>Points are placed by clicking in the 3D view (Figure 2).
+<em>Add</em>, <em>Insert Before</em> and <em>Reset Point</em> act on the
+next click: Add puts a new point at the end of the route, Insert Before
+puts one before the chosen point, and Reset Point moves the chosen
+point. <em>Add Multiple</em> and <em>Insert Multiple</em> do the same at
+every click until <em>Stop Adding</em>, and the route is drawn through
+the points placed so far.</p>
+<p><img src="images/Routing_gui_points.png"
+title="Figure 2. Routing points" alt="Figure 2. Routing points" /></p>
+<p><em>Figure 2. The Routing Points, Parent and Coordinate groups of the
+Design tab for the route over the pod and the wing, with point 1 chosen:
+it lies on the pod at U 0.12, W 0, given as UW, and its RST and LMN
+coordinates are greyed.</em></p>
+<p>A click picks a point of a shown component's tessellation and sets
+the routing point at the nearest place on that component's surface: the
+component becomes the point's parent, and the point is given by its
+surface and its <em>U</em> and <em>W</em> on it. A click sets the
+point's <em>Coord Type</em> to UW. Its RST and LMN coordinates follow
+from where it now is, so either can be chosen again afterward without
+moving the point.</p>
+<h2 id="placing-a-point">Placing a Point</h2>
+<p><em>Parent</em> is the component the point lies on, and
+<em>Surface</em> which of its surfaces, one for each symmetric copy and
+each surface of a multi-surface component. <em>Coord Type</em> chooses
+how the point is given on that surface; the coordinates are those of the
+XForm tab's attachment, described in <a
+href="XFormTab.html#attachment-coordinates">Attachment
+Coordinates</a>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Coord Type</th>
+<th style="text-align: left;">The point is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Comp</td>
+<td style="text-align: left;">The parent's origin.</td>
+</tr>
+<tr>
+<td style="text-align: left;">UW</td>
+<td style="text-align: left;">On the surface at <em>U</em>,
+<em>W</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">RST</td>
+<td style="text-align: left;">Inside the volume at <em>R</em>,
+<em>S</em>, <em>T</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">LMN</td>
+<td style="text-align: left;">Inside the volume at <em>L</em>,
+<em>M</em>, <em>N</em>.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN</td>
+<td style="text-align: left;">On a wing parent only: at the wing's
+spanwise station
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>
+and <em>M</em>, <em>N</em>.</td>
+</tr>
+</tbody>
+</table>
+<p>Whichever is chosen, the others are kept up to date and shown greyed;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN
+is <code>ROUTE_PT_EtaMN</code> in the API. A point on a component with
+no surface, such as a <a href="Blank.html">Blank</a>, lies at that
+component's origin, so Blanks can carry a route through free space.</p>
+<h2 id="offset">Offset</h2>
+<p><em>Offset</em> moves the point away from where it lies on its
+parent. <em>Rel</em> gives the offset in the axes the point is attached
+by -- the surface's axes at that point for UW, RST and LMN, the parent's
+axes for Comp -- so the point keeps its place relative to the surface as
+the parent turns. <em>Abs</em> gives it in the model's axes. While the
+Routing component is selected, the 3D view draws those axes for the
+chosen point, at the point it is offset from. Use an offset to run a
+route a set distance above a skin or inside a structure.</p>
+<h2 id="rounded-corners">Rounded Corners</h2>
+<p>A route is a series of straight segments between its points.
+<em>Radius</em> rounds the corner at a point with a circular arc of that
+radius, tangent to both segments, so the route no longer passes through
+the point itself; zero leaves a sharp corner. The ends of the route are
+never rounded. Give each corner the bend radius the real line will have,
+so that the length is right.</p>
+<h2 id="length-and-mass">Length and Mass</h2>
+<p><em>Length</em> is the length of the route, rounded corners included,
+and <em>Mass</em> is that length times <em>Mass/Len</em> from the Mass
+tab. <em>Symm Length</em> and <em>Symm Mass</em> count every symmetric
+copy. The Mass Properties analysis includes a route with a nonzero
+Mass/Len as a line of mass along it, with its center of gravity and
+moments of inertia, one for each symmetric copy.</p>
+<h2 id="symmetry">Symmetry</h2>
+<p>A route has no placement of its own: its points are where its parents
+put them, so its location, rotation and attachment are greyed. Its
+symmetry still applies, about the planes and axes the symmetry controls
+choose, so a route on one side of an aircraft can be mirrored to the
+other. A route cannot be flipped.</p>
+<h2 id="shared-tabs">Shared Tabs</h2>
+<p>The Gen, XForm and Mass tabs are common to every component; see <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a> and <a
+href="MassTab.html">Mass</a>. A route has no volume or area, so of the
+Mass tab only Mass/Len and the specified mass apply; with no placement
+of its own, a route's specified center of gravity is in the model's
+axes. A route has no Sub tab.</p>
+<h2 id="scripting">Scripting</h2>
+<p>The OpenVSP API builds and queries routes with these functions:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Call</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>AddRoutingPt</code>,
+<code>InsertRoutingPt</code>, <code>InsertRoutingPtByID</code></td>
+<td style="text-align: left;">Add a point on a component's surface.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DelRoutingPt</code>,
+<code>DelRoutingPtByID</code>, <code>DelAllRoutingPt</code></td>
+<td style="text-align: left;">Delete points.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MoveRoutingPt</code>,
+<code>MoveRoutingPtByID</code></td>
+<td style="text-align: left;">Reorder the points.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetNumRoutingPts</code>,
+<code>GetRoutingPtID</code>, <code>GetAllRoutingPtIds</code></td>
+<td style="text-align: left;">The points.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetRoutingPtParentID</code>,
+<code>SetRoutingPtParentID</code></td>
+<td style="text-align: left;">A point's parent.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetMainRoutingPtCoord</code></td>
+<td style="text-align: left;">A point's location, before symmetry.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetRoutingPtCoord</code>,
+<code>GetRoutingPtCoordByID</code>,
+<code>GetAllRoutingPtCoords</code></td>
+<td style="text-align: left;">Points of one symmetric copy of the
+route.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetRoutingCurve</code></td>
+<td style="text-align: left;">The rounded route of one symmetric copy,
+as points.</td>
+</tr>
+</tbody>
+</table>
+<p>A point's parms are in the group <code>RoutePt</code>:
+<code>CoordType</code> (<code>ROUTE_PT_COMP</code>,
+<code>ROUTE_PT_UV</code>, <code>ROUTE_PT_RST</code>,
+<code>ROUTE_PT_LMN</code>, <code>ROUTE_PT_EtaMN</code>),
+<code>SurfIndx</code>, <code>U</code>, <code>W</code>, <code>R</code>,
+<code>S</code>, <code>T</code>, <code>L</code>, <code>M</code>,
+<code>N</code>, <code>Eta</code>, <code>DeltaType</code>
+(<code>ABS</code> or <code>REL</code>), <code>DeltaX</code>,
+<code>DeltaY</code>, <code>DeltaZ</code> and their <code>...Rel</code>
+forms, and <code>Radius</code>. The route's <code>LinearDensity</code>
+is in the group <code>Mass_Props</code>, and its <code>Length</code>,
+<code>SymmLength</code>, <code>Mass</code> and <code>m_SymmMass</code>
+in <code>Results</code>.</p>
+</body>
+</html>

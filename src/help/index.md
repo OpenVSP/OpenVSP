@@ -46,6 +46,7 @@ particular purpose and can be added to a model as needed.
 ### Special Geometry
 
 - [Conformal](Conformal.md)
+- [Routing](Routing.md)
 - [Clone](Clone.md)
 - [Auxiliary](Auxiliary.md)
 
