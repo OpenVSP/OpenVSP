@@ -8339,7 +8339,7 @@ void GeomXSec::NormalizeFlaps()
             XSecCurve* xsc = xs->GetXSecCurve();
             if ( xsc )
             {
-                if ( nflap > 0 )
+                if ( nflap > 0 && flapxchord > 0 )
                 {
                     xsc->m_TEFlapFlag = true;
                     xsc->m_TEFlapT = flapxchord;

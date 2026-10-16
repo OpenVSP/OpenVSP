@@ -41,6 +41,15 @@ def test_a_plain_flap_on_a_round_section():
                 assert finite( points( wid ) ), ( shape, deflection, hinge )
 
 
+def test_a_flap_with_no_chord_leaves_the_wing_as_it_is():
+    vsp.VSPRenew()
+    wid = vsp.AddGeom( "WING" )
+    before = points( wid )
+    set_flap( vsp.GetXSec( vsp.GetXSecSurf( wid, 0 ), 1 ), -40.0, 0.0 )
+    after = points( wid )
+    assert max( vsp.dist( p, q ) for p, q in zip( before, after ) ) < 1e-12
+
+
 def test_a_wing_flap_follows_a_chord_change_at_once():
     vsp.VSPRenew()
     wid = vsp.AddGeom( "WING" )

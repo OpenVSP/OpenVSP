@@ -227,7 +227,7 @@ void BORGeom::NormalizeFlaps()
             double fac2 = 1000;
             arclen = round( arclen * fac2 ) / fac2;
 
-            m_XSCurve->m_TEFlapFlag = true;
+            m_XSCurve->m_TEFlapFlag = flapxchord > 0;
             m_XSCurve->m_TEFlapT = flapxchord;
             m_XSCurve->m_TEFlapDT = arclen;
         }
