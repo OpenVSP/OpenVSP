@@ -41,6 +41,9 @@ AuxiliaryGeom::AuxiliaryGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Diameter.Init( "Diameter", "Design", this, 30.0, 0.0, 1.0e12 );
     m_Diameter.SetDescript( "Diameter of auxiliary geometry" );
 
+    m_AutoFlapRadius.Init( "AutoFlapRadius", "Design", this, true, false, true );
+    m_AutoFlapRadius.SetDescript( "Flag to take the flapping hinge location from the propeller" );
+
     m_FlapRadiusFract.Init( "FlapRadiusFract", "Design", this, 0.0, 0.0, 1.0 );
     m_FlapRadiusFract.SetDescript( "Radius fraction for the flapping hinge location" );
 
@@ -271,6 +274,16 @@ void AuxiliaryGeom::UpdateSurf()
             else
             {
                 m_Diameter.Activate();
+            }
+
+            if ( m_AutoFlapRadius() )
+            {
+                m_FlapRadiusFract.Set( parent_prop->GetRotorFlapRadiusFract() );
+                m_FlapRadiusFract.Deactivate();
+            }
+            else
+            {
+                m_FlapRadiusFract.Activate();
             }
         }
 

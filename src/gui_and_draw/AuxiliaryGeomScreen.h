@@ -60,6 +60,7 @@ protected:
 
     // Rotor Tip Path
     ToggleButton m_RTP_AutoDiamToggleButton;
+    ToggleButton m_RTP_AutoFlapRadiusToggleButton;
 
     SliderAdjRangeInput m_RTP_DiameterSlider;
     SliderAdjRangeInput m_RTP_FlapRadiusFractSlider;

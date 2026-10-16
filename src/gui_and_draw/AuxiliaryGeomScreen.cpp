@@ -65,6 +65,7 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_RotorTipPathLayput.SetButtonWidth( m_RotorTipPathLayput.GetChoiceButtonWidth() );
     m_RotorTipPathLayput.AddButton( m_RTP_AutoDiamToggleButton, "Automatic Diameter" );
     m_RotorTipPathLayput.AddSlider( m_RTP_DiameterSlider, "Diameter", 1.0, "%5.4f" );
+    m_RotorTipPathLayput.AddButton( m_RTP_AutoFlapRadiusToggleButton, "Automatic r_flap/R" );
     m_RotorTipPathLayput.AddSlider( m_RTP_FlapRadiusFractSlider, "r_flap/R", 1.0, "%5.4f" );
     m_RotorTipPathLayput.AddSlider( m_RTP_ThetaThrustSlider, "Theta Thrust", 1.0, "%5.4f" );
     m_RotorTipPathLayput.AddSlider( m_RTP_ThetaAntiThrustSlider, "Theta Anti Thrust", 1.0, "%5.4f" );
@@ -1105,6 +1106,7 @@ bool AuxiliaryGeomScreen::Update()
 
             m_RTP_AutoDiamToggleButton.Update( auxiliary_ptr->m_AutoDiam.GetID() );
             m_RTP_DiameterSlider.Update( auxiliary_ptr->m_Diameter.GetID() );
+            m_RTP_AutoFlapRadiusToggleButton.Update( auxiliary_ptr->m_AutoFlapRadius.GetID() );
             m_RTP_FlapRadiusFractSlider.Update( auxiliary_ptr->m_FlapRadiusFract.GetID() );
             m_RTP_ThetaThrustSlider.Update( auxiliary_ptr->m_ThetaThrust.GetID() );
             m_RTP_ThetaAntiThrustSlider.Update( auxiliary_ptr->m_ThetaAntiThrust.GetID() );

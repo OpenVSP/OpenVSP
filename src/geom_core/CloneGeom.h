@@ -251,6 +251,7 @@ public:
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;
     virtual double GetRotorR0() const override;
+    virtual double GetRotorFlapRadiusFract() const override;
     virtual bool GetRotorReverseFlag() const override;
     virtual bool GetRotorHubDiameter( double &hubdia ) const override;
 

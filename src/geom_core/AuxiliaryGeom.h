@@ -165,6 +165,7 @@ public:
 
     BoolParm m_AutoDiam;
     Parm m_Diameter;
+    BoolParm m_AutoFlapRadius;
     Parm m_FlapRadiusFract;
 
     Parm m_RootLength;

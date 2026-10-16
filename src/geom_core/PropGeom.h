@@ -99,6 +99,9 @@ public:
     virtual double GetRotorDiameter() const = 0;
     virtual double GetRotorR0() const = 0;
 
+    // The flap hinge's radial place, fraction of radius.
+    virtual double GetRotorFlapRadiusFract() const = 0;
+
     // Which way the blades turn.
     virtual bool GetRotorReverseFlag() const = 0;
 
@@ -217,6 +220,10 @@ public:
     virtual double GetRotorR0() const
     {
         return const_cast< PropGeom* >( this )->GetR0();
+    }
+    virtual double GetRotorFlapRadiusFract() const
+    {
+        return m_RadFlapAxis();
     }
     virtual bool GetRotorReverseFlag() const
     {

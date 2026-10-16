@@ -1987,6 +1987,17 @@ double CloneGeom::GetRotorR0() const
     return rotor->GetRotorR0();
 }
 
+double CloneGeom::GetRotorFlapRadiusFract() const
+{
+    RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );
+    if ( !rotor )
+    {
+        return 0.0;
+    }
+
+    return rotor->GetRotorFlapRadiusFract();
+}
+
 bool CloneGeom::GetRotorReverseFlag() const
 {
     RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );
