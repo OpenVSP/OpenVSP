@@ -37,3 +37,4 @@ particular purpose and can be added to a model as needed.
    - [Sub](SubTab.md)
 - [Cross Sections](XSecCurves.md)
 - [Airfoils](Airfoils.md)
+- [Cross Section Skinning](XSecSkinning.md)

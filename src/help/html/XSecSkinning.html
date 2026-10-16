@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Cross Sections and Skinning</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Cross Sections and Skinning</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>Fuselages, Stacks, Wings and Propellers are lofted through a list of
+cross sections. The XSec tab adds, removes and copies those sections and
+sets each one's shape. The Skinning tab of the Fuselage and Stack then
+controls how the surface leaves and arrives at each section: its angle,
+how strongly it holds that angle, and its curvature, on each side of the
+section, at the four sides of the section and at any other points around
+it. The shapes themselves are on <a href="XSecCurves.html">Cross Section
+Curves</a> and <a href="Airfoils.html">Airfoils</a>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#working-with-sections">Working
+with Sections</a></td>
+<td style="text-align: left;">XSec</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#how-the-surface-is-lofted">How
+the Surface Is Lofted</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#stations-sides-and-spines">Stations: Sides and Spines</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#angle">Angle</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#slew">Slew</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#strength">Strength</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#curvature">Curvature</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#left-right-and-continuity">Left,
+Right and Continuity</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#set-equal-and-symmetry">Set,
+Equal and Symmetry</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#spines">Spines</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#angle-basis-from-curve">Angle
+Basis From Curve</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#showing-and-clearing-skinning">Showing and Clearing
+Skinning</a></td>
+<td style="text-align: left;">Skinning</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#advice">Advice</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="working-with-sections">Working with Sections</h2>
+<p>The arrows at the top of the XSec tab choose the active section,
+which every control below them acts on. Sections are numbered from 0 at
+the front of a Fuselage or Stack, the root of a Wing or the hub of a
+Propeller. The alias fields name the section and its curve; the names
+show in the Parm pickers and the API.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Insert</td>
+<td style="text-align: left;">Adds a copy of the active section after
+it, and makes the copy active.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Cut</td>
+<td style="text-align: left;">Removes the active section and keeps it
+for pasting. A component keeps at least two sections.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Copy</td>
+<td style="text-align: left;">Keeps a copy of the active section for
+pasting.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Paste</td>
+<td style="text-align: left;">Replaces the active section with the
+copied one, in the active section's place.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Choose Type</td>
+<td style="text-align: left;">Changes the active section's shape; see <a
+href="XSecCurves.html#choosing-a-shape">Choosing a Shape</a>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Convert CEDIT</td>
+<td style="text-align: left;">Turns the active section into an editable
+curve of the same shape; see <a href="XSecCurves.html#edit-curve">Edit
+Curve</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>A pasted section keeps the place of the one it replaces: on a
+Fuselage its location, but not its rotation or spin; on a Stack its
+steps, turns, Coord System, Spin and V Align; on a Propeller its
+radius.</p>
+<p>An inserted copy is placed between the active section and the next:
+on a Fuselage, halfway between them in X; on a Propeller, at the mean of
+their radii. On a Stack, whose sections are placed relative to the one
+before, the copy takes the active section's offset (an offset of 1 along
+X if the active section has none there), and the sections after it move
+along by that much. A section can be inserted after the last only on a
+Stack whose order policy is FREE; see <a
+href="FuselageStack.html">Fuselage and Stack</a>.</p>
+<p>A copy can be pasted into another component of the same kind, a
+Fuselage into a Fuselage for example. Pasted into a different kind, only
+its curve comes across. The Wing has these controls on its Sect tab, but
+its Insert pastes the copied section rather than copying the active one,
+and its Airfoil tab copies and pastes the airfoil alone; see <a
+href="Wing.html">Wing</a>.</p>
+<h2 id="how-the-surface-is-lofted">How the Surface Is Lofted</h2>
+<p>The surface passes through every section. Between two sections, each
+point of one section's curve is joined to the point at the same
+parameter on the next (the parameter runs once around the curve, as on
+<a href="XSecCurves.html#how-a-section-is-laid-out">Cross Section
+Curves</a>). Each of these lines along the body is a smooth curve
+through the sections, built independently of the others.</p>
+<p>With nothing more said, the lines between two sections are straight.
+The Skinning tab of the Fuselage and Stack adds conditions at each
+section: the direction and length of the line's derivative where it
+leaves or arrives at the section, and its second derivative. The
+conditions are set at a few points around the section, called stations,
+and interpolated smoothly around it between them.</p>
+<p>Between two sections each line is a single polynomial, and every
+condition at either end raises its degree by one (Figure 1). With
+nothing enforced it is straight. An angle at one end makes it a
+parabola, which bends one way only; an angle at both ends makes it a
+cubic, which can turn and turn back, an S between two sections of
+different size. Curvature at both ends as well gives the most a span can
+carry, a fifth-degree line. A span therefore bends only as much as its
+conditions ask, and the shape you want decides how many you need: to
+have the surface leave one section and arrive at the next both parallel
+to the axis, enforce the angle at both.</p>
+<p><img src="images/XSecSkinning_order.png"
+title="Figure 1. Conditions and degree"
+alt="Figure 1. Conditions and degree" /></p>
+<p><em>Figure 1. The top line of a Stack of circles two apart, the last
+3 across instead of 2, with conditions only on the span from XSec 1 to
+XSec 2. The arrows are the directions enforced.</em></p>
+<p>The result is one untrimmed surface for the whole body. Its U
+parameter runs along the body, one equal share for each span between
+sections however long the span is, and W runs around the sections; at a
+Point section every W meets at one point. U and W are the coordinates
+used to attach other components to the body; see <a
+href="XFormTab.html#attachment-coordinates">Attachment
+Coordinates</a>.</p>
+<p>In what follows, the line's direction is measured along the body,
+toward the later sections. The <em>left</em> side of a section is the
+part of the surface between it and the section before; the
+<em>right</em> side is between it and the section after.</p>
+<h2 id="stations-sides-and-spines">Stations: Sides and Spines</h2>
+<p>Every section has four stations, its sides: <em>Right</em>,
+<em>Bottom</em>, <em>Left</em> and <em>Top</em>, at the curve's
+parameters 0, 0.25, 0.5 and 0.75 (Figure 2). On a Fuselage or Stack
+whose sections are not turned, Right is toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+and Top toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">+Z</annotation></semantics></math>;
+<em>Spin</em> on the XSec tab moves where the curve starts, and the
+sides move with it. The <em>Sides</em> tab sets the skinning at these
+four stations.</p>
+<p>The <em>Spines</em> tab adds more stations, anywhere around the
+section (see <a href="#spines">Spines</a>). A spine can be mirrored left
+to right, top to bottom or both, which adds a station at each mirror
+image.</p>
+<p><img src="images/XSecSkinning_stations.png"
+title="Figure 2. Stations" alt="Figure 2. Stations" /></p>
+<p><em>Figure 2. The four sides of a section, and a spine at W 0.1 with
+its three mirrors, in the colors the 3D view draws them. The arrows show
+which way the curve's parameter runs.</em></p>
+<p>Between stations, each quantity is interpolated around the section so
+that it stays between the values at the stations either side and does
+not overshoot them. A station therefore affects the surface only as far
+as the stations next to it.</p>
+<h2 id="angle">Angle</h2>
+<p><em>Angle</em> turns the surface's direction toward or away from the
+body's axis, in degrees. At 0 the surface runs along the axis; positive
+angles lean it out, away from the axis, as it goes toward the later
+sections, and negative angles lean it in (Figure 3). The angle is
+measured in the plane through the axis and the station, so a Top angle
+tilts the surface up or down, and a Right angle tilts it sideways.</p>
+<p>At a Point section, the angle sets how blunt the end is: 0 leaves the
+point along the axis, a sharp tip, and 90 leaves it square to the axis,
+a rounded end. A new Fuselage or Stack starts and ends with point
+sections whose angles of 45 and -45 round its nose and tail.</p>
+<p><img src="images/XSecSkinning_angle.png" title="Figure 3. Angle"
+alt="Figure 3. Angle" /></p>
+<p><em>Figure 3. The top line of a Stack of three equal circles, two
+apart, with the middle section's Top Angle at -20, 0 and 20 on both its
+sides; the arrows are the direction leaving it, and the dash-dot line is
+the axis. The first and last sections enforce nothing.</em></p>
+<h2 id="slew">Slew</h2>
+<p><em>Slew</em> turns the surface's direction around the section
+instead of toward the axis, in degrees: it twists the surface as it
+leaves the station. Its sense depends on the side, so that the symmetry
+toggles mirror the surface rather than twist it: a positive Slew swings
+the surface at the Top and the Bottom toward the Right side, and at the
+Right and the Left toward the Bottom. A spine's positive Slew swings it
+the way the curve's parameter runs, toward the next station in Figure 2;
+its left to right and top to bottom mirrors take the opposite sense, and
+the mirror in both the same.</p>
+<p>Slew is enforced together with the Angle; it has no Set toggle of its
+own.</p>
+<h2 id="strength">Strength</h2>
+<p><em>Strength</em> is the length of the surface's derivative where it
+leaves or arrives at the section: how far the surface carries the angle
+before it turns toward the next section (Figure 4). It is measured in
+units of the distance to the nearer of the neighboring sections, which
+counts half the change in width or height between them as well as the
+distance between their centers. A Strength of 1 then gives about the
+derivative of a straight line between evenly spaced sections; larger
+values hold the angle longer and bulge the surface, smaller values let
+it turn sooner.</p>
+<p>Strength is enforced together with the Angle; it has no Set toggle of
+its own.</p>
+<p><img src="images/XSecSkinning_strength.png"
+title="Figure 4. Strength" alt="Figure 4. Strength" /></p>
+<p><em>Figure 4. The same Stack with the middle section's Top Angle 20
+and Strength 0.5, 1 and 2.</em></p>
+<h2 id="curvature">Curvature</h2>
+<p><em>Curvature</em> sets the surface's second derivative where it
+leaves or arrives at the section, in the plane the angle is measured in,
+in the same units as Strength (Figure 5). Positive values bend the
+surface away from the axis, so the section sits in a waist; negative
+values bend it toward the axis, so the section is a local bulge. It is
+enforced with its own Set toggle.</p>
+<p><img src="images/XSecSkinning_curvature.png"
+title="Figure 5. Curvature" alt="Figure 5. Curvature" /></p>
+<p><em>Figure 5. The same Stack with the middle section's Top Angle 0,
+Strength 1 and Curvature -1, 0 and 1.</em></p>
+<h2 id="left-right-and-continuity">Left, Right and Continuity</h2>
+<p>Each quantity has a left and a right value, for the surface on the
+section's left and right sides. When they differ, the surface has a
+corner at the section: a crease along the body (Figure 6).</p>
+<p><img src="images/XSecSkinning_leftright.png"
+title="Figure 6. Left and right" alt="Figure 6. Left and right" /></p>
+<p><em>Figure 6. The middle section's left Top Angle 20 and right Top
+Angle -20: a ridge at the section.</em></p>
+<p><em>Enforce</em>, the continuity, decides whether the two sides must
+agree. It is one setting for the whole section, made in the Top side's
+header. At <em>C0</em> the two sides need not agree. At <em>C1</em> the
+surface's direction and derivative are continuous through the section:
+the right values follow the left, and where no angle is enforced, the
+two sides of the surface are made to meet smoothly. At <em>C2</em> the
+curvature is continuous as well. Figure 7 shows a section where nothing
+is enforced: at C0 the surface runs straight to it from each side and
+has a corner there; at C1 and C2 it passes through smoothly. The first
+and last sections are always C0, because the surface has only one side
+there.</p>
+<p>With no angle set, C1 has to bend one of the two spans to make them
+meet, and it chooses which: the span with fewer conditions on it, or,
+when they have as many, the span before the section. The other stays as
+it was. In Figure 7 the span before the middle section sags below two
+sections of the same size at C1, while the span after it stays straight.
+At C2 both spans bend. Continuity is a quick way to a smooth body where
+you have nothing to say about its shape; where you do, set the angle and
+leave the continuity at C0, so that you, not the loft, decide where the
+surface bends.</p>
+<p><img src="images/XSecSkinning_continuity.png"
+title="Figure 7. Continuity" alt="Figure 7. Continuity" /></p>
+<p><em>Figure 7. The middle section's continuity, with no skinning
+enforced and the last section 3 in diameter instead of 2.</em></p>
+<p>At the first section, which has no left side, the <em>left</em>
+values set the surface leaving it; the right values are not used. At the
+last section the left values set the surface arriving at it.</p>
+<h2 id="set-equal-and-symmetry">Set, Equal and Symmetry</h2>
+<p>Each quantity's row has a <em>Set</em> toggle for each side and an
+<em>=</em> toggle between them. A value whose Set is on is enforced. A
+value whose Set is off is not an input at all: OpenVSP shows there what
+the surface actually does at that station, so the sliders tell you the
+angle, strength and curvature the loft chose. Turning Set on then holds
+the surface to those values, which you can adjust from there.</p>
+<p>Each station's toggles are its own: the angle can be held at the Top
+and left free at the Right, and the surface there follows what the loft
+does. Only the continuity is shared by the whole section.</p>
+<p>The = toggle makes the right value equal the left. The toggles also
+follow the continuity: from C1 up, the right angle, slew and strength
+always equal the left; at C2 the curvature does too.</p>
+<p>The button carrying the quantity's name (Angle, Slew, ...) is the
+left value's Parm button, for linking it or making it a design variable.
+The small blank button beside it is the right value's.</p>
+<p>On the <em>Sides</em> tab, symmetry toggles copy one side's whole
+skinning to others: <em>All Sym</em> copies the Top to every side,
+<em>T/B Sym</em> the Top to the Bottom, and <em>R/L Sym</em> the Right
+to the Left. They make the settings symmetric, not the surface: the
+surface is symmetric only where the section's shape, its position and
+rotation, and its neighbors are too.</p>
+<p>A new Fuselage or Stack has T/B Sym and R/L Sym on, continuity C0,
+and no curvature set (Figure 8). Each section between the ends enforces
+Angle 0 with = on, so the body passes every section parallel to its
+axis, and Strength 1 on each side, with no = between the two, so they
+can be changed apart. The end sections are the Point sections described
+under <a href="#angle">Angle</a>.</p>
+<p><img src="images/XSecSkinning_gui_side.png"
+title="Figure 8. A side&#39;s controls"
+alt="Figure 8. A side&#39;s controls" /></p>
+<p><em>Figure 8. The Top side of section 1 of a new Fuselage: Angle 0
+enforced, with = on so the right value follows the left; Slew and
+Strength enforced with it, each side its own; Curvature free, showing
+the value the loft gives.</em></p>
+<h2 id="spines">Spines</h2>
+<p>A spine is a station placed by you, at a position <em>W</em> from 0
+to 1 around the section, measured as the curve's parameter is (Figure
+2). <em>Add</em> places a new spine in the middle of the widest gap
+between stations; it enforces nothing and starts from what the surface
+already does there, so adding it changes the surface very little.
+<em>Delete</em> and <em>Delete All</em> remove spines. The controls
+below the list edit the spine picked in it (Figure 9). <em>L/R Sym</em>
+and <em>T/B Sym</em> add the spine's mirror images, left to right and
+top to bottom, as stations of the same skinning. A spine or mirror that
+lands on another station, within 0.00025 in W, is ignored; the four
+sides always win.</p>
+<p><img src="images/XSecSkinning_gui_spine.png"
+title="Figure 9. Spines tab" alt="Figure 9. Spines tab" /></p>
+<p><em>Figure 9. The Spines tab on section 1 of a Stack with one spine,
+picked in the list: W 0.1, mirrored left to right, with Angle -25
+enforced on both sides.</em></p>
+<p>Spines belong to the whole component: a spine has the same W,
+symmetry and name on every section, and adding or deleting one does it
+on all of them. Its skinning values, like a side's, are set separately
+on each section.</p>
+<p>A spine controls the surface only between the stations either side of
+it (Figure 10), so a few spines shape a body locally: a chine, a
+fairing, a flat panel.</p>
+<p><img src="images/XSecSkinning_spine.png" title="Figure 10. A spine"
+alt="Figure 10. A spine" /></p>
+<p><em>Figure 10. The Stack cut halfway between its first two sections.
+Dashed, with the four sides of the middle section enforcing Angle 0;
+solid, with a spine at W 0.1 enforcing Angle -25 as well. Only the
+quarter between the Right and Bottom sides changes.</em></p>
+<h2 id="angle-basis-from-curve">Angle Basis From Curve</h2>
+<p>An angle needs a direction to lean the surface toward. By default
+OpenVSP takes it from a circle: at a parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+around the section, the outward direction a circle would have there.
+That is exact at the four sides of any section symmetric left to right
+and top to bottom, but away from them, on any shape that is not a
+circle, it is not the direction the section actually faces. <em>Angle
+Basis From Curve</em> takes the direction from the section's curve
+instead: square to the curve at the station, in the plane of the section
+(Figure 11).</p>
+<p>Turn it on when you set angles at spines on a section that is not a
+circle; with it off, such an angle also slews the surface. At the four
+sides of a symmetric section the two agree.</p>
+<p><img src="images/XSecSkinning_basis.png"
+title="Figure 11. Angle basis" alt="Figure 11. Angle basis" /></p>
+<p><em>Figure 11. A rounded rectangle three times as wide as it is high,
+with Angle 30 enforced at its sides and at twelve spines. The arrows are
+the part of the surface's direction across the body: from the circle
+(orange), they fan out as from a circle; from the curve (blue), they
+stand square to each flat side. Below, the two are laid over each other;
+they agree only at the four sides.</em></p>
+<h2 id="showing-and-clearing-skinning">Showing and Clearing
+Skinning</h2>
+<p><em>Show Tangent Vectors</em> draws, at every station of the active
+section, the surface's derivative on each side: solid where the surface
+leaves toward the next section, dashed where it arrives from the one
+before, at full length, in the station's color. <em>Show Curvature
+Vectors</em> draws the second derivatives the same way. They show what
+is enforced and, for what is not, what the surface does.</p>
+<p><em>Clear Skinning For XSec</em> turns off every Set and = toggle on
+the active section, its spines included, so the surface there is free,
+and turns All Sym on; <em>Clear Skinning For Entire Stack</em> does it
+for every section.</p>
+<h2 id="advice">Advice</h2>
+<ul>
+<li>Leave a section free where you have nothing to say; set what
+matters. A free section reports what the surface does there, which is
+often the best starting point for setting it.</li>
+<li>Start from few conditions and add them one at a time, looking at the
+surface after each; every condition raises the degree of the spans it
+touches, and more of them make a body that is harder to predict, not a
+better one.</li>
+<li>With nothing enforced, choose C1 or C2 for a smooth body; at C0 the
+surface runs straight between sections. Where the shape matters, set
+angles instead of relying on continuity.</li>
+<li>Use the sides first, and the symmetry toggles for a symmetric body.
+Add spines only where the sides cannot reach, and turn on Angle Basis
+From Curve when you do on a section that is not a circle.</li>
+<li>Use Strength to shape a nose or tail, and Left and Right angles at
+C0 for a deliberate crease.</li>
+</ul>
+<h2 id="scripting">Scripting</h2>
+<p>The API sets a section's skinning by side, and its spines by ID:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Call</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>InsertXSec</code>,
+<code>CutXSec</code>, <code>CopyXSec</code>, <code>PasteXSec</code></td>
+<td style="text-align: left;">Insert, cut, copy and paste sections.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SetXSecContinuity</code>,
+<code>GetXSecContinuity</code></td>
+<td style="text-align: left;">The section's continuity, 0 to 2.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SetXSecTanAngles</code>,
+<code>SetXSecTanSlews</code>, <code>SetXSecTanStrengths</code>,
+<code>SetXSecCurvatures</code></td>
+<td style="text-align: left;">Set the Top, Right, Bottom and Left values
+of one side of the section.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetXSecTanAngles</code>,
+<code>GetXSecTanSlews</code>, <code>GetXSecTanStrengths</code>,
+<code>GetXSecCurvatures</code></td>
+<td style="text-align: left;">Read them.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ClearSkinning</code></td>
+<td style="text-align: left;">Clear one section's skinning, or every
+section's, as the Clear Skinning buttons do.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ResetXSecSkinParms</code></td>
+<td style="text-align: left;">Clear a section's skinning and also set
+every angle, slew, strength and curvature to 0, with All, T/B and R/L
+Sym on.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>AddSkinSpine</code>,
+<code>DelSkinSpine</code>, <code>DelAllSkinSpines</code>,
+<code>GetNumSkinSpines</code></td>
+<td style="text-align: left;">Add and remove spines.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetSkinSpineID</code>,
+<code>GetSkinSpineIDVec</code>, <code>GetSkinSpineParm</code>,
+<code>SetSkinSpineName</code></td>
+<td style="text-align: left;">Reach a spine on a section, and its
+parms.</td>
+</tr>
+</tbody>
+</table>
+<p>The Set, = and symmetry toggles are parms of the section, found with
+<code>GetXSecParm</code>: <code>TopLAngleSet</code>,
+<code>TopLRAngleEq</code>, <code>AllSym</code> and so on.</p>
+</body>
+</html>
