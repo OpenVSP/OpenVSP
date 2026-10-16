@@ -41,6 +41,7 @@ particular purpose and can be added to a model as needed.
 - [Cobra](Cobra.md)
 - [Pod](Pod.md)
 - [Body of Revolution](BOR.md)
+- [Gear](Gear.md)
 
 ### Special Geometry
 

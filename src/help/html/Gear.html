@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Gear</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Gear</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Gear component models an aircraft's landing gear, and above all
+the ground the aircraft stands on. Its own origin and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">XY</annotation></semantics></math>
+plane are the nominal ground plane, and its bogies, each a group of
+identical wheels, are placed on or above that plane (Figure 1). One Gear
+holds all of an aircraft's gear: nose, main, tail and outriggers share
+its ground plane.</p>
+<p>The ground handling analyses need to know more than the gear's shape,
+so the Gear also holds how the gear behaves. Each bogie has a contact
+point and a pivot it rotates about, a steering limit, suspension travel
+that compresses and extends the strut, and tires built to Tire and Rim
+Association (TRA) dimensions [1, 2], whose static loaded, unloaded,
+grown and flat radii differ. The Gear holds the aircraft's center of
+gravity range too. From these, <a href="Auxiliary.html">Auxiliary</a>
+components hung from the Gear build off-nominal ground planes: the
+ground with chosen bogies in a chosen state, turned about their contact
+points or axles as the tail strike, tipback and roll analyses require
+(see <a href="#ground-analyses">Ground Analyses</a>). Each bogie also
+has a retracted position, given either directly or by a retraction
+mechanism, so that the stowed gear can be checked against the
+aircraft.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#the-gears-frame-and-ground-plane">The Gear's Frame and Ground
+Plane</a></td>
+<td style="text-align: left;">Design, XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#center-of-gravity">Center of
+Gravity</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#bogies">Bogies</a></td>
+<td style="text-align: left;">Bogie</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#contact-point-and-suspension">Contact Point and
+Suspension</a></td>
+<td style="text-align: left;">Bogie</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#tires">Tires</a></td>
+<td style="text-align: left;">Tire</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#retraction">Retraction</a></td>
+<td style="text-align: left;">Retract</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#drawing-the-gear-up-and-down">Drawing the Gear Up and
+Down</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#ground-analyses">Ground
+Analyses</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#shared-tabs">Shared
+Tabs</a></td>
+<td style="text-align: left;">Gen, XForm, Mass, Sub</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#references">References</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add a Gear. Set <em>Model Units</em> on the Design tab to the
+model's length unit. Place the Gear with the XForm tab so that its
+origin lies on the ground under the aircraft, in the attitude the
+aircraft stands in.</li>
+<li>On the Bogie tab, <em>Add</em> a bogie for the nose gear and set its
+<em>X Contact</em>. Add another for the main gear, set its <em>X
+Contact</em> and <em>Y Contact</em>, and check <em>Symmetrical</em>. Set
+<em>Across</em> and <em>Tandem</em> for each.</li>
+<li>On the Tire tab, choose each bogie and give its tire's
+<em>Diameter</em> and <em>Width</em>, in inches from the tire maker's
+data, and its rim.</li>
+<li>On the Design tab, give the center of gravity and its range.</li>
+<li>On the Retract tab, give each bogie's stowed position, or its
+retraction mechanism, and check it with <em>Draw Gear</em> Up and
+Down.</li>
+</ol>
+<p>A new Gear has no bogies; until one is added it is only its ground
+plane.</p>
+<h2 id="the-gears-frame-and-ground-plane">The Gear's Frame and Ground
+Plane</h2>
+<p>Everything on the Gear's tabs is given in the Gear's own axes, which
+the XForm tab places in the model. With no rotation they are the model's
+axes:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+aft,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+to the right,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+up. The origin and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">XY</annotation></semantics></math>
+plane are the nominal ground plane, the ground with the gear in its
+nominal state. To set the aircraft in a pitched attitude on the ground,
+pitch the Gear.</p>
+<p><img src="images/Gear_overview.png" title="Figure 1. A Gear"
+alt="Figure 1. A Gear" /></p>
+<p><em>Figure 1. A Gear with a nose bogie and a symmetrical main bogie
+on its nominal ground plane, and the center of gravity with its
+range.</em></p>
+<p>With <em>Include Nominal Ground Plane</em> checked, the Gear shows
+the ground plane as a square surface centered on its origin, extending
+<em>Plane Size</em> each way. <em>Auto</em> sets Plane Size to the
+length of the diagonal of the model's bounding box, so that the plane
+reaches past the whole aircraft. The plane is transparent to CFD
+meshing.</p>
+<p><em>Model Units</em> is the unit of the model's lengths. Tire sizes
+are given in inches, as tire makers give them, and converted to model
+units with it, so a Gear with the wrong Model Units has tires of the
+wrong size. It changes no other length, except that an <a
+href="Auxiliary.html">Auxiliary</a> clearance envelope read from a file
+is converted with it too.</p>
+<h2 id="center-of-gravity">Center of Gravity</h2>
+<p>The <em>Center of Gravity</em> group gives the nominal center of
+gravity and a range of it, a box from <em>Min</em> to <em>Max</em> in
+each direction, with Min
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≤</mo><annotation encoding="application/x-tex">\le</annotation></semantics></math>
+Nominal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≤</mo><annotation encoding="application/x-tex">\le</annotation></semantics></math>
+Max. <em>Local</em> gives them in the Gear's axes, <em>Global</em> in
+the model's; the other set follows. The 3D view draws the nominal center
+of gravity as a grey point and the range as a grey box. The tipback and
+tipover analyses evaluate the nominal point and every corner of the
+box.</p>
+<h2 id="bogies">Bogies</h2>
+<p>A bogie is a group of identical wheels on one strut. The list on the
+Bogie tab shows each bogie's name, its configuration and its tire. The
+configuration is the FAA's designation [3]: the number of wheels in
+tandem, then the number across as S, D, T or Q for one to four (2D is
+two pairs of wheels, one behind the other). The tire is designated by
+diameter, width and rim diameter in inches, as
+<code>13.5x6-3.915</code>. Choose a bogie in the list to edit it; the
+Tire and Retract tabs have their own bogie choice.</p>
+<p><em>Across</em> wheels are spaced side by side along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+and <em>Tandem</em> wheels one behind the other along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+centered on the bogie's contact point (Figure 2). The distance between
+wheels across is set by one of:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Center Distance (Model)</td>
+<td style="text-align: left;"><em>Spacing</em>: tire center to tire
+center, in model units.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Center Distance Fraction</td>
+<td style="text-align: left;">Spacing as a multiple of the tire
+width.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Gap (Model)</td>
+<td style="text-align: left;"><em>Spacing Gap</em>: between the tires,
+in model units.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Gap Fraction</td>
+<td style="text-align: left;">The gap as a fraction of the tire width;
+the default, 0.1.</td>
+</tr>
+</tbody>
+</table>
+<p><em>Pitch</em> between wheels in tandem has the same four modes,
+measured with the tire diameter. Whichever mode is chosen, the other
+values follow, so the tires can be spaced by the gap they need and the
+center distances read off.</p>
+<p><em>Symmetrical</em> adds a mirror image of the bogie in the Gear's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">XZ</annotation></semantics></math>
+plane, for main gear. Everything about the bogie, its stowed position
+included, is mirrored.</p>
+<p><img src="images/Gear_bogie_top.png"
+title="Figure 2. A bogie from above"
+alt="Figure 2. A bogie from above" /></p>
+<p><em>Figure 2. A symmetrical bogie, two across and two in tandem, from
+above. The contact point is the center of the bogie on the
+ground.</em></p>
+<h2 id="contact-point-and-suspension">Contact Point and Suspension</h2>
+<p><em>X Contact</em>, <em>Y Contact</em> and <em>Z Above Ground</em>
+place the bogie's contact point, the center of its footprint on the
+ground, in the Gear's axes. Z Above Ground is normally zero; a bogie
+that does not touch the ground in the nominal state, such as a tail
+bumper, is raised by it.</p>
+<p>The bogie's pivot, the center of its axles, lies one static loaded
+radius (SLR, see <a href="#tires">Tires</a>) above the contact point
+(Figure 3). The tires are drawn at their full, unloaded size about the
+pivot, so they reach below the ground by the tire's static deflection,
+as a loaded tire is flattened.</p>
+<p><img src="images/Gear_bogie_side.png"
+title="Figure 3. A bogie from the side"
+alt="Figure 3. A bogie from the side" /></p>
+<p><em>Figure 3. The bogie of Figure 2 from the side, with Compression
+Travel 0.4 and Extension Travel 0.2. The green line is the suspension
+travel the 3D view draws.</em></p>
+<p><em>Suspension Travel</em> gives the direction the pivot moves as the
+strut compresses, as a vector in the Gear's axes
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">+Z</annotation></semantics></math>,
+straight up, by default), and how far it moves from the nominal state
+when fully compressed and fully extended. The ground analyses can use
+each bogie nominal, compressed or extended.</p>
+<p><em>Bogie Rotation Limits</em> are how far a bogie with wheels in
+tandem can pitch about its pivot, in degrees. The <a
+href="GeometryAnalysis.html#plane-2pt-angle-contact">Plane 2pt Angle
+Contact</a> analysis turns the bogies up to these limits.</p>
+<p><em>Steering Angle</em> is the most the bogie can steer, in degrees.
+The <a href="GeometryAnalysis.html#ground-manueverability">Ground
+Maneuverability</a> analysis steers the bogie with the largest steering
+angle.</p>
+<h2 id="tires">Tires</h2>
+<p>The Tire tab shapes each bogie's tires (Figure 4). <em>Diameter</em>
+and <em>Width</em> are the unloaded tire's outer diameter and section
+width. Each is given in inches (<em>in</em>) or in model units
+(<em>Model</em>); the other follows (Figure 5). Use inches for a tire
+from a maker's catalog: they do not scale when the model is scaled,
+while sizes in model units do.</p>
+<p><img src="images/Gear_tire_section.png"
+title="Figure 4. Tire dimensions" alt="Figure 4. Tire dimensions" /></p>
+<p><em>Figure 4. The default tire, Full TRA, cut through its axle and
+seen from ahead, with the grown tire and the clearance
+envelope.</em></p>
+<p><img src="images/Gear_tire_tab.png" title="Figure 5. The Tire tab"
+alt="Figure 5. The Tire tab" /></p>
+<p><em>Figure 5. The Tire tab for the nose bogie of Figure 1, a 22 x 6.6
+tire given in inches, in a model in feet: the model unit values beside
+them follow. The rim and shoulder are given as fractions of the tire,
+and the static loaded radius follows from the deflection.</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Diameter</td>
+<td style="text-align: left;">Outer diameter of the unloaded tire,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Width</td>
+<td style="text-align: left;">Section width,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Drim</td>
+<td style="text-align: left;">Rim diameter, where the tire sits on the
+wheel; in, Model, or a fraction of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+(0.29 by default).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wrim</td>
+<td style="text-align: left;">Rim width between the flanges; in, Model,
+or a fraction of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+(0.775 by default).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hs</td>
+<td style="text-align: left;">Shoulder height above the rim, where the
+tread meets the sidewall; in, Model, or a fraction of the section height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>
+(0.82 by default).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ws</td>
+<td style="text-align: left;">Shoulder width; in, Model, or a fraction
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+(0.88 by default).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ply Rating</td>
+<td style="text-align: left;">Sets the height of the wheel's flanges, by
+the TRA's flange height relation [1], without its rounding up to 1/8
+in.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Speed Rating</td>
+<td style="text-align: left;">In mph; sets the clearance envelope.</td>
+</tr>
+<tr>
+<td style="text-align: left;">SLR</td>
+<td style="text-align: left;">Static loaded radius, axle to ground under
+load.</td>
+</tr>
+</tbody>
+</table>
+<p>The section height is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo>−</mo><msub><mi>D</mi><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">H = (D - D_\mathrm{rim})/2</annotation></semantics></math>.
+The static loaded radius is given directly, in inches or model units, or
+by the deflection (<em>Deflection Frac H</em>), the fraction of the
+tire's height above the wheel's flanges that the load flattens:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">S</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">R</mi></mrow><mo>=</mo><mfrac><mi>D</mi><mn>2</mn></mfrac><mo>−</mo><mi>δ</mi><mspace width="0.167em"></mspace><mfrac><mrow><mi>D</mi><mo>−</mo><msub><mi>D</mi><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">e</mi></mrow></msub></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">
+\mathrm{SLR} = \frac{D}{2} - \delta\,\frac{D - D_\mathrm{flange}}{2}
+</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>
+is the deflection fraction (0.35 by default) and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mrow><mi mathvariant="normal">f</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">e</mi></mrow></msub><annotation encoding="application/x-tex">D_\mathrm{flange}</annotation></semantics></math>
+the diameter over the flanges.</p>
+<p>The grown tire is the tire spinning at speed, grown by the TRA
+allowances: 4% in width, and in section height by the factor
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.115</mn><mo>−</mo><mn>0.075</mn><mspace width="0.167em"></mspace><mi>H</mi><mi>/</mi><mi>W</mi></mrow><annotation encoding="application/x-tex">1.115 - 0.075\,H/W</annotation></semantics></math>
+[2]. The clearance envelope adds the TRA clearances for a bias-ply tire
+around the grown tire [2], in the TRA's envelope shape [1]; they grow
+with the tire's width and its speed rating. The <a
+href="Auxiliary.html">Auxiliary</a> Single Gear shows either one in
+place of the tire, to check that a wheel well clears them.</p>
+<p><em>Tire Mode</em> chooses the shape (Figure 6). The three TRA modes
+build the tire and wheel from all the dimensions above: <em>Full
+TRA</em> shows the wheel flanges, <em>TRA w/ Faired Flange</em> smooths
+the tire into the flanges, and <em>TRA w/ Faired Wheel</em> closes the
+wheel's face flat across the tire's width. The <em>Balloon Tire</em>
+modes are a tire of round section, of diameter equal to the width, for
+small aircraft: alone, on a wheel, or with a faired wheel. The balloon
+modes have no grown tire or clearance envelope of their own; the tire
+stands in for both.</p>
+<p>Full TRA's wheel flanges follow the TRA's relations, which cover the
+sizes of tire the TRA standardizes. Where the flange meets the tire it
+leaves a narrow concave sliver, detail that external-flow CFD and many
+meshes are better without; the two faired TRA modes leave it out. The
+balloon modes suit bush planes, small UAS and radio-controlled models,
+whose tires are outside the TRA's range.</p>
+<p><img src="images/Gear_tire_modes.png" title="Figure 6. Tire modes"
+alt="Figure 6. Tire modes" /></p>
+<p><em>Figure 6. The default tire in each Tire Mode, cut through its
+axle, at one scale. The axle is dash-dotted.</em></p>
+<h2 id="retraction">Retraction</h2>
+<p>The Retract tab gives each bogie's retracted position, by one of two
+modes (Figure 7). <em>Stowed Position</em> places the retracted bogie
+directly. <em>Gear Mechanism</em> moves it there by a trunnion, a knee
+and a wrist, and so gives every position in between. Each mode's
+parameters are computed from the other's, so switching modes keeps the
+retracted position: in Stowed Position mode the mechanism is set to a
+single hinge that carries the tires to the stowed position, and in Gear
+Mechanism mode the stowed position is set to where the mechanism puts
+them.</p>
+<p><img src="images/Gear_retract_tab.png"
+title="Figure 7. The Retract tab" alt="Figure 7. The Retract tab" /></p>
+<p><em>Figure 7. The top of the Retract tab: the bogie, its Mode, here
+Gear Mechanism, and the tabs that hold each mode's controls.</em></p>
+<p>The retracted position is a volume claim: it shows that the stowed
+gear fits inside the aircraft where it is meant to go, and clears the
+structure and the other systems there. Check it with the interference
+analyses, against the grown tire or the TRA clearance envelope of a <a
+href="Auxiliary.html#single-gear">Single Gear</a> Auxiliary
+component.</p>
+<h3 id="stowed-position">Stowed Position</h3>
+<p>The <em>Stow</em> tab places the retracted bogie's pivot frame, the
+frame at the center of its axles with the Gear's axes, by a location and
+a rotation. <em>Rel</em> gives them in the frame chosen under <em>Attach
+To Parent</em>; <em>Abs</em> gives them in the Gear's axes.</p>
+<p>Attach To Parent works like the XForm tab's <a
+href="XFormTab.html#attach-to-parent">Attach to Parent</a>, except that
+the frame can be attached to any component in the model, not only the
+Gear's parent: choose a component, one of its surfaces, and how the
+frame is attached to it, by its component axes or a point given by UW,
+RST, LMN or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN
+coordinates. A bogie stowed in a wheel well of a fuselage or a nacelle
+should be attached to it, so that it follows when that component moves
+or changes shape. A bogie attached to a <a href="Hinge.html">Hinge</a>
+rides on the Hinge's joint. With <em>Contact</em>, the default, the
+frame is the bogie's own pivot frame with the gear down, so Rel is the
+move from the down position.</p>
+<h3 id="gear-mechanism">Gear Mechanism</h3>
+<p>The mechanism swings the strut about a trunnion, folds it at a knee,
+and turns the bogie at its end, the wrist (Figure 10). The strut runs
+from the trunnion point to the pivot with the gear down. The controls
+are on the two Mechanism tabs (Figures 8-9).</p>
+<p><img src="images/Gear_retract_mech1.png"
+title="Figure 8. The Mechanism (1/2) tab"
+alt="Figure 8. The Mechanism (1/2) tab" /></p>
+<p><em>Figure 8. The Mechanism (1/2) tab for the gear of Figure 10: the
+strut swings 90 degrees about a trunnion axis along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>,
+through a trunnion point given in the Gear's axes (Abs).</em></p>
+<p><img src="images/Gear_retract_mech2.png"
+title="Figure 9. The Mechanism (2/2) tab"
+alt="Figure 9. The Mechanism (2/2) tab" /></p>
+<p><em>Figure 9. The Mechanism (2/2) tab for the same gear: a straight
+strut with its knee halfway up, folding by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>100</mn></mrow><annotation encoding="application/x-tex">-100</annotation></semantics></math>
+degrees, and no turn at the wrist.</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Primary Motion</td>
+<td style="text-align: left;">Retract Angle</td>
+<td style="text-align: left;">The turn of the strut about the trunnion
+axis, degrees, right-handed.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Trunnion Point</td>
+<td style="text-align: left;">XLoc, YLoc, ZLoc</td>
+<td style="text-align: left;">The point the strut turns about: Rel to
+the attachment, or Abs in the Gear's axes.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Trunnion Axis</td>
+<td style="text-align: left;">XDir, YDir, ZDir</td>
+<td style="text-align: left;">The axis it turns about, in the Gear's
+axes; it need not be of unit length.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knee</td>
+<td style="text-align: left;">Position</td>
+<td style="text-align: left;">Where the knee is on the strut, as a
+fraction from the pivot (0) to the trunnion (1).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knee</td>
+<td style="text-align: left;">Rotation</td>
+<td style="text-align: left;">The turn of the lower strut about the knee
+axis as the gear retracts, degrees, right-handed.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knee</td>
+<td style="text-align: left;">Bend Angle</td>
+<td style="text-align: left;">The angle at the knee between the two
+parts of the strut with the gear down; 180 is straight.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knee</td>
+<td style="text-align: left;">Azimuth Angle, Elevation Angle</td>
+<td style="text-align: left;">Azimuth Angle turns the knee axis
+right-handed about the strut, taken from the trunnion down to the pivot;
+a positive Elevation Angle tilts it up the strut, toward the
+trunnion.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wrist</td>
+<td style="text-align: left;">Twist Angle, Roll Angle, Bogie Angle</td>
+<td style="text-align: left;">Turns of the bogie about its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+axes; a positive Bogie Angle tips the front of the bogie down.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wrist</td>
+<td style="text-align: left;">Strut Extension</td>
+<td style="text-align: left;">How much the strut lengthens as it
+retracts, along the line of the suspension travel.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Intermediate Position</td>
+<td style="text-align: left;">Retract</td>
+<td style="text-align: left;">How far the gear is retracted, 0 down to 1
+up.</td>
+</tr>
+</tbody>
+</table>
+<p>The knee axis starts as the part of the trunnion axis square to the
+straight strut, turned by Azimuth Angle and Elevation Angle (Figure 11),
+and is fixed to the upper strut, so the Bend Angle turns it with the
+upper strut. With both angles at zero the strut folds in the plane it
+swings in. Before OpenVSP 3.56 the lower strut turned about the knee
+axis as it was before the Bend Angle turned it, not the axis drawn. A
+gear saved by an earlier version, with a Bend Angle other than 180 and a
+knee axis not along the trunnion axis, now retracts differently; set its
+Azimuth Angle and Elevation Angle again to keep the earlier motion. The
+Trunnion Point's <em>Attach To Parent</em> places it like the stowed
+position's, by translation only.</p>
+<p><img src="images/Gear_retract.png"
+title="Figure 10. A gear mechanism"
+alt="Figure 10. A gear mechanism" /></p>
+<p><em>Figure 10. A gear retracting forward by a mechanism, from the
+side: down (grey), at Retract 0.5 (dashed) and up (blue). Retract Angle
+90 about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+swings the strut forward; a Knee Rotation of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>100</mn></mrow><annotation encoding="application/x-tex">-100</annotation></semantics></math>
+folds the lower strut back.</em></p>
+<p><img src="images/Gear_knee_axis.png" title="Figure 11. Knee axis"
+alt="Figure 11. Knee axis" /></p>
+<p><em>Figure 11. The knee axis of a straight strut, Azimuth Angle 30
+and Elevation Angle 20, with the trunnion axis tilted out of the plane
+square to the strut. The part of the trunnion axis square to the strut
+(dashed) turns about the strut by Azimuth Angle (dotted), then tilts
+toward the trunnion by Elevation Angle, about the tilt axis square to
+the strut and the turned axis.</em></p>
+<p>At an intermediate position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>,
+every angle of the mechanism and the strut extension are taken at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+times their full value. A right-handed turn about the trunnion axis by
+Retract Angle comes first; the lower strut then turns about the knee,
+and the bogie about the wrist.</p>
+<p>The 3D view draws the mechanism of each bogie: the trunnion axis
+dashed with an arrow for the positive sense, the strut from the trunnion
+through the knee to the pivot, and the knee axis, for each position
+drawn.</p>
+<p>The mechanism is a simple model of the main strut, not a general
+linkage: it has the three joints above and no braces, side stays, drag
+struts, actuators, locks or doors, and its joints all move together, in
+proportion to Retract, with no sequencing. A gear whose motion it cannot
+follow is given by its Stowed Position instead. Use only the joints the
+gear needs; each one added is another part the real gear must carry.</p>
+<h2 id="drawing-the-gear-up-and-down">Drawing the Gear Up and Down</h2>
+<p><em>Draw Gear</em> on the Design tab chooses which positions the Gear
+shows: <em>Down</em>, <em>Up</em>, <em>Up and Down</em>,
+<em>Intermediate</em>, or <em>All</em>. The intermediate position, at
+each bogie's <em>Retract</em> value, exists only for bogies in Gear
+Mechanism mode. Each position drawn is a set of surfaces of the Gear, so
+it is also what CompGeom, interference checks and export see.</p>
+<h2 id="ground-analyses">Ground Analyses</h2>
+<p>The Gear's nominal ground plane is the ground with every bogie in its
+nominal state. The ground handling analyses of the <a
+href="GeometryAnalysis.html">Geometry Analysis</a> manager also need the
+ground in other states: under a flat tire or a compressed strut, or with
+the aircraft rotated onto its tail, its nose or a wing tip. An <a
+href="Auxiliary.html">Auxiliary</a> component hung from the Gear builds
+such an off-nominal ground plane. For each bogie it uses, it chooses one
+of the states the Gear defines, and the plane passes through those
+bogies' contact points in that state (see <a
+href="Auxiliary.html#ground-planes">Ground Planes</a>).</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">State of a bogie</th>
+<th style="text-align: left;">Defined on the Gear by</th>
+<th style="text-align: left;">Chosen on the Auxiliary by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Strut: Nominal, Compressed or
+Extended</td>
+<td style="text-align: left;">The Suspension Travel direction,
+Compression Travel and Extension Travel</td>
+<td style="text-align: left;">Suspension Mode</td>
+</tr>
+<tr>
+<td style="text-align: left;">Tire: Static Load, Unloaded, Grown or
+Flat</td>
+<td style="text-align: left;">SLR, Diameter, the grown tire, and the
+flange diameter, which a flat tire rolls on</td>
+<td style="text-align: left;">Tire Mode</td>
+</tr>
+</tbody>
+</table>
+<p>The 3pt Ground Plane rests on three bogies, for ground and ceiling
+clearance, weight distribution and ground maneuverability. The 2pt
+Ground Plane rests on two and turns about their front or rear axles, for
+the tail strike, tipback and tipover angles. The 1pt Ground Plane rests
+on one and rolls about its outer tire's contact point, for roll
+clearance. The analyses read the Gear's center of gravity range through
+these planes. The <a
+href="GeometryAnalysis.html#plane-minmax-distance">Plane Min/Max
+Distance</a> analysis can also use the Gear's nominal ground plane
+directly.</p>
+<h2 id="shared-tabs">Shared Tabs</h2>
+<p>The Gen, XForm, Mass and Sub tabs are common to every component; see
+<a href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a
+href="SubTab.html">Sub-Surfaces</a>.</p>
+<h2 id="scripting">Scripting</h2>
+<p>The OpenVSP API manages bogies with these functions:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Call</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>CreateAndAddBogie</code></td>
+<td style="text-align: left;">Add a bogie to a Gear; returns its
+ID.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GetNumBogies</code>,
+<code>GetAllBogies</code></td>
+<td style="text-align: left;">The Gear's bogies.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DelBogie</code>,
+<code>DelAllBogies</code></td>
+<td style="text-align: left;">Delete bogies.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SetBogieStowParentID</code>,
+<code>GetBogieStowParentID</code></td>
+<td style="text-align: left;">The component the stowed position is
+attached to.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SetBogieMechParentID</code>,
+<code>GetBogieMechParentID</code></td>
+<td style="text-align: left;">The component the trunnion point is
+attached to.</td>
+</tr>
+</tbody>
+</table>
+<p>A bogie's parms are found with
+<code>FindParm( bogie_id, name, group )</code>. The groups are
+<code>Bogie</code> (layout, contact point, suspension, steering),
+<code>Tire</code>, <code>Retract</code> (mode, stowed position and
+mechanism), <code>StowAttach</code> and <code>MechAttach</code>. The
+modes are <code>SpacingType</code> and <code>PitchType</code>
+(<code>BOGIE_SPACING_TYPE</code>), <code>TireMode</code>
+(<code>TIRE_MODES</code>), the <code>...Mode</code> parms of the tire
+dimensions (<code>TIRE_DIM_MODES</code>) and <code>RetMode</code>
+(<code>GEAR_RETRACT_MODES</code>). The Gear's own parms are in the
+groups <code>Gear</code> (<code>m_ModelLenUnits</code>,
+<code>GearConfigMode</code>) and <code>GroundPlane</code> (the plane and
+the center of gravity).</p>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>The Tire and Rim Association, Inc., "Engineering Design Information:
+Aircraft Tires and Rim Contours," Akron, OH, index of October 30, 2024.
+Page AC-12, Clearance Envelope Geometry Definition, Radial and Bias;
+page AC-30-B, Aircraft Rim Flange Height Formula.</li>
+<li>The Tire and Rim Association, Inc., "2025 Aircraft Year Book," 2025.
+General Notes for Use of Aircraft Tire Data, note 13, Bias (Diagonal)
+Ply Aircraft Tire Standard Growth and Minimum Clearance Allowance, pp.
+8-9.</li>
+<li>Federal Aviation Administration, "Standard Naming Convention for
+Aircraft Landing Gear Configurations," Order 5300.7, U.S. Department of
+Transportation, 2005.</li>
+</ol>
+</body>
+</html>
