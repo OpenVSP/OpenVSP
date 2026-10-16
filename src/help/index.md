@@ -55,6 +55,7 @@ particular purpose and can be added to a model as needed.
 
 - [Mesh](Mesh.md)
 - [NGon Mesh](NGonMesh.md)
+- [Point Cloud](PtCloud.md)
 
 ### Shared Capabilities
 

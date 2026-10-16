@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Point Cloud</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Point Cloud</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>A Point Cloud component holds a set of points in space, usually
+measured: a scan of an aircraft, or coordinates digitized from drawings.
+The points have no connections between them and no surface. They are
+there to be matched: Fit Model adjusts a parametric component until its
+surface passes through chosen points, and a cloud can be projected onto
+a surface or wrapped in its convex hull.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#point-files">Point
+Files</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#fitting-a-component-to-points">Fitting a Component to
+Points</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#projecting-points-onto-a-surface">Projecting Points onto a
+Surface</a></td>
+<td style="text-align: left;">Project</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#convex-hull">Convex
+Hull</a></td>
+<td style="text-align: left;">Project</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p>The Gen and XForm tabs are the ones every component has; see <a
+href="GenTab.html">Gen</a> and <a href="XFormTab.html">XForm</a>. A
+point cloud has no mass, symmetry or sub-surfaces.</p>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Choose <em>File &gt; Import</em>, click <em>Point Cloud (.pts,
+.csv)</em> and choose the file.</li>
+<li>Place it with the XForm tab, and scale it to the model's units with
+<em>Scale</em>.</li>
+<li>Build a component of roughly the right shape near the points.</li>
+<li>Open <em>Model &gt; Fit Model</em>, pick points on the cloud as
+targets, choose the Parms to vary, and fit.</li>
+</ol>
+<h2 id="point-files">Point Files</h2>
+<p>A point file is plain text with one point per line:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>,
+separated by spaces, tabs, commas or any mix of them. The extension may
+be .pts or .csv.</p>
+<pre><code>0.0  0.0  0.0
+1.0, 0.0, 0.25
+2.0,0.0,0.5</code></pre>
+<p>A line that does not start with three numbers is skipped, so the
+column names a spreadsheet writes at the top of a CSV file, comments and
+blank lines may stay in the file.</p>
+<p>Points that coincide, to within
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>10</mn></mrow></msup><annotation encoding="application/x-tex">10^{-10}</annotation></semantics></math>
+of the size of the cloud and never less than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>10</mn></mrow></msup><annotation encoding="application/x-tex">10^{-10}</annotation></semantics></math>,
+are kept once. The points come in at the numbers in the file; OpenVSP's
+model has no units, so scale the cloud to match the model.</p>
+<p>A point cloud is also made by <em>Convert</em> under Convert to Point
+Cloud on a <a href="Mesh.html">Mesh</a>'s Other tab: one point at each
+vertex of the mesh. Either way the points are saved with the model.</p>
+<h2 id="fitting-a-component-to-points">Fitting a Component to
+Points</h2>
+<p>Fit Model (<em>Model &gt; Fit Model</em>) is where a point cloud is
+used most. While its screen is open, the points of every cloud can be
+picked in the 3D view; picked points turn blue. Its Pick Points tab
+selects them one at a time or by region, hides the ones in the way, and
+makes the selected points target points, each matched to a surface of
+the component being fitted. Fit Model then varies the chosen Parms to
+bring the surface as close as it can to the targets. Which points are
+selected or hidden is not saved with the model.</p>
+<h2 id="projecting-points-onto-a-surface">Projecting Points onto a
+Surface</h2>
+<p>The Project tab moves every point of the cloud onto a surface of
+another component, along one of the model's axes. Choose the component,
+which of its surfaces (<em>Surface</em>, <code>Surf_0</code> and up,
+counting its symmetric copies), and the <em>Direction</em>. Each point
+moves parallel to that axis only -- its other two coordinates stay -- to
+the nearest place where its line along the axis meets the surface, in
+front of it or behind.</p>
+<p>The projection replaces the cloud's points. Use it to put digitized
+points exactly on a surface, such as outline points taken from a drawing
+in the plan view, projected along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+onto a wing.</p>
+<p>A point whose line along the direction misses the surface entirely is
+left where it was (Figure 1). The surface is one surface only: with a
+symmetric wing, a point over the mirror half misses <code>Surf_0</code>
+and stays.</p>
+<p><img src="images/PtCloud_project.png"
+title="Figure 1. Projecting points"
+alt="Figure 1. Projecting points" /></p>
+<p><em>Figure 1. Points above the right half of a wing, projected along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+onto its upper surface, the nearest place their lines cross it. The
+point beyond the tip stays where it was.</em></p>
+<h2 id="convex-hull">Convex Hull</h2>
+<p><em>Create Convex Hull Mesh</em> makes a new <a
+href="Mesh.html">Mesh</a> component: the smallest convex shape that
+holds every point of the cloud. It is a quick envelope of a scan, for a
+volume or a bounding size. The hull is built where the cloud is, from
+its points placed by its XForm. A cloud whose points all lie in one
+plane has no hull, and nothing is made.</p>
+<h2 id="scripting">Scripting</h2>
+<p>The API makes, reads, projects and wraps point clouds.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><code>ImportFile( file, IMPORT_PTS, "" )</code></td>
+<td style="text-align: left;">Import a point file; returns the new
+cloud's ID.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>CreatePtCloudGeomFromPts( pts, name )</code></td>
+<td style="text-align: left;">Make a cloud from a list of points.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>CreatePtCloudGeom( mesh_id )</code></td>
+<td style="text-align: left;">Make a cloud from a mesh's vertices, as
+the Convert to Point Cloud button.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>GetPtCloudPnts( cloud_id )</code></td>
+<td style="text-align: left;">The cloud's points, as held, before its
+XForm.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>ProjectPtCloudPts( cloud_id, geom_id, surf, dir )</code></td>
+<td style="text-align: left;">Project the points, as the Project tab;
+<code>dir</code> is <code>X_DIR</code>, <code>Y_DIR</code> or
+<code>Z_DIR</code>.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>CreateConvexHull( cloud_id )</code></td>
+<td style="text-align: left;">Make the convex hull mesh; returns its
+ID.</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openvsp <span class="im">as</span> vsp</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cloud <span class="op">=</span> vsp.CreatePtCloudGeomFromPts( [ vsp.vec3d( x, <span class="fl">1.0</span>, <span class="fl">5.0</span> ) <span class="cf">for</span> x <span class="kw">in</span> ( <span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span> ) ], <span class="st">&quot;Outline&quot;</span> )</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>wing <span class="op">=</span> vsp.AddGeom( <span class="st">&quot;WING&quot;</span> )</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>vsp.Update()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>vsp.ProjectPtCloudPts( cloud, wing, <span class="dv">0</span>, vsp.Z_DIR )</span></code></pre></div>
+</body>
+</html>

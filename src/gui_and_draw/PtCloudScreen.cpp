@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-PtCloudScreen::PtCloudScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Point Cloud", string(""), false )
+PtCloudScreen::PtCloudScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Point Cloud", "PtCloud.html", false )
 {
 
     RemoveTab( GetTab( m_MassPropTab_ind ) );
