@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Human</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Human</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Human component models a person: a pilot, a passenger or a ground
+crew member, sized from population statistics and posed joint by joint.
+Its shape comes from a statistical model of adult body scans, so a few
+numbers -- sex, stature, body mass index, age and sitting height -- give
+a complete, realistic body. A skeleton inside the body then bends it
+into any pose from standing to seated. The result is a closed triangle
+mesh with a mass, a volume and a design eye point, for checking fit,
+reach, visibility and mass properties.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#units">Units</a></td>
+<td style="text-align: left;">Anthropometric</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#body-size">Body Size</a></td>
+<td style="text-align: left;">Anthropometric</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#origin-and-axes">Origin and
+Axes</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#pose">Pose</a></td>
+<td style="text-align: left;">Pose</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#design-eye">Design Eye</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#the-human-in-analyses">The Human
+in Analyses</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#references">References</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p>The Gen, XForm and Mass tabs are the ones every component has; see <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a> and <a
+href="MassTab.html">Mass</a>. A Human has no Sub tab.</p>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="a-standing-person">A standing person</h3>
+<ol type="1">
+<li>On the Anthropometric tab choose <em>Gender</em>, then set
+<em>Length Unit</em> and <em>Mass Unit</em> to the units of the
+model.</li>
+<li>Set <em>% Stature</em> and <em>% BMI</em>, or type the
+<em>Stature</em> and <em>Mass</em> directly.</li>
+<li>Leave the pose as it is: a new human stands.</li>
+<li>Place it with the XForm tab. The origin is the waist joint, so set
+the location of the waist, not the feet.</li>
+</ol>
+<h3 id="a-seated-occupant">A seated occupant</h3>
+<ol type="1">
+<li>Choose <em>Gender</em>, then set <em>Length Unit</em> and <em>Mass
+Unit</em> to the units of the model.</li>
+<li>Set the size, as for a standing person.</li>
+<li>On the Pose tab choose <em>Preset</em> SITTING and click
+<em>Set</em>, then adjust the joints to fit the seat.</li>
+<li>Place it with the XForm tab, by the waist joint (Figure 2). Attach a
+Super Cone Auxiliary to it to show the field of view (see <a
+href="#design-eye">Design Eye</a>).</li>
+</ol>
+<h2 id="units">Units</h2>
+<p><em>Length Unit</em> and <em>Mass Unit</em> say what units the human
+is built in. They are not display units: the body is built at its
+stature in the length unit, so a 1.76 m man is 1.76 model units tall
+with Length Unit M and 5.76 with Length Unit FT. Set them to the units
+the rest of the model uses. The default is FT and LBM.</p>
+<p>Changing the length unit keeps the person the same size in the real
+world: the stature percentile stays, and the stature is restated in the
+new unit. Changing the mass unit restates the mass.</p>
+<p>The XForm tab's <em>Scale</em> has no effect on a human; its size is
+set by the stature and the length unit alone.</p>
+<h2 id="body-size">Body Size</h2>
+<p>The body shape is the statistical model from Human Shapes
+(humanshape.org, by Prof. Matthew P. Reed of the University of Michigan
+Transportation Research Institute), used with permission [1]. Its inputs
+are stature, body mass index, sitting height ratio and age; every point
+of the body follows from them. Between them, the controls on the
+Anthropometric tab describe most of the variation among adults.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Range</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Gender</td>
+<td style="text-align: left;"><code>GenderFlag</code></td>
+<td style="text-align: left;">MALE</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Which body model, and which population
+statistics.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Stature</td>
+<td style="text-align: left;"><code>Stature</code></td>
+<td style="text-align: left;">50th pct.</td>
+<td style="text-align: left;">5th to 95th</td>
+<td style="text-align: left;">Standing height, in the length unit.</td>
+</tr>
+<tr>
+<td style="text-align: left;">% Stature</td>
+<td style="text-align: left;"><code>Stature_pct</code></td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">0.05 - 0.95</td>
+<td style="text-align: left;">Stature percentile, as a fraction.</td>
+</tr>
+<tr>
+<td style="text-align: left;">BMI</td>
+<td style="text-align: left;"><code>BMI</code></td>
+<td style="text-align: left;">50th pct.</td>
+<td style="text-align: left;">16 - 55</td>
+<td style="text-align: left;">Body mass index, kg/m^2.</td>
+</tr>
+<tr>
+<td style="text-align: left;">% BMI</td>
+<td style="text-align: left;"><code>BMI_pct</code></td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">0.05 - 0.95</td>
+<td style="text-align: left;">BMI percentile, as a fraction.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mass</td>
+<td style="text-align: left;"><code>Mass</code></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Body mass, in the mass unit.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Age</td>
+<td style="text-align: left;"><code>Age</code></td>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">18 - 80</td>
+<td style="text-align: left;">Age in years.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sitting H / H</td>
+<td style="text-align: left;"><code>SitFrac</code></td>
+<td style="text-align: left;">0.51</td>
+<td style="text-align: left;">0.4 - 0.6</td>
+<td style="text-align: left;">Sitting height divided by stature.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Volume</td>
+<td style="text-align: left;"><code>Volume</code></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Output: the volume of the posed body.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Auto Density</td>
+<td style="text-align: left;"><code>AutoDensity</code></td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Set the Mass tab's density to Mass /
+Volume.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stature-and-bmi">Stature and BMI</h3>
+<p>Stature and BMI each have a value and a percentile; set either and
+the other follows. The percentiles come from the United States NHANES
+survey of adults aged 20 and over, 2011-2014, separately for men and
+women [2]:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Percentile</th>
+<th style="text-align: left;">Male stature, mm</th>
+<th style="text-align: left;">Female stature, mm</th>
+<th style="text-align: left;">Male BMI</th>
+<th style="text-align: left;">Female BMI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">5th</td>
+<td style="text-align: left;">1634</td>
+<td style="text-align: left;">1498</td>
+<td style="text-align: left;">20.7</td>
+<td style="text-align: left;">19.6</td>
+</tr>
+<tr>
+<td style="text-align: left;">50th</td>
+<td style="text-align: left;">1756</td>
+<td style="text-align: left;">1619</td>
+<td style="text-align: left;">27.7</td>
+<td style="text-align: left;">27.7</td>
+</tr>
+<tr>
+<td style="text-align: left;">95th</td>
+<td style="text-align: left;">1881</td>
+<td style="text-align: left;">1735</td>
+<td style="text-align: left;">39.8</td>
+<td style="text-align: left;">43.3</td>
+</tr>
+</tbody>
+</table>
+<p>Switching <em>Gender</em> keeps the percentiles, so a 95th percentile
+man becomes a 95th percentile woman, and shorter. The limits on
+<em>Stature</em> are the 5th and 95th percentile of the chosen sex.</p>
+<p>Mass, BMI and stature are tied together by</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">I</mi></mrow><mo>=</mo><mfrac><mi>m</mi><msup><mi>h</mi><mn>2</mn></msup></mfrac></mrow><annotation encoding="application/x-tex">
+\mathrm{BMI} = \frac{m}{h^2}
+</annotation></semantics></math></p>
+<p>with the mass
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+in kilograms and the stature
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+in meters. Setting <em>Mass</em> sets BMI; setting <em>BMI</em> or <em>%
+BMI</em> sets the mass. Changing the stature keeps the BMI and changes
+the mass, so a taller person of the same build is heavier.</p>
+<h3 id="age-and-sitting-height">Age and sitting height</h3>
+<p><em>Age</em> and <em>Sitting H / H</em> change the shape without
+changing the stature. A larger sitting height ratio gives a longer trunk
+and shorter legs. Age changes the build, by an amount that depends on
+the BMI. Leave both at their defaults unless the person in question is
+known to differ.</p>
+<h3 id="volume-and-density">Volume and density</h3>
+<p><em>Volume</em> is the volume of the closed body as posed, in the
+length unit cubed. With <em>Auto Density</em> on, the human's density on
+the Mass tab is set to <em>Mass</em> / <em>Volume</em>, so the mass
+properties of the model carry the person's mass at the right place. Turn
+it off to set a density by hand.</p>
+<h2 id="origin-and-axes">Origin and Axes</h2>
+<p>The human faces
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+up and the person's right side toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>,
+the way a pilot sits in an aircraft whose nose points along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>
+(Figure 1). The origin is the waist joint, and it stays there whatever
+the pose: the legs hang from it standing and fold in front of it seated
+(Figure 2). Place a seated occupant by the waist joint, not by the seat
+or the feet.</p>
+<p><img src="images/Human_axes.png" title="Figure 1. Human axes"
+alt="Figure 1. Human axes" /></p>
+<p><em>Figure 1. A new human, its origin at the waist joint, and its
+axes. The person faces
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>;
+the right hand is toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>.</em></p>
+<p><img src="images/Human_seated.png"
+title="Figure 2. Standing and seated"
+alt="Figure 2. Standing and seated" /></p>
+<p><em>Figure 2. The default human standing, as it is made, and in the
+Sitting preset. The origin is the same point of the body in
+both.</em></p>
+<h2 id="pose">Pose</h2>
+<p>The pose bends the body at the joints of its skeleton. The skin
+follows the bones smoothly, so a bent elbow or hip deforms the flesh
+around it rather than hinging a rigid part. The skin is bound to the
+skeleton by the Pinocchio automatic rigging method [3].</p>
+<h3 id="presets">Presets</h3>
+<p><em>Preset</em> and <em>Set</em> at the top of the Pose tab put the
+human into a standard pose. Set replaces every joint angle and turns
+<em>R/L Sym</em> on; choose the preset first and then adjust.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Joint</th>
+<th style="text-align: left;">Standing</th>
+<th style="text-align: left;">Sitting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Elbow</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">80</td>
+</tr>
+<tr>
+<td style="text-align: left;">Shoulder IE</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">45</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hip AB/AD</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">0.5</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hip FE</td>
+<td style="text-align: left;">2.5</td>
+<td style="text-align: left;">80</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knee</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">80</td>
+</tr>
+<tr>
+<td style="text-align: left;">All other joints</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+</tr>
+</tbody>
+</table>
+<p>A new human stands, in the Standing preset.</p>
+<h3 id="joint-angles">Joint angles</h3>
+<p>Every angle is in degrees. The names are the anatomical ones: AB/AD
+is abduction (away from the body's centerline) and adduction, FE is
+flexion and extension, IE is internal and external rotation.
+<em>Elbow</em> is the angle between the upper arm and the forearm, zero
+for a straight arm; the other angles are zero in a natural standing
+posture. Figures 3-5 show positive angles on the larger joints.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Range</th>
+<th style="text-align: left;">A positive angle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Back</td>
+<td style="text-align: left;"><code>Back</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-15 - 45</td>
+<td style="text-align: left;">bends the upper body forward at the middle
+of the back.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Waist</td>
+<td style="text-align: left;"><code>Waist</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-15 - 45</td>
+<td style="text-align: left;">bends the upper body forward at the
+waist.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nod</td>
+<td style="text-align: left;"><code>Nod</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-40 - 50</td>
+<td style="text-align: left;">tips the head forward, chin down.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Rotate</td>
+<td style="text-align: left;"><code>RotateHead</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-80 - 80</td>
+<td style="text-align: left;">turns the head toward the person's
+right.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Shoulder AB/AD</td>
+<td style="text-align: left;"><code>ShoulderABADRt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-40 - 170</td>
+<td style="text-align: left;">raises the arm out to the side
+(abduction).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Shoulder FE</td>
+<td style="text-align: left;"><code>ShoulderFERt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-30 - 180</td>
+<td style="text-align: left;">swings the arm forward and up
+(flexion).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Shoulder IE</td>
+<td style="text-align: left;"><code>ShoulderIERt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-30 - 100</td>
+<td style="text-align: left;">turns the arm inward about its length
+(internal rotation).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Elbow</td>
+<td style="text-align: left;"><code>ElbowRt</code></td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">0 - 150</td>
+<td style="text-align: left;">bends the elbow (flexion).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Forearm</td>
+<td style="text-align: left;"><code>ForearmRt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-90 - 90</td>
+<td style="text-align: left;">turns the thumb in toward the body
+(pronation).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wrist</td>
+<td style="text-align: left;"><code>WristRt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-90 - 90</td>
+<td style="text-align: left;">bends the hand toward its back
+(extension).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hip AB/AD</td>
+<td style="text-align: left;"><code>HipABADRt</code></td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">-45 - 45</td>
+<td style="text-align: left;">swings the leg out to the side
+(abduction).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hip FE</td>
+<td style="text-align: left;"><code>HipFERt</code></td>
+<td style="text-align: left;">2.5</td>
+<td style="text-align: left;">-15 - 130</td>
+<td style="text-align: left;">swings the leg forward (flexion).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knee</td>
+<td style="text-align: left;"><code>KneeRt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0 - 140</td>
+<td style="text-align: left;">bends the knee, the foot moving back
+(flexion).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ankle</td>
+<td style="text-align: left;"><code>AnkleRt</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">-15 - 15</td>
+<td style="text-align: left;">raises the toes (dorsiflexion).</td>
+</tr>
+</tbody>
+</table>
+<p>The limb joints are on the Pose tab twice, under Right Side and Left
+Side (Parms ending in <code>Rt</code> and <code>Lt</code>). The left
+angles mean the same motions as the right: a positive Shoulder AB/AD
+raises either arm out to its own side. With <em>R/L Sym</em> on, the
+default, the left side copies the right and its controls are greyed;
+turn it off to pose the sides apart.</p>
+<p>Back and Waist both bend the upper body forward; Back bends it
+higher, at the middle of the back, and Waist at the waist joint (Figure
+3). In both the legs and the origin stay where they are.</p>
+<p><img src="images/Human_pose_body.png"
+title="Figure 3. Back, waist and head"
+alt="Figure 3. Back, waist and head" /></p>
+<p><em>Figure 3. Back, Waist and Nod at 30, seen from the person's left.
+The tint shows the part that moved, as it was standing.</em></p>
+<p><img src="images/Human_pose_arm.png" title="Figure 4. Arm"
+alt="Figure 4. Arm" /></p>
+<p><em>Figure 4. Positive shoulder and elbow angles. Shoulder AB/AD is
+seen from in front of the person and moves the right arm; Shoulder FE
+and Elbow are seen from the left and move the left arm; Shoulder IE is
+seen from above and moves the right arm, its elbow at 90. The tint shows
+the arm as it was.</em></p>
+<p>Shoulder IE is easiest to see with the elbow bent: internal rotation
+swings the forearm in across the body, as in Figure 4. With the arm
+hanging straight it only turns the arm about its own length. Likewise
+Forearm turns the palm down when the elbow is bent 90 degrees, and
+toward the back when the arm hangs; the palm faces the thigh at
+zero.</p>
+<p><img src="images/Human_pose_leg.png" title="Figure 5. Leg"
+alt="Figure 5. Leg" /></p>
+<p><em>Figure 5. Positive hip and knee angles. Hip AB/AD is seen from in
+front of the person and moves the right leg; Hip FE and Knee are seen
+from the left and move the left leg.</em></p>
+<p>The skeleton does not check for collisions, so a pose can put an arm
+through the body or a leg through the other; check a demanding pose by
+eye.</p>
+<h2 id="design-eye">Design Eye</h2>
+<p>The human carries a <em>design eye</em> point between the eyes
+(Figure 1), which moves and turns with the head. Two things use it:</p>
+<ul>
+<li>A Super Cone <a href="Auxiliary.html">Auxiliary</a> component whose
+parent is a human is placed at the design eye and turned with the head,
+so it shows the field of view from the person's eyes.</li>
+<li><a href="GeometryAnalysis.html#from-point-visibility">From Point
+Visibility</a> in Geometry Analysis can take a human as its viewpoint,
+and looks from the design eye.</li>
+</ul>
+<p>With symmetry, each copy of the human has its own design eye. An
+attached Super Cone follows the eye as the human is posed or
+resized.</p>
+<h2 id="the-human-in-analyses">The Human in Analyses</h2>
+<p>A human is a closed triangle mesh, the same in every analysis.
+CompGeom, Mass Properties, the slicing analyses, interference checks and
+the mesh exports all use it, and VSPAERO takes it as one component. Its
+mesh is fixed by the model: the Gen tab's tessellation controls do not
+apply.</p>
+<p>It is not a surface, so it has no sub-surfaces, its degenerate
+geometry is empty, and it takes no part where a surface is needed: CFD
+Mesh, FEA Mesh, Fit Model, or as the boundary or direction of a
+projection. Symmetry and Flip on the XForm tab work as for any
+component; see <a href="XFormTab.html#symmetry">Symmetry</a> and <a
+href="XFormTab.html#flip">Flip</a>.</p>
+<h2 id="scripting">Scripting</h2>
+<p>A human has no functions of its own in the API: it is built and posed
+through its Parms, in the groups <code>Anthropometric</code> and
+<code>Pose</code>, with the names in the tables above. The <em>Set</em>
+button is not in the API; to pose a human as a preset, set the joint
+angles from the preset table. <code>ShowSkelFlag</code> in the
+<code>Anthropometric</code> group draws the skeleton with the feature
+lines, unposed in black and posed in blue; it has no control on the
+screen.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openvsp <span class="im">as</span> vsp</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> vsp.AddGeom( <span class="st">&quot;HUMAN&quot;</span> )</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( h, <span class="st">&quot;LenUnit&quot;</span>, <span class="st">&quot;Anthropometric&quot;</span>, vsp.LEN_M )</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( h, <span class="st">&quot;Stature_pct&quot;</span>, <span class="st">&quot;Anthropometric&quot;</span>, <span class="fl">0.95</span> )</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Seated, as the Sitting preset</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, val <span class="kw">in</span> ( ( <span class="st">&quot;ElbowRt&quot;</span>, <span class="dv">80</span> ), ( <span class="st">&quot;ShoulderIERt&quot;</span>, <span class="dv">45</span> ), ( <span class="st">&quot;HipFERt&quot;</span>, <span class="dv">80</span> ), ( <span class="st">&quot;KneeRt&quot;</span>, <span class="dv">80</span> ) ):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    vsp.SetParmVal( h, name, <span class="st">&quot;Pose&quot;</span>, val )</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>vsp.Update()</span></code></pre></div>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>Reed, M. P., Human Shapes, University of Michigan Transportation
+Research Institute. <a
+href="http://humanshape.org/">http://humanshape.org/</a></li>
+<li>Fryar, C. D., Gu, Q., Ogden, C. L. and Flegal, K. M.,
+"Anthropometric Reference Data for Children and Adults: United States,
+2011-2014," Vital and Health Statistics, Series 3, Number 39, National
+Center for Health Statistics, 2016. Tables 9 and 11 (stature) and 14 and
+15 (body mass index).</li>
+<li>Baran, I. and Popovic, J., "Automatic Rigging and Animation of 3D
+Characters," ACM Transactions on Graphics, Vol. 26, No. 3 (SIGGRAPH
+2007), 2007. The Pinocchio library: <a
+href="https://github.com/elrond79/Pinocchio">https://github.com/elrond79/Pinocchio</a></li>
+</ol>
+</body>
+</html>
