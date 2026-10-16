@@ -1,5 +1,7 @@
 """A section's plain flap, on every component built from sections."""
 
+import math
+
 import openvsp as vsp
 
 
@@ -14,6 +16,10 @@ def set_flap( xs, deflection, chord = 0.2, hinge = 0.5 ):
         vsp.SetParmVal( vsp.GetXSecParm( xs, name ), v )
 
 
+def finite( pts ):
+    return all( math.isfinite( c ) for p in pts for c in ( p.x(), p.y(), p.z() ) )
+
+
 def test_a_propeller_section_flap_moves_the_blade():
     vsp.VSPRenew()
     pid = vsp.AddGeom( "PROP" )
@@ -21,6 +27,18 @@ def test_a_propeller_section_flap_moves_the_blade():
     set_flap( vsp.GetXSec( vsp.GetXSecSurf( pid, 0 ), 1 ), 20.0 )
     after = points( pid )
     assert max( vsp.dist( p, q ) for p, q in zip( before, after ) ) > 0.05
+
+
+def test_a_plain_flap_on_a_round_section():
+    for shape in ( vsp.XS_CIRCLE, vsp.XS_ROUNDED_RECTANGLE ):
+        for deflection in ( -40.0, 40.0 ):
+            for hinge in ( 0.0, 0.5, 1.0 ):
+                vsp.VSPRenew()
+                wid = vsp.AddGeom( "WING" )
+                surf = vsp.GetXSecSurf( wid, 0 )
+                vsp.ChangeXSecShape( surf, 1, shape )
+                set_flap( vsp.GetXSec( surf, 1 ), deflection, 0.05, hinge )
+                assert finite( points( wid ) ), ( shape, deflection, hinge )
 
 
 def test_a_wing_flap_follows_a_chord_change_at_once():

@@ -757,8 +757,9 @@ double XSecCurve::EstimateFlapArcLen()
 }
 
 // The points where a plain flap of chord xflap leaves each side of an airfoil curve, and its hinge,
-// yfrac of the way from the lower point to the upper.
-static void PlainFlapPoints( const piecewise_curve_type &clow, const piecewise_curve_type &cup, const vec3d &telow,
+// yfrac of the way from the lower point to the upper.  False when a point is an end of its side, as
+// for a flap with no chord: there is no flap to deflect.
+static bool PlainFlapPoints( const piecewise_curve_type &clow, const piecewise_curve_type &cup, const vec3d &telow,
                              const vec3d &teup, double xflap, double width, double yfrac, double tmin, double tmax,
                              double umin, double umid, double umax, double &tslow, double &tsup,
                              threed_point_type &plow, threed_point_type &pup, threed_point_type &phinge )
@@ -785,14 +786,28 @@ static void PlainFlapPoints( const piecewise_curve_type &clow, const piecewise_c
 
     phinge = plow + yfrac * ( pup - plow );
 
+    // The points nearest the hinge, unless one is an end of its side, as on a round section.
+    double tslowd = tslow;
+    double tsupd = tsup;
+    const double ttol = 1e-6;
 
     eli::geom::intersect::minimum_distance( tslow, clow, phinge, tslow );
     tslow = clamp( tslow, umin, umid );
+    if ( tslow < umin + ttol || tslow > umid - ttol )
+    {
+        tslow = tslowd;
+    }
     plow = clow.f( tslow );
 
     eli::geom::intersect::minimum_distance( tsup, cup, phinge, tsup );
     tsup = clamp( tsup, umid, umax );
+    if ( tsup > umax - ttol || tsup < umid + ttol )
+    {
+        tsup = tsupd;
+    }
     pup = cup.f( tsup );
+
+    return !( tslow < umin + ttol || tslow > umid - ttol || tsup > umax - ttol || tsup < umid + ttol );
 }
 
 void XSecCurve::DeflectTE( bool wingtype )
@@ -848,12 +863,12 @@ void XSecCurve::DeflectTE( bool wingtype )
     double tslow = 0.0;
     double tsup = 0.0;
     threed_point_type plow, pup, phinge;
+    bool plain = m_TEFlapType() == FLAP_PLAIN &&
+                 PlainFlapPoints( clow, cup, telow, teup, xflap, GetWidth(), m_TEFlapYFrac(), tmin, tmax, umin, umid,
+                                  umax, tslow, tsup, plow, pup, phinge );
 
-    if ( m_TEFlapType() == FLAP_PLAIN )
+    if ( plain )
     {
-        PlainFlapPoints( clow, cup, telow, teup, xflap, GetWidth(), m_TEFlapYFrac(), tmin, tmax, umin, umid, umax,
-                         tslow, tsup, plow, pup, phinge );
-
         piecewise_curve_type clowrear, clowfwd, cupfwd, cuprear;
         clow.split( clowrear, clowfwd, tslow );
         cup.split( cupfwd, cuprear, tsup );
