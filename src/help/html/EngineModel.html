@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Engine Model</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Engine Model</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>A Fuselage or a Stack can stand for an engine nacelle, an inlet, an
+exhaust or the flowpath inside them. The engine model lets the same
+sections be handed to analyses in different ways -- as an open
+flow-through nacelle, as a solid with the flowpath removed, closed at
+the lips or at the faces, or stretched upstream and downstream to the
+edge of a CFD domain -- without rebuilding them. It works in two steps.
+The <em>Engine Definition</em> says what the sections describe and where
+the inlet and outlet lips and faces are; the <em>Engine
+Representation</em> says what is built from them. Both are groups on the
+Design tab of the Fuselage and the Stack.</p>
+<p>Engine modeling has many choices, and not every combination of them
+makes a valid or useful model. The quickest way to a working one is a
+Stack preset: each nacelle preset lays out the sections and sets the
+whole engine model to match (see <a
+href="#starting-from-a-preset">Starting from a Preset</a>). The <a
+href="StackPresets.html">Stack Presets</a> page draws every one of
+them.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#starting-from-a-preset">Starting
+from a Preset</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#engine-definition">Engine
+Definition</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#stations">Stations</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#engine-representation">Engine
+Representation</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#representing-a-flowpath">Representing a Flowpath</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#extension">Extension</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p>The rest of the Fuselage and Stack screens is described in <a
+href="FuselageStack.html">Fuselage and Stack</a>, and the chevrons of
+their Modify tab in <a href="Chevron.html">Chevrons</a>.</p>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add a Stack and set <em>Stack Preset</em> to one of the Nacelle
+Flowthrough presets. The preset lays out the sections and fills in the
+Engine Definition.</li>
+<li>Place it with the XForm tab, and size its sections on the XSec
+tab.</li>
+<li>The lips and faces are drawn on the nacelle while <em>Show
+Stations</em> is checked, as it is by default.</li>
+<li>The preset comes with <em>Inlet Mode</em> FLOWTHROUGH, an open
+nacelle. Choose FLOWTHROUGH NEGATIVE under Engine Representation for a
+solid nacelle and a flowpath that cuts through whatever it meets.</li>
+</ol>
+<h2 id="starting-from-a-preset">Starting from a Preset</h2>
+<p><em>Stack Preset</em> on the Stack's Design tab replaces the Stack's
+sections with a nacelle and sets its XSec Order, its end caps, and the
+parts of its Engine Definition, stations and Engine Representation that
+the preset's definition uses, with the simplest representation of it.
+The controls it does not use keep their values, and so do the
+<em>Extension</em> settings. Pick the preset by what the sections should
+describe; the representation can then be changed freely.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Sections describe</th>
+<th style="text-align: left;">Presets</th>
+<th style="text-align: left;">Comes as</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">The whole nacelle wall, one loop
+(FLOWTHROUGH)</td>
+<td style="text-align: left;"><a
+href="StackPresets.html#nacelle-flowthrough-outlet-origin">Nacelle
+Flowthrough Outlet, Inlet or Mid Origin</a></td>
+<td style="text-align: left;">An open nacelle</td>
+</tr>
+<tr>
+<td style="text-align: left;">The outside, into both ends to the
+faces</td>
+<td style="text-align: left;"><a
+href="StackPresets.html#nacelle-inlet--outlet-to-face">Nacelle Inlet +
+Outlet to Face</a></td>
+<td style="text-align: left;">Closed at both faces</td>
+</tr>
+<tr>
+<td style="text-align: left;">The outside, to one lip and one face</td>
+<td style="text-align: left;"><a
+href="StackPresets.html#nacelle-inlet-lip--outlet-face">Nacelle Inlet
+Lip + Outlet Face</a>, <a
+href="StackPresets.html#nacelle-inlet-face--outlet-lip">Nacelle Inlet
+Face + Outlet Lip</a></td>
+<td style="text-align: left;">Closed at that lip and that face</td>
+</tr>
+<tr>
+<td style="text-align: left;">The outside, to both lips</td>
+<td style="text-align: left;"><a
+href="StackPresets.html#nacelle-inlet--outlet-to-lip">Nacelle Inlet +
+Outlet to Lip</a></td>
+<td style="text-align: left;">Closed at both lips</td>
+</tr>
+<tr>
+<td style="text-align: left;">An outlet only, with a closed nose</td>
+<td style="text-align: left;"><a
+href="StackPresets.html#nacelle-outlet-to-face">Nacelle Outlet to
+Face</a>, <a href="StackPresets.html#nacelle-outlet-to-lip">Nacelle
+Outlet to Lip</a></td>
+<td style="text-align: left;">Closed at the face or the lip</td>
+</tr>
+<tr>
+<td style="text-align: left;">An inlet only, with a closed tail</td>
+<td style="text-align: left;"><a
+href="StackPresets.html#nacelle-inlet-to-face">Nacelle Inlet to
+Face</a>, <a href="StackPresets.html#nacelle-inlet-to-lip">Nacelle Inlet
+to Lip</a></td>
+<td style="text-align: left;">Closed at the face or the lip</td>
+</tr>
+<tr>
+<td style="text-align: left;">Only the duct inside (FLOWPATH)</td>
+<td style="text-align: left;"><a
+href="StackPresets.html#nacelle-flowpath-inlet--outlet">Nacelle Flowpath
+Inlet + Outlet, Inlet or Outlet</a></td>
+<td style="text-align: left;">The duct, positive</td>
+</tr>
+</tbody>
+</table>
+<p>A Fuselage has no presets. Its engine model is set by hand, with the
+same controls.</p>
+<h2 id="engine-definition">Engine Definition</h2>
+<p><em>Geom Type</em> says which parts of an engine the sections
+describe: NONE (an ordinary body, the default), INLET, BOTH or OUTLET.
+The other controls are used only when it is not NONE.</p>
+<p><em>Inlet Type</em> and <em>Outlet Type</em> say how the sections
+describe each end.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">The sections describe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">FLOWTHROUGH</td>
+<td style="text-align: left;">The whole nacelle wall in one loop: the
+outside, both lips and the flowpath inside. An <em>Inlet Type</em>, for
+<em>Geom Type</em> BOTH; the menu also offers it with INLET, where it
+does not give a flow-through nacelle.</td>
+</tr>
+<tr>
+<td style="text-align: left;">FLOWPATH</td>
+<td style="text-align: left;">Only the duct inside, from the lip to the
+face.</td>
+</tr>
+<tr>
+<td style="text-align: left;">INLET TO LIP, OUTLET TO LIP</td>
+<td style="text-align: left;">The outside only, ending at the lip.</td>
+</tr>
+<tr>
+<td style="text-align: left;">INLET TO FACE, OUTLET TO FACE</td>
+<td style="text-align: left;">The outside, around the lip and into the
+duct, ending at the face.</td>
+</tr>
+</tbody>
+</table>
+<p>With <em>Geom Type</em> BOTH and an <em>Inlet Type</em> of
+FLOWTHROUGH or FLOWPATH, the outlet is described the same way, and
+<em>Outlet Type</em> is greyed.</p>
+<p>The lip is where the outside surface meets the duct; the face is the
+end of the duct inside the nacelle, where the compressor face or the
+turbine exit would be. Figure 1 shows the curve the sections trace for
+each type, and where its lips and faces lie.</p>
+<p><img src="images/EngineModel_types.png"
+title="Figure 1. Inlet and outlet types"
+alt="Figure 1. Inlet and outlet types" /></p>
+<p><em>Figure 1. The sections of a Stack preset of each type, with both
+ends of that type, cut through the axis above it: Nacelle Flowthrough
+Mid Origin, Nacelle Flowpath Inlet + Outlet, Nacelle Inlet + Outlet to
+Lip and Nacelle Inlet + Outlet to Face. The inlet is at the left. Dots
+are the sections; grey, the flat ends that point sections close; dotted,
+the stations the definition uses.</em></p>
+<h2 id="stations">Stations</h2>
+<p>The four stations mark the lips and faces on the sections: <em>Inlet
+Lip</em>, <em>Inlet Face</em>, <em>Outlet Face</em> and <em>Outlet
+Lip</em>. Each is set either by the index of a section (<em>Indx</em>)
+or by <em>U</em>, a fraction from 0 at the first section to 1 at the
+last, chosen by the small toggle before each (Figure 2). Only the
+stations the definition needs are active: the lip of each end described,
+and its face unless its type is TO LIP. A FLOWTHROUGH nacelle needs all
+four.</p>
+<p><img src="images/EngineModel_gui_stations.png"
+title="Figure 2. Engine Definition"
+alt="Figure 2. Engine Definition" /></p>
+<p><em>Figure 2. The Engine Definition and Engine Representation of the
+Nacelle Flowthrough Mid Origin preset, with the Inlet Face given by U.
+Outlet Type is greyed because the inlet is FLOWTHROUGH, and Outlet Mode
+because the Inlet Mode is.</em></p>
+<p><em>Show Stations</em> draws the active stations on the component in
+the 3D view, as heavy dashed lines in the colors of their labels: the
+inlet lip cyan, the inlet face magenta, the outlet face green, the
+outlet lip yellow (Figure 3). They are drawn only while the component is
+in the Shown set and its feature lines are shown.</p>
+<p><img src="images/EngineModel_stations.png" title="Figure 3. Stations"
+alt="Figure 3. Stations" /></p>
+<p><em>Figure 3. The stations on the Nacelle Flowthrough Mid Origin
+preset, cut through its axis, with the section numbers. The inlet is at
+the left.</em></p>
+<h2 id="engine-representation">Engine Representation</h2>
+<p><em>Inlet Mode</em> and <em>Outlet Mode</em> say what is built from
+the sections at each end. The result may be several surfaces: positive
+ones, which are solid like any other component, and negative ones, which
+CompGeom, CFD Mesh and the other analyses that understand negative
+volumes subtract from whatever they overlap. A negative flowpath cut
+through a nacelle that is closed at its lips leaves the same hollow
+nacelle as the flow-through loop, but as closed volumes, and it cuts
+through any wing or fuselage the nacelle is buried in. Each surface is
+closed where it is cut, by a cap at the lip or face, flat where the
+section is flat; where a negative surface ends on a positive one, the
+center of its cap is drawn out a hair (1/10000 of the component's size)
+so that the two do not share a face.</p>
+<p>On a FLOWTHROUGH nacelle the <em>Inlet Mode</em> chooses between the
+flow-through modes, which treat both ends at once (Figure 4), and the
+modes for each end, of which the <em>Inlet Mode</em> sets the inlet and
+the <em>Outlet Mode</em> the outlet (Figure 5). <em>Outlet Mode</em> is
+greyed while a flow-through mode is chosen; the Flowthrough presets set
+it to TO LIP.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Built</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">FLOWTHROUGH</td>
+<td style="text-align: left;">The loop as it is: an open nacelle, the
+flow passing through it.</td>
+</tr>
+<tr>
+<td style="text-align: left;">FLOWTHROUGH NEGATIVE</td>
+<td style="text-align: left;">The nacelle closed at both lips, and a
+negative flowpath from lip to lip.</td>
+</tr>
+<tr>
+<td style="text-align: left;">FLOWTHROUGH NEGATIVE ONLY</td>
+<td style="text-align: left;">The negative flowpath alone; the nacelle
+is not built.</td>
+</tr>
+<tr>
+<td style="text-align: left;">TO LIP</td>
+<td style="text-align: left;">The end closed at the lip.</td>
+</tr>
+<tr>
+<td style="text-align: left;">TO FACE</td>
+<td style="text-align: left;">The end closed at the face, leaving the
+inlet or outlet open as a recess.</td>
+</tr>
+<tr>
+<td style="text-align: left;">TO FACE NEGATIVE</td>
+<td style="text-align: left;">The end closed at the lip, and a negative
+recess from the lip to the face.</td>
+</tr>
+<tr>
+<td style="text-align: left;">TO FACE NEGATIVE ONLY</td>
+<td style="text-align: left;">The negative recess alone: no positive
+surface is built, at either end.</td>
+</tr>
+<tr>
+<td style="text-align: left;">EXTEND</td>
+<td style="text-align: left;">The end closed at the lip and stretched
+upstream (inlet) or downstream (outlet); see <a
+href="#extension">Extension</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><img src="images/EngineModel_flowthrough.png"
+title="Figure 4. Flow-through representations"
+alt="Figure 4. Flow-through representations" /></p>
+<p><em>Figure 4. The flow-through modes on the nacelle of Figure 3, cut
+through its axis. Positive surfaces are grey, negative ones red and
+hatched.</em></p>
+<p><img src="images/EngineModel_ends.png"
+title="Figure 5. Representations of each end"
+alt="Figure 5. Representations of each end" /></p>
+<p><em>Figure 5. The modes of each end on the same nacelle, each set as
+the Inlet Mode and shown at the inlet (left), with the Outlet Mode TO
+LIP, which closes the outlet at its lip except under TO FACE NEGATIVE
+ONLY, where only the recess is built. EXTEND has a Distance of
+1.</em></p>
+<p>Which modes are offered depends on the definition: the flow-through
+modes for a FLOWTHROUGH nacelle, and FLOWTHROUGH NEGATIVE and NEGATIVE
+ONLY also for a FLOWPATH with both ends; the modes that end at a face
+only when there is a face, except that a FLOWPATH, which has no outside
+to leave open, does not offer TO FACE. An outside that ends at its lip
+(TO LIP) can be closed at the lip or extended; one that goes on to the
+face (TO FACE) can use every mode but the flow-through ones. Each
+NEGATIVE ONLY mode is offered where its NEGATIVE mode is.</p>
+<p>While <em>Geom Type</em> is not NONE, the Gen tab's <a
+href="GenTab.html#negative-volume">Negative Volume</a> box has no
+effect, though it can still be checked; the representation decides which
+surfaces are negative.</p>
+<h2 id="representing-a-flowpath">Representing a Flowpath</h2>
+<p>A FLOWPATH definition describes the duct itself, and the
+representation then says whether the duct is solid or is cut away. The
+modes build different surfaces from a duct than from a nacelle wall.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Definition</th>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Built</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Inlet or outlet</td>
+<td style="text-align: left;">TO LIP</td>
+<td style="text-align: left;">The duct as its sections draw it,
+positive.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Inlet or outlet</td>
+<td style="text-align: left;">TO FACE NEGATIVE</td>
+<td style="text-align: left;">The duct, negative.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Inlet or outlet</td>
+<td style="text-align: left;">TO FACE NEGATIVE ONLY</td>
+<td style="text-align: left;">Nothing.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Inlet or outlet</td>
+<td style="text-align: left;">EXTEND</td>
+<td style="text-align: left;">The duct, positive, stretched upstream
+(inlet) or downstream (outlet).</td>
+</tr>
+<tr>
+<td style="text-align: left;">BOTH, <em>Inlet Mode</em></td>
+<td style="text-align: left;">FLOWTHROUGH NEGATIVE</td>
+<td style="text-align: left;">The whole duct, negative. The <em>Outlet
+Mode</em> then closes or extends the outlet end.</td>
+</tr>
+<tr>
+<td style="text-align: left;">BOTH, <em>Inlet Mode</em></td>
+<td style="text-align: left;">FLOWTHROUGH NEGATIVE ONLY</td>
+<td style="text-align: left;">The whole duct, negative, as FLOWTHROUGH
+NEGATIVE.</td>
+</tr>
+<tr>
+<td style="text-align: left;">BOTH, <em>Inlet Mode</em></td>
+<td style="text-align: left;">TO FACE NEGATIVE</td>
+<td style="text-align: left;">The duct from the inlet lip to the face
+negative, the rest positive.</td>
+</tr>
+<tr>
+<td style="text-align: left;">BOTH, <em>Inlet Mode</em></td>
+<td style="text-align: left;">TO FACE NEGATIVE ONLY</td>
+<td style="text-align: left;">The duct from the inlet lip to the face,
+negative; no positive part.</td>
+</tr>
+<tr>
+<td style="text-align: left;">BOTH, <em>Inlet Mode</em></td>
+<td style="text-align: left;">TO LIP</td>
+<td style="text-align: left;">The whole duct, positive.</td>
+</tr>
+<tr>
+<td style="text-align: left;">BOTH, <em>Inlet Mode</em></td>
+<td style="text-align: left;">EXTEND</td>
+<td style="text-align: left;">The whole duct, positive, stretched
+upstream.</td>
+</tr>
+</tbody>
+</table>
+<p>With both ends, the <em>Outlet Mode</em> treats the outlet end the
+same way: TO LIP closes it, EXTEND stretches it downstream, and TO FACE
+NEGATIVE makes the part from the outlet face to the outlet lip
+negative.</p>
+<p>To cut an inlet duct out of a fuselage it is buried in, use TO FACE
+NEGATIVE for an inlet or outlet alone, and FLOWTHROUGH NEGATIVE for a
+duct with both ends. The three Nacelle Flowpath presets come set to TO
+LIP, the duct as drawn, so choose the negative mode after
+<em>Set</em>.</p>
+<h2 id="extension">Extension</h2>
+<p>EXTEND stretches the lip section into a straight duct of the same
+section, so the flow entering an inlet or leaving an outlet can be
+carried to the edge of a CFD domain rather than meeting a closed
+face.</p>
+<ul>
+<li><em>Distance</em> is the length added.</li>
+<li><em>Auto</em> sets the distance to the length in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+of the components in the chosen <em>Set</em> (Shown by default), so the
+extension grows with the model. The extensions themselves are left out
+of that length.</li>
+<li><em>Align X</em> extends along the model's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis, the usual freestream direction, rather than along the component's
+own
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis. It matters only for a component that is turned.</li>
+</ul>
+<p>The inlet is extended toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>,
+the outlet toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">+X</annotation></semantics></math>.</p>
+<h2 id="scripting">Scripting</h2>
+<p>The engine model's parms are in the <em>EngineModel</em> group of the
+Fuselage or Stack.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Geom Type</td>
+<td style="text-align: left;"><code>GeomIOType</code></td>
+<td style="text-align: left;"><code>ENGINE_GEOM_NONE</code>,
+<code>ENGINE_GEOM_INLET</code>, <code>ENGINE_GEOM_INLET_OUTLET</code>,
+<code>ENGINE_GEOM_OUTLET</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Inlet Type, Outlet Type</td>
+<td style="text-align: left;"><code>GeomInType</code>,
+<code>GeomOutType</code></td>
+<td style="text-align: left;"><code>ENGINE_GEOM_FLOWTHROUGH</code>,
+<code>ENGINE_GEOM_FLOWPATH</code>, <code>ENGINE_GEOM_TO_LIP</code>,
+<code>ENGINE_GEOM_TO_FACE</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Station by index or U</td>
+<td style="text-align: left;"><code>InletLipMode</code>,
+<code>InletFaceMode</code>, <code>OutletFaceMode</code>,
+<code>OutletLipMode</code></td>
+<td style="text-align: left;"><code>ENGINE_LOC_INDEX</code>,
+<code>ENGINE_LOC_U</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Station index</td>
+<td style="text-align: left;"><code>InletLipIndex</code>,
+<code>InletFaceIndex</code>, <code>OutletFaceIndex</code>,
+<code>OutletLipIndex</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Station U</td>
+<td style="text-align: left;"><code>InletLipU</code>,
+<code>InletFaceU</code>, <code>OutletFaceU</code>,
+<code>OutletLipU</code></td>
+<td style="text-align: left;">0 to 1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Show Stations</td>
+<td style="text-align: left;"><code>EngineShowStationsFlag</code></td>
+<td style="text-align: left;">0 or 1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Inlet Mode, Outlet Mode</td>
+<td style="text-align: left;"><code>InletModeType</code>,
+<code>OutletModeType</code></td>
+<td style="text-align: left;"><code>ENGINE_MODE_FLOWTHROUGH</code> ...
+<code>ENGINE_MODE_EXTEND</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Align X</td>
+<td style="text-align: left;"><code>RotExtensionFlag</code></td>
+<td style="text-align: left;">0 or 1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Auto, Set</td>
+<td style="text-align: left;"><code>AutoExtensionFlag</code>,
+<code>AutoExtensionSet</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Distance</td>
+<td style="text-align: left;"><code>ExtensionDistance</code></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

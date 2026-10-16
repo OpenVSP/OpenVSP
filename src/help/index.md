@@ -27,6 +27,7 @@ particular purpose and can be added to a model as needed.
 
 - [Wing](Wing.md)
 - [Fuselage and Stack](FuselageStack.md)
+   - [Engine Model](EngineModel.md)
    - [Stack Presets](StackPresets.md)
 - [Propeller](Propeller.md)
 
