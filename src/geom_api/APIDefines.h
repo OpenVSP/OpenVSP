@@ -864,6 +864,16 @@ enum FILE_CHOOSER_TYPE { FC_OPENVSP,	/*!< OpenVSP's own file chooser with direct
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the limits a Fuselage puts on its cross sections' X locations. */
+enum FUSE_ORDER_POLICY { FUSE_MONOTONIC,	/*!< First cross section at X 0, last at 1, each other between its neighbors (default) */
+                         FUSE_LOOP,	/*!< First and last cross sections at X 1, the last a copy of the first */
+                         FUSE_FREE,	/*!< Every cross section anywhere from X 0 to 1, in any order */
+                         NUM_FUSE_POLICY	/*!< Number of Fuselage cross section order policies */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum used for custom GUI development. */
 enum GDEV { GDEV_TAB,	/*!< Custom GUI Tab */
             GDEV_SCROLL_TAB,	/*!< Custom GUI Fl_Scroll and Tab */

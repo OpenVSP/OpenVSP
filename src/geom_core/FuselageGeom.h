@@ -21,7 +21,6 @@
 class FuselageGeom : public GeomEngine
 {
 public:
-    enum {FUSE_MONOTONIC, FUSE_LOOP, FUSE_FREE, NUM_FUSE_POLICY};
 
     FuselageGeom( Vehicle* vehicle_ptr );
     virtual ~FuselageGeom();

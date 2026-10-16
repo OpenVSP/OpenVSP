@@ -199,17 +199,17 @@ bool FuselageScreen::Update()
         m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
         m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
 
-        if ( firstxs && ( fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_MONOTONIC || fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP ) )
+        if ( firstxs && ( fuselage_ptr->m_OrderPolicy() == FUSE_MONOTONIC || fuselage_ptr->m_OrderPolicy() == FUSE_LOOP ) )
         {
             m_XSecXSlider.Deactivate();
         }
 
-        if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_MONOTONIC )
+        if ( lastxs && fuselage_ptr->m_OrderPolicy() == FUSE_MONOTONIC )
         {
             m_XSecXSlider.Deactivate();
         }
 
-        if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+        if ( lastxs && fuselage_ptr->m_OrderPolicy() == FUSE_LOOP )
         {
             m_XSecXSlider.Deactivate();
             m_XSecYSlider.Deactivate();
@@ -226,7 +226,7 @@ bool FuselageScreen::Update()
         {
             m_XSecTypeChoice.SetVal( xsc->GetType() );
 
-            if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+            if ( lastxs && fuselage_ptr->m_OrderPolicy() == FUSE_LOOP )
             {
                 m_XSecTypeChoice.Deactivate();
                 m_ShowXSecButton.Deactivate();
@@ -239,7 +239,7 @@ bool FuselageScreen::Update()
                 m_ConvertCEDITButton.Activate();
             }
 
-            if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
+            if ( lastxs && fuselage_ptr->m_OrderPolicy() == FUSE_LOOP )
             {
                 DisplayGroup( nullptr );
             }

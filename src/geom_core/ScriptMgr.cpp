@@ -1661,6 +1661,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "FUSE_ORDER_POLICY" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FUSE_ORDER_POLICY", "FUSE_MONOTONIC", FUSE_MONOTONIC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FUSE_ORDER_POLICY", "FUSE_LOOP", FUSE_LOOP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FUSE_ORDER_POLICY", "FUSE_FREE", FUSE_FREE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FUSE_ORDER_POLICY", "NUM_FUSE_POLICY", NUM_FUSE_POLICY );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "GDEV" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TAB", GDEV_TAB );

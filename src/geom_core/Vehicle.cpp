@@ -2456,7 +2456,7 @@ void Vehicle::DeleteClipBoard()
 // A Fuselage numbers its order policies MONOTONIC, LOOP, FREE; a Stack FREE, LOOP.
 static int StackOrderPolicy( int fuse_policy )
 {
-    if ( fuse_policy == FuselageGeom::FUSE_LOOP )
+    if ( fuse_policy == FUSE_LOOP )
     {
         return StackGeom::STACK_LOOP;
     }
