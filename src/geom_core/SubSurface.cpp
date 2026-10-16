@@ -851,7 +851,7 @@ void SubSurface::PrepareSplitVec()
 
 SSLineSeg::SSLineSeg()
 {
-    m_TestType = GT;
+    m_TestType = vsp::SS_LINE_TEST_GREATER;
 }
 
 SSLineSeg::~SSLineSeg()
@@ -865,16 +865,16 @@ bool SSLineSeg::Subtag( const vec3d & center ) const
     vec3d line = m_P1 - m_P0;
     vec3d c_prod = cross( line, v0c );
 
-    if ( m_TestType == NO )
+    if ( m_TestType == vsp::SS_LINE_TEST_NONE )
     {
         return false;
     }
 
-    if ( m_TestType == GT && c_prod.z() > 0 )
+    if ( m_TestType == vsp::SS_LINE_TEST_GREATER && c_prod.z() > 0 )
     {
         return true;
     }
-    if ( m_TestType == LT && c_prod.z() < 0 )
+    if ( m_TestType == vsp::SS_LINE_TEST_LESS && c_prod.z() < 0 )
     {
         return true;
     }
@@ -1054,7 +1054,7 @@ SSLine::SSLine( const string& comp_id, int type ) : SubSurface( comp_id, type )
     m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0.5, 0, 1 );
     m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is chosen in [0, 1] basis." );
 
-    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::NO );
+    m_TestType.Init( "Test_Type", "SubSurface", this, vsp::SS_LINE_TEST_GREATER, vsp::SS_LINE_TEST_GREATER, vsp::SS_LINE_TEST_NONE );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
     m_Val01.Init( "Value_01", "SubSurface", this, true, false, true );
@@ -3176,7 +3176,7 @@ SSLineArray::SSLineArray( const string& comp_id, int type ) : SubSurface( comp_i
     m_EndLocation.SetDescript( "Location for Final SSLine in Array" );
 
     // Set to only Beam elements (cap) with no tags (tris)
-    m_TestType = SSLineSeg::NO;
+    m_TestType = vsp::SS_LINE_TEST_NONE;
     m_CreateBeamElements = true;
 
     m_NumLines = 0;
@@ -3341,7 +3341,7 @@ SSFiniteLine::SSFiniteLine( const string& comp_id, int type ) : SubSurface( comp
     m_WEnd.Init( "WEnd", "SS_FiniteLine", this, 0.3, 0, 1 );
     m_WEnd.SetDescript( "The W ending location of the finite line" );
 
-    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::NO, SSLineSeg::NO, SSLineSeg::NO );
+    m_TestType.Init( "Test_Type", "SubSurface", this, vsp::SS_LINE_TEST_NONE, vsp::SS_LINE_TEST_NONE, vsp::SS_LINE_TEST_NONE );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
     m_CreateBeamElements = true;

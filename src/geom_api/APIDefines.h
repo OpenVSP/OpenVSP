@@ -1515,6 +1515,15 @@ enum SS_CONTROL_SURF_TYPE { SS_CONTROL_UPPER_SURF,	/*!< Upper surface */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the side of a line sub-surface that it tags. */
+enum SS_LINE_TEST_TYPE { SS_LINE_TEST_GREATER,	/*!< Tag the side of greater U or W (default) */
+                         SS_LINE_TEST_LESS,	/*!< Tag the side of less U or W */
+                         SS_LINE_TEST_NONE	/*!< Tag neither side; equal to NONE */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for the limits a Stack puts on its cross sections' placement. */
 enum STACK_ORDER_POLICY { STACK_FREE,	/*!< Every cross section placed freely (default) */
                           STACK_LOOP,	/*!< The last cross section a copy of the first, placed on it */

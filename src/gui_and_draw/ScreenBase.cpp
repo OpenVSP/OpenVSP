@@ -2709,7 +2709,7 @@ bool GeomScreen::Update()
                 ss_type.append( " W" );
             }
 
-            if ( ssline->m_TestType() == SSLineSeg::GT )
+            if ( ssline->m_TestType() == SS_LINE_TEST_GREATER )
             {
                 ss_type.append( ">" );
             }

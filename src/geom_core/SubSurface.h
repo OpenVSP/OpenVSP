@@ -31,7 +31,6 @@ public:
 
     virtual void Update( Geom *geom, int indx );
 
-    enum { GT, LT, NO };
     int m_TestType;
 
     virtual ~SSLineSeg();

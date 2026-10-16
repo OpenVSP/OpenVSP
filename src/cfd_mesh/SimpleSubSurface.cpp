@@ -79,7 +79,7 @@ void SimpleSubSurface::SetAsFiniteLine( const string &compid, int mainsurfindx,
     m_SSID = string();
     m_Type = vsp::SS_FINITE_LINE;
 
-    m_TestType = SSLineSeg::NO;         // Tags nothing on either side of itself.
+    m_TestType = vsp::SS_LINE_TEST_NONE;         // Tags nothing on either side of itself.
     m_PolyFlag = false;                 // A line, not a closed boundary.
     m_CreateBeamElements = false;       // No FEA beam is built along it.
     m_Tag = 0;
@@ -87,7 +87,7 @@ void SimpleSubSurface::SetAsFiniteLine( const string &compid, int mainsurfindx,
     SSLineSeg seg;
     seg.SetP0( uw0 );
     seg.SetP1( uw1 );
-    seg.m_TestType = SSLineSeg::NO;
+    seg.m_TestType = vsp::SS_LINE_TEST_NONE;
 
     m_LVec.clear();
     m_LVec.push_back( seg );

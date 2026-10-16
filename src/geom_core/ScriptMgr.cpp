@@ -2617,6 +2617,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "SS_LINE_TEST_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SS_LINE_TEST_TYPE", "SS_LINE_TEST_GREATER", SS_LINE_TEST_GREATER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SS_LINE_TEST_TYPE", "SS_LINE_TEST_LESS", SS_LINE_TEST_LESS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SS_LINE_TEST_TYPE", "SS_LINE_TEST_NONE", SS_LINE_TEST_NONE );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "STACK_ORDER_POLICY" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "STACK_ORDER_POLICY", "STACK_FREE", STACK_FREE );
