@@ -12,7 +12,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 800, "Wing", "Wing.html" )
 {
 
     m_CurrDisplayGroup = nullptr;

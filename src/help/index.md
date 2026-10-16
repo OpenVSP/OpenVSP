@@ -25,6 +25,7 @@ particular purpose and can be added to a model as needed.
 
 ### Geometry
 
+- [Wing](Wing.md)
 - [Stack Presets](StackPresets.md)
 - [Propeller](Propeller.md)
 
