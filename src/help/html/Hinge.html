@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Hinge</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Hinge</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Hinge component is a joint. It has no shape of its own; it is a
+frame that turns about, and slides along, one of its own axes, and it
+carries every component attached to it. Control surfaces, doors, folding
+wing tips, tilting nacelles and canopies are modeled by hanging the
+moving part off a Hinge and setting the Hinge's deflection.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#how-a-hinge-moves-its-children">How a Hinge Moves Its
+Children</a></td>
+<td style="text-align: left;">Motion</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#motion-and-limits">Motion and
+Limits</a></td>
+<td style="text-align: left;">Motion</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#orienting-the-hinge">Orienting
+the Hinge</a></td>
+<td style="text-align: left;">Orient, XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#flip">Flip</a></td>
+<td style="text-align: left;">XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#other-uses-of-a-hinge">Other
+Uses of a Hinge</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#when-not-to-use-hinge">When Not
+to Use Hinge</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#shared-tabs">Shared
+Tabs</a></td>
+<td style="text-align: left;">Gen, XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="a-folding-wing-tip">A folding wing tip</h3>
+<ol type="1">
+<li>Add a Hinge. Place it on the fold line with the XForm tab, attached
+to the wing if it should follow the wing.</li>
+<li>Turn it so that its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis lies along the fold line: with the XForm rotations, or on the
+Orient tab (see <a href="#orienting-the-hinge">Orienting the
+Hinge</a>).</li>
+<li>Select the Hinge and add the outer wing panel, so that the panel is
+the Hinge's child.</li>
+<li>Set <em>Rotate</em> on the Motion tab.</li>
+</ol>
+<h3 id="a-sliding-canopy">A sliding canopy</h3>
+<ol type="1">
+<li>Add a Hinge. Place it at the canopy with the XForm tab, attached to
+the fuselage.</li>
+<li>Turn it so that its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis lies along the direction the canopy slides.</li>
+<li>Select the Hinge and add the canopy, so that the canopy is the
+Hinge's child.</li>
+<li>On the Motion tab, allow <em>Translate</em>, disallow
+<em>Rotate</em>, and set <em>Translate</em>.</li>
+</ol>
+<h2 id="how-a-hinge-moves-its-children">How a Hinge Moves Its
+Children</h2>
+<p>A Hinge has two frames, both drawn in the 3D view at its origin: its
+own frame, placed by the XForm tab and drawn with solid axes, and the
+joint frame, drawn dashed, which is its own frame moved by the
+deflection. The joint frame is its own frame slid by <em>Translate</em>
+along the hinge axis and turned by <em>Rotate</em> about it,
+right-handed: a positive Rotate about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+turns
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">+Z</annotation></semantics></math>
+(Figure 1). The hinge axis is the Hinge's own
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+unless the Orient tab chooses
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>.</p>
+<p><img src="images/Hinge_motion.png" title="Figure 1. A hinged panel"
+alt="Figure 1. A hinged panel" /></p>
+<p><em>Figure 1. A wing panel hung off a Hinge whose axis is its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+at Rotate 0 (dashed outline) and Rotate 40. The Hinge's own axes are
+solid; the joint frame, which carries the panel, is dashed.</em></p>
+<p>Every child of a Hinge is attached rigidly to the joint frame. The
+child's <a href="XFormTab.html#attach-to-parent">Attach To Parent</a>
+choices are greyed, and its relative location and rotation on the XForm
+tab are measured in the joint frame, so the child keeps its place on the
+moving part as the Hinge deflects. Its own children follow it as usual,
+so a whole assembly can ride one Hinge, and a Hinge can hang off another
+Hinge to make a chain of joints. In the Geom Browser, the lines from a
+Hinge to its children are drawn double, to show that they are carried by
+the joint (Figure 2).</p>
+<p><img src="images/Hinge_browser.png"
+title="Figure 2. A Hinge in the Geom Browser"
+alt="Figure 2. A Hinge in the Geom Browser" /></p>
+<p><em>Figure 2. A Hinge on a wing in the Geom Browser, carrying a flap:
+the line from the Hinge to its child is double.</em></p>
+<p>In a chain, each Hinge's deflection is measured on the part that
+carries it, so the joints compose the way the real mechanism does. An
+aileron on a folding wing tip is a Hinge, attached to the outer panel
+along its trailing edge, that carries the aileron; the fold Hinge
+carries the outer panel, and with it the aileron Hinge. Folding the tip
+then carries the aileron and its hinge line with it, and the aileron
+deflects about its folded hinge line. Build a mechanism this way, one
+Hinge per real joint, each a child of the part it is mounted on; the
+parts then stay together at any combination of deflections (Figure
+3).</p>
+<p><img src="images/Hinge_chain.png" title="Figure 3. A chain of Hinges"
+alt="Figure 3. A chain of Hinges" /></p>
+<p><em>Figure 3. A folding wing tip whose fold Hinge, along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+carries the outer panel, and an aileron Hinge, along the outer panel's
+trailing edge, that carries the aileron. Dashed: Fold 0 and Aileron 0.
+Solid: Fold 60 and Aileron -20, which raises the aileron's trailing
+edge. Below, enlarged: a section of the folded tip seen outboard along
+the aileron's folded hinge line, with the aileron at 0 dotted.</em></p>
+<p>Place the child where it should turn about the hinge axis: the axis
+passes through the Hinge's origin, so a child built with its own hinge
+line at its origin is placed at the Hinge's origin with zero relative
+location.</p>
+<h2 id="motion-and-limits">Motion and Limits</h2>
+<p>A motion acts only while the check box beside its slider allows it; a
+motion that is not allowed is held at zero (Figure 4). Rotate is allowed
+and Translate is not, by default. A <em>Min</em> or <em>Max</em> whose
+check box is checked is a limit the deflection cannot pass. To put a
+limit at a stop, pose the part there and click that limit's
+<em>Set</em>, which copies the current deflection into it. <em>Rng</em>
+narrows or expands the slider to the checked limits, for easier control
+between them.</p>
+<p><img src="images/Hinge_gui_motion.png"
+title="Figure 4. Motion and limits"
+alt="Figure 4. Motion and limits" /></p>
+<p><em>Figure 4. The Motion tab with Translate allowed and Rotate
+limited to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><msup><mn>30</mn><mo>∘</mo></msup></mrow><annotation encoding="application/x-tex">-30^\circ</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>60</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">60^\circ</annotation></semantics></math>,
+at Rotate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>20</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">20^\circ</annotation></semantics></math>.
+The Translate limits are not checked, so their sliders and Set buttons
+are greyed, and so is Translate's Rng.</em></p>
+<p>Translate is a length in model units, along the hinge axis. Rotate is
+in degrees, between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>360</mn></mrow><annotation encoding="application/x-tex">-360</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>360</mn><annotation encoding="application/x-tex">360</annotation></semantics></math>.</p>
+<p>The 3D view shows which motions are allowed: a circular arrow about
+the axis for Rotate, an arrowhead on the axis for Translate.</p>
+<h2 id="orienting-the-hinge">Orienting the Hinge</h2>
+<p>The Orient tab chooses how the Hinge's axes are set.</p>
+<ul>
+<li><em>Rotations (Use XForm Tab)</em>, the default, takes them from the
+XForm rotations, like any other component.</li>
+<li><em>Vectors</em> builds them from directions. The XForm rotations
+are then computed from those directions and greyed.</li>
+</ul>
+<p><em>Axis</em> chooses which of the Hinge's own axes,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>,
+is the hinge axis, in either mode; the joint turns about and slides
+along it. With Vectors (Figure 5), <em>Type</em> sets the direction of
+that axis:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">The hinge axis points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">VECTOR3D</td>
+<td style="text-align: left;">Along the <em>Direction Vector</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">POINT3D</td>
+<td style="text-align: left;">From the Hinge's origin toward the point
+<em>Offset</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">SURFPT</td>
+<td style="text-align: left;">From the Hinge's origin toward the point
+of the parent's surface at <em>U</em>, <em>W</em>, moved by
+<em>Offset</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">UDIR</td>
+<td style="text-align: left;">Along the parent's surface in its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+direction at <em>U</em>, <em>W</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">WDIR</td>
+<td style="text-align: left;">Along the parent's surface in its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+direction at <em>U</em>, <em>W</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">NDIR</td>
+<td style="text-align: left;">Along the parent's surface normal at
+<em>U</em>, <em>W</em>.</td>
+</tr>
+</tbody>
+</table>
+<p><em>Rel</em> gives a vector or an offset in the axes the Hinge is
+attached to (the parent's, when the Hinge is attached to its parent),
+except SURFPT's offset, which is always in the parent's axes;
+<em>Abs</em> gives it in the model's axes. The surface types need the
+Hinge to have a parent with a surface. UDIR on a wing, at the station of
+a control surface, gives a hinge axis that follows the wing's span
+there.</p>
+<p><img src="images/Hinge_gui_orient.png" title="Figure 5. Orient tab"
+alt="Figure 5. Orient tab" /></p>
+<p><em>Figure 5. The Orient tab of a Hinge on a wing, oriented by
+Vectors with Type SURFPT at U 0.6, W 0.5. The Offset and U, W are live;
+the Direction Vector is greyed and shows the hinge axis that results.
+Axis and Reference cannot be the same axis, so Y is greyed under Axis
+and X under Reference.</em></p>
+<p>An axis alone allows a Hinge to rotate, but does not specify where
+zero rotation is. The <em>Reference Vector</em>, along the model's or
+the attachment's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>,
+fixes that roll: the Hinge's axis chosen as <em>Reference</em> is set in
+the plane of the hinge axis and the reference vector, square to the
+hinge axis (Figure 6). The reference vector is used with every Type. Its
+<em>Rel</em> and <em>Abs</em> choose the attachment's axes and the
+model's, as for the direction vector; the default is <em>Rel</em>.</p>
+<p><img src="images/Hinge_orient.png"
+title="Figure 6. Orienting a Hinge by vectors"
+alt="Figure 6. Orienting a Hinge by vectors" /></p>
+<p><em>Figure 6. A Hinge on the swept hinge line of a left wing,
+oriented by Vectors: Type VECTOR3D along the hinge line, Axis
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+Reference
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+and the reference vector along the model's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>.
+The reference vector is turned about the Hinge's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+until it is square to the hinge axis, and becomes the Hinge's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.
+The model's axes are drawn at its origin; the axes at the Hinge show
+directions only.</em></p>
+<h2 id="flip">Flip</h2>
+<p><a href="XFormTab.html#flip">Flip</a> on the XForm tab makes the
+Hinge move as the mirror image of its unflipped self, through each plane
+chosen. The Hinge's frame itself is not reflected, nor are its children:
+a plane that contains the hinge axis reverses the sense of Rotate, and a
+plane square to the axis reverses the direction of Translate. To mirror
+a hinged part, flip the part as well as its Hinge.</p>
+<p>A Hinge has no symmetry of its own; the symmetry controls are greyed.
+A pair of mirrored control surfaces is two Hinges, or a Hinge and a <a
+href="Clone.html">Clone</a> of it.</p>
+<h2 id="other-uses-of-a-hinge">Other Uses of a Hinge</h2>
+<ul>
+<li>A <a href="Clone.html">Clone</a> of a Hinge is a joint too. Its own
+children ride on it, and it can take the original's deflection or have
+its own.</li>
+<li>The <a href="GeometryAnalysis.html#swept-volume">Swept Volume</a>
+analysis can take a Hinge whose Translate is allowed as its secondary
+geometry. It then sweeps everything attached to the Hinge along the
+hinge axis, over the range the analysis chooses: from <em>Min</em> to
+<em>Max</em>, from <em>Min</em> to the current Translate, from the
+current Translate to <em>Max</em>, or out past the model forward or
+back. The Min and Max values are used whether or not their check boxes
+are on.</li>
+</ul>
+<h2 id="when-not-to-use-hinge">When Not to Use Hinge</h2>
+<ul>
+<li>A <a href="Gear.html">Gear</a> bogie has its own retraction
+mechanism; describe landing gear retraction there, not with a
+Hinge.</li>
+<li>A <a href="Propeller.html">Propeller</a> has its own mechanism for
+articulation and folding. Describe the rotation of a propeller, and
+movement within it (feather, flap, lag and folding), there, not with a
+Hinge.</li>
+</ul>
+<h2 id="shared-tabs">Shared Tabs</h2>
+<p>The Gen and XForm tabs are common to every component; see <a
+href="GenTab.html">Gen</a> and <a href="XFormTab.html">XForm</a>. A
+Hinge has neither a Mass tab nor a Sub tab, since it has no mass or
+surface.</p>
+<h2 id="scripting">Scripting</h2>
+<p>A script adds a Hinge with <code>AddGeom( "HINGE" )</code>. Its parms
+are in the group <code>Hinge</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>JointRotate</code>,
+<code>JointTranslate</code></td>
+<td style="text-align: left;">The deflection: degrees, and model units
+along the axis.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>JointRotateFlag</code>,
+<code>JointTranslateFlag</code></td>
+<td style="text-align: left;">Whether each motion is allowed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>JointRotMin</code>,
+<code>JointRotMax</code>, <code>JointTransMin</code>,
+<code>JointTransMax</code></td>
+<td style="text-align: left;">The limits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>JointRotMinFlag</code>,
+<code>JointRotMaxFlag</code>, <code>JointTransMinFlag</code>,
+<code>JointTransMaxFlag</code></td>
+<td style="text-align: left;">Whether each limit is used.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>OrientRotFlag</code></td>
+<td style="text-align: left;"><code>HINGE_ORIENT_ROT</code> (Rotations)
+or <code>HINGE_ORIENT_VEC</code> (Vectors).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PrimaryDir</code>,
+<code>SecondaryDir</code></td>
+<td style="text-align: left;"><em>Axis</em> and <em>Reference</em>:
+<code>X_DIR</code>, <code>Y_DIR</code> or <code>Z_DIR</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PrimType</code></td>
+<td style="text-align: left;"><code>HINGE_PRIM_VECTOR3D</code>,
+<code>_POINT3D</code>, <code>_SURFPT</code>, <code>_UDIR</code>,
+<code>_WDIR</code>, <code>_NDIR</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PrimXVec</code>,
+<code>PrimYVec</code>, <code>PrimZVec</code>, and
+<code>...Rel</code></td>
+<td style="text-align: left;">The direction vector, Abs and Rel.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PrimXOff</code>,
+<code>PrimYOff</code>, <code>PrimZOff</code>, and
+<code>...Rel</code></td>
+<td style="text-align: left;">The offset, Abs and Rel.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PrimVecAbsRelFlag</code>,
+<code>PrimOffAbsRelFlag</code>, <code>SecVecAbsRelFlag</code></td>
+<td style="text-align: left;"><code>ABS</code> or <code>REL</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PrimULoc</code>,
+<code>PrimWLoc</code></td>
+<td style="text-align: left;"><em>U</em> and <em>W</em> on the parent's
+surface.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SecondaryVecDir</code></td>
+<td style="text-align: left;">The reference vector: <code>X_DIR</code>,
+<code>Y_DIR</code> or <code>Z_DIR</code>.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -26,6 +26,7 @@ particular purpose and can be added to a model as needed.
 ### Assemblies and Mechanisms
 
 - [Blank](Blank.md)
+- [Hinge](Hinge.md)
 
 
 ### Geometry
