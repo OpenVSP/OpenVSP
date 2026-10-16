@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Auxiliary</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Auxiliary</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Auxiliary component builds a shape that describes another
+component rather than part of the aircraft: the region a rotor's tips
+sweep, the zone a burst rotor's fragments fly through, the ground plane
+under a set of landing gear, a tire's spray, a pilot's field of view.
+Such shapes are implied by what the model already holds, and drawing
+them by hand would be tedious and would not follow the design as it
+changes. Each <em>Mode</em> computes its shape from the Auxiliary
+component's parent, so an Auxiliary component is always added as the
+child of the component it describes, and it follows that component:
+change the propeller or the gear, and the shape changes with it.</p>
+<p>The shapes are used three ways: to inspect by eye, as a limit to move
+a part against with <em>Snap To</em> (in the Model menu), and as the
+geometry of the <a href="GeometryAnalysis.html">Geometry Analysis</a>
+manager's checks.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#parent-and-placement">Parent and
+Placement</a></td>
+<td style="text-align: left;">Design, XForm</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#rotor-tip-path">Rotor Tip
+Path</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#rotor-burst">Rotor
+Burst</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#ac-20-128a-rotor-fragment">AC
+20-128A Rotor Fragment</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#ac-25905-1-thrown-blade">AC
+25.905-1 Thrown Blade</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#ground-planes">Ground
+Planes</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#single-gear">Single
+Gear</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#esdu-83042a-tire-spray-envelope">ESDU 83042a Tire Spray
+Envelope</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#amc-25734-wheel-and-tire-failure">AMC 25.734 Wheel and Tire
+Failure</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#3pt-composite-clearance-envelope">3pt Composite Clearance
+Envelope</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#super-cone">Super Cone</a></td>
+<td style="text-align: left;">Design</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#shared-tabs">Shared
+Tabs</a></td>
+<td style="text-align: left;">Gen, XForm, Mass, Sub</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#references">References</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Select the component to be described -- a <a
+href="Propeller.html">Propeller</a>, a <a href="Gear.html">Gear</a>, a
+pilot -- and add an Auxiliary component, so that it is that component's
+child.</li>
+<li>Choose its <em>Mode</em> on the Design tab. The box under Mode says
+what kind of parent the mode needs.</li>
+<li>Set the mode's parameters. For the ground modes, choose the bogies
+of the parent Gear that touch the ground.</li>
+<li>Use it as the geometry of an analysis in the Geometry Analysis
+manager.</li>
+</ol>
+<h2 id="parent-and-placement">Parent and Placement</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Parent</th>
+<th style="text-align: left;">Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Rotor Tip Path</td>
+<td style="text-align: left;">A Propeller</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#external-interference">External
+Interference</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">Rotor Burst</td>
+<td style="text-align: left;">Any component</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#external-interference">External
+Interference</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">AC 20-128A Rotor Fragment</td>
+<td style="text-align: left;">Any component</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#risk-angle">Risk Angle</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">AC 25.905-1 Thrown Blade</td>
+<td style="text-align: left;">A Propeller</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#risk-angle">Risk Angle</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">3pt Ground Plane</td>
+<td style="text-align: left;">A Gear</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#plane-minmax-distance">Plane Min/Max
+Distance</a>, <a href="GeometryAnalysis.html#weight-distribution">Weight
+Distribution</a>, <a
+href="GeometryAnalysis.html#ground-manueverability">Ground
+Maneuverability</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">2pt Ground Plane</td>
+<td style="text-align: left;">A Gear</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#plane-2pt-angle-contact">Plane 2pt Angle
+Contact</a>, <a href="GeometryAnalysis.html#tipback-angle">Tipback
+Angle</a>, <a href="GeometryAnalysis.html#tipover-angle">Tipover
+Angle</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">1pt Ground Plane</td>
+<td style="text-align: left;">A Gear</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#plane-1pt-angle-contact">Plane 1pt Angle
+Contact</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">Single Gear</td>
+<td style="text-align: left;">A Gear</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#external-interference">External</a> and <a
+href="GeometryAnalysis.html#packaging-interference">Packaging</a>
+Interference</td>
+</tr>
+<tr>
+<td style="text-align: left;">ESDU 83042a Tire Spray Envelope</td>
+<td style="text-align: left;">A Gear</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#external-interference">External
+Interference</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">AMC 25.734 Wheel and Tire Failure</td>
+<td style="text-align: left;">A Gear</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#external-interference">External
+Interference</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">3pt Composite Clearance Envelope</td>
+<td style="text-align: left;">A Gear</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#composite-clearance-envelope">Composite
+Clearance Envelope</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">Super Cone</td>
+<td style="text-align: left;">Any component; a Human's eye point when
+the parent is a Human</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#from-point-visibility">From Point
+Visibility</a>, and Intersect sub-surfaces</td>
+</tr>
+</tbody>
+</table>
+<p>A Clone of a Propeller or of a Gear serves as such a parent too.</p>
+<p>An Auxiliary component is always attached to its parent's component
+axes, and it takes its parent's symmetry and flip, so it is mirrored
+wherever its parent is; these controls are greyed. Its own location and
+rotation on the XForm tab move it from the parent's origin and axes;
+leave them at zero unless the zone should sit elsewhere, such as at a
+rotor inside a nacelle. A rotor zone is built about its parent's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis, so for a parent whose axes do not lie along the rotor's shaft,
+hang it from a <a href="Blank.html">Blank</a> placed at the rotor's
+center instead.</p>
+<p>Zones that reach far away -- the rotor fragment and thrown blade
+paths, the tire spray, the debris zones, the ground planes -- are drawn
+out to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1.5</mn><annotation encoding="application/x-tex">1.5</annotation></semantics></math>
+times the length of the diagonal of the model's bounding box, so they
+reach past the whole aircraft.</p>
+<h2 id="rotor-tip-path">Rotor Tip Path</h2>
+<p>A keep-out zone: the region the blade tips of a flapping rotor can
+sweep, which no part of the aircraft may enter. It is the parent
+propeller's tips flapping about a hinge at <em>r_flap/R</em> from the
+shaft, by up to <em>Theta Thrust</em> toward the thrust and <em>Theta
+Anti Thrust</em> away from it, all the way around (Figure 1). With
+<em>Automatic Diameter</em>, the default, the diameter is the
+propeller's. With <em>Automatic r_flap/R</em>, also the default,
+r_flap/R is the radial place of the propeller's flap hinge (see <a
+href="Propeller.html#hinges">Hinges</a>); it is on in models saved by
+earlier versions too, so their tip paths now take the propeller's flap
+hinge. Turn it off and set r_flap/R again to keep an earlier tip
+path.</p>
+<p><img src="images/Auxiliary_tip_path.png"
+title="Figure 1. Rotor tip path" alt="Figure 1. Rotor tip path" /></p>
+<p><em>Figure 1. The tip path of the default propeller, cut by the plane
+through its shaft and its first blade, with its flap hinge moved to r/R
+0.1 and both angles at their default, 15 degrees.</em></p>
+<h2 id="rotor-burst">Rotor Burst</h2>
+<p>A keep-out zone for systems that a burst rotor must not disable: the
+zone its fragments are taken to pass through, a ring about the parent's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis that is <em>Root Length</em> wide at the shaft and widens outward
+by <em>Theta Thrust</em> toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>
+and <em>Theta Anti Thrust</em> toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">+X</annotation></semantics></math>
+(Figure 2). <em>Root Offset</em> is the fraction of Root Length ahead of
+the parent's origin, 0.5 to center it. With <em>Automatic Diameter</em>
+and a propeller parent, the diameter is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1.5</mn><annotation encoding="application/x-tex">1.5</annotation></semantics></math>
+times the length of the diagonal of the model's bounding box.</p>
+<p><img src="images/Auxiliary_burst.png" title="Figure 2. Rotor burst"
+alt="Figure 2. Rotor burst" /></p>
+<p><em>Figure 2. A rotor burst zone about the default propeller, cut by
+the plane through its shaft and its first blade, with Root Length 3 and
+a diameter of 45.</em></p>
+<h2 id="ac-20-128a-rotor-fragment">AC 20-128A Rotor Fragment</h2>
+<p>The path of a fragment thrown from a turbine rotor, as the FAA's AC
+20-128A defines it [1], for the <a
+href="GeometryAnalysis.html#risk-angle">Risk Angle</a> analysis. The
+fragment, <em>Fragment Length</em> long, leaves from its center of
+gravity at <em>CG Radius</em> from the parent's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+axis, tangent to its circle, at <em>Release Angle</em> measured from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Z</mi></mrow><annotation encoding="application/x-tex">+Z</annotation></semantics></math>
+in the direction of rotation. It spreads by <em>Forward</em> toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>
+and <em>Aft</em> toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">+X</annotation></semantics></math>
+as it goes (Figure 3). <em>Rotate Direction</em> checked is rotation
+about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>,
+as a propeller turns normally; unchecked, about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">+X</annotation></semantics></math>.</p>
+<p><img src="images/Auxiliary_fragment.png"
+title="Figure 3. Rotor fragment" alt="Figure 3. Rotor fragment" /></p>
+<p><em>Figure 3. A Generic Fragment from a rotor set back 2 from the
+nose of its pod, Release Angle 30, Forward 10 and Aft 5: from upstream
+(left), and from above (right). The dashed circle is the path of the
+fragment's center of gravity.</em></p>
+<p><em>Model</em> chooses one of the fragments AC 20-128A defines, and
+computes Fragment Length, CG Radius and the spread from the rotor's
+<em>Disk Radius</em>, <em>Blade Length</em> and <em>Blade Root
+Radius</em>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Fragment Length</th>
+<th style="text-align: left;">CG Radius</th>
+<th style="text-align: left;">Spread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">One Third Rotor Fragment</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>r</mi><mrow><mi mathvariant="normal">sin</mi><mo>&#8289;</mo></mrow><msup><mn>60</mn><mo>∘</mo></msup></mrow><annotation encoding="application/x-tex">2 r \sin 60^\circ</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><msub><mi>r</mi><mi>d</mi></msub><mo>+</mo><msub><mi>l</mi><mi>b</mi></msub><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">r = r_d + l_b/3</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mrow><mi mathvariant="normal">cos</mi><mo>&#8289;</mo></mrow><msup><mn>60</mn><mo>∘</mo></msup></mrow><annotation encoding="application/x-tex">r \cos 60^\circ</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>3</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">3^\circ</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Intermediate Rotor Fragment</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>r</mi><mi>d</mi></msub><mo>+</mo><msub><mi>l</mi><mi>b</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">(r_d + l_b)/3</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>d</mi></msub><annotation encoding="application/x-tex">r_d</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>5</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">5^\circ</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Alternate Rotor Fragment</td>
+<td style="text-align: left;">as One Third</td>
+<td style="text-align: left;">as One Third</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>5</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">5^\circ</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Fan Blade Fragment</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>l</mi><mi>b</mi></msub><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">l_b/3</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>0</mn></msub><mo>+</mo><mn>5</mn><msub><mi>l</mi><mi>b</mi></msub><mi>/</mi><mn>6</mn></mrow><annotation encoding="application/x-tex">r_0 + 5 l_b/6</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>15</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">15^\circ</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Small Fragment</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>l</mi><mi>b</mi></msub><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">l_b/2</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>0</mn></msub><mo>+</mo><mn>3</mn><msub><mi>l</mi><mi>b</mi></msub><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">r_0 + 3 l_b/4</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>15</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">15^\circ</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Generic Fragment</td>
+<td style="text-align: left;">given</td>
+<td style="text-align: left;">given</td>
+<td style="text-align: left;">given</td>
+</tr>
+</tbody>
+</table>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>d</mi></msub><annotation encoding="application/x-tex">r_d</annotation></semantics></math>
+is the Disk Radius,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>l</mi><mi>b</mi></msub><annotation encoding="application/x-tex">l_b</annotation></semantics></math>
+the Blade Length and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mn>0</mn></msub><annotation encoding="application/x-tex">r_0</annotation></semantics></math>
+the Blade Root Radius; the spread is the same fore and aft. The values
+that a model computes are greyed.</p>
+<h2 id="ac-25905-1-thrown-blade">AC 25.905-1 Thrown Blade</h2>
+<p>The path of a propeller blade thrown from its hub, as the FAA's AC
+25.905-1 defines it [2], for the Risk Angle analysis. It is the same
+shape as a rotor fragment, built from the parent propeller: the fragment
+is centered on the blade's center of gravity, at <em>CG Fraction</em> of
+the blade's length from its root, and is long enough to reach both the
+blade's root and its tip; the direction of rotation is the propeller's.
+<em>Basic Blade</em> uses a CG Fraction of 0.34 and a spread of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>5</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">5^\circ</annotation></semantics></math>
+fore and aft; <em>Unconventional Blade</em> takes them as given.</p>
+<h2 id="ground-planes">Ground Planes</h2>
+<p>A <a href="Gear.html">Gear</a> is its nominal ground plane: the
+ground with every bogie in its nominal state. The ground plane modes
+build off-nominal ground planes from it: the ground under chosen bogies
+of the parent Gear, each in a chosen state, and turned about their
+contact points or axles as an analysis requires (Figure 5). They draw
+the plane and those bogies' tires with it. Make one Auxiliary component
+for each condition to be checked.</p>
+<p>For each bogie, <em>I Symm</em> chooses the bogie or its mirror
+image, for a Symmetrical bogie (Figure 4). <em>Suspension Mode</em>
+chooses the strut Nominal, Compressed or Extended: compressed moves the
+bogie's pivot by the Gear's Compression Travel along the suspension
+direction, toward the aircraft, and extended moves it the other way by
+the Extension Travel. <em>Tire Mode</em> chooses the tire's radius below
+the pivot: Static Load (the static loaded radius, the tire under the
+aircraft's weight), Unloaded (the unloaded tire's radius, as at first
+contact), Grown (the tire spinning at speed), or Flat (the radius of the
+wheel's flanges, which a flat tire rolls on). The bogie's contact point
+is its pivot, so moved, less that radius. The plane is the ground for
+that state of the gear, and each analysis reads the contact points and
+the Gear's center of gravity range through it.</p>
+<p><img src="images/Auxiliary_ground_plane_tab.png"
+title="Figure 4. A 3pt Ground Plane&#39;s Design tab"
+alt="Figure 4. A 3pt Ground Plane&#39;s Design tab" /></p>
+<p><em>Figure 4. The Design tab of the 3pt Ground Plane of Figure 5: the
+nose bogie with its strut Compressed and its tire Flat, and the
+symmetrical main bogie twice, I Symm 0 for one side and 1 for its mirror
+image.</em></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">The plane</th>
+<th style="text-align: left;">Analyses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3pt Ground Plane</td>
+<td style="text-align: left;">Through the contact points of three
+bogies.</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#plane-minmax-distance">Plane Min/Max
+Distance</a>, <a href="GeometryAnalysis.html#weight-distribution">Weight
+Distribution</a>, <a
+href="GeometryAnalysis.html#ground-manueverability">Ground
+Maneuverability</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">2pt Ground Plane</td>
+<td style="text-align: left;">Through the line joining the contact
+points of two bogies, as level as that line allows.</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#plane-2pt-angle-contact">Plane 2pt Angle
+Contact</a>, <a href="GeometryAnalysis.html#tipback-angle">Tipback
+Angle</a>, <a href="GeometryAnalysis.html#tipover-angle">Tipover
+Angle</a></td>
+</tr>
+<tr>
+<td style="text-align: left;">1pt Ground Plane</td>
+<td style="text-align: left;">Through the contact point of one bogie's
+outermost tire, level.</td>
+<td style="text-align: left;"><a
+href="GeometryAnalysis.html#plane-1pt-angle-contact">Plane 1pt Angle
+Contact</a></td>
+</tr>
+</tbody>
+</table>
+<p>The order in which the bogies are chosen does not matter; the plane's
+normal is always taken pointing up.</p>
+<p>The angles of the 2pt and 1pt modes pose the plane drawn, so that a
+contact angle an analysis finds can be seen. <em>Bogie Theta</em>
+pitches bogies that have wheels in tandem about their pivots. <em>Wheel
+Theta</em> turns the 2pt plane about the line through the rear axles,
+for a positive angle, or the front axles, for a negative one, as the
+aircraft rotates onto its tail or its nose; on the 1pt plane it pitches
+the plane. <em>Roll Theta</em> turns the 1pt plane about the line
+through the contact point along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+as the aircraft rolls onto a wing tip. A positive Roll Theta lowers the
+plane toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>,
+as the aircraft rolls onto its left wing tip about a left bogie (Figure
+6); about a right bogie, roll onto the right wing tip with a negative
+Roll Theta.</p>
+<p><img src="images/Auxiliary_ground_planes.png"
+title="Figure 5. Off-nominal ground planes"
+alt="Figure 5. Off-nominal ground planes" /></p>
+<p><em>Figure 5. Two off-nominal ground planes of a tricycle gear, from
+the side, with the Gear's tires drawn in their nominal state. The 2pt
+Ground Plane rests on the main gear and is turned by Wheel Theta 12
+about the rear axles, as for a tail strike; the 3pt Ground Plane has the
+nose tire Flat and the nose strut Compressed by 0.4, and so rises toward
+the nose.</em></p>
+<p><img src="images/Auxiliary_ground_roll.png"
+title="Figure 6. Roll Theta" alt="Figure 6. Roll Theta" /></p>
+<p><em>Figure 6. A 1pt Ground Plane under the outer tire of the left
+main bogie, Roll Theta 8, from ahead. The plane turns about the line
+along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+through that tire's contact point and falls toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>.</em></p>
+<h2 id="single-gear">Single Gear</h2>
+<p>One bogie of the parent Gear, alone, in a chosen state, to check the
+room the gear needs: that the retracted gear fits its wheel well, with
+the <a href="GeometryAnalysis.html#packaging-interference">Packaging
+Interference</a> analysis, or that the extended gear clears the
+airframe, with <a
+href="GeometryAnalysis.html#external-interference">External
+Interference</a>. <em>Gear Mode</em> chooses it Down, Up, or
+Intermediate at <em>Retract</em>; I Symm and Suspension Mode are as
+above. <em>Clearance Mode</em> chooses the tire: Nominal, Grown (the
+tire spinning at speed, grown by the Tire and Rim Association's
+allowances [6]), or Clearance (the TRA's clearance envelope around the
+grown tire [6, 7]), which a wheel well must leave room for. The <a
+href="Gear.html#tires">Gear</a> page draws all three.</p>
+<h2 id="esdu-83042a-tire-spray-envelope">ESDU 83042a Tire Spray
+Envelope</h2>
+<p>The spray thrown up by a bogie's front tires running through standing
+water, after ESDU 83042a [3], so that engine intakes and other parts can
+be kept out of it. It is almost always attached to the nose gear. A side
+plume leaves from beside the footprint of each outermost front tire and
+runs aft, rising at the <em>side elevation angle</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mi>s</mi></msub><annotation encoding="application/x-tex">\gamma_s</annotation></semantics></math>
+and spreading outward at the <em>plan angle</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>s</mi></msub><annotation encoding="application/x-tex">\theta_s</annotation></semantics></math>
+(Figure 7). The <em>incremental angle</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mi>s</mi></msub><annotation encoding="application/x-tex">\lambda_s</annotation></semantics></math>
+sets its width, which grows by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">tan</mi><mo>&#8289;</mo></mrow><msub><mi>λ</mi><mi>s</mi></msub></mrow><annotation encoding="application/x-tex">\tan\lambda_s</annotation></semantics></math>
+for each unit the plume runs aft, and the <em>inclination angle</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϕ</mi><mi>s</mi></msub><annotation encoding="application/x-tex">\phi_s</annotation></semantics></math>
+leans its sides outward (Figure 8). A bogie with two or more wheels
+across and one in tandem also throws a center plume between each pair of
+neighboring wheels, rising at the <em>center elevation angle</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mi>c</mi></msub><annotation encoding="application/x-tex">\gamma_c</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>y</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">\Delta y_c</annotation></semantics></math>
+wide.</p>
+<p>The <em>Tire Contact</em> width
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mi>g</mi></msub><annotation encoding="application/x-tex">b_g</annotation></semantics></math>
+and half length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>y</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">\Delta y_c</annotation></semantics></math>,
+are given as fractions of the tire diameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>:
+<em>Width (b_g/D)</em>, <em>Half Length (h/D)</em> and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>y</mi><mi>c</mi></msub><mi>/</mi><mi>D</mi></mrow><annotation encoding="application/x-tex">\Delta y_c/D</annotation></semantics></math>.
+Each tire's footprint is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mi>g</mi></msub><annotation encoding="application/x-tex">b_g</annotation></semantics></math>
+wide and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>h</mi></mrow><annotation encoding="application/x-tex">2h</annotation></semantics></math>
+long, centered on its contact point. The plumes leave the ground
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+ahead of the footprints, the side plumes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mi>g</mi></msub><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">b_g/4</annotation></semantics></math>
+outboard of them (Figure 9).</p>
+<p><img src="images/Auxiliary_tire_spray.png"
+title="Figure 7. Tire spray" alt="Figure 7. Tire spray" /></p>
+<p><em>Figure 7. The side plumes and center plume of a nose bogie, two
+across and one in tandem, at the default angles, from the side (top) and
+from above (bottom). From above, the upper edges of the side plume on
+the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+side are solid and its edges on the ground dashed.</em></p>
+<p><img src="images/Auxiliary_tire_spray_rear.png"
+title="Figure 8. Tire spray from behind"
+alt="Figure 8. Tire spray from behind" /></p>
+<p><em>Figure 8. The plumes of Figure 7 from behind, cut square to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+far aft of the bogie.</em></p>
+<p><img src="images/Auxiliary_tire_spray_footprint.png"
+title="Figure 9. Tire footprints" alt="Figure 9. Tire footprints" /></p>
+<p><em>Figure 9. Where the plumes of Figure 7 start, under the nose
+tires, from above.</em></p>
+<p>The mode draws the envelope; it does not find it. ESDU 83042a gives
+the angles and widths from the aircraft's tire and operating conditions,
+such as tire pressure and ground speed; work them out with the ESDU
+method and enter them here. Then check the envelope with <a
+href="GeometryAnalysis.html#external-interference">External
+Interference</a>: that engine intakes are clear of the spray, and that
+it does not strike structure or systems it could damage.</p>
+<h2 id="amc-25734-wheel-and-tire-failure">AMC 25.734 Wheel and Tire
+Failure</h2>
+<p>The zones that debris from a failed wheel or tire can reach, after
+EASA AMC 25.734 and the wheel and tire failure model it adopts [4, 8],
+for the bogie chosen. They are keep-out zones for the systems a failure
+must not disable, such as hydraulic and fuel lines, checked with <a
+href="GeometryAnalysis.html#external-interference">External
+Interference</a>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Zone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Model 1 Large</td>
+<td style="text-align: left;">Large tire debris: a fan above the axle in
+the plane of the wheels, spreading
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>15</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">15^\circ</annotation></semantics></math>
+to each side; a strip along the ground ahead of the tires and a wedge
+below
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>45</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">45^\circ</annotation></semantics></math>
+behind them are cut from it as negative volumes.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Model 1 Small</td>
+<td style="text-align: left;">Small tire debris: as Model 1 Large,
+spreading
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>30</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">30^\circ</annotation></semantics></math>
+to each side.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Model 2</td>
+<td style="text-align: left;">Wheel flange fragments: from the outer
+side of each outermost wheel, a cone about the axle starting at the
+flange diameter and opening at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>20</mn><mo>∘</mo></msup><annotation encoding="application/x-tex">20^\circ</annotation></semantics></math>
+from the axle.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Model 3E</td>
+<td style="text-align: left;">A flailing tire strip, with the gear
+extended: a ring about each tire, as far out as a strip
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>2.5</mn><annotation encoding="application/x-tex">2.5</annotation></semantics></math>
+shoulder widths long can reach.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Model 3R</td>
+<td style="text-align: left;">As Model 3E, with the gear retracted.</td>
+</tr>
+</tbody>
+</table>
+<p>Model 1's zone is the fan less its two negative volumes (Figure 10);
+the interference analysis, like CompGeom, removes them.</p>
+<p><img src="images/Auxiliary_wheel_failure.png"
+title="Figure 10. Wheel and tire failure"
+alt="Figure 10. Wheel and tire failure" /></p>
+<p><em>Figure 10. Model 1 Large on a main bogie with two axles, from the
+side: a fan above each axle (shaded), and the strip along the ground
+ahead of the tires and the wedge below 45 degrees behind them (dashed),
+which are cut from it.</em></p>
+<h2 id="3pt-composite-clearance-envelope">3pt Composite Clearance
+Envelope</h2>
+<p>A clearance envelope, read from a file, swept along the ground under
+the aircraft, for the <a
+href="GeometryAnalysis.html#composite-clearance-envelope">Composite
+Clearance Envelope</a> analysis. The envelope is a profile across the
+aircraft's track, such as the obstacles a taxiing aircraft must clear.
+It is swept along the line from the contact point of the <em>Nose Gear
+Bogie</em> toward the midpoint of <em>Main Bogie 1</em> and <em>Main
+Bogie 2</em>, in the plane of the three contact points, with its origin
+at the nose gear's contact point.</p>
+<p><em>Read File</em> reads the profile: a text file of two numbers on
+each line, the lateral position and the height of each point of the
+profile, in order. A positive lateral position is toward the Gear's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>,
+the aircraft's right as seen from behind, looking forward (Figure 11); a
+profile taken from a drawing seen from ahead has the signs of its
+lateral positions reversed. <em>Envelope Length Units</em> is the unit
+of the file, or <em>Consistent</em> for the model's own units; the
+parent Gear's Model Units convert it.</p>
+<p>Such envelopes come from the equipment an aircraft must taxi over or
+be launched from. The composite clearance envelope of a carrier's nose
+gear catapult launching system [9], for example, is a profile across the
+catapult track, in inches, of the deck fittings to either side that the
+airframe must clear. NASA CR-175104 [10] shows such an envelope applied
+to an aircraft design.</p>
+<p><img src="images/Auxiliary_clearance_envelope.png"
+title="Figure 11. Clearance envelope"
+alt="Figure 11. Clearance envelope" /></p>
+<p><em>Figure 11. An example envelope under a tricycle gear, seen from
+behind, looking forward: deck fittings at three heights to the right of
+the track and one to the left, which the airframe must clear. The file's
+lateral positions and heights are in inches; the Gear's Model Units are
+feet.</em></p>
+<p>The aircraft need not sit square on its track. With the nose gear on
+the track, the main gear may be off its center: a catapult launching
+system allows the main gear's center up to 24 in off the track in the
+hookup position [9, 10]. <em>Main Gear Offset</em> represents this. It
+turns the track about the nose gear's contact point, toward Main Bogie 2
+for a positive offset, so that the main gear's center lies the offset to
+the other side of the track, measured square to the track (Figure 12).
+It is in the Gear's Model Units, not the file's.</p>
+<p><img src="images/Auxiliary_clearance_offset.png"
+title="Figure 12. Main Gear Offset"
+alt="Figure 12. Main Gear Offset" /></p>
+<p><em>Figure 12. Main Gear Offset 2 on the tricycle gear, from above,
+as the aircraft sits on the track: the track straight, the aircraft
+turned about its nose gear's contact point, and the main gear's center 2
+off the track, measured square to it.</em></p>
+<h2 id="super-cone">Super Cone</h2>
+<p>A cone from a point, whose cross section is any cross-section curve:
+for example a pilot's field of view, for the <a
+href="GeometryAnalysis.html#from-point-visibility">From Point
+Visibility</a> analysis, which uses the cone's apex as its viewpoint and
+the cone as its field of view. The <em>Profile</em> is drawn in degrees:
+its width is azimuth and its height elevation, seen from the apex
+looking forward along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>X</mi></mrow><annotation encoding="application/x-tex">-X</annotation></semantics></math>,
+positive azimuth toward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>Y</mi></mrow><annotation encoding="application/x-tex">+Y</annotation></semantics></math>
+and positive elevation up. The default profile is the <a
+href="XSecCurves.html#ac-25773-pilot-vision">AC 25.773 pilot vision
+envelope</a> [5] (Figure 13); the other curves are described in <a
+href="XSecCurves.html">XSecCurves</a>.</p>
+<p><img src="images/Auxiliary_supercone_profile.png"
+title="Figure 13. Super Cone profile"
+alt="Figure 13. Super Cone profile" /></p>
+<p><em>Figure 13. The default Super Cone profile, the AC 25.773 pilot
+vision envelope for the left seat, in azimuth and elevation.</em></p>
+<p>The profile is read as azimuth and elevation and projected onto a
+sphere about the apex, so its outline is a set of directions (Figure
+14), and the cone reaches out to the distance the other zones are drawn
+to. The apex is the parent's origin, or the eye point of a <a
+href="Human.html">Human</a> parent. <em>World</em> aligns the cone with
+the model's axes, whatever the parent's rotation; <em>Object</em> aligns
+it with the parent's axes, or the Human's head. For any other point or
+direction, hang the Super Cone from a <a
+href="Blank.html">Blank</a>.</p>
+<p><img src="images/Auxiliary_supercone.png"
+title="Figure 14. Super Cone" alt="Figure 14. Super Cone" /></p>
+<p><em>Figure 14. The default Super Cone on a seated <a
+href="Human.html">Human</a>: every direction from the design eye inside
+the profile of Figure 13, out to the cone's far edge. The straight lines
+run from the eye to the profile's corners.</em></p>
+<p>The cone also marks surfaces. An Intersect sub-surface on the
+fuselage (see <a href="SubTab.html#sub-surface-types">Sub-Surface
+Types</a>) whose Intersect Geom is a pilot's Super Cone outlines the
+part of the fuselage the required view passes through: the region a
+windshield must cover.</p>
+<h2 id="shared-tabs">Shared Tabs</h2>
+<p>The Gen, XForm, Mass and Sub tabs are common to every component; see
+<a href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a
+href="SubTab.html">Sub-Surfaces</a>.</p>
+<h2 id="scripting">Scripting</h2>
+<p>A script adds an Auxiliary component with
+<code>AddGeom( "AUXILIARY", parent_id )</code> and chooses its mode with
+the parm <code>AuxiliaryGeomType</code> (<code>AUX_GEOM_MODE</code>) in
+the group <code>Design</code>, where its other parms are too. The bogies
+of the ground, gear and spray modes are set with
+<code>SetAuxiliaryGeomContactPtID( geom_id, index, bogie_id )</code> and
+read with <code>GetAuxiliaryGeomContactPtID</code>, index 0, 1 or 2;
+<code>ReadAuxiliaryGeomCCEFile</code> reads a clearance envelope.</p>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>Federal Aviation Administration, "Design Considerations for
+Minimizing Hazards Caused by Uncontained Turbine Engine and Auxiliary
+Power Unit Rotor Failure," Advisory Circular AC 20-128A, March 25,
+1997.</li>
+<li>Federal Aviation Administration, "Minimizing the Hazards from
+Propeller Blade and Hub Failures," Advisory Circular AC 25.905-1,
+September 27, 2000.</li>
+<li>ESDU, "Estimation of Spray Patterns Generated from the Sides of
+Aircraft Tyres Running in Water or Slush," ESDU Data Item 83042,
+December 1983, Amendment A, April 1998.</li>
+<li>European Union Aviation Safety Agency, "Protection against wheel and
+tyre failures," AMC 25.734, Certification Specifications and Acceptable
+Means of Compliance for Large Aeroplanes (CS-25).</li>
+<li>Federal Aviation Administration, "Pilot Compartment View Design
+Considerations," Advisory Circular AC 25.773-1, January 8, 1993.</li>
+<li>The Tire and Rim Association, Inc., "2025 Aircraft Year Book," 2025.
+General Notes for Use of Aircraft Tire Data, note 13, Bias (Diagonal)
+Ply Aircraft Tire Standard Growth and Minimum Clearance Allowance, pp.
+8-9.</li>
+<li>The Tire and Rim Association, Inc., "Engineering Design Information:
+Aircraft Tires and Rim Contours," Akron, OH, index of October 30, 2024.
+Page AC-12, Clearance Envelope Geometry Definition, Radial and
+Bias.</li>
+<li>European Aviation Safety Agency, "Wheel and Tyre Failure Model,"
+TGM/25/08 Issue 2, 2002; Appendix 1 of Notice of Proposed Amendment
+(NPA) 2013-02, 2013.</li>
+<li>"Launching System, Nose Gear Type, Aircraft," MIL-L-22589D,
+1979.</li>
+<li>Engelbeck, R. M., et al., "Multiple-Purpose Subsonic Naval Aircraft
+(MPSNA) - Multiple Application Propfan Study (MAPS)," NASA CR-175104,
+Boeing Military Airplane Company, 1986.</li>
+</ol>
+</body>
+</html>

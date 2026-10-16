@@ -47,6 +47,7 @@ particular purpose and can be added to a model as needed.
 
 - [Conformal](Conformal.md)
 - [Clone](Clone.md)
+- [Auxiliary](Auxiliary.md)
 
 ### Shared Capabilities
 

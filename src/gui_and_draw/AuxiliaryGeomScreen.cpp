@@ -15,7 +15,7 @@
 #include "StlHelper.h"
 
 //==== Constructor ====//
-AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Auxiliary" )
+AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Auxiliary", "Auxiliary.html" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
