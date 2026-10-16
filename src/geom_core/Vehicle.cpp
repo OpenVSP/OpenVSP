@@ -6779,11 +6779,11 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         fprintf( csf_file, "Surface #:    %d\n", isurf );
                         fprintf( csf_file, "Part #:       %d\n", part );
 
-                        if ( cs->m_SurfType() == SSControlSurf::UPPER_SURF )
+                        if ( cs->m_SurfType() == SS_CONTROL_UPPER_SURF )
                         {
                             fprintf( csf_file, "1 Upper\n" );
                         }
-                        else if ( cs->m_SurfType() == SSControlSurf::LOWER_SURF )
+                        else if ( cs->m_SurfType() == SS_CONTROL_LOWER_SURF )
                         {
                             fprintf( csf_file, "1 Lower\n" );
                         }

@@ -1506,6 +1506,15 @@ enum SIX_SERIES_TYPE { SIX_SERIES_63,	/*!< 63 series */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the sides of a wing a control surface sub-surface covers. */
+enum SS_CONTROL_SURF_TYPE { SS_CONTROL_UPPER_SURF,	/*!< Upper surface */
+                            SS_CONTROL_LOWER_SURF,	/*!< Lower surface */
+                            SS_CONTROL_BOTH_SURF	/*!< Upper and lower surfaces (default) */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for the limits a Stack puts on its cross sections' placement. */
 enum STACK_ORDER_POLICY { STACK_FREE,	/*!< Every cross section placed freely (default) */
                           STACK_LOOP,	/*!< The last cross section a copy of the first, placed on it */

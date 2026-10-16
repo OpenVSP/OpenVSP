@@ -2607,6 +2607,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "SS_CONTROL_SURF_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SS_CONTROL_SURF_TYPE", "SS_CONTROL_UPPER_SURF", SS_CONTROL_UPPER_SURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SS_CONTROL_SURF_TYPE", "SS_CONTROL_LOWER_SURF", SS_CONTROL_LOWER_SURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SS_CONTROL_SURF_TYPE", "SS_CONTROL_BOTH_SURF", SS_CONTROL_BOTH_SURF );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "STACK_ORDER_POLICY" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "STACK_ORDER_POLICY", "STACK_FREE", STACK_FREE );

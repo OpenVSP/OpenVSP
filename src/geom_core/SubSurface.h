@@ -348,8 +348,6 @@ public:
     // A control surface needs a wing-like surface: a Wing, a Prop, or a Clone of one.
     static bool IsValidParent( Geom* geom );
 
-    enum SS_CONTROL_SUBTYPE { UPPER_SURF, LOWER_SURF, BOTH_SURF };
-
     IntParm m_Tess; // Number of line segments to break shape into
 
     Parm m_UStart; // U Starting location for control surface

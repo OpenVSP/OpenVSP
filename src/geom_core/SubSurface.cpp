@@ -1918,7 +1918,7 @@ SSControlSurf::SSControlSurf( const string& compID, int type ) : SubSurface( com
     m_TestType.Init( "Test_Type", "SS_Control", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
-    m_SurfType.Init( "Surf_Type", "SS_Control", this, BOTH_SURF, UPPER_SURF, BOTH_SURF );
+    m_SurfType.Init( "Surf_Type", "SS_Control", this, vsp::SS_CONTROL_BOTH_SURF, vsp::SS_CONTROL_UPPER_SURF, vsp::SS_CONTROL_BOTH_SURF );
     m_SurfType.SetDescript( "Flag to determine whether the control surface is on the upper,lower, or both surface(s) of the wing" );
 
     m_ConstFlag.Init( "SE_Const_Flag", "SS_Control", this, true, 0, 1 );
@@ -2109,7 +2109,7 @@ void SSControlSurf::Update()
 
     double u, v;
 
-    if ( m_SurfType() != LOWER_SURF )
+    if ( m_SurfType() != vsp::SS_CONTROL_LOWER_SURF )
     {
         if ( !m_LEFlag() )
         {
@@ -2180,7 +2180,7 @@ void SSControlSurf::Update()
         m_UWStart01.push_back( c_uws_upper );
     }
 
-    if ( m_SurfType() != UPPER_SURF )
+    if ( m_SurfType() != vsp::SS_CONTROL_UPPER_SURF )
     {
         if ( !m_LEFlag() )
         {
@@ -2301,7 +2301,7 @@ void SSControlSurf::Update()
 
     ucs = m_UEnd() * umax;
 
-    if ( m_SurfType() != LOWER_SURF )
+    if ( m_SurfType() != vsp::SS_CONTROL_LOWER_SURF )
     {
         if ( !m_LEFlag() )
         {
@@ -2372,7 +2372,7 @@ void SSControlSurf::Update()
         m_UWEnd01.push_back( c_uwe_upper );
     }
 
-    if ( m_SurfType() != UPPER_SURF )
+    if ( m_SurfType() != vsp::SS_CONTROL_UPPER_SURF )
     {
         if ( !m_LEFlag() )
         {
@@ -2543,7 +2543,7 @@ void SSControlSurf::Update()
 
     ucs = umid * umax;
 
-    if ( m_SurfType() != LOWER_SURF )
+    if ( m_SurfType() != vsp::SS_CONTROL_LOWER_SURF )
     {
         if ( !m_LEFlag() )
         {
@@ -2589,7 +2589,7 @@ void SSControlSurf::Update()
         }
     }
 
-    if ( m_SurfType() != UPPER_SURF )
+    if ( m_SurfType() != vsp::SS_CONTROL_UPPER_SURF )
     {
         if ( !m_LEFlag() )
         {
@@ -2655,7 +2655,7 @@ void SSControlSurf::Update()
 
     ucs = umid * umax;
 
-    if ( m_SurfType() != LOWER_SURF )
+    if ( m_SurfType() != vsp::SS_CONTROL_LOWER_SURF )
     {
         if ( !m_LEFlag() )
         {
@@ -2701,7 +2701,7 @@ void SSControlSurf::Update()
         }
     }
 
-    if ( m_SurfType() != UPPER_SURF )
+    if ( m_SurfType() != vsp::SS_CONTROL_UPPER_SURF )
     {
         if ( !m_LEFlag() )
         {
@@ -2779,7 +2779,7 @@ void SSControlSurf::Update()
     low_pnt_vec.reserve( 13 );
     if ( !m_LEFlag() )
     {
-        if ( m_SurfType() == UPPER_SURF )
+        if ( m_SurfType() == vsp::SS_CONTROL_UPPER_SURF )
         {
             up_pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
             up_pnt_vec.push_back( c_uws1_upper );
@@ -2792,7 +2792,7 @@ void SSControlSurf::Update()
             up_pnt_vec.push_back( c_uwe1_upper );
             up_pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
         }
-        else if ( m_SurfType() == LOWER_SURF )
+        else if ( m_SurfType() == vsp::SS_CONTROL_LOWER_SURF )
         {
             low_pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
             low_pnt_vec.push_back( c_uws1_lower );
@@ -2833,7 +2833,7 @@ void SSControlSurf::Update()
     }
     else
     {
-        if ( m_SurfType() == UPPER_SURF )
+        if ( m_SurfType() == vsp::SS_CONTROL_UPPER_SURF )
         {
             up_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
             up_pnt_vec.push_back( c_uwe1_upper );
@@ -2849,7 +2849,7 @@ void SSControlSurf::Update()
             up_pnt_vec.push_back( vec3d( m_UStart() + 2.0 * ( m_UEnd() - m_UStart() ) / 3.0, 0.5, 0 ) );
             up_pnt_vec.push_back( up_pnt_vec[0] );
         }
-        else if ( m_SurfType() == LOWER_SURF )
+        else if ( m_SurfType() == vsp::SS_CONTROL_LOWER_SURF )
         {
             low_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
             low_pnt_vec.push_back( c_uwe1_lower );
@@ -3095,7 +3095,7 @@ void SSControlSurf::UpdatePolygonPnts()
         return;
     }
 
-    if ( m_SurfType() == UPPER_SURF || m_SurfType() == LOWER_SURF )
+    if ( m_SurfType() == vsp::SS_CONTROL_UPPER_SURF || m_SurfType() == vsp::SS_CONTROL_LOWER_SURF )
     {
         SubSurface::UpdatePolygonPnts();
         vec3d pnt = m_LVec[0].GetP0();
