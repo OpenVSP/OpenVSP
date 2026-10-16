@@ -51,6 +51,10 @@ particular purpose and can be added to a model as needed.
 - [Clone](Clone.md)
 - [Auxiliary](Auxiliary.md)
 
+### Meshes and Imported Geometry
+
+- [Mesh](Mesh.md)
+
 ### Shared Capabilities
 
 - Common Component Tabs

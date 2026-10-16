@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Mesh</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Mesh</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>A Mesh component holds a fixed set of triangles. It is how OpenVSP
+brings in geometry from other tools -- STL, Cart3D and NASCART files --
+and it is what several analyses leave behind: the intersected and
+trimmed outer mold line from CompGeom, the slices from Mass Properties
+and Planar Slice, a projected area. A mesh can be moved, turned, scaled,
+saved and used in further analyses, but its shape cannot be edited: it
+has no parameters of its own beyond how it is drawn.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#where-a-mesh-comes-from">Where a
+Mesh Comes From</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#importing-a-mesh">Importing a
+Mesh</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#tags">Tags</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#converting-a-mesh">Converting a
+Mesh</a></td>
+<td style="text-align: left;">Other</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#mesh-and-slices">Mesh and
+Slices</a></td>
+<td style="text-align: left;">Other</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#using-a-mesh">Using a
+Mesh</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p>The Gen, XForm and Mass tabs are the ones every component has; see <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a> and <a
+href="MassTab.html">Mass</a>. A Mesh has no Sub tab.</p>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="an-imported-mesh">An imported mesh</h3>
+<ol type="1">
+<li>Choose <em>File &gt; Import</em> and click the file's format:
+Stereolith (.stl), Cart3D (.tri), NASCART (.dat) or XSec as Tri Mesh
+(.hrm).</li>
+<li>Place it with the XForm tab, and scale it to the model's units with
+<em>Scale</em>.</li>
+<li>Set its density on the Mass tab if it is to count in the mass
+properties.</li>
+</ol>
+<h3 id="the-result-of-an-analysis">The result of an analysis</h3>
+<ol type="1">
+<li>Run the analysis -- CompGeom, Mass Properties, Planar Slice,
+Projected Area. The mesh it makes is added to the model. Run from their
+screens, CompGeom, Mass Properties, Planar Slice and Wave Drag hide the
+components the mesh was made from.</li>
+<li>Inspect it in the 3D view: turn on <em>Sub</em> in the Geom Browser
+to color it by component and sub-surface.</li>
+<li>Delete it when done, or keep it as a record: it is saved with the
+model.</li>
+</ol>
+<h2 id="where-a-mesh-comes-from">Where a Mesh Comes From</h2>
+<p>A mesh is made by an import, by an analysis, or from another
+component.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">The mesh</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">File &gt; Import</td>
+<td style="text-align: left;">The file's triangles.</td>
+</tr>
+<tr>
+<td style="text-align: left;">CompGeom</td>
+<td style="text-align: left;">The outer mold line: every component
+intersected with every other, inside parts removed, negative volumes cut
+out.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mass Properties</td>
+<td style="text-align: left;">The components' triangles, and the slices
+the mass was integrated over.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Planar Slice</td>
+<td style="text-align: left;">The components' triangles, and the cutting
+planes' cross sections.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Wave Drag</td>
+<td style="text-align: left;">The components' triangles, and the slices
+at the Mach angle.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Projected Area</td>
+<td style="text-align: left;">The projected area, flat, and its
+outline.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Geometry Analysis, <em>Make
+MeshGeom</em></td>
+<td style="text-align: left;">The triangles the analysis case worked on,
+and any slices.</td>
+</tr>
+<tr>
+<td style="text-align: left;">DegenGeom, <em>Make Mesh</em></td>
+<td style="text-align: left;">The degenerate geometry as triangles:
+plates for bodies, camber surfaces for wings.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Point Cloud, <em>Create Convex Hull
+Mesh</em></td>
+<td style="text-align: left;">The convex hull of the points.</td>
+</tr>
+<tr>
+<td style="text-align: left;">File &gt; Export, the mesh formats</td>
+<td style="text-align: left;">The triangles of the exported set.</td>
+</tr>
+</tbody>
+</table>
+<p>Mass Properties removes the mesh it made the previous time it ran, so
+only the latest is kept. The mesh exports (STL, Cart3D, OBJ and others)
+also build a mesh, and leave it in the model with every other component
+hidden. An export whose set already holds a mesh writes that mesh
+instead of building a new one, so a second export after the model has
+changed writes the old shape; delete the mesh before exporting
+again.</p>
+<h2 id="importing-a-mesh">Importing a Mesh</h2>
+<p>The importers read triangles and nothing else: no units, no names of
+parts and no surface curvature. OpenVSP's model has no units, so a mesh
+comes in at the numbers in the file; scale it to match the model
+(<em>Scale</em> on the XForm tab).</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Format</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Stereolith (.stl)</td>
+<td style="text-align: left;">ASCII or binary, told apart by the file's
+content. Several solids in one file make one mesh, in ASCII or as binary
+blocks, one per solid, as DATCOM writes them. A binary file whose size
+does not match its facet count, such as one cut short, is refused. The
+facet normals are read as given.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Cart3D (.tri)</td>
+<td style="text-align: left;">Formatted or unformatted, single or double
+precision, told apart by the file's content. The component number of
+each triangle is kept as its tag.</td>
+</tr>
+<tr>
+<td style="text-align: left;">NASCART (.dat)</td>
+<td style="text-align: left;">Rotated as it is read, from NASCART's axes
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+up) to OpenVSP's
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+up): the file's
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x, y, z)</annotation></semantics></math>
+becomes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>−</mi><mi>z</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x, -z, y)</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">XSec (.hrm)</td>
+<td style="text-align: left;">OpenVSP's cross section format. Each
+component's grid of points is split into triangles, two per
+quadrilateral, and all components go into one mesh. To keep the
+components apart as grids, import the same file as XSec as Wireframe
+instead (see <a href="Wire.html">Wireframe</a>).</td>
+</tr>
+</tbody>
+</table>
+<p>A file that holds no triangles is not imported.</p>
+<h2 id="tags">Tags</h2>
+<p>Each triangle of a mesh can carry tags: numbers that say which
+component and which sub-surfaces it came from. A CompGeom mesh is tagged
+by component and, when sub-surfaces are intersected, by sub-surface; a
+Cart3D file brings its own component numbers. With <em>Sub</em> on in
+the Geom Browser, the mesh is drawn one color per combination of tags,
+going round the color wheel. <em>Start Color Degree</em> on the Other
+tab sets where on the wheel the first color is: 0 is red, 120 green and
+240 blue. It also colors the outlines a projected area draws.</p>
+<h2 id="converting-a-mesh">Converting a Mesh</h2>
+<p>The Other tab converts a mesh into two other components. Each is a
+new component; the mesh is left as it was.</p>
+<ul>
+<li><em>Convert</em> under Convert to Point Cloud makes a <a
+href="PtCloud.html">Point Cloud</a> of the mesh's vertices, each once,
+where the mesh is placed. The vertices of the slices are included when
+<em>Slices</em> is on.</li>
+<li><em>Convert</em> under Convert to NGon Mesh makes an <a
+href="NGonMesh.html">NGon Mesh</a>: the triangles merged into polygons,
+with the wing wakes found, ready to write as a VSPAERO geometry file.
+The NGon mesh is made where the mesh is placed. A mesh opened from a
+model file has lost the tables that say which component each triangle
+came from, so its conversion finds no wakes; convert a mesh in the
+session that made it.</li>
+</ul>
+<h2 id="mesh-and-slices">Mesh and Slices</h2>
+<p>A mesh from Mass Properties, Planar Slice or Wave Drag holds two sets
+of triangles: the components' mesh and the slices. <em>Mesh</em> and
+<em>Slices</em> on the Other tab choose which are drawn. They also
+choose what an STL export of the mesh writes and what a point cloud made
+from it holds, so turn <em>Slices</em> off to export the shape
+alone.</p>
+<h2 id="using-a-mesh">Using a Mesh</h2>
+<p>A mesh takes part wherever triangles are enough.</p>
+<ul>
+<li>It is placed like any component: location, rotation, attachment,
+<em>Scale</em> and <em>Flip</em> on the XForm tab. It makes no symmetric
+copies, so the XForm tab's symmetry controls are greyed, and so is
+<em>Rot Origin(X)</em>.</li>
+<li>CompGeom, Mass Properties, the slicing analyses, Projected Area,
+interference checks and the mesh exports take it as they take any
+component. A mesh run through CompGeom again is intersected with the
+other components like any of them; it should be closed for the result to
+be right.</li>
+<li>Mass Properties gives it the density on its Mass tab, like any
+component.</li>
+<li>VSPAERO takes it as one or more components.</li>
+<li>It is saved with the model, triangles and all.</li>
+</ul>
+<p>It is not a surface. It has no sub-surfaces, its degenerate geometry
+is empty, and it takes no part where a surface is needed: CFD Mesh, FEA
+Mesh, Fit Model, or as the boundary or direction of a projection. Its
+triangles cannot be edited in OpenVSP; change the geometry it came from
+and run the analysis again, or edit the file and import it again.</p>
+<h2 id="scripting">Scripting</h2>
+<p>A mesh is made by importing a file or by running an analysis; each
+returns the new mesh's ID.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><code>ImportFile( file, IMPORT_STL, "" )</code></td>
+<td style="text-align: left;">Import a file as a mesh
+(<code>IMPORT_CART3D_TRI</code>, <code>IMPORT_NASCART</code>,
+<code>IMPORT_XSEC_MESH</code> for the other formats).</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>ComputeCompGeom( set, half, types )</code></td>
+<td style="text-align: left;">Run CompGeom and return the mesh's
+ID.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>CreatePtCloudGeom( mesh_id )</code></td>
+<td style="text-align: left;">Convert to a point cloud, as the Convert
+to Point Cloud button.</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>CreateNGonMeshGeom( mesh_id )</code></td>
+<td style="text-align: left;">Convert to an NGon mesh, as the Convert to
+NGon Mesh button.</td>
+</tr>
+</tbody>
+</table>
+<p>The Other tab's toggles are the Parms <code>MeshFlag</code>,
+<code>SliceFlag</code> and <code>StartColorDegree</code> in the group
+<code>Draw</code>. The scale the mesh has been given in total is
+<code>Scale_From_Original</code> in the group <code>XForm</code>.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openvsp <span class="im">as</span> vsp</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>mesh_id <span class="op">=</span> vsp.ImportFile( <span class="st">&quot;part.stl&quot;</span>, vsp.IMPORT_STL, <span class="st">&quot;&quot;</span> )</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( mesh_id, <span class="st">&quot;Scale&quot;</span>, <span class="st">&quot;XForm&quot;</span>, <span class="fl">0.0254</span> )     <span class="co"># inches to meters</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>vsp.Update()</span></code></pre></div>
+</body>
+</html>

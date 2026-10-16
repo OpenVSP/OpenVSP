@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Mesh", string(""), false )
+MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Mesh", "Mesh.html", false )
 {
     Fl_Group* other_tab = AddTab( "Other" );
     Fl_Group* other_group = AddSubGroup( other_tab, 5 );
