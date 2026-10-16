@@ -1,3 +1,236 @@
+# [OpenVSP 3.56.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.56.0)
+
+2026-11-03
+
+OpenVSP 3.56.0
+
+There are a few new features in this version that may appeal to very
+different users.  When considered with all the bug fixes, there is
+certainly going to be something for everyone.
+
+The prop component can now model a fully articulated rotor.  In
+addition to the pre-existing fold hinge, you can now define flap,
+lag, and feather hinges.  Each hinge's position and orientation
+are defined independently.  Transformations are applied in order
+of r/R, with a defined tie-break order (flap, lag, feather, fold).
+
+The angle of each hinge can be set uniformly (called collective),
+individually per-blade, or as a function of blade azimuth using
+terms in a harmonic series.
+
+There is now a preset capability to quickly make your prop
+identify as a rotor (and vis-versa).  It changes the orientation,
+blade shape, and blade azimuth reference direction.
+
+If you need to know the blade positions for some external tool
+and you don't want to implement OpenVSP's hinges, there is now
+an API to obtain the transformation matrices for each blade given
+the rotor angle.
+
+If you need to know the blade positions for some external tool
+and you do want to implement OpenVSP's hinges, there is now
+comprehensive documentation for the Prop component - including
+the hinges and harmonic motion.
+
+Documentation has never been my (or OpenVSP's) strong point.
+I don't expect users to need to know how the sausage is made
+(how each Geom is constructed).  I think most users adjust
+the shape to get what they want and they are satisfied with
+that.
+
+However, needing to implement complex blade motion in a downstream
+provides a clear imperative for documentation.  So I had my
+friend Claude take a stab at documenting the new rotor
+articulation and motion.  It took a lot of iteration, but
+eventually I was happy with what it came up with.
+
+From there, I had Claude document the rest of the Prop component
+(historically our most complex component).  That too took
+a lot of iteration, but eventually I was happy with it.
+After that, the only logical thing to do was let it loose
+and have it write documentation for every component.
+
+It isn't perfect and it hasn't received perfect scrutiny,
+but it is certainly better than what was there before
+(which isn't always the case with AI).  I tried to strike
+the balance that shows what the Parms do without becoming
+a wall of equations nobody will ever use or implement.
+
+This documentation push did reveal a lot of small geometry bugs.
+These have been fixed and some will cause changes in models.
+I hate this, but I tried to make the best decisions in each
+case.  There is a partial list of what to watch for at the
+end of this message.
+
+Next is a feature that has been in the works since 2014!
+OpenVSP now has the ability to generate 'screenshots' in
+vector formats (PDF and SVG).  These are faithful reproductions
+of the 3D OpenGL scene, but as a vector drawing that can be
+zoomed or printed at any scale at the destination's native
+resolution.
+
+We're using a library (gl2ps) to do the heavy lifting.  We
+first attempted integration of gl2ps in 2014 during the
+v2 to v3 rewrite.  Unfortunately, there were numerous problems.
+First, there was a white box drawn on top of the scene, so
+you had to go into an editor to delete it to get the image
+to work.  More significantly, the resulting files were
+enormous and took a rediculious amount of time to draw
+(sometimes minutes in Acrobat).  There were also major
+problems with how transparency was drawn; any scene with
+transparent elements looked like garbage.
+
+At some point, I figured out how to get rid of the white
+box and in 2023, gl2ps had an update that looked like it
+might help with the file size and render time.  The
+fundamental problem was poor Z buffering.  I.e. the file
+contained _every_ triangle.  Even those in the back that
+were obscured by more forward triangles.  Every tri had
+to be stored and drawn.  You could watch the image render from
+back to front.  The 2023 update helped, but it still sucked.
+So gl2ps returned to the back burner.
+
+I really didn't know whether the problem was with how
+OpenVSP was using OpenGL (was our scene inherently inefficient?)
+or with how gl2ps worked with complex scenes.  So, I told
+Claude to get to the bottom of it.  I gave it two ideas
+to improve performance:  1) Improve the Z-buffering,
+and 2) Try to group like-entities together (many drawing
+formats and commands are more efficient this way.)  I gave
+Claude the purvue over both OpenVSP and gl2ps.
+
+In the end, a bunch of improvements were made to gl2ps.
+This includes a Z-buffering algorithm that effectively uses
+the graphics card to compute visibility (so it is actually faster
+to save too) and a multi-pass approach to transparency similar to
+what is used by most 3D scenes.  It also found a bunch of ways to
+combine like entities together and to improve how per-triangle
+shading was stored.  Along the way, it also fixed how transparency
+is rendered.
+
+The final result is remarkably better.  It fixes every problem
+we had with gl2ps.  As a graphics quality snob, this hits all
+the right buttons.
+
+The improvements to gl2ps have been submitted upstream.  With
+luck, you'll soon get better vector graphics output from other
+3D programs in the near future.
+
+There are another significant wave of improvements to CFDMesh & Co.
+Once again, it should be much faster and also more robust.  If
+it gets any faster, the meshes will be ready before you hit 'go'.
+If it gets any more robust, it will still be easy to find geometries
+that cause it to fail.  Some things are just hard...
+
+I'm not sure that anybody is noticing these speedups, but if you
+want to check, go back to 3.51.0 or earlier and do a comparison.
+Let me know what you find and if this work has been worth doing.
+
+There are two areas of improvement for the relatively recently
+added POGS export.  Surfaces are split into fewer pieces, resulting
+in fewer patches for POGS to stitch back together.  In addition,
+the inside/outside test that set iblank for those files was buggy.
+It should be accurate now and (you guessed it) faster too.
+
+There are two new meshing options in CFDMesh.  'Num Width Segments'
+ensures a number of edges across thin patches.  I.e. blunt trailing
+edges.  Before, blunt TE's would result in sliver triangles and
+general difficulty meshing.  This option helps bring this under
+control.  'Find Interior by Topology' is an alternate algorithm
+for the inside/outside classification of tris.  It should be faster
+and more robust, but I made it an option just in case.  Both
+of these default to 'on'.
+
+As usual, there are lots of fixes all over the place too.  A bunch
+of the AI found fixes are technically correct, but are for problems
+that are more theoretical than acute.  I go along with fixing them
+because they're pedantically correct and because I hope that someday
+AI will run out of problems to invent and the signal to noise ratio
+will improve.  So far, OpenVSP has more than enough problems to fix.
+
+Some binary STL files (DATCOM) had different record sizes than
+what OpenVSP expected.  We can read those now.
+
+On some dual-monitor Windows machines, the Geom window would pop up
+on the other screen.  This is hopefully fixed now.
+
+Some of our XML file reading could be slow for large files, it should
+be better now.  There was an old bug that would create an infinite
+number of flow through subsurfaces for Wave Drag.  That was fixed
+a long time ago, but files may still carry the scars.  That mess should
+now be cleaned up.
+
+Splitting a wing section now does a better job with dihedral and
+twist.
+
+Propeller BEM export does a better job at exporting sections at
+the correct r/R.
+
+OpenVSP should now be robust to people who set their computer to a
+locale that uses comma as the decimal separator.  In the past, people
+who used different locales could wind up with corrupted files, crashes,
+and other problems.  Let me know if you have a problem.
+
+Some of the geometry changes to note:
+
+Wing blending had a sign convention difference in inboard vs outboard
+dihedral (usually zero).  If you used a non-zero blend dihedral, you
+may get different results now.  Flip the sign of the inboard dihedral
+angle to fix this.
+
+Previously, propellers with reversed rotation selected were not true
+mirrors of the non-reversed version.  Feather Offset, and the fold
+axis's Offset/R, Azimuth and Elevation parms need to be negated to
+get the prior behavior.
+
+Previously, propeller feather did not have an r/R location
+(i.e. r/R = 0).  Now they have a default location of r/R = 0.15.
+If a propeller's fold axis is at r/R < 0.15, then feather will 
+now happen 'after' folding and the blade positions will change.
+In this situation, adjust the feather r/R to be 'inside' the fold
+hinge position.
+
+Aux Rotor Tip Path's now take the flap r/R from the parent
+propeller by default (ignoring the assigned value).  If you want to
+use a value different from the propeller's flap r/R, there is a flag
+to turn off the automatic value.
+
+Chevron L/R Amplitudes acted on the wrong sides, so if you used
+chevrons with un-equal L/R amplitudes, flip them.
+
+Retractable landing gear knee axis is now defined in a different
+frame.  Adjust the knee az,el to fix. 
+
+
+Features:
+ - Fully articulated rotors
+ - Harmonic motion of rotors
+ - Geometry documentation
+ - Vector screenshots of 3D scene (PDF & SVG)
+ - Faster CFDMesh
+ - CFDMesh 'Num Width Segments'
+ - CFDMesh 'Find Interior by Topology'
+ - Better surface splitting for POGS
+
+Library Updates:
+ - gl2ps Vector output for OpenGL scenes
+ - Code-Eli Updated
+ - Triangle Updated
+ - OpenABF Updated
+ - nanoflann Updated
+
+Bug Fixes:
+ - Fixed POGS iblank classification
+ - Reading some binary STL file variants
+ - Dual monitor Windows Geom screen placement
+ - Improved Wing Split with dihedral and twist
+ - Improved Propeller BEM export
+ - Robust to user's locale
+
+
+---
+
+
 # [OpenVSP 3.55.0](https://github.com/OpenVSP/OpenVSP/releases/tag/OpenVSP_3.55.0)
 
 2026-10-11
