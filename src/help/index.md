@@ -23,6 +23,11 @@ OpenVSP geometry is described via a set of parametric components.  Each serves a
 particular purpose and can be added to a model as needed.
 
 
+### Assemblies and Mechanisms
+
+- [Blank](Blank.md)
+
+
 ### Geometry
 
 - [Wing](Wing.md)

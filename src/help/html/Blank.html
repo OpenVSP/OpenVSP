@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Blank</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Blank</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Blank component has no shape. It is a coordinate frame -- an
+origin and a set of axes -- placed in the model like any other
+component, and drawn in the 3D view as an axis triad at its origin (red
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>,
+green
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>,
+blue
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>),
+with one triad at each symmetric copy. With <em>Pick</em> on in the Geom
+Browser, click the triad to select the Blank.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#what-a-blank-is-for">What a
+Blank Is For</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#point-mass">Point Mass</a></td>
+<td style="text-align: left;">Mass</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#shared-tabs">Shared
+Tabs</a></td>
+<td style="text-align: left;">Gen, XForm, Mass</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-a-blank-is-for">What a Blank Is For</h2>
+<p>A Blank gives a model a frame that belongs to no part of the
+airframe. It is used to:</p>
+<ul>
+<li>Hold a group of components together. Components attached to a Blank
+move with it, so an engine installation, a cockpit or a payload bay
+built under a Blank is moved or turned by changing the Blank alone. Put
+a Blank at the top of any assembly whose origin should not be on one of
+its parts.</li>
+<li>Carry a mass that has no shape, such as equipment, fuel or
+passengers (see <a href="#point-mass">Point Mass</a>).</li>
+<li>Mark a point for components that refer to a point rather than a
+surface. A <a href="Routing.html">Routing</a> point on a Blank lies at
+the Blank's origin, so a route can run through free space. An <a
+href="Auxiliary.html">Auxiliary</a> super cone or rotor fragment zone
+hung from a Blank sits at the Blank's origin with the Blank's axes,
+which is more flexible than the origin of the component it
+describes.</li>
+</ul>
+<p>A Blank has no surface, so it is left out of every analysis that
+works on shape (CompGeom, DegenGeom, CFD meshing, export). Children
+attached to it by UW, RST, LMN or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>η</mi><annotation encoding="application/x-tex">\eta</annotation></semantics></math>MN
+coordinates fall back to its origin and axes. A Blank cannot be flipped:
+its axes always stay right-handed.</p>
+<h2 id="point-mass">Point Mass</h2>
+<p>A Blank's only mass is the concentrated mass of the <em>Specified
+Mass Properties</em> on the Mass tab (see <a
+href="MassTab.html">Mass</a>); the density, priority and thin-shell
+settings are greyed, since a Blank has no volume or area for them to act
+on. The center of gravity is measured from the Blank's origin in its own
+axes, so a Blank placed at an item of equipment carries that item's mass
+with its center of gravity at zero. While the Blank is selected and has
+a mass, the 3D view marks the center of gravity with a blue point.</p>
+<h2 id="shared-tabs">Shared Tabs</h2>
+<p>The Gen, XForm and Mass tabs are common to every component; see <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a> and <a
+href="MassTab.html">Mass</a>. A Blank has no Sub tab, since it has no
+surface to carry sub-surfaces.</p>
+<h2 id="scripting">Scripting</h2>
+<p>A script adds a Blank with <code>AddGeom( "BLANK" )</code> and sets
+its point mass through the parms <code>PointMass</code>,
+<code>CGx</code>, <code>CGy</code>, <code>CGz</code> and
+<code>Ixx</code> to <code>Iyz</code> in the group
+<code>Mass_Props</code>.</p>
+</body>
+</html>

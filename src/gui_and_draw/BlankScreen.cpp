@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Blank", string(""), false )
+BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Blank", "Blank.html", false )
 {
 
 }
