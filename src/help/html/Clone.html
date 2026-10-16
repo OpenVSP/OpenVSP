@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Clone</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Clone</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The Clone component shows the shape of another component, its
+original, placed by the Clone's own XForm. A Clone stores no shape of
+its own: every change to the original appears at once in each of its
+Clones. Use Clones for parts that are the same, such as the engines of a
+multi-engine aircraft, a row of seats or the propellers of a multirotor,
+so that each design change is made once.</p>
+<p>A Clone always takes its original's shape, at the original's scale,
+with the original's tessellation and end caps. Everything else -- where
+it sits, its symmetry, its sets, its color, its mass and drag settings
+and more -- it either takes from the original or keeps as its own, as
+chosen on the Clone tab.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#making-clones">Making
+Clones</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#the-original">The
+Original</a></td>
+<td style="text-align: left;">Clone</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#what-a-clone-copies">What a
+Clone Copies</a></td>
+<td style="text-align: left;">Clone</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#naming">Naming</a></td>
+<td style="text-align: left;">Clone</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#clones-of-hinges-and-propellers">Clones of Hinges and
+Propellers</a></td>
+<td style="text-align: left;">Clone</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#clones-in-analyses">Clones in
+Analyses</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#deleting-an-original">Deleting
+an Original</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#replacing-a-clone-with-a-copy">Replacing a Clone with a
+Copy</a></td>
+<td style="text-align: left;">Clone</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#shared-tabs">Shared
+Tabs</a></td>
+<td style="text-align: left;">Gen, XForm, Mass, Sub</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Select the component, or several, in the Geom browser and click
+<em>Clone</em>. Give a name suffix, <code>_Clone</code> by default, and
+click <em>Clone</em>.</li>
+<li>Each new Clone sits on top of its original. Move it with its XForm
+tab.</li>
+<li>Edit the original. Every Clone follows.</li>
+</ol>
+<h2 id="making-clones">Making Clones</h2>
+<p>The <em>Clone</em> button of the Geom browser makes one Clone for
+each selected component and keeps the hierarchy among them: a Clone of a
+child is made a child of the Clone of its parent. The top Clone of each
+group is placed beside its original in the tree, starts at the
+original's placement, and has its own transformation, free to move. The
+Clones below it copy their originals' placement relative to their
+parents, so moving the top Clone moves the whole group (Figure 1). The
+Clones also take their originals' display settings.</p>
+<p><img src="images/Clone_browser.png"
+title="Figure 1. Clones in the Geom browser"
+alt="Figure 1. Clones in the Geom browser" /></p>
+<p><em>Figure 1. The Geom browser after a pod and its child wing were
+cloned together: Pod_Clone sits beside Pod and carries Wing_Clone, which
+has none of Wing's children. The Clones' names are in italics because
+they follow their originals' names.</em></p>
+<p>A Clone added from the Add menu has no original yet. On its first
+update it takes its parent as its original, so select the component to
+be copied before adding it; it starts with its own transformation at
+zero. An original can also be chosen afterwards on the Clone tab.</p>
+<p>A Clone does not copy its original's children. To copy a component
+together with its children, select all of them and use the Clone
+button.</p>
+<h2 id="the-original">The Original</h2>
+<p><em>Original</em> on the Clone tab lists the components a Clone can
+copy: any component except the Clone itself, the components attached
+below it, and any whose chain of Clones leads back to it. A Clone of a
+Clone shows the shape at the end of the chain.</p>
+<h2 id="what-a-clone-copies">What a Clone Copies</h2>
+<p>The shape, with the original's scale, its tessellation
+(<em>Num_U</em>, <em>Num_W</em>) and its end caps are always the
+original's; their controls are greyed on the Clone, and so is
+<em>Scale</em>: a Clone has no size of its own. The rest is chosen under
+<em>Copy From Original</em>. Each item checked is copied on every
+update, and its controls are greyed on the Clone; an item unchecked is
+the Clone's own and can be edited. Unchecking an item keeps the last
+copied values as the starting point.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Copy From Original</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">What is copied</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Transformation</td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Location, rotation, rotation origin and
+the Abs/Rel choice.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Attachment</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">The attachment to the parent and its
+coordinates.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Symmetry and Flip</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">The symmetry; the flip planes combine with
+the Clone's own.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Set Membership</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">Membership of the user's sets.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Color and Material</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">The color, the material and the
+textures.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Negative Volume</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">The CFD Mesh negative volume setting.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mass Properties</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">Density, priority, thin shell and the
+specified mass, CG and inertia.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Parasite Drag</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">The Parasite Drag settings used for the
+Clone.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Subsurfaces</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">The original's subsurfaces.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Joint Deflection</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">A Hinge's Translate and Rotate (see
+below).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Rotor Rotation</td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">A propeller's Rotate (see below).</td>
+</tr>
+</tbody>
+</table>
+<p>Symmetry is copied by default because the symmetric copies of the
+original are part of its shape. The copied symmetry mirrors the Clone
+where the Clone is placed: a Clone moved aft of a nacelle mirrored in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Y = 0</annotation></semantics></math>
+makes a second pair, and a Clone moved onto
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Y = 0</annotation></semantics></math>,
+such as a center engine, shows its two halves on top of each other
+(Figure 2). For a single Clone on the mirror plane, uncheck Symmetry and
+Flip and then turn off the Clone's own symmetry, which keeps the copied
+setting until changed. The Clone's own Flip planes combine with the
+original's while Symmetry and Flip is checked, so the same plane set on
+both cancels. To make a Clone the mirror image of its original, set the
+mirror plane on the Clone's Flip.</p>
+<p><img src="images/Clone_symmetry.png"
+title="Figure 2. Copied symmetry" alt="Figure 2. Copied symmetry" /></p>
+<p><em>Figure 2. A nacelle mirrored in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Y = 0</annotation></semantics></math>
+and two Clones moved aft of it, the second onto
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Y = 0</annotation></semantics></math>.
+The second Clone's two coincident halves in (a) show darker than the
+single nacelle in (b).</em></p>
+<p>Set membership covers the user's sets only; whether a Clone is shown
+is its own.</p>
+<p>A Clone's subsurfaces are copies of the original's that keep their
+identity as the original changes, so control surface groups and scripts
+that refer to them keep working. Unchecking Subsurfaces keeps the copies
+as the Clone's own, to edit, and lets more be added. Checking it again
+picks up the same copies rather than adding new ones.</p>
+<p>A Clone always keeps its own name (unless named after the original),
+parent, children, attributes, CFD sources and FEA structures.</p>
+<h2 id="naming">Naming</h2>
+<p>With <em>Name After Original</em> checked, the default, a Clone is
+named after its original with <em>Suffix</em> appended, and the name
+follows the original's when it is renamed. The name on the Gen tab is
+greyed while this is checked. The Geom browser shows such a name in
+italics and will not rename it. Uncheck it to give the Clone a name of
+its own; the current name is kept as the starting point.</p>
+<h2 id="clones-of-hinges-and-propellers">Clones of Hinges and
+Propellers</h2>
+<p>A Clone of a <a href="Hinge.html">Hinge</a> is a joint too: its own
+children ride on its joint, just as the Hinge's children ride on the
+Hinge. The Hinge decides which motions are allowed and their limits.
+With <em>Joint Deflection</em> checked the Clone takes the Hinge's
+deflection; unchecked, the Clone's own <em>Translate</em> and
+<em>Rotate</em> in the <em>Joint</em> group pose it, so two Clones of
+one Hinge can sit at different angles. <em>Rng</em> sets a slider's
+range to the Hinge's limits.</p>
+<p>A Clone of a <a href="Propeller.html">Propeller</a> takes the
+propeller's Rotate while <em>Rotor Rotation</em> is checked; unchecked,
+the <em>Rotate</em> in the <em>Rotor</em> group places the Clone's
+blades, so Clones of one rotor can turn apart in phase. See <a
+href="Propeller.html#clones-of-a-propeller">Clones of a Propeller</a>
+for counter-rotating rotors.</p>
+<h2 id="clones-in-analyses">Clones in Analyses</h2>
+<p>A Clone takes part in analyses as a component of its original's kind.
+A Clone of a wing can be the reference wing of VSPAERO and Parasite
+Drag, with the wing's span, area and mean aerodynamic chord; a Clone of
+a propeller is a rotor to VSPAERO and to an <a
+href="Auxiliary.html">Auxiliary</a> rotor zone; an Auxiliary component
+hung from a Clone of a <a href="Gear.html">Gear</a> measures against the
+Clone; a Clone of a <a href="Routing.html">Routing</a> component is
+weighed by Mass Properties as a route. A Clone of a mesh, a point cloud,
+a wireframe or a polygon mesh is placed as one piece and has no
+symmetry; its symmetry controls are greyed.</p>
+<h2 id="deleting-an-original">Deleting an Original</h2>
+<p>When a component that has Clones is deleted or cut, OpenVSP asks what
+becomes of its Clones:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Choice</th>
+<th style="text-align: left;">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Cancel</td>
+<td style="text-align: left;">Nothing is deleted.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Leave Empty</td>
+<td style="text-align: left;">The Clones stay where they are, copying
+nothing.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Replace</td>
+<td style="text-align: left;">Each Clone is replaced by a full copy of
+what it was copying (see below).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Delete Too, or Cut Too</td>
+<td style="text-align: left;">The Clones go with the original, and so do
+any Clones of those Clones.</td>
+</tr>
+</tbody>
+</table>
+<p>A Clone left empty shows nothing, keeps its name and stops naming
+itself after an original; choose an original for it again on the Clone
+tab. The same happens, with a message, when a file is opened whose Clone
+has lost its original, or when a Clone's original is moved to below the
+Clone in the tree.</p>
+<h2 id="replacing-a-clone-with-a-copy">Replacing a Clone with a
+Copy</h2>
+<p><em>Replace With Copy Of Original</em> turns a Clone into an
+ordinary, independent component: a full copy of the component at the end
+of its chain of Clones. The copy takes the Clone's place in the tree and
+its ID, so attached components, links, design variables and control
+surface groups that referred to the Clone keep working. It keeps what
+the Clone showed -- its name, placement, attachment, symmetry and flip,
+sets, mass and negative volume settings, the parasite drag settings it
+used, color and material, display settings, joint deflection and rotor
+angle -- and the Clone's subsurfaces, CFD sources, FEA structures and
+attributes.</p>
+<p>A Clone of a polygon mesh cannot be replaced. Some components place
+their own shape from other components, such as a route or a conformal
+component; their copy may not land where the Clone stood, and a message
+says so.</p>
+<h2 id="shared-tabs">Shared Tabs</h2>
+<p>The Gen, XForm, Mass and Sub tabs are common to every component; see
+<a href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub-Surfaces</a>.
+Controls copied from the original are greyed on them.</p>
+<h2 id="scripting">Scripting</h2>
+<p>The OpenVSP API makes and manages Clones with these functions:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Call</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>CloneGeomVec</code></td>
+<td style="text-align: left;">Clone a group of components, keeping their
+hierarchy, as the Clone button does.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SetGeomCloneOriginal</code>,
+<code>GetGeomCloneOriginal</code></td>
+<td style="text-align: left;">Set or read a Clone's original; an empty
+ID clears it.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SetGeomCloneNameSuffix</code>,
+<code>GetGeomCloneNameSuffix</code></td>
+<td style="text-align: left;">The suffix of automatic naming.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>FindGeomClones</code></td>
+<td style="text-align: left;">The Clones of a set of components.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ReplaceCloneGeom</code></td>
+<td style="text-align: left;">Replace a Clone with a copy of its
+original.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DeleteGeom</code>,
+<code>DeleteGeomVec</code>, <code>CutGeomToClipboard</code></td>
+<td style="text-align: left;">Take a <code>CLONE_DELETE_TYPE</code> that
+says what becomes of the Clones.</td>
+</tr>
+</tbody>
+</table>
+<p><code>AddGeom( "CLONE" )</code> adds a Clone. The Copy From Original
+switches are parms in the group <code>Behavior</code>:
+<code>CloneXForm</code>, <code>CloneAttach</code>,
+<code>CloneSym</code>, <code>CloneSets</code>,
+<code>CloneAppearance</code>, <code>CloneNegativeVolume</code>,
+<code>CloneMassProps</code>, <code>CloneParasiteDrag</code>,
+<code>CloneSubSurfs</code>, <code>CloneJoint</code> and
+<code>CloneRotate</code>, with <code>AutoName</code> for Name After
+Original. A Clone's own joint deflection is <code>JointTranslate</code>
+and <code>JointRotate</code> in the group <code>Hinge</code>, and its
+own rotor angle is <code>Rotate</code> in the group
+<code>Rotor</code>.</p>
+</body>
+</html>

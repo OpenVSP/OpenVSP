@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone" )
+CloneScreen::CloneScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Clone", "Clone.html" )
 {
     Fl_Group* clone_tab = AddTab( "Clone" );
     Fl_Group* clone_group = AddSubGroup( clone_tab, 5 );

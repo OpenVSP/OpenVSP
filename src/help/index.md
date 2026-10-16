@@ -44,6 +44,7 @@ particular purpose and can be added to a model as needed.
 ### Special Geometry
 
 - [Conformal](Conformal.md)
+- [Clone](Clone.md)
 
 ### Shared Capabilities
 
