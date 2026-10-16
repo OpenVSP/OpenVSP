@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.12.1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Wireframe</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Wireframe</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>A Wireframe component is a structured grid of points: rows of points
+that form a surface of quadrilaterals, the way legacy geometry and many
+CFD tools describe a shape. It comes from an XSec (.hrm) or Plot3D
+(.p3d) file, and the controls on its WireFrame tab rearrange and tidy
+the grid -- turn it, trim it, thin it and close its open edges -- so
+that it can take part in OpenVSP's analyses. The points themselves
+cannot be moved one by one.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Topic</th>
+<th style="text-align: left;">Tab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="#quick-start">Quick
+Start</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#importing-a-grid">Importing a
+Grid</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#the-grid-i-and-j">The Grid: I
+and J</a></td>
+<td style="text-align: left;">WireFrame</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#type-and-normals">Type and
+Normals</a></td>
+<td style="text-align: left;">WireFrame</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a
+href="#rearranging-the-grid">Rearranging the Grid</a></td>
+<td style="text-align: left;">WireFrame</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#closing-open-edges">Closing Open
+Edges</a></td>
+<td style="text-align: left;">WireFrame</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#using-a-wireframe">Using a
+Wireframe</a></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="#scripting">Scripting</a></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<p>The Gen and XForm tabs are the ones every component has; see <a
+href="GenTab.html">Gen</a> and <a href="XFormTab.html">XForm</a>. A
+wireframe has no mass, symmetry or sub-surfaces.</p>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Choose <em>File &gt; Import</em> and <em>XSec as Wireframe
+(.hrm)</em> or <em>Plot3D as Wireframe (.p3d)</em>. Each component of
+the file becomes a wireframe, under a new Blank.</li>
+<li>Place the Blank with the XForm tab; the wireframes move with
+it.</li>
+<li>Check each wireframe's <em>Type</em> and normals, and close its open
+edges with the <em>Patch</em> choices.</li>
+</ol>
+<h2 id="importing-a-grid">Importing a Grid</h2>
+<h3 id="xsec-files">XSec files</h3>
+<p>The XSec (.hrm) format is OpenVSP's own cross section format, also
+written by <em>File &gt; Export &gt; XSec</em>. Each component is a set
+of cross sections with the same number of points in each:</p>
+<pre><code> HERMITE INPUT FILE
+
+ NUMBER OF COMPONENTS = 2
+
+WingGeom
+ GROUP NUMBER      = 0
+ TYPE              = 0
+ CROSS SECTIONS    = 10
+ PTS/CROSS SECTION = 33
+  4.00000000000000000e+00    0.00000000000000000e+00    0.00000000000000000e+00
+  3.92363234218945145e+00    0.00000000000000000e+00   -3.09158494470971589e-16
+  ...</code></pre>
+<p>The name line names the wireframe, with its spaces turned to
+underscores, and <em>TYPE</em> sets its <a
+href="#type-and-normals">Type</a>: 0 for lifting, 1 for non-lifting. The
+cross sections are the grid's rows in I and the points of each section
+its columns in J. The same file imported as <em>XSec as Tri Mesh</em>
+becomes one <a href="Mesh.html">Mesh</a> of all its components
+instead.</p>
+<h3 id="plot3d-files">Plot3D files</h3>
+<p>A Plot3D (.p3d) grid file holds one or more blocks, each a grid of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>×</mo><msub><mi>n</mi><mi>j</mi></msub><mo>×</mo><msub><mi>n</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">n_i \times n_j \times n_k</annotation></semantics></math>
+points. The file may be formatted (text) or unformatted (Fortran
+records), in single or double precision, with or without the iblank
+array, and with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+only (a planar grid, at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">z = 0</annotation></semantics></math>)
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>;
+all of these are told apart by the file's content. Each block becomes a
+wireframe with I along the block's first index and J along its second.
+Only the first
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+plane of each block is kept, so a block should be a surface grid,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>k</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n_k = 1</annotation></semantics></math>.</p>
+<p>A block with only one row or column of points is a curve, not a
+surface: it is drawn as a line and takes no part in the analyses.</p>
+<h3 id="orientation-on-import">Orientation on import</h3>
+<p>On import each wireframe checks which way its grid faces, from the
+sign of the volume it encloses, and sets <em>Invert</em> so that its
+normals point outward. For a closed body this is right; for an open grid
+such as a thin wing it is a guess.</p>
+<h2 id="the-grid-i-and-j">The Grid: I and J</h2>
+<p>The grid is a set of rows: I counts the rows and J the points along
+each row. Each cell of four neighboring points is a quadrilateral of the
+surface, and analyses split each into two triangles. With the feature
+lines on (<em>Feature</em> in the Geom Browser), a red line runs from
+the grid's first point in the direction of I and a green one in the
+direction of J, each half way across the grid. Figure 1 marks I and J in
+the same colors.</p>
+<h2 id="type-and-normals">Type and Normals</h2>
+<p><em>Type</em> says what the grid represents: <em>Lifting</em> a wing
+and <em>Non-Lifting</em> a body. It decides how the degenerate geometry
+is built from the grid, and so how the analyses built on it see the
+wireframe: in VSPAERO's thin set, a lifting wireframe becomes a camber
+surface and a non-lifting one a set of plates. The type is also written
+to an XSec export.</p>
+<p><em>Invert</em> reverses the normals, the side of the surface that
+counts as outside. The analyses that intersect the model, such as
+CompGeom and Mass Properties, depend on it. CompGeom's report is a quick
+check: a closed wireframe whose normals point in has a negative
+volume.</p>
+<h2 id="rearranging-the-grid">Rearranging the Grid</h2>
+<p>The controls act in this order, each on the result of the one
+before.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Swap I/J</td>
+<td style="text-align: left;"><code>FlipIJFlag</code></td>
+<td style="text-align: left;">Exchanges rows and columns: I becomes J
+and J becomes I.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Reverse I</td>
+<td style="text-align: left;"><code>RevIFlag</code></td>
+<td style="text-align: left;">Reverses the order of the rows.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Reverse J</td>
+<td style="text-align: left;"><code>RevJFlag</code></td>
+<td style="text-align: left;">Reverses the order of the points in every
+row.</td>
+</tr>
+<tr>
+<td style="text-align: left;">I Start Skip, I End Skip</td>
+<td style="text-align: left;"><code>ISkipStart</code>,
+<code>ISkipEnd</code></td>
+<td style="text-align: left;">Drop that many rows from the start or the
+end.</td>
+</tr>
+<tr>
+<td style="text-align: left;">J Start Skip, J End Skip</td>
+<td style="text-align: left;"><code>JSkipStart</code>,
+<code>JSkipEnd</code></td>
+<td style="text-align: left;">Drop that many points from the start or
+the end of every row.</td>
+</tr>
+<tr>
+<td style="text-align: left;">I Stride, J Stride</td>
+<td style="text-align: left;"><code>IStride</code>,
+<code>JStride</code></td>
+<td style="text-align: left;">Keep every nth row, or every nth point,
+and always the last.</td>
+</tr>
+<tr>
+<td style="text-align: left;">I Start, I End, J Start, J End</td>
+<td style="text-align: left;"><code>IStartPatchType</code> ...</td>
+<td style="text-align: left;">Add a row at that edge; see <a
+href="#closing-open-edges">Closing Open Edges</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>Swapping and reversing turn the grid over, so each also reverses the
+normals internally to keep the outside where it was; <em>Invert</em>
+does not change. Skips trim rows of points that are not wanted, such as
+a duplicated section or the wake rows of a CFD grid. A skip that leaves
+no rows leaves no grid. Strides thin a dense grid to keep the analyses
+fast; a stride of 1 keeps every row.</p>
+<h2 id="closing-open-edges">Closing Open Edges</h2>
+<p>A grid made for another tool often has open edges: a wing whose tip
+is not closed, a blunt trailing edge, a body of revolution whose
+sections stop short of repeating their first point. Each <em>Patch</em>
+choice adds one row of points at its edge of the grid, built from the
+edge row itself or from the opposite edge:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Patch</th>
+<th style="text-align: left;">The new row</th>
+<th style="text-align: left;">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">No row is added.</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">Point</td>
+<td style="text-align: left;">Every point at the centroid of the edge
+row.</td>
+<td style="text-align: left;">Close the open end of a body, or a wing
+tip, with a flat cap.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Line</td>
+<td style="text-align: left;">The edge row folded on itself: its first
+and last points meet at their midpoint, its second and second-to-last,
+and so on.</td>
+<td style="text-align: left;">Close a wing tip onto its camber
+line.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Copy Opposite</td>
+<td style="text-align: left;">A copy of the opposite edge row.</td>
+<td style="text-align: left;">Close the seam of sections that go all the
+way round but do not repeat their first point.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Halfway Opposite</td>
+<td style="text-align: left;">The midpoints between the edge row and the
+opposite edge row.</td>
+<td style="text-align: left;">At the start edge, with Copy Opposite at
+the end edge, close a gap on its midline, such as a blunt trailing
+edge.</td>
+</tr>
+</tbody>
+</table>
+<p>The patches act in the order I Start, I End, J Start, J End, each on
+the grid the one before made, so a patch can build on another. Halfway
+Opposite at J Start and Copy Opposite at J End close a blunt trailing
+edge to a sharp one: the first adds a row on the trailing edge's
+midline, the second a copy of that row at the other end. Halfway
+Opposite at both edges does not close the gap, since the second midpoint
+is taken to the first (Figure 2). Figure 1 shows the tip of a wing
+closed with Point and with Line.</p>
+<p><img src="images/Wire_patch.png" title="Figure 1. Patches"
+alt="Figure 1. Patches" /></p>
+<p><em>Figure 1. A wing grid imported from an XSec file. I runs root to
+tip and J round each section from the lower trailing edge, both from the
+grid's first point. I End Point closes the tip with a flat cap to its
+centroid; I End Line closes it onto the camber line.</em></p>
+<p><img src="images/Wire_blunt_te.png"
+title="Figure 2. A blunt trailing edge"
+alt="Figure 2. A blunt trailing edge" /></p>
+<p><em>Figure 2. The root section of the wing grid of Figure 1, with its
+blunt trailing edge open, closed on its midline, and left open by
+Halfway Opposite at both edges, whose J End point lies three quarters of
+the way up the trailing edge.</em></p>
+<h2 id="using-a-wireframe">Using a Wireframe</h2>
+<p>A wireframe is placed like any component, with the XForm tab,
+including <em>Scale</em> and <em>Flip</em>. Its grid takes part in the
+analyses as a surface of quadrilaterals:</p>
+<ul>
+<li>CompGeom, Mass Properties, the slicing analyses and the mesh exports
+take its triangles, two per cell. For these the grid should be closed
+and its normals should point out.</li>
+<li>Degenerate geometry and the analyses built on it take the grid as a
+wing or a body, by its <em>Type</em>.</li>
+<li>An XSec export writes the grid as it has been rearranged and placed,
+so a wireframe cleaned up here can be written out for another tool.</li>
+</ul>
+<p>It is not a smooth surface: it has no sub-surfaces and takes no part
+in CFD Mesh, FEA Mesh, Fit Model or projections. The model file keeps
+the points as they were imported, and the controls are applied again
+each time it is opened, so any of them can be changed later.</p>
+<h2 id="scripting">Scripting</h2>
+<p>A wireframe has no functions of its own in the API: import it with
+<code>ImportFile</code> and <code>IMPORT_XSEC_WIRE</code> or
+<code>IMPORT_P3D_WIRE</code>, which returns the ID of the Blank holding
+the wireframes, and set the Parms in the table above. They are in the
+group <code>WireFrame</code>, except <code>FlipIJFlag</code>,
+<code>RevIFlag</code>, <code>RevJFlag</code> and
+<code>InvertFlag</code>, which are in the group <code>Wireframe</code>.
+<em>Type</em> is <code>WireType</code>, 0 for lifting and 1 for
+non-lifting, and the patch types are <code>PATCH_NONE</code>,
+<code>PATCH_POINT</code>, <code>PATCH_LINE</code>,
+<code>PATCH_COPY</code> and <code>PATCH_HALFWAY</code>.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openvsp <span class="im">as</span> vsp</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>blank <span class="op">=</span> vsp.ImportFile( <span class="st">&quot;wing.hrm&quot;</span>, vsp.IMPORT_XSEC_WIRE, <span class="st">&quot;&quot;</span> )</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>wire <span class="op">=</span> vsp.GetGeomChildren( blank )[ <span class="dv">0</span> ]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>vsp.SetParmVal( wire, <span class="st">&quot;IEndPatchType&quot;</span>, <span class="st">&quot;WireFrame&quot;</span>, vsp.PATCH_LINE )</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>vsp.Update()</span></code></pre></div>
+</body>
+</html>
