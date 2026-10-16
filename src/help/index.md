@@ -29,6 +29,7 @@ particular purpose and can be added to a model as needed.
 - [Fuselage and Stack](FuselageStack.md)
    - [Engine Model](EngineModel.md)
    - [Stack Presets](StackPresets.md)
+   - [Chevrons](Chevron.md)
 - [Propeller](Propeller.md)
 
 ### Shared Capabilities
