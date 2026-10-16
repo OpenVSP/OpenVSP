@@ -399,7 +399,8 @@ void NavDevice::Start()
         manager_options.metadata = [impl]()
         {
             openaxis::ConnectionMetadata metadata;
-            metadata.tags = { "app.openvsp" };
+            // OpenVSP models, and its camera orbits; it has no eye to fly.
+            metadata.tags = { "app.openvsp", "workspace.modeling", "navigation.hint.orbit" };
             if ( impl->m_Mode == NAV_DEVICE_NAVIGATION )
             {
                 metadata.capabilities = { "navigation" };
