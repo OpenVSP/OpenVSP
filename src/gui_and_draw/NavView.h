@@ -58,6 +58,9 @@ public:
     // The camera's pose, if the context is still current.
     std::optional < openaxis::Pose > ReadCamera( const openaxis::NavigationContext & context );
 
+    // The view moved in a way the host is told of; a gesture goes on from where it now is.
+    void NoteView();
+
     // Called after each pose moves the view.
     std::function < void() > m_OnMotion;
 
@@ -72,10 +75,16 @@ protected:
     // Put the pivot's mark where the pivot now is on screen, or take it away.
     void PlacePivot();
 
+    // The camera's pose about the center of the view, which no eye distance enters.
+    static openaxis::Pose ViewPose( VSPGraphic::Camera * camera );
+
     VspGlWindow * m_Win;
 
     // How far behind the center of the view the reported eye is.
     double m_EyeDistance;
+
+    // The view as the host last knew it.  Anything else that moves it ends the gesture.
+    std::optional < openaxis::Pose > m_Known;
 
     // The host's pivot, and the camera it is shown in.
     std::optional < openaxis::Vec3 > m_Pivot;

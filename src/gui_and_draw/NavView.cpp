@@ -290,6 +290,11 @@ double NavViewAdapter::EyeDistance()
     return d;
 }
 
+openaxis::Pose NavViewAdapter::ViewPose( VSPGraphic::Camera * camera )
+{
+    return ToPose( camera->getPose( 0.0 ) );
+}
+
 openaxis::NavigationContext NavViewAdapter::capture_context()
 {
     VSPGraphic::Camera * camera = CurrentCamera();
@@ -297,6 +302,7 @@ openaxis::NavigationContext NavViewAdapter::capture_context()
     {
         return {};
     }
+    m_Known = ViewPose( camera );
     NavViewContext c;
     c.m_Camera = camera;
     return c;
@@ -305,7 +311,25 @@ openaxis::NavigationContext NavViewAdapter::capture_context()
 bool NavViewAdapter::is_current( const openaxis::NavigationContext & context )
 {
     const NavViewContext * c = std::any_cast < NavViewContext > ( &context );
-    return c && c->m_Camera == CurrentCamera();
+    if ( !c || c->m_Camera != CurrentCamera() )
+    {
+        return false;
+    }
+    // A standard view, a fit or a new layout moved it: the host's pivot means nothing there.
+    if ( m_Known && NavCompareCamera( *m_Known, ViewPose( c->m_Camera ) ).changed )
+    {
+        return false;
+    }
+    return true;
+}
+
+void NavViewAdapter::NoteView()
+{
+    VSPGraphic::Camera * camera = CurrentCamera();
+    if ( camera )
+    {
+        m_Known = ViewPose( camera );
+    }
 }
 
 std::unique_ptr < openaxis::NavigationCapture > NavViewAdapter::begin_query( const openaxis::NavigationContext & context )
@@ -370,6 +394,7 @@ openaxis::WriteResult NavViewAdapter::apply_pose( const openaxis::NavigationCont
     m_Win->UpdateRotationParms();
     m_Win->UpdatePanParms();
     m_Win->UpdateZoomParms();
+    m_Known = ViewPose( camera );
     PlacePivot();
     m_Win->redraw();
 

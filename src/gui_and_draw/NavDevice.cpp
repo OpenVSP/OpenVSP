@@ -259,10 +259,21 @@ struct NavDevice::Impl
         }
     }
 
-    // Whether an OpenVSP window has the keyboard focus, checked twice a second.
+    // Whether an OpenVSP window has the keyboard focus, and whether the view moved under a
+    // still device, checked twice a second.
     static void PollFocus( void * data )
     {
         Impl * impl = ( Impl * )data;
+        if ( impl->m_Session )
+        {
+            try
+            {
+                impl->m_Session->check_context();
+            }
+            catch ( ... )
+            {
+            }
+        }
         bool focused = ( Fl::focus() != nullptr );
         if ( focused != impl->m_Focused && impl->m_Manager )
         {
@@ -464,6 +475,7 @@ void NavDevice::ViewChanged()
     {
         try
         {
+            m_Impl->m_Adapter->NoteView();
             m_Impl->m_Session->native_camera_changed();
         }
         catch ( ... )

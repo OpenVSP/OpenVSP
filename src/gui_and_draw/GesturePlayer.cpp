@@ -180,6 +180,13 @@ bool NavCommand( VSPGUI::VspGlWindow * win, const GestureEvent & e )
             fprintf( g_Out, "navdiag %s %s %s\n", d.event.c_str(), d.target.c_str(), d.detail.c_str() );
         };
         g_NavSession->connection_changed();
+
+        // The mouse moving the view, told to the session as the device would tell it.
+        win->m_ViewChangedCB = []()
+        {
+            g_NavAdapter->NoteView();
+            g_NavSession->native_camera_changed();
+        };
     }
     else if ( e.m_Cmd == "navgesture" )
     {
