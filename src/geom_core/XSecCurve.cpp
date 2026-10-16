@@ -713,7 +713,22 @@ double XSecCurve::EstimateFlapArcLen()
 
     const double tmid = ( tmin + tmax ) * 0.5;
 
-    const double s = m_TEFlapXChord();
+    // An absolute flap length sets X/C only once the flap is built, so convert it here the same way.
+    double s = m_TEFlapXChord();
+    if ( m_TEFlapAbsRel() == ABS )
+    {
+        double xflap = m_TEFlapX();
+        double div = GetWidth();
+        if ( m_UseFakeWidth )
+        {
+            div = GetFakeWidth();
+            xflap = m_TEFlapX() * GetWidth() / div;
+        }
+        if ( div != 0.0 )
+        {
+            s = xflap / div;
+        }
+    }
 
     const double tslow = tmin + TMAGIC + s * ( tmid - TMAGIC - ( tmin + TMAGIC ) );
     const double tsup = tmax - TMAGIC - s * ( tmax - TMAGIC - ( tmid + TMAGIC ) );

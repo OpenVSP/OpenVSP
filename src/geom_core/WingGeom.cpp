@@ -1815,6 +1815,24 @@ void WingGeom::UpdateSurf()
     //==== Make Sure Chord Match For Adjacent Wing Sections ====//
     MatchWingSections();
 
+    // The flaps are sized from the section widths of this Update.
+    for ( int i = 0 ; i < m_XSecSurf.NumXSec() ; i++ )
+    {
+        WingSect* ws = dynamic_cast < WingSect* > ( m_XSecSurf.FindXSec( i ) );
+        if ( ws )
+        {
+            XSecCurve* xsc = ws->GetXSecCurve();
+            if ( xsc )
+            {
+                Parm* width_parm = ParmMgr.FindParm( xsc->GetWidthParmID() );
+                if ( width_parm )
+                {
+                    width_parm->Set( ws->m_TipChord() );
+                }
+            }
+        }
+    }
+
     NormalizeFlaps();
 
     m_ActiveWingSection = active_sect;            // Restore Active Section
