@@ -144,14 +144,10 @@ public:
     Parm m_PrimULoc;
     Parm m_PrimWLoc;
 
-    enum { ORIENT_ROT, ORIENT_VEC, ORIENT_NUM_TYPES };
-
     IntParm m_OrientType;
 
     IntParm m_PrimaryDir;
     IntParm m_SecondaryDir;
-
-    enum { VECTOR3D, POINT3D, SURFPT, UDIR, WDIR, NDIR, ORIENT_VEC_TYPES };
 
     IntParm m_PrimaryType;
 

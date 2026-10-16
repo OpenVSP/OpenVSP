@@ -2037,6 +2037,34 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "HINGE_ORIENT_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_ORIENT_TYPE", "HINGE_ORIENT_ROT", HINGE_ORIENT_ROT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_ORIENT_TYPE", "HINGE_ORIENT_VEC", HINGE_ORIENT_VEC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_ORIENT_TYPE", "NUM_HINGE_ORIENT_TYPES", NUM_HINGE_ORIENT_TYPES );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "HINGE_PRIM_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_PRIM_TYPE", "HINGE_PRIM_VECTOR3D", HINGE_PRIM_VECTOR3D );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_PRIM_TYPE", "HINGE_PRIM_POINT3D", HINGE_PRIM_POINT3D );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_PRIM_TYPE", "HINGE_PRIM_SURFPT", HINGE_PRIM_SURFPT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_PRIM_TYPE", "HINGE_PRIM_UDIR", HINGE_PRIM_UDIR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_PRIM_TYPE", "HINGE_PRIM_WDIR", HINGE_PRIM_WDIR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_PRIM_TYPE", "HINGE_PRIM_NDIR", HINGE_PRIM_NDIR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "HINGE_PRIM_TYPE", "NUM_HINGE_PRIM_TYPES", NUM_HINGE_PRIM_TYPES );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "INIT_EDIT_XSEC_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_CIRCLE", EDIT_XSEC_CIRCLE );

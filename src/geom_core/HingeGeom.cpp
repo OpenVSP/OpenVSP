@@ -30,7 +30,7 @@ HingeGeom::HingeGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_JointRotMax.Init( "JointRotMax", "Hinge", this, 360.0, -360.0, 360.0 );
     m_JointRotMaxFlag.Init( "JointRotMaxFlag", "Hinge", this, false, 0, 1 );
 
-    m_OrientType.Init( "OrientRotFlag", "Hinge", this, ORIENT_ROT, ORIENT_ROT, ORIENT_NUM_TYPES - 1 );
+    m_OrientType.Init( "OrientRotFlag", "Hinge", this, vsp::HINGE_ORIENT_ROT, vsp::HINGE_ORIENT_ROT, vsp::NUM_HINGE_ORIENT_TYPES - 1 );
 
     m_PrimaryDir.Init( "PrimaryDir", "Hinge", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_SecondaryDir.Init( "SecondaryDir", "Hinge", this, vsp::Y_DIR, vsp::X_DIR, vsp::Z_DIR );
@@ -61,7 +61,7 @@ HingeGeom::HingeGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_PrimULoc.Init( "PrimULoc", "Hinge", this, 0, 0, 1 );
     m_PrimWLoc.Init( "PrimWLoc", "Hinge", this, 0, 0, 1 );
 
-    m_PrimaryType.Init( "PrimType", "Hinge", this, VECTOR3D, VECTOR3D, ORIENT_VEC_TYPES - 1 );
+    m_PrimaryType.Init( "PrimType", "Hinge", this, vsp::HINGE_PRIM_VECTOR3D, vsp::HINGE_PRIM_VECTOR3D, vsp::NUM_HINGE_PRIM_TYPES - 1 );
 
     // Disable Parameters that don't make sense for JointGeom
     m_SymPlanFlag.Deactivate();
@@ -156,7 +156,7 @@ void HingeGeom::UpdateXForm()
     invattachMat = m_AttachMatrix;
     invattachMat.affineInverse();
 
-    if ( m_OrientType.Get() == ORIENT_ROT )
+    if ( m_OrientType.Get() == vsp::HINGE_ORIENT_ROT )
     {
         // Use orientation from angles on XForm tab.
     }
@@ -165,7 +165,7 @@ void HingeGeom::UpdateXForm()
         // Calculate based on vectors -- fill in angles.
         vec3d prim = vec3d( 1, 0, 0 );
 
-        if ( m_PrimaryType() == VECTOR3D )
+        if ( m_PrimaryType() == vsp::HINGE_PRIM_VECTOR3D )
         {
             if ( m_PrimVecAbsRelFlag() == vsp::REL )
             {
@@ -179,7 +179,7 @@ void HingeGeom::UpdateXForm()
                 prim.normalize();
             }
         }
-        else if ( m_PrimaryType() == POINT3D )
+        else if ( m_PrimaryType() == vsp::HINGE_PRIM_POINT3D )
         {
             vec3d endpt;
             if ( m_PrimOffAbsRelFlag() == vsp::REL )
@@ -234,7 +234,7 @@ void HingeGeom::UpdateXForm()
                 vec3d surfpt = parent->CompPnt01( 0, u, m_PrimWLoc());
 
 
-                if ( m_PrimaryType() == SURFPT )
+                if ( m_PrimaryType() == vsp::HINGE_PRIM_SURFPT )
                 {
 
                     vec3d off;
@@ -259,13 +259,13 @@ void HingeGeom::UpdateXForm()
                     prim = m_PrimEndpt - baseOrigin;
                     prim.normalize();
                 }
-                else if ( m_PrimaryType() == UDIR )
+                else if ( m_PrimaryType() == vsp::HINGE_PRIM_UDIR )
                 {
                     vec3d dir1, dir2;
                     rotMat.getBasis( prim, dir1, dir2 );
                     m_PrimEndpt = surfpt;
                 }
-                else if ( m_PrimaryType() == WDIR )
+                else if ( m_PrimaryType() == vsp::HINGE_PRIM_WDIR )
                 {
                     vec3d dir1, dir2;
                     rotMat.getBasis( dir1, prim, dir2 );
@@ -356,7 +356,7 @@ void HingeGeom::UpdateXForm()
 
 
     // Back-fill global vector coordinates if input specified relative.
-    if ( m_OrientType() == ORIENT_ROT || m_PrimaryType() != VECTOR3D || m_PrimVecAbsRelFlag() == vsp::REL )
+    if ( m_OrientType() == vsp::HINGE_ORIENT_ROT || m_PrimaryType() != vsp::HINGE_PRIM_VECTOR3D || m_PrimVecAbsRelFlag() == vsp::REL )
     {
         m_PrimXVec = dirs[ m_PrimaryDir() ].x();
         m_PrimYVec = dirs[ m_PrimaryDir() ].y();
@@ -367,7 +367,7 @@ void HingeGeom::UpdateXForm()
     basismat.matMult( m_ModelMatrix.data() );
     basismat.getBasis( dirs[ vsp::X_DIR ], dirs[ vsp::Y_DIR ], dirs[ vsp::Z_DIR ] );
 
-    if ( m_OrientType() == ORIENT_ROT || m_PrimaryType() != VECTOR3D || m_PrimVecAbsRelFlag() == vsp::ABS )
+    if ( m_OrientType() == vsp::HINGE_ORIENT_ROT || m_PrimaryType() != vsp::HINGE_PRIM_VECTOR3D || m_PrimVecAbsRelFlag() == vsp::ABS )
     {
         m_PrimXVecRel = dirs[ m_PrimaryDir() ].x();
         m_PrimYVecRel = dirs[ m_PrimaryDir() ].y();
@@ -433,7 +433,7 @@ void HingeGeom::UpdateDrawObj()
         m_AxisDrawObj_vec[i].m_GeomChanged = true;
     }
 
-    if ( m_PrimaryType() == UDIR || m_PrimaryType() == WDIR || m_PrimaryType() == NDIR )
+    if ( m_PrimaryType() == vsp::HINGE_PRIM_UDIR || m_PrimaryType() == vsp::HINGE_PRIM_WDIR || m_PrimaryType() == vsp::HINGE_PRIM_NDIR )
     {
         m_HighlightDrawObj.m_PntVec.push_back( m_PrimEndpt );
     }
@@ -549,7 +549,7 @@ void HingeGeom::BuildMarkerDrawObjs( Geom* placer, vector< DrawObj > &marker_vec
     primary_line.m_LineWidth = 2.0;
     primary_line.m_Type = DrawObj::VSP_LINES;
 
-    if ( m_PrimaryType() == POINT3D || m_PrimaryType() == SURFPT )
+    if ( m_PrimaryType() == vsp::HINGE_PRIM_POINT3D || m_PrimaryType() == vsp::HINGE_PRIM_SURFPT )
     {
         // The direction target, carried from this hinge's frame into placer's.
         Matrix4d to_local = m_ModelMatrix;

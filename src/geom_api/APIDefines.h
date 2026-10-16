@@ -1088,6 +1088,28 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for how a Hinge's axes are set. */
+enum HINGE_ORIENT_TYPE { HINGE_ORIENT_ROT,	/*!< From the XForm rotations (default) */
+                         HINGE_ORIENT_VEC,	/*!< From directions; the XForm rotations are computed from them */
+                         NUM_HINGE_ORIENT_TYPES	/*!< Number of Hinge orientation types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for how a Hinge's axis direction is given when its axes are set from directions. */
+enum HINGE_PRIM_TYPE { HINGE_PRIM_VECTOR3D,	/*!< Along the direction vector (default) */
+                       HINGE_PRIM_POINT3D,	/*!< From the Hinge's origin toward the offset point */
+                       HINGE_PRIM_SURFPT,	/*!< From the Hinge's origin toward a point on the parent's surface, moved by the offset */
+                       HINGE_PRIM_UDIR,	/*!< Along the parent's surface in its u direction */
+                       HINGE_PRIM_WDIR,	/*!< Along the parent's surface in its w direction */
+                       HINGE_PRIM_NDIR,	/*!< Along the parent's surface normal */
+                       NUM_HINGE_PRIM_TYPES	/*!< Number of Hinge axis direction types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Initial shape enums for XS_EDIT_CURVE type XSecs. */
 enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,	/*!< Circle initialized as cubic Bezier type */
                            EDIT_XSEC_ELLIPSE,	/*!< Ellipse initialized as PCHIP type */

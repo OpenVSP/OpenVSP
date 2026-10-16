@@ -299,7 +299,7 @@ bool HingeScreen::Update()
     HingeGeom* hinge_geom_ptr = dynamic_cast< HingeGeom* >( geom_ptr );
     assert( hinge_geom_ptr );
 
-    if ( hinge_geom_ptr->m_OrientType.Get() == HingeGeom::ORIENT_VEC )
+    if ( hinge_geom_ptr->m_OrientType.Get() == vsp::HINGE_ORIENT_VEC )
     {
         m_RotActive = false;
     }
@@ -322,7 +322,7 @@ bool HingeScreen::Update()
     m_SecondaryYToggle.Activate();
     m_SecondaryZToggle.Activate();
 
-    if ( hinge_geom_ptr->m_OrientType.Get() == HingeGeom::ORIENT_VEC )
+    if ( hinge_geom_ptr->m_OrientType.Get() == vsp::HINGE_ORIENT_VEC )
     {
 
         if ( hinge_geom_ptr->m_PrimaryDir.Get() == vsp::X_DIR )
@@ -412,13 +412,13 @@ bool HingeScreen::Update()
 
     m_PrimTypeChoice.Update( hinge_geom_ptr->m_PrimaryType.GetID() );
 
-    if ( hinge_geom_ptr->m_OrientType.Get() == HingeGeom::ORIENT_VEC )
+    if ( hinge_geom_ptr->m_OrientType.Get() == vsp::HINGE_ORIENT_VEC )
     {
         m_VectorLayout.GetGroup()->activate();
         m_SecondaryDirLayout.GetGroup()->activate();
         m_SecVecLayout.GetGroup()->activate();
 
-        if ( hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::VECTOR3D )
+        if ( hinge_geom_ptr->m_PrimaryType.Get() == vsp::HINGE_PRIM_VECTOR3D )
         {
             m_PrimVecLayout.GetGroup()->activate();
         }
@@ -427,8 +427,8 @@ bool HingeScreen::Update()
             m_PrimVecLayout.GetGroup()->deactivate();
         }
 
-        if ( hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::POINT3D ||
-             hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::SURFPT )
+        if ( hinge_geom_ptr->m_PrimaryType.Get() == vsp::HINGE_PRIM_POINT3D ||
+             hinge_geom_ptr->m_PrimaryType.Get() == vsp::HINGE_PRIM_SURFPT )
         {
             m_PrimOffLayout.GetGroup()->activate();
         }
@@ -437,10 +437,10 @@ bool HingeScreen::Update()
             m_PrimOffLayout.GetGroup()->deactivate();
         }
 
-        if ( hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::SURFPT ||
-             hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::UDIR ||
-             hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::WDIR ||
-             hinge_geom_ptr->m_PrimaryType.Get() == HingeGeom::NDIR )
+        if ( hinge_geom_ptr->m_PrimaryType.Get() == vsp::HINGE_PRIM_SURFPT ||
+             hinge_geom_ptr->m_PrimaryType.Get() == vsp::HINGE_PRIM_UDIR ||
+             hinge_geom_ptr->m_PrimaryType.Get() == vsp::HINGE_PRIM_WDIR ||
+             hinge_geom_ptr->m_PrimaryType.Get() == vsp::HINGE_PRIM_NDIR )
         {
             m_PrimUWLayout.GetGroup()->activate();
         }
