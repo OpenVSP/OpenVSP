@@ -90,8 +90,8 @@ HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Hinge",
 
     m_PrimVecLayout.SetFitWidthFlag( false );
     m_PrimVecLayout.SetSameLineFlag( true );
-    m_PrimVecLayout.AddLabel( "Direction Vector:", 170 );
-    m_PrimVecLayout.SetButtonWidth( m_PrimVecLayout.GetRemainX() / 2 );
+    m_PrimVecLayout.AddLabel( "Direction Vector:", m_PrimVecLayout.GetW() - 2 * m_PrimVecLayout.GetInputWidth() );
+    m_PrimVecLayout.SetButtonWidth( m_PrimVecLayout.GetInputWidth() );
     m_PrimVecLayout.AddButton( m_PrimVecRelToggle, "Rel" );
     m_PrimVecLayout.AddButton( m_PrimVecAbsToggle, "Abs" );
     m_PrimVecLayout.ForceNewLine();
@@ -121,8 +121,8 @@ HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Hinge",
 
     m_PrimOffLayout.SetFitWidthFlag( false );
     m_PrimOffLayout.SetSameLineFlag( true );
-    m_PrimOffLayout.AddLabel( "Offset:", 170 );
-    m_PrimOffLayout.SetButtonWidth( m_PrimOffLayout.GetRemainX() / 2 );
+    m_PrimOffLayout.AddLabel( "Offset:", m_PrimOffLayout.GetW() - 2 * m_PrimOffLayout.GetInputWidth() );
+    m_PrimOffLayout.SetButtonWidth( m_PrimOffLayout.GetInputWidth() );
     m_PrimOffLayout.AddButton( m_PrimOffRelToggle, "Rel" );
     m_PrimOffLayout.AddButton( m_PrimOffAbsToggle, "Abs" );
     m_PrimOffLayout.ForceNewLine();
