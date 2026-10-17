@@ -2103,5 +2103,17 @@ void GearScreen::GuiDeviceCallBack( GuiDevice* device )
     GeomScreen::GuiDeviceCallBack( device );
 }
 
+// Selects the first bogie, so its panels are filled
+void GearScreen::PrepareDump()
+{
+    GeomScreen::PrepareDump();
+
+    GearGeom* gear_ptr = dynamic_cast< GearGeom* >( m_ScreenMgr->GetCurrGeom() );
+    if ( gear_ptr && !gear_ptr->GetBogieVec().empty() )
+    {
+        gear_ptr->SetCurrBogieIndex( 0 );
+    }
+}
+
 
 

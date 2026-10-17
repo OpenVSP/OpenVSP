@@ -943,4 +943,16 @@ void RoutingScreen::UpdatePickList()
     }
 }
 
+// Selects the first routing point, so its panel is filled
+void RoutingScreen::PrepareDump()
+{
+    GeomScreen::PrepareDump();
+
+    RoutingGeom* routing_ptr = dynamic_cast< RoutingGeom* >( m_ScreenMgr->GetCurrGeom() );
+    if ( routing_ptr && routing_ptr->GetNumPt() > 0 )
+    {
+        routing_ptr->m_ActivePointIndex = 0;
+    }
+}
+
 

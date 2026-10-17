@@ -121,6 +121,9 @@ public:
 
 protected:
 
+    // Fills the screen's panels before a dump, by selecting the first item of each list
+    virtual void PrepareDump()                          {}
+
     ScreenMgr* m_ScreenMgr;
 
     Fl_Double_Window* m_FLTK_Window;
@@ -749,6 +752,8 @@ public:
     SliderAdjRangeInput m_IyzSlider;
 
 protected:
+    virtual void PrepareDump();
+
     bool m_RotActive;
     string m_GeomTypeName;
 
@@ -1053,6 +1058,8 @@ public:
     }
 
 protected:
+
+    virtual void PrepareDump();
 
     GroupLayout m_SkinLayout;
 

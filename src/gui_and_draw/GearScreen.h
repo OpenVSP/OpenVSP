@@ -38,6 +38,8 @@ public:
 
 protected:
 
+    virtual void PrepareDump();
+
     GroupLayout m_DesignLayout;
     GroupLayout m_BogieLayout;
     GroupLayout m_TireLayout;

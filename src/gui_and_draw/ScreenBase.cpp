@@ -145,6 +145,8 @@ void VspScreen::ScreenDump( ScreenDumpLog &log )
 
     bool wasshown = IsShown();
 
+    PrepareDump();
+
     // On the first display, where the dump's scale was set; a display's pixel density sets the image's
     int X, Y, W, H;
     Fl::screen_work_area( X, Y, W, H, 0 );
@@ -3487,6 +3489,20 @@ void GeomScreen::RebuildSSCSTGroup( CSTAirfoil* cst_xs)
     }
 }
 
+// Selects the Geom's first sub-surface, so the sub-surface panels are filled
+void GeomScreen::PrepareDump()
+{
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( geom_ptr && geom_ptr->NumSubSurfs() > 0 )
+    {
+        SetCurrSubSurf( 0 );
+    }
+    else
+    {
+        SubSurfaceMgr.SetCurrSubSurfInd( -1 );
+    }
+}
+
 void GeomScreen::SetCurrSubSurf( int ss_index )
 {
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
@@ -6027,6 +6043,19 @@ void SkinScreen::CallBack( Fl_Widget *w )
     }
 
     XSecScreen::CallBack( w );
+}
+
+// Selects the Geom's first spine, so the spine panels are filled
+void SkinScreen::PrepareDump()
+{
+    XSecScreen::PrepareDump();
+
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( geom_ptr )
+    {
+        m_ActiveSpineGeomID = geom_ptr->GetID();
+        m_ActiveSpine = 0;
+    }
 }
 
 //=====================================================================//

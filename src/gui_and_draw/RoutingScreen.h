@@ -41,6 +41,8 @@ public:
 
 protected:
 
+    virtual void PrepareDump();
+
     SliderAdjRangeInput m_LinearDensitySlider;
 
     GroupLayout m_DesignLayout;
