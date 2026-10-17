@@ -5,6 +5,7 @@
 
 #include "VehicleMgr.h"
 #include "common.h"
+#include "main.h"
 
 //========================================================//
 //========================================================//
@@ -16,6 +17,12 @@ int main( int argc, char** argv )
     Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     int ret;
-    batchMode( argc, argv, vPtr, ret );
+    ScreenDumpArgs dump;
+    batchMode( argc, argv, vPtr, ret, dump );
+    if ( dump.m_Dump )
+    {
+        printf( "vspscript has no screens to dump; use vsp\n" );
+        ret = ESTATUS_GENERAL_ERROR;
+    }
     return ret;
 }

@@ -215,13 +215,25 @@ int main( int argc, char** argv )
     vPtr->CheckForHelp( vPtr->GetHelpPath() );
 
     int ret;
-    if ( batchMode( argc, argv, vPtr, ret ) )
+    ScreenDumpArgs dump;
+    if ( batchMode( argc, argv, vPtr, ret, dump ) )
     {
         vsp_exit( ret );
     }
 
     //==== Init Gui ====//
     GuiInterface::getInstance().InitGUI( vPtr );
+
+    if ( dump.m_Dump )
+    {
+        int nfailed = GuiInterface::getInstance().DumpScreens( dump.m_Screen, dump.m_GeomScreen, dump.m_Dir,
+                                                               dump.m_Scale );
+        if ( nfailed != 0 )
+        {
+            vsp_exit( ESTATUS_GENERAL_ERROR );
+        }
+        vsp_exit( ESTATUS_NO_ERRORS );
+    }
 
     //==== Check Server For Version Number ====//
     // Disabled, see CheckVersionNumber above.
