@@ -50,6 +50,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 {
     m_FLTK_Window = nullptr;
     m_GlWin = nullptr;
+    m_DumpName = "Main";
 
     m_ShowXYZArrow = true;
     m_ShowBorder = true;

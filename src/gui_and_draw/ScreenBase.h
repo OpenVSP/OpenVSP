@@ -38,6 +38,16 @@ class Geom;
 // the vectors drawn in the 3D view.
 Fl_Color DrawObjKeyColor( int drawobjcolor );
 
+// The folder and scale a screen dump writes with, one manifest line per image written, and the
+// number of files that could not be written
+struct ScreenDumpLog
+{
+    string m_Dir;
+    double m_Scale = 1.0;
+    vector< string > m_Lines;
+    int m_NumFailed = 0;
+};
+
 //====VspScreen ====//
 class  VspScreen
 {
@@ -92,6 +102,15 @@ public:
         return m_ScreenType;
     }
 
+    // The name a screen dump's files take; a screen without one is not dumped
+    virtual string GetDumpName()
+    {
+        return m_DumpName;
+    }
+
+    // Writes a PNG and an EPS of the window, one of each per page of every tab set
+    void ScreenDump( ScreenDumpLog &log );
+
     /*!
     * Return Feedback Group Name.  Feedback Group Name identifies which GUI
     * is waiting on feedback.  By default, the names is "".  The name can
@@ -109,6 +128,12 @@ protected:
     int m_ScreenType;
 
     Geom* m_PrevGeom;
+
+    string m_DumpName;
+
+private:
+
+    void DumpWindow( const string &name, ScreenDumpLog &log );
 
 };
 

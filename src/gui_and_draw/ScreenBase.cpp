@@ -30,6 +30,11 @@
 #include "RoutingGeom.h"
 #include "CurveEditScreen.h"
 
+#include "stb_image_write.h"
+
+#include "FL/Fl_Image_Surface.H"
+#include "FL/Fl_PostScript.H"
+
 using namespace vsp;
 
 
@@ -98,6 +103,185 @@ std::string VspScreen::getFeedbackGroupName()
     return "";
 }
 
+// A screen or tab title made fit for a file name: anything but a letter or digit becomes '_'
+static string DumpFileName( const string &title )
+{
+    string name = title;
+    for ( size_t i = 0; i < name.size(); i++ )
+    {
+        if ( !isalnum( ( unsigned char )name[i] ) )
+        {
+            name[i] = '_';
+        }
+    }
+    return name;
+}
+
+// Every tab set in a group, outer ones first
+static void FindTabs( Fl_Group* g, vector< Fl_Tabs* > &tabs )
+{
+    Fl_Tabs* t = dynamic_cast< Fl_Tabs* >( g );
+    if ( t )
+    {
+        tabs.push_back( t );
+    }
+
+    for ( int i = 0; i < g->children(); i++ )
+    {
+        Fl_Group* c = g->child( i )->as_group();
+        if ( c && !c->as_gl_window() )
+        {
+            FindTabs( c, tabs );
+        }
+    }
+}
+
+void VspScreen::ScreenDump( ScreenDumpLog &log )
+{
+    if ( !m_FLTK_Window || GetDumpName().empty() )
+    {
+        return;
+    }
+
+    bool wasshown = IsShown();
+
+    // On the first display, where the dump's scale was set; a display's pixel density sets the image's
+    int X, Y, W, H;
+    Fl::screen_work_area( X, Y, W, H, 0 );
+    m_FLTK_Window->position( X, Y );
+
+    // Update hides a screen that has nothing to show, such as a Geom screen without its Geom, so the
+    // screen is shown again after it
+    Show();
+    Update();
+    Show();
+    m_FLTK_Window->show();
+
+    if ( IsShown() )
+    {
+        // Every page of every tab set, nested ones included.  A nested set is shown by selecting
+        // the pages that hold it, and each image is named by the path of tabs to its page.
+        vector< Fl_Tabs* > tabs;
+        FindTabs( m_FLTK_Window, tabs );
+
+        int npages = 0;
+        for ( int t = 0; t < ( int )tabs.size(); t++ )
+        {
+            for ( Fl_Widget* c = tabs[t]; c->parent(); c = c->parent() )
+            {
+                Fl_Tabs* outer = dynamic_cast< Fl_Tabs* >( c->parent() );
+                if ( outer )
+                {
+                    outer->value( c );
+                }
+            }
+
+            Fl_Widget* keep = tabs[t]->value();
+
+            for ( int i = 0; i < tabs[t]->children(); i++ )
+            {
+                Fl_Widget* page = tabs[t]->child( i );
+                if ( !page->label() )
+                {
+                    continue;
+                }
+
+                tabs[t]->value( page );
+
+                string path;
+                for ( Fl_Widget* c = page; c->parent(); c = c->parent() )
+                {
+                    if ( dynamic_cast< Fl_Tabs* >( c->parent() ) && c->label() )
+                    {
+                        path = string( " " ) + c->label() + path;
+                    }
+                }
+
+                DumpWindow( GetDumpName() + path, log );
+                npages++;
+            }
+
+            tabs[t]->value( keep );
+        }
+
+        if ( npages == 0 )
+        {
+            DumpWindow( GetDumpName(), log );
+        }
+    }
+
+    if ( !wasshown )
+    {
+        Hide();
+    }
+}
+
+// Writes a PNG and an EPS of the window's contents, without the frame the system draws around it
+void VspScreen::DumpWindow( const string &name, ScreenDumpLog &log )
+{
+    string fname = DumpFileName( name );
+    string base = log.m_Dir + "/" + fname;
+    int w = m_FLTK_Window->w();
+    int h = m_FLTK_Window->h();
+
+    // The image is drawn at the pixel density of the display, which the dump sets to the scale
+    // asked for; an image of any other size is not written
+    bool png_ok = false;
+    Fl_Image_Surface img_surf( w, h, 1 );
+    img_surf.draw( m_FLTK_Window );
+    Fl_RGB_Image *img = img_surf.image();
+    if ( img )
+    {
+        int pw = img->data_w();
+        int ph = img->data_h();
+        if ( pw == ( int )std::lround( w * log.m_Scale ) && ph == ( int )std::lround( h * log.m_Scale ) )
+        {
+            int stride = img->ld();
+            if ( stride == 0 )
+            {
+                stride = pw * img->d();
+            }
+
+            if ( stbi_write_png( ( base + ".png" ).c_str(), pw, ph, img->d(), img->array, stride ) )
+            {
+                png_ok = true;
+                log.m_Lines.push_back( fname + ".png\t" + to_string( pw ) + "\t" + to_string( ph ) );
+            }
+        }
+        else
+        {
+            printf( "%s is %d x %d at scale %g; expected %d x %d\n", fname.c_str(), pw, ph, log.m_Scale,
+                    ( int )std::lround( w * log.m_Scale ), ( int )std::lround( h * log.m_Scale ) );
+        }
+        delete img;
+    }
+
+    if ( !png_ok )
+    {
+        printf( "Could not write %s.png\n", base.c_str() );
+        log.m_NumFailed++;
+    }
+
+    bool eps_ok = false;
+    FILE *eps = fl_fopen( ( base + ".eps" ).c_str(), "w" );
+    if ( eps )
+    {
+        Fl_EPS_File_Surface eps_surf( w, h, eps );
+        eps_surf.draw( m_FLTK_Window );
+        if ( eps_surf.close() == 0 )
+        {
+            eps_ok = true;
+            log.m_Lines.push_back( fname + ".eps\t" + to_string( w ) + "\t" + to_string( h ) );
+        }
+    }
+
+    if ( !eps_ok )
+    {
+        printf( "Could not write %s.eps\n", base.c_str() );
+        log.m_NumFailed++;
+    }
+}
+
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
@@ -128,6 +312,9 @@ BasicScreen::BasicScreen( ScreenMgr* mgr, int w, int h, const string & title, co
     m_FLTK_Window = new VSP_Window( w, h );
     m_FLTK_Window->resizable( m_FLTK_Window );
     VspScreen::SetFlWindow( m_FLTK_Window );
+
+    // Kept as built, since some screens retitle themselves for what they show
+    m_DumpName = title;
 
     int reserve = 0;
     if ( !helpfile.empty() )

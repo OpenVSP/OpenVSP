@@ -15,6 +15,7 @@ INCLUDE_DIRECTORIES(
     ${VSP_GRAPHIC_INCLUDE_DIR}
     ${GLEW_INCLUDE_PATH}
     ${GLM_INCLUDE_DIR}
+    ${STB_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/geom_api
     ${GEOM_API_INCLUDE_DIR}
@@ -235,6 +236,7 @@ ENDIF()
 
 ADD_DEPENDENCIES(gui_and_draw
 geom_core
+stb_image
 vsp_graphic
 util
 )
