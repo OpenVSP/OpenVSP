@@ -13,6 +13,7 @@
 #include "FL/Fl_Image_Surface.H"
 
 #include "ScreenDump.h"
+#include "CurveEditScreen.h"
 #include "ManageGeomScreen.h"
 #include "MeshGeom.h"
 #include "ScreenMgr.h"
@@ -69,9 +70,16 @@ int ScreenDumper::Dump( int screen, int geom_screen, const string &dir, double s
 
     bool all = ( screen < 0 && geom_screen < 0 );
 
+    // The Edit Curve screen is dumped on a curve from the model when there is one, and empty otherwise
+    bool curve_dumped = false;
+    if ( all || screen == VSP_CURVE_EDIT_SCREEN )
+    {
+        curve_dumped = DumpEditCurve();
+    }
+
     for ( int sid = 0; sid < VSP_NUM_SCREENS; sid++ )
     {
-        if ( all || sid == screen )
+        if ( ( all || sid == screen ) && !( sid == VSP_CURVE_EDIT_SCREEN && curve_dumped ) )
         {
             VspScreen* s = m_ScreenMgr->GetScreen( sid );
             if ( s )
@@ -358,6 +366,38 @@ string ScreenDumper::MakeWireFrame( const string &geom_id )
     remove( file.c_str() );
 
     return FirstGeomOfType( m_Vehicle, NewGeoms( before, m_Vehicle->GetGeomVec() ), WIRE_FRAME_GEOM_TYPE );
+}
+
+// Dumps the Edit Curve screen showing the active cross section of the first Geom whose active cross
+// section is an edit curve.  Returns true if it did.
+bool ScreenDumper::DumpEditCurve()
+{
+    ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( m_ScreenMgr->GetScreen( VSP_MANAGE_GEOM_SCREEN ) );
+    CurveEditScreen* cedit = dynamic_cast< CurveEditScreen* >( m_ScreenMgr->GetScreen( VSP_CURVE_EDIT_SCREEN ) );
+    if ( !mgs || !cedit )
+    {
+        return false;
+    }
+
+    for ( int i = 0; i < ( int )m_DumpGeomVec.size(); i++ )
+    {
+        GeomXSec* geom = dynamic_cast< GeomXSec* >( m_Vehicle->FindGeom( m_DumpGeomVec[i] ) );
+        if ( !geom )
+        {
+            continue;
+        }
+
+        XSec* xs = geom->GetXSec( geom->m_ActiveXSec() );
+        if ( xs && xs->GetXSecCurve() && xs->GetXSecCurve()->GetType() == XS_EDIT_CURVE )
+        {
+            mgs->ClearVehSelectedFlag();
+            m_Vehicle->SetActiveGeom( m_DumpGeomVec[i] );
+            cedit->SetXSecCurve( xs->GetXSecCurve()->GetID() );
+            cedit->ScreenDump( m_Log );
+            return true;
+        }
+    }
+    return false;
 }
 
 // Dumps each Geom screen showing a Geom of its type, the screen for several Geoms with two selected,

@@ -41,6 +41,7 @@ private:
     std::string MakeWireFrame( const std::string &geom_id );
     std::vector< bool > PutAloneInSet( int set, const std::string &geom_id );
     void RestoreSet( int set, const std::vector< bool > &flags );
+    bool DumpEditCurve();
     void DumpGeomScreens( int geom_screen );
     void WriteManifest();
 
