@@ -256,8 +256,8 @@ GearScreen::GearScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 450, 800, "Gear" )
     m_TireLayout.SetButtonWidth( m_TireLayout.GetChoiceButtonWidth() );
 
     m_TireLayout.SetSameLineFlag( false );
-    m_TireLayout.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%6.5f" );
-    m_TireLayout.AddSlider( m_SpeedRatingSlider, "Speed Rating", 10, "%6.5f" );
+    m_TireLayout.AddSlider( m_PlyRatingSlider, "Ply Rating", 10, "%5.1f" );
+    m_TireLayout.AddSlider( m_SpeedRatingSlider, "Speed Rating", 10, "%5.1f" );
 
     m_TireModeChoice.AddItem( "Full TRA", vsp::TIRE_TRA );
     m_TireModeChoice.AddItem( "TRA w/ Faired Flange", vsp::TIRE_FAIR_FLANGE );
