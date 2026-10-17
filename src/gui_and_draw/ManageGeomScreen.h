@@ -77,6 +77,11 @@ public:
         m_VehSelected = true;
     }
 
+    void ClearVehSelectedFlag()
+    {
+        m_VehSelected = false;
+    }
+
     void UpdateGeomScreens();
 
     vector< VspScreen* > GetGeomScreenVec()

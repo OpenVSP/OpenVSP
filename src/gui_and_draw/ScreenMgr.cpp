@@ -53,6 +53,7 @@
 #include "ParmDebugScreen.h"
 #include "ParmLinkScreen.h"
 #include "ParmScreen.h"
+#include "ScreenDump.h"
 #include "PreferencesScreen.h"
 #include "ProjectionScreen.h"
 #include "PSliceScreen.h"
@@ -1388,4 +1389,10 @@ int ScreenMgr::GlobalHandler(int event)
         return 1;
     }
     return 0;
+}
+
+int ScreenMgr::DumpScreens( int screen, int geom_screen, const string &dir, double scale )
+{
+    ScreenDumper dumper( this );
+    return dumper.Dump( screen, geom_screen, dir, scale );
 }

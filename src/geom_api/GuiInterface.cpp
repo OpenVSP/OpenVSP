@@ -71,6 +71,23 @@ void GuiInterface::StartGUI()
 }
 
 // In a multi-threaded environment, this must be called from the main thread only.
+int GuiInterface::DumpScreens( int screen, int geom_screen, const std::string &dir, double scale )
+{
+    int nfailed = -1;
+#ifdef VSP_USE_FLTK
+    Fl::lock();
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->FirstShow();
+        Fl::wait( 0.1 );
+        nfailed = m_ScreenMgr->DumpScreens( screen, geom_screen, dir, scale );
+    }
+    Fl::unlock();
+#endif
+    return nfailed;
+}
+
+// In a multi-threaded environment, this must be called from the main thread only.
 void GuiInterface::StartGUIAPI( )
 {
 #ifdef VSP_USE_FLTK

@@ -116,6 +116,9 @@ public:
 
     void LoadModeChoice( const vector < Choice* > &choicevec, vector < string > &modeIDVec, const vector <string> &selModeIDvec );
 
+    // Writes images of the screens for testing and documentation; see ScreenDumper::Dump
+    int DumpScreens( int screen, int geom_screen, const string &dir, double scale );
+
 protected:
 
     void Init();

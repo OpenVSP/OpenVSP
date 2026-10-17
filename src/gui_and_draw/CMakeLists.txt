@@ -98,6 +98,7 @@ PtCloudScreen.cpp
 ResultsViewer.cpp
 RoutingScreen.cpp
 ScreenBase.cpp
+ScreenDump.cpp
 ScreenMgr.cpp
 ScreenshotScreen.cpp
 SelectFileScreen.cpp
@@ -197,6 +198,7 @@ PtCloudScreen.h
 ResultsViewer.h
 RoutingScreen.h
 ScreenBase.h
+ScreenDump.h
 ScreenMgr.h
 ScreenshotScreen.h
 SelectFileScreen.h
