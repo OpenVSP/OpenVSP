@@ -228,7 +228,7 @@ RoutingScreen::RoutingScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Rou
 
 
     m_DesignLayout.AddYGap();
-    m_DesignLayout.AddDividerBox( "Offset" );
+    m_DesignLayout.AddDividerBox( "Corner" );
 
     m_DesignLayout.AddSlider( m_RoutePtRadiusSlider, "Radius", 1, " %7.6f" );
 
