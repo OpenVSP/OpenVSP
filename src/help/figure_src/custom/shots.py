@@ -30,11 +30,10 @@ import openvsp as vsp
 def model():
     vsp.AddGeom( "Cone" )
     vsp.Update()
-    snap.add_ngon()
 
 
 SCREEN = "Custom_Design"
-CROPS = { "Custom_gui_cone": ( SCREEN, ( 2, 17, 398, 134 ) ) }
+CROPS = { "Custom_gui_cone": ( SCREEN, ( 2, 0, 398, 118 ) ) }
 
 if not [ f for f in os.listdir( folder ) if f.endswith( ".png" ) ]:
     snap.dump( model, "CUSTOM_GEOM_SCREEN", folder )

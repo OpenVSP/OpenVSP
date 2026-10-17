@@ -26,8 +26,8 @@ def model():
 
 
 snap.shots( model, "GEAR_GEOM_SCREEN",
-            { "Gear_tire_tab": ( "Gear_Tire", ( 4, 97, 446, 396 ) ),
-              "Gear_retract_tab": ( "Gear_Retract", ( 4, 69, 446, 144 ) ),
-              "Gear_retract_mech1": ( "Gear_Retract_Mechanism__1_2_", ( 4, 117, 446, 692 ) ),
-              "Gear_retract_mech2": ( "Gear_Retract_Mechanism__2_2_", ( 4, 117, 446, 405 ) ) },
+            { "Gear_tire_tab": ( "Gear_Tire", ( 4, 81, 446, 380 ) ),
+              "Gear_retract_tab": ( "Gear_Retract", ( 4, 53, 446, 128 ) ),
+              "Gear_retract_mech1": ( "Gear_Retract_Mechanism__1_2_", ( 4, 101, 446, 676 ) ),
+              "Gear_retract_mech2": ( "Gear_Retract_Mechanism__2_2_", ( 4, 101, 446, 389 ) ) },
             name = "Gear" )

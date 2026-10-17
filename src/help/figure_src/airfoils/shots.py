@@ -19,8 +19,7 @@ def model():
     vsp.FitAfCST( s, 1, 5 )
     vsp.SetParmVal( vsp.GetParm( g, "ActiveXSec", "Index" ), 1 )
     vsp.Update()
-    snap.add_ngon()
 
 
-snap.shots( model, "MS_WING_GEOM_SCREEN", { "Airfoils_gui_cst": ( "Wing_Airfoil", ( 4, 141, 456, 462 ) ) },
+snap.shots( model, "MS_WING_GEOM_SCREEN", { "Airfoils_gui_cst": ( "Wing_Airfoil", ( 4, 125, 456, 446 ) ) },
             name = "airfoils_cst" )

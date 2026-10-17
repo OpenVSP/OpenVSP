@@ -7,8 +7,8 @@ import snap
 import openvsp as vsp
 
 # Geom Browser crops: the tree from Vehicle down; the Clones, and the Hinge with its child.
-CLONE_BOX = ( 18, 118, 193, 236 )
-HINGE_BOX = ( 18, 118, 193, 202 )
+CLONE_BOX = ( 18, 102, 193, 220 )
+HINGE_BOX = ( 18, 102, 193, 186 )
 
 
 def model():
@@ -23,18 +23,6 @@ def model():
     vsp.SetGeomName( flap, "Flap" )
     vsp.Update()
     vsp.CloneGeomVec( [ pod, wing ] )
-    vsp.Update()
-    mine = vsp.FindGeoms()
-    snap.add_ngon()
-    # The mesh hides every Geom it was made from; show this model's again.
-    for g in mine:
-        vsp.SetSetFlag( g, vsp.SET_SHOWN, True )
-        vsp.SetSetFlag( g, vsp.SET_NOT_SHOWN, False )
-    # A Conformal on the hidden pod; without one the dump adds one to the wing and puts the next Geom it adds there.
-    ngon_pod = [ g for g in vsp.FindGeoms() if g not in mine and vsp.GetGeomTypeName( g ) == "Pod" ][ 0 ]
-    conf = vsp.AddGeom( "CONFORMAL", ngon_pod )
-    vsp.SetSetFlag( conf, vsp.SET_SHOWN, False )
-    vsp.SetSetFlag( conf, vsp.SET_NOT_SHOWN, True )
     vsp.Update()
 
 

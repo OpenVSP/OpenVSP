@@ -25,12 +25,11 @@ def model():
     for k, v in parms.items():
         vsp.SetParmVal( hinge, k, "Hinge", v )
     vsp.Update()
-    snap.add_ngon()
 
 
 snap.shots( model, "HINGE_GEOM_SCREEN",
-            { "Hinge_gui_motion": ( "Hinge_Motion", ( 4, 71, 396, 249 ) ),
-              "Hinge_gui_orient": ( "Hinge_Orient", ( 4, 131, 396, 520 ) ) },
+            { "Hinge_gui_motion": ( "Hinge_Motion", ( 4, 55, 396, 233 ) ),
+              "Hinge_gui_orient": ( "Hinge_Orient", ( 4, 115, 396, 504 ) ) },
             name = "hinge" )
 snap.shots( clone_shots.model, "VSP_MANAGE_GEOM_SCREEN", { "Hinge_browser": ( "Geom_Browser", clone_shots.HINGE_BOX ) },
             name = "browser" )

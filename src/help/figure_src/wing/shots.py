@@ -11,7 +11,6 @@ import wingmodel as wm
 
 def model():
     vsp.AddGeom( "WING" )
-    snap.add_ngon()
 
 
 def blended():
@@ -33,10 +32,9 @@ def blended():
     # The Blend Airfoil index is the Wing's ActiveXSec.
     vsp.SetParmVal( w, "ActiveXSec", "Index", 1 )
     vsp.Update()
-    snap.add_ngon()
 
 
-snap.shots( model, "MS_WING_GEOM_SCREEN", { "Wing_sect_planform": ( "Wing_Sect", ( 4, 265, 456, 441 ) ),
-                                            "Wing_plan_loft": ( "Wing_Plan", ( 4, 651, 456, 776 ) ) } )
-snap.shots( blended, "MS_WING_GEOM_SCREEN", { "Wing_blending_le": ( "Wing_Blending", ( 4, 71, 456, 276 ) ) },
+snap.shots( model, "MS_WING_GEOM_SCREEN", { "Wing_sect_planform": ( "Wing_Sect", ( 4, 249, 456, 425 ) ),
+                                            "Wing_plan_loft": ( "Wing_Plan", ( 4, 635, 456, 760 ) ) } )
+snap.shots( blended, "MS_WING_GEOM_SCREEN", { "Wing_blending_le": ( "Wing_Blending", ( 4, 55, 456, 260 ) ) },
             name = "Wing_blending" )

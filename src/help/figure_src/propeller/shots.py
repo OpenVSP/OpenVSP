@@ -27,10 +27,9 @@ def model():
             if k.startswith( "Num" ) == first:
                 vsp.SetParmVal( ids[ k ], v )
         vsp.Update()
-    snap.add_ngon()
 
 
 snap.shots( model, "PROP_GEOM_SCREEN",
-            { "Propeller_blade_curve": ( "Propeller_Blade", ( 4, 70, 507, 576 ) ),
-              "Propeller_motion_harmonic": ( "Propeller_Motion", ( 4, 131, 507, 357 ) ) },
+            { "Propeller_blade_curve": ( "Propeller_Blade", ( 4, 54, 507, 560 ) ),
+              "Propeller_motion_harmonic": ( "Propeller_Motion", ( 4, 115, 507, 341 ) ) },
             name = "propeller" )

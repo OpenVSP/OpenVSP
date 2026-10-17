@@ -13,5 +13,5 @@ def model():
     vsp.SetParmVal( pid, "Shell_Flag", "Mass_Props", 1 )
 
 
-snap.shots( model, "POD_GEOM_SCREEN", { "MassTab_gui_groups": ( "Pod_Mass", ( 4, 70, 396, 428 ) ) },
+snap.shots( model, "POD_GEOM_SCREEN", { "MassTab_gui_groups": ( "Pod_Mass", ( 4, 54, 396, 412 ) ) },
             name = "masstab_pod" )

@@ -28,9 +28,8 @@ def model():
     vsp.SetParmVal( a, "ContactPt1_SuspensionMode", "Design", vsp.GEAR_SUSPENSION_COMPRESSED )
     vsp.SetParmVal( a, "ContactPt1_TireMode", "Design", vsp.TIRE_FLAT_CONTACT )
     vsp.Update()
-    snap.add_ngon()
 
 
 snap.shots( model, "AUXILIARY_GEOM_SCREEN",
-            { "Auxiliary_ground_plane_tab": ( "Auxiliary_Design", ( 4, 70, 396, 445 ) ) },
+            { "Auxiliary_ground_plane_tab": ( "Auxiliary_Design", ( 4, 54, 396, 429 ) ) },
             name = "Auxiliary_ground" )

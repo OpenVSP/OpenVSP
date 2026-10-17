@@ -14,8 +14,7 @@ def model():
     vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( s, 1 ), "YRotate" ), 10.0 )
     vsp.SetParmVal( vsp.GetParm( g, "ActiveXSec", "Index" ), 2 )
     vsp.Update()
-    snap.add_ngon()
 
 
-snap.shots( model, "STACK_GEOM_SCREEN", { "FuselageStack_gui_coord": ( "Stack_XSec", ( 8, 205, 456, 371 ) ) },
+snap.shots( model, "STACK_GEOM_SCREEN", { "FuselageStack_gui_coord": ( "Stack_XSec", ( 8, 189, 456, 355 ) ) },
             name = "fuselagestack_coord" )

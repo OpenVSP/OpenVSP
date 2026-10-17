@@ -25,5 +25,5 @@ def model():
     vsp.Update()
 
 
-snap.shots( model, "VSP_CURVE_EDIT_SCREEN", { "XSecCurves_cedit_window": ( "Edit_Curve_Curve", ( 0, 17, 750, 648 ) ) },
+snap.shots( model, "VSP_CURVE_EDIT_SCREEN", { "XSecCurves_cedit_window": ( "Edit_Curve_Curve", ( 0, 0, 750, 632 ) ) },
             name = "xseccurves_cedit" )

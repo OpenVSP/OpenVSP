@@ -12,7 +12,6 @@ def wing_control():
     wid = vsp.AddGeom( "WING" )
     vsp.AddSubSurf( wid, vsp.SS_CONTROL )
     vsp.Update()
-    snap.add_ngon()
 
 
 def prop_surfaces():
@@ -21,7 +20,6 @@ def prop_surfaces():
     vsp.AddSubSurf( pid, vsp.SS_LINE, -1 )
     vsp.AddSubSurf( pid, vsp.SS_RECTANGLE, 1 )
     vsp.Update()
-    snap.add_ngon()
 
 
 def pod_on_wing():
@@ -50,12 +48,12 @@ def battery():
     vsp.Update()
 
 
-snap.shots( wing_control, "MS_WING_GEOM_SCREEN", { "SubTab_gui_control": ( "Wing_Sub", ( 4, 238, 456, 619 ) ) },
+snap.shots( wing_control, "MS_WING_GEOM_SCREEN", { "SubTab_gui_control": ( "Wing_Sub", ( 4, 222, 456, 603 ) ) },
             name = "commontabs_wing_control" )
-snap.shots( prop_surfaces, "PROP_GEOM_SCREEN", { "SubTab_gui_list": ( "Propeller_Sub", ( 4, 70, 506, 235 ) ) },
+snap.shots( prop_surfaces, "PROP_GEOM_SCREEN", { "SubTab_gui_list": ( "Propeller_Sub", ( 4, 54, 506, 219 ) ) },
             name = "commontabs_prop_surfaces" )
-snap.shots( pod_on_wing, "POD_GEOM_SCREEN", { "XFormTab_gui_attach": ( "Pod_XForm", ( 4, 464, 396, 746 ) ),
-                                              "XFormTab_gui_sym": ( "Pod_XForm", ( 4, 310, 396, 420 ) ) },
+snap.shots( pod_on_wing, "POD_GEOM_SCREEN", { "XFormTab_gui_attach": ( "Pod_XForm", ( 4, 448, 396, 730 ) ),
+                                              "XFormTab_gui_sym": ( "Pod_XForm", ( 4, 294, 396, 404 ) ) },
             name = "commontabs_pod_on_wing" )
-snap.shots( battery, "VSP_SNAP_TO_SCREEN", { "XFormTab_gui_snapto": ( "Snap_To", ( 0, 17, 300, 382 ) ) },
+snap.shots( battery, "VSP_SNAP_TO_SCREEN", { "XFormTab_gui_snapto": ( "Snap_To", ( 0, 0, 300, 366 ) ) },
             name = "commontabs_battery" )

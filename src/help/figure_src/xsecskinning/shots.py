@@ -34,10 +34,9 @@ def spine():
         vsp.SetParmVal( vsp.GetSkinSpineParm( sid, lr + "Strength" ), 1.0 )
     vsp.SetParmVal( vsp.GetParm( g, "ActiveXSec", "Index" ), 1 )
     vsp.Update()
-    snap.add_ngon()
 
 
 snap.shots( fuselage, "FUSELAGE_GEOM_SCREEN",
-            { "XSecSkinning_gui_side": ( "Fuselage_Skinning_Sides", ( 8, 246, 452, 369 ) ) }, name = "xsecskinning_sides" )
+            { "XSecSkinning_gui_side": ( "Fuselage_Skinning_Sides", ( 8, 230, 452, 353 ) ) }, name = "xsecskinning_sides" )
 snap.shots( spine, "STACK_GEOM_SCREEN",
-            { "XSecSkinning_gui_spine": ( "Stack_Skinning_Spines", ( 8, 218, 452, 527 ) ) }, name = "xsecskinning_spine" )
+            { "XSecSkinning_gui_spine": ( "Stack_Skinning_Spines", ( 8, 202, 452, 511 ) ) }, name = "xsecskinning_spine" )

@@ -1,18 +1,18 @@
 """Screenshots of OpenVSP's GUI for the help pages.
 
 Each screenshot is a crop of one screen or tab, taken from a model built for it with the openvsp module.  The model
-is saved, `vsp -snap N model.vsp3` writes a PNG of screen N (an enum of VSP_SCREEN_TYPE) or `vsp -snapgeom N
+is saved, `vsp -snap N model.vsp3` writes a PNG of screen N (an enum of GUI_VSP_SCREEN) or `vsp -snapgeom N
 model.vsp3` one of each tab of Geom screen N (GUI_GEOM_SCREEN), and the crop is cut from one of those.  The vsp
 program must have these options; name it with the environment variable VSP_SNAP_EXE.  The dump shows real windows,
 so it needs a logged-in desktop session.
 
-A crop box is given in screen units, (left, top, right, bottom) on the 1x image; the dump is taken at 2x and the
-box is scaled to it.
+A crop box is given in screen units, (left, top, right, bottom) of the window's contents; the dump is taken at
+scale 2 and the box is scaled to it.
 
     import snap
     def model():
         ...build with openvsp...
-    snap.shots( model, "MS_WING_GEOM_SCREEN", { "Wing_sect_planform": ( "Wing_Sect", ( 4, 265, 456, 441 ) ) } )
+    snap.shots( model, "MS_WING_GEOM_SCREEN", { "Wing_sect_planform": ( "Wing_Sect", ( 4, 249, 456, 425 ) ) } )
 
 Setting the environment variable SNAP_CACHE to a folder keeps each dump there, under the name given to shots(), and
 a later run with the same name crops from the kept dump without running vsp again; delete the dump's folder to retake
@@ -48,32 +48,6 @@ def enum_value( name ):
     raise KeyError( name )
 
 
-def add_ngon():
-    """Put an NGon mesh of a pod in the model.  Without one the dump makes its own, which at times crashes; dump()
-    calls this for a model that has no NGon mesh.  The pod and meshes are hidden, and the model's own Geoms keep the
-    shown and not shown sets they had."""
-    shown = {}
-    for g in vsp.FindGeoms():
-        shown[ g ] = ( vsp.GetSetFlag( g, vsp.SET_SHOWN ), vsp.GetSetFlag( g, vsp.SET_NOT_SHOWN ) )
-
-    pod = vsp.AddGeom( "POD" )
-    for s in range( vsp.GetNumSets() ):
-        vsp.SetSetFlag( pod, s, False )
-    vsp.SetSetFlag( pod, vsp.SET_FIRST_USER, True )
-    vsp.Update()
-    vsp.ComputeCompGeom( vsp.SET_FIRST_USER, False, 0 )
-    mesh = vsp.FindGeoms()[ -1 ]
-    ngon = vsp.CreateNGonMeshGeom( mesh )
-    vsp.SetSetFlag( pod, vsp.SET_FIRST_USER, False )
-
-    for g, ( on, off ) in shown.items():
-        vsp.SetSetFlag( g, vsp.SET_SHOWN, on )
-        vsp.SetSetFlag( g, vsp.SET_NOT_SHOWN, off )
-    for g in ( pod, mesh, ngon ):
-        vsp.SetSetFlag( g, vsp.SET_SHOWN, False )
-        vsp.SetSetFlag( g, vsp.SET_NOT_SHOWN, True )
-
-
 def dump( model, screen, keep = None ):
     """Build the model (a function that builds it from an empty model), dump the screen named by its enum (a member
     of VSP_SCREEN_TYPE or GUI_GEOM_SCREEN) and return the folder of the PNGs.  keep names a folder to dump into;
@@ -88,23 +62,21 @@ def dump( model, screen, keep = None ):
 
     vsp.VSPRenew()
     model()
-    if "NGonMesh" not in [ vsp.GetGeomTypeName( g ) for g in vsp.FindGeoms() ]:
-        add_ngon()
     vsp.Update()
-    fname = os.path.join( folder, "model.vsp3" )
-    vsp.WriteVSPFile( fname )
+    vsp.WriteVSPFile( os.path.join( folder, "model.vsp3" ) )
     vsp.VSPRenew()
 
-    env = dict( os.environ, HOME = home, FLTK_SCALING_FACTOR = str( SCALE ) )
+    # The model is named relative to the folder, so the path the main window shows is the same every run
+    env = dict( os.environ, HOME = home )
     if screen.startswith( "VSP_" ):
         flag = "-snap"
     else:
         flag = "-snapgeom"
-    r = subprocess.run( [ exe, flag, str( enum_value( screen ) ), fname ], cwd = folder, env = env,
-                        capture_output = True )
+    r = subprocess.run( [ exe, flag, str( enum_value( screen ) ), "-snapscale", str( SCALE ), "model.vsp3" ],
+                        cwd = folder, env = env, capture_output = True, text = True )
     shutil.rmtree( home, ignore_errors = True )
     if r.returncode != 0:
-        sys.exit( "vsp -snap failed with code %d" % r.returncode )
+        sys.exit( "vsp -snap failed with code %d:\n%s" % ( r.returncode, r.stdout[ -2000: ] ) )
     return folder
 
 

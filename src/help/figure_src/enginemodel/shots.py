@@ -14,8 +14,7 @@ def model():
     vsp.Update()
     vsp.SetParmVal( vsp.GetParm( g, "InletFaceMode", "EngineModel" ), vsp.ENGINE_LOC_U )
     vsp.Update()
-    snap.add_ngon()
 
 
-snap.shots( model, "STACK_GEOM_SCREEN", { "EngineModel_gui_stations": ( "Stack_Design", ( 8, 406, 456, 649 ) ) },
+snap.shots( model, "STACK_GEOM_SCREEN", { "EngineModel_gui_stations": ( "Stack_Design", ( 8, 390, 456, 633 ) ) },
             name = "enginemodel_stations" )
