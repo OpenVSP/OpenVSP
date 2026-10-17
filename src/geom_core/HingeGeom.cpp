@@ -308,6 +308,13 @@ void HingeGeom::UpdateXForm()
         sec = cross( norm, prim );
         sec.normalize();
 
+        // prim x sec is the third axis of a right-handed set only when the secondary axis follows
+        // the primary in X, Y, Z order; otherwise the third axis is sec x prim
+        if ( ( m_PrimaryDir() + 1 ) % 3 != m_SecondaryDir() )
+        {
+            norm = norm * -1.0;
+        }
+
 
         vector < vec3d > dirs(3);
         dirs[ m_PrimaryDir() ] = prim;
