@@ -2689,7 +2689,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
 void VSP_SOLVER::Solve(int Case)
 {
  
-    int c, i, j, k, Converged;
+    int c, i, j, k, Level, Converged;
     char StatusFileName[MAX_CHAR_SIZE], LoadFileName[MAX_CHAR_SIZE], ADBFileName[MAX_CHAR_SIZE];
     char GroupFileName[MAX_CHAR_SIZE], RotorFileName[MAX_CHAR_SIZE], SurveyFileName[MAX_CHAR_SIZE];
     char QUADTREEFileName[MAX_CHAR_SIZE];
@@ -2766,6 +2766,26 @@ void VSP_SOLVER::Solve(int Case)
     LastMach_ = Mach_;
 
     if ( !DumpGeom_ ) ZeroVortexState();
+
+    // Set the vortex core widths the way the matrix multiply does.  The preconditioner below
+    // takes the induced velocities with them, and otherwise it saw the widths the last solve
+    // left: none for the first solve of a run, the wake's for every later one.  The solves then
+    // stopped at different places within the GMRES tolerance, and the stability derivatives,
+    // which difference later solves against the first, carried that as an offset.
+
+    if ( !DumpGeom_ ) {
+
+       UpdateVortexCoreWidths(MGLevel_, ALL_WAKE_GAMMAS);
+
+       for ( Level = MGLevel_ ; Level < NumberOfMGLevels_ ; Level++ ) {
+
+          RestrictVortexCoreWidthFromGrid(Level);
+
+          UpdateVortexCoreWidths(Level+1, ALL_WAKE_GAMMAS);
+
+       }
+
+    }
 
     // Create matrix preconditioners
 
