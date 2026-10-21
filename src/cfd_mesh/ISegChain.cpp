@@ -1009,6 +1009,7 @@ bool ISegChain::AddBorderSplit( Puw* uw )
     int closest_index = -1;
     double closest_fract = 0.0;
     double closest_dist = 1.0e12;
+    vec2d closest_proj;
     double split_tol = tol;
 
     if ( m_SurfA == m_SurfB )
@@ -1037,6 +1038,7 @@ bool ISegChain::AddBorderSplit( Puw* uw )
             {
                 closest_dist = d;
                 closest_index = i;
+                closest_proj = proj;
                 closest_fract = 0.0;
                 vec3d p0 = surfPtr->CompPnt( iuw0[0], iuw0[1] );
                 vec3d p1 = surfPtr->CompPnt( iuw1[0], iuw1[1] );
@@ -1067,7 +1069,8 @@ bool ISegChain::AddBorderSplit( Puw* uw )
         split->m_Surf  = surfPtr;
         split->m_Index = closest_index;
         split->m_Fract = closest_fract;
-        split->m_UW    = uw->m_UW;
+        // On the segment, where ISeg::Split measures its fraction
+        split->m_UW    = closest_proj;
         m_SplitVec.push_back( split );
         return true; // AddBorderSplit success
     }
