@@ -55,3 +55,46 @@ def test_duplicate_geom_meshes_once( kind, tmp_path, monkeypatch ):
     assert double["Num_Border_Edges"] == 0
     assert double["Num_Over_Connected_Edges"] == 0
     assert double["Num_Tris"] == single["Num_Tris"]
+
+
+def _widest( pid, n=401 ):
+    """The largest radius of a pod lying along X, and the x it is reached at."""
+    best_r = -1.0
+    best_x = 0.0
+    for k in range( n ):
+        p = vsp.CompPnt01( pid, 0, k / ( n - 1.0 ), 0.25 )
+        r = ( p.y() ** 2 + p.z() ** 2 ) ** 0.5
+        if r > best_r:
+            best_r = r
+            best_x = p.x()
+    return best_r, best_x
+
+
+def test_fin_root_touching_pod( tmp_path, monkeypatch ):
+    """A fin standing on a pod, its root chord's leading edge on the pod's widest point.
+
+    The fin's root airfoil touches the pod there and at no other point, but a few of its control
+    points lie within the tolerance of the pod's surface, and that was taken to mean the whole
+    curve lay on it: the fin and the pod were never intersected.
+    """
+    monkeypatch.chdir( tmp_path )
+
+    vsp.VSPRenew()
+    pid = _add( "POD" )
+    vsp.Update()
+    r, x = _widest( pid )
+
+    fin = vsp.AddGeom( "WING" )
+    vsp.SetParmVal( fin, "Sym_Planar_Flag", "Sym", vsp.SYM_NONE )
+    xs = vsp.GetXSec( vsp.GetXSecSurf( fin, 0 ), 1 )
+    for name, v in ( ( "Span", 1.5 ), ( "Root_Chord", 1.0 ), ( "Tip_Chord", 0.6 ), ( "Sweep", 20.0 ) ):
+        vsp.SetParmVal( vsp.GetXSecParm( xs, name ), v )
+    vsp.SetParmVal( fin, "X_Rel_Location", "XForm", x )
+    vsp.SetParmVal( fin, "Z_Rel_Location", "XForm", r )
+    vsp.SetParmVal( fin, "X_Rel_Rotation", "XForm", 90.0 )
+    vsp.Update()
+
+    res = _mesh( 4.0 )
+
+    assert res["Num_Border_Edges"] == 0
+    assert res["Num_Over_Connected_Edges"] == 0

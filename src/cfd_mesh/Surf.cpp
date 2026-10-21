@@ -1278,9 +1278,10 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *Me
             projcrv.XYZCurveToUWCurve( this );
             projcrv.UWCurveToXYZCurve( this );
 
-            int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
-
-            if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
+            // On the surface only where every control point is: a curve that touches the
+            // surface, or runs close to it for a stretch, still has to be intersected with it.
+            // A curve laid across a surface's interior has no segments and lies on nothing.
+            if ( crv.GetNumSections() > 0 && crv.MatchFwd( projcrv, tol ) )
             {
                 retFlag = true;
                 //==== If Surface Add To List ====//

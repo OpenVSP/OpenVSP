@@ -75,12 +75,9 @@ public:
     void UWCurveToXYZCurve( Surf *srf );
     void XYZCurveToUWCurve( const Surf *srf );
 
-    int CountMatch( const Bezier_curve &ocrv, double tol ) const;
     bool Match( const Bezier_curve &ocrv, double tol ) const;
     bool MatchFwd( const Bezier_curve &ocrv, double tol ) const;
     bool MatchBkwd( const Bezier_curve &ocrv, double tol ) const;
-
-    bool SingleLinear();
 
     void GetBBox( BndBox &box );
 
