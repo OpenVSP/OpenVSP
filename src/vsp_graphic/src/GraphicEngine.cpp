@@ -8,6 +8,8 @@
 
 #include "stb_image_write.h"
 #include "LayoutMgr.h"
+#include "OpenGLHeaders.h"
+#include "gl2ps.h"
 #include <string.h>
 
 #include <assert.h>
@@ -34,6 +36,63 @@ void GraphicEngine::draw( int mouseX, int mouseY )
 {
     _display->predraw( _scene, mouseX, mouseY );
     _display->draw( _scene, mouseX, mouseY );
+}
+
+bool GraphicEngine::dumpScreenVector( const std::string &fileName, int filetype, bool autocrop, double scale )
+{
+    GLint format = GL2PS_SVG;
+    if ( filetype == PDF )
+    {
+        format = GL2PS_PDF;
+    }
+
+    // Only what is seen is written, in a painter's order from a software z-buffer.
+    GLint sort = GL2PS_RASTER_SORT;
+    GLint options = GL2PS_NONE;
+
+    // Crop the page to what is drawn, at the same scale.
+    if ( autocrop )
+    {
+        options |= GL2PS_TIGHT_BOUNDING_BOX;
+    }
+
+    // The whole window, so every viewport of a multi-view layout lands on the page.
+    GLint viewport[4] = { 0, 0, _display->getLayoutMgr()->screenWidth(), _display->getLayoutMgr()->screenHeight() };
+
+    // gl2ps reports an overflow when the scene does not fit its feedback buffer; draw again
+    // into one twice the size, up to a buffer of 2^30 values.
+    GLint buffersize = 4 * 1024 * 1024;
+    const GLint maxbuffersize = 1 << 30;
+    GLint state = GL2PS_OVERFLOW;
+    while ( state == GL2PS_OVERFLOW )
+    {
+        FILE *fp = fopen( fileName.c_str(), "wb" );
+        if ( !fp )
+        {
+            return false;
+        }
+
+        if ( gl2psBeginPage( "OpenVSP", "OpenVSP", viewport, format, sort, options, GL_RGBA, 0, nullptr, 0, 0, 0,
+                             buffersize, fp, fileName.c_str() ) != GL2PS_SUCCESS )
+        {
+            fclose( fp );
+            return false;
+        }
+        gl2psSetPageScale( ( GLfloat ) scale );
+
+        draw( true );
+
+        state = gl2psEndPage();
+        fclose( fp );
+
+        if ( state == GL2PS_OVERFLOW && buffersize >= maxbuffersize )
+        {
+            return false;
+        }
+        buffersize *= 2;
+    }
+
+    return state == GL2PS_SUCCESS || state == GL2PS_NO_FEEDBACK;
 }
 
 void GraphicEngine::dumpScreenImage( const std::string &fileName, int width, int height, bool transparentBG, bool autocrop, bool framebufferSupported, int filetype )

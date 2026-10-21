@@ -39,10 +39,20 @@ public:
     enum filetype { PNG
     };
 
+    enum vectorfiletype { SVG, PDF
+    };
+
     /*!
     * Dump screen data to JPEG image.
     */
     void dumpScreenImage( const std::string &fileName, int width, int height, bool transparentBG, bool autcrop, bool framebufferSupported, int filetype );
+
+    /*!
+    * Write the scene to a vector file of the vectorfiletype given, through gl2ps.  With autocrop
+    * the page is cropped to what is drawn.  scale is the size of a pixel on the page, in points.
+    * The OpenGL context must be current.  Returns false when the file cannot be written.
+    */
+    bool dumpScreenVector( const std::string &fileName, int filetype, bool autocrop, double scale );
 
 public:
     /*!
