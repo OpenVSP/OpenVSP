@@ -16,6 +16,7 @@
 #include "Lighting.h"
 #include "Clipping.h"
 #include "ByteOperationUtil.h"
+#include "gl2ps.h"
 
 #include <algorithm>
 
@@ -631,10 +632,12 @@ void Scene::draw()
         alphaList[i]->draw();
     }
     glCullFace( GL_BACK );
+    gl2psEnable( GL2PS_FRONT_FACES );
     for(int i = 0; i < (int)alphaList.size(); i++)
     {
         alphaList[i]->draw();
     }
+    gl2psDisable( GL2PS_FRONT_FACES );
     glDisable( GL_CULL_FACE );
     glDepthMask( GL_TRUE );
 
