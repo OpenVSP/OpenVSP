@@ -147,6 +147,9 @@ public:
     void UpdateRotationParms();
     void UpdateAllViewParms();
 
+    // Write the scene to a vector file of a GraphicEngine::vectorfiletype
+    bool WriteVector( const std::string & fname, int filetype, bool autocrop, double scale );
+
 // Private helper functions.
 private:
     void _initGLEW();

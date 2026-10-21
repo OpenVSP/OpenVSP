@@ -183,6 +183,12 @@ void VspGlWindow::draw()
     m_GEngine->draw( m_mouse_x, m_mouse_y );
 }
 
+bool VspGlWindow::WriteVector( const std::string & fname, int filetype, bool autocrop, double scale )
+{
+    make_current();
+    return m_GEngine->dumpScreenVector( fname, filetype, autocrop, scale );
+}
+
 int VspGlWindow::handle( int fl_event )
 {
     // Move origin from upper left corner to lower left corner.

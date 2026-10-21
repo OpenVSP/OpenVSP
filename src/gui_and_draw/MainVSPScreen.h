@@ -64,6 +64,12 @@ public:
     void HideExitImplementation();
 
     void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop );
+    bool VectorScreenGrab( const string & fname, int filetype, bool autocrop, bool scaletopage, double pagewidth,
+                           double pageheight, int pageunits );
+
+    // The size on the page, in points, of a pixel of a w by h window: 1, or to fit the page
+    static double VectorPageScale( int w, int h, bool scaletopage, double pagewidth, double pageheight,
+                                   int pageunits );
     void SetViewAxis( bool vaxis );
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );

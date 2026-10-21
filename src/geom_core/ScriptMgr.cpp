@@ -2748,6 +2748,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "VEC_SCREENSHOT_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEC_SCREENSHOT_TYPE", "VEC_SVG", VEC_SVG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEC_SCREENSHOT_TYPE", "VEC_PDF", VEC_PDF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEC_SCREENSHOT_TYPE", "VEC_NUM_TYPES", VEC_NUM_TYPES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "VEL_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_FT_S", V_UNIT_FT_S );

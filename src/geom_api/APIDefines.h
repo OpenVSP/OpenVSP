@@ -1618,6 +1618,15 @@ enum TIRE_MODES { TIRE_TRA,	/*!< Full TRA model */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for the file types of a vector screenshot. */
+enum VEC_SCREENSHOT_TYPE { VEC_SVG,	/*!< SVG vector screenshot */
+                           VEC_PDF,	/*!< PDF vector screenshot */
+                           VEC_NUM_TYPES	/*!< Number of vector screenshot file types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that describes units for velocity. */
 enum VEL_UNITS { V_UNIT_FT_S = 0,	/*!< Feet per second */
                  V_UNIT_M_S,	/*!< Meter per second */

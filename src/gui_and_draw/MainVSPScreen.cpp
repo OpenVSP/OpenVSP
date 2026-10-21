@@ -31,6 +31,7 @@
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageViewScreen.h"
+#include "UnitConversion.h"
 #include "FileUtil.h"
 
 #include "CfdMeshScreen.h"
@@ -755,6 +756,45 @@ void MainVSPScreen::ScreenGrab( const string & fname, int w, int h, bool transpa
 
         m_GlWin->getGraphicEngine()->dumpScreenImage( fname, w, h, transparentBG, autocrop, framebufferSupported, VSPGraphic::GraphicEngine::PNG );
     }
+}
+
+bool MainVSPScreen::VectorScreenGrab( const string & fname, int filetype, bool autocrop, bool scaletopage,
+                                      double pagewidth, double pageheight, int pageunits )
+{
+    if ( !m_GlWin )
+    {
+        return false;
+    }
+
+    int type = VSPGraphic::GraphicEngine::SVG;
+    if ( filetype == vsp::VEC_PDF )
+    {
+        type = VSPGraphic::GraphicEngine::PDF;
+    }
+
+    double scale = VectorPageScale( m_GlWin->pixel_w(), m_GlWin->pixel_h(), scaletopage, pagewidth, pageheight,
+                                    pageunits );
+
+    return m_GlWin->WriteVector( fname, type, autocrop, scale );
+}
+
+double MainVSPScreen::VectorPageScale( int w, int h, bool scaletopage, double pagewidth, double pageheight,
+                                       int pageunits )
+{
+    if ( !scaletopage || w <= 0 || h <= 0 )
+    {
+        return 1.0;
+    }
+
+    // 72 points to the inch
+    double pw = ConvertLength( pagewidth, pageunits, vsp::LEN_IN ) * 72.0;
+    double ph = ConvertLength( pageheight, pageunits, vsp::LEN_IN ) * 72.0;
+    double scale = pw / w;
+    if ( ph / h < scale )
+    {
+        scale = ph / h;
+    }
+    return scale;
 }
 
 void MainVSPScreen::SetViewAxis( bool vaxis )
