@@ -1476,9 +1476,20 @@ void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
                 continue;
             }
 
-            if ( m_SurfVec[s]->GetSurfCore()->SurfMatch( m_SurfVec[t]->GetSurfCore() ) )
+            bool opposite = false;
+            if ( m_SurfVec[s]->GetSurfCore()->SurfMatch( m_SurfVec[t]->GetSurfCore(), opposite ) )
             {
-                delflag[s] = true;
+                if ( m_SurfVec[s]->GetFlipFlag() != m_SurfVec[t]->GetFlipFlag() )
+                {
+                    opposite = !opposite;
+                }
+
+                // Two faces pressed back to back both go.  Two facing the same way, of the same
+                // kind, are one surface given twice, and one of them stays.
+                if ( opposite || m_SurfVec[s]->GetSurfaceCfdType() != m_SurfVec[t]->GetSurfaceCfdType() )
+                {
+                    delflag[s] = true;
+                }
                 delflag[t] = true;
             }
         }

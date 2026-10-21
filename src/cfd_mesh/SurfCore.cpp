@@ -421,9 +421,14 @@ void SurfCore::LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const
     borderCurves.push_back( GetBorderCurve( UMAX ) );
 }
 
-bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
+// Whether otherSurf is this surface, however its parameters run.  Reversing one direction, or
+// swapping the two, turns the normal over, and a second does so again.  opposite is set where the
+// two are matched with their normals pointing apart, which is said of a surface that matches both
+// ways round.
+bool SurfCore::SurfMatch( SurfCore* otherSurf, bool &opposite ) const
 {
     bool match = false;
+    opposite = false;
 
     for ( int swap = 0; swap < 2; swap++ )
     {
@@ -448,6 +453,11 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
                 if ( MatchThisOrientation( osurf ) )
                 {
                     match = true;
+                    if ( ( swap + ru + rv ) % 2 == 1 )
+                    {
+                        opposite = true;
+                        return true;
+                    }
                 }
             }
         }

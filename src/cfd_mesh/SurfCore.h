@@ -117,7 +117,7 @@ public:
     Bezier_curve GetBorderCurve( int iborder ) const;
     void LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const;
 
-    bool SurfMatch( SurfCore* otherSurf ) const;
+    bool SurfMatch( SurfCore* otherSurf, bool &opposite ) const;
 
     void WriteSurf( FILE* fp ) const;
 
