@@ -235,6 +235,13 @@ Vehicle::Vehicle()
     m_TransparentBGFlag.Init( "TransparentBGFlag", "Screenshot", this, 1, 0, 1 );
     m_AutoCropFlag.Init( "AutoCropFlag", "Screenshot", this, false, false, true );
 
+    m_VecFileType.Init( "FileType", "VectorScreenshot", this, vsp::VEC_SVG, vsp::VEC_SVG, vsp::VEC_NUM_TYPES - 1 );
+    m_VecAutoCropFlag.Init( "AutoCropFlag", "VectorScreenshot", this, false, false, true );
+    m_VecScaleToPageFlag.Init( "ScaleToPageFlag", "VectorScreenshot", this, false, false, true );
+    m_VecPageWidth.Init( "PageWidth", "VectorScreenshot", this, 4.0, 1e-3, 1.0e12 );
+    m_VecPageHeight.Init( "PageHeight", "VectorScreenshot", this, 3.0, 1e-3, 1.0e12 );
+    m_VecPageUnits.Init( "PageUnits", "VectorScreenshot", this, vsp::LEN_IN, vsp::LEN_MM, vsp::LEN_IN );
+
     m_UserParmVal.Init( "Val", "UserParm", this, 0.0, -1.0e12, 1.0e12 );
     m_UserParmMin.Init( "Min", "UserParm", this, -1.0e5, -1.0e12, 1.0e12 );
     m_UserParmMax.Init( "Max", "UserParm", this, 1.0e5, -1.0e12, 1.0e12 );

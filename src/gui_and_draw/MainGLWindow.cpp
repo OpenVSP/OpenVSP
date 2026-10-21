@@ -178,6 +178,7 @@ void VspGlWindow::draw()
 
         //Make sure the current width and height update
         m_ScreenMgr->GetScreen( vsp::VSP_SCREENSHOT_SCREEN )->Update();
+        m_ScreenMgr->GetScreen( vsp::VSP_VECTOR_SCREENSHOT_SCREEN )->Update();
     }
 
     m_GEngine->draw( m_mouse_x, m_mouse_y );

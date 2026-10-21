@@ -590,6 +590,14 @@ public:
     BoolParm m_TransparentBGFlag;
     BoolParm m_AutoCropFlag;
 
+    // VectorScreenshotScreen
+    IntParm m_VecFileType;
+    BoolParm m_VecAutoCropFlag;
+    BoolParm m_VecScaleToPageFlag;
+    Parm m_VecPageWidth;
+    Parm m_VecPageHeight;
+    IntParm m_VecPageUnits;
+
     // UserParmScreen
     Parm m_UserParmVal;
     Parm m_UserParmMin;

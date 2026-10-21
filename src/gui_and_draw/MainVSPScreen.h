@@ -121,6 +121,7 @@ protected:
     ScreenMenuItem m_BackgroundMenuItem;
     ScreenMenuItem m_Background3DMenuItem;
     ScreenMenuItem m_ScreenshotMenuItem;
+    ScreenMenuItem m_VectorScreenshotMenuItem;
     VSPCheckMenuItem m_AxisMenuItem;
     VSPCheckMenuItem m_BorderMenuItem;
 

@@ -134,6 +134,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_BackgroundMenuItem.Init( mgr, m_MenuBar, "Window/Background...", vsp::VSP_BACKGROUND_SCREEN );
     m_Background3DMenuItem.Init( mgr, m_MenuBar, "Window/3D Background...", vsp::VSP_BACKGROUND3D_SCREEN );
     m_ScreenshotMenuItem.Init( mgr, m_MenuBar, "Window/Screenshot...", vsp::VSP_SCREENSHOT_SCREEN );
+    m_VectorScreenshotMenuItem.Init( mgr, m_MenuBar, "Window/Vector Screenshot...", vsp::VSP_VECTOR_SCREENSHOT_SCREEN );
     m_AxisMenuItem.Init( this, m_MenuBar, "Window/Axis Toggle" );
     m_AxisMenuItem.Update( m_ShowXYZArrow );
     m_BorderMenuItem.Init( this, m_MenuBar, "Window/Border Toggle" );

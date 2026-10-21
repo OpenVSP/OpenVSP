@@ -117,6 +117,7 @@ TreeColumnWidget.cpp
 TreeIconWidget.cpp
 CustomGeomExportScreen.cpp
 UserParmScreen.cpp
+VectorScreenshotScreen.cpp
 VarPresetEditorScreen.cpp
 VehNotesScreen.cpp
 VSPAEROPlotScreen.cpp
@@ -215,6 +216,7 @@ TreeColumnWidget.h
 TreeIconWidget.h
 CustomGeomExportScreen.h
 UserParmScreen.h
+VectorScreenshotScreen.h
 VarPresetEditorScreen.h
 VehNotesScreen.h
 VSPAEROPlotScreen.h
