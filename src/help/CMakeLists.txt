@@ -4,7 +4,7 @@ if ( is_multi_config )
     SET( conf_suffix "$<CONFIG>/" )
 endif()
 
-INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/images/ DESTINATION help/images )
+INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/images/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/help/images )
 
 ADD_CUSTOM_TARGET ( copy_images ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -15,14 +15,14 @@ ADD_CUSTOM_TARGET ( copy_images ALL
         ${CMAKE_CURRENT_SOURCE_DIR}/images/
         ${CMAKE_CURRENT_BINARY_DIR}/images/ )
 
-INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css DESTINATION help )
+INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/help )
 
 ADD_CUSTOM_TARGET ( copy_css ALL
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css
         ${VSP_BINARY_DIR}/vsp/help/${conf_suffix}$ )
 
-INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help DESTINATION help )
+INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/help )
 
 ADD_CUSTOM_TARGET ( copy_help_marker ALL
         COMMAND ${CMAKE_COMMAND} -E copy
@@ -30,7 +30,7 @@ ADD_CUSTOM_TARGET ( copy_help_marker ALL
         ${VSP_BINARY_DIR}/vsp/help/${conf_suffix}$ )
 
 IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
-    INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/images/ DESTINATION python/openvsp/openvsp/help_vsp/images )
+    INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/images/ DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/python/openvsp/openvsp/help_vsp/images )
 
     ADD_CUSTOM_TARGET ( py_mk_help_dir ALL
             COMMAND ${CMAKE_COMMAND} -E make_directory
@@ -43,7 +43,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
     ADD_DEPENDENCIES ( py_copy_images py_mk_help_dir )
 
-    INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css DESTINATION python/openvsp/openvsp/help_vsp )
+    INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/github-pandoc.css DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/python/openvsp/openvsp/help_vsp )
 
     ADD_CUSTOM_TARGET ( py_copy_css ALL
             COMMAND ${CMAKE_COMMAND} -E copy
@@ -52,7 +52,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
     ADD_DEPENDENCIES ( py_copy_css py_mk_help_dir )
 
-    INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help DESTINATION python/openvsp/openvsp/help_vsp )
+    INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/vsp_help DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/python/openvsp/openvsp/help_vsp )
 
     ADD_CUSTOM_TARGET ( py_copy_help_marker ALL
             COMMAND ${CMAKE_COMMAND} -E copy
@@ -83,7 +83,7 @@ FOREACH ( hpath ${HELP_FILES} )
                                          --css=github-pandoc.css
         )
 
-        INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION help )
+        INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/help )
 
         ADD_CUSTOM_COMMAND ( TARGET ${hbase} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
@@ -96,7 +96,7 @@ FOREACH ( hpath ${HELP_FILES} )
                 ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html )
 
         IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
-            INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION python/openvsp/openvsp/help_vsp )
+            INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/${hbase}.html DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/python/openvsp/openvsp/help_vsp )
 
             ADD_CUSTOM_COMMAND ( TARGET ${hbase} POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy
@@ -107,7 +107,7 @@ FOREACH ( hpath ${HELP_FILES} )
     ELSE()
         # Don't fail build if some HTML help files are missing.
         IF ( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html )
-            INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html DESTINATION help )
+            INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/help )
 
             ADD_CUSTOM_TARGET ( copy_html_${hbase} ALL
                     COMMAND ${CMAKE_COMMAND} -E copy
@@ -115,7 +115,7 @@ FOREACH ( hpath ${HELP_FILES} )
                     ${VSP_BINARY_DIR}/vsp/help/${conf_suffix}${hbase}.html )
 
             IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
-                INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html DESTINATION python/openvsp/openvsp/help_vsp )
+                INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/html/${hbase}.html DESTINATION ${CMAKE_INSTALL_DATADIR}/openvsp/python/openvsp/openvsp/help_vsp )
 
                 ADD_CUSTOM_TARGET ( py_copy_html_${hbase} ALL
                         COMMAND ${CMAKE_COMMAND} -E copy
