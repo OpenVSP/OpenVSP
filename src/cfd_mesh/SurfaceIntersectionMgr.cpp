@@ -2541,6 +2541,9 @@ void SurfaceIntersectionSingleton::Intersect()
     IntersectSplitChains();
     // DebugWriteChains( "IntersectSplitChains", false );
 
+    addOutputText( "SplitNearlyTouchingChains\n" );
+    SplitNearlyTouchingChains();
+
     addOutputText( "BuildCurves\n" );
     BuildCurves();
     // DebugWriteChains( "BuildCurves", false );
@@ -4382,6 +4385,201 @@ void SurfaceIntersectionSingleton::IntersectSplitChains()
 
     // DebugWriteChainVec( "valid_new_chains", valid_new_chains );
     // WriteChainSplits( "valid_new_chains", valid_new_chains );
+}
+
+// The tail of chain c after its segment k, as a chain of its own; c keeps segments 0 to k
+static ISegChain* SplitChainAfterSeg( ISegChain* c, int k )
+{
+    ISegChain* nc = new ISegChain();
+    nc->m_SurfA = c->m_SurfA;
+    nc->m_SurfB = c->m_SurfB;
+    nc->m_PatchJoinFlag = c->m_PatchJoinFlag;
+    nc->m_ALine = c->m_ALine;
+    nc->m_BLine = c->m_BLine;
+    nc->m_SSIntersectIndex = c->m_SSIntersectIndex;
+    nc->m_ISegVec.reserve( c->m_ISegVec.size() - k - 1 );
+    for ( int j = k + 1 ; j < ( int )c->m_ISegVec.size() ; j++ )
+    {
+        nc->m_ISegVec.push_back( c->m_ISegVec[j] );
+    }
+    c->m_ISegVec.resize( k + 1 );
+    return nc;
+}
+
+// Where two surfaces are tangent, the curves they meet along can come within a hair of each other
+// and part again: two curves that cross there exactly are traced as two that touch, and a model
+// moved the least bit off that is traced as two that pass close by.  Closer than a tenth of the
+// minimum edge length, the gap between them cannot be meshed, and the mesh is made as if they
+// touched: two intersection chains of the same two surfaces that pass that close, away from
+// their ends, are both cut at the closest pair of their points, and the four ends made one point.
+// A tree of the points a chain passes through, away from its ends.
+struct ChainPntTree
+{
+    explicit ChainPntTree( ISegChain* c ) : m_Tree( 3, m_Cloud, KDTreeSingleIndexAdaptorParams() )
+    {
+        for ( int k = 0 ; k + 1 < ( int )c->m_ISegVec.size() ; k++ )
+        {
+            m_Cloud.AddPntNode( c->m_ISegVec[k]->m_IPnt[1]->m_Pnt );
+        }
+        m_Tree.buildIndex();
+    }
+
+    PntNodeCloud m_Cloud;
+    PNTree m_Tree;
+};
+
+// The two surfaces a chain lies on, in an order that does not depend on which is which.
+static pair< Surf*, Surf* > SurfPairKey( const ISegChain* c )
+{
+    if ( std::less< Surf* >()( c->m_SurfB, c->m_SurfA ) )
+    {
+        return make_pair( c->m_SurfB, c->m_SurfA );
+    }
+    return make_pair( c->m_SurfA, c->m_SurfB );
+}
+
+// Drops the point tree of a chain that has been cut.
+static void ForgetChain( ISegChain* c, map< ISegChain*, ChainPntTree* > &trees )
+{
+    map< ISegChain*, ChainPntTree* >::iterator t = trees.find( c );
+    if ( t != trees.end() )
+    {
+        delete t->second;
+        trees.erase( t );
+    }
+}
+
+void SurfaceIntersectionSingleton::SplitNearlyTouchingChains()
+{
+    SimpleGridDensity* gd = GetGridDensityPtr();
+    if ( !gd )
+    {
+        return;
+    }
+
+    double tol = 0.1 * gd->m_MinLen;
+    int ncut = 0;
+
+    // After a cut, the search starts again from the first of the two chains cut.
+    int jstart = 0;
+
+    // A cut changes only the two chains it cuts, so a chain's point tree holds until it is cut.
+    map< ISegChain*, ChainPntTree* > trees;
+
+    bool found = true;
+    while ( found )
+    {
+        found = false;
+
+        vector< ISegChain* > chains;
+        list< ISegChain* >::iterator c;
+        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+        {
+            if ( !( *c )->m_BorderFlag && ( *c )->m_SurfA != ( *c )->m_SurfB && ( *c )->m_ISegVec.size() > 1 )
+            {
+                chains.push_back( *c );
+            }
+        }
+
+        // Only chains of the same two surfaces are compared; each list is in chain order.
+        map< pair< Surf*, Surf* >, vector< int > > samesurfs;
+        for ( int k = 0 ; k < ( int )chains.size() ; k++ )
+        {
+            samesurfs[ SurfPairKey( chains[k] ) ].push_back( k );
+        }
+
+        for ( int j = jstart ; j < ( int )chains.size() && !found ; j++ )
+        {
+            ISegChain* b = chains[j];
+            const vector< int > &same = samesurfs[ SurfPairKey( b ) ];
+
+            for ( int m = 0 ; m < ( int )same.size() && same[m] < j && !found ; m++ )
+            {
+                int i = same[m];
+                ISegChain* a = chains[i];
+
+                // The points b passes through, away from its ends
+                ChainPntTree* bt = trees[ b ];
+                if ( !bt )
+                {
+                    bt = new ChainPntTree( b );
+                    trees[ b ] = bt;
+                }
+                PNTree &index = bt->m_Tree;
+
+                vec3d ends[4] = { a->m_ISegVec.front()->m_IPnt[0]->m_Pnt, a->m_ISegVec.back()->m_IPnt[1]->m_Pnt,
+                                  b->m_ISegVec.front()->m_IPnt[0]->m_Pnt, b->m_ISegVec.back()->m_IPnt[1]->m_Pnt };
+
+                double best = tol;
+                int ka_best = -1;
+                int kb_best = -1;
+
+                for ( int ka = 0 ; ka + 1 < ( int )a->m_ISegVec.size() ; ka++ )
+                {
+                    vec3d pa = a->m_ISegVec[ka]->m_IPnt[1]->m_Pnt;
+
+                    PNTreeResults matches;
+                    nanoflann::SearchParams params;
+                    index.radiusSearch( &pa[0], best * best, matches, params );
+
+                    for ( int m = 0 ; m < ( int )matches.size() ; m++ )
+                    {
+                        int kb = matches[m].first;
+                        vec3d pb = b->m_ISegVec[kb]->m_IPnt[1]->m_Pnt;
+                        double d = dist( pa, pb );
+
+                        // Not where two pieces of one curve meet, or a curve meets one it ends on
+                        bool nearend = false;
+                        for ( int e = 0 ; e < 4 ; e++ )
+                        {
+                            if ( dist( pa, ends[e] ) < 2.0 * tol || dist( pb, ends[e] ) < 2.0 * tol )
+                            {
+                                nearend = true;
+                            }
+                        }
+
+                        if ( d < best && !nearend )
+                        {
+                            best = d;
+                            ka_best = ka;
+                            kb_best = kb;
+                        }
+                    }
+                }
+
+                if ( ka_best >= 0 )
+                {
+                    IPnt* ip = a->m_ISegVec[ ka_best ]->m_IPnt[1];
+
+                    m_ISegChainList.push_back( SplitChainAfterSeg( a, ka_best ) );
+
+                    ISegChain* nb = SplitChainAfterSeg( b, kb_best );
+                    b->m_ISegVec.back()->m_IPnt[1] = ip;
+                    nb->m_ISegVec.front()->m_IPnt[0] = ip;
+                    m_ISegChainList.push_back( nb );
+
+                    found = true;
+                    jstart = i;
+                    ncut++;
+
+                    ForgetChain( a, trees );
+                    ForgetChain( b, trees );
+                }
+            }
+        }
+    }
+
+    map< ISegChain*, ChainPntTree* >::iterator t;
+    for ( t = trees.begin() ; t != trees.end(); ++t )
+    {
+        delete t->second;
+    }
+
+    if ( ncut > 0 )
+    {
+        printf( "Cut %d pairs of intersection curves where they nearly touch.\n", ncut );
+        fflush( stdout );
+    }
 }
 
 void SurfaceIntersectionSingleton::MergeInteriorChainIPnts()

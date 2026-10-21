@@ -189,3 +189,24 @@ def test_pod_along_fin_root( tmp_path, monkeypatch ):
 
     assert res["Num_Border_Edges"] == 0
     assert res["Num_Over_Connected_Edges"] == 0
+
+
+@pytest.mark.parametrize( "dz", [ 4.0e-9, 4.0e-7, 4.0e-5 ] )
+def test_crossed_tails_nearly_meeting( dz, tmp_path, monkeypatch ):
+    """The crossed tails with the vertical one raised the least bit off the shared root.
+
+    The intersection curves that crossed now pass close by each other instead, 2.6e-5 apart for a
+    rise of 4e-7, and the strip between them is far too narrow to mesh.
+    """
+    monkeypatch.chdir( tmp_path )
+
+    vsp.VSPRenew()
+    _tail( vsp.SYM_XZ, 0.0 )
+    vt = _tail( vsp.SYM_NONE, 90.0 )
+    vsp.SetParmVal( vt, "Z_Rel_Location", "XForm", dz )
+    vsp.Update()
+
+    res = _mesh( 4.0 )
+
+    assert res["Num_Border_Edges"] == 0
+    assert res["Num_Over_Connected_Edges"] == 0

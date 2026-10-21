@@ -394,6 +394,7 @@ public:
 
     virtual void BuildCurves();
     virtual void IntersectSplitChains();
+    virtual void SplitNearlyTouchingChains();
 
     virtual void BuildIntChain( const string &id, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains );
 
