@@ -1049,6 +1049,18 @@ bool ISegChain::AddBorderSplit( Puw* uw )
         }
     }
 
+    // An end of the chain is not split, compared here in 3D, relative to the length of the end
+    // segment: a cap whose grid collapses reaches one point from more than one u,w.
+    const double endtol = 1.0e-5;
+    vec3d uw3d = surfPtr->CompPnt( uw->m_UW[0], uw->m_UW[1] );
+    ISeg* front = m_ISegVec.front();
+    ISeg* back = m_ISegVec.back();
+    if ( dist( uw3d, front->m_IPnt[0]->m_Pnt ) < endtol * dist( front->m_IPnt[0]->m_Pnt, front->m_IPnt[1]->m_Pnt ) ||
+         dist( uw3d, back->m_IPnt[1]->m_Pnt ) < endtol * dist( back->m_IPnt[0]->m_Pnt, back->m_IPnt[1]->m_Pnt ) )
+    {
+        return false;
+    }
+
     if ( closest_dist < split_tol )
     {
         ISegSplit* split = new ISegSplit;
