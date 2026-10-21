@@ -724,6 +724,96 @@ void ScreenMgr::APIScreenGrab( const string & fname, int w, int h, bool transpar
     }
 }
 
+bool ScreenMgr::APIVectorScreenGrabImplementation( const string & fname, int filetype, bool autocrop, bool scaletopage, double pagewidth, double pageheight, int pageunits )
+{
+    // Make sure most current OpenGL data has been collected.
+    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->Update();
+
+    bool written = ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->VectorScreenGrab( fname, filetype, autocrop, scaletopage, pagewidth, pageheight, pageunits );
+
+    // Set flag that task has been completed.
+    m_TaskComplete = true;
+
+    return written;
+}
+
+struct VectorScreenGrabStruct {
+    string m_fname;
+    int m_FileType;
+    bool m_AutoCrop;
+    bool m_ScaleToPage;
+    double m_PageWidth;
+    double m_PageHeight;
+    int m_PageUnits;
+    bool * m_Written;
+    ScreenMgr * m_ScrMgr;
+};
+
+void APIVectorScreenGrabHandler( void * data )
+{
+    VectorScreenGrabStruct * sg = ( VectorScreenGrabStruct * ) data;
+
+    std::unique_lock lk( sg->m_ScrMgr->m_TaskMutex );
+
+    *sg->m_Written = sg->m_ScrMgr->APIVectorScreenGrabImplementation( sg->m_fname, sg->m_FileType, sg->m_AutoCrop,
+                                                                      sg->m_ScaleToPage, sg->m_PageWidth,
+                                                                      sg->m_PageHeight, sg->m_PageUnits );
+
+    lk.unlock();
+
+    sg->m_ScrMgr->m_TaskCV.notify_one();
+
+    delete sg;
+}
+
+bool ScreenMgr::APIVectorScreenGrab( const string & fname, int filetype, bool autocrop, bool scaletopage, double pagewidth, double pageheight, int pageunits )
+{
+    // Mark that task has not been completed.
+    m_TaskComplete = false;
+
+    bool written = false;
+
+    if ( MainThreadIDMgr.IsCurrentThreadMain() )
+    {
+        // Simple main thread code path.
+        written = APIVectorScreenGrabImplementation( fname, filetype, autocrop, scaletopage, pagewidth, pageheight, pageunits );
+    }
+    else
+    {
+        // Works for Python under Facade.
+        VectorScreenGrabStruct *sg = new VectorScreenGrabStruct;
+        sg->m_fname = fname;
+        sg->m_FileType = filetype;
+        sg->m_AutoCrop = autocrop;
+        sg->m_ScaleToPage = scaletopage;
+        sg->m_PageWidth = pagewidth;
+        sg->m_PageHeight = pageheight;
+        sg->m_PageUnits = pageunits;
+        sg->m_Written = &written;
+        sg->m_ScrMgr = this;
+
+        // Queue task to main thread.
+        Fl::awake( APIVectorScreenGrabHandler, sg );
+
+        // Release lock to allow main thread to process queue.
+        Fl::unlock();
+
+        // Set up lock and mutex.
+        std::unique_lock lk( m_TaskMutex );
+
+        // Wait for change in task flag.
+        m_TaskCV.wait(lk, [this]
+            {
+                return m_TaskComplete;
+            });
+
+        // Re-acquire lock from main thread.
+        Fl::lock();
+    }
+
+    return written;
+}
+
 bool ScreenMgr::IsGUIElementDisabled( int e ) const
 {
     if ( e >= 0 && e < m_DisabledGUIElements.size() )

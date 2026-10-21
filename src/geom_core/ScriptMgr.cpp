@@ -4119,6 +4119,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", asFUNCTION( vsp::ScreenGrab ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void VectorScreenGrab( const string & in file_name, int filetype = VEC_SVG, bool autocrop = false, bool scaletopage = false, double pagewidth = 4.0, double pageheight = 3.0, int pageunits = LEN_IN )", asFUNCTION( vsp::VectorScreenGrab ), asCALL_CDECL );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void SetViewAxis( bool vaxis )", asFUNCTION( vsp::SetViewAxis ), asCALL_CDECL );

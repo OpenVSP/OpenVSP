@@ -3791,6 +3791,40 @@ void ScreenGrab( const std::string & fname, int w, int h, bool transparentBG, bo
 #endif
 }
 
+void VectorScreenGrab( const std::string & fname, int filetype, bool autocrop, bool scaletopage, double pagewidth, double pageheight, int pageunits )
+{
+    if ( filetype < VEC_SVG || filetype >= VEC_NUM_TYPES )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "VectorScreenGrab::Invalid file type " + to_string( filetype ) );
+        return;
+    }
+
+    if ( scaletopage )
+    {
+        if ( pageunits < LEN_MM || pageunits > LEN_IN )
+        {
+            ErrorMgr.AddError( VSP_INVALID_TYPE, "VectorScreenGrab::Invalid page units " + to_string( pageunits ) );
+            return;
+        }
+
+        if ( pagewidth <= 0.0 || pageheight <= 0.0 )
+        {
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "VectorScreenGrab::Page width and height must be positive" );
+            return;
+        }
+    }
+
+#ifdef VSP_USE_FLTK
+    if ( !GuiInterface::getInstance().VectorScreenGrab( fname, filetype, autocrop, scaletopage, pagewidth, pageheight, pageunits ) )
+    {
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "VectorScreenGrab::Failure writing " + fname );
+        return;
+    }
+#endif
+
+    ErrorMgr.NoError();
+}
+
 void SetViewAxis( bool vaxis )
 {
 #ifdef VSP_USE_FLTK

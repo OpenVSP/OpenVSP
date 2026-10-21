@@ -47,6 +47,8 @@ public:
     bool IsEventLoopRunning() const;
 
     void ScreenGrab( const std::string & fname, int w, int h, bool transparentBG, bool autocrop );
+    // False when the file cannot be written; without a GUI it does nothing
+    bool VectorScreenGrab( const std::string & fname, int filetype, bool autocrop, bool scaletopage, double pagewidth, double pageheight, int pageunits );
     void SetViewAxis( bool vaxis );
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );

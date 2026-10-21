@@ -173,6 +173,17 @@ void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool tran
 #endif
 }
 
+bool GuiInterface::VectorScreenGrab( const std::string & fname, int filetype, bool autocrop, bool scaletopage, double pagewidth, double pageheight, int pageunits )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        return m_ScreenMgr->APIVectorScreenGrab( fname, filetype, autocrop, scaletopage, pagewidth, pageheight, pageunits );
+    }
+#endif
+    return true;
+}
+
 // In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::SetViewAxis( bool vaxis )
 {

@@ -87,6 +87,9 @@ public:
     void APIScreenGrabImplementation( const string & fname, int w, int h, bool transparentBG, bool autocrop );
     void APIScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop );
 
+    bool APIVectorScreenGrabImplementation( const string & fname, int filetype, bool autocrop, bool scaletopage, double pagewidth, double pageheight, int pageunits );
+    bool APIVectorScreenGrab( const string & fname, int filetype, bool autocrop, bool scaletopage, double pagewidth, double pageheight, int pageunits );
+
     bool IsGUIElementDisabled( int e ) const;
     void SetGUIElementDisable( int e, bool state );
     bool IsGUIScreenDisabled( int s ) const;

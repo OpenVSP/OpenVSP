@@ -11568,6 +11568,46 @@ extern void ScreenGrab( const std::string & fname, int w, int h, bool transparen
     \ingroup Visualization
 */
 /*!
+    Write the main window as a vector drawing, of every viewport of the layout, without the background,
+    in the file type given, SVG or PDF.  The file name is used as given; no extension is added.  A pixel of
+    the window is a point on the page, or with scaletopage the window is scaled, its aspect kept, to fit a
+    page of the width and height given, in millimeters, centimeters, meters or inches; without scaletopage
+    the page arguments are ignored.  With autocrop the page is cropped to what is drawn, at the same scale.
+    Textures and 3D backgrounds are left out.  The drawing reflects the model as of the last Update.  It
+    needs the GUI to be running, and does nothing otherwise.  Note, VSP_USE_FLTK must be defined
+    \forcpponly
+    \code{.cpp}
+    string fname = "test_vec_screen_grab.svg";
+
+    VectorScreenGrab( fname, VEC_SVG, true, true, 4.0, 3.0, LEN_IN ); // Write SVG drawing, 4x3 in page, cropped
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    fname = "test_vec_screen_grab.svg"
+
+    VectorScreenGrab( fname, VEC_SVG, True, True, 4.0, 3.0, LEN_IN ) # Write SVG drawing, 4x3 in page, cropped
+
+    \endcode
+    \endPythonOnly
+    \sa VEC_SCREENSHOT_TYPE, LEN_UNITS
+    \param [in] fname string Output file name
+    \param [in] filetype int File type enum (i.e. VEC_SVG)
+    \param [in] autocrop bool Crop the page to what is drawn flag
+    \param [in] scaletopage bool Scale the window to fit the page flag
+    \param [in] pagewidth double Page width
+    \param [in] pageheight double Page height
+    \param [in] pageunits int Page length unit enum, LEN_MM to LEN_IN (i.e. LEN_IN)
+*/
+
+extern void VectorScreenGrab( const std::string & fname, int filetype = VEC_SVG, bool autocrop = false,
+                              bool scaletopage = false, double pagewidth = 4.0, double pageheight = 3.0,
+                              int pageunits = LEN_IN );
+
+/*!
+    \ingroup Visualization
+*/
+/*!
     Toggle viewing the axis
     \forcpponly
     \code{.cpp}
