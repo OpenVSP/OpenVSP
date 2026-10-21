@@ -3,6 +3,7 @@
 #include "VertexBuffer.h"
 #include "ColorBuffer.h"
 #include "ElementBuffer.h"
+#include "gl2ps.h"
 
 #include "Display.h"
 
@@ -70,10 +71,12 @@ void Marker::_draw_Points( float r, float g, float b, float a, float size )
     if( size == 0.f )
     {
         glPointSize( _getPointSize() );
+        gl2psPointSize( _getPointSize() );
     }
     else
     {
         glLineWidth( size * Display::getScreenSizeDiffRatio() );
+        gl2psLineWidth( size * Display::getScreenSizeDiffRatio() );
     }
 
     if( eBufferEnabled )
@@ -125,10 +128,12 @@ void Marker::_draw_Lines( float r, float g, float b, float a, float width )
     if( width == 0.f )
     {
         glLineWidth( _getLineWidth() * Display::getScreenSizeDiffRatio() );
+        gl2psLineWidth( _getLineWidth() * Display::getScreenSizeDiffRatio() );
     }
     else
     {
         glLineWidth( width * Display::getScreenSizeDiffRatio() );
+        gl2psLineWidth( width * Display::getScreenSizeDiffRatio() );
     }
 
     if( eBufferEnabled )

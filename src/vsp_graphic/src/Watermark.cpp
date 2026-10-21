@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include "OpenGLHeaders.h"
+#include "gl2ps.h"
 
 #include "Watermark.h"
 
@@ -130,6 +131,7 @@ void Watermark::draw_watermark( TextMgr * textMgr )
 
     // Set Watermark box line thickness.
     glLineWidth( boxLineWidth * _screenSizeDiffRatio );
+    gl2psLineWidth( boxLineWidth * _screenSizeDiffRatio );
 
     // Draw box around watermark.
     glBegin( GL_LINE_LOOP );

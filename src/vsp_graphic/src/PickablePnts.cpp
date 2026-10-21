@@ -2,6 +2,7 @@
 #include "Renderable.h"
 #include "ColorBuffer.h"
 #include "VertexBuffer.h"
+#include "gl2ps.h"
 
 namespace VSPGraphic
 {
@@ -84,6 +85,7 @@ void PickablePnts::_draw()
 {
     glColor3f(0.f, 1.f, 0.f);
     glPointSize(_pointSize);
+    gl2psPointSize(_pointSize);
 
     _rSource->getVBuffer()->draw(GL_POINTS);
 
@@ -99,6 +101,7 @@ void PickablePnts::_draw()
             {
                 glColor3f(1.f, 0.f, 0.f);
                 glPointSize(_pointSize * 1.2f);
+                gl2psPointSize(_pointSize * 1.2f);
                 glBegin(GL_POINTS);
                 glVertex3f(hlPoint[0], hlPoint[1], hlPoint[2]);
                 glEnd();

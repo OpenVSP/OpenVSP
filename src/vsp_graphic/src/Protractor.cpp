@@ -1,6 +1,7 @@
 #include "Protractor.h"
 #include "TextMgr.h"
 #include "OpenGLHeaders.h"
+#include "gl2ps.h"
 #include "glm/ext.hpp"
 #include "Display.h"
 
@@ -103,7 +104,9 @@ void Protractor::_draw()
 
     glColor3f(1.0, 0.5, 0.0);
     glLineWidth(3.0f * Display::getScreenSizeDiffRatio() );
+    gl2psLineWidth(3.0f * Display::getScreenSizeDiffRatio() );
     glPointSize(12);
+    gl2psPointSize(12);
 
     // Last Stage.
     if( !glm::any(glm::isnan(_v1)) && !glm::any(glm::isnan(_v2)) && !glm::any(glm::isnan(_v3)) && !std::isnan(_offset) )

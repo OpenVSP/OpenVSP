@@ -394,10 +394,12 @@ void Entity::_draw_Wire( float r, float g, float b, float a, float lineWidth )
     if( lineWidth == 0.f )
     {
         glLineWidth( _getLineWidth() * Display::getScreenSizeDiffRatio() );
+        gl2psLineWidth( _getLineWidth() * Display::getScreenSizeDiffRatio() );
     }
     else
     {
         glLineWidth( lineWidth * Display::getScreenSizeDiffRatio() );
+        gl2psLineWidth( lineWidth * Display::getScreenSizeDiffRatio() );
     }
 
     if( eBufferEnabled )

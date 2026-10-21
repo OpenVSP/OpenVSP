@@ -1,4 +1,5 @@
 #include "OpenGLHeaders.h"
+#include "gl2ps.h"
 
 #define GLM_FORCE_RADIANS
 #include "glm/ext.hpp"
@@ -216,6 +217,7 @@ void Viewport::drawColorScale()
     // Outline, so the ends of the ramp are visible against any background.
     glColor3f( 0.0f, 0.0f, 0.0f );
     glLineWidth( 1.0f );
+    gl2psLineWidth( 1.0f );
     glBegin( GL_LINE_LOOP );
     glVertex2f( x0, y0 );
     glVertex2f( x1, y0 );
@@ -297,6 +299,7 @@ void Viewport::drawXYZArrows()
 
     // Draw Axis.
     glLineWidth( 1.5f * _screenSizeDiffRatio );
+    gl2psLineWidth( 1.5f * _screenSizeDiffRatio );
     glClear( GL_DEPTH_BUFFER_BIT );
 
     glBegin( GL_LINES );
@@ -314,6 +317,7 @@ void Viewport::drawXYZArrows()
     glEnd();
 
     glPointSize( 6.0 );
+    gl2psPointSize( 6.0 );
     glBegin( GL_POINTS );
     glColor3ub( 0, 0, 0 );
     glVertex3d( 0.0, 0.0, 0.0 );
@@ -375,6 +379,7 @@ void Viewport::drawGridOverlay()
 
     glColor4f( 0.8f, 0.8f, 0.8f, 1.0f );
     glLineWidth( 0.3f * _screenSizeDiffRatio);
+    gl2psLineWidth( 0.3f * _screenSizeDiffRatio);
 
     if( _xGridVec.size() > 0 && _yGridVec.size() > 0 )
     {

@@ -1,6 +1,7 @@
 #include "Routing.h"
 #include "TextMgr.h"
 #include "OpenGLHeaders.h"
+#include "gl2ps.h"
 #include "glm/ext.hpp"
 #include "Display.h"
 #include "VertexBuffer.h"
@@ -40,7 +41,9 @@ void Routing::_draw()
 {
     glColor3f(1.0, 0.5, 0.0);
     glLineWidth(3.0f * Display::getScreenSizeDiffRatio() );
+    gl2psLineWidth(3.0f * Display::getScreenSizeDiffRatio() );
     glPointSize(12);
+    gl2psPointSize(12);
 
     glBegin(GL_LINE_STRIP);
     {

@@ -1,6 +1,7 @@
 #include "SelectedPnt.h"
 #include "Renderable.h"
 #include "OpenGLHeaders.h"
+#include "gl2ps.h"
 
 namespace VSPGraphic
 {
@@ -30,6 +31,7 @@ void SelectedPnt::_predraw()
 void SelectedPnt::_draw()
 {
     glPointSize(12);
+    gl2psPointSize(12);
     glColor3f(0, 0, 1);
     glm::vec3 selected = _rSource->getVertexVec(_index);
     glBegin(GL_POINTS);
