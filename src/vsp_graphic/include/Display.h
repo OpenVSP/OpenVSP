@@ -40,7 +40,7 @@ public:
     * Draw Scene.
     * x and y are current mouse location.
     */
-    void draw( Scene * scene, int x, int y );
+    void draw( Scene * scene, int x, int y, bool vecout = false );
 
     /*!
     * Set Display Layout.

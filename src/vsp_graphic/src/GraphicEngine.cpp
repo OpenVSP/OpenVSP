@@ -25,9 +25,9 @@ GraphicEngine::~GraphicEngine()
     delete _display;
 }
 
-void GraphicEngine::draw()
+void GraphicEngine::draw( bool vecout )
 {
-    _display->draw( _scene, 0xFFFFFFFF, 0xFFFFFFFF );
+    _display->draw( _scene, 0xFFFFFFFF, 0xFFFFFFFF, vecout );
 }
 
 void GraphicEngine::draw( int mouseX, int mouseY )

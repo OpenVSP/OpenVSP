@@ -117,9 +117,9 @@ void Display::predraw( Scene * scene, int x, int y )
     _currLayout->predraw( scene, x, y );
 }
 
-void Display::draw( Scene * scene, int x, int y )
+void Display::draw( Scene * scene, int x, int y, bool vecout )
 {
-    _currLayout->draw( scene, x, y );
+    _currLayout->draw( scene, x, y, vecout );
 }
 
 void Display::center()

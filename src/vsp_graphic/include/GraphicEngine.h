@@ -27,7 +27,7 @@ public:
     /*
     * Draw Scene.
     */
-    void draw();
+    void draw( bool vecout = false );
 
     /*!
     * Draw scene with selection.

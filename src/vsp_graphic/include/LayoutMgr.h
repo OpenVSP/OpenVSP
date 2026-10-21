@@ -37,7 +37,7 @@ public:
     /*!
     * Draw Scene.
     */
-    virtual void draw( Scene * scene, int x, int y );
+    virtual void draw( Scene * scene, int x, int y, bool vecout = false );
 
     /*!
     * Resize Screen.
