@@ -185,6 +185,14 @@ void Entity::_draw_Shaded()
 
 void Entity::_draw_Textured()
 {
+    // A vector file cannot hold a texture's image: there a lit surface is drawn with its
+    // material alone, and an unlit one, which shows nothing but its image, is left out.
+    bool image = gl2psGetFileFormat() == GL2PS_UNINITIALIZED;
+    if( !image && !_lighting )
+    {
+        return;
+    }
+
     if( _lighting )
     {
         glEnable( GL_LIGHTING );
@@ -194,9 +202,15 @@ void Entity::_draw_Textured()
     glEnable( GL_POLYGON_OFFSET_FILL );
     glPolygonOffset( 1.f, 1.f );
 
-    _textureMgr.bind();
+    if( image )
+    {
+        _textureMgr.bind();
+    }
     _draw_Mesh();
-    _textureMgr.unbind();
+    if( image )
+    {
+        _textureMgr.unbind();
+    }
 
     glDisable( GL_POLYGON_OFFSET_FILL );
 
@@ -205,6 +219,14 @@ void Entity::_draw_Textured()
 
 void Entity::_draw_Textured_Transparent_Back()
 {
+    // A vector file cannot hold a texture's image: there a lit surface is drawn with its
+    // material alone, and an unlit one, which shows nothing but its image, is left out.
+    bool image = gl2psGetFileFormat() == GL2PS_UNINITIALIZED;
+    if( !image && !_lighting )
+    {
+        return;
+    }
+
     if( _lighting )
     {
         glEnable( GL_LIGHTING );
@@ -215,9 +237,15 @@ void Entity::_draw_Textured_Transparent_Back()
     glEnable( GL_POLYGON_OFFSET_FILL );
     glPolygonOffset( 1.f, 1.f );
 
-    _textureMgr.bind();
+    if( image )
+    {
+        _textureMgr.bind();
+    }
     _draw_Mesh();
-    _textureMgr.unbind();
+    if( image )
+    {
+        _textureMgr.unbind();
+    }
 
     glDisable( GL_POLYGON_OFFSET_FILL );
     glDisable( GL_CULL_FACE );
