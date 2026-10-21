@@ -104,6 +104,11 @@
    be installed from source on Windows and Mac OS X according to the
    FLTK instructions.  GRAPHICS_ONLY
 
+   - [gl2ps](https://www.geuz.org/gl2ps) - OpenGL to PostScript printing library,
+   used to write the 3D window as a vector drawing (SVG, EPS, PS or PDF).  OpenVSP
+   uses a version with additions by [Rob McDonald](https://github.com/ramcdona/gl2ps).
+   GRAPHICS_ONLY
+
    - [GLEW](http://glew.sourceforge.net) - OpenGL Extension Wrangler Library.  This
    library is used to access any modern OpenGL features.  GRAPHICS_ONLY
 
@@ -287,6 +292,7 @@
       - `EIGEN_INSTALL_DIR`
       - `EXPRPARSE_INSTALL_DIR`
       - `FLTK_INSTALL_DIR`
+      - `GL2PS_INSTALL_DIR`
       - `GLEW_INSTALL_DIR`
       - `GLM_INSTALL_DIR`
       - `LIBIGES_INSTALL_DIR`
@@ -313,6 +319,7 @@
       - `VSP_USE_SYSTEM_EIGEN`
       - `VSP_USE_SYSTEM_EXPRPARSE`
       - `VSP_USE_SYSTEM_FLTK`
+      - `VSP_USE_SYSTEM_GL2PS`
       - `VSP_USE_SYSTEM_GLEW`
       - `VSP_USE_SYSTEM_GLM`
       - `VSP_USE_SYSTEM_LIBIGES`
