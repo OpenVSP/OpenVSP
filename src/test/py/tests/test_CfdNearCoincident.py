@@ -168,3 +168,24 @@ def test_control_surfaces_sharing_an_edge( tmp_path, monkeypatch ):
     assert shared["Num_Border_Edges"] == 0
     assert shared["Num_Over_Connected_Edges"] == 0
     assert shared["Num_Tris"] < 1.1 * apart["Num_Tris"]
+
+
+def test_pod_along_fin_root( tmp_path, monkeypatch ):
+    """A pod lying along a fin's root chord, its nose on the leading edge, its tail on the trailing.
+
+    The pod and the fin are tangent at the pod's nose, and the curves they meet along there are
+    traced only to within a few thousandths of it; their ends met nothing and left holes.
+    """
+    monkeypatch.chdir( tmp_path )
+
+    vsp.VSPRenew()
+    _tail( vsp.SYM_NONE, 90.0 )
+    pid = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( pid, "Length", "Design", 2.0 )
+    vsp.SetParmVal( pid, "FineRatio", "Design", 8.0 )
+    vsp.Update()
+
+    res = _mesh( 4.0 )
+
+    assert res["Num_Border_Edges"] == 0
+    assert res["Num_Over_Connected_Edges"] == 0

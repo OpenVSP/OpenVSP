@@ -40,6 +40,9 @@
 //
 //      CfdMeshMgr::MergeBorderEndPoints: Merge IPnts into single points.
 //
+//      CfdMeshMgr::JoinLooseChainEnds: Join each intersection curve end that meets no other curve
+//              to the nearest point of one.
+//
 //      CfdMeshMgr::BuildMesh: For each surface, find chains and build triangle mesh.
 //
 //      CfdMeshMgr::RemoveInteriorTris: For each triangle, shoot ray and count number of crossings.
@@ -251,6 +254,7 @@ public:
     virtual void MergeBorderEndPoints();
     virtual void MergeEndPointCloud( IPntCloud &cloud, double tol );
     virtual void MergeCoincidentTessPnts();
+    virtual void JoinLooseChainEnds();
     virtual void TessellateChains();
     virtual void SetWakeAttachChain( ISegChain* c );
     virtual void MatchWakes();

@@ -4922,6 +4922,8 @@ void CfdMeshMgrSingleton::InitMesh( )
 
     MergeCoincidentTessPnts();
 
+    JoinLooseChainEnds();
+
     AddWakeCoPlanarSurfaceChains();
 
     // addOutputText( "BuildMesh\n" );  Output in BuildMesh
@@ -5417,6 +5419,141 @@ void CfdMeshMgrSingleton::MergeCoincidentTessPnts()
                 tv[j] = mit->second;
             }
         }
+    }
+}
+
+// An intersection curve between two closed surfaces ends only where it meets another curve, so a
+// chain end that no other chain shares is where the curve was lost: two surfaces that meet where
+// they are tangent are traced only so far into the point.  Each such end is moved onto the
+// nearest point another chain passes through or ends on, within the minimum edge length -- one
+// on both of the chain's surfaces where there is one -- and that point is given a place on any of
+// the two it lacks.  The point halfway along the chain's end segment is moved with it.
+void CfdMeshMgrSingleton::JoinLooseChainEnds()
+{
+    // How many chain ends each point is: two for a point a chain passes through
+    std::unordered_map< IPnt*, int > ends;
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        vector< IPnt* > &tv = ( *c )->m_TessVec;
+        for ( int j = 0 ; j < ( int )tv.size() ; j += 2 )
+        {
+            if ( j == 0 || j == ( int )tv.size() - 1 )
+            {
+                ends[ tv[j] ] += 1;
+            }
+            else
+            {
+                ends[ tv[j] ] += 2;
+            }
+        }
+    }
+
+    double rad = GetGridDensityPtr()->m_MinLen;
+    int njoin = 0;
+
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        ISegChain* chain = *c;
+        vector< IPnt* > &tv = chain->m_TessVec;
+        if ( chain->m_BorderFlag || chain->m_SurfA == chain->m_SurfB || tv.size() < 3 )
+        {
+            continue;
+        }
+
+        Surf* surfs[2] = { chain->m_SurfA, chain->m_SurfB };
+
+        for ( int e = 0 ; e < 2 ; e++ )
+        {
+            int iend = 0;
+            int imid = 1;
+            if ( e == 1 )
+            {
+                iend = ( int )tv.size() - 1;
+                imid = iend - 1;
+            }
+
+            IPnt* ip = tv[ iend ];
+            if ( ends[ ip ] != 1 )
+            {
+                continue;
+            }
+
+            IPnt* best = nullptr;
+            int bestshare = 0;
+            double bestd = rad;
+
+            list< ISegChain* >::iterator d;
+            for ( d = m_ISegChainList.begin() ; d != m_ISegChainList.end(); ++d )
+            {
+                if ( *d == chain )
+                {
+                    continue;
+                }
+
+                vector< IPnt* > &dv = ( *d )->m_TessVec;
+                for ( int j = 0 ; j < ( int )dv.size() ; j += 2 )
+                {
+                    IPnt* q = dv[j];
+
+                    int share = 0;
+                    for ( int s = 0 ; s < 2 ; s++ )
+                    {
+                        if ( q->GetPuw( surfs[s] ) )
+                        {
+                            share++;
+                        }
+                    }
+
+                    double dq = dist( ip->m_Pnt, q->m_Pnt );
+                    if ( share > 0 && dq < rad && ( share > bestshare || ( share == bestshare && dq < bestd ) ) )
+                    {
+                        best = q;
+                        bestshare = share;
+                        bestd = dq;
+                    }
+                }
+            }
+
+            if ( !best )
+            {
+                continue;
+            }
+
+            for ( int s = 0 ; s < 2 ; s++ )
+            {
+                if ( !best->GetPuw( surfs[s] ) )
+                {
+                    Puw* puw = new Puw( surfs[s], surfs[s]->ClosestUW( best->m_Pnt ) );
+                    m_DelPuwVec.push_back( puw );
+                    best->m_Puws.push_back( puw );
+                }
+            }
+
+            tv[ iend ] = best;
+            ends[ ip ] -= 1;
+            ends[ best ] += 1;
+
+            IPnt* mid = tv[ imid ];
+            IPnt* other = tv[ 2 * imid - iend ];
+            for ( int s = 0 ; s < 2 ; s++ )
+            {
+                Puw* pm = mid->GetPuw( surfs[s] );
+                if ( pm )
+                {
+                    pm->m_UW = 0.5 * ( best->GetPuw( surfs[s] )->m_UW + other->GetPuw( surfs[s] )->m_UW );
+                }
+            }
+            mid->CompPnt();
+
+            njoin++;
+        }
+    }
+
+    if ( njoin > 0 )
+    {
+        printf( "Joined %d intersection curve ends that met no other curve.\n", njoin );
+        fflush( stdout );
     }
 }
 
