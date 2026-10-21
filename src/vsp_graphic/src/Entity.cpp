@@ -8,6 +8,7 @@
 #include "VertexBuffer.h"
 #include "ColorBuffer.h"
 #include "ElementBuffer.h"
+#include "gl2ps.h"
 
 #include "Display.h"
 
@@ -236,11 +237,13 @@ void Entity::_draw_Wire_Frame()
 void Entity::_draw_Wire_Frame_Solid()
 {
     glEnable( GL_POLYGON_OFFSET_FILL );
+    gl2psEnable( GL2PS_POLYGON_OFFSET_FILL );
     glPolygonOffset( 1.f, 1.f );
 
     _draw_Mesh( 1.f, 1.f, 1.f, 1.f );
 
     glDisable( GL_POLYGON_OFFSET_FILL );
+    gl2psDisable( GL2PS_POLYGON_OFFSET_FILL );
 
     _draw_Wire();
 }

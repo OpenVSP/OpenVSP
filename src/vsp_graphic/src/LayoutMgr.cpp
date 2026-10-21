@@ -6,6 +6,7 @@
 #include "Protractor.h"
 #include "Ruler.h"
 #include "Probe.h"
+#include "gl2ps.h"
 
 #include <assert.h>
 
@@ -180,7 +181,9 @@ void LayoutMgr::draw( Scene * scene, int x, int y, bool vecout )
         glDisable( GL_LIGHTING );
 
         glBlendFuncSeparate( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE );
+        gl2psBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         glEnable( GL_BLEND );
+        gl2psEnable( GL2PS_BLEND );
 
         glAlphaFunc( GL_GREATER, 0 );
         glEnable( GL_ALPHA_TEST );
@@ -238,6 +241,7 @@ void LayoutMgr::draw( Scene * scene, int x, int y, bool vecout )
         _viewportList[i]->drawWatermark();
 
         glDisable( GL_BLEND );
+        gl2psDisable( GL2PS_BLEND );
         glDisable( GL_ALPHA_TEST );
         glDisable( GL_DEPTH_TEST );
         glDepthMask( GL_FALSE );
