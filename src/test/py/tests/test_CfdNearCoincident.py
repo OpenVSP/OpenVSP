@@ -98,3 +98,73 @@ def test_fin_root_touching_pod( tmp_path, monkeypatch ):
 
     assert res["Num_Border_Edges"] == 0
     assert res["Num_Over_Connected_Edges"] == 0
+
+
+def _tail( sym, rot, scale=1.0 ):
+    """A tail surface of span 2, chord 2 to 1, swept 30 degrees, turned about X by rot."""
+    wid = vsp.AddGeom( "WING" )
+    vsp.SetParmVal( wid, "Sym_Planar_Flag", "Sym", sym )
+    xs = vsp.GetXSec( vsp.GetXSecSurf( wid, 0 ), 1 )
+    for name, v in ( ( "Span", 2.0 * scale ), ( "Root_Chord", 2.0 * scale ), ( "Tip_Chord", 1.0 * scale ),
+                     ( "Sweep", 30.0 ) ):
+        vsp.SetParmVal( vsp.GetXSecParm( xs, name ), v )
+    vsp.SetParmVal( wid, "X_Rel_Rotation", "XForm", rot )
+    return wid
+
+
+def test_crossed_tails_close( tmp_path, monkeypatch ):
+    """A horizontal and a vertical tail of the same section, crossed at a shared root.
+
+    Near the leading edge the two tails are tangent where their intersection curves cross, and
+    each crossing is traced as two curves that touch at one point of both without crossing.
+    Not cut there, the curves lose the point once each is resampled, and the triangles around
+    it are kept or thrown away on the wrong side.
+    """
+    monkeypatch.chdir( tmp_path )
+
+    vsp.VSPRenew()
+    _tail( vsp.SYM_XZ, 0.0 )
+    _tail( vsp.SYM_NONE, 90.0 )
+    vsp.Update()
+
+    res = _mesh( 4.0 )
+
+    assert res["Num_Border_Edges"] == 0
+    assert res["Num_Over_Connected_Edges"] == 0
+
+
+def _control_surfaces( gap ):
+    """A wing with two control surfaces side by side, the second starting gap past the first."""
+    wid = vsp.AddGeom( "WING" )
+    for e0, e1 in ( ( 0.2, 0.5 ), ( 0.5 + gap, 0.8 ) ):
+        ss = vsp.AddSubSurf( wid, vsp.SS_CONTROL )
+        for pid in vsp.GetSubSurfParmIDs( ss ):
+            name = vsp.GetParmName( pid )
+            if name == "EtaFlag":
+                vsp.SetParmVal( pid, 1.0 )
+            elif name == "EtaStart":
+                vsp.SetParmVal( pid, e0 )
+            elif name == "EtaEnd":
+                vsp.SetParmVal( pid, e1 )
+    vsp.Update()
+
+
+def test_control_surfaces_sharing_an_edge( tmp_path, monkeypatch ):
+    """Two control surfaces that share an edge mesh like two that are a hair apart.
+
+    The two edges lie on each other, so the curves they make run together, point for point,
+    along the whole chord.  Curves that run together are not cut where they touch.
+    """
+    monkeypatch.chdir( tmp_path )
+
+    vsp.VSPRenew()
+    _control_surfaces( 1.0e-3 )
+    apart = _mesh( 4.0 )
+
+    vsp.VSPRenew()
+    _control_surfaces( 0.0 )
+    shared = _mesh( 4.0 )
+
+    assert shared["Num_Border_Edges"] == 0
+    assert shared["Num_Over_Connected_Edges"] == 0
+    assert shared["Num_Tris"] < 1.1 * apart["Num_Tris"]

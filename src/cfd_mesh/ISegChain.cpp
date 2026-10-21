@@ -602,6 +602,68 @@ static bool FractionOnSeg( const vec2d &uw, const vec2d &a, const vec2d &b, doub
     return frac >= 0.0 && frac <= 1.0;
 }
 
+// Where two segments meet end to end, the end they share and how far along each it lies.  Two
+// curves that touch at a point of both are cut there however they meet, and the crossing test
+// misses a touch at an end by rounding, or between segments close to parallel.
+static bool SharedEnd( const vec2d &p0, const vec2d &p1, const vec2d &p2, const vec2d &p3, vec2d &pnt,
+                       double &t0, double &t1 )
+{
+    const double tol = 1.0e-12;
+    const vec2d *a[2] = { &p0, &p1 };
+    const vec2d *b[2] = { &p2, &p3 };
+
+    for ( int i = 0; i < 2; i++ )
+    {
+        for ( int j = 0; j < 2; j++ )
+        {
+            if ( dist( *a[i], *b[j] ) < tol )
+            {
+                pnt = *a[i];
+                t0 = i;
+                t1 = j;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+// Whether two chains run together near segments i of a and j of b: a segment of a at or next to i
+// has both ends on those of a segment of b at or next to j.
+static bool RunTogether( ISegChain* a, int i, ISegChain* b, int j, Surf* s )
+{
+    const double tol = 1.0e-12;
+
+    for ( int ii = i - 1; ii <= i + 1; ii++ )
+    {
+        if ( ii < 0 || ii >= ( int )a->m_ISegVec.size() )
+        {
+            continue;
+        }
+        vec2d a0 = a->m_ISegVec[ii]->m_IPnt[0]->GetPuw( s )->m_UW;
+        vec2d a1 = a->m_ISegVec[ii]->m_IPnt[1]->GetPuw( s )->m_UW;
+
+        for ( int jj = j - 1; jj <= j + 1; jj++ )
+        {
+            if ( jj < 0 || jj >= ( int )b->m_ISegVec.size() )
+            {
+                continue;
+            }
+            vec2d b0 = b->m_ISegVec[jj]->m_IPnt[0]->GetPuw( s )->m_UW;
+            vec2d b1 = b->m_ISegVec[jj]->m_IPnt[1]->GetPuw( s )->m_UW;
+
+            if ( ( dist( a0, b0 ) < tol && dist( a1, b1 ) < tol ) ||
+                 ( dist( a0, b1 ) < tol && dist( a1, b0 ) < tol ) )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void ISegBox::Intersect( ISegBox* box )
 {
     int i, j;
@@ -634,7 +696,9 @@ void ISegBox::Intersect( ISegBox* box )
                 vec2d p3 = box->m_ChainPtr->m_ISegVec[j]->m_IPnt[1]->GetPuw( m_Surf )->m_UW;
 
                 double t0, t1;
-                if ( seg_seg_intersect( p0, p1, p2, p3, int_pnt, t0, t1 ) )
+                if ( seg_seg_intersect( p0, p1, p2, p3, int_pnt, t0, t1 ) ||
+                     ( SharedEnd( p0, p1, p2, p3, int_pnt, t0, t1 ) &&
+                       !RunTogether( m_ChainPtr, i, box->m_ChainPtr, j, m_Surf ) ) )
                 {
                     ISeg* seg0 = m_ChainPtr->m_ISegVec[i];
                     ISeg* seg1 = box->m_ChainPtr->m_ISegVec[j];
