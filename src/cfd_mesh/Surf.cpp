@@ -2413,7 +2413,7 @@ vec3d Surf::GetFeaElementOrientation( double u, double w, int type, const vec3d 
         vec2d uw = vec2d( u, w );
         if ( ValidUW( uw ) )
         {
-            orient = m_SurfCore.CompTanU( u, w );
+            orient = m_SurfCore.CompTanU( uw[0], uw[1] );
         }
     }
     else if ( type == vsp::FEA_ORIENT_PART_V )
@@ -2421,7 +2421,7 @@ vec3d Surf::GetFeaElementOrientation( double u, double w, int type, const vec3d 
         vec2d uw = vec2d( u, w );
         if ( ValidUW( uw ) )
         {
-            orient = m_SurfCore.CompTanW( u, w );
+            orient = m_SurfCore.CompTanW( uw[0], uw[1] );
         }
     }
 
