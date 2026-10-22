@@ -3342,6 +3342,7 @@ double FeaRib::GetRibPerU( )
             if ( curr_sec_ind > 0 && curr_sec_ind < wing_sec_span_vec.size() )
             {
                 m_PerU = m_U_sec_min / U_max + ( curr_sec_ind - 1 ) * u_step + ( ( m_AbsCenterLocation() - wing_sec_span_vec[curr_sec_ind - 1] ) / section_span ) * u_step;
+                m_PerU = std::clamp( m_PerU, 0.0, 1.0 );
             }
         }
     }
@@ -3369,8 +3370,9 @@ double FeaRib::GetRibTotalRotation( )
 
             // Find initial rotation (alpha) to perpendicular edge or spar
             double alpha = 0.0;
-            double u_edge_out = m_PerU + 2 * FLT_EPSILON;
-            double u_edge_in = m_PerU - 2 * FLT_EPSILON;
+            // One sided at the ends of the surface.
+            double u_edge_out = std::min( m_PerU + 2 * FLT_EPSILON, 1.0 );
+            double u_edge_in = std::max( m_PerU - 2 * FLT_EPSILON, 0.0 );
 
             double V_min = 0.0;
             double V_max = orig_surf.GetWMax(); // Really should be 4.0
