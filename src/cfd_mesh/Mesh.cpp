@@ -500,8 +500,7 @@ int Mesh::Split( int num_iter )
 }
 
 // Wang 2006 gives the contraction parameter as Cc = 1/sqrt(2): an edge below this fraction
-// of its target is one the mesher wants to collapse away.  Nothing should deliberately build
-// one.
+// of its target is one the mesher wants to collapse away.
 static const double CC_LENGTH_RATIO = 0.707;
 
 // The angle below which a triangle is ill-shaped whatever its size, and its cosine.  The
@@ -1025,6 +1024,18 @@ void Mesh::SetNodeFlags()
 // immediately want to be rid of again.
 static const double MIN_COLLAPSE_ANGLE = 0.5 * M_PI / 180.0;
 
+// A border edge more than this many times the target of an edge beside it is coarse: the
+// split guard in SplitEdge acts only next to one.
+static const double COARSE_BORDER_RATIO = 2.0;
+
+// The cosine of a triangle's smallest angle, which is the largest of its three cosines.
+static double CosSmallAng( const vec3d &p0, const vec3d &p1, const vec3d &p2 )
+{
+    double ang0, ang1, ang2;
+    Face::ComputeCosAngles( p0, p1, p2, &ang0, &ang1, &ang2 );
+    return max( ang0, max( ang1, ang2 ) );
+}
+
 void Mesh::SplitEdge( Edge* edge )
 {
     assert( m_Surf );
@@ -1106,52 +1117,75 @@ void Mesh::SplitEdge( Edge* edge )
         }
     }
 
-    // A split must not manufacture an edge shorter than the size that was asked for.
+    // Next to a border edge much longer than the target, splitting cannot make good
+    // triangles.  Border edges are never split, so each split there carves a thinner wedge off
+    // the triangle on the border, and nothing afterwards mends the fan it leaves.  Elsewhere
+    // a thin triangle a split leaves is mended by the collapses, swaps and smoothing after it.
     //
-    // The criterion that chose this edge looked only at the edge being consumed.  The two
-    // halves it becomes are bounded by that criterion -- an edge over Cs * target halves to
-    // something at or above Cc * target -- but the edge from the new point to the apex of an
-    // adjacent face is not.  Its length is the height of that face, which has nothing to do
-    // with the base that was measured.
-    //
-    // Splitting the long base of a thin triangle therefore produces an edge far under target, and
-    // splitting again halves the height once more, while that target never moves.
-    //
-    // The target field is graded, so the parent edge's own target is a good local scale and
-    // costs nothing to reuse.
+    // So beside such a border a split is refused when the faces it would build have a smaller
+    // angle than the faces it replaces, and one under the angle a collapse takes to be
+    // ill-shaped.  The edge is swapped instead.  SwapEdge only acts when it raises the smallest
+    // angle, so this either improves the pair or leaves them alone.
     {
-        double shortest = CC_LENGTH_RATIO * edge->target_len;
+        Face* faces[2] = { fa, fb };
 
-        bool wouldbeshort = false;
-
-        if ( fa )
+        bool coarse = false;
+        for ( int k = 0 ; k < 2 && !coarse ; k++ )
         {
-            Node* na = fa->OtherNodeTri( n0, n1 );
-
-            if ( na && dist( na->pnt, ps ) < shortest )
+            if ( !faces[k] )
             {
-                wouldbeshort = true;
+                continue;
+            }
+
+            Node* apex = faces[k]->OtherNodeTri( n0, n1 );
+
+            if ( !apex )
+            {
+                continue;
+            }
+
+            Edge* sides[2] = { faces[k]->FindEdge( n0, apex ), faces[k]->FindEdge( apex, n1 ) };
+            for ( int j = 0 ; j < 2 ; j++ )
+            {
+                if ( sides[j] && sides[j]->border &&
+                     dist( sides[j]->n0->pnt, sides[j]->n1->pnt ) > COARSE_BORDER_RATIO * edge->target_len )
+                {
+                    coarse = true;
+                }
             }
         }
 
-        if ( fb && !wouldbeshort )
+        if ( coarse )
         {
-            Node* nb = fb->OtherNodeTri( n0, n1 );
+            double cosold = -1.0;
+            double cosnew = -1.0;
 
-            if ( nb && dist( nb->pnt, ps ) < shortest )
+            for ( int k = 0 ; k < 2 ; k++ )
             {
-                wouldbeshort = true;
-            }
-        }
+                if ( !faces[k] )
+                {
+                    continue;
+                }
 
-        if ( wouldbeshort )
-        {
-            // The edge is genuinely too long, but bisecting it is the wrong answer for the
-            // shape it sits on.  A thin triangle wants its long edge swapped away, not cut
-            // in half.  SwapEdge only acts when it raises the smallest angle, so this either
-            // improves the pair or leaves them alone.
-            SwapEdge( edge );
-            return;
+                Node* apex = faces[k]->OtherNodeTri( n0, n1 );
+
+                if ( !apex )
+                {
+                    continue;
+                }
+
+                cosold = max( cosold, CosSmallAng( n0->pnt, n1->pnt, apex->pnt ) );
+                cosnew = max( cosnew, CosSmallAng( n0->pnt, ps, apex->pnt ) );
+                cosnew = max( cosnew, CosSmallAng( ps, n1->pnt, apex->pnt ) );
+            }
+
+            // The corners at the ends of the edge carry over to the new faces.  Rounding in
+            // one of them does not make the smallest angle smaller.
+            if ( cosnew > cosold + 1.0e-9 && cosnew > COS_COLLAPSE_QUAL_ANGLE )
+            {
+                SwapEdge( edge );
+                return;
+            }
         }
     }
 
