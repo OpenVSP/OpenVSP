@@ -562,10 +562,12 @@ vec2d poly_centroid( const std::vector< vec2d > & pnt_vec )
     }
 
     double total_area = 0.0;
+    double total_abs = 0.0;
     for ( int i = 0 ; i < ( int )( pnt_vec.size() - 1 ) ; i++ )
     {
         double da = pnt_vec[i].x() * pnt_vec[i+1].y() - pnt_vec[i+1].x() * pnt_vec[i].y();
         total_area += da;
+        total_abs += std::abs( da );
         vec2d ceni = da * ( pnt_vec[i] + pnt_vec[i+1] ); // Origin point implied.
         centroid += ceni;
     }
@@ -574,8 +576,22 @@ vec2d poly_centroid( const std::vector< vec2d > & pnt_vec )
     {
         double da = pnt_vec.back().x() * pnt_vec[0].y() - pnt_vec[0].x() * pnt_vec.back().y();
         total_area += da;
+        total_abs += std::abs( da );
         vec2d ceni = da * ( pnt_vec[0] + pnt_vec.back() ); // Origin point implied
         centroid += ceni;
+    }
+
+    // A polygon with no area, to within the rounding of the sum of its terms, has no area centroid; use the mean of
+    // its points.
+    if ( std::abs( total_area ) <= 1.0e-12 * total_abs )
+    {
+        centroid = vec2d();
+        for ( int i = 0 ; i < ( int )pnt_vec.size() ; i++ )
+        {
+            centroid += pnt_vec[i];
+        }
+        centroid *= 1.0 / pnt_vec.size();
+        return centroid;
     }
 
     centroid *= (1.0 / (3.0 * total_area ) ); // Divide by 3.0 is to average points in triangle centroid.

@@ -3,6 +3,7 @@
 # reads patches[-1]: usually a wrong point, sometimes a crash.  Each case here builds the model
 # that formed such a parameter.
 
+import math
 import subprocess
 import sys
 
@@ -68,3 +69,27 @@ print( "DONE", flush = True )
     named = open( meta ).read().count( "Airfoil File Name" )
     written = len( list( tmp_path.glob( "*.dat" ) ) )
     assert named > 0 and written == named, "%d airfoils listed, %d written" % ( named, written )
+
+
+def testCentroidOfAPolygonWithNoArea():
+    """A sub-surface hanging off the edge of its surface can trim to a polygon that folds back on
+    itself.  Its centroid orients the sub-surface's FEA elements, so it must be a point, not
+    NaN."""
+    folded = [ vsp.vec2d( 1, 4 ), vsp.vec2d( 1, 2 ), vsp.vec2d( -1, 2 ), vsp.vec2d( 1, 2 ),
+               vsp.vec2d( 1, 0 ) ]
+
+    assert vsp.poly_area( folded ) == 0.0
+
+    c = vsp.poly_centroid( folded )
+    assert math.isfinite( c.x() ) and math.isfinite( c.y() )
+    assert abs( c.x() - 0.6 ) < 1e-12 and abs( c.y() - 2.0 ) < 1e-12
+
+    # Scaled and moved, the fold's area rounds to a trace rather than to zero; the centroid is still the mean.
+    for scale, shift in ( ( 0.37, 3.1 ), ( 1.9, -7.3 ), ( 0.013, 0.41 ) ):
+        moved = [ vsp.vec2d( scale * p.x() + shift, scale * p.y() + shift ) for p in folded ]
+        c = vsp.poly_centroid( moved )
+        assert abs( c.x() - ( 0.6 * scale + shift ) ) < 1e-9 and abs( c.y() - ( 2.0 * scale + shift ) ) < 1e-9
+
+    square = [ vsp.vec2d( 0, 0 ), vsp.vec2d( 2, 0 ), vsp.vec2d( 2, 2 ), vsp.vec2d( 0, 2 ) ]
+    c = vsp.poly_centroid( square )
+    assert abs( c.x() - 1.0 ) < 1e-12 and abs( c.y() - 1.0 ) < 1e-12
