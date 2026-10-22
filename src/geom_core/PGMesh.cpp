@@ -5554,7 +5554,7 @@ bool PGMulti::MatchAnyPart( const vector < int > & tags, const vector < int > &p
 
 bool PGMulti::MatchAnyPart( int singletag, const vector < int > &parts ) const
 {
-    if ( m_TagKeys.size() >= singletag )
+    if ( singletag >= 1 && singletag <= ( int )m_TagKeys.size() )
     {
         return MatchAnyPart( m_TagKeys[ singletag - 1 ], parts );
     }
@@ -5578,7 +5578,7 @@ bool PGMulti::MatchPartAndTag( const vector < int > & tags, const int part, cons
 
 bool PGMulti::MatchPartAndTag( const int singletag, const int part, const int tag ) const
 {
-    if ( m_TagKeys.size() >= singletag )
+    if ( singletag >= 1 && singletag <= ( int )m_TagKeys.size() )
     {
         return MatchPartAndTag( m_TagKeys[ singletag - 1 ], part, tag );
     }
@@ -5664,36 +5664,64 @@ vector< int > PGMulti::GetTagVec( const int &tin )
 
 int PGMulti::GetType( const int part ) const
 {
+    if ( part < 1 || part > ( int )m_TypeVec.size() )
+    {
+        return -1;
+    }
     return m_TypeVec[ part - 1 ];
 }
 
 int PGMulti::GetPlate( const int part ) const
 {
+    if ( part < 1 || part > ( int )m_PlateVec.size() )
+    {
+        return -1;
+    }
     return m_PlateVec[ part - 1 ];
 }
 
 int PGMulti::GetCopyIndex( int part ) const
 {
+    if ( part < 1 || part > ( int )m_CopyIndxVec.size() )
+    {
+        return -1;
+    }
     return m_CopyIndxVec[ part - 1 ];
 }
 
 int PGMulti::GetThickThin( const int part ) const
 {
+    if ( part < 1 || part > ( int )m_ThickVec.size() )
+    {
+        return -1;
+    }
     return m_ThickVec[ part - 1 ];
 }
 
 double PGMulti::GetWmin( const int part ) const
 {
+    if ( part < 1 || part > ( int )m_WminVec.size() )
+    {
+        return 0.0;
+    }
     return m_WminVec[ part - 1 ];
 }
 
 double PGMulti::GetUscale( const int part ) const
 {
+    if ( part < 1 || part > ( int )m_UscaleVec.size() )
+    {
+        return 1.0;
+    }
     return m_UscaleVec[ part - 1 ];
 }
 
 double PGMulti::GetWscale( const int part ) const
 {
+    if ( part < 1 || part > ( int )m_WscaleVec.size() )
+    {
+        return 1.0;
+    }
     return m_WscaleVec[ part - 1 ];
 }
 
@@ -5708,7 +5736,7 @@ int PGMulti::GetPart( const vector<int> & tags )
 
 int PGMulti::GetPart( int tag ) const
 {
-    if ( m_TagKeys.size() >= tag )
+    if ( tag >= 1 && tag <= ( int )m_TagKeys.size() )
     {
         vector < int > tags = m_TagKeys[ tag - 1 ];
         return GetPart( tags );
