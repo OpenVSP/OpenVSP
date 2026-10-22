@@ -38,6 +38,8 @@ void CfdMeshAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "RelCurveTol", veh->GetCfdSettingsPtr()->m_RelCurveTol(), "Relative tolerance on the intersection curves of POGS files, as a fraction of a segment's length." ) );
 
         m_Inputs.Add( new NameValData( "RigorLimit", veh->GetCfdGridDensityPtr()->m_RigorLimit(), "Flag to enable rigorous growth limiting across 3D space." ) );
+        m_Inputs.Add( new NameValData( "WidthLimit", veh->GetCfdGridDensityPtr()->m_WidthLimit(), "Flag to limit edge length to the width of a narrow surface." ) );
+        m_Inputs.Add( new NameValData( "NWidthSeg", veh->GetCfdGridDensityPtr()->m_NWidthSeg(), "Number of segments across the width of a narrow surface." ) );
         m_Inputs.Add( new NameValData( "IntersectSubSurfs", veh->GetCfdSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
         m_Inputs.Add( new NameValData( "TaggedMultiSolid", veh->m_STLMultiSolid(), "Flag to enable non-standard tagged multi-solid STL file export." ) );
         m_Inputs.Add( new NameValData( "GenerateHalfMesh", veh->GetCfdSettingsPtr()->m_HalfMeshFlag(), "Flag to generate a half mesh in +Y domain." ) );
@@ -111,6 +113,14 @@ string CfdMeshAnalysis::Execute()
         bool rigorLimitOrig = veh->GetCfdGridDensityPtr()->m_RigorLimit();
         nvd = m_Inputs.FindPtr( "RigorLimit", 0 );
         if( nvd ) veh->GetCfdGridDensityPtr()->m_RigorLimit.Set( nvd->GetInt( 0 ) );
+
+        bool widthLimitOrig = veh->GetCfdGridDensityPtr()->m_WidthLimit();
+        nvd = m_Inputs.FindPtr( "WidthLimit", 0 );
+        if( nvd ) veh->GetCfdGridDensityPtr()->m_WidthLimit.Set( nvd->GetInt( 0 ) );
+
+        double nWidthSegOrig = veh->GetCfdGridDensityPtr()->m_NWidthSeg();
+        nvd = m_Inputs.FindPtr( "NWidthSeg", 0 );
+        if( nvd ) veh->GetCfdGridDensityPtr()->m_NWidthSeg.Set( nvd->GetDouble( 0 ) );
 
         bool intersectSubSurfsOrig = veh->GetCfdSettingsPtr()->m_IntersectSubSurfs();
         nvd = m_Inputs.FindPtr( "IntersectSubSurfs", 0 );
@@ -232,6 +242,8 @@ string CfdMeshAnalysis::Execute()
         veh->GetCfdSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
 
         veh->GetCfdGridDensityPtr()->m_RigorLimit.Set( rigorLimitOrig );
+        veh->GetCfdGridDensityPtr()->m_WidthLimit.Set( widthLimitOrig );
+        veh->GetCfdGridDensityPtr()->m_NWidthSeg.Set( nWidthSegOrig );
         veh->GetCfdSettingsPtr()->m_IntersectSubSurfs.Set( intersectSubSurfsOrig );
         veh->m_STLMultiSolid.Set( taggedMultiSolidOrig );
         veh->GetCfdSettingsPtr()->m_HalfMeshFlag.Set( generateHalfMeshOrig );
@@ -307,6 +319,8 @@ void FeaMeshAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "NCircSeg", density_settings->m_NCircSeg(), "Number of segments to divide a circle inscribed to local curvature." ) );
         m_Inputs.Add( new NameValData( "GrowthRatio", density_settings->m_GrowRatio(), "Maximum edge length growth ratio." ) );
         m_Inputs.Add( new NameValData( "RigorLimit", density_settings->m_RigorLimit(), "Flag to enable rigorous growth limiting across 3D space." ) );
+        m_Inputs.Add( new NameValData( "WidthLimit", density_settings->m_WidthLimit(), "Flag to limit edge length to the width of a narrow surface." ) );
+        m_Inputs.Add( new NameValData( "NWidthSeg", density_settings->m_NWidthSeg(), "Number of segments across the width of a narrow surface." ) );
     }
 
     if ( struct_settings )
@@ -350,6 +364,14 @@ string FeaMeshAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "RigorLimit", 0 );
         if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.Set( nvd->GetInt( 0 ) );
 
+        bool widthLimitOrig = curr_struct->GetFeaGridDensityPtr()->m_WidthLimit();
+        nvd = m_Inputs.FindPtr( "WidthLimit", 0 );
+        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_WidthLimit.Set( nvd->GetInt( 0 ) );
+
+        double nWidthSegOrig = curr_struct->GetFeaGridDensityPtr()->m_NWidthSeg();
+        nvd = m_Inputs.FindPtr( "NWidthSeg", 0 );
+        if( nvd ) curr_struct->GetFeaGridDensityPtr()->m_NWidthSeg.Set( nvd->GetDouble( 0 ) );
+
         bool halfMeshFlagOrig = curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag();
         nvd = m_Inputs.FindPtr( "HalfMeshFlag", 0 );
         if( nvd ) curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.Set( nvd->GetInt( 0 ) );
@@ -372,6 +394,8 @@ string FeaMeshAnalysis::Execute()
 
         //Input Triggers
         curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.Set( rigorLimitOrig );
+        curr_struct->GetFeaGridDensityPtr()->m_WidthLimit.Set( widthLimitOrig );
+        curr_struct->GetFeaGridDensityPtr()->m_NWidthSeg.Set( nWidthSegOrig );
         curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.Set( halfMeshFlagOrig );
     }
     else

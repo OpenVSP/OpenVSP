@@ -81,6 +81,7 @@ void CfdMeshScreen::CreateGlobalTab()
 
     int actionToggleButtonWidth = 45;
     int normalButtonWidth = 175;
+    int toggleButtonWidth = 17;
 
     m_GlobalTabLayout.SetFitWidthFlag( false );
     m_GlobalTabLayout.SetSameLineFlag( true );
@@ -143,6 +144,22 @@ void CfdMeshScreen::CreateGlobalTab()
     m_GlobalTabLayout.SetButtonWidth( normalButtonWidth );
 
     m_GlobalTabLayout.AddSlider(m_NumCircleSegments, "Num Circle Segments", 100.0, "%7.5f");
+
+    m_GlobalTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.SetSameLineFlag( true );
+
+    m_GlobalTabLayout.SetButtonWidth( toggleButtonWidth );
+    m_GlobalTabLayout.AddButton(m_WidthLimit, "" );
+
+    m_GlobalTabLayout.SetFitWidthFlag( true );
+    m_GlobalTabLayout.SetButtonWidth( normalButtonWidth - toggleButtonWidth );
+    m_GlobalTabLayout.AddSlider(m_NumWidthSegments, "Num Width Segments", 10.0, "%7.5f" );
+
+    m_GlobalTabLayout.ForceNewLine();
+    m_GlobalTabLayout.SetSameLineFlag( false );
+
+    m_GlobalTabLayout.SetButtonWidth( normalButtonWidth );
+
     m_GlobalTabLayout.AddSlider(m_GrowthRatio, "Growth Ratio", 2.0, "%7.5f");
 
     m_GlobalTabLayout.AddYGap();
@@ -1028,6 +1045,8 @@ void CfdMeshScreen::UpdateGlobalTab()
     m_NumCircleSegments.Update( m_Vehicle->GetCfdGridDensityPtr()->m_NCircSeg.GetID() );
     m_GrowthRatio.Update( m_Vehicle->GetCfdGridDensityPtr()->m_GrowRatio.GetID() );
     m_Rig3dGrowthLimit.Update( m_Vehicle->GetCfdGridDensityPtr()->m_RigorLimit.GetID() );
+    m_WidthLimit.Update( m_Vehicle->GetCfdGridDensityPtr()->m_WidthLimit.GetID() );
+    m_NumWidthSegments.Update( m_Vehicle->GetCfdGridDensityPtr()->m_NWidthSeg.GetID() );
 
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetCfdSettingsPtr()->m_IntersectSubSurfs.GetID() );

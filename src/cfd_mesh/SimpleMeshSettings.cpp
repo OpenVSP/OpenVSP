@@ -335,6 +335,8 @@ void SimpleFeaMeshSettings::CopyPostOpFrom( StructSettings* settings )
 SimpleGridDensity::SimpleGridDensity()
 {
     m_RigorLimit = false;
+    m_WidthLimit = true;
+    m_NWidthSeg = 1;
     m_BaseLen = 1;
     m_FarMaxLen = 1;
     m_MinLen = 0;
@@ -353,6 +355,8 @@ SimpleGridDensity::~SimpleGridDensity()
 void SimpleGridDensity::CopyFrom( GridDensity* gd )
 {
     m_RigorLimit = gd->m_RigorLimit.Get();
+    m_WidthLimit = gd->m_WidthLimit.Get();
+    m_NWidthSeg = gd->m_NWidthSeg.Get();
     m_BaseLen = gd->m_BaseLen.Get();
     m_FarMaxLen = gd->m_FarMaxLen.Get();
     m_MinLen = gd->m_MinLen.Get();

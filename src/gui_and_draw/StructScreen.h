@@ -501,6 +501,8 @@ private:
     SliderAdjRangeInput m_GrowthRatio;
 
     ToggleButton m_Rig3dGrowthLimit;
+    ToggleButton m_WidthLimit;
+    SliderAdjRangeInput m_NumWidthSegments;
     ToggleButton m_HalfMeshButton;
     ToggleButton m_SplitJoinSurfs;
     ToggleButton m_ToCubicToggle;

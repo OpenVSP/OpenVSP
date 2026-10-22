@@ -209,6 +209,8 @@ public:
     void Highlight( BaseSource * source ); // TODO: Update to SimpleSource
 
     bool m_RigorLimit;
+    bool m_WidthLimit;
+    double m_NWidthSeg;
     double m_BaseLen;
     double m_FarMaxLen;
     double m_MinLen;

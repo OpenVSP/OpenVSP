@@ -483,6 +483,8 @@ public:
     virtual void ResetToInitVals();
 
     BoolParm m_RigorLimit;
+    BoolParm m_WidthLimit;
+    Parm m_NWidthSeg;
     Parm m_BaseLen;
     Parm m_BaseFrac;
     IntParm m_BaseAbsRel;

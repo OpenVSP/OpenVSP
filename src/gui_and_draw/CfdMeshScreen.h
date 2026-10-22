@@ -80,6 +80,8 @@ protected:
     SliderAdjRangeInput m_GrowthRatio;
 
     ToggleButton m_Rig3dGrowthLimit;
+    ToggleButton m_WidthLimit;
+    SliderAdjRangeInput m_NumWidthSegments;
     ToggleButton m_IntersectSubsurfaces;
 
     TriggerButton m_GlobSrcAdjustLenLftLft;

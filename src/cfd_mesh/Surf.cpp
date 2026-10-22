@@ -355,6 +355,126 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
             sources.push_back( &( m_SrcMap[i][j] ) );
         }
     }
+
+    if ( m_GridDensityPtr->m_WidthLimit )
+    {
+        LimitTargetMapToWidth();
+    }
+}
+
+// How wide the surface is along each line of a family of map lines, from each line's length
+// and the distance between its two ends.  A line that is no measure of width is given the
+// largest double, so it never limits anything:
+//
+//  - one that closes on itself, the way round a fuselage, has no far side;
+//  - one that has collapsed to a point, at a nose or a cap's tip, has no length;
+//  - one whose length shrinks line by line all the way into a collapsed one is the taper into
+//    that point.  Triangles there fan out from the point, and edges brought down to the width
+//    would only crowd it.
+static void MapLineWidths( const vector< double > &len, const vector< double > &chord, vector< double > &width )
+{
+    int n = ( int )len.size();
+
+    double lmax = 0.0;
+    for ( int k = 0; k < n; k++ )
+    {
+        lmax = max( lmax, len[k] );
+    }
+
+    vector< bool > collapsed( n );
+    for ( int k = 0; k < n; k++ )
+    {
+        collapsed[k] = len[k] <= 1.0e-6 * lmax;
+    }
+
+    // Lines that taper into a collapsed one below them, and above them.
+    vector< bool > taperlo( n );
+    vector< bool > taperhi( n );
+    for ( int k = 0; k < n; k++ )
+    {
+        taperlo[k] = collapsed[k] || ( k > 0 && len[k - 1] < len[k] && taperlo[k - 1] );
+    }
+    for ( int k = n - 1; k >= 0; k-- )
+    {
+        taperhi[k] = collapsed[k] || ( k < n - 1 && len[k + 1] < len[k] && taperhi[k + 1] );
+    }
+
+    width.assign( n, numeric_limits< double >::max() );
+    for ( int k = 0; k < n; k++ )
+    {
+        bool closed = chord[k] < 1.0e-6 * len[k];
+
+        if ( !taperlo[k] && !taperhi[k] && !closed )
+        {
+            width[k] = len[k];
+        }
+    }
+}
+
+// A strip narrower than the edges asked of it cannot be meshed well: its borders are cut
+// coarser than it is wide, and every triangle across it is a sliver.  So the target at each
+// map point is held to the width of the surface through it, measured along the map row and
+// the map column it lies on, divided by the number of edges asked across that width.  Those run border to border, so the curves on the borders take
+// the width when they are cut from this map, and it spreads from them, and through this map,
+// with the growth limit like any other target.
+void Surf::LimitTargetMapToWidth()
+{
+    int nmapu = ( int )m_SrcMap.size();
+    int nmapw = ( int )m_SrcMap[0].size();
+
+    double minlen = m_GridDensityPtr->m_MinLen;
+    double nseg = m_GridDensityPtr->m_NWidthSeg;
+
+    // Length of the line of constant u through each row, and of constant w through each
+    // column, and the distance between each line's ends.
+    vector< double > rowlen( nmapu, 0.0 );
+    vector< double > rowchord( nmapu );
+    vector< double > collen( nmapw, 0.0 );
+    vector< double > colchord( nmapw );
+
+    for ( int i = 0; i < nmapu; i++ )
+    {
+        for ( int j = 0; j < nmapw - 1; j++ )
+        {
+            rowlen[i] += dist( m_SrcMap[i][j].m_pt, m_SrcMap[i][j + 1].m_pt );
+        }
+        rowchord[i] = dist( m_SrcMap[i][0].m_pt, m_SrcMap[i][nmapw - 1].m_pt );
+    }
+
+    for ( int j = 0; j < nmapw; j++ )
+    {
+        for ( int i = 0; i < nmapu - 1; i++ )
+        {
+            collen[j] += dist( m_SrcMap[i][j].m_pt, m_SrcMap[i + 1][j].m_pt );
+        }
+        colchord[j] = dist( m_SrcMap[0][j].m_pt, m_SrcMap[nmapu - 1][j].m_pt );
+    }
+
+    vector< double > rowwidth;
+    vector< double > colwidth;
+    MapLineWidths( rowlen, rowchord, rowwidth );
+    MapLineWidths( collen, colchord, colwidth );
+
+    for ( int i = 0; i < nmapu; i++ )
+    {
+        for ( int j = 0; j < nmapw; j++ )
+        {
+            double len = min( rowwidth[i], colwidth[j] ) / nseg;
+            int reason = vsp::SURF_WIDTH;
+
+            if ( len <= minlen )
+            {
+                len = minlen;
+                reason = vsp::MIN_LEN_CONSTRAINT_SURF_WIDTH;
+            }
+
+            if ( len < m_SrcMap[i][j].m_str )
+            {
+                m_SrcMap[i][j].m_str = len;
+                m_SrcMap[i][j].m_reason = reason;
+            }
+        }
+    }
 }
 
 void Surf::SetSymPlaneFlag( bool flag )

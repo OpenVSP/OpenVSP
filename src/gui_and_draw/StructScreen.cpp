@@ -1696,6 +1696,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
 
     int actionToggleButtonWidth = 45;
     int normalButtonWidth = 175;
+    int toggleButtonWidth = 17;
 
     m_MeshTabLayout.SetFitWidthFlag( false );
     m_MeshTabLayout.SetSameLineFlag( true );
@@ -1758,6 +1759,22 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_MeshTabLayout.SetButtonWidth( normalButtonWidth );
 
     m_MeshTabLayout.AddSlider( m_NumCircleSegments, "Num Circle Segments", 100.0, "%7.5f" );
+
+    m_MeshTabLayout.SetFitWidthFlag( false );
+    m_MeshTabLayout.SetSameLineFlag( true );
+
+    m_MeshTabLayout.SetButtonWidth( toggleButtonWidth );
+    m_MeshTabLayout.AddButton( m_WidthLimit, "" );
+
+    m_MeshTabLayout.SetFitWidthFlag( true );
+    m_MeshTabLayout.SetButtonWidth( normalButtonWidth - toggleButtonWidth );
+    m_MeshTabLayout.AddSlider( m_NumWidthSegments, "Num Width Segments", 10.0, "%7.5f" );
+
+    m_MeshTabLayout.ForceNewLine();
+    m_MeshTabLayout.SetSameLineFlag( false );
+
+    m_MeshTabLayout.SetButtonWidth( normalButtonWidth );
+
     m_MeshTabLayout.AddSlider( m_GrowthRatio, "Growth Ratio", 2.0, "%7.5f" );
 
     m_MeshTabLayout.AddYGap();
@@ -3608,6 +3625,8 @@ bool StructScreen::Update()
             m_NumCircleSegments.Update( curr_struct->GetFeaGridDensityPtr()->m_NCircSeg.GetID() );
             m_GrowthRatio.Update( curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.GetID() );
             m_Rig3dGrowthLimit.Update( curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );
+            m_WidthLimit.Update( curr_struct->GetFeaGridDensityPtr()->m_WidthLimit.GetID() );
+            m_NumWidthSegments.Update( curr_struct->GetFeaGridDensityPtr()->m_NWidthSeg.GetID() );
 
             //===== Geometry Control =====//
             m_HalfMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );

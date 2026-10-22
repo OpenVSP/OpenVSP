@@ -1210,6 +1210,15 @@ void GridDensity::Update( const double & scale )
     m_FarMaxGap.Activate();
     m_FarMaxGapFrac.Activate();
 
+    if ( m_WidthLimit() )
+    {
+        m_NWidthSeg.Activate();
+    }
+    else
+    {
+        m_NWidthSeg.Deactivate();
+    }
+
     double modellen = GetModelLen() * scale;
     double domainlen = GetDomainLen() * scale;
 
@@ -1274,6 +1283,12 @@ void GridDensity::Update( const double & scale )
 void GridDensity::InitParms()
 {
     m_RigorLimit.Init( "RigorLimit", m_GroupName, this, false, 0, 1 );
+
+    m_WidthLimit.Init( "WidthLimit", m_GroupName, this, true, 0, 1 );
+    m_WidthLimit.SetDescript( "Flag to limit mesh edge length to the width of a narrow surface." );
+
+    m_NWidthSeg.Init( "NWidthSeg", m_GroupName, this, 1, 1.0e-8, 1.0e12 );
+    m_NWidthSeg.SetDescript( "Number of edge segments across the width of a narrow surface" );
 
     m_BaseLen.Init( "BaseLen", m_GroupName, this, 0.5, 1.0e-8, 1.0e12 );
     m_BaseLen.SetDescript( "Maximum mesh edge length" );
