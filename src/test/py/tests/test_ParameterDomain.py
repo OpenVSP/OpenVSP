@@ -37,3 +37,34 @@ print( "DONE", flush = True )
     assert "READY" in lines, "the subprocess did not load OpenVSP:\n" + done.stderr
     assert done.returncode == 0 and "DONE" in lines, \
         "updating ribs at the ends of a wing with no end caps failed (exit %d)" % done.returncode
+
+
+def testAirfoilExportAtTheTipOfAWingWithNoEndCaps( tmp_path ):
+    """Airfoil export steps along the wing in fractions of its span.  For 93 sections the sum
+    for the tip station rounds past 1, and with no tip cap that is past the end of the surface.
+    Run in a subprocess, since an evaluation off the surface can take the process down."""
+    meta = str( tmp_path / "af" )
+    script = """
+import openvsp as vsp
+print( "READY", flush = True )
+vsp.VSPRenew()
+wid = vsp.AddGeom( "WING", "" )
+vsp.SetParmVal( vsp.FindParm( wid, "CapUMinOption", "EndCap" ), vsp.NO_END_CAP )
+vsp.SetParmVal( vsp.FindParm( wid, "CapUMaxOption", "EndCap" ), vsp.NO_END_CAP )
+for i in range( 92 ):
+    vsp.InsertXSec( wid, 1, vsp.XS_FOUR_SERIES )
+vsp.Update()
+vsp.ExportFile( %r, vsp.SET_ALL, vsp.EXPORT_SELIG_AIRFOIL )
+print( "DONE", flush = True )
+""" % meta
+    done = subprocess.run( [ sys.executable, "-c", script ], capture_output = True, text = True,
+                           timeout = 300 )
+
+    lines = done.stdout.split( "\n" )
+    assert "READY" in lines, "the subprocess did not load OpenVSP:\n" + done.stderr
+    assert done.returncode == 0 and "DONE" in lines, \
+        "exporting the airfoils of a 93 section wing failed (exit %d)" % done.returncode
+
+    named = open( meta ).read().count( "Airfoil File Name" )
+    written = len( list( tmp_path.glob( "*.dat" ) ) )
+    assert named > 0 and written == named, "%d airfoils listed, %d written" % ( named, written )
