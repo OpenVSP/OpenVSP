@@ -656,8 +656,12 @@ double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, 
 {
     double idist = ProjectPt( inpt, idir, u_out, w_out );
 
-    u_out = u_out / GetUMax();
-    w_out = w_out / GetWMax();
+    // A miss leaves u_out and w_out at -1.
+    if ( idist >= 0 )
+    {
+        u_out = u_out / GetUMax();
+        w_out = w_out / GetWMax();
+    }
 
     return idist;
 }
@@ -666,8 +670,12 @@ double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, const double &u
 {
     double idist = ProjectPt( inpt, idir, u0 * GetUMax(), w0 * GetWMax(), u_out, w_out );
 
-    u_out = u_out / GetUMax();
-    w_out = w_out / GetWMax();
+    // A miss leaves u_out and w_out at -1.
+    if ( idist >= 0 )
+    {
+        u_out = u_out / GetUMax();
+        w_out = w_out / GetWMax();
+    }
 
     return idist;
 }
