@@ -1141,18 +1141,22 @@ enum MESH_REASON { NO_REASON,	/*!< No reason determined. */
                    CURV_GAP,	/*!< Maximum gap curvature based criteria. */
                    CURV_NCIRCSEG,	/*!< Minimum number of segments to define a circle curvature based criteria. */
                    SOURCES,	/*!< Mesh sources. */
+                   SURF_WIDTH,	/*!< Width of the surface across one of its parameter directions. */
                    MIN_LEN_CONSTRAINT,  /*!< Minimum edge length. */                                                                 // MAX_LEN_CONSTRAINT + MIN_LEN_INCREMENT
                    MIN_LEN_CONSTRAINT_CURV_GAP, /*!< Maximum gap constrained by minimum length. */                                   // CURV_GAP + MIN_LEN_INCREMENT
                    MIN_LEN_CONSTRAINT_CURV_NCIRCSEG,    /*!< Number of segments to define a circle constrained by minimum length. */ // CURV_NCIRCSEG + MIN_LEN_INCREMENT
                    MIN_LEN_CONSTRAINT_SOURCES,  /*!< Mesh sources constrained by minimum length (not applied). */                    // Placeholder -- min len not applied to sources.
+                   MIN_LEN_CONSTRAINT_SURF_WIDTH,   /*!< Surface width constrained by minimum length. */                              // SURF_WIDTH + MIN_LEN_INCREMENT
                    GROW_LIMIT_MAX_LEN_CONSTRAINT,	/*!< Maximum growth limit from maximum edge length (not used, growth limited small to large). */
                    GROW_LIMIT_CURV_GAP,	/*!< Maximum growth limit from maximum gap. */
                    GROW_LIMIT_CURV_NCIRCSEG,	/*!< Maximum growth limit from number of segments to define a circle. */
                    GROW_LIMIT_SOURCES,	/*!< Maximum growth limit from mesh sources. */
+                   GROW_LIMIT_SURF_WIDTH,	/*!< Maximum growth limit from surface width. */
                    GROW_LIMIT_MIN_LEN_CONSTRAINT,	/*!< Maximum growth limit from minimum length constraint. */
                    GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP,	/*!< Maximum growth limit from maximum gap constrained by minimum length. */
                    GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG,	/*!< Maximum growth limit from number of segments to define a circle constrained by minimum length. */
                    GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES,	/*!< Maximum growth limit from sources constrained by minimum length. */
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT_SURF_WIDTH,	/*!< Maximum growth limit from surface width constrained by minimum length. */
                    NUM_MESH_REASON,	/*!< Number of reasons that can set the mesh local minimum edge length. */
                    MIN_LEN_INCREMENT = MIN_LEN_CONSTRAINT - MAX_LEN_CONSTRAINT,	/*!< Reason increment when adding minimum length constraint. */
                    GROW_LIMIT_INCREMENT = GROW_LIMIT_CURV_GAP - CURV_GAP,	/*!< Reason increment when adding growth limit constraint. */

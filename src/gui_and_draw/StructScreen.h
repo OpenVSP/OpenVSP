@@ -565,6 +565,10 @@ private:
     TriggerButton m_SourcesLabel;
     TriggerButton m_GrowLimitSourcesLabel;
 
+    TriggerButton m_MinLenSurfWidthLabel;
+    TriggerButton m_SurfWidthLabel;
+    TriggerButton m_GrowLimitSurfWidthLabel;
+
     //===== CAD Items =====//
     ToggleButton m_IGESFile;
     ToggleButton m_STEPFile;

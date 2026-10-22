@@ -1934,7 +1934,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_FemTabLayout.SetFitWidthFlag( false );
     m_FemTabLayout.SetSameLineFlag( true );
 
-    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 3.0 );
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 4.0 );
 
     m_FemTabLayout.AddButton( m_GrowLimitCurvGapLabel, "Growth Ratio" );
     c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_CURV_GAP ) );
@@ -1943,6 +1943,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_FemTabLayout.AddButton( m_GrowLimitNCircSegLabel, "Growth Ratio" );
     c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_CURV_NCIRCSEG ) );
     m_GrowLimitNCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_FemTabLayout.AddButton( m_GrowLimitSurfWidthLabel, "Growth Ratio" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_SURF_WIDTH ) );
+    m_GrowLimitSurfWidthLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
 
     m_FemTabLayout.AddButton( m_GrowLimitSourcesLabel, "Growth Ratio" );
     c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_SOURCES ) );
@@ -1957,6 +1961,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     m_FemTabLayout.AddButton( m_NCircSegLabel, "Num Circle Segments" );
     c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::CURV_NCIRCSEG ) );
     m_NCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_FemTabLayout.AddButton( m_SurfWidthLabel, "Surface Width" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::SURF_WIDTH ) );
+    m_SurfWidthLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
 
     m_FemTabLayout.AddButton( m_SourcesLabel, "Sources" );
     c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::SOURCES ) );
@@ -1973,6 +1981,13 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 554 + STRUCT
     c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::MIN_LEN_CONSTRAINT_CURV_NCIRCSEG ) );
     m_MinLenCurvNCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
     m_MinLenCurvNCircSegLabel.SetLabelColor( FL_WHITE );
+
+    m_FemTabLayout.AddButton( m_MinLenSurfWidthLabel, "Min Edge Len" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::MIN_LEN_CONSTRAINT_SURF_WIDTH ) );
+    m_MinLenSurfWidthLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+    m_MinLenSurfWidthLabel.SetLabelColor( FL_WHITE );
+
+    m_FemTabLayout.ForceNewLine();
 
 
 

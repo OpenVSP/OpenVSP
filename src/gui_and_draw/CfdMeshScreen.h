@@ -148,6 +148,10 @@ protected:
     TriggerButton m_SourcesLabel;
     TriggerButton m_GrowLimitSourcesLabel;
 
+    TriggerButton m_MinLenSurfWidthLabel;
+    TriggerButton m_SurfWidthLabel;
+    TriggerButton m_GrowLimitSurfWidthLabel;
+
     //===== Output Tab Items =====//
 
     ToggleButton m_StlFile;
