@@ -775,7 +775,10 @@ int MeshGeom::ReadTriFile( const char * file_name )
         norm.normalize();
 
         //==== Add Valid Facet ====//
-        tMesh->AddTri( pnt_vec[n0], pnt_vec[n1], pnt_vec[n2], norm, -1 );
+        if ( !tMesh->AddTri( pnt_vec[n0], pnt_vec[n1], pnt_vec[n2], norm, -1 ) )
+        {
+            continue;
+        }
         ntri_added++;
 
         if ( i < ( int )tag_vec.size() )
