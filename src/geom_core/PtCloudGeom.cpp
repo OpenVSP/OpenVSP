@@ -602,11 +602,15 @@ void PtCloudGeom::ProjectPts( const string &geomid, int surfid, int idir )
             double u, w;
             // ProjectPt hands back raw surface parameters, so normalize them
             // before asking for the point back in 0-1 parameterization.
-            surf->ProjectPt01( pin, idir, u, w );
+            double idist = surf->ProjectPt01( pin, idir, u, w );
 
-            pout = surf->CompPnt01( u, w );
+            // A point whose ray misses the surface stays where it is.
+            if ( idist >= 0 )
+            {
+                pout = surf->CompPnt01( u, w );
 
-            m_Pts[i] = invMat.xform( pout );
+                m_Pts[i] = invMat.xform( pout );
+            }
         }
     }
 

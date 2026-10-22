@@ -39,3 +39,20 @@ def test_axis_proj_hit_is_on_surface():
     assert abs( p.x() - 2.0 ) < 1e-6 and abs( p.y() ) < 1e-6
     assert abs( 5.0 - p.z() - d ) < 1e-6
 
+
+def test_pt_cloud_projection_keeps_a_missed_point():
+    pod = make_pod()
+    hit = vsp.vec3d( 2.0, 0.0, 5.0 )
+    miss = vsp.vec3d( 2.0, 50.0, 5.0 )
+
+    cloud = vsp.CreatePtCloudGeomFromPts( [ hit, miss ], "Cloud" )
+    vsp.Update()
+
+    d, u, w = vsp.AxisProjPnt01( pod, 0, vsp.Z_DIR, hit )
+    on = vsp.CompPnt01( pod, 0, u, w )
+
+    vsp.ProjectPtCloudPts( cloud, pod, 0, vsp.Z_DIR )
+    pts = vsp.GetPtCloudPnts( cloud )
+
+    assert vsp.dist( pts[0], on ) < 1e-6
+    assert vsp.dist( pts[1], miss ) == 0.0
