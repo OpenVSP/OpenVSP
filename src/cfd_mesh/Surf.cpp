@@ -866,10 +866,10 @@ vec2d Surf::SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, cons
     double upad = 0.25 * ( uhi - ulo );
     double wpad = 0.25 * ( whi - wlo );
 
-    ulo = max( ulo - upad, m_SurfCore.GetMinU() );
-    uhi = min( uhi + upad, m_SurfCore.GetMaxU() );
-    wlo = max( wlo - wpad, m_SurfCore.GetMinW() );
-    whi = min( whi + wpad, m_SurfCore.GetMaxW() );
+    ulo = clamp( ulo - upad, m_SurfCore.GetMinU(), m_SurfCore.GetMaxU() );
+    uhi = clamp( uhi + upad, m_SurfCore.GetMinU(), m_SurfCore.GetMaxU() );
+    wlo = clamp( wlo - wpad, m_SurfCore.GetMinW(), m_SurfCore.GetMaxW() );
+    whi = clamp( whi + wpad, m_SurfCore.GetMinW(), m_SurfCore.GetMaxW() );
 
     // Seed on the straight line between the two ends in parameter space.  The equidistant
     // point along that line always exists and is always found, and unlike the parametric
