@@ -948,9 +948,15 @@ vec3d Face::Normal( Node* n0, Node* n1, Node* n2 )
 
 void Face::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double* ang1, double* ang2 )
 {
-    double dsqr01 = dist_squared( n0->pnt, n1->pnt );
-    double dsqr12 = dist_squared( n1->pnt, n2->pnt );
-    double dsqr20 = dist_squared( n2->pnt, n0->pnt );
+    ComputeCosAngles( n0->pnt, n1->pnt, n2->pnt, ang0, ang1, ang2 );
+}
+
+// The same for corners that need not be nodes yet, such as a triangle a split would build.
+void Face::ComputeCosAngles( const vec3d &p0, const vec3d &p1, const vec3d &p2, double* ang0, double* ang1, double* ang2 )
+{
+    double dsqr01 = dist_squared( p0, p1 );
+    double dsqr12 = dist_squared( p1, p2 );
+    double dsqr20 = dist_squared( p2, p0 );
 
     double d01 = sqrt( dsqr01 );
     double d12 = sqrt( dsqr12 );
