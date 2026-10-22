@@ -210,3 +210,26 @@ def test_crossed_tails_nearly_meeting( dz, tmp_path, monkeypatch ):
 
     assert res["Num_Border_Edges"] == 0
     assert res["Num_Over_Connected_Edges"] == 0
+
+
+def test_small_pod_along_fin_root( tmp_path, monkeypatch ):
+    """The pod along the fin root, turned 60 degrees about its axis, at 1/100 scale.
+
+    The model meshes closed at full scale.  At 1/100 a piece of the pod's intersection with the
+    fin near the nose is shorter than 1e-4 and was thrown away, which a curve that short at full
+    scale would not have been, and the mesh had 41 border edges.
+    """
+    monkeypatch.chdir( tmp_path )
+
+    vsp.VSPRenew()
+    _tail( vsp.SYM_NONE, 90.0, 0.01 )
+    pid = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( pid, "Length", "Design", 0.02 )
+    vsp.SetParmVal( pid, "FineRatio", "Design", 8.0 )
+    vsp.SetParmVal( pid, "X_Rel_Rotation", "XForm", 60.0 )
+    vsp.Update()
+
+    res = _mesh( 0.04 )
+
+    assert res["Num_Border_Edges"] == 0
+    assert res["Num_Over_Connected_Edges"] == 0

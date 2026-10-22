@@ -955,7 +955,13 @@ bool ISegChain::Valid()
         len += dist( m_ISegVec[i]->m_IPnt[0]->m_Pnt, m_ISegVec[i]->m_IPnt[1]->m_Pnt );
     }
 
+    // At least 1e-4 long, or 2.5e-5 of the size of the surfaces it lies on where that is less
     double tol = 1.0e-4;
+    if ( m_SurfA && m_SurfB )
+    {
+        double size = std::max( m_SurfA->GetBBox().DiagDist(), m_SurfB->GetBBox().DiagDist() );
+        tol = std::min( tol, 2.5e-5 * size );
+    }
 
     return len >= tol;
 }
