@@ -43,6 +43,10 @@ protected:
 
     SliderAdjRangeInput m_CapTessSlider;
 
+    ToggleButton m_NoseOriginXToggle;
+    ToggleButton m_NoseOriginYToggle;
+    ToggleButton m_NoseOriginZToggle;
+
     TriggerButton m_InsertXSec;
     TriggerButton m_CutXSec;
     TriggerButton m_CopyXSec;

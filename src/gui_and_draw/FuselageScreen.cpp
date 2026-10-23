@@ -42,6 +42,20 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 510, 800,
 
     int cap_button_w = m_DesignLayout.GetButtonWidth();
 
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.AddLabel( "Nose at Origin:", m_DesignLayout.GetChoiceButtonWidth() );
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetRemainX() / 3 );
+    m_DesignLayout.AddButton( m_NoseOriginXToggle, "X" );
+    m_DesignLayout.AddButton( m_NoseOriginYToggle, "Y" );
+    m_DesignLayout.AddButton( m_NoseOriginZToggle, "Z" );
+    m_DesignLayout.ForceNewLine();
+
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetSameLineFlag( false );
+
+    m_DesignLayout.AddYGap();
+
     m_NoseCapGUI.Build( m_DesignLayout, this, "Nose Cap Type" );
 
     m_DesignLayout.AddYGap();
@@ -139,6 +153,10 @@ bool FuselageScreen::Update()
 
 
     m_CapTessSlider.Update( fuselage_ptr->m_CapUMinTess.GetID() );
+
+    m_NoseOriginXToggle.Update( fuselage_ptr->m_NoseOriginXFlag.GetID() );
+    m_NoseOriginYToggle.Update( fuselage_ptr->m_NoseOriginYFlag.GetID() );
+    m_NoseOriginZToggle.Update( fuselage_ptr->m_NoseOriginZFlag.GetID() );
 
     m_NoseCapGUI.Update( fuselage_ptr, false );
     m_TailCapGUI.Update( fuselage_ptr, true );
