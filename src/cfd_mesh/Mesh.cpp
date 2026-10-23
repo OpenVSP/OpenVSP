@@ -9,6 +9,7 @@
 
 #include "Mesh.h"
 
+#include <cmath>
 #include <map>
 #include <set>
 #include "Surf.h"
@@ -2803,6 +2804,60 @@ bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg
     return tristatus == TRI_OK;
 }
 
+// Keep the first point at each place in s,t, in its order, and end every segment there.
+static void MergeCoincidentPoints( vector< vec2d > & uw_points, vector< vec2d > & uw_prime, vector< MeshSeg > & segs_indexes )
+{
+    map< pair< double, double >, int > place;
+    vector< int > newindex( uw_prime.size() );
+
+    vector< vec2d > uw_keep;
+    vector< vec2d > prime_keep;
+    uw_keep.reserve( uw_points.size() );
+    prime_keep.reserve( uw_prime.size() );
+
+    for ( int i = 0; i < ( int )uw_prime.size(); i++ )
+    {
+        // A point that is not a number keeps its own index.
+        bool placed = !std::isnan( uw_prime[i].x() ) && !std::isnan( uw_prime[i].y() );
+
+        pair< double, double > key( uw_prime[i].x(), uw_prime[i].y() );
+        map< pair< double, double >, int >::iterator it = place.end();
+        if ( placed )
+        {
+            it = place.find( key );
+        }
+
+        if ( it != place.end() )
+        {
+            newindex[i] = it->second;
+        }
+        else
+        {
+            newindex[i] = ( int )prime_keep.size();
+            if ( placed )
+            {
+                place[ key ] = newindex[i];
+            }
+            uw_keep.push_back( uw_points[i] );
+            prime_keep.push_back( uw_prime[i] );
+        }
+    }
+
+    if ( prime_keep.size() == uw_prime.size() )
+    {
+        return;
+    }
+
+    for ( int j = 0; j < ( int )segs_indexes.size(); j++ )
+    {
+        segs_indexes[j].m_Index[0] = newindex[ segs_indexes[j].m_Index[0] ];
+        segs_indexes[j].m_Index[1] = newindex[ segs_indexes[j].m_Index[1] ];
+    }
+
+    uw_points.swap( uw_keep );
+    uw_prime.swap( prime_keep );
+}
+
 void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr )
 {
     assert( m_Surf );
@@ -2897,6 +2952,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         uw_prime[i] = m_Surf->GetST( uw_points[ i ] );
     }
+
+    MergeCoincidentPoints( uw_points, uw_prime, segs_indexes );
+    num_pnts = uw_points.size();
+    num_edges = segs_indexes.size();
 
 #ifdef DEBUG_CFD_MESH
 
