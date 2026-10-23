@@ -105,10 +105,12 @@ xmlNodePtr WaveDragSingleton::DecodeXml( xmlNodePtr & node )
 
         if ( flowSS_list_node )
         {
-            int num_flowSS =  XmlUtil::GetNumNames( flowSS_list_node, "FlowSS" );
-            for ( int i = 0 ; i < num_flowSS ; i++ )
+            for ( xmlNodePtr flowSS_node = flowSS_list_node->xmlChildrenNode; flowSS_node; flowSS_node = flowSS_node->next )
             {
-                xmlNodePtr flowSS_node = XmlUtil::GetNode( flowSS_list_node, "FlowSS", i );
+                if ( xmlStrcmp( flowSS_node->name, ( const xmlChar * )"FlowSS" ) )
+                {
+                    continue;
+                }
                 string new_flowSS = IDMgr.RemapRefID( XmlUtil::FindString( flowSS_node, "flowSS_ID", string() ) );
                 m_SSFlow_vec.push_back( new_flowSS );
             }
