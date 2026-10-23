@@ -4223,7 +4223,10 @@ void TMesh::MakeFromPGMesh( PGMesh *m )
             vec3d uw2( uw.x(), uw.y(), 0.0 );
             inod++;
 
-            AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad, jref, kref );
+            if ( !AddTri( v0, v1, v2, norm, uw0, uw1, uw2, iQuad, jref, kref ) )
+            {
+                continue;
+            }
             TTri* tri = m_TVec.back();
 
             tri->m_Tags = tags;
