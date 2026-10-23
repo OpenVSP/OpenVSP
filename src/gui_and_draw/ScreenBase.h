@@ -360,6 +360,7 @@ protected:
 
     EndCapTypeGroup m_BasicGroup; // Round, Edge
     EndCapTypeGroup m_SharpGroup;
+    EndCapTypeGroup m_PointGroup;
 };
 
 //==== Geom Screen ====//

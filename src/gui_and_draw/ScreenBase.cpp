@@ -4203,6 +4203,7 @@ vector< EndCapTypeGroup* > EndCapGUI::Groups()
     vector< EndCapTypeGroup* > groups;
     groups.push_back( &m_BasicGroup );
     groups.push_back( &m_SharpGroup );
+    groups.push_back( &m_PointGroup );
     return groups;
 }
 
@@ -4213,6 +4214,7 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_TypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
     m_TypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
     m_TypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
+    m_TypeChoice.AddItem( "Point", vsp::POINT_END_CAP );
     layout.SetSameLineFlag( true );
     layout.AddChoice( m_TypeChoice, label.c_str(), 2 * layout.GetInputWidth() );
 
@@ -4278,6 +4280,11 @@ void EndCapGUI::Update( Geom* geom_ptr, bool umax )
         case vsp::EDGE_END_CAP:
             DisplayGroup( &m_BasicGroup );
             m_BasicGroup.Update( geom_ptr, umax );
+            break;
+
+        case vsp::POINT_END_CAP:
+            DisplayGroup( &m_PointGroup );
+            m_PointGroup.Update( geom_ptr, umax );
             break;
 
         case vsp::SHARP_END_CAP:
