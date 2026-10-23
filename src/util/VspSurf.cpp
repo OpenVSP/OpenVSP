@@ -3225,20 +3225,14 @@ bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const 
     return capped;
 }
 
-bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
+// Code-Eli cap type for an end cap type, and whether an extended round cap extends past the leading
+// and trailing edges.
+static int MultiCapType( int CapType, bool &extle, bool &extte )
 {
-    if (CapType == vsp::NO_END_CAP)
-    {
-      ResetUSkip();
-      return false;
-    }
-    multicap_creator_type cc;
-    bool rtn_flag;
-
     int captype = multicap_creator_type::FLAT;
 
-    bool extle = false;
-    bool extte = false;
+    extle = false;
+    extte = false;
 
     switch( CapType ){
       case vsp::FLAT_END_CAP:
@@ -3273,88 +3267,119 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
         extte = true;
         break;
     }
+    return captype;
+}
+
+// Give cc the height of an extended round cap on the edge with control point rows edg and edgnext, and find
+// where the edge is to be split, wlow and wup, where the cap is highest.  wmax is the edge's last w.  False
+// where the edge gives no curve.
+static bool RoundExtConditions( const piecewise_curve_type &edg, const piecewise_curve_type &edgnext, double wmax,
+                                multicap_creator_type &cc, bool extle, bool extte, double len, double str,
+                                const surface_point_type &p, bool swflag, double &wlow, double &wup )
+{
+    piecewise_curve_type b, e, d, dsq;
+
+    cc.set_ext_conditions( extle, extte );
+
+    bool rtn_flag = cc.set_conditions( edg, edgnext, multicap_creator_type::FLAT, 1.0, len, 0, str, p, swflag );
+    if ( rtn_flag )
+    {
+        rtn_flag = cc.create_curve( b );
+    }
+
+    if ( rtn_flag )
+    {
+        rtn_flag = cc.set_conditions( edg, edgnext, multicap_creator_type::ROUND, 1.0, len, 0, str, p, swflag );
+    }
+    if ( rtn_flag )
+    {
+        rtn_flag = cc.create_curve( e );
+    }
+
+    if ( !rtn_flag )
+    {
+        return false;
+    }
+
+    b.scale( -1.0 );
+    d.sum( b, e );
+    dsq.square( d );
+
+    typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
+    typedef onedpwc::point_type onedpt;
+    onedpwc sumsq;
+
+    sumsq = dsq.sumcompcurve();
+
+    // Negate to allow minimization instead of maximization.
+    sumsq.scale( -1.0 );
+
+    onedpwc sweepcurve;
+    cc.create_sweepfactor_sq_curve( sweepcurve );
+    cc.dirty_prep(); // Needed because the caller splits the edge and needs it re-loaded later.
+
+
+    onedpwc objfun;
+    objfun.product( sumsq, sweepcurve );
+
+    double utmax;
+    double hmax = sqrt( -1.0 * eli::geom::intersect::minimum_dimension( utmax, objfun, 0 ) );
+
+    double xloc;
+
+    wlow = utmax;
+    wup = wmax - ( utmax - 0.0 );
+
+    typedef onedpwc::curve_type onedcurve_type;
+    onedcurve_type c;
+
+    onedpt onedp;
+    objfun.get( c, 1 );
+    onedp = c.get_control_point( 0 );
+    double h_start = sqrt( -onedp.x() );
+
+    objfun.get( c, objfun.number_segments() - 2 );
+    onedp = c.get_control_point( c.degree() );
+    double h_end = sqrt( -onedp.x() );
+
+    // Need to pass wlow (which we do) and then search for i_hmax internally after surface has been split,
+    // flipped, and matched top to bottom.  This matching is likely throwing off the patch count.
+    cc.set_h_vals( wlow, hmax, h_start, h_end );
+
+    return true;
+}
+
+bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
+{
+    if (CapType == vsp::NO_END_CAP)
+    {
+      ResetUSkip();
+      return false;
+    }
+    multicap_creator_type cc;
+    bool rtn_flag;
+
+    bool extle, extte;
+    int captype = MultiCapType( CapType, extle, extte );
 
     surface_point_type p;
     p << pt.x(), pt.y(), pt.z();
 
-    if ( CapType >= vsp::ROUND_EXT_END_CAP_NONE )
+    if ( captype == multicap_creator_type::ROUND_EXT )
     {
         piecewise_curve_type edg, edgnext;
         multicap_creator_type::get_edge_curves( m_Surface, (typename multicap_creator_type::edge_cap_identifier) whichCap, edg, edgnext );
 
-        piecewise_curve_type b, e, d, dsq;
-
-        cc.set_ext_conditions( extle, extte );
-
-        rtn_flag = cc.set_conditions( edg, edgnext, multicap_creator_type::FLAT, 1.0, len, 0, str, p, swflag );
-        if ( rtn_flag )
-        {
-            rtn_flag = cc.create_curve( b );
-        }
-
-        if ( rtn_flag )
-        {
-            rtn_flag = cc.set_conditions( edg, edgnext, multicap_creator_type::ROUND, 1.0, len, 0, str, p, swflag );
-        }
-        if ( rtn_flag )
-        {
-            rtn_flag = cc.create_curve( e );
-        }
-
+        double wlow, wup;
         // No cap where the edge gives no curve, such as an edge closed to a point.
-        if ( !rtn_flag )
+        if ( !RoundExtConditions( edg, edgnext, m_Surface.get_vmax(), cc, extle, extte, len, str, p, swflag, wlow, wup ) )
         {
             ResetUSkip();
             return false;
         }
 
-        b.scale( -1.0 );
-        d.sum( b, e );
-        dsq.square( d );
-
-        typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
-        typedef onedpwc::point_type onedpt;
-        onedpwc sumsq;
-
-        sumsq = dsq.sumcompcurve();
-
-        // Negate to allow minimization instead of maximization.
-        sumsq.scale( -1.0 );
-
-        onedpwc sweepcurve;
-        cc.create_sweepfactor_sq_curve( sweepcurve );
-        cc.dirty_prep(); // Needed because we split the surface and need to re-load it later.
-
-
-        onedpwc objfun;
-        objfun.product( sumsq, sweepcurve );
-
-        double utmax;
-        double hmax = sqrt( -1.0 * eli::geom::intersect::minimum_dimension( utmax, objfun, 0 ) );
-
-        double xloc, wlow, wup;
-
-        wlow = utmax;
-        wup = GetWMax() - ( utmax - 0.0 );
-
         SplitW( wup );
         SplitW( wlow );
-
-        typedef onedpwc::curve_type onedcurve_type;
-        onedcurve_type c;
-
-        onedpt onedp;
-        objfun.get( c, 1 );
-        onedp = c.get_control_point( 0 );
-        double h_start = sqrt( -onedp.x() );
-
-        objfun.get( c, objfun.number_segments() - 2 );
-        onedp = c.get_control_point( c.degree() );
-        double h_end = sqrt( -onedp.x() );
-
-        // Need to pass wlow (which we do) and then search for i_hmax internally after surface has been split,
-        // flipped, and matched top to bottom.  This matching is likely throwing off the patch count.
-        cc.set_h_vals( wlow, hmax, h_start, h_end );
     }
 
     rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, offset, str, p, swflag );
