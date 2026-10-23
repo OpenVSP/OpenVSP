@@ -314,6 +314,30 @@ protected:
     int m_Shift;
 };
 
+//==== List Integer Parm ====//
+// IntParm restricted to a list of allowed values.  A value not in the list is refused, leaving the Parm
+// as it was.  With no list it is a plain IntParm.
+class ListIntParm : public IntParm
+{
+public:
+    ListIntParm();
+
+    virtual int operator= ( int val )
+    {
+        return IntParm::operator=( val );
+    }
+
+    virtual bool SetValCheckLimits( double val );
+
+    // Also sets the limits to the smallest and largest allowed values.
+    virtual void SetAllowedVals( const vector < int > &vals );
+
+    bool IsAllowed( int val ) const;
+
+protected:
+    vector < int > m_AllowedVals;
+};
+
 //==== Power Integer Parm ====//
 // IntParm restricted to values of pow(m_Base, n) + m_Shift, where n is an integer
 class PowIntParm : public IntParm

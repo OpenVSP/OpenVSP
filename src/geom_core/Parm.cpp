@@ -514,6 +514,48 @@ void LimIntParm::SetMultShift( int mult, int shift )
 
 
 //=========================================================================//
+//=======================      ListIntParm     ============================//
+//=========================================================================//
+
+//==== Constructor ====//
+ListIntParm::ListIntParm() : IntParm()
+{
+}
+
+//==== Set Val And Check Limits ====//
+bool ListIntParm::SetValCheckLimits( double val )
+{
+    if ( !IsAllowed( toint( val ) ) )
+    {
+        return false;
+    }
+
+    return IntParm::SetValCheckLimits( val );
+}
+
+void ListIntParm::SetAllowedVals( const vector < int > &vals )
+{
+    m_AllowedVals = vals;
+
+    if ( !m_AllowedVals.empty() )
+    {
+        m_LowerLimit = *std::min_element( m_AllowedVals.begin(), m_AllowedVals.end() );
+        m_UpperLimit = *std::max_element( m_AllowedVals.begin(), m_AllowedVals.end() );
+    }
+
+    if ( !IsAllowed( Get() ) && !m_AllowedVals.empty() )
+    {
+        Set( m_AllowedVals[0] );
+    }
+}
+
+bool ListIntParm::IsAllowed( int val ) const
+{
+    return m_AllowedVals.empty() || vector_contains_val( m_AllowedVals, val );
+}
+
+
+//=========================================================================//
 //=======================      PowIntParm      ============================//
 //=========================================================================//
 
