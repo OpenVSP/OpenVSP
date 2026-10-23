@@ -209,6 +209,7 @@ enum CAP_TYPE { NO_END_CAP,	/*!< No end cap */
                 ROUND_EXT_END_CAP_LE,	/*!< Extended round end cap, extend LE */
                 ROUND_EXT_END_CAP_TE,	/*!< Extended round end cap, extend TE */
                 ROUND_EXT_END_CAP_BOTH,	/*!< Extended round end cap, extend both */
+                CONE_END_CAP,	/*!< Cone end cap with a spherical blunt tip */
                 NUM_END_CAP_OPTIONS	/*!< Number of end cap options */
 };
 

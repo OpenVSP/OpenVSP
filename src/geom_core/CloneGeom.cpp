@@ -76,6 +76,9 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     // Tessellation and end caps come from the original, as the surface does.
     m_TessU.Deactivate();
     m_TessW.Deactivate();
+    // The end caps take any type the original does.
+    m_CapUMinOption.SetAllowedVals( CapTypes( true ) );
+    m_CapUMaxOption.SetAllowedVals( CapTypes( true ) );
     vector < Parm* > cap_parms = { &m_CapUMinOption, &m_CapUMinLength, &m_CapUMinOffset, &m_CapUMinStrength,
                                    &m_CapUMinSweepFlag, &m_CapUMinRelFlag, &m_CapUMinLengthDim, &m_CapUMinOffsetDim,
                                    &m_CapUMinTess, &m_CapUMaxOption, &m_CapUMaxLength, &m_CapUMaxOffset,

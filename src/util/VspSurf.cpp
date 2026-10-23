@@ -3275,6 +3275,9 @@ static int MultiCapType( int CapType, bool &extle, bool &extte )
         extle = true;
         extte = true;
         break;
+      case vsp::CONE_END_CAP:
+        captype = multicap_creator_type::CONE;
+        break;
     }
     return captype;
 }

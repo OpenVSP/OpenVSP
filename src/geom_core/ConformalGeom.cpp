@@ -29,6 +29,10 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     // m_Type.m_AdoptableFlag = false;
 
 
+    // The end caps are copied from the parent, whatever type it allows.
+    m_CapUMinOption.SetAllowedVals( CapTypes( true ) );
+    m_CapUMaxOption.SetAllowedVals( CapTypes( true ) );
+
     m_DetachFlag.Init( "DetachFlag", "Design", this, false, false, true );
     m_DetachFlag.SetDescript( "Conformal detachment flag" );
 
@@ -72,7 +76,7 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_EtaTrimMax.SetDescript( "Max eta Trim Value" );
 
     // End Cap Options
-    m_CapUMinTrimOption.Init("CapUMinTrimOption", "EndCap", this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS - 1 );
+    m_CapUMinTrimOption.Init("CapUMinTrimOption", "EndCap", this, FLAT_END_CAP, NO_END_CAP, ROUND_EXT_END_CAP_BOTH );
     m_CapUMinTrimOption.SetDescript("Type of End Cap on UMin end");
 
     m_CapUMinTrimLength.Init( "CapUMinTrimLength", "EndCap", this, 1, 0, 20 );
@@ -84,7 +88,7 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_CapUMinTrimSweepFlag.Init( "CapUMinTrimSweepFlag", "EndCap", this, 0, 0, 1 );
     m_CapUMinTrimSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
 
-    m_CapUMaxTrimOption.Init("CapUMaxTrimOption", "EndCap", this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS - 1 );
+    m_CapUMaxTrimOption.Init("CapUMaxTrimOption", "EndCap", this, FLAT_END_CAP, NO_END_CAP, ROUND_EXT_END_CAP_BOTH );
     m_CapUMaxTrimOption.SetDescript("Type of End Cap on UMax end");
 
     m_CapUMaxTrimLength.Init( "CapUMaxTrimLength", "EndCap", this, 1, 0, 20 );

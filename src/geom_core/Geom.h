@@ -1080,6 +1080,7 @@ protected:
     virtual void UpdateSurf() = 0;
     virtual void UpdateEndCaps();
     void UpdateCapDims( const VspSurf &surf, bool umax );
+    static vector < int > CapTypes( bool cone );
 
     // Translate the capped main surfaces so the chosen coordinates of the first one's nose tip are
     // zero.  The tip is where the nose cap's length and offset place it, or with no cap the middle

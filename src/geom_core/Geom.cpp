@@ -1754,6 +1754,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     // End Cap Options
     m_CapUMinOption.Init("CapUMinOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
+    m_CapUMinOption.SetAllowedVals( CapTypes( false ) );
     m_CapUMinOption.SetDescript("Type of End Cap on UMin end");
 
     m_CapUMinLength.Init( "CapUMinLength", "EndCap", this, 1, 0, 20 );
@@ -1775,6 +1776,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
 
     m_CapUMaxOption.Init("CapUMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
+    m_CapUMaxOption.SetAllowedVals( CapTypes( false ) );
     m_CapUMaxOption.SetDescript("Type of End Cap on UMax end");
 
     m_CapUMaxLength.Init( "CapUMaxLength", "EndCap", this, 1, 0, 20 );
@@ -2353,6 +2355,20 @@ void Geom::UpdateCapParms()
             m_CapUMaxStrength = 1.0;
             break;
     }
+}
+
+// Every end cap type, with or without the cone, which only a Fuselage or Stack takes.
+vector < int > Geom::CapTypes( bool cone )
+{
+    vector < int > types;
+    for ( int i = NO_END_CAP; i < NUM_END_CAP_OPTIONS; i++ )
+    {
+        if ( i != CONE_END_CAP || cone )
+        {
+            types.push_back( i );
+        }
+    }
+    return types;
 }
 
 // Set the non-dimensional sizes of the cap on the UMax or UMin end from their dimensional values, or the
