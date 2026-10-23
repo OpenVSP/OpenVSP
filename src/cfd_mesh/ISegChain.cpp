@@ -13,6 +13,9 @@
 #include <Eigen/Dense>
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <map>
 
 //////////////////////////////////////////////////////////////////////
 //==== UW Point on Surface ====//
@@ -1225,25 +1228,107 @@ void ISegChain::MergeSplits()
 //  double tol = 0.01;
     double tol = 1.0e-6;
     vector < vector< ISegSplit* > > mergedVec;
+
+    // A split joins the first group made whose first split is within tol of it.  Groups are found
+    // through cells two tol across; a group or split with no cell is compared with every split or
+    // group.
+    const double cellsize = 2.0 * tol;
+    const double cellmax = 1.0e15;
+    map < array < long long, 3 >, vector < int > > cells;
+    vector < int > loose;
+
     for (  i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
     {
-        bool merge_flag = false;
-        for (  j = 0 ; j < ( int )mergedVec.size() ; j++ )
+        const vec3d &p = m_SplitVec[i]->m_Pnt;
+        bool usable = true;
+        for ( int k = 0; k < 3; k++ )
         {
-            double d = dist( m_SplitVec[i]->m_Pnt, mergedVec[j][0]->m_Pnt );
-            if ( d < tol )
+            if ( !std::isfinite( p[k] ) || fabs( p[k] / cellsize ) > cellmax )
             {
-                merge_flag = true;
-                mergedVec[j].push_back( m_SplitVec[i] );
-                // A split joins one group only, so it is freed at most once below.
-                break;
+                usable = false;
             }
         }
-        if ( !merge_flag )
+
+        array < long long, 3 > cell = { 0, 0, 0 };
+        int join = -1;
+
+        if ( !usable )
+        {
+            for ( j = 0 ; j < ( int )mergedVec.size() ; j++ )
+            {
+                if ( dist( p, mergedVec[j][0]->m_Pnt ) < tol )
+                {
+                    join = j;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            for ( j = 0 ; j < ( int )loose.size() ; j++ )
+            {
+                if ( dist( p, mergedVec[ loose[j] ][0]->m_Pnt ) < tol )
+                {
+                    join = loose[j];
+                    break;
+                }
+            }
+
+            cell[0] = ( long long ) floor( p.x() / cellsize );
+            cell[1] = ( long long ) floor( p.y() / cellsize );
+            cell[2] = ( long long ) floor( p.z() / cellsize );
+
+            for ( int dx = -1; dx <= 1; dx++ )
+            {
+                for ( int dy = -1; dy <= 1; dy++ )
+                {
+                    for ( int dz = -1; dz <= 1; dz++ )
+                    {
+                        array < long long, 3 > nbcell = { cell[0] + dx, cell[1] + dy, cell[2] + dz };
+                        map < array < long long, 3 >, vector < int > >::const_iterator it = cells.find( nbcell );
+                        if ( it == cells.end() )
+                        {
+                            continue;
+                        }
+
+                        // Groups in the order made; the first within tol is the earliest.
+                        const vector < int > &groups = it->second;
+                        for ( j = 0 ; j < ( int )groups.size() ; j++ )
+                        {
+                            if ( join >= 0 && groups[j] > join )
+                            {
+                                break;
+                            }
+                            if ( dist( p, mergedVec[ groups[j] ][0]->m_Pnt ) < tol )
+                            {
+                                join = groups[j];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if ( join >= 0 )
+        {
+            // A split joins one group only, so it is freed at most once below.
+            mergedVec[ join ].push_back( m_SplitVec[i] );
+        }
+        else
         {
             vector< ISegSplit* > v;
             v.push_back( m_SplitVec[i] );
             mergedVec.push_back( v );
+
+            if ( usable )
+            {
+                cells[ cell ].push_back( ( int )mergedVec.size() - 1 );
+            }
+            else
+            {
+                loose.push_back( ( int )mergedVec.size() - 1 );
+            }
         }
     }
 
