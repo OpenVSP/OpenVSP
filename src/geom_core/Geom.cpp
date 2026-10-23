@@ -8358,6 +8358,17 @@ void GeomXSec::OffsetXSecs( double off )
     }
 }
 
+vector < int > GeomXSec::BodyCapTypes()
+{
+    vector < int > types;
+    types.push_back( NO_END_CAP );
+    types.push_back( FLAT_END_CAP );
+    types.push_back( ROUND_END_CAP );
+    types.push_back( EDGE_END_CAP );
+    types.push_back( SHARP_END_CAP );
+    return types;
+}
+
 int GeomXSec::ClearSkinning( const int & i_xs )
 {
     int ncleared = 0;

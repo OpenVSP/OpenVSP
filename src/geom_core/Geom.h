@@ -1009,9 +1009,9 @@ public:
     virtual bool HasWingTypeSurfs();
 
     //=== End Cap Parms ===//
-    IntParm m_CapUMinOption;
+    ListIntParm m_CapUMinOption;
     IntParm m_CapUMinTess;
-    IntParm m_CapUMaxOption;
+    ListIntParm m_CapUMaxOption;
 
     Parm m_CapUMinLength;
     Parm m_CapUMinOffset;
@@ -1385,6 +1385,9 @@ protected:
                            vector< int > &stationmap );
 
     virtual void NormalizeFlaps();
+
+    // End cap types a Fuselage or Stack can take.
+    static vector < int > BodyCapTypes();
 
     XSecSurf m_XSecSurf;
     vector<DrawObj> m_XSecDrawObj_vec;
