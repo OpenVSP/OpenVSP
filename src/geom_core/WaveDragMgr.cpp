@@ -16,6 +16,8 @@
 #include "IDMgr.h"
 #include "wavedragEL.h"
 #include "ModeMgr.h"
+#include "StlHelper.h"
+#include "SubSurfaceMgr.h"
 
 WaveDragSingleton::WaveDragSingleton() : ParmContainer()
 {
@@ -105,6 +107,7 @@ xmlNodePtr WaveDragSingleton::DecodeXml( xmlNodePtr & node )
 
         if ( flowSS_list_node )
         {
+            // Each sub-surface is kept once, and only if it is in the model.
             for ( xmlNodePtr flowSS_node = flowSS_list_node->xmlChildrenNode; flowSS_node; flowSS_node = flowSS_node->next )
             {
                 if ( xmlStrcmp( flowSS_node->name, ( const xmlChar * )"FlowSS" ) )
@@ -112,7 +115,10 @@ xmlNodePtr WaveDragSingleton::DecodeXml( xmlNodePtr & node )
                     continue;
                 }
                 string new_flowSS = IDMgr.RemapRefID( XmlUtil::FindString( flowSS_node, "flowSS_ID", string() ) );
-                m_SSFlow_vec.push_back( new_flowSS );
+                if ( SubSurfaceMgr.GetSubSurf( new_flowSS ) && !vector_contains_val( m_SSFlow_vec, new_flowSS ) )
+                {
+                    m_SSFlow_vec.push_back( new_flowSS );
+                }
             }
         }
     }
