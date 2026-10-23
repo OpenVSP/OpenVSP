@@ -1523,7 +1523,7 @@ void PropGeom::UpdateEndCaps()
     }
     m_CappingDone = true;
 
-    CapSurf( m_BladeSurf, m_BladeCapUMinSuccess, m_BladeCapUMaxSuccess );
+    CapSurf( m_BladeSurf, m_BladeCapUMinSuccess, m_BladeCapUMaxSuccess, true );
     UpdateCapParms();
 }
 

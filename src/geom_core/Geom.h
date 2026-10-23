@@ -1017,11 +1017,17 @@ public:
     Parm m_CapUMinOffset;
     Parm m_CapUMinStrength;
     BoolParm m_CapUMinSweepFlag;
+    BoolParm m_CapUMinRelFlag;
+    Parm m_CapUMinLengthDim;
+    Parm m_CapUMinOffsetDim;
 
     Parm m_CapUMaxLength;
     Parm m_CapUMaxOffset;
     Parm m_CapUMaxStrength;
     BoolParm m_CapUMaxSweepFlag;
+    BoolParm m_CapUMaxRelFlag;
+    Parm m_CapUMaxLengthDim;
+    Parm m_CapUMaxOffsetDim;
     bool m_CappingDone;
 
     //==== Wake for CFD Mesh ====//
@@ -1068,11 +1074,12 @@ protected:
 
     virtual void UpdateSurf() = 0;
     virtual void UpdateEndCaps();
+    void UpdateCapDims( const VspSurf &surf, bool umax );
     virtual void UpdateEngine()   {};
     virtual void UpdateFeatureLines();
     virtual void UpdateLCurve();
     virtual void UpdateFlags();
-    void CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success );
+    void CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bool setdims );
     void UpdateCapParms();
     void UpdateSurfFlags( VspSurf & surf );
     virtual void UpdateSymmAttach( int num_main );

@@ -1540,6 +1540,11 @@ void Geom::Scale()
     ApplyScale( currentScale );
     ScaleCommonSubComponents( currentScale );
 
+    m_CapUMinLengthDim.Set( m_CapUMinLengthDim() * currentScale );
+    m_CapUMinOffsetDim.Set( m_CapUMinOffsetDim() * currentScale );
+    m_CapUMaxLengthDim.Set( m_CapUMaxLengthDim() * currentScale );
+    m_CapUMaxOffsetDim.Set( m_CapUMaxOffsetDim() * currentScale );
+
     m_LastScale = m_Scale();
 }
 
@@ -1758,6 +1763,12 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinStrength.SetDescript( "Tangent strength of end cap" );
     m_CapUMinSweepFlag.Init( "CapUMinSweepFlag", "EndCap", this, 0, 0, 1 );
     m_CapUMinSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
+    m_CapUMinRelFlag.Init( "CapUMinRelFlag", "EndCap", this, true, false, true );
+    m_CapUMinRelFlag.SetDescript( "The end cap length and offset are specified non-dimensionally or dimensionally" );
+    m_CapUMinLengthDim.Init( "CapUMinLengthDim", "EndCap", this, 1, 0, 1e12 );
+    m_CapUMinLengthDim.SetDescript( "Dimensional length of end cap" );
+    m_CapUMinOffsetDim.Init( "CapUMinOffsetDim", "EndCap", this, 0, -1e12, 1e12 );
+    m_CapUMinOffsetDim.SetDescript( "Dimensional offset of end cap" );
 
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
@@ -1773,6 +1784,12 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMaxStrength.SetDescript( "Tangent strength of end cap" );
     m_CapUMaxSweepFlag.Init( "CapUMaxSweepFlag", "EndCap", this, 0, 0, 1 );
     m_CapUMaxSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
+    m_CapUMaxRelFlag.Init( "CapUMaxRelFlag", "EndCap", this, true, false, true );
+    m_CapUMaxRelFlag.SetDescript( "The end cap length and offset are specified non-dimensionally or dimensionally" );
+    m_CapUMaxLengthDim.Init( "CapUMaxLengthDim", "EndCap", this, 1, 0, 1e12 );
+    m_CapUMaxLengthDim.SetDescript( "Dimensional length of end cap" );
+    m_CapUMaxOffsetDim.Init( "CapUMaxOffsetDim", "EndCap", this, 0, -1e12, 1e12 );
+    m_CapUMaxOffsetDim.SetDescript( "Dimensional offset of end cap" );
 
     // Parasite Drag Parms
     m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
@@ -2237,7 +2254,7 @@ void Geom::UpdateEndCaps()
     for ( int i = 0; i < nmain; i++ )
     {
         bool umin, umax;
-        CapSurf( m_MainSurfVec[i], umin, umax );
+        CapSurf( m_MainSurfVec[i], umin, umax, i == 0 );
         m_CapUMinSuccess[i] = umin;
         m_CapUMaxSuccess[i] = umax;
     }
@@ -2245,11 +2262,22 @@ void Geom::UpdateEndCaps()
     UpdateCapParms();
 }
 
-// Cap one surface by the end cap parms.  Each flag is true where the surface was given a cap.
-void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success )
+// Cap one surface by the end cap parms.  Each flag is true where the surface was given a cap.  With setdims,
+// each end's dimensional cap length and offset are measured on surf as that end is capped.
+void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bool setdims )
 {
     vec3d ptoff;
+    if ( setdims )
+    {
+        UpdateCapDims( surf, false );
+    }
     umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag());
+
+    // An extended round cap splits the whole surface, so the other end is measured after it.
+    if ( setdims )
+    {
+        UpdateCapDims( surf, true );
+    }
     umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag());
 }
 
@@ -2313,6 +2341,71 @@ void Geom::UpdateCapParms()
             m_CapUMaxStrength = 1.0;
             break;
     }
+}
+
+// Set the non-dimensional sizes of the cap on the UMax or UMin end from their dimensional values, or the
+// reverse, as its Rel flag says.  The dimensional length is the greatest height of the cap's tip above where
+// it is with no length, across the end's forward direction, and the dimensional offset is the greatest
+// distance the offset moves it.  A cap type without a length leaves them all alone.
+void Geom::UpdateCapDims( const VspSurf &surf, bool umax )
+{
+    int captype = m_CapUMinOption();
+    bool nondim = m_CapUMinRelFlag();
+    double str = m_CapUMinStrength();
+    bool swflag = m_CapUMinSweepFlag();
+    Parm *len = &m_CapUMinLength;
+    Parm *off = &m_CapUMinOffset;
+    Parm *lendim = &m_CapUMinLengthDim;
+    Parm *offdim = &m_CapUMinOffsetDim;
+    if ( umax )
+    {
+        captype = m_CapUMaxOption();
+        nondim = m_CapUMaxRelFlag();
+        str = m_CapUMaxStrength();
+        swflag = m_CapUMaxSweepFlag();
+        len = &m_CapUMaxLength;
+        off = &m_CapUMaxOffset;
+        lendim = &m_CapUMaxLengthDim;
+        offdim = &m_CapUMaxOffsetDim;
+    }
+
+    double lenscale, offscale;
+    if ( !surf.CapScales( umax, captype, len->Get(), str, swflag, lenscale, offscale ) || !( lenscale > 0.0 ) )
+    {
+        return;
+    }
+
+    if ( !nondim )
+    {
+        // Both scales can depend on the length, so repeat until the length settles.
+        for ( int i = 0; i < 20; i++ )
+        {
+            double oldlen = len->Get();
+            len->Set( lendim->Get() / lenscale );
+
+            if ( std::abs( len->Get() - oldlen ) <= 1e-12 * len->Get() )
+            {
+                break;
+            }
+
+            if ( !surf.CapScales( umax, captype, len->Get(), str, swflag, lenscale, offscale ) || !( lenscale > 0.0 ) )
+            {
+                return;
+            }
+        }
+    }
+    lendim->Set( len->Get() * lenscale );
+
+    if ( !( offscale > 0.0 ) )
+    {
+        return;
+    }
+
+    if ( !nondim )
+    {
+        off->Set( offdim->Get() / offscale );
+    }
+    offdim->Set( off->Get() * offscale );
 }
 
 void Geom::UpdateFeatureLines( )

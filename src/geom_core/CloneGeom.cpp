@@ -77,8 +77,10 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TessU.Deactivate();
     m_TessW.Deactivate();
     vector < Parm* > cap_parms = { &m_CapUMinOption, &m_CapUMinLength, &m_CapUMinOffset, &m_CapUMinStrength,
-                                   &m_CapUMinSweepFlag, &m_CapUMinTess, &m_CapUMaxOption, &m_CapUMaxLength,
-                                   &m_CapUMaxOffset, &m_CapUMaxStrength, &m_CapUMaxSweepFlag };
+                                   &m_CapUMinSweepFlag, &m_CapUMinRelFlag, &m_CapUMinLengthDim, &m_CapUMinOffsetDim,
+                                   &m_CapUMinTess, &m_CapUMaxOption, &m_CapUMaxLength, &m_CapUMaxOffset,
+                                   &m_CapUMaxStrength, &m_CapUMaxSweepFlag, &m_CapUMaxRelFlag, &m_CapUMaxLengthDim,
+                                   &m_CapUMaxOffsetDim };
     for ( size_t i = 0; i < cap_parms.size(); i++ )
     {
         cap_parms[i]->Deactivate();
@@ -754,12 +756,18 @@ void CloneGeom::CopyEndCapParms( Geom* from, Geom* to )
     to->m_CapUMinOffset.Set( from->m_CapUMinOffset() );
     to->m_CapUMinStrength.Set( from->m_CapUMinStrength() );
     to->m_CapUMinSweepFlag.Set( from->m_CapUMinSweepFlag() );
+    to->m_CapUMinRelFlag.Set( from->m_CapUMinRelFlag() );
+    to->m_CapUMinLengthDim.Set( from->m_CapUMinLengthDim() );
+    to->m_CapUMinOffsetDim.Set( from->m_CapUMinOffsetDim() );
     to->m_CapUMinTess.Set( from->m_CapUMinTess() );
     to->m_CapUMaxOption.Set( from->m_CapUMaxOption() );
     to->m_CapUMaxLength.Set( from->m_CapUMaxLength() );
     to->m_CapUMaxOffset.Set( from->m_CapUMaxOffset() );
     to->m_CapUMaxStrength.Set( from->m_CapUMaxStrength() );
     to->m_CapUMaxSweepFlag.Set( from->m_CapUMaxSweepFlag() );
+    to->m_CapUMaxRelFlag.Set( from->m_CapUMaxRelFlag() );
+    to->m_CapUMaxLengthDim.Set( from->m_CapUMaxLengthDim() );
+    to->m_CapUMaxOffsetDim.Set( from->m_CapUMaxOffsetDim() );
 }
 
 void CloneGeom::CopyTessParms( Geom* from, Geom* to )

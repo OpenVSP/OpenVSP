@@ -1460,11 +1460,17 @@ void AuxiliaryGeom::UpdateCopySurfParms()
     m_CapUMinOffset.Deactivate();
     m_CapUMinStrength.Deactivate();
     m_CapUMinSweepFlag.Deactivate();
+    m_CapUMinRelFlag.Deactivate();
+    m_CapUMinLengthDim.Deactivate();
+    m_CapUMinOffsetDim.Deactivate();
 
     m_CapUMaxLength.Deactivate();
     m_CapUMaxOffset.Deactivate();
     m_CapUMaxStrength.Deactivate();
     m_CapUMaxSweepFlag.Deactivate();
+    m_CapUMaxRelFlag.Deactivate();
+    m_CapUMaxLengthDim.Deactivate();
+    m_CapUMaxOffsetDim.Deactivate();
 }
 
 void AuxiliaryGeom::UpdateCopyTessParms()
