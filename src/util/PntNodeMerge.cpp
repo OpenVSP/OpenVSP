@@ -198,6 +198,18 @@ void IndexPntNodes( PntNodeCloud & cloud, double tolsq, bool keep_matches )
                     cloud.m_MatchVec.push_back( m_ind );
                 }
             }
+
+            // The search finds nothing within a zero radius, nor around a point that is not a
+            // number; such a point is a group of one.
+            if ( cloud.m_PntNodes[i].m_Index == -1 )
+            {
+                cloud.m_PntNodes[i].m_Index = i;
+                if ( keep_matches )
+                {
+                    cloud.m_MatchVec.push_back( i );
+                }
+            }
+
             cloud.m_PntNodes[i].m_UsedIndex = cnt;
             cnt++;
         }
