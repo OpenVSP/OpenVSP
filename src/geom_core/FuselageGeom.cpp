@@ -32,6 +32,13 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     m_OrderPolicy.Init( "OrderPolicy", "Design", this, FUSE_MONOTONIC, FUSE_MONOTONIC, NUM_FUSE_POLICY - 1 );
     m_OrderPolicy.SetDescript( "XSec ordering policy for fuselage" );
 
+    m_NoseOriginXFlag.Init( "NoseOriginXFlag", "Design", this, false, false, true );
+    m_NoseOriginXFlag.SetDescript( "Flag to place the fuselage's nose tip at the origin in X" );
+    m_NoseOriginYFlag.Init( "NoseOriginYFlag", "Design", this, false, false, true );
+    m_NoseOriginYFlag.SetDescript( "Flag to place the fuselage's nose tip at the origin in Y" );
+    m_NoseOriginZFlag.Init( "NoseOriginZFlag", "Design", this, false, false, true );
+    m_NoseOriginZFlag.SetDescript( "Flag to place the fuselage's nose tip at the origin in Z" );
+
     //==== rename capping controls for fuselage specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Fuselage Nose");
     m_CapUMinOption.Parm::Set(NO_END_CAP);
@@ -241,6 +248,18 @@ void FuselageGeom::UpdateSurf()
     {
         m_MainSurfVec[0].FlipNormal();
     }
+}
+
+void FuselageGeom::UpdateEndCaps()
+{
+    if ( m_CappingDone )
+    {
+        return;
+    }
+
+    GeomEngine::UpdateEndCaps();
+
+    ShiftNoseToOrigin( m_NoseOriginXFlag(), m_NoseOriginYFlag(), m_NoseOriginZFlag() );
 }
 
 void FuselageGeom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref ) const

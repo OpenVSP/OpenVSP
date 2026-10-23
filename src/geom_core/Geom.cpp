@@ -1681,6 +1681,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 {
     m_UpdateBlock = false;
     m_UpdateStamp = 0;
+    m_CapUMinTipFound = false;
 
     m_Name = "Geom";
     m_Type.m_Type = GEOM_GEOM_TYPE;
@@ -2250,6 +2251,8 @@ void Geom::UpdateEndCaps()
     m_CapUMinSuccess.resize( nmain );
     m_CapUMaxSuccess.resize( nmain );
 
+    m_CapUMinTipFound = false;
+
     // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
     for ( int i = 0; i < nmain; i++ )
     {
@@ -2263,13 +2266,22 @@ void Geom::UpdateEndCaps()
 }
 
 // Cap one surface by the end cap parms.  Each flag is true where the surface was given a cap.  With setdims,
-// each end's dimensional cap length and offset are measured on surf as that end is capped.
+// each end's dimensional cap length and offset are measured on surf as that end is capped, and the UMin cap's
+// tip is found there.
 void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bool setdims )
 {
     vec3d ptoff;
     if ( setdims )
     {
         UpdateCapDims( surf, false );
+
+        int tiptype = m_CapUMinOption();
+        if ( tiptype == NO_END_CAP )
+        {
+            tiptype = FLAT_END_CAP;
+        }
+        m_CapUMinTipFound = surf.CapTipPnt( false, tiptype, m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(),
+                                            m_CapUMinSweepFlag(), m_CapUMinTipPnt );
     }
     umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag());
 
@@ -2406,6 +2418,39 @@ void Geom::UpdateCapDims( const VspSurf &surf, bool umax )
         off->Set( offdim->Get() / offscale );
     }
     offdim->Set( off->Get() * offscale );
+}
+
+void Geom::ShiftNoseToOrigin( bool xflag, bool yflag, bool zflag )
+{
+    m_NoseShift = vec3d();
+
+    if ( m_MainSurfVec.empty() || ( !xflag && !yflag && !zflag ) )
+    {
+        return;
+    }
+
+    vec3d tip = m_MainSurfVec[0].CompPnt01( 0, 0.25 );
+    if ( m_CapUMinTipFound )
+    {
+        tip = m_CapUMinTipPnt;
+    }
+    if ( xflag )
+    {
+        m_NoseShift.set_x( -tip.x() );
+    }
+    if ( yflag )
+    {
+        m_NoseShift.set_y( -tip.y() );
+    }
+    if ( zflag )
+    {
+        m_NoseShift.set_z( -tip.z() );
+    }
+
+    for ( int i = 0; i < ( int )m_MainSurfVec.size(); i++ )
+    {
+        m_MainSurfVec[i].Offset( m_NoseShift );
+    }
 }
 
 void Geom::UpdateFeatureLines( )
@@ -7584,6 +7629,10 @@ void GeomXSec::UpdateDrawObj()
     // The shape's placement, so the flip goes innermost.
     relTrans.matMult( GetFlipMat().data() );
 
+    Matrix4d shift;
+    shift.translatev( m_NoseShift );
+    relTrans.matMult( shift.data() );
+
     unsigned int nxsec = m_XSecSurf.NumXSec();
     m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
 
@@ -7612,6 +7661,10 @@ void GeomXSec::UpdateHighlightDrawObj()
 
     // The shape's placement, so the flip goes innermost.
     relTrans.matMult( GetFlipMat().data() );
+
+    Matrix4d shift;
+    shift.translatev( m_NoseShift );
+    relTrans.matMult( shift.data() );
 
     XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec() );
     if ( axs )

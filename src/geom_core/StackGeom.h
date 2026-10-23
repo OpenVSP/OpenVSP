@@ -56,12 +56,18 @@ public:
 
     IntParm m_OrderPolicy;
 
+    // Translate the surface so its nose tip lies on the Geom's origin in each chosen coordinate.
+    BoolParm m_NoseOriginXFlag;
+    BoolParm m_NoseOriginYFlag;
+    BoolParm m_NoseOriginZFlag;
+
 protected:
     virtual void InitInsertedXSec( int index );
 
     virtual void ChangeID( const string &id );
 
     virtual void UpdateSurf();
+    virtual void UpdateEndCaps();
     virtual void GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref = 0 ) const;
     virtual void UpdateTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, const int & n_ref = 0 ) const;
     virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;

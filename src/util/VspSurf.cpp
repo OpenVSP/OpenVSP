@@ -3524,6 +3524,28 @@ bool VspSurf::CapScales( bool umax, int capType, double len, double str, bool sw
     return true;
 }
 
+// Where the tip of a cap of type capType, length len and offset offset reaches the middle of the umax or umin
+// end: the point its length and offset place.  Found from the end before it is capped.
+bool VspSurf::CapTipPnt( bool umax, int capType, double len, double str, double offset, bool swflag, vec3d &pnt ) const
+{
+    multicap_creator_type cc;
+    if ( !EdgeCapConditions( m_Surface, umax, capType, len, str, offset, swflag, m_CapFrameFlag, m_CapAxis, m_CapUp,
+                             cc ) )
+    {
+        return false;
+    }
+
+    piecewise_curve_type c;
+    if ( !cc.create_curve( c ) )
+    {
+        return false;
+    }
+
+    surface_point_type p = c.f( ( c.get_t0() + c.get_tmax() ) * 0.5 );
+    pnt.set_xyz( p.x(), p.y(), p.z() );
+    return true;
+}
+
 void VspSurf::RollU( const double &u )
 {
     m_Surface.split_u( u );

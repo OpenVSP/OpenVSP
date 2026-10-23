@@ -26,6 +26,13 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     m_OrderPolicy.Init( "OrderPolicy", "Design", this, STACK_FREE, STACK_FREE, NUM_STACK_POLICY - 1 );
     m_OrderPolicy.SetDescript( "XSec ordering policy for stack" );
 
+    m_NoseOriginXFlag.Init( "NoseOriginXFlag", "Design", this, false, false, true );
+    m_NoseOriginXFlag.SetDescript( "Flag to place the stack's nose tip at the origin in X" );
+    m_NoseOriginYFlag.Init( "NoseOriginYFlag", "Design", this, false, false, true );
+    m_NoseOriginYFlag.SetDescript( "Flag to place the stack's nose tip at the origin in Y" );
+    m_NoseOriginZFlag.Init( "NoseOriginZFlag", "Design", this, false, false, true );
+    m_NoseOriginZFlag.SetDescript( "Flag to place the stack's nose tip at the origin in Z" );
+
     //==== rename capping controls for stack specific terminology ====//
     m_CapUMinOption.SetDescript("Type of End Cap on Stack Nose");
     m_CapUMinOption.Parm::Set(NO_END_CAP);
@@ -901,6 +908,18 @@ void StackGeom::UpdateSurf()
     {
         m_MainSurfVec[0].FlipNormal();
     }
+}
+
+void StackGeom::UpdateEndCaps()
+{
+    if ( m_CappingDone )
+    {
+        return;
+    }
+
+    GeomEngine::UpdateEndCaps();
+
+    ShiftNoseToOrigin( m_NoseOriginXFlag(), m_NoseOriginYFlag(), m_NoseOriginZFlag() );
 }
 
 void StackGeom::GetUWTess( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, bool degen, vector< double > &utess, vector< double > &vtess, const int & n_ref ) const

@@ -1030,6 +1030,11 @@ public:
     Parm m_CapUMaxOffsetDim;
     bool m_CappingDone;
 
+    // Where the UMin cap's length and offset place its tip, or the middle of the end with no cap, on the
+    // first main surface; found before capping.
+    vec3d m_CapUMinTipPnt;
+    bool m_CapUMinTipFound;
+
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;
     Parm m_WakeScale;
@@ -1075,6 +1080,13 @@ protected:
     virtual void UpdateSurf() = 0;
     virtual void UpdateEndCaps();
     void UpdateCapDims( const VspSurf &surf, bool umax );
+
+    // Translate the capped main surfaces so the chosen coordinates of the first one's nose tip are
+    // zero.  The tip is where the nose cap's length and offset place it, or with no cap the middle
+    // of the end.  Every main surface moves by the same amount, so their layout is kept.  An XSec
+    // Geom's XSecs stay where they are, so their drawing is moved by the same amount.
+    void ShiftNoseToOrigin( bool xflag, bool yflag, bool zflag );
+
     virtual void UpdateEngine()   {};
     virtual void UpdateFeatureLines();
     virtual void UpdateLCurve();
@@ -1243,6 +1255,9 @@ protected:
 
     vector< bool > m_CapUMinSuccess;
     vector< bool > m_CapUMaxSuccess;
+
+    // The translation ShiftNoseToOrigin gave the main surfaces.
+    vec3d m_NoseShift;
 
     enum { V2_NO_SYM = 0,
            V2_XY_SYM = 1,

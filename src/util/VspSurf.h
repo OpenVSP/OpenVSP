@@ -276,6 +276,7 @@ public:
     bool CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag);
 
     bool CapScales( bool umax, int capType, double len, double str, bool swflag, double &lenscale, double &offscale ) const;
+    bool CapTipPnt( bool umax, int capType, double len, double str, double offset, bool swflag, vec3d &pnt ) const;
 
     void FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >(), const vector < double > &utess = std::vector< double >(), const vector < double > &wtess = std::vector< double >(), bool capumin = false, bool capumax = false, bool splitjoin = true, bool symcut = false, bool cfdcaps = false ) const;
 
