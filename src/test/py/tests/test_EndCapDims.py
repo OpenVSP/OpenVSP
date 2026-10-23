@@ -312,6 +312,27 @@ def testDimensionalCapPlacesTheTipOnDefaultBodies( typ, cap_type ):
     check_tip( body( typ ), cap_type )
 
 
+@pytest.mark.parametrize( "cap_type", LENGTH_TYPES )
+@pytest.mark.parametrize( "gid_maker", ( lambda: body( "FUSELAGE" ), lambda: stack( "tall", "flare", True ) ),
+                          ids=( "fuselage", "tall-flare" ) )
+def testOffsetDimIsTheOffsetsMove( gid_maker, cap_type ):
+    """At a unit length, these caps' length scale exceeds their offset scale."""
+    gid = gid_maker()
+    flat = copies( gid, 1 )[0]
+    for cid, off in ( ( gid, 1.0 ), ( flat, 0.0 ) ):
+        for end, u in ENDS:
+            set_cap( cid, "Cap" + end + "Option", cap_type )
+            set_cap( cid, "Cap" + end + "Length", 1.0 )
+            set_cap( cid, "Cap" + end + "Offset", off )
+    vsp.Update()
+
+    for end, u in ENDS:
+        tip = tip_curve( gid, u )
+        tip0 = tip_curve( flat, u )
+        omeas = greatest( lambda w: math.dist( tip( w ), tip0( w ) ) )
+        assert get_cap( gid, "Cap" + end + "OffsetDim" ) == pytest.approx( omeas, abs=1e-9 ), end
+
+
 @pytest.mark.parametrize( "cap_type", ( vsp.ROUND_END_CAP, vsp.EDGE_END_CAP, vsp.SHARP_END_CAP ) )
 def testNeighbouringSectionsChangeTheUnitCap( cap_type ):
     """Guards the sweep: with the end's skinning released, the neighbours must reach a cap built from the
