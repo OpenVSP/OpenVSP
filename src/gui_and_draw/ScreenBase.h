@@ -307,9 +307,17 @@ class EndCapTypeGroup
 public:
     EndCapTypeGroup();
 
+    // How a kind uses a control that only some states of the cap use.
+    enum
+    {
+        NEVER,
+        ALWAYS,
+    };
+
     // What the kind uses besides length and offset, set before Build.
     void SetSweep( bool sweep )                       { m_HasSweep = sweep; }
     void SetExtra( const string& label, double range = 1, const char* format = "%6.5f" );
+    void SetRadius( int use )                         { m_Radius = use; }
 
     // The number of lines the group takes.
     int NumLines();
@@ -320,6 +328,8 @@ public:
     GroupLayout m_Layout;
 
 protected:
+    static bool Uses( int use, bool trunc );
+
     int NumToggles();
 
     bool m_HasSweep;
@@ -327,9 +337,11 @@ protected:
     string m_ExtraLabel;
     double m_ExtraRange;
     const char* m_ExtraFormat;
+    int m_Radius;
 
     SliderAdjRange2Input m_LenSlider;
     SliderAdjRange2Input m_OffsetSlider;
+    SliderAdjRange2Input m_RadiusSlider;
     SliderAdjRangeInput m_ExtraSlider;
     ToggleButton m_SweepFlagButton;
 };
@@ -361,6 +373,7 @@ protected:
     EndCapTypeGroup m_BasicGroup; // Round, Edge
     EndCapTypeGroup m_SharpGroup;
     EndCapTypeGroup m_PointGroup;
+    EndCapTypeGroup m_ConeGroup;
 };
 
 //==== Geom Screen ====//

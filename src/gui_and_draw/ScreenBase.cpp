@@ -3910,6 +3910,7 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
         case vsp::ROUND_END_CAP:
         case vsp::EDGE_END_CAP:
         case vsp::POINT_END_CAP:
+        case vsp::CONE_END_CAP:
         case vsp::ROUND_EXT_END_CAP_NONE:
         case vsp::ROUND_EXT_END_CAP_LE:
         case vsp::ROUND_EXT_END_CAP_TE:
@@ -3946,6 +3947,7 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
         case vsp::ROUND_END_CAP:
         case vsp::EDGE_END_CAP:
         case vsp::POINT_END_CAP:
+        case vsp::CONE_END_CAP:
         case vsp::ROUND_EXT_END_CAP_NONE:
         case vsp::ROUND_EXT_END_CAP_LE:
         case vsp::ROUND_EXT_END_CAP_TE:
@@ -4073,6 +4075,7 @@ EndCapTypeGroup::EndCapTypeGroup()
     m_HasExtra = false;
     m_ExtraRange = 1;
     m_ExtraFormat = "%6.5f";
+    m_Radius = NEVER;
 }
 
 void EndCapTypeGroup::SetExtra( const string& label, double range, const char* format )
@@ -4081,6 +4084,16 @@ void EndCapTypeGroup::SetExtra( const string& label, double range, const char* f
     m_ExtraLabel = label;
     m_ExtraRange = range;
     m_ExtraFormat = format;
+}
+
+// Whether a control used as use is used by a cap truncated or not.
+bool EndCapTypeGroup::Uses( int use, bool trunc )
+{
+    if ( use == ALWAYS )
+    {
+        return true;
+    }
+    return false;
 }
 
 int EndCapTypeGroup::NumToggles()
@@ -4096,6 +4109,10 @@ int EndCapTypeGroup::NumToggles()
 int EndCapTypeGroup::NumLines()
 {
     int nline = 2;
+    if ( m_Radius != NEVER )
+    {
+        nline++;
+    }
     if ( m_HasExtra )
     {
         nline++;
@@ -4115,6 +4132,11 @@ void EndCapTypeGroup::Build( GroupLayout& parent, int h, int button_w )
 
     m_Layout.AddSlider( m_LenSlider, "Length", 1, "%6.5f" );
     m_Layout.AddSlider( m_OffsetSlider, "Offset", 1, "%6.5f" );
+
+    if ( m_Radius != NEVER )
+    {
+        m_Layout.AddSlider( m_RadiusSlider, "Radius", 1, "%6.5f" );
+    }
 
     if ( m_HasExtra )
     {
@@ -4148,6 +4170,9 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
     string lendim_id = geom_ptr->m_CapUMinLengthDim.GetID();
     string off_id = geom_ptr->m_CapUMinOffset.GetID();
     string offdim_id = geom_ptr->m_CapUMinOffsetDim.GetID();
+    string rad_id = geom_ptr->m_CapUMinRadius.GetID();
+    string raddim_id = geom_ptr->m_CapUMinRadiusDim.GetID();
+    bool trunc = false;
     string sweep_id = geom_ptr->m_CapUMinSweepFlag.GetID();
 
     if ( umax )
@@ -4157,6 +4182,8 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
         lendim_id = geom_ptr->m_CapUMaxLengthDim.GetID();
         off_id = geom_ptr->m_CapUMaxOffset.GetID();
         offdim_id = geom_ptr->m_CapUMaxOffsetDim.GetID();
+        rad_id = geom_ptr->m_CapUMaxRadius.GetID();
+        raddim_id = geom_ptr->m_CapUMaxRadiusDim.GetID();
         sweep_id = geom_ptr->m_CapUMaxSweepFlag.GetID();
     }
 
@@ -4177,6 +4204,27 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
     {
         m_LenSlider.ActivateInput2();
         m_OffsetSlider.ActivateInput2();
+    }
+
+    if ( m_Radius != NEVER )
+    {
+        m_RadiusSlider.Update( slider, rad_id, raddim_id );
+        if ( Uses( m_Radius, trunc ) )
+        {
+            m_RadiusSlider.Activate();
+            if ( rel )
+            {
+                m_RadiusSlider.ActivateInput1();
+            }
+            else
+            {
+                m_RadiusSlider.ActivateInput2();
+            }
+        }
+        else
+        {
+            m_RadiusSlider.Deactivate();
+        }
     }
 
     if ( m_HasExtra )
@@ -4204,6 +4252,7 @@ vector< EndCapTypeGroup* > EndCapGUI::Groups()
     groups.push_back( &m_BasicGroup );
     groups.push_back( &m_SharpGroup );
     groups.push_back( &m_PointGroup );
+    groups.push_back( &m_ConeGroup );
     return groups;
 }
 
@@ -4215,6 +4264,7 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_TypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
     m_TypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
     m_TypeChoice.AddItem( "Point", vsp::POINT_END_CAP );
+    m_TypeChoice.AddItem( "Cone", vsp::CONE_END_CAP );
     layout.SetSameLineFlag( true );
     layout.AddChoice( m_TypeChoice, label.c_str(), 2 * layout.GetInputWidth() );
 
@@ -4235,6 +4285,7 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_BasicGroup.SetSweep( true );
     m_SharpGroup.SetSweep( true );
     m_SharpGroup.SetExtra( "Strength" );
+    m_ConeGroup.SetRadius( EndCapTypeGroup::ALWAYS );
 
     // The groups share the space of the one with the most lines.
     vector< EndCapTypeGroup* > groups = Groups();
@@ -4290,6 +4341,11 @@ void EndCapGUI::Update( Geom* geom_ptr, bool umax )
         case vsp::SHARP_END_CAP:
             DisplayGroup( &m_SharpGroup );
             m_SharpGroup.Update( geom_ptr, umax, str_id );
+            break;
+
+        case vsp::CONE_END_CAP:
+            DisplayGroup( &m_ConeGroup );
+            m_ConeGroup.Update( geom_ptr, umax );
             break;
 
         default: // None, Flat, or a kind these screens do not offer
