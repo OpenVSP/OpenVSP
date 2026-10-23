@@ -4067,6 +4067,255 @@ void AddXSecCurveTypeLine( GroupLayout & layout, int label_w, Choice & type_choi
 //=====================================================================//
 //=====================================================================//
 //=====================================================================//
+EndCapTypeGroup::EndCapTypeGroup()
+{
+    m_HasSweep = false;
+    m_HasExtra = false;
+    m_ExtraRange = 1;
+    m_ExtraFormat = "%6.5f";
+}
+
+void EndCapTypeGroup::SetExtra( const string& label, double range, const char* format )
+{
+    m_HasExtra = true;
+    m_ExtraLabel = label;
+    m_ExtraRange = range;
+    m_ExtraFormat = format;
+}
+
+int EndCapTypeGroup::NumToggles()
+{
+    int ntoggle = 0;
+    if ( m_HasSweep )
+    {
+        ntoggle++;
+    }
+    return ntoggle;
+}
+
+int EndCapTypeGroup::NumLines()
+{
+    int nline = 2;
+    if ( m_HasExtra )
+    {
+        nline++;
+    }
+    if ( NumToggles() > 0 )
+    {
+        nline++;
+    }
+    return nline;
+}
+
+// Length and offset, then the radius and the kind's own slider, then the toggles on a line.
+void EndCapTypeGroup::Build( GroupLayout& parent, int h, int button_w )
+{
+    parent.AddSubGroupLayout( m_Layout, parent.GetW(), h );
+    m_Layout.SetButtonWidth( button_w );
+
+    m_Layout.AddSlider( m_LenSlider, "Length", 1, "%6.5f" );
+    m_Layout.AddSlider( m_OffsetSlider, "Offset", 1, "%6.5f" );
+
+    if ( m_HasExtra )
+    {
+        m_Layout.AddSlider( m_ExtraSlider, m_ExtraLabel.c_str(), m_ExtraRange, m_ExtraFormat );
+    }
+
+    int ntoggle = NumToggles();
+    if ( ntoggle > 0 )
+    {
+        m_Layout.SetFitWidthFlag( false );
+        m_Layout.SetSameLineFlag( true );
+        m_Layout.SetButtonWidth( m_Layout.GetW() / ntoggle );
+
+        if ( m_HasSweep )
+        {
+            m_Layout.AddButton( m_SweepFlagButton, "Sweep Stretch" );
+        }
+        m_Layout.ForceNewLine();
+
+        m_Layout.SetFitWidthFlag( true );
+        m_Layout.SetSameLineFlag( false );
+    }
+    m_Layout.SetButtonWidth( button_w );
+}
+
+// extra_id is the Parm of the kind's own slider, if it has one.
+void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id )
+{
+    bool rel = geom_ptr->m_CapUMinRelFlag();
+    string len_id = geom_ptr->m_CapUMinLength.GetID();
+    string lendim_id = geom_ptr->m_CapUMinLengthDim.GetID();
+    string off_id = geom_ptr->m_CapUMinOffset.GetID();
+    string offdim_id = geom_ptr->m_CapUMinOffsetDim.GetID();
+    string sweep_id = geom_ptr->m_CapUMinSweepFlag.GetID();
+
+    if ( umax )
+    {
+        rel = geom_ptr->m_CapUMaxRelFlag();
+        len_id = geom_ptr->m_CapUMaxLength.GetID();
+        lendim_id = geom_ptr->m_CapUMaxLengthDim.GetID();
+        off_id = geom_ptr->m_CapUMaxOffset.GetID();
+        offdim_id = geom_ptr->m_CapUMaxOffsetDim.GetID();
+        sweep_id = geom_ptr->m_CapUMaxSweepFlag.GetID();
+    }
+
+    int slider = 2;
+    if ( rel )
+    {
+        slider = 1;
+    }
+
+    m_LenSlider.Update( slider, len_id, lendim_id );
+    m_OffsetSlider.Update( slider, off_id, offdim_id );
+    if ( rel )
+    {
+        m_LenSlider.ActivateInput1();
+        m_OffsetSlider.ActivateInput1();
+    }
+    else
+    {
+        m_LenSlider.ActivateInput2();
+        m_OffsetSlider.ActivateInput2();
+    }
+
+    if ( m_HasExtra )
+    {
+        m_ExtraSlider.Update( extra_id );
+    }
+
+    if ( m_HasSweep )
+    {
+        m_SweepFlagButton.Update( sweep_id );
+    }
+}
+
+//=====================================================================//
+//=====================================================================//
+//=====================================================================//
+EndCapGUI::EndCapGUI()
+{
+    m_CurrDisplayGroup = nullptr;
+}
+
+vector< EndCapTypeGroup* > EndCapGUI::Groups()
+{
+    vector< EndCapTypeGroup* > groups;
+    groups.push_back( &m_BasicGroup );
+    groups.push_back( &m_SharpGroup );
+    return groups;
+}
+
+void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& label )
+{
+    m_TypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_TypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_TypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_TypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_TypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
+    layout.SetSameLineFlag( true );
+    layout.AddChoice( m_TypeChoice, label.c_str(), 2 * layout.GetInputWidth() );
+
+    layout.SetFitWidthFlag( false );
+    layout.SetButtonWidth( layout.GetInputWidth() );
+    layout.AddButton( m_RelToggle, "Rel" );
+    layout.AddButton( m_AbsToggle, "Abs" );
+    layout.ForceNewLine();
+
+    m_DimToggleGroup.Init( screen );
+    m_DimToggleGroup.AddButton( m_AbsToggle.GetFlButton() ); // 0 false added first
+    m_DimToggleGroup.AddButton( m_RelToggle.GetFlButton() ); // 1 true added second
+
+    layout.SetFitWidthFlag( true );
+    layout.SetSameLineFlag( false );
+    layout.SetButtonWidth( layout.GetChoiceButtonWidth() );
+
+    m_BasicGroup.SetSweep( true );
+    m_SharpGroup.SetSweep( true );
+    m_SharpGroup.SetExtra( "Strength" );
+
+    // The groups share the space of the one with the most lines.
+    vector< EndCapTypeGroup* > groups = Groups();
+    int nline = 0;
+    for ( int i = 0; i < ( int )groups.size(); i++ )
+    {
+        nline = std::max( nline, groups[i]->NumLines() );
+    }
+    int h = nline * layout.GetStdHeight();
+    int bw = layout.GetButtonWidth();
+
+    for ( int i = 0; i < ( int )groups.size(); i++ )
+    {
+        groups[i]->Build( layout, h, bw );
+        groups[i]->m_Layout.Hide();
+    }
+
+    layout.AddY( h );
+}
+
+void EndCapGUI::Update( Geom* geom_ptr, bool umax )
+{
+    int type = geom_ptr->m_CapUMinOption();
+    string type_id = geom_ptr->m_CapUMinOption.GetID();
+    string rel_id = geom_ptr->m_CapUMinRelFlag.GetID();
+    string str_id = geom_ptr->m_CapUMinStrength.GetID();
+
+    if ( umax )
+    {
+        type = geom_ptr->m_CapUMaxOption();
+        type_id = geom_ptr->m_CapUMaxOption.GetID();
+        rel_id = geom_ptr->m_CapUMaxRelFlag.GetID();
+        str_id = geom_ptr->m_CapUMaxStrength.GetID();
+    }
+
+    m_TypeChoice.Update( type_id );
+    m_DimToggleGroup.Update( rel_id );
+    m_DimToggleGroup.Activate();
+
+    switch ( type )
+    {
+        case vsp::ROUND_END_CAP:
+        case vsp::EDGE_END_CAP:
+            DisplayGroup( &m_BasicGroup );
+            m_BasicGroup.Update( geom_ptr, umax );
+            break;
+
+        case vsp::SHARP_END_CAP:
+            DisplayGroup( &m_SharpGroup );
+            m_SharpGroup.Update( geom_ptr, umax, str_id );
+            break;
+
+        default: // None, Flat, or a kind these screens do not offer
+            DisplayGroup( nullptr );
+            m_DimToggleGroup.Deactivate();
+            break;
+    }
+}
+
+void EndCapGUI::DisplayGroup( EndCapTypeGroup* group )
+{
+    if ( m_CurrDisplayGroup == group )
+    {
+        return;
+    }
+
+    vector< EndCapTypeGroup* > groups = Groups();
+    for ( int i = 0; i < ( int )groups.size(); i++ )
+    {
+        groups[i]->m_Layout.Hide();
+    }
+
+    m_CurrDisplayGroup = group;
+
+    if ( group )
+    {
+        group->m_Layout.Show();
+    }
+}
+
+//=====================================================================//
+//=====================================================================//
+//=====================================================================//
 XSecScreen::XSecScreen( ScreenMgr* mgr, int w, int h, const string & title, const string & helpfile, const string & xsnamelabel, const string & xscnamelabel, bool add_xs_btn ) :
     GeomScreen( mgr, w, h, title, helpfile )
 {

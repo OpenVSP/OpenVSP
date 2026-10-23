@@ -38,17 +38,8 @@ protected:
 
     Choice m_DesignPolicyChoice;
 
-    Choice m_NoseCapTypeChoice;
-    SliderAdjRangeInput m_NoseCapLenSlider;
-    SliderAdjRangeInput m_NoseCapOffsetSlider;
-    SliderAdjRangeInput m_NoseCapStrengthSlider;
-    ToggleButton m_NoseCapSweepFlagButton;
-
-    Choice m_TailCapTypeChoice;
-    SliderAdjRangeInput m_TailCapLenSlider;
-    SliderAdjRangeInput m_TailCapOffsetSlider;
-    SliderAdjRangeInput m_TailCapStrengthSlider;
-    ToggleButton m_TailCapSweepFlagButton;
+    EndCapGUI m_NoseCapGUI;
+    EndCapGUI m_TailCapGUI;
 
     SliderAdjRangeInput m_CapTessSlider;
 

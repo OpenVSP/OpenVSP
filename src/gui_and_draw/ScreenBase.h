@@ -300,6 +300,68 @@ public:
     AttributeEditor m_AttributeEditor;
 };
 
+//==== End Cap Type Group ====//
+// The controls one kind of end cap uses.  A control the kind does not use is never built.
+class EndCapTypeGroup
+{
+public:
+    EndCapTypeGroup();
+
+    // What the kind uses besides length and offset, set before Build.
+    void SetSweep( bool sweep )                       { m_HasSweep = sweep; }
+    void SetExtra( const string& label, double range = 1, const char* format = "%6.5f" );
+
+    // The number of lines the group takes.
+    int NumLines();
+
+    void Build( GroupLayout& parent, int h, int button_w );
+    void Update( Geom* geom_ptr, bool umax, const string& extra_id = string() );
+
+    GroupLayout m_Layout;
+
+protected:
+    int NumToggles();
+
+    bool m_HasSweep;
+    bool m_HasExtra;
+    string m_ExtraLabel;
+    double m_ExtraRange;
+    const char* m_ExtraFormat;
+
+    SliderAdjRange2Input m_LenSlider;
+    SliderAdjRange2Input m_OffsetSlider;
+    SliderAdjRangeInput m_ExtraSlider;
+    ToggleButton m_SweepFlagButton;
+};
+
+//==== End Cap GUI ====//
+// The type and Rel/Abs choice for the cap at one end, over a group per kind of cap.  Only the chosen
+// kind's group shows, so the space taken is that of the kind with the most controls.
+class EndCapGUI
+{
+public:
+    EndCapGUI();
+
+    void Build( GroupLayout& layout, VspScreen* screen, const string& label );
+    void Update( Geom* geom_ptr, bool umax );
+
+protected:
+    void DisplayGroup( EndCapTypeGroup* group );
+
+    // Every kind's group.
+    vector< EndCapTypeGroup* > Groups();
+
+    EndCapTypeGroup* m_CurrDisplayGroup;
+
+    Choice m_TypeChoice;
+    ToggleButton m_RelToggle;
+    ToggleButton m_AbsToggle;
+    ToggleRadioGroup m_DimToggleGroup;
+
+    EndCapTypeGroup m_BasicGroup; // Round, Edge
+    EndCapTypeGroup m_SharpGroup;
+};
+
 //==== Geom Screen ====//
 class GeomScreen : public TabScreen
 {

@@ -40,35 +40,19 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 510, 800,
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Tip Treatment" );
 
-    m_NoseCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
-    m_NoseCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
-    m_NoseCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
-    m_NoseCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
-    m_NoseCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
-    m_DesignLayout.AddChoice(m_NoseCapTypeChoice, "Nose Cap Type");
+    int cap_button_w = m_DesignLayout.GetButtonWidth();
 
-    m_DesignLayout.AddSlider( m_NoseCapLenSlider, "Length", 1, "%6.5f" );
-    m_DesignLayout.AddSlider( m_NoseCapOffsetSlider, "Offset", 1, "%6.5f" );
-    m_DesignLayout.AddSlider( m_NoseCapStrengthSlider, "Strength", 1, "%6.5f" );
-    m_DesignLayout.AddButton( m_NoseCapSweepFlagButton, "Sweep Stretch" );
+    m_NoseCapGUI.Build( m_DesignLayout, this, "Nose Cap Type" );
 
     m_DesignLayout.AddYGap();
 
-    m_TailCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
-    m_TailCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
-    m_TailCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
-    m_TailCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
-    m_TailCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
-    m_DesignLayout.AddChoice(m_TailCapTypeChoice, "Tail Cap Type");
-
-    m_DesignLayout.AddSlider( m_TailCapLenSlider, "Length", 1, "%6.5f" );
-    m_DesignLayout.AddSlider( m_TailCapOffsetSlider, "Offset", 1, "%6.5f" );
-    m_DesignLayout.AddSlider( m_TailCapStrengthSlider, "Strength", 1, "%6.5f" );
-    m_DesignLayout.AddButton( m_TailCapSweepFlagButton, "Sweep Stretch" );
+    m_TailCapGUI.Build( m_DesignLayout, this, "Tail Cap Type" );
 
     m_DesignLayout.AddYGap();
 
     m_DesignLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
+
+    m_DesignLayout.SetButtonWidth( cap_button_w );
 
     BuildEngineGUI( m_DesignLayout );
 
@@ -154,24 +138,10 @@ bool FuselageScreen::Update()
     m_DesignPolicyChoice.Update( fuselage_ptr->m_OrderPolicy.GetID() );
 
 
-    m_NoseCapTypeChoice.Update( fuselage_ptr->m_CapUMinOption.GetID() );
-    m_TailCapTypeChoice.Update( fuselage_ptr->m_CapUMaxOption.GetID() );
-
     m_CapTessSlider.Update( fuselage_ptr->m_CapUMinTess.GetID() );
 
-    m_NoseCapLenSlider.Update( fuselage_ptr->m_CapUMinLength.GetID() );
-    m_NoseCapOffsetSlider.Update( fuselage_ptr->m_CapUMinOffset.GetID() );
-    m_NoseCapStrengthSlider.Update( fuselage_ptr->m_CapUMinStrength.GetID() );
-    m_NoseCapSweepFlagButton.Update( fuselage_ptr->m_CapUMinSweepFlag.GetID() );
-
-    UpdateCapControls( fuselage_ptr->m_CapUMinOption(), m_NoseCapLenSlider, m_NoseCapOffsetSlider, m_NoseCapStrengthSlider, m_NoseCapSweepFlagButton );
-
-    m_TailCapLenSlider.Update( fuselage_ptr->m_CapUMaxLength.GetID() );
-    m_TailCapOffsetSlider.Update( fuselage_ptr->m_CapUMaxOffset.GetID() );
-    m_TailCapStrengthSlider.Update( fuselage_ptr->m_CapUMaxStrength.GetID() );
-    m_TailCapSweepFlagButton.Update( fuselage_ptr->m_CapUMaxSweepFlag.GetID() );
-
-    UpdateCapControls( fuselage_ptr->m_CapUMaxOption(), m_TailCapLenSlider, m_TailCapOffsetSlider, m_TailCapStrengthSlider, m_TailCapSweepFlagButton );
+    m_NoseCapGUI.Update( fuselage_ptr, false );
+    m_TailCapGUI.Update( fuselage_ptr, true );
 
 
     //==== Skin & XSec Index Display ===//
