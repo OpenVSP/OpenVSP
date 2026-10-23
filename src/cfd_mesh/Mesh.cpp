@@ -3037,7 +3037,15 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 #ifdef DEBUG_CFD_MESH
             printf( "  Triangulation failed for surface %d %s %s, randomizing point order for %d time and trying again\n", namecnt, m_Surf->GetName().c_str(), m_Surf->GetGeomID().c_str(), n );
 #endif
-            RandomizePointOrder( uw_prime, segs_indexes, CFD_MESH_SEED_BASE + n );
+            vector< int > perm = RandomizePointOrder( uw_prime, segs_indexes, CFD_MESH_SEED_BASE + n );
+
+            // The nodes are built from uw_points, so it takes the same order as uw_prime.
+            vector< vec2d > uw_shuffled( num_pnts );
+            for ( int k = 0; k < num_pnts; k++ )
+            {
+                uw_shuffled[k] = uw_points[ perm[k] ];
+            }
+            uw_points.swap( uw_shuffled );
 
             connlist.clear();
             points_out.clear();
