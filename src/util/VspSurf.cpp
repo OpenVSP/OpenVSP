@@ -3279,11 +3279,14 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
 
     if ( CapType >= vsp::ROUND_EXT_END_CAP_NONE )
     {
+        piecewise_curve_type edg, edgnext;
+        multicap_creator_type::get_edge_curves( m_Surface, (typename multicap_creator_type::edge_cap_identifier) whichCap, edg, edgnext );
+
         piecewise_curve_type b, e, d, dsq;
 
         cc.set_ext_conditions( extle, extte );
 
-        rtn_flag = cc.set_conditions( m_Surface, multicap_creator_type::FLAT, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, 0, str, p, swflag );
+        rtn_flag = cc.set_conditions( edg, edgnext, multicap_creator_type::FLAT, 1.0, len, 0, str, p, swflag );
         if ( rtn_flag )
         {
             rtn_flag = cc.create_curve( b );
@@ -3291,7 +3294,7 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
 
         if ( rtn_flag )
         {
-            rtn_flag = cc.set_conditions( m_Surface, multicap_creator_type::ROUND, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, 0, str, p, swflag );
+            rtn_flag = cc.set_conditions( edg, edgnext, multicap_creator_type::ROUND, 1.0, len, 0, str, p, swflag );
         }
         if ( rtn_flag )
         {
