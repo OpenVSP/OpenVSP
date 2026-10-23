@@ -806,8 +806,8 @@ void AuxiliaryGeom::UpdateSurf()
                         clear_fwd.SetMagicVParm( false );
                         clear_fwd.SetSurfCfdType( vsp::CFD_NEGATIVE );
 
-                        clear_fwd.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
-                        clear_fwd.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                        clear_fwd.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
+                        clear_fwd.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
 
 
                         double k = sqrt( 0.5 );
@@ -846,8 +846,8 @@ void AuxiliaryGeom::UpdateSurf()
                         clear_aft.FlipNormal();
                         clear_aft.SetSurfCfdType( vsp::CFD_NEGATIVE );
 
-                        clear_aft.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
-                        clear_aft.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                        clear_aft.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
+                        clear_aft.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
 
 
                         m_MainSurfVec.push_back( zone );

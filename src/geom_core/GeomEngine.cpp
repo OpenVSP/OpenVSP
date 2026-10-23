@@ -459,7 +459,7 @@ void GeomEngine::UpdateEngine()
                 surf.TrimU( outlipu, true );
 
                 // Cap Umax.
-                surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                surf.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
             }
             else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && inmode == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
             {
@@ -485,7 +485,7 @@ void GeomEngine::UpdateEngine()
                 }
 
                 // Cap Umax.
-                surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                surf.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
 
                 if ( outmode == ENGINE_MODE_TO_FACE_NEG || outmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
@@ -495,8 +495,8 @@ void GeomEngine::UpdateEngine()
                     }
                     surf2.TrimU( outfaceu, true );
                     surf2.TrimU( outlipu, false );
-                    surf2.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, ptoff, false );
-                    surf2.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                    surf2.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, ptoff, false );
+                    surf2.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
                     surf2.FlipNormal();
                     surf2.SetSurfCfdType( vsp::CFD_NEGATIVE );
                     usesurf2 = true;
@@ -512,7 +512,7 @@ void GeomEngine::UpdateEngine()
                 surf.TrimU( inlipu, false );
 
                 // Cap Umin.
-                surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                surf.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
             }
             else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && inmode == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
             {
@@ -538,7 +538,7 @@ void GeomEngine::UpdateEngine()
                 }
 
                 // Cap Umin.
-                surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                surf.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
 
                 if ( inmode == ENGINE_MODE_TO_FACE_NEG || inmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
@@ -548,8 +548,8 @@ void GeomEngine::UpdateEngine()
                     }
                     surf3.TrimU( inlipu, true );
                     surf3.TrimU( infaceu, false );
-                    surf3.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
-                    surf3.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, -ptoff, false);
+                    surf3.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
+                    surf3.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, -ptoff, false);
                     surf3.FlipNormal();
                     surf3.SetSurfCfdType( vsp::CFD_NEGATIVE );
                     usesurf3 = true;
@@ -567,8 +567,8 @@ void GeomEngine::UpdateEngine()
                 outlipu = roll_t( outlipu, uroll, umin, umax );
 
                 surf2.TrimU( outlipu, false );
-                surf2.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, ptoff, false );
-                surf2.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, -ptoff, false );
+                surf2.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, ptoff, false );
+                surf2.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, -ptoff, false );
                 surf2.FlipNormal();
                 surf2.SetSurfCfdType( vsp::CFD_NEGATIVE );
                 usesurf2 = true;
@@ -598,7 +598,7 @@ void GeomEngine::UpdateEngine()
                     surf.TrimU( outfaceu, true );
 
                     surf2.TrimU( outfaceu, false );
-                    surf2.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                    surf2.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
                     surf2.SetSurfCfdType( vsp::CFD_NEGATIVE );
                     usesurf2 = true;
                 }
@@ -607,11 +607,11 @@ void GeomEngine::UpdateEngine()
                 if ( outmode == ENGINE_MODE_TO_LIP ||
                      outmode == ENGINE_MODE_EXTEND )
                 {
-                    surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                    surf.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
                 }
                 else // ENGINE_MODE_TO_FACE_NEG
                 {
-                    surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, ptoff, false );
+                    surf.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, ptoff, false );
                 }
 
                 if ( inmode == ENGINE_MODE_EXTEND )
@@ -634,7 +634,7 @@ void GeomEngine::UpdateEngine()
                     surf.TrimU( infaceu, false );
 
                     surf3.TrimU( infaceu, true );
-                    surf3.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                    surf3.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
                     surf3.FlipNormal();
                     surf3.SetSurfCfdType( vsp::CFD_NEGATIVE );
                     usesurf3 = true;
@@ -644,11 +644,11 @@ void GeomEngine::UpdateEngine()
                 if ( inmode == ENGINE_MODE_TO_LIP ||
                      inmode == ENGINE_MODE_EXTEND )
                 {
-                    surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                    surf.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
                 }
                 else // ENGINE_MODE_TO_FACE_NEG
                 {
-                    surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, -ptoff, false );
+                    surf.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, -ptoff, false );
                 }
 
                 // The flowpath is the only surface here, so both negative modes make it negative.
@@ -667,7 +667,7 @@ void GeomEngine::UpdateEngine()
                     // Handle extension.
                     Extend( surf, outlipu, false );
 
-                    surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                    surf.CapUMax( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
                 }
 
                 if ( outmode == ENGINE_MODE_TO_FACE_NEG )
@@ -689,7 +689,7 @@ void GeomEngine::UpdateEngine()
                     // Handle extension.
                     Extend( surf, 0.0, true );
 
-                    surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
+                    surf.CapUMin( POINT_END_CAP, 0.0, 0.0, 0.0, zero, false );
                 }
 
                 if ( inmode == ENGINE_MODE_TO_FACE_NEG )

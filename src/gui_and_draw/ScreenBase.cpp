@@ -3909,6 +3909,7 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
     {
         case vsp::ROUND_END_CAP:
         case vsp::EDGE_END_CAP:
+        case vsp::POINT_END_CAP:
         case vsp::ROUND_EXT_END_CAP_NONE:
         case vsp::ROUND_EXT_END_CAP_LE:
         case vsp::ROUND_EXT_END_CAP_TE:
@@ -3923,8 +3924,7 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
 
         case vsp::NO_END_CAP:
         case vsp::FLAT_END_CAP:
-        case vsp::POINT_END_CAP: // None of these use any sliders
-        case vsp::NUM_END_CAP_OPTIONS:
+        case vsp::NUM_END_CAP_OPTIONS: // None of these use any sliders
         default: // Invalid or unknown -- shut all down for safety
             lengthSlider.Deactivate();
             offsetSlider.Deactivate();
@@ -3945,6 +3945,7 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
     {
         case vsp::ROUND_END_CAP:
         case vsp::EDGE_END_CAP:
+        case vsp::POINT_END_CAP:
         case vsp::ROUND_EXT_END_CAP_NONE:
         case vsp::ROUND_EXT_END_CAP_LE:
         case vsp::ROUND_EXT_END_CAP_TE:
@@ -3959,8 +3960,7 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
 
         case vsp::NO_END_CAP:
         case vsp::FLAT_END_CAP:
-        case vsp::POINT_END_CAP: // None of these use any sliders
-        case vsp::NUM_END_CAP_OPTIONS:
+        case vsp::NUM_END_CAP_OPTIONS: // None of these use any sliders
         default: // Invalid or unknown → shut all down for safety
             lengthSlider.Deactivate();
             offsetSlider.Deactivate();
