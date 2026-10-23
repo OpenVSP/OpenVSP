@@ -483,7 +483,7 @@ void WaveDragScreen::CallBack( Fl_Widget* w )
 
             string curr_ID = subsurf_vec[curr_index - 1]->GetID();
 
-            if ( flag )
+            if ( flag && !vector_contains_val( WaveDragMgr.m_SSFlow_vec, curr_ID ) )
             {
                 WaveDragMgr.m_SSFlow_vec.push_back( curr_ID );
             }
