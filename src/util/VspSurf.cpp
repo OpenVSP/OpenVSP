@@ -3412,6 +3412,78 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
     return true;
 }
 
+// Give cc the cap of type capType on the umax or umin end of surface s, of length len and offset offset.
+// The cap depends only on the end's row of control points and the row next to it.
+static bool EdgeCapConditions( const piecewise_surface_type &s, bool umax, int capType, double len, double str,
+                               double offset, bool swflag, multicap_creator_type &cc )
+{
+    if ( capType == vsp::NO_END_CAP )
+    {
+        return false;
+    }
+
+    bool extle, extte;
+    int captype = MultiCapType( capType, extle, extte );
+
+    typename multicap_creator_type::edge_cap_identifier whichCap = multicap_creator_type::CAP_UMIN;
+    if ( umax )
+    {
+        whichCap = multicap_creator_type::CAP_UMAX;
+    }
+
+    if ( s.number_u_patches() == 0 || s.number_v_patches() == 0 )
+    {
+        return false;
+    }
+
+    piecewise_curve_type edg, edgnext;
+    multicap_creator_type::get_edge_curves( s, whichCap, edg, edgnext );
+
+    surface_point_type p;
+    p << 0, 0, 0;
+
+    if ( captype == multicap_creator_type::ROUND_EXT )
+    {
+        double wlow, wup;
+        RoundExtConditions( edg, edgnext, s.get_vmax(), cc, extle, extte, len, str, p, swflag, wlow, wup );
+
+        edg.split( wup );
+        edg.split( wlow );
+        edgnext.split( wup );
+        edgnext.split( wlow );
+    }
+
+    return cc.set_conditions( edg, edgnext, captype, 1.0, len, offset, str, p, swflag );
+}
+
+// Greatest height of the tip of a cap across the end's forward direction per unit non-dimensional length,
+// and greatest distance it moves per unit non-dimensional offset, for a cap of non-dimensional length len.
+bool VspSurf::CapScales( bool umax, int capType, double len, double str, bool swflag, double &lenscale, double &offscale ) const
+{
+    lenscale = 0.0;
+    offscale = 0.0;
+
+    multicap_creator_type cc;
+
+    typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
+    onedpwc lensq, offsq;
+
+    if ( !EdgeCapConditions( m_Surface, umax, capType, len, str, 0.0, swflag, cc ) ||
+         !cc.create_scale_sq_curves( lensq, offsq ) )
+    {
+        return false;
+    }
+
+    // Negate to allow minimization instead of maximization.
+    lensq.scale( -1.0 );
+    offsq.scale( -1.0 );
+
+    double t;
+    lenscale = sqrt( std::max( 0.0, -1.0 * eli::geom::intersect::minimum_dimension( t, lensq, 0 ) ) );
+    offscale = sqrt( std::max( 0.0, -1.0 * eli::geom::intersect::minimum_dimension( t, offsq, 0 ) ) );
+    return true;
+}
+
 void VspSurf::RollU( const double &u )
 {
     m_Surface.split_u( u );
