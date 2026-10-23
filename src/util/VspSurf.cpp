@@ -3301,26 +3301,22 @@ static bool RoundExtConditions( const piecewise_curve_type &edg, const piecewise
         return false;
     }
 
+    // Height of the round cap across the forward direction.
     b.scale( -1.0 );
     d.sum( b, e );
+    cc.remove_forward_component( d );
     dsq.square( d );
 
     typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
     typedef onedpwc::point_type onedpt;
-    onedpwc sumsq;
+    onedpwc objfun;
 
-    sumsq = dsq.sumcompcurve();
+    objfun = dsq.sumcompcurve();
 
     // Negate to allow minimization instead of maximization.
-    sumsq.scale( -1.0 );
+    objfun.scale( -1.0 );
 
-    onedpwc sweepcurve;
-    cc.create_sweepfactor_sq_curve( sweepcurve );
     cc.dirty_prep(); // Needed because the caller splits the edge and needs it re-loaded later.
-
-
-    onedpwc objfun;
-    objfun.product( sumsq, sweepcurve );
 
     double utmax;
     double hmax = sqrt( -1.0 * eli::geom::intersect::minimum_dimension( utmax, objfun, 0 ) );
