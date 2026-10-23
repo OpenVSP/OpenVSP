@@ -110,7 +110,9 @@ public:
     virtual void TransferFeaData();
     virtual void TransferPropMatData();
     virtual void TransferSubSurfData() override;
-    virtual bool CheckPropMat();
+    virtual vector < string > GetSimplePropertyIDVec();
+    virtual bool CheckPropMat( vector < SimpleSubSurface > &ssvec, FeaMesh* mesh );
+    virtual bool IndexAndCheckPropMat( FeaMesh* mesh );
     virtual void TransferBCData();
     virtual void MergeCoplanarParts();
     virtual void AddStructureSurfParts();

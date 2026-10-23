@@ -8,6 +8,7 @@
 #include "FeaMeshMgr.h"
 #include "FileUtil.h"
 #include "StringUtil.h"
+#include "StlHelper.h"
 
 // Although this appears to be an angle comparison (via the dot product), it is actually the signed distance
 // between the point and the plane.  Hence, a comparison to the mesh minimum length as a tolerance is appropriate.
@@ -901,6 +902,20 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
     m_BCNodeDO.m_Visible = st_settings->m_DrawBCNodesFlag;
     draw_obj_vec.push_back( &m_BCNodeDO );
 
+}
+
+void FeaMesh::IndexFeaProperties( const vector < string > & prop_id_vec )
+{
+    for ( size_t i = 0; i < m_FeaPartPropertyIndexVec.size(); i++ )
+    {
+        m_FeaPartPropertyIndexVec[i] = vector_find_val( prop_id_vec, m_FeaPartPropertyIDVec[i] );
+        m_FeaPartCapPropertyIndexVec[i] = vector_find_val( prop_id_vec, m_FeaPartCapPropertyIDVec[i] );
+    }
+
+    for ( size_t i = 0; i < m_SimpleSubSurfaceVec.size(); i++ )
+    {
+        m_SimpleSubSurfaceVec[i].IndexFeaProperties( prop_id_vec );
+    }
 }
 
 void FeaMesh::ExportFeaMesh()

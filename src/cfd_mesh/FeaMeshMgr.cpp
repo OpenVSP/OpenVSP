@@ -421,7 +421,7 @@ void FeaMeshMgrSingleton::TransferBCData()
     }
 }
 
-bool FeaMeshMgrSingleton::CheckPropMat()
+bool FeaMeshMgrSingleton::CheckPropMat( vector < SimpleSubSurface > &ssvec, FeaMesh* mesh )
 {
     bool pass = true;
 
@@ -437,50 +437,50 @@ bool FeaMeshMgrSingleton::CheckPropMat()
         }
     }
 
-    for ( size_t i = 0; i < m_SimpleSubSurfaceVec.size(); i++ )
+    for ( size_t i = 0; i < ssvec.size(); i++ )
     {
-        if ( m_SimpleSubSurfaceVec[ i ].m_KeepDelShellElements == vsp::FEA_KEEP )
+        if ( ssvec[ i ].m_KeepDelShellElements == vsp::FEA_KEEP )
         {
-            if ( m_SimpleSubSurfaceVec[ i ].GetFeaPropertyIndex() == -1 )
+            if ( ssvec[ i ].GetFeaPropertyIndex() == -1 )
             {
-                snprintf( buf, sizeof( buf ), "Could not find subsurface shell property '%s'\n", m_SimpleSubSurfaceVec[ i ].GetFeaPropertyID().c_str() );
+                snprintf( buf, sizeof( buf ), "Could not find subsurface shell property '%s'\n", ssvec[ i ].GetFeaPropertyID().c_str() );
                 addOutputText( string( buf ) );
                 pass = false;
             }
         }
-        if ( m_SimpleSubSurfaceVec[ i ].m_CreateBeamElements )
+        if ( ssvec[ i ].m_CreateBeamElements )
         {
-            if ( m_SimpleSubSurfaceVec[ i ].GetCapFeaPropertyIndex() == -1 )
+            if ( ssvec[ i ].GetCapFeaPropertyIndex() == -1 )
             {
-                snprintf( buf, sizeof( buf ), "Could not find subsurface cap property '%s'\n", m_SimpleSubSurfaceVec[ i ].GetCapFeaPropertyID().c_str() );
+                snprintf( buf, sizeof( buf ), "Could not find subsurface cap property '%s'\n", ssvec[ i ].GetCapFeaPropertyID().c_str() );
                 addOutputText( string( buf ) );
                 pass = false;
             }
         }
     }
 
-    if ( GetMeshPtr() )
+    if ( mesh )
     {
-        for ( size_t i = 0; i < GetMeshPtr()->m_FeaPartPropertyIndexVec.size(); i++ )
+        for ( size_t i = 0; i < mesh->m_FeaPartPropertyIndexVec.size(); i++ )
         {
-            if ( GetMeshPtr()->m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
+            if ( mesh->m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
             {
-                if ( GetMeshPtr()->m_FeaPartPropertyIndexVec[ i ] == -1 )
+                if ( mesh->m_FeaPartPropertyIndexVec[ i ] == -1 )
                 {
-                    snprintf( buf, sizeof( buf ), "Could not find part shell property '%s'\n", GetMeshPtr()->m_FeaPartPropertyIDVec[ i ].c_str() );
+                    snprintf( buf, sizeof( buf ), "Could not find part shell property '%s'\n", mesh->m_FeaPartPropertyIDVec[ i ].c_str() );
                     addOutputText( string( buf ) );
                     pass = false;
                 }
             }
         }
 
-        for ( size_t i = 0; i < GetMeshPtr()->m_FeaPartCapPropertyIndexVec.size(); i++ )
+        for ( size_t i = 0; i < mesh->m_FeaPartCapPropertyIndexVec.size(); i++ )
         {
-            if ( GetMeshPtr()->m_FeaPartCreateBeamElementsVec[i] )
+            if ( mesh->m_FeaPartCreateBeamElementsVec[i] )
             {
-                if ( GetMeshPtr()->m_FeaPartCapPropertyIndexVec[ i ] == -1 )
+                if ( mesh->m_FeaPartCapPropertyIndexVec[ i ] == -1 )
                 {
-                    snprintf( buf, sizeof( buf ), "Could not find part cap property '%s'\n", GetMeshPtr()->m_FeaPartCapPropertyIDVec[ i ].c_str() );
+                    snprintf( buf, sizeof( buf ), "Could not find part cap property '%s'\n", mesh->m_FeaPartCapPropertyIDVec[ i ].c_str() );
                     addOutputText( string( buf ) );
                     pass = false;
                 }
@@ -489,6 +489,29 @@ bool FeaMeshMgrSingleton::CheckPropMat()
     }
 
     return pass;
+}
+
+vector < string > FeaMeshMgrSingleton::GetSimplePropertyIDVec()
+{
+    vector < string > prop_id_vec( m_SimplePropertyVec.size() );
+    for ( int i = 0; i < m_SimplePropertyVec.size(); i++ )
+    {
+        prop_id_vec[i] = m_SimplePropertyVec[i].m_ID;
+    }
+    return prop_id_vec;
+}
+
+// A mesh written after properties or materials change is written with them as they now are.
+bool FeaMeshMgrSingleton::IndexAndCheckPropMat( FeaMesh* mesh )
+{
+    mesh->IndexFeaProperties( GetSimplePropertyIDVec() );
+
+    if ( !CheckPropMat( mesh->m_SimpleSubSurfaceVec, mesh ) )
+    {
+        addOutputText( "Material or property not identified.  No mesh files written.\n" );
+        return false;
+    }
+    return true;
 }
 
 void FeaMeshMgrSingleton::GenerateFeaMesh()
@@ -536,7 +559,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Transfer Subsurf Data\n" );
     TransferSubSurfData();
 
-    if ( !CheckPropMat() )
+    if ( !CheckPropMat( m_SimpleSubSurfaceVec, GetMeshPtr() ) )
     {
         addOutputText( "Material or property not identified.\n" );
         RecordResults();
@@ -762,6 +785,11 @@ void FeaMeshMgrSingleton::ExportFeaMesh( const string &structID )
         mesh->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr() );
 
         TransferPropMatData();
+
+        if ( !IndexAndCheckPropMat( mesh ) )
+        {
+            return;
+        }
 
         mesh->ExportFeaMesh();
     }
@@ -3264,6 +3292,15 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
 
     // Transfer common property and material data to FeaMeshMgr.
     TransferPropMatData();
+
+    for ( int i = 0; i < idvec.size(); i++ )
+    {
+        FeaMesh* mesh = GetMeshPtr( idvec[i] );
+        if ( mesh && !IndexAndCheckPropMat( mesh ) )
+        {
+            return;
+        }
+    }
 
     // Compute and store offsets.
     int noffset = 0;

@@ -47,9 +47,8 @@ void SimpleSubSurface::CopyFrom( SubSurface *ss, const vector < string > & prop_
         m_CreateBeamElements = ss->m_CreateBeamElements.Get();
         m_KeepDelShellElements = ss->m_KeepDelShellElements.Get();
         m_FeaPropertyID = ss->m_FeaPropertyID;
-        m_FeaPropertyIndex = vector_find_val( prop_id_vec, ss->m_FeaPropertyID );
         m_CapFeaPropertyID = ss->m_CapFeaPropertyID;
-        m_CapFeaPropertyIndex = vector_find_val( prop_id_vec, ss->m_CapFeaPropertyID );
+        IndexFeaProperties( prop_id_vec );
         m_FeaOrientationType = ss->m_FeaOrientationType();
         m_FeaOrientationVec = ss->m_FeaOrientationVec;
 
@@ -63,6 +62,12 @@ void SimpleSubSurface::CopyFrom( SubSurface *ss, const vector < string > & prop_
         m_PolyPntsReadyFlag = true;
         m_PolyFlag = ss->GetPolyFlag();
     }
+}
+
+void SimpleSubSurface::IndexFeaProperties( const vector < string > & prop_id_vec )
+{
+    m_FeaPropertyIndex = vector_find_val( prop_id_vec, m_FeaPropertyID );
+    m_CapFeaPropertyIndex = vector_find_val( prop_id_vec, m_CapFeaPropertyID );
 }
 
 void SimpleSubSurface::SetAsFiniteLine( const string &compid, int mainsurfindx,

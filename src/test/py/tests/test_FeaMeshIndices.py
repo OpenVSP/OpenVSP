@@ -172,3 +172,94 @@ def testSubsurfacesKeepTheirElementsWhenCoplanarPartsMerge( tmp_path ):
 
     assert one[0] > 0 and one[1] > 0, "a subsurface got no elements beside one slice: %s" % ( one, )
     assert two == one, "subsurface elements (SSA, SSB) were %s beside one slice, %s beside two merged" % ( one, two )
+
+
+def _export( calculix, nastran ):
+    """Write the current structure's mesh without meshing it again."""
+    vsp.SetAnalysisInputDefaults( "FeaMeshExport" )
+    for name in vsp.GetAnalysisInputNames( "FeaMeshExport" ):
+        if name.endswith( "FileFlag" ):
+            vsp.SetIntAnalysisInput( "FeaMeshExport", name, [ 0 ] )
+    for prefix, path in ( ( "CALCULIX", calculix ), ( "NASTRAN", nastran ) ):
+        vsp.SetIntAnalysisInput( "FeaMeshExport", prefix + "FileFlag", [ 1 ] )
+        vsp.SetStringAnalysisInput( "FeaMeshExport", prefix + "FileName", [ str( path ) ] )
+    vsp.ExecAnalysis( "FeaMeshExport" )
+
+
+def _skin_with_property():
+    """A pod whose skin takes a user property of a user material, with two more properties
+    made on either side of it, meshed."""
+    pod, ind, sid = _pod_structure()
+    mat = vsp.AddFeaMaterial()
+    props = []
+    for name in ( "PropBefore", "PropSkin", "PropAfter" ):
+        prop = vsp.AddFeaProperty()
+        vsp.SetContainerName( prop, name )
+        vsp.SetParmVal( vsp.FindParm( prop, "Thickness", "FeaProperty" ), 0.01 )
+        vsp.SetFeaPropertyMaterialID( prop, mat )
+        props.append( prop )
+    vsp.SetFeaPartPropertyID( vsp.GetFeaPartID( sid, 0 ), props[1] )
+    vsp.Update()
+    vsp.SetAnalysisInputDefaults( "FeaMeshAnalysis" )
+    vsp.ExecAnalysis( "FeaMeshAnalysis" )
+    return mat, props
+
+
+def testExportAfterDeletingAPropertyKeepsThePartsProperty( tmp_path ):
+    """Exporting a mesh after deleting a property the mesh does not use writes each part with the
+    property it was meshed with."""
+    script = """
+import sys
+sys.path.insert( 0, %r )
+from test_FeaMeshIndices import _skin_with_property, _export
+mat, props = _skin_with_property()
+vsp.DeleteFeaProperty( props[0] )
+_export( "s.dat", "s.nas" )
+print( "DONE", flush = True )
+""" % os.path.dirname( os.path.abspath( __file__ ) )
+    code, lines = _run( script, tmp_path )
+    assert code == 0 and "DONE" in lines, "exporting after deleting a property failed (exit %d)" % code
+    bdf = open( str( tmp_path / "s.nas.bdf" ) ).read()
+    used = re.findall( r"^\$ (\S+) using", bdf, re.M )
+    assert "PropSkin" in used and "PropAfter" not in used, \
+           "the skin was meshed with PropSkin, but the deck's properties are %s" % ( used, )
+
+
+def testExportAfterDeletingAMaterialInUseWritesNothing( tmp_path ):
+    """Exporting a mesh after deleting the material its property is made of has no material to
+    write, so it writes no file, as meshing would refuse."""
+    script = """
+import sys
+sys.path.insert( 0, %r )
+from test_FeaMeshIndices import _skin_with_property, _export
+mat, props = _skin_with_property()
+vsp.DeleteFeaMaterial( mat )
+_export( "s.dat", "s.nas" )
+print( "DONE", flush = True )
+""" % os.path.dirname( os.path.abspath( __file__ ) )
+    code, lines = _run( script, tmp_path )
+    assert code == 0 and "DONE" in lines, "exporting after deleting a material failed (exit %d)" % code
+    assert not os.path.exists( str( tmp_path / "s.dat" ) ), "a CalculiX file was written with its material deleted"
+    assert not os.path.exists( str( tmp_path / "s.nas" ) ), "a NASTRAN file was written with its material deleted"
+
+
+def testAssemblyExportAfterDeletingAMaterialInUseWritesNothing( tmp_path ):
+    """An assembly is written from its structures' meshes as they stand, so the same holds for
+    it: with a structure's material deleted, no mesh file is written."""
+    script = """
+import sys
+sys.path.insert( 0, %r )
+from test_FeaMeshIndices import _skin_with_property
+mat, props = _skin_with_property()
+assy = vsp.AddFeaAssembly()
+vsp.AddFeaAssemblyStructure( assy, vsp.GetFeaMeshStructID() )
+vsp.SetFeaAssemblyFileName( assy, vsp.FEA_CALCULIX_FILE_NAME, "a.dat" )
+vsp.SetFeaAssemblyFileName( assy, vsp.FEA_NASTRAN_FILE_NAME, "a.nas" )
+vsp.DeleteFeaMaterial( mat )
+vsp.ComputeFeaAssemblyMesh( assy )
+print( "DONE", flush = True )
+""" % os.path.dirname( os.path.abspath( __file__ ) )
+    code, lines = _run( script, tmp_path )
+    assert code == 0 and "DONE" in lines, "exporting an assembly after deleting a material failed (exit %d)" % code
+    assert not os.path.exists( str( tmp_path / "a.dat" ) ), "a CalculiX file was written with its material deleted"
+    assert not os.path.exists( str( tmp_path / "a.nas" ) ), "a NASTRAN file was written with its material deleted"

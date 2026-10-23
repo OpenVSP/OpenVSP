@@ -23,6 +23,9 @@ public:
 
     void CopyFrom( SubSurface *ss, const vector < string > & );
 
+    // Look the shell and cap property IDs up in a list of property IDs.
+    void IndexFeaProperties( const vector < string > & prop_id_vec );
+
     // Build a one segment finite line straight into this, from end points already in the Geom
     // surface's parameters.  Unlike CopyFrom it does not go through the 0-1 form a user's
     // subsurface is written in, so nothing has to invert the u map.  Tags nothing and builds

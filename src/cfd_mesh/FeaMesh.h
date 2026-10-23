@@ -94,6 +94,9 @@ public:
 
     virtual void SetDrawCapFlag( int index, bool flag );
 
+    // Look the parts' and subsurfaces' property IDs up in a list of property IDs.
+    virtual void IndexFeaProperties( const vector < string > & prop_id_vec );
+
     virtual void ExportFeaMesh();
 
     virtual void WriteCalculix();
