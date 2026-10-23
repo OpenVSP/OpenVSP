@@ -64,3 +64,34 @@ def testASpiderOnAPartWithNoNodesHasNoLegs( tmp_path ):
 
     ids = [ int( l.split( "," )[1] ) for l in lines if l.startswith( "GRID" ) ]
     assert len( ids ) == len( set( ids ) ), "the deck defines a GRID more than once"
+
+
+def testAPointMassOnAStructureWithNoMesh( tmp_path ):
+    """A fixed point carrying a mass, on a structure whose only part is a removed skin, leaves
+    the mesh with no nodes to find the point among.  The mass goes on the fixed point's own
+    gridpoint."""
+    script = """
+vsp.VSPRenew()
+pod = vsp.AddGeom( "POD" )
+ind = vsp.AddFeaStruct( pod )
+sid = vsp.GetFeaStructID( pod, ind )
+vsp.SetFeaMeshVal( pod, ind, vsp.CFD_MAX_EDGE_LEN, 1.0 )
+vsp.SetFeaMeshVal( pod, ind, vsp.CFD_MIN_EDGE_LEN, 0.2 )
+skin = vsp.GetFeaPartID( sid, 0 )
+vsp.SetParmVal( vsp.FindParm( skin, "RemoveSkinTrisFlag", "FeaSkin" ), 1 )
+fp = vsp.AddFeaPart( pod, ind, vsp.FEA_FIX_POINT )
+vsp.SetFeaFixPointParentID( fp, skin )
+vsp.SetParmVal( vsp.FindParm( fp, "FixPointMassFlag", "FeaFixPoint" ), 1 )
+vsp.SetParmVal( vsp.FindParm( fp, "FixPointMass_FEM", "FeaFixPoint" ), 5.0 )
+vsp.Update()
+vsp.SetFeaMeshFileName( pod, ind, vsp.FEA_NASTRAN_FILE_NAME, "s.nas" )
+vsp.ComputeFeaMesh( sid, vsp.FEA_NASTRAN_FILE_NAME )
+print( "DONE", flush = True )
+"""
+    code, lines = _run( script, tmp_path )
+    assert code == 0 and "DONE" in lines, "meshing a point mass with no mesh failed (exit %d)" % code
+
+    bdf = open( str( tmp_path / "s.nas.bdf" ) ).read().split( "\n" )
+    masses = [ l for l in bdf if l.startswith( "CONM2" ) ]
+    assert len( masses ) == 1, "expected one point mass, got:\n" + "\n".join( masses )
+    assert int( masses[0].split( "," )[2] ) == 1, "the mass is not on the fixed point's gridpoint: " + masses[0]

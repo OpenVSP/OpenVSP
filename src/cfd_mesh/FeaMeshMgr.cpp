@@ -2884,8 +2884,15 @@ void FeaMeshMgrSingleton::TagFeaNodes()
             // Create mass element if mass flag is true
             if ( fxpt.m_PtMassFlag )
             {
+                // The mass sits on the fixed point's gridpoint, which is written at m_Pnt.
+                vec3d mass_pnt = fxpt.m_Pnt[ k ];
+                if ( ind >= 0 )
+                {
+                    mass_pnt = GetMeshPtr()->m_FeaNodeVec[ ind ]->m_Pnt;
+                }
+
                 FeaPointMass *mass = new FeaPointMass;
-                mass->Create( GetMeshPtr()->m_FeaNodeVec[ ind ]->m_Pnt, fxpt.m_PtMass );
+                mass->Create( mass_pnt, fxpt.m_PtMass );
                 mass->SetFeaPartIndex( fxpt.m_FeaPartIndex );
 
                 mass->m_Corners[ 0 ]->m_Index = ifixpt + 1;
