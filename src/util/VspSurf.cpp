@@ -3299,7 +3299,8 @@ void VspSurf::RollU( const double &u )
 
     vector < double > pmap;
     m_Surface.get_pmap_u( pmap );
-    int iu = vector_find_val( pmap, u );
+    // Within tolerance of a joint, the split makes none; the roll is to the nearest joint.
+    int iu = vector_find_nearest( pmap, u );
 
     m_Surface.roll_u( iu );
 
@@ -3312,7 +3313,8 @@ void VspSurf::RollW( const double &w )
 
     vector < double > pmap;
     m_Surface.get_pmap_v( pmap );
-    int iw = vector_find_val( pmap, w );
+    // Within tolerance of a joint, the split makes none; the roll is to the nearest joint.
+    int iw = vector_find_nearest( pmap, w );
 
     m_Surface.roll_v( iw );
 }

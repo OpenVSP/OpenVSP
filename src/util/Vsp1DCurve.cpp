@@ -675,7 +675,8 @@ void Vsp1DCurve::Roll( double u )
 
     vector < double > pmap;
     m_Curve.get_pmap( pmap );
-    int iu = vector_find_val( pmap, u );
+    // Within tolerance of a joint, the split makes none; the roll is to the nearest joint.
+    int iu = vector_find_nearest( pmap, u );
 
     m_Curve.roll( iu );
 }

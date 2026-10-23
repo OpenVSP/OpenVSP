@@ -19,20 +19,20 @@ def sect_tess( isect ):
     return 5 + 2 * isect
 
 
-def build_engine_body( typ ):
+def build_engine_body( typ, nxsec = NXSEC ):
     vsp.VSPRenew()
     gid = vsp.AddGeom( typ )
     xss = vsp.GetXSecSurf( gid, 0 )
-    while vsp.GetNumXSec( xss ) < NXSEC:
+    while vsp.GetNumXSec( xss ) < nxsec:
         vsp.InsertXSec( gid, 1, vsp.XS_ELLIPSE )
-    while vsp.GetNumXSec( xss ) > NXSEC:
+    while vsp.GetNumXSec( xss ) > nxsec:
         vsp.CutXSec( gid, 1 )
-    for i in range( NXSEC ):
+    for i in range( nxsec ):
         vsp.ChangeXSecShape( xss, i, vsp.XS_ELLIPSE )
     vsp.Update()
 
     # SectTess_U of XSec i sets the section that ends at it.
-    for i in range( 1, NXSEC ):
+    for i in range( 1, nxsec ):
         vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xss, i ), "SectTess_U" ), sect_tess( i - 1 ) )
     vsp.SetParmVal( gid, "CapUMinTess", "EndCap", CAP_TESS )
     vsp.Update()
@@ -185,6 +185,39 @@ def testDegenGeomKeepsEveryEngineSurfaceWhole( typ ):
     assert degen_num_u( gid ) == [ num_u( gid, i ) for i in range( nsurf ) ]
 
 
+@pytest.mark.parametrize( "typ", [ "FUSELAGE", "STACK" ] )
+def testFlowthroughEngineRollsToItsInletFaceIndex( typ ):
+    """A flowthrough engine is rolled to start at its inlet face, wherever that index lands.
+
+    With 26 XSecs, index 7 becomes U = ( 7 / 25 ) * 25, which is not exactly 7.  Moving all
+    four stations aft by one section adds 2 to the count of each of the four sections kept
+    between the lips, so the U tessellation grows by 8 per index at 6, 7 and 8 alike.
+    """
+    nxsec = 26
+    assert ( 7 / ( nxsec - 1 ) ) * ( nxsec - 1 ) != 7
+
+    counts = []
+    for iface in ( 6, 7, 8 ):
+        gid = build_engine_body( typ, nxsec )
+        set_engine( gid,
+                    GeomIOType=vsp.ENGINE_GEOM_INLET_OUTLET,
+                    GeomInType=vsp.ENGINE_GEOM_FLOWTHROUGH,
+                    GeomOutType=vsp.ENGINE_GEOM_FLOWTHROUGH,
+                    InletFaceMode=vsp.ENGINE_LOC_INDEX,
+                    InletLipMode=vsp.ENGINE_LOC_INDEX,
+                    OutletLipMode=vsp.ENGINE_LOC_INDEX,
+                    OutletFaceMode=vsp.ENGINE_LOC_INDEX,
+                    InletFaceIndex=iface,
+                    InletLipIndex=iface + 2,
+                    OutletLipIndex=iface + 6,
+                    OutletFaceIndex=iface + 8 )
+        assert vsp.GetNumMainSurfs( gid ) == 1
+        counts.append( num_u( gid, 0 ) )
+
+    assert counts[1] - counts[0] == 8
+    assert counts[2] - counts[1] == 8
+
+
 if __name__ == "__main__":
     for t in [ "FUSELAGE", "STACK" ]:
         testEngineInletTessellatesEachSectionWithItsOwnCount( t )
@@ -192,3 +225,4 @@ if __name__ == "__main__":
         testTurningTheEngineOffLeavesOneSurface( t )
         testAnEngineWithNoSurfaceCanBeTurnedBackOn( t )
         testDegenGeomKeepsEveryEngineSurfaceWhole( t )
+        testFlowthroughEngineRollsToItsInletFaceIndex( t )
