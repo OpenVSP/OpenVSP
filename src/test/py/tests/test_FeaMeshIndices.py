@@ -121,3 +121,54 @@ def testASubsurfaceConstraintWithNoSubsurfaceConstrainsNothing( tmp_path ):
     vsp.DeleteFeaSubSurf( pod, ind, ss )
     assert _constrained( _nastran( pod, ind, tmp_path / "gone.nas" ) ) == 0, \
            "a constraint naming a deleted subsurface constrained nodes"
+
+
+_SUBSURFACES_WITH_SLICES = """
+import re
+vsp.VSPRenew()
+pod = vsp.AddGeom( "POD" )
+ind = vsp.AddFeaStruct( pod )
+sid = vsp.GetFeaStructID( pod, ind )
+vsp.SetFeaMeshVal( pod, ind, vsp.CFD_MAX_EDGE_LEN, 1.0 )
+vsp.SetFeaMeshVal( pod, ind, vsp.CFD_MIN_EDGE_LEN, 0.2 )
+for i in range( %d ):
+    sl = vsp.AddFeaPart( pod, ind, vsp.FEA_SLICE )
+    vsp.SetParmVal( vsp.FindParm( sl, "RotationAxis", "FeaSlice" ), vsp.Z_DIR )
+    vsp.SetParmVal( vsp.FindParm( sl, "ZRot", "FeaSlice" ), 20.0 )
+for name, u in ( ( "SSA", 0.3 ), ( "SSB", 0.7 ) ):
+    ss = vsp.AddFeaSubSurf( pod, ind, vsp.SS_RECTANGLE )
+    vsp.SetFeaSubSurfName( ss, name )
+    vsp.SetParmVal( vsp.FindParm( ss, "Center_U", "SS_Rectangle" ), u )
+vsp.Update()
+vsp.SetFeaMeshFileName( pod, ind, vsp.FEA_NASTRAN_FILE_NAME, "s.nas" )
+vsp.ComputeFeaMesh( sid, vsp.FEA_NASTRAN_FILE_NAME )
+cnt = { "SSA": 0, "SSB": 0 }
+cur = None
+for l in open( "s.nas.bdf" ):
+    m = re.match( r"\\$ (\\S+) \\S+ shell", l )
+    if m:
+        cur = m.group( 1 )
+    elif l.startswith( "$" ):
+        cur = None
+    elif cur in cnt and ( l.startswith( "CTRIA" ) or l.startswith( "CQUAD" ) ):
+        cnt[cur] += 1
+print( "COUNTS", cnt[ "SSA" ], cnt[ "SSB" ], flush = True )
+"""
+
+
+def _subsurface_counts( nslice, tmp_path ):
+    code, lines = _run( _SUBSURFACES_WITH_SLICES % nslice, tmp_path )
+    assert code == 0, "meshing subsurfaces with %d coplanar slices failed (exit %d)" % ( nslice, code )
+    counts = [ l for l in lines if l.startswith( "COUNTS" ) ]
+    assert counts, "the subprocess printed no counts"
+    return tuple( int( n ) for n in counts[0].split()[1:] )
+
+
+def testSubsurfacesKeepTheirElementsWhenCoplanarPartsMerge( tmp_path ):
+    """Two slices in the same place are merged into one before meshing, which leaves the second
+    with no surface.  Each subsurface still gets the elements it gets beside a single slice."""
+    one = _subsurface_counts( 1, tmp_path )
+    two = _subsurface_counts( 2, tmp_path )
+
+    assert one[0] > 0 and one[1] > 0, "a subsurface got no elements beside one slice: %s" % ( one, )
+    assert two == one, "subsurface elements (SSA, SSB) were %s beside one slice, %s beside two merged" % ( one, two )

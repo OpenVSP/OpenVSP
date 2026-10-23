@@ -1372,6 +1372,19 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
     }
 }
 
+// The index of the subsurface carrying a mesh tag, or -1 when none does.
+static int SimpSubSurfIndexFromTag( const vector < SimpleSubSurface > &ssvec, int tag )
+{
+    for ( int i = 0; i < (int)ssvec.size(); i++ )
+    {
+        if ( ssvec[i].m_Tag == tag )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void FeaMeshMgrSingleton::BuildFeaMesh()
 {
     if ( !GetMeshPtr() )
@@ -1755,14 +1768,11 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         // Check for subsurface:
         if ( all_face_vec[i].m_Tags.size() == 2 )
         {
-            // First index of m_Tags is the parent surface. Second index is subsurface index which begins 
-            //  from the last FeaPart surface index (FeaFixPoints are not tagged; they are not surfaces)
-            // Tag numbering offset is established in CfdMeshMgrSingleton::SetSimpSubSurfTags() which is called from
-            // CfdMeshMgrSingleton::SubTagTris().  The offset is based on the number of surfaces encountered, typically
-            // one per FeaPart.  However, FixPoints and Trim Parts don't have surfaces associated with them.
-            int ssindex = all_face_vec[i].m_Tags[1] - ( GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints - GetMeshPtr()->m_NumFeaTrimParts ) - 1;
+            // First index of m_Tags is the parent surface.  Second index is the tag of a subsurface, set in
+            // CfdMeshMgrSingleton::SetSimpSubSurfTags().
+            int ssindex = SimpSubSurfIndexFromTag( m_SimpleSubSurfaceVec, all_face_vec[i].m_Tags[1] );
 
-            if ( ssindex <= m_SimpleSubSurfaceVec.size() )
+            if ( ssindex >= 0 )
             {
                 elem->SetFeaSSIndex( ssindex );
 
@@ -1780,9 +1790,9 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         else if ( all_face_vec[i].m_Tags.size() > 2 )
         {
             // Give priority to first tagged subsurface in the event of overlap.  Potential to do something more sophisticated later.
-            int ssindex = all_face_vec[i].m_Tags[1] - ( GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints - GetMeshPtr()->m_NumFeaTrimParts ) - 1;
+            int ssindex = SimpSubSurfIndexFromTag( m_SimpleSubSurfaceVec, all_face_vec[i].m_Tags[1] );
 
-            if ( ssindex <= m_SimpleSubSurfaceVec.size() )
+            if ( ssindex >= 0 )
             {
                 elem->SetFeaSSIndex( ssindex );
 
