@@ -1720,6 +1720,24 @@ void Surf::BuildDistMap()
         return;
     }
 
+    // Give up on the map if a grid point is on no face.
+    int nunref = 0;
+    vector < ABF::Mesh::VertPtr > used_verts = mesh->vertices();
+    for ( i = 0; i < (int)used_verts.size(); i++ )
+    {
+        if ( used_verts[ i ]->is_unreferenced() )
+        {
+            nunref++;
+        }
+    }
+
+    if ( nunref > 0 )
+    {
+        printf( "Surface %s: %d of the distance map grid's points are on no face; spacing points "
+                "by surface parameter instead.\n", GetDisplayName().c_str(), nunref );
+        return;
+    }
+
     try
     {
         ABF::Compute( mesh );
