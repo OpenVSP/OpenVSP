@@ -2990,8 +2990,11 @@ void FeaMeshMgrSingleton::TagFeaNodes()
                 }
                 results_vec = keep_vec;
 
-                // Trim to six nearest points
-                results_vec.resize( 6 );
+                // Trim to the nspider nearest points
+                if ( (int)results_vec.size() > nspider )
+                {
+                    results_vec.resize( nspider );
+                }
 
                 // Store spider points.
                 GetMeshPtr()->m_FixPntVec[ j ].m_SpiderIndex[ k ] = results_vec;
