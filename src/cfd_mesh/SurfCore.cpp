@@ -423,64 +423,37 @@ void SurfCore::LoadBorderCurves( vector < Bezier_curve > & borderCurves ) const
 
 bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
 {
-    piecewise_surface_type osurf, swaposurf;
+    bool match = false;
 
-    osurf = otherSurf->m_Surface;
-    if( MatchThisOrientation( osurf ) )
+    for ( int swap = 0; swap < 2; swap++ )
     {
-        return true;
+        for ( int rv = 0; rv < 2; rv++ )
+        {
+            for ( int ru = 0; ru < 2; ru++ )
+            {
+                piecewise_surface_type osurf = otherSurf->m_Surface;
+                if ( swap )
+                {
+                    osurf.swap_uv();
+                }
+                if ( ru )
+                {
+                    osurf.reverse_u();
+                }
+                if ( rv )
+                {
+                    osurf.reverse_v();
+                }
+
+                if ( MatchThisOrientation( osurf ) )
+                {
+                    match = true;
+                }
+            }
+        }
     }
 
-    osurf = otherSurf->m_Surface;
-    osurf.reverse_u();
-    if( MatchThisOrientation( osurf ) )
-    {
-        return true;
-    }
-
-    osurf = otherSurf->m_Surface;
-    osurf.reverse_v();
-    if( MatchThisOrientation( osurf ) )
-    {
-        return true;
-    }
-
-    osurf = otherSurf->m_Surface;
-    osurf.reverse_u();
-    osurf.reverse_v();
-    if( MatchThisOrientation( osurf ) )
-    {
-        return true;
-    }
-
-    swaposurf = otherSurf->m_Surface;
-    swaposurf.swap_uv();
-
-    osurf = swaposurf;
-    if( MatchThisOrientation( osurf ) )
-    {
-        return true;
-    }
-
-    osurf = swaposurf;
-    osurf.reverse_u();
-    if( MatchThisOrientation( osurf ) )
-    {
-        return true;
-    }
-
-    osurf = swaposurf;
-    osurf.reverse_v();
-    if( MatchThisOrientation( osurf ) )
-    {
-        return true;
-    }
-
-    osurf = swaposurf;
-    osurf.reverse_u();
-    osurf.reverse_v();
-
-    return MatchThisOrientation( osurf );
+    return match;
 }
 
 bool SurfCore::MatchThisOrientation( const piecewise_surface_type &osurf ) const
