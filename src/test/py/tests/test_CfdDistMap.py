@@ -69,3 +69,11 @@ def test_dist_map_grid_with_points_on_no_face( tmp_path, monkeypatch ):
     lines = _mesh_fin( 0.005001 )
     tris = [ int( l.split()[1] ) for l in lines if l.startswith( "TRIS " ) ]
     assert tris and tris[0] > 0, "the fin was not meshed: %s" % lines
+
+
+def test_dist_map_grid_with_no_interior_point( tmp_path, monkeypatch ):
+    """A tip cap strip whose grid is one cell across has no interior point to flatten around."""
+    monkeypatch.chdir( tmp_path )
+    lines = _mesh_fin( 0.005004 )
+    tris = [ int( l.split()[1] ) for l in lines if l.startswith( "TRIS " ) ]
+    assert tris and tris[0] > 0, "the fin was not meshed: %s" % lines

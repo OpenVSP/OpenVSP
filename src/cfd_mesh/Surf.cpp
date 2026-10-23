@@ -1738,9 +1738,13 @@ void Surf::BuildDistMap()
         return;
     }
 
+    // ABF++ adjusts angles around interior vertices; a grid with none goes to LSCM alone.
     try
     {
-        ABF::Compute( mesh );
+        if ( mesh->num_vertices_interior() > 0 )
+        {
+            ABF::Compute( mesh );
+        }
         LSCM::Compute( mesh );
     }
     catch ( const std::exception &e )
