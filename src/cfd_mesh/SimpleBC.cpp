@@ -81,6 +81,12 @@ void SimpleBC::ApplyTo( FeaNode* node )
     }
     else if ( m_BCType == vsp::FEA_BC_SUBSURF )
     {
+        // A subsurface not in the mesh holds no nodes.
+        if ( m_FeaSubSurfIndex < 0 )
+        {
+            return;
+        }
+
         if ( FeaMeshMgr.GetMeshPtr() )
         {
             if ( node->HasTag( m_FeaSubSurfIndex + FeaMeshMgr.GetMeshPtr()->m_NumFeaParts ) )

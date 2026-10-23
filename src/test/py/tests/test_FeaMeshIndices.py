@@ -95,3 +95,29 @@ print( "DONE", flush = True )
     masses = [ l for l in bdf if l.startswith( "CONM2" ) ]
     assert len( masses ) == 1, "expected one point mass, got:\n" + "\n".join( masses )
     assert int( masses[0].split( "," )[2] ) == 1, "the mass is not on the fixed point's gridpoint: " + masses[0]
+
+
+def _constrained( lines ):
+    """How many SPC1 cards a bulk data file holds."""
+    return sum( 1 for l in lines if l.startswith( "SPC1" ) )
+
+
+def testASubsurfaceConstraintWithNoSubsurfaceConstrainsNothing( tmp_path ):
+    """A constraint on a subsurface that names none, or names one since deleted, applies to no
+    node -- not to the structure's last part."""
+    pod, ind, sid = _pod_structure()
+    vsp.AddFeaPart( pod, ind, vsp.FEA_SLICE )
+    bc = vsp.AddFeaBC( sid, vsp.FEA_BC_SUBSURF )
+    vsp.SetParmVal( vsp.FindParm( bc, "Constraints", "FeaBC" ), 63 )
+
+    assert _constrained( _nastran( pod, ind, tmp_path / "none.nas" ) ) == 0, \
+           "a constraint naming no subsurface constrained nodes"
+
+    ss = vsp.AddFeaSubSurf( pod, ind, vsp.SS_RECTANGLE )
+    vsp.SetFeaBCSubSurfID( bc, ss )
+    assert _constrained( _nastran( pod, ind, tmp_path / "some.nas" ) ) > 0, \
+           "a constraint on a subsurface constrained no nodes"
+
+    vsp.DeleteFeaSubSurf( pod, ind, ss )
+    assert _constrained( _nastran( pod, ind, tmp_path / "gone.nas" ) ) == 0, \
+           "a constraint naming a deleted subsurface constrained nodes"
