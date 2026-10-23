@@ -1544,6 +1544,8 @@ void Geom::Scale()
     m_CapUMinOffsetDim.Set( m_CapUMinOffsetDim() * currentScale );
     m_CapUMaxLengthDim.Set( m_CapUMaxLengthDim() * currentScale );
     m_CapUMaxOffsetDim.Set( m_CapUMaxOffsetDim() * currentScale );
+    m_CapUMinRadiusDim.Set( m_CapUMinRadiusDim() * currentScale );
+    m_CapUMaxRadiusDim.Set( m_CapUMaxRadiusDim() * currentScale );
 
     m_LastScale = m_Scale();
 }
@@ -1771,6 +1773,10 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinLengthDim.SetDescript( "Dimensional length of end cap" );
     m_CapUMinOffsetDim.Init( "CapUMinOffsetDim", "EndCap", this, 0, -1e12, 1e12 );
     m_CapUMinOffsetDim.SetDescript( "Dimensional offset of end cap" );
+    m_CapUMinRadius.Init( "CapUMinRadius", "EndCap", this, 0.25, 0, 20 );
+    m_CapUMinRadius.SetDescript( "Scaled radius of the spherical tip of a cone end cap" );
+    m_CapUMinRadiusDim.Init( "CapUMinRadiusDim", "EndCap", this, 0.25, 0, 1e12 );
+    m_CapUMinRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone end cap" );
 
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
@@ -1793,6 +1799,10 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMaxLengthDim.SetDescript( "Dimensional length of end cap" );
     m_CapUMaxOffsetDim.Init( "CapUMaxOffsetDim", "EndCap", this, 0, -1e12, 1e12 );
     m_CapUMaxOffsetDim.SetDescript( "Dimensional offset of end cap" );
+    m_CapUMaxRadius.Init( "CapUMaxRadius", "EndCap", this, 0.25, 0, 20 );
+    m_CapUMaxRadius.SetDescript( "Scaled radius of the spherical tip of a cone end cap" );
+    m_CapUMaxRadiusDim.Init( "CapUMaxRadiusDim", "EndCap", this, 0.25, 0, 1e12 );
+    m_CapUMaxRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone end cap" );
 
     // Parasite Drag Parms
     m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
@@ -2285,14 +2295,14 @@ void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bo
         m_CapUMinTipFound = surf.CapTipPnt( false, tiptype, m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(),
                                             m_CapUMinSweepFlag(), m_CapUMinTipPnt );
     }
-    umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag());
+    umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag(), m_CapUMinRadius());
 
     // An extended round cap splits the whole surface, so the other end is measured after it.
     if ( setdims )
     {
         UpdateCapDims( surf, true );
     }
-    umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag());
+    umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag(), m_CapUMaxRadius());
 }
 
 // Set the end cap parms each cap option fixes.
@@ -2385,6 +2395,8 @@ void Geom::UpdateCapDims( const VspSurf &surf, bool umax )
     Parm *off = &m_CapUMinOffset;
     Parm *lendim = &m_CapUMinLengthDim;
     Parm *offdim = &m_CapUMinOffsetDim;
+    Parm *rad = &m_CapUMinRadius;
+    Parm *raddim = &m_CapUMinRadiusDim;
     if ( umax )
     {
         captype = m_CapUMaxOption();
@@ -2395,6 +2407,8 @@ void Geom::UpdateCapDims( const VspSurf &surf, bool umax )
         off = &m_CapUMaxOffset;
         lendim = &m_CapUMaxLengthDim;
         offdim = &m_CapUMaxOffsetDim;
+        rad = &m_CapUMaxRadius;
+        raddim = &m_CapUMaxRadiusDim;
     }
 
     double lenscale, offscale;
@@ -2423,6 +2437,13 @@ void Geom::UpdateCapDims( const VspSurf &surf, bool umax )
         }
     }
     lendim->Set( len->Get() * lenscale );
+
+    // A cone cap's radius has the length's scale.
+    if ( !nondim )
+    {
+        rad->Set( raddim->Get() / lenscale );
+    }
+    raddim->Set( rad->Get() * lenscale );
 
     if ( !( offscale > 0.0 ) )
     {

@@ -84,6 +84,10 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
                                    &m_CapUMinTess, &m_CapUMaxOption, &m_CapUMaxLength, &m_CapUMaxOffset,
                                    &m_CapUMaxStrength, &m_CapUMaxSweepFlag, &m_CapUMaxRelFlag, &m_CapUMaxLengthDim,
                                    &m_CapUMaxOffsetDim };
+    cap_parms.push_back( &m_CapUMinRadius );
+    cap_parms.push_back( &m_CapUMinRadiusDim );
+    cap_parms.push_back( &m_CapUMaxRadius );
+    cap_parms.push_back( &m_CapUMaxRadiusDim );
     for ( size_t i = 0; i < cap_parms.size(); i++ )
     {
         cap_parms[i]->Deactivate();
@@ -762,6 +766,8 @@ void CloneGeom::CopyEndCapParms( Geom* from, Geom* to )
     to->m_CapUMinRelFlag.Set( from->m_CapUMinRelFlag() );
     to->m_CapUMinLengthDim.Set( from->m_CapUMinLengthDim() );
     to->m_CapUMinOffsetDim.Set( from->m_CapUMinOffsetDim() );
+    to->m_CapUMinRadius.Set( from->m_CapUMinRadius() );
+    to->m_CapUMinRadiusDim.Set( from->m_CapUMinRadiusDim() );
     to->m_CapUMinTess.Set( from->m_CapUMinTess() );
     to->m_CapUMaxOption.Set( from->m_CapUMaxOption() );
     to->m_CapUMaxLength.Set( from->m_CapUMaxLength() );
@@ -771,6 +777,8 @@ void CloneGeom::CopyEndCapParms( Geom* from, Geom* to )
     to->m_CapUMaxRelFlag.Set( from->m_CapUMaxRelFlag() );
     to->m_CapUMaxLengthDim.Set( from->m_CapUMaxLengthDim() );
     to->m_CapUMaxOffsetDim.Set( from->m_CapUMaxOffsetDim() );
+    to->m_CapUMaxRadius.Set( from->m_CapUMaxRadius() );
+    to->m_CapUMaxRadiusDim.Set( from->m_CapUMaxRadiusDim() );
 }
 
 void CloneGeom::CopyTessParms( Geom* from, Geom* to )

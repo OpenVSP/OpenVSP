@@ -1020,6 +1020,8 @@ public:
     BoolParm m_CapUMinRelFlag;
     Parm m_CapUMinLengthDim;
     Parm m_CapUMinOffsetDim;
+    Parm m_CapUMinRadius;
+    Parm m_CapUMinRadiusDim;
 
     Parm m_CapUMaxLength;
     Parm m_CapUMaxOffset;
@@ -1028,6 +1030,8 @@ public:
     BoolParm m_CapUMaxRelFlag;
     Parm m_CapUMaxLengthDim;
     Parm m_CapUMaxOffsetDim;
+    Parm m_CapUMaxRadius;
+    Parm m_CapUMaxRadiusDim;
     bool m_CappingDone;
 
     // Where the UMin cap's length and offset place its tip, or the middle of the end with no cap, on the
