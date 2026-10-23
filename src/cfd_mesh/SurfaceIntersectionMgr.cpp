@@ -5060,7 +5060,7 @@ void SurfaceIntersectionSingleton::BuildIntChain( const string &id, vector < vec
                         keepptvec.back().insert( keepptvec.back().end(), ptvecvec[j].begin() + 1, ptvecvec[j].end() );
                         keepuwvec.back().insert( keepuwvec.back().end(), uwvecvec[j].begin() + 1, uwvecvec[j].end() );
                         segused[ j ] = true;
-                        j = i + 1;
+                        j = i;    // The loop increment restarts the search at i + 1
                     }
                     else
                     {
@@ -5070,7 +5070,7 @@ void SurfaceIntersectionSingleton::BuildIntChain( const string &id, vector < vec
                             keepptvec.back().insert( keepptvec.back().end(), ptvecvec[j].rbegin() + 1, ptvecvec[j].rend() );
                             keepuwvec.back().insert( keepuwvec.back().end(), uwvecvec[j].rbegin() + 1, uwvecvec[j].rend() );
                             segused[ j ] = true;
-                            j = i + 1;
+                            j = i;    // The loop increment restarts the search at i + 1
                         }
                     }
                 }
