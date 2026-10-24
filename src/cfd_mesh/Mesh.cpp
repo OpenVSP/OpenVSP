@@ -736,6 +736,50 @@ bool Mesh::TriReversed( const vec3d &p0, const vec3d &p1, const vec3d &p2,
     return dprod < 0.0;
 }
 
+// Can the face ( ps, p, q ) that a split at ps would build in face f stand?  It can if it
+// does not turn over, or if flipping its edge p-q, which f now holds, gives two faces that do
+// not.  That edge is then added to flips.  The flip joins the split point to the corner across
+// p-q, which may not be one the split joins it to already: a corner of f, or other_apex, the
+// apex of the face on the split edge's other side.
+bool Mesh::SplitFaceStands( const vec3d &ps, const vec2d &uws, Node* p, Node* q, Face* f,
+                            Node* other_apex, vector < Edge* > &flips )
+{
+    if ( !TriReversed( ps, p->pnt, q->pnt, uws, p->uw, q->uw ) )
+    {
+        return true;
+    }
+
+    Edge* e = f->FindEdge( p, q );
+
+    if ( !e || e->border || e->ridge )
+    {
+        return false;
+    }
+
+    Face* fo = e->OtherFace( f );
+
+    if ( !fo )
+    {
+        return false;
+    }
+
+    Node* x = fo->OtherNodeTri( p, q );
+
+    if ( !x || x == other_apex || x == f->OtherNodeTri( p, q ) )
+    {
+        return false;
+    }
+
+    if ( TriReversed( ps, p->pnt, x->pnt, uws, p->uw, x->uw ) ||
+         TriReversed( ps, x->pnt, q->pnt, uws, x->uw, q->uw ) )
+    {
+        return false;
+    }
+
+    flips.push_back( e );
+    return true;
+}
+
 // Collapse away the faces that are not fit to keep.
 //
 // A face is unfit if it faces the wrong way, or if it has been squeezed until it has no
@@ -1079,36 +1123,42 @@ void Mesh::SplitEdge( Edge* edge )
     // ValidNodeMove.  A reversed face is collapsed away by RemoveIllFormedFaces, which is how a
     // tip ends up with edges shared by more than two triangles.
     //
-    // The four faces the split would build are checked before anything is created.  A split
-    // that would turn one over does not happen; the edge stays as it is.
+    // The four faces the split would build are checked before anything is created.  A face
+    // that would turn over is repaired by flipping its edge across from the new point, if the
+    // two faces of the flip do not turn over; otherwise the split does not happen and the edge
+    // stays as it is.
+    vector < Edge* > flips;
     {
         bool wouldreverse = false;
 
+        Node* na = nullptr;
+        Node* nb = nullptr;
+
         if ( fa )
         {
-            Node* na = fa->OtherNodeTri( n0, n1 );
+            na = fa->OtherNodeTri( n0, n1 );
+        }
 
-            if ( na )
+        if ( fb )
+        {
+            nb = fb->OtherNodeTri( n0, n1 );
+        }
+
+        if ( na )
+        {
+            if ( !SplitFaceStands( ps, uws, na, n0, fa, nb, flips ) ||
+                 !SplitFaceStands( ps, uws, n1, na, fa, nb, flips ) )
             {
-                if ( TriReversed( n0->pnt, ps, na->pnt, n0->uw, uws, na->uw ) ||
-                     TriReversed( n1->pnt, na->pnt, ps, n1->uw, na->uw, uws ) )
-                {
-                    wouldreverse = true;
-                }
+                wouldreverse = true;
             }
         }
 
-        if ( fb && !wouldreverse )
+        if ( nb && !wouldreverse )
         {
-            Node* nb = fb->OtherNodeTri( n0, n1 );
-
-            if ( nb )
+            if ( !SplitFaceStands( ps, uws, n0, nb, fb, na, flips ) ||
+                 !SplitFaceStands( ps, uws, nb, n1, fb, na, flips ) )
             {
-                if ( TriReversed( n0->pnt, nb->pnt, ps, n0->uw, nb->uw, uws ) ||
-                     TriReversed( n1->pnt, ps, nb->pnt, n1->uw, uws, nb->uw ) )
-                {
-                    wouldreverse = true;
-                }
+                wouldreverse = true;
             }
         }
 
@@ -1275,6 +1325,11 @@ void Mesh::SplitEdge( Edge* edge )
 
     ComputeTargetEdgeLength( ns );
     LimitTargetEdgeLength( ns );
+
+    for ( int i = 0; i < ( int )flips.size(); i++ )
+    {
+        FlipEdge( flips[i] );
+    }
 
     MakeActiveAround( ns );
 

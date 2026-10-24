@@ -79,6 +79,8 @@ public:
     // that do not exist yet, so a step can decline to build a face it would have to undo.
     bool TriReversed( const vec3d &p0, const vec3d &p1, const vec3d &p2,
                       const vec2d &uw0, const vec2d &uw1, const vec2d &uw2 );
+    bool SplitFaceStands( const vec3d &ps, const vec2d &uws, Node* p, Node* q, Face* f,
+                          Node* other_apex, vector < Edge* > &flips );
     int RemoveIllFormedFaces();
 
     // Bumped once per Collapse round; see Edge::m_CandStamp.
