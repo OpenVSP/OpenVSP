@@ -203,6 +203,7 @@ void SurfPatch::find_closest_uw_planar_approx( const vec3d& pnt_in, double uw[2]
     vec3d a0 = m_Patch.get_control_point( 0, 0 );  // origin
     vec3d a1 = m_Patch.get_control_point( an, 0 ); // u direction
     vec3d a2 = m_Patch.get_control_point( 0, am ); // v direction
+    vec3d a3 = m_Patch.get_control_point( an, am );
 
     vec3d u_vec = a1 - a0;
     vec3d w_vec = a2 - a0;
@@ -212,6 +213,19 @@ void SurfPatch::find_closest_uw_planar_approx( const vec3d& pnt_in, double uw[2]
 
     double u01 = clamp( close_uw_01.x(), 0.0, 1.0 );
     double w01 = clamp( close_uw_01.y(), 0.0, 1.0 );
+
+    // A patch with a collapsed edge at its origin, as at the apex of a cone, is mapped from the
+    // corner across from it.
+    double area0 = cross( u_vec, w_vec ).mag();
+    vec3d u_far = a2 - a3;
+    vec3d w_far = a1 - a3;
+    double area3 = cross( u_far, w_far ).mag();
+    if ( area0 < 1.0e-3 * area3 )
+    {
+        vec2d far_uw_01 = MapToPlane( pnt_in, a3, u_far, w_far );
+        u01 = clamp( 1.0 - far_uw_01.x(), 0.0, 1.0 );
+        w01 = clamp( 1.0 - far_uw_01.y(), 0.0, 1.0 );
+    }
 
     // Scale the normalized local surface coordinates [0, 1] by the patch U and W range
     uw[0] = u_min + u01 * ( u_max - u_min );
