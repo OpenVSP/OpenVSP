@@ -3518,8 +3518,8 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
             vector < piecewise_surface_type > q;
             vector < vector < UWRegion > > qr;
 
-            q.push_back( surfvec[j] );
-            qr.push_back( regionvec[j] );
+            q.push_back( std::move( surfvec[j] ) );
+            qr.push_back( std::move( regionvec[j] ) );
 
             for ( int k = 0; k < ( int )q.size(); k++ )
             {
@@ -3542,22 +3542,22 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
 
                 if ( keep1 && keep2 )
                 {
-                    q[k] = s1;
-                    qr[k] = r1;
-                    q.insert( q.begin() + k + 1, s2 );
-                    qr.insert( qr.begin() + k + 1, r2 );
+                    q[k] = std::move( s1 );
+                    qr[k] = std::move( r1 );
+                    q.insert( q.begin() + k + 1, std::move( s2 ) );
+                    qr.insert( qr.begin() + k + 1, std::move( r2 ) );
                     k--;
                 }
                 else if ( keep1 )
                 {
-                    q[k] = s1;
-                    qr[k] = r1;
+                    q[k] = std::move( s1 );
+                    qr[k] = std::move( r1 );
                     k--;
                 }
                 else if ( keep2 )
                 {
-                    q[k] = s2;
-                    qr[k] = r2;
+                    q[k] = std::move( s2 );
+                    qr[k] = std::move( r2 );
                     k--;
                 }
                 else
@@ -3570,12 +3570,12 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
 
             for ( int k = 0; k < ( int )q.size(); k++ )
             {
-                splitsurfvec.push_back( q[k] );
-                splitregionvec.push_back( qr[k] );
+                splitsurfvec.push_back( std::move( q[k] ) );
+                splitregionvec.push_back( std::move( qr[k] ) );
             }
         }
-        surfvec = splitsurfvec;
-        regionvec = splitregionvec;
+        surfvec.swap( splitsurfvec );
+        regionvec.swap( splitregionvec );
     }
 }
 
@@ -3595,8 +3595,8 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
             vector < piecewise_surface_type > q;
             vector < vector < UWRegion > > qr;
 
-            q.push_back( surfvec[j] );
-            qr.push_back( regionvec[j] );
+            q.push_back( std::move( surfvec[j] ) );
+            qr.push_back( std::move( regionvec[j] ) );
 
             for ( int k = 0; k < ( int )q.size(); k++ )
             {
@@ -3619,22 +3619,22 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
 
                 if ( keep1 && keep2 )
                 {
-                    q[k] = s1;
-                    qr[k] = r1;
-                    q.insert( q.begin() + k + 1, s2 );
-                    qr.insert( qr.begin() + k + 1, r2 );
+                    q[k] = std::move( s1 );
+                    qr[k] = std::move( r1 );
+                    q.insert( q.begin() + k + 1, std::move( s2 ) );
+                    qr.insert( qr.begin() + k + 1, std::move( r2 ) );
                     k--;
                 }
                 else if ( keep1 )
                 {
-                    q[k] = s1;
-                    qr[k] = r1;
+                    q[k] = std::move( s1 );
+                    qr[k] = std::move( r1 );
                     k--;
                 }
                 else if ( keep2 )
                 {
-                    q[k] = s2;
-                    qr[k] = r2;
+                    q[k] = std::move( s2 );
+                    qr[k] = std::move( r2 );
                     k--;
                 }
                 else
@@ -3647,12 +3647,12 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
 
             for ( int k = 0; k < ( int )q.size(); k++ )
             {
-                splitsurfvec.push_back( q[k] );
-                splitregionvec.push_back( qr[k] );
+                splitsurfvec.push_back( std::move( q[k] ) );
+                splitregionvec.push_back( std::move( qr[k] ) );
             }
         }
-        surfvec = splitsurfvec;
-        regionvec = splitregionvec;
+        surfvec.swap( splitsurfvec );
+        regionvec.swap( splitregionvec );
     }
 }
 
@@ -3665,7 +3665,7 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
         {
             piecewise_surface_type s, s1, s2;
 
-            s = surfvec[j];
+            s = std::move( surfvec[j] );
 
             if ( s.get_u0() < USplit[i] && s.get_umax() > USplit[i] )
             {
@@ -3673,19 +3673,19 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
 
                 if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
                 {
-                    splitsurfvec.push_back( s1 );
+                    splitsurfvec.push_back( std::move( s1 ) );
                 }
                 if ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 )
                 {
-                    splitsurfvec.push_back( s2 );
+                    splitsurfvec.push_back( std::move( s2 ) );
                 }
             }
             else
             {
-                splitsurfvec.push_back( s );
+                splitsurfvec.push_back( std::move( s ) );
             }
         }
-        surfvec = splitsurfvec;
+        surfvec.swap( splitsurfvec );
     }
 }
 
@@ -3698,7 +3698,7 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
         {
             piecewise_surface_type s, s1, s2;
 
-            s = surfvec[j];
+            s = std::move( surfvec[j] );
 
             if ( s.get_v0() < WSplit[i] && s.get_vmax() > WSplit[i] )
             {
@@ -3706,19 +3706,19 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
 
                 if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
                 {
-                    splitsurfvec.push_back( s1 );
+                    splitsurfvec.push_back( std::move( s1 ) );
                 }
                 if ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 )
                 {
-                    splitsurfvec.push_back( s2 );
+                    splitsurfvec.push_back( std::move( s2 ) );
                 }
             }
             else
             {
-                splitsurfvec.push_back( s );
+                splitsurfvec.push_back( std::move( s ) );
             }
         }
-        surfvec = splitsurfvec;
+        surfvec.swap( splitsurfvec );
     }
 }
 
@@ -4038,7 +4038,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
             double ucap = umin + 1.0;
 
             s.split_u( scap, srest, ucap );
-            s = srest;
+            s = std::move( srest );
 
             scap.split_v( scaplower, scapupper, vmid );
 
@@ -4051,7 +4051,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
 
             scap.join_u( scapupper, scaplower );
 
-            surfvec.emplace_back( scap );
+            surfvec.emplace_back( std::move( scap ) );
 
             // The upper half was turned end for end in both directions; the lower half was
             // slid up to meet it.  Neither covers the same parameters it started in.
@@ -4080,7 +4080,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
             double ucap = umax - 1.0;
 
             s.split_u( srest, scap, ucap );
-            s = srest;
+            s = std::move( srest );
 
             scap.split_v( scaplower, scapupper, vmid );
 
@@ -4093,7 +4093,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
             scap.join_u( scaplower, scapupper );
 
 
-            surfvec.emplace_back( scap );
+            surfvec.emplace_back( std::move( scap ) );
 
             // Here the lower half stayed where it was and the upper half was turned round
             // and slid past the end of it.
@@ -4119,11 +4119,11 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         piecewise_surface_type stelower, slower, sle, supper, steupper, ste;
 
         s.split_v( stelower, srest, TMAGIC );
-        s = srest;
+        s = std::move( srest );
         s.split_v( slower, srest, vmid - TMAGIC );
-        s = srest;
+        s = std::move( srest );
         s.split_v( sle, srest, vmid + TMAGIC );
-        s = srest;
+        s = std::move( srest );
         s.split_v( supper, steupper, vmax - TMAGIC );
         ste.join_v( steupper, stelower );
 
@@ -4135,7 +4135,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         // The upper strip's edge at w = vmax, which the lower strip meets along.
         joins.push_back( make_pair( vec3d( ulo, vmax, 0 ), vec3d( uhi, vmax, 0 ) ) );
 
-        surfvec.emplace_back( ste );
+        surfvec.emplace_back( std::move( ste ) );
 
         // The trailing edge patch is the strip at the top of w followed by the strip at the
         // bottom of it, so its second half names a piece of w that lies at the other end of
@@ -4154,16 +4154,16 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
             regionvec.push_back( rv );
         }
 
-        surfvec.emplace_back( sle );
+        surfvec.emplace_back( std::move( sle ) );
         regionvec.push_back( MakeIdentityRegion( ulo, uhi, vmid - TMAGIC, vmid + TMAGIC ) );
 
         wsup.push_back( vmid );
         wsup.push_back( vmax );
 
-        surfvec.emplace_back( slower );
+        surfvec.emplace_back( std::move( slower ) );
         regionvec.push_back( MakeIdentityRegion( ulo, uhi, vmin + TMAGIC, vmid - TMAGIC ) );
 
-        surfvec.emplace_back( supper );
+        surfvec.emplace_back( std::move( supper ) );
         regionvec.push_back( MakeIdentityRegion( ulo, uhi, vmid + TMAGIC, vmax - TMAGIC ) );
     }
     else if ( splitjoin && GetSurfType() == vsp::NORMAL_SURF && IsClosedW() && !IsHalfBOR() )
@@ -4225,10 +4225,10 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
 
             m_Surface.split_v( sside0, sside1, vmid );
 
-            surfvec.emplace_back( sside0 );
+            surfvec.emplace_back( std::move( sside0 ) );
             regionvec.push_back( MakeIdentityRegion( umin, umax, vmin, vmid ) );
 
-            surfvec.emplace_back( sside1 );
+            surfvec.emplace_back( std::move( sside1 ) );
             regionvec.push_back( MakeIdentityRegion( umin, umax, vmid, vmax ) );
 
             // The quarter lines run up the sides and are now inside a patch.
@@ -4250,13 +4250,13 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
             m_Surface.split_v( sbelow, srest, vqtr );
             srest.split_v( smiddle, sabove, vthreeqtr );
 
-            surfvec.emplace_back( smiddle );
+            surfvec.emplace_back( std::move( smiddle ) );
             regionvec.push_back( MakeIdentityRegion( umin, umax, vqtr, vthreeqtr ) );
 
             piecewise_surface_type sjoined;
             sjoined.join_v( sabove, sbelow );
 
-            surfvec.emplace_back( sjoined );
+            surfvec.emplace_back( std::move( sjoined ) );
 
             // join_v lays the second piece out past the end of the first, so the joined
             // patch's own w runs from the three-quarter line to vmax and then on again by a
@@ -4300,7 +4300,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
     int ivalid = 0;
     for ( int isect = 0; isect < num_sections; isect++ )
     {
-        const piecewise_surface_type & surf = surfvec[isect];
+        piecewise_surface_type & surf = surfvec[isect];
 
         if ( !CheckValidPatch( surf ) )
         {
@@ -4310,12 +4310,12 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         // Made it through all checks, keep surface.
         XferSurf xsurf;
         xsurf.m_FlipNormal = m_FlipNormal;
-        xsurf.m_Surface = surf;
+        xsurf.m_Surface = std::move( surf );
         xsurf.m_GeomID = geom_id;
         xsurf.m_Name = name;
         xsurf.m_SplitNum = ivalid;
 
-        xsurf.m_UWRegions = regionvec[isect];
+        xsurf.m_UWRegions = std::move( regionvec[isect] );
         xsurf.m_JoinLines = joins;
 
         if ( !utess.empty() )
@@ -4339,7 +4339,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         xsurf.m_CompIndx = comp_ind;
         xsurf.m_FeaPartSurfNum = part_surf_num;
         xsurf.m_FeaSymmIndex = m_FeaSymmIndex;
-        xfersurfs.push_back( xsurf );
+        xfersurfs.push_back( std::move( xsurf ) );
         ivalid++;
     }
 }
