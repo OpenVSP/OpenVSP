@@ -1452,6 +1452,10 @@ void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
     // cannot possibly match are worth turning away before it is asked.
     double bbtol = 1.0e-6;
 
+    // Pairs of coincident surfaces between two Geoms: those of which both are left out, and those of which one is.
+    map < pair < string, string >, int > dupboth;
+    map < pair < string, string >, int > dupone;
+
     for ( int s = 0 ; s + 1 < nsurf ; s++ )
     {
         BndBox &bbs = m_SurfVec[s]->GetBBox();
@@ -1486,11 +1490,54 @@ void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
 
                 // Two faces pressed back to back both go.  Two facing the same way, of the same
                 // kind, are one surface given twice, and one of them stays.
+                pair < string, string > geoms = make_pair( m_SurfVec[s]->GetGeomID(), m_SurfVec[t]->GetGeomID() );
                 if ( opposite || m_SurfVec[s]->GetSurfaceCfdType() != m_SurfVec[t]->GetSurfaceCfdType() )
                 {
                     delflag[s] = true;
+                    dupboth[ geoms ]++;
+                }
+                else
+                {
+                    dupone[ geoms ]++;
                 }
                 delflag[t] = true;
+            }
+        }
+    }
+
+    for ( int k = 0; k < 2; k++ )
+    {
+        map < pair < string, string >, int > *dupcount = &dupboth;
+        string fate = "both of each are left out of the mesh";
+        if ( k == 1 )
+        {
+            dupcount = &dupone;
+            fate = "one of each is left out of the mesh";
+        }
+
+        for ( map < pair < string, string >, int >::iterator it = dupcount->begin(); it != dupcount->end(); ++it )
+        {
+            string sname = it->first.first;
+            Geom* sgeom = m_Vehicle->FindGeom( sname );
+            if ( sgeom )
+            {
+                sname = sgeom->GetName();
+            }
+
+            string tname = it->first.second;
+            Geom* tgeom = m_Vehicle->FindGeom( tname );
+            if ( tgeom )
+            {
+                tname = tgeom->GetName();
+            }
+
+            if ( it->first.first == it->first.second )
+            {
+                addOutputText( "Warning: " + to_string( it->second ) + " pairs of surfaces of " + sname + " coincide, perhaps from symmetry about a plane it lies on; " + fate + "\n" );
+            }
+            else
+            {
+                addOutputText( "Warning: " + to_string( it->second ) + " pairs of surfaces of " + sname + " and " + tname + " coincide; " + fate + "\n" );
             }
         }
     }
