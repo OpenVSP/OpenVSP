@@ -63,6 +63,7 @@ public:
 
     static bool ThreeEdgesThreeFaces( Edge* edge );
     void SwapEdge( Edge* edge );
+    void FlipEdge( Edge* edge );
 
     int Collapse( int num_iter );
     static bool ValidCollapse( Edge* edge );

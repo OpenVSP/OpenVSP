@@ -1435,6 +1435,27 @@ void Mesh::SwapEdge( Edge* edge )
         }
     }
 
+    FlipEdge( edge );
+}
+
+// Replace the edge shared by two faces with the one joining their opposite corners.
+void Mesh::FlipEdge( Edge* edge )
+{
+    Face*  fa = edge->f0;
+    Face*  fb = edge->f1;
+
+    Node* n0 = edge->n0;
+    Node* n1 = edge->n1;
+
+    if ( !fa->CorrectOrder( n0, n1 ) )
+    {
+        n0 = edge->n1;
+        n1 = edge->n0;
+    }
+
+    Node* na = fa->OtherNodeTri( n0, n1 );
+    Node* nb = fb->OtherNodeTri( n0, n1 );
+
     Edge* ea0 = fa->FindEdge( n0, na );
     Edge* ea1 = fa->FindEdge( na, n1 );
     Edge* eb0 = fb->FindEdge( n0, nb );
