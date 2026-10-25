@@ -3534,7 +3534,8 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
                 piecewise_surface_type s1, s2;
                 vector < UWRegion > r1, r2;
 
-                q[k].split_u( s1, s2, cuts[0] );
+                s1 = std::move( q[k] );
+                s1.split_u( s2, cuts[0] );
                 SplitRegionsU( qr[k], cuts[0], r1, r2 );
 
                 bool keep1 = ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 );
@@ -3611,7 +3612,8 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
                 piecewise_surface_type s1, s2;
                 vector < UWRegion > r1, r2;
 
-                q[k].split_v( s1, s2, cuts[0] );
+                s1 = std::move( q[k] );
+                s1.split_v( s2, cuts[0] );
                 SplitRegionsW( qr[k], cuts[0], r1, r2 );
 
                 bool keep1 = ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 );
@@ -3663,17 +3665,17 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
         vector < piecewise_surface_type > splitsurfvec;
         for ( int j = 0; j < surfvec.size(); j++ )
         {
-            piecewise_surface_type s, s1, s2;
+            piecewise_surface_type s, s2;
 
             s = std::move( surfvec[j] );
 
             if ( s.get_u0() < USplit[i] && s.get_umax() > USplit[i] )
             {
-                s.split_u( s1, s2, USplit[i] );
+                s.split_u( s2, USplit[i] );
 
-                if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
+                if ( s.number_u_patches() > 0 && s.number_v_patches() > 0 )
                 {
-                    splitsurfvec.push_back( std::move( s1 ) );
+                    splitsurfvec.push_back( std::move( s ) );
                 }
                 if ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 )
                 {
@@ -3696,17 +3698,17 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
         vector < piecewise_surface_type > splitsurfvec;
         for ( int j = 0; j < surfvec.size(); j++ )
         {
-            piecewise_surface_type s, s1, s2;
+            piecewise_surface_type s, s2;
 
             s = std::move( surfvec[j] );
 
             if ( s.get_v0() < WSplit[i] && s.get_vmax() > WSplit[i] )
             {
-                s.split_v( s1, s2, WSplit[i] );
+                s.split_v( s2, WSplit[i] );
 
-                if ( s1.number_u_patches() > 0 && s1.number_v_patches() > 0 )
+                if ( s.number_u_patches() > 0 && s.number_v_patches() > 0 )
                 {
-                    splitsurfvec.push_back( std::move( s1 ) );
+                    splitsurfvec.push_back( std::move( s ) );
                 }
                 if ( s2.number_u_patches() > 0 && s2.number_v_patches() > 0 )
                 {
