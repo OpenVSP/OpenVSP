@@ -7,8 +7,8 @@
 # For most caps the tip is the middle of the capped surface's u 0 edge, w 0.25, about which the cap's tip
 # curve folds.
 #
-# A cone's sides gather instead at its sphere's pole, and its tip is the point a point cap with the same
-# length and offset closes on.
+# A cone's or ogive's sides gather instead at its sphere's pole, and its tip is the point a point cap with
+# the same length and offset closes on.
 
 import math
 import os
@@ -26,6 +26,8 @@ NOSE_CAPS = (
     vsp.SHARP_END_CAP,
     vsp.POINT_END_CAP,
     vsp.CONE_END_CAP,
+    vsp.OGIVE_END_CAP,
+    vsp.OGIVE_SURF_END_CAP,
 )
 
 
@@ -75,11 +77,11 @@ def tip( gid ):
         a = vsp.CompPnt01( gid, 0, 0.0, 0.25 )
         b = vsp.CompPnt01( gid, 0, 0.0, 0.75 )
         return ( 0.5 * ( a.x() + b.x() ), 0.5 * ( a.y() + b.y() ), 0.5 * ( a.z() + b.z() ) )
-    if cap_type == vsp.CONE_END_CAP:
+    if cap_type in ( vsp.CONE_END_CAP, vsp.OGIVE_END_CAP, vsp.OGIVE_SURF_END_CAP ):
         vsp.SetParmVal( opt, vsp.POINT_END_CAP )
         vsp.Update()
         p = vsp.CompPnt01( gid, 0, 0.0, 0.25 )
-        vsp.SetParmVal( opt, vsp.CONE_END_CAP )
+        vsp.SetParmVal( opt, cap_type )
         vsp.Update()
         return ( p.x(), p.y(), p.z() )
     p = vsp.CompPnt01( gid, 0, 0.0, 0.25 )
