@@ -8508,6 +8508,9 @@ vector < int > GeomXSec::BodyCapTypes()
     types.push_back( CONE_END_CAP );
     types.push_back( OGIVE_END_CAP );
     types.push_back( OGIVE_SURF_END_CAP );
+    types.push_back( POWER_LAW_END_CAP );
+    types.push_back( VON_KARMAN_END_CAP );
+    types.push_back( SEARS_HAACK_END_CAP );
     return types;
 }
 
