@@ -464,25 +464,26 @@ def testATipRaisedOffTheEndStaysConvexOverTheSphere( typ ):
     assert top > 0.9 * 1.25
 
 
-def raised( typ, length, offset, radius ):
-    """A body of circular sections, 2 across, with a cone nose of the given dimensional length, offset and
-    radius, and the sphere's center: a radius back from a point cap's point along the way that point
-    moves with length."""
+def raised( typ, length, offset, radius, cap_type=vsp.CONE_END_CAP, angle=0.0, diameter=2.0 ):
+    """A body of circular sections, diameter across, with a cone nose, or one of cap_type at angle, of the
+    given dimensional length, offset and radius, and the sphere's center: a radius back from a point cap's
+    point along the way that point moves with length."""
     vsp.VSPRenew()
     drop_errors()
     gid = vsp.AddGeom( typ )
     xss = vsp.GetXSecSurf( gid, 0 )
     for i in range( vsp.GetNumXSec( xss ) ):
         vsp.ChangeXSecShape( xss, i, vsp.XS_CIRCLE )
-        vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xss, i ), "Circle_Diameter" ), 2.0 )
+        vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xss, i ), "Circle_Diameter" ), diameter )
 
-    def cap( cap_type, l, o ):
+    def cap( ctype, l, o ):
         for end, u in ENDS:
-            vsp.SetParmVal( cap_parm( gid, "Cap" + end + "Option" ), cap_type )
+            vsp.SetParmVal( cap_parm( gid, "Cap" + end + "Option" ), ctype )
             vsp.SetParmVal( cap_parm( gid, "Cap" + end + "RelFlag" ), False )
             vsp.SetParmVal( cap_parm( gid, "Cap" + end + "LengthDim" ), l )
             vsp.SetParmVal( cap_parm( gid, "Cap" + end + "OffsetDim" ), o )
             vsp.SetParmVal( cap_parm( gid, "Cap" + end + "RadiusDim" ), radius )
+            vsp.SetParmVal( cap_parm( gid, "Cap" + end + "OgiveAngle" ), angle )
         vsp.Update()
         return point( gid, ENDS[0][1], 0.0 )
 
@@ -490,7 +491,7 @@ def raised( typ, length, offset, radius ):
     axis = tuple( c / norm( axis ) for c in axis )
     tip = cap( vsp.POINT_END_CAP, length, offset )
     cen = tuple( p - radius * a for p, a in zip( tip, axis ) )
-    cap( vsp.CONE_END_CAP, length, offset )
+    cap( cap_type, length, offset )
     return gid, cen
 
 
