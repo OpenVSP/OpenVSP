@@ -536,3 +536,36 @@ def testAnEndInsideTheSphereReachesOutToIt( typ ):
     for k in range( 1, 21 ):
         for j in range( nw ):
             assert outward( gid, u, cen, k, j, nw ) > 0.9, ( k, j )
+
+
+@pytest.mark.parametrize( "radius", ( 0.3, 0.499, 0.501, 0.8 ) )
+@pytest.mark.parametrize( "typ", TYPES )
+def testASphereCenteredBehindTheEndStillLeadsToItsPole( typ, radius ):
+    """With no offset and the radius past the length, the sphere's center lies behind the end, yet each side
+    still runs forward from the end to the sphere and over its front to the pole."""
+    gid, cen = raised( typ, 0.5, 0.0, radius )
+    u = ENDS[0][1]
+    axis = sub( point( gid, u, 0.0 ), cen )
+    axis = tuple( c / norm( axis ) for c in axis )
+    nw = 64
+    for j in range( nw ):
+        q = point( gid, cap_u( gid, u, 1.0 ), j / nw )
+        t = point( gid, cap_u( gid, u, 0.5 ), j / nw )
+        assert dot( sub( t, q ), axis ) > 0.3, j
+    for k in range( 1, 21 ):
+        for j in range( nw ):
+            assert outward( gid, u, cen, k, j, nw ) > 0.5, ( k, j )
+
+
+@pytest.mark.parametrize( "offset", ( 0.09, 0.3 ) )
+@pytest.mark.parametrize( "typ", TYPES )
+def testASideNeverTouchesTheSpherePastItsPole( typ, offset ):
+    """With the sphere's center just ahead of the end and a small offset, the line from some points of the
+    end touches the sphere only beyond the pole; those sides run to the pole instead, and the sphere still
+    faces outward."""
+    gid, cen = raised( typ, 0.6, offset, 0.5 )
+    u = ENDS[0][1]
+    nw = 64
+    for k in range( 1, 21 ):
+        for j in range( nw ):
+            assert outward( gid, u, cen, k, j, nw ) > 0.5, ( k, j )
