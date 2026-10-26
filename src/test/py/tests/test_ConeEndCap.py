@@ -554,7 +554,8 @@ def degen_rows( gid ):
 
 
 @pytest.mark.parametrize( "cap_type", ( vsp.ROUND_END_CAP, vsp.POINT_END_CAP, vsp.CONE_END_CAP, vsp.OGIVE_END_CAP,
-                                        vsp.OGIVE_SURF_END_CAP ) )
+                                        vsp.OGIVE_SURF_END_CAP, vsp.POWER_LAW_END_CAP, vsp.VON_KARMAN_END_CAP,
+                                        vsp.SEARS_HAACK_END_CAP ) )
 @pytest.mark.parametrize( "typ", TYPES )
 def testDegenGeomTakesTheBodyWithoutItsCaps( typ, cap_type ):
     """DegenGeom leaves a body's end caps out, of whatever type, and keeps every section of the body: the same

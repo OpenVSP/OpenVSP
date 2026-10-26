@@ -28,6 +28,9 @@ NOSE_CAPS = (
     vsp.CONE_END_CAP,
     vsp.OGIVE_END_CAP,
     vsp.OGIVE_SURF_END_CAP,
+    vsp.POWER_LAW_END_CAP,
+    vsp.VON_KARMAN_END_CAP,
+    vsp.SEARS_HAACK_END_CAP,
 )
 
 
