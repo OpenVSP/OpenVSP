@@ -365,6 +365,9 @@ void ConformalGeom::UpdateSurf()
     copy_geom->Update();
     copy_geom->GetMainSurfVecCopy( m_MainSurfVec );
 
+    // The ribs are skinned where the parent's XSecs are, before its nose is shifted to the origin.
+    vec3d nose_shift = parent_geom->GetNoseShift();
+
     // Offset Ends acts only on a ribbed surface of a parent other than a Cobra.
     bool offset_ends_used = false;
 
@@ -397,10 +400,13 @@ void ConformalGeom::UpdateSurf()
                     SetWingTrimParms(m_MainSurfVec[i]);
                 }
 
+                VspSurf parent_surf = *( parent_geom->GetMainSurfPtr( i ) );
+                parent_surf.Offset( nose_shift * -1.0 );
+
                 //==== Make Sure Ribs Are Centered ====//
                 if ( !COBRA_ParentFlag )
                 {
-                    CenterRibCurves(m_MainSurfVec[i], *( parent_geom->GetMainSurfPtr( i ) ), offset);
+                    CenterRibCurves(m_MainSurfVec[i], parent_surf, offset);
                 }
 
                 //==== Offset Ribs ====//
@@ -419,13 +425,15 @@ void ConformalGeom::UpdateSurf()
                 {
 // Measure Error - Expensive
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
-                    AdjustShape(m_MainSurfVec[i], *( parent_geom->GetMainSurfPtr( i ) ), offset);
+                    AdjustShape(m_MainSurfVec[i], parent_surf, offset);
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
                 }
 
                 //==== Trim U and V is Needed ====//
                 TrimU(m_MainSurfVec[i]);
                 TrimV(m_MainSurfVec[i]);
+
+                m_MainSurfVec[i].Offset( nose_shift );
             }
                 //==== To Do - Body of Rev (Pods) ====//
             else if (skin_type == VspSurf::SKIN_BODY_REV)

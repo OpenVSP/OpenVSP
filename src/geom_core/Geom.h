@@ -564,6 +564,12 @@ public:
 
     virtual const VspSurf* GetMainSurfPtr( int indx ) const;
 
+    // The translation ShiftNoseToOrigin last gave the main surfaces.
+    vec3d GetNoseShift() const
+    {
+        return m_NoseShift;
+    }
+
     virtual const vector<VspSurf> * GetSurfVecPtr() const
     {
         return &m_SurfVec;

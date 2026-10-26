@@ -161,3 +161,24 @@ def testNoseOriginSurvivesAFile( typ, tmp_path ):
 
     assert vsp.GetBoolParmVal( vsp.FindParm( gid, "NoseOriginZFlag", "Design" ) )
     assert max( math.dist( p, q ) for p, q in zip( shape( gid ), before ) ) < 1e-12
+
+
+@pytest.mark.parametrize( "cap_type", NOSE_CAPS )
+@pytest.mark.parametrize( "typ", ( "FUSELAGE", "STACK" ) )
+def testAConformalMovesWithItsParentsNose( typ, cap_type ):
+    """A Conformal on a body follows it as its nose moves to the origin: its surface moves by the same
+    amount as the body's."""
+    gid = body( typ, cap_type )
+    cid = vsp.AddGeom( "CONFORMAL", gid )
+    vsp.SetParmVal( vsp.FindParm( cid, "Offset", "Design" ), 0.05 )
+    vsp.Update()
+    before = shape( cid )
+    parent_before = shape( gid )
+    set_flags( gid, ( True, True, True ) )
+    parent_after = shape( gid )
+    move = tuple( a - b for a, b in zip( parent_after[0], parent_before[0] ) )
+    assert math.sqrt( sum( m * m for m in move ) ) > 0.1
+    for p in before:
+        moved = vsp.vec3d( p[0] + move[0], p[1] + move[1], p[2] + move[2] )
+        d, u, w = vsp.ProjPnt01( cid, 0, moved )
+        assert d < 1e-9, p
