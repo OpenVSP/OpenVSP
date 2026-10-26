@@ -375,6 +375,9 @@ protected:
     EndCapTypeGroup m_PointGroup;
     EndCapTypeGroup m_ConeGroup;
     EndCapTypeGroup m_OgiveGroup; // Ogive, Ogive Surf
+    EndCapTypeGroup m_PowerLawGroup;
+    EndCapTypeGroup m_VonKarmanGroup;
+    EndCapTypeGroup m_SearsHaackGroup;
 };
 
 //==== Geom Screen ====//

@@ -3917,6 +3917,9 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
         case vsp::ROUND_EXT_END_CAP_LE:
         case vsp::ROUND_EXT_END_CAP_TE:
         case vsp::ROUND_EXT_END_CAP_BOTH:
+        case vsp::POWER_LAW_END_CAP:
+        case vsp::VON_KARMAN_END_CAP:
+        case vsp::SEARS_HAACK_END_CAP:
             // Length & Offset only
             strengthSlider.Deactivate();
             break;
@@ -3956,6 +3959,9 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
         case vsp::ROUND_EXT_END_CAP_LE:
         case vsp::ROUND_EXT_END_CAP_TE:
         case vsp::ROUND_EXT_END_CAP_BOTH:
+        case vsp::POWER_LAW_END_CAP:
+        case vsp::VON_KARMAN_END_CAP:
+        case vsp::SEARS_HAACK_END_CAP:
             // Length + Offset only
             strengthSlider.Deactivate();
             break;
@@ -4258,6 +4264,9 @@ vector< EndCapTypeGroup* > EndCapGUI::Groups()
     groups.push_back( &m_PointGroup );
     groups.push_back( &m_ConeGroup );
     groups.push_back( &m_OgiveGroup );
+    groups.push_back( &m_PowerLawGroup );
+    groups.push_back( &m_VonKarmanGroup );
+    groups.push_back( &m_SearsHaackGroup );
     return groups;
 }
 
@@ -4272,6 +4281,9 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_TypeChoice.AddItem( "Cone", vsp::CONE_END_CAP );
     m_TypeChoice.AddItem( "Ogive", vsp::OGIVE_END_CAP );
     m_TypeChoice.AddItem( "Ogive Surf", vsp::OGIVE_SURF_END_CAP );
+    m_TypeChoice.AddItem( "Power Law", vsp::POWER_LAW_END_CAP );
+    m_TypeChoice.AddItem( "Von Karman", vsp::VON_KARMAN_END_CAP );
+    m_TypeChoice.AddItem( "Sears-Haack", vsp::SEARS_HAACK_END_CAP );
     layout.SetSameLineFlag( true );
     layout.AddChoice( m_TypeChoice, label.c_str(), 2 * layout.GetInputWidth() );
 
@@ -4295,6 +4307,8 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_ConeGroup.SetRadius( EndCapTypeGroup::ALWAYS );
     m_OgiveGroup.SetRadius( EndCapTypeGroup::ALWAYS );
     m_OgiveGroup.SetExtra( "Angle", 10, "%7.3f" );
+    m_PowerLawGroup.SetExtra( "Exponent" );
+    m_VonKarmanGroup.SetExtra( "Haack C" );
 
     // The groups share the space of the one with the most lines.
     vector< EndCapTypeGroup* > groups = Groups();
@@ -4322,6 +4336,8 @@ void EndCapGUI::Update( Geom* geom_ptr, bool umax )
     string rel_id = geom_ptr->m_CapUMinRelFlag.GetID();
     string str_id = geom_ptr->m_CapUMinStrength.GetID();
     string ang_id = geom_ptr->m_CapUMinOgiveAngle.GetID();
+    string exp_id = geom_ptr->m_CapUMinPowerExp.GetID();
+    string haack_id = geom_ptr->m_CapUMinHaackC.GetID();
 
     if ( umax )
     {
@@ -4330,6 +4346,8 @@ void EndCapGUI::Update( Geom* geom_ptr, bool umax )
         rel_id = geom_ptr->m_CapUMaxRelFlag.GetID();
         str_id = geom_ptr->m_CapUMaxStrength.GetID();
         ang_id = geom_ptr->m_CapUMaxOgiveAngle.GetID();
+        exp_id = geom_ptr->m_CapUMaxPowerExp.GetID();
+        haack_id = geom_ptr->m_CapUMaxHaackC.GetID();
     }
 
     m_TypeChoice.Update( type_id );
@@ -4363,6 +4381,21 @@ void EndCapGUI::Update( Geom* geom_ptr, bool umax )
         case vsp::OGIVE_SURF_END_CAP:
             DisplayGroup( &m_OgiveGroup );
             m_OgiveGroup.Update( geom_ptr, umax, ang_id );
+            break;
+
+        case vsp::POWER_LAW_END_CAP:
+            DisplayGroup( &m_PowerLawGroup );
+            m_PowerLawGroup.Update( geom_ptr, umax, exp_id );
+            break;
+
+        case vsp::VON_KARMAN_END_CAP:
+            DisplayGroup( &m_VonKarmanGroup );
+            m_VonKarmanGroup.Update( geom_ptr, umax, haack_id );
+            break;
+
+        case vsp::SEARS_HAACK_END_CAP:
+            DisplayGroup( &m_SearsHaackGroup );
+            m_SearsHaackGroup.Update( geom_ptr, umax );
             break;
 
         default: // None, Flat, or a kind these screens do not offer
