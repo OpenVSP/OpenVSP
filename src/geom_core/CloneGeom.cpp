@@ -90,6 +90,10 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     cap_parms.push_back( &m_CapUMaxRadiusDim );
     cap_parms.push_back( &m_CapUMinOgiveAngle );
     cap_parms.push_back( &m_CapUMaxOgiveAngle );
+    cap_parms.push_back( &m_CapUMinPowerExp );
+    cap_parms.push_back( &m_CapUMaxPowerExp );
+    cap_parms.push_back( &m_CapUMinHaackC );
+    cap_parms.push_back( &m_CapUMaxHaackC );
     for ( size_t i = 0; i < cap_parms.size(); i++ )
     {
         cap_parms[i]->Deactivate();
@@ -771,6 +775,8 @@ void CloneGeom::CopyEndCapParms( Geom* from, Geom* to )
     to->m_CapUMinRadius.Set( from->m_CapUMinRadius() );
     to->m_CapUMinRadiusDim.Set( from->m_CapUMinRadiusDim() );
     to->m_CapUMinOgiveAngle.Set( from->m_CapUMinOgiveAngle() );
+    to->m_CapUMinPowerExp.Set( from->m_CapUMinPowerExp() );
+    to->m_CapUMinHaackC.Set( from->m_CapUMinHaackC() );
     to->m_CapUMinTess.Set( from->m_CapUMinTess() );
     to->m_CapUMaxOption.Set( from->m_CapUMaxOption() );
     to->m_CapUMaxLength.Set( from->m_CapUMaxLength() );
@@ -783,6 +789,8 @@ void CloneGeom::CopyEndCapParms( Geom* from, Geom* to )
     to->m_CapUMaxRadius.Set( from->m_CapUMaxRadius() );
     to->m_CapUMaxRadiusDim.Set( from->m_CapUMaxRadiusDim() );
     to->m_CapUMaxOgiveAngle.Set( from->m_CapUMaxOgiveAngle() );
+    to->m_CapUMaxPowerExp.Set( from->m_CapUMaxPowerExp() );
+    to->m_CapUMaxHaackC.Set( from->m_CapUMaxHaackC() );
 }
 
 void CloneGeom::CopyTessParms( Geom* from, Geom* to )

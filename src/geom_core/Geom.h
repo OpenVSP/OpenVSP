@@ -1036,6 +1036,8 @@ public:
     Parm m_CapUMinRadius;
     Parm m_CapUMinRadiusDim;
     Parm m_CapUMinOgiveAngle;
+    Parm m_CapUMinPowerExp;
+    Parm m_CapUMinHaackC;
 
     Parm m_CapUMaxLength;
     Parm m_CapUMaxOffset;
@@ -1047,6 +1049,8 @@ public:
     Parm m_CapUMaxRadius;
     Parm m_CapUMaxRadiusDim;
     Parm m_CapUMaxOgiveAngle;
+    Parm m_CapUMaxPowerExp;
+    Parm m_CapUMaxHaackC;
     bool m_CappingDone;
 
     // Where the UMin cap's length and offset place its tip, or the middle of the end with no cap, on the
@@ -1100,6 +1104,8 @@ protected:
     virtual void UpdateEndCaps();
     void UpdateCapDims( const VspSurf &surf, bool umax );
     static vector < int > CapTypes( bool body );
+    static bool ProfileCap( int capType );
+    double CapRadius( bool umax );
 
     // Translate the capped main surfaces so the chosen coordinates of the first one's nose tip are
     // zero.  The tip is where the nose cap's length and offset place it, or with no cap the middle

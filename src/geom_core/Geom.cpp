@@ -1779,6 +1779,10 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone or ogive end cap" );
     m_CapUMinOgiveAngle.Init( "CapUMinOgiveAngle", "EndCap", this, 0, -89, 89 );
     m_CapUMinOgiveAngle.SetDescript( "Angle in degrees at which an ogive end cap leaves the end, towards its axis" );
+    m_CapUMinPowerExp.Init( "CapUMinPowerExp", "EndCap", this, 0.5, 0.05, 20.0 );
+    m_CapUMinPowerExp.SetDescript( "Exponent of a power law end cap's radius along its length" );
+    m_CapUMinHaackC.Init( "CapUMinHaackC", "EndCap", this, 0, 0, 2.0 / 3.0 );
+    m_CapUMinHaackC.SetDescript( "C of a Von Karman end cap's Haack series: 0 for Von Karman, 1/3 for LV-Haack" );
 
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
@@ -1807,6 +1811,10 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMaxRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone or ogive end cap" );
     m_CapUMaxOgiveAngle.Init( "CapUMaxOgiveAngle", "EndCap", this, 0, -89, 89 );
     m_CapUMaxOgiveAngle.SetDescript( "Angle in degrees at which an ogive end cap leaves the end, towards its axis" );
+    m_CapUMaxPowerExp.Init( "CapUMaxPowerExp", "EndCap", this, 0.5, 0.05, 20.0 );
+    m_CapUMaxPowerExp.SetDescript( "Exponent of a power law end cap's radius along its length" );
+    m_CapUMaxHaackC.Init( "CapUMaxHaackC", "EndCap", this, 0, 0, 2.0 / 3.0 );
+    m_CapUMaxHaackC.SetDescript( "C of a Von Karman end cap's Haack series: 0 for Von Karman, 1/3 for LV-Haack" );
 
     // Parasite Drag Parms
     m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
@@ -2299,16 +2307,18 @@ void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bo
         m_CapUMinTipFound = surf.CapTipPnt( false, tiptype, m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(),
                                             m_CapUMinSweepFlag(), m_CapUMinTipPnt );
     }
-    umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag(), m_CapUMinRadius(),
-                                Deg2Rad( m_CapUMinOgiveAngle() ) );
+    umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag(), CapRadius( false ),
+                                Deg2Rad( m_CapUMinOgiveAngle() ), m_CapUMinPowerExp(),
+                                m_CapUMinHaackC() );
 
     // An extended round cap splits the whole surface, so the other end is measured after it.
     if ( setdims )
     {
         UpdateCapDims( surf, true );
     }
-    umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag(), m_CapUMaxRadius(),
-                                Deg2Rad( m_CapUMaxOgiveAngle() ) );
+    umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag(), CapRadius( true ),
+                                Deg2Rad( m_CapUMaxOgiveAngle() ), m_CapUMaxPowerExp(),
+                                m_CapUMaxHaackC() );
 }
 
 // Set the end cap parms each cap option fixes.
@@ -2373,18 +2383,42 @@ void Geom::UpdateCapParms()
     }
 }
 
-// Every end cap type, with or without the cone and ogives, which only a Fuselage or Stack takes.
+// Every end cap type, with or without the cone, ogives and profile caps.
 vector < int > Geom::CapTypes( bool body )
 {
     vector < int > types;
     for ( int i = NO_END_CAP; i < NUM_END_CAP_OPTIONS; i++ )
     {
-        if ( body || ( i != CONE_END_CAP && i != OGIVE_END_CAP && i != OGIVE_SURF_END_CAP ) )
+        if ( body || ( i != CONE_END_CAP && i != OGIVE_END_CAP && i != OGIVE_SURF_END_CAP && !ProfileCap( i ) ) )
         {
             types.push_back( i );
         }
     }
     return types;
+}
+
+// Whether an end cap of type capType follows a profile from the end to a sharp point with no offset.
+bool Geom::ProfileCap( int capType )
+{
+    return capType == POWER_LAW_END_CAP || capType == VON_KARMAN_END_CAP || capType == SEARS_HAACK_END_CAP;
+}
+
+// The tip radius the UMax or UMin end cap takes: none for a profile cap.
+double Geom::CapRadius( bool umax )
+{
+    if ( umax )
+    {
+        if ( ProfileCap( m_CapUMaxOption() ) )
+        {
+            return 0.0;
+        }
+        return m_CapUMaxRadius();
+    }
+    if ( ProfileCap( m_CapUMinOption() ) )
+    {
+        return 0.0;
+    }
+    return m_CapUMinRadius();
 }
 
 // Set the non-dimensional sizes of the cap on the UMax or UMin end from their dimensional values, or the

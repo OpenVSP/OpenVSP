@@ -747,6 +747,12 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CAP_TYPE", "OGIVE_SURF_END_CAP", vsp::OGIVE_SURF_END_CAP );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "POWER_LAW_END_CAP", vsp::POWER_LAW_END_CAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "VON_KARMAN_END_CAP", vsp::VON_KARMAN_END_CAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "SEARS_HAACK_END_CAP", vsp::SEARS_HAACK_END_CAP );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "CAP_TYPE", "NUM_END_CAP_OPTIONS", vsp::NUM_END_CAP_OPTIONS );
     assert( r >= 0 );
 

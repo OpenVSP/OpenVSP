@@ -3221,9 +3221,9 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
     }
 }
 
-bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang)
+bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack)
 {
-    bool capped = CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag, rad, ogang );
+    bool capped = CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag, rad, ogang, pexp, haack );
     if ( capped )
     {
         m_CFDCapUMin = true;
@@ -3231,9 +3231,9 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const 
     return capped;
 }
 
-bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang)
+bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack)
 {
-    bool capped = CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag, rad, ogang );
+    bool capped = CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag, rad, ogang, pexp, haack );
     if ( capped )
     {
         m_CFDCapUMax = true;
@@ -3289,8 +3289,27 @@ static int MultiCapType( int CapType, bool &extle, bool &extte )
       case vsp::OGIVE_SURF_END_CAP:
         captype = multicap_creator_type::OGIVE;
         break;
+      case vsp::POWER_LAW_END_CAP:
+      case vsp::VON_KARMAN_END_CAP:
+      case vsp::SEARS_HAACK_END_CAP:
+        captype = multicap_creator_type::PROFILE;
+        break;
     }
     return captype;
+}
+
+// Code-Eli profile for a profile end cap type.
+static int MultiCapProfile( int CapType )
+{
+    if ( CapType == vsp::VON_KARMAN_END_CAP )
+    {
+        return multicap_creator_type::VON_KARMAN;
+    }
+    if ( CapType == vsp::SEARS_HAACK_END_CAP )
+    {
+        return multicap_creator_type::SEARS_HAACK;
+    }
+    return multicap_creator_type::POWER_LAW;
 }
 
 // Give cc the height of an extended round cap on the edge with control point rows edg and edgnext, and find
@@ -3390,7 +3409,7 @@ static void CapFrameConditions( bool frame, const vec3d &axis, const vec3d &up, 
     cc.set_frame_conditions( a, u );
 }
 
-bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang)
+bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack)
 {
     if (CapType == vsp::NO_END_CAP)
     {
@@ -3426,6 +3445,7 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
     rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, offset, str, p, swflag );
     cc.set_cone_conditions( rad );
     cc.set_ogive_conditions( ogang, CapType == vsp::OGIVE_SURF_END_CAP );
+    cc.set_profile_conditions( MultiCapProfile( CapType ), pexp, haack );
     CapFrameConditions( m_CapFrameFlag, m_CapAxis, m_CapUp, whichCap == multicap_creator_type::CAP_UMAX, cc );
 
     if ( whichCap == multicap_creator_type::CAP_UMAX )

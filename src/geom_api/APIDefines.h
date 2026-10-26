@@ -212,6 +212,9 @@ enum CAP_TYPE { NO_END_CAP,	/*!< No end cap */
                 CONE_END_CAP,	/*!< Cone end cap with a spherical blunt tip */
                 OGIVE_END_CAP,	/*!< Ogive end cap, its angle measured from the end's normal, with a spherical blunt tip */
                 OGIVE_SURF_END_CAP,	/*!< Ogive end cap, its angle measured from the surface behind the end, with a spherical blunt tip */
+                POWER_LAW_END_CAP,	/*!< Sharp power law end cap with no offset, its radius the end's times the fraction of its length from its point raised to an exponent */
+                VON_KARMAN_END_CAP,	/*!< Sharp Von Karman ogive end cap with no offset, the Haack series nose with C zero */
+                SEARS_HAACK_END_CAP,	/*!< Sharp Sears-Haack end cap with no offset, the front half of a Sears-Haack body */
                 NUM_END_CAP_OPTIONS	/*!< Number of end cap options */
 };
 
