@@ -3911,6 +3911,8 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
         case vsp::EDGE_END_CAP:
         case vsp::POINT_END_CAP:
         case vsp::CONE_END_CAP:
+        case vsp::OGIVE_END_CAP:
+        case vsp::OGIVE_SURF_END_CAP:
         case vsp::ROUND_EXT_END_CAP_NONE:
         case vsp::ROUND_EXT_END_CAP_LE:
         case vsp::ROUND_EXT_END_CAP_TE:
@@ -3948,6 +3950,8 @@ void GeomScreen::UpdateCapControls( int capType, GuiDevice& lengthSlider, GuiDev
         case vsp::EDGE_END_CAP:
         case vsp::POINT_END_CAP:
         case vsp::CONE_END_CAP:
+        case vsp::OGIVE_END_CAP:
+        case vsp::OGIVE_SURF_END_CAP:
         case vsp::ROUND_EXT_END_CAP_NONE:
         case vsp::ROUND_EXT_END_CAP_LE:
         case vsp::ROUND_EXT_END_CAP_TE:
@@ -4253,6 +4257,7 @@ vector< EndCapTypeGroup* > EndCapGUI::Groups()
     groups.push_back( &m_SharpGroup );
     groups.push_back( &m_PointGroup );
     groups.push_back( &m_ConeGroup );
+    groups.push_back( &m_OgiveGroup );
     return groups;
 }
 
@@ -4265,6 +4270,8 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_TypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
     m_TypeChoice.AddItem( "Point", vsp::POINT_END_CAP );
     m_TypeChoice.AddItem( "Cone", vsp::CONE_END_CAP );
+    m_TypeChoice.AddItem( "Ogive", vsp::OGIVE_END_CAP );
+    m_TypeChoice.AddItem( "Ogive Surf", vsp::OGIVE_SURF_END_CAP );
     layout.SetSameLineFlag( true );
     layout.AddChoice( m_TypeChoice, label.c_str(), 2 * layout.GetInputWidth() );
 
@@ -4286,6 +4293,8 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_SharpGroup.SetSweep( true );
     m_SharpGroup.SetExtra( "Strength" );
     m_ConeGroup.SetRadius( EndCapTypeGroup::ALWAYS );
+    m_OgiveGroup.SetRadius( EndCapTypeGroup::ALWAYS );
+    m_OgiveGroup.SetExtra( "Angle", 10, "%7.3f" );
 
     // The groups share the space of the one with the most lines.
     vector< EndCapTypeGroup* > groups = Groups();
@@ -4312,6 +4321,7 @@ void EndCapGUI::Update( Geom* geom_ptr, bool umax )
     string type_id = geom_ptr->m_CapUMinOption.GetID();
     string rel_id = geom_ptr->m_CapUMinRelFlag.GetID();
     string str_id = geom_ptr->m_CapUMinStrength.GetID();
+    string ang_id = geom_ptr->m_CapUMinOgiveAngle.GetID();
 
     if ( umax )
     {
@@ -4319,6 +4329,7 @@ void EndCapGUI::Update( Geom* geom_ptr, bool umax )
         type_id = geom_ptr->m_CapUMaxOption.GetID();
         rel_id = geom_ptr->m_CapUMaxRelFlag.GetID();
         str_id = geom_ptr->m_CapUMaxStrength.GetID();
+        ang_id = geom_ptr->m_CapUMaxOgiveAngle.GetID();
     }
 
     m_TypeChoice.Update( type_id );
@@ -4346,6 +4357,12 @@ void EndCapGUI::Update( Geom* geom_ptr, bool umax )
         case vsp::CONE_END_CAP:
             DisplayGroup( &m_ConeGroup );
             m_ConeGroup.Update( geom_ptr, umax );
+            break;
+
+        case vsp::OGIVE_END_CAP:
+        case vsp::OGIVE_SURF_END_CAP:
+            DisplayGroup( &m_OgiveGroup );
+            m_OgiveGroup.Update( geom_ptr, umax, ang_id );
             break;
 
         default: // None, Flat, or a kind these screens do not offer
