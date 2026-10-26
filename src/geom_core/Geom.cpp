@@ -1774,9 +1774,11 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinOffsetDim.Init( "CapUMinOffsetDim", "EndCap", this, 0, -1e12, 1e12 );
     m_CapUMinOffsetDim.SetDescript( "Dimensional offset of end cap" );
     m_CapUMinRadius.Init( "CapUMinRadius", "EndCap", this, 0.25, 0, 20 );
-    m_CapUMinRadius.SetDescript( "Scaled radius of the spherical tip of a cone end cap" );
+    m_CapUMinRadius.SetDescript( "Scaled radius of the spherical tip of a cone or ogive end cap" );
     m_CapUMinRadiusDim.Init( "CapUMinRadiusDim", "EndCap", this, 0.25, 0, 1e12 );
-    m_CapUMinRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone end cap" );
+    m_CapUMinRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone or ogive end cap" );
+    m_CapUMinOgiveAngle.Init( "CapUMinOgiveAngle", "EndCap", this, 0, -89, 89 );
+    m_CapUMinOgiveAngle.SetDescript( "Angle in degrees at which an ogive end cap leaves the end, towards its axis" );
 
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
@@ -1800,9 +1802,11 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMaxOffsetDim.Init( "CapUMaxOffsetDim", "EndCap", this, 0, -1e12, 1e12 );
     m_CapUMaxOffsetDim.SetDescript( "Dimensional offset of end cap" );
     m_CapUMaxRadius.Init( "CapUMaxRadius", "EndCap", this, 0.25, 0, 20 );
-    m_CapUMaxRadius.SetDescript( "Scaled radius of the spherical tip of a cone end cap" );
+    m_CapUMaxRadius.SetDescript( "Scaled radius of the spherical tip of a cone or ogive end cap" );
     m_CapUMaxRadiusDim.Init( "CapUMaxRadiusDim", "EndCap", this, 0.25, 0, 1e12 );
-    m_CapUMaxRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone end cap" );
+    m_CapUMaxRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone or ogive end cap" );
+    m_CapUMaxOgiveAngle.Init( "CapUMaxOgiveAngle", "EndCap", this, 0, -89, 89 );
+    m_CapUMaxOgiveAngle.SetDescript( "Angle in degrees at which an ogive end cap leaves the end, towards its axis" );
 
     // Parasite Drag Parms
     m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
@@ -2295,14 +2299,16 @@ void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bo
         m_CapUMinTipFound = surf.CapTipPnt( false, tiptype, m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(),
                                             m_CapUMinSweepFlag(), m_CapUMinTipPnt );
     }
-    umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag(), m_CapUMinRadius());
+    umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag(), m_CapUMinRadius(),
+                                Deg2Rad( m_CapUMinOgiveAngle() ) );
 
     // An extended round cap splits the whole surface, so the other end is measured after it.
     if ( setdims )
     {
         UpdateCapDims( surf, true );
     }
-    umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag(), m_CapUMaxRadius());
+    umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag(), m_CapUMaxRadius(),
+                                Deg2Rad( m_CapUMaxOgiveAngle() ) );
 }
 
 // Set the end cap parms each cap option fixes.
@@ -2367,13 +2373,13 @@ void Geom::UpdateCapParms()
     }
 }
 
-// Every end cap type, with or without the cone, which only a Fuselage or Stack takes.
-vector < int > Geom::CapTypes( bool cone )
+// Every end cap type, with or without the cone and ogives, which only a Fuselage or Stack takes.
+vector < int > Geom::CapTypes( bool body )
 {
     vector < int > types;
     for ( int i = NO_END_CAP; i < NUM_END_CAP_OPTIONS; i++ )
     {
-        if ( i != CONE_END_CAP || cone )
+        if ( body || ( i != CONE_END_CAP && i != OGIVE_END_CAP && i != OGIVE_SURF_END_CAP ) )
         {
             types.push_back( i );
         }
@@ -2438,7 +2444,7 @@ void Geom::UpdateCapDims( const VspSurf &surf, bool umax )
     }
     lendim->Set( len->Get() * lenscale );
 
-    // A cone cap's radius has the length's scale.
+    // A cone or ogive cap's radius has the length's scale.
     if ( !nondim )
     {
         rad->Set( raddim->Get() / lenscale );

@@ -629,12 +629,14 @@ void ConformalGeom::UpdateCopySurfParms()
     m_CapUMinLength = parent_geom->m_CapUMinLength();
     m_CapUMinOffset = parent_geom->m_CapUMinOffset();
     m_CapUMinRadius = parent_geom->m_CapUMinRadius();
+    m_CapUMinOgiveAngle = parent_geom->m_CapUMinOgiveAngle();
     m_CapUMinStrength = parent_geom->m_CapUMinStrength();
     m_CapUMinSweepFlag = parent_geom->m_CapUMinSweepFlag();
 
     m_CapUMaxLength = parent_geom->m_CapUMaxLength();
     m_CapUMaxOffset = parent_geom->m_CapUMaxOffset();
     m_CapUMaxRadius = parent_geom->m_CapUMaxRadius();
+    m_CapUMaxOgiveAngle = parent_geom->m_CapUMaxOgiveAngle();
     m_CapUMaxStrength = parent_geom->m_CapUMaxStrength();
     m_CapUMaxSweepFlag = parent_geom->m_CapUMaxSweepFlag();
 }

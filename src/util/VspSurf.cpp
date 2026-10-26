@@ -3214,9 +3214,9 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
     }
 }
 
-bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad)
+bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang)
 {
-    bool capped = CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag, rad );
+    bool capped = CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag, rad, ogang );
     if ( capped )
     {
         m_CFDCapUMin = true;
@@ -3224,9 +3224,9 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const 
     return capped;
 }
 
-bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad)
+bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang)
 {
-    bool capped = CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag, rad );
+    bool capped = CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag, rad, ogang );
     if ( capped )
     {
         m_CFDCapUMax = true;
@@ -3277,6 +3277,10 @@ static int MultiCapType( int CapType, bool &extle, bool &extte )
         break;
       case vsp::CONE_END_CAP:
         captype = multicap_creator_type::CONE;
+        break;
+      case vsp::OGIVE_END_CAP:
+      case vsp::OGIVE_SURF_END_CAP:
+        captype = multicap_creator_type::OGIVE;
         break;
     }
     return captype;
@@ -3379,7 +3383,7 @@ static void CapFrameConditions( bool frame, const vec3d &axis, const vec3d &up, 
     cc.set_frame_conditions( a, u );
 }
 
-bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad)
+bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang)
 {
     if (CapType == vsp::NO_END_CAP)
     {
@@ -3414,6 +3418,7 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
 
     rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, offset, str, p, swflag );
     cc.set_cone_conditions( rad );
+    cc.set_ogive_conditions( ogang, CapType == vsp::OGIVE_SURF_END_CAP );
     CapFrameConditions( m_CapFrameFlag, m_CapAxis, m_CapUp, whichCap == multicap_creator_type::CAP_UMAX, cc );
 
     if ( whichCap == multicap_creator_type::CAP_UMAX )

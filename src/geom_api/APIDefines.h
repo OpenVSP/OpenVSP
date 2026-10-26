@@ -210,6 +210,8 @@ enum CAP_TYPE { NO_END_CAP,	/*!< No end cap */
                 ROUND_EXT_END_CAP_TE,	/*!< Extended round end cap, extend TE */
                 ROUND_EXT_END_CAP_BOTH,	/*!< Extended round end cap, extend both */
                 CONE_END_CAP,	/*!< Cone end cap with a spherical blunt tip */
+                OGIVE_END_CAP,	/*!< Ogive end cap, its angle measured from the end's normal, with a spherical blunt tip */
+                OGIVE_SURF_END_CAP,	/*!< Ogive end cap, its angle measured from the surface behind the end, with a spherical blunt tip */
                 NUM_END_CAP_OPTIONS	/*!< Number of end cap options */
 };
 
