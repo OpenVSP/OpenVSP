@@ -8464,6 +8464,8 @@ vector < int > GeomXSec::BodyCapTypes()
     types.push_back( SHARP_END_CAP );
     types.push_back( POINT_END_CAP );
     types.push_back( CONE_END_CAP );
+    types.push_back( OGIVE_END_CAP );
+    types.push_back( OGIVE_SURF_END_CAP );
     return types;
 }
 
