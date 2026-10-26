@@ -757,6 +757,13 @@ public:
 
     virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
 
+    // Whether the tessellation takes each of an end cap's u patches as a section of its own, rather than the
+    // whole cap as one.
+    virtual bool TessCapPatches() const
+    {
+        return false;
+    }
+
     virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal, const int & n_ref = 0 ) const;
     vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal, const int & n_ref = 0 ) const;
 

@@ -50,6 +50,7 @@ public:
     virtual void UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, bool capUMaxSuccess,
                                        vector< vector< vector< vec3d > > > &pnts,
                                        vector< vector< vector< vec3d > > > &norms ) const override;
+    virtual bool TessCapPatches() const override;
 
     // The copied surfaces are already capped; take the original's results.
     virtual void UpdateEndCaps() override;

@@ -538,6 +538,45 @@ def testAnEndInsideTheSphereReachesOutToIt( typ ):
             assert outward( gid, u, cen, k, j, nw ) > 0.9, ( k, j )
 
 
+def degen_rows( gid ):
+    """The x of each row of the DegenGeom surface of gid."""
+    vsp.SetAnalysisInputDefaults( "DegenGeom" )
+    vsp.SetIntAnalysisInput( "DegenGeom", "WriteCSVFlag", [ 0 ] )
+    vsp.SetIntAnalysisInput( "DegenGeom", "WriteMFileFlag", [ 0 ] )
+    rid = vsp.ExecAnalysis( "DegenGeom" )
+    rows = []
+    for dg in vsp.GetStringResults( rid, "Degen_DegenGeoms" ):
+        if vsp.GetStringResults( dg, "geom_id" )[0] == gid:
+            rows = vsp.GetDoubleMatResults( vsp.GetStringResults( dg, "surf" )[0], "x" )
+    vsp.DeleteAllResults()
+    return rows
+
+
+@pytest.mark.parametrize( "cap_type", ( vsp.ROUND_END_CAP, vsp.POINT_END_CAP, vsp.CONE_END_CAP, vsp.OGIVE_END_CAP,
+                                        vsp.OGIVE_SURF_END_CAP ) )
+@pytest.mark.parametrize( "typ", TYPES )
+def testDegenGeomTakesTheBodyWithoutItsCaps( typ, cap_type ):
+    """DegenGeom leaves a body's end caps out, of whatever type, and keeps every section of the body: the same
+    rows, from end to end, as with no caps."""
+    vsp.VSPRenew()
+    drop_errors()
+    gid = vsp.AddGeom( typ )
+    xss = vsp.GetXSecSurf( gid, 0 )
+    for i in range( vsp.GetNumXSec( xss ) ):
+        vsp.ChangeXSecShape( xss, i, vsp.XS_CIRCLE )
+        vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xss, i ), "Circle_Diameter" ), 2.0 )
+    vsp.Update()
+    bare = degen_rows( gid )
+    for end, u in ENDS:
+        vsp.SetParmVal( cap_parm( gid, "Cap" + end + "Option" ), cap_type )
+    vsp.Update()
+    capped = degen_rows( gid )
+    assert len( capped ) == len( bare )
+    for a, b in zip( capped, bare ):
+        assert max( abs( x - y ) for x, y in zip( a, b ) ) < 1e-9
+    assert_no_errors()
+
+
 @pytest.mark.parametrize( "radius", ( 0.3, 0.499, 0.501, 0.8 ) )
 @pytest.mark.parametrize( "typ", TYPES )
 def testASphereCenteredBehindTheEndStillLeadsToItsPole( typ, radius ):

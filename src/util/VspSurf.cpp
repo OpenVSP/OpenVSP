@@ -2634,6 +2634,13 @@ void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::
             }
         }
 
+        // The last section that is not skipped.
+        int ilast = nusect - 1;
+        while ( ilast > 0 && skip[ ilast ] )
+        {
+            ilast--;
+        }
+
         // Construct u tessellation.
         u.resize( nu );
         double uumin( m_Surface.get_u0() );
@@ -2650,7 +2657,7 @@ void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::
                     iu++;
                 }
             }
-            if ( !( isect == nusect - 1 && skip[ isect ] ) )
+            if ( isect <= ilast )
             {
                 uumin += du;
             }

@@ -1253,6 +1253,17 @@ void CloneGeom::UpdateSplitTesselate( const VspSurf &surf, bool capUMinSuccess, 
     Geom::UpdateSplitTesselate( surf, capUMinSuccess, capUMaxSuccess, pnts, norms );
 }
 
+bool CloneGeom::TessCapPatches() const
+{
+    Geom* original_geom = GetOriginalGeom();
+    if ( original_geom )
+    {
+        return original_geom->TessCapPatches();
+    }
+
+    return Geom::TessCapPatches();
+}
+
 void CloneGeom::UpdateEndCaps()
 {
     if ( m_CappingDone )

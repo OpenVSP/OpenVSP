@@ -5110,7 +5110,7 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
     if ( m_CapUMinSuccess[ m_MainSurfIndxVec[isurf] ] )
     {
         int nskip = 1;
-        if ( m_CapUMinOption() >= ROUND_EXT_END_CAP_NONE )
+        if ( TessCapPatches() && m_CapUMinOption() >= ROUND_EXT_END_CAP_NONE )
         {
             nskip++;
         }
@@ -5120,9 +5120,17 @@ void Geom::CreateDegenGeom( VspSurf &surf, int isurf, DegenGeom &degenGeom, bool
     if ( m_CapUMaxSuccess[ m_MainSurfIndxVec[isurf] ] )
     {
         int nskip = 1;
-        if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
+        if ( TessCapPatches() )
         {
-            nskip++;
+            if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
+            {
+                nskip++;
+            }
+        }
+        else
+        {
+            // Sections are skipped by the original section they map to, and the cap is the last of those.
+            nskip = surf.GetNumSectU() - ( static_cast<int>( surf.GetUMapMax() ) - 1 );
         }
         surf.SetUSkipLast( nskip, true );
     }
