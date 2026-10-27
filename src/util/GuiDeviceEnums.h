@@ -45,6 +45,7 @@ public:
     string m_ParmName;
     string m_GroupName;
     double m_Range;
+    string m_ParmName2;
 
 };
 
@@ -54,6 +55,8 @@ public:
 
     int m_GuiID;
     string m_ParmID;
+    string m_ParmID2;
+    int m_Input;
 };
 
 

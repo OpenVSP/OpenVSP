@@ -1,0 +1,55 @@
+// A box whose GUI holds controls added with good and bad arguments.  InitGui keeps what each AddGui returned in
+// the Results group, so a test can see which were refused.
+
+void Init()
+{
+    string id = AddParm( PARM_DOUBLE_TYPE, "Length", "Design" );
+    SetParmValLimits( id, 2.0, 0.0, 1.0e12 );
+    id = AddParm( PARM_DOUBLE_TYPE, "Width", "Design" );
+    SetParmValLimits( id, 1.0, 0.0, 1.0e12 );
+    id = AddParm( PARM_INT_TYPE, "Mode", "Design" );
+    SetParmValLimits( id, 3, 0, 10 );
+
+    array< string > results = { "ChoiceValue", "ChoiceNamedValue", "ChoiceBadValue", "ChoiceParmName", "TwoInput",
+                                "TwoInputOneParm" };
+    for ( int i = 0; i < int( results.size() ); i++ )
+    {
+        id = AddParm( PARM_INT_TYPE, results[i], "Results" );
+        SetParmValLimits( id, -2, -2, 1000 );
+    }
+
+    string xsec_surf = AddXSecSurf();
+    AppendCustomXSec( xsec_surf, XS_ROUNDED_RECTANGLE );
+    AppendCustomXSec( xsec_surf, XS_ROUNDED_RECTANGLE );
+}
+
+void Keep( const string & in name, int gui_id )
+{
+    SetParmVal( GetParm( GetCurrCustomGeom(), name, "Results" ), gui_id );
+}
+
+void InitGui()
+{
+    AddGui( GDEV_TAB, "Design" );
+    AddGui( GDEV_CHOICE, "Mode", "Mode", "Design" );
+    AddGui( GDEV_ADD_CHOICE_ITEM, "First" );
+    Keep( "ChoiceValue", AddGui( GDEV_ADD_CHOICE_ITEM, "Third", "", "", 10.0, "3" ) );
+    Keep( "ChoiceNamedValue", AddGui( GDEV_ADD_CHOICE_ITEM, "Fifth", arg5: "5" ) );
+    Keep( "ChoiceBadValue", AddGui( GDEV_ADD_CHOICE_ITEM, "Other", "", "", 10.0, "Mode" ) );
+    Keep( "ChoiceParmName", AddGui( GDEV_ADD_CHOICE_ITEM, "Named", "Mode", "Design" ) );
+    Keep( "TwoInput", AddGui( GDEV_SLIDER_ADJ_RANGE_TWO_INPUT, "Size", "Length", "Design", 10.0, "Width" ) );
+    Keep( "TwoInputOneParm", AddGui( GDEV_SLIDER_ADJ_RANGE_TWO_INPUT, "Size", "Length", "Design", 10.0 ) );
+}
+
+void UpdateGui()
+{
+}
+
+void UpdateSurf()
+{
+    string geom_id = GetCurrCustomGeom();
+    double len = GetParmVal( GetParm( geom_id, "Length", "Design" ) );
+    string xsec_surf = GetXSecSurf( geom_id, 0 );
+    SetCustomXSecLoc( GetXSec( xsec_surf, 1 ), vec3d( len, 0.0, 0.0 ) );
+    SkinXSecSurf();
+}

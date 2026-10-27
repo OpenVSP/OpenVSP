@@ -9,6 +9,8 @@
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
 
+#include <cstdlib>
+
 
 //==== Constructor ====//
 CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Custom" )
@@ -16,6 +18,7 @@ CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Custo
     m_FLTK_Window->copy_label( "Custom Geom" );
     m_SameLineFlag = false;
     m_LastChoiceGui = nullptr;
+    m_LastRadioGroup = nullptr;
     m_ForceWidthFlag = false;
     m_ForceWidth = 10;
     m_Format = "%7.3f";
@@ -77,6 +80,23 @@ GuiDevice* CustomScreen::FindGuiDevice( const string & custom_type_name, int ind
 
 
 
+// The integer a choice item's value string holds, when it holds one and nothing else.
+static bool ChoiceItemValue( const string & str, int & val )
+{
+    if ( str.empty() )
+    {
+        return false;
+    }
+    char* end = nullptr;
+    long v = strtol( str.c_str(), &end, 10 );
+    if ( end == str.c_str() || *end != '\0' )
+    {
+        return false;
+    }
+    val = ( int )v;
+    return true;
+}
+
 GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
 {
     GuiDevice* gui_dev = nullptr;
@@ -108,6 +128,12 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
         gui_dev = slider;
     }
+    else if ( def.m_Type == vsp::GDEV_SLIDER_ADJ_RANGE_TWO_INPUT )
+    {
+        SliderAdjRange2Input* slider = new SliderAdjRange2Input();
+        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
+        gui_dev = slider;
+    }
     else if ( def.m_Type == vsp::GDEV_SLIDER_INPUT )
     {
         SliderInput* slider = new SliderInput();
@@ -119,6 +145,18 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         Input* input = new Input();
         m_Layout.AddInput( *input, ( const char* )def.m_Label.c_str(), m_Format.c_str() );
         gui_dev = input;
+    }
+    else if ( def.m_Type == vsp::GDEV_OUTPUT )
+    {
+        Output* output = new Output();
+        m_Layout.AddOutput( *output, ( const char* )def.m_Label.c_str(), m_Format.c_str() );
+        gui_dev = output;
+    }
+    else if ( def.m_Type == vsp::GDEV_CHECK_BUTTON )
+    {
+        CheckButton* cb = new CheckButton();
+        m_Layout.AddButton( *cb, ( const char* )def.m_Label.c_str() );
+        gui_dev = cb;
     }
     else if ( def.m_Type == vsp::GDEV_PARM_BUTTON )
     {
@@ -162,15 +200,50 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
     {
         Choice* ch = new Choice();
         m_LastChoiceGui = ch;
+        m_LastRadioGroup = nullptr;
         m_Layout.AddChoice( *ch,  ( const char* )def.m_Label.c_str() );
         gui_dev = ch;
     }
+    else if ( def.m_Type == vsp::GDEV_TOGGLE_RADIO_GROUP )
+    {
+        // Its toggle buttons are the items added to it.
+        ToggleRadioGroup* rg = new ToggleRadioGroup();
+        rg->Init( this );
+        m_LastRadioGroup = rg;
+        m_LastRadioVals.clear();
+        m_LastChoiceGui = nullptr;
+        gui_dev = rg;
+    }
     else if ( def.m_Type == vsp::GDEV_ADD_CHOICE_ITEM )
     {
+        // An item's value is the integer in AddGui's arg5, where one is given, or else its place in the list.
+        int val = -1;
+        bool given = ChoiceItemValue( def.m_ParmName2, val );
         if ( m_LastChoiceGui )
         {
-            m_LastChoiceGui->AddItem( def.m_Label );
+            if ( given )
+            {
+                m_LastChoiceGui->AddItem( def.m_Label, val );
+            }
+            else
+            {
+                m_LastChoiceGui->AddItem( def.m_Label );
+            }
             m_LastChoiceGui->UpdateItems();
+        }
+        else if ( m_LastRadioGroup )
+        {
+            if ( !given )
+            {
+                val = ( int )m_LastRadioVals.size();
+            }
+
+            ToggleButton* tb = new ToggleButton();
+            m_Layout.AddButton( *tb, ( const char* )def.m_Label.c_str() );
+            m_LastRadioGroup->AddButton( tb->GetFlButton() );
+            m_LastRadioVals.push_back( val );
+            m_LastRadioGroup->SetValMapVec( m_LastRadioVals );
+            gui_dev = tb;
         }
     }
     else if ( def.m_Type == vsp::GDEV_BEGIN_SAME_LINE )
@@ -221,8 +294,8 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
     }
 
 
-    //==== Add To Same Line Vector ====//
-    if ( m_SameLineFlag && gui_dev )
+    //==== Add To Same Line Vector, Where A Radio Group's Buttons Stand For It ====//
+    if ( m_SameLineFlag && gui_dev && def.m_Type != vsp::GDEV_TOGGLE_RADIO_GROUP )
     {
         m_SameLineVec.push_back( gui_dev );
     }
@@ -333,7 +406,25 @@ bool CustomScreen::Update()
         int gui_index = update_vec[i].m_GuiID;
         GuiDevice* gui_dev = FindGuiDevice( custom_type_name, gui_index );
 
-        if ( gui_dev )
+        SliderAdjRange2Input* two = dynamic_cast< SliderAdjRange2Input* >( gui_dev );
+        if ( two )
+        {
+            if ( update_vec[i].m_ParmID.empty() || update_vec[i].m_ParmID2.empty() )
+            {
+                two->Deactivate();
+            }
+            else if ( update_vec[i].m_Input == 2 )
+            {
+                two->Update( 2, update_vec[i].m_ParmID, update_vec[i].m_ParmID2 );
+                two->ActivateInput2();
+            }
+            else
+            {
+                two->Update( 1, update_vec[i].m_ParmID, update_vec[i].m_ParmID2 );
+                two->ActivateInput1();
+            }
+        }
+        else if ( gui_dev )
         {
             gui_dev->Update( update_vec[i].m_ParmID );
         }

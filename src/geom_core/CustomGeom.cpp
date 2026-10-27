@@ -11,6 +11,9 @@
 #include "ParmMgr.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
+#include "APIErrorMgr.h"
+
+#include <cstdlib>
 
 using namespace vsp;
 
@@ -107,7 +110,8 @@ string CustomGeomMgrSingleton::GetCustomParm( int index )
 
 
 //==== Add Gui Device Build Data For Custom Geom ====//
-int CustomGeomMgrSingleton::AddGui( int type, const string & label, const string & parm_name, const string & group_name, double range )
+int CustomGeomMgrSingleton::AddGui( int type, const string & arg1, const string & arg2, const string & arg3, double arg4,
+                                    const string & arg5 )
 {
     Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
 
@@ -116,12 +120,35 @@ int CustomGeomMgrSingleton::AddGui( int type, const string & label, const string
     {
         CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
 
+        // A choice item's arg5, where given, is the integer value the item sets.  One that is not an integer
+        // is reported, and the item keeps its place in the list as its value.
+        if ( type == vsp::GDEV_ADD_CHOICE_ITEM && !arg5.empty() )
+        {
+            char* end = nullptr;
+            strtol( arg5.c_str(), &end, 10 );
+            if ( end == arg5.c_str() || *end != '\0' )
+            {
+                vsp::ErrorMgr.AddError( vsp::VSP_INVALID_INPUT_VAL, "AddGui::GDEV_ADD_CHOICE_ITEM " + arg1 +
+                                        " value " + arg5 + " is not an integer" );
+            }
+        }
+
+        // A two input slider shows two Parms, so a Parm named for the first needs one for the second.
+        if ( type == vsp::GDEV_SLIDER_ADJ_RANGE_TWO_INPUT && !arg2.empty() && arg5.empty() )
+        {
+            vsp::ErrorMgr.AddError( vsp::VSP_INVALID_INPUT_VAL, "AddGui::GDEV_SLIDER_ADJ_RANGE_TWO_INPUT " + arg1 +
+                                    " has Parm " + arg2 + " for its first input but none for its second" );
+            return -1;
+        }
+
+        // What each argument means depends on the type; these are the meanings of most controls.
         GuiDef gd;
         gd.m_Type = type;
-        gd.m_Label = label;
-        gd.m_ParmName = parm_name;
-        gd.m_GroupName = group_name;
-        gd.m_Range = range;
+        gd.m_Label = arg1;
+        gd.m_ParmName = arg2;
+        gd.m_GroupName = arg3;
+        gd.m_Range = arg4;
+        gd.m_ParmName2 = arg5;
 
         return custom_geom->AddGui( gd );
     }
@@ -140,6 +167,26 @@ void CustomGeomMgrSingleton::AddUpdateGui( int gui_id, const string & parm_id )
         GuiUpdate gu;
         gu.m_GuiID = gui_id;
         gu.m_ParmID = parm_id;
+        gu.m_Input = 1;
+
+        custom_geom->AddUpdateGui( gu );
+    }
+}
+
+//==== Update Two Input Gui ====//
+void CustomGeomMgrSingleton::AddUpdateGui( int gui_id, const string & parm_id, const string & parm_id2, int input )
+{
+    Geom* gptr = VehicleMgr.GetVehicle()->FindGeom( m_CurrGeom );
+    //==== Check If Geom is Valid and Correct Type ====//
+    if ( gptr && gptr->GetType().m_Type == CUSTOM_GEOM_TYPE )
+    {
+        CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+
+        GuiUpdate gu;
+        gu.m_GuiID = gui_id;
+        gu.m_ParmID = parm_id;
+        gu.m_ParmID2 = parm_id2;
+        gu.m_Input = input;
 
         custom_geom->AddUpdateGui( gu );
     }
@@ -701,13 +748,20 @@ vector< GuiUpdate > CustomGeom::GetGuiUpdateVec()
     //==== Load Predefined UpdateGui Parm Matches ====//
     for ( int i = 0 ; i < (int)m_GuiDefVec.size() ; i++ )
     {
-        if ( m_GuiDefVec[i].m_ParmName.size() > 0 && m_GuiDefVec[i].m_GroupName.size() )
+        // A choice item ties to no Parm.
+        if ( m_GuiDefVec[i].m_ParmName.size() > 0 && m_GuiDefVec[i].m_GroupName.size() &&
+             m_GuiDefVec[i].m_Type != vsp::GDEV_ADD_CHOICE_ITEM )
         {
             string parm_id = GetParm( m_ID, m_GuiDefVec[i].m_ParmName, m_GuiDefVec[i].m_GroupName );
 
             GuiUpdate gu;
             gu.m_GuiID = i;
             gu.m_ParmID = parm_id;
+            gu.m_Input = 1;
+            if ( m_GuiDefVec[i].m_ParmName2.size() > 0 )
+            {
+                gu.m_ParmID2 = GetParm( m_ID, m_GuiDefVec[i].m_ParmName2, m_GuiDefVec[i].m_GroupName );
+            }
             m_UpdateGuiVec.push_back( gu );
         }
     }

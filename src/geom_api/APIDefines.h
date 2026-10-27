@@ -878,14 +878,14 @@ enum GDEV { GDEV_TAB,	/*!< Custom GUI Tab */
             GDEV_RADIO_BUTTON,	/*!< Custom GUI RadioButton */
             GDEV_TOGGLE_BUTTON,	/*!< Custom GUI ToggleButton */
             GDEV_TOGGLE_BUTTON_FREE,	/*!< Custom GUI ToggleButton without Parm */
-            GDEV_TOGGLE_RADIO_GROUP,	/*!< Custom GUI ToggleRadioGroup (NOT IMPLEMENTED) */  // TODO: Implement or remove
+            GDEV_TOGGLE_RADIO_GROUP,	/*!< Custom GUI ToggleRadioGroup, its toggle buttons added as GDEV_ADD_CHOICE_ITEM */
             GDEV_TRIGGER_BUTTON,	/*!< Custom GUI TriggerButton */
             GDEV_COUNTER,	/*!< Custom GUI Counter */
             GDEV_CHOICE,	/*!< Custom GUI Choice */
-            GDEV_ADD_CHOICE_ITEM,	/*!< Add item to custom GUI Choice */
+            GDEV_ADD_CHOICE_ITEM,	/*!< Add item to custom GUI Choice or ToggleRadioGroup */
             GDEV_SLIDER_INPUT,	/*!< Custom GUI SliderInput */
             GDEV_SLIDER_ADJ_RANGE_INPUT,	/*!< Custom GUI SliderAdjRangeInput */
-            GDEV_SLIDER_ADJ_RANGE_TWO_INPUT,	/*!< Custom GUI SliderAdjRangeInput with two inputs (NOT IMPLEMENTED) */  // TODO: Implement or remove
+            GDEV_SLIDER_ADJ_RANGE_TWO_INPUT,	/*!< Custom GUI SliderAdjRange2Input: a slider with two inputs, one active at a time */
             GDEV_FRACT_PARM_SLIDER,	/*!< Custom GUI FractParmSlider */
             GDEV_STRING_INPUT,	/*!< Custom GUI StringInput */
             GDEV_INDEX_SELECTOR,	/*!< Custom GUI IndexSelector */

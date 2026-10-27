@@ -131,22 +131,41 @@ public:
 */
 /*!
     Add a control to the custom component's GUI.  The value it returns identifies the control, which
-    matters for the ones that report back, such as a trigger button.
+    matters for the ones that report back, such as a trigger button.  What each argument means depends on
+    type.  Arguments may be left off from the end; to give a later one, pass empty strings for the string
+    arguments before it, and 10.0 for arg4.
     \forcpponly
     \code{.cpp}
     AddGui( GDEV_SLIDER_ADJ_RANGE, "Length", "Length", "Design", 10.0 );
     \endcode
     \endforcpponly
+    A control that shows a Parm (a slider, input, output, button, counter, index selector, choice or radio
+    group) takes its label as arg1 and the Parm's name and group as arg2 and arg3; a slider takes its range as
+    arg4.  A control given no Parm is tied to one with AddUpdateGui.  An index selector and a radio group show
+    no label.  A GDEV_SLIDER_ADJ_RANGE_TWO_INPUT shows the Parm arg2 in its first input and the Parm arg5, in
+    the same group, in its second, as a Fuselage's end cap length shows its Rel and Abs values; the first
+    drives the slider unless AddUpdateGui says otherwise.  It always shows two Parms: arg2 without arg5 is an
+    error, and the slider is not added.
+    A GDEV_ADD_CHOICE_ITEM adds an item labelled arg1 to the last GDEV_CHOICE or GDEV_TOGGLE_RADIO_GROUP
+    added.  Its value is its place in the list, from 0, unless arg5 holds an integer, which is then the value:
+    AddGui( GDEV_ADD_CHOICE_ITEM, "Abs", "", "", 10.0, "0" ).  arg2 and arg3 are not used.  An arg5 that is not
+    an integer is an error, and the item keeps its place as its value.
+    GDEV_TAB, GDEV_SCROLL_TAB and GDEV_DIVIDER_BOX take their title as arg1, and GDEV_SET_FORMAT a C format
+    such as "%5.2f".  GDEV_FORCE_WIDTH takes a whole number of pixels as arg1.  GDEV_YGAP,
+    GDEV_BEGIN_SAME_LINE and GDEV_END_SAME_LINE take no arguments.
     \sa AddUpdateGui, CheckClearTriggerEvent
     \param [in] type int GUI device type enum (GDEV_SLIDER, GDEV_SLIDER_ADJ_RANGE, GDEV_BUTTON and so on)
-    \param [in] label string Label shown next to the control
-    \param [in] parm_name string Name of the Parm the control drives
-    \param [in] group_name string Name of the group the Parm belongs to
-    \param [in] range double Range of the slider
+    \param [in] arg1 string Label of most controls; title, width or format of the others
+    \param [in] arg2 string Name of the Parm a control shows
+    \param [in] arg3 string Name of the group of the Parm in arg2
+    \param [in] arg4 double Range of a slider
+    \param [in] arg5 string Name of the Parm in a two input slider's second input, or the integer value of a
+    choice item
     \return int GUI device index
 */
 
-    int AddGui( int type, const string & label = string(), const string & parm_name = string(), const string & group_name = string(), double range = 10 );
+    int AddGui( int type, const string & arg1 = string(), const string & arg2 = string(),
+                const string & arg3 = string(), double arg4 = 10, const string & arg5 = string() );
     vector< GuiDef > GetGuiDefVec( const string & geom_id );
 
     //==== Add Gui->Parm Pairing To Update Vec ====//
@@ -170,6 +189,29 @@ public:
 */
 
     void AddUpdateGui( int gui_id, const string & parm_id );
+
+/*!
+    \ingroup CustomGeom
+*/
+/*!
+    Tie a two input slider to its two Parms, and choose the input that drives the slider, 1 or 2.  The
+    other input shows its Parm and is inactive, as a Fuselage's end cap length shows its Rel and Abs values.
+    \forcpponly
+    \code{.cpp}
+    int sid = AddGui( GDEV_SLIDER_ADJ_RANGE_TWO_INPUT, "Width", "WidthRatio", "Design", 10.0, "Width" );
+
+    AddUpdateGui( sid, GetParm( GetCurrCustomGeom(), "WidthRatio", "Design" ),
+                  GetParm( GetCurrCustomGeom(), "Width", "Design" ), 2 );
+    \endcode
+    \endforcpponly
+    \sa AddGui
+    \param [in] gui_id int GUI device index, as returned by AddGui
+    \param [in] parm_id string ID of the Parm in the first input
+    \param [in] parm_id2 string ID of the Parm in the second input
+    \param [in] input int The input that drives the slider, 1 or 2
+*/
+
+    void AddUpdateGui( int gui_id, const string & parm_id, const string & parm_id2, int input );
     vector< GuiUpdate > GetGuiUpdateVec();
 /*!
     \ingroup CustomGeom

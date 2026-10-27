@@ -49,6 +49,8 @@ protected:
     string m_CurrTabLayoutName;
 
     Choice* m_LastChoiceGui;
+    ToggleRadioGroup* m_LastRadioGroup;
+    vector< int > m_LastRadioVals;
 
 };
 

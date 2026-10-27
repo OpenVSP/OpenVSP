@@ -1689,7 +1689,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TOGGLE_BUTTON_FREE", GDEV_TOGGLE_BUTTON_FREE );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "GDEV", "GDEV_TOGGLE_RADIO_GROUP", GDEV_TOGGLE_RADIO_GROUP ); // TODO: Implement or remove
+    r = se->RegisterEnumValue( "GDEV", "GDEV_TOGGLE_RADIO_GROUP", GDEV_TOGGLE_RADIO_GROUP );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TRIGGER_BUTTON", GDEV_TRIGGER_BUTTON );
     assert( r >= 0 );
@@ -1703,7 +1703,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_SLIDER_ADJ_RANGE_INPUT", GDEV_SLIDER_ADJ_RANGE_INPUT );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "GDEV", "GDEV_SLIDER_ADJ_RANGE_TWO_INPUT", GDEV_SLIDER_ADJ_RANGE_TWO_INPUT ); // TODO: Implement or remove
+    r = se->RegisterEnumValue( "GDEV", "GDEV_SLIDER_ADJ_RANGE_TWO_INPUT", GDEV_SLIDER_ADJ_RANGE_TWO_INPUT );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_FRACT_PARM_SLIDER", GDEV_FRACT_PARM_SLIDER );
     assert( r >= 0 );
@@ -3547,14 +3547,21 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     assert( r ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int AddGui( int type, const string & in label = string(), const string & in parm_name = string(), const string & in group_name = string(), double range = 10.0 )",
+    r = se->RegisterGlobalFunction( "int AddGui( int type, const string & in arg1 = string(), const string & in arg2 = string(), const string & in arg3 = string(), double arg4 = 10.0, const string & in arg5 = string() )",
                                     asMETHOD( CustomGeomMgrSingleton, AddGui ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void UpdateGui( int gui_id, const string & in parm_id )",
-                                    asMETHOD( CustomGeomMgrSingleton, AddUpdateGui ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHODPR( CustomGeomMgrSingleton, AddUpdateGui, ( int, const string &), void ),
+                                    asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
+
+    r = se->RegisterGlobalFunction( "void UpdateGui( int gui_id, const string & in parm_id, const string & in parm_id2, int input )",
+                                    asMETHODPR( CustomGeomMgrSingleton, AddUpdateGui,
+                                                ( int, const string &, const string &, int ), void ),
+                                    asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "string AddXSecSurf()",
