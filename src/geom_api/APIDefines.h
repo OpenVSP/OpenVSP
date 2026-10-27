@@ -896,6 +896,9 @@ enum GDEV { GDEV_TAB,	/*!< Custom GUI Tab */
             GDEV_END_SAME_LINE,	/*!< Set end same line flag for custom GUI */
             GDEV_FORCE_WIDTH,	/*!< Set forced width for custom GUI */
             GDEV_SET_FORMAT,	/*!< Set format label for custom GUI */
+            GDEV_ADD_X,	/*!< Move along the line in custom GUI by a width given in the layout's widths */
+            GDEV_SET_BUTTON_WIDTH,	/*!< Set the width of custom GUI buttons, given in the layout's widths */
+            GDEV_SET_CHOICE_BUTTON_WIDTH,	/*!< Set the width of custom GUI choices' labels, given in the layout's widths */
             NUM_GDEV_TYPES,	/*!< Number of GDEV types */
             ALL_GDEV_TYPES, /*!< Flag for all GDEV types */
 };

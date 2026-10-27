@@ -1725,6 +1725,12 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_SET_FORMAT", GDEV_SET_FORMAT );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_ADD_X", GDEV_ADD_X );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_SET_BUTTON_WIDTH", GDEV_SET_BUTTON_WIDTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_SET_CHOICE_BUTTON_WIDTH", GDEV_SET_CHOICE_BUTTON_WIDTH );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "NUM_GDEV_TYPES", NUM_GDEV_TYPES );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "ALL_GDEV_TYPES", ALL_GDEV_TYPES );

@@ -9,6 +9,7 @@
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
 
+#include <algorithm>
 #include <cstdlib>
 
 
@@ -17,6 +18,7 @@ CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Custo
 {
     m_FLTK_Window->copy_label( "Custom Geom" );
     m_SameLineFlag = false;
+    m_SameLinePlacedFlag = false;
     m_LastChoiceGui = nullptr;
     m_LastRadioGroup = nullptr;
     m_ForceWidthFlag = false;
@@ -252,6 +254,7 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         m_Layout.SetSameLineFlag( true );
         m_SameLineVec.clear();
         m_SameLineFlag = true;
+        m_SameLinePlacedFlag = false;
     }
     else if ( def.m_Type == vsp::GDEV_END_SAME_LINE )
     {
@@ -260,8 +263,9 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         m_Layout.ForceNewLine();
         m_SameLineFlag = false;
 
+        // A line placed with GDEV_ADD_X keeps its widths; any other is stretched to fill the line.
         int num_same_line = (int)m_SameLineVec.size();
-        if ( num_same_line )
+        if ( num_same_line && !m_SameLinePlacedFlag )
         {
             int dev_x = m_Layout.GetStartX();
 
@@ -292,6 +296,22 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
     {
         m_Format = def.m_Label;
     }
+    else if ( def.m_Type == vsp::GDEV_ADD_X )
+    {
+        m_Layout.AddX( LayoutWidth( def.m_Label ) );
+        if ( m_SameLineFlag )
+        {
+            m_SameLinePlacedFlag = true;
+        }
+    }
+    else if ( def.m_Type == vsp::GDEV_SET_BUTTON_WIDTH )
+    {
+        m_Layout.SetButtonWidth( LayoutWidth( def.m_Label ) );
+    }
+    else if ( def.m_Type == vsp::GDEV_SET_CHOICE_BUTTON_WIDTH )
+    {
+        m_Layout.SetChoiceButtonWidth( LayoutWidth( def.m_Label ) );
+    }
 
 
     //==== Add To Same Line Vector, Where A Radio Group's Buttons Stand For It ====//
@@ -309,6 +329,72 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
 
     return gui_dev;
 
+}
+
+// A width in pixels from expr, a sum of terms, each an optional count and '*' and then a number of pixels or one
+// of the layout's widths: W, the whole line, INPUT, BUTTON, CHOICE_BUTTON or RANGE_BUTTON.  "W-2*INPUT" is
+// the line less two inputs.
+int CustomScreen::LayoutWidth( const string & expr )
+{
+    int total = 0;
+    size_t i = 0;
+    while ( i < expr.size() )
+    {
+        int sign = 1;
+        while ( i < expr.size() && ( expr[i] == ' ' || expr[i] == '+' || expr[i] == '-' ) )
+        {
+            if ( expr[i] == '-' )
+            {
+                sign = -sign;
+            }
+            i++;
+        }
+
+        size_t end = expr.find_first_of( "+-", i );
+        if ( end == string::npos )
+        {
+            end = expr.size();
+        }
+        string term = expr.substr( i, end - i );
+        i = end;
+
+        int count = 1;
+        size_t star = term.find( '*' );
+        if ( star != string::npos )
+        {
+            count = atoi( term.substr( 0, star ).c_str() );
+            term = term.substr( star + 1 );
+        }
+        term.erase( std::remove( term.begin(), term.end(), ' ' ), term.end() );
+
+        int w = 0;
+        if ( term == "W" )
+        {
+            w = m_Layout.GetW();
+        }
+        else if ( term == "INPUT" )
+        {
+            w = m_Layout.GetInputWidth();
+        }
+        else if ( term == "BUTTON" )
+        {
+            w = m_Layout.GetButtonWidth();
+        }
+        else if ( term == "CHOICE_BUTTON" )
+        {
+            w = m_Layout.GetChoiceButtonWidth();
+        }
+        else if ( term == "RANGE_BUTTON" )
+        {
+            w = m_Layout.GetRangeButtonWidth();
+        }
+        else
+        {
+            w = atoi( term.c_str() );
+        }
+        total += sign * count * w;
+    }
+    return total;
 }
 
 //==== Show Tabs of Custom Geom Type (Hide All Others) ====//

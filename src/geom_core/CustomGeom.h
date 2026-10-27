@@ -153,6 +153,11 @@ public:
     GDEV_TAB, GDEV_SCROLL_TAB and GDEV_DIVIDER_BOX take their title as arg1, and GDEV_SET_FORMAT a C format
     such as "%5.2f".  GDEV_FORCE_WIDTH takes a whole number of pixels as arg1.  GDEV_YGAP,
     GDEV_BEGIN_SAME_LINE and GDEV_END_SAME_LINE take no arguments.
+    GDEV_ADD_X, GDEV_SET_BUTTON_WIDTH and GDEV_SET_CHOICE_BUTTON_WIDTH take a width as arg1, a sum of terms,
+    each a number of pixels or one of the layout's widths, W, INPUT, BUTTON, CHOICE_BUTTON or RANGE_BUTTON,
+    with an optional count and '*': "W-2*INPUT" is the line less two inputs.  A line between
+    GDEV_BEGIN_SAME_LINE and GDEV_END_SAME_LINE that moves with GDEV_ADD_X keeps its widths, where any other
+    is stretched to fill the line.
     \sa AddUpdateGui, CheckClearTriggerEvent
     \param [in] type int GUI device type enum (GDEV_SLIDER, GDEV_SLIDER_ADJ_RANGE, GDEV_BUTTON and so on)
     \param [in] arg1 string Label of most controls; title, width or format of the others
