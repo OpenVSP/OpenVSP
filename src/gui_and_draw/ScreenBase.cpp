@@ -4087,6 +4087,7 @@ EndCapTypeGroup::EndCapTypeGroup()
     m_ExtraFormat = "%6.5f";
     m_Radius = NEVER;
     m_HasTrunc = false;
+    m_Shear = NEVER;
 }
 
 void EndCapTypeGroup::SetExtra( const string& label, double range, const char* format )
@@ -4119,6 +4120,10 @@ int EndCapTypeGroup::NumToggles()
 {
     int ntoggle = 0;
     if ( m_HasTrunc )
+    {
+        ntoggle++;
+    }
+    if ( m_Shear != NEVER )
     {
         ntoggle++;
     }
@@ -4177,6 +4182,10 @@ void EndCapTypeGroup::Build( GroupLayout& parent, int h, int button_w )
         {
             m_Layout.AddButton( m_TruncButton, "Truncate" );
         }
+        if ( m_Shear != NEVER )
+        {
+            m_Layout.AddButton( m_ShearButton, "Shear" );
+        }
         if ( m_HasSweep )
         {
             m_Layout.AddButton( m_SweepFlagButton, "Sweep Stretch" );
@@ -4201,6 +4210,7 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
     string raddim_id = geom_ptr->m_CapUMinRadiusDim.GetID();
     bool trunc = geom_ptr->m_CapUMinTruncFlag();
     string trunc_id = geom_ptr->m_CapUMinTruncFlag.GetID();
+    string shear_id = geom_ptr->m_CapUMinShearFlag.GetID();
     string sweep_id = geom_ptr->m_CapUMinSweepFlag.GetID();
 
     if ( umax )
@@ -4214,6 +4224,7 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
         raddim_id = geom_ptr->m_CapUMaxRadiusDim.GetID();
         trunc = geom_ptr->m_CapUMaxTruncFlag();
         trunc_id = geom_ptr->m_CapUMaxTruncFlag.GetID();
+        shear_id = geom_ptr->m_CapUMaxShearFlag.GetID();
         sweep_id = geom_ptr->m_CapUMaxSweepFlag.GetID();
     }
 
@@ -4265,6 +4276,19 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
     if ( m_HasTrunc )
     {
         m_TruncButton.Update( trunc_id );
+    }
+
+    if ( m_Shear != NEVER )
+    {
+        m_ShearButton.Update( shear_id );
+        if ( Uses( m_Shear, trunc ) )
+        {
+            m_ShearButton.Activate();
+        }
+        else
+        {
+            m_ShearButton.Deactivate();
+        }
     }
 
     if ( m_HasSweep )
@@ -4331,9 +4355,12 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_SharpGroup.SetExtra( "Strength" );
     m_ConeGroup.SetRadius( EndCapTypeGroup::ALWAYS );
     m_ConeGroup.SetTrunc( true );
+    // A truncated cone's sides are straight, so shearing them moves them no differently than the offset does.
+    m_ConeGroup.SetShear( EndCapTypeGroup::UNTRUNC_ONLY );
     m_OgiveGroup.SetRadius( EndCapTypeGroup::ALWAYS );
     m_OgiveGroup.SetExtra( "Angle", 10, "%7.3f" );
     m_OgiveGroup.SetTrunc( true );
+    m_OgiveGroup.SetShear( EndCapTypeGroup::ALWAYS );
     m_PowerLawGroup.SetExtra( "Exponent" );
     m_VonKarmanGroup.SetExtra( "Haack C" );
     m_PowerLawGroup.SetRadius( EndCapTypeGroup::TRUNC_ONLY );

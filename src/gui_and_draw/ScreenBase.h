@@ -321,6 +321,7 @@ public:
     void SetExtra( const string& label, double range = 1, const char* format = "%6.5f" );
     void SetRadius( int use )                         { m_Radius = use; }
     void SetTrunc( bool trunc )                       { m_HasTrunc = trunc; }
+    void SetShear( int use )                          { m_Shear = use; }
 
     // The number of lines the group takes.
     int NumLines();
@@ -342,12 +343,14 @@ protected:
     const char* m_ExtraFormat;
     int m_Radius;
     bool m_HasTrunc;
+    int m_Shear;
 
     SliderAdjRange2Input m_LenSlider;
     SliderAdjRange2Input m_OffsetSlider;
     SliderAdjRange2Input m_RadiusSlider;
     SliderAdjRangeInput m_ExtraSlider;
     ToggleButton m_TruncButton;
+    ToggleButton m_ShearButton;
     ToggleButton m_SweepFlagButton;
 };
 
