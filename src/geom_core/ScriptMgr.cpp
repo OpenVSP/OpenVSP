@@ -488,11 +488,45 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "ALIGN_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ALIGN_TYPE", "ALIGN_LEFT", ALIGN_LEFT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ALIGN_TYPE", "ALIGN_CENTER", ALIGN_CENTER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ALIGN_TYPE", "ALIGN_RIGHT", ALIGN_RIGHT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ALIGN_TYPE", "ALIGN_PIXEL", ALIGN_PIXEL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ALIGN_TYPE", "ALIGN_TOP", ALIGN_TOP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ALIGN_TYPE", "ALIGN_MIDDLE", ALIGN_MIDDLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ALIGN_TYPE", "ALIGN_BOTTOM", ALIGN_BOTTOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ALIGN_TYPE", "NUM_ALIGN_TYPE", NUM_ALIGN_TYPE );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "ANG_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ANG_UNITS", "ANG_RAD", ANG_RAD );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ANG_UNITS", "ANG_DEG", ANG_DEG );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "ANGLE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ANGLE", "ANG_0", ANG_0 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ANGLE", "ANG_90", ANG_90 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ANGLE", "ANG_180", ANG_180 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ANGLE", "ANG_270", ANG_270 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ANGLE", "NUM_ANG", NUM_ANG );
     assert( r >= 0 );
 
 
@@ -790,6 +824,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "CFD_VIS_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_VIS_TYPE", "TAG", TAG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_VIS_TYPE", "REASON", REASON );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_VIS_TYPE", "QUALITY_ANGLE", QUALITY_ANGLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_VIS_TYPE", "QUALITY_LENGTH", QUALITY_LENGTH );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "CF_LAM_EQN" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CF_LAM_EQN", "CF_LAM_BLASIUS", CF_LAM_BLASIUS );
@@ -964,6 +1010,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
 
 
+    r = se->RegisterEnum( "DEPTH_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DEPTH_TYPE", "DEPTH_FRONT", DEPTH_FRONT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DEPTH_TYPE", "DEPTH_REAR", DEPTH_REAR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DEPTH_TYPE", "DEPTH_FREE", DEPTH_FREE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DEPTH_TYPE", "NUM_DEPTH_TYPE", NUM_DEPTH_TYPE );
+    assert( r >= 0 );
+
+
     r = se->RegisterEnum( "DIMENSION_SET" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "DIMENSION_SET", "SET_3D", SET_3D );
@@ -1007,6 +1065,78 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "DRAW_TYPE", "GEOM_DRAW_TEXTURE", GEOM_DRAW_TEXTURE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "DRAW_TYPE", "GEOM_DRAW_NONE", GEOM_DRAW_NONE );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "ENGINE_GEOM_IO_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_IO_TYPE", "ENGINE_GEOM_NONE", ENGINE_GEOM_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_IO_TYPE", "ENGINE_GEOM_INLET", ENGINE_GEOM_INLET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_IO_TYPE", "ENGINE_GEOM_INLET_OUTLET", ENGINE_GEOM_INLET_OUTLET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_IO_TYPE", "ENGINE_GEOM_OUTLET", ENGINE_GEOM_OUTLET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_IO_TYPE", "ENGINE_GEOM_IO_NUM_TYPES", ENGINE_GEOM_IO_NUM_TYPES );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "ENGINE_GEOM_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_TYPE", "ENGINE_GEOM_FLOWTHROUGH", ENGINE_GEOM_FLOWTHROUGH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_TYPE", "ENGINE_GEOM_TO_LIP", ENGINE_GEOM_TO_LIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_TYPE", "ENGINE_GEOM_FLOWPATH", ENGINE_GEOM_FLOWPATH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_TYPE", "ENGINE_GEOM_TO_FACE", ENGINE_GEOM_TO_FACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_GEOM_TYPE", "ENGINE_GEOM_NUM_TYPES", ENGINE_GEOM_NUM_TYPES );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "ENGINE_LOC_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_LOC_MODE", "ENGINE_LOC_INDEX", ENGINE_LOC_INDEX );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_LOC_MODE", "ENGINE_LOC_U", ENGINE_LOC_U );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "ENGINE_LOC_INDEX_TYPES" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_LOC_INDEX_TYPES", "ENGINE_LOC_INLET_LIP", ENGINE_LOC_INLET_LIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_LOC_INDEX_TYPES", "ENGINE_LOC_INLET_FACE", ENGINE_LOC_INLET_FACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_LOC_INDEX_TYPES", "ENGINE_LOC_OUTLET_LIP", ENGINE_LOC_OUTLET_LIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_LOC_INDEX_TYPES", "ENGINE_LOC_OUTLET_FACE", ENGINE_LOC_OUTLET_FACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_LOC_INDEX_TYPES", "ENGINE_LOC_NUM", ENGINE_LOC_NUM );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "ENGINE_MODE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_FLOWTHROUGH", ENGINE_MODE_FLOWTHROUGH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_FLOWTHROUGH_NEG", ENGINE_MODE_FLOWTHROUGH_NEG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_FLOWTHROUGH_NEG_ONLY", ENGINE_MODE_FLOWTHROUGH_NEG_ONLY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_TO_LIP", ENGINE_MODE_TO_LIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_TO_FACE", ENGINE_MODE_TO_FACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_TO_FACE_NEG", ENGINE_MODE_TO_FACE_NEG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_TO_FACE_NEG_ONLY", ENGINE_MODE_TO_FACE_NEG_ONLY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_EXTEND", ENGINE_MODE_EXTEND );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ENGINE_MODE_TYPE", "ENGINE_MODE_NUM_TYPES", ENGINE_MODE_NUM_TYPES );
     assert( r >= 0 );
 
 
@@ -1926,6 +2056,60 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "MASS_UNIT", "MASS_LBFSEC2IN", MASS_LBFSEC2IN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "MASS_UNIT", "NUM_MASS_UNIT", NUM_MASS_UNIT );
+    assert( r >= 0 );
+
+
+    r = se->RegisterEnum( "MESH_REASON" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "NO_REASON", NO_REASON );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "MAX_LEN_CONSTRAINT", MAX_LEN_CONSTRAINT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "CURV_GAP", CURV_GAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "CURV_NCIRCSEG", CURV_NCIRCSEG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "SOURCES", SOURCES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "SURF_WIDTH", SURF_WIDTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "MIN_LEN_CONSTRAINT", MIN_LEN_CONSTRAINT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "MIN_LEN_CONSTRAINT_CURV_GAP", MIN_LEN_CONSTRAINT_CURV_GAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "MIN_LEN_CONSTRAINT_CURV_NCIRCSEG", MIN_LEN_CONSTRAINT_CURV_NCIRCSEG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "MIN_LEN_CONSTRAINT_SOURCES", MIN_LEN_CONSTRAINT_SOURCES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "MIN_LEN_CONSTRAINT_SURF_WIDTH", MIN_LEN_CONSTRAINT_SURF_WIDTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_MAX_LEN_CONSTRAINT", GROW_LIMIT_MAX_LEN_CONSTRAINT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_CURV_GAP", GROW_LIMIT_CURV_GAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_CURV_NCIRCSEG", GROW_LIMIT_CURV_NCIRCSEG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_SOURCES", GROW_LIMIT_SOURCES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_SURF_WIDTH", GROW_LIMIT_SURF_WIDTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_MIN_LEN_CONSTRAINT", GROW_LIMIT_MIN_LEN_CONSTRAINT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP", GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG", GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES", GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_MIN_LEN_CONSTRAINT_SURF_WIDTH", GROW_LIMIT_MIN_LEN_CONSTRAINT_SURF_WIDTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "NUM_MESH_REASON", NUM_MESH_REASON );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "MIN_LEN_INCREMENT", MIN_LEN_INCREMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "GROW_LIMIT_INCREMENT", GROW_LIMIT_INCREMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MESH_REASON", "MIN_GROW_LIMIT", MIN_GROW_LIMIT );
     assert( r >= 0 );
 
 
