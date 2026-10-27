@@ -1531,6 +1531,9 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_MANUAL", FF_B_MANUAL );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_SCHEMENSKY_FUSE", FF_B_SCHEMENSKY_FUSE );
+    assert( r >= 0 );
+    // The name FF_B_SCHEMENSKY_FUSE was first registered under, kept for older scripts
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_SCHEMENSKY_BODY", FF_B_SCHEMENSKY_FUSE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_SCHEMENSKY_NACELLE", FF_B_SCHEMENSKY_NACELLE );
@@ -1563,6 +1566,9 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_COVERT", FF_W_COVERT );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_SHEVELL", FF_W_SHEVELL );
+    assert( r >= 0 );
+    // The name FF_W_SHEVELL was first registered under, kept for older scripts
     r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_WILLIAMS", FF_W_SHEVELL );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_KROO", FF_W_KROO );
