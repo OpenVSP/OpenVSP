@@ -884,6 +884,10 @@ void StackGeom::UpdateSurf()
     }
     m_MainSurfVec[0].SetMagicVParm( false );
 
+    vec3d axis, up;
+    m_XSecSurf.GetBasicFrame( axis, up );
+    m_MainSurfVec[0].SetCapFrame( axis, up );
+
     for ( int i = 0 ; i < nxsec ; i++ )
     {
         StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );

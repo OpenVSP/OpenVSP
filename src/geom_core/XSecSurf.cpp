@@ -649,6 +649,25 @@ void XSecSurf::ChangeXSecShape( int index, int type )
     }
 }
 
+// The frame the surface is built in, in the surface's coordinates: axis along the principal direction, and up
+// square to it and to the width direction, the other way where the sections are flipped up for down, both
+// turned by the global transform.
+void XSecSurf::GetBasicFrame( vec3d &axis, vec3d &up )
+{
+    vec3d pdir, wdir;
+    pdir.v[ m_PrincipalDir ] = 1.0;
+    wdir.v[ m_WidthDir ] = 1.0;
+
+    vec3d updir = cross( pdir, wdir );
+    if ( m_FlipUD )
+    {
+        updir = -1.0 * updir;
+    }
+
+    axis = m_GlobalXForm.xformnorm( pdir );
+    up = m_GlobalXForm.xformnorm( updir );
+}
+
 void XSecSurf::GetBasicTransformation( double w, Matrix4d &mat )
 {
     if ( m_PrincipalDir != -1 )

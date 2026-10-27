@@ -83,6 +83,8 @@ VspSurf::VspSurf()
     m_FeaOrientation = vec3d();
     m_FeaSymmIndex = -1;
 
+    m_CapFrameFlag = false;
+
     m_CloneIndex = -1;
 
     SetClustering( 1.0, 1.0 );
@@ -110,6 +112,10 @@ void VspSurf::CopyNonSurfaceData( const VspSurf & s )
     m_FeaOrientationType = s.m_FeaOrientationType;
     m_FeaOrientation = s.m_FeaOrientation;
     m_FeaSymmIndex = s.m_FeaSymmIndex;
+
+    m_CapFrameFlag = s.m_CapFrameFlag;
+    m_CapAxis = s.m_CapAxis;
+    m_CapUp = s.m_CapUp;
 
     m_ThickSurf = s.m_ThickSurf;
     m_PlateNum = s.m_PlateNum;
@@ -259,6 +265,9 @@ void VspSurf::Transform( const Matrix4d & mat )
     m_Surface.translate( trans );
 
     m_FeaOrientation = mat.xformnorm( m_FeaOrientation );
+
+    m_CapAxis = mat.xformnorm( m_CapAxis );
+    m_CapUp = mat.xformnorm( m_CapUp );
 }
 
 void VspSurf::GetBoundingBox( BndBox &bb ) const
@@ -3345,6 +3354,28 @@ static bool RoundExtConditions( const piecewise_curve_type &edg, const piecewise
     return true;
 }
 
+// Give cc the frame a surface is built in, axis and up, for its umax or umin end.  The surface runs along
+// axis, so away from the body is along axis at its umax end and against it at its umin end, where the
+// surface does not say.
+static void CapFrameConditions( bool frame, const vec3d &axis, const vec3d &up, bool umax, multicap_creator_type &cc )
+{
+    if ( !frame )
+    {
+        return;
+    }
+
+    vec3d out = axis;
+    if ( !umax )
+    {
+        out = -1.0 * axis;
+    }
+
+    surface_point_type a, u;
+    a << out.x(), out.y(), out.z();
+    u << up.x(), up.y(), up.z();
+    cc.set_frame_conditions( a, u );
+}
+
 bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
 {
     if (CapType == vsp::NO_END_CAP)
@@ -3379,6 +3410,7 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
     }
 
     rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, offset, str, p, swflag );
+    CapFrameConditions( m_CapFrameFlag, m_CapAxis, m_CapUp, whichCap == multicap_creator_type::CAP_UMAX, cc );
 
     if ( whichCap == multicap_creator_type::CAP_UMAX )
     {
@@ -3412,10 +3444,12 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
     return true;
 }
 
-// Give cc the cap of type capType on the umax or umin end of surface s, of length len and offset offset.
-// The cap depends only on the end's row of control points and the row next to it.
+// Give cc the cap of type capType on the umax or umin end of surface s, of length len and offset offset, in
+// the frame axis and up where frame is set.  The cap depends only on the end's row of control points and the
+// row next to it.
 static bool EdgeCapConditions( const piecewise_surface_type &s, bool umax, int capType, double len, double str,
-                               double offset, bool swflag, multicap_creator_type &cc )
+                               double offset, bool swflag, bool frame, const vec3d &axis, const vec3d &up,
+                               multicap_creator_type &cc )
 {
     if ( capType == vsp::NO_END_CAP )
     {
@@ -3453,7 +3487,12 @@ static bool EdgeCapConditions( const piecewise_surface_type &s, bool umax, int c
         edgnext.split( wlow );
     }
 
-    return cc.set_conditions( edg, edgnext, captype, 1.0, len, offset, str, p, swflag );
+    if ( !cc.set_conditions( edg, edgnext, captype, 1.0, len, offset, str, p, swflag ) )
+    {
+        return false;
+    }
+    CapFrameConditions( frame, axis, up, umax, cc );
+    return true;
 }
 
 // Greatest height of the tip of a cap across the end's forward direction per unit non-dimensional length,
@@ -3468,7 +3507,8 @@ bool VspSurf::CapScales( bool umax, int capType, double len, double str, bool sw
     typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
     onedpwc lensq, offsq;
 
-    if ( !EdgeCapConditions( m_Surface, umax, capType, len, str, 0.0, swflag, cc ) ||
+    if ( !EdgeCapConditions( m_Surface, umax, capType, len, str, 0.0, swflag, m_CapFrameFlag, m_CapAxis, m_CapUp,
+                             cc ) ||
          !cc.create_scale_sq_curves( lensq, offsq ) )
     {
         return false;

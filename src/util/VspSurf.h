@@ -386,6 +386,15 @@ public:
 
     void MakePolyPlaneSurf( const vector < vec3d > &up_pts, const vector < vec3d > &low_pts );
 
+    // The frame the surface is built in, which a cap that closes on a point is measured in: its length along
+    // axis and its offset along up.  Without one, the cap finds its direction from the end.
+    void SetCapFrame( const vec3d &axis, const vec3d &up )
+    {
+        m_CapFrameFlag = true;
+        m_CapAxis = axis;
+        m_CapUp = up;
+    }
+
     void SetFeaOrientation( int otype, const vec3d &orient )
     {
         m_FeaOrientationType = otype;
@@ -456,6 +465,10 @@ protected:
     int m_FeaOrientationType;
     vec3d m_FeaOrientation;
     int m_FeaSymmIndex;
+
+    bool m_CapFrameFlag;
+    vec3d m_CapAxis;
+    vec3d m_CapUp;
 
     bool m_ThickSurf;
     int m_PlateNum;

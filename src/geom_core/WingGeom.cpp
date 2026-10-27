@@ -2222,6 +2222,10 @@ void WingGeom::UpdateSurf()
     m_MainSurfVec[0].SetSurfType( vsp::WING_SURF );
     m_MainSurfVec[0].SetMagicVParm( true );
 
+    vec3d axis, up;
+    m_XSecSurf.GetBasicFrame( axis, up );
+    m_MainSurfVec[0].SetCapFrame( axis, up );
+
     m_FoilSurf.SetMagicVParm( true );
     m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 

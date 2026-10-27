@@ -64,6 +64,7 @@ public:
     int GetPrincipalDirection() { return m_PrincipalDir; }
 
     void GetBasicTransformation( double w, Matrix4d &mat );
+    void GetBasicFrame( vec3d &axis, vec3d &up );
     static void GetBasicTransformation( int pdir, int wdir, double wshift, bool flip, double w, Matrix4d &mat );
 
     void SetGlobalXForm( const Matrix4d &mat )            { m_GlobalXForm = mat; }

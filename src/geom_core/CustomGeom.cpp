@@ -999,6 +999,10 @@ void CustomGeom::SkinXSecSurf( bool closed_flag )
             m_MainSurfVec[i].SkinRibsUniform( rib_vec, false );
             m_MainSurfVec[i].SetMagicVParm( false );
         }
+
+        vec3d axis, up;
+        m_XSecSurfVec[i]->GetBasicFrame( axis, up );
+        m_MainSurfVec[i].SetCapFrame( axis, up );
     }
 }
 
