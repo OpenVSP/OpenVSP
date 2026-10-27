@@ -1551,7 +1551,7 @@ enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),    /*!< XY planar symmetry. */
 	\ingroup Enumerations
 */
 /*! Enum that represents various cross section symmetry types. */
-enum SYM_XSEC_TYP { SYM_NONE,    /*!< No cross section symmetry. */
+enum SYM_XSEC_TYPE { SYM_NONE,    /*!< No cross section symmetry. */
                     SYM_RL,    /*!< Right/left cross section symmetry. */
                     SYM_TB,    /*!< Top/bottom cross section symmetry. */
                     SYM_ALL    /*!< All cross section symmetry. */
