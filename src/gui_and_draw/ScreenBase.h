@@ -322,6 +322,7 @@ public:
     void SetRadius( int use )                         { m_Radius = use; }
     void SetTrunc( bool trunc )                       { m_HasTrunc = trunc; }
     void SetShear( int use )                          { m_Shear = use; }
+    void SetScaled( int use )                         { m_Scaled = use; }
 
     // The number of lines the group takes.
     int NumLines();
@@ -344,12 +345,14 @@ protected:
     int m_Radius;
     bool m_HasTrunc;
     int m_Shear;
+    int m_Scaled;
 
     SliderAdjRange2Input m_LenSlider;
     SliderAdjRange2Input m_OffsetSlider;
     SliderAdjRange2Input m_RadiusSlider;
     SliderAdjRangeInput m_ExtraSlider;
     ToggleButton m_TruncButton;
+    ToggleButton m_ScaledButton;
     ToggleButton m_ShearButton;
     ToggleButton m_SweepFlagButton;
 };

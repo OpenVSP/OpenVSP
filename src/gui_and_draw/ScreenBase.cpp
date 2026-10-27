@@ -4088,6 +4088,7 @@ EndCapTypeGroup::EndCapTypeGroup()
     m_Radius = NEVER;
     m_HasTrunc = false;
     m_Shear = NEVER;
+    m_Scaled = NEVER;
 }
 
 void EndCapTypeGroup::SetExtra( const string& label, double range, const char* format )
@@ -4120,6 +4121,10 @@ int EndCapTypeGroup::NumToggles()
 {
     int ntoggle = 0;
     if ( m_HasTrunc )
+    {
+        ntoggle++;
+    }
+    if ( m_Scaled != NEVER )
     {
         ntoggle++;
     }
@@ -4182,6 +4187,10 @@ void EndCapTypeGroup::Build( GroupLayout& parent, int h, int button_w )
         {
             m_Layout.AddButton( m_TruncButton, "Truncate" );
         }
+        if ( m_Scaled != NEVER )
+        {
+            m_Layout.AddButton( m_ScaledButton, "Scaled Rows" );
+        }
         if ( m_Shear != NEVER )
         {
             m_Layout.AddButton( m_ShearButton, "Shear" );
@@ -4209,7 +4218,9 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
     string rad_id = geom_ptr->m_CapUMinRadius.GetID();
     string raddim_id = geom_ptr->m_CapUMinRadiusDim.GetID();
     bool trunc = geom_ptr->m_CapUMinTruncFlag();
+    bool scaled = geom_ptr->m_CapUMinScaledFlag();
     string trunc_id = geom_ptr->m_CapUMinTruncFlag.GetID();
+    string scaled_id = geom_ptr->m_CapUMinScaledFlag.GetID();
     string shear_id = geom_ptr->m_CapUMinShearFlag.GetID();
     string sweep_id = geom_ptr->m_CapUMinSweepFlag.GetID();
 
@@ -4223,7 +4234,9 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
         rad_id = geom_ptr->m_CapUMaxRadius.GetID();
         raddim_id = geom_ptr->m_CapUMaxRadiusDim.GetID();
         trunc = geom_ptr->m_CapUMaxTruncFlag();
+        scaled = geom_ptr->m_CapUMaxScaledFlag();
         trunc_id = geom_ptr->m_CapUMaxTruncFlag.GetID();
+        scaled_id = geom_ptr->m_CapUMaxScaledFlag.GetID();
         shear_id = geom_ptr->m_CapUMaxShearFlag.GetID();
         sweep_id = geom_ptr->m_CapUMaxSweepFlag.GetID();
     }
@@ -4278,10 +4291,24 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
         m_TruncButton.Update( trunc_id );
     }
 
+    if ( m_Scaled != NEVER )
+    {
+        m_ScaledButton.Update( scaled_id );
+        if ( Uses( m_Scaled, trunc ) )
+        {
+            m_ScaledButton.Activate();
+        }
+        else
+        {
+            m_ScaledButton.Deactivate();
+        }
+    }
+
+    // Rows that are the end scaled already slide along with the point as a shear would move them.
     if ( m_Shear != NEVER )
     {
         m_ShearButton.Update( shear_id );
-        if ( Uses( m_Shear, trunc ) )
+        if ( Uses( m_Shear, trunc ) && !scaled )
         {
             m_ShearButton.Activate();
         }
@@ -4355,11 +4382,13 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_SharpGroup.SetExtra( "Strength" );
     m_ConeGroup.SetRadius( EndCapTypeGroup::ALWAYS );
     m_ConeGroup.SetTrunc( true );
+    m_ConeGroup.SetScaled( EndCapTypeGroup::ALWAYS );
     // A truncated cone's sides are straight, so shearing them moves them no differently than the offset does.
     m_ConeGroup.SetShear( EndCapTypeGroup::UNTRUNC_ONLY );
     m_OgiveGroup.SetRadius( EndCapTypeGroup::ALWAYS );
     m_OgiveGroup.SetExtra( "Angle", 10, "%7.3f" );
     m_OgiveGroup.SetTrunc( true );
+    m_OgiveGroup.SetScaled( EndCapTypeGroup::ALWAYS );
     m_OgiveGroup.SetShear( EndCapTypeGroup::ALWAYS );
     m_PowerLawGroup.SetExtra( "Exponent" );
     m_VonKarmanGroup.SetExtra( "Haack C" );
@@ -4369,6 +4398,10 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_PowerLawGroup.SetTrunc( true );
     m_VonKarmanGroup.SetTrunc( true );
     m_SearsHaackGroup.SetTrunc( true );
+    // A profile cap's rows are the end scaled anyway; Scaled Rows sizes only a truncated cap's face.
+    m_PowerLawGroup.SetScaled( EndCapTypeGroup::TRUNC_ONLY );
+    m_VonKarmanGroup.SetScaled( EndCapTypeGroup::TRUNC_ONLY );
+    m_SearsHaackGroup.SetScaled( EndCapTypeGroup::TRUNC_ONLY );
 
     // The groups share the space of the one with the most lines.
     vector< EndCapTypeGroup* > groups = Groups();
