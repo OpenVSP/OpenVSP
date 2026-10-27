@@ -973,6 +973,7 @@ void SliderAdjRangeInput::Update( const string& parm_id )
 
 SliderAdjRange2Input::SliderAdjRange2Input()
 {
+    m_Type = vsp::GDEV_SLIDER_ADJ_RANGE_TWO_INPUT;
     m_ParmButtonFlag = false;
 }
 
@@ -980,6 +981,7 @@ void SliderAdjRange2Input::Init( VspScreen* screen, VspSlider* slider, Fl_Button
                                  Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
                                  double range, const char* format, VspButton* parm_button )
 {
+    m_Type = vsp::GDEV_SLIDER_ADJ_RANGE_TWO_INPUT;
     m_ParmButtonFlag = false;
     if ( parm_button )
     {
@@ -991,6 +993,19 @@ void SliderAdjRange2Input::Init( VspScreen* screen, VspSlider* slider, Fl_Button
     m_Input1.Init( screen, input1, format );
     m_Input2.Init( screen, input2, format );
 
+    ClearAllWidgets();
+    AddWidget( parm_button );
+    AddWidget( lbutton );
+    AddWidget( slider, true );
+    AddWidget( rbutton );
+    AddWidget( input1 );
+    AddWidget( input2 );
+}
+
+// The device shows two Parms, so one alone leaves it inactive.
+void SliderAdjRange2Input::Update( const string& parm_id )
+{
+    Deactivate();
 }
 
 void SliderAdjRange2Input::Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2 )

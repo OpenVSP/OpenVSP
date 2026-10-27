@@ -704,7 +704,7 @@ protected:
 };
 
 //==== Slider 2 Input Combo ====//
-class SliderAdjRange2Input
+class SliderAdjRange2Input : public GuiDevice
 {
 public:
     SliderAdjRange2Input();
@@ -712,6 +712,8 @@ public:
                        Fl_Button* rbutton, Fl_Input* input1, Fl_Input* input2,
                        double range, const char* format, VspButton* parm_button = nullptr );
     virtual void Update( int slider_id, const string& parm_id_in1, const string& parm_id_in2 );
+    virtual void Update( const string& parm_id );
+    virtual void DeviceCB( Fl_Widget* w )           {}
     virtual void SetRange( double range )
     {
         m_Slider.SetRange( range );
@@ -740,6 +742,9 @@ public:
     virtual void ActivateInput2();
 
 protected:
+
+    virtual void SetValAndLimits( Parm* )           {}
+
     SliderAdjRange m_Slider;
     Input m_Input1;
     Input m_Input2;
