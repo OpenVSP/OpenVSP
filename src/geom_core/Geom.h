@@ -1038,6 +1038,7 @@ public:
     Parm m_CapUMinOgiveAngle;
     Parm m_CapUMinPowerExp;
     Parm m_CapUMinHaackC;
+    BoolParm m_CapUMinTruncFlag;
 
     Parm m_CapUMaxLength;
     Parm m_CapUMaxOffset;
@@ -1051,6 +1052,7 @@ public:
     Parm m_CapUMaxOgiveAngle;
     Parm m_CapUMaxPowerExp;
     Parm m_CapUMaxHaackC;
+    BoolParm m_CapUMaxTruncFlag;
     bool m_CappingDone;
 
     // Where the UMin cap's length and offset place its tip, or the middle of the end with no cap, on the

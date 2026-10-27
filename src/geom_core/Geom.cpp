@@ -1774,15 +1774,17 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinOffsetDim.Init( "CapUMinOffsetDim", "EndCap", this, 0, -1e12, 1e12 );
     m_CapUMinOffsetDim.SetDescript( "Dimensional offset of end cap" );
     m_CapUMinRadius.Init( "CapUMinRadius", "EndCap", this, 0.25, 0, 20 );
-    m_CapUMinRadius.SetDescript( "Scaled radius of the spherical tip of a cone or ogive end cap" );
+    m_CapUMinRadius.SetDescript( "Scaled radius of a cone or ogive cap's sphere or a truncated cap's face" );
     m_CapUMinRadiusDim.Init( "CapUMinRadiusDim", "EndCap", this, 0.25, 0, 1e12 );
-    m_CapUMinRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone or ogive end cap" );
+    m_CapUMinRadiusDim.SetDescript( "Dimensional radius of a cone or ogive cap's sphere or a truncated cap's face" );
     m_CapUMinOgiveAngle.Init( "CapUMinOgiveAngle", "EndCap", this, 0, -89, 89 );
     m_CapUMinOgiveAngle.SetDescript( "Angle in degrees at which an ogive end cap leaves the end, towards its axis" );
     m_CapUMinPowerExp.Init( "CapUMinPowerExp", "EndCap", this, 0.5, 0.05, 20.0 );
     m_CapUMinPowerExp.SetDescript( "Exponent of a power law end cap's radius along its length" );
     m_CapUMinHaackC.Init( "CapUMinHaackC", "EndCap", this, 0, 0, 2.0 / 3.0 );
     m_CapUMinHaackC.SetDescript( "C of a Von Karman end cap's Haack series: 0 for Von Karman, 1/3 for LV-Haack" );
+    m_CapUMinTruncFlag.Init( "CapUMinTruncFlag", "EndCap", this, false, false, true );
+    m_CapUMinTruncFlag.SetDescript( "Flag to end a cone, ogive or profile end cap at a flat face of its radius" );
 
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
@@ -1806,15 +1808,17 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMaxOffsetDim.Init( "CapUMaxOffsetDim", "EndCap", this, 0, -1e12, 1e12 );
     m_CapUMaxOffsetDim.SetDescript( "Dimensional offset of end cap" );
     m_CapUMaxRadius.Init( "CapUMaxRadius", "EndCap", this, 0.25, 0, 20 );
-    m_CapUMaxRadius.SetDescript( "Scaled radius of the spherical tip of a cone or ogive end cap" );
+    m_CapUMaxRadius.SetDescript( "Scaled radius of a cone or ogive cap's sphere or a truncated cap's face" );
     m_CapUMaxRadiusDim.Init( "CapUMaxRadiusDim", "EndCap", this, 0.25, 0, 1e12 );
-    m_CapUMaxRadiusDim.SetDescript( "Dimensional radius of the spherical tip of a cone or ogive end cap" );
+    m_CapUMaxRadiusDim.SetDescript( "Dimensional radius of a cone or ogive cap's sphere or a truncated cap's face" );
     m_CapUMaxOgiveAngle.Init( "CapUMaxOgiveAngle", "EndCap", this, 0, -89, 89 );
     m_CapUMaxOgiveAngle.SetDescript( "Angle in degrees at which an ogive end cap leaves the end, towards its axis" );
     m_CapUMaxPowerExp.Init( "CapUMaxPowerExp", "EndCap", this, 0.5, 0.05, 20.0 );
     m_CapUMaxPowerExp.SetDescript( "Exponent of a power law end cap's radius along its length" );
     m_CapUMaxHaackC.Init( "CapUMaxHaackC", "EndCap", this, 0, 0, 2.0 / 3.0 );
     m_CapUMaxHaackC.SetDescript( "C of a Von Karman end cap's Haack series: 0 for Von Karman, 1/3 for LV-Haack" );
+    m_CapUMaxTruncFlag.Init( "CapUMaxTruncFlag", "EndCap", this, false, false, true );
+    m_CapUMaxTruncFlag.SetDescript( "Flag to end a cone, ogive or profile end cap at a flat face of its radius" );
 
     // Parasite Drag Parms
     m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
@@ -2309,7 +2313,7 @@ void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bo
     }
     umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag(), CapRadius( false ),
                                 Deg2Rad( m_CapUMinOgiveAngle() ), m_CapUMinPowerExp(),
-                                m_CapUMinHaackC() );
+                                m_CapUMinHaackC(), m_CapUMinTruncFlag() );
 
     // An extended round cap splits the whole surface, so the other end is measured after it.
     if ( setdims )
@@ -2318,7 +2322,7 @@ void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bo
     }
     umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag(), CapRadius( true ),
                                 Deg2Rad( m_CapUMaxOgiveAngle() ), m_CapUMaxPowerExp(),
-                                m_CapUMaxHaackC() );
+                                m_CapUMaxHaackC(), m_CapUMaxTruncFlag() );
 }
 
 // Set the end cap parms each cap option fixes.
@@ -2403,18 +2407,18 @@ bool Geom::ProfileCap( int capType )
     return capType == POWER_LAW_END_CAP || capType == VON_KARMAN_END_CAP || capType == SEARS_HAACK_END_CAP;
 }
 
-// The tip radius the UMax or UMin end cap takes: none for a profile cap.
+// The tip or face radius the UMax or UMin end cap takes: none for a profile cap unless it is truncated.
 double Geom::CapRadius( bool umax )
 {
     if ( umax )
     {
-        if ( ProfileCap( m_CapUMaxOption() ) )
+        if ( ProfileCap( m_CapUMaxOption() ) && !m_CapUMaxTruncFlag() )
         {
             return 0.0;
         }
         return m_CapUMaxRadius();
     }
-    if ( ProfileCap( m_CapUMinOption() ) )
+    if ( ProfileCap( m_CapUMinOption() ) && !m_CapUMinTruncFlag() )
     {
         return 0.0;
     }
