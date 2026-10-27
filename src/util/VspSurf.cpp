@@ -2514,6 +2514,7 @@ void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::
         // Count nu and build up tess parameters, translating from specification to modified
         // parameter space in the case of a GeomEngine.
         int nu = 1;
+        int inext = 0;
         for ( int isect = 0; isect < nusect; ++isect )
         {
             double ustart = m_UMapping.GetSegFirstPoint( isect );
@@ -2564,6 +2565,26 @@ void VspSurf::MakeUTess( vector < double > &u, vector < int > num_u, const std::
 
                         int istart = vector_find_nearest( fvec, fstart );
                         int iend = vector_find_nearest( fvec, fend );
+
+                        // Each point goes to the first piece that reaches it, and the piece at the section's
+                        // start keeps that start however short the piece is.
+                        if ( fstart <= tol )
+                        {
+                            inext = 0;
+                            if ( iend == 0 && nuu > 1 )
+                            {
+                                iend = 1;
+                            }
+                        }
+                        if ( istart < inext )
+                        {
+                            istart = inext;
+                        }
+                        if ( iend < istart )
+                        {
+                            iend = istart;
+                        }
+                        inext = iend;
 
                         if ( istart > 0 )
                         {
