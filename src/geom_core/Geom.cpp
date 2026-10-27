@@ -1787,6 +1787,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinTruncFlag.SetDescript( "Flag to end a cone, ogive or profile end cap at a flat face of its radius" );
     m_CapUMinShearFlag.Init( "CapUMinShearFlag", "EndCap", this, false, false, true );
     m_CapUMinShearFlag.SetDescript( "Flag to offset a cone or ogive end cap by shearing it, as DATCOM cambers a body" );
+    m_CapUMinScaledFlag.Init( "CapUMinScaledFlag", "EndCap", this, false, false, true );
+    m_CapUMinScaledFlag.SetDescript( "Flag to build an end cap's rows as the end scaled, as DATCOM builds a nose" );
 
     m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
@@ -1823,6 +1825,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMaxTruncFlag.SetDescript( "Flag to end a cone, ogive or profile end cap at a flat face of its radius" );
     m_CapUMaxShearFlag.Init( "CapUMaxShearFlag", "EndCap", this, false, false, true );
     m_CapUMaxShearFlag.SetDescript( "Flag to offset a cone or ogive end cap by shearing it, as DATCOM cambers a body" );
+    m_CapUMaxScaledFlag.Init( "CapUMaxScaledFlag", "EndCap", this, false, false, true );
+    m_CapUMaxScaledFlag.SetDescript( "Flag to build an end cap's rows as the end scaled, as DATCOM builds a nose" );
 
     // Parasite Drag Parms
     m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
@@ -2317,7 +2321,8 @@ void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bo
     }
     umin_success = surf.CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff, m_CapUMinSweepFlag(), CapRadius( false ),
                                 Deg2Rad( m_CapUMinOgiveAngle() ), m_CapUMinPowerExp(),
-                                m_CapUMinHaackC(), m_CapUMinTruncFlag(), m_CapUMinShearFlag() );
+                                m_CapUMinHaackC(), m_CapUMinTruncFlag(), m_CapUMinShearFlag(),
+                                m_CapUMinScaledFlag() );
 
     // An extended round cap splits the whole surface, so the other end is measured after it.
     if ( setdims )
@@ -2326,7 +2331,8 @@ void Geom::CapSurf( VspSurf & surf, bool & umin_success, bool & umax_success, bo
     }
     umax_success = surf.CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff, m_CapUMaxSweepFlag(), CapRadius( true ),
                                 Deg2Rad( m_CapUMaxOgiveAngle() ), m_CapUMaxPowerExp(),
-                                m_CapUMaxHaackC(), m_CapUMaxTruncFlag(), m_CapUMaxShearFlag() );
+                                m_CapUMaxHaackC(), m_CapUMaxTruncFlag(), m_CapUMaxShearFlag(),
+                                m_CapUMaxScaledFlag() );
 }
 
 // Set the end cap parms each cap option fixes.

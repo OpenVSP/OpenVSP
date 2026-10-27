@@ -1040,6 +1040,7 @@ public:
     Parm m_CapUMinHaackC;
     BoolParm m_CapUMinTruncFlag;
     BoolParm m_CapUMinShearFlag;
+    BoolParm m_CapUMinScaledFlag;
 
     Parm m_CapUMaxLength;
     Parm m_CapUMaxOffset;
@@ -1055,6 +1056,7 @@ public:
     Parm m_CapUMaxHaackC;
     BoolParm m_CapUMaxTruncFlag;
     BoolParm m_CapUMaxShearFlag;
+    BoolParm m_CapUMaxScaledFlag;
     bool m_CappingDone;
 
     // Where the UMin cap's length and offset place its tip, or the middle of the end with no cap, on the

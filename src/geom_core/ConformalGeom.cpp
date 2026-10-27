@@ -642,6 +642,7 @@ void ConformalGeom::UpdateCopySurfParms()
     m_CapUMinHaackC = parent_geom->m_CapUMinHaackC();
     m_CapUMinTruncFlag = parent_geom->m_CapUMinTruncFlag();
     m_CapUMinShearFlag = parent_geom->m_CapUMinShearFlag();
+    m_CapUMinScaledFlag = parent_geom->m_CapUMinScaledFlag();
     m_CapUMinStrength = parent_geom->m_CapUMinStrength();
     m_CapUMinSweepFlag = parent_geom->m_CapUMinSweepFlag();
 
@@ -653,6 +654,7 @@ void ConformalGeom::UpdateCopySurfParms()
     m_CapUMaxHaackC = parent_geom->m_CapUMaxHaackC();
     m_CapUMaxTruncFlag = parent_geom->m_CapUMaxTruncFlag();
     m_CapUMaxShearFlag = parent_geom->m_CapUMaxShearFlag();
+    m_CapUMaxScaledFlag = parent_geom->m_CapUMaxScaledFlag();
     m_CapUMaxStrength = parent_geom->m_CapUMaxStrength();
     m_CapUMaxSweepFlag = parent_geom->m_CapUMaxSweepFlag();
 }

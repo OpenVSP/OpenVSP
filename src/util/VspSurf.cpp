@@ -3221,9 +3221,10 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
     }
 }
 
-bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack, bool trunc, bool shear)
+bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack, bool trunc, bool shear, bool scaled)
 {
-    bool capped = CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag, rad, ogang, pexp, haack, trunc, shear );
+    bool capped = CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag, rad, ogang, pexp, haack, trunc, shear,
+                        scaled );
     if ( capped )
     {
         m_CFDCapUMin = true;
@@ -3231,9 +3232,10 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const 
     return capped;
 }
 
-bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack, bool trunc, bool shear)
+bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack, bool trunc, bool shear, bool scaled)
 {
-    bool capped = CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag, rad, ogang, pexp, haack, trunc, shear );
+    bool capped = CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag, rad, ogang, pexp, haack, trunc, shear,
+                        scaled );
     if ( capped )
     {
         m_CFDCapUMax = true;
@@ -3409,7 +3411,7 @@ static void CapFrameConditions( bool frame, const vec3d &axis, const vec3d &up, 
     cc.set_frame_conditions( a, u );
 }
 
-bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack, bool trunc, bool shear)
+bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack, bool trunc, bool shear, bool scaled)
 {
     if (CapType == vsp::NO_END_CAP)
     {
@@ -3448,6 +3450,7 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
     cc.set_profile_conditions( MultiCapProfile( CapType ), pexp, haack );
     cc.set_truncate_conditions( trunc );
     cc.set_shear_conditions( shear );
+    cc.set_scaled_conditions( scaled );
     CapFrameConditions( m_CapFrameFlag, m_CapAxis, m_CapUp, whichCap == multicap_creator_type::CAP_UMAX, cc );
 
     if ( whichCap == multicap_creator_type::CAP_UMAX )
