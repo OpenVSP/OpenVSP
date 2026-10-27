@@ -4086,6 +4086,7 @@ EndCapTypeGroup::EndCapTypeGroup()
     m_ExtraRange = 1;
     m_ExtraFormat = "%6.5f";
     m_Radius = NEVER;
+    m_HasTrunc = false;
 }
 
 void EndCapTypeGroup::SetExtra( const string& label, double range, const char* format )
@@ -4103,12 +4104,24 @@ bool EndCapTypeGroup::Uses( int use, bool trunc )
     {
         return true;
     }
+    if ( use == TRUNC_ONLY )
+    {
+        return trunc;
+    }
+    if ( use == UNTRUNC_ONLY )
+    {
+        return !trunc;
+    }
     return false;
 }
 
 int EndCapTypeGroup::NumToggles()
 {
     int ntoggle = 0;
+    if ( m_HasTrunc )
+    {
+        ntoggle++;
+    }
     if ( m_HasSweep )
     {
         ntoggle++;
@@ -4160,6 +4173,10 @@ void EndCapTypeGroup::Build( GroupLayout& parent, int h, int button_w )
         m_Layout.SetSameLineFlag( true );
         m_Layout.SetButtonWidth( m_Layout.GetW() / ntoggle );
 
+        if ( m_HasTrunc )
+        {
+            m_Layout.AddButton( m_TruncButton, "Truncate" );
+        }
         if ( m_HasSweep )
         {
             m_Layout.AddButton( m_SweepFlagButton, "Sweep Stretch" );
@@ -4182,7 +4199,8 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
     string offdim_id = geom_ptr->m_CapUMinOffsetDim.GetID();
     string rad_id = geom_ptr->m_CapUMinRadius.GetID();
     string raddim_id = geom_ptr->m_CapUMinRadiusDim.GetID();
-    bool trunc = false;
+    bool trunc = geom_ptr->m_CapUMinTruncFlag();
+    string trunc_id = geom_ptr->m_CapUMinTruncFlag.GetID();
     string sweep_id = geom_ptr->m_CapUMinSweepFlag.GetID();
 
     if ( umax )
@@ -4194,6 +4212,8 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
         offdim_id = geom_ptr->m_CapUMaxOffsetDim.GetID();
         rad_id = geom_ptr->m_CapUMaxRadius.GetID();
         raddim_id = geom_ptr->m_CapUMaxRadiusDim.GetID();
+        trunc = geom_ptr->m_CapUMaxTruncFlag();
+        trunc_id = geom_ptr->m_CapUMaxTruncFlag.GetID();
         sweep_id = geom_ptr->m_CapUMaxSweepFlag.GetID();
     }
 
@@ -4240,6 +4260,11 @@ void EndCapTypeGroup::Update( Geom* geom_ptr, bool umax, const string& extra_id 
     if ( m_HasExtra )
     {
         m_ExtraSlider.Update( extra_id );
+    }
+
+    if ( m_HasTrunc )
+    {
+        m_TruncButton.Update( trunc_id );
     }
 
     if ( m_HasSweep )
@@ -4305,10 +4330,18 @@ void EndCapGUI::Build( GroupLayout& layout, VspScreen* screen, const string& lab
     m_SharpGroup.SetSweep( true );
     m_SharpGroup.SetExtra( "Strength" );
     m_ConeGroup.SetRadius( EndCapTypeGroup::ALWAYS );
+    m_ConeGroup.SetTrunc( true );
     m_OgiveGroup.SetRadius( EndCapTypeGroup::ALWAYS );
     m_OgiveGroup.SetExtra( "Angle", 10, "%7.3f" );
+    m_OgiveGroup.SetTrunc( true );
     m_PowerLawGroup.SetExtra( "Exponent" );
     m_VonKarmanGroup.SetExtra( "Haack C" );
+    m_PowerLawGroup.SetRadius( EndCapTypeGroup::TRUNC_ONLY );
+    m_VonKarmanGroup.SetRadius( EndCapTypeGroup::TRUNC_ONLY );
+    m_SearsHaackGroup.SetRadius( EndCapTypeGroup::TRUNC_ONLY );
+    m_PowerLawGroup.SetTrunc( true );
+    m_VonKarmanGroup.SetTrunc( true );
+    m_SearsHaackGroup.SetTrunc( true );
 
     // The groups share the space of the one with the most lines.
     vector< EndCapTypeGroup* > groups = Groups();

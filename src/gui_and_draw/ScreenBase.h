@@ -312,12 +312,15 @@ public:
     {
         NEVER,
         ALWAYS,
+        TRUNC_ONLY, // only when truncated
+        UNTRUNC_ONLY, // only when not
     };
 
     // What the kind uses besides length and offset, set before Build.
     void SetSweep( bool sweep )                       { m_HasSweep = sweep; }
     void SetExtra( const string& label, double range = 1, const char* format = "%6.5f" );
     void SetRadius( int use )                         { m_Radius = use; }
+    void SetTrunc( bool trunc )                       { m_HasTrunc = trunc; }
 
     // The number of lines the group takes.
     int NumLines();
@@ -338,11 +341,13 @@ protected:
     double m_ExtraRange;
     const char* m_ExtraFormat;
     int m_Radius;
+    bool m_HasTrunc;
 
     SliderAdjRange2Input m_LenSlider;
     SliderAdjRange2Input m_OffsetSlider;
     SliderAdjRange2Input m_RadiusSlider;
     SliderAdjRangeInput m_ExtraSlider;
+    ToggleButton m_TruncButton;
     ToggleButton m_SweepFlagButton;
 };
 
