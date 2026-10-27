@@ -96,6 +96,8 @@ CloneGeom::CloneGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     cap_parms.push_back( &m_CapUMaxHaackC );
     cap_parms.push_back( &m_CapUMinTruncFlag );
     cap_parms.push_back( &m_CapUMaxTruncFlag );
+    cap_parms.push_back( &m_CapUMinShearFlag );
+    cap_parms.push_back( &m_CapUMaxShearFlag );
     for ( size_t i = 0; i < cap_parms.size(); i++ )
     {
         cap_parms[i]->Deactivate();
@@ -780,6 +782,7 @@ void CloneGeom::CopyEndCapParms( Geom* from, Geom* to )
     to->m_CapUMinPowerExp.Set( from->m_CapUMinPowerExp() );
     to->m_CapUMinHaackC.Set( from->m_CapUMinHaackC() );
     to->m_CapUMinTruncFlag.Set( from->m_CapUMinTruncFlag() );
+    to->m_CapUMinShearFlag.Set( from->m_CapUMinShearFlag() );
     to->m_CapUMinTess.Set( from->m_CapUMinTess() );
     to->m_CapUMaxOption.Set( from->m_CapUMaxOption() );
     to->m_CapUMaxLength.Set( from->m_CapUMaxLength() );
@@ -795,6 +798,7 @@ void CloneGeom::CopyEndCapParms( Geom* from, Geom* to )
     to->m_CapUMaxPowerExp.Set( from->m_CapUMaxPowerExp() );
     to->m_CapUMaxHaackC.Set( from->m_CapUMaxHaackC() );
     to->m_CapUMaxTruncFlag.Set( from->m_CapUMaxTruncFlag() );
+    to->m_CapUMaxShearFlag.Set( from->m_CapUMaxShearFlag() );
 }
 
 void CloneGeom::CopyTessParms( Geom* from, Geom* to )

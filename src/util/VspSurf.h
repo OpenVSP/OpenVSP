@@ -271,9 +271,9 @@ public:
     {
         return m_WFeature;
     }
-    bool CapUMin(int capType, double len, double str, double offset, const vec3d &ptoff, bool swflag, double rad = 0.0, double ogang = 0.0, double pexp = 1.0, double haack = 0.0, bool trunc = false);
-    bool CapUMax(int capType, double len, double str, double offset, const vec3d &ptoff, bool swflag, double rad = 0.0, double ogang = 0.0, double pexp = 1.0, double haack = 0.0, bool trunc = false);
-    bool CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack, bool trunc);
+    bool CapUMin(int capType, double len, double str, double offset, const vec3d &ptoff, bool swflag, double rad = 0.0, double ogang = 0.0, double pexp = 1.0, double haack = 0.0, bool trunc = false, bool shear = false);
+    bool CapUMax(int capType, double len, double str, double offset, const vec3d &ptoff, bool swflag, double rad = 0.0, double ogang = 0.0, double pexp = 1.0, double haack = 0.0, bool trunc = false, bool shear = false);
+    bool CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag, double rad, double ogang, double pexp, double haack, bool trunc, bool shear);
 
     bool CapScales( bool umax, int capType, double len, double str, bool swflag, double &lenscale, double &offscale ) const;
     bool CapTipPnt( bool umax, int capType, double len, double str, double offset, bool swflag, vec3d &pnt ) const;
