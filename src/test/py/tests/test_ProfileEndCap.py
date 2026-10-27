@@ -4,8 +4,8 @@
 # radius, as a fraction of the end's, at s, the distance from the point as a fraction of the length, is
 # s^CapU*PowerExp for POWER_LAW_END_CAP, the Haack series with C CapU*HaackC for VON_KARMAN_END_CAP, and the
 # front half of the Sears-Haack body for SEARS_HAACK_END_CAP.  Each row of the cap is the end scaled about its
-# middle, so any end's shape runs to the point.  The caps take no tip radius: CapU*Radius is left as it is
-# and ignored.  An offset moves the point, the cap sheared along to it.
+# middle, so any end's shape runs to the point.  The caps take no tip radius unless truncated: CapU*Radius is
+# left as it is and ignored.  An offset moves the point, the cap sheared along to it.
 #
 # The cap's half of the end in u is the profile's cubics from the end to the point.
 
