@@ -601,6 +601,18 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_COLLECTION", ATTROBJ_COLLECTION );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_XSEC", ATTROBJ_XSEC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_SEC", ATTROBJ_SEC );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_MODE", ATTROBJ_MODE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_SET", ATTROBJ_SET );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_VARGROUP", ATTROBJ_VARGROUP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_VARSETTING", ATTROBJ_VARSETTING );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTRIBUTABLE_TYPE", "ATTROBJ_FREE", ATTROBJ_FREE );
     assert( r >= 0 );
 
@@ -609,6 +621,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "ATTRIBUTE_EVENT_GROUP", "ATTR_GROUP_NONE", ATTR_GROUP_NONE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTRIBUTE_EVENT_GROUP", "ATTR_GROUP_WATERMARK", ATTR_GROUP_WATERMARK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTRIBUTE_EVENT_GROUP", "NUM_ATTR_EVENT_GROUPS", NUM_ATTR_EVENT_GROUPS );
     assert( r >= 0 );
 
 
@@ -944,6 +958,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "COMP_GEOM_CSV_TYPE", COMP_GEOM_CSV_TYPE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "DRAG_BUILD_TSV_TYPE_DEPRECATED", DRAG_BUILD_TSV_TYPE_DEPRECATED );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "SLICE_TXT_TYPE", SLICE_TXT_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "MASS_PROP_TXT_TYPE", MASS_PROP_TXT_TYPE );
@@ -966,6 +982,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_GMSH_TYPE", CFD_GMSH_TYPE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_SRF_TYPE_DEPRECATED", CFD_SRF_TYPE_DEPRECATED );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_TKEY_TYPE", CFD_TKEY_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "PROJ_AREA_CSV_TYPE", PROJ_AREA_CSV_TYPE );
@@ -977,6 +995,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "DRAG_BUILD_CSV_TYPE", DRAG_BUILD_CSV_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_FACET_TYPE", CFD_FACET_TYPE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_CURV_TYPE_DEPRECATED", CFD_CURV_TYPE_DEPRECATED );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_PLOT3D_TYPE_DEPRECATED", CFD_PLOT3D_TYPE_DEPRECATED );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_VSPGEOM_TYPE", CFD_VSPGEOM_TYPE );
     assert( r >= 0 );
@@ -1363,6 +1385,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_FIX_PT_DELTA_UVN", FEA_FIX_PT_DELTA_UVN );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_FIX_PT_GEOM_ORIGIN", FEA_FIX_PT_GEOM_ORIGIN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_FIX_PT_GEOM_CG", FEA_FIX_PT_GEOM_CG );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_NUM_FIX_PT_TYPES", FEA_NUM_FIX_PT_TYPES );
     assert( r >= 0 );
 
@@ -1655,9 +1681,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_CHECK_BUTTON", GDEV_CHECK_BUTTON );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_CHECK_BUTTON_BIT", GDEV_CHECK_BUTTON_BIT );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_RADIO_BUTTON", GDEV_RADIO_BUTTON );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TOGGLE_BUTTON", GDEV_TOGGLE_BUTTON );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "GDEV_TOGGLE_BUTTON_FREE", GDEV_TOGGLE_BUTTON_FREE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_TOGGLE_RADIO_GROUP", GDEV_TOGGLE_RADIO_GROUP ); // TODO: Implement or remove
     assert( r >= 0 );
@@ -1915,6 +1945,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_MODE_EDITOR_SCREEN", VSP_MODE_EDITOR_SCREEN );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_NERF_MANAGE_GEOM_SCREEN", VSP_NERF_MANAGE_GEOM_SCREEN );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_SNAP_TO_SCREEN", VSP_SNAP_TO_SCREEN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_PARASITE_DRAG_SCREEN", VSP_PARASITE_DRAG_SCREEN );
@@ -2155,6 +2187,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
 
     r = se->RegisterEnum( "OBJ_ID_LENGTH" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PRESET_GROUP", ID_LENGTH_PRESET_GROUP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_PRESET_SETTING", ID_LENGTH_PRESET_SETTING );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTR", ID_LENGTH_ATTR );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "OBJ_ID_LENGTH", "ID_LENGTH_ATTRCOLL", ID_LENGTH_ATTRCOLL );
@@ -2178,6 +2214,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PARM_TYPE", "PARM_LIMITED_INT_TYPE", PARM_LIMITED_INT_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PARM_TYPE", "PARM_NOTEQ_TYPE", PARM_NOTEQ_TYPE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PARM_TYPE", "PARM_POWER_INT_TYPE", PARM_POWER_INT_TYPE );
     assert( r >= 0 );
 
 
@@ -2762,6 +2800,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_NONE", VIEW_NONE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_NUM_TYPES", VIEW_NUM_TYPES );
+    assert( r >= 0 );
 
 
     r = se->RegisterEnum( "VSPAERO_NOISE_TYPE" );
@@ -2833,6 +2873,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_STRUCTURE", CFD_STRUCTURE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_STIFFENER", CFD_STIFFENER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_MEASURE_DUCT", CFD_MEASURE_DUCT );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_CFD_TYPE", "CFD_NUM_TYPES", CFD_NUM_TYPES );
     assert( r >= 0 );
