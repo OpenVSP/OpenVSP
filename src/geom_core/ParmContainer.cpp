@@ -405,7 +405,7 @@ string ParmContainer::FindParm( const string& parm_name, const string& group_nam
     if ( iter != m_GroupParmMap.end() )
     {
         //==== Look For Parm Name ====//
-        vector< std::pair< string, string > > pid_vec = iter->second;
+        const vector< std::pair< string, string > > & pid_vec = iter->second;
         for ( int i = 0 ; i < (int)pid_vec.size() ; i++ )
         {
             if ( pid_vec[i].second == parm_name )
