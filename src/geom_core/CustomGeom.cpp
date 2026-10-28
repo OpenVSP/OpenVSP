@@ -1017,11 +1017,6 @@ xmlNodePtr CustomGeom::EncodeXml( xmlNodePtr & node )
 
         string safe_file_contents = XmlUtil::ConvertToXMLSafeChars( incl_contents );
 
-        for ( int i = 0 ; i < (int)m_CustomGeomParmVec.size() ; i++ )
-        {
-            m_CustomGeomParmVec[i]->EncodeXml( custom_node );
-        }
-
         XmlUtil::AddStringNode( custom_node, "ScriptFileModule", GetScriptModuleName()  );
         XmlUtil::AddStringNode( custom_node, "ScriptFileContents", safe_file_contents );
     }
@@ -1050,13 +1045,9 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
             type_name = module_name;
         }
         CustomGeomMgr.InitGeom( GetID(), new_module_name, type_name );
-
-        std::unordered_map< string, xmlNodePtr > parm_nodes = XmlUtil::GetNodeMap( custom_node );
-        for ( int i = 0 ; i < (int)m_CustomGeomParmVec.size() ; i++ )
-        {
-            m_CustomGeomParmVec[i]->DecodeXmlNodeMap( parm_nodes );
-        }
     }
+
+    // The script's Parms, made again above, are read with the rest of the Geom's.
     Geom::DecodeXml( node );
 
     return custom_node;

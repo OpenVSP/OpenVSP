@@ -74,6 +74,18 @@ def assert_independent( gids ):
                pytest.approx( 1.0 + 0.25 * gids.index( gid ) )
 
 
+def testASavedFileNamesEachParmOnce():
+    gid, out = part()
+    fname = os.path.join( out, "part.vsp3" )
+    vsp.WriteVSPFile( fname )
+    ids = ids_in( fname )
+    assert ids
+    for name, group in VALUES:
+        assert ids.count( vsp.FindParm( gid, name, group ) ) == 1
+    assert len( ids ) == len( set( ids ) )
+    assert_no_errors()
+
+
 def testAReadKeepsEachParmsIdAndValue():
     gid, out = part()
     before = { pid: vsp.GetParmVal( pid ) for pid in vsp.GetGeomParmIDs( gid ) }
