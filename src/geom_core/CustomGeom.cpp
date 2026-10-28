@@ -66,6 +66,7 @@ void CustomGeomMgrSingleton::InitGeom( const string& id, const string& module_na
     {
         m_CurrGeom = id;
         CustomGeom* custom_geom = dynamic_cast<CustomGeom*>( gptr );
+        custom_geom->SetType( GeomType( CUSTOM_GEOM_TYPE, display_name, false, module_name, display_name ) );
         custom_geom->SetScriptModuleName( module_name );
         custom_geom->SetDisplayName( display_name );
         custom_geom->InitGeom();
@@ -1040,8 +1041,15 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
         string safe_file_contents = XmlUtil::FindString( custom_node, "ScriptFileContents", string() );
         string file_contents = XmlUtil::ConvertFromXMLSafeChars( safe_file_contents );
 
+        // The type is named after the module the script is loaded as in this session, as AddGeom names it,
+        // not the saved name, which can carry the saving session's rename of a module of the same name.
         string new_module_name = ScriptMgr.ReadScriptFromMemory( module_name, file_contents );
-        CustomGeomMgr.InitGeom( GetID(), new_module_name, module_name );
+        string type_name = new_module_name;
+        if ( type_name.empty() )
+        {
+            type_name = module_name;
+        }
+        CustomGeomMgr.InitGeom( GetID(), new_module_name, type_name );
 
         std::unordered_map< string, xmlNodePtr > parm_nodes = XmlUtil::GetNodeMap( custom_node );
         for ( int i = 0 ; i < (int)m_CustomGeomParmVec.size() ; i++ )

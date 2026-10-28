@@ -1,0 +1,61 @@
+// A tapered elliptic tube for testing a Custom Geom's Parm IDs.  Its Parms are in two groups: Width, Height
+// and Length in Design, and Taper and Rise in Shaping.
+
+string AddDesignParm( const string & in name, const string & in group, double val, const string & in descript )
+{
+    string id = AddParm( PARM_DOUBLE_TYPE, name, group );
+    SetParmValLimits( id, val, -1.0e12, 1.0e12 );
+    SetParmDescript( id, descript );
+    return id;
+}
+
+void Init()
+{
+    AddDesignParm( "Width", "Design", 1.0, "Width of the nose section" );
+    AddDesignParm( "Height", "Design", 0.5, "Height of the nose section" );
+    AddDesignParm( "Length", "Design", 4.0, "Length of the tube" );
+    AddDesignParm( "Taper", "Shaping", 0.5, "Ratio of the aft section's size to the nose section's" );
+    AddDesignParm( "Rise", "Shaping", 0.0, "Height of the aft section above the nose section" );
+
+    string xsec_surf = AddXSecSurf();
+    AppendCustomXSec( xsec_surf, XS_ELLIPSE );
+    AppendCustomXSec( xsec_surf, XS_ELLIPSE );
+}
+
+void InitGui()
+{
+    AddGui( GDEV_TAB, "Design" );
+    AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Width", "Width", "Design" );
+    AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Height", "Height", "Design" );
+    AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Length", "Length", "Design" );
+    AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Taper", "Taper", "Shaping" );
+    AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Rise", "Rise", "Shaping" );
+}
+
+void UpdateGui()
+{
+}
+
+void UpdateSurf()
+{
+    string geom_id = GetCurrCustomGeom();
+
+    double w = GetParmVal( GetParm( geom_id, "Width", "Design" ) );
+    double h = GetParmVal( GetParm( geom_id, "Height", "Design" ) );
+    double len = GetParmVal( GetParm( geom_id, "Length", "Design" ) );
+    double taper = GetParmVal( GetParm( geom_id, "Taper", "Shaping" ) );
+    double rise = GetParmVal( GetParm( geom_id, "Rise", "Shaping" ) );
+
+    string xsec_surf = GetXSecSurf( geom_id, 0 );
+    string xsec0 = GetXSec( xsec_surf, 0 );
+    string xsec1 = GetXSec( xsec_surf, 1 );
+
+    SetParmVal( GetXSecParm( xsec0, "Ellipse_Width" ), w );
+    SetParmVal( GetXSecParm( xsec0, "Ellipse_Height" ), h );
+
+    SetParmVal( GetXSecParm( xsec1, "Ellipse_Width" ), taper * w );
+    SetParmVal( GetXSecParm( xsec1, "Ellipse_Height" ), taper * h );
+    SetCustomXSecLoc( xsec1, vec3d( len, 0.0, rise ) );
+
+    SkinXSecSurf();
+}
