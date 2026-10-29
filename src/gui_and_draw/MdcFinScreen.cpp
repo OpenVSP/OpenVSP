@@ -8,6 +8,7 @@
 #include "MdcFinScreen.h"
 #include "ScreenMgr.h"
 #include "MdcFinGeom.h"
+#include "ManageGeomScreen.h"
 
 //==== Constructor ====//
 MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_FIN" )
@@ -19,6 +20,8 @@ MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_F
 
     // Choices' labels as wide as sliders', so they line up.
     m_FinSetLayout.SetChoiceButtonWidth( m_FinSetLayout.GetButtonWidth() );
+
+    m_FinSetLayout.AddButton( m_ConvertToWingButton, "Convert to Wing" );
 
     m_FinSetLayout.AddYGap();
     m_FinSetLayout.AddDividerBox( "Fin Set" );
@@ -267,6 +270,41 @@ void MdcFinScreen::CallBack( Fl_Widget *w )
 //==== Gui Device Callbacks ====//
 void MdcFinScreen::GuiDeviceCallBack( GuiDevice* device )
 {
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( device == &m_ConvertToWingButton && geom_ptr && geom_ptr->GetType().m_Type == MDC_FIN_GEOM_TYPE )
+    {
+        int choice = fl_choice( "Convert MDC_FIN to Wing Geom.\nReplace the MDC_FIN (can not be un-done), or add a Wing and Clones beside it?",
+                                "Cancel", "Replace", "Add" );
+        if ( choice == 1 || choice == 2 )
+        {
+            bool replace_flag = ( choice == 1 );
+
+            // Replacing deletes this Geom, so nothing may touch it afterwards.
+            Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+            vector< string > wing_ids = veh->ConvertMdcFinToWing( geom_ptr->GetID(), replace_flag );
+            if ( wing_ids.empty() )
+            {
+                fl_alert( "The MDC_FIN could not be converted." );
+                return;
+            }
+
+            if ( replace_flag )
+            {
+                veh->SetActiveGeom( wing_ids[0] );
+            }
+
+            ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+            if ( mgs )
+            {
+                mgs->SetNeedsShowHideGeoms();
+            }
+
+            m_ScreenMgr->SetUpdateFlag( true );
+            return;
+        }
+        return;
+    }
+
     GeomScreen::GuiDeviceCallBack( device );
 
     if ( device != &m_ReadUserButton )

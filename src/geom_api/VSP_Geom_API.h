@@ -14507,6 +14507,115 @@ extern std::string ConvertMdcBodToStack( const std::string & geom_id, bool repla
     \ingroup Geom
 */
 /*!
+    Make a Wing of the same surfaces as an MDC_FIN, with Clones of it for the surfaces beyond the first.  A fin set's
+    panels are rolled about the axis to their PHIF and turned about their roots by their GAM.  The first panel is a
+    Wing, rolled to where the panel is.  Each surface after it, a panel or a copy of one that the fin set's symmetry
+    makes, is a Clone of that Wing, placed where the surface is and flipped where it is a reflection or where its
+    section, if it is not symmetric top to bottom, is reflected rather than rotated from the first panel's.  A Wing's
+    chords, spans and sweeps are the fin set's stations', and each section's airfoil is the fin set's, so the
+    sections are placed as the panel's are, and its control surfaces are the MDC_FIN's flaps.  A Wing's surface runs around its sections the other way from a fin set's, so a point at W on a
+    panel is at 1 - W on the Wing.  Nothing is kept of the MDC_FIN's IDs.
+
+    Where replace_flag is true the Wing and its Clones go in the MDC_FIN's place in the model, under its name, and the
+    MDC_FIN is deleted; its children, structures, mesh sources, textures and attributes go to the Wing, except for
+    those on a surface the Wing does not have.  Where replace_flag is false they are added beside the MDC_FIN, which is
+    left as it was.
+
+    The surfaces are the MDC_FIN's to within roundoff for every fin set a Wing can place.  A Wing's sweep stops at 89
+    degrees and a zero root chord is not a Wing's, so a fin set with either is a little off; CompareGeomSurfaces
+    measures how close it is.
+    \forcpponly
+    \code{.cpp}
+    //==== A fin set of four panels, swept and tapered, with a flap ====//
+    string fid = AddGeom( "MDC_FIN" );
+    SetParmVal( FindParm( fid, "SWEEP_1", "Design" ), 20.0 );
+    SetParmVal( FindParm( fid, "CFOC_1", "Design" ), 0.3 );
+    SetParmVal( FindParm( fid, "CFOC_2", "Design" ), 0.3 );
+
+    Update();
+
+    vec3d before = CompPnt01( fid, 0, 0.3, 0.2 );
+
+    //==== Add Wings beside it ====//
+    array<string>@ wid = ConvertMdcFinToWing( fid, false );
+
+    if ( GetErrorLastCallFlag() )               { Print( "---> Error: API ConvertMdcFinToWing reported an error " ); __failure++; }
+
+    Update();
+
+    if ( wid.length() != 4 )                    { Print( "---> Error: API ConvertMdcFinToWing did not make a Geom for each panel " ); __failure++; }
+
+    if ( GetGeomTypeName( wid[0] ) != "Wing" )  { Print( "---> Error: API ConvertMdcFinToWing did not make a Wing " ); __failure++; }
+
+    if ( GetGeomTypeName( wid[1] ) != "Clone" ) { Print( "---> Error: API ConvertMdcFinToWing did not make a Clone of the Wing " ); __failure++; }
+
+    //==== The first panel is the Wing's first surface, with W reversed ====//
+    if ( dist( before, CompPnt01( wid[0], 0, 0.3, 0.8 ) ) > 1e-9 )   { Print( "---> Error: API ConvertMdcFinToWing made a different surface " ); __failure++; }
+
+    if ( GetNumSubSurf( wid[0] ) != 1 )         { Print( "---> Error: API ConvertMdcFinToWing did not carry the flap " ); __failure++; }
+
+    //==== Replace the MDC_FIN with a Wing ====//
+    array<string>@ rid = ConvertMdcFinToWing( fid, true );
+
+    if ( GetErrorLastCallFlag() )               { Print( "---> Error: API ConvertMdcFinToWing reported an error replacing " ); __failure++; }
+
+    Update();
+
+    if ( dist( before, CompPnt01( rid[0], 0, 0.3, 0.8 ) ) > 1e-9 )   { Print( "---> Error: API ConvertMdcFinToWing moved the surface " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== A fin set of four panels, swept and tapered, with a flap ====#
+    fid = AddGeom( "MDC_FIN" )
+    SetParmVal( FindParm( fid, "SWEEP_1", "Design" ), 20.0 )
+    SetParmVal( FindParm( fid, "CFOC_1", "Design" ), 0.3 )
+    SetParmVal( FindParm( fid, "CFOC_2", "Design" ), 0.3 )
+
+    Update()
+
+    before = CompPnt01( fid, 0, 0.3, 0.2 )
+
+    #==== Add Wings beside it ====#
+    wid = ConvertMdcFinToWing( fid, False )
+
+    assert not ErrorMgrSingleton.getInstance().GetErrorLastCallFlag(), "---> Error: API ConvertMdcFinToWing reported an error"
+
+    Update()
+
+    assert len( wid ) == 4, "---> Error: API ConvertMdcFinToWing did not make a Geom for each panel"
+
+    assert GetGeomTypeName( wid[0] ) == "Wing", "---> Error: API ConvertMdcFinToWing did not make a Wing"
+
+    assert GetGeomTypeName( wid[1] ) == "Clone", "---> Error: API ConvertMdcFinToWing did not make a Clone of the Wing"
+
+    #==== The first panel is the Wing's first surface, with W reversed ====#
+    assert dist( before, CompPnt01( wid[0], 0, 0.3, 0.8 ) ) < 1e-9, "---> Error: API ConvertMdcFinToWing made a different surface"
+
+    assert GetNumSubSurf( wid[0] ) == 1, "---> Error: API ConvertMdcFinToWing did not carry the flap"
+
+    #==== Replace the MDC_FIN with a Wing ====#
+    rid = ConvertMdcFinToWing( fid, True )
+
+    assert not ErrorMgrSingleton.getInstance().GetErrorLastCallFlag(), "---> Error: API ConvertMdcFinToWing reported an error replacing"
+
+    Update()
+
+    assert dist( before, CompPnt01( rid[0], 0, 0.3, 0.8 ) ) < 1e-9, "---> Error: API ConvertMdcFinToWing moved the surface"
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string MDC_FIN Geom ID
+    \param [in] replace_flag bool True to replace the MDC_FIN with the Wing and Clones, false to add them beside it
+    \return array<string> ID of the Wing, followed by the IDs of its Clones, or empty if they could not be made
+*/
+
+extern std::vector< std::string > ConvertMdcFinToWing( const std::string & geom_id, bool replace_flag );
+
+/*!
+    \ingroup Geom
+*/
+/*!
     Find and return all Geom IDs in the model
     \forcpponly
     \code{.cpp}

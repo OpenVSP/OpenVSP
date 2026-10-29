@@ -5391,6 +5391,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string ConvertMdcBodToStack( const string & in geom_id, bool replace_flag )", asFUNCTION( vsp::ConvertMdcBodToStack ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@+ ConvertMdcFinToWing( const string & in geom_id, bool replace_flag )", asMETHOD( ScriptMgrSingleton, ConvertMdcFinToWing ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "array<string>@+ FindGeoms()", asMETHOD( ScriptMgrSingleton, FindGeoms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -7985,6 +7987,12 @@ CScriptArray* ScriptMgrSingleton::GetGeomTypes()
 CScriptArray* ScriptMgrSingleton::PasteGeomClipboard( const string & parent )
 {
     m_ProxyStringArray = vsp::PasteGeomClipboard( parent );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::ConvertMdcFinToWing( const string & geom_id, bool replace_flag )
+{
+    m_ProxyStringArray = vsp::ConvertMdcFinToWing( geom_id, replace_flag );
     return GetProxyStringArray();
 }
 

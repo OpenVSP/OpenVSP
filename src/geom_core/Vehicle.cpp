@@ -2680,6 +2680,205 @@ static void HandOver( Vehicle* veh, Geom* from, Geom* to )
     }
 }
 
+// A station of a fin set's planform: how far along the panel it is, where its leading edge is and its chord.
+struct FinStation
+{
+    double span;
+    double xle;
+    double chord;
+};
+
+// How a matrix turns and scales: negative where it reflects.
+static double LinearDet( const Matrix4d & m )
+{
+    const double* d = m.const_data();
+
+    vec3d c0( d[0], d[1], d[2] );
+    vec3d c1( d[4], d[5], d[6] );
+    vec3d c2( d[8], d[9], d[10] );
+
+    return dot( c0, cross( c1, c2 ) );
+}
+
+// Puts a Geom where a matrix says its shape goes.  A Geom is placed by a translation and rotations, so where the matrix
+// reflects the Geom flips its shape, in its own frame, as well.  It is set in absolute mode, which is the matrix, and
+// then put back to the mode it was to be in.
+static void PlaceByMatrix( Geom* g, const Matrix4d & total, int absrel )
+{
+    Matrix4d m = total;
+    int flip = 0;
+    if ( LinearDet( m ) < 0.0 )
+    {
+        Matrix4d ref;
+        ref.loadXYRef();
+        m.matMult( ref.data() );
+        flip = vsp::SYM_XY;
+    }
+
+    vec3d trans = m.getTranslation();
+    vec3d angles = m.getAngles();
+
+    g->m_AbsRelFlag = vsp::ABS;
+    g->m_XLoc = trans.x();
+    g->m_YLoc = trans.y();
+    g->m_ZLoc = trans.z();
+    g->m_XRot = angles.x();
+    g->m_YRot = angles.y();
+    g->m_ZRot = angles.z();
+    g->m_FlipFlag.Set( flip );
+    g->Update();
+
+    g->m_AbsRelFlag = absrel;
+    g->Update();
+}
+
+// Where a panel of a fin set is in the fin set's frame: its root is on the body at its roll, and it is turned to its
+// own direction, clockwise from the top.  A Wing's leading edge, at its origin, is at the fin set's root leading edge.
+static Matrix4d PanelMatrix( MdcFinGeom* fin, double xle, int p, double phi, double gam )
+{
+    double rr = fin->RootRadius( p );
+    double rphi = phi * M_PI / 180.0;
+
+    Matrix4d panel;
+    panel.loadIdentity();
+    panel.translatef( xle, rr * sin( rphi ), rr * cos( rphi ) );
+    panel.rotateX( 90.0 - ( phi + gam ) );
+    return panel;
+}
+
+// A Wing with the sections of a fin set's first panel, the planform of the fin set, and no placement.  The sections
+// are inverted where the panel is reflected rather than rotated.  Its sweeps are the panel's, so the surface is the
+// panel's wherever a Wing's skinning gives the sections' shape between them as a fin set's does.
+static WingGeom* MakeFinWing( Vehicle* veh, MdcFinGeom* fin, const vector< FinStation > & st, bool reflect )
+{
+    WingGeom* wing = dynamic_cast < WingGeom* > ( veh->FindGeom( veh->CreateGeom( GeomType( MS_WING_GEOM_TYPE, "Wing", true ) ) ) );
+    if ( !wing )
+    {
+        return nullptr;
+    }
+
+    PlaceBeside( veh, wing, fin, fin->GetID() );
+
+    //==== The Geom's own Parms ====//
+    // The fin set's symmetry and flip are carried by the matrices the panels are placed with.
+    wing->CopyMatchingVals( fin );
+    wing->m_Origin.Set( 0.0 );
+    wing->m_SymPlanFlag.Set( 0 );
+    wing->m_SymAxFlag.Set( 0 );
+    wing->m_FlipFlag.Set( 0 );
+
+    //==== The sections ====//
+    XSecSurf* fxss = fin->GetXSecSurf( 0 );
+    XSecSurf* wxss = wing->GetXSecSurf( 0 );
+    wxss->DeleteAllXSecs();
+
+    int nxsec = ( int )st.size();
+
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        XSec* fxs = fxss->FindXSec( i );
+
+        wxss->AddXSec( fxs->GetXSecCurve()->GetType() );
+        WingSect* ws = dynamic_cast < WingSect* > ( wxss->FindXSec( i ) );
+
+        ws->GetXSecCurve()->CopyFrom( fxs->GetXSecCurve() );
+
+        // A fin set's section is turned over with the panel, so it is inverted where the panel is not reflected.
+        Parm* invert = ParmMgr.FindParm( ws->GetXSecCurve()->FindParm( "Invert" ) );
+        if ( invert )
+        {
+            if ( reflect )
+            {
+                invert->Set( 1.0 );
+            }
+            else
+            {
+                invert->Set( 0.0 );
+            }
+        }
+
+        ws->m_TipChord.Set( st[i].chord );
+        if ( i > 0 )
+        {
+            int k = i - 1;
+            double sta = fin->m_Sta[k]->Get();
+
+            // The two locations along the chord sweeps are measured at must differ, so the secondary one is put well
+            // away from the one that is wanted before it is set.
+            double sec_sta = 1.0;
+            if ( std::abs( sec_sta - sta ) < 0.01 )
+            {
+                sec_sta = 0.5;
+            }
+            ws->m_SecSweepLoc.Set( sec_sta );
+
+            ws->m_RootChord.Set( st[k].chord );
+            ws->m_Span.Set( st[i].span - st[k].span );
+            ws->m_SweepLoc.Set( sta );
+            ws->m_Sweep.Set( fin->m_Sweep[k]->Get() );
+            ws->m_Dihedral.Set( 0.0 );
+            ws->m_Twist.Set( 0.0 );
+        }
+    }
+
+    wing->Update();
+
+    return wing;
+}
+
+// A Clone of a Wing that is placed on its own, with no symmetry of its own to copy, after the Geom given by after_id.
+static CloneGeom* MakeFinClone( Vehicle* veh, MdcFinGeom* fin, WingGeom* wing, const string & after_id )
+{
+    CloneGeom* clone = dynamic_cast < CloneGeom* > ( veh->FindGeom( veh->CreateGeom( GeomType( CLONE_GEOM_TYPE, "CLONE", true ) ) ) );
+    if ( !clone )
+    {
+        return nullptr;
+    }
+
+    PlaceBeside( veh, clone, fin, after_id );
+
+    clone->SetOriginalID( wing->GetID() );
+    clone->m_CloneSym.Set( false );
+    clone->m_AutoName.Set( false );
+
+    return clone;
+}
+
+// Gives a Geom the subsurfaces of the fin set that are on the panel it holds, those on all of them as well, a
+// subsurface on one panel being on the Geom's only surface.
+static void CopyFinSubSurfs( MdcFinGeom* fin, Geom* to, int panel )
+{
+    vector< SubSurface* > subs = fin->GetSubSurfVec();
+    for ( int i = 0; i < ( int )subs.size(); i++ )
+    {
+        int indx = subs[i]->m_MainSurfIndx();
+        if ( indx >= 0 && indx != panel )
+        {
+            continue;
+        }
+
+        string lastreset = IDMgr.ResetRemapID();
+
+        xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
+        xmlNodePtr sub_node = xmlNewChild( root, nullptr, BAD_CAST "SubSurface", nullptr );
+        subs[i]->EncodeXml( sub_node );
+        IDMgr.PreRegisterIDs( root );
+
+        SubSurface* made = to->AddSubSurf( subs[i]->GetType(), -1 );
+        if ( made )
+        {
+            made->DecodeXml( sub_node );
+            if ( indx >= 0 )
+            {
+                made->m_MainSurfIndx.Set( 0 );
+            }
+        }
+
+        xmlFreeNode( root );
+        IDMgr.ResetRemapID( lastreset );
+    }
+}
+
 // A Fuselage numbers its order policies MONOTONIC, LOOP, FREE; a Stack FREE, LOOP.
 static int StackOrderPolicy( int fuse_policy )
 {
@@ -3193,6 +3392,208 @@ string Vehicle::ConvertMdcBodToStack( const string & mdc_bod_id, bool replace_fl
     Update();
 
     return stack_id;
+}
+
+// A fin set's panels are skinned through the sections of an XSecSurf each, rolled and turned to where each lies.  The
+// first is a Wing, made of the stations of the fin set's planform and the sections' curves, and placed where the
+// panel is.  Each surface after it, a panel or a copy of one the fin set's symmetry makes, is a Clone of that Wing
+// placed where the surface is, and flipped where it is a reflection of the panel it copies or where the panel is
+// reflected rather than rotated from the first, which a section that is not symmetric top to bottom differs by.
+//
+// A Wing's skinning blends the sections' shape in proportion to their chords, where a fin set's blends the sections
+// themselves.  The two agree where the sections' shape does not change along the span, or the chord does not, and
+// are a little apart where both do.  A Wing's sweep stops at 89 degrees.
+vector< string > Vehicle::ConvertMdcFinToWing( const string & finset_id, bool replace_flag )
+{
+    MdcFinGeom* fin = dynamic_cast < MdcFinGeom* > ( FindGeom( finset_id ) );
+    if ( !fin )
+    {
+        return vector< string >();
+    }
+
+    Update();
+
+    int npanel = fin->GetNumXSecSurfs();
+    XSecSurf* fxss = fin->GetXSecSurf( 0 );
+    int nsurf = fin->GetNumTotalSurfs();
+    vector< Matrix4d > placed = fin->GetTransMatVec();
+    if ( npanel < 1 || !fxss || fxss->NumXSec() < 2 || nsurf < 1 || ( int )placed.size() != nsurf )
+    {
+        return vector< string >();
+    }
+
+    //==== The planform, as the panel's stations ====//
+    vector< FinStation > st;
+    for ( int i = 0; i < fxss->NumXSec(); i++ )
+    {
+        BareXSec* fxs = dynamic_cast < BareXSec* > ( fxss->FindXSec( i ) );
+
+        FinStation s;
+        s.chord = fin->m_Chord[i]->Get();
+        s.span = fxs->GetLoc().x();
+        s.xle = fxs->GetLoc().y() - 0.5 * s.chord;
+        st.push_back( s );
+    }
+
+    vector< double > phis;
+    vector< double > gams;
+    for ( int p = 0; p < npanel; p++ )
+    {
+        phis.push_back( fin->m_PhiF[p]->Get() );
+        gams.push_back( fin->m_Gam[p]->Get() );
+    }
+
+    bool reflect0 = MdcFinGeom::Reflected( phis[0] );
+
+    // Subsurfaces on one panel are given to the Geom that has it.
+    bool by_panel = false;
+    vector< SubSurface* > subs = fin->GetSubSurfVec();
+    for ( int i = 0; i < ( int )subs.size(); i++ )
+    {
+        if ( subs[i]->m_MainSurfIndx() >= 0 )
+        {
+            by_panel = true;
+        }
+    }
+
+    //==== The Wing and its Clones ====//
+    WingGeom* wing = MakeFinWing( this, fin, st, reflect0 );
+    if ( !wing )
+    {
+        return vector< string >();
+    }
+
+    vector< Geom* > geoms;
+    vector< int > panels;
+    geoms.push_back( wing );
+    panels.push_back( 0 );
+
+    int absrel = fin->m_AbsRelFlag();
+
+    Matrix4d first = placed[0];
+    Matrix4d panel = PanelMatrix( fin, st[0].xle, 0, phis[0], gams[0] );
+    first.matMult( panel.data() );
+    PlaceByMatrix( wing, first, absrel );
+
+    for ( int k = 1; k < nsurf; k++ )
+    {
+        int p = fin->GetMainSurfID( k );
+
+        Matrix4d total = placed[k];
+        panel = PanelMatrix( fin, st[0].xle, p, phis[p], gams[p] );
+        total.matMult( panel.data() );
+
+        if ( MdcFinGeom::Reflected( phis[p] ) != reflect0 )
+        {
+            Matrix4d ref;
+            ref.loadXYRef();
+            total.matMult( ref.data() );
+        }
+
+        CloneGeom* clone = MakeFinClone( this, fin, wing, geoms.back()->GetID() );
+        if ( !clone )
+        {
+            vector< string > made;
+            for ( int i = 0; i < ( int )geoms.size(); i++ )
+            {
+                made.push_back( geoms[i]->GetID() );
+            }
+            DeleteGeomVec( made );
+            SetGeomMapDirtyFlag( true );
+            Update();
+            return vector< string >();
+        }
+        PlaceByMatrix( clone, total, absrel );
+
+        geoms.push_back( clone );
+        panels.push_back( p );
+    }
+
+    //==== What is not a Parm ====//
+    for ( int i = 0; i < ( int )geoms.size(); i++ )
+    {
+        CopyPresentation( fin, geoms[i] );
+
+        string suffix;
+        if ( geoms.size() > 1 )
+        {
+            suffix = "_" + to_string( i + 1 );
+        }
+
+        if ( replace_flag )
+        {
+            geoms[i]->SetName( fin->GetName() + suffix );
+        }
+        else
+        {
+            geoms[i]->SetName( fin->GetName() + "_Wing" + suffix );
+        }
+    }
+
+    //==== Subsurfaces ====//
+    // A Clone shows its Wing's subsurfaces, which are all of the fin set's unless some are on one panel, and then
+    // each Geom has its own.
+    if ( by_panel )
+    {
+        for ( int i = 1; i < ( int )geoms.size(); i++ )
+        {
+            CloneGeom* clone = dynamic_cast < CloneGeom* > ( geoms[i] );
+            if ( clone )
+            {
+                clone->m_CloneSubSurfs.Set( false );
+            }
+            CopyFinSubSurfs( fin, geoms[i], panels[i] );
+        }
+    }
+
+    vector< string > geom_ids;
+    for ( int i = 0; i < ( int )geoms.size(); i++ )
+    {
+        geom_ids.push_back( geoms[i]->GetID() );
+    }
+
+    if ( replace_flag )
+    {
+        HandOver( this, fin, wing );
+
+        // What the Wing was handed that is on another panel is on that panel's Geom.
+        vector< SubSurface* > held = wing->GetSubSurfVec();
+        for ( int i = ( int )held.size() - 1; i >= 0; i-- )
+        {
+            if ( held[i]->m_MainSurfIndx() > 0 )
+            {
+                wing->DelSubSurf( i );
+            }
+        }
+
+        // A structure or a mesh source on another of the fin set's surfaces is on a surface the Wing does not have.
+        for ( int i = ( int )wing->GetFeaStructVec().size() - 1; i >= 0; i-- )
+        {
+            if ( wing->GetFeaStructVec()[i]->GetFeaStructMainSurfIndx() > 0 )
+            {
+                wing->DeleteFeaStruct( i );
+            }
+        }
+        for ( int i = ( int )wing->GetCfdMeshMainSourceVec().size() - 1; i >= 0; i-- )
+        {
+            if ( wing->GetCfdMeshMainSourceVec()[i]->m_MainSurfIndx() > 0 )
+            {
+                wing->SetCurrSourceID( i );
+                wing->DelCurrSource();
+            }
+        }
+
+        DeleteGeomVec( vector< string >( 1, fin->GetID() ), vsp::CLONE_DELETE_REPLACE );
+    }
+    else
+    {
+        CopyFinSubSurfs( fin, wing, 0 );
+    }
+
+    SetGeomMapDirtyFlag( true );
+    Update();
+
+    return geom_ids;
 }
 
 void Vehicle::DeleteGeom( const string & geom_id )

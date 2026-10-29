@@ -139,6 +139,7 @@ private:
 
     CScriptArray* GetGeomTypes();
     CScriptArray* PasteGeomClipboard( const string & parent = string() );
+    CScriptArray* ConvertMdcFinToWing( const string & geom_id, bool replace_flag );
     CScriptArray* FindGeoms();
     CScriptArray* FindGeomsWithName( const string & name );
     CScriptArray* GetGeomParmIDs( const string & geom_id );

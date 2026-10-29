@@ -189,6 +189,13 @@ public:
     // is not set the Stack is added beside the MDC_BOD, which is left as it was.  No ID is kept.
     string ConvertMdcBodToStack( const string & mdc_bod_id, bool replace_flag );
 
+    // Makes a Wing of the same surfaces as an MDC_FIN, and answers its ID and the IDs of the Clones of it that make the
+    // rest of the surfaces; answers none if they cannot be made.  Where replace_flag is set the Wing and its Clones go
+    // in the MDC_FIN's place in the model, under its name, and it is deleted; its children, structures, mesh sources,
+    // textures and attributes go to the Wing, except for those on a surface the Wing does not have.  Where it is not
+    // set they are added beside the MDC_FIN, which is left as it was.  No ID is kept.
+    vector< string > ConvertMdcFinToWing( const string & finset_id, bool replace_flag );
+
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     //==== Geom Sets ====//

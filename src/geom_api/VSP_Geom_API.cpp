@@ -4915,6 +4915,33 @@ std::string ConvertMdcBodToStack( const std::string & geom_id, bool replace_flag
     return stack_id;
 }
 
+std::vector< std::string > ConvertMdcFinToWing( const std::string & geom_id, bool replace_flag )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertMdcFinToWing::Can't Find Geom " + geom_id );
+        return std::vector< std::string >();
+    }
+
+    if ( geom_ptr->GetType().m_Type != MDC_FIN_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertMdcFinToWing::Geom " + geom_id + " is not an MDC_FIN" );
+        return std::vector< std::string >();
+    }
+
+    std::vector< std::string > wing_ids = veh->ConvertMdcFinToWing( geom_id, replace_flag );
+    if ( wing_ids.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ConvertMdcFinToWing::Could not convert MDC_FIN " + geom_id );
+        return std::vector< std::string >();
+    }
+
+    ErrorMgr.NoError();
+    return wing_ids;
+}
+
 /// Find and return all geoms
 std::vector< std::string > FindGeoms()
 {

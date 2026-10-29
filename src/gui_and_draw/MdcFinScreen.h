@@ -73,6 +73,7 @@ protected:
     SliderAdjRangeInput m_NacaXMaxSlider;
     SliderAdjRangeInput m_NacaFlatSlider;
 
+    TriggerButton m_ConvertToWingButton;
     TriggerButton m_ReadUserButton;
 };
 
