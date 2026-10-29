@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>MDC_PROTUB</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">MDC_PROTUB</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The MDC_PROTUB is a set of identical protuberances on a body, laid
+out the way DATCOM lays them out with its PROTUB namelist: bumps,
+fairings, lugs and shoes of one type, at one station along the body,
+rolled to angles around it. It models things that stand off a body's
+surface, such as launch lugs and shoes, antennas, sensor blisters and
+fairings. A set is one type of protuberance at one axial station. A body
+with several kinds of protuberance, or protuberances at several
+stations, has an MDC_PROTUB for each, where DATCOM has one namelist for
+them all.</p>
+<p>The controls carry the names and meanings of the namelist's inputs,
+so a set of protuberances can be entered as DATCOM has them. They stand
+on a body of circular cross section, which is an <a
+href="MdcBod.html">MDC_BOD</a> with <em>NAMELIST</em> AXIBOD, or any
+body of that shape. The MDC_PROTUB does not read the body: it is told
+the body's radius where it stands. The <code>datcom2vsp.py</code>
+script, in the examples, reads a DATCOM input file and builds a model
+with an MDC_PROTUB for each protuberance set.</p>
+<p>The MDC_PROTUB has one tab of its own, Design. The <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
+described on their own pages. The Design tab sets</p>
+<ul>
+<li>the <a href="#types-of-protuberance">type</a> and <a
+href="#placing-a-protuberance">where it stands</a>;</li>
+<li>the <a href="#placing-a-protuberance">size</a> of each of its
+members;</li>
+<li>the <a href="#locations">number and roll angles</a> of the
+protuberances in the set.</li>
+</ul>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add the body, an <a href="MdcBod.html">MDC_BOD</a>, and an
+MDC_PROTUB as its child. A new MDC_PROTUB is a small cylinder at X = 5,
+on the default MDC_BOD.</li>
+<li>Set <em>XPROT</em> to the station of the protuberance's center. The
+protuberance stands on the body there.</li>
+<li>Choose <em>PTYPE</em>, then press Set Default to size it, in
+proportion to the body, as a protuberance of that type.</li>
+<li>Change the size of each member as needed: <em>LPROT</em>,
+<em>WPROT</em>, <em>HPROT</em> and <em>OPROT</em>.</li>
+<li>Set <em>NLOC</em>, the number of protuberances, and, if they are not
+evenly spaced, turn on <em>PHIPRO given</em> and give each its roll
+angle.</li>
+</ol>
+<h2 id="types-of-protuberance">Types of Protuberance</h2>
+<p><em>PTYPE</em> is one of six types (Figure 1).</p>
+<ul>
+<li>VCYL: a vertical cylinder, standing on the body, its axis out from
+the body. Its footprint is an ellipse <em>LPROT</em> along the body and
+<em>WPROT</em> across it.</li>
+<li>HCYL: a horizontal cylinder, lying along the body, flat at its ends.
+Its section is an ellipse <em>WPROT</em> wide and <em>HPROT</em>
+high.</li>
+<li>BLOCK: a box.</li>
+<li>FAIRING: the streamlined half body of DATCOM, the top half of an
+ellipsoid <em>LPROT</em> long and <em>WPROT</em> wide at its flat base,
+and <em>HPROT</em> high above it, as the DATCOM manual defines it.
+DATCOM's own drawing of the geometry makes it half as high.</li>
+<li>LUG: a launch lug, of four members: a base plate, two posts under
+the ends of a top plate, and the top plate.</li>
+<li>SHOE: a launch shoe, of three members: a base plate, a web and a top
+plate, centered across the body.</li>
+</ul>
+<p><img src="images/MdcProtub_types.png"
+title="Figure 1. Types of protuberance"
+alt="Figure 1. Types of protuberance" /></p>
+<p><em>Figure 1. The six types, each as the Set Default button sizes it,
+on a body of radius 6.</em></p>
+<p>A LUG or SHOE is built of members, each a box. Member 1 is the base
+plate of both. Member 2 is a SHOE's web or a LUG's first post, member 3
+is a SHOE's top plate or the LUG's second post, and member 4 is a LUG's
+top plate. The posts of a LUG stand at the ends of the top plate, across
+the body, so the top plate's <em>WPROT</em> sets how far apart they are
+(Figure 2). The other types have one member. The Design tab has a block
+of sizes for each member, and greys those the type does not have.</p>
+<p><img src="images/MdcProtub_members.png"
+title="Figure 2. Members of a LUG and a SHOE"
+alt="Figure 2. Members of a LUG and a SHOE" /></p>
+<p><em>Figure 2. The members of a LUG and of a SHOE, from behind the
+body.</em></p>
+<h3 id="set-default">Set Default</h3>
+<p>Choosing a <em>PTYPE</em> leaves the members' sizes as they are. The
+Set Default button sets the sizes of every member the type has to those
+of a protuberance of that type, in proportion to the body: the sizes of
+the protuberances of DATCOM's sample body, which has a radius of 6,
+scaled by <em>RBODY</em> over 6. Use it as a starting point after
+choosing a type, and change the sizes from there.</p>
+<p>The sizes in the table are for a body of radius 6.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Member</th>
+<th style="text-align: right;">LPROT</th>
+<th style="text-align: right;">WPROT</th>
+<th style="text-align: right;">HPROT</th>
+<th style="text-align: right;">OPROT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">VCYL</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">HCYL</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">LUG</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">LUG</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">LUG</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">LUG</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.15</td>
+<td style="text-align: right;">0.6</td>
+</tr>
+<tr>
+<td style="text-align: left;">SHOE</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">SHOE</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">0.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">SHOE</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.85</td>
+</tr>
+<tr>
+<td style="text-align: left;">BLOCK</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">FAIRING</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="placing-a-protuberance">Placing a Protuberance</h2>
+<p>A protuberance stands on the mold line, the surface of the body.
+DATCOM takes the body's radius there from the body, and so does an
+MDC_PROTUB that is a child of an MDC_BOD: each protuberance stands at
+the distance from the body's axis to its mold line under the
+protuberance's center, in the direction of its own roll angle, so a body
+that tapers, is elliptical or is cambered is followed. <em>RBODY</em>
+then shows the first protuberance's radius and is greyed. Any other
+MDC_PROTUB takes the mold line to be a cylinder of radius <em>RBODY</em>
+about the X axis; <em>RBODY</em> is not an input of DATCOM's
+namelist.</p>
+<p><em>XPROT</em> is the station of the protuberance's center, along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+from the origin, as DATCOM measures it. It is the X location of the
+XForm tab, shown again on the Design tab.</p>
+<p>Each member is centered along the body at <em>XPROT</em>. It is
+<em>LPROT</em> long, along the body, <em>WPROT</em> wide, across it, and
+<em>HPROT</em> high, out from the body (Figure 3). <em>OPROT</em> is the
+height of the member's bottom above the mold line, zero by default, so a
+member with no offset sits on the body. A raised member, such as a LUG's
+top plate, floats above it. Set Default stacks the members of a LUG or a
+SHOE: it gives each the height of the members under it as its
+offset.</p>
+<p><img src="images/MdcProtub_dims.png"
+title="Figure 3. Sizes of a block"
+alt="Figure 3. Sizes of a block" /></p>
+<p><em>Figure 3. A BLOCK of length LPROT, width WPROT and height HPROT,
+raised by OPROT, on a body of radius RBODY, at the station
+XPROT.</em></p>
+<p>A member with no offset reaches down into the body, below the mold
+line, so that it meets the body all around its footprint rather than
+touching it along a line. It goes as far as the mold line passes under
+its sides, and a tenth of its height further. A FAIRING's flat base is
+on the body's top line, the body's radius above its axis, so on a round
+body the edges of its base stand clear of the body at its sides, by more
+the wider it is. Its offset is zero, as DATCOM takes it, and its
+<em>OPROT</em> is greyed.</p>
+<p>The members of a LUG or SHOE meet one another the same way. Members
+of one length that meet are made one surface. Where members of different
+lengths meet exactly, one is buried in the other by half the other's
+height. No two surfaces touch exactly, so the surfaces intersect cleanly
+where the model is meshed or analyzed.</p>
+<h2 id="locations">Locations</h2>
+<p><em>NLOC</em> is the number of protuberances in the set, from 1 to
+20, all the same. They are rolled around the body at the station
+<em>XPROT</em>, each at its angle <em>PHIPRO</em>. An angle is measured
+clockwise from the top looking forward, so 90 degrees is to the right
+(Figure 4). Unless <em>PHIPRO given</em> is on, the protuberances are
+evenly spaced around the body, the first at the top, and the angles are
+set from <em>NLOC</em>; the PHIPRO slider shows them but is greyed. With
+<em>PHIPRO given</em> on, each angle is set by hand. The Protuberance
+counter chooses which one the slider shows. An angle that has not been
+set is zero, so that a protuberance added by raising <em>NLOC</em> is at
+the top until it is moved.</p>
+<p><img src="images/MdcProtub_phi.png" title="Figure 4. Roll angles"
+alt="Figure 4. Roll angles" /></p>
+<p><em>Figure 4. Three protuberances of a set, at PHIPRO 0, 90 and 225,
+from behind the body.</em></p>
+<p>The protuberances of a set are all the same, so a change to a member
+applies to all of them. The angle rolls the whole protuberance, so a
+SHOE's base plate, web and top plate turn together.</p>
+<h2 id="parameters">Parameters</h2>
+<p>The parms are in the <em>Design</em> group but for <em>XPROT</em>,
+which is the XForm tab's X location. There is a <em>PHIPRO</em> for each
+of the <em>NLOC</em> protuberances, <code>PHIPRO_1</code> to
+<code>PHIPRO_n</code>, and an <em>LPROT</em>, <em>WPROT</em>,
+<em>HPROT</em> and <em>OPROT</em> for each member the type has,
+<code>LPROT_1</code> to <code>LPROT_m</code>: one member, or four for a
+LUG and three for a SHOE. They are made and deleted as <em>NLOC</em> and
+<em>PTYPE</em> change, at the next update.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">PTYPE</td>
+<td style="text-align: left;"><code>PTYPE</code></td>
+<td style="text-align: left;">VCYL</td>
+<td style="text-align: left;">VCYL, HCYL, LUG, SHOE, BLOCK or
+FAIRING.</td>
+</tr>
+<tr>
+<td style="text-align: left;">XPROT</td>
+<td style="text-align: left;"><code>X_Rel_Location</code> (XForm)</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Station of the center of the protuberance
+along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">RBODY</td>
+<td style="text-align: left;"><code>RBODY</code></td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">The body's radius under the protuberance:
+a parent MDC_BOD's, else an input. Not an input of DATCOM's
+namelist.</td>
+</tr>
+<tr>
+<td style="text-align: left;">NLOC</td>
+<td style="text-align: left;"><code>NLOC</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Number of protuberances, 1 to 20.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PHIPRO given</td>
+<td style="text-align: left;"><code>PHIPROFlag</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Give the angles, rather than space them
+evenly from the top.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Protuberance</td>
+<td style="text-align: left;"><code>LocIndex</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Which protuberance the PHIPRO slider
+shows.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PHIPRO</td>
+<td style="text-align: left;"><code>PHIPRO_1</code> to
+<code>PHIPRO_n</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Roll angle of a protuberance, clockwise
+from the top looking forward.</td>
+</tr>
+<tr>
+<td style="text-align: left;">LPROT</td>
+<td style="text-align: left;"><code>LPROT_1</code> to
+<code>LPROT_m</code></td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">Length of the member, along the body.</td>
+</tr>
+<tr>
+<td style="text-align: left;">WPROT</td>
+<td style="text-align: left;"><code>WPROT_1</code> to
+<code>WPROT_m</code></td>
+<td style="text-align: left;">0.25</td>
+<td style="text-align: left;">Width of the member, across the body.</td>
+</tr>
+<tr>
+<td style="text-align: left;">HPROT</td>
+<td style="text-align: left;"><code>HPROT_1</code> to
+<code>HPROT_m</code></td>
+<td style="text-align: left;">0.1</td>
+<td style="text-align: left;">Height of the member, out from the
+body.</td>
+</tr>
+<tr>
+<td style="text-align: left;">OPROT</td>
+<td style="text-align: left;"><code>OPROT_1</code> to
+<code>OPROT_m</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Height of the member's bottom above the
+mold line.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>Fay, J. F. and Jarvis, C. H., "Missile DATCOM User's Manual, 2026
+Revision," Air Force Research Laboratory, Munitions Directorate, Eglin
+AFB, FL, March 2026.</li>
+</ol>
+</body>
+</html>

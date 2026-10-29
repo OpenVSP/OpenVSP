@@ -9,7 +9,7 @@
 #include "ScreenMgr.h"
 
 //==== Constructor ====//
-MdcProtubScreen::MdcProtubScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_PROTUB" )
+MdcProtubScreen::MdcProtubScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_PROTUB", "MdcProtub.html" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );

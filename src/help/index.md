@@ -61,6 +61,7 @@ These components lay out geometry the way the DATCOM input does.  Their controls
 namelists' inputs.
 
 - [MDC_BOD](MdcBod.md)
+- [MDC_PROTUB](MdcProtub.md)
 
 ### Special Geometry
 
