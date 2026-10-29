@@ -630,3 +630,86 @@ def testProtuberancesSitOnAnEllipticBodyAtTheirRolls():
     assert sorted( reach ) == pytest.approx( [ 0.9, 0.9, 1.4, 1.4 ], abs=1e-3 )
 
 
+#===== All of them =====#
+
+TYPES = ( "MDC_BOD", "MDC_PROTUB", "MDC_INLET", "MDC_FIN" )
+
+
+@pytest.mark.parametrize( "name,nsurf", [ ( "MDC_BOD", 1 ), ( "MDC_PROTUB", 1 ), ( "MDC_INLET", 2 ), ( "MDC_FIN", 4 ) ] )
+def testEachComponentIsAGeomTypeAndBuildsItsSurfaces( name, nsurf ):
+    gid = new( name )
+    assert vsp.GetGeomTypeName( gid ) == name
+    assert vsp.GetNumMainSurfs( gid ) == nsurf
+    assert_no_errors()
+
+
+def section_ids( gid ):
+    ids = []
+    for i in range( vsp.GetNumXSecSurfs( gid ) ):
+        surf = vsp.GetXSecSurf( gid, i )
+        ids.append( tuple( vsp.GetXSec( surf, j ) for j in range( vsp.GetNumXSec( surf ) ) ) )
+    return ids
+
+
+RESIZE = { "MDC_BOD": dict( LCENTR=6.0 ), "MDC_PROTUB": dict( LPROT_1=0.7 ), "MDC_INLET": dict( H3=0.4 ),
+           "MDC_FIN": dict( CHORD_1=1.2 ) }
+
+
+@pytest.mark.parametrize( "name", TYPES )
+def testEachComponentKeepsItsSectionsWhenResized( name ):
+    gid = new( name )
+    before = section_ids( gid )
+    assert before and all( before )
+    put( gid, **RESIZE[name] )
+    assert section_ids( gid ) == before
+
+
+def built( name, *steps ):
+    gid = new( name, **steps[0] )
+    for step in steps[1:]:
+        put( gid, **step )
+    return sample( gid )
+
+
+# Steps that change the sections each surface is made of, and back.  The component afterwards is the one built
+# straight from where the steps end.
+RESHAPE = [
+    ( "MDC_BOD", [ dict( LAFT=3.0, TAFT=1 ), dict( TAFT=0 ) ] ),
+    ( "MDC_BOD", [ dict( LAFT=3.0 ), dict( LCENTR=0.0 ), dict( LCENTR=5.0 ) ] ),
+    ( "MDC_FIN", [ dict( SECTYP=1 ), dict( SECTYP=0 ) ] ),
+    ( "MDC_FIN", [ dict( NSPAN=4 ), dict( NSPAN=2 ), dict( NSPAN=3 ) ] ),
+    ( "MDC_FIN", [ dict( NPANEL=4 ), dict( NPANEL=2 ), dict( NPANEL=3 ) ] ),
+    ( "MDC_PROTUB", [ dict( PTYPE=1 ), dict( PTYPE=5 ), dict( PTYPE=3 ) ] ),
+    ( "MDC_PROTUB", [ dict( NLOC=1 ), dict( NLOC=3 ), dict( NLOC=2 ) ] ),
+    ( "MDC_INLET", [ dict( INTYPE=1 ), dict( INTYPE=3 ), dict( INTYPE=2 ) ] ),
+    ( "MDC_INLET", [ dict( NIN=1 ), dict( NIN=3 ), dict( NIN=2 ) ] ),
+]
+
+
+@pytest.mark.parametrize( "name,steps", RESHAPE )
+def testEachComponentReshapedIsAsIfBuiltSo( name, steps ):
+    final = {}
+    for step in steps:
+        final.update( step )
+    assert_same( built( name, *steps ), built( name, final ) )
+
+
+@pytest.mark.parametrize( "name", TYPES )
+def testEachComponentIsSavedAndReadBackToTheSameSurfaces( name ):
+    gid = new( name )
+    before = sample( gid )
+    after = sample( roundtrip( gid ) )
+    assert_same( before, after )
+    assert_no_errors()
+
+
+@pytest.mark.parametrize( "name", TYPES )
+def testEachComponentIsCopiedToTheSameSurfaces( name ):
+    gid = new( name )
+    vsp.CopyGeomToClipboard( gid )
+    ids = vsp.PasteGeomClipboard()
+    assert len( ids ) == 1
+    assert_same( sample( gid ), sample( ids[0] ) )
+    assert_no_errors()
+
+
