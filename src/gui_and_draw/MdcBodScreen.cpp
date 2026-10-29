@@ -8,6 +8,7 @@
 #include "MdcBodScreen.h"
 #include "ScreenMgr.h"
 #include "MdcBodGeom.h"
+#include "ManageGeomScreen.h"
 
 //==== Constructor ====//
 MdcBodScreen::MdcBodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_BOD" )
@@ -19,6 +20,8 @@ MdcBodScreen::MdcBodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_B
 
     // Choices' labels as wide as sliders', so they line up.
     m_DesignLayout.SetChoiceButtonWidth( m_DesignLayout.GetButtonWidth() );
+
+    m_DesignLayout.AddButton( m_ConvertToStackButton, "Convert to Stack" );
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Body" );
@@ -212,4 +215,44 @@ bool MdcBodScreen::Update()
 void MdcBodScreen::CallBack( Fl_Widget *w )
 {
     GeomScreen::CallBack( w );
+}
+
+void MdcBodScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( device == &m_ConvertToStackButton && geom_ptr && geom_ptr->GetType().m_Type == MDC_BOD_GEOM_TYPE )
+    {
+        int choice = fl_choice( "Convert MDC_BOD to Stack Geom.\nReplace the MDC_BOD (can not be un-done), or add a Stack beside it?",
+                                "Cancel", "Replace", "Add" );
+        if ( choice == 1 || choice == 2 )
+        {
+            bool replace_flag = ( choice == 1 );
+
+            // Replacing deletes this Geom, so nothing may touch it afterwards.
+            Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+            string stack_id = veh->ConvertMdcBodToStack( geom_ptr->GetID(), replace_flag );
+            if ( stack_id.empty() )
+            {
+                fl_alert( "The MDC_BOD could not be converted." );
+                return;
+            }
+
+            if ( replace_flag )
+            {
+                veh->SetActiveGeom( stack_id );
+            }
+
+            ManageGeomScreen* mgs = dynamic_cast< ManageGeomScreen* >( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+            if ( mgs )
+            {
+                mgs->SetNeedsShowHideGeoms();
+            }
+
+            m_ScreenMgr->SetUpdateFlag( true );
+            return;
+        }
+        return;
+    }
+
+    GeomScreen::GuiDeviceCallBack( device );
 }

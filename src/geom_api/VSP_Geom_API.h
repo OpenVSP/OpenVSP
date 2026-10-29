@@ -14405,6 +14405,105 @@ extern std::string ConvertFuselageToStack( const std::string & geom_id );
     \ingroup Geom
 */
 /*!
+    Make a Stack of the same shape as an MDC_BOD.  The Stack is skinned through a copy of each of the MDC_BOD's cross
+    sections, each placed where the MDC_BOD put it and raised by the body's camber there, with the same tangent
+    conditions; and its nose is the MDC_BOD's nose, sheared by the camber across it.  The Stack takes the MDC_BOD's
+    placement, so its surface is the MDC_BOD's wherever the MDC_BOD is.  Nothing is kept of the MDC_BOD's IDs.
+
+    Where replace_flag is true the Stack goes in the MDC_BOD's place in the model, under its name, with its children,
+    subsurfaces, structures, mesh sources, textures and attributes, and the MDC_BOD is deleted.  Where replace_flag
+    is false the Stack is added beside the MDC_BOD, which is left as it was.
+
+    The Stack is the MDC_BOD's surface to within roundoff wherever the MDC_BOD's surface between its cross sections is
+    determined by them alone.  Where the MDC_BOD is cambered across an ogive aft body the camber lifts each point of
+    that surface, where the Stack can lift only its cross sections, so the Stack is a little off; CompareGeomSurfaces
+    measures how close it is.
+    \forcpponly
+    \code{.cpp}
+    //==== An MDC_BOD with an aft body and a cambered nose ====//
+    string mid = AddGeom( "MDC_BOD" );
+    SetParmVal( FindParm( mid, "LAFT", "Design" ), 2.0 );
+    SetParmVal( FindParm( mid, "DAFT", "Design" ), 0.6 );
+    SetParmVal( FindParm( mid, "ZTIP", "Design" ), 0.1 );
+    SetParmVal( FindParm( mid, "ZCENTR", "Design" ), 0.2 );
+
+    Update();
+
+    vec3d before = CompPnt01( mid, 0, 0.3, 0.2 );
+
+    //==== Add a Stack beside it ====//
+    string sid = ConvertMdcBodToStack( mid, false );
+
+    if ( GetErrorLastCallFlag() )               { Print( "---> Error: API ConvertMdcBodToStack reported an error " ); __failure++; }
+
+    Update();
+
+    if ( GetGeomTypeName( sid ) != "Stack" )    { Print( "---> Error: API ConvertMdcBodToStack did not make a Stack " ); __failure++; }
+
+    if ( sid == mid )                           { Print( "---> Error: API ConvertMdcBodToStack did not add a Geom " ); __failure++; }
+
+    //==== It is the same surface ====//
+    if ( CompareGeomSurfaces( mid, sid ) > 1e-9 )                    { Print( "---> Error: API ConvertMdcBodToStack made a different surface " ); __failure++; }
+
+    //==== Replace the MDC_BOD with a Stack ====//
+    string rid = ConvertMdcBodToStack( mid, true );
+
+    if ( GetErrorLastCallFlag() )               { Print( "---> Error: API ConvertMdcBodToStack reported an error replacing " ); __failure++; }
+
+    Update();
+
+    if ( dist( before, CompPnt01( rid, 0, 0.3, 0.2 ) ) > 1e-9 )      { Print( "---> Error: API ConvertMdcBodToStack moved the surface " ); __failure++; }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== An MDC_BOD with an aft body and a cambered nose ====#
+    mid = AddGeom( "MDC_BOD" )
+    SetParmVal( FindParm( mid, "LAFT", "Design" ), 2.0 )
+    SetParmVal( FindParm( mid, "DAFT", "Design" ), 0.6 )
+    SetParmVal( FindParm( mid, "ZTIP", "Design" ), 0.1 )
+    SetParmVal( FindParm( mid, "ZCENTR", "Design" ), 0.2 )
+
+    Update()
+
+    before = CompPnt01( mid, 0, 0.3, 0.2 )
+
+    #==== Add a Stack beside it ====#
+    sid = ConvertMdcBodToStack( mid, False )
+
+    assert not ErrorMgrSingleton.getInstance().GetErrorLastCallFlag(), "---> Error: API ConvertMdcBodToStack reported an error"
+
+    Update()
+
+    assert GetGeomTypeName( sid ) == "Stack", "---> Error: API ConvertMdcBodToStack did not make a Stack"
+
+    assert sid != mid, "---> Error: API ConvertMdcBodToStack did not add a Geom"
+
+    #==== It is the same surface ====#
+    assert CompareGeomSurfaces( mid, sid ) < 1e-9, "---> Error: API ConvertMdcBodToStack made a different surface"
+
+    #==== Replace the MDC_BOD with a Stack ====#
+    rid = ConvertMdcBodToStack( mid, True )
+
+    assert not ErrorMgrSingleton.getInstance().GetErrorLastCallFlag(), "---> Error: API ConvertMdcBodToStack reported an error replacing"
+
+    Update()
+
+    assert dist( before, CompPnt01( rid, 0, 0.3, 0.2 ) ) < 1e-9, "---> Error: API ConvertMdcBodToStack moved the surface"
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string MDC_BOD Geom ID
+    \param [in] replace_flag bool True to replace the MDC_BOD with the Stack, false to add the Stack beside it
+    \return string ID of the Stack, or an empty string if it could not be made
+*/
+
+extern std::string ConvertMdcBodToStack( const std::string & geom_id, bool replace_flag );
+
+/*!
+    \ingroup Geom
+*/
+/*!
     Find and return all Geom IDs in the model
     \forcpponly
     \code{.cpp}

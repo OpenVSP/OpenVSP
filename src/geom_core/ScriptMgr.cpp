@@ -5389,6 +5389,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "string ConvertFuselageToStack( const string & in geom_id )", asFUNCTION( vsp::ConvertFuselageToStack ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string ConvertMdcBodToStack( const string & in geom_id, bool replace_flag )", asFUNCTION( vsp::ConvertMdcBodToStack ), asCALL_CDECL );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "array<string>@+ FindGeoms()", asMETHOD( ScriptMgrSingleton, FindGeoms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );

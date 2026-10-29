@@ -391,6 +391,12 @@ void MdcBodGeom::UpdateSurf()
     m_MainSurfVec[0].SetCamber( xsec_surf->GetGlobalXForm().xform( vec3d() ), cx, cz );
 }
 
+void MdcBodGeom::GetCamber( vector< double > & x, vector< double > & z ) const
+{
+    x = m_CamberX;
+    z = m_CamberZ;
+}
+
 void MdcBodGeom::ComputeCenter()
 {
     double length = m_LNose() + m_LCentr() + m_LAft();

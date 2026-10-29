@@ -183,6 +183,12 @@ public:
     // and under its ID.  Returns that ID, or an empty string if it cannot be converted.
     string ConvertFuselageToStack( const string & fuse_id );
 
+    // Makes a Stack of the same surface as an MDC_BOD, and answers its ID, or an empty string if it cannot be made.
+    // Where replace_flag is set the Stack goes in the MDC_BOD's place in the model, under its name and with its
+    // children, subsurfaces, structures, mesh sources, textures and attributes, and the MDC_BOD is deleted.  Where it
+    // is not set the Stack is added beside the MDC_BOD, which is left as it was.  No ID is kept.
+    string ConvertMdcBodToStack( const string & mdc_bod_id, bool replace_flag );
+
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     //==== Geom Sets ====//

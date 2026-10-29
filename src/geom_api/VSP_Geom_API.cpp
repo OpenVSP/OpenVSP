@@ -4888,6 +4888,33 @@ std::string ConvertFuselageToStack( const std::string & geom_id )
     return stack_id;
 }
 
+std::string ConvertMdcBodToStack( const std::string & geom_id, bool replace_flag )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertMdcBodToStack::Can't Find Geom " + geom_id );
+        return std::string();
+    }
+
+    if ( geom_ptr->GetType().m_Type != MDC_BOD_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertMdcBodToStack::Geom " + geom_id + " is not an MDC_BOD" );
+        return std::string();
+    }
+
+    std::string stack_id = veh->ConvertMdcBodToStack( geom_id, replace_flag );
+    if ( stack_id.empty() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "ConvertMdcBodToStack::Could not convert MDC_BOD " + geom_id );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return stack_id;
+}
+
 /// Find and return all geoms
 std::vector< std::string > FindGeoms()
 {

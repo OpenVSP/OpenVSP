@@ -2602,6 +2602,47 @@ static void CopyPresentation( Geom* from, Geom* to )
     to->m_GuiDraw.SetDispFeatureFlag( from->m_GuiDraw.GetDispFeatureFlag() );
 }
 
+// Puts a Geom made from another in the tree beside it: under the same parent, or at the top level, after the Geom
+// given by after_id.
+static void PlaceBeside( Vehicle* veh, Geom* made, Geom* from, const string & after_id )
+{
+    made->SetParentID( from->GetParentID() );
+
+    Geom* parent = veh->FindGeom( from->GetParentID() );
+    if ( parent )
+    {
+        parent->AddChildID( made->GetID(), after_id );
+    }
+    else
+    {
+        veh->AddTopGeomID( made->GetID(), after_id );
+    }
+}
+
+// Gives each subsurface of one Geom to another as a subsurface of its own, under a new ID.
+static void CopySubSurfs( Geom* from, Geom* to )
+{
+    vector< SubSurface* > subs = from->GetSubSurfVec();
+    for ( int i = 0; i < ( int )subs.size(); i++ )
+    {
+        string lastreset = IDMgr.ResetRemapID();
+
+        xmlNodePtr root = xmlNewNode( nullptr, ( const xmlChar * )"Vsp_Geometry" );
+        xmlNodePtr sub_node = xmlNewChild( root, nullptr, BAD_CAST "SubSurface", nullptr );
+        subs[i]->EncodeXml( sub_node );
+        IDMgr.PreRegisterIDs( root );
+
+        SubSurface* made = to->AddSubSurf( subs[i]->GetType(), -1 );
+        if ( made )
+        {
+            made->DecodeXml( sub_node );
+        }
+
+        xmlFreeNode( root );
+        IDMgr.ResetRemapID( lastreset );
+    }
+}
+
 // What a Geom owns apart from its attributes, handed to the Geom that takes its place.
 static void HandOverParts( Geom* from, Geom* to )
 {
@@ -2615,6 +2656,27 @@ static void HandOverParts( Geom* from, Geom* to )
     for ( int i = 0; i < ( int )step_children.size(); i++ )
     {
         to->AddStepChildID( step_children[i] );
+    }
+}
+
+// What a Geom owns, handed to the Geom that takes its place, along with its children.  The Geom itself is deleted by
+// the caller.  Clones of it are made into full copies, so what they show does not change.
+static void HandOver( Vehicle* veh, Geom* from, Geom* to )
+{
+    HandOverParts( from, to );
+
+    from->HandAttributesTo( to );
+
+    vector< string > children = from->GetChildIDVec();
+    for ( int i = 0; i < ( int )children.size(); i++ )
+    {
+        Geom* child = veh->FindGeom( children[i] );
+        if ( child )
+        {
+            child->SetParentID( to->GetID() );
+            to->AddChildID( children[i] );
+        }
+        from->RemoveChildID( children[i] );
     }
 }
 
@@ -2838,6 +2900,157 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
     ParmMgr.ClearUndo();
 
     return fuse_id;
+}
+
+// An MDC_BOD is skinned through the cross sections of an XSecSurf as a Stack is, so each cross section is copied to a
+// Stack cross section, its skinning conditions with it, and set in absolute mode to exactly where the MDC_BOD put it.
+// Its camber lifts each station by the camber's value there, which is where the Stack's cross section goes; and its
+// nose is capped as it was, the camber across the nose being the shear the cap takes as its offset.
+//
+// Camber is also a lift of each point of the surface along the way between two stations, where a Stack's cross
+// sections can only be lifted at the stations.  The two agree where the surface between stations is determined by the
+// stations alone, and are a little apart where it is also determined by tangent conditions the lift tilts, which is
+// where an ogive aft body is cambered.
+string Vehicle::ConvertMdcBodToStack( const string & mdc_bod_id, bool replace_flag )
+{
+    MdcBodGeom* body = dynamic_cast < MdcBodGeom* > ( FindGeom( mdc_bod_id ) );
+    if ( !body )
+    {
+        return string();
+    }
+
+    Update();
+
+    XSecSurf* bxss = body->GetXSecSurf( 0 );
+    if ( !bxss || bxss->NumXSec() < 2 )
+    {
+        return string();
+    }
+    int nxsec = bxss->NumXSec();
+
+    StackGeom* stack = dynamic_cast < StackGeom* > ( FindGeom( CreateGeom( GeomType( STACK_GEOM_TYPE, "Stack", true ) ) ) );
+    if ( !stack )
+    {
+        return string();
+    }
+
+    PlaceBeside( this, stack, body, body->GetID() );
+
+    //==== The Geom's own Parms ====//
+    stack->CopyMatchingVals( body );
+    stack->Update();
+
+    //==== The cross sections, placed where the MDC_BOD put them, on its camber ====//
+    vector< double > camx;
+    vector< double > camz;
+    body->GetCamber( camx, camz );
+    bool cambered = false;
+    for ( int i = 0; i < ( int )camz.size(); i++ )
+    {
+        if ( camz[i] != 0.0 )
+        {
+            cambered = true;
+        }
+    }
+
+    XSecSurf* sxss = stack->GetXSecSurf( 0 );
+    sxss->DeleteAllXSecs();
+
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        BareXSec* bxs = dynamic_cast < BareXSec* > ( bxss->FindXSec( i ) );
+
+        sxss->AddXSec( bxs->GetXSecCurve()->GetType() );
+        StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
+
+        sxs->CopyFrom( bxs );
+
+        vec3d loc = bxs->GetLoc();
+        double z = loc.z();
+        if ( cambered )
+        {
+            z += VspSurf::CamberInterp( camx, camz, loc.x() );
+        }
+
+        sxs->m_XSAbsRelFlag = vsp::ABS;
+        sxs->m_XAbs = loc.x();
+        sxs->m_YAbs = loc.y();
+        sxs->m_ZAbs = z;
+        sxs->m_XRotateAbs = 0.0;
+        sxs->m_YRotateAbs = 0.0;
+        sxs->m_ZRotateAbs = 0.0;
+
+        sxs->m_SectTessU = body->m_TessU();
+    }
+
+    stack->Update();
+
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
+        sxs->m_XSAbsRelFlag = vsp::REL;
+    }
+
+    stack->Update();
+
+    //==== Skinning strengths ====//
+    // A strength is multiplied by its XSec's GetScale(), which for a custom cross section is one and for a Stack's
+    // is the distance between neighbouring section origins.
+    for ( int i = 0; i < nxsec; i++ )
+    {
+        BareXSec* bxs = dynamic_cast < BareXSec* > ( bxss->FindXSec( i ) );
+        StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
+
+        double bscale = bxs->GetScale();
+        double sscale = sxs->GetScale();
+        if ( bscale != sscale )
+        {
+            sxs->ScaleTanStrengths( bscale / sscale );
+        }
+    }
+
+    //==== The nose ====//
+    // The camber across the nose, from its tip to its base, is a shear of the cap along the surface's up direction
+    // in proportion to the distance along its axis, which is what the cap's offset is when it is set to shear.
+    if ( cambered )
+    {
+        double base_x = dynamic_cast < BareXSec* > ( bxss->FindXSec( 0 ) )->GetLoc().x();
+        double tip_x = base_x - body->m_CapUMinLengthDim();
+        double dz = VspSurf::CamberInterp( camx, camz, tip_x ) - VspSurf::CamberInterp( camx, camz, base_x );
+
+        stack->m_CapUMinRelFlag.Set( false );
+        stack->m_CapUMinOffsetDim.Set( dz );
+        stack->m_CapUMinShearFlag.Set( dz != 0.0 );
+        stack->Update();
+    }
+
+    //==== Placement ====//
+    MatchCenterPlacement( body, stack );
+
+    //==== What is not a Parm ====//
+    CopyPresentation( body, stack );
+
+    string stack_id = stack->GetID();
+
+    if ( replace_flag )
+    {
+        stack->SetName( body->GetName() );
+
+        HandOver( this, body, stack );
+
+        DeleteGeomVec( vector< string >( 1, body->GetID() ), vsp::CLONE_DELETE_REPLACE );
+    }
+    else
+    {
+        stack->SetName( body->GetName() + "_Stack" );
+
+        CopySubSurfs( body, stack );
+    }
+
+    SetGeomMapDirtyFlag( true );
+    Update();
+
+    return stack_id;
 }
 
 void Vehicle::DeleteGeom( const string & geom_id )

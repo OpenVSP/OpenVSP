@@ -53,6 +53,9 @@ public:
     // The rotation center is Origin along the body's length from the tip of its nose.
     virtual void ComputeCenter();
 
+    // The stations along x and the shifts in z the camber lifts the surface by, as the last update made them.
+    void GetCamber( vector< double > & x, vector< double > & z ) const;
+
     // The distance r from the body's axis at x, in its own frame, to its mold line in the direction phi, degrees
     // clockwise from the top looking forward.  False where x is not along the body.
     bool Radius( double x, double phi, double & r ) const;
