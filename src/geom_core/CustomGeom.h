@@ -728,6 +728,11 @@ public:
     void SetUpDefaultSource( SourceData & sd )              { m_DefaultSourceVec.push_back( sd ); }
     void ClearAllDefaultSources()                           { m_DefaultSourceVec.clear(); }
 
+    // Translate the surfaces so the first one's nose tip lies on the Geom's origin in each chosen coordinate.
+    BoolParm m_NoseOriginXFlag;
+    BoolParm m_NoseOriginYFlag;
+    BoolParm m_NoseOriginZFlag;
+
 protected:
 
     bool m_InitGeomFlag;
@@ -740,6 +745,7 @@ protected:
     vector< int > m_TriggerVec;
 
     virtual void UpdateSurf();
+    virtual void UpdateEndCaps();
 
     // The types a surface was given of its own, over those every surface was given.  Needed for transparent
     // custom geoms.

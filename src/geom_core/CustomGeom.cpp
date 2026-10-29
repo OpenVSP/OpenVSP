@@ -657,6 +657,13 @@ CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     // A script can build any shape, so its end caps take every type.
     m_CapUMinOption.SetAllowedVals( CapTypes( true ) );
     m_CapUMaxOption.SetAllowedVals( CapTypes( true ) );
+
+    m_NoseOriginXFlag.Init( "NoseOriginXFlag", "Design", this, false, false, true );
+    m_NoseOriginXFlag.SetDescript( "Flag to place the nose tip of the first surface at the origin in X" );
+    m_NoseOriginYFlag.Init( "NoseOriginYFlag", "Design", this, false, false, true );
+    m_NoseOriginYFlag.SetDescript( "Flag to place the nose tip of the first surface at the origin in Y" );
+    m_NoseOriginZFlag.Init( "NoseOriginZFlag", "Design", this, false, false, true );
+    m_NoseOriginZFlag.SetDescript( "Flag to place the nose tip of the first surface at the origin in Z" );
 }
 
 //==== Destructor ====//
@@ -874,6 +881,18 @@ void CustomGeom::UpdateSurf()
 
     //==== Call Script ====//
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void UpdateSurf()" );
+}
+
+void CustomGeom::UpdateEndCaps()
+{
+    if ( m_CappingDone )
+    {
+        return;
+    }
+
+    Geom::UpdateEndCaps();
+
+    ShiftNoseToOrigin( m_NoseOriginXFlag(), m_NoseOriginYFlag(), m_NoseOriginZFlag() );
 }
 
 //==== Create Parm and Add To Vector Of Parms ====//
