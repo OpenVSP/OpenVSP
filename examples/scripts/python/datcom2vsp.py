@@ -5,6 +5,7 @@
     datcom2vsp.py in.dat -o out.vsp3                  -> out.vsp3
     datcom2vsp.py in.dat --case 3                     -> only case 3
     datcom2vsp.py in.dat --dump                       -> print what was read, build nothing
+    datcom2vsp.py in.dat --ref geometry.stl           -> also compare to the STL DATCOM wrote
 
 Each NAMELIST becomes a built-in component:
 
@@ -20,6 +21,15 @@ more.  Namelists that carry no geometry (FLTCON, TRIM, DEFLCT, EXPR, ...) and th
 and ignored, except REFQ's SCALE, which scales every length, and the NACA card, which gives a NACA fin its section.
 
 Lengths stay in the units of the DIM card: the model is not rescaled.
+
+With --ref, the model is compared to a reference STL, such as the one DATCOM writes of its geometry: the STL is
+imported, turned into a point cloud, and each point projected onto the nearest surface of the model.  DATCOM writes
+its STL in feet whatever the DIM card, so the points are taken from feet to the DIM card's units; --ref-units names
+other units.  The report gives
+the distances, overall and for each component the points lie nearest, and the points farthest off.  With --ref-tol, the
+script exits with an error where any point is farther than that.  OpenVSP reads standard STL; DATCOM's binary STL
+files are not standard (each solid is a binary block of its own, and each facet ends in four bytes, not two), so use
+the ASCII file.
 
 Run it with an interpreter that can import openvsp:  python datcom2vsp.py in.dat
 """
@@ -732,6 +742,99 @@ class Builder:
 
 
 # ---------------------------------------------------------------------------------------------------------------
+# Comparison with a reference STL
+# ---------------------------------------------------------------------------------------------------------------
+
+# A length unit in feet.
+FEET = { "FT": 1.0, "IN": 1.0 / 12.0, "M": 1.0 / 0.3048, "CM": 1.0 / 30.48 }
+
+
+def compare_to_stl( vsp, stl, scale, worst=10 ):
+    """The distance of each vertex of the STL, its coordinates times scale, from the model's surfaces, reported
+    overall, for each component and for the points farthest off.  Answers the largest distance, or None where the STL
+    gave no points."""
+    geoms = list( vsp.FindGeoms() )
+
+    mesh = vsp.ImportFile( stl, vsp.IMPORT_STL, "" )
+    pts = []
+    made = []
+    if mesh:
+        made.append( mesh )
+        cloud = vsp.CreatePtCloudGeom( mesh )
+        if cloud:
+            made.append( cloud )
+            pts = [ vsp.vec3d( p.x() * scale, p.y() * scale, p.z() * scale ) for p in vsp.GetPtCloudPnts( cloud ) ]
+    if made:
+        vsp.DeleteGeomVec( made )
+    if not pts:
+        warn( "%s gave no points" % stl )
+        return None
+
+    # The nearest surface of the model to each point.  The largest surfaces go first, and a point is projected onto
+    # a surface only where its bounding box is nearer than the nearest surface so far.
+    surfs = []
+    for g in geoms:
+        nmain = vsp.GetNumMainSurfs( g )
+        for s in range( vsp.GetTotalNumSurfs( g ) ):
+            box = None
+            if s < nmain:
+                box = ( vsp.GetGeomBBoxMin( g, s, True ), vsp.GetGeomBBoxMax( g, s, True ) )
+            size = float( "inf" )
+            if box:
+                size = ( box[1] - box[0] ).mag()
+            surfs.append( ( -size, g, s, box ) )
+    surfs.sort( key=lambda e: e[0] )
+
+    def box_dist( p, box ):
+        lo, hi = box
+        d2 = 0.0
+        for v, a, b in ( ( p.x(), lo.x(), hi.x() ), ( p.y(), lo.y(), hi.y() ), ( p.z(), lo.z(), hi.z() ) ):
+            e = max( a - v, 0.0, v - b )
+            d2 += e * e
+        return d2 ** 0.5
+
+    dist = [ float( "inf" ) ] * len( pts )
+    near = [ None ] * len( pts )
+    for _, g, s, box in surfs:
+        idx = range( len( pts ) )
+        if box:
+            idx = [ i for i in idx if box_dist( pts[i], box ) < dist[i] ]
+        if not idx:
+            continue
+        us, ws, ds = vsp.ProjVecPnt01( g, s, [ pts[i] for i in idx ] )
+        for i, d in zip( idx, ds ):
+            if d < dist[i]:
+                dist[i] = d
+                near[i] = g
+
+    def stats( idx ):
+        ds = [ dist[i] for i in idx ]
+        n = len( ds )
+        rms = ( sum( d * d for d in ds ) / n ) ** 0.5
+        far = max( idx, key=lambda i: dist[i] )
+        p = pts[far]
+        return "%6d points  mean %.4g  rms %.4g  max %.4g at ( %.4g, %.4g, %.4g )" % (
+            n, sum( ds ) / n, rms, dist[far], p.x(), p.y(), p.z() )
+
+    xs = [ p.x() for p in pts ]
+    size = max( xs ) - min( xs )
+    print( "compared with %s, %g long" % ( stl, size ) )
+    print( "  all          %s" % stats( range( len( pts ) ) ) )
+    for g in geoms:
+        idx = [ i for i in range( len( pts ) ) if near[i] == g ]
+        if idx:
+            print( "  %-12s %s" % ( vsp.GetGeomName( g ), stats( idx ) ) )
+
+    order = sorted( range( len( pts ) ), key=lambda i: -dist[i] )[:worst]
+    print( "  farthest:" )
+    for i in order:
+        p = pts[i]
+        print( "    %.4g at ( %.4g, %.4g, %.4g ), nearest %s" % ( dist[i], p.x(), p.y(), p.z(),
+                                                                vsp.GetGeomName( near[i] ) ) )
+    return max( dist )
+
+
+# ---------------------------------------------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------------------------------------------
 
@@ -758,6 +861,12 @@ def main():
     ap.add_argument( "-o", "--output", help="output file, or with several cases its stem" )
     ap.add_argument( "--case", type=int, help="convert only this case number" )
     ap.add_argument( "--dump", action="store_true", help="print the geometry namelists read, and build nothing" )
+    ap.add_argument( "--ref", help="a reference STL of the geometry, such as DATCOM writes, to compare the model with; "
+                     "with several cases, choose one with --case" )
+    ap.add_argument( "--ref-units", choices=sorted( FEET ), default="FT",
+                     help="the length unit of the reference STL; DATCOM writes feet (default FT)" )
+    ap.add_argument( "--ref-tol", type=float, help="exit with an error where a point of the reference is farther than "
+                     "this from the model" )
     args = ap.parse_args()
 
     cases = read_cases( args.input )
@@ -793,6 +902,10 @@ def main():
         print( msg, file=sys.stderr )
         return 1
 
+    if args.ref and len( todo ) > 1:
+        print( "datcom2vsp: --ref compares one case; choose it with --case", file=sys.stderr )
+        return 1
+
     if args.dump:
         for c in todo:
             print( "case %d  %s  (DIM %s)" % ( c.number, c.caseid, c.dim ) )
@@ -816,6 +929,15 @@ def main():
             out = "%s_case%d%s" % ( base, c.number, ext )
         vsp.WriteVSPFile( out, vsp.SET_ALL )
         print( "case %d -> %s" % ( c.number, out ) )
+
+        if args.ref:
+            far = compare_to_stl( vsp, args.ref, FEET[args.ref_units] / FEET.get( c.dim.upper(), 1.0 ) )
+            if far is None:
+                return 1
+            if args.ref_tol is not None and far > args.ref_tol:
+                print( "datcom2vsp: a point of %s is %g from the model, more than %g" % ( args.ref, far, args.ref_tol ),
+                       file=sys.stderr )
+                return 1
 
     return 0
 
