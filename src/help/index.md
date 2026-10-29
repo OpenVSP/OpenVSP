@@ -63,6 +63,7 @@ namelists' inputs.
 - [MDC_BOD](MdcBod.md)
 - [MDC_PROTUB](MdcProtub.md)
 - [MDC_INLET](MdcInlet.md)
+- [MDC_FIN](MdcFin.md)
 
 ### Special Geometry
 

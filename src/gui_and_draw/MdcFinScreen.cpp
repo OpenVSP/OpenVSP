@@ -11,7 +11,7 @@
 #include "ManageGeomScreen.h"
 
 //==== Constructor ====//
-MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_FIN" )
+MdcFinScreen::MdcFinScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_FIN", "MdcFin.html" )
 {
     //==== Fin Set ====//
     Fl_Group* fin_tab = AddTab( "Fin Set" );
