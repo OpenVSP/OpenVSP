@@ -634,4 +634,32 @@ public:
 protected:
 };
 
+//==== Bare XSec =====//
+/*
+    A cross section placed in space by its location alone.  A skin tangent's strength is its own length, not a
+    multiple of the distance to a neighbor.
+*/
+class BareXSec : public SkinXSec
+{
+public:
+
+    BareXSec( XSecCurve *xsc );
+
+    virtual void Update();
+    virtual void CopyBasePos( XSec* xs );
+
+    virtual void SetLoc( const vec3d & loc );
+    virtual vec3d GetLoc()                                  { return m_Loc; }
+
+    virtual double GetScale();
+
+protected:
+
+    // Where the curve is placed in the frame of its XSecSurf, before that frame is placed.
+    virtual void GetPlacement( Matrix4d & placement );
+
+    vec3d m_Loc;
+};
+
+
 #endif // !defined(XSEC__INCLUDED_)

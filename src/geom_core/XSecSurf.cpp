@@ -232,6 +232,10 @@ XSec* XSecSurf::CreateXSec( int type )
         {
              xsec_ptr = ( XSec* ) new CustomXSec( xscrv_ptr );
         }
+        else if ( m_XSecType == XSEC_BARE )
+        {
+             xsec_ptr = ( XSec* ) new BareXSec( xscrv_ptr );
+        }
         else if ( m_XSecType == XSEC_PROP )
         {
              xsec_ptr = ( XSec* ) new PropXSec( xscrv_ptr );

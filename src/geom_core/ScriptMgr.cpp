@@ -3366,6 +3366,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_PROP", XSEC_PROP );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_BARE", XSEC_BARE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_TYPE", "XSEC_NUM_TYPES", XSEC_NUM_TYPES );
     assert( r >= 0 );
 

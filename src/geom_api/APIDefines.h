@@ -2088,6 +2088,7 @@ enum XSEC_TYPE { XSEC_FUSE,	/*!< Fuselage XSec Geom */
                  XSEC_WING,	/*!< Wing XSec Geom */
                  XSEC_CUSTOM,	/*!< Custom XSec Geom */
                  XSEC_PROP,	/*!< Propeller XSec Geom */
+                 XSEC_BARE,	/*!< Bare XSec Geom, placed by its location alone */
                  XSEC_NUM_TYPES	/*!< Number of XSec types */
 };
 

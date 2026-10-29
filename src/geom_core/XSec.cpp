@@ -3944,3 +3944,66 @@ double StackXSec::GetScale()
 
     return scale;
 }
+
+//==================================================================================================//
+//==================================================================================================//
+//==================================================================================================//
+//==================================================================================================//
+//==== Constructor ====//
+BareXSec::BareXSec( XSecCurve *xsc ) : SkinXSec( xsc)
+{
+    m_Name = "BareXSec";
+    m_Type = vsp::XSEC_BARE;
+}
+
+//==== Update ====//
+void BareXSec::Update()
+{
+    m_LateUpdateFlag = false;
+
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+
+    // apply the needed transformation to get section into body orientation
+    Matrix4d mat;
+    xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
+
+    VspCurve baseCurve = GetUntransformedCurve();
+
+    baseCurve.Transform( mat );
+
+    //==== Apply Transform ====//
+    m_TransformedCurve = baseCurve;
+
+    GetPlacement( m_Transform );
+    m_Transform.postMult( xsecsurf->GetGlobalXForm().data() );
+
+    m_TransformedCurve.Transform( m_Transform );
+}
+
+void BareXSec::GetPlacement( Matrix4d & placement )
+{
+    placement.loadIdentity();
+    placement.translatef( m_Loc.x(), m_Loc.y(), m_Loc.z() );
+}
+
+//==== Copy position from base class ====//
+void BareXSec::CopyBasePos( XSec* xs )
+{
+    BareXSec* bxs = dynamic_cast< BareXSec* > (xs );
+    if ( bxs )
+    {
+        m_Loc = bxs->m_Loc;
+    }
+}
+
+//==== Set XSec Location - Not Using Parms To Avoid Exposing Dependant Vars ====//
+void BareXSec::SetLoc( const vec3d & loc )
+{
+    m_Loc = loc;
+    m_LateUpdateFlag = true;
+}
+
+double BareXSec::GetScale()
+{
+    return 1.0;
+}
