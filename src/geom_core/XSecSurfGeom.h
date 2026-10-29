@@ -99,6 +99,9 @@ protected:
     // Lengths closer than this, on a body of radius r, are equal.
     static double Tol( double r );
 
+    // The height of the mold line of radius r above the axis, half_width to the side.
+    static double Under( double r, double half_width );
+
     // The rolls about x of n members, in degrees clockwise looking forward from the top: those the Parms hold where
     // given is set, and otherwise evenly spaced, written to the Parms.
     static void SpaceRolls( bool given, int n, const vector< Parm* > & phi );

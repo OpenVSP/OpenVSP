@@ -11,6 +11,8 @@
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
 
+#include <algorithm>
+
 using namespace vsp;
 
 //==== Constructor ====//
@@ -359,6 +361,12 @@ double XSecSurfGeom::RelAbs( Parm & abs_parm, Parm & ratio_parm, BoolParm & rel_
 double XSecSurfGeom::Tol( double r )
 {
     return 1.0e-9 * ( 1.0 + r );
+}
+
+double XSecSurfGeom::Under( double r, double half_width )
+{
+    double y = std::min( half_width, r );
+    return sqrt( r * r - y * y );
 }
 
 void XSecSurfGeom::SpaceRolls( bool given, int n, const vector< Parm* > & phi )
