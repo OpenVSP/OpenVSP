@@ -590,34 +590,15 @@ int CustomGeomMgrSingleton::SaveScriptContentToFile( const string & module_name,
 //==================================================================================================//
 //==================================================================================================//
 //==== Constructor ====//
-CustomXSec::CustomXSec( XSecCurve *xsc ) : SkinXSec( xsc)
+CustomXSec::CustomXSec( XSecCurve *xsc ) : BareXSec( xsc )
 {
     m_Name = "CustomXSec";
     m_Type = vsp::XSEC_CUSTOM;
-
 }
 
-//==== Update ====//
-void CustomXSec::Update()
+// The section is turned about the origin of its XSecSurf, then put at its location.
+void CustomXSec::GetPlacement( Matrix4d & placement )
 {
-
-    m_Type = XSEC_CUSTOM;
-
-    m_LateUpdateFlag = false;
-
-    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
-
-    // apply the needed transformation to get section into body orientation
-    Matrix4d mat;
-    xsecsurf->GetBasicTransformation( m_XSCurve->GetWidth(), mat );
-
-    VspCurve baseCurve = GetUntransformedCurve();
-
-    baseCurve.Transform( mat );
-
-    //==== Apply Transform ====//
-    m_TransformedCurve = baseCurve;
-
     Matrix4d tran_mat;
     tran_mat.translatef( m_Loc.x(),  m_Loc.y(),  m_Loc.z() );
 
@@ -632,37 +613,24 @@ void CustomXSec::Update()
     Matrix4d inv_cent_mat;
     inv_cent_mat.translatef(  m_Loc.x(),  m_Loc.y(),  m_Loc.z() );
 
-    m_Transform.loadIdentity();
+    placement.loadIdentity();
 
-    m_Transform.postMult( tran_mat.data() );
-    m_Transform.postMult( cent_mat.data() );
-    m_Transform.postMult( rotate_mat.data() );
-    m_Transform.postMult( inv_cent_mat.data() );
-
-    m_Transform.postMult( xsecsurf->GetGlobalXForm().data() );
-
-    m_TransformedCurve.Transform( m_Transform );
+    placement.postMult( tran_mat.data() );
+    placement.postMult( cent_mat.data() );
+    placement.postMult( rotate_mat.data() );
+    placement.postMult( inv_cent_mat.data() );
 }
 
 //==== Copy position from base class ====//
 void CustomXSec::CopyBasePos( XSec* xs )
 {
-    if ( xs )
-    {
-        CustomXSec* cxs = dynamic_cast< CustomXSec* > (xs );
-        if ( cxs )
-        {
-            m_Loc = cxs->m_Loc;
-            m_Rot = cxs->m_Rot;
-        }
-    }
-}
+    BareXSec::CopyBasePos( xs );
 
-//==== Set XSec Location - Not Using Parms To Avoid Exposing Dependant Vars ====//
-void CustomXSec::SetLoc( const vec3d & loc )
-{
-    m_Loc = loc;
-    m_LateUpdateFlag = true;
+    CustomXSec* cxs = dynamic_cast< CustomXSec* > (xs );
+    if ( cxs )
+    {
+        m_Rot = cxs->m_Rot;
+    }
 }
 
 //==== Set XSec Rotation - Not Using Parms To Avoid Exposing Dependant Vars ====//
@@ -670,11 +638,6 @@ void CustomXSec::SetRot( const vec3d & rot )
 {
     m_Rot = rot;
     m_LateUpdateFlag = true;
-}
-
-double CustomXSec::GetScale()
-{
-    return 1.0;
 }
 
 //==================================================================================================//

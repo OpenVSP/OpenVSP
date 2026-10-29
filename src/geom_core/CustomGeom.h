@@ -646,27 +646,22 @@ private:
     InsertCustomXSec rather than directly, and positioned with SetCustomXSecLoc and
     SetCustomXSecRot.
 */
-class CustomXSec : public SkinXSec
+class CustomXSec : public BareXSec
 {
 public:
 
     CustomXSec( XSecCurve *xsc );
 
-    virtual void Update();
-    virtual void CopyBasePos( XSec* xs );
-
-    virtual void SetLoc( const vec3d & loc );
-    virtual vec3d GetLoc()                                  { return m_Loc; }
     virtual void SetRot( const vec3d & rot );
     virtual vec3d GetRot()                                  { return m_Rot; }
 
-    virtual double GetScale();
+    virtual void CopyBasePos( XSec* xs );
 
 protected:
 
-    vec3d m_Loc;
-    vec3d m_Rot;
+    virtual void GetPlacement( Matrix4d & placement );
 
+    vec3d m_Rot;
 };
 
 
