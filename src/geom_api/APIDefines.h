@@ -1054,6 +1054,7 @@ enum GUI_GEOM_SCREEN { POD_GEOM_SCREEN,	/*!< Pod geom screen */
                        GEAR_GEOM_SCREEN,	/*!< Gear geom screen */
                        COBRA_GEOM_SCREEN,	/*!< Cobra body geom screen */
                        CLONE_GEOM_SCREEN,	/*!< Clone geom screen */
+                       MDC_BOD_GEOM_SCREEN,	/*!< MDC_BOD geom screen */
                        NUM_GEOM_SCREENS,	/*!< Number of geom screens */
                        ALL_GEOM_SCREENS	/*!< All geom screens */
 };

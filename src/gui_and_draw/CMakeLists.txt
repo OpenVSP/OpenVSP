@@ -43,6 +43,7 @@ ClippingScreen.cpp
 CloneDeleteDialog.cpp
 CloneNameSuffixScreen.cpp
 CloneScreen.cpp
+MdcBodScreen.cpp
 CobraScreen.cpp
 CompGeomScreen.cpp
 ConformalScreen.cpp
@@ -157,6 +158,7 @@ ClippingScreen.h
 CloneDeleteDialog.h
 CloneNameSuffixScreen.h
 CloneScreen.h
+MdcBodScreen.h
 CobraScreen.h
 CompGeomScreen.h
 ConformalScreen.h

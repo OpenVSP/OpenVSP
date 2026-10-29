@@ -59,6 +59,7 @@
 #include "Quat.h"
 #include "ResultsPlotMgr.h"
 #include "CobraGeom.h"
+#include "MdcBodGeom.h"
 #include "RoutingGeom.h"
 #include "ScriptMgr.h"
 #include "StlHelper.h"
@@ -491,6 +492,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( AUXILIARY_GEOM_TYPE, "AUXILIARY", true ) );
     m_GeomTypeVec.push_back( GeomType( COBRA_GEOM_TYPE, "COBRA", true ) );
     m_GeomTypeVec.push_back( GeomType( CLONE_GEOM_TYPE, "CLONE", true ) );
+    m_GeomTypeVec.push_back( GeomType( MDC_BOD_GEOM_TYPE, "MDC_BOD", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -1200,6 +1202,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Name == "Clone" || type.m_Name == "CLONE" )
     {
         new_geom = new CloneGeom( this );
+    }
+    else if ( type.m_Name == "MdcBod" || type.m_Name == "MDC_BOD" )
+    {
+        new_geom = new MdcBodGeom( this );
     }
 
     if ( !new_geom )

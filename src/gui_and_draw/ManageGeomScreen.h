@@ -19,6 +19,7 @@
 #include "BlankScreen.h"
 #include "BORScreen.h"
 #include "CloneScreen.h"
+#include "MdcBodScreen.h"
 #include "ConformalScreen.h"
 #include "CustomScreen.h"
 #include "DrawObj.h"

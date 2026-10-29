@@ -43,6 +43,7 @@ BORGeom.cpp
 ClippingMgr.cpp
 CloneGeom.cpp
 CobraGeom.cpp
+MdcBodGeom.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
 XSecSurfGeom.cpp
@@ -132,6 +133,7 @@ BORGeom.h
 ClippingMgr.h
 CloneGeom.h
 CobraGeom.h
+MdcBodGeom.h
 Color.h
 ColorMgr.h
 ConformalGeom.h
