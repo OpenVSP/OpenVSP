@@ -326,3 +326,307 @@ def testInletLimitsItsIndicesToTheirNumbers():
     assert get( gid, "INLET" ) == 2
 
 
+#===== MDC_FIN =====#
+
+def testFinSetHasOneSurfacePerPanel():
+    for npanel in ( 1, 3, 8 ):
+        gid = new( "MDC_FIN", NPANEL=npanel )
+        assert vsp.GetNumMainSurfs( gid ) == npanel
+        assert vsp.GetGeomVSPSurfType( gid, 0 ) == vsp.WING_SURF
+
+
+def testFinSetPlanformFollowsItsStations():
+    gid = new( "MDC_FIN", NPANEL=1, RBODY=0.5, NSPAN=2, SSPAN_2=2.0, CHORD_1=1.5, CHORD_2=0.5, SWEEP_1=0.0, STA_1=1.0 )
+    place( gid, 8.0 )
+
+    # Sweep is measured at the trailing edge here, so the tip trailing edge is as far aft as the root's.  XLE_2 is
+    # from the root's leading edge.
+    assert get( gid, "XLE_2" ) == pytest.approx( 1.5 - 0.5 )
+    xlo, xhi = extent( gid, 0 )
+    assert xlo == pytest.approx( 8.0, abs=1e-6 )
+    assert xhi == pytest.approx( 9.5, abs=1e-6 )
+
+    # The panel at roll 0 is at the top, so the span is along z.
+    zlo, zhi = extent( gid, 2 )
+    assert zlo == pytest.approx( 0.5, abs=1e-3 )
+    assert zhi == pytest.approx( 0.5 + 2.0, abs=1e-3 )
+
+
+def testFinSetXleGivenMakesSweepFollow():
+    gid = new( "MDC_FIN", NPANEL=1, SSPAN_2=2.0, XLEFlag_1=1, XLE_2=1.0, STA_1=0.0 )
+    assert get( gid, "SWEEP_1" ) == pytest.approx( math.degrees( math.atan2( 1.0, 2.0 ) ) )
+
+
+def testFinSetPanelsAreEvenlySpacedUnlessGiven():
+    gid = new( "MDC_FIN", NPANEL=3 )
+    for k in range( 3 ):
+        assert get( gid, "PHIF_%d" % ( k + 1 ) ) == pytest.approx( 120.0 * k )
+    put( gid, PHIFFlag=1, PHIF_2=70.0 )
+    assert get( gid, "PHIF_2" ) == pytest.approx( 70.0 )
+
+
+@pytest.mark.parametrize( "sectyp", range( 4 ) )
+def testFinSetSectionTypesBuildASurfacePerPanel( sectyp ):
+    gid = new( "MDC_FIN", SECTYP=sectyp )
+    assert vsp.GetNumMainSurfs( gid ) == 4
+    assert_no_errors()
+
+
+@pytest.mark.parametrize( "series,designation", [ ( 0, 2412 ), ( 1, 2412 ), ( 2, 23012 ), ( 3, 23012 ), ( 4, 12 ),
+                                                  ( 5, 6412 ), ( 6, 5 ), ( 7, 6 ), ( 8, 8 ) ] )
+def testFinSetNacaSeriesBuildASurfacePerPanel( series, designation ):
+    gid = new( "MDC_FIN", SECTYP=1, NACASER=series, NACADES=designation )
+    assert vsp.GetNumMainSurfs( gid ) == 4
+    assert_no_errors()
+
+
+@pytest.mark.parametrize( "series,shape", [ ( 6, vsp.XS_WEDGE ), ( 7, vsp.XS_BICONVEX ), ( 8, vsp.XS_WEDGE ) ] )
+def testFinSetSupersonicNacaIsABuiltInAirfoil( series, shape ):
+    gid = new( "MDC_FIN", SECTYP=1, NPANEL=1, NACASER=series, NACADES=6.0, NACAXMAX=40.0, NACAFLAT=20.0 )
+    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
+    assert vsp.GetXSecShape( xs ) == shape
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickChord" ) ) == pytest.approx( 0.06 )
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickLoc" ) ) == pytest.approx( 0.4 )
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickLocLow" ) ) == pytest.approx( 0.4 )
+    if series == 8:
+        assert vsp.GetParmVal( vsp.GetXSecParm( xs, "FlatUp" ) ) == pytest.approx( 0.2 )
+    elif series == 6:
+        assert vsp.GetParmVal( vsp.GetXSecParm( xs, "FlatUp" ) ) == 0.0
+
+def testFinSetLeadingEdgeIsSharpAsDatcomDrawsItUnlessLerTypeRoundsIt():
+    """LER is a DATCOM input either way, but the section is rounded only when LERType says so."""
+    sharp_pts = sample( new( "MDC_FIN", NPANEL=1, ZUPPER_1=0.05, ZUPPER_2=0.05 ) )
+    gid = new( "MDC_FIN", NPANEL=1, ZUPPER_1=0.05, ZUPPER_2=0.05, LER_1=0.02, LER_2=0.02 )
+    assert sample( gid ) == sharp_pts
+
+    put( gid, LERType=1 )
+    rounded_pts = sample( gid )
+    assert len( rounded_pts ) == len( sharp_pts )
+    assert rounded_pts != sharp_pts
+
+
+@pytest.mark.parametrize( "lertype,keep", [ ( 1, vsp.LE_RADIUS_KEEP_CREST ), ( 2, vsp.LE_RADIUS_KEEP_ANGLE ) ] )
+@pytest.mark.parametrize( "sectyp", [ 0, 2 ], ids=[ "hex", "arc" ] )
+def testFinSetRoundedSectionKeepsItsChordAndItsRadius( sectyp, lertype, keep ):
+    """A rounded HEX or ARC section is the airfoil rounded to LER over the chord, so the nose is still at XLE, a
+    circle of radius LER."""
+    zu = 0.025
+    ler = 0.005
+    gid = new( "MDC_FIN", NPANEL=1, SECTYP=sectyp, LERType=lertype, ZUPPER_1=zu, ZUPPER_2=zu, LER_1=ler, LER_2=ler )
+    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
+    chord = vsp.GetParmVal( vsp.FindParm( gid, "CHORD_1", "Design" ) )
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadius" ) ) == pytest.approx( ler / chord )
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadiusType" ) ) == keep
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LE_Trim_Type" ) ) == vsp.TRIM_NONE
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LE_Cap_Type" ) ) == vsp.FLAT_END_CAP
+
+    # The fin's front is still XLE.
+    x0 = vsp.GetParmVal( vsp.FindParm( gid, "X_Rel_Location", "XForm" ) )
+    assert extent( gid, 0 )[0] - x0 == pytest.approx( 0.0, abs=1e-6 )
+
+    # The root section's nose is a circle of radius LER centered LER behind its leading edge, toward its trailing edge.
+    le = vsp.ComputeXSecPnt( xs, 0.5 )
+    te = vsp.ComputeXSecPnt( xs, 0.0 )
+    along = ( te - le ) * ( 1.0 / ( te - le ).mag() )
+    center = le + along * ler
+    pts = [ vsp.ComputeXSecPnt( xs, 0.49 + 0.02 * j / 400.0 ) for j in range( 401 ) ]
+    near = [ p for p in pts if vsp.dot( p - le, along ) < 0.5 * ler ]
+    assert len( near ) > 3
+    for p in near:
+        assert ( p - center ).mag() == pytest.approx( ler, abs=5e-4 * ler )
+
+
+def testFinSetCfocMakesAFlapPerSegmentAndRemovesThem():
+    gid = new( "MDC_FIN", NPANEL=2, NSPAN=3, SSPAN_2=1.0, SSPAN_3=2.0, CHORD_3=0.5, CFOC_1=0.3, CFOC_2=0.3, CFOC_3=0.2 )
+    names = sorted( vsp.GetSubSurfName( gid, ss ) for ss in vsp.GetSubSurfIDVec( gid ) )
+    assert names == [ "FLAP_1", "FLAP_2" ]
+
+    put( gid, CFOC_3=0.0 )
+    names = sorted( vsp.GetSubSurfName( gid, ss ) for ss in vsp.GetSubSurfIDVec( gid ) )
+    assert names == [ "FLAP_1" ]
+
+    # An all moving fin has no flap.
+    put( gid, CFOC_1=1.0 )
+    assert vsp.GetSubSurfIDVec( gid ) == ()
+
+
+def testFinSetArcSectionIsABiconvexAirfoil():
+    gid = new( "MDC_FIN", SECTYP=2, NPANEL=1, ZLOWERRelFlag=0, ZUPPER_1=0.06, ZLOWER_1=0.02, ZUPPER_2=0.06,
+               ZLOWER_2=0.02 )
+    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
+    assert vsp.GetXSecShape( xs ) == vsp.XS_BICONVEX
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickChord" ) ) == pytest.approx( 0.08 )
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "ThickFracUp" ) ) == pytest.approx( 0.75 )
+
+    # A rounded leading edge is still the biconvex airfoil, rounded to LER over the chord.
+    put( gid, LERType=1, LER_1=0.01, LER_2=0.01 )
+    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
+    assert vsp.GetXSecShape( xs ) == vsp.XS_BICONVEX
+    chord = vsp.GetParmVal( vsp.FindParm( gid, "CHORD_1", "Design" ) )
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadius" ) ) == pytest.approx( 0.01 / chord )
+
+    # Without LER the section is sharp again.
+    put( gid, LER_1=0.0, LER_2=0.0 )
+    xs = vsp.GetXSec( vsp.GetXSecSurf( gid, 0 ), 0 )
+    assert vsp.GetParmVal( vsp.GetXSecParm( xs, "LERadius" ) ) == 0.0
+
+
+def testFinSetFlapIsAControlSurfaceAsDeepAsCfocTimesTheChord():
+    gid = new( "MDC_FIN", NPANEL=1, CFOC_1=0.25, CFOC_2=0.25 )
+    ss = vsp.GetSubSurfIDVec( gid )[0]
+    assert vsp.GetParmVal( vsp.FindParm( ss, "Length_C_Start", "SS_Control" ) ) == pytest.approx( 0.25 )
+    assert vsp.GetParmVal( vsp.FindParm( ss, "Length_C_End", "SS_Control" ) ) == pytest.approx( 0.25 )
+    assert vsp.GetSubSurfType( ss ) == vsp.SS_CONTROL
+
+
+def testFinSetTakesAControlSurfaceOfItsOwn():
+    gid = new( "MDC_FIN" )
+    ss = vsp.AddSubSurf( gid, vsp.SS_CONTROL, 0 )
+    assert ss
+    assert_no_errors()
+
+
+def testFinSetFlapsAreSavedAndReadBack():
+    gid = new( "MDC_FIN", NPANEL=2, CFOC_1=0.3, CFOC_2=0.3 )
+    back = roundtrip( gid )
+    names = sorted( vsp.GetSubSurfName( back, ss ) for ss in vsp.GetSubSurfIDVec( back ) )
+    assert names == [ "FLAP_1" ]
+
+
+def flaps( gid ):
+    return vsp.GetSubSurfIDVec( gid )
+
+
+def testFinSetFlapReadBackIsTheOneItKeeps():
+    gid = new( "MDC_FIN", NPANEL=2, CFOC_1=0.3, CFOC_2=0.3 )
+    back = roundtrip( gid )
+    put( back, CFOC_2=0.4 )
+    assert len( flaps( back ) ) == 1
+    ss = flaps( back )[0]
+    assert vsp.GetParmVal( vsp.FindParm( ss, "Length_C_End", "SS_Control" ) ) == pytest.approx( 0.4 )
+
+
+def testFinSetKeepsARenamedFlap():
+    gid = new( "MDC_FIN", NPANEL=2, CFOC_1=0.3, CFOC_2=0.3 )
+    ss = flaps( gid )[0]
+    vsp.SetSubSurfName( gid, ss, "Rudder" )
+    put( gid, CFOC_2=0.4 )
+    assert flaps( gid ) == ( ss, )
+    assert vsp.GetSubSurfName( gid, ss ) == "Rudder"
+    assert vsp.GetParmVal( vsp.FindParm( ss, "Length_C_End", "SS_Control" ) ) == pytest.approx( 0.4 )
+
+
+def testFinSetLeavesAControlSurfaceNamedLikeAFlap():
+    gid = new( "MDC_FIN", CFOC_1=1.0 )
+    ss = vsp.AddSubSurf( gid, vsp.SS_CONTROL, 0 )
+    vsp.SetSubSurfName( gid, ss, "FLAP_1" )
+    put( gid, CFOC_2=0.5 )
+    assert flaps( gid ) == ( ss, )
+
+
+def testCopiedFinSetHasFlapsOfItsOwn():
+    gid = new( "MDC_FIN", NPANEL=2, CFOC_1=0.3, CFOC_2=0.3 )
+    vsp.CopyGeomToClipboard( gid )
+    copy = vsp.PasteGeomClipboard()[0]
+    vsp.Update()
+    assert len( flaps( gid ) ) == 1
+    assert len( flaps( copy ) ) == 1
+    assert flaps( copy ) != flaps( gid )
+
+    put( copy, CFOC_2=0.4 )
+    assert len( flaps( copy ) ) == 1
+    assert len( flaps( gid ) ) == 1
+    ss = flaps( copy )[0]
+    assert vsp.GetParmVal( vsp.FindParm( ss, "Length_C_End", "SS_Control" ) ) == pytest.approx( 0.4 )
+
+
+#===== On a body =====#
+
+def child( name, body, x, **parms ):
+    gid = vsp.AddGeom( name, body )
+    assert gid
+    place( gid, x )
+    put( gid, **parms )
+    return gid
+
+
+def testProtuberanceTakesItsRadiusFromItsBody():
+    body = new( "MDC_BOD", DNOSE=1.0, CENTRDefault=0, DCENTR=2.0, LNOSE=2.0, LCENTR=4.0 )
+    # On the centerbody, a frustum from 1 to 2 across over 2 to 6, at 4 the body is 1.5 across.
+    gid = child( "MDC_PROTUB", body, 4.0, PTYPE=5, LPROT_1=0.4, WPROT_1=0.2, HPROT_1=0.3, OPROT_1=0.1 )
+    assert get( gid, "RBODY" ) == pytest.approx( 0.75, abs=1e-6 )
+    zlo, zhi = extent( gid, 2 )
+    assert zhi == pytest.approx( 0.75 + 0.1 + 0.3, abs=1e-6 )
+
+    # Moved along the body, it follows the body's radius.
+    place( gid, 3.0 )
+    assert get( gid, "RBODY" ) == pytest.approx( 0.625, abs=1e-6 )
+
+
+def testProtuberanceFollowsItsBodysChange():
+    body = new( "MDC_BOD", DNOSE=1.0, LNOSE=2.0, LCENTR=6.0 )
+    gid = child( "MDC_PROTUB", body, 4.0 )
+    put( body, DNOSE=1.6 )
+    assert get( gid, "RBODY" ) == pytest.approx( 0.8, abs=1e-6 )
+
+
+@pytest.mark.parametrize( "name", ( "MDC_PROTUB", "MDC_INLET", "MDC_FIN" ) )
+def testComponentFollowsItsBodyWhenTheBodyMoves( name ):
+    # On the centerbody, a frustum from 1 to 2 across over 2 to 6.  With the body moved 1 aft, the component at 4 is
+    # over its 3, as one put there after the move is.
+    body = new( "MDC_BOD", DNOSE=1.0, CENTRDefault=0, DCENTR=2.0, LNOSE=2.0, LCENTR=4.0 )
+    gid = child( name, body, 4.0 )
+    rbody = get( gid, "RBODY" )
+    place( body, 1.0 )
+
+    moved = child( name, body, 4.0 )
+    assert get( gid, "RBODY" ) == pytest.approx( get( moved, "RBODY" ) )
+    assert get( gid, "RBODY" ) < rbody - 1e-3
+    assert_same( sample( gid ), sample( moved ) )
+
+
+def testComponentPutOnABodyTakesItsRadius():
+    body = new( "MDC_BOD", DNOSE=1.0, LNOSE=2.0, LCENTR=10.0 )
+    gid = vsp.AddGeom( "MDC_FIN" )
+    put( gid, RBODY=3.0 )
+    vsp.SetGeomParent( gid, body )
+    vsp.Update()
+    assert get( gid, "RBODY" ) == pytest.approx( 0.5, abs=1e-6 )
+
+
+def testComponentOffABodyKeepsItsRbody():
+    vsp.VSPRenew()
+    gid = vsp.AddGeom( "MDC_INLET" )
+    put( gid, RBODY=0.8 )
+    assert get( gid, "RBODY" ) == pytest.approx( 0.8 )
+
+
+def testInletSitsOnItsBody():
+    body = new( "MDC_BOD", DNOSE=1.0, LNOSE=2.0, LCENTR=6.0 )
+    gid = child( "MDC_INLET", body, 4.0, INTYPE=3, HDIV=0.0, NIN=2 )
+    assert get( gid, "RBODY" ) == pytest.approx( 0.5, abs=1e-6 )
+
+
+def testFinPanelsSitOnAnEllipticBodyAtTheirRolls():
+    # 2 wide and 1 high: the top and bottom panels' roots are 0.5 from the axis, the side panels' 1.
+    body = new( "MDC_BOD", NAMELIST=1, WNOSE=2.0, ENOSE=0.5, CENTRDefault=1, ECENTR=0.5, LNOSE=2.0, LCENTR=8.0 )
+    gid = child( "MDC_FIN", body, 6.0, NPANEL=4, NSPAN=2, SSPAN_2=1.0 )
+    roots = []
+    for s in range( 4 ):
+        p = vsp.CompPnt01( gid, s, 0.0, 0.5 )
+        roots.append( math.hypot( p.y(), p.z() ) )
+    assert sorted( roots ) == pytest.approx( [ 0.5, 0.5, 1.0, 1.0 ], abs=2e-3 )
+    assert get( gid, "RBODY" ) == pytest.approx( 0.5, abs=1e-6 )
+
+
+def testProtuberancesSitOnAnEllipticBodyAtTheirRolls():
+    body = new( "MDC_BOD", NAMELIST=1, WNOSE=2.0, ENOSE=0.5, CENTRDefault=1, ECENTR=0.5, LNOSE=2.0, LCENTR=8.0 )
+    gid = child( "MDC_PROTUB", body, 6.0, PTYPE=5, NLOC=4, LPROT_1=0.4, WPROT_1=0.1, HPROT_1=0.3, OPROT_1=0.1 )
+    reach = []
+    for s in range( vsp.GetNumMainSurfs( gid ) ):
+        lo = vsp.GetGeomBBoxMin( gid, s )
+        hi = vsp.GetGeomBBoxMax( gid, s )
+        reach.append( max( abs( lo.y() ), abs( hi.y() ), abs( lo.z() ), abs( hi.z() ) ) )
+    assert sorted( reach ) == pytest.approx( [ 0.9, 0.9, 1.4, 1.4 ], abs=1e-3 )
+
+
