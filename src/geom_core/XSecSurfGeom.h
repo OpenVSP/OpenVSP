@@ -52,10 +52,17 @@ public:
 
 protected:
 
-    // A new surface, its pointer rather than its ID, of cross sections of type xsec_type.
+    // A built in component builds its surfaces between these, in the same order each update.  A surface or cross
+    // section already in the place a new one is asked for, and of the same type, is used again, so it keeps its ID
+    // from one update to the next.  Those not used again are deleted at the end.
+    void BeginXSecSurfs();
+    void EndXSecSurfs();
+
+    // The next surface, its pointer rather than its ID, of cross sections of type xsec_type.
     XSecSurf* NewXSecSurf( int xsec_type = vsp::XSEC_BARE );
 
-    // A cross section of type type, appended to the surface and put at loc, with no continuity to its neighbors.
+    // The next cross section of the surface, of type type, put at loc, with no continuity to its neighbors and its
+    // skinning conditions unset.
     BareXSec* AppendXSec( XSecSurf* xsec_surf, int type, const vec3d & loc );
 
     // The multiple Tess_W less one must be of, for rows around to land on every corner of every section: the
@@ -78,6 +85,13 @@ protected:
     BareXSec* AppendRectXSec( XSecSurf* xsec_surf, const vec3d & loc, double w, double h );
 
     vector< XSecSurf* > m_XSecSurfVec;
+
+    // Where NewXSecSurf and each surface's AppendXSec are up to.
+    int m_NextSurf;
+    map< XSecSurf*, int > m_NextXSec;
+
+    // Deletes the surfaces from index on.
+    void DeleteXSecSurfsFrom( int index );
 
     int m_VspSurfType;
     int m_VspSurfCfdType;

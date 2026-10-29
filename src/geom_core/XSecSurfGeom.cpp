@@ -21,6 +21,7 @@ XSecSurfGeom::XSecSurfGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ConformalFlag = false;
     m_ConformalOffset = 0;
     m_TessMult = 1;
+    m_NextSurf = 0;
 }
 
 //==== Destructor ====//
@@ -33,14 +34,43 @@ XSecSurfGeom::~XSecSurfGeom()
 void XSecSurfGeom::ClearXSecSurfs()
 {
     //==== Clear XSec Surfs ====//
-    for ( int i = 0 ; i < (int)m_XSecSurfVec.size() ; i++ )
-    {
-        delete m_XSecSurfVec[i];
-    }
-    m_XSecSurfVec.clear();
+    DeleteXSecSurfsFrom( 0 );
+    m_NextSurf = 0;
 
     m_VspSurfType = vsp::NORMAL_SURF;
     m_VspSurfCfdType = vsp::CFD_NORMAL;
+}
+
+void XSecSurfGeom::DeleteXSecSurfsFrom( int index )
+{
+    index = std::max( index, 0 );
+    for ( int i = index; i < ( int )m_XSecSurfVec.size(); i++ )
+    {
+        m_NextXSec.erase( m_XSecSurfVec[i] );
+        delete m_XSecSurfVec[i];
+    }
+    if ( index < ( int )m_XSecSurfVec.size() )
+    {
+        m_XSecSurfVec.resize( index );
+    }
+}
+
+void XSecSurfGeom::BeginXSecSurfs()
+{
+    m_NextSurf = 0;
+    m_NextXSec.clear();
+
+    m_VspSurfType = vsp::NORMAL_SURF;
+    m_VspSurfCfdType = vsp::CFD_NORMAL;
+}
+
+void XSecSurfGeom::EndXSecSurfs()
+{
+    for ( int i = 0; i < m_NextSurf && i < ( int )m_XSecSurfVec.size(); i++ )
+    {
+        m_XSecSurfVec[i]->DeleteXSecsFrom( m_NextXSec[ m_XSecSurfVec[i] ] );
+    }
+    DeleteXSecSurfsFrom( m_NextSurf );
 }
 
 //==== Get XSecSurf At Index =====//
@@ -207,11 +237,24 @@ void XSecSurfGeom::ApplyConformalOffset( double off )
 //==== Add an XSecSurf, Answering the Surface ====//
 XSecSurf* XSecSurfGeom::NewXSecSurf( int xsec_type )
 {
-    XSecSurf* xsec_surf = new XSecSurf();
-    xsec_surf->SetXSecType( xsec_type );
-    xsec_surf->SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
-    xsec_surf->SetParentContainer( GetID() );
-    m_XSecSurfVec.push_back( xsec_surf );
+    XSecSurf* xsec_surf = nullptr;
+    if ( m_NextSurf < ( int )m_XSecSurfVec.size() && m_XSecSurfVec[m_NextSurf]->GetXSecType() == xsec_type )
+    {
+        xsec_surf = m_XSecSurfVec[m_NextSurf];
+        m_NextSurf++;
+    }
+    else
+    {
+        DeleteXSecSurfsFrom( m_NextSurf );
+
+        xsec_surf = new XSecSurf();
+        xsec_surf->SetXSecType( xsec_type );
+        xsec_surf->SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
+        xsec_surf->SetParentContainer( GetID() );
+        m_XSecSurfVec.push_back( xsec_surf );
+        m_NextSurf = ( int )m_XSecSurfVec.size();
+    }
+    m_NextXSec[xsec_surf] = 0;
 
     return xsec_surf;
 }
@@ -219,7 +262,19 @@ XSecSurf* XSecSurfGeom::NewXSecSurf( int xsec_type )
 //==== Append a Cross Section at loc ====//
 BareXSec* XSecSurfGeom::AppendXSec( XSecSurf* xsec_surf, int type, const vec3d & loc )
 {
-    BareXSec* xs = dynamic_cast< BareXSec* >( xsec_surf->FindXSec( xsec_surf->AddXSec( type ) ) );
+    int index = m_NextXSec[xsec_surf];
+    m_NextXSec[xsec_surf] = index + 1;
+
+    BareXSec* xs = dynamic_cast< BareXSec* >( xsec_surf->FindXSec( index ) );
+    if ( xs && xs->GetXSecCurve() && xs->GetXSecCurve()->GetType() == type )
+    {
+        xs->Reset();
+    }
+    else
+    {
+        xsec_surf->DeleteXSecsFrom( index );
+        xs = dynamic_cast< BareXSec* >( xsec_surf->FindXSec( xsec_surf->AddXSec( type ) ) );
+    }
     if ( xs )
     {
         xs->SetLoc( loc );
