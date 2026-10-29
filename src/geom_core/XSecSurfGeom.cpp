@@ -353,4 +353,20 @@ BareXSec* XSecSurfGeom::AppendRectXSec( XSecSurf* xsec_surf, const vec3d & loc, 
     return xs;
 }
 
-
+double XSecSurfGeom::DesignValue( xmlNodePtr & node, const char* name, double def, const char* group )
+{
+    xmlNodePtr container_node = XmlUtil::GetNode( node, "ParmContainer", 0 );
+    if ( container_node )
+    {
+        xmlNodePtr group_node = XmlUtil::GetNode( container_node, group, 0 );
+        if ( group_node )
+        {
+            xmlNodePtr n = XmlUtil::GetNode( group_node, name, 0 );
+            if ( n )
+            {
+                return XmlUtil::FindDoubleProp( n, "Value", def );
+            }
+        }
+    }
+    return def;
+}

@@ -12,6 +12,7 @@
 #define VSPXSECSURFGEOM__INCLUDED_
 
 #include "Geom.h"
+#include "ParmMgr.h"
 #include "XSec.h"
 #include "XSecSurf.h"
 
@@ -50,6 +51,17 @@ public:
     //==== Offset XSecs For Conformal =====//
     virtual void OffsetXSecs( double off );
 
+    // The ID of parms[i], or empty where there is none.
+    template < class T >
+    static string ParmIDAt( const vector< T* > & parms, int i )
+    {
+        if ( i < 0 || i >= ( int )parms.size() || !parms[i] )
+        {
+            return string();
+        }
+        return parms[i]->GetID();
+    }
+
 protected:
 
     // A built in component builds its surfaces between these, in the same order each update.  A surface or cross
@@ -76,6 +88,51 @@ protected:
     // A linear section at x through the points ( ys[i], zs[i] ), closed back to the first, its points spaced
     // evenly in its parameter.
     void AddPolySection( XSecSurf* surf, double x, const vector< double > & ys, const vector< double > & zs );
+
+    // Sizes parms to n.  Those past n are deleted.  Each one added is a Parm of type parm_type named name_k, k its
+    // place counted from first, in group, with value val between lower and upper.  Answers the size before, the
+    // index the new Parms start at.
+    template < class T >
+    int ResizeParms( vector< T* > & parms, int n, int parm_type, const string & name, double val, double lower,
+                     double upper, const string & descript, int first = 1, const string & group = "Design" )
+    {
+        n = std::max( n, 0 );
+        int old = ( int )parms.size();
+        for ( int i = n; i < old; i++ )
+        {
+            delete parms[i];
+        }
+        if ( n < old )
+        {
+            parms.resize( n );
+        }
+        for ( int i = old; i < n; i++ )
+        {
+            T* p = dynamic_cast< T* >( ParmMgr.CreateParm( parm_type ) );
+            if ( p )
+            {
+                p->Init( name + "_" + to_string( i + first ), group, this, val, lower, upper );
+                p->SetDescript( descript );
+            }
+            parms.push_back( p );
+        }
+        return old;
+    }
+
+    // Deletes the Parms of parms.
+    template < class T >
+    static void DeleteParms( vector< T* > & parms )
+    {
+        for ( int i = 0; i < ( int )parms.size(); i++ )
+        {
+            delete parms[i];
+        }
+        parms.clear();
+    }
+
+    // The value of the Parm name of group in a Geom's XML node, or def where it has none.  A Geom whose Parms are
+    // sized by a count reads the count first, so the Parms are there for the rest of the node to set.
+    static double DesignValue( xmlNodePtr & node, const char* name, double def, const char* group = "Design" );
 
     // A cross section at loc that is a point, an ellipse w across and h high, a circle d across, or a rectangle w
     // across and h high with square corners.
