@@ -322,6 +322,43 @@ void XSecSurfGeom::AddPolySection( XSecSurf* surf, double x, const vector< doubl
     edit->SetPntVecs( u, pts, rad );
 }
 
+void XSecSurfGeom::SpaceRolls( bool given, int n, const vector< Parm* > & phi )
+{
+    if ( given )
+    {
+        return;
+    }
+
+    for ( int k = 1; k <= n; k++ )
+    {
+        phi[k - 1]->Set( 360.0 * ( k - 1.0 ) / n );
+    }
+}
+
+void XSecSurfGeom::RollSurfs( int nsurf, int n, const vector< Parm* > & phi, const Matrix4d & pre )
+{
+    for ( int j = 0; j < nsurf; j++ )
+    {
+        for ( int k = n; k >= 1; k-- )
+        {
+            // Clockwise looking forward, from z towards y, is negative about x.
+            Matrix4d mat;
+            mat.loadIdentity();
+            mat.rotateX( -phi[k - 1]->Get() );
+            mat.matMult( pre.const_data() );
+
+            if ( k > 1 )
+            {
+                CloneSurf( j, mat );
+            }
+            else
+            {
+                TransformSurf( j, mat );
+            }
+        }
+    }
+}
+
 BareXSec* XSecSurfGeom::AppendPointXSec( XSecSurf* xsec_surf, const vec3d & loc )
 {
     return AppendXSec( xsec_surf, XS_POINT, loc );

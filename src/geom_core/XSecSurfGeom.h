@@ -89,6 +89,14 @@ protected:
     // evenly in its parameter.
     void AddPolySection( XSecSurf* surf, double x, const vector< double > & ys, const vector< double > & zs );
 
+    // The rolls about x of n members, in degrees clockwise looking forward from the top: those the Parms hold where
+    // given is set, and otherwise evenly spaced, written to the Parms.
+    static void SpaceRolls( bool given, int n, const vector< Parm* > & phi );
+
+    // Each of the first nsurf surfaces, rolled to each of the n rolls after pre has placed it.  Each surface's
+    // copies are made before it is itself moved, so each starts from the surface as built.
+    void RollSurfs( int nsurf, int n, const vector< Parm* > & phi, const Matrix4d & pre );
+
     // Sizes parms to n.  Those past n are deleted.  Each one added is a Parm of type parm_type named name_k, k its
     // place counted from first, in group, with value val between lower and upper.  Answers the size before, the
     // index the new Parms start at.
