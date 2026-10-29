@@ -103,8 +103,8 @@ class HersheyTest:
         self.cl_dist_theo_adv = []
 
         #This assumes that Hershey_AR10_AVL.dat is in home/some_path/example/airfoil
-        # and that this file is located in home/some_path/example/scripts/python_scripts
-        self.AVL_file_name = scriptpath + '/../../airfoil/Hershey_AR10_AVL.dat'
+        # and that this file is located in home/some_path/example/scripts/python/VnV
+        self.AVL_file_name = scriptpath + '/../../../airfoil/Hershey_AR10_AVL.dat'
         self.m_AR10_Y_Cl_Cd_vec = self.ReadAVLFile()
 
         #Data for Tip Clustering

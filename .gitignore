@@ -9,4 +9,4 @@ __pycache__/
 *.vscode
 CMakeSettings.json
 *.vs
-examples/scripts/python_scripts/*_files/*
+examples/scripts/python/VnV/*_files/*

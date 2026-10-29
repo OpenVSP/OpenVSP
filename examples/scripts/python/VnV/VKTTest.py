@@ -358,7 +358,7 @@ class VKTTest:
         Alpha = [0.0]
         
         # Load XFoil's Cp Distribution for VKT with epsilon = 0.1, kappa = 0.1, && tau = 10°
-        xfoil_file_name = scriptpath + '/../../airfoil/XFoil_VKT_CpDist.txt'
+        xfoil_file_name = scriptpath + '/../../../airfoil/XFoil_VKT_CpDist.txt'
         self.Xfoil_CpDist = const.ReadCpDistFile( xfoil_file_name ) #list of lenght 3 lists
         
         # Calculate Analytical Solution

@@ -4,7 +4,7 @@
 
 
 This document outlines a series of verification and validation (V&V) studies that have been conducted for the VSPAERO aerodynamic solver.
-This HTML document pulls its graphs from the results of a single python script file named "Master_VSP_VV_Script.py" located in the examples/scripts/python_scripts directory distributed with the
+This HTML document pulls its graphs from the results of a single python script file named "Master_VSP_VV_Script.py" located in the examples/scripts/python/VnV directory distributed with the
 OpenVSP software. In each of the V&V test cases listed below, there exists published theoretical or experimental results that can be verified for a
 particular geometric model. The results from VSPAERO are then able to be validated against the published results to determine the accuracy of the
 solver. Each test begins by modeling a wing or series of wing geometries through the OpenVSP API. The geometric parameters are listed in a table for
