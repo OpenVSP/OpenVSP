@@ -5718,7 +5718,8 @@ std::string AddSubSurf( const std::string & geom_id, int type, int surfindex )
 
     if ( type == SS_CONTROL && !SSControlSurf::IsValidParent( geom_ptr ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddSubSurf::Control surfaces need a Wing or Prop, not " + geom_ptr->GetType().m_Name );
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "AddSubSurf::Control surfaces need a Wing, a Prop or a component with a wing surface, not " +
+                           geom_ptr->GetType().m_Name );
         return std::string();
     }
 
@@ -7065,7 +7066,8 @@ static std::string AddFeaSubSurfImpl( FeaStructure* feastruct, int type, const s
             {
                 parent = geom_ptr->GetType().m_Name;
             }
-            ErrorMgr.AddError( VSP_INVALID_TYPE, caller + "::Control surfaces need a Wing or Prop, not " + parent );
+            ErrorMgr.AddError( VSP_INVALID_TYPE,
+                               caller + "::Control surfaces need a Wing, a Prop or a component with a wing surface, not " + parent );
             return std::string();
         }
     }

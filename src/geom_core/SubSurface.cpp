@@ -14,6 +14,7 @@
 #include "Geom.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
+#include "XSecSurfGeom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "IDMgr.h"
@@ -1948,6 +1949,19 @@ bool SSControlSurf::IsValidParent( Geom* geom )
     {
         return true;
     }
+
+    // A Custom Geom or a component built in C++ with a surface skinned as a wing.
+    if ( dynamic_cast< XSecSurfGeom* > ( behavior ) )
+    {
+        for ( int i = 0; i < behavior->GetNumMainSurfs(); i++ )
+        {
+            const VspSurf* surf = behavior->GetMainSurfPtr( i );
+            if ( surf && surf->GetSurfType() == vsp::WING_SURF && surf->IsMagicVParm() )
+            {
+                return true;
+            }
+        }
+    }
     return false;
 }
 
@@ -1986,7 +2000,14 @@ void SSControlSurf::Update()
         return;
     }
 
-    double umax = geom->GetUMax(0);
+    // The main surface the control surface is built on; with -1, on every one, it is built on the first.
+    int isurf = m_MainSurfIndx();
+    if ( isurf < 0 || isurf >= geom->GetNumMainSurfs() )
+    {
+        isurf = 0;
+    }
+
+    double umax = geom->GetUMax( isurf );
 
     // Eta is converted by the wing shown; the subsurface may be on a Clone of it.
     if ( WingGeom * behavior_wing = dynamic_cast< WingGeom* > ( geom->GetBehaviorGeom() ) )
@@ -2017,7 +2038,7 @@ void SSControlSurf::Update()
         }
     }
 
-    const VspSurf* surf = geom->GetMainSurfPtr(0);
+    const VspSurf* surf = geom->GetMainSurfPtr( isurf );
     if ( !surf ) { return; }
 
     m_UWStart01.clear();
