@@ -45,6 +45,7 @@ CloneGeom.cpp
 CobraGeom.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
+XSecSurfGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
 EllipsoidGeom.cpp
@@ -135,6 +136,7 @@ Color.h
 ColorMgr.h
 ConformalGeom.h
 CustomGeom.h
+XSecSurfGeom.h
 DegenGeom.h
 DesignVarMgr.h
 EllipsoidGeom.h

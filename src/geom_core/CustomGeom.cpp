@@ -647,16 +647,12 @@ void CustomXSec::SetRot( const vec3d & rot )
 
 
 //==== Constructor ====//
-CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
+CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
 {
-    m_ConformalOffset = 0;
     m_InitGeomFlag = false;
     m_Name = "CustomGeom";
     m_Type.m_Name = "Custom";
     m_Type.m_Type = CUSTOM_GEOM_TYPE;
-    m_VspSurfType = vsp::NORMAL_SURF;
-    m_VspSurfCfdType = vsp::CFD_NORMAL;
-    m_ConformalFlag = false;
 }
 
 //==== Destructor ====//
@@ -676,6 +672,102 @@ void CustomGeom::Clear()
 
     //==== Clear XSec Surfs====//
     ClearXSecSurfs();
+}
+
+//==== Add XSec Surface Return ID =====//
+string CustomGeom::AddXSecSurf()
+{
+    return NewXSecSurf( XSEC_CUSTOM )->GetID();
+}
+
+//==== Remove XSec Surface  ====//
+void CustomGeom::RemoveXSecSurf( const string& id )
+{
+    vector< XSecSurf* > new_vec;
+    for ( int i = 0 ; i < (int)m_XSecSurfVec.size() ; i++ )
+    {
+        if ( m_XSecSurfVec[i]->GetID() == id )
+        {
+            delete m_XSecSurfVec[i];
+        }
+        else
+        {
+            new_vec.push_back( m_XSecSurfVec[i] );
+        }
+    }
+
+    m_XSecSurfVec = new_vec;
+}
+
+void CustomGeom::ClearXSecSurfs()
+{
+    XSecSurfGeom::ClearXSecSurfs();
+
+    m_VspSurfTypeMap.clear();
+    m_VspSurfCfdTypeMap.clear();
+}
+
+//==== Set VSP Surf Type ====//
+void CustomGeom::SetVspSurfType( int type, int surf_id )
+{
+    if ( surf_id == -1 )
+    {
+        XSecSurfGeom::SetVspSurfType( type );
+    }
+    else
+    {
+        m_VspSurfTypeMap[surf_id] = type;
+    }
+}
+
+// The type surface surf_id is given, or every surface is.
+int CustomGeom::GetVspSurfType( int surf_id ) const
+{
+    unordered_map< int, int >::const_iterator iter = m_VspSurfTypeMap.find( surf_id );
+    if ( iter != m_VspSurfTypeMap.end() )
+    {
+        return iter->second;
+    }
+    return m_VspSurfType;
+}
+
+//==== Set VSP Surf CFD Type ====//
+void CustomGeom::SetVspSurfCfdType( int type, int surf_id )
+{
+    if ( surf_id == -1 )
+    {
+        XSecSurfGeom::SetVspSurfCfdType( type );
+    }
+    else
+    {
+        m_VspSurfCfdTypeMap[surf_id] = type;
+    }
+}
+
+void CustomGeom::UpdateFlags()
+{
+    XSecSurfGeom::UpdateFlags();
+
+    unordered_map< int, int >::const_iterator iter;
+    for ( iter = m_VspSurfCfdTypeMap.begin() ; iter != m_VspSurfCfdTypeMap.end() ; ++iter )
+    {
+        int index = iter->first;
+        if ( index >= 0 && index < (int)m_MainSurfVec.size() )
+        {
+            m_MainSurfVec[index].SetSurfCfdType( iter->second );
+        }
+    }
+}
+
+//==== Add All Default Sources Currently in Vec =====//
+void CustomGeom::AddDefaultSources( double base_len )
+{
+    for ( int i = 0 ; i < (int)m_DefaultSourceVec.size() ; i++ )
+    {
+        SourceData sd = m_DefaultSourceVec[i];
+        vsp::AddCFDSource( sd.m_Type, GetID(), sd.m_SurfIndex, sd.m_Len1, sd.m_Rad1, sd.m_U1, sd.m_W1,
+                           sd.m_Len2, sd.m_Rad2, sd.m_U2, sd.m_W2 );
+    }
 }
 
 //==== Init Geometry ====//
@@ -780,40 +872,6 @@ void CustomGeom::UpdateSurf()
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void UpdateSurf()" );
 }
 
-void CustomGeom::UpdateFlags()
-{
-    //==== Set Surf Type ====//
-    for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
-    {
-        m_MainSurfVec[i].SetSurfType( m_VspSurfType );
-        m_MainSurfVec[i].SetSurfCfdType( m_VspSurfCfdType );
-
-        if ( m_NegativeVolumeFlag.Get() && m_VspSurfCfdType != vsp::CFD_TRANSPARENT )
-        {
-            m_MainSurfVec[i].SetSurfCfdType( vsp::CFD_NEGATIVE );
-        }
-    }
-
-    unordered_map< int, int >::const_iterator iter;
-    for ( iter = m_VspSurfTypeMap.begin() ; iter != m_VspSurfTypeMap.end() ; ++iter )
-    {
-        int index = iter->first;
-        if ( index >= 0 && index < (int)m_MainSurfVec.size() )
-        {
-            m_MainSurfVec[index].SetSurfType( iter->second );
-        }
-    }
-
-    for ( iter = m_VspSurfCfdTypeMap.begin() ; iter != m_VspSurfCfdTypeMap.end() ; ++iter )
-    {
-        int index = iter->first;
-        if ( index >= 0 && index < (int)m_MainSurfVec.size() )
-        {
-            m_MainSurfVec[index].SetSurfCfdType( iter->second );
-        }
-    }
-}
-
 //==== Create Parm and Add To Vector Of Parms ====//
 string CustomGeom::AddParm( int type, const string & name, const string & group )
 {
@@ -838,178 +896,6 @@ string CustomGeom::FindParmID( int index )
 
     }
     return string();
-}
-
-//==== Remove All XSec Surfs =====//
-void CustomGeom::ClearXSecSurfs()
-{
-    //==== Clear XSec Surfs ====//
-    for ( int i = 0 ; i < (int)m_XSecSurfVec.size() ; i++ )
-    {
-        delete m_XSecSurfVec[i];
-    }
-    m_XSecSurfVec.clear();
-
-
-    m_VspSurfType = vsp::NORMAL_SURF;
-    m_VspSurfTypeMap.clear();
-    m_VspSurfCfdType = vsp::CFD_NORMAL;
-    m_VspSurfCfdTypeMap.clear();
-}
-
-//==== Add XSec Surface Return ID =====//
-string CustomGeom::AddXSecSurf()
-{
-    XSecSurf* xsec_surf = new XSecSurf();
-    xsec_surf->SetXSecType( XSEC_CUSTOM );
-    xsec_surf->SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
-    xsec_surf->SetParentContainer( GetID() );
-    m_XSecSurfVec.push_back( xsec_surf );
-
-    return xsec_surf->GetID();
-}
-
-//==== Remove XSec Surface  ====//
-void CustomGeom::RemoveXSecSurf( const string& id )
-{
-    vector< XSecSurf* > new_vec;
-    for ( int i = 0 ; i < (int)m_XSecSurfVec.size() ; i++ )
-    {
-        if ( m_XSecSurfVec[i]->GetID() == id )
-        {
-            delete m_XSecSurfVec[i];
-        }
-        else
-        {
-            new_vec.push_back( m_XSecSurfVec[i] );
-        }
-    }
-
-    m_XSecSurfVec = new_vec;
-}
-
-
-//==== Get XSecSurf At Index =====//
-XSecSurf* CustomGeom::GetXSecSurf( int index )
-{
-    if ( index < 0 || index >= ( int )m_XSecSurfVec.size() )
-    {
-        return nullptr;
-    }
-    return m_XSecSurfVec[index];
-}
-
-
-//==== Skin XSec Surfs ====//
-void CustomGeom::SkinXSecSurf( bool closed_flag )
-{
-    if ( m_ConformalFlag )
-    {
-        ApplyConformalOffset( m_ConformalOffset );
-        m_ConformalFlag = false;
-    }
-
-
-    m_MainSurfVec.resize( m_XSecSurfVec.size() );
-    assert( m_XSecSurfVec.size() == m_MainSurfVec.size() );
-
-    for ( int i = 0 ; i < ( int )m_XSecSurfVec.size() ; i++ )
-    {
-        vector< CustomXSec* > xsec_vec;
-        for ( int j = 0 ; j < m_XSecSurfVec[i]->NumXSec() ; j++ )
-        {
-            CustomXSec* xs = dynamic_cast<CustomXSec*>( m_XSecSurfVec[i]->FindXSec( j ) );
-            if ( xs )
-            {
-                xsec_vec.push_back( xs );
-            }
-        }
-        //===== Make Sure Last XS is Exact ====//
-        if ( xsec_vec.size() > 2 && closed_flag )
-        {
-            xsec_vec[ xsec_vec.size()-1] = xsec_vec[0];
-        }
-
-        //==== Cross Section Curves & joint info ====//
-        vector< rib_data_type > rib_vec;
-
-        //==== Update XSec Location/Rotation ====//
-       for ( int j = 0 ; j < (int)xsec_vec.size() ; j++ )
-       {
-            CustomXSec* xs = xsec_vec[j];
-            xs->SetLateUpdateFlag( true );
-
-            VspCurve crv = xs->GetCurve();
-
-            //==== Load Ribs ====//
-            // GetRib answers with the Top station's conditions and applies them right around
-            // the section.  A CustomXSec is a SkinXSec, so it carries spines and per side
-            // conditions like any other, but this path does not build the per group rib sets
-            // that Fuselage and Stack blend -- so a CustomGeom whose sides disagree, or which
-            // has a spine, silently gets Top's skinning everywhere.  Wiring it to
-            // PrepSkinRibs and SkinRibsBlended is the fix; until then this is the limit, and
-            // it is a limit rather than a bug in GetRib.
-            if ( j == 0 )
-                rib_vec.push_back( xs->GetRib( true, false ) );
-            else if ( j == m_XSecSurfVec[i]->NumXSec() -1 )
-                rib_vec.push_back( xs->GetRib( false, true ) );
-            else
-                rib_vec.push_back( xs->GetRib( false, false ) );
-       }
-
-        if ( xsec_vec.size() >= 2 )
-        {
-            m_MainSurfVec[i].SkinRibsUniform( rib_vec, false );
-            m_MainSurfVec[i].SetMagicVParm( false );
-        }
-
-        vec3d axis, up;
-        m_XSecSurfVec[i]->GetBasicFrame( axis, up );
-        m_MainSurfVec[i].SetCapFrame( axis, up );
-    }
-}
-
-//==== Make A Copy Of MainSurf at Index and Apply XForm ====//
-void CustomGeom::CloneSurf( int index, Matrix4d & mat )
-{
-    if ( index >= 0 && index < (int)m_MainSurfVec.size() )
-    {
-        VspSurf clone = m_MainSurfVec[index];
-        clone.Transform( mat );
-        clone.SetClone( index, mat );
-        m_MainSurfVec.push_back( clone );
-    }
-}
-
-//==== Apply Transformation for a Main Surface ====//
-void CustomGeom::TransformSurf( int index, Matrix4d & mat )
-{
-    if ( index >= 0 && index < (int)m_MainSurfVec.size() )
-    {
-        m_MainSurfVec[index].Transform( mat );
-    }
-}
-
-//==== Set VSP Surf Type ====//
-void CustomGeom::SetVspSurfType( int type, int surf_id )
-{
-    if ( surf_id == -1 )
-        m_VspSurfType = type;
-    else
-    {
-        m_VspSurfTypeMap[surf_id] = type;
-    }
-}
-
-//==== Set VSP Surf CFD Type ====//
-void CustomGeom::SetVspSurfCfdType( int type, int surf_id )
-{
-    if ( surf_id == -1 )
-        m_VspSurfCfdType = type;
-    else
-    {
-        m_VspSurfCfdTypeMap[surf_id] = type;
-    }
 }
 
 //==== Encode Data Into XML Data Struct ====//
@@ -1059,17 +945,6 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
     return custom_node;
 }
 
-//==== Add All Default Sources Currently in Vec =====//
-void CustomGeom::AddDefaultSources( double base_len )
-{
-    for ( int i = 0 ; i < (int)m_DefaultSourceVec.size() ; i++ )
-    {
-        SourceData sd = m_DefaultSourceVec[i];
-        vsp::AddCFDSource( sd.m_Type, GetID(), sd.m_SurfIndex, sd.m_Len1, sd.m_Rad1, sd.m_U1, sd.m_W1,
-                           sd.m_Len2, sd.m_Rad2, sd.m_U2, sd.m_W2 );
-    }
-}
-
 //==== Compute Center of Rotation =====//
 void CustomGeom::ComputeCenter()
 {
@@ -1088,8 +963,11 @@ void CustomGeom::ComputeCenter()
         return;
 
     //==== No Custom Script - Use Default ====//
+    // From the last cross section but one of the first surface.
     if ( m_XSecSurfVec.size() < 1 )
-         return;
+    {
+        return;
+    }
 
     // The last section's X is the length.
     int index = m_XSecSurfVec[0]->NumXSec() - 1;
@@ -1097,8 +975,8 @@ void CustomGeom::ComputeCenter()
 
     if ( xs )
     {
-        m_Center = vec3d(0,0,0);
-        m_Center.set_x( m_Origin()*xs->GetLoc().x() );
+        m_Center = vec3d( 0, 0, 0 );
+        m_Center.set_x( m_Origin() * xs->GetLoc().x() );
     }
 }
 
@@ -1114,35 +992,4 @@ void CustomGeom::ApplyScale( double currentScale )
 
     //==== Call Script ====//
     ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void Scale(double s)", true, currentScale );
-}
-
-//==== Trigger Conformal XSec Offset =====//
-void CustomGeom::OffsetXSecs( double off )
-{
-    m_ConformalFlag = true;
-    m_ConformalOffset = off;
-    m_SurfDirty = true;
-}
-
-//==== Apply Conformal Offset ====//
-void CustomGeom::ApplyConformalOffset( double off )
-{
-
-    for ( int i = 0 ; i < ( int )m_XSecSurfVec.size() ; i++ )
-    {
-
-        int nxsec = m_XSecSurfVec[i]->NumXSec();
-        for ( int j = 0 ; j < nxsec ; j++ )
-        {
-            XSec* xs = m_XSecSurfVec[i]->FindXSec( j );
-            if ( xs )
-            {
-                XSecCurve* xsc = xs->GetXSecCurve();
-                if ( xsc )
-                {
-                    xsc->OffsetCurve( off );
-                }
-            }
-        }
-    }
 }

@@ -39,6 +39,7 @@ CustomGeomMgr - store parsed scripts
 #include "Geom.h"
 #include "XSec.h"
 #include "XSecSurf.h"
+#include "XSecSurfGeom.h"
 
 #include <unordered_map>
 using std::unordered_map;
@@ -679,7 +680,7 @@ protected:
     Parms and the GUI, and its Update function whenever something changes, which is where the cross
     sections are placed and SkinXSecSurf is called.
 */
-class CustomGeom : public Geom
+class CustomGeom : public XSecSurfGeom
 {
 public:
     CustomGeom( Vehicle* vehicle_ptr );
@@ -705,37 +706,27 @@ public:
     void AddUpdateGui( const GuiUpdate & gu );
     vector< GuiUpdate > GetGuiUpdateVec();
 
-    //==== Add XSec Surface Return ID =====//
-    string AddXSecSurf();
-    void RemoveXSecSurf( const string& id );
-    void ClearXSecSurfs();
-
-    virtual int GetNumXSecSurfs() const                   { return ( int )m_XSecSurfVec.size(); }
-    virtual XSecSurf* GetXSecSurf( int index );
-
-    //==== Skin XSecs ====//
-    virtual void SkinXSecSurf( bool closed_flag );
-    virtual void CloneSurf( int index, Matrix4d & mat );
-    virtual void TransformSurf( int index, Matrix4d & mat );
-
     //==== Encode/Decode XML ====//
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    //==== Set VSP Surf Type ====//
-    virtual void SetVspSurfType( int type, int surf_id = -1 );
-    virtual void SetVspSurfCfdType( int type, int surf_id = -1);
-
-    //==== CFD Sources =====//
-    virtual void AddDefaultSources( double base_len = 1.0);
-    virtual void SetUpDefaultSource( SourceData & sd )      { m_DefaultSourceVec.push_back( sd ); }
-    virtual void ClearAllDefaultSources()                   { m_DefaultSourceVec.clear(); }
-
     virtual void ComputeCenter();
     virtual void ApplyScale( double currentScale );
 
-    //==== Offset XSecs For Conformal =====//
-    virtual void OffsetXSecs( double off );
+    //==== The Script's Surfaces ====//
+    string AddXSecSurf();
+    void RemoveXSecSurf( const string& id );
+    virtual void ClearXSecSurfs();
+
+    // The skinned and flagged types of one surface, or of every surface where surf_id is -1.
+    void SetVspSurfType( int type, int surf_id );
+    virtual int GetVspSurfType( int surf_id ) const;
+    void SetVspSurfCfdType( int type, int surf_id );
+
+    //==== CFD Sources =====//
+    virtual void AddDefaultSources( double base_len = 1.0 );
+    void SetUpDefaultSource( SourceData & sd )              { m_DefaultSourceVec.push_back( sd ); }
+    void ClearAllDefaultSources()                           { m_DefaultSourceVec.clear(); }
 
 protected:
 
@@ -746,24 +737,17 @@ protected:
     vector< Parm* > m_CustomGeomParmVec;    // Storage For Pointers
     vector< GuiDef > m_GuiDefVec;           // Gui Definition
     vector< GuiUpdate > m_UpdateGuiVec;     // Match Gui with Parms
-    vector< XSecSurf* > m_XSecSurfVec;
     vector< int > m_TriggerVec;
-    vector< SourceData > m_DefaultSourceVec;
-
-    int m_VspSurfType;
-    unordered_map< int, int > m_VspSurfTypeMap;
-    int m_VspSurfCfdType;
-    unordered_map< int, int > m_VspSurfCfdTypeMap;
-
 
     virtual void UpdateSurf();
-    // Updates the cfd surface types
-    // Needed for transparent custom geoms
+
+    // The types a surface was given of its own, over those every surface was given.  Needed for transparent
+    // custom geoms.
     virtual void UpdateFlags();
 
-    bool m_ConformalFlag;
-    double m_ConformalOffset;
-    virtual void ApplyConformalOffset( double off );
+    unordered_map< int, int > m_VspSurfTypeMap;
+    unordered_map< int, int > m_VspSurfCfdTypeMap;
+    vector< SourceData > m_DefaultSourceVec;
 };
 
 
