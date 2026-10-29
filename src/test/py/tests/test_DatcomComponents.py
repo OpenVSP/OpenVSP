@@ -211,3 +211,76 @@ def testBodyRotatesAboutOriginAlongItsLengthAndKeepsItWhenReadBack():
     assert_same( sample( gid ), sample( roundtrip( gid ) ) )
 
 
+#===== MDC_PROTUB =====#
+
+@pytest.mark.parametrize( "ptype,nsurf", [ ( 1, 1 ), ( 2, 1 ), ( 3, 4 ), ( 4, 1 ), ( 5, 1 ), ( 6, 1 ) ] )
+def testProtuberanceTypesHaveTheirSurfaces( ptype, nsurf ):
+    gid = new( "MDC_PROTUB", PTYPE=ptype )
+    assert vsp.GetNumMainSurfs( gid ) == nsurf
+
+
+def testProtuberanceSetHasNLocCopiesSpacedEvenly():
+    gid = new( "MDC_PROTUB", PTYPE=5, NLOC=4 )
+    assert vsp.GetNumMainSurfs( gid ) == 4
+    for k in range( 4 ):
+        assert get( gid, "PHIPRO_%d" % ( k + 1 ) ) == pytest.approx( 90.0 * k )
+
+
+def testProtuberanceTakesItsRollsWhenTheyAreGiven():
+    gid = new( "MDC_PROTUB", PTYPE=5, NLOC=2, PHIPROFlag=1, PHIPRO_1=30.0, PHIPRO_2=100.0 )
+    assert get( gid, "PHIPRO_1" ) == pytest.approx( 30.0 )
+    assert get( gid, "PHIPRO_2" ) == pytest.approx( 100.0 )
+
+
+def testFairingIsHalfAnEllipsoidOnTheTopLine():
+    # The DATCOM manual's FAIRING: the top half of an ellipsoid LPROT long and WPROT wide at its flat base, which is
+    # on the body's top line, and HPROT high above it.
+    gid = new( "MDC_PROTUB", PTYPE=6, RBODY=6.0, LPROT_1=5.0, WPROT_1=2.0, HPROT_1=1.0 )
+    place( gid, 14.0 )
+    pts = [ vsp.CompPnt01( gid, 0, i / 64, j / 64 ) for i in range( 65 ) for j in range( 65 ) ]
+    assert min( p.x() for p in pts ) == pytest.approx( 11.5, abs=1e-6 )
+    assert max( p.x() for p in pts ) == pytest.approx( 16.5, abs=1e-6 )
+    assert max( abs( p.y() ) for p in pts ) == pytest.approx( 1.0, abs=1e-6 )
+    assert max( p.z() for p in pts ) == pytest.approx( 7.0, abs=1e-6 )
+    assert min( p.z() for p in pts ) == pytest.approx( 6.0, abs=1e-9 )
+
+    # Every point is on the base's plane, inside the ellipsoid, or on the ellipsoid to within the round cap's fit.
+    for p in pts:
+        f = math.sqrt( ( ( p.x() - 14.0 ) / 2.5 ) ** 2 + p.y() ** 2 + ( p.z() - 6.0 ) ** 2 )
+        if abs( p.z() - 6.0 ) > 1e-9:
+            assert abs( f - 1.0 ) < 5e-4
+
+    # The round cap's poles, where its lines across gather, are at the ends of its length.
+    poles = set()
+    for j in range( 161 ):
+        col = [ vsp.CompPnt01( gid, 0, 0.5 + 0.5 * i / 40, j / 160 ) for i in range( 41 ) ]
+        if max( vsp.dist( col[0], q ) for q in col ) < 1e-9:
+            poles.add( ( round( col[0].x(), 6 ), round( col[0].y(), 6 ), round( col[0].z(), 6 ) ) )
+    assert poles == { ( 11.5, 0.0, 6.0 ), ( 16.5, 0.0, 6.0 ) }
+
+
+def testBlockStandsOnTheMoldLineAtXprot():
+    gid = new( "MDC_PROTUB", PTYPE=5, RBODY=1.0, LPROT_1=0.4, WPROT_1=0.2, HPROT_1=0.3, OPROT_1=0.1 )
+    place( gid, 3.0 )
+    xlo, xhi = extent( gid, 0 )
+    assert xlo == pytest.approx( 2.8, abs=1e-6 )
+    assert xhi == pytest.approx( 3.2, abs=1e-6 )
+    zlo, zhi = extent( gid, 2 )
+    assert zhi == pytest.approx( 1.0 + 0.1 + 0.3, abs=1e-6 )
+
+    # Raised OPROT above the mold line it stands on nothing, and with no offset it reaches down into the body.
+    assert zlo == pytest.approx( 1.0 + 0.1, abs=1e-6 )
+    put( gid, OPROT_1=0.0 )
+    zlo, zhi = extent( gid, 2 )
+    assert zlo < 1.0
+    assert zhi == pytest.approx( 1.0 + 0.3, abs=1e-6 )
+
+
+def testProtuberancesLimitTheIndexToTheirNumber():
+    gid = new( "MDC_PROTUB", NLOC=3 )
+    put( gid, LocIndex=3 )
+    assert get( gid, "LocIndex" ) == 3
+    put( gid, NLOC=2 )
+    assert get( gid, "LocIndex" ) == 2
+
+
