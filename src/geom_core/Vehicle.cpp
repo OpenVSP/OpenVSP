@@ -2582,6 +2582,26 @@ static void MatchCenterPlacement( Geom* from, Geom* to )
     }
 }
 
+// What a Geom shows that is not a Parm: the sets it is in, its color and material, and how it is drawn.
+static void CopyPresentation( Geom* from, Geom* to )
+{
+    vector< bool > sets = from->GetSetFlags();
+    for ( int i = 0; i < ( int )sets.size(); i++ )
+    {
+        to->SetSetFlag( i, sets[i] );
+    }
+
+    vec3d color = from->GetColor();
+    to->SetColor( color.x(), color.y(), color.z() );
+    to->SetMaterial( *from->GetMaterial() );
+
+    to->m_GuiDraw.SetDisplayType( from->m_GuiDraw.GetDisplayType() );
+    to->m_GuiDraw.SetDrawType( from->m_GuiDraw.GetDrawType() );
+    to->m_GuiDraw.SetDisplayChildrenFlag( from->m_GuiDraw.GetDisplayChildrenFlag() );
+    to->m_GuiDraw.SetDispSubSurfFlag( from->m_GuiDraw.GetDispSubSurfFlag() );
+    to->m_GuiDraw.SetDispFeatureFlag( from->m_GuiDraw.GetDispFeatureFlag() );
+}
+
 // A Fuselage numbers its order policies MONOTONIC, LOOP, FREE; a Stack FREE, LOOP.
 static int StackOrderPolicy( int fuse_policy )
 {
@@ -2713,22 +2733,7 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
 
     //==== What is not a Parm ====//
     stack->SetName( fuse->GetName() );
-
-    vector< bool > sets = fuse->GetSetFlags();
-    for ( int i = 0; i < ( int )sets.size(); i++ )
-    {
-        stack->SetSetFlag( i, sets[i] );
-    }
-
-    vec3d color = fuse->GetColor();
-    stack->SetColor( color.x(), color.y(), color.z() );
-    stack->SetMaterial( *fuse->GetMaterial() );
-
-    stack->m_GuiDraw.SetDisplayType( fuse->m_GuiDraw.GetDisplayType() );
-    stack->m_GuiDraw.SetDrawType( fuse->m_GuiDraw.GetDrawType() );
-    stack->m_GuiDraw.SetDisplayChildrenFlag( fuse->m_GuiDraw.GetDisplayChildrenFlag() );
-    stack->m_GuiDraw.SetDispSubSurfFlag( fuse->m_GuiDraw.GetDispSubSurfFlag() );
-    stack->m_GuiDraw.SetDispFeatureFlag( fuse->m_GuiDraw.GetDispFeatureFlag() );
+    CopyPresentation( fuse, stack );
 
     fuse->m_GuiDraw.getTextureMgr()->HandTexturesTo( stack->m_GuiDraw.getTextureMgr() );
 
