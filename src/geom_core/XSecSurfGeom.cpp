@@ -322,6 +322,27 @@ void XSecSurfGeom::AddPolySection( XSecSurf* surf, double x, const vector< doubl
     edit->SetPntVecs( u, pts, rad );
 }
 
+void XSecSurfGeom::HideEndCaps()
+{
+    m_CapUMinOption.SetAllowedVals( CapTypes( true ) );
+    m_CapUMaxOption.SetAllowedVals( CapTypes( true ) );
+
+    vector< Parm* > cap_parms = {
+        &m_CapUMinOption, &m_CapUMinTess, &m_CapUMinLength, &m_CapUMinOffset, &m_CapUMinStrength,
+        &m_CapUMinSweepFlag, &m_CapUMinRelFlag, &m_CapUMinLengthDim, &m_CapUMinOffsetDim, &m_CapUMinRadius,
+        &m_CapUMinRadiusDim, &m_CapUMinOgiveAngle, &m_CapUMinPowerExp, &m_CapUMinHaackC, &m_CapUMinTruncFlag,
+        &m_CapUMinShearFlag, &m_CapUMinScaledFlag,
+        &m_CapUMaxOption, &m_CapUMaxLength, &m_CapUMaxOffset, &m_CapUMaxStrength, &m_CapUMaxSweepFlag,
+        &m_CapUMaxRelFlag, &m_CapUMaxLengthDim, &m_CapUMaxOffsetDim, &m_CapUMaxRadius, &m_CapUMaxRadiusDim,
+        &m_CapUMaxOgiveAngle, &m_CapUMaxPowerExp, &m_CapUMaxHaackC, &m_CapUMaxTruncFlag, &m_CapUMaxShearFlag,
+        &m_CapUMaxScaledFlag };
+
+    for ( int i = 0; i < ( int )cap_parms.size(); i++ )
+    {
+        cap_parms[i]->Deactivate();
+    }
+}
+
 void XSecSurfGeom::SpaceRolls( bool given, int n, const vector< Parm* > & phi )
 {
     if ( given )

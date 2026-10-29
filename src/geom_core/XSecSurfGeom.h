@@ -89,6 +89,9 @@ protected:
     // evenly in its parameter.
     void AddPolySection( XSecSurf* surf, double x, const vector< double > & ys, const vector< double > & zs );
 
+    // A component that sets its own end caps takes every type, and leaves the Parms that describe them out of reach.
+    void HideEndCaps();
+
     // The rolls about x of n members, in degrees clockwise looking forward from the top: those the Parms hold where
     // given is set, and otherwise evenly spaced, written to the Parms.
     static void SpaceRolls( bool given, int n, const vector< Parm* > & phi );
