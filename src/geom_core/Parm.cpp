@@ -510,6 +510,9 @@ void LimIntParm::SetMultShift( int mult, int shift )
 {
     m_Mult = mult;
     m_Shift = shift;
+
+    // The value moves up to the next the rule allows.
+    m_Val = m_Mult * ceil( ( m_Val - m_Shift ) / m_Mult ) + m_Shift;
 }
 
 
