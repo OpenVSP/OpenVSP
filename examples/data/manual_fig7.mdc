@@ -1,0 +1,50 @@
+CASEID Protuberance Example Case
+DIM IN
+$FLTCON
+   NALPHA =  4.00, 
+   ALPHA  =  0.00,  2.00,  4.00,  6.00, 
+   NMACH  =  3.00, 
+   MACH   =  0.40,  0.80,  2.00, 
+   REN    =  3.0000E+06,  3.0000E+06,  3.0000E+06, 
+$END
+$REFQ
+   SREF = 113.0973, 
+   LREF = 12., 
+   XCG = 39., 
+   BLAYER = TURB, 
+$END
+$AXIBOD
+   TNOSE =    OGIVE, 
+   LNOSE =  12.0000, 
+   DNOSE =  12.0000, 
+   TRUNC =  .FALSE., 
+   LCENTR =  54.0000, 
+   DCENTR =  12.0000, 
+   TAFT =  CONICAL, 
+   LAFT =  12.0000, 
+   DAFT =   6.0000, 
+$END
+$PROTUB
+   NPROT = 4., 
+   PTYPE = FAIRING, VCYL, SHOE, BLOCK, 
+   XPROT = 14., 22., 39., 56., 
+   NLOC = 4., 4., 1., 1., 
+   LPROT = 5.00, 1.00, 10.00, 10.00, 10.00, 0.50, 
+   WPROT = 2.00, 1.00, 4.00, 0.25, 1.00, 2.00, 
+   HPROT = 1.00, 0.50, 0.10, 0.75, 0.25, 1.50, 
+   OPROT = 0.00, 0.00, 0.00, 0., 0., 0.00, 
+   PHIPRO = 0., 90., 180., 270., 45., 135., 225., 315., 0., 0., 
+$END
+$FINSET1
+   SECTYP =      HEX, 
+   SSPAN  =   0.0000,   9.0000, 
+   CHORD  =  14.0000,   8.0000, 
+   XLE    =  64.0000, 
+   SWEEP  =   0.0000, 
+   STA    =   1.0000, 
+   NPANEL =   4.0000, 
+   PHIF   =  45.0000, 135.0000, 225.0000, 315.0000, 
+$END
+PART
+SAVE
+NEXT CASE
