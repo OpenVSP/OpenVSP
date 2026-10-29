@@ -3000,6 +3000,17 @@ vector < double > SkinXSec::GetCurvatures( int side ) const
     return ret;
 }
 
+void SkinXSec::SetTanDerivatives( int side, double dxh, double drh, double dxw, double drw )
+{
+    double ah = atan2( drh, dxh ) * 180.0 / M_PI;
+    double aw = atan2( drw, dxw ) * 180.0 / M_PI;
+    double sh = sqrt( dxh * dxh + drh * drh );
+    double sw = sqrt( dxw * dxw + drw * drw );
+
+    SetTanAngles( side, ah, aw, ah, aw );
+    SetTanStrengths( side, sh, sw, sh, sw );
+}
+
 void SkinXSec::SetTanAngles( int side, double top, double right, double bottom, double left )
 {
     m_AllSymFlag = false;

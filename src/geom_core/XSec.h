@@ -535,6 +535,10 @@ public:
     virtual vector < double > GetTanStrengths( int side ) const;
     virtual vector < double > GetCurvatures( int side ) const;
 
+    // Leave the section along the curve with the derivatives of its half height and half width along x, by the
+    // tangent angles and strengths that give them.
+    virtual void SetTanDerivatives( int side, double dxh, double drh, double dxw, double drw );
+
     virtual void SetTanAngles( int side, double top, double right, double bottom, double left );
     virtual void SetTanSlews( int side, double top, double right, double bottom, double left );
     virtual void SetTanStrengths( int side, double top, double right, double bottom, double left );
