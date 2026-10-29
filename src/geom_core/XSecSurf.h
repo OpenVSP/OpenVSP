@@ -44,6 +44,7 @@ public:
     string InsertXSec( int type, int index );
     void ChangeXSecShape( int index, int type );
     virtual void DeleteAllXSecs();
+    void DeleteXSecsFrom( int index );
 
     void CopyXSecCurve( int index );
     void PasteXSecCurve( int index );

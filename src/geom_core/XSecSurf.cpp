@@ -265,6 +265,18 @@ void XSecSurf::DeleteAllXSecs()
     m_XSecIDVec.clear();
 }
 
+//==== Delete The XSecs From Index On ====//
+void XSecSurf::DeleteXSecsFrom( int index )
+{
+    while ( index >= 0 && ( int )m_XSecIDVec.size() > index )
+    {
+        XSec* xs = FindXSec( ( int )m_XSecIDVec.size() - 1 );
+        vector_remove_val( m_XSecPtrVec, xs );
+        m_XSecIDVec.pop_back();
+        delete xs;
+    }
+}
+
 //==== Insert XSec After Index ====//
 string XSecSurf::InsertXSec( int type, int index )
 {
