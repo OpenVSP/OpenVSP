@@ -1020,6 +1020,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[vsp::CLONE_GEOM_SCREEN] = new CloneScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::MDC_BOD_GEOM_SCREEN] = new MdcBodScreen( m_ScreenMgr );
     m_GeomScreenVec[vsp::MDC_PROTUB_GEOM_SCREEN] = new MdcProtubScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::MDC_INLET_GEOM_SCREEN] = new MdcInletScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
