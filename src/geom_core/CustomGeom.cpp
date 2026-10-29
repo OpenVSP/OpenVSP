@@ -653,6 +653,10 @@ CustomGeom::CustomGeom( Vehicle* vehicle_ptr ) : XSecSurfGeom( vehicle_ptr )
     m_Name = "CustomGeom";
     m_Type.m_Name = "Custom";
     m_Type.m_Type = CUSTOM_GEOM_TYPE;
+
+    // A script can build any shape, so its end caps take every type.
+    m_CapUMinOption.SetAllowedVals( CapTypes( true ) );
+    m_CapUMaxOption.SetAllowedVals( CapTypes( true ) );
 }
 
 //==== Destructor ====//
