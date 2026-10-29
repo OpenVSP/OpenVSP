@@ -58,6 +58,14 @@ protected:
     // A cross section of type type, appended to the surface and put at loc, with no continuity to its neighbors.
     BareXSec* AppendXSec( XSecSurf* xsec_surf, int type, const vec3d & loc );
 
+    // The multiple Tess_W less one must be of, for rows around to land on every corner of every section: the
+    // least common multiple of the sections' numbers of corners, those of a linear section its points, a box's
+    // eight counting the middles of its sides, and an ellipse's four, the ends of its axes.  A component sets
+    // m_TessMult to 1 before it builds its sections, names each section's corners with NeedTessW, and then gives
+    // it to Tess_W.
+    void NeedTessW( int n );
+    int m_TessMult;
+
     // A linear section at x through the points ( ys[i], zs[i] ), closed back to the first, its points spaced
     // evenly in its parameter.
     void AddPolySection( XSecSurf* surf, double x, const vector< double > & ys, const vector< double > & zs );

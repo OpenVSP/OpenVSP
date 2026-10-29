@@ -20,6 +20,7 @@ XSecSurfGeom::XSecSurfGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_VspSurfCfdType = vsp::CFD_NORMAL;
     m_ConformalFlag = false;
     m_ConformalOffset = 0;
+    m_TessMult = 1;
 }
 
 //==== Destructor ====//
@@ -225,6 +226,19 @@ BareXSec* XSecSurfGeom::AppendXSec( XSecSurf* xsec_surf, int type, const vec3d &
         xs->SetContinuity( 0 );
     }
     return xs;
+}
+
+void XSecSurfGeom::NeedTessW( int n )
+{
+    int a = m_TessMult;
+    int b = n;
+    while ( b != 0 )
+    {
+        int t = a % b;
+        a = b;
+        b = t;
+    }
+    m_TessMult = m_TessMult / a * n;
 }
 
 // A linear section at x through the points ( ys[i], zs[i] ), closed back to the first, its points spaced
