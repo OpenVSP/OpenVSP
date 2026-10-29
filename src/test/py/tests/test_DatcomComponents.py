@@ -713,3 +713,56 @@ def testEachComponentIsCopiedToTheSameSurfaces( name ):
     assert_no_errors()
 
 
+# Components with more stations, panels, protuberances, members and inlets than a new one has, each with values of
+# its own: the Parms each count makes are there when the file's values are read.
+COUNTED = [
+    ( "MDC_FIN", dict( NSPAN=4, NPANEL=3, SSPAN_2=0.5, SSPAN_3=1.0, SSPAN_4=1.6, CHORD_3=0.6, CHORD_4=0.3,
+                      SWEEP_3=30.0, ZUPPER_4=0.04, PHIFFlag=1, PHIF_1=10.0, PHIF_2=130.0, PHIF_3=250.0, GAM_3=15.0 ),
+      [ "SSPAN_4", "CHORD_4", "SWEEP_3", "ZUPPER_4", "PHIF_3", "GAM_3" ] ),
+    ( "MDC_PROTUB", dict( PTYPE=3, NLOC=3, PHIPROFlag=1, PHIPRO_1=10.0, PHIPRO_2=100.0, PHIPRO_3=200.0, WPROT_4=0.6,
+                         HPROT_4=0.08 ),
+      [ "PHIPRO_3", "WPROT_4", "HPROT_4" ] ),
+    ( "MDC_INLET", dict( NIN=3, PHIFlag=1, PHI_1=20.0, PHI_2=140.0, PHI_3=260.0 ), [ "PHI_2", "PHI_3" ] ),
+]
+
+
+@pytest.mark.parametrize( "name,parms,check", COUNTED, ids=[ c[0] for c in COUNTED ] )
+def testEachComponentReadsBackTheParmsItsCountsMake( name, parms, check ):
+    gid = new( name, **parms )
+    before = sample( gid )
+    back = roundtrip( gid )
+    for p in check:
+        assert get( back, p ) == pytest.approx( parms[p] )
+    assert_same( before, sample( back ) )
+
+
+def testFinSetUserSectionIsAFileAirfoilKeptWithTheComponent():
+    gid = new( "MDC_FIN", SECTYP=3, NPANEL=1 )
+    xs = vsp.GetMdcFinUserXSec( gid )
+    assert xs
+
+    up = [ vsp.vec3d( i / 10.0, 0.08 * math.sin( math.pi * i / 10.0 ), 0.0 ) for i in range( 11 ) ]
+    lo = [ vsp.vec3d( i / 10.0, -0.02 * math.sin( math.pi * i / 10.0 ), 0.0 ) for i in range( 11 ) ]
+    vsp.SetAirfoilPnts( xs, up, lo )
+    vsp.Update()
+    before = sample( gid )
+
+    back = roundtrip( gid )
+    assert_same( before, sample( back ) )
+    saved_up = vsp.GetAirfoilUpperPnts( vsp.GetMdcFinUserXSec( back ) )
+    assert len( saved_up ) == 11
+    assert saved_up[5].y() == pytest.approx( 0.08, abs=1e-9 )
+
+
+def testCopiedFinSetHasAUserSectionOfItsOwn():
+    gid = new( "MDC_FIN", SECTYP=3, NPANEL=1 )
+    up = [ vsp.vec3d( i / 10.0, 0.08 * math.sin( math.pi * i / 10.0 ), 0.0 ) for i in range( 11 ) ]
+    lo = [ vsp.vec3d( i / 10.0, -0.02 * math.sin( math.pi * i / 10.0 ), 0.0 ) for i in range( 11 ) ]
+    vsp.SetAirfoilPnts( vsp.GetMdcFinUserXSec( gid ), up, lo )
+    vsp.Update()
+
+    vsp.CopyGeomToClipboard( gid )
+    copy = vsp.PasteGeomClipboard()[0]
+    vsp.Update()
+    assert vsp.GetMdcFinUserXSec( copy ) != vsp.GetMdcFinUserXSec( gid )
+    assert_same( sample( gid ), sample( copy ) )
