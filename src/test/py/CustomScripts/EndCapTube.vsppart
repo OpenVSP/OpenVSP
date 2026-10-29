@@ -1,0 +1,79 @@
+// An open tube for testing end caps on a Custom Geom.  Its nose section is an ellipse raised and moved
+// sideways, so a capped nose tip is off every axis.  NumCopy clones the tube that many times, each one
+// further along Y and turned Turn degrees about Z, so the Geom has several main surfaces.  Tilt turns the
+// tube's cross section surface Tilt degrees about Z.
+
+void Init()
+{
+    string length = AddParm( PARM_DOUBLE_TYPE, "Length", "Design" );
+    SetParmValLimits( length, 6.0, 0.001, 1.0e12 );
+    SetParmDescript( length, "Length of the tube" );
+
+    string num_copy = AddParm( PARM_INT_TYPE, "NumCopy", "Design" );
+    SetParmValLimits( num_copy, 0, 0, 3 );
+    SetParmDescript( num_copy, "Number of copies of the tube" );
+
+    string turn = AddParm( PARM_DOUBLE_TYPE, "Turn", "Design" );
+    SetParmValLimits( turn, 0.0, -180.0, 180.0 );
+    SetParmDescript( turn, "Angle in degrees each copy is turned about Z" );
+
+    string tilt = AddParm( PARM_DOUBLE_TYPE, "Tilt", "Design" );
+    SetParmValLimits( tilt, 0.0, -180.0, 180.0 );
+    SetParmDescript( tilt, "Angle in degrees the cross section surface is turned about Z" );
+
+    string xsec_surf = AddXSecSurf();
+    AppendCustomXSec( xsec_surf, XS_ELLIPSE );
+    AppendCustomXSec( xsec_surf, XS_CIRCLE );
+    AppendCustomXSec( xsec_surf, XS_CIRCLE );
+}
+
+void InitGui()
+{
+    AddGui( GDEV_TAB, "Design" );
+    AddGui( GDEV_YGAP );
+    AddGui( GDEV_DIVIDER_BOX, "Design" );
+    AddGui( GDEV_SLIDER_ADJ_RANGE_INPUT, "Length", "Length", "Design" );
+    AddGui( GDEV_COUNTER, "Copies", "NumCopy", "Design" );
+}
+
+void UpdateGui()
+{
+}
+
+void UpdateSurf()
+{
+    string geom_id = GetCurrCustomGeom();
+
+    double len = GetParmVal( GetParm( geom_id, "Length", "Design" ) );
+    int num_copy = GetIntParmVal( GetParm( geom_id, "NumCopy", "Design" ) );
+    double turn = GetParmVal( GetParm( geom_id, "Turn", "Design" ) );
+    double tilt = GetParmVal( GetParm( geom_id, "Tilt", "Design" ) );
+
+    string xsec_surf = GetXSecSurf( geom_id, 0 );
+    Matrix4d tilt_mat;
+    tilt_mat.rotateZ( tilt );
+    SetXSecSurfGlobalXForm( xsec_surf, tilt_mat );
+    string xsec0 = GetXSec( xsec_surf, 0 );
+    string xsec1 = GetXSec( xsec_surf, 1 );
+    string xsec2 = GetXSec( xsec_surf, 2 );
+
+    SetParmVal( GetXSecParm( xsec0, "Ellipse_Width" ), 1.0 );
+    SetParmVal( GetXSecParm( xsec0, "Ellipse_Height" ), 0.6 );
+    SetCustomXSecLoc( xsec0, vec3d( 0.0, 0.3, 0.5 ) );
+
+    SetParmVal( GetXSecParm( xsec1, "Circle_Diameter" ), 2.0 );
+    SetCustomXSecLoc( xsec1, vec3d( 0.5 * len, 0.0, 0.0 ) );
+
+    SetParmVal( GetXSecParm( xsec2, "Circle_Diameter" ), 1.0 );
+    SetCustomXSecLoc( xsec2, vec3d( len, 0.0, 0.2 ) );
+
+    SkinXSecSurf();
+
+    for ( int i = 1 ; i <= num_copy ; i++ )
+    {
+        Matrix4d mat;
+        mat.translatef( 0.0, 4.0 * i, 0.0 );
+        mat.rotateZ( turn );
+        CloneSurf( 0, mat );
+    }
+}

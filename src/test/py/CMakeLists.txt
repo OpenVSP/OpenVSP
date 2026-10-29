@@ -18,6 +18,8 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/CustomScripts/IDPart.vsppart
                 ${PYTEST_WORK_DIR}/CustomScripts/IDPart.vsppart COPYONLY )
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/CustomScripts/GuiArgsPart.vsppart
                 ${PYTEST_WORK_DIR}/CustomScripts/GuiArgsPart.vsppart COPYONLY )
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/CustomScripts/EndCapTube.vsppart
+                ${PYTEST_WORK_DIR}/CustomScripts/EndCapTube.vsppart COPYONLY )
 
 # The generated sample code test reads a fuselage cross section file and an
 # airfoil file by relative path, the same way the AngelScript half does.  Copy
