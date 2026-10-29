@@ -92,6 +92,10 @@ protected:
     // A component that sets its own end caps takes every type, and leaves the Parms that describe them out of reach.
     void HideEndCaps();
 
+    // The size a Rel and Abs pair of Parms makes: the ratio times upper where rel_flag is set, else the abs size,
+    // which sets the ratio.
+    static double RelAbs( Parm & abs_parm, Parm & ratio_parm, BoolParm & rel_flag, double upper );
+
     // The rolls about x of n members, in degrees clockwise looking forward from the top: those the Parms hold where
     // given is set, and otherwise evenly spaced, written to the Parms.
     static void SpaceRolls( bool given, int n, const vector< Parm* > & phi );

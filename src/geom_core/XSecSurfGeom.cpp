@@ -343,6 +343,19 @@ void XSecSurfGeom::HideEndCaps()
     }
 }
 
+double XSecSurfGeom::RelAbs( Parm & abs_parm, Parm & ratio_parm, BoolParm & rel_flag, double upper )
+{
+    if ( rel_flag() )
+    {
+        abs_parm.Set( ratio_parm() * upper );
+    }
+    else if ( upper > 1.0e-12 )
+    {
+        ratio_parm.Set( abs_parm() / upper );
+    }
+    return abs_parm();
+}
+
 void XSecSurfGeom::SpaceRolls( bool given, int n, const vector< Parm* > & phi )
 {
     if ( given )
