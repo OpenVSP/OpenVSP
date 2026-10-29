@@ -2540,6 +2540,48 @@ void Vehicle::DeleteClipBoard()
     m_ClipBoard.clear();
 }
 
+// A Geom that rotates about a point along its length, m_Center, is replaced by one that rotates about its origin,
+// or the other way round.  The rotations are the same either way; only where the origin lands differs.  An absolute
+// location names where the center is, so it differs whenever there is a center; a relative one only once there is a
+// rotation to pivot.  The new Geom's translation is read off the old one's frame, so the two share one frame and
+// nothing built in that frame moves.
+static void MatchCenterPlacement( Geom* from, Geom* to )
+{
+    bool differs;
+    if ( from->m_AbsRelFlag() == vsp::ABS )
+    {
+        differs = true;
+    }
+    else
+    {
+        differs = from->m_XRelRot() != 0.0 || from->m_YRelRot() != 0.0 || from->m_ZRelRot() != 0.0;
+    }
+
+    if ( differs && from->m_Center.mag() != 0.0 )
+    {
+        if ( from->m_AbsRelFlag() == vsp::ABS )
+        {
+            vec3d trans = from->getModelMatrix().getTranslation();
+            to->m_XLoc = trans.x();
+            to->m_YLoc = trans.y();
+            to->m_ZLoc = trans.z();
+        }
+        else
+        {
+            Matrix4d local = from->getAttachMatrix();
+            local.affineInverse();
+            local.matMult( from->getModelMatrix().data() );
+
+            vec3d trans = local.getTranslation();
+            to->m_XRelLoc = trans.x();
+            to->m_YRelLoc = trans.y();
+            to->m_ZRelLoc = trans.z();
+        }
+
+        to->Update();
+    }
+}
+
 // A Fuselage numbers its order policies MONOTONIC, LOOP, FREE; a Stack FREE, LOOP.
 static int StackOrderPolicy( int fuse_policy )
 {
@@ -2667,43 +2709,7 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
     stack->Update();
 
     //==== Placement ====//
-    // A Fuselage rotates about m_Center, a Stack about its origin.  The rotations are the same
-    // either way; only where the origin lands differs.  An absolute location names where the
-    // center is, so it differs whenever there is a center; a relative one only once there is a
-    // rotation to pivot.  The Stack's translation is read off the Fuselage's frame.
-    bool differs;
-    if ( fuse->m_AbsRelFlag() == vsp::ABS )
-    {
-        differs = true;
-    }
-    else
-    {
-        differs = fuse->m_XRelRot() != 0.0 || fuse->m_YRelRot() != 0.0 || fuse->m_ZRelRot() != 0.0;
-    }
-
-    if ( differs && fuse->m_Center.mag() != 0.0 )
-    {
-        if ( fuse->m_AbsRelFlag() == vsp::ABS )
-        {
-            vec3d trans = fuse->getModelMatrix().getTranslation();
-            stack->m_XLoc = trans.x();
-            stack->m_YLoc = trans.y();
-            stack->m_ZLoc = trans.z();
-        }
-        else
-        {
-            Matrix4d local = fuse->getAttachMatrix();
-            local.affineInverse();
-            local.matMult( fuse->getModelMatrix().data() );
-
-            vec3d trans = local.getTranslation();
-            stack->m_XRelLoc = trans.x();
-            stack->m_YRelLoc = trans.y();
-            stack->m_ZRelLoc = trans.z();
-        }
-
-        stack->Update();
-    }
+    MatchCenterPlacement( fuse, stack );
 
     //==== What is not a Parm ====//
     stack->SetName( fuse->GetName() );
