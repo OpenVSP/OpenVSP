@@ -289,7 +289,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                 m_geo_surfNum.push_back( 0 );
                 m_geo_expandedList.push_back( geom->m_ExpandedListFlag() );
 
-                if ( geom->GetBehaviorType() == CUSTOM_GEOM_TYPE )
+                if ( IsXSecSurfGeomType( geom->GetBehaviorType() ) )
                 {
                     if ( geom->GetSurfType( iref ) == vsp::NORMAL_SURF )
                     {
@@ -348,7 +348,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     }
                     else
                     {
-                        if ( geom->GetBehaviorType() == CUSTOM_GEOM_TYPE )
+                        if ( IsXSecSurfGeomType( geom->GetBehaviorType() ) )
                         {
                             if ( geom->GetSurfType(j) == vsp::NORMAL_SURF )
                             {

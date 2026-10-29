@@ -2119,7 +2119,7 @@ string ParasiteDragScreen::GetComponentTableLabel( int subsurfFlag, const string
     {
         if ( rowVec[index].MasterRow )
         {
-            if ( veh->FindGeom( rowVec[index].GeomID )->GetBehaviorType() == CUSTOM_GEOM_TYPE )
+            if ( IsXSecSurfGeomType( veh->FindGeom( rowVec[index].GeomID )->GetBehaviorType() ) )
             {
                 snprintf( str, sizeof( str ),  "(+) %s", rowVec[index].Label.c_str() );
             }

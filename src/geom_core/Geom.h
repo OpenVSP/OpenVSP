@@ -62,6 +62,14 @@ enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_
        NUM_GEOM_TYPE
      };
 
+// A Geom of surfaces that are each skinned through an XSecSurf, and so each have a surface type of their own:
+// a Custom component, or one built in C++ on XSecSurfGeom.
+inline bool IsXSecSurfGeomType( int geom_type )
+{
+    return geom_type == CUSTOM_GEOM_TYPE || geom_type == MDC_BOD_GEOM_TYPE || geom_type == MDC_PROTUB_GEOM_TYPE ||
+           geom_type == MDC_INLET_GEOM_TYPE || geom_type == MDC_FIN_GEOM_TYPE;
+}
+
 class GeomType
 {
 public:
