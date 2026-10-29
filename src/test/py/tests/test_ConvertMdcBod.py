@@ -154,6 +154,28 @@ def testBodyReplaceTakesTheBodysPlaceAndWhatItOwns():
     assert apart( child_before, points( child, 3, 9 ) ) < 1e-9
 
 
+CAMBERED_OGIVES = [
+    ( "ogive boattail", dict( TAFT=1, SLPTAL=0.05, ZAFT=0.3, **AFT, **CAMBER ) ),
+    ( "ogive flare", dict( LAFT=2.0, DAFT=1.6, TAFT=1, **CAMBER ) ),
+    ( "ellbod ogive boattail", dict( NAMELIST=1, ENOSE=0.5, ECENTR=0.7, WAFT=0.6, LAFT=2.0, TAFT=1, **CAMBER ) ),
+]
+
+
+@pytest.mark.parametrize( "name,parms", CAMBERED_OGIVES, ids=[ n for n, _ in CAMBERED_OGIVES ] )
+def testCamberAcrossAnOgiveIsNearlyTheSame( name, parms ):
+    # The camber lifts each point of the surface between the sections, and tilts what it goes along.  The Stack's
+    # tangent conditions are tilted the same at the four sides of each section, and are blended between them.  What is
+    # left is the blend, a few thousandths of the body's size.
+    vsp.VSPRenew()
+    mid = new( "MDC_BOD", **parms )
+
+    sid = vsp.ConvertMdcBodToStack( mid, False )
+    assert_no_errors()
+    vsp.Update()
+
+    assert apart( points( mid, 21, 65 ), points( sid, 21, 65 ) ) < 8e-3
+
+
 def testBodyConvertsOnlyAMdcBod():
     vsp.VSPRenew()
     pod = new( "POD" )
