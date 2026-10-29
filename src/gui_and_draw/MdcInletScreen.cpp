@@ -9,7 +9,7 @@
 #include "ScreenMgr.h"
 
 //==== Constructor ====//
-MdcInletScreen::MdcInletScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_INLET" )
+MdcInletScreen::MdcInletScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "MDC_INLET", "MdcInlet.html" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );

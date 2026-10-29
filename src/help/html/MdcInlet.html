@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>MDC_INLET</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">MDC_INLET</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The MDC_INLET is a set of identical inlets on a body, laid out the
+way DATCOM lays them out with its INLET namelist: a top-mounted or
+side-mounted two-dimensional inlet, or an axisymmetric one, with a ramp
+or a cover, and a diverter that lifts it off the body. It models the
+outside of an inlet: its ramp, its cowl and the way it fairs into the
+body behind it. No duct is modeled. DATCOM estimates an inlet's normal
+force, side force, moments and axial force from these inputs.</p>
+<p>The controls carry the names and meanings of the namelist's inputs,
+so an inlet can be entered as DATCOM has it. The inlets stand on a body:
+an MDC_INLET that is a child of an <a href="MdcBod.html">MDC_BOD</a>
+takes the body's radius from it, and any other is told the radius (see
+<a href="#placing-an-inlet">Placing an Inlet</a>). The
+<code>datcom2vsp.py</code> script, in the examples, reads a DATCOM input
+file and builds a model with an MDC_INLET from its INLET namelist.</p>
+<p>The MDC_INLET has one tab of its own, Design. The <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
+described on their own pages. The Design tab sets</p>
+<ul>
+<li>the <a href="#types-of-inlet">type</a> and where the inlet <a
+href="#placing-an-inlet">stands</a>;</li>
+<li>the <a href="#stations">stations</a> that give its size and
+shape;</li>
+<li>the <a href="#ramp-and-cover">ramp and cover</a>;</li>
+<li>the <a href="#diverter">diverter</a>, or the lack of one;</li>
+<li>the <a href="#locations">number and roll angles</a> of the
+inlets.</li>
+</ul>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add the body, an <a href="MdcBod.html">MDC_BOD</a>, and an MDC_INLET
+as its child. A new MDC_INLET is a top-mounted two-dimensional inlet, 3
+long, at X = 4, on the default MDC_BOD.</li>
+<li>Choose <em>INTYPE</em>, and set <em>XINLT</em> to the inlet's
+leading edge. The inlet stands on the body there.</li>
+<li>Set the five stations' positions <em>X</em>, heights <em>H</em> and
+widths <em>W</em>.</li>
+<li>Choose whether the inlet is open or covered with <em>COVER</em>, and
+give an open inlet its <em>RAMP</em> angle.</li>
+<li>Set the diverter's <em>HDIV</em>, <em>XDIV</em> and <em>LDIV</em>,
+or set <em>HDIV</em> to zero for no diverter.</li>
+<li>Set <em>NIN</em>, the number of inlets, and, if they are not evenly
+spaced, turn on <em>PHI given</em> and give each its roll angle.</li>
+</ol>
+<h2 id="types-of-inlet">Types of Inlet</h2>
+<p><em>INTYPE</em> is one of three types (Figure 1).</p>
+<ul>
+<li>2DTOP: a top-mounted two-dimensional inlet, a box whose height
+<em>H</em> is out from the body and whose width <em>W</em> is across
+it.</li>
+<li>2DSIDE: a side-mounted two-dimensional inlet, the same box turned so
+that its height is across the body and its width out from it. The
+heights of the stations share one side, so the inlet is flush with that
+side where it is shorter than the tallest.</li>
+<li>AXI: an axisymmetric inlet, a body of revolution whose diameters are
+the widths <em>W</em>, with its axis straight, above the body. Its
+heights are not used.</li>
+</ul>
+<p><img src="images/MdcInlet_types.png" title="Figure 1. Types of inlet"
+alt="Figure 1. Types of inlet" /></p>
+<p><em>Figure 1. The three types, each with the default stations, except
+that the axisymmetric inlet comes to a point at its leading edge, W(1)
+of zero. The side-mounted inlet is rolled to the side of the body, PHI
+270.</em></p>
+<p>All three are solids: the ramp, the cowl and the body behind it, and
+a diverter where there is one.</p>
+<h2 id="placing-an-inlet">Placing an Inlet</h2>
+<p>An inlet stands on the mold line, the surface of the body. DATCOM
+takes the body's radius there from the body, and so does an MDC_INLET
+that is a child of an MDC_BOD: each inlet stands at the distance from
+the body's axis to its mold line under the inlet's leading edge, in the
+direction of its own roll angle, so a body that is elliptical or
+cambered is followed. The inlet keeps that radius along its length.
+<em>RBODY</em> then shows the first inlet's radius and is greyed. Any
+other MDC_INLET takes the mold line to be a cylinder of radius
+<em>RBODY</em> about the X axis; <em>RBODY</em> is not an input of
+DATCOM's namelist.</p>
+<p><em>XINLT</em> is the station of the inlet's leading edge, along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+from the origin, as DATCOM measures it. It is the X location of the
+XForm tab, shown again on the Design tab.</p>
+<p>The inner face of the inlet is <em>HDIV</em> out from the mold line:
+the plane of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">H = 0</annotation></semantics></math>
+for a two-dimensional inlet, and the lowest line of the cowl for an
+axisymmetric one, whose axis is half of <em>W(3)</em> above it. The
+heights <em>H</em> are measured from the inner face.</p>
+<h2 id="stations">Stations</h2>
+<p>The inlet's shape is given at five stations along it (Figure 2), and
+runs straight between them: the leading edge or tip, the cowl lip, the
+start of the midbody, the start of the boattail and the end of the
+boattail. The position of station
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+along the inlet is <em>X(i)</em>, measured from the leading edge, which
+is at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">X = 0</annotation></semantics></math>,
+so <em>X(1)</em> is not an input. The height <em>H(i)</em> and the width
+<em>W(i)</em> are the section's size there; the leading edge has no
+height, so <em>H(1)</em> is not an input either, and an axisymmetric
+inlet has no <em>H</em> at all. An axisymmetric inlet's <em>W(i)</em> is
+its diameter, and its <em>W(1)</em> is its tip, a point where it is
+zero. The Design tab has a block of inputs for each station.</p>
+<p><img src="images/MdcInlet_stations.png" title="Figure 2. Stations"
+alt="Figure 2. Stations" /></p>
+<p><em>Figure 2. The five stations of a top-mounted two-dimensional
+inlet, from the side and from above.</em></p>
+<p>The inlet is closed at its aft end, after station 5, by a flat face.
+DATCOM requires the inlet to be boattailed, its section at station 5
+smaller than at station 4; that is not required here. A station that is
+not aft of the one before it is moved to just aft of it.</p>
+<h2 id="ramp-and-cover">Ramp and Cover</h2>
+<p>An open inlet has a ramp in front of the cowl lip: a wedge, or for an
+axisymmetric inlet a cone, from the leading edge to station 2, at the
+angle <em>RAMP</em> above the inner face (Figure 3). Across the lip, a
+flat face runs from the end of the ramp up to the cowl, where the flow
+enters. A covered inlet, with <em>COVER</em> on, is plugged flush with
+the inlet face: a plane, or for an axisymmetric inlet a cone, from the
+leading edge to the cowl lip, with no ramp and no opening. <em>RAMP</em>
+is then greyed. A ramp steeper than that plane or cone would reach the
+cowl before the lip, and is the plug as well. An axisymmetric inlet
+whose tip is wide, as the default is, is this way: its ramp is the plug
+unless <em>W(1)</em> is small.</p>
+<p><img src="images/MdcInlet_ramp.png"
+title="Figure 3. Open and covered inlets"
+alt="Figure 3. Open and covered inlets" /></p>
+<p><em>Figure 3. An inlet with a ramp of 25 degrees, and the same inlet
+covered.</em></p>
+<h2 id="diverter">Diverter</h2>
+<p><em>HDIV</em> is the height of the inner face above the mold line,
+and sets how the inlet meets the body (Figure 4).</p>
+<ul>
+<li>With <em>HDIV</em> above zero, the inlet stands off the body, and a
+diverter fills the gap between them.</li>
+<li>With <em>HDIV</em> zero, the inlet is conformal. It is sunk a
+hundredth of <em>RBODY</em> into the body, so that it crosses the body
+rather than touching it along a line. There is no diverter.</li>
+<li>With <em>HDIV</em> below zero, the inlet is semi-submerged, its
+inner face that far below the mold line. There is no diverter.</li>
+</ul>
+<p><img src="images/MdcInlet_hdiv.png" title="Figure 4. Inner face"
+alt="Figure 4. Inner face" /></p>
+<p><em>Figure 4. Sections of an inlet in its midbody, with a diverter,
+conformal, and semi-submerged.</em></p>
+<p>A diverter is a plate, standing from just below the mold line up to
+halfway up the inlet. It begins <em>XDIV</em> behind the leading edge,
+as a point, and its width grows linearly to its aft end, <em>LDIV</em>
+further, where it is 95 percent of the inlet's width across the body. It
+is nowhere wider than that, so it is a little narrower than the inlet,
+and it ends no further aft than the inlet does (Figure 5). Its
+<em>XDIV</em> and <em>LDIV</em> are greyed where there is no
+diverter.</p>
+<p><img src="images/MdcInlet_diverter.png" title="Figure 5. Diverter"
+alt="Figure 5. Diverter" /></p>
+<p><em>Figure 5. The diverter of the inlet of Figure 2, from the side
+and from above.</em></p>
+<h2 id="locations">Locations</h2>
+<p><em>NIN</em> is the number of inlets in the set, from 1 to 20, all
+the same. They are rolled around the body at the station <em>XINLT</em>,
+each at its angle <em>PHI</em>. An angle is measured clockwise from the
+top looking forward, so 90 degrees is to the right, as the roll angles
+of the <a href="MdcProtub.html">MDC_PROTUB</a> and <a
+href="MdcFin.html">MDC_FIN</a> components are (Figure 6). Unless <em>PHI
+given</em> is on, the inlets are evenly spaced around the body, the
+first at the top, and the angles are set from <em>NIN</em>; the PHI
+slider shows them but is greyed. With <em>PHI given</em> on, each angle
+is set by hand. The Inlet selector chooses which one the slider shows.
+An angle that has not been set is zero. <em>INTYPE</em> only orients the
+inlet; the angle puts it on the body, so a side-mounted inlet is at a
+<em>PHI</em> of 90 or 270 degrees, and a top-mounted one at 0.</p>
+<p><img src="images/MdcInlet_phi.png" title="Figure 6. Roll angles"
+alt="Figure 6. Roll angles" /></p>
+<p><em>Figure 6. Three axisymmetric inlets of a set evenly spaced, from
+behind the body.</em></p>
+<h2 id="parameters">Parameters</h2>
+<p>The parms are in the <em>Design</em> group but for <em>XINLT</em>,
+which is the XForm tab's X location. Each station has a block of inputs
+in the Design tab, the position, height and width of the station. There
+is a <em>PHI</em> for each of the <em>NIN</em> inlets, made and deleted
+as <em>NIN</em> changes, at the next update.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">INTYPE</td>
+<td style="text-align: left;"><code>INTYPE</code></td>
+<td style="text-align: left;">2DTOP</td>
+<td style="text-align: left;">2DTOP, 2DSIDE or AXI.</td>
+</tr>
+<tr>
+<td style="text-align: left;">XINLT</td>
+<td style="text-align: left;"><code>X_Rel_Location</code> (XForm)</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Station of the inlet's leading edge along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">RBODY</td>
+<td style="text-align: left;"><code>RBODY</code></td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">The body's radius under the inlet: a
+parent MDC_BOD's, else an input. Not an input of DATCOM's namelist.</td>
+</tr>
+<tr>
+<td style="text-align: left;">COVER</td>
+<td style="text-align: left;"><code>COVER</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Plug the inlet flush with its face.</td>
+</tr>
+<tr>
+<td style="text-align: left;">RAMP</td>
+<td style="text-align: left;"><code>RAMP</code></td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">Angle of the ramp, degrees, 0.1 to
+89.</td>
+</tr>
+<tr>
+<td style="text-align: left;">HDIV</td>
+<td style="text-align: left;"><code>HDIV</code></td>
+<td style="text-align: left;">0.1</td>
+<td style="text-align: left;">Height of the inner face above the mold
+line; zero for conformal, negative for semi-submerged.</td>
+</tr>
+<tr>
+<td style="text-align: left;">XDIV</td>
+<td style="text-align: left;"><code>XDIV</code></td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">Distance from the leading edge to the
+start of the diverter.</td>
+</tr>
+<tr>
+<td style="text-align: left;">LDIV</td>
+<td style="text-align: left;"><code>LDIV</code></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Length of the diverter.</td>
+</tr>
+<tr>
+<td style="text-align: left;">NIN</td>
+<td style="text-align: left;"><code>NIN</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Number of inlets, 1 to 20.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PHI given</td>
+<td style="text-align: left;"><code>PHIFlag</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Give the angles, rather than space them
+evenly from the top.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Inlet</td>
+<td style="text-align: left;"><code>INLET</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Which inlet the PHI slider shows.</td>
+</tr>
+<tr>
+<td style="text-align: left;">PHI</td>
+<td style="text-align: left;"><code>PHI_1</code> to
+<code>PHI_n</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Roll angle of an inlet, clockwise from the
+top looking forward.</td>
+</tr>
+<tr>
+<td style="text-align: left;">X(i)</td>
+<td style="text-align: left;"><code>X2</code> to <code>X5</code></td>
+<td style="text-align: left;">0.5, 0.6, 2.5, 3</td>
+<td style="text-align: left;">Position of station
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+from the leading edge.</td>
+</tr>
+<tr>
+<td style="text-align: left;">H(i)</td>
+<td style="text-align: left;"><code>H2</code> to <code>H5</code></td>
+<td style="text-align: left;">0.4, 0.45, 0.45, 0.3</td>
+<td style="text-align: left;">Height of the inlet at station
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">W(i)</td>
+<td style="text-align: left;"><code>W1</code> to <code>W5</code></td>
+<td style="text-align: left;">0.5, 0.6, 0.6, 0.6, 0.5</td>
+<td style="text-align: left;">Width, or diameter, of the inlet at
+station
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>Fay, J. F. and Jarvis, C. H., "Missile DATCOM User's Manual, 2026
+Revision," Air Force Research Laboratory, Munitions Directorate, Eglin
+AFB, FL, March 2026.</li>
+</ol>
+</body>
+</html>
