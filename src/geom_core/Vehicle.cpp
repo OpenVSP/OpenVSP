@@ -2602,6 +2602,22 @@ static void CopyPresentation( Geom* from, Geom* to )
     to->m_GuiDraw.SetDispFeatureFlag( from->m_GuiDraw.GetDispFeatureFlag() );
 }
 
+// What a Geom owns apart from its attributes, handed to the Geom that takes its place.
+static void HandOverParts( Geom* from, Geom* to )
+{
+    from->m_GuiDraw.getTextureMgr()->HandTexturesTo( to->m_GuiDraw.getTextureMgr() );
+
+    from->HandSubSurfsTo( to );
+    from->HandFeaStructsTo( to );
+    from->HandCfdSourcesTo( to );
+
+    vector< string > step_children = from->GetStepChildIDVec();
+    for ( int i = 0; i < ( int )step_children.size(); i++ )
+    {
+        to->AddStepChildID( step_children[i] );
+    }
+}
+
 // A Fuselage numbers its order policies MONOTONIC, LOOP, FREE; a Stack FREE, LOOP.
 static int StackOrderPolicy( int fuse_policy )
 {
@@ -2735,17 +2751,7 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
     stack->SetName( fuse->GetName() );
     CopyPresentation( fuse, stack );
 
-    fuse->m_GuiDraw.getTextureMgr()->HandTexturesTo( stack->m_GuiDraw.getTextureMgr() );
-
-    fuse->HandSubSurfsTo( stack );
-    fuse->HandFeaStructsTo( stack );
-    fuse->HandCfdSourcesTo( stack );
-
-    vector< string > step_children = fuse->GetStepChildIDVec();
-    for ( int i = 0; i < ( int )step_children.size(); i++ )
-    {
-        stack->AddStepChildID( step_children[i] );
-    }
+    HandOverParts( fuse, stack );
 
     //==== Identities ====//
     stack->SwapIdentity( fuse );
