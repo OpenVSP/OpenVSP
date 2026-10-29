@@ -22,6 +22,7 @@
 #include "MdcBodScreen.h"
 #include "MdcProtubScreen.h"
 #include "MdcInletScreen.h"
+#include "MdcFinScreen.h"
 #include "ConformalScreen.h"
 #include "CustomScreen.h"
 #include "DrawObj.h"

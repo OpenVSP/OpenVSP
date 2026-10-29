@@ -46,6 +46,7 @@ CobraGeom.cpp
 MdcBodGeom.cpp
 MdcProtubGeom.cpp
 MdcInletGeom.cpp
+MdcFinGeom.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
 XSecSurfGeom.cpp
@@ -138,6 +139,7 @@ CobraGeom.h
 MdcBodGeom.h
 MdcProtubGeom.h
 MdcInletGeom.h
+MdcFinGeom.h
 Color.h
 ColorMgr.h
 ConformalGeom.h

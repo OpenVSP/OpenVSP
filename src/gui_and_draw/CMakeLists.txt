@@ -46,6 +46,7 @@ CloneScreen.cpp
 MdcBodScreen.cpp
 MdcProtubScreen.cpp
 MdcInletScreen.cpp
+MdcFinScreen.cpp
 CobraScreen.cpp
 CompGeomScreen.cpp
 ConformalScreen.cpp
@@ -163,6 +164,7 @@ CloneScreen.h
 MdcBodScreen.h
 MdcProtubScreen.h
 MdcInletScreen.h
+MdcFinScreen.h
 CobraScreen.h
 CompGeomScreen.h
 ConformalScreen.h

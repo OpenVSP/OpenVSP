@@ -62,6 +62,7 @@
 #include "MdcBodGeom.h"
 #include "MdcProtubGeom.h"
 #include "MdcInletGeom.h"
+#include "MdcFinGeom.h"
 #include "RoutingGeom.h"
 #include "ScriptMgr.h"
 #include "StlHelper.h"
@@ -497,6 +498,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( MDC_BOD_GEOM_TYPE, "MDC_BOD", true ) );
     m_GeomTypeVec.push_back( GeomType( MDC_PROTUB_GEOM_TYPE, "MDC_PROTUB", true ) );
     m_GeomTypeVec.push_back( GeomType( MDC_INLET_GEOM_TYPE, "MDC_INLET", true ) );
+    m_GeomTypeVec.push_back( GeomType( MDC_FIN_GEOM_TYPE, "MDC_FIN", true ) );
 
     //==== Get Custom Geom Types =====//
     vector< GeomType > custom_types = CustomGeomMgr.GetCustomTypes();
@@ -1218,6 +1220,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Name == "MdcInlet" || type.m_Name == "MDC_INLET" )
     {
         new_geom = new MdcInletGeom( this );
+    }
+    else if ( type.m_Name == "MdcFin" || type.m_Name == "MDC_FIN" )
+    {
+        new_geom = new MdcFinGeom( this );
     }
 
     if ( !new_geom )

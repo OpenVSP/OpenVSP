@@ -1057,6 +1057,7 @@ enum GUI_GEOM_SCREEN { POD_GEOM_SCREEN,	/*!< Pod geom screen */
                        MDC_BOD_GEOM_SCREEN,	/*!< MDC_BOD geom screen */
                        MDC_PROTUB_GEOM_SCREEN,	/*!< MDC_PROTUB geom screen */
                        MDC_INLET_GEOM_SCREEN,	/*!< MDC_INLET geom screen */
+                       MDC_FIN_GEOM_SCREEN,	/*!< MDC_FIN geom screen */
                        NUM_GEOM_SCREENS,	/*!< Number of geom screens */
                        ALL_GEOM_SCREENS	/*!< All geom screens */
 };
