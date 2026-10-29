@@ -396,6 +396,16 @@ public:
         m_CapUp = up;
     }
 
+    // DATCOM style camber, applied once the surface is capped: at each of stations x along the cap
+    // frame's axis from origin, the surface is moved along its up direction by z, linearly between stations
+    // and as at the first or last beyond them.
+    void SetCamber( const vec3d &origin, const vector < double > &x, const vector < double > &z );
+    void ClearCamber()                                       { m_CamberFlag = false; }
+    void ApplyCamber();
+
+    // The value of vals at d, linear between stations xs, which increase, and as at the first or last beyond them.
+    static double CamberInterp( const vector < double > &xs, const vector < double > &vals, double d );
+
     void SetFeaOrientation( int otype, const vec3d &orient )
     {
         m_FeaOrientationType = otype;
@@ -474,6 +484,11 @@ protected:
     bool m_CapFrameFlag;
     vec3d m_CapAxis;
     vec3d m_CapUp;
+
+    bool m_CamberFlag;
+    vec3d m_CamberOrigin;
+    vector < double > m_CamberX;
+    vector < double > m_CamberZ;
 
     bool m_ThickSurf;
     int m_PlateNum;

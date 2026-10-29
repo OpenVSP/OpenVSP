@@ -132,6 +132,8 @@ void XSecSurfGeom::SkinXSecSurf( bool closed_flag )
         vec3d axis, up;
         m_XSecSurfVec[i]->GetBasicFrame( axis, up );
         m_MainSurfVec[i].SetCapFrame( axis, up );
+
+        m_MainSurfVec[i].ClearCamber();
     }
 }
 

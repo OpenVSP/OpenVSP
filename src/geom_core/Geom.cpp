@@ -2298,6 +2298,12 @@ void Geom::UpdateEndCaps()
         m_CapUMaxSuccess[i] = umax;
     }
 
+    // A surface's camber moves it, caps and all.
+    for ( int i = 0; i < ( int )m_MainSurfVec.size(); i++ )
+    {
+        m_MainSurfVec[i].ApplyCamber();
+    }
+
     UpdateCapParms();
 }
 

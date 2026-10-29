@@ -84,6 +84,7 @@ VspSurf::VspSurf()
     m_FeaSymmIndex = -1;
 
     m_CapFrameFlag = false;
+    m_CamberFlag = false;
 
     m_CloneIndex = -1;
 
@@ -116,6 +117,11 @@ void VspSurf::CopyNonSurfaceData( const VspSurf & s )
     m_CapFrameFlag = s.m_CapFrameFlag;
     m_CapAxis = s.m_CapAxis;
     m_CapUp = s.m_CapUp;
+
+    m_CamberFlag = s.m_CamberFlag;
+    m_CamberOrigin = s.m_CamberOrigin;
+    m_CamberX = s.m_CamberX;
+    m_CamberZ = s.m_CamberZ;
 
     m_ThickSurf = s.m_ThickSurf;
     m_PlateNum = s.m_PlateNum;
@@ -268,6 +274,77 @@ void VspSurf::Transform( const Matrix4d & mat )
 
     m_CapAxis = mat.xformnorm( m_CapAxis );
     m_CapUp = mat.xformnorm( m_CapUp );
+    m_CamberOrigin = mat.xform( m_CamberOrigin );
+}
+
+void VspSurf::SetCamber( const vec3d &origin, const vector < double > &x, const vector < double > &z )
+{
+    m_CamberFlag = !x.empty() && z.size() == x.size();
+    m_CamberOrigin = origin;
+    m_CamberX = x;
+    m_CamberZ = z;
+}
+
+// The value of vals at d, linear between stations xs, which increase, and as at the first or last beyond them.
+double VspSurf::CamberInterp( const vector < double > &xs, const vector < double > &vals, double d )
+{
+    int n = xs.size();
+    if ( d <= xs[0] )
+    {
+        return vals[0];
+    }
+    for ( int i = 1; i < n; i++ )
+    {
+        if ( d <= xs[i] )
+        {
+            double dx = xs[i] - xs[i - 1];
+            if ( dx <= 0.0 )
+            {
+                return vals[i];
+            }
+            return vals[i - 1] + ( vals[i] - vals[i - 1] ) * ( d - xs[i - 1] ) / dx;
+        }
+    }
+    return vals[n - 1];
+}
+
+// Each control point moves.  Where a patch lies between two stations the camber is a linear map, and a Bezier
+// patch moves exactly with its control points under one; so each station should fall on a joint across the
+// surface, where its cross sections and the cap's end are.
+void VspSurf::ApplyCamber()
+{
+    if ( !m_CamberFlag || !m_CapFrameFlag )
+    {
+        return;
+    }
+
+    vec3d axis = m_CapAxis;
+    axis.normalize();
+    vec3d up = m_CapUp - axis * dot( axis, m_CapUp );
+    up.normalize();
+
+    for ( int iu = 0; iu < ( int )m_Surface.number_u_patches(); iu++ )
+    {
+        for ( int iv = 0; iv < ( int )m_Surface.number_v_patches(); iv++ )
+        {
+            piecewise_surface_type::surface_type patch;
+            m_Surface.get( patch, iu, iv );
+            for ( int i = 0; i <= ( int )patch.degree_u(); i++ )
+            {
+                for ( int j = 0; j <= ( int )patch.degree_v(); j++ )
+                {
+                    surface_point_type cp = patch.get_control_point( i, j );
+                    vec3d p( cp.x(), cp.y(), cp.z() );
+                    vec3d r = p - m_CamberOrigin;
+                    double z = CamberInterp( m_CamberX, m_CamberZ, dot( r, axis ) );
+                    p = p + up * z;
+                    cp << p.x(), p.y(), p.z();
+                    patch.set_control_point( cp, i, j );
+                }
+            }
+            m_Surface.set( patch, iu, iv );
+        }
+    }
 }
 
 void VspSurf::GetBoundingBox( BndBox &bb ) const
