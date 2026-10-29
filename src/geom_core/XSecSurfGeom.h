@@ -96,6 +96,9 @@ protected:
     // which sets the ratio.
     static double RelAbs( Parm & abs_parm, Parm & ratio_parm, BoolParm & rel_flag, double upper );
 
+    // Lengths closer than this, on a body of radius r, are equal.
+    static double Tol( double r );
+
     // The rolls about x of n members, in degrees clockwise looking forward from the top: those the Parms hold where
     // given is set, and otherwise evenly spaced, written to the Parms.
     static void SpaceRolls( bool given, int n, const vector< Parm* > & phi );

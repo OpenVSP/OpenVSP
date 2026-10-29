@@ -356,6 +356,11 @@ double XSecSurfGeom::RelAbs( Parm & abs_parm, Parm & ratio_parm, BoolParm & rel_
     return abs_parm();
 }
 
+double XSecSurfGeom::Tol( double r )
+{
+    return 1.0e-9 * ( 1.0 + r );
+}
+
 void XSecSurfGeom::SpaceRolls( bool given, int n, const vector< Parm* > & phi )
 {
     if ( given )
