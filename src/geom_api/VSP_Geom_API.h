@@ -30650,6 +30650,53 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
     \ingroup XSec
 */
 /*!
+    Get the ID of the USER cross section of an MDC_FIN.  Its points are kept with the MDC_FIN, so ReadFileAirfoil or
+    ReadFileXSec on this ID reads a file into it, and the MDC_FIN copies the points into the cross sections it builds
+    where its SECTYP is USER.  A Geom that is not an MDC_FIN gives an empty ID and an error.
+    \forcpponly
+    \code{.cpp}
+    // A Pod has no USER section.
+    string pod_id = AddGeom( "POD" );
+
+    if ( GetMdcFinUserXSec( pod_id ) != "" )
+    {
+        Print( "ERROR: GetMdcFinUserXSec found a USER section on a Pod" );
+        __failure++;
+    }
+
+    // That error was raised deliberately, so take it back off the queue.
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # A Pod has no USER section.
+    err_mgr = ErrorMgrSingleton.getInstance()
+
+    pod_id = AddGeom( "POD" )
+
+    assert GetMdcFinUserXSec( pod_id ) == "", "GetMdcFinUserXSec found a USER section on a Pod"
+
+    # That error was raised deliberately, so take it back off the queue.
+    while err_mgr.GetNumTotalErrors() > 0:
+        err = err_mgr.PopLastError()
+
+    \endcode
+    \endPythonOnly
+    \sa ReadFileAirfoil, ReadFileXSec
+    \param [in] geom_id string MDC_FIN Geom ID
+    \return string XSec ID
+*/
+
+extern std::string GetMdcFinUserXSec( const std::string& geom_id );
+
+/*!
+    \ingroup XSec
+*/
+/*!
     Set the upper points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
     A point listed twice in a row makes a corner there.
     \forcpponly

@@ -56,6 +56,7 @@
 #include "LightMgr.h"
 #include "VspUtil.h"
 #include "WingGeom.h"
+#include "MdcFinGeom.h"
 #include "MeshGeom.h"
 #include "PtCloudGeom.h"
 #include "StlHelper.h"
@@ -10617,6 +10618,27 @@ void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name )
 
     ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileAirfoil::XSec Not XS_FILE_AIRFOIL Type " + xsec_id );
     return;
+}
+
+std::string GetMdcFinUserXSec( const std::string& geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetMdcFinUserXSec::Can't Find Geom " + geom_id );
+        return std::string();
+    }
+
+    MdcFinGeom* fin = dynamic_cast< MdcFinGeom* >( geom_ptr );
+    if ( !fin )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "GetMdcFinUserXSec::Geom " + geom_id + " is not an MDC_FIN" );
+        return std::string();
+    }
+
+    ErrorMgr.NoError();
+    return fin->GetUserXSec()->GetID();
 }
 
 void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< vec3d > & up_pnt_vec )
