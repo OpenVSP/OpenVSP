@@ -2902,6 +2902,106 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
     return fuse_id;
 }
 
+// The unit tangent a skin condition of a section's station asks for: the angle and slew, in radians.
+static vec3d SkinTangent( SkinXSec* xs, double w, double angle, double slew )
+{
+    vec3d tangent;
+    vec3d normal;
+    xs->GetTanNormVec( w, -angle, -slew, tangent, normal );
+    return tangent;
+}
+
+// The angle and slew that give a station the direction wanted, found from where it is now.
+static void SolveSkinTangent( SkinXSec* xs, double w, const vec3d & want, double & angle, double & slew )
+{
+    const double h = 1.0e-6;
+
+    for ( int iter = 0; iter < 30; iter++ )
+    {
+        vec3d f = SkinTangent( xs, w, angle, slew ) - want;
+        if ( f.mag() < 1.0e-15 )
+        {
+            break;
+        }
+
+        vec3d fa = ( SkinTangent( xs, w, angle + h, slew ) - SkinTangent( xs, w, angle - h, slew ) ) * ( 0.5 / h );
+        vec3d fs = ( SkinTangent( xs, w, angle, slew + h ) - SkinTangent( xs, w, angle, slew - h ) ) * ( 0.5 / h );
+
+        double jaa = dot( fa, fa );
+        double jas = dot( fa, fs );
+        double jss = dot( fs, fs );
+        double det = jaa * jss - jas * jas;
+        if ( std::abs( det ) < 1.0e-18 )
+        {
+            break;
+        }
+
+        double ba = -dot( fa, f );
+        double bs = -dot( fs, f );
+        angle += ( ba * jss - bs * jas ) / det;
+        slew += ( jaa * bs - jas * ba ) / det;
+    }
+}
+
+// Shears the tangent condition of one side of a section at one of its four sides, so the direction it asks for is
+// the sheared direction, z raised by slope times the way it goes along x, and its strength is the sheared length.
+static void ShearSkinSide( SkinXSec* xs, int side, bool left, double slope )
+{
+    // Right, bottom, left, top; left side and then right side of the section; angle, slew, strength.
+    Parm* parms[4][2][3] = {
+        { { &xs->m_RightLAngle, &xs->m_RightLSlew, &xs->m_RightLStrength },
+          { &xs->m_RightRAngle, &xs->m_RightRSlew, &xs->m_RightRStrength } },
+        { { &xs->m_BottomLAngle, &xs->m_BottomLSlew, &xs->m_BottomLStrength },
+          { &xs->m_BottomRAngle, &xs->m_BottomRSlew, &xs->m_BottomRStrength } },
+        { { &xs->m_LeftLAngle, &xs->m_LeftLSlew, &xs->m_LeftLStrength },
+          { &xs->m_LeftRAngle, &xs->m_LeftRSlew, &xs->m_LeftRStrength } },
+        { { &xs->m_TopLAngle, &xs->m_TopLSlew, &xs->m_TopLStrength },
+          { &xs->m_TopRAngle, &xs->m_TopRSlew, &xs->m_TopRStrength } } };
+    BoolParm* slew_set[4][2] = {
+        { &xs->m_RightLSlewSet, &xs->m_RightRSlewSet },
+        { &xs->m_BottomLSlewSet, &xs->m_BottomRSlewSet },
+        { &xs->m_LeftLSlewSet, &xs->m_LeftRSlewSet },
+        { &xs->m_TopLSlewSet, &xs->m_TopRSlewSet } };
+
+    // The bottom and left sides take their slews with the sign changed.
+    double sign = 1.0;
+    if ( side == SkinXSec::SKIN_SIDE_BOTTOM || side == SkinXSec::SKIN_SIDE_LEFT )
+    {
+        sign = -1.0;
+    }
+
+    int ileft = 1;
+    if ( left )
+    {
+        ileft = 0;
+    }
+
+    Parm* angle = parms[side][ileft][0];
+    Parm* slew = parms[side][ileft][1];
+    Parm* strength = parms[side][ileft][2];
+
+    double w = side;
+    double scale = xs->GetScale();
+    double a = angle->Get() * M_PI / 180.0;
+    double s = sign * slew->Get() * M_PI / 180.0;
+
+    vec3d dir = SkinTangent( xs, w, a, s ) * ( strength->Get() * scale );
+    dir.set_z( dir.z() + slope * dir.x() );
+
+    double mag = dir.mag();
+    if ( mag < 1.0e-12 )
+    {
+        return;
+    }
+
+    SolveSkinTangent( xs, w, dir * ( 1.0 / mag ), a, s );
+
+    angle->Set( a * 180.0 / M_PI );
+    slew->Set( sign * s * 180.0 / M_PI );
+    strength->Set( mag / scale );
+    slew_set[side][ileft]->Set( true );
+}
+
 // An MDC_BOD is skinned through the cross sections of an XSecSurf as a Stack is, so each cross section is copied to a
 // Stack cross section, its skinning conditions with it, and set in absolute mode to exactly where the MDC_BOD put it.
 // Its camber lifts each station by the camber's value there, which is where the Stack's cross section goes; and its
@@ -2911,6 +3011,10 @@ string Vehicle::ConvertFuselageToStack( const string & fuse_id )
 // sections can only be lifted at the stations.  The two agree where the surface between stations is determined by the
 // stations alone, and are a little apart where it is also determined by tangent conditions the lift tilts, which is
 // where an ogive aft body is cambered.
+//
+// Each section's tangent conditions are tilted by the camber's slope along the span they are for.  That is exact at
+// the four sides of the section, and a Stack blends it between them where the lift is a different blend, which is
+// the little that is left.
 string Vehicle::ConvertMdcBodToStack( const string & mdc_bod_id, bool replace_flag )
 {
     MdcBodGeom* body = dynamic_cast < MdcBodGeom* > ( FindGeom( mdc_bod_id ) );
@@ -3007,6 +3111,44 @@ string Vehicle::ConvertMdcBodToStack( const string & mdc_bod_id, bool replace_fl
         {
             sxs->ScaleTanStrengths( bscale / sscale );
         }
+    }
+
+    //==== Camber across the span between sections ====//
+    // The camber lifts every point of the surface by its value where the point is, so a tangent that goes along x
+    // for some distance rises as well by the camber's slope, which is the shear of the tangent.  A section's tangent
+    // conditions are taken to the span they are for with the span's slope.
+    if ( cambered )
+    {
+        vector< double > slopes;
+        for ( int i = 0; i + 1 < nxsec; i++ )
+        {
+            double x0 = dynamic_cast < BareXSec* > ( bxss->FindXSec( i ) )->GetLoc().x();
+            double x1 = dynamic_cast < BareXSec* > ( bxss->FindXSec( i + 1 ) )->GetLoc().x();
+            double dz = VspSurf::CamberInterp( camx, camz, x1 ) - VspSurf::CamberInterp( camx, camz, x0 );
+            if ( std::abs( x1 - x0 ) > 1.0e-12 )
+            {
+                slopes.push_back( dz / ( x1 - x0 ) );
+            }
+            else
+            {
+                slopes.push_back( 0.0 );
+            }
+        }
+
+        for ( int i = 0; i < nxsec; i++ )
+        {
+            StackXSec* sxs = dynamic_cast < StackXSec* > ( sxss->FindXSec( i ) );
+
+            double slope_in = slopes[std::max( i - 1, 0 )];
+            double slope_out = slopes[std::min( i, nxsec - 2 )];
+            for ( int side = 0; side < SkinXSec::NUM_SKIN_SIDES; side++ )
+            {
+                ShearSkinSide( sxs, side, true, slope_in );
+                ShearSkinSide( sxs, side, false, slope_out );
+            }
+        }
+
+        stack->Update();
     }
 
     //==== The nose ====//

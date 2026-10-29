@@ -14418,6 +14418,9 @@ extern std::string ConvertFuselageToStack( const std::string & geom_id );
     determined by them alone.  Where the MDC_BOD is cambered across an ogive aft body the camber lifts each point of
     that surface, where the Stack can lift only its cross sections, so the Stack is a little off; CompareGeomSurfaces
     measures how close it is.
+
+    The Stack's tangent conditions are tilted by the camber's slope to match, which is exact at the four sides of each
+    cross section and leaves a few thousandths of the body's size between them.
     \forcpponly
     \code{.cpp}
     //==== An MDC_BOD with an aft body and a cambered nose ====//
