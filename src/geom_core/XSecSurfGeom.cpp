@@ -215,4 +215,73 @@ XSecSurf* XSecSurfGeom::NewXSecSurf( int xsec_type )
     return xsec_surf;
 }
 
+//==== Append a Cross Section at loc ====//
+BareXSec* XSecSurfGeom::AppendXSec( XSecSurf* xsec_surf, int type, const vec3d & loc )
+{
+    BareXSec* xs = dynamic_cast< BareXSec* >( xsec_surf->FindXSec( xsec_surf->AddXSec( type ) ) );
+    if ( xs )
+    {
+        xs->SetLoc( loc );
+        xs->SetContinuity( 0 );
+    }
+    return xs;
+}
+
+// A linear section at x through the points ( ys[i], zs[i] ), closed back to the first, its points spaced
+// evenly in its parameter.
+void XSecSurfGeom::AddPolySection( XSecSurf* surf, double x, const vector< double > & ys, const vector< double > & zs )
+{
+    int n = ( int )ys.size();
+    vector< double > u;
+    vector< double > rad;
+    vector< vec3d > pts;
+    for ( int i = 0; i <= n; i++ )
+    {
+        int j = i % n;
+        u.push_back( double( i ) / double( n ) );
+        rad.push_back( 0.0 );
+        pts.push_back( vec3d( ys[j], zs[j], 0.0 ) );
+    }
+
+    BareXSec* xs = AppendXSec( surf, XS_EDIT_CURVE, vec3d( x, 0.0, 0.0 ) );
+
+    EditCurveXSec* edit = dynamic_cast< EditCurveXSec* >( xs->GetXSecCurve() );
+    edit->m_SymType.Set( SYM_NONE );
+    edit->m_CurveType.Set( LINEAR );
+    edit->m_Width.Set( 1.0 );
+    edit->m_Height.Set( 1.0 );
+    edit->SetPntVecs( u, pts, rad );
+}
+
+BareXSec* XSecSurfGeom::AppendPointXSec( XSecSurf* xsec_surf, const vec3d & loc )
+{
+    return AppendXSec( xsec_surf, XS_POINT, loc );
+}
+
+BareXSec* XSecSurfGeom::AppendEllipseXSec( XSecSurf* xsec_surf, const vec3d & loc, double w, double h )
+{
+    BareXSec* xs = AppendXSec( xsec_surf, XS_ELLIPSE, loc );
+    EllipseXSec* ellipse = dynamic_cast< EllipseXSec* >( xs->GetXSecCurve() );
+    ellipse->m_Width.Set( w );
+    ellipse->m_Height.Set( h );
+    return xs;
+}
+
+BareXSec* XSecSurfGeom::AppendCircleXSec( XSecSurf* xsec_surf, const vec3d & loc, double d )
+{
+    BareXSec* xs = AppendXSec( xsec_surf, XS_CIRCLE, loc );
+    dynamic_cast< CircleXSec* >( xs->GetXSecCurve() )->m_Diameter.Set( d );
+    return xs;
+}
+
+BareXSec* XSecSurfGeom::AppendRectXSec( XSecSurf* xsec_surf, const vec3d & loc, double w, double h )
+{
+    BareXSec* xs = AppendXSec( xsec_surf, XS_ROUNDED_RECTANGLE, loc );
+    RoundedRectXSec* rect = dynamic_cast< RoundedRectXSec* >( xs->GetXSecCurve() );
+    rect->m_Width.Set( w );
+    rect->m_Height.Set( h );
+    rect->m_RadiusTR.Set( 0.0 );
+    return xs;
+}
+
 

@@ -55,6 +55,20 @@ protected:
     // A new surface, its pointer rather than its ID, of cross sections of type xsec_type.
     XSecSurf* NewXSecSurf( int xsec_type = vsp::XSEC_BARE );
 
+    // A cross section of type type, appended to the surface and put at loc, with no continuity to its neighbors.
+    BareXSec* AppendXSec( XSecSurf* xsec_surf, int type, const vec3d & loc );
+
+    // A linear section at x through the points ( ys[i], zs[i] ), closed back to the first, its points spaced
+    // evenly in its parameter.
+    void AddPolySection( XSecSurf* surf, double x, const vector< double > & ys, const vector< double > & zs );
+
+    // A cross section at loc that is a point, an ellipse w across and h high, a circle d across, or a rectangle w
+    // across and h high with square corners.
+    BareXSec* AppendPointXSec( XSecSurf* xsec_surf, const vec3d & loc );
+    BareXSec* AppendEllipseXSec( XSecSurf* xsec_surf, const vec3d & loc, double w, double h );
+    BareXSec* AppendCircleXSec( XSecSurf* xsec_surf, const vec3d & loc, double d );
+    BareXSec* AppendRectXSec( XSecSurf* xsec_surf, const vec3d & loc, double w, double h );
+
     vector< XSecSurf* > m_XSecSurfVec;
 
     int m_VspSurfType;
