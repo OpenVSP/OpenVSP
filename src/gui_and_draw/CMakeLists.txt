@@ -44,6 +44,7 @@ CloneDeleteDialog.cpp
 CloneNameSuffixScreen.cpp
 CloneScreen.cpp
 MdcBodScreen.cpp
+MdcProtubScreen.cpp
 CobraScreen.cpp
 CompGeomScreen.cpp
 ConformalScreen.cpp
@@ -159,6 +160,7 @@ CloneDeleteDialog.h
 CloneNameSuffixScreen.h
 CloneScreen.h
 MdcBodScreen.h
+MdcProtubScreen.h
 CobraScreen.h
 CompGeomScreen.h
 ConformalScreen.h

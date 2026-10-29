@@ -44,6 +44,7 @@ ClippingMgr.cpp
 CloneGeom.cpp
 CobraGeom.cpp
 MdcBodGeom.cpp
+MdcProtubGeom.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
 XSecSurfGeom.cpp
@@ -134,6 +135,7 @@ ClippingMgr.h
 CloneGeom.h
 CobraGeom.h
 MdcBodGeom.h
+MdcProtubGeom.h
 Color.h
 ColorMgr.h
 ConformalGeom.h
