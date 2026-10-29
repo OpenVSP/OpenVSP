@@ -67,6 +67,20 @@ void XSecSurfGeom::SkinXSecSurf( bool closed_flag )
 
     for ( int i = 0 ; i < ( int )m_XSecSurfVec.size() ; i++ )
     {
+        // A surface typed a wing before it is skinned is a wing's: its sections are closed and split at their
+        // trailing and leading edges as a Wing's are, and its parameter across them is a wing's.
+        bool wing = GetVspSurfType( i ) == vsp::WING_SURF;
+        for ( int j = 0 ; j < m_XSecSurfVec[i]->NumXSec() ; j++ )
+        {
+            XSec* xs = m_XSecSurfVec[i]->FindXSec( j );
+            if ( xs && xs->GetXSecCurve() )
+            {
+                xs->GetXSecCurve()->SetForceWingType( wing );
+                xs->GetXSecCurve()->SetLateUpdateFlag( true );
+                xs->SetLateUpdateFlag( true );
+            }
+        }
+
         vector< BareXSec* > xsec_vec;
         for ( int j = 0 ; j < m_XSecSurfVec[i]->NumXSec() ; j++ )
         {
@@ -112,7 +126,7 @@ void XSecSurfGeom::SkinXSecSurf( bool closed_flag )
         if ( xsec_vec.size() >= 2 )
         {
             m_MainSurfVec[i].SkinRibsUniform( rib_vec, false );
-            m_MainSurfVec[i].SetMagicVParm( false );
+            m_MainSurfVec[i].SetMagicVParm( wing );
         }
 
         vec3d axis, up;
