@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>MDC_BOD</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">MDC_BOD</h1>
+</header>
+<p><a href="index.html">Contents</a></p>
+<p>The MDC_BOD is a body laid out the way DATCOM lays one out: a nose, a
+centerbody and an aft body, each given by its shape, its length and its
+size at its aft end, and closed by a flat base. The controls carry the
+names and meanings of the inputs of DATCOM's AXIBOD and ELLBOD
+namelists, so a DATCOM body can be entered as it is written, and a body
+described by few numbers can be changed quickly. Choose the AXIBOD form
+for a body of circular sections, and the ELLBOD form for elliptical
+ones. Only DATCOM's first way of describing a body, by nose, centerbody
+and aft body, is available; a body given by stations is a <a
+href="FuselageStack.html">Fuselage or Stack</a>, and the MDC_BOD can be
+converted to a Stack (see Convert to Stack). The script
+<code>datcom2vsp.py</code>, in the examples, reads a DATCOM input file
+and builds a model from its body, protuberances, fin sets and inlets,
+using this component and the <a href="MdcProtub.html">MDC_PROTUB</a>, <a
+href="MdcFin.html">MDC_FIN</a> and <a href="MdcInlet.html">MDC_INLET</a>
+components.</p>
+<p>The MDC_BOD has one tab of its own, Design. The <a
+href="GenTab.html">Gen</a>, <a href="XFormTab.html">XForm</a>, <a
+href="MassTab.html">Mass</a> and <a href="SubTab.html">Sub</a> tabs are
+described on their own pages. The Design tab sets</p>
+<ul>
+<li>the <a href="#layout">layout</a> of the three parts;</li>
+<li>the <a href="#nose">nose</a>, its shape, <a
+href="#bluntness-and-truncation">bluntness</a> and <a
+href="#secant-ogives">ogive slope</a>;</li>
+<li>the <a href="#centerbody-and-aft-body">centerbody and aft
+body</a>;</li>
+<li><a href="#elliptical-bodies">elliptical bodies</a> and <a
+href="#camber">camber</a>;</li>
+<li><a href="#convert-to-stack">conversion to a Stack</a>.</li>
+</ul>
+<h2 id="quick-start">Quick Start</h2>
+<ol type="1">
+<li>Add an MDC_BOD. A new one is 10 long: an ogive nose 3 long and 1 in
+diameter, on a cylinder 7 long, closed by a flat base. Its nose tip is
+at its origin and its axis is along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</li>
+<li>Place it with the XForm tab.</li>
+<li>Choose <em>NAMELIST</em>: AXIBOD for circular sections, ELLBOD for
+elliptical ones.</li>
+<li>Shape the nose with <em>TNOSE</em>, <em>LNOSE</em> and
+<em>DNOSE</em> (<em>WNOSE</em> and <em>ENOSE</em> for ELLBOD).</li>
+<li>Set the centerbody's <em>LCENTR</em> and <em>DCENTR</em>, and give
+the aft body a <em>LAFT</em> and <em>DAFT</em>.</li>
+</ol>
+<h2 id="layout">Layout</h2>
+<p>The nose runs from its tip, at the component's origin, a
+<em>LNOSE</em> aft to the nose base. The centerbody runs a further
+<em>LCENTR</em>, and the aft body a further <em>LAFT</em>, ending at the
+base (Figure 1). Each part has one size, its diameter (AXIBOD) or width
+and ellipticity (ELLBOD), given at its aft end by <em>DNOSE</em>,
+<em>DCENTR</em> and <em>DAFT</em>, or by the widths and ellipticities of
+ELLBOD. The body runs straight between these stations, so a centerbody
+whose <em>DCENTR</em> differs from <em>DNOSE</em> is a cone frustum, and
+one that keeps the nose's size is a cylinder. The aft body is a boattail
+where <em>DAFT</em> is smaller than <em>DCENTR</em>, and a flare where
+it is larger. The base is flat.</p>
+<p><img src="images/MdcBod_layout.png" title="Figure 1. Layout"
+alt="Figure 1. Layout" /></p>
+<p><em>Figure 1. A body with an ogive nose, a tapering centerbody and a
+boattail, with the lengths and diameters that set them.</em></p>
+<p>A part with no length is left out. A <em>LCENTR</em> of zero joins
+the aft body to the nose base, and a <em>LAFT</em> of zero, its default,
+leaves the body with no aft body, ending at the centerbody. With both
+zero the body is the nose alone, closed by a flat face at its base. The
+inputs of a part that is left out are greyed in the Design tab, as are
+the inputs of the namelist not chosen and the inputs that shape nothing
+in the nose.</p>
+<p><em>XO</em> is where the nose tip is along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>:
+it is the X location of the XForm tab, shown again on the Design tab, so
+it moves the whole body without changing its shape. The XForm tab moves
+and rotates the body as it does any component, turning it about the
+point along its length that the XForm tab's Origin gives as a fraction
+of the body's length from the nose tip.</p>
+<p>In DATCOM the centerbody's size defaults to the nose's. With
+<em>Nose's size</em> on, the default, <em>DCENTR</em> is <em>DNOSE</em>
+and <em>WCENTR</em> is <em>WNOSE</em>, and they follow the nose when it
+changes. Turn it off to give the centerbody a size of its own.</p>
+<h2 id="nose">Nose</h2>
+<p>The nose is one of five shapes, chosen by <em>TNOSE</em> (Figure
+2).</p>
+<ul>
+<li>CONE: a cone, straight from the tip to the nose base.</li>
+<li>OGIVE: an ogive, a circular arc in profile. It is tangent to the
+centerbody where <em>SLPNOS</em> is zero, its default.</li>
+<li>POWER: a power law, in which the radius
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+at distance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+from the tip is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>r</mi><mi>R</mi></mfrac><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>x</mi><mi>L</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">
+\frac{r}{R} = \left(\frac{x}{L}\right)^n
+</annotation></semantics></math> where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+is the radius of the nose base,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>
+is <em>LNOSE</em> and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is <em>POWER</em>. The default exponent of 1 is a cone, one-half is a
+parabola, and a smaller exponent is blunter at the tip.</li>
+<li>HAACK: the Haack nose of least drag for a given length and volume,
+the L-V Haack.</li>
+<li>KARMAN: the Haack nose of least drag for a given length and
+diameter, the Von Karman.</li>
+</ul>
+<p><img src="images/MdcBod_noses.png" title="Figure 2. Nose shapes"
+alt="Figure 2. Nose shapes" /></p>
+<p><em>Figure 2. The five nose shapes of one length and diameter; the
+power law nose has exponent one-half.</em></p>
+<p>The power law exponent, <em>POWER</em>, matters only to a power law
+nose, and is greyed otherwise. For an elliptical body, the nose's shape
+is that of the circular nose of the same width, stretched to ENOSE times
+as high.</p>
+<h3 id="secant-ogives">Secant ogives</h3>
+<p>An ogive is the arc of a circle. <em>SLPNOS</em> is the slope of the
+arc, the rise of its radius per unit of length, where it meets the nose
+base. Zero, the default, is the tangent ogive: the arc meets the base
+moving along the axis, as the centerbody continues. A positive slope is
+a secant ogive, whose arc meets the base at an angle; it is flatter than
+the tangent ogive, and the cone, whose slope is that of the line from
+the tip to the base, is its limit (0.167 for the noses of Figure 3). A
+slope larger than the cone's makes a nose that curves in toward the
+axis, and one larger than about twice it makes a nose whose arc crosses
+the axis near the tip. A negative slope makes a nose fuller than the
+tangent ogive, wider than its base. <em>SLPNOS</em> matters only to an
+ogive nose, and is greyed otherwise.</p>
+<p><img src="images/MdcBod_secant.png" title="Figure 3. Secant ogives"
+alt="Figure 3. Secant ogives" /></p>
+<p><em>Figure 3. Ogive noses of one length and diameter with three
+slopes at the base, the last being the cone.</em></p>
+<h3 id="bluntness-and-truncation">Bluntness and truncation</h3>
+<p><em>BNOSE</em> blunts or truncates the nose (Figure 4). Without
+<em>TRUNC</em>, it blunts a cone or ogive nose with a sphere of radius
+<em>BNOSE</em>, tangent to the nose, so the tip is rounded; the nose
+keeps its length <em>LNOSE</em>. With <em>TRUNC</em> on, it instead cuts
+the nose off flat, at a face of radius <em>BNOSE</em> at the tip, and
+this is so for every shape of nose. A power law, Haack or Von Karman
+nose that is not truncated has no bluntness, so <em>BNOSE</em> is
+greyed. For an elliptical body <em>BNOSE</em> is measured across the
+width, and the sphere or face is <em>ENOSE</em> times as high.</p>
+<p><img src="images/MdcBod_blunt.png"
+title="Figure 4. Blunted and truncated noses"
+alt="Figure 4. Blunted and truncated noses" /></p>
+<p><em>Figure 4. An ogive nose sharp, blunted by a BNOSE of 0.2, and
+truncated by a BNOSE of 0.2.</em></p>
+<h2 id="centerbody-and-aft-body">Centerbody and Aft Body</h2>
+<p>The centerbody is a cone frustum from the nose base to its aft end,
+of length <em>LCENTR</em> and size <em>DCENTR</em> there. The aft body,
+<em>LAFT</em> long and <em>DAFT</em> across at the base, is a cone, or
+with <em>TAFT</em> set to OGIVE, an ogive (Figure 5). Its ogive is the
+arc of a circle through both ends, and <em>SLPTAL</em> is its slope
+where it meets its larger end, positive toward the axis: the forward end
+of a boattail, and the base of a flare. Zero, the default, is tangent to
+the larger end there, and a positive slope is a secant ogive. On a
+flare, a slope at the base more than twice the straight flare's makes an
+aft body that first narrows below the centerbody. <em>SLPTAL</em>
+matters only to an ogive aft body. DATCOM requires <em>DAFT</em> to
+differ from <em>DCENTR</em>; here it need not.</p>
+<p><img src="images/MdcBod_aft.png" title="Figure 5. Aft bodies"
+alt="Figure 5. Aft bodies" /></p>
+<p><em>Figure 5. A boattail and a flare, each a cone and two ogives.
+Both bodies have the same nose and centerbody.</em></p>
+<p>The base is flat. <em>DEXIT</em>, the diameter of a nozzle's exit,
+which DATCOM takes for the base drag, is drawn in it as DATCOM draws it:
+the base is flat from its edge in to a circle <em>DEXIT</em> across, and
+from there a cone goes in to a point a quarter of <em>DEXIT</em> inside
+the base. An exit as large as the base leaves no flat ring, and one
+larger is taken to be the base's size. Zero, the default, is a flat
+base. A nose alone has no base to cut, and its <em>DEXIT</em> is
+greyed.</p>
+<h2 id="elliptical-bodies">Elliptical Bodies</h2>
+<p>With <em>NAMELIST</em> ELLBOD every section is an ellipse. Its width
+is <em>WNOSE</em>, <em>WCENTR</em> or <em>WAFT</em>, and its height is
+the ellipticity, <em>ENOSE</em>, <em>ECENTR</em> or <em>EAFT</em>, times
+the width (Figure 6). An ellipticity under 1 is wider than tall and over
+1 is taller than wide, and the sections may be mixed along the body. The
+ellipticity is the same for the whole nose, whatever its shape. It does
+not carry from one part to the next: <em>ECENTR</em> and <em>EAFT</em>
+are 1 by default, so a body that is wider than tall throughout needs
+each of the three set. The inputs of the other namelist are greyed:
+<em>DNOSE</em>, <em>DCENTR</em> and <em>DAFT</em> for ELLBOD, and the
+widths and ellipticities for AXIBOD. The diameters and the widths are
+kept equal, each following the namelist chosen, so changing the namelist
+changes the body as little as it can: an AXIBOD becomes an ELLBOD as
+wide as it was, and the ellipticities, kept while AXIBOD is chosen, make
+it elliptical again.</p>
+<p><img src="images/MdcBod_sections.png"
+title="Figure 6. Elliptical sections"
+alt="Figure 6. Elliptical sections" /></p>
+<p><em>Figure 6. Sections of an elliptical body at the nose base, the
+end of the centerbody and the aft end.</em></p>
+<h2 id="camber">Camber</h2>
+<p><em>ZTIP</em>, <em>ZNOSE</em>, <em>ZCENTR</em> and <em>ZAFT</em> bend
+the body upward, as DATCOM does, by shearing: each section is moved up
+without turning, by a distance that is linear between the stations where
+it is given (Figure 7). They are given at the nose tip, the nose base,
+the end of the centerbody and the aft end, all zero by default. The body
+is made uncambered, from the other inputs, and then moved, so camber
+does not change any section. Where the centerbody or aft body is absent
+its camber is greyed.</p>
+<p><img src="images/MdcBod_camber.png" title="Figure 7. Camber"
+alt="Figure 7. Camber" /></p>
+<p><em>Figure 7. A cambered body: the centerline passes through the
+heights ZTIP, ZNOSE, ZCENTR and ZAFT.</em></p>
+<h2 id="convert-to-stack">Convert to Stack</h2>
+<p>The Convert to Stack button at the top of the Design tab makes the
+equivalent <a href="FuselageStack.html">Stack</a>, a Stack of the same
+body. It asks whether to replace the MDC_BOD or add a Stack beside it.
+Replace swaps the MDC_BOD for the Stack, which takes its place in the
+model, and cannot be undone; Add leaves the MDC_BOD as it is and adds
+the Stack. A Stack has the controls of a general body, so convert when
+the body needs sections an MDC_BOD does not have. Where the body is
+cambered across an ogive aft body, the Stack is a small distance from it
+that grows with the camber, about 0.005 of the diameter for camber of a
+fifth of it. The API call <code>ConvertMdcBodToStack</code> does the
+same.</p>
+<h2 id="parameters">Parameters</h2>
+<p>The parms are in the <em>Design</em> group but for <em>XO</em>, which
+is the XForm tab's X location. The first column gives the Design tab's
+section.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Section</th>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Parm</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Body</td>
+<td style="text-align: left;">NAMELIST</td>
+<td style="text-align: left;"><code>NAMELIST</code></td>
+<td style="text-align: left;">AXIBOD</td>
+<td style="text-align: left;">AXIBOD, circular sections, or ELLBOD,
+elliptical sections.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Body</td>
+<td style="text-align: left;">XO</td>
+<td style="text-align: left;"><code>X_Rel_Location</code> (XForm)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Position of the nose tip along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">TNOSE</td>
+<td style="text-align: left;"><code>TNOSE</code></td>
+<td style="text-align: left;">OGIVE</td>
+<td style="text-align: left;">CONE, OGIVE, POWER, HAACK or KARMAN.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">POWER</td>
+<td style="text-align: left;"><code>POWER</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Exponent of a power law nose.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">LNOSE</td>
+<td style="text-align: left;"><code>LNOSE</code></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Length of the nose.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">DNOSE</td>
+<td style="text-align: left;"><code>DNOSE</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Diameter at the nose base (AXIBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">WNOSE</td>
+<td style="text-align: left;"><code>WNOSE</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Width at the nose base (ELLBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">ENOSE</td>
+<td style="text-align: left;"><code>ENOSE</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Height over width at the nose base
+(ELLBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">BNOSE</td>
+<td style="text-align: left;"><code>BNOSE</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Radius of the blunting sphere or of the
+truncated face.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">TRUNC</td>
+<td style="text-align: left;"><code>TRUNC</code></td>
+<td style="text-align: left;">off</td>
+<td style="text-align: left;">Truncate the nose rather than blunt
+it.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">SLPNOS</td>
+<td style="text-align: left;"><code>SLPNOS</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Slope of an ogive nose at its base; zero
+is tangent.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">ZTIP</td>
+<td style="text-align: left;"><code>ZTIP</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Camber at the nose tip.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Nose</td>
+<td style="text-align: left;">ZNOSE</td>
+<td style="text-align: left;"><code>ZNOSE</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Camber at the nose base.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Centerbody</td>
+<td style="text-align: left;">LCENTR</td>
+<td style="text-align: left;"><code>LCENTR</code></td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">Length of the centerbody.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Centerbody</td>
+<td style="text-align: left;">Nose's size</td>
+<td style="text-align: left;"><code>CENTRDefault</code></td>
+<td style="text-align: left;">on</td>
+<td style="text-align: left;">The centerbody's size at its aft end is
+the nose's.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Centerbody</td>
+<td style="text-align: left;">DCENTR</td>
+<td style="text-align: left;"><code>DCENTR</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Diameter at its aft end (AXIBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Centerbody</td>
+<td style="text-align: left;">WCENTR</td>
+<td style="text-align: left;"><code>WCENTR</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Width at its aft end (ELLBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Centerbody</td>
+<td style="text-align: left;">ECENTR</td>
+<td style="text-align: left;"><code>ECENTR</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Height over width at its aft end
+(ELLBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Centerbody</td>
+<td style="text-align: left;">ZCENTR</td>
+<td style="text-align: left;"><code>ZCENTR</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Camber at its aft end.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">TAFT</td>
+<td style="text-align: left;"><code>TAFT</code></td>
+<td style="text-align: left;">CONE</td>
+<td style="text-align: left;">CONE or OGIVE.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">LAFT</td>
+<td style="text-align: left;"><code>LAFT</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Length of the aft body.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">DAFT</td>
+<td style="text-align: left;"><code>DAFT</code></td>
+<td style="text-align: left;">0.8</td>
+<td style="text-align: left;">Diameter at the base (AXIBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">WAFT</td>
+<td style="text-align: left;"><code>WAFT</code></td>
+<td style="text-align: left;">0.8</td>
+<td style="text-align: left;">Width at the base (ELLBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">EAFT</td>
+<td style="text-align: left;"><code>EAFT</code></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Height over width at the base
+(ELLBOD).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">ZAFT</td>
+<td style="text-align: left;"><code>ZAFT</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Camber at the base.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Aft Body</td>
+<td style="text-align: left;">SLPTAL</td>
+<td style="text-align: left;"><code>SLPTAL</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Slope of an ogive aft body at its larger
+end; zero is tangent.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Base</td>
+<td style="text-align: left;">DEXIT</td>
+<td style="text-align: left;"><code>DEXIT</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">Diameter of the nozzle exit, drawn as a
+cone into the base.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="references">References</h2>
+<ol type="1">
+<li>Fay, J. F. and Jarvis, C. H., "Missile DATCOM User's Manual, 2026
+Revision," Air Force Research Laboratory, Munitions Directorate, Eglin
+AFB, FL, March 2026.</li>
+</ol>
+</body>
+</html>

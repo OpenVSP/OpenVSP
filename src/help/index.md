@@ -55,6 +55,13 @@ particular purpose and can be added to a model as needed.
 
 - [Custom](Custom.md)
 
+### DATCOM Components
+
+These components lay out geometry the way the DATCOM input does.  Their controls carry the names of its
+namelists' inputs.
+
+- [MDC_BOD](MdcBod.md)
+
 ### Special Geometry
 
 - [Conformal](Conformal.md)
