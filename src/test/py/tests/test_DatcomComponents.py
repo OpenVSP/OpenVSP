@@ -284,3 +284,45 @@ def testProtuberancesLimitTheIndexToTheirNumber():
     assert get( gid, "LocIndex" ) == 2
 
 
+#===== MDC_INLET =====#
+
+def testInletHasADiverterOnlyWhereHdivIsAboveZero():
+    gid = new( "MDC_INLET", HDIV=0.1 )
+    assert vsp.GetNumMainSurfs( gid ) == 2
+    put( gid, HDIV=0.0 )
+    assert vsp.GetNumMainSurfs( gid ) == 1
+    put( gid, HDIV=-0.1 )
+    assert vsp.GetNumMainSurfs( gid ) == 1
+
+
+def testInletSetHasNInCopiesSpacedEvenly():
+    gid = new( "MDC_INLET", NIN=3, HDIV=0.0 )
+    assert vsp.GetNumMainSurfs( gid ) == 3
+    for k in range( 3 ):
+        assert get( gid, "PHI_%d" % ( k + 1 ) ) == pytest.approx( 120.0 * k )
+
+
+@pytest.mark.parametrize( "intype", ( 1, 2, 3 ) )
+def testInletTypesReachFromXinltForTheirLength( intype ):
+    gid = new( "MDC_INLET", INTYPE=intype, HDIV=0.0 )
+    place( gid, 4.0 )
+    lo, hi = extent( gid, 0 )
+    assert lo == pytest.approx( 4.0, abs=1e-6 )
+    assert hi == pytest.approx( 4.0 + 3.0, abs=1e-6 )
+
+
+def testInletCoverPlugsTheRamp():
+    open_inlet = new( "MDC_INLET", INTYPE=1, HDIV=0.0 )
+    open_pts = sample( open_inlet )
+    covered = new( "MDC_INLET", INTYPE=1, HDIV=0.0, COVER=1 )
+    assert sample( covered ) != open_pts
+
+
+def testInletLimitsItsIndicesToTheirNumbers():
+    gid = new( "MDC_INLET", NIN=3 )
+    put( gid, INLET=3 )
+    assert get( gid, "INLET" ) == 3
+    put( gid, NIN=2 )
+    assert get( gid, "INLET" ) == 2
+
+
