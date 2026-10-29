@@ -51,6 +51,11 @@ public:
     //==== Offset XSecs For Conformal =====//
     virtual void OffsetXSecs( double off );
 
+    // True for a Geom whose surface takes its shape from its parent's, so a move or a new parent rebuilds it.
+    virtual bool ShapeFollowsParent() const                { return false; }
+    virtual void SetDirtyFlags( Parm* parm_ptr );
+    virtual void SetParentID( const string &id );
+
     // The ID of parms[i], or empty where there is none.
     template < class T >
     static string ParmIDAt( const vector< T* > & parms, int i )

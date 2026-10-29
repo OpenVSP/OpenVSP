@@ -75,6 +75,24 @@ void XSecSurfGeom::EndXSecSurfs()
     DeleteXSecSurfsFrom( m_NextSurf );
 }
 
+void XSecSurfGeom::SetDirtyFlags( Parm* parm_ptr )
+{
+    Geom::SetDirtyFlags( parm_ptr );
+    if ( m_XFormDirty && ShapeFollowsParent() )
+    {
+        m_SurfDirty = true;
+    }
+}
+
+void XSecSurfGeom::SetParentID( const string &id )
+{
+    Geom::SetParentID( id );
+    if ( ShapeFollowsParent() )
+    {
+        m_SurfDirty = true;
+    }
+}
+
 //==== Get XSecSurf At Index =====//
 XSecSurf* XSecSurfGeom::GetXSecSurf( int index )
 {
