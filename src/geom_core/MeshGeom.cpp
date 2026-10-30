@@ -22,6 +22,7 @@
 #include "PtCloudGeom.h"
 #include "NGonMeshGeom.h"
 #include "LinkMgr.h"
+#include "MessageMgr.h"
 #include "Vehicle.h"
 #include "PntNodeMerge.h"
 
@@ -369,7 +370,19 @@ int MeshGeom::ReadSTL( const char* file_name )
             fclose( file_id );
             file_id = fopen( file_name, "rb" );         // Reopen as Binary
 
-            ReadBinSTLBlock( file_id, tMesh );
+            int attSize = BinSTLAttSize( file_id );
+            if ( attSize == 2 )
+            {
+                ReadBinSTLBlock( file_id, tMesh, attSize );
+            }
+            else
+            {
+                MessageData errMsgData;
+                errMsgData.m_String = "Error";
+                errMsgData.m_IntVec.push_back( vsp::VSP_FILE_READ_FAILURE );
+                errMsgData.m_StringVec.push_back( "Error:  Binary STL file '" + string( file_name ) + "' does not match its facet count." );
+                MessageMgr::getInstance().SendAll( errMsgData );
+            }
         }
         fclose( file_id );
     }
@@ -388,8 +401,31 @@ int MeshGeom::ReadSTL( const char* file_name )
 
 }
 
+// Attribute size of a binary STL file, 0 when its size fits no layout below.  The file is left at its start.
+// 2: one header and count, then 50 byte facets, 84 + 50 n bytes.
+int MeshGeom::BinSTLAttSize( FILE* file_id )
+{
+    fseek( file_id, 0, SEEK_END );
+    long long fileSize = ftell( file_id );
+
+    int attSize = 0;
+    if ( fileSize >= 84 )
+    {
+        fseek( file_id, 80, SEEK_SET );
+        long long numFacet = ( unsigned int ) ReadBinInt( file_id );
+
+        if ( fileSize == 84 + 50 * numFacet )
+        {
+            attSize = 2;
+        }
+    }
+
+    fseek( file_id, 0, SEEK_SET );
+    return attSize;
+}
+
 //==== Read One Binary STL Header With Its Facets ====//
-void MeshGeom::ReadBinSTLBlock( FILE* file_id, TMesh* tMesh )
+void MeshGeom::ReadBinSTLBlock( FILE* file_id, TMesh* tMesh, int attSize )
 {
     char str[256];
     float nx, ny, nz;
@@ -419,9 +455,11 @@ void MeshGeom::ReadBinSTLBlock( FILE* file_id, TMesh* tMesh )
         v2[1] = ReadBinFloat( file_id );
         v2[2] = ReadBinFloat( file_id );
 
-        //==== Padding ====//
-        fgetc( file_id );
-        fgetc( file_id );
+        //==== Attribute ====//
+        for ( int j = 0 ; j < attSize ; j++ )
+        {
+            fgetc( file_id );
+        }
 
         //==== Add Valid Facet ====//
         tPtr = new TTri( tMesh );
