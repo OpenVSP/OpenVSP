@@ -241,7 +241,7 @@ int MeshGeom::ReadXSec( const char* file_name )
 
 int MeshGeom::ReadSTL( const char* file_name )
 {
-    FILE* file_id = fopen( file_name, "r" );
+    FILE* file_id = fopen( file_name, "rb" );
 
     char str[256];
     float nx, ny, nz;
@@ -255,17 +255,20 @@ int MeshGeom::ReadSTL( const char* file_name )
 
     if ( file_id )
     {
-        //==== Cheesy ASCII/Binary Test ====//
-        while ( fgets( str, 255, file_id ) )
+        //==== Binary When Any Byte Is NUL Or Above 127 ====//
+        unsigned char buf[4096];
+        size_t numRead = fread( buf, 1, sizeof( buf ), file_id );
+        while ( numRead > 0 && !binaryFlag )
         {
-            for ( int i = 0 ; i < ( int )strlen( str ) ; i++ )
+            for ( size_t i = 0 ; i < numRead ; i++ )
             {
-                if ( ( unsigned char )str[i] > 127 )
+                if ( buf[i] == 0 || buf[i] > 127 )
                 {
                     binaryFlag = 1;
                     break;
                 }
             }
+            numRead = fread( buf, 1, sizeof( buf ), file_id );
         }
         fclose( file_id );
     }
