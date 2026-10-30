@@ -1609,15 +1609,24 @@ void ConformalGeom::TrimU( VspSurf & surf )
     m_CapUMinOption = m_CapUMinTrimOption();
     m_CapUMaxOption = m_CapUMaxTrimOption();
 
+    // The trimmed ends' caps are in relative units, with none of the parent's cap modifiers.
+    m_CapUMinRelFlag = true;
     m_CapUMinLength = m_CapUMinTrimLength();
     m_CapUMinOffset = m_CapUMinTrimOffset();
     m_CapUMinStrength = m_CapUMinTrimStrength();
     m_CapUMinSweepFlag = m_CapUMinTrimSweepFlag();
+    m_CapUMinTruncFlag = false;
+    m_CapUMinShearFlag = false;
+    m_CapUMinScaledFlag = false;
 
+    m_CapUMaxRelFlag = true;
     m_CapUMaxLength = m_CapUMaxTrimLength();
     m_CapUMaxOffset = m_CapUMaxTrimOffset();
     m_CapUMaxStrength = m_CapUMaxTrimStrength();
     m_CapUMaxSweepFlag = m_CapUMaxTrimSweepFlag();
+    m_CapUMaxTruncFlag = false;
+    m_CapUMaxShearFlag = false;
+    m_CapUMaxScaledFlag = false;
 
 }
 
