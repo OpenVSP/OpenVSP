@@ -18,6 +18,7 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     m_Type.m_Type = FUSELAGE_GEOM_TYPE;
 
     m_XSecSurf.SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
+    m_XSecSurf.SetCutMinNumXSecs( 1 );
 
     m_XSecSurf.SetParentContainer( GetID() );
 
@@ -118,6 +119,16 @@ void FuselageGeom::UpdatePreTess()
     m_AftClusterVec.clear();
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
+
+    // One section is a surface of no length, tessellated with no points between its ends.
+    if ( nxsec == 1 )
+    {
+        m_TessUVec.assign( 1, 2 );
+        m_FwdClusterVec.assign( 1, 1.0 );
+        m_AftClusterVec.assign( 1, 1.0 );
+        return;
+    }
+
     m_TessUVec.resize( nxsec - 1 );
     m_FwdClusterVec.resize( nxsec - 1 );
     m_AftClusterVec.resize( nxsec - 1 );
@@ -390,18 +401,65 @@ xmlNodePtr FuselageGeom::DecodeXml( xmlNodePtr & node )
     return fuselage_node;
 }
 
-//==== A New Section Starts As The One Before It, Halfway To The Next ====//
+//==== Insert A Section After Index ====//
+void FuselageGeom::InsertXSec( int index, int type )
+{
+    // A lone section past the middle of the fuselage has its new one ahead of it.
+    FuseXSec* xs = ( FuseXSec* ) GetXSec( index );
+    if ( NumXSec() == 1 && xs && xs->m_XLocPercent() > 0.5 )
+    {
+        m_XSecSurf.InsertXSec( type, -1 );
+        m_ActiveXSec.SetUpperLimit( NumXSec() - 1 );
+        m_ActiveXSec = 0;
+
+        InitInsertedXSec( 0 );
+        XSecChanged( 0 );
+        Update();
+        return;
+    }
+
+    GeomXSec::InsertXSec( index, type );
+}
+
+//==== A Lone Section Can Have One Inserted After It ====//
+int FuselageGeom::LastInsertAfterXSec()
+{
+    if ( NumXSec() == 1 )
+    {
+        return 0;
+    }
+    return NumXSec() - 2;
+}
+
+//==== A New Section Starts As Its Neighbor, Halfway To The Next Section Or End ====//
 void FuselageGeom::InitInsertedXSec( int index )
 {
     FuseXSec* prev_xs = ( FuseXSec* ) GetXSec( index - 1 );
     FuseXSec* next_xs = ( FuseXSec* ) GetXSec( index + 1 );
     FuseXSec* xs = ( FuseXSec* ) GetXSec( index );
 
-    if ( xs && prev_xs && next_xs )
+    if ( !xs )
     {
+        return;
+    }
+
+    // Beside a lone section, the new one goes midway to the end of the fuselage it faces.
+    if ( prev_xs )
+    {
+        double x_loc_1 = 1.0;
+        if ( next_xs )
+        {
+            x_loc_1 = next_xs->m_XLocPercent();
+        }
         xs->SetRefLength( m_Length() );
         xs->CopyFrom( prev_xs );
-        xs->m_XLocPercent = 0.5 * ( prev_xs->m_XLocPercent() + next_xs->m_XLocPercent() );
+        xs->m_XLocPercent = 0.5 * ( prev_xs->m_XLocPercent() + x_loc_1 );
+    }
+    else if ( next_xs )
+    {
+        xs->SetRefLength( m_Length() );
+        xs->CopyFrom( next_xs );
+        xs->m_XLocPercent = 0.5 * next_xs->m_XLocPercent();
     }
 }
 

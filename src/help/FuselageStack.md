@@ -196,13 +196,15 @@ forward through the outlet back to section 6, which lies on section 0.*
 *Insert* adds a copy of the active section after it and makes the copy active.
 
 - In a Fuselage the copy goes halfway, in *X*, between the active section and the next one.  Nothing else moves.  A
-  section cannot be inserted after the last one.
+  section cannot be inserted after the last one, unless it is the only one.  Beside a lone section the new one goes
+  halfway to the tail, or, when the lone section lies past the middle of the length, halfway to the nose and ahead of
+  it; in MONOTONIC order the two then lie at the nose and the tail, as the first and last sections always do.
 - In a Stack the copy takes the active section's steps and turns, so it lies one more step on, and every later section
   moves on by that step.  A step of zero *Delta X* becomes 1.  In LOOP order a section cannot be inserted after the
   last one.  In FREE order it can, and the Stack grows by the last section's step.
 
-*Cut* removes the active section and keeps it for pasting; it does nothing when only two sections are left.  In a
-Fuselage nothing else moves.  In a Stack the sections
+*Cut* removes the active section and keeps it for pasting; it does nothing when only one section is left.  A lone
+section is a surface of no length, closed by its end caps.  In a Fuselage nothing else moves.  In a Stack the sections
 after it close up, since each is placed from the one before.
 
 ## Tessellation Along the Body

@@ -35,6 +35,9 @@ public:
         return m_XSecSurf.NumXSec();
     }
 
+    virtual void InsertXSec( int index, int type );
+    virtual int LastInsertAfterXSec();
+
     virtual int GetNumXSecSurfs() const
     {
         return 1;

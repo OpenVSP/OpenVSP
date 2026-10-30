@@ -34,7 +34,7 @@ fields name the section and its curve; the names show in the Parm pickers and th
 | Control    | Effect                                                                                                    |
 |:-----------|:----------------------------------------------------------------------------------------------------------|
 | Insert     | Adds a copy of the active section after it, and makes the copy active.                                     |
-| Cut        | Removes the active section and keeps it for pasting.  A component keeps at least two sections.             |
+| Cut        | Removes the active section and keeps it for pasting.  A Fuselage or Stack keeps at least one section, a Wing or Propeller two. |
 | Copy       | Keeps a copy of the active section for pasting.                                                           |
 | Paste      | Replaces the active section with the copied one, in the active section's place.                           |
 | Copy Curve | Keeps a copy of the active section's curve alone for pasting.                                             |
@@ -63,8 +63,8 @@ copied section's curve; Paste after Copy Curve pastes only the curve.
 An inserted copy is placed between the active section and the next: on a Fuselage, halfway between them in X; on a
 Propeller, at the mean of their radii.  On a Stack, whose sections are placed relative to the one before, the copy takes
 the active section's offset (an offset of 1 along X if the active section has none there), and the sections after it
-move along by that much.  A section can be inserted after the last only on a Stack whose order policy is FREE; see
-[Fuselage and Stack](FuselageStack.md).
+move along by that much.  A section can be inserted after the last only on a Stack whose order policy is FREE, or on
+a Fuselage that has a single section; see [Fuselage and Stack](FuselageStack.md).
 
 A copy can be pasted into another component of the same kind, a Fuselage into a Fuselage for example.  Pasted into a
 different kind, only its curve comes across, as with Paste Curve.  The Wing has these controls on its Sect tab, but its

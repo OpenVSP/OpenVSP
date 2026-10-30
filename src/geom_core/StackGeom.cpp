@@ -22,6 +22,7 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
     m_XSecSurf.SetParentContainer( GetID() );
 
     m_XSecSurf.SetBasicOrientation( X_DIR, Y_DIR, XS_SHIFT_MID, false );
+    m_XSecSurf.SetCutMinNumXSecs( 1 );
 
     m_OrderPolicy.Init( "OrderPolicy", "Design", this, STACK_FREE, STACK_FREE, NUM_STACK_POLICY - 1 );
     m_OrderPolicy.SetDescript( "XSec ordering policy for stack" );
@@ -782,6 +783,16 @@ void StackGeom::UpdatePreTess()
     m_AftClusterVec.clear();
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
+
+    // One section is a surface of no length, tessellated with no points between its ends.
+    if ( nxsec == 1 )
+    {
+        m_TessUVec.assign( 1, 2 );
+        m_FwdClusterVec.assign( 1, 1.0 );
+        m_AftClusterVec.assign( 1, 1.0 );
+        return;
+    }
+
     m_TessUVec.resize( nxsec - 1 );
     m_FwdClusterVec.resize( nxsec - 1 );
     m_AftClusterVec.resize( nxsec - 1 );
