@@ -1689,6 +1689,10 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title, cons
     m_SSXSCGroup.AddSubGroupLayout( m_SSXSCBiconvexGroup, m_SSXSCGroup.GetW(), m_SSXSCGroup.GetRemainY() );
     m_SSXSCBiconvexGroup.AddSlider( m_SSXSCBiconvexChordSlider, "Chord", 10, "%7.3f" );
     m_SSXSCBiconvexGroup.AddSlider( m_SSXSCBiconvexThickChordSlider, "T/C", 1, "%7.5f" );
+    m_SSXSCBiconvexGroup.AddSlider( m_SSXSCBiconvexThickFracUpSlider, "Up Frac", 1, "%7.5f" );
+    m_SSXSCBiconvexGroup.AddSlider( m_SSXSCBiconvexThickLocSlider, "Thick X", 1, "%7.5f" );
+    m_SSXSCBiconvexGroup.AddSlider( m_SSXSCBiconvexThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_SSXSCBiconvexGroup.AddButton( m_SSXSCBiconvexCircleArcToggle, "Circular Arcs" );
 
     //==== Wedge AF ====//
     m_SSXSCGroup.AddSubGroupLayout( m_SSXSCWedgeGroup, m_SSXSCGroup.GetW(), m_SSXSCGroup.GetRemainY() );
@@ -2761,6 +2765,10 @@ bool GeomScreen::Update()
 
                     m_SSXSCBiconvexChordSlider.Update( bi_xs->m_Chord.GetID() );
                     m_SSXSCBiconvexThickChordSlider.Update( bi_xs->m_ThickChord.GetID() );
+                    m_SSXSCBiconvexThickFracUpSlider.Update( bi_xs->m_ThickFracUp.GetID() );
+                    m_SSXSCBiconvexThickLocSlider.Update( bi_xs->m_ThickLoc.GetID() );
+                    m_SSXSCBiconvexThickLocLowSlider.Update( bi_xs->m_ThickLocLow.GetID() );
+                    m_SSXSCBiconvexCircleArcToggle.Update( bi_xs->m_UseCircleArc.GetID() );
                 }
                 else if ( xsc->GetType() == vsp::XS_WEDGE )
                 {
@@ -4848,6 +4856,10 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_XSecLayout.AddSubGroupLayout( m_BiconvexGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
     m_BiconvexGroup.AddSlider( m_BiconvexChordSlider, "Chord", 10, "%7.3f" );
     m_BiconvexGroup.AddSlider( m_BiconvexThickChordSlider, "T/C", 1, "%7.5f" );
+    m_BiconvexGroup.AddSlider( m_BiconvexThickFracUpSlider, "Up Frac", 1, "%7.5f" );
+    m_BiconvexGroup.AddSlider( m_BiconvexThickLocSlider, "Thick X", 1, "%7.5f" );
+    m_BiconvexGroup.AddSlider( m_BiconvexThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_BiconvexGroup.AddButton( m_BiconvexCircleArcToggle, "Circular Arcs" );
 
     //==== Wedge AF ====//
     m_XSecLayout.AddSubGroupLayout( m_WedgeGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
@@ -5413,6 +5425,10 @@ bool XSecScreen::Update()
 
                 m_BiconvexChordSlider.Update( bi_xs->m_Chord.GetID() );
                 m_BiconvexThickChordSlider.Update( bi_xs->m_ThickChord.GetID() );
+                m_BiconvexThickFracUpSlider.Update( bi_xs->m_ThickFracUp.GetID() );
+                m_BiconvexThickLocSlider.Update( bi_xs->m_ThickLoc.GetID() );
+                m_BiconvexThickLocLowSlider.Update( bi_xs->m_ThickLocLow.GetID() );
+                m_BiconvexCircleArcToggle.Update( bi_xs->m_UseCircleArc.GetID() );
             }
             else if (xsc->GetType() == XS_WEDGE)
             {

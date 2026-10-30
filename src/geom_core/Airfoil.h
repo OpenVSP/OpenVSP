@@ -88,6 +88,10 @@ protected:
 
     virtual double CalculateThick();
 
+    // Appends to cp the arc of the circle about c of radius r from the angle th0 through sweep, counterclockwise
+    // positive, as cubic Bezier segments of at most a quarter turn, and to dt each one's length.
+    static void Arc( vector< vec3d > & cp, vector< double > & dt, const vec3d & c, double r, double th0, double sweep );
+
     VspCurve m_OrigCurve;
 };
 
@@ -290,9 +294,30 @@ public:
     Biconvex( );
 
     virtual void UpdateCurve( bool updateParms = true );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
+
+    // The fraction of the thickness above the chord line; a half is symmetric.
+    Parm m_ThickFracUp;
+
+    // The chord fractions of the upper and lower sides' highest points.
+    Parm m_ThickLoc;
+    Parm m_ThickLocLow;
+
+    // Whether each side is built from circular arcs rather than parabolas.
+    BoolParm m_UseCircleArc;
 
 protected:
 
+    // A side of height h at the chord fraction xm, from the leading edge to the trailing edge: a curve up to xm,
+    // level there, and another down to the trailing edge, parabolas or circular arcs as m_UseCircleArc says.  dt is
+    // each segment's share of the side's parameter length 2, by arc length.
+    void Side( vector< vec3d > & cp, vector< double > & dt, double h, double xm ) const;
+
+    // The side of Side from parabolas, each exact as a cubic Bezier segment.  A line closes an edge where xm is at it.
+    static void ParabolaSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm );
+
+    // The side of Side from circular arcs, each on a circle centered under the peak.
+    static void CircleSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm );
 
 };
 

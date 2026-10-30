@@ -304,6 +304,10 @@ protected:
     GroupLayout m_BiconvexGroup;
     SliderAdjRangeInput m_BiconvexChordSlider;
     SliderAdjRangeInput m_BiconvexThickChordSlider;
+    SliderAdjRangeInput m_BiconvexThickFracUpSlider;
+    SliderAdjRangeInput m_BiconvexThickLocSlider;
+    SliderAdjRangeInput m_BiconvexThickLocLowSlider;
+    ToggleButton m_BiconvexCircleArcToggle;
 
     GroupLayout m_WedgeGroup;
     SliderAdjRangeInput m_WedgeChordSlider;

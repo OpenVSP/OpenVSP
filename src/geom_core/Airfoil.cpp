@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <algorithm>
 #include <cmath>
 
 #include "Airfoil.h"
@@ -847,58 +848,227 @@ Biconvex::Biconvex( ) : Airfoil( )
 {
     m_Type = XS_BICONVEX;
     m_Name = "BiConvex";
+
+    m_ThickFracUp.Init( "ThickFracUp", m_GroupName, this, 0.5, 0.0, 1.0 );
+    m_ThickFracUp.SetDescript( "Fraction of the thickness above the chord line." );
+
+    m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.5, 0.0, 1.0 );
+    m_ThickLoc.SetDescript( "X/C location of the upper surface's maximum thickness." );
+
+    m_ThickLocLow.Init( "ThickLocLow", m_GroupName, this, 0.5, 0.0, 1.0 );
+    m_ThickLocLow.SetDescript( "X/C location of the lower surface's maximum thickness." );
+
+    m_UseCircleArc.Init( "UseCircleArc", m_GroupName, this, false, 0, 1 );
+    m_UseCircleArc.SetDescript( "Flag to build each side from circular arcs rather than parabolas." );
+}
+
+void Airfoil::Arc( vector< vec3d > & cp, vector< double > & dt, const vec3d & c, double r, double th0, double sweep )
+{
+    // At most a quarter circle a segment, each the cubic whose inner control points are k r along the end tangents,
+    // k as Code-Eli takes it for a circle.
+    int nseg = ( int )ceil( std::abs( sweep ) / ( 0.5 * M_PI ) - 1.0e-9 );
+    nseg = std::max( nseg, 1 );
+    double dth = sweep / nseg;
+    double k = eli::constants::math< double >::cubic_bezier_circle_const() * tan( std::abs( dth ) / 4.0 ) * r;
+    double sgn = 1.0;
+    if ( dth < 0.0 )
+    {
+        sgn = -1.0;
+    }
+    for ( int i = 0; i < nseg; i++ )
+    {
+        double t0 = th0 + i * dth;
+        double t1 = t0 + dth;
+        vec3d p0 = c + vec3d( r * cos( t0 ), r * sin( t0 ), 0.0 );
+        vec3d p3 = c + vec3d( r * cos( t1 ), r * sin( t1 ), 0.0 );
+        vec3d d0( -sin( t0 ) * sgn, cos( t0 ) * sgn, 0.0 );
+        vec3d d1( -sin( t1 ) * sgn, cos( t1 ) * sgn, 0.0 );
+        if ( cp.empty() )
+        {
+            cp.push_back( p0 );
+        }
+        cp.push_back( p0 + d0 * k );
+        cp.push_back( p3 - d1 * k );
+        cp.push_back( p3 );
+        dt.push_back( r * std::abs( dth ) );
+    }
+}
+
+// The sweep from th0 to th1 the way sgn turns, positive counterclockwise, between zero and a full turn.
+static double ArcSweep( double th0, double th1, double sgn )
+{
+    double sweep = th1 - th0;
+    while ( sweep * sgn < 0.0 )
+    {
+        sweep += sgn * 2.0 * M_PI;
+    }
+    while ( sweep * sgn > 2.0 * M_PI )
+    {
+        sweep -= sgn * 2.0 * M_PI;
+    }
+    return sweep;
+}
+
+void Biconvex::CircleSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm )
+{
+    cp.clear();
+    dt.clear();
+
+    // A side with no height is the chord line.
+    if ( std::abs( h ) < 1.0e-12 )
+    {
+        cp.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+        cp.push_back( vec3d( 1.0 / 3.0, 0.0, 0.0 ) );
+        cp.push_back( vec3d( 2.0 / 3.0, 0.0, 0.0 ) );
+        cp.push_back( vec3d( 1.0, 0.0, 0.0 ) );
+        dt.push_back( 2.0 );
+        return;
+    }
+
+    // Each arc is level at the peak, on a circle centered below it for a side above the chord line, above it for
+    // one below, of radius ( d^2 + h^2 ) / 2h for a run d along the chord.  It turns clockwise above, counterclockwise
+    // below.
+    double sgn = -1.0;
+    double thpeak = 0.5 * M_PI;
+    if ( h < 0.0 )
+    {
+        sgn = 1.0;
+        thpeak = -0.5 * M_PI;
+    }
+
+    double rf = ( xm * xm + h * h ) / ( 2.0 * std::abs( h ) );
+    vec3d cf( xm, h + sgn * rf, 0.0 );
+    double th0 = atan2( -cf.y(), -cf.x() );
+    Arc( cp, dt, cf, rf, th0, ArcSweep( th0, thpeak, sgn ) );
+
+    double d = 1.0 - xm;
+    double rb = ( d * d + h * h ) / ( 2.0 * std::abs( h ) );
+    vec3d cb( xm, h + sgn * rb, 0.0 );
+    double th1 = atan2( -cb.y(), 1.0 - cb.x() );
+    Arc( cp, dt, cb, rb, thpeak, ArcSweep( thpeak, th1, sgn ) );
+
+    double total = 0.0;
+    for ( int i = 0; i < ( int )dt.size(); i++ )
+    {
+        total += dt[i];
+    }
+    for ( int i = 0; i < ( int )dt.size(); i++ )
+    {
+        dt[i] = 2.0 * dt[i] / total;
+    }
+}
+
+void Biconvex::ParabolaSide( vector< vec3d > & cp, vector< double > & dt, double h, double xm )
+{
+    // Quadratic Bezier segments: each parabola's control point is where its end tangents meet.
+    vector< vec3d > q;
+    if ( xm > 0.0 )
+    {
+        q.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+        q.push_back( vec3d( 0.5 * xm, h, 0.0 ) );
+        q.push_back( vec3d( xm, h, 0.0 ) );
+    }
+    else
+    {
+        q.push_back( vec3d( 0.0, 0.0, 0.0 ) );
+        q.push_back( vec3d( 0.0, 0.5 * h, 0.0 ) );
+        q.push_back( vec3d( 0.0, h, 0.0 ) );
+    }
+    if ( xm < 1.0 )
+    {
+        q.push_back( vec3d( xm, h, 0.0 ) );
+        q.push_back( vec3d( 0.5 * ( 1.0 + xm ), h, 0.0 ) );
+        q.push_back( vec3d( 1.0, 0.0, 0.0 ) );
+    }
+    else
+    {
+        q.push_back( vec3d( 1.0, h, 0.0 ) );
+        q.push_back( vec3d( 1.0, 0.5 * h, 0.0 ) );
+        q.push_back( vec3d( 1.0, 0.0, 0.0 ) );
+    }
+
+    cp.clear();
+    dt.clear();
+    double total = 0.0;
+    for ( int i = 0; i < ( int )q.size(); i += 3 )
+    {
+        const vec3d & a = q[i];
+        const vec3d & b = q[i + 1];
+        const vec3d & c = q[i + 2];
+
+        // The arc length, from a polyline of the segment.
+        double len = 0.0;
+        vec3d prev = a;
+        for ( int j = 1; j <= 32; j++ )
+        {
+            double t = j / 32.0;
+            vec3d p = a * ( ( 1.0 - t ) * ( 1.0 - t ) ) + b * ( 2.0 * t * ( 1.0 - t ) ) + c * ( t * t );
+            len += dist( p, prev );
+            prev = p;
+        }
+
+        // A segment of no length, the line at an edge of a flat side, is left out.
+        if ( len < 1.0e-12 )
+        {
+            continue;
+        }
+        if ( cp.empty() )
+        {
+            cp.push_back( a );
+        }
+        cp.push_back( a + ( b - a ) * ( 2.0 / 3.0 ) );
+        cp.push_back( c + ( b - c ) * ( 2.0 / 3.0 ) );
+        cp.push_back( c );
+        dt.push_back( len );
+        total += len;
+    }
+
+    for ( int i = 0; i < ( int )dt.size(); i++ )
+    {
+        dt[i] = 2.0 * dt[i] / total;
+    }
+}
+
+void Biconvex::Side( vector< vec3d > & cp, vector< double > & dt, double h, double xm ) const
+{
+    if ( m_UseCircleArc() )
+    {
+        CircleSide( cp, dt, h, xm );
+    }
+    else
+    {
+        ParabolaSide( cp, dt, h, xm );
+    }
 }
 
 //==== Update ====//
 void Biconvex::UpdateCurve( bool updateParms )
 {
-    double x, xu, yu;
+    vector< vec3d > ucp;
+    vector< double > udt;
+    vector< vec3d > lcp;
+    vector< double > ldt;
+    Side( ucp, udt, m_ThickFracUp() * m_ThickChord(), m_ThickLoc() );
+    Side( lcp, ldt, ( m_ThickFracUp() - 1.0 ) * m_ThickChord(), m_ThickLocLow() );
 
-    unsigned int nbase = 21;
+    // The lower side from the trailing edge to the leading edge, then the upper side back.
+    std::reverse( lcp.begin(), lcp.end() );
+    std::reverse( ldt.begin(), ldt.end() );
+    vector< vec3d > cp = lcp;
+    cp.insert( cp.end(), ucp.begin() + 1, ucp.end() );
+    vector< double > dt = ldt;
+    dt.insert( dt.end(), udt.begin(), udt.end() );
 
-    //==== Initialize Array For Points ====//
-    vector< vec3d > upnts( nbase );
-    vector< vec3d > lpnts( nbase );
-
-    //==== Generate Airfoil ====//
-    for ( int i = 0 ; i < nbase ; i++ )
+    // A parameter for every control point; only those at the segments' ends are used.
+    vector< double > param( cp.size(), 0.0 );
+    for ( int i = 0; i < ( int )dt.size(); i++ )
     {
-        //==== More Points At Leading Edge
-        x = ( double )i / ( double )( nbase - 1 );
-
-        //==== Compute Upper Surface Points ====//
-        xu = x;
-        yu = 2.0 * m_ThickChord() * x * ( 1.0 - x );
-        upnts[i] = vec3d( xu, yu, 0.0 );
-
-        //==== Compute Lower Surface Points ====//
-        lpnts[nbase - 1 - i] = vec3d( xu, -yu, 0.0 );
+        for ( int j = 1; j <= 3; j++ )
+        {
+            param[3 * i + j] = param[3 * i] + dt[i] * j / 3.0;
+        }
     }
-
-    vector< double > uarclen( nbase );
-    vector< double > larclen( nbase );
-    uarclen[0] = 0.0;
-    larclen[0] = 0.0;
-    for ( int i = 1 ; i < nbase ; i++ )
-    {
-        uarclen[ i ] = uarclen[ i - 1 ] + dist( upnts[ i ], upnts[ i - 1 ] );
-        larclen[ i ] = larclen[ i - 1 ] + dist( lpnts[ i ], lpnts[ i - 1 ] );
-    }
-
-    double lenscale = 2.0 / uarclen.back();
-
-    for ( int i = 0 ; i < nbase ; i++ )
-    {
-        uarclen[ i ] = uarclen[ i ] * lenscale;
-        larclen[ i ] = larclen[ i ] * lenscale;
-    }
-
-    VspCurve upcrv;
-    upcrv.InterpolatePCHIP( upnts, uarclen, false );
-
-    m_Curve.InterpolatePCHIP( lpnts, larclen, false );
-
-    m_Curve.Append( upcrv );
+    m_Curve.SetCubicControlPoints( cp, param );
 
     Airfoil::UpdateCurve( updateParms );
 }
@@ -906,6 +1076,22 @@ void Biconvex::UpdateCurve( bool updateParms )
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void Biconvex::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    Biconvex *s = dynamic_cast< Biconvex* > ( start );
+    Biconvex *e = dynamic_cast< Biconvex* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_ThickFracUp );
+        INTERP_PARM( s, e, frac, m_ThickLoc );
+        INTERP_PARM( s, e, frac, m_ThickLocLow );
+        m_UseCircleArc = s->m_UseCircleArc();
+    }
+    XSecCurve::Interp( start, end, frac );
+}
 
 //==== Constructor ====//
 Wedge::Wedge( ) : Airfoil( )

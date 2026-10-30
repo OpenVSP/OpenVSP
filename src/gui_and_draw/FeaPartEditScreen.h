@@ -457,6 +457,10 @@ private:
     GroupLayout m_FeaSSXSCBiconvexGroup;
     SliderAdjRangeInput m_FeaSSXSCBiconvexChordSlider;
     SliderAdjRangeInput m_FeaSSXSCBiconvexThickChordSlider;
+    SliderAdjRangeInput m_FeaSSXSCBiconvexThickFracUpSlider;
+    SliderAdjRangeInput m_FeaSSXSCBiconvexThickLocSlider;
+    SliderAdjRangeInput m_FeaSSXSCBiconvexThickLocLowSlider;
+    ToggleButton m_FeaSSXSCBiconvexCircleArcToggle;
 
     GroupLayout m_FeaSSXSCWedgeGroup;
     SliderAdjRangeInput m_FeaSSXSCWedgeChordSlider;

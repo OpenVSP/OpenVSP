@@ -698,6 +698,10 @@ public:
     GroupLayout m_SSXSCBiconvexGroup;
     SliderAdjRangeInput m_SSXSCBiconvexChordSlider;
     SliderAdjRangeInput m_SSXSCBiconvexThickChordSlider;
+    SliderAdjRangeInput m_SSXSCBiconvexThickFracUpSlider;
+    SliderAdjRangeInput m_SSXSCBiconvexThickLocSlider;
+    SliderAdjRangeInput m_SSXSCBiconvexThickLocLowSlider;
+    ToggleButton m_SSXSCBiconvexCircleArcToggle;
 
     GroupLayout m_SSXSCWedgeGroup;
     SliderAdjRangeInput m_SSXSCWedgeChordSlider;
@@ -1054,6 +1058,10 @@ protected:
     GroupLayout m_BiconvexGroup;
     SliderAdjRangeInput m_BiconvexChordSlider;
     SliderAdjRangeInput m_BiconvexThickChordSlider;
+    SliderAdjRangeInput m_BiconvexThickFracUpSlider;
+    SliderAdjRangeInput m_BiconvexThickLocSlider;
+    SliderAdjRangeInput m_BiconvexThickLocLowSlider;
+    ToggleButton m_BiconvexCircleArcToggle;
 
     GroupLayout m_WedgeGroup;
     SliderAdjRangeInput m_WedgeChordSlider;

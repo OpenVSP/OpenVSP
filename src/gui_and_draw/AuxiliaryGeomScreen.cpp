@@ -606,6 +606,10 @@ AuxiliaryGeomScreen::AuxiliaryGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 40
     m_SuperConeXSecLayout.AddSubGroupLayout( m_BiconvexGroup, m_SuperConeXSecLayout.GetW(), m_SuperConeXSecLayout.GetRemainY() );
     m_BiconvexGroup.AddSlider( m_BiconvexChordSlider, "Chord", 10, "%7.3f" );
     m_BiconvexGroup.AddSlider( m_BiconvexThickChordSlider, "T/C", 1, "%7.5f" );
+    m_BiconvexGroup.AddSlider( m_BiconvexThickFracUpSlider, "Up Frac", 1, "%7.5f" );
+    m_BiconvexGroup.AddSlider( m_BiconvexThickLocSlider, "Thick X", 1, "%7.5f" );
+    m_BiconvexGroup.AddSlider( m_BiconvexThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_BiconvexGroup.AddButton( m_BiconvexCircleArcToggle, "Circular Arcs" );
 
     //==== Wedge AF ====//
     m_SuperConeXSecLayout.AddSubGroupLayout( m_WedgeGroup, m_SuperConeXSecLayout.GetW(), m_SuperConeXSecLayout.GetRemainY() );
@@ -1326,6 +1330,10 @@ bool AuxiliaryGeomScreen::Update()
 
                     m_BiconvexChordSlider.Update( bi_xs->m_Chord.GetID() );
                     m_BiconvexThickChordSlider.Update( bi_xs->m_ThickChord.GetID() );
+                    m_BiconvexThickFracUpSlider.Update( bi_xs->m_ThickFracUp.GetID() );
+                    m_BiconvexThickLocSlider.Update( bi_xs->m_ThickLoc.GetID() );
+                    m_BiconvexThickLocLowSlider.Update( bi_xs->m_ThickLocLow.GetID() );
+                    m_BiconvexCircleArcToggle.Update( bi_xs->m_UseCircleArc.GetID() );
                 }
                 else if ( xsc->GetType() == vsp::XS_WEDGE )
                 {

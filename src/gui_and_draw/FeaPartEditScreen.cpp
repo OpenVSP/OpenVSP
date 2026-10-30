@@ -1263,6 +1263,10 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 
     m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCBiconvexGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
     m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexChordSlider, "Chord", 10, "%7.3f" );
     m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexThickFracUpSlider, "Up Frac", 1, "%7.5f" );
+    m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexThickLocSlider, "Thick X", 1, "%7.5f" );
+    m_FeaSSXSCBiconvexGroup.AddSlider( m_FeaSSXSCBiconvexThickLocLowSlider, "Thick X Low", 1, "%7.5f" );
+    m_FeaSSXSCBiconvexGroup.AddButton( m_FeaSSXSCBiconvexCircleArcToggle, "Circular Arcs" );
 
     //==== Wedge AF ====//
     m_FeaSSXSCGroup.AddSubGroupLayout( m_FeaSSXSCWedgeGroup, m_FeaSSXSCGroup.GetW(), m_FeaSSXSCGroup.GetRemainY() );
@@ -2685,6 +2689,10 @@ bool FeaPartEditScreen::Update()
 
                                 m_FeaSSXSCBiconvexChordSlider.Update( bi_xs->m_Chord.GetID() );
                                 m_FeaSSXSCBiconvexThickChordSlider.Update( bi_xs->m_ThickChord.GetID() );
+                                m_FeaSSXSCBiconvexThickFracUpSlider.Update( bi_xs->m_ThickFracUp.GetID() );
+                                m_FeaSSXSCBiconvexThickLocSlider.Update( bi_xs->m_ThickLoc.GetID() );
+                                m_FeaSSXSCBiconvexThickLocLowSlider.Update( bi_xs->m_ThickLocLow.GetID() );
+                                m_FeaSSXSCBiconvexCircleArcToggle.Update( bi_xs->m_UseCircleArc.GetID() );
                             }
                             else if ( xsc->GetType() == vsp::XS_WEDGE )
                             {
