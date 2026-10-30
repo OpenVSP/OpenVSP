@@ -1,6 +1,13 @@
 import openvsp as vsp
 import pytest
 
+import os
+
+# The model with its design variables, found beside this file.
+HERE = os.path.dirname( os.path.abspath( __file__ ) )
+MODEL = os.path.join( HERE, "TestChordAdjust.vsp3" )
+DES = os.path.join( HERE, "TestChordAdjust.des" )
+
 def checkGeom():
     # Check wing points
     p = vsp.CompPnt01( 'IRCCKDQEGC', 0, 0.1, 0 )
@@ -34,7 +41,7 @@ def checkGeom():
 def testChordAdjust():
     errorMgr = vsp.ErrorMgrSingleton.getInstance()
 
-    vsp.ReadVSPFile( "tests/TestChordAdjust.vsp3" )
+    vsp.ReadVSPFile( MODEL )
 
     # Apply parameters as determined from Design Var file.
     vsp.SetParmVal( 'ZHMTPQPPTTH', 5 ) # ZHMTPQPPTTH:PodGeom:Design:FineRatio: 5
@@ -56,8 +63,8 @@ def testChordAdjust():
 
     vsp.ClearVSPModel()
 
-    vsp.ReadVSPFile( "tests/TestChordAdjust.vsp3" )
-    vsp.ReadApplyDESFile( "tests/TestChordAdjust.des" )
+    vsp.ReadVSPFile( MODEL )
+    vsp.ReadApplyDESFile( DES )
 
     checkGeom()
 
