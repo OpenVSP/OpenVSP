@@ -174,7 +174,7 @@ void XSecSurfGeom::SkinXSecSurf( bool closed_flag )
                 rib_vec.push_back( xs->GetRib( false, false ) );
        }
 
-        if ( xsec_vec.size() >= 2 )
+        if ( !xsec_vec.empty() )
         {
             m_MainSurfVec[i].SkinRibsUniform( rib_vec, false );
             m_MainSurfVec[i].SetMagicVParm( wing );
