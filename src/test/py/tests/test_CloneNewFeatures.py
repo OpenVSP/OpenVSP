@@ -8,6 +8,7 @@
 # The Custom Geom is CustomScripts/EndCapTube.vsppart, which OpenVSP reads from ./CustomScripts when it starts, so
 # these tests run from src/test/py.
 
+import math
 import os
 import tempfile
 
@@ -365,6 +366,66 @@ def testClonesOfABodyAndItsComponentShowThem( name, vals ):
     assert vsp.GetGeomParent( clones[1] ) == clones[0]
     assert_same( sample( clones[0] ), sample( parent ) )
     assert_same( sample( clones[1] ), sample( gid ) )
+    assert_no_errors()
+
+
+def attached_child( name, parent, x, **vals ):
+    gid = child( name, parent, x, **vals )
+    vsp.SetParmVal( vsp.FindParm( gid, "Trans_Attach_Flag", "Attach" ), vsp.ATTACH_TRANS_COMP )
+    vsp.SetParmVal( vsp.FindParm( gid, "Rots_Attach_Flag", "Attach" ), vsp.ATTACH_ROT_COMP )
+    vsp.Update()
+    return gid
+
+
+@pytest.mark.parametrize( "name,vals", CHILDREN )
+def testAComponentOnACloneOfABodyStandsOnIt( name, vals ):
+    """A component stands on a Clone of a body as on the body, as the body changes and the Clone moves."""
+    vsp.VSPRenew()
+    drop_errors()
+    parent = body()
+    clone = clone_of( parent )
+    on_body = attached_child( name, parent, 4.0, **vals )
+    on_clone = attached_child( name, clone, 4.0, **vals )
+
+    set_place( clone, CLONE_PLACE )
+    set_place( clone, get_place( parent ) )
+    assert_same( sample( on_clone ), sample( on_body ), 1e-9 )
+
+    put( parent, WCENTR=3.2, ZCENTR=0.4 )
+    assert_same( sample( on_clone ), sample( on_body ), 1e-9 )
+
+    shown = sample( on_clone )
+    path = os.path.join( tempfile.mkdtemp(), "standing.vsp3" )
+    vsp.WriteVSPFile( path, vsp.SET_ALL )
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( path )
+    vsp.Update()
+    assert_same( sample( on_clone ), shown, 1e-9 )
+    assert_no_errors()
+
+
+def testAProtuberanceOnAFlippedCloneOfABodyStandsOnIt():
+    """On a Clone flipped in the XZ plane, a protuberance at PHIPRO stands where one at -PHIPRO does on the body,
+    reflected."""
+    vsp.VSPRenew()
+    drop_errors()
+    parent = body()
+    put( parent, ZCENTR=0.4 )
+    clone = clone_of( parent )
+    set_place( clone, ( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ) )
+    set_place( parent, ( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ) )
+    vsp.SetParmVal( vsp.FindParm( clone, "Flip_Flag", "Sym" ), vsp.SYM_XZ )
+    on_body = attached_child( "MDC_PROTUB", parent, 4.0, PHIPROFlag=1 )
+    on_clone = attached_child( "MDC_PROTUB", clone, 4.0, PHIPROFlag=1 )
+    put( on_body, PHIPRO_1=-60.0 )
+    put( on_clone, PHIPRO_1=60.0 )
+
+    a = sample( on_body )
+    a[1::3] = [ -y for y in a[1::3] ]
+    b = sample( on_clone )
+    pa = [ tuple( a[i:i + 3] ) for i in range( 0, len( a ), 3 ) ]
+    pb = [ tuple( b[i:i + 3] ) for i in range( 0, len( b ), 3 ) ]
+    assert max( min( math.dist( p, q ) for q in pb ) for p in pa ) < 1e-9
     assert_no_errors()
 
 

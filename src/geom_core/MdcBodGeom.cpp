@@ -450,14 +450,21 @@ void MdcBodGeom::UpdateProfile()
     }
 
     // The children that stand on the body follow its new shape.
-    DirtyStandingChildren();
+    DirtyStandingChildren( this );
 }
 
-void MdcBodGeom::DirtyStandingChildren()
+void MdcBodGeom::DirtyStandingChildren( Geom* body )
 {
-    for ( int i = 0; i < ( int )m_ChildIDVec.size(); i++ )
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh || !body )
     {
-        XSecSurfGeom* child = dynamic_cast< XSecSurfGeom* >( m_Vehicle->FindGeom( m_ChildIDVec[i] ) );
+        return;
+    }
+
+    vector< string > child_vec = body->GetChildIDVec();
+    for ( int i = 0; i < ( int )child_vec.size(); i++ )
+    {
+        XSecSurfGeom* child = dynamic_cast< XSecSurfGeom* >( veh->FindGeom( child_vec[i] ) );
         if ( child && child->ShapeFollowsParent() )
         {
             child->SetDirtyFlag( GeomBase::SURF );
@@ -469,7 +476,7 @@ void MdcBodGeom::UpdateChildren( bool fullupdate )
 {
     if ( m_UpdateXForm )
     {
-        DirtyStandingChildren();
+        DirtyStandingChildren( this );
     }
 
     XSecSurfGeom::UpdateChildren( fullupdate );
@@ -514,14 +521,16 @@ bool MdcBodGeom::RadiusUnder( Geom* geom_ptr, double x, double phi, double & r )
     {
         return false;
     }
-    const MdcBodGeom* body = dynamic_cast< const MdcBodGeom* >( veh->FindGeom( geom_ptr->GetParentID() ) );
+    const MdcBodRole* body = Geom::CastTo< MdcBodRole >( veh->FindGeom( geom_ptr->GetParentID() ) );
     if ( !body )
     {
         return false;
     }
 
-    Matrix4d to_body = body->getModelMatrix();
+    // The point and the direction phi in the body's shape frame, which a Clone's flip reflects.
+    Matrix4d to_body = body->GetRoleShapeMatrix();
     to_body.affineInverse();
     vec3d p = to_body.xform( geom_ptr->getModelMatrix().xform( vec3d( x, 0.0, 0.0 ) ) );
-    return body->Radius( p.x(), phi, r );
+    vec3d d = body->GetRoleFlipMat().xformnorm( vec3d( 0.0, sin( phi * M_PI / 180.0 ), cos( phi * M_PI / 180.0 ) ) );
+    return body->Radius( p.x(), atan2( d.y(), d.z() ) * 180.0 / M_PI, r );
 }

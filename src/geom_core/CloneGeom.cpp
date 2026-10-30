@@ -2019,6 +2019,26 @@ Matrix4d CloneGeom::GetBladePlacement( int iblade, double rotate )
     return rotor->GetBladePlacement( iblade, rotate );
 }
 
+bool CloneGeom::Radius( double x, double phi, double & r ) const
+{
+    MdcBodRole* body = Geom::CastTo< MdcBodRole >( GetOriginalGeom() );
+    if ( !body )
+    {
+        return false;
+    }
+    return body->Radius( x, phi, r );
+}
+
+void CloneGeom::UpdateChildren( bool fullupdate )
+{
+    if ( ( m_UpdateXForm || m_UpdateSurf ) && Geom::CastTo< MdcBodRole >( this ) )
+    {
+        MdcBodGeom::DirtyStandingChildren( this );
+    }
+
+    Geom::UpdateChildren( fullupdate );
+}
+
 double CloneGeom::GetRotorDiameter() const
 {
     RotorRole* rotor = Geom::CastTo< RotorRole >( GetOriginalGeom() );

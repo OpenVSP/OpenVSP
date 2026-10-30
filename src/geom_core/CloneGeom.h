@@ -24,12 +24,13 @@
 #include "NGonMeshGeom.h"
 #include "RoutingGeom.h"
 #include "WingGeom.h"
+#include "MdcBodGeom.h"
 
 #include <set>
 
 
 //==== Clone Geom ====//
-class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole, public PGMeshRole, public RouteRole, public WingRole
+class CloneGeom : public Geom, public JointRole, public GearContactRole, public AuxiliaryRole, public RotorRole, public TMeshRole, public HumanVertRole, public PointCloudRole, public WirePtRole, public PGMeshRole, public RouteRole, public WingRole, public MdcBodRole
 {
 public:
     CloneGeom( Vehicle* vehicle_ptr );
@@ -253,6 +254,9 @@ public:
     virtual double GetWingMAC() const override;
     virtual double GetWingTotalChord() const override;
 
+    //==== Standing in for an MDC_BOD ====//
+    virtual bool Radius( double x, double phi, double & r ) const override;
+
     //==== Standing in for a rotor ====//
     virtual double GetRotorDiameter() const override;
     virtual double GetRotorR0() const override;
@@ -363,6 +367,9 @@ public:
 
 protected:
     virtual void UpdateSurf() override;
+
+    // The children that stand on a Clone of an MDC_BOD follow it as they follow the body.
+    virtual void UpdateChildren( bool fullupdate ) override;
     virtual void UpdateMainTessVec() override;
     virtual void UpdateTessVec() override;
     virtual void UpdateMainDegenGeomPreview() override;

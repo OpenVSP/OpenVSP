@@ -12,6 +12,20 @@
 #define VSP_MDC_BOD_GEOM__INCLUDED_
 
 #include "XSecSurfGeom.h"
+#include "GeomInterface.h"
+
+//==== Standing in for an MDC_BOD ====//
+// A body the MDC components stand on.  A Clone of an MDC_BOD offers it too.
+class MdcBodRole : virtual public GeomInterface
+{
+public:
+    // The behavior type this role belongs to; checked by Geom::CastTo.
+    static int BehaviorType()   { return MDC_BOD_GEOM_TYPE; }
+
+    // The distance r from the body's axis at x, in its shape frame, to its mold line in the direction phi, degrees
+    // clockwise from the top looking forward.  False where x is not along the body.
+    virtual bool Radius( double x, double phi, double & r ) const = 0;
+};
 
 //==== MDC_BOD Geom ====//
 // A body laid out as DATCOM lays one out, from NAMELIST AXIBOD's or ELLBOD's Option 1 inputs: a nose,
@@ -39,7 +53,7 @@
 //
 // DEXIT, the nozzle's exit diameter, is drawn as DATCOM draws it: the base is flat from its edge in to a circle DEXIT
 // across, and from there a cone goes in to a point DEXIT / 4 inside the base.  It is no larger than the base.
-class MdcBodGeom : public XSecSurfGeom
+class MdcBodGeom : public XSecSurfGeom, public MdcBodRole
 {
 public:
     enum { AXIBOD, ELLBOD };
@@ -56,13 +70,15 @@ public:
     // The stations along x and the shifts in z the camber lifts the surface by, as the last update made them.
     void GetCamber( vector< double > & x, vector< double > & z ) const;
 
-    // The distance r from the body's axis at x, in its own frame, to its mold line in the direction phi, degrees
-    // clockwise from the top looking forward.  False where x is not along the body.
-    bool Radius( double x, double phi, double & r ) const;
+    virtual bool Radius( double x, double phi, double & r ) const;
 
     // The radius under the point x along a component, in the component's frame, in the direction phi, when the
-    // component's parent is an MDC_BOD: DATCOM takes a protuberance's, an inlet's and a fin's from the body.
+    // component's parent is an MDC_BOD or a Clone of one: DATCOM takes a protuberance's, an inlet's and a fin's
+    // from the body.
     static bool RadiusUnder( Geom* geom_ptr, double x, double phi, double & r );
+
+    // Marks the children of body that stand on it to rebuild their surfaces.
+    static void DirtyStandingChildren( Geom* body );
 
     virtual void UpdateEndCaps();
 
@@ -102,9 +118,6 @@ protected:
 
     // A child that stands on the body is under a new part of it when the body moves.
     virtual void UpdateChildren( bool fullupdate );
-
-    // Marks the children that stand on the body to rebuild their surfaces.
-    void DirtyStandingChildren();
 
     vector< double > m_CamberX;
     vector< double > m_CamberZ;
