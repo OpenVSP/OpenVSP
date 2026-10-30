@@ -65,6 +65,9 @@ public:
     IntParm m_UMaxTrimTypeFlag;
 
     BoolParm m_UTrimFlag;
+
+    // Cap the ends as the parent's before trimming, so a trim can fall in a cap, and cap the trimmed ends after.
+    BoolParm m_CapBeforeTrimFlag;
     Parm m_UTrimMin;
     Parm m_UTrimMax;
 
@@ -138,6 +141,9 @@ protected:
 
     virtual void CenterRibCurves( VspSurf & surf, const VspSurf & ref_surf, double offset );
     virtual void OffsetEndRibs( VspSurf & surf, double offset );
+
+    // Caps surf's ends with the caps the Conformal takes from its parent.
+    void CapAsParent( VspSurf & surf );
 
     // Whether a cap of type cap_type carries the body on from its end: a round, point, cone, ogive or profile cap.
     // The conformal's cap is offset from the parent's, from the end where it is.

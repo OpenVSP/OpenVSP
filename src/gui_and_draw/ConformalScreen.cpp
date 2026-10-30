@@ -70,6 +70,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, 
     m_TrimGroup.SetSameLineFlag( false );
     m_TrimGroup.SetFitWidthFlag( true );
     m_TrimGroup.AddButton( m_UTrimToggle, "Enable U Trimming" );
+    m_TrimGroup.AddButton( m_CapBeforeTrimToggle, "Trim the Capped Surface" );
 
     m_TrimGroup.SetSameLineFlag( true );
     m_TrimGroup.SetFitWidthFlag( false );
@@ -357,6 +358,7 @@ bool ConformalScreen::Update()
     m_OffsetEndsToggle.Update( conformal_ptr->m_OffsetEnds.GetID() );
 
     m_UTrimToggle.Update( conformal_ptr->m_UTrimFlag.GetID() );
+    m_CapBeforeTrimToggle.Update( conformal_ptr->m_CapBeforeTrimFlag.GetID() );
     m_UTrimMinSlider.Update( conformal_ptr->m_UTrimMin.GetID() );
     m_UTrimMaxSlider.Update( conformal_ptr->m_UTrimMax.GetID() );
 

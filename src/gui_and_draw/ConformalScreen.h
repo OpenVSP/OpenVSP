@@ -45,6 +45,7 @@ protected:
     ToggleButton m_OffsetEndsToggle;
 
     ToggleButton m_UTrimToggle;
+    ToggleButton m_CapBeforeTrimToggle;
     SliderAdjRangeInput m_UTrimMinSlider;
     SliderAdjRangeInput m_UTrimMaxSlider;
 

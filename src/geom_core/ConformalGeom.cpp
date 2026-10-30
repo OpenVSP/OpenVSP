@@ -57,6 +57,9 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_UTrimFlag.Init( "UTrimFlag", "Design", this, false, 0, 1 );
     m_UTrimFlag.SetDescript( "Trim in U Direction Flag" );
+    m_CapBeforeTrimFlag.Init( "CapBeforeTrimFlag", "Design", this, false, 0, 1 );
+    m_CapBeforeTrimFlag.SetDescript( "Flag to cap as the parent before U trimming, so a trim can fall in a cap" );
+
     m_UTrimMin.Init( "UTrimMin", "Design", this, 0.1, 0.0, 0.9999 );
     m_UTrimMin.SetDescript( "Min U Trim Value" );
     m_UTrimMax.Init( "UTrimMax", "Design", this, 0.9, 0.0, 0.9999 );
@@ -430,6 +433,13 @@ void ConformalGeom::UpdateSurf()
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
                     AdjustShape(m_MainSurfVec[i], parent_surf, offset);
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
+                }
+
+                // Capped first, the trim measures and cuts the capped surface.
+                if ( m_UTrimFlag() && m_CapBeforeTrimFlag() )
+                {
+                    CapAsParent( m_MainSurfVec[i] );
+                    UpdateParms( m_MainSurfVec[i] );
                 }
 
                 //==== Trim U and V is Needed ====//
@@ -1589,16 +1599,20 @@ void ConformalGeom::TrimU( VspSurf & surf )
     double u_min = bez_surface->get_u0();
     double u_max = bez_surface->get_umax();
 
+    bool max_trimmed = true;
     err = bez_surface->split_u( s1, s2, u_max*m_UTrimMax() );
     if ( err != piecewise_surface_type::NO_ERRORS )
     {
         s1 = *bez_surface;          // Problems Dont Use This Split Val
+        max_trimmed = false;
     }
 
+    bool min_trimmed = true;
     err = s1.split_u( s3, s4, u_max*m_UTrimMin() );
     if ( err != piecewise_surface_type::NO_ERRORS )
     {
         s4 = s1;                    // Problems Dont Use This Split Val
+        min_trimmed = false;
     }
 
     *bez_surface = s4;
@@ -1608,6 +1622,19 @@ void ConformalGeom::TrimU( VspSurf & surf )
 
     m_CapUMinOption = m_CapUMinTrimOption();
     m_CapUMaxOption = m_CapUMaxTrimOption();
+
+    // An end capped before the trim and not trimmed keeps that cap alone.
+    if ( m_CapBeforeTrimFlag() )
+    {
+        if ( !min_trimmed )
+        {
+            m_CapUMinOption = vsp::NO_END_CAP;
+        }
+        if ( !max_trimmed )
+        {
+            m_CapUMaxOption = vsp::NO_END_CAP;
+        }
+    }
 
     // The trimmed ends' caps are in relative units, with none of the parent's cap modifiers.
     m_CapUMinRelFlag = true;
@@ -1627,7 +1654,19 @@ void ConformalGeom::TrimU( VspSurf & surf )
     m_CapUMaxTruncFlag = false;
     m_CapUMaxShearFlag = false;
     m_CapUMaxScaledFlag = false;
+}
 
+void ConformalGeom::CapAsParent( VspSurf & surf )
+{
+    vec3d ptoff;
+    UpdateCapDims( surf, false );
+    surf.CapUMin( m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), ptoff,
+                  m_CapUMinSweepFlag(), CapRadius( false ), m_CapUMinOgiveAngle() * M_PI / 180.0, m_CapUMinPowerExp(),
+                  m_CapUMinHaackC(), m_CapUMinTruncFlag(), m_CapUMinShearFlag(), m_CapUMinScaledFlag() );
+    UpdateCapDims( surf, true );
+    surf.CapUMax( m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), ptoff,
+                  m_CapUMaxSweepFlag(), CapRadius( true ), m_CapUMaxOgiveAngle() * M_PI / 180.0, m_CapUMaxPowerExp(),
+                  m_CapUMaxHaackC(), m_CapUMaxTruncFlag(), m_CapUMaxShearFlag(), m_CapUMaxScaledFlag() );
 }
 
 void ConformalGeom::TrimV( VspSurf & surf )

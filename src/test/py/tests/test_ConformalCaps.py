@@ -81,6 +81,35 @@ def testConformalCapIsOffsetInsideItsParent( geom, name, cap, parms, frac ):
     assert worst_nose_error( g, c, 0.05 ) < frac * 0.05
 
 
+def trimmed( before, umin, umax, maxcap ):
+    g = cap_body( "STACK", vsp.OGIVE_END_CAP, CapUMinLength=4.5, CapUMinRadius=0.25 )
+    c = conformal( g, 0.1 )
+    for name, val in ( ( "UTrimFlag", 1 ), ( "CapBeforeTrimFlag", before ), ( "UTrimMin", umin ),
+                       ( "UTrimMax", umax ) ):
+        vsp.SetParmVal( vsp.FindParm( c, name, "Design" ), val )
+    vsp.SetParmVal( vsp.FindParm( c, "CapUMaxTrimOption", "EndCap" ), maxcap )
+    vsp.Update()
+    return g, c
+
+
+def testTrimmedConformalOfTheBodyLosesItsNose():
+    # Trimmed before it is capped, a Conformal is a piece of the body, its trimmed ends capped by the trim caps.
+    g, c = trimmed( 0, 0.0, 0.3, vsp.FLAT_END_CAP )
+    assert vsp.GetGeomBBoxMin( c, 0, True ).x() > vsp.GetGeomBBoxMin( g, 0, True ).x() + 1.0
+
+
+def testConformalTrimsItsCappedSurface():
+    # Capped as its parent first, the trim can keep the nose, offset inside the parent's, and cap the cut.
+    g, flat = trimmed( 1, 0.0, 0.3, vsp.FLAT_END_CAP )
+    tip = vsp.CompPnt01( flat, 0, 0.0, 0.0 )
+    assert vsp.ProjPnt01I( g, tip )[0] == pytest.approx( 0.1, abs=1e-3 )
+    flat_end = vsp.GetGeomBBoxMax( flat, 0, True ).x()
+
+    # A round trim cap on the cut reaches past where the flat one stops.
+    g, round_cap = trimmed( 1, 0.0, 0.3, vsp.ROUND_END_CAP )
+    assert vsp.GetGeomBBoxMax( round_cap, 0, True ).x() > flat_end + 0.5
+
+
 def testConformalOfMdcBodIsOffsetAllOver():
     # The DATCOM body's nose is an ogive cap with scaled rows and its base a point cap of no length.
     vsp.VSPRenew()
