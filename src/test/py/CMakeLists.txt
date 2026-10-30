@@ -2,7 +2,22 @@ CMAKE_MINIMUM_REQUIRED( VERSION 3.24 )
 
 ADD_SUBDIRECTORY( other )
 
-ADD_TEST( NAME PyTest COMMAND ${PYTHON_VENV_EXE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+# The suite runs from its own directory in the build tree, so the files a test writes without
+# naming a path land there and not beside the tests.  pytest's cache and Python's bytecode go
+# there too.
+SET( PYTEST_WORK_DIR ${CMAKE_CURRENT_BINARY_DIR}/PyTest )
+FILE( MAKE_DIRECTORY ${PYTEST_WORK_DIR} )
+
+ADD_TEST( NAME PyTest COMMAND ${PYTHON_VENV_EXE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}
+          --rootdir=${CMAKE_CURRENT_SOURCE_DIR} -o cache_dir=${PYTEST_WORK_DIR}/.pytest_cache
+          WORKING_DIRECTORY ${PYTEST_WORK_DIR} )
+SET_TESTS_PROPERTIES( PyTest PROPERTIES ENVIRONMENT "PYTHONPYCACHEPREFIX=${PYTEST_WORK_DIR}/__pycache__" )
+
+# OpenVSP reads custom components from ./CustomScripts, so the suite's own go beside where it runs.
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/CustomScripts/IDPart.vsppart
+                ${PYTEST_WORK_DIR}/CustomScripts/IDPart.vsppart COPYONLY )
+CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/CustomScripts/GuiArgsPart.vsppart
+                ${PYTEST_WORK_DIR}/CustomScripts/GuiArgsPart.vsppart COPYONLY )
 
 # The generated sample code test reads a fuselage cross section file and an
 # airfoil file by relative path, the same way the AngelScript half does.  Copy
