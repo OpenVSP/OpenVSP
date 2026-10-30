@@ -7,7 +7,7 @@ import tempfile
 
 def test_rst():
     # Open VSP geometry
-    vsp_file = 'tests/wing.vsp3'
+    vsp_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'wing.vsp3')
     vsp.ReadVSPFile(vsp_file)
 
     # Keep analysis output out of the source tree.
