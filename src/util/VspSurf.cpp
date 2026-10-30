@@ -270,6 +270,50 @@ void VspSurf::Transform( const Matrix4d & mat )
     m_Surface.rotate( rmat );
     m_Surface.translate( trans );
 
+    // The ribs the surface was skinned from move with it, so it can be skinned again from them where it is.
+    piecewise_curve_type::rotation_matrix_type crot;
+    crot << mmat[0], mmat[4], mmat[8],
+         mmat[1], mmat[5], mmat[9],
+         mmat[2], mmat[6], mmat[10];
+    piecewise_curve_type::point_type ctrans;
+    ctrans << mmat[12], mmat[13], mmat[14];
+    for ( int i = 0; i < ( int )m_SkinRibVec.size(); i++ )
+    {
+        rib_data_type & rib = m_SkinRibVec[i];
+        piecewise_curve_type c;
+        if ( rib.use_f() )
+        {
+            c = rib.get_f();
+            c.rotate( crot );
+            c.translate( ctrans );
+            rib.set_f( c );
+        }
+        if ( rib.use_left_fp() )
+        {
+            c = rib.get_left_fp();
+            c.rotate( crot );
+            rib.set_left_fp( c );
+        }
+        if ( rib.use_right_fp() )
+        {
+            c = rib.get_right_fp();
+            c.rotate( crot );
+            rib.set_right_fp( c );
+        }
+        if ( rib.use_left_fpp() )
+        {
+            c = rib.get_left_fpp();
+            c.rotate( crot );
+            rib.set_left_fpp( c );
+        }
+        if ( rib.use_right_fpp() )
+        {
+            c = rib.get_right_fpp();
+            c.rotate( crot );
+            rib.set_right_fpp( c );
+        }
+    }
+
     m_FeaOrientation = mat.xformnorm( m_FeaOrientation );
 
     m_CapAxis = mat.xformnorm( m_CapAxis );
