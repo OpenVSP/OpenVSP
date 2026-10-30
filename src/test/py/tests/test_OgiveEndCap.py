@@ -589,10 +589,14 @@ def testAConformalOnABodyTakesItsOgiveCap( typ ):
     set_caps( gid, vsp.OGIVE_SURF_END_CAP, 2.5, 0.1, 0.3, 4.0 )
     conf = vsp.AddGeom( "CONFORMAL", gid )
     vsp.Update()
+    # It takes the parent's cap offset inside it: the same sphere less its offset, in length units.
+    off = vsp.GetParmVal( vsp.FindParm( conf, "Offset", "Design" ) )
     for end, u in ENDS:
-        for name in ( "Option", "Radius", "OgiveAngle" ):
+        for name in ( "Option", "OgiveAngle" ):
             assert vsp.GetParmVal( cap_parm( conf, "Cap" + end + name ) ) == \
                 vsp.GetParmVal( cap_parm( gid, "Cap" + end + name ) ), ( end, name )
+        assert vsp.GetParmVal( cap_parm( conf, "Cap" + end + "RadiusDim" ) ) == pytest.approx(
+            vsp.GetParmVal( cap_parm( gid, "Cap" + end + "RadiusDim" ) ) - off ), end
     assert_no_errors()
 
 

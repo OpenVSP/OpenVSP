@@ -138,9 +138,25 @@ protected:
 
     virtual void CenterRibCurves( VspSurf & surf, const VspSurf & ref_surf, double offset );
     virtual void OffsetEndRibs( VspSurf & surf, double offset );
+
+    // Whether a cap of type cap_type carries the body on from its end: a round, point, cone, ogive or profile cap.
+    // The conformal's cap is offset from the parent's, from the end where it is.
+    static bool CapContinuesBody( int cap_type );
+
+    // The length and radius, in length units, of the cap offset by off inside the parent's of type cap_type, len
+    // long and of radius rad, on an end of half width hw: a cone's or ogive's on the same sphere less the offset,
+    // or where the sphere is gone, to where its offset sides meet; a truncated cap's face moved back by the offset
+    // and in across its side; any other's shorter by the offset.  back is how far the end moves back, to where the
+    // offset body meets the offset cap: off tan( theta / 2 ) for a cap leaving the end at theta to the body, and
+    // the length is from there.
+    static void OffsetCap( int cap_type, bool trunc, double ang, double pexp, double hw, double len, double rad,
+                           double off, double & len_off, double & rad_off, double & back );
     virtual void AdjustShape( VspSurf & surf, const VspSurf & ref_surf, double offset );
 
-    virtual double FindEndUOffsetCurve( VspSurf & surf, double offset, bool start_flag, curve_type & crv );
+    // The curve of constant u offset along the spine from the start or end, moved further where the surface is
+    // nearer the parent than offset when adjust is set.
+    virtual double FindEndUOffsetCurve( VspSurf & surf, double offset, bool start_flag, curve_type & crv,
+                                        bool adjust = true );
     virtual double AdjustForSurfaceDist( const VspSurf & surf, const ConformalSpine & spine, double u, double offset, bool backward_flag );
 
     virtual void TrimU( VspSurf & surf );
@@ -156,6 +172,9 @@ protected:
 
 
     bool m_WingParentFlag;
+
+    // How far each end, min then max, moves back for a cap that carries the body on from it.
+    double m_CapBack[2];
 
     // Whether the Conformal-of-a-Conformal refusal has already been reported for the parent
     // now in place.  UpdateSurf runs on every parameter change, and the message is worth

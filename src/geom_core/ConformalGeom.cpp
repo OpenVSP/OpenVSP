@@ -46,6 +46,9 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_HingeConformalPositionFlag.Init( "HingeConformalPositionFlag", "Design", this, true, false, true );
     m_HingeConformalPositionFlag.SetDescript( "Set REL position on hinge based on conformal parent position" );
 
+    m_CapBack[0] = 0.0;
+    m_CapBack[1] = 0.0;
+
     m_Offset.Init( "Offset", "Design", this, 0.1, -1e12, 1.0e12 );
     m_Offset.SetDescript( "Internal Offset Distance to Conformal Surface" );
 
@@ -657,6 +660,168 @@ void ConformalGeom::UpdateCopySurfParms()
     m_CapUMaxScaledFlag = parent_geom->m_CapUMaxScaledFlag();
     m_CapUMaxStrength = parent_geom->m_CapUMaxStrength();
     m_CapUMaxSweepFlag = parent_geom->m_CapUMaxSweepFlag();
+
+    // A cap that carries the body on from its end is the parent's offset inside it, set in length units.
+    double off = m_Offset();
+    for ( int end = 0; end < 2; end++ )
+    {
+        IntParm* type = &m_CapUMinOption;
+        BoolParm* rel = &m_CapUMinRelFlag;
+        Parm* lendim = &m_CapUMinLengthDim;
+        Parm* raddim = &m_CapUMinRadiusDim;
+        Parm* offdim = &m_CapUMinOffsetDim;
+        bool trunc = parent_geom->m_CapUMinTruncFlag();
+        double ang = parent_geom->m_CapUMinOgiveAngle();
+        double pexp = parent_geom->m_CapUMinPowerExp();
+        double len = parent_geom->m_CapUMinLength();
+        double plendim = parent_geom->m_CapUMinLengthDim();
+        double praddim = parent_geom->m_CapUMinRadiusDim();
+        double poffdim = parent_geom->m_CapUMinOffsetDim();
+        if ( end == 1 )
+        {
+            type = &m_CapUMaxOption;
+            rel = &m_CapUMaxRelFlag;
+            lendim = &m_CapUMaxLengthDim;
+            raddim = &m_CapUMaxRadiusDim;
+            offdim = &m_CapUMaxOffsetDim;
+            trunc = parent_geom->m_CapUMaxTruncFlag();
+            ang = parent_geom->m_CapUMaxOgiveAngle();
+            pexp = parent_geom->m_CapUMaxPowerExp();
+            len = parent_geom->m_CapUMaxLength();
+            plendim = parent_geom->m_CapUMaxLengthDim();
+            praddim = parent_geom->m_CapUMaxRadiusDim();
+            poffdim = parent_geom->m_CapUMaxOffsetDim();
+        }
+        m_CapBack[end] = 0.0;
+        if ( !CapContinuesBody( type->Get() ) )
+        {
+            continue;
+        }
+
+        // The end's half width is the length's scale.
+        double hw = 0.0;
+        if ( len > 0.0 )
+        {
+            hw = plendim / len;
+        }
+
+        double len_off, rad_off;
+        OffsetCap( type->Get(), trunc, ang, pexp, hw, plendim, praddim, off, len_off, rad_off, m_CapBack[end] );
+        rel->Set( false );
+        lendim->Set( len_off );
+        raddim->Set( rad_off );
+        offdim->Set( poffdim );
+    }
+}
+
+bool ConformalGeom::CapContinuesBody( int cap_type )
+{
+    return cap_type == vsp::ROUND_END_CAP || cap_type == vsp::POINT_END_CAP || cap_type == vsp::CONE_END_CAP ||
+           cap_type == vsp::OGIVE_END_CAP || cap_type == vsp::OGIVE_SURF_END_CAP ||
+           cap_type == vsp::POWER_LAW_END_CAP || cap_type == vsp::VON_KARMAN_END_CAP ||
+           cap_type == vsp::SEARS_HAACK_END_CAP;
+}
+
+void ConformalGeom::OffsetCap( int cap_type, bool trunc, double ang, double pexp, double hw, double len, double rad,
+                               double off, double & len_off, double & rad_off, double & back )
+{
+    // The length from the end where it is; the end's move back is added last.
+    len_off = len - off;
+    rad_off = rad;
+    back = 0.0;
+
+    bool sphere = cap_type == vsp::CONE_END_CAP || cap_type == vsp::OGIVE_END_CAP ||
+                  cap_type == vsp::OGIVE_SURF_END_CAP;
+    bool profile = cap_type == vsp::POWER_LAW_END_CAP || cap_type == vsp::VON_KARMAN_END_CAP ||
+                   cap_type == vsp::SEARS_HAACK_END_CAP;
+
+    // The angle the cap leaves the end at, to the body: a cone's half angle, whose sides from the end's edge touch
+    // the sphere and meet ( len - rad ) + rad / sin( theta ) from the end, hw across; an ogive's angle; a power
+    // law's slope at its base; a point cap's to its point.  The others leave along the body.
+    double theta = 0.0;
+    if ( cap_type == vsp::CONE_END_CAP && len > rad && hw > rad )
+    {
+        double lo = 1.0e-6;
+        double hi = 0.5 * M_PI - 1.0e-6;
+        for ( int i = 0; i < 100; i++ )
+        {
+            double th = 0.5 * ( lo + hi );
+            double f = ( ( len - rad ) + rad / sin( th ) ) * tan( th ) - hw;
+            if ( f > 0.0 )
+            {
+                hi = th;
+            }
+            else
+            {
+                lo = th;
+            }
+        }
+        theta = 0.5 * ( lo + hi );
+    }
+    else if ( ( cap_type == vsp::OGIVE_END_CAP || cap_type == vsp::OGIVE_SURF_END_CAP ) && ang > 0.0 )
+    {
+        theta = ang * M_PI / 180.0;
+    }
+    else if ( cap_type == vsp::POWER_LAW_END_CAP && len > 0.0 )
+    {
+        theta = atan( pexp * hw / len );
+    }
+    else if ( cap_type == vsp::POINT_END_CAP )
+    {
+        // With no length the point is on the end, a flat end square to the body.
+        theta = 0.5 * M_PI;
+        if ( len > 0.0 )
+        {
+            theta = atan2( hw, len );
+        }
+    }
+    back = off * tan( 0.5 * theta );
+
+    if ( trunc && ( sphere || profile ) )
+    {
+        // The face moves back by the offset and its edge in to where the offset side reaches it: across by
+        // off ( 1 - sin( phi ) ) / cos( phi ) for a side at phi to the axis.
+        double phi = 0.0;
+        if ( len > 0.0 )
+        {
+            phi = atan2( hw - rad, len );
+        }
+        rad_off = std::max( rad - off * ( 1.0 - sin( phi ) ) / cos( phi ), 0.0 );
+    }
+    else if ( sphere && rad >= off )
+    {
+        // The same sphere, its radius less the offset; the sides are offset onto it.
+        rad_off = rad - off;
+    }
+    else if ( cap_type == vsp::POINT_END_CAP && theta > 0.0 )
+    {
+        // Straight sides from the end's edge to the point, which the offset sides meet off / sin( theta ) back.
+        len_off = len - off / sin( theta );
+    }
+    else if ( sphere )
+    {
+        // The sphere is gone, and the offset sides meet at the tip.
+        rad_off = 0.0;
+        if ( cap_type == vsp::CONE_END_CAP && theta > 0.0 )
+        {
+            len_off = ( len - rad ) + ( rad - off ) / sin( theta );
+        }
+        else if ( ang == 0.0 && len > rad && hw > rad )
+        {
+            // A tangent ogive's arc, square to the end at its edge, touches the sphere: its radius rho has its
+            // center hw - rho across from the axis at the end.  The offset arc about the same center meets the
+            // axis.
+            double rho = ( ( len - rad ) * ( len - rad ) + hw * hw - rad * rad ) / ( 2.0 * ( hw - rad ) );
+            double rho_off = rho - off;
+            double y = rho - hw;
+            if ( rho_off > std::abs( y ) )
+            {
+                len_off = sqrt( rho_off * rho_off - y * y );
+            }
+        }
+    }
+
+    len_off = std::max( len_off + back, 0.0 );
 }
 
 void ConformalGeom::UpdateCopyTessParms()
@@ -997,10 +1162,18 @@ void ConformalGeom::OffsetEndRibs( VspSurf & surf, double offset )
     bool reskin_flag = false;
 
     bool u_min_rib_is_point = CheckIfRibIsPoint( rib_vec[0] );
-    if ( m_CapUMinOption() != vsp::NO_END_CAP ||  u_min_rib_is_point )
+    // An end moves back by the offset, or for a cap that carries the body on, to where the offset body meets the
+    // offset cap.
+    bool min_carries = CapContinuesBody( m_CapUMinOption() );
+    double min_back = offset;
+    if ( min_carries )
+    {
+        min_back = m_CapBack[0];
+    }
+    if ( ( m_CapUMinOption() != vsp::NO_END_CAP && ( !min_carries || min_back > 0.0 ) ) || u_min_rib_is_point )
     {
         piecewise_curve_type crv;
-        double uoffset = FindEndUOffsetCurve( surf, offset, true, crv );
+        double uoffset = FindEndUOffsetCurve( surf, min_back, true, crv, !min_carries );
 
         if ( u_min_rib_is_point )
         {
@@ -1035,10 +1208,18 @@ void ConformalGeom::OffsetEndRibs( VspSurf & surf, double offset )
     }
 
     bool u_max_rib_is_point = CheckIfRibIsPoint( rib_vec[num_ribs-1] );
-    if ( m_CapUMaxOption() != vsp::NO_END_CAP || u_max_rib_is_point )
+    // An end moves back by the offset, or for a cap that carries the body on, to where the offset body meets the
+    // offset cap.
+    bool max_carries = CapContinuesBody( m_CapUMaxOption() );
+    double max_back = offset;
+    if ( max_carries )
+    {
+        max_back = m_CapBack[1];
+    }
+    if ( ( m_CapUMaxOption() != vsp::NO_END_CAP && ( !max_carries || max_back > 0.0 ) ) || u_max_rib_is_point )
     {
         piecewise_curve_type crv;
-        double uoffset = FindEndUOffsetCurve( surf, offset, false, crv );
+        double uoffset = FindEndUOffsetCurve( surf, max_back, false, crv, !max_carries );
 
         if ( u_max_rib_is_point )
         {
@@ -1080,7 +1261,8 @@ void ConformalGeom::OffsetEndRibs( VspSurf & surf, double offset )
 }
 
 //==== Move Offset Curve To Get Specified Offset ====//
-double ConformalGeom::FindEndUOffsetCurve( VspSurf & surf, double offset, bool start_flag, curve_type & crv )
+double ConformalGeom::FindEndUOffsetCurve( VspSurf & surf, double offset, bool start_flag, curve_type & crv,
+                                           bool adjust )
 {
     ConformalSpine cs;
     cs.Build( surf );
@@ -1094,7 +1276,7 @@ double ConformalGeom::FindEndUOffsetCurve( VspSurf & surf, double offset, bool s
     if ( start_flag )
     {
         u = cs.FindUGivenDist( offset );
-        if ( !m_WingParentFlag )
+        if ( !m_WingParentFlag && adjust )
         {
             u = AdjustForSurfaceDist( surf, cs, u, offset, false );
         }
@@ -1103,7 +1285,7 @@ double ConformalGeom::FindEndUOffsetCurve( VspSurf & surf, double offset, bool s
     {
         double max_d = cs.GetMaxDist();
         u = cs.FindUGivenDist( max_d - offset );
-        if ( !m_WingParentFlag )
+        if ( !m_WingParentFlag && adjust )
         {
             u = AdjustForSurfaceDist( surf, cs, u, offset, true );
         }
