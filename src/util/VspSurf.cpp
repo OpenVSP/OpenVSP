@@ -1106,6 +1106,12 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
 
     nrib = ribs.size();
 
+    if ( nrib == 1 )
+    {
+        SkinOneRib( ribs, degree, param, closed_flag );
+        return;
+    }
+
     std::vector<typename general_creator_type::index_type> max_degree( nrib - 1, 0 );
 
     assert( degree.size() == nrib - 1 );
@@ -1247,8 +1253,9 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
         return;
     }
 
-    // Nothing to blend -- take the ordinary path so the common case costs one solve.
-    if ( nset == 1 )
+    // Nothing to blend -- take the ordinary path so the common case costs one solve.  One section has no span
+    // to blend across.
+    if ( nset == 1 || ribsets[0].size() == 1 )
     {
         SkinRibs( ribsets[0], param, closed_flag );
         return;
@@ -1574,12 +1581,76 @@ void VspSurf::SkinRibsBlended( const vector< vector< rib_data_type > > &ribsets,
     SkinRibsBlended( ribsets, ws, insets, param, closed_flag );
 }
 
+void VspSurf::SkinOneRib( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
+{
+    typedef piecewise_surface_type::surface_type surface_type;
+    typedef piecewise_curve_type::curve_type curve_type;
+
+    // Split where the skinning would split it: at the joints of its curve and its conditions, and where the
+    // conditions change.
+    piecewise_curve_type crv = ribs[0].get_f();
+    vector< double > joints;
+    ribs[0].get_joints( std::back_inserter( joints ) );
+    vector< double > brks;
+    ribs[0].get_condition_breaks( brks );
+    joints.insert( joints.end(), brks.begin(), brks.end() );
+    for ( int i = 0; i < ( int )joints.size(); i++ )
+    {
+        if ( joints[i] > crv.get_t0() && joints[i] < crv.get_tmax() )
+        {
+            crv.split( joints[i] );
+        }
+    }
+
+    // One section across, of degree zero.
+    vector< double > umap( 2 );
+    umap[0] = param[0];
+    umap[1] = param[0] + 1.0;
+    vector< double > vmap;
+    crv.get_pmap( vmap );
+
+    m_Surface.clear();
+    m_Surface.init_uv( umap, vmap );
+
+    for ( int j = 0; j < ( int )crv.number_segments(); j++ )
+    {
+        curve_type c;
+        crv.get( c, j );
+
+        surface_type patch( 0, c.degree() );
+        for ( int k = 0; k <= ( int )c.degree(); k++ )
+        {
+            patch.set_control_point( c.get_control_point( k ), 0, k );
+        }
+        m_Surface.replace( patch, 0, j );
+    }
+
+    ResetFlipNormal();
+    ResetUSkip();
+
+    //==== Store Skinning Data ====//
+    m_SkinType = SKIN_RIBS;
+
+    ClearBlendData();
+
+    m_SkinRibVec = ribs;
+    m_SkinDegreeVec = degree;
+    m_SkinParmVec = param;
+    m_SkinClosedFlag = closed_flag;
+}
+
 void VspSurf::SkinRibsUniform( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
 {
     uniform_creator_type gc;
     surface_index_type nrib, i;
 
     nrib = ribs.size();
+
+    if ( nrib == 1 )
+    {
+        SkinOneRib( ribs, degree, param, closed_flag );
+        return;
+    }
 
     std::vector<typename uniform_creator_type::index_type> max_degree( nrib - 1, 0 );
 
