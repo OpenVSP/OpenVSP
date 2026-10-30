@@ -16,11 +16,7 @@ import tempfile
 
 
 def _scratch_output():
-    """Send CompGeom's text and CSV output to a scratch directory, not into the source tree.
-
-    The test runs with the source directory as its working directory, so an analysis that writes
-    a report writes it next to the tests.
-    """
+    """Send CompGeom's text and CSV output to a scratch directory, not the working directory."""
     out = tempfile.mkdtemp()
     vsp.SetComputationFileName( vsp.COMP_GEOM_TXT_TYPE, os.path.join( out, "comp_geom.txt" ) )
     vsp.SetComputationFileName( vsp.COMP_GEOM_CSV_TYPE, os.path.join( out, "comp_geom.csv" ) )
