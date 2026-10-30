@@ -391,8 +391,6 @@ TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const std::vector < v
         pgmulti.DumpGarbage();
     }
 
-    pgm->WriteSTL( "beforeremove.stl" );
-
     // Convert pgm to TMesh for intersection
     TMesh *tm_sv = new TMesh();
     tm_sv->MakeFromPGMesh( pgm );
@@ -406,8 +404,6 @@ TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const std::vector < v
 
     // Flatten mesh data structure
     tm_sv->FlattenInPlace();
-
-    tm_sv->WriteSTL( "AfterIntersectSplit.stl" );
 
     // Create IGL triangulation
     Eigen::MatrixXi F;
@@ -428,8 +424,6 @@ TMesh * CreateTMeshPGMeshSweptVolumeTranslate( TMesh * tm, const std::vector < v
             trivec[i]->m_IgnoreTriFlag = true;
         }
     }
-
-    tm_sv->WriteTRI( "winding.tri" );
 
     // Flatten mesh data structure
     tm_sv->FlattenInPlace();
