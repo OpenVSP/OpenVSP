@@ -133,6 +133,7 @@ public:
         return 0;
     }
     virtual int  ReadSTL( const char* file_name );
+    virtual void ReadBinSTLBlock( FILE* file_id, TMesh* tMesh );
     virtual int  ReadXSec( const char* file_name );
     virtual int  ReadNascart( const char* file_name );
     virtual int  ReadTriFile( const char* file_name );

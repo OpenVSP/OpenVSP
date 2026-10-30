@@ -369,47 +369,7 @@ int MeshGeom::ReadSTL( const char* file_name )
             fclose( file_id );
             file_id = fopen( file_name, "rb" );         // Reopen as Binary
 
-            //==== Header ====//
-            fread( str, sizeof( char ), 80, file_id );
-
-            int numFacet = ReadBinInt( file_id );
-
-            for ( int i = 0 ; i < numFacet ; i++ )
-            {
-                nx = ReadBinFloat( file_id );
-                ny = ReadBinFloat( file_id );
-                nz = ReadBinFloat( file_id );
-
-                v0[0] = ReadBinFloat( file_id );
-                v0[1] = ReadBinFloat( file_id );
-                v0[2] = ReadBinFloat( file_id );
-                v1[0] = ReadBinFloat( file_id );
-                v1[1] = ReadBinFloat( file_id );
-                v1[2] = ReadBinFloat( file_id );
-                v2[0] = ReadBinFloat( file_id );
-                v2[1] = ReadBinFloat( file_id );
-                v2[2] = ReadBinFloat( file_id );
-
-                //==== Padding ====//
-                fgetc( file_id );
-                fgetc( file_id );
-
-                //==== Add Valid Facet ====//
-                tPtr = new TTri( tMesh );
-                tPtr->m_Norm = vec3d( nx, ny, nz );
-                tMesh->m_TVec.push_back( tPtr );
-
-                //==== Put Nodes Into Tri ====//
-                tPtr->m_N0 = new TNode();
-                tPtr->m_N1 = new TNode();
-                tPtr->m_N2 = new TNode();
-                tPtr->m_N0->m_Pnt = vec3d( v0[0], v0[1], v0[2] );
-                tPtr->m_N1->m_Pnt = vec3d( v1[0], v1[1], v1[2] );
-                tPtr->m_N2->m_Pnt = vec3d( v2[0], v2[1], v2[2] );
-                tMesh->m_NVec.push_back( tPtr->m_N0 );
-                tMesh->m_NVec.push_back( tPtr->m_N1 );
-                tMesh->m_NVec.push_back( tPtr->m_N2 );
-            }
+            ReadBinSTLBlock( file_id, tMesh );
         }
         fclose( file_id );
     }
@@ -426,6 +386,59 @@ int MeshGeom::ReadSTL( const char* file_name )
 
     return 1;
 
+}
+
+//==== Read One Binary STL Header With Its Facets ====//
+void MeshGeom::ReadBinSTLBlock( FILE* file_id, TMesh* tMesh )
+{
+    char str[256];
+    float nx, ny, nz;
+    float v0[3];
+    float v1[3];
+    float v2[3];
+    TTri*  tPtr;
+
+    //==== Header ====//
+    fread( str, sizeof( char ), 80, file_id );
+
+    int numFacet = ReadBinInt( file_id );
+
+    for ( int i = 0 ; i < numFacet ; i++ )
+    {
+        nx = ReadBinFloat( file_id );
+        ny = ReadBinFloat( file_id );
+        nz = ReadBinFloat( file_id );
+
+        v0[0] = ReadBinFloat( file_id );
+        v0[1] = ReadBinFloat( file_id );
+        v0[2] = ReadBinFloat( file_id );
+        v1[0] = ReadBinFloat( file_id );
+        v1[1] = ReadBinFloat( file_id );
+        v1[2] = ReadBinFloat( file_id );
+        v2[0] = ReadBinFloat( file_id );
+        v2[1] = ReadBinFloat( file_id );
+        v2[2] = ReadBinFloat( file_id );
+
+        //==== Padding ====//
+        fgetc( file_id );
+        fgetc( file_id );
+
+        //==== Add Valid Facet ====//
+        tPtr = new TTri( tMesh );
+        tPtr->m_Norm = vec3d( nx, ny, nz );
+        tMesh->m_TVec.push_back( tPtr );
+
+        //==== Put Nodes Into Tri ====//
+        tPtr->m_N0 = new TNode();
+        tPtr->m_N1 = new TNode();
+        tPtr->m_N2 = new TNode();
+        tPtr->m_N0->m_Pnt = vec3d( v0[0], v0[1], v0[2] );
+        tPtr->m_N1->m_Pnt = vec3d( v1[0], v1[1], v1[2] );
+        tPtr->m_N2->m_Pnt = vec3d( v2[0], v2[1], v2[2] );
+        tMesh->m_NVec.push_back( tPtr->m_N0 );
+        tMesh->m_NVec.push_back( tPtr->m_N1 );
+        tMesh->m_NVec.push_back( tPtr->m_N2 );
+    }
 }
 
 //==== Write Fuse File ====//
