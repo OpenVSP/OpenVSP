@@ -375,6 +375,17 @@ int MeshGeom::ReadSTL( const char* file_name )
             {
                 ReadBinSTLBlock( file_id, tMesh, attSize );
             }
+            else if ( attSize == 4 )
+            {
+                fseek( file_id, 0, SEEK_END );
+                long long fileSize = ftell( file_id );
+                fseek( file_id, 0, SEEK_SET );
+
+                while ( ftell( file_id ) < fileSize )
+                {
+                    ReadBinSTLBlock( file_id, tMesh, attSize );
+                }
+            }
             else
             {
                 MessageData errMsgData;
@@ -403,6 +414,7 @@ int MeshGeom::ReadSTL( const char* file_name )
 
 // Attribute size of a binary STL file, 0 when its size fits no layout below.  The file is left at its start.
 // 2: one header and count, then 50 byte facets, 84 + 50 n bytes.
+// 4: a sequence of header, count and 52 byte facet blocks that ends at the end of the file.
 int MeshGeom::BinSTLAttSize( FILE* file_id )
 {
     fseek( file_id, 0, SEEK_END );
@@ -417,6 +429,21 @@ int MeshGeom::BinSTLAttSize( FILE* file_id )
         if ( fileSize == 84 + 50 * numFacet )
         {
             attSize = 2;
+        }
+        else
+        {
+            long long blockStart = 0;
+            while ( blockStart + 84 <= fileSize )
+            {
+                fseek( file_id, blockStart + 80, SEEK_SET );
+                numFacet = ( unsigned int ) ReadBinInt( file_id );
+                blockStart += 84 + 52 * numFacet;
+            }
+
+            if ( blockStart == fileSize )
+            {
+                attSize = 4;
+            }
         }
     }
 
