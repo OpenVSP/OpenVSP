@@ -123,3 +123,30 @@ def testConformalOfMdcBodIsOffsetAllOver():
             p = vsp.CompPnt01( c, 0, i / 40, j / 40 )
             worst = max( worst, abs( vsp.ProjPnt01I( g, p )[0] - 0.05 ) )
     assert worst < 1e-3
+
+
+@pytest.mark.parametrize( "sectyp", [ 0, 1, 2 ] )
+def testConformalOfMdcFinIsItsWingsConformal( sectyp ):
+    # A fin set's Conformal is offset as a Wing's is, faces out as its parent does, and is the Conformal of the Wing
+    # the fin set converts to.
+    vsp.VSPRenew()
+    drop_errors()
+    fid = vsp.AddGeom( "MDC_FIN" )
+    vsp.Update()
+    vsp.SetParmVal( vsp.FindParm( fid, "SECTYP", "Design" ), sectyp )
+    vsp.Update()
+    wings = vsp.ConvertMdcFinToWing( fid, False )
+    vsp.Update()
+    cf = conformal( fid, 0.01 )
+    cw = conformal( wings[0], 0.01 )
+    worst = 0.0
+    for i in range( 21 ):
+        for j in range( 41 ):
+            p = vsp.CompPnt01( cf, 0, i / 20, j / 40 )
+            worst = max( worst, vsp.ProjPnt01I( cw, p )[0] )
+    assert worst < 1e-9
+
+    for j in ( 0.1, 0.4, 0.6, 0.9 ):
+        p = vsp.CompPnt01( cf, 0, 0.5, j )
+        d, s, u, w = vsp.ProjPnt01I( fid, p )
+        assert vsp.dot( vsp.CompNorm01( cf, 0, 0.5, j ), vsp.CompNorm01( fid, s, u, w ) ) > 0.9

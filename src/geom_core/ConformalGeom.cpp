@@ -337,7 +337,7 @@ void ConformalGeom::UpdateSurf()
 
     //==== Wing Specific Stuff ====//
     m_WingParentFlag = false;
-    if ( parent_geom->GetType().m_Type == MS_WING_GEOM_TYPE )
+    if ( parent_geom->GetType().m_Type == MS_WING_GEOM_TYPE || parent_geom->GetSurfType( 0 ) == vsp::WING_SURF )
     {
         m_WingParentFlag = true;
     }
@@ -925,6 +925,9 @@ void ConformalGeom::OffsetCurve( curve_type & crv, double offset )
 //==== Force Reskin ====//
 void ConformalGeom::ReSkin( VspSurf & surf, vector< rib_data_type > & rib_vec )
 {
+    // Skinning resets the normal; keep it facing the way the parent's does.
+    bool flip = surf.GetFlipNormal();
+
     if ( surf.GetSkinBlendedFlag() )
     {
         // The parent was blended: one skin per group of stations enforcing alike, summed with
@@ -960,9 +963,13 @@ void ConformalGeom::ReSkin( VspSurf & surf, vector< rib_data_type > & rib_vec )
         surf.SkinRibsUniform( rib_vec, degree_vec, parm_vec, closed_flag );
     }
 
-    if ( m_WingParentFlag )
+    if ( flip )
     {
         surf.FlipNormal();
+    }
+
+    if ( m_WingParentFlag )
+    {
         surf.SetSurfType( vsp::WING_SURF );
         surf.SetMagicVParm( true );
     }
