@@ -12,6 +12,7 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#include <algorithm>
 #include <cmath>
 
 #include "APIDefines.h"
@@ -2578,6 +2579,93 @@ void VSPAEROMgrSingleton::ReadHistoryFile( const string &filename, vector <strin
 Read .polar file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
+//==== A VSPAERO History Result by Its Flow Condition ====//
+struct HistoryCase
+{
+    double m_Alpha;
+    double m_Mach;
+    double m_Beta;
+    int m_Index;          // Its place among the run's results
+    Results* m_Res;
+};
+
+static bool HistoryCaseAlphaLess( const HistoryCase & a, const HistoryCase & b )
+{
+    return a.m_Alpha < b.m_Alpha;
+}
+
+static bool HistoryCaseBelowAlpha( const HistoryCase & c, double alpha )
+{
+    return c.m_Alpha < alpha;
+}
+
+// The history results among res_id_vector, sorted by alpha.
+static vector< HistoryCase > FindHistoryCases( const vector < string > &res_id_vector, double tol )
+{
+    vector< HistoryCase > cases;
+
+    for ( int i = 0; i < ( int )res_id_vector.size(); i++ )
+    {
+        Results* history_res = ResultsMgr.FindResultsPtr( res_id_vector[i] );
+
+        if ( !history_res || history_res->GetName() != "VSPAERO_History" )
+        {
+            continue;
+        }
+
+        NameValData* mach_ptr = history_res->FindPtr( "FC_Mach_" );
+        NameValData* alpha_ptr = history_res->FindPtr( "Alpha" );
+        NameValData* beta_ptr = history_res->FindPtr( "FC_Beta_" );
+
+        if ( !mach_ptr || !alpha_ptr || !beta_ptr )
+        {
+            continue;
+        }
+
+        HistoryCase c;
+        c.m_Mach = mach_ptr->GetDouble( 0 );
+        c.m_Alpha = alpha_ptr->GetDouble( 0 );
+        c.m_Beta = beta_ptr->GetDouble( 0 );
+        c.m_Index = i;
+        c.m_Res = history_res;
+
+        if ( c.m_Mach <= ( 0.001 + tol ) )
+        {
+            // Mach is reported as 0 in the polar but 0.001 in the history file
+            c.m_Mach = 0;
+        }
+
+        cases.push_back( c );
+    }
+
+    std::sort( cases.begin(), cases.end(), HistoryCaseAlphaLess );
+    return cases;
+}
+
+// The first of the cases within tol of mach, alpha and beta, or nullptr.
+static Results* FindHistoryCase( const vector< HistoryCase > & cases, double mach, double alpha, double beta, double tol )
+{
+    Results* found = nullptr;
+    int found_index = 0;
+
+    // Twice tol, so no case within tol is missed by the rounding of the bounds.
+    vector< HistoryCase >::const_iterator iter = std::lower_bound( cases.begin(), cases.end(), alpha - 2 * tol,
+                                                                   HistoryCaseBelowAlpha );
+    for ( ; iter != cases.end() && iter->m_Alpha <= alpha + 2 * tol; ++iter )
+    {
+        if ( ( abs( iter->m_Mach - mach ) < tol ) && ( abs( iter->m_Alpha - alpha ) < tol ) && ( abs( iter->m_Beta - beta ) < tol ) )
+        {
+            if ( !found || iter->m_Index < found_index )
+            {
+                found = iter->m_Res;
+                found_index = iter->m_Index;
+            }
+        }
+    }
+
+    return found;
+}
+
 void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string> &res_id_vector ) const
 {
     FILE *fp = nullptr;
@@ -2597,7 +2685,9 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
     int num_polar_col = 48; // number of columns in the file
 
     double tol = 1e-8; // tolerance for comparing values to account for machine precision errors
-    int num_history_res = ResultsMgr.GetNumResults( "VSPAERO_History" );
+
+    // This run's history results, which the rows of the other ReCref copy.
+    vector< HistoryCase > history_cases = FindHistoryCases( res_id_vector, tol );
 
     // Read in all of the data into the results manager
     char seps[] = " :,\t\n";
@@ -2716,43 +2806,13 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
                         Ew.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                         StallFactor.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
-                        if ( ( abs( Re_1e6.back() - Re_1e6[0] ) > tol ) && num_history_res > 0 )
+                        if ( ( abs( Re_1e6.back() - Re_1e6[0] ) > tol ) && !history_cases.empty() )
                         {
                             // Find history result with matching mach, beta, and alpha
-                            for ( size_t i = 0; i < num_history_res; i++ )
+                            Results* history_res = FindHistoryCase( history_cases, Mach.back(), Alpha.back(), Beta.back(), tol );
+                            if ( history_res )
                             {
-                                Results* history_res = ResultsMgr.FindResults( "VSPAERO_History", i );
-
-                                if ( !history_res )
-                                {
-                                    continue;
-                                }
-
-                                NameValData* mach_ptr = history_res->FindPtr( "FC_Mach_" );
-                                NameValData* alpha_ptr = history_res->FindPtr( "Alpha" );
-                                NameValData* beta_ptr = history_res->FindPtr( "FC_Beta_" );
-
-                                if ( !mach_ptr || !alpha_ptr || !beta_ptr )
-                                {
-                                    continue;
-                                }
-
-                                double mach = mach_ptr->GetDouble( 0 );
-                                double alpha = alpha_ptr->GetDouble( 0 );
-                                double beta = beta_ptr->GetDouble( 0 );
-
-                                if ( mach <= ( 0.001 + tol ) )
-                                {
-                                    // Mach is reported as 0 in the polar but 0.001 in the history file
-                                    mach = 0;
-                                }
-
-                                if ( ( abs( mach - Mach.back() ) < tol ) && ( abs( alpha - Alpha.back() ) < tol ) && ( abs( beta - Beta.back() ) < tol ) )
-                                {
-                                    AddReCrefHistory( history_res, Re_1e6.back(), CDo.back(), CDtot.back(), LoD.back(), res_id_vector );
-
-                                    break;
-                                }
+                                AddReCrefHistory( history_res, Re_1e6.back(), CDo.back(), CDtot.back(), LoD.back(), res_id_vector );
                             }
                         }
 
