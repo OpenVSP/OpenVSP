@@ -90,6 +90,9 @@ private:
     void Init();
     void Wype();
 
+    // Adds a variable of a valid Parm at the end, unsorted and unchecked for duplicates, or returns nullptr.
+    DesignVar* AppendVar( const string& parm_id, int xddmtype, double lowerlimit, double upperlimit );
+
     int m_CurrVarIndex;
 
     string m_WorkingParmID;

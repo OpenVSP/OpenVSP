@@ -173,12 +173,26 @@ bool DesignVarMgrSingleton::AddVar( const string& parm_id, int xddmtype, double 
         return false;
     }
 
+    if ( !AppendVar( parm_id, xddmtype, lowerlimit, upperlimit ) )
+    {
+        return false;
+    }
+
+    SortVars();
+    m_CurrVarIndex = -1;
+
+    return true;
+}
+
+//==== Append a Variable, Unsorted ====//
+DesignVar* DesignVarMgrSingleton::AppendVar( const string& parm_id, int xddmtype, double lowerlimit, double upperlimit )
+{
     //==== Check If ParmIDs Are Valid ====//
     Parm* p = ParmMgr.FindParm( parm_id );
 
     if ( p == nullptr )
     {
-        return false;
+        return nullptr;
     }
 
     DesignVar* dv = new DesignVar();
@@ -189,10 +203,8 @@ bool DesignVarMgrSingleton::AddVar( const string& parm_id, int xddmtype, double 
     dv->m_UpperLimit = upperlimit;
 
     m_VarVec.push_back( dv );
-    SortVars();
-    m_CurrVarIndex = -1;
 
-    return true;
+    return dv;
 }
 
 //==== Check All Vars For Valid Parms ====//
