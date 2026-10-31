@@ -2928,7 +2928,7 @@ void VSPAEROMgrSingleton::AddReCrefHistory( Results* history_res, double recref_
             vector < double > history_cdo_vec = cdo_ptr->GetDoubleData();
             vector < double > cdo_vec( num_wake, cdo );
 
-            for ( size_t k = 0; k < history_cdo_vec.size() - 1; k++ )
+            for ( size_t k = 0; k + 1 < history_cdo_vec.size(); k++ )
             {
                 cdo_vec[k] = cdo_vec[k] - ( history_cdo_vec.back() - history_cdo_vec[k] );
             }
@@ -2940,7 +2940,7 @@ void VSPAEROMgrSingleton::AddReCrefHistory( Results* history_res, double recref_
             vector < double > history_ctot_vec = cdtot_ptr->GetDoubleData();
             vector < double > ctot_vec( num_wake, cdtot );
 
-            for ( size_t k = 0; k < history_ctot_vec.size() - 1; k++ )
+            for ( size_t k = 0; k + 1 < history_ctot_vec.size(); k++ )
             {
                 ctot_vec[k] = ctot_vec[k] - ( history_ctot_vec.back() - history_ctot_vec[k] );
             }
@@ -2952,7 +2952,7 @@ void VSPAEROMgrSingleton::AddReCrefHistory( Results* history_res, double recref_
             vector < double > history_l_d_vec = l_d_ptr->GetDoubleData();
             vector < double > ld_vec( num_wake, lod );
 
-            for ( size_t k = 0; k < history_l_d_vec.size() - 1; k++ )
+            for ( size_t k = 0; k + 1 < history_l_d_vec.size(); k++ )
             {
                 ld_vec[k] = ld_vec[k] - ( history_l_d_vec.back() - history_l_d_vec[k] );
             }
