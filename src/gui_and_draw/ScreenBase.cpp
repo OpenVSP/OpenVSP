@@ -3631,6 +3631,9 @@ void GeomScreen::CallBack( Fl_Widget *w )
         bool flag = !!m_SetBrowser->checked( curr_index );
 
         geom_ptr->SetSetFlag( curr_index, flag );
+
+        // Set membership is not a Parm, so update here; its Clones copy it as they update.
+        geom_ptr->Update();
     }
 
     if ( Fl::event_key() == 'x' )

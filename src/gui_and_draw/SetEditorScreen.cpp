@@ -258,6 +258,9 @@ void SetEditorScreen::CallBack( Fl_Widget *w )
             {
                 //If index points to geoms that can be selected (based on enums), we then set the flag passed in
                 gptr->SetSetFlag( m_SelectedSetIndex, flag );
+
+                // Set membership is not a Parm, so update here; its Clones copy it as they update.
+                gptr->Update();
             }
         }
     }
@@ -324,6 +327,9 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         m_PasteIndex = m_SelectedSetIndex;
         vehiclePtr->CopyPasteSet(m_CopyIndex, m_PasteIndex);
+
+        // Set membership is not a Parm, so update here; Clones copy it as they update.
+        vehiclePtr->Update();
     }
     //This is for selecting all Geoms in a certain set
     else if ( device == &m_SelectAll )
@@ -338,6 +344,9 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
                     gptr->SetSetFlag( m_SelectedSetIndex, true );
                 }
             }
+
+            // Set membership is not a Parm, so update here; Clones copy it as they update.
+            vehiclePtr->Update();
         } 
     }
     //This is for unselecting all Geoms in a certain set
@@ -353,6 +362,9 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
                     gptr->SetSetFlag( m_SelectedSetIndex, false );
                 }
             }
+
+            // Set membership is not a Parm, so update here; Clones copy it as they update.
+            vehiclePtr->Update();
         }
     }
     //This is for Highliting Geoms selected in a set
