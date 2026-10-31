@@ -7,6 +7,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <unordered_map>
+
 #include "DesignVarMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
@@ -362,6 +364,9 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
         DelAllVars();
         ResetWorkingVar();
 
+        // The variables read, by Parm ID, the first of each kept.
+        std::unordered_map< string, DesignVar* > read_vars;
+
         for ( int i = 0 ; i < nparm ; i++ )
         {
             fgets( temp, 255, fp );
@@ -384,9 +389,15 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
             {
                 // Set with delayed updates.
                 p->Set( val );
-                AddVar( id, vsp::XDDM_VAR, p->GetLowerLimit(), p->GetUpperLimit() );
+                if ( read_vars.find( id ) == read_vars.end() )
+                {
+                    read_vars[ id ] = AppendVar( id, vsp::XDDM_VAR, p->GetLowerLimit(), p->GetUpperLimit() );
+                }
             }
         }
+
+        SortVars();
+        m_CurrVarIndex = -1;
 
         // Read optional LIMITS section -- match lines by ParmID and apply lower/upper limits.
         while ( fgets( temp, 255, fp ) != nullptr )
@@ -413,14 +424,11 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
             iend = line.length();
             double upper = atof( line.substr( istart, iend - istart ).c_str() );
 
-            for ( int i = 0 ; i < (int)m_VarVec.size() ; i++ )
+            std::unordered_map< string, DesignVar* >::iterator iter = read_vars.find( id );
+            if ( iter != read_vars.end() )
             {
-                if ( m_VarVec[i]->m_ParmID == id )
-                {
-                    m_VarVec[i]->m_LowerLimit = lower;
-                    m_VarVec[i]->m_UpperLimit = upper;
-                    break;
-                }
+                iter->second->m_LowerLimit = lower;
+                iter->second->m_UpperLimit = upper;
             }
         }
 
@@ -517,6 +525,9 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
 
     int num_tot = num_v + num_c;
 
+    // The variables read, by Parm ID, the first of each kept.
+    std::unordered_map< string, DesignVar* > read_vars;
+
     for ( int i = 0 ; i < num_tot ; i++ )
     {
         xmlNodePtr var_node = vlist[i];
@@ -540,17 +551,23 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
                 const xmlChar* varstr = ( xmlChar* ) "Variable";
 
 
-                if( !xmlStrcmp( var_node->name, varstr ) )
+                if ( read_vars.find( varid ) == read_vars.end() )
                 {
-                    AddVar( varid, vsp::XDDM_VAR, lowerlimit, upperlimit );
-                }
-                else
-                {
-                    AddVar( varid, vsp::XDDM_CONST, lowerlimit, upperlimit );
+                    if( !xmlStrcmp( var_node->name, varstr ) )
+                    {
+                        read_vars[ varid ] = AppendVar( varid, vsp::XDDM_VAR, lowerlimit, upperlimit );
+                    }
+                    else
+                    {
+                        read_vars[ varid ] = AppendVar( varid, vsp::XDDM_CONST, lowerlimit, upperlimit );
+                    }
                 }
             }
         }
     }
+
+    SortVars();
+    m_CurrVarIndex = -1;
 
     // Trigger update.
     VehicleMgr.GetVehicle()->Update();
