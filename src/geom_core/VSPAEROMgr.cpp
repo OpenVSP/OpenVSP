@@ -504,9 +504,14 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 
         // Decode Control Surface Groups using Internal Decode Method
         int num_groups = XmlUtil::FindInt( VSPAEROsetnode, "ControlSurfaceGroupCount", 0 );
+        vector< xmlNodePtr > csg_nodes = XmlUtil::GetNodes( VSPAEROsetnode, "Control_Surface_Group" );
         for ( size_t i = 0; i < num_groups; ++i )
         {
-            xmlNodePtr csgnode = XmlUtil::GetNode( VSPAEROsetnode, "Control_Surface_Group", i );
+            xmlNodePtr csgnode = nullptr;
+            if ( i < csg_nodes.size() )
+            {
+                csgnode = csg_nodes[i];
+            }
             if ( csgnode )
             {
                 AddControlSurfaceGroup();
@@ -516,9 +521,14 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 
         // Decode Rotor Disks using Internal Decode Method
         int num_rotor = XmlUtil::FindInt( VSPAEROsetnode, "RotorDiskCount", 0 );
+        vector< xmlNodePtr > rotor_nodes = XmlUtil::GetNodes( VSPAEROsetnode, "Rotor" );
         for ( size_t i = 0; i < num_rotor; ++i )
         {
-            xmlNodePtr rotornode = XmlUtil::GetNode( VSPAEROsetnode, "Rotor", i );
+            xmlNodePtr rotornode = nullptr;
+            if ( i < rotor_nodes.size() )
+            {
+                rotornode = rotor_nodes[i];
+            }
             if ( rotornode )
             {
                 AddRotorDisk();
@@ -531,9 +541,14 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
         ClearCpSliceVec();
         // Decode CpSlices using Internal Decode Method
         int num_slice = XmlUtil::FindInt( VSPAEROsetnode, "CpSliceCount", 0 );
+        vector< xmlNodePtr > cpslice_nodes = XmlUtil::GetNodes( VSPAEROsetnode, "CpSlice" );
         for ( size_t i = 0; i < num_slice; ++i )
         {
-            xmlNodePtr cpslicenode = XmlUtil::GetNode( VSPAEROsetnode, "CpSlice", i );
+            xmlNodePtr cpslicenode = nullptr;
+            if ( i < cpslice_nodes.size() )
+            {
+                cpslicenode = cpslice_nodes[i];
+            }
             if ( cpslicenode )
             {
                 AddCpSlice();
@@ -543,9 +558,14 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 
         // Decode Unsteady Groups using Internal Decode Method
         int num_unsteady_groups = XmlUtil::FindInt( VSPAEROsetnode, "UnsteadyGroupCount", 0 );
+        vector< xmlNodePtr > unsteady_nodes = XmlUtil::GetNodes( VSPAEROsetnode, "Unsteady_Group" );
         for ( size_t i = 0; i < num_unsteady_groups; ++i )
         {
-            xmlNodePtr unsteady_node = XmlUtil::GetNode( VSPAEROsetnode, "Unsteady_Group", i );
+            xmlNodePtr unsteady_node = nullptr;
+            if ( i < unsteady_nodes.size() )
+            {
+                unsteady_node = unsteady_nodes[i];
+            }
             if ( unsteady_node )
             {
                 AddUnsteadyGroup();
@@ -6377,9 +6397,14 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
         m_ParentGeomBaseID = IDMgr.RemapRefID( XmlUtil::FindString( node, "ParentGeomBase", ParentGeomID ) );
 
         nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
+        vector< xmlNodePtr > cs_nodes = XmlUtil::GetNodes( node, "Control_Surface" );
         for ( size_t i = 0; i < nControlSubSurfaces; ++i )
         {
-            xmlNodePtr csnode = XmlUtil::GetNode( node, "Control_Surface", i );
+            xmlNodePtr csnode = nullptr;
+            if ( i < cs_nodes.size() )
+            {
+                csnode = cs_nodes[i];
+            }
 
             newSurf.SSID = IDMgr.RemapRefID( XmlUtil::FindString( csnode, "SSID", SSID ) );
             newSurf.parentGeomId = IDMgr.RemapRefID( XmlUtil::FindString( csnode, "ParentGeomID", ParentGeomID ) );
@@ -6555,9 +6580,14 @@ xmlNodePtr UnsteadyGroup::DecodeXml( xmlNodePtr& node )
     {
         unsigned int nComponents = XmlUtil::FindInt( node, "NumberOfComponents", 0 );
 
+        vector< xmlNodePtr > comp_nodes = XmlUtil::GetNodes( node, "Component" );
         for ( size_t i = 0; i < nComponents; ++i )
         {
-            xmlNodePtr csnode = XmlUtil::GetNode( node, "Component", i );
+            xmlNodePtr csnode = nullptr;
+            if ( i < comp_nodes.size() )
+            {
+                csnode = comp_nodes[i];
+            }
 
             string compID = IDMgr.RemapRefID( XmlUtil::FindString( csnode, "CompID", "" ) );
             int surf_index = XmlUtil::FindInt( csnode, "SurfIndex", 1 );

@@ -126,6 +126,8 @@ xmlNodePtr MeshGeom::DecodeXml( xmlNodePtr & node )
         }
         m_TMeshVec.clear();
 
+        vector< xmlNodePtr > tmesh_nodes = XmlUtil::GetNodes( mesh_node, "TMesh" );
+
         xmlNodePtr numMeshes_node = XmlUtil::GetNode( mesh_node, "Num_Meshes", 0 );
         unsigned int numMeshes = 0;
         if ( numMeshes_node )
@@ -134,7 +136,7 @@ xmlNodePtr MeshGeom::DecodeXml( xmlNodePtr & node )
         }
         else
         {
-            numMeshes = XmlUtil::GetNumNames( mesh_node, "TMesh" );
+            numMeshes = tmesh_nodes.size();
         }
 
         m_TMeshVec.resize( numMeshes );
@@ -143,7 +145,11 @@ xmlNodePtr MeshGeom::DecodeXml( xmlNodePtr & node )
         for ( int i = 0 ; i < numMeshes ; i++ )
         {
             m_TMeshVec[i] = new TMesh();
-            xmlNodePtr tmesh_node = XmlUtil::GetNode( mesh_node, "TMesh", i );
+            xmlNodePtr tmesh_node = nullptr;
+            if ( i < tmesh_nodes.size() )
+            {
+                tmesh_node = tmesh_nodes[i];
+            }
             if ( tmesh_node )
             {
                 m_TMeshVec[i]->DecodeXml( tmesh_node );

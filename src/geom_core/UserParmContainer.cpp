@@ -148,6 +148,7 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
     if ( child_node )
     {
         int num_user = XmlUtil::FindInt( child_node, "NumUserParms", 0 );
+        vector< xmlNodePtr > pnodes = XmlUtil::GetNodes( child_node, "UserParm" );
 
         //==== Decode All User Parms ====//
         if ( num_curr_custom == 0 )
@@ -155,7 +156,11 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
             Renew( num_user );
             for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
             {
-                xmlNodePtr pnode = XmlUtil::GetNode( child_node, "UserParm", i );
+                xmlNodePtr pnode = nullptr;
+                if ( i < ( int )pnodes.size() )
+                {
+                    pnode = pnodes[i];
+                }
                 if ( pnode && m_UserParmVec[i] )
                 {
                     m_UserParmVec[i]->DecodeXml( pnode, true );
@@ -167,7 +172,11 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
             //==== Decode Predefined ====//
             for ( int i = 0; i < m_NumPredefined ; i++ )
             {
-                xmlNodePtr pnode = XmlUtil::GetNode( child_node, "UserParm", i );
+                xmlNodePtr pnode = nullptr;
+                if ( i < ( int )pnodes.size() )
+                {
+                    pnode = pnodes[i];
+                }
                 if ( pnode && m_UserParmVec[i] )
                 {
                     m_UserParmVec[i]->DecodeXml( pnode, true );
@@ -178,7 +187,11 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
 
             for ( int i = 0 ; i < num_new_custom ; i++ )
             {
-                xmlNodePtr pnode = XmlUtil::GetNode( child_node, "UserParm", i + m_NumPredefined );
+                xmlNodePtr pnode = nullptr;
+                if ( i + m_NumPredefined < ( int )pnodes.size() )
+                {
+                    pnode = pnodes[i + m_NumPredefined];
+                }
                 Parm* p = new Parm();
                 p->Init( "Temp", "User_Group", this, 0.0, -1.0e12, 1.0e12 );
                 p->DecodeXml( pnode, true );
