@@ -70,6 +70,27 @@ xmlNodePtr XmlUtil::GetNodeDbg( xmlNodePtr node, const char * name, int id, cons
     return nullptr;
 }
 
+//==== Get All Nodes w/ Name ====//
+vector< xmlNodePtr > XmlUtil::GetNodes( xmlNodePtr node, const char * name )
+{
+    vector< xmlNodePtr > nodes;
+
+    if ( node == nullptr )
+    {
+        return nodes;
+    }
+
+    for ( xmlNodePtr iter_node = node->xmlChildrenNode; iter_node != nullptr; iter_node = iter_node->next )
+    {
+        if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )name ) )
+        {
+            nodes.push_back( iter_node );
+        }
+    }
+
+    return nodes;
+}
+
 //==== Extract Double From Node  ====//
 double XmlUtil::ExtractDouble( xmlNodePtr node )
 {

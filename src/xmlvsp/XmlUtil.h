@@ -27,6 +27,9 @@ unsigned int GetNumNames( xmlNodePtr node, const char * name );
 #define GetNode( node, name, num ) GetNodeDbg( node, name, num, __FILE__, __LINE__ )
 xmlNodePtr GetNodeDbg( xmlNodePtr node, const char * name, int num, const char* file, int lineno );
 
+// The children of node named name, in order, found in one pass.
+vector< xmlNodePtr > GetNodes( xmlNodePtr node, const char * name );
+
 double ExtractDouble( xmlNodePtr node );
 int    ExtractInt( xmlNodePtr node );
 string ExtractString( xmlNodePtr node );
