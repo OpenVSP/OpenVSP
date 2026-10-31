@@ -136,6 +136,20 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
         gui_dev = slider;
     }
+    else if ( def.m_Type == vsp::GDEV_SLIDER_ADJ_RANGE )
+    {
+        // The layout offers this slider with its input.
+        SliderAdjRangeInput* slider = new SliderAdjRangeInput();
+        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
+        gui_dev = slider;
+    }
+    else if ( def.m_Type == vsp::GDEV_SLIDER )
+    {
+        // The layout offers this slider with its input.
+        SliderInput* slider = new SliderInput();
+        m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
+        gui_dev = slider;
+    }
     else if ( def.m_Type == vsp::GDEV_SLIDER_INPUT )
     {
         SliderInput* slider = new SliderInput();
