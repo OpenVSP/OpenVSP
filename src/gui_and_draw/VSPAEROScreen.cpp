@@ -109,7 +109,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        7 * m_CaseSetupLayout.GetStdHeight() +
+        10 * m_CaseSetupLayout.GetStdHeight() +
         2 * m_CaseSetupLayout.GetDividerHeight() +
         2 * m_CaseSetupLayout.GetGapHeight()
     );
@@ -173,23 +173,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CaseSetupLayout.AddYGap();
 
-
-    m_CaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
-
-    m_CaseSetupLayout.SetSameLineFlag( true );
-    m_CaseSetupLayout.SetFitWidthFlag( false );
-
-    m_CaseSetupLayout.SetButtonWidth( togglewidth );
-    m_CaseSetupLayout.AddButton( m_CullFracButton, "" ); // make this the parm button?
-    m_CaseSetupLayout.SetButtonWidth( button_width - togglewidth );
-    m_CaseSetupLayout.SetFitWidthFlag( true );
-    m_CaseSetupLayout.AddSlider( m_CullFracSlider, "Cull Orphans", 1.0, "%5.3f" );
-    m_CaseSetupLayout.ForceNewLine();
-    m_CaseSetupLayout.SetButtonWidth( button_width );
-
-    m_CaseSetupLayout.SetSameLineFlag( false );
-    m_CaseSetupLayout.SetFitWidthFlag( true );
-
     m_CaseSetupLayout.SetChoiceButtonWidth( bw );
     m_CaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
 
@@ -201,6 +184,39 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM" );
     m_CaseSetupLayout.AddButton(m_WriteTecplotToggle, "Write Tecplot File" );
     m_CaseSetupLayout.ForceNewLine();
+
+    m_CaseSetupLayout.SetSameLineFlag( false );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+
+    m_CaseSetupLayout.AddYGap();
+    m_CaseSetupLayout.AddDividerBox( "Mesh Options" );
+
+    m_CaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
+
+    m_CaseSetupLayout.SetSameLineFlag( true );
+    m_CaseSetupLayout.SetFitWidthFlag( false );
+
+    m_CaseSetupLayout.SetButtonWidth( button_width );
+    m_CaseSetupLayout.AddButton( m_CullFracButton, "Cull Orphans" );
+    m_CaseSetupLayout.SetButtonWidth( 0 );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+    m_CaseSetupLayout.AddSlider( m_CullFracSlider, "NONE", 1.0, "%5.3f" );
+    m_CaseSetupLayout.ForceNewLine();
+
+    m_CaseSetupLayout.SetFitWidthFlag( false );
+    m_CaseSetupLayout.SetButtonWidth( button_width );
+    m_CaseSetupLayout.AddButton( m_CleanIntersectionsButton, "Cull Tiny Edges" );
+    m_CaseSetupLayout.SetButtonWidth( 0 );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+    m_CaseSetupLayout.AddSlider( m_LenRatioSlider, "NONE", 1.0, "%5.3f" );
+
+    m_CaseSetupLayout.ForceNewLine();
+
+    m_CaseSetupLayout.SetSameLineFlag( false );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+
+    m_CaseSetupLayout.AddButton( m_MergeDegenTriRegionsButton, "Merge Degen Tri Regions" );
+
 
     m_CaseSetupLayout.SetButtonWidth( button_width );
 
@@ -935,19 +951,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_ExperimentalLayout.AddSlider( m_NRefCounter, "Num Ref.", 10, "%3.0f" );
 
     m_ExperimentalLayout.AddButton( m_FindBodyWakesButton, "Find Body Wakes" );
-
-    m_ExperimentalLayout.AddButton( m_MergeDegenTriRegionsButton, "Merge Degen Tri Regions" );
-
-    m_ExperimentalLayout.AddYGap();
-    m_ExperimentalLayout.AddDividerBox( "Clean Intersections" );
-
-    m_ExperimentalLayout.SetSameLineFlag( true );
-    m_ExperimentalLayout.SetFitWidthFlag( false );
-    m_ExperimentalLayout.SetButtonWidth( 15 );
-    m_ExperimentalLayout.AddButton( m_CleanIntersectionsButton, "" );
-    m_ExperimentalLayout.SetButtonWidth( bw );
-    m_ExperimentalLayout.SetFitWidthFlag( true );
-    m_ExperimentalLayout.AddSlider( m_LenRatioSlider, "Length Ratio", 1.0, "%5.3f" );
 
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -1687,6 +1690,11 @@ void VSPAEROScreen::UpdateCaseSetup()
         m_CullFracButton.Activate();
     }
     m_CullFracSlider.SetButtonName( "Cull Orphans" );
+
+    if ( !VSPAEROMgr.m_CullFracFlag() )
+    {
+        m_CullFracSlider.Deactivate();
+    }
 
     m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
 
