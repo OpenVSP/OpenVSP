@@ -3667,28 +3667,28 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     int r;
     r = se->RegisterGlobalFunction( "string AddParm( int type, const string & in name, const string & in group )",
                                     asMETHOD( CustomGeomMgrSingleton, AddParm ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "string GetCurrCustomGeom()",
                                     asMETHOD( CustomGeomMgrSingleton, GetCurrCustomGeom ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "string GetCustomParm( int index )",
                                     asMETHOD( CustomGeomMgrSingleton, GetCustomParm ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r ); // TODO: Example
+    assert( r >= 0 ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "int AddGui( int type, const string & in arg1 = string(), const string & in arg2 = string(), const string & in arg3 = string(), double arg4 = 10.0, const string & in arg5 = string() )",
                                     asMETHOD( CustomGeomMgrSingleton, AddGui ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void UpdateGui( int gui_id, const string & in parm_id )",
                                     asMETHODPR( CustomGeomMgrSingleton, AddUpdateGui, ( int, const string &), void ),
                                     asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void UpdateGui( int gui_id, const string & in parm_id, const string & in parm_id2, int input )",
                                     asMETHODPR( CustomGeomMgrSingleton, AddUpdateGui,
@@ -3699,67 +3699,67 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "string AddXSecSurf()",
                                     asMETHOD( CustomGeomMgrSingleton, AddXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void RemoveXSecSurf(const string & in xsec_id)",
                                     asMETHOD( CustomGeomMgrSingleton, RemoveXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void ClearXSecSurfs()",
                                     asMETHOD( CustomGeomMgrSingleton, ClearXSecSurfs ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void SkinXSecSurf( bool closed_flag = false )",
                                     asMETHOD( CustomGeomMgrSingleton, SkinXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void CloneSurf(int index, Matrix4d & in mat)",
                                     asMETHOD( CustomGeomMgrSingleton, CloneSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void TransformSurf(int index, Matrix4d & in mat)",
                                     asMETHOD( CustomGeomMgrSingleton, TransformSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r ); // TODO: Example
+    assert( r >= 0 ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "void SetVspSurfType( int type, int surf_index = -1 )",
                                     asMETHOD( CustomGeomMgrSingleton, SetVspSurfType ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void SetVspSurfCfdType( int type, int surf_index = -1 )",
                                     asMETHOD( CustomGeomMgrSingleton, SetVspSurfCfdType ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",
                                     asMETHOD( CustomGeomMgrSingleton, SetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "vec3d GetCustomXSecLoc( const string & in xsec_id )",
                                     asMETHOD( CustomGeomMgrSingleton, GetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void SetCustomXSecRot( const string & in xsec_id, const vec3d & in rot )",
                                     asMETHOD( CustomGeomMgrSingleton, SetCustomXSecRot ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "vec3d GetCustomXSecRot( const string & in xsec_id )",
                                     asMETHOD( CustomGeomMgrSingleton, GetCustomXSecRot ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "bool CheckClearTriggerEvent( int gui_id )",
                                     asMETHOD( CustomGeomMgrSingleton, CheckClearTriggerEvent ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r ); // TODO: Example
+    assert( r >= 0 ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction(
@@ -3770,44 +3770,44 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "void ClearAllCustomDefaultSources()",
                                     asMETHOD( CustomGeomMgrSingleton, ClearAllCustomDefaultSources ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void SetCustomCenter( double x, double y, double z )",
                                     asMETHOD( CustomGeomMgrSingleton, SetCustomCenter ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "string AppendXSec( const string & in xsec_surf_id, int type )",
                                     asMETHOD( CustomGeomMgrSingleton, AppendCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
     // WARNING: Both versions of the AppendCustomXSec must be available to avoid breaking existing CustomGeom scripts
 
 
     r = se->RegisterGlobalFunction( "string AppendCustomXSec( const string & in xsec_surf_id, int type )",
                                     asMETHOD( CustomGeomMgrSingleton, AppendCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void CutCustomXSec( const string & in xsec_surf_id, int index )",
                                     asMETHOD( CustomGeomMgrSingleton, CutCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r ); // TODO: Example
+    assert( r >= 0 ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "void CopyCustomXSec( const string & in xsec_surf_id, int index )",
                                     asMETHOD( CustomGeomMgrSingleton, CopyCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r ); // TODO: Example
+    assert( r >= 0 ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "void PasteCustomXSec( const string & in xsec_surf_id, int index )",
                                     asMETHOD( CustomGeomMgrSingleton, PasteCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r ); // TODO: Example
+    assert( r >= 0 ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "string InsertCustomXSec( const string & in xsec_surf_id, int type, int index )",
                                     asMETHOD( CustomGeomMgrSingleton, InsertCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
-    assert( r ); // TODO: Example
+    assert( r >= 0 ); // TODO: Example
 
 
 }
@@ -4086,20 +4086,20 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 //
 //    r = se->RegisterGlobalFunction( "void AddInput( const string & in parm_id, const string & in var_name )",
 //                                    asMETHOD( AdvLinkMgrSingleton, AddInput ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
-//    assert( r );
+//    assert( r >= 0 );
 //
 //
 //    r = se->RegisterGlobalFunction( "void AddOutput( const string & in parm_id, const string & in var_name )",
 //                                    asMETHOD( AdvLinkMgrSingleton, AddOutput ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
-//    assert( r );
+//    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void SetVar( const string & in var_name, double val )", asMETHOD( AdvLinkMgrSingleton, SetVar ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "double GetVar( const string & in var_name )", asMETHOD( AdvLinkMgrSingleton, GetVar ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
-    assert( r );
+    assert( r >= 0 );
 }
 
 //==== ErrorObj Constructors and Destructor ====//
@@ -4170,27 +4170,27 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // TODO: Move to ErrorObj group
 
     r = se->RegisterGlobalFunction( "bool GetErrorLastCallFlag()", asMETHOD( vsp::ErrorMgrSingleton, GetErrorLastCallFlag ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "int GetNumTotalErrors()", asMETHOD( vsp::ErrorMgrSingleton, GetNumTotalErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "ErrorObj PopLastError()", asMETHOD( vsp::ErrorMgrSingleton, PopLastError ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "ErrorObj GetLastError()", asMETHOD( vsp::ErrorMgrSingleton, GetLastError ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void SilenceErrors()", asMETHOD( vsp::ErrorMgrSingleton, SilenceErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void PrintOnErrors()", asMETHOD( vsp::ErrorMgrSingleton, PrintOnErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
-    assert( r );
+    assert( r >= 0 );
 
     //==== Visualization Functions ====//
 
@@ -6371,7 +6371,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     r = se->RegisterGlobalFunction( "string AddUserParm( int type, const string & in name, const string & in group )",
                                     asFUNCTION( vsp::AddUserParm ), asCALL_CDECL );
-    assert( r );
+    assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void DeleteUserParm( const string & in parm_id)", asFUNCTION( vsp::DeleteUserParm ), asCALL_CDECL);
