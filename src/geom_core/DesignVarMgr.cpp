@@ -353,9 +353,17 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
 {
     FILE *fp;
     fp = fopen( newfile.c_str(), "r" );
+    if ( !fp )
+    {
+        return;
+    }
     char temp[255];
 
-    fgets( temp, 255, fp );
+    if ( !fgets( temp, 255, fp ) )
+    {
+        fclose( fp );
+        return;
+    }
     string line = temp;
     int nparm = atoi( line.c_str() );
 
@@ -369,7 +377,11 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
 
         for ( int i = 0 ; i < nparm ; i++ )
         {
-            fgets( temp, 255, fp );
+            // A file shorter than its count ends the list.
+            if ( !fgets( temp, 255, fp ) )
+            {
+                break;
+            }
             line = temp;
 
             unsigned int istart = 0;
@@ -484,9 +496,6 @@ void DesignVarMgrSingleton::WriteDesVarsXDDM( const string &newfile )
 
 void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
 {
-    DelAllVars();
-    ResetWorkingVar();
-
     //==== Read Xml File ====//
     xmlDocPtr doc;
 
@@ -495,15 +504,21 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
 
     //==== Build an XML tree from a the file ====//
     doc = xmlReadFile( newfile.c_str(), nullptr, 0 );
-//  if (doc == nullptr) return 0;
+    if ( doc == nullptr )
+    {
+        return;
+    }
 
     xmlNodePtr root = xmlDocGetRootElement( doc );
     if ( root == nullptr )
     {
         fprintf( stderr, "empty document\n" );
         xmlFreeDoc( doc );
-//      return 0;
+        return;
     }
+
+    DelAllVars();
+    ResetWorkingVar();
 
     vector< xmlNodePtr > vlist;
 
