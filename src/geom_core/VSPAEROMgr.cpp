@@ -2749,75 +2749,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
 
                                 if ( ( abs( mach - Mach.back() ) < tol ) && ( abs( alpha - Alpha.back() ) < tol ) && ( abs( beta - Beta.back() ) < tol ) )
                                 {
-                                    // Generate new *.history results for multiple ReCref inputs since VSPAERO only outputs a result for the first ReCref
-                                    Results* new_history_res = ResultsMgr.CreateResults( "VSPAERO_History", "VSPAERO additional history results to capture ReCref variation." );
-                                    res_id_vector.push_back( new_history_res->GetID() );
-
-                                    new_history_res->Add( new NameValData( "FC_ReCref_", ( 1e6 * Re_1e6.back() ), "Reynolds number." ) );
-
-                                    int num_wake = (int)alpha_ptr->GetDoubleData().size();
-
-                                    NameValData* cdo_ptr = history_res->FindPtr( "CDo" );
-                                    NameValData* cdtot_ptr = history_res->FindPtr( "CDtot" );
-                                    NameValData* l_d_ptr = history_res->FindPtr( "L/D" );
-
-                                    vector < string > data_names = history_res->GetAllDataNames();
-
-                                    // Copy ReCref dependent results from polar to history file. Copy non-dependent results from 
-                                    // history case that matches alpha, beta, and mach
-                                    for ( size_t j = 0; j < data_names.size(); j++ )
-                                    {
-                                        // Calculate wake iteration convergence differences - ReCref scales CDo, CDtot, and L_D
-                                        if ( cdo_ptr && strcmp( data_names[j].c_str(), "CDo" ) == 0 )
-                                        {
-                                            vector < double > history_cdo_vec = cdo_ptr->GetDoubleData();
-                                            vector < double > cdo_vec( num_wake, CDo.back() );
-
-                                            for ( size_t k = 0; k < history_cdo_vec.size() - 1; k++ )
-                                            {
-                                                cdo_vec[k] = cdo_vec[k] - ( history_cdo_vec.back() - history_cdo_vec[k] );
-                                            }
-
-                                            new_history_res->Add( new NameValData( data_names[j], cdo_vec, "Parasite drag coefficient." ) );
-                                        }
-                                        else if ( cdtot_ptr && strcmp( data_names[j].c_str(), "CDtot" ) == 0 )
-                                        {
-                                            vector < double > history_ctot_vec = cdtot_ptr->GetDoubleData();
-                                            vector < double > ctot_vec( num_wake, CDtot.back() );
-
-                                            for ( size_t k = 0; k < history_ctot_vec.size() - 1; k++ )
-                                            {
-                                                ctot_vec[k] = ctot_vec[k] - ( history_ctot_vec.back() - history_ctot_vec[k] );
-                                            }
-
-                                            new_history_res->Add( new NameValData( data_names[j], ctot_vec, "Total drag coefficient." ) );
-                                        }
-                                        else if ( l_d_ptr && strcmp( data_names[j].c_str(), "L/D" ) == 0 )
-                                        {
-                                            vector < double > history_l_d_vec = l_d_ptr->GetDoubleData();
-                                            vector < double > ld_vec( num_wake, LoD.back() );
-
-                                            for ( size_t k = 0; k < history_l_d_vec.size() - 1; k++ )
-                                            {
-                                                ld_vec[k] = ld_vec[k] - ( history_l_d_vec.back() - history_l_d_vec[k] );
-                                            }
-
-                                            new_history_res->Add( new NameValData( data_names[j], ld_vec, "Lift to drag ratio." ) );
-                                        }
-                                        else if ( strcmp( data_names[j].c_str(), "FC_ReCref_" ) != 0 )
-                                        {
-                                            NameValData* nvd = history_res->FindPtr( data_names[j] );
-                                            if ( !nvd )
-                                            {
-                                                continue;
-                                            }
-
-                                            NameValData* nvdcopy = new NameValData();
-                                            nvdcopy->CopyFrom( nvd );
-
-                                            new_history_res->Add( nvdcopy ); // q: do we need a copy here?
-                                        }
-                                    }
+                                    AddReCrefHistory( history_res, Re_1e6.back(), CDo.back(), CDtot.back(), LoD.back(), res_id_vector );
 
                                     break;
                                 }
@@ -2879,6 +2811,82 @@ void VSPAEROMgrSingleton::ReadPolarFile( const string &filename, vector <string>
     } //end for while !feof(fp)
 
     std::fclose( fp );
+}
+
+//==== Copy a History Result For Another ReCref ====//
+void VSPAEROMgrSingleton::AddReCrefHistory( Results* history_res, double recref_1e6, double cdo, double cdtot, double lod,
+                                            vector < string > &res_id_vector ) const
+{
+    // Generate new *.history results for multiple ReCref inputs since VSPAERO only outputs a result for the first ReCref
+    Results* new_history_res = ResultsMgr.CreateResults( "VSPAERO_History", "VSPAERO additional history results to capture ReCref variation." );
+    res_id_vector.push_back( new_history_res->GetID() );
+
+    new_history_res->Add( new NameValData( "FC_ReCref_", ( 1e6 * recref_1e6 ), "Reynolds number." ) );
+
+    NameValData* alpha_ptr = history_res->FindPtr( "Alpha" );
+    int num_wake = (int)alpha_ptr->GetDoubleData().size();
+
+    NameValData* cdo_ptr = history_res->FindPtr( "CDo" );
+    NameValData* cdtot_ptr = history_res->FindPtr( "CDtot" );
+    NameValData* l_d_ptr = history_res->FindPtr( "L/D" );
+
+    vector < string > data_names = history_res->GetAllDataNames();
+
+    // Copy ReCref dependent results from polar to history file. Copy non-dependent results from 
+    // history case that matches alpha, beta, and mach
+    for ( size_t j = 0; j < data_names.size(); j++ )
+    {
+        // Calculate wake iteration convergence differences - ReCref scales CDo, CDtot, and L_D
+        if ( cdo_ptr && strcmp( data_names[j].c_str(), "CDo" ) == 0 )
+        {
+            vector < double > history_cdo_vec = cdo_ptr->GetDoubleData();
+            vector < double > cdo_vec( num_wake, cdo );
+
+            for ( size_t k = 0; k < history_cdo_vec.size() - 1; k++ )
+            {
+                cdo_vec[k] = cdo_vec[k] - ( history_cdo_vec.back() - history_cdo_vec[k] );
+            }
+
+            new_history_res->Add( new NameValData( data_names[j], cdo_vec, "Parasite drag coefficient." ) );
+        }
+        else if ( cdtot_ptr && strcmp( data_names[j].c_str(), "CDtot" ) == 0 )
+        {
+            vector < double > history_ctot_vec = cdtot_ptr->GetDoubleData();
+            vector < double > ctot_vec( num_wake, cdtot );
+
+            for ( size_t k = 0; k < history_ctot_vec.size() - 1; k++ )
+            {
+                ctot_vec[k] = ctot_vec[k] - ( history_ctot_vec.back() - history_ctot_vec[k] );
+            }
+
+            new_history_res->Add( new NameValData( data_names[j], ctot_vec, "Total drag coefficient." ) );
+        }
+        else if ( l_d_ptr && strcmp( data_names[j].c_str(), "L/D" ) == 0 )
+        {
+            vector < double > history_l_d_vec = l_d_ptr->GetDoubleData();
+            vector < double > ld_vec( num_wake, lod );
+
+            for ( size_t k = 0; k < history_l_d_vec.size() - 1; k++ )
+            {
+                ld_vec[k] = ld_vec[k] - ( history_l_d_vec.back() - history_l_d_vec[k] );
+            }
+
+            new_history_res->Add( new NameValData( data_names[j], ld_vec, "Lift to drag ratio." ) );
+        }
+        else if ( strcmp( data_names[j].c_str(), "FC_ReCref_" ) != 0 )
+        {
+            NameValData* nvd = history_res->FindPtr( data_names[j] );
+            if ( !nvd )
+            {
+                continue;
+            }
+
+            NameValData* nvdcopy = new NameValData();
+            nvdcopy->CopyFrom( nvd );
+
+            new_history_res->Add( nvdcopy ); // q: do we need a copy here?
+        }
+    }
 }
 
 /*******************************************************
