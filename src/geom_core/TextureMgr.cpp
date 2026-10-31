@@ -129,12 +129,13 @@ xmlNodePtr TextureMgr::DecodeXml( xmlNodePtr node )
     char texName[256];
 
     xmlNodePtr child_node = XmlUtil::GetNode( node, "Textures", 0 );
+    std::unordered_map< string, xmlNodePtr > tex_nodes = XmlUtil::GetNodeMap( child_node );
 
     int numofTex = XmlUtil::FindInt( child_node, "Num_of_Tex", 0 );
     for( int i = 0; i < numofTex; i++ )
     {
         snprintf( texName, sizeof( texName ), "Texture%d", i );
-        xmlNodePtr tex_node = XmlUtil::GetNode( child_node, texName, 0 );
+        xmlNodePtr tex_node = XmlUtil::FindNode( tex_nodes, texName );
         xmlNodePtr parm_node = XmlUtil::GetNode( tex_node, "ParmContainer", 0 );
         if( tex_node && parm_node )
         {

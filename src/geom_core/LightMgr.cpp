@@ -93,12 +93,13 @@ xmlNodePtr LightMgrSingleton::DecodeXml(xmlNodePtr node )
     char lightName[256];
 
     xmlNodePtr light_root_node = XmlUtil::GetNode( node, "Lights", 0 );
+    std::unordered_map< string, xmlNodePtr > light_nodes = XmlUtil::GetNodeMap( light_root_node );
 
     int numofLights = XmlUtil::FindInt( light_root_node, "Num_of_Lights", 0 );
     for ( int i = 0; i < numofLights; i++ )
     {
         snprintf( lightName, sizeof( lightName ), "Light%d", i );
-        xmlNodePtr light_node = XmlUtil::GetNode( light_root_node, lightName, 0 );
+        xmlNodePtr light_node = XmlUtil::FindNode( light_nodes, lightName );
         if( light_node )
         {
             m_Lights[i]->DecodeXml( light_node );

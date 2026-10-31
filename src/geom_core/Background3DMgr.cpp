@@ -89,12 +89,13 @@ xmlNodePtr Background3DMgrSingleton::DecodeXml( xmlNodePtr & node )
     char labelName[256];
 
     xmlNodePtr label_root_node = XmlUtil::GetNode( node, "Background3D", 0 );
+    std::unordered_map< string, xmlNodePtr > label_nodes = XmlUtil::GetNodeMap( label_root_node );
 
     int numofBackground3Ds = XmlUtil::FindInt( label_root_node, "Num_of_Background3Ds", 0 );
     for ( int i = 0; i < numofBackground3Ds; i++ )
     {
         snprintf( labelName, sizeof( labelName ), "Background3D_%d", i );
-        xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
+        xmlNodePtr label_node = XmlUtil::FindNode( label_nodes, labelName );
         if( label_node )
         {
             xmlNodePtr parmcontain_node = XmlUtil::GetNode( label_node, "ParmContainer", 0 );

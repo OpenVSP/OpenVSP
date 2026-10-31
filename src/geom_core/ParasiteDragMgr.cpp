@@ -3586,11 +3586,12 @@ xmlNodePtr ParasiteDragMgrSingleton::DecodeXml( xmlNodePtr & node )
         xmlNodePtr ExcresDragnode = XmlUtil::GetNode( ParasiteDragnode, "Excrescence", 0 );
 
         numExcres = XmlUtil::FindInt( ExcresDragnode, "NumExcres", 0 );
+        std::unordered_map< string, xmlNodePtr > excres_nodes = XmlUtil::GetNodeMap( ExcresDragnode );
 
         for ( int i = 0; i < numExcres; i++ )
         {
             snprintf( str, sizeof( str ),  "Excres_%i", i );
-            xmlNodePtr excresqualnode = XmlUtil::GetNode( ExcresDragnode, str, 0 );
+            xmlNodePtr excresqualnode = XmlUtil::FindNode( excres_nodes, str );
             if ( !excresqualnode )
             {
                 break;

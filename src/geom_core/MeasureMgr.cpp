@@ -289,12 +289,13 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
     char labelName[256];
 
     xmlNodePtr label_root_node = XmlUtil::GetNode( node, "Measure", 0 );
+    std::unordered_map< string, xmlNodePtr > label_nodes = XmlUtil::GetNodeMap( label_root_node );
 
     int numofProtractors = XmlUtil::FindInt( label_root_node, "Num_of_Protractors", 0 );
     for ( int i = 0; i < numofProtractors; i++ )
     {
         snprintf( labelName, sizeof( labelName ), "Protractor_%d", i );
-        xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
+        xmlNodePtr label_node = XmlUtil::FindNode( label_nodes, labelName );
         if( label_node )
         {
             xmlNodePtr parmcontain_node = XmlUtil::GetNode( label_node, "ParmContainer", 0 );
@@ -310,7 +311,7 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
     for ( int i = 0; i < numofLabels; i++ )
     {
         snprintf( labelName, sizeof( labelName ), "Ruler_%d", i );
-        xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
+        xmlNodePtr label_node = XmlUtil::FindNode( label_nodes, labelName );
         if( label_node )
         {
             xmlNodePtr parmcontain_node = XmlUtil::GetNode( label_node, "ParmContainer", 0 );
@@ -326,7 +327,7 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
     for ( int i = 0; i < numofProbes; i++ )
     {
         snprintf( labelName, sizeof( labelName ), "Probe_%d", i );
-        xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
+        xmlNodePtr label_node = XmlUtil::FindNode( label_nodes, labelName );
         if( label_node )
         {
             xmlNodePtr parmcontain_node = XmlUtil::GetNode( label_node, "ParmContainer", 0 );
@@ -342,7 +343,7 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
     for ( int i = 0; i < numofRSTprobes; i++ )
     {
         snprintf( labelName, sizeof( labelName ), "RSTprobe_%d", i );
-        xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
+        xmlNodePtr label_node = XmlUtil::FindNode( label_nodes, labelName );
         if( label_node )
         {
             xmlNodePtr parmcontain_node = XmlUtil::GetNode( label_node, "ParmContainer", 0 );

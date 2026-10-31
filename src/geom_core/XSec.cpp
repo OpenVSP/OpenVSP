@@ -879,12 +879,13 @@ xmlNodePtr SkinXSec::DecodeXml( xmlNodePtr & node )
         if ( spine_root )
         {
             int nspine = XmlUtil::FindInt( spine_root, "NumSpines", 0 );
+            std::unordered_map< string, xmlNodePtr > spine_nodes = XmlUtil::GetNodeMap( spine_root );
 
             for ( int i = 0; i < nspine; i++ )
             {
                 char name[256];
                 snprintf( name, sizeof( name ), "SkinSpine_%d", i );
-                xmlNodePtr spine_node = XmlUtil::GetNode( spine_root, name, 0 );
+                xmlNodePtr spine_node = XmlUtil::FindNode( spine_nodes, name );
                 if ( spine_node )
                 {
                     // Not AddSpine: every value it would set is about to be overwritten by
