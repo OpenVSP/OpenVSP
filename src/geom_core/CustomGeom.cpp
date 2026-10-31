@@ -952,28 +952,13 @@ void CustomGeom::SkinXSecSurf( bool closed_flag )
 
     for ( int i = 0 ; i < ( int )m_XSecSurfVec.size() ; i++ )
     {
-        //==== Remove Duplicate XSecs ====//
         vector< CustomXSec* > xsec_vec;
         for ( int j = 0 ; j < m_XSecSurfVec[i]->NumXSec() ; j++ )
         {
-            VspCurve last_crv;
             CustomXSec* xs = dynamic_cast<CustomXSec*>( m_XSecSurfVec[i]->FindXSec( j ) );
             if ( xs )
             {
-                if ( j == 0 )
-                {
-                    xsec_vec.push_back( xs );
-                    last_crv = xs->GetCurve();
-                }
-                else
-                {
-                    VspCurve crv = xs->GetCurve();
-                    if ( !last_crv.IsEqual( crv ) )
-                    {
-                        xsec_vec.push_back( xs );
-                        last_crv = crv;
-                    }
-                }
+                xsec_vec.push_back( xs );
             }
         }
         //===== Make Sure Last XS is Exact ====//
