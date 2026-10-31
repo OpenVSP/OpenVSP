@@ -1492,7 +1492,7 @@ bool GearScreen::Update()
         }
 
         if ( bogie_ptr->m_StowTransAttachFlag() != vsp::ATTACH_TRANS_LMN && bogie_ptr->m_StowRotAttachFlag() != vsp::ATTACH_ROT_LMN &&
-             bogie_ptr->m_StowTransAttachFlag() != vsp::ATTACH_TRANS_EtaMN && bogie_ptr->m_StowRotAttachFlag() != vsp::ATTACH_TRANS_EtaMN )
+             bogie_ptr->m_StowTransAttachFlag() != vsp::ATTACH_TRANS_EtaMN && bogie_ptr->m_StowRotAttachFlag() != vsp::ATTACH_ROT_EtaMN )
         {
             m_StowAttachMSlider.Deactivate();
             m_StowAttachNSlider.Deactivate();
@@ -1525,7 +1525,7 @@ bool GearScreen::Update()
             {
                 orphaned_trans = true;
             }
-            if ( !parent && bogie_ptr->m_StowRotAttachFlag() != vsp::ATTACH_TRANS_NONE )
+            if ( !parent && bogie_ptr->m_StowRotAttachFlag() != vsp::ATTACH_ROT_NONE )
             {
                 orphaned_rot = true;
             }
