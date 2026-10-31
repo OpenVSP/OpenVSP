@@ -51,12 +51,25 @@ void StringUtil::replace_all( string & str, const string & from, const string & 
     if(from.empty())
         return;
 
+    // Built anew, so each replacement costs its own length, not the rest of the string's.  The search resumes
+    // after each match in str, so a 'to' that contains 'from', like 'yx' for 'x', is not replaced again.
+    string out;
+    size_t last_pos = 0;
     size_t start_pos = 0;
-    while((start_pos = str.find(from, start_pos)) != std::string::npos)
+    while((start_pos = str.find(from, last_pos)) != std::string::npos)
     {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+        out.append( str, last_pos, start_pos - last_pos );
+        out.append( to );
+        last_pos = start_pos + from.length();
     }
+
+    if ( last_pos == 0 )
+    {
+        return;
+    }
+
+    out.append( str, last_pos, std::string::npos );
+    str.swap( out );
 }
 
 //==== Remove All Instances of c in str ====//
