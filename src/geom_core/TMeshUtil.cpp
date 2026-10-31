@@ -177,7 +177,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                 bool flatpatch = chordwise_flat[ iustart ];
 
                 int iuend = iustart + 1;
-                while ( spanwise_flat_match[ iuend ] == flatpatch && iuend < nu - 1 )
+                while ( iuend < nu - 1 && spanwise_flat_match[ iuend ] == flatpatch )
                 {
                     iuend++;
                 }
