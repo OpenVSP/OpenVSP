@@ -13,6 +13,7 @@
 #include <libxml/parser.h>
 #include <libxml/hash.h>
 
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -29,6 +30,12 @@ xmlNodePtr GetNodeDbg( xmlNodePtr node, const char * name, int num, const char* 
 
 // The children of node named name, in order, found in one pass.
 vector< xmlNodePtr > GetNodes( xmlNodePtr node, const char * name );
+
+// The first child of node of each name, found in one pass.
+std::unordered_map< string, xmlNodePtr > GetNodeMap( xmlNodePtr node );
+
+// The node of a name in nodes, from GetNodeMap, or nullptr.
+xmlNodePtr FindNode( const std::unordered_map< string, xmlNodePtr > & nodes, const string & name );
 
 double ExtractDouble( xmlNodePtr node );
 int    ExtractInt( xmlNodePtr node );
