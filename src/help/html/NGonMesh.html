@@ -126,13 +126,14 @@ the model, shown.</td>
 <tr>
 <td style="text-align: left;">Mesh, Other tab, <em>Convert</em> to NGon
 Mesh</td>
-<td style="text-align: left;">Any mesh, converted.</td>
+<td style="text-align: left;">Any mesh, converted, without the cleanup
+passes below.</td>
 </tr>
 <tr>
 <td style="text-align: left;">DegenGeom, <em>Make Mesh</em> with
 <em>Type</em> N-Gon</td>
 <td style="text-align: left;">The degenerate geometry (plates and camber
-surfaces), converted.</td>
+surfaces), converted, without the cleanup passes below.</td>
 </tr>
 </tbody>
 </table>
@@ -153,10 +154,27 @@ own.</li>
 and edges of zero length dropped.</li>
 <li>A face whose boundary doubles back on itself is split at the point
 where it turns.</li>
+<li>Along the curves where components intersect and around sub-surface
+outlines, a segment much shorter than its neighbours is collapsed into
+one end, so slivers do not line the curve (<em>Cull Tiny Edges</em>).
+The ends of a curve, its junctions and its corners are kept.</li>
+<li>The fans of thin triangles where a row of the tessellation closes to
+a point -- a body's nose and tail, the leading and trailing edges of a
+wing tip cap -- are merged into a few polygons (<em>Merge Degen Tri
+Regions</em>).</li>
 <li>The trailing edges of wings are found and marked as wakes. Body
 wakes, behind blunt bases, are found too when VSPAERO's <em>Find Body
 Wakes</em> is on.</li>
 </ul>
+<p>The two cleanup passes, Cull Tiny Edges and Merge Degen Tri Regions,
+are for the meshes VSPAERO reads. They run only when VSPAERO prepares
+the geometry, where they are options, off by default, in the <em>Mesh
+Options</em> group of VSPAERO's Overview tab, beside <em>X-Z
+Symmetry</em> and <em>Cull Orphans</em>; a mesh converted from the Mesh
+screen, from DegenGeom or by <code>CreateNGonMeshGeom</code> is not
+cleaned. The slider beside <em>Cull Tiny Edges</em> is the ratio, from 0
+to 0.5: a segment shorter than that fraction of its shorter neighbour is
+collapsed.</p>
 <p><em>Cull Orphans</em> drops small pieces of the thin set's camber
 surfaces left by intersections: each piece whose area is below the set
 fraction (0.03 by default) of the area of its surface. Pieces of thick
@@ -211,6 +229,11 @@ with one face. A VSPGEOM file, which lists faces by their points, shows
 such a seam as closed, so check it here. A component put in both
 VSPAERO's thick set and its thin set makes such seams; put each
 component in one set only.</p>
+<p><em>Prepare Solver</em> reports the defects of the mesh it makes in
+its results: the number of edges with only one face, the number with
+three or more, and the number of pairs of points joined by more than one
+edge. A model made only of closed, thick components should report zero
+for all three.</p>
 <p><em>Report</em> prints the mesh's tables -- tag names and IDs, which
 tags are thick or thin surfaces, and their types -- to the console
 OpenVSP was started from.</p>
@@ -294,5 +317,14 @@ group <code>RefMesh</code>, and <em>Show Non Manifold Edges</em> is
 in the API. <code>ExportFile</code> with <code>EXPORT_VSPGEOM</code>
 writes the files as <em>Write VSPGEOM</em> does when the set it is given
 holds an NGon mesh; otherwise it writes the set's triangles.</p>
+<p>The results of VSPAERO's geometry preparation (the
+<code>VSPAEROComputeGeometry</code> analysis, result
+<code>VSPAERO_Geom</code>) hold the defect counts as
+<code>Num_Edges_One_Face</code>, <code>Num_Edges_Many_Faces</code> and
+<code>Num_Duplicate_Edges</code>, each -1 when no NGon mesh was made.
+The Mesh Options are the analysis inputs <code>CullFracFlag</code>,
+<code>CullFrac</code>, <code>CleanIntersectionsFlag</code>,
+<code>CleanIntersectionsLenRatio</code> and
+<code>MergeDegenTriRegionsFlag</code>.</p>
 </body>
 </html>

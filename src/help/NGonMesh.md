@@ -35,8 +35,8 @@ An NGon mesh is always converted from triangles, in one of three places.
 | Source                                          | Notes                                                       |
 |:------------------------------------------------|:------------------------------------------------------------|
 | VSPAERO, *Prepare Solver* or *Launch Solver*    | CompGeom of the chosen sets (the thin set as camber surfaces), converted, then written to the .vspgeom file VSPAERO reads.  The CompGeom mesh is deleted and the NGon mesh is left in the model, shown. |
-| Mesh, Other tab, *Convert* to NGon Mesh         | Any mesh, converted.                                        |
-| DegenGeom, *Make Mesh* with *Type* N-Gon        | The degenerate geometry (plates and camber surfaces), converted. |
+| Mesh, Other tab, *Convert* to NGon Mesh         | Any mesh, converted, without the cleanup passes below.      |
+| DegenGeom, *Make Mesh* with *Type* N-Gon        | The degenerate geometry (plates and camber surfaces), converted, without the cleanup passes below. |
 
 The NGon mesh is named after the mesh it came from, with `_NGon` added.  Each time VSPAERO prepares the
 geometry it replaces the NGon mesh it made the time before.
@@ -50,8 +50,19 @@ The conversion starts from the triangles and rebuilds the faces the components w
   intersection cut a quadrilateral, the pieces left on the surface become polygons of their own.
 - Points that lie on a straight edge between two others are removed, and edges of zero length dropped.
 - A face whose boundary doubles back on itself is split at the point where it turns.
+- Along the curves where components intersect and around sub-surface outlines, a segment much shorter than its
+  neighbours is collapsed into one end, so slivers do not line the curve (*Cull Tiny Edges*).  The ends of a curve,
+  its junctions and its corners are kept.
+- The fans of thin triangles where a row of the tessellation closes to a point -- a body's nose and tail, the leading
+  and trailing edges of a wing tip cap -- are merged into a few polygons (*Merge Degen Tri Regions*).
 - The trailing edges of wings are found and marked as wakes.  Body wakes, behind blunt bases, are found too when
   VSPAERO's *Find Body Wakes* is on.
+
+The two cleanup passes, Cull Tiny Edges and Merge Degen Tri Regions, are for the meshes VSPAERO reads.  They run only
+when VSPAERO prepares the geometry, where they are options, off by default, in the *Mesh Options* group of VSPAERO's
+Overview tab, beside *X-Z Symmetry* and *Cull Orphans*; a mesh converted from the Mesh screen, from DegenGeom or by
+`CreateNGonMeshGeom` is not cleaned.  The slider beside *Cull Tiny Edges* is the ratio, from 0 to 0.5: a segment shorter
+than that fraction of its shorter neighbour is collapsed.
 
 *Cull Orphans* drops small pieces of the thin set's camber surfaces left by intersections: each piece whose area is
 below the set fraction (0.03 by default) of the area of its surface.  Pieces of thick surfaces are never dropped.  It
@@ -80,6 +91,10 @@ open by design, and its edges show blue.  Blue lines inside a closed surface can
 not joined: two edges between the same two points, each with one face.  A VSPGEOM file, which lists faces by their
 points, shows such a seam as closed, so check it here.  A component put in both VSPAERO's thick set and its thin set
 makes such seams; put each component in one set only.
+
+*Prepare Solver* reports the defects of the mesh it makes in its results: the number of edges with only one face, the
+number with three or more, and the number of pairs of points joined by more than one edge.  A model made only of
+closed, thick components should report zero for all three.
 
 *Report* prints the mesh's tables -- tag names and IDs, which tags are thick or thin surfaces, and their types --
 to the console OpenVSP was started from.
@@ -126,3 +141,8 @@ The *Mesh* counter is the Parm `ActiveMesh` in the group `RefMesh`, and *Show No
 `ShowNonManifoldEdges` in the group `Draw`.  *Triangulate*, *Report* and *Write VSPGEOM* are not in the
 API.  `ExportFile` with `EXPORT_VSPGEOM` writes the files as *Write VSPGEOM* does when the set it is given holds an
 NGon mesh; otherwise it writes the set's triangles.
+
+The results of VSPAERO's geometry preparation (the `VSPAEROComputeGeometry` analysis, result `VSPAERO_Geom`) hold the
+defect counts as `Num_Edges_One_Face`, `Num_Edges_Many_Faces` and `Num_Duplicate_Edges`, each -1 when no NGon mesh was
+made.  The Mesh Options are the analysis inputs `CullFracFlag`, `CullFrac`, `CleanIntersectionsFlag`,
+`CleanIntersectionsLenRatio` and `MergeDegenTriRegionsFlag`.

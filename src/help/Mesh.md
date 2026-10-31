@@ -91,7 +91,10 @@ The Other tab converts a mesh into two other components.  Each is a new componen
 - *Convert* under Convert to Point Cloud makes a [Point Cloud](PtCloud.md) of the mesh's vertices, each once, where the
   mesh is placed.  The vertices of the slices are included when *Slices* is on.
 - *Convert* under Convert to NGon Mesh makes an [NGon Mesh](NGonMesh.md): the triangles merged into polygons, with the
-  wing wakes found, ready to write as a VSPAERO geometry file.  The NGon mesh is made where the mesh is placed.
+  wing wakes found, ready to write as a VSPAERO geometry file.  The NGon mesh is made where the mesh is placed.  The
+  cleanup passes that collapse short segments along intersections and merge the fans of thin triangles at poles and
+  tip caps are not run (see [How the Polygons Are Made](NGonMesh.md#how-the-polygons-are-made)); they are options of
+  VSPAERO's own conversion.
   A mesh opened from a model file has lost the tables that say which component each triangle came from, so its
   conversion finds no wakes; convert a mesh in the session that made it.
 
