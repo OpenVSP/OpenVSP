@@ -755,10 +755,11 @@ xmlNodePtr LinkMgrSingleton::DecodeXml( xmlNodePtr & node )
     xmlNodePtr linkmgr_node = XmlUtil::GetNode( node, "LinkMgr", 0 );
     if ( linkmgr_node )
     {
-        int num = XmlUtil::GetNumNames( linkmgr_node, "Link" );
+        vector< xmlNodePtr > link_nodes = XmlUtil::GetNodes( linkmgr_node, "Link" );
+        int num = ( int )link_nodes.size();
         for ( int i = 0 ; i < num ; i++ )
         {
-            xmlNodePtr link_node = XmlUtil::GetNode( linkmgr_node, "Link", i );
+            xmlNodePtr link_node = link_nodes[i];
             if ( link_node )
             {
                 Link* link = new Link();

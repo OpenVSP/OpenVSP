@@ -3362,13 +3362,14 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
     if ( setnamenode )
     {
-        int num = XmlUtil::GetNumNames( setnamenode, "Set" );
+        vector< xmlNodePtr > name_nodes = XmlUtil::GetNodes( setnamenode, "Set" );
+        int num = ( int )name_nodes.size();
 
         SetNumUserSets( num - SET_FIRST_USER );
 
         for ( int i = 0; i < num; i++ )
         {
-            xmlNodePtr namenode = XmlUtil::GetNode( setnamenode, "Set", i );
+            xmlNodePtr namenode = name_nodes[i];
             if ( namenode )
             {
                 string name = XmlUtil::ExtractString( namenode );
@@ -3388,10 +3389,11 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         int def_int = -1;
         string def_str = string();
 
-        int num_set_colls = XmlUtil::GetNumNames( set_attr_node, "Set" );
+        vector< xmlNodePtr > set_nodes = XmlUtil::GetNodes( set_attr_node, "Set" );
+        int num_set_colls = ( int )set_nodes.size();
         for ( int i = 0; i < num_set_colls; i++ )
         {
-            xmlNodePtr set_node = XmlUtil::GetNode( set_attr_node, "Set", i );
+            xmlNodePtr set_node = set_nodes[i];
             if ( set_node )
             {
                 string set_name = XmlUtil::FindStringProp( set_node, "SetName", def_str );
@@ -3426,10 +3428,11 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
         MeasureMgr.DecodeXml( vehicle_node );
 
         vector< Geom* > add_geom_vec;
-        int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
+        vector< xmlNodePtr > geom_nodes = XmlUtil::GetNodes( vehicle_node, "Geom" );
+        int num = ( int )geom_nodes.size();
         for ( int i = 0 ; i < num ; i++ )
         {
-            xmlNodePtr geom_node = XmlUtil::GetNode( vehicle_node, "Geom", i );
+            xmlNodePtr geom_node = geom_nodes[i];
             if ( geom_node )
             {
                 xmlNodePtr base_node = XmlUtil::GetNode( geom_node, "GeomBase", 0 );
@@ -3505,10 +3508,11 @@ static void PreRegisterNewObjectIDs( xmlNodePtr node )
     xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
     if ( vehicle_node )
     {
-        int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
+        vector< xmlNodePtr > geom_nodes = XmlUtil::GetNodes( vehicle_node, "Geom" );
+        int num = ( int )geom_nodes.size();
         for ( int i = 0 ; i < num ; i++ )
         {
-            xmlNodePtr geom_node = XmlUtil::GetNode( vehicle_node, "Geom", i );
+            xmlNodePtr geom_node = geom_nodes[i];
             if ( geom_node )
             {
                 IDMgr.PreRegisterIDs( geom_node );
@@ -7959,11 +7963,12 @@ string Vehicle::ImportV2File( const string & file_name )
     {
 
         xmlNodePtr comp_list_node = node;
-        int num_comps = XmlUtil::GetNumNames( comp_list_node, "Component" );
+        vector< xmlNodePtr > comp_nodes = XmlUtil::GetNodes( comp_list_node, "Component" );
+        int num_comps = ( int )comp_nodes.size();
 
         for ( int i = 0 ; i < num_comps ; i++ )
         {
-            xmlNodePtr comp_node = XmlUtil::GetNode( comp_list_node, "Component", i );
+            xmlNodePtr comp_node = comp_nodes[i];
 
             node = XmlUtil::GetNode( comp_node, "Type", 0 );
 

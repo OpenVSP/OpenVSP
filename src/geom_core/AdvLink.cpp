@@ -699,21 +699,23 @@ xmlNodePtr AdvLink::DecodeXml( xmlNodePtr & adv_link_node )
 
         //==== Input Vars ====//
         xmlNodePtr input_node = XmlUtil::GetNode( adv_link_node, "InputVars", 0 );
-        unsigned int num_input = XmlUtil::GetNumNames( input_node, "VarDef" );
+        vector< xmlNodePtr > input_nodes = XmlUtil::GetNodes( input_node, "VarDef" );
+        unsigned int num_input = ( unsigned int )input_nodes.size();
         m_InputVars.resize(num_input);
         for ( int i = 0 ; i < num_input ; i++ )
         {
-            xmlNodePtr var_def_node = XmlUtil::GetNode( input_node, "VarDef", i );
+            xmlNodePtr var_def_node = input_nodes[i];
             m_InputVars[i].DecodeXml( var_def_node );
         }
 
         //==== Output Vars ====//
         xmlNodePtr output_node = XmlUtil::GetNode( adv_link_node, "OutputVars", 0 );
-        unsigned int num_output = XmlUtil::GetNumNames( output_node, "VarDef" );
+        vector< xmlNodePtr > output_nodes = XmlUtil::GetNodes( output_node, "VarDef" );
+        unsigned int num_output = ( unsigned int )output_nodes.size();
         m_OutputVars.resize(num_output);
         for ( int i = 0 ; i < num_output ; i++ )
         {
-            xmlNodePtr var_def_node = XmlUtil::GetNode( output_node, "VarDef", i );
+            xmlNodePtr var_def_node = output_nodes[i];
             m_OutputVars[i].DecodeXml( var_def_node );
         }
 

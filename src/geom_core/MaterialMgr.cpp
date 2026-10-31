@@ -647,10 +647,11 @@ xmlNodePtr MaterialMgrSingleton::DecodeXml( xmlNodePtr & node )
     xmlNodePtr materials_node = XmlUtil::GetNode( node, "Materials", 0 );
     if ( materials_node )
     {
-        int num = XmlUtil::GetNumNames( materials_node, "Material" );
+        vector< xmlNodePtr > mat_nodes = XmlUtil::GetNodes( materials_node, "Material" );
+        int num = ( int )mat_nodes.size();
         for ( int i = 0 ; i < num ; i++ )
         {
-            xmlNodePtr mat_node = XmlUtil::GetNode( materials_node, "Material", i );
+            xmlNodePtr mat_node = mat_nodes[i];
             if ( mat_node )
             {
 

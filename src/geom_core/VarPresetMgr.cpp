@@ -339,19 +339,21 @@ xmlNodePtr SettingGroup::DecodeXml( xmlNodePtr &grp_node )
 
         m_Name = XmlUtil::FindString( grp_node, "Name", string() );
 
-        int num_parm = XmlUtil::GetNumNames( grp_node, "Parm" );
+        vector< xmlNodePtr > parm_nodes = XmlUtil::GetNodes( grp_node, "Parm" );
+        int num_parm = ( int )parm_nodes.size();
 
         for ( int i = 0; i < num_parm; i++ )
         {
-            xmlNodePtr n = XmlUtil::GetNode( grp_node, "Parm", i );
+            xmlNodePtr n = parm_nodes[i];
             m_ParmIDVec.push_back( IDMgr.RemapRefID( XmlUtil::FindString( n, "ID", string() ) ) );
         }
 
-        int num_setting = XmlUtil::GetNumNames( grp_node, "Setting" );
+        vector< xmlNodePtr > setting_nodes = XmlUtil::GetNodes( grp_node, "Setting" );
+        int num_setting = ( int )setting_nodes.size();
 
         for ( int i = 0; i < num_setting; i++ )
         {
-            xmlNodePtr setting_node = XmlUtil::GetNode( grp_node, "Setting", i );
+            xmlNodePtr setting_node = setting_nodes[i];
 
             if ( setting_node )
             {
@@ -636,11 +638,12 @@ xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr &node )
 
     if ( varpresetmgr_node )
     {
-        int num_grp = XmlUtil::GetNumNames( varpresetmgr_node, "SettingGroup" );
+        vector< xmlNodePtr > grp_nodes = XmlUtil::GetNodes( varpresetmgr_node, "SettingGroup" );
+        int num_grp = ( int )grp_nodes.size();
 
         for ( unsigned int i = 0; i < num_grp; i++ )
         {
-            xmlNodePtr grp_node = XmlUtil::GetNode( varpresetmgr_node, "SettingGroup", i );
+            xmlNodePtr grp_node = grp_nodes[i];
 
             if ( grp_node )
             {

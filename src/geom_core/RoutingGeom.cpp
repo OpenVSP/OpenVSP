@@ -635,10 +635,11 @@ xmlNodePtr RoutingGeom::DecodeXml( xmlNodePtr & node )
 
     if ( routingpoints_node )
     {
-        int num = XmlUtil::GetNumNames( routingpoints_node, "RoutingPoint" );
+        vector< xmlNodePtr > rpt_nodes = XmlUtil::GetNodes( routingpoints_node, "RoutingPoint" );
+        int num = ( int )rpt_nodes.size();
         for ( int i = 0 ; i < num ; i++ )
         {
-            xmlNodePtr rpt_node = XmlUtil::GetNode( routingpoints_node, "RoutingPoint", i );
+            xmlNodePtr rpt_node = rpt_nodes[i];
             if ( rpt_node )
             {
                 RoutingPoint* rpt = AddPt();

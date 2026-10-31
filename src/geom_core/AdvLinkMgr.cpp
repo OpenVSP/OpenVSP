@@ -317,10 +317,11 @@ xmlNodePtr AdvLinkMgrSingleton::DecodeXml( xmlNodePtr & node )
     xmlNodePtr linkmgr_node = XmlUtil::GetNode( node, "AdvLinkMgr", 0 );
     if ( linkmgr_node )
     {
-        int num = XmlUtil::GetNumNames( linkmgr_node, "AdvLink" );
+        vector< xmlNodePtr > link_nodes = XmlUtil::GetNodes( linkmgr_node, "AdvLink" );
+        int num = ( int )link_nodes.size();
         for ( int i = 0 ; i < num ; i++ )
         {
-            xmlNodePtr link_node = XmlUtil::GetNode( linkmgr_node, "AdvLink", i );
+            xmlNodePtr link_node = link_nodes[i];
             if ( link_node )
             {
                 AdvLink* link = AddLink( "" );

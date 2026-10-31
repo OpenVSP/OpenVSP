@@ -487,17 +487,19 @@ void DesignVarMgrSingleton::ReadDesVarsXDDM( const string &newfile )
 
     vector< xmlNodePtr > vlist;
 
-    int num_v = XmlUtil::GetNumNames( root, "Variable" );
+    vector< xmlNodePtr > var_nodes = XmlUtil::GetNodes( root, "Variable" );
+    int num_v = ( int )var_nodes.size();
     for ( int i = 0 ; i < num_v ; i++ )
     {
-        xmlNodePtr var_node = XmlUtil::GetNode( root, "Variable", i );
+        xmlNodePtr var_node = var_nodes[i];
         vlist.push_back( var_node );
     }
 
-    int num_c = XmlUtil::GetNumNames( root, "Constant" );
+    vector< xmlNodePtr > cst_nodes = XmlUtil::GetNodes( root, "Constant" );
+    int num_c = ( int )cst_nodes.size();
     for ( int i = 0 ; i < num_c ; i++ )
     {
-        xmlNodePtr cst_node = XmlUtil::GetNode( root, "Constant", i );
+        xmlNodePtr cst_node = cst_nodes[i];
         vlist.push_back( cst_node );
     }
 

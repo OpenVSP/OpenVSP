@@ -1101,10 +1101,11 @@ xmlNodePtr GeometryAnalysisCase::DecodeXml( xmlNodePtr & node )
 
     if ( cutoutSS_list_node )
     {
-        int num_cutoutSS =  XmlUtil::GetNumNames( cutoutSS_list_node, "CutoutSS" );
+        vector< xmlNodePtr > cutoutSS_nodes = XmlUtil::GetNodes( cutoutSS_list_node, "CutoutSS" );
+        int num_cutoutSS = ( int )cutoutSS_nodes.size();
         for ( int i = 0 ; i < num_cutoutSS ; i++ )
         {
-            xmlNodePtr cutoutSS_node = XmlUtil::GetNode( cutoutSS_list_node, "CutoutSS", i );
+            xmlNodePtr cutoutSS_node = cutoutSS_nodes[i];
             string new_cutoutSS = IDMgr.RemapRefID( XmlUtil::FindString( cutoutSS_node, "cutoutSS_ID", string() ) );
             m_CutoutVec.push_back( new_cutoutSS );
         }
@@ -3096,10 +3097,11 @@ xmlNodePtr GeometryAnalysisMgrSingleton::DecodeXml( xmlNodePtr & node )
     {
 
 
-        int num_gcase = XmlUtil::GetNumNames( geometryanalysismgr_node, "GeometryAnalysis" );
+        vector< xmlNodePtr > gcase_nodes = XmlUtil::GetNodes( geometryanalysismgr_node, "GeometryAnalysis" );
+        int num_gcase = ( int )gcase_nodes.size();
         for ( int i = 0; i < num_gcase; i++ )
         {
-            xmlNodePtr gcasenode = XmlUtil::GetNode( geometryanalysismgr_node, "GeometryAnalysis", i );
+            xmlNodePtr gcasenode = gcase_nodes[i];
 
             if ( gcasenode )
             {

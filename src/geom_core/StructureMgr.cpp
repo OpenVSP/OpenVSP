@@ -69,11 +69,12 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
     {
         ParmContainer::DecodeXml( structmgr_node );
 
-        int num_mat = XmlUtil::GetNumNames( structmgr_node, "FeaMaterialInfo" );
+        vector< xmlNodePtr > mat_info_nodes = XmlUtil::GetNodes( structmgr_node, "FeaMaterialInfo" );
+        int num_mat = ( int )mat_info_nodes.size();
 
         for ( unsigned int i = 0; i < num_mat; i++ )
         {
-            xmlNodePtr mat_info = XmlUtil::GetNode( structmgr_node, "FeaMaterialInfo", i );
+            xmlNodePtr mat_info = mat_info_nodes[i];
 
             if ( mat_info )
             {
@@ -89,11 +90,12 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
             }
         }
 
-        int num_prop = XmlUtil::GetNumNames( structmgr_node, "FeaPropertyInfo" );
+        vector< xmlNodePtr > prop_info_nodes = XmlUtil::GetNodes( structmgr_node, "FeaPropertyInfo" );
+        int num_prop = ( int )prop_info_nodes.size();
 
         for ( unsigned int i = 0; i < num_prop; i++ )
         {
-            xmlNodePtr prop_info = XmlUtil::GetNode( structmgr_node, "FeaPropertyInfo", i );
+            xmlNodePtr prop_info = prop_info_nodes[i];
 
             if ( prop_info )
             {
@@ -108,11 +110,12 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
             }
         }
 
-        int num_assy = XmlUtil::GetNumNames( structmgr_node, "FeaAssembly" );
+        vector< xmlNodePtr > assy_nodes = XmlUtil::GetNodes( structmgr_node, "FeaAssembly" );
+        int num_assy = ( int )assy_nodes.size();
 
         for ( unsigned int i = 0; i < num_assy; i++ )
         {
-            xmlNodePtr assy = XmlUtil::GetNode( structmgr_node, "FeaAssembly", i );
+            xmlNodePtr assy = assy_nodes[i];
 
             if ( assy )
             {

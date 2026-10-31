@@ -1336,10 +1336,11 @@ xmlNodePtr CloneGeom::DecodeXml( xmlNodePtr & node )
         }
 
         m_SubSurfSourceMap.clear();
-        int npair = XmlUtil::GetNumNames( clone_node, "SubSurfSource" );
+        vector< xmlNodePtr > pair_nodes = XmlUtil::GetNodes( clone_node, "SubSurfSource" );
+        int npair = ( int )pair_nodes.size();
         for ( int i = 0; i < npair; i++ )
         {
-            xmlNodePtr pair_node = XmlUtil::GetNode( clone_node, "SubSurfSource", i );
+            xmlNodePtr pair_node = pair_nodes[i];
             if ( pair_node )
             {
                 string sid = IDMgr.RemapRefID( XmlUtil::FindString( pair_node, "SourceID", string() ) );

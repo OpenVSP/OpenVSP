@@ -672,11 +672,12 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
         xmlNodePtr cl_node = XmlUtil::GetNode( geombase_node, "Child_List", 0 );
         if ( cl_node )
         {
-            int num_children = XmlUtil::GetNumNames( cl_node, "Child" );
+            vector< xmlNodePtr > child_nodes = XmlUtil::GetNodes( cl_node, "Child" );
+            int num_children = ( int )child_nodes.size();
 
             for ( int i = 0 ; i < num_children ; i++ )
             {
-                xmlNodePtr n = XmlUtil::GetNode( cl_node, "Child", i );
+                xmlNodePtr n = child_nodes[i];
                 string child = IDMgr.RemapCopiedID( XmlUtil::FindString( n, "ID", string() ) );
                 if ( !child.empty() )
                 {
@@ -690,11 +691,12 @@ xmlNodePtr GeomBase::DecodeXml( xmlNodePtr & node )
         xmlNodePtr scl_node = XmlUtil::GetNode( geombase_node, "Step_Child_List", 0 );
         if ( scl_node )
         {
-            int num_stepchildren = XmlUtil::GetNumNames( scl_node, "Step_Child" );
+            vector< xmlNodePtr > step_child_nodes = XmlUtil::GetNodes( scl_node, "Step_Child" );
+            int num_stepchildren = ( int )step_child_nodes.size();
 
             for ( int i = 0 ; i < num_stepchildren ; i++ )
             {
-                xmlNodePtr n = XmlUtil::GetNode( scl_node, "Step_Child", i );
+                xmlNodePtr n = step_child_nodes[i];
                 string child = IDMgr.RemapCopiedID( XmlUtil::FindString( n, "ID", string() ) );
                 if ( !child.empty() )
                 {
@@ -4014,11 +4016,12 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
     {
         m_SetFlags = XmlUtil::ExtractVectorBoolNode( geom_node, "Set_List" );
 
-        int num_source = XmlUtil::GetNumNames( geom_node, "Source" );
+        vector< xmlNodePtr > src_nodes = XmlUtil::GetNodes( geom_node, "Source" );
+        int num_source = ( int )src_nodes.size();
 
         for ( int i = 0 ; i < num_source ; i++ )
         {
-            xmlNodePtr src_node = XmlUtil::GetNode( geom_node, "Source", i );
+            xmlNodePtr src_node = src_nodes[i];
             if ( src_node )
             {
                 int type = XmlUtil::FindInt( src_node, "Type", POINT_SOURCE );
@@ -4037,11 +4040,12 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
         xmlNodePtr subsurfs_node = XmlUtil::GetNode( geom_node, "SubSurfaces", 0 );
         if ( subsurfs_node )
         {
-            int num_ss = XmlUtil::GetNumNames( subsurfs_node, "SubSurface" );
+            vector< xmlNodePtr > ss_nodes = XmlUtil::GetNodes( subsurfs_node, "SubSurface" );
+            int num_ss = ( int )ss_nodes.size();
 
             for ( int ss = 0 ; ss < num_ss ; ss++ )
             {
-                xmlNodePtr ss_node = XmlUtil::GetNode( subsurfs_node, "SubSurface", ss );
+                xmlNodePtr ss_node = ss_nodes[ss];
                 if ( ss_node )
                 {
                     xmlNodePtr ss_info_node = XmlUtil::GetNode( ss_node, "SubSurfaceInfo", 0 );
@@ -4062,11 +4066,12 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
         xmlNodePtr structvecnode = XmlUtil::GetNode( geom_node, "FeaStructures", 0 );
         if ( structvecnode )
         {
-            int num_struct = XmlUtil::GetNumNames( structvecnode, "FeaStructureInfo" );
+            vector< xmlNodePtr > struct_nodes = XmlUtil::GetNodes( structvecnode, "FeaStructureInfo" );
+            int num_struct = ( int )struct_nodes.size();
 
             for ( int i = 0; i < num_struct; i++ )
             {
-                xmlNodePtr structnode = XmlUtil::GetNode( structvecnode, "FeaStructureInfo", i );
+                xmlNodePtr structnode = struct_nodes[i];
 
                 if ( structnode )
                 {
@@ -4297,20 +4302,22 @@ void Geom::ReadV2File( xmlNodePtr &root )
     }
 
     m_ChildIDVec.clear();
-    int numChildren =  XmlUtil::GetNumNames( root, "Children_PtrID" );
+    vector< xmlNodePtr > child_nodes = XmlUtil::GetNodes( root, "Children_PtrID" );
+    int numChildren = ( int )child_nodes.size();
     for (  i = 0 ; i < numChildren ; i++ )
     {
-        xmlNodePtr child_node = XmlUtil::GetNode( root, "Children_PtrID", i );
+        xmlNodePtr child_node = child_nodes[i];
         m_ChildIDVec.push_back( IDMgr.ForceRemapID( XmlUtil::ExtractString( child_node ) , 10 ) );
     }
 
     //==== Read CFD Mesh Sources ====//
     DelAllSources();
 
-    int numSources = XmlUtil::GetNumNames( root, "CFD_Mesh_Source" );
+    vector< xmlNodePtr > source_nodes = XmlUtil::GetNodes( root, "CFD_Mesh_Source" );
+    int numSources = ( int )source_nodes.size();
     for ( i = 0 ; i < numSources ; i++ )
     {
-        xmlNodePtr source_node = XmlUtil::GetNode( root, "CFD_Mesh_Source", i );
+        xmlNodePtr source_node = source_nodes[i];
         int type = XmlUtil::FindInt( source_node, "Type", -1 );
 
         BaseSource* src_ptr = CreateSource( type );
@@ -4363,10 +4370,11 @@ void Geom::ReadV2File( xmlNodePtr &root )
 
     partVec.clear();
 
-    int numParts = XmlUtil::GetNumNames( root, "Structure_Part" );
+    vector< xmlNodePtr > part_nodes = XmlUtil::GetNodes( root, "Structure_Part" );
+    int numParts = ( int )part_nodes.size();
     for ( i = 0 ; i < numParts ; i++ )
     {
-        xmlNodePtr part_node = XmlUtil::GetNode( root, "Structure_Part", i );
+        xmlNodePtr part_node = part_nodes[i];
 
         int type = XmlUtil::FindInt( part_node, "Type", -1 );
 

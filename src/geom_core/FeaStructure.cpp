@@ -140,11 +140,12 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
 
-    int numparts = XmlUtil::GetNumNames( node, "FeaPartInfo" );
+    vector< xmlNodePtr > part_info_nodes = XmlUtil::GetNodes( node, "FeaPartInfo" );
+    int numparts = ( int )part_info_nodes.size();
 
     for ( unsigned int i = 0; i < numparts; i++ )
     {
-        xmlNodePtr part_info = XmlUtil::GetNode( node, "FeaPartInfo", i );
+        xmlNodePtr part_info = part_info_nodes[i];
 
         if ( part_info )
         {
@@ -164,11 +165,12 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
         }
     }
 
-    int num_ss = XmlUtil::GetNumNames( node, "FeaSubSurface" );
+    vector< xmlNodePtr > ss_nodes = XmlUtil::GetNodes( node, "FeaSubSurface" );
+    int num_ss = ( int )ss_nodes.size();
 
     for ( int ss = 0; ss < num_ss; ss++ )
     {
-        xmlNodePtr ss_node = XmlUtil::GetNode( node, "FeaSubSurface", ss );
+        xmlNodePtr ss_node = ss_nodes[ss];
         if ( ss_node )
         {
             xmlNodePtr ss_info_node = XmlUtil::GetNode( ss_node, "SubSurfaceInfo", 0 );
@@ -185,11 +187,12 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
         }
     }
 
-    int numBCs = XmlUtil::GetNumNames( node, "FeaBCInfo" );
+    vector< xmlNodePtr > bc_info_nodes = XmlUtil::GetNodes( node, "FeaBCInfo" );
+    int numBCs = ( int )bc_info_nodes.size();
 
     for ( unsigned int i = 0; i < numBCs; i++ )
     {
-        xmlNodePtr bc_info = XmlUtil::GetNode( node, "FeaBCInfo", i );
+        xmlNodePtr bc_info = bc_info_nodes[i];
 
         if ( bc_info )
         {
@@ -2863,10 +2866,11 @@ xmlNodePtr FeaPolySpar::DecodeXml( xmlNodePtr & node )
 
     if ( sparpoints_node )
     {
-        int num = XmlUtil::GetNumNames( sparpoints_node, "SparPoint" );
+        vector< xmlNodePtr > spt_nodes = XmlUtil::GetNodes( sparpoints_node, "SparPoint" );
+        int num = ( int )spt_nodes.size();
         for ( int i = 0 ; i < num ; i++ )
         {
-            xmlNodePtr spt_node = XmlUtil::GetNode( sparpoints_node, "SparPoint", i );
+            xmlNodePtr spt_node = spt_nodes[i];
             if ( spt_node )
             {
                 PolySparPoint* spt = AddPt();
@@ -4241,11 +4245,12 @@ xmlNodePtr FeaPartTrim::DecodeXml( xmlNodePtr & node )
     Clear();
 
     xmlNodePtr tl_node = XmlUtil::GetNode( node, "TrimList", 0 );
-    int num_trim = XmlUtil::GetNumNames( tl_node, "TrimPart" );
+    vector< xmlNodePtr > trim_nodes = XmlUtil::GetNodes( tl_node, "TrimPart" );
+    int num_trim = ( int )trim_nodes.size();
 
     for ( int i = 0 ; i < num_trim ; i++ )
     {
-        xmlNodePtr n = XmlUtil::GetNode( tl_node, "TrimPart", i );
+        xmlNodePtr n = trim_nodes[i];
         AddTrimPart(IDMgr.RemapRefID( XmlUtil::FindString( n, "ID", string() ) ) );
     }
 
@@ -7075,11 +7080,12 @@ xmlNodePtr FeaMaterial::DecodeXml( xmlNodePtr & node )
     {
         m_Description = XmlUtil::FindString( node, "Description", m_Description );
 
-        int numlayers = XmlUtil::GetNumNames( node, "FeaLayerInfo" );
+        vector< xmlNodePtr > layer_info_nodes = XmlUtil::GetNodes( node, "FeaLayerInfo" );
+        int numlayers = ( int )layer_info_nodes.size();
 
         for ( unsigned int i = 0; i < numlayers; i++ )
         {
-            xmlNodePtr layer_info = XmlUtil::GetNode( node, "FeaLayerInfo", i );
+            xmlNodePtr layer_info = layer_info_nodes[i];
 
             if ( layer_info )
             {
@@ -7941,11 +7947,12 @@ xmlNodePtr FeaAssembly::DecodeXml( xmlNodePtr & assy_node )
         xmlNodePtr structlist_node = XmlUtil::GetNode( assy_node, "Structure_List", 0 );
         if ( structlist_node )
         {
-            int num_struct = XmlUtil::GetNumNames( structlist_node, "Structure" );
+            vector< xmlNodePtr > struct_nodes = XmlUtil::GetNodes( structlist_node, "Structure" );
+            int num_struct = ( int )struct_nodes.size();
 
             for ( int i = 0; i < num_struct; i++ )
             {
-                xmlNodePtr n = XmlUtil::GetNode( structlist_node, "Structure", i );
+                xmlNodePtr n = struct_nodes[i];
                 m_StructIDVec.push_back( IDMgr.RemapRefID( XmlUtil::FindString( n, "ID", string() ) ) );
             }
         }
@@ -7953,11 +7960,12 @@ xmlNodePtr FeaAssembly::DecodeXml( xmlNodePtr & assy_node )
         xmlNodePtr conlist_node = XmlUtil::GetNode( assy_node, "Connection_List", 0 );
         if ( conlist_node )
         {
-            int num = XmlUtil::GetNumNames( conlist_node, "Connection" );
+            vector< xmlNodePtr > con_nodes = XmlUtil::GetNodes( conlist_node, "Connection" );
+            int num = ( int )con_nodes.size();
 
             for ( int i = 0; i < num; i++ )
             {
-                xmlNodePtr n = XmlUtil::GetNode( conlist_node, "Connection", i );
+                xmlNodePtr n = con_nodes[i];
                 if ( n )
                 {
                     FeaConnection *conn = new FeaConnection();

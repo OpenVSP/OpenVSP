@@ -1351,10 +1351,11 @@ void AttributeCollection::DecodeXml( xmlNodePtr & node )
         // own ID before it reads its collection.
 
         //then get all the xmlNodePtrs to all the Attributes in there...
-        int num_Attr = XmlUtil::GetNumNames( dnode, "Attribute" );
+        vector< xmlNodePtr > attr_nodes = XmlUtil::GetNodes( dnode, "Attribute" );
+        int num_Attr = ( int )attr_nodes.size();
         for ( int i = 0; i < num_Attr; i++ )
         {
-            xmlNodePtr attrNode = XmlUtil::GetNode( dnode, "Attribute", i );
+            xmlNodePtr attrNode = attr_nodes[i];
             if ( attrNode )
             {
                 // The ID the attribute below will take, not this collection's own.  Resolving

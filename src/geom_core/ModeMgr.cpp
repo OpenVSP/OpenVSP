@@ -197,11 +197,12 @@ xmlNodePtr Mode::DecodeXml( xmlNodePtr &node )
 
         if ( settings_node )
         {
-            int num_set = XmlUtil::GetNumNames( settings_node, "Setting" );
+            vector< xmlNodePtr > setting_nodes = XmlUtil::GetNodes( settings_node, "Setting" );
+            int num_set = ( int )setting_nodes.size();
 
             for ( int i = 0; i < num_set; i++ )
             {
-                xmlNodePtr setting_node = XmlUtil::GetNode( settings_node, "Setting", i );
+                xmlNodePtr setting_node = setting_nodes[i];
 
                 if ( setting_node )
                 {
@@ -359,11 +360,12 @@ xmlNodePtr ModeMgrSingleton::DecodeXml( xmlNodePtr &node )
 
     if ( ModeMgr_node )
     {
-        int num_modes = XmlUtil::GetNumNames( ModeMgr_node, "Mode" );
+        vector< xmlNodePtr > mode_nodes = XmlUtil::GetNodes( ModeMgr_node, "Mode" );
+        int num_modes = ( int )mode_nodes.size();
 
         for ( unsigned int i = 0; i < num_modes; i++ )
         {
-            xmlNodePtr mode_node = XmlUtil::GetNode( ModeMgr_node, "Mode", i );
+            xmlNodePtr mode_node = mode_nodes[i];
 
             if ( mode_node )
             {
