@@ -30,7 +30,7 @@ def test_tip_path_takes_the_propeller_flap_hinge():
     assert abs( vsp.GetParmVal( aux, "FlapRadiusFract", "Design" ) - 0.3 ) < 1e-12
 
 
-def cce_track( offset, main2_x ):
+def cce_track( offset, main2_x, cce = "-10 1\n0 0\n10 1\n" ):
     """A 3pt Composite Clearance Envelope with a V-shaped profile over a tricycle gear; returns the line where the
     profile's lateral position is zero, the main gear's center and the second main gear's contact point."""
     import os
@@ -53,7 +53,7 @@ def cce_track( offset, main2_x ):
         vsp.SetAuxiliaryGeomContactPtID( aux, i, b )
     vsp.SetParmVal( aux, "CCEMainGearOffset", "Design", offset )
     path = os.path.join( tempfile.mkdtemp(), "v.cce" )
-    open( path, "w" ).write( "-10 1\n0 0\n10 1\n" )
+    open( path, "w" ).write( cce )
     vsp.ReadAuxiliaryGeomCCEFile( aux, path )
     vsp.Update()
     n = 2001
@@ -79,3 +79,11 @@ def test_clearance_envelope_main_gear_offset_is_square_to_the_track():
                 # Positive moves the track toward Main Bogie 2: the main gear's center is then on Main Bogie 1's side.
                 toward2 = vsp.cross( d, m2 - a ).z() * side.z() < 0
                 assert toward2 == ( offset > 0 ), ( main2_x, offset )
+
+
+def test_clearance_envelope_file_skips_lines_without_two_numbers():
+    # A header line and a line of one number are skipped; the profile is the same as without them.
+    plain = cce_track( 0.0, 12.0 )
+    noisy = cce_track( 0.0, 12.0, "lateral height\n-10 1\n0\n0 0\n10, 1\n" )
+    for p, q in zip( plain[:2], noisy[:2] ):
+        assert vsp.dist( p, q ) < 1e-12

@@ -1510,15 +1510,23 @@ bool AuxiliaryGeom::ReadCCEFile( FILE* file_id )
     else
     {
         pnt_vec.clear();
-        int stopFlag = 0;
-        while ( !stopFlag )
+        char buf[4096];
+        while ( fgets( buf, sizeof( buf ), file_id ) )
         {
-            double x, y, z;
-            if ( EOF == fscanf( file_id, "%lf %lf\n", &x, &y ) )
+            // Commas, spaces and tabs separate the values; a line without two numbers is skipped.
+            for ( int i = 0; buf[i] != '\0'; i++ )
             {
-                break;
+                if ( buf[i] == ',' )
+                {
+                    buf[i] = ' ';
+                }
             }
-            pnt_vec.push_back( vec3d( 0.0, x, y ) );
+
+            double x, y;
+            if ( sscanf( buf, "%lf %lf", &x, &y ) == 2 )
+            {
+                pnt_vec.push_back( vec3d( 0.0, x, y ) );
+            }
         }
     }
 
