@@ -358,6 +358,24 @@ void NameValData::CopyFrom( NameValData* nvd )
 
     xmlFreeNode( root );
     IDMgr.ResetRemapID( lastreset );
+
+    // The XML form of these types holds only their first value; the copy takes them all.
+    if ( m_Type == vsp::BOOL_DATA || m_Type == vsp::INT_DATA )
+    {
+        m_IntData = nvd->m_IntData;
+    }
+    else if ( m_Type == vsp::DOUBLE_DATA )
+    {
+        m_DoubleData = nvd->m_DoubleData;
+    }
+    else if ( m_Type == vsp::STRING_DATA )
+    {
+        m_StringData = nvd->m_StringData;
+    }
+    else if ( m_Type == vsp::PARM_REFERENCE_DATA )
+    {
+        m_ParmIDData = nvd->m_ParmIDData;
+    }
 }
 
 string NameValData::TruncateString( string str, int len )
