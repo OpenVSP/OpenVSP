@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <cfloat>
 #include <cmath>
 
 #include "XSecCurve.h"
@@ -3555,23 +3556,39 @@ bool FileXSec::SetPnts( vector< vec3d > & pnt_vec )
     int num_pnts = ( int )pnt_vec.size();
 
     //==== Find Height & Width ====//
-    double width = 1.0e-12;
-    double height = 1.0e-12;
+    double xmin = DBL_MAX;
+    double xmax = -DBL_MAX;
+    double ymin = DBL_MAX;
+    double ymax = -DBL_MAX;
     for ( int i = 0 ; i < num_pnts ; i++ )
     {
-        for ( int j = 0 ; j < num_pnts ; j++ )
+        if ( pnt_vec[i].x() < xmin )
         {
-            double w = std::abs( pnt_vec[i].x() - pnt_vec[j].x() );
-            if ( w > width )
-            {
-                width = w;
-            }
-            double h = std::abs( pnt_vec[i].y() - pnt_vec[j].y() );
-            if ( h > height )
-            {
-                height = h;
-            }
+            xmin = pnt_vec[i].x();
         }
+        if ( pnt_vec[i].x() > xmax )
+        {
+            xmax = pnt_vec[i].x();
+        }
+        if ( pnt_vec[i].y() < ymin )
+        {
+            ymin = pnt_vec[i].y();
+        }
+        if ( pnt_vec[i].y() > ymax )
+        {
+            ymax = pnt_vec[i].y();
+        }
+    }
+
+    double width = 1.0e-12;
+    double height = 1.0e-12;
+    if ( xmax - xmin > width )
+    {
+        width = xmax - xmin;
+    }
+    if ( ymax - ymin > height )
+    {
+        height = ymax - ymin;
     }
 
     //==== Scale Point By Height & Width ====//
