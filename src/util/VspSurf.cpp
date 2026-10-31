@@ -318,8 +318,13 @@ bool VspSurf::Compare( const VspSurf & other, double & bound ) const
         same = std::abs( aw[i] - bw[i] ) <= wtol;
     }
 
-    piecewise_surface_type::parm_match_u( a, b );
-    piecewise_surface_type::parm_match_v( a, b );
+    // Surfaces whose parameterizations cannot be brought to the same patches cannot be differenced.
+    if ( piecewise_surface_type::parm_match_u( a, b ) != piecewise_surface_type::NO_ERRORS ||
+         piecewise_surface_type::parm_match_v( a, b ) != piecewise_surface_type::NO_ERRORS )
+    {
+        bound = -1.0;
+        return false;
+    }
     piecewise_surface_type::order_match_u( a, b );
     piecewise_surface_type::order_match_v( a, b );
 
