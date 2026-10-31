@@ -110,10 +110,11 @@ class _vsp_server():
             except Exception as e:
                 if openvsp_config.FACADE_PRINT_LEVEL > 0: print(f'OpenVSP failed to start server, attempt {i+1}, trying again; "{str(e)}"')
                 try:
-                    self._proc.close()
-                    self._proc = None
-                except:
+                    self._proc.kill()
+                    self._proc.wait()
+                except Exception:
                     pass
+                self._proc = None
         if self._proc is None:
             raise RuntimeError("Facade failed to start the server")
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
