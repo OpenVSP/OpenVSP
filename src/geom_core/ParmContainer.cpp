@@ -243,19 +243,20 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
         SetName( XmlUtil::FindString(  child_node, "Name", m_Name ) );
     }
 
-    xmlNodePtr gnode;
-
     LoadGroupParmVec( m_ParmVec, false );
     ParmMgr.IncNumParmChanges();
+
+    unordered_map< string, xmlNodePtr > group_nodes = XmlUtil::GetNodeMap( child_node );
 
     unordered_map< string, vector< std::pair< string, string > > >::iterator groupIter;
     for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; ++groupIter )
     {
-        string name = groupIter->first;
-        gnode = XmlUtil::GetNode( child_node, name.c_str(), 0 );
+        xmlNodePtr gnode = XmlUtil::FindNode( group_nodes, groupIter->first );
 
         if ( gnode )
         {
+            unordered_map< string, xmlNodePtr > parm_nodes = XmlUtil::GetNodeMap( gnode );
+
             vector< std::pair< string, string > >::iterator parmIter;
             for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); ++parmIter )
             {
@@ -263,7 +264,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
                 Parm* p = ParmMgr.FindParm( parmID );
                 if ( p )
                 {
-                    p->DecodeXml( gnode );
+                    p->DecodeXmlNodeMap( parm_nodes );
                 }
             }
         }

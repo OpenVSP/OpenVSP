@@ -365,8 +365,6 @@ void Parm::DecodeXml( xmlNodePtr & node, bool detailed )
 {
     xmlNodePtr n;
 
-    double val = m_Val;
-
     if ( detailed )
     {
          n = node;
@@ -375,6 +373,20 @@ void Parm::DecodeXml( xmlNodePtr & node, bool detailed )
     {
          n = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
     }
+
+    DecodeXmlNode( n, detailed );
+}
+
+//==== Decode Data From This Parm's Node Among a Group's Nodes ====//
+void Parm::DecodeXmlNodeMap( const std::unordered_map< string, xmlNodePtr > & nodes )
+{
+    DecodeXmlNode( XmlUtil::FindNode( nodes, m_Name ) );
+}
+
+//==== Decode Data From This Parm's Own Node ====//
+void Parm::DecodeXmlNode( xmlNodePtr n, bool detailed )
+{
+    double val = m_Val;
 
     if ( n )
     {
@@ -601,10 +613,10 @@ bool NotEqParm::SetValCheckLimits( double val )
 }
 
 //==== Decode Data To XML Data Structure ====//
-void NotEqParm::DecodeXml( xmlNodePtr & node, bool detailed )
+void NotEqParm::DecodeXmlNode( xmlNodePtr n, bool detailed )
 {
     m_CheckFlag = false;
-    Parm::DecodeXml( node, detailed );
+    Parm::DecodeXmlNode( n, detailed );
     m_CheckFlag = true;
 }
 

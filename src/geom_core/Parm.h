@@ -174,6 +174,12 @@ public:
     virtual void EncodeXml( xmlNodePtr & node, bool detailed = false );
     virtual void DecodeXml( xmlNodePtr & node, bool detailed = false );
 
+    // Decodes from n, this Parm's own node, or keeps the value where n is nullptr.
+    virtual void DecodeXmlNode( xmlNodePtr n, bool detailed = false );
+
+    // Decodes from its own node in nodes, a group node's children by name from XmlUtil::GetNodeMap.
+    void DecodeXmlNodeMap( const std::unordered_map< string, xmlNodePtr > & nodes );
+
     AttributeCollection* GetAttrCollection()
     {
         return &m_ParmAttrCollection;
@@ -342,7 +348,7 @@ public:
         m_Tol = tol;
     }
 
-    virtual void DecodeXml( xmlNodePtr & node, bool detailed = false );
+    virtual void DecodeXmlNode( xmlNodePtr n, bool detailed = false );
 
 protected:
     string m_OtherParmID;

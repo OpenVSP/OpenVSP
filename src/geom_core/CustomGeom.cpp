@@ -1043,9 +1043,10 @@ xmlNodePtr CustomGeom::DecodeXml( xmlNodePtr & node )
         string new_module_name = ScriptMgr.ReadScriptFromMemory( module_name, file_contents );
         CustomGeomMgr.InitGeom( GetID(), new_module_name, module_name );
 
+        std::unordered_map< string, xmlNodePtr > parm_nodes = XmlUtil::GetNodeMap( custom_node );
         for ( int i = 0 ; i < (int)m_CustomGeomParmVec.size() ; i++ )
         {
-            m_CustomGeomParmVec[i]->DecodeXml( custom_node );
+            m_CustomGeomParmVec[i]->DecodeXmlNodeMap( parm_nodes );
         }
     }
     Geom::DecodeXml( node );
