@@ -182,6 +182,102 @@ def testTheSetsSwitchDecidesWhoseSetMembershipTheCloneHas():
     assert_no_errors()
 
 
+def user_sets( gid ):
+    return [ vsp.GetSetFlag( gid, s ) for s in range( vsp.SET_FIRST_USER, vsp.GetNumSets() ) ]
+
+
+def a_pod_and_its_clone():
+    vsp.VSPRenew()
+    drop_errors()
+    scratch_output()
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+    clone = vsp.CloneGeomVec( [ pod ] )[0]
+    vsp.Update()
+    return pod, clone
+
+
+def testAFollowingCloneTakesEachChangeToTheOriginalsSets():
+    pod, clone = a_pod_and_its_clone()
+    first = vsp.SET_FIRST_USER
+
+    for s, flag in ( ( first, True ), ( first + 1, True ), ( first, False ), ( first + 2, True ), ( first + 1, False ) ):
+        vsp.SetSetFlag( pod, s, flag )
+        vsp.Update()
+        assert user_sets( clone ) == user_sets( pod ), "after Set %d %s" % ( s, flag )
+    assert_no_errors()
+
+
+def testUpdatingTheOriginalAloneBringsItsClonesSetsAlong():
+    # Set membership is not a Parm, so a change to it updates nothing by itself; updating the
+    # original updates its Clones, which copy its Sets.
+    pod, clone = a_pod_and_its_clone()
+    user_set = vsp.SET_FIRST_USER + 1
+
+    vsp.SetSetFlag( pod, user_set, True )
+    vsp.UpdateGeom( pod )
+    assert vsp.GetSetFlag( clone, user_set )
+
+    vsp.SetSetFlag( pod, user_set, False )
+    vsp.UpdateGeom( pod )
+    assert not vsp.GetSetFlag( clone, user_set )
+    assert_no_errors()
+
+
+def testAPastedSetReachesAFollowingClone():
+    pod, clone = a_pod_and_its_clone()
+    src, dst = vsp.SET_FIRST_USER, vsp.SET_FIRST_USER + 1
+
+    vsp.SetSetFlag( pod, src, True )
+    vsp.Update()
+    vsp.CopyPasteSet( src, dst )
+    vsp.Update()
+    assert vsp.GetSetFlag( pod, dst )
+    assert vsp.GetSetFlag( clone, dst )
+    assert_no_errors()
+
+
+def testACloneOfACloneFollowsTheOriginalsSets():
+    pod, clone = a_pod_and_its_clone()
+    clone2 = vsp.CloneGeomVec( [ clone ] )[0]
+    vsp.Update()
+    user_set = vsp.SET_FIRST_USER + 2
+
+    vsp.SetSetFlag( pod, user_set, True )
+    vsp.UpdateGeom( pod )
+    assert vsp.GetSetFlag( clone2, user_set )
+
+    vsp.SetSetFlag( pod, user_set, False )
+    vsp.Update()
+    assert not vsp.GetSetFlag( clone2, user_set )
+    assert_no_errors()
+
+
+def testAFollowingClonesOwnSetChangeGivesWayToTheOriginals():
+    # The Clone's screen greys its Set list while it follows, but a Set can still be changed from
+    # elsewhere, such as the Set Editor; the original's membership wins at the next update.
+    pod, clone = a_pod_and_its_clone()
+    user_set = vsp.SET_FIRST_USER
+
+    vsp.SetSetFlag( pod, user_set, True )
+    vsp.Update()
+    vsp.SetSetFlag( clone, user_set, False )
+    vsp.Update()
+    assert vsp.GetSetFlag( clone, user_set )
+    assert_no_errors()
+
+
+def testAFollowingCloneKeepsItsOwnShowAndHide():
+    pod, clone = a_pod_and_its_clone()
+
+    vsp.SetSetFlag( pod, vsp.SET_SHOWN, False )
+    vsp.Update()
+    assert not vsp.GetSetFlag( pod, vsp.SET_SHOWN )
+    assert vsp.GetSetFlag( clone, vsp.SET_SHOWN )
+    assert not vsp.GetSetFlag( clone, vsp.SET_NOT_SHOWN )
+    assert_no_errors()
+
+
 def testTheAttachSwitchDecidesWhoseAttachmentTheCloneHas():
     vsp.VSPRenew()
     drop_errors()
