@@ -190,9 +190,11 @@ public:
 
     // relax 0 asks for the quality mesh, 1 drops the minimum angle, 2 drops the size limit as
     // well.  areascale nudges the size limit, which moves every added point and is what gets a
-    // surface past a robustness limit -- unlike the order the points are given in.
+    // surface past a robustness limit -- unlike the order the points are given in.  steinerout is
+    // set when the triangulation used every point it was allowed and was refused for it.
     bool InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
-                       vector< vector< int > > & connlist, vector< vec2d > & points_out, int relax = 0, double areascale = 1.0 );
+                       vector< vector< int > > & connlist, vector< vec2d > & points_out, int relax = 0, double areascale = 1.0,
+                       bool * steinerout = nullptr );
     // spacing seeds the inside of the patch, so a surface the main triangulator refused still
     // comes back near the size it was asked for rather than spanned by whatever reaches across.
     bool InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,

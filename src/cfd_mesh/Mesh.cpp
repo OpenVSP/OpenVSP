@@ -2748,7 +2748,7 @@ bool Mesh::InitMesh_DBA( const vector< vec2d > & uw_prime, const vector< MeshSeg
 
 bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg > & segs_indexes,
                          vector< vector< int > > & connlist, vector< vec2d > & points_out, int relax,
-                         double areascale )
+                         double areascale, bool * steinerout )
 {
     int num_pnts  = uw_prime.size();
     int num_edges = segs_indexes.size();
@@ -2841,13 +2841,35 @@ bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg
         snprintf( str, sizeof( str ), "zpYQa%8.6fq20", uw_tri_area );
     }
 
+    // S caps the points Triangle may add.  A surface that meshes adds fewer than one point for
+    // each point and estimated triangle; refinement that cannot meet its bounds -- a triangle
+    // too small for floating point to split -- adds points until memory runs out instead.
+    int max_steiner = 4 * ( num_pnts + ( int )est_num_tris );
+    size_t optlen = strlen( str );
+    snprintf( str + optlen, sizeof( str ) - optlen, "S%d", max_steiner );
+
     tristatus = triangle_context_options( ctx, str );
     if ( tristatus != TRI_OK ) printf( "triangle_context_options Error\n" );
 
     tristatus = triangle_mesh_create( ctx, &in );
     if ( tristatus != TRI_OK ) printf( "triangle_mesh_create Error\n" );
 
+    // Using every point allowed means refinement was stopped, not finished.
+    bool ranout = false;
     if ( tristatus == TRI_OK )
+    {
+        statistics stats;
+        triangle_mesh_statistics( ctx, &stats );
+        if ( stats.vertices - num_pnts >= max_steiner )
+        {
+            ranout = true;
+            if ( steinerout )
+            {
+                *steinerout = true;
+            }
+        }
+    }
+    if ( tristatus == TRI_OK && !ranout )
     {
         triangle_mesh_copy( ctx, &out, 1, 1 );
 
@@ -2877,7 +2899,7 @@ bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg
 
     triangle_context_destroy( ctx );
 
-    return tristatus == TRI_OK;
+    return tristatus == TRI_OK && !ranout;
 }
 
 // Keep the first point at each place in s,t, in its order, and end every segment there.
@@ -3129,7 +3151,11 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     vector< vector< int > > connlist;
     vector< vec2d > points_out;
 
-    bool success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out );
+    // Set when a triangulation used every point it was allowed.  Asking again for the same
+    // quality bound would only do the same, so those retries are skipped.
+    bool steinerout = false;
+
+    bool success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, 0, 1.0, &steinerout );
 
     int trimethod = 0;      // 0 first try, 1..5 retry number, 9 fell back to DBA, -1 nothing worked
 
@@ -3139,11 +3165,11 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     // built to the sizing that was asked for.
     const double areatry[] = { 0.8, 1.25, 0.6, 1.6 };
 
-    for ( int r = 0; !success && r < 4; r++ )
+    for ( int r = 0; !success && !steinerout && r < 4; r++ )
     {
         connlist.clear();
         points_out.clear();
-        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, 0, areatry[r] );
+        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, 0, areatry[r], &steinerout );
 
         if ( success )
         {
@@ -3156,7 +3182,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         connlist.clear();
         points_out.clear();
-        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, r );
+        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, r, 1.0, &steinerout );
 
         if ( success )
         {
@@ -3164,10 +3190,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         }
     }
 
-    if ( !success )
+    if ( !success && !steinerout )
     {
         int n = 0;
-        while ( !success && n < 5 )
+        while ( !success && !steinerout && n < 5 )
         {
 #ifdef DEBUG_CFD_MESH
             printf( "  Triangulation failed for surface %d %s %s, randomizing point order for %d time and trying again\n", namecnt, m_Surf->GetName().c_str(), m_Surf->GetGeomID().c_str(), n );
@@ -3184,7 +3210,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
             connlist.clear();
             points_out.clear();
-            success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out );
+            success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, 0, 1.0, &steinerout );
             n++;
 
             if ( success )
@@ -3206,11 +3232,11 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
     // Last thing before giving the surface to a triangulator that ignores the sizing: let the
     // interior segments be split.
-    if ( !success )
+    if ( !success && !steinerout )
     {
         connlist.clear();
         points_out.clear();
-        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, 3 );
+        success = InitMesh_TRI( uw_prime, segs_indexes, connlist, points_out, 3, 1.0, &steinerout );
 
         if ( success )
         {
@@ -3289,8 +3315,14 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             how = "COULD NOT BE TRIANGULATED";
         }
 
-        printf( "Surface %d (%s %s): %s.\n", m_Surf->GetSurfID(),
-                m_Surf->GetName().c_str(), m_Surf->GetGeomID().c_str(), how );
+        const char *why = "";
+        if ( steinerout )
+        {
+            why = ", as refinement used every point it was allowed";
+        }
+
+        printf( "Surface %d (%s %s): %s%s.\n", m_Surf->GetSurfID(),
+                m_Surf->GetName().c_str(), m_Surf->GetGeomID().c_str(), how, why );
         fflush( stdout );
     }
 
