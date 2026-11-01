@@ -13944,7 +13944,7 @@ int GetIntParmVal( const std::string & parm_id )
         return 0;
     }
     ErrorMgr.NoError();
-    return (int)(p->Get()+0.5);
+    return toint( p->Get() );
 }
 
 /// Get the value of a bool parm

@@ -54,3 +54,12 @@ def test_a_two_input_slider_given_one_parm_is_refused():
 def test_only_the_refused_controls_are_errors():
     _, errors = added()
     assert len( errors ) == 2, errors
+
+
+def test_a_negative_integer_parm_reads_back_as_itself():
+    vsp.VSPRenew()
+    gid = vsp.AddGeom( "GuiArgsPart" )
+    pid = vsp.FindParm( gid, "ChoiceValue", "Results" )
+    for val in ( -2, -1, 0, 1 ):
+        vsp.SetParmVal( pid, val )
+        assert vsp.GetIntParmVal( pid ) == val
