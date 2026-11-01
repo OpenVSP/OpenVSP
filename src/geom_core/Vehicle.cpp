@@ -5352,7 +5352,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set, bool use
     fclose( pov_file );
 }
 
-void Vehicle::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs, int n_ref, bool splitjoin )
+void Vehicle::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs, int n_ref, bool splitjoin, bool symcut )
 {
     vector< Geom* > geom_vec = FindGeomVec( geomvec );
 
@@ -5370,13 +5370,13 @@ void Vehicle::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSur
 
             (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs, std::vector< double >(), std::vector< double >(), utess, wtess,
                                                  geom_vec[i]->GetCapUMinSuccess( geom_vec[i]->GetMainSurfID( j ) ),
-                                                 geom_vec[i]->GetCapUMaxSuccess( geom_vec[i]->GetMainSurfID( j ) ), splitjoin );
+                                                 geom_vec[i]->GetCapUMaxSuccess( geom_vec[i]->GetMainSurfID( j ) ), splitjoin, symcut );
             icomp++;
         }
     }
 }
 
-void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs, int n_ref, bool splitjoin )
+void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs, int n_ref, bool splitjoin, bool symcut )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
@@ -5409,7 +5409,7 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
 
                 (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs, std::vector< double >(), std::vector< double >(), utess, wtess,
                                                  geom_vec[i]->GetCapUMinSuccess( geom_vec[i]->GetMainSurfID( j ) ),
-                                                 geom_vec[i]->GetCapUMaxSuccess( geom_vec[i]->GetMainSurfID( j ) ), splitjoin );
+                                                 geom_vec[i]->GetCapUMaxSuccess( geom_vec[i]->GetMainSurfID( j ) ), splitjoin, symcut );
                 icomp++;
             }
         }

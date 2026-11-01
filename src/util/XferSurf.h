@@ -25,6 +25,10 @@ using std::vector;
 using std::pair;
 using std::make_pair;
 
+// A patch joint counts as a sharp corner when the tangents either side of it differ by more
+// than this in 1 - cos( angle ), about 8.1 degrees.  CFDMesh cuts its patches at sharp corners.
+#define CFD_SHARP_TOL 0.01
+
 // One piece of a patch that came from one piece of the Geom's surface.
 //
 // A patch handed to the mesher is not always a plain sub-rectangle of the surface it came

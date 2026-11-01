@@ -1235,7 +1235,8 @@ void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
 
 void SurfaceIntersectionSingleton::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs )
 {
-    m_Vehicle->FetchXFerSurfs( geomvec, xfersurfs, 0, GetSettingsPtr()->m_SplitJoinSurfsFlag );
+    m_Vehicle->FetchXFerSurfs( geomvec, xfersurfs, 0, GetSettingsPtr()->m_SplitJoinSurfsFlag,
+                               GetSettingsPtr()->m_HalfMeshFlag );
 }
 
 // n_ref asks each Geom for that many levels of tessellation refinement on the lines its
@@ -1257,7 +1258,7 @@ void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs, in
     }
 
     m_Vehicle->FetchXFerSurfs( normal_set, degen_set, xfersurfs, n_ref,
-                               GetSettingsPtr()->m_SplitJoinSurfsFlag );
+                               GetSettingsPtr()->m_SplitJoinSurfsFlag, GetSettingsPtr()->m_HalfMeshFlag );
 }
 
 void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, double scale, int start_surf_id )

@@ -54,6 +54,16 @@ void SplitSurfsU( vector< piecewise_surface_type > &surfvec, const vector < doub
 void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < double > &WSplit,
                   vector< vector< UWRegion > > &regionvec );
 
+// The lines CFDMesh cuts a surface into patches along, and the feature lines it holds as
+// creases inside the patches instead, all in the surface's own parameters.
+struct CFDMeshLines
+{
+    vector < double > m_UCut;
+    vector < double > m_WCut;
+    vector < double > m_UJoin;
+    vector < double > m_WJoin;
+};
+
 class VspSurf
 {
 public:
@@ -264,7 +274,7 @@ public:
     bool CapUMax(int capType, double len, double str, double offset, const vec3d &ptoff, bool swflag);
     bool CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag);
 
-    void FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >(), const vector < double > &utess = std::vector< double >(), const vector < double > &wtess = std::vector< double >(), bool capumin = false, bool capumax = false, bool splitjoin = true ) const;
+    void FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >(), const vector < double > &utess = std::vector< double >(), const vector < double > &wtess = std::vector< double >(), bool capumin = false, bool capumax = false, bool splitjoin = true, bool symcut = false ) const;
 
     void ResetUSkip() const;
     void FlagDuplicate( const VspSurf &othersurf ) const;
@@ -475,6 +485,11 @@ protected:
     double m_PlanarUWAspect;
 
 private:
+
+    void BuildCFDMeshLines( bool capumin, bool capumax, bool symcut, const vector < double > &usuppress,
+                            const vector < double > &wsuppress, CFDMeshLines &lines ) const;
+    void AddPeriodicCuts( bool udir, double symtol, double tol, vector < double > &cuts ) const;
+    bool LineInSymPlane( bool uline, double t, double tol ) const;
     mutable vector < bool > m_USkip;
 
     mutable vector < double > m_RootCluster;
