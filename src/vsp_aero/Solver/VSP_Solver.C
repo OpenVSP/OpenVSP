@@ -35315,7 +35315,11 @@ void VSP_SOLVER::ApplyVortexStretchingModel(void)
   
           Loop = VSPGeom().VortexSheet(k).WakeLoopList(i).GlobalLoop();
 
-          if ( VSPGeom().Grid(MGLevel_).LoopList(Loop).MinValidTimeStep() == 1 ) {
+          // The second row too: the first row is short because the newest shed vortex sits a
+          // fraction of a step behind the trailing edge (VORTEX_TRAIL::UpdateUnsteadyWakeLocation),
+          // and growing to a full row is not stretching
+          
+          if ( VSPGeom().Grid(MGLevel_).LoopList(Loop).MinValidTimeStep() <= 2 ) {
              
               VSPGeom().Grid(MGLevel_).LoopList(Loop).Circumference(0) = VSPGeom().Grid(MGLevel_).LoopList(Loop).Circumference(1);
 
