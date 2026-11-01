@@ -4020,6 +4020,105 @@ static bool WLineInSymPlane( const VspSurf &surf, double umin, double umax, doub
     return true;
 }
 
+// Take a wing's end caps off the ends of s, and fold each at its tip into one patch.
+static void FoldWingCaps( piecewise_surface_type &s, bool capumin, bool capumax,
+                          vector < piecewise_surface_type > &surfvec, vector < vector < UWRegion > > &regionvec,
+                          vector < pair < vec3d, vec3d > > &joins, vector < double > &usup )
+{
+    double umin = s.get_u0();
+    double umax = s.get_umax();
+
+    double vmin = s.get_v0();
+    double vmax = s.get_vmax();
+    double vmid = 0.5 * ( vmin + vmax );
+
+    piecewise_surface_type srest;
+
+    if ( capumin )
+    {
+        piecewise_surface_type scaplower, scapupper, scap;
+        double ucap = umin + 1.0;
+
+        s.split_u( scap, srest, ucap );
+        s = std::move( srest );
+
+        scap.split_v( scaplower, scapupper, vmid );
+
+        scapupper.reverse_u();
+        scapupper.reverse_v();
+        scaplower.set_v0( scapupper.get_v0() );
+        scaplower.set_u0( scapupper.get_umax() );
+        // The upper half's edge at u = umin, which the lower half meets along.
+        joins.push_back( make_pair( vec3d( umin, vmid, 0 ), vec3d( umin, vmax, 0 ) ) );
+
+        scap.join_u( scapupper, scaplower );
+
+        surfvec.emplace_back( std::move( scap ) );
+
+        // The upper half was turned end for end in both directions; the lower half was
+        // slid up to meet it.  Neither covers the same parameters it started in.
+        {
+            vector < UWRegion > rv( 2 );
+
+            rv[0].m_UMin = umin;    rv[0].m_UMax = ucap;
+            rv[0].m_WMin = vmid;    rv[0].m_WMax = vmax;
+            rv[0].m_USign = -1.0;   rv[0].m_UOff = umin + ucap;
+            rv[0].m_WSign = -1.0;   rv[0].m_WOff = vmid + vmax;
+
+            rv[1].m_UMin = umin;    rv[1].m_UMax = ucap;
+            rv[1].m_WMin = vmin;    rv[1].m_WMax = vmid;
+            rv[1].m_USign = 1.0;    rv[1].m_UOff = umin - ucap;
+            rv[1].m_WSign = 1.0;    rv[1].m_WOff = vmin - vmid;
+
+            regionvec.push_back( rv );
+        }
+
+        usup.push_back( ucap );
+    }
+
+    if ( capumax )
+    {
+        piecewise_surface_type scaplower, scapupper, scap;
+        double ucap = umax - 1.0;
+
+        s.split_u( srest, scap, ucap );
+        s = std::move( srest );
+
+        scap.split_v( scaplower, scapupper, vmid );
+
+        scapupper.reverse_u();
+        scapupper.reverse_v();
+        scapupper.set_v0( scaplower.get_v0() );
+        scapupper.set_u0( scaplower.get_umax() );
+        joins.push_back( make_pair( vec3d( umax, vmin, 0 ), vec3d( umax, vmid, 0 ) ) );
+
+        scap.join_u( scaplower, scapupper );
+
+
+        surfvec.emplace_back( std::move( scap ) );
+
+        // Here the lower half stayed where it was and the upper half was turned round
+        // and slid past the end of it.
+        {
+            vector < UWRegion > rv( 2 );
+
+            rv[0].m_UMin = ucap;    rv[0].m_UMax = umax;
+            rv[0].m_WMin = vmin;    rv[0].m_WMax = vmid;
+            rv[0].m_USign = 1.0;    rv[0].m_UOff = 0.0;
+            rv[0].m_WSign = 1.0;    rv[0].m_WOff = 0.0;
+
+            rv[1].m_UMin = ucap;    rv[1].m_UMax = umax;
+            rv[1].m_WMin = vmid;    rv[1].m_WMax = vmax;
+            rv[1].m_USign = -1.0;   rv[1].m_UOff = 2.0 * umax;
+            rv[1].m_WSign = -1.0;   rv[1].m_WOff = vmin + vmax;
+
+            regionvec.push_back( rv );
+        }
+
+        usup.push_back( umax );
+    }
+}
+
 void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress, const vector < double > &utess, const vector < double > &wtess, bool capumin, bool capumax, bool splitjoin ) const
 {
     vector < piecewise_surface_type > surfvec;
@@ -4035,9 +4134,6 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
 
     if ( splitjoin && GetSurfType() == vsp::WING_SURF ) // IsMagicVParm()
     {
-        double umin = m_Surface.get_u0();
-        double umax = m_Surface.get_umax();
-
         double vmin = m_Surface.get_v0();
         double vmax = m_Surface.get_vmax();
         double vmid = 0.5 * ( vmin + vmax );
@@ -4045,89 +4141,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
         piecewise_surface_type srest, s;
         s = m_Surface;
 
-        if ( capumin )
-        {
-            piecewise_surface_type scaplower, scapupper, scap;
-            double ucap = umin + 1.0;
-
-            s.split_u( scap, srest, ucap );
-            s = std::move( srest );
-
-            scap.split_v( scaplower, scapupper, vmid );
-
-            scapupper.reverse_u();
-            scapupper.reverse_v();
-            scaplower.set_v0( scapupper.get_v0() );
-            scaplower.set_u0( scapupper.get_umax() );
-            // The upper half's edge at u = umin, which the lower half meets along.
-            joins.push_back( make_pair( vec3d( umin, vmid, 0 ), vec3d( umin, vmax, 0 ) ) );
-
-            scap.join_u( scapupper, scaplower );
-
-            surfvec.emplace_back( std::move( scap ) );
-
-            // The upper half was turned end for end in both directions; the lower half was
-            // slid up to meet it.  Neither covers the same parameters it started in.
-            {
-                vector < UWRegion > rv( 2 );
-
-                rv[0].m_UMin = umin;    rv[0].m_UMax = ucap;
-                rv[0].m_WMin = vmid;    rv[0].m_WMax = vmax;
-                rv[0].m_USign = -1.0;   rv[0].m_UOff = umin + ucap;
-                rv[0].m_WSign = -1.0;   rv[0].m_WOff = vmid + vmax;
-
-                rv[1].m_UMin = umin;    rv[1].m_UMax = ucap;
-                rv[1].m_WMin = vmin;    rv[1].m_WMax = vmid;
-                rv[1].m_USign = 1.0;    rv[1].m_UOff = umin - ucap;
-                rv[1].m_WSign = 1.0;    rv[1].m_WOff = vmin - vmid;
-
-                regionvec.push_back( rv );
-            }
-
-            usup.push_back( ucap );
-        }
-
-        if ( capumax )
-        {
-            piecewise_surface_type scaplower, scapupper, scap;
-            double ucap = umax - 1.0;
-
-            s.split_u( srest, scap, ucap );
-            s = std::move( srest );
-
-            scap.split_v( scaplower, scapupper, vmid );
-
-            scapupper.reverse_u();
-            scapupper.reverse_v();
-            scapupper.set_v0( scaplower.get_v0() );
-            scapupper.set_u0( scaplower.get_umax() );
-            joins.push_back( make_pair( vec3d( umax, vmin, 0 ), vec3d( umax, vmid, 0 ) ) );
-
-            scap.join_u( scaplower, scapupper );
-
-
-            surfvec.emplace_back( std::move( scap ) );
-
-            // Here the lower half stayed where it was and the upper half was turned round
-            // and slid past the end of it.
-            {
-                vector < UWRegion > rv( 2 );
-
-                rv[0].m_UMin = ucap;    rv[0].m_UMax = umax;
-                rv[0].m_WMin = vmin;    rv[0].m_WMax = vmid;
-                rv[0].m_USign = 1.0;    rv[0].m_UOff = 0.0;
-                rv[0].m_WSign = 1.0;    rv[0].m_WOff = 0.0;
-
-                rv[1].m_UMin = ucap;    rv[1].m_UMax = umax;
-                rv[1].m_WMin = vmid;    rv[1].m_WMax = vmax;
-                rv[1].m_USign = -1.0;   rv[1].m_UOff = 2.0 * umax;
-                rv[1].m_WSign = -1.0;   rv[1].m_WOff = vmin + vmax;
-
-                regionvec.push_back( rv );
-            }
-
-            usup.push_back( umax );
-        }
+        FoldWingCaps( s, capumin, capumax, surfvec, regionvec, joins, usup );
 
         piecewise_surface_type stelower, slower, sle, supper, steupper, ste;
 
