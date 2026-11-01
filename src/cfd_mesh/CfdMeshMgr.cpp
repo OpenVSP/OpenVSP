@@ -5156,8 +5156,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
 }
 
 // Union-find over the points of an IPntCloud, so that "within tol of" can be closed
-// transitively.  Path compression on the lookup, union by nothing in particular -- the sets
-// here are tiny, a handful of chain ends meeting at one corner.
+// transitively.  Path compression on the lookup, union by nothing in particular.
 static int FindPnt( vector< int > &parent, int i )
 {
     while ( parent[i] != i )
@@ -5180,12 +5179,33 @@ static void UnionPnts( vector< int > &parent, int a, int b )
     }
 }
 
+// Join every two points of the cloud whose squared distance is under tol.
+static void UnionCloseIPnts( const IPntCloud &cloud, double tol, vector< int > &parent )
+{
+    PntNodeCloud pnts;
+    pnts.ReserveMorePntNodes( cloud.m_IPnts.size() );
+    for ( int i = 0 ; i < ( int )cloud.m_IPnts.size() ; i++ )
+    {
+        pnts.AddPntNode( cloud.m_IPnts[i]->m_Pnt );
+    }
+
+    BuildPntNodeIndex( pnts );
+
+    vector< unsigned int > near;
+    for ( int i = 0 ; i < ( int )cloud.m_IPnts.size() ; i++ )
+    {
+        FindPntNodesWithinTolSq( pnts, cloud.m_IPnts[i]->m_Pnt, tol, near );
+
+        for ( int k = 0 ; k < ( int )near.size() ; k++ )
+        {
+            UnionPnts( parent, i, ( int )near[k] );
+        }
+    }
+}
+
 void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
 {
     list< ISegChain* >::iterator c;
-
-    IPntTree index( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
-    index.buildIndex();
 
     list < IPntGroup* > iPntGroupList;
 
@@ -5206,18 +5226,7 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
         parent[i] = ( int )i;
     }
 
-    for ( size_t i = 0 ; i < cloud.m_IPnts.size() ; i++ )
-    {
-        std::vector < std::pair < unsigned int, double > > ret_matches;
-
-        nanoflann::SearchParams params;
-        index.radiusSearch( &cloud.m_IPnts[i]->m_Pnt[0], tol, ret_matches, params );
-
-        for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
-        {
-            UnionPnts( parent, ( int )i, ( int )ret_matches[j].first );
-        }
-    }
+    UnionCloseIPnts( cloud, tol, parent );
 
     //==== Collect Each Set ====//
     std::unordered_map< int, IPntGroup* > setGroup;
