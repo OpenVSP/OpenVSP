@@ -28,7 +28,7 @@ input.  These requirements are summarized in the following table.
 | [Tipback Angle](#tipback-angle)                               | 2pt Ground Plane | N/A                                |
 | [Tipover Angle](#tipover-angle)                               | 2pt Ground Plane | N/A                                |
 | [Weight Distribution](#weight-distribution)                   | 3pt Ground Plane | N/A                                |
-| [Ground Maneuverability](#ground-manueverability)             | Any              | 3pt Ground Plane                   |
+| [Ground Maneuverability](#ground-maneuverability)             | Any              | 3pt Ground Plane                   |
 | [Composite Clearance Envelope](#composite-clearance-envelope) | Any              | 3pt Composite Clearance Envelope   |
 | [From Point Visibility](#from-point-visibility)               | Any              | XYZ, HumanGeom, or Geom            |
 | [Look At Visibility](#look-at-visibility)                     | Any              | N/A                                |
@@ -132,7 +132,7 @@ Calculate the fraction of the weight reacted by each contact point specified by 
 points and center of gravity envelope are specified by a 3pt Ground Plane auxiliary geometry.  No secondary geometry
 is required.
 
-## Ground Manueverability
+## Ground Maneuverability
 
 Calculate the largest arc swept by the primary geometry as well as the ground tracks of the landing gear contact points
 specified by the secondary geometry.  Before calculating a CompGeom type analysis is run on the primary

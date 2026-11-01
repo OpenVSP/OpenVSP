@@ -46,7 +46,7 @@ menu), and as the geometry of the [Geometry Analysis](GeometryAnalysis.md) manag
 | Rotor Burst                      | Any component           | [External Interference](GeometryAnalysis.md#external-interference) |
 | AC 20-128A Rotor Fragment        | Any component           | [Risk Angle](GeometryAnalysis.md#risk-angle)                        |
 | AC 25.905-1 Thrown Blade         | A Propeller             | [Risk Angle](GeometryAnalysis.md#risk-angle)                        |
-| 3pt Ground Plane                 | A Gear                  | [Plane Min/Max Distance](GeometryAnalysis.md#plane-minmax-distance), [Weight Distribution](GeometryAnalysis.md#weight-distribution), [Ground Maneuverability](GeometryAnalysis.md#ground-manueverability) |
+| 3pt Ground Plane                 | A Gear                  | [Plane Min/Max Distance](GeometryAnalysis.md#plane-minmax-distance), [Weight Distribution](GeometryAnalysis.md#weight-distribution), [Ground Maneuverability](GeometryAnalysis.md#ground-maneuverability) |
 | 2pt Ground Plane                 | A Gear                  | [Plane 2pt Angle Contact](GeometryAnalysis.md#plane-2pt-angle-contact), [Tipback Angle](GeometryAnalysis.md#tipback-angle), [Tipover Angle](GeometryAnalysis.md#tipover-angle) |
 | 1pt Ground Plane                 | A Gear                  | [Plane 1pt Angle Contact](GeometryAnalysis.md#plane-1pt-angle-contact) |
 | Single Gear                      | A Gear                  | [External](GeometryAnalysis.md#external-interference) and [Packaging](GeometryAnalysis.md#packaging-interference) Interference |
@@ -153,7 +153,7 @@ Flat, and the symmetrical main bogie twice, I Symm 0 for one side and 1 for its 
 
 | Mode            | The plane                                                                                       | Analyses |
 |:----------------|:------------------------------------------------------------------------------------------------|:---------|
-| 3pt Ground Plane | Through the contact points of three bogies.                                                    | [Plane Min/Max Distance](GeometryAnalysis.md#plane-minmax-distance), [Weight Distribution](GeometryAnalysis.md#weight-distribution), [Ground Maneuverability](GeometryAnalysis.md#ground-manueverability) |
+| 3pt Ground Plane | Through the contact points of three bogies.                                                    | [Plane Min/Max Distance](GeometryAnalysis.md#plane-minmax-distance), [Weight Distribution](GeometryAnalysis.md#weight-distribution), [Ground Maneuverability](GeometryAnalysis.md#ground-maneuverability) |
 | 2pt Ground Plane | Through the line joining the contact points of two bogies, as level as that line allows.       | [Plane 2pt Angle Contact](GeometryAnalysis.md#plane-2pt-angle-contact), [Tipback Angle](GeometryAnalysis.md#tipback-angle), [Tipover Angle](GeometryAnalysis.md#tipover-angle) |
 | 1pt Ground Plane | Through the contact point of one bogie's outermost tire, level.                                | [Plane 1pt Angle Contact](GeometryAnalysis.md#plane-1pt-angle-contact) |
 

@@ -124,7 +124,7 @@ ground analyses can use each bogie nominal, compressed or extended.
 Angle Contact](GeometryAnalysis.md#plane-2pt-angle-contact) analysis turns the bogies up to these limits.
 
 *Steering Angle* is the most the bogie can steer, in degrees.  The [Ground
-Maneuverability](GeometryAnalysis.md#ground-manueverability) analysis steers the bogie with the largest steering angle.
+Maneuverability](GeometryAnalysis.md#ground-maneuverability) analysis steers the bogie with the largest steering angle.
 
 ## Tires
 
