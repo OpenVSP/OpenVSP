@@ -5662,6 +5662,9 @@ void VSP_SOLVER::CalculateGammaPerturbationLoopVelocities(void)
 
           Loop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).LoopList(Loop).SurfaceID() > 0);
+
+
           dU_dGamma = dV_dGamma = dW_dGamma = 0.;
  
           // Only need to calculate perturbation velocities wrt gamma for loops on surface
@@ -5777,6 +5780,9 @@ void VSP_SOLVER::CalculateMeshPerturbationLoopVelocities(void)
           Level = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Level();
 
           Loop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).LoopList(Loop).SurfaceID() > 0);
+
 
           dxyz_i[0] = 0.;
           dxyz_i[1] = 0.;
@@ -5902,6 +5908,9 @@ void VSP_SOLVER::CalculateGammaPerturbationEdgeVelocities(void)
 
           Edge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() > 0);
+
+
           if ( VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() == 0 ) {
            
              dU_dGamma = dV_dGamma = dW_dGamma = 0.;
@@ -6015,6 +6024,9 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocities(void)
           Level = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           Edge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() > 0);
+
 
           if ( VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() == 0 ) {
 
@@ -6151,6 +6163,9 @@ void VSP_SOLVER::CalculateStallGammaPerturbationLoopVelocities(void)
 
           Loop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).LoopList(Loop).SurfaceID() > 0);
+
+
           dU_dStall = dV_dStall = dW_dStall = 0.;
  
           // Only need to calculate perturbation velocities wrt gamma for loops on surface
@@ -6271,6 +6286,9 @@ void VSP_SOLVER::CalculateStallGammaPerturbationEdgeVelocities(void)
 
           Edge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() > 0);
+
+
           if ( VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() == 0 ) {
            
              dU_dStall = dV_dStall = dW_dStall = 0.;
@@ -6388,6 +6406,9 @@ void VSP_SOLVER::CalculateVortexStretchingRatioGammaPerturbationLoopVelocities(v
           Level = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Level();
 
           Loop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).LoopList(Loop).SurfaceID() > 0);
+
 
           dU_dRatio = dV_dRatio = dW_dRatio = 0.;
  
@@ -6508,6 +6529,9 @@ void VSP_SOLVER::CalculateVortexStretchingRatioGammaPerturbationEdgeVelocities(v
           Level = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           Edge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() > 0);
+
 
           if ( VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() == 0 ) {
            
@@ -7344,6 +7368,9 @@ void VSP_SOLVER::CalculateLoopVelocities(void)
           Level  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Level();
 
           Loop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).LoopList(Loop).SurfaceID() > 0);
+
        
           U = V = W = 0.;
           
@@ -7570,6 +7597,9 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
              Level = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
    
              Edge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+             VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() > 0);
+
 
              U = V = W = 0.;
 
@@ -11478,6 +11508,9 @@ void VSP_SOLVER::CalculateGammaPerturbationLoopVelocities_Tranpose(double *vec_i
                                                  
           iLoop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).LoopList(iLoop).SurfaceID() > 0);
+
+
           if ( VSPGeom().Grid(iLevel).LoopList(iLoop).SurfaceID() > 0 ) {
              
              for ( j = 1 ; j <= FastMatrix_.ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
@@ -11724,6 +11757,9 @@ void VSP_SOLVER::CalculateGammaPerturbationEdgeVelocities_Tranpose(double *vec_i
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           iEdge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0);
+
 
           // Only need to loop over wake edges
           
@@ -12166,6 +12202,9 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverLoops_Tranpose(doubl
 
           Loop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).LoopList(Loop).SurfaceID() > 0);
+
+
           // Only need to calculate perturbations on surface loops
 
           if ( VSPGeom().Grid(Level).LoopList(Loop).SurfaceID() > 0 ) {
@@ -12431,6 +12470,9 @@ void VSP_SOLVER::CalculateKstallPerturbationLoopVelocities_Tranpose(double *vec_
                                                  
           iLoop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).LoopList(iLoop).SurfaceID() > 0);
+
+
           if ( VSPGeom().Grid(iLevel).LoopList(iLoop).SurfaceID() > 0 ) {
              
              for ( j = 1 ; j <= FastMatrix_.ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
@@ -12567,6 +12609,9 @@ void VSP_SOLVER::CalculateKstallPerturbationEdgeVelocities_Tranpose(double *vec_
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           iEdge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0);
+
 
           // Only need to loop over wake edges
           
@@ -12712,6 +12757,9 @@ void VSP_SOLVER::CalculateVortexStretchingRatioPerturbationLoopVelocities_Tranpo
                                                  
           iLoop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).LoopList(iLoop).SurfaceID() > 0);
+
+
           if ( VSPGeom().Grid(iLevel).LoopList(iLoop).SurfaceID() > 0 ) {
              
              for ( j = 1 ; j <= FastMatrix_.ForwardInteractionLoopList(LoopType)[i].NumberOfVortexEdges() ; j++ ) {
@@ -12848,6 +12896,9 @@ void VSP_SOLVER::CalculateVortexStretchingRatioPerturbationEdgeVelocities_Tranpo
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           iEdge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0);
+
 
           // Only need to loop over wake edges
           
@@ -13344,6 +13395,9 @@ void VSP_SOLVER::CalculateMeshPerturbationEdgeVelocitiesOverEdges_Tranpose(doubl
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           iEdge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0);
+
 
           // Only need to calculate perturbation wrt to mesh on wakes
 
@@ -14062,6 +14116,9 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Gamma(void)
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           iEdge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0);
+
           
           if ( VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0 ) {
 
@@ -15025,6 +15082,9 @@ void VSP_SOLVER::CalculateForceGradients_wrt_Mesh(void)
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           iEdge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0);
+
 
           if ( VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0 ) {
                      
@@ -16606,6 +16666,9 @@ void VSP_SOLVER::CalculateForceGradients_wrt_StallFactor(void)
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           iEdge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0);
+
           
           if ( VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0 ) {
 
@@ -16998,6 +17061,9 @@ void VSP_SOLVER::CalculateForceGradients_wrt_VortexStretchingFactor(void)
           iLevel = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           iEdge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0);
+
           
           if ( VSPGeom().Grid(iLevel).EdgeList(iEdge).SurfaceID() > 0 ) {
 
@@ -19548,6 +19614,9 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialMesh_VorticityEquations(voi
                                                  
           iLoop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
 
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(iLevel).LoopList(iLoop).SurfaceID() > 0);
+
+
           // Only need to look at surface loop vorticity equations
           
           if ( VSPGeom().Grid(iLevel).LoopList(iLoop).SurfaceID() > 0 ) {
@@ -20203,6 +20272,9 @@ void VSP_SOLVER::CalculatePsiT_PartialResidualPartialMesh_WakeEquations(void)
           Level = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           Edge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() > 0);
+
 
           // Only need to calculate perturbation wrt to mesh on wakes
 
@@ -22766,6 +22838,9 @@ void VSP_SOLVER::CalculateLoopMachPerturbationVelocities(void)
           Level  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Level();
 
           Loop  = FastMatrix_.ForwardInteractionLoopList(LoopType)[i].Loop();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).LoopList(Loop).SurfaceID() > 0);
+
        
           U = V = W = 0.;
 
@@ -22896,6 +22971,9 @@ void VSP_SOLVER::CalculateEdgeMachPerturbationVelocities(void)
           Level = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Level();
 
           Edge  = FastMatrix_.ForwardInteractionEdgeList(LoopType)[i].Edge();
+
+          VSP_EDGE_EVALUATION_POINT EvaluationPoint(VSPGeom().Grid(Level).EdgeList(Edge).SurfaceID() > 0);
+
 
           U = V = W = 0.;
 
