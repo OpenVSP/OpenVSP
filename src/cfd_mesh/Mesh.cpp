@@ -1181,6 +1181,7 @@ void Mesh::SetNodeFlags()
 // ::Degenerate already calls unfit, so anything at or under it is a face the mesher would
 // immediately want to be rid of again.
 static const double MIN_COLLAPSE_ANGLE = 0.5 * M_PI / 180.0;
+static const double COS_MIN_COLLAPSE_ANGLE = cos( MIN_COLLAPSE_ANGLE );
 
 // A border edge more than this many times the target of an edge beside it is coarse: the
 // split guard in SplitEdge acts only next to one.
@@ -2061,9 +2062,11 @@ void Mesh::CollapseHighlightEdge()
 
 // Signed area of a triangle in the parametric domain.  Only the sign is used: if it changes
 // across an operation, the triangle turned inside out and the mesh overlapped itself.
-// Smallest angle of a triangle on three points, in radians.  Face::ComputeTriQual asks the
-// same question of an existing face; this asks it of a face that does not exist yet.
-static double TriMinAngle( const vec3d &p0, const vec3d &p1, const vec3d &p2 )
+// Cosine of the smallest angle of a triangle on three points, clamped to [-1, 1].  It is
+// compared, never turned into an angle: acos is decreasing on [-1, 1], so a smaller angle is
+// a larger cosine, but for cosines one rounding apart, which acos can make equal angles; a face
+// with no side has the cosine 1 of the angle 0.
+static double TriMinAngleCos( const vec3d &p0, const vec3d &p1, const vec3d &p2 )
 {
     double s[3];
     s[0] = dist( p1, p2 );
@@ -2072,7 +2075,7 @@ static double TriMinAngle( const vec3d &p0, const vec3d &p1, const vec3d &p2 )
 
     if ( s[0] <= 0.0 || s[1] <= 0.0 || s[2] <= 0.0 )
     {
-        return 0.0;
+        return 1.0;
     }
 
     std::sort( s, s + 3 );
@@ -2089,7 +2092,7 @@ static double TriMinAngle( const vec3d &p0, const vec3d &p1, const vec3d &p2 )
         cosv = -1.0;
     }
 
-    return acos( cosv );
+    return cosv;
 }
 
 static double SignedUWArea( const vec2d &a, const vec2d &b, const vec2d &c )
@@ -2098,17 +2101,19 @@ static double SignedUWArea( const vec2d &a, const vec2d &b, const vec2d &c )
                    ( c.x() - a.x() ) * ( b.y() - a.y() ) );
 }
 
-double Mesh::CollapseConfigQuality( Edge* edge, const vec3d &pc, const vec2d &uwc, bool &flipped, double &qbefore )
+double Mesh::CollapseConfigQuality( Edge* edge, const vec3d &pc, const vec2d &uwc, bool &flipped, double &cosbefore )
 {
     flipped = false;
-    qbefore = M_PI;
+
+    // The cosine of the angle pi, so any face's smallest angle is no larger.
+    cosbefore = -1.0;
 
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
     Face* fa = edge->f0;
     Face* fb = edge->f1;
 
-    double worst = M_PI;
+    double worst = -1.0;
 
     for ( int side = 0; side < 2; side++ )
     {
@@ -2164,18 +2169,19 @@ double Mesh::CollapseConfigQuality( Edge* edge, const vec3d &pc, const vec2d &uw
                 return 0.0;
             }
 
-            double qnow = TriMinAngle( fn[0]->pnt, fn[1]->pnt, fn[2]->pnt );
+            // A smaller angle is a larger cosine.
+            double cnow = TriMinAngleCos( fn[0]->pnt, fn[1]->pnt, fn[2]->pnt );
 
-            if ( qnow < qbefore )
+            if ( cnow > cosbefore )
             {
-                qbefore = qnow;
+                cosbefore = cnow;
             }
 
-            double q = TriMinAngle( p[0], p[1], p[2] );
+            double c = TriMinAngleCos( p[0], p[1], p[2] );
 
-            if ( q < worst )
+            if ( c > worst )
             {
-                worst = q;
+                worst = c;
             }
         }
     }
@@ -2265,14 +2271,17 @@ bool Mesh::CollapseEdge( Edge* edge, bool repair )
         ncand = 3;
     }
 
+    // The candidate whose worst face has the largest smallest angle: the smallest of the
+    // largest cosines, acos being decreasing on [-1, 1].  Every cosine is under 2, as every
+    // angle was over -1, so the first candidate that does not overlap is always taken up.
     int best = -1;
-    double bestq = -1.0;
+    double bestc = 2.0;
 
     for ( int k = 0; k < ncand; k++ )
     {
         bool flipped = false;
-        double qb = M_PI;
-        double q = CollapseConfigQuality( edge, cand_p[k], cand_uw[k], flipped, qb );
+        double cb = -1.0;
+        double c = CollapseConfigQuality( edge, cand_p[k], cand_uw[k], flipped, cb );
 
         // Wang 2006 5.2 step 2: a negative area means the collapse overlapped the mesh.
         if ( flipped )
@@ -2280,9 +2289,9 @@ bool Mesh::CollapseEdge( Edge* edge, bool repair )
             continue;
         }
 
-        if ( q > bestq )
+        if ( c < bestc )
         {
-            bestq = q;
+            bestc = c;
             best = k;
         }
     }
@@ -2298,7 +2307,8 @@ bool Mesh::CollapseEdge( Edge* edge, bool repair )
     // A collapse made for size may not leave a triangle at nearly zero.  A collapse made to
     // remove a face that is already unfit may, because refusing it leaves the unfit face in
     // the mesh, which is the worse of the two outcomes.  Overlap is refused either way.
-    if ( !repair && bestq < MIN_COLLAPSE_ANGLE )
+    // An angle under the limit is a cosine over the limit's cosine.
+    if ( !repair && bestc > COS_MIN_COLLAPSE_ANGLE )
     {
         return false;
     }

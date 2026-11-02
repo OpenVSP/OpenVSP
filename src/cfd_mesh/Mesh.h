@@ -184,10 +184,11 @@ public:
                                Face* ignoreFace2 = nullptr );
 
     // What a collapse of this edge to the given point would leave behind.  Returns the
-    // smallest angle, in radians, over every face that survives the collapse, and reports
-    // through flipped whether any of them would be turned inside out in the parametric
-    // domain -- which is Wang 2006 5.2's negative area test for overlap.
-    double CollapseConfigQuality( Edge* edge, const vec3d &pc, const vec2d &uwc, bool &flipped, double &qbefore );
+    // cosine of the smallest angle over every face that survives the collapse -- the largest
+    // of their cosines -- and reports through flipped whether any of them would be turned
+    // inside out in the parametric domain -- which is Wang 2006 5.2's negative area test for
+    // overlap.  cosbefore is the same cosine over those faces as they are now.
+    double CollapseConfigQuality( Edge* edge, const vec3d &pc, const vec2d &uwc, bool &flipped, double &cosbefore );
 
     Edge* AddEdge( Node* n0, Node* n1 );
     void  RemoveEdge( Edge* eptr );
