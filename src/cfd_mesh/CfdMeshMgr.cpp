@@ -4476,6 +4476,18 @@ void CfdMeshMgrSingleton::RecordResults()
 
     bool tight = m_NumBorderEdges == 0 && m_NumOverConnEdges == 0;
 
+    // The patches cut from the model, not the symmetry plane, far field or wakes added to them
+    int nsurf = 0;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        if ( m_SurfVec[i]->GetCompID() >= 0 && !m_SurfVec[i]->GetWakeFlag() &&
+             !m_SurfVec[i]->GetSymPlaneFlag() && !m_SurfVec[i]->GetFarFlag() )
+        {
+            nsurf++;
+        }
+    }
+
+    res->Add( new NameValData( "Num_Surfs", nsurf, "Number of patches of the model's surfaces meshed." ) );
     res->Add( new NameValData( "Num_Tris", m_NumMeshTris, "Number of triangles in the mesh." ) );
     res->Add( new NameValData( "Num_Border_Edges", m_NumBorderEdges, "Number of mesh edges with one triangle on them." ) );
     res->Add( new NameValData( "Num_Over_Connected_Edges", m_NumOverConnEdges, "Number of mesh edges with more than two triangles on them." ) );
