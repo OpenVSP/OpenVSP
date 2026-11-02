@@ -916,6 +916,26 @@ double Face::ComputeTriQual( Node* n0, Node* n1, Node* n2 )
     //return qual;
 }
 
+// The cosine of a triangle's smallest angle, clamped to [-1, 1].
+double Face::ComputeCosSmallAng( Node* n0, Node* n1, Node* n2 )
+{
+    double ang0, ang1, ang2;
+    ComputeCosAngles( n0, n1, n2, &ang0, &ang1, &ang2 );
+
+    double minang = max( ang0, max( ang1, ang2 ) );
+
+    if ( minang > 1.0 )
+    {
+        return 1.0;
+    }
+    else if ( minang < -1.0 )
+    {
+        return -1.0;
+    }
+
+    return minang;
+}
+
 double Face::ComputeCosSmallAng()
 {
     double minang, ang0, ang1, ang2, ang3;

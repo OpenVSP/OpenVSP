@@ -1575,12 +1575,16 @@ void Mesh::SwapEdge( Edge* edge )
     }
 
     //==== Determine Face Quality of Existing Faces =====//
-    double qa = fa->ComputeTriQual();
-    double qb = fb->ComputeTriQual();
-    double qc = Face::ComputeTriQual( n0, nb, na );
-    double qd = Face::ComputeTriQual( n1, na, nb );
+    // A face's smallest angle is acos of its largest cosine, both clamped to [-1, 1] alike, and
+    // acos is decreasing there.  So min( qc, qd ) <= min( qa, qb ) on the angles when
+    // max( cc, cd ) >= max( ca, cb ) on the cosines, but for cosines one rounding apart, which
+    // acos can make equal angles.
+    double ca = Face::ComputeCosSmallAng( fa->n0, fa->n1, fa->n2 );
+    double cb = Face::ComputeCosSmallAng( fb->n0, fb->n1, fb->n2 );
+    double cc = Face::ComputeCosSmallAng( n0, nb, na );
+    double cd = Face::ComputeCosSmallAng( n1, na, nb );
 
-    if ( min( qc, qd ) <= min( qa, qb ) )
+    if ( max( cc, cd ) >= max( ca, cb ) )
     {
         return;
     }

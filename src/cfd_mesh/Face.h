@@ -219,6 +219,7 @@ public:
     static double ComputeTriQual( Node* n0, Node* n1, Node* n2 );
 
     double ComputeCosSmallAng();
+    static double ComputeCosSmallAng( Node* n0, Node* n1, Node* n2 );
 
     Node* OtherNodeTri( Node* a, Node* b );
 
