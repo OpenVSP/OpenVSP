@@ -1467,7 +1467,6 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceInte
     if ( !repeat_curve )
     {
         SCurve* pSCurve = new SCurve;
-        SCurve* bSCurve = new SCurve;
         ICurve* pICurve = new ICurve;
 
         ICurve* bICurve = pICurve;
@@ -1490,8 +1489,6 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceInte
         bICurve->m_SCurve_A = pSCurve;
         bICurve->m_SCurve_B = brdPtr;
         bICurve->m_PlaneBorderIntersectFlag = true;
-        bSCurve->SetSurf( surfPtr );
-        bSCurve->SetICurve( bICurve );
 
         brdPtr->SetICurve( bICurve );
 
@@ -1501,6 +1498,10 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceInte
             if ( ICurveVecIndex < (int)ICurves.size() )
             {
                 MeshMgr->SetICurveVec( brdPtr->GetICurve(), ICurveVecIndex );
+            }
+            else
+            {
+                MeshMgr->KeepICurve( pICurve );
             }
         }
         else
@@ -1513,6 +1514,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceInte
                     ICurves[i]->m_PlaneBorderIntersectFlag = true;
                 }
             }
+            MeshMgr->KeepICurve( pICurve );
         }
 
         m_SCurveVec.push_back( pSCurve );

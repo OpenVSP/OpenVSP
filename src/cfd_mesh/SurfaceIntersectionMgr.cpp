@@ -1068,6 +1068,12 @@ void SurfaceIntersectionSingleton::CleanUp()
     }
     vector < ISegChain* >().swap( m_DelISegChainVec );
 
+    for ( i = 0 ; i < ( int )m_DelICurveVec.size() ; i++ )
+    {
+        delete m_DelICurveVec[i];
+    }
+    vector < ICurve* >().swap( m_DelICurveVec );
+
     vector < IPnt* >().swap( m_AllIPnts ); // Pointers should already be deallocated
     vector < IPntEdge >().swap( m_AllIPntEdges );
     vector < int >().swap( m_AllIPntPartner );
@@ -6634,8 +6640,10 @@ void SurfaceIntersectionSingleton::UpdateWakes()
     WakeMgr.UpdateDrawObjs();
 }
 
+// The curve replaced is kept for CleanUp, since a border curve may still name it
 void SurfaceIntersectionSingleton::SetICurveVec( ICurve* newcurve, int loc )
 {
+    m_DelICurveVec.push_back( m_ICurveVec[loc] );
     m_ICurveVec[loc] = newcurve;
 }
 

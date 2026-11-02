@@ -467,6 +467,11 @@ public:
         return m_ICurveVec;
     }
     virtual void SetICurveVec( ICurve* newcurve, int loc );
+    // Holds an ICurve that m_ICurveVec does not, for CleanUp to delete
+    void KeepICurve( ICurve* icrv )
+    {
+        m_DelICurveVec.push_back( icrv );
+    }
 
     virtual string GetWakeGeomID()
     {
@@ -598,6 +603,7 @@ protected:
     vector< IPnt* > m_DelIPntVec;
     vector< IPntGroup* > m_DelIPntGroupVec;
     vector< ISegChain* > m_DelISegChainVec;
+    vector< ICurve* > m_DelICurveVec;
 
     vector < vector < vec3d > > m_IPatchADrawLines;
     vector < vector < vec3d > > m_IPatchBDrawLines;
