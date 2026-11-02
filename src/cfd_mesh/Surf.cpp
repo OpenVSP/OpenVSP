@@ -1044,6 +1044,18 @@ vec2d Surf::SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, cons
     return vec2d( u, w );
 }
 
+// Not as good a halving as SplitUW's in general, but it lies between the two ends in UW, so a
+// triangle cut there is cut into two that each keep its orientation in UW.
+vec2d Surf::SplitUWOnLine( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1 ) const
+{
+    double u = 0.5 * ( uw0.x() + uw1.x() );
+    double w = 0.5 * ( uw0.y() + uw1.y() );
+
+    m_SurfCore.FindEquidistantOnLine( u, w, p0, p1, uw0.x(), uw0.y(), uw1.x(), uw1.y() );
+
+    return vec2d( u, w );
+}
+
 // One side of the patch, from one corner of its parameter domain to the next.
 //
 // Where a patch has been put back together out of two pieces, the side along the join can come

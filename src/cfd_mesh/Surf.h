@@ -101,6 +101,9 @@ public:
     // equidistant from the edge's two ends.  See the definition for why the midpoint will
     // not do.
     vec2d SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1 ) const;
+
+    // The point equidistant from the two ends along the straight UW line between them.
+    vec2d SplitUWOnLine( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1 ) const;
     double SplitSearch( const vec3d & p0, const vec3d & p1,
                         double ulo, double uhi, double wlo, double whi,
                         double &u, double &w ) const;

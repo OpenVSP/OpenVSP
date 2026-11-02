@@ -81,6 +81,20 @@ public:
                       const vec2d &uw0, const vec2d &uw1, const vec2d &uw2 );
     bool SplitFaceStands( const vec3d &ps, const vec2d &uws, Node* p, Node* q, Face* f,
                           Node* other_apex, vector < Edge* > &flips );
+
+    // The way every face is wound in UW: +1 or -1 when the starting triangulation has all of
+    // its faces wound one way there, and 0 when it does not.  Where it is set, the mesh is a
+    // flat triangulation of the UW domain, and a split may not build a face wound the other
+    // way: such a face overlaps its neighbours.
+    int m_UWSign = 0;
+    void SetUWSign();
+
+    // Would a triangle on these three UW points be wound the way m_UWSign asks?
+    bool UWWoundRight( const vec2d &uw0, const vec2d &uw1, const vec2d &uw2 ) const;
+
+    // Would every face a split of the edge n0 n1 at uws builds in fa and fb be wound right?
+    bool SplitWoundRight( Face* fa, Face* fb, Node* n0, Node* n1, const vec2d &uws ) const;
+
     int RemoveIllFormedFaces();
 
     // Bumped once per Collapse round; see Edge::m_CandStamp.

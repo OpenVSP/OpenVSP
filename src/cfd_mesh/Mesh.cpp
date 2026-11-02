@@ -737,6 +737,103 @@ bool Mesh::TriReversed( const vec3d &p0, const vec3d &p1, const vec3d &p2,
     return dprod < 0.0;
 }
 
+static double SignedUWArea( const vec2d &a, const vec2d &b, const vec2d &c );
+
+void Mesh::SetUWSign()
+{
+    int npos = 0;
+    int nneg = 0;
+
+    list< Face* >::iterator f;
+    for ( f = faceList.begin() ; f != faceList.end(); ++f )
+    {
+        if ( ( *f )->n3 )
+        {
+            continue;
+        }
+
+        double a = SignedUWArea( ( *f )->n0->uw, ( *f )->n1->uw, ( *f )->n2->uw );
+
+        if ( a > 0.0 )
+        {
+            npos++;
+        }
+        else if ( a < 0.0 )
+        {
+            nneg++;
+        }
+        else
+        {
+            nneg++;
+            npos++;
+        }
+    }
+
+    // A surface whose parameters do not lay it out flat -- a cap, say -- can come out of the
+    // triangulator with faces wound both ways in UW even though every one of them is sound in
+    // space.  UW says nothing about which way such a surface's faces should be wound.
+    m_UWSign = 0;
+
+    if ( npos > 0 && nneg == 0 )
+    {
+        m_UWSign = 1;
+    }
+    else if ( nneg > 0 && npos == 0 )
+    {
+        m_UWSign = -1;
+    }
+}
+
+bool Mesh::UWWoundRight( const vec2d &uw0, const vec2d &uw1, const vec2d &uw2 ) const
+{
+    if ( m_UWSign == 0 )
+    {
+        return true;
+    }
+
+    return m_UWSign * SignedUWArea( uw0, uw1, uw2 ) > 0.0;
+}
+
+// Each face is cut in two: one half with n0 moved to the split point and one with n1 moved
+// there, each keeping the face's own order of corners.
+bool Mesh::SplitWoundRight( Face* fa, Face* fb, Node* n0, Node* n1, const vec2d &uws ) const
+{
+    Face* faces[2] = { fa, fb };
+    Node* ends[2] = { n0, n1 };
+
+    for ( int k = 0; k < 2; k++ )
+    {
+        Face* f = faces[k];
+
+        if ( !f || f->n3 )
+        {
+            continue;
+        }
+
+        for ( int j = 0; j < 2; j++ )
+        {
+            Node* fn[3] = { f->n0, f->n1, f->n2 };
+            vec2d uw[3];
+
+            for ( int i = 0; i < 3; i++ )
+            {
+                uw[i] = fn[i]->uw;
+                if ( fn[i] == ends[j] )
+                {
+                    uw[i] = uws;
+                }
+            }
+
+            if ( !UWWoundRight( uw[0], uw[1], uw[2] ) )
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 // Can the face ( ps, p, q ) that a split at ps would build in face f stand?  It can if it
 // does not turn over, or if flipping its edge p-q, which f now holds, gives two faces that do
 // not.  That edge is then added to flips.  The flip joins the split point to the corner across
@@ -772,7 +869,9 @@ bool Mesh::SplitFaceStands( const vec3d &ps, const vec2d &uws, Node* p, Node* q,
     }
 
     if ( TriReversed( ps, p->pnt, x->pnt, uws, p->uw, x->uw ) ||
-         TriReversed( ps, x->pnt, q->pnt, uws, x->uw, q->uw ) )
+         TriReversed( ps, x->pnt, q->pnt, uws, x->uw, q->uw ) ||
+         !UWWoundRight( uws, p->uw, x->uw ) ||
+         !UWWoundRight( uws, x->uw, q->uw ) )
     {
         return false;
     }
@@ -1118,6 +1217,22 @@ void Mesh::SplitEdge( Edge* edge )
     // Not the midpoint projected to the surface: across a tip that lands back on the side the
     // edge came from, and the split does not shorten anything.  See Surf::SplitUW.
     vec2d uws = m_Surf->SplitUW( n0->pnt, n1->pnt, n0->uw, n1->uw );
+
+    // The point that best halves the edge in space need not lie on the edge in UW.  Beside a
+    // sliver it can land past the far side of the face, and the split then builds a face wound
+    // the wrong way in UW, overlapping its neighbour -- which the test in space below cannot
+    // see, because a sliver's normal says nothing about which way it is wound.  The point on
+    // the straight UW line between the ends always lies inside both faces.
+    if ( !SplitWoundRight( fa, fb, n0, n1, uws ) )
+    {
+        uws = m_Surf->SplitUWOnLine( n0->pnt, n1->pnt, n0->uw, n1->uw );
+
+        if ( !SplitWoundRight( fa, fb, n0, n1, uws ) )
+        {
+            return;
+        }
+    }
+
     vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
 
     // A split must not turn a face over.  CollapseEdge refuses a move that would, through
@@ -3490,6 +3605,8 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
                 e->ns = nsplit;
             }
         }
+
+        SetUWSign();
     }
 
 #ifdef DEBUG_CFD_MESH
