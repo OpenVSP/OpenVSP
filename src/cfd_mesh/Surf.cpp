@@ -53,6 +53,7 @@ Surf::Surf()
     m_FlipFlag = false;
     m_WakeFlag = false;
     m_SurfCfdType = vsp::CFD_NORMAL;
+    m_SurfVspType = vsp::NORMAL_SURF;
     m_ThickSurf = true;
     m_PlateNum = -1;
     m_CopyIndex = -1;
@@ -68,6 +69,7 @@ Surf::Surf()
     m_FeaPartIndex = -1;
     m_FeaPartSurfNum = -1;
     m_FeaSymmIndex = -1;
+    m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
     m_IgnoreSurfFlag = false;
     m_CoincidentSurf = nullptr;
     m_CoincidentOverlap = false;
