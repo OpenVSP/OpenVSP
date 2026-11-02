@@ -5115,6 +5115,10 @@ void CfdMeshMgrSingleton::AddSurfaceChain( Surf* sPtr, ISegChain* chainIn )
         {
             m_ISegChainList.push_back( new_chains[i] );
         }
+        else
+        {
+            m_DelISegChainVec.push_back( new_chains[i] );
+        }
     }
 }
 

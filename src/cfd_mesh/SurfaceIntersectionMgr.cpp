@@ -4732,6 +4732,10 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
                 new_chains[j]->m_SSIntersectIndex = chains[i]->m_SSIntersectIndex; // Track SubSurface Index
                 m_ISegChainList.push_back( new_chains[j] );
             }
+            else
+            {
+                m_DelISegChainVec.push_back( new_chains[j] );
+            }
         }
     }
 
@@ -4876,6 +4880,10 @@ void SurfaceIntersectionSingleton::IntersectSplitChains()
                 // valid_new_chains.push_back( new_chains[j]);
                 new_chains[j]->m_SSIntersectIndex = chains[i]->m_SSIntersectIndex; // Track SubSurface Index
                 m_ISegChainList.push_back( new_chains[j] );
+            }
+            else
+            {
+                m_DelISegChainVec.push_back( new_chains[j] );
             }
 
         }
