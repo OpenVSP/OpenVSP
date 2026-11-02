@@ -6244,6 +6244,10 @@ void SurfaceIntersectionSingleton::RecordIntCurves()
     m_PatchJoinFlagVec.clear();
     m_NonManifoldCurveFlagVec.clear();
 
+    vector< ISegChain* > chains;
+    vector< Surf* > sa;
+    vector< Surf* > sb;
+
     list<ISegChain *>::iterator c;
     for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
@@ -6255,21 +6259,25 @@ void SurfaceIntersectionSingleton::RecordIntCurves()
         m_NonManifoldCurveFlagVec.push_back(
                 (*c)->m_ACurve.GetSurf() == (*c)->m_BCurve.GetSurf() );
 
-        vector<vec3d> rawptvec;
-
-        Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
-        xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
-        xyzcrvA.GetControlPoints( rawptvec );
-
-        m_RawCurveAVec.push_back( rawptvec );
-
-        rawptvec.clear();
-        Bezier_curve xyzcrvB = (*c)->m_BCurve.GetUWCrv();
-        xyzcrvB.UWCurveToXYZCurve( (*c)->m_BCurve.GetSurf() );
-        xyzcrvB.GetControlPoints( rawptvec );
-
-        m_RawCurveBVec.push_back( rawptvec );
+        chains.push_back( *c );
+        sa.push_back( (*c)->m_ACurve.GetSurf() );
+        sb.push_back( (*c)->m_BCurve.GetSurf() );
     }
+
+    // Each side of a chain is taken to space through its own surface.
+    m_RawCurveAVec.resize( chains.size() );
+    m_RawCurveBVec.resize( chains.size() );
+
+    RunChainsBySurface( sa, sb, [&]( int k )
+    {
+        Bezier_curve xyzcrvA = chains[k]->m_ACurve.GetUWCrv();
+        xyzcrvA.UWCurveToXYZCurve( sa[k] );
+        xyzcrvA.GetControlPoints( m_RawCurveAVec[k] );
+
+        Bezier_curve xyzcrvB = chains[k]->m_BCurve.GetUWCrv();
+        xyzcrvB.UWCurveToXYZCurve( sb[k] );
+        xyzcrvB.GetControlPoints( m_RawCurveBVec[k] );
+    } );
 }
 
 void SurfaceIntersectionSingleton::BuildChainCADCurves()
