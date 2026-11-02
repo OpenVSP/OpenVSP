@@ -531,6 +531,11 @@ public:
     int StageThreadCount( int nitem );
     void RunIndexed( int n, int nthread, const std::function< void( int ) > &body );
 
+    // Run body( k ) for every chain k on several threads, where chain k evaluates surfaces sa[k]
+    // and sb[k] and nothing another chain writes.  A surface may be evaluated by one thread at a
+    // time, so the chains on any one surface run one at a time, in order.
+    void RunChainsBySurface( const vector< Surf* > &sa, const vector< Surf* > &sb, const std::function< void( int ) > &body );
+
     // Write n items to fp, formatting them on several threads and writing them out in order.
     // body( ibeg, iend, out ) appends items [ibeg,iend) to out, and must depend on nothing
     // but those items.  The chunks go to the file in order, so the result is byte for byte

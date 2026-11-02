@@ -10,6 +10,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <functional>
 #include <atomic>
 #include <exception>
@@ -3727,6 +3728,7 @@ void SurfaceIntersectionSingleton::RefineChains()
     // After the intersection chains are formed, refine them so that the value returned by CompPnt
     // will be the same with respect to each parent surface of the intersection point. Note, this 
     // must be done before the border curves are spit at each intersection chain end point.
+    vector< ISegChain* > chains;
     list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
@@ -3736,8 +3738,82 @@ void SurfaceIntersectionSingleton::RefineChains()
             continue;
         }
 
-        RefineISegChain( *c );
+        chains.push_back( *c );
     }
+
+    // Refining a chain evaluates its two surfaces and writes only the places its points have
+    // on them.
+    int n = ( int )chains.size();
+    vector< Surf* > sa( n );
+    vector< Surf* > sb( n );
+    for ( int k = 0 ; k < n ; k++ )
+    {
+        sa[k] = chains[k]->m_SurfA;
+        sb[k] = chains[k]->m_SurfB;
+    }
+
+    RunChainsBySurface( sa, sb, [&]( int k )
+    {
+        RefineISegChain( chains[k] );
+    } );
+}
+
+void SurfaceIntersectionSingleton::RunChainsBySurface( const vector< Surf* > &sa, const vector< Surf* > &sb,
+                                                       const std::function< void( int ) > &body )
+{
+    // A chain waits for the chain before it on each of its surfaces.
+    int n = ( int )sa.size();
+    vector< int > after_a( n, -1 );
+    vector< int > after_b( n, -1 );
+    std::map< Surf*, int > last;
+    for ( int k = 0 ; k < n ; k++ )
+    {
+        std::map< Surf*, int >::iterator it = last.find( sa[k] );
+        if ( it != last.end() )
+        {
+            after_a[k] = it->second;
+        }
+        it = last.find( sb[k] );
+        if ( it != last.end() )
+        {
+            after_b[k] = it->second;
+        }
+        last[ sa[k] ] = k;
+        last[ sb[k] ] = k;
+    }
+
+    // The chains are handed out in order, so every chain one waits on has already been taken up.
+    vector< char > done( n, 0 );
+    std::mutex donemutex;
+    std::condition_variable donecv;
+
+    RunIndexed( n, StageThreadCount( n ), [&]( int k )
+    {
+        {
+            std::unique_lock< std::mutex > lock( donemutex );
+            while ( ( after_a[k] >= 0 && !done[ after_a[k] ] ) || ( after_b[k] >= 0 && !done[ after_b[k] ] ) )
+            {
+                donecv.wait( lock );
+            }
+        }
+
+        // Marked done even if it throws, so no chain waits on it forever.
+        try
+        {
+            body( k );
+        }
+        catch ( ... )
+        {
+            std::lock_guard< std::mutex > lock( donemutex );
+            done[k] = 1;
+            donecv.notify_all();
+            throw;
+        }
+
+        std::lock_guard< std::mutex > lock( donemutex );
+        done[k] = 1;
+        donecv.notify_all();
+    } );
 }
 
 void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt, bool endpnt )
