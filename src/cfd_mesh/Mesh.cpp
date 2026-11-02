@@ -32,9 +32,10 @@ bool ShortEdgePairLengthCompare( const pair< Edge*, double >& a, const pair< Edg
 {
     return ( a.second < b.second );
 }
-bool ShortEdgeTargetLengthCompare( const Edge* a, const Edge* b )
+static bool TargetLenKeyCompare( const pair< double, list< Edge* >::iterator > &a,
+                                 const pair< double, list< Edge* >::iterator > &b )
 {
-    return ( a->target_len < b->target_len );
+    return a.first < b.first;
 }
 
 
@@ -176,7 +177,19 @@ void Mesh::LimitTargetEdgeLength()
     double growratio = m_GridDensity->m_GrowRatio;
     double limitlen;
 
-    edgeList.sort( ShortEdgeTargetLengthCompare );
+    // Order the list by target length, ties kept in list order.  The keys are sorted side by
+    // side and the list nodes then moved into place, so each edge is read once.
+    vector< pair< double, list< Edge* >::iterator > > order;
+    order.reserve( edgeList.size() );
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
+    {
+        order.push_back( pair< double, list< Edge* >::iterator >( ( *e )->target_len, e ) );
+    }
+    std::stable_sort( order.begin(), order.end(), TargetLenKeyCompare );
+    for ( size_t i = 0 ; i < order.size() ; i++ )
+    {
+        edgeList.splice( edgeList.end(), edgeList, order[i].second );
+    }
 
     for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
