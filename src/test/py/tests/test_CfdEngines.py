@@ -1,0 +1,268 @@
+# Every engine representation CFDMesh is asked to close.
+#
+# Each Stack engine preset is meshed in every inlet and outlet representation the GUI offers
+# for it, through a block that runs along the engine and cuts through it, the way a wing or
+# a pylon would.  The negative representations cut the block and the engine's own body, so
+# the faces where a positive and a negative body meet, the lips four surfaces share, and the
+# flowpaths that pass from one body to the other all have to come out closed.
+#
+# The choices EngineModelScreen::Update greys out for a preset are meshed too, since files and
+# the API can still set them: a file written before FLOWTHROUGH NEGATIVE ONLY was inserted among
+# the modes loads its TO LIP inlet as that mode.  The cases where coincident faces of a positive
+# and a negative body are paired are meshed again with the engine stretched along its axis,
+# since the negative face is set off from the positive one by a fraction of the whole engine.
+#
+# Closure alone would pass a mesh that dropped a whole recess or kept both coincident faces, so
+# the volume each mesh encloses is held to the volume CompGeom finds for the same model.
+
+import openvsp as vsp
+import pytest
+
+
+ENGINE_PRESETS = [ vsp.STACK_PRESET_FLOWTHRU_OUTLIP_ORIG, vsp.STACK_PRESET_FLOWTHRU_INLIP_ORIG,
+                   vsp.STACK_PRESET_FLOWTHRU_MID_ORIG, vsp.STACK_PRESET_BOTHFACEFACE,
+                   vsp.STACK_PRESET_BOTHLIPFACE, vsp.STACK_PRESET_BOTHFACELIP, vsp.STACK_PRESET_BOTHLIPLIP,
+                   vsp.STACK_PRESET_OUTFACE, vsp.STACK_PRESET_OUTLIP, vsp.STACK_PRESET_INFACE,
+                   vsp.STACK_PRESET_INLIP, vsp.STACK_PRESET_FLOWPATH_BOTH, vsp.STACK_PRESET_FLOWPATH_IN,
+                   vsp.STACK_PRESET_FLOWPATH_OUT ]
+
+FLOWTHROUGH_MODES = ( vsp.ENGINE_MODE_FLOWTHROUGH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG,
+                      vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+
+MODE_NAMES = { vsp.ENGINE_MODE_FLOWTHROUGH: "FLOWTHROUGH", vsp.ENGINE_MODE_FLOWTHROUGH_NEG: "FLOWTHROUGH_NEG",
+               vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY: "FLOWTHROUGH_NEG_ONLY", vsp.ENGINE_MODE_TO_LIP: "TO_LIP",
+               vsp.ENGINE_MODE_TO_FACE: "TO_FACE", vsp.ENGINE_MODE_TO_FACE_NEG: "TO_FACE_NEG",
+               vsp.ENGINE_MODE_TO_FACE_NEG_ONLY: "TO_FACE_NEG_ONLY", vsp.ENGINE_MODE_EXTEND: "EXTEND", None: "-" }
+
+
+def _engine_types( preset ):
+    """The inlet/outlet description and the inlet and outlet geometry types a preset sets."""
+    vsp.VSPRenew()
+    eng = vsp.AddGeom( "STACK" )
+    vsp.InitStackPreset( eng, preset )
+    vsp.Update()
+    return ( int( vsp.GetParmVal( eng, "GeomIOType", "EngineModel" ) ),
+             int( vsp.GetParmVal( eng, "GeomInType", "EngineModel" ) ),
+             int( vsp.GetParmVal( eng, "GeomOutType", "EngineModel" ) ) )
+
+
+def _inlet_modes( io, gin ):
+    """The inlet representations the GUI offers, or None where there is no inlet."""
+    if io == vsp.ENGINE_GEOM_OUTLET:
+        return [ None ]
+    if gin == vsp.ENGINE_GEOM_FLOWTHROUGH:
+        return list( FLOWTHROUGH_MODES ) + [ vsp.ENGINE_MODE_TO_LIP, vsp.ENGINE_MODE_TO_FACE, vsp.ENGINE_MODE_TO_FACE_NEG,
+                                             vsp.ENGINE_MODE_TO_FACE_NEG_ONLY, vsp.ENGINE_MODE_EXTEND ]
+    if gin == vsp.ENGINE_GEOM_TO_LIP:
+        return [ vsp.ENGINE_MODE_TO_LIP, vsp.ENGINE_MODE_EXTEND ]
+    if gin == vsp.ENGINE_GEOM_TO_FACE:
+        return [ vsp.ENGINE_MODE_TO_LIP, vsp.ENGINE_MODE_TO_FACE, vsp.ENGINE_MODE_TO_FACE_NEG,
+                 vsp.ENGINE_MODE_TO_FACE_NEG_ONLY, vsp.ENGINE_MODE_EXTEND ]
+    # A flowpath: no plain to-face representation, and a flowthrough one only when it has both ends.
+    modes = [ vsp.ENGINE_MODE_TO_LIP, vsp.ENGINE_MODE_TO_FACE_NEG, vsp.ENGINE_MODE_TO_FACE_NEG_ONLY, vsp.ENGINE_MODE_EXTEND ]
+    if io == vsp.ENGINE_GEOM_INLET_OUTLET:
+        modes += [ vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ]
+    return modes
+
+
+def _outlet_modes( io, gin, gout, inmode ):
+    """The outlet representations the GUI offers, or None where there is no outlet or it follows the inlet."""
+    if io == vsp.ENGINE_GEOM_INLET:
+        return [ None ]
+    flowpath = gin == vsp.ENGINE_GEOM_FLOWPATH or gout == vsp.ENGINE_GEOM_FLOWPATH
+    if io == vsp.ENGINE_GEOM_INLET_OUTLET and not flowpath and inmode in FLOWTHROUGH_MODES:
+        return [ None ]
+
+    to_face = not ( gout == vsp.ENGINE_GEOM_TO_LIP and
+                    not ( io == vsp.ENGINE_GEOM_INLET_OUTLET and gin == vsp.ENGINE_GEOM_FLOWTHROUGH ) )
+    plain_face = to_face and not ( gout == vsp.ENGINE_GEOM_FLOWPATH or
+                                   ( io == vsp.ENGINE_GEOM_INLET_OUTLET and gin == vsp.ENGINE_GEOM_FLOWPATH ) )
+
+    modes = [ vsp.ENGINE_MODE_TO_LIP ]
+    if plain_face:
+        modes.append( vsp.ENGINE_MODE_TO_FACE )
+    if to_face or flowpath:
+        modes += [ vsp.ENGINE_MODE_TO_FACE_NEG, vsp.ENGINE_MODE_TO_FACE_NEG_ONLY ]
+    modes.append( vsp.ENGINE_MODE_EXTEND )
+    return modes
+
+
+# Known to leave a sliver open: the block's flat sides cut this duct along lines that run down
+# its length and across the seam the mid-origin preset starts at, and an intersection chain
+# ends 0.005 short of where the border it crosses is split.
+SEAM_SLIVER = pytest.mark.xfail( strict = True, reason = "intersection chain end and border split 0.005 apart "
+                                                         "at the seam of the mid-origin duct" )
+
+
+def _cases():
+    """Every preset in every representation the GUI offers, then every greyed one."""
+    offered = []
+    greyed = []
+    for preset in ENGINE_PRESETS:
+        io, gin, gout = _engine_types( preset )
+
+        ins = _inlet_modes( io, gin )
+        for inmode in ins:
+            for outmode in _outlet_modes( io, gin, gout, inmode ):
+                offered.append( ( preset, inmode, outmode ) )
+
+        allin = [ None ]
+        if io != vsp.ENGINE_GEOM_OUTLET:
+            allin = list( range( vsp.ENGINE_MODE_NUM_TYPES ) )
+        allout = [ None ]
+        if io != vsp.ENGINE_GEOM_INLET:
+            allout = list( range( vsp.ENGINE_MODE_TO_LIP, vsp.ENGINE_MODE_NUM_TYPES ) )
+        for inmode in allin:
+            for outmode in allout:
+                if inmode in ins and outmode in _outlet_modes( io, gin, gout, inmode ):
+                    continue
+                if inmode in ins and None in _outlet_modes( io, gin, gout, inmode ):
+                    continue
+                greyed.append( ( preset, inmode, outmode ) )
+    return offered, greyed
+
+
+OFFERED, GREYED = _cases()
+
+# The meshes are coarse, and CompGeom's tessellation is not the mesh's.
+VOLUME_RELTOL = 0.05
+
+PAIRED_MODES = ( vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_TO_FACE_NEG )
+
+
+# Known to fail once the engine is stretched, each where one of the block's flat sides lands on
+# a feature of the engine: across the seam of the mid-origin duct; along the paired faces at a
+# flowpath's outlet face, where the block's sides cross both faces; and through the tip of the
+# point cap of a long inlet duct.
+STRETCHED = { ( vsp.STACK_PRESET_FLOWTHRU_MID_ORIG, vsp.ENGINE_MODE_FLOWTHROUGH_NEG, None, 4.0 ):
+                  "over-connected edges at the seam of the mid-origin duct",
+              ( vsp.STACK_PRESET_FLOWPATH_BOTH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_TO_FACE_NEG, 4.0 ):
+                  "over-connected edges where the block crosses the paired faces at the outlet face",
+              ( vsp.STACK_PRESET_FLOWPATH_BOTH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY, vsp.ENGINE_MODE_TO_FACE_NEG, 4.0 ):
+                  "over-connected edges where the block crosses the paired faces at the outlet face",
+              ( vsp.STACK_PRESET_FLOWTHRU_INLIP_ORIG, vsp.ENGINE_MODE_TO_FACE, vsp.ENGINE_MODE_TO_FACE_NEG, 10.0 ):
+                  "a small loop open where the block's face passes through a point cap's tip" }
+
+
+def _params( cases, stretch, tag ):
+    params = []
+    for preset, inmode, outmode in cases:
+        marks = []
+        if preset == vsp.STACK_PRESET_FLOWTHRU_MID_ORIG and stretch == 1.0 and tag == "offered" and \
+           inmode in ( vsp.ENGINE_MODE_FLOWTHROUGH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ):
+            marks = [ SEAM_SLIVER ]
+        reason = STRETCHED.get( ( preset, inmode, outmode, stretch ) )
+        if reason:
+            marks = [ pytest.mark.xfail( strict = True, reason = reason ) ]
+        params.append( pytest.param( preset, inmode, outmode, stretch, marks = marks,
+                                     id = "%s-x%g-preset%d-%s-%s" % ( tag, stretch, preset, MODE_NAMES[inmode],
+                                                                      MODE_NAMES[outmode] ) ) )
+    return params
+
+
+def _all_params():
+    params = _params( OFFERED, 1.0, "offered" ) + _params( GREYED, 1.0, "greyed" )
+    paired = [ c for c in OFFERED if c[1] in PAIRED_MODES or c[2] in PAIRED_MODES ]
+    for stretch in ( 4.0, 10.0 ):
+        params += _params( paired, stretch, "offered" )
+    return params
+
+
+def _block( eng ):
+    """A flat block along the engine's axis, wider than the engine and three of its diameters long."""
+    xmin, xmax, ymin, ymax, zmin, zmax = [], [], [], [], [], []
+    for i in range( vsp.GetNumMainSurfs( eng ) ):
+        bmax = vsp.GetGeomBBoxMax( eng, i, True )
+        bmin = vsp.GetGeomBBoxMin( eng, i, True )
+        xmin.append( bmin.x() )
+        xmax.append( bmax.x() )
+        ymin.append( bmin.y() )
+        ymax.append( bmax.y() )
+        zmin.append( bmin.z() )
+        zmax.append( bmax.z() )
+    d = max( ymax ) - min( ymin )
+
+    blk = vsp.AddGeom( "STACK" )
+    vsp.InitStackPreset( blk, vsp.STACK_PRESET_CYLINDER_ENDCAPS )
+    xss = vsp.GetXSecSurf( blk, 0 )
+    for i in range( 2 ):
+        vsp.ChangeXSecShape( xss, i, vsp.XS_ROUNDED_RECTANGLE )
+        xs = vsp.GetXSec( xss, i )
+        vsp.SetParmVal( vsp.GetXSecParm( xs, "RoundedRect_Width" ), 1.2 * d )
+        vsp.SetParmVal( vsp.GetXSecParm( xs, "RoundedRect_Height" ), 0.2 * d )
+        vsp.SetParmVal( vsp.GetXSecParm( xs, "RoundRectXSec_Radius" ), 0.0 )
+    vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xss, 1 ), "XDelta" ), 3.0 * d )
+    vsp.SetParmVal( blk, "X_Rel_Location", "XForm", 0.5 * ( max( xmax ) + min( xmin ) ) - 1.5 * d )
+    vsp.SetParmVal( blk, "Z_Rel_Location", "XForm", 0.5 * ( max( zmax ) + min( zmin ) ) )
+    return d
+
+
+def _stl_volume( path ):
+    """The volume a closed triangulation in an ASCII STL file encloses."""
+    vol = 0.0
+    tri = []
+    for line in open( path ):
+        f = line.split()
+        if f and f[0] == "vertex":
+            tri.append( [ float( x ) for x in f[1:4] ] )
+            if len( tri ) == 3:
+                a, b, c = tri
+                vol += ( a[0] * ( b[1] * c[2] - b[2] * c[1] ) - a[1] * ( b[0] * c[2] - b[2] * c[0] ) +
+                         a[2] * ( b[0] * c[1] - b[1] * c[0] ) ) / 6.0
+                tri = []
+    return abs( vol )
+
+
+@pytest.mark.parametrize( "preset, inmode, outmode, stretch", _all_params() )
+def testAnEngineThroughABlockIsClosed( preset, inmode, outmode, stretch, tmp_path ):
+    vsp.VSPRenew()
+    eng = vsp.AddGeom( "STACK" )
+    vsp.InitStackPreset( eng, preset )
+    vsp.Update()
+
+    xss = vsp.GetXSecSurf( eng, 0 )
+    for i in range( 1, vsp.GetNumXSec( xss ) ):
+        p = vsp.GetXSecParm( vsp.GetXSec( xss, i ), "XDelta" )
+        vsp.SetParmVal( p, stretch * vsp.GetParmVal( p ) )
+    vsp.Update()
+
+    # The block is sized and placed by the preset as it comes, since some representations
+    # leave no surface at all, and an extension would carry the block off downstream.
+    d = _block( eng )
+
+    if inmode is not None:
+        vsp.SetParmVal( eng, "InletModeType", "EngineModel", inmode )
+    if outmode is not None:
+        vsp.SetParmVal( eng, "OutletModeType", "EngineModel", outmode )
+    vsp.Update()
+
+    what = "Stack preset %d stretched %g, inlet %s, outlet %s" % ( preset, stretch, MODE_NAMES[inmode], MODE_NAMES[outmode] )
+
+    mesh = vsp.ComputeCompGeom( vsp.SET_ALL, False, 0 )
+    cgvol = vsp.GetDoubleResults( vsp.FindLatestResultsID( "Comp_Geom" ), "Total_Wet_Vol" )[0]
+    vsp.DeleteGeom( mesh )
+    vsp.Update()
+
+    stl = str( tmp_path / "engine.stl" )
+    vsp.SetComputationFileName( vsp.CFD_STL_TYPE, stl )
+    vsp.SetCFDMeshVal( vsp.CFD_MAX_EDGE_LEN, 0.15 * d )
+    vsp.SetCFDMeshVal( vsp.CFD_MIN_EDGE_LEN, 0.02 * d )
+    vsp.SetCFDMeshVal( vsp.CFD_SPLIT_JOIN_SURFS_FLAG, 1 )
+    vsp.SetCFDMeshVal( vsp.CFD_HALF_MESH_FLAG, 0 )
+    vsp.ComputeCFDMesh( vsp.SET_ALL, vsp.SET_NONE, vsp.CFD_STL_TYPE )
+
+    rid = vsp.FindLatestResultsID( "CFDMesh" )
+    assert rid, "%s: the mesher wrote no CFDMesh results entry" % what
+
+    ntri = vsp.GetIntResults( rid, "Num_Tris" )[0]
+    nborder = vsp.GetIntResults( rid, "Num_Border_Edges" )[0]
+    nover = vsp.GetIntResults( rid, "Num_Over_Connected_Edges" )[0]
+
+    assert ntri > 0, "%s meshed nothing" % what
+
+    assert nborder == 0 and nover == 0, \
+           "%s left %d border and %d over-connected edges" % ( what, nborder, nover )
+
+    vol = _stl_volume( stl )
+    assert vol == pytest.approx( cgvol, rel = VOLUME_RELTOL ), \
+           "%s encloses %g, CompGeom finds %g" % ( what, vol, cgvol )
