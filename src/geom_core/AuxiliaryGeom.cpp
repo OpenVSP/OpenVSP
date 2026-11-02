@@ -2405,14 +2405,19 @@ bool AuxiliaryGeom::CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<doubl
         if ( gear )
         {
             vector < vec3d > ptvec;
-            gear->GetContactPointVecNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+            bool havepts = gear->GetContactPointVecNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                             m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                             m_ContactPt3_ID, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), m_ContactPt3_TireMode(),
                                             ptvec, normal );
 
-            int isteer;
-            double steerangle;
-            gear->GetSteerAngle( m_ContactPt1_ID, m_ContactPt2_ID, m_ContactPt3_ID, isteer, steerangle );
+            int isteer = -1;
+            double steerangle = 0.0;
+            bool havesteer = gear->GetSteerAngle( m_ContactPt1_ID, m_ContactPt2_ID, m_ContactPt3_ID, isteer, steerangle );
+
+            if ( !havepts || !havesteer )
+            {
+                return false;
+            }
 
             // Identify normal wheels as non-steering wheels.
             vector < int > inormal = {0, 1, 2};
