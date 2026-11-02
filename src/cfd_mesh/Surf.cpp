@@ -2021,6 +2021,55 @@ void Surf::FindSTBox( const vec2d &st, int &i_match, int &j_match )
     }
 }
 
+// Where in the cell p0, p1, p2, p3 -- corners at (0,0), (1,0), (0,1), (1,1) -- the point
+// nearest p lies, for a cell the exact inverse cannot answer: one collapsed to a line or a
+// point, or a point just outside it.  A grid over the cell gives a start, the first nearest in
+// order where several are as near, and Gauss-Newton steps kept in the cell refine it.
+static void NearestInCell( const vec2d &p0, const vec2d &p1, const vec2d &p2, const vec2d &p3, const vec2d &p,
+                           double &s, double &t )
+{
+    const int n = 20;
+
+    double dmin = -1.0;
+    for ( int i = 0 ; i <= n ; i++ )
+    {
+        for ( int j = 0 ; j <= n ; j++ )
+        {
+            double si = ( double )i / ( double )n;
+            double tj = ( double )j / ( double )n;
+            vec2d b = ( 1.0 - si ) * ( 1.0 - tj ) * p0 + si * ( 1.0 - tj ) * p1 + ( 1.0 - si ) * tj * p2 + si * tj * p3;
+            double d = dist_squared( b, p );
+            if ( dmin < 0.0 || d < dmin )
+            {
+                dmin = d;
+                s = si;
+                t = tj;
+            }
+        }
+    }
+
+    for ( int it = 0 ; it < 10 ; it++ )
+    {
+        vec2d b = ( 1.0 - s ) * ( 1.0 - t ) * p0 + s * ( 1.0 - t ) * p1 + ( 1.0 - s ) * t * p2 + s * t * p3;
+        vec2d bs = ( 1.0 - t ) * ( p1 - p0 ) + t * ( p3 - p2 );
+        vec2d bt = ( 1.0 - s ) * ( p2 - p0 ) + s * ( p3 - p1 );
+        vec2d r = p - b;
+
+        double det = bs.x() * bt.y() - bs.y() * bt.x();
+        double scale = bs.mag() * bt.mag();
+        if ( scale <= 0.0 || std::abs( det ) <= 1.0e-12 * scale )
+        {
+            return;
+        }
+
+        double ds = ( r.x() * bt.y() - r.y() * bt.x() ) / det;
+        double dt = ( bs.x() * r.y() - bs.y() * r.x() ) / det;
+
+        s = clamp( s + ds, 0.0, 1.0 );
+        t = clamp( t + dt, 0.0, 1.0 );
+    }
+}
+
 vec2d Surf::GetUW( const vec2d &st )
 {
     double asp = LinearSTAspect();
@@ -2047,8 +2096,14 @@ vec2d Surf::GetUW( const vec2d &st )
     double VspdU = VspMaxU - VspMinU;
     double VspdW = VspMaxW - VspMinW;
 
-    double fu, fw, u2, w2;
-    inverse_bi_lin_interp( m_STMap[ i ][ j ], m_STMap[ i + 1 ][ j ], m_STMap[ i ][ j + 1 ], m_STMap[ i + 1 ][ j + 1 ], st, fu, fw, u2, w2 );
+    double fu = 0.0;
+    double fw = 0.0;
+    double u2 = 0.0;
+    double w2 = 0.0;
+    if ( !inverse_bi_lin_interp( m_STMap[ i ][ j ], m_STMap[ i + 1 ][ j ], m_STMap[ i ][ j + 1 ], m_STMap[ i + 1 ][ j + 1 ], st, fu, fw, u2, w2 ) )
+    {
+        NearestInCell( m_STMap[ i ][ j ], m_STMap[ i + 1 ][ j ], m_STMap[ i ][ j + 1 ], m_STMap[ i + 1 ][ j + 1 ], st, fu, fw );
+    }
 
     double iud = i + fu;
     double iwd = j + fw;
