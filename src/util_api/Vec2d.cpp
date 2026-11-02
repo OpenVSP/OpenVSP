@@ -615,6 +615,11 @@ bool in_range( double val, double range_min, double range_max, double tol )
 /* Returns number of solutions found.  If there is one valid solution, it will be put in s and t */
 int inverse_bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, const vec2d &p, double &s, double &t, double &s2, double &t2 )
 {
+    s = 0.0;
+    t = 0.0;
+    s2 = 0.0;
+    t2 = 0.0;
+
     int t_valid, t2_valid;
 
     double a = cross( p0 - p, p0 - p2 );
