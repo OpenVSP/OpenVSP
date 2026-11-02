@@ -1045,30 +1045,30 @@ void SurfaceIntersectionSingleton::CleanUp()
     {
         delete m_DelPuwVec[i];
     }
-    m_DelPuwVec.clear();
+    vector < Puw* >().swap( m_DelPuwVec );
 
     //==== Delete IPnts ====//
     for ( i = 0 ; i < ( int )m_DelIPntVec.size() ; i++ )
     {
         delete m_DelIPntVec[i];
     }
-    m_DelIPntVec.clear();
+    vector < IPnt* >().swap( m_DelIPntVec );
 
     //==== Delete IPntGroups ====//
     for ( i = 0 ; i < ( int )m_DelIPntGroupVec.size() ; i++ )
     {
         delete m_DelIPntGroupVec[i];
     }
-    m_DelIPntGroupVec.clear();
+    vector < IPntGroup* >().swap( m_DelIPntGroupVec );
 
     //==== Delete IPntGroups ====//
     for ( i = 0 ; i < ( int )m_DelISegChainVec.size() ; i++ )
     {
         delete m_DelISegChainVec[i];
     }
-    m_DelISegChainVec.clear();
+    vector < ISegChain* >().swap( m_DelISegChainVec );
 
-    m_AllIPnts.clear(); // Pointers should already be deallocated 
+    vector < IPnt* >().swap( m_AllIPnts ); // Pointers should already be deallocated
     vector < IPntEdge >().swap( m_AllIPntEdges );
     vector < int >().swap( m_AllIPntPartner );
 
