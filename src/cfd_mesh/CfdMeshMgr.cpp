@@ -25,6 +25,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <deque>
+#include <unordered_set>
 
 #include "StringUtil.h"
 
@@ -6073,11 +6074,21 @@ void CfdMeshMgrSingleton::ConnectBorderNodes( bool wakeOnly )
         }
     }
 
-    std::sort( nodeVec.begin(), nodeVec.end() );
-    auto nvit = std::unique( nodeVec.begin(), nodeVec.end() );
-    nodeVec.erase( nvit, nodeVec.end() );
+    // Each node once, in the order the surfaces and their faces were walked.  MatchBorderNodes
+    // moves every node of a group to the first one's place, so which is first must not depend
+    // on where the nodes happen to lie in memory.
+    std::unordered_set< Node* > seen;
+    vector< Node* > uniqueVec;
+    uniqueVec.reserve( nodeVec.size() );
+    for ( int i = 0 ; i < ( int )nodeVec.size() ; i++ )
+    {
+        if ( seen.insert( nodeVec[i] ).second )
+        {
+            uniqueVec.push_back( nodeVec[i] );
+        }
+    }
 
-    MatchBorderNodes( nodeVec );
+    MatchBorderNodes( uniqueVec );
 }
 
 void CfdMeshMgrSingleton::MatchBorderNodes( const vector< Node* > & nodeVec )
