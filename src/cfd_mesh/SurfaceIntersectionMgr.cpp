@@ -1084,6 +1084,13 @@ void SurfaceIntersectionSingleton::CleanUp()
 
     m_ChainCADVec.clear();
 
+    // The intersection curves RecordIntCurves keeps for drawing and results.
+    vector < vector < vec3d > >().swap( m_RawCurveAVec );
+    vector < vector < vec3d > >().swap( m_RawCurveBVec );
+    vector < bool >().swap( m_BorderCurveFlagVec );
+    vector < bool >().swap( m_PatchJoinFlagVec );
+    vector < bool >().swap( m_NonManifoldCurveFlagVec );
+
     // Clean up DrawObj's
     m_RawIsectCurveDO = DrawObj();
     m_RawIsectPtsDO = DrawObj();
