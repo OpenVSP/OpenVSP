@@ -89,6 +89,11 @@ public:
     void BorderTesselate( int npt );
     void CheapTesselate( );
     void ProjectTessToSurf( SCurve* sca );
+
+    // This border's points moved to where othercurve's lie, each found along the border from
+    // this curve's own point of the same index.  The two must have been tessellated with the
+    // same number of points.
+    void ProjectBorderTess( SCurve* othercurve );
     void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi, int &reason );
     void BuildDistTableGeom();
     void BuildDistTableGeomB( SCurve* BCurve );

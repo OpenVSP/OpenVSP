@@ -43,7 +43,9 @@ public:
     // The same, given the two curves already in xyz.  Matching is quadratic in the number of
     // border curves and the conversion is the expensive part, so the caller converts each
     // curve once and hands it in rather than having it done again for every partner.
-    bool Match( SCurve* crv_A, SCurve* crv_B, const Bezier_curve &xyzcrvA, const Bezier_curve &xyzcrvB );
+    // Where geomtol is positive, two curves match where they lie along each other to within it,
+    // whatever their control points.
+    bool Match( SCurve* crv_A, SCurve* crv_B, const Bezier_curve &xyzcrvA, const Bezier_curve &xyzcrvB, double geomtol );
     void BorderTesselate( );
     static void PlaneBorderTesselate( SCurve* sca, SCurve* scb );
     void SetACurve( SCurve* crv_A )
@@ -62,6 +64,9 @@ public:
     SCurve* m_SCurve_A;
     SCurve* m_SCurve_B;
     bool m_PlaneBorderIntersectFlag;
+
+    // Matched by where the two curves lie rather than by their control points
+    bool m_GeomMatchFlag;
 
 
 protected:

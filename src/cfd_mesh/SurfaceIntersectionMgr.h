@@ -612,6 +612,20 @@ protected:
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
     unordered_map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
 
+    // Flat faces two bodies shared, found by where they lie, kept until the borders around them
+    // are matched
+    vector< Surf* > m_RemovedFlatFaces;
+
+    // The components of the two bodies each removed flat face was shared by
+    vector< pair< int, int > > m_RemovedFaceComps;
+
+    bool FlatGroupWithin( const vector< int > &ga, const vector< int > &gb, double tol );
+    void MatchFlatFaceGroups( vector< bool > &delflag, vector< bool > &flatface,
+                              map < pair < string, string >, int > &dupboth,
+                              map < pair < string, string >, int > &dupone );
+    bool OnRemovedFaceRim( SCurve* c );
+    void SplitFaceRimsToMatch();
+
     // Each pair of coplanar surfaces once, the first earlier in m_SurfVec
     vector< pair< Surf*, Surf* > > m_CoplanarPairs;
 

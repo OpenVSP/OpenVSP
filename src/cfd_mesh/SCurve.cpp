@@ -415,6 +415,36 @@ void SCurve::ProjectTessToSurf( SCurve* othercurve )
     }
 }
 
+void SCurve::ProjectBorderTess( SCurve* othercurve )
+{
+    const vector< vec3d > &uwother = othercurve->GetUWTessPnts();
+    Surf* other = othercurve->GetSurf();
+
+    int npts = ( int )m_UWTess.size();
+    if ( npts < 2 || npts != ( int )uwother.size() )
+    {
+        return;
+    }
+
+    // The border runs in one parameter and holds the other fixed.
+    bool alongu = std::abs( m_UWTess.back().x() - m_UWTess.front().x() ) >= std::abs( m_UWTess.back().y() - m_UWTess.front().y() );
+
+    for ( int i = 1 ; i < npts - 1 ; i++ )
+    {
+        vec3d p = other->CompPnt( uwother[i].x(), uwother[i].y() );
+        vec2d uw = m_Surf->ClosestUW( p, m_UWTess[i].x(), m_UWTess[i].y() );
+
+        if ( alongu )
+        {
+            m_UWTess[i] = vec3d( uw.x(), m_UWTess[i].y(), 0.0 );
+        }
+        else
+        {
+            m_UWTess[i] = vec3d( m_UWTess[i].x(), uw.y(), 0.0 );
+        }
+    }
+}
+
 void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi, int &reason )
 {
     int imax = target_vec.size() - 1;

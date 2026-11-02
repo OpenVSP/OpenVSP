@@ -1018,6 +1018,13 @@ void SurfaceIntersectionSingleton::CleanUp()
     }
     m_SurfVec.clear();
 
+    for ( i = 0 ; i < ( int )m_RemovedFlatFaces.size() ; i++ )
+    {
+        delete m_RemovedFlatFaces[i];
+    }
+    m_RemovedFlatFaces.clear();
+    m_RemovedFaceComps.clear();
+
     //==== Delete ICurves =====//
     for ( i = 0 ; i < ( int )m_ICurveVec.size() ; i++ )
     {
@@ -1345,6 +1352,14 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, dou
     }
 }
 
+// How closely two borders, or two flat faces, must lie along each other to be one, relative to the
+// size of the surfaces compared.  Two bodies given by different control nets -- a spinner turned
+// against its nacelle -- trace the same circle to a few parts in ten thousand of its size.
+// Borders are compared this way only around a flat face two bodies shared, which
+// DeleteDuplicateSurfs found by where it lies and removed from both, so that the two bodies close
+// each other off there.
+static const double BORDER_GEOM_RELTOL = 1.0e-3;
+
 void SurfaceIntersectionSingleton::CleanMergeSurfs(  bool skip_duplicate_removal )
 {
 
@@ -1420,6 +1435,13 @@ void SurfaceIntersectionSingleton::CleanMergeSurfs(  bool skip_duplicate_removal
             }
         }
     }
+
+    // Two bodies that shared a flat face, removed from both, close each other off.
+    for ( int k = 0 ; k < ( int )m_RemovedFaceComps.size() ; k++ )
+    {
+        mergeCompMap[ m_RemovedFaceComps[k].second ] = m_RemovedFaceComps[k].first;
+    }
+
     //==== Change Comp IDs ====//
     for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
     {
@@ -1443,14 +1465,201 @@ void SurfaceIntersectionSingleton::CleanMergeSurfs(  bool skip_duplicate_removal
 // the size of the surfaces compared
 static const double COPLANAR_RELTOL = 1.0e-6;
 
+// A grid of points over a surface, and the parameters of each.
+static void SampleSurf( Surf* srf, int n, vector< vec3d > &pnts, vector< vec2d > &uws )
+{
+    SurfCore* sc = srf->GetSurfCore();
+
+    pnts.clear();
+    uws.clear();
+
+    for ( int i = 0 ; i <= n ; i++ )
+    {
+        double u = sc->GetMinU() + ( sc->GetMaxU() - sc->GetMinU() ) * i / n;
+
+        for ( int j = 0 ; j <= n ; j++ )
+        {
+            double w = sc->GetMinW() + ( sc->GetMaxW() - sc->GetMinW() ) * j / n;
+
+            uws.push_back( vec2d( u, w ) );
+            pnts.push_back( sc->CompPnt( u, w ) );
+        }
+    }
+}
+
+// Whether every point of a's grid lies within tol of surface b.  Each search for the nearest
+// point of b starts from the nearest point of b's grid.
+static bool SurfWithin( const vector< vec3d > &apnts, Surf* b, const vector< vec3d > &bpnts, const vector< vec2d > &buws, double tol )
+{
+    for ( int i = 0 ; i < ( int )apnts.size() ; i++ )
+    {
+        int jmin = 0;
+        double dmin = dist_squared( apnts[i], bpnts[0] );
+        for ( int j = 1 ; j < ( int )bpnts.size() ; j++ )
+        {
+            double d = dist_squared( apnts[i], bpnts[j] );
+            if ( d < dmin )
+            {
+                dmin = d;
+                jmin = j;
+            }
+        }
+
+        double u, w;
+        if ( b->GetSurfCore()->FindNearest( u, w, apnts[i], buws[jmin].x(), buws[jmin].y() ) > tol )
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Whether every point of a grid over each of the surfaces of one group lies within tol of a
+// surface of the other.  The nearest point is searched for over the whole surface: a flat face
+// is often a cap whose parameters collapse to a point, where a search started nearby can stall.
+bool SurfaceIntersectionSingleton::FlatGroupWithin( const vector< int > &ga, const vector< int > &gb, double tol )
+{
+    for ( int i = 0 ; i < ( int )ga.size() ; i++ )
+    {
+        vector< vec3d > apnts;
+        vector< vec2d > auws;
+        SampleSurf( m_SurfVec[ ga[i] ], 8, apnts, auws );
+
+        for ( int k = 0 ; k < ( int )apnts.size() ; k++ )
+        {
+            bool found = false;
+            for ( int j = 0 ; j < ( int )gb.size() && !found ; j++ )
+            {
+                BndBox box = m_SurfVec[ gb[j] ]->GetBBox();
+                box.Expand( tol );
+
+                double u, w;
+                found = box.CheckPnt( apnts[k] ) && m_SurfVec[ gb[j] ]->GetSurfCore()->FindNearest( u, w, apnts[k] ) <= tol;
+            }
+            if ( !found )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// The flat faces of the solid bodies, gathered by component and by the plane they lie in, facing
+// one way.  Two such groups of different components that cover the same region of one plane are
+// one face, however each was cut into patches and whatever control nets they have: pressed back
+// to back, both go, and the two bodies close each other off there; facing the same way, the
+// later one goes.
+void SurfaceIntersectionSingleton::MatchFlatFaceGroups( vector< bool > &delflag, vector< bool > &flatface,
+                                                        map < pair < string, string >, int > &dupboth,
+                                                        map < pair < string, string >, int > &dupone )
+{
+    int nsurf = ( int )m_SurfVec.size();
+
+    vector< vector< int > > groups;
+    vector< BndBox > boxes;
+
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        Surf* srf = m_SurfVec[i];
+        if ( delflag[i] || srf->GetCompID() < 0 || srf->GetSurfaceCfdType() != vsp::CFD_NORMAL ||
+             !srf->GetSurfaceThickSurf() || srf->GetWakeFlag() || srf->GetSymPlaneFlag() || srf->GetFarFlag() )
+        {
+            continue;
+        }
+
+        srf->FitPlane( COPLANAR_RELTOL );
+        if ( !srf->GetPlaneFlag() )
+        {
+            continue;
+        }
+
+        int g = -1;
+        for ( int k = 0 ; k < ( int )groups.size() && g < 0 ; k++ )
+        {
+            Surf* rep = m_SurfVec[ groups[k][0] ];
+            double tol = COPLANAR_RELTOL * std::max( rep->GetBBox().DiagDist(), srf->GetBBox().DiagDist() );
+            if ( rep->GetCompID() == srf->GetCompID() && dot( rep->GetPlaneNorm(), srf->GetPlaneNorm() ) > 0.0 &&
+                 rep->SamePlane( srf, tol ) )
+            {
+                g = k;
+            }
+        }
+
+        if ( g < 0 )
+        {
+            groups.push_back( vector< int >() );
+            boxes.push_back( BndBox() );
+            g = ( int )groups.size() - 1;
+        }
+        groups[g].push_back( i );
+        boxes[g].Update( srf->GetBBox() );
+    }
+
+    vector< bool > used( groups.size(), false );
+
+    for ( int g = 0 ; g < ( int )groups.size() ; g++ )
+    {
+        for ( int h = g + 1 ; h < ( int )groups.size() && !used[g] ; h++ )
+        {
+            Surf* a = m_SurfVec[ groups[g][0] ];
+            Surf* b = m_SurfVec[ groups[h][0] ];
+
+            if ( used[h] || a->GetCompID() == b->GetCompID() )
+            {
+                continue;
+            }
+
+            double size = std::max( boxes[g].DiagDist(), boxes[h].DiagDist() );
+            double tol = BORDER_GEOM_RELTOL * size;
+
+            if ( !Compare( boxes[g], boxes[h], tol ) || !a->SamePlane( b, COPLANAR_RELTOL * size ) ||
+                 !FlatGroupWithin( groups[g], groups[h], tol ) || !FlatGroupWithin( groups[h], groups[g], tol ) )
+            {
+                continue;
+            }
+
+            used[g] = true;
+            used[h] = true;
+
+            bool opposite = dot( a->GetPlaneNorm(), b->GetPlaneNorm() ) < 0.0;
+
+            pair < string, string > geoms = make_pair( a->GetGeomID(), b->GetGeomID() );
+            if ( opposite )
+            {
+                dupboth[ geoms ]++;
+                m_RemovedFaceComps.push_back( pair< int, int >( a->GetCompID(), b->GetCompID() ) );
+            }
+            else
+            {
+                dupone[ geoms ]++;
+            }
+
+            for ( int k = 0 ; k < ( int )groups[h].size() ; k++ )
+            {
+                delflag[ groups[h][k] ] = true;
+                flatface[ groups[h][k] ] = opposite;
+            }
+            for ( int k = 0 ; k < ( int )groups[g].size() && opposite ; k++ )
+            {
+                delflag[ groups[g][k] ] = true;
+                flatface[ groups[g][k] ] = true;
+            }
+        }
+    }
+}
+
 void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
 {
     unsigned int nsurf = m_SurfVec.size();
 
     vector < bool > delflag( nsurf );
+    vector < bool > flatface( nsurf );
     for ( int i = 0 ; i < nsurf ; i++ )
     {
         delflag[i] = false;
+        flatface[i] = false;
     }
 
     // Two surfaces can only be duplicates if they occupy the same box.  SurfMatch copies the
@@ -1511,6 +1720,13 @@ void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
         }
     }
 
+    // The CFD mesher, which closes two bodies off around a flat face they share, also matches a
+    // flat face given by different control nets, or cut into different patches, by where it lies.
+    if ( CoplanarSurfsMeshed() )
+    {
+        MatchFlatFaceGroups( delflag, flatface, dupboth, dupone );
+    }
+
     for ( int k = 0; k < 2; k++ )
     {
         map < pair < string, string >, int > *dupcount = &dupboth;
@@ -1548,10 +1764,15 @@ void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
         }
     }
 
+    // A flat face two bodies shared is kept aside: the borders around it are matched later.
     vector < Surf* > keepSurf;
     for ( int i = 0 ; i < nsurf ; i++ )
     {
-        if ( delflag[i] )
+        if ( delflag[i] && flatface[i] )
+        {
+            m_RemovedFlatFaces.push_back( m_SurfVec[i] );
+        }
+        else if ( delflag[i] )
         {
             delete m_SurfVec[i];
         }
@@ -1708,6 +1929,112 @@ static void SplitSCurveAt( vector< SCurve* > &cva, int a, double t, Surf* srf )
     cva.push_back( c1 );
 }
 
+// Whether a border curve runs along the border of a flat face DeleteDuplicateSurfs removed from
+// two bodies.
+bool SurfaceIntersectionSingleton::OnRemovedFaceRim( SCurve* c )
+{
+    Surf* srf = c->GetSurf();
+    Bezier_curve uwcrv = c->GetUWCrv();
+    vector< vec3d > pnts;
+    for ( int j = 0 ; j <= 4 ; j++ )
+    {
+        vec3d uw = uwcrv.CompPnt01( 0.25 * j );
+        pnts.push_back( srf->CompPnt( uw.x(), uw.y() ) );
+    }
+
+    for ( int f = 0 ; f < ( int )m_RemovedFlatFaces.size() ; f++ )
+    {
+        Surf* face = m_RemovedFlatFaces[f];
+        double tol = BORDER_GEOM_RELTOL * std::max( srf->GetBBox().DiagDist(), face->GetBBox().DiagDist() );
+        if ( face->PntsOnBorder( pnts, tol ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// The two bodies around a removed face may cut their rims into pieces at different places, a
+// spinner turned against its nacelle.  Each rim curve is cut where a rim curve of another surface
+// ends along it, so the pieces pair up end to end.
+void SurfaceIntersectionSingleton::SplitFaceRimsToMatch()
+{
+    bool changed = true;
+    int guard = 0;
+    const int guardmax = 1000;
+
+    while ( changed && guard < guardmax )
+    {
+        changed = false;
+        guard++;
+
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() && !changed ; i++ )
+        {
+            vector< SCurve* > &cva = m_SurfVec[i]->GetSCurveVec();
+
+            for ( int a = 0 ; a < ( int )cva.size() && !changed ; a++ )
+            {
+                if ( !OnRemovedFaceRim( cva[a] ) )
+                {
+                    continue;
+                }
+
+                for ( int j = 0 ; j < ( int )m_SurfVec.size() && !changed ; j++ )
+                {
+                    if ( j == i )
+                    {
+                        continue;
+                    }
+
+                    double tol = BORDER_GEOM_RELTOL * std::max( m_SurfVec[i]->GetBBox().DiagDist(), m_SurfVec[j]->GetBBox().DiagDist() );
+
+                    SCurveTake ta;
+                    TakeSCurve( cva[a], tol, ta );
+                    if ( !ta.m_HasSide )
+                    {
+                        continue;
+                    }
+
+                    vector< SCurve* > &cvb = m_SurfVec[j]->GetSCurveVec();
+
+                    for ( int b = 0 ; b < ( int )cvb.size() && !changed ; b++ )
+                    {
+                        if ( !OnRemovedFaceRim( cvb[b] ) )
+                        {
+                            continue;
+                        }
+
+                        for ( int e = 0 ; e < 2 && !changed ; e++ )
+                        {
+                            vec3d end = SCurvePnt( cvb[b], ( double )e );
+
+                            if ( dist( end, ta.m_End0 ) < tol || dist( end, ta.m_End1 ) < tol || !ta.m_Box.CheckPnt( end ) )
+                            {
+                                continue;
+                            }
+
+                            double t = FindOnSCurve( ta.m_Side, end, tol );
+                            if ( t < 0.01 || t > 0.99 )
+                            {
+                                continue;
+                            }
+
+                            SplitSCurveAt( cva, a, t, m_SurfVec[i] );
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if ( guard >= guardmax )
+    {
+        addOutputText( "\tWarning: gave up matching the rims of removed flat faces after " +
+                       to_string( guardmax ) + " passes.\n" );
+    }
+}
+
 void SurfaceIntersectionSingleton::SplitBordersToMatch()
 {
     double tol = 1.0e-5;
@@ -1838,6 +2165,11 @@ void SurfaceIntersectionSingleton::MatchBorderCurves()
 
     SplitBordersToMatch();
 
+    if ( !m_RemovedFlatFaces.empty() )
+    {
+        SplitFaceRimsToMatch();
+    }
+
     for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         m_SurfVec[i]->LoadSCurves( scurve_vec );
@@ -1856,6 +2188,13 @@ void SurfaceIntersectionSingleton::MatchBorderCurves()
         xyzcrvs[i] = scurve_vec[i]->GetUWCrv();
         xyzcrvs[i].UWCurveToXYZCurve( scurve_vec[i]->GetSurf() );
         xyzcrvs[i].GetBBox( crvboxes[i] );
+    }
+
+    // The curves that run around a flat face DeleteDuplicateSurfs removed from two bodies
+    vector< bool > onface( nsc, false );
+    for ( i = 0 ; i < nsc && !m_RemovedFlatFaces.empty() ; i++ )
+    {
+        onface[i] = OnRemovedFaceRim( scurve_vec[i] );
     }
 
     // A border curve is matched once.  The first pass pieces each surface of the model back
@@ -1889,8 +2228,17 @@ void SurfaceIntersectionSingleton::MatchBorderCurves()
                     continue;
                 }
 
+                // Around a removed flat face, a match by control points is checked by where
+                // the curves lie.
+                double geomtol = -1.0;
+                if ( onface[i] && onface[j] )
+                {
+                    geomtol = BORDER_GEOM_RELTOL * std::max( scurve_vec[i]->GetSurf()->GetBBox().DiagDist(),
+                                                             scurve_vec[j]->GetSurf()->GetBBox().DiagDist() );
+                }
+
                 ICurve* icrv = new ICurve;
-                if ( icrv->Match( scurve_vec[i], scurve_vec[j], xyzcrvs[i], xyzcrvs[j] ) )
+                if ( icrv->Match( scurve_vec[i], scurve_vec[j], xyzcrvs[i], xyzcrvs[j], geomtol ) )
                 {
                     m_ICurveVec.push_back( icrv );
 

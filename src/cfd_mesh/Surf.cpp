@@ -1627,6 +1627,22 @@ bool Surf::SamePlane( const Surf* s, double tol ) const
     return std::abs( dot( m_PlaneNorm, s->m_PlanePnt - m_PlanePnt ) ) <= tol;
 }
 
+bool Surf::PntsOnBorder( const vector< vec3d > &pnts, double tol ) const
+{
+    double uwtol = 1.0e-6 * std::max( m_SurfCore.GetDU(), m_SurfCore.GetDW() );
+
+    for ( int i = 0 ; i < ( int )pnts.size() ; i++ )
+    {
+        vec2d uw = ClosestUW( pnts[i] );
+        if ( dist( CompPnt( uw[0], uw[1] ), pnts[i] ) > tol ||
+             m_SurfCore.UWPointOnBorder( uw[0], uw[1], uwtol ) == SurfCore::NOBNDY )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Surf::CoplanarWith( const Surf* s ) const
 {
     for ( int i = 0 ; i < ( int )m_CoplanarSurfs.size() ; i++ )

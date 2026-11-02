@@ -280,6 +280,9 @@ public:
     bool BorderMatch( Surf* otherSurf );
     bool BorderMatch( int iborder, Surf* otherSurf );
 
+    // Whether every point lies on a border of this surface, within tol
+    bool PntsOnBorder( const vector< vec3d > &pnts, double tol ) const;
+
     void SetWakeFlag( bool flag )
     {
         m_WakeFlag = flag;
