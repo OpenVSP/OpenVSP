@@ -60,8 +60,9 @@ vector< string > ScanFolder( const char* dir_path )
         }
         tinydir_next( &dir );
     }
-    return file_vec;
+    tinydir_close( &dir );
 
+    return file_vec;
 }
 
 int ScanFolder()
