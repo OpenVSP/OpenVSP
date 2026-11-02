@@ -10,6 +10,7 @@
 #include "Mesh.h"
 
 #include <cmath>
+#include <limits>
 #include <map>
 #include <set>
 #include "Surf.h"
@@ -2902,11 +2903,67 @@ bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg
     return tristatus == TRI_OK && !ranout;
 }
 
-// Keep the first point at each place in s,t, in its order, and end every segment there.
+// Make the points that coincide in s,t one point, the first of them in their order, and end
+// every segment there; then drop the segments left joining a point to itself, and all but the
+// first of those joining the same two points.
+//
+// Points coincide when they are within a ten billionth of the extent of all the points.  That
+// is far below any mesh spacing, but catches points that differ only by rounding: Triangle
+// cannot meet its angle bound among points that close, and refines toward them without end.
 static void MergeCoincidentPoints( vector< vec2d > & uw_points, vector< vec2d > & uw_prime, vector< MeshSeg > & segs_indexes )
 {
-    map< pair< double, double >, int > place;
+    const double reltol = 1.0e-10;
+
+    // A point that is not a number keeps its own index.
+    vector< bool > placed( uw_prime.size() );
+
+    double xmin = 0.0, xmax = 0.0, ymin = 0.0, ymax = 0.0;
+    bool first = true;
+
+    for ( int i = 0; i < ( int )uw_prime.size(); i++ )
+    {
+        placed[i] = !std::isnan( uw_prime[i].x() ) && !std::isnan( uw_prime[i].y() );
+
+        if ( placed[i] )
+        {
+            if ( first )
+            {
+                xmin = xmax = uw_prime[i].x();
+                ymin = ymax = uw_prime[i].y();
+                first = false;
+            }
+            xmin = std::min( xmin, uw_prime[i].x() );
+            xmax = std::max( xmax, uw_prime[i].x() );
+            ymin = std::min( ymin, uw_prime[i].y() );
+            ymax = std::max( ymax, uw_prime[i].y() );
+        }
+    }
+
+    double tol = reltol * std::max( xmax - xmin, ymax - ymin );
+
+    // The placed points go in a tree, searched to twice tol so the test below sees every point
+    // it can accept.  With no extent the radius is the least above zero.
+    PntNodeCloud cloud;
+    vector< int > pointof;
+    pointof.reserve( uw_prime.size() );
+    cloud.ReserveMorePntNodes( uw_prime.size() );
+
+    for ( int i = 0; i < ( int )uw_prime.size(); i++ )
+    {
+        if ( placed[i] )
+        {
+            cloud.AddPntNode( vec3d( uw_prime[i].x(), uw_prime[i].y(), 0.0 ) );
+            pointof.push_back( i );
+        }
+    }
+
+    BuildPntNodeIndex( cloud );
+
+    double searchsq = 4.0 * tol * tol + std::numeric_limits< double >::min();
+
     vector< int > newindex( uw_prime.size() );
+    vector< bool > kept( uw_prime.size(), false );
+    vector< unsigned int > near;
 
     vector< vec2d > uw_keep;
     vector< vec2d > prime_keep;
@@ -2915,45 +2972,63 @@ static void MergeCoincidentPoints( vector< vec2d > & uw_points, vector< vec2d > 
 
     for ( int i = 0; i < ( int )uw_prime.size(); i++ )
     {
-        // A point that is not a number keeps its own index.
-        bool placed = !std::isnan( uw_prime[i].x() ) && !std::isnan( uw_prime[i].y() );
+        // The first kept point before this one within tol of it.
+        int found = -1;
 
-        pair< double, double > key( uw_prime[i].x(), uw_prime[i].y() );
-        map< pair< double, double >, int >::iterator it = place.end();
-        if ( placed )
+        if ( placed[i] )
         {
-            it = place.find( key );
+            FindPntNodesWithinTolSq( cloud, vec3d( uw_prime[i].x(), uw_prime[i].y(), 0.0 ), searchsq, near );
+
+            for ( int k = 0; k < ( int )near.size(); k++ )
+            {
+                int j = pointof[ near[k] ];
+                if ( j < i && kept[j] && dist( uw_prime[j], uw_prime[i] ) <= tol && ( found < 0 || j < found ) )
+                {
+                    found = j;
+                }
+            }
         }
 
-        if ( it != place.end() )
+        if ( found >= 0 )
         {
-            newindex[i] = it->second;
+            newindex[i] = newindex[ found ];
         }
         else
         {
             newindex[i] = ( int )prime_keep.size();
-            if ( placed )
-            {
-                place[ key ] = newindex[i];
-            }
+            kept[i] = true;
             uw_keep.push_back( uw_points[i] );
             prime_keep.push_back( uw_prime[i] );
         }
     }
 
-    if ( prime_keep.size() == uw_prime.size() )
-    {
-        return;
-    }
+    vector< MeshSeg > segs_keep;
+    segs_keep.reserve( segs_indexes.size() );
+    set< pair< int, int > > joined;
 
     for ( int j = 0; j < ( int )segs_indexes.size(); j++ )
     {
-        segs_indexes[j].m_Index[0] = newindex[ segs_indexes[j].m_Index[0] ];
-        segs_indexes[j].m_Index[1] = newindex[ segs_indexes[j].m_Index[1] ];
+        MeshSeg seg = segs_indexes[j];
+        seg.m_Index[0] = newindex[ seg.m_Index[0] ];
+        seg.m_Index[1] = newindex[ seg.m_Index[1] ];
+
+        if ( seg.m_Index[0] == seg.m_Index[1] )
+        {
+            continue;
+        }
+
+        pair< int, int > ends( std::min( seg.m_Index[0], seg.m_Index[1] ), std::max( seg.m_Index[0], seg.m_Index[1] ) );
+        if ( !joined.insert( ends ).second )
+        {
+            continue;
+        }
+
+        segs_keep.push_back( seg );
     }
 
     uw_points.swap( uw_keep );
     uw_prime.swap( prime_keep );
+    segs_indexes.swap( segs_keep );
 }
 
 void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr )

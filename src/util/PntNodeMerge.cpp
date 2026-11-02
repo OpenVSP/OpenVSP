@@ -159,10 +159,19 @@ long long int PntNodeCloud::LookupPntBase( const vec3d & pnt )
     return -1;
 }
 
-void IndexPntNodes( PntNodeCloud & cloud, double tolsq, bool keep_matches )
+void BuildPntNodeIndex( PntNodeCloud & cloud )
 {
+    if ( cloud.m_index )
+    {
+        delete cloud.m_index;
+    }
     cloud.m_index = new PNTree( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 )  );
     cloud.m_index->buildIndex();
+}
+
+void IndexPntNodes( PntNodeCloud & cloud, double tolsq, bool keep_matches )
+{
+    BuildPntNodeIndex( cloud );
 
     vector< long long int >().swap( cloud.m_MatchStart );
     vector< long long int >().swap( cloud.m_MatchVec );
@@ -224,6 +233,29 @@ void IndexPntNodes( PntNodeCloud & cloud, double tolsq, bool keep_matches )
 
 
 
+
+void FindPntNodesWithinTolSq( const PntNodeCloud & cloud, const vec3d & pnt, double tolsq, vector< unsigned int > & found )
+{
+    found.clear();
+
+    if ( !cloud.m_index )
+    {
+        return;
+    }
+
+    vector < pair < unsigned int, double > > matches;
+    nanoflann::SearchParams params;
+    params.sorted = false;
+
+    vec3d p = pnt;
+    cloud.m_index->radiusSearch( &p[0], tolsq, matches, params );
+
+    found.resize( matches.size() );
+    for ( size_t i = 0; i < matches.size(); i++ )
+    {
+        found[i] = matches[i].first;
+    }
+}
 
 bool AnyPntWithinTol( PntNodeCloud & cloud, const vec3d & pnt, double tol )
 {
