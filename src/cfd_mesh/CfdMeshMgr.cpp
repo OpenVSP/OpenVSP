@@ -4939,6 +4939,8 @@ void CfdMeshMgrSingleton::InitMesh( )
 
     AddWakeCoPlanarSurfaceChains();
 
+    AddCoplanarChains();
+
     // addOutputText( "BuildMesh\n" );  Output in BuildMesh
     BuildMesh();
 
@@ -5819,8 +5821,10 @@ void CfdMeshMgrSingleton::RunRayCastStage( const string &label, int n,
 // triangles against every other surface and writes the verdict onto its own faces, so the
 // surfaces are independent of each other here.
 // Face k of surface s is inside component c where inside[ k * ncross + c ], and count holds the
-// votes of its neighbours the same way.
-void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int ncross, vector< bool > &inside, vector< int > &count )
+// votes of its neighbours the same way.  A face lying on a surface in its plane takes the
+// verdict for that surface's component from coplanar[ k ] instead of from its ray.
+void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int ncross, const vector< vector< pair< int, bool > > > &coplanar,
+                                                     vector< bool > &inside, vector< int > &count )
 {
     int s_comp_id = m_SurfVec[s]->GetCompID();
 
@@ -5898,6 +5902,18 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int n
                 }
             }
         }
+
+        if ( k < ( int )coplanar.size() )
+        {
+            for ( int i = 0 ; i < ( int )coplanar[k].size() ; i++ )
+            {
+                int c = coplanar[k][i].first;
+                if ( c >= 0 && c < ncross )
+                {
+                    inside[ k * ncross + c ] = coplanar[k][i].second;
+                }
+            }
+        }
     }
 
     for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every face
@@ -5954,10 +5970,30 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     vector< vector< bool > > inside( m_SurfVec.size() );
     vector< vector< int > > count( m_SurfVec.size() );
 
+    // The verdicts for faces lying on a surface in their own plane, where a ray would start on
+    // that surface.  Found one surface at a time, since finding them projects onto surfaces.
+    vector< vector< vector< pair< int, bool > > > > coplanar( m_SurfVec.size() );
+    for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
+    {
+        if ( m_SurfVec[s]->GetCoplanarSurfs().empty() )
+        {
+            continue;
+        }
+
+        const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+        coplanar[s].resize( faceList.size() );
+
+        int k = 0;
+        for ( list< Face* >::const_iterator f = faceList.begin() ; f != faceList.end(); ++f, ++k )
+        {
+            CoplanarVerdicts( m_SurfVec[s], ( *f )->ComputeCenterPnt( m_SurfVec[s] ), coplanar[s][k] );
+        }
+    }
+
     //==== Count Number of Component Crossings for Each Component =====//
     RunRayCastStage( "Inside/outside", ( int )m_SurfVec.size(), [&]( int is )
     {
-        RemoveInteriorTrisOneSurf( is, x_dist, ncross, inside[is], count[is] );
+        RemoveInteriorTrisOneSurf( is, x_dist, ncross, coplanar[is], inside[is], count[is] );
     } );
 
     list< Face* >::const_iterator f;

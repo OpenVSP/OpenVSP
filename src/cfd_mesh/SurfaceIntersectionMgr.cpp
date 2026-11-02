@@ -1066,6 +1066,7 @@ void SurfaceIntersectionSingleton::CleanUp()
     vector < int >().swap( m_AllIPntPartner );
 
     m_PossCoPlanarSurfMap.clear();
+    m_CoplanarPairs.clear();
 
     debugPnts.clear();
 
@@ -1437,6 +1438,10 @@ void SurfaceIntersectionSingleton::CleanMergeSurfs(  bool skip_duplicate_removal
         }
     }
 }
+
+// How flat a surface must be, and how far apart two may be, to lie in one plane: relative to
+// the size of the surfaces compared
+static const double COPLANAR_RELTOL = 1.0e-6;
 
 void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
 {
@@ -2459,6 +2464,8 @@ void SurfaceIntersectionSingleton::IntersectPairs()
 
     int n = ( int )m_SurfVec.size();
 
+    FindCoplanarSurfs();
+
     vector < pair < int, int > > work;
 
     BeginProgress( "Intersect scan", n, VOCAL_OUTPUT );
@@ -2587,6 +2594,8 @@ void SurfaceIntersectionSingleton::Intersect()
 
     SetFixPointBorderNodes(); // Only applicable to FEA Mesh
     CheckFixPointIntersects(); // Only applicable to FEA Mesh
+
+    SplitCoplanarBorders();
 
     addOutputText( "SplitBorderCurves\n" );
     SplitBorderCurves();
@@ -5060,6 +5069,554 @@ vector< Surf* > SurfaceIntersectionSingleton::GetPossCoPlanarSurfs( Surf* surfPt
 
     vector< Surf* > retSurfVec;
     return retSurfVec;
+}
+
+//==== Coplanar Surfaces ====//
+//
+// Two flat surfaces of different components that lie in one plane and meet there -- a fin's
+// blunt trailing edge laid in the plane of a body's base -- cannot be intersected through their
+// patches: the patches' triangles are coplanar, and a ray cast from a triangle in the plane
+// starts on the other surface.  Such a pair is intersected in its plane instead.
+//
+//   FindCoplanarSurfs      finds the pairs, before any pair of surfaces is intersected.  The
+//                          pair is then left out of the patch intersection, and a border
+//                          one of them shares with a third surface is not laid on the other.
+//   SplitCoplanarBorders   splits the chains on each surface where a border of the other
+//                          crosses them, so that each piece of a border lies wholly inside the
+//                          other surface or wholly outside it.
+//   AddCoplanarChains      lays the pieces of one surface's borders that lie inside the other
+//                          onto it, through the very points the border was tessellated with.
+//   CoplanarVerdicts       says, for a triangle lying on the other surface, whether it is
+//                          inside that surface's component.
+//
+// Where the two face apart they are bodies touching face to face, and both copies of the face
+// they share go.  Where they face the same way one copy is kept, that of the component listed
+// first, as DeleteDuplicateSurfs keeps the first of two coincident surfaces.  Only that copy's
+// borders are laid onto the other then, since the other's are lost with its triangles.
+
+static bool CoplanarCandidate( Surf* s )
+{
+    return s->GetCompID() >= 0 &&
+           s->GetSurfaceCfdType() == vsp::CFD_NORMAL &&
+           s->GetSurfaceThickSurf() &&
+           !s->GetWakeFlag() &&
+           !s->GetSymPlaneFlag() &&
+           !s->GetFarFlag();
+}
+
+double SurfaceIntersectionSingleton::CoplanarTol( const Surf* a, const Surf* b ) const
+{
+    return COPLANAR_RELTOL * std::max( a->GetBBox().DiagDist(), b->GetBBox().DiagDist() );
+}
+
+void SurfaceIntersectionSingleton::FindCoplanarSurfs()
+{
+    m_CoplanarPairs.clear();
+
+    if ( !CoplanarSurfsMeshed() )
+    {
+        return;
+    }
+
+    int n = ( int )m_SurfVec.size();
+
+    for ( int i = 0 ; i < n ; i++ )
+    {
+        if ( CoplanarCandidate( m_SurfVec[i] ) )
+        {
+            m_SurfVec[i]->FitPlane( COPLANAR_RELTOL );
+        }
+    }
+
+    for ( int i = 0 ; i < n ; i++ )
+    {
+        Surf* a = m_SurfVec[i];
+        if ( !CoplanarCandidate( a ) || !a->GetPlaneFlag() )
+        {
+            continue;
+        }
+
+        for ( int j = i + 1 ; j < n ; j++ )
+        {
+            Surf* b = m_SurfVec[j];
+            if ( !CoplanarCandidate( b ) || !b->GetPlaneFlag() || a->GetCompID() == b->GetCompID() )
+            {
+                continue;
+            }
+
+            double tol = CoplanarTol( a, b );
+            if ( Compare( a->GetBBox(), b->GetBBox(), tol ) && a->SamePlane( b, tol ) )
+            {
+                a->AddCoplanarSurf( b );
+                b->AddCoplanarSurf( a );
+                m_CoplanarPairs.push_back( pair< Surf*, Surf* >( a, b ) );
+            }
+        }
+    }
+}
+
+// Which of the two keeps its copy of the face they share, or nullptr where neither does
+static Surf* CoplanarKept( Surf* a, Surf* b )
+{
+    if ( dot( a->GetPlaneNorm(), b->GetPlaneNorm() ) < 0.0 )
+    {
+        return nullptr;
+    }
+    if ( a->GetCompID() < b->GetCompID() )
+    {
+        return a;
+    }
+    return b;
+}
+
+// A chain followed along a surface it lies on.  Its parameter is 0 at the first point and grows
+// by one along each segment; within a segment the surface is evaluated along the straight line
+// between the two ends' u,w, which for a border is the border itself.
+class CoplanarCurve
+{
+public:
+    CoplanarCurve( ISegChain* c, Surf* s ) : m_Chain( c ), m_Surf( s )
+    {
+    }
+
+    double MaxT() const
+    {
+        return ( double )m_Chain->m_ISegVec.size();
+    }
+
+    void Seg( double t, int &i, double &f ) const
+    {
+        int n = ( int )m_Chain->m_ISegVec.size();
+        t = clamp( t, 0.0, MaxT() );
+        i = ( int )floor( t );
+        if ( i > n - 1 )
+        {
+            i = n - 1;
+        }
+        f = t - i;
+    }
+
+    vec3d Pnt( double t ) const
+    {
+        int i;
+        double f;
+        Seg( t, i, f );
+        vec2d uw0 = m_Chain->m_ISegVec[i]->m_IPnt[0]->GetPuw( m_Surf )->m_UW;
+        vec2d uw1 = m_Chain->m_ISegVec[i]->m_IPnt[1]->GetPuw( m_Surf )->m_UW;
+        vec2d uw = uw0 + ( uw1 - uw0 ) * f;
+        return m_Surf->CompPnt( uw[0], uw[1] );
+    }
+
+    vec3d Tan( double t ) const
+    {
+        double h = 1.0e-4;
+        double t0 = clamp( t - h, 0.0, MaxT() );
+        double t1 = clamp( t + h, 0.0, MaxT() );
+        return ( Pnt( t1 ) - Pnt( t0 ) ) * ( 1.0 / ( t1 - t0 ) );
+    }
+
+    ISegChain* m_Chain;
+    Surf* m_Surf;
+};
+
+// Newton's method for where two curves in the plane of normal n cross, from s and t
+static bool RefineCrossing( const CoplanarCurve &ca, const CoplanarCurve &cb, const vec3d &n, double &s, double &t, double tol )
+{
+    for ( int it = 0 ; it < 30 ; it++ )
+    {
+        vec3d d = ca.Pnt( s ) - cb.Pnt( t );
+        vec3d ta = ca.Tan( s );
+        vec3d tb = cb.Tan( t );
+
+        double den = dot( cross( ta, tb ), n );
+        if ( std::abs( den ) <= 1.0e-6 * ta.mag() * tb.mag() )
+        {
+            return false;
+        }
+
+        double ds = -dot( cross( d, tb ), n ) / den;
+        double dt = dot( cross( ta, d ), n ) / den;
+
+        s = clamp( s + ds, 0.0, ca.MaxT() );
+        t = clamp( t + dt, 0.0, cb.MaxT() );
+
+        if ( std::abs( ds ) < 1.0e-12 && std::abs( dt ) < 1.0e-12 )
+        {
+            break;
+        }
+    }
+
+    return dist( ca.Pnt( s ), cb.Pnt( t ) ) <= tol;
+}
+
+// The point of the curve nearest p, from s
+static bool ProjectOnCurve( const CoplanarCurve &c, const vec3d &p, double &s, double tol )
+{
+    for ( int it = 0 ; it < 30 ; it++ )
+    {
+        vec3d tan = c.Tan( s );
+        double tt = dot( tan, tan );
+        if ( tt <= 0.0 )
+        {
+            return false;
+        }
+
+        double ds = dot( p - c.Pnt( s ), tan ) / tt;
+        s = clamp( s + ds, 0.0, c.MaxT() );
+
+        if ( std::abs( ds ) < 1.0e-12 )
+        {
+            break;
+        }
+    }
+
+    return dist( c.Pnt( s ), p ) <= tol;
+}
+
+// Split chain c, on surface s, at parameter t of its CoplanarCurve.
+void SurfaceIntersectionSingleton::AddCoplanarSplit( ISegChain* c, Surf* s, double t )
+{
+    CoplanarCurve crv( c, s );
+    int i;
+    double f;
+    crv.Seg( t, i, f );
+
+    vec2d uw0 = c->m_ISegVec[i]->m_IPnt[0]->GetPuw( s )->m_UW;
+    vec2d uw1 = c->m_ISegVec[i]->m_IPnt[1]->GetPuw( s )->m_UW;
+
+    Puw* puw = new Puw( s, uw0 + ( uw1 - uw0 ) * f );
+    m_DelPuwVec.push_back( puw );
+
+    c->AddBorderSplit( puw );
+}
+
+// Split ca, a border of a, and cb, a border of b, wherever the two cross or an end of one lies
+// on the other.  The chains' segments are chords, so they only say roughly where to look; each
+// point is then found on the curves themselves, to within tol.
+void SurfaceIntersectionSingleton::SplitCoplanarPair( ISegChain* ca, Surf* a, ISegChain* cb, Surf* b, double tol )
+{
+    vec3d n = a->GetPlaneNorm();
+    CoplanarCurve crva( ca, a );
+    CoplanarCurve crvb( cb, b );
+
+    int na = ( int )ca->m_ISegVec.size();
+    int nb = ( int )cb->m_ISegVec.size();
+
+    for ( int i = 0 ; i < na ; i++ )
+    {
+        vec3d a0 = ca->m_ISegVec[i]->m_IPnt[0]->m_Pnt;
+        vec3d a1 = ca->m_ISegVec[i]->m_IPnt[1]->m_Pnt;
+        double la = dist( a0, a1 );
+
+        for ( int j = 0 ; j < nb ; j++ )
+        {
+            vec3d b0 = cb->m_ISegVec[j]->m_IPnt[0]->m_Pnt;
+            vec3d b1 = cb->m_ISegVec[j]->m_IPnt[1]->m_Pnt;
+            double lb = dist( b0, b1 );
+
+            // Far enough apart that neither curve can bend from its chord to the other
+            double reach = 0.5 * std::max( la, lb ) + tol;
+            BndBox boxa, boxb;
+            boxa.Update( a0 );
+            boxa.Update( a1 );
+            boxb.Update( b0 );
+            boxb.Update( b1 );
+            if ( !Compare( boxa, boxb, reach ) )
+            {
+                continue;
+            }
+
+            double s = i + 0.5;
+            double t = j + 0.5;
+            if ( RefineCrossing( crva, crvb, n, s, t, tol ) )
+            {
+                AddCoplanarSplit( ca, a, s );
+                AddCoplanarSplit( cb, b, t );
+            }
+
+            // The ends of either chain that lie on the other
+            if ( j == 0 || j == nb - 1 )
+            {
+                vec3d e = b0;
+                if ( j == nb - 1 )
+                {
+                    e = b1;
+                }
+                if ( j == 0 && nb == 1 )
+                {
+                    // One segment has both ends here; the second is taken below.
+                    double s1 = i + 0.5;
+                    if ( ProjectOnCurve( crva, b1, s1, tol ) )
+                    {
+                        AddCoplanarSplit( ca, a, s1 );
+                    }
+                }
+                s = i + 0.5;
+                if ( ProjectOnCurve( crva, e, s, tol ) )
+                {
+                    AddCoplanarSplit( ca, a, s );
+                }
+            }
+            if ( i == 0 || i == na - 1 )
+            {
+                vec3d e = a0;
+                if ( i == na - 1 )
+                {
+                    e = a1;
+                }
+                if ( i == 0 && na == 1 )
+                {
+                    double t1 = j + 0.5;
+                    if ( ProjectOnCurve( crvb, a1, t1, tol ) )
+                    {
+                        AddCoplanarSplit( cb, b, t1 );
+                    }
+                }
+                t = j + 0.5;
+                if ( ProjectOnCurve( crvb, e, t, tol ) )
+                {
+                    AddCoplanarSplit( cb, b, t );
+                }
+            }
+        }
+    }
+}
+
+// The chains on a surface, in the order of the chain list; only its border chains where
+// borders_only.
+static void CoplanarChainsOn( Surf* s, const list< ISegChain* > &chains, bool borders_only, vector< ISegChain* > &out )
+{
+    out.clear();
+    for ( list< ISegChain* >::const_iterator c = chains.begin() ; c != chains.end(); ++c )
+    {
+        if ( ( ( *c )->m_BorderFlag || !borders_only ) && ( ( *c )->m_SurfA == s || ( *c )->m_SurfB == s ) )
+        {
+            out.push_back( *c );
+        }
+    }
+}
+
+static double ChainLength( ISegChain* c )
+{
+    double len = 0.0;
+    for ( int i = 0 ; i < ( int )c->m_ISegVec.size() ; i++ )
+    {
+        len += dist( c->m_ISegVec[i]->m_IPnt[0]->m_Pnt, c->m_ISegVec[i]->m_IPnt[1]->m_Pnt );
+    }
+    return len;
+}
+
+static BndBox ChainBox( ISegChain* c )
+{
+    BndBox box;
+    for ( int i = 0 ; i < ( int )c->m_ISegVec.size() ; i++ )
+    {
+        box.Update( c->m_ISegVec[i]->m_IPnt[0]->m_Pnt );
+        box.Update( c->m_ISegVec[i]->m_IPnt[1]->m_Pnt );
+    }
+    return box;
+}
+
+// Called before SplitBorderCurves and IntersectSplitChains, which apply the splits made here
+// with their own.  Every chain on either surface is split where a border of the other crosses
+// it, so that a border laid onto a surface later meets the chains already there at their ends.
+void SurfaceIntersectionSingleton::SplitCoplanarBorders()
+{
+    vector< ISegChain* > chainsa, chainsb;
+
+    for ( int p = 0 ; p < ( int )m_CoplanarPairs.size() ; p++ )
+    {
+        Surf* a = m_CoplanarPairs[p].first;
+        Surf* b = m_CoplanarPairs[p].second;
+        double tol = CoplanarTol( a, b );
+
+        CoplanarChainsOn( a, m_ISegChainList, false, chainsa );
+        CoplanarChainsOn( b, m_ISegChainList, false, chainsb );
+
+        // A chain collapsed to a point neither splits nor is split.
+        for ( int i = 0 ; i < ( int )chainsa.size() ; i++ )
+        {
+            if ( ChainLength( chainsa[i] ) <= tol )
+            {
+                continue;
+            }
+            BndBox boxa = ChainBox( chainsa[i] );
+
+            for ( int j = 0 ; j < ( int )chainsb.size() ; j++ )
+            {
+                if ( ( chainsa[i]->m_BorderFlag || chainsb[j]->m_BorderFlag ) &&
+                     chainsa[i] != chainsb[j] && ChainLength( chainsb[j] ) > tol &&
+                     Compare( boxa, ChainBox( chainsb[j] ), tol ) )
+                {
+                    SplitCoplanarPair( chainsa[i], a, chainsb[j], b, tol );
+                }
+            }
+        }
+    }
+}
+
+// Is the point on surface s, within tol?  Projecting reaches into the surface's scratch
+// buffers, so this is asked from one thread only.
+static bool PntOnCoplanarSurf( Surf* s, const vec3d &p, double tol, vec2d &uw )
+{
+    BndBox box = s->GetBBox();
+    box.Expand( tol );
+    if ( !box.CheckPnt( p ) )
+    {
+        return false;
+    }
+
+    uw = s->ClosestUW( p );
+    return dist( s->CompPnt( uw[0], uw[1] ), p ) <= tol;
+}
+
+// Distance from p to the nearest of the chains' tessellations
+static double DistToChains( const vec3d &p, const vector< ISegChain* > &chains )
+{
+    double dmin = 1.0e12;
+    for ( int i = 0 ; i < ( int )chains.size() ; i++ )
+    {
+        const vector< IPnt* > &tv = chains[i]->m_TessVec;
+        for ( int j = 1 ; j < ( int )tv.size() ; j++ )
+        {
+            double d = dist( p, proj_pnt_on_line_seg( tv[j - 1]->m_Pnt, tv[j]->m_Pnt, p ) );
+            if ( d < dmin )
+            {
+                dmin = d;
+            }
+        }
+    }
+    return dmin;
+}
+
+// Lay the borders of from that lie inside to onto it, each through the points it was
+// tessellated with, so the two meshes meet node for node.  A border along one of to's own, or
+// between from and another surface in its plane, is not wanted.
+void SurfaceIntersectionSingleton::CopyCoplanarBorders( Surf* from, Surf* to, double tol )
+{
+    vector< ISegChain* > fromchains, tochains;
+    CoplanarChainsOn( from, m_ISegChainList, true, fromchains );
+    CoplanarChainsOn( to, m_ISegChainList, false, tochains );
+
+    for ( int i = 0 ; i < ( int )fromchains.size() ; i++ )
+    {
+        ISegChain* c = fromchains[i];
+
+        if ( c->m_SurfA == to || c->m_SurfB == to || c->m_TessVec.size() < 3 )
+        {
+            continue;
+        }
+
+        Surf* other = c->m_SurfA;
+        if ( other == from )
+        {
+            other = c->m_SurfB;
+        }
+        if ( other != from && other->SamePlane( from, CoplanarTol( other, from ) ) )
+        {
+            continue;
+        }
+
+        if ( !Compare( ChainBox( c ), to->GetBBox(), tol ) )
+        {
+            continue;
+        }
+
+        // Only the points between the ends are asked: the ends are where the border crosses
+        // to's own, and a surface narrower than the tolerance chain ends were joined to can leave
+        // one just off it.
+        int n = ( int )c->m_TessVec.size();
+        vector< vec2d > uws( n );
+        bool inside = true;
+        for ( int j = 1 ; j < n - 1 && inside ; j++ )
+        {
+            inside = PntOnCoplanarSurf( to, c->m_TessVec[j]->m_Pnt, tol, uws[j] );
+        }
+
+        if ( !inside || DistToChains( c->m_TessVec[ n / 2 ]->m_Pnt, tochains ) <= tol )
+        {
+            continue;
+        }
+
+        ISegChain* nc = new ISegChain();
+        nc->m_SurfA = to;
+        nc->m_SurfB = to;
+        nc->m_BorderFlag = true;
+
+        // Each point keeps the place the border gave it, which is where the meshes take their
+        // nodes on a chain from.  An end already joined to one of to's own keeps that point.
+        for ( int j = 0 ; j < n ; j++ )
+        {
+            IPnt* ip = c->m_TessVec[j];
+            if ( ( j > 0 && j < n - 1 ) || !ip->GetPuw( to ) )
+            {
+                if ( j == 0 || j == n - 1 )
+                {
+                    uws[j] = to->ClosestUW( ip->m_Pnt );
+                }
+
+                Puw* puwa = new Puw( to, uws[j] );
+                Puw* puwb = new Puw( to, uws[j] );
+                m_DelPuwVec.push_back( puwa );
+                m_DelPuwVec.push_back( puwb );
+
+                ip = new IPnt( puwa, puwb );
+                ip->m_Pnt = c->m_TessVec[j]->m_Pnt;
+                nc->m_CreatedIPnts.push_back( ip );
+            }
+            nc->m_TessVec.push_back( ip );
+
+            if ( j > 0 )
+            {
+                nc->m_ISegVec.push_back( new ISeg( to, to, nc->m_TessVec[j - 1], ip ) );
+            }
+        }
+
+        // The chains were given their curves before this one existed; the CAD and POGS
+        // writers read them.
+        nc->BuildCurves();
+
+        m_ISegChainList.push_back( nc );
+    }
+}
+
+// Called once the chains are tessellated and their ends joined, before the surfaces are meshed.
+void SurfaceIntersectionSingleton::AddCoplanarChains()
+{
+    for ( int p = 0 ; p < ( int )m_CoplanarPairs.size() ; p++ )
+    {
+        Surf* a = m_CoplanarPairs[p].first;
+        Surf* b = m_CoplanarPairs[p].second;
+        double tol = CoplanarTol( a, b );
+
+        Surf* kept = CoplanarKept( a, b );
+
+        if ( kept != b )
+        {
+            CopyCoplanarBorders( a, b, tol );
+        }
+        if ( kept != a )
+        {
+            CopyCoplanarBorders( b, a, tol );
+        }
+    }
+}
+
+// For a triangle of s centred on p: each component of a surface in s's plane that p lies on,
+// and whether the triangle counts as inside it.
+void SurfaceIntersectionSingleton::CoplanarVerdicts( Surf* s, const vec3d &p, vector< pair< int, bool > > &verdicts )
+{
+    verdicts.clear();
+
+    const vector< Surf* > &others = s->GetCoplanarSurfs();
+    for ( int i = 0 ; i < ( int )others.size() ; i++ )
+    {
+        vec2d uw;
+        if ( PntOnCoplanarSurf( others[i], p, CoplanarTol( s, others[i] ), uw ) )
+        {
+            verdicts.push_back( pair< int, bool >( others[i]->GetCompID(), CoplanarKept( s, others[i] ) != s ) );
+        }
+    }
 }
 
 void SurfaceIntersectionSingleton::BuildIntChain( const string &id, vector < vector < vec3d > > & ptchains, vector < vector < vec3d > > & uwchains )

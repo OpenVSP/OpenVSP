@@ -59,6 +59,12 @@ public:
 
     virtual ~FeaMeshMgrSingleton();
     virtual void CleanUp() override;
+
+    bool CoplanarSurfsMeshed() const override
+    {
+        return false;
+    }
+
     virtual void CleanMeshMap();
 
     // The finished meshes are kept in a map of their own, one per structure, so emptying the

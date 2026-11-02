@@ -216,6 +216,33 @@ public:
     bool BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
     void PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceIntersectionSingleton *MeshMgr );
 
+    // Flat where every control point lies within reltol times the surface's size of one plane.
+    // The plane's normal points out of the body, as the mesh's faces do.
+    void FitPlane( double reltol );
+    bool GetPlaneFlag() const
+    {
+        return m_PlaneFlag;
+    }
+    const vec3d& GetPlaneNorm() const
+    {
+        return m_PlaneNorm;
+    }
+
+    // Both flat, in one plane to within tol, facing either way
+    bool SamePlane( const Surf* s, double tol ) const;
+
+    // The flat surfaces of other components that lie in this one's plane and meet it
+    void AddCoplanarSurf( Surf* s )
+    {
+        m_CoplanarSurfs.push_back( s );
+    }
+    const vector< Surf* >& GetCoplanarSurfs() const
+    {
+        return m_CoplanarSurfs;
+    }
+    bool CoplanarWith( const Surf* s ) const;
+    bool TouchesAlongCoplanarBorder( Surf* plane );
+
     BndBox& GetBBox()
     {
         return m_BBox;
@@ -505,6 +532,11 @@ protected:
     int m_CopyIndex;
 
     double m_PlanarUWAspect;
+
+    bool m_PlaneFlag;
+    vec3d m_PlaneNorm;
+    vec3d m_PlanePnt;
+    vector< Surf* > m_CoplanarSurfs;
 
     // Whether BuildDistMap has run since CleanupDistMap.
     bool m_DistMapBuilt;

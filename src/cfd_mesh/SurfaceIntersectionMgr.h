@@ -434,6 +434,18 @@ public:
     void AddPossCoPlanarSurf( Surf* surfA, Surf* surfB );
     vector< Surf* > GetPossCoPlanarSurfs( Surf* surfPtr );
 
+    // Flat surfaces of different components lying in one plane, intersected in that plane.
+    // Only the CFD mesher does this, since only it removes the triangles it decides between.
+    virtual bool CoplanarSurfsMeshed() const
+    {
+        return false;
+    }
+    double CoplanarTol( const Surf* a, const Surf* b ) const;
+    void FindCoplanarSurfs();
+    void SplitCoplanarBorders();
+    void AddCoplanarChains();
+    void CoplanarVerdicts( Surf* s, const vec3d &p, vector< pair< int, bool > > &verdicts );
+
     virtual void MergeFeaPartSSEdgeOverlap()    {}; // Only for FeaMesh; do nothing for CfdMesh
     virtual void CheckFixPointIntersects()    {}; // Only for FeaMesh; do nothing for CfdMesh
     virtual void SetFixPointBorderNodes()    {}; // Only for FeaMesh; do nothing for CfdMesh
@@ -599,6 +611,13 @@ protected:
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
     unordered_map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
+
+    // Each pair of coplanar surfaces once, the first earlier in m_SurfVec
+    vector< pair< Surf*, Surf* > > m_CoplanarPairs;
+
+    void AddCoplanarSplit( ISegChain* c, Surf* s, double t );
+    void SplitCoplanarPair( ISegChain* ca, Surf* a, ISegChain* cb, Surf* b, double tol );
+    void CopyCoplanarBorders( Surf* from, Surf* to, double tol );
 
     string m_MessageName; // Either "SurfIntersectMessage", "CFDMessage", or "FEAMessage"
 

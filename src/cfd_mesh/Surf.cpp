@@ -70,6 +70,7 @@ Surf::Surf()
     m_FeaSymmIndex = -1;
     m_IgnoreSurfFlag = false;
     m_PlanarUWAspect = -1;
+    m_PlaneFlag = false;
     m_DistMapBuilt = false;
 }
 
@@ -1205,6 +1206,16 @@ bool Surf::IntersectPrepare( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMg
     {
         return false;
     }
+    // Two flat surfaces in one plane meet in that plane, where the patches cannot be
+    // intersected; SplitCoplanarBorders and AddCoplanarChains intersect them instead.
+    if ( CoplanarWith( surfPtr ) )
+    {
+        return false;
+    }
+    if ( TouchesAlongCoplanarBorder( surfPtr ) || surfPtr->TouchesAlongCoplanarBorder( this ) )
+    {
+        return false;
+    }
     if ( BorderCurveOnSurface( surfPtr, MeshMgr ) )
     {
         return false;
@@ -1263,6 +1274,104 @@ void Surf::IntersectLineSeg( vec3d & p0, vec3d & p1, vector< double > & t_vals )
     }
 }
 
+// Whether this surface only touches flat surface plane, along a border it shares with a surface
+// lying in plane's plane: the whole of this surface on one side of the plane, and a border of it
+// in the plane, running across plane, whose other surface is coplanar with plane.  The two meet
+// only along that border, which the coplanar intersection of plane and the border's other surface
+// lays where it is needed, whether or not all of it lies on plane.
+bool Surf::TouchesAlongCoplanarBorder( Surf* plane )
+{
+    if ( !plane->GetPlaneFlag() || plane->GetCoplanarSurfs().empty() )
+    {
+        return false;
+    }
+
+    const vec3d &n = plane->GetPlaneNorm();
+    vec3d p0 = plane->m_PlanePnt;
+    double tol = 1.0e-6 * std::max( m_BBox.DiagDist(), plane->GetBBox().DiagDist() );
+    double uwtol = 1.0e-6 * std::max( plane->GetSurfCore()->GetDU(), plane->GetSurfCore()->GetDW() );
+
+    // Control points hull the surface, so all of them on one side puts it there.
+    bool above = false;
+    bool below = false;
+
+    const piecewise_surface_type *surf = m_SurfCore.GetSurf();
+    for ( piecewise_surface_type::index_type ip = 0; ip < surf->number_u_patches(); ++ip )
+    {
+        for ( piecewise_surface_type::index_type jp = 0; jp < surf->number_v_patches(); ++jp )
+        {
+            const surface_patch_type *patch = surf->get_patch( ip, jp );
+
+            for ( surface_patch_type::index_type icp = 0; icp <= patch->degree_u(); ++icp )
+            {
+                for ( surface_patch_type::index_type jcp = 0; jcp <= patch->degree_v(); ++jcp )
+                {
+                    surface_point_type cp = patch->get_control_point( icp, jcp );
+                    double d = dot( n, vec3d( cp.x(), cp.y(), cp.z() ) - p0 );
+                    if ( d > tol )
+                    {
+                        above = true;
+                    }
+                    if ( d < -tol )
+                    {
+                        below = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if ( above && below )
+    {
+        return false;
+    }
+
+    for ( int i = 0 ; i < ( int )m_SCurveVec.size() ; i++ )
+    {
+        ICurve* icrv = m_SCurveVec[i]->GetICurve();
+        if ( !icrv || !icrv->m_SCurve_A || !icrv->m_SCurve_B )
+        {
+            continue;
+        }
+
+        SCurve* other = icrv->m_SCurve_A;
+        if ( other == m_SCurveVec[i] )
+        {
+            other = icrv->m_SCurve_B;
+        }
+        if ( !plane->CoplanarWith( other->GetSurf() ) )
+        {
+            continue;
+        }
+
+        // In the plane, and crossing plane's interior somewhere rather than only running along
+        // its border, where the two bodies' own borders meet.
+        Bezier_curve uwcrv = m_SCurveVec[i]->GetUWCrv();
+        bool inplane = true;
+        bool inside = false;
+        for ( int k = 0 ; k <= 8 && inplane ; k++ )
+        {
+            vec3d uw = uwcrv.CompPnt01( 0.125 * k );
+            vec3d p = CompPnt( uw.x(), uw.y() );
+            inplane = std::abs( dot( n, p - p0 ) ) <= tol;
+
+            if ( inplane && k > 0 && k < 8 && !inside )
+            {
+                vec2d uwp = plane->ClosestUW( p );
+                inside = dist( plane->CompPnt( uwp.x(), uwp.y() ), p ) <= tol &&
+                         plane->GetSurfCore()->UWPointOnBorder( uwp.x(), uwp.y(), uwtol ) == SurfCore::NOBNDY;
+            }
+        }
+
+        if ( inplane && inside )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool Surf::BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     bool retFlag = false;
@@ -1298,6 +1407,23 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *Me
                 retFlag = true;
                 //==== If Surface Add To List ====//
                 MeshMgr->AddPossCoPlanarSurf( this, surfPtr );
+
+                // A border shared with a surface lying in this one's plane stays with that surface;
+                // the two are intersected as coplanar surfaces.
+                ICurve* icrv = border_curves[i]->GetICurve();
+                if ( icrv && icrv->m_SCurve_A && icrv->m_SCurve_B )
+                {
+                    SCurve* other = icrv->m_SCurve_A;
+                    if ( other == border_curves[i] )
+                    {
+                        other = icrv->m_SCurve_B;
+                    }
+                    if ( CoplanarWith( other->GetSurf() ) )
+                    {
+                        continue;
+                    }
+                }
+
                 PlaneBorderCurveIntersect( surfPtr, border_curves[i], MeshMgr );
             }
         }
@@ -1378,6 +1504,139 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceInte
 
         m_SCurveVec.push_back( pSCurve );
     }
+}
+
+// The plane is laid through the control points: through the first, the one farthest from it
+// and the one farthest from the line those two make, which does not depend on how the surface
+// is parameterized.  The control points hull the surface, so all of them within the tolerance
+// of that plane puts the whole surface there.  The normal is turned to agree with the
+// surface's own, sampled where the parameterization does not collapse.
+void Surf::FitPlane( double reltol )
+{
+    m_PlaneFlag = false;
+
+    double tol = reltol * m_BBox.DiagDist();
+    if ( tol <= 0.0 )
+    {
+        return;
+    }
+
+    vector< vec3d > cps;
+
+    const piecewise_surface_type *surf = m_SurfCore.GetSurf();
+    piecewise_surface_type::index_type nu = surf->number_u_patches();
+    piecewise_surface_type::index_type nw = surf->number_v_patches();
+
+    for ( piecewise_surface_type::index_type ip = 0; ip < nu; ++ip )
+    {
+        for ( piecewise_surface_type::index_type jp = 0; jp < nw; ++jp )
+        {
+            const surface_patch_type *patch = surf->get_patch( ip, jp );
+
+            for ( surface_patch_type::index_type icp = 0; icp <= patch->degree_u(); ++icp )
+            {
+                for ( surface_patch_type::index_type jcp = 0; jcp <= patch->degree_v(); ++jcp )
+                {
+                    surface_point_type cp = patch->get_control_point( icp, jcp );
+                    cps.push_back( vec3d( cp.x(), cp.y(), cp.z() ) );
+                }
+            }
+        }
+    }
+
+    if ( cps.size() < 3 )
+    {
+        return;
+    }
+
+    vec3d p0 = cps[0];
+    vec3d p1 = p0;
+    for ( int i = 1 ; i < ( int )cps.size() ; i++ )
+    {
+        if ( dist( cps[i], p0 ) > dist( p1, p0 ) )
+        {
+            p1 = cps[i];
+        }
+    }
+
+    vec3d n;
+    for ( int i = 1 ; i < ( int )cps.size() ; i++ )
+    {
+        vec3d c = cross( p1 - p0, cps[i] - p0 );
+        if ( c.mag() > n.mag() )
+        {
+            n = c;
+        }
+    }
+
+    if ( n.mag() <= 0.0 )
+    {
+        return;
+    }
+    n.normalize();
+
+    for ( int i = 0 ; i < ( int )cps.size() ; i++ )
+    {
+        if ( std::abs( dot( n, cps[i] - p0 ) ) > tol )
+        {
+            return;
+        }
+    }
+
+    double sense = 0.0;
+    for ( int i = 1 ; i < 4 ; i++ )
+    {
+        for ( int j = 1 ; j < 4 ; j++ )
+        {
+            double u = m_SurfCore.GetMinU() + 0.25 * i * m_SurfCore.GetDU();
+            double w = m_SurfCore.GetMinW() + 0.25 * j * m_SurfCore.GetDW();
+            sense += dot( n, m_SurfCore.CompNorm( u, w ) );
+        }
+    }
+
+    if ( sense == 0.0 )
+    {
+        return;
+    }
+
+    if ( ( sense < 0.0 ) != m_FlipFlag )
+    {
+        n = -1.0 * n;
+    }
+
+    m_PlaneFlag = true;
+    m_PlaneNorm = n;
+    m_PlanePnt = p0;
+}
+
+bool Surf::SamePlane( const Surf* s, double tol ) const
+{
+    if ( !m_PlaneFlag || !s->m_PlaneFlag )
+    {
+        return false;
+    }
+
+    // Parallel to the angle the tolerance subtends across the larger surface
+    double size = std::max( m_BBox.DiagDist(), s->m_BBox.DiagDist() );
+    double c = std::abs( dot( m_PlaneNorm, s->m_PlaneNorm ) );
+    if ( 1.0 - c > 0.5 * ( tol / size ) * ( tol / size ) )
+    {
+        return false;
+    }
+
+    return std::abs( dot( m_PlaneNorm, s->m_PlanePnt - m_PlanePnt ) ) <= tol;
+}
+
+bool Surf::CoplanarWith( const Surf* s ) const
+{
+    for ( int i = 0 ; i < ( int )m_CoplanarSurfs.size() ; i++ )
+    {
+        if ( m_CoplanarSurfs[i] == s )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Surf::SetBBox( const vec3d &pmin, const vec3d &pmax )
