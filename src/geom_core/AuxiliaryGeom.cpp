@@ -2239,11 +2239,11 @@ bool AuxiliaryGeom::GetPtNormalInGear( vec3d &pt, vec3d &normal ) const
         GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
-            gear->GetPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+            bool ret = gear->GetPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                       m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                       m_ContactPt3_ID, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), m_ContactPt3_TireMode(),
                                       pt, normal );
-            return true;
+            return ret;
         }
     }
     return false;
@@ -2258,10 +2258,10 @@ bool AuxiliaryGeom::GetPtPivotAxisInGear( vec3d &ptaxis, vec3d &axis )
         GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
-            gear->GetTwoPtPivot( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
+            bool ret = gear->GetTwoPtPivot( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
                                         m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
                                         ptaxis, axis );
-            return true;
+            return ret;
         }
     }
     return false;
@@ -2277,15 +2277,15 @@ bool AuxiliaryGeom::GetPtNormalMeanContactPtPivotAxisInGear( vec3d &pt, vec3d &n
         if ( gear )
         {
             vec3d scratch1, scratch2;
-            gear->GetTwoPtMeanContactPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+            bool ret1 = gear->GetTwoPtMeanContactPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                                       m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                                       0, pt, normal, scratch1, scratch2, usepivot, mintheta, maxtheta );
 
 
-            gear->GetTwoPtPivot( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
+            bool ret2 = gear->GetTwoPtPivot( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
                                         m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
                                         ptaxis, axis );
-            return true;
+            return ret1 && ret2;
         }
     }
     return false;
@@ -2300,9 +2300,9 @@ bool AuxiliaryGeom::GetSideContactPtRollAxisNormalInGear( vec3d &pt, vec3d &axis
         GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
-            gear->GetOnePtSideContactPtAxisNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+            bool ret = gear->GetOnePtSideContactPtAxisNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                                           m_BogieTheta() * M_PI / 180.0, m_WheelTheta() * M_PI / 180, 0, pt, axis, normal, ysign);
-            return true;
+            return ret;
         }
     }
     return false;
@@ -2318,15 +2318,15 @@ bool AuxiliaryGeom::GetPtNormalAftAxleAxisInGear( double thetabogie, vec3d &pt, 
         if ( gear )
         {
             vec3d scratch1, scratch2;
-            gear->GetTwoPtAftContactPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+            bool ret1 = gear->GetTwoPtAftContactPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                                      m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                                      thetabogie, 0, pt, normal, scratch1, scratch2 );
 
 
-            gear->GetTwoPtAftAxleAxis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
+            bool ret2 = gear->GetTwoPtAftAxleAxis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
                                               m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
                                               thetabogie, ptaxis, axis );
-            return true;
+            return ret1 && ret2;
         }
     }
     return false;
@@ -2342,15 +2342,15 @@ bool AuxiliaryGeom::GetPtNormalFwdAxleAxisInGear( double thetabogie, vec3d &pt, 
         if ( gear )
         {
             vec3d scratch1, scratch2;
-            gear->GetTwoPtFwdContactPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+            bool ret1 = gear->GetTwoPtFwdContactPtNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                                      m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                                      thetabogie, 0, pt, normal, scratch1, scratch2 );
 
 
-            gear->GetTwoPtFwdAxleAxis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
+            bool ret2 = gear->GetTwoPtFwdAxleAxis( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(),
                                               m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(),
                                               thetabogie, ptaxis, axis );
-            return true;
+            return ret1 && ret2;
         }
     }
     return false;
@@ -2365,10 +2365,10 @@ bool AuxiliaryGeom::GetTwoPtSideContactPtsNormalInGear( vec3d &p1, vec3d &p2, ve
         GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
-            gear->GetTwoPtSideContactPtsNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+            bool ret = gear->GetTwoPtSideContactPtsNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                                      m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                                      p1, p2, normal );
-            return true;
+            return ret;
         }
     }
     return false;
@@ -2384,11 +2384,11 @@ bool AuxiliaryGeom::GetContactPointVecNormalInGear( vector < vec3d > &ptvec, vec
         GearContactRole * gear = Geom::CastTo< GearContactRole >( parent_geom );
         if ( gear )
         {
-            gear->GetContactPointVecNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
+            bool ret = gear->GetContactPointVecNormal( m_ContactPt1_ID, m_ContactPt1_Isymm(), m_ContactPt1_SuspensionMode(), m_ContactPt1_TireMode(),
                                                    m_ContactPt2_ID, m_ContactPt2_Isymm(), m_ContactPt2_SuspensionMode(), m_ContactPt2_TireMode(),
                                                    m_ContactPt3_ID, m_ContactPt3_Isymm(), m_ContactPt3_SuspensionMode(), m_ContactPt3_TireMode(),
                                                    ptvec, normal );
-            return true;
+            return ret;
         }
     }
     return false;
