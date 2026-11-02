@@ -3232,10 +3232,26 @@ bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, dou
         cc.set_ext_conditions( extle, extte );
 
         rtn_flag = cc.set_conditions( m_Surface, multicap_creator_type::FLAT, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, 0, str, p, swflag );
-        rtn_flag = cc.create_curve( b );
+        if ( rtn_flag )
+        {
+            rtn_flag = cc.create_curve( b );
+        }
 
-        rtn_flag = cc.set_conditions( m_Surface, multicap_creator_type::ROUND, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, 0, str, p, swflag );
-        rtn_flag = cc.create_curve( e );
+        if ( rtn_flag )
+        {
+            rtn_flag = cc.set_conditions( m_Surface, multicap_creator_type::ROUND, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, 0, str, p, swflag );
+        }
+        if ( rtn_flag )
+        {
+            rtn_flag = cc.create_curve( e );
+        }
+
+        // No cap where the edge gives no curve, such as an edge closed to a point.
+        if ( !rtn_flag )
+        {
+            ResetUSkip();
+            return false;
+        }
 
         b.scale( -1.0 );
         d.sum( b, e );

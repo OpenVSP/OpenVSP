@@ -1070,3 +1070,36 @@ def testAVSPGEOMExportWritesWhateverMeshIsThere( before ):
     assert min( p for p, t in parts ) >= 1
     assert min( t for p, t in parts ) >= 1
     drop_errors()
+
+
+EXT_CAP = """
+import openvsp as vsp
+print( "READY", flush = True )
+for opt in ( vsp.ROUND_EXT_END_CAP_NONE, vsp.ROUND_EXT_END_CAP_BOTH ):
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    vsp.SetParmVal( pod, "CapUMinOption", "EndCap", opt )
+    vsp.SetParmVal( pod, "CapUMaxOption", "EndCap", opt )
+    vsp.Update()
+    p = vsp.CompPnt01( pod, 0, 0.5, 0.3 )
+    print( "POINT %.17g %.17g %.17g" % ( p.x(), p.y(), p.z() ), flush = True )
+"""
+
+
+def testAnExtendedRoundCapOnAPointedPodIsLeftOff():
+    """A Pod's nose and tail close to a point, which gives an extended round cap no curve to
+    build on.  The cap read a control point of an empty curve and crashed; it now fails, and
+    the Pod is as it would be with no cap.  Run in a child process, so a crash fails the test
+    rather than ending the suite."""
+    import subprocess
+    import sys
+
+    done = subprocess.run( [ sys.executable, "-c", EXT_CAP ], capture_output = True, text = True, timeout = 120 )
+    lines = done.stdout.split( "\n" )
+    if "READY" not in lines:
+        pytest.skip( "the child could not load OpenVSP: %s" % done.stderr.strip()[-200:] )
+
+    assert done.returncode == 0, "a Pod with extended round caps ended the process with code %d" % done.returncode
+    points = [ l for l in lines if l.startswith( "POINT " ) ]
+    assert len( points ) == 2 and points[1] == points[0], \
+           "the Pod with extended round caps is not the Pod without: %s" % points
