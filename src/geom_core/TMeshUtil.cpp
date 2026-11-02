@@ -4542,12 +4542,12 @@ void MassSlice( vector<TMesh*> &tmv, vector<TMesh*> &slicevec, BndBox &bbox,
                 const vector<TetraMassProp*> &pointMassVec,
                 Results *res )
 {
-    double totalIxx;
-    double totalIyy;
-    double totalIzz;
-    double totalIxy;
-    double totalIxz;
-    double totalIyz;
+    double totalIxx = 0.0;
+    double totalIyy = 0.0;
+    double totalIzz = 0.0;
+    double totalIxy = 0.0;
+    double totalIxz = 0.0;
+    double totalIyz = 0.0;
 
     int i, j, s;
     bool deleteopen = false;
