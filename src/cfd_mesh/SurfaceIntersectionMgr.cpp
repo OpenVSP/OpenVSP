@@ -4565,6 +4565,22 @@ void SurfaceIntersectionSingleton::SplitNearlyTouchingChains()
                 {
                     vec3d pa = a->m_ISegVec[ka]->m_IPnt[1]->m_Pnt;
 
+                    // Not where two pieces of one curve meet, or a curve meets one it ends on.
+                    // Where the curves crowd their points into the ends, a search from a point
+                    // near one would find thousands of points only to turn every one away.
+                    bool nearend = false;
+                    for ( int e = 0 ; e < 4 ; e++ )
+                    {
+                        if ( dist( pa, ends[e] ) < 2.0 * tol )
+                        {
+                            nearend = true;
+                        }
+                    }
+                    if ( nearend )
+                    {
+                        continue;
+                    }
+
                     PNTreeResults matches;
                     nanoflann::SearchParams params;
                     index.radiusSearch( &pa[0], best * best, matches, params );
@@ -4575,17 +4591,16 @@ void SurfaceIntersectionSingleton::SplitNearlyTouchingChains()
                         vec3d pb = b->m_ISegVec[kb]->m_IPnt[1]->m_Pnt;
                         double d = dist( pa, pb );
 
-                        // Not where two pieces of one curve meet, or a curve meets one it ends on
-                        bool nearend = false;
+                        bool bnearend = false;
                         for ( int e = 0 ; e < 4 ; e++ )
                         {
-                            if ( dist( pa, ends[e] ) < 2.0 * tol || dist( pb, ends[e] ) < 2.0 * tol )
+                            if ( dist( pb, ends[e] ) < 2.0 * tol )
                             {
-                                nearend = true;
+                                bnearend = true;
                             }
                         }
 
-                        if ( d < best && !nearend )
+                        if ( d < best && !bnearend )
                         {
                             best = d;
                             ka_best = ka;
