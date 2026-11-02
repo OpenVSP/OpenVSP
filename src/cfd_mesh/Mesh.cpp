@@ -1499,6 +1499,32 @@ void Mesh::SplitEdge( Edge* edge )
     }
 }
 
+// Whether the angle between a and b, as angle() measures it, is over ( strict ) or at least
+// the angle whose tangent is tanlim, for a limit under a right angle.  angle() is
+// atan2( |a x b|, a . b ), 0 for two zero vectors.  With a . b <= 0 the angle is a right angle
+// or more, over the limit, unless both are zero.  With a . b > 0 it is atan of the ratio, and
+// atan is increasing, so it is over the limit when |a x b| > ( a . b ) tanlim; in doubles the
+// two differ only for a ratio that rounds to the limit.
+static bool AngleOverLimit( const vec3d &a, const vec3d &b, double tanlim, bool strict )
+{
+    double s = cross( a, b ).mag();
+    double c = dot( a, b );
+
+    if ( c <= 0.0 )
+    {
+        return !( s == 0.0 && c == 0.0 );
+    }
+
+    if ( strict )
+    {
+        return s > c * tanlim;
+    }
+    return s >= c * tanlim;
+}
+
+static const double TAN_SWAP_FOLD_ANGLE = tan( 0.25 * M_PI_4 );
+static const double TAN_MOVE_TURN_ANGLE = tan( 0.5 * M_PI_4 );
+
 void Mesh::SwapEdge( Edge* edge )
 {
     if ( !edge )
@@ -1601,23 +1627,18 @@ void Mesh::SwapEdge( Edge* edge )
     // to be better shaped than the pair it replaces, so let it through deliberately.
     if ( norma.mag() > 0.0 && normb.mag() > 0.0 )
     {
-        double angab = angle( norma, normb );
-
-        if ( angab > 0.25 * M_PI_4  )
+        // angle() > 0.25 * M_PI_4, asked through the tangent; see AngleOverLimit.
+        if ( AngleOverLimit( norma, normb, TAN_SWAP_FOLD_ANGLE, true ) )
         {
             return;
         }
 
-        double angcd = angle( normc, normd );
-
-        if ( angcd > 0.25 * M_PI_4  )
+        if ( AngleOverLimit( normc, normd, TAN_SWAP_FOLD_ANGLE, true ) )
         {
             return;
         }
 
-        double angac = angle( norma, normc );
-
-        if ( angac > 0.25 * M_PI_4 )
+        if ( AngleOverLimit( norma, normc, TAN_SWAP_FOLD_ANGLE, true ) )
         {
             return;
         }
@@ -2000,7 +2021,8 @@ bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace, F
             break;
         }
 
-        if ( angle( normals[i], move_normals[i] ) >= 0.5 * M_PI_4 )
+        // angle() >= 0.5 * M_PI_4, asked through the tangent; see AngleOverLimit.
+        if ( AngleOverLimit( normals[i], move_normals[i], TAN_MOVE_TURN_ANGLE, false ) )
         {
             valid_flag = false;
             break;
