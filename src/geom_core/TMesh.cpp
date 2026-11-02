@@ -2844,7 +2844,7 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
             {
                 vec3d prot1, prot2;
                 double theta1, theta2;
-                angle_pnt_2_plane( v0, norm, ptaxis, axis, mesh_verts[j], ccw, prot1, prot2, theta1, theta2 );
+                angle_pnt_2_plane_or_nan( v0, norm, ptaxis, axis, mesh_verts[j], ccw, prot1, prot2, theta1, theta2 );
 
                 theta_m[j] = theta1;
                 m_back[j] = prot1;
@@ -2876,7 +2876,7 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
             {
                 vec3d prot1, prot2;
                 double theta1, theta2;
-                angle_pnt_2_plane( m0, m_norm, ptaxis, axis, tri_verts[j], ccw, prot1, prot2, theta1, theta2 );
+                angle_pnt_2_plane_or_nan( m0, m_norm, ptaxis, axis, tri_verts[j], ccw, prot1, prot2, theta1, theta2 );
 
                 if ( angle_less( theta1, curr_min_angle ) && PtInTri( m0, m1, m2, prot1 ) )
                 {
@@ -2925,7 +2925,7 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
                             vec3d pm = mesh_verts[ia] + tm * ( mesh_verts[ib] - mesh_verts[ia] );
                             vec3d prot1, prot2;
                             double theta1, theta2;
-                            angle_pnt_2_plane( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
+                            angle_pnt_2_plane_or_nan( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
                             double sm = dot( norm, cross( t_edge, prot1 - tri_verts[ja] ) );
                             if ( sm * sa >= 0.0 )
                             {
@@ -2941,7 +2941,7 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
                         vec3d pm = mesh_verts[ia] + tm * ( mesh_verts[ib] - mesh_verts[ia] );
                         vec3d prot1, prot2;
                         double theta1, theta2;
-                        angle_pnt_2_plane( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
+                        angle_pnt_2_plane_or_nan( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
 
                         if ( angle_less( theta1, curr_min_angle ) && PtInTri( v0, v1, v2, prot1 ) )
                         {
@@ -2968,7 +2968,7 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
                             vec3d pm = mesh_verts[ia] + tm * ( mesh_verts[ib] - mesh_verts[ia] );
                             vec3d prot1, prot2;
                             double theta1, theta2;
-                            angle_pnt_2_plane( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
+                            angle_pnt_2_plane_or_nan( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
                             double sm_b = dot( norm, cross( t_edge, prot2 - tri_verts[ja] ) );
                             if ( sm_b * sa_b >= 0.0 )
                             {
@@ -2984,7 +2984,7 @@ double TBndBox::MinAngleTri( const vec3d &norm, const vec3d &v0, const vec3d &v1
                         vec3d pm = mesh_verts[ia] + tm * ( mesh_verts[ib] - mesh_verts[ia] );
                         vec3d prot1, prot2;
                         double theta1, theta2;
-                        angle_pnt_2_plane( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
+                        angle_pnt_2_plane_or_nan( v0, norm, ptaxis, axis, pm, ccw, prot1, prot2, theta1, theta2 );
 
                         if ( angle_less( theta2, curr_min_angle ) && PtInTri( v0, v1, v2, prot2 ) )
                         {

@@ -8,6 +8,7 @@
 #include <pcg_random.hpp>
 #include <cmath>
 #include <cstdio>
+#include <limits>
 
 //==== Generate A Unique Random String of Length =====//
 string GenerateRandomID( int length )
@@ -165,6 +166,23 @@ bool angle_less( double a, double b )
     double d = std::remainder( b - a, 2.0 * M_PI );
 
     return d > 0.0;
+}
+
+// angle_pnt_2_plane, but NaN for an angle it finds none for, which angle_less never takes.
+void angle_pnt_2_plane_or_nan( const vec3d& ptplane, const vec3d& norm, const vec3d& ptaxis, const vec3d& axis, const vec3d &pt, int ccw,
+                               vec3d &prot1, vec3d &prot2, double &theta1, double &theta2 )
+{
+    angle_pnt_2_plane( ptplane, norm, ptaxis, axis, pt, ccw, prot1, prot2, theta1, theta2 );
+
+    // angle_pnt_2_plane gives 1e12 where the plane's normal lies along the axis.
+    if ( theta1 == 1e12 )
+    {
+        theta1 = std::numeric_limits< double >::quiet_NaN();
+    }
+    if ( theta2 == 1e12 )
+    {
+        theta2 = std::numeric_limits< double >::quiet_NaN();
+    }
 }
 
 //==== Print to stdout ====//

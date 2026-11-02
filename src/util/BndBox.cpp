@@ -530,7 +530,7 @@ bool BndBox::MinMaxAngleTriangle( const vec3d &norm, const vec3d &v0, const vec3
     {
         vec3d prot1, prot2;
         double theta1, theta2;
-        angle_pnt_2_plane( v0, norm, ptaxis, axis, GetCornerPnt( i ), ccw, prot1, prot2, theta1, theta2 );
+        angle_pnt_2_plane_or_nan( v0, norm, ptaxis, axis, GetCornerPnt( i ), ccw, prot1, prot2, theta1, theta2 );
 
         if ( angle_less( theta1, mina ) )
         {

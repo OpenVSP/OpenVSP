@@ -89,6 +89,8 @@ double linterp( double a, double b, double frac );
 int toint( double x );
 
 bool angle_less( double a, double b );
+void angle_pnt_2_plane_or_nan( const vec3d& ptplane, const vec3d& norm, const vec3d& ptaxis, const vec3d& axis, const vec3d &pt, int ccw,
+                               vec3d &prot1, vec3d &prot2, double &theta1, double &theta2 );
 
 /*
 template <typename T> T clamp( T val, T min, T max )
