@@ -1588,7 +1588,8 @@ bool TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec,
 
     if ( tristatus == TRI_OK )
     {
-        triangle_mesh_copy( ctx, &out, 1, 1 );
+        // The points and triangles only: no edge or neighbor lists.
+        triangle_mesh_copy( ctx, &out, 0, 0 );
 
         connlist.reserve( out.numberoftriangles );
 

@@ -2987,7 +2987,8 @@ bool Mesh::InitMesh_TRI( const vector< vec2d > & uw_prime, const vector< MeshSeg
     }
     if ( tristatus == TRI_OK && !ranout )
     {
-        triangle_mesh_copy( ctx, &out, 1, 1 );
+        // The points and triangles only: no edge or neighbor lists.
+        triangle_mesh_copy( ctx, &out, 0, 0 );
 
         points_out.resize( out.numberofpoints );
         for ( int i = 0; i < out.numberofpoints; i++ )

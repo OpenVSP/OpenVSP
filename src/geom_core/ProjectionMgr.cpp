@@ -1963,7 +1963,8 @@ void ProjectionMgrSingleton::Triangulate_TRI( const vector < vector < vec3d > > 
 
     if ( tristatus == TRI_OK )
     {
-        triangle_mesh_copy( ctx, &out, 1, 1 );
+        // The points and triangles only: no edge or neighbor lists.
+        triangle_mesh_copy( ctx, &out, 0, 0 );
 
         connlist.clear();
         connlist.resize( out.numberoftriangles);

@@ -1250,7 +1250,8 @@ void PGFace::Triangulate_triangle( const vector < PGNode* > &nodVec, const vec3d
 
     if ( tristatus == TRI_OK )
     {
-        triangle_mesh_copy( ctx, &out, 1, 1 );
+        // The points and triangles only: no edge or neighbor lists.
+        triangle_mesh_copy( ctx, &out, 0, 0 );
 
         // Place result into node pointer vector.
         triNodeVec.resize( out.numberoftriangles * 3 );
