@@ -215,6 +215,7 @@ public:
 
     bool BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
     bool CurveOnSurface( Bezier_curve &crv, double tol );
+    bool OnOwnBorder( const Bezier_curve &crv, double tol );
     void PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceIntersectionSingleton *MeshMgr );
 
     // Flat where every control point lies within reltol times the surface's size of one plane.

@@ -1412,11 +1412,31 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *Me
                 }
             }
 
-            PlaneBorderCurveIntersect( surfPtr, border_curves[i], MeshMgr );
+            // A curve along one of this surface's own borders is matched as a border, with
+            // whichever surface border matching paired it.
+            if ( !OnOwnBorder( crv, tol ) )
+            {
+                PlaneBorderCurveIntersect( surfPtr, border_curves[i], MeshMgr );
+            }
         }
     }
 
     return retFlag;
+}
+
+bool Surf::OnOwnBorder( const Bezier_curve &crv, double tol )
+{
+    for ( int i = 0 ; i < ( int )m_SCurveVec.size() ; i++ )
+    {
+        Bezier_curve own;
+        m_SCurveVec[i]->GetBorderCurve( own );
+
+        if ( crv.Match( own, tol ) )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Surf::CurveOnSurface( Bezier_curve &crv, double tol )
