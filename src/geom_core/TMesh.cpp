@@ -2278,7 +2278,6 @@ bool TBndBox::CheckIntersect( TBndBox* iBox  )
     }
     else
     {
-        int coplanarFlag = 0; // Must be initialized to 0 before use in tri_tri_intersection_test_3d
         vec3d e0;
         vec3d e1;
 
@@ -2290,6 +2289,7 @@ bool TBndBox::CheckIntersect( TBndBox* iBox  )
             {
                 TTri* t1 = iBox->m_TriVec[j];
 
+                int coplanarFlag = 0; // Must be initialized to 0 before use in tri_tri_intersection_test_3d
                 int iflag = tri_tri_intersection_test_3d(
                                 t0->m_N0->m_Pnt.v, t0->m_N1->m_Pnt.v, t0->m_N2->m_Pnt.v,
                                 t1->m_N0->m_Pnt.v, t1->m_N1->m_Pnt.v, t1->m_N2->m_Pnt.v,
