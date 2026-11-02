@@ -1672,6 +1672,37 @@ static void TakeSCurve( SCurve* c, double tol, SCurveTake &take )
     }
 }
 
+// Split border curve a of surface srf at t, the first piece in its place and the second at the
+// end of the list.
+static void SplitSCurveAt( vector< SCurve* > &cva, int a, double t, Surf* srf )
+{
+    // Both pieces stay on the line the curve was on
+    const ParmLine line = cva[a]->GetParmLine();
+
+    vec3d uw0 = line.OnLine( cva[a]->CompPntUW( 0.0 ) );
+    vec3d uwt = line.OnLine( cva[a]->CompPntUW( t ) );
+    vec3d uw1 = line.OnLine( cva[a]->CompPntUW( 1.0 ) );
+
+    vector< vec3d > pnts( 2 );
+    SCurve* c0 = new SCurve( srf );
+    pnts[0] = uw0;
+    pnts[1] = uwt;
+    c0->InterpolateLinear( pnts );
+    c0->PromoteTo( 3 );
+    c0->SetParmLine( line );
+
+    SCurve* c1 = new SCurve( srf );
+    pnts[0] = uwt;
+    pnts[1] = uw1;
+    c1->InterpolateLinear( pnts );
+    c1->PromoteTo( 3 );
+    c1->SetParmLine( line );
+
+    delete cva[a];
+    cva[a] = c0;
+    cva.push_back( c1 );
+}
+
 void SurfaceIntersectionSingleton::SplitBordersToMatch()
 {
     double tol = 1.0e-5;
@@ -1757,31 +1788,7 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
                             continue;
                         }
 
-                        // Both pieces stay on the line the curve was on
-                        const ParmLine line = cva[a]->GetParmLine();
-
-                        vec3d uw0 = line.OnLine( cva[a]->CompPntUW( 0.0 ) );
-                        vec3d uwt = line.OnLine( cva[a]->CompPntUW( t ) );
-                        vec3d uw1 = line.OnLine( cva[a]->CompPntUW( 1.0 ) );
-
-                        vector< vec3d > pnts( 2 );
-                        SCurve* c0 = new SCurve( m_SurfVec[i] );
-                        pnts[0] = uw0;
-                        pnts[1] = uwt;
-                        c0->InterpolateLinear( pnts );
-                        c0->PromoteTo( 3 );
-                        c0->SetParmLine( line );
-
-                        SCurve* c1 = new SCurve( m_SurfVec[i] );
-                        pnts[0] = uwt;
-                        pnts[1] = uw1;
-                        c1->InterpolateLinear( pnts );
-                        c1->PromoteTo( 3 );
-                        c1->SetParmLine( line );
-
-                        delete cva[a];
-                        cva[a] = c0;
-                        cva.push_back( c1 );
+                        SplitSCurveAt( cva, a, t, m_SurfVec[i] );
 
                         // Only this surface's curves moved; take them again.
                         takes[i].resize( cva.size() );
