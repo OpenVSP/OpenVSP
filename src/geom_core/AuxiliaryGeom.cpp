@@ -2485,8 +2485,13 @@ bool AuxiliaryGeom::CalculateTurnInGear( vec3d &cor, vec3d &normal, vector<doubl
                     vec3d p1 = ptvec[i];
                     vec3d p2 = p1 + axle;
 
-                    double s, t;
-                    line_line_intersect( psteer1, psteer2, p1, p2, &s, &t );
+                    // A steering axle parallel to the fixed axle turns about no point.
+                    double s = 0.0;
+                    double t = 0.0;
+                    if ( !line_line_intersect( psteer1, psteer2, p1, p2, &s, &t ) )
+                    {
+                        return false;
+                    }
                     vec3d pint = psteer1 + s * steerpar;
 
                     cor = cor + pint;

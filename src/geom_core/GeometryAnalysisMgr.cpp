@@ -1921,6 +1921,7 @@ string GeometryAnalysisCase::Evaluate()
                         primary_tm->LoadBndBox();
 
                         bool success = false;
+                        bool noturn = false;
                         if ( m_SecondaryType() == vsp::GEOM_TARGET )
                         {
                             Geom* geom = veh->FindGeom( m_SecondaryGeomID );
@@ -1931,6 +1932,7 @@ string GeometryAnalysisCase::Evaluate()
                                 vec3d cor;
                                 vec3d normal;
                                 vector < double > rvec;
+                                noturn = true;
                                 if ( auxiliary_ptr->CalculateTurn(cor, normal, rvec) )
                                 {
 
@@ -1967,7 +1969,20 @@ string GeometryAnalysisCase::Evaluate()
                             }
                         }
 
-                        if ( !success )
+                        // A gear whose contact points name no bogie, or whose steered axle is
+                        // parallel to the others, turns about no center.
+                        if ( !success && noturn )
+                        {
+                            MessageData errMsgData;
+                            errMsgData.m_String = "Error";
+                            errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_INPUT_VAL );
+                            char buf[255];
+                            snprintf( buf, sizeof( buf ), "Error:  %s's gear has no center of rotation: a contact point names no bogie, or no wheel is steered.", m_Name.c_str() );
+                            errMsgData.m_StringVec.emplace_back( string( buf ) );
+
+                            MessageMgr::getInstance().SendAll( errMsgData );
+                        }
+                        else if ( !success )
                         {
                             MessageData errMsgData;
                             errMsgData.m_String = "Error";
