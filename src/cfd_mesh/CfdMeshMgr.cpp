@@ -3714,7 +3714,7 @@ bool CfdMeshMgrSingleton::WritePOGSInputFile( const string &fn, const string &ro
         return false;
     }
 
-    double sharp = 20.0;        // Dihedral angle above which an edge counts as sharp
+    double sharp = acos( 1.0 - CFD_SHARP_TOL ) * 180.0 / M_PI;  // Dihedral angle above which an edge counts as sharp
     double turntmax = 30.0;     // Max turning angle
     double tolsp = 1.0e-6;      // Seam point tolerance
     double tolonse = 1.0e-5;    // On-seam tolerance
