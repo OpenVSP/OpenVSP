@@ -1390,46 +1390,59 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *Me
         Bezier_curve crv;
         border_curves[i]->GetBorderCurve( crv );
 
-        BndBox crvbox;
-        crv.GetBBox( crvbox );
-
-        if ( Compare( m_BBox, crvbox ) )
+        if ( CurveOnSurface( crv, tol ) )
         {
-            Bezier_curve projcrv = crv;
-            projcrv.XYZCurveToUWCurve( this );
-            projcrv.UWCurveToXYZCurve( this );
+            retFlag = true;
+            //==== If Surface Add To List ====//
+            MeshMgr->AddPossCoPlanarSurf( this, surfPtr );
 
-            // On the surface only where every control point is: a curve that touches the
-            // surface, or runs close to it for a stretch, still has to be intersected with it.
-            // A curve laid across a surface's interior has no segments and lies on nothing.
-            if ( crv.GetNumSections() > 0 && crv.MatchFwd( projcrv, tol ) )
+            // A border shared with a surface lying in this one's plane stays with that surface;
+            // the two are intersected as coplanar surfaces.
+            ICurve* icrv = border_curves[i]->GetICurve();
+            if ( icrv && icrv->m_SCurve_A && icrv->m_SCurve_B )
             {
-                retFlag = true;
-                //==== If Surface Add To List ====//
-                MeshMgr->AddPossCoPlanarSurf( this, surfPtr );
-
-                // A border shared with a surface lying in this one's plane stays with that surface;
-                // the two are intersected as coplanar surfaces.
-                ICurve* icrv = border_curves[i]->GetICurve();
-                if ( icrv && icrv->m_SCurve_A && icrv->m_SCurve_B )
+                SCurve* other = icrv->m_SCurve_A;
+                if ( other == border_curves[i] )
                 {
-                    SCurve* other = icrv->m_SCurve_A;
-                    if ( other == border_curves[i] )
-                    {
-                        other = icrv->m_SCurve_B;
-                    }
-                    if ( CoplanarWith( other->GetSurf() ) )
-                    {
-                        continue;
-                    }
+                    other = icrv->m_SCurve_B;
                 }
-
-                PlaneBorderCurveIntersect( surfPtr, border_curves[i], MeshMgr );
+                if ( CoplanarWith( other->GetSurf() ) )
+                {
+                    continue;
+                }
             }
+
+            PlaneBorderCurveIntersect( surfPtr, border_curves[i], MeshMgr );
         }
     }
 
     return retFlag;
+}
+
+bool Surf::CurveOnSurface( Bezier_curve &crv, double tol )
+{
+    // A curve laid across a surface's interior is not one of its borders, and GetBorderCurve
+    // gives it no segments; with no control points to test, it lies on nothing.
+    if ( crv.GetNumSections() == 0 )
+    {
+        return false;
+    }
+
+    BndBox crvbox;
+    crv.GetBBox( crvbox );
+
+    if ( !Compare( m_BBox, crvbox ) )
+    {
+        return false;
+    }
+
+    Bezier_curve projcrv = crv;
+    projcrv.XYZCurveToUWCurve( this );
+    projcrv.UWCurveToXYZCurve( this );
+
+    // On the surface only where every control point is: a curve that touches the
+    // surface, or runs close to it for a stretch, still has to be intersected with it.
+    return crv.MatchFwd( projcrv, tol );
 }
 
 void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceIntersectionSingleton *MeshMgr )

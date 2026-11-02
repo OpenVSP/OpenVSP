@@ -214,6 +214,7 @@ public:
     void IntersectLineSeg( vec3d & p0, vec3d & p1, vector< double > & t_vals );
 
     bool BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
+    bool CurveOnSurface( Bezier_curve &crv, double tol );
     void PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceIntersectionSingleton *MeshMgr );
 
     // Flat where every control point lies within reltol times the surface's size of one plane.
