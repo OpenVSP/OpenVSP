@@ -184,14 +184,18 @@ string PathToExe()
                 path = cpath;
             }
 
-            char *ppath = (char*) malloc( 2 * bufsize * sizeof(char) );
+            // dirname may answer in storage of its own, so its answer is copied out
+            char *ppath = (char*) malloc( ( strlen( path ) + 1 ) * sizeof(char) );
             strcpy( ppath, path );
-            ppath = dirname( ppath );
-            if ( ppath )
+            char *dpath = dirname( ppath );
+            if ( dpath )
             {
+                char *npath = (char*) malloc( ( strlen( dpath ) + 1 ) * sizeof(char) );
+                strcpy( npath, dpath );
                 free( path );
-                path = ppath;
+                path = npath;
             }
+            free( ppath );
         }
 #endif
 
