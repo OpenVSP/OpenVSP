@@ -348,6 +348,12 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
     // Run slicing routine
     m_lastmeshgeomID = WaveDragSlice( set, numSlices, numRots, Mach, Flow_vec, Symm );
 
+    // Terminates if the set has no surface to slice, as an engine representing none does
+    if ( m_lastmeshgeomID == "NONE" )
+    {
+        return string();
+    }
+
     // Send ambiguous flow face message if necessary
     if ( m_AmbigSubSurf )
     {
