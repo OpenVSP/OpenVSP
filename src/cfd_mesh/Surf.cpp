@@ -69,6 +69,8 @@ Surf::Surf()
     m_FeaPartSurfNum = -1;
     m_FeaSymmIndex = -1;
     m_IgnoreSurfFlag = false;
+    m_CoincidentSurf = nullptr;
+    m_CoincidentOverlap = false;
     m_PlanarUWAspect = -1;
     m_PlaneFlag = false;
     m_DistMapBuilt = false;
@@ -1203,6 +1205,16 @@ bool Surf::IntersectPrepare( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMg
     }
 
     if ( !Compare( m_BBox, surfPtr->GetBBox() ) )
+    {
+        return false;
+    }
+    // A face lying on a face of another body meets what that face meets, so it is cut neither
+    // by that face nor by that face's own body.
+    if ( m_CoincidentSurf && m_CoincidentSurf->GetCompID() == surfPtr->GetCompID() )
+    {
+        return false;
+    }
+    if ( surfPtr->GetCoincidentSurf() && surfPtr->GetCoincidentSurf()->GetCompID() == m_CompID )
     {
         return false;
     }

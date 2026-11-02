@@ -1529,6 +1529,140 @@ static bool SurfWithin( const vector< vec3d > &apnts, Surf* b, const vector< vec
     return true;
 }
 
+// Whether q lies inside the component comp, by the number of its surfaces a ray from q crosses.
+static bool InsideComp( const vector< Surf* > &surfs, int comp, const vec3d &q, double len )
+{
+    vec3d p0 = q;
+    vec3d p1 = q + vec3d( len, 1.0e-4, 1.0e-4 );
+
+    vector< double > t;
+    for ( int i = 0 ; i < ( int )surfs.size() ; i++ )
+    {
+        if ( surfs[i]->GetCompID() == comp )
+        {
+            surfs[i]->IntersectLineSeg( p0, p1, t );
+        }
+    }
+
+    return t.size() % 2 == 1;
+}
+
+// A face of a positive body and a face of a negative body that lie one on the other -- the end
+// faces of a flow-through engine, where the negative body's face sits a hair outside the
+// positive body's, or the face where a flowpath passes from a positive body to a negative
+// one -- are paired.  Each is meshed and cut by the other bodies, but not by the
+// other face or its body, and the inside/outside tests take the pairing as their verdict
+// between the two bodies.
+void SurfaceIntersectionSingleton::PairCoincidentFaces()
+{
+    int nsurf = ( int )m_SurfVec.size();
+
+    // Long enough for a ray to leave every body.
+    BndBox all;
+    for ( int s = 0 ; s < nsurf ; s++ )
+    {
+        all.Update( m_SurfVec[s]->GetBBox() );
+    }
+    double xlen = 1.0 + all.GetMax( 0 ) - all.GetMin( 0 );
+
+    // The box around each component.  A negative face is set off from a positive one by a
+    // fraction of the whole body, not of the face, so the faces are compared at a fraction of
+    // the bodies' size.
+    map < int, BndBox > compbox;
+    for ( int s = 0 ; s < nsurf ; s++ )
+    {
+        compbox[ m_SurfVec[s]->GetCompID() ].Update( m_SurfVec[s]->GetBBox() );
+    }
+
+    int n = 8;
+    vector< vector< vec3d > > pnts( nsurf );
+    vector< vector< vec2d > > uws( nsurf );
+
+    for ( int s = 0 ; s + 1 < nsurf ; s++ )
+    {
+        int stype = m_SurfVec[s]->GetSurfaceCfdType();
+        if ( m_SurfVec[s]->GetCoincidentSurf() || !m_SurfVec[s]->GetSurfaceThickSurf() ||
+             ( stype != vsp::CFD_NORMAL && stype != vsp::CFD_NEGATIVE ) )
+        {
+            continue;
+        }
+
+        BndBox &bbs = m_SurfVec[s]->GetBBox();
+
+        for ( int t = s + 1 ; t < nsurf && !m_SurfVec[s]->GetCoincidentSurf() ; t++ )
+        {
+            // Faces this close together, for the size of their bodies, are taken as one face.
+            BndBox bodies = compbox[ m_SurfVec[s]->GetCompID() ];
+            bodies.Update( compbox[ m_SurfVec[t]->GetCompID() ] );
+            double tol = 1.0e-3 * bodies.DiagDist();
+
+            int ttype = m_SurfVec[t]->GetSurfaceCfdType();
+
+            if ( m_SurfVec[t]->GetCoincidentSurf() || !m_SurfVec[t]->GetSurfaceThickSurf() ||
+                 m_SurfVec[s]->GetCompID() == m_SurfVec[t]->GetCompID() )
+            {
+                continue;
+            }
+
+            if ( !( stype == vsp::CFD_NORMAL && ttype == vsp::CFD_NEGATIVE ) &&
+                 !( stype == vsp::CFD_NEGATIVE && ttype == vsp::CFD_NORMAL ) )
+            {
+                continue;
+            }
+
+            BndBox &bbt = m_SurfVec[t]->GetBBox();
+
+            bool samebox = true;
+            for ( int k = 0 ; k < 3 && samebox ; k++ )
+            {
+                if ( std::abs( bbs.GetMin( k ) - bbt.GetMin( k ) ) > tol ||
+                     std::abs( bbs.GetMax( k ) - bbt.GetMax( k ) ) > tol )
+                {
+                    samebox = false;
+                }
+            }
+
+            if ( !samebox )
+            {
+                continue;
+            }
+
+            if ( pnts[s].empty() )
+            {
+                SampleSurf( m_SurfVec[s], n, pnts[s], uws[s] );
+            }
+            if ( pnts[t].empty() )
+            {
+                SampleSurf( m_SurfVec[t], n, pnts[t], uws[t] );
+            }
+
+            if ( SurfWithin( pnts[s], m_SurfVec[t], pnts[t], uws[t], tol ) &&
+                 SurfWithin( pnts[t], m_SurfVec[s], pnts[s], uws[s], tol ) )
+            {
+                // The two bodies overlap where a point just off the faces, on one side or the
+                // other, lies inside both.
+                int mid = ( int )uws[s].size() / 2;
+                vec3d n = m_SurfVec[s]->CompNorm( uws[s][mid].x(), uws[s][mid].y() );
+                double off = 1.0e-2 * bbs.DiagDist();
+
+                bool overlap = false;
+                for ( int side = -1 ; side <= 1 ; side += 2 )
+                {
+                    vec3d q = pnts[s][mid] + n * ( side * off );
+                    if ( InsideComp( m_SurfVec, m_SurfVec[s]->GetCompID(), q, xlen ) &&
+                         InsideComp( m_SurfVec, m_SurfVec[t]->GetCompID(), q, xlen ) )
+                    {
+                        overlap = true;
+                    }
+                }
+
+                m_SurfVec[s]->SetCoincidentSurf( m_SurfVec[t], overlap );
+                m_SurfVec[t]->SetCoincidentSurf( m_SurfVec[s], overlap );
+            }
+        }
+    }
+}
+
 // Whether every point of a grid over each of the surfaces of one group lies within tol of a
 // surface of the other.  The nearest point is searched for over the whole surface: a flat face
 // is often a cap whose parameters collapse to a point, where a search started nearby can stall.
@@ -6126,6 +6260,73 @@ void SurfaceIntersectionSingleton::AddCoplanarChains()
         {
             CopyCoplanarBorders( b, a, tol );
         }
+    }
+}
+
+// The components joined to comp through faces lying one on the other.
+void SurfaceIntersectionSingleton::JoinedComps( int comp, vector< int > &comps ) const
+{
+    comps.clear();
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        Surf* other = m_SurfVec[i]->GetCoincidentSurf();
+        if ( other && m_SurfVec[i]->GetCompID() == comp &&
+             std::find( comps.begin(), comps.end(), other->GetCompID() ) == comps.end() )
+        {
+            comps.push_back( other->GetCompID() );
+        }
+    }
+}
+
+// Whether p lies inside component comp, by the majority of three rays along the axes.  Two
+// bodies joined through their faces meet along an edge their surfaces run tangent to, and a
+// single ray from near it can run along the other body's surface.
+bool SurfaceIntersectionSingleton::InsideByThreeRays( int comp, const vec3d &p, double len ) const
+{
+    vec3d p0 = p;
+    vec3d dirs[3] = { vec3d( len, 1.0e-4, 1.0e-4 ), vec3d( 1.0e-4, len, 1.0e-4 ), vec3d( 1.0e-4, 1.0e-4, len ) };
+
+    int votes = 0;
+    for ( int d = 0 ; d < 3 ; d++ )
+    {
+        vec3d p1 = p + dirs[d];
+
+        vector< double > t;
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+        {
+            int type = m_SurfVec[i]->GetSurfaceCfdType();
+            if ( m_SurfVec[i]->GetCompID() == comp && ( type == vsp::CFD_NORMAL || type == vsp::CFD_NEGATIVE ) )
+            {
+                m_SurfVec[i]->IntersectLineSeg( p0, p1, t );
+            }
+        }
+
+        if ( t.size() % 2 == 1 )
+        {
+            votes++;
+        }
+    }
+
+    return votes >= 2;
+}
+
+// For a face lying on a face of another body, that body's component and whether the face counts
+// as inside it.  A ray cannot be trusted to say, so close to the other face.  A positive face on
+// a negative one is inside it, so of the two faces only the negative one can remain.  Where the
+// two bodies lie on the same side of the faces, the negative face, made to sit just outside the
+// positive one, is outside it; where the bodies only meet at the faces, the negative face is
+// the one face between them and counts as inside.  comp is -1 for any other surface.
+void SurfaceIntersectionSingleton::CoincidentVerdict( Surf* s, int &comp, bool &inside ) const
+{
+    comp = -1;
+    inside = false;
+
+    Surf* other = s->GetCoincidentSurf();
+    if ( other )
+    {
+        comp = other->GetCompID();
+        inside = ( s->GetSurfaceCfdType() == vsp::CFD_NORMAL || !s->GetCoincidentOverlap() );
     }
 }
 

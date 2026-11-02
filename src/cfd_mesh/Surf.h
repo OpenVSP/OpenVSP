@@ -487,6 +487,22 @@ public:
         return m_IgnoreSurfFlag;
     }
 
+    // The face of another body this one lies on, the one face of a positive body and the
+    // other of a negative body, and whether the two bodies lie on the same side of the faces.
+    void SetCoincidentSurf( Surf* s, bool overlap )
+    {
+        m_CoincidentSurf = s;
+        m_CoincidentOverlap = overlap;
+    }
+    Surf* GetCoincidentSurf() const
+    {
+        return m_CoincidentSurf;
+    }
+    bool GetCoincidentOverlap() const
+    {
+        return m_CoincidentOverlap;
+    }
+
     void SetPlanarUWAspect( double uwAspect )
     {
         m_PlanarUWAspect = uwAspect;
@@ -523,6 +539,9 @@ protected:
     bool m_FarFlag;
 
     bool m_IgnoreSurfFlag; // Flag to ignore the surface after intersected
+
+    Surf* m_CoincidentSurf;
+    bool m_CoincidentOverlap;
 
     vector < double > m_UTess;
     vector < double > m_WTess;

@@ -106,6 +106,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Clean Merge Surfaces\n" );
     CleanMergeSurfs( /* skip_duplicate_removal */ false );
 
+    // Only the CFD mesh pairs the faces of positive and negative bodies that lie one on the other.
+    PairCoincidentFaces();
+
     if ( m_SurfVec.size() == 0 )
     {
         // Nothing was selected.  Worth saying out loud: the meshing set defaults to the
@@ -3464,6 +3467,36 @@ bool CfdMeshMgrSingleton::PntTrimmedAway( const vec3d &pnt, Surf *srf, double x_
         }
     }
 
+    vector< int > joined;
+    JoinedComps( s_comp_id, joined );
+    if ( !joined.empty() )
+    {
+        BndBox big_box;
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+        {
+            big_box.Update( m_SurfVec[i]->GetBBox() );
+        }
+        double ray_len = 1.0 + big_box.DiagDist();
+
+        for ( int i = 0 ; i < ( int )joined.size() ; i++ )
+        {
+            int c = joined[i];
+            if ( c >= 0 && c < ( int )inside.size() )
+            {
+                inside[c] = InsideByThreeRays( c, pnt, ray_len );
+            }
+        }
+    }
+
+    int pairc = -1;
+    bool pairinside = false;
+    CoincidentVerdict( srf, pairc, pairinside );
+
+    if ( pairc >= 0 && pairc < ( int )inside.size() )
+    {
+        inside[ pairc ] = pairinside;
+    }
+
     return SetDeleteTriFlag( srf->GetSurfaceCfdType(), srf->GetSymPlaneFlag(), inside );
 }
 
@@ -4928,6 +4961,8 @@ void CfdMeshMgrSingleton::InitMesh( )
     addOutputText( "TessellateChains\n" );
     TessellateChains();
 
+    TieCoincidentBorderChains();
+
 //DebugWriteChains( "Tess_UW", true );
 
     addOutputText( "MergeBorderEndPoints\n" );
@@ -4949,6 +4984,227 @@ void CfdMeshMgrSingleton::InitMesh( )
 
     addOutputText( "RemoveTrimTris\n" );
     RemoveTrimTris();
+}
+
+// The point at u along a chain's A curve.
+static vec3d ChainPnt( ISegChain* c, double u )
+{
+    vec3d uw = c->m_ACurve.CompPntUW( u );
+    return c->m_SurfA->CompPnt( uw.x(), uw.y() );
+}
+
+// Where along chain c the point q lies, near the tessellation points k and k + 1.  The interval
+// that holds the point across from q is halved until it closes on it.
+static double ChainParm( ISegChain* c, const vector< double > &utess, int k, const vec3d &q )
+{
+    for ( int m = k - 1 ; m <= k + 1 ; m++ )
+    {
+        if ( m < 0 || m + 1 >= ( int )utess.size() )
+        {
+            continue;
+        }
+
+        double ulo = utess[m];
+        double uhi = utess[m + 1];
+
+        vec3d dir = ChainPnt( c, uhi ) - ChainPnt( c, ulo );
+
+        double glo = dot( ChainPnt( c, ulo ) - q, dir );
+        double ghi = dot( ChainPnt( c, uhi ) - q, dir );
+
+        if ( glo == 0.0 )
+        {
+            return ulo;
+        }
+        if ( ghi == 0.0 )
+        {
+            return uhi;
+        }
+        if ( ( glo < 0.0 ) == ( ghi < 0.0 ) )
+        {
+            continue;
+        }
+
+        for ( int i = 0 ; i < 60 ; i++ )
+        {
+            double umid = 0.5 * ( ulo + uhi );
+            double gmid = dot( ChainPnt( c, umid ) - q, dir );
+
+            if ( ( gmid < 0.0 ) == ( glo < 0.0 ) )
+            {
+                ulo = umid;
+                glo = gmid;
+            }
+            else
+            {
+                uhi = umid;
+            }
+        }
+
+        return 0.5 * ( ulo + uhi );
+    }
+
+    return utess[k];
+}
+
+// The distance from q to the segment from a to b.
+static double SegDist( const vec3d &a, const vec3d &b, const vec3d &q )
+{
+    vec3d ab = b - a;
+    double len2 = dot( ab, ab );
+    double t = 0.0;
+    if ( len2 > 0.0 )
+    {
+        t = dot( q - a, ab ) / len2;
+    }
+    t = clamp( t, 0.0, 1.0 );
+    return dist( a + ab * t, q );
+}
+
+// Where a face lying on a face of another body shares an edge with both bodies, the edge is a
+// border four ways over: the face and the body it closes on one chain, the other face and its
+// body on another.  Which surfaces keep their triangles along it is decided only when the
+// inside/outside tests are made, so the two chains are made one: the coarser takes the finer's
+// points, and each point is shared by all four surfaces.
+void CfdMeshMgrSingleton::TieCoincidentBorderChains()
+{
+    double tol = GetGridDensityPtr()->m_MinLen / 100.0;
+
+    vector< ISegChain* > borders;
+    for ( list< ISegChain* >::iterator c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        if ( ( *c )->m_BorderFlag && ( *c )->m_TessVec.size() > 1 && !( *c )->GetWakeAttachChain() )
+        {
+            borders.push_back( *c );
+        }
+    }
+
+    set< ISegChain* > tied;
+
+    for ( int i = 0 ; i < ( int )borders.size() ; i++ )
+    {
+        ISegChain* c1 = borders[i];
+
+        // The face of the other body that one of this chain's surfaces lies on.
+        Surf* other = c1->m_SurfA->GetCoincidentSurf();
+        if ( !other )
+        {
+            other = c1->m_SurfB->GetCoincidentSurf();
+        }
+        if ( !other || tied.count( c1 ) )
+        {
+            continue;
+        }
+
+        vec3d a0 = c1->m_TessVec.front()->m_Pnt;
+        vec3d a1 = c1->m_TessVec.back()->m_Pnt;
+
+        for ( int j = 0 ; j < ( int )borders.size() ; j++ )
+        {
+            ISegChain* c2 = borders[j];
+
+            if ( c2 == c1 || tied.count( c2 ) || ( c2->m_SurfA != other && c2->m_SurfB != other ) ||
+                 c2->m_SurfA == c1->m_SurfA || c2->m_SurfA == c1->m_SurfB ||
+                 c2->m_SurfB == c1->m_SurfA || c2->m_SurfB == c1->m_SurfB )
+            {
+                continue;
+            }
+
+            vec3d b0 = c2->m_TessVec.front()->m_Pnt;
+            vec3d b1 = c2->m_TessVec.back()->m_Pnt;
+
+            bool fwd = dist( a0, b0 ) < tol && dist( a1, b1 ) < tol;
+            bool bkwd = dist( a0, b1 ) < tol && dist( a1, b0 ) < tol;
+            if ( !fwd && !bkwd )
+            {
+                continue;
+            }
+
+            // The finer of the two lends its points to the other.
+            ISegChain* from = c1;
+            ISegChain* to = c2;
+            if ( c2->m_TessVec.size() > c1->m_TessVec.size() )
+            {
+                from = c2;
+                to = c1;
+            }
+
+            vector< double > utess = to->m_ACurve.GetUTessPnts();
+            vector< vec3d > tpnts( utess.size() );
+            for ( int k = 0 ; k < ( int )utess.size() ; k++ )
+            {
+                tpnts[k] = ChainPnt( to, utess[k] );
+            }
+
+            vector< double > ftess = from->m_ACurve.GetUTessPnts();
+            vector< vec3d > fpnts( ftess.size() );
+            for ( int k = 0 ; k < ( int )fpnts.size() ; k++ )
+            {
+                fpnts[k] = ChainPnt( from, ftess[k] );
+            }
+            if ( bkwd )
+            {
+                std::reverse( fpnts.begin(), fpnts.end() );
+            }
+
+            // Where each point of the one chain lies along the other, which it must lie on.
+            int n = ( int )fpnts.size();
+            vector< double > unew( n );
+            unew[0] = 0.0;
+            unew[n - 1] = 1.0;
+            bool on = true;
+            for ( int k = 1 ; k < n - 1 && on ; k++ )
+            {
+                int mmin = 0;
+                double dmin = 1.0e12;
+                for ( int m = 0 ; m + 1 < ( int )tpnts.size() ; m++ )
+                {
+                    double d = SegDist( tpnts[m], tpnts[m + 1], fpnts[k] );
+                    if ( d < dmin )
+                    {
+                        dmin = d;
+                        mmin = m;
+                    }
+                }
+                unew[k] = ChainParm( to, utess, mmin, fpnts[k] );
+
+                if ( dist( ChainPnt( to, unew[k] ), fpnts[k] ) > tol || unew[k] <= unew[k - 1] )
+                {
+                    on = false;
+                }
+            }
+            if ( !on )
+            {
+                continue;
+            }
+
+            to->m_ACurve.Tesselate( unew );
+            to->TransferTess();
+            to->ApplyTess( this );
+
+            for ( int k = 1 ; k < n - 1 ; k++ )
+            {
+                int kf = k;
+                if ( bkwd )
+                {
+                    kf = n - 1 - k;
+                }
+
+                IPnt* mip = new IPnt();
+                m_DelIPntVec.push_back( mip );
+                mip->AddPuws( from->m_TessVec[kf] );
+                mip->AddPuws( to->m_TessVec[k] );
+                mip->CompPnt();
+
+                from->m_TessVec[kf] = mip;
+                to->m_TessVec[k] = mip;
+            }
+
+            tied.insert( c1 );
+            tied.insert( c2 );
+            break;
+        }
+    }
 }
 
 void CfdMeshMgrSingleton::TessellateChains()
@@ -5842,6 +6098,20 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int n
     // components.
     vector< vector< double > > t_vec_vec( ncross );
 
+    int pairc = -1;
+    bool pairinside = false;
+    CoincidentVerdict( m_SurfVec[s], pairc, pairinside );
+
+    vector< int > joined;
+    JoinedComps( s_comp_id, joined );
+
+    BndBox big_box;
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        big_box.Update( m_SurfVec[i]->GetBBox() );
+    }
+    double ray_len = 1.0 + big_box.DiagDist();
+
     int k = 0;
     list< Face* >::const_iterator f;
     for ( f = faceList.begin() ; f != faceList.end(); ++f, ++k ) // every triangle
@@ -5917,6 +6187,20 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int n
                     inside[ k * ncross + c ] = coplanar[k][i].second;
                 }
             }
+        }
+
+        for ( int i = 0 ; i < ( int )joined.size() ; i++ )
+        {
+            int c = joined[i];
+            if ( c >= 0 && c < ncross )
+            {
+                inside[ k * ncross + c ] = InsideByThreeRays( c, cp, ray_len );
+            }
+        }
+
+        if ( pairc >= 0 && pairc < ncross )
+        {
+            inside[ k * ncross + pairc ] = pairinside;
         }
     }
 

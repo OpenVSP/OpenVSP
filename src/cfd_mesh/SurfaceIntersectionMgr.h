@@ -360,6 +360,7 @@ public:
     virtual int FindSurfIndx( int surf_id ); // Find surface given surf ID
 
     virtual void DeleteDuplicateSurfs();
+    virtual void PairCoincidentFaces();
     virtual void SplitBordersToMatch();
     virtual void BuildGrid();
 
@@ -451,6 +452,9 @@ public:
     void SplitCoplanarBorders();
     void AddCoplanarChains();
     void CoplanarVerdicts( Surf* s, const vec3d &p, vector< pair< int, bool > > &verdicts );
+    void CoincidentVerdict( Surf* s, int &comp, bool &inside ) const;
+    void JoinedComps( int comp, vector< int > &comps ) const;
+    bool InsideByThreeRays( int comp, const vec3d &p, double len ) const;
 
     virtual void MergeFeaPartSSEdgeOverlap()    {}; // Only for FeaMesh; do nothing for CfdMesh
     virtual void CheckFixPointIntersects()    {}; // Only for FeaMesh; do nothing for CfdMesh

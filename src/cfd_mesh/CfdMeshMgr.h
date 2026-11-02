@@ -267,6 +267,7 @@ public:
     virtual void MergeCoincidentTessPnts();
     virtual void JoinLooseChainEnds();
     virtual void TessellateChains();
+    virtual void TieCoincidentBorderChains();
     virtual void SetWakeAttachChain( ISegChain* c );
     virtual void MatchWakes();
     virtual void AddWakeCoPlanarSurfaceChains();
