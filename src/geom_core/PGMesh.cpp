@@ -3614,8 +3614,13 @@ void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, const PGEdge *e, PGNode *n 
     {
         PGEdge* eh = ehull[i];
 
-        double s, t;
-        line_line_intersect( nother->m_Pt->m_Pnt, n->m_Pt->m_Pnt, eh->m_N0->m_Pt->m_Pnt, eh->m_N1->m_Pt->m_Pnt, &s, &t );
+        // Skip a hull edge parallel to the double-back edge, or either one of no length.
+        double s = 0.0;
+        double t = 0.0;
+        if ( !line_line_intersect( nother->m_Pt->m_Pnt, n->m_Pt->m_Pnt, eh->m_N0->m_Pt->m_Pnt, eh->m_N1->m_Pt->m_Pnt, &s, &t ) )
+        {
+            continue;
+        }
 
         vec3d p = ( 1.0 - t ) * eh->m_N0->m_Pt->m_Pnt + t * eh->m_N1->m_Pt->m_Pnt;
 
