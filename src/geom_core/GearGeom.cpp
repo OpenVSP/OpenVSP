@@ -2873,7 +2873,11 @@ GearGeom::GearGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 //==== Destructor ====//
 GearGeom::~GearGeom()
 {
-
+    for ( int i = 0; i < ( int )m_Bogies.size(); i++ )
+    {
+        delete m_Bogies[i];
+    }
+    m_Bogies.clear();
 }
 
 void GearGeom::SetDirtyFlags( Parm* parm_ptr )
