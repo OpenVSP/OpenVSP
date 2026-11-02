@@ -17066,6 +17066,9 @@ void CompCurvature01(const std::string &geom_id, const int &surf_indx, const dou
 
 double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u_out, double &w_out)
 {
+    u_out = 0.0;
+    w_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17093,6 +17096,10 @@ double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &
 double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx,
                   double &u_out, double &w_out)
 {
+    surf_indx = -1;
+    u_out = 0.0;
+    w_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17113,6 +17120,12 @@ double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx,
 
 double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out)
 {
+    // The inputs are copied before the outputs are set, so the same variable may be passed as both
+    double u0_in = u0;
+    double w0_in = w0;
+    u_out = 0.0;
+    w_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17130,7 +17143,7 @@ double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const ve
         return dmin;
     }
 
-    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u_out, w_out, pt, clamp( u0, 0.0, 1.0 ), clamp( w0, 0.0, 1.0 ) );
+    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u_out, w_out, pt, clamp( u0_in, 0.0, 1.0 ), clamp( w0_in, 0.0, 1.0 ) );
 
     ErrorMgr.NoError();
 
@@ -17281,6 +17294,10 @@ vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const double
 
 double FindRST( const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &r_out, double &s_out, double &t_out )
 {
+    r_out = 0.0;
+    s_out = 0.0;
+    t_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17307,6 +17324,14 @@ double FindRST( const std::string &geom_id, const int &surf_indx, const vec3d &p
 
 double FindRSTGuess( const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &r0, const double &s0, const double &t0, double &r_out, double &s_out, double &t_out )
 {
+    // The inputs are copied before the outputs are set, so the same variable may be passed as both
+    double r0_in = r0;
+    double s0_in = s0;
+    double t0_in = t0;
+    r_out = 0.0;
+    s_out = 0.0;
+    t_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17324,7 +17349,7 @@ double FindRSTGuess( const std::string &geom_id, const int &surf_indx, const vec
         return dist;
     }
 
-    dist = geom->GetSurfPtr( surf_indx )->FindRST( pt, clamp( r0, 0.0, 1.0 ), clamp( s0, 0.0, 1.0 ), clamp( t0, 0.0, 1.0 ), r_out, s_out, t_out );
+    dist = geom->GetSurfPtr( surf_indx )->FindRST( pt, clamp( r0_in, 0.0, 1.0 ), clamp( s0_in, 0.0, 1.0 ), clamp( t0_in, 0.0, 1.0 ), r_out, s_out, t_out );
 
     ErrorMgr.NoError();
 
@@ -17333,6 +17358,14 @@ double FindRSTGuess( const std::string &geom_id, const int &surf_indx, const vec
 
 void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out )
 {
+    // The inputs are copied before the outputs are set, so the same variable may be passed as both
+    double r_in = r;
+    double s_in = s;
+    double t_in = t;
+    l_out = 0.0;
+    m_out = 0.0;
+    n_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17348,7 +17381,7 @@ void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const do
         return;
     }
 
-    geom->GetSurfPtr( surf_indx )->ConvertRSTtoLMN( r, s, t, l_out, m_out, n_out );
+    geom->GetSurfPtr( surf_indx )->ConvertRSTtoLMN( r_in, s_in, t_in, l_out, m_out, n_out );
 
     ErrorMgr.NoError();
 
@@ -17357,6 +17390,10 @@ void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const do
 
 void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l_out )
 {
+    // The inputs are copied before the outputs are set, so the same variable may be passed as both
+    double r_in = r;
+    l_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17372,7 +17409,7 @@ void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double
         return;
     }
 
-    geom->GetSurfPtr( surf_indx )->ConvertRtoL( r, l_out );
+    geom->GetSurfPtr( surf_indx )->ConvertRtoL( r_in, l_out );
 
     ErrorMgr.NoError();
 
@@ -17381,6 +17418,14 @@ void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double
 
 void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r_out, double &s_out, double &t_out )
 {
+    // The inputs are copied before the outputs are set, so the same variable may be passed as both
+    double l_in = l;
+    double m_in = m;
+    double n_in = n;
+    r_out = 0.0;
+    s_out = 0.0;
+    t_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17396,7 +17441,7 @@ void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const do
         return;
     }
 
-    geom->GetSurfPtr( surf_indx )->ConvertLMNtoRST( l, m, n, r_out, s_out, t_out );
+    geom->GetSurfPtr( surf_indx )->ConvertLMNtoRST( l_in, m_in, n_in, r_out, s_out, t_out );
 
     ErrorMgr.NoError();
 
@@ -17405,6 +17450,10 @@ void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const do
 
 void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r_out )
 {
+    // The inputs are copied before the outputs are set, so the same variable may be passed as both
+    double l_in = l;
+    r_out = 0.0;
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
@@ -17420,7 +17469,7 @@ void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double
         return;
     }
 
-    geom->GetSurfPtr( surf_indx )->ConvertLtoR( l, r_out );
+    geom->GetSurfPtr( surf_indx )->ConvertLtoR( l_in, r_out );
 
     ErrorMgr.NoError();
 

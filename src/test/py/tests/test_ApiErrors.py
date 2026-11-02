@@ -341,3 +341,45 @@ def testARefusedCallStillSetsItsOutputs():
     d, u, w = vsp.AxisProjPnt01( pod, 0, 3, vsp.vec3d( 0.0, 0.0, 0.0 ) )
     assert ( u, w ) == ( 0.0, 0.0 )
     drop_errors()
+
+
+def testAProjectionRefusedForItsGeomOrSurfaceSetsItsOutputs():
+    """The projection and RST calls refused a bad Geom ID or surface index without writing their
+    outputs, so Python was handed whatever its temporaries held.  Each call is first made to
+    succeed, so those temporaries hold real values, then refused: a parameter comes back 0 and a
+    surface index -1."""
+    vsp.VSPRenew()
+    pod = vsp.AddGeom( "POD" )
+    vsp.Update()
+    pt = vsp.vec3d( 3.0, 0.4, 0.3 )
+    drop_errors()
+
+    calls = (
+        ( "ProjPnt01", lambda g, s: vsp.ProjPnt01( g, s, pt )[1:] ),
+        ( "ProjPnt01Guess", lambda g, s: vsp.ProjPnt01Guess( g, s, pt, 0.3, 0.6 )[1:] ),
+        ( "FindRST", lambda g, s: vsp.FindRST( g, s, pt )[1:] ),
+        ( "FindRSTGuess", lambda g, s: vsp.FindRSTGuess( g, s, pt, 0.3, 0.6, 0.4 )[1:] ),
+        ( "ConvertRSTtoLMN", lambda g, s: vsp.ConvertRSTtoLMN( g, s, 0.3, 0.6, 0.4 ) ),
+        ( "ConvertRtoL", lambda g, s: ( vsp.ConvertRtoL( g, s, 0.3 ), ) ),
+        ( "ConvertLMNtoRST", lambda g, s: vsp.ConvertLMNtoRST( g, s, 0.3, 0.6, 0.4 ) ),
+        ( "ConvertLtoR", lambda g, s: ( vsp.ConvertLtoR( g, s, 0.3 ), ) ) )
+
+    wrong = []
+    for name, call in calls:
+        good = list( call( pod, 0 ) )
+        assert any( v != 0.0 for v in good ), "%s gave all zeros for a point on the pod" % name
+        for gid, surf, why in ( ( "NoSuchGeom", 0, "a bad Geom ID" ), ( pod, 99, "a bad surface index" ) ):
+            call( pod, 0 )
+            out = list( call( gid, surf ) )
+            drop_errors()
+            if out != [ 0.0 ] * len( out ):
+                wrong.append( "%s refused for %s gave %s" % ( name, why, out ) )
+
+    for gid, why in ( ( "NoSuchGeom", "a bad Geom ID" ), ( vsp.AddGeom( "BLANK" ), "a Geom with no surface" ) ):
+        vsp.ProjPnt01I( pod, pt )
+        d, surf, u, w = vsp.ProjPnt01I( gid, pt )
+        drop_errors()
+        if ( surf, u, w ) != ( -1, 0.0, 0.0 ):
+            wrong.append( "ProjPnt01I refused for %s gave %s" % ( why, ( surf, u, w ) ) )
+
+    assert not wrong, "\n".join( wrong )
