@@ -1457,10 +1457,10 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
             id = 0xFFFFFFFF;
         }
 
-        VSPGraphic::Probe * probe;
-        VSPGraphic::Ruler * ruler;
-        VSPGraphic::Protractor * protractor;
-        VSPGraphic::Routing * routing;
+        VSPGraphic::Probe * probe = nullptr;
+        VSPGraphic::Ruler * ruler = nullptr;
+        VSPGraphic::Protractor * protractor = nullptr;
+        VSPGraphic::Routing * routing = nullptr;
 
         switch( objects[i]->m_Type )
         {
@@ -1681,7 +1681,7 @@ void VspGlWindow::_update( const std::vector<DrawObj *> &objects )
                 m_idMap[ idInfo.geomID ] = idInfo;
             }
             routing = dynamic_cast<VSPGraphic::Routing*> ( m_GEngine->getScene()->getObject( id ) );
-            if( ruler )
+            if( routing )
             {
                 routing->setVisibility( objects[i]->m_Visible );
 
