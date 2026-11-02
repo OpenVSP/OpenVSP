@@ -80,7 +80,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
     // however much the user asked for.  Read the copy TransferMeshSettings just took, not
     // the Vehicle's live Parms, so a setting changed while the mesher runs cannot land
     // halfway through.
-    FetchSurfs( xfersurfs, GetCfdSettingsPtr()->m_POGSNRef );
+    // The engines' own caps are cut apart for the CFD mesh alone.
+    FetchSurfs( xfersurfs, GetCfdSettingsPtr()->m_POGSNRef, true );
 
     // UpdateSourcesAndWakes must be before m_Vehicle->HideAll() to prevent components 
     // being being added to or removed from the CFD Mesh set

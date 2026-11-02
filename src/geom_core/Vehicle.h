@@ -315,8 +315,8 @@ public:
         return m_VehProjectVec3d[dir_index];
     }
 
-    void FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs, int n_ref = 0, bool splitjoin = true, bool symcut = false );
-    void FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs, int n_ref = 0, bool splitjoin = true, bool symcut = false );
+    void FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs, int n_ref = 0, bool splitjoin = true, bool symcut = false, bool cfdcaps = false );
+    void FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs, int n_ref = 0, bool splitjoin = true, bool symcut = false, bool cfdcaps = false );
     //==== Computation File Names ====//
     string getExportFileName( int type );
     void setExportFileName( int type, const string &f_name );

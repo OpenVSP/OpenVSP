@@ -338,6 +338,9 @@ void GeomEngine::UpdateXForm()
 
 void GeomEngine::UpdateEngine()
 {
+    // Only the caps the engine adds below are cut apart for the CFD mesh.
+    m_MainSurfVec[0].ClearCFDCaps();
+
     m_UnextendedMainBBox.Reset();
     m_MainSurfVec[0].GetBoundingBox( m_UnextendedMainBBox );
 
@@ -363,6 +366,51 @@ void GeomEngine::UpdateEngine()
 
         m_OrigSurf = m_MainSurfVec[0];
         m_OrigSurf.BuildFeatureLines( m_ForceXSecFlag );
+
+        // A mode the GUI greys out for an end is taken as the one it offers there.  A flowthrough
+        // mode on an inlet and outlet modeled to the lip or the face asks each end for the mode to
+        // the face it implies.  An end modeled to its lip has no face, so a mode to the face closes
+        // it at the lip, and one that keeps only the negative recess keeps nothing.
+        int inmode = m_EngineInModeType();
+        int outmode = m_EngineOutModeType();
+
+        bool inend = m_EngineGeomIOType() <= ENGINE_GEOM_INLET_OUTLET;
+        bool outend = m_EngineGeomIOType() >= ENGINE_GEOM_INLET_OUTLET;
+        bool inlip = inend && m_EngineGeomInType() == ENGINE_GEOM_TO_LIP;
+        bool outlip = outend && m_EngineGeomOutType() == ENGINE_GEOM_TO_LIP &&
+                      !( inend && m_EngineGeomInType() == ENGINE_GEOM_FLOWTHROUGH );
+
+        if ( inend && outend &&
+             ( m_EngineGeomInType() == ENGINE_GEOM_TO_LIP || m_EngineGeomInType() == ENGINE_GEOM_TO_FACE ) &&
+             ( m_EngineGeomOutType() == ENGINE_GEOM_TO_LIP || m_EngineGeomOutType() == ENGINE_GEOM_TO_FACE ) &&
+             ( inmode == ENGINE_MODE_FLOWTHROUGH || inmode == ENGINE_MODE_FLOWTHROUGH_NEG ||
+               inmode == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ) )
+        {
+            outmode = ENGINE_MODE_TO_FACE;
+            if ( inmode == ENGINE_MODE_FLOWTHROUGH_NEG )
+            {
+                outmode = ENGINE_MODE_TO_FACE_NEG;
+            }
+            else if ( inmode == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+            {
+                outmode = ENGINE_MODE_TO_FACE_NEG_ONLY;
+            }
+            inmode = outmode;
+        }
+
+        bool nopositive = ( inlip && inmode == ENGINE_MODE_TO_FACE_NEG_ONLY ) ||
+                          ( outlip && outmode == ENGINE_MODE_TO_FACE_NEG_ONLY );
+
+        if ( inlip && ( inmode == ENGINE_MODE_TO_FACE || inmode == ENGINE_MODE_TO_FACE_NEG ||
+                        inmode == ENGINE_MODE_TO_FACE_NEG_ONLY ) )
+        {
+            inmode = ENGINE_MODE_TO_LIP;
+        }
+        if ( outlip && ( outmode == ENGINE_MODE_TO_FACE || outmode == ENGINE_MODE_TO_FACE_NEG ||
+                         outmode == ENGINE_MODE_TO_FACE_NEG_ONLY ) )
+        {
+            outmode = ENGINE_MODE_TO_LIP;
+        }
 
         VspSurf surf = m_MainSurfVec[0];
         bool usesurf = true;
@@ -402,35 +450,35 @@ void GeomEngine::UpdateEngine()
 
         if ( m_EngineGeomInType() != ENGINE_GEOM_FLOWPATH && m_EngineGeomOutType() != ENGINE_GEOM_FLOWPATH )
         {
-            if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH )
+            if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && inmode == ENGINE_MODE_FLOWTHROUGH )
             {
                 // Do Nothing
             }
-            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG )
+            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && inmode == ENGINE_MODE_FLOWTHROUGH_NEG )
             {
                 surf.TrimU( outlipu, true );
 
                 // Cap Umax.
                 surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
             }
-            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && inmode == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
             {
                 usesurf = false;
             }
             else if ( m_EngineGeomIOType() >= ENGINE_GEOM_INLET_OUTLET ) // Includes outlet description
             {
-                if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND ||
-                     m_EngineOutModeType() == ENGINE_MODE_TO_LIP ||
-                     m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG )
+                if ( outmode == ENGINE_MODE_EXTEND ||
+                     outmode == ENGINE_MODE_TO_LIP ||
+                     outmode == ENGINE_MODE_TO_FACE_NEG )
                 {
                     surf.TrimU( outlipu, true );
                 }
-                else if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE )
+                else if ( outmode == ENGINE_MODE_TO_FACE )
                 {
                     surf.TrimU( outfaceu, true );
                 }
 
-                if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND )
+                if ( outmode == ENGINE_MODE_EXTEND )
                 {
                     // Handle extension.
                     Extend( surf, outlipu, false );
@@ -439,9 +487,9 @@ void GeomEngine::UpdateEngine()
                 // Cap Umax.
                 surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
 
-                if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                if ( outmode == ENGINE_MODE_TO_FACE_NEG || outmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
-                    if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    if ( outmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                     {
                         usesurf = false;
                     }
@@ -455,35 +503,35 @@ void GeomEngine::UpdateEngine()
                 }
             }
 
-            if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH )
+            if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && inmode == ENGINE_MODE_FLOWTHROUGH )
             {
                 // Do Nothing
             }
-            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG )
+            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && inmode == ENGINE_MODE_FLOWTHROUGH_NEG )
             {
                 surf.TrimU( inlipu, false );
 
                 // Cap Umin.
                 surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
             }
-            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+            else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && inmode == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
             {
                 usesurf = false;
             }
             else if ( m_EngineGeomIOType() <= ENGINE_GEOM_INLET_OUTLET ) // Includes inlet description
             {
-                if ( m_EngineInModeType() == ENGINE_MODE_EXTEND ||
-                          m_EngineInModeType() == ENGINE_MODE_TO_LIP ||
-                          m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG )
+                if ( inmode == ENGINE_MODE_EXTEND ||
+                          inmode == ENGINE_MODE_TO_LIP ||
+                          inmode == ENGINE_MODE_TO_FACE_NEG )
                 {
                     surf.TrimU( inlipu, false );
                 }
-                else if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE )
+                else if ( inmode == ENGINE_MODE_TO_FACE )
                 {
                     surf.TrimU( infaceu, false );
                 }
 
-                if ( m_EngineInModeType() == ENGINE_MODE_EXTEND )
+                if ( inmode == ENGINE_MODE_EXTEND )
                 {
                     // Handle extension.
                     Extend( surf, 0.0, true );
@@ -492,9 +540,9 @@ void GeomEngine::UpdateEngine()
                 // Cap Umin.
                 surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
 
-                if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                if ( inmode == ENGINE_MODE_TO_FACE_NEG || inmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
-                    if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    if ( inmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                     {
                         usesurf = false;
                     }
@@ -508,7 +556,7 @@ void GeomEngine::UpdateEngine()
                 }
             }
 
-            if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG || m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ) )
+            if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && ( inmode == ENGINE_MODE_FLOWTHROUGH_NEG || inmode == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ) )
             {
                 uroll = inlipu;
                 surf2.RollU( uroll );
@@ -530,20 +578,20 @@ void GeomEngine::UpdateEngine()
         {
             if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET ) // Both
             {
-                if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND )
+                if ( outmode == ENGINE_MODE_EXTEND )
                 {
                     surf.TrimU( outlipu, true );
 
                     // Handle extension.
                     Extend( surf, outlipu, false );
                 }
-                else if ( m_EngineOutModeType() == ENGINE_MODE_TO_LIP )
+                else if ( outmode == ENGINE_MODE_TO_LIP )
                 {
                     surf.TrimU( outlipu, true );
                 }
-                else if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                else if ( outmode == ENGINE_MODE_TO_FACE_NEG || outmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
-                    if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    if ( outmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                     {
                         usesurf = false;
                     }
@@ -556,8 +604,8 @@ void GeomEngine::UpdateEngine()
                 }
 
                 // ENGINE_MODE_FLOWTHROUGH_NEG -- does nothing, already closed.
-                if ( m_EngineOutModeType() == ENGINE_MODE_TO_LIP ||
-                     m_EngineOutModeType() == ENGINE_MODE_EXTEND )
+                if ( outmode == ENGINE_MODE_TO_LIP ||
+                     outmode == ENGINE_MODE_EXTEND )
                 {
                     surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
                 }
@@ -566,20 +614,20 @@ void GeomEngine::UpdateEngine()
                     surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, ptoff, false );
                 }
 
-                if ( m_EngineInModeType() == ENGINE_MODE_EXTEND )
+                if ( inmode == ENGINE_MODE_EXTEND )
                 {
                     surf.TrimU( inlipu, false );
 
                     // Handle extension.
                     Extend( surf, 0.0, true );
                 }
-                else if ( m_EngineInModeType() == ENGINE_MODE_TO_LIP )
+                else if ( inmode == ENGINE_MODE_TO_LIP )
                 {
                     surf.TrimU( inlipu, false );
                 }
-                else if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG || m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                else if ( inmode == ENGINE_MODE_TO_FACE_NEG || inmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
-                    if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                    if ( inmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                     {
                         usesurf = false;
                     }
@@ -593,8 +641,8 @@ void GeomEngine::UpdateEngine()
                 }
 
                 // ENGINE_MODE_FLOWTHROUGH_NEG -- does nothing, already closed.
-                if ( m_EngineInModeType() == ENGINE_MODE_TO_LIP ||
-                     m_EngineInModeType() == ENGINE_MODE_EXTEND )
+                if ( inmode == ENGINE_MODE_TO_LIP ||
+                     inmode == ENGINE_MODE_EXTEND )
                 {
                     surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
                 }
@@ -604,15 +652,15 @@ void GeomEngine::UpdateEngine()
                 }
 
                 // The flowpath is the only surface here, so both negative modes make it negative.
-                if ( m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG ||
-                     m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
+                if ( inmode == ENGINE_MODE_FLOWTHROUGH_NEG ||
+                     inmode == ENGINE_MODE_FLOWTHROUGH_NEG_ONLY )
                 {
                     surf.SetSurfCfdType( vsp::CFD_NEGATIVE );
                 }
             }
             else if ( m_EngineGeomIOType() == ENGINE_GEOM_OUTLET ) // Outlet description
             {
-                if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND )
+                if ( outmode == ENGINE_MODE_EXTEND )
                 {
                     surf.TrimU( outlipu, true );
 
@@ -622,19 +670,19 @@ void GeomEngine::UpdateEngine()
                     surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
                 }
 
-                if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG )
+                if ( outmode == ENGINE_MODE_TO_FACE_NEG )
                 {
                     surf.SetSurfCfdType( vsp::CFD_NEGATIVE );
                 }
 
-                if ( m_EngineOutModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                if ( outmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
                     usesurf = false;
                 }
             }
             else if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET ) // Inlet description
             {
-                if ( m_EngineInModeType() == ENGINE_MODE_EXTEND )
+                if ( inmode == ENGINE_MODE_EXTEND )
                 {
                     surf.TrimU( inlipu, false );
 
@@ -644,16 +692,23 @@ void GeomEngine::UpdateEngine()
                     surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
                 }
 
-                if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG )
+                if ( inmode == ENGINE_MODE_TO_FACE_NEG )
                 {
                     surf.SetSurfCfdType( vsp::CFD_NEGATIVE );
                 }
 
-                if ( m_EngineInModeType() == ENGINE_MODE_TO_FACE_NEG_ONLY )
+                if ( inmode == ENGINE_MODE_TO_FACE_NEG_ONLY )
                 {
                     usesurf = false;
                 }
             }
+        }
+
+        // With only the flowpath represented, or only a recess there is no face for, the
+        // positive surface goes whatever the ends do.
+        if ( nopositive )
+        {
+            usesurf = false;
         }
 
         // Assign into the existing surfaces (resize + index) rather than clear + push_back, so
@@ -707,6 +762,27 @@ void GeomEngine::UpdateEngine()
         {
             m_CapUMinSuccess[0] = capumin;
             m_CapUMaxSuccess[0] = capumax;
+        }
+
+        // Where a positive and a negative surface both remain, they meet at faces that lie one
+        // on the other, and each face must be a surface of its own for the CFD mesh to pair it
+        // with the other.  The CFD mesh alone cuts apart the caps the engine closed them with.
+        bool positive = false;
+        bool negative = false;
+        for ( int i = 0 ; i < ns ; i++ )
+        {
+            if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_NEGATIVE )
+            {
+                negative = true;
+            }
+            else
+            {
+                positive = true;
+            }
+        }
+        for ( int i = 0 ; i < ns ; i++ )
+        {
+            m_MainSurfVec[i].SetCFDCutCaps( positive && negative );
         }
     }
 }

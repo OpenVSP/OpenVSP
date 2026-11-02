@@ -73,6 +73,9 @@ VspSurf::VspSurf()
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_ThickSurf = true;
     m_PlateNum = -1;
+    m_CFDCapUMin = false;
+    m_CFDCapUMax = false;
+    m_CFDCutCaps = false;
     m_SkinType = SKIN_NONE;
     m_SkinBlendedFlag = false;
 
@@ -110,6 +113,9 @@ void VspSurf::CopyNonSurfaceData( const VspSurf & s )
 
     m_ThickSurf = s.m_ThickSurf;
     m_PlateNum = s.m_PlateNum;
+    m_CFDCapUMin = s.m_CFDCapUMin;
+    m_CFDCapUMax = s.m_CFDCapUMax;
+    m_CFDCutCaps = s.m_CFDCutCaps;
     // Main surface, do not copy.
     // m_Surface
 
@@ -3149,12 +3155,22 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
 
 bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
 {
-    return CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag );
+    bool capped = CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag );
+    if ( capped )
+    {
+        m_CFDCapUMin = true;
+    }
+    return capped;
 }
 
 bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
 {
-    return CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag );
+    bool capped = CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag );
+    if ( capped )
+    {
+        m_CFDCapUMax = true;
+    }
+    return capped;
 }
 
 bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
@@ -4475,7 +4491,7 @@ static void FoldWingCaps( piecewise_surface_type &s, bool capumin, bool capumax,
     }
 }
 
-void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress, const vector < double > &utess, const vector < double > &wtess, bool capumin, bool capumax, bool splitjoin, bool symcut ) const
+void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress, const vector < double > &utess, const vector < double > &wtess, bool capumin, bool capumax, bool splitjoin, bool symcut, bool cfdcaps ) const
 {
     vector < piecewise_surface_type > surfvec;
 
@@ -4485,10 +4501,16 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
     // Where this surface gets joined to itself.  See XferSurf::m_JoinLines.
     vector < pair < vec3d, vec3d > > joins;
 
+    // The caps an engine closed its surfaces with, which the CFD mesh cuts apart like end caps.
+    bool cfdcapumin = cfdcaps && m_CFDCutCaps && m_CFDCapUMin;
+    bool cfdcapumax = cfdcaps && m_CFDCutCaps && m_CFDCapUMax;
+    bool cutumin = capumin || cfdcapumin;
+    bool cutumax = capumax || cfdcapumax;
+
     if ( splitjoin )
     {
         CFDMeshLines lines;
-        BuildCFDMeshLines( capumin, capumax, symcut, usuppress, wsuppress, lines );
+        BuildCFDMeshLines( cutumin, cutumax, symcut, usuppress, wsuppress, lines );
 
         piecewise_surface_type s( m_Surface );
 
@@ -4537,6 +4559,20 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
                                                  m_Surface.get_v0(), m_Surface.get_vmax() ) );
 
         SplitSurfs( surfvec, usuppress, wsuppress, regionvec );
+
+        vector < double > ucap;
+        if ( cfdcapumin )
+        {
+            ucap.push_back( m_Surface.get_u0() + 1.0 );
+        }
+        if ( cfdcapumax )
+        {
+            ucap.push_back( m_Surface.get_umax() - 1.0 );
+        }
+        if ( !ucap.empty() )
+        {
+            SplitSurfsU( surfvec, ucap, regionvec );
+        }
     }
 
     int num_sections = surfvec.size();

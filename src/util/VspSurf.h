@@ -274,7 +274,7 @@ public:
     bool CapUMax(int capType, double len, double str, double offset, const vec3d &ptoff, bool swflag);
     bool CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag);
 
-    void FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >(), const vector < double > &utess = std::vector< double >(), const vector < double > &wtess = std::vector< double >(), bool capumin = false, bool capumax = false, bool splitjoin = true, bool symcut = false ) const;
+    void FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int copyindex, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >(), const vector < double > &utess = std::vector< double >(), const vector < double > &wtess = std::vector< double >(), bool capumin = false, bool capumax = false, bool splitjoin = true, bool symcut = false, bool cfdcaps = false ) const;
 
     void ResetUSkip() const;
     void FlagDuplicate( const VspSurf &othersurf ) const;
@@ -428,6 +428,11 @@ public:
     void BuildMCurve( const double &r, Vsp1DCurve &c ) const;
     double GetLMax() const { return m_Lmax; };
 
+    // CapUMin and CapUMax record the ends they close.  Where cut is set, the CFD mesh alone cuts
+    // those caps apart as surfaces of their own.
+    void ClearCFDCaps() { m_CFDCapUMin = false; m_CFDCapUMax = false; m_CFDCutCaps = false; };
+    void SetCFDCutCaps( bool cut ) { m_CFDCutCaps = cut; };
+
     void SetPlanarUWAspect( double uwAspect ) { m_PlanarUWAspect = uwAspect; };
     double GetPlanarUWAspect() const { return m_PlanarUWAspect; };
 
@@ -483,6 +488,10 @@ protected:
     VspSurf *m_FoilSurf;
 
     double m_PlanarUWAspect;
+
+    bool m_CFDCapUMin;
+    bool m_CFDCapUMax;
+    bool m_CFDCutCaps;
 
 private:
 
