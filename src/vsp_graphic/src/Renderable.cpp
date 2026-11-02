@@ -4,6 +4,8 @@
 #include "ColorBuffer.h"
 #include "ElementBuffer.h"
 
+#include <limits>
+
 namespace VSPGraphic
 {
 Renderable::Renderable() : SceneObject()
@@ -207,9 +209,14 @@ Common::VSPenum Renderable::getRenderStyle()
 
 glm::vec3 Renderable::getVertexVec( unsigned int bufferIndex )
 {
-    float temp[3];
+    float temp[3] = { 0.0f, 0.0f, 0.0f };
 
-    _vBuffer->getVertex3f(bufferIndex, temp);
+    // NaN for an index past the end of the buffer.
+    if ( !_vBuffer->getVertex3f( bufferIndex, temp ) )
+    {
+        float nan = std::numeric_limits< float >::quiet_NaN();
+        return glm::vec3( nan, nan, nan );
+    }
 
     return glm::vec3(temp[0], temp[1], temp[2]);
 }
