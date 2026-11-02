@@ -845,6 +845,7 @@ void Face::ReplaceEdge( Edge* curr_edge, Edge* replace_edge )
 // for, so this catches only faces that are past saving and leaves ordinary poor ones to be
 // improved by smoothing and swapping.
 static const double MIN_TRI_ANGLE = 0.5 * M_PI / 180.0;
+static const double COS_MIN_TRI_ANGLE = cos( MIN_TRI_ANGLE );
 
 bool Face::Degenerate()
 {
@@ -853,7 +854,14 @@ bool Face::Degenerate()
         return false;                       // quads are not this routine's business
     }
 
-    return ComputeTriQual() < MIN_TRI_ANGLE;
+    // acos is decreasing on [-1, 1], so the smallest angle is under MIN_TRI_ANGLE when the
+    // largest cosine is over its cosine; in doubles the two differ only for a cosine that rounds
+    // to the limit angle.  ComputeTriQual clamps the cosine to [-1, 1] before acos; unclamped, a
+    // cosine over 1 is still over the limit and one under -1 still is not.
+    double ang0, ang1, ang2;
+    ComputeCosAngles( n0, n1, n2, &ang0, &ang1, &ang2 );
+
+    return max( ang0, max( ang1, ang2 ) ) > COS_MIN_TRI_ANGLE;
 }
 
 double Face::ComputeTriQual()
