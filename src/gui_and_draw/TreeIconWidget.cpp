@@ -869,6 +869,11 @@ void TreeWithIcons::HidePopupInput()
 
 void TreeWithIcons::GetItemDims( int &X, int &Y, int &W, int &H, const string & tree_item_id )
 {
+    X = 0;
+    Y = 0;
+    W = 0;
+    H = 0;
+
     TreeIconItem* tree_item = GetItemByRefId( tree_item_id );
     if ( tree_item )
     {

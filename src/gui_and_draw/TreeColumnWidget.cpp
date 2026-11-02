@@ -408,6 +408,11 @@ void TreeWithColumns::HidePopupInput()
 
 void TreeWithColumns::GetItemDims( int &X, int &Y, int &W, int &H, const string & attr_id, int col )
 {
+    X = 0;
+    Y = 0;
+    W = 0;
+    H = 0;
+
     TreeRowItem* tree_item = GetItemByAttrId( attr_id );
     if ( tree_item )
     {
