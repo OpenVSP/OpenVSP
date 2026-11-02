@@ -2260,6 +2260,8 @@ void SurfaceIntersectionSingleton::MatchBorderCurves()
 
     //==== Check For SCurves Not Matched ====//
     int num_unmatched = 0;
+    map< int, int > open_borders;
+    map< int, string > open_names;
     for ( i = 0 ; i < ( int )scurve_vec.size() ; i++ )
     {
         if ( !scurve_vec[i]->GetICurve() )
@@ -2268,7 +2270,87 @@ void SurfaceIntersectionSingleton::MatchBorderCurves()
             icrv->SetACurve( scurve_vec[i] );
             m_ICurveVec.push_back( icrv );
             num_unmatched++;
+
+            // A border of a solid surface that meets no other border, and does not lie on
+            // another surface, leaves its component open
+            Surf* srf = scurve_vec[i]->GetSurf();
+            int cfdtype = srf->GetSurfaceCfdType();
+            bool solid = srf->GetCompID() >= 0 && srf->GetSurfaceThickSurf() &&
+                         ( cfdtype == vsp::CFD_NORMAL || cfdtype == vsp::CFD_NEGATIVE ) &&
+                         !srf->GetWakeFlag() && !srf->GetSymPlaneFlag() && !srf->GetFarFlag();
+
+            // A half mesh is cut at y = 0 and left open there: nothing at or below the plane is
+            // kept, to the tolerance CleanMergeSurfs removes surfaces to.
+            if ( solid && GetSettingsPtr()->m_HalfMeshFlag )
+            {
+                BndBox crvbox;
+                xyzcrvs[i].GetBBox( crvbox );
+                if ( crvbox.GetMax( 1 ) <= 1.0e-6 )
+                {
+                    solid = false;
+                }
+            }
+
+            // The same test, to the same tolerance, as BorderCurveOnSurface, which lays such a
+            // border on the surface it lies on.
+            bool onsurf = false;
+            for ( j = 0 ; j < ( int )m_SurfVec.size() && solid && !onsurf ; j++ )
+            {
+                if ( m_SurfVec[j] != srf && m_SurfVec[j]->CurveOnSurface( xyzcrvs[i], 1.0e-05 ) )
+                {
+                    onsurf = true;
+                }
+            }
+
+            if ( solid && !onsurf )
+            {
+                string name = srf->GetGeomID();
+                Geom* geom = m_Vehicle->FindGeom( srf->GetGeomID() );
+                if ( geom )
+                {
+                    name = geom->GetName();
+                }
+                open_borders[ srf->GetCompID() ]++;
+                open_names[ srf->GetCompID() ] = name;
+            }
         }
+    }
+
+    // Each open component once.  Two of one name -- a Geom and its symmetric copy -- are told
+    // apart by their component numbers.
+    map< string, int > namecount;
+    map< int, string >::iterator on;
+    for ( on = open_names.begin() ; on != open_names.end(); ++on )
+    {
+        namecount[ on->second ]++;
+    }
+
+    map< int, int >::iterator ob;
+    for ( ob = open_borders.begin() ; ob != open_borders.end(); ++ob )
+    {
+        string name = open_names[ ob->first ];
+        if ( namecount[ name ] > 1 )
+        {
+            name += " (component " + to_string( ob->first ) + ")";
+        }
+
+        string msg = "Warning: " + name + " is not closed: " + to_string( ob->second ) +
+                     " of its border curves meet no other surface";
+
+        // Inside and outside are decided by casting rays against each component, which only
+        // works for a closed one.
+        if ( RemovesInteriorTris() )
+        {
+            msg += ", so triangles where it meets other components may be wrongly kept or removed";
+        }
+        msg += ".\n";
+
+        addOutputText( msg );
+        printf( "%s", msg.c_str() );
+    }
+    if ( !open_borders.empty() )
+    {
+        fflush( stdout );
     }
 
 #ifdef DEBUG_CFD_MESH

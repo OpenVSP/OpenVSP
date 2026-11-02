@@ -440,6 +440,12 @@ public:
     {
         return false;
     }
+
+    // Whether this tool meshes the surfaces and removes the triangles inside other components
+    virtual bool RemovesInteriorTris() const
+    {
+        return false;
+    }
     double CoplanarTol( const Surf* a, const Surf* b ) const;
     void FindCoplanarSurfs();
     void SplitCoplanarBorders();

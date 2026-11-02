@@ -240,6 +240,11 @@ public:
         return true;
     }
 
+    bool RemovesInteriorTris() const override
+    {
+        return true;
+    }
+
     void RunRayCastStage( const string &label, int n, const std::function< void( int ) > &body );
     void RemoveInteriorTrisOneSurf( int s, double x_dist, int ncross, const vector< vector< pair< int, bool > > > &coplanar,
                                     vector< bool > &inside, vector< int > &count );
