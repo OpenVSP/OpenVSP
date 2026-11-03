@@ -5280,12 +5280,48 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
         }
     }
 
+    // The split points with a place on each surface, in order.  A point can split a chain only
+    // through a place on one of the chain's two surfaces.
+    std::unordered_map< Surf*, vector< int > > bysurf;
+    for ( int i = 0 ; i < ( int )splitPnts.size() ; i++ )
+    {
+        const vector< Puw* > &puws = splitPnts[i]->m_Puws;
+        for ( int k = 0 ; k < ( int )puws.size() ; k++ )
+        {
+            vector< int > &v = bysurf[ puws[k]->m_Surf ];
+            if ( v.empty() || v.back() != i )
+            {
+                v.push_back( i );
+            }
+        }
+    }
+
+    vector< int > cand;
+    const vector< int > none;
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( ( *c )->m_BorderFlag )
         {
-            for ( int i = 0 ; i < ( int )splitPnts.size() ; i++ )
+            const vector< int > *va = &none;
+            const vector< int > *vb = &none;
+            std::unordered_map< Surf*, vector< int > >::const_iterator it = bysurf.find( ( *c )->m_SurfA );
+            if ( it != bysurf.end() )
             {
+                va = &it->second;
+            }
+            it = bysurf.find( ( *c )->m_SurfB );
+            if ( it != bysurf.end() && ( *c )->m_SurfB != ( *c )->m_SurfA )
+            {
+                vb = &it->second;
+            }
+
+            cand.clear();
+            std::merge( va->begin(), va->end(), vb->begin(), vb->end(), std::back_inserter( cand ) );
+            cand.erase( std::unique( cand.begin(), cand.end() ), cand.end() );
+
+            for ( int k = 0 ; k < ( int )cand.size() ; k++ )
+            {
+                int i = cand[k];
                 Puw* uw = splitPnts[i]->GetPuw( ( *c )->m_SurfA );
                 if ( !uw )
                 {
