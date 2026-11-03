@@ -1514,6 +1514,37 @@ bool Surf::CurveOnSurface( Bezier_curve &crv, double tol )
         return false;
     }
 
+    // Each control point is projected on its own, so the first one off the surface settles it
+    // without projecting the rest.  A curve whose points all land is checked in full below.
+    piecewise_surface_type *surf = GetSurfCore()->GetSurf();
+    double umin = surf->get_u0();
+    double wmin = surf->get_v0();
+    double umax = surf->get_umax();
+    double wmax = surf->get_vmax();
+
+    piecewise_curve_type pcrv = crv.GetCurve();
+    int nsect = pcrv.number_segments();
+    for ( int i = 0; i < nsect; i++ )
+    {
+        curve_segment_type c;
+        pcrv.get( c, i );
+
+        for ( int j = 0; j <= c.degree(); j++ )
+        {
+            curve_point_type cp = c.get_control_point( j );
+            vec3d p = vec3d( cp.x(), cp.y(), cp.z() );
+            vec2d uw = ClosestUW( p, GetSurfCore()->GetMidU(), GetSurfCore()->GetMidW() );
+            double u = clamp( uw.x(), umin, umax );
+            double w = clamp( uw.y(), wmin, wmax );
+            curve_point_type onsurf = surf->f( u, w );
+
+            if ( eli::geom::point::distance( cp, onsurf ) > tol )
+            {
+                return false;
+            }
+        }
+    }
+
     Bezier_curve projcrv = crv;
     projcrv.XYZCurveToUWCurve( this );
     projcrv.UWCurveToXYZCurve( this );
