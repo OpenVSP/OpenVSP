@@ -18,6 +18,7 @@
 class Surf;
 class SimpleGridDensity;
 class SurfaceIntersectionSingleton;
+class ISegChain;
 
 #include <cassert>
 
@@ -39,7 +40,11 @@ public:
     vec2d m_UWmid;
     vec3d m_P[2];
     vec3d m_Pmid;
+    ISegChain* m_Chain[2] = { nullptr, nullptr };   // The chains the segment lies on
 };
+
+// The chains a border edge of the initial mesh lies on: a second where two coincide
+typedef std::unordered_map < Edge*, std::pair < ISegChain*, ISegChain* > > BorderChainMap;
 
 //////////////////////////////////////////////////////////////////////
 class Mesh
@@ -290,6 +295,16 @@ public:
     // answer without saying anything about the mesher's work.
     void AccumLengthRatios( vector < double > &ratios ) const;
 
+    // Valid until the mesh is remeshed.
+    const BorderChainMap & GetBorderChainMap() const
+    {
+        return m_BorderChainMap;
+    }
+    void ClearBorderChainMap()
+    {
+        BorderChainMap().swap( m_BorderChainMap );
+    }
+
 protected:
 
     Surf* m_Surf;
@@ -298,6 +313,8 @@ protected:
     list < Face* > faceList;
     list < Edge* > edgeList;
     list < Node* > nodeList;
+
+    BorderChainMap m_BorderChainMap;
 
     vector< Face* > garbageFaceVec;
     vector< Edge* > garbageEdgeVec;

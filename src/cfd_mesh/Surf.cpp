@@ -1823,6 +1823,7 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
             seg.m_P[0] = chains[i]->m_TessVec[2 * j]->m_Pnt;
             seg.m_P[1] = chains[i]->m_TessVec[2 * (j + 1)]->m_Pnt;
             seg.m_Pmid = chains[i]->m_TessVec[2 * j + 1]->m_Pnt;
+            seg.m_Chain[0] = chains[i];
 
             isegVec.push_back( seg );
         }
@@ -1832,7 +1833,7 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
     // Duplicates arise when two chains share a boundary and both contribute the same edge.
     // Duplicates appear to be harmless, but removing them is cheap insurance.
     {
-        set< pair< int, int > > seen;
+        map< pair< int, int >, int > seen;
         vector< MeshSeg > unique;
         unique.reserve( isegVec.size() );
         for ( int i = 0; i < (int)isegVec.size(); i++ )
@@ -1840,9 +1841,16 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
             int a = isegVec[i].m_Index[0];
             int b = isegVec[i].m_Index[1];
             pair< int, int > key( min( a, b ), max( a, b ) );
-            if ( seen.insert( key ).second )
+            map< pair< int, int >, int >::iterator it = seen.find( key );
+            if ( it == seen.end() )
             {
+                seen[ key ] = unique.size();
                 unique.push_back( isegVec[i] );
+            }
+            else if ( !unique[ it->second ].m_Chain[1] && unique[ it->second ].m_Chain[0] != isegVec[i].m_Chain[0] )
+            {
+                // Two chains coincide here; the segment keeps both.
+                unique[ it->second ].m_Chain[1] = isegVec[i].m_Chain[0];
             }
         }
 #ifdef DEBUG_CFD_MESH

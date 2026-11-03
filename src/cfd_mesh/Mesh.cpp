@@ -69,6 +69,7 @@ void Mesh::Clear()
     }
 
     faceList.clear();
+    m_BorderChainMap.clear();
 
     list< Edge* >::iterator e;
     for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
@@ -3642,6 +3643,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             if ( e )
             {
                 e->border = true;
+                m_BorderChainMap[ e ] = std::make_pair( segs_indexes[j].m_Chain[0], segs_indexes[j].m_Chain[1] );
 
                 n0->fixed = true;
                 n1->fixed = true;
