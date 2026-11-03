@@ -4099,6 +4099,8 @@ void SurfaceIntersectionSingleton::BuildChains()
 
 void SurfaceIntersectionSingleton::CleanChains()
 {
+    vector< ISegChain* > chains;
+    vector< Surf* > sa;
     list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
@@ -4108,8 +4110,17 @@ void SurfaceIntersectionSingleton::CleanChains()
             continue;
         }
 
-        CleanChain( *c );
+        chains.push_back( *c );
+        sa.push_back( ( *c )->m_SurfA );
     }
+
+    // Cleaning a chain evaluates its A surface only and changes only its own segments.
+    ProgressStage bar( this, "Clean Chains", ( int )chains.size() );
+
+    RunBySurface( sa, [&]( int k )
+    {
+        CleanChain( chains[k] );
+    }, &bar );
 }
 
 void SurfaceIntersectionSingleton::CleanChain( ISegChain* c )
