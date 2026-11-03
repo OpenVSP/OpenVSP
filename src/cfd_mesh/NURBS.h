@@ -273,6 +273,9 @@ public:
     // them into connected chains, and forms loops.  
     void BuildNURBSLoopMap();
 
+    // Whether an end of curve i of this surface meets no end of another of its curves
+    bool DanglingEnd( size_t i ) const;
+
     // Find all NURBS surves associated with this NURBS surface
     vector < NURBS_Curve > MatchNURBSCurves( const vector < NURBS_Curve > &all_curve_vec );
 
