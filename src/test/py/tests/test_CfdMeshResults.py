@@ -101,6 +101,25 @@ def testAWingThroughAPodCloses():
     assert _errors() == n0, "meshing a wing through a pod raised an error"
 
 
+def testAHalfMeshInAFarFieldCloses():
+    """The pod lies on the centerline, so the symmetry plane takes the borders the pod is cut
+    along.  The far field and the symmetry plane close the half."""
+    _pod_and_wing()
+    vsp.SetCFDMeshVal( vsp.CFD_HALF_MESH_FLAG, 1 )
+    vsp.SetCFDMeshVal( vsp.CFD_FAR_FIELD_FLAG, 1 )
+    vsp.SetCFDMeshVal( vsp.CFD_FAR_MAX_EDGE_LEN, 4.0 )
+
+    res = _mesh()
+
+    vsp.SetCFDMeshVal( vsp.CFD_HALF_MESH_FLAG, 0 )
+    vsp.SetCFDMeshVal( vsp.CFD_FAR_FIELD_FLAG, 0 )
+
+    assert res["Num_Tris"] > 0, "the mesher produced no triangles"
+    assert res["Water_Tight"] == 1, \
+           "a half mesh in a far field left %d border and %d over-connected edges" % \
+           ( res["Num_Border_Edges"], res["Num_Over_Connected_Edges"] )
+
+
 def testTheVerdictFollowsTheEdgeCounts():
     """Water_Tight is not an independent opinion: it is exactly "neither count is nonzero"."""
     _pod_and_wing()
