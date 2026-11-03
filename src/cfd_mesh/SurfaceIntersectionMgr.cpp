@@ -4057,20 +4057,46 @@ void SurfaceIntersectionSingleton::LinkIPntPartners()
 
 void SurfaceIntersectionSingleton::BuildChains()
 {
-    LinkIPntPartners();
-
+    // The points are copied out in pieces on several threads: each copy reaches into a point of
+    // its own, scattered through memory, and on a large model there are millions.
+    int npnt = ( int )m_AllIPnts.size();
     PntNodeCloud i_pnt_cloud;
-    i_pnt_cloud.ReserveMorePntNodes( m_AllIPnts.size() );
+    i_pnt_cloud.m_PntNodes.resize( npnt );
 
-    for ( size_t i = 0; i < m_AllIPnts.size(); i++ )
+    const int piece = 65536;
+    int npiece = ( npnt + piece - 1 ) / piece;
+
+    // The pieces, the tree and the partners, then every point walked into chains.
+    ProgressStage bar( this, "Build Chains", npiece + 2 + npnt );
+
+    RunIndexed( npiece, StageThreadCount( npiece ), [&]( int k )
     {
-        i_pnt_cloud.AddPntNode( m_AllIPnts[i]->m_Pnt );
-    }
+        int iend = std::min( npnt, ( k + 1 ) * piece );
+        for ( int i = k * piece ; i < iend ; i++ )
+        {
+            i_pnt_cloud.m_PntNodes[i].m_Pnt = m_AllIPnts[i]->m_Pnt;
+        }
+    }, &bar );
 
-    PNTree index( 3, i_pnt_cloud, KDTreeSingleIndexAdaptorParams() );
+    // The tree is built, by its constructor, while the partners are linked; neither touches
+    // what the other writes.
+    std::unique_ptr< PNTree > index;
+    RunIndexed( 2, StageThreadCount( 2 ), [&]( int k )
+    {
+        if ( k == 0 )
+        {
+            index.reset( new PNTree( 3, i_pnt_cloud, KDTreeSingleIndexAdaptorParams() ) );
+        }
+        else
+        {
+            LinkIPntPartners();
+        }
+    }, &bar );
 
     for ( int i = 0; i < (int)m_AllIPnts.size(); i++ )
     {
+        bar.Step();
+
         if ( !m_AllIPnts[i]->m_UsedFlag && m_AllIPnts[i]->m_Segs.size() > 0 )
         {
             ISeg* seg = m_AllIPnts[i]->m_Segs[0];
@@ -4080,7 +4106,7 @@ void SurfaceIntersectionSingleton::BuildChains()
             chain->m_SurfA = seg->m_SurfA;
             chain->m_SurfB = seg->m_SurfB;
             chain->m_ISegVec.push_back( seg );
-            ExpandChain( chain, &index );
+            ExpandChain( chain, index.get() );
             if ( chain->Valid() )
             {
                 m_ISegChainList.push_back( chain );
