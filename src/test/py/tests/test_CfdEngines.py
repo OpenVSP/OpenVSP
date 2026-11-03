@@ -94,13 +94,6 @@ def _outlet_modes( io, gin, gout, inmode ):
     return modes
 
 
-# Known to leave a sliver open: the block's flat sides cut this duct along lines that run down
-# its length and across the seam the mid-origin preset starts at, and an intersection chain
-# ends 0.005 short of where the border it crosses is split.
-SEAM_SLIVER = pytest.mark.xfail( strict = True, reason = "intersection chain end and border split 0.005 apart "
-                                                         "at the seam of the mid-origin duct" )
-
-
 def _cases():
     """Every preset in every representation the GUI offers, then every greyed one."""
     offered = []
@@ -138,12 +131,9 @@ PAIRED_MODES = ( vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_TO_FACE_NEG )
 
 
 # Known to fail once the engine is stretched, each where one of the block's flat sides lands on
-# a feature of the engine: across the seam of the mid-origin duct; along the paired faces at a
-# flowpath's outlet face, where the block's sides cross both faces; and through the tip of the
-# point cap of a long inlet duct.
-STRETCHED = { ( vsp.STACK_PRESET_FLOWTHRU_MID_ORIG, vsp.ENGINE_MODE_FLOWTHROUGH_NEG, None, 4.0 ):
-                  "over-connected edges at the seam of the mid-origin duct",
-              ( vsp.STACK_PRESET_FLOWPATH_BOTH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_TO_FACE_NEG, 4.0 ):
+# a feature of the engine: along the paired faces at a flowpath's outlet face, where the block's
+# sides cross both faces; and through the tip of the point cap of a long inlet duct.
+STRETCHED = { ( vsp.STACK_PRESET_FLOWPATH_BOTH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_TO_FACE_NEG, 4.0 ):
                   "over-connected edges where the block crosses the paired faces at the outlet face",
               ( vsp.STACK_PRESET_FLOWPATH_BOTH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY, vsp.ENGINE_MODE_TO_FACE_NEG, 4.0 ):
                   "over-connected edges where the block crosses the paired faces at the outlet face",
@@ -155,9 +145,6 @@ def _params( cases, stretch, tag ):
     params = []
     for preset, inmode, outmode in cases:
         marks = []
-        if preset == vsp.STACK_PRESET_FLOWTHRU_MID_ORIG and stretch == 1.0 and tag == "offered" and \
-           inmode in ( vsp.ENGINE_MODE_FLOWTHROUGH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ):
-            marks = [ SEAM_SLIVER ]
         reason = STRETCHED.get( ( preset, inmode, outmode, stretch ) )
         if reason:
             marks = [ pytest.mark.xfail( strict = True, reason = reason ) ]
@@ -378,8 +365,7 @@ def testEveryEngineCaseInOneGrid():
 
 
 def testEveryEngineCaseInOneGridIsClosed( tmp_path, request ):
-    """The grid meshed as a whole.  The mesh may be open only in the cells of the cases known to
-    leave a sliver on their own."""
+    """The grid meshed as a whole, closed in every cell."""
     if not request.config.getoption( "--engine-grid-mesh" ):
         pytest.skip( "meshing the engine grid takes several minutes; ask for it with --engine-grid-mesh" )
 
@@ -409,12 +395,8 @@ def testEveryEngineCaseInOneGridIsClosed( tmp_path, request ):
 
     assert ntri > 0
 
-    known = set()
-    for inmode in ( vsp.ENGINE_MODE_FLOWTHROUGH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ):
-        known.add( ( rows.index( vsp.STACK_PRESET_FLOWTHRU_MID_ORIG ), cols.index( ( inmode, None ) ) ) )
     bad = _bad_edge_cells( stl, pitch )
-    assert bad <= known, "the grid left %d border and %d over-connected edges, in cells %s beyond the known %s" % \
-           ( nborder, nover, sorted( bad - known ), sorted( known ) )
+    assert not bad, "the grid left %d border and %d over-connected edges, in cells %s" % ( nborder, nover, sorted( bad ) )
 
     vol = _stl_volume( stl )
     assert vol == pytest.approx( cgvol, rel = VOLUME_RELTOL ), "the grid encloses %g, CompGeom finds %g" % ( vol, cgvol )

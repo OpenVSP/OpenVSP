@@ -128,3 +128,33 @@ def test_the_flowthrough_presets_are_plain_flowthrough():
         assert vsp.GetParmVal( sid, "InletModeType", "EngineModel" ) == vsp.ENGINE_MODE_FLOWTHROUGH, preset
         assert vsp.GetNumMainSurfs( sid ) == 1, preset
         assert vsp.GetGeomVSPSurfCfdType( sid, 0 ) == vsp.CFD_NORMAL, preset
+
+
+def length_along( sid, w, n ):
+    pts = [ vsp.CompPnt01( sid, 0, i / float( n ), w ) for i in range( n + 1 ) ]
+    return sum( vsp.dist( pts[i], pts[i + 1] ) for i in range( n ) )
+
+
+def test_the_mid_origin_nacelle_is_the_outlet_lip_origin_one():
+    # The two presets list the same sections from a different first one, so with the mid planes
+    # put together every point of the one lies on the other, and a line run once around the
+    # nacelle along its length is as long on each: no stretch of it is passed over twice.
+    vsp.VSPRenew()
+    ref = vsp.AddGeom( "STACK" )
+    vsp.InitStackPreset( ref, vsp.STACK_PRESET_FLOWTHRU_OUTLIP_ORIG )
+    surf = vsp.GetXSecSurf( ref, 0 )
+    midx = sum( vsp.GetParmVal( vsp.GetXSecParm( vsp.GetXSec( surf, i ), "XDelta" ) ) for i in ( 1, 2 ) )
+    vsp.SetParmVal( ref, "X_Rel_Location", "XForm", -midx )
+    mid = vsp.AddGeom( "STACK" )
+    vsp.InitStackPreset( mid, vsp.STACK_PRESET_FLOWTHRU_MID_ORIG )
+    vsp.Update()
+
+    worst = 0.0
+    for i in range( 201 ):
+        for j in range( 5 ):
+            d, u, w = vsp.ProjPnt01( ref, 0, vsp.CompPnt01( mid, 0, i / 200.0, j / 4.0 ) )
+            worst = max( worst, d )
+    assert worst < 5e-3
+
+    for w in ( 0.0, 0.3 ):
+        assert abs( length_along( mid, w, 2000 ) - length_along( ref, w, 2000 ) ) < 1e-2, w

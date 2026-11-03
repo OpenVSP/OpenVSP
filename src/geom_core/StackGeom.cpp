@@ -258,6 +258,8 @@ void StackGeom::InitParms( int stack_type )
         nacelle_midplane.m_XDelta = -0.75;
         nacelle_midplane.m_AllSymFlag = 1;
         nacelle_midplane.m_TopLAngle = -180.0;
+        // InitXSecs swaps the sides of the first section, and the mid-origin loop starts here.
+        nacelle_midplane.m_TopRAngle = -180.0;
         nacelle_midplane.GetXSecCurve()->SetWidthHeight( 2.0, 2.0 );
 
         nacelle_inlet_face.m_XDelta = -0.75;
