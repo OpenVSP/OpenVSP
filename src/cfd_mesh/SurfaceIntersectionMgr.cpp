@@ -15,6 +15,8 @@
 #include <atomic>
 #include <exception>
 #include <iterator>
+#include <queue>
+#include <array>
 #include "SurfaceIntersectionMgr.h"
 #include "ResultsMgr.h"
 #include "VspUtil.h"
@@ -4280,61 +4282,122 @@ void SurfaceIntersectionSingleton::RefineChains()
     } );
 }
 
+// Record that chain k waits on a chain, in the first of its two places that is free
+static void AddWaiting( std::array< int, 2 > &waiting, int k )
+{
+    if ( waiting[0] < 0 )
+    {
+        waiting[0] = k;
+    }
+    else
+    {
+        assert( waiting[1] < 0 );
+        waiting[1] = k;
+    }
+}
+
 void SurfaceIntersectionSingleton::RunChainsBySurface( const vector< Surf* > &sa, const vector< Surf* > &sb,
                                                        const std::function< void( int ) > &body )
 {
-    // A chain waits for the chain before it on each of its surfaces.
+    // A chain waits for the chain before it on each of its surfaces.  Each chain is the next on
+    // at most two surfaces after another, so it is waited on by at most two.
     int n = ( int )sa.size();
-    vector< int > after_a( n, -1 );
-    vector< int > after_b( n, -1 );
+    vector< int > npending( n, 0 );
+    vector< std::array< int, 2 > > waiting( n, std::array< int, 2 >{ { -1, -1 } } );
     std::map< Surf*, int > last;
     for ( int k = 0 ; k < n ; k++ )
     {
+        int pa = -1;
+        int pb = -1;
         std::map< Surf*, int >::iterator it = last.find( sa[k] );
         if ( it != last.end() )
         {
-            after_a[k] = it->second;
+            pa = it->second;
         }
         it = last.find( sb[k] );
         if ( it != last.end() )
         {
-            after_b[k] = it->second;
+            pb = it->second;
+        }
+        if ( pa >= 0 )
+        {
+            AddWaiting( waiting[ pa ], k );
+            npending[k]++;
+        }
+        if ( pb >= 0 && pb != pa )
+        {
+            AddWaiting( waiting[ pb ], k );
+            npending[k]++;
         }
         last[ sa[k] ] = k;
         last[ sb[k] ] = k;
     }
 
-    // The chains are handed out in order, so every chain one waits on has already been taken up.
-    vector< char > done( n, 0 );
-    std::mutex donemutex;
-    std::condition_variable donecv;
-
-    RunIndexed( n, StageThreadCount( n ), [&]( int k )
+    // A thread takes the earliest chain with nothing left to wait on, so none sits blocked
+    // behind a chain another thread is running.  On one thread that is every chain in order.
+    std::priority_queue< int, vector< int >, std::greater< int > > ready;
+    for ( int k = 0 ; k < n ; k++ )
     {
+        if ( npending[k] == 0 )
         {
-            std::unique_lock< std::mutex > lock( donemutex );
-            while ( ( after_a[k] >= 0 && !done[ after_a[k] ] ) || ( after_b[k] >= 0 && !done[ after_b[k] ] ) )
+            ready.push( k );
+        }
+    }
+
+    int ndone = 0;
+    bool failed = false;
+    std::mutex readymutex;
+    std::condition_variable readycv;
+
+    int nthread = StageThreadCount( n );
+    RunIndexed( nthread, nthread, [&]( int t )
+    {
+        while ( true )
+        {
+            int k;
             {
-                donecv.wait( lock );
+                std::unique_lock< std::mutex > lock( readymutex );
+                while ( ready.empty() && ndone < n && !failed )
+                {
+                    readycv.wait( lock );
+                }
+                if ( ready.empty() || failed )
+                {
+                    return;
+                }
+                k = ready.top();
+                ready.pop();
             }
-        }
 
-        // Marked done even if it throws, so no chain waits on it forever.
-        try
-        {
-            body( k );
-        }
-        catch ( ... )
-        {
-            std::lock_guard< std::mutex > lock( donemutex );
-            done[k] = 1;
-            donecv.notify_all();
-            throw;
-        }
+            // A failure stops the others taking more, so none waits forever on this chain.
+            try
+            {
+                body( k );
+            }
+            catch ( ... )
+            {
+                std::lock_guard< std::mutex > lock( readymutex );
+                failed = true;
+                readycv.notify_all();
+                throw;
+            }
 
-        std::lock_guard< std::mutex > lock( donemutex );
-        done[k] = 1;
-        donecv.notify_all();
+            std::lock_guard< std::mutex > lock( readymutex );
+            ndone++;
+            for ( int i = 0 ; i < 2 ; i++ )
+            {
+                int w = waiting[k][i];
+                if ( w >= 0 )
+                {
+                    npending[w]--;
+                    if ( npending[w] == 0 )
+                    {
+                        ready.push( w );
+                    }
+                }
+            }
+            readycv.notify_all();
+        }
     } );
 }
 
