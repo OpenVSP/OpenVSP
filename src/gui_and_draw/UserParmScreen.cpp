@@ -130,14 +130,24 @@ bool UserParmScreen::Update()
     }
 
     //==== Load User Parms Into Browser ====//
-    m_UserDefinedBrowser->clear();
-    for ( int i = 0 ; i < (int)m_UserParmBrowserVec.size() ; i++ )
+    // Only rebuild when contents change; clear() resets the scroll position
+    bool rebuild = m_UserDefinedBrowser->size() != (int)m_UserParmBrowserVec.size();
+    for ( int i = 0 ; !rebuild && i < (int)m_UserParmBrowserVec.size() ; i++ )
     {
         Parm* p = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
-        if ( p )
+        rebuild = !p || p->GetName() != m_UserDefinedBrowser->text( i + 1 );
+    }
+    if ( rebuild )
+    {
+        m_UserDefinedBrowser->clear();
+        for ( int i = 0 ; i < (int)m_UserParmBrowserVec.size() ; i++ )
         {
-            string pname = p->GetName();
-            m_UserDefinedBrowser->add( pname.c_str() );
+            Parm* p = ParmMgr.FindParm( m_UserParmBrowserVec[i] );
+            if ( p )
+            {
+                string pname = p->GetName();
+                m_UserDefinedBrowser->add( pname.c_str() );
+            }
         }
     }
     m_UserDefinedBrowser->select( m_UserBrowserSelection );
