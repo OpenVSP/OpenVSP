@@ -60,6 +60,7 @@
 
 #include <atomic>
 #include <functional>
+#include <unordered_map>
 #include "Surf.h"
 #include "Mesh.h"
 #include "SCurve.h"
@@ -674,6 +675,7 @@ protected:
                               map < pair < string, string >, int > &dupboth,
                               map < pair < string, string >, int > &dupone );
     bool OnRemovedFaceRim( SCurve* c );
+    bool OnRemovedFaceRimKept( SCurve* c, std::unordered_map< SCurve*, bool > &onrim );
     void SplitFaceRimsToMatch();
 
     // Each pair of coplanar surfaces once, the first earlier in m_SurfVec

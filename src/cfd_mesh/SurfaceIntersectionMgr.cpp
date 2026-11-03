@@ -2361,6 +2361,19 @@ bool SurfaceIntersectionSingleton::OnRemovedFaceRim( SCurve* c )
     return false;
 }
 
+// Whether c runs along a removed face's rim, asked once per curve and kept in onrim.
+bool SurfaceIntersectionSingleton::OnRemovedFaceRimKept( SCurve* c, std::unordered_map< SCurve*, bool > &onrim )
+{
+    std::unordered_map< SCurve*, bool >::iterator it = onrim.find( c );
+    if ( it != onrim.end() )
+    {
+        return it->second;
+    }
+    bool r = OnRemovedFaceRim( c );
+    onrim[ c ] = r;
+    return r;
+}
+
 // The two bodies around a removed face may cut their rims into pieces at different places, a
 // spinner turned against its nacelle.  Each rim curve is cut where a rim curve of another surface
 // ends along it, so the pieces pair up end to end.
@@ -2369,6 +2382,10 @@ void SurfaceIntersectionSingleton::SplitFaceRimsToMatch()
     bool changed = true;
     int guard = 0;
     const int guardmax = 1000;
+
+    // Whether each curve runs along a rim, asked once per curve.  A cut curve is forgotten
+    // before it is deleted, so a new curve at its address is asked again.
+    std::unordered_map< SCurve*, bool > onrim;
 
     while ( changed && guard < guardmax )
     {
@@ -2381,7 +2398,7 @@ void SurfaceIntersectionSingleton::SplitFaceRimsToMatch()
 
             for ( int a = 0 ; a < ( int )cva.size() && !changed ; a++ )
             {
-                if ( !OnRemovedFaceRim( cva[a] ) )
+                if ( !OnRemovedFaceRimKept( cva[a], onrim ) )
                 {
                     continue;
                 }
@@ -2406,7 +2423,7 @@ void SurfaceIntersectionSingleton::SplitFaceRimsToMatch()
 
                     for ( int b = 0 ; b < ( int )cvb.size() && !changed ; b++ )
                     {
-                        if ( !OnRemovedFaceRim( cvb[b] ) )
+                        if ( !OnRemovedFaceRimKept( cvb[b], onrim ) )
                         {
                             continue;
                         }
@@ -2426,6 +2443,7 @@ void SurfaceIntersectionSingleton::SplitFaceRimsToMatch()
                                 continue;
                             }
 
+                            onrim.erase( cva[a] );
                             SplitSCurveAt( cva, a, t, m_SurfVec[i] );
                             changed = true;
                         }
