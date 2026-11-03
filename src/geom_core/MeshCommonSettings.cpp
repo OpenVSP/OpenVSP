@@ -263,6 +263,9 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_RelCurveTol.SetDescript( "Relative tolerance on the intersection curves of POGS files, as a "
                                "fraction of a segment's length" );
 
+    m_TopoInteriorFlag.Init( "TopoInteriorFlag", "Global", this, true, 0, 1 );
+    m_TopoInteriorFlag.SetDescript( "Find the triangles inside other components from the topology of the intersection curves" );
+
     m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, vsp::SET_NONE, vsp::MAX_NUM_SETS );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 

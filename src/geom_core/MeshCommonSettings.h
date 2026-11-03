@@ -186,6 +186,11 @@ public:
     IntParm m_POGSNRef;
     Parm m_RelCurveTol;
 
+    // Find the triangles inside other components from the topology of the intersection curves,
+    // casting rays only to seed it and where the curves cannot tell.  Off casts rays from every
+    // triangle.
+    BoolParm m_TopoInteriorFlag;
+
     IntParm m_SelectedSetIndex;
     IntParm m_SelectedDegenSetIndex;
 

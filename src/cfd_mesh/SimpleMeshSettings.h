@@ -108,6 +108,8 @@ public:
 
     int m_POGSNRef;
 
+    bool m_TopoInteriorFlag;
+
     string m_FarGeomID;
 
     double m_FarXScale; // Check FractionParm to double is appropriate data conversion

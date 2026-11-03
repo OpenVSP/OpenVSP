@@ -246,6 +246,11 @@ public:
     }
 
     void RunRayCastStage( const string &label, int n, const std::function< void( int ) > &body );
+    // The triangles of the initial mesh classified by the topology of the intersection chains:
+    // del[s][k] for face k of surface s, for each surface with handled[s] set.  The others are
+    // left to the ray cast.
+    void TopoInteriorTris( int ncross, vector< vector< char > > &del, vector< char > &handled );
+
     void RemoveInteriorTrisOneSurf( int s, double x_dist, int ncross, const vector< vector< pair< int, bool > > > &coplanar,
                                     vector< bool > &inside, vector< int > &count );
 

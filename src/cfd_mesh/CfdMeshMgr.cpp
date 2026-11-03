@@ -20,6 +20,7 @@
 #include "StringUtil.h"
 
 #include <algorithm>
+#include <tuple>
 #include <functional>
 #include <thread>
 #include <mutex>
@@ -6678,6 +6679,817 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int n
     }
 }
 
+// The root of i's set.
+static int TopoFind( vector< int > &p, int i )
+{
+    while ( p[i] != i )
+    {
+        p[i] = p[ p[i] ];
+        i = p[i];
+    }
+    return i;
+}
+
+// A chain segment, by its chain and its ends in a fixed order.  The meshes of the surfaces
+// meeting there take the ends from the same tessellation points, so they key it alike.
+typedef std::tuple< ISegChain*, double, double, double, double, double, double > ChainSegKey;
+
+static ChainSegKey MakeChainSegKey( ISegChain* c, const vec3d &a, const vec3d &b )
+{
+    vec3d p0 = a;
+    vec3d p1 = b;
+    if ( p1.x() < p0.x() || ( p1.x() == p0.x() && ( p1.y() < p0.y() || ( p1.y() == p0.y() && p1.z() < p0.z() ) ) ) )
+    {
+        std::swap( p0, p1 );
+    }
+    return std::make_tuple( c, p0.x(), p0.y(), p0.z(), p1.x(), p1.y(), p1.z() );
+}
+
+static const int TOPO_MAX_SEEDS = 5;     // Walks of each set
+static const int TOPO_MAX_PASSES = 10;   // Walks of a set as conflicts are settled by ray
+static const int TOPO_MAX_BORDER = 5;    // Faces along a settled conflict checked by ray
+
+// Two regions that a walk reached with different flags for a component: region, region, component.
+typedef std::tuple< int, int, int > TopoClash;
+
+// The classification CfdMeshMgrSingleton::TopoInteriorTris describes, one step to a method.
+class TopoClassifier
+{
+public:
+    TopoClassifier( CfdMeshMgrSingleton* mgr, const vector< Surf* > &surfs, int ncross );
+
+    void Classify( vector< vector< char > > &del, vector< char > &handled );
+
+private:
+
+    void FindHandledSurfs();
+    void BuildRegions();
+    void FindThickComps();
+    void SideTests();
+    void SideTest( Surf* srf, Face* f, Edge* e, ISegChain* c, int r );
+    void RuleFacts();
+    void LinkRegions();
+    vector< char > RayFlags( int r );
+    void Walk( int seed, vector< vector< char > > &out, vector< TopoClash > &clash );
+    bool InsideComp( int c, const vec3d &p ) const;
+    void WalkGroup( const vector< int > &group, vector< TopoClash > &settled );
+    void CheckSettled();
+    void CheckSettledSide( int x, int other, int c );
+    void Audit();
+
+    CfdMeshMgrSingleton* m_Mgr;
+    const vector< Surf* > &m_Surfs;
+    int m_NCross;
+    double m_RayLen;
+    double m_XDist;
+
+    vector< char > m_Handled;               // Per surface: classified here
+
+    // Regions: per surface, its faces and each face's region; per region, its surface, its faces
+    // and a point well inside it.
+    vector< vector< Face* > > m_Faces;
+    vector< vector< int > > m_Region;
+    vector< int > m_RegSurf;
+    vector< vector< Face* > > m_RegFaces;
+    vector< vec3d > m_Inner;
+
+    vector< char > m_Thick;                 // Per component: one SetDeleteTriFlag acts on
+    vector< int > m_Comps;
+    vector< BndBox > m_CompBox;             // Per component: around the surfaces a ray counts
+
+    // Per region: side tests of each component met across a chain, the components met, what is
+    // known of its flags, whether it is left to the ray cast, and its flags.
+    vector< std::map< int, pair< int, int > > > m_Vote;
+    vector< std::set< int > > m_Touched;
+    vector< std::map< int, char > > m_Fact;
+    vector< char > m_BadReg;
+    vector< vector< char > > m_Val;
+
+    // The regions and faces at each chain segment, the segments each region lies along, the
+    // regions each is joined to through them, and the sets those joins make.
+    std::map< ChainSegKey, vector< pair< int, Face* > > > m_SegFaces;
+    vector< vector< const vector< pair< int, Face* > >* > > m_RegSegs;
+    vector< vector< int > > m_Adj;
+    std::map< int, vector< int > > m_Groups;
+
+    vector< TopoClash > m_Settled;          // Conflicts settled by ray
+};
+
+TopoClassifier::TopoClassifier( CfdMeshMgrSingleton* mgr, const vector< Surf* > &surfs, int ncross ) :
+    m_Mgr( mgr ), m_Surfs( surfs ), m_NCross( ncross )
+{
+    BndBox big_box;
+    for ( int s = 0 ; s < ( int )m_Surfs.size() ; s++ )
+    {
+        big_box.Update( m_Surfs[s]->GetBBox() );
+    }
+    m_RayLen = 1.0 + big_box.DiagDist();
+    m_XDist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
+}
+
+void TopoClassifier::Classify( vector< vector< char > > &del, vector< char > &handled )
+{
+    FindHandledSurfs();
+    BuildRegions();
+    FindThickComps();
+    SideTests();
+    RuleFacts();
+    LinkRegions();
+
+    // The sets share no region, so they are walked side by side, and the conflicts each settles
+    // are gathered in the order of the sets.
+    vector< const vector< int >* > groups;
+    for ( std::map< int, vector< int > >::iterator g = m_Groups.begin() ; g != m_Groups.end() ; ++g )
+    {
+        groups.push_back( &g->second );
+    }
+    int ngroup = groups.size();
+    vector< vector< TopoClash > > settled( ngroup );
+    m_Mgr->RunIndexed( ngroup, m_Mgr->StageThreadCount( ngroup ), [&]( int g )
+    {
+        WalkGroup( *groups[g], settled[g] );
+    } );
+    for ( int g = 0 ; g < ngroup ; g++ )
+    {
+        m_Settled.insert( m_Settled.end(), settled[g].begin(), settled[g].end() );
+    }
+
+    CheckSettled();
+    Audit();
+
+    // A surface with a region left to the ray cast is left to it whole.
+    for ( int r = 0 ; r < ( int )m_RegSurf.size() ; r++ )
+    {
+        if ( m_BadReg[r] )
+        {
+            m_Handled[ m_RegSurf[r] ] = 0;
+        }
+    }
+
+    // Every face of a region takes the region's verdict.
+    int nreg = m_RegSurf.size();
+    vector< char > reg_del( nreg, 0 );
+    vector< bool > fin( m_NCross );
+    for ( int r = 0 ; r < nreg ; r++ )
+    {
+        if ( !m_Handled[ m_RegSurf[r] ] )
+        {
+            continue;
+        }
+        Surf* srf = m_Surfs[ m_RegSurf[r] ];
+        for ( int c = 0 ; c < m_NCross ; c++ )
+        {
+            fin[c] = m_Val[r][c] != 0;
+        }
+        reg_del[r] = m_Mgr->SetDeleteTriFlag( srf->GetSurfaceCfdType(), srf->GetSymPlaneFlag(), fin );
+    }
+
+    int nsurf = m_Surfs.size();
+    handled = m_Handled;
+    del.assign( nsurf, vector< char >() );
+    for ( int s = 0 ; s < nsurf ; s++ )
+    {
+        if ( !handled[s] )
+        {
+            continue;
+        }
+        del[s].assign( m_Faces[s].size(), 0 );
+        for ( int k = 0 ; k < ( int )m_Faces[s].size() ; k++ )
+        {
+            del[s][k] = reg_del[ m_Region[s][k] ];
+        }
+    }
+}
+
+// The surfaces whose rules need nothing but the inside flags.  A structure's surfaces carry
+// symmetric copies the rays tell apart, and are left to the ray cast.
+void TopoClassifier::FindHandledSurfs()
+{
+    m_Handled.assign( m_Surfs.size(), 0 );
+    for ( int s = 0 ; s < ( int )m_Surfs.size() ; s++ )
+    {
+        Surf* srf = m_Surfs[s];
+        int type = srf->GetSurfaceCfdType();
+
+        if ( !srf->GetIgnoreSurfFlag() && !srf->GetWakeFlag() && !srf->GetSymPlaneFlag() && !srf->GetFarFlag() &&
+             srf->GetCoplanarSurfs().empty() && srf->GetFeaSymmIndex() < 0 &&
+             type != vsp::CFD_STRUCTURE && type != vsp::CFD_STIFFENER &&
+             srf->GetCompID() >= 0 && srf->GetCompID() < m_NCross )
+        {
+            m_Handled[s] = 1;
+        }
+    }
+}
+
+// Regions: faces of a surface joined across edges that are not borders.  Each region keeps its
+// faces in the order of the surface's face list, and a point well inside it: the centre of a
+// face with no border edge, if it has one.
+void TopoClassifier::BuildRegions()
+{
+    int nsurf = m_Surfs.size();
+    m_Faces.assign( nsurf, vector< Face* >() );
+    m_Region.assign( nsurf, vector< int >() );
+    for ( int s = 0 ; s < nsurf ; s++ )
+    {
+        if ( !m_Handled[s] )
+        {
+            continue;
+        }
+        const list< Face* > &fl = m_Surfs[s]->GetMesh()->GetFaceList();
+        int k = 0;
+        for ( list< Face* >::const_iterator f = fl.begin() ; f != fl.end() ; ++f, ++k )
+        {
+            ( *f )->m_Index = k;
+            m_Faces[s].push_back( *f );
+        }
+        m_Region[s].assign( m_Faces[s].size(), -1 );
+
+        for ( int k0 = 0 ; k0 < ( int )m_Faces[s].size() ; k0++ )
+        {
+            if ( m_Region[s][k0] >= 0 )
+            {
+                continue;
+            }
+            int rid = m_RegSurf.size();
+            m_RegSurf.push_back( s );
+            m_RegFaces.push_back( vector< Face* >() );
+            vector< int > stack( 1, k0 );
+            m_Region[s][k0] = rid;
+            while ( !stack.empty() )
+            {
+                int k1 = stack.back();
+                stack.pop_back();
+                Face* f = m_Faces[s][k1];
+                Edge* ev[4] = { f->e0, f->e1, f->e2, f->e3 };
+                for ( int j = 0 ; j < 4 ; j++ )
+                {
+                    if ( !ev[j] || ev[j]->border )
+                    {
+                        continue;
+                    }
+                    Face* g = ev[j]->OtherFace( f );
+                    if ( g && m_Region[s][ g->m_Index ] < 0 )
+                    {
+                        m_Region[s][ g->m_Index ] = rid;
+                        stack.push_back( g->m_Index );
+                    }
+                }
+            }
+        }
+        for ( int k = 0 ; k < ( int )m_Faces[s].size() ; k++ )
+        {
+            m_RegFaces[ m_Region[s][k] ].push_back( m_Faces[s][k] );
+        }
+    }
+
+    int nreg = m_RegSurf.size();
+    m_Inner.assign( nreg, vec3d() );
+    for ( int r = 0 ; r < nreg ; r++ )
+    {
+        Face* pick = m_RegFaces[r][0];
+        for ( int k = 0 ; k < ( int )m_RegFaces[r].size() ; k++ )
+        {
+            Face* f = m_RegFaces[r][k];
+            if ( !f->e0->border && !f->e1->border && !f->e2->border && ( !f->e3 || !f->e3->border ) )
+            {
+                pick = f;
+                break;
+            }
+        }
+        m_Inner[r] = pick->ComputeCenterPnt( m_Surfs[ m_RegSurf[r] ] );
+    }
+
+    m_Vote.assign( nreg, std::map< int, pair< int, int > >() );
+    m_Touched.assign( nreg, std::set< int >() );
+    m_Fact.assign( nreg, std::map< int, char >() );
+    m_BadReg.assign( nreg, 0 );
+    m_Val.assign( nreg, vector< char >() );
+}
+
+// The components whose inside SetDeleteTriFlag acts on -- thick ones, normal or negative --
+// and every component.
+void TopoClassifier::FindThickComps()
+{
+    m_Thick.assign( m_NCross, 0 );
+    m_CompBox.assign( m_NCross, BndBox() );
+    for ( int s = 0 ; s < ( int )m_Surfs.size() ; s++ )
+    {
+        int c = m_Surfs[s]->GetCompID();
+        int type = m_Surfs[s]->GetSurfaceCfdType();
+        if ( c < 0 || c >= m_NCross )
+        {
+            continue;
+        }
+        if ( type == vsp::CFD_NORMAL || type == vsp::CFD_NEGATIVE )
+        {
+            m_CompBox[c].Update( m_Surfs[s]->GetBBox() );
+        }
+        if ( m_Surfs[s]->GetSurfaceThickSurf() && ( type == vsp::CFD_NORMAL || type == vsp::CFD_NEGATIVE ) )
+        {
+            m_Thick[c] = 1;
+        }
+        if ( std::find( m_Comps.begin(), m_Comps.end(), c ) == m_Comps.end() )
+        {
+            m_Comps.push_back( c );
+        }
+    }
+
+    // Grown a little, so a point on a component's skin is still taken to the rays.
+    for ( int c = 0 ; c < m_NCross ; c++ )
+    {
+        if ( !m_CompBox[c].IsEmpty() )
+        {
+            m_CompBox[c].Expand( 1.0e-6 * m_RayLen );
+        }
+    }
+}
+
+// Whether p is inside component c, by the rays the ray cast casts.  A point outside the box
+// around the surfaces they count is outside without them.
+bool TopoClassifier::InsideComp( int c, const vec3d &p ) const
+{
+    if ( !m_CompBox[c].CheckPnt( p ) )
+    {
+        return false;
+    }
+    return m_Mgr->InsideByThreeRays( c, p, m_RayLen );
+}
+
+// Each region's side tests of every component it meets across an intersection chain, and the
+// regions and faces at each chain segment.  A region's side of a component is a fact where its
+// tests say; a region on both sides of one chain reaches round an end of it, through a gap no
+// chain closes, and is not one thing.
+void TopoClassifier::SideTests()
+{
+    for ( int s = 0 ; s < ( int )m_Surfs.size() ; s++ )
+    {
+        if ( !m_Handled[s] )
+        {
+            continue;
+        }
+        Surf* srf = m_Surfs[s];
+        const BorderChainMap &bmap = srf->GetMesh()->GetBorderChainMap();
+        for ( int k = 0 ; k < ( int )m_Faces[s].size() ; k++ )
+        {
+            Face* f = m_Faces[s][k];
+            int r = m_Region[s][k];
+            Edge* ev[4] = { f->e0, f->e1, f->e2, f->e3 };
+            for ( int j = 0 ; j < 4 ; j++ )
+            {
+                if ( !ev[j] || !ev[j]->border )
+                {
+                    continue;
+                }
+                BorderChainMap::const_iterator it = bmap.find( ev[j] );
+                if ( it == bmap.end() )
+                {
+                    continue;
+                }
+                ISegChain* both[2] = { it->second.first, it->second.second };
+                for ( int ic = 0 ; ic < 2 ; ic++ )
+                {
+                    if ( both[ic] )
+                    {
+                        m_SegFaces[ MakeChainSegKey( both[ic], ev[j]->n0->pnt, ev[j]->n1->pnt ) ].push_back( std::make_pair( r, f ) );
+                        SideTest( srf, f, ev[j], both[ic], r );
+                    }
+                }
+            }
+        }
+    }
+
+    for ( int r = 0 ; r < ( int )m_RegSurf.size() ; r++ )
+    {
+        for ( std::map< int, pair< int, int > >::iterator v = m_Vote[r].begin() ; v != m_Vote[r].end() ; ++v )
+        {
+            if ( v->second.first > 0 && v->second.second > 0 )
+            {
+                m_BadReg[r] = 1;
+            }
+            if ( v->second.first != v->second.second )
+            {
+                m_Fact[r][ v->first ] = v->second.first > v->second.second;
+            }
+        }
+    }
+}
+
+// The side of intersection chain c that face f of region r lies on, for the thick component of
+// the surface across it: the face's centre projected onto that surface, from the uw the chain
+// holds nearest edge e, and compared with its outward normal there.  Left out where the two
+// surfaces lie flat against each other.
+void TopoClassifier::SideTest( Surf* srf, Face* f, Edge* e, ISegChain* c, int r )
+{
+    if ( c->m_BorderFlag || c->m_SurfA == c->m_SurfB )
+    {
+        return;
+    }
+    Surf* o = c->m_SurfA;
+    if ( o == srf )
+    {
+        o = c->m_SurfB;
+    }
+    int oc = o->GetCompID();
+    if ( oc == srf->GetCompID() || oc < 0 || oc >= m_NCross || !m_Thick[oc] )
+    {
+        return;
+    }
+
+    m_Touched[r].insert( oc );
+
+    vec3d cen = f->ComputeCenterPnt( srf );
+    vec3d mid = 0.5 * ( e->n0->pnt + e->n1->pnt );
+    IPnt* best = nullptr;
+    double dbest = 1.0e300;
+    for ( int t = 0 ; t < ( int )c->m_TessVec.size() ; t++ )
+    {
+        double d = dist( c->m_TessVec[t]->m_Pnt, mid );
+        if ( d < dbest )
+        {
+            dbest = d;
+            best = c->m_TessVec[t];
+        }
+    }
+    Puw* pw = nullptr;
+    if ( best )
+    {
+        pw = best->GetPuw( o );
+    }
+    vec2d ouw;
+    if ( pw )
+    {
+        ouw = o->ClosestUW( cen, pw->m_UW[0], pw->m_UW[1] );
+    }
+    else
+    {
+        ouw = o->ClosestUW( cen );
+    }
+    vec3d q = o->CompPnt( ouw[0], ouw[1] );
+    vec3d n = OutwardNorm( o, ouw[0], ouw[1] );
+
+    vec2d fuw = f->n0->uw + f->n1->uw + f->n2->uw;
+    fuw = fuw * ( 1.0 / 3.0 );
+    if ( SurfacesTangent( srf, vec3d( fuw[0], fuw[1], 0.0 ), n ) )
+    {
+        return;
+    }
+
+    if ( dot( cen - q, n ) < 0.0 )
+    {
+        m_Vote[r][oc].first++;
+    }
+    else
+    {
+        m_Vote[r][oc].second++;
+    }
+}
+
+// A component joined to a surface's own, or lying coincident with it, has its own rule for a
+// point of that surface, which the ray cast applies face by face and this region by region:
+// a joined component's flag by ray, a coincident one's as CoincidentVerdict gives it.  Where
+// every side test along a chain was left out, or the tests were even, the region's flag for
+// that component is taken by ray.
+void TopoClassifier::RuleFacts()
+{
+    int nreg = m_RegSurf.size();
+    for ( int r = 0 ; r < nreg ; r++ )
+    {
+        Surf* srf = m_Surfs[ m_RegSurf[r] ];
+        vector< int > joined;
+        m_Mgr->JoinedComps( srf->GetCompID(), joined );
+        for ( int i = 0 ; i < ( int )joined.size() ; i++ )
+        {
+            if ( joined[i] >= 0 && joined[i] < m_NCross )
+            {
+                m_Fact[r][ joined[i] ] = InsideComp( joined[i], m_Inner[r] );
+            }
+        }
+        int pairc = -1;
+        bool pairinside = false;
+        m_Mgr->CoincidentVerdict( srf, pairc, pairinside );
+        if ( pairc >= 0 && pairc < m_NCross )
+        {
+            m_Fact[r][pairc] = pairinside;
+        }
+    }
+
+    for ( int r = 0 ; r < nreg ; r++ )
+    {
+        for ( std::set< int >::iterator oc = m_Touched[r].begin() ; oc != m_Touched[r].end() ; ++oc )
+        {
+            if ( m_Fact[r].count( *oc ) == 0 )
+            {
+                m_Fact[r][ *oc ] = InsideComp( *oc, m_Inner[r] );
+            }
+        }
+    }
+}
+
+// Regions joined through a chain segment, each segment's regions in a star about its first; the
+// segments each region lies along; and the sets of joined regions.
+void TopoClassifier::LinkRegions()
+{
+    int nreg = m_RegSurf.size();
+    m_Adj.assign( nreg, vector< int >() );
+    m_RegSegs.assign( nreg, vector< const vector< pair< int, Face* > >* >() );
+    vector< int > parent( nreg );
+    for ( int r = 0 ; r < nreg ; r++ )
+    {
+        parent[r] = r;
+    }
+    for ( std::map< ChainSegKey, vector< pair< int, Face* > > >::iterator sg = m_SegFaces.begin() ; sg != m_SegFaces.end() ; ++sg )
+    {
+        vector< int > rv;
+        for ( int i = 0 ; i < ( int )sg->second.size() ; i++ )
+        {
+            rv.push_back( sg->second[i].first );
+        }
+        std::sort( rv.begin(), rv.end() );
+        rv.erase( std::unique( rv.begin(), rv.end() ), rv.end() );
+        for ( int i = 0 ; i < ( int )rv.size() ; i++ )
+        {
+            m_RegSegs[ rv[i] ].push_back( &sg->second );
+            if ( i > 0 )
+            {
+                m_Adj[ rv[0] ].push_back( rv[i] );
+                m_Adj[ rv[i] ].push_back( rv[0] );
+                parent[ TopoFind( parent, rv[i] ) ] = TopoFind( parent, rv[0] );
+            }
+        }
+    }
+    for ( int r = 0 ; r < nreg ; r++ )
+    {
+        std::sort( m_Adj[r].begin(), m_Adj[r].end() );
+        m_Adj[r].erase( std::unique( m_Adj[r].begin(), m_Adj[r].end() ), m_Adj[r].end() );
+    }
+
+    for ( int r = 0 ; r < nreg ; r++ )
+    {
+        m_Groups[ TopoFind( parent, r ) ].push_back( r );
+    }
+}
+
+// The inside flags of region r from rays, its own facts over them.
+vector< char > TopoClassifier::RayFlags( int r )
+{
+    int own = m_Surfs[ m_RegSurf[r] ]->GetCompID();
+    vector< char > v( m_NCross, 0 );
+    for ( int i = 0 ; i < ( int )m_Comps.size() ; i++ )
+    {
+        if ( m_Comps[i] != own && m_Thick[ m_Comps[i] ] )
+        {
+            v[ m_Comps[i] ] = InsideComp( m_Comps[i], m_Inner[r] );
+        }
+    }
+    for ( std::map< int, char >::iterator ft = m_Fact[r].begin() ; ft != m_Fact[r].end() ; ++ft )
+    {
+        v[ ft->first ] = ft->second;
+    }
+    return v;
+}
+
+// The flags of every region of a set, walked from region seed with flags from its rays.  Where
+// a region is reached again with other flags, the pair and the component go in clash.
+void TopoClassifier::Walk( int seed, vector< vector< char > > &out, vector< TopoClash > &clash )
+{
+    out[seed] = RayFlags( seed );
+    vector< int > queue( 1, seed );
+    for ( int qi = 0 ; qi < ( int )queue.size() ; qi++ )
+    {
+        int r = queue[qi];
+        for ( int i = 0 ; i < ( int )m_Adj[r].size() ; i++ )
+        {
+            int q = m_Adj[r][i];
+            vector< char > cand = out[r];
+            cand[ m_Surfs[ m_RegSurf[q] ]->GetCompID() ] = 0;
+            for ( std::map< int, char >::iterator ft = m_Fact[q].begin() ; ft != m_Fact[q].end() ; ++ft )
+            {
+                cand[ ft->first ] = ft->second;
+            }
+            if ( out[q].empty() )
+            {
+                out[q] = cand;
+                queue.push_back( q );
+            }
+            else if ( out[q] != cand )
+            {
+                for ( int c = 0 ; c < m_NCross ; c++ )
+                {
+                    if ( out[q][c] != cand[c] )
+                    {
+                        clash.push_back( std::make_tuple( r, q, c ) );
+                    }
+                }
+            }
+        }
+    }
+}
+
+// A set is walked from an odd number of its largest regions, each seeded by its own rays, so a
+// seed whose rays are wrong is outvoted rather than spreading over the set; a region takes the
+// majority of what the walks bring it.  Two walks that bring a region different flags for a
+// component say a crossing of it lies between regions with no chain to show it, as where a
+// body's surface runs along a border.  Each region there then takes that component's flag by
+// ray, and the set is walked again.  A set still in conflict is left to the ray cast.
+void TopoClassifier::WalkGroup( const vector< int > &group, vector< TopoClash > &settled )
+{
+    vector< int > members = group;
+    std::stable_sort( members.begin(), members.end(), [&]( int a, int b )
+    {
+        return m_RegFaces[a].size() > m_RegFaces[b].size();
+    } );
+    int nseeds = std::min( TOPO_MAX_SEEDS, ( int )members.size() );
+    if ( nseeds % 2 == 0 )
+    {
+        nseeds--;
+    }
+
+    int nreg = m_RegSurf.size();
+    vector< TopoClash > clash;
+    vector< vector< vector< char > > > walks;
+    for ( int pass = 0 ; pass < TOPO_MAX_PASSES ; pass++ )
+    {
+        clash.clear();
+        walks.assign( nseeds, vector< vector< char > >( nreg ) );
+        for ( int k = 0 ; k < nseeds ; k++ )
+        {
+            Walk( members[k], walks[k], clash );
+        }
+        if ( clash.empty() )
+        {
+            break;
+        }
+
+        int added = 0;
+        for ( int i = 0 ; i < ( int )clash.size() ; i++ )
+        {
+            int rr[2] = { std::get< 0 >( clash[i] ), std::get< 1 >( clash[i] ) };
+            int c = std::get< 2 >( clash[i] );
+            for ( int z = 0 ; z < 2 ; z++ )
+            {
+                if ( m_Fact[ rr[z] ].count( c ) == 0 )
+                {
+                    m_Fact[ rr[z] ][c] = InsideComp( c, m_Inner[ rr[z] ] );
+                    added++;
+                }
+            }
+        }
+        settled.insert( settled.end(), clash.begin(), clash.end() );
+        if ( added == 0 )
+        {
+            break;
+        }
+    }
+
+    for ( int i = 0 ; i < ( int )members.size() ; i++ )
+    {
+        int r = members[i];
+        m_Val[r].assign( m_NCross, 0 );
+        for ( int c = 0 ; c < m_NCross ; c++ )
+        {
+            int yes = 0;
+            for ( int k = 0 ; k < nseeds ; k++ )
+            {
+                if ( !walks[k][r].empty() && walks[k][r][c] )
+                {
+                    yes++;
+                }
+            }
+            m_Val[r][c] = 2 * yes > nseeds;
+        }
+    }
+
+    if ( !clash.empty() )
+    {
+        for ( int i = 0 ; i < ( int )members.size() ; i++ )
+        {
+            m_BadReg[ members[i] ] = 1;
+        }
+    }
+}
+
+// Where a conflict was settled by giving two regions their own flags for a component, the
+// crossing lay along their border -- or one of them holds a piece of the other side that a
+// missing chain should have cut off.  Each side of each settled conflict is checked once.
+void TopoClassifier::CheckSettled()
+{
+    std::set< TopoClash > done;
+    for ( int i = 0 ; i < ( int )m_Settled.size() ; i++ )
+    {
+        int ra = std::get< 0 >( m_Settled[i] );
+        int rb = std::get< 1 >( m_Settled[i] );
+        int c = std::get< 2 >( m_Settled[i] );
+        if ( done.insert( std::make_tuple( std::min( ra, rb ), std::max( ra, rb ), c ) ).second )
+        {
+            CheckSettledSide( ra, rb, c );
+            CheckSettledSide( rb, ra, c );
+        }
+    }
+}
+
+// The faces of region x along the segments it shares with region other tell which: the flag of
+// component c there is taken by ray, and a region the rays mostly disagree with is left to the
+// ray cast.
+void TopoClassifier::CheckSettledSide( int x, int other, int c )
+{
+    if ( m_BadReg[x] )
+    {
+        return;
+    }
+    vector< Face* > near;
+    for ( int i = 0 ; i < ( int )m_RegSegs[x].size() && ( int )near.size() < TOPO_MAX_BORDER ; i++ )
+    {
+        const vector< pair< int, Face* > > &sf = *m_RegSegs[x][i];
+        bool shared = false;
+        for ( int k = 0 ; k < ( int )sf.size() ; k++ )
+        {
+            if ( sf[k].first == other )
+            {
+                shared = true;
+            }
+        }
+        for ( int k = 0 ; shared && k < ( int )sf.size() && ( int )near.size() < TOPO_MAX_BORDER ; k++ )
+        {
+            if ( sf[k].first == x )
+            {
+                near.push_back( sf[k].second );
+            }
+        }
+    }
+    int against = 0;
+    for ( int k = 0 ; k < ( int )near.size() ; k++ )
+    {
+        if ( InsideComp( c, near[k]->ComputeCenterPnt( m_Surfs[ m_RegSurf[x] ] ) ) != ( m_Val[x][c] != 0 ) )
+        {
+            against++;
+        }
+    }
+    if ( 2 * against > ( int )near.size() )
+    {
+        m_BadReg[x] = 1;
+    }
+}
+
+// Each region is checked at three of its faces as the ray cast would check them.  A region the
+// rays put on the other side at two of them holds a crossing no chain shows, and is left to the
+// ray cast.
+void TopoClassifier::Audit()
+{
+    int nreg = m_RegSurf.size();
+    m_Mgr->RunIndexed( nreg, m_Mgr->StageThreadCount( nreg ), [&]( int r )
+    {
+        if ( m_BadReg[r] )
+        {
+            return;
+        }
+        vector< vector< double > > t_vec_vec( m_NCross );
+        vector< bool > fin( m_NCross );
+        Surf* srf = m_Surfs[ m_RegSurf[r] ];
+        for ( int c = 0 ; c < m_NCross ; c++ )
+        {
+            fin[c] = m_Val[r][c] != 0;
+        }
+        bool verdict = m_Mgr->SetDeleteTriFlag( srf->GetSurfaceCfdType(), srf->GetSymPlaneFlag(), fin );
+        const vector< Face* > &rf = m_RegFaces[r];
+        int n = rf.size();
+        int pick[3] = { n / 6, n / 2, ( 5 * n ) / 6 };
+        int disagree = 0;
+        for ( int i = 0 ; i < 3 ; i++ )
+        {
+            if ( m_Mgr->PntTrimmedAway( rf[ pick[i] ]->ComputeCenterPnt( srf ), srf, m_XDist, t_vec_vec ) != verdict )
+            {
+                disagree++;
+            }
+        }
+        if ( disagree >= 2 )
+        {
+            m_BadReg[r] = 1;
+        }
+    } );
+}
+
+// The triangles of each surface fall into regions no chain crosses.  Crossing an intersection
+// chain with a surface of component b changes only whether a point is inside b, and which side
+// of the chain is inside b is read from that surface's outward normal there.  Crossing a border
+// chain changes nothing.  So once one region of a connected set has its inside flags from rays,
+// every other region of the set has its flags by walking the chains.
+//
+// Each set is walked from several seed regions, and a region takes the majority of what the
+// walks bring it.  Where the side tests along a chain disagree, or the surfaces lie flat
+// against each other, a region's flag for that component is taken by ray; where two walks bring
+// a region different flags, a crossing lies between regions with no chain to show it, and those
+// regions take that component's flag by ray before the set is walked again.
+//
+// The chains do not always cut the surfaces cleanly -- a chain can be missing where two bodies
+// meet -- so every region is checked by ray at a few of its faces, as is each region along a
+// settled conflict.  A surface with a region that fails a check, or that lies on both sides of
+// one chain, is not classified here and is left to the ray cast.
+void CfdMeshMgrSingleton::TopoInteriorTris( int ncross, vector< vector< char > > &del, vector< char > &handled )
+{
+    TopoClassifier topo( this, m_SurfVec, ncross );
+    topo.Classify( del, handled );
+}
+
 void CfdMeshMgrSingleton::RemoveInteriorTris()
 {
     debugRayIsect.clear();
@@ -6698,6 +7510,22 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         ncross = m_NumComps + 10;   // room for the outer domain and the symmetry plane
     }
 
+    // The surfaces the topology of the chains classifies need no rays.
+    vector< vector< char > > topo_del;
+    vector< char > topo_done( m_SurfVec.size(), 0 );
+    if ( GetCfdSettingsPtr()->m_TopoInteriorFlag )
+    {
+        TopoInteriorTris( ncross, topo_del, topo_done );
+    }
+    vector< int > raysurf;
+    for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
+    {
+        if ( !topo_done[s] )
+        {
+            raysurf.push_back( s );
+        }
+    }
+
     // Each surface's inside flags and neighbour votes, held only while they are worked out
     vector< vector< bool > > inside( m_SurfVec.size() );
     vector< vector< int > > count( m_SurfVec.size() );
@@ -6707,7 +7535,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     vector< vector< vector< pair< int, bool > > > > coplanar( m_SurfVec.size() );
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
-        if ( m_SurfVec[s]->GetCoplanarSurfs().empty() )
+        if ( m_SurfVec[s]->GetCoplanarSurfs().empty() || topo_done[s] )
         {
             continue;
         }
@@ -6723,8 +7551,9 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 
     //==== Count Number of Component Crossings for Each Component =====//
-    RunRayCastStage( "Inside/outside", ( int )m_SurfVec.size(), [&]( int is )
+    RunRayCastStage( "Inside/outside", ( int )raysurf.size(), [&]( int i )
     {
+        int is = raysurf[i];
         RemoveInteriorTrisOneSurf( is, x_dist, ncross, coplanar[is], inside[is], count[is] );
     } );
 
@@ -6733,6 +7562,10 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     //==== Check Vote and Mark Interior Tris =====//
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
+        if ( topo_done[s] )
+        {
+            continue;
+        }
         const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
         for ( f = faceList.begin() ; f != faceList.end(); ++f )
         {
@@ -6773,6 +7606,10 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 ( *f )->deleteFlag = true;
             }
+            else if ( topo_done[a] )
+            {
+                ( *f )->deleteFlag = topo_del[a][ ( *f )->m_Index ] != 0;
+            }
             else
             {
                 int k = ( *f )->m_Index;
@@ -6786,6 +7623,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
         vector< bool >().swap( inside[a] );
         vector< int >().swap( count[a] );
+        m_SurfVec[a]->GetMesh()->ClearBorderChainMap();
     }
 
     //==== Check For Half Mesh ====//

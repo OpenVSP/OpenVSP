@@ -181,6 +181,8 @@ SimpleCfdMeshSettings::SimpleCfdMeshSettings()
 {
     m_POGSNRef = 0;
 
+    m_TopoInteriorFlag = true;
+
     m_FarManLocFlag = false;
     m_FarAbsSizeFlag = false;
 
@@ -217,6 +219,8 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
 
     m_POGSNRef = settings->m_POGSNRef.Get();
     m_RelCurveTol = settings->m_RelCurveTol.Get();
+
+    m_TopoInteriorFlag = settings->m_TopoInteriorFlag.Get();
 
     m_FarGeomID = settings->m_FarGeomID;
 
