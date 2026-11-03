@@ -4068,7 +4068,6 @@ void SurfaceIntersectionSingleton::BuildChains()
     }
 
     PNTree index( 3, i_pnt_cloud, KDTreeSingleIndexAdaptorParams() );
-    index.buildIndex();
 
     for ( int i = 0; i < (int)m_AllIPnts.size(); i++ )
     {
