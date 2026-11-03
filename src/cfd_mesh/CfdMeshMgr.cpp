@@ -3501,6 +3501,186 @@ bool CfdMeshMgrSingleton::PntTrimmedAway( const vec3d &pnt, Surf *srf, double x_
     return SetDeleteTriFlag( srf->GetSurfaceCfdType(), srf->GetSymPlaneFlag(), inside );
 }
 
+// Whether uw lies inside polygon poly, by crossings of a ray toward +u.
+static bool PolyContainsUW( const vector < vec3d > &poly, const vec3d &uw )
+{
+    bool inside = false;
+    for ( int i = 0; i < ( int )poly.size(); i++ )
+    {
+        const vec3d &p0 = poly[i];
+        const vec3d &p1 = poly[ ( i + 1 ) % poly.size() ];
+        if ( ( p0.y() > uw.y() ) != ( p1.y() > uw.y() ) )
+        {
+            double u = p0.x() + ( uw.y() - p0.y() ) * ( p1.x() - p0.x() ) / ( p1.y() - p0.y() );
+            if ( uw.x() < u )
+            {
+                inside = !inside;
+            }
+        }
+    }
+    return inside;
+}
+
+// How far, as a fraction of its uw length, a loop edge may stray from the image of its xyz chord
+// before it is refined, and so how near an edge a sample is put to the side test.
+static const double UW_REFINE_TOL = 0.01;
+
+// Whether the edge q0 q1 runs along one of the face's parameter bounds.
+static bool OnFaceBound( const vec3d &q0, const vec3d &q1, double umin, double umax, double wmin, double wmax )
+{
+    if ( q0.x() == q1.x() && ( q0.x() == umin || q0.x() == umax ) )
+    {
+        return true;
+    }
+    if ( q0.y() == q1.y() && ( q0.y() == wmin || q0.y() == wmax ) )
+    {
+        return true;
+    }
+    return false;
+}
+
+// Points between a and b, in uw, of the curve whose xyz chord is the image of a b: the xyz
+// midpoint projected onto the surface, added where it falls off the uw midpoint.
+static void RefineEdgeUW( Surf *srf, const vec3d &a, const vec3d &b, int depth, vector < vec3d > &out )
+{
+    if ( depth >= 6 )
+    {
+        return;
+    }
+    vec3d mid_uw = 0.5 * ( a + b );
+    vec3d mid_xyz = 0.5 * ( srf->CompPnt( a.x(), a.y() ) + srf->CompPnt( b.x(), b.y() ) );
+    vec2d p = srf->ClosestUW( mid_xyz, mid_uw.x(), mid_uw.y() );
+    vec3d m( p[0], p[1], 0.0 );
+    if ( dist( m, mid_uw ) <= UW_REFINE_TOL * dist( a, b ) )
+    {
+        return;
+    }
+    RefineEdgeUW( srf, a, m, depth + 1, out );
+    out.push_back( m );
+    RefineEdgeUW( srf, m, b, depth + 1, out );
+}
+
+// The loop polygon poly with each edge off the face's bounds refined to follow its curve.  other and
+// guess, given per point, become per edge: the surface across the edge and a uw on it near the edge.
+// band gets, for each edge of the result, how far the curve may lie from it in xyz: twice rel_tol of
+// the length of the segment it came from, the adaptation's tolerance on that segment with room for one
+// the adaptation left over it.  Zero along borders and the face's bounds, which are exact.
+static void RefineLoopUW( Surf *srf, double umin, double umax, double wmin, double wmax, double rel_tol,
+                          vector < vec3d > &poly, vector < int > &other, vector < vec3d > &guess, vector < double > &band )
+{
+    vector < vec3d > out, out_guess;
+    vector < int > out_other;
+    band.clear();
+    int n = poly.size();
+    for ( int k = 0; k < n; k++ )
+    {
+        const vec3d &q0 = poly[k];
+        const vec3d &q1 = poly[ ( k + 1 ) % n ];
+        out.push_back( q0 );
+        size_t first = out.size();
+        double b = 0.0;
+        if ( other[k] >= 0 && !OnFaceBound( q0, q1, umin, umax, wmin, wmax ) )
+        {
+            RefineEdgeUW( srf, q0, q1, 0, out );
+            b = 2.0 * rel_tol * dist( srf->CompPnt( q0.x(), q0.y() ), srf->CompPnt( q1.x(), q1.y() ) );
+        }
+        for ( size_t m = first - 1; m < out.size(); m++ )
+        {
+            band.push_back( b );
+            out_other.push_back( other[k] );
+            out_guess.push_back( guess[k] );
+        }
+    }
+    poly = out;
+    other = out_other;
+    guess = out_guess;
+}
+
+// A loop as a polygon in the parameters of surface surf_id, as NURBS_Loop::GetUWPolygon builds it,
+// with, at each point, the id of the curve's other parent and the point's uw on that one.  The id is
+// -1 along a border curve, which runs exactly where the surface ends.
+static void LoopUWAcross( const NURBS_Loop &loop, int surf_id, vector < vec3d > &uw, vector < int > &other, vector < vec3d > &guess )
+{
+    uw.clear();
+    other.clear();
+    guess.clear();
+    for ( int i = 0; i < ( int )loop.m_OrderedCurves.size(); i++ )
+    {
+        const NURBS_Curve &crv = loop.m_OrderedCurves[i].first;
+        int ida = crv.m_SurfA_ID;
+        int idb = crv.m_SurfB_ID;
+        if ( crv.m_BorderFlag )
+        {
+            ida = -1;
+            idb = -1;
+        }
+        if ( crv.m_SurfA_ID == surf_id )
+        {
+            uw.insert( uw.end(), crv.m_UWPntVec_A.begin(), crv.m_UWPntVec_A.end() );
+            other.insert( other.end(), crv.m_UWPntVec_A.size(), idb );
+            guess.insert( guess.end(), crv.m_UWPntVec_B.begin(), crv.m_UWPntVec_B.end() );
+        }
+        else if ( crv.m_SurfB_ID == surf_id )
+        {
+            uw.insert( uw.end(), crv.m_UWPntVec_B.begin(), crv.m_UWPntVec_B.end() );
+            other.insert( other.end(), crv.m_UWPntVec_B.size(), ida );
+            guess.insert( guess.end(), crv.m_UWPntVec_A.begin(), crv.m_UWPntVec_A.end() );
+        }
+    }
+}
+
+// The normal of srf at u, w pointing out of the body it bounds.  The mesher flips a negative
+// surface's normal to face the fluid inside it, so that flip is undone here.
+static vec3d OutwardNorm( Surf *srf, double u, double w )
+{
+    vec3d n = srf->CompNorm( u, w );
+    bool flip = srf->GetFlipFlag();
+    if ( srf->GetSurfaceCfdType() == vsp::CFD_NEGATIVE )
+    {
+        flip = !flip;
+    }
+    if ( flip )
+    {
+        n = -1.0 * n;
+    }
+    return n;
+}
+
+// Whether normals ns and n are parallel, to within a few degrees.
+static bool NormsTangent( const vec3d &ns, const vec3d &n )
+{
+    double m = ns.mag() * n.mag();
+    if ( m <= 0.0 )
+    {
+        return false;
+    }
+    return std::abs( dot( ns, n ) ) > 0.99 * m;
+}
+
+// Whether srf at uw has a normal parallel to n, to within a few degrees.
+static bool SurfacesTangent( Surf *srf, const vec3d &uw, const vec3d &n )
+{
+    return NormsTangent( srf->CompNorm( uw.x(), uw.y() ), n );
+}
+
+// A POGS sample near an intersection edge, whose side of the edge is taken from the surface
+// across it.  What needs the sample's own surface is worked out with that surface's face; what
+// is left needs only the surface across.
+struct POGSCrossSample
+{
+    int m_Face;
+    int m_Index;            // The sample, in its face
+    Surf* m_Srf;
+    Surf* m_Other;          // The surface across the edge, of component m_OtherComp
+    int m_OtherComp;
+    vec3d m_Pnt;
+    vec3d m_Guess;          // A uw on m_Other near the edge
+    double m_Reach;         // Farther than this, m_Other's nearest point is not across the edge
+    vec3d m_Norm;           // m_Srf's normal at the sample
+    bool m_SameSide;        // The sample is on the edge's kept side of the polygon
+    bool m_Del;             // The polygon's verdict
+};
+
 // A CART3D triangulation, unformatted, the way pogs reads it:
 //
 //     WRITE(IU) NVERT,NFACE
@@ -3861,11 +4041,14 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
         ncomp = max( ncomp, m_SurfVec[i]->GetCompID() + 1 );
     }
 
-    // Deciding which samples fall inside another component is a ray cast apiece, and it is the
-    // whole cost of writing these files, so it is named on the progress line.
-    addOutputText( "POGS Ray Trace\n" );
+    // Deciding which samples the trimming removed is the whole cost of writing these files, so it
+    // is named on the progress line.
+    addOutputText( "POGS Iblank\n" );
 
-    RunRayCastStage( "POGS ray trace", nface, [&]( int iface )
+    vector < char > open_face( nface, 0 );
+    vector < vector < POGSCrossSample > > cross( nface );
+
+    RunRayCastStage( "POGS iblank", nface, [&]( int iface )
     {
         Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
 
@@ -3873,12 +4056,207 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
 
         vector < int > iblank_vec( pnt_vec.size(), 1 );
 
-        // One scratch table per face, so the ray cast does not allocate per sample.
+        // One scratch table per face, so a ray cast does not allocate per sample.
         vector < vector < double > > t_vec_vec( ncomp );
+
+        // The face's trimmed region is what its loops enclose: inside a closed external loop and
+        // outside every cutout.
+        NURBS_Surface &nurbs_surf = m_NURBSSurfVec[ face_surf_vec[iface] ];
+        vector < NURBS_Loop > ext_loop_vec, cutout_vec;
+        nurbs_surf.MakeExtLoopVec( ext_loop_vec, cutout_vec );
+
+        vector < vector < vec3d > > loop_uw, loop_guess;
+        vector < vector < int > > loop_other;
+        int next = 0;
+        for ( int j = 0; j < ( int )ext_loop_vec.size(); j++ )
+        {
+            if ( ext_loop_vec[j].m_ClosedFlag )
+            {
+                loop_uw.push_back( vector < vec3d >() );
+                loop_other.push_back( vector < int >() );
+                loop_guess.push_back( vector < vec3d >() );
+                LoopUWAcross( ext_loop_vec[j], nurbs_surf.m_SurfID, loop_uw.back(), loop_other.back(), loop_guess.back() );
+                next++;
+            }
+        }
+        for ( int j = 0; j < ( int )cutout_vec.size(); j++ )
+        {
+            if ( cutout_vec[j].m_ClosedFlag )
+            {
+                loop_uw.push_back( vector < vec3d >() );
+                loop_other.push_back( vector < int >() );
+                loop_guess.push_back( vector < vec3d >() );
+                LoopUWAcross( cutout_vec[j], nurbs_surf.m_SurfID, loop_uw.back(), loop_other.back(), loop_guess.back() );
+            }
+        }
+
+        // A face is one only because some of it is kept, so it has a closed external loop.  One
+        // that has none has lost a curve; its samples are left to the ray cast.
+        if ( next == 0 )
+        {
+            open_face[iface] = 1;
+            for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
+            {
+                if ( PntTrimmedAway( pnt_vec[i], srf, x_dist, t_vec_vec ) )
+                {
+                    iblank_vec[i] = 0;
+                }
+            }
+            all_iblank_vec[iface] = iblank_vec;
+            return;
+        }
+
+        double umin = srf->GetSurfCore()->GetMinU();
+        double umax = srf->GetSurfCore()->GetMaxU();
+        double wmin = srf->GetSurfCore()->GetMinW();
+        double wmax = srf->GetSurfCore()->GetMaxW();
+        double rel_tol = GetSettingsPtr()->m_RelCurveTol;
+
+        vector < vector < double > > loop_band( loop_uw.size() );
+        for ( int j = 0; j < ( int )loop_uw.size(); j++ )
+        {
+            RefineLoopUW( srf, umin, umax, wmin, wmax, rel_tol, loop_uw[j], loop_other[j], loop_guess[j], loop_band[j] );
+        }
+
+        // Border curves and edges along the face's bounds run exactly where the surface ends.
+        // Only the intersection curves approximate their curve, so only their edges are kept
+        // for the side test, each with the surface across it and the side of it that is kept.
+        vector < vec3d > bnd_a, bnd_b, seg_a, seg_b, uw_a, uw_b, seg_guess;
+        vector < double > seg_band;
+        vector < int > seg_other;
+        vector < bool > seg_kept_left;
+        for ( int j = 0; j < ( int )loop_uw.size(); j++ )
+        {
+            int n = loop_uw[j].size();
+            double area = 0.0;
+            for ( int k = 0; k < n; k++ )
+            {
+                const vec3d &p0 = loop_uw[j][k];
+                const vec3d &p1 = loop_uw[j][ ( k + 1 ) % n ];
+                area += p0.x() * p1.y() - p1.x() * p0.y();
+            }
+
+            // The kept side of an external loop is its inside, and of a cutout its outside.
+            bool kept_left = ( area > 0.0 ) != ( j >= next );
+
+            for ( int k = 0; k < n; k++ )
+            {
+                const vec3d &q0 = loop_uw[j][k];
+                const vec3d &q1 = loop_uw[j][ ( k + 1 ) % n ];
+                if ( loop_other[j][k] < 0 || OnFaceBound( q0, q1, umin, umax, wmin, wmax ) )
+                {
+                    if ( j < next )
+                    {
+                        bnd_a.push_back( vec3d( q0.x(), q0.y(), 0.0 ) );
+                        bnd_b.push_back( vec3d( q1.x(), q1.y(), 0.0 ) );
+                    }
+                    continue;
+                }
+                seg_a.push_back( srf->CompPnt( q0.x(), q0.y() ) );
+                seg_b.push_back( srf->CompPnt( q1.x(), q1.y() ) );
+                uw_a.push_back( vec3d( q0.x(), q0.y(), 0.0 ) );
+                uw_b.push_back( vec3d( q1.x(), q1.y(), 0.0 ) );
+                seg_band.push_back( loop_band[j][k] );
+                seg_other.push_back( loop_other[j][k] );
+                seg_guess.push_back( loop_guess[j][k] );
+                seg_kept_left.push_back( kept_left );
+            }
+        }
+
+        vector < int > joined;
+        JoinedComps( srf->GetCompID(), joined );
+        int pairc = -1;
+        bool pairinside = false;
+        CoincidentVerdict( srf, pairc, pairinside );
+
+        int nu = uvec[iface].size();
 
         for ( int i = 0; i < ( int )pnt_vec.size(); i++ )
         {
-            if ( PntTrimmedAway( pnt_vec[i], srf, x_dist, t_vec_vec ) )
+            vec3d suw( uvec[iface][ i % nu ], wvec[iface][ i / nu ], 0.0 );
+
+            // A sample on the face's own border is kept.
+            bool in = false;
+            for ( int e = 0; e < ( int )bnd_a.size() && !in; e++ )
+            {
+                if ( dist( proj_pnt_on_line_seg( bnd_a[e], bnd_b[e], suw ), suw ) < 1.0e-12 )
+                {
+                    in = true;
+                }
+            }
+            for ( int j = 0; j < next && !in; j++ )
+            {
+                in = PolyContainsUW( loop_uw[j], suw );
+            }
+            for ( int j = next; j < ( int )loop_uw.size() && in; j++ )
+            {
+                if ( PolyContainsUW( loop_uw[j], suw ) )
+                {
+                    in = false;
+                }
+            }
+            bool del = !in;
+
+            // The nearest intersection edge the sample is within the tolerance of, in either
+            // space: the surface's metric can make an edge short in one and long in the other.
+            int enear = -1;
+            double dnear = 1.0e300;
+            for ( int e = 0; e < ( int )seg_a.size(); e++ )
+            {
+                double d = dist( proj_pnt_on_line_seg( seg_a[e], seg_b[e], pnt_vec[i] ), pnt_vec[i] );
+                double d_uw = dist( proj_pnt_on_line_seg( uw_a[e], uw_b[e], suw ), suw );
+                if ( ( d <= seg_band[e] || d_uw <= UW_REFINE_TOL * dist( uw_a[e], uw_b[e] ) ) && d < dnear )
+                {
+                    dnear = d;
+                    enear = e;
+                }
+            }
+
+            // There the polygon may put the sample on the wrong side of the curve, so the side is
+            // taken from the surface across it: the sample's nearest point there, and that
+            // surface's outward normal.  A component joined to this one or coincident with it
+            // has its own rules, which the ray cast knows.
+            if ( enear >= 0 )
+            {
+                Surf *o = FindSurf( seg_other[enear] );
+                int oc = -1;
+                if ( o )
+                {
+                    oc = o->GetCompID();
+                }
+
+                bool use_ray = !o || oc < 0 || oc >= ncomp || oc == srf->GetCompID() || oc == pairc ||
+                               std::find( joined.begin(), joined.end(), oc ) != joined.end();
+
+                if ( !use_ray )
+                {
+                    // Another face's thread may be evaluating the surface across, so the rest is
+                    // left until every face is done.
+                    const vec3d &a = uw_a[enear];
+                    const vec3d &b = uw_b[enear];
+                    bool left = ( b.x() - a.x() ) * ( suw.y() - a.y() ) - ( b.y() - a.y() ) * ( suw.x() - a.x() ) > 0.0;
+
+                    POGSCrossSample cs;
+                    cs.m_Face = iface;
+                    cs.m_Index = i;
+                    cs.m_Srf = srf;
+                    cs.m_Other = o;
+                    cs.m_OtherComp = oc;
+                    cs.m_Pnt = pnt_vec[i];
+                    cs.m_Guess = seg_guess[enear];
+                    cs.m_Reach = 10.0 * ( dnear + seg_band[enear] ) + 1.0e-12;
+                    cs.m_Norm = srf->CompNorm( suw.x(), suw.y() );
+                    cs.m_SameSide = ( left == seg_kept_left[enear] );
+                    cs.m_Del = del;
+                    cross[iface].push_back( cs );
+                }
+                else
+                {
+                    del = PntTrimmedAway( pnt_vec[i], srf, x_dist, t_vec_vec );
+                }
+            }
+
+            if ( del )
             {
                 iblank_vec[i] = 0;
             }
@@ -3886,6 +4264,71 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
 
         all_iblank_vec[iface] = iblank_vec;
     } );
+
+    // The samples whose side is taken from the surface across an edge, grouped by that surface,
+    // so each surface is evaluated by one thread at a time.  The side is the sample's nearest
+    // point there and that surface's outward normal.
+    std::map < Surf*, vector < POGSCrossSample* > > by_other;
+    for ( int iface = 0; iface < nface; iface++ )
+    {
+        for ( int k = 0; k < ( int )cross[iface].size(); k++ )
+        {
+            by_other[ cross[iface][k].m_Other ].push_back( &cross[iface][k] );
+        }
+    }
+    vector < vector < POGSCrossSample* > > cross_group;
+    for ( std::map < Surf*, vector < POGSCrossSample* > >::iterator it = by_other.begin(); it != by_other.end(); ++it )
+    {
+        cross_group.push_back( it->second );
+    }
+
+    RunIndexed( ( int )cross_group.size(), StageThreadCount( ( int )cross_group.size() ), [&]( int g )
+    {
+        vector < vector < double > > t_vec_vec( ncomp );
+        for ( int k = 0; k < ( int )cross_group[g].size(); k++ )
+        {
+            const POGSCrossSample &cs = *cross_group[g][k];
+            Surf *o = cs.m_Other;
+            bool del = cs.m_Del;
+
+            vec2d ouw = o->ClosestUW( cs.m_Pnt, cs.m_Guess.x(), cs.m_Guess.y() );
+            vec3d q = o->CompPnt( ouw[0], ouw[1] );
+            vec3d n = OutwardNorm( o, ouw[0], ouw[1] );
+
+            if ( dist( q, cs.m_Pnt ) > cs.m_Reach )
+            {
+                // The nearest point is not across this edge.
+                del = PntTrimmedAway( cs.m_Pnt, cs.m_Srf, x_dist, t_vec_vec );
+            }
+            else if ( !NormsTangent( cs.m_Norm, n ) )
+            {
+                // Where the surfaces lie flat against each other the normal cannot tell the
+                // sides apart, and the polygon stands.
+                vector < bool > inside( ncomp, false );
+                inside[ cs.m_OtherComp ] = dot( cs.m_Pnt - q, n ) < 0.0;
+                bool kept_c = !SetDeleteTriFlag( cs.m_Srf->GetSurfaceCfdType(), cs.m_Srf->GetSymPlaneFlag(), inside );
+                if ( cs.m_SameSide != kept_c )
+                {
+                    del = !del;
+                }
+            }
+
+            all_iblank_vec[ cs.m_Face ][ cs.m_Index ] = !del;
+        }
+    } );
+
+    // A face with no closed loop says the topology written alongside is incomplete.  Said on
+    // stdout too, since a run driven from a script sees nothing addOutputText posts.
+    for ( int iface = 0; iface < nface; iface++ )
+    {
+        if ( open_face[iface] )
+        {
+            char str[256];
+            snprintf( str, sizeof( str ), "POGS: face %d has no closed loop; its samples were classified by ray\n", iface + 1 );
+            addOutputText( str );
+            printf( "%s", str );
+        }
+    }
 
     addOutputText( "Writing POGS Files\n" );
 
