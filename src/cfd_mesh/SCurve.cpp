@@ -570,7 +570,154 @@ void SCurve::BuildDistTableGeomB( SCurve* BCurve )
     }
 }
 
-void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
+SplitSourceSet::SplitSourceSet( const list< MapSource* > &src ) : m_Src( src.begin(), src.end() ), m_Tree( nullptr )
+{
+    m_Searches = 0;
+    m_Overs = 0;
+
+    m_StrMax = 0.0;
+    m_NonNegative = true;
+    for ( size_t i = 0 ; i < m_Src.size() ; i++ )
+    {
+        double str = m_Src[i]->m_str;
+        if ( !( str >= 0.0 ) )
+        {
+            m_NonNegative = false;
+        }
+        else if ( str > m_StrMax )
+        {
+            m_StrMax = str;
+        }
+    }
+
+    for ( size_t i = 0 ; i < m_Src.size() ; i++ )
+    {
+        m_Box.Update( m_Src[i]->m_pt );
+    }
+
+    if ( !m_Src.empty() )
+    {
+        m_Cloud.sources = m_Src;
+        m_Tree = new MSTree( 3, m_Cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+        m_Tree->buildIndex();
+    }
+}
+
+SplitSourceSet::~SplitSourceSet()
+{
+    delete m_Tree;
+}
+
+// Split sources against the two ends of a curve's table: those listed in near in that order, or
+// every one where near is null.  Each end's target falls to what a source allows there, or the
+// source's strength to what the end allows at the source.
+static void ApplySplitSources( const vector< MapSource* > &src, const vector< size_t > *near, const vector< vec3d > &tablepnt,
+                               const int indx[2], double grm1, vector< double > &target_vec, vector< double > &reason_vec )
+{
+    size_t n = src.size();
+    if ( near )
+    {
+        n = near->size();
+    }
+
+    for ( size_t k = 0 ; k < n ; k++ )
+    {
+        MapSource* ss = src[k];
+        if ( near )
+        {
+            ss = src[ ( *near )[k] ];
+        }
+
+        vec3d pt = ss->m_pt;
+        double str = ss->m_str;
+
+        for ( int i = 0; i < 2; i++ ) // Loop over first and last points.
+        {
+            double r = dist( pt, tablepnt[indx[i]] );
+            double targetstr = str + r * grm1;
+
+            if ( targetstr < target_vec[indx[i]] )
+            {
+                target_vec[indx[i]] = targetstr;
+
+                if ( ss->m_reason < vsp::MIN_GROW_LIMIT )
+                {
+                    reason_vec[indx[i]] = ss->m_reason + vsp::GROW_LIMIT_INCREMENT;
+                }
+                else
+                {
+                    reason_vec[indx[i]] = ss->m_reason;
+                }
+            }
+            else
+            {
+                double targetrev = target_vec[indx[i]] + r * grm1;
+                if ( targetrev < str )
+                {
+                    ss->m_str = targetrev;
+
+                    if ( reason_vec[indx[i]] < vsp::MIN_GROW_LIMIT )
+                    {
+                        ss->m_reason = reason_vec[indx[i]] + vsp::GROW_LIMIT_INCREMENT;
+                    }
+                    else
+                    {
+                        ss->m_reason = reason_vec[indx[i]];
+                    }
+                }
+            }
+        }
+    }
+}
+
+// The sources a tree search finds within a radius, until there are more than a cap; then the
+// search stops and m_Over is set.
+class NearSources
+{
+public:
+    NearSources( size_t cap, vector< size_t > &found ) : m_Found( found )
+    {
+        m_Cap = cap;
+        m_RadiusSq = 0.0;
+        m_Over = false;
+    }
+
+    size_t size() const
+    {
+        return m_Found.size();
+    }
+
+    bool full() const
+    {
+        return true;
+    }
+
+    double worstDist() const
+    {
+        return m_RadiusSq;
+    }
+
+    bool addPoint( double dsq, size_t index )
+    {
+        if ( dsq < m_RadiusSq )
+        {
+            if ( m_Found.size() >= m_Cap )
+            {
+                m_Over = true;
+                return false;
+            }
+            m_Found.push_back( index );
+        }
+        return true;
+    }
+
+    vector< size_t > &m_Found;
+    size_t m_Cap;
+    double m_RadiusSq;
+    bool m_Over;
+};
+
+void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, SplitSourceSet & splitSources )
 {
     BuildDistTableGeom();
     BuildDistTableGeomB( BCurve );
@@ -601,49 +748,71 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
     // Indices of first and last points in table.
     int indx[2] = { 0, num_segs - 1 };
 
-    list< MapSource* >::iterator ss;
-    for ( ss = splitSources.begin(); ss != splitSources.end(); ++ss )
+    const vector< MapSource* > &src = splitSources.m_Src;
+
+    // A source changes an end, or the end changes it, only where it lies nearer than
+    // | target - strength | / grm1.  Targets and strengths here only fall and never below zero,
+    // so the larger of the end's target and the strongest source bounds that, and the sources
+    // beyond it are passed over.  Those taken are taken in their order, as the full loop would.
+    // Where that reaches past every source, or takes in more than one in sixty-four of them, they
+    // are all taken: searching for more would cost more than it saves.  Where most searches find
+    // that many, the searching stops.
+    double t0 = target_vec[indx[0]];
+    double t1 = target_vec[indx[1]];
+    bool crowded = splitSources.m_Searches >= 256 && splitSources.m_Overs * 2 > splitSources.m_Searches;
+    if ( splitSources.m_Tree && splitSources.m_NonNegative && grm1 > 0.0 && t0 >= 0.0 && t1 >= 0.0 && !crowded )
     {
-        vec3d pt = ( *ss )->m_pt;
-        double str = ( *ss )->m_str;
-
-        for ( int i = 0; i < 2; i++ ) // Loop over first and last points.
+        double reach[2];
+        bool all = false;
+        for ( int i = 0; i < 2; i++ )
         {
-            double r = dist( pt, m_TablePnt[indx[i]] );
-            double targetstr = str + r * grm1;
+            reach[i] = 1.01 * std::max( target_vec[indx[i]], splitSources.m_StrMax ) / grm1;
 
-            if ( targetstr < target_vec[indx[i]] )
+            const BndBox &box = splitSources.m_Box;
+            const vec3d &p = m_TablePnt[indx[i]];
+            double far2 = 0.0;
+            for ( int j = 0; j < 3; j++ )
             {
-                target_vec[indx[i]] = targetstr;
-
-                if ( ( *ss )->m_reason < vsp::MIN_GROW_LIMIT )
-                {
-                    reason_vec[indx[i]] = ( *ss )->m_reason + vsp::GROW_LIMIT_INCREMENT;
-                }
-                else
-                {
-                    reason_vec[indx[i]] = ( *ss )->m_reason;
-                }
+                double d = std::max( std::abs( p[j] - box.GetMin( j ) ), std::abs( p[j] - box.GetMax( j ) ) );
+                far2 += d * d;
             }
-            else
+            if ( far2 <= reach[i] * reach[i] )
             {
-                double targetrev = target_vec[indx[i]] + r * grm1;
-                if ( targetrev < str )
-                {
-                    ( *ss )->m_str = targetrev;
+                all = true;
+            }
+        }
 
-                    if ( reason_vec[indx[i]] < vsp::MIN_GROW_LIMIT )
-                    {
-                        ( *ss )->m_reason = reason_vec[indx[i]] + vsp::GROW_LIMIT_INCREMENT;
-                    }
-                    else
-                    {
-                        ( *ss )->m_reason = reason_vec[indx[i]];
-                    }
-                }
+        if ( !all )
+        {
+            vector< size_t > near;
+            NearSources found( src.size() / 64, near );
+            nanoflann::SearchParams params;
+
+            for ( int i = 0; i < 2 && !found.m_Over; i++ )
+            {
+                vec3d p = m_TablePnt[indx[i]];
+                found.m_RadiusSq = reach[i] * reach[i];
+                splitSources.m_Tree->findNeighbors( found, &p[0], params );
+            }
+
+            splitSources.m_Searches++;
+            if ( found.m_Over )
+            {
+                splitSources.m_Overs++;
+            }
+
+            if ( !found.m_Over )
+            {
+                std::sort( near.begin(), near.end() );
+                near.erase( std::unique( near.begin(), near.end() ), near.end() );
+
+                ApplySplitSources( src, &near, m_TablePnt, indx, grm1, target_vec, reason_vec );
+                return;
             }
         }
     }
+
+    ApplySplitSources( src, nullptr, m_TablePnt, indx, grm1, target_vec, reason_vec );
 }
 
 // Swapping with an empty vector gives the memory back, where clear() would keep it.
@@ -1079,7 +1248,7 @@ void SCurve::SpreadDensityB( SCurve* BCurve )
     }
 }
 
-void SCurve::CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
+void SCurve::CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, SplitSourceSet & splitSources )
 {
     BuildDistTable( grid_den, BCurve, splitSources );
 

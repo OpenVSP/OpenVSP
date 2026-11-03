@@ -28,6 +28,28 @@ using namespace std;
 
 class ICurve;
 
+// The split sources whose strengths the ends of every chain are measured against, in the order
+// they are taken, with a tree over where they lie.
+struct SplitSourceSet
+{
+    explicit SplitSourceSet( const list< MapSource* > &src );
+    ~SplitSourceSet();
+
+    vector< MapSource* > m_Src;
+    MSCloud m_Cloud;
+    MSTree* m_Tree;
+    BndBox m_Box;
+
+    // No strength is above this, nor below zero.  Strengths only fall.
+    double m_StrMax;
+    bool m_NonNegative;
+
+    // Searches made, and those that found too many sources to be worth it.  Where most of the
+    // first few hundred do, the sources crowd the chains' ends and searching stops.
+    int m_Searches;
+    int m_Overs;
+};
+
 //==== Parameter line of a surface a curve runs along ====//
 // A patch border, or the seam where split and join put two pieces of a surface back together,
 // is a line of constant u or w.  It is recorded where the curve is made.
@@ -97,7 +119,7 @@ public:
     void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi, int &reason );
     void BuildDistTableGeom();
     void BuildDistTableGeomB( SCurve* BCurve );
-    void BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
+    void BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, SplitSourceSet & splitSources );
     void CleanupDistTable();
     void LimitTarget( SimpleGridDensity* grid_den );
     void TessEndPts();
@@ -112,7 +134,7 @@ public:
     void SpreadDensity( SCurve* BCurve );
     void SpreadDensityA();
     void SpreadDensityB( SCurve* BCurve );
-    void CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
+    void CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, SplitSourceSet & splitSources );
     void ApplyESAtUW( const vec3d &uw, const vec3d &p, double t, int reason );
     void Tesselate();
 

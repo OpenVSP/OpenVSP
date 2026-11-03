@@ -258,7 +258,7 @@ public:
     void SpreadDensity( );
     void SpreadDensityA( );
     void SpreadDensityB( );
-    void CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources );
+    void CalcDensity( SimpleGridDensity* grid_den, SplitSourceSet & splitSources );
     void Tessellate();
     void TessEndPts();
 

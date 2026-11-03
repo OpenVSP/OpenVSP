@@ -289,7 +289,7 @@ public:
 
     virtual void BuildTargetMap( int output_type );
     virtual void BuildChainDistTables();
-    virtual void SpreadChainDensity( int nedgeprop, int nthread, list< MapSource* > &splitSources, int stride, int output_type );
+    virtual void SpreadChainDensity( int nedgeprop, int nthread, SplitSourceSet &splitSources, int stride, int output_type );
     virtual void RemoveInteriorTris();
     virtual void RemoveTrimTris() {};  // Implemented for FEAMesh
     virtual void ConnectBorderNodes( bool wakeOnly );

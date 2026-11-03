@@ -902,6 +902,8 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
         }
     }
 
+    SplitSourceSet splitSet( splitSources );
+
     BuildChainDistTables();
 
     // Number of times to propagate intersection edges through surfaces
@@ -917,7 +919,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 
     if ( nthread > 1 )
     {
-        SpreadChainDensity( nedgeprop, nthread, splitSources, stride, output_type );
+        SpreadChainDensity( nedgeprop, nthread, splitSet, stride, output_type );
     }
     else
     {
@@ -925,7 +927,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
         {
             for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
             {
-                ( *c )->CalcDensity( GetGridDensityPtr(), splitSources );
+                ( *c )->CalcDensity( GetGridDensityPtr(), splitSet );
                 ( *c )->SpreadDensity();
 
                 StepProgressEvery( stride, output_type );
@@ -1018,7 +1020,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 
         for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
         {
-            ( *c )->CalcDensity( GetGridDensityPtr(), splitSources );
+            ( *c )->CalcDensity( GetGridDensityPtr(), splitSet );
         }
     }
 
@@ -1171,7 +1173,7 @@ protected:
 // its surfaces are idle, and spreading is queued on each surface in that same order, so every
 // map is read and written in the order the serial loop would.  The two sides of a chain are
 // separate maps unless the chain lies on one surface, and are spread separately.
-void CfdMeshMgrSingleton::SpreadChainDensity( int nedgeprop, int nthread, list< MapSource* > &splitSources, int stride, int output_type )
+void CfdMeshMgrSingleton::SpreadChainDensity( int nedgeprop, int nthread, SplitSourceSet &splitSources, int stride, int output_type )
 {
     int nsurf = ( int )m_SurfVec.size();
 
