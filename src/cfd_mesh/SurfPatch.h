@@ -138,6 +138,7 @@ public:
     {
         m_Patch.resize( n, m );
         sub_depth = d;
+        ClearCache();
     }
 
     friend void intersect_quads( const SurfPatch&  bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
@@ -156,6 +157,25 @@ protected:
     BndBox bnd_box;
 
     int sub_depth;
+
+    // What the planar and separation tests find of this patch alone, kept for a patch made by
+    // subdivision.  Such a patch belongs to one thread; a top-level patch is shared, so it keeps
+    // nothing.
+    void ClearCache()
+    {
+        m_PlanarTol = -1.0;
+        m_Planar = false;
+        m_ExtentKnown = false;
+    }
+    bool OwnExtent( vec3d &norm, double &hmin, double &hmax ) const;
+
+    mutable double m_PlanarTol;
+    mutable bool m_Planar;
+    mutable bool m_ExtentKnown;
+    mutable bool m_ExtentNormOK;
+    mutable vec3d m_ExtentNorm;
+    mutable double m_ExtentMin;
+    mutable double m_ExtentMax;
 
 };
 

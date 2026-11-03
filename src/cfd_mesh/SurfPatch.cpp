@@ -22,6 +22,7 @@ SurfPatch::SurfPatch()
     u_max = w_max = 1.0;
     m_SurfPtr = nullptr;
     sub_depth = 0;
+    ClearCache();
 }
 
 SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
@@ -30,6 +31,7 @@ SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
     u_max = w_max = 1.0;
     m_SurfPtr = nullptr;
     sub_depth = d;
+    ClearCache();
 }
 
 SurfPatch::~SurfPatch()
@@ -49,6 +51,8 @@ void SurfPatch::compute_bnd_box()
     bnd_box.Reset();
     bnd_box.Update( v3min );
     bnd_box.Update( v3max );
+
+    ClearCache();
 }
 
 //===== Split Patch =====//
@@ -124,12 +128,74 @@ bool SurfPatch::test_planar( double tol ) const
 //===== Test If Patch Is Planar (within relative tol)  =====//
 bool SurfPatch::test_planar_rel( double reltol ) const
 {
+    if ( sub_depth > 0 && reltol == m_PlanarTol )
+    {
+        return m_Planar;
+    }
+
     surface_patch_type approx = m_Patch;
     approx.planar_approx();
 
     double dst = m_Patch.simple_eqp_distance_bound( approx );
 
-    return dst < ( reltol * bnd_box.DiagDist() );
+    bool planar = dst < ( reltol * bnd_box.DiagDist() );
+
+    if ( sub_depth > 0 )
+    {
+        m_PlanarTol = reltol;
+        m_Planar = planar;
+    }
+
+    return planar;
+}
+
+// The direction normal to this patch's diagonals, and the extent of its control points along it.
+// False where the diagonals give no direction.
+bool SurfPatch::OwnExtent( vec3d &norm, double &hmin, double &hmax ) const
+{
+    if ( sub_depth > 0 && m_ExtentKnown )
+    {
+        norm = m_ExtentNorm;
+        hmin = m_ExtentMin;
+        hmax = m_ExtentMax;
+        return m_ExtentNormOK;
+    }
+
+    int n = m_Patch.degree_u();
+    int m = m_Patch.degree_v();
+
+    bool ok = false;
+    hmin = DBL_MAX;
+    hmax = -DBL_MAX;
+
+    norm = cross( vec3d( m_Patch.get_control_point( n, m ) ) - vec3d( m_Patch.get_control_point( 0, 0 ) ),
+                  vec3d( m_Patch.get_control_point( 0, m ) ) - vec3d( m_Patch.get_control_point( n, 0 ) ) );
+    if ( norm.mag() > 0.0 )
+    {
+        ok = true;
+        norm.normalize();
+
+        for ( int i = 0; i <= n; i++ )
+        {
+            for ( int j = 0; j <= m; j++ )
+            {
+                double h = dot( vec3d( m_Patch.get_control_point( i, j ) ), norm );
+                hmin = std::min( hmin, h );
+                hmax = std::max( hmax, h );
+            }
+        }
+    }
+
+    if ( sub_depth > 0 )
+    {
+        m_ExtentKnown = true;
+        m_ExtentNormOK = ok;
+        m_ExtentNorm = norm;
+        m_ExtentMin = hmin;
+        m_ExtentMax = hmax;
+    }
+
+    return ok;
 }
 
 //===== Test If Two Patches Are Apart Along This Patch's Normal =====//
@@ -140,27 +206,11 @@ bool SurfPatch::test_planar_rel( double reltol ) const
 // that runs at an angle to the axes is as deep as the patch is wide.
 bool SurfPatch::test_separated( const SurfPatch& other ) const
 {
-    int n = m_Patch.degree_u();
-    int m = m_Patch.degree_v();
-
-    vec3d norm = cross( vec3d( m_Patch.get_control_point( n, m ) ) - vec3d( m_Patch.get_control_point( 0, 0 ) ),
-                        vec3d( m_Patch.get_control_point( 0, m ) ) - vec3d( m_Patch.get_control_point( n, 0 ) ) );
-    if ( norm.mag() <= 0.0 )
+    vec3d norm;
+    double amin, amax;
+    if ( !OwnExtent( norm, amin, amax ) )
     {
         return false;
-    }
-    norm.normalize();
-
-    double amin = DBL_MAX;
-    double amax = -DBL_MAX;
-    for ( int i = 0; i <= n; i++ )
-    {
-        for ( int j = 0; j <= m; j++ )
-        {
-            double h = dot( vec3d( m_Patch.get_control_point( i, j ) ), norm );
-            amin = std::min( amin, h );
-            amax = std::max( amax, h );
-        }
     }
 
     int on = other.m_Patch.degree_u();
