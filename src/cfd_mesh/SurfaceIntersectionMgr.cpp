@@ -3403,32 +3403,50 @@ void SurfaceIntersectionSingleton::KeepIPnt( IPnt* ip )
     vector< ISeg* >().swap( ip->m_Segs );
 }
 
+// The corners at the ends of edge i of triangle tri.  Tri 1 is corners 0 2 3, tri 2 is corners
+// 0 1 2.  Corner 0 is (umin, wmin), 1 (umax, wmin), 2 (umax, wmax), 3 (umin, wmax); the diagonal
+// runs from 0 to 2.
+static void TriEdgeCorners( int tri, int i, int &a, int &b )
+{
+    const int tri1[3][2] = { { 0, 2 }, { 2, 3 }, { 3, 0 } };
+    const int tri2[3][2] = { { 0, 1 }, { 1, 2 }, { 0, 2 } };
+    if ( tri == 2 )
+    {
+        a = tri2[i][0];
+        b = tri2[i][1];
+    }
+    else
+    {
+        a = tri1[i][0];
+        b = tri1[i][1];
+    }
+}
+
+// How far point pnt is from edge i of triangle tri, corners q, and how far along it from its first corner
+static double EdgeDist( const vec3d &pnt, const vec3d q[4], int tri, int i, double &t )
+{
+    int a, b;
+    TriEdgeCorners( tri, i, a, b );
+    const vec3d &c0 = q[ a ];
+    const vec3d &c1 = q[ b ];
+    vec3d d = c1 - c0;
+    double dd = dot( d, d );
+    t = 0.0;
+    if ( dd > 0.0 )
+    {
+        t = std::min( std::max( dot( pnt - c0, d ) / dd, 0.0 ), 1.0 );
+    }
+    return dist( pnt, c0 + d * t );
+}
+
 // The edge of triangle tri of patch p, corners q, that point pnt is nearest, and how near it is
 static double NearestEdge( const vec3d &pnt, const SurfPatch &p, const vec3d q[4], int tri, IPntEdge &edge )
 {
-    // Tri 1 is corners 0 2 3, tri 2 is corners 0 1 2.  Corner 0 is (umin, wmin), 1 (umax, wmin),
-    // 2 (umax, wmax), 3 (umin, wmax); the diagonal runs from 0 to 2.
-    const int tri1[3][2] = { { 0, 2 }, { 2, 3 }, { 3, 0 } };
-    const int tri2[3][2] = { { 0, 1 }, { 1, 2 }, { 0, 2 } };
-    const int ( *ends )[2] = tri1;
-    if ( tri == 2 )
-    {
-        ends = tri2;
-    }
-
     double best = 1.0e300;
     for ( int i = 0; i < 3; i++ )
     {
-        const vec3d &c0 = q[ ends[i][0] ];
-        const vec3d &c1 = q[ ends[i][1] ];
-        vec3d d = c1 - c0;
-        double dd = dot( d, d );
-        double t = 0.0;
-        if ( dd > 0.0 )
-        {
-            t = std::min( std::max( dot( pnt - c0, d ) / dd, 0.0 ), 1.0 );
-        }
-        double dst = dist( pnt, c0 + d * t );
+        double t;
+        double dst = EdgeDist( pnt, q, tri, i, t );
 
         if ( dst >= best )
         {
@@ -3439,8 +3457,8 @@ static double NearestEdge( const vec3d &pnt, const SurfPatch &p, const vec3d q[4
         edge = IPntEdge();
         edge.m_SurfID = p.get_surf_ptr()->GetSurfID();
 
-        int a = ends[i][0];
-        int b = ends[i][1];
+        int a, b;
+        TriEdgeCorners( tri, i, a, b );
         double du = p.get_u_max() - p.get_u_min();
         double dw = p.get_w_max() - p.get_w_min();
 
