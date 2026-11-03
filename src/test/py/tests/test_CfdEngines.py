@@ -261,6 +261,43 @@ def testAnEngineThroughABlockIsClosed( preset, inmode, outmode, stretch, tmp_pat
            "%s encloses %g, CompGeom finds %g" % ( what, vol, cgvol )
 
 
+@pytest.mark.parametrize( "splitjoin", [ 0, 1 ] )
+def testALipCapAlongABlockPatchBorderIsClosed( splitjoin, tmp_path ):
+    """The nacelle from its inlet lip to its outlet face, represented to both lips, where it sits
+    in the grid and meshed at the default sizes.  The flat cap at the inlet lip meets a flat side of
+    the block along a line where two of the block's patches meet, so every intersection segment on
+    the cap lies along an edge of a block triangle."""
+    vsp.VSPRenew()
+    eng = vsp.AddGeom( "STACK" )
+    vsp.InitStackPreset( eng, vsp.STACK_PRESET_BOTHLIPFACE )
+    vsp.SetParmVal( eng, "Y_Rel_Location", "XForm", 136.0 )
+    vsp.SetParmVal( eng, "Z_Rel_Location", "XForm", 32.0 )
+    vsp.Update()
+
+    _block( eng )
+
+    vsp.SetParmVal( eng, "InletModeType", "EngineModel", vsp.ENGINE_MODE_TO_LIP )
+    vsp.SetParmVal( eng, "OutletModeType", "EngineModel", vsp.ENGINE_MODE_TO_LIP )
+    vsp.Update()
+
+    stl = str( tmp_path / "engine.stl" )
+    vsp.SetComputationFileName( vsp.CFD_STL_TYPE, stl )
+    vsp.SetCFDMeshVal( vsp.CFD_SPLIT_JOIN_SURFS_FLAG, splitjoin )
+    vsp.SetCFDMeshVal( vsp.CFD_HALF_MESH_FLAG, 0 )
+    vsp.ComputeCFDMesh( vsp.SET_ALL, vsp.SET_NONE, vsp.CFD_STL_TYPE )
+
+    rid = vsp.FindLatestResultsID( "CFDMesh" )
+    assert rid, "the mesher wrote no CFDMesh results entry"
+
+    ntri = vsp.GetIntResults( rid, "Num_Tris" )[0]
+    nborder = vsp.GetIntResults( rid, "Num_Border_Edges" )[0]
+    nover = vsp.GetIntResults( rid, "Num_Over_Connected_Edges" )[0]
+
+    assert ntri > 0
+    assert nborder == 0 and nover == 0, "split and join %d left %d border and %d over-connected edges" % \
+                                        ( splitjoin, nborder, nover )
+
+
 def _mode_key( mode ):
     """A representation mode for sorting, with no mode first."""
     if mode is None:
