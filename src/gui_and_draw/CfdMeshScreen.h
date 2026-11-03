@@ -109,6 +109,7 @@ protected:
 
     ToggleButton m_ParallelMesh;
     ToggleButton m_SplitJoinSurfs;
+    ToggleButton m_TopoInterior;
 
     //===== Display Tab Items =====//
 

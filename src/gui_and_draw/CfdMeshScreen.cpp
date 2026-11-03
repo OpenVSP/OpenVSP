@@ -240,6 +240,7 @@ void CfdMeshScreen::CreateGlobalTab()
 
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddButton( m_SplitJoinSurfs, "Split and Join Surfaces" );
+    m_GlobalTabLayout.AddButton( m_TopoInterior, "Find Interior by Topology" );
 
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddButton( m_ConvertToQuadsToggle, "Convert to Quads" );
@@ -1010,6 +1011,7 @@ void CfdMeshScreen::UpdateGlobalTab()
 {
     m_ParallelMesh.Update( m_Vehicle->GetCfdSettingsPtr()->m_ParallelMeshFlag.GetID() );
     m_SplitJoinSurfs.Update( m_Vehicle->GetCfdSettingsPtr()->m_SplitJoinSurfsFlag.GetID() );
+    m_TopoInterior.Update( m_Vehicle->GetCfdSettingsPtr()->m_TopoInteriorFlag.GetID() );
 
     //===== Global Mesh Control =====//
     m_MaxEdgeLenToggleGroup.Update( m_Vehicle->GetCfdGridDensityPtr()->m_BaseAbsRel.GetID() );

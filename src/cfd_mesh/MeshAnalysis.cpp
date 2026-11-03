@@ -46,6 +46,7 @@ void CfdMeshAnalysis::SetDefaults()
         m_Inputs.Add( new NameValData( "SplitJoinSurfs", veh->GetCfdSettingsPtr()->m_SplitJoinSurfsFlag(), "Flag to cut wings and bodies into patches chosen for the feature they carry." ) );
         m_Inputs.Add( new NameValData( "ParallelMesh", veh->GetCfdSettingsPtr()->m_ParallelMeshFlag(), "Flag to mesh on several threads." ) );
         m_Inputs.Add( new NameValData( "POGSNRef", veh->GetCfdSettingsPtr()->m_POGSNRef(), "Number of tessellation refinements in the POGS surface files." ) );
+        m_Inputs.Add( new NameValData( "TopoInterior", veh->GetCfdSettingsPtr()->m_TopoInteriorFlag(), "Flag to find interior triangles from the topology of the intersection curves." ) );
 
         m_Inputs.Add( new NameValData( "SelectedSetIndex", veh->GetCfdSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
         m_Inputs.Add( new NameValData( "SelectedDegenSetIndex", veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex(), "Degenerate (thin) geometry set for analysis." ) );
@@ -145,6 +146,10 @@ string CfdMeshAnalysis::Execute()
         int pogsNRefOrig = veh->GetCfdSettingsPtr()->m_POGSNRef();
         nvd = m_Inputs.FindPtr( "POGSNRef", 0 );
         if( nvd ) veh->GetCfdSettingsPtr()->m_POGSNRef.Set( nvd->GetInt( 0 ) );
+
+        bool topoInteriorOrig = veh->GetCfdSettingsPtr()->m_TopoInteriorFlag();
+        nvd = m_Inputs.FindPtr( "TopoInterior", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->m_TopoInteriorFlag.Set( nvd->GetInt( 0 ) );
 
         int selectedSetIndexOrig = veh->GetCfdSettingsPtr()->m_SelectedSetIndex();
         nvd = m_Inputs.FindPtr( "SelectedSetIndex", 0 );
@@ -250,6 +255,7 @@ string CfdMeshAnalysis::Execute()
         veh->GetCfdSettingsPtr()->m_SplitJoinSurfsFlag.Set( splitJoinSurfsOrig );
         veh->GetCfdSettingsPtr()->m_ParallelMeshFlag.Set( parallelMeshOrig );
         veh->GetCfdSettingsPtr()->m_POGSNRef.Set( pogsNRefOrig );
+        veh->GetCfdSettingsPtr()->m_TopoInteriorFlag.Set( topoInteriorOrig );
 
         veh->GetCfdSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
         veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.Set( selectedDegenSetIndexOrig );

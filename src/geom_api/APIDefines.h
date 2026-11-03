@@ -242,6 +242,7 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,	/*!< Minimum mesh edge length */
                             CFD_SPLIT_JOIN_SURFS_FLAG,	/*!< Flag to cut wings and bodies into patches chosen for the feature they carry */
                             CFD_PARALLEL_MESH_FLAG,	/*!< Flag to mesh on several threads */
                             CFD_POGS_NUM_REFINE,	/*!< Number of tessellation refinements in the POGS surface files */
+                            CFD_TOPO_INTERIOR_FLAG,	/*!< Flag to find interior triangles from the topology of the intersection curves */
 };
 
 /*!
