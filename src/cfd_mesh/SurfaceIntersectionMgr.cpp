@@ -2046,6 +2046,86 @@ static void TakeSCurve( SCurve* c, double tol, SCurveTake &take )
     }
 }
 
+// The border curves with an end within tol of a point, found through a tree of every curve's
+// ends.  A cut changes the ends of the curve it cuts and adds a curve, and the tree holds the ends
+// as they were when it was built, so the curves changed since are looked at directly.  The tree is
+// built again once they are many.
+class BorderEndIndex
+{
+public:
+    BorderEndIndex( const vector< vector< SCurveTake > > &takes, double tol ) : m_Takes( takes ), m_Tol( tol )
+    {
+        Build();
+    }
+
+    // Curve c of surface i has changed or is new.
+    void Changed( int i, int c )
+    {
+        m_Changed.push_back( pair< int, int >( i, c ) );
+        if ( m_Changed.size() > 256 )
+        {
+            Build();
+        }
+    }
+
+    // The curves, as ( surface, curve ) in order, with an end within tol of p.
+    void Near( const vec3d &p, vector< pair< int, int > > &found )
+    {
+        found.clear();
+
+        // Searched a little wide, so a point at just under tol is not lost to how the tree sums
+        // the distance; the test below is the one that decides.
+        FindPntNodesWithinTolSq( m_Cloud, p, 4.0 * m_Tol * m_Tol, m_Found );
+        for ( size_t k = 0 ; k < m_Found.size() ; k++ )
+        {
+            Add( m_Owner[ m_Found[k] ], p, found );
+        }
+        for ( size_t k = 0 ; k < m_Changed.size() ; k++ )
+        {
+            Add( m_Changed[k], p, found );
+        }
+
+        std::sort( found.begin(), found.end() );
+        found.erase( std::unique( found.begin(), found.end() ), found.end() );
+    }
+
+private:
+
+    void Build()
+    {
+        m_Cloud.Cleanup();
+        m_Owner.clear();
+        for ( int i = 0 ; i < ( int )m_Takes.size() ; i++ )
+        {
+            for ( int c = 0 ; c < ( int )m_Takes[i].size() ; c++ )
+            {
+                m_Cloud.AddPntNode( m_Takes[i][c].m_End0 );
+                m_Cloud.AddPntNode( m_Takes[i][c].m_End1 );
+                m_Owner.push_back( pair< int, int >( i, c ) );
+                m_Owner.push_back( pair< int, int >( i, c ) );
+            }
+        }
+        BuildPntNodeIndex( m_Cloud );
+        m_Changed.clear();
+    }
+
+    void Add( const pair< int, int > &ic, const vec3d &p, vector< pair< int, int > > &found ) const
+    {
+        const SCurveTake &t = m_Takes[ ic.first ][ ic.second ];
+        if ( dist( t.m_End0, p ) < m_Tol || dist( t.m_End1, p ) < m_Tol )
+        {
+            found.push_back( ic );
+        }
+    }
+
+    const vector< vector< SCurveTake > > &m_Takes;
+    double m_Tol;
+    PntNodeCloud m_Cloud;
+    vector< pair< int, int > > m_Owner;       // The curve each point of the cloud is an end of
+    vector< pair< int, int > > m_Changed;
+    vector< unsigned int > m_Found;
+};
+
 // Split border curve a of surface srf at t, the first piece in its place and the second at the
 // end of the list.
 static void SplitSCurveAt( vector< SCurve* > &cva, int a, double t, Surf* srf )
@@ -2189,17 +2269,24 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
     bool changed = true;
     int guard = 0;
     const int guardmax = 1000;
+    int nsurf = m_SurfVec.size();
 
     // Every curve, taken once.  There is one pass for every cut made, and a cut only ever changes
     // the curves of the surface being cut, so they are taken here and that one surface's are
     // taken again when it changes.
-    vector< vector< SCurveTake > > takes( m_SurfVec.size() );
+    vector< vector< SCurveTake > > takes( nsurf );
 
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    // A curve is clean once it has been tried against every curve it shares an end with and
+    // none was cut from it.  It stays clean until a curve with an end at one of its own is cut,
+    // so a pass looks only at the curves that are not.
+    vector< vector< char > > dirty( nsurf );
+
+    for ( int i = 0 ; i < nsurf ; i++ )
     {
         vector< SCurve* > &cv = m_SurfVec[i]->GetSCurveVec();
 
         takes[i].resize( cv.size() );
+        dirty[i].assign( cv.size(), 1 );
 
         for ( int c = 0 ; c < ( int )cv.size() ; c++ )
         {
@@ -2207,76 +2294,115 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
         }
     }
 
+    BorderEndIndex ends( takes, tol );
+    vector< pair< int, int > > cand, cand1;
+
     while ( changed && guard < guardmax )
     {
         changed = false;
         guard++;
 
-        for ( int i = 0 ; i < ( int )m_SurfVec.size() && !changed ; i++ )
+        for ( int i = 0 ; i < nsurf && !changed ; i++ )
         {
             vector< SCurve* > &cva = m_SurfVec[i]->GetSCurveVec();
 
             for ( int a = 0 ; a < ( int )cva.size() && !changed ; a++ )
             {
+                if ( !dirty[i][a] )
+                {
+                    continue;
+                }
+
                 vec3d a0 = takes[i][a].m_End0;
                 vec3d a1 = takes[i][a].m_End1;
 
-                for ( int j = 0 ; j < ( int )m_SurfVec.size() && !changed ; j++ )
+                // The curves of other surfaces that share an end with this one, in the order
+                // of their surfaces and then their curves.
+                ends.Near( a0, cand );
+                ends.Near( a1, cand1 );
+                cand.insert( cand.end(), cand1.begin(), cand1.end() );
+                std::sort( cand.begin(), cand.end() );
+                cand.erase( std::unique( cand.begin(), cand.end() ), cand.end() );
+
+                for ( int k = 0 ; k < ( int )cand.size() && !changed ; k++ )
                 {
+                    int j = cand[k].first;
+                    int b = cand[k].second;
+
                     if ( j == i )
                     {
                         continue;
                     }
 
-                    vector< SCurve* > &cvb = m_SurfVec[j]->GetSCurveVec();
+                    vec3d b0 = takes[j][b].m_End0;
+                    vec3d b1 = takes[j][b].m_End1;
 
-                    for ( int b = 0 ; b < ( int )cvb.size() && !changed ; b++ )
+                    // One end of the short curve has to sit on an end of the long one,
+                    // and its other end somewhere along the middle of it.
+                    vec3d far_end;
+                    bool shares = false;
+
+                    if ( dist( b0, a0 ) < tol || dist( b0, a1 ) < tol )
                     {
-                        vec3d b0 = takes[j][b].m_End0;
-                        vec3d b1 = takes[j][b].m_End1;
-
-                        // One end of the short curve has to sit on an end of the long one,
-                        // and its other end somewhere along the middle of it.
-                        vec3d far_end;
-                        bool shares = false;
-
-                        if ( dist( b0, a0 ) < tol || dist( b0, a1 ) < tol )
-                        {
-                            far_end = b1;
-                            shares = true;
-                        }
-                        else if ( dist( b1, a0 ) < tol || dist( b1, a1 ) < tol )
-                        {
-                            far_end = b0;
-                            shares = true;
-                        }
-
-                        if ( !shares || dist( far_end, a0 ) < tol || dist( far_end, a1 ) < tol )
-                        {
-                            continue;
-                        }
-
-                        if ( !takes[i][a].m_HasSide || !takes[i][a].m_Box.CheckPnt( far_end ) )
-                        {
-                            continue;
-                        }
-
-                        double t = FindOnSCurve( takes[i][a].m_Side, far_end, tol );
-
-                        if ( t < 0.01 || t > 0.99 )
-                        {
-                            continue;
-                        }
-
-                        SplitSCurveAt( cva, a, t, m_SurfVec[i] );
-
-                        // Only this surface's curves moved; take them again.
-                        takes[i].resize( cva.size() );
-                        TakeSCurve( cva[a], tol, takes[i][a] );
-                        TakeSCurve( cva.back(), tol, takes[i].back() );
-
-                        changed = true;
+                        far_end = b1;
+                        shares = true;
                     }
+                    else if ( dist( b1, a0 ) < tol || dist( b1, a1 ) < tol )
+                    {
+                        far_end = b0;
+                        shares = true;
+                    }
+
+                    if ( !shares || dist( far_end, a0 ) < tol || dist( far_end, a1 ) < tol )
+                    {
+                        continue;
+                    }
+
+                    if ( !takes[i][a].m_HasSide || !takes[i][a].m_Box.CheckPnt( far_end ) )
+                    {
+                        continue;
+                    }
+
+                    double t = FindOnSCurve( takes[i][a].m_Side, far_end, tol );
+
+                    if ( t < 0.01 || t > 0.99 )
+                    {
+                        continue;
+                    }
+
+                    SplitSCurveAt( cva, a, t, m_SurfVec[i] );
+
+                    // Only this surface's curves moved; take them again.
+                    takes[i].resize( cva.size() );
+                    TakeSCurve( cva[a], tol, takes[i][a] );
+                    TakeSCurve( cva.back(), tol, takes[i].back() );
+
+                    int anew = cva.size() - 1;
+                    ends.Changed( i, a );
+                    ends.Changed( i, anew );
+
+                    // Every curve with an end where the cut curve ended, or where it is cut, may
+                    // now pair with one of its pieces.  The pieces' own ends are put back on the
+                    // curve's parameter line, so they are searched about as well as a0 and a1.
+                    dirty[i].resize( cva.size(), 1 );
+                    vec3d at[5] = { a0, a1, takes[i][a].m_End1, takes[i][a].m_End0, takes[i][anew].m_End1 };
+                    for ( int e = 0 ; e < 5 ; e++ )
+                    {
+                        ends.Near( at[e], cand1 );
+                        for ( int m = 0 ; m < ( int )cand1.size() ; m++ )
+                        {
+                            dirty[ cand1[m].first ][ cand1[m].second ] = 1;
+                        }
+                    }
+                    dirty[i][a] = 1;
+                    dirty[i][anew] = 1;
+
+                    changed = true;
+                }
+
+                if ( !changed )
+                {
+                    dirty[i][a] = 0;
                 }
             }
         }
@@ -2291,7 +2417,6 @@ void SurfaceIntersectionSingleton::SplitBordersToMatch()
                        to_string( guardmax ) + " passes.\n" );
     }
 }
-
 void SurfaceIntersectionSingleton::BuildGrid()
 {
     MatchBorderCurves();
