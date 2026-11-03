@@ -130,15 +130,13 @@ VOLUME_RELTOL = 0.05
 PAIRED_MODES = ( vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_TO_FACE_NEG )
 
 
-# Known to fail once the engine is stretched, each where one of the block's flat sides lands on
-# a feature of the engine: along the paired faces at a flowpath's outlet face, where the block's
-# sides cross both faces; and through the tip of the point cap of a long inlet duct.
+# Known to fail once the engine is stretched, where one of the block's flat sides lands on a
+# feature of the engine: along the paired faces at a flowpath's outlet face, where the block's
+# sides cross both faces.
 STRETCHED = { ( vsp.STACK_PRESET_FLOWPATH_BOTH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG, vsp.ENGINE_MODE_TO_FACE_NEG, 4.0 ):
                   "over-connected edges where the block crosses the paired faces at the outlet face",
               ( vsp.STACK_PRESET_FLOWPATH_BOTH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY, vsp.ENGINE_MODE_TO_FACE_NEG, 4.0 ):
-                  "over-connected edges where the block crosses the paired faces at the outlet face",
-              ( vsp.STACK_PRESET_FLOWTHRU_INLIP_ORIG, vsp.ENGINE_MODE_TO_FACE, vsp.ENGINE_MODE_TO_FACE_NEG, 10.0 ):
-                  "a small loop open where the block's face passes through a point cap's tip" }
+                  "over-connected edges where the block crosses the paired faces at the outlet face" }
 
 
 def _params( cases, stretch, tag ):

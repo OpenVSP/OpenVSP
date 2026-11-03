@@ -158,3 +158,29 @@ def test_the_mid_origin_nacelle_is_the_outlet_lip_origin_one():
 
     for w in ( 0.0, 0.3 ):
         assert abs( length_along( mid, w, 2000 ) - length_along( ref, w, 2000 ) ) < 1e-2, w
+
+
+def test_the_flowthrough_loop_presets_trace_one_nacelle():
+    # The three flowthrough presets list the same sections around the loop from a different first
+    # one.  With their mid planes put together, every point of each lies on the out-lip-origin
+    # one, the strengths at the seam included.
+    vsp.VSPRenew()
+    geoms = []
+    for preset, imid in ( ( vsp.STACK_PRESET_FLOWTHRU_OUTLIP_ORIG, 2 ), ( vsp.STACK_PRESET_FLOWTHRU_INLIP_ORIG, 4 ),
+                          ( vsp.STACK_PRESET_FLOWTHRU_MID_ORIG, 0 ) ):
+        g = vsp.AddGeom( "STACK" )
+        vsp.InitStackPreset( g, preset )
+        surf = vsp.GetXSecSurf( g, 0 )
+        midx = sum( vsp.GetParmVal( vsp.GetXSecParm( vsp.GetXSec( surf, i ), "XDelta" ) ) for i in range( 1, imid + 1 ) )
+        vsp.SetParmVal( g, "X_Rel_Location", "XForm", -midx )
+        geoms.append( g )
+    vsp.Update()
+
+    ref = geoms[0]
+    for g in geoms[1:]:
+        worst = 0.0
+        for i in range( 301 ):
+            for j in range( 9 ):
+                d, u, w = vsp.ProjPnt01( ref, 0, vsp.CompPnt01( g, 0, i / 300.0, j / 8.0 ) )
+                worst = max( worst, d )
+        assert worst < 1e-9, worst

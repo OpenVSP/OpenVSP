@@ -734,6 +734,24 @@ void StackGeom::InitXSecs( vector < StackXSec* > stack_xs )
             xs->m_ZRotateAbs = 0.0;
         }
     }
+    // A loop's first and last sections are one section.  A strength is scaled by the distance to
+    // the nearer neighbour, and an end section has a neighbour on one side only, so both are
+    // brought to the scale the section has in the middle of a loop: the nearer of the two.
+    int nxs = m_XSecSurf.NumXSec();
+    if ( m_OrderPolicy() == STACK_LOOP && nxs > 2 )
+    {
+        StackXSec* firstxs = ( StackXSec* ) m_XSecSurf.FindXSec( 0 );
+        StackXSec* lastxs = ( StackXSec* ) m_XSecSurf.FindXSec( nxs - 1 );
+        if ( firstxs && lastxs )
+        {
+            double sfirst = firstxs->GetScale();
+            double slast = lastxs->GetScale();
+            double sloop = std::min( sfirst, slast );
+            firstxs->ScaleTanStrengths( sloop / sfirst );
+            lastxs->ScaleTanStrengths( sloop / slast );
+        }
+    }
+
     // ValidateParms to update index parm upper limits
     ValidateParms();
 }
