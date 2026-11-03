@@ -4327,6 +4327,50 @@ void SurfaceIntersectionSingleton::RunChainsBySurface( const vector< Surf* > &sa
     } );
 }
 
+void SurfaceIntersectionSingleton::RunBySurface( const vector< Surf* > &s, const std::function< void( int ) > &body,
+                                                 ProgressStage *bar )
+{
+    // The items of each surface, in order, and the surfaces in the order first met
+    vector< vector< int > > groups;
+    std::unordered_map< Surf*, int > gindex;
+    for ( int k = 0 ; k < ( int )s.size() ; k++ )
+    {
+        std::unordered_map< Surf*, int >::iterator it = gindex.find( s[k] );
+        if ( it == gindex.end() )
+        {
+            it = gindex.insert( std::make_pair( s[k], ( int )groups.size() ) ).first;
+            groups.push_back( vector< int >() );
+        }
+        groups[ it->second ].push_back( k );
+    }
+
+    // The largest groups are handed out first, so none is left to run alone at the end.
+    vector< int > order( groups.size() );
+    for ( int g = 0 ; g < ( int )order.size() ; g++ )
+    {
+        order[g] = g;
+    }
+    std::stable_sort( order.begin(), order.end(), [&]( int a, int b )
+    {
+        return groups[a].size() > groups[b].size();
+    } );
+
+    int ngroup = ( int )groups.size();
+    RunIndexed( ngroup, StageThreadCount( ngroup ), [&]( int g )
+    {
+        const vector< int > &items = groups[ order[g] ];
+        for ( int i = 0 ; i < ( int )items.size() ; i++ )
+        {
+            body( items[i] );
+
+            if ( bar )
+            {
+                bar->Step();
+            }
+        }
+    } );
+}
+
 void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt, bool endpnt )
 {
     Puw* auw = ipnt->GetPuw( c->m_SurfA );
@@ -6878,20 +6922,37 @@ void SurfaceIntersectionSingleton::RecordIntCurves()
         sb.push_back( (*c)->m_BCurve.GetSurf() );
     }
 
-    // Each side of a chain is taken to space through its own surface.
-    m_RawCurveAVec.resize( chains.size() );
-    m_RawCurveBVec.resize( chains.size() );
+    // Each side of a chain is taken to space through its own surface, so the two sides are
+    // separate pieces of work: side 2k is chain k's A side, 2k + 1 its B side.
+    int n = ( int )chains.size();
+    m_RawCurveAVec.resize( n );
+    m_RawCurveBVec.resize( n );
 
-    RunChainsBySurface( sa, sb, [&]( int k )
+    vector< Surf* > side_surf( 2 * n );
+    for ( int k = 0 ; k < n ; k++ )
     {
-        Bezier_curve xyzcrvA = chains[k]->m_ACurve.GetUWCrv();
-        xyzcrvA.UWCurveToXYZCurve( sa[k] );
-        xyzcrvA.GetControlPoints( m_RawCurveAVec[k] );
+        side_surf[ 2 * k ] = sa[k];
+        side_surf[ 2 * k + 1 ] = sb[k];
+    }
 
-        Bezier_curve xyzcrvB = chains[k]->m_BCurve.GetUWCrv();
-        xyzcrvB.UWCurveToXYZCurve( sb[k] );
-        xyzcrvB.GetControlPoints( m_RawCurveBVec[k] );
-    } );
+    ProgressStage bar( this, "Record Curves", 2 * n );
+
+    RunBySurface( side_surf, [&]( int i )
+    {
+        int k = i / 2;
+        if ( i % 2 == 0 )
+        {
+            Bezier_curve xyzcrvA = chains[k]->m_ACurve.GetUWCrv();
+            xyzcrvA.UWCurveToXYZCurve( sa[k] );
+            xyzcrvA.GetControlPoints( m_RawCurveAVec[k] );
+        }
+        else
+        {
+            Bezier_curve xyzcrvB = chains[k]->m_BCurve.GetUWCrv();
+            xyzcrvB.UWCurveToXYZCurve( sb[k] );
+            xyzcrvB.GetControlPoints( m_RawCurveBVec[k] );
+        }
+    }, &bar );
 }
 
 void SurfaceIntersectionSingleton::BuildChainCADCurves()
