@@ -13,6 +13,8 @@ def pytest_addoption( parser ):
                       help = "test_CADExport: also mesh the survey's slow structures" )
     parser.addoption( "--cad-keep", action = "store_true", default = False,
                       help = "test_CADExport: keep the files written" )
+    parser.addoption( "--engine-grid-mesh", action = "store_true", default = False,
+                      help = "test_CfdEngines: also mesh the grid of every engine case" )
 
 
 def pytest_configure( config ):

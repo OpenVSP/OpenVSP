@@ -14,6 +14,13 @@
 #
 # Closure alone would pass a mesh that dropped a whole recess or kept both coincident faces, so
 # the volume each mesh encloses is held to the volume CompGeom finds for the same model.
+#
+# The offered cases are also laid out together in one model, a row in Z for each preset and a
+# column in Y for each pair of inlet and outlet representations, with the pairs a preset does not
+# offer left empty.  The model is written to the working directory as EngineGrid.vsp3, to be
+# meshed by hand; --engine-grid-mesh also meshes it here, which takes several minutes.
+
+import os
 
 import openvsp as vsp
 import pytest
@@ -193,6 +200,7 @@ def _block( eng ):
         vsp.SetParmVal( vsp.GetXSecParm( xs, "RoundRectXSec_Radius" ), 0.0 )
     vsp.SetParmVal( vsp.GetXSecParm( vsp.GetXSec( xss, 1 ), "XDelta" ), 3.0 * d )
     vsp.SetParmVal( blk, "X_Rel_Location", "XForm", 0.5 * ( max( xmax ) + min( xmin ) ) - 1.5 * d )
+    vsp.SetParmVal( blk, "Y_Rel_Location", "XForm", 0.5 * ( max( ymax ) + min( ymin ) ) )
     vsp.SetParmVal( blk, "Z_Rel_Location", "XForm", 0.5 * ( max( zmax ) + min( zmin ) ) )
     return d
 
@@ -266,3 +274,147 @@ def testAnEngineThroughABlockIsClosed( preset, inmode, outmode, stretch, tmp_pat
     vol = _stl_volume( stl )
     assert vol == pytest.approx( cgvol, rel = VOLUME_RELTOL ), \
            "%s encloses %g, CompGeom finds %g" % ( what, vol, cgvol )
+
+
+def _mode_key( mode ):
+    """A representation mode for sorting, with no mode first."""
+    if mode is None:
+        return -1
+    return mode
+
+
+def _build_grid():
+    """Every offered case in one model: a row in Z for each preset, a column in Y for each pair of
+    inlet and outlet representations, each engine through its own block.  A pair a preset does not
+    offer is left empty.  Returns the rows, the columns, the largest engine diameter and the
+    pitch of the grid."""
+    rows = list( ENGINE_PRESETS )
+    cols = sorted( set( ( c[1], c[2] ) for c in OFFERED ), key = lambda c: ( _mode_key( c[0] ), _mode_key( c[1] ) ) )
+
+    vsp.VSPRenew()
+
+    # The pitch of the grid, from the largest preset.
+    pitch = 0.0
+    for preset in rows:
+        eng = vsp.AddGeom( "STACK" )
+        vsp.InitStackPreset( eng, preset )
+        vsp.Update()
+        bmin = vsp.GetGeomBBoxMin( eng, 0, True )
+        bmax = vsp.GetGeomBBoxMax( eng, 0, True )
+        pitch = max( pitch, bmax.y() - bmin.y(), bmax.z() - bmin.z() )
+        vsp.DeleteGeom( eng )
+    dmax = pitch
+    pitch = 2.0 * pitch
+
+    for irow, preset in enumerate( rows ):
+        for icol, ( inmode, outmode ) in enumerate( cols ):
+            if ( preset, inmode, outmode ) not in OFFERED:
+                continue
+
+            eng = vsp.AddGeom( "STACK" )
+            vsp.InitStackPreset( eng, preset )
+            vsp.SetGeomName( eng, "Preset%d_%s_%s" % ( preset, MODE_NAMES[inmode], MODE_NAMES[outmode] ) )
+            vsp.SetParmVal( eng, "Y_Rel_Location", "XForm", icol * pitch )
+            vsp.SetParmVal( eng, "Z_Rel_Location", "XForm", irow * pitch )
+            vsp.Update()
+
+            _block( eng )
+
+            if inmode is not None:
+                vsp.SetParmVal( eng, "InletModeType", "EngineModel", inmode )
+            if outmode is not None:
+                vsp.SetParmVal( eng, "OutletModeType", "EngineModel", outmode )
+            vsp.Update()
+
+    return rows, cols, dmax, pitch
+
+
+def _bad_edge_cells( path, pitch ):
+    """The grid cells, as ( row, column ), holding edges of a triangulation in an ASCII STL file
+    used by one triangle or by more than two."""
+    ids = {}
+    count = {}
+    tri = []
+    where = {}
+    for line in open( path ):
+        f = line.split()
+        if f and f[0] == "vertex":
+            key = tuple( round( float( x ), 6 ) for x in f[1:4] )
+            if key not in ids:
+                ids[key] = len( ids )
+                where[ ids[key] ] = key
+            tri.append( ids[key] )
+            if len( tri ) == 3:
+                for a, b in ( ( tri[0], tri[1] ), ( tri[1], tri[2] ), ( tri[2], tri[0] ) ):
+                    e = ( min( a, b ), max( a, b ) )
+                    count[e] = count.get( e, 0 ) + 1
+                tri = []
+    cells = set()
+    for e, n in count.items():
+        if n != 2:
+            y = 0.5 * ( where[ e[0] ][1] + where[ e[1] ][1] )
+            z = 0.5 * ( where[ e[0] ][2] + where[ e[1] ][2] )
+            cells.add( ( int( round( z / pitch ) ), int( round( y / pitch ) ) ) )
+    return cells
+
+
+def testEveryEngineCaseInOneGrid():
+    """The offered cases laid out as a matrix in one model, written to EngineGrid.vsp3 in the
+    working directory and read back whole."""
+    _build_grid()
+
+    fname = os.path.abspath( "EngineGrid.vsp3" )
+    vsp.WriteVSPFile( fname, vsp.SET_ALL )
+
+    vsp.VSPRenew()
+    vsp.ReadVSPFile( fname )
+    vsp.Update()
+
+    nset = 0
+    for gid in vsp.FindGeoms():
+        if vsp.GetGeomName( gid ).startswith( "Preset" ):
+            nset += 1
+    assert nset == len( OFFERED )
+
+
+def testEveryEngineCaseInOneGridIsClosed( tmp_path, request ):
+    """The grid meshed as a whole.  The mesh may be open only in the cells of the cases known to
+    leave a sliver on their own."""
+    if not request.config.getoption( "--engine-grid-mesh" ):
+        pytest.skip( "meshing the engine grid takes several minutes; ask for it with --engine-grid-mesh" )
+
+    rows, cols, d, pitch = _build_grid()
+
+    mesh = vsp.ComputeCompGeom( vsp.SET_ALL, False, 0 )
+    cgvol = vsp.GetDoubleResults( vsp.FindLatestResultsID( "Comp_Geom" ), "Total_Wet_Vol" )[0]
+    vsp.DeleteGeom( mesh )
+    vsp.Update()
+
+    stl = str( tmp_path / "EngineGrid.stl" )
+    vsp.SetComputationFileName( vsp.CFD_STL_TYPE, stl )
+    vsp.SetCFDMeshVal( vsp.CFD_MAX_EDGE_LEN, 0.15 * d )
+    vsp.SetCFDMeshVal( vsp.CFD_MIN_EDGE_LEN, 0.02 * d )
+    vsp.SetCFDMeshVal( vsp.CFD_SPLIT_JOIN_SURFS_FLAG, 1 )
+    vsp.SetCFDMeshVal( vsp.CFD_HALF_MESH_FLAG, 0 )
+    vsp.ComputeCFDMesh( vsp.SET_ALL, vsp.SET_NONE, vsp.CFD_STL_TYPE )
+
+    rid = vsp.FindLatestResultsID( "CFDMesh" )
+    assert rid, "the mesher wrote no CFDMesh results entry"
+
+    ntri = vsp.GetIntResults( rid, "Num_Tris" )[0]
+    nborder = vsp.GetIntResults( rid, "Num_Border_Edges" )[0]
+    nover = vsp.GetIntResults( rid, "Num_Over_Connected_Edges" )[0]
+    print( "EngineGrid: %d rows, %d columns, %d engines, %d tris, %d border, %d over-connected edges" %
+           ( len( rows ), len( cols ), len( OFFERED ), ntri, nborder, nover ) )
+
+    assert ntri > 0
+
+    known = set()
+    for inmode in ( vsp.ENGINE_MODE_FLOWTHROUGH, vsp.ENGINE_MODE_FLOWTHROUGH_NEG_ONLY ):
+        known.add( ( rows.index( vsp.STACK_PRESET_FLOWTHRU_MID_ORIG ), cols.index( ( inmode, None ) ) ) )
+    bad = _bad_edge_cells( stl, pitch )
+    assert bad <= known, "the grid left %d border and %d over-connected edges, in cells %s beyond the known %s" % \
+           ( nborder, nover, sorted( bad - known ), sorted( known ) )
+
+    vol = _stl_volume( stl )
+    assert vol == pytest.approx( cgvol, rel = VOLUME_RELTOL ), "the grid encloses %g, CompGeom finds %g" % ( vol, cgvol )
