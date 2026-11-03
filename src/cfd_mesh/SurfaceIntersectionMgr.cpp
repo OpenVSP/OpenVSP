@@ -3439,12 +3439,37 @@ static double EdgeDist( const vec3d &pnt, const vec3d q[4], int tri, int i, doub
     return dist( pnt, c0 + d * t );
 }
 
-// The edge of triangle tri of patch p, corners q, that point pnt is nearest, and how near it is
-static double NearestEdge( const vec3d &pnt, const SurfPatch &p, const vec3d q[4], int tri, IPntEdge &edge )
+// The edge of triangle tri, corners q, that a segment from ip0 to ip1 lies along, or -1.  Both ends
+// lie on it to within the roundoff of their coordinates.
+static int AlongEdge( const vec3d &ip0, const vec3d &ip1, const vec3d q[4], int tri )
+{
+    for ( int i = 0; i < 3; i++ )
+    {
+        int a, b;
+        TriEdgeCorners( tri, i, a, b );
+        double tol = 1.0e3 * DBL_EPSILON * ( q[ a ].mag() + q[ b ].mag() );
+
+        double t;
+        if ( EdgeDist( ip0, q, tri, i, t ) <= tol && EdgeDist( ip1, q, tri, i, t ) <= tol )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// The edge of triangle tri of patch p, corners q, that point pnt is nearest, and how near it is.
+// Edge skip of the triangle is passed over.
+static double NearestEdge( const vec3d &pnt, const SurfPatch &p, const vec3d q[4], int tri, int skip, IPntEdge &edge )
 {
     double best = 1.0e300;
     for ( int i = 0; i < 3; i++ )
     {
+        if ( i == skip )
+        {
+            continue;
+        }
+
         double t;
         double dst = EdgeDist( pnt, q, tri, i, t );
 
@@ -3504,13 +3529,15 @@ static double NearestEdge( const vec3d &pnt, const SurfPatch &p, const vec3d q[4
     return best;
 }
 
-// The edge a segment's end lies on: of the two triangles it was found between, the edge nearest it
-static IPntEdge FindEdge( const vec3d &pnt, const SurfPatch &pA, const vec3d qa[4], int triA,
-                          const SurfPatch &pB, const vec3d qb[4], int triB )
+// The edge a segment's end lies on: of the two triangles it was found between, the edge nearest
+// it.  An edge of one triangle that the whole segment lies along is crossed nowhere, so it is
+// passed over: the segment ends where it leaves the other triangle, or at a corner of this one.
+static IPntEdge FindEdge( const vec3d &pnt, const SurfPatch &pA, const vec3d qa[4], int triA, int skipA,
+                          const SurfPatch &pB, const vec3d qb[4], int triB, int skipB )
 {
     IPntEdge ea, eb;
-    double da = NearestEdge( pnt, pA, qa, triA, ea );
-    double db = NearestEdge( pnt, pB, qb, triB, eb );
+    double da = NearestEdge( pnt, pA, qa, triA, skipA, ea );
+    double db = NearestEdge( pnt, pB, qb, triB, skipB, eb );
 
     if ( da <= db )
     {
@@ -3602,6 +3629,16 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
         }
     }
 
+    // A segment along an edge of each triangle lies where the two edges coincide, and its ends
+    // keep the edges nearest them.
+    int alongA = AlongEdge( ip0, ip1, qa, triA );
+    int alongB = AlongEdge( ip0, ip1, qb, triB );
+    if ( alongA >= 0 && alongB >= 0 )
+    {
+        alongA = -1;
+        alongB = -1;
+    }
+
     vec2d proj_uwA0;
     pA.find_closest_uw( ip0, plane_uwA0.v, proj_uwA0.v );
 
@@ -3623,7 +3660,7 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     IPnt* ipnt0 = new IPnt( puwA0, puwB0 );
     ipnt0->m_Pnt = ip0;
     tl_isect_out->m_IPnts.push_back( ipnt0 );
-    tl_isect_out->m_Edges.push_back( FindEdge( ip0, pA, qa, triA, pB, qb, triB ) );
+    tl_isect_out->m_Edges.push_back( FindEdge( ip0, pA, qa, triA, alongA, pB, qb, triB, alongB ) );
 
     Puw* puwA1 = new Puw( pA.get_surf_ptr(), proj_uwA1 );
     tl_isect_out->m_Puws.push_back( puwA1 );
@@ -3634,7 +3671,7 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     IPnt* ipnt1 = new IPnt( puwA1, puwB1 );
     ipnt1->m_Pnt = ip1;
     tl_isect_out->m_IPnts.push_back( ipnt1 );
-    tl_isect_out->m_Edges.push_back( FindEdge( ip1, pA, qa, triA, pB, qb, triB ) );
+    tl_isect_out->m_Edges.push_back( FindEdge( ip1, pA, qa, triA, alongA, pB, qb, triB, alongB ) );
 
     // Identify rectangles to represent final patches
     if ( DEBUG_ISECT_DRAW )
