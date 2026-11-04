@@ -949,19 +949,69 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
         MSBoundTree ms_tree;
         ms_tree.Build( allsources );
 
-        for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+        // A point the bound tree cannot settle needs a nanoflann tree over the other surfaces'
+        // sources, which takes far longer to build than a surface takes to limit.  So surfaces go
+        // in blocks, one per thread: the surfaces of a block that need one as the maps stand are
+        // found side by side, their trees built side by side, and then the block is limited in
+        // order.  A surface that comes to need a tree it was not given makes its own.
+        vector< MSSurfTree* > surftrees( nsurf, nullptr );
+
+        int nblock = nthread;
+        if ( nblock < 1 )
         {
-            double minmap;
-            if ( ms_tree.MinStrength( i, minmap ) )
+            nblock = 1;
+        }
+
+        for ( int i0 = 0 ; i0 < nsurf ; i0 += nblock )
+        {
+            int nin = std::min( nblock, nsurf - i0 );
+
+            if ( nthread > 1 )
             {
-                MSSurfTree *surftree = nullptr;
-                m_SurfVec[i]->LimitTargetMap( ms_tree, minmap, i, surftree );
-                delete surftree;
-                ms_tree.UpdateSurface( i );
+                vector< int > needtree( nin, 0 );
+
+                RunIndexed( nin, nthread, [&]( int k )
+                {
+                    double minmap;
+                    if ( ms_tree.MinStrength( i0 + k, minmap ) )
+                    {
+                        if ( !m_SurfVec[ i0 + k ]->LimitTargetMapSettled( ms_tree, minmap, i0 + k ) )
+                        {
+                            needtree[k] = 1;
+                        }
+                    }
+                } );
+
+                vector< int > tobuild;
+                for ( int k = 0 ; k < nin ; k++ )
+                {
+                    if ( needtree[k] )
+                    {
+                        tobuild.push_back( i0 + k );
+                    }
+                }
+
+                RunIndexed( ( int )tobuild.size(), StageThreadCount( ( int )tobuild.size() ), [&]( int m )
+                {
+                    surftrees[ tobuild[m] ] = new MSSurfTree( ms_tree, tobuild[m] );
+                } );
             }
 
-            m_ProgressDone++;
-            StepProgress( output_type );
+            for ( i = i0 ; i < i0 + nin ; i++ )
+            {
+                double minmap;
+                if ( ms_tree.MinStrength( i, minmap ) )
+                {
+                    m_SurfVec[i]->LimitTargetMap( ms_tree, minmap, i, surftrees[i] );
+                    ms_tree.UpdateSurface( i );
+                }
+
+                delete surftrees[i];
+                surftrees[i] = nullptr;
+
+                m_ProgressDone++;
+                StepProgress( output_type );
+            }
         }
 
         EndProgress( output_type );

@@ -705,6 +705,35 @@ void Surf::LimitTargetMap()
     }
 }
 
+// Whether the bound tree settles every point of the map as the map now stands, so the surface
+// would need no tree over the other surfaces' sources.  Nothing is changed.
+bool Surf::LimitTargetMapSettled( const MSBoundTree &ms_tree, double tmin, int sid ) const
+{
+    double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
+
+    int nmapu = m_SrcMap.size();
+    int nmapw = m_SrcMap[0].size();
+
+    for( int i = 0; i < nmapu ; i++ )
+    {
+        for( int j = 0; j < nmapw ; j++ )
+        {
+            double t = m_SrcMap[i][j].m_str;
+            int reason = m_SrcMap[i][j].m_reason;
+
+            double rmax = ( t - tmin ) / grm1;
+            if( rmax > 0.0 )
+            {
+                if ( !ms_tree.LimitStrength( m_SrcMap[i][j].m_pt, rmax * rmax, sid, grm1, t, reason ) )
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 // es_tree is a tree over the other surfaces' sources alone, for a point the bound tree cannot
 // settle by itself: a tie between reasons, which this tree's search order picks, or a limit from
 // the very edge of the search radius, which this tree's search may or may not reach.  When it is
