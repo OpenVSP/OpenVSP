@@ -210,6 +210,35 @@ public:
     vector< IPntEdge > m_Edges;     // The edge each of m_IPnts lies on
 };
 
+// The points the segments of one pair of quads end at, each found on the two patches once.  The
+// segments of one pair often share an end, and finding a point on a patch is the costly part of
+// making a segment.  Points are told apart bit for bit, so a point is only ever reused for itself.
+class QuadPairPnts
+{
+public:
+    QuadPairPnts()
+    {
+        m_N = 0;
+    }
+
+    // The point's slot, filled with where it lies on the planes of pA and pB if it is new
+    int Find( const SurfPatch& pA, const SurfPatch& pB, const vec3d &p );
+
+    // Where the point in slot k lies on pA and pB themselves
+    void Project( const SurfPatch& pA, const SurfPatch& pB, int k );
+
+    // Four segments of two ends each
+    enum { MAX_PNTS = 8 };
+
+    int m_N;
+    vec3d m_Pnt[ MAX_PNTS ];
+    vec2d m_PlaneA[ MAX_PNTS ];
+    vec2d m_PlaneB[ MAX_PNTS ];
+    vec2d m_ProjA[ MAX_PNTS ];
+    vec2d m_ProjB[ MAX_PNTS ];
+    bool m_Projected[ MAX_PNTS ];
+};
+
 class SurfaceIntersectionSingleton;
 
 // One stage's progress bar, up from construction to destruction.  Step counts finished work and
@@ -401,7 +430,7 @@ public:
     // A segment of the intersection of patches pA and pB, found between triangle triA of pA's
     // corners qa and triangle triB of pB's corners qb (1 is corners 0 2 3, 2 is corners 0 1 2)
     virtual void AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1,
-                                     const vec3d qa[4], const vec3d qb[4], int triA, int triB );
+                                     const vec3d qa[4], const vec3d qb[4], int triA, int triB, QuadPairPnts &pnts );
 //  virtual ISeg* CreateSurfaceSeg( Surf* sPtr, vec3d & p0, vec3d & p1, vec2d & uw0, vec2d & uw1 );
     virtual ISeg* CreateSurfaceSeg( Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1  );
 

@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <chrono>
+#include <cstring>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -3819,8 +3820,39 @@ static IPntEdge FindEdge( const vec3d &pnt, const SurfPatch &pA, const vec3d qa[
     return eb;
 }
 
+int QuadPairPnts::Find( const SurfPatch& pA, const SurfPatch& pB, const vec3d &p )
+{
+    for ( int k = 0 ; k < m_N ; k++ )
+    {
+        if ( memcmp( m_Pnt[k].v, p.v, sizeof( p.v ) ) == 0 )
+        {
+            return k;
+        }
+    }
+
+    assert( m_N < MAX_PNTS );
+
+    int k = m_N;
+    m_N++;
+    m_Pnt[k] = p;
+    pA.find_closest_uw_planar_approx( p, m_PlaneA[k].v );
+    pB.find_closest_uw_planar_approx( p, m_PlaneB[k].v );
+    m_Projected[k] = false;
+    return k;
+}
+
+void QuadPairPnts::Project( const SurfPatch& pA, const SurfPatch& pB, int k )
+{
+    if ( !m_Projected[k] )
+    {
+        pA.find_closest_uw( m_Pnt[k], m_PlaneA[k].v, m_ProjA[k].v );
+        pB.find_closest_uw( m_Pnt[k], m_PlaneB[k].v, m_ProjB[k].v );
+        m_Projected[k] = true;
+    }
+}
+
 void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1,
-                                                       const vec3d qa[4], const vec3d qb[4], int triA, int triB )
+                                                       const vec3d qa[4], const vec3d qb[4], int triA, int triB, QuadPairPnts &pnts )
 {
     double d = dist_squared( ip0, ip1 );
     if ( d < DBL_EPSILON )
@@ -3828,17 +3860,13 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
         return;
     }
 
-    vec2d plane_uwA0;
-    pA.find_closest_uw_planar_approx( ip0, plane_uwA0.v );
+    int k0 = pnts.Find( pA, pB, ip0 );
+    int k1 = pnts.Find( pA, pB, ip1 );
 
-    vec2d plane_uwB0;
-    pB.find_closest_uw_planar_approx( ip0, plane_uwB0.v );
-
-    vec2d plane_uwA1;
-    pA.find_closest_uw_planar_approx( ip1, plane_uwA1.v );
-
-    vec2d plane_uwB1;
-    pB.find_closest_uw_planar_approx( ip1, plane_uwB1.v );
+    const vec2d &plane_uwA0 = pnts.m_PlaneA[k0];
+    const vec2d &plane_uwB0 = pnts.m_PlaneB[k0];
+    const vec2d &plane_uwA1 = pnts.m_PlaneA[k1];
+    const vec2d &plane_uwB1 = pnts.m_PlaneB[k1];
 
     // Intersections that lie exactly on a patch boundary will actually intersect both patches
     // that share that boundary.  So, detect intersections that lie on the patch minimum edge
@@ -3912,17 +3940,13 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
         alongB = -1;
     }
 
-    vec2d proj_uwA0;
-    pA.find_closest_uw( ip0, plane_uwA0.v, proj_uwA0.v );
+    pnts.Project( pA, pB, k0 );
+    pnts.Project( pA, pB, k1 );
 
-    vec2d proj_uwB0;
-    pB.find_closest_uw( ip0, plane_uwB0.v, proj_uwB0.v );
-
-    vec2d proj_uwA1;
-    pA.find_closest_uw( ip1, plane_uwA1.v, proj_uwA1.v );
-
-    vec2d proj_uwB1;
-    pB.find_closest_uw( ip1, plane_uwB1.v, proj_uwB1.v );
+    vec2d proj_uwA0 = pnts.m_ProjA[k0];
+    vec2d proj_uwB0 = pnts.m_ProjB[k0];
+    vec2d proj_uwA1 = pnts.m_ProjA[k1];
+    vec2d proj_uwB1 = pnts.m_ProjB[k1];
 
     Puw* puwA0 = new Puw( pA.get_surf_ptr(), proj_uwA0 );
     tl_isect_out->m_Puws.push_back( puwA0 );

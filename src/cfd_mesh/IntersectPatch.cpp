@@ -146,11 +146,13 @@ void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersect
     const vec3d qa[4] = { a0, a1, a2, a3 };
     const vec3d qb[4] = { b0, b1, b2, b3 };
 
+    QuadPairPnts pnts;
+
     //==== Tri A1 and B1 ====//
     iflag = tri_tri_intersection_test_3d( a0.v, a2.v, a3.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
-        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1, qa, qb, 1, 1 );
+        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1, qa, qb, 1, 1, pnts );
     }
 
     //==== Tri A1 and B2 ====//
@@ -158,7 +160,7 @@ void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersect
     iflag = tri_tri_intersection_test_3d( a0.v, a2.v, a3.v, b0.v, b1.v, b2.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
-        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1, qa, qb, 1, 2 );
+        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1, qa, qb, 1, 2, pnts );
     }
 
     //==== Tri A2 and B1 ====//
@@ -166,7 +168,7 @@ void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersect
     iflag = tri_tri_intersection_test_3d( a0.v, a1.v, a2.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
-        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1, qa, qb, 2, 1 );
+        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1, qa, qb, 2, 1, pnts );
     }
 
     //==== Tri A2 and B2 ====//
@@ -174,7 +176,7 @@ void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersect
     iflag = tri_tri_intersection_test_3d( a0.v, a1.v, a2.v, b0.v, b1.v, b2.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
-        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1, qa, qb, 2, 2 );
+        MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1, qa, qb, 2, 2, pnts );
     }
 }
 
