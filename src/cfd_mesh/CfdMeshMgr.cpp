@@ -1288,13 +1288,16 @@ void CfdMeshMgrSingleton::BuildChainDistTables()
 
     int nthread = StageThreadCount( nsurf );
 
+    // Every surface's A sides, then its B sides.
+    ProgressStage bar( this, "Chain Distance", 2 * nsurf );
+
     RunIndexed( nsurf, nthread, [&]( int i )
     {
         for ( int k = 0 ; k < ( int )bysurfa[i].size() ; k++ )
         {
             bysurfa[i][k]->BuildDistTableGeom();
         }
-    } );
+    }, &bar );
 
     RunIndexed( nsurf, nthread, [&]( int i )
     {
@@ -1302,7 +1305,7 @@ void CfdMeshMgrSingleton::BuildChainDistTables()
         {
             bysurfb[i][k]->BuildDistTableGeomB();
         }
-    } );
+    }, &bar );
 }
 
 // Remesh one surface.  Everything here reaches the model only through that surface's own
@@ -1391,12 +1394,10 @@ void CfdMeshMgrSingleton::PostMesh()
     vector < vector < double > > borderratio( nsurf );
     vector < std::set< std::vector< int > > > tagcombo( nsurf );
 
-    int nthread = StageThreadCount( nsurf );
-
     // Each surface reduces its own mesh to simple faces, tags them and condenses them.  None
     // of that reaches another surface: the target map, the subsurfaces and the tag numbering
     // are all read, and everything written belongs to the surface or to the vectors above.
-    RunIndexed( nsurf, nthread, [&]( int i )
+    RunStage( "Post Mesh", nsurf, [&]( int i )
     {
         m_SurfVec[ i ]->GetMesh()->LoadSimpFaces();
 
@@ -6734,14 +6735,22 @@ void CfdMeshMgrSingleton::RemoveCrossingTessSegs( const vector < vector < ISegCh
     int npass = 0;
     const int maxpass = 8;
 
+    // The number of passes is not known ahead, so each pass counts the surfaces again on one line.
+    ProgressStage bar( this, "Crossing Segs 1", n );
+
     for ( npass = 0; npass < maxpass; npass++ )
     {
         vector < vector < pair < ISegChain*, int > > > found( n );
 
+        if ( npass > 0 )
+        {
+            bar.Restart( "Crossing Segs " + std::to_string( npass + 1 ) );
+        }
+
         RunIndexed( n, nthread, [&]( int s )
         {
             m_SurfVec[s]->FindCrossingTessSegs( surf_chains[s], found[s] );
-        } );
+        }, &bar );
 
         map < ISegChain*, set < int > > tosplit;
         for ( int s = 0; s < n; s++ )
@@ -6769,6 +6778,8 @@ void CfdMeshMgrSingleton::RemoveCrossingTessSegs( const vector < vector < ISegCh
             }
         }
     }
+
+    bar.End();
 
     if ( nsplit > 0 )
     {
@@ -7241,7 +7252,7 @@ void TopoClassifier::Classify( vector< vector< char > > &del, vector< char > &ha
     }
     int ngroup = groups.size();
     vector< vector< TopoClash > > settled( ngroup );
-    m_Mgr->RunIndexed( ngroup, m_Mgr->StageThreadCount( ngroup ), [&]( int g )
+    m_Mgr->RunStage( "Topology Walk", ngroup, [&]( int g )
     {
         WalkGroup( *groups[g], settled[g] );
     } );
@@ -7872,7 +7883,7 @@ void TopoClassifier::CheckSettledSide( int x, int other, int c )
 void TopoClassifier::Audit()
 {
     int nreg = m_RegSurf.size();
-    m_Mgr->RunIndexed( nreg, m_Mgr->StageThreadCount( nreg ), [&]( int r )
+    m_Mgr->RunStage( "Topology Audit", nreg, [&]( int r )
     {
         if ( m_BadReg[r] )
         {
