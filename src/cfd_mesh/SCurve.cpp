@@ -675,6 +675,9 @@ static void ApplySplitSources( const vector< MapSource* > &src, const vector< si
 class NearSources
 {
 public:
+    typedef double DistanceType;
+    typedef size_t IndexType;
+
     NearSources( size_t cap, vector< size_t > &found ) : m_Found( found )
     {
         m_Cap = cap;
@@ -709,6 +712,10 @@ public:
             m_Found.push_back( index );
         }
         return true;
+    }
+
+    void sort()
+    {
     }
 
     vector< size_t > &m_Found;
@@ -786,7 +793,8 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, SplitS
         {
             vector< size_t > near;
             NearSources found( src.size() / 64, near );
-            nanoflann::SearchParams params;
+            nanoflann::SearchParameters params;
+            params.sorted = false;
 
             for ( int i = 0; i < 2 && !found.m_Over; i++ )
             {

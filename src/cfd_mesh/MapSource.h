@@ -37,7 +37,7 @@ struct MSCloud;
 
 typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloud > , MSCloud, 3 > MSTree;
 
-typedef vector< pair< unsigned int, double > > MSTreeResults;
+typedef vector< nanoflann::ResultItem< unsigned int, double > > MSTreeResults;
 
 // The reason given a strength limited by growth from a source with the given reason.
 inline int GrowLimitReason( int reason )

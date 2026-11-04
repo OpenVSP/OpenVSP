@@ -744,7 +744,7 @@ void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSS
 
     MSTreeResults es_matches;
 
-    SearchParams params;
+    SearchParameters params;
     params.sorted = false;
 
     int nmapu = m_SrcMap.size();

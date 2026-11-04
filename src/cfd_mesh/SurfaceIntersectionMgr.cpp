@@ -5080,7 +5080,7 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
         resultSet.init( ret_index, out_dist_sqr );
         if ( !by_partner )
         {
-            PN_tree->findNeighbors( resultSet, query_pt, nanoflann::SearchParams() );
+            PN_tree->findNeighbors( resultSet, query_pt, nanoflann::SearchParameters() );
         }
 
         for ( size_t i = 0; i < resultSet.size(); ++i )
@@ -6172,7 +6172,7 @@ void SurfaceIntersectionSingleton::SplitNearlyTouchingChains()
                     }
 
                     PNTreeResults matches;
-                    nanoflann::SearchParams params;
+                    nanoflann::SearchParameters params;
                     index.radiusSearch( &pa[0], best * best, matches, params );
 
                     for ( int m = 0 ; m < ( int )matches.size() ; m++ )

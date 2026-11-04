@@ -6508,8 +6508,8 @@ void CfdMeshMgrSingleton::MergeCoincidentTessPnts()
 
     for ( size_t i = 0 ; i < cloud.m_IPnts.size() ; i++ )
     {
-        std::vector < std::pair < unsigned int, double > > ret_matches;
-        nanoflann::SearchParams params;
+        std::vector < nanoflann::ResultItem < unsigned int, double > > ret_matches;
+        nanoflann::SearchParameters params;
         index.radiusSearch( &cloud.m_IPnts[i]->m_Pnt[0], tol, ret_matches, params );
 
         for ( size_t j = 0 ; j < ret_matches.size() ; j++ )

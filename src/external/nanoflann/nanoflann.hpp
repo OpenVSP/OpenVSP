@@ -3,7 +3,7 @@
  *
  * Copyright 2008-2009  Marius Muja (mariusm@cs.ubc.ca). All rights reserved.
  * Copyright 2008-2009  David G. Lowe (lowe@cs.ubc.ca). All rights reserved.
- * Copyright 2011-2022  Jose Luis Blanco (joseluisblancoc@gmail.com).
+ * Copyright 2011-2026  Jose Luis Blanco (joseluisblancoc@gmail.com).
  *   All rights reserved.
  *
  * THE BSD LICENSE
@@ -37,6 +37,40 @@
  *  nanoflann does not require compiling or installing, just an
  *  #include <nanoflann.hpp> in your code.
  *
+ *  Macros that can be defined by the user to configure nanoflann:
+ *  - NANOFLANN_NO_THREADS: If defined, multithreading is disabled, so the
+ *    library can be used without linking against a threads library. Requesting a
+ *    multi-threaded index build (`n_thread_build != 1`) then throws.
+ *  - NANOFLANN_FIRST_MATCH: If defined, in case of a tie in distances the item
+ *    with the smallest index will be returned.
+ *  - NANOFLANN_NODE_ALIGNMENT: The memory alignment, in bytes, for kd-tree
+ *    nodes. Must be a power of two and >= 8. Default: 16 (also good for AVX; use
+ *    32/64 for AVX/AVX-512 aligned loads). The pool allocator honors it.
+ *  - NANOFLANN_NO_MANIFOLDS: If defined, disables the C++17 product-manifold
+ *    topology support (Manifold_Adaptor, Product<>, SO2/SO3/SE2/SE3/Sn/Torus,
+ *    metric_Manifold<>). Auto-enabled under C++17; the C++11 Euclidean core is
+ *    unaffected.
+ *  - NANOFLANN_INCREMENTAL_NO_COORD_CACHE: If defined, the incremental index
+ *    does not keep a per-node contiguous copy of point coordinates (trades
+ *    query speed for memory).
+ *  - NANOFLANN_INCREMENTAL_INNODE_DISTANCE: If defined, the (Euclidean)
+ *    incremental index reuses the per-axis coordinate cache for the in-node
+ *    distance. No effect for manifold metrics, which always use evalMetric.
+ *  - NANOFLANN_INCREMENTAL_NO_FREELIST: If defined, nodes freed by a partial
+ *    rebuild are not recycled and every allocation bump-allocates from the
+ *    pool. Intended for ablation measurements only: steady-state memory then
+ *    grows with total inserts instead of staying bounded by the live set.
+ *
+ *  Macros defined internally by nanoflann (not meant to be set by the user):
+ *  - NANOFLANN_RESTRICT: Expands to the compiler-specific `restrict` pointer
+ *    qualifier (`__restrict__`, `__restrict`) when available, empty otherwise.
+ *  - NANOFLANN_NODISCARD: Expands to `[[nodiscard]]` when the compiler supports
+ *    it, empty otherwise.
+ *  - NANOFLANN_VERSION: Library version as 0xMmP (M=Major, m=minor, P=patch).
+ *
+ *  See the [README](https://github.com/jlblancoc/nanoflann#readme) for usage
+ *  details and examples.
+ *
  *  See:
  *   - [Online README](https://github.com/jlblancoc/nanoflann)
  *   - [C++ API documentation](https://jlblancoc.github.io/nanoflann/)
@@ -46,41 +80,113 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cassert>
+#include <chrono>  // std::chrono (async incremental index polling)
 #include <cmath>  // for abs()
+#include <condition_variable>  // rebuild worker of the async incremental index
+#include <cstddef>  // std::ptrdiff_t, std::max_align_t
+#include <cstdint>
+#include <cstdio>  // snprintf
 #include <cstdlib>  // for abs()
-#include <cstdint> // for uint32_t
-#include <functional>
+#include <exception>  // std::exception_ptr (async incremental index)
+#include <functional>  // std::reference_wrapper
+#include <future>
 #include <istream>
-#include <limits>  // std::reference_wrapper
+#include <limits>  // std::numeric_limits
+#include <memory>  // std::unique_ptr (async incremental index)
+#include <mutex>  // rebuild worker of the async incremental index
+#include <new>  // placement new (incremental index node pool)
 #include <ostream>
+#include <stack>
 #include <stdexcept>
+#include <thread>
+#include <type_traits>  // std::is_trivially_destructible
+#include <unordered_map>
 #include <vector>
 
-/** Library version: 0xMmP (M=Major,m=minor,P=patch) */
-#define NANOFLANN_VERSION 0x142
+/** Library version as a decimal string "MAJOR.MINOR.PATCH" */
+#define NANOFLANN_VERSION_STRING "2.0.1"
+/** Library version: 0xMMmmPP (MM=Major, mm=minor, PP=patch) */
+#define NANOFLANN_VERSION 0x020001
 
-// Avoid conflicting declaration of min/max macros in windows headers
-#if !defined(NOMINMAX) && \
-    (defined(_WIN32) || defined(_WIN32_) || defined(WIN32) || defined(_WIN64))
+// Avoid conflicting declaration of min/max macros in Windows headers
+#if !defined(NOMINMAX) && (defined(_WIN32) || defined(_WIN32_) || defined(WIN32) || defined(_WIN64))
 #define NOMINMAX
 #ifdef max
 #undef max
 #undef min
 #endif
 #endif
+// Avoid conflicts with X11 headers
+#ifdef None
+#undef None
+#endif
+
+// Handle restricted pointers
+#if defined(__GNUC__) || defined(__clang__)
+#define NANOFLANN_RESTRICT __restrict__
+#elif defined(_MSC_VER)
+#define NANOFLANN_RESTRICT __restrict
+#else
+#define NANOFLANN_RESTRICT
+#endif
+
+// [[nodiscard]] support
+#if defined(__has_cpp_attribute) && __has_cpp_attribute(nodiscard)
+#define NANOFLANN_NODISCARD [[nodiscard]]
+#else
+#define NANOFLANN_NODISCARD
+#endif
+
+// [[fallthrough]] support for intentional switch fall-throughs
+#if defined(__has_cpp_attribute) && __has_cpp_attribute(fallthrough)
+#define NANOFLANN_FALLTHROUGH [[fallthrough]]
+#else
+#define NANOFLANN_FALLTHROUGH
+#endif
+
+// Memory alignment of KD-tree nodes:
+#ifndef NANOFLANN_NODE_ALIGNMENT
+#define NANOFLANN_NODE_ALIGNMENT 16
+#endif
+static_assert(
+    NANOFLANN_NODE_ALIGNMENT >= 8 &&
+        (NANOFLANN_NODE_ALIGNMENT & (NANOFLANN_NODE_ALIGNMENT - 1)) == 0,
+    "NANOFLANN_NODE_ALIGNMENT must be a power of two and >= 8");
+
+// Compile-time product-manifold topology support (nanoflann 2.0).
+// The variadic Product<>/metric_Manifold<> machinery requires C++17
+// (`if constexpr`, fold expressions). The legacy C++11 metrics and the whole
+// Euclidean code path are unaffected. Users can opt out with
+// NANOFLANN_NO_MANIFOLDS even under C++17.
+#if !defined(NANOFLANN_NO_MANIFOLDS) && defined(__cpp_if_constexpr) && \
+    (__cpp_if_constexpr >= 201606L)
+#define NANOFLANN_HAS_MANIFOLDS 1
+#endif
 
 namespace nanoflann
 {
-/** @addtogroup nanoflann_grp nanoflann C++ library for ANN
+/** @addtogroup nanoflann_grp nanoflann C++ library for KD-trees
  *  @{ */
 
 /** the PI constant (required to avoid MSVC missing symbols) */
 template <typename T>
-T pi_const()
+constexpr T pi_const()
 {
     return static_cast<T>(3.14159265358979323846);
 }
+
+/** Trait used by KDTreeBaseClass to decide, at compile time, whether a distance
+ *  functor implements the extended product-manifold interface (the per-coordinate
+ *  point-to-interval lower bound `pointToIntervalDist`). The primary template is
+ *  always available (also under C++11) and reports `false`, so the Euclidean
+ *  code path and codegen are completely unaffected. The Manifold_Adaptor
+ *  specializes it to `true` (see below, C++17 only). */
+template <class Distance>
+struct is_manifold_metric : std::false_type
+{
+};
 
 /**
  * Traits if object is resizable and assignable (typically has a resize | assign
@@ -92,8 +198,7 @@ struct has_resize : std::false_type
 };
 
 template <typename T>
-struct has_resize<T, decltype((void)std::declval<T>().resize(1), 0)>
-    : std::true_type
+struct has_resize<T, decltype((void)std::declval<T>().resize(1), 0)> : std::true_type
 {
 };
 
@@ -103,8 +208,7 @@ struct has_assign : std::false_type
 };
 
 template <typename T>
-struct has_assign<T, decltype((void)std::declval<T>().assign(1, 0), 0)>
-    : std::true_type
+struct has_assign<T, decltype((void)std::declval<T>().assign(1, 0), 0)> : std::true_type
 {
 };
 
@@ -123,11 +227,10 @@ inline typename std::enable_if<has_resize<Container>::value, void>::type resize(
  * std::array) It raises an exception if the expected size does not match
  */
 template <typename Container>
-inline typename std::enable_if<!has_resize<Container>::value, void>::type
-    resize(Container& c, const size_t nElements)
+inline typename std::enable_if<!has_resize<Container>::value, void>::type resize(
+    Container& c, const size_t nElements)
 {
-    if (nElements != c.size())
-        throw std::logic_error("Try to change the size of a std::array.");
+    if (nElements != c.size()) throw std::logic_error("Attempt to resize a fixed size container.");
 }
 
 /**
@@ -144,17 +247,123 @@ inline typename std::enable_if<has_assign<Container>::value, void>::type assign(
  * Free function to assign to a std::array
  */
 template <typename Container, typename T>
-inline typename std::enable_if<!has_assign<Container>::value, void>::type
-    assign(Container& c, const size_t nElements, const T& value)
+inline typename std::enable_if<!has_assign<Container>::value, void>::type assign(
+    Container& c, const size_t nElements, const T& value)
 {
     for (size_t i = 0; i < nElements; i++) c[i] = value;
 }
 
+/** operator "<" for std::sort() */
+struct IndexDist_Sorter
+{
+    /** PairType will be typically: ResultItem<IndexType,DistanceType> */
+    template <typename PairType>
+    bool operator()(const PairType& p1, const PairType& p2) const
+    {
+        return p1.second < p2.second;
+    }
+};
+
+/**
+ * Each result element in RadiusResultSet. Note that distances and indices
+ * are named `first` and `second` to keep backward-compatibility with the
+ * `std::pair<>` type used in the past. In contrast, this structure is ensured
+ * to be `std::is_standard_layout` so it can be used in wrappers to other
+ * languages.
+ * See: https://github.com/jlblancoc/nanoflann/issues/166
+ */
+template <typename IndexType = size_t, typename DistanceType = double>
+struct ResultItem
+{
+    ResultItem() = default;
+    ResultItem(const IndexType index, const DistanceType distance) : first(index), second(distance)
+    {
+    }
+
+    IndexType    first;  //!< Index of the sample in the dataset
+    DistanceType second;  //!< Distance from sample to query point
+};
+
+namespace detail
+{
+/** Validates the `_DistanceType` of a distance adaptor.
+ *
+ *  The kd-tree build and search algorithms subtract coordinates and compare
+ *  the result against negative sentinels, so distances must be representable
+ *  as negative values. An unsigned `DistanceType` makes those subtractions
+ *  wrap around modulo 2^N, which yields wrong neighbors and can crash the
+ *  build (see the split logic in KDTreeBaseClass::middleSplit_).
+ *
+ *  Non-arithmetic (user-defined) scalar types are accepted as-is, since
+ *  std::is_signed<> says nothing useful about them.
+ */
+template <typename DistanceType>
+struct checked_distance_type
+{
+    static_assert(
+        !std::is_arithmetic<DistanceType>::value || std::is_signed<DistanceType>::value,
+        "nanoflann: _DistanceType must be signed. If ElementType is unsigned "
+        "(e.g. uint8_t), pass an explicit signed _DistanceType wide enough for "
+        "the squared distances of your coordinate range, for example: "
+        "L2_Simple_Adaptor<uint8_t, MyCloud, int32_t>.");
+
+    using type = DistanceType;
+};
+
+/** Computes `a - b` in \a ResultType instead of in the operands' own type.
+ *  Required for unsigned element types, whose native subtraction wraps around
+ *  modulo 2^N rather than becoming negative. For every type at least as wide
+ *  as the operands (i.e. any sane DistanceType) the result is identical to
+ *  the plain `a - b` expression. */
+template <typename ResultType, typename U, typename V>
+inline ResultType diff_as(const U a, const V b)
+{
+    return static_cast<ResultType>(a) - static_cast<ResultType>(b);
+}
+
+/** Insert (dist, index) into a sorted result buffer (dists, indices) of the
+ *  given capacity, keeping ascending distance order.  Shared by KNNResultSet
+ *  and RKNNResultSet, which are otherwise byte-for-byte identical.
+ *  Always returns true (caller should continue searching). */
+template <typename DistanceType, typename IndexType, typename CountType>
+bool addPointToSortedResultSet(
+    DistanceType* dists, IndexType* indices, CountType& count, CountType capacity,
+    DistanceType dist, IndexType index)
+{
+    CountType i;
+    for (i = count; i > 0; --i)
+    {
+#ifdef NANOFLANN_FIRST_MATCH
+        if ((dists[i - 1] > dist) || ((dist == dists[i - 1]) && (indices[i - 1] > index)))
+        {
+#else
+        if (dists[i - 1] > dist)
+        {
+#endif
+            if (i < capacity)
+            {
+                dists[i]   = dists[i - 1];
+                indices[i] = indices[i - 1];
+            }
+        }
+        else
+            break;
+    }
+    if (i < capacity)
+    {
+        dists[i]   = dist;
+        indices[i] = index;
+    }
+    if (count < capacity) count++;
+    return true;
+}
+}  // namespace detail
+
 /** @addtogroup result_sets_grp Result set classes
  *  @{ */
-template <
-    typename _DistanceType, typename _IndexType = size_t,
-    typename _CountType = size_t>
+
+/** Result set for KNN searches (N-closest neighbors) */
+template <typename _DistanceType, typename _IndexType = size_t, typename _CountType = size_t>
 class KNNResultSet
 {
    public:
@@ -169,80 +378,121 @@ class KNNResultSet
     CountType     count;
 
    public:
-    inline KNNResultSet(CountType capacity_)
-        : indices(0), dists(0), capacity(capacity_), count(0)
+    explicit KNNResultSet(CountType capacity_)
+        : indices(nullptr), dists(nullptr), capacity(capacity_), count(0)
     {
     }
 
-    inline void init(IndexType* indices_, DistanceType* dists_)
+    void init(IndexType* indices_, DistanceType* dists_)
     {
         indices = indices_;
         dists   = dists_;
         count   = 0;
-        if (capacity)
-            dists[capacity - 1] = (std::numeric_limits<DistanceType>::max)();
     }
 
-    inline CountType size() const { return count; }
-
-    inline bool full() const { return count == capacity; }
+    NANOFLANN_NODISCARD CountType size() const noexcept { return count; }
+    NANOFLANN_NODISCARD bool      empty() const noexcept { return count == 0; }
+    NANOFLANN_NODISCARD bool      full() const noexcept { return count == capacity; }
 
     /**
      * Called during search to add an element matching the criteria.
      * @return true if the search should be continued, false if the results are
      * sufficient
      */
-    inline bool addPoint(DistanceType dist, IndexType index)
+    bool addPoint(DistanceType dist, IndexType index)
     {
-        CountType i;
-        for (i = count; i > 0; --i)
-        {
-#ifdef NANOFLANN_FIRST_MATCH  // If defined and two points have the same
-                              // distance, the one with the lowest-index will be
-                              // returned first.
-            if ((dists[i - 1] > dist) ||
-                ((dist == dists[i - 1]) && (indices[i - 1] > index)))
-            {
-#else
-            if (dists[i - 1] > dist)
-            {
-#endif
-                if (i < capacity)
-                {
-                    dists[i]   = dists[i - 1];
-                    indices[i] = indices[i - 1];
-                }
-            }
-            else
-                break;
-        }
-        if (i < capacity)
-        {
-            dists[i]   = dist;
-            indices[i] = index;
-        }
-        if (count < capacity) count++;
-
-        // tell caller that the search shall continue
-        return true;
+        return detail::addPointToSortedResultSet(dists, indices, count, capacity, dist, index);
     }
 
-    inline DistanceType worstDist() const { return dists[capacity - 1]; }
+    //! Returns the worst distance among found solutions if the search result is
+    //! full, or the maximum possible distance, if not full yet.
+    NANOFLANN_NODISCARD DistanceType worstDist() const noexcept
+    {
+        return (count < capacity || !count) ? std::numeric_limits<DistanceType>::max()
+                                            : dists[count - 1];
+    }
+
+    void sort()
+    {
+        // already sorted
+    }
 };
 
-/** operator "<" for std::sort() */
-struct IndexDist_Sorter
+/** Result set for RKNN searches (N-closest neighbors with a maximum radius) */
+template <typename _DistanceType, typename _IndexType = size_t, typename _CountType = size_t>
+class RKNNResultSet
 {
-    /** PairType will be typically: std::pair<IndexType,DistanceType> */
-    template <typename PairType>
-    inline bool operator()(const PairType& p1, const PairType& p2) const
+   public:
+    using DistanceType = _DistanceType;
+    using IndexType    = _IndexType;
+    using CountType    = _CountType;
+
+   private:
+    IndexType*    indices;
+    DistanceType* dists;
+    CountType     capacity;
+    CountType     count;
+    DistanceType  maximumSearchDistanceSquared;
+
+   public:
+    explicit RKNNResultSet(CountType capacity_, DistanceType maximumSearchDistanceSquared_)
+        : indices(nullptr),
+          dists(nullptr),
+          capacity(capacity_),
+          count(0),
+          maximumSearchDistanceSquared(maximumSearchDistanceSquared_)
     {
-        return p1.second < p2.second;
+    }
+
+    void init(IndexType* indices_, DistanceType* dists_)
+    {
+        indices = indices_;
+        dists   = dists_;
+        count   = 0;
+        // Seed the last slot with the radius cap so worstDist() bounds the
+        // search before the buffer fills (shared addPointToSortedResultSet then
+        // maintains it). Kept distinct from KNNResultSet for this reason.
+        if (capacity)
+        {
+            dists[capacity - 1] = maximumSearchDistanceSquared;
+        }
+    }
+
+    NANOFLANN_NODISCARD CountType size() const noexcept { return count; }
+    NANOFLANN_NODISCARD bool      empty() const noexcept { return count == 0; }
+    NANOFLANN_NODISCARD bool      full() const noexcept { return count == capacity; }
+
+    /**
+     * Called during search to add an element matching the criteria.
+     * @return true if the search should be continued, false if the results are
+     * sufficient
+     */
+    bool addPoint(DistanceType dist, IndexType index)
+    {
+        return detail::addPointToSortedResultSet(dists, indices, count, capacity, dist, index);
+    }
+
+    //! Returns the worst distance among found solutions if the search result is
+    //! full, or the maximum possible distance, if not full yet.
+    NANOFLANN_NODISCARD DistanceType worstDist() const noexcept
+    {
+        return (count < capacity || !count) ? maximumSearchDistanceSquared : dists[count - 1];
+    }
+
+    void sort()
+    {
+        // already sorted
     }
 };
 
 /**
  * A result-set class used when performing a radius based search.
+ *
+ * \note The boundary is **exclusive**: a candidate is accepted only when its
+ *       (squared) distance is *strictly less than* the search radius
+ *       (`dist < radius`). A point lying exactly at the radius is not returned.
+ *       This matches the long-standing FLANN/nanoflann 1.x behavior and is kept
+ *       for backwards compatibility.
  */
 template <typename _DistanceType, typename _IndexType = size_t>
 class RadiusResultSet
@@ -254,53 +504,89 @@ class RadiusResultSet
    public:
     const DistanceType radius;
 
-    std::vector<std::pair<IndexType, DistanceType>>& m_indices_dists;
+    std::vector<ResultItem<IndexType, DistanceType>>& m_indices_dists;
 
-    inline RadiusResultSet(
-        DistanceType                                     radius_,
-        std::vector<std::pair<IndexType, DistanceType>>& indices_dists)
+    explicit RadiusResultSet(
+        DistanceType radius_, std::vector<ResultItem<IndexType, DistanceType>>& indices_dists)
         : radius(radius_), m_indices_dists(indices_dists)
     {
         init();
     }
 
-    inline void init() { clear(); }
-    inline void clear() { m_indices_dists.clear(); }
+    void init() { clear(); }
+    void clear() { m_indices_dists.clear(); }
 
-    inline size_t size() const { return m_indices_dists.size(); }
-
-    inline bool full() const { return true; }
+    NANOFLANN_NODISCARD size_t size() const noexcept { return m_indices_dists.size(); }
+    NANOFLANN_NODISCARD bool   empty() const noexcept { return m_indices_dists.empty(); }
+    NANOFLANN_NODISCARD bool   full() const noexcept { return true; }
 
     /**
      * Called during search to add an element matching the criteria.
      * @return true if the search should be continued, false if the results are
      * sufficient
      */
-    inline bool addPoint(DistanceType dist, IndexType index)
+    bool addPoint(DistanceType dist, IndexType index)
     {
+        // Exclusive boundary (dist < radius); see the class doc note.
         if (dist < radius)
-            m_indices_dists.push_back(std::make_pair(index, dist));
+        {
+            m_indices_dists.emplace_back(index, dist);
+        }
         return true;
     }
 
-    inline DistanceType worstDist() const { return radius; }
+    NANOFLANN_NODISCARD DistanceType worstDist() const noexcept { return radius; }
 
     /**
-     * Find the worst result (furtherest neighbor) without copying or sorting
+     * Find the worst result (farthest neighbor) without copying or sorting
      * Pre-conditions: size() > 0
      */
-    std::pair<IndexType, DistanceType> worst_item() const
+    ResultItem<IndexType, DistanceType> worst_item() const
     {
         if (m_indices_dists.empty())
             throw std::runtime_error(
                 "Cannot invoke RadiusResultSet::worst_item() on "
                 "an empty list of results.");
-        using DistIt = typename std::vector<
-            std::pair<IndexType, DistanceType>>::const_iterator;
-        DistIt it = std::max_element(
-            m_indices_dists.begin(), m_indices_dists.end(), IndexDist_Sorter());
+        auto it =
+            std::max_element(m_indices_dists.begin(), m_indices_dists.end(), IndexDist_Sorter());
         return *it;
     }
+
+    void sort() { std::sort(m_indices_dists.begin(), m_indices_dists.end(), IndexDist_Sorter()); }
+};
+
+/**
+ * A result-set class used when collecting all points contained within an
+ * axis-aligned bounding box (see findWithinBox()). Distances are not used;
+ * matching point indices are appended to the user-provided vector.
+ */
+template <typename _IndexType = size_t>
+class BoxResultSet
+{
+   public:
+    using IndexType = _IndexType;
+
+    std::vector<IndexType>& m_indices;
+
+    explicit BoxResultSet(std::vector<IndexType>& indices) : m_indices(indices)
+    {
+        m_indices.clear();
+    }
+
+    NANOFLANN_NODISCARD size_t size() const noexcept { return m_indices.size(); }
+    NANOFLANN_NODISCARD bool   empty() const noexcept { return m_indices.empty(); }
+    NANOFLANN_NODISCARD bool   full() const noexcept { return true; }
+
+    /** Called for each point found inside the query box. The distance argument
+     *  is unused (always 0 for a box query). @return always true (keep going). */
+    template <typename DistanceType>
+    bool addPoint(DistanceType /*dist*/, IndexType index)
+    {
+        m_indices.push_back(index);
+        return true;
+    }
+
+    void sort() { std::sort(m_indices.begin(), m_indices.end()); }
 };
 
 /** @} */
@@ -313,8 +599,8 @@ void save_value(std::ostream& stream, const T& value)
     stream.write(reinterpret_cast<const char*>(&value), sizeof(T));
 }
 
-template <typename T>
-void save_value(std::ostream& stream, const std::vector<T>& value)
+template <typename T, typename A>
+void save_value(std::ostream& stream, const std::vector<T, A>& value)
 {
     size_t size = value.size();
     stream.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
@@ -327,11 +613,32 @@ void load_value(std::istream& stream, T& value)
     stream.read(reinterpret_cast<char*>(&value), sizeof(T));
 }
 
-template <typename T>
-void load_value(std::istream& stream, std::vector<T>& value)
+template <typename T, typename A>
+void load_value(std::istream& stream, std::vector<T, A>& value)
 {
-    size_t size;
+    size_t size = 0;
     stream.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+    if (!stream.good())
+    {
+        throw std::runtime_error("[nanoflann] Corrupt stream: failed to read vector size.");
+    }
+    // Guard against a corrupt/truncated stream whose stored size would trigger
+    // an unbounded resize (multi-GB allocation / bad_alloc). If the stream is
+    // seekable, require that `size` elements actually fit in the bytes left.
+    const std::streampos cur = stream.tellg();
+    if (cur != std::streampos(-1))
+    {
+        stream.seekg(0, std::ios::end);
+        const std::streampos end = stream.tellg();
+        stream.seekg(cur, std::ios::beg);
+        const std::uintmax_t remaining = static_cast<std::uintmax_t>(end - cur);
+        if (size > remaining / sizeof(T))
+        {
+            throw std::runtime_error(
+                "[nanoflann] Corrupt stream: stored vector size exceeds the "
+                "number of bytes remaining.");
+        }
+    }
     value.resize(size);
     stream.read(reinterpret_cast<char*>(value.data()), sizeof(T) * size);
 }
@@ -350,114 +657,137 @@ struct Metric
  *
  * \tparam T Type of the elements (e.g. double, float, uint8_t)
  * \tparam DataSource Source of the data, i.e. where the vectors are stored
- * \tparam _DistanceType Type of distance variables (must be signed)
- * \tparam AccessorType Type of the arguments with which the data can be
+ * \tparam _DistanceType Type of distance variables (must be signed). It
+ * defaults to \a T, so for an unsigned \a T (e.g. uint8_t) it must be given
+ * explicitly, wide enough for the distances of the actual coordinate range,
+ * e.g. `L2_Simple_Adaptor<uint8_t, MyCloud, int32_t>`.
+ * \tparam IndexType Type of the arguments with which the data can be
  * accessed (e.g. float, double, int64_t, T*)
  */
-template <
-    class T, class DataSource, typename _DistanceType = T,
-    typename AccessorType = uint32_t>
+template <class T, class DataSource, typename _DistanceType = T, typename IndexType = size_t>
 struct L1_Adaptor
 {
     using ElementType  = T;
-    using DistanceType = _DistanceType;
+    using DistanceType = typename detail::checked_distance_type<_DistanceType>::type;
 
     const DataSource& data_source;
 
     L1_Adaptor(const DataSource& _data_source) : data_source(_data_source) {}
 
     inline DistanceType evalMetric(
-        const T* a, const AccessorType b_idx, size_t size,
-        DistanceType worst_dist = -1) const
+        const T* NANOFLANN_RESTRICT a, const IndexType b_idx, size_t size) const
     {
-        DistanceType result    = DistanceType();
-        const T*     last      = a + size;
-        const T*     lastgroup = last - 3;
-        size_t       d         = 0;
+        DistanceType result  = DistanceType();
+        const size_t multof4 = (size >> 2) << 2;  // largest multiple of 4
+        size_t       d;
 
-        /* Process 4 items with each loop for efficiency. */
-        while (a < lastgroup)
+        for (d = 0; d < multof4; d += 4)
         {
-            const DistanceType diff0 =
-                std::abs(a[0] - data_source.kdtree_get_pt(b_idx, d++));
-            const DistanceType diff1 =
-                std::abs(a[1] - data_source.kdtree_get_pt(b_idx, d++));
-            const DistanceType diff2 =
-                std::abs(a[2] - data_source.kdtree_get_pt(b_idx, d++));
-            const DistanceType diff3 =
-                std::abs(a[3] - data_source.kdtree_get_pt(b_idx, d++));
-            result += diff0 + diff1 + diff2 + diff3;
-            a += 4;
-            if ((worst_dist > 0) && (result > worst_dist)) { return result; }
+            const DistanceType diff0 = std::abs(
+                detail::diff_as<DistanceType>(a[d + 0], data_source.kdtree_get_pt(b_idx, d + 0)));
+            const DistanceType diff1 = std::abs(
+                detail::diff_as<DistanceType>(a[d + 1], data_source.kdtree_get_pt(b_idx, d + 1)));
+            const DistanceType diff2 = std::abs(
+                detail::diff_as<DistanceType>(a[d + 2], data_source.kdtree_get_pt(b_idx, d + 2)));
+            const DistanceType diff3 = std::abs(
+                detail::diff_as<DistanceType>(a[d + 3], data_source.kdtree_get_pt(b_idx, d + 3)));
+            /* Parentheses break dependency chain: */
+            result += (diff0 + diff1) + (diff2 + diff3);
         }
-        /* Process last 0-3 components.  Not needed for standard vector lengths.
+        /* Process last 0-3 components. Unrolled loop with fall-through switch.
          */
-        while (a < last)
-        { result += std::abs(*a++ - data_source.kdtree_get_pt(b_idx, d++)); }
+        switch (size - multof4)
+        {
+            case 3:
+                result += std::abs(detail::diff_as<DistanceType>(
+                    a[d + 2], data_source.kdtree_get_pt(b_idx, d + 2)));
+                NANOFLANN_FALLTHROUGH;
+            case 2:
+                result += std::abs(detail::diff_as<DistanceType>(
+                    a[d + 1], data_source.kdtree_get_pt(b_idx, d + 1)));
+                NANOFLANN_FALLTHROUGH;
+            case 1:
+                result += std::abs(detail::diff_as<DistanceType>(
+                    a[d + 0], data_source.kdtree_get_pt(b_idx, d + 0)));
+                NANOFLANN_FALLTHROUGH;
+            case 0:
+                break;
+        }
         return result;
     }
 
     template <typename U, typename V>
     inline DistanceType accum_dist(const U a, const V b, const size_t) const
     {
-        return std::abs(a - b);
+        return std::abs(detail::diff_as<DistanceType>(a, b));
     }
 };
 
-/** Squared Euclidean distance functor (generic version, optimized for
+/** **Squared** Euclidean distance functor (generic version, optimized for
  * high-dimensionality data sets). Corresponding distance traits:
  * nanoflann::metric_L2
  *
  * \tparam T Type of the elements (e.g. double, float, uint8_t)
  * \tparam DataSource Source of the data, i.e. where the vectors are stored
- * \tparam _DistanceType Type of distance variables (must be signed)
- * \tparam AccessorType Type of the arguments with which the data can be
+ * \tparam _DistanceType Type of distance variables (must be signed). It
+ * defaults to \a T, so for an unsigned \a T (e.g. uint8_t) it must be given
+ * explicitly, wide enough for the distances of the actual coordinate range,
+ * e.g. `L2_Simple_Adaptor<uint8_t, MyCloud, int32_t>`.
+ * \tparam IndexType Type of the arguments with which the data can be
  * accessed (e.g. float, double, int64_t, T*)
  */
-template <
-    class T, class DataSource, typename _DistanceType = T,
-    typename AccessorType = uint32_t>
+template <class T, class DataSource, typename _DistanceType = T, typename IndexType = size_t>
 struct L2_Adaptor
 {
     using ElementType  = T;
-    using DistanceType = _DistanceType;
+    using DistanceType = typename detail::checked_distance_type<_DistanceType>::type;
 
     const DataSource& data_source;
 
     L2_Adaptor(const DataSource& _data_source) : data_source(_data_source) {}
 
     inline DistanceType evalMetric(
-        const T* a, const AccessorType b_idx, size_t size,
-        DistanceType worst_dist = -1) const
+        const T* NANOFLANN_RESTRICT a, const IndexType b_idx, size_t size) const
     {
-        DistanceType result    = DistanceType();
-        const T*     last      = a + size;
-        const T*     lastgroup = last - 3;
-        size_t       d         = 0;
+        DistanceType result  = DistanceType();
+        const size_t multof4 = (size >> 2) << 2;  // largest multiple of 4
+        size_t       d;
 
-        /* Process 4 items with each loop for efficiency. */
-        while (a < lastgroup)
+        for (d = 0; d < multof4; d += 4)
         {
             const DistanceType diff0 =
-                a[0] - data_source.kdtree_get_pt(b_idx, d++);
+                detail::diff_as<DistanceType>(a[d + 0], data_source.kdtree_get_pt(b_idx, d + 0));
             const DistanceType diff1 =
-                a[1] - data_source.kdtree_get_pt(b_idx, d++);
+                detail::diff_as<DistanceType>(a[d + 1], data_source.kdtree_get_pt(b_idx, d + 1));
             const DistanceType diff2 =
-                a[2] - data_source.kdtree_get_pt(b_idx, d++);
+                detail::diff_as<DistanceType>(a[d + 2], data_source.kdtree_get_pt(b_idx, d + 2));
             const DistanceType diff3 =
-                a[3] - data_source.kdtree_get_pt(b_idx, d++);
-            result +=
-                diff0 * diff0 + diff1 * diff1 + diff2 * diff2 + diff3 * diff3;
-            a += 4;
-            if ((worst_dist > 0) && (result > worst_dist)) { return result; }
+                detail::diff_as<DistanceType>(a[d + 3], data_source.kdtree_get_pt(b_idx, d + 3));
+            /* Parentheses break dependency chain: */
+            result += (diff0 * diff0 + diff1 * diff1) + (diff2 * diff2 + diff3 * diff3);
         }
-        /* Process last 0-3 components.  Not needed for standard vector lengths.
+        /* Process last 0-3 components. Unrolled loop with fall-through switch.
          */
-        while (a < last)
+        DistanceType diff;
+        switch (size - multof4)
         {
-            const DistanceType diff0 =
-                *a++ - data_source.kdtree_get_pt(b_idx, d++);
-            result += diff0 * diff0;
+            case 3:
+                diff = detail::diff_as<DistanceType>(
+                    a[d + 2], data_source.kdtree_get_pt(b_idx, d + 2));
+                result += diff * diff;
+                NANOFLANN_FALLTHROUGH;
+            case 2:
+                diff = detail::diff_as<DistanceType>(
+                    a[d + 1], data_source.kdtree_get_pt(b_idx, d + 1));
+                result += diff * diff;
+                NANOFLANN_FALLTHROUGH;
+            case 1:
+                diff = detail::diff_as<DistanceType>(
+                    a[d + 0], data_source.kdtree_get_pt(b_idx, d + 0));
+                result += diff * diff;
+                NANOFLANN_FALLTHROUGH;
+            case 0:
+                break;
         }
         return result;
     }
@@ -465,43 +795,42 @@ struct L2_Adaptor
     template <typename U, typename V>
     inline DistanceType accum_dist(const U a, const V b, const size_t) const
     {
-        return (a - b) * (a - b);
+        const DistanceType diff = detail::diff_as<DistanceType>(a, b);
+        return diff * diff;
     }
 };
 
-/** Squared Euclidean (L2) distance functor (suitable for low-dimensionality
+/** **Squared** Euclidean (L2) distance functor (suitable for low-dimensionality
  * datasets, like 2D or 3D point clouds) Corresponding distance traits:
  * nanoflann::metric_L2_Simple
  *
  * \tparam T Type of the elements (e.g. double, float, uint8_t)
  * \tparam DataSource Source of the data, i.e. where the vectors are stored
- * \tparam _DistanceType Type of distance variables (must be signed)
- * \tparam AccessorType Type of the arguments with which the data can be
+ * \tparam _DistanceType Type of distance variables (must be signed). It
+ * defaults to \a T, so for an unsigned \a T (e.g. uint8_t) it must be given
+ * explicitly, wide enough for the distances of the actual coordinate range,
+ * e.g. `L2_Simple_Adaptor<uint8_t, MyCloud, int32_t>`.
+ * \tparam IndexType Type of the arguments with which the data can be
  * accessed (e.g. float, double, int64_t, T*)
  */
-template <
-    class T, class DataSource, typename _DistanceType = T,
-    typename AccessorType = uint32_t>
+template <class T, class DataSource, typename _DistanceType = T, typename IndexType = size_t>
 struct L2_Simple_Adaptor
 {
     using ElementType  = T;
-    using DistanceType = _DistanceType;
+    using DistanceType = typename detail::checked_distance_type<_DistanceType>::type;
 
     const DataSource& data_source;
 
-    L2_Simple_Adaptor(const DataSource& _data_source)
-        : data_source(_data_source)
-    {
-    }
+    L2_Simple_Adaptor(const DataSource& _data_source) : data_source(_data_source) {}
 
     inline DistanceType evalMetric(
-        const T* a, const AccessorType b_idx, size_t size) const
+        const T* NANOFLANN_RESTRICT a, const IndexType b_idx, size_t size) const
     {
         DistanceType result = DistanceType();
         for (size_t i = 0; i < size; ++i)
         {
             const DistanceType diff =
-                a[i] - data_source.kdtree_get_pt(b_idx, i);
+                detail::diff_as<DistanceType>(a[i], data_source.kdtree_get_pt(b_idx, i));
             result += diff * diff;
         }
         return result;
@@ -510,190 +839,514 @@ struct L2_Simple_Adaptor
     template <typename U, typename V>
     inline DistanceType accum_dist(const U a, const V b, const size_t) const
     {
-        return (a - b) * (a - b);
-    }
-};
-
-/** SO2 distance functor
- *  Corresponding distance traits: nanoflann::metric_SO2
- *
- * \tparam T Type of the elements (e.g. double, float, uint8_t)
- * \tparam DataSource Source of the data, i.e. where the vectors are stored
- * \tparam _DistanceType Type of distance variables (must be signed) (e.g.
- * float, double) orientation is constrained to be in [-pi, pi]
- * \tparam AccessorType Type of the arguments with which the data can be
- * accessed (e.g. float, double, int64_t, T*)
- */
-template <
-    class T, class DataSource, typename _DistanceType = T,
-    typename AccessorType = uint32_t>
-struct SO2_Adaptor
-{
-    using ElementType  = T;
-    using DistanceType = _DistanceType;
-
-    const DataSource& data_source;
-
-    SO2_Adaptor(const DataSource& _data_source) : data_source(_data_source) {}
-
-    inline DistanceType evalMetric(
-        const T* a, const AccessorType b_idx, size_t size) const
-    {
-        return accum_dist(
-            a[size - 1], data_source.kdtree_get_pt(b_idx, size - 1), size - 1);
-    }
-
-    /** Note: this assumes that input angles are already in the range [-pi,pi]
-     */
-    template <typename U, typename V>
-    inline DistanceType accum_dist(const U a, const V b, const size_t) const
-    {
-        DistanceType result = DistanceType();
-        DistanceType PI     = pi_const<DistanceType>();
-        result              = b - a;
-        if (result > PI)
-            result -= 2 * PI;
-        else if (result < -PI)
-            result += 2 * PI;
-        return result;
-    }
-};
-
-/** SO3 distance functor (Uses L2_Simple)
- *  Corresponding distance traits: nanoflann::metric_SO3
- *
- * \tparam T Type of the elements (e.g. double, float, uint8_t)
- * \tparam DataSource Source of the data, i.e. where the vectors are stored
- * \tparam _DistanceType Type of distance variables (must be signed) (e.g.
- * float, double)
- * \tparam AccessorType Type of the arguments with which the data can be
- * accessed (e.g. float, double, int64_t, T*)
- */
-template <
-    class T, class DataSource, typename _DistanceType = T,
-    typename AccessorType = uint32_t>
-struct SO3_Adaptor
-{
-    using ElementType  = T;
-    using DistanceType = _DistanceType;
-
-    L2_Simple_Adaptor<T, DataSource, DistanceType, AccessorType>
-        distance_L2_Simple;
-
-    SO3_Adaptor(const DataSource& _data_source)
-        : distance_L2_Simple(_data_source)
-    {
-    }
-
-    inline DistanceType evalMetric(
-        const T* a, const AccessorType b_idx, size_t size) const
-    {
-        return distance_L2_Simple.evalMetric(a, b_idx, size);
-    }
-
-    template <typename U, typename V>
-    inline DistanceType accum_dist(const U a, const V b, const size_t idx) const
-    {
-        return distance_L2_Simple.accum_dist(a, b, idx);
+        const DistanceType diff = detail::diff_as<DistanceType>(a, b);
+        return diff * diff;
     }
 };
 
 /** Metaprogramming helper traits class for the L1 (Manhattan) metric */
 struct metric_L1 : public Metric
 {
-    template <class T, class DataSource, typename AccessorType = uint32_t>
+    template <class T, class DataSource, typename IndexType = size_t>
     struct traits
     {
-        using distance_t = L1_Adaptor<T, DataSource, T, AccessorType>;
+        using distance_t = L1_Adaptor<T, DataSource, T, IndexType>;
     };
 };
-/** Metaprogramming helper traits class for the L2 (Euclidean) metric */
+/** Metaprogramming helper traits class for the L2 (Euclidean) **squared**
+ * distance metric */
 struct metric_L2 : public Metric
 {
-    template <class T, class DataSource, typename AccessorType = uint32_t>
+    template <class T, class DataSource, typename IndexType = size_t>
     struct traits
     {
-        using distance_t = L2_Adaptor<T, DataSource, T, AccessorType>;
+        using distance_t = L2_Adaptor<T, DataSource, T, IndexType>;
     };
 };
-/** Metaprogramming helper traits class for the L2_simple (Euclidean) metric */
+/** Metaprogramming helper traits class for the L2_simple (Euclidean)
+ * **squared** distance metric */
 struct metric_L2_Simple : public Metric
 {
-    template <class T, class DataSource, typename AccessorType = uint32_t>
+    template <class T, class DataSource, typename IndexType = size_t>
     struct traits
     {
-        using distance_t = L2_Simple_Adaptor<T, DataSource, T, AccessorType>;
-    };
-};
-/** Metaprogramming helper traits class for the SO3_InnerProdQuat metric */
-struct metric_SO2 : public Metric
-{
-    template <class T, class DataSource, typename AccessorType = uint32_t>
-    struct traits
-    {
-        using distance_t = SO2_Adaptor<T, DataSource, T, AccessorType>;
-    };
-};
-/** Metaprogramming helper traits class for the SO3_InnerProdQuat metric */
-struct metric_SO3 : public Metric
-{
-    template <class T, class DataSource, typename AccessorType = uint32_t>
-    struct traits
-    {
-        using distance_t = SO3_Adaptor<T, DataSource, T, AccessorType>;
+        using distance_t = L2_Simple_Adaptor<T, DataSource, T, IndexType>;
     };
 };
 
 /** @} */
 
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+/** @addtogroup manifold_grp Compile-time product-manifold topology (C++17)
+ *
+ *  This block lets the user declare, at compile time, the topology of the search
+ *  space as a product manifold of base spaces (R^n, SO(2), SO(3), the unit
+ *  sphere S^N / S^2, and arbitrary products such as SE(2)=R^2 x SO(2),
+ *  SE(3)=R^3 x SO(3), or R^3 x S^2 for oriented points). The synthesized
+ *  metric (`metric_Manifold<Space>`) honors the correct geodesic distance and,
+ *  crucially, keeps the KD-tree pruning *exact* by supplying an admissible
+ *  per-coordinate point-to-interval lower bound (see the lemma in the companion
+ *  paper). Only available under C++17 and only for the fixed single-tree index
+ *  `KDTreeSingleIndexAdaptor`.
+ *  @{ */
+
+/** Per-scalar-coordinate topology tag. */
+enum class CoordTopology : uint8_t
+{
+    /** Real line R^1: ordinary Euclidean coordinate (no wrap). */
+    Linear = 0,
+    /** Circle S^1 / SO(2): angle in [-pi, pi], wraps at +/-pi. */
+    Circular = 1,
+    /** One scalar of a 4-coordinate unit-quaternion block (SO(3)); the metric is
+     *  the chordal distance min(||p-q||^2, ||p+q||^2) handling the double cover
+     *  q ~ -q. Quaternion coordinates always come in contiguous groups of four. */
+    QuaternionBlock = 2
+};
+
+/** Shortest signed angular difference b-a, both assumed in [-pi, pi], result in
+ *  [-pi, pi]. Header-only, no <cmath> needed for the wrap. */
+template <typename Scalar>
+inline Scalar so2_signed_diff(const Scalar a, const Scalar b)
+{
+    const Scalar PI   = pi_const<Scalar>();
+    Scalar       diff = b - a;
+    if (diff > PI)
+        diff -= 2 * PI;
+    else if (diff < -PI)
+        diff += 2 * PI;
+    return diff;
+}
+
+/** Convert a chordal squared distance on the unit sphere S^N to the geodesic
+ *  arc angle in radians: theta = 2 asin(sqrt(d)/2), the inverse of
+ *  d = 4 sin^2(theta/2). The argument is clamped against rounding noise.
+ *
+ *  \note This is the angle *between the two unit vectors*. For an SO(3)
+ *  quaternion block the unit vectors live on S^3, so the value returned here is
+ *  the arc angle between the quaternions, which is **half** the rotation angle
+ *  they represent. Convert with:
+ *  \code
+ *    // d2 = min(|p-q|^2, |p+q|^2), the double-cover-aware chordal distance
+ *    const double rot_angle = 2 * nanoflann::chord_sq_to_angle(d2);  // = 4 asin(sqrt(d2)/2)
+ *  \endcode
+ *  since d = 2 - 2|<p,q>| = 4 sin^2(rot_angle/4) for unit quaternions. */
+template <typename Scalar>
+inline Scalar chord_sq_to_angle(const Scalar d_ch_sq)
+{
+    Scalar s = std::sqrt(d_ch_sq) / static_cast<Scalar>(2);
+    if (s < static_cast<Scalar>(0)) s = static_cast<Scalar>(0);
+    if (s > static_cast<Scalar>(1)) s = static_cast<Scalar>(1);
+    return static_cast<Scalar>(2) * std::asin(s);
+}
+
+/** Inverse of chord_sq_to_angle: convert an arc angle (radians) to the chordal
+ *  squared search radius d = 4 sin^2(theta/2), for use with radiusSearch on
+ *  S^N / S^2.
+ *
+ *  \note As in chord_sq_to_angle, \a theta is the angle between unit vectors.
+ *  To search an SO(3) quaternion block within a *rotation* angle, halve it
+ *  first: `angle_to_chord_sq(rot_angle / 2)`. */
+template <typename Scalar>
+inline Scalar angle_to_chord_sq(const Scalar theta)
+{
+    const Scalar s = std::sin(theta / static_cast<Scalar>(2));
+    return static_cast<Scalar>(4) * s * s;
+}
+
+/** @name Base-space traits
+ *  Each base space exposes a compile-time `ambient` (number of scalar
+ *  coordinates it occupies) and a `constexpr topology(i)` mapping a *local*
+ *  coordinate index to its CoordTopology tag.
+ *  @{ */
+
+/** Euclidean R^N base space (N linear coordinates). */
+template <unsigned N>
+struct Rn
+{
+    static constexpr unsigned      ambient = N;
+    static constexpr CoordTopology topology(unsigned /*i*/) { return CoordTopology::Linear; }
+};
+
+/** Circle S^1 / SO(2): a single circular coordinate (angle in [-pi, pi]). */
+struct SO2
+{
+    static constexpr unsigned      ambient = 1;
+    static constexpr CoordTopology topology(unsigned /*i*/) { return CoordTopology::Circular; }
+};
+
+/** 3D rotation SO(3) as a unit quaternion (4 coordinates, double cover). */
+struct SO3
+{
+    static constexpr unsigned      ambient = 4;
+    static constexpr CoordTopology topology(unsigned /*i*/)
+    {
+        return CoordTopology::QuaternionBlock;
+    }
+};
+
+/** Unit sphere S^N embedded in R^{N+1} (N+1 coordinates, must be unit-norm).
+ *
+ *  Metric: chordal squared distance ||p-q||^2 = 2 - 2<p,q> = 4 sin^2(theta/2),
+ *  a strictly increasing function of the geodesic angle theta in [0, pi], so the
+ *  NN / k-NN *ranking* is identical to the geodesic one. The chordal metric is
+ *  literally the ambient L2 metric, so every coordinate is a plain `Linear` tag:
+ *  no new switch cases are needed in Manifold_Adaptor, and pruning by raw
+ *  axis-aligned boxes (supersets of the sphere patch) stays admissible. Unlike
+ *  SO(3) = RP^3, antipodal unit vectors are *distinct* directions, so S^N needs
+ *  no double-cover handling (it is strictly simpler than the quaternion block).
+ *  Inputs (stored points and queries) must be normalized to unit length.
+ *
+ *  (S^1 is handled intrinsically by `SO2` because the circle admits a global
+ *  separable 1-coordinate chart; S^N for N>=2 has no such chart, hence the
+ *  embedding route here.) */
+template <unsigned N>
+struct Sn
+{
+    static constexpr unsigned      ambient = N + 1;
+    static constexpr CoordTopology topology(unsigned /*i*/) { return CoordTopology::Linear; }
+};
+/** Unit sphere S^2: 3D directions / bearings as unit vectors in R^3. */
+using S2 = Sn<2>;
+
+/** Product manifold M = M_1 x ... x M_b. Concatenates the coordinate layouts of
+ *  its base spaces; `ambient` is the total scalar-coordinate count and
+ *  `topology(i)` dispatches to the owning base space. */
+template <class... Bs>
+struct Product;
+
+template <>
+struct Product<>
+{
+    static constexpr unsigned      ambient = 0;
+    static constexpr CoordTopology topology(unsigned /*i*/) { return CoordTopology::Linear; }
+};
+
+template <class B, class... Rest>
+struct Product<B, Rest...>
+{
+    static constexpr unsigned      ambient = B::ambient + Product<Rest...>::ambient;
+    static constexpr CoordTopology topology(unsigned i)
+    {
+        return i < B::ambient ? B::topology(i) : Product<Rest...>::topology(i - B::ambient);
+    }
+};
+
+/** SE(2) = R^2 x SO(2) (3 coordinates: x, y, theta). */
+using SE2 = Product<Rn<2>, SO2>;
+/** SE(3) = R^3 x SO(3) (7 coordinates: x, y, z, qx, qy, qz, qw). */
+using SE3 = Product<Rn<3>, SO3>;
+/** N-torus = SO(2)^N. */
+template <unsigned N>
+struct Torus;
+template <>
+struct Torus<0> : Product<>
+{
+};
+template <unsigned N>
+struct Torus : Product<SO2, Torus<N - 1>>
+{
+};
+/** @} */
+
+/** Flatten a Space into a compile-time array of per-coordinate topology tags. */
+template <class Space>
+constexpr std::array<CoordTopology, Space::ambient> make_topology_table()
+{
+    std::array<CoordTopology, Space::ambient> arr{};
+    for (unsigned i = 0; i < Space::ambient; ++i) arr[i] = Space::topology(i);
+    return arr;
+}
+
+/** Distance functor synthesized from a compile-time product-manifold
+ *  description `Space`. Provides the standard nanoflann distance interface
+ *  (`evalMetric`, `accum_dist`) plus the extended interface used by the
+ *  topology-aware pruning in KDTreeBaseClass:
+ *   - `pointToIntervalDist(v, low, high, coord)`: admissible lower bound on the
+ *     squared distance from query coordinate `v` to the per-coordinate interval
+ *     [low, high] of a tree-node region, honoring wrap (circular) and the
+ *     antipodal double cover (quaternion).
+ *
+ *  The squared product metric is  d^2 = sum over base spaces of d_M^2, with
+ *  per-coordinate contributions:
+ *   - Linear:    (a-b)^2
+ *   - Circular:  so2_diff(a,b)^2
+ *   - SO(3) 4-block: min(||p-q||^2, ||p+q||^2)  (chordal, double cover)
+ */
+template <
+    class Space, class T, class DataSource, typename _DistanceType = T, typename IndexType = size_t>
+struct Manifold_Adaptor
+{
+    using ElementType  = T;
+    using DistanceType = _DistanceType;
+    using SpaceType    = Space;
+
+    static constexpr unsigned ambient_dim = Space::ambient;
+
+    /** Compile-time per-coordinate topology table (implicitly inline in C++17). */
+    static constexpr std::array<CoordTopology, Space::ambient> topo_ = make_topology_table<Space>();
+
+    /** True if the space contains at least one SO(3) quaternion block. Used to
+     *  gate the (slightly more expensive) block-level chordal pruning bound so
+     *  spaces without rotations pay nothing for it. */
+    static constexpr bool computeHasQuaternionBlock()
+    {
+        for (unsigned i = 0; i < Space::ambient; ++i)
+        {
+            if (topo_[i] == CoordTopology::QuaternionBlock) return true;
+        }
+        return false;
+    }
+    static constexpr bool hasQuaternionBlock = computeHasQuaternionBlock();
+
+    const DataSource& data_source;
+
+    Manifold_Adaptor(const DataSource& _data_source) : data_source(_data_source) {}
+
+    /** Full squared distance from query `a` to stored point `b_idx`. Walks the
+     *  topology table, treating each contiguous 4-coordinate quaternion block as
+     *  one chordal contribution with double-cover handling. */
+    inline DistanceType evalMetric(const T* a, const IndexType b_idx, size_t size) const
+    {
+        DistanceType result = DistanceType();
+        for (size_t i = 0; i < size;)
+        {
+            switch (topo_[i])
+            {
+                case CoordTopology::Linear:
+                {
+                    const DistanceType d = a[i] - data_source.kdtree_get_pt(b_idx, i);
+                    result += d * d;
+                    ++i;
+                    break;
+                }
+                case CoordTopology::Circular:
+                {
+                    const DistanceType d =
+                        so2_signed_diff<DistanceType>(a[i], data_source.kdtree_get_pt(b_idx, i));
+                    result += d * d;
+                    ++i;
+                    break;
+                }
+                case CoordTopology::QuaternionBlock:
+                {
+                    DistanceType s_minus = DistanceType();
+                    DistanceType s_plus  = DistanceType();
+                    for (size_t k = 0; k < 4; ++k)
+                    {
+                        const DistanceType bk = data_source.kdtree_get_pt(b_idx, i + k);
+                        const DistanceType dm = a[i + k] - bk;
+                        const DistanceType dp = a[i + k] + bk;
+                        s_minus += dm * dm;
+                        s_plus += dp * dp;
+                    }
+                    result += s_minus < s_plus ? s_minus : s_plus;
+                    i += 4;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /** Per-coordinate squared point-to-point contribution. */
+    template <typename U, typename V>
+    inline DistanceType accum_dist(const U a, const V b, const size_t idx) const
+    {
+        if (topo_[idx] == CoordTopology::Circular)
+        {
+            const DistanceType d = so2_signed_diff<DistanceType>(
+                static_cast<DistanceType>(a), static_cast<DistanceType>(b));
+            return d * d;
+        }
+        const DistanceType d = static_cast<DistanceType>(a) - static_cast<DistanceType>(b);
+        return d * d;
+    }
+
+    /** Admissible lower bound on the squared distance from query coordinate `v`
+     *  to the per-coordinate interval [low, high] of a node region.
+     *
+     *  - Linear / QuaternionBlock: standard point-to-interval squared distance on
+     *    the real line. For a quaternion coordinate this is combined with the
+     *    antipodal cover by taking the smaller of the bounds for `v` and `-v`;
+     *    summing the per-coordinate minima over the 4-block stays a valid (looser)
+     *    lower bound of min(||p-q||^2, ||p+q||^2) because
+     *    sum_i min(a_i, b_i) <= min(sum a_i, sum b_i).
+     *  - Circular: wrap-aware distance from `v` to the direct arc [low, high]
+     *    (low <= high, both in [-pi, pi]); 0 inside, else the smaller wrapped
+     *    distance to either endpoint, squared. */
+    inline DistanceType pointToIntervalDist(
+        const T v, const T low, const T high, const size_t idx) const
+    {
+        switch (topo_[idx])
+        {
+            case CoordTopology::Linear:
+            {
+                return axisIntervalDist(v, low, high);
+            }
+            case CoordTopology::QuaternionBlock:
+            {
+                const DistanceType dp = axisIntervalDist(v, low, high);
+                const DistanceType dn = axisIntervalDist(-v, low, high);
+                return dp < dn ? dp : dn;
+            }
+            case CoordTopology::Circular:
+            {
+                if (v >= low && v <= high) return DistanceType();
+                const DistanceType d1 = so2_signed_diff<DistanceType>(v, low);
+                const DistanceType d2 = so2_signed_diff<DistanceType>(v, high);
+                const DistanceType a1 = d1 < 0 ? -d1 : d1;
+                const DistanceType a2 = d2 < 0 ? -d2 : d2;
+                const DistanceType m  = a1 < a2 ? a1 : a2;
+                return m * m;
+            }
+        }
+        return DistanceType();  // unreachable
+    }
+
+    /** Block-level tightening of the SO(3) chordal lower bound, for use by the
+     *  pruning gate. The per-coordinate `pointToIntervalDist` returns, for a
+     *  quaternion coordinate, min(d+, d-) of the two antipodal covers; summing
+     *  those per-coordinate minima gives the *loose* block bound
+     *  sum_i min(d+_i, d-_i). The *tight* block bound is
+     *  min(sum_i d+_i, sum_i d-_i) = min(dist(q, Box4), dist(-q, Box4)), which is
+     *  always >= the loose one (since sum min <= min sum) and still admissible
+     *  (Box4 is a superset of the subtree's quaternions). This returns, summed
+     *  over every quaternion block of the space,
+     *  (tight block bound) - (loose block bound stored in `dists`), i.e. the
+     *  amount by which the running `mindist` may be safely increased.
+     *
+     *  `dists[i]` must hold the loose per-coordinate contributions and `region`
+     *  the current per-coordinate node intervals (both as maintained by
+     *  searchLevelManifold). Cost is O(#quaternion coords); only called for
+     *  spaces with `hasQuaternionBlock`. */
+    template <class IntervalArray, class DistArray>
+    inline DistanceType quaternionBlockTightening(
+        const T* v, const IntervalArray& region, const DistArray& dists, const size_t dim) const
+    {
+        DistanceType delta = DistanceType();
+        for (size_t i = 0; i < dim;)
+        {
+            if (topo_[i] != CoordTopology::QuaternionBlock)
+            {
+                ++i;
+                continue;
+            }
+            DistanceType loose = DistanceType();
+            DistanceType s_pos = DistanceType();
+            DistanceType s_neg = DistanceType();
+            for (size_t k = 0; k < 4; ++k)
+            {
+                loose += static_cast<DistanceType>(dists[i + k]);
+                s_pos += axisIntervalDist(v[i + k], region[i + k].low, region[i + k].high);
+                s_neg += axisIntervalDist(-v[i + k], region[i + k].low, region[i + k].high);
+            }
+            const DistanceType tight = s_pos < s_neg ? s_pos : s_neg;
+            delta += tight - loose;
+            i += 4;
+        }
+        return delta;
+    }
+
+   private:
+    static inline DistanceType axisIntervalDist(const T v, const T low, const T high)
+    {
+        if (v < low)
+        {
+            const DistanceType d = static_cast<DistanceType>(low) - static_cast<DistanceType>(v);
+            return d * d;
+        }
+        if (v > high)
+        {
+            const DistanceType d = static_cast<DistanceType>(v) - static_cast<DistanceType>(high);
+            return d * d;
+        }
+        return DistanceType();
+    }
+};
+
+/** Mark Manifold_Adaptor as implementing the extended manifold interface so the
+ *  KD-tree base class selects the topology-aware (wrap- and cover-correct)
+ *  pruning path for it. */
+template <class Space, class T, class DataSource, typename DT, typename IndexType>
+struct is_manifold_metric<Manifold_Adaptor<Space, T, DataSource, DT, IndexType>> : std::true_type
+{
+};
+
+/** Metaprogramming helper traits class for a compile-time product manifold.
+ *  Usage:
+ *  \code
+ *    using StateSpace = nanoflann::SE3;  // R^3 x SO(3)
+ *    using kdtree_t = nanoflann::KDTreeSingleIndexAdaptor<
+ *        nanoflann::metric_Manifold<StateSpace>::traits<double, Dataset>::distance_t,
+ *        Dataset, StateSpace::ambient>;
+ *  \endcode
+ *  or, more conveniently, via the `metric_Manifold<Space>` tag passed directly to
+ *  KDTreeSingleIndexAdaptor's Distance slot. */
+template <class Space>
+struct metric_Manifold : public Metric
+{
+    template <class T, class DataSource, typename IndexType = size_t>
+    struct traits
+    {
+        using distance_t = Manifold_Adaptor<Space, T, DataSource, T, IndexType>;
+    };
+};
+
+/** @} */  // end manifold_grp
+#endif  // NANOFLANN_HAS_MANIFOLDS
+
 /** @addtogroup param_grp Parameter structs
  * @{ */
+
+enum class KDTreeSingleIndexAdaptorFlags
+{
+    None                  = 0,
+    SkipInitialBuildIndex = 1
+};
+
+inline std::underlying_type<KDTreeSingleIndexAdaptorFlags>::type operator&(
+    KDTreeSingleIndexAdaptorFlags lhs, KDTreeSingleIndexAdaptorFlags rhs)
+{
+    using underlying = typename std::underlying_type<KDTreeSingleIndexAdaptorFlags>::type;
+    return static_cast<underlying>(lhs) & static_cast<underlying>(rhs);
+}
+
+/** Returns true if \a f has the given \a flag bit set.
+ *  Prefer this over the raw operator& in boolean contexts. */
+inline bool has_flag(KDTreeSingleIndexAdaptorFlags f, KDTreeSingleIndexAdaptorFlags flag)
+{
+    return (f & flag) != 0;
+}
 
 /**  Parameters (see README.md) */
 struct KDTreeSingleIndexAdaptorParams
 {
-    KDTreeSingleIndexAdaptorParams(size_t _leaf_max_size = 10)
-        : leaf_max_size(_leaf_max_size)
+    KDTreeSingleIndexAdaptorParams(
+        size_t                        _leaf_max_size  = 10,
+        KDTreeSingleIndexAdaptorFlags _flags          = KDTreeSingleIndexAdaptorFlags::None,
+        unsigned int                  _n_thread_build = 1)
+        : leaf_max_size(_leaf_max_size), flags(_flags), n_thread_build(_n_thread_build)
     {
     }
 
-    size_t leaf_max_size;
+    size_t                        leaf_max_size;
+    KDTreeSingleIndexAdaptorFlags flags;
+    unsigned int                  n_thread_build;
 };
 
 /** Search options for KDTreeSingleIndexAdaptor::findNeighbors() */
-struct SearchParams
+struct SearchParameters
 {
-    /** Note: The first argument (checks_IGNORED_) is ignored, but kept for
-     * compatibility with the FLANN interface */
-    SearchParams(int checks_IGNORED_ = 32, float eps_ = 0, bool sorted_ = true)
-        : checks(checks_IGNORED_), eps(eps_), sorted(sorted_)
-    {
-    }
+    SearchParameters(float eps_ = 0, bool sorted_ = true) : eps(eps_), sorted(sorted_) {}
 
-    int checks;  //!< Ignored parameter (Kept for compatibility with the FLANN
-                 //!< interface).
-    float eps;  //!< search for eps-approximate neighbours (default: 0)
-    bool  sorted;  //!< only for radius search, require neighbours sorted by
+    float eps;  //!< search for eps-approximate neighbors (default: 0)
+    bool  sorted;  //!< only for radius search, require neighbors sorted by
                   //!< distance (default: true)
 };
 /** @} */
 
 /** @addtogroup memalloc_grp Memory allocation
  * @{ */
-
-/**
- * Allocates (using C's malloc) a generic type T.
- *
- * Params:
- *     count = number of instances to allocate.
- * Returns: pointer (of type T*) to memory buffer
- */
-template <typename T>
-inline T* allocate(size_t count = 1)
-{
-    T* mem = static_cast<T*>(::malloc(sizeof(T) * count));
-    return mem;
-}
 
 /**
  * Pooled storage allocator
@@ -709,37 +1362,39 @@ inline T* allocate(size_t count = 1)
  * is no need to track down all the objects to free them.
  *
  */
-
-const size_t WORDSIZE  = 16;
-const size_t BLOCKSIZE = 8192;
-
 class PooledAllocator
 {
+    // Every allocation is aligned to WORDSIZE. It must be at least the node
+    // alignment so that nodes declared `alignas(NANOFLANN_NODE_ALIGNMENT)` are
+    // actually returned aligned (the default 16 also matches alignof(max_align_t)
+    // on common platforms; larger values, e.g. 32/64 for AVX, are honored too).
+    static constexpr size_t WORDSIZE =
+        (NANOFLANN_NODE_ALIGNMENT > 16) ? size_t(NANOFLANN_NODE_ALIGNMENT) : size_t(16);
+    static constexpr size_t BLOCKSIZE = 8192;
+
     /* We maintain memory alignment to word boundaries by requiring that all
         allocations be in multiples of the machine wordsize.  */
     /* Size of machine word in bytes.  Must be power of 2. */
-    /* Minimum number of bytes requested at a time from	the system.  Must be
+    /* Minimum number of bytes requested at a time from the system.  Must be
      * multiple of WORDSIZE. */
 
-    using Offset    = uint32_t;
-    using Size      = uint32_t;
-    using Dimension = int32_t;
+    using Size = size_t;
 
-    Size  remaining; /* Number of bytes left in current block of storage. */
-    void* base; /* Pointer to base of current block of storage. */
-    void* loc; /* Current location in block to next allocate memory. */
+    Size  remaining_ = 0;  //!< Number of bytes left in current block of storage
+    void* base_      = nullptr;  //!< Pointer to base of current block of storage
+    void* loc_       = nullptr;  //!< Current location in block to next allocate
 
     void internal_init()
     {
-        remaining    = 0;
-        base         = nullptr;
+        remaining_   = 0;
+        base_        = nullptr;
         usedMemory   = 0;
         wastedMemory = 0;
     }
 
    public:
-    Size usedMemory;
-    Size wastedMemory;
+    Size usedMemory   = 0;
+    Size wastedMemory = 0;
 
     /**
         Default constructor. Initializes a new pool.
@@ -754,12 +1409,12 @@ class PooledAllocator
     /** Frees all allocated memory chunks */
     void free_all()
     {
-        while (base != nullptr)
+        while (base_ != nullptr)
         {
-            void* prev =
-                *(static_cast<void**>(base)); /* Get pointer to prev block. */
-            ::free(base);
-            base = prev;
+            // Get pointer to prev block
+            void* prev = *(static_cast<void**>(base_));
+            ::free(base_);
+            base_ = prev;
         }
         internal_init();
     }
@@ -768,7 +1423,7 @@ class PooledAllocator
      * Returns a pointer to a piece of new memory of the given size in bytes
      * allocated from the pool.
      */
-    void* malloc(const size_t req_size)
+    void* allocateBytes(const size_t req_size)
     {
         /* Round size up to a multiple of wordsize.  The following expression
             only works for WORDSIZE that is a power of 2, by masking last bits
@@ -779,38 +1434,41 @@ class PooledAllocator
         /* Check whether a new block must be allocated.  Note that the first
            word of a block is reserved for a pointer to the previous block.
          */
-        if (size > remaining)
+        if (size > remaining_)
         {
-            wastedMemory += remaining;
+            wastedMemory += remaining_;
 
-            /* Allocate new storage. */
-            const Size blocksize =
-                (size + sizeof(void*) + (WORDSIZE - 1) > BLOCKSIZE)
-                    ? size + sizeof(void*) + (WORDSIZE - 1)
-                    : BLOCKSIZE;
+            /* Allocate new storage. The first machine word holds a pointer to
+               the previous block (for free_all()); the usable region starts at
+               the first WORDSIZE-aligned address past it. We over-allocate by
+               2*WORDSIZE to guarantee room for that alignment padding even when
+               WORDSIZE > alignof(max_align_t) (e.g. AVX-512 node alignment). */
+            const Size payload   = size > BLOCKSIZE ? size : BLOCKSIZE;
+            const Size blocksize = payload + 2 * WORDSIZE;
 
             // use the standard C malloc to allocate memory
             void* m = ::malloc(blocksize);
             if (!m)
             {
-                fprintf(stderr, "Failed to allocate memory.\n");
                 throw std::bad_alloc();
             }
 
             /* Fill first word of new block with pointer to previous block. */
-            static_cast<void**>(m)[0] = base;
-            base                      = m;
+            static_cast<void**>(m)[0] = base_;
+            base_                     = m;
 
-            Size shift = 0;
-            // int size_t = (WORDSIZE - ( (((size_t)m) + sizeof(void*)) &
-            // (WORDSIZE-1))) & (WORDSIZE-1);
-
-            remaining = blocksize - sizeof(void*) - shift;
-            loc       = (static_cast<char*>(m) + sizeof(void*) + shift);
+            /* Round the first usable byte (just past the prev-block pointer) up
+               to a WORDSIZE boundary so every returned chunk is WORDSIZE-aligned. */
+            const std::uintptr_t raw = reinterpret_cast<std::uintptr_t>(m) + sizeof(void*);
+            const std::uintptr_t aligned =
+                (raw + (WORDSIZE - 1)) & ~static_cast<std::uintptr_t>(WORDSIZE - 1);
+            loc_ = reinterpret_cast<void*>(aligned);
+            remaining_ =
+                blocksize - static_cast<Size>(aligned - reinterpret_cast<std::uintptr_t>(m));
         }
-        void* rloc = loc;
-        loc        = static_cast<char*>(loc) + size;
-        remaining -= size;
+        void* rloc = loc_;
+        loc_       = static_cast<char*>(loc_) + size;
+        remaining_ -= size;
 
         usedMemory += size;
 
@@ -827,8 +1485,47 @@ class PooledAllocator
     template <typename T>
     T* allocate(const size_t count = 1)
     {
-        T* mem = static_cast<T*>(this->malloc(sizeof(T) * count));
+        T* mem = static_cast<T*>(this->allocateBytes(sizeof(T) * count));
         return mem;
+    }
+
+    /**
+     * Splices \a other's chain of allocated memory blocks onto this pool's
+     * chain, transferring ownership. After this call \a other owns no blocks
+     * and is safe to let go out of scope (its destructor will be a no-op with
+     * respect to memory freeing).
+     *
+     * Cost is one walk of \a other's block chain to reach its tail, i.e.
+     * O(number of blocks in \a other), with no per-allocation or per-byte work.
+     *
+     * \note This pool keeps allocating from its own active block, so the
+     *  unused tail of \a other's active block becomes unreachable and is
+     *  accounted as wasted memory. Splicing N pools therefore costs up to N
+     *  partially-filled blocks of overhead versus allocating everything from a
+     *  single pool.
+     */
+    void adopt(PooledAllocator& other)
+    {
+        if (other.base_ == nullptr) return;
+
+        void* tail = other.base_;
+        while (*static_cast<void**>(tail) != nullptr)
+        {
+            tail = *static_cast<void**>(tail);
+        }
+        *static_cast<void**>(tail) = base_;
+        base_                      = other.base_;
+
+        usedMemory += other.usedMemory;
+        // `other.remaining_` bytes in its active block become unreachable
+        // once `other.loc_`/`other.remaining_` are reset below.
+        wastedMemory += other.wastedMemory + other.remaining_;
+
+        other.base_        = nullptr;
+        other.remaining_   = 0;
+        other.loc_         = nullptr;
+        other.usedMemory   = 0;
+        other.wastedMemory = 0;
     }
 };
 /** @} */
@@ -836,19 +1533,87 @@ class PooledAllocator
 /** @addtogroup nanoflann_metaprog_grp Auxiliary metaprogramming stuff
  * @{ */
 
+/** std::allocator whose value-less construct() default-initializes instead of
+ *  value-initializing: for a trivial T, `v.emplace_back()` then reserves the
+ *  slot without writing to it, like a pool allocator would. */
+template <typename T, typename A = std::allocator<T>>
+class default_init_allocator : public A
+{
+   public:
+    using A::A;
+    template <typename U>
+    struct rebind
+    {
+        using other =
+            default_init_allocator<U, typename std::allocator_traits<A>::template rebind_alloc<U>>;
+    };
+    template <typename U>
+    void construct(U* p) noexcept(std::is_nothrow_default_constructible<U>::value)
+    {
+        ::new (static_cast<void*>(p)) U;
+    }
+    template <typename U, typename... Args>
+    void construct(U* p, Args&&... args)
+    {
+        std::allocator_traits<A>::construct(static_cast<A&>(*this), p, std::forward<Args>(args)...);
+    }
+
+#if !defined(__cpp_aligned_new)
+    // Before C++17, std::allocator ignores alignments beyond that of
+    // max_align_t (e.g. NANOFLANN_NODE_ALIGNMENT=32/64), so over-aligned types
+    // are over-allocated and aligned by hand, keeping the malloc() pointer
+    // right before the returned block.
+    using value_type                     = typename std::allocator_traits<A>::value_type;
+    static constexpr size_t kAlign       = alignof(value_type);
+    static constexpr bool   kOverAligned = kAlign > alignof(std::max_align_t);
+
+    value_type* allocate(const size_t n)
+    {
+        if (!kOverAligned)
+        {
+            return std::allocator_traits<A>::allocate(static_cast<A&>(*this), n);
+        }
+        if (n > (std::numeric_limits<size_t>::max() - kAlign - sizeof(void*)) / sizeof(value_type))
+        {
+            throw std::bad_alloc();
+        }
+        void* raw = ::malloc(n * sizeof(value_type) + kAlign + sizeof(void*));
+        if (!raw)
+        {
+            throw std::bad_alloc();
+        }
+        const std::uintptr_t p =
+            (reinterpret_cast<std::uintptr_t>(raw) + sizeof(void*) + kAlign - 1) &
+            ~static_cast<std::uintptr_t>(kAlign - 1);
+        reinterpret_cast<void**>(p)[-1] = raw;
+        return reinterpret_cast<value_type*>(p);
+    }
+
+    void deallocate(value_type* p, const size_t n) noexcept
+    {
+        if (!kOverAligned)
+        {
+            std::allocator_traits<A>::deallocate(static_cast<A&>(*this), p, n);
+            return;
+        }
+        ::free(reinterpret_cast<void**>(p)[-1]);
+    }
+#endif
+};
+
 /** Used to declare fixed-size arrays when DIM>0, dynamically-allocated vectors
  * when DIM=-1. Fixed size version for a generic DIM:
  */
 template <int32_t DIM, typename T>
-struct array_or_vector_selector
+struct array_or_vector
 {
-    using container_t = std::array<T, DIM>;
+    using type = std::array<T, DIM>;
 };
 /** Dynamic size version */
 template <typename T>
-struct array_or_vector_selector<-1, T>
+struct array_or_vector<-1, T>
 {
-    using container_t = std::vector<T>;
+    using type = std::vector<T>;
 };
 
 /** @} */
@@ -859,15 +1624,17 @@ struct array_or_vector_selector<-1, T>
  * and KDTreeSingleIndexDynamicAdaptor_.
  *
  * \tparam Derived The name of the class which inherits this class.
- * \tparam DatasetAdaptor The user-provided adaptor (see comments above).
+ * \tparam DatasetAdaptor The user-provided adaptor, which must be ensured to
+ *         have a lifetime equal or longer than the instance of this class.
  * \tparam Distance The distance metric to use, these are all classes derived
- * from nanoflann::Metric \tparam DIM Dimensionality of data points (e.g. 3 for
- * 3D points) \tparam AccessorType Will be typically size_t or int
+ * from nanoflann::Metric
+ * \tparam DIM Dimensionality of data points (e.g. 3 for 3D points)
+ * \tparam IndexType Type of the arguments with which the data can be
+ * accessed (e.g. float, double, int64_t, T*)
  */
-
 template <
     class Derived, typename Distance, class DatasetAdaptor, int32_t DIM = -1,
-    typename AccessorType = uint32_t>
+    typename index_t = uint32_t>
 class KDTreeBaseClass
 {
    public:
@@ -875,26 +1642,51 @@ class KDTreeBaseClass
      * buildIndex(). */
     void freeIndex(Derived& obj)
     {
-        obj.pool.free_all();
-        obj.root_node             = nullptr;
-        obj.m_size_at_index_build = 0;
+        NodeArray().swap(obj.nodes_);  // releases the memory, unlike clear()
+        obj.size_at_index_build_ = 0;
     }
 
     using ElementType  = typename Distance::ElementType;
     using DistanceType = typename Distance::DistanceType;
+    using IndexType    = index_t;
 
     /**
-     *  Array of indices to vectors in the dataset.
+     *  Array of indices to vectors in the dataset_.
      */
-    std::vector<AccessorType> vAcc;
+    std::vector<IndexType> vAcc_;
 
-    using Offset    = typename decltype(vAcc)::size_type;
-    using Size      = typename decltype(vAcc)::size_type;
+    using Offset    = typename decltype(vAcc_)::size_type;
+    using Size      = typename decltype(vAcc_)::size_type;
     using Dimension = int32_t;
 
-    /*--------------------- Internal Data Structures
-     * --------------------------*/
-    struct Node
+    /*-------------------------------------------------------------------
+     * Internal Data Structures
+     *
+     * The tree is stored as one contiguous NodeArray in depth-first
+     * pre-order: the left child of a node is always the node right after it,
+     * and its right child is `child2` positions after it (0 marks a leaf).
+     * Relative offsets instead of pointers make the array position
+     * independent, so it can be copied, moved and saved as a whole, and a
+     * subtree built into a private vector by a concurrent build task is
+     * spliced into its parent's array with a plain memmove.
+     *
+     * "Node" below can be declared with alignas(N) to improve
+     * cache friendliness and SIMD load/store performance.
+     *
+     * The optimal N depends on the underlying hardware:
+     *  + Intel x86-64: 16 for SSE, 32 for AVX/AVX2 and 64 for AVX-512
+     *  + NVIDIA Jetson: 16 for ARM + NEON and CUDA float4/
+     *  To avoid unnecessary padding, the smallest alignment
+     *  compatible with a platform's vector width should be chosen.
+     * ------------------------------------------------------------------*/
+    /** Unsigned integer used for positions in vAcc_ and for node offsets. It is
+     *  as wide as IndexType (at least 32 bits): an index type that addresses N
+     *  points also addresses the N positions of vAcc_ and, as checked by
+     *  buildIndex(), the at most 2N-1 nodes of the tree. Keeping it narrow is
+     *  what makes a Node 16 bytes for float coordinates. */
+    using NodeIndex = typename std::conditional<(sizeof(IndexType) <= 4), uint32_t, uint64_t>::type;
+
+    struct alignas(NANOFLANN_NODE_ALIGNMENT) Node
     {
         /** Union used because a node can be either a LEAF node or a non-leaf
          * node, so both data fields are never used simultaneously */
@@ -902,259 +1694,810 @@ class KDTreeBaseClass
         {
             struct leaf
             {
-                Offset left, right;  //!< Indices of points in leaf node
+                NodeIndex left, right;  //!< Indices of points in leaf node
             } lr;
             struct nonleaf
             {
-                Dimension    divfeat;  //!< Dimension used for subdivision.
-                DistanceType divlow,
-                    divhigh;  //!< The values used for subdivision.
+                Dimension divfeat;  //!< Dimension used for subdivision.
+                /// The values used for subdivision.
+                DistanceType divlow, divhigh;
             } sub;
         } node_type;
-        /** Child nodes (both=nullptr mean its a leaf node) */
-        Node *child1, *child2;
+
+        /** Offset from this node to its right child; 0 means this is a leaf
+         *  node. The left child, when there is one, is always the next node.
+         *  Deliberately left uninitialized: the builders always write it. */
+        NodeIndex child2;
+
+        NANOFLANN_NODISCARD bool isLeaf() const noexcept { return child2 == 0; }
     };
 
-    using NodePtr = Node*;
+    using NodePtr      = Node*;
+    using NodeConstPtr = const Node*;
+    /** The node storage: a vector that does not initialize new nodes. */
+    using NodeArray = std::vector<Node, default_init_allocator<Node>>;
 
     struct Interval
     {
         ElementType low, high;
     };
 
-    NodePtr root_node;
+    Size leaf_max_size_ = 0;
 
-    Size m_leaf_max_size;
-
-    Size m_size;  //!< Number of current points in the dataset
-    Size m_size_at_index_build;  //!< Number of points in the dataset when the
-                                 //!< index was built
-    Dimension dim;  //!< Dimensionality of each data point
+    /// Number of thread for concurrent tree build
+    Size n_thread_build_ = 1;
+    /// Number of current points in the dataset
+    Size size_ = 0;
+    /// Number of points in the dataset when the index was built
+    Size      size_at_index_build_ = 0;
+    Dimension dim_                 = 0;  //!< Dimensionality of each data point
 
     /** Define "BoundingBox" as a fixed-size or variable-size container
      * depending on "DIM" */
-    using BoundingBox =
-        typename array_or_vector_selector<DIM, Interval>::container_t;
+    using BoundingBox = typename array_or_vector<DIM, Interval>::type;
 
     /** Define "distance_vector_t" as a fixed-size or variable-size container
      * depending on "DIM" */
-    using distance_vector_t =
-        typename array_or_vector_selector<DIM, DistanceType>::container_t;
+    using distance_vector_t = typename array_or_vector<DIM, DistanceType>::type;
 
-    /** The KD-tree used to find neighbours */
-
-    BoundingBox root_bbox;
+    /** The KD-tree used to find neighbors */
+    BoundingBox root_bbox_;
 
     /**
-     * Pooled memory allocator.
-     *
-     * Using a pooled memory allocator is more efficient
-     * than allocating memory directly when there is a large
-     * number small of memory allocations.
+     * All the nodes of the tree in depth-first pre-order, the root at index 0.
+     * Empty until the index is built. See Node for the layout.
      */
-    PooledAllocator pool;
+    NodeArray nodes_;
 
     /** Returns number of points in dataset  */
-    Size size(const Derived& obj) const { return obj.m_size; }
+    NANOFLANN_NODISCARD Size size(const Derived& obj) const noexcept { return obj.size_; }
 
-    /** Returns the length of each point in the dataset */
-    Size veclen(const Derived& obj) { return DIM > 0 ? DIM : obj.dim; }
+    /** Returns the length of each point in the dataset.
+     *  For a fixed-size tree (DIM > 0) this is a compile-time constant; under
+     *  C++17 the `if constexpr` lets the compiler drop the runtime read of
+     *  `dim_` entirely. The C++11 path keeps the equivalent ternary. */
+    NANOFLANN_NODISCARD Size veclen(const Derived& obj) const noexcept
+    {
+#if defined(__cpp_if_constexpr) && __cpp_if_constexpr >= 201606L
+        if constexpr (DIM > 0)
+        {
+            return DIM;
+        }
+        else
+        {
+            return obj.dim_;
+        }
+#else
+        return DIM > 0 ? DIM : obj.dim_;
+#endif
+    }
 
     /// Helper accessor to the dataset points:
-    inline ElementType dataset_get(
-        const Derived& obj, AccessorType element, Dimension component) const
+    ElementType dataset_get(const Derived& obj, IndexType element, Dimension component) const
     {
-        return obj.dataset.kdtree_get_pt(element, component);
+        return obj.dataset_.kdtree_get_pt(element, component);
     }
 
     /**
-     * Computes the inde memory usage
+     * Computes the index memory usage
      * Returns: memory used by the index
      */
-    Size usedMemory(Derived& obj)
+    NANOFLANN_NODISCARD Size usedMemory(const Derived& obj) const
     {
-        return obj.pool.usedMemory + obj.pool.wastedMemory +
-               obj.dataset.kdtree_get_point_count() *
-                   sizeof(AccessorType);  // pool memory and vind array memory
+        return obj.nodes_.capacity() * sizeof(Node) +
+               obj.dataset_.kdtree_get_point_count() *
+                   sizeof(IndexType);  // node array and vind array memory
     }
 
+    /**
+     * Compute the minimum and maximum element values in the specified dimension
+     */
     void computeMinMax(
-        const Derived& obj, Offset ind, Size count, Dimension element,
-        ElementType& min_elem, ElementType& max_elem)
+        const Derived& obj, Offset ind, Size count, Dimension element, ElementType& min_elem,
+        ElementType& max_elem) const
     {
-        min_elem = dataset_get(obj, vAcc[ind], element);
+        min_elem = dataset_get(obj, vAcc_[ind], element);
         max_elem = min_elem;
         for (Offset i = 1; i < count; ++i)
         {
-            ElementType val = dataset_get(obj, vAcc[ind + i], element);
+            ElementType val = dataset_get(obj, vAcc_[ind + i], element);
             if (val < min_elem) min_elem = val;
             if (val > max_elem) max_elem = val;
         }
     }
 
-    /**
-     * Create a tree node that subdivides the list of vecs from vind[first]
-     * to vind[last].  The routine is called recursively on each sublist.
-     *
-     * @param left index of the first vector
-     * @param right index of the last vector
-     */
-    NodePtr divideTree(
-        Derived& obj, const Offset left, const Offset right, BoundingBox& bbox)
+    /** Returns true if the point at index idx should be visited during search.
+     *  The static adaptor always returns true; the dynamic adaptor overrides
+     *  this to skip tombstoned (removed) points. */
+    NANOFLANN_NODISCARD bool isActive(IndexType /*idx*/) const { return true; }
+
+    /** Computes the bounding box of the points currently in the index.
+     *  Uses size_ (set by buildIndex before this is called) so the result is
+     *  correct for both the static and dynamic adaptors. */
+    void computeBoundingBox(BoundingBox& bbox)
     {
-        NodePtr node = obj.pool.template allocate<Node>();  // allocate memory
+        Derived&        obj  = static_cast<Derived&>(*this);
+        const Dimension dims = static_cast<Dimension>(veclen(obj));
+        resize(bbox, dims);
+        if (obj.dataset_.kdtree_get_bbox(bbox)) return;
+        if (!size_)
+            throw std::runtime_error(
+                "[nanoflann] computeBoundingBox() called but "
+                "no data points found.");
+        for (Dimension i = 0; i < dims; ++i)
+            bbox[i].low = bbox[i].high = dataset_get(obj, vAcc_[0], i);
+        for (Offset k = 1; k < size_; ++k)
+            for (Dimension i = 0; i < dims; ++i)
+            {
+                const auto val = dataset_get(obj, vAcc_[k], i);
+                if (val < bbox[i].low) bbox[i].low = val;
+                if (val > bbox[i].high) bbox[i].high = val;
+            }
+    }
+
+    /**
+     * Performs an exact search in the tree starting from a node.
+     * Uses the CRTP-dispatched isActive() hook to skip removed points (no-op
+     * in the static adaptor, checks treeIndex_ in the dynamic adaptor).
+     * \tparam RESULTSET Should be any ResultSet<DistanceType>
+     * \return true if the search should be continued, false if the results are
+     * sufficient
+     */
+    template <class RESULTSET>
+    bool searchLevel(
+        RESULTSET& result_set, const ElementType* vec, const NodeConstPtr node,
+        DistanceType mindist, distance_vector_t& dists, const DistanceType epsError) const
+    {
+        const Derived& obj = static_cast<const Derived&>(*this);
+        // If this is a leaf node, then do check and return.
+        if (node->isLeaf())
+        {
+            // Hoist the point length out of the per-point loop. For a
+            // fixed-size tree (DIM > 0) this is a compile-time constant; for a
+            // runtime dimension it avoids re-reading obj.dim_ on every point.
+            const Size dim = veclen(obj);
+            for (Offset i = node->node_type.lr.left; i < node->node_type.lr.right; ++i)
+            {
+                const IndexType accessor = vAcc_[i];
+                if (!obj.isActive(accessor)) continue;
+                DistanceType dist = obj.distance_.evalMetric(vec, accessor, dim);
+                if (dist < result_set.worstDist())
+                {
+                    if (!result_set.addPoint(
+                            static_cast<typename RESULTSET::DistanceType>(dist),
+                            static_cast<typename RESULTSET::IndexType>(accessor)))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        /* Which child branch should be taken first? */
+        Dimension    idx   = node->node_type.sub.divfeat;
+        ElementType  val   = vec[idx];
+        DistanceType diff1 = detail::diff_as<DistanceType>(val, node->node_type.sub.divlow);
+        DistanceType diff2 = detail::diff_as<DistanceType>(val, node->node_type.sub.divhigh);
+
+        const NodeConstPtr child1 = node + 1;
+        const NodeConstPtr child2 = node + node->child2;
+#if defined(__GNUC__) || defined(__clang__)
+        // The left child is the next node, likely already in cache; the right
+        // one is far away in the array, fetch it while the distances are
+        // computed.
+        __builtin_prefetch(child2);
+#endif
+        NodeConstPtr bestChild;
+        NodeConstPtr otherChild;
+        DistanceType cut_dist;
+        if ((diff1 + diff2) < 0)
+        {
+            bestChild  = child1;
+            otherChild = child2;
+            cut_dist   = obj.distance_.accum_dist(val, node->node_type.sub.divhigh, idx);
+        }
+        else
+        {
+            bestChild  = child2;
+            otherChild = child1;
+            cut_dist   = obj.distance_.accum_dist(val, node->node_type.sub.divlow, idx);
+        }
+
+        /* Call recursively to search next level down. */
+        if (!searchLevel(result_set, vec, bestChild, mindist, dists, epsError)) return false;
+
+        DistanceType dst = dists[idx];
+        mindist          = mindist + cut_dist - dst;
+        dists[idx]       = cut_dist;
+        if (mindist * epsError <= result_set.worstDist())
+        {
+            if (!searchLevel(result_set, vec, otherChild, mindist, dists, epsError)) return false;
+        }
+        dists[idx] = dst;
+        return true;
+    }
+
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+    /**
+     * Exact search variant for product-manifold metrics. Identical in structure
+     * to searchLevel(), but it carries the running per-coordinate node region
+     * `region` down the recursion so that the far-child contribution can be the
+     * topology-aware point-to-interval lower bound against the *full* child
+     * interval (both edges). This is required for correctness on a circle, where
+     * the single near-edge cut value used by the Euclidean path can overestimate
+     * the distance to a far child that wraps around +/-pi (over-pruning the true
+     * neighbor). For linear coordinates the bound coincides exactly with the
+     * Euclidean accum_dist(val, cutedge), so the descent behavior is unchanged.
+     */
+    template <class RESULTSET>
+    bool searchLevelManifold(
+        RESULTSET& result_set, const ElementType* vec, const NodeConstPtr node,
+        DistanceType mindist, distance_vector_t& dists, BoundingBox& region,
+        const DistanceType epsError) const
+    {
+        const Derived& obj = static_cast<const Derived&>(*this);
+        if (node->isLeaf())
+        {
+            const Size dim = veclen(obj);
+            for (Offset i = node->node_type.lr.left; i < node->node_type.lr.right; ++i)
+            {
+                const IndexType accessor = vAcc_[i];
+                if (!obj.isActive(accessor)) continue;
+                DistanceType dist = obj.distance_.evalMetric(vec, accessor, dim);
+                if (dist < result_set.worstDist())
+                {
+                    if (!result_set.addPoint(
+                            static_cast<typename RESULTSET::DistanceType>(dist),
+                            static_cast<typename RESULTSET::IndexType>(accessor)))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        const Dimension   idx     = node->node_type.sub.divfeat;
+        const ElementType val     = vec[idx];
+        const ElementType divlow  = node->node_type.sub.divlow;
+        const ElementType divhigh = node->node_type.sub.divhigh;
+
+        const NodeConstPtr child1 = node + 1;
+        const NodeConstPtr child2 = node + node->child2;
+#if defined(__GNUC__) || defined(__clang__)
+        // See searchLevel(): the right child is far away in the array.
+        __builtin_prefetch(child2);
+#endif
+
+        // Per-coordinate intervals of the two children (the parent interval split
+        // at the gap [divlow, divhigh]).
+        const Interval cur   = region[idx];
+        const Interval loReg = {cur.low, divlow};
+        const Interval hiReg = {divhigh, cur.high};
+
+        // Choose the child whose region is closer to the query coordinate.
+        const DistanceType dLo = obj.distance_.pointToIntervalDist(val, loReg.low, loReg.high, idx);
+        const DistanceType dHi = obj.distance_.pointToIntervalDist(val, hiReg.low, hiReg.high, idx);
+
+        NodeConstPtr bestChild;
+        NodeConstPtr otherChild;
+        Interval     nearReg;
+        Interval     farReg;
+        if (dLo <= dHi)
+        {
+            bestChild  = child1;
+            otherChild = child2;
+            nearReg    = loReg;
+            farReg     = hiReg;
+        }
+        else
+        {
+            bestChild  = child2;
+            otherChild = child1;
+            nearReg    = hiReg;
+            farReg     = loReg;
+        }
+
+        region[idx] = nearReg;
+        if (!searchLevelManifold(result_set, vec, bestChild, mindist, dists, region, epsError))
+            return false;
+
+        const DistanceType cut_dist =
+            obj.distance_.pointToIntervalDist(val, farReg.low, farReg.high, idx);
+        const DistanceType dst = dists[idx];
+        mindist                = mindist + cut_dist - dst;
+        dists[idx]             = cut_dist;
+        region[idx]            = farReg;
+
+        // For spaces with SO(3) blocks, tighten the prune test by replacing the
+        // (loose) sum of per-coordinate antipodal minima with the block-level
+        // chordal bound min(dist(q, Box4), dist(-q, Box4)). This is admissible
+        // and >= the loose bound, so it prunes more without ever missing a true
+        // neighbor. The recursion keeps carrying the loose `mindist`; each deeper
+        // node re-tightens its own gate.
+        DistanceType gateMindist = mindist;
+        if constexpr (std::decay_t<decltype(obj.distance_)>::hasQuaternionBlock)
+        {
+            gateMindist += obj.distance_.quaternionBlockTightening(vec, region, dists, veclen(obj));
+        }
+        if (gateMindist * epsError <= result_set.worstDist())
+        {
+            if (!searchLevelManifold(result_set, vec, otherChild, mindist, dists, region, epsError))
+                return false;
+        }
+        dists[idx]  = dst;
+        region[idx] = cur;
+        return true;
+    }
+#endif  // NANOFLANN_HAS_MANIFOLDS
+
+    /**
+     * Initialize a freshly-allocated node while building the tree: either turn
+     * it into a leaf node (computing the leaf bounding-box) or compute the
+     * split plane for an interior node. Shared by the sequential and concurrent
+     * builders, which differ only in how they recurse.
+     *
+     * @return true if the node became a leaf (no further recursion needed),
+     *         false if it is an interior node and \a idx / \a cutfeat / \a cutval
+     *         describe the split plane.
+     */
+    bool makeNode(
+        Derived& obj, NodePtr node, const Offset left, const Offset right, BoundingBox& bbox,
+        Offset& idx, Dimension& cutfeat, DistanceType& cutval)
+    {
+        const Dimension dims = static_cast<Dimension>(veclen(obj));
 
         /* If too few exemplars remain, then make this a leaf node. */
-        if ((right - left) <= static_cast<Offset>(obj.m_leaf_max_size))
+        if ((right - left) <= static_cast<Offset>(obj.leaf_max_size_))
         {
-            node->child1 = node->child2 = nullptr; /* Mark as leaf node. */
-            node->node_type.lr.left     = left;
-            node->node_type.lr.right    = right;
+            node->child2             = 0; /* Mark as leaf node. */
+            node->node_type.lr.left  = static_cast<NodeIndex>(left);
+            node->node_type.lr.right = static_cast<NodeIndex>(right);
 
             // compute bounding-box of leaf points
-            for (Dimension i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i)
+            for (Dimension i = 0; i < dims; ++i)
             {
-                bbox[i].low  = dataset_get(obj, obj.vAcc[left], i);
-                bbox[i].high = dataset_get(obj, obj.vAcc[left], i);
+                bbox[i].low  = dataset_get(obj, obj.vAcc_[left], i);
+                bbox[i].high = dataset_get(obj, obj.vAcc_[left], i);
             }
             for (Offset k = left + 1; k < right; ++k)
             {
-                for (Dimension i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i)
+                for (Dimension i = 0; i < dims; ++i)
                 {
-                    if (bbox[i].low > dataset_get(obj, obj.vAcc[k], i))
-                        bbox[i].low = dataset_get(obj, obj.vAcc[k], i);
-                    if (bbox[i].high < dataset_get(obj, obj.vAcc[k], i))
-                        bbox[i].high = dataset_get(obj, obj.vAcc[k], i);
+                    const auto val = dataset_get(obj, obj.vAcc_[k], i);
+                    if (bbox[i].low > val) bbox[i].low = val;
+                    if (bbox[i].high < val) bbox[i].high = val;
                 }
             }
-        }
-        else
-        {
-            Offset       idx;
-            Dimension    cutfeat;
-            DistanceType cutval;
-            middleSplit_(obj, left, right - left, idx, cutfeat, cutval, bbox);
-
-            node->node_type.sub.divfeat = cutfeat;
-
-            BoundingBox left_bbox(bbox);
-            left_bbox[cutfeat].high = cutval;
-            node->child1 = divideTree(obj, left, left + idx, left_bbox);
-
-            BoundingBox right_bbox(bbox);
-            right_bbox[cutfeat].low = cutval;
-            node->child2 = divideTree(obj, left + idx, right, right_bbox);
-
-            node->node_type.sub.divlow  = left_bbox[cutfeat].high;
-            node->node_type.sub.divhigh = right_bbox[cutfeat].low;
-
-            for (Dimension i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i)
-            {
-                bbox[i].low  = std::min(left_bbox[i].low, right_bbox[i].low);
-                bbox[i].high = std::max(left_bbox[i].high, right_bbox[i].high);
-            }
+            return true;
         }
 
-        return node;
-    }
-
-    void middleSplit_(
-        Derived& obj, Offset ind, Size count, Offset& index, Dimension& cutfeat,
-        DistanceType& cutval, const BoundingBox& bbox)
-    {
-        const auto  EPS      = static_cast<DistanceType>(0.00001);
-        ElementType max_span = bbox[0].high - bbox[0].low;
-        for (Dimension i = 1; i < (DIM > 0 ? DIM : obj.dim); ++i)
-        {
-            ElementType span = bbox[i].high - bbox[i].low;
-            if (span > max_span) { max_span = span; }
-        }
-        ElementType max_spread = -1;
-        cutfeat                = 0;
-        for (Dimension i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i)
-        {
-            ElementType span = bbox[i].high - bbox[i].low;
-            if (span > (1 - EPS) * max_span)
-            {
-                ElementType min_elem, max_elem;
-                computeMinMax(obj, ind, count, i, min_elem, max_elem);
-                ElementType spread = max_elem - min_elem;
-                if (spread > max_spread)
-                {
-                    cutfeat    = i;
-                    max_spread = spread;
-                }
-            }
-        }
-        // split in the middle
-        DistanceType split_val = (bbox[cutfeat].low + bbox[cutfeat].high) / 2;
-        ElementType  min_elem, max_elem;
-        computeMinMax(obj, ind, count, cutfeat, min_elem, max_elem);
-
-        if (split_val < min_elem)
-            cutval = min_elem;
-        else if (split_val > max_elem)
-            cutval = max_elem;
-        else
-            cutval = split_val;
-
-        Offset lim1, lim2;
-        planeSplit(obj, ind, count, cutfeat, cutval, lim1, lim2);
-
-        if (lim1 > count / 2)
-            index = lim1;
-        else if (lim2 < count / 2)
-            index = lim2;
-        else
-            index = count / 2;
+        /* Determine the index, dimension and value for split plane */
+        middleSplit_(obj, left, right - left, idx, cutfeat, cutval, bbox);
+        node->node_type.sub.divfeat = cutfeat;
+        return false;
     }
 
     /**
-     *  Subdivide the list of points by a plane perpendicular on axe
+     * After both children of an interior node have been built, record the split
+     * planes and expand \a bbox to the union of the children bounding-boxes.
+     * Shared by the sequential and concurrent builders.
+     */
+    void finalizeSplitNode(
+        Derived& obj, NodePtr node, const Dimension cutfeat, const BoundingBox& left_bbox,
+        const BoundingBox& right_bbox, BoundingBox& bbox)
+    {
+        node->node_type.sub.divlow  = static_cast<DistanceType>(left_bbox[cutfeat].high);
+        node->node_type.sub.divhigh = static_cast<DistanceType>(right_bbox[cutfeat].low);
+
+        const Dimension dims = static_cast<Dimension>(veclen(obj));
+        for (Dimension i = 0; i < dims; ++i)
+        {
+            bbox[i].low  = std::min(left_bbox[i].low, right_bbox[i].low);
+            bbox[i].high = std::max(left_bbox[i].high, right_bbox[i].high);
+        }
+    }
+
+    /**
+     * Appends to \a nodes the subtree over the points vAcc_[left, right) and
+     * returns the position of its root. The left child is built first, so it
+     * always lands right after its parent; only the right child needs an offset.
+     *
+     * \a nodes may reallocate while the children are being built, so a Node
+     * pointer or reference is never kept across a recursive call.
+     */
+    NodeIndex divideTree(
+        Derived& obj, const Offset left, const Offset right, BoundingBox& bbox, NodeArray& nodes)
+    {
+        assert(static_cast<Size>(obj.vAcc_.at(left)) < obj.dataset_.kdtree_get_point_count());
+
+        const NodeIndex node_idx = static_cast<NodeIndex>(nodes.size());
+        nodes.emplace_back();
+        Offset       idx;
+        Dimension    cutfeat;
+        DistanceType cutval;
+        if (makeNode(obj, &nodes[node_idx], left, right, bbox, idx, cutfeat, cutval))
+            return node_idx;
+
+        /* Recurse on left: lands at node_idx + 1 */
+        BoundingBox left_bbox(bbox);
+        left_bbox[cutfeat].high = static_cast<ElementType>(cutval);
+        this->divideTree(obj, left, left + idx, left_bbox, nodes);
+
+        /* Recurse on right: lands at the current end of the array */
+        BoundingBox right_bbox(bbox);
+        right_bbox[cutfeat].low   = static_cast<ElementType>(cutval);
+        const NodeIndex right_idx = this->divideTree(obj, left + idx, right, right_bbox, nodes);
+
+        const NodePtr node = &nodes[node_idx];  // re-fetch: the array may have grown
+        node->child2       = right_idx - node_idx;
+        finalizeSplitNode(obj, node, cutfeat, left_bbox, right_bbox, bbox);
+
+        return node_idx;
+    }
+
+    /**
+     * Number of nodes to reserve for a tree over \a n_points points. Trees hold
+     * about 2.9 (uniform data) to 3.7 (LiDAR scans) nodes per leaf_max_size_
+     * points: over-reserving only costs never-touched capacity, while
+     * under-reserving costs one reallocation of the array during the build.
+     */
+    NANOFLANN_NODISCARD Size estimateNodeCount(const Size n_points) const noexcept
+    {
+        // A tree never has more than 2N-1 nodes (reached for leaf_max_size_=1).
+        return std::min<Size>(2 * n_points, 4 * (n_points / std::max<Size>(leaf_max_size_, 1)) + 8);
+    }
+
+    /**
+     * Shared tail of buildIndex(): (re)builds nodes_ over vAcc_[0, size_), with
+     * one thread or with n_thread_build_ threads.
+     */
+    void buildTree(Derived& obj)
+    {
+        // Node offsets and vAcc_ positions are stored as NodeIndex, see Node.
+        if (obj.size_ > static_cast<Size>(std::numeric_limits<NodeIndex>::max() / 2))
+        {
+            throw std::runtime_error(
+                "[nanoflann] buildIndex(): too many points for this IndexType, "
+                "use a wider one (e.g. uint64_t).");
+        }
+        this->computeBoundingBox(obj.root_bbox_);
+        // Build into a local vector object that borrows nodes_'s buffer, so that
+        // the building thread's per-node updates of the vector's end pointer do
+        // not dirty a cache line of this object, whose other members (vAcc_,
+        // leaf_max_size_, ...) all build threads keep reading.
+        NodeArray nodes;
+        nodes.swap(obj.nodes_);
+        // No-op when the array is already large enough, e.g. on a rebuild.
+        nodes.reserve(estimateNodeCount(obj.size_));
+        if (obj.n_thread_build_ == 1)
+        {
+            this->divideTree(obj, 0, obj.size_, obj.root_bbox_, nodes);
+        }
+        else
+        {
+#ifndef NANOFLANN_NO_THREADS
+            std::atomic<int> tasks_in_flight(0);
+            this->divideTreeConcurrent(obj, 0, obj.size_, obj.root_bbox_, nodes, tasks_in_flight);
+#else /* NANOFLANN_NO_THREADS */
+            throw std::runtime_error("Multithreading is disabled");
+#endif /* NANOFLANN_NO_THREADS */
+        }
+        obj.nodes_.swap(nodes);
+    }
+
+    /** Minimum number of points in the smaller child for it to be worth
+     *  handing to a std::async task, instead of recursing into it on the
+     *  calling thread. Below this, thread creation costs more than the
+     *  subtree it would build. */
+    static constexpr Offset kDivideConcurrentTaskCutoff = 512;
+
+    /**
+     * Concurrent version of divideTree(): appends to \a nodes the subtree over
+     * vAcc_[left, right), producing exactly the same node array as the
+     * sequential builder for any number of threads.
+     *
+     * Only the smaller of the two children (by point count) is ever spawned as
+     * a std::async task, and only once it exceeds kDivideConcurrentTaskCutoff
+     * points; when a task is spawned, the larger side is built meanwhile on the
+     * calling thread. A spawned task builds into a private vector that is
+     * spliced into \a nodes once its future is joined: appended after the left
+     * side when it is the right child, inserted right after the parent when it
+     * is the left child. Children are addressed by relative offsets, so the
+     * splice is a plain memmove with no fix-up, and the resulting array is the
+     * one the sequential builder produces.
+     *
+     * @param obj the derived index, whose point-index array gets reordered
+     * @param left index of the first vector
+     * @param right index of the last vector
+     * @param bbox bounding box used as input for splitting and output for
+     * parent node
+     * @param nodes array this call (and any non-spawned recursion below it)
+     * appends its nodes to
+     * @param tasks_in_flight count of currently spawned tasks, bounded by
+     * n_thread_build_
+     *
+     * @return the position in \a nodes of the root of the subtree covering
+     *  [left, right)
+     */
+    NodeIndex divideTreeConcurrent(
+        Derived& obj, const Offset left, const Offset right, BoundingBox& bbox, NodeArray& nodes,
+        std::atomic<int>& tasks_in_flight)
+    {
+        const NodeIndex node_idx = static_cast<NodeIndex>(nodes.size());
+        nodes.emplace_back();
+
+        Offset       idx;
+        Dimension    cutfeat;
+        DistanceType cutval;
+        if (makeNode(obj, &nodes[node_idx], left, right, bbox, idx, cutfeat, cutval))
+            return node_idx;
+
+        // `idx` from makeNode()/middleSplit_() is a COUNT relative to
+        // `left` (matching divideTree's own convention): the split point is
+        // `left + idx`, the left side has `idx` points, the right side has
+        // `right - (left + idx)` points.
+        const Offset split      = left + idx;
+        const Offset left_size  = idx;
+        const Offset right_size = right - split;
+
+        BoundingBox left_bbox(bbox);
+        left_bbox[cutfeat].high = static_cast<ElementType>(cutval);
+        BoundingBox right_bbox(bbox);
+        right_bbox[cutfeat].low = static_cast<ElementType>(cutval);
+
+        const bool   left_is_larger = left_size >= right_size;
+        const Offset smaller_size   = left_is_larger ? right_size : left_size;
+
+        bool spawned = false;
+        if (smaller_size > kDivideConcurrentTaskCutoff)
+        {
+            // tasks_in_flight is signed so an accounting bug surfaces as a
+            // visible negative value instead of wrapping to a huge unsigned
+            // count that would silently defeat this bound. `- 1` reserves a
+            // slot for the calling thread itself, so at most n_thread_build_
+            // threads (spawned tasks + caller) run concurrently.
+            int expected = tasks_in_flight.load(std::memory_order_relaxed);
+            while (expected < static_cast<int>(n_thread_build_ - 1))
+            {
+                if (tasks_in_flight.compare_exchange_weak(
+                        expected, expected + 1, std::memory_order_acq_rel))
+                {
+                    spawned = true;
+                    break;
+                }
+            }
+        }
+
+        // A spawned task builds into a vector it owns and hands back through the
+        // future, so that its per-node writes never touch this thread's stack
+        // frame (false sharing). If anything below throws, `~future` still
+        // joins the task before this frame goes away.
+        std::future<NodeArray> spawned_future;
+        const auto             spawnTask =
+            [this, &obj, &tasks_in_flight](const Offset a, const Offset b, BoundingBox& box)
+        {
+            return std::async(
+                std::launch::async,
+                [this, &obj, &tasks_in_flight, a, b, &box]()
+                {
+                    NodeArray v;
+                    v.reserve(estimateNodeCount(b - a));
+                    this->divideTreeConcurrent(obj, a, b, box, v, tasks_in_flight);
+                    return v;
+                });
+        };
+
+        // With a spawned task, this thread builds the LARGER side meanwhile.
+        // Without one, both sides are built here in array order (left first),
+        // so that no memmove is needed: moving the already-built right side to
+        // make room for the left one costs, over all levels, several times the
+        // size of the whole node array.
+        NodeIndex right_idx;
+        if (left_is_larger)
+        {
+            /* The smaller RIGHT side goes after the left one, so it is built
+             * straight at the end of the array: here, or by a task. */
+            if (spawned) spawned_future = spawnTask(split, right, right_bbox);
+
+            this->divideTreeConcurrent(obj, left, split, left_bbox, nodes, tasks_in_flight);
+
+            right_idx = static_cast<NodeIndex>(nodes.size());
+            if (spawned)
+            {
+                const NodeArray right_nodes = spawned_future.get();
+                tasks_in_flight.fetch_sub(1, std::memory_order_acq_rel);
+                nodes.insert(nodes.end(), right_nodes.begin(), right_nodes.end());
+            }
+            else
+            {
+                this->divideTreeConcurrent(obj, split, right, right_bbox, nodes, tasks_in_flight);
+            }
+        }
+        else if (!spawned)
+        {
+            /* No task: build in array order. */
+            this->divideTreeConcurrent(obj, left, split, left_bbox, nodes, tasks_in_flight);
+            right_idx = static_cast<NodeIndex>(nodes.size());
+            this->divideTreeConcurrent(obj, split, right, right_bbox, nodes, tasks_in_flight);
+        }
+        else
+        {
+            /* The smaller LEFT side, spawned, must land at node_idx + 1 but is
+             * built concurrently with the right side, so it comes back in its
+             * own array and gets inserted before the right side. The right side
+             * only holds relative offsets, so shifting it needs no fix-up. */
+            spawned_future = spawnTask(left, split, left_bbox);
+
+            this->divideTreeConcurrent(obj, split, right, right_bbox, nodes, tasks_in_flight);
+
+            const NodeArray left_nodes = spawned_future.get();
+            tasks_in_flight.fetch_sub(1, std::memory_order_acq_rel);
+            nodes.insert(
+                nodes.begin() + static_cast<std::ptrdiff_t>(node_idx) + 1, left_nodes.begin(),
+                left_nodes.end());
+            right_idx = node_idx + 1 + static_cast<NodeIndex>(left_nodes.size());
+        }
+
+        const NodePtr node = &nodes[node_idx];  // re-fetch: the array may have grown
+        node->child2       = right_idx - node_idx;
+        finalizeSplitNode(obj, node, cutfeat, left_bbox, right_bbox, bbox);
+
+        return node_idx;
+    }
+
+    void middleSplit_(
+        const Derived& obj, const Offset ind, const Size count, Offset& index, Dimension& cutfeat,
+        DistanceType& cutval, const BoundingBox& bbox)
+    {
+        const Dimension dims = static_cast<Dimension>(veclen(obj));
+        const auto      EPS  = static_cast<DistanceType>(0.00001);
+
+        // Spans, spreads and the split value below are all computed in
+        // DistanceType, which detail::checked_distance_type guarantees to be
+        // signed: a difference of two ElementType coordinates wraps around for
+        // unsigned types, and overflows for signed ones as soon as the data
+        // spans most of the range of a narrow integer type.
+
+        // Pre-compute max_span once
+        DistanceType max_span = detail::diff_as<DistanceType>(bbox[0].high, bbox[0].low);
+        for (Dimension i = 1; i < dims; ++i)
+        {
+            const DistanceType span = detail::diff_as<DistanceType>(bbox[i].high, bbox[i].low);
+            if (span > max_span) max_span = span;
+        }
+
+        // Two-pass: first find max_span (done above), then scan candidate dims
+        // inline — no heap allocation for a candidates vector.
+        // Note: `max_spread` must not be seeded with a negative sentinel, which
+        // wraps around for unsigned types and is not even constructible for a
+        // user-defined scalar DistanceType. A flag for the first candidate keeps
+        // this selection type-agnostic.
+        cutfeat                       = 0;
+        bool               first      = true;
+        DistanceType       max_spread = DistanceType();
+        ElementType        min_elem = 0, max_elem = 0;
+        const DistanceType threshold = (1 - EPS) * max_span;
+
+        for (Dimension dim = 0; dim < dims; ++dim)
+        {
+            if (detail::diff_as<DistanceType>(bbox[dim].high, bbox[dim].low) < threshold) continue;
+
+            ElementType local_min = dataset_get(obj, vAcc_[ind], dim);
+            ElementType local_max = local_min;
+
+            // Unrolled loop for better performance
+            constexpr size_t UNROLL = 4;
+            Offset           k      = 1;
+            for (; k + UNROLL <= count; k += UNROLL)
+            {
+                ElementType v0 = dataset_get(obj, vAcc_[ind + k], dim);
+                ElementType v1 = dataset_get(obj, vAcc_[ind + k + 1], dim);
+                ElementType v2 = dataset_get(obj, vAcc_[ind + k + 2], dim);
+                ElementType v3 = dataset_get(obj, vAcc_[ind + k + 3], dim);
+
+                local_min = std::min({local_min, v0, v1, v2, v3});
+                local_max = std::max({local_max, v0, v1, v2, v3});
+            }
+
+            // Handle remainder
+            for (; k < count; ++k)
+            {
+                ElementType val = dataset_get(obj, vAcc_[ind + k], dim);
+                local_min       = std::min(local_min, val);
+                local_max       = std::max(local_max, val);
+            }
+
+            const DistanceType spread = detail::diff_as<DistanceType>(local_max, local_min);
+            if (first || spread > max_spread)
+            {
+                first      = false;
+                cutfeat    = dim;
+                max_spread = spread;
+                min_elem   = local_min;
+                max_elem   = local_max;
+            }
+        }
+
+        // Median-of-three for better balance. The midpoint is computed as
+        // `low + (high - low) / 2` rather than `(low + high) / 2`, since the
+        // latter overflows as soon as both coordinates are large.
+        const DistanceType lo = static_cast<DistanceType>(bbox[cutfeat].low);
+        const DistanceType hi = static_cast<DistanceType>(bbox[cutfeat].high);
+
+        DistanceType split_val = lo + (hi - lo) / 2;
+        if (split_val < static_cast<DistanceType>(min_elem))
+            split_val = static_cast<DistanceType>(min_elem);
+        if (split_val > static_cast<DistanceType>(max_elem))
+            split_val = static_cast<DistanceType>(max_elem);
+
+        cutval = split_val;
+
+        // Optimized partitioning
+        Offset lim1, lim2;
+        planeSplit(obj, ind, count, cutfeat, cutval, lim1, lim2);
+
+        index = (lim1 > count / 2) ? lim1 : (lim2 < count / 2) ? lim2 : count / 2;
+    }
+
+    /**
+     *  Subdivide the list of points by a plane perpendicular on the axis
      * corresponding to the 'cutfeat' dimension at 'cutval' position.
      *
      *  On return:
-     *  dataset[ind[0..lim1-1]][cutfeat]<cutval
-     *  dataset[ind[lim1..lim2-1]][cutfeat]==cutval
-     *  dataset[ind[lim2..count]][cutfeat]>cutval
+     *  dataset[ind[0..lim1-1]][cutfeat] < cutval
+     *  dataset[ind[lim1..lim2-1]][cutfeat] == cutval
+     *  dataset[ind[lim2..count]][cutfeat] > cutval
      */
     void planeSplit(
-        Derived& obj, Offset ind, const Size count, Dimension cutfeat,
-        DistanceType& cutval, Offset& lim1, Offset& lim2)
+        const Derived& obj, const Offset ind, const Size count, const Dimension cutfeat,
+        const DistanceType& cutval, Offset& lim1, Offset& lim2)
     {
-        /* Move vector indices for left subtree to front of list. */
+        // Two Hoare-style passes: [< cutval | >= cutval], then the upper part
+        // into [== cutval | > cutval]. Only misplaced pairs are swapped, which
+        // is much cheaper than a one-pass three-way partition that moves
+        // almost every element. Half-open ranges keep it safe for an unsigned
+        // Offset. Coordinates are compared in DistanceType, like every other
+        // coordinate-vs-cutval comparison, so that a wide unsigned ElementType
+        // is not converted the other way around.
+        const auto coord = [&](const Offset i)
+        { return static_cast<DistanceType>(dataset_get(obj, vAcc_[ind + i], cutfeat)); };
+
         Offset left  = 0;
-        Offset right = count - 1;
+        Offset right = count;
         for (;;)
         {
-            while (left <= right &&
-                   dataset_get(obj, vAcc[ind + left], cutfeat) < cutval)
+            while (left < right && coord(left) < cutval)
+            {
                 ++left;
-            while (right && left <= right &&
-                   dataset_get(obj, vAcc[ind + right], cutfeat) >= cutval)
+            }
+            while (left < right && coord(right - 1) >= cutval)
+            {
                 --right;
-            if (left > right || !right)
-                break;  // "!right" was added to support unsigned Index types
-            std::swap(vAcc[ind + left], vAcc[ind + right]);
+            }
+            if (left >= right)
+            {
+                break;
+            }
+            std::swap(vAcc_[ind + left], vAcc_[ind + right - 1]);
             ++left;
             --right;
         }
-        /* If either list is empty, it means that all remaining features
-         * are identical. Split in the middle to maintain a balanced tree.
-         */
-        lim1  = left;
-        right = count - 1;
+        lim1 = left;
+
+        right = count;
         for (;;)
         {
-            while (left <= right &&
-                   dataset_get(obj, vAcc[ind + left], cutfeat) <= cutval)
+            while (left < right && coord(left) <= cutval)
+            {
                 ++left;
-            while (right && left <= right &&
-                   dataset_get(obj, vAcc[ind + right], cutfeat) > cutval)
+            }
+            while (left < right && coord(right - 1) > cutval)
+            {
                 --right;
-            if (left > right || !right)
-                break;  // "!right" was added to support unsigned Index types
-            std::swap(vAcc[ind + left], vAcc[ind + right]);
+            }
+            if (left >= right)
+            {
+                break;
+            }
+            std::swap(vAcc_[ind + left], vAcc_[ind + right - 1]);
             ++left;
             --right;
         }
@@ -1162,73 +2505,219 @@ class KDTreeBaseClass
     }
 
     DistanceType computeInitialDistances(
-        const Derived& obj, const ElementType* vec,
-        distance_vector_t& dists) const
+        const Derived& obj, const ElementType* vec, distance_vector_t& dists) const
     {
         assert(vec);
-        DistanceType distsq = DistanceType();
+        DistanceType dist = DistanceType();
 
-        for (Dimension i = 0; i < (DIM > 0 ? DIM : obj.dim); ++i)
+        const Dimension dims = static_cast<Dimension>(veclen(obj));
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+        if constexpr (is_manifold_metric<Distance>::value)
         {
-            if (vec[i] < obj.root_bbox[i].low)
+            // Topology-aware initial bound: each coordinate contributes its
+            // admissible point-to-interval lower bound (wrap-aware for circular
+            // coordinates, double-cover-aware for quaternion blocks).
+            for (Dimension i = 0; i < dims; ++i)
             {
-                dists[i] =
-                    obj.distance.accum_dist(vec[i], obj.root_bbox[i].low, i);
-                distsq += dists[i];
+                dists[i] = obj.distance_.pointToIntervalDist(
+                    vec[i], obj.root_bbox_[i].low, obj.root_bbox_[i].high, i);
+                dist += dists[i];
             }
-            if (vec[i] > obj.root_bbox[i].high)
+            return dist;
+        }
+#endif
+        for (Dimension i = 0; i < dims; ++i)
+        {
+            if (vec[i] < obj.root_bbox_[i].low)
             {
-                dists[i] =
-                    obj.distance.accum_dist(vec[i], obj.root_bbox[i].high, i);
-                distsq += dists[i];
+                dists[i] = obj.distance_.accum_dist(vec[i], obj.root_bbox_[i].low, i);
+                dist += dists[i];
+            }
+            else if (vec[i] > obj.root_bbox_[i].high)
+            {
+                dists[i] = obj.distance_.accum_dist(vec[i], obj.root_bbox_[i].high, i);
+                dist += dists[i];
             }
         }
-        return distsq;
+        return dist;
     }
 
-    void save_tree(Derived& obj, std::ostream& stream, NodePtr tree)
+    /** Magic number written at the start of every saveIndex() stream.
+     *  Spells 'NFLN' in ASCII. */
+    static constexpr uint32_t SAVE_MAGIC = 0x4E464C4E;
+
+    /** Stores the index in a binary stream.
+     *
+     * The set of data points is NOT stored; when reloading, the index object
+     * must be constructed with the same dataset. See: examples/saveload_example.cpp
+     *
+     * \note **Portability limitations** (by design -- fixing them would require
+     *   a breaking format change):
+     *   - Files are NOT portable across different endianness (e.g. x86 little-endian
+     *     vs. big-endian SPARC/PowerPC). No byte-swapping is performed.
+     *   - Files are NOT portable across 32-bit vs. 64-bit platforms (sizeof(size_t)
+     *     differs).
+     *   - Files are NOT portable across different nanoflann versions; loadIndex()
+     *     throws if the version in the file does not match the library.
+     *   - Files are NOT portable across different template instantiations (e.g.
+     *     float vs. double IndexType/ElementType); loadIndex() throws on mismatch.
+     *
+     * \sa loadIndex
+     */
+    void saveIndex(const Derived& obj, std::ostream& stream) const
     {
-        save_value(stream, *tree);
-        if (tree->child1 != nullptr) { save_tree(obj, stream, tree->child1); }
-        if (tree->child2 != nullptr) { save_tree(obj, stream, tree->child2); }
+        // 10-byte header: magic | version | sizeof_size_t | sizeof_IndexType
+        //                 | sizeof_ElementType | sizeof_DistanceType
+        // Use local copies: passing a static constexpr by const-ref ODR-uses it
+        // in C++11/14, which requires an out-of-class definition we cannot provide
+        // in a header-only library.
+        const uint32_t hdr_magic   = SAVE_MAGIC;
+        const uint32_t hdr_version = static_cast<uint32_t>(NANOFLANN_VERSION);
+        const uint8_t  hdr_sz_st   = static_cast<uint8_t>(sizeof(size_t));
+        const uint8_t  hdr_sz_idx  = static_cast<uint8_t>(sizeof(IndexType));
+        const uint8_t  hdr_sz_elem = static_cast<uint8_t>(sizeof(ElementType));
+        const uint8_t  hdr_sz_dist = static_cast<uint8_t>(sizeof(DistanceType));
+        save_value(stream, hdr_magic);
+        save_value(stream, hdr_version);
+        save_value(stream, hdr_sz_st);
+        save_value(stream, hdr_sz_idx);
+        save_value(stream, hdr_sz_elem);
+        save_value(stream, hdr_sz_dist);
+
+        save_value(stream, obj.size_);
+        save_value(stream, obj.dim_);
+        save_value(stream, obj.root_bbox_);
+        save_value(stream, obj.leaf_max_size_);
+        save_value(stream, obj.vAcc_);
+        // Nodes address each other by relative offsets, so the whole tree is
+        // one position-independent block of trivially-copyable structs.
+        static_assert(std::is_trivially_copyable<Node>::value, "Node must be trivially copyable");
+        save_value(stream, obj.nodes_);
     }
 
-    void load_tree(Derived& obj, std::istream& stream, NodePtr& tree)
+    /** Loads an index previously saved with saveIndex() from a binary stream.
+     *
+     * The index object must be constructed associated to the same dataset that
+     * was used when building the saved index. See: examples/saveload_example.cpp
+     *
+     * \throws std::runtime_error if the stream does not start with the expected
+     *   magic number (wrong file or corrupt data), if the nanoflann version in
+     *   the file differs from the current library version, if the saved type
+     *   sizes (size_t, IndexType, ElementType, DistanceType) do not match the
+     *   current template instantiation, or if a read error occurs.
+     *
+     * \note See saveIndex() for portability limitations.
+     *
+     * \sa saveIndex
+     */
+    void loadIndex(Derived& obj, std::istream& stream)
     {
-        tree = obj.pool.template allocate<Node>();
-        load_value(stream, *tree);
-        if (tree->child1 != nullptr) { load_tree(obj, stream, tree->child1); }
-        if (tree->child2 != nullptr) { load_tree(obj, stream, tree->child2); }
+        // Validate header
+        uint32_t magic = 0;
+        load_value(stream, magic);
+        if (stream.fail() || magic != SAVE_MAGIC)
+        {
+            throw std::runtime_error(
+                "nanoflann loadIndex: invalid file (wrong magic number). "
+                "The stream was not written by nanoflann saveIndex().");
+        }
+
+        uint32_t file_version = 0;
+        load_value(stream, file_version);
+        if (file_version != static_cast<uint32_t>(NANOFLANN_VERSION))
+        {
+            char msg[200];
+            snprintf(
+                msg, sizeof(msg),
+                "nanoflann loadIndex: version mismatch "
+                "(file=0x%03X, library=0x%03X). Rebuild the index.",
+                file_version, static_cast<unsigned>(NANOFLANN_VERSION));
+            throw std::runtime_error(msg);
+        }
+
+        uint8_t sz_size_t = 0;
+        uint8_t sz_idx    = 0;
+        uint8_t sz_elem   = 0;
+        uint8_t sz_dist   = 0;
+        load_value(stream, sz_size_t);
+        load_value(stream, sz_idx);
+        load_value(stream, sz_elem);
+        load_value(stream, sz_dist);
+        if (sz_size_t != static_cast<uint8_t>(sizeof(size_t)) ||
+            sz_idx != static_cast<uint8_t>(sizeof(IndexType)) ||
+            sz_elem != static_cast<uint8_t>(sizeof(ElementType)) ||
+            sz_dist != static_cast<uint8_t>(sizeof(DistanceType)))
+        {
+            throw std::runtime_error(
+                "nanoflann loadIndex: type-size mismatch between saved index and "
+                "current template instantiation (sizeof size_t / IndexType / "
+                "ElementType / DistanceType differ). Rebuild the index.");
+        }
+
+        load_value(stream, obj.size_);
+        load_value(stream, obj.dim_);
+        load_value(stream, obj.root_bbox_);
+        load_value(stream, obj.leaf_max_size_);
+        load_value(stream, obj.vAcc_);
+        load_value(stream, obj.nodes_);
+
+        if (stream.fail())
+        {
+            throw std::runtime_error(
+                "nanoflann loadIndex: unexpected end of stream or read error.");
+        }
+        // Queries follow the stored offsets blindly, so reject any array that is
+        // not a well-formed tree over vAcc_ before it can be used.
+        if (!isValidNodeArray(obj))
+        {
+            freeIndex(obj);
+            throw std::runtime_error("nanoflann loadIndex: corrupt node array.");
+        }
     }
 
-    /**  Stores the index in a binary file.
-     *   IMPORTANT NOTE: The set of data points is NOT stored in the file, so
-     * when loading the index object it must be constructed associated to the
-     * same source of data points used while building it. See the example:
-     * examples/saveload_example.cpp \sa loadIndex  */
-    void saveIndex_(Derived& obj, std::ostream& stream)
+    /** Whether nodes_ is a pre-order tree whose leaves tile vAcc_ in order:
+     *  a depth-first walk must visit every node exactly once and in array
+     *  order, with every offset and split dimension in range. O(nodes). */
+    NANOFLANN_NODISCARD bool isValidNodeArray(const Derived& obj) const
     {
-        save_value(stream, obj.m_size);
-        save_value(stream, obj.dim);
-        save_value(stream, obj.root_bbox);
-        save_value(stream, obj.m_leaf_max_size);
-        save_value(stream, obj.vAcc);
-        save_tree(obj, stream, obj.root_node);
-    }
+        const auto& nodes = obj.nodes_;
+        const Size  n_pts = obj.vAcc_.size();
+        if (nodes.empty()) return n_pts == 0 || obj.size_ == 0;
+        if (obj.size_ != n_pts) return false;
 
-    /**  Loads a previous index from a binary file.
-     *   IMPORTANT NOTE: The set of data points is NOT stored in the file, so
-     * the index object must be constructed associated to the same source of
-     * data points used while building the index. See the example:
-     * examples/saveload_example.cpp \sa loadIndex  */
-    void loadIndex_(Derived& obj, std::istream& stream)
-    {
-        load_value(stream, obj.m_size);
-        load_value(stream, obj.dim);
-        load_value(stream, obj.root_bbox);
-        load_value(stream, obj.m_leaf_max_size);
-        load_value(stream, obj.vAcc);
-        load_tree(obj, stream, obj.root_node);
+        std::vector<Size> stack;
+        stack.push_back(0);
+        Size next_node  = 0;
+        Size next_point = 0;
+        while (!stack.empty())
+        {
+            const Size i = stack.back();
+            stack.pop_back();
+            if (i != next_node || i >= nodes.size()) return false;
+            next_node++;
+            const Node& n = nodes[i];
+            if (n.isLeaf())
+            {
+                if (n.node_type.lr.left != next_point ||
+                    n.node_type.lr.right < n.node_type.lr.left || n.node_type.lr.right > n_pts)
+                {
+                    return false;
+                }
+                next_point = n.node_type.lr.right;
+            }
+            else
+            {
+                const Dimension d = n.node_type.sub.divfeat;
+                if (n.child2 < 2 || n.child2 >= nodes.size() - i || d < 0 ||
+                    d >= static_cast<Dimension>(veclen(obj)))
+                {
+                    return false;
+                }
+                stack.push_back(i + n.child2);  // right child: visited second
+                stack.push_back(i + 1);  // left child: visited first
+            }
+        }
+        return next_node == nodes.size() && next_point == n_pts;
     }
 };
 
@@ -1244,12 +2733,12 @@ class KDTreeBaseClass
  * non-virtual, inlined methods):
  *
  *  \code
- *   // Must return the number of data poins
- *   inline size_t kdtree_get_point_count() const { ... }
+ *   // Must return the number of data points
+ *   size_t kdtree_get_point_count() const { ... }
  *
  *
  *   // Must return the dim'th component of the idx'th point in the class:
- *   inline T kdtree_get_pt(const size_t idx, const size_t dim) const { ... }
+ *   T kdtree_get_pt(const size_t idx, const size_t dim) const { ... }
  *
  *   // Optional bounding-box computation: return false to default to a standard
  * bbox computation loop.
@@ -1266,59 +2755,68 @@ class KDTreeBaseClass
  *
  *  \endcode
  *
- * \tparam DatasetAdaptor The user-provided adaptor (see comments above).
+ * \tparam DatasetAdaptor The user-provided adaptor, which must be ensured to
+ *         have a lifetime equal or longer than the instance of this class.
  * \tparam Distance The distance metric to use: nanoflann::metric_L1,
  * nanoflann::metric_L2, nanoflann::metric_L2_Simple, etc. \tparam DIM
  * Dimensionality of data points (e.g. 3 for 3D points) \tparam IndexType Will
  * be typically size_t or int
+ *
+ * \note Threading guarantees:
+ *   - Index build: passing `n_thread_build > 1` in the params parallelizes the
+ *     build using `std::async` (unless NANOFLANN_NO_THREADS is defined, in which
+ *     case requesting more than one thread throws).
+ *   - Queries (`findNeighbors`, `knnSearch`, `radiusSearch`, `rknnSearch`) are
+ *     `const` and thread-safe for concurrent readers: multiple threads may query
+ *     the same index simultaneously, as long as no thread is concurrently
+ *     (re)building or modifying it.
+ *   - The internal `PooledAllocator` is NOT thread-safe; building an index from
+ *     multiple threads, or mixing queries with a concurrent build, is not
+ *     supported.
  */
-template <
-    typename Distance, class DatasetAdaptor, int32_t DIM = -1,
-    typename AccessorType = uint32_t>
+template <typename Distance, class DatasetAdaptor, int32_t DIM = -1, typename index_t = uint32_t>
 class KDTreeSingleIndexAdaptor
     : public KDTreeBaseClass<
-          KDTreeSingleIndexAdaptor<Distance, DatasetAdaptor, DIM, AccessorType>,
-          Distance, DatasetAdaptor, DIM, AccessorType>
+          KDTreeSingleIndexAdaptor<Distance, DatasetAdaptor, DIM, index_t>, Distance,
+          DatasetAdaptor, DIM, index_t>
 {
    public:
     /** Deleted copy constructor*/
-    KDTreeSingleIndexAdaptor(const KDTreeSingleIndexAdaptor<
-                             Distance, DatasetAdaptor, DIM, AccessorType>&) =
-        delete;
+    explicit KDTreeSingleIndexAdaptor(
+        const KDTreeSingleIndexAdaptor<Distance, DatasetAdaptor, DIM, index_t>&) = delete;
 
-    /**
-     * The dataset used by this index
-     */
-    const DatasetAdaptor& dataset;  //!< The source of our data
+    /** The data source used by this index */
+    const DatasetAdaptor& dataset_;
 
-    const KDTreeSingleIndexAdaptorParams index_params;
+    const KDTreeSingleIndexAdaptorParams indexParams;
 
-    Distance distance;
+    Distance distance_;
 
-    using BaseClassRef = typename nanoflann::KDTreeBaseClass<
-        nanoflann::KDTreeSingleIndexAdaptor<
-            Distance, DatasetAdaptor, DIM, AccessorType>,
-        Distance, DatasetAdaptor, DIM, AccessorType>;
+    using Base = typename nanoflann::KDTreeBaseClass<
+        nanoflann::KDTreeSingleIndexAdaptor<Distance, DatasetAdaptor, DIM, index_t>, Distance,
+        DatasetAdaptor, DIM, index_t>;
 
-    using Offset    = typename BaseClassRef::Offset;
-    using Size      = typename BaseClassRef::Size;
-    using Dimension = typename BaseClassRef::Dimension;
+    using Offset    = typename Base::Offset;
+    using Size      = typename Base::Size;
+    using Dimension = typename Base::Dimension;
 
-    using ElementType  = typename BaseClassRef::ElementType;
-    using DistanceType = typename BaseClassRef::DistanceType;
+    using ElementType  = typename Base::ElementType;
+    using DistanceType = typename Base::DistanceType;
+    using IndexType    = typename Base::IndexType;
 
-    using Node    = typename BaseClassRef::Node;
-    using NodePtr = Node*;
+    using Node         = typename Base::Node;
+    using NodePtr      = Node*;
+    using NodeConstPtr = const Node*;
 
-    using Interval = typename BaseClassRef::Interval;
+    using Interval = typename Base::Interval;
 
     /** Define "BoundingBox" as a fixed-size or variable-size container
      * depending on "DIM" */
-    using BoundingBox = typename BaseClassRef::BoundingBox;
+    using BoundingBox = typename Base::BoundingBox;
 
     /** Define "distance_vector_t" as a fixed-size or variable-size container
      * depending on "DIM" */
-    using distance_vector_t = typename BaseClassRef::distance_vector_t;
+    using distance_vector_t = typename Base::distance_vector_t;
 
     /**
      * KDTree constructor
@@ -1326,12 +2824,13 @@ class KDTreeSingleIndexAdaptor
      * Refer to docs in README.md or online in
      * https://github.com/jlblancoc/nanoflann
      *
-     * The KD-Tree point dimension (the length of each point in the datase, e.g.
+     * The KD-Tree point dimension (the length of each point in the dataset, e.g.
      * 3 for 3D points) is determined by means of:
      *  - The \a DIM template parameter if >0 (highest priority)
      *  - Otherwise, the \a dimensionality parameter of this constructor.
      *
-     * @param inputData Dataset with the input features
+     * @param inputData Dataset with the input features. Its lifetime must be
+     *  equal or longer than that of the instance of this class.
      * @param params Basically, the maximum leaf node size
      *
      * Note that there is a variable number of optional additional parameters
@@ -1340,38 +2839,63 @@ class KDTreeSingleIndexAdaptor
      *
      */
     template <class... Args>
-    KDTreeSingleIndexAdaptor(
+    explicit KDTreeSingleIndexAdaptor(
         const Dimension dimensionality, const DatasetAdaptor& inputData,
-        const KDTreeSingleIndexAdaptorParams& params = {}, Args&&... args)
-        : dataset(inputData),
-          index_params(params),
-          distance(inputData, std::forward<Args>(args)...)
+        const KDTreeSingleIndexAdaptorParams& params, Args&&... args)
+        : dataset_(inputData),
+          indexParams(params),
+          distance_(inputData, std::forward<Args>(args)...)
     {
-        BaseClassRef::root_node             = nullptr;
-        BaseClassRef::m_size                = dataset.kdtree_get_point_count();
-        BaseClassRef::m_size_at_index_build = BaseClassRef::m_size;
-        BaseClassRef::dim                   = dimensionality;
-        if (DIM > 0) BaseClassRef::dim = DIM;
-        BaseClassRef::m_leaf_max_size = params.leaf_max_size;
-
-        buildIndex();
+        init(dimensionality, params);
     }
 
+    explicit KDTreeSingleIndexAdaptor(
+        const Dimension dimensionality, const DatasetAdaptor& inputData,
+        const KDTreeSingleIndexAdaptorParams& params = {})
+        : dataset_(inputData), indexParams(params), distance_(inputData)
+    {
+        init(dimensionality, params);
+    }
+
+   private:
+    void init(const Dimension dimensionality, const KDTreeSingleIndexAdaptorParams& params)
+    {
+        Base::size_                = dataset_.kdtree_get_point_count();
+        Base::size_at_index_build_ = Base::size_;
+        Base::dim_                 = dimensionality;
+        if (DIM > 0) Base::dim_ = DIM;
+        Base::leaf_max_size_ = params.leaf_max_size;
+        if (params.n_thread_build > 0)
+        {
+            Base::n_thread_build_ = params.n_thread_build;
+        }
+        else
+        {
+            Base::n_thread_build_ = std::max(std::thread::hardware_concurrency(), 1u);
+        }
+
+        if (!has_flag(params.flags, KDTreeSingleIndexAdaptorFlags::SkipInitialBuildIndex))
+        {
+            // Build KD-tree:
+            buildIndex();
+        }
+    }
+
+   public:
     /**
      * Builds the index
      */
     void buildIndex()
     {
-        BaseClassRef::m_size                = dataset.kdtree_get_point_count();
-        BaseClassRef::m_size_at_index_build = BaseClassRef::m_size;
+        Base::size_                = dataset_.kdtree_get_point_count();
+        Base::size_at_index_build_ = Base::size_;
         init_vind();
-        this->freeIndex(*this);
-        BaseClassRef::m_size_at_index_build = BaseClassRef::m_size;
-        if (BaseClassRef::m_size == 0) return;
-        computeBoundingBox(BaseClassRef::root_bbox);
-        BaseClassRef::root_node = this->divideTree(
-            *this, 0, BaseClassRef::m_size,
-            BaseClassRef::root_bbox);  // construct the tree
+        // clear() keeps the capacity of the node array: rebuilding an index of a
+        // similar size reuses the same memory.
+        Base::nodes_.clear();
+        Base::size_at_index_build_ = Base::size_;
+        if (Base::size_ == 0) return;
+        this->buildTree(*this);
     }
 
     /** \name Query methods
@@ -1389,52 +2913,132 @@ class KDTreeSingleIndexAdaptor
      * \tparam RESULTSET Should be any ResultSet<DistanceType>
      * \return  True if the requested neighbors could be found.
      * \sa knnSearch, radiusSearch
+     *
+     * \note If L2 norms are used, all returned distances are actually squared
+     *       distances.
      */
     template <typename RESULTSET>
     bool findNeighbors(
-        RESULTSET& result, const ElementType* vec,
-        const SearchParams& searchParams) const
+        RESULTSET& result, const ElementType* vec, const SearchParameters& searchParams = {}) const
     {
         assert(vec);
         if (this->size(*this) == 0) return false;
-        if (!BaseClassRef::root_node)
+        if (Base::nodes_.empty())
             throw std::runtime_error(
                 "[nanoflann] findNeighbors() called before building the "
                 "index.");
-        float epsError = 1 + searchParams.eps;
+        DistanceType epsError = 1 + static_cast<DistanceType>(searchParams.eps);
 
-        distance_vector_t
-             dists;  // fixed or variable-sized container (depending on DIM)
-        auto zero = static_cast<decltype(result.worstDist())>(0);
-        assign(
-            dists, (DIM > 0 ? DIM : BaseClassRef::dim),
-            zero);  // Fill it with zeros.
-        DistanceType distsq = this->computeInitialDistances(*this, vec, dists);
-        searchLevel(
-            result, vec, BaseClassRef::root_node, distsq, dists,
-            epsError);  // "count_leaf" parameter removed since was neither
-                        // used nor returned to the user.
+        // fixed or variable-sized container (depending on DIM)
+        distance_vector_t dists;
+        // Fill it with zeros.
+        auto zero = static_cast<typename RESULTSET::DistanceType>(0);
+        assign(dists, this->veclen(*this), zero);
+        DistanceType dist = this->computeInitialDistances(*this, vec, dists);
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+        if constexpr (is_manifold_metric<Distance>::value)
+        {
+            // Carry a mutable copy of the root region down the recursion so the
+            // pruning bound is computed against full per-coordinate child arcs.
+            typename Base::BoundingBox region(Base::root_bbox_);
+            this->searchLevelManifold(
+                result, vec, Base::nodes_.data(), dist, dists, region, epsError);
+        }
+        else
+#endif
+        {
+            this->searchLevel(result, vec, Base::nodes_.data(), dist, dists, epsError);
+        }
+
+        if (searchParams.sorted) result.sort();
+
         return result.full();
     }
 
     /**
-     * Find the "num_closest" nearest neighbors to the \a query_point[0:dim-1].
-     * Their indices are stored inside the result object. \sa radiusSearch,
-     * findNeighbors \note nChecks_IGNORED is ignored but kept for compatibility
-     * with the original FLANN interface. \return Number `N` of valid points in
-     * the result set. Only the first `N` entries in `out_indices` and
-     * `out_distances_sq` will be valid. Return may be less than `num_closest`
-     * only if the number of elements in the tree is less than `num_closest`.
+     * Find all points contained within the specified bounding box. Their
+     * indices are stored inside the result object.
+     *
+     * Params:
+     *     result = the result object in which the indices of the points
+     *              within the bounding box are stored
+     *     bbox = the bounding box defining the search region
+     *
+     * \tparam RESULTSET Should be any ResultSet<DistanceType>
+     * \return  Number of points found within the bounding box.
+     * \sa findNeighbors, knnSearch, radiusSearch
+     *
+     * \note The search is inclusive - points on the boundary are included.
      */
-    Size knnSearch(
-        const ElementType* query_point, const Size num_closest,
-        AccessorType* out_indices, DistanceType* out_distances_sq,
-        const int /* nChecks_IGNORED */ = 10) const
+    template <typename RESULTSET>
+    NANOFLANN_NODISCARD Size findWithinBox(RESULTSET& result, const BoundingBox& bbox) const
     {
-        nanoflann::KNNResultSet<DistanceType, AccessorType> resultSet(
-            num_closest);
-        resultSet.init(out_indices, out_distances_sq);
-        this->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
+        if (this->size(*this) == 0) return 0;
+        if (Base::nodes_.empty())
+            throw std::runtime_error(
+                "[nanoflann] findWithinBox() called before building the "
+                "index.");
+
+        std::stack<NodeConstPtr> stack;
+        stack.push(Base::nodes_.data());
+
+        while (!stack.empty())
+        {
+            const NodeConstPtr node = stack.top();
+            stack.pop();
+
+            // If this is a leaf node, then do check and return.
+            if (node->isLeaf())
+            {
+                for (Offset i = node->node_type.lr.left; i < node->node_type.lr.right; ++i)
+                {
+                    if (contains(bbox, Base::vAcc_[i]))
+                    {
+                        if (!result.addPoint(0, Base::vAcc_[i]))
+                        {
+                            // the resultset doesn't want to receive any more
+                            // points, we're done searching!
+                            return result.size();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                const Dimension idx        = node->node_type.sub.divfeat;
+                const auto      low_bound  = node->node_type.sub.divlow;
+                const auto      high_bound = node->node_type.sub.divhigh;
+
+                if (bbox[idx].low <= low_bound) stack.push(node + 1);
+                if (bbox[idx].high >= high_bound) stack.push(node + node->child2);
+            }
+        }
+
+        return result.size();
+    }
+
+    /**
+     * Find the "num_closest" nearest neighbors to the \a query_point[0:dim-1].
+     * Their indices and distances are stored in the provided pointers to
+     * array/vector.
+     *
+     * \sa radiusSearch, findNeighbors
+     * \return Number `N` of valid points in the result set.
+     *
+     * \note If L2 norms are used, all returned distances are actually squared
+     *       distances.
+     *
+     * \note Only the first `N` entries in `out_indices` and `out_distances`
+     *       will be valid. Return is less than `num_closest` only if the
+     *       number of elements in the tree is less than `num_closest`.
+     */
+    NANOFLANN_NODISCARD Size knnSearch(
+        const ElementType* query_point, const Size num_closest, IndexType* out_indices,
+        DistanceType* out_distances) const
+    {
+        nanoflann::KNNResultSet<DistanceType, IndexType> resultSet(num_closest);
+        resultSet.init(out_indices, out_distances);
+        findNeighbors(resultSet, query_point);
         return resultSet.size();
     }
 
@@ -1453,19 +3057,17 @@ class KDTreeSingleIndexAdaptor
      *  \sa knnSearch, findNeighbors, radiusSearchCustomCallback
      * \return The number of points within the given radius (i.e. indices.size()
      * or dists.size() )
+     *
+     * \note If L2 norms are used, search radius and all returned distances
+     *       are actually squared distances.
      */
-    Size radiusSearch(
+    NANOFLANN_NODISCARD Size radiusSearch(
         const ElementType* query_point, const DistanceType& radius,
-        std::vector<std::pair<AccessorType, DistanceType>>& IndicesDists,
-        const SearchParams&                                 searchParams) const
+        std::vector<ResultItem<IndexType, DistanceType>>& IndicesDists,
+        const SearchParameters&                           searchParams = {}) const
     {
-        RadiusResultSet<DistanceType, AccessorType> resultSet(
-            radius, IndicesDists);
-        const Size nFound =
-            radiusSearchCustomCallback(query_point, resultSet, searchParams);
-        if (searchParams.sorted)
-            std::sort(
-                IndicesDists.begin(), IndicesDists.end(), IndexDist_Sorter());
+        RadiusResultSet<DistanceType, IndexType> resultSet(radius, IndicesDists);
+        const Size nFound = radiusSearchCustomCallback(query_point, resultSet, searchParams);
         return nFound;
     }
 
@@ -1475,151 +3077,60 @@ class KDTreeSingleIndexAdaptor
      * a start point for your own classes. \sa radiusSearch
      */
     template <class SEARCH_CALLBACK>
-    Size radiusSearchCustomCallback(
+    NANOFLANN_NODISCARD Size radiusSearchCustomCallback(
         const ElementType* query_point, SEARCH_CALLBACK& resultSet,
-        const SearchParams& searchParams = SearchParams()) const
+        const SearchParameters& searchParams = {}) const
     {
-        this->findNeighbors(resultSet, query_point, searchParams);
+        findNeighbors(resultSet, query_point, searchParams);
+        return resultSet.size();
+    }
+
+    /**
+     * Find the N closest neighbors to \a query_point[0:dim-1] that are also
+     * within the given maximum radius. Results are stored in the provided
+     * output arrays; previous contents are overwritten.
+     *
+     * \sa radiusSearch, findNeighbors
+     * \return Number of valid points written (at most `num_closest`). May be
+     *         less if fewer than `num_closest` points lie within the radius.
+     *
+     * \note If L2 norms are used, all returned distances are actually squared
+     *       distances.
+     *
+     * \note Only the first `N` entries in `out_indices` and `out_distances`
+     *       will be valid.
+     */
+    NANOFLANN_NODISCARD Size rknnSearch(
+        const ElementType* query_point, const Size num_closest, IndexType* out_indices,
+        DistanceType* out_distances, const DistanceType& radius) const
+    {
+        nanoflann::RKNNResultSet<DistanceType, IndexType> resultSet(num_closest, radius);
+        resultSet.init(out_indices, out_distances);
+        findNeighbors(resultSet, query_point);
         return resultSet.size();
     }
 
     /** @} */
 
    public:
-    /** Make sure the auxiliary list \a vind has the same size than the current
-     * dataset, and re-generate if size has changed. */
+    /** Make sure the auxiliary list \a vind has the same size as the
+     * current dataset, and re-generate if size has changed. */
     void init_vind()
     {
         // Create a permutable array of indices to the input vectors.
-        BaseClassRef::m_size = dataset.kdtree_get_point_count();
-        if (BaseClassRef::vAcc.size() != BaseClassRef::m_size)
-            BaseClassRef::vAcc.resize(BaseClassRef::m_size);
-        for (Size i = 0; i < BaseClassRef::m_size; i++)
-            BaseClassRef::vAcc[i] = i;
+        Base::size_ = dataset_.kdtree_get_point_count();
+        if (Base::vAcc_.size() != Base::size_) Base::vAcc_.resize(Base::size_);
+        for (IndexType i = 0; i < static_cast<IndexType>(Base::size_); i++) Base::vAcc_[i] = i;
     }
 
-    void computeBoundingBox(BoundingBox& bbox)
+    bool contains(const BoundingBox& bbox, IndexType idx) const
     {
-        resize(bbox, (DIM > 0 ? DIM : BaseClassRef::dim));
-        if (dataset.kdtree_get_bbox(bbox))
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i)
         {
-            // Done! It was implemented in derived class
+            const auto point = this->dataset_.kdtree_get_pt(idx, i);
+            if (point < bbox[i].low || point > bbox[i].high) return false;
         }
-        else
-        {
-            const Size N = dataset.kdtree_get_point_count();
-            if (!N)
-                throw std::runtime_error(
-                    "[nanoflann] computeBoundingBox() called but "
-                    "no data points found.");
-            for (Dimension i = 0; i < (DIM > 0 ? DIM : BaseClassRef::dim); ++i)
-            {
-                bbox[i].low = bbox[i].high =
-                    this->dataset_get(*this, BaseClassRef::vAcc[0], i);
-            }
-            for (Offset k = 1; k < N; ++k)
-            {
-                for (Dimension i = 0; i < (DIM > 0 ? DIM : BaseClassRef::dim);
-                     ++i)
-                {
-                    if (this->dataset_get(*this, BaseClassRef::vAcc[k], i) <
-                        bbox[i].low)
-                        bbox[i].low =
-                            this->dataset_get(*this, BaseClassRef::vAcc[k], i);
-                    if (this->dataset_get(*this, BaseClassRef::vAcc[k], i) >
-                        bbox[i].high)
-                        bbox[i].high =
-                            this->dataset_get(*this, BaseClassRef::vAcc[k], i);
-                }
-            }
-        }
-    }
-
-    /**
-     * Performs an exact search in the tree starting from a node.
-     * \tparam RESULTSET Should be any ResultSet<DistanceType>
-     * \return true if the search should be continued, false if the results are
-     * sufficient
-     */
-    template <class RESULTSET>
-    bool searchLevel(
-        RESULTSET& result_set, const ElementType* vec, const NodePtr node,
-        DistanceType mindistsq, distance_vector_t& dists,
-        const float epsError) const
-    {
-        /* If this is a leaf node, then do check and return. */
-        if ((node->child1 == nullptr) && (node->child2 == nullptr))
-        {
-            // count_leaf += (node->lr.right-node->lr.left);  // Removed since
-            // was neither used nor returned to the user.
-            DistanceType worst_dist = result_set.worstDist();
-            for (Offset i = node->node_type.lr.left;
-                 i < node->node_type.lr.right; ++i)
-            {
-                const AccessorType accessor =
-                    BaseClassRef::vAcc[i];  // reorder... : i;
-                DistanceType dist = distance.evalMetric(
-                    vec, accessor, (DIM > 0 ? DIM : BaseClassRef::dim));
-                if (dist < worst_dist)
-                {
-                    if (!result_set.addPoint(dist, BaseClassRef::vAcc[i]))
-                    {
-                        // the resultset doesn't want to receive any more
-                        // points, we're done searching!
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        /* Which child branch should be taken first? */
-        Dimension    idx   = node->node_type.sub.divfeat;
-        ElementType  val   = vec[idx];
-        DistanceType diff1 = val - node->node_type.sub.divlow;
-        DistanceType diff2 = val - node->node_type.sub.divhigh;
-
-        NodePtr      bestChild;
-        NodePtr      otherChild;
-        DistanceType cut_dist;
-        if ((diff1 + diff2) < 0)
-        {
-            bestChild  = node->child1;
-            otherChild = node->child2;
-            cut_dist =
-                distance.accum_dist(val, node->node_type.sub.divhigh, idx);
-        }
-        else
-        {
-            bestChild  = node->child2;
-            otherChild = node->child1;
-            cut_dist =
-                distance.accum_dist(val, node->node_type.sub.divlow, idx);
-        }
-
-        /* Call recursively to search next level down. */
-        if (!searchLevel(
-                result_set, vec, bestChild, mindistsq, dists, epsError))
-        {
-            // the resultset doesn't want to receive any more points, we're done
-            // searching!
-            return false;
-        }
-
-        DistanceType dst = dists[idx];
-        mindistsq        = mindistsq + cut_dist - dst;
-        dists[idx]       = cut_dist;
-        if (mindistsq * epsError <= result_set.worstDist())
-        {
-            if (!searchLevel(
-                    result_set, vec, otherChild, mindistsq, dists, epsError))
-            {
-                // the resultset doesn't want to receive any more points, we're
-                // done searching!
-                return false;
-            }
-        }
-        dists[idx] = dst;
         return true;
     }
 
@@ -1629,14 +3140,14 @@ class KDTreeSingleIndexAdaptor
      * when loading the index object it must be constructed associated to the
      * same source of data points used while building it. See the example:
      * examples/saveload_example.cpp \sa loadIndex  */
-    void saveIndex(std::ostream& stream) { this->saveIndex_(*this, stream); }
+    void saveIndex(std::ostream& stream) const { Base::saveIndex(*this, stream); }
 
     /**  Loads a previous index from a binary file.
      *   IMPORTANT NOTE: The set of data points is NOT stored in the file, so
      * the index object must be constructed associated to the same source of
      * data points used while building the index. See the example:
      * examples/saveload_example.cpp \sa loadIndex  */
-    void loadIndex(std::istream& stream) { this->loadIndex_(*this, stream); }
+    void loadIndex(std::istream& stream) { Base::loadIndex(*this, stream); }
 
 };  // class KDTree
 
@@ -1645,15 +3156,15 @@ class KDTreeSingleIndexAdaptor
  * Contains the k-d trees and other information for indexing a set of points
  * for nearest-neighbor matching.
  *
- *  The class "DatasetAdaptor" must provide the following interface (can be
+ * The class "DatasetAdaptor" must provide the following interface (can be
  * non-virtual, inlined methods):
  *
  *  \code
- *   // Must return the number of data poins
- *   inline size_t kdtree_get_point_count() const { ... }
+ *   // Must return the number of data points
+ *   size_t kdtree_get_point_count() const { ... }
  *
  *   // Must return the dim'th component of the idx'th point in the class:
- *   inline T kdtree_get_pt(const size_t idx, const size_t dim) const { ... }
+ *   T kdtree_get_pt(const size_t idx, const size_t dim) const { ... }
  *
  *   // Optional bounding-box computation: return false to default to a standard
  * bbox computation loop.
@@ -1672,54 +3183,54 @@ class KDTreeSingleIndexAdaptor
  *
  * \tparam DatasetAdaptor The user-provided adaptor (see comments above).
  * \tparam Distance The distance metric to use: nanoflann::metric_L1,
- * nanoflann::metric_L2, nanoflann::metric_L2_Simple, etc. \tparam DIM
- * Dimensionality of data points (e.g. 3 for 3D points) \tparam AccessorType
- * Will be typically size_t or int
+ * nanoflann::metric_L2, nanoflann::metric_L2_Simple, etc.
+ * \tparam DIM Dimensionality of data points (e.g. 3 for 3D points)
+ * \tparam IndexType Type of the arguments with which the data can be
+ * accessed (e.g. float, double, int64_t, T*)
  */
-template <
-    typename Distance, class DatasetAdaptor, int32_t DIM = -1,
-    typename AccessorType = uint32_t>
+template <typename Distance, class DatasetAdaptor, int32_t DIM = -1, typename IndexType = uint32_t>
 class KDTreeSingleIndexDynamicAdaptor_
     : public KDTreeBaseClass<
-          KDTreeSingleIndexDynamicAdaptor_<
-              Distance, DatasetAdaptor, DIM, AccessorType>,
-          Distance, DatasetAdaptor, DIM, AccessorType>
+          KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM, IndexType>, Distance,
+          DatasetAdaptor, DIM, IndexType>
 {
    public:
     /**
      * The dataset used by this index
      */
-    const DatasetAdaptor& dataset;  //!< The source of our data
+    const DatasetAdaptor& dataset_;  //!< The source of our data
 
-    KDTreeSingleIndexAdaptorParams index_params;
+    KDTreeSingleIndexAdaptorParams index_params_;
 
-    std::vector<int>& treeIndex;
+    std::vector<int>& treeIndex_;
 
-    Distance distance;
+    Distance distance_;
 
-    using BaseClassRef = typename nanoflann::KDTreeBaseClass<
-        nanoflann::KDTreeSingleIndexDynamicAdaptor_<
-            Distance, DatasetAdaptor, DIM, AccessorType>,
-        Distance, DatasetAdaptor, DIM, AccessorType>;
+    using Base = typename nanoflann::KDTreeBaseClass<
+        nanoflann::KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM, IndexType>,
+        Distance, DatasetAdaptor, DIM, IndexType>;
 
-    using ElementType  = typename BaseClassRef::ElementType;
-    using DistanceType = typename BaseClassRef::DistanceType;
+    using ElementType  = typename Base::ElementType;
+    using DistanceType = typename Base::DistanceType;
 
-    using Offset    = typename BaseClassRef::Offset;
-    using Size      = typename BaseClassRef::Size;
-    using Dimension = typename BaseClassRef::Dimension;
+    using Offset    = typename Base::Offset;
+    using Size      = typename Base::Size;
+    using Dimension = typename Base::Dimension;
 
-    using Node    = typename BaseClassRef::Node;
+    using Node    = typename Base::Node;
     using NodePtr = Node*;
 
-    using Interval = typename BaseClassRef::Interval;
+    using Interval = typename Base::Interval;
     /** Define "BoundingBox" as a fixed-size or variable-size container
      * depending on "DIM" */
-    using BoundingBox = typename BaseClassRef::BoundingBox;
+    using BoundingBox = typename Base::BoundingBox;
 
     /** Define "distance_vector_t" as a fixed-size or variable-size container
      * depending on "DIM" */
-    using distance_vector_t = typename BaseClassRef::distance_vector_t;
+    using distance_vector_t = typename Base::distance_vector_t;
+
+    /** Returns false for points that have been removed (lazy deletion). */
+    NANOFLANN_NODISCARD bool isActive(IndexType idx) const { return treeIndex_[idx] != -1; }
 
     /**
      * KDTree constructor
@@ -1727,53 +3238,53 @@ class KDTreeSingleIndexDynamicAdaptor_
      * Refer to docs in README.md or online in
      * https://github.com/jlblancoc/nanoflann
      *
-     * The KD-Tree point dimension (the length of each point in the datase, e.g.
+     * The KD-Tree point dimension (the length of each point in the dataset, e.g.
      * 3 for 3D points) is determined by means of:
      *  - The \a DIM template parameter if >0 (highest priority)
      *  - Otherwise, the \a dimensionality parameter of this constructor.
      *
-     * @param inputData Dataset with the input features
+     * @param inputData Dataset with the input features. Its lifetime must be
+     *  equal or longer than that of the instance of this class.
      * @param params Basically, the maximum leaf node size
      */
     KDTreeSingleIndexDynamicAdaptor_(
         const Dimension dimensionality, const DatasetAdaptor& inputData,
-        std::vector<int>&                     treeIndex_,
-        const KDTreeSingleIndexAdaptorParams& params =
-            KDTreeSingleIndexAdaptorParams())
-        : dataset(inputData),
-          index_params(params),
-          treeIndex(treeIndex_),
-          distance(inputData)
+        std::vector<int>&                     treeIndex,
+        const KDTreeSingleIndexAdaptorParams& params = KDTreeSingleIndexAdaptorParams())
+        : dataset_(inputData), index_params_(params), treeIndex_(treeIndex), distance_(inputData)
     {
-        BaseClassRef::root_node             = nullptr;
-        BaseClassRef::m_size                = 0;
-        BaseClassRef::m_size_at_index_build = 0;
-        BaseClassRef::dim                   = dimensionality;
-        if (DIM > 0) BaseClassRef::dim = DIM;
-        BaseClassRef::m_leaf_max_size = params.leaf_max_size;
+        Base::size_                = 0;
+        Base::size_at_index_build_ = 0;
+        for (auto& v : Base::root_bbox_) v = {};
+        Base::dim_ = dimensionality;
+        if (DIM > 0) Base::dim_ = DIM;
+        Base::leaf_max_size_ = params.leaf_max_size;
+        if (params.n_thread_build > 0)
+        {
+            Base::n_thread_build_ = params.n_thread_build;
+        }
+        else
+        {
+            Base::n_thread_build_ = std::max(std::thread::hardware_concurrency(), 1u);
+        }
     }
 
     /** Explicitly default the copy constructor */
-    KDTreeSingleIndexDynamicAdaptor_(
-        const KDTreeSingleIndexDynamicAdaptor_& rhs) = default;
+    KDTreeSingleIndexDynamicAdaptor_(const KDTreeSingleIndexDynamicAdaptor_& rhs) = default;
 
-    /** Assignment operator definiton */
-    KDTreeSingleIndexDynamicAdaptor_ operator=(
-        const KDTreeSingleIndexDynamicAdaptor_& rhs)
+    /** Assignment operator definition */
+    KDTreeSingleIndexDynamicAdaptor_& operator=(const KDTreeSingleIndexDynamicAdaptor_& rhs)
     {
+        if (this == &rhs) return *this;
         KDTreeSingleIndexDynamicAdaptor_ tmp(rhs);
-        std::swap(BaseClassRef::vAcc, tmp.BaseClassRef::vAcc);
-        std::swap(
-            BaseClassRef::m_leaf_max_size, tmp.BaseClassRef::m_leaf_max_size);
-        std::swap(index_params, tmp.index_params);
-        std::swap(treeIndex, tmp.treeIndex);
-        std::swap(BaseClassRef::m_size, tmp.BaseClassRef::m_size);
-        std::swap(
-            BaseClassRef::m_size_at_index_build,
-            tmp.BaseClassRef::m_size_at_index_build);
-        std::swap(BaseClassRef::root_node, tmp.BaseClassRef::root_node);
-        std::swap(BaseClassRef::root_bbox, tmp.BaseClassRef::root_bbox);
-        std::swap(BaseClassRef::pool, tmp.BaseClassRef::pool);
+        std::swap(Base::vAcc_, tmp.Base::vAcc_);
+        std::swap(Base::leaf_max_size_, tmp.Base::leaf_max_size_);
+        std::swap(index_params_, tmp.index_params_);
+        // treeIndex_ is a reference member and cannot be rebound; do not swap.
+        std::swap(Base::size_, tmp.Base::size_);
+        std::swap(Base::size_at_index_build_, tmp.Base::size_at_index_build_);
+        std::swap(Base::root_bbox_, tmp.Base::root_bbox_);
+        std::swap(Base::nodes_, tmp.Base::nodes_);
         return *this;
     }
 
@@ -1782,14 +3293,11 @@ class KDTreeSingleIndexDynamicAdaptor_
      */
     void buildIndex()
     {
-        BaseClassRef::m_size = BaseClassRef::vAcc.size();
-        this->freeIndex(*this);
-        BaseClassRef::m_size_at_index_build = BaseClassRef::m_size;
-        if (BaseClassRef::m_size == 0) return;
-        computeBoundingBox(BaseClassRef::root_bbox);
-        BaseClassRef::root_node = this->divideTree(
-            *this, 0, BaseClassRef::m_size,
-            BaseClassRef::root_bbox);  // construct the tree
+        Base::size_ = Base::vAcc_.size();
+        Base::nodes_.clear();  // keeps capacity, see KDTreeSingleIndexAdaptor
+        Base::size_at_index_build_ = Base::size_;
+        if (Base::size_ == 0) return;
+        this->buildTree(*this);
     }
 
     /** \name Query methods
@@ -1798,58 +3306,65 @@ class KDTreeSingleIndexDynamicAdaptor_
     /**
      * Find set of nearest neighbors to vec[0:dim-1]. Their indices are stored
      * inside the result object.
+     * This is the core search function, all others are wrappers around this
+     * one.
      *
-     * Params:
-     *     result = the result object in which the indices of the
-     * nearest-neighbors are stored vec = the vector for which to search the
-     * nearest neighbors
+     * \param result The result object in which the indices of the
+     *               nearest-neighbors are stored.
+     * \param vec    The vector of the query point for which to search the
+     *               nearest neighbors.
+     * \param searchParams Optional parameters for the search.
      *
      * \tparam RESULTSET Should be any ResultSet<DistanceType>
-     * \return  True if the requested neighbors could be found.
-     * \sa knnSearch, radiusSearch
+     * \return True if the requested neighbors could be found.
+     *
+     * \sa knnSearch(), radiusSearch(), radiusSearchCustomCallback()
+     *
+     * \note If L2 norms are used, all returned distances are actually squared
+     *       distances.
      */
     template <typename RESULTSET>
     bool findNeighbors(
-        RESULTSET& result, const ElementType* vec,
-        const SearchParams& searchParams) const
+        RESULTSET& result, const ElementType* vec, const SearchParameters& searchParams = {}) const
     {
         assert(vec);
         if (this->size(*this) == 0) return false;
-        if (!BaseClassRef::root_node) return false;
-        float epsError = 1 + searchParams.eps;
+        if (Base::nodes_.empty()) return false;
+        DistanceType epsError = 1 + static_cast<DistanceType>(searchParams.eps);
 
         // fixed or variable-sized container (depending on DIM)
         distance_vector_t dists;
         // Fill it with zeros.
-        assign(
-            dists, (DIM > 0 ? DIM : BaseClassRef::dim),
-            static_cast<typename distance_vector_t::value_type>(0));
-        DistanceType distsq = this->computeInitialDistances(*this, vec, dists);
-        searchLevel(
-            result, vec, BaseClassRef::root_node, distsq, dists,
-            epsError);  // "count_leaf" parameter removed since was neither
-                        // used nor returned to the user.
+        assign(dists, this->veclen(*this), static_cast<typename distance_vector_t::value_type>(0));
+        DistanceType dist = this->computeInitialDistances(*this, vec, dists);
+        this->searchLevel(result, vec, Base::nodes_.data(), dist, dists, epsError);
+
+        if (searchParams.sorted) result.sort();
+
         return result.full();
     }
 
     /**
      * Find the "num_closest" nearest neighbors to the \a query_point[0:dim-1].
      * Their indices are stored inside the result object. \sa radiusSearch,
-     * findNeighbors \note nChecks_IGNORED is ignored but kept for compatibility
-     * with the original FLANN interface. \return Number `N` of valid points in
-     * the result set. Only the first `N` entries in `out_indices` and
-     * `out_distances_sq` will be valid. Return may be less than `num_closest`
-     * only if the number of elements in the tree is less than `num_closest`.
+     * findNeighbors
+     * \return Number `N` of valid points in
+     * the result set.
+     *
+     * \note If L2 norms are used, all returned distances are actually squared
+     *       distances.
+     *
+     * \note Only the first `N` entries in `out_indices` and `out_distances`
+     *       will be valid. Return may be less than `num_closest` only if the
+     *       number of elements in the tree is less than `num_closest`.
      */
-    Size knnSearch(
-        const ElementType* query_point, const Size num_closest,
-        AccessorType* out_indices, DistanceType* out_distances_sq,
-        const int /* nChecks_IGNORED */ = 10) const
+    NANOFLANN_NODISCARD Size knnSearch(
+        const ElementType* query_point, const Size num_closest, IndexType* out_indices,
+        DistanceType* out_distances, const SearchParameters& searchParams = {}) const
     {
-        nanoflann::KNNResultSet<DistanceType, AccessorType> resultSet(
-            num_closest);
-        resultSet.init(out_indices, out_distances_sq);
-        this->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
+        nanoflann::KNNResultSet<DistanceType, IndexType> resultSet(num_closest);
+        resultSet.init(out_indices, out_distances);
+        findNeighbors(resultSet, query_point, searchParams);
         return resultSet.size();
     }
 
@@ -1859,28 +3374,26 @@ class KDTreeSingleIndexDynamicAdaptor_
      * element is a point index and the second the corresponding distance.
      * Previous contents of \a IndicesDists are cleared.
      *
-     *  If searchParams.sorted==true, the output list is sorted by ascending
+     * If searchParams.sorted==true, the output list is sorted by ascending
      * distances.
      *
-     *  For a better performance, it is advisable to do a .reserve() on the
+     * For a better performance, it is advisable to do a .reserve() on the
      * vector if you have any wild guess about the number of expected matches.
      *
      *  \sa knnSearch, findNeighbors, radiusSearchCustomCallback
      * \return The number of points within the given radius (i.e. indices.size()
      * or dists.size() )
+     *
+     * \note If L2 norms are used, search radius and all returned distances
+     *       are actually squared distances.
      */
-    Size radiusSearch(
+    NANOFLANN_NODISCARD Size radiusSearch(
         const ElementType* query_point, const DistanceType& radius,
-        std::vector<std::pair<AccessorType, DistanceType>>& IndicesDists,
-        const SearchParams&                                 searchParams) const
+        std::vector<ResultItem<IndexType, DistanceType>>& IndicesDists,
+        const SearchParameters&                           searchParams = {}) const
     {
-        RadiusResultSet<DistanceType, AccessorType> resultSet(
-            radius, IndicesDists);
-        const size_t nFound =
-            radiusSearchCustomCallback(query_point, resultSet, searchParams);
-        if (searchParams.sorted)
-            std::sort(
-                IndicesDists.begin(), IndicesDists.end(), IndexDist_Sorter());
+        RadiusResultSet<DistanceType, IndexType> resultSet(radius, IndicesDists);
+        const Size nFound = radiusSearchCustomCallback(query_point, resultSet, searchParams);
         return nFound;
     }
 
@@ -1890,132 +3403,15 @@ class KDTreeSingleIndexDynamicAdaptor_
      * a start point for your own classes. \sa radiusSearch
      */
     template <class SEARCH_CALLBACK>
-    Size radiusSearchCustomCallback(
+    NANOFLANN_NODISCARD Size radiusSearchCustomCallback(
         const ElementType* query_point, SEARCH_CALLBACK& resultSet,
-        const SearchParams& searchParams = SearchParams()) const
+        const SearchParameters& searchParams = {}) const
     {
-        this->findNeighbors(resultSet, query_point, searchParams);
+        findNeighbors(resultSet, query_point, searchParams);
         return resultSet.size();
     }
 
     /** @} */
-
-   public:
-    void computeBoundingBox(BoundingBox& bbox)
-    {
-        resize(bbox, (DIM > 0 ? DIM : BaseClassRef::dim));
-
-        if (dataset.kdtree_get_bbox(bbox))
-        {
-            // Done! It was implemented in derived class
-        }
-        else
-        {
-            const Size N = BaseClassRef::m_size;
-            if (!N)
-                throw std::runtime_error(
-                    "[nanoflann] computeBoundingBox() called but "
-                    "no data points found.");
-            for (Dimension i = 0; i < (DIM > 0 ? DIM : BaseClassRef::dim); ++i)
-            {
-                bbox[i].low = bbox[i].high =
-                    this->dataset_get(*this, BaseClassRef::vAcc[0], i);
-            }
-            for (Offset k = 1; k < N; ++k)
-            {
-                for (Dimension i = 0; i < (DIM > 0 ? DIM : BaseClassRef::dim);
-                     ++i)
-                {
-                    if (this->dataset_get(*this, BaseClassRef::vAcc[k], i) <
-                        bbox[i].low)
-                        bbox[i].low =
-                            this->dataset_get(*this, BaseClassRef::vAcc[k], i);
-                    if (this->dataset_get(*this, BaseClassRef::vAcc[k], i) >
-                        bbox[i].high)
-                        bbox[i].high =
-                            this->dataset_get(*this, BaseClassRef::vAcc[k], i);
-                }
-            }
-        }
-    }
-
-    /**
-     * Performs an exact search in the tree starting from a node.
-     * \tparam RESULTSET Should be any ResultSet<DistanceType>
-     */
-    template <class RESULTSET>
-    void searchLevel(
-        RESULTSET& result_set, const ElementType* vec, const NodePtr node,
-        DistanceType mindistsq, distance_vector_t& dists,
-        const float epsError) const
-    {
-        /* If this is a leaf node, then do check and return. */
-        if ((node->child1 == nullptr) && (node->child2 == nullptr))
-        {
-            // count_leaf += (node->lr.right-node->lr.left);  // Removed since
-            // was neither used nor returned to the user.
-            DistanceType worst_dist = result_set.worstDist();
-            for (Offset i = node->node_type.lr.left;
-                 i < node->node_type.lr.right; ++i)
-            {
-                const AccessorType index =
-                    BaseClassRef::vAcc[i];  // reorder... : i;
-                if (treeIndex[index] == -1) continue;
-                DistanceType dist = distance.evalMetric(
-                    vec, index, (DIM > 0 ? DIM : BaseClassRef::dim));
-                if (dist < worst_dist)
-                {
-                    if (!result_set.addPoint(
-                            static_cast<typename RESULTSET::DistanceType>(dist),
-                            static_cast<typename RESULTSET::IndexType>(
-                                BaseClassRef::vAcc[i])))
-                    {
-                        // the resultset doesn't want to receive any more
-                        // points, we're done searching!
-                        return;  // false;
-                    }
-                }
-            }
-            return;
-        }
-
-        /* Which child branch should be taken first? */
-        Dimension    idx   = node->node_type.sub.divfeat;
-        ElementType  val   = vec[idx];
-        DistanceType diff1 = val - node->node_type.sub.divlow;
-        DistanceType diff2 = val - node->node_type.sub.divhigh;
-
-        NodePtr      bestChild;
-        NodePtr      otherChild;
-        DistanceType cut_dist;
-        if ((diff1 + diff2) < 0)
-        {
-            bestChild  = node->child1;
-            otherChild = node->child2;
-            cut_dist =
-                distance.accum_dist(val, node->node_type.sub.divhigh, idx);
-        }
-        else
-        {
-            bestChild  = node->child2;
-            otherChild = node->child1;
-            cut_dist =
-                distance.accum_dist(val, node->node_type.sub.divlow, idx);
-        }
-
-        /* Call recursively to search next level down. */
-        searchLevel(result_set, vec, bestChild, mindistsq, dists, epsError);
-
-        DistanceType dst = dists[idx];
-        mindistsq        = mindistsq + cut_dist - dst;
-        dists[idx]       = cut_dist;
-        if (mindistsq * epsError <= result_set.worstDist())
-        {
-            searchLevel(
-                result_set, vec, otherChild, mindistsq, dists, epsError);
-        }
-        dists[idx] = dst;
-    }
 
    public:
     /**  Stores the index in a binary file.
@@ -2023,17 +3419,17 @@ class KDTreeSingleIndexDynamicAdaptor_
      * when loading the index object it must be constructed associated to the
      * same source of data points used while building it. See the example:
      * examples/saveload_example.cpp \sa loadIndex  */
-    void saveIndex(std::ostream& stream) { this->saveIndex_(*this, stream); }
+    void saveIndex(std::ostream& stream) { Base::saveIndex(*this, stream); }
 
     /**  Loads a previous index from a binary file.
      *   IMPORTANT NOTE: The set of data points is NOT stored in the file, so
      * the index object must be constructed associated to the same source of
      * data points used while building the index. See the example:
      * examples/saveload_example.cpp \sa loadIndex  */
-    void loadIndex(std::istream& stream) { this->loadIndex_(*this, stream); }
+    void loadIndex(std::istream& stream) { Base::loadIndex(*this, stream); }
 };
 
-/** kd-tree dynaimic index
+/** kd-tree dynamic index
  *
  * class to create multiple static index and merge their results to behave as
  * single dynamic index as proposed in Logarithmic Approach.
@@ -2044,59 +3440,55 @@ class KDTreeSingleIndexDynamicAdaptor_
  * \tparam DatasetAdaptor The user-provided adaptor (see comments above).
  * \tparam Distance The distance metric to use: nanoflann::metric_L1,
  * nanoflann::metric_L2, nanoflann::metric_L2_Simple, etc. \tparam DIM
- * Dimensionality of data points (e.g. 3 for 3D points) \tparam AccessorType
+ * Dimensionality of data points (e.g. 3 for 3D points) \tparam IndexType
  * Will be typically size_t or int
  */
-template <
-    typename Distance, class DatasetAdaptor, int32_t DIM = -1,
-    typename AccessorType = uint32_t>
+template <typename Distance, class DatasetAdaptor, int32_t DIM = -1, typename IndexType = uint32_t>
 class KDTreeSingleIndexDynamicAdaptor
 {
    public:
     using ElementType  = typename Distance::ElementType;
     using DistanceType = typename Distance::DistanceType;
 
-    using Offset = typename KDTreeSingleIndexDynamicAdaptor_<
-        Distance, DatasetAdaptor, DIM>::Offset;
-    using Size = typename KDTreeSingleIndexDynamicAdaptor_<
-        Distance, DatasetAdaptor, DIM>::Size;
-    using Dimension = typename KDTreeSingleIndexDynamicAdaptor_<
-        Distance, DatasetAdaptor, DIM>::Dimension;
+    using Offset = typename KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM>::Offset;
+    using Size   = typename KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM>::Size;
+    using Dimension =
+        typename KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM>::Dimension;
 
    protected:
-    Size m_leaf_max_size;
-    Size treeCount;
-    Size pointCount;
+    Size leaf_max_size_;
+    Size treeCount_;
+    Size pointCount_;
 
     /**
      * The dataset used by this index
      */
-    const DatasetAdaptor& dataset;  //!< The source of our data
+    const DatasetAdaptor& dataset_;  //!< The source of our data
 
-    std::vector<int>
-        treeIndex;  //!< treeIndex[idx] is the index of tree in which
-                    //!< point at idx is stored. treeIndex[idx]=-1
-                    //!< means that point has been removed.
+    /** treeIndex[idx] is the index of tree in which point at idx is stored.
+     * treeIndex[idx]=-1 means that point has been removed. */
+    std::vector<int> treeIndex_;
+    /** Maps each currently-removed point index to the sub-tree that still
+     * physically holds it (removal is lazy). Used to reactivate the point in
+     * place if it is later re-added, instead of inserting a duplicate. */
+    std::unordered_map<IndexType, int> removedPoints_;
 
-    KDTreeSingleIndexAdaptorParams index_params;
+    KDTreeSingleIndexAdaptorParams index_params_;
 
-    Dimension dim;  //!< Dimensionality of each data point
+    Dimension dim_;  //!< Dimensionality of each data point
 
     using index_container_t =
-        KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM>;
-    std::vector<index_container_t> index;
+        KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM, IndexType>;
+    std::vector<index_container_t> index_;
 
    public:
     /** Get a const ref to the internal list of indices; the number of indices
      * is adapted dynamically as the dataset grows in size. */
-    const std::vector<index_container_t>& getAllIndices() const
-    {
-        return index;
-    }
+    const std::vector<index_container_t>& getAllIndices() const { return index_; }
 
    private:
     /** finds position of least significant unset bit */
-    int First0Bit(AccessorType num)
+    int First0Bit(Size num)
     {
         int pos = 0;
         while (num & 1)
@@ -2111,15 +3503,14 @@ class KDTreeSingleIndexDynamicAdaptor
     void init()
     {
         using my_kd_tree_t =
-            KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM>;
-        std::vector<my_kd_tree_t> index_(
-            treeCount,
-            my_kd_tree_t(dim /*dim*/, dataset, treeIndex, index_params));
-        index = index_;
+            KDTreeSingleIndexDynamicAdaptor_<Distance, DatasetAdaptor, DIM, IndexType>;
+        std::vector<my_kd_tree_t> index(
+            treeCount_, my_kd_tree_t(dim_ /*dim*/, dataset_, treeIndex_, index_params_));
+        index_ = index;
     }
 
    public:
-    Distance distance;
+    Distance distance_;
 
     /**
      * KDTree constructor
@@ -2127,69 +3518,105 @@ class KDTreeSingleIndexDynamicAdaptor
      * Refer to docs in README.md or online in
      * https://github.com/jlblancoc/nanoflann
      *
-     * The KD-Tree point dimension (the length of each point in the datase, e.g.
+     * The KD-Tree point dimension (the length of each point in the dataset, e.g.
      * 3 for 3D points) is determined by means of:
      *  - The \a DIM template parameter if >0 (highest priority)
      *  - Otherwise, the \a dimensionality parameter of this constructor.
      *
-     * @param inputData Dataset with the input features
+     * @param inputData Dataset with the input features. Its lifetime must be
+     *  equal or longer than that of the instance of this class.
      * @param params Basically, the maximum leaf node size
      */
-    KDTreeSingleIndexDynamicAdaptor(
+    explicit KDTreeSingleIndexDynamicAdaptor(
         const int dimensionality, const DatasetAdaptor& inputData,
-        const KDTreeSingleIndexAdaptorParams& params =
-            KDTreeSingleIndexAdaptorParams(),
-        const size_t maximumPointCount = 1000000000U)
-        : dataset(inputData), index_params(params), distance(inputData)
+        const KDTreeSingleIndexAdaptorParams& params            = KDTreeSingleIndexAdaptorParams(),
+        const size_t                          maximumPointCount = 1000000000U)
+        : dataset_(inputData), index_params_(params), distance_(inputData)
     {
-        treeCount  = static_cast<size_t>(std::log2(maximumPointCount));
-        pointCount = 0U;
-        dim        = dimensionality;
-        treeIndex.clear();
-        if (DIM > 0) dim = DIM;
-        m_leaf_max_size = params.leaf_max_size;
+        treeCount_  = static_cast<size_t>(std::log2(maximumPointCount)) + 1;
+        pointCount_ = 0U;
+        dim_        = dimensionality;
+        treeIndex_.clear();
+        if (DIM > 0) dim_ = DIM;
+        leaf_max_size_ = params.leaf_max_size;
         init();
-        const size_t num_initial_points = dataset.kdtree_get_point_count();
-        if (num_initial_points > 0) { addPoints(0, num_initial_points - 1); }
+        const size_t num_initial_points = dataset_.kdtree_get_point_count();
+        if (num_initial_points > 0)
+        {
+            addPoints(0, static_cast<IndexType>(num_initial_points - 1));
+        }
     }
 
     /** Deleted copy constructor*/
-    KDTreeSingleIndexDynamicAdaptor(
-        const KDTreeSingleIndexDynamicAdaptor<
-            Distance, DatasetAdaptor, DIM, AccessorType>&) = delete;
+    explicit KDTreeSingleIndexDynamicAdaptor(
+        const KDTreeSingleIndexDynamicAdaptor<Distance, DatasetAdaptor, DIM, IndexType>&) = delete;
 
     /** Add points to the set, Inserts all points from [start, end] */
-    void addPoints(AccessorType start, AccessorType end)
+    void addPoints(IndexType start, IndexType end)
     {
-        Size count = end - start + 1;
-        treeIndex.resize(treeIndex.size() + count);
-        for (AccessorType idx = start; idx <= end; idx++)
+        int maxIndex = 0;
+        for (IndexType idx = start; idx <= end; idx++)
         {
-            int pos = First0Bit(pointCount);
-            index[pos].vAcc.clear();
-            treeIndex[pointCount] = pos;
+            // If this index was previously removed, its point is still
+            // physically present in its sub-tree (removal is lazy and never
+            // deletes from vAcc_). Just clear the "removed" mark and restore its
+            // tree index. Re-inserting it would create a duplicate entry that
+            // grows the trees without bound and yields duplicate search results.
+            const auto it = removedPoints_.find(idx);
+            if (it != removedPoints_.end())
+            {
+                treeIndex_[idx] = it->second;
+                removedPoints_.erase(it);
+                continue;
+            }
+
+            const int pos = First0Bit(pointCount_);
+            maxIndex      = std::max(pos, maxIndex);
+            if (treeIndex_.size() <= static_cast<size_t>(pointCount_))
+                treeIndex_.resize(static_cast<size_t>(pointCount_) + 1);
+            treeIndex_[pointCount_] = pos;
+
             for (int i = 0; i < pos; i++)
             {
-                for (int j = 0; j < static_cast<int>(index[i].vAcc.size()); j++)
+                for (size_t j = 0; j < index_[i].vAcc_.size(); j++)
                 {
-                    index[pos].vAcc.push_back(index[i].vAcc[j]);
-                    if (treeIndex[index[i].vAcc[j]] != -1)
-                        treeIndex[index[i].vAcc[j]] = pos;
+                    const IndexType e = index_[i].vAcc_[j];
+                    index_[pos].vAcc_.push_back(e);
+                    if (treeIndex_[e] != -1)
+                        treeIndex_[e] = pos;
+                    else
+                        removedPoints_[e] = pos;  // keep tombstone's tree index current
                 }
-                index[i].vAcc.clear();
-                index[i].freeIndex(index[i]);
+                index_[i].vAcc_.clear();
             }
-            index[pos].vAcc.push_back(idx);
-            index[pos].buildIndex();
-            pointCount++;
+            index_[pos].vAcc_.push_back(idx);
+            pointCount_++;
+        }
+
+        for (int i = 0; i <= maxIndex; ++i)
+        {
+            // Sub-trees merged into a larger one release their memory; the others
+            // are rebuilt in place.
+            if (index_[i].vAcc_.empty())
+            {
+                index_[i].freeIndex(index_[i]);
+            }
+            else
+            {
+                index_[i].buildIndex();
+            }
         }
     }
 
     /** Remove a point from the set (Lazy Deletion) */
     void removePoint(size_t idx)
     {
-        if (idx >= pointCount) return;
-        treeIndex[idx] = -1;
+        if (idx >= pointCount_) return;
+        if (treeIndex_[idx] == -1) return;  // already removed
+        // Remember which sub-tree still physically holds this point, so it can
+        // be reactivated in place if re-added later (see addPoints).
+        removedPoints_[static_cast<IndexType>(idx)] = treeIndex_[idx];
+        treeIndex_[idx]                             = -1;
     }
 
     /**
@@ -2204,17 +3631,1766 @@ class KDTreeSingleIndexDynamicAdaptor
      * \tparam RESULTSET Should be any ResultSet<DistanceType>
      * \return  True if the requested neighbors could be found.
      * \sa knnSearch, radiusSearch
+     *
+     * \note If L2 norms are used, all returned distances are actually squared
+     *       distances.
      */
     template <typename RESULTSET>
     bool findNeighbors(
-        RESULTSET& result, const ElementType* vec,
-        const SearchParams& searchParams) const
+        RESULTSET& result, const ElementType* vec, const SearchParameters& searchParams = {}) const
     {
-        for (size_t i = 0; i < treeCount; i++)
-        { index[i].findNeighbors(result, &vec[0], searchParams); }
+        // The result set is shared (accumulated) across all sub-trees, so a
+        // radius search must be sorted only once, at the very end, rather than
+        // re-sorting the cumulative vector inside each sub-tree's findNeighbors.
+        SearchParameters unsortedParams = searchParams;
+        unsortedParams.sorted           = false;
+        for (size_t i = 0; i < treeCount_; i++)
+        {
+            index_[i].findNeighbors(result, &vec[0], unsortedParams);
+        }
+        if (searchParams.sorted)
+        {
+            result.sort();
+        }
         return result.full();
     }
 };
+
+/** Parameters for KDTreeSingleIndexIncrementalAdaptor.
+ *
+ * The two \a alpha_* thresholds drive the weight-balanced (scapegoat-style)
+ * partial rebuilds:
+ *  - \a alpha_balance : a subtree is rebuilt when the larger of its two child
+ *    subtrees holds more than this fraction of the subtree's points. Lower
+ *    values keep the tree better balanced (faster queries) at the price of more
+ *    frequent rebuilds. Typical range [0.55, 0.85].
+ *  - \a alpha_deleted : a subtree is rebuilt (physically dropping tombstoned
+ *    points) when the fraction of removed points in it exceeds this value. Lower
+ *    values reclaim memory more aggressively. Typical range [0.3, 0.7].
+ */
+struct KDTreeIncrementalIndexParams
+{
+    KDTreeIncrementalIndexParams(float alpha_balance_ = 0.75f, float alpha_deleted_ = 0.5f)
+        : alpha_balance(alpha_balance_), alpha_deleted(alpha_deleted_)
+    {
+    }
+
+    float alpha_balance;
+    float alpha_deleted;
+};
+
+/** kd-tree incremental dynamic index — a single, self-balancing k-d tree.
+ *
+ * This is an additive alternative to KDTreeSingleIndexDynamicAdaptor (the
+ * "logarithmic forest"). Instead of maintaining O(log N) static sub-trees, it
+ * keeps a *single* weight-balanced k-d tree that supports cheap incremental
+ * point insertion, lazy point removal, and pruned axis-aligned box deletions
+ * (removeBox / removeOutsideBox), the latter being the primary map-maintenance
+ * primitive used in LiDAR odometry (keep a local cube around the sensor and
+ * discard everything outside it as the platform moves).
+ *
+ * Compared with the forest, the single tree avoids the multiplicative
+ * O(log N) query penalty of querying every sub-tree, and keeps deletion garbage
+ * bounded (a subtree is rebuilt once its dead fraction crosses
+ * `alpha_deleted`), at the price of synchronous O(N) rebuild spikes near the
+ * root.
+ *
+ * Like the other adaptors this is zero-copy: the data points live in the
+ * user-provided dataset; the tree only stores point indices. Each tree node
+ * holds a single point plus augmentation (subtree size, tombstone count and an
+ * axis-aligned bounding box) used to prune the box-region operations.
+ *
+ * \note Threading: like the rest of nanoflann, const queries are safe for
+ *       concurrent readers, but mutating operations (addPoints / removePoint /
+ *       removeBox / removeOutsideBox) must not run concurrently with any query.
+ *
+ * \note A compile-time fixed \a DIM (e.g. 3 for 3D LiDAR) is recommended: the
+ *       per-node bounding box is then a stack std::array and no per-node heap
+ *       allocation occurs. With DIM=-1 each node's box is a std::vector.
+ *
+ * \note Metrics: besides the Euclidean L1/L2/L2_Simple metrics, under C++17 this
+ *       index also accepts the compile-time product-manifold metrics
+ *       (Manifold_Adaptor / metric_Manifold<Space>) and returns *exact* nearest
+ *       neighbors on non-Euclidean state spaces (SO(2), SO(3), SE(2), SE(3),
+ *       S^2, tori, and products). The topology-aware pruning reuses the
+ *       per-subtree boxes this index already maintains as the region supersets
+ *       required by the admissibility lemma, so it is no costlier to obtain than
+ *       in the static tree (see the companion paper).
+ *
+ * \tparam Distance The distance metric (nanoflann::metric_L2_Simple, etc).
+ * \tparam DatasetAdaptor The user-provided dataset adaptor.
+ * \tparam DIM Dimensionality of the data points (e.g. 3), or -1 for runtime.
+ * \tparam IndexType Type used to index data points (e.g. uint32_t).
+ */
+template <typename Distance, class DatasetAdaptor, int32_t DIM = -1, typename IndexType = uint32_t>
+class KDTreeSingleIndexIncrementalAdaptor
+    : public KDTreeBaseClass<
+          KDTreeSingleIndexIncrementalAdaptor<Distance, DatasetAdaptor, DIM, IndexType>, Distance,
+          DatasetAdaptor, DIM, IndexType>
+{
+   public:
+    using Base = typename nanoflann::KDTreeBaseClass<
+        KDTreeSingleIndexIncrementalAdaptor<Distance, DatasetAdaptor, DIM, IndexType>, Distance,
+        DatasetAdaptor, DIM, IndexType>;
+
+    using ElementType  = typename Base::ElementType;
+    using DistanceType = typename Base::DistanceType;
+
+    using Offset    = typename Base::Offset;
+    using Size      = typename Base::Size;
+    using Dimension = typename Base::Dimension;
+
+    using Interval          = typename Base::Interval;
+    using BoundingBox       = typename Base::BoundingBox;
+    using distance_vector_t = typename Base::distance_vector_t;
+
+    /** The data source used by this index. */
+    const DatasetAdaptor& dataset_;
+
+    Distance distance_;
+
+    /** Augmented tree node: stores a single data point plus the maintenance
+     *  metadata. Children pointers are nullptr at the leaves. */
+    struct INode
+    {
+        IndexType   ptIdx         = 0;  //!< index of the stored data point
+        Dimension   divfeat       = 0;  //!< splitting axis at this node
+        bool        deleted       = false;  //!< this node's point is tombstoned
+        bool        treeDeleted   = false;  //!< whole subtree lazily tombstoned
+        INode*      child1        = nullptr;  //!< "< split" child (also free-list link)
+        INode*      child2        = nullptr;  //!< ">= split" child
+        INode*      parent        = nullptr;  //!< parent (nullptr at the root)
+        Size        subtree_size  = 0;  //!< number of nodes in this subtree
+        Size        invalid_count = 0;  //!< number of tombstoned nodes in subtree
+        BoundingBox box;  //!< AABB of all points (live+dead) in this subtree
+        //! Cache of this node's own point coordinates, kept in-node to avoid the
+        //! dataset_get() indirection on the hot query / insert / box paths. Only
+        //! populated for a compile-time fixed DIM (`kCacheCoords`); for DIM=-1 it
+        //! stays an empty vector and the code falls back to the dataset.
+        typename array_or_vector<DIM, ElementType>::type pcoord;
+    };
+
+    /** Whether per-node coordinate caching is active: only for a compile-time
+     *  fixed DIM, so the cache is a stack array and adds no per-node heap.
+     *  Define NANOFLANN_INCREMENTAL_NO_COORD_CACHE to opt out (e.g. a very large
+     *  ElementType) and always read coordinates from the dataset. */
+#if defined(NANOFLANN_INCREMENTAL_NO_COORD_CACHE)
+    static constexpr bool kCacheCoords = false;
+#else
+    static constexpr bool kCacheCoords = (DIM > 0);
+#endif
+
+    /** Whether nodes freed by a partial rebuild are recycled through the
+     *  free-list. Always on except for ablation builds
+     *  (NANOFLANN_INCREMENTAL_NO_FREELIST), where memory is expected to grow
+     *  with total inserts rather than with the live set. */
+#if defined(NANOFLANN_INCREMENTAL_NO_FREELIST)
+    static constexpr bool kRecycleNodes = false;
+#else
+    static constexpr bool kRecycleNodes = true;
+#endif
+
+   private:
+    /** Pooled allocator the INode's are carved from (freed all at once). */
+    PooledAllocator pool_;
+
+    INode* iroot_    = nullptr;  //!< root of the incremental tree
+    INode* freeList_ = nullptr;  //!< recycled nodes (linked via child1)
+
+    Size liveCount_  = 0;  //!< number of live (non-tombstoned) points
+    Size totalCount_ = 0;  //!< number of nodes physically in the tree
+
+    float alphaBal_ = 0.75f;
+    float alphaDel_ = 0.5f;
+    /// Subtrees smaller than this are never rebuilt for *balance* reasons.
+    static constexpr Size kMinBalanceRebuild = 4;
+    /// addPoints() bulk-builds instead of inserting point-by-point when the
+    /// batch is at least this fraction of the current live count (see addPoints).
+    static constexpr double kBulkInsertFraction = 0.5;
+
+    /// Highest unbalanced node found during the current insertion (rebuilt once).
+    INode* pendingRebuild_ = nullptr;
+
+    /// When false, the index never performs inline (synchronous) balance or
+    /// deletion rebuilds: it only appends / lazily tombstones, and balance is
+    /// restored externally by full bulk rebuilds. Used by the multi-threaded
+    /// wrapper, which offloads the expensive rebuilds to a background thread.
+    bool inlineRebuild_ = true;
+
+    /// idx -> node holding that point (nullptr if the point is not present).
+    std::vector<INode*> nodeOfPoint_;
+
+    /// Scratch buffer reused across rebuilds (live indices being re-balanced).
+    std::vector<IndexType> buildBuf_;
+
+    /// Optional sink for physically-evicted point indices (acquireRemovedPoints).
+    bool                   collectRemoved_ = false;
+    std::vector<IndexType> removedSink_;
+
+   public:
+    /** Constructor.
+     * @param dimensionality Runtime dimensionality (ignored if DIM>0).
+     * @param inputData Dataset adaptor; its lifetime must outlive this index.
+     * @param params Balancing thresholds (see KDTreeIncrementalIndexParams).
+     *
+     * The tree starts empty regardless of the dataset size; call addPoints()
+     * to insert points (their indices must be valid in \a inputData).
+     */
+    explicit KDTreeSingleIndexIncrementalAdaptor(
+        const Dimension dimensionality, const DatasetAdaptor& inputData,
+        const KDTreeIncrementalIndexParams& params = {})
+        : dataset_(inputData), distance_(inputData)
+    {
+        Base::dim_ = dimensionality;
+        if (DIM > 0) Base::dim_ = DIM;
+        alphaBal_ = params.alpha_balance;
+        alphaDel_ = params.alpha_deleted;
+        resize(Base::root_bbox_, static_cast<Dimension>(this->veclen(*this)));
+    }
+
+    /** Deleted copy constructor (owns raw node memory). */
+    KDTreeSingleIndexIncrementalAdaptor(const KDTreeSingleIndexIncrementalAdaptor&) = delete;
+    KDTreeSingleIndexIncrementalAdaptor& operator=(const KDTreeSingleIndexIncrementalAdaptor&) =
+        delete;
+
+    ~KDTreeSingleIndexIncrementalAdaptor() { destroyNodeObjects(); }
+
+    /** \name Modifiers
+     * @{ */
+
+    /** Insert a single point (by its index in the dataset). */
+    void addPoint(IndexType idx)
+    {
+        ensureNodeMap(idx);
+        insertOne(idx);
+        syncRootBox();
+    }
+
+    /** Insert all points with indices in the inclusive range [start, end].
+     *
+     *  When the batch is large relative to the current tree (an empty tree, or
+     *  a batch comparable to the live count — e.g. a full LiDAR scan rebuilding
+     *  a heavily-trimmed map) it is cheaper to flatten the live points and
+     *  bulk-build one balanced tree than to descend-insert each point and
+     *  trigger near-root scapegoat rebuilds. Small batches relative to a large
+     *  map take the incremental per-point path. */
+    void addPoints(IndexType start, IndexType end)
+    {
+        if (end < start) return;
+        ensureNodeMap(end);
+        const Size batch = static_cast<Size>(end - start) + 1;
+        if (!iroot_ ||
+            static_cast<double>(batch) >= kBulkInsertFraction * static_cast<double>(liveCount_))
+        {
+            buildBuf_.clear();
+            if (iroot_) collectLiveAndFree(iroot_, buildBuf_);  // keep existing live points
+            for (IndexType idx = start; idx <= end; ++idx) buildBuf_.push_back(idx);
+            iroot_      = buildBalanced(buildBuf_, 0, buildBuf_.size(), 0, nullptr);
+            liveCount_  = buildBuf_.size();
+            totalCount_ = liveCount_;
+        }
+        else
+        {
+            for (IndexType idx = start; idx <= end; ++idx) insertOne(idx);
+        }
+        syncRootBox();
+    }
+
+    /** Lazily remove the point with the given index (no-op if absent/removed). */
+    void removePoint(IndexType idx)
+    {
+        if (idx >= nodeOfPoint_.size()) return;
+        INode* n = nodeOfPoint_[idx];
+        if (!n || n->deleted) return;
+        // A point can also be logically dead via a treeDeleted ancestor (a
+        // lazily-killed box region). Detect that and treat it as already gone.
+        for (INode* p = n->parent; p; p = p->parent)
+            if (p->treeDeleted) return;
+
+        n->deleted = true;
+        for (INode* p = n; p; p = p->parent) ++p->invalid_count;
+        --liveCount_;
+        maybeRebuildForDeletion();
+        syncRootBox();
+    }
+
+    /** Remove every live point lying inside the axis-aligned box \a box.
+     *  \note For manifold metrics the box is interpreted in raw coordinates and
+     *        does *not* wrap: circular / quaternion coordinates are compared by
+     *        their stored scalar value. For an SE(3) sliding-window trim, bound
+     *        the translation dims and set the quaternion dims to [-1, 1] (and
+     *        circular dims to [-pi, pi]) to keep the whole rotation block. */
+    void removeBox(const BoundingBox& box)
+    {
+        if (iroot_) removeBoxRec(iroot_, box);
+        maybeRebuildForDeletion();
+        syncRootBox();
+    }
+
+    /** Remove every live point lying *outside* the axis-aligned box \a keep.
+     *  This is the LiDAR sliding-window map-trimming primitive. */
+    void removeOutsideBox(const BoundingBox& keep)
+    {
+        if (iroot_) removeOutsideBoxRec(iroot_, keep);
+        maybeRebuildForDeletion();
+        syncRootBox();
+    }
+
+    /** Enable/disable recording of physically-evicted point indices, returned
+     *  by acquireRemovedPoints(). Off by default (cost-free when unused). */
+    void setCollectRemovedPoints(bool enable)
+    {
+        collectRemoved_ = enable;
+        if (!enable) std::vector<IndexType>().swap(removedSink_);
+    }
+
+    /** Move out the list of point indices physically dropped (during rebuilds)
+     *  since the last call. Requires setCollectRemovedPoints(true). */
+    std::vector<IndexType> acquireRemovedPoints()
+    {
+        std::vector<IndexType> out;
+        out.swap(removedSink_);
+        return out;
+    }
+
+    /** Enable/disable inline (synchronous) rebalancing. When disabled the index
+     *  only appends and lazily tombstones; balance must be restored externally
+     *  via buildFromIndices(). Used by the multi-threaded wrapper. */
+    void setInlineRebuild(bool enable) { inlineRebuild_ = enable; }
+
+    /** Append the live point indices (DFS, skipping tombstones) into \a out.
+     *  Non-destructive; used to snapshot the tree for a background rebuild. */
+    void snapshotLiveIndices(std::vector<IndexType>& out) const { snapshotRec(iroot_, out); }
+
+    /** Append EVERY physically-stored point index (live and tombstoned) into
+     *  \a out. Used by the multi-threaded wrapper to detect which dataset slots
+     *  become free after a background rebuild swap. */
+    void collectPhysicalIndices(std::vector<IndexType>& out) const { collectAllRec(iroot_, out); }
+
+    /** True if some tree node currently references the given point index (i.e.
+     *  the dataset slot is in use and must not be recycled). */
+    NANOFLANN_NODISCARD bool referencesIndex(IndexType idx) const
+    {
+        return idx < nodeOfPoint_.size() && nodeOfPoint_[idx] != nullptr;
+    }
+
+    /** Discard the current tree and bulk-build a fresh, balanced tree over the
+     *  given point indices. O(M log M). Reuses recycled nodes via the pool. */
+    void buildFromIndices(const std::vector<IndexType>& idxs)
+    {
+        // Validate (and grow the point->node map) before touching the current
+        // tree, so a rejected index list leaves the index untouched.
+        IndexType maxIdx = 0;
+        for (IndexType v : idxs) maxIdx = std::max(maxIdx, v);
+        if (!idxs.empty()) ensureNodeMap(maxIdx);
+
+        if (iroot_)
+        {
+            buildBuf_.clear();
+            collectLiveAndFree(iroot_, buildBuf_);  // recycle existing nodes
+            iroot_ = nullptr;
+        }
+        buildBuf_.assign(idxs.begin(), idxs.end());
+        iroot_      = buildBalanced(buildBuf_, 0, buildBuf_.size(), 0, nullptr);
+        liveCount_  = buildBuf_.size();
+        totalCount_ = liveCount_;
+        syncRootBox();
+    }
+
+    /** @} */
+
+    /** \name Capacity / observers
+     * @{ */
+
+    /** Number of live (non-removed) points currently in the index. */
+    NANOFLANN_NODISCARD Size size() const noexcept { return liveCount_; }
+    NANOFLANN_NODISCARD bool empty() const noexcept { return liveCount_ == 0; }
+
+    /** Number of nodes physically stored (live + not-yet-reclaimed tombstones). */
+    NANOFLANN_NODISCARD Size physicalSize() const noexcept { return totalCount_; }
+
+    /** Approximate bytes used by the node pool and the index->node map. */
+    NANOFLANN_NODISCARD Size usedMemory() const
+    {
+        return pool_.usedMemory + pool_.wastedMemory + nodeOfPoint_.capacity() * sizeof(INode*);
+    }
+
+    /** Axis-aligned bounding box of all points currently in the index (live and
+     *  not-yet-reclaimed tombstones — a conservative superset of the live set).
+     *  O(1): returns the cached root box. Meaningless if empty() (all zeros). */
+    NANOFLANN_NODISCARD BoundingBox boundingBox() const { return Base::root_bbox_; }
+
+    /** Pre-size the internal index->node map (and the rebuild scratch buffer) to
+     *  avoid reallocations while the point count grows toward \a n. */
+    void reserve(Size n)
+    {
+        nodeOfPoint_.reserve(n);
+        buildBuf_.reserve(n);
+    }
+
+    /** @} */
+
+    /** \name Query methods
+     * @{ */
+
+    /** Core search: find neighbors of \a vec, storing them in \a result. */
+    template <typename RESULTSET>
+    bool findNeighbors(
+        RESULTSET& result, const ElementType* vec, const SearchParameters& searchParams = {}) const
+    {
+        assert(vec);
+        if (!iroot_ || liveCount_ == 0) return false;
+        const DistanceType epsError = 1 + static_cast<DistanceType>(searchParams.eps);
+
+        distance_vector_t dists;
+        assign(dists, this->veclen(*this), static_cast<typename distance_vector_t::value_type>(0));
+        const DistanceType dist = this->computeInitialDistances(*this, vec, dists);
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+        if constexpr (is_manifold_metric<Distance>::value)
+            searchLevelIncManifold(result, vec, iroot_, dist, dists, epsError, this->veclen(*this));
+        else
+#endif
+            searchLevelInc(result, vec, iroot_, dist, dists, epsError, this->veclen(*this));
+        if (searchParams.sorted) result.sort();
+        return result.full();
+    }
+
+    /** Find the \a num_closest nearest neighbors to \a query_point. */
+    NANOFLANN_NODISCARD Size knnSearch(
+        const ElementType* query_point, const Size num_closest, IndexType* out_indices,
+        DistanceType* out_distances, const SearchParameters& searchParams = {}) const
+    {
+        nanoflann::KNNResultSet<DistanceType, IndexType> resultSet(num_closest);
+        resultSet.init(out_indices, out_distances);
+        findNeighbors(resultSet, query_point, searchParams);
+        return resultSet.size();
+    }
+
+    /** Radius search around \a query_point. */
+    NANOFLANN_NODISCARD Size radiusSearch(
+        const ElementType* query_point, const DistanceType& radius,
+        std::vector<ResultItem<IndexType, DistanceType>>& IndicesDists,
+        const SearchParameters&                           searchParams = {}) const
+    {
+        RadiusResultSet<DistanceType, IndexType> resultSet(radius, IndicesDists);
+        findNeighbors(resultSet, query_point, searchParams);
+        return resultSet.size();
+    }
+
+    /** Custom-callback radius search. */
+    template <class SEARCH_CALLBACK>
+    NANOFLANN_NODISCARD Size radiusSearchCustomCallback(
+        const ElementType* query_point, SEARCH_CALLBACK& resultSet,
+        const SearchParameters& searchParams = {}) const
+    {
+        findNeighbors(resultSet, query_point, searchParams);
+        return resultSet.size();
+    }
+
+    /** Radius-limited KNN around \a query_point. */
+    NANOFLANN_NODISCARD Size rknnSearch(
+        const ElementType* query_point, const Size num_closest, IndexType* out_indices,
+        DistanceType* out_distances, const DistanceType& radius) const
+    {
+        nanoflann::RKNNResultSet<DistanceType, IndexType> resultSet(num_closest, radius);
+        resultSet.init(out_indices, out_distances);
+        findNeighbors(resultSet, query_point);
+        return resultSet.size();
+    }
+
+    /** Find all live points contained within the box \a bbox. */
+    template <typename RESULTSET>
+    NANOFLANN_NODISCARD Size findWithinBox(RESULTSET& result, const BoundingBox& bbox) const
+    {
+        if (iroot_) findWithinBoxRec(result, iroot_, bbox);
+        return result.size();
+    }
+
+    /** @} */
+
+    /** \name Persistence (index topology only; the dataset is NOT stored)
+     * @{ */
+
+    /** Magic number written at the start of every saveIndex() stream of this
+     *  incremental index. Distinct from the static KDTreeSingleIndexAdaptor's
+     *  SAVE_MAGIC so that loading the wrong kind of file fails fast with a
+     *  clear error instead of silently misinterpreting the bytes.
+     *  Spells 'NFLI' (nanoflann incremental) in ASCII. */
+    static constexpr uint32_t INCREMENTAL_SAVE_MAGIC = 0x4E464C49;
+
+    /** Serializes the tree *topology* (split axis, tombstone flags, and the
+     *  live/dead tree shape) to a binary stream. Point coordinates are NOT
+     *  stored: as with the static index's saveIndex(), the object must be
+     *  reattached to a dataset with the very same content before loadIndex()
+     *  is called on it.
+     *
+     *  Every other per-node field (bounding box, subtree size, tombstone
+     *  counts, coordinate cache, parent pointer) is recomputed on load instead
+     *  of stored, since they are all structural invariants derivable from the
+     *  fields above; this keeps the format independent of DIM being
+     *  compile-time fixed or runtime, unlike a raw struct byte-dump.
+     *
+     * \note Portability limitations as in the static index's saveIndex(): not
+     *   portable across endianness, 32- vs 64-bit size_t, nanoflann versions,
+     *   or IndexType/ElementType/DistanceType instantiations (checked, throws
+     *   on mismatch).
+     *
+     * \sa loadIndex
+     */
+    void saveIndex(std::ostream& stream) const
+    {
+        const uint32_t hdr_magic   = INCREMENTAL_SAVE_MAGIC;
+        const uint32_t hdr_version = static_cast<uint32_t>(NANOFLANN_VERSION);
+        const uint8_t  hdr_sz_st   = static_cast<uint8_t>(sizeof(size_t));
+        const uint8_t  hdr_sz_idx  = static_cast<uint8_t>(sizeof(IndexType));
+        const uint8_t  hdr_sz_elem = static_cast<uint8_t>(sizeof(ElementType));
+        const uint8_t  hdr_sz_dist = static_cast<uint8_t>(sizeof(DistanceType));
+        save_value(stream, hdr_magic);
+        save_value(stream, hdr_version);
+        save_value(stream, hdr_sz_st);
+        save_value(stream, hdr_sz_idx);
+        save_value(stream, hdr_sz_elem);
+        save_value(stream, hdr_sz_dist);
+
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        save_value(stream, dims);
+
+        const uint8_t hasRoot = iroot_ ? 1 : 0;
+        save_value(stream, hasRoot);
+        if (iroot_) saveNode(stream, iroot_);
+    }
+
+    /** Loads a tree topology previously saved with saveIndex().
+     *
+     * \note Must be called on a freshly constructed index (mirrors the static
+     *   index's loadIndex() precondition): loading into an already-populated
+     *   tree is not supported and would leak its nodes. The object must
+     *   already be attached (via the constructor) to a dataset holding the
+     *   very same points that were indexed when saveIndex() was called.
+     *
+     * \throws std::runtime_error on a magic-number/version/type-size/
+     *   dimensionality mismatch, or a stream read error.
+     *
+     * \sa saveIndex
+     */
+    void loadIndex(std::istream& stream)
+    {
+        uint32_t magic = 0;
+        load_value(stream, magic);
+        if (stream.fail() || magic != INCREMENTAL_SAVE_MAGIC)
+        {
+            throw std::runtime_error(
+                "KDTreeSingleIndexIncrementalAdaptor::loadIndex: invalid file (wrong magic "
+                "number). The stream was not written by this class' saveIndex(), or was written "
+                "by the static KDTreeSingleIndexAdaptor instead.");
+        }
+
+        uint32_t file_version = 0;
+        load_value(stream, file_version);
+        if (file_version != static_cast<uint32_t>(NANOFLANN_VERSION))
+        {
+            char msg[200];
+            snprintf(
+                msg, sizeof(msg),
+                "KDTreeSingleIndexIncrementalAdaptor::loadIndex: version mismatch "
+                "(file=0x%03X, library=0x%03X). Rebuild the index.",
+                file_version, static_cast<unsigned>(NANOFLANN_VERSION));
+            throw std::runtime_error(msg);
+        }
+
+        uint8_t sz_size_t = 0;
+        uint8_t sz_idx    = 0;
+        uint8_t sz_elem   = 0;
+        uint8_t sz_dist   = 0;
+        load_value(stream, sz_size_t);
+        load_value(stream, sz_idx);
+        load_value(stream, sz_elem);
+        load_value(stream, sz_dist);
+        if (sz_size_t != static_cast<uint8_t>(sizeof(size_t)) ||
+            sz_idx != static_cast<uint8_t>(sizeof(IndexType)) ||
+            sz_elem != static_cast<uint8_t>(sizeof(ElementType)) ||
+            sz_dist != static_cast<uint8_t>(sizeof(DistanceType)))
+        {
+            throw std::runtime_error(
+                "KDTreeSingleIndexIncrementalAdaptor::loadIndex: type-size mismatch between "
+                "saved index and current template instantiation (sizeof size_t / IndexType / "
+                "ElementType / DistanceType differ). Rebuild the index.");
+        }
+
+        Dimension dims = 0;
+        load_value(stream, dims);
+        if (dims != static_cast<Dimension>(this->veclen(*this)))
+        {
+            throw std::runtime_error(
+                "KDTreeSingleIndexIncrementalAdaptor::loadIndex: dimensionality mismatch "
+                "between the saved index and this object's dataset.");
+        }
+
+        uint8_t hasRoot = 0;
+        load_value(stream, hasRoot);
+        iroot_ = hasRoot ? loadNode(stream, nullptr) : nullptr;
+
+        if (stream.fail())
+        {
+            throw std::runtime_error(
+                "KDTreeSingleIndexIncrementalAdaptor::loadIndex: unexpected end of stream or "
+                "read error.");
+        }
+
+        totalCount_ = iroot_ ? iroot_->subtree_size : 0;
+        liveCount_  = iroot_ ? iroot_->subtree_size - iroot_->invalid_count : 0;
+        syncRootBox();
+    }
+
+    /** @} */
+
+   private:
+    // --------------------------------------------------------------------
+    //  Node allocation (bump-allocate from the pool, recycle via free-list)
+    // --------------------------------------------------------------------
+    INode* allocNode()
+    {
+        if (kRecycleNodes && freeList_)
+        {
+            INode* n  = freeList_;
+            freeList_ = n->child1;
+            return n;  // already constructed; box storage reused
+        }
+        INode* n = pool_.template allocate<INode>();
+        // Placement-new so that, for DIM=-1, the std::vector box is constructed.
+        ::new (static_cast<void*>(n)) INode();
+        resize(n->box, static_cast<Dimension>(this->veclen(*this)));
+        if (kCacheCoords) resize(n->pcoord, static_cast<Dimension>(this->veclen(*this)));
+        return n;
+    }
+
+    /** Fill the node's cached coordinates from the dataset (fixed DIM only). */
+    void cacheCoords(INode* n)
+    {
+        if (!kCacheCoords) return;
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i) n->pcoord[i] = pt(n->ptIdx, i);
+    }
+
+    /** Coordinate of a node's own point along axis \a d (cached for fixed DIM). */
+    ElementType nodeCoord(const INode* n, Dimension d) const
+    {
+        return kCacheCoords ? n->pcoord[d] : pt(n->ptIdx, d);
+    }
+
+    /** Whether a node's own point lies inside box \a b (uses the coord cache). */
+    bool nodeInBox(const INode* n, const BoundingBox& b) const
+    {
+        if (!kCacheCoords) return pointInBox(n->ptIdx, b);
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i)
+            if (n->pcoord[i] < b[i].low || n->pcoord[i] > b[i].high) return false;
+        return true;
+    }
+
+    void recycleNode(INode* n)
+    {
+        if (!kRecycleNodes) return;
+        n->child1 = freeList_;
+        freeList_ = n;
+    }
+
+    /** Destroy all constructed INode objects (only needed when the box type is
+     *  not trivially destructible, i.e. DIM=-1 where it owns a std::vector). */
+    void destroyNodeObjects()
+    {
+        if (std::is_trivially_destructible<INode>::value) return;
+        destroySubtree(iroot_);
+        iroot_ = nullptr;
+        while (freeList_)
+        {
+            INode* n  = freeList_;
+            freeList_ = n->child1;
+            n->~INode();
+        }
+    }
+
+    void destroySubtree(INode* n)
+    {
+        if (!n) return;
+        destroySubtree(n->child1);
+        destroySubtree(n->child2);
+        n->~INode();
+    }
+
+    // --------------------------------------------------------------------
+    //  Helpers
+    // --------------------------------------------------------------------
+    ElementType pt(IndexType idx, Dimension d) const { return dataset_.kdtree_get_pt(idx, d); }
+
+    void ensureNodeMap(IndexType idx)
+    {
+        // The point->node map is grown to hold `idx`, so a bogus index is not a
+        // wrong result but an out-of-memory: the maximum IndexType value alone
+        // asks for a 2^32-entry (32 GB) map on the default uint32_t. That value
+        // is what `static_cast<IndexType>(n - 1)` produces when a caller forgets
+        // to special-case an empty (n == 0) dataset, and it would additionally
+        // make the [start,end] loops of addPoints() wrap around forever, so
+        // reject it here, where every index-taking entry point passes through.
+        if (idx == (std::numeric_limits<IndexType>::max)())
+        {
+            throw std::invalid_argument(
+                "[nanoflann] KDTreeSingleIndexIncrementalAdaptor: point index equal to the "
+                "maximum IndexType value; this is almost certainly an underflowed 'size - 1' "
+                "on an empty dataset.");
+        }
+        if (idx >= nodeOfPoint_.size()) nodeOfPoint_.resize(static_cast<size_t>(idx) + 1, nullptr);
+    }
+
+    void syncRootBox()
+    {
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        if (iroot_)
+            for (Dimension i = 0; i < dims; ++i) Base::root_bbox_[i] = iroot_->box[i];
+        else
+            for (Dimension i = 0; i < dims; ++i) Base::root_bbox_[i] = Interval{0, 0};
+    }
+
+    void initBoxToPoint(INode* n)
+    {
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i)
+        {
+            const ElementType v = pt(n->ptIdx, i);
+            n->box[i].low = n->box[i].high = v;
+        }
+    }
+
+    void expandBoxToPoint(INode* n, IndexType idx)
+    {
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i)
+        {
+            const ElementType v = pt(idx, i);
+            if (v < n->box[i].low) n->box[i].low = v;
+            if (v > n->box[i].high) n->box[i].high = v;
+        }
+    }
+
+    void unionBox(INode* n, const INode* c)
+    {
+        if (!c) return;
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i)
+        {
+            if (c->box[i].low < n->box[i].low) n->box[i].low = c->box[i].low;
+            if (c->box[i].high > n->box[i].high) n->box[i].high = c->box[i].high;
+        }
+    }
+
+    bool pointInBox(IndexType idx, const BoundingBox& b) const
+    {
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i)
+        {
+            const ElementType v = pt(idx, i);
+            if (v < b[i].low || v > b[i].high) return false;
+        }
+        return true;
+    }
+
+    bool boxFullyInside(const BoundingBox& inner, const BoundingBox& outer) const
+    {
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i)
+            if (inner[i].low < outer[i].low || inner[i].high > outer[i].high) return false;
+        return true;
+    }
+
+    bool boxDisjoint(const BoundingBox& a, const BoundingBox& b) const
+    {
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        for (Dimension i = 0; i < dims; ++i)
+            if (a[i].high < b[i].low || a[i].low > b[i].high) return true;
+        return false;
+    }
+
+    // --------------------------------------------------------------------
+    //  Insertion
+    // --------------------------------------------------------------------
+    INode* makeLeaf(IndexType idx, Dimension depth, INode* parent)
+    {
+        INode*          n    = allocNode();
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+        n->ptIdx             = idx;
+        n->divfeat           = static_cast<Dimension>(depth % dims);
+        n->deleted           = false;
+        n->treeDeleted       = false;
+        n->child1 = n->child2 = nullptr;
+        n->parent             = parent;
+        n->subtree_size       = 1;
+        n->invalid_count      = 0;
+        initBoxToPoint(n);
+        cacheCoords(n);
+        nodeOfPoint_[idx] = n;
+        return n;
+    }
+
+    /** Insert one point and, in the same pass, rebuild the highest unbalanced
+     *  node on the insertion path (BB[alpha] scapegoat rebalancing). */
+    void insertOne(IndexType idx)
+    {
+        pendingRebuild_ = nullptr;
+        iroot_          = insertRec(iroot_, idx, 0, nullptr);
+        ++liveCount_;
+        ++totalCount_;
+        if (pendingRebuild_ && inlineRebuild_) rebuildAt(pendingRebuild_);
+    }
+
+    INode* insertRec(INode* node, IndexType idx, Dimension depth, INode* parent)
+    {
+        if (!node) return makeLeaf(idx, depth, parent);
+        if (node->treeDeleted) pushDownDelete(node);
+
+        ++node->subtree_size;
+        expandBoxToPoint(node, idx);
+
+        const Dimension axis = node->divfeat;
+        if (pt(idx, axis) < nodeCoord(node, axis))
+            node->child1 = insertRec(node->child1, idx, static_cast<Dimension>(depth + 1), node);
+        else
+            node->child2 = insertRec(node->child2, idx, static_cast<Dimension>(depth + 1), node);
+
+        // On the unwind, remember the *highest* unbalanced node seen on the
+        // path (ancestors are visited after descendants, so the last write
+        // wins). insertOne() rebuilds it once, avoiding a second descent.
+        if (isBalanceScapegoat(node)) pendingRebuild_ = node;
+        return node;
+    }
+
+    /** Make the lazy whole-subtree tombstone one level explicit so the subtree
+     *  is consistent before we descend into it for an insertion. */
+    void pushDownDelete(INode* node)
+    {
+        node->deleted = true;
+        if (node->child1)
+        {
+            node->child1->treeDeleted   = true;
+            node->child1->invalid_count = node->child1->subtree_size;
+        }
+        if (node->child2)
+        {
+            node->child2->treeDeleted   = true;
+            node->child2->invalid_count = node->child2->subtree_size;
+        }
+        node->treeDeleted = false;  // invalid_count already == subtree_size
+    }
+
+    Size maxChildSize(const INode* node) const
+    {
+        const Size l = node->child1 ? node->child1->subtree_size : 0;
+        const Size r = node->child2 ? node->child2->subtree_size : 0;
+        return l > r ? l : r;
+    }
+
+    bool isBalanceScapegoat(const INode* node) const
+    {
+        if (node->subtree_size < kMinBalanceRebuild) return false;
+        return static_cast<float>(maxChildSize(node)) >
+               alphaBal_ * static_cast<float>(node->subtree_size);
+    }
+
+    // --------------------------------------------------------------------
+    //  Deletion (lazy) + box-region deletion
+    // --------------------------------------------------------------------
+    /** Kill an entire subtree in O(1): mark it as wholly tombstoned. */
+    void killSubtree(INode* node)
+    {
+        node->treeDeleted   = true;
+        node->invalid_count = node->subtree_size;
+    }
+
+    /** Remove points outside \a keep. Returns the number newly tombstoned. */
+    Size removeOutsideBoxRec(INode* node, const BoundingBox& keep)
+    {
+        if (!node) return 0;
+        if (node->invalid_count == node->subtree_size) return 0;  // already all dead
+        if (boxFullyInside(node->box, keep)) return 0;  // keep entire subtree
+        if (boxDisjoint(node->box, keep))
+        {
+            const Size newly = node->subtree_size - node->invalid_count;
+            killSubtree(node);
+            liveCount_ -= newly;
+            return newly;
+        }
+        Size newly = 0;
+        if (!node->deleted && !nodeInBox(node, keep))
+        {
+            node->deleted = true;
+            ++newly;
+            --liveCount_;
+        }
+        newly += removeOutsideBoxRec(node->child1, keep);
+        newly += removeOutsideBoxRec(node->child2, keep);
+        node->invalid_count += newly;
+        return newly;
+    }
+
+    /** Remove points inside \a box. Returns the number newly tombstoned. */
+    Size removeBoxRec(INode* node, const BoundingBox& box)
+    {
+        if (!node) return 0;
+        if (node->invalid_count == node->subtree_size) return 0;
+        if (boxDisjoint(node->box, box)) return 0;  // nothing inside
+        if (boxFullyInside(node->box, box))
+        {
+            const Size newly = node->subtree_size - node->invalid_count;
+            killSubtree(node);
+            liveCount_ -= newly;
+            return newly;
+        }
+        Size newly = 0;
+        if (!node->deleted && nodeInBox(node, box))
+        {
+            node->deleted = true;
+            ++newly;
+            --liveCount_;
+        }
+        newly += removeBoxRec(node->child1, box);
+        newly += removeBoxRec(node->child2, box);
+        node->invalid_count += newly;
+        return newly;
+    }
+
+    bool isDeletionScapegoat(const INode* node) const
+    {
+        if (node->subtree_size == 0) return false;
+        return static_cast<float>(node->invalid_count) >
+               alphaDel_ * static_cast<float>(node->subtree_size);
+    }
+
+    INode* findDeletionScapegoat(INode* node) const
+    {
+        if (!node) return nullptr;
+        // `invalid_count` is cumulative over the subtree, so a subtree with no
+        // tombstones cannot contain any scapegoat: prune the whole descent.
+        // This collapses the post-removal walk to the dirty path only (O(N) ->
+        // O(touched)), the main win for high-rate removeBox/removeOutsideBox.
+        if (node->invalid_count == 0) return nullptr;
+        if (isDeletionScapegoat(node)) return node;  // highest wins
+        if (INode* l = findDeletionScapegoat(node->child1)) return l;
+        return findDeletionScapegoat(node->child2);
+    }
+
+    void maybeRebuildForDeletion()
+    {
+        if (!iroot_ || !inlineRebuild_) return;
+        if (INode* sg = findDeletionScapegoat(iroot_)) rebuildAt(sg);
+    }
+
+    // --------------------------------------------------------------------
+    //  Partial rebuild (scapegoat): flatten live points, rebuild balanced
+    // --------------------------------------------------------------------
+    void rebuildAt(INode* node)
+    {
+        INode*  par  = node->parent;
+        INode** link = par ? (par->child1 == node ? &par->child1 : &par->child2) : &iroot_;
+
+        const Size oldSize    = node->subtree_size;
+        const Size oldInvalid = node->invalid_count;
+
+        buildBuf_.clear();
+        collectLiveAndFree(node, buildBuf_);
+
+        INode* nb = buildBalanced(buildBuf_, 0, buildBuf_.size(), 0, par);
+        *link     = nb;
+
+        const Size newSize = nb ? nb->subtree_size : 0;  // == number of live pts
+        // Propagate the change in (size, invalid) up to the ancestors.
+        for (INode* p = par; p; p = p->parent)
+        {
+            p->subtree_size  = p->subtree_size - oldSize + newSize;
+            p->invalid_count = p->invalid_count - oldInvalid;
+        }
+        totalCount_ = totalCount_ - oldSize + newSize;
+    }
+
+    /** Collect the live point indices under \a node (DFS) and recycle every
+     *  node to the free-list. Tombstoned points are dropped (and optionally
+     *  recorded for acquireRemovedPoints()). */
+    void collectLiveAndFree(INode* node, std::vector<IndexType>& out)
+    {
+        if (!node) return;
+        if (node->treeDeleted)
+        {
+            freeDeadSubtree(node);
+            return;
+        }
+        if (!node->deleted)
+            out.push_back(node->ptIdx);
+        else
+            dropDeadPoint(node->ptIdx);
+        collectLiveAndFree(node->child1, out);
+        collectLiveAndFree(node->child2, out);
+        recycleNode(node);
+    }
+
+    void freeDeadSubtree(INode* node)
+    {
+        if (!node) return;
+        dropDeadPoint(node->ptIdx);
+        freeDeadSubtree(node->child1);
+        freeDeadSubtree(node->child2);
+        recycleNode(node);
+    }
+
+    void dropDeadPoint(IndexType idx)
+    {
+        if (idx < nodeOfPoint_.size()) nodeOfPoint_[idx] = nullptr;
+        if (collectRemoved_) removedSink_.push_back(idx);
+    }
+
+    /** DFS collecting live point indices (skips tombstoned points/subtrees). */
+    void snapshotRec(const INode* node, std::vector<IndexType>& out) const
+    {
+        if (!node) return;
+        if (node->invalid_count == node->subtree_size) return;  // whole subtree dead
+        if (!node->deleted) out.push_back(node->ptIdx);
+        snapshotRec(node->child1, out);
+        snapshotRec(node->child2, out);
+    }
+
+    /** DFS collecting every physically-stored index (live and tombstoned). */
+    void collectAllRec(const INode* node, std::vector<IndexType>& out) const
+    {
+        if (!node) return;
+        out.push_back(node->ptIdx);
+        collectAllRec(node->child1, out);
+        collectAllRec(node->child2, out);
+    }
+
+    // --------------------------------------------------------------------
+    //  Persistence (see saveIndex()/loadIndex())
+    // --------------------------------------------------------------------
+    /** Writes one node and its subtree. Only the fields that cannot be
+     *  derived from the rest are stored; see loadNode(). */
+    void saveNode(std::ostream& stream, const INode* n) const
+    {
+        save_value(stream, n->ptIdx);
+        save_value(stream, n->divfeat);
+        save_value(stream, n->deleted);
+        save_value(stream, n->treeDeleted);
+
+        const uint8_t hasChild1 = n->child1 ? 1 : 0;
+        save_value(stream, hasChild1);
+        if (n->child1) saveNode(stream, n->child1);
+
+        const uint8_t hasChild2 = n->child2 ? 1 : 0;
+        save_value(stream, hasChild2);
+        if (n->child2) saveNode(stream, n->child2);
+    }
+
+    /** Loads one node and its subtree. Reconstructs every field not written
+     *  by saveNode() (box, subtree_size, invalid_count, coordinate cache,
+     *  parent link, and the idx->node map entry) from invariants that hold
+     *  regardless of how the tree was originally built:
+     *   - subtree_size is always 1 + the children's (0 if absent).
+     *   - invalid_count equals subtree_size for a treeDeleted node (see
+     *     killSubtree()), otherwise it is this node's own deleted flag plus
+     *     the children's invalid_count.
+     *   - box is this node's point, unioned with the children's boxes.
+     */
+    INode* loadNode(std::istream& stream, INode* parent)
+    {
+        INode* n = allocNode();
+        load_value(stream, n->ptIdx);
+        load_value(stream, n->divfeat);
+        load_value(stream, n->deleted);
+        load_value(stream, n->treeDeleted);
+        n->parent = parent;
+
+        uint8_t hasChild1 = 0;
+        load_value(stream, hasChild1);
+        n->child1 = hasChild1 ? loadNode(stream, n) : nullptr;
+
+        uint8_t hasChild2 = 0;
+        load_value(stream, hasChild2);
+        n->child2 = hasChild2 ? loadNode(stream, n) : nullptr;
+
+        n->subtree_size = 1 + (n->child1 ? n->child1->subtree_size : 0) +
+                          (n->child2 ? n->child2->subtree_size : 0);
+        n->invalid_count = n->treeDeleted ? n->subtree_size
+                                          : static_cast<Size>(n->deleted ? 1 : 0) +
+                                                (n->child1 ? n->child1->invalid_count : 0) +
+                                                (n->child2 ? n->child2->invalid_count : 0);
+
+        initBoxToPoint(n);
+        unionBox(n, n->child1);
+        unionBox(n, n->child2);
+        cacheCoords(n);
+
+        ensureNodeMap(n->ptIdx);
+        nodeOfPoint_[n->ptIdx] = n;
+
+        return n;
+    }
+
+    /** Build a balanced subtree over buf[lo,hi) (median split on widest axis). */
+    INode* buildBalanced(
+        std::vector<IndexType>& buf, size_t lo, size_t hi, Dimension depth, INode* parent)
+    {
+        if (lo >= hi) return nullptr;
+        const Dimension dims = static_cast<Dimension>(this->veclen(*this));
+
+        // Widest-spread axis over buf[lo,hi). As in middleSplit_, `bestSpan`
+        // cannot use a negative sentinel, since ElementType may be unsigned.
+        Dimension   axis     = static_cast<Dimension>(depth % dims);
+        bool        first    = true;
+        ElementType bestSpan = 0;
+        for (Dimension d = 0; d < dims; ++d)
+        {
+            ElementType mn = pt(buf[lo], d), mx = mn;
+            for (size_t k = lo + 1; k < hi; ++k)
+            {
+                const ElementType v = pt(buf[k], d);
+                if (v < mn) mn = v;
+                if (v > mx) mx = v;
+            }
+            const ElementType span = mx - mn;
+            if (first || span > bestSpan)
+            {
+                first    = false;
+                bestSpan = span;
+                axis     = d;
+            }
+        }
+
+        const size_t mid = lo + (hi - lo) / 2;
+        std::nth_element(
+            buf.begin() + lo, buf.begin() + mid, buf.begin() + hi,
+            [this, axis](IndexType a, IndexType b) { return pt(a, axis) < pt(b, axis); });
+
+        INode* node       = allocNode();
+        node->ptIdx       = buf[mid];
+        node->divfeat     = axis;
+        node->deleted     = false;
+        node->treeDeleted = false;
+        node->parent      = parent;
+        cacheCoords(node);
+        nodeOfPoint_[buf[mid]] = node;
+
+        node->child1 = buildBalanced(buf, lo, mid, static_cast<Dimension>(depth + 1), node);
+        node->child2 = buildBalanced(buf, mid + 1, hi, static_cast<Dimension>(depth + 1), node);
+
+        node->subtree_size  = hi - lo;
+        node->invalid_count = 0;
+        initBoxToPoint(node);
+        unionBox(node, node->child1);
+        unionBox(node, node->child2);
+        return node;
+    }
+
+    // --------------------------------------------------------------------
+    //  Search
+    // --------------------------------------------------------------------
+    template <class RESULTSET>
+    void searchLevelInc(
+        RESULTSET& rs, const ElementType* vec, const INode* node, DistanceType mindist,
+        distance_vector_t& dists, const DistanceType epsError, const Size dim) const
+    {
+        if (!node) return;
+        if (node->invalid_count == node->subtree_size) return;  // whole subtree dead
+
+        if (!node->deleted)
+        {
+#if defined(NANOFLANN_INCREMENTAL_INNODE_DISTANCE)
+            // Opt-in: compute the node distance from the in-node coordinate cache
+            // as a sum of per-axis accum_dist contributions. This avoids the
+            // dataset_get() indirection and is ~12% faster on KNN, but is only
+            // valid for *additive* (axis-decomposable) metrics — L1, L2,
+            // L2_Simple. Manifold metrics never reach here: findNeighbors
+            // dispatches them to searchLevelIncManifold (which always uses
+            // evalMetric), so the wrap / quaternion-block cases are safe even
+            // when this opt-in is defined.
+            DistanceType d = DistanceType();
+            if (kCacheCoords)
+                for (Size i = 0; i < dim; ++i)
+                    d += distance_.accum_dist(
+                        vec[i], node->pcoord[static_cast<Dimension>(i)], static_cast<Dimension>(i));
+            else
+                d = distance_.evalMetric(vec, node->ptIdx, dim);
+#else
+            const DistanceType d = distance_.evalMetric(vec, node->ptIdx, dim);
+#endif
+            if (d < rs.worstDist())
+                rs.addPoint(
+                    static_cast<typename RESULTSET::DistanceType>(d),
+                    static_cast<typename RESULTSET::IndexType>(node->ptIdx));
+        }
+
+        const Dimension    axis     = node->divfeat;
+        const ElementType  splitval = nodeCoord(node, axis);
+        const ElementType  val      = vec[axis];
+        const DistanceType cut      = distance_.accum_dist(val, splitval, axis);
+
+        const INode* nearChild;
+        const INode* farChild;
+        if (val < splitval)
+        {
+            nearChild = node->child1;
+            farChild  = node->child2;
+        }
+        else
+        {
+            nearChild = node->child2;
+            farChild  = node->child1;
+        }
+
+        searchLevelInc(rs, vec, nearChild, mindist, dists, epsError, dim);
+
+        const DistanceType dst    = dists[axis];
+        const DistanceType newmin = mindist + cut - dst;
+        dists[axis]               = cut;
+        if (newmin * epsError <= rs.worstDist())
+            searchLevelInc(rs, vec, farChild, newmin, dists, epsError, dim);
+        dists[axis] = dst;
+    }
+
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+    /** Topology-aware twin of searchLevelInc for manifold metrics (C++17).
+     *
+     *  Same recursion, but (i) the in-node distance always uses evalMetric (the
+     *  per-axis cache is invalid for wrap / quaternion blocks, so this also makes
+     *  the NANOFLANN_INCREMENTAL_INNODE_DISTANCE opt-in safe for manifolds), and
+     *  (ii) the far-child lower bound is the admissible point-to-interval
+     *  distance against that child's *own* per-subtree AABB (`box`), which the
+     *  incremental tree already maintains. The box is a raw-coordinate superset
+     *  of every (live or tombstoned) point in the subtree, so the bound is
+     *  admissible (see Lemma 1 / the incremental-index remark in the paper); the
+     *  Euclidean hot path searchLevelInc is left byte-identical. */
+    template <typename RESULTSET>
+    void searchLevelIncManifold(
+        RESULTSET& rs, const ElementType* vec, const INode* node, DistanceType mindist,
+        distance_vector_t& dists, const DistanceType epsError, const Size dim) const
+    {
+        if (!node) return;
+        if (node->invalid_count == node->subtree_size) return;  // whole subtree dead
+
+        if (!node->deleted)
+        {
+            const DistanceType d = distance_.evalMetric(vec, node->ptIdx, dim);
+            if (d < rs.worstDist())
+                rs.addPoint(
+                    static_cast<typename RESULTSET::DistanceType>(d),
+                    static_cast<typename RESULTSET::IndexType>(node->ptIdx));
+        }
+
+        const Dimension   axis = node->divfeat;
+        const ElementType val  = vec[axis];
+
+        const INode* const c1 = node->child1;
+        const INode* const c2 = node->child2;
+
+        // Lower bound on the distance to each child's region (wrap- and
+        // cover-aware), using the child's per-subtree box on the split axis.
+        const DistanceType d1 =
+            c1 ? distance_.pointToIntervalDist(val, c1->box[axis].low, c1->box[axis].high, axis)
+               : DistanceType();
+        const DistanceType d2 =
+            c2 ? distance_.pointToIntervalDist(val, c2->box[axis].low, c2->box[axis].high, axis)
+               : DistanceType();
+
+        const INode* nearChild;
+        const INode* farChild;
+        DistanceType farCut;
+        if (d1 <= d2)
+        {
+            nearChild = c1;
+            farChild  = c2;
+            farCut    = d2;
+        }
+        else
+        {
+            nearChild = c2;
+            farChild  = c1;
+            farCut    = d1;
+        }
+
+        searchLevelIncManifold(rs, vec, nearChild, mindist, dists, epsError, dim);
+
+        if (farChild)
+        {
+            const DistanceType dst    = dists[axis];
+            const DistanceType newmin = mindist + farCut - dst;
+            dists[axis]               = farCut;
+
+            // SO(3): tighten the gate with the block-level chordal bound against
+            // the far child's per-subtree box (same idea as the static tree, but
+            // using the box the incremental index already maintains).
+            DistanceType gateMin = newmin;
+            if constexpr (std::decay_t<decltype(distance_)>::hasQuaternionBlock)
+            {
+                gateMin += distance_.quaternionBlockTightening(vec, farChild->box, dists, dim);
+            }
+            if (gateMin * epsError <= rs.worstDist())
+                searchLevelIncManifold(rs, vec, farChild, newmin, dists, epsError, dim);
+            dists[axis] = dst;
+        }
+    }
+#endif  // NANOFLANN_HAS_MANIFOLDS
+
+    template <typename RESULTSET>
+    void findWithinBoxRec(RESULTSET& result, const INode* node, const BoundingBox& bbox) const
+    {
+        if (!node) return;
+        if (node->invalid_count == node->subtree_size) return;
+        if (boxDisjoint(node->box, bbox)) return;
+        if (!node->deleted && nodeInBox(node, bbox)) result.addPoint(0, node->ptIdx);
+        findWithinBoxRec(result, node->child1, bbox);
+        findWithinBoxRec(result, node->child2, bbox);
+    }
+};
+
+#ifndef NANOFLANN_NO_THREADS
+/** Multi-threaded variant of KDTreeSingleIndexIncrementalAdaptor that hides the
+ *  O(N) near-root rebuild spike: the large balancing rebuild is performed on a
+ *  background thread while the foreground tree keeps serving inserts, deletions
+ *  and queries.
+ *
+ *  Model (single foreground thread + one background rebuild thread):
+ *   - The live ("active") tree never rebalances inline; it only appends and
+ *     lazily tombstones, so every foreground call returns quickly.
+ *   - When the active tree has grown / accumulated tombstones past a threshold,
+ *     a snapshot of its live point indices is taken and a background thread
+ *     bulk-builds a fresh, balanced tree from it. Foreground operations meanwhile
+ *     keep mutating the active tree and are appended to a small op-log.
+ *     That background thread is **one persistent worker** started on the first
+ *     rebuild and reused for every later one, not one thread per rebuild: a
+ *     long-running incremental map triggers rebuilds continuously, and a thread
+ *     per rebuild would make the host process churn through thousands of OS
+ *     threads, multiplying every per-thread cost it carries (malloc arenas,
+ *     sanitizer bookkeeping) for no benefit.
+ *   - At the next foreground call after the build finishes, the op-log is
+ *     replayed onto the fresh tree and it atomically replaces the active tree.
+ *
+ *  This keeps the foreground tail latency bounded (snapshot + replay) instead of
+ *  paying the full O(N) rebuild inline. It matches ikd-Tree's async-rebuild idea
+ *  but with a thread-isolated build (no per-node locks), a bounded `std::deque`-
+ *  style op-log (no fixed 10⁶ queue), and no PCL/pthread dependency.
+ *
+ *  \warning Same threading contract as the synchronous index for the *foreground*
+ *  thread (const queries are safe for concurrent readers; no concurrent writer).
+ *  Additionally, because the background thread reads point coordinates from the
+ *  dataset adaptor, the **dataset must keep stable element storage while a
+ *  rebuild is in flight** (e.g. `reserve()` the backing vector, or use a
+ *  std::deque) so that appends on the foreground thread do not reallocate it.
+ *  Disabled entirely under NANOFLANN_NO_THREADS.
+ */
+template <typename Distance, class DatasetAdaptor, int32_t DIM = -1, typename IndexType = uint32_t>
+class KDTreeSingleIndexIncrementalAdaptorMT
+{
+   public:
+    using Inner = KDTreeSingleIndexIncrementalAdaptor<Distance, DatasetAdaptor, DIM, IndexType>;
+    using ElementType  = typename Inner::ElementType;
+    using DistanceType = typename Inner::DistanceType;
+    using Size         = typename Inner::Size;
+    using Dimension    = typename Inner::Dimension;
+    using BoundingBox  = typename Inner::BoundingBox;
+
+    /** Constructor.
+     *  @param rebuild_growth Trigger a background rebuild once the physical node
+     *         count exceeds this factor of the live count at the last rebuild
+     *         (captures both appends and tombstone accumulation).
+     *  @param min_rebuild_size Never trigger below this many physical nodes. */
+    explicit KDTreeSingleIndexIncrementalAdaptorMT(
+        const Dimension dimensionality, const DatasetAdaptor& inputData,
+        const KDTreeIncrementalIndexParams& params = {}, double rebuild_growth = 1.3,
+        Size min_rebuild_size = 10000)
+        : dataset_(inputData),
+          dim_(dimensionality),
+          params_(params),
+          rebuildGrowth_(rebuild_growth),
+          minRebuildSize_(min_rebuild_size)
+    {
+        active_.reset(new Inner(dimensionality, inputData, params));
+        active_->setInlineRebuild(false);
+    }
+
+    KDTreeSingleIndexIncrementalAdaptorMT(const KDTreeSingleIndexIncrementalAdaptorMT&) = delete;
+    KDTreeSingleIndexIncrementalAdaptorMT& operator=(const KDTreeSingleIndexIncrementalAdaptorMT&) =
+        delete;
+
+    ~KDTreeSingleIndexIncrementalAdaptorMT()
+    {
+        // Lets any in-flight build finish before teardown: the worker reads the
+        // caller's dataset, which is typically freed right after this returns.
+        stopWorker();
+    }
+
+    /** \name Modifiers @{ */
+    void addPoints(IndexType start, IndexType end)
+    {
+        integrateIfReady();
+        active_->addPoints(start, end);
+        if (building_) log_.push_back({OpKind::Add, start, end, {}});
+        maybeTriggerRebuild();
+    }
+    void addPoint(IndexType idx) { addPoints(idx, idx); }
+
+    void removePoint(IndexType idx)
+    {
+        integrateIfReady();
+        active_->removePoint(idx);
+        if (building_) log_.push_back({OpKind::Remove, idx, idx, {}});
+        maybeTriggerRebuild();
+    }
+    void removeBox(const BoundingBox& box)
+    {
+        integrateIfReady();
+        active_->removeBox(box);
+        if (building_) log_.push_back({OpKind::RemoveBox, 0, 0, box});
+        maybeTriggerRebuild();
+    }
+    void removeOutsideBox(const BoundingBox& keep)
+    {
+        integrateIfReady();
+        active_->removeOutsideBox(keep);
+        if (building_) log_.push_back({OpKind::RemoveOutsideBox, 0, 0, keep});
+        maybeTriggerRebuild();
+    }
+    /** @} */
+
+    /** \name Query methods (forwarded to the active tree) @{ */
+    template <typename RESULTSET>
+    bool findNeighbors(
+        RESULTSET& result, const ElementType* vec, const SearchParameters& sp = {}) const
+    {
+        return active_->findNeighbors(result, vec, sp);
+    }
+    Size knnSearch(
+        const ElementType* query_point, const Size num_closest, IndexType* out_indices,
+        DistanceType* out_distances, const SearchParameters& sp = {}) const
+    {
+        return active_->knnSearch(query_point, num_closest, out_indices, out_distances, sp);
+    }
+    Size radiusSearch(
+        const ElementType* query_point, const DistanceType& radius,
+        std::vector<ResultItem<IndexType, DistanceType>>& IndicesDists,
+        const SearchParameters&                           sp = {}) const
+    {
+        return active_->radiusSearch(query_point, radius, IndicesDists, sp);
+    }
+    Size rknnSearch(
+        const ElementType* query_point, const Size num_closest, IndexType* out_indices,
+        DistanceType* out_distances, const DistanceType& radius) const
+    {
+        return active_->rknnSearch(query_point, num_closest, out_indices, out_distances, radius);
+    }
+    template <typename RESULTSET>
+    Size findWithinBox(RESULTSET& result, const BoundingBox& bbox) const
+    {
+        return active_->findWithinBox(result, bbox);
+    }
+    /** @} */
+
+    /** \name Observers @{ */
+    Size size() const noexcept { return active_->size(); }
+    bool empty() const noexcept { return active_->empty(); }
+    Size physicalSize() const noexcept { return active_->physicalSize(); }
+    bool isRebuilding() const noexcept { return building_; }
+
+    /** Live AABB of the active tree (see the synchronous index). */
+    NANOFLANN_NODISCARD BoundingBox boundingBox() const { return active_->boundingBox(); }
+
+    /** Append the live point indices of the active tree into \a out. */
+    void snapshotLiveIndices(std::vector<IndexType>& out) const
+    {
+        active_->snapshotLiveIndices(out);
+    }
+
+    /** Pre-size the active tree's internal map (see the synchronous index). */
+    void reserve(Size n) { active_->reserve(n); }
+
+    /** Block until any in-flight background rebuild has been integrated. */
+    void sync()
+    {
+        if (building_)
+        {
+            std::unique_lock<std::mutex> lk(workerMtx_);
+            workerCvDone_.wait(lk, [this] { return resultReady_; });
+        }
+        integrateIfReady();
+    }
+
+    /** Access the underlying active tree (e.g. for further query types). */
+    const Inner& activeIndex() const { return *active_; }
+    /** @} */
+
+    /** \name Persistence (see the synchronous index's saveIndex()/loadIndex())
+     * @{ */
+
+    /** Blocks until any in-flight background rebuild is integrated (see
+     *  sync()), then serializes the active tree's topology. */
+    void saveIndex(std::ostream& stream)
+    {
+        sync();
+        active_->saveIndex(stream);
+    }
+
+    /** Blocks until any in-flight background rebuild is integrated, then loads
+     *  a previously saved topology into the active tree (see the synchronous
+     *  index's loadIndex() precondition: the active tree must be freshly
+     *  constructed / empty). */
+    void loadIndex(std::istream& stream)
+    {
+        sync();
+        active_->loadIndex(stream);
+        lastBuildLive_ = active_->size();
+    }
+    /** @} */
+
+    /** Set a callback invoked **on the background worker thread** on each freshly
+     *  built tree, right after it is balanced and before it is handed back for
+     *  integration. Lets the caller recompute per-point auxiliary data (e.g.
+     *  covariances) off the foreground thread. The callback runs concurrently
+     *  with foreground queries on the *old* tree, so it must only touch the
+     *  passed-in fresh index and its own/snapshot data — never foreground-shared
+     *  state without external synchronization. Pass {} to clear. */
+    void setRebuildCallback(std::function<void(Inner&)> cb) { rebuildCallback_ = std::move(cb); }
+
+    /** \name Dataset-storage reclamation @{ */
+
+    /** Enable recording of dataset slots that become free when a background
+     *  rebuild drops tombstoned points (so the caller can recycle them and keep
+     *  the dataset bounded). Off by default (cost-free when unused). */
+    void setCollectRemovedPoints(bool enable)
+    {
+        collectRemoved_ = enable;
+        if (!enable) std::vector<IndexType>().swap(removedSink_);
+    }
+
+    /** Move out the point indices whose dataset slots became free since the last
+     *  call (no live OR tombstoned tree node references them — safe to recycle).
+     *  Requires setCollectRemovedPoints(true). */
+    std::vector<IndexType> acquireRemovedPoints()
+    {
+        std::vector<IndexType> out;
+        out.swap(removedSink_);
+        return out;
+    }
+    /** @} */
+
+   private:
+    enum class OpKind
+    {
+        Add,
+        Remove,
+        RemoveBox,
+        RemoveOutsideBox
+    };
+    struct LoggedOp
+    {
+        OpKind      kind;
+        IndexType   a, b;
+        BoundingBox box;
+    };
+
+    void maybeTriggerRebuild()
+    {
+        if (building_) return;
+        const Size phys = active_->physicalSize();
+        if (phys < minRebuildSize_) return;
+        const Size base = lastBuildLive_ ? lastBuildLive_ : Size(1);
+        if (static_cast<double>(phys) < rebuildGrowth_ * static_cast<double>(base)) return;
+
+        // Snapshot the live indices on the foreground thread, then hand them to
+        // the background worker, which bulk-builds a fresh balanced tree.
+        auto snapshot = std::make_shared<std::vector<IndexType>>();
+        active_->snapshotLiveIndices(*snapshot);
+
+        // Started on the first rebuild only, so an index that never rebuilds
+        // costs no thread at all:
+        if (!workerThread_.joinable())
+        {
+            workerThread_ = std::thread(&KDTreeSingleIndexIncrementalAdaptorMT::workerLoop, this);
+        }
+
+        {
+            std::lock_guard<std::mutex> lk(workerMtx_);
+            pendingJob_ = std::move(snapshot);
+            // Copied per job, so the worker never reads rebuildCallback_ while
+            // setRebuildCallback() writes it:
+            pendingCallback_ = rebuildCallback_;
+            builtTree_.reset();
+            buildError_  = nullptr;
+            resultReady_ = false;
+        }
+        workerCvJob_.notify_one();
+
+        building_ = true;
+        log_.clear();
+    }
+
+    /** Body of the single persistent rebuild worker: wait for a job, bulk-build
+     *  a balanced tree from it, publish the result, repeat. */
+    void workerLoop()
+    {
+        for (;;)
+        {
+            std::shared_ptr<std::vector<IndexType>> job;
+            std::function<void(Inner&)>             cb;
+            {
+                std::unique_lock<std::mutex> lk(workerMtx_);
+                workerCvJob_.wait(lk, [this] { return workerStop_ || pendingJob_ != nullptr; });
+                // A job already handed over is always finished before stopping:
+                // the destructor relies on that to keep the caller's dataset
+                // alive for as long as the build reads it.
+                if (workerStop_ && !pendingJob_) return;
+                job = std::move(pendingJob_);
+                cb  = std::move(pendingCallback_);
+            }
+
+            // dim_, dataset_ and params_ are set at construction and never
+            // mutated, so the worker reads them without synchronization.
+            std::unique_ptr<Inner> t;
+            std::exception_ptr     err;
+            try
+            {
+                t.reset(new Inner(dim_, dataset_, params_));
+                t->setInlineRebuild(false);
+                t->buildFromIndices(*job);
+                if (cb) cb(*t);  // background post-rebuild hook (e.g. recompute covariances)
+            }
+            catch (...)
+            {
+                // Handed to the foreground thread instead of terminating the
+                // process; see integrateIfReady().
+                err = std::current_exception();
+                t.reset();
+            }
+
+            {
+                std::lock_guard<std::mutex> lk(workerMtx_);
+                builtTree_   = std::move(t);
+                buildError_  = err;
+                resultReady_ = true;
+            }
+            workerCvDone_.notify_all();
+        }
+    }
+
+    /** Stops the worker once its current build (if any) is done, and joins it. */
+    void stopWorker()
+    {
+        if (!workerThread_.joinable()) return;
+        {
+            std::lock_guard<std::mutex> lk(workerMtx_);
+            workerStop_ = true;
+        }
+        workerCvJob_.notify_all();
+        workerThread_.join();
+    }
+
+    void integrateIfReady()
+    {
+        if (!building_) return;
+
+        std::unique_ptr<Inner> fresh;
+        std::exception_ptr     err;
+        {
+            std::lock_guard<std::mutex> lk(workerMtx_);
+            if (!resultReady_) return;  // the rebuild is still running
+            resultReady_ = false;
+            fresh        = std::move(builtTree_);
+            err          = buildError_;
+            buildError_  = nullptr;
+        }
+
+        // However this attempt ends (integrated, failed build, or a failed
+        // replay below), it is over: return to the "not rebuilding" state so a
+        // later rebuild can be triggered again. Latching `building_` would
+        // silently disable rebuilding for good, and with it the reclaiming of
+        // tombstoned nodes and of the dataset slots reported by
+        // acquireRemovedPoints() (i.e. unbounded growth), and it would make a
+        // later sync() wait forever for a result nobody is producing.
+        struct EndOfRebuild
+        {
+            KDTreeSingleIndexIncrementalAdaptorMT& self;
+            ~EndOfRebuild()
+            {
+                self.log_.clear();
+                self.building_ = false;
+            }
+        } endOfRebuild{*this};
+
+        // The build failed (e.g. std::bad_alloc). The active tree was never
+        // touched by it, so it is still correct: just drop the attempt.
+        if (err) std::rethrow_exception(err);
+
+        fresh->setInlineRebuild(false);
+        // Replay the operations buffered while the background build was running.
+        for (const auto& op : log_)
+        {
+            switch (op.kind)
+            {
+                case OpKind::Add:
+                    fresh->addPoints(op.a, op.b);
+                    break;
+                case OpKind::Remove:
+                    fresh->removePoint(op.a);
+                    break;
+                case OpKind::RemoveBox:
+                    fresh->removeBox(op.box);
+                    break;
+                case OpKind::RemoveOutsideBox:
+                    fresh->removeOutsideBox(op.box);
+                    break;
+            }
+        }
+        // Dataset slots referenced by the OLD tree but not by the fresh one are
+        // now free for the caller to recycle (no node references them anymore).
+        if (collectRemoved_)
+        {
+            std::vector<IndexType> oldPhysical;
+            active_->collectPhysicalIndices(oldPhysical);
+            for (IndexType idx : oldPhysical)
+                if (!fresh->referencesIndex(idx)) removedSink_.push_back(idx);
+        }
+        active_        = std::move(fresh);
+        lastBuildLive_ = active_->size();
+    }
+
+    const DatasetAdaptor&        dataset_;
+    Dimension                    dim_;
+    KDTreeIncrementalIndexParams params_;
+    double                       rebuildGrowth_;
+    Size                         minRebuildSize_;
+
+    std::unique_ptr<Inner> active_;
+    /// Foreground-only: a rebuild has been handed to the worker and not
+    /// integrated back yet.
+    bool                  building_      = false;
+    Size                  lastBuildLive_ = 0;
+    std::vector<LoggedOp> log_;
+
+    /** @name Background rebuild worker
+     *  One persistent thread, created on the first rebuild (see
+     *  maybeTriggerRebuild()) and joined by the destructor. Everything below is
+     *  guarded by workerMtx_, except workerThread_ itself, which is only
+     *  touched by the foreground thread.
+     *  @{ */
+    std::thread                             workerThread_;
+    std::mutex                              workerMtx_;
+    std::condition_variable                 workerCvJob_;  // foreground -> worker
+    std::condition_variable                 workerCvDone_;  // worker -> foreground
+    std::shared_ptr<std::vector<IndexType>> pendingJob_;  // live indices to build from
+    std::function<void(Inner&)>             pendingCallback_;
+    std::unique_ptr<Inner>                  builtTree_;  // result of the last build
+    std::exception_ptr                      buildError_;  // ...or how it failed
+    bool                                    resultReady_ = false;
+    bool                                    workerStop_  = false;
+    /** @} */
+
+    bool                        collectRemoved_ = false;
+    std::vector<IndexType>      removedSink_;
+    std::function<void(Inner&)> rebuildCallback_;
+};
+#endif  // NANOFLANN_NO_THREADS
 
 /** An L2-metric KD-tree adaptor for working with data directly stored in an
  * Eigen Matrix, without duplicating the data storage. You can select whether a
@@ -2230,47 +5406,43 @@ class KDTreeSingleIndexDynamicAdaptor
  *
  * const int max_leaf = 10;
  * my_kd_tree_t mat_index(mat, max_leaf);
- * mat_index.index->buildIndex();
- * mat_index.index->...
+ * mat_index.index_->...
  * \endcode
  *
  *  \tparam DIM If set to >0, it specifies a compile-time fixed dimensionality
- * for the points in the data set, allowing more compiler optimizations. \tparam
- * Distance The distance metric to use: nanoflann::metric_L1,
- * nanoflann::metric_L2, nanoflann::metric_L2_Simple, etc. \tparam row_major
- * If set to true the rows of the matrix are used as the points, if set to false
- * the columns of the matrix are used as the points.
+ * for the points in the data set, allowing more compiler optimizations.
+ * \tparam Distance The distance metric to use: nanoflann::metric_L1,
+ * nanoflann::metric_L2, nanoflann::metric_L2_Simple, etc.
+ * \tparam row_major If set to true the rows of the matrix are used as the
+ *         points, if set to false  the columns of the matrix are used as the
+ *         points.
  */
 template <
     class MatrixType, int32_t DIM = -1, class Distance = nanoflann::metric_L2,
     bool row_major = true>
 struct KDTreeEigenMatrixAdaptor
 {
-    using self_t =
-        KDTreeEigenMatrixAdaptor<MatrixType, DIM, Distance, row_major>;
+    using self_t    = KDTreeEigenMatrixAdaptor<MatrixType, DIM, Distance, row_major>;
     using num_t     = typename MatrixType::Scalar;
     using IndexType = typename MatrixType::Index;
-    using metric_t  = typename Distance::template traits<
-        num_t, self_t, IndexType>::distance_t;
+    using metric_t  = typename Distance::template traits<num_t, self_t, IndexType>::distance_t;
 
     using index_t = KDTreeSingleIndexAdaptor<
-        metric_t, self_t,
-        row_major ? MatrixType::ColsAtCompileTime
-                  : MatrixType::RowsAtCompileTime,
+        metric_t, self_t, row_major ? MatrixType::ColsAtCompileTime : MatrixType::RowsAtCompileTime,
         IndexType>;
 
-    index_t* index;  //! The kd-tree index for the user to call its methods as
-                     //! usual with any other FLANN index.
+    std::unique_ptr<index_t> index_;  //! The kd-tree index for the user to call
+                                      //! its methods as usual with any other
+                                      //! FLANN index (e.g. `index_->...`).
 
     using Offset    = typename index_t::Offset;
     using Size      = typename index_t::Size;
     using Dimension = typename index_t::Dimension;
 
     /// Constructor: takes a const ref to the matrix object with the data points
-    KDTreeEigenMatrixAdaptor(
-        const Dimension                                 dimensionality,
-        const std::reference_wrapper<const MatrixType>& mat,
-        const int                                       leaf_max_size = 10)
+    explicit KDTreeEigenMatrixAdaptor(
+        const Dimension dimensionality, const std::reference_wrapper<const MatrixType>& mat,
+        const int leaf_max_size = 10, const unsigned int n_thread_build = 1)
         : m_data_matrix(mat)
     {
         const auto dims = row_major ? mat.get().cols() : mat.get().rows();
@@ -2282,41 +5454,52 @@ struct KDTreeEigenMatrixAdaptor
             throw std::runtime_error(
                 "Data set dimensionality does not match the 'DIM' template "
                 "argument");
-        index = new index_t(
-            dims, *this /* adaptor */,
-            nanoflann::KDTreeSingleIndexAdaptorParams(leaf_max_size));
-        index->buildIndex();
+        // Note: std::unique_ptr::reset(new ...) rather than std::make_unique to
+        // keep the header compilable under C++11 (make_unique is C++14).
+        index_.reset(new index_t(
+            static_cast<Dimension>(dims), *this /* adaptor */,
+            nanoflann::KDTreeSingleIndexAdaptorParams(
+                leaf_max_size, nanoflann::KDTreeSingleIndexAdaptorFlags::None, n_thread_build)));
     }
 
    public:
     /** Deleted copy constructor */
     KDTreeEigenMatrixAdaptor(const self_t&) = delete;
+    self_t& operator=(const self_t&)        = delete;
 
-    ~KDTreeEigenMatrixAdaptor() { delete index; }
+    /** Move operations are deleted: the owned index_ stores a reference back to
+     * this adaptor object (passed as the dataset adaptor at construction), so
+     * moving would leave that reference dangling. */
+    KDTreeEigenMatrixAdaptor(self_t&&) = delete;
+    self_t& operator=(self_t&&)        = delete;
+
+    // index_ is a std::unique_ptr, so the default destructor releases it.
+    ~KDTreeEigenMatrixAdaptor() = default;
 
     const std::reference_wrapper<const MatrixType> m_data_matrix;
 
     /** Query for the \a num_closest closest points to a given point (entered as
      * query_point[0:dim-1]). Note that this is a short-cut method for
      * index->findNeighbors(). The user can also call index->... methods as
-     * desired. \note nChecks_IGNORED is ignored but kept for compatibility with
-     * the original FLANN interface.
+     * desired.
+     *
+     * \note If L2 norms are used, all returned distances are actually squared
+     *       distances.
      */
-    inline void query(
-        const num_t* query_point, const Size num_closest,
-        IndexType* out_indices, num_t* out_distances_sq,
-        const int /* nChecks_IGNORED */ = 10) const
+    void query(
+        const num_t* query_point, const Size num_closest, IndexType* out_indices,
+        num_t* out_distances) const
     {
         nanoflann::KNNResultSet<num_t, IndexType> resultSet(num_closest);
-        resultSet.init(out_indices, out_distances_sq);
-        index->findNeighbors(resultSet, query_point, nanoflann::SearchParams());
+        resultSet.init(out_indices, out_distances);
+        index_->findNeighbors(resultSet, query_point);
     }
 
     /** @name Interface expected by KDTreeSingleIndexAdaptor
      * @{ */
 
-    const self_t& derived() const { return *this; }
-    self_t&       derived() { return *this; }
+    inline const self_t& derived() const noexcept { return *this; }
+    inline self_t&       derived() noexcept { return *this; }
 
     // Must return the number of data points
     inline Size kdtree_get_point_count() const
@@ -2342,7 +5525,7 @@ struct KDTreeEigenMatrixAdaptor
     //   in "bb" so it can be avoided to redo it again. Look at bb.size() to
     //   find out the expected dimensionality (e.g. 2 or 3 for point clouds)
     template <class BBOX>
-    bool kdtree_get_bbox(BBOX& /*bb*/) const
+    inline bool kdtree_get_bbox(BBOX& /*bb*/) const
     {
         return false;
     }
@@ -2354,3 +5537,5 @@ struct KDTreeEigenMatrixAdaptor
 
 /** @} */  // end of grouping
 }  // namespace nanoflann
+
+#undef NANOFLANN_RESTRICT
