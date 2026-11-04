@@ -1724,6 +1724,18 @@ bool Surf::PntsOnBorder( const vector< vec3d > &pnts, double tol ) const
 {
     double uwtol = 1.0e-6 * std::max( m_SurfCore.GetDU(), m_SurfCore.GetDW() );
 
+    // The surface lies inside the box around its control points, so a point farther than tol
+    // from the box is farther than tol from the surface, and needs no search.
+    BndBox box = m_BBox;
+    box.Expand( tol );
+    for ( int i = 0 ; i < ( int )pnts.size() ; i++ )
+    {
+        if ( !box.CheckPnt( pnts[i] ) )
+        {
+            return false;
+        }
+    }
+
     for ( int i = 0 ; i < ( int )pnts.size() ; i++ )
     {
         vec2d uw = ClosestUW( pnts[i] );
