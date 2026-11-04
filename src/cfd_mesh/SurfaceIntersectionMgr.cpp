@@ -2965,6 +2965,60 @@ int SurfaceIntersectionSingleton::FindSurfIndx( int surf_id )
     return -1;
 }
 
+// The label a CAD file gives a surface: its Geom's ID, its component's name, its surface number
+// and its split number, each as asked for, in that order
+string SurfaceIntersectionSingleton::CADSurfLabel( const NURBS_Surface &nurbs_surf, bool label_id, bool label_surf_num,
+                                                   bool label_split_num, bool label_name, const string &label_delim )
+{
+    // Match NURBS_Surface to index in m_SurfVec using m_SurfID. 
+    Surf* current_surf = FindSurf( nurbs_surf.m_SurfID );
+
+    string label;
+
+    if ( label_id && current_surf )
+    {
+        label = current_surf->GetGeomID();
+    }
+
+    if ( label_name && current_surf )
+    {
+        if ( label.size() > 0 )
+        {
+            label.append( label_delim );
+        }
+
+        if ( current_surf->GetFeaPartIndex() >= 0 )
+        {
+            // FEA Part
+            label.append( m_CompIDNameMap[current_surf->GetFeaPartIndex()] );
+        }
+        else
+        {
+            label.append( m_CompIDNameMap[current_surf->GetCompID()] );
+        }
+    }
+
+    if ( label_surf_num && current_surf )
+    {
+        if ( label.size() > 0 )
+        {
+            label.append( label_delim );
+        }
+        label.append( to_string( current_surf->GetMainSurfID() ) );
+    }
+
+    if ( label_split_num )
+    {
+        if ( label.size() > 0 )
+        {
+            label.append( label_delim );
+        }
+        label.append( to_string( nurbs_surf.m_SurfID ) );
+    }
+
+    return label;
+}
+
 void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int len_unit,
                                                   bool label_id, bool label_surf_num, bool label_split_num,
                                                   bool label_name, const string &label_delim )
@@ -2988,51 +3042,7 @@ void SurfaceIntersectionSingleton::WriteNURBSSurfsIGES( const string& filename, 
 
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
-        // Match NURBS_Surface to index in m_SurfVec using m_SurfID. 
-        Surf* current_surf = FindSurf( m_NURBSSurfVec[si].m_SurfID );
-
-        string label;
-
-        if ( label_id && current_surf )
-        {
-            label = current_surf->GetGeomID();
-        }
-
-        if ( label_name && current_surf )
-        {
-            if ( label.size() > 0 )
-            {
-                label.append( label_delim );
-            }
-
-            if ( current_surf->GetFeaPartIndex() >= 0 )
-            {
-                // FEA Part
-                label.append( m_CompIDNameMap[current_surf->GetFeaPartIndex()] );
-            }
-            else
-            {
-                label.append( m_CompIDNameMap[current_surf->GetCompID()] );
-            }
-        }
-
-        if ( label_surf_num && current_surf )
-        {
-            if ( label.size() > 0 )
-            {
-                label.append( label_delim );
-            }
-            label.append( to_string( current_surf->GetMainSurfID() ) );
-        }
-
-        if ( label_split_num )
-        {
-            if ( label.size() > 0 )
-            {
-                label.append( label_delim );
-            }
-            label.append( to_string( m_NURBSSurfVec[si].m_SurfID ) );
-        }
+        string label = CADSurfLabel( m_NURBSSurfVec[si], label_id, label_surf_num, label_split_num, label_name, label_delim );
 
         // A surface no complete loop bounds is no face, as in STEP; written anyway it would be
         // a whole untrimmed surface
@@ -3081,51 +3091,7 @@ void SurfaceIntersectionSingleton::WriteNURBSSurfsSTEP( const string& filename, 
 
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
-        // Match NURBS_Surface to index in m_SurfVec using m_SurfID. 
-        Surf* current_surf = FindSurf( m_NURBSSurfVec[si].m_SurfID );
-
-        string label;
-
-        if ( label_id && current_surf )
-        {
-            label = current_surf->GetGeomID();
-        }
-
-        if ( label_name && current_surf )
-        {
-            if ( label.size() > 0 )
-            {
-                label.append( label_delim );
-            }
-
-            if ( current_surf->GetFeaPartIndex() >= 0 )
-            {
-                // FEA Part
-                label.append( m_CompIDNameMap[current_surf->GetFeaPartIndex()] );
-            }
-            else
-            {
-                label.append( m_CompIDNameMap[current_surf->GetCompID()] );
-            }
-        }
-
-        if ( label_surf_num && current_surf )
-        {
-            if ( label.size() > 0 )
-            {
-                label.append( label_delim );
-            }
-            label.append( to_string( current_surf->GetMainSurfID() ) );
-        }
-
-        if ( label_split_num )
-        {
-            if ( label.size() > 0 )
-            {
-                label.append( label_delim );
-            }
-            label.append( to_string( m_NURBSSurfVec[si].m_SurfID ) );
-        }
+        string label = CADSurfLabel( m_NURBSSurfVec[si], label_id, label_surf_num, label_split_num, label_name, label_delim );
 
         surf_vec[si] = m_NURBSSurfVec[si].WriteSTEPSurf( &step, label, merge_pnts );
         label_vec[si] = label;

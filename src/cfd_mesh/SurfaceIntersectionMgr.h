@@ -408,6 +408,10 @@ public:
                                 bool label_id = false, bool label_surf_num = false, bool label_split_num = false,
                                 bool label_name = false, const string &label_delim = "", int representation = 0 );
 
+    // The label a CAD file gives a surface
+    string CADSurfLabel( const NURBS_Surface &nurbs_surf, bool label_id, bool label_surf_num, bool label_split_num,
+                         bool label_name, const string &label_delim );
+
     // The same files written from m_NURBSSurfVec as BuildNURBSSurfMap last built it
     void WriteNURBSSurfsIGES( const string &filename, int len_unit,
                               bool label_id, bool label_surf_num, bool label_split_num,
