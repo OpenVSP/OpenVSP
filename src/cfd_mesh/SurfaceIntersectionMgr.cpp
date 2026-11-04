@@ -4307,13 +4307,18 @@ void SurfaceIntersectionSingleton::BuildChains()
     }, &bar );
 
     // The tree is built, by its constructor, while the partners are linked; neither touches
-    // what the other writes.
+    // what the other writes.  The build takes every thread but the one linking.
+    int ntree = StageThreadCount( std::numeric_limits< int >::max() ) - 1;
+    if ( ntree < 1 )
+    {
+        ntree = 1;
+    }
     std::unique_ptr< PNTree > index;
     RunIndexed( 2, StageThreadCount( 2 ), [&]( int k )
     {
         if ( k == 0 )
         {
-            index.reset( new PNTree( 3, i_pnt_cloud, KDTreeSingleIndexAdaptorParams() ) );
+            index.reset( new PNTree( 3, i_pnt_cloud, KDTreeSingleIndexAdaptorParams( 10, KDTreeSingleIndexAdaptorFlags::None, ntree ) ) );
         }
         else
         {
