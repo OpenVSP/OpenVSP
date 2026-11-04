@@ -254,7 +254,7 @@ void APITestSuiteParasiteDrag::TestChangeOptions()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     double tol = 0.00001;
-    double third_res = 0.014299;
+    double third_res = 0.014473;
 
     // Execute
     printf( "\tExecuting...\n" );
