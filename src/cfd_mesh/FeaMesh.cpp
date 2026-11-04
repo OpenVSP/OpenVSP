@@ -9,6 +9,7 @@
 #include "FileUtil.h"
 #include "StringUtil.h"
 #include "StlHelper.h"
+#include "FastFormat.h"
 
 // Although this appears to be an angle comparison (via the dot product), it is actually the signed distance
 // between the point and the plane.  Hence, a comparison to the mesh minimum length as a tolerance is appropriate.
@@ -1768,27 +1769,29 @@ void CloseNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_f
     }
 }
 
-void FeaMesh::WriteNASTRANSet( FILE* dat_fp, FILE* nkey_fp, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset )
+void FeaMesh::WriteNASTRANSet( FILE* dat_fp, FILE* nkey_fp, int & set_num, const vector < long long int > &set_ids, const string &set_name, const long long int &offset )
 {
     if ( set_ids.size() > 0 && dat_fp )
     {
         fprintf( dat_fp, "\n$ %d, %s\n", set_num, set_name.c_str() );
         fprintf( dat_fp, "SET %d = ", set_num );
 
+        string out;
         for ( size_t i = 0; i < set_ids.size(); i++ )
         {
-            fprintf( dat_fp, "%lld", set_ids[i] + offset );
+            FastFormat::AppendInt( out, set_ids[i] + offset );
 
             if ( i != set_ids.size() - 1 )
             {
-                fprintf( dat_fp, "," );
+                out += ',';
 
                 if ( ( i + 1 ) % 9 == 0 ) // 9 IDs per line
                 {
-                    fprintf( dat_fp, "\n" );
+                    out += '\n';
                 }
             }
         }
+        fwrite( out.data(), 1, out.size(), dat_fp );
 
         fprintf( dat_fp, "\n" );
 
