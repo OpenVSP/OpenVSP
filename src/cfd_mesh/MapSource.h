@@ -128,6 +128,9 @@ public:
     // Takes up the current strengths of the sources.
     void UpdateStrengths();
 
+    // Takes up the current strengths of one surface's sources.
+    void UpdateSurface( int isurf );
+
     // The smallest strength of a source not on surface skipsurf.  False when there is none.
     bool MinStrength( int skipsurf, double &minstr ) const;
 
@@ -182,6 +185,11 @@ private:
     vector< double > m_Str;             // In tree order.
     vector< int > m_Surf;               // In tree order.
     vector< int > m_SurfCount;          // Sources on each surface.
+    vector< int > m_Parent;
+    vector< int > m_SurfLeaves;         // Leaves holding each surface's sources,
+    vector< int > m_SurfLeafStart;      // from m_SurfLeafStart[isurf] up to m_SurfLeafStart[isurf + 1].
+    vector< bool > m_NodeDirty;
+    vector< int > m_Dirty;
 };
 
 // A nanoflann tree over every source not on one surface, in the order the sources were given.

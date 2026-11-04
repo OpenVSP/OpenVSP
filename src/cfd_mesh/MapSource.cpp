@@ -50,6 +50,18 @@ void MSBoundTree::Build( const vector< MapSource* > &sources )
         m_Surf[k] = m_TreeSources[k]->m_surfid;
     }
 
+    int nnode = ( int )m_Nodes.size();
+    m_Parent.assign( nnode, -1 );
+    for ( int inode = 0; inode < nnode; inode++ )
+    {
+        if ( m_Nodes[inode].m_Child >= 0 )
+        {
+            m_Parent[ m_Nodes[inode].m_Child ] = inode;
+            m_Parent[ m_Nodes[inode].m_Child + 1 ] = inode;
+        }
+    }
+    m_NodeDirty.assign( nnode, false );
+
     m_SurfCount.clear();
     for ( int k = 0; k < n; k++ )
     {
@@ -61,6 +73,38 @@ void MSBoundTree::Build( const vector< MapSource* > &sources )
             }
             m_SurfCount[ m_Surf[k] ]++;
         }
+    }
+
+    // The leaves that hold each surface's sources, surface by surface.
+    int nsurf = ( int )m_SurfCount.size();
+    vector< pair< int, int > > surfleaf;
+    for ( int inode = 0; inode < nnode; inode++ )
+    {
+        const Node &node = m_Nodes[inode];
+        if ( node.m_Child < 0 )
+        {
+            for ( int k = node.m_Begin; k < node.m_End; k++ )
+            {
+                if ( m_Surf[k] >= 0 )
+                {
+                    surfleaf.push_back( pair< int, int >( m_Surf[k], inode ) );
+                }
+            }
+        }
+    }
+    std::sort( surfleaf.begin(), surfleaf.end() );
+    surfleaf.erase( std::unique( surfleaf.begin(), surfleaf.end() ), surfleaf.end() );
+
+    m_SurfLeaves.resize( surfleaf.size() );
+    m_SurfLeafStart.assign( nsurf + 1, 0 );
+    for ( int m = 0; m < ( int )surfleaf.size(); m++ )
+    {
+        m_SurfLeaves[m] = surfleaf[m].second;
+        m_SurfLeafStart[ surfleaf[m].first + 1 ]++;
+    }
+    for ( int isurf = 0; isurf < nsurf; isurf++ )
+    {
+        m_SurfLeafStart[ isurf + 1 ] += m_SurfLeafStart[ isurf ];
     }
 
     UpdateStrengths();
@@ -138,6 +182,43 @@ void MSBoundTree::UpdateStrengths()
     for ( int inode = ( int )m_Nodes.size() - 1; inode >= 0; inode-- )
     {
         UpdateNode( inode );
+    }
+}
+
+void MSBoundTree::UpdateSurface( int isurf )
+{
+    if ( isurf < 0 || isurf + 1 >= ( int )m_SurfLeafStart.size() )
+    {
+        return;
+    }
+
+    m_Dirty.clear();
+
+    for ( int m = m_SurfLeafStart[ isurf ]; m < m_SurfLeafStart[ isurf + 1 ]; m++ )
+    {
+        int inode = m_SurfLeaves[m];
+        const Node &leaf = m_Nodes[inode];
+        for ( int k = leaf.m_Begin; k < leaf.m_End; k++ )
+        {
+            m_Str[k] = m_TreeSources[k]->m_str;
+        }
+
+        // Mark the leaf and every node above it not yet marked.
+        while ( inode >= 0 && !m_NodeDirty[inode] )
+        {
+            m_NodeDirty[inode] = true;
+            m_Dirty.push_back( inode );
+            inode = m_Parent[inode];
+        }
+    }
+
+    // Children before parents.
+    std::sort( m_Dirty.begin(), m_Dirty.end(), std::greater< int >() );
+
+    for ( int m = 0; m < ( int )m_Dirty.size(); m++ )
+    {
+        UpdateNode( m_Dirty[m] );
+        m_NodeDirty[ m_Dirty[m] ] = false;
     }
 }
 

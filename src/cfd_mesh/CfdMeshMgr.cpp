@@ -957,7 +957,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
                 MSSurfTree *surftree = nullptr;
                 m_SurfVec[i]->LimitTargetMap( ms_tree, minmap, i, surftree );
                 delete surftree;
-                ms_tree.UpdateStrengths();
+                ms_tree.UpdateSurface( i );
             }
 
             m_ProgressDone++;
