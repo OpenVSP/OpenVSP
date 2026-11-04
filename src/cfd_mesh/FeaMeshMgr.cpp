@@ -1013,9 +1013,14 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
 
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
+        // One bar for all the parts.
+        ProgressStage bar( this, "Structure Parts", ( int )GetMeshPtr()->m_NumFeaParts );
+
         //===== Add FeaParts ====//
         for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
         {
+            bar.Step();
+
             if ( !fea_struct->FeaPartIsFixPoint( i ) &&
                  !fea_struct->FeaPartIsSkin( i ) &&
                  !fea_struct->FeaPartIsTrim( i ) )
