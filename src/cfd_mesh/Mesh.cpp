@@ -15,6 +15,7 @@
 #include <set>
 #include "Surf.h"
 #include "PntNodeMerge.h"
+#include "FastFormat.h"
 #include "VspUtil.h"
 #include <triangle.h>
 #include <triangle_api.h>
@@ -4005,21 +4006,30 @@ void Mesh::ReadSTL( const char* file_name )
 
 }
 
-// One STL facet, in the seven lines the format asks for.  buf is the caller's scratch, so a
-// loop over a million faces does not stand one up each time round.
-void AppendSTLFacet( string &out, char* buf, int buflen, const vec3d &norm,
-                     const vec3d &p0, const vec3d &p1, const vec3d &p2 )
+// Three numbers as printf's "%2.10le %2.10le %2.10le\n" writes them
+static void AppendSTLTriple( string &out, const vec3d &p )
 {
-    snprintf( buf, buflen, " facet normal  %2.10le %2.10le %2.10le\n", norm.x(), norm.y(), norm.z() );
-    out += buf;
+    FastFormat::AppendE( out, p.x(), 2, 10 );
+    out += ' ';
+    FastFormat::AppendE( out, p.y(), 2, 10 );
+    out += ' ';
+    FastFormat::AppendE( out, p.z(), 2, 10 );
+    out += '\n';
+}
+
+// One STL facet, in the seven lines the format asks for.
+void AppendSTLFacet( string &out, const vec3d &norm, const vec3d &p0, const vec3d &p1, const vec3d &p2 )
+{
+    out += " facet normal  ";
+    AppendSTLTriple( out, norm );
     out += "   outer loop\n";
 
-    snprintf( buf, buflen, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
-    out += buf;
-    snprintf( buf, buflen, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
-    out += buf;
-    snprintf( buf, buflen, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
-    out += buf;
+    out += "     vertex ";
+    AppendSTLTriple( out, p0 );
+    out += "     vertex ";
+    AppendSTLTriple( out, p1 );
+    out += "     vertex ";
+    AppendSTLTriple( out, p2 );
 
     out += "   endloop\n";
     out += " endfacet\n";
@@ -4050,8 +4060,6 @@ void Mesh::WriteSimpleSTL( FILE* file_id )
 
 void Mesh::AppendSimpleSTL( int ibeg, int iend, string &out )
 {
-    char buf[256];
-
     for ( int i = ibeg ; i < iend ; i++ )
     {
         SimpFace* f = &simpFaceVec[i];
@@ -4064,7 +4072,7 @@ void Mesh::AppendSimpleSTL( int ibeg, int iend, string &out )
         vec3d norm = cross( v01, v12 );
         norm.normalize();
 
-        AppendSTLFacet( out, buf, sizeof( buf ), norm, p0, p1, p2 );
+        AppendSTLFacet( out, norm, p0, p1, p2 );
 
         if ( f->m_isQuad ) // Split quad and write additional tri.
         {
@@ -4074,7 +4082,7 @@ void Mesh::AppendSimpleSTL( int ibeg, int iend, string &out )
             norm = cross( v23, v30 );
             norm.normalize();
 
-            AppendSTLFacet( out, buf, sizeof( buf ), norm, p0, p2, p3 );
+            AppendSTLFacet( out, norm, p0, p2, p3 );
         }
     }
 }

@@ -18,6 +18,7 @@
 #include "HingeGeom.h"
 #include "StlHelper.h"
 #include "StringUtil.h"
+#include "FastFormat.h"
 
 #include <algorithm>
 #include <tuple>
@@ -35,6 +36,51 @@
 // Set true to gather, and report after every mesh, how far the edges came out from the
 // length they were sized to.  Off, none of it is gathered.
 static const bool TARGET_LENGTH_REPORT = false;
+
+// Three numbers as printf's "%<width>.<prec>g %<width>.<prec>g %<width>.<prec>g\n" writes them
+static void AppendGTriple( string &out, double a, double b, double c, int width, int prec )
+{
+    FastFormat::AppendG( out, a, width, prec );
+    out += ' ';
+    FastFormat::AppendG( out, b, width, prec );
+    out += ' ';
+    FastFormat::AppendG( out, c, width, prec );
+    out += '\n';
+}
+
+// Three numbers as printf's "%<width>.<prec>f %<width>.<prec>f %<width>.<prec>f\n" writes them
+static void AppendFTriple( string &out, double a, double b, double c, int width, int prec )
+{
+    FastFormat::AppendF( out, a, width, prec );
+    out += ' ';
+    FastFormat::AppendF( out, b, width, prec );
+    out += ' ';
+    FastFormat::AppendF( out, c, width, prec );
+    out += '\n';
+}
+
+// A face's parameter pairs as printf's " %16.10g %16.10g" writes each one, the corners taken in
+// the order given and each pair scaled as the VSPGEOM file wants it
+static void AppendUWCorners( string &out, const vec2d* uw, const int* corner, int n, double uscale, double wscale )
+{
+    for ( int i = 0 ; i < n ; i++ )
+    {
+        out += ' ';
+        FastFormat::AppendG( out, uw[ corner[i] ].x() / uscale, 16, 10 );
+        out += ' ';
+        FastFormat::AppendG( out, uw[ corner[i] ].y() / wscale, 16, 10 );
+    }
+}
+
+// Integers as printf's "%d %d ... %d" writes them, each followed by sep
+static void AppendInts( string &out, const int* v, int n, char sep )
+{
+    for ( int i = 0 ; i < n ; i++ )
+    {
+        FastFormat::AppendInt( out, v[i] );
+        out += sep;
+    }
+}
 
 CfdMeshMgrSingleton::CfdMeshMgrSingleton() : SurfaceIntersectionSingleton()
 {
@@ -1583,8 +1629,6 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
 
             WriteChunked( file_id, ( int )face.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int k = ibeg; k < iend; k++ )
                 {
                     const SimpFace* sface = &allFaceVec[ face[k] ];
@@ -1597,7 +1641,7 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
                     vec3d norm = cross( v01, v12 );
                     norm.normalize();
 
-                    AppendSTLFacet( out, buf, sizeof( buf ), norm, p0, p1, p2 );
+                    AppendSTLFacet( out, norm, p0, p1, p2 );
 
                     if ( sface->m_isQuad ) // Split quad and write additional tri.
                     {
@@ -1607,7 +1651,7 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
                         norm = cross( v23, v30 );
                         norm.normalize();
 
-                        AppendSTLFacet( out, buf, sizeof( buf ), norm, p0, p2, p3 );
+                        AppendSTLFacet( out, norm, p0, p2, p3 );
                     }
                 }
             } );
@@ -2240,12 +2284,10 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Pnts ====//
             WriteChunked( fp, ( int )allUsedPntVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    snprintf( buf, sizeof( buf ), "v %16.10f %16.10f %16.10f\n", allUsedPntVec[i].x(), allUsedPntVec[i].z(), -allUsedPntVec[i].y() );
-                    out += buf;
+                    out += "v ";
+                    AppendFTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].z(), -allUsedPntVec[i].y(), 16, 10 );
                 }
             } );
             fprintf( fp, "\n" );
@@ -2253,19 +2295,18 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Tris ====//
             WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    if( allFaceVec[i].m_isQuad )
+                    const SimpFace &f = allFaceVec[i];
+                    int ind[4] = { f.ind0, f.ind1, f.ind2, f.ind3 };
+                    int n = 3;
+                    if( f.m_isQuad )
                     {
-                        snprintf( buf, sizeof( buf ), "f %d %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                        n = 4;
                     }
-                    else
-                    {
-                        snprintf( buf, sizeof( buf ), "f %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
-                    }
-                    out += buf;
+                    out += "f ";
+                    AppendInts( out, ind, n, ' ' );
+                    out += '\n';
                 }
             } );
             fclose( fp );
@@ -2288,29 +2329,27 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Pnts ====//
             WriteChunked( fp, ( int )allUsedPntVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    snprintf( buf, sizeof( buf ), "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
-                    out += buf;
+                    AppendGTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z(), 16, 10 );
                 }
             } );
 
             //==== Write Tris ====//
             WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    snprintf( buf, sizeof( buf ), "%d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
-                    out += buf;
+                    const SimpFace &f = allFaceVec[i];
+                    int t0[3] = { f.ind0, f.ind1, f.ind2 };
+                    AppendInts( out, t0, 3, ' ' );
+                    out += '\n';
 
-                    if( allFaceVec[i].m_isQuad )
+                    if( f.m_isQuad )
                     {
-                        snprintf( buf, sizeof( buf ), "%d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
-                        out += buf;
+                        int t1[3] = { f.ind0, f.ind2, f.ind3 };
+                        AppendInts( out, t1, 3, ' ' );
+                        out += '\n';
                     }
                 }
             } );
@@ -2318,16 +2357,18 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Component ID ====//
             WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    snprintf( buf, sizeof( buf ), "%d \n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ) );
-                    out += buf;
-
+                    int ntri = 1;
                     if( allFaceVec[i].m_isQuad )
                     {
-                        out += buf;
+                        ntri = 2;
+                    }
+                    int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
+                    for ( int t = 0 ; t < ntri ; t++ )
+                    {
+                        FastFormat::AppendInt( out, tag );
+                        out += " \n";
                     }
                 }
             } );
@@ -2353,13 +2394,11 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             fprintf( fp, "%d\n", ( int )allUsedPntVec.size() );
             WriteChunked( fp, ( int )allUsedPntVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    snprintf( buf, sizeof( buf ), "%d %16.10f %16.10f %16.10f\n", i + 1,
-                              allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
-                    out += buf;
+                    FastFormat::AppendInt( out, i + 1 );
+                    out += ' ';
+                    AppendFTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z(), 16, 10 );
                 }
             } );
             fprintf( fp, "$EndNodes\n" );
@@ -2372,19 +2411,22 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             // written without knowing what came before it.
             WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    if( allFaceVec[i].m_isQuad )
+                    const SimpFace &f = allFaceVec[i];
+                    int ind[4] = { f.ind0, f.ind1, f.ind2, f.ind3 };
+                    FastFormat::AppendInt( out, i + 1 );
+                    if( f.m_isQuad )
                     {
-                        snprintf( buf, sizeof( buf ), "%d 3 0 %d %d %d %d \n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                        out += " 3 0 ";
+                        AppendInts( out, ind, 4, ' ' );
                     }
                     else
                     {
-                        snprintf( buf, sizeof( buf ), "%d 2 0 %d %d %d \n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                        out += " 2 0 ";
+                        AppendInts( out, ind, 3, ' ' );
                     }
-                    out += buf;
+                    out += '\n';
                 }
             } );
 
@@ -2420,12 +2462,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Pnts ====//
             WriteChunked( fp, ( int )allUsedPntVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                char buf[256];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    snprintf( buf, sizeof( buf ), "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
-                    out += buf;
+                    AppendGTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z(), 16, 10 );
                 }
             } );
 
@@ -2437,19 +2476,21 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 //==== Write Faces ====//
                 WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
                 {
-                    char buf[256];
-
                     for ( int i = ibeg ; i < iend ; i++ )
                     {
-                        if( allFaceVec[i].m_isQuad )
+                        const SimpFace &f = allFaceVec[i];
+                        int ind[4] = { f.ind0, f.ind1, f.ind2, f.ind3 };
+                        if( f.m_isQuad )
                         {
-                            snprintf( buf, sizeof( buf ), "4 %d %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                            out += "4 ";
+                            AppendInts( out, ind, 4, ' ' );
                         }
                         else
                         {
-                            snprintf( buf, sizeof( buf ), "3 %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                            out += "3 ";
+                            AppendInts( out, ind, 3, ' ' );
                         }
-                        out += buf;
+                        out += '\n';
                     }
                 } );
             }
@@ -2482,7 +2523,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 //==== Write Component ID ====//
                 WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
                 {
-                    char buf[256];
+                    const int corners[4] = { 0, 1, 2, 3 };
 
                     for ( int i = ibeg ; i < iend ; i++ )
                     {
@@ -2492,22 +2533,17 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                         double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
                         double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
 
+                        int n = 3;
                         if( allFaceVec[i].m_isQuad )
                         {
-                            snprintf( buf, sizeof( buf ), "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
-                                 allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
-                                 allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
-                                 allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale,
-                                 allUWVec[4 * i + 3].x() / uscale, allUWVec[4 * i + 3].y() / wscale );
+                            n = 4;
                         }
-                        else
-                        {
-                            snprintf( buf, sizeof( buf ), "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
-                                     allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
-                                     allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
-                                     allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale );
-                        }
-                        out += buf;
+
+                        FastFormat::AppendInt( out, part );
+                        out += ' ';
+                        FastFormat::AppendInt( out, tag );
+                        AppendUWCorners( out, &allUWVec[4 * i], corners, n, uscale, wscale );
+                        out += '\n';
                     }
                 } );
             }
@@ -2547,12 +2583,12 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             // Write parents
             WriteChunked( fp, nface, [&]( int ibeg, int iend, string &out )
             {
-                char buf[64];
-
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    snprintf( buf, sizeof( buf ), "%d %d\n", i + 1, i + 1 );
-                    out += buf;
+                    FastFormat::AppendInt( out, i + 1 );
+                    out += ' ';
+                    FastFormat::AppendInt( out, i + 1 );
+                    out += '\n';
                 }
             } );
 
