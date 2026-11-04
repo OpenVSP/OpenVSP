@@ -445,8 +445,20 @@ void IsectAdaptCurve::FindBreakPnts( const IsectAdaptPnt &p0, const IsectAdaptPn
 
     const SCurve *crvs[2] = { m_CrvA, m_CrvB };
 
+    // Each raw point on both surfaces
+    int nraw = ( int )m_RawT.size();
+    std::vector < vec3d > raw_uw[2];
+    for ( int isurf = 0; isurf < 2; isurf++ )
+    {
+        raw_uw[isurf].resize( nraw );
+        for ( int j = 0; j < nraw; j++ )
+        {
+            raw_uw[isurf][j] = crvs[isurf]->UWCompPnt( m_RawT[j] );
+        }
+    }
+
     // Each raw segment's crossings of a break, put on both surfaces with that parameter held on it
-    for ( int j = 1; j < ( int )m_RawT.size(); j++ )
+    for ( int j = 1; j < nraw; j++ )
     {
         double ta = m_RawT[j - 1];
         double tb = m_RawT[j];
@@ -456,17 +468,26 @@ void IsectAdaptCurve::FindBreakPnts( const IsectAdaptPnt &p0, const IsectAdaptPn
             int isurf = k / 2;
             int icomp = k % 2;
 
-            double va = crvs[isurf]->UWCompPnt( ta )[icomp];
-            double vb = crvs[isurf]->UWCompPnt( tb )[icomp];
+            double va = raw_uw[isurf][j - 1][icomp];
+            double vb = raw_uw[isurf][j][icomp];
             double lo = std::min( va, vb );
             double hi = std::max( va, vb );
 
-            for ( int ib = 1; ib + 1 < ( int )pmap[k].size(); ib++ )
+            if ( pmap[k].size() < 3 )
+            {
+                continue;
+            }
+
+            // The breaks are in order, so those strictly between lo and hi run from the first
+            // past lo
+            std::vector < double >::const_iterator first = std::upper_bound( pmap[k].begin() + 1, pmap[k].end() - 1, lo );
+
+            for ( int ib = ( int )( first - pmap[k].begin() ); ib + 1 < ( int )pmap[k].size(); ib++ )
             {
                 double b = pmap[k][ib];
-                if ( !( lo < b && b < hi ) )
+                if ( !( b < hi ) )
                 {
-                    continue;
+                    break;
                 }
 
                 IsectAdaptPnt q;
@@ -476,7 +497,7 @@ void IsectAdaptCurve::FindBreakPnts( const IsectAdaptPnt &p0, const IsectAdaptPn
                 q.m_UW[isurf][icomp] = b;
                 q.m_Pnt = SurfPnt( *m_SurfA, q.m_UW[0] );
 
-                double reach = dist( SurfPnt( *m_SurfA, m_CrvA->UWCompPnt( ta ) ), SurfPnt( *m_SurfA, m_CrvA->UWCompPnt( tb ) ) );
+                double reach = dist( SurfPnt( *m_SurfA, raw_uw[0][j - 1] ), SurfPnt( *m_SurfA, raw_uw[0][j] ) );
                 double gap = SurfGap( q );
 
                 vec2d a( q.m_UW[0].x(), q.m_UW[0].y() );
