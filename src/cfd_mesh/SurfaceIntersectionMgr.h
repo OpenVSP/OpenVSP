@@ -416,9 +416,17 @@ public:
     void WriteNURBSSurfsIGES( const string &filename, int len_unit,
                               bool label_id, bool label_surf_num, bool label_split_num,
                               bool label_name, const string &label_delim );
+    void WriteNURBSSurfsIGES( vector < NURBS_Surface > &surf_vec, const string &filename, int len_unit,
+                              bool label_id, bool label_surf_num, bool label_split_num,
+                              bool label_name, const string &label_delim );
     void WriteNURBSSurfsSTEP( const string& filename, int len_unit, double tol, bool merge_pnts,
                               bool label_id, bool label_surf_num, bool label_split_num,
                               bool label_name, const string &label_delim, int representation );
+
+    // Either or both, each as asked for; both are written at once
+    void WriteNURBSSurfsCAD( bool iges_flag, const string &iges_fn, bool step_flag, const string &step_fn,
+                             int len_unit, double tol, bool merge_pnts, bool label_id, bool label_surf_num,
+                             bool label_split_num, bool label_name, const string &label_delim, int representation );
 
     virtual void ExportFiles();
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );

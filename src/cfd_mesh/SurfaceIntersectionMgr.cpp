@@ -2923,24 +2923,13 @@ void SurfaceIntersectionSingleton::ExportFiles()
         BuildNURBSSurfMap();
     }
 
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) )
-    {
-        string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
+    string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteNURBSSurfsIGES( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
-                       GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
-                       GetSettingsPtr()->m_CADLabelName, delim );
-    }
-
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
-    {
-        string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
-
-        WriteNURBSSurfsSTEP( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
-                             GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
-                             GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
-                             GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
-    }
+    WriteNURBSSurfsCAD( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ), GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ),
+                        GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ), GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ),
+                        GetSettingsPtr()->m_CADLenUnit, GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
+                        GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                        GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
 }
 
 Surf* SurfaceIntersectionSingleton::FindSurf( int surf_id )
@@ -2987,14 +2976,18 @@ string SurfaceIntersectionSingleton::CADSurfLabel( const NURBS_Surface &nurbs_su
             label.append( label_delim );
         }
 
+        // Looked up without adding, as the CAD files are written on two threads at once
+        int comp = current_surf->GetCompID();
         if ( current_surf->GetFeaPartIndex() >= 0 )
         {
             // FEA Part
-            label.append( m_CompIDNameMap[current_surf->GetFeaPartIndex()] );
+            comp = current_surf->GetFeaPartIndex();
         }
-        else
+
+        unordered_map < int, string >::const_iterator it = m_CompIDNameMap.find( comp );
+        if ( it != m_CompIDNameMap.end() )
         {
-            label.append( m_CompIDNameMap[current_surf->GetCompID()] );
+            label.append( it->second );
         }
     }
 
@@ -3019,6 +3012,49 @@ string SurfaceIntersectionSingleton::CADSurfLabel( const NURBS_Surface &nurbs_su
     return label;
 }
 
+void SurfaceIntersectionSingleton::WriteNURBSSurfsCAD( bool iges_flag, const string &iges_fn, bool step_flag, const string &step_fn,
+                                                       int len_unit, double tol, bool merge_pnts, bool label_id, bool label_surf_num,
+                                                       bool label_split_num, bool label_name, const string &label_delim, int representation )
+{
+    if ( !iges_flag || !step_flag || m_NURBSSurfVec.empty() )
+    {
+        if ( iges_flag )
+        {
+            WriteNURBSSurfsIGES( iges_fn, len_unit, label_id, label_surf_num, label_split_num, label_name, label_delim );
+        }
+        if ( step_flag )
+        {
+            WriteNURBSSurfsSTEP( step_fn, len_unit, tol, merge_pnts, label_id, label_surf_num, label_split_num, label_name,
+                                 label_delim, representation );
+        }
+        return;
+    }
+
+    // The IGES and STEP libraries share nothing, so the two files are written at once.  Evaluating
+    // a surface writes scratch inside it, so the IGES writer works on its own copy of each.
+    vector < piecewise_surface_type > surf_copy( m_NURBSSurfVec.size() );
+    vector < NURBS_Surface > iges_surf_vec = m_NURBSSurfVec;
+    for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
+    {
+        surf_copy[si] = *m_NURBSSurfVec[si].GetSurf();
+        iges_surf_vec[si].SetSurf( &surf_copy[si] );
+    }
+
+    RunStage( "Write IGES/STEP", 2, [&]( int k )
+    {
+        if ( k == 0 )
+        {
+            WriteNURBSSurfsIGES( iges_surf_vec, iges_fn, len_unit, label_id, label_surf_num, label_split_num, label_name,
+                                 label_delim );
+        }
+        else
+        {
+            WriteNURBSSurfsSTEP( step_fn, len_unit, tol, merge_pnts, label_id, label_surf_num, label_split_num, label_name,
+                                 label_delim, representation );
+        }
+    } );
+}
+
 void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int len_unit,
                                                   bool label_id, bool label_surf_num, bool label_split_num,
                                                   bool label_name, const string &label_delim )
@@ -3032,7 +3068,14 @@ void SurfaceIntersectionSingleton::WriteNURBSSurfsIGES( const string& filename, 
                                                         bool label_id, bool label_surf_num, bool label_split_num,
                                                         bool label_name, const string &label_delim )
 {
-    if ( m_NURBSSurfVec.size() == 0 )
+    WriteNURBSSurfsIGES( m_NURBSSurfVec, filename, len_unit, label_id, label_surf_num, label_split_num, label_name, label_delim );
+}
+
+void SurfaceIntersectionSingleton::WriteNURBSSurfsIGES( vector < NURBS_Surface > &surf_vec, const string& filename, int len_unit,
+                                                        bool label_id, bool label_surf_num, bool label_split_num,
+                                                        bool label_name, const string &label_delim )
+{
+    if ( surf_vec.size() == 0 )
     {
         addOutputText( "Error: Can't Export IGES - No Valid Surfaces\n" );
         return;
@@ -3040,21 +3083,21 @@ void SurfaceIntersectionSingleton::WriteNURBSSurfsIGES( const string& filename, 
 
     IGESutil iges( len_unit );
 
-    for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
+    for ( size_t si = 0; si < surf_vec.size(); si++ )
     {
-        string label = CADSurfLabel( m_NURBSSurfVec[si], label_id, label_surf_num, label_split_num, label_name, label_delim );
+        string label = CADSurfLabel( surf_vec[si], label_id, label_surf_num, label_split_num, label_name, label_delim );
 
         // A surface no complete loop bounds is no face, as in STEP; written anyway it would be
         // a whole untrimmed surface
-        if ( !m_NURBSSurfVec[si].HasClosedExtLoop() )
+        if ( !surf_vec[si].HasClosedExtLoop() )
         {
-            printf( "ERROR: No complete IGES boundary on surface %d, which is left out\n", m_NURBSSurfVec[si].m_SurfID );
+            printf( "ERROR: No complete IGES boundary on surface %d, which is left out\n", surf_vec[si].m_SurfID );
             continue;
         }
 
-        DLL_IGES_ENTITY_128 isurf = m_NURBSSurfVec[si].WriteIGESSurf( &iges, label.c_str() );
+        DLL_IGES_ENTITY_128 isurf = surf_vec[si].WriteIGESSurf( &iges, label.c_str() );
 
-        m_NURBSSurfVec[si].WriteIGESLoops( &iges, isurf, label.c_str() );
+        surf_vec[si].WriteIGESLoops( &iges, isurf, label.c_str() );
     }
 
     iges.WriteFile( filename, true );

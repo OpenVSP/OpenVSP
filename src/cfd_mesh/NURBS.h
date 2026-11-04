@@ -245,6 +245,16 @@ public:
     // saved as member variable.
     void InitNURBSSurf( Surf* surface );
 
+    // The surface the NURBS surface is written from, which may be pointed at a copy of it
+    const piecewise_surface_type* GetSurf() const
+    {
+        return m_Surf;
+    }
+    void SetSurf( piecewise_surface_type* surf )
+    {
+        m_Surf = surf;
+    }
+
     // Write the NURBS surface to IGES
     DLL_IGES_ENTITY_128 WriteIGESSurf( IGESutil* iges, const string& label = "" );
 

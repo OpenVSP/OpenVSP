@@ -816,26 +816,14 @@ void FeaMeshMgrSingleton::ExportCADFiles()
         BuildNURBSSurfMap();
     }
 
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) )
-    {
-        string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
+    string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        // The surfaces were scaled into the structures' analysis unit for meshing.
-        WriteNURBSSurfsIGES( GetSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME ), m_Vehicle->GetStructLenUnit(),
-                             GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
-                             GetSettingsPtr()->m_CADLabelName, delim );
-    }
-
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
-    {
-        string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
-
-        // The surfaces were scaled into the structures' analysis unit for meshing.
-        WriteNURBSSurfsSTEP( GetSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME ), m_Vehicle->GetStructLenUnit(),
-                             GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
-                             GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
-                             GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
-    }
+    // The surfaces were scaled into the structures' analysis unit for meshing.
+    WriteNURBSSurfsCAD( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ), GetSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME ),
+                        GetSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ), GetSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME ),
+                        m_Vehicle->GetStructLenUnit(), GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
+                        GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                        GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
 
 }
 
