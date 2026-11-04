@@ -22,8 +22,7 @@
 import tempfile
 import shutil
 import os
-import six
-import collections
+import collections.abc
 import struct
 
 class RunManager:
@@ -58,7 +57,7 @@ class RunManager:
             def copy(self):
                 if self.copyfiles is not None:
                     # copy files from __old_wd to cwd
-                    isIterable = isinstance(self.copyfiles, collections.Iterable) and not isinstance(self.copyfiles, six.string_types)
+                    isIterable = isinstance(self.copyfiles, collections.abc.Iterable) and not isinstance(self.copyfiles, str)
                     if isIterable:
                         for f in self.copyfiles:
                             shutil.copy(f, self.wd)
