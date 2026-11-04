@@ -446,19 +446,20 @@ ISegBox::~ISegBox()
     delete m_SubBox[1];
 }
 
+// A box over eight segments or fewer is taken from their points; a larger one is split in two
+// and made of its halves' boxes, which bound the same points.
 void ISegBox::BuildSubDivide()
 {
-    vec2d uw0, uw1;
-    for ( int i = m_BeginInd ; i < m_EndInd ; i++ )
-    {
-        uw0 = m_ChainPtr->m_ISegVec[i]->m_IPnt[0]->GetPuw( m_Surf )->m_UW;
-        uw1 = m_ChainPtr->m_ISegVec[i]->m_IPnt[1]->GetPuw( m_Surf )->m_UW;
-        m_Box.Update( vec3d( uw0.x(), uw0.y(), 0.0 ) );
-        m_Box.Update( vec3d( uw1.x(), uw1.y(), 0.0 ) );
-    }
-
     if ( m_EndInd - m_BeginInd <= 8 )
     {
+        vec2d uw0, uw1;
+        for ( int i = m_BeginInd ; i < m_EndInd ; i++ )
+        {
+            uw0 = m_ChainPtr->m_ISegVec[i]->m_IPnt[0]->GetPuw( m_Surf )->m_UW;
+            uw1 = m_ChainPtr->m_ISegVec[i]->m_IPnt[1]->GetPuw( m_Surf )->m_UW;
+            m_Box.Update( vec3d( uw0.x(), uw0.y(), 0.0 ) );
+            m_Box.Update( vec3d( uw1.x(), uw1.y(), 0.0 ) );
+        }
         return;
     }
 
@@ -482,6 +483,8 @@ void ISegBox::BuildSubDivide()
     m_SubBox[0]->BuildSubDivide();
     m_SubBox[1]->BuildSubDivide();
 
+    m_Box.Update( m_SubBox[0]->m_Box );
+    m_Box.Update( m_SubBox[1]->m_Box );
 }
 
 // The surface of a segment that is not s
