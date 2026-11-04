@@ -1232,7 +1232,8 @@ void Mesh::SplitEdge( Edge* edge )
 
     // Not the midpoint projected to the surface: across a tip that lands back on the side the
     // edge came from, and the split does not shorten anything.  See Surf::SplitUW.
-    vec2d uws = m_Surf->SplitUW( n0->pnt, n1->pnt, n0->uw, n1->uw );
+    vec3d ps;
+    vec2d uws = m_Surf->SplitUW( n0->pnt, n1->pnt, n0->uw, n1->uw, ps );
 
     // The point that best halves the edge in space need not lie on the edge in UW.  Beside a
     // sliver it can land past the far side of the face, and the split then builds a face wound
@@ -1247,9 +1248,9 @@ void Mesh::SplitEdge( Edge* edge )
         {
             return;
         }
-    }
 
-    vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
+        ps = m_Surf->CompPnt( uws.x(), uws.y() );
+    }
 
     // A split must not turn a face over.  CollapseEdge refuses a move that would, through
     // ValidNodeMove.  A reversed face is collapsed away by RemoveIllFormedFaces, which is how a

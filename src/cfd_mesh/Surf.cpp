@@ -953,10 +953,11 @@ vec2d Surf::ClosestUW( const vec3d & pnt_in ) const
 // but it cannot converge to the wrong stationary point.
 double Surf::SplitSearch( const vec3d & p0, const vec3d & p1,
                           double ulo, double uhi, double wlo, double whi,
-                          double &u, double &w ) const
+                          double &u, double &w, vec3d &pnt ) const
 {
     vec3d p = m_SurfCore.CompPnt( u, w );
     double best = max( dist( p, p0 ), dist( p, p1 ) );
+    pnt = p;
 
     double du = 0.25 * ( uhi - ulo );
     double dw = 0.25 * ( whi - wlo );
@@ -986,6 +987,7 @@ double Surf::SplitSearch( const vec3d & p0, const vec3d & p1,
                 best = f;
                 u = tu;
                 w = tw;
+                pnt = tp;
                 moved = true;
             }
         }
@@ -1022,7 +1024,7 @@ double Surf::SplitSearch( const vec3d & p0, const vec3d & p1,
 //
 // So solve first and check the answer.  A split that halves its edge is kept, and only one
 // Both are measured against the projection, which is kept where it beats them.
-vec2d Surf::SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1 ) const
+vec2d Surf::SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1, vec3d &pnt ) const
 {
     double u0 = 0.5 * ( uw0.x() + uw1.x() );
     double w0 = 0.5 * ( uw0.y() + uw1.y() );
@@ -1069,13 +1071,15 @@ vec2d Surf::SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, cons
     {
         double su = u0;
         double sw = w0;
-        double fs = SplitSearch( p0, p1, ulo, uhi, wlo, whi, su, sw );
+        vec3d ps;
+        double fs = SplitSearch( p0, p1, ulo, uhi, wlo, whi, su, sw, ps );
 
         if ( fs < fe )
         {
             u = su;
             w = sw;
             fe = fs;
+            pe = ps;
         }
 
         // Fall back on the projection where it does better.
@@ -1086,10 +1090,12 @@ vec2d Surf::SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, cons
 
         if ( max( dist( pp, p0 ), dist( pp, p1 ) ) < fe )
         {
+            pnt = pp;
             return vec2d( pu, pw );
         }
     }
 
+    pnt = pe;
     return vec2d( u, w );
 }
 

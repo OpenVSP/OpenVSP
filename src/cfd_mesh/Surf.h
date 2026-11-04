@@ -101,13 +101,14 @@ public:
     // The UW of a point to split an edge at: the nearest point on the surface that is
     // equidistant from the edge's two ends.  See the definition for why the midpoint will
     // not do.
-    vec2d SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1 ) const;
+    // Also gives the point at the returned UW, which the search has already evaluated.
+    vec2d SplitUW( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1, vec3d &pnt ) const;
 
     // The point equidistant from the two ends along the straight UW line between them.
     vec2d SplitUWOnLine( const vec3d & p0, const vec3d & p1, const vec2d & uw0, const vec2d & uw1 ) const;
     double SplitSearch( const vec3d & p0, const vec3d & p1,
                         double ulo, double uhi, double wlo, double whi,
-                        double &u, double &w ) const;
+                        double &u, double &w, vec3d &pnt ) const;
 
     void AddBorderCurve( double ua, double wa, double ub, double wb );
     void FindBorderCurves();
