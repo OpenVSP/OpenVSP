@@ -705,6 +705,49 @@ void Surf::LimitTargetMap()
     }
 }
 
+int Surf::StartTargetMapLimits()
+{
+    size_t nmap = m_SrcMap.size() * m_SrcMap[0].size();
+
+    m_LimStart.resize( nmap );
+    m_LimStr.resize( nmap );
+    m_LimReason.resize( nmap );
+    m_LimR2.resize( nmap );
+
+    return ( int )m_SrcMap.size();
+}
+
+void Surf::FindTargetMapLimits( const MSBoundTree &ms_tree, double tmin, int sid, int i )
+{
+    double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
+
+    int nmapw = m_SrcMap[0].size();
+
+    for( int j = 0; j < nmapw ; j++ )
+    {
+        size_t k = ( size_t )i * nmapw + j;
+
+        double t = m_SrcMap[i][j].m_str;
+        int reason = m_SrcMap[i][j].m_reason;
+        double r2 = 0.0;
+
+        m_LimStart[k] = t;
+
+        double rmax = ( t - tmin ) / grm1;
+        if( rmax > 0.0 )
+        {
+            ms_tree.LimitStrength( m_SrcMap[i][j].m_pt, rmax * rmax, sid, grm1, t, reason, r2 );
+        }
+
+        m_LimStr[k] = t;
+        m_LimReason[k] = reason;
+        m_LimR2[k] = r2;
+    }
+}
+
+// Points go in order, each lowered and walked out from as before.  A point whose strength is as it
+// was when its limit was found takes that limit.  So does one an earlier walk has lowered, when the
+// source that gives the limit lies within its smaller radius; otherwise it is searched again.
 void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
@@ -716,14 +759,30 @@ void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid )
     {
         for( int j = 0; j < nmapw ; j++ )
         {
-            double t = m_SrcMap[i][j].m_str;
-            double torig = t;
-            int reason = m_SrcMap[i][j].m_reason;
+            size_t k = ( size_t )i * nmapw + j;
 
-            double rmax = ( t - tmin ) / grm1;
-            if( rmax > 0.0 )
+            double torig = m_SrcMap[i][j].m_str;
+
+            if( m_LimStr[k] < torig )
             {
-                ms_tree.LimitStrength( m_SrcMap[i][j].m_pt, rmax * rmax, sid, grm1, t, reason );
+                double t = m_LimStr[k];
+                int reason = m_LimReason[k];
+
+                if( torig != m_LimStart[k] )
+                {
+                    double rmax = ( torig - tmin ) / grm1;
+                    if( !( rmax > 0.0 && m_LimR2[k] < rmax * rmax ) )
+                    {
+                        t = torig;
+                        reason = m_SrcMap[i][j].m_reason;
+
+                        if( rmax > 0.0 )
+                        {
+                            double r2;
+                            ms_tree.LimitStrength( m_SrcMap[i][j].m_pt, rmax * rmax, sid, grm1, t, reason, r2 );
+                        }
+                    }
+                }
 
                 if( t < torig )
                 {
@@ -735,6 +794,11 @@ void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid )
             }
         }
     }
+
+    vector< double >().swap( m_LimStart );
+    vector< double >().swap( m_LimStr );
+    vector< int >().swap( m_LimReason );
+    vector< double >().swap( m_LimR2 );
 }
 
 double Surf::InterpTargetMap( double u, double w, int &reason )

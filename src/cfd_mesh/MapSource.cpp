@@ -356,6 +356,7 @@ void MSBoundTree::SearchNode( int inode, Search &srch ) const
                 {
                     srch.m_T = ts;
                     srch.m_Reason = m_TreeSources[k]->m_reason;
+                    srch.m_R2 = result;
                 }
             }
         }
@@ -383,8 +384,10 @@ void MSBoundTree::SearchNode( int inode, Search &srch ) const
     }
 }
 
-void MSBoundTree::LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason ) const
+void MSBoundTree::LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason, double &r2 ) const
 {
+    r2 = 0.0;
+
     if ( m_Nodes.empty() )
     {
         return;
@@ -400,6 +403,7 @@ void MSBoundTree::LimitStrength( const vec3d &pt, double r2max, int skipsurf, do
     srch.m_Grm1 = grm1;
     srch.m_T = t;
     srch.m_Reason = reason;
+    srch.m_R2 = 0.0;
 
     const Node &root = m_Nodes[0];
     double md2 = MinDistSq( root, srch.m_Pt );
@@ -410,4 +414,5 @@ void MSBoundTree::LimitStrength( const vec3d &pt, double r2max, int skipsurf, do
 
     t = srch.m_T;
     reason = srch.m_Reason;
+    r2 = srch.m_R2;
 }

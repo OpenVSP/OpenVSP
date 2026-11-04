@@ -953,6 +953,13 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
             double minmap;
             if ( ms_tree.MinStrength( i, minmap ) )
             {
+                // The limits on a surface's points are found side by side, then taken up in order.
+                int nrow = m_SurfVec[i]->StartTargetMapLimits();
+                RunIndexed( nrow, StageThreadCount( nrow ), [&]( int irow )
+                {
+                    m_SurfVec[i]->FindTargetMapLimits( ms_tree, minmap, i, irow );
+                } );
+
                 m_SurfVec[i]->LimitTargetMap( ms_tree, minmap, i );
                 ms_tree.UpdateSurface( i );
             }

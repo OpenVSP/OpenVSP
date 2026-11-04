@@ -82,6 +82,12 @@ public:
     void WalkMap( int istart, int jstart );
 
     void LimitTargetMap();
+    // Rows of the map whose limits from the other surfaces' sources are to be found.
+    int StartTargetMapLimits();
+    // The limits on map row i from the other surfaces' sources, as the map now stands.  Rows may
+    // be found side by side.
+    void FindTargetMapLimits( const MSBoundTree &ms_tree, double tmin, int sid, int i );
+    // Limits the map by the other surfaces' sources, from the limits found.
     void LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid );
     double InterpTargetMap( double u, double w, int &reason );
     void UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, double &fracj );
@@ -590,6 +596,13 @@ protected:
 
     // Cells waiting to be looked at by WalkMap, kept so each walk does not allocate.
     vector < pair < int, int > > m_WalkStack;
+
+    // Each map point's strength when its limit was found, the limit, its reason, and the squared
+    // distance of the source that gives it.
+    vector< double > m_LimStart;
+    vector< double > m_LimStr;
+    vector< int > m_LimReason;
+    vector< double > m_LimR2;
 
     void UtoIndexFrac( const double &u, int &indx, double &frac );
 

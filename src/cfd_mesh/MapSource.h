@@ -133,8 +133,8 @@ public:
     bool MinStrength( int skipsurf, double &minstr ) const;
 
     // Lowers t to the smallest str + grm1 * r over the sources not on skipsurf within r2max of pt,
-    // with the reason of a source that gives it.
-    void LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason ) const;
+    // with the reason and squared distance of a source that gives it.
+    void LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason, double &r2 ) const;
 
 private:
 
@@ -158,6 +158,7 @@ private:
         double m_Grm1;
         double m_T;
         int m_Reason;
+        double m_R2;
     };
 
     void BuildNode( int inode, int begin, int end );
