@@ -1536,9 +1536,17 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, dou
         surfPtr->SetUWTess( xfersurfs[i].m_UTess, xfersurfs[i].m_WTess );
         surfPtr->SetUWRegions( xfersurfs[i].m_UWRegions );
         surfPtr->SetJoinLines( xfersurfs[i].m_JoinLines );
-        surfPtr->GetSurfCore()->BuildPatches( surfPtr );
         m_SurfVec.push_back( surfPtr );
     }
+
+    // Each surface's patches are its own, so they are built on several threads.
+    int nfirst = ( int )m_SurfVec.size() - ( int )xfersurfs.size();
+    int nload = ( int )xfersurfs.size();
+    RunStage( "Load Surfaces", nload, [&]( int k )
+    {
+        Surf* surfPtr = m_SurfVec[ nfirst + k ];
+        surfPtr->GetSurfCore()->BuildPatches( surfPtr );
+    } );
 
     // Don't include FEA parts (with negative Comp index)
     if ( maxcompid >= 0 )
