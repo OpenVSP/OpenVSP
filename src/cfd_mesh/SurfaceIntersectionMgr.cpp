@@ -1876,27 +1876,57 @@ void SurfaceIntersectionSingleton::PairCoincidentFaces()
 // is often a cap whose parameters collapse to a point, where a search started nearby can stall.
 bool SurfaceIntersectionSingleton::FlatGroupWithin( const vector< int > &ga, const vector< int > &gb, double tol )
 {
+    vector< BndBox > boxes( gb.size() );
+    for ( int j = 0 ; j < ( int )gb.size() ; j++ )
+    {
+        boxes[j] = m_SurfVec[ gb[j] ]->GetBBox();
+        boxes[j].Expand( tol );
+    }
+
     for ( int i = 0 ; i < ( int )ga.size() ; i++ )
     {
         vector< vec3d > apnts;
         vector< vec2d > auws;
         SampleSurf( m_SurfVec[ ga[i] ], 8, apnts, auws );
 
-        for ( int k = 0 ; k < ( int )apnts.size() ; k++ )
-        {
-            bool found = false;
-            for ( int j = 0 ; j < ( int )gb.size() && !found ; j++ )
-            {
-                BndBox box = m_SurfVec[ gb[j] ]->GetBBox();
-                box.Expand( tol );
+        // The points are searched for on several threads, each through copies of its own of the
+        // surfaces it searches; a copy finds the same nearest point the surface does.
+        int npnt = ( int )apnts.size();
+        int nthread = StageThreadCount( npnt );
+        std::atomic< bool > missed( false );
 
-                double u, w;
-                found = box.CheckPnt( apnts[k] ) && m_SurfVec[ gb[j] ]->GetSurfCore()->FindNearest( u, w, apnts[k] ) <= tol;
-            }
-            if ( !found )
+        RunIndexed( nthread, nthread, [&]( int t )
+        {
+            vector< std::unique_ptr< SurfCore > > cores( gb.size() );
+
+            for ( int k = t ; k < npnt && !missed ; k += nthread )
             {
-                return false;
+                bool found = false;
+                for ( int j = 0 ; j < ( int )gb.size() && !found ; j++ )
+                {
+                    if ( !boxes[j].CheckPnt( apnts[k] ) )
+                    {
+                        continue;
+                    }
+
+                    if ( !cores[j] )
+                    {
+                        cores[j].reset( new SurfCore( *m_SurfVec[ gb[j] ]->GetSurfCore() ) );
+                    }
+
+                    double u, w;
+                    found = cores[j]->FindNearest( u, w, apnts[k] ) <= tol;
+                }
+                if ( !found )
+                {
+                    missed = true;
+                }
             }
+        } );
+
+        if ( missed )
+        {
+            return false;
         }
     }
     return true;
