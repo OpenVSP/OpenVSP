@@ -256,6 +256,7 @@ public:
     // left to the ray cast.
     void TopoInteriorTris( int ncross, vector< vector< char > > &del, vector< char > &handled );
 
+    void CompSurfCounts( int ncross, vector< pair< int, int > > &compcounts );
     void RemoveInteriorTrisOneSurf( int s, double x_dist, int ncross, const vector< vector< pair< int, bool > > > &coplanar,
                                     vector< bool > &inside, vector< int > &count );
 

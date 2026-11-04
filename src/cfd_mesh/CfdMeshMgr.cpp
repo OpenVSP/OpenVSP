@@ -6950,6 +6950,10 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int n
         }
     }
 
+    // A component votes once for each of its surfaces.
+    vector< pair< int, int > > compvotes;
+    CompSurfCounts( ncross, compvotes );
+
     for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every face
     {
         //==== Load Adjoining Faces - NOT Crossing Borders ====//
@@ -6958,24 +6962,42 @@ void CfdMeshMgrSingleton::RemoveInteriorTrisOneSurf( int s, double x_dist, int n
 
         set<Face*>::iterator sf;
 
-        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
+        for ( int i = 0 ; i < ( int )compvotes.size() ; ++i )
         {
-            int c = m_SurfVec[i]->GetCompID();
-            if ( c >= 0 && c < ncross )
-            {
+            int c = compvotes[i].first;
+            int vote = compvotes[i].second;
 
-                for ( sf = faceSet.begin() ; sf != faceSet.end() ; ++sf )
-                {
-                    if ( inside[ ( *f )->m_Index * ncross + c ] )
-                    {
-                        count[ ( *sf )->m_Index * ncross + c ]++;
-                    }
-                    else
-                    {
-                        count[ ( *sf )->m_Index * ncross + c ]--;
-                    }
-                }
+            if ( !inside[ ( *f )->m_Index * ncross + c ] )
+            {
+                vote = -vote;
             }
+
+            for ( sf = faceSet.begin() ; sf != faceSet.end() ; ++sf )
+            {
+                count[ ( *sf )->m_Index * ncross + c ] += vote;
+            }
+        }
+    }
+}
+
+// Each component in [0, ncross) that has a surface, with how many surfaces it has, in the
+// order the components are first met among the surfaces.
+void CfdMeshMgrSingleton::CompSurfCounts( int ncross, vector< pair< int, int > > &compcounts )
+{
+    compcounts.clear();
+    vector< int > slot( ncross, -1 );
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
+    {
+        int c = m_SurfVec[i]->GetCompID();
+        if ( c >= 0 && c < ncross )
+        {
+            if ( slot[c] < 0 )
+            {
+                slot[c] = ( int )compcounts.size();
+                compcounts.push_back( pair< int, int >( c, 0 ) );
+            }
+            compcounts[ slot[c] ].second++;
         }
     }
 }
@@ -7861,6 +7883,9 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     list< Face* >::const_iterator f;
 
     //==== Check Vote and Mark Interior Tris =====//
+    vector< pair< int, int > > compsurfs;
+    CompSurfCounts( ncross, compsurfs );
+
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
         if ( topo_done[s] )
@@ -7871,26 +7896,25 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         for ( f = faceList.begin() ; f != faceList.end(); ++f )
         {
             int k = ( *f )->m_Index;
-            for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
+            for ( int i = 0 ; i < ( int )compsurfs.size() ; ++i )
             {
-                int c = m_SurfVec[i]->GetCompID();
+                int c = compsurfs[i].first;
 
-                if ( c >= 0 && c < ncross )
+                if ( count[s][ k * ncross + c ] > 0 )
                 {
-
-                    if ( count[s][ k * ncross + c ] > 0 )
-                    {
-                        inside[s][ k * ncross + c ] = true;
-                    }
-                    else if ( count[s][ k * ncross + c ] < 0 )
-                    {
-                        inside[s][ k * ncross + c ] = false;
-                    }
-                    else // Can't determine if Tri is inside or outside based on neighbor votes
+                    inside[s][ k * ncross + c ] = true;
+                }
+                else if ( count[s][ k * ncross + c ] < 0 )
+                {
+                    inside[s][ k * ncross + c ] = false;
+                }
+                else // Can't determine if Tri is inside or outside based on neighbor votes
+                {
+                    // Reported once for each surface of the component.
+                    for ( int j = 0 ; j < compsurfs[i].second ; j++ )
                     {
                         printf( "IntExtCount ZERO!\n" );
                     }
-
                 }
             }
         }
