@@ -45,8 +45,9 @@ public:
 
     // Initialize the curve as it is written to trimmed CAD: the CAD curve, and m_PntVec and
     // the parameters of both parents as points along it and along its image on each.  tol
-    // bounds how far the CAD curve may stray from either parent.
-    void InitCAD( SCurve curveA, SCurve curveB, double tol );
+    // bounds how far the CAD curve may stray from either parent.  Warnings go to warn where
+    // given, and to stdout otherwise.
+    void InitCAD( SCurve curveA, SCurve curveB, double tol, string *warn = nullptr );
 
     // Run the curve the other way
     void Reverse();

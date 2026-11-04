@@ -3292,7 +3292,7 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad 
 
     if ( classify )
     {
-        RunIndexed( nchain, StageThreadCount( nchain ), [&]( int k )
+        RunStage( "Classify Curves", nchain, [&]( int k )
         {
             ISegChain* chain = chains[k];
 
@@ -3403,6 +3403,9 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad 
 
     bool cached = cad && m_ChainCADVec.size() == m_ISegChainList.size();
 
+    // The chain each curve comes from
+    vector< ISegChain* > curve_chain;
+
     int icurve = 0;
     int ichain = -1;
     for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
@@ -3454,20 +3457,46 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad 
         nurbs_curve.m_CurveID = icurve;
         icurve++;
 
-        if ( cached )
+        m_NURBSCurveVec.push_back( nurbs_curve );
+        curve_chain.push_back( *i_seg );
+    }
+
+    if ( cached )
+    {
+        // Built already, for drawing
+        return;
+    }
+
+    // A curve is adapted on its chain's two surfaces alone, so curves on different surfaces are
+    // done on several threads, and the warnings said in order after.
+    int ncurve = ( int )m_NURBSCurveVec.size();
+    vector< Surf* > sa( ncurve ), sb( ncurve );
+    for ( int k = 0 ; k < ncurve ; k++ )
+    {
+        sa[k] = curve_chain[k]->m_ACurve.GetSurf();
+        sb[k] = curve_chain[k]->m_BCurve.GetSurf();
+    }
+    vector< string > warn( ncurve );
+
+    ProgressStage bar( this, "Adapt Curves", ncurve );
+
+    RunChainsBySurface( sa, sb, [&]( int k )
+    {
+        if ( cad )
         {
-            // Built already, for drawing
-        }
-        else if ( cad )
-        {
-            nurbs_curve.InitCAD( ( *i_seg )->m_ACurve, ( *i_seg )->m_BCurve, GetSettingsPtr()->m_STEPTol );
+            m_NURBSCurveVec[k].InitCAD( curve_chain[k]->m_ACurve, curve_chain[k]->m_BCurve, GetSettingsPtr()->m_STEPTol, &warn[k] );
         }
         else
         {
-            nurbs_curve.InitPolyline( ( *i_seg )->m_ACurve, ( *i_seg )->m_BCurve, GetSettingsPtr()->m_RelCurveTol );
+            m_NURBSCurveVec[k].InitPolyline( curve_chain[k]->m_ACurve, curve_chain[k]->m_BCurve, GetSettingsPtr()->m_RelCurveTol );
         }
+    }, &bar );
 
-        m_NURBSCurveVec.push_back( nurbs_curve );
+    bar.End();
+
+    for ( int k = 0 ; k < ncurve ; k++ )
+    {
+        printf( "%s", warn[k].c_str() );
     }
 }
 
@@ -7359,20 +7388,39 @@ void SurfaceIntersectionSingleton::BuildChainCADCurves()
     m_ChainCADVec.clear();
     m_ChainCADVec.resize( m_ISegChainList.size() );
 
-    int ichain = 0;
-    list<ISegChain *>::iterator c;
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+    // A chain's curve is adapted on its two surfaces alone, so chains on different surfaces are
+    // done on several threads, and the warnings said in order after.
+    vector< ISegChain* > chains( m_ISegChainList.begin(), m_ISegChainList.end() );
+    int n = ( int )chains.size();
+    vector< Surf* > sa( n ), sb( n );
+    for ( int k = 0 ; k < n ; k++ )
     {
-        NURBS_Curve &crv = m_ChainCADVec[ ichain ];
-        ichain++;
+        sa[k] = chains[k]->m_ACurve.GetSurf();
+        sb[k] = chains[k]->m_BCurve.GetSurf();
+    }
+    vector< string > warn( n );
+
+    ProgressStage bar( this, "Adapt CAD Curves", n );
+
+    RunChainsBySurface( sa, sb, [&]( int k )
+    {
+        ISegChain* c = chains[k];
+        NURBS_Curve &crv = m_ChainCADVec[ k ];
 
         // A patch join runs along a parameter line of its surface, as a border does, and is
         // drawn as that line
-        crv.m_BorderFlag = ( *c )->m_BorderFlag || ( *c )->m_PatchJoinFlag;
-        crv.m_SurfA_ID = ( *c )->m_SurfA->GetSurfID();
-        crv.m_SurfB_ID = ( *c )->m_SurfB->GetSurfID();
+        crv.m_BorderFlag = c->m_BorderFlag || c->m_PatchJoinFlag;
+        crv.m_SurfA_ID = c->m_SurfA->GetSurfID();
+        crv.m_SurfB_ID = c->m_SurfB->GetSurfID();
 
-        crv.InitCAD( ( *c )->m_ACurve, ( *c )->m_BCurve, GetSettingsPtr()->m_STEPTol );
+        crv.InitCAD( c->m_ACurve, c->m_BCurve, GetSettingsPtr()->m_STEPTol, &warn[k] );
+    }, &bar );
+
+    bar.End();
+
+    for ( int k = 0 ; k < n ; k++ )
+    {
+        printf( "%s", warn[k].c_str() );
     }
 }
 

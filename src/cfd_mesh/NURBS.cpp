@@ -85,7 +85,7 @@ static vec3d PiecewisePnt( const vector < vec3d > &cp, int deg, const vector < d
     return work[0];
 }
 
-void NURBS_Curve::InitCAD( SCurve curveA, SCurve curveB, double tol )
+void NURBS_Curve::InitCAD( SCurve curveA, SCurve curveB, double tol, string *warn )
 {
     // A border is the parameter line of its surface it runs along, and an intersection the cubic
     // adapted onto both parents
@@ -95,15 +95,28 @@ void NURBS_Curve::InitCAD( SCurve curveA, SCurve curveB, double tol )
         adapt.Adapt( curveA, curveB, *curveA.GetSurf(), *curveB.GetSurf(), !m_BorderFlag, true, 0.0, tol );
         adapt.GetBezier( m_CADPntVec, m_CADUWPntVec_A, m_CADUWPntVec_B, m_CADBreakVec, m_CADDeg );
 
+        char str[512];
+        string msg;
         if ( adapt.m_NumMiss > 0 )
         {
-            printf( "WARNING: Surfaces %d and %d do not meet to within tolerance along %d segments of their intersection, apart by up to %g\n",
-                    m_SurfA_ID, m_SurfB_ID, adapt.m_NumMiss, adapt.m_MaxMiss );
+            snprintf( str, sizeof( str ), "WARNING: Surfaces %d and %d do not meet to within tolerance along %d segments of their intersection, apart by up to %g\n",
+                      m_SurfA_ID, m_SurfB_ID, adapt.m_NumMiss, adapt.m_MaxMiss );
+            msg += str;
         }
         if ( adapt.m_NumLimit > 0 )
         {
-            printf( "WARNING: The intersection of surfaces %d and %d is written %d segments over tolerance, off by up to %g\n",
-                    m_SurfA_ID, m_SurfB_ID, adapt.m_NumLimit, adapt.m_MaxLimitErr );
+            snprintf( str, sizeof( str ), "WARNING: The intersection of surfaces %d and %d is written %d segments over tolerance, off by up to %g\n",
+                      m_SurfA_ID, m_SurfB_ID, adapt.m_NumLimit, adapt.m_MaxLimitErr );
+            msg += str;
+        }
+
+        if ( warn )
+        {
+            warn->append( msg );
+        }
+        else
+        {
+            printf( "%s", msg.c_str() );
         }
 
         m_CADUWDeg = m_CADDeg;
