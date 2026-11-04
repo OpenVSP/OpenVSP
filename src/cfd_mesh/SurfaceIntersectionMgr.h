@@ -211,6 +211,31 @@ public:
 
 class SurfaceIntersectionSingleton;
 
+// One stage's progress bar, up from construction to destruction.  Step counts finished work and
+// may be called from any thread; the bar is redrawn some two hundred times at most.  There is
+// one bar, so a stage run while another stage's bar is up -- a stage called from inside
+// another -- draws and counts nothing.  Construct and end it on the thread that runs the stage.
+class ProgressStage
+{
+public:
+    ProgressStage( SurfaceIntersectionSingleton *mgr, const string &label, int n );
+    ~ProgressStage();
+
+    void Step( int count = 1 );
+
+    // Take the bar down before the destructor would, for a stage followed by another in one scope.
+    void End();
+
+    // Count again from nothing, under a new label, on the same line: one pass of several.
+    void Restart( const string &label );
+
+protected:
+    SurfaceIntersectionSingleton *m_Mgr;
+    bool m_Live;
+    int m_N;
+    int m_Stride;
+};
+
 // Offers one analysis to AnalysisMgr when it asks for the meshing ones.
 //
 // AnalysisMgr lives in the geometry core, which cannot see this library and must not, so it
@@ -533,9 +558,10 @@ public:
     // stage needs them too.
     static int MeshThreadCount();
     int StageThreadCount( int nitem );
-    void RunIndexed( int n, int nthread, const std::function< void( int ) > &body );
+    void RunIndexed( int n, int nthread, const std::function< void( int ) > &body, ProgressStage *bar = nullptr );
 
-    // Run body( i ) for every i below n on several threads, under a progress bar of its own.
+    // Run body( i ) for every i below n on several threads, under a progress bar of its own.  The
+    // runners above count each item on a bar when given one, for a stage of several runs.
     void RunStage( const string &label, int n, const std::function< void( int ) > &body );
 
     // Run body( k ) for every chain k on several threads, where chain k evaluates surfaces sa[k]
@@ -546,8 +572,8 @@ public:
     // Write n items to fp, formatting them on several threads and writing them out in order.
     // body( ibeg, iend, out ) appends items [ibeg,iend) to out, and must depend on nothing
     // but those items.  The chunks go to the file in order, so the result is byte for byte
-    // the file the plain loop wrote.
-    void WriteChunked( FILE* fp, int n, const std::function< void( int, int, string & ) > &body );
+    // the file the plain loop wrote.  A bar, if given, counts the items as they are written.
+    void WriteChunked( FILE* fp, int n, const std::function< void( int, int, string & ) > &body, ProgressStage *bar = nullptr );
 
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {

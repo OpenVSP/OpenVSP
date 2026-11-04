@@ -508,7 +508,8 @@ int SurfaceIntersectionSingleton::StageThreadCount( int nitem )
 // Run body( i ) for every i below n.  A thread takes the next piece that has not been started
 // rather than a fixed share handed out up front, because one piece can cost many times what
 // another does and a fixed split would leave threads idle waiting on the slowest share.
-void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::function< void( int ) > &body )
+void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::function< void( int ) > &body,
+                                               ProgressStage *bar )
 {
     // The first exception a work item threw, if any.  One that escaped a thread would end the
     // process, so a worker keeps it here instead and the caller is given it once the threads
@@ -539,6 +540,11 @@ void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::fu
                         try
                         {
                             body( i );
+
+                            if ( bar )
+                            {
+                                bar->Step();
+                            }
                         }
                         catch ( ... )
                         {
@@ -574,6 +580,11 @@ void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::fu
         for ( int i = 0 ; i < n ; i++ )
         {
             body( i );
+
+            if ( bar )
+            {
+                bar->Step();
+            }
         }
     }
 
@@ -588,19 +599,9 @@ void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::fu
 void SurfaceIntersectionSingleton::RunStage( const string &label, int n,
                                              const std::function< void( int ) > &body )
 {
-    int nthread = StageThreadCount( n );
+    ProgressStage bar( this, label, n );
 
-    BeginProgress( label, n, VOCAL_OUTPUT );
-
-    RunIndexed( n, nthread, [&]( int i )
-    {
-        body( i );
-
-        m_ProgressDone++;
-        StepProgress( VOCAL_OUTPUT );
-    } );
-
-    EndProgress( VOCAL_OUTPUT );
+    RunIndexed( n, StageThreadCount( n ), body, &bar );
 }
 
 // The ASCII export writers spend most of their time turning numbers into text: on the larger
@@ -611,7 +612,7 @@ void SurfaceIntersectionSingleton::RunStage( const string &label, int n,
 // Only one wave of chunks is in flight at a time, so a mesh whose text runs to a gigabyte is
 // never held in memory.
 void SurfaceIntersectionSingleton::WriteChunked( FILE* fp, int n,
-        const std::function< void( int, int, string & ) > &body )
+        const std::function< void( int, int, string & ) > &body, ProgressStage *bar )
 {
     if ( !fp || n <= 0 )
     {
@@ -653,6 +654,11 @@ void SurfaceIntersectionSingleton::WriteChunked( FILE* fp, int n,
         for ( int k = 0 ; k < nwave ; k++ )
         {
             fwrite( chunk[k].data(), 1, chunk[k].size(), fp );
+        }
+
+        if ( bar )
+        {
+            bar->Step( std::min( n, ( c0 + nwave ) * chunkitems ) - c0 * chunkitems );
         }
     }
 }
@@ -1017,6 +1023,7 @@ void SurfaceIntersectionSingleton::EndProgress( int output_type )
 {
     if ( output_type == QUIET_OUTPUT || m_ProgressTotal <= 0 )
     {
+        m_ProgressTotal = 0;
         return;
     }
 
@@ -1025,6 +1032,57 @@ void SurfaceIntersectionSingleton::EndProgress( int output_type )
     DrawProgress( m_ProgressTotal, '\n', output_type );
 
     m_ProgressTotal = 0;
+}
+
+ProgressStage::ProgressStage( SurfaceIntersectionSingleton *mgr, const string &label, int n )
+{
+    m_Mgr = mgr;
+    m_Live = ( n > 0 && mgr->m_ProgressTotal <= 0 );
+    m_N = n;
+    m_Stride = std::max( 1, n / 200 );
+
+    if ( m_Live )
+    {
+        m_Mgr->BeginProgress( label, n, SurfaceIntersectionSingleton::VOCAL_OUTPUT );
+    }
+}
+
+ProgressStage::~ProgressStage()
+{
+    End();
+}
+
+void ProgressStage::End()
+{
+    if ( m_Live )
+    {
+        m_Mgr->EndProgress( SurfaceIntersectionSingleton::VOCAL_OUTPUT );
+        m_Live = false;
+    }
+}
+
+void ProgressStage::Restart( const string &label )
+{
+    if ( m_Live )
+    {
+        m_Mgr->BeginProgress( label, m_N, SurfaceIntersectionSingleton::VOCAL_OUTPUT );
+    }
+}
+
+// Redraw when the count passes a multiple of the stride.
+void ProgressStage::Step( int count )
+{
+    if ( !m_Live )
+    {
+        return;
+    }
+
+    int done = ( m_Mgr->m_ProgressDone += count );
+
+    if ( done / m_Stride != ( done - count ) / m_Stride )
+    {
+        m_Mgr->StepProgress( SurfaceIntersectionSingleton::VOCAL_OUTPUT );
+    }
 }
 
 void SurfaceIntersectionSingleton::CleanUp()
