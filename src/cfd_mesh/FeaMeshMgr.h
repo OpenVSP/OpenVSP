@@ -136,6 +136,7 @@ public:
     virtual void MergeFeaPartSSEdgeOverlap() override;
     virtual void RemoveSubSurfFeaTris();
     virtual void TagFeaNodes();
+    void ElementNodeBases( int j, int nelem_loaded, const vector < int > &elem_node_start, PntNodeCloud &pnCloud, vector < int > &node_base );
 
     virtual void SetFeaMeshStructID( const string &struct_id )
     {

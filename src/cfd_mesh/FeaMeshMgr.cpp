@@ -2821,6 +2821,39 @@ void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
     GetMeshPtr()->m_FeaElementVec = newFeaElementVec;
 }
 
+// The point cloud base index of each of element j's nodes, appended to node_base.  An element
+// loaded into the cloud has its nodes at elem_node_start[j] on, so each node's own base is the
+// one a lookup of its point finds: the nearest point is the node itself or one at the same
+// place, which is always in the same group.  An element added after the cloud was built, and
+// a node at a point that is not finite, is looked up.
+void FeaMeshMgrSingleton::ElementNodeBases( int j, int nelem_loaded, const vector < int > &elem_node_start, PntNodeCloud &pnCloud, vector < int > &node_base )
+{
+    if ( j < nelem_loaded )
+    {
+        for ( int n = elem_node_start[j]; n < elem_node_start[j + 1]; n++ )
+        {
+            const vec3d &p = GetMeshPtr()->m_FeaNodeVec[n]->m_Pnt;
+            if ( !std::isfinite( p.x() ) || !std::isfinite( p.y() ) || !std::isfinite( p.z() ) )
+            {
+                node_base.push_back( pnCloud.LookupPntBase( p ) );
+            }
+            else
+            {
+                node_base.push_back( pnCloud.GetNodeBaseIndex( n ) );
+            }
+        }
+    }
+    else
+    {
+        vector< FeaNode* > temp_nVec;
+        GetMeshPtr()->m_FeaElementVec[j]->LoadNodes( temp_nVec );
+        for ( size_t n = 0; n < temp_nVec.size(); n++ )
+        {
+            node_base.push_back( pnCloud.LookupPntBase( temp_nVec[n]->m_Pnt ) );
+        }
+    }
+}
+
 void FeaMeshMgrSingleton::TagFeaNodes()
 {
     if ( !GetMeshPtr() )
@@ -2840,10 +2873,15 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         GetMeshPtr()->m_FeaNodeVec.push_back( GetMeshPtr()->m_FeaOffBodyFixPointNodeVec[j] );
     }
 
-    for ( int i = 0; i < (int)GetMeshPtr()->m_FeaElementVec.size(); i++ )
+    // Where each element's nodes start in m_FeaNodeVec, which is also their place in the point cloud.
+    int nelem_loaded = (int)GetMeshPtr()->m_FeaElementVec.size();
+    vector < int > elem_node_start( nelem_loaded + 1 );
+    for ( int i = 0; i < nelem_loaded; i++ )
     {
+        elem_node_start[i] = (int)GetMeshPtr()->m_FeaNodeVec.size();
         GetMeshPtr()->m_FeaElementVec[i]->LoadNodes( GetMeshPtr()->m_FeaNodeVec );
     }
+    elem_node_start[ nelem_loaded ] = (int)GetMeshPtr()->m_FeaNodeVec.size();
 
     vector< vec3d > allPntVec;
     allPntVec.reserve( GetMeshPtr()->m_FeaNodeVec.size() );
@@ -2941,22 +2979,26 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         }
     }
 
+    vector < vector < int > > part_elems, ss_elems;
+    GetMeshPtr()->IndexElements( part_elems, ss_elems );
+
     // Tag FeaPart Nodes with FeaPart Index
     for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
     {
-        vector< FeaNode* > temp_nVec;
+        vector < int > node_base;
 
-        for ( int j = 0; j < GetMeshPtr()->m_FeaElementVec.size(); j++ )
+        for ( size_t k = 0; k < part_elems[i].size(); k++ )
         {
+            int j = part_elems[i][k];
             if ( GetMeshPtr()->m_FeaElementVec[j]->GetFeaPartIndex() == i && GetMeshPtr()->m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
             {
-                GetMeshPtr()->m_FeaElementVec[j]->LoadNodes( temp_nVec );
+                ElementNodeBases( j, nelem_loaded, elem_node_start, pnCloud, node_base );
             }
         }
 
-        for ( int j = 0; j < (int)temp_nVec.size(); j++ )
+        for ( int j = 0; j < (int)node_base.size(); j++ )
         {
-            int ind = pnCloud.LookupPntBase( temp_nVec[j]->m_Pnt );
+            int ind = node_base[j];
 
             if ( ind >= 0 )
             {
@@ -2972,19 +3014,20 @@ void FeaMeshMgrSingleton::TagFeaNodes()
     // Tag FeaSubSurface Nodes with FeaSubSurface Index, beginning at the last FeaPart index (GetMeshPtr()->m_NumFeaParts)
     for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
     {
-        vector< FeaNode* > temp_nVec;
+        vector < int > node_base;
 
-        for ( int j = 0; j < GetMeshPtr()->m_FeaElementVec.size(); j++ )
+        for ( size_t k = 0; k < ss_elems[i].size(); k++ )
         {
+            int j = ss_elems[i][k];
             if ( GetMeshPtr()->m_FeaElementVec[j]->GetFeaSSIndex() == i )
             {
-                GetMeshPtr()->m_FeaElementVec[j]->LoadNodes( temp_nVec );
+                ElementNodeBases( j, nelem_loaded, elem_node_start, pnCloud, node_base );
             }
         }
 
-        for ( int j = 0; j < (int)temp_nVec.size(); j++ )
+        for ( int j = 0; j < (int)node_base.size(); j++ )
         {
-            int ind = pnCloud.LookupPntBase( temp_nVec[j]->m_Pnt );
+            int ind = node_base[j];
 
             if ( ind >= 0 )
             {
