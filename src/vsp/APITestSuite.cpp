@@ -65,6 +65,14 @@ void APITestSuite::CreateGeometry()
 
         //==== Set Name ====//
         string geom_name = string( "TestGeom_" ) + types[i_geom_type];
+        if ( types[i_geom_type] == "CLONE" )
+        {
+            //==== A Clone names itself and refuses a name until AutoName is off ====//
+            vsp::SetGeomName( geom_id, geom_name );
+            TEST_ASSERT( vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+            TEST_ASSERT( vsp::GetGeomName( geom_id ) != geom_name )
+            vsp::SetParmVal( geom_id, "AutoName", "Behavior", 0.0 );
+        }
         vsp::SetGeomName( geom_id, geom_name );
         printf( "\t%s\n", geom_name.c_str() );
         TEST_ASSERT( vsp::GetGeomName( geom_id ) == geom_name )
