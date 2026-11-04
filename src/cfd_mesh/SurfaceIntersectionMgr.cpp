@@ -6080,11 +6080,13 @@ void SurfaceIntersectionSingleton::SplitNearlyTouchingChains()
 void SurfaceIntersectionSingleton::MergeInteriorChainIPnts()
 {
     //==== Merge Interior IPnts in Chains ====//
-    list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    // A chain's interior points are its own, so the chains are merged on several threads.
+    vector< ISegChain* > chains( m_ISegChainList.begin(), m_ISegChainList.end() );
+    int n = ( int )chains.size();
+    RunStage( "Merge Chain Pnts", n, [&]( int k )
     {
-        ( *c )->MergeInteriorIPnts();
-    }
+        chains[k]->MergeInteriorIPnts();
+    } );
 }
 
 
