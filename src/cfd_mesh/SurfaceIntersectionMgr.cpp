@@ -1759,6 +1759,32 @@ void SurfaceIntersectionSingleton::PairCoincidentFaces()
     vector< vector< vec3d > > pnts( nsurf );
     vector< vector< vec2d > > uws( nsurf );
 
+    // The box around each surface's component
+    vector< const BndBox* > ownbox( nsurf );
+    for ( int t = 0 ; t < nsurf ; t++ )
+    {
+        ownbox[t] = &compbox[ m_SurfVec[t]->GetCompID() ];
+    }
+
+    // Only a positive face and a negative one are paired, so each surface is tried against the
+    // thick surfaces of the other kind, in order.
+    vector< int > normal;
+    vector< int > negative;
+    for ( int t = 0 ; t < nsurf ; t++ )
+    {
+        if ( m_SurfVec[t]->GetSurfaceThickSurf() )
+        {
+            if ( m_SurfVec[t]->GetSurfaceCfdType() == vsp::CFD_NORMAL )
+            {
+                normal.push_back( t );
+            }
+            else if ( m_SurfVec[t]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE )
+            {
+                negative.push_back( t );
+            }
+        }
+    }
+
     for ( int s = 0 ; s + 1 < nsurf ; s++ )
     {
         int stype = m_SurfVec[s]->GetSurfaceCfdType();
@@ -1770,26 +1796,27 @@ void SurfaceIntersectionSingleton::PairCoincidentFaces()
 
         BndBox &bbs = m_SurfVec[s]->GetBBox();
 
-        for ( int t = s + 1 ; t < nsurf && !m_SurfVec[s]->GetCoincidentSurf() ; t++ )
+        const vector< int > *other = &negative;
+        if ( stype == vsp::CFD_NEGATIVE )
         {
+            other = &normal;
+        }
+
+        vector< int >::const_iterator first = std::upper_bound( other->begin(), other->end(), s );
+
+        for ( vector< int >::const_iterator it = first ; it != other->end() && !m_SurfVec[s]->GetCoincidentSurf() ; ++it )
+        {
+            int t = *it;
+
+            if ( m_SurfVec[t]->GetCoincidentSurf() || m_SurfVec[s]->GetCompID() == m_SurfVec[t]->GetCompID() )
+            {
+                continue;
+            }
+
             // Faces this close together, for the size of their bodies, are taken as one face.
-            BndBox bodies = compbox[ m_SurfVec[s]->GetCompID() ];
-            bodies.Update( compbox[ m_SurfVec[t]->GetCompID() ] );
+            BndBox bodies = *ownbox[s];
+            bodies.Update( *ownbox[t] );
             double tol = 1.0e-3 * bodies.DiagDist();
-
-            int ttype = m_SurfVec[t]->GetSurfaceCfdType();
-
-            if ( m_SurfVec[t]->GetCoincidentSurf() || !m_SurfVec[t]->GetSurfaceThickSurf() ||
-                 m_SurfVec[s]->GetCompID() == m_SurfVec[t]->GetCompID() )
-            {
-                continue;
-            }
-
-            if ( !( stype == vsp::CFD_NORMAL && ttype == vsp::CFD_NEGATIVE ) &&
-                 !( stype == vsp::CFD_NEGATIVE && ttype == vsp::CFD_NORMAL ) )
-            {
-                continue;
-            }
 
             BndBox &bbt = m_SurfVec[t]->GetBBox();
 
