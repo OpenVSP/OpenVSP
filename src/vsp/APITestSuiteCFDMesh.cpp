@@ -316,7 +316,7 @@ void APITestSuiteCFDMesh::CFDMeshAnalysisTest()
     vector < double > nCircSegNums{ 16.0 };
     vsp::SetDoubleAnalysisInput( analysis_name, "NCircSeg", nCircSegNums, 0 );
     vector < double > growthRationNums{ 1.3 };
-    vsp::SetDoubleAnalysisInput( analysis_name, "GrowthRatio", growthRationNums, 0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "GrowRatio", growthRationNums, 0 );
     vector < double > relCurveTolNums{ 0.01 };
     vsp::SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
 
@@ -423,7 +423,7 @@ void APITestSuiteCFDMesh::FEAMeshAnalysisTest()
     vector < double > nCircSegNums{ 16.0 };
     vsp::SetDoubleAnalysisInput( analysis_name, "NCircSeg", nCircSegNums, 0 );
     vector < double > growthRationNums{ 1.3 };
-    vsp::SetDoubleAnalysisInput( analysis_name, "GrowthRatio", growthRationNums, 0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "GrowRatio", growthRationNums, 0 );
     // list inputs, type, and current values
     vsp::PrintAnalysisInputs( analysis_name );
 

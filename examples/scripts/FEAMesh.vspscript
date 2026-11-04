@@ -141,7 +141,7 @@ void NewFEAMeshAnalysisExample( string struct_id )
 	
     array < double > growthRatioNums;
 	growthRatioNums.push_back( 1.3 );
-    SetDoubleAnalysisInput( analysis_name, "GrowthRatio", growthRatioNums, 0 );
+    SetDoubleAnalysisInput( analysis_name, "GrowRatio", growthRatioNums, 0 );
 	
 	// list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );
