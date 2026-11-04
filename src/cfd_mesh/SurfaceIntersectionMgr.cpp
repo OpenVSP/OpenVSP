@@ -4272,6 +4272,43 @@ void SurfaceIntersectionSingleton::CleanChain( ISegChain* c )
     c->m_ISegVec.assign( segList.begin(), segList.end() );
 }
 
+// Copies of one surface for threads to evaluate at once: each is held by one thread at a time,
+// and a thread finding none free makes another.  The copies evaluate to the same bits as the
+// surface.
+struct SurfCorePool
+{
+    Surf* m_Surf = nullptr;
+    std::mutex m_Mutex;
+    vector< const SurfCore* > m_Free;
+    vector< std::unique_ptr< SurfCore > > m_All;
+
+    const SurfCore* Take()
+    {
+        {
+            std::lock_guard< std::mutex > lock( m_Mutex );
+            if ( !m_Free.empty() )
+            {
+                const SurfCore* c = m_Free.back();
+                m_Free.pop_back();
+                return c;
+            }
+        }
+
+        // Nothing evaluates the surface itself while its copies are in use, so it is read here
+        // without the lock.
+        SurfCore* c = new SurfCore( *m_Surf->GetSurfCore() );
+        std::lock_guard< std::mutex > lock( m_Mutex );
+        m_All.push_back( std::unique_ptr< SurfCore >( c ) );
+        return c;
+    }
+
+    void Give( const SurfCore* c )
+    {
+        std::lock_guard< std::mutex > lock( m_Mutex );
+        m_Free.push_back( c );
+    }
+};
+
 void SurfaceIntersectionSingleton::RefineChains()
 {
     // After the intersection chains are formed, refine them so that the value returned by CompPnt
@@ -4301,10 +4338,73 @@ void SurfaceIntersectionSingleton::RefineChains()
         sb[k] = chains[k]->m_SurfB;
     }
 
-    RunChainsBySurface( sa, sb, [&]( int k )
+    // A surface carrying more than a thread's share of the points to refine would hold up every
+    // chain on it, one at a time.  Such a surface is evaluated instead through copies, one for
+    // each thread working on it at once, and its chains wait on nothing but their other surface.
+    int nthread = StageThreadCount( n );
+    std::map< Surf*, double > load;
+    double total = 0.0;
+    for ( int k = 0 ; k < n ; k++ )
     {
-        RefineISegChain( chains[k] );
-    } );
+        double npnt = ( double )chains[k]->m_ISegVec.size() + 1.0;
+        load[ sa[k] ] += npnt;
+        load[ sb[k] ] += npnt;
+        total += npnt;
+    }
+
+    std::map< Surf*, SurfCorePool > pools;
+    for ( std::map< Surf*, double >::iterator it = load.begin(); it != load.end(); ++it )
+    {
+        if ( nthread > 1 && it->second > total / nthread )
+        {
+            pools[ it->first ].m_Surf = it->first;
+        }
+    }
+
+    vector< Surf* > ka( sa );
+    vector< Surf* > kb( sb );
+    for ( int k = 0 ; k < n ; k++ )
+    {
+        if ( pools.count( sa[k] ) )
+        {
+            ka[k] = nullptr;
+        }
+        if ( pools.count( sb[k] ) )
+        {
+            kb[k] = nullptr;
+        }
+    }
+
+    ProgressStage bar( this, "Refine Chains", n );
+
+    RunChainsBySurface( ka, kb, [&]( int k )
+    {
+        SurfCorePool* pa = nullptr;
+        SurfCorePool* pb = nullptr;
+        const SurfCore* coreA = sa[k]->GetSurfCore();
+        const SurfCore* coreB = sb[k]->GetSurfCore();
+        if ( !ka[k] )
+        {
+            pa = &pools.find( sa[k] )->second;
+            coreA = pa->Take();
+        }
+        if ( !kb[k] )
+        {
+            pb = &pools.find( sb[k] )->second;
+            coreB = pb->Take();
+        }
+
+        RefineISegChain( chains[k], coreA, coreB );
+
+        if ( pa )
+        {
+            pa->Give( coreA );
+        }
+        if ( pb )
+        {
+            pb->Give( coreB );
+        }
+    }, &bar );
 }
 
 // Record that chain k waits on a chain, in the first of its two places that is free
@@ -4322,7 +4422,7 @@ static void AddWaiting( std::array< int, 2 > &waiting, int k )
 }
 
 void SurfaceIntersectionSingleton::RunChainsBySurface( const vector< Surf* > &sa, const vector< Surf* > &sb,
-                                                       const std::function< void( int ) > &body )
+                                                       const std::function< void( int ) > &body, ProgressStage *bar )
 {
     // A chain waits for the chain before it on each of its surfaces.  Each chain is the next on
     // at most two surfaces after another, so it is waited on by at most two.
@@ -4335,12 +4435,12 @@ void SurfaceIntersectionSingleton::RunChainsBySurface( const vector< Surf* > &sa
         int pa = -1;
         int pb = -1;
         std::map< Surf*, int >::iterator it = last.find( sa[k] );
-        if ( it != last.end() )
+        if ( sa[k] && it != last.end() )
         {
             pa = it->second;
         }
         it = last.find( sb[k] );
-        if ( it != last.end() )
+        if ( sb[k] && it != last.end() )
         {
             pb = it->second;
         }
@@ -4398,6 +4498,11 @@ void SurfaceIntersectionSingleton::RunChainsBySurface( const vector< Surf* > &sa
             try
             {
                 body( k );
+
+                if ( bar )
+                {
+                    bar->Step();
+                }
             }
             catch ( ... )
             {
@@ -4470,7 +4575,8 @@ void SurfaceIntersectionSingleton::RunBySurface( const vector< Surf* > &s, const
     } );
 }
 
-void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt, bool endpnt )
+void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt, bool endpnt, const SurfCore* coreA,
+                                                       const SurfCore* coreB )
 {
     Puw* auw = ipnt->GetPuw( c->m_SurfA );
     Puw* buw = ipnt->GetPuw( c->m_SurfB );
@@ -4490,8 +4596,8 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt,
         uB = buw->m_UW[0];
         wB = buw->m_UW[1];
 
-        vec3d pA = c->m_SurfA->CompPnt( uA, wA );
-        vec3d pB = c->m_SurfB->CompPnt( uB, wB );
+        vec3d pA = coreA->CompPnt( uA, wA );
+        vec3d pB = coreB->CompPnt( uB, wB );
         dist1 = ( pA - pB ).mag();
 
         vec3d pmid = 0.5 * ( pA + pB );
@@ -4501,8 +4607,8 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt,
         // uwtol is a distance in u or v coordinates for a point to be considered on the border of a surface.
         // The points are generated through the intersection algorithm and should be fairly broadly spaced.
         double uwtol = 1e-4;
-        borderA = c->m_SurfA->GetSurfCore()->UWPointOnBorder( uA, wA, uwtol );
-        borderB = c->m_SurfB->GetSurfCore()->UWPointOnBorder( uB, wB, uwtol );
+        borderA = coreA->UWPointOnBorder( uA, wA, uwtol );
+        borderB = coreB->UWPointOnBorder( uB, wB, uwtol );
 
         // Only a chain's ends lie on a border.  Solved against the border, every interior point
         // near one lands on the one place the border crosses the other surface, and a curve
@@ -4516,14 +4622,14 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt,
 
         if ( borderA == SurfCore::NOBNDY && borderB == SurfCore::NOBNDY )
         {
-            ret = eli::geom::intersect::intersect(uA, wA, uB, wB, dist, *( c->m_SurfA->GetSurfCore()->GetSurf() ),
-                                                  *( c->m_SurfB->GetSurfCore()->GetSurf() ), mid_point,
+            ret = eli::geom::intersect::intersect(uA, wA, uB, wB, dist, *( coreA->GetSurf() ),
+                                                  *( coreB->GetSurf() ), mid_point,
                                                   auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
         }
         else
         {
-            SurfCore surfA = *( c->m_SurfA->GetSurfCore() );
-            SurfCore surfB = *( c->m_SurfB->GetSurfCore() );
+            SurfCore surfA = *coreA;
+            SurfCore surfB = *coreB;
 
             surfA.GetSurf()->translate( -mid_point );
             surfB.GetSurf()->translate( -mid_point );
@@ -4610,8 +4716,8 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt,
             }
         }
 
-        pA = c->m_SurfA->CompPnt( uA, wA );
-        pB = c->m_SurfB->CompPnt( uB, wB );
+        pA = coreA->CompPnt( uA, wA );
+        pB = coreB->CompPnt( uB, wB );
         dist2 = ( pA - pB ).mag();
         vec3d pmid2 = 0.5 * ( pA + pB );
         dist3 = ( pmid2 - pmid ).mag();
@@ -4645,16 +4751,16 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt,
 
 }
 
-void SurfaceIntersectionSingleton::RefineISegChain( ISegChain* c )
+void SurfaceIntersectionSingleton::RefineISegChain( ISegChain* c, const SurfCore* coreA, const SurfCore* coreB )
 {
 
     int nseg = c->m_ISegVec.size();
 
-    RefineISegChainSeg( c, c->m_ISegVec[0]->m_IPnt[0], true );
+    RefineISegChainSeg( c, c->m_ISegVec[0]->m_IPnt[0], true, coreA, coreB );
 
     for ( int i = 0; i < nseg; i++ )
     {
-        RefineISegChainSeg( c, c->m_ISegVec[i]->m_IPnt[1], i == nseg - 1 );
+        RefineISegChainSeg( c, c->m_ISegVec[i]->m_IPnt[1], i == nseg - 1, coreA, coreB );
     }
 }
 

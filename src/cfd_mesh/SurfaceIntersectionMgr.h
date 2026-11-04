@@ -414,8 +414,8 @@ public:
     virtual void CleanChain( ISegChain* c );
     virtual void RefineChains();
 
-    void RefineISegChainSeg( ISegChain* c, IPnt* ipnt, bool endpnt );
-    void RefineISegChain( ISegChain* c );
+    void RefineISegChainSeg( ISegChain* c, IPnt* ipnt, bool endpnt, const SurfCore* coreA, const SurfCore* coreB );
+    void RefineISegChain( ISegChain* c, const SurfCore* coreA, const SurfCore* coreB );
 
     virtual void ExpandChain( ISegChain* chain, PNTree* PN_tree );
 
@@ -567,8 +567,10 @@ public:
 
     // Run body( k ) for every chain k on several threads, where chain k evaluates surfaces sa[k]
     // and sb[k] and nothing another chain writes.  A surface may be evaluated by one thread at a
-    // time, so the chains on any one surface run one at a time, in order.
-    void RunChainsBySurface( const vector< Surf* > &sa, const vector< Surf* > &sb, const std::function< void( int ) > &body );
+    // time, so the chains on any one surface run one at a time, in order.  A null surface is one
+    // the caller has seen to itself, and holds up nothing.
+    void RunChainsBySurface( const vector< Surf* > &sa, const vector< Surf* > &sb, const std::function< void( int ) > &body,
+                             ProgressStage *bar = nullptr );
 
     // Run body( k ) for every item k on several threads, where item k evaluates surface s[k] only
     // and writes nothing another item reads.  The items on one surface run one at a time, in order.
