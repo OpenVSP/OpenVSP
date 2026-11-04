@@ -3222,14 +3222,20 @@ void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
 {
     m_NURBSSurfVec.clear();
 
-    for ( size_t si = 0; si < m_SurfVec.size(); si++ )
+    // Each surface's loops are built from its own curves alone, so the surfaces are done on
+    // several threads, and the ones kept gathered in order after.
+    int nsurf = ( int )m_SurfVec.size();
+    vector < NURBS_Surface > built( nsurf );
+    vector < char > keep( nsurf, 0 );
+
+    RunStage( "Trim Surfaces", nsurf, [&]( int si )
     {
         if ( m_SurfVec[si]->GetIgnoreSurfFlag() )
         {
-            continue;
+            return;
         }
 
-        NURBS_Surface nurbs_surf = NURBS_Surface();
+        NURBS_Surface &nurbs_surf = built[si];
         // Create NURBS Surface
         nurbs_surf.InitNURBSSurf( m_SurfVec[si] );
 
@@ -3255,16 +3261,31 @@ void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
             // cavity, which is as real a boundary as the outer skin.  Only a negative
             // surface entirely outside its component can be dropped, and that is the test
             // below.
-            continue;
+            return;
         }
         else if ( nurbs_surf.m_NURBSLoopVec.size() == 1 &&
                   !nurbs_surf.m_NURBSLoopVec[0].m_InternalLoopFlag &&
                   nurbs_surf.m_SurfType == vsp::CFD_NEGATIVE )
         {
-            continue; // external negative surfaces are removed
+            return; // external negative surfaces are removed
         }
 
-        m_NURBSSurfVec.push_back( nurbs_surf );
+        keep[si] = 1;
+    } );
+
+    int nkeep = 0;
+    for ( int si = 0; si < nsurf; si++ )
+    {
+        nkeep += keep[si];
+    }
+    m_NURBSSurfVec.reserve( nkeep );
+
+    for ( int si = 0; si < nsurf; si++ )
+    {
+        if ( keep[si] )
+        {
+            m_NURBSSurfVec.push_back( std::move( built[si] ) );
+        }
     }
 }
 

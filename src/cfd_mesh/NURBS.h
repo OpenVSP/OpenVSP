@@ -241,6 +241,11 @@ public:
     NURBS_Surface();
     virtual ~NURBS_Surface() {};
 
+    NURBS_Surface( const NURBS_Surface & ) = default;
+    NURBS_Surface( NURBS_Surface && ) = default;
+    NURBS_Surface & operator=( const NURBS_Surface & ) = default;
+    NURBS_Surface & operator=( NURBS_Surface && ) = default;
+
     // Create a NURBS surface from a piecewise Bezier surface. The knot vectors,
     // number of points and number of patches in the U and V directions are 
     // saved as member variable.
