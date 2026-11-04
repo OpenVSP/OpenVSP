@@ -3409,11 +3409,14 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad 
 
 void SurfaceIntersectionSingleton::BuildCurves()
 {
-    list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    // A chain's curves are made from its own points alone, so the chains are done on several
+    // threads.
+    vector< ISegChain* > chains( m_ISegChainList.begin(), m_ISegChainList.end() );
+    int n = ( int )chains.size();
+    RunStage( "Build Curves", n, [&]( int k )
     {
-        ( *c )->BuildCurves();
-    }
+        chains[k]->BuildCurves();
+    } );
 }
 
 // Intersect every pair of surfaces, in two passes.
