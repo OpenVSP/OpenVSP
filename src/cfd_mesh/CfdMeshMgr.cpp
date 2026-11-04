@@ -8132,6 +8132,24 @@ void CfdMeshMgrSingleton::ConnectBorderNodes( bool wakeOnly )
     // Each surface's border nodes are gathered on their own, side by side, and joined in
     // surface order, so the list is the one a walk of every surface in turn makes.
     int nsurf = ( int )m_SurfVec.size();
+
+    // Without a wake there are no wake nodes to connect.
+    if ( wakeOnly )
+    {
+        bool anywake = false;
+        for ( int s = 0 ; s < nsurf ; s++ )
+        {
+            if ( m_SurfVec[s]->GetWakeFlag() )
+            {
+                anywake = true;
+            }
+        }
+        if ( !anywake )
+        {
+            return;
+        }
+    }
+
     vector< vector< Node* > > surfnodes( nsurf );
 
     string label = "Border Nodes";
