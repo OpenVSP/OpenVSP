@@ -96,6 +96,6 @@ long long int TwoDNodeCloud::LookupPnt( const vec2d & pnt )
 
 void TwoDNodeCloud::BuildIndex()
 {
+    // The constructor builds the tree.
     m_index = new TwoDTree( 2, *this, KDTreeSingleIndexAdaptorParams( 10 )  );
-    m_index->buildIndex();
 }
