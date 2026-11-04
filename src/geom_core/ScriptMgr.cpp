@@ -339,8 +339,13 @@ int ScriptMgrSingleton::ExecuteScript( const char* module_name, const char* func
         return 1;
     }
 
-    asDWORD ret = ctx->GetReturnDWord();
-    int32_t rval = ret;
+    // A function returning void leaves nothing to read; it ran to its end.
+    int32_t rval = 0;
+    if ( func->GetReturnTypeId() != asTYPEID_VOID )
+    {
+        asDWORD ret = ctx->GetReturnDWord();
+        rval = ret;
+    }
 
     ctx->Release();
     return rval;
