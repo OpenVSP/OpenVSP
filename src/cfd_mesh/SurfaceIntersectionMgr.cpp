@@ -5283,6 +5283,9 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
         vector< vec3d > uwA = m_ICurveVec[i]->m_SCurve_A->GetUWTessPnts();
         vector< vec3d > uwB = m_ICurveVec[i]->m_SCurve_B->GetUWTessPnts();
 
+        // Each segment starts where the one before it ends, from the same places on both
+        // surfaces, so its first point takes the last one's position.
+        IPnt* prev_end = nullptr;
         for ( int j = 1 ; j < ( int )uwA.size() ; j++ )
         {
             Puw* puwA0 = new Puw( surfA, vec2d( uwA[j - 1][0], uwA[j - 1][1] ) );
@@ -5301,8 +5304,16 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
             m_DelIPntVec.push_back( p0 );           // Save to delete later
             m_DelIPntVec.push_back( p1 );
 
-            p0->CompPnt();
+            if ( prev_end )
+            {
+                p0->m_Pnt = prev_end->m_Pnt;
+            }
+            else
+            {
+                p0->CompPnt();
+            }
             p1->CompPnt();
+            prev_end = p1;
 
             ISeg* seg = new ISeg( surfA, surfB, p0, p1 );
             chain->m_ISegVec.push_back( seg );
@@ -5536,6 +5547,9 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                                             reg.ToPatchW( uw_pnts[p][1] ) );
                     }
 
+                    // Each segment starts where the one before it ends, from the same places on
+                    // the surface, so its first point takes the last one's position.
+                    IPnt* prev_end = nullptr;
                     for ( int p = 1 ; p < ( int ) uw_pnts.size() ; p++ )
                     {
                         Puw* puwA0 = new Puw( surf, uw_pnts[p - 1] );
@@ -5554,8 +5568,16 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                         m_DelIPntVec.push_back( p0 );           // Save to delete later
                         m_DelIPntVec.push_back( p1 );
 
-                        p0->CompPnt();
+                        if ( prev_end )
+                        {
+                            p0->m_Pnt = prev_end->m_Pnt;
+                        }
+                        else
+                        {
+                            p0->CompPnt();
+                        }
                         p1->CompPnt();
+                        prev_end = p1;
 
                         ISeg* seg = new ISeg( surf, surf, p0, p1 );
                         chain->m_ISegVec.push_back( seg );
