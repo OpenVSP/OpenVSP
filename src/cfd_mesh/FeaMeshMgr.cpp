@@ -2604,6 +2604,11 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                 // piece is clipped and converted on its own.
                 vector < UWRegion > regvec = surfB->GetUWRegionsOrWhole();
 
+                // The part surface lies inside its bounding box, so a skin point farther than
+                // this from the box cannot pass the distance test below.
+                BndBox part_box = surfA->GetBBox();
+                part_box.Expand( 2.0 * sqrt( FLT_EPSILON ) );
+
                 // Split SubSurfs
                 for ( int ss = 0; ss < (int)ss_vec.size(); ss++ )
                 {
@@ -2669,6 +2674,11 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                             // Project SubSurface edge point on FeaPart surface
                             vec3d skin_pnt0 = surfB->CompPnt( uw_pnt0[0], uw_pnt0[1] );
                             vec3d skin_pnt1 = surfB->CompPnt( uw_pnt1[0], uw_pnt1[1] );
+
+                            if ( !part_box.CheckPnt( skin_pnt0 ) || !part_box.CheckPnt( skin_pnt1 ) )
+                            {
+                                continue;
+                            }
 
                             double part_U0, part_W0, part_U1, part_W1;
                             surfA->GetSurfCore()->FindNearest( part_U0, part_W0, skin_pnt0 );
