@@ -1386,20 +1386,26 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
     //  This is done to ensure no duplicate beam elements are created along the intersection curve. At this
     //  time, priority is given to the earlier SubSurface (lower index).
 
-    list< ISegChain* >::iterator c1;
-    list< ISegChain* >::iterator c2;
-    int c1_index = -1;
+    vector< ISegChain* > chains( m_ISegChainList.begin(), m_ISegChainList.end() );
 
-    for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); ++c1 )
+    // The chains of each tessellation size, in list order.  Only chains of one size can match.
+    std::map< size_t, vector< int > > by_size;
+    for ( int i = 0; i < (int)chains.size(); i++ )
     {
-        c1_index++;
-        int c2_index = -1;
+        by_size[ chains[i]->m_TessVec.size() ].push_back( i );
+    }
+
+    for ( int c1_index = 0; c1_index < (int)chains.size(); c1_index++ )
+    {
+        ISegChain** c1 = &chains[ c1_index ];
 
         if ( !( *c1 )->m_BorderFlag && ( *c1 )->m_SSIntersectIndex >= 0 )
         {
-            for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); ++c2 )
+            const vector< int > &same = by_size[ ( *c1 )->m_TessVec.size() ];
+            for ( size_t k = 0; k < same.size(); k++ )
             {
-                c2_index++;
+                int c2_index = same[k];
+                ISegChain** c2 = &chains[ c2_index ];
 
                 if ( !( *c2 )->m_BorderFlag && ( *c2 )->m_SSIntersectIndex >= 0 && c1_index != c2_index )
                 {
