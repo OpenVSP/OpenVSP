@@ -1301,19 +1301,61 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
     double trimtol = 0.01 * GetGridDensityPtr()->m_MinLen;
     if ( GetMeshPtr()->m_TrimVec.size() > 0 ) // Skip if there are no trim groups.
     {
-        for ( int s = 0; s < ( int ) m_SurfVec.size(); ++s ) // every surface
+        int nsurf = ( int ) m_SurfVec.size();
+
+        // The trim groups that can cull a point of each surface.  A group made for another
+        // symmetry copy culls none of them.
+        vector < vector < int > > surf_trims( nsurf );
+        for ( int s = 0; s < nsurf; ++s )
+        {
+            int isymm = m_SurfVec[ s ]->GetFeaSymmIndex();
+            for ( int i = 0; i < GetMeshPtr()->m_TrimVec.size(); i++ )
+            {
+                if ( isymm < 0 || isymm == GetMeshPtr()->m_TrimVec[i].m_TrimSymm )
+                {
+                    surf_trims[ s ].push_back( i );
+                }
+            }
+        }
+
+        // The center of every face, found side by side, each surface by one thread.
+        vector < vector < vec3d > > surf_cp( nsurf );
+        RunStage( "Trim Face Centers", nsurf, [&]( int s )
+        {
+            if ( surf_trims[ s ].empty() )
+            {
+                return;
+            }
+
+            const list < Face * > &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+            surf_cp[ s ].reserve( faceList.size() );
+            for ( list < Face * >::const_iterator t = faceList.begin(); t != faceList.end(); ++t )
+            {
+                surf_cp[ s ].push_back( ( *t )->ComputeCenterPnt( m_SurfVec[ s ] ) );
+            }
+        } );
+
+        for ( int s = 0; s < nsurf; ++s ) // every surface
         {
             bool delSomeTris = false;
 
             const list < Face * > &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+            const vector < int > &trims = surf_trims[ s ];
+            if ( trims.empty() )
+            {
+                continue;
+            }
+
+            int k = 0;
             for ( list < Face * >::const_iterator t = faceList.begin(); t != faceList.end(); ++t ) // every triangle
             {
-                vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[ s ] );
+                const vec3d &cp = surf_cp[ s ][ k ];
+                k++;
 
-                for ( int i = 0; i < GetMeshPtr()->m_TrimVec.size(); i++ )
+                for ( size_t m = 0; m < trims.size(); m++ )
                 {
                     // This seems convoluted, but it needs to be cumulative.
-                    if ( GetMeshPtr()->m_TrimVec[i].CullPtByTrimGroup( cp, m_SurfVec[s]->GetFeaSymmIndex(), trimtol ) )
+                    if ( GetMeshPtr()->m_TrimVec[ trims[m] ].CullPtByTrimGroup( cp, m_SurfVec[s]->GetFeaSymmIndex(), trimtol ) )
                     {
                         ( *t )->deleteFlag = true;
                         delSomeTris = true;
