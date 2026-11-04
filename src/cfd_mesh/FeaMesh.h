@@ -104,6 +104,11 @@ public:
     void SplitBySurf( const vector < int > &elems, int nsurf, vector < vector < int > > &surf_elems );
     void SplitByChain( const vector < int > &elems, int nchain, vector < vector < int > > &chain_elems );
 
+    // The indices into m_FeaNodeVec of the nodes with one tag, by tag, and of the nodes with none,
+    // in order.  OnlyTagNodes merges the two into the nodes HasOnlyTag( tag ) accepts.
+    void IndexNodesByTag( vector < vector < int > > &single_nodes, vector < int > &untagged_nodes );
+    static void OnlyTagNodes( long long int tag, const vector < vector < int > > &single_nodes, const vector < int > &untagged_nodes, vector < int > &nodes );
+
     virtual void ExportFeaMesh();
 
     virtual void WriteCalculix();

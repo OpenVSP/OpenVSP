@@ -964,6 +964,32 @@ void FeaMesh::SplitByChain( const vector < int > &elems, int nchain, vector < ve
     }
 }
 
+void FeaMesh::IndexNodesByTag( vector < vector < int > > &single_nodes, vector < int > &untagged_nodes )
+{
+    single_nodes.assign( m_NumFeaParts + m_NumFeaSubSurfs, vector < int >() );
+    untagged_nodes.clear();
+
+    for ( int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+    {
+        const vector < int > & tags = m_FeaNodeVec[j]->m_Tags;
+        if ( tags.empty() )
+        {
+            untagged_nodes.push_back( j );
+        }
+        else if ( tags.size() == 1 && tags[0] >= 0 && tags[0] < (int)single_nodes.size() )
+        {
+            single_nodes[ tags[0] ].push_back( j );
+        }
+    }
+}
+
+void FeaMesh::OnlyTagNodes( long long int tag, const vector < vector < int > > &single_nodes, const vector < int > &untagged_nodes, vector < int > &nodes )
+{
+    const vector < int > & single = ListAt( single_nodes, tag );
+    nodes.resize( single.size() + untagged_nodes.size() );
+    std::merge( single.begin(), single.end(), untagged_nodes.begin(), untagged_nodes.end(), nodes.begin() );
+}
+
 void FeaMesh::IndexFeaProperties( const vector < string > & prop_id_vec )
 {
     for ( size_t i = 0; i < m_FeaPartPropertyIndexVec.size(); i++ )
@@ -1131,6 +1157,10 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
         vector < long long int > node_id_vec;
         string name;
 
+        vector < vector < int > > single_nodes;
+        vector < int > untagged_nodes, nodes;
+        IndexNodesByTag( single_nodes, untagged_nodes );
+
         //==== Write Fixed Points ====//
         for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
         {
@@ -1198,8 +1228,10 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
 
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
-                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+                OnlyTagNodes( i, single_nodes, untagged_nodes, nodes );
+                for ( size_t k = 0; k < nodes.size(); k++ )
                 {
+                    int j = nodes[k];
                     if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
@@ -1231,8 +1263,10 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
 
             node_id_vec.clear();
 
-            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            OnlyTagNodes( i + m_NumFeaParts, single_nodes, untagged_nodes, nodes );
+            for ( size_t k = 0; k < nodes.size(); k++ )
             {
+                int j = nodes[k];
                 if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
@@ -1314,6 +1348,10 @@ void FeaMesh::WriteNASTRANSPC1( FILE *bdf_fp )
 
     if ( bdf_fp )
     {
+        vector < vector < int > > single_nodes;
+        vector < int > untagged_nodes, nodes;
+        IndexNodesByTag( single_nodes, untagged_nodes );
+
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             bool FPHeader = false;
@@ -1350,8 +1388,10 @@ void FeaMesh::WriteNASTRANSPC1( FILE *bdf_fp )
 
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
-                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+                OnlyTagNodes( i, single_nodes, untagged_nodes, nodes );
+                for ( size_t k = 0; k < nodes.size(); k++ )
                 {
+                    int j = nodes[k];
                     if ( m_FeaNodeVecUsed[ j ] )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
@@ -1378,8 +1418,10 @@ void FeaMesh::WriteNASTRANSPC1( FILE *bdf_fp )
         {
             bool ssheader = false;
 
-            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            OnlyTagNodes( i + m_NumFeaParts, single_nodes, untagged_nodes, nodes );
+            for ( size_t k = 0; k < nodes.size(); k++ )
             {
+                int j = nodes[k];
                 if ( m_FeaNodeVecUsed[ j ] )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
@@ -1764,6 +1806,10 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         int elem_id = 0;
         char str[256];
 
+        vector < vector < int > > single_nodes;
+        vector < int > untagged_nodes, nodes;
+        IndexNodesByTag( single_nodes, untagged_nodes );
+
         //==== Write Fixed Points ====//
         for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
         {
@@ -1829,8 +1875,10 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
             {
                 bool NodeHeader = false;
 
-                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+                OnlyTagNodes( i, single_nodes, untagged_nodes, nodes );
+                for ( size_t k = 0; k < nodes.size(); k++ )
                 {
+                    int j = nodes[k];
                     if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
@@ -1855,8 +1903,10 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         {
             bool SubSurfHeader = false;
 
-            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            OnlyTagNodes( i + m_NumFeaParts, single_nodes, untagged_nodes, nodes );
+            for ( size_t k = 0; k < nodes.size(); k++ )
             {
+                int j = nodes[k];
                 if ( m_FeaNodeVecUsed[ j ] && m_FeaNodeVec[ j ]->m_Index > m_FixPtOffset )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
