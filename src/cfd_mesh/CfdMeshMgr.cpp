@@ -5776,10 +5776,10 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
         }
     }
 
-    // Box outer domain, half or full mesh.
+    // Box outer domain, half or full mesh.  A full mesh has no symmetry plane to split.
     if ( GetCfdSettingsPtr()->m_FarMeshFlag && !GetCfdSettingsPtr()->m_FarCompFlag)
     {
-        if (GetCfdSettingsPtr()->m_SymSplittingOnFlag && isInside)
+        if ( GetCfdSettingsPtr()->m_HalfMeshFlag && GetCfdSettingsPtr()->m_SymSplittingOnFlag && isInside )
         {
             ndomain = 10;
         }
