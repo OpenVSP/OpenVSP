@@ -723,7 +723,7 @@ void FeaMeshMgrSingleton::RecordResults()
         num_beams = ( int )mesh->m_NumBeams;
 
         // Each shell element's edges, between corners, by the numbers the nodes are written with.
-        map< pair< long long int, long long int >, int > edge_count;
+        vector< pair< long long int, long long int > > edges;
 
         for ( int i = 0; i < ( int )mesh->m_FeaElementVec.size(); i++ )
         {
@@ -753,17 +753,25 @@ void FeaMeshMgrSingleton::RecordResults()
                     std::swap( a, b );
                 }
 
-                edge_count[ make_pair( a, b ) ]++;
+                edges.push_back( make_pair( a, b ) );
             }
         }
 
-        map< pair< long long int, long long int >, int >::const_iterator e;
-        for ( e = edge_count.begin(); e != edge_count.end(); ++e )
+        // An edge listed once is free.
+        std::sort( edges.begin(), edges.end() );
+        size_t e = 0;
+        while ( e < edges.size() )
         {
-            if ( e->second == 1 )
+            size_t f = e + 1;
+            while ( f < edges.size() && edges[f] == edges[e] )
+            {
+                f++;
+            }
+            if ( f - e == 1 )
             {
                 num_free_edges++;
             }
+            e = f;
         }
     }
 
