@@ -7933,7 +7933,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         // Finding a face's centre projects onto that face's own surface and nothing else, and
         // each surface writes only its own faces' flags, so the surfaces run side by side.
         int nsurf = ( int )m_SurfVec.size();
-        RunIndexed( nsurf, StageThreadCount( nsurf ), [&]( int hs )
+        RunStage( "Half Mesh", nsurf, [&]( int hs )
         {
             if ( ! m_SurfVec[hs]->GetSymPlaneFlag() )
             {
@@ -7966,10 +7966,13 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 
     //==== Remove Tris, Edges and Nodes ====//
-    for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    // Each surface's mesh is its own until the border nodes are connected, so the surfaces run
+    // side by side.
+    int nrem = ( int )m_SurfVec.size();
+    RunStage( "Remove Interior", nrem, [&]( int rs )
     {
-        m_SurfVec[ s ]->GetMesh()->RemoveInteriorFacesEdgesNodes();
-    }
+        m_SurfVec[ rs ]->GetMesh()->RemoveInteriorFacesEdgesNodes();
+    } );
 }
 
 void CfdMeshMgrSingleton::ConnectBorderNodes( bool wakeOnly )
