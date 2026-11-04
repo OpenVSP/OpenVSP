@@ -10,8 +10,7 @@
 #include <limits>
 
 // Code-Eli's headers turn floating point contraction off for the rest of each file that includes
-// them, Surf.cpp among them.  Distances and limits here are rounded the same way, term by term,
-// so a search gives the same values as a search through MSTree in Surf.cpp.
+// them, Surf.cpp among them.  Distances and limits here are rounded the same way, term by term.
 #if defined(__clang__)
 #pragma STDC FP_CONTRACT OFF
 #endif
@@ -19,13 +18,8 @@
 // Sources per leaf.
 static const int MS_LEAF_SIZE = 8;
 
-// A source this close to the edge of the search radius, relative to its square, may or may not
-// be found by a nanoflann radius search, whose running box distances round differently.
-static const double MS_EDGE_TOL = 1.0e-10;
-
 void MSBoundTree::Build( const vector< MapSource* > &sources )
 {
-    m_Sources = sources;
     m_TreeSources = sources;
 
     int n = ( int )m_TreeSources.size();
@@ -319,8 +313,7 @@ double MSBoundTree::MinDistSq( const Node &node, const double *pt ) const
     return result;
 }
 
-// A node is passed over when every source in it is out of reach, or none can lower t.  Once a
-// source has lowered t, a node that could only equal it is still searched for a tie.
+// A node is passed over when every source in it is out of reach, or none can lower t.
 bool MSBoundTree::Prune( const Node &node, double md2, const Search &srch ) const
 {
     if ( !( md2 < srch.m_R2Max ) )
@@ -330,10 +323,6 @@ bool MSBoundTree::Prune( const Node &node, double md2, const Search &srch ) cons
 
     double bound = MinExcluding( node, srch.m_SkipSurf ) + srch.m_Grm1 * sqrt( md2 );
 
-    if ( srch.m_Found )
-    {
-        return bound > srch.m_T;
-    }
     return bound >= srch.m_T;
 }
 
@@ -367,20 +356,6 @@ void MSBoundTree::SearchNode( int inode, Search &srch ) const
                 {
                     srch.m_T = ts;
                     srch.m_Reason = m_TreeSources[k]->m_reason;
-                    srch.m_Found = true;
-                    srch.m_Tie = false;
-                    srch.m_Inside = result < srch.m_R2Inside;
-                }
-                else if ( srch.m_Found && ts == srch.m_T )
-                {
-                    if ( GrowLimitReason( m_TreeSources[k]->m_reason ) != GrowLimitReason( srch.m_Reason ) )
-                    {
-                        srch.m_Tie = true;
-                    }
-                    if ( result < srch.m_R2Inside )
-                    {
-                        srch.m_Inside = true;
-                    }
                 }
             }
         }
@@ -408,11 +383,11 @@ void MSBoundTree::SearchNode( int inode, Search &srch ) const
     }
 }
 
-bool MSBoundTree::LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason ) const
+void MSBoundTree::LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason ) const
 {
     if ( m_Nodes.empty() )
     {
-        return true;
+        return;
     }
 
     Search srch;
@@ -421,14 +396,10 @@ bool MSBoundTree::LimitStrength( const vec3d &pt, double r2max, int skipsurf, do
         srch.m_Pt[d] = pt.v[d];
     }
     srch.m_R2Max = r2max;
-    srch.m_R2Inside = r2max * ( 1.0 - MS_EDGE_TOL );
-    srch.m_Inside = false;
     srch.m_SkipSurf = skipsurf;
     srch.m_Grm1 = grm1;
     srch.m_T = t;
     srch.m_Reason = reason;
-    srch.m_Found = false;
-    srch.m_Tie = false;
 
     const Node &root = m_Nodes[0];
     double md2 = MinDistSq( root, srch.m_Pt );
@@ -439,45 +410,4 @@ bool MSBoundTree::LimitStrength( const vec3d &pt, double r2max, int skipsurf, do
 
     t = srch.m_T;
     reason = srch.m_Reason;
-
-    if ( srch.m_Tie )
-    {
-        return false;
-    }
-    if ( srch.m_Found && !srch.m_Inside )
-    {
-        return false;
-    }
-    return true;
-}
-
-void MSBoundTree::BuildCloud( int skipsurf, MSCloud &cloud ) const
-{
-    cloud.sources.clear();
-    cloud.sources.reserve( m_Sources.size() );
-    for ( int k = 0; k < ( int )m_Sources.size(); k++ )
-    {
-        if ( m_Sources[k]->m_surfid != skipsurf )
-        {
-            cloud.sources.push_back( m_Sources[k] );
-        }
-    }
-}
-
-MSSurfTree::MSSurfTree( const MSBoundTree &ms_tree, int skipsurf, int nthread )
-{
-    ms_tree.BuildCloud( skipsurf, m_Cloud );
-
-    if ( nthread < 1 )
-    {
-        nthread = 1;
-    }
-
-    // The constructor builds the index.
-    m_Tree = new MSTree( 3, m_Cloud, KDTreeSingleIndexAdaptorParams( 10, KDTreeSingleIndexAdaptorFlags::None, nthread ) );
-}
-
-MSSurfTree::~MSSurfTree()
-{
-    delete m_Tree;
 }

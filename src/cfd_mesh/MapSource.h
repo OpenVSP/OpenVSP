@@ -37,8 +37,6 @@ struct MSCloud;
 
 typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloud > , MSCloud, 3 > MSTree;
 
-typedef vector< nanoflann::ResultItem< unsigned int, double > > MSTreeResults;
-
 // The reason given a strength limited by growth from a source with the given reason.
 inline int GrowLimitReason( int reason )
 {
@@ -135,13 +133,8 @@ public:
     bool MinStrength( int skipsurf, double &minstr ) const;
 
     // Lowers t to the smallest str + grm1 * r over the sources not on skipsurf within r2max of pt,
-    // with the reason of the source that gives it.  False when that cannot settle what a search
-    // of an MSTree over the same sources gives: two sources give the smallest value with reasons
-    // that limit to different reasons, or every source that gives it lies on the edge of r2max.
-    bool LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason ) const;
-
-    // The sources not on skipsurf, in the order they were given.
-    void BuildCloud( int skipsurf, MSCloud &cloud ) const;
+    // with the reason of a source that gives it.
+    void LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason ) const;
 
 private:
 
@@ -161,14 +154,10 @@ private:
     {
         double m_Pt[3];
         double m_R2Max;
-        double m_R2Inside;
         int m_SkipSurf;
         double m_Grm1;
         double m_T;
         int m_Reason;
-        bool m_Found;
-        bool m_Tie;
-        bool m_Inside;  // A source that gives m_T lies well inside m_R2Max.
     };
 
     void BuildNode( int inode, int begin, int end );
@@ -179,7 +168,6 @@ private:
     void SearchNode( int inode, Search &srch ) const;
 
     vector< Node > m_Nodes;
-    vector< MapSource* > m_Sources;     // In the order given.
     vector< MapSource* > m_TreeSources; // In tree order.
     vector< double > m_Pts;             // xyz in tree order.
     vector< double > m_Str;             // In tree order.
@@ -190,18 +178,6 @@ private:
     vector< int > m_SurfLeafStart;      // from m_SurfLeafStart[isurf] up to m_SurfLeafStart[isurf + 1].
     vector< bool > m_NodeDirty;
     vector< int > m_Dirty;
-};
-
-// A nanoflann tree over every source not on one surface, in the order the sources were given.
-// Rigorous limiting searches it for a point the bound tree cannot settle.  It is built on
-// nthread threads.
-struct MSSurfTree
-{
-    MSSurfTree( const MSBoundTree &ms_tree, int skipsurf, int nthread );
-    ~MSSurfTree();
-
-    MSCloud m_Cloud;
-    MSTree *m_Tree;
 };
 
 #endif

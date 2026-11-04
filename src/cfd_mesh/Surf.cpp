@@ -705,9 +705,7 @@ void Surf::LimitTargetMap()
     }
 }
 
-// Whether the bound tree settles every point of the map as the map now stands, so the surface
-// would need no tree over the other surfaces' sources.  Nothing is changed.
-bool Surf::LimitTargetMapSettled( const MSBoundTree &ms_tree, double tmin, int sid ) const
+void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
 
@@ -718,48 +716,6 @@ bool Surf::LimitTargetMapSettled( const MSBoundTree &ms_tree, double tmin, int s
     {
         for( int j = 0; j < nmapw ; j++ )
         {
-            double t = m_SrcMap[i][j].m_str;
-            int reason = m_SrcMap[i][j].m_reason;
-
-            double rmax = ( t - tmin ) / grm1;
-            if( rmax > 0.0 )
-            {
-                if ( !ms_tree.LimitStrength( m_SrcMap[i][j].m_pt, rmax * rmax, sid, grm1, t, reason ) )
-                {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
-// es_tree is a tree over the other surfaces' sources alone, for a point the bound tree cannot
-// settle by itself: a tie between reasons, which this tree's search order picks, or a limit from
-// the very edge of the search radius, which this tree's search may or may not reach.  When it is
-// null and such a point comes up, it is made here, on nthread threads; the caller deletes it.
-void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSSurfTree *&es_tree, int nthread )
-{
-    double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
-
-    MSTreeResults es_matches;
-
-    SearchParameters params;
-    params.sorted = false;
-
-    int nmapu = m_SrcMap.size();
-    int nmapw = m_SrcMap[0].size();
-
-    // Loop over surface evaluating source strength and curvature
-    for( int i = 0; i < nmapu ; i++ )
-    {
-//      double u = ( 1.0 * i ) / ( m_NumMap - 1 );
-        for( int j = 0; j < nmapw ; j++ )
-        {
-//          double w = ( 1.0 * j ) / ( m_NumMap - 1 );
-
-            double *query_pt = m_SrcMap[i][j].m_pt.v;
-
             double t = m_SrcMap[i][j].m_str;
             double torig = t;
             int reason = m_SrcMap[i][j].m_reason;
@@ -767,51 +723,12 @@ void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSS
             double rmax = ( t - tmin ) / grm1;
             if( rmax > 0.0 )
             {
-                double r2max = rmax * rmax;
-
-                if ( !ms_tree.LimitStrength( m_SrcMap[i][j].m_pt, r2max, sid, grm1, t, reason ) )
-                {
-                    if ( !es_tree )
-                    {
-                        es_tree = new MSSurfTree( ms_tree, sid, nthread );
-                    }
-                    const MSCloud &es_cloud = es_tree->m_Cloud;
-
-                    t = torig;
-                    reason = m_SrcMap[i][j].m_reason;
-
-                    unsigned int nMatches = es_tree->m_Tree->radiusSearch( query_pt, r2max, es_matches, params );
-
-                    for ( int k = 0; k < nMatches; k++ )
-                    {
-                        unsigned int imatch = es_matches[k].first;
-                        double r = sqrt( es_matches[k].second );
-
-                        double str = es_cloud.sources[imatch]->m_str;
-
-                        double ts = str + grm1 * r;
-
-                        if ( ts < t )
-                        {
-                            reason = es_cloud.sources[imatch]->m_reason;
-                        }
-
-                        t = min( t, ts );
-                    }
-                }
+                ms_tree.LimitStrength( m_SrcMap[i][j].m_pt, rmax * rmax, sid, grm1, t, reason );
 
                 if( t < torig )
                 {
                     m_SrcMap[i][j].m_str = t;
-
-                    if ( reason < vsp::MIN_GROW_LIMIT )
-                    {
-                        m_SrcMap[i][j].m_reason = reason + vsp::GROW_LIMIT_INCREMENT;
-                    }
-                    else
-                    {
-                        m_SrcMap[i][j].m_reason = reason;
-                    }
+                    m_SrcMap[i][j].m_reason = GrowLimitReason( reason );
 
                     WalkMap( i, j );
                 }
