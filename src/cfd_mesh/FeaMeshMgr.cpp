@@ -1606,8 +1606,13 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         }
     }
 
+    // Where each surface's faces start in all_face_vec.
+    vector < int > face_start( m_SurfVec.size() + 1 );
+
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
+        face_start[s] = (int)all_face_vec.size();
+
         vector < vec2d > uw_vec_curr = m_SurfVec[s]->GetMesh()->GetSimpUWPntVec();
         vector < vec3d > pnt_vec_curr = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
         vector < SimpFace > face_vec_curr = m_SurfVec[ s ]->GetMesh()->GetSimpFaceVec();
@@ -1634,6 +1639,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             uw_surf_ind_vec.push_back( s );
         }
     }
+    face_start[ m_SurfVec.size() ] = (int)all_face_vec.size();
 
     if ( all_pnt_vec.size() == 0 )
     {
@@ -1690,13 +1696,63 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         }
     }
 
-    GetMeshPtr()->m_FeaElementVec.reserve( GetMeshPtr()->m_FeaElementVec.size() + all_face_vec.size() );
-    // Build FeaTris
     for ( int i = 0; i < (int)all_face_vec.size(); i++ )
     {
-        FeaElement* elem = BuildFeaShellElement( i, all_face_vec, tri_surf_ind_vec, node_vec, new_uw_vec, new_uw_surf_ind_vec, highorder );
+        vec3d pnt0 = node_vec[all_face_vec[i].ind0];
+        vec3d pnt1 = node_vec[all_face_vec[i].ind1];
+        vec3d pnt2 = node_vec[all_face_vec[i].ind2];
 
-        GetMeshPtr()->m_FeaElementVec.push_back( elem );
+        if ( all_face_vec[i].CheckDegen() )
+        {
+            printf( "Degenerate face detected\n" );
+            printf( "face: %d nodes: %d %d %d ", i, all_face_vec[i].ind0, all_face_vec[i].ind1, all_face_vec[i].ind2 );
+
+            if ( all_face_vec[i].m_isQuad )
+            {
+                printf( "%d\n", all_face_vec[i].ind3 );
+            }
+            else
+            {
+                printf( "\n" );
+            }
+            pnt0.print( "p0 " );
+            pnt1.print( "p1 " );
+            pnt2.print( "p2 " );
+
+            if ( all_face_vec[i].m_isQuad )
+            {
+                const vec3d& pnt3 = node_vec[all_face_vec[i].ind3];
+                pnt3.print( "p3 " );
+            }
+            printf( "\n\n" );
+        }
+    }
+
+    // Build FeaTris.  A face is projected onto its own surface, which only one thread may
+    // evaluate at a time, so the surfaces are taken side by side.
+    vector < FeaElement* > face_elem( all_face_vec.size(), nullptr );
+    int nsurf = (int)m_SurfVec.size();
+    RunStage( "Build FEA Elements", nsurf, [&]( int isurf )
+    {
+        for ( int i = face_start[isurf]; i < face_start[isurf + 1]; i++ )
+        {
+            face_elem[i] = BuildFeaShellElement( i, all_face_vec, tri_surf_ind_vec, node_vec, new_uw_vec, new_uw_surf_ind_vec, highorder );
+        }
+    } );
+
+    GetMeshPtr()->m_FeaElementVec.reserve( GetMeshPtr()->m_FeaElementVec.size() + all_face_vec.size() );
+    for ( int i = 0; i < (int)all_face_vec.size(); i++ )
+    {
+        if ( all_face_vec[i].m_isQuad )
+        {
+            GetMeshPtr()->m_NumQuads++;
+        }
+        else
+        {
+            GetMeshPtr()->m_NumTris++;
+        }
+
+        GetMeshPtr()->m_FeaElementVec.push_back( face_elem[i] );
         GetMeshPtr()->m_NumEls++;
     }
 
@@ -1738,31 +1794,6 @@ FeaElement* FeaMeshMgrSingleton::BuildFeaShellElement( int i, vector < SimpFace 
         avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
     }
 
-    if ( all_face_vec[i].CheckDegen() )
-    {
-        printf( "Degenerate face detected\n" );
-        printf( "face: %d nodes: %d %d %d ", i, all_face_vec[i].ind0, all_face_vec[i].ind1, all_face_vec[i].ind2 );
-
-        if ( all_face_vec[i].m_isQuad )
-        {
-            printf( "%d\n", all_face_vec[i].ind3 );
-        }
-        else
-        {
-            printf( "\n" );
-        }
-        pnt0.print( "p0 " );
-        pnt1.print( "p1 " );
-        pnt2.print( "p2 " );
-
-        if ( all_face_vec[i].m_isQuad )
-        {
-            const vec3d& pnt3 = node_vec[all_face_vec[i].ind3];
-            pnt3.print( "p3 " );
-        }
-        printf( "\n\n" );
-    }
-
     // Determine initial guess for uw near SimpTri center (uw points defining SimpTri can be from different surfaces after adjustments) 
     vec2d uw_guess;
 
@@ -1793,13 +1824,11 @@ FeaElement* FeaMeshMgrSingleton::BuildFeaShellElement( int i, vector < SimpFace 
     {
         elem = new FeaQuad;
         ((FeaQuad*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], node_vec[all_face_vec[i].ind3], highorder );
-        GetMeshPtr()->m_NumQuads++;
     }
     else
     {
         elem = new FeaTri;
         ((FeaTri*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], highorder );
-        GetMeshPtr()->m_NumTris++;
     }
     elem->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
     elem->SetFeaPartSurfNum( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum() );
