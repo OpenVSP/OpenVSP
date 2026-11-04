@@ -100,7 +100,6 @@ public:
 protected:
 
     void WriteBytes( const void* data, size_t nbyte );
-    void WriteMarker( long offset, long nbyte );
 
     FILE* m_FP;
     bool m_Good;
@@ -109,8 +108,8 @@ protected:
     bool m_ByteSwap;
 
     bool m_InRecord;
-    long m_RecordStart;     // file offset of the record's leading marker
     long m_RecordBytes;     // data bytes written into the record so far
+    vector < unsigned char > m_RecordBuf;   // the open record's data, written when it ends
 };
 
 // Reads the files UnformattedOut writes, and the ones a Fortran program produces.  It

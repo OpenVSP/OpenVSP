@@ -35,7 +35,6 @@ UnformattedOut::UnformattedOut()
     m_ByteSwap = false;
 
     m_InRecord = false;
-    m_RecordStart = 0;
     m_RecordBytes = 0;
 }
 
@@ -77,10 +76,11 @@ void UnformattedOut::Close()
     }
 
     m_InRecord = false;
-    m_RecordStart = 0;
     m_RecordBytes = 0;
+    vector < unsigned char >().swap( m_RecordBuf );
 }
 
+// A record's data is held until the record ends, when the record goes out whole, counts and all.
 void UnformattedOut::WriteBytes( const void* data, size_t nbyte )
 {
     if ( !m_FP || !m_Good )
@@ -88,49 +88,14 @@ void UnformattedOut::WriteBytes( const void* data, size_t nbyte )
         return;
     }
 
+    if ( m_InRecord )
+    {
+        const unsigned char* p = ( const unsigned char* ) data;
+        m_RecordBuf.insert( m_RecordBuf.end(), p, p + nbyte );
+        return;
+    }
+
     if ( fwrite( data, 1, nbyte, m_FP ) != nbyte )
-    {
-        m_Good = false;
-    }
-}
-
-// Put a record's byte count at a given offset, then carry on at the end of the file.
-void UnformattedOut::WriteMarker( long offset, long nbyte )
-{
-    if ( !m_FP || !m_Good )
-    {
-        return;
-    }
-
-    if ( nbyte > ( long )INT_MAX )
-    {
-        // A four byte marker cannot describe this record.  Fortran runtimes split such
-        // records into subrecords, with conventions that vary; rather than guess at one,
-        // say the file is no good.
-        m_Good = false;
-        return;
-    }
-
-    long here = ftell( m_FP );
-
-    if ( fseek( m_FP, offset, SEEK_SET ) != 0 )
-    {
-        m_Good = false;
-        return;
-    }
-
-    int marker = ( int )nbyte;
-    if ( m_ByteSwap )
-    {
-        SwapBytes( &marker, sizeof( marker ) );
-    }
-
-    if ( fwrite( &marker, sizeof( marker ), 1, m_FP ) != 1 )
-    {
-        m_Good = false;
-    }
-
-    if ( fseek( m_FP, here, SEEK_SET ) != 0 )
     {
         m_Good = false;
     }
@@ -148,13 +113,9 @@ void UnformattedOut::BeginRecord()
         EndRecord();
     }
 
-    m_RecordStart = ftell( m_FP );
     m_RecordBytes = 0;
+    m_RecordBuf.clear();
     m_InRecord = true;
-
-    // Leave room for the count; it is filled in by EndRecord.
-    int marker = 0;
-    WriteBytes( &marker, sizeof( marker ) );
 }
 
 void UnformattedOut::EndRecord()
@@ -166,15 +127,39 @@ void UnformattedOut::EndRecord()
 
     m_InRecord = false;
 
+    // A four byte marker cannot describe a longer record.  Fortran runtimes split such
+    // records into subrecords, with conventions that vary; rather than guess at one, the
+    // record is left with a count of zero ahead of it and the file is said to be no good.
+    bool fits = ( m_RecordBytes <= ( long )INT_MAX );
+
+    int lead = 0;
+    if ( fits )
+    {
+        lead = ( int )m_RecordBytes;
+    }
+
     // The count appears again after the data, so a reader can walk the file backwards.
-    int marker = ( int )m_RecordBytes;
+    int trail = ( int )m_RecordBytes;
+
     if ( m_ByteSwap )
     {
-        SwapBytes( &marker, sizeof( marker ) );
+        SwapBytes( &lead, sizeof( lead ) );
+        SwapBytes( &trail, sizeof( trail ) );
     }
-    WriteBytes( &marker, sizeof( marker ) );
 
-    WriteMarker( m_RecordStart, m_RecordBytes );
+    WriteBytes( &lead, sizeof( lead ) );
+    if ( !m_RecordBuf.empty() )
+    {
+        WriteBytes( m_RecordBuf.data(), m_RecordBuf.size() );
+    }
+    WriteBytes( &trail, sizeof( trail ) );
+
+    vector < unsigned char >().swap( m_RecordBuf );
+
+    if ( !fits )
+    {
+        m_Good = false;
+    }
 }
 
 void UnformattedOut::Write( int val )
