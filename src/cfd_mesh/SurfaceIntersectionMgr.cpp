@@ -6541,26 +6541,35 @@ void SurfaceIntersectionSingleton::FindCoplanarSurfs()
 
     int n = ( int )m_SurfVec.size();
 
-    for ( int i = 0 ; i < n ; i++ )
+    // A plane is fitted to each surface's own control points, so the surfaces are fitted on
+    // several threads.
+    RunStage( "Coplanar Fit", n, [&]( int i )
     {
         if ( CoplanarCandidate( m_SurfVec[i] ) )
         {
             m_SurfVec[i]->FitPlane( COPLANAR_RELTOL );
         }
-    }
+    } );
 
+    // Only the flat candidates are paired, in order.
+    vector< Surf* > flat;
     for ( int i = 0 ; i < n ; i++ )
     {
-        Surf* a = m_SurfVec[i];
-        if ( !CoplanarCandidate( a ) || !a->GetPlaneFlag() )
+        if ( CoplanarCandidate( m_SurfVec[i] ) && m_SurfVec[i]->GetPlaneFlag() )
         {
-            continue;
+            flat.push_back( m_SurfVec[i] );
         }
+    }
 
-        for ( int j = i + 1 ; j < n ; j++ )
+    int nflat = ( int )flat.size();
+    for ( int i = 0 ; i < nflat ; i++ )
+    {
+        Surf* a = flat[i];
+
+        for ( int j = i + 1 ; j < nflat ; j++ )
         {
-            Surf* b = m_SurfVec[j];
-            if ( !CoplanarCandidate( b ) || !b->GetPlaneFlag() || a->GetCompID() == b->GetCompID() )
+            Surf* b = flat[j];
+            if ( a->GetCompID() == b->GetCompID() )
             {
                 continue;
             }
