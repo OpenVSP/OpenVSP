@@ -904,6 +904,66 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
 
 }
 
+// The list at index, or an empty list when index is out of range.
+static const vector < int > & ListAt( const vector < vector < int > > &lists, long long int index )
+{
+    static const vector < int > none;
+    if ( index < 0 || index >= (long long int)lists.size() )
+    {
+        return none;
+    }
+    return lists[index];
+}
+
+void FeaMesh::IndexElements( vector < vector < int > > &part_elems, vector < vector < int > > &ss_elems )
+{
+    part_elems.assign( m_NumFeaParts, vector < int >() );
+    ss_elems.assign( m_NumFeaSubSurfs, vector < int >() );
+
+    for ( int j = 0; j < (int)m_FeaElementVec.size(); j++ )
+    {
+        int ipart = m_FeaElementVec[j]->GetFeaPartIndex();
+        if ( ipart >= 0 && ipart < (int)part_elems.size() )
+        {
+            part_elems[ipart].push_back( j );
+        }
+
+        int iss = m_FeaElementVec[j]->GetFeaSSIndex();
+        if ( iss >= 0 && iss < (int)ss_elems.size() )
+        {
+            ss_elems[iss].push_back( j );
+        }
+    }
+}
+
+void FeaMesh::SplitBySurf( const vector < int > &elems, int nsurf, vector < vector < int > > &surf_elems )
+{
+    surf_elems.assign( std::max( nsurf, 0 ), vector < int >() );
+
+    for ( size_t k = 0; k < elems.size(); k++ )
+    {
+        int isurf = m_FeaElementVec[ elems[k] ]->GetFeaPartSurfNum();
+        if ( isurf >= 0 && isurf < (int)surf_elems.size() )
+        {
+            surf_elems[isurf].push_back( elems[k] );
+        }
+    }
+}
+
+void FeaMesh::SplitByChain( const vector < int > &elems, int nchain, vector < vector < int > > &chain_elems )
+{
+    chain_elems.assign( std::max( nchain, 0 ), vector < int >() );
+
+    for ( size_t k = 0; k < elems.size(); k++ )
+    {
+        int ichain = m_FeaElementVec[ elems[k] ]->GetChainIndex();
+        if ( ichain >= 0 && ichain < (int)chain_elems.size() )
+        {
+            chain_elems[ichain].push_back( elems[k] );
+        }
+    }
+}
+
 void FeaMesh::IndexFeaProperties( const vector < string > & prop_id_vec )
 {
     for ( size_t i = 0; i < m_FeaPartPropertyIndexVec.size(); i++ )
@@ -1395,6 +1455,9 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
         vector < long long int > shell_elem_id_vec, beam_elem_id_vec;
         int elem_id = 1;
 
+        vector < vector < int > > part_elems, ss_elems;
+        IndexElements( part_elems, ss_elems );
+
         // Write FeaFixPoints
         for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
         {
@@ -1404,9 +1467,11 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
                 bool FPHeader = false;
 
                 vector < long long int > mass_elem_id_vec;
+                const vector < int > & fp_elems = ListAt( part_elems, fxpt.m_FeaPartIndex );
 
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                for ( size_t k = 0; k < fp_elems.size(); k++ )
                 {
+                    int j = fp_elems[k];
                     if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
                         if ( !FPHeader )
@@ -1438,12 +1503,16 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
 
                 int property_id = m_FeaPartPropertyIndexVec[i];
                 int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
+                const vector < int > & part_list = ListAt( part_elems, i );
+                vector < vector < int > > part_chains;
+                SplitByChain( part_list, m_FeaPartNumChainsVec[ i ], part_chains );
 
                 // Write shell elements
                 bool partheader = false;
 
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                for ( size_t k = 0; k < part_list.size(); k++ )
                 {
+                    int j = part_list[k];
                     if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 && m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
                     {
                         if ( !partheader )
@@ -1473,9 +1542,11 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
 
                     // Write beam elements
                     partheader = false;
+                    const vector < int > & chain_list = ListAt( part_chains, ichain );
 
-                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                    for ( size_t k = 0; k < chain_list.size(); k++ )
                     {
+                        int j = chain_list[k];
                         if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
                              m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                              m_FeaElementVec[j]->GetChainIndex() == ichain &&
@@ -1508,14 +1579,18 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
         {
             int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
             int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
+            const vector < int > & ss_list = ListAt( ss_elems, i );
+            vector < vector < int > > ss_chains;
+            SplitByChain( ss_list, m_FeaSubSurfNumChainsVec[ i ], ss_chains );
 
             shell_elem_id_vec.clear();
 
             // Write shell elements
             bool ssheader = false;
 
-            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            for ( size_t k = 0; k < ss_list.size(); k++ )
             {
+                int j = ss_list[k];
                 if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
                 {
                     if ( !ssheader )
@@ -1545,9 +1620,11 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
 
                 // Write beam elements
                 ssheader = false;
+                const vector < int > & chain_list = ListAt( ss_chains, ichain );
 
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                for ( size_t k = 0; k < chain_list.size(); k++ )
                 {
+                    int j = chain_list[k];
                     if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
                          m_FeaElementVec[j]->GetChainIndex() == ichain &&
                          m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
@@ -1859,6 +1936,9 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
         int elem_id = 1;
         char str[256];
 
+        vector < vector < int > > part_elems, ss_elems;
+        IndexElements( part_elems, ss_elems );
+
         //==== Write Fixed Points ====//
         for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
         {
@@ -1866,12 +1946,14 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
             if ( fxpt.m_PtMassFlag )
             {
+                const vector < int > & fp_elems = ListAt( part_elems, fxpt.m_FeaPartIndex );
                 fprintf( fp, "\n" );
                 fprintf( fp, "** Fixed Point: %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
                 fprintf( fp, "*ELEMENT, TYPE=MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
 
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                for ( size_t k = 0; k < fp_elems.size(); k++ )
                 {
+                    int j = fp_elems[k];
                     if ( m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex &&
                          m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS &&
                          m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
@@ -1897,9 +1979,13 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                 fprintf( fp, "** %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
 
                 int surf_num = m_FeaPartNumSurfVec[i];
+                vector < vector < int > > part_surfs;
+                SplitBySurf( ListAt( part_elems, i ), surf_num, part_surfs );
 
                 for ( int isurf = 0; isurf < surf_num; isurf++ )
                 {
+                    const vector < int > & surf_list = ListAt( part_surfs, isurf );
+
                     if ( !m_StructSettings.m_ConvertToQuadsFlag && m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
                     {
                         int nnode = 3;
@@ -1907,8 +1993,9 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                         fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
-                        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                        for ( size_t k = 0; k < surf_list.size(); k++ )
                         {
+                            int j = surf_list[k];
                             if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
                                  ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) &&
                                  m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
@@ -1928,8 +2015,9 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                         fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
-                        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                        for ( size_t k = 0; k < surf_list.size(); k++ )
                         {
+                            int j = surf_list[k];
                             if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
                                  ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) &&
                                  m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
@@ -1944,12 +2032,17 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                     if ( m_FeaPartCreateBeamElementsVec[i] )
                     {
+                        vector < vector < int > > surf_chains;
+                        SplitByChain( surf_list, m_FeaPartNumChainsVec[i], surf_chains );
+
                         for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[i]; ichain++ )
                         {
+                            const vector < int > & chain_list = ListAt( surf_chains, ichain );
                             fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_%d_CAP\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf, ichain );
 
-                            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                            for ( size_t k = 0; k < chain_list.size(); k++ )
                             {
+                                int j = chain_list[k];
                                 if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
                                      m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
                                      m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
@@ -1967,8 +2060,9 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                 fprintf( fp, "\n" );
                                 fprintf( fp, "*NORMAL\n" );
 
-                                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                                for ( size_t k = 0; k < chain_list.size(); k++ )
                                 {
+                                    int j = chain_list[k];
                                     if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
                                          m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
                                          m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
@@ -1993,9 +2087,13 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             int surf_num = m_SimpleSubSurfaceVec[i].GetFeaOrientationVec().size();
+            vector < vector < int > > ss_surfs;
+            SplitBySurf( ListAt( ss_elems, i ), surf_num, ss_surfs );
 
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
+                const vector < int > & surf_list = ListAt( ss_surfs, isurf );
+
                 if ( !m_StructSettings.m_ConvertToQuadsFlag && m_SimpleSubSurfaceVec[i].m_KeepDelShellElements == vsp::FEA_KEEP )
                 {
                     int nnode = 3;
@@ -2003,8 +2101,9 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                     fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
 
-                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                    for ( size_t k = 0; k < surf_list.size(); k++ )
                     {
+                        int j = surf_list[k];
                         if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
                              ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) &&
                              m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
@@ -2023,8 +2122,9 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                     fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
 
-                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                    for ( size_t k = 0; k < surf_list.size(); k++ )
                     {
+                        int j = surf_list[k];
                         if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
                              ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) &&
                              m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
@@ -2038,14 +2138,19 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                 if ( m_SimpleSubSurfaceVec[i].m_CreateBeamElements )
                 {
+                    vector < vector < int > > surf_chains;
+                    SplitByChain( surf_list, m_FeaSubSurfNumChainsVec[i], surf_chains );
+
                     for ( int ichain = 0; ichain < m_FeaSubSurfNumChainsVec[i]; ichain++ )
                     {
+                        const vector < int > & chain_list = ListAt( surf_chains, ichain );
 
                         fprintf( fp, "\n" );
                         fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_%d_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf, ichain );
 
-                        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                        for ( size_t k = 0; k < chain_list.size(); k++ )
                         {
+                            int j = chain_list[k];
                             if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
                                  m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
                                  m_FeaElementVec[j]->GetChainIndex() == ichain &&
@@ -2063,8 +2168,9 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                             fprintf( fp, "\n" );
                             fprintf( fp, "*NORMAL\n" );
 
-                            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                            for ( size_t k = 0; k < chain_list.size(); k++ )
                             {
+                                int j = chain_list[k];
                                 if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
                                      m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
                                      m_FeaElementVec[j]->GetChainIndex() == ichain &&
@@ -2114,6 +2220,9 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
     {
         char str[256];
 
+        vector < vector < int > > part_elems, ss_elems;
+        IndexElements( part_elems, ss_elems );
+
         fprintf( fp, "** Properties %s\n", m_StructName.c_str() );
 
         //==== FeaProperties ====//
@@ -2125,9 +2234,13 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                 int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
 
                 int surf_num = m_FeaPartNumSurfVec[i];
+                vector < vector < int > > part_surfs;
+                SplitBySurf( ListAt( part_elems, i ), surf_num, part_surfs );
 
                 for ( int isurf = 0; isurf < surf_num; isurf++ )
                 {
+                    const vector < int > & surf_list = ListAt( part_surfs, isurf );
+
                     if ( m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
                     {
                         FeaMeshMgr.MarkPropMatUsed( property_id );
@@ -2158,8 +2271,12 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                     {
                         FeaMeshMgr.MarkPropMatUsed( cap_property_id );
 
+                        vector < vector < int > > surf_chains;
+                        SplitByChain( surf_list, m_FeaPartNumChainsVec[i], surf_chains );
+
                         for ( int ichain = 0; ichain < m_FeaPartNumChainsVec[i]; ichain++ )
                         {
+                            const vector < int > & chain_list = ListAt( surf_chains, ichain );
 
                             fprintf( fp, "\n" );
                             snprintf( str, sizeof( str ), "EB%s_%s_%d_%d_CAP", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf, ichain );
@@ -2167,8 +2284,9 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
                             if ( !m_StructSettings.m_BeamPerElementNormal )
                             {
-                                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                                for ( size_t k = 0; k < chain_list.size(); k++ )
                                 {
+                                    int j = chain_list[k];
                                     if ( m_FeaElementVec[ j ]->GetFeaPartIndex() == i &&
                                          m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_BEAM &&
                                          m_FeaElementVec[ j ]->GetFeaSSIndex() < 0 &&
@@ -2195,8 +2313,12 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
             std::vector < vec3d > ovec = m_SimpleSubSurfaceVec[i].GetFeaOrientationVec();
             int surf_num = ovec.size();
+            vector < vector < int > > ss_surfs;
+            SplitBySurf( ListAt( ss_elems, i ), surf_num, ss_surfs );
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
+                const vector < int > & surf_list = ListAt( ss_surfs, isurf );
+
                 if ( m_SimpleSubSurfaceVec[i].m_KeepDelShellElements == vsp::FEA_KEEP )
                 {
                     FeaMeshMgr.MarkPropMatUsed( property_id );
@@ -2233,8 +2355,9 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
                     if ( !m_StructSettings.m_BeamPerElementNormal )
                     {
-                        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                        for ( size_t k = 0; k < surf_list.size(); k++ )
                         {
+                            int j = surf_list[k];
                             if ( m_FeaElementVec[ j ]->GetFeaSSIndex() == i &&
                                  m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_BEAM &&
                                  m_FeaElementVec[ j ]->GetFeaPartSurfNum() == isurf )
@@ -2343,10 +2466,16 @@ void FeaMesh::WriteGmshElements( FILE* fp, int & ele_cnt )
     unsigned long long int noffset = m_StructSettings.m_NodeOffset;
     unsigned long long int eoffset = m_StructSettings.m_ElementOffset;
 
+    vector < vector < int > > part_elems, ss_elems;
+    IndexElements( part_elems, ss_elems );
+
     for ( unsigned int j = 0; j < m_NumFeaParts; j++ )
     {
-        for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
+        const vector < int > & part_list = ListAt( part_elems, j );
+
+        for ( size_t k = 0; k < part_list.size(); k++ )
         {
+            int i = part_list[k];
             if ( m_FeaElementVec[i]->GetFeaPartIndex() == j )
             {
                 m_FeaElementVec[i]->WriteGmsh( fp, ele_cnt, j + 1, noffset, eoffset );
@@ -2372,9 +2501,14 @@ void FeaMesh::WriteSTL( FILE* fp )
 {
     if ( fp )
     {
+        vector < vector < int > > part_elems, ss_elems;
+        IndexElements( part_elems, ss_elems );
+
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             int surf_num = m_FeaPartNumSurfVec[i];
+            vector < vector < int > > part_surfs;
+            SplitBySurf( ListAt( part_elems, i ), surf_num, part_surfs );
 
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
@@ -2382,8 +2516,10 @@ void FeaMesh::WriteSTL( FILE* fp )
                 {
                     fprintf( fp, "solid %s_%d\n", m_FeaPartNameVec[ i ].c_str(), isurf );
 
-                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                    const vector < int > & surf_list = ListAt( part_surfs, isurf );
+                    for ( size_t k = 0; k < surf_list.size(); k++ )
                     {
+                        int j = surf_list[k];
                         if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
                              m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                              m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
@@ -2400,6 +2536,8 @@ void FeaMesh::WriteSTL( FILE* fp )
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             int surf_num = m_SimpleSubSurfaceVec[i].GetFeaOrientationVec().size();
+            vector < vector < int > > ss_surfs;
+            SplitBySurf( ListAt( ss_elems, i ), surf_num, ss_surfs );
 
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
@@ -2407,8 +2545,10 @@ void FeaMesh::WriteSTL( FILE* fp )
                 {
                     fprintf( fp, "solid %s_%d\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
 
-                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                    const vector < int > & surf_list = ListAt( ss_surfs, isurf );
+                    for ( size_t k = 0; k < surf_list.size(); k++ )
                     {
+                        int j = surf_list[k];
                         if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
                              m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                         {
@@ -2440,6 +2580,9 @@ void FeaMesh::ComputeWriteMass( FILE* fp )
 
     if ( fp )
     {
+        vector < vector < int > > part_elems, ss_elems;
+        IndexElements( part_elems, ss_elems );
+
         fprintf( fp, "...FEA Mesh...\n" );
         fprintf( fp, "Mass_Unit: %s\n", m_MassUnit.c_str() );
         fprintf( fp, "Num_Els: %llu\n", m_NumEls );
@@ -2462,9 +2605,11 @@ void FeaMesh::ComputeWriteMass( FILE* fp )
                 double beam_mass = 0;
                 int property_id = m_FeaPartPropertyIndexVec[i];
                 int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
+                const vector < int > & part_list = ListAt( part_elems, i );
 
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                for ( size_t k = 0; k < part_list.size(); k++ )
                 {
+                    int j = part_list[k];
                     if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                          ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 ||
                            m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ||
@@ -2502,9 +2647,11 @@ void FeaMesh::ComputeWriteMass( FILE* fp )
                 double pnt_mass = 0;
                 string name = m_FeaPartNameVec[fxpt.m_FeaPartIndex];
                 vec3d pnt;
+                const vector < int > & fp_elems = ListAt( part_elems, fxpt.m_FeaPartIndex );
 
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                for ( size_t k = 0; k < fp_elems.size(); k++ )
                 {
+                    int j = fp_elems[k];
                     if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
                         pnt_mass += m_FeaElementVec[j]->ComputeMass( -1 ); // property ID ignored for point masses
@@ -2538,9 +2685,11 @@ void FeaMesh::ComputeWriteMass( FILE* fp )
             double beam_mass = 0;
             int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
             int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
+            const vector < int > & ss_list = ListAt( ss_elems, i );
 
-            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            for ( size_t k = 0; k < ss_list.size(); k++ )
             {
+                int j = ss_list[k];
                 if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
                      ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 ||
                        m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ||

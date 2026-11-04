@@ -97,6 +97,13 @@ public:
     // Look the parts' and subsurfaces' property IDs up in a list of property IDs.
     virtual void IndexFeaProperties( const vector < string > & prop_id_vec );
 
+    // The indices into m_FeaElementVec of each part's elements and of each subsurface's
+    // elements, in order.
+    void IndexElements( vector < vector < int > > &part_elems, vector < vector < int > > &ss_elems );
+    // Split a list of element indices by part surface number or by beam chain, keeping their order.
+    void SplitBySurf( const vector < int > &elems, int nsurf, vector < vector < int > > &surf_elems );
+    void SplitByChain( const vector < int > &elems, int nchain, vector < vector < int > > &chain_elems );
+
     virtual void ExportFeaMesh();
 
     virtual void WriteCalculix();
