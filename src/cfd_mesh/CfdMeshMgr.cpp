@@ -4377,14 +4377,24 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
         }
     }
 
+    // A surface may be evaluated by one thread at a time, and a surface can carry more than one
+    // face, so the faces of one surface are sampled in turn.
+    vector < Surf* > face_srf( nface );
     for ( int iface = 0; iface < nface; iface++ )
+    {
+        face_srf[iface] = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
+    }
+
+    ProgressStage sample_bar( this, "POGS Sample", nface );
+    RunBySurface( face_srf, [&]( int iface )
     {
         Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
 
         const vector < double > &u = uvec[iface];
         const vector < double > &w = wvec[iface];
 
-        vector < vec3d > pnt_vec( u.size() * w.size() );
+        vector < vec3d > &pnt_vec = all_pnt_vec[iface];
+        pnt_vec.resize( u.size() * w.size() );
 
         uv_dim_vec[iface].push_back( ( int )u.size() );
         uv_dim_vec[iface].push_back( ( int )w.size() );
@@ -4406,9 +4416,7 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
                 uv_var_vec[iface][1][k] = w[j];
             }
         }
-
-        all_pnt_vec[iface] = pnt_vec;
-    }
+    }, &sample_bar );
 
     // How many components the crossing table has to hold, from the numbers actually present
     // rather than from a count plus slack.
@@ -4425,7 +4433,8 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
     vector < char > open_face( nface, 0 );
     vector < vector < POGSCrossSample > > cross( nface );
 
-    RunStage( "POGS iblank", nface, [&]( int iface )
+    ProgressStage iblank_bar( this, "POGS iblank", nface );
+    RunBySurface( face_srf, [&]( int iface )
     {
         Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
 
@@ -4684,7 +4693,7 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
         }
 
         all_iblank_vec[iface] = iblank_vec;
-    } );
+    }, &iblank_bar );
 
     // The samples whose side is taken from the surface across an edge, grouped by that surface,
     // so each surface is evaluated by one thread at a time.  The side is the sample's nearest
@@ -4703,7 +4712,7 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
         cross_group.push_back( it->second );
     }
 
-    RunIndexed( ( int )cross_group.size(), StageThreadCount( ( int )cross_group.size() ), [&]( int g )
+    RunStage( "POGS Edge Side", ( int )cross_group.size(), [&]( int g )
     {
         vector < vector < double > > t_vec_vec( ncomp );
         for ( int k = 0; k < ( int )cross_group[g].size(); k++ )
