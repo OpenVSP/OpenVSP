@@ -116,6 +116,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     m_NumMeshTris = 0;
     m_NumBorderEdges = 0;
     m_NumOverConnEdges = 0;
+    m_NumTopoSurfs = 0;
 
     addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
@@ -5373,6 +5374,7 @@ void CfdMeshMgrSingleton::RecordResults()
     res->Add( new NameValData( "Num_Border_Edges", m_NumBorderEdges, "Number of mesh edges with one triangle on them, other than a wake's or a half mesh's along its open symmetry plane." ) );
     res->Add( new NameValData( "Num_Over_Connected_Edges", m_NumOverConnEdges, "Number of mesh edges with more than two triangles on them." ) );
     res->Add( new NameValData( "Water_Tight", tight, "Flag set when the mesh is closed." ) );
+    res->Add( new NameValData( "Num_Topo_Surfs", m_NumTopoSurfs, "Number of surfaces whose interior triangles the intersection chains' topology found, without ray casts." ) );
 }
 
 // A face's corners as merged point indices, and how many it has
@@ -8008,6 +8010,10 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         if ( !topo_done[s] )
         {
             raysurf.push_back( s );
+        }
+        else
+        {
+            m_NumTopoSurfs++;
         }
     }
 

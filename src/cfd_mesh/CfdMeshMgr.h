@@ -210,6 +210,7 @@ public:
     int m_NumMeshTris = 0;
     int m_NumBorderEdges = 0;
     int m_NumOverConnEdges = 0;
+    int m_NumTopoSurfs = 0;             // Surfaces the chain topology classified, needing no rays
 
     // The same numbers as a Results entry, so a scripted run can read the verdict rather
     // than watch the console for it.  Written by every run.

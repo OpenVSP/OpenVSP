@@ -88,6 +88,20 @@ def test_setting( tmp_path, monkeypatch ):
     assert "TopoInterior" in vsp.GetAnalysisInputNames( "CfdMeshAnalysis" )
 
 
+def test_the_surfaces_classified_are_reported( tmp_path, monkeypatch ):
+    """The results count the surfaces the chains' topology classified: some with it on, none off."""
+    monkeypatch.chdir( tmp_path )
+    vsp.VSPRenew()
+    _wing_body_pod()
+    counts = {}
+    for topo in ( 1, 0 ):
+        _mesh_stl( tmp_path / ( "m%d" % topo ), topo )
+        rid = vsp.FindLatestResultsID( "CFDMesh" )
+        counts[topo] = vsp.GetIntResults( rid, "Num_Topo_Surfs" )[0]
+    assert counts[1] > 0
+    assert counts[0] == 0
+
+
 def test_a_wing_through_a_body_with_a_pod_on_it( tmp_path, monkeypatch ):
     monkeypatch.chdir( tmp_path )
     vsp.VSPRenew()
