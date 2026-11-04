@@ -816,9 +816,9 @@ void SurfCore::TangentStep( double &u, double &w, const vec3d &target ) const
     u = std::min( std::max( u, umn ), umx );
     w = std::min( std::max( w, wmn ), wmx );
 
-    surface_point_type S( m_Surface.f( u, w ) );
-    surface_point_type Su( m_Surface.f_u( u, w ) );
-    surface_point_type Sv( m_Surface.f_v( u, w ) );
+    // The point and both tangents from one patch lookup.
+    surface_point_type S, Su, Sv;
+    m_Surface.f_pt_derivs( u, w, S, Su, Sv );
 
     surface_point_type tgt;
     target.get_pnt( tgt );
