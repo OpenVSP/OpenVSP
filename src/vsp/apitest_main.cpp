@@ -7,6 +7,7 @@
 //#include "vld.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -29,7 +30,19 @@ void vsp_exit()
     exit( 0 );
 }
 
-bool run_tests()
+// The unstable tests alone, which are left out of the rest
+int run_unstable_tests()
+{
+    Test::Suite ts;
+    ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteVSPAERO( true )));
+
+    Test::TextOutput output(Test::TextOutput::Verbose);
+    bool cont_after_fail = true; //TRUE continues test execution after failure
+
+    return ts.run(output, cont_after_fail) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int run_tests()
 {
     // Add desired suites to parent suite
     Test::Suite ts;
@@ -83,9 +96,27 @@ void planarSliceTest()
 //========================= Main =========================//
 int main( int argc, char** argv )
 {
+    //==== --unstable-suites runs only the unstable tests and exits with their result ====//
+    for ( int i = 1; i < argc; i++ )
+    {
+        if ( strcmp( argv[i], "--unstable-suites" ) == 0 )
+        {
+            return run_unstable_tests();
+        }
+    }
+
 //==== Use CPPTest =====//
-    run_tests();
+    int test_result = run_tests();
     printf("\n\n");
+
+    //==== --suites runs only the test suites and exits with their result ====//
+    for ( int i = 1; i < argc; i++ )
+    {
+        if ( strcmp( argv[i], "--suites" ) == 0 )
+        {
+            return test_result;
+        }
+    }
 
 //==== Use Case 1 ====//
     printf( "\n//==== Use Case 1 ====//\n");
