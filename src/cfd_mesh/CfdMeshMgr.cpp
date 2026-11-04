@@ -3230,6 +3230,8 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
 
         if ( fp )
         {
+            ProgressStage bar( this, "Write FACET", ( int )( allUsedPntVec.size() + allFaceVec.size() ) );
+
             fprintf( fp, "Exported from %s\n", VSPVERSION4 ); // Title/comment line
             fprintf( fp, "1 \n" ); // Number of "Big" parts (1 Vehicle broken into small parts by geom and subsurface)
 
@@ -3243,10 +3245,13 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
             fprintf( fp, "%d \n", (int)allUsedPntVec.size() ); // # of nodes in "Big" part
 
             //==== Write All Pnts (Nodes) ====//
-            for ( int i = 0; i < (int)allUsedPntVec.size(); i++ )
+            WriteChunked( fp, ( int )allUsedPntVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
-            }
+                for ( int i = ibeg ; i < iend ; i++ )
+                {
+                    AppendGTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z(), 16, 10 );
+                }
+            }, &bar );
 
             vector < int > face_offset; // vector of number of faces for each tag
 
@@ -3296,35 +3301,55 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
                                  //==== Write Out Tris ====//
             for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
             {
-                bool new_section = true; // flag to write small part section header
+                const vector < int > &faces = part_faces[i];
 
-                for ( unsigned int k = 0; k < part_faces[i].size(); k++ )
+                if ( faces.empty() )
                 {
-                    unsigned int j = part_faces[i][k];
+                    continue;
+                }
 
-                    if ( new_section ) // write small part header and get material ID for small part
-                    {
-                        string name = SubSurfaceMgr.GetTagNames( allFaceVec[j].m_Tags );
-                        fprintf( fp, "%s\n", name.c_str() ); // Write name of small part
-                        fprintf( fp, "%d 3\n", face_offset[i] ); // Number of facets for the part, 3 nodes per facet
+                // Write small part header
+                string name = SubSurfaceMgr.GetTagNames( allFaceVec[ faces[0] ].m_Tags );
+                fprintf( fp, "%s\n", name.c_str() ); // Write name of small part
+                fprintf( fp, "%d 3\n", face_offset[i] ); // Number of facets for the part, 3 nodes per facet
 
-                        new_section = false;
-                    }
-
+                // The running facet number each face starts from, so a chunk can be written
+                // without counting the faces before it.
+                vector < int > first_facet( faces.size() );
+                for ( unsigned int k = 0; k < faces.size(); k++ )
+                {
+                    first_facet[k] = facet_count + 1;
                     facet_count++;
-
-                    // 3 nodes of facet, material ID, component ID, running facet #:
-                    fprintf( fp, "%d %d %d %d %u %d\n", allFaceVec[j].ind0, allFaceVec[j].ind1, allFaceVec[j].ind2, materialID, i + 1, facet_count );
-
-                    // Split quad into two tris.  It may be possible to write out tris and quads separately by
-                    // grouping them appropriately and then writing separate groups.  However, without documentation
-                    // of the facet file format, this approach is the least risky.
-                    if( allFaceVec[j].m_isQuad )
+                    if( allFaceVec[ faces[k] ].m_isQuad )
                     {
                         facet_count++;
-                        fprintf( fp, "%d %d %d %d %u %d\n", allFaceVec[j].ind0, allFaceVec[j].ind2, allFaceVec[j].ind3, materialID, i + 1, facet_count );
                     }
                 }
+
+                WriteChunked( fp, ( int )faces.size(), [&]( int ibeg, int iend, string &out )
+                {
+                    for ( int k = ibeg; k < iend; k++ )
+                    {
+                        const SimpFace &f = allFaceVec[ faces[k] ];
+
+                        // 3 nodes of facet, material ID, component ID, running facet #:
+                        int t0[6] = { f.ind0, f.ind1, f.ind2, materialID, ( int )( i + 1 ), first_facet[k] };
+                        AppendInts( out, t0, 5, ' ' );
+                        FastFormat::AppendInt( out, t0[5] );
+                        out += '\n';
+
+                        // Split quad into two tris.  It may be possible to write out tris and quads separately by
+                        // grouping them appropriately and then writing separate groups.  However, without documentation
+                        // of the facet file format, this approach is the least risky.
+                        if( f.m_isQuad )
+                        {
+                            int t1[6] = { f.ind0, f.ind2, f.ind3, materialID, ( int )( i + 1 ), first_facet[k] + 1 };
+                            AppendInts( out, t1, 5, ' ' );
+                            FastFormat::AppendInt( out, t1[5] );
+                            out += '\n';
+                        }
+                    }
+                }, &bar );
             }
             fclose( fp );
         }
