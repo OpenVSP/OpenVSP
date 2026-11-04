@@ -3517,6 +3517,49 @@ void SurfaceIntersectionSingleton::Intersect()
     DeleteUnusedIPnts();
 }
 
+// Delete the items of v not marked to keep, and keep the rest in order.  There can be millions,
+// each a reach to somewhere else in memory, so the list is walked in pieces on several threads.
+template < class T >
+static void DeleteUnkept( SurfaceIntersectionSingleton &mgr, vector< T* > &v, ProgressStage &bar )
+{
+    int n = ( int )v.size();
+    const int piece = 65536;
+    int npiece = ( n + piece - 1 ) / piece;
+    vector< vector< T* > > kept( npiece );
+
+    mgr.RunIndexed( npiece, mgr.StageThreadCount( npiece ), [&]( int k )
+    {
+        int iend = std::min( n, ( k + 1 ) * piece );
+        for ( int i = k * piece ; i < iend ; i++ )
+        {
+            if ( v[i]->m_KeepFlag )
+            {
+                kept[k].push_back( v[i] );
+            }
+            else
+            {
+                delete v[i];
+            }
+        }
+
+        bar.Step( iend - k * piece );
+    } );
+
+    size_t nkeep = 0;
+    for ( int k = 0 ; k < npiece ; k++ )
+    {
+        nkeep += kept[k].size();
+    }
+
+    vector< T* > keep;
+    keep.reserve( nkeep );
+    for ( int k = 0 ; k < npiece ; k++ )
+    {
+        keep.insert( keep.end(), kept[k].begin(), kept[k].end() );
+    }
+    v.swap( keep );
+}
+
 // Delete the intersection points, and the surface points, that no chain uses.  Merging a chain's
 // interior points keeps one of each pair that meet, and the chains that were cleaned away leave
 // theirs; nothing reaches either again.
@@ -3537,51 +3580,11 @@ void SurfaceIntersectionSingleton::DeleteUnusedIPnts()
         }
     }
 
-    size_t nkeep = 0;
-    for ( size_t i = 0; i < m_DelIPntVec.size(); i++ )
-    {
-        if ( m_DelIPntVec[i]->m_KeepFlag )
-        {
-            nkeep++;
-        }
-    }
-    vector< IPnt* > keepipnt;
-    keepipnt.reserve( nkeep );
-    for ( size_t i = 0; i < m_DelIPntVec.size(); i++ )
-    {
-        if ( m_DelIPntVec[i]->m_KeepFlag )
-        {
-            keepipnt.push_back( m_DelIPntVec[i] );
-        }
-        else
-        {
-            delete m_DelIPntVec[i];
-        }
-    }
-    m_DelIPntVec.swap( keepipnt );
+    ProgressStage bar( this, "Delete IPnts", ( int )( m_DelIPntVec.size() + m_DelPuwVec.size() ) );
 
-    nkeep = 0;
-    for ( size_t i = 0; i < m_DelPuwVec.size(); i++ )
-    {
-        if ( m_DelPuwVec[i]->m_KeepFlag )
-        {
-            nkeep++;
-        }
-    }
-    vector< Puw* > keeppuw;
-    keeppuw.reserve( nkeep );
-    for ( size_t i = 0; i < m_DelPuwVec.size(); i++ )
-    {
-        if ( m_DelPuwVec[i]->m_KeepFlag )
-        {
-            keeppuw.push_back( m_DelPuwVec[i] );
-        }
-        else
-        {
-            delete m_DelPuwVec[i];
-        }
-    }
-    m_DelPuwVec.swap( keeppuw );
+    DeleteUnkept( *this, m_DelIPntVec, bar );
+    DeleteUnkept( *this, m_DelPuwVec, bar );
+    bar.End();
 
     // It held every point the patches found, and only building the chains reads it
     vector< IPnt* >().swap( m_AllIPnts );
