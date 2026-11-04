@@ -1694,144 +1694,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     // Build FeaTris
     for ( int i = 0; i < (int)all_face_vec.size(); i++ )
     {
-        vec3d pnt0 = node_vec[all_face_vec[i].ind0];
-        vec3d pnt1 = node_vec[all_face_vec[i].ind1];
-        vec3d pnt2 = node_vec[all_face_vec[i].ind2];
-
-        vec3d avg_pnt;
-        if ( all_face_vec[i].m_isQuad )
-        {
-            const vec3d& pnt3 = node_vec[all_face_vec[i].ind3];
-            avg_pnt = ( pnt0 + pnt1 + pnt2 + pnt3 ) / 4.0;
-        }
-        else
-        {
-            avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
-        }
-
-        if ( all_face_vec[i].CheckDegen() )
-        {
-            printf( "Degenerate face detected\n" );
-            printf( "face: %d nodes: %d %d %d ", i, all_face_vec[i].ind0, all_face_vec[i].ind1, all_face_vec[i].ind2 );
-
-            if ( all_face_vec[i].m_isQuad )
-            {
-                printf( "%d\n", all_face_vec[i].ind3 );
-            }
-            else
-            {
-                printf( "\n" );
-            }
-            pnt0.print( "p0 " );
-            pnt1.print( "p1 " );
-            pnt2.print( "p2 " );
-
-            if ( all_face_vec[i].m_isQuad )
-            {
-                const vec3d& pnt3 = node_vec[all_face_vec[i].ind3];
-                pnt3.print( "p3 " );
-            }
-            printf( "\n\n" );
-        }
-
-        // Determine initial guess for uw near SimpTri center (uw points defining SimpTri can be from different surfaces after adjustments) 
-        vec2d uw_guess;
-
-        if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind0] )
-        {
-            uw_guess = new_uw_vec[all_face_vec[i].ind0];
-        }
-        else if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind1] )
-        {
-            uw_guess = new_uw_vec[all_face_vec[i].ind1];
-        }
-        else if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind2] )
-        {
-            uw_guess = new_uw_vec[all_face_vec[i].ind2];
-        }
-        else if ( all_face_vec[i].m_isQuad && tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind3] )
-        {
-            uw_guess = new_uw_vec[all_face_vec[i].ind3];
-        }
-        else
-        {
-            uw_guess.set_x( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidU() );
-            uw_guess.set_y( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidW() );
-        }
-
-        FeaElement* elem = nullptr;
-        if( all_face_vec[i].m_isQuad )
-        {
-            elem = new FeaQuad;
-            ((FeaQuad*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], node_vec[all_face_vec[i].ind3], highorder );
-            GetMeshPtr()->m_NumQuads++;
-        }
-        else
-        {
-            elem = new FeaTri;
-            ((FeaTri*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], highorder );
-            GetMeshPtr()->m_NumTris++;
-        }
-        elem->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
-        elem->SetFeaPartSurfNum( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum() );
-        elem->SetReason( all_face_vec[i].m_reason );
-
-        vec2d closest_uw = m_SurfVec[tri_surf_ind_vec[i]]->ClosestUW( avg_pnt, uw_guess[0], uw_guess[1] );
-
-        // Determine tangent u-direction for orientation vector at tri midpoint
-        vec3d orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1] );
-
-        // Check for subsurface:
-        if ( all_face_vec[i].m_Tags.size() == 2 )
-        {
-            // First index of m_Tags is the parent surface.  Second index is the tag of a subsurface, set in
-            // CfdMeshMgrSingleton::SetSimpSubSurfTags().
-            int ssindex = SimpSubSurfIndexFromTag( m_SimpleSubSurfaceVec, all_face_vec[i].m_Tags[1] );
-
-            if ( ssindex >= 0 )
-            {
-                elem->SetFeaSSIndex( ssindex );
-
-                int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
-                vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
-                int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
-                const vec3d& defaultorientation = ovec[ surf_num ];
-                orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
-            }
-            if ( false ) // else
-            {
-                printf( "Error:  Failed to match subsurface for element properties.\n" );
-            }
-        }
-        else if ( all_face_vec[i].m_Tags.size() > 2 )
-        {
-            // Give priority to first tagged subsurface in the event of overlap.  Potential to do something more sophisticated later.
-            int ssindex = SimpSubSurfIndexFromTag( m_SimpleSubSurfaceVec, all_face_vec[i].m_Tags[1] );
-
-            if ( ssindex >= 0 )
-            {
-                elem->SetFeaSSIndex( ssindex );
-
-                int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
-                vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
-                int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
-                const vec3d& defaultorientation = ovec[ surf_num ];
-                orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
-            }
-            if ( false ) // else
-            {
-                printf( "Error:  Failed to match subsurface for element properties.\n" );
-            }
-        }
-
-        // Project orientation vector into plane of element.  Will be trivial for u-direction orientation, but
-        // should allow NASTRAN and CalculiX equivalence for other cases.
-        vec3d norm = m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->CompNorm( closest_uw[0], closest_uw[1] );
-        orient_vec = proj_vec_to_plane( orient_vec, norm );
-
-        orient_vec.normalize();
-
-        elem->m_Orientation = orient_vec;
+        FeaElement* elem = BuildFeaShellElement( i, all_face_vec, tri_surf_ind_vec, node_vec, new_uw_vec, new_uw_surf_ind_vec, highorder );
 
         GetMeshPtr()->m_FeaElementVec.push_back( elem );
         GetMeshPtr()->m_NumEls++;
@@ -1855,6 +1718,151 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             }
         }
     }
+}
+
+// The shell element for face i of all_face_vec, which lies on surface tri_surf_ind_vec[i].
+FeaElement* FeaMeshMgrSingleton::BuildFeaShellElement( int i, vector < SimpFace > &all_face_vec, const vector < int > &tri_surf_ind_vec, vector < vec3d > &node_vec, const vector < vec2d > &new_uw_vec, const vector < int > &new_uw_surf_ind_vec, bool highorder )
+{
+    vec3d pnt0 = node_vec[all_face_vec[i].ind0];
+    vec3d pnt1 = node_vec[all_face_vec[i].ind1];
+    vec3d pnt2 = node_vec[all_face_vec[i].ind2];
+
+    vec3d avg_pnt;
+    if ( all_face_vec[i].m_isQuad )
+    {
+        const vec3d& pnt3 = node_vec[all_face_vec[i].ind3];
+        avg_pnt = ( pnt0 + pnt1 + pnt2 + pnt3 ) / 4.0;
+    }
+    else
+    {
+        avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
+    }
+
+    if ( all_face_vec[i].CheckDegen() )
+    {
+        printf( "Degenerate face detected\n" );
+        printf( "face: %d nodes: %d %d %d ", i, all_face_vec[i].ind0, all_face_vec[i].ind1, all_face_vec[i].ind2 );
+
+        if ( all_face_vec[i].m_isQuad )
+        {
+            printf( "%d\n", all_face_vec[i].ind3 );
+        }
+        else
+        {
+            printf( "\n" );
+        }
+        pnt0.print( "p0 " );
+        pnt1.print( "p1 " );
+        pnt2.print( "p2 " );
+
+        if ( all_face_vec[i].m_isQuad )
+        {
+            const vec3d& pnt3 = node_vec[all_face_vec[i].ind3];
+            pnt3.print( "p3 " );
+        }
+        printf( "\n\n" );
+    }
+
+    // Determine initial guess for uw near SimpTri center (uw points defining SimpTri can be from different surfaces after adjustments) 
+    vec2d uw_guess;
+
+    if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind0] )
+    {
+        uw_guess = new_uw_vec[all_face_vec[i].ind0];
+    }
+    else if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind1] )
+    {
+        uw_guess = new_uw_vec[all_face_vec[i].ind1];
+    }
+    else if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind2] )
+    {
+        uw_guess = new_uw_vec[all_face_vec[i].ind2];
+    }
+    else if ( all_face_vec[i].m_isQuad && tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind3] )
+    {
+        uw_guess = new_uw_vec[all_face_vec[i].ind3];
+    }
+    else
+    {
+        uw_guess.set_x( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidU() );
+        uw_guess.set_y( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidW() );
+    }
+
+    FeaElement* elem = nullptr;
+    if( all_face_vec[i].m_isQuad )
+    {
+        elem = new FeaQuad;
+        ((FeaQuad*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], node_vec[all_face_vec[i].ind3], highorder );
+        GetMeshPtr()->m_NumQuads++;
+    }
+    else
+    {
+        elem = new FeaTri;
+        ((FeaTri*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], highorder );
+        GetMeshPtr()->m_NumTris++;
+    }
+    elem->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
+    elem->SetFeaPartSurfNum( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum() );
+    elem->SetReason( all_face_vec[i].m_reason );
+
+    vec2d closest_uw = m_SurfVec[tri_surf_ind_vec[i]]->ClosestUW( avg_pnt, uw_guess[0], uw_guess[1] );
+
+    // Determine tangent u-direction for orientation vector at tri midpoint
+    vec3d orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1] );
+
+    // Check for subsurface:
+    if ( all_face_vec[i].m_Tags.size() == 2 )
+    {
+        // First index of m_Tags is the parent surface.  Second index is the tag of a subsurface, set in
+        // CfdMeshMgrSingleton::SetSimpSubSurfTags().
+        int ssindex = SimpSubSurfIndexFromTag( m_SimpleSubSurfaceVec, all_face_vec[i].m_Tags[1] );
+
+        if ( ssindex >= 0 )
+        {
+            elem->SetFeaSSIndex( ssindex );
+
+            int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
+            vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
+            int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
+            const vec3d& defaultorientation = ovec[ surf_num ];
+            orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
+        }
+        if ( false ) // else
+        {
+            printf( "Error:  Failed to match subsurface for element properties.\n" );
+        }
+    }
+    else if ( all_face_vec[i].m_Tags.size() > 2 )
+    {
+        // Give priority to first tagged subsurface in the event of overlap.  Potential to do something more sophisticated later.
+        int ssindex = SimpSubSurfIndexFromTag( m_SimpleSubSurfaceVec, all_face_vec[i].m_Tags[1] );
+
+        if ( ssindex >= 0 )
+        {
+            elem->SetFeaSSIndex( ssindex );
+
+            int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
+            vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
+            int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
+            const vec3d& defaultorientation = ovec[ surf_num ];
+            orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
+        }
+        if ( false ) // else
+        {
+            printf( "Error:  Failed to match subsurface for element properties.\n" );
+        }
+    }
+
+    // Project orientation vector into plane of element.  Will be trivial for u-direction orientation, but
+    // should allow NASTRAN and CalculiX equivalence for other cases.
+    vec3d norm = m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->CompNorm( closest_uw[0], closest_uw[1] );
+    orient_vec = proj_vec_to_plane( orient_vec, norm );
+
+    orient_vec.normalize();
+
+    elem->m_Orientation = orient_vec;
+
+    return elem;
 }
 
 void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()

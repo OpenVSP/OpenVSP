@@ -131,6 +131,7 @@ public:
     virtual void SetFixPointBorderNodes() override;
     virtual void CheckFixPointIntersects() override;
     virtual void BuildFeaMesh();
+    FeaElement* BuildFeaShellElement( int i, vector < SimpFace > &all_face_vec, const vector < int > &tri_surf_ind_vec, vector < vec3d > &node_vec, const vector < vec2d > &new_uw_vec, const vector < int > &new_uw_surf_ind_vec, bool highorder );
     virtual void CheckSubSurfBorderIntersect();
     virtual void CheckDuplicateSSIntersects();
     virtual void MergeFeaPartSSEdgeOverlap() override;
