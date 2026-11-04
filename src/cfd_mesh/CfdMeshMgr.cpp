@@ -2244,25 +2244,36 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ntristrict );
 
             //==== Write Pnts ====//
-            for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
+            WriteChunked( fp, ( int )allUsedPntVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                fprintf( fp, "%.16g %.16g %.16g\n", allUsedPntVec[i].x(), allUsedPntVec[i].z(), -allUsedPntVec[i].y() );
-            }
+                for ( int i = ibeg ; i < iend ; i++ )
+                {
+                    AppendGTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].z(), -allUsedPntVec[i].y(), 0, 16 );
+                }
+            } );
 
             //==== Write Tris ====//
-            for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+            WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
             {
-                fprintf( fp, "%d %d %d %d.0\n",
-                         allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind1,
-                         SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ) );
-
-                if( allFaceVec[i].m_isQuad )
+                for ( int i = ibeg ; i < iend ; i++ )
                 {
-                    fprintf( fp, "%d %d %d %d.0\n",
-                             allFaceVec[i].ind0, allFaceVec[i].ind3, allFaceVec[i].ind2,
-                             SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ) );
+                    const SimpFace &f = allFaceVec[i];
+                    int tag = SubSurfaceMgr.GetTag( f.m_Tags );
+
+                    int t0[4] = { f.ind0, f.ind2, f.ind1, tag };
+                    AppendInts( out, t0, 3, ' ' );
+                    FastFormat::AppendInt( out, t0[3] );
+                    out += ".0\n";
+
+                    if( f.m_isQuad )
+                    {
+                        int t1[4] = { f.ind0, f.ind3, f.ind2, tag };
+                        AppendInts( out, t1, 3, ' ' );
+                        FastFormat::AppendInt( out, t1[3] );
+                        out += ".0\n";
+                    }
                 }
-            }
+            } );
             fclose( fp );
         }
     }
