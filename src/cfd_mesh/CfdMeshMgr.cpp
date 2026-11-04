@@ -946,7 +946,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
         // One tree over every surface's sources.  Each surface leaves out its own at search time
         // and is limited by the others as they stand, so its limits carry to the surfaces after it.
         MSBoundTree ms_tree;
-        ms_tree.Build( allsources );
+        ms_tree.Build( allsources, nthread );
 
         for ( i = 0 ; i < nsurf ; i++ )
         {

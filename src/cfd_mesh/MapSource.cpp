@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <thread>
 
 // Code-Eli's headers turn floating point contraction off for the rest of each file that includes
 // them, Surf.cpp among them.  Distances and limits here are rounded the same way, term by term.
@@ -18,31 +19,50 @@
 // Sources per leaf.
 static const int MS_LEAF_SIZE = 8;
 
-void MSBoundTree::Build( const vector< MapSource* > &sources )
+void MSBoundTree::Build( const vector< MapSource* > &sources, int nthread )
 {
-    m_TreeSources = sources;
+    int n = ( int )sources.size();
 
-    int n = ( int )m_TreeSources.size();
-
-    m_Nodes.clear();
-    // Leaves hold at least half of MS_LEAF_SIZE sources.
-    m_Nodes.reserve( 2 * ( 2 * n / MS_LEAF_SIZE ) + 1 );
-
-    if ( n > 0 )
+    m_GivenPts.resize( 3 * n );
+    m_TreeIndex.resize( n );
+    for ( int k = 0; k < n; k++ )
     {
-        m_Nodes.push_back( Node() );
-        BuildNode( 0, 0, n );
+        m_GivenPts[ 3 * k ] = sources[k]->m_pt.x();
+        m_GivenPts[ 3 * k + 1 ] = sources[k]->m_pt.y();
+        m_GivenPts[ 3 * k + 2 ] = sources[k]->m_pt.z();
+        m_TreeIndex[k] = k;
     }
 
+    // Branches are built side by side down to the level with a branch for each thread.
+    int nsplit = 0;
+    while ( ( 1 << nsplit ) < nthread )
+    {
+        nsplit++;
+    }
+
+    m_Nodes.clear();
+    m_Descendants.clear();
+    if ( n > 0 )
+    {
+        m_Nodes.resize( 1 + CountDescendants( n ) );
+        BuildNode( 0, 0, n, 1, nsplit );
+    }
+
+    m_TreeSources.resize( n );
     m_Pts.resize( 3 * n );
     m_Surf.resize( n );
     for ( int k = 0; k < n; k++ )
     {
-        m_Pts[ 3 * k ] = m_TreeSources[k]->m_pt.x();
-        m_Pts[ 3 * k + 1 ] = m_TreeSources[k]->m_pt.y();
-        m_Pts[ 3 * k + 2 ] = m_TreeSources[k]->m_pt.z();
+        int igiven = m_TreeIndex[k];
+        m_TreeSources[k] = sources[ igiven ];
+        m_Pts[ 3 * k ] = m_GivenPts[ 3 * igiven ];
+        m_Pts[ 3 * k + 1 ] = m_GivenPts[ 3 * igiven + 1 ];
+        m_Pts[ 3 * k + 2 ] = m_GivenPts[ 3 * igiven + 2 ];
         m_Surf[k] = m_TreeSources[k]->m_surfid;
     }
+    vector< double >().swap( m_GivenPts );
+    vector< int >().swap( m_TreeIndex );
+    m_Descendants.clear();
 
     int nnode = ( int )m_Nodes.size();
     m_Parent.assign( nnode, -1 );
@@ -104,7 +124,42 @@ void MSBoundTree::Build( const vector< MapSource* > &sources )
     UpdateStrengths();
 }
 
-void MSBoundTree::BuildNode( int inode, int begin, int end )
+// The number of nodes below a node over nsrc sources, kept for every node size below it too.  A
+// node's size alone sets the shape of the tree under it.
+int MSBoundTree::CountDescendants( int nsrc )
+{
+    if ( nsrc <= MS_LEAF_SIZE )
+    {
+        return 0;
+    }
+
+    map< int, int >::const_iterator it = m_Descendants.find( nsrc );
+    if ( it != m_Descendants.end() )
+    {
+        return it->second;
+    }
+
+    int nlo = nsrc / 2;
+    int ndesc = 2 + CountDescendants( nlo ) + CountDescendants( nsrc - nlo );
+    m_Descendants[ nsrc ] = ndesc;
+    return ndesc;
+}
+
+// The number of nodes below a node over nsrc sources, as counted.
+int MSBoundTree::Descendants( int nsrc ) const
+{
+    if ( nsrc <= MS_LEAF_SIZE )
+    {
+        return 0;
+    }
+    return m_Descendants.find( nsrc )->second;
+}
+
+// Builds node inode over the sources from begin to end, with the nodes below it from ifirst on:
+// its two children, then everything below the first child, then everything below the second.  So
+// each node comes after its parent.  Down nsplit more levels, the two branches are built side by
+// side.
+void MSBoundTree::BuildNode( int inode, int begin, int end, int ifirst, int nsplit )
 {
     Node node;
     for ( int d = 0; d < 3; d++ )
@@ -115,11 +170,11 @@ void MSBoundTree::BuildNode( int inode, int begin, int end )
 
     for ( int k = begin; k < end; k++ )
     {
+        const double *p = &m_GivenPts[ 3 * m_TreeIndex[k] ];
         for ( int d = 0; d < 3; d++ )
         {
-            double x = m_TreeSources[k]->m_pt.v[d];
-            node.m_Lo[d] = std::min( node.m_Lo[d], x );
-            node.m_Hi[d] = std::max( node.m_Hi[d], x );
+            node.m_Lo[d] = std::min( node.m_Lo[d], p[d] );
+            node.m_Hi[d] = std::max( node.m_Hi[d], p[d] );
         }
     }
 
@@ -146,21 +201,32 @@ void MSBoundTree::BuildNode( int inode, int begin, int end )
     }
 
     int mid = begin + ( end - begin ) / 2;
-    std::nth_element( m_TreeSources.begin() + begin, m_TreeSources.begin() + mid, m_TreeSources.begin() + end,
-                      [dim]( const MapSource* a, const MapSource* b )
+    const double *pts = m_GivenPts.data();
+    std::nth_element( m_TreeIndex.begin() + begin, m_TreeIndex.begin() + mid, m_TreeIndex.begin() + end,
+                      [pts, dim]( int a, int b )
                       {
-                          return a->m_pt.v[dim] < b->m_pt.v[dim];
+                          return pts[ 3 * a + dim ] < pts[ 3 * b + dim ];
                       } );
 
     // The two children sit next to each other, so one index finds both.
-    int c0 = ( int )m_Nodes.size();
-    m_Nodes.push_back( Node() );
-    m_Nodes.push_back( Node() );
+    int c0 = ifirst;
     node.m_Child = c0;
     m_Nodes[inode] = node;
 
-    BuildNode( c0, begin, mid );
-    BuildNode( c0 + 1, mid, end );
+    int ifirst0 = c0 + 2;
+    int ifirst1 = ifirst0 + Descendants( mid - begin );
+
+    if ( nsplit > 0 )
+    {
+        std::thread branch( &MSBoundTree::BuildNode, this, c0, begin, mid, ifirst0, nsplit - 1 );
+        BuildNode( c0 + 1, mid, end, ifirst1, nsplit - 1 );
+        branch.join();
+    }
+    else
+    {
+        BuildNode( c0, begin, mid, ifirst0, 0 );
+        BuildNode( c0 + 1, mid, end, ifirst1, 0 );
+    }
 }
 
 void MSBoundTree::UpdateStrengths()

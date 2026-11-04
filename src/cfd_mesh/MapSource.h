@@ -27,6 +27,7 @@
 
 #include "nanoflann.hpp"
 
+#include <map>
 #include <vector>
 using namespace std;
 
@@ -121,7 +122,8 @@ class MSBoundTree
 {
 public:
 
-    void Build( const vector< MapSource* > &sources );
+    // Built on up to nthread threads.
+    void Build( const vector< MapSource* > &sources, int nthread );
 
     // Takes up the current strengths of the sources.
     void UpdateStrengths();
@@ -161,7 +163,9 @@ private:
         double m_R2;
     };
 
-    void BuildNode( int inode, int begin, int end );
+    int CountDescendants( int nsrc );
+    int Descendants( int nsrc ) const;
+    void BuildNode( int inode, int begin, int end, int ifirst, int nsplit );
     void UpdateNode( int inode );
     double MinDistSq( const Node &node, const double *pt ) const;
     double MinExcluding( const Node &node, int skipsurf ) const;
@@ -170,6 +174,9 @@ private:
 
     vector< Node > m_Nodes;
     vector< MapSource* > m_TreeSources; // In tree order.
+    vector< int > m_TreeIndex;          // Order given, in tree order, while building.
+    vector< double > m_GivenPts;        // xyz in the order given, while building.
+    map< int, int > m_Descendants;      // Nodes below a node of so many sources.
     vector< double > m_Pts;             // xyz in tree order.
     vector< double > m_Str;             // In tree order.
     vector< int > m_Surf;               // In tree order.
