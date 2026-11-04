@@ -1871,9 +1871,15 @@ void Surf::InitMesh( const vector< ISegChain* > &chains, const vector < vec2d > 
         IPnt *ipt = ipnts[k].second;
         vec3d p = CompPnt( uw[0], uw[1] );
 
+        // The points are taken in order of u, so those already numbered are too.  A point
+        // further than the merge tolerance in u alone is further than it in u,w and cannot be
+        // the one taken, so the scan starts at the first point within twice that in u.
+        int istart = std::lower_bound( uwPntVec.begin(), uwPntVec.end(), uw.x() - 2.0e-4,
+                                       []( const vec2d &a, double u ) { return a.x() < u; } ) - uwPntVec.begin();
+
         int min_id = -1;
         double min_dist = 1.0;
-        for ( int i = 0 ; i < ( int )uwPntVec.size() ; i++ )
+        for ( int i = istart ; i < ( int )uwPntVec.size() ; i++ )
         {
             double d = dist( uwPntVec[i], uw );
             if ( d < min_dist && ( tol3d < 0.0 || dist( pntVec[i], p ) < tol3d ) )
