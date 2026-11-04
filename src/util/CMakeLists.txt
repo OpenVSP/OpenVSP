@@ -30,6 +30,7 @@ DrawObj.cpp
 DXFUtil.cpp
 FastFormat.cpp
 FileUtil.cpp
+LocaleUtil.cpp
 PntNodeMerge.cpp
 ProcessUtil.cpp
 Quat.cpp
@@ -57,6 +58,7 @@ DXFUtil.h
 FastFormat.h
 FileUtil.h
 GuiDeviceEnums.h
+LocaleUtil.h
 PntNodeMerge.h
 ProcessUtil.h
 Quat.h
