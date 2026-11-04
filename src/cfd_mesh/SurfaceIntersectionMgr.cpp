@@ -15,6 +15,7 @@
 #include <atomic>
 #include <exception>
 #include <iterator>
+#include <limits>
 #include <queue>
 #include <array>
 #include "SurfaceIntersectionMgr.h"
@@ -1439,7 +1440,7 @@ void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
 void SurfaceIntersectionSingleton::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs )
 {
     m_Vehicle->FetchXFerSurfs( geomvec, xfersurfs, 0, GetSettingsPtr()->m_SplitJoinSurfsFlag,
-                               GetSettingsPtr()->m_HalfMeshFlag );
+                               GetSettingsPtr()->m_HalfMeshFlag, false, StageThreadCount( std::numeric_limits< int >::max() ) );
 }
 
 // n_ref asks each Geom for that many levels of tessellation refinement on the lines its
@@ -1460,8 +1461,10 @@ void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs, in
         }
     }
 
+    // As many threads as the stage may use; the fetch uses no more than it has surfaces.
     m_Vehicle->FetchXFerSurfs( normal_set, degen_set, xfersurfs, n_ref,
-                               GetSettingsPtr()->m_SplitJoinSurfsFlag, GetSettingsPtr()->m_HalfMeshFlag, cfdcaps );
+                               GetSettingsPtr()->m_SplitJoinSurfsFlag, GetSettingsPtr()->m_HalfMeshFlag, cfdcaps,
+                               StageThreadCount( std::numeric_limits< int >::max() ) );
 }
 
 void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, double scale, int start_surf_id )

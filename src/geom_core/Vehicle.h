@@ -315,8 +315,11 @@ public:
         return m_VehProjectVec3d[dir_index];
     }
 
-    void FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs, int n_ref = 0, bool splitjoin = true, bool symcut = false, bool cfdcaps = false );
-    void FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs, int n_ref = 0, bool splitjoin = true, bool symcut = false, bool cfdcaps = false );
+    // nthread surfaces are split at once.  The list comes out the same however many there are.
+    void FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs, int n_ref = 0, bool splitjoin = true, bool symcut = false, bool cfdcaps = false,
+                         int nthread = 1 );
+    void FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs, int n_ref = 0, bool splitjoin = true, bool symcut = false, bool cfdcaps = false,
+                        int nthread = 1 );
     //==== Computation File Names ====//
     string getExportFileName( int type );
     void setExportFileName( int type, const string &f_name );

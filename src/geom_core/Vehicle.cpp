@@ -10,7 +10,13 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#include <atomic>
 #include <cmath>
+#include <exception>
+#include <functional>
+#include <list>
+#include <mutex>
+#include <thread>
 
 #include <filesystem>
 
@@ -5352,10 +5358,143 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set, bool use
     fclose( pov_file );
 }
 
-void Vehicle::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs, int n_ref, bool splitjoin, bool symcut, bool cfdcaps )
+// One surface of one Geom to hand over to a mesher, with everything asked of its Geom.
+struct XFerSurfTask
+{
+    const VspSurf* m_Surf = nullptr;
+    string m_GeomID;
+    string m_Name;
+    int m_MainSurfID = 0;
+    int m_Comp = 0;
+    int m_CopyIndx = 0;
+    int m_SurfNum = 0;
+    bool m_CapUMin = false;
+    bool m_CapUMax = false;
+    vector < double > m_UTess;
+    vector < double > m_WTess;
+};
+
+static XFerSurfTask MakeXFerSurfTask( Geom* geom, const VspSurf* surf, int j, int icomp, int n_ref )
+{
+    XFerSurfTask t;
+    t.m_Surf = surf;
+    t.m_GeomID = geom->GetID();
+    t.m_Name = geom->GetName();
+    t.m_MainSurfID = geom->GetMainSurfID( j );
+    t.m_Comp = icomp;
+    t.m_CopyIndx = geom->GetSurfCopyIndx( j );
+    t.m_SurfNum = j;
+    t.m_CapUMin = geom->GetCapUMinSuccess( t.m_MainSurfID );
+    t.m_CapUMax = geom->GetCapUMaxSuccess( t.m_MainSurfID );
+    geom->GetUWTessSurf( j, t.m_UTess, t.m_WTess, n_ref );
+    return t;
+}
+
+// Split each surface for the mesher, on nthread threads.  A surface is split only through its
+// own data, and each one's pieces are gathered in turn, so the list comes out as it would from
+// one thread.
+static void RunXFerSurfTasks( const vector < XFerSurfTask > &tasks, vector< XferSurf > &xfersurfs,
+                              bool splitjoin, bool symcut, bool cfdcaps, int nthread )
+{
+    int n = ( int )tasks.size();
+    vector < vector < XferSurf > > out( n );
+
+    std::function < void( int ) > body = [&]( int k )
+    {
+        const XFerSurfTask &t = tasks[k];
+        t.m_Surf->FetchXFerSurf( t.m_GeomID, t.m_Name, t.m_MainSurfID, t.m_Comp, t.m_CopyIndx, t.m_SurfNum, out[k],
+                                 std::vector< double >(), std::vector< double >(), t.m_UTess, t.m_WTess,
+                                 t.m_CapUMin, t.m_CapUMax, splitjoin, symcut, cfdcaps );
+    };
+
+    if ( nthread > n )
+    {
+        nthread = n;
+    }
+
+    if ( nthread > 1 )
+    {
+        std::atomic < int > next( 0 );
+        std::exception_ptr err;
+        std::mutex errmutex;
+        vector < std::thread > pool;
+
+        try
+        {
+            for ( int i = 0 ; i < nthread ; i++ )
+            {
+                pool.push_back( std::thread( [&]()
+                {
+                    while ( true )
+                    {
+                        int k = next++;
+                        if ( k >= n )
+                        {
+                            break;
+                        }
+
+                        try
+                        {
+                            body( k );
+                        }
+                        catch ( ... )
+                        {
+                            std::lock_guard < std::mutex > lock( errmutex );
+                            if ( !err )
+                            {
+                                err = std::current_exception();
+                            }
+                            next = n;
+                        }
+                    }
+                } ) );
+            }
+        }
+        catch ( ... )
+        {
+            next = n;
+            err = std::current_exception();
+        }
+
+        for ( int i = 0 ; i < ( int )pool.size() ; i++ )
+        {
+            pool[i].join();
+        }
+
+        if ( err )
+        {
+            std::rethrow_exception( err );
+        }
+    }
+    else
+    {
+        for ( int k = 0 ; k < n ; k++ )
+        {
+            body( k );
+        }
+    }
+
+    size_t ntotal = xfersurfs.size();
+    for ( int k = 0 ; k < n ; k++ )
+    {
+        ntotal += out[k].size();
+    }
+    xfersurfs.reserve( ntotal );
+    for ( int k = 0 ; k < n ; k++ )
+    {
+        for ( int i = 0 ; i < ( int )out[k].size() ; i++ )
+        {
+            xfersurfs.push_back( std::move( out[k][i] ) );
+        }
+    }
+}
+
+void Vehicle::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSurf > &xfersurfs, int n_ref, bool splitjoin, bool symcut, bool cfdcaps,
+                              int nthread )
 {
     vector< Geom* > geom_vec = FindGeomVec( geomvec );
 
+    vector < XFerSurfTask > tasks;
     int icomp = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -5365,21 +5504,23 @@ void Vehicle::FetchXFerSurfs( const vector < string > & geomvec, vector< XferSur
 
         for ( int j = 0; j < num_surf; j++ )
         {
-            vector < double > utess, wtess;
-            geom_vec[i]->GetUWTessSurf( j, utess, wtess, n_ref );
-
-            (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs, std::vector< double >(), std::vector< double >(), utess, wtess,
-                                                 geom_vec[i]->GetCapUMinSuccess( geom_vec[i]->GetMainSurfID( j ) ),
-                                                 geom_vec[i]->GetCapUMaxSuccess( geom_vec[i]->GetMainSurfID( j ) ), splitjoin, symcut, cfdcaps );
+            tasks.push_back( MakeXFerSurfTask( geom_vec[i], &( *surf_vec_ptr )[j], j, icomp, n_ref ) );
             icomp++;
         }
     }
+
+    RunXFerSurfTasks( tasks, xfersurfs, splitjoin, symcut, cfdcaps, nthread );
 }
 
-void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs, int n_ref, bool splitjoin, bool symcut, bool cfdcaps )
+void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs, int n_ref, bool splitjoin, bool symcut, bool cfdcaps,
+                             int nthread )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
+    // The degenerate surfaces asked for are copies, kept here until they are split.
+    std::list < vector < VspSurf > > degen_surfs;
+
+    vector < XFerSurfTask > tasks;
     int icomp = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -5389,7 +5530,6 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
         {
             int num_surf = geom_vec[i]->GetNumTotalSurfs();
 
-            vector<VspSurf> surf_vec;
             const vector<VspSurf> *surf_vec_ptr = nullptr;
 
             if ( innormalset )
@@ -5398,22 +5538,19 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
             }
             else // indegenset
             {
-                surf_vec = geom_vec[i]->GetDegenSurfVec();
-                surf_vec_ptr = &surf_vec;
+                degen_surfs.push_back( geom_vec[i]->GetDegenSurfVec() );
+                surf_vec_ptr = &degen_surfs.back();
             }
 
             for ( int j = 0; j < num_surf; j++ )
             {
-                vector < double > utess, wtess;
-                geom_vec[i]->GetUWTessSurf( j, utess, wtess, n_ref );
-
-                (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetName(), geom_vec[i]->GetMainSurfID( j ), icomp, geom_vec[i]->GetSurfCopyIndx( j ), j, xfersurfs, std::vector< double >(), std::vector< double >(), utess, wtess,
-                                                 geom_vec[i]->GetCapUMinSuccess( geom_vec[i]->GetMainSurfID( j ) ),
-                                                 geom_vec[i]->GetCapUMaxSuccess( geom_vec[i]->GetMainSurfID( j ) ), splitjoin, symcut, cfdcaps );
+                tasks.push_back( MakeXFerSurfTask( geom_vec[i], &( *surf_vec_ptr )[j], j, icomp, n_ref ) );
                 icomp++;
             }
         }
     }
+
+    RunXFerSurfTasks( tasks, xfersurfs, splitjoin, symcut, cfdcaps, nthread );
 }
 
 void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool useMode, const string &modeID )
