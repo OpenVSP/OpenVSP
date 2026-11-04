@@ -1754,13 +1754,18 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     fprintf( fp, "%lld 3 0 0\n", pnCloud.m_NumUsedPts );
 
     //==== Write Model Pnts ====//
-    for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
+    WriteChunked( fp, ( int )allPntVec.size(), [&]( int ibeg, int iend, string &out )
     {
-        if ( pnCloud.UsedNode( i ) )
+        for ( int i = ibeg ; i < iend ; i++ )
         {
-            fprintf( fp, "%d %.16g %.16g %.16g\n", i + 1, allPntVec[i].x(), allPntVec[i].y(), allPntVec[i].z() );
+            if ( pnCloud.UsedNode( i ) )
+            {
+                FastFormat::AppendInt( out, i + 1 );
+                out += ' ';
+                AppendGTriple( out, allPntVec[i].x(), allPntVec[i].y(), allPntVec[i].z(), 0, 16 );
+            }
         }
-    }
+    } );
 
     //==== Write Tris ====//
     fprintf( fp, "# Part 2 - facet list\n" );
@@ -1769,34 +1774,35 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
-        vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
+        const vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+        const vector < int >& key = allPntKey[i];
+        WriteChunked( fp, ( int )sFaceVec.size(), [&]( int ibeg, int iend, string &out )
         {
-            int i0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind0] );
-            int i1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind1] );
-            int i2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind2] );
-            int ind1 = i0 + 1;
-            int ind2 = i1 + 1;
-            int ind3 = i2 + 1;
-            int tag = SubSurfaceMgr.GetTag( sFaceVec[f].m_Tags );
-
-            // <# of polygons> [# of holes] [boundary marker]
-            fprintf( fp, "1 0 %d\n", tag );
-            if( sFaceVec[f].m_isQuad )
+            for ( int f = ibeg ; f < iend ; f++ )
             {
-                int i3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind3] );
-                int ind4 = i3 + 1;
+                const SimpFace &sf = sFaceVec[f];
 
-                // <# of corners> <corner 1> <corner 2> <corner 3> <corner 4>
-                fprintf( fp, "4 %d %d %d %d\n", ind1, ind2, ind3, ind4 );
+                // <# of polygons> [# of holes] [boundary marker]
+                out += "1 0 ";
+                FastFormat::AppendInt( out, SubSurfaceMgr.GetTag( sf.m_Tags ) );
+                out += '\n';
+
+                // <# of corners> <corner 1> <corner 2> <corner 3> [<corner 4>]
+                int corner[4] = { sf.ind0, sf.ind1, sf.ind2, sf.ind3 };
+                int n = 3;
+                if( sf.m_isQuad )
+                {
+                    n = 4;
+                }
+                FastFormat::AppendInt( out, n );
+                for ( int c = 0 ; c < n ; c++ )
+                {
+                    out += ' ';
+                    FastFormat::AppendInt( out, pnCloud.GetNodeUsedIndex( key[ corner[c] ] ) + 1 );
+                }
+                out += '\n';
             }
-            else
-            {
-                // <# of corners> <corner 1> <corner 2> <corner 3>
-                fprintf( fp, "3 %d %d %d\n", ind1, ind2, ind3 );
-            }
-        }
+        } );
     }
 
     fprintf( fp, "# Part 3 - Hole List\n" );
