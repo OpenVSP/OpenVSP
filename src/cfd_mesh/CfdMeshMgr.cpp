@@ -2626,17 +2626,35 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             if ( allowquads )
             {
                 //==== Write Faces ====//
-                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
                 {
-                    if( allFaceVec[i].m_isQuad )
+                    for ( int i = ibeg ; i < iend ; i++ )
                     {
-                        fprintf( fp, "%d 2 %d %d %d %d %d %d\n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                        const SimpFace &f = allFaceVec[i];
+                        FastFormat::AppendInt( out, i + 1 );
+                        if( f.m_isQuad )
+                        {
+                            int ind[6] = { f.ind0, f.ind1, f.ind2, f.ind0, f.ind2, f.ind3 };
+                            out += " 2";
+                            for ( int k = 0 ; k < 6 ; k++ )
+                            {
+                                out += ' ';
+                                FastFormat::AppendInt( out, ind[k] );
+                            }
+                        }
+                        else
+                        {
+                            int ind[3] = { f.ind0, f.ind1, f.ind2 };
+                            out += " 1";
+                            for ( int k = 0 ; k < 3 ; k++ )
+                            {
+                                out += ' ';
+                                FastFormat::AppendInt( out, ind[k] );
+                            }
+                        }
+                        out += '\n';
                     }
-                    else
-                    {
-                        fprintf( fp, "%d 1 %d %d %d\n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
-                    }
-                }
+                } );
             }
             else
             {
@@ -2658,32 +2676,35 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             if ( allowquads )
             {
                 //==== Write Component ID ====//
-                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
                 {
-                    int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
-                    int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+                    const int tricorners[3] = { 0, 1, 2 };
+                    const int quadcorners[6] = { 0, 1, 2, 0, 2, 3 };
 
-                    double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
-                    double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
+                    for ( int i = ibeg ; i < iend ; i++ )
+                    {
+                        int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
+                        int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
 
-                    if( allFaceVec[i].m_isQuad )
-                    {
-                        fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", i + 1, part, tag,
-                             allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
-                             allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
-                             allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale,
-                             allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
-                             allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale,
-                             allUWVec[4 * i + 3].x() / uscale, allUWVec[4 * i + 3].y() / wscale );
+                        double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
+                        double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
+
+                        FastFormat::AppendInt( out, i + 1 );
+                        out += ' ';
+                        FastFormat::AppendInt( out, part );
+                        out += ' ';
+                        FastFormat::AppendInt( out, tag );
+                        if( allFaceVec[i].m_isQuad )
+                        {
+                            AppendUWCorners( out, &allUWVec[4 * i], quadcorners, 6, uscale, wscale );
+                        }
+                        else
+                        {
+                            AppendUWCorners( out, &allUWVec[4 * i], tricorners, 3, uscale, wscale );
+                        }
+                        out += '\n';
                     }
-                    else
-                    {
-                        fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", i + 1, part, tag,
-                                 allUWVec[4 * i + 0].x() / uscale, allUWVec[4 * i + 0].y() / wscale,
-                                 allUWVec[4 * i + 1].x() / uscale, allUWVec[4 * i + 1].y() / wscale,
-                                 allUWVec[4 * i + 2].x() / uscale, allUWVec[4 * i + 2].y() / wscale );
-                    }
-                }
+                } );
             }
             else
             {
