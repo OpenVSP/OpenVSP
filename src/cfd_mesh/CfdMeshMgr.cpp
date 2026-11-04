@@ -143,7 +143,6 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Cleanup\n" );
     CleanUp();
 
-    addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
 
     if ( GetSettingsPtr()->m_IntersectSubSurfs )
@@ -204,7 +203,6 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Sub Tag tris\n" );
     SubTagTris();
 
-    addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
     if ( GetSettingsPtr()->m_ConvertToQuadsFlag )
@@ -213,11 +211,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
         ConvertToQuads();
     }
 
-    addOutputText( "ConnectBorderNodes\n" );
     ConnectBorderNodes( false );        // No Wakes
     ConnectBorderNodes( true );         // Only Wakes
 
-    addOutputText( "Post Mesh\n" );
     PostMesh();
 
     //addOutputText( "Triangle Quality\n");
@@ -229,7 +225,6 @@ void CfdMeshMgrSingleton::GenerateMesh()
 
     ExportFiles();
 
-    addOutputText( "Check Water Tight\n" );
     string resultTxt = CheckWaterTight();
     addOutputText( resultTxt );
 

@@ -831,7 +831,6 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Cleanup\n" );
     CleanUp();
 
-    addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
 
     if ( GetSettingsPtr()->m_IntersectSubSurfs )
@@ -996,7 +995,6 @@ void SurfaceIntersectionSingleton::LimitedIntersectSurfaces( const vector < stri
     addOutputText( "Cleanup\n" );
     CleanUp();
 
-    addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
 
     addOutputText( "Clean Merge Surfs\n" );
@@ -3690,15 +3688,12 @@ void SurfaceIntersectionSingleton::Intersect()
 
     // WriteISegs();
 
-    addOutputText( "BuildChains\n" );
     BuildChains();
     // DebugWriteChains( "BuildChains", false );
 
-    addOutputText( "CleanChains\n" );
     CleanChains();
     // DebugWriteChains( "CleanChains", false );
 
-    addOutputText( "RefineChains\n" );
     RefineChains();
     // DebugWriteChains( "RefineChains", false );
 
@@ -3708,7 +3703,6 @@ void SurfaceIntersectionSingleton::Intersect()
     LoadBorderCurves();
     // DebugWriteChains( "LoadBorderCurves", false );
 
-    addOutputText( "MergeInteriorChainIPnts\n" );
     MergeInteriorChainIPnts();
     // DebugWriteChains( "MergeInteriorChainIPnts", false );
 
@@ -3728,7 +3722,6 @@ void SurfaceIntersectionSingleton::Intersect()
     addOutputText( "SplitNearlyTouchingChains\n" );
     SplitNearlyTouchingChains();
 
-    addOutputText( "BuildCurves\n" );
     BuildCurves();
     // DebugWriteChains( "BuildCurves", false );
 

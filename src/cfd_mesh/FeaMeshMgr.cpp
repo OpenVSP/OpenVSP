@@ -527,7 +527,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
 
-    addOutputText( "Load Surfaces\n" );
     LoadSurfaces();
 
     if ( m_SurfVec.size() == 0 )
@@ -577,7 +576,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Merge Co-Planar Parts\n" );
     MergeCoplanarParts();
 
-    addOutputText( "Add Structure Parts\n" );
     AddStructureSurfParts();
 
     addOutputText( "Clean Merge Surfs\n" );
@@ -640,7 +638,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Set Fixed Points\n" );
     SetFixPointSurfaceNodes();
 
-    addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
     if ( GetMeshPtr() && GetMeshPtr()->m_StructSettings.m_ConvertToQuadsFlag )
@@ -649,11 +646,9 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
         ConvertToQuads();
     }
 
-    addOutputText( "ConnectBorderNodes\n" );
     ConnectBorderNodes( false );        // No Wakes
     ConnectBorderNodes( true );         // Only Wakes
 
-    addOutputText( "Post Mesh\n" );
     PostMesh();
 
     addOutputText( "Build Single Tag Map\n" );
