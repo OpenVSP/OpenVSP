@@ -6184,9 +6184,9 @@ void SurfaceIntersectionSingleton::SplitNearlyTouchingChains()
 
                     PNTreeResults matches;
                     nanoflann::SearchParameters params;
-                    index.radiusSearch( &pa[0], best * best, matches, params );
+                    int nmatch = ( int )index.radiusSearch( &pa[0], best * best, matches, params );
 
-                    for ( int m = 0 ; m < ( int )matches.size() ; m++ )
+                    for ( int m = 0 ; m < nmatch ; m++ )
                     {
                         int kb = matches[m].first;
                         vec3d pb = b->m_ISegVec[kb]->m_IPnt[1]->m_Pnt;

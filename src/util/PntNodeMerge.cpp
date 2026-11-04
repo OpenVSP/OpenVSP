@@ -191,14 +191,14 @@ void IndexPntNodes( PntNodeCloud & cloud, double tolsq, bool keep_matches )
             nanoflann::SearchParameters params;
             // L2_Simple_Adaptor works in squared distance, so the radius handed to
             // radiusSearch is squared.
-            cloud.m_index->radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tolsq, ret_matches, params );
+            size_t nmatch = cloud.m_index->radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tolsq, ret_matches, params );
 
             if ( keep_matches )
             {
                 cloud.m_MatchStart.push_back( ( long long int )cloud.m_MatchVec.size() );
             }
 
-            for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
+            for ( size_t j = 0 ; j < nmatch ; j++ )
             {
                 unsigned int m_ind = ret_matches[j].first;
                 cloud.m_PntNodes[ m_ind ].m_Index = i;
@@ -248,10 +248,10 @@ void FindPntNodesWithinTolSq( const PntNodeCloud & cloud, const vec3d & pnt, dou
     params.sorted = false;
 
     vec3d p = pnt;
-    cloud.m_index->radiusSearch( &p[0], tolsq, matches, params );
+    size_t nmatch = cloud.m_index->radiusSearch( &p[0], tolsq, matches, params );
 
-    found.resize( matches.size() );
-    for ( size_t i = 0; i < matches.size(); i++ )
+    found.resize( nmatch );
+    for ( size_t i = 0; i < nmatch; i++ )
     {
         found[i] = matches[i].first;
     }

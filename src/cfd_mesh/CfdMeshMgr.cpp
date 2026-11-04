@@ -6485,9 +6485,9 @@ void CfdMeshMgrSingleton::MergeCoincidentTessPnts()
     {
         std::vector < nanoflann::ResultItem < unsigned int, double > > ret_matches;
         nanoflann::SearchParameters params;
-        index.radiusSearch( &cloud.m_IPnts[i]->m_Pnt[0], tol, ret_matches, params );
+        size_t nmatch = index.radiusSearch( &cloud.m_IPnts[i]->m_Pnt[0], tol, ret_matches, params );
 
-        for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
+        for ( size_t j = 0 ; j < nmatch ; j++ )
         {
             IPnt* a = cloud.m_IPnts[i];
             IPnt* b = cloud.m_IPnts[ ret_matches[j].first ];
