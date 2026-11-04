@@ -7930,21 +7930,27 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     //==== Check For Half Mesh ====//
     if ( GetSettingsPtr()->m_HalfMeshFlag )
     {
-        for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+        // Finding a face's centre projects onto that face's own surface and nothing else, and
+        // each surface writes only its own faces' flags, so the surfaces run side by side.
+        int nsurf = ( int )m_SurfVec.size();
+        RunIndexed( nsurf, StageThreadCount( nsurf ), [&]( int hs )
         {
-            if ( ! m_SurfVec[s]->GetSymPlaneFlag() )
+            if ( ! m_SurfVec[hs]->GetSymPlaneFlag() )
             {
-                const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-                for ( f = faceList.begin() ; f != faceList.end(); ++f )
+                const list <Face*> &faceList = m_SurfVec[ hs ]->GetMesh()->GetFaceList();
+                for ( list< Face* >::const_iterator hf = faceList.begin() ; hf != faceList.end(); ++hf )
                 {
-                    vec3d cp = ( *f )->ComputeCenterPnt( m_SurfVec[s] );
+                    vec3d cp = ( *hf )->ComputeCenterPnt( m_SurfVec[hs] );
                     if ( cp[1] < -1.0e-10 )
                     {
-                        ( *f )->deleteFlag = true;
+                        ( *hf )->deleteFlag = true;
                     }
                 }
             }
+        } );
 
+        for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+        {
             if( !GetSettingsPtr()->m_FarMeshFlag ) // Don't keep symmetry plane.
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() )
