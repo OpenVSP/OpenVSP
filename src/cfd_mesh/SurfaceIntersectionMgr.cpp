@@ -3274,40 +3274,39 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad 
     double y_dist = 1.0 + big_box.GetMax( 1 ) - big_box.GetMin( 1 );
     double z_dist = 1.0 + big_box.GetMax( 2 ) - big_box.GetMin( 2 );
 
-    list< ISegChain* >::iterator i_seg;
+    // Whether each chain lies inside another component, and inside a negative one.  The ray
+    // tests only read the surfaces' patches, so the chains are taken on several threads.
+    vector< ISegChain* > chains( m_ISegChainList.begin(), m_ISegChainList.end() );
+    int nchain = ( int )chains.size();
+    vector < char > internal_vec( nchain, 0 );
+    vector < char > negative_vec( nchain, 0 );
 
-    bool cached = cad && m_ChainCADVec.size() == m_ISegChainList.size();
-
-    int icurve = 0;
-    int ichain = -1;
-    for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
+    if ( classify )
     {
-        ichain++;
-
-        // A patch join is a crease for the mesher inside one surface, which the surface
-        // carries exactly already
-        if ( ( *i_seg )->m_PatchJoinFlag )
+        RunIndexed( nchain, StageThreadCount( nchain ), [&]( int k )
         {
-            continue;
-        }
+            ISegChain* chain = chains[k];
 
-        bool internal_flag = false, ss_flag = false, wake_flag = false;
-        bool in_negative = false;
+            if ( chain->m_PatchJoinFlag )
+            {
+                return;
+            }
 
-        if ( classify )
-        {
+            bool internal_flag = false;
+            bool in_negative = false;
+
             // Check if the curve is interenal or external
             // Identify test point
             vec3d cp;
-            if ( ( *i_seg )->m_ISegVec.size() <= 2 )
+            if ( chain->m_ISegVec.size() <= 2 )
             {
                 // Take midpoint of first segment
-                cp = ( ( *i_seg )->m_ISegVec[0]->m_IPnt[0]->m_Pnt + ( *i_seg )->m_ISegVec[0]->m_IPnt[1]->m_Pnt ) / 2.0;
+                cp = ( chain->m_ISegVec[0]->m_IPnt[0]->m_Pnt + chain->m_ISegVec[0]->m_IPnt[1]->m_Pnt ) / 2.0;
             }
             else
             {
                 // Identify point approximately halfway on border curve
-                cp = ( *i_seg )->m_ISegVec[( *i_seg )->m_ISegVec.size() / 2]->m_IPnt[0]->m_Pnt;
+                cp = chain->m_ISegVec[chain->m_ISegVec.size() / 2]->m_IPnt[0]->m_Pnt;
             }
 
             // Check 3 directions and take majority result
@@ -3320,7 +3319,7 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad 
             // from a vector that exactly aligns with another curve
             for ( size_t j = 0; j < m_NumComps; j++ )
             {
-                if ( j == ( *i_seg )->m_SurfA->GetCompID() || j == ( *i_seg )->m_SurfB->GetCompID() )
+                if ( j == chain->m_SurfA->GetCompID() || j == chain->m_SurfB->GetCompID() )
                 {
                     continue;
                 }
@@ -3356,7 +3355,7 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad 
                 // Check if inside a negative component
                 for ( size_t j = 0; j < m_NumComps; j++ )
                 {
-                    if ( j == ( *i_seg )->m_SurfA->GetCompID() || j == ( *i_seg )->m_SurfB->GetCompID() )
+                    if ( j == chain->m_SurfA->GetCompID() || j == chain->m_SurfB->GetCompID() )
                     {
                         continue;
                     }
@@ -3385,6 +3384,36 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec( bool classify, bool cad 
                     }
                 }
             }
+
+            internal_vec[k] = internal_flag;
+            negative_vec[k] = in_negative;
+        } );
+    }
+
+    list< ISegChain* >::iterator i_seg;
+
+    bool cached = cad && m_ChainCADVec.size() == m_ISegChainList.size();
+
+    int icurve = 0;
+    int ichain = -1;
+    for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
+    {
+        ichain++;
+
+        // A patch join is a crease for the mesher inside one surface, which the surface
+        // carries exactly already
+        if ( ( *i_seg )->m_PatchJoinFlag )
+        {
+            continue;
+        }
+
+        bool internal_flag = false, ss_flag = false, wake_flag = false;
+        bool in_negative = false;
+
+        if ( classify )
+        {
+            internal_flag = internal_vec[ ichain ];
+            in_negative = negative_vec[ ichain ];
         }
 
         if ( !( *i_seg )->m_BorderFlag && ( ( *i_seg )->m_SurfA->GetCompID() == ( *i_seg )->m_SurfB->GetCompID() ) )
