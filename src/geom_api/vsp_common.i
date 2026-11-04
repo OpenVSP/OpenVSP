@@ -62,7 +62,16 @@
 #include "Vec3d.h"
 #include "Vec2d.h"
 #include "Matrix4d.h"
+#include "LocaleUtil.h"
 %}
+
+/* Every call runs with the "C" numeric locale on the calling thread, so the numbers in files
+   OpenVSP writes and reads keep a '.' decimal point whatever locale the host program has set:
+   Qt and Tk set the user's locale, and so does locale.setlocale( locale.LC_ALL, "" ). */
+%exception {
+    CNumericLocaleGuard locale_guard;
+    $action
+}
 
 %include stl.i
 /* instantiate the required template specializations */
