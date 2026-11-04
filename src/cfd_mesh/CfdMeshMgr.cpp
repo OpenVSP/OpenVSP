@@ -6379,8 +6379,8 @@ void CfdMeshMgrSingleton::MergeCoincidentTessPnts()
     double tol = GetGridDensityPtr()->m_MinLen / 100.0;
     tol = tol * tol;
 
+    // The constructor builds the tree.
     IPntTree index( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
-    index.buildIndex();
 
     vector< int > parent( cloud.m_IPnts.size() );
     for ( size_t i = 0 ; i < parent.size() ; i++ )
