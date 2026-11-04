@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-void exactinit();
+void exactinit( void );
 
 #ifdef LIBIGL_PREDICATES_USE_FLOAT
 typedef float IGL_PREDICATES_REAL;
