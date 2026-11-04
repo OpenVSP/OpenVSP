@@ -363,6 +363,7 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
 
     m_ProgressTotal = 0;
     m_ProgressDone = 0;
+    m_WriteBar = nullptr;
 
     // A mesh belongs to the model it was built from, so it has to go when that model does.
     m_RenewListener.SetMgr( this );
@@ -629,6 +630,11 @@ void SurfaceIntersectionSingleton::WriteChunked( FILE* fp, int n,
         return;
     }
 
+    if ( !bar )
+    {
+        bar = m_WriteBar;
+    }
+
     // Large enough that a chunk is worth handing to a thread, small enough that the chunks in
     // flight are a few megabytes between them.
     const int chunkitems = 2048;
@@ -773,6 +779,26 @@ void SurfaceIntersectionSingleton::WriteChunked( FILE* fp, int n,
     {
         std::rethrow_exception( err );
     }
+}
+
+void SurfaceIntersectionSingleton::WriteFileStage( const string &label, int n, const std::function< void() > &write )
+{
+    ProgressStage bar( this, label, n );
+
+    ProgressStage *outer = m_WriteBar;
+    m_WriteBar = &bar;
+
+    try
+    {
+        write();
+    }
+    catch ( ... )
+    {
+        m_WriteBar = outer;
+        throw;
+    }
+
+    m_WriteBar = outer;
 }
 
 void SurfaceIntersectionSingleton::IntersectSurfaces()
@@ -1087,6 +1113,13 @@ void SurfaceIntersectionSingleton::BeginProgress( const string &label, int n, in
 void SurfaceIntersectionSingleton::DrawProgress( int done, char term, int output_type )
 {
     const int nbar = 24;
+
+    // A count that was only an estimate stops at the total.
+    if ( done > m_ProgressTotal )
+    {
+        done = m_ProgressTotal;
+    }
+
     int nfill = ( nbar * done ) / m_ProgressTotal;
 
     char bar[nbar + 1];

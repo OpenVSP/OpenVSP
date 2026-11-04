@@ -1012,24 +1012,25 @@ void FeaMesh::ExportFeaMesh()
         return;
     }
 
+    // Each file's bar counts about its nodes and elements, or its elements for STL.
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
     {
-        WriteSTL();
+        FeaMeshMgr.WriteFileStage( "Write STL", ( int )m_NumEls, [&]() { WriteSTL(); } );
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
     {
-        WriteNASTRAN();
+        FeaMeshMgr.WriteFileStage( "Write NASTRAN", ( int )( m_NumNodes + m_NumEls ), [&]() { WriteNASTRAN(); } );
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
     {
-        WriteCalculix();
+        FeaMeshMgr.WriteFileStage( "Write Calculix", ( int )( m_NumNodes + m_NumEls ), [&]() { WriteCalculix(); } );
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
     {
-        WriteGmsh();
+        FeaMeshMgr.WriteFileStage( "Write GMSH", ( int )( m_NumNodes + m_NumEls ), [&]() { WriteGmsh(); } );
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )

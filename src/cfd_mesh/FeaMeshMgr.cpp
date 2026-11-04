@@ -3493,24 +3493,27 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
     }
     connoffset = noffset;
 
+    // Each file's bar counts about the structures' nodes and elements, or their elements for STL.
+    int nitem = ( int )( feacount.m_NumNodes + feacount.m_NumEls );
+
     if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
     {
-        WriteAssemblyCalculix( assembly_id, feacount );
+        WriteFileStage( "Write Calculix", nitem, [&]() { WriteAssemblyCalculix( assembly_id, feacount ); } );
     }
 
     if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
     {
-        WriteAssemblyNASTRAN( assembly_id, feacount, connoffset );
+        WriteFileStage( "Write NASTRAN", nitem, [&]() { WriteAssemblyNASTRAN( assembly_id, feacount, connoffset ); } );
     }
 
     if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
     {
-        WriteAssemblySTL( assembly_id );
+        WriteFileStage( "Write STL", ( int )feacount.m_NumEls, [&]() { WriteAssemblySTL( assembly_id ); } );
     }
 
     if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
     {
-        WriteAssemblyGmsh( assembly_id );
+        WriteFileStage( "Write GMSH", nitem, [&]() { WriteAssemblyGmsh( assembly_id ); } );
     }
 
     if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )

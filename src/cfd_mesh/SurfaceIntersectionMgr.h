@@ -628,8 +628,15 @@ public:
     // Write n items to fp, formatting them on several threads and writing them out in order.
     // body( ibeg, iend, out ) appends items [ibeg,iend) to out, and must depend on nothing
     // but those items.  The chunks go to the file in order, so the result is byte for byte
-    // the file the plain loop wrote.  A bar, if given, counts the items as they are written.
+    // the file the plain loop wrote.  A bar, if given, counts the items as they are written; if
+    // not, the bar of the WriteFileStage the call is made from does.
     void WriteChunked( FILE* fp, int n, const std::function< void( int, int, string & ) > &body, ProgressStage *bar = nullptr );
+
+    // Run write() under one bar of n items, counted by every WriteChunked call it makes however
+    // deep, for a file written from many places.  n need only be about right: the count drawn
+    // stops at n, and the bar ends full.
+    void WriteFileStage( const string &label, int n, const std::function< void() > &write );
+    ProgressStage *m_WriteBar;
 
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
