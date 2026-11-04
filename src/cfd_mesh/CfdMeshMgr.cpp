@@ -1951,6 +1951,8 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
     FILE* file_id = fopen( filename.c_str(), "w" );
     if ( file_id )
     {
+        ProgressStage bar( this, "Write STL", ( int )allFaceVec.size() );
+
         std::vector< int > tags = SubSurfaceMgr.GetAllTags();
 
         // Which faces belong to each tag, gathered in one pass.  Asking every face about
@@ -1993,7 +1995,7 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
                         AppendSTLFacet( out, norm, p0, p2, p3 );
                     }
                 }
-            } );
+            }, &bar );
 
             fprintf( file_id, "endsolid %s\n", tagname.c_str() );
         }
@@ -2007,6 +2009,13 @@ void CfdMeshMgrSingleton::WriteSTL( const string &filename )
     FILE* file_id = fopen( filename.c_str(), "w" );
     if ( file_id )
     {
+        int nface = 0;
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+        {
+            nface += m_SurfVec[ i ]->GetMesh()->GetNumSimpFaces();
+        }
+        ProgressStage bar( this, "Write STL", nface );
+
         int numwake = 0;
         fprintf( file_id, "solid\n" );
         for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -2017,7 +2026,7 @@ void CfdMeshMgrSingleton::WriteSTL( const string &filename )
                 WriteChunked( file_id, msh->GetNumSimpFaces(), [&]( int ibeg, int iend, string &out )
                 {
                     msh->AppendSimpleSTL( ibeg, iend, out );
-                } );
+                }, &bar );
             }
             else
             {
@@ -2037,7 +2046,7 @@ void CfdMeshMgrSingleton::WriteSTL( const string &filename )
                     WriteChunked( file_id, msh->GetNumSimpFaces(), [&]( int ibeg, int iend, string &out )
                     {
                         msh->AppendSimpleSTL( ibeg, iend, out );
-                    } );
+                    }, &bar );
                 }
             }
             fprintf( file_id, "endsolid wake\n" );
