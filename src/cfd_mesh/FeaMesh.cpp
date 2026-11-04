@@ -1389,14 +1389,30 @@ void FeaMesh::WriteNASTRANSPC1( FILE *bdf_fp )
         vector < int > untagged_nodes, nodes;
         IndexNodesByTag( single_nodes, untagged_nodes );
 
+        // The nodes that carry each tag, among others or alone, in order.
+        vector < vector < int > > tag_nodes( m_NumFeaParts + m_NumFeaSubSurfs );
+        for ( int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+        {
+            const vector < int > & tags = m_FeaNodeVec[j]->m_Tags;
+            for ( size_t m = 0; m < tags.size(); m++ )
+            {
+                if ( tags[m] >= 0 && tags[m] < (int)tag_nodes.size() )
+                {
+                    tag_nodes[ tags[m] ].push_back( j );
+                }
+            }
+        }
+
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             bool FPHeader = false;
 
             if ( m_FeaPartTypeVec[i] == vsp::FEA_FIX_POINT ) // FixedPoint Nodes
             {
-                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+                const vector < int > & tagged = ListAt( tag_nodes, i );
+                for ( size_t k = 0; k < tagged.size(); k++ )
                 {
+                    int j = tagged[k];
                     if ( m_FeaNodeVecUsed[ j ] )
                     {
                         if ( m_FeaNodeVec[j]->m_Tags.size() > 0 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
