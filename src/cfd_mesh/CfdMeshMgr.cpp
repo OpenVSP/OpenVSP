@@ -1817,6 +1817,44 @@ void CfdMeshMgrSingleton::MergeSurfPnts( const vector< bool > &use, vector< vect
     }
 }
 
+void CfdMeshMgrSingleton::GroupFacesByTag( const vector< const vector < int >* > &faceTags, const vector< int > &tags,
+                                            vector< vector< int > > &groups )
+{
+    std::map< int, int > tagpos;
+    for ( int itag = 0; itag < ( int ) tags.size(); itag++ )
+    {
+        tagpos[ tags[itag] ] = itag;
+    }
+
+    int nface = ( int )faceTags.size();
+    vector < int > pos( nface, -1 );
+
+    const int chunkitems = 4096;
+    int nchunk = ( nface + chunkitems - 1 ) / chunkitems;
+    RunIndexed( nchunk, StageThreadCount( nchunk ), [&]( int c )
+    {
+        int iend = std::min( nface, ( c + 1 ) * chunkitems );
+        for ( int f = c * chunkitems ; f < iend ; f++ )
+        {
+            std::map< int, int >::const_iterator it = tagpos.find( SubSurfaceMgr.GetTag( *faceTags[f] ) );
+            if ( it != tagpos.end() )
+            {
+                pos[f] = it->second;
+            }
+        }
+    } );
+
+    groups.clear();
+    groups.resize( tags.size() );
+    for ( int f = 0; f < nface; f++ )
+    {
+        if ( pos[f] >= 0 )
+        {
+            groups[ pos[f] ].push_back( f );
+        }
+    }
+}
+
 void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
 {
     //==== Find All Points and Tri Counts ====//
@@ -1832,8 +1870,11 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
     MergeSurfPnts( vector< bool >( m_SurfVec.size(), true ), usedKey, allUsedPntVec, nullptr );
 
     //==== Assemble Normal Tris ====//
+    // Each face's tags are pointed to, not copied.
     vector< SimpFace > allFaceVec;
     allFaceVec.reserve( nallface );
+    vector< const vector < int >* > allTagsVec;
+    allTagsVec.reserve( nallface );
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
@@ -1851,7 +1892,7 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
                 sface.ind3 = usedKey[i][sFaceVec[f].ind3];
             }
 
-            sface.m_Tags = sFaceVec[f].m_Tags;
+            allTagsVec.push_back( &sFaceVec[f].m_Tags );
             allFaceVec.push_back( sface );
         }
     }
@@ -1867,22 +1908,8 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
         // Which faces belong to each tag, gathered in one pass.  Asking every face about
         // every tag in turn is a walk of the whole mesh per tag, and a model can carry
         // dozens of tags.
-        std::map< int, int > tagpos;
-        for ( int itag = 0; itag < ( int ) tags.size(); itag++ )
-        {
-            tagpos[ tags[itag] ] = itag;
-        }
-
-        vector < vector < int > > tagface( tags.size() );
-        for ( int f = 0; f < ( int ) allFaceVec.size(); f++ )
-        {
-            std::map< int, int >::const_iterator it = tagpos.find( SubSurfaceMgr.GetTag( allFaceVec[f].m_Tags ) );
-
-            if ( it != tagpos.end() )
-            {
-                tagface[ it->second ].push_back( f );
-            }
-        }
+        vector < vector < int > > tagface;
+        GroupFacesByTag( allTagsVec, tags, tagface );
 
         for ( int itag = 0; itag < ( int ) tags.size(); itag++ )
         {
@@ -3331,8 +3358,11 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
     MergeSurfPnts( notwake, allPntKey, allUsedPntVec, nullptr );
 
     //==== Assemble Normal Tris ====//
+    // Each face's tags are pointed to, not copied.
     vector< SimpFace > allFaceVec;
     allFaceVec.reserve( nallface );
+    vector< const vector < int >* > allTagsVec;
+    allTagsVec.reserve( nallface );
     for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
     {
         if ( !m_SurfVec[i]->GetWakeFlag() )
@@ -3348,7 +3378,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
                 sface.ind0 = i0 + 1;
                 sface.ind1 = i1 + 1;
                 sface.ind2 = i2 + 1;
-                sface.m_Tags = sFaceVec[f].m_Tags;
+                allTagsVec.push_back( &sFaceVec[f].m_Tags );
                 if ( sFaceVec[f].m_isQuad )
                 {
                     sface.m_isQuad = true;
@@ -3401,20 +3431,8 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
             vector < int > all_tag_vec = SubSurfaceMgr.GetAllTags(); // vector of tags, where each tag identifies a part or group of facets
 
             // The faces of each part, in the order they come, each face's tag looked up once.
-            std::map < int, int > tag_part;
-            for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
-            {
-                tag_part[ all_tag_vec[i] ] = i;
-            }
-            vector < vector < int > > part_faces( all_tag_vec.size() );
-            for ( unsigned int j = 0; j < allFaceVec.size(); j++ )
-            {
-                std::map < int, int >::const_iterator it = tag_part.find( SubSurfaceMgr.GetTag( allFaceVec[j].m_Tags ) );
-                if ( it != tag_part.end() )
-                {
-                    part_faces[ it->second ].push_back( j );
-                }
-            }
+            vector < vector < int > > part_faces;
+            GroupFacesByTag( allTagsVec, all_tag_vec, part_faces );
 
             //==== Get # of facets for each part ====//
             for ( unsigned int i = 0; i < all_tag_vec.size(); i++ )
@@ -3450,7 +3468,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
                 }
 
                 // Write small part header
-                string name = SubSurfaceMgr.GetTagNames( allFaceVec[ faces[0] ].m_Tags );
+                string name = SubSurfaceMgr.GetTagNames( *allTagsVec[ faces[0] ] );
                 fprintf( fp, "%s\n", name.c_str() ); // Write name of small part
                 fprintf( fp, "%d 3\n", face_offset[i] ); // Number of facets for the part, 3 nodes per facet
 
@@ -4725,7 +4743,6 @@ void CfdMeshMgrSingleton::WritePOGS( const string &pogs_fn )
                     ntristrict++; // Bonus tri for split quad.
                 }
 
-                sface.m_Tags = sFaceVec[t].m_Tags;
                 sface.m_iSurf = i;
                 ntristrict++;
                 allFaceVec.push_back( sface );

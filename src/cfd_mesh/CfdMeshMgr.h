@@ -168,6 +168,11 @@ public:
     virtual void WriteTagFile( FILE* file_id, const vector < char > &match, const vector < int > &faceCombo,
                                const vector< SimpFace > &allFaceVec, bool allowquads );
     virtual void WriteFacet( const string &facet_fn );
+
+    // The faces carrying each of tags, by position in faceTags and in that order.  A face is
+    // put with the last of tags that equals its tag.
+    void GroupFacesByTag( const vector< const vector < int >* > &faceTags, const vector< int > &tags,
+                          vector< vector< int > > &groups );
     virtual void WritePOGS( const string &pogs_fn );
     virtual void ReportPOGSWrite( const string &fn, bool ok );
     virtual bool WritePOGSSurfFile( const string &uvin_fn, const string &uv_fn,
