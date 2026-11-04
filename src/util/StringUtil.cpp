@@ -4,6 +4,7 @@
 //
 
 #include "StringUtil.h"
+#include "FastFormat.h"
 #include "APIDefines.h"
 #include <cctype>
 #include <algorithm>
@@ -318,6 +319,94 @@ string StringUtil::NasFmt( double input )
         else
         {
             return string( "%8.1e" );
+        }
+    }
+}
+
+void StringUtil::AppendNas( string &out, double input )
+{
+    double x = input + 0.0;
+    double ax = std::abs( x );
+    if ( x > 0 )
+    {
+        if ( ax < 0.001 )
+        {
+            FastFormat::AppendE( out, input, 8, 2 );
+        }
+        else if ( ax < 10.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 6 );
+        }
+        else if ( ax < 100.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 5 );
+        }
+        else if ( ax < 1000.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 4 );
+        }
+        else if ( ax < 10000.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 3 );
+        }
+        else if ( ax < 100000.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 2 );
+        }
+        else if ( ax < 1000000.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 1 );
+        }
+        else if ( ax < 10000000.0 )
+        {
+            FastFormat::AppendF( out, input, 7, 0 );
+            out += '.';
+        }
+        else
+        {
+            FastFormat::AppendE( out, input, 8, 2 );
+        }
+    }
+    else
+    {
+        if ( ax == 0.0 )
+        {
+            char buf[64];
+            snprintf( buf, sizeof( buf ), "%08.1e", input );
+            out += buf;
+        }
+        else if ( ax < 0.001 )
+        {
+            FastFormat::AppendE( out, input, 8, 1 );
+        }
+        else if ( ax < 10.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 5 );
+        }
+        else if ( ax < 100.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 4 );
+        }
+        else if ( ax < 1000.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 3 );
+        }
+        else if ( ax < 10000.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 2 );
+        }
+        else if ( ax < 100000.0 )
+        {
+            FastFormat::AppendF( out, input, 8, 1 );
+        }
+        else if ( ax < 1000000.0 )
+        {
+            FastFormat::AppendF( out, input, 7, 0 );
+            out += '.';
+        }
+        else
+        {
+            FastFormat::AppendE( out, input, 8, 1 );
         }
     }
 }

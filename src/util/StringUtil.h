@@ -49,6 +49,9 @@ string truncateFileName( const string &fn, int len );
 
 string NasFmt( double input );
 
+// Append input as printf writes it with the format NasFmt( input ) returns.
+void AppendNas( string &out, double input );
+
 void parse_table( const char * str, int len, std::vector < std::vector < string > > & table );
 
 }

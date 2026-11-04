@@ -126,6 +126,11 @@ public:
     virtual void WriteNASTRANSPC1( FILE *bdf_fp );
     virtual void WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt );
 
+    // Write the nodes or elements at the given indices, formatted in chunks side by side; element k
+    // is numbered first_id + k.
+    void WriteNASTRANNodeList( FILE* bdf_fp, const vector < int > &nodes, long long int noffset );
+    void WriteNASTRANElementList( FILE* bdf_fp, const vector < int > &elems, int first_id, int property_id, long long int noffset, long long int eoffset );
+
     virtual void WriteGmsh();
     virtual void WriteGmsh( FILE* fp );
     static void WriteGmshHeader( FILE* fp );

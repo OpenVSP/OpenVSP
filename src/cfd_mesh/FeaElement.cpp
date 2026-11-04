@@ -16,6 +16,19 @@
 #include "StringUtil.h"
 #include "StlHelper.h"
 #include "Mesh.h"
+#include "FastFormat.h"
+
+// Append v right justified in a field of width, as printf's %<width>lld writes it.
+static void AppendIntW( string &out, long long v, int width )
+{
+    string num;
+    FastFormat::AppendInt( num, v );
+    if ( (int)num.size() < width )
+    {
+        out.append( width - num.size(), ' ' );
+    }
+    out += num;
+}
 
 using namespace StringUtil;
 
@@ -66,20 +79,22 @@ long long int FeaNode::GetIndex()
     return m_Index;
 }
 
-void FeaNode::WriteNASTRAN( FILE* fp, long long int noffset, bool includeBC )
+void FeaNode::AppendNASTRAN( string &out, long long int noffset, bool includeBC )
 {
-    double x = m_Pnt.x();
-    double y = m_Pnt.y();
-    double z = m_Pnt.z();
-
-    string bcstr;
+    out += "GRID    ,";
+    AppendIntW( out, m_Index + noffset, 8 );
+    out += ",        ,";
+    AppendNas( out, m_Pnt.x() );
+    out += ',';
+    AppendNas( out, m_Pnt.y() );
+    out += ',';
+    AppendNas( out, m_Pnt.z() );
+    out += ",        ,";
     if ( includeBC )
     {
-        bcstr = m_BCs.AsNASTRAN();
+        out += m_BCs.AsNASTRAN();
     }
-
-    string fmt = "GRID    ,%8lld,        ," + NasFmt( x ) + "," + NasFmt( y ) + "," + NasFmt( z ) + ",        ,%s\n";
-    fprintf( fp, fmt.c_str(), m_Index + noffset, x, y, z, bcstr.c_str() );
+    out += '\n';
 }
 
 void FeaNode::WriteNASTRAN_SPC1( FILE* fp, long long int noffset )
@@ -214,7 +229,7 @@ void FeaTri::WriteCalculix( FILE* fp, int id, long long int noffset, long long i
     }
 }
 
-void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset )
+void FeaTri::AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset )
 {
     vec3d v01 = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
     vec3d v12 = m_Corners[2]->m_Pnt - m_Corners[1]->m_Pnt;
@@ -230,23 +245,35 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, long long int n
         theta_material += 180.0;
     }
 
-
     if ( m_ElementType == FEA_TRI_3 )
     {
-        string format_string = "CTRIA3  ,%8lld,%8lld,%8lld,%8lld,%8lld," + NasFmt( theta_material ) + "\n";
-
-        fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
-                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
-                 theta_material );
+        out += "CTRIA3  ,";
     }
     else
     {
-        string format_string = "CTRIA6  ,%8lld,%8lld,%8lld,%8lld,%8lld,%8lld,%8lld,%8lld,\n        ," + NasFmt( theta_material ) + "\n";
-
-        fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
-                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
-                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, theta_material );
+        out += "CTRIA6  ,";
     }
+    AppendIntW( out, id + eoffset, 8 );
+    out += ',';
+    AppendIntW( out, property_index + 1, 8 );
+    for ( int i = 0; i < 3; i++ )
+    {
+        out += ',';
+        AppendIntW( out, m_Corners[i]->GetIndex() + noffset, 8 );
+    }
+
+    if ( m_ElementType != FEA_TRI_3 )
+    {
+        for ( int i = 0; i < 3; i++ )
+        {
+            out += ',';
+            AppendIntW( out, m_Mids[i]->GetIndex() + noffset, 8 );
+        }
+        out += ",\n        ";
+    }
+    out += ',';
+    AppendNas( out, theta_material );
+    out += '\n';
 }
 
 void FeaTri::WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )
@@ -359,7 +386,7 @@ void FeaQuad::WriteCalculix( FILE* fp, int id, long long int noffset, long long 
                  m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
     }
 }
-void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset )
+void FeaQuad::AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset )
 {
     vec3d v01 = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
     vec3d v12 = m_Corners[2]->m_Pnt - m_Corners[1]->m_Pnt;
@@ -377,20 +404,39 @@ void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, long long int 
 
     if ( m_ElementType == FEA_QUAD_4 )
     {
-        string format_string = "CQUAD4  ,%8lld,%8d,%8lld,%8lld,%8lld,%8lld," + NasFmt( theta_material ) + "\n";
-
-        fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
-                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset, theta_material );
+        out += "CQUAD4  ,";
     }
     else
     {
-        string format_string = "CQUAD8  ,%8lld,%8d,%8lld,%8lld,%8lld,%8lld,%8lld,%8lld,\n        ,%8lld,%8lld,        ,        ,        ,        ," + NasFmt( theta_material ) + "\n";
-
-        fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
-                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
-                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset, theta_material );
-
+        out += "CQUAD8  ,";
     }
+    AppendIntW( out, id + eoffset, 8 );
+    out += ',';
+    AppendIntW( out, property_index + 1, 8 );
+    for ( int i = 0; i < 4; i++ )
+    {
+        out += ',';
+        AppendIntW( out, m_Corners[i]->GetIndex() + noffset, 8 );
+    }
+
+    if ( m_ElementType != FEA_QUAD_4 )
+    {
+        for ( int i = 0; i < 2; i++ )
+        {
+            out += ',';
+            AppendIntW( out, m_Mids[i]->GetIndex() + noffset, 8 );
+        }
+        out += ",\n        ";
+        for ( int i = 2; i < 4; i++ )
+        {
+            out += ',';
+            AppendIntW( out, m_Mids[i]->GetIndex() + noffset, 8 );
+        }
+        out += ",        ,        ,        ,        ";
+    }
+    out += ',';
+    AppendNas( out, theta_material );
+    out += '\n';
 }
 
 void FeaQuad::WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )
@@ -510,13 +556,23 @@ void FeaBeam::WriteCalculixNormal( FILE* fp )
     fprintf( fp, "%f,%f,%f\n", m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
 }
 
-void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset )
+void FeaBeam::AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset )
 {
-    string format_string = "CBAR    ,%8lld,%8d,%8lld,%8lld," + NasFmt( m_Norm0.x() ) + "," +
-                           NasFmt( m_Norm0.y() ) + "," + NasFmt( m_Norm0.z() ) + "\n";
-
-    fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1, m_Corners[0]->GetIndex() + noffset,
-             m_Corners[1]->GetIndex() + noffset, m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
+    out += "CBAR    ,";
+    AppendIntW( out, id + eoffset, 8 );
+    out += ',';
+    AppendIntW( out, property_index + 1, 8 );
+    out += ',';
+    AppendIntW( out, m_Corners[0]->GetIndex() + noffset, 8 );
+    out += ',';
+    AppendIntW( out, m_Corners[1]->GetIndex() + noffset, 8 );
+    out += ',';
+    AppendNas( out, m_Norm0.x() );
+    out += ',';
+    AppendNas( out, m_Norm0.y() );
+    out += ',';
+    AppendNas( out, m_Norm0.z() );
+    out += '\n';
 }
 
 void FeaBeam::WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )
@@ -582,12 +638,16 @@ void FeaPointMass::WriteCalculix( FILE* fp, int id, long long int noffset, long 
     fprintf( fp, "%lld,%lld\n", id + eoffset, m_Corners[0]->GetIndex() + noffset );
 }
 
-void FeaPointMass::WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset )
+void FeaPointMass::AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset )
 {
     // Note: property_index ignored
-    string format_string = "CONM2   ,%8lld,%8lld,        ," + NasFmt( m_Mass ) + "\n";
-
-    fprintf( fp, format_string.c_str(), id + eoffset, m_Corners[0]->GetIndex() + noffset, m_Mass );
+    out += "CONM2   ,";
+    AppendIntW( out, id + eoffset, 8 );
+    out += ',';
+    AppendIntW( out, m_Corners[0]->GetIndex() + noffset, 8 );
+    out += ",        ,";
+    AppendNas( out, m_Mass );
+    out += '\n';
 }
 
 //////////////////////////////////////////////////////

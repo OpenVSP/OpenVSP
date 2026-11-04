@@ -49,7 +49,7 @@ public:
     bool HasOnlyTag( int ind );
     vector< int > m_Tags;
 
-    void WriteNASTRAN( FILE* fp, long long int noffset, bool includeBC = false );
+    void AppendNASTRAN( string &out, long long int noffset, bool includeBC = false );
     void WriteNASTRAN_SPC1( FILE* fp, long long int noffset );
     void WriteCalculix( FILE* fp, long long int noffset );
     void WriteCalculixBCs( FILE* fp, long long int noffset );
@@ -103,7 +103,7 @@ public:
     }
 
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset ) = 0;
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset ) = 0;
+    virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset ) = 0;
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset ) = 0;
     virtual void AppendSTL( string &out ) = 0;
     virtual double ComputeMass( int property_index ) = 0;
@@ -144,7 +144,7 @@ public:
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, bool highorder );
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset );
+    virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
     virtual void AppendSTL( string &out );
     virtual double ComputeMass( int property_index );
@@ -159,7 +159,7 @@ public:
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3, bool highorder );
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset );
+    virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
     virtual void AppendSTL( string &out );
     virtual double ComputeMass( int property_index );
@@ -176,7 +176,7 @@ public:
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
     virtual void WriteCalculixNormal( FILE* fp, long long int noffset, long long int eoffset );
     virtual void WriteCalculixNormal( FILE* fp );
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset );
+    virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
     virtual void AppendSTL( string &out ) {};
     virtual double ComputeMass( int property_index );
@@ -198,7 +198,7 @@ public:
 
     virtual void Create( vec3d & p0, double mass );
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset );
+    virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )    {};
     virtual void AppendSTL( string &out ) {};
     virtual double ComputeMass( int property_index )
