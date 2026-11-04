@@ -454,6 +454,12 @@ void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, d
         idouble = 0.0;
     }
 
+    // A station before the table, infinite or not a number, is the first one.
+    if ( !( idouble >= 0.0 ) )
+    {
+        idouble = 0.0;
+    }
+
     int ifloor = (int)floor( idouble );
     int iceil = (int)ceil( idouble );
 
