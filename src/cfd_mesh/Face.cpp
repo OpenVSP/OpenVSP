@@ -201,12 +201,10 @@ static bool FaceOutward( Face* f, const vec3d &nsurf, Surf* surfPtr )
     return dprod >= 0.0;
 }
 
-void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
+void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr, vector< Face* > &connectFaces, vector< double > &areas, vector< char > &wasgood )
 {
-    vector< Face* > connectFaces;
     GetConnectFaces( connectFaces );
 
-    vector< double > areas;
     areas.resize( connectFaces.size() );
 
     double sum_area = 0.0;
@@ -292,7 +290,7 @@ void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
     // that turns over, not the surface underneath it.
     vec3d nsurf = surfPtr->CompNorm( uw.x(), uw.y() );
 
-    vector< bool > wasgood( connectFaces.size() );
+    wasgood.resize( connectFaces.size() );
 
     for ( int i = 0 ; i < ( int )connectFaces.size() ; i++ )
     {

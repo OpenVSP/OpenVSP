@@ -2479,6 +2479,10 @@ bool Mesh::CollapseEdge( Edge* edge, bool repair )
 
 void Mesh::LaplacianSmooth( int num_iter )
 {
+    vector< Face* > connectFaces;
+    vector< double > areas;
+    vector< char > wasgood;
+
     for ( int i = 0 ; i < num_iter ; i++ )
     {
         list< Node* >::iterator n;
@@ -2493,7 +2497,7 @@ void Mesh::LaplacianSmooth( int num_iter )
                 //(*n)->pnt = m_Surf->CompPnt( uw.x(), uw.y());
                 //(*n)->uw = uw;
 //              (*n)->LaplacianSmooth( m_Surf );
-                ( *n )->AreaWeightedLaplacianSmooth( m_Surf );
+                ( *n )->AreaWeightedLaplacianSmooth( m_Surf, connectFaces, areas, wasgood );
             }
         }
     }

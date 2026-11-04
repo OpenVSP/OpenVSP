@@ -75,7 +75,8 @@ public:
     bool AllInteriorConnectedFaces();
 
     void LaplacianSmooth( Surf* surfPtr );
-    void AreaWeightedLaplacianSmooth( Surf* surfPtr );
+    // The three vectors are scratch, passed in so a pass over the mesh reuses their storage.
+    void AreaWeightedLaplacianSmooth( Surf* surfPtr, vector< Face* > &connectFaces, vector< double > &areas, vector< char > &wasgood );
 
 };
 
