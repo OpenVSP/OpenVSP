@@ -30,7 +30,7 @@ private:
     void TestCFDHalfMesh();
     void TestSurfaceIntersection();
     int  GetFileSize( const string &file_name );
-    void RunAnalysis( const vector < string > &file_1, const vector < string > &file_2 );
+    void RunAnalysis( const vector < string > &file_1, const vector < string > &file_2, double tol_scale );
     void RunScaleTest( double scale_value, double test_compare_percent );
     void CFDMeshAnalysisTest();
     void FEAMeshAnalysisTest();

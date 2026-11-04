@@ -152,11 +152,11 @@ void APITestSuiteCFDMesh::TestSurfaceIntersection()
     //This is a smoke test that scaling the model does not change the exported
     //topology, using file size as a rough stand in.  IGES and STEP are text
     //formats whose parameter data is packed into records, so the size follows
-    //the number of characters it takes to write each coordinate.  Scaling to
-    //0.01x turns values like 1.234567 into 1.234567E-03 and legitimately grows
-    //the IGES file by about 12%, which the old 10% limit called a failure.
-    //Measured with the pod and wing below: IGES +11.9% and STEP +5.7% at 0.01x,
-    //IGES +2.6% and STEP +0.7% at 100x.
+    //the number of characters it takes to write each coordinate.  The
+    //intersection curves are fit to STEPTol, a length, so the scaled model is
+    //written with STEPTol scaled alike and gets the same curves.  Measured with
+    //the pod and wing below: IGES +3.7% and STEP +4.2% at 0.01x, IGES +1.2% and
+    //STEP -0.3% at 100x.
     double test_compare_value = 20; //20%
 
     //Add and edit Geometry
@@ -175,7 +175,7 @@ void APITestSuiteCFDMesh::TestSurfaceIntersection()
     printf( "COMPLETE\n" );
 }
 
-void APITestSuiteCFDMesh::RunAnalysis( const vector < string > &file_1, const vector < string > &file_2 )
+void APITestSuiteCFDMesh::RunAnalysis( const vector < string > &file_1, const vector < string > &file_2, double tol_scale )
 {
     //Get analysis type
     string analysis_name = "SurfaceIntersection";
@@ -197,6 +197,11 @@ void APITestSuiteCFDMesh::RunAnalysis( const vector < string > &file_1, const ve
 
     vsp::SetIntAnalysisInput( analysis_name, "STEPRepresentation", representation, 0 );
 
+    //Fit the intersection curves to a tolerance scaled with the model
+    vector < double > tol = vsp::GetDoubleAnalysisInput( analysis_name, "STEPTol" );
+    tol[0] *= tol_scale;
+    vsp::SetDoubleAnalysisInput( analysis_name, "STEPTol", tol, 0 );
+
     // list inputs, type, and current values
     vsp::PrintAnalysisInputs( analysis_name );
 
@@ -213,7 +218,7 @@ void APITestSuiteCFDMesh::RunScaleTest( double scale_value, double test_compare_
     step_name_before.push_back( "API_Trimmed_STEP_Orig.stp" );
 
     //Run analysis before scaling Geometry
-    RunAnalysis( iges_name_before, step_name_before );
+    RunAnalysis( iges_name_before, step_name_before, 1.0 );
 
     //Get the size of files after the first analysis
     int iges_file_size_before_scale = GetFileSize( iges_name_before[0] );
@@ -239,7 +244,7 @@ void APITestSuiteCFDMesh::RunScaleTest( double scale_value, double test_compare_
     step_name_after.push_back( "API_Trimmed_STEP_Scaled.stp" );
 
     //Run analysis after scaling geometry
-    RunAnalysis( iges_name_after, step_name_after );
+    RunAnalysis( iges_name_after, step_name_after, scale_value );
     
     //Reset Scale to original size
     vsp::ScaleSet( vsp::SET_ALL, 1 / scale_value );
