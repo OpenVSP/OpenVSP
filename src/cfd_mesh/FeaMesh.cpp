@@ -1859,7 +1859,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         char str[256];
 
         vector < vector < int > > single_nodes;
-        vector < int > untagged_nodes, nodes;
+        vector < int > untagged_nodes, nodes, sel;
         IndexNodesByTag( single_nodes, untagged_nodes );
 
         //==== Write Fixed Points ====//
@@ -1911,7 +1911,9 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                         for ( int ispider = 0; ispider < fxpt.m_SpiderIndex[ j ].size(); ispider++ )
                         {
                             int spider_ind = (int) fxpt.m_SpiderIndex[ j ][ ispider ];
-                            m_FeaNodeVec[ spider_ind ]->WriteCalculix( fp, noffset );
+                            string out;
+                            m_FeaNodeVec[ spider_ind ]->AppendCalculix( out, noffset );
+                            fputs( out.c_str(), fp );
                         }
                     }
                 }
@@ -1941,10 +1943,13 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                                 fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
                                 NodeHeader = true;
                             }
-                            m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
+                            sel.push_back( j );
                         }
                     }
                 }
+
+                WriteCalculixNodeList( fp, sel, noffset );
+                sel.clear();
 
                 fprintf( fp, "\n" );
             }
@@ -1969,10 +1974,14 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                             fprintf( fp, "*NODE, NSET=N%s_%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
                             SubSurfHeader = true;
                         }
-                        m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
+                        sel.push_back( j );
                     }
                 }
             }
+
+            WriteCalculixNodeList( fp, sel, noffset );
+            sel.clear();
+
             fprintf( fp, "\n" );
         }
 
@@ -1991,10 +2000,14 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                         fprintf( fp, "*NODE, NSET=Nintersections_%s\n", m_StructName.c_str() );
                         IntersectHeader = true;
                     }
-                    m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
+                    sel.push_back( j );
                 }
             }
         }
+
+        WriteCalculixNodeList( fp, sel, noffset );
+        sel.clear();
+
         if ( IntersectHeader )
         {
             fprintf( fp, "\n" );
@@ -2014,9 +2027,13 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                     fprintf( fp, "*NODE, NSET=RemainingNodes_%s\n", m_StructName.c_str() );
                     RemainingHeader = true;
                 }
-                m_FeaNodeVec[i]->WriteCalculix( fp, noffset );
+                sel.push_back( i );
             }
         }
+
+        WriteCalculixNodeList( fp, sel, noffset );
+        sel.clear();
+
         if ( RemainingHeader )
         {
             fprintf( fp, "\n" );
@@ -2040,6 +2057,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
         vector < vector < int > > part_elems, ss_elems;
         IndexElements( part_elems, ss_elems );
+        vector < int > sel;
 
         //==== Write Fixed Points ====//
         for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
@@ -2060,10 +2078,13 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                          m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS &&
                          m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
-                        m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                        sel.push_back( j );
                         elem_id++;
                     }
                 }
+
+                WriteCalculixElementList( fp, sel, elem_id - (int)sel.size(), noffset, eoffset );
+                sel.clear();
 
                 fprintf( fp, "\n" );
 
@@ -2103,10 +2124,14 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                  m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                                  m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                             {
-                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                                sel.push_back( j );
                                 elem_id++;
                             }
                         }
+
+                        WriteCalculixElementList( fp, sel, elem_id - (int)sel.size(), noffset, eoffset );
+                        sel.clear();
+
                         fprintf( fp, "\n" );
                     }
 
@@ -2125,10 +2150,14 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                  m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                                  m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                             {
-                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                                sel.push_back( j );
                                 elem_id++;
                             }
                         }
+
+                        WriteCalculixElementList( fp, sel, elem_id - (int)sel.size(), noffset, eoffset );
+                        sel.clear();
+
                         fprintf( fp, "\n" );
                     }
 
@@ -2151,10 +2180,13 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                      m_FeaElementVec[j]->GetChainIndex() == ichain &&
                                      m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                                 {
-                                    m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                                    sel.push_back( j );
                                     elem_id++;
                                 }
                             }
+
+                            WriteCalculixElementList( fp, sel, elem_id - (int)sel.size(), noffset, eoffset );
+                            sel.clear();
 
                             if ( m_StructSettings.m_BeamPerElementNormal )
                             {
@@ -2210,10 +2242,14 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                              ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) &&
                              m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                         {
-                            m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                            sel.push_back( j );
                             elem_id++;
                         }
                     }
+
+                    WriteCalculixElementList( fp, sel, elem_id - (int)sel.size(), noffset, eoffset );
+                    sel.clear();
+
                     fprintf( fp, "\n" );
                 }
 
@@ -2231,10 +2267,14 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                              ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) &&
                              m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                         {
-                            m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                            sel.push_back( j );
                             elem_id++;
                         }
                     }
+
+                    WriteCalculixElementList( fp, sel, elem_id - (int)sel.size(), noffset, eoffset );
+                    sel.clear();
+
                     fprintf( fp, "\n" );
                 }
 
@@ -2258,10 +2298,13 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                                  m_FeaElementVec[j]->GetChainIndex() == ichain &&
                                  m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
                             {
-                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
+                                sel.push_back( j );
                                 elem_id++;
                             }
                         }
+
+                        WriteCalculixElementList( fp, sel, elem_id - (int)sel.size(), noffset, eoffset );
+                        sel.clear();
 
 
                         if ( m_StructSettings.m_BeamPerElementNormal )
@@ -2291,6 +2334,28 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
             }
         }
     }
+}
+
+void FeaMesh::WriteCalculixNodeList( FILE* fp, const vector < int > &nodes, long long int noffset )
+{
+    FeaMeshMgr.WriteChunked( fp, (int)nodes.size(), [&]( int ibeg, int iend, string &out )
+    {
+        for ( int k = ibeg; k < iend; k++ )
+        {
+            m_FeaNodeVec[ nodes[k] ]->AppendCalculix( out, noffset );
+        }
+    } );
+}
+
+void FeaMesh::WriteCalculixElementList( FILE* fp, const vector < int > &elems, int first_id, long long int noffset, long long int eoffset )
+{
+    FeaMeshMgr.WriteChunked( fp, (int)elems.size(), [&]( int ibeg, int iend, string &out )
+    {
+        for ( int k = ibeg; k < iend; k++ )
+        {
+            m_FeaElementVec[ elems[k] ]->AppendCalculix( out, first_id + k, noffset, eoffset );
+        }
+    } );
 }
 
 void FeaMesh::WriteCalculixBCs( FILE* fp )
@@ -2554,13 +2619,22 @@ void FeaMesh::WriteGmshNodes( FILE* fp )
 {
     unsigned long long int noffset = m_StructSettings.m_NodeOffset;
 
+    vector < int > sel;
     for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
     {
         if ( m_FeaNodeVecUsed[ j ] )
         {
-            m_FeaNodeVec[j]->WriteGmsh( fp, noffset );
+            sel.push_back( j );
         }
     }
+
+    FeaMeshMgr.WriteChunked( fp, (int)sel.size(), [&]( int ibeg, int iend, string &out )
+    {
+        for ( int k = ibeg; k < iend; k++ )
+        {
+            m_FeaNodeVec[ sel[k] ]->AppendGmsh( out, noffset );
+        }
+    } );
 }
 
 void FeaMesh::WriteGmshElements( FILE* fp, int & ele_cnt )
@@ -2570,6 +2644,7 @@ void FeaMesh::WriteGmshElements( FILE* fp, int & ele_cnt )
 
     vector < vector < int > > part_elems, ss_elems;
     IndexElements( part_elems, ss_elems );
+    vector < int > sel;
 
     for ( unsigned int j = 0; j < m_NumFeaParts; j++ )
     {
@@ -2580,10 +2655,20 @@ void FeaMesh::WriteGmshElements( FILE* fp, int & ele_cnt )
             int i = part_list[k];
             if ( m_FeaElementVec[i]->GetFeaPartIndex() == j )
             {
-                m_FeaElementVec[i]->WriteGmsh( fp, ele_cnt, j + 1, noffset, eoffset );
+                sel.push_back( i );
                 ele_cnt++;
             }
         }
+
+        int first_id = ele_cnt - (int)sel.size();
+        FeaMeshMgr.WriteChunked( fp, (int)sel.size(), [&]( int ibeg, int iend, string &out )
+        {
+            for ( int k = ibeg; k < iend; k++ )
+            {
+                m_FeaElementVec[ sel[k] ]->AppendGmsh( out, first_id + k, j + 1, noffset, eoffset );
+            }
+        } );
+        sel.clear();
     }
 }
 

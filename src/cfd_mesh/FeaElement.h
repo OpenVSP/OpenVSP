@@ -51,9 +51,9 @@ public:
 
     void AppendNASTRAN( string &out, long long int noffset, bool includeBC = false );
     void WriteNASTRAN_SPC1( FILE* fp, long long int noffset );
-    void WriteCalculix( FILE* fp, long long int noffset );
+    void AppendCalculix( string &out, long long int noffset );
     void WriteCalculixBCs( FILE* fp, long long int noffset );
-    void WriteGmsh( FILE* fp, long long int noffset );
+    void AppendGmsh( string &out, long long int noffset );
 };
 
 class FeaElement
@@ -102,9 +102,9 @@ public:
         return m_ChainIndex;
     }
 
-    virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset ) = 0;
+    virtual void AppendCalculix( string &out, int id, long long int noffset, long long int eoffset ) = 0;
     virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset ) = 0;
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset ) = 0;
+    virtual void AppendGmsh( string &out, int id, int fea_part_index, long long int noffset, long long int eoffset ) = 0;
     virtual void AppendSTL( string &out ) = 0;
     virtual double ComputeMass( int property_index ) = 0;
 
@@ -143,9 +143,9 @@ public:
     virtual ~FeaTri()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, bool highorder );
-    virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
+    virtual void AppendCalculix( string &out, int id, long long int noffset, long long int eoffset );
     virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset );
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
+    virtual void AppendGmsh( string &out, int id, int fea_part_index, long long int noffset, long long int eoffset );
     virtual void AppendSTL( string &out );
     virtual double ComputeMass( int property_index );
 };
@@ -158,9 +158,9 @@ public:
     virtual ~FeaQuad()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3, bool highorder );
-    virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
+    virtual void AppendCalculix( string &out, int id, long long int noffset, long long int eoffset );
     virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset );
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
+    virtual void AppendGmsh( string &out, int id, int fea_part_index, long long int noffset, long long int eoffset );
     virtual void AppendSTL( string &out );
     virtual double ComputeMass( int property_index );
 };
@@ -173,11 +173,11 @@ public:
     virtual ~FeaBeam()    {};
 
     virtual void Create( vec3d &p0, vec3d &p1, vec3d &norm0, vec3d &norm1 );
-    virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
+    virtual void AppendCalculix( string &out, int id, long long int noffset, long long int eoffset );
     virtual void WriteCalculixNormal( FILE* fp, long long int noffset, long long int eoffset );
     virtual void WriteCalculixNormal( FILE* fp );
     virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset );
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset );
+    virtual void AppendGmsh( string &out, int id, int fea_part_index, long long int noffset, long long int eoffset );
     virtual void AppendSTL( string &out ) {};
     virtual double ComputeMass( int property_index );
 
@@ -197,9 +197,9 @@ public:
     virtual ~FeaPointMass()    {};
 
     virtual void Create( vec3d & p0, double mass );
-    virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset );
+    virtual void AppendCalculix( string &out, int id, long long int noffset, long long int eoffset );
     virtual void AppendNASTRAN( string &out, int id, int property_index, long long int noffset, long long int eoffset );
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )    {};
+    virtual void AppendGmsh( string &out, int id, int fea_part_index, long long int noffset, long long int eoffset )    {};
     virtual void AppendSTL( string &out ) {};
     virtual double ComputeMass( int property_index )
     {

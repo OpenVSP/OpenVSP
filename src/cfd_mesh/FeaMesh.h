@@ -119,6 +119,11 @@ public:
     virtual void WriteCalculixBCs( FILE* fp );
     virtual void WriteCalculixProperties( FILE* fp );
 
+    // Write the nodes or elements at the given indices, formatted in chunks side by side; element k
+    // is numbered first_id + k.
+    void WriteCalculixNodeList( FILE* fp, const vector < int > &nodes, long long int noffset );
+    void WriteCalculixElementList( FILE* fp, const vector < int > &elems, int first_id, long long int noffset, long long int eoffset );
+
     virtual void WriteNASTRAN();
     virtual void WriteNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_fp );
     virtual void WriteNASTRANHeader( FILE* dat_fp );
