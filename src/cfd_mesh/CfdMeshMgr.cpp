@@ -8001,17 +8001,41 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
 void CfdMeshMgrSingleton::ConnectBorderNodes( bool wakeOnly )
 {
-    vector< Node* > nodeVec;
-    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    // Each surface's border nodes are gathered on their own, side by side, and joined in
+    // surface order, so the list is the one a walk of every surface in turn makes.
+    int nsurf = ( int )m_SurfVec.size();
+    vector< vector< Node* > > surfnodes( nsurf );
+
+    string label = "Border Nodes";
+    if ( wakeOnly )
+    {
+        label = "Wake Nodes";
+    }
+
+    RunStage( label, nsurf, [&]( int s )
     {
         if ( m_SurfVec[s]->GetWakeFlag() == wakeOnly )
         {
             const list <Face*> &faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
             for ( list< Face* >::const_iterator f = faceList.begin() ; f != faceList.end(); ++f )
             {
-                ( *f )->AddBorderNodes( nodeVec );
+                ( *f )->AddBorderNodes( surfnodes[s] );
             }
         }
+    } );
+
+    size_t ntotal = 0;
+    for ( int s = 0 ; s < nsurf ; s++ )
+    {
+        ntotal += surfnodes[s].size();
+    }
+
+    vector< Node* > nodeVec;
+    nodeVec.reserve( ntotal );
+    for ( int s = 0 ; s < nsurf ; s++ )
+    {
+        nodeVec.insert( nodeVec.end(), surfnodes[s].begin(), surfnodes[s].end() );
+        vector< Node* >().swap( surfnodes[s] );
     }
 
     // Each node once, in the order the surfaces and their faces were walked.  MatchBorderNodes
