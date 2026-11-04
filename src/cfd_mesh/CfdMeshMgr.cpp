@@ -5199,6 +5199,38 @@ static int CheckFaceCorners( const SimpFace &face, const vector < int > &key, in
     return 3;
 }
 
+// Each side of each face, as the merged indices of its ends packed lowest first, dealt into the
+// bucket its lower end falls in: counted into at when not place, else written into sides at at.
+// face0 is the first face's place in the order the faces are visited.
+static void DealFaceSides( const vector < SimpFace > &faces, const vector < int > &key, int face0, int nbucket,
+                           long long npnt, bool place, vector < long long > &at,
+                           vector < pair < unsigned long long, int > > &sides )
+{
+    for ( int f = 0 ; f < ( int )faces.size() ; f++ )
+    {
+        int ind[4];
+        int n = CheckFaceCorners( faces[f], key, ind );
+        for ( int c = 0 ; c < n ; c++ )
+        {
+            unsigned long long a = ind[c];
+            unsigned long long b = ind[ ( c + 1 ) % n ];
+            if ( b < a )
+            {
+                std::swap( a, b );
+            }
+            int k = ( int )( ( long long )a * nbucket / npnt );
+            if ( place )
+            {
+                sides[ at[k]++ ] = pair < unsigned long long, int >( ( a << 32 ) | b, face0 + f );
+            }
+            else
+            {
+                at[k]++;
+            }
+        }
+    }
+}
+
 // The Node at merged point ind, made the first time it is asked for and kept in store
 static Node* CheckNodeAt( int ind, const vector < vec3d > &pnts, unordered_map < int, Node* > &nodes, vector < Node* > &store )
 {
@@ -5235,33 +5267,84 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     // one integer, beside the face's place in the order the faces are visited.  Sorted, the
     // faces on one edge come together in that order: an edge with one face is a border, and
     // every face past the second on an edge is one too many.
+    //
+    // The sides are dealt into buckets by their lower end, each bucket a range of point
+    // indices, so the buckets sort apart on several threads and lie end to end in order.
+    int nsurf = ( int )m_SurfVec.size();
+    vector < int > face0( nsurf + 1, 0 );
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        face0[i + 1] = face0[i];
+        if ( checked[i] )
+        {
+            face0[i + 1] += ( int )m_SurfVec[i]->GetMesh()->GetSimpFaceVec().size();
+        }
+    }
+    int nface = face0[ nsurf ];
+
+    long long npnt = ( long long )usedPnt.size();
+    int nbucket = 4 * StageThreadCount( nsurf );
+    if ( npnt < nbucket )
+    {
+        nbucket = 1;
+    }
+
+    // Which surfaces' sides land in each bucket, counted, then placed.
+    vector < vector < long long > > count( nsurf, vector < long long >( nbucket, 0 ) );
+
     vector < pair < unsigned long long, int > > sides;
-    int nface = 0;
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+
+    // Every surface counted, then placed, then every bucket sorted.
+    ProgressStage bar( this, "Water Tight", 2 * nsurf + nbucket );
+
+    RunIndexed( nsurf, StageThreadCount( nsurf ), [&]( int i )
     {
         if ( checked[i] )
         {
-            const vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
-            for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
+            DealFaceSides( m_SurfVec[i]->GetMesh()->GetSimpFaceVec(), usedKey[i], face0[i], nbucket, npnt, false, count[i], sides );
+        }
+    }, &bar );
+
+    vector < long long > bucket0( nbucket + 1, 0 );
+    for ( int k = 0 ; k < nbucket ; k++ )
+    {
+        bucket0[k + 1] = bucket0[k];
+        for ( int i = 0 ; i < nsurf ; i++ )
+        {
+            bucket0[k + 1] += count[i][k];
+        }
+    }
+
+    // Where each surface's first side in each bucket goes
+    {
+        vector < long long > next( bucket0.begin(), bucket0.end() - 1 );
+        for ( int i = 0 ; i < nsurf ; i++ )
+        {
+            for ( int k = 0 ; k < nbucket ; k++ )
             {
-                int ind[4];
-                int n = CheckFaceCorners( sFaceVec[f], usedKey[i], ind );
-                for ( int c = 0 ; c < n ; c++ )
-                {
-                    unsigned long long a = ind[c];
-                    unsigned long long b = ind[ ( c + 1 ) % n ];
-                    if ( b < a )
-                    {
-                        std::swap( a, b );
-                    }
-                    sides.push_back( pair < unsigned long long, int >( ( a << 32 ) | b, nface ) );
-                }
-                nface++;
+                long long c = count[i][k];
+                count[i][k] = next[k];
+                next[k] += c;
             }
         }
     }
 
-    std::sort( sides.begin(), sides.end() );
+    sides.resize( bucket0[ nbucket ] );
+
+    RunIndexed( nsurf, StageThreadCount( nsurf ), [&]( int i )
+    {
+        if ( checked[i] )
+        {
+            DealFaceSides( m_SurfVec[i]->GetMesh()->GetSimpFaceVec(), usedKey[i], face0[i], nbucket, npnt, true, count[i], sides );
+        }
+    }, &bar );
+
+    RunIndexed( nbucket, StageThreadCount( nbucket ), [&]( int k )
+    {
+        std::sort( sides.begin() + bucket0[k], sides.begin() + bucket0[k + 1] );
+    }, &bar );
+
+    bar.End();
 
     int num_border_edges = 0;
     int moreThanTwoTriPerEdge = 0;
