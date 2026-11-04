@@ -737,8 +737,8 @@ bool Surf::LimitTargetMapSettled( const MSBoundTree &ms_tree, double tmin, int s
 // es_tree is a tree over the other surfaces' sources alone, for a point the bound tree cannot
 // settle by itself: a tie between reasons, which this tree's search order picks, or a limit from
 // the very edge of the search radius, which this tree's search may or may not reach.  When it is
-// null and such a point comes up, it is made here; the caller deletes it.
-void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSSurfTree *&es_tree )
+// null and such a point comes up, it is made here, on nthread threads; the caller deletes it.
+void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSSurfTree *&es_tree, int nthread )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
 
@@ -773,7 +773,7 @@ void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSS
                 {
                     if ( !es_tree )
                     {
-                        es_tree = new MSSurfTree( ms_tree, sid );
+                        es_tree = new MSSurfTree( ms_tree, sid, nthread );
                     }
                     const MSCloud &es_cloud = es_tree->m_Cloud;
 

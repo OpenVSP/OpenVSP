@@ -193,10 +193,11 @@ private:
 };
 
 // A nanoflann tree over every source not on one surface, in the order the sources were given.
-// Rigorous limiting searches it for a point the bound tree cannot settle.
+// Rigorous limiting searches it for a point the bound tree cannot settle.  It is built on
+// nthread threads.
 struct MSSurfTree
 {
-    MSSurfTree( const MSBoundTree &ms_tree, int skipsurf );
+    MSSurfTree( const MSBoundTree &ms_tree, int skipsurf, int nthread );
     ~MSSurfTree();
 
     MSCloud m_Cloud;

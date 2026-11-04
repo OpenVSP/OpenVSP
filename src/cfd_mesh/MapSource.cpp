@@ -464,12 +464,17 @@ void MSBoundTree::BuildCloud( int skipsurf, MSCloud &cloud ) const
     }
 }
 
-MSSurfTree::MSSurfTree( const MSBoundTree &ms_tree, int skipsurf )
+MSSurfTree::MSSurfTree( const MSBoundTree &ms_tree, int skipsurf, int nthread )
 {
     ms_tree.BuildCloud( skipsurf, m_Cloud );
 
+    if ( nthread < 1 )
+    {
+        nthread = 1;
+    }
+
     // The constructor builds the index.
-    m_Tree = new MSTree( 3, m_Cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+    m_Tree = new MSTree( 3, m_Cloud, KDTreeSingleIndexAdaptorParams( 10, KDTreeSingleIndexAdaptorFlags::None, nthread ) );
 }
 
 MSSurfTree::~MSSurfTree()

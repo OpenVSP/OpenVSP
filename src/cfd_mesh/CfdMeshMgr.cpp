@@ -989,9 +989,17 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
                     }
                 }
 
-                RunIndexed( ( int )tobuild.size(), StageThreadCount( ( int )tobuild.size() ), [&]( int m )
+                // The stage's threads are shared among the trees, each built on its share.
+                int ntree = ( int )tobuild.size();
+                int nper = 1;
+                if ( ntree > 0 )
                 {
-                    surftrees[ tobuild[m] ] = new MSSurfTree( ms_tree, tobuild[m] );
+                    nper = std::max( 1, nthread / ntree );
+                }
+
+                RunIndexed( ntree, StageThreadCount( ntree ), [&]( int m )
+                {
+                    surftrees[ tobuild[m] ] = new MSSurfTree( ms_tree, tobuild[m], nper );
                 } );
             }
 
@@ -1000,7 +1008,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
                 double minmap;
                 if ( ms_tree.MinStrength( i, minmap ) )
                 {
-                    m_SurfVec[i]->LimitTargetMap( ms_tree, minmap, i, surftrees[i] );
+                    m_SurfVec[i]->LimitTargetMap( ms_tree, minmap, i, surftrees[i], nthread );
                     ms_tree.UpdateSurface( i );
                 }
 

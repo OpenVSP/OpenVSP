@@ -83,7 +83,7 @@ public:
 
     void LimitTargetMap();
     bool LimitTargetMapSettled( const MSBoundTree &ms_tree, double tmin, int sid ) const;
-    void LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSSurfTree *&es_tree );
+    void LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSSurfTree *&es_tree, int nthread );
     double InterpTargetMap( double u, double w, int &reason );
     void UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, double &fracj );
     void UWtoTargetMapij( double u, double w, int &i, int &j );
