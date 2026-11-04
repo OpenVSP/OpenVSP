@@ -7894,8 +7894,16 @@ void TopoClassifier::CheckSettledSide( int x, int other, int c )
 // ray cast.
 void TopoClassifier::Audit()
 {
+    // Finding a face's center evaluates its surface, which one thread may do at a time, so the
+    // regions of one surface are checked in turn.
     int nreg = m_RegSurf.size();
-    m_Mgr->RunStage( "Topology Audit", nreg, [&]( int r )
+    vector< Surf* > regsurf( nreg );
+    for ( int r = 0 ; r < nreg ; r++ )
+    {
+        regsurf[r] = m_Surfs[ m_RegSurf[r] ];
+    }
+    ProgressStage bar( m_Mgr, "Topology Audit", nreg );
+    m_Mgr->RunBySurface( regsurf, [&]( int r )
     {
         if ( m_BadReg[r] )
         {
@@ -7924,7 +7932,7 @@ void TopoClassifier::Audit()
         {
             m_BadReg[r] = 1;
         }
-    } );
+    }, &bar );
 }
 
 // The triangles of each surface fall into regions no chain crosses.  Crossing an intersection
