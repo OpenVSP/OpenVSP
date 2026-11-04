@@ -1550,16 +1550,6 @@ void Mesh::SwapEdge( Edge* edge )
         return;
     }
 
-    if ( ThreeEdgesThreeFaces( edge ) )
-    {
-        return;
-    }
-
-    // A flip replaces the shared edge with one joining the two opposite corners.  If those
-    // two are already joined, the flip builds a SECOND edge between the same pair of nodes,
-    // which is not a surface any more: the pair of edges bounds no area and the faces on
-    // either side of it are shared three ways.  ThreeEdgesThreeFaces catches only the
-    // valence-3 case, which is one instance of this and not the general one.
     {
         Node* sa = edge->f0->OtherNodeTri( edge->n0, edge->n1 );
         Node* sb = edge->f1->OtherNodeTri( edge->n0, edge->n1 );
@@ -1567,15 +1557,6 @@ void Mesh::SwapEdge( Edge* edge )
         if ( !sa || !sb || sa == sb )
         {
             return;
-        }
-
-        for ( int i = 0; i < ( int )sa->edgeVec.size(); i++ )
-        {
-            Edge* ee = sa->edgeVec[i];
-            if ( ee && !ee->m_DeleteMeFlag && ee->OtherNode( sa ) == sb )
-            {
-                return;
-            }
         }
     }
 
@@ -1616,6 +1597,27 @@ void Mesh::SwapEdge( Edge* edge )
     if ( max( cc, cd ) >= max( ca, cb ) )
     {
         return;
+    }
+
+    // The tests below only refuse a swap, so they are asked after the quality test, which
+    // refuses most edges and reads only the four corners.
+    if ( ThreeEdgesThreeFaces( edge ) )
+    {
+        return;
+    }
+
+    // A flip replaces the shared edge with one joining the two opposite corners.  If those
+    // two are already joined, the flip builds a SECOND edge between the same pair of nodes,
+    // which is not a surface any more: the pair of edges bounds no area and the faces on
+    // either side of it are shared three ways.  ThreeEdgesThreeFaces catches only the
+    // valence-3 case, which is one instance of this and not the general one.
+    for ( int i = 0; i < ( int )na->edgeVec.size(); i++ )
+    {
+        Edge* ee = na->edgeVec[i];
+        if ( ee && !ee->m_DeleteMeFlag && ee->OtherNode( na ) == nb )
+        {
+            return;
+        }
     }
 
     vec3d norma = fa->Normal();
