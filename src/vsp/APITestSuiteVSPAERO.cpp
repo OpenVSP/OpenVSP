@@ -296,12 +296,34 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     }
     printf("\tCOMPLETE.\n");
 
-    /// ==== Test Asymmetric Deflection ==== ///
-    // Edit Control Surface Group Angle and Contained Control Surface Gains
-    printf("\tEditing Aileron Control Surface Deflection Gains and Angle...");
+    /// ==== Undeflected Baseline ==== ///
+    //The deflections are judged by the rolling moment they add to the undeflected
+    //model's, which is not zero (0.005 at the last angle of attack).
     string csg_id = vsp::FindContainer( "VSPAEROSettings", 0 );
     TEST_ASSERT( csg_id.c_str() != nullptr );
     string deflection_angle_id = vsp::FindParm( csg_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, 0.0 ), 0.0, TEST_TOL );
+
+    printf( "\tExecuting undeflected..." );
+    vsp::SetAnalysisInputDefaults( "VSPAEROSweep" );
+    vsp::SetIntAnalysisInput( "VSPAEROSweep", "WakeNumIter", vector < int > ( 1, 1 ) );
+    results_id = vsp::ExecAnalysis( "VSPAEROSweep" );
+    TEST_ASSERT( results_id.size() > 0 );
+    printf( "COMPLETE\n" );
+
+    //The history holds a row per iteration of the last case.  The first is the
+    //starting state, with no circulation, so the converged moment is the last.
+    double base_cmx = 0.0;
+    vector < double > base_cmx_vec = vsp::GetDoubleResults( vsp::FindLatestResultsID( "VSPAERO_History" ), "CMxtot" );
+    TEST_ASSERT( base_cmx_vec.size() > 0 );
+    if ( base_cmx_vec.size() > 0 )
+    {
+        base_cmx = base_cmx_vec.back();
+    }
+
+    /// ==== Test Asymmetric Deflection ==== ///
+    // Edit Control Surface Group Angle and Contained Control Surface Gains
+    printf("\tEditing Aileron Control Surface Deflection Gains and Angle...");
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, 1.0 ), 1.0, TEST_TOL );
     string surf0_gain_id = vsp::FindParm( csg_id, "Surf_" + aileron_id + "_0_Gain", "ControlSurfaceGroup_0" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( surf0_gain_id, 2.0 ), 2.0, TEST_TOL );
@@ -327,35 +349,8 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
 
-    // Check rolling moment from the antisymmetric deflection.
-    /// old cmx = -0.01010 // Version Checked VSP 3.11 | VSPAERO 3.1
-    /// old cmx = -0.00882 // Version Checked VSP 3.13 | VSPAERO 4.1
-    //
-    //The history column used to be called CMx.  VSPAERO now reports the moment
-    //split into viscous, inviscid and total parts as CMxo, CMxi and CMxtot, so
-    //the old name found nothing and the test was indexing an empty vector.  The
-    //comparison below was therefore reading whatever that out of range access
-    //happened to return, and had not been checking anything for a long time.
-    //
-    //With the name corrected the deflection produces a rolling moment of about
-    //-6e-6 rather than the -0.00882 recorded here, even though the deflection
-    //does reach the solver: the generated .vspaero file carries the group and
-    //the solver echoes "Control group deflection angle: 1.000000".
-    //
-    //This is a known bug in VSPAERO rather than anything wrong with the test.
-    //vspaero.C, in the loop that pushes group deflections onto the individual
-    //surfaces, assigns the angle instead of accumulating it:
-    //
-    //    ControlSurface(k).DeflectionAngle() = Direction(j) * Angle() * TORAD;
-    //
-    //so when several groups are passed only the last one survives, and this
-    //model carries an aileron group at one degree followed by rudder and
-    //elevator groups at zero.  The reference is deliberately left at its
-    //historical value rather than re-baselined to roughly zero, since
-    //accepting the new number would enshrine ailerons that generate no roll.
-    //This assertion should start passing again once the solver accumulates
-    //deflections.
-    double current_cmx = -0.00882;
+    // Check the rolling moment the antisymmetric deflection adds.
+    double current_dcmx = 0.01086;
     string history_id = vsp::FindLatestResultsID( "VSPAERO_History" );
     vector < double > cmx = vsp::GetDoubleResults( history_id, "CMxtot" );
     TEST_ASSERT( cmx.size() > 0 );
@@ -364,9 +359,9 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
         //Tolerance is taken from the reference value rather than the computed
         //one so that a result drifting toward zero cannot shrink its own
         //acceptance window.
-        double roll_mom_tol = std::abs( 0.05 * current_cmx );
-        printf( "\tAntisymmetric CMxtot: expected %.6f, computed %.6f\n", current_cmx, cmx[0] );
-        TEST_ASSERT_DELTA( cmx[0], current_cmx, roll_mom_tol );
+        double roll_mom_tol = std::abs( 0.05 * current_dcmx );
+        printf( "\tAntisymmetric delta CMxtot: expected %.6f, computed %.6f\n", current_dcmx, cmx.back() - base_cmx );
+        TEST_ASSERT_DELTA( cmx.back() - base_cmx, current_dcmx, roll_mom_tol );
     }
 
     /// ==== Test Symmetric Deflection ==== ///
@@ -385,21 +380,16 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
 
-    // A symmetric deflection should produce no rolling moment.
+    // A symmetric deflection should add no rolling moment.
     history_id = vsp::FindLatestResultsID( "VSPAERO_History" );
     cmx = vsp::GetDoubleResults( history_id, "CMxtot" );
     TEST_ASSERT( cmx.size() > 0 );
     if ( cmx.size() > 0 )
     {
-        printf( "\tSymmetric CMxtot: computed %.3e\n", cmx[0] );
+        printf( "\tSymmetric delta CMxtot: computed %.3e\n", cmx.back() - base_cmx );
 
-        //The solver converges iteratively, so a symmetric case lands near zero
-        //rather than on it, and how near varies from run to run.  Observed at
-        //exactly zero in one run and -5.9e-6 in another, so a tolerance of 1e-6
-        //made this fail at random.  Judge it against the rolling moment an
-        //aileron deflection is meant to produce, roughly 0.0088, and call
-        //anything under a percent of that no roll at all.
-        TEST_ASSERT_DELTA( cmx[0], 0.0, 1.0e-4 );
+        //Under a percent of the antisymmetric deflection's moment is no roll at all.
+        TEST_ASSERT_DELTA( cmx.back() - base_cmx, 0.0, 1.0e-4 );
     }
 
     // Final check for errors
