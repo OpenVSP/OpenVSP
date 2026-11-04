@@ -5370,7 +5370,7 @@ void CfdMeshMgrSingleton::RecordResults()
 
     res->Add( new NameValData( "Num_Surfs", nsurf, "Number of patches of the model's surfaces meshed." ) );
     res->Add( new NameValData( "Num_Tris", m_NumMeshTris, "Number of triangles in the mesh." ) );
-    res->Add( new NameValData( "Num_Border_Edges", m_NumBorderEdges, "Number of mesh edges with one triangle on them." ) );
+    res->Add( new NameValData( "Num_Border_Edges", m_NumBorderEdges, "Number of mesh edges with one triangle on them, other than a wake's or a half mesh's along its open symmetry plane." ) );
     res->Add( new NameValData( "Num_Over_Connected_Edges", m_NumOverConnEdges, "Number of mesh edges with more than two triangles on them." ) );
     res->Add( new NameValData( "Water_Tight", tight, "Flag set when the mesh is closed." ) );
 }
@@ -5536,6 +5536,19 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
     bar.End();
 
+    // A half mesh with no faces on its symmetry plane is open along y = 0 by design, as a wake
+    // is open along its edges, so those edges are not counted as borders.  An end lies on the
+    // plane when it is within the distance points are merged at.
+    bool open_sym = GetCfdSettingsPtr()->m_HalfMeshFlag;
+    double ysym = std::sqrt( PT_MERGE_TOL );
+    for ( int i = 0 ; i < nsurf ; i++ )
+    {
+        if ( m_SurfVec[i]->GetSymPlaneFlag() && !m_SurfVec[i]->GetMesh()->GetSimpFaceVec().empty() )
+        {
+            open_sym = false;
+        }
+    }
+
     int num_border_edges = 0;
     int moreThanTwoTriPerEdge = 0;
     vector < bool > badface( nface, false );
@@ -5551,8 +5564,13 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
         if ( r - j == 1 )
         {
-            num_border_edges++;
-            border.push_back( pair < int, int >( ( int )( sides[j].first >> 32 ), ( int )( sides[j].first & 0xffffffffULL ) ) );
+            int a = ( int )( sides[j].first >> 32 );
+            int b = ( int )( sides[j].first & 0xffffffffULL );
+            if ( !open_sym || std::abs( usedPnt[a].y() ) > ysym || std::abs( usedPnt[b].y() ) > ysym )
+            {
+                num_border_edges++;
+                border.push_back( pair < int, int >( a, b ) );
+            }
         }
 
         for ( size_t q = j + 2 ; q < r ; q++ )

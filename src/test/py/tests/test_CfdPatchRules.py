@@ -148,7 +148,8 @@ def testAWingOnAFuselage():
 
 
 def testAHalfMesh():
-    """With the half mesh on, the y < 0 side goes and the mesh is open only on the symmetry plane.
+    """With the half mesh on, the y < 0 side goes and the mesh is open only on the symmetry plane,
+    which is not counted as a border.
 
     A body is cut on its top and bottom lines, so the y < 0 side goes as whole patches: the pod
     keeps its +y half, and the box fuselage its top, bottom and +y side.
@@ -161,7 +162,7 @@ def testAHalfMesh():
         res = _mesh( 1, half = 1 )
 
         assert res["Num_Surfs"] == nsurf, "the half mesh meshed %d surfaces, expected %d" % ( res["Num_Surfs"], nsurf )
-        assert res["Num_Border_Edges"] > 0, "the half mesh is closed across the symmetry plane"
+        assert res["Num_Border_Edges"] == 0, "the half mesh is open off its symmetry plane"
         assert res["Num_Over_Connected_Edges"] == 0, \
                "the half mesh left %d over-connected edges" % res["Num_Over_Connected_Edges"]
 

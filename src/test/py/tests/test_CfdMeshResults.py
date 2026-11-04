@@ -120,6 +120,22 @@ def testAHalfMeshInAFarFieldCloses():
            ( res["Num_Border_Edges"], res["Num_Over_Connected_Edges"] )
 
 
+def testAHalfMeshWithoutAFarFieldCloses():
+    """Without a far field nothing covers the symmetry plane: the half is open along y = 0, as
+    it is meant to be, and that cut is not counted as a border."""
+    _pod_and_wing()
+    vsp.SetCFDMeshVal( vsp.CFD_HALF_MESH_FLAG, 1 )
+
+    res = _mesh()
+
+    vsp.SetCFDMeshVal( vsp.CFD_HALF_MESH_FLAG, 0 )
+
+    assert res["Num_Tris"] > 0, "the mesher produced no triangles"
+    assert res["Water_Tight"] == 1, \
+           "a half mesh without a far field left %d border and %d over-connected edges" % \
+           ( res["Num_Border_Edges"], res["Num_Over_Connected_Edges"] )
+
+
 def testTheVerdictFollowsTheEdgeCounts():
     """Water_Tight is not an independent opinion: it is exactly "neither count is nonzero"."""
     _pod_and_wing()
