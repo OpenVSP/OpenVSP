@@ -609,8 +609,10 @@ void SurfaceIntersectionSingleton::RunStage( const string &label, int n,
 // item being written, so it can be done on several threads as long as the results reach the
 // file in the order the items came in.
 //
-// Only one wave of chunks is in flight at a time, so a mesh whose text runs to a gigabyte is
-// never held in memory.
+// The threads format chunks into a ring of slots while this thread writes the finished ones out
+// in order, so the formatting goes on while the file takes the text.  A thread waits rather than
+// run more than the ring ahead of the file, so a mesh whose text runs to a gigabyte is never held
+// in memory.
 void SurfaceIntersectionSingleton::WriteChunked( FILE* fp, int n,
         const std::function< void( int, int, string & ) > &body, ProgressStage *bar )
 {
@@ -626,40 +628,139 @@ void SurfaceIntersectionSingleton::WriteChunked( FILE* fp, int n,
     int nchunk = ( n + chunkitems - 1 ) / chunkitems;
     int nthread = StageThreadCount( nchunk );
 
-    vector < string > chunk( nthread );
-
-    for ( int c0 = 0 ; c0 < nchunk ; c0 += nthread )
+    if ( nthread <= 1 )
     {
-        int nwave = nchunk - c0;
-
-        if ( nwave > nthread )
+        string out;
+        for ( int c = 0 ; c < nchunk ; c++ )
         {
-            nwave = nthread;
-        }
+            int ibeg = c * chunkitems;
+            int iend = std::min( n, ibeg + chunkitems );
 
-        RunIndexed( nwave, nwave, [&]( int k )
-        {
-            int ibeg = ( c0 + k ) * chunkitems;
-            int iend = ibeg + chunkitems;
+            out.clear();
+            body( ibeg, iend, out );
+            fwrite( out.data(), 1, out.size(), fp );
 
-            if ( iend > n )
+            if ( bar )
             {
-                iend = n;
+                bar->Step( iend - ibeg );
             }
-
-            chunk[k].clear();
-            body( ibeg, iend, chunk[k] );
-        } );
-
-        for ( int k = 0 ; k < nwave ; k++ )
-        {
-            fwrite( chunk[k].data(), 1, chunk[k].size(), fp );
         }
+        return;
+    }
+
+    int nslot = 2 * nthread;
+    vector < string > slot( nslot );
+    vector < char > ready( nslot, 0 );  // Slot holds its chunk, formatted
+    int written = 0;                    // Chunks gone to the file
+    bool stop = false;
+    std::exception_ptr err;
+    std::atomic < int > next( 0 );
+    std::mutex mtx;
+    std::condition_variable cv;
+
+    vector < std::thread > pool;
+    try
+    {
+        for ( int t = 0 ; t < nthread ; t++ )
+        {
+            pool.push_back( std::thread( [&]()
+            {
+                while ( true )
+                {
+                    int c = next++;
+                    if ( c >= nchunk )
+                    {
+                        break;
+                    }
+
+                    {
+                        std::unique_lock < std::mutex > lock( mtx );
+                        cv.wait( lock, [&]() { return stop || c < written + nslot; } );
+                        if ( stop )
+                        {
+                            break;
+                        }
+                    }
+
+                    int ibeg = c * chunkitems;
+                    int iend = std::min( n, ibeg + chunkitems );
+                    string &out = slot[ c % nslot ];
+
+                    try
+                    {
+                        out.clear();
+                        body( ibeg, iend, out );
+                    }
+                    catch ( ... )
+                    {
+                        std::lock_guard < std::mutex > lock( mtx );
+                        if ( !err )
+                        {
+                            err = std::current_exception();
+                        }
+                        stop = true;
+                        cv.notify_all();
+                        break;
+                    }
+
+                    {
+                        std::lock_guard < std::mutex > lock( mtx );
+                        ready[ c % nslot ] = 1;
+                    }
+                    cv.notify_all();
+                }
+            } ) );
+        }
+    }
+    catch ( ... )
+    {
+        // Starting a thread failed partway through.  The ones already running still have to be
+        // joined below, or their destructors end the process too.
+        std::lock_guard < std::mutex > lock( mtx );
+        if ( !err )
+        {
+            err = std::current_exception();
+        }
+        stop = true;
+        cv.notify_all();
+    }
+
+    for ( int c = 0 ; c < nchunk ; c++ )
+    {
+        int k = c % nslot;
+        {
+            std::unique_lock < std::mutex > lock( mtx );
+            cv.wait( lock, [&]() { return stop || ready[k]; } );
+            if ( stop )
+            {
+                break;
+            }
+        }
+
+        // No thread touches a ready slot until it has been written and handed back.
+        fwrite( slot[k].data(), 1, slot[k].size(), fp );
+
+        {
+            std::lock_guard < std::mutex > lock( mtx );
+            ready[k] = 0;
+            written = c + 1;
+        }
+        cv.notify_all();
 
         if ( bar )
         {
-            bar->Step( std::min( n, ( c0 + nwave ) * chunkitems ) - c0 * chunkitems );
+            bar->Step( std::min( n, ( c + 1 ) * chunkitems ) - c * chunkitems );
         }
+    }
+
+    for ( int t = 0 ; t < ( int )pool.size() ; t++ )
+    {
+        pool[t].join();
+    }
+
+    if ( err )
+    {
+        std::rethrow_exception( err );
     }
 }
 
