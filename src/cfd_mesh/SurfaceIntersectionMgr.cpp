@@ -279,7 +279,13 @@ vector< Surf* > WakeMgrSingleton::GetWakeSurfs()
 
 void WakeMgrSingleton::AppendWakeSurfs( vector< Surf* >& surf_vec )
 {
-    int last_id = surf_vec.back()->GetSurfID();
+    // The far field and symmetry surfaces go last but take the lowest IDs, so the wakes are
+    // numbered past the highest ID in use.
+    int last_id = -1;
+    for ( int i = 0; i < (int)surf_vec.size(); i++ )
+    {
+        last_id = std::max( last_id, surf_vec[i]->GetSurfID() );
+    }
     vector< Surf* > wake_surf_vec = GetWakeSurfs();
 
     for ( int i = 0; i < (int)wake_surf_vec.size(); i++ )
