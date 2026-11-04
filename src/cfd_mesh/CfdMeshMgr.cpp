@@ -19,6 +19,7 @@
 #include "StlHelper.h"
 #include "StringUtil.h"
 #include "FastFormat.h"
+#include "LocaleUtil.h"
 
 #include <algorithm>
 #include <tuple>
@@ -1101,6 +1102,9 @@ protected:
 
     void Work()
     {
+        // A new thread starts in the process-wide locale, not the caller's.
+        CNumericLocaleGuard locale_guard;
+
         std::unique_lock< std::mutex > lock( m_Mutex );
 
         while ( true )

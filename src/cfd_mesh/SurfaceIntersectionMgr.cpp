@@ -26,6 +26,7 @@
 #include "StringUtil.h"
 #include "StlHelper.h"
 #include "FileUtil.h"
+#include "LocaleUtil.h"
 #include <cfloat>  //For DBL_EPSILON
 #include "ModeMgr.h"
 
@@ -532,6 +533,9 @@ void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::fu
             {
                 pool.push_back( std::thread( [&]()
                 {
+                    // A new thread starts in the process-wide locale, not the caller's.
+                    CNumericLocaleGuard locale_guard;
+
                     while ( true )
                     {
                         int i = next++;
@@ -669,6 +673,9 @@ void SurfaceIntersectionSingleton::WriteChunked( FILE* fp, int n,
         {
             pool.push_back( std::thread( [&]()
             {
+                // A new thread starts in the process-wide locale, not the caller's.
+                CNumericLocaleGuard locale_guard;
+
                 while ( true )
                 {
                     int c = next++;
