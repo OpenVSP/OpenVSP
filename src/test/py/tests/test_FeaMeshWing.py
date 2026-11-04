@@ -128,3 +128,13 @@ def test_TheSkinCanBeMeshedWithoutBeingCarved( tmp_path ):
     for tag, c in ( ( "carved", carved ), ( "whole", whole ) ):
         assert c["Num_Nodes"] > 100, "%s: expected a mesh, got %d nodes" % ( tag, c["Num_Nodes"] )
         assert c["Num_Els"] > 100, "%s: expected elements, got %d" % ( tag, c["Num_Els"] )
+
+
+def test_ATrimNamingNoPartTrimsNothing( tmp_path ):
+    """A Trim part just added names no part to trim with; the structure still meshes."""
+    wid = _wing_with_a_structure()
+    vsp.AddFeaPart( wid, 0, vsp.FEA_TRIM )
+
+    counts = _counts( wid, tmp_path / "trim.nas" )
+
+    assert counts["Num_Els"] > 100, "expected elements, got %d" % counts["Num_Els"]

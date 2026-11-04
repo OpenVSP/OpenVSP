@@ -4383,6 +4383,11 @@ int FeaPartTrim::CountTrimPlanes()
             }
         }
     }
+    // A Trim that names no existing part trims nothing.
+    if ( nsymm < 0 )
+    {
+        return 0;
+    }
     return nsymm;
 }
 
