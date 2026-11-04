@@ -705,11 +705,15 @@ void Surf::LimitTargetMap()
     }
 }
 
-void Surf::LimitTargetMap( const MSCloud &es_cloud, const MSTree &es_tree, double minmap )
+// es_tree is a tree over the other surfaces' sources alone, for a point the bound tree cannot
+// settle by itself: a tie between reasons, which this tree's search order picks, or a limit from
+// the very edge of the search radius, which this tree's search may or may not reach.  When it is
+// null and such a point comes up, it is made here; the caller deletes it.
+void Surf::LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSSurfTree *&es_tree )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
 
-    double tmin = min( minmap, es_cloud.sources[0]->m_str );
+    MSTreeResults es_matches;
 
     SearchParams params;
     params.sorted = false;
@@ -736,26 +740,37 @@ void Surf::LimitTargetMap( const MSCloud &es_cloud, const MSTree &es_tree, doubl
             {
                 double r2max = rmax * rmax;
 
-                MSTreeResults es_matches;
-
-                unsigned int nMatches = es_tree.radiusSearch( query_pt, r2max, es_matches, params );
-
-                for ( int k = 0; k < nMatches; k++ )
+                if ( !ms_tree.LimitStrength( m_SrcMap[i][j].m_pt, r2max, sid, grm1, t, reason ) )
                 {
-                    unsigned int imatch = es_matches[k].first;
-                    double r = sqrt( es_matches[k].second );
-
-                    double str = es_cloud.sources[imatch]->m_str;
-
-                    double ts = str + grm1 * r;
-
-                    if ( ts < t )
+                    if ( !es_tree )
                     {
-                        reason = es_cloud.sources[imatch]->m_reason;
+                        es_tree = new MSSurfTree( ms_tree, sid );
                     }
+                    const MSCloud &es_cloud = es_tree->m_Cloud;
 
-                    t = min( t, ts );
+                    t = torig;
+                    reason = m_SrcMap[i][j].m_reason;
+
+                    unsigned int nMatches = es_tree->m_Tree->radiusSearch( query_pt, r2max, es_matches, params );
+
+                    for ( int k = 0; k < nMatches; k++ )
+                    {
+                        unsigned int imatch = es_matches[k].first;
+                        double r = sqrt( es_matches[k].second );
+
+                        double str = es_cloud.sources[imatch]->m_str;
+
+                        double ts = str + grm1 * r;
+
+                        if ( ts < t )
+                        {
+                            reason = es_cloud.sources[imatch]->m_reason;
+                        }
+
+                        t = min( t, ts );
+                    }
                 }
+
                 if( t < torig )
                 {
                     m_SrcMap[i][j].m_str = t;

@@ -820,7 +820,6 @@ void CfdMeshMgrSingleton::BuildGrid()
 
 void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 {
-    MSCloud ms_cloud;
     vector< MapSource* > allsources;
 
     int i;
@@ -945,29 +944,21 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 
         BeginProgress( "Rigorous Limit", ( int )m_SurfVec.size(), output_type );
 
+        // One tree over every surface's sources.  Each surface leaves out its own at search time
+        // and is limited by the others as they stand, so its limits carry to the surfaces after it.
+        MSBoundTree ms_tree;
+        ms_tree.Build( allsources );
+
         for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
-            ms_cloud.sources.clear();
-            ms_cloud.sources.reserve( allsources.size() );
-
-            double minmap = numeric_limits<double>::max( );
-
-            for( int j = 0; j < ( int )allsources.size(); j++ )
+            double minmap;
+            if ( ms_tree.MinStrength( i, minmap ) )
             {
-                if( allsources[j]->m_surfid != i )
-                {
-                    if( allsources[j]->m_str < minmap )
-                    {
-                        minmap = allsources[j]->m_str;
-                    }
-                    ms_cloud.sources.push_back( allsources[j] );
-                }
+                MSSurfTree *surftree = nullptr;
+                m_SurfVec[i]->LimitTargetMap( ms_tree, minmap, i, surftree );
+                delete surftree;
+                ms_tree.UpdateStrengths();
             }
-
-            MSTree ms_tree( 3, ms_cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
-            ms_tree.buildIndex();
-
-            m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree, minmap );
 
             m_ProgressDone++;
             StepProgress( output_type );

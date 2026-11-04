@@ -82,7 +82,7 @@ public:
     void WalkMap( int istart, int jstart );
 
     void LimitTargetMap();
-    void LimitTargetMap( const MSCloud &es_cloud, const MSTree &es_tree, double minmap );
+    void LimitTargetMap( const MSBoundTree &ms_tree, double tmin, int sid, MSSurfTree *&es_tree );
     double InterpTargetMap( double u, double w, int &reason );
     void UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, double &fracj );
     void UWtoTargetMapij( double u, double w, int &i, int &j );

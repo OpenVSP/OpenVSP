@@ -39,6 +39,16 @@ typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloud > , MSCloud
 
 typedef vector< pair< unsigned int, double > > MSTreeResults;
 
+// The reason given a strength limited by growth from a source with the given reason.
+inline int GrowLimitReason( int reason )
+{
+    if ( reason < vsp::MIN_GROW_LIMIT )
+    {
+        return reason + vsp::GROW_LIMIT_INCREMENT;
+    }
+    return reason;
+}
+
 struct MapSource
 {
     MapSource()
@@ -101,6 +111,88 @@ struct MSCloud
     {
         return false;
     }
+};
+
+// A k-d tree over every map source for rigorous growth limiting.  Each node also holds the
+// smallest strength among its sources, the surface that strength is from, and the smallest
+// strength from any other surface.  A search for the smallest strength grown out to a point can
+// then pass over every node that cannot beat the best found so far, and can leave out the sources
+// of the surface being limited without a tree of its own.
+
+class MSBoundTree
+{
+public:
+
+    void Build( const vector< MapSource* > &sources );
+
+    // Takes up the current strengths of the sources.
+    void UpdateStrengths();
+
+    // The smallest strength of a source not on surface skipsurf.  False when there is none.
+    bool MinStrength( int skipsurf, double &minstr ) const;
+
+    // Lowers t to the smallest str + grm1 * r over the sources not on skipsurf within r2max of pt,
+    // with the reason of the source that gives it.  False when that cannot settle what a search
+    // of an MSTree over the same sources gives: two sources give the smallest value with reasons
+    // that limit to different reasons, or every source that gives it lies on the edge of r2max.
+    bool LimitStrength( const vec3d &pt, double r2max, int skipsurf, double grm1, double &t, int &reason ) const;
+
+    // The sources not on skipsurf, in the order they were given.
+    void BuildCloud( int skipsurf, MSCloud &cloud ) const;
+
+private:
+
+    struct Node
+    {
+        double m_Lo[3];
+        double m_Hi[3];
+        int m_Child;        // First of two children, or -1 for a leaf.
+        int m_Begin;
+        int m_End;
+        double m_Min;
+        int m_MinSurf;
+        double m_MinOther;  // Smallest strength from a surface other than m_MinSurf.
+    };
+
+    struct Search
+    {
+        double m_Pt[3];
+        double m_R2Max;
+        double m_R2Inside;
+        int m_SkipSurf;
+        double m_Grm1;
+        double m_T;
+        int m_Reason;
+        bool m_Found;
+        bool m_Tie;
+        bool m_Inside;  // A source that gives m_T lies well inside m_R2Max.
+    };
+
+    void BuildNode( int inode, int begin, int end );
+    void UpdateNode( int inode );
+    double MinDistSq( const Node &node, const double *pt ) const;
+    double MinExcluding( const Node &node, int skipsurf ) const;
+    bool Prune( const Node &node, double md2, const Search &srch ) const;
+    void SearchNode( int inode, Search &srch ) const;
+
+    vector< Node > m_Nodes;
+    vector< MapSource* > m_Sources;     // In the order given.
+    vector< MapSource* > m_TreeSources; // In tree order.
+    vector< double > m_Pts;             // xyz in tree order.
+    vector< double > m_Str;             // In tree order.
+    vector< int > m_Surf;               // In tree order.
+    vector< int > m_SurfCount;          // Sources on each surface.
+};
+
+// A nanoflann tree over every source not on one surface, in the order the sources were given.
+// Rigorous limiting searches it for a point the bound tree cannot settle.
+struct MSSurfTree
+{
+    MSSurfTree( const MSBoundTree &ms_tree, int skipsurf );
+    ~MSSurfTree();
+
+    MSCloud m_Cloud;
+    MSTree *m_Tree;
 };
 
 #endif

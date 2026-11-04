@@ -37,6 +37,7 @@ ICurve.cpp
 IntersectPatch.cpp
 IsectAdapt.cpp
 ISegChain.cpp
+MapSource.cpp
 Mesh.cpp
 MeshAnalysis.cpp
 NURBS.cpp
