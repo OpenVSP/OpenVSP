@@ -66,7 +66,7 @@ void Mesh::Clear()
     list< Face* >::iterator f;
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
-        delete ( *f );
+        m_FacePool.Give( *f );
     }
 
     faceList.clear();
@@ -75,7 +75,7 @@ void Mesh::Clear()
     list< Edge* >::iterator e;
     for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
-        delete ( *e );
+        m_EdgePool.Give( *e );
     }
 
     edgeList.clear();
@@ -83,7 +83,7 @@ void Mesh::Clear()
     list< Node* >::iterator n;
     for ( n = nodeList.begin() ; n != nodeList.end(); ++n )
     {
-        delete ( *n );
+        m_NodePool.Give( *n );
     }
 
     nodeList.clear();
@@ -982,7 +982,7 @@ void Mesh::ColorTris()
 
 Node* Mesh::AddNode( const vec3d &p, const vec2d &uw_in )
 {
-    Node* nptr = new Node( p, uw_in );
+    Node* nptr = new ( m_NodePool.Take() ) Node( p, uw_in );
     nodeList.push_back( nptr );
     nptr->list_ptr = --nodeList.end();
     return nptr;
@@ -1017,7 +1017,7 @@ Node* Mesh::FindNode( const vec3d& p )
 
 Edge* Mesh::AddEdge( Node* n0, Node* n1 )
 {
-    Edge* eptr = new Edge( n0, n1 );
+    Edge* eptr = new ( m_EdgePool.Take() ) Edge( n0, n1 );
 
     edgeList.push_back( eptr );
     eptr->list_ptr = --edgeList.end();
@@ -1073,7 +1073,7 @@ Edge* Mesh::FindEdge( Node* n0, Node* n1 )
 
 Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
 {
-    Face* fptr = new Face( nn0, nn1, nn2, ee0, ee1, ee2 );
+    Face* fptr = new ( m_FacePool.Take() ) Face( nn0, nn1, nn2, ee0, ee1, ee2 );
     faceList.push_back( fptr );
     fptr->list_ptr = --faceList.end();
 
@@ -1089,7 +1089,7 @@ Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge
 
 Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 )
 {
-    Face* fptr = new Face( nn0, nn1, nn2, nn3, ee0, ee1, ee2, ee3 );
+    Face* fptr = new ( m_FacePool.Take() ) Face( nn0, nn1, nn2, nn3, ee0, ee1, ee2, ee3 );
     faceList.push_back( fptr );
     fptr->list_ptr = --faceList.end();
 
@@ -1141,21 +1141,21 @@ void Mesh::DumpGarbage()
     //==== Delete Flagged Nodes =====//
     for ( int i = 0 ; i < ( int )garbageNodeVec.size() ; i++ )
     {
-        delete garbageNodeVec[i];
+        m_NodePool.Give( garbageNodeVec[i] );
     }
     garbageNodeVec.clear();
 
     //==== Delete Flagged Edges =====//
     for ( int i = 0 ; i < ( int )garbageEdgeVec.size() ; i++ )
     {
-        delete garbageEdgeVec[i];
+        m_EdgePool.Give( garbageEdgeVec[i] );
     }
     garbageEdgeVec.clear();
 
     //==== Delete Flagged Faces =====//
     for ( int i = 0 ; i < ( int )garbageFaceVec.size() ; i++ )
     {
-        delete garbageFaceVec[i];
+        m_FacePool.Give( garbageFaceVec[i] );
     }
     garbageFaceVec.clear();
 }

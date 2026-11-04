@@ -45,6 +45,83 @@ public:
 typedef std::unordered_map < Edge*, std::pair < ISegChain*, ISegChain* > > BorderChainMap;
 
 //////////////////////////////////////////////////////////////////////
+// Storage for one kind of mesh element.  Elements are made in blocks, so those made one after
+// another lie side by side in memory, and one given back is the next one handed out.  The
+// blocks are let go once every element is given back.
+template < class T >
+class MeshPool
+{
+public:
+
+    MeshPool()
+    {
+        m_Live = 0;
+        m_NextInBlock = BLOCK;
+    }
+
+    ~MeshPool()
+    {
+        Release();
+    }
+
+    void* Take()
+    {
+        m_Live++;
+
+        if ( !m_Free.empty() )
+        {
+            void* p = m_Free.back();
+            m_Free.pop_back();
+            return p;
+        }
+
+        if ( m_NextInBlock == BLOCK )
+        {
+            m_Blocks.push_back( static_cast< char* >( ::operator new( BLOCK * sizeof( T ) ) ) );
+            m_NextInBlock = 0;
+        }
+
+        void* p = m_Blocks.back() + m_NextInBlock * sizeof( T );
+        m_NextInBlock++;
+        return p;
+    }
+
+    void Give( T* p )
+    {
+        p->~T();
+        m_Free.push_back( p );
+        m_Live--;
+
+        if ( m_Live == 0 )
+        {
+            Release();
+        }
+    }
+
+private:
+
+    MeshPool( const MeshPool & );
+    MeshPool & operator=( const MeshPool & );
+
+    void Release()
+    {
+        for ( size_t i = 0 ; i < m_Blocks.size() ; i++ )
+        {
+            ::operator delete( m_Blocks[i] );
+        }
+        vector< char* >().swap( m_Blocks );
+        vector< void* >().swap( m_Free );
+        m_NextInBlock = BLOCK;
+    }
+
+    static const size_t BLOCK = 1024;
+
+    vector< char* > m_Blocks;
+    vector< void* > m_Free;
+    size_t m_NextInBlock;
+    size_t m_Live;
+};
+
 class Mesh
 {
 public:
@@ -313,6 +390,10 @@ protected:
     list < Node* > nodeList;
 
     BorderChainMap m_BorderChainMap;
+
+    MeshPool< Face > m_FacePool;
+    MeshPool< Edge > m_EdgePool;
+    MeshPool< Node > m_NodePool;
 
     vector< Face* > garbageFaceVec;
     vector< Edge* > garbageEdgeVec;
