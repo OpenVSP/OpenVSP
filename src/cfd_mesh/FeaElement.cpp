@@ -292,7 +292,7 @@ double FeaTri::ComputeMass( int property_index )
     double avg_t = 0;
     int mat_index = -1;
 
-    vector < SimpleFeaProperty > simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
+    const vector < SimpleFeaProperty > & simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
 
     if ( property_index < simp_prop_vec.size() && property_index >= 0 && simp_prop_vec.size() > 0 )
     {
@@ -302,7 +302,7 @@ double FeaTri::ComputeMass( int property_index )
 
     double avg_d = 0;
 
-    vector < SimpleFeaMaterial > simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
+    const vector < SimpleFeaMaterial > & simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
 
     if ( mat_index < simp_mat_vec.size() && mat_index >= 0 && simp_mat_vec.size() > 0 )
     {
@@ -446,7 +446,7 @@ double FeaQuad::ComputeMass( int property_index )
     double avg_t = 0;
     int mat_index = -1;
 
-    vector < SimpleFeaProperty > simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
+    const vector < SimpleFeaProperty > & simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
 
     if ( property_index < simp_prop_vec.size() && property_index >= 0 && simp_prop_vec.size() > 0 )
     {
@@ -456,7 +456,7 @@ double FeaQuad::ComputeMass( int property_index )
 
     double avg_d = 0;
 
-    vector < SimpleFeaMaterial > simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
+    const vector < SimpleFeaMaterial > & simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
 
     if ( mat_index < simp_mat_vec.size() && mat_index >= 0 && simp_mat_vec.size() > 0 )
     {
@@ -540,7 +540,7 @@ double FeaBeam::ComputeMass( int property_index )
     double area = 0;
     int mat_index = -1;
 
-    vector < SimpleFeaProperty > simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
+    const vector < SimpleFeaProperty > & simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
 
     if ( property_index < simp_prop_vec.size() && property_index >= 0 && simp_prop_vec.size() > 0 )
     {
@@ -550,7 +550,7 @@ double FeaBeam::ComputeMass( int property_index )
 
     double avg_d = 0;
 
-    vector < SimpleFeaMaterial > simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
+    const vector < SimpleFeaMaterial > & simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
 
     if ( mat_index < simp_mat_vec.size() && mat_index >= 0 && simp_mat_vec.size() > 0 )
     {
