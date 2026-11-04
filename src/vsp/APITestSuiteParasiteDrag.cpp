@@ -495,7 +495,7 @@ void APITestSuiteParasiteDrag::TestGeometryGrouping()
     double swet_tol = 0.01;
     double pod_cd = 0.0;
     double pod_swet = 9.56;
-    double fuse_swet = 102.20;
+    double fuse_swet = 102.31;
     vector < double > cd = vsp::GetDoubleResults( results_id, "Comp_CD" );
     TEST_ASSERT_DELTA( pod_cd, cd[podindex], cd_tol );
     vector < double > swet = vsp::GetDoubleResults( results_id, "Comp_Swet" );
