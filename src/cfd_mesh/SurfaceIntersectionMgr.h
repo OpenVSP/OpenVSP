@@ -535,6 +535,9 @@ public:
     int StageThreadCount( int nitem );
     void RunIndexed( int n, int nthread, const std::function< void( int ) > &body );
 
+    // Run body( i ) for every i below n on several threads, under a progress bar of its own.
+    void RunStage( const string &label, int n, const std::function< void( int ) > &body );
+
     // Run body( k ) for every chain k on several threads, where chain k evaluates surfaces sa[k]
     // and sb[k] and nothing another chain writes.  A surface may be evaluated by one thread at a
     // time, so the chains on any one surface run one at a time, in order.

@@ -583,6 +583,26 @@ void SurfaceIntersectionSingleton::RunIndexed( int n, int nthread, const std::fu
     }
 }
 
+// A stage of independent pieces, each of which reads what it needs and writes only its own
+// answer, shown to the user as one progress bar counting the pieces.
+void SurfaceIntersectionSingleton::RunStage( const string &label, int n,
+                                             const std::function< void( int ) > &body )
+{
+    int nthread = StageThreadCount( n );
+
+    BeginProgress( label, n, VOCAL_OUTPUT );
+
+    RunIndexed( n, nthread, [&]( int i )
+    {
+        body( i );
+
+        m_ProgressDone++;
+        StepProgress( VOCAL_OUTPUT );
+    } );
+
+    EndProgress( VOCAL_OUTPUT );
+}
+
 // The ASCII export writers spend most of their time turning numbers into text: on the larger
 // test models that formatting is a third of the whole mesh run.  It depends on nothing but the
 // item being written, so it can be done on several threads as long as the results reach the

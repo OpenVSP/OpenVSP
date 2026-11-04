@@ -245,7 +245,6 @@ public:
         return true;
     }
 
-    void RunRayCastStage( const string &label, int n, const std::function< void( int ) > &body );
     // The triangles of the initial mesh classified by the topology of the intersection chains:
     // del[s][k] for face k of surface s, for each surface with handled[s] set.  The others are
     // left to the ray cast.

@@ -4060,7 +4060,7 @@ bool CfdMeshMgrSingleton::WritePOGSSurfFile( const string &uvin_fn, const string
     vector < char > open_face( nface, 0 );
     vector < vector < POGSCrossSample > > cross( nface );
 
-    RunRayCastStage( "POGS iblank", nface, [&]( int iface )
+    RunStage( "POGS iblank", nface, [&]( int iface )
     {
         Surf* srf = FindSurf( m_NURBSSurfVec[ face_surf_vec[iface] ].m_SurfID );
 
@@ -6511,28 +6511,6 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, const vect
     return deleteTri;
 }
 
-// Both interior tests -- the one that votes on triangles and the one that blanks the samples
-// written for POGS -- ask the same question of the same surfaces, and thread on the same terms:
-// they read the surfaces' patches, split them out of a pool that belongs to the thread, and each
-// index writes only its own answer.
-void CfdMeshMgrSingleton::RunRayCastStage( const string &label, int n,
-                                           const std::function< void( int ) > &body )
-{
-    int nthread = StageThreadCount( n );
-
-    BeginProgress( label, n, VOCAL_OUTPUT );
-
-    RunIndexed( n, nthread, [&]( int i )
-    {
-        body( i );
-
-        m_ProgressDone++;
-        StepProgress( VOCAL_OUTPUT );
-    } );
-
-    EndProgress( VOCAL_OUTPUT );
-}
-
 // One surface's share of the interior/exterior test.  It casts a ray from each of its own
 // triangles against every other surface and writes the verdict onto its own faces, so the
 // surfaces are independent of each other here.
@@ -7562,7 +7540,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 
     //==== Count Number of Component Crossings for Each Component =====//
-    RunRayCastStage( "Inside/outside", ( int )raysurf.size(), [&]( int i )
+    RunStage( "Inside/outside", ( int )raysurf.size(), [&]( int i )
     {
         int is = raysurf[i];
         RemoveInteriorTrisOneSurf( is, x_dist, ncross, coplanar[is], inside[is], count[is] );
