@@ -1178,8 +1178,19 @@ string EmintonLordAnalysis::Execute()
             area_vec = nvd->GetDoubleData();
         }
 
+        // The integral needs an area at each of at least three stations.
         int n = x_vec.size();
-        vector < double > coeff(n-2);
+        if ( n < 3 || area_vec.size() != x_vec.size() )
+        {
+            MessageData errMsgData;
+            errMsgData.m_String = "Error";
+            errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_INPUT_VAL );
+            errMsgData.m_StringVec.push_back( "Error: EmintonLord needs X_vec and Area_vec of the same length, at least 3.\n" );
+            MessageMgr::getInstance().SendAll( errMsgData );
+            return string();
+        }
+
+        vector < double > coeff( n - 2 );
 
         double Donq = WaveDragMgr.WaveDrag( x_vec, area_vec, coeff );
 
