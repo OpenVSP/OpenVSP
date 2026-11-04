@@ -1344,30 +1344,39 @@ bool FileAirfoil::ReadLednicerAirfoil( FILE* file_id )
 
     fgets( buff, 255, file_id );
     fgets( buff, 255, file_id );
-    sscanf( buff, "%f %f", &x, &y );
-    int num_pnts_upper = ( int )( x + 0.5 );
-    int num_pnts_lower = ( int )( y + 0.5 );
-
-    if ( num_pnts_upper < 3 || num_pnts_lower < 3 )
+    if ( sscanf( buff, "%f %f", &x, &y ) != 2 )
     {
         return false;
     }
 
+    // The counts are numbers of points, so anything past a million is not a Lednicer header.
+    if ( !( x >= 2.5f && y >= 2.5f && x < 1.0e6f && y < 1.0e6f ) )
+    {
+        return false;
+    }
+    int num_pnts_upper = ( int )( x + 0.5 );
+    int num_pnts_lower = ( int )( y + 0.5 );
+
     m_UpperPnts.clear();
     m_LowerPnts.clear();
 
+    // Every point line must hold two numbers; a file that ends early is not a Lednicer airfoil.
     fgets( buff, 255, file_id );
     for ( int i = 0 ; i < num_pnts_upper ; i++ )
     {
-        fgets( buff, 255, file_id );
-        sscanf( buff, "%f %f", &x, &y );
+        if ( !fgets( buff, 255, file_id ) || sscanf( buff, "%f %f", &x, &y ) != 2 )
+        {
+            return false;
+        }
         m_UpperPnts.push_back( vec3d( x, y, 0.0 ) );
     }
     fgets( buff, 255, file_id );
     for ( int i = 0 ; i < num_pnts_lower ; i++ )
     {
-        fgets( buff, 255, file_id );
-        sscanf( buff, "%f %f", &x, &y );
+        if ( !fgets( buff, 255, file_id ) || sscanf( buff, "%f %f", &x, &y ) != 2 )
+        {
+            return false;
+        }
         m_LowerPnts.push_back( vec3d( x, y, 0.0 ) );
     }
 
