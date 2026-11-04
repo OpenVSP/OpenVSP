@@ -165,8 +165,8 @@ void BuildPntNodeIndex( PntNodeCloud & cloud )
     {
         delete cloud.m_index;
     }
+    // The constructor builds the tree.
     cloud.m_index = new PNTree( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 )  );
-    cloud.m_index->buildIndex();
 }
 
 void IndexPntNodes( PntNodeCloud & cloud, double tolsq, bool keep_matches )
