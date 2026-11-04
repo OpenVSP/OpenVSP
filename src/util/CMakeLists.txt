@@ -28,6 +28,7 @@ CADutil.cpp
 Cluster.cpp
 DrawObj.cpp
 DXFUtil.cpp
+FastFormat.cpp
 FileUtil.cpp
 PntNodeMerge.cpp
 ProcessUtil.cpp
@@ -53,6 +54,7 @@ Cluster.h
 Combination.h
 DrawObj.h
 DXFUtil.h
+FastFormat.h
 FileUtil.h
 GuiDeviceEnums.h
 PntNodeMerge.h

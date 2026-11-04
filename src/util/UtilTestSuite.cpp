@@ -12,6 +12,7 @@
 
 #include <float.h>
 #include "StringUtil.h"
+#include "FastFormat.h"
 #include "StlHelper.h"
 #include "VspUtil.h"
 #include "UnitConversion.h"
@@ -1030,6 +1031,64 @@ void UtilTestSuite::UnformattedFileTest()
     }
 
     remove( fname.c_str() );
+}
+
+// Every FastFormat function must write what snprintf writes, ties and odd values included.
+void UtilTestSuite::FastFormatTest()
+{
+    vector < double > vals = { 0.0, -0.0, 0.5, 1.5, 2.5, -2.5, 1.0e-310, 5.0e-324, 1.0e300, -1.0e15, 1.0e16,
+                               0.00048828125, 1234567.8125, 12773777405.0, 1.0 / 3.0, -123.456, 100.0,
+                               HUGE_VAL, -HUGE_VAL, NAN };
+
+    // A spread of magnitudes, plus dyadic and integer values, which land on rounding ties.
+    unsigned long long seed = 12345;
+    for ( int i = 0; i < 20000; i++ )
+    {
+        seed = seed * 6364136223846793005ULL + 1442695040888963407ULL;
+        double u = ( double )( seed >> 11 ) / 9007199254740992.0 - 0.5;
+        vals.push_back( u * pow( 10.0, ( int )( seed % 61 ) - 30 ) );
+        vals.push_back( ldexp( ( double )( long long )( seed >> 24 ), -( int )( seed % 50 ) ) );
+        vals.push_back( ( double )( ( long long )( seed % 100000000000ULL ) * 10 + 5 ) );
+        vals.push_back( u * 200.0 );
+    }
+
+    int nbad = 0;
+    char buf[512];
+    for ( int i = 0; i < ( int )vals.size(); i++ )
+    {
+        double x = vals[i];
+        string s;
+
+        snprintf( buf, sizeof( buf ), "%.16g", x );
+        FastFormat::AppendG( s, x, 0, 16 );
+        nbad += ( s != buf );
+
+        s.clear();
+        snprintf( buf, sizeof( buf ), "%16.10g", x );
+        FastFormat::AppendG( s, x, 16, 10 );
+        nbad += ( s != buf );
+
+        s.clear();
+        snprintf( buf, sizeof( buf ), "%2.10le", x );
+        FastFormat::AppendE( s, x, 2, 10 );
+        nbad += ( s != buf );
+
+        s.clear();
+        snprintf( buf, sizeof( buf ), "%16.10f", x );
+        FastFormat::AppendF( s, x, 16, 10 );
+        nbad += ( s != buf );
+
+        long long k = ( long long )( x * 1.0e6 );
+        if ( std::isfinite( x ) && std::fabs( x ) < 1.0e12 )
+        {
+            s.clear();
+            snprintf( buf, sizeof( buf ), "%lld", k );
+            FastFormat::AppendInt( s, k );
+            nbad += ( s != buf );
+        }
+    }
+
+    TEST_ASSERT( nbad == 0 );
 }
 
 void UtilTestSuite::FormatWidthTest()

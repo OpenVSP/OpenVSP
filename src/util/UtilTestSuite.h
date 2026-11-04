@@ -36,6 +36,7 @@ public:
         TEST_ADD( UtilTestSuite::PointInPolyTest )
         TEST_ADD( UtilTestSuite::BilinearInterpTest )
         TEST_ADD( UtilTestSuite::FormatWidthTest )
+        TEST_ADD( UtilTestSuite::FastFormatTest )
         TEST_ADD( UtilTestSuite::NumbersTest )
         TEST_ADD( UtilTestSuite::UnformattedFileTest )
         TEST_ADD( UtilTestSuite::ViscosityConversionTest )
@@ -53,6 +54,7 @@ private:
     void PointInPolyTest();
     void BilinearInterpTest();
     void FormatWidthTest();
+    void FastFormatTest();
     void NumbersTest();
     void ViscosityConversionTest();
 
