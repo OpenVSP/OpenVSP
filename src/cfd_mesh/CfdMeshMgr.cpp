@@ -2180,8 +2180,12 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     MergeSurfPnts( wake, allWPntKey, wakeUsedPntVec, nullptr );
 
     //==== Assemble Normal Tris ====//
+    // Each face's tags are left where they are and pointed to, rather than copied: a copy is an
+    // allocation per face.
     vector< SimpFace > allFaceVec;
     allFaceVec.reserve( nallface );
+    vector< const vector < int >* > allTagsVec;
+    allTagsVec.reserve( nallface );
     int ntristrict = 0;
     // Four parameter pairs per face, laid end to end.  A vector per face is an allocation
     // per face, and a mesh has a million of them.  Only the VSPGEOM file reads them.
@@ -2212,7 +2216,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     ntristrict++; // Bonus tri for split quad.
                 }
 
-                sface.m_Tags = sFaceVec[t].m_Tags;
+                allTagsVec.push_back( &sFaceVec[t].m_Tags );
                 ntristrict++;
                 allFaceVec.push_back( sface );
 
@@ -2385,7 +2389,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     ntristrict++; // Bonus tri for split quad
                 }
 
-                sface.m_Tags = sFaceVec[f].m_Tags;
+                allTagsVec.push_back( &sFaceVec[f].m_Tags );
                 ntristrict++;
                 allFaceVec.push_back( sface );
 
@@ -2409,6 +2413,22 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     //==== Assemble All Used Points ====//
     allUsedPntVec.insert( allUsedPntVec.end(), wakeUsedPntVec.begin(), wakeUsedPntVec.end() );
 
+    // Each face's tag, looked up once for all the files that write it.
+    vector < int > allTagVec( allFaceVec.size() );
+    {
+        const int chunkitems = 4096;
+        int nface = ( int )allFaceVec.size();
+        int nchunk = ( nface + chunkitems - 1 ) / chunkitems;
+        RunStage( "Face Tags", nchunk, [&]( int c )
+        {
+            int iend = std::min( nface, ( c + 1 ) * chunkitems );
+            for ( int i = c * chunkitems ; i < iend ; i++ )
+            {
+                allTagVec[i] = SubSurfaceMgr.GetTag( *allTagsVec[i] );
+            }
+        } );
+    }
+
     // The faces are numbered now, so the maps are done with.
     vector< vec3d >().swap( wakeUsedPntVec );
     vector < vector < int > >().swap( allPntKey );
@@ -2423,6 +2443,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
         if ( fp )
         {
+            ProgressStage bar( this, "Write DAT", ( int )( allUsedPntVec.size() + allFaceVec.size() ) );
+
             //===== Write Num Pnts and Tris ====//
             fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ntristrict );
 
@@ -2433,7 +2455,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 {
                     AppendGTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].z(), -allUsedPntVec[i].y(), 0, 16 );
                 }
-            } );
+            }, &bar );
 
             //==== Write Tris ====//
             WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
@@ -2441,7 +2463,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 for ( int i = ibeg ; i < iend ; i++ )
                 {
                     const SimpFace &f = allFaceVec[i];
-                    int tag = SubSurfaceMgr.GetTag( f.m_Tags );
+                    int tag = allTagVec[i];
 
                     int t0[4] = { f.ind0, f.ind2, f.ind1, tag };
                     AppendInts( out, t0, 3, ' ' );
@@ -2456,7 +2478,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                         out += ".0\n";
                     }
                 }
-            } );
+            }, &bar );
             fclose( fp );
         }
     }
@@ -2475,6 +2497,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
         if ( fp )
         {
+            ProgressStage bar( this, "Write OBJ", ( int )( allUsedPntVec.size() + allFaceVec.size() ) );
+
             //==== Write Pnts ====//
             WriteChunked( fp, ( int )allUsedPntVec.size(), [&]( int ibeg, int iend, string &out )
             {
@@ -2483,7 +2507,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     out += "v ";
                     AppendFTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].z(), -allUsedPntVec[i].y(), 16, 10 );
                 }
-            } );
+            }, &bar );
             fprintf( fp, "\n" );
 
             //==== Write Tris ====//
@@ -2502,7 +2526,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     AppendInts( out, ind, n, ' ' );
                     out += '\n';
                 }
-            } );
+            }, &bar );
             fclose( fp );
         }
     }
@@ -2517,6 +2541,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
         if ( fp )
         {
+            // The points, the faces, then their tags.
+            ProgressStage bar( this, "Write TRI", ( int )( allUsedPntVec.size() + 2 * allFaceVec.size() ) );
+
             //==== Write Pnt Count and Tri Count ====//
             fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ntristrict );
 
@@ -2527,7 +2554,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 {
                     AppendGTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z(), 16, 10 );
                 }
-            } );
+            }, &bar );
 
             //==== Write Tris ====//
             WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
@@ -2546,7 +2573,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                         out += '\n';
                     }
                 }
-            } );
+            }, &bar );
 
             //==== Write Component ID ====//
             WriteChunked( fp, ( int )allFaceVec.size(), [&]( int ibeg, int iend, string &out )
@@ -2558,14 +2585,14 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     {
                         ntri = 2;
                     }
-                    int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
+                    int tag = allTagVec[i];
                     for ( int t = 0 ; t < ntri ; t++ )
                     {
                         FastFormat::AppendInt( out, tag );
                         out += " \n";
                     }
                 }
-            } );
+            }, &bar );
 
             fclose( fp );
         }
@@ -2579,6 +2606,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
         FILE* fp = fopen( gmsh_fn.c_str(), "w" );
         if ( fp )
         {
+            ProgressStage bar( this, "Write GMSH", ( int )( allUsedPntVec.size() + allFaceVec.size() ) );
+
             fprintf( fp, "$MeshFormat\n" );
             fprintf( fp, "2.2 0 %d\n", ( int )sizeof( double ) );
             fprintf( fp, "$EndMeshFormat\n" );
@@ -2594,7 +2623,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     out += ' ';
                     AppendFTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z(), 16, 10 );
                 }
-            } );
+            }, &bar );
             fprintf( fp, "$EndNodes\n" );
 
             //==== Write Tris ====//
@@ -2622,7 +2651,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     }
                     out += '\n';
                 }
-            } );
+            }, &bar );
 
             fprintf( fp, "$EndElements\n" );
             fclose( fp );
@@ -2649,6 +2678,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
         if ( fp )
         {
+            // The points, then the faces, their tags, their parents, and the faces and tags again split to tris.
+            ProgressStage bar( this, "Write VSPGEOM", ( int )( allUsedPntVec.size() + 5 * allFaceVec.size() ) );
+
             fprintf( fp, "# vspgeom v3\n" );
             fprintf( fp, "1\n" );  // Number of meshes.
             fprintf( fp, "%d %d %d\n", (int)allUsedPntVec.size(), nface, (int)wakes.size() );
@@ -2660,7 +2692,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 {
                     AppendGTriple( out, allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z(), 16, 10 );
                 }
-            } );
+            }, &bar );
 
             if ( allowquads )
             {
@@ -2686,7 +2718,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                         }
                         out += '\n';
                     }
-                } );
+                }, &bar );
             }
             else
             {
@@ -2709,7 +2741,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                             out += buf;
                         }
                     }
-                } );
+                }, &bar );
             }
 
             if ( allowquads )
@@ -2721,8 +2753,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
                     for ( int i = ibeg ; i < iend ; i++ )
                     {
-                        int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
-                        int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+                        int tag = allTagVec[i];
+                        int part = SubSurfaceMgr.GetPart( *allTagsVec[i] );
 
                         double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
                         double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
@@ -2739,7 +2771,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                         AppendUWCorners( out, &allUWVec[4 * i], corners, n, uscale, wscale );
                         out += '\n';
                     }
-                } );
+                }, &bar );
             }
             else
             {
@@ -2750,8 +2782,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
                     for ( int i = ibeg ; i < iend ; i++ )
                     {
-                        int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
-                        int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+                        int tag = allTagVec[i];
+                        int part = SubSurfaceMgr.GetPart( *allTagsVec[i] );
 
                         double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
                         double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
@@ -2771,7 +2803,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                             out += buf;
                         }
                     }
-                } );
+                }, &bar );
             }
 
             // Write parents
@@ -2784,7 +2816,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     FastFormat::AppendInt( out, i + 1 );
                     out += '\n';
                 }
-            } );
+            }, &bar );
 
             int nwake = wakes.size();
             // Wake line data.
@@ -2848,7 +2880,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                         }
                         out += '\n';
                     }
-                } );
+                }, &bar );
             }
             else
             {
@@ -2877,8 +2909,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
                     for ( int i = ibeg ; i < iend ; i++ )
                     {
-                        int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
-                        int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+                        int tag = allTagVec[i];
+                        int part = SubSurfaceMgr.GetPart( *allTagsVec[i] );
 
                         double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
                         double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
@@ -2898,7 +2930,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                         }
                         out += '\n';
                     }
-                } );
+                }, &bar );
             }
             else
             {
@@ -2906,8 +2938,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 //==== Write Component ID ====//
                 for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
                 {
-                    int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
-                    int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+                    int tag = allTagVec[i];
+                    int part = SubSurfaceMgr.GetPart( *allTagsVec[i] );
 
                     double uscale = SubSurfaceMgr.m_CompUscale[ part - 1 ];
                     double wscale = SubSurfaceMgr.m_CompWscale[ part - 1 ];
@@ -2931,7 +2963,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             fclose( fp );
         }
 
-        WriteTagFiles( vspgeom_fn, allFaceVec, allowquads );
+        WriteTagFiles( vspgeom_fn, allFaceVec, allTagsVec, allTagVec, allowquads );
 
         SubSurfaceMgr.WriteVSPGEOMKeyFile( vspgeom_fn );
 
@@ -2945,10 +2977,69 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     }
 }
 
-void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFace > &allFaceVec, bool allowquads )
+void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFace > &allFaceVec,
+                                         const vector< const vector < int >* > &allTagsVec, const vector< int > &allTagVec, bool allowquads )
 {
     int ntagfile = 0;
     int ncsffile = 0;
+
+    // Every face's tag combo, numbered, so that each file asks about each combo once rather
+    // than about every face.  A face is found by its tag, which names its combo, unless the
+    // tag is shared or unknown; then by the combo itself.
+    vector < vector < int > > combos;
+    std::unordered_map < int, int > tagcombo;
+    std::set < int > sharedtags;
+    {
+        std::map < vector < int >, int > tagmap = SubSurfaceMgr.GetSingleTagMap();
+        for ( std::map < vector < int >, int >::const_iterator it = tagmap.begin(); it != tagmap.end(); ++it )
+        {
+            if ( tagcombo.count( it->second ) )
+            {
+                sharedtags.insert( it->second );
+            }
+            tagcombo[ it->second ] = ( int )combos.size();
+            combos.push_back( it->first );
+        }
+    }
+
+    int nface = ( int )allFaceVec.size();
+    vector < int > facecombo( nface, -1 );
+    {
+        const int chunkitems = 4096;
+        int nchunk = ( nface + chunkitems - 1 ) / chunkitems;
+        RunStage( "Tag Files", nchunk, [&]( int c )
+        {
+            int iend = std::min( nface, ( c + 1 ) * chunkitems );
+            for ( int i = c * chunkitems ; i < iend ; i++ )
+            {
+                int tag = allTagVec[i];
+                if ( tag != -1 && !sharedtags.count( tag ) )
+                {
+                    std::unordered_map < int, int >::const_iterator it = tagcombo.find( tag );
+                    if ( it != tagcombo.end() )
+                    {
+                        facecombo[i] = it->second;
+                    }
+                }
+            }
+        } );
+
+        std::map < vector < int >, int > extra;
+        for ( int i = 0 ; i < nface ; i++ )
+        {
+            if ( facecombo[i] < 0 )
+            {
+                const vector < int > &tags = *allTagsVec[i];
+                std::map < vector < int >, int >::const_iterator it = extra.find( tags );
+                if ( it == extra.end() )
+                {
+                    it = extra.insert( std::make_pair( tags, ( int )combos.size() ) ).first;
+                    combos.push_back( tags );
+                }
+                facecombo[i] = it->second;
+            }
+        }
+    }
 
     std::vector < int > partvec;
     SubSurfaceMgr.MakePartList( partvec );
@@ -3106,7 +3197,13 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
                         FILE* fid = fopen( tagfile_name.c_str(), "w" );
                         if ( fid )
                         {
-                            WriteTagFile( fid, part, tag, allFaceVec, allowquads );
+                            vector < char > match( combos.size() );
+                            for ( int k = 0 ; k < ( int )combos.size() ; k++ )
+                            {
+                                match[k] = SubSurfaceMgr.MatchPartAndTag( combos[k], part, tag );
+                            }
+
+                            WriteTagFile( fid, match, facecombo, allFaceVec, allowquads );
 
                             fclose( fid );
                         }
@@ -3147,7 +3244,13 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
                     FILE* fid = fopen( tagfile_name.c_str(), "w" );
                     if ( fid )
                     {
-                        WriteTagFile( fid, hingedescendantparts[ ihinge ], allFaceVec, allowquads );
+                        vector < char > match( combos.size() );
+                        for ( int k = 0 ; k < ( int )combos.size() ; k++ )
+                        {
+                            match[k] = SubSurfaceMgr.MatchAnyPart( combos[k], hingedescendantparts[ ihinge ] );
+                        }
+
+                        WriteTagFile( fid, match, facecombo, allFaceVec, allowquads );
 
                         fclose( fid );
                     }
@@ -3176,140 +3279,37 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
     }
 }
 
-void CfdMeshMgrSingleton::WriteTagFile( FILE* file_id, int part, int tag, const vector< SimpFace > &allFaceVec, bool allowquads )
+// The faces whose combo is matched, by number, after their count.
+void CfdMeshMgrSingleton::WriteTagFile( FILE* file_id, const vector < char > &match, const vector < int > &faceCombo,
+                                        const vector< SimpFace > &allFaceVec, bool allowquads )
 {
     //==== Write Tri IDs for each tag =====//
+    string out;
     int count = 0;
-    if ( allowquads )
+    int iface = 0;
+
+    for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
     {
-        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+        int ncopy = 1;
+        if ( !allowquads && allFaceVec[i].m_isQuad )
         {
-            if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
+            ncopy = 2;
+        }
+
+        for ( int k = 0 ; k < ncopy ; k++ )
+        {
+            if ( match[ faceCombo[i] ] )
             {
+                FastFormat::AppendInt( out, iface + 1 );
+                out += '\n';
                 count++;
-            }
-        }
-    }
-    else
-    {
-        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-        {
-            if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
-            {
-                count++;
-            }
-
-            if( allFaceVec[i].m_isQuad )
-            {
-                if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
-                {
-                    count++;
-                }
-            }
-        }
-    }
-    fprintf( file_id, "%d\n\n", count );
-
-    if ( allowquads )
-    {
-        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-        {
-            if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
-            {
-                fprintf( file_id, "%d\n", i + 1 );
-            }
-        }
-    }
-    else
-    {
-        int iface = 0;
-
-        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-        {
-            if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
-            {
-                fprintf( file_id, "%d\n", iface + 1 );
             }
             iface++;
-
-            if( allFaceVec[i].m_isQuad )
-            {
-                if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
-                {
-                    fprintf( file_id, "%d\n", iface + 1 );
-                }
-                iface++;
-            }
         }
     }
-}
 
-void CfdMeshMgrSingleton::WriteTagFile( FILE* file_id, const vector < int > &parts, const vector< SimpFace > &allFaceVec, bool allowquads )
-{
-    //==== Write Tri IDs for each tag =====//
-    int count = 0;
-    if ( allowquads )
-    {
-        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-        {
-            if ( SubSurfaceMgr.MatchAnyPart( allFaceVec[i].m_Tags, parts ) )
-            {
-                count++;
-            }
-        }
-    }
-    else
-    {
-        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-        {
-            if ( SubSurfaceMgr.MatchAnyPart( allFaceVec[i].m_Tags, parts ) )
-            {
-                count++;
-            }
-
-            if( allFaceVec[i].m_isQuad )
-            {
-                if ( SubSurfaceMgr.MatchAnyPart( allFaceVec[i].m_Tags, parts ) )
-                {
-                    count++;
-                }
-            }
-        }
-    }
     fprintf( file_id, "%d\n\n", count );
-
-    if ( allowquads )
-    {
-        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-        {
-            if ( SubSurfaceMgr.MatchAnyPart( allFaceVec[i].m_Tags, parts ) )
-            {
-                fprintf( file_id, "%d\n", i + 1 );
-            }
-        }
-    }
-    else
-    {
-        int iface = 0;
-
-        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
-        {
-            if ( SubSurfaceMgr.MatchAnyPart( allFaceVec[i].m_Tags, parts ) )
-            {
-                fprintf( file_id, "%d\n", iface + 1 );
-            }
-            iface++;
-
-            if( allFaceVec[i].m_isQuad )
-            {
-                if ( SubSurfaceMgr.MatchAnyPart( allFaceVec[i].m_Tags, parts ) )
-                {
-                    fprintf( file_id, "%d\n", iface + 1 );
-                }
-                iface++;
-            }
-        }
-    }
+    fwrite( out.data(), 1, out.size(), file_id );
 }
 
 void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )

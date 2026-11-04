@@ -163,9 +163,10 @@ public:
     virtual void WriteTaggedSTL( const string &filename );
     virtual void WriteTetGen( const string &filename );
     virtual void WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const string &key_fn, const string &obj_fn, const string &tri_fn, const string &gmsh_fn, const string & vspgeom_fn );
-    virtual void WriteTagFiles( string file_name, const vector< SimpFace > &allFaceVec, bool allowquads );
-    virtual void WriteTagFile( FILE* file_id, int part, int tag, const vector< SimpFace > &allFaceVec, bool allowquads );
-    virtual void WriteTagFile( FILE* file_id, const vector < int > &parts, const vector< SimpFace > &allFaceVec, bool allowquads );
+    virtual void WriteTagFiles( string file_name, const vector< SimpFace > &allFaceVec,
+                                const vector< const vector < int >* > &allTagsVec, const vector< int > &allTagVec, bool allowquads );
+    virtual void WriteTagFile( FILE* file_id, const vector < char > &match, const vector < int > &faceCombo,
+                               const vector< SimpFace > &allFaceVec, bool allowquads );
     virtual void WriteFacet( const string &facet_fn );
     virtual void WritePOGS( const string &pogs_fn );
     virtual void ReportPOGSWrite( const string &fn, bool ok );
