@@ -2918,13 +2918,16 @@ void SurfaceIntersectionSingleton::ExportFiles()
     if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) || GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
     {
         BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
+
+        // One map for both files
+        BuildNURBSSurfMap();
     }
 
     if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) )
     {
         string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteIGESFile( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
+        WriteNURBSSurfsIGES( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
                        GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
                        GetSettingsPtr()->m_CADLabelName, delim );
     }
@@ -2933,10 +2936,10 @@ void SurfaceIntersectionSingleton::ExportFiles()
     {
         string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteSTEPFile( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
-                       GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
-                       GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
-                       GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
+        WriteNURBSSurfsSTEP( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
+                             GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
+                             GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                             GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
     }
 }
 
@@ -2968,6 +2971,13 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
 {
     BuildNURBSSurfMap();
 
+    WriteNURBSSurfsIGES( filename, len_unit, label_id, label_surf_num, label_split_num, label_name, label_delim );
+}
+
+void SurfaceIntersectionSingleton::WriteNURBSSurfsIGES( const string& filename, int len_unit,
+                                                        bool label_id, bool label_surf_num, bool label_split_num,
+                                                        bool label_name, const string &label_delim )
+{
     if ( m_NURBSSurfVec.size() == 0 )
     {
         addOutputText( "Error: Can't Export IGES - No Valid Surfaces\n" );
@@ -3044,9 +3054,17 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
                                                   bool merge_pnts, bool label_id, bool label_surf_num, bool label_split_num,
                                                   bool label_name, const string &label_delim, int representation )
 {
-    STEPutil step( len_unit, tol );
-
     BuildNURBSSurfMap();
+
+    WriteNURBSSurfsSTEP( filename, len_unit, tol, merge_pnts, label_id, label_surf_num, label_split_num, label_name,
+                         label_delim, representation );
+}
+
+void SurfaceIntersectionSingleton::WriteNURBSSurfsSTEP( const string& filename, int len_unit, double tol,
+                                                        bool merge_pnts, bool label_id, bool label_surf_num, bool label_split_num,
+                                                        bool label_name, const string &label_delim, int representation )
+{
+    STEPutil step( len_unit, tol );
 
     if ( m_NURBSSurfVec.size() == 0 )
     {

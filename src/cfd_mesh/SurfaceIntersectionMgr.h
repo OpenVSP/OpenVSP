@@ -408,6 +408,14 @@ public:
                                 bool label_id = false, bool label_surf_num = false, bool label_split_num = false,
                                 bool label_name = false, const string &label_delim = "", int representation = 0 );
 
+    // The same files written from m_NURBSSurfVec as BuildNURBSSurfMap last built it
+    void WriteNURBSSurfsIGES( const string &filename, int len_unit,
+                              bool label_id, bool label_surf_num, bool label_split_num,
+                              bool label_name, const string &label_delim );
+    void WriteNURBSSurfsSTEP( const string& filename, int len_unit, double tol, bool merge_pnts,
+                              bool label_id, bool label_surf_num, bool label_split_num,
+                              bool label_name, const string &label_delim, int representation );
+
     virtual void ExportFiles();
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
 
