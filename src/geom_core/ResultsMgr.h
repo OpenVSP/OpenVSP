@@ -327,6 +327,21 @@ public:
     NameValData* FindPtrWDefault( const string & name, int index = 0 );
     vector< NameValData* > GetAllPtrs();
 
+    // While recording, FindPtr keeps each name it is asked for that the collection does not
+    // hold, so a caller can be told it looked for data that was never defined.
+    void StartMissedNames()
+    {
+        m_RecordMissed = true;
+        m_MissedNames.clear();
+    }
+    vector< string > StopMissedNames()
+    {
+        m_RecordMissed = false;
+        vector< string > missed;
+        missed.swap( m_MissedNames );
+        return missed;
+    }
+
     virtual void SetIntData( const string & name, const vector< int > & d, int index = 0 );
     virtual void SetDoubleData( const string & name, const vector< double > & d, int index = 0 );
     virtual void SetStringData( const string & name, const vector< string > & d, int index = 0 );
@@ -340,6 +355,9 @@ protected:
 
     //==== All The Data For This Computation Result =====//
     map< string, vector< NameValData* > > m_DataMap;
+
+    bool m_RecordMissed = false;
+    vector< string > m_MissedNames;
 
 };
 

@@ -558,6 +558,7 @@ enum ERROR_CODE {   VSP_UNKNOWN = -1,	/*!< Unknown error */
                     VSP_CLONE_ORIGINAL_LOST,	/*!< A Clone Geom no longer has the Geom it was copying */
                     VSP_GEOM_IN_BOTH_SETS,	/*!< A Geom is in both the thick and the thin set of an analysis */
                     VSP_NON_C_NUMERIC_LOCALE,	/*!< The numeric locale does not use a '.' decimal point */
+                    VSP_UNDEFINED_ANALYSIS_INPUT,	/*!< An analysis looked up an input it does not define */
                     VSP_NUM_ERROR_CODE	/*!< Total number of VSP error codes */
 };
 

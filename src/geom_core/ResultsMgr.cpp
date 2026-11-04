@@ -939,6 +939,10 @@ NameValData* NameValCollection::FindPtr( const string & name, int index )
             return iter->second[index];
         }
     }
+    else if ( m_RecordMissed && std::find( m_MissedNames.begin(), m_MissedNames.end(), name ) == m_MissedNames.end() )
+    {
+        m_MissedNames.push_back( name );
+    }
 
     return nullptr;
 }

@@ -172,9 +172,25 @@ string AnalysisMgrSingleton::ExecAnalysis( const string & analysis )
 
     std::clock_t start = std::clock();
 
+    // An input the analysis looks for but never defined is one a caller cannot set, and that
+    // the analysis silently goes without.
+    analysis_ptr->m_Inputs.StartMissedNames();
+
     string res = analysis_ptr->Execute();
 
+    vector < string > missed = analysis_ptr->m_Inputs.StopMissedNames();
+
     m_AnalysisExecutionDuration = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
+
+    for ( int i = 0; i < ( int )missed.size(); i++ )
+    {
+        string msg = "Error: analysis " + analysis + " looked up input " + missed[i] + ", which it does not define.\n";
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_UNDEFINED_ANALYSIS_INPUT );
+        errMsgData.m_StringVec.push_back( msg );
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
 
     Results* res_ptr = ResultsMgr.FindResultsPtr( res );
     if ( res_ptr )
