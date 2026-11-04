@@ -335,6 +335,27 @@ protected:
     vector<Face*> m_BadFaces;
     vector< Node* > m_nodeStore;
 
+    // The mesh points merged once for every file written and for the watertight check.
+    //
+    // Each writer merges the points of its own choice of surfaces, numbered in the order it
+    // visits them.  Where the points within merging distance of one another always fall into
+    // groups whose members are all within that distance of each other, merging any choice of
+    // surfaces gives those same groups restricted to the choice, so one merge of every point
+    // serves them all.  Otherwise each writer merges its own points.
+    void BuildExportMerge();
+    void ClearExportMerge();
+
+    // For the surfaces flagged in use, taken in order: each point's merged point, numbered as
+    // a merge of those surfaces' points alone numbers them, and each merged point's place.
+    // used_first, when given, receives the position among those points of each merged
+    // point's first member.
+    void MergeSurfPnts( const vector< bool > &use, vector< vector< int > > &used_key,
+                        vector< vec3d > &used_pnt, vector< int > *used_first );
+
+    bool m_ExportMergeBuilt = false;
+    vector< int > m_ExportMergeStart;   // Position of each surface's first point in the merge
+    vector< int > m_ExportMergeGroup;   // Each point's group, its lowest member; empty if unusable
+
     vector< IPnt* > m_DegenCorners;
     vector< ISegChain* > m_DegenCornerChains;
 
