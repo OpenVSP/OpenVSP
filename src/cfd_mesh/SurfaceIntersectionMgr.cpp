@@ -3625,11 +3625,7 @@ void SurfaceIntersectionSingleton::IntersectPairs()
 
     vector < IsectOutput > out( nwork );
 
-    int nthread = StageThreadCount( nwork );
-
-    BeginProgress( "Intersect", nwork, VOCAL_OUTPUT );
-
-    RunIndexed( nwork, nthread, [&]( int k )
+    RunStage( "Intersect", nwork, [&]( int k )
     {
         tl_isect_out = &out[k];
 
@@ -3637,12 +3633,7 @@ void SurfaceIntersectionSingleton::IntersectPairs()
         m_SurfVec[ surfs.first ]->IntersectPatch( piece[k].second, m_SurfVec[ surfs.second ], this );
 
         tl_isect_out = nullptr;
-
-        m_ProgressDone++;
-        StepProgress( VOCAL_OUTPUT );
     } );
-
-    EndProgress( VOCAL_OUTPUT );
 
     // The pieces' output is gathered in one go, so each list is sized once for all of it.
     size_t npuw = m_DelPuwVec.size();
